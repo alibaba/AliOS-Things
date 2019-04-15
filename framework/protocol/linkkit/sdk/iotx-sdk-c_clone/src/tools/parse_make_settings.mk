@@ -3,12 +3,14 @@ include $(CURDIR)/src/tools/internal_make_funcs.mk
 SWITCH_VARS := \
 $(shell grep '''config [_A-Z]*''' \
     $(wildcard $(TOP_DIR)/*/*/*/Config.in) $(wildcard $(TOP_DIR)/*/*/Config.in) \
-        | cut -d: -f2 \
+        | awk -F':' '{print $$NF}' \
         | grep -v menuconfig \
         | grep -v SRCPATH \
-        | awk '{ print $$NF }' \
+        | awk -F' ' '{ print $$NF }' \
 )
+
 SWITCH_VARS := $(foreach V,$(sort $(SWITCH_VARS)),FEATURE_$(V))
+
 
 $(foreach v, \
     $(SWITCH_VARS), \

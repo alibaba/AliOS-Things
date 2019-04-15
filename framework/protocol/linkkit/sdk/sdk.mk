@@ -1,11 +1,8 @@
 NAME := linkkit_sdk
 $(NAME)_SELF_BUIlD_COMP_targets=output/release/lib/libiot_sdk.a
 
-ifeq ($(HOST_OS),Win32)
-$(NAME)_SELF_BUIlD_COMP_scripts=iotx_sdk_make_win.sh
-else
+
 $(NAME)_SELF_BUIlD_COMP_scripts=iotx_sdk_make.sh
-endif
 
 GLOBAL_INCLUDES += iotx-sdk-c_clone/src/sdk-impl \
         iotx-sdk-c_clone/src/infra/utils/digest \

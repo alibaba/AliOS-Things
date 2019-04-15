@@ -1,5 +1,5 @@
 #! /bin/bash
-
+source ./ENV_VARS.tmp
 TARGET_FILE=${OUTPUT_DIR}/.one_makefile
 rm -f ${TARGET_FILE}
 
@@ -57,6 +57,11 @@ if [ "${CC}" != "gcc" ]; then
     ALL_BINS=""
 fi
 
+for iter in ${COMP_LIB_OBJS}; do
+    echo "    ${OUTPUT_DIR}/${iter} "
+done > objlist.tmp
+
+
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
 
@@ -102,8 +107,7 @@ done
 )
 
 	\$(Q)mkdir -p \$\$(dirname \$@)
-	\$(Q)\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
-	\$(Q)${AR} -rcs \$@ \$^ 2>/dev/null
+	\$(Q)${AR} -rcs \$@ @objlist.tmp 2>/dev/null
 
 %.o:
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")

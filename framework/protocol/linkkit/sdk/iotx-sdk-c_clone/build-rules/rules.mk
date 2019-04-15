@@ -106,6 +106,11 @@ include $(RULE_DIR)/_rules-top.mk
 include $(RULE_DIR)/_rules-prefix.mk
 include $(RULE_DIR)/_rules-repo.mk
 
+
+exist = $(shell if [ -f $(CONFIG_TPL) ];then echo "exist"; else echo "not exist"; fi;)
+
+ifeq ($(exist),exist)
+
 CROSS_CANDIDATES := CC CXX AR LD STRIP OBJCOPY
 export CC       := $(strip $(if $(OVERRIDE_CC),     $(OVERRIDE_CC),     $(CROSS_PREFIX)gcc))
 export CXX      := $(strip $(if $(OVERRIDE_CXX),    $(OVERRIDE_CXX),    $(CROSS_PREFIX)g++))
@@ -127,14 +132,8 @@ ifeq (gcc,$(strip $(CC)))
 export STRIP    := strip
 endif
 
-ifneq (y,$(shell which $(CC) > /dev/null 2>&1 && echo 'y'))
-LOCAL_TCDIR     := $(TOOLCHAIN_DLDIR)/$(shell $(call Relative_TcPath,$(CC)))
-export CC       := $(LOCAL_TCDIR)/$(CC)
-export AR       := $(LOCAL_TCDIR)/$(AR)
-export LD       := $(LOCAL_TCDIR)/$(LD)
-export OBJCOPY  := $(LOCAL_TCDIR)/$(OBJCOPY)
-export STRIP    := $(LOCAL_TCDIR)/$(STRIP)
-endif
+endif #ifeq (exist, "exist" )
+
 
 ifneq (,$(filter -m32,$(strip $(CFLAGS))))
 PREBUILT_LIBDIR := 32bit-libs
@@ -191,7 +190,7 @@ endif   # ifdef SUBDIRS
 sinclude $(STAMP_POST_RULE)
 
 ifdef UTEST_PROG
-COVERAGE_LIST += \"./$(strip $(UTEST_PROG) --list)\"
-COVERAGE_LIST += \"./$(strip $(UTEST_PROG) --verbose=4)\"
+COVERAGE_LIST += \\\"./$(strip $(UTEST_PROG) --list)\\\"
+COVERAGE_LIST += \\\"./$(strip $(UTEST_PROG) --verbose=4)\\\"
 include $(RULE_DIR)/_rules-coverage.mk
 endif
