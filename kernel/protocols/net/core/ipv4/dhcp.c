@@ -103,6 +103,20 @@
 
 #define REBOOT_TRIES                2
 
+#if MK3060_DHCP_FAIL
+
+#define DHCP_TIMER_TIMEOUT          65000  // 6 retries
+#define DHCP_TIMEOUT_TRIES_REBOOT   1
+
+static aos_timer_t dhcp_timeout_timer;
+static u8_t dhcp_timeout_reboot = 0;
+static u8_t dhcp_timeout_timer_initialized = 0;
+static void dhcp_check_status(void);
+static void dhcp_stop_timeout_check(void);
+static void dhcp_start_timeout_check(u32_t secs);
+
+#endif
+
 /** Option handling: options are parsed in dhcp_parse_reply
  * and saved in an array where other functions can load them from.
  * This might be moved into the struct dhcp (not necessarily since
@@ -688,6 +702,75 @@ void dhcp_cleanup(struct netif *netif)
   }
 }
 
+
+#if MK3060_DHCP_FAIL
+void dhcp_check_status(void)
+{
+    struct netif *netif = netif_list;
+
+    while (netif != NULL) {
+        struct dhcp *dhcp = netif_dhcp_data(netif);
+
+        if(dhcp != NULL){
+            if(dhcp->state != DHCP_STATE_BOUND){
+                if (dhcp_timeout_reboot >= DHCP_TIMEOUT_TRIES_REBOOT) {
+                    dhcp_timeout_reboot = 0;
+                    aos_reboot();  // for the case that bk wifi state machine crash
+                    return;
+                }
+
+                dhcp_cleanup(netif);
+                aos_timer_stop(&dhcp_timeout_timer);
+                LWIP_DEBUGF(DHCP_DEBUG, ("dhcp timeout, bk_wlan_connection_loss\r\n"));
+                bk_wlan_connection_loss();
+                dhcp_timeout_reboot++;
+                return;
+             }
+        }
+        netif = netif->next;
+    }
+}
+
+void dhcp_stop_timeout_check(void)
+{
+    if (0 != aos_timer_stop(&dhcp_timeout_timer)) {
+        LWIP_DEBUGF(DHCP_DEBUG, ("stop dhcp timeout check failed\n"));
+    }
+}
+
+void dhcp_start_timeout_check(u32_t secs)
+{
+    u32_t clk_time;
+    clk_time = secs;
+
+    LWIP_DEBUGF(DHCP_DEBUG, ("dhcp_start_timeout_check\n"));
+
+    if (dhcp_timeout_timer_initialized == 1) {
+        aos_timer_stop(&dhcp_timeout_timer);
+        aos_timer_change(&dhcp_timeout_timer, DHCP_TIMER_TIMEOUT);
+        aos_timer_start(&dhcp_timeout_timer);
+
+        LWIP_DEBUGF(DHCP_DEBUG, ("restart dhcp timeout timer\n"));
+        return;
+    }
+
+    if (0 != aos_timer_new(&dhcp_timeout_timer, dhcp_check_status, NULL, clk_time, 0)) {
+        LWIP_DEBUGF(DHCP_DEBUG, ("error to create dhcp timeout timer\r\n"));
+        return;
+    }
+
+    if (0 != aos_timer_start(&dhcp_timeout_timer)) {
+        LWIP_DEBUGF(DHCP_DEBUG, ("error to start dhcp timeout timer\r\n"));
+        aos_timer_free(&dhcp_timeout_timer);
+        return;
+    }
+
+    dhcp_timeout_timer_initialized = 1;
+    return;
+}
+
+#endif
+
 /**
  * @ingroup dhcp4
  * Start DHCP negotiation for a network interface.
@@ -769,6 +852,11 @@ dhcp_start(struct netif *netif)
     dhcp_stop(netif);
     return ERR_MEM;
   }
+
+#if MK3060_DHCP_FAIL
+  dhcp_start_timeout_check(DHCP_TIMER_TIMEOUT);
+#endif
+
   return result;
 }
 
@@ -949,6 +1037,7 @@ dhcp_discover(struct netif *netif)
   u16_t msecs;
   u8_t i;
   LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_discover()\n"));
+
   ip4_addr_set_any(&dhcp->offered_ip_addr);
   dhcp_set_state(dhcp, DHCP_STATE_SELECTING);
   /* create and initialize the DHCP message header */
@@ -1096,6 +1185,10 @@ dhcp_bind(struct netif *netif)
   /* netif is now bound to DHCP leased address - set this before assigning the address
      to ensure the callback can use dhcp_supplied_address() */
   dhcp_set_state(dhcp, DHCP_STATE_BOUND);
+
+#if MK3060_DHCP_FAIL
+  dhcp_stop_timeout_check();
+#endif
 
   netif_set_addr(netif, &dhcp->offered_ip_addr, &sn_mask, &gw_addr);
   /* interface is used by routing now that an address is set */

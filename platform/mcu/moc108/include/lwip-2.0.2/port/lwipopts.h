@@ -457,5 +457,7 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define TCP_QUEUE_OOSEQ 1
 
+#define MK3060_DHCP_FAIL 1
+
 #endif /* __LWIPOPTS_H__ */
 
