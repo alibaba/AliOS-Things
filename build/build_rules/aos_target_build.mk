@@ -62,11 +62,11 @@ GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(str
 # $(1) is component, $(2) is the source file
 define BUILD_C_RULE
 ifeq ($(COMPILER),)
--include $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)
+-include $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)
 endif
-$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.o): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).c_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.o): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).c_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(QUIET)$(ECHO) Compiling $(1) )
-	$(QUIET)$(CC) $($(1)_C_OPTS) -D__FILENAME__='"$$(notdir $$<)"' $(call COMPILER_SPECIFIC_DEPS_FILE,$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
+	$(QUIET)$(CC) $($(1)_C_OPTS) -D__FILENAME__='"$$(notdir $$<)"' $(call COMPILER_SPECIFIC_DEPS_FILE,$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
 
 ###############################################################################
@@ -74,9 +74,9 @@ endef
 # Compiles a C language header file to ensure it is stand alone complete
 # $(1) is component, $(2) is the source header file
 define CHECK_HEADER_RULE
-$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/Modules/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
-.PHONY: $(OUTPUT_DIR)/Modules/$(strip $($(1)_LOCATION))$(2:.h=.chk)
-$(OUTPUT_DIR)/Modules/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2)).d
+$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
+.PHONY: $(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk)
+$(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d
 	$(QUIET)$(ECHO) Checking header  $(2)
 	$(QUIET)$(CC) -c $(AOS_SDK_CFLAGS) $(filter-out -pedantic -Werror, $($(1)_CFLAGS) $(C_BUILD_OPTIONS) ) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) -o $$@ $$<
 endef
@@ -86,8 +86,8 @@ endef
 # Creates a target for building C++ language files (*.cpp)
 # $(1) is component name, $(2) is the source file
 define BUILD_CPP_RULE
--include $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.d,$(2:.cpp=.d))
-$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.o,$(2:.cpp=.o)): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).cpp_opts | $(EXTRA_PRE_BUILD_TARGETS)
+-include $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.d,$(2:.cpp=.d))
+$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.o,$(2:.cpp=.o)): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).cpp_opts | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
 	$(QUIET)$(CXX) $($(1)_CPP_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
@@ -97,7 +97,7 @@ endef
 # Creates a target for building Assembly language files (*.s & *.S)
 # $(1) is component name, $(2) is the source file
 define BUILD_S_RULE
-$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
 	$(QUIET)$(AS) $($(1)_S_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
@@ -118,7 +118,7 @@ include $($(1)_MAKEFILE)
 endif
 
 # Make a list of the object files that will be used to build the static library
-$(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
+$(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
 
 
 $(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
@@ -149,27 +149,27 @@ $(LIBS_DIR)/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_DIR)/$(1)
 	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 ifeq ($(1),sensor)
 ifeq ($(COMPILER), armcc)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
 else ifeq ($(COMPILER), rvct)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
 else ifeq ($(COMPILER), iar)
-	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
 else
-	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
+	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
 endif
-	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
 
 ifeq ($(IDE),iar)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
 	@python build/scripts/iar.py $(CLEANED_BUILD_STRING)
 else ifeq ($(IDE),keil)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
 	@python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 endif
 
-	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.o
+	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.o
 	$(QUIET)rm -rf $(OUTPUT_DIR)/libraries/sensor.a
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 endif
 ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
