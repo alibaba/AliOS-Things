@@ -1,7 +1,7 @@
 /** mbed Microcontroller Library
  ******************************************************************************
  * @file	flash_api.c
- * @author 
+ * @author
  * @version V1.0.0
  * @date	2016-08-01
  * @brief	This file provides mbed API for flash.
@@ -12,7 +12,7 @@
  * possession or use of this module requires written permission of RealTek.
  *
  * Copyright(c) 2016, Realtek Semiconductor Corporation. All rights reserved.
- ****************************************************************************** 
+ ******************************************************************************
  */
 
 
@@ -27,6 +27,9 @@
 #include "rtl8711b_flash.h"
 #include "flash_api.h"
 
+#include <k_api.h>
+
+
 extern u32 ConfigDebugInfo;
 
 /**
@@ -39,9 +42,13 @@ u32 systick_ctrl;
   * @brief  Disable interrupt and systick exception before write to flash when XIP.
   * @param  none
   * @retval none
-  */ 
+  */
 static void flash_write_lock()
 {
+	CPSR_ALLOC();
+
+	RHINO_CRITICAL_ENTER();
+
 	u8 i = 0;
 	for(; i < 8; i++){
 		ISER[i] = NVIC->ISER[i];
@@ -51,21 +58,27 @@ static void flash_write_lock()
 
 	systick_ctrl = SysTick->CTRL;	//disable systick exception
 	SysTick->CTRL = 0;
+	RHINO_CRITICAL_EXIT();
 }
 
 /**
   * @brief  Restore interrupt and systick exception after write to flash when XIP.
   * @param  none
   * @retval none
-  */ 
+  */
 static void flash_write_unlock()
 {
+	CPSR_ALLOC();
+
+	RHINO_CRITICAL_ENTER();
+
 	u8 i = 0;
 	for(;i < 8; i++){
 		NVIC->ISER[i] = ISER[i];//restore interrupt
 	}
-	
+
 	SysTick->CTRL = systick_ctrl;//restore systick exception
+	RHINO_CRITICAL_EXIT();
 }
 
 
@@ -76,7 +89,7 @@ static void flash_write_unlock()
   *             @arg 1: Protect the whole chip from being programmed/erased.
   *             @arg 0: Unprotect the whole chip from being programmed/erased.
   * @retval none
-  */   
+  */
 void flash_write_protect(flash_t *obj, u32 protect)
 {
 	flash_write_lock();
@@ -89,7 +102,7 @@ void flash_write_protect(flash_t *obj, u32 protect)
   * @param obj: Flash object define in application software.
   * @param  data: The value of status register1 to be set.
   * @retval none
-  */   
+  */
 int flash_set_status(flash_t *obj, u32 data)
 {
 	u8 status[2];
@@ -97,7 +110,7 @@ int flash_set_status(flash_t *obj, u32 data)
 
 	status[0] = (u8)data;
 	flash_write_lock();
-	
+
 	/* check if status2 */
 	if (flash_init_para.FLASH_Status2_exist) {
 		StatusLen = 2;
@@ -119,7 +132,7 @@ int flash_set_status(flash_t *obj, u32 data)
   * @brief  Retset the value of status register1 to 0.
   * @param obj: Flash object define in application software.
   * @retval none
-  */ 
+  */
 void flash_reset_status(flash_t *obj)
 {
 	flash_set_status(obj, 0);
@@ -131,15 +144,15 @@ void flash_reset_status(flash_t *obj)
   * @brief  Get the value of status register1
   * @param obj: Flash object define in application software.
   * @retval The value of status register1.
-  */   
+  */
 int flash_get_status(flash_t *obj)
 {
 	int data;
-	
+
 	flash_write_lock();
 	FLASH_RxCmd(flash_init_para.FLASH_cmd_rd_status, 1, (u8*)&data);
 	flash_write_unlock();
-	
+
 	return data;
 }
 
@@ -196,7 +209,7 @@ int  flash_read_word(flash_t *obj, u32 address, u32 * data)
 {
 //	FLASH_RxData(0, address, 4, data);
 	assert_param(data != NULL);
-	
+
 	u32 offset_to_align = address & 0x03;
 	u32 read_data;
 	u32 temp;
@@ -215,7 +228,7 @@ int  flash_read_word(flash_t *obj, u32 address, u32 * data)
 	}else{
 		* data = HAL_READ32(SPI_FLASH_BASE, address);
 	}
-	
+
 	return 1;
 }
 
@@ -254,7 +267,7 @@ int  flash_write_word(flash_t *obj, u32 address, u32 data)
 
 	Cache_Flush();
 	flash_write_unlock();
-	
+
 	// Enable write protection
 	// flash_lock();
 	return 1;
@@ -325,7 +338,7 @@ int  flash_stream_read(flash_t *obj, u32 address, u32 len, u8 * data)
 		for (i=0;i<len;i++) {
 			*pbuf = *(ptr+i);
 			pbuf++;
-		}        
+		}
 	}
 
 	return 1;
@@ -342,7 +355,7 @@ int  flash_stream_read(flash_t *obj, u32 address, u32 len, u8 * data)
 int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
 {
 	// Check address: 4byte aligned & page(256bytes) aligned
-	u32 page_begin = address &  (~0xff);                     
+	u32 page_begin = address &  (~0xff);
 	u32 page_end = (address + len) & (~0xff);
 	u32 page_cnt = ((page_end - page_begin) >> 8) + 1;
 
@@ -351,15 +364,15 @@ int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
 	u32 size = addr_end - addr_begin;
 	u8 *buffer = data;
 	u8 write_data[12];
-	
+
 	u32 offset_to_align;
 	u32 read_word;
 	u32 i;
 
 	flash_write_lock();
-	while(page_cnt){	
+	while(page_cnt){
 		offset_to_align = addr_begin & 0x3;
-		
+
 		if(offset_to_align != 0){
 			read_word = HAL_READ32(SPI_FLASH_BASE, addr_begin - offset_to_align);
 			for(i = offset_to_align;i < 4;i++){
@@ -387,7 +400,7 @@ int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
 		}
 
 		for(;size >= 4; size -=4){
-			_memcpy(write_data, buffer, 4);			
+			_memcpy(write_data, buffer, 4);
 			FLASH_TxData12B(addr_begin, 4, write_data);
 #ifdef MICRON_N25Q00AA
 			FLASH_ReadFlagStatusReg();
@@ -402,7 +415,7 @@ int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
 				read_word = (read_word & (~(0xff << (8*i)))) | ((*buffer) <<(8*i));
 				buffer++;
 			}
-			FLASH_TxData12B(addr_begin, 4, (u8*)&read_word); 
+			FLASH_TxData12B(addr_begin, 4, (u8*)&read_word);
 #ifdef MICRON_N25Q00AA
 			FLASH_ReadFlagStatusReg();
 #endif
@@ -411,7 +424,7 @@ int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
 		page_cnt--;
 		addr_begin = addr_end;
 		addr_end = (page_cnt == 1) ? (address + len) : (((addr_begin>>8) + 1)<<8);
-		size = addr_end - addr_begin;		
+		size = addr_end - addr_begin;
 	}
 
 	Cache_Flush();
@@ -427,7 +440,7 @@ int  flash_stream_write(flash_t *obj, u32 address, u32 len, u8 * data)
   * @param  len: Specifies the length of the data to write.
   * @param  data: Pointer to a byte array that is to be written.
   * @retval   status: Success:1 or Failure: Others.
-  */ 
+  */
 int flash_burst_write(flash_t *obj, u32 address ,u32 Length, u8 * data)
 {
 	flash_stream_write(obj, address, Length, data);
@@ -484,7 +497,7 @@ int flash_get_extend_addr(flash_t *obj)
 }
 
 /**
-  * @brief   This function is to read flash id.        
+  * @brief   This function is to read flash id.
   * @param  obj: Flash object define in application software.
   * @param  buf: Specified the address to save the readback data.
   * @param  len: Specifies the length of the flash id to read.
