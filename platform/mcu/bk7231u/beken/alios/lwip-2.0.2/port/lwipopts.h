@@ -51,8 +51,8 @@
 /* Disable lwIP asserts */
 #define LWIP_NOASSERT			1
 
-//#define LWIP_DEBUG                    1
-//#define LWIP_DEBUG_TRACE              1
+#define LWIP_DEBUG                      0
+#define LWIP_DEBUG_TRACE                0
 #define SOCKETS_DEBUG                   LWIP_DBG_OFF // | LWIP_DBG_MASK_LEVEL
 
 #define IP_DEBUG                        LWIP_DBG_OFF
