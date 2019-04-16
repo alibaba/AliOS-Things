@@ -16,7 +16,7 @@
 static uint8_t device_secret[MAX_SECRET_LEN] = { 0 };
 uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
 static uint16_t device_secret_len = 0;
-static uint16_t product_secret_len = 0;
+uint16_t product_secret_len = 0;
 
 #define SEQUENCE_STR "sequence"
 #define DEVICE_NAME_STR "deviceName"
@@ -39,10 +39,11 @@ static void on_timeout(void *arg1, void *arg2)
 
 static void ikm_init(ali_init_t const *p_init)
 {
-#ifndef CONFIG_MODEL_SECURITY
-    device_secret_len = p_init->secret.length;
-    memcpy(device_secret, p_init->secret.p_data, device_secret_len);
-#endif
+    if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+        device_secret_len = g_auth.device_secret_len;
+        memcpy(device_secret, g_auth.secret, device_secret_len);
+    }
+
     product_secret_len = p_init->product_secret.length;
     memcpy(product_secret, p_init->product_secret.p_data, product_secret_len);
 
@@ -54,11 +55,16 @@ static void ikm_init(ali_init_t const *p_init)
 
 ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
 {
+    int len;
+    char tmp_secret[DEVICE_SECRET_LEN];
     ret_code_t ret = BZ_SUCCESS;
 
+    len = sizeof(tmp_secret);
+    memset(tmp_secret, 0, len);
     memset(&g_auth, 0, sizeof(auth_t));
     g_auth.state = AUTH_STATE_IDLE;
     g_auth.tx_func = tx_func;
+    g_auth.dyn_update_device_secret = false;
 
     if(p_init->product_key.length == PRODUCT_KEY_LEN &&
          p_init->device_key.length != 0){
@@ -66,9 +72,36 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
         memcpy(g_auth.device_name, p_init->device_key.p_data, p_init->device_key.length);
         g_auth.device_name_len = p_init->device_key.length;
     }
-    if(p_init->secret.length == DEVICE_SECRET_LEN){
-        memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
-    } 
+
+    /*
+     * Secret have 2 resources: internal KV storge and external initialization. Consider below conditions:
+     * 1.secret per device, no DS in KV: need 1. update DS from external initialization.
+     * 2.secret per device, have DS in KV:if 1.DS is the same choose either one. 2.DS is not the same, report err or choose one.
+     * 3.secret per product, no DS in KV, : Doing nothing.
+     * 4.secret per producet, have DS in KV:need 1. update dynamic secret flag, update from interval KV storage.
+     */
+    g_auth.device_secret_len = p_init->secret.length;
+    memset(tmp_secret, 0, sizeof(tmp_secret));
+    if(g_auth.device_secret_len == DEVICE_SECRET_LEN){
+        if(auth_get_device_secret(&tmp_secret, &len) != 0 ){ //case 1.
+            memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
+        } else if(memcmp(tmp_secret, g_auth.secret, g_auth.device_secret_len) == 0){//case 2.
+                memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
+            } else{
+                BREEZE_LOG_ERR("DS from KV not match user's input, erase DS in KV or modify user's input accordingly %s\n", __func__);
+                return BZ_EINVALIDPARAM;
+            }
+    } else if(g_auth.device_secret_len == 0){
+        if(auth_get_device_secret(&tmp_secret, &len) == 0){ //case 4.
+            g_auth.device_secret_len = len;
+            memcpy(g_auth.secret, tmp_secret, len);
+            g_auth.dyn_update_device_secret = true;
+        } //case 3
+    } else{
+        BREEZE_LOG_ERR("Auth type not sec per product or per device.%s\n", __func__);
+        return BZ_EINVALIDPARAM;//err case when DS length is not DEVICE_SECRET_LEN or 0
+    }
+
     g_auth.key_len = p_init->device_key.length;
     if(g_auth.key_len > 0){
         memcpy(g_auth.key, p_init->device_key.p_data, g_auth.key_len);
@@ -99,6 +132,7 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
                 memcmp(HI_SERVER_STR, p_data, MIN(length, strlen(HI_SERVER_STR))) == 0) {
                 g_auth.state = AUTH_STATE_REQ_RECVD;
                 err_code = g_auth.tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
+                BREEZE_LOG_DEBUG("BZ auth rx HI SERVER:(%d)\n", err_code);
                 if (err_code != BZ_SUCCESS) {
                     core_handle_err(ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
                     return;
@@ -116,6 +150,7 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
 
         case AUTH_STATE_REQ_RECVD:
             if (cmd == BZ_CMD_AUTH_CFM && memcmp(OK_STR, p_data, MIN(length, strlen(OK_STR))) == 0) {
+                BREEZE_LOG_DEBUG("BZ auth rx OK:\n");
                 g_auth.state = AUTH_STATE_DONE;
             } else {
                 g_auth.state = AUTH_STATE_FAILED;
@@ -190,6 +225,7 @@ void auth_service_enabled(void)
 
     g_auth.state = AUTH_STATE_SVC_ENABLED;
     err_code = g_auth.tx_func(BZ_CMD_AUTH_RAND, g_auth.ikm + g_auth.ikm_len, RANDOM_SEQ_LEN);
+    BREEZE_LOG_DEBUG("BZ auth: tx rand(%d)\n", err_code);
     if (err_code != BZ_SUCCESS) {
         core_handle_err(ALI_ERROR_SRC_AUTH_SVC_ENABLED, err_code);
         return;
@@ -202,22 +238,22 @@ void auth_tx_done(void)
 
     if (g_auth.state == AUTH_STATE_SVC_ENABLED) {
         g_auth.state = AUTH_STATE_RAND_SENT;
-#ifdef CONFIG_MODEL_SECURITY
-        return;
-#else
-        err_code = g_auth.tx_func(BZ_CMD_AUTH_KEY, g_auth.key, g_auth.key_len);
-        if (err_code != BZ_SUCCESS) {
-            core_handle_err(ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
+
+        if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+            err_code = g_auth.tx_func(BZ_CMD_AUTH_KEY, g_auth.key, g_auth.key_len);
+            BREEZE_LOG_DEBUG("BZ auth: tx DS (%d)\n", err_code);
+            if (err_code != BZ_SUCCESS) {
+                core_handle_err(ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
+            }
             return;
         }
-        return;
-#endif
     } else if (g_auth.state == AUTH_STATE_RAND_SENT) {
-#ifdef CONFIG_MODEL_SECURITY
-        return;
-#else
-        update_aes_key(true);
-#endif
+        if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+            BREEZE_LOG_DEBUG("BZ auth: update AES-auth\n");
+            update_aes_key(true);
+        } else{
+            return;
+        }
     }
 }
 
@@ -244,11 +280,12 @@ ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
     return BZ_SUCCESS;
 }
 
-ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
+ret_code_t auth_get_device_secret(uint8_t *p_secret, uint8_t *p_length)
 {
-    *pp_secret = g_auth.secret;
-    *p_length = DEVICE_SECRET_LEN;
-    return BZ_SUCCESS;
+    if(p_secret == NULL || p_length == NULL){
+        return BZ_EINVALIDPARAM;
+    }
+    return os_kv_get(DEVICE_SECRET_STR, p_secret, p_length);
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -274,13 +311,13 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
     sec_sha256_update(&context, g_auth.device_name, g_auth.device_name_len);
 
-#ifndef CONFIG_MODEL_SECURITY
-    sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
-    sec_sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
-#else
-    sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR));
-    sec_sha256_update(&context, product_secret, PRODUCT_SECRET_LEN);
-#endif
+    if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+        sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
+        sec_sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
+    } else{
+        sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR));
+        sec_sha256_update(&context, product_secret, PRODUCT_SECRET_LEN);
+    }
 
     sec_sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
     sec_sha256_update(&context, g_auth.product_key, PRODUCT_KEY_LEN);
@@ -294,4 +331,30 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
 
     return 0;
 }
+#endif
+
+#ifdef CONFIG_MODEL_SECURITY
+
+bool get_auth_update_status(void)
+{
+    return g_auth.dyn_update_device_secret;
+}
+
+ret_code_t auth_secret_update_post_process(uint8_t* p_ds, uint16_t len)
+{
+    /*
+     * 1.update secret bit in adv, this will do in restart adv logic, not here
+     * 2.update IKM with product secret for secret per device
+     * 3.update g_auth.dyn_update_device_secret flag in g_auth struct
+     */
+    g_auth.dyn_update_device_secret = true;
+    device_secret_len = len;
+    g_auth.device_secret_len = len;
+    memcpy(device_secret, p_ds, len);
+    memcpy(g_auth.secret, p_ds, len);
+
+    BREEZE_LOG_INFO("Auth updated :per product ->device %d len(%d)\n",g_auth.dyn_update_device_secret, device_secret_len);
+    return BZ_SUCCESS;
+}
+
 #endif

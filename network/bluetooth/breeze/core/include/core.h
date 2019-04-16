@@ -22,6 +22,14 @@ extern "C"
 #define ALI_COMPANY_ID 0x01A8
 #define MAX_ADV_DATA_LEN 16
 
+#define FMSK_BLUETOOTH_VER_Pos 0
+#define FMSK_OTA_Pos 2
+#define FMSK_SECURITY_Pos 3
+#define FMSK_SECRET_TYPE_Pos 4
+#define FMSK_SIGNED_ADV_Pos 5
+#define BZ_PROTOCOL_ID 0x05
+#define MAC_ASCII_LEN 6
+
 typedef struct {
     ali_event_handler_t event_handler;
     uint8_t adv_data[MAX_ADV_DATA_LEN];
