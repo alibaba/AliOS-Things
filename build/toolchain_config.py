@@ -73,18 +73,6 @@ toolchains = {
         'Linux64_url': 'https://gitee.com/alios-things/gcc-nds32le-linux.git',
         'OSX_url': '',
         },
-
-    'openocd': {
-        'name': 'OpenOCD',
-        'path': 'build/OpenOCD',
-        'command': 'openocd',
-        'version': '0.10.0',
-        'use_global': False,
-        'Win32_url': 'https://gitee.com/alios-things/openocd-win32.git',
-        'Linux32_url': '',
-        'Linux64_url': 'https://gitee.com/alios-things/openocd-linux64.git',
-        'OSX_url': 'https://gitee.com/alios-things/openocd-osx.git',
-    }
 }
 
 # Board and toolchain mapping
@@ -131,8 +119,8 @@ boards = {
     'm100c':[toolchains['arm-none-eabi']],
     'm400':[toolchains['arm-none-eabi']],
     'mk1101':[toolchains['arm-none-eabi']],
-    'mk3060':[toolchains['arm-none-eabi'], toolchains['openocd']],
-    'mk3080':[toolchains['arm-none-eabi'], toolchains['openocd']],
+    'mk3060':[toolchains['arm-none-eabi']],
+    'mk3080':[toolchains['arm-none-eabi']],
     'mk3165':[toolchains['arm-none-eabi']],
     'mk3166':[toolchains['arm-none-eabi']],
     'mk3239':[toolchains['arm-none-eabi']],
