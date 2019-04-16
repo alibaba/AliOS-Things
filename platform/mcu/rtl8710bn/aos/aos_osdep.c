@@ -700,9 +700,9 @@ u32  _aos_timerChangePeriodFromISR( _timerHandle xTimer,
 {
     if(xNewPeriod == 0)
         xNewPeriod += 1;
-    
-    (u32)aos_timer_stop(&xTimer->timer);	    
-    return !aos_timer_change(&xTimer->timer, xNewPeriod);	
+
+    (u32)aos_timer_stop(&xTimer->timer);
+    return !aos_timer_change(&xTimer->timer, xNewPeriod);
 }
 
 u32  _aos_timerReset( _timerHandle xTimer, 
