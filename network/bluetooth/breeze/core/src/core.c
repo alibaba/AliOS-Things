@@ -15,16 +15,8 @@
 #include "breeze_hal_ble.h"
 #include "breeze_hal_sec.h"
 
-#define FMSK_BLUETOOTH_VER_Pos 0
-#define FMSK_OTA_Pos 2
-#define FMSK_SECURITY_Pos 3
-#define FMSK_SECRET_TYPE_Pos 4
-#define FMSK_SIGNED_ADV_Pos 5
-
-#define BZ_PROTOCOL_ID 0x05
-#define MAC_ASCII_LEN 6
-
 core_t g_core;
+extern auth_t g_auth;
 
 #ifdef CONFIG_AIS_SECURE_ADV
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
@@ -60,9 +52,15 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
 #if BZ_ENABLE_OTA
     fmsk |= 1 << FMSK_OTA_Pos;
 #endif
-#ifndef CONFIG_MODEL_SECURITY
-    fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
-#endif
+
+    if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+        BREEZE_LOG_INFO("Breeze auth type: security per device.\n");
+        fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
+    } else{
+        BREEZE_LOG_INFO("Breeze auth type: security per product.\n");
+        fmsk &= ~(1 << FMSK_SECRET_TYPE_Pos);
+    }
+
 #ifdef CONFIG_AIS_SECURE_ADV
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
@@ -127,6 +125,7 @@ exit:
 
 static uint32_t ais_init(ali_init_t const *p_init)
 {
+    ret_code_t ret = BZ_SUCCESS;
     ble_ais_init_t init_ais;
 
     memset(&init_ais, 0, sizeof(ble_ais_init_t));
@@ -138,7 +137,11 @@ static uint32_t ais_init(ali_init_t const *p_init)
      * structures :product key, secret, device name parameters are passed by local variable, p_init,
      * if we do in asyn callback, ais_init_done, stack of g_ali_init will be corrupted.
      * */
-    auth_init(g_ali_init, tx_func_indicate);
+    ret = auth_init(g_ali_init, tx_func_indicate);
+    if(ret != BZ_SUCCESS){
+        BREEZE_LOG_ERR("AUTH init failed(%d) %s\n", __func__, ret);
+        return ret;
+    }
 #endif
 
     return ble_ais_init(&init_ais);

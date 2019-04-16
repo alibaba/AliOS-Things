@@ -435,7 +435,6 @@ uint32_t transport_update_key(uint8_t *key)
         sec_aes128_destroy(g_transport.p_aes_ctx);
         g_transport.p_aes_ctx = NULL;
     }
-
     g_transport.p_aes_ctx = sec_aes128_init(g_transport.p_key, iv);
     return BZ_SUCCESS;
 }
