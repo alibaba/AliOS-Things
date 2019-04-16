@@ -392,6 +392,10 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     }
     
     hal_wifi_init_type_t * init_para_ptr = rtw_malloc(sizeof(hal_wifi_init_type_t));
+    if (init_para_ptr == NULL) {
+        DBG_8195A("wifi_start: fail to alloc init para\n");
+        return -1;
+    }
     strcpy(init_para_ptr->wifi_ssid, init_para->wifi_ssid);
     strcpy(init_para_ptr->wifi_key, init_para->wifi_key);
     //DBG_8195A("wifi_ssid =%s,wifi_key=%s\n",init_para_ptr->wifi_ssid,init_para_ptr->wifi_key);

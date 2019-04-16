@@ -19,6 +19,9 @@
 #include "pinmap.h"
 #include <string.h>
 
+int uart1_inited = 0;
+int uart0_inited = 0;
+
 static const PinMap PinMap_UART_TX[] = {
     {PC_3,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)},
     {PE_0,  RTL_PIN_PERI(UART0, 0, S1), RTL_PIN_FUNC(UART0, S1)},

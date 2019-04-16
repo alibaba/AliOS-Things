@@ -57,6 +57,8 @@ extern int inic_stop(void);
 
 extern struct netif xnetif[NET_IF_NUM];
 
+unsigned char enable_softap_adjust_phy = 0;
+
 /******************************************************
  *               Variables Definitions
  ******************************************************/
@@ -2104,5 +2106,11 @@ int wifi_get_antenna_info(unsigned char *antenna)
 	return ret;
 }
 #endif
+
+int promisc_recv_lens_func(void *padapter, u8 *payload, u8 plen)
+{
+    return 0;
+}
+
 //----------------------------------------------------------------------------//
 #endif	//#if CONFIG_WLAN
