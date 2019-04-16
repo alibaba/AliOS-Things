@@ -12,6 +12,7 @@
 
 int iw_ioctl(const char * ifname, unsigned long request, struct iwreq *	pwrq)
 {
+        memset(pwrq->ifr_name, 0, IFNAMSIZ);
 	memcpy(pwrq->ifr_name, ifname, 5);
 	return rltk_wlan_control(request, (void *) pwrq);
 }
