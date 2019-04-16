@@ -50,6 +50,8 @@ typedef struct auth_s {
     uint8_t device_name[MAX_DEVICE_NAME_LEN];
     uint8_t device_name_len;
     uint8_t secret[DEVICE_SECRET_LEN];
+    uint8_t device_secret_len;
+    bool dyn_update_device_secret;
 } auth_t;
 
 ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func);
@@ -62,8 +64,12 @@ bool auth_is_authdone(void);
 
 ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length);
 ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length);
-ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length);
+ret_code_t auth_get_device_secret(uint8_t *p_secret, uint8_t *p_length);
 int auth_calc_adv_sign(uint32_t seq, uint8_t *sign);
+#ifdef CONFIG_MODEL_SECURITY
+bool get_auth_update_status(void);
+ret_code_t auth_secret_update_post_process(uint8_t *p_ds, uint16_t length);
+#endif
 
 #ifdef __cplusplus
 }

@@ -42,17 +42,17 @@ long long os_now_ms()
 
 int os_kv_set(const char *key, const void *value, int len, int sync)
 {
-    return 0;
+    return aos_kv_set(key, value, len, sync);
 }
 
 int os_kv_get(const char *key, void *buffer, int *buffer_len)
 {
-    return 0;
+    return aos_kv_get(key, buffer, buffer_len);
 }
 
 int os_kv_del(const char *key)
 {
-    return 0;
+    return aos_kv_del(key);
 }
 
 int os_rand(void)

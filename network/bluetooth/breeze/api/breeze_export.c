@@ -257,6 +257,11 @@ void breeze_restart_advertising()
         BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return;
     }
+#ifdef CONFIG_MODEL_SECURITY
+    if(get_auth_update_status()){
+        adv_data.vdata.data[FMSK_SECURITY_Pos] |= (1<<FMSK_SECRET_TYPE_Pos);
+    }
+#endif
 
     if (user_adv.len > 0) {
         size = sizeof(adv_data.vdata.data) - adv_data.vdata.len;

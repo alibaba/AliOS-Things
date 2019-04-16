@@ -8,13 +8,15 @@
 #include "auth.h"
 #include "common.h"
 #include "core.h"
+#include "auth.h"
 #include "utils.h"
 #include "breeze_export.h"
 #include "chip_code.h"
 #include "bzopt.h"
 
-#include <breeze_hal_os.h>
-#include <breeze_hal_sec.h>
+#include "breeze_hal_os.h"
+#include "breeze_hal_sec.h"
+#include "breeze_hal_ble.h"
 
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
@@ -44,13 +46,16 @@ breeze_apinfo_t comboinfo;
 #define PRODUCT_SECRET_STR "productSecret"
 #define PRODUCT_KEY_STR "productKey"
 extern uint8_t product_secret[PRODUCT_SECRET_LEN];
-
+extern uint16_t product_secret_len;
 const static char m_sdk_version[] = ":" BZ_VERSION;
 
 typedef ret_code_t (*ext_tlv_handler_t)(uint8_t *p_buff, uint8_t *p_blen,
                                         const uint8_t *p_data, uint8_t dlen);
 
 extcmd_t g_extcmd;
+extern auth_t g_auth;
+
+extern ret_code_t auth_get_device_secret(uint8_t *p_secret, uint8_t *p_length);
 
 typedef struct {
     uint8_t tlv_type;
@@ -67,6 +72,11 @@ static ret_code_t ext_cmd06_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t 
 static ret_code_t ext_cmd07_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen);
 #endif
 
+#ifdef CONFIG_MODEL_SECURITY
+static ret_code_t ext_cmd09_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen);
+static ret_code_t ext_cmd10_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen);
+#endif
+
 static const ext_tlv_type_handler_t
   m_tlv_type_handler_table[] = /**< TLV type handler table. */
   { { 0x01, ext_cmd01_rsp}, { 0x02, ext_cmd02_rsp},
@@ -76,7 +86,11 @@ static const ext_tlv_type_handler_t
     { 0x06, ext_cmd06_rsp},
 #endif
 #ifdef CONFIG_AIS_SECURE_ADV
-    { 0x07, ext_cmd07_rsp}
+    { 0x07, ext_cmd07_rsp},
+#endif
+#ifdef CONFIG_MODEL_SECURITY
+    { 0x09, ext_cmd09_rsp},
+    { 0x0A, ext_cmd10_rsp},
 #endif
   };
 
@@ -168,13 +182,13 @@ static void network_signature_calculate(uint8_t *p_buff)
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
     sec_sha256_update(&context, g_extcmd.p_device_name, g_extcmd.device_name_len);
 
-#ifndef CONFIG_MODEL_SECURITY
-    sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
-    sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
-#else
-    sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR)); /* "productSecret" */
-    sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
-#endif
+    if(g_auth.dyn_update_device_secret == true || g_auth.device_secret_len == DEVICE_SECRET_LEN){
+        sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
+        sec_sha256_update(&context, g_auth.secret, g_auth.device_secret_len);
+    } else{
+        sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR)); /* "productSecret" */
+        sec_sha256_update(&context, product_secret, product_secret_len);
+    }
 
     sec_sha256_update(&context, PRODUCT_KEY_STR, strlen( PRODUCT_KEY_STR)); /* "productKey" */
     sec_sha256_update(&context, g_extcmd.p_product_key, g_extcmd.product_key_len);
@@ -314,6 +328,96 @@ end:
 }
 #endif
 
+#ifdef CONFIG_MODEL_SECURITY
+
+bool ext_get_device_secret()
+{
+    char tmp_secret[DEVICE_SECRET_LEN];
+    int len;
+    if(auth_get_device_secret(&tmp_secret, &len) == 0){
+        if(g_auth.device_secret_len == 0){
+            g_auth.device_secret_len = len;
+            memcpy(g_auth.secret, tmp_secret, len);
+        } else if(len == DEVICE_SECRET_LEN && memcmp(tmp_secret, g_auth.secret, len) != 0){
+            memcpy(g_auth.secret, tmp_secret, len);
+            g_auth.dyn_update_device_secret = true;
+        }
+        return true;
+    } else{
+        return false;
+    }
+}
+
+bool ext_set_device_secret(const uint8_t* p_ds, uint8_t ds_len)
+{
+    return (os_kv_set(DEVICE_SECRET_STR, p_ds, ds_len, 1) == 0)? true: false;
+}
+
+bool ext_del_device_secret(void)
+{
+    return (os_kv_del(DEVICE_SECRET_STR) == 0)? true: false;
+}
+
+static ret_code_t ext_cmd09_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
+{
+    ret_code_t err_code = BZ_SUCCESS;
+    if (dlen > 0 ) {
+        BREEZE_LOG_ERR("Err:invalid product security update param\r\n");
+        err_code = BZ_EDATASIZE;
+        goto end;
+    }
+
+    if (*p_blen < 1) {
+        BREEZE_LOG_ERR("Err:invalid product security update rsp buffer size\r\n");
+        err_code = BZ_ENOMEM;
+        goto end;
+    }
+
+    if(ext_get_device_secret() == false){
+        p_buff[0] = 0x01;
+    } else{
+        p_buff[0] = 0x00;
+    }
+    memcpy(p_buff+1, g_extcmd.p_device_name, g_extcmd.device_name_len);
+    *p_blen = g_extcmd.device_name_len + 1;
+    err_code = BZ_SUCCESS;
+
+end:
+    return err_code;
+}
+
+static ret_code_t ext_cmd10_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
+{
+    ret_code_t err_code = BZ_SUCCESS;
+    if (*p_blen < 1) {
+        BREEZE_LOG_ERR("Err:invalid DS update rsp buffer size\r\n");
+        err_code = BZ_ENOMEM;
+        goto end;
+    }
+
+    if(dlen != DEVICE_SECRET_LEN){
+        BREEZE_LOG_ERR("Err:invalid DS update len\r\n");
+        err_code = BZ_ENOMEM;
+        goto end;
+    }
+
+    if(ext_get_device_secret() == true){
+        p_buff[0] = 0x01;
+    } else if(ext_set_device_secret(p_data, dlen) == true){
+        auth_secret_update_post_process(p_data, dlen);
+        p_buff[0] = 0x00;
+    } else{
+        p_buff[0] = 0x02;
+    }
+
+    *p_blen = 1;
+
+end:
+    return err_code;
+
+}
+#endif
+
 static void get_os_info(void)
 {
     uint8_t chip_code[4] = { 0 };
@@ -366,7 +470,6 @@ ret_code_t extcmd_init(ali_init_t const *p_init, tx_func_t tx_func)
 #if BZ_ENABLE_AUTH
     auth_get_device_name(&g_extcmd.p_device_name, &g_extcmd.device_name_len);
     auth_get_product_key(&g_extcmd.p_product_key, &g_extcmd.product_key_len);
-    auth_get_secret(&g_extcmd.p_secret, &g_extcmd.secret_len);
 #endif
 
     g_extcmd.tx_func = tx_func;
@@ -460,3 +563,4 @@ void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
         core_handle_err(ALI_ERROR_SRC_EXT_SEND_RSP, err_code);
     }
 }
+
