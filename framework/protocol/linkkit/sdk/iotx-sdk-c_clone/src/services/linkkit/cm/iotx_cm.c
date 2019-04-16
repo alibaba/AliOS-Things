@@ -64,7 +64,7 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 
 int iotx_cm_connect(int fd, uint32_t timeout)
 {
-    if (_fd_is_valid(fd) == -1) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
@@ -123,7 +123,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
         return 0;
     }
 
-    if (_fd_is_valid(fd) == -1) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
@@ -159,7 +159,7 @@ int iotx_cm_yield(int fd, unsigned int timeout)
 int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
                 iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
 {
-    if (_fd_is_valid(fd) == -1) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
@@ -173,7 +173,7 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
 
 int iotx_cm_unsub(int fd, const char *topic)
 {
-    if (_fd_is_valid(fd) == -1) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
@@ -189,7 +189,7 @@ int iotx_cm_unsub(int fd, const char *topic)
 
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
-    if (_fd_is_valid(fd) == -1) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
@@ -203,7 +203,7 @@ int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char
 
 int iotx_cm_close(int fd)
 {
-    if (_fd_is_valid(fd) != 0) {
+    if (_fd_is_valid(fd) < 0) {
         CM_ERR(ERR_INVALID_PARAMS);
         return -1;
     }
