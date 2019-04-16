@@ -20,6 +20,9 @@
 #include "pinmap.h"
 #include <string.h>
 
+int uart1_inited = 0;
+int uart0_inited = 0;
+
 typedef VOID (*UARTCB_FUN)(VOID *);
 
 typedef struct {
