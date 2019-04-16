@@ -391,6 +391,8 @@ ip4_input(struct pbuf *p, struct netif *inp)
   int check_ip_src = 1;
 #endif /* IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP */
 
+  LWIP_PKTDEBUGF("LwIP_recv", p, inp);
+
   IP_STATS_INC(ip.recv);
   MIB2_STATS_INC(mib2.ipinreceives);
 
@@ -956,6 +958,8 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
     return ip4_frag(p, netif, dest);
   }
 #endif /* IP_FRAG */
+
+  LWIP_PKTDEBUGF("LwIP_send", p, netif);
 
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: call netif->output()\n"));
   return netif->output(netif, p, dest);

@@ -114,8 +114,26 @@
                                } \
                              } while(0)
 
+#ifdef PKTPRINT_DEBUG
+#define LWIP_PKTDEBUGF(note_ptr, pbuf, netif) do { \
+                               s16_t debug = PKTPRINT_DEBUG; \
+                               if ( \
+                                   ((debug) & LWIP_DBG_ON) && \
+                                   ((debug) & LWIP_DBG_TYPES_ON) && \
+                                   ((s16_t)((debug) & LWIP_DBG_MASK_LEVEL) >= LWIP_DBG_MIN_LEVEL)) { \
+                                 lwip_pkt_print(note_ptr, pbuf, netif); \
+                                 if ((debug) & LWIP_DBG_HALT) { \
+                                   while(1); \
+                                 } \
+                               } \
+                             } while(0)
+
+#else
+#define LWIP_PKTDEBUGF(note_ptr, pbuf, netif)
+#endif
 #else  /* LWIP_DEBUG */
 #define LWIP_DEBUGF(debug, message)
+#define LWIP_PKTDEBUGF(note_ptr, pbuf, netif)
 #endif /* LWIP_DEBUG */
 
 #endif /* LWIP_HDR_DEBUG_H */
