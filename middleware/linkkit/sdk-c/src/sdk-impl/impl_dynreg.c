@@ -83,6 +83,7 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
     http_client_data.response_buf_len = HTTP_RESPONSE_PAYLOAD_LEN;
 
     res = httpclient_common(&http_client, url, 443, iotx_ca_get(), HTTPCLIENT_POST, 10000, &http_client_data);
+    httpclient_close(&http_client);
     if (res != SUCCESS_RETURN) {
         sdk_err("Http Download Failed");
         IMPL_LINKKIT_DYNREG_FREE(url);

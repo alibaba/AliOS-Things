@@ -222,6 +222,7 @@ int _http_response(char *payload,
                             HTTPCLIENT_POST,
                             CONFIG_GUIDER_AUTH_TIMEOUT,
                             &httpc_data);
+    httpclient_close(&httpc);
     if (ret != 0) {
         goto RETURN;
     }
