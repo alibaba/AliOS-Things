@@ -58,6 +58,11 @@ extern "C" {
 
 #define DHCP_BOOT_FILE_LEN      128U
 
+#if DHCP_TIMEOUT_WORKAROUND_FOR_BK_WIFI
+#define DHCP_TIMER_TIMEOUT          65000  // 6 retries
+#define DHCP_TIMEOUT_TRIES_REBOOT   1
+#endif
+
 /* AutoIP cooperation flags (struct dhcp.autoip_coop_state) */
 typedef enum {
   DHCP_AUTOIP_COOP_STATE_OFF  = 0,
