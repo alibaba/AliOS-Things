@@ -3,8 +3,9 @@
  */
 #include <stdarg.h>
 #include "k_dbg_api.h"
-#include "aos/cli.h"
 #include "k_compiler.h"
+#include "aos/cli.h"
+#include "aos/kernel.h"
 
 
 #define DEBUG_PANIC_STEP_MAX    32
@@ -51,7 +52,7 @@ volatile uint32_t g_crash_steps = 0;
 
 static void panic_goto_cli(void)
 {
-#if (defined (CONFIG_AOS_CLI) && (RHINO_CONFIG_SYSTEM_STATS > 0))
+#if 0 /* (defined (CONFIG_AOS_CLI) && (RHINO_CONFIG_SYSTEM_STATS > 0)) */
     klist_t      *listnode;
     ktask_t      *task;
 
@@ -98,6 +99,7 @@ void panicHandler(void *context)
     static int  *SP = NULL;
     static char *PC = NULL;
     static char *LR = NULL;
+    CPSR_ALLOC();
 
     krhino_sched_disable();
 
@@ -208,7 +210,12 @@ void panicHandler(void *context)
             break;
     }
 
-    while (1);
+
+    RHINO_CPU_INTRPT_DISABLE();
+    while (1) {
+        /* aos_reboot(); */
+    }
+    RHINO_CPU_INTRPT_ENABLE();
 }
 
 #endif
@@ -220,14 +227,14 @@ void debug_fatal_error(kstat_t err, char *file, int line)
       "stack(0x        ): 0x         0x         0x         0x         \r\n";
     int  x;
     int *SP = (int *)RHINO_GET_SP();
+    CPSR_ALLOC();
 
     krhino_sched_disable();
 
     printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
     printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
 
-    if ( SP != NULL )
-    {
+    if ( SP != NULL ) {
         print_str("========== Stack info ==========\r\n");
         for (x = 0; x < 16; x++) {
             k_int2str((int)&SP[x * 4], &prt_stack[8]);
@@ -250,4 +257,10 @@ void debug_fatal_error(kstat_t err, char *file, int line)
 #endif
 
     panic_goto_cli();
+
+    RHINO_CPU_INTRPT_DISABLE();
+    while (1) {
+        /* aos_reboot(); */
+    }
+    RHINO_CPU_INTRPT_ENABLE();
 }
