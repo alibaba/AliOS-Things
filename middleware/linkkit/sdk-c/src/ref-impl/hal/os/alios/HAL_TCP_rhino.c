@@ -188,9 +188,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     struct timeval timeout;
 
     if (fd >= FD_SETSIZE) {
+        PLATFORM_LOG_E("%s error: fd (%d) >= FD_SETSIZE (%d)", __func__, fd, FD_SETSIZE);
         return -1;
     }
-    
+ 
     t_end    = HAL_UptimeMs() + timeout_ms;
     len_recv = 0;
     err_code = 0;
@@ -198,6 +199,8 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     do {
         t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
         if (0 == t_left) {
+            PLATFORM_LOG_D("%s no time left", __func__);
+            err_code = -1;
             break;
         }
         FD_ZERO(&sets);
@@ -208,28 +211,33 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 
         ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
+            if (0 == FD_ISSET(fd, &sets)) {
+                PLATFORM_LOG_D("%s No data for fd %d", __func__, fd);
+                ret = 0;
+                continue;
+            }
+
             ret = recv(fd, buf + len_recv, len - len_recv, 0);
             if (ret > 0) {
                 len_recv += ret;
-            } else if (0 == ret) {
-                PLATFORM_LOG_E("connection is closed");
-                err_code = -1;
-                break;
             } else {
-                if (EINTR == errno) {
+                if ((EINTR == errno) || (EAGAIN == errno) || (EWOULDBLOCK == errno) ||
+                    (EPROTOTYPE == errno) || (EALREADY == errno) || (EINPROGRESS == errno)) {
                     continue;
                 }
-                PLATFORM_LOG_E("send fail");
+                PLATFORM_LOG_E("recv fail (fd: %d), errno: %d, ret: %d", fd, errno, ret);
                 err_code = -2;
                 break;
             }
         } else if (0 == ret) {
+            PLATFORM_LOG_D("%s select (fd: %d) timeout", __func__, fd);
+            err_code = -1;
             break;
         } else {
             if (EINTR == errno) {
                 continue;
             }
-            PLATFORM_LOG_E("select-recv fail errno=%d",errno);
+            PLATFORM_LOG_E("select-recv (fd: %d) fail errno=%d",fd, errno);
             err_code = -2;
             break;
         }
