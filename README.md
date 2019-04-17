@@ -1,4 +1,4 @@
-This is the specific release of AliOS Things to custome-tailor for qualcomm.
+This is the specific release of AliOS Things to custome-tailor for Qualcomm.
 
 ### How to use:
 -  Step1:
