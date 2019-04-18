@@ -16,8 +16,15 @@ extern "C" {
 #endif
 
 /* enrollee/registrar doc see following
- * http://docs.alibaba-inc.com/pages/viewpage.action?pageId=450855381
+ * https://yuque.antfin-inc.com/ilop-awss/awss/awss
  */
+
+#if 0
+/* if enrollee needs to report error code to registrar
+ * please define this macro
+ */
+#define ENROLLEE_REPORT_STATUS
+#endif
 
 /* ie oui def. */
 #define WLAN_OUI_ALIBABA            (0xD896E0)
@@ -57,7 +64,9 @@ struct ieee80211_enrollee_alibaba_ie {
 #ifdef __GNUC__
     uint8_t sign[0];        /* sign = hmacsha1(secret, random+dev_name+product_key) */
 #endif
+#ifdef ENROLLEE_REPORT_STATUS
     uint8_t err_code;
+#endif
 };
 
 /*  len = 17 + sign[n] + ssid[n] + passwd[n] */
@@ -111,8 +120,9 @@ struct enrollee_info {
     uint8_t sign_method;  /* 0:hmacsha1, 1:hmacsha256 */
     uint8_t sign_len;
     uint8_t sign[ENROLLEE_SIGN_SIZE];
-
+#ifdef ENROLLEE_REPORT_STATUS
     uint8_t err_code;
+#endif
 
     signed char rssi;
 
