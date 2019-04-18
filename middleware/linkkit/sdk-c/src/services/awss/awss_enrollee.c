@@ -46,7 +46,9 @@ enum {
     ENROLLEE_ERR_CODE_CONN_ROUTER_ERR,
 };
 
+#ifdef ENROLLEE_REPORT_STATUS
 static uint8_t *g_err_code;    /* pointer to error code of enrollee */
+#endif
 static uint8_t *g_dev_sign;    /* pointer to dev_name_len start pos */
 static uint8_t *g_product_key; /* pointer to model_len start pos */
 static uint8_t *enrollee_frame;
@@ -59,7 +61,9 @@ static int decrypt_ssid_passwd(uint8_t *ie, uint8_t ie_len,
 
 void awss_enrollee_connect_router_fail(int reson)
 {
+#ifdef ENROLLEE_REPORT_STATUS
     if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_CONN_ROUTER_ERR;
+#endif
 }
 
 void awss_init_enrollee_info(void)
@@ -134,9 +138,11 @@ void awss_init_enrollee_info(void)
     g_dev_sign = &enrollee_frame[len];
     memcpy(&enrollee_frame[len], sign, ENROLLEE_SIGN_SIZE);
     len += ENROLLEE_SIGN_SIZE;
+#ifdef ENROLLEE_REPORT_STATUS
     g_err_code = &enrollee_frame[len ++];
     if (awss_get_config_press() == 0)
         *g_err_code = ENROLLEE_ERR_CODE_DISABLE;
+#endif
 
     memcpy(&enrollee_frame[len],
            &probe_req_frame[sizeof(probe_req_frame) - FCS_SIZE], FCS_SIZE);
@@ -156,7 +162,9 @@ void awss_destroy_enrollee_info(void)
         enrollee_frame = NULL;
         g_product_key = NULL;
         g_dev_sign = NULL;
+#ifdef ENROLLEE_REPORT_STATUS
         g_err_code = NULL;
+#endif
     }
 }
 
@@ -166,11 +174,13 @@ void awss_broadcast_enrollee_info(void)
         return;
     }
 
+#ifdef ENROLLEE_REPORT_STATUS
     if (awss_get_config_press() == 0) {
         *g_err_code = ENROLLEE_ERR_CODE_DISABLE;
     } else if (*g_err_code == ENROLLEE_ERR_CODE_DISABLE) {
         *g_err_code = ENROLLEE_ERR_CODE_NO_ERR;
     }
+#endif
 
     os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, enrollee_frame,
                                  enrollee_frame_len);
@@ -218,7 +228,9 @@ static int decrypt_ssid_passwd(
     p_ssid = ie;
     if (ie[0] >= OS_MAX_SSID_LEN) {
         awss_debug("ssidlen=%d invalid!", ie[0]);
+#ifdef ENROLLEE_REPORT_STATUS
         if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_SSID_ERR;
+#endif
         return -1;
     }
     memcpy(tmp_ssid, &p_ssid[1], p_ssid[0]);
@@ -228,7 +240,9 @@ static int decrypt_ssid_passwd(
     p_passwd = ie;
     if (p_passwd[0] >= OS_MAX_PASSWD_LEN) {
         awss_debug("passwdlen=%d invalid!", p_passwd[0]);
+#ifdef ENROLLEE_REPORT_STATUS
         if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_PASSWD_ERR;
+#endif
         return -1;
     }
 
@@ -244,7 +258,9 @@ static int decrypt_ssid_passwd(
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("passwd invalid!");
         AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
+#ifdef ENROLLEE_REPORT_STATUS
         if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_PASSWD_ERR;
+#endif
         return -1;
     }
     awss_trace("enrollee ssid:%s\r\n", tmp_ssid);
