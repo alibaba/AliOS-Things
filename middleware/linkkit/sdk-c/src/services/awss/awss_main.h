@@ -12,6 +12,10 @@ extern "C"
 {
 #endif
 
+/* AWSS (Alibaba Wireless Setup Service) doc see following
+ * https://yuque.antfin-inc.com/ilop-awss/awss/awss
+ */
+
 #define DEFAULT_SSID                   zc_default_ssid
 #define DEFAULT_PASSWD                 zc_default_passwd
 #define ADHA_SSID                      zc_adha_ssid
