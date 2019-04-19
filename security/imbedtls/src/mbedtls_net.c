@@ -253,8 +253,8 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host,
     hints.ai_protocol =
       proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-    if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
-        MBEDTLS_NET_PRINT("getaddrinfo fail- errno: %d\n", errno);
+    if ((ret = getaddrinfo(host, port, &hints, &addr_list)) != 0) {
+        MBEDTLS_NET_PRINT("getaddrinfo fail- errno: %d, %d\n", errno, ret);
         return MBEDTLS_ERR_NET_UNKNOWN_HOST;
     }
 
