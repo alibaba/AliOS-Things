@@ -41,7 +41,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        hal_err("getaddrinfo error: %d", rc);
         return (-1);
     }
 
@@ -231,7 +231,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        hal_err("getaddrinfo error: %d", rc);
         return -1;
     }
 
