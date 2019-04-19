@@ -62,4 +62,8 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
+ifeq (y,$(pvtest))
+GLOBAL_DEFINES += PREVALIDATE_TEST
+endif
+
 GLOBAL_INCLUDES += ./

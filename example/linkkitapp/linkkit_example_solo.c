@@ -601,6 +601,9 @@ int linkkit_main(void *paras)
     }while(res < 0);
 
 
+#ifndef PREVALIDATE_TEST
+    IOT_SetLogLevel(IOT_LOG_ERROR);
+#endif
 
     time_begin_sec = user_update_sec();
     while (1) {
@@ -614,7 +617,6 @@ int linkkit_main(void *paras)
             EXAMPLE_TRACE("Example Run for Over %d Seconds, Break Loop!\n", max_running_seconds);
             break;
         }
-
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
             user_post_property();
@@ -638,7 +640,6 @@ int linkkit_main(void *paras)
         if (time_now_sec % 37 == 0 && user_master_dev_available()) {
             user_post_raw_data();
         }
-
         time_prev_sec = time_now_sec;
     }
 
