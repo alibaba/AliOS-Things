@@ -46,7 +46,7 @@ uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_ uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        PLATFORM_LOG_E("getaddrinfo error");
+        PLATFORM_LOG_E("getaddrinfo error: %d", rc);
         return -1;
     }
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
