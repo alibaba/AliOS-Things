@@ -14,6 +14,23 @@
 #endif
 
 extern ota_hal_module_t ota_hal_module;
+static unsigned char ota_is_on_going = 0;
+
+void ota_on_going_reset()
+{
+    ota_is_on_going = 0;
+}
+
+unsigned char ota_get_on_going_status()
+{
+    return ota_is_on_going;
+}
+
+void ota_set_status_on_going()
+{
+    ota_is_on_going = 1;
+}
+
 const char *ota_to_capital(char *value, int len)
 {
     if (value == NULL || len <= 0) {
@@ -192,6 +209,7 @@ static void ota_download_thread(void *hand)
     ota_service_t* ctx = hand;
     if (!ctx) {
         OTA_LOG_E("ctx is NULL.\n");
+        ota_on_going_reset();
         return;
     }
     ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
@@ -298,28 +316,41 @@ ERR:
     ctx->h_tr->status(100, ctx);
 #endif
     ota_free_hash_ctx();
+    ota_on_going_reset();
     ota_msleep(3000);
     ota_reboot();
 }
 
-int ota_upgrade_cb(void* pctx, char *json) {
-    ota_service_t* ctx = pctx;
+int ota_upgrade_cb(void* pctx, char *json)
+{
+    int ret = -1;
+    int is_ota = 0;
+    void *thread = NULL;
+    ota_service_t *ctx = pctx;
     if (!ctx || !json) {
-        return -1;
+        return ret;
     }
     if (0 == ota_parse(ctx, json)) {
-        int is_ota = strncmp(ctx->ota_ver,ctx->sys_ver,strlen(ctx->ota_ver));
+        ret = 0;
+        is_ota = strncmp(ctx->ota_ver,ctx->sys_ver,strlen(ctx->ota_ver));
         if(is_ota > 0) {
-            void *thread = NULL;
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 4096);
+            if(ota_get_on_going_status() == 1) {
+                OTA_LOG_E("ota is on going, go out!!!");
+                return ret;
+            }
+            ota_set_status_on_going();
+            ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 4096);
+            if(ret < 0) {
+                ota_on_going_reset();
+                OTA_LOG_E("ota creat task failed!");
+            }
         } else {
             OTA_LOG_E("ota version is too old, discard it.");
             ctx->upg_status = OTA_INIT_VER_FAIL;
             ctx->h_tr->status(0, ctx);
-            return -1;
         }
     }
-    return 0;
+    return ret;
 }
 
 int ota_service_init(ota_service_t *ctx)
@@ -346,6 +377,7 @@ int ota_service_init(ota_service_t *ctx)
         return ret;
     }
     ctx->inited = 1;
+    ota_on_going_reset();
     ctx->url = ota_malloc(OTA_URL_LEN);
     if(NULL == ctx->url){
         ret = OTA_INIT_FAIL;
