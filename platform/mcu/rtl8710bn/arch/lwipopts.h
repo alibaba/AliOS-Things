@@ -269,6 +269,11 @@
  */
 #define LWIP_TCP_KEEPALIVE              1
 
+/**
+ * TCP_SYNMAXRTX: Maximum number of retransmissions of SYN segments.
+ */
+#define TCP_SYNMAXRTX                   10
+
 /*
    ----------------------------------------
    ---------- Statistics options ----------
