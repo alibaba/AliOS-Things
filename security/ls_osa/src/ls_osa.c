@@ -103,6 +103,7 @@ int ls_osa_mutex_unlock(void *mutex)
 int ls_osa_net_connect(const char *host, const char *port, int type)
 {
     int fd = -1;
+    int ret;
     struct addrinfo hints, *addr_list, *cur;
 
     /* do name resolution with both IPv6 and IPv4 */
@@ -111,8 +112,8 @@ int ls_osa_net_connect(const char *host, const char *port, int type)
     hints.ai_socktype = type == LS_NET_TYPE_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol = type == LS_NET_TYPE_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-    if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
-        ls_osa_print("getaddrinfo fail, errno: %d\n", errno);
+    if ((ret = getaddrinfo(host, port, &hints, &addr_list)) != 0) {
+        ls_osa_print("getaddrinfo fail, errno: %d, %d\n", errno, ret);
         return -1;
     }
 
