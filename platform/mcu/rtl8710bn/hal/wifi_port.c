@@ -162,6 +162,7 @@ int alink_get_ap_security_mode(char * ssid, rtw_security_t *security_mode, u8 * 
 	return -1;
 }
 
+#define TRY_SCAN_MAX 8
 int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned char *passwd, unsigned char passwd_len)
 {	
 	u8 *ifname[2] = {WLAN0_NAME,WLAN1_NAME};
@@ -171,6 +172,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 	u8 connect_retry = 3;
 	int ret;
 	u8 channel;
+	int try_scan_cnt = TRY_SCAN_MAX;
 
 	alink_set_sta_mode();
 
@@ -184,15 +186,25 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 	memset(wifi_info.bssid.octet, 0, sizeof(wifi_info.bssid.octet));
 	wifi_info.password = (unsigned char *)passwd;
 
-	if(alink_get_ap_security_mode(wifi_info.ssid.val, &wifi_info.security_type, &channel) != 0)
-	{
-		channel = 0;
-		wifi_info.security_type = RTW_SECURITY_WPA2_AES_PSK;
-		alink_wifi_config.security_type = wifi_info.security_type;
-		DBG_8195A("Warning : unknow security type, default set to WPA2_AES\r\n");
+	while ((try_scan_cnt--) > 0) {
+		if(alink_get_ap_security_mode(wifi_info.ssid.val, &wifi_info.security_type, &channel) != 0)
+		{
+			channel = 0;
+			if (try_scan_cnt == 0) {
+				wifi_info.security_type = RTW_SECURITY_WPA2_AES_PSK;
+				alink_wifi_config.security_type = wifi_info.security_type;
+				DBG_8195A("Warning : unknow security type, default set to WPA2_AES\r\n");
+				break;
+			} else {
+				DBG_8195A("Warning: no security type detected, retry %d ...\r\n", try_scan_cnt);
+				continue;
+			}
+		} else {
+			alink_wifi_config.security_type = wifi_info.security_type;
+			DBG_8195A("Security type (%d) detected by scanning.\r\n", wifi_info.security_type);
+			break;
+		}
 	}
-	else
-		alink_wifi_config.security_type = wifi_info.security_type;
 
 	if (wifi_info.security_type == RTW_SECURITY_WEP_PSK) {
 		if(wifi_info.password_len == 10) {
@@ -220,7 +232,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 		memcpy(alink_wifi_config.password, wifi_info.password, strlen(wifi_info.password));
 	}
 	while (connect_retry) {
-		//DBG_8195A("\r\nwifi_connect to ssid: %s, type %d, password %s\r\n", wifi_info.ssid.val, wifi_info.security_type, wifi_info.password);
+		DBG_8195A("\r\nwifi_connect to ssid: %s, type %d\r\n", wifi_info.ssid.val, wifi_info.security_type);
 		ret = wifi_connect(wifi_info.ssid.val, wifi_info.security_type, 
 				   wifi_info.password, wifi_info.ssid.len, 
 				   wifi_info.password_len,
