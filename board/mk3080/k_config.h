@@ -221,5 +221,25 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
+#ifndef configUSE_WAKELOCK_PMU
+#define configUSE_WAKELOCK_PMU               1
+#endif
+
+#ifndef WIFI_CONFIG_SUPPORT_LOWPOWER
+#define WIFI_CONFIG_SUPPORT_LOWPOWER         1
+#endif
+
+#ifndef WIFI_CONFIG_LISTENSET_BINIT
+#define WIFI_CONFIG_LISTENSET_BINIT          0
+#endif
+
+#ifndef WIFI_CONFIG_LISTEN_INTERVAL
+#define WIFI_CONFIG_LISTEN_INTERVAL          1
+#endif
+
+#ifndef WIFI_CONFIG_RECEIVE_DTIM
+#define WIFI_CONFIG_RECEIVE_DTIM             1
+#endif
+
 #endif /* CONFIG_H */
 
