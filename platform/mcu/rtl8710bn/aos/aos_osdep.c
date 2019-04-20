@@ -322,7 +322,15 @@ static u32 _aos_sec_to_systime(u32 sec)
 
 static void _aos_msleep_os(int ms)
 {
-    aos_msleep(ms);
+#if defined(CONFIG_PLATFORM_8195A)
+	aos_msleep(ms);
+#elif defined(CONFIG_PLATFORM_8711B)
+	if (pmu_yield_os_check()) {
+		aos_msleep(ms);
+	} else {
+		DelayMs(ms);
+	}
+#endif
 }
 
 static void _aos_usleep_os(int us)
@@ -341,7 +349,15 @@ static void _aos_usleep_os(int us)
 
 static void _aos_mdelay_os(int ms)
 {
-    aos_msleep(ms);
+#if defined(CONFIG_PLATFORM_8195A)
+	aos_msleep(ms);
+#elif defined(CONFIG_PLATFORM_8711B)
+	if (pmu_yield_os_check()) {
+		aos_msleep(ms);
+	} else {
+		DelayMs(ms);
+	}
+#endif
 }
 
 static void _aos_udelay_os(int us)
@@ -557,7 +573,7 @@ static int _aos_create_task(struct task_struct *ptask, const char *name,
 static void _aos_delete_task(struct task_struct *ptask)
 {
 	if (!ptask->task.hdl){
-		DBG_8195A("_freertos_delete_task(): ptask is NULL!\n");
+		DBG_8195A("_aos_delete_task(): ptask is NULL!\n");
 		return;
 	}
 
