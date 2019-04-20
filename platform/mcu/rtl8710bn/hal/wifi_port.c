@@ -70,7 +70,11 @@ void WifiStatusHandler(int status);
 static int wifi_init(hal_wifi_module_t *m)
 {
     wifi_on(RTW_MODE_STA);
-    wifi_disable_powersave();   
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_enable_powersave();
+#else
+    wifi_disable_powersave();
+#endif
     DBG_8195A("wifi init success!!\n");
     return 0;
 };
@@ -391,7 +395,16 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
         DBG_8195A("wifi_start: invalid parameter\n");
         return -1;
     }
-    
+    /*Disable promisc mode completely*/
+    wifi_off();
+    rtw_mdelay_os(20);
+    wifi_on(RTW_MODE_STA);
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_enable_powersave();
+#else
+    wifi_disable_powersave();
+#endif
+
     hal_wifi_init_type_t * init_para_ptr = rtw_malloc(sizeof(hal_wifi_init_type_t));
     if (init_para_ptr == NULL) {
         DBG_8195A("wifi_start: fail to alloc init para\n");
@@ -543,6 +556,12 @@ void wifi_stop_monitor_task(void *arg)
 #if CONFIG_AUTO_RECONNECT
     wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
+
+    pmu_release_wakelock(0);
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_enable_powersave();
+#endif
+
     aos_task_exit(0);
 }
 
@@ -561,6 +580,7 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 	if(fn == NULL) {
 		return;
 	}
+    pmu_acquire_wakelock(0);
     wifi_off();
     rtw_mdelay_os(20);
     wifi_on(RTW_MODE_PROMISC);
@@ -597,13 +617,26 @@ static void wifi_rx_mgnt_hdl(u8 *buf, int buf_len, int flags, void *userdata)
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
     //DBG_8195A("register_wlan_mgnt_monitor_cb fn 0x%x\r\n", fn);
-
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    if (fn != NULL) {
+        wifi_disable_powersave();
+    }
+#endif
     g_mgnt_link_info.rssi = 0;
     g_mgnt_filter_callback = fn;
 
-    wifi_set_indicate_mgnt(1);
+    if (fn == NULL) {
+        wifi_set_indicate_mgnt(0);
+    } else {
+        wifi_set_indicate_mgnt(1);
+    }
     wifi_reg_event_handler(WIFI_EVENT_RX_MGNT, wifi_rx_mgnt_hdl, NULL);
     
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    if (fn == NULL) {
+        wifi_enable_powersave();
+    }
+#endif
     return;
 }
 
@@ -697,6 +730,30 @@ static void register_mesh_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
     return;
 }
 
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+static int set_listeninterval(hal_wifi_module_t *m, uint8_t listen_interval)
+{
+    int status = -1;
+    status = wifi_set_lps_dtim(listen_interval);
+    printf("set listern interval %d, status %d\n", (uint32_t) listen_interval, status);
+    return 0;
+}
+
+static int enter_powersave(hal_wifi_module_t *m, uint8_t recvDTIMs)
+{
+    printf("enter_powersave\n");
+    wifi_enable_powersave();
+    return 0;
+}
+
+static int exit_powersave(hal_wifi_module_t *m)
+{
+    wifi_disable_powersave();
+    return 0;
+}
+
+#endif
+
 hal_wifi_module_t rtl8710bn_wifi_module = {
     .base.name           = "rtl8710bn_wifi_module",
     .init                =  wifi_init,
@@ -724,4 +781,9 @@ hal_wifi_module_t rtl8710bn_wifi_module = {
     .mesh_register_cb    =  register_mesh_cb,
     .mesh_enable         =  mesh_enable,
     .mesh_disable        =  mesh_disable,    
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    .set_listeninterval =  set_listeninterval,
+    .enter_powersave    =  enter_powersave,
+    .exit_powersave     =  exit_powersave,
+#endif
 };
