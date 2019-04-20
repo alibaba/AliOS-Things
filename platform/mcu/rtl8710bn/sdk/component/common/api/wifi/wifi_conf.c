@@ -2114,10 +2114,5 @@ int wifi_get_antenna_info(unsigned char *antenna)
 }
 #endif
 
-int promisc_recv_lens_func(void *padapter, u8 *payload, u8 plen)
-{
-    return 0;
-}
-
 //----------------------------------------------------------------------------//
 #endif	//#if CONFIG_WLAN
