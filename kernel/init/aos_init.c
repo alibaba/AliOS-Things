@@ -297,6 +297,10 @@ int aos_kernel_init(kinit_t *kinit)
     aos_framework_init();
 #endif
 
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
+#endif
+
     application_start(kinit->argc, kinit->argv);
 #endif
 
