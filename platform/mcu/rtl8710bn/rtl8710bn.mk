@@ -190,6 +190,9 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
 #$(NAME)_SOURCES  += hal/wifi_port.c
 #$(NAME)_SOURCES  += hal/misc.c
 
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_systick.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr.c
 
 
 #$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
