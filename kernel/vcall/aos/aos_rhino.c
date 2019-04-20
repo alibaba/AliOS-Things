@@ -511,8 +511,13 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
     if (queue == NULL) {
         return -EINVAL;
     }
+    
+    if (ms == AOS_WAIT_FOREVER) {
+        ret = krhino_buf_queue_recv(queue->hdl, RHINO_WAIT_FOREVER, msg, size);
+    } else {
+        ret = krhino_buf_queue_recv(queue->hdl, MS2TICK(ms), msg, size);
+    }
 
-    ret = krhino_buf_queue_recv(queue->hdl, MS2TICK(ms), msg, size);
     if (ret == RHINO_SUCCESS) {
         return 0;
     }
