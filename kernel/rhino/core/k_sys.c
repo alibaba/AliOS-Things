@@ -185,6 +185,31 @@ void krhino_intrpt_exit(void)
     RHINO_CPU_INTRPT_ENABLE();
 }
 
+tick_t krhino_next_sleep_ticks_get(void)
+{
+    CPSR_ALLOC();
+
+    klist_t *tick_head;
+    ktask_t *tcb;
+    klist_t *iter;
+    tick_t   ticks;
+
+    tick_head = &g_tick_head;
+
+    RHINO_CRITICAL_ENTER();
+    if (tick_head->next == &g_tick_head) {
+        RHINO_CRITICAL_EXIT();
+        return RHINO_WAIT_FOREVER;
+    }
+
+    iter  = tick_head->next;
+    tcb   = krhino_list_entry(iter, ktask_t, tick_list);
+    ticks = tcb->tick_match - g_tick_count;
+    RHINO_CRITICAL_EXIT();
+
+    return ticks;
+}
+
 size_t krhino_global_space_get(void)
 {
     size_t mem;
