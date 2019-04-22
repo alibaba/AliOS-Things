@@ -18,7 +18,7 @@ struct hostent *httpc_wrapper_gethostbyname(const char *name);
 int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc, const struct sockaddr *name, socklen_t namelen);
 int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc);
 int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t size, int flags);
-int32_t httpc_wrapper_ssl_recv(httpc_handle_t httpc, uint8_t *data, int32_t size, int32_t timeout);
+int32_t httpc_wrapper_ssl_recv(httpc_handle_t httpc, uint8_t *data, uint32_t size, uint32_t timeout);
 #endif
 
 int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t namelen);
