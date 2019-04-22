@@ -472,8 +472,7 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
         case CODE_WIFI_CMD_RECONNECT:
             g_netmgr_cxt.disconnected_times = 0;
             g_netmgr_cxt.ip_available = false;
-            LOGD("netmgr", "reconnect wifi - %s, %s",
-                 g_netmgr_cxt.ap_config.ssid, g_netmgr_cxt.ap_config.pwd);
+            LOGD("netmgr", "reconnect wifi - %s", g_netmgr_cxt.ap_config.ssid);
 #ifdef AWSS_SUPPORT_STATIS
             awss_update_statis(0, 0);
 #endif
