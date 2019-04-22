@@ -23,6 +23,71 @@ struct hostent *httpc_wrapper_gethostbyname(const char *name)
     return gethostbyname(name);
 }
 
+static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout, httpc_handle_t httpc)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    struct timeval tv;
+    fd_set sets;
+    int32_t ret;
+    int32_t recv_len;
+    uint64_t ts_end;
+    uint64_t ts_left;
+
+    ts_end = aos_now_ms() + timeout;
+    recv_len = 0;
+
+    do {
+        ts_left = 0;
+        if (ts_end > aos_now_ms()) {
+            ts_left = ts_end - (uint64_t)aos_now_ms();
+        }
+
+        if (ts_left == 0 && timeout != 0) {
+            ret = -3;
+            break;
+        }
+
+        FD_ZERO(&sets);
+        FD_SET(socket, &sets);
+        tv.tv_sec = ts_left / 1000;
+        tv.tv_usec = (ts_left % 1000) * 1000;
+        select(socket + 1, &sets, NULL, NULL, (ts_left == 0)? NULL: &tv);
+
+        if (FD_ISSET(socket, &sets)) {
+            if (http_session == NULL) {
+                ret = recv(socket, data, size - recv_len, 0);
+            }
+#if CONFIG_HTTP_SECURE
+            else {
+                ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size - recv_len);
+            }
+#endif
+
+            if (ret > 0) {
+                recv_len += ret;
+            } else if (ret == 0) {
+                http_log("%s, fd %d closed", __func__, socket);
+                ret = -1;
+            } else {
+                if ((EINTR == errno) || (EAGAIN == errno) || (EWOULDBLOCK == errno) ||
+                    (EPROTOTYPE == errno) || (EALREADY == errno) || (EINPROGRESS == errno)) {
+                    continue;
+                }
+
+                ret = -2;
+           }
+        } else {
+           ret = -2;
+        }
+
+        if (ret < 0) {
+            break;
+        }
+    } while (recv_len < size);
+
+    return (recv_len > 0? recv_len: ret);
+}
+
 #if CONFIG_HTTP_SECURE
 static int ssl_tx(void *context, const unsigned char *buf, size_t size)
 {
@@ -159,28 +224,12 @@ int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t 
 }
 
 int32_t httpc_wrapper_ssl_recv(httpc_handle_t httpc,
-                               uint8_t *data, int32_t size, int32_t timeout)
+                               uint8_t *data, uint32_t size, uint32_t timeout)
 {
     httpc_t *http_session = (httpc_t *)httpc;
-    struct timeval tv;
-    fd_set sets;
-    int32_t ret;
 
-    FD_ZERO(&sets);
-    FD_SET(http_session->socket, &sets);
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    select(http_session->socket + 1, &sets, NULL, NULL, (timeout == 0)? NULL: &tv);
-
-    if (FD_ISSET(http_session->socket, &sets)) {
-       ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size);
-    } else {
-       ret = -1;
-    }
-
-    return ret;
+    return recv_func(http_session->socket, data, size, timeout, httpc);
 }
-
 #endif
 
 int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t namelen)
@@ -195,22 +244,7 @@ int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flag
 
 int32_t httpc_wrapper_recv(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout)
 {
-    struct timeval tv;
-    fd_set sets;
-    int32_t ret;
-
-    FD_ZERO(&sets);
-    FD_SET(socket, &sets);
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    select(socket + 1, &sets, NULL, NULL, (timeout == 0)? NULL: &tv);
-
-    if (FD_ISSET(socket, &sets)) {
-       ret = recv(socket, data, size, 0);
-    } else {
-       ret = -1;
-    }
-    return ret;
+    return recv_func(socket, data, size, timeout, NULL);
 }
 
 void http_log(const char *fmt, ...)
