@@ -677,6 +677,7 @@ static void bt_ready(int err)
 #else
         ret = bt_mesh_init(&prov, &comp, NULL);
 #endif
+
         if (ret) {
                 printk("Mesh initialization failed (err %d)\n", ret);
         }
@@ -910,9 +911,11 @@ static int prepare_test_msg(struct net_buf_simple *msg)
 	return 0;
 }
 
+#define DEFAULT_PKT_INTERVAL 100
+#define DEFAULT_PKT_CNT 3
 extern long long k_now_ms();
 extern void k_sleep(s32_t ms);
-/* cmd: net-pressure-test <dst> <window> <packets-per-window> <duration> */
+/* cmd: net-pressure-test <dst> <window> <packets-per-window> <duration> [cnt] */
 static int cmd_net_pressure_test(int argc, char *argv[])
 {
 	struct net_buf_simple *msg = NET_BUF_SIMPLE(32);
@@ -925,11 +928,11 @@ static int cmd_net_pressure_test(int argc, char *argv[])
 	struct bt_mesh_net_tx tx = {
 		.ctx = &ctx,
 		.src = net.local,
-		.xmit = bt_mesh_net_transmit_get(),
+		.xmit = BT_MESH_TRANSMIT(DEFAULT_PKT_CNT, DEFAULT_PKT_INTERVAL),
 		.sub = bt_mesh_subnet_get(net.net_idx),
 	};
 	size_t len;
-	int err, window = 0, pkts = 0, dur = 0, i = 0;
+	int err, window = 0, pkts = 0, dur = 0, i = 0, cnt = DEFAULT_PKT_CNT;
 	long long start_time;
 
 	if (argc < 5) {
@@ -948,20 +951,30 @@ static int cmd_net_pressure_test(int argc, char *argv[])
 		dur = strtoul(argv[4], NULL, 0);
 	}
 
+	if ((argc == 6) && str_is_digit(argv[5])) {
+		cnt = strtoul(argv[5], NULL, 0);
+		tx.xmit = BT_MESH_TRANSMIT(cnt, DEFAULT_PKT_INTERVAL);
+	}
+
+	if (((window * 1000) / pkts) < (cnt * DEFAULT_PKT_INTERVAL + 100)) {
+		printk("Cannot start the test, since the test "
+                       "pkt interval is not set properly.\r\n");
+		return;
+	}
+
 	printk("%s started\r\n", argv[0]);
 
 	start_time = k_now_ms();
 	while ((k_now_ms() - start_time) < (dur * 1000)) {
 		prepare_test_msg(msg);
 		err = bt_mesh_trans_send(&tx, msg, NULL, NULL);
+		k_sleep((window * 1000) / pkts);
 		if (err) {
 			printk("%s failed to send (err %d)\r\n", __func__, err);
 		} else {
 			i++;
 			printk("%s test packet sent (No. %d)\r\n", __func__, i);
 		}
-
-		k_sleep((window * 1000) / pkts);
 	}
 
 	printk("%s ended.\r\n", argv[0]);
@@ -2402,7 +2415,7 @@ static const struct mesh_shell_cmd mesh_commands[] = {
 	{ "hk1", cmd_bunch_pb_gatt, "<UUID: 1-16 hex values>"},
 #endif
 
-	{ "net-pressure-test", cmd_net_pressure_test, "<dst> <window(s)> <pkt-per-window> <test duration(s)>"},
+	{ "net-pressure-test", cmd_net_pressure_test, "<dst> <window(s)> <pkt-per-window> <test duration(s)> [cnt]"},
 
 #if defined (CONFIG_BT_MESH_PROVISIONER)
 	{ "provisioner", cmd_provisioner, NULL },
