@@ -685,8 +685,13 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout);
 static inline void net_buf_destroy(struct net_buf *buf)
 {
 	struct net_buf_pool *pool = net_buf_pool_get(buf->pool_id);
+	unsigned int key;
 
+	/* adv_buf_pool may be accessed from multiple threads, so let's
+           add inter-thread protection here for adv_buf. */
+	key = irq_lock();
 	k_lifo_put(&pool->free, buf);
+	irq_unlock(key);
 }
 
 /**
