@@ -167,8 +167,6 @@ struct net_buf *net_buf_alloc(struct net_buf_pool *pool, s32_t timeout)
 		goto success;
 	}
 
-	irq_unlock(key);
-
 #if defined(CONFIG_NET_BUF_LOG) && SYS_LOG_LEVEL >= SYS_LOG_LEVEL_WARNING
 	if (timeout == K_FOREVER) {
 		u32_t ref = k_uptime_get_32();
@@ -198,8 +196,17 @@ struct net_buf *net_buf_alloc(struct net_buf_pool *pool, s32_t timeout)
 #else
 	buf = k_lifo_get(&pool->free, timeout);
 #endif
+
+	/**
+         * Include lifo_get operation inside protection block.
+         * lifo'timeout is not effective in our implementation so it's OK
+         * to include the fifo operation inside the protect.
+         */
+	irq_unlock(key);
+
 	if (!buf) {
-		NET_BUF_ERR("%s():%d: Failed to get free buffer", func, line);
+		NET_BUF_ERR("%s():%d: Failed to get free buffer (pool_id %d)",
+                            __func__, __LINE__, pool_id(pool));
 		return NULL;
 	}
 
@@ -231,8 +238,10 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout)
 
 	NET_BUF_DBG("%s():%d: fifo %p timeout %d", func, line, fifo, timeout);
 
+	key = irq_lock();
 	buf = k_fifo_get(fifo, timeout);
 	if (!buf) {
+		irq_unlock(key);
 		return NULL;
 	}
 
@@ -249,6 +258,8 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout)
         if (frag) {
 	    frag->frags = NULL;
         }
+
+	irq_unlock(key);
 
 	return buf;
 }
@@ -317,6 +328,7 @@ struct net_buf *net_buf_slist_get(sys_slist_t *list)
 void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
 {
 	struct net_buf *tail;
+	unsigned int key;
 
 	NET_BUF_ASSERT(fifo);
 	NET_BUF_ASSERT(buf);
@@ -325,7 +337,9 @@ void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
             tail->flags |= NET_BUF_FRAGS;
 	}
 
+	key = irq_lock();
 	k_fifo_put_list(fifo, buf, tail);
+	irq_unlock(key);
 }
 
 #if defined(CONFIG_NET_BUF_LOG)
@@ -335,15 +349,32 @@ void net_buf_unref(struct net_buf *buf)
 #endif
 {
 	NET_BUF_ASSERT(buf);
+#ifdef CONFIG_BT_MESH
+	unsigned int key;
+#endif
 
 	while (buf) {
 		struct net_buf *frags = buf->frags;
 		struct net_buf_pool *pool;
 
+		pool = net_buf_pool_get(buf->pool_id);
+
+#ifdef CONFIG_BT_MESH
+		if (pool == &adv_buf_pool) {
+			key = irq_lock();
+		}
+#endif
+
 #if defined(CONFIG_NET_BUF_LOG)
 		if (!buf->ref) {
 			NET_BUF_ERR("%s():%d: buf %p double free", func, line,
 				    buf);
+#ifdef CONFIG_BT_MESH
+			if (pool == &adv_buf_pool) {
+				irq_unlock(key);
+			}
+#endif
+
 			return;
 		}
 #endif
@@ -351,16 +382,25 @@ void net_buf_unref(struct net_buf *buf)
 			    buf->pool_id, buf->frags);
 
 		if (--buf->ref > 0) {
+#ifdef CONFIG_BT_MESH
+			if (pool == &adv_buf_pool) {
+				irq_unlock(key);
+			}
+#endif
 			return;
 		}
 
 		buf->frags = NULL;
 
-		pool = net_buf_pool_get(buf->pool_id);
-
 #if defined(CONFIG_NET_BUF_POOL_USAGE)
 		pool->avail_count++;
 		NET_BUF_ASSERT(pool->avail_count <= pool->buf_count);
+#endif
+
+#ifdef CONFIG_BT_MESH
+		if (pool == &adv_buf_pool) {
+			irq_unlock(key);
+		}
 #endif
 
 		if (pool->destroy) {
@@ -375,11 +415,31 @@ void net_buf_unref(struct net_buf *buf)
 
 struct net_buf *net_buf_ref(struct net_buf *buf)
 {
+#ifdef CONFIG_BT_MESH
+	struct net_buf_pool *pool;
+	unsigned int key;
+#endif
+
 	NET_BUF_ASSERT(buf);
+
+#ifdef CONFIG_BT_MESH
+	pool = net_buf_pool_get(buf->pool_id);
+
+	if (pool == &adv_buf_pool) {
+		key = irq_lock();
+	}
+#endif
 
 	NET_BUF_DBG("buf %p (old) ref %u pool_id %u",
 		    buf, buf->ref, buf->pool_id);
 	buf->ref++;
+
+#ifdef CONFIG_BT_MESH
+	if (pool == &adv_buf_pool) {
+		irq_unlock(key);
+	}
+#endif
+
 	return buf;
 }
 
