@@ -120,8 +120,10 @@ static u16_t dns_txid;
 
 /** DNS maximum number of retries when asking for a name, before "timeout". */
 #ifndef DNS_MAX_RETRIES
-#define DNS_MAX_RETRIES           4
+#define DNS_MAX_RETRIES           8
 #endif
+
+#define DNS_MAX_RETRY_INTERVAL    32  // 32 seconds
 
 /** DNS resource record max. TTL (one week as default) */
 #ifndef DNS_MAX_TTL
@@ -1057,7 +1059,10 @@ dns_check_entry(u8_t i)
                     entry->state = DNS_STATE_UNUSED;
                     break;
                 } else {
-                    entry->tmr = 1;
+                    entry->tmr = 1 << entry->retries;
+                    if (entry->tmr > DNS_MAX_RETRY_INTERVAL) {
+                        entry->tmr = DNS_MAX_RETRY_INTERVAL;
+                    }
                 }
 #ifndef CELLULAR_SUPPORT
                 index = (entry->server_idx + 1) % num_dns;
