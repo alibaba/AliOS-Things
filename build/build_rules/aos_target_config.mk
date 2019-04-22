@@ -242,7 +242,7 @@ AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
 $(eval PROCESSED_COMPONENTS += $(NAME))
 $(eval TMP_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)))))
 $(eval $(NAME)_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(wildcard $(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) ))))
-$(foreach srcfile,$(TMP_SOURCES),$(if $(findstring *,$(srcfile)),,$(if $(filter $(srcfile),$($(NAME)_SOURCES)),,$(warning $(NAME): Can not find source: "$($(NAME)_LOCATION)$(srcfile)" ...))))
+$(foreach srcfile,$(TMP_SOURCES),$(if $(findstring *,$(srcfile)),,$(if $(filter $(srcfile),$($(NAME)_SOURCES)),,$(error $(NAME): Can not find source: "$($(NAME)_LOCATION)$(srcfile)" ...))))
 $(eval $(NAME)_POPULATE_INCLUDES := $(if $(filter 1,$(STRICT)),$(addprefix $(subst $(SOURCE_ROOT),,$($(NAME)_LOCATION)),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))))
 
 ifeq ($(STRICT),1)
