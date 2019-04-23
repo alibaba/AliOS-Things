@@ -612,6 +612,7 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     int ret = 0;
     const char *ifname = WLAN0_NAME;
    
+    len = len - 4; /* remove fcs */
     ret = wext_send_mgnt(ifname, (char*)buf, len, 1);
     return 0;
 }
