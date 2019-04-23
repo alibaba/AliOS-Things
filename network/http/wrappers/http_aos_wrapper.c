@@ -205,6 +205,9 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
     } while (ret != 0);
 
 exit:
+    if (ret != 0) {
+        ret = HTTP_ECONN;
+    }
     return ret;
 }
 
@@ -218,7 +221,7 @@ int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc)
     mbedtls_x509_crt_free(&(http_session->https.ssl.ca_cert));
     mbedtls_ssl_free(&(http_session->https.ssl.context));
     mbedtls_ssl_config_free(&(http_session->https.ssl.conf));
-    return 0;
+    return HTTP_SUCCESS;
 }
 
 int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t size, int flags)
