@@ -43,7 +43,7 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
         }
 
         if (ts_left == 0 && timeout != 0) {
-            ret = -3;
+            ret = HTTP_ETIMEOUT;
             break;
         }
 
@@ -51,33 +51,37 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
         FD_SET(socket, &sets);
         tv.tv_sec = ts_left / 1000;
         tv.tv_usec = (ts_left % 1000) * 1000;
-        select(socket + 1, &sets, NULL, NULL, (ts_left == 0)? NULL: &tv);
+        ret = select(socket + 1, &sets, NULL, NULL, (ts_left == 0)? NULL: &tv);
 
-        if (FD_ISSET(socket, &sets)) {
-            if (http_session == NULL) {
-                ret = recv(socket, data, size - recv_len, 0);
-            }
+        if (ret > 0) {
+            if (FD_ISSET(socket, &sets)) {
+                if (http_session == NULL) {
+                    ret = recv(socket, data, size - recv_len, 0);
+                } else {
 #if CONFIG_HTTP_SECURE
-            else {
-                ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size - recv_len);
-            }
+                    ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size - recv_len);
+#else
+                    ret = HTTP_ENOTSUPP;
 #endif
-
-            if (ret > 0) {
-                recv_len += ret;
-            } else if (ret == 0) {
-                http_log("%s, fd %d closed", __func__, socket);
-                ret = -1;
-            } else {
-                if ((EINTR == errno) || (EAGAIN == errno) || (EWOULDBLOCK == errno) ||
-                    (EPROTOTYPE == errno) || (EALREADY == errno) || (EINPROGRESS == errno)) {
-                    continue;
                 }
 
-                ret = -2;
-           }
+                if (ret > 0) {
+                    recv_len += ret;
+                } else if (ret == 0) {
+                    http_log("%s, fd %d closed", __func__, socket);
+                    ret = HTTP_ECLSD;
+                } else {
+                    if ((EINTR == errno) || (EAGAIN == errno) || (EWOULDBLOCK == errno) ||
+                        (EPROTOTYPE == errno) || (EALREADY == errno) || (EINPROGRESS == errno)) {
+                        continue;
+                    }
+                    ret = HTTP_ERECV;
+               }
+            }
+        } else if (ret == 0) {
+            ret = HTTP_ETIMEOUT;
         } else {
-           ret = -2;
+            ret = HTTP_ERECV;
         }
 
         if (ret < 0) {
