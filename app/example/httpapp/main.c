@@ -19,6 +19,9 @@
 
 #define CONFIG_HTTP_CONTINUE_TEST 0
 
+#define WIFI_SSID "Yuemewifi-3766"
+#define WIFI_PASSWORD "aos12345"
+
 enum {
     HTTP_AUTH,
     HTTP_OTA,
@@ -501,7 +504,7 @@ int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
-    netmgr_start(false);
+    netmgr_connect(WIFI_SSID, WIFI_PASSWORD);
     aos_cli_register_command(&httpc_cmd);
     http_client_initialize();
     aos_post_delayed_action(2000, httpc_delayed_action, NULL);
