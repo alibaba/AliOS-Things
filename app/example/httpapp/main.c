@@ -189,7 +189,7 @@ static int32_t calc_sign(char *sign, const char *device_id, const char *product_
 
     hmac_sha1(sign, hmac_source, strlen(hmac_source),
               device_secret, strlen(device_secret));
-    return HTTPC_SUCCESS;
+    return HTTP_SUCCESS;
 }
 
 #define HTTP_AUTH_HDR_SIZE 128
@@ -227,7 +227,7 @@ static int32_t httpc_auth(const char *device_id, const char *product_key,
     ret = httpc_send_request(httpc_handle, HTTP_POST, "/auth/devicename", hdr,
                        "application/x-www-form-urlencoded;charset=utf-8", data, ret);
     ++auth_req_times;
-    if (ret != HTTPC_SUCCESS) {
+    if (ret != HTTP_SUCCESS) {
         ++auth_req_fail_times;
         goto exit;
     }
@@ -269,7 +269,7 @@ static int32_t httpc_ota(const char *uri)
     char *content;
 
     if (uri == NULL) {
-        return HTTPC_FAIL;
+        return HTTP_EARG;
     }
 
     ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
@@ -280,7 +280,7 @@ static int32_t httpc_ota(const char *uri)
 
     ret = httpc_send_request(httpc_handle, HTTP_GET, uri, hdr, NULL, NULL, 0);
     ++ota_req_times;
-    if (ret != HTTPC_SUCCESS) {
+    if (ret != HTTP_SUCCESS) {
         ++ota_req_fail_times;
         goto exit;
     }
@@ -351,7 +351,7 @@ static int32_t httpc_ota_head(const char *uri)
     char *content;
 
     if (uri == NULL) {
-        return HTTPC_FAIL;
+        return HTTP_EARG;
     }
 
     ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
@@ -362,12 +362,12 @@ static int32_t httpc_ota_head(const char *uri)
 
     ret = httpc_send_request(httpc_handle, HTTP_HEAD, uri, hdr, NULL, NULL, 0);
     ++ota_head_req_times;
-    if (ret != HTTPC_SUCCESS) {
+    if (ret != HTTP_SUCCESS) {
         ++ota_head_req_fail_times;
         goto exit;
     }
 
-    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 300000);
     if (ret < 0) {
         ++ota_head_req_fail_times;
     } else {
@@ -459,7 +459,7 @@ static void httpc_delayed_action(void *arg)
     }
 
 exit:
-    aos_post_delayed_action(500, httpc_delayed_action, (void *)(long)command);
+    aos_post_delayed_action(5000, httpc_delayed_action, (void *)(long)command);
 }
 
 static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
@@ -504,7 +504,7 @@ int application_start(int argc, char *argv[])
     netmgr_start(false);
     aos_cli_register_command(&httpc_cmd);
     http_client_initialize();
-    aos_post_delayed_action(100, httpc_delayed_action, NULL);
+    aos_post_delayed_action(2000, httpc_delayed_action, NULL);
     aos_loop_run();
     return 0;
 }
