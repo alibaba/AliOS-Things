@@ -379,6 +379,29 @@ static int set_random_address(const bt_addr_t *addr)
     return 0;
 }
 
+//set pub address with ext vs cmd
+static int set_public_address(const bt_addr_t *addr)
+{
+    struct net_buf *buf;
+    int             err;
+
+    BT_DBG("%s", bt_addr_str(addr));
+
+    buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_BD_ADDR, sizeof(*addr));
+    if (!buf) {
+        return -ENOBUFS;
+    }
+
+    net_buf_add_mem(buf, addr, sizeof(*addr));
+
+    err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_BD_ADDR, buf, NULL);
+    if (err) {
+        return err;
+    }
+    BT_DBG("set pub address success.\n");
+    return 0;
+}
+
 #if defined(CONFIG_BT_PRIVACY)
 /* this function sets new RPA only if current one is no longer valid */
 static int le_set_private_addr(void)
