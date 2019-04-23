@@ -11,8 +11,16 @@
 #define HTTP_API_H
 
 enum {
-    HTTPC_SUCCESS = 0,
-    HTTPC_FAIL = -1,
+    HTTP_SUCCESS = 0,
+    HTTP_ENOBUFS = -1,  // buffer error
+    HTTP_EARG = -2,  // illegal argument
+    HTTP_ENOTSUPP = -3,  // not support
+    HTTP_EDNS = -4,  // DNS fail
+    HTTP_ECONN = -5,  // connect fail
+    HTTP_ESEND = -6,  // send packet fail
+    HTTP_ECLSD = -7,  // connect closed
+    HTTP_ERECV = -8,  // recv packet fail
+    HTTP_ETIMEOUT = -9,  // timeout
 };
 
 typedef int32_t httpc_handle_t;
