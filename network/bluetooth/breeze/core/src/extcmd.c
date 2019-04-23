@@ -11,7 +11,6 @@
 #include "auth.h"
 #include "utils.h"
 #include "breeze_export.h"
-#include "chip_code.h"
 #include "bzopt.h"
 
 #include "breeze_hal_os.h"
@@ -28,10 +27,6 @@
 
 #define UTF8_MAX_SSID     32
 #define UTF8_MAX_PASSWORD 64
-
-#ifdef BUILD_AOS
-#include "aos/kernel.h"
-#endif
 
 enum {
     BLE_AWSS_CTYPE_SSID     = 0x01,
@@ -54,7 +49,6 @@ typedef ret_code_t (*ext_tlv_handler_t)(uint8_t *p_buff, uint8_t *p_blen,
 
 extcmd_t g_extcmd;
 extern auth_t g_auth;
-
 extern ret_code_t auth_get_device_secret(uint8_t *p_secret, uint8_t *p_length);
 
 typedef struct {
@@ -329,7 +323,6 @@ end:
 #endif
 
 #ifdef CONFIG_MODEL_SECURITY
-
 bool ext_get_device_secret()
 {
     char tmp_secret[DEVICE_SECRET_LEN];
@@ -420,46 +413,17 @@ end:
 
 static void get_os_info(void)
 {
-    uint8_t chip_code[4] = { 0 };
-    uint8_t chip_id_str[8] = { 0 };
-    const char *aostype = "AOS";
-    uint8_t suffix_len = 0;
-    char t_os_info[20] = { 0 };
-
-#ifdef BUILD_AOS
-    strncpy(t_os_info, (const char *)aos_version_get(), sizeof(t_os_info) - 1);
-    char *m_os_type = strtok(t_os_info, "-");
-    if (strcmp(aostype, m_os_type) == 0) {
-        m_os_type = strtok(NULL, "-");
-        m_os_type = strtok(NULL, "-");
-        strcat(m_os_type, ":");
-        BREEZE_LOG_INFO("AOS version %s(%d)\n", m_os_type, strlen(m_os_type));
-
-        suffix_len = strlen(m_os_type);
-        memcpy(g_extcmd.tlv_01_rsp, m_os_type, suffix_len);
-        chip_code_st *p_chip_code_obj = get_chip_code(MCU_FAMILY);
-        if (p_chip_code_obj != NULL) {
-            chip_code[0] = (uint8_t)(p_chip_code_obj->vendor >> 8);
-            chip_code[1] = (uint8_t)p_chip_code_obj->vendor;
-            chip_code[2] = (uint8_t)(p_chip_code_obj->id >> 8);
-            chip_code[3] = (uint8_t)p_chip_code_obj->id;
-        }
-
-        hex2string(chip_code, sizeof(chip_code), chip_id_str);
-        memcpy(g_extcmd.tlv_01_rsp + suffix_len, chip_id_str, sizeof(chip_id_str));
-        suffix_len += sizeof(chip_id_str);
-        memcpy(g_extcmd.tlv_01_rsp + suffix_len, m_sdk_version, sizeof(m_sdk_version) - 1);
-        suffix_len += sizeof(m_sdk_version) - 1;
-        g_extcmd.tlv_01_rsp[suffix_len] = '\0';
+    if(os_get_version_chip_info(g_extcmd.tlv_01_rsp, &g_extcmd.tlv_01_rsp_len) == 0){
+        BREEZE_LOG_INFO("OS version and vendor info %s(%d)\n", g_extcmd.tlv_01_rsp,g_extcmd.tlv_01_rsp_len);
+        memcpy(g_extcmd.tlv_01_rsp + g_extcmd.tlv_01_rsp_len, m_sdk_version, sizeof(m_sdk_version) - 1);
+        g_extcmd.tlv_01_rsp_len += sizeof(m_sdk_version) - 1;
+        g_extcmd.tlv_01_rsp[g_extcmd.tlv_01_rsp_len] = '\0';
         strcat(g_extcmd.tlv_01_rsp, ":1");
-        suffix_len = strlen(g_extcmd.tlv_01_rsp);
+        g_extcmd.tlv_01_rsp_len  = strlen(g_extcmd.tlv_01_rsp);
+    } else{
+        BREEZE_LOG_ERR("OS version get failed \n");
     }
-#else
-    memcpy(g_extcmd.tlv_01_rsp, "NON-AOS", strlen("NON-AOS"));
-    g_extcmd.tlv_01_rsp[suffix_len] = '\0';
-    suffix_len = strlen("NON-AOS");
-#endif
-    g_extcmd.tlv_01_rsp_len = suffix_len;
+
 }
 
 
