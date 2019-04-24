@@ -242,9 +242,13 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     // get host name
     if (http_str_search(settings->server_name, "/",
                         server_name_offset, server_name_len - server_name_offset, &param) == false) {
+        if ((server_name_len + 1) >= CONFIG_HTTPC_SERVER_NAME_SIZE) {
+            http_log("%s, server name no buffer space for padding /", __func__);
+            return 0;
+        }
         settings->server_name[server_name_len] = '/';
         if (http_str_search(settings->server_name, "/",
-                            server_name_offset, server_name_len - server_name_offset, &param) == false) {
+                            server_name_offset, server_name_len + 1 - server_name_offset, &param) == false) {
             http_log("%s, server name format error", __func__);
             return 0;
         }
@@ -432,6 +436,7 @@ static int8_t httpc_add_uri(httpc_handle_t httpc, const char *uri)
     char *hdr_ptr;
     int16_t free_space;
     int8_t ret;
+    bool add_slash = false;
 
     if (uri == NULL) {
         return HTTP_SUCCESS;
@@ -441,12 +446,23 @@ static int8_t httpc_add_uri(httpc_handle_t httpc, const char *uri)
         return HTTP_EARG;
     }
 
+    if (http_str_search(uri, "/", 0, 1, NULL) == false) {
+        add_slash = true;
+    }
+
     free_space = http_session->req.buf_size - http_session->req.data_len;
+    if (add_slash) {
+        --free_space;
+    }
     if (strlen(uri) > free_space) {
         return HTTP_ENOBUFS;
     }
 
     hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
+    if (add_slash) {
+        *(hdr_ptr++) = '/';
+        ++http_session->req.data_len;
+    }
     strncpy(hdr_ptr, uri, strlen(uri));
     http_session->req.data_len += strlen(uri);
     ret = httpc_add_space(httpc);
