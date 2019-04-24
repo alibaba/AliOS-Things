@@ -12,7 +12,6 @@ config ULOG_CONFIG_SYNC_LOG_DETAILS
     help
         enable rich details for log, includes mod name, file path and line.
         DO NOT recommend switch this function under rtos.
-comment "DO NOT switch on it under rtos unless necessary"
 
 if ULOG_CONFIG_SYNC_LOG_DETAILS
 config ULOG_CONFIG_SYNC_DETAIL_COLOR
@@ -20,6 +19,12 @@ config ULOG_CONFIG_SYNC_DETAIL_COLOR
     default n
     help
         enable color font for more details
+
+config ULOG_CONFIG_SYNC_ABS_PATH
+    bool "Enable Log Absolute Path under Detail Mode"
+    default n
+    help
+        enable log absolute path
 endif
 
 config ULOG_CONFIG_SYNC_LOG_MOD
