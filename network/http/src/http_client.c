@@ -226,6 +226,12 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
         return 0;
     }
 
+#if CONFIG_HTTP_SECURE
+    if ((settings->flags & HTTP_ALWAYS_HTTP) == HTTP_ALWAYS_HTTP) {
+        http_sessions[index].flags &= (~HTTP_CLIENT_FLAG_SECURE);
+        http_sessions[index].https.ssl.ca_cert_c = NULL;
+    }
+#endif
 
     if (http_str_search(settings->server_name, "://", server_name_offset, 3, NULL) == false) {
         http_log("%s, server name format error", __func__);
