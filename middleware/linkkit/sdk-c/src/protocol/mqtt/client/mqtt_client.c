@@ -2458,6 +2458,8 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
                                        void *pcontext)
 {
     int ret;
+    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
+
     POINTER_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
 
@@ -2466,6 +2468,21 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
     if (ret != 0) {
         return ret;
     }
+
+    HAL_MutexLock(_mqtt_offline_subs_list->mutex);
+    list_for_each_entry_safe(node, next_node, &_mqtt_offline_subs_list->offline_sub_list, linked_list,
+                             iotx_mc_offline_subs_t) {
+        if ((strlen(node->topic_filter) == strlen(topic_filter)) &&
+            memcmp(node->topic_filter, topic_filter, strlen(topic_filter)) == 0) {
+            node->qos = qos;
+            node->handle = topic_handle_func;
+            node->user_data = pcontext;
+            HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
+            return SUCCESS_RETURN;
+        }
+    }
+    HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
+
     iotx_mc_offline_subs_t *sub_info = mqtt_malloc(sizeof(iotx_mc_offline_subs_t));
     if (sub_info == NULL) {
         return ERROR_MALLOC;
@@ -3272,8 +3289,10 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 /* check whether MQTT connection is established or not */
 int IOT_MQTT_CheckStateNormal(void *handle)
 {
-    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
-    return iotx_mc_check_state_normal((iotx_mc_client_t *)handle);
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
+
+    POINTER_SANITY_CHECK(pClient, NULL_VALUE_ERROR);
+    return iotx_mc_check_state_normal(pClient);
 }
 
 int IOT_MQTT_Subscribe(void *handle,
