@@ -87,7 +87,7 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
                 before_mod[0] = 0;
                 rpt_mod = UNKNOWN_BUF;
             } else {
-                before_mod[0] =' ';
+                before_mod[0] = ' ';
                 before_mod[1] = 0;
                 rpt_mod = mod;
             }
@@ -98,7 +98,13 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
             printf("[%4d.%03d]<%c>%s%s [%s#%d] : ",
 #endif
                 (int)(ms / 1000),
-                (int)(ms % 1000), serverity_name[s], before_mod, rpt_mod, f, (int)l);
+                (int)(ms % 1000), serverity_name[s], before_mod, rpt_mod,
+#if SYNC_ABS_PATH
+                f,
+#else
+                trim_file_path(f),
+#endif
+                (int)l);
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);
