@@ -113,7 +113,7 @@ static int abs_data_set_timer_interval(uint32_t abs_index, uint32_t inerval)
         return -1;
     }
 
-    g_abs_data_db[abs_index]->full_info.config.inerval = inerval;
+    g_abs_data_db[abs_index]->interval = inerval;
 
     return 0;
 }
@@ -220,7 +220,6 @@ void abs_sensor_read(uint32_t       abs_index)
         return;
     }
 
-    //memset(addr, 0, len);
     ret = abs_data_read(abs_index, data, len);
     if (ret <= 0) {
         return;
@@ -346,7 +345,6 @@ static int abs_data_timer_update(uint32_t abs_index, int interval)
     if (unlikely(ret)) {
         return -1;
     }
-
     /* fill the timer info inot the interval lists of timer from sensor service
     side, set the timer of abs sensor model by the min interval */
     if (true == abs_data_get_timer_status()) {
@@ -519,7 +517,8 @@ static int abs_data_timer_config(uint32_t abs_index, udata_service_t *service)
         return -1;
     }
 
-    if(service->interval[abs_index] == interval){
+    if(g_abs_data_db[abs_index]->interval == interval){
+
         return 0;
     }
 
@@ -813,13 +812,6 @@ int abs_data_ioctl(uint32_t abs_index, void *config)
          */
         arg = (unsigned long)(&sensor_config->info);
     } else if (sensor_config->config.id == SENSOR_IOCTL_GET_SENSOR_LIST) {
-        /* should open the sensor hale node to get all the senor list */
-        // ret = abs_data_get_dev_list(&(sensor_config->info.list));
-        // if(unlikely(ret)){
-        // LOG("%s %s %s %d\n",  uDATA_STR, __func__, ERROR_LINE, __LINE__);
-        //    return -1;
-        //}
-        // return 0;
     } else if (sensor_config->config.id == SENSOR_IOCTL_GET_SENSOR_MODE) {
         arg = (unsigned long)(&sensor_config->config);
     } else if (sensor_config->config.id == SENSOR_IOCTL_SET_SENSOR_IRQ_CB) {
@@ -855,7 +847,6 @@ int abs_cali_data_register(uint32_t abs_index, void *cb)
 
 int abs_cali_data_unregister(uint32_t abs_index)
 {
-    // TODO;
     return 0;
 }
 
