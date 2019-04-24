@@ -16,6 +16,8 @@
 #include "mbedtls/debug.h"
 #endif
 
+#define HTTP_WRAPPER_SEND_TIMEOUT 10000
+
 httpc_t *g_httpc_sessions = NULL;
 
 struct hostent *httpc_wrapper_gethostbyname(const char *name)
@@ -90,6 +92,72 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
     } while (recv_len < size);
 
     return (recv_len > 0? recv_len: ret);
+}
+
+static int32_t send_func(int32_t socket, uint8_t *data, uint32_t size, int flags, httpc_handle_t httpc)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    struct timeval tv;
+    fd_set sets;
+    int32_t ret = HTTP_SUCCESS;
+    int32_t sent_len;
+    uint64_t ts_end;
+    uint64_t ts_left;
+
+    ts_end = aos_now_ms() + HTTP_WRAPPER_SEND_TIMEOUT;
+    sent_len = 0;
+
+    do {
+        ts_left = 0;
+        if (ts_end > aos_now_ms()) {
+            ts_left = ts_end - (uint64_t)aos_now_ms();
+        }
+
+        if (ts_left == 0) {
+            ret = HTTP_ETIMEOUT;
+            break;
+        }
+
+        FD_ZERO(&sets);
+        FD_SET(socket, &sets);
+        tv.tv_sec = ts_left / 1000;
+        tv.tv_usec = (ts_left % 1000) * 1000;
+        ret = select(socket + 1, NULL, &sets, NULL, &tv);
+
+        if (ret > 0) {
+            if (FD_ISSET(socket, &sets)) {
+                if (http_session == NULL) {
+                    ret = send(socket, data, size - sent_len, 0);
+                } else {
+#if CONFIG_HTTP_SECURE
+                    ret = mbedtls_ssl_write(&http_session->https.ssl.context, data, size - sent_len);
+#else
+                    ret = HTTP_ENOTSUPP;
+#endif
+                }
+            }
+
+            if (ret > 0) {
+                sent_len += ret;
+                ret = HTTP_SUCCESS;
+            } else if (ret < 0) {
+                if (EINTR == errno) {
+                    continue;
+                }
+                ret = HTTP_ESEND;
+           }
+        } else if (ret == 0) {
+            ret = HTTP_ETIMEOUT;
+        } else {
+            ret = HTTP_ESEND;
+        }
+
+        if (ret < 0) {
+            break;
+        }
+    } while (sent_len < size);
+
+    return (ret == HTTP_SUCCESS? sent_len: ret);
 }
 
 #if CONFIG_HTTP_SECURE
@@ -227,7 +295,7 @@ int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc)
 int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t size, int flags)
 {
     httpc_t *http_session = (httpc_t *)httpc;
-    return mbedtls_ssl_write(&http_session->https.ssl.context, data, size);
+    return send_func(http_session->socket, data, size, flags, httpc);
 }
 
 int32_t httpc_wrapper_ssl_recv(httpc_handle_t httpc,
@@ -246,7 +314,7 @@ int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t
 
 int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flags)
 {
-    return send(socket, data, size, flags);
+    return send_func(socket, data, size, flags, NULL);
 }
 
 int32_t httpc_wrapper_recv(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout)

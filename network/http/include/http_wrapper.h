@@ -56,8 +56,9 @@ int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc);
  * @param[in] size  size of data to send
  * @param[in] flags flags for this transmission, usually set to 0
  *
- * @return (0, size] send data length
- * @return < 0       send fail
+ * @return (0, size]         send data length
+ * @return HTTP_ESEND(-6)    send fail
+ * @return HTTP_ETIMEOUT(-9) send timeout
  *
  */
 int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t size, int flags);
@@ -101,8 +102,9 @@ int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t
  * @param[in] size   size of data to send
  * @param[in] flags  flags for this transmission, usually set to 0
  *
- * @return (0, size] send data length
- * @return < 0       send fail
+ * @return (0, size]         send data length
+ * @return HTTP_ESEND(-6)    send fail
+ * @return HTTP_ETIMEOUT(-9) send timeout
  *
  */
 int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flags);
