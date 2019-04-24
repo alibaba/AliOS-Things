@@ -24,8 +24,6 @@ typedef struct extcmd_s {
     uint32_t model_id;
     uint8_t*p_product_key;
     uint8_t product_key_len;
-    uint8_t *p_secret;
-    uint8_t secret_len;
     uint8_t *p_device_name;
     uint8_t device_name_len;
     uint8_t tx_buff[ALI_EXT_TX_BUFF_LEN];
