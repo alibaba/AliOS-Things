@@ -105,8 +105,8 @@ int8_t httpc_deinit(httpc_handle_t httpc);
  * @return HTTP_ESEND    send request fail
  *
  */
-int32_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
-                           const char *hdr, const char *content_type, const char *param, uint16_t param_len);
+int8_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
+                          const char *hdr, const char *content_type, const char *param, uint16_t param_len);
 
 /**
  * http client receive response

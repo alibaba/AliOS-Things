@@ -570,8 +570,8 @@ static int8_t httpc_reset(httpc_t *http_session)
     return HTTP_SUCCESS;
 }
 
-int32_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
-                           const char *hdr, const char *content_type, const char *param, uint16_t param_len)
+int8_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
+                          const char *hdr, const char *content_type, const char *param, uint16_t param_len)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     int8_t ret = HTTP_SUCCESS;
@@ -707,17 +707,20 @@ int32_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri
         socket_res = httpc_wrapper_ssl_send((httpc_handle_t)http_session, http_session->req.buf,
                                             strlen((const char *)http_session->req.buf), 0);
 #else
-        socket_res = -1;
+        socket_res = HTTP_ENOTSUPP;
 #endif
     } else {
-        socket_res = httpc_wrapper_send(http_session->socket, http_session->req.buf, strlen((const char *)http_session->req.buf), 0);
+        socket_res = httpc_wrapper_send(http_session->socket, http_session->req.buf,
+                                        strlen((const char *)http_session->req.buf), 0);
     }
 
-    if (socket_res < 0) {
-        ret = HTTP_ESEND;
+    if (socket_res > 0) {
+        ret = HTTP_SUCCESS;
+    } else {
+        ret = (int8_t)socket_res;
     }
 
-    http_log("%s, send %d, send res %d", __func__, strlen((const char *)http_session->req.buf), socket_res);
+    http_log("%s, send %d, ret %d", __func__, strlen((const char *)http_session->req.buf), ret);
 
 exit:
     return ret;
