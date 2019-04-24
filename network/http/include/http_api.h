@@ -10,6 +10,7 @@
 #ifndef HTTP_API_H
 #define HTTP_API_H
 
+// http error code
 enum {
     HTTP_SUCCESS = 0,
     HTTP_ENOBUFS = -1,  // buffer error
@@ -22,6 +23,8 @@ enum {
     HTTP_ERECV = -8,  // recv packet fail
     HTTP_ETIMEOUT = -9,  // timeout
 };
+
+#define HTTP_ALWAYS_HTTP 0x80
 
 typedef int32_t httpc_handle_t;
 
@@ -38,6 +41,10 @@ typedef struct httpc_connection_s {
 
     uint8_t *req_buf;  // pointer to request buffer
     int32_t req_buf_size; // request buffer size
+
+#if CONFIG_HTTP_SECURE
+    uint8_t flags;  // flags to http client
+#endif
 } httpc_connection_t;
 
 typedef struct http_rsp_info_s {
