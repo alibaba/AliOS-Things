@@ -8,7 +8,9 @@ $(NAME)_COMPONENTS += osal_aos
 
 GLOBAL_DEFINES += AOS_COMP_ULOG
 #sync mode is default selected using
-$(NAME)_SOURCES     := log.c ulog_init.c
+$(NAME)_SOURCES     := log.c ulog_init.c ulog_utility.c
+
+$(NAME)_CFLAGS      += -Wall -Werror
 
 ifeq ($(ULOG_CONFIG_ASYNC),y)
 GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
