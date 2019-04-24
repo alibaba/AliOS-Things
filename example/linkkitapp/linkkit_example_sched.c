@@ -193,6 +193,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     return 0;
 }
 
+#ifdef ALCS_ENABLED
 static int user_property_get_event_handler(const int devid, const char *request, const int request_len, char **response,
         int *response_len)
 {
@@ -315,7 +316,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
 
     return SUCCESS_RETURN;
 }
-
+#endif
 static int user_report_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
         const int reply_len)
 {
@@ -445,7 +446,10 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
+#ifdef ALCS_ENABLED
+    /*Only for local communication service(ALCS)*/
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
+#endif
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_trigger_event_reply_event_handler);
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
