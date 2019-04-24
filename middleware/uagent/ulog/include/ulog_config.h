@@ -46,6 +46,10 @@ extern "C" {
 */
 #define SYSLOG_FACILITY        128
 
+#define TAG_FILE_NAME_MAX_LEN  12
+
+#define UNDEFINE_FILE_NAME "unknown"
+
 /**
 * Specify the port of syslog watcher
 * NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
@@ -74,6 +78,12 @@ extern "C" {
 #define SYNC_DETAIL_COLOR 0
 #else
 #define SYNC_DETAIL_COLOR ULOG_CONFIG_SYNC_DETAIL_COLOR
+#endif
+
+#ifndef ULOG_CONFIG_SYNC_ABS_PATH
+#define SYNC_ABS_PATH 0
+#else
+#define SYNC_ABS_PATH ULOG_CONFIG_SYNC_ABS_PATH
 #endif
 
 /**

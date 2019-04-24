@@ -59,6 +59,8 @@ void on_update_syslog_watcher_addr(const uint32_t ip_nl, const uint32_t port);
 void on_tcpip_service_on(const uint32_t on, const uint32_t off);
 void on_fs_record_pause(const uint32_t on, const uint32_t off);
 
+char* trim_file_path(const char* path);
+char *syslog_format_time(char *buffer, const int len);
 
 #ifdef __cplusplus
 }
