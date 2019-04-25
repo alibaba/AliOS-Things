@@ -465,7 +465,6 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
     } else {
         rda59xx_sniffer_disable();
     }
-    return 0;
 }
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m,
