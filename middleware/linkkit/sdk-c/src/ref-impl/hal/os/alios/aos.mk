@@ -21,7 +21,16 @@ endif
 
 ifeq (y,$(strip $(HAL_CRYPTO)))
 $(NAME)_SOURCES += HAL_Crypt_rhino.c 
-$(NAME)_COMPONENTS += alicrypto
+ifeq (y,$(strip $(SUPPORT_ITLS)))
+$(NAME)_COMPONENTS +=  itls
+else
+ifeq (y,$(strip $(SUPPORT_TLS)))
+$(NAME)_COMPONENTS +=  imbedtls
+else 
+$(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
+$(NAME)_COMPONENTS +=  mbedtls
+endif
+endif
 endif
 
 ifeq (y,$(strip $(SUPPORT_ITLS)))
