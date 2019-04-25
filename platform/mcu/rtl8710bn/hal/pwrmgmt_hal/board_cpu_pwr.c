@@ -235,6 +235,9 @@ int pwrmgmt_suspend_lowpower() {
     RHINO_CRITICAL_ENTER();
     pmu_acquire_wakelock(PMU_DEV_OTA);
     RHINO_CRITICAL_EXIT_SCHED();
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_disable_powersave();
+#endif
     return 1;
 }
 
@@ -243,6 +246,9 @@ int pwrmgmt_resume_lowpower() {
     RHINO_CRITICAL_ENTER();
     pmu_release_wakelock(PMU_DEV_OTA);
     RHINO_CRITICAL_EXIT_SCHED();
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+     wifi_enable_powersave();
+#endif
     return 1;
 }
 #endif /* AOS_COMP_PWRMGMT */

@@ -218,6 +218,9 @@ static void ota_download_thread(void *hand)
         ctx->upg_status = OTA_DOWNLOAD_FAIL;
         goto ERR;
     }
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_suspend_lowpower();
+#endif
 #if (defined BOARD_ESP8266)
     ktask_t* h = NULL;
     #ifdef WIFI_PROVISION_ENABLED
@@ -316,6 +319,9 @@ ERR:
     ctx->h_tr->status(100, ctx);
 #endif
     ota_free_hash_ctx();
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_resume_lowpower();
+#endif
     ota_on_going_reset();
     ota_msleep(3000);
     ota_reboot();
