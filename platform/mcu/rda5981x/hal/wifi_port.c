@@ -458,9 +458,13 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
                                           monitor_data_cb_t fn)
 {
     data_cb = fn;
-    rda59xx_sniffer_enable(sniffer_cb);
-    rda59xx_sniffer_set_filter(1, 1, 0x7fe77);
-    filter_backup = 0x7fe77;
+    if (data_cb) {
+        rda59xx_sniffer_enable(sniffer_cb);
+        rda59xx_sniffer_set_filter(1, 1, 0x7fe77);
+        filter_backup = 0x7fe77;
+    } else {
+        rda59xx_sniffer_disable();
+    }
     return 0;
 }
 
