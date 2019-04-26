@@ -40,9 +40,6 @@ static cpu_pwr_t cpu_pwr_node_core_0;
 
 static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
 {
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-     static sys_time_t last_log_entersleep = 0;
-#endif
     int cnt;
     switch (cpuCState) {
         case CPU_CSTATE_C0:
@@ -62,12 +59,6 @@ static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
             /* put CPU into C1 state, for ARM we can call WFI instruction
                to put CPU into C1 state. */
             PWR_DBG(DBG_INFO, "enter C1\n");
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-            if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
-                last_log_entersleep = krhino_sys_tick_get();
-                printf("enter sleep %d ms\r\n", (uint32_t) expeted_sleep_ms);
-            }
-#endif
             __DSB();
             __WFI();
             __ISB();
