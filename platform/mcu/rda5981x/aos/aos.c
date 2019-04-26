@@ -42,6 +42,9 @@ static void sys_init(void)
     aos_framework_init();
     dumpsys_cli_init();
     board_init_later();
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
+#endif
     application_start(0, NULL);
 #endif
 }

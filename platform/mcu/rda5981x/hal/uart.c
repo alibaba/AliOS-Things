@@ -2,11 +2,18 @@
 #include "serial_api.h"
 #include "rda5981x_pinconfig.h"
 #include "aos/kernel.h"
+#include "rda_def.h"
+#include "rda_sys_wrapper.h"
+#include "k_dftdbg_config.h"
 
 #define UART_NUM 2
+#define DEFAULT_UART_RECV_BUF_SIZE 512
 
 static serial_t serial_obj[UART_NUM];
 static uint8_t is_inited[UART_NUM] = {0};
+
+r_void *uart_recv_buf_queue[UART_NUM] = {NULL, NULL};
+static void console_irq_handler(uint32_t index, SerialIrq event);
 
 /*---------------------------------------------------------------------------*/
 #define HFUART_RX_BUFFER_SIZE			(1024)
@@ -128,8 +135,10 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     if (0 == uart->port) {
         serial_init(uart->priv, RDA_UART0_TXD, RDA_UART0_RXD);
+        uart_recv_buf_queue[0] = rda_queue_create(DEFAULT_UART_RECV_BUF_SIZE, sizeof(unsigned char));
     } else {
         serial_init(uart->priv, RDA_UART1_TXD_2, RDA_UART1_RXD_2);
+        uart_recv_buf_queue[1] = rda_queue_create(DEFAULT_UART_RECV_BUF_SIZE, sizeof(unsigned char));
     }
 
     serial_baud(uart->priv, uart->config.baud_rate);
@@ -143,6 +152,12 @@ int32_t hal_uart_init(uart_dev_t *uart)
         serial_irq_handler(uart->priv, uart_rx_irq_handler, (uint32_t)uart->port);
         serial_irq_set(uart->priv, RxIrq, 1);
         serial_irq_set(uart->priv, TxIrq, 0);
+    } else {
+
+#if (RHINO_CONFIG_PANIC_CLI == 0)
+        serial_irq_handler(uart->priv, console_irq_handler, (uint32_t)1);
+        serial_irq_set(uart->priv, RxIrq, 1);
+#endif
     }
 	
     if (FLOW_CONTROL_CTS_RTS == uart->config.flow_control) {
@@ -155,8 +170,14 @@ int32_t hal_uart_init(uart_dev_t *uart)
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
     if (0 == is_inited[uart->port]) {
+        /* To avoid opening the UART0 automatically when testing power consumption, 
+           the user needs to explicitly initialize the UART0 . 
+           The debug UART does not print when the UART is not initialized */
+#if 0
         hal_uart_init(uart);
         is_inited[uart->port] = 1;
+#endif
+        return 0;
     }
 
     uint8_t *send_data = (char *)data;
@@ -179,23 +200,56 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                          uint32_t *recv_size, uint32_t timeout)
 {
+    uint32_t rx_count = 0;
+    int ret;
 
     if (0 == is_inited[uart->port]) {
+        /* To avoid opening the UART0 automatically when testing power consumption, 
+           the user needs to explicitly initialize the UART0 . 
+           The debug UART does not print when the UART is not initialized */
+#if 0
         hal_uart_init(uart);
         is_inited[uart->port] = 1;
+#endif
+        return 0;
     }
 	
     if(0 == uart->port){
 	    uint8_t *recv_data = (char *)data;
+        uint8_t queue_data;
+        if(uart_recv_buf_queue[uart->port] == NULL){
+            mbed_error_printf("uart_%d_recv_buf_queue create failed\r\n",uart->port);
+            if(recv_size != NULL)
+                *recv_size = 0;
+            return;
+        }
 
-	    while (expect_size > 0) {
-	        *recv_data = (uint8_t)serial_getc(uart->priv);
-	        recv_data++;
-	        expect_size--;
-	    }
+#if (RHINO_CONFIG_PANIC_CLI == 0)
+        for(rx_count = 0; rx_count < expect_size; rx_count++){
+            ret = rda_queue_recv(uart_recv_buf_queue[uart->port], &queue_data, RDA_WAIT_FOREVER);
+            if(!ret) {
+                *recv_data ++ = queue_data;
+            } else
+                break;
+        }
+#else
+
+        while (rx_count < expect_size) {
+            while(serial_readable(&serial_obj[0])) {
+                recv_data[rx_count++] = serial_getc(&serial_obj[0]); 
+                if(rx_count == expect_size)
+                    break;
+            }
+
+            if(rx_count == expect_size)
+                break;
+        }
+#endif
+        if(rx_count != expect_size)
+            printf("uart recv error:expect=%d recv=%d\r\n",expect_size,rx_count);
 
 	    if (NULL != recv_size)
-	        recv_size = expect_size;
+            *recv_size = rx_count;
     }
     else
     {
@@ -247,3 +301,16 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     return 0;
 }
 
+static void console_irq_handler(uint32_t index, SerialIrq event){
+    unsigned char c;
+    int ret;
+    if(RxIrq == event){
+        while(serial_readable(&serial_obj[index])){
+            c = serial_getc(&serial_obj[index]);
+            ret = rda_queue_send(uart_recv_buf_queue[index], (r_u32) &c, RDA_NO_WAIT);
+            if(ret != 0) {
+                mbed_error_printf("uart_recv_buf_queue full\r\n");
+            }
+        }
+    }
+}
