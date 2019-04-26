@@ -42,10 +42,12 @@ int32_t netmgr_connect(const char *ssid, const uint8_t *password)
         password == NULL  || strlen(password) > MAX_PWD_SIZE) {
         return -1;
     }
+
     strncpy(config.ssid, ssid, strlen(ssid));
     strncpy(config.pwd, password, strlen(password));
     netmgr_set_ap_config(&config);
-    netmgr_reconnect_wifi();
+    netmgr_wifi_start(false);
+    return 0;
 }
 
 #endif
