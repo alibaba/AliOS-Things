@@ -16,14 +16,39 @@ extern "C"
 #include "netmgr_wifi.h"
 #endif
 
+/**
+ *
+ * initialize netmgr module
+ *
+ * @return 0   initialize success
+ * @return < 0 initialize fail
+ */
 int netmgr_init(void);
+
+/**
+ *
+ * deinitialize netmgr module
+ *
+ * @return 0   deinitialize success
+ * @return < 0 deinitialize fail
+ */
 void netmgr_deinit(void);
+
+/**
+ *
+ * start netmgr
+ *
+ * @param[in] autoconfig start WiFi provision or not
+ *
+ * @return 0   start WiFi provision success
+ * @return < 0 start WiFi provision fail
+ */
 int netmgr_start(bool autoconfig);
 
 #ifdef NET_WITH_wIFI
 /**
  *
- * connect to specified SSID and password
+ * connect to specified WiFi network with given SSID and password
  *
  * @param[in] ssid     WiFi SSID
  * @param[in] password WiFi password
