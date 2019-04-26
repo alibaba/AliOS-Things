@@ -3,16 +3,20 @@
 ## Contents
 
 ```shell
+├── src
+│   ├── netmgr.c
+│   ├── netmgr_wifi.c
+│   ├── netmgr_net.c
+│   └── netmgr_cellular.c
 ├── hal
-│   └── net.c
+│   ├── net.c
+│   ├── wifi.c
+│   └── cellular.c
 ├── include
 │   ├── netmgr.h
-│   └── netmgr_wifi.h
-├── interfaces
-│   ├── netmgr_net.c
-│   └── netmgr_wifi.c
-├── netmgr.c
-├── netmgr.mk
+│   ├── netmgr_wifi.h
+│   └── netmgr_cellular.h
+├── aos.mk
 └── ucube.py
 ```
 
@@ -25,6 +29,7 @@
 - **Start/Stop of Network Provision Process**.  `netmgr` provides APIs to start and stop network provisioning process. The network can be flexiblely custimized to be WiFi, NB-IoT, etc. 
 - **Network State Event Handling**.  `netmgr` also manages the network state change and events handling during the network provision process. The events handled by `netmgr`, in WiFi case, includes: `STATION_UP`, `STATION_DOWN`, `ON_CONNECTED`, `ON_DISCONNECT` and `ON_GOT_IP`.
 - **WiFi SSID Persistant Storage**. `netmgr` is also reponsible for saving WiFi SSID/password information in persistant storage, e.g. flash,  upon network connection during the WiFi provisioning process. `netmgr` is also responsible for using the WiFi information stored in persistant storage to connect AP when devices is already provisioned before. 
+- **Connect to the specified network with given ssid and password**.  `netmgr` provides APIs to connect the specified WiFi network with given SSID and password.
 
 ### Dependencies
 
