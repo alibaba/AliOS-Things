@@ -97,7 +97,7 @@ static struct cli_command diffcmd = {
 };
 
 static struct cli_command otacmd = { .name     = "OTA_APP",
-                                     .help     = "OTA_APP pk dn ps",
+                                     .help     = "OTA_APP pk dn ds ps",
                                      .function = handle_ota_cmd };
 
 #endif
