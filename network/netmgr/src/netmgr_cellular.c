@@ -200,13 +200,12 @@ static const hal_cellular_event_cb_t g_cellular_hal_event = {
     .fatal_err = netmgr_fatal_err_event,
 };
 
-int netmgr_cellular_init(void)
-{
 static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
 {
     if (eventinfo->type != EV_CELLULAR) {
         return;
     }
+
     switch (eventinfo->code) {
         case CODE_CELLULAR_ON_DISCONNECT:
             g_netmgr_cxt.ip_available = false;
@@ -214,16 +213,20 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
             break;
     }
 }
+
 bool netmgr_get_ip_state()
 {
     return g_netmgr_cxt.ip_available;
 }
+
+int netmgr_cellular_init(void)
+{
     hal_cellular_module_t *module;
 
     aos_register_event_filter(EV_CELLULAR, netmgr_events_executor, NULL);
     module = hal_cellular_get_default_module();
     memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
-    g_netmgr_cxt.ip_available                   = false;
+    g_netmgr_cxt.ip_available = false;
     g_netmgr_cxt.hal_mod = module;
     hal_cellular_install_event(g_netmgr_cxt.hal_mod, &g_cellular_hal_event);
     return 0;
