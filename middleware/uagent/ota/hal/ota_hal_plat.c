@@ -18,7 +18,11 @@
 #include "esp_system.h"
 #include "upgrade.h"
 #elif defined (STM32L496xx)
-#define OTA_CACHE_SIZE         2048
+
+#define OTA_CACHE_LINE_SIZE    8
+#define OTA_CACHE_NUMB         256
+#define OTA_CACHE_SIZE         OTA_CACHE_NUMB * OTA_CACHE_LINE_SIZE
+
 uint8_t  *ota_cache            = NULL;
 uint8_t  *ota_cache_actual     = NULL;
 uint32_t ota_cache_len         = 0;
@@ -71,12 +75,8 @@ static int ota_init(void *something)
 #if defined (STM32L496xx)
     ota_fw_size = param->len;
     ota_receive_total_len = _offset;
-    ota_cache = ota_malloc(OTA_CACHE_SIZE + 8);
-    if (ota_cache != NULL) {
-        /*Align with 8 bytes*/
-        ota_cache_actual = (uint8_t *)((uint32_t)ota_cache & ~0x7);
-    }
-    else {
+    ota_cache = ota_malloc(OTA_CACHE_SIZE);
+    if (ota_cache == NULL) {
         ret = OTA_INIT_FAIL;
         return ret;
     }
