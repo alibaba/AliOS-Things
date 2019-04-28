@@ -52,7 +52,7 @@ uint32_t auth_req_times = 0;
 uint32_t auth_req_fail_times = 0;
 uint32_t auth_rsp_times = 0;
 #endif
-char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80/";
+char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://mjfile-test.smartmidea.net:80";
 uint32_t ota_req_times = 0;
 uint32_t ota_req_fail_times = 0;
 uint32_t ota_rsp_times = 0;
@@ -452,7 +452,7 @@ static void httpc_delayed_action(void *arg)
 #endif
             break;
         case HTTP_OTA:
-            httpc_ota("/050509031881.bin");
+            httpc_ota("050509031881.bin");
             break;
         case HTTP_OTA_HEAD:
             httpc_ota_head("/050509031881.bin");
@@ -504,10 +504,10 @@ int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
-    netmgr_connect(WIFI_SSID, WIFI_PASSWORD);
+    netmgr_connect(WIFI_SSID, WIFI_PASSWORD, 10000);
     aos_cli_register_command(&httpc_cmd);
     http_client_initialize();
-    aos_post_delayed_action(2000, httpc_delayed_action, NULL);
+    aos_post_delayed_action(100, httpc_delayed_action, NULL);
     aos_loop_run();
     return 0;
 }
