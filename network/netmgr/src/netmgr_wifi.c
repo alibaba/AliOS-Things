@@ -149,7 +149,7 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m, hal_wifi_ip_stat_t *pnet,
     randomize_tcp_local_port();
 #endif
 
-    g_netmgr_cxt.ipv4_owned   = translate_addr(pnet->ip);
+    g_netmgr_cxt.ipv4_owned = translate_addr(pnet->ip);
     g_netmgr_cxt.ip_available = true;
     aos_post_event(EV_WIFI, CODE_WIFI_ON_PRE_GOT_IP, 0u);
     start_mesh(true);
@@ -488,7 +488,7 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
             break;
         case CODE_WIFI_CMD_RECONNECT:
             g_netmgr_cxt.disconnected_times = 0;
-            g_netmgr_cxt.ip_available       = false;
+            g_netmgr_cxt.ip_available = false;
             LOGD("netmgr", "reconnect wifi - %s, %s",
                  g_netmgr_cxt.ap_config.ssid, g_netmgr_cxt.ap_config.pwd);
             reconnect_wifi(NULL);
@@ -610,6 +610,14 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
         strncpy(config.pwd, argv[3], sizeof(config.pwd) - 1);
         netmgr_set_ap_config(&config);
         netmgr_start(false);
+    } else if (strcmp(rtype, "stats") == 0) {
+        netmgr_stats_t stats;
+        netmgr_stats(INTERFACE_WIFI, &stats);
+        if (stats.ip_available) {
+            LOGI(TAG, "ip: %s", stats.ip);
+        } else {
+            LOGI(TAG, "ip not available");
+        }
     } else {
         netmgr_start(true);
     }
@@ -617,7 +625,7 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
 
 static struct cli_command ncmd = {
     .name     = "netmgr",
-    .help     = "netmgr [start|clear|connect ssid password]",
+    .help     = "netmgr [start|clear|stats|connect ssid password]",
     .function = handle_netmgr_cmd,
 };
 #endif
@@ -684,9 +692,9 @@ int netmgr_wifi_init(void)
 
     module = hal_wifi_get_default_module();
     memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
-    g_netmgr_cxt.ip_available                   = false;
+    g_netmgr_cxt.ip_available = false;
     g_netmgr_cxt.wifi_scan_complete_cb_finished = false;
-    g_netmgr_cxt.wifi_hal_mod                   = module;
+    g_netmgr_cxt.wifi_hal_mod = module;
 #if !defined(WITH_SAL) || defined(DEV_SAL_ATHOST)
 #if defined(CONFIG_YWSS) && (!defined(CSP_LINUXHOST) || defined(DEV_SAL_ATHOST))
     add_autoconfig_plugin(&g_alink_smartconfig);
@@ -739,37 +747,37 @@ int netmgr_wifi_start(bool autoconfig)
 }
 
 #ifdef CONFIG_YWSS
-    static int smart_config_start(void)
-    {
-        extern int awss_start();
-        awss_start();
-        return 0;
+static int smart_config_start(void)
+{
+    extern int awss_start();
+    awss_start();
+    return 0;
+}
+
+static void smart_config_stop(void)
+{
+    netmgr_ap_config_t config;
+    memset(&config, 0, sizeof(netmgr_ap_config_t));
+    netmgr_get_ap_config(&config);
+
+    if (strcmp(config.ssid, "adha") == 0 ||
+        strcmp(config.ssid, "aha") == 0) {
+        return;
     }
 
-    static void smart_config_stop(void)
-    {
-        netmgr_ap_config_t config;
-        memset(&config, 0, sizeof(netmgr_ap_config_t));
-        netmgr_get_ap_config(&config);
+    LOGD(TAG, "%s %d\r\n", __func__, __LINE__);
+    // awss_stop();
+}
 
-        if (strcmp(config.ssid, "adha") == 0 ||
-            strcmp(config.ssid, "aha") == 0) {
-            return;
-        }
+static void smart_config_result_cb(int result, uint32_t ip)
+{
+    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
+}
 
-        LOGD(TAG, "%s %d\r\n", __func__, __LINE__);
-        // awss_stop();
-    }
-
-    static void smart_config_result_cb(int result, uint32_t ip)
-    {
-        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
-    }
-
-    autoconfig_plugin_t g_alink_smartconfig = {
-        .description      = "alink_smartconfig",
-        .autoconfig_start = smart_config_start,
-        .autoconfig_stop  = smart_config_stop,
-        .config_result_cb = smart_config_result_cb
-    };
+autoconfig_plugin_t g_alink_smartconfig = {
+    .description      = "alink_smartconfig",
+    .autoconfig_start = smart_config_start,
+    .autoconfig_stop  = smart_config_stop,
+    .config_result_cb = smart_config_result_cb
+};
 #endif
