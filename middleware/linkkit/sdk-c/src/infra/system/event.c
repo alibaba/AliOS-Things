@@ -13,7 +13,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_CONNECT_FAIL,         NULL},
     {ITE_DISCONNECTED,         NULL},
     {ITE_RAWDATA_ARRIVED,      NULL},
-    {ITE_SERVICE_REQUST,       NULL},
+    {ITE_SERVICE_REQUEST,       NULL},
     {ITE_PROPERTY_SET,         NULL},
     {ITE_PROPERTY_GET,         NULL},
 #ifdef DEVICE_MODEL_SHADOW
@@ -43,7 +43,7 @@ DEFINE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
-DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*callback)(const int, const char *, const int, const char *,
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,       int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
 #ifdef DEVICE_MODEL_SHADOW
