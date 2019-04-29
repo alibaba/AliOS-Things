@@ -504,18 +504,7 @@ int dm_disp_ntp_response(_IN_ dm_msg_source_t *source)
 
 int dm_disp_ext_error_response(_IN_ dm_msg_source_t *source)
 {
-    int res = 0;
-    dm_msg_response_payload_t response;
-    /* char int_id[DM_UTILS_UINT32_STRLEN] = {0}; */
-
-    /* Response */
-    res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* Operation */
-    return dm_msg_ext_error_reply(&response);
+    return dm_msg_ext_error_response((char *)source->payload, source->payload_len);
 }
 #endif
 
