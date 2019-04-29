@@ -62,7 +62,7 @@ aos upload blink@yourboard
 
 ### Reference
 
-* [【AliOS Things学习笔记】在Developerkit开发板上运行blink例程](https://yq.aliyun.com/articles/669088)
+* https://yq.aliyun.com/articles/669088
 
 ### support for st nucleo board
 * verified on stm32l476rg nucleo board, other nucleo also can be supported, please refer to the hardware guide for the gpio pin number
