@@ -170,7 +170,7 @@ typedef struct {
     unsigned char enable;
 } MPU_Region_Init_t;
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#if (RHINO_CONFIG_PANIC > 0)
 /**
  * set mpu region for memory unauthorized access check
  *
@@ -179,6 +179,8 @@ typedef struct {
  * @param[in]  mode         prohibit access(0) or read only(>0)
  */
 void debug_memory_access_err_check(unsigned long addr_start, unsigned long addr_size, unsigned int mode);
+void debug_task_stack_ovf_check(char *task_name);
+void debug_check_mem_access_disable(void);
 #endif
 
 #endif // MPU_H
