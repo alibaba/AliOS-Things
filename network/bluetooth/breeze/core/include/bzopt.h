@@ -6,7 +6,7 @@
 #define BREEZE_OPT_H
 
 
-#define BZ_VERSION "2.0.5"
+#define BZ_VERSION "2.0.6"
 
 #define BZ_AUTH_TIMEOUT 10000  // not allowed to be 0
 

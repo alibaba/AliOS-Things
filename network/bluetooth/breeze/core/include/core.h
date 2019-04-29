@@ -27,7 +27,6 @@ extern "C"
 #define FMSK_SECURITY_Pos 3
 #define FMSK_SECRET_TYPE_Pos 4
 #define FMSK_SIGNED_ADV_Pos 5
-#define BZ_PROTOCOL_ID 0x05
 #define MAC_ASCII_LEN 6
 
 typedef struct {
