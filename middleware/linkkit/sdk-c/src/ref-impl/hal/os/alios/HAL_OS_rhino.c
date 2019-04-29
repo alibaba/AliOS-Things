@@ -287,11 +287,9 @@ void HAL_ThreadDetach(_IN_ void *thread_handle)
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-    if (thread_handle) {
-       /*can`t delete other task*/
-    } else {
+    if (!thread_handle) {
         aos_task_exit(0);
-    }
+    } 
 }
 
 void HAL_Firmware_Persistence_Start(void) {}
