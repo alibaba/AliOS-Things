@@ -416,7 +416,7 @@ static void get_os_info(void)
         memcpy(g_extcmd.tlv_01_rsp + g_extcmd.tlv_01_rsp_len, m_sdk_version, sizeof(m_sdk_version) - 1);
         g_extcmd.tlv_01_rsp_len += sizeof(m_sdk_version) - 1;
         g_extcmd.tlv_01_rsp[g_extcmd.tlv_01_rsp_len] = '\0';
-        strcat(g_extcmd.tlv_01_rsp, ":1");
+        strcat(g_extcmd.tlv_01_rsp, ":bt");
         g_extcmd.tlv_01_rsp_len  = strlen(g_extcmd.tlv_01_rsp);
     } else{
         BREEZE_LOG_ERR("OS version get failed \n");
