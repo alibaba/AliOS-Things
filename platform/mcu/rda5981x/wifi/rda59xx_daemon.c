@@ -231,7 +231,7 @@ r_s32 rda59xx_sta_disconnect()
     return 0;
 }
 
-static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
+static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info, bool rc)
 {
     r_s32 res = R_NOERR, res_t = R_NOERR;
     r_u8 reconn = 0, scan_times = 0, scan_res = 0;
@@ -263,6 +263,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
 
     if(index == R_ERR) {
         WIFISTACK_PRINT("Can't find the special AP\r\n");
+        if (!rc) wifi_event_cb(EVENT_STA_CONNECT_FAIL, NULL);
         return R_ERR;
     }
     //connect
@@ -543,7 +544,7 @@ static r_void rda59xx_daemon(r_void *arg)
                     r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
                 }
 */
-                res = rda59xx_sta_connect_internal((rda59xx_sta_info*)msg.arg1);
+                res = rda59xx_sta_connect_internal((rda59xx_sta_info*)msg.arg1, false);
                 if(res == R_NOERR)
                     module_state |= STATE_STA;
                 rda_sem_release((r_void *)msg.arg3);
@@ -583,7 +584,7 @@ static r_void rda59xx_daemon(r_void *arg)
                     //r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
                     break;
                 }
-                res = rda59xx_sta_connect_internal(&r_sta_info);
+                res = rda59xx_sta_connect_internal(&r_sta_info, true);
                 if(res != R_NOERR){
                     rda_msleep(100);
                     //r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
