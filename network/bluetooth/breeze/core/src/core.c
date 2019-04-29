@@ -41,10 +41,18 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
 {
     uint16_t i;
     uint8_t  fmsk = 0;
+    char* ver_str;
+    char* p;
+    uint8_t ver_int;
 
     SET_U16_LE(g_core.adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
-    g_core.adv_data[i++] = BZ_PROTOCOL_ID;
+    /*extract Breeze version from BZ_VERSION*/
+    p = strtok(BZ_VERSION, ".");
+    while(p = strtok(NULL, ".")){
+        ver_str = p;
+    }
+    g_core.adv_data[i++] = atoi(ver_str);
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
 #if BZ_ENABLE_AUTH
     fmsk |= 1 << FMSK_SECURITY_Pos;
