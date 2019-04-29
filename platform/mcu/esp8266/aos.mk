@@ -41,7 +41,12 @@ GLOBAL_LDFLAGS   += -nostdlib                      \
                     -Wl,-EL                        \
                     -mlongcalls
 
+ifeq ($(SUPPORT_ESP8285),yes)
+GLOBAL_LDS_FILES += platform/mcu/esp8266/bsp/ld/eagle.app.v6.new_8285.1024.app1.ld
+else
 GLOBAL_LDS_FILES += platform/mcu/esp8266/bsp/ld/eagle.app.v6.new.1024.app1.ld
+endif
+
 GLOBAL_LDFLAGS   += -Lplatform/mcu/esp8266/bsp/ld
 
 GLOBAL_DEFINES += CONFIG_ESP_LWIP COAP_WITH_YLOOP
