@@ -27,7 +27,8 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_INITIALIZE_COMPLETED, NULL},
     {ITE_FOTA,                 NULL},
     {ITE_COTA,                 NULL},
-    {ITE_MQTT_CONNECT_SUCC,    NULL}
+    {ITE_MQTT_CONNECT_SUCC,    NULL},
+    {ITE_CLOUD_ERROR,          NULL}
 };
 
 void *iotx_event_callback(int evt)
@@ -63,4 +64,5 @@ DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
+DEFINE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
 #endif

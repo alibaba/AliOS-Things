@@ -123,7 +123,7 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response);
 int dm_msg_ntp_response(char *payload, int payload_len);
-int dm_msg_ext_error_reply(dm_msg_response_payload_t *response);
+int dm_msg_ext_error_response(char *payload, int payload_len);
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
