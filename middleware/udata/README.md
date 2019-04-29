@@ -32,8 +32,8 @@ udata
 
 - [AliOS Things uData Sensor Driver Porting Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uData-Sensor-Driver-Porting-Guide)
 
-- [AliOS Things uData第三方算法移植说明文档](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uData%E7%AC%AC%E4%B8%89%E6%96%B9%E7%AE%97%E6%B3%95%E7%A7%BB%E6%A4%8D%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3)
+- https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uData%E7%AC%AC%E4%B8%89%E6%96%B9%E7%AE%97%E6%B3%95%E7%A7%BB%E6%A4%8D%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3
 
-- [传感器数据一键式上云的使用说明](https://github.com/alibaba/AliOS-Things/wiki/%E4%BC%A0%E6%84%9F%E5%99%A8%E6%95%B0%E6%8D%AE%E4%B8%80%E9%94%AE%E5%BC%8F%E4%B8%8A%E4%BA%91%E7%9A%84%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
+- https://github.com/alibaba/AliOS-Things/wiki/%E4%BC%A0%E6%84%9F%E5%99%A8%E6%95%B0%E6%8D%AE%E4%B8%80%E9%94%AE%E5%BC%8F%E4%B8%8A%E4%BA%91%E7%9A%84%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E
 
-- [基于AliOS Things Developer Kit开发板的外接传感器开发教程](https://github.com/alibaba/AliOS-Things/wiki/%E5%9F%BA%E4%BA%8EAliOS-Things-Developer-Kit%E5%BC%80%E5%8F%91%E6%9D%BF%E7%9A%84%E5%A4%96%E6%8E%A5%E4%BC%A0%E6%84%9F%E5%99%A8%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B)
+- https://github.com/alibaba/AliOS-Things/wiki/%E5%9F%BA%E4%BA%8EAliOS-Things-Developer-Kit%E5%BC%80%E5%8F%91%E6%9D%BF%E7%9A%84%E5%A4%96%E6%8E%A5%E4%BC%A0%E6%84%9F%E5%99%A8%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B
