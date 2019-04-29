@@ -1,0 +1,42 @@
+config AOS_BOARD_ESP8285
+    bool "ESP8285"
+    select AOS_MCU_ESP8285
+    select AOS_COMP_KERNEL_INIT
+    help
+        The ESP8285 integrates a Tensilica L106 32-bit RISC processor, which achieves extralow power consumption and reaches a maximum clock speed of 160 MHz. The Real-Time Operating System (RTOS) and Wi-Fi stack allow 80% of the processing power to be available for user application programming and development.
+
+if AOS_BOARD_ESP8285
+# Configurations for board esp8285
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_BLE
+    bool
+    default y
+
+endif
