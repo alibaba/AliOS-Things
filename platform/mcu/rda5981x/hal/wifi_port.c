@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <ulog/ulog.h>
 #include "rda59xx_daemon.h"
 #include "rda59xx_wifi_include.h"
 #include "hal/wifi.h"
@@ -18,6 +19,15 @@ typedef enum {
 hal_wifi_ip_stat_t ip_stat;
 
 unsigned int filter_backup = 0;
+
+static rda59xx_sta_info sta_info = {0};
+static bool sta_try_reconnect = false;
+static void handle_connect_fail(void *arg)
+{
+    LOG("%s\r\n", __func__);
+    aos_msleep(500);
+    rda59xx_sta_connect(&sta_info);
+}
 
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
@@ -51,8 +61,12 @@ void wifi_event_cb(WIFI_EVENT evt, void* info)
             break;
         }
         case EVENT_STA_CONNECT_FAIL: {
+            LOG("%s EVENT_STA_CONNECT_FAIL\r\n", __func__);
             if (m->ev_cb && m->ev_cb->connect_fail) {
                 m->ev_cb->connect_fail(m, 0, NULL);
+            }
+            if (sta_try_reconnect) {
+                aos_schedule_call(handle_connect_fail, NULL);
             }
             break;
         }
@@ -200,8 +214,7 @@ static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
 
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
-    rda59xx_sta_info sta_info;
-
+    sta_try_reconnect = true;
     memset(&sta_info, 0, sizeof(rda59xx_sta_info));
     memcpy(sta_info.ssid, init_para->wifi_ssid, 32+1);
     memcpy(sta_info.pw, init_para->wifi_key, 64+1);
@@ -228,7 +241,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 static int wifi_start_adv(hal_wifi_module_t *m,
                           hal_wifi_init_type_adv_t *init_para_adv)
 {
-    printf("WiFi HAL %s not implemeted yet!\r\n", __func__);
+    LOG("WiFi HAL %s not implemeted yet!\r\n", __func__);
     return 0;
 }
 
@@ -351,24 +364,26 @@ static void start_scan_adv(hal_wifi_module_t *m)
 
 static int power_off(hal_wifi_module_t *m)
 {
-    printf("WiFi HAL %s not implemeted yet!\r\n", __func__);
+    LOG("WiFi HAL %s not implemeted yet!\r\n", __func__);
     return 0;
 }
 
 static int power_on(hal_wifi_module_t *m)
 {
-    printf("WiFi HAL %s not implemeted yet!\r\n", __func__);
+    LOG("WiFi HAL %s not implemeted yet!\r\n", __func__);
     return 0;
 }
 
 static int suspend(hal_wifi_module_t *m)
 {
+    sta_try_reconnect = false;
     rda59xx_sta_disconnect();
     return 0;
 }
 
 static int suspend_station(hal_wifi_module_t *m)
 {
+    sta_try_reconnect = false;
     rda59xx_sta_disconnect();
     return 0;
 }
@@ -412,6 +427,7 @@ static void start_monitor(hal_wifi_module_t *m)
 {
     //if softap smartconfig failed, it will start monitor dirictly
     //so add disconnect to end last link
+    sta_try_reconnect = false;
     rda59xx_sta_disconnect();
     rda59xx_sniffer_enable(sniffer_cb);
     rda59xx_sniffer_set_filter(1, 1, 0x27e77);
