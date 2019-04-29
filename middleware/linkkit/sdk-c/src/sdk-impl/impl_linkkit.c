@@ -387,7 +387,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(request, 0, lite_item_payload.value_length + 1);
             memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = iotx_event_callback(ITE_SERVICE_REQUST);
+            callback = iotx_event_callback(ITE_SERVICE_REQUEST);
             if (callback) {
                 res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
                                 int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
@@ -648,7 +648,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(rrpc_request, 0, lite_item_payload.value_length + 1);
             memcpy(rrpc_request, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = iotx_event_callback(ITE_SERVICE_REQUST);
+            callback = iotx_event_callback(ITE_SERVICE_REQUEST);
             if (callback) {
                 res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
                                 int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
