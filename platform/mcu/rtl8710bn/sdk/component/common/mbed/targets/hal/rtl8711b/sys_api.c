@@ -177,21 +177,24 @@ void sys_adc_calibration(u8 write, u16 *offset, u16 *gain)
   */
 void sys_reset(void)
 {
-	rtc_backup_timeinfo();
+    while(1) {
+        rtc_backup_timeinfo();
 
-	/* Set processor clock to default(2: 31.25MHz) before system reset */
-	HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1, 0x00000021);
-	DelayUs(100*1000);
+        /* Set processor clock to default(2: 31.25MHz) before system reset */
+        HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1, 0x00000021);
+        DelayUs(100*1000);
 
-	/*  Cortex-M3 SCB->AIRCR */
-	SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |	// VECTKEY
-		(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |		// PRIGROUP
-		SCB_AIRCR_SYSRESETREQ_Msk);					// SYSRESETREQ
+        /*  Cortex-M3 SCB->AIRCR */
+        SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |       // VECTKEY
+            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |             // PRIGROUP
+            SCB_AIRCR_SYSRESETREQ_Msk);                         // SYSRESETREQ
+        DelayUs(100*1000);
+    }
 }
 
 
 /**
-  * @brief vector reset 
+  * @brief vector reset
   * @retval none
   */
 void sys_cpu_reset(void)
