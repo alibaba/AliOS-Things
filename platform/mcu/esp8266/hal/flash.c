@@ -17,6 +17,16 @@
 extern void vPortETSIntrLock(void);
 extern void vPortETSIntrUnlock(void);
 
+#if defined BOARD_ESP8285
+extern const hal_logic_partition_t hal_partitions_1M_512x512[];
+
+hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+{
+    hal_logic_partition_t *logic_partition;
+    logic_partition = (hal_logic_partition_t *)&hal_partitions_1M_512x512[pno];
+    return logic_partition;
+}
+#else
 extern const hal_logic_partition_t hal_partitions_1M_512x512[];
 extern const hal_logic_partition_t hal_partitions_2M_512x512[];
 extern const hal_logic_partition_t hal_partitions_4M_512x512[];
@@ -63,6 +73,7 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 
     return logic_partition;
 }
+#endif
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
