@@ -919,41 +919,25 @@ int dm_msg_ntp_response(char *payload, int payload_len)
     return SUCCESS_RETURN;
 }
 
-int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
+int dm_msg_ext_error_response(char *payload, int payload_len)
 {
-    int res = 0, devid = 0;
-    lite_cjson_t lite, lite_item_pk, lite_item_dn;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    if (response == NULL) {
+    int res = 0, message_len = 0;
+    char *message = NULL;
+    if (payload == NULL || payload_len <= 0) {
         return DM_INVALID_PARAMETER;
     }
 
-    res = dm_utils_json_parse(response->data.value, response->data.value_length, cJSON_Invalid, &lite);
+    message_len = payload_len + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    strncpy(message, payload, payload_len);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_ERROR, message);
     if (res != SUCCESS_RETURN) {
+         DM_free(message);
         return FAIL_RETURN;
-    }
-    dm_utils_json_object_item(&lite, DM_MSG_KEY_PRODUCT_KEY, strlen(DM_MSG_KEY_PRODUCT_KEY), cJSON_Invalid, &lite_item_pk);
-    dm_utils_json_object_item(&lite, DM_MSG_KEY_DEVICE_NAME, strlen(DM_MSG_KEY_DEVICE_NAME), cJSON_Invalid, &lite_item_dn);
-    if (lite_item_pk.type != cJSON_String || lite_item_dn.type != cJSON_String) {
-        return FAIL_RETURN;
-    }
-    memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
-    memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
-
-    /* Get Device Id */
-    res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* Login again if error code is 520 */
-    if (response->code.value_int == IOTX_DM_ERR_CODE_NO_ACTIVE_SESSION) {
-        dm_log_err("log in again test\r\n");
-#ifdef DEVICE_MODEL_GATEWAY
-        dm_mgr_upstream_combine_login(devid);
-#endif
     }
 
     return SUCCESS_RETURN;
