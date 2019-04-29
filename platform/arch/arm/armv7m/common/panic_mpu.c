@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "panic_mpu.h"
 #include "k_compiler.h"
+#include "k_dbg_api.h"
 
 typedef struct {
     unsigned long start;
@@ -12,7 +13,7 @@ typedef struct {
     unsigned long mpusize;
 } mem_region_t;
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#if (RHINO_CONFIG_PANIC > 0)
 
 static void mpu_enable(void);
 static void mpu_disable(void);
@@ -186,5 +187,38 @@ void debug_memory_access_err_check(unsigned long addr_start, unsigned long addr_
         mpu_region_type = MPU_AP_NA_NA;
 
     mpu_set(addr_start, addr_size, mpu_region_type);
+    printf("mpu addr: 0x%x\n", addr_start);
 }
+
+void debug_task_stack_ovf_check(char *task_name)
+{
+    int         ret;
+    ktask_t     *task;
+    cpu_stack_t *task_stack_base;
+
+    if (task_name == NULL) {
+        printf("error: task name invalid\r\n");
+        return;
+    }
+
+    task = krhino_task_find(task_name);
+    if (task == NULL) {
+        printf("error: task do not exist\r\n");
+        return;
+    }
+
+    task_stack_base = task->task_stack_base;
+    if (task_stack_base == NULL) {
+        printf("error: task_stack_base err\r\n");
+        return;
+    }
+
+    debug_memory_access_err_check((unsigned long)task_stack_base, 0x20, 1);
+}
+
+void debug_check_mem_access_disable(void)
+{
+    mpu_disable();
+}
+
 #endif
