@@ -69,10 +69,10 @@ int os_rand(void)
  * 1.format on AliOS thing OS:
  * "version number(n bytes):chip code(4bytes)", e.g, "2.1.0:00 00 03 04".
  * 2.For non AliOS things platform, should follow:
- * "non-ali:vendor info", e.g., "breeze:manufacture1".
+ * "vendor_os:vendor_info", e.g., "xxx_os:vendor_company".
  * Vendor should fill info itself with string format.
  * */
-static char NON_ALI_INFO[] = "breeze:vendor1";
+static char NON_ALI_INFO[] = "os_info:vendor_info";
 int os_get_version_chip_info(char* info, uint8_t* p_len)
 {
     if(info == NULL || p_len == NULL){
