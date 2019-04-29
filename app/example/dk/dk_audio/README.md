@@ -10,7 +10,7 @@
     - [Run](#run)
 
 ### Overview
-> 中文版见这里。Please see [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6) to find usage guide in chinese.  
+> Please see [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6) to find usage guide in chinese.  
 
 `developerkitaudio` is a the specific example for developerkit, It demonstrate how to operate the codec called ISD9160. developerkitaudio source files:
 
