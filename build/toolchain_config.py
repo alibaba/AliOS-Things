@@ -92,6 +92,7 @@ boards = {
     'evkmimxrt1020':[toolchains['arm-none-eabi']],
     'esp32devkitc':[toolchains['xtensa-esp32']],
     'esp8266':[toolchains['xtensa-lx106']],
+    'esp8285':[toolchains['xtensa-lx106']],
     'fm33a0xx-discovery':[toolchains['arm-none-eabi']],
     'frdmkl26z':[toolchains['arm-none-eabi']],
     'frdmkl27z':[toolchains['arm-none-eabi']],
