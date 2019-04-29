@@ -60,6 +60,6 @@ OTA_APP pk dn ds ps
 
 ## Reference
 
-* [AliOS-Things OTA使用说明](https://github.com/alibaba/AliOS-Things/wiki/OTA-Tutorial)
-* [OTA flash分区说明文档](https://github.com/alibaba/AliOS-Things/wiki/OTA-Flash-Partitions-Overview)
-* [云端一体化差分+安全升级，AliOS Things物联网升级“利器”](https://mp.weixin.qq.com/s/Pb8Lleuww1r7qQJHu5ON8g)
+* https://github.com/alibaba/AliOS-Things/wiki/OTA-Tutorial
+* https://github.com/alibaba/AliOS-Things/wiki/OTA-Flash-Partitions-Overview
+* https://mp.weixin.qq.com/s/Pb8Lleuww1r7qQJHu5ON8g
