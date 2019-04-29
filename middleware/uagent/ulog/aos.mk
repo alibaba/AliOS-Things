@@ -10,7 +10,12 @@ GLOBAL_DEFINES += AOS_COMP_ULOG
 #sync mode is default selected using
 $(NAME)_SOURCES     := log.c ulog_init.c ulog_utility.c
 
+#default gcc
+ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 
 ifeq ($(ULOG_CONFIG_ASYNC),y)
 GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
