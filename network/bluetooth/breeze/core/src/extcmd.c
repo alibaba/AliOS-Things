@@ -149,8 +149,6 @@ static ret_code_t ext_cmd04_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t 
 
     if (dlen > 0) {
         err_code = BZ_EDATASIZE;
-    } else if (g_auth.device_secret_len == 0) {
-        err_code = BZ_ENOTSUPPORTED;
     } else if (RANDOM_LEN <= *p_blen) {
         get_random(p_buff, RANDOM_LEN);
         *p_blen = RANDOM_LEN;
