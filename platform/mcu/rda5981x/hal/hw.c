@@ -73,6 +73,6 @@ void hw_start_hal(void)
 {
     printf("start-----------hal\n");
     hal_wifi_register_module(&aos_wifi_rda59xx);
-    aos_wifi_rda59xx.init(&aos_wifi_rda59xx);
+    hal_wifi_init();
 }
 

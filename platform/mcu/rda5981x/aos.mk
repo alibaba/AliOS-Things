@@ -89,3 +89,7 @@ $(NAME)_SOURCES += wifi/rda_sys_wrapper.c \
                    wifi/rda59xx_daemon.c  \
                    wifi/rda59xx_lwip.c
 $(NAME)_SOURCES += feature/sysdata/rda5981_sys_data.c
+
+$(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
+                    hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
+                    hal/pwrmgmt_hal/board_lp_ticker.c
