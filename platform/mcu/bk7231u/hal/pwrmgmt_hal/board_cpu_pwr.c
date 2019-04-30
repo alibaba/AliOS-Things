@@ -7,7 +7,7 @@
 
 #ifdef AOS_COMP_PWRMGMT
 
-#include "pwrmgmt_api.h"
+#include "cpu_pwr.h"
 #include "cpu_pwr_hal_lib.h"
 #include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
