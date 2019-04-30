@@ -20,10 +20,10 @@
 #include "pinmap.h"
 #include <string.h>
 
+typedef VOID (*UARTCB_FUN)(VOID *);
+
 int uart1_inited = 0;
 int uart0_inited = 0;
-
-typedef VOID (*UARTCB_FUN)(VOID *);
 
 typedef struct {
 	int	TxCount;     // how many byte to TX
@@ -443,6 +443,18 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 	PMBED_UART_ADAPTER puart_adapter = NULL;
 
 	assert_param(UARTx != (UARTName)NC);
+	
+    if (uart_idx == 2) { // log uart
+        UART_RxCmd(UART2_DEV, DISABLE);
+
+        /*after pulling up PA_29 and PA_30, switch LOG UART pinmux to "S1" */
+        PinCtrl(PERIPHERAL_LOG_UART, S0, OFF);
+        PinCtrl(PERIPHERAL_LOG_UART, S1, ON);
+
+        /* UARTLOG pin pull up to fix RX floating issue */
+        PAD_PullCtrl(_PA_29, GPIO_PuPd_UP);
+        PAD_PullCtrl(_PA_30, GPIO_PuPd_UP);
+    }
 
 	obj->uart_idx = uart_idx;	
 	
@@ -483,6 +495,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 		memcpy(&stdio_uart, obj, sizeof(serial_t));
 	}
 #endif
+	if (uart_idx == 0)
+		uart0_inited = 1;
+	if (uart_idx == 1)
+		uart1_inited = 1;
 }
 
 /**
@@ -516,6 +532,11 @@ void serial_free(serial_t *obj)
 		serial_dma_en[obj->uart_idx] &= ~SERIAL_TX_DMA_EN;
 	}    
 #endif
+
+	if (obj->uart_idx == 0)
+		uart0_inited = 0;
+	if (obj->uart_idx == 1)
+		uart1_inited = 0;
 	// TODO: recovery Pin Mux
 
 }

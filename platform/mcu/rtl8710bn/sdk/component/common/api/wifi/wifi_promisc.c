@@ -29,6 +29,47 @@ int promisc_recv_func(void *padapter, void *rframe)
 #endif
 }
 
+int promisc_recv_lens_func(void *padapter, u8 *payload, u8 plen)
+{
+	// Never reach here if not define CONFIG_PROMISC
+#ifdef CONFIG_PROMISC
+	#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+		return _promisc_recv_lens_func(padapter, payload, plen);
+	#else
+		return 0;
+	#endif
+#else
+	return 0;
+#endif
+}
+
+int promisc_filter_retransmit_pkt(u8 enable, u8 filter_interval_ms)
+{
+#ifdef CONFIG_PROMISC
+	#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+		return _promisc_filter_retransmit_plcp_pkt(enable, filter_interval_ms);
+	#else
+		return -1;//_promisc_filter_retransmit_normal_pkt(enable);
+	#endif
+#else
+	return -1;
+#endif
+}
+
+int promisc_filter_with_len(u16 len)
+{
+	// Never reach here if not define CONFIG_PROMISC
+#ifdef CONFIG_PROMISC
+	#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+		return _promisc_filter_with_len(len);
+	#else
+		return -1;
+	#endif
+#else
+	return -1;
+#endif
+}
+
 int promisc_set(rtw_rcr_level_t enabled, void (*callback)(unsigned char*, unsigned int, void*), unsigned char len_used)
 {
 #ifdef CONFIG_PROMISC
@@ -55,6 +96,14 @@ int promisc_get_fixed_channel(void *fixed_bssid, u8 *ssid, int *ssid_length)
 	return 0;
 #endif
 }
+
+void promisc_filter_by_ap_and_phone_mac(u8 enable, void *ap_mac, void *phone_mac)
+{
+#ifdef CONFIG_PROMISC
+	_promisc_filter_by_ap_and_phone_mac(enable, ap_mac, phone_mac);
+#endif
+}
+
 // End of Add extra interfaces
 
 struct eth_frame {
@@ -334,8 +383,21 @@ static void promisc_callback_all(unsigned char *buf, unsigned int len, void* use
 	if(frame) {
 		frame->prev = NULL;
 		frame->next = NULL;
-		memcpy(frame->da, buf+4, 6);
-		memcpy(frame->sa, buf+10, 6);
+#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+		if(((ieee80211_frame_info_t *)userdata)->type == RTW_RX_UNSUPPORT){
+			//NOTICE: buf structure now is rtw_rx_info_t.
+			frame->type = 0xFF;  
+			memset(frame->da, 0, 6);
+			memset(frame->sa, 0, 6);
+		}
+		else
+#endif
+		{
+			memcpy(frame->da, buf+4, 6);
+			memcpy(frame->sa, buf+10, 6);
+			frame->type = *buf;
+		}
+
 		frame->len = len;
 		/*  
 		* type is the first byte of Frame Control Field of 802.11 frame
@@ -343,7 +405,7 @@ static void promisc_callback_all(unsigned char *buf, unsigned int len, void* use
 		* frame->type = ((((ieee80211_frame_info_t *)userdata)->i_fc & 0x0100) == 0x0100) ? 2 : 1;
 		* 1: from ds; 2: to ds
 		*/		
-		frame->type = *buf;
+		
 		frame->rssi = ((ieee80211_frame_info_t *)userdata)->rssi;
 
 		CPSR_ALLOC();
