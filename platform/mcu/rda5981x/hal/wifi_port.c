@@ -36,6 +36,9 @@ void wifi_event_cb(WIFI_EVENT evt, void* info)
     rda59xx_bss_info bss_info;
     switch (evt) {
         case EVENT_STA_GOT_IP: {
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+            m->enter_powersave(m, WIFI_CONFIG_RECEIVE_DTIM);
+#endif
             rda59xx_sta_get_bss_info(&bss_info);
             memcpy(ip_stat.ip, ip4addr_ntoa(&(bss_info.ipaddr)), sizeof(ip_stat.ip));
             memcpy(ip_stat.gate, ip4addr_ntoa(&(bss_info.gateway)), sizeof(ip_stat.gate));
@@ -490,6 +493,29 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m,
     return 0;
 }
 
+
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+static int set_listeninterval(hal_wifi_module_t *m, uint8_t listen_interval)
+{
+    rda5981_set_sta_listen_interval(listen_interval);
+    return 0;
+}
+
+static int enter_powersave(hal_wifi_module_t *m, uint8_t recvDTIMs)
+{
+    printf("enter_powersave\n");
+    wland_set_sta_sleep(1);
+    return 0;
+}
+
+static int exit_powersave(hal_wifi_module_t *m)
+{
+    wland_set_sta_sleep(0);
+    return 0;
+}
+
+#endif
+
 hal_wifi_module_t aos_wifi_rda59xx = {
     .base.name           = "aos_wifi_rda59xx",
     .init                =  wifi_init,
@@ -515,6 +541,12 @@ hal_wifi_module_t aos_wifi_rda59xx = {
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    .set_listeninterval =  set_listeninterval,
+    .enter_powersave    =  enter_powersave,
+    .exit_powersave     =  exit_powersave,
+#endif
 
     /* mesh related */
     //.mesh_register_cb    =  register_mesh_cb,

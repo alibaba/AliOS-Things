@@ -22,7 +22,7 @@
 #include "nrf_drv_systick.h"
 
 #ifdef AOS_COMP_PWRMGMT
-#include <pwrmgmt_api.h>
+#include <pwrmgmt.h>
 #endif /* AOS_COMP_PWRMGMT */
 
 #if POWER_ENABLED
@@ -125,7 +125,7 @@ static void sys_init(void)
 #endif
 
 #ifdef AOS_COMP_PWRMGMT
-    cpu_pwrmgmt_init();
+    pwrmgmt_init();
 #endif /* AOS_COMP_PWRMGMT */
 
 #ifdef AOS_BINS
