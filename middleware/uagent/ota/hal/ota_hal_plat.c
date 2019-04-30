@@ -61,6 +61,7 @@ static int ota_init(void *something)
 {
     int ret = 0;
     ota_boot_param_t *param = (ota_boot_param_t *)something;
+    param->off_bp = 0;
     _offset = param->off_bp;
     hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
     if(part_info->partition_length < param->len || param->len == 0) {

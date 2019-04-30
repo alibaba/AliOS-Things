@@ -189,6 +189,7 @@ static void ota_download_thread(void *hand)
     ota_service_t *ctx    = hand;
     if (NULL == ctx) {
         OTA_LOG_E("ctx is NULL.\n");
+        ota_on_going_reset();
         return;
     }
     ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
@@ -282,6 +283,7 @@ ERR:
     ctx->h_tr->status(100, ctx);
 #endif
     ota_free_hash_ctx();
+    ota_on_going_reset();
     ota_msleep(3000);
     ota_reboot();
 }
