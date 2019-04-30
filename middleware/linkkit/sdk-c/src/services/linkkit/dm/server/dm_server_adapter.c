@@ -1,11 +1,62 @@
 #ifdef ALCS_ENABLED
 #include "iotx_dm_internal.h"
 
+#include "CoAPServer.h"
+
+#define ALCS_NOTIFY_PORT   (5683)
+#define ALCS_NOTIFY_HOST   "255.255.255.255"
+#define ALCS_NOTIFY_METHOD "core.service.dev.notify"
+
+const static char DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY[] DM_READ_ONLY = "/dev/core/service/dev/notify";
+
+const static char DM_MSG_NOTIFY[] DM_READ_ONLY = "{\"id\":\"%d\",\"version\":\"%s\",\"params\":%.*s,\"method\":\"%s\"}";
+
 static dm_server_ctx_t g_dm_server_ctx = {0};
 
 static dm_server_ctx_t *dm_server_get_ctx(void)
 {
     return &g_dm_server_ctx;
+}
+
+static int _dm_server_dev_notify(void *handle)
+{
+    int   ret;
+    int   i;
+    int   data_len    = 0;
+    int   payload_len = 0;
+    char *data        = NULL;
+    char *payload     = NULL;
+
+    NetworkAddr  notify_sa;
+    CoAPContext *coap_ctx = CoAPServer_init();
+
+    dm_msg_dev_core_service_dev(&data, &data_len);
+
+    payload_len = strlen(DM_MSG_NOTIFY) + 10 + strlen(DM_MSG_VERSION) + data_len + strlen(
+                         ALCS_NOTIFY_METHOD) + 1;
+
+    payload = DM_malloc(payload_len);
+    if (payload == NULL) {
+        DM_free(data);
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(payload, 0, payload_len);
+    HAL_Snprintf(payload, payload_len, DM_MSG_NOTIFY, iotx_report_id(),
+                 DM_MSG_VERSION, data_len, data, ALCS_NOTIFY_METHOD);
+
+    memset(&notify_sa, 0, sizeof(notify_sa));
+    memcpy(notify_sa.addr, ALCS_NOTIFY_HOST, strlen(ALCS_NOTIFY_HOST));
+    notify_sa.port = ALCS_NOTIFY_PORT;
+
+    dm_log_info("notify path:%s; payload = %s", DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, payload);
+
+    for (i = 0; i < 2; i++) {
+        ret = CoAPServerMultiCast_send(coap_ctx, &notify_sa, DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, (uint8_t *)payload,
+                                       (uint16_t)payload_len, NULL, NULL);
+    }
+    DM_free(payload);
+    DM_free(data);
+    return ret;
 }
 
 int dm_server_open(void)
@@ -33,6 +84,7 @@ int dm_server_open(void)
     if (ctx->conn_handle == NULL) {
         return FAIL_RETURN;
     }
+    _dm_server_dev_notify(ctx->conn_handle);
 
     return SUCCESS_RETURN;
 }
