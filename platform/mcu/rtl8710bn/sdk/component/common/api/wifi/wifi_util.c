@@ -10,6 +10,11 @@
 #define pvPortMalloc  rtw_zmalloc
 #define vPortFree  rtw_free
 
+uint32_t osKernelSysTick(void)
+{
+    return (uint32_t)g_tick_count;
+}
+
 int iw_ioctl(const char * ifname, unsigned long request, struct iwreq *	pwrq)
 {
         memset(pwrq->ifr_name, 0, IFNAMSIZ);
