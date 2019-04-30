@@ -172,12 +172,14 @@ $(NAME)_SOURCES := aos/soc_impl.c   \
 
 $(NAME)_SOURCES += CheckSumUtils.c
 
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_systick.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr.c
+
 include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
 endif
 
 GLOBAL_INCLUDES += 2nd_boot
 
 include ./platform/mcu/rtl8710bn/sdk/sdk.mk
-
-
 

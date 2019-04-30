@@ -186,6 +186,7 @@ typedef struct {
 
 extern r_s32 rda59xx_get_joined_AP(rda59xx_scan_result *bss);
 extern void rda5981_set_auth_timeout(r_u8 timeout_enable);
+extern void rda5981_set_sta_listen_interval(unsigned char interval);
 /****************************************ap************************************************/
 typedef struct {
     r_u8 mac[ETH_ALEN];

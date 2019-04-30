@@ -52,7 +52,9 @@ static void sys_init(void)
 #ifndef DELETE_HFILOP_CODE
     board_init_later();
 #endif
-
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
+#endif
     application_start(0, NULL);
 #endif
 }
@@ -69,5 +71,3 @@ void entry_main(void)
 {
     sys_start();
 }
-
-
