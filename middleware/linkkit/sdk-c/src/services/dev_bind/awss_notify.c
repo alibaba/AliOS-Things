@@ -248,14 +248,6 @@ static int awss_process_get_devinfo()
     char *buf = NULL;
     char *dev_info = NULL;
 
-#ifdef DEVICE_MODEL_ENABLED
-    extern int awss_check_reset();
-    extern int awss_report_reset_to_cloud();
-    if(awss_check_reset()) {
-        return awss_report_reset_to_cloud();
-    }
-#endif
-
     if (awss_report_token_suc == 0) {
         awss_debug("try to report token to cloud");
         HAL_Timer_Start(get_devinfo_timer, AWSS_CHECK_RESP_TIME);
@@ -348,11 +340,14 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
     /*
      * if cloud is not ready, don't response token
      */
-#if 0
-    if (awss_report_token_cnt == 0) {
+
+#ifdef DEVICE_MODEL_ENABLED
+    extern int awss_check_reset();
+    if(awss_check_reset()) {
         return -1;
     }
 #endif
+
     /*
      * if the last one is not finished, drop current request
      */
