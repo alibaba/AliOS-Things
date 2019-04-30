@@ -115,5 +115,21 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
+#ifndef WIFI_CONFIG_SUPPORT_LOWPOWER
+#define WIFI_CONFIG_SUPPORT_LOWPOWER         0
+#endif
+
+#ifndef WIFI_CONFIG_LISTENSET_BINIT
+#define WIFI_CONFIG_LISTENSET_BINIT          1
+#endif
+
+#ifndef WIFI_CONFIG_LISTEN_INTERVAL
+#define WIFI_CONFIG_LISTEN_INTERVAL          1
+#endif
+
+#ifndef WIFI_CONFIG_RECEIVE_DTIM
+#define WIFI_CONFIG_RECEIVE_DTIM             1
+#endif
+
 #endif /* K_CONFIG_H */
 
