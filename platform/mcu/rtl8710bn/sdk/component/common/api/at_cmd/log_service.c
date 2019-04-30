@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 //#include "FreeRTOS.h"
+#include <aos_osdep.h>
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 #include "freertos_pmu.h"
 #endif

@@ -65,8 +65,9 @@ static void hal_wlan_init()
 #endif
 
 #if CONFIG_WLAN
-	wifi_on(RTW_MODE_STA);
-	wifi_disable_powersave();
+//wifi_on(RTW_MODE_STA);
+//wifi_disable_powersave();
+    hal_wifi_init();
 #if CONFIG_AUTO_RECONNECT
 	//setup reconnection flag
 	wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
@@ -142,6 +143,9 @@ static void board_mode_check(void)
 
 void sys_init_func(void)
 {
+#ifdef AOS_COMP_PWRMGMT
+    pmu_set_sysactive_time();
+#endif
     hal_init();
 
     hw_start_hal();
