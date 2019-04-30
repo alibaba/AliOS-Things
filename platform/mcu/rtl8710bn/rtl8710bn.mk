@@ -103,23 +103,12 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/cmsis/rtl8711b
 $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
 
 
-#GLOBAL_CFLAGS += -mcpu=cortex-m4 \
-                 -march=armv7-m \
-                 -mthumb -mthumb-interwork \
-                 -mlittle-endian \
-                 -mfpu=fpv4-sp-d16 \
-                 -mfloat-abi=hard \
-                 -DCONFIG_PLATFORM_8711B \
-                 -DM3\
-                 -fno-short-enums
-
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -march=armv7-m \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian \
                  -DCONFIG_PLATFORM_8711B \
                  -DM3\
-                 -fno-short-enums\
 				 -DHardFault_Handler=Ali_HardFault_Handler
 
 GLOBAL_ASMFLAGS += -DHardFault_Handler=Ali_HardFault_Handler
@@ -128,7 +117,7 @@ GLOBAL_CFLAGS += -w
 
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld                 
+# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
 #GLOBAL_LDFLAGS += $(SOURCE_ROOT)/platform/mcu/rtl8710bn/bin/boot_all.o
 GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wlan -l_wps -l_p2p -l_rtlstd
 
@@ -151,7 +140,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -Wl,--no-wchar-size-warning \
                   -Wl,--gc-sections \
                   -Wl,--cref \
-                  $(CLIB_LDFLAGS_NANO_FLOAT)                 
+                  $(CLIB_LDFLAGS_NANO_FLOAT)
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
@@ -183,7 +172,7 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
                    hal/gpio.c \
                    hal/wdg.c \
                    hal/ota_port.c
-		   
+
 #$(NAME)_SOURCES  += hal/uart.c
 #$(NAME)_SOURCES  += hal/flash.c
 #$(NAME)_SOURCES  += hal/hw.c
