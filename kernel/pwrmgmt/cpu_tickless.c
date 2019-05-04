@@ -148,7 +148,7 @@ static pwr_status_t tickless_timer_init(void)
 static pwr_status_t tickless_one_shot_start(uint64_t sleep_time, cpu_cstate_t c_state_to_enter)
 {
     if (cStateOneShotTimer[c_state_to_enter]->one_shot_start(sleep_time) != PWR_OK) {
-        PWR_DBG(DBG_INFO, "start one shot(%lld ms) fail\n", sleep_time);
+        PWR_DBG(DBG_DBG, "start one shot(%lld us) fail\n", sleep_time);
 
         return (PWR_ERR);
     }
@@ -302,6 +302,14 @@ static void tickless_enter(void)
     uint64_t     sleep_time;
     cpu_cstate_t cstate_to_enter = CPU_CSTATE_C1;
     uint32_t     cpu_idx         = 0;
+    tick_t       n_ticks         = 0;
+
+    CPSR_ALLOC();
+
+#if (PWRMGMT_CONFIG_DEBUG > 0)
+    static sys_time_t last_log_entersleep = 0;
+#endif
+    krhino_spin_lock_irq_save(&ticklessSpin);
 
     krhino_spin_lock_irq_save(&ticklessSpin);
 
@@ -353,6 +361,27 @@ static void tickless_enter(void)
 
         (void)cpu_pwr_c_state_set(cstate_to_enter);
     }
+
+    if (is_current_tickless == TRUE) {
+
+        cpu_pwr_c_state_set(CPU_CSTATE_C0);
+
+        n_ticks = tickless_one_shot_stop(c_state_entered);
+
+        /* set is_current_tickless to FALSE */
+        is_current_tickless = FALSE;
+
+        if (n_ticks > 0) {
+        /* announces elapsed ticks to the kernel */
+            tickless_announce_n(n_ticks);
+        }
+
+        /* resume system tick interrupt */
+        systick_resume();
+    }
+
+    RHINO_CRITICAL_ENTER();
+    RHINO_CRITICAL_EXIT_SCHED();
 
     krhino_spin_unlock_irq_restore(&ticklessSpin);
 }
