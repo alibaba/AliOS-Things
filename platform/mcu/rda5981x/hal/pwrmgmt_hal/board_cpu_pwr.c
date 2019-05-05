@@ -148,27 +148,4 @@ pwr_status_t board_cpu_pwr_init(void)
     return retVal;
 }
 
-unsigned int pwrmgmt_suspend_flag = 0;
-int pwrmgmt_suspend_lowpower() {
-    CPSR_ALLOC();
-    RHINO_CRITICAL_ENTER();
-    pwrmgmt_suspend_flag = 1;
-    RHINO_CRITICAL_EXIT_SCHED();
-#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
-    wland_set_sta_sleep(1);
-#endif
-    return 1;
-}
-
-int pwrmgmt_resume_lowpower() {
-    CPSR_ALLOC();
-    RHINO_CRITICAL_ENTER();
-    pwrmgmt_suspend_flag = 0;
-    RHINO_CRITICAL_EXIT_SCHED();
-#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
-    wland_set_sta_sleep(0);
-#endif
-    return 1;
-}
-
 #endif /* RHINO_CONFIG_CPU_PWR_MGMT */

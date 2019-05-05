@@ -265,12 +265,7 @@ static pwr_status_t lpticker_one_shot_stop(uint64_t *pPassedUs)
     return PWR_OK;
 }
 
-extern unsigned int pwrmgmt_suspend_flag;
 static uint32_t lpticker_one_shot_max_seconds(void){
-    if (pwrmgmt_suspend_flag == 1) {
-        return 0;
-    }
-
     return (FREE_TIMER_INIT_VAL/LP_TIMER_CLOCK_SOURCE);
 }
 
