@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef PORT_H
-#define PORT_H
+#ifndef CPU_H
+#define CPU_H
 #include "xtensa/tie/xt_core.h"
 #include "xtensa/hal.h"
 #include "xtensa/config/core.h"
@@ -27,20 +27,23 @@ void *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg,
                           task_entry_t entry);
 
 /* int lock for spinlock */
-#define cpu_intrpt_save()           XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL)
-#define cpu_intrpt_restore(cpsr)    XTOS_RESTORE_JUST_INTLEVEL(cpsr)
+#define cpu_intrpt_save()        XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL)
+#define cpu_intrpt_restore(cpsr) XTOS_RESTORE_JUST_INTLEVEL(cpsr)
 
 /* normal int lock (can not lock the NMI) */
-#define CPSR_ALLOC()                cpu_cpsr_t cpsr
-#define RHINO_CPU_INTRPT_DISABLE()  \
-        do{cpsr = cpu_intrpt_save();}while(0)
-#define RHINO_CPU_INTRPT_ENABLE()   \
-        do{cpu_intrpt_restore(cpsr);}while(0)
+#define CPSR_ALLOC() size_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE() \
+    {                              \
+        cpsr = cpu_intrpt_save();  \
+    }
+#define RHINO_CPU_INTRPT_ENABLE() \
+    {                             \
+        cpu_intrpt_restore(cpsr); \
+    }
 
 /* NMI int lock (can lock the NMI and normal interrupt) */
-#define INT_ENA_WDEV                0x3ff20c18
-#define WDEV_TSF0_REACH_INT         (BIT(27))
-
+#define INT_ENA_WDEV        0x3ff20c18
+#define WDEV_TSF0_REACH_INT (BIT(27))
 extern volatile uint32_t g_nmilock_cnt;
 extern uint32_t          WDEV_INTEREST_EVENT;
 
@@ -79,13 +82,14 @@ extern uint32_t          WDEV_INTEREST_EVENT;
    because the NMI isr use "malloc" and "free" in SDK */
 #ifdef MM_CRITICAL_ENTER
 #undef MM_CRITICAL_ENTER
-#define MM_CRITICAL_ENTER(pmmhead)  RHINO_CPU_INTRPT_DISABLE_NMI()
+#define MM_CRITICAL_ENTER(pmmhead) RHINO_CPU_INTRPT_DISABLE_NMI()
 #endif
 
 #ifdef MM_CRITICAL_EXIT
 #undef MM_CRITICAL_EXIT
-#define MM_CRITICAL_EXIT(pmmhead)   RHINO_CPU_INTRPT_ENABLE_NMI()
+#define MM_CRITICAL_EXIT(pmmhead) RHINO_CPU_INTRPT_ENABLE_NMI()
 #endif
+
 
 RHINO_INLINE uint8_t cpu_cur_get(void)
 {
@@ -98,4 +102,7 @@ void ResetCcountVal(uint32_t cnt_val);
 
 uint32_t xthal_get_ccount(void);
 
-#endif /* PORT_H */
+void backtraceNow(int (*print_func)(const char *fmt, ...));
+void backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...));
+
+#endif /* CPU_H */

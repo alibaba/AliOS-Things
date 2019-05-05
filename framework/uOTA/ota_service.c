@@ -348,7 +348,12 @@ int ota_upgrade_cb(void* pctx, char *json)
             ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 4096);
             if(ret < 0) {
                 ota_on_going_reset();
-                OTA_LOG_E("ota creat task failed!");
+                OTA_LOG_E("ota create task failed!");
+#ifdef BOARD_ESP8266 /* workaround for ota pressure test */
+                ota_msleep(200);
+                ota_reboot();
+                while (1);
+#endif
             }
         } else {
             OTA_LOG_E("ota version is too old, discard it.");

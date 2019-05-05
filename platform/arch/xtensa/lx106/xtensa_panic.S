@@ -1,6 +1,6 @@
 #include "xtensa_rtos.h"
 
-    .global panicHandler, usr_int_stack_top
+    .global __panicHandler, usr_int_stack_top
 
     .global     _xt_ext_panic
     .type       _xt_ext_panic, @function
@@ -45,5 +45,4 @@ _xt_ext_panic:
 
     //Call panic handler
     mov     a2, sp
-    movi    a0, xtensaPanic
-    callx0  a0
+    call0   __panicHandler

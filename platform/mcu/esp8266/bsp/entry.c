@@ -50,7 +50,6 @@ static void app_entry(void *arg)
 }
 
 extern uart_dev_t uart_0;
-extern struct hal_ota_module_s esp8266_ota_module;
 
 extern hal_wifi_module_t aos_wifi_esp8266;
 void user_init(void)

@@ -1,7 +1,5 @@
 src = Split('''
         port.c
-        panic.c
-        backtrace.c
         xtensa_panic.S
         xtensa_vectors.S
 ''')

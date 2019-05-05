@@ -205,6 +205,7 @@ void ICACHE_FLASH_ATTR set_on_client_disconnect(wifi_state_cb_t cb){
 
 bool ICACHE_FLASH_ATTR wifi_set_mode(WIFI_MODE mode){
     if(!mode){
+        printf("enter modem sleep\r\n");
         bool s = wifi_set_opmode(mode);
         wifi_fpm_open();
         wifi_fpm_set_sleep_type(MODEM_SLEEP_T);
@@ -248,7 +249,8 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
         printf("Failed to set Station config!\n");
         return false;
     }
-    //wifi_set_phy_mode(PHY_MODE_11G);
+    wifi_set_phy_mode(PHY_MODE_11G);
+    
     if(!wifi_station_dhcpc_status()){
         printf("DHCP is not started. Starting it...\n");
         if(!wifi_station_dhcpc_start()){
@@ -256,6 +258,7 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
             return false;
         }
     }
+    printf("[%s]line:[%d] start to connect!\n", __func__, __LINE__);
     return wifi_station_connect();
 }
 
@@ -738,8 +741,7 @@ static int stop_ap(hal_wifi_module_t *m)
     return 0;
 }
 
-hal_wifi_module_t aos_wifi_esp8266 =
-{
+hal_wifi_module_t aos_wifi_esp8266 = {
     .base.name           = "aos_wifi_esp8266",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
@@ -757,10 +759,8 @@ hal_wifi_module_t aos_wifi_esp8266 =
     .set_channel         =  set_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
-
     .start_ap            =  start_ap,
     .stop_ap             =  stop_ap,
-
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame

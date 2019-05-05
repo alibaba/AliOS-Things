@@ -262,7 +262,7 @@
  * TCP_QUEUE_OOSEQ==1: TCP will queue segments that arrive out of order.
  * Define to 0 if your device is low on memory.
  */
-#define TCP_QUEUE_OOSEQ                 0
+#define TCP_QUEUE_OOSEQ                 1
 
 /*
  *     LWIP_EVENT_API==1: The user defines lwip_tcp_event() to receive all
@@ -270,7 +270,7 @@
  *     LWIP_CALLBACK_API==1: The PCB callback function is called directly
  *         for the event. This is the default.
 */
-#define TCP_MSS                         1460
+#define TCP_MSS                         536
 
 /**
  * TCP_MAXRTX: Maximum number of retransmissions of data segments.
