@@ -222,27 +222,4 @@ pwr_status_t board_cpu_pwr_init(void)
     return retVal;
 }
 
-void cpu_pwr_resume_devices() {
-
-}
-
-void cpu_pwr_suspend_devices() {
-
-}
-
-int pwrmgmt_suspend_lowpower() {
-    CPSR_ALLOC();
-    RHINO_CRITICAL_ENTER();
-    pmu_acquire_wakelock(PMU_DEV_OTA);
-    RHINO_CRITICAL_EXIT_SCHED();
-    return 1;
-}
-
-int pwrmgmt_resume_lowpower() {
-    CPSR_ALLOC();
-    RHINO_CRITICAL_ENTER();
-    pmu_release_wakelock(PMU_DEV_OTA);
-    RHINO_CRITICAL_EXIT_SCHED();
-    return 1;
-}
 #endif /* AOS_COMP_PWRMGMT */

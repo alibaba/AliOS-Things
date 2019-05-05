@@ -1,4 +1,5 @@
 AMEBAZ_DIR = $($(HOST_MCU_FAMILY)_LOCATION)
+SYSTEMBIN_DIR = board/$(PLATFORM)
 AMEBAZ_TOOLDIR	= $(AMEBAZ_DIR)/tools
 BIN_DIR= $(AMEBAZ_DIR)
 
@@ -48,7 +49,7 @@ BOOT_BIN_FILE    := $(OUTPUT_DIR)/binary/boot_all.bin
 BOOT_OFFSET      := 0x0
 
 #application
-SYSTEM_BIN_FILE := $(AMEBAZ_DIR)/system.bin
+SYSTEM_BIN_FILE := $(SYSTEMBIN_DIR)/system.bin
 SYSTEM_OFFSET:= 0x9000
 
 #2boot
