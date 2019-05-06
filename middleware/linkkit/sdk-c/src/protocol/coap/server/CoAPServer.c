@@ -208,10 +208,9 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     unsigned char token[COAP_MSG_MAX_TOKEN_LEN] = {0};
 
     if (NULL == context || g_context != context || NULL == remote
-        || NULL == uri || NULL == buff || NULL == msgid) {
+        || NULL == uri || NULL == buff) {
         return COAP_ERROR_INVALID_PARAM;
     }
-
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_NON);
