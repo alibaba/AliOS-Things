@@ -6,6 +6,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(TOOLCHAIN_MAKEFILE)
 
 CONFIG_PY_FILE := $(SCRIPTS_PATH)/config_mk.py
+CONFIG_FILE := $(OUTPUT_DIR)/config.mk
 include $(CONFIG_FILE)
 
 IDE_IAR_FLAG :=

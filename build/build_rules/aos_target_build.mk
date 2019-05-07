@@ -1,5 +1,17 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
+
+# Support 2nd boot build for OTA
+MODULES_DIR := modules
+
+ifeq ($(AOS_2BOOT_SUPPORT),yes)
+CONFIG_SUFFIX    := _2ndboot
+BIN_2BOOT_SUFFIX := .2boot
+MODULES_DIR      := modules$(CONFIG_SUFFIX)
+endif
+
+CONFIG_FILE := $(OUTPUT_DIR)/config$(CONFIG_SUFFIX).mk
 include $(CONFIG_FILE)
+
 include $(TOOLCHAIN_MAKEFILE)
 
 .PHONY: display_map_summary build_done
@@ -9,7 +21,7 @@ include $(TOOLCHAIN_MAKEFILE)
 ##################################
 
 # out/helloworld@xx/binary/helloworld@xx.elf
-LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
+LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.stripped.elf
 STRIPPED_LINK_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
 # out/helloworld@xx/binary/helloworld@xx.bin
@@ -33,9 +45,9 @@ MAP_CSV_OUTPUT_FILE_XIP2        :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=
 endif
 
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
-LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER).opts
+LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX).opts
 
-LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LOWER).opts
+LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX).opts
 
 LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
@@ -59,14 +71,15 @@ GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(str
 ###############################################################################
 # MACRO: BUILD_C_RULE
 # Creates a target for building C language files (*.c)
-# $(1) is component, $(2) is the source file
+# $(1) is component, $(2) is the source file $(3) is the suffix for .a/.*_opts files
 define BUILD_C_RULE
 ifeq ($(COMPILER),)
--include $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)
+-include $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)
 endif
-$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.o): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).c_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+$(eval SUFFIX := $(3))
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.c=.o): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1)$(SUFFIX).c_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(QUIET)$(ECHO) Compiling $(1) )
-	$(QUIET)$(CC) $($(1)_C_OPTS) -D__FILENAME__='"$$(notdir $$<)"' $(call COMPILER_SPECIFIC_DEPS_FILE,$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
+	$(QUIET)$(CC) $($(1)_C_OPTS) -D__FILENAME__='"$$(notdir $$<)"' $(call COMPILER_SPECIFIC_DEPS_FILE,$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.c=.d)) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
 
 ###############################################################################
@@ -74,9 +87,9 @@ endef
 # Compiles a C language header file to ensure it is stand alone complete
 # $(1) is component, $(2) is the source header file
 define CHECK_HEADER_RULE
-$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
-.PHONY: $(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk)
-$(OUTPUT_DIR)/modules/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d
+$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
+.PHONY: $(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk)
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d
 	$(QUIET)$(ECHO) Checking header  $(2)
 	$(QUIET)$(CC) -c $(AOS_SDK_CFLAGS) $(filter-out -pedantic -Werror, $($(1)_CFLAGS) $(C_BUILD_OPTIONS) ) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) -o $$@ $$<
 endef
@@ -84,10 +97,11 @@ endef
 ###############################################################################
 # MACRO: BUILD_CPP_RULE
 # Creates a target for building C++ language files (*.cpp)
-# $(1) is component name, $(2) is the source file
+# $(1) is component name, $(2) is the source file $(3) is the suffix for .a/.*_opts files
 define BUILD_CPP_RULE
--include $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.d,$(2:.cpp=.d))
-$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.o,$(2:.cpp=.o)): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).cpp_opts | $(EXTRA_PRE_BUILD_TARGETS)
+$(eval SUFFIX := $(3))
+-include $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.d,$(2:.cpp=.d))
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(patsubst %.cc,%.o,$(2:.cpp=.o)): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1)$(SUFFIX).cpp_opts | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
 	$(QUIET)$(CXX) $($(1)_CPP_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
@@ -95,9 +109,10 @@ endef
 ###############################################################################
 # MACRO: BUILD_S_RULE
 # Creates a target for building Assembly language files (*.s & *.S)
-# $(1) is component name, $(2) is the source file
+# $(1) is component name, $(2) is the source file $(3) is the suffix for .a/.*_opts files
 define BUILD_S_RULE
-$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+$(eval SUFFIX := $(3))
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1)$(SUFFIX).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
 	$(QUIET)$(AS) $($(1)_S_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
@@ -108,9 +123,11 @@ endef
 # Target for the component static library is created in this macro
 # Targets for source files are created by calling the macros defined above
 # $(1) is component name
+# $(2) is the suffix for .a, *_opts files
 define BUILD_COMPONENT_RULES
 
-$(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1).a))
+$(eval SUFFIX := $(2))
+$(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1)$(SUFFIX).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
@@ -118,25 +135,25 @@ include $($(1)_MAKEFILE)
 endif
 
 # Make a list of the object files that will be used to build the static library
-$(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
+$(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
 
 
-$(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_C_OPTS:=$(subst $(COMMA),$$(COMMA), $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)))
 	$(eval C_OPTS_FILE := $($(1)_C_OPTS) )
 	$$(call WRITE_FILE_CREATE, $$@, $(C_OPTS_FILE))
 	$$(file >$$@, $(C_OPTS_FILE) )
 
-$(LIBS_DIR)/$(1).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_CPP_OPTS:=$(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $($(1)_CXXFLAGS)  $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
 	$$(file >$$@, $($(1)_CPP_OPTS) )
 
-$(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
 	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )
 	$$(file >$$@, $(S_OPTS_FILE) )
 
-$(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(QUIET)$$(call WRITE_FILE_CREATE, $$@ ,$($(1)_LIB_OBJS))
 
 
@@ -144,40 +161,40 @@ $(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 $(foreach src, $(if $(findstring 1,$(CHECK_HEADERS)), $(filter %.h, $($(1)_CHECK_HEADERS)), ),$(eval $(call CHECK_HEADER_RULE,$(1),$(src))))
 
 # Target for build-from-source
-$(LIBS_DIR)/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_DIR)/$(1).ar_opts
+$(LIBS_DIR)/$(1)$(SUFFIX).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_DIR)/$(1)$(SUFFIX).ar_opts
 	$(ECHO) Making $$@
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 ifeq ($(1),sensor)
 ifeq ($(COMPILER), armcc)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym
 else ifeq ($(COMPILER), rvct)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym
 else ifeq ($(COMPILER), iar)
-	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
+	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym
 else
-	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym
+	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym
 endif
-	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/modules/drivers/sensor/sensor.sym $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
 
 ifeq ($(IDE),iar)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
 	@python build/scripts/iar.py $(CLEANED_BUILD_STRING)
 else ifeq ($(IDE),keil)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
 	@python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 endif
 
-	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.o
+	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.o
 	$(QUIET)rm -rf $(OUTPUT_DIR)/libraries/sensor.a
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/modules/drivers/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 endif
 ifeq ($(COMPILER),)
-	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
+	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).stripped.a $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).a
 endif
 # Create targets to built the component's source files into object files
-$(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src))))
-$(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src))))
-$(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src))))
+$(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src),$(SUFFIX))))
+$(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src),$(SUFFIX))))
+$(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src),$(SUFFIX))))
 
 $(eval $(1)_LINT_FLAGS +=  $(filter -D% -I%, $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) ) )
 $(eval LINT_FLAGS +=  $($(1)_LINT_FLAGS) )
@@ -203,13 +220,13 @@ endef
 # Create targets for components
 ifeq (app, $(MBINS))
 IMAGE_MAGIC:=0xabababab
-$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
+$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
 else ifeq (kernel, $(MBINS))
 IMAGE_MAGIC:=0xcdcdcdcd
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
+$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
 else ifeq (,$(MBINS))
 IMAGE_MAGIC:=0xefefefef
-$(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp))))
+$(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX))))
 endif
 
 # handle lds file, lds -> ld
@@ -245,7 +262,7 @@ LINK_OPTS_XIP2 := $(AOS_SDK_LINK_SCRIPT_CMD) $(call COMPILER_SPECIFIC_LINK_MAP,$
 endif
 
 # FIXME GCC Whole archive not ready in all platform
-$(LINK_OPTS_FILE): $(OUTPUT_DIR)/config.mk $(LDS_FILES)
+$(LINK_OPTS_FILE): $(CONFIG_FILE) $(LDS_FILES)
 ifeq ($(COMPILER),armcc)
 	$(QUIET)$(call WRITE_FILE_CREATE, $@ ,$(LINK_OPTS))
 else
@@ -343,7 +360,9 @@ endif
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
+ifneq ($(AOS_2BOOT_SUPPORT),yes)
 	$(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)
+endif
 
 %.compile: $(LINK_LIBS)
 	$(QUIET)$(ECHO) Build libraries complete
