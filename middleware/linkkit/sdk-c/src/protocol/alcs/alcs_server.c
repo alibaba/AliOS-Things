@@ -671,6 +671,11 @@ void on_svr_auth_timer(CoAPContext *ctx)
     session_item *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, head, lst, session_item) {
         if (node->sessionId && node->heart_time + default_heart_expire < tick) {
+            if (node->heart_time > 0 && node->heart_time < tick &&
+                node->heart_time + default_heart_expire < 0) {
+                /* overflow */
+                return;
+            }
             COAP_ERR("heart beat timeout");
             remove_session(ctx, node);
         }
