@@ -14,7 +14,18 @@ $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
-CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
+
+# Support 2nd boot build for OTA
+CONFIG_SUFFIX   :=
+MODULES_DIR     := modules
+
+ifeq ($(AOS_2BOOT_SUPPORT),yes)
+CONFIG_SUFFIX   := _2ndboot
+MODULES_DIR     := modules_2ndboot
+endif
+
+CONFIG_FILE := $(CONFIG_FILE_DIR)/config$(CONFIG_SUFFIX).mk
+
 DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
@@ -171,7 +182,6 @@ $(eval OLD_CURDIR := $(CURDIR))
 $(eval CURDIR := $(CURDIR)$(dir $(TEMP_MAKEFILE)))
 $(eval TEST_COMPONENTS :=)
 $(eval CPLUSPLUS_FLAGS:=)
-$(eval AOS_2BOOT_SUPPORT :=)
 $(eval AOS_IMG1_XIP1_LD_FILE :=)
 $(eval AOS_IMG2_XIP2_LD_FILE :=)
 # Cache the last valid RTOS/NS combination for iterative filtering.
@@ -235,7 +245,6 @@ AOS_SDK_LDS_INCLUDES       +=$(GLOBAL_LDS_INCLUDES) $(GLOBAL_LDS_INCLUDES-y)
 AOS_SDK_CHIP_SPECIFIC_SCRIPT += $(CHIP_SPECIFIC_SCRIPT)
 AOS_SDK_CONVERTER_OUTPUT_FILE += $(CONVERTER_OUTPUT_FILE)
 AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
-AOS_SDK_2BOOT_SUPPORT +=$(AOS_2BOOT_SUPPORT)
 AOS_SDK_IMG1_XIP1_LD_FILE +=$(AOS_IMG1_XIP1_LD_FILE)
 AOS_SDK_IMG2_XIP2_LD_FILE +=$(AOS_IMG2_XIP2_LD_FILE)
 AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
@@ -260,8 +269,8 @@ define PROCESS_COMPONENT
 AOS_SDK_CFLAGS += -DMCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(eval CONFIG_IN_COMPONENTS := $(sort $(subst board_,,$(OBJ-y))))
 $(eval ONLY_IN_AOSMK := $(filter-out $(CONFIG_IN_COMPONENTS), $(REAL_COMPONENTS_LOCS)))
-$(eval ONLY_IN_CONFIGIN := $(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS)))
-$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN))
+$(eval ONLY_IN_CONFIGIN := $(if $(CONFIG_SUFFIX),,$(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS))))
+$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS) $(if $(CONFIG_SUFFIX),,$(ONLY_IN_CONFIGIN)))
 $(info *** All Components: $(ALL_COMPONENTS))
 $(if $(DEBUG_CONFIG), \
     $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS)) \
@@ -392,8 +401,14 @@ endif
 # Process component metadata
 ALL_MAKEFILES :=
 CURDIR :=
+
+ifeq ($(AOS_2BOOT_SUPPORT),yes)
+COMPONENTS := $(subst ",,$(AOS_BUILD_BOARD)) $(HOST_MCU_FAMILY)
+endif
+
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
+
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
@@ -455,11 +470,11 @@ else ifeq (, $(MBINS))
 AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY)))
 endif
 
-AOS_SDK_LINK_FILES         +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_LINK_FILES)))
+AOS_SDK_LINK_FILES         +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_LINK_FILES)))
 AOS_SDK_UNIT_TEST_SOURCES  +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_UNIT_TEST_SOURCES)))
 
 ifeq ($(ADD_UNIT_TESTS_TO_LINK_FILES),1)
-AOS_SDK_LINK_FILES         += $(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(patsubst %.c,%.o, $(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $$(OUTPUT_DIR)/modules/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_UNIT_TEST_SOURCES))) )))
+AOS_SDK_LINK_FILES         += $(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(patsubst %.c,%.o, $(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_UNIT_TEST_SOURCES))) )))
 endif
 
 # Build target, generate config file
@@ -517,6 +532,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MBINS_TYPE             := $($(comp)_MBINS_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LIBSUFFIX             := $($(comp)_LIBSUFFIX)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_POPULATE_INCLUDES      := $($(comp)_POPULATE_INCLUDES)))
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,OBJ-y := $(sort $(OBJ-y)))

@@ -55,7 +55,7 @@ all:
 # Process build strings
 #
 BUILD_SUBTARGETS := .config .menuconfig
-MAKEFILE_TARGETS += export_linkkit_sdk restore_linkkit_sdk export-keil export-iar
+MAKEFILE_TARGETS += export_linkkit_sdk restore_linkkit_sdk export-keil export-iar 2ndboot
 export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS), $(MAKECMDGOALS)))
 
 # Set IDE if export-* is specified
@@ -86,7 +86,6 @@ $(if $(findstring .,$(subtarget)),$(error Parameter for "-c" option Unknown "$(l
 export CLEANED_BUILD_STRING := $(BUILD_STRING)
 
 export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
-export CONFIG_FILE := $(OUTPUT_DIR)/config.mk
 export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 
 #
@@ -187,7 +186,6 @@ export RADIXPOINT
 
 export MBINSTYPE_UPPER
 export MBINSTYPE_LOWER
-export BIN2BOOTTYPE_LOWER
 
 MBINS ?=
 MBINS_APP ?=
@@ -213,9 +211,6 @@ endif
 define MBINS_EXIT
 $(error ***** This Platform Not Support Multi-Bins! [SUPPORT_MBINS:=$(SUPPORT_MBINS)] Not Use Option:[MBINs=*] ***** ***)
 endef
-
-# Support for 2nd bootloader
-BIN2BOOTTYPE_LOWER := .2boot
 
 # Define help message
 define USAGE_TEXT
@@ -352,7 +347,7 @@ endif
 
 all: $(BUILD_STRING)
 
-$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
+$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app
 
 ifeq ($(IDE),keil)
 main_app: export-keil
@@ -388,27 +383,23 @@ main_app: prebuild $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(ECHO) Build complete: $(BUILD_STRING)
 
-ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
-$(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
+$(OUTPUT_DIR)/config_2ndboot.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_CONFIG_DIR)/autoconf.h
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_2BOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(CLEANED_BUILD_STRING)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING) AOS_2BOOT_SUPPORT=yes
 
-2boot: $(OUTPUT_DIR)/config_2boot.mk $(MAKEFILES_PATH)/aos_target_build_2boot.mk
+2ndboot: prebuild $(OUTPUT_DIR)/config_2ndboot.mk $(MAKEFILES_PATH)/aos_target_build.mk
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
 	$(QUIET)$(ECHO) Build AOS Second Boot Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
-	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2ndboot.mk $(AUTO_COMPONENT_DIR)
+	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS) AOS_2BOOT_SUPPORT=yes
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config_2ndboot.mk
 	$(QUIET)$(ECHO) Build 2nd boot complete: $(BUILD_STRING)
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
-else
-2boot:
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
-endif
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
 	./out/littlevgl_simulate@linuxhost/binary/littlevgl_simulate@linuxhost.elf
@@ -422,10 +413,7 @@ restore_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
 
-#%.config: $(CONFIG_FILE)
-#	$(QUIET)$(ECHO) Build configs complete: $(CONFIG_FILE)
-
-export-project: $(CONFIG_FILE)
+export-project: $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_3rd_project.mk $(BUILD_STRING)
 
 export-keil: export-project
