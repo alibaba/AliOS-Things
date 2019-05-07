@@ -251,6 +251,21 @@ static void topic_list_remove(mqtt_instance_topic_t *t)
     }
 }
 
+static mqtt_instance_topic_t *topic_list_get(char *topic)
+{
+    mqtt_instance_topic_t *tp;
+    
+    tp = first_topic;
+    while ((tp) != NULL) {
+        if(strncmp(tp->topic, topic, strlen(topic)) == 0) {
+            return tp;
+        }
+        tp = tp->next;
+    }
+    return NULL;
+}
+
+
 static void subscriber_cb(void *ctx, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     mqtt_instance_topic_t *t = ctx;
@@ -264,6 +279,7 @@ static void subscriber_cb(void *ctx, void *pclient, iotx_mqtt_event_msg_pt msg)
 
 int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *payload, int len, void *ctx), void *ctx)
 {
+    mqtt_instance_topic_t *t;
     if (!topic || !cb) {
         return -1;
     }
@@ -271,8 +287,13 @@ int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *pay
     if (!mqtt_client) {
         return -1;
     }
+    t = topic_list_get(topic);
+    if(t != NULL) {
+        mqtt_warning("duplicate subscribe!!!\n"); 
+        return 0;
+    }
 
-    mqtt_instance_topic_t *t = LITE_malloc(sizeof(mqtt_instance_topic_t));
+    t = LITE_malloc(sizeof(mqtt_instance_topic_t));
     if (!t) {
         return -1;
     }
