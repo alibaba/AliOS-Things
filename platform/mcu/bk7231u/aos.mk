@@ -55,7 +55,6 @@ $(NAME)_SOURCES += hal/gpio.c        \
                    hal/hw.c          \
                    hal/flash.c       \
                    hal/uart.c        \
-                   hal/ringbuf.c     \
                    hal/StringUtils.c \
                    hal/wifi_port.c   \
                    hal/beken_rhino.c
