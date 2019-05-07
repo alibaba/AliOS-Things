@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include "hfilop.h"
 #include "rda59xx_daemon.h"
 #include "rda59xx_wifi_include.h"
 #include "hal/wifi.h"
@@ -171,8 +172,8 @@ typedef enum {
 static int wifi_init(hal_wifi_module_t *m)
 {
     static int inited;
-    if (inited)
-        return 0;
+
+    if (inited) return 0;
     inited = 1;
 
 #ifndef DELETE_HFILOP_CODE
@@ -183,21 +184,16 @@ static int wifi_init(hal_wifi_module_t *m)
     rda59xx_wifi_set_event_cb(wifi_event_cb);
 
 #ifndef DELETE_HFILOP_CODE
-  //  extern struct hal_ota_module_s rda59xx_ota_module;
- //   hal_ota_register_module(&rda59xx_ota_module);
-	extern ota_hal_module_t ota_hal_module;
-	ota_hal_register_module(&ota_hal_module);
+    extern ota_hal_module_t ota_hal_module;
+    ota_hal_register_module(&ota_hal_module);
 
-    extern void hfilop_ota_auto_upgrade(char *ssid, char *pwd);
     hfilop_ota_auto_upgrade(NULL, NULL);
 
     extern int hfilop_mac_key_is_valid(void);
     if(!hfilop_mac_key_is_valid())
     {
-        extern void hfilop_uart_task_start(void *);
-        hfilop_uart_task_start(NULL);
-        while(1)
-            aos_msleep(1000);
+        hfilop_uart_task_start(NULL, NULL);
+        while(1) aos_msleep(1000);
     }
 #endif
 
