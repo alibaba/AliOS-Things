@@ -935,7 +935,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
             char *output = NULL;
             unsigned char *raw_data = NULL;
-            int raw_data_len = 0;
+            int raw_data_len = 0;  
 
             if (payload == NULL) {
                 return;
