@@ -1,5 +1,5 @@
 GLOBAL_INCLUDES +=  ./imx6_platform_sdk/board/mx6dq/smart_device  \
-                    ./imx6_platform_sdk/sdk/include/mx6dq  \
+                    ./imx6_platform_sdk/sdk/include/mx6dq
 
 
 #ifeq ($(OS_MUTICORE_NUM), 4)
@@ -21,4 +21,4 @@ $(NAME)_SOURCES +=  ./imx6_platform_sdk/sdk/drivers/i2c/src/imx_i2c.c   \
                     ./imx6_platform_sdk/board/mx6dq/smart_device/rev_a_iomux/i2c_iomux_config.c   \
                     ./imx6_platform_sdk/board/mx6dq/smart_device/rev_a_iomux/i2c1_iomux_config.c   \
                     ./imx6_platform_sdk/board/mx6dq/smart_device/rev_a_iomux/i2c2_iomux_config.c   \
-                    ./imx6_platform_sdk/board/mx6dq/smart_device/rev_a_iomux/i2c3_iomux_config.c   \
+                    ./imx6_platform_sdk/board/mx6dq/smart_device/rev_a_iomux/i2c3_iomux_config.c
