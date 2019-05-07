@@ -1754,8 +1754,8 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     }
     aos_get_version_info((unsigned char *)subdev_aos_verson, (unsigned char *)random_num, (unsigned char *)subdev_mac_num,
                          (unsigned char *)subdev_chip_code, (unsigned char *)aos_active_data, AOS_ACTIVE_INFO_LEN);
-    memcpy(aos_active_data+40, "1111111111222222222233333333334444444444", 40);
-						 
+    memcpy(aos_active_data + 40, "1111111111222222222233333333334444444444", 40);
+
     active_param_len = strlen(DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
     active_param = DM_malloc(active_param_len);
     if (active_param == NULL) {
@@ -1946,17 +1946,7 @@ int dm_msg_cloud_disconnect(void)
 
 int dm_msg_cloud_reconnect(void)
 {
-    int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    /* Send To User */
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
-
-    return res;
+    return _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
 }
 
 const char DM_MSG_EVENT_FOUND_DEVICE_FMT[] DM_READ_ONLY = "{\"product_key\":\"%s\",\"device_name\":\"%s\"}";
@@ -2655,7 +2645,7 @@ int dm_msg_thing_dsltemplate_get(_OU_ dm_msg_request_t *request)
 
 const char DM_MSG_THING_DYNAMICTSL_GET_METHOD[] DM_READ_ONLY = "thing.dynamicTsl.get";
 const char DM_MSG_THING_DYNAMICTSL_GET_PARAMS[] DM_READ_ONLY =
-            "{\"nodes\":[\"type\",\"identifier\"],\"addDefault\":false}";
+            "{\"nodes\":[\"type\",\"identifier\",\"size\"],\"addDefault\":false}";
 int dm_msg_thing_dynamictsl_get(_OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
