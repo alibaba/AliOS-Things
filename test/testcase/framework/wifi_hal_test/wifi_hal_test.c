@@ -121,7 +121,6 @@ static int suspend_station(hal_wifi_module_t *m)
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
-
     return 0;
 }
 
@@ -145,6 +144,22 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 
 }
 
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+static int set_listeninterval(hal_wifi_module_t *m, uint8_t listen_interval)
+{
+    return 0;
+}
+
+static int enter_powersave(hal_wifi_module_t *m, uint8_t recvDTIMs)
+{
+    return 0;
+}
+
+static int exit_powersave(hal_wifi_module_t *m)
+{
+    return 0;
+}
+#endif
 
 static hal_wifi_module_t sim_aos_wifi_module = {
     .base.name           = "sim_aos_wifi_module",
@@ -165,6 +180,11 @@ static hal_wifi_module_t sim_aos_wifi_module = {
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
     .register_monitor_cb =  register_monitor_cb,
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    .set_listeninterval  =  set_listeninterval,
+    .enter_powersave     = enter_powersave,
+    .exit_powersave      =  exit_powersave,
+#endif
 };
 
 static void test_wifi_case(void)
