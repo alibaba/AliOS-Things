@@ -49,7 +49,7 @@ static void iotx_response_handler(void *arg, void *p_response)
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
     HAL_Printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
-    HAL_Printf("[APPL]: Len: %d, Payload: %s\r\n", len, p_payload);
+    HAL_Printf("[APPL]: Len: %d\r\n", len);
 }
 
 #ifdef TEST_COAP_DAILY

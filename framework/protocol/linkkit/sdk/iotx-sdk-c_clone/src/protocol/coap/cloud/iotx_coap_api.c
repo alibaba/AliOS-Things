@@ -270,7 +270,7 @@ static void iotx_get_well_known_handler(void *arg, void *p_response)
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
     COAP_INFO("[APPL]: Message response code: %d", resp_code);
-    COAP_INFO("[APPL]: Len: %d, Payload: %s, ", len, p_payload);
+    COAP_INFO("[APPL]: Len: %d", len);
 }
 
 
