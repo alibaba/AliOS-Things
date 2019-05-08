@@ -3,10 +3,11 @@
  */
 #include <stdarg.h>
 #include "k_dbg_api.h"
-#include "k_compiler.h"
 #include "aos/cli.h"
 #include "aos/kernel.h"
-
+#if (RHINO_CONFIG_PANIC > 0)
+#include "k_compiler.h"
+#endif
 
 #define DEBUG_PANIC_STEP_MAX    32
 
