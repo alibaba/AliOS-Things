@@ -584,6 +584,12 @@ void wifi_stop_monitor_task(void *arg)
 #if CONFIG_AUTO_RECONNECT
     wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
+
+    pmu_release_wakelock(0);
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_enable_powersave();
+#endif
+
     aos_task_exit(0);
 }
 
