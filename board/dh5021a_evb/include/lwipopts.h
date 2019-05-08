@@ -66,8 +66,8 @@
 */
 /* If MEM_LIBC_MALLOC and MEMP_MEM_MALLOC are defined to 1,
 MEM_SIZE and MEMP_NUM_XXX will be invalid */
-#define MEM_LIBC_MALLOC                 0
-#define MEMP_MEM_MALLOC                 0
+#define MEM_LIBC_MALLOC                 1
+#define MEMP_MEM_MALLOC                 1
 #define MEM_ALIGNMENT                   4
 /* Application data is used for packet buffer directly */
 #if LWIP_MEM_OPTIMIZER
