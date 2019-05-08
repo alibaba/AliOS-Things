@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "panic_mpu.h"
 #include "k_compiler.h"
-#include "k_dbg_api.h"
+#include "debug_api.h"
 
 typedef struct {
     unsigned long start;
@@ -13,7 +13,7 @@ typedef struct {
     unsigned long mpusize;
 } mem_region_t;
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 
 static void mpu_enable(void);
 static void mpu_disable(void);
@@ -201,7 +201,7 @@ void debug_task_stack_ovf_check(char *task_name)
         return;
     }
 
-    task = krhino_task_find(task_name);
+    task = debug_task_find(task_name);
     if (task == NULL) {
         printf("error: task do not exist\r\n");
         return;
