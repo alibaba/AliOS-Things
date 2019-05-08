@@ -170,7 +170,7 @@ typedef struct {
     unsigned char enable;
 } MPU_Region_Init_t;
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 /**
  * set mpu region for memory unauthorized access check
  *
