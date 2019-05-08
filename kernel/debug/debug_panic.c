@@ -39,6 +39,7 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
  */
 #endif
 
+
 #if (DEBUG_CONFIG_PANIC > 0)
 
 /* functions followed should defined by arch\...\panic_c.c */
@@ -55,12 +56,15 @@ extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
 
+
 static void panic_goto_cli(void)
 {
 #if (defined (AOS_COMP_CLI) && (RHINO_CONFIG_KOBJ_LIST > 0))
 
     klist_t      *listnode;
     ktask_t      *task;
+
+    g_sched_lock[cpu_cur_get()]++;
 
     for (listnode = g_kobj_list.task_head.next;
          listnode != &g_kobj_list.task_head; listnode = listnode->next) {
@@ -70,9 +74,9 @@ static void panic_goto_cli(void)
         }
     }
 
-    krhino_sched_enable();
-
-    debug_task_overview(print_str);
+    if(g_sched_lock[cpu_cur_get()] > 0) {
+        g_sched_lock[cpu_cur_get()] = 0;
+    }
 
     /*suspend current task*/
     task = g_active_task[cpu_cur_get()];
@@ -81,7 +85,6 @@ static void panic_goto_cli(void)
     }
 #endif
 }
-
 
 /* should exeception be restored?
    reture 1 YES, 0 NO*/
@@ -105,8 +108,6 @@ void panicHandler(void *context)
     static int  *SP = NULL;
     static char *PC = NULL;
     static char *LR = NULL;
-
-    krhino_sched_disable();
 
     /* g_crash_steps++ before panicHandler */
     if (g_crash_steps > 1 && g_crash_steps < DEBUG_PANIC_STEP_MAX) {
@@ -257,7 +258,13 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_backtrace_now();
 #endif
 
-    panic_goto_cli();
+    /*panic_goto_cli();*/
+
+    RHINO_CPU_INTRPT_DISABLE();
+    while (1) {
+        /* aos_reboot(); */
+    }
+    RHINO_CPU_INTRPT_ENABLE();
 }
 #endif
 
