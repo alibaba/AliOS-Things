@@ -3,9 +3,9 @@
 #include "k_api.h"
 
 /* Heap should align to IRAM_HEAP_ALIGNMENT */
-#define IRAM_HEAP_BASE              (0x40108000)
+#define IRAM_HEAP_BASE              (0x40109000)
 /* Size should be smaller than ~IRAM_HEAP_MAGIC */
-#define IRAM_HEAP_SIZE              (16 * 1024)
+#define IRAM_HEAP_SIZE              (12 * 1024)
 
 #define ALIGN(x,a)                  (((x) + (a) - 1) & ~((a) - 1))
 #define IRAM_HEAP_ALIGNMENT         4
