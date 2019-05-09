@@ -16,11 +16,12 @@
 #if defined OTA_CONFIG_ITLS
 #include "itls/sha256.h"
 #include "itls/md5.h"
-#include "itls/base64.h"
 #else
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
+#include "mbedtls/bignum.h"
+#include "mbedtls/rsa.h"
 #endif
 #endif
 #if (OTA_SIGNAL_CHANNEL) == 1
@@ -178,7 +179,7 @@ static void task_wrapper(void *arg)
 }
 #endif
 #define OTA_THREAD_NAME "OTA_Thread"
-#define OTA_THREAD_SIZE 4096
+#define OTA_THREAD_SIZE (4 * 1024)
 #define OTA_THREAD_PRI 30
 /*Thread create*/
 int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int stack_size)
@@ -415,101 +416,116 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 #endif
 
 #if !defined (AOS_COMP_OTA_BLE)
-/*SHA256*/
-#if !defined(ESPOS_FOR_ESP32)
-extern void mbedtls_sha256_free_alt(mbedtls_sha256_context *ctx);
-extern void mbedtls_sha256_init_alt(mbedtls_sha256_context *ctx);
-extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224);
-extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, size_t ilen);
-extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context *ctx, unsigned char output[32]);
-#endif
+
 void ota_sha256_free(ota_sha256_context *ctx)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_free_alt((mbedtls_sha256_context *)ctx);
+    mbedtls_sha256_free((mbedtls_sha256_context *)ctx);
 #endif
 }
 
 void ota_sha256_init(ota_sha256_context *ctx)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_init_alt((mbedtls_sha256_context *)ctx);
+    mbedtls_sha256_init((mbedtls_sha256_context *)ctx);
 #endif
 }
 
 void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_starts_alt((mbedtls_sha256_context *)ctx, is224);
+    mbedtls_sha256_starts((mbedtls_sha256_context *)ctx, is224);
 #endif
 }
 
 void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_update_alt((mbedtls_sha256_context *)ctx, input, ilen);
+    mbedtls_sha256_update((mbedtls_sha256_context *)ctx, input, ilen);
 #endif
 }
 
 void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_finish_alt((mbedtls_sha256_context *)ctx, output);
+    mbedtls_sha256_finish((mbedtls_sha256_context *)ctx, output);
 #endif
 }
 /*MD5*/
-extern void mbedtls_md5_free_alt(mbedtls_md5_context *ctx);
-extern void mbedtls_md5_init_alt(mbedtls_md5_context *ctx);
-extern void mbedtls_md5_starts_alt(mbedtls_md5_context *ctx);
-extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, size_t ilen);
-extern void mbedtls_md5_finish_alt(mbedtls_md5_context *ctx, unsigned char output[32]);
 
 void ota_md5_free(ota_md5_context *ctx)
 {
-    mbedtls_md5_free_alt((mbedtls_md5_context *)ctx);
+    mbedtls_md5_free((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_init(ota_md5_context *ctx)
 {
-    mbedtls_md5_init_alt((mbedtls_md5_context *)ctx);
+    mbedtls_md5_init((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
-    mbedtls_md5_starts_alt((mbedtls_md5_context *)ctx);
+    mbedtls_md5_starts((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-    mbedtls_md5_update_alt((mbedtls_md5_context *)ctx, input, ilen);
+    mbedtls_md5_update((mbedtls_md5_context *)ctx, input, ilen);
 }
 
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
 {
-    mbedtls_md5_finish_alt((mbedtls_md5_context *)ctx, output);
+    mbedtls_md5_finish((mbedtls_md5_context *)ctx, output);
 }
 /*RSA*/
-extern int ali_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
-extern int ali_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
-                      const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey);
-extern int ali_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
-                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result);
-
-int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
+int ota_rsa_pubkey_verify(const unsigned char *pubkey_n,
+                          const unsigned char *pubkey_e,
+                          unsigned int pubkey_n_size,
+                          unsigned int pubkey_e_size,
+                          const unsigned char *dig,
+                          unsigned int dig_size,
+                          const unsigned char *sig,
+                          unsigned int sig_size)
 {
-    return ali_rsa_get_pubkey_size(keybits, size);
+    int                   ret = 0;
+    mbedtls_rsa_context   ctx;
+
+    if (pubkey_n == NULL || pubkey_n == NULL || dig == NULL || sig == NULL) {
+        ret = -1;
+        goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+    if (pubkey_n_size == 0 || pubkey_e_size == 0 || sig_size == 0 || dig_size != OTA_SHA256_HASH_SIZE) {
+        ret = -1;
+        goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+    mbedtls_rsa_init(&ctx, MBEDTLS_RSA_PKCS_V15, MBEDTLS_MD_SHA256);
+    ret = mbedtls_mpi_read_binary(&ctx.N, pubkey_n, pubkey_n_size);
+    if (0 != ret) {
+       goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+    ret = mbedtls_mpi_read_binary(&ctx.E, pubkey_e, pubkey_e_size);
+    if (0 != ret) {
+        goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+    ctx.len = pubkey_n_size;
+    ret = mbedtls_rsa_check_pubkey(&ctx);
+    if (0 != ret) {
+        OTA_LOG_E("rsa key invalid(%08x)\n", ret);
+        goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+    ret = mbedtls_rsa_pkcs1_verify(&ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256,(unsigned int)0, (const unsigned char *)dig, (const unsigned char *)sig);
+    if (0 != ret) {
+        OTA_LOG_E("ali_algo_rsa_pkcs1_verify fail %d", ret);
+        goto OTA_RSA_PUBKEY_VERIFY_OVER;
+    }
+OTA_RSA_PUBKEY_VERIFY_OVER:
+    if(ret != 0) {
+        OTA_LOG_E("ota:rsa_pubkey_verify_err = %x", ret);
+    }
+    mbedtls_rsa_free(&ctx);
+    return ret;
 }
 
-int ota_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
-                      const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey){
-    return ali_rsa_init_pubkey(keybits, n, n_size, e, e_size, pubkey);
-}
-
-int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
-                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result)
-{
-    return ali_rsa_verify(pub_key, dig, dig_size, sig, sig_size, padding, p_result);
-}
 /*base64*/
 int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char *dst, unsigned int *dlen)
 {
@@ -546,8 +562,7 @@ void ota_crc16_init(ota_crc16_ctx *inCtx)
     inCtx->crc = 0;
 }
 
-
-void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, unsigned int inLen)
+void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, size_t inLen)
 {
     const unsigned char *src = (const unsigned char *) inSrc;
     const unsigned char *srcEnd = src + inLen;

@@ -25,18 +25,37 @@
 #define NULL 0
 #endif
 
-
-#define OTA_IMAGE_MD5_LEN          (16)
-#define OTA_IMAGE_RESERVER_SIZE    (2)
+#define OTA_SHA256_HASH_SIZE            (32)
+#define OTA_MD5_HASH_SIZE               (16)
+#define OTA_IMAGE_INFO_RESERVER_SIZE    (2)
 
 typedef struct
 {
     unsigned int   image_magic;
     unsigned int   image_size;
-    unsigned char  image_md5_value[OTA_IMAGE_MD5_LEN];
-    unsigned char  image_reserver[OTA_IMAGE_RESERVER_SIZE];
+    unsigned char  image_md5_value[OTA_MD5_HASH_SIZE];
+    unsigned char  image_reserver[OTA_IMAGE_INFO_RESERVER_SIZE];
     unsigned short image_crc16;
 } ota_image_t;
+
+typedef struct {
+    unsigned short crc;
+} ota_crc16_ctx;
+
+/*Verify API*/
+typedef struct
+{
+    unsigned int  total[2];
+    unsigned int  state[4];
+    unsigned char buffer[64];
+} ota_md5_context;
+
+typedef struct {
+    unsigned int  total[2];
+    unsigned int  state[8];
+    unsigned char buffer[64];
+    int is224;
+} ota_sha256_context;
 
 /*memory*/
 void *ota_malloc(int size);
@@ -77,20 +96,6 @@ void ota_socket_close(void *fd);
 void *ota_ssl_connect(const char *host, unsigned short port, const char *ca, int len);
 int ota_ssl_send(void *ssl,  char *buf, int len);
 int ota_ssl_recv(void *ssl,  char *buf, int len);
-
-/*Verify API*/
-typedef struct
-{
-    unsigned int  total[2];
-    unsigned int  state[4];
-    unsigned char buffer[64];
-} ota_md5_context;
-typedef struct {
-    unsigned int  total[2];
-    unsigned int  state[8];
-    unsigned char buffer[64];
-    int is224;
-} ota_sha256_context;
 /*SHA256*/
 void ota_sha256_free(ota_sha256_context *ctx);
 void ota_sha256_init(ota_sha256_context *ctx);
@@ -104,57 +109,20 @@ void ota_md5_starts(ota_md5_context *ctx);
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen);
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16]);
 /*CRC16*/
-typedef struct {
-    unsigned short crc;
-} ota_crc16_ctx;
 void ota_crc16_init(ota_crc16_ctx *ctx);
 void ota_crc16_update(ota_crc16_ctx *ctx, const void *inSrc, unsigned int inLen);
 void ota_crc16_final(ota_crc16_ctx *ctx, unsigned short *outResult);
 /*Base64*/
 int ota_base64_decode(const unsigned char *input, unsigned int input_len, unsigned char *output, unsigned int *output_len);
 /*RSA*/
-#define HASH_NONE OTA_HASH_NONE
-#define SHA256 OTA_SHA256
-#define MD5 OTA_MD5
-#define RSASSA_PKCS1_V1_5 OTA_RSASSA_PKCS1_V1_5
-typedef enum {
-    HASH_NONE   = 0,
-    SHA256      = 3,
-    MD5         = 6,
-} OTA_HASH_E;
-typedef enum {
-    RSASSA_PKCS1_V1_5 = 20,
-} ota_rsa_pad_type_t;
-
-typedef struct{
-    ota_rsa_pad_type_t type;
-    union {
-        struct {
-            OTA_HASH_E type;
-        } rsaes_oaep;
-        struct {
-            OTA_HASH_E type;
-        } rsassa_v1_5;
-        struct {
-            OTA_HASH_E type;
-            unsigned int salt_len;
-        } rsassa_pss;
-    } pad;
-} ota_rsa_padding_t;
-
-#define TEE_MIN_RSA_KEY_SIZE      (256)
-#define TEE_MAX_RSA_KEY_SIZE      (2048)
-
-typedef struct{
-    unsigned int  magic;
-    unsigned int  n_size;
-    unsigned int  e_size;
-    unsigned char n[(TEE_MAX_RSA_KEY_SIZE >> 3)];
-    unsigned char e[(TEE_MAX_RSA_KEY_SIZE >> 3)];
-} ota_rsa_pubkey_t;
-int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
-int ota_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
-                      const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey);
+int ota_rsa_pubkey_verify(const unsigned char *pubkey_n,
+                          const unsigned char *pubkey_e,
+                          unsigned int pubkey_n_size,
+                          unsigned int pubkey_e_size,
+                          const unsigned char *dig,
+                          unsigned int dig_size,
+                          const unsigned char *sig,
+                          unsigned int sig_size);
 /*MQTT*/
 int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len);
 int ota_hal_mqtt_subscribe(char *topic, void* cb, void *ctx);
