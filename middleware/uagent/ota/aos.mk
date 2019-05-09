@@ -40,7 +40,7 @@ ifeq ($(FEATURE_SUPPORT_ITLS),y)
 GLOBAL_DEFINES += OTA_CONFIG_ITLS
 $(NAME)_COMPONENTS += itls
 else
-$(NAME)_COMPONENTS += imbedtls
+$(NAME)_COMPONENTS += mbedtls
 endif
 
 GLOBAL_INCLUDES += include hal ota_core/verify 2nd_boot

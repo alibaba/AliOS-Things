@@ -207,7 +207,7 @@ static int ota_http_download(void)
     int                  header_found = 0;
     char                *pos          = 0;
     int                  file_size    = 0;
-    ota_hash_param_t    *hash_ctx     = NULL;
+    ota_hash_ctx_t      *hash_ctx     = NULL;
     char                *host_file    = NULL;
     char                *host_addr    = NULL;
     char                *http_buffer  = NULL;
@@ -252,24 +252,24 @@ static int ota_http_download(void)
         ret = OTA_DOWNLOAD_FAIL;
         goto END;
     }
-    ret = ota_malloc_hash_ctx(MD5);
+    ret = ota_make_global_hash_ctx(OTA_MD5);
     if (ret < 0) {
         ret = OTA_DOWNLOAD_FAIL;
         goto END;
     }
 
     hash_ctx = ota_get_hash_ctx();
-    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
+    if (hash_ctx == NULL) {
         ret = OTA_DOWNLOAD_FAIL;
         goto END;;
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
     ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE-1, HTTP_HEADER, host_file, host_addr, port);
-    if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) < 0) {
+    if (ota_hash_init(hash_ctx) < 0) {
         ret = OTA_VERIFY_HASH_FAIL;
         goto END;
     }
-    ota_set_cur_hash(dl_hash);
+    ota_set_cur_hash_value(dl_hash);
     send      = 0;
     totalsend = 0;
     nbytes    = strlen(http_buffer);
@@ -318,7 +318,7 @@ static int ota_http_download(void)
                 int len      = pos - http_buffer;
                 header_found = 1;
                 size         = nbytes - len;
-                if (ota_hash_update((const unsigned char *)pos, size, hash_ctx->ctx_hash) < 0) {
+                if (ota_hash_update((const unsigned char *)pos, size, hash_ctx) < 0) {
                     ret = OTA_VERIFY_HASH_FAIL;
                     goto END;
                 }
@@ -333,7 +333,7 @@ static int ota_http_download(void)
             continue;
         }
         size += nbytes;
-        if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx->ctx_hash) < 0) {
+        if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx) < 0) {
             ret = OTA_VERIFY_HASH_FAIL;
             goto END;
         }
@@ -369,8 +369,8 @@ END:
     if(sockfd)
         ota_socket_close(sockfd);
     if(ret == 0){
-        ret = ota_check_hash(MD5, dl_hash);
-        ota_free_hash_ctx();
+        ret = ota_check_hash(OTA_MD5, dl_hash);
+        ota_free_global_hash_ctx();
         if (ret < 0) {
             OTA_LOG_E("hash check error:%d.", ret);
             return ret;
