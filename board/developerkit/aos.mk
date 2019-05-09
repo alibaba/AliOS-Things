@@ -175,6 +175,8 @@ endif
 ifeq ($(COMPILER),armcc)
 $(NAME)_LINK_FILES := startup_stm32l496xx_keil.o
 $(NAME)_LINK_FILES += Src/stm32l4xx_hal_msp.o
+GLOBAL_CFLAGS += -D__ORDER_LITTLE_ENDIAN__=1
+GLOBAL_CFLAGS += -D__BYTE_ORDER__=__ORDER_LITTLE_ENDIAN__
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit
