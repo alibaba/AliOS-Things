@@ -59,6 +59,7 @@ $(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_
 $(eval C_OPTS_IAR := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_IAR)))
 $(eval C_OPTS_KEIL := $(subst -I.,-I../../../../.,$(C_OPTS)) )
 $(eval C_OPTS_KEIL := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_KEIL)))
+$(eval C_OPTS_KEIL := $(subst \",\'\\\",$(C_OPTS_KEIL)))
 
 $(if $(strip $(findstring arch_,$(1)) $(findstring board_,$(1))),
 $(eval AS_OPTS = $(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES)) \
@@ -98,7 +99,7 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_device = "$(strip $(KEIL_DEVICE))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_vendor = "$(strip $(KEIL_VENDOR))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_cflags = "$(strip $(AOS_SDK_CFLAGS))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_cflags = "$(strip $(subst \",\'\\\",$(AOS_SDK_CFLAGS)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_asmflags = "$(strip $(subst ",\",$(AOS_SDK_ASMFLAGS)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")

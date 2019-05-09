@@ -218,7 +218,7 @@ endef
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
-AOS_SDK_DEFINES += MCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
+AOS_SDK_CFLAGS += -DMCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(info all components: $(REAL_COMPONENTS_LOCS))
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 endef
