@@ -217,6 +217,7 @@ tcpip_input(struct pbuf *p, struct netif *inp)
   msg->msg.inp.p = r;
   msg->msg.inp.netif = inp;
   if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    printf("[%s] trypost failed\r\n", __func__);
     pbuf_free(r);
     memp_free(MEMP_TCPIP_MSG_INPKT, msg);
     return ERR_MEM;
