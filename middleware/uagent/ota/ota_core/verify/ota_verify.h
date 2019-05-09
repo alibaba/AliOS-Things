@@ -10,28 +10,34 @@
 #define AOS_KERNEL_TAG (0xcdcdcdcd)
 #define AOS_APP_TAG    (0xefefefef)
 
-typedef enum {
-    OTA_CRYPTO_ERROR = (int)0xffff0000,
-    OTA_CRYPTO_NOSUPPORT,
-    OTA_CRYPTO_INVALID_KEY,
-    OTA_CRYPTO_INVALID_TYPE,
-    OTA_CRYPTO_INVALID_CONTEXT,
-    OTA_CRYPTO_INVALID_PADDING,
-    OTA_CRYPTO_INVALID_AUTHENTICATION,
-    OTA_CRYPTO_INVALID_ARG,
-    OTA_CRYPTO_INVALID_PACKET,
-    OTA_CRYPTO_LENGTH_ERR,
-    OTA_CRYPTO_OUTOFMEM,
-    OTA_CRYPTO_SHORT_BUFFER,
-    OTA_CRYPTO_NULL,
-    OTA_CRYPTO_ERR_STATE,
-    OTA_CRYPTO_SUCCESS = 0,
-} OTA_VERIFY_E;
+#define OTA_HASH_NONE                          (0)
+#define OTA_SHA256                             (1)
+#define OTA_MD5                                (2)
 
-typedef enum {
-    OTA_SIGN_OFF = 0,
-    OTA_SIGN_ON
-} OTA_SIGN_E;
+#define OTA_SIGN_BITNUMB                       (2048)
+
+#define OTA_SIGN_OFF                           (0)
+#define OTA_SIGN_ON                            (1)
+
+#define OTA_CRYPTO_RET_SUCCESS                 (0)
+#define OTA_CRYPTO_ERR                         (-0xA0)
+#define OTA_CRYPTO_PARAM_NULL                  (OTA_CRYPTO_ERR - 0x01)
+#define OTA_CRYPTO_HASH_CONTEXT_NULL           (OTA_CRYPTO_ERR - 0x02)
+#define OTA_CRYPTO_INVALID_ARG                 (OTA_CRYPTO_ERR - 0x03)
+#define OTA_CRYPTO_INVALID_HASH_TYPE           (OTA_CRYPTO_ERR - 0x04)
+#define OTA_CRYPTO_LENGTH_ERRO                 (OTA_CRYPTO_ERR - 0x05)
+#define OTA_CRYPTO_MALLOC_FAIL                 (OTA_CRYPTO_ERR - 0x06)
+#define OTA_CRYPTO_VERIFY_FAIL                 (OTA_CRYPTO_ERR - 0x07)
+#define OTA_CRYPTO_HASH_CTX_SET_ERR            (OTA_CRYPTO_ERR - 0x08)
+#define OTA_CRYPTO_HASH_CTX_GET_ERR            (OTA_CRYPTO_ERR - 0x09)
+#define OTA_CRYPTO_HASH_CHECK_MD5_FAIL         (OTA_CRYPTO_ERR - 0x0A)
+#define OTA_CRYPTO_HASH_CHECK_SHA256_FAIL      (OTA_CRYPTO_ERR - 0x0B)
+#define OTA_CRYPTO_HASH_INIT_ERR               (OTA_CRYPTO_ERR - 0x0C)
+#define OTA_CRYPTO_HASH_UPDATE_ERR             (OTA_CRYPTO_ERR - 0x0D)
+#define OTA_CRYPTO_HASH_FINAL_ERR              (OTA_CRYPTO_ERR - 0x0E)
+#define OTA_CRYPTO_READ_FLASH_FAIL             (OTA_CRYPTO_ERR - 0x10)
+#define OTA_CRYPTO_CALCUL_HASH_FAIL            (OTA_CRYPTO_ERR - 0x11)
+#define OTA_CRYPTO_MAKE_DIG_HASH_FAIL          (OTA_CRYPTO_ERR - 0x12)
 
 typedef struct {
     char sign_enable;
@@ -40,60 +46,40 @@ typedef struct {
 
 typedef struct
 {
-    OTA_HASH_E hash_method;
-    char       hash_value[65];
+    unsigned char   hash_method;
+    char            hash_value[65];
 } ota_hash_t;
 
-typedef struct
-{
-    OTA_HASH_E hash_method;
-    int        ctx_size;
-    void       *ctx_hash;
-} ota_hash_param_t;
-
 typedef struct {
-    unsigned int magic;
-    unsigned int status;
-    OTA_HASH_E type;
+    unsigned char hash_method;
     union {
         ota_md5_context md5_ctx;
         ota_sha256_context sha256_ctx;
     };
 } ota_hash_ctx_t;
 
-typedef enum {
-    OTA_CRYPTO_STATUS_CLEAN        = 0,
-    OTA_CRYPTO_STATUS_INITIALIZED  = 1,
-    OTA_CRYPTO_STATUS_PROCESSING   = 2,
-    OTA_CRYPTO_STATUS_FINISHED     = 3,
-} OTA_CRYPTO_STATUS_E;
-
-#define INIT_CTX_MAGIC(m)         (m = 0x12345678)
-#define IS_VALID_CTX_MAGIC(m)     (0x12345678 == m)
-#define CLEAN_CTX_MAGIC(m)        (m = 0x0)
-
-int  ota_hash_init(OTA_HASH_E type, void *context);
-int  ota_hash_update(const unsigned char *src, unsigned int size, void *context);
-int  ota_hash_final(unsigned char *dgst, void *context);
-int  ota_hash_get_ctx_size(OTA_HASH_E type, unsigned int *size);
-int  ota_hash_digest(OTA_HASH_E type, const unsigned char *src, unsigned int size, unsigned char *dgst);
-void ota_save_state(int breakpoint, ota_hash_param_t *hash_ctx);
-void ota_free_hash_ctx(void);
 int  ota_get_break_point(void);
-int  ota_malloc_hash_ctx(OTA_HASH_E type);
-int  ota_check_hash(OTA_HASH_E hash_type, char* hash);
+void ota_free_global_hash_ctx(void);
 int  ota_set_break_point(int offset);
-int  ota_get_last_hash_ctx(ota_hash_param_t *hash_ctx);
-int  ota_set_cur_hash_ctx(ota_hash_param_t *hash_ctx);
-int  ota_get_last_hash(char *value);
-int  ota_set_cur_hash(char *value);
-int  ota_verify_hash_value(ota_hash_t last_hash, ota_hash_t cur_hash);
-int  ota_get_public_key_bitnumb(void);
-int  ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
-                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result);
-int  ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_dat, OTA_HASH_E src_hash_method);
-ota_hash_param_t *ota_get_hash_ctx(void);
-unsigned char    *ota_get_identity_image_md5_strvalue(void);
-int  ota_check_image(unsigned int size);
+ota_hash_ctx_t *ota_get_hash_ctx(void);
+int ota_check_image(unsigned int size);
+int  ota_set_cur_hash_value(char *value);
+int  ota_get_last_hash_value(char *value);
+int  ota_hash_init(ota_hash_ctx_t *context);
+void ota_free_hash_ctx(ota_hash_ctx_t *tmp_ctx);
+int  ota_set_cur_hash_ctx(ota_hash_ctx_t *hash_ctx);
+int  ota_get_last_hash_ctx(ota_hash_ctx_t *hash_ctx);
+int  ota_make_global_hash_ctx(unsigned char hash_method);
+int  ota_check_hash(unsigned char hash_type, char* hash);
+void ota_save_state(int breakpoint, ota_hash_ctx_t *hash_ctx);
+ota_hash_ctx_t *ota_malloc_hash_ctx(unsigned char hash_method);
+int  ota_hash_final(unsigned char *dgst, ota_hash_ctx_t *context);
+int ota_get_image_data(int *off_set, char *buf, unsigned int len);
+int  ota_verify_hash_value(unsigned char last_hash, unsigned char cur_hash);
+int  ota_hash_update(const unsigned char *src, unsigned int size, ota_hash_ctx_t *context);
+int ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_dat, unsigned char src_hash_method);
+int ota_calculate_image_hash_value(int offset, int image_len, unsigned char hash_method, char *hash_value, int len);
+int ota_rsa_pubkey_verify(const unsigned char *pubkey_n, const unsigned char *pubkey_e,unsigned int pubkey_n_size,
+                          unsigned int pubkey_e_size, const unsigned char *dig, unsigned int dig_size, const unsigned char *sig, unsigned int sig_size);
 #endif /* OTA_VERIFY_H*/
 

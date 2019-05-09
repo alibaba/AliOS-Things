@@ -10,7 +10,27 @@
 #include "ota_log.h"
 #include "aos/kernel.h"
 
+#ifdef AOS_COMP_PWRMGMT
+#include "pwrmgmt.h"
+#endif
+
 extern ota_hal_module_t ota_hal_module;
+static unsigned char ota_is_on_going = 0;
+
+void ota_on_going_reset()
+{
+    ota_is_on_going = 0;
+}
+
+unsigned char ota_get_on_going_status()
+{
+    return ota_is_on_going;
+}
+
+void ota_set_status_on_going()
+{
+    ota_is_on_going = 1;
+}
 const char *ota_to_capital(char *value, int len)
 {
     if ((NULL == value) || (len <= 0)) {
@@ -106,7 +126,7 @@ static int ota_parse(void *pctx, const char *json)
                     ret = OTA_PARSE_FAIL;
                     goto parse_end;
                 }
-                ctx->hash_type = MD5;
+                ctx->hash_type = OTA_MD5;
                 strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
                 hash[strlen(md5->valuestring)] = '\0';
                 ota_to_capital(hash, strlen(hash));
@@ -116,7 +136,7 @@ static int ota_parse(void *pctx, const char *json)
                     ret = OTA_PARSE_FAIL;
                     goto parse_end;
                 }
-                ctx->hash_type = SHA256;
+                ctx->hash_type = OTA_SHA256;
                 strncpy(hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
                 hash[strlen(sha256->valuestring)] = '\0';
                 ota_to_capital(hash, strlen(hash));
@@ -131,7 +151,7 @@ static int ota_parse(void *pctx, const char *json)
                 ret = OTA_PARSE_FAIL;
                 goto parse_end;
             }
-            ctx->hash_type = MD5;
+            ctx->hash_type = OTA_MD5;
             strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
             hash[strlen(md5->valuestring)] = '\0';
             ota_to_capital(hash, strlen(hash));
@@ -198,6 +218,9 @@ static void ota_download_thread(void *hand)
         ctx->upg_status = OTA_DOWNLOAD_FAIL;
         goto ERR;
     }
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
+#endif
 #if (defined BOARD_ESP8266)
     aos_task_delete("linkkit");
     ota_msleep(500);
@@ -214,7 +237,7 @@ static void ota_download_thread(void *hand)
 #endif
     tmp_breakpoint = 0;
     memset(&last_hash, 0x00, sizeof(last_hash));
-    ota_get_last_hash((char *)&last_hash);
+    ota_get_last_hash_value((char *)&last_hash);
     if (tmp_breakpoint && (strncmp((char *)&last_hash, ctx->hash, OTA_HASH_LEN) == 0)) {
         ota_param->off_bp = ota_get_break_point();
     } else {
@@ -226,7 +249,7 @@ static void ota_download_thread(void *hand)
         ctx->upg_status = OTA_DOWNLOAD_FAIL;
         goto ERR;
     }
-    ret = ota_malloc_hash_ctx(ctx->hash_type);
+    ret = ota_make_global_hash_ctx(ctx->hash_type);
     if (ret < 0) {
         ret = OTA_PARAM_FAIL;
         ctx->upg_status = OTA_DOWNLOAD_FAIL;
@@ -247,14 +270,14 @@ static void ota_download_thread(void *hand)
         ctx->upg_status = OTA_CANCEL;
         goto ERR;
     }
-    ret = ota_check_hash((OTA_HASH_E)ctx->hash_type, ctx->hash);
+    ret = ota_check_hash((unsigned char)ctx->hash_type, ctx->hash);
     if (ret < 0) {
         ctx->upg_status = OTA_VERIFY_HASH_FAIL;
         goto ERR;
     }
     if( ctx->sign_en == OTA_SIGN_ON) {
 #if defined OTA_CONFIG_RSA
-        ret = ota_verify_download_rsa_sign((unsigned char *)ctx->sign, (const char *)ctx->hash, (OTA_HASH_E)ctx->hash_type);
+        ret = ota_verify_download_rsa_sign((unsigned char *)ctx->sign, (const char *)ctx->hash, ctx->hash_type);
         if(ret < 0) {
             ctx->upg_status = OTA_VERIFY_RSA_FAIL;
             goto ERR;
@@ -282,7 +305,10 @@ ERR:
 #if (!defined BOARD_ESP8266)
     ctx->h_tr->status(100, ctx);
 #endif
-    ota_free_hash_ctx();
+    ota_free_global_hash_ctx();
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_lowpower_resume(PWRMGMT_OTA);
+#endif
     ota_on_going_reset();
     ota_msleep(3000);
     ota_reboot();
@@ -290,27 +316,38 @@ ERR:
 
 int ota_upgrade_cb(void *pctx, char *json)
 {
-    ota_service_t* ctx = pctx;
+    int ret = -1;
+    int is_ota = 0;
+    ota_service_t *ctx = pctx;
     if ((NULL == ctx) || (NULL == json)) {
-        return -1;
+        return ret;
+    }
+    if(ota_get_on_going_status() == 1) {
+        OTA_LOG_E("Ota is on going, go out!!!");
+        return ret;
     }
     if (0 == ota_parse(ctx, json)) {
-        int is_ota = strncmp(ctx->ota_ver, ctx->sys_ver, strlen(ctx->ota_ver));
+        ret = 0;
+        is_ota = strncmp(ctx->ota_ver,ctx->sys_ver,strlen(ctx->ota_ver));
         if(is_ota > 0) {
             void *thread = NULL;
+            ota_set_status_on_going();
 #if defined(OTA_CONFIG_TLS)
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 6);
+            ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 6);
 #else
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 4);
+            ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 4);
 #endif
+            if(ret < 0) {
+                ota_on_going_reset();
+                OTA_LOG_E("ota creat task failed!");
+            }
         } else {
             OTA_LOG_E("ota version is too old, discard it.");
             ctx->upg_status = OTA_INIT_VER_FAIL;
             ctx->h_tr->status(0, ctx);
-            return -1;
         }
     }
-    return 0;
+    return ret;
 }
 
 int ota_service_init(ota_service_t *ctx)
@@ -337,6 +374,7 @@ int ota_service_init(ota_service_t *ctx)
         return ret;
     }
     ctx->inited = 1;
+    ota_on_going_reset();
     ctx->url = ota_malloc(OTA_URL_LEN);
     if(NULL == ctx->url) {
         ret = OTA_INIT_FAIL;
