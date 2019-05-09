@@ -20,10 +20,22 @@
 #ifdef AWSS_SUPPORT_DEV_AP
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
-#define AWSS_DEV_AP_WAIT_TIME_MAX_MS    (2000)
+
+#define TIMEOUT_CNT   4
+#define CHECK_TIMEOUT 500
+typedef struct {
+    char ssid[PLATFORM_MAX_SSID_LEN + 1];
+    char passwd[PLATFORM_MAX_PASSWD_LEN + 1];
+    uint8_t bssid[ETH_ALEN];
+    uint16_t msgid;
+    uint8_t cnt;
+} ap_info_t;
+
+static void *connectap_timer = NULL;
+static int sart_connect_ap(char *ssid, char *pwd, uint8_t *bssid, uint16_t msgid);
+
 
 static void *g_awss_dev_ap_mutex = NULL;
 static char awss_dev_ap_switchap_done = 0;
@@ -61,8 +73,9 @@ int awss_dev_ap_start(void)
         return -1;
     }
 
-    if (g_awss_dev_ap_mutex == NULL)
+    if (g_awss_dev_ap_mutex == NULL) {
         g_awss_dev_ap_mutex = HAL_MutexCreate();
+    }
     if (g_awss_dev_ap_mutex == NULL) {
         awss_err("awss dev ap start fail");
         goto AWSS_DEV_AP_FAIL;
@@ -80,8 +93,9 @@ int awss_dev_ap_start(void)
 
     while (awss_dev_ap_ongoing) {
         awss_msleep(200);
-        if (awss_dev_ap_switchap_done)
+        if (awss_dev_ap_switchap_done) {
             break;
+        }
     }
     HAL_MutexUnlock(g_awss_dev_ap_mutex);
 
@@ -107,15 +121,17 @@ AWSS_DEV_AP_FAIL:
 
 int awss_dev_ap_stop(void)
 {
-    if (awss_dev_ap_ongoing == 0)
+    if (awss_dev_ap_ongoing == 0) {
         return 0;
+    }
 
     awss_dev_ap_ongoing = 0;
 
     awss_trace("%s", __func__);
 
-    if (g_awss_dev_ap_mutex)
+    if (g_awss_dev_ap_mutex) {
         HAL_MutexLock(g_awss_dev_ap_mutex);
+    }
 
     os_awss_close_ap();
 
@@ -136,8 +152,9 @@ int awss_dev_ap_stop(void)
 }
 
 static int awss_dev_ap_switchap_resp(void *context, int result,
-                                    void *userdata, void *remote,
-                                    void *message) {
+                                     void *userdata, void *remote,
+                                     void *message)
+{
     if (result == 2) { /* success */
         awss_dev_ap_switchap_resp_suc = 1;
     }
@@ -158,26 +175,30 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     int ret = -1;
 
     static char dev_ap_switchap_parsed = 0;
-    if (dev_ap_switchap_parsed != 0)
+    if (dev_ap_switchap_parsed != 0) {
         goto DEV_AP_SWITCHAP_END;
+    }
     dev_ap_switchap_parsed = 1;
 
     AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     msg = awss_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
-    if (msg == NULL)
+    if (msg == NULL) {
         goto DEV_AP_SWITCHAP_END;
+    }
     dev_info = awss_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
-    if (dev_info == NULL)
+    if (dev_info == NULL) {
         goto DEV_AP_SWITCHAP_END;
+    }
 
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
     awss_trace("dev ap, len:%d, %s\r\n", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
-    if (buf == NULL)
+    if (buf == NULL) {
         goto DEV_AP_SWITCHAP_END;
+    }
 
     do {
         produce_random(aes_random, sizeof(aes_random));
@@ -224,7 +245,9 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "bssid", &str_len, 0);
-        if (str) os_wifi_str2mac(str, bssid);
+        if (str) {
+            os_wifi_str2mac(str, bssid);
+        }
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "passwd", &str_len, 0);
@@ -233,7 +256,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
             char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
             memcpy(encoded, str, str_len);
             aes_decrypt_string(encoded, passwd, str_len,
-                    0, os_get_encrypt_type(), 1, random); /* 64bytes=2x32bytes */
+                               0, os_get_encrypt_type(), 1, random); /* 64bytes=2x32bytes */
         } else {
             HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
             success = 0;
@@ -241,7 +264,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
 
         if (success && is_utf8(passwd, strlen(passwd)) == 0) {
-            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3 , "\"passwd content error\"");
+            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd content error\"");
             success = 0;
             AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         }
@@ -256,24 +279,47 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     (void)result;  /* remove complier warnings */
     awss_trace("sending %s.", result == 0 ? "success" : "fail");
 
-    do {
-        int wait_ms = AWSS_DEV_AP_WAIT_TIME_MAX_MS;
-        if (!success)
-            break;
+    if (!success) {
+        goto DEV_AP_SWITCHAP_END;
+    }
 
-        while (wait_ms > 0 && awss_dev_ap_switchap_resp_suc == 0 && awss_dev_ap_ongoing) {
-            awss_msleep(100);
-            wait_ms -= 100;
-        }
-        awss_cmp_coap_cancel_packet(msgid);
+    ret = sart_connect_ap(ssid, passwd, (uint8_t *)bssid, msgid);
+    awss_trace("ready connect ap '%s' %s\r\n", ssid, ret == 0 ? "success" : "fail");
+
+DEV_AP_SWITCHAP_END:
+    dev_ap_switchap_parsed = 0;
+    if (dev_info) {
+        awss_free(dev_info);
+    }
+    if (msg) {
+        awss_free(msg);
+    }
+    return ret;
+}
+
+static void do_connect_ap(void *data)
+{
+    ap_info_t *info = (ap_info_t *)data;
+    int ret;
+    if (data == NULL) {
+        return;
+    }
+    if (awss_dev_ap_ongoing == 0) {
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
-        if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
-            ret = -1;
-            goto DEV_AP_SWITCHAP_END;
-        }
+        awss_cmp_coap_cancel_packet(info->msgid);
+        HAL_Free(info);
+        HAL_Timer_Stop(connectap_timer);
+        HAL_Timer_Delete(connectap_timer);
+        connectap_timer = NULL;
+        return;
+    }
+
+    if (awss_dev_ap_switchap_resp_suc || ++info->cnt == TIMEOUT_CNT) {
+        awss_cmp_coap_cancel_packet(info->msgid);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         os_awss_close_ap();
 
-        ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
+        ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, info->ssid, info->passwd, 0, 0, info->bssid, 0);
         if (ret == 0) {
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
             awss_dev_ap_switchap_done = 1;
@@ -281,16 +327,52 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         } else {
             awss_dev_ap_setup();
         }
-        awss_trace("connect '%s' %s\r\n", ssid, ret == 0 ? "success" : "fail");
-    } while (0);
+        awss_trace("connect '%s' %s\r\n", info->ssid, ret == 0 ? "success" : "fail");
 
-DEV_AP_SWITCHAP_END:
-    dev_ap_switchap_parsed = 0;
-    if (dev_info) awss_free(dev_info);
-    if (msg) awss_free(msg);
-    return ret;
+        HAL_Free(info);
+        HAL_Timer_Stop(connectap_timer);
+        HAL_Timer_Delete(connectap_timer);
+        connectap_timer = NULL;
+        return;
+    }
+
+    awss_info("wait siwtchap resp ack,cnt = %d\r\n", info->cnt);
+    HAL_Timer_Stop(connectap_timer);
+    HAL_Timer_Start(connectap_timer, CHECK_TIMEOUT);
+
 }
+
+
+static int sart_connect_ap(char *ssid, char *pwd, uint8_t *bssid, uint16_t msgid)
+{
+    ap_info_t *info;
+
+    info = HAL_Malloc(sizeof(ap_info_t));
+    if (info == NULL) {
+        return -1;
+    }
+    memset(info, 0, sizeof(ap_info_t));
+    strncpy(info->ssid, ssid, sizeof(info->ssid) - 1);
+    strncpy(info->passwd, pwd, sizeof(info->passwd) - 1);
+    memcpy(info->bssid, bssid, sizeof(info->bssid));
+    info->msgid = msgid;
+
+    if (connectap_timer == NULL) {
+        connectap_timer = HAL_Timer_Create("cap", (void (*)(void *))do_connect_ap, info);
+    }
+    if (connectap_timer == NULL) {
+        HAL_Free(info);
+        return -1;
+    }
+
+    HAL_Timer_Stop(connectap_timer);
+    HAL_Timer_Start(connectap_timer, CHECK_TIMEOUT);
+    return 0;
+}
+
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
 #endif
+
