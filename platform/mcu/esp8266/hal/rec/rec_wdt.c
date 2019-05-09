@@ -41,8 +41,6 @@
 #define WDT_OP_DATA_LSB             0
 #define WDT_OP_DATA_MASK            0xf
 
-#define WDT_OP_ND_ADDRESS           0x8
-
 #define WDT_RST_ADDRESS             0x14
 
 #define PERIPHS_DPORT_BASEADDR      0x3ff00000
@@ -51,8 +49,9 @@
 #define WDT_EDGE_INT_ENABLE()        SET_PERI_REG_MASK(EDGE_INT_ENABLE_REG, BIT0)
 #define WDT_EDGE_INT_DISABLE()       CLEAR_PERI_REG_MASK(EDGE_INT_ENABLE_REG, BIT0)
 
-extern void system_soft_wdt_stop();
-extern void system_soft_wdt_feed();
+extern unsigned char pp_soft_wdt_count;
+extern unsigned short init_hw_wdt;
+extern void pp_soft_wdt_init();
 
 static unsigned int rec_log2(unsigned int x)
 {
@@ -73,17 +72,17 @@ void rec_wdt_init(unsigned int timeout_ms)
 
 	WDT_EDGE_INT_ENABLE();
 
-	timeout_bit = rec_log2(timeout_ms*10/8) + 1;
+	timeout_bit = rec_log2(timeout_ms*10/8);
 
 	/* (0.8ms x 2^n) timeout for interrupt */
 	WDT_REG_WRITE(WDT_OP_ADDRESS, timeout_bit);
 	/* (0.8ms x 2^n) timeout for reset after interrupt */
-	WDT_REG_WRITE(WDT_OP_ND_ADDRESS, 11);
+	WDT_REG_WRITE(WDT_OP_ADDRESS, timeout_bit);
 	SET_PERI_REG_BITS(PERIPHS_WDT_BASEADDR + WDT_CTL_ADDRESS, WDT_CTL_RSTLEN_MASK, 7<<WDT_CTL_RSTLEN_LSB, 0);
 	SET_PERI_REG_BITS(PERIPHS_WDT_BASEADDR + WDT_CTL_ADDRESS, WDT_CTL_RSPMOD_MASK, 0<<WDT_CTL_RSPMOD_LSB, 0);
 	SET_PERI_REG_BITS(PERIPHS_WDT_BASEADDR + WDT_CTL_ADDRESS, WDT_CTL_EN_MASK, 1<<WDT_CTL_EN_LSB, 0);
 
-	system_soft_wdt_feed();
+    pp_soft_wdt_init();
 }
 
 void rec_wdt_start()
@@ -93,14 +92,15 @@ void rec_wdt_start()
 
 void rec_wdt_stop()
 {
-    system_soft_wdt_stop();
+    pp_soft_wdt_count = 0;
     WDT_REG_WRITE(WDT_RST_ADDRESS, 0x73);
     CLEAR_WDT_REG_MASK(WDT_CTL_ADDRESS, BIT0);
     WDT_EDGE_INT_DISABLE();
+
 }
 
 void rec_wdt_feed()
 {
-	system_soft_wdt_feed();
+	pp_soft_wdt_count = 0;
 	WDT_REG_WRITE(WDT_RST_ADDRESS, 0x73);
 }

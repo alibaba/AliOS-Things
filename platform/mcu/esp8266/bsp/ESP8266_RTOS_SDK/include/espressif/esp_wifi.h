@@ -1046,6 +1046,28 @@ bool wifi_promiscuous_set_mac(const uint8_t *address);
 void wifi_promiscuous_enable(uint8 promiscuous);
 
 /**
+  * @brief The RX callback function when receive probe request packet. 
+  *        When probe request packet is received, the callback function will be called.
+  *
+  * @param frame  Data of received probe request.
+  * @param len  length of received probe request.
+  * @param rssi  rssi of received probe request.
+  */
+typedef void (*wifi_sta_rx_probe_req_t)(const uint8_t *frame, int len, int rssi);
+/**
+  * @brief Register the RX callback function when receive probe request.
+  *
+  * When probe request packet is received, the registered callback function will be called.
+  *
+  * @param cb  callback
+  *
+  * @return
+  *    - ESP_OK: succeed
+  *    - ESP_ERR_WIFI_NOT_INIT: WiFi is not initialized by esp_wifi_init
+  */
+bool wifi_set_sta_rx_probe_req(wifi_sta_rx_probe_req_t cb);
+
+/**
   * @}
   */
 

@@ -255,6 +255,7 @@ recv_tcp(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 
   if (sys_mbox_trypost(&conn->recvmbox, p) != ERR_OK) {
     /* don't deallocate p: it is presented to us later again from tcp_fasttmr! */
+    printf("[%s] trypost failed\r\n", __func__);
 #ifdef SOCKETS_TCP_TRACE
     ADD_TCP_RECV_BYTES_ERR(conn, len);
 #endif

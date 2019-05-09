@@ -16,7 +16,7 @@ MEMORY
 {
   dport0_0_seg (rx) :                         org = 0x3FF00000, len = 0x10
   dram0_0_seg (rwx) :                         org = 0x3FFE8000, len = 0x18000
-  iram1_0_seg (rwx) :                         org = 0x40100000, len = 0x8000
+  iram1_0_seg (rwx) :                         org = 0x40100000, len = 0x9000
   irom0_0_seg (rx)  :                         org = 0x40281010, len = 0x6B000
 }
 

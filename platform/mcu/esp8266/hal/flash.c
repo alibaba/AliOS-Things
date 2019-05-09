@@ -94,14 +94,14 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
             return -1;
         memset(buffer, 0xff, len);
         memcpy(buffer + left_off, buf, buf_size);
-        vPortETSIntrLock();
+        //vPortETSIntrLock();
         ret = spi_flash_write(start_addr - left_off, (uint32_t *)buffer, len);
-        vPortETSIntrUnlock();
+        //vPortETSIntrUnlock();
         aos_free(buffer);
     } else {
-        vPortETSIntrLock();
+        //vPortETSIntrLock();
         ret = spi_flash_write(start_addr, (uint32_t *)buf, len);
-        vPortETSIntrUnlock();
+        //vPortETSIntrUnlock();
     }
 
     *poff += buf_size;
@@ -132,15 +132,15 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t 
         ret = spi_flash_read(start_addr - left_off, (uint32_t *)buffer, len);
         memcpy(buf, buffer + left_off, buf_size);
         aos_free(buffer);
-    } else
+    } else {
         ret = spi_flash_read(start_addr, buf, buf_size);
+    }
     *poff += buf_size;
 
     return ret;
 }
 
-int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
-                        uint32_t size)
+int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
     uint32_t addr;
     uint32_t start_addr, end_addr;
@@ -148,18 +148,20 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     hal_logic_partition_t *partition_info;
 
     partition_info = hal_flash_get_info( pno );
-    if(size + off_set > partition_info->partition_length)
+    if((size + off_set) > partition_info->partition_length) {
         return -1;
+    }
 
     start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), SPI_FLASH_SEC_SIZE);
     end_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set + size - 1), SPI_FLASH_SEC_SIZE);
 
     for (addr = start_addr; addr <= end_addr; addr += SPI_FLASH_SEC_SIZE) {
-        vPortETSIntrLock();
+        //vPortETSIntrLock();
         ret = spi_flash_erase_sector(addr/SPI_FLASH_SEC_SIZE);
-        vPortETSIntrUnlock();
-        if (ret != 0)
+        //vPortETSIntrUnlock();
+        if (ret != 0) {
             return ret;
+        }
     }
 
     return 0;
