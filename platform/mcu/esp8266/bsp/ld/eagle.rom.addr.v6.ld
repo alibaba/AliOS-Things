@@ -1,10 +1,4 @@
 PROVIDE ( SPI_sector_erase = 0x400040c0 );
-PROVIDE ( SPI_page_program = 0x40004174 );
-PROVIDE ( SPI_read_data = 0x400042ac );
-PROVIDE ( SPI_read_status = 0x400043c8 );
-PROVIDE ( SPI_write_status = 0x40004400 );
-PROVIDE ( SPI_write_enable = 0x4000443c );
-PROVIDE ( Wait_SPI_Idle = 0x4000448c );
 PROVIDE ( Enable_QMode = 0x400044c0 );
 PROVIDE ( Disable_QMode = 0x40004508 );
 

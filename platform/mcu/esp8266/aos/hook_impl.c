@@ -5,6 +5,7 @@
 #include <k_api.h>
 #include "frxt/xtensa_config.h"
 
+#define WDT_TIMEOUT_MS  20000
 void soc_hw_timer_init()
 {
 }
@@ -12,13 +13,14 @@ void soc_hw_timer_init()
 #if (RHINO_CONFIG_USER_HOOK > 0)
 void krhino_idle_pre_hook(void)
 {
-
+    rec_wdt_init(WDT_TIMEOUT_MS);
 }
 
 void krhino_idle_hook(void)
 {
     extern void vApplicationIdleHook(void);
 
+    rec_wdt_feed();
     vApplicationIdleHook();
 }
 
