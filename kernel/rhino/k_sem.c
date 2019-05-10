@@ -8,7 +8,9 @@
 static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
                           uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(sem);
     NULL_PARA_CHK(name);
