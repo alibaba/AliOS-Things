@@ -19,6 +19,10 @@
 #include "guider_internal.h"
 #include "utils_epoch_time.h"
 
+#ifndef CONFIG_GUIDER_AUTH_TIMEOUT
+    #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
+#endif
+
 const char *secmode_str[] = {
     "TCP + Guider + Plain",
     "TCP + Guider + ID2-Crypto",
