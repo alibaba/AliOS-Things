@@ -3115,9 +3115,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->password = conn_info->password;
         mqtt_params->pub_key = conn_info->pub_key;
 
-        mqtt_params->request_timeout_ms    = 2000;
+        mqtt_params->request_timeout_ms    = IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS;
         mqtt_params->clean_session         = 0;
-        mqtt_params->keepalive_interval_ms = 60000;
+        mqtt_params->keepalive_interval_ms = KEEP_ALIVE_INTERVAL_DEFAULT * 1000;
         mqtt_params->read_buf_size         = MQTT_DEFAULT_MSG_LEN;
         mqtt_params->write_buf_size        = MQTT_DEFAULT_MSG_LEN;
         mqtt_params->handle_event.h_fp     = NULL;

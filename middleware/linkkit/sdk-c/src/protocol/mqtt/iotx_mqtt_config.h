@@ -75,6 +75,8 @@
 /* Minimum keepalive interval of MQTT request in second */
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MIN         (30)
 
+/* Default keepalive interval of MQTT request in second */
+#define KEEP_ALIVE_INTERVAL_DEFAULT             (60)
 /* Maximum keepalive interval of MQTT request in second */
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MAX         (180)
 
