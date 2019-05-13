@@ -311,7 +311,10 @@ static void tickless_enter(void)
 #endif
     krhino_spin_lock_irq_save(&ticklessSpin);
 
-    krhino_spin_lock_irq_save(&ticklessSpin);
+    if (cpu_pwr_is_suspend() == 1) {
+        krhino_spin_unlock_irq_restore(&ticklessSpin);
+        return;
+    }
 
     /* Check if tickless can be entered now */
     tickless_enter_check(cpu_idx, cStateConfig[cpu_idx], &sleep_time,
