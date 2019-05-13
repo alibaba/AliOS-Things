@@ -6,9 +6,6 @@ CONFIG_ENV_CFLAGS   += \
     -I$(TOP_DIR)/../../../../activation \
 
 CONFIG_ENV_CFLAGS   += \
-    -DCONFIG_HTTP_AUTH_TIMEOUT=500 \
-    -DCONFIG_MID_HTTP_TIMEOUT=500 \
-    -DCONFIG_GUIDER_AUTH_TIMEOUT=500 \
     -DWITH_MQTT_DYN_BUF=1 
     
 CONFIG_ENV_CFLAGS               += -Werror
