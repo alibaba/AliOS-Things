@@ -89,7 +89,6 @@ for i in includes:
 
 cflags =Split(''' 
     -DUTILS_printf=HAL_Printf
-    -DCONFIG_GUIDER_AUTH_TIMEOUT=500
     -DMQTT_COMM_ENABLED
 ''')
 for i in cflags:
