@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/errno.h>
+#include <errno.h>
 #include "ulog/ulog.h"
 #include "aos/kernel.h"
 #include <network/network.h>
