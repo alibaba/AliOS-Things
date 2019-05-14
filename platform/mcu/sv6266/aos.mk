@@ -6,7 +6,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu sv6266
 
-$(NAME)_COMPONENTS += rhino 
+$(NAME)_COMPONENTS += rhino
 
 SDKDIR := drivers/sdk
 
@@ -142,15 +142,15 @@ GLOBAL_CFLAGS += -DPORTING_DEBUG
 GLOBAL_CFLAGS += -DMINIMAL_STACK_SIZE=128
 GLOBAL_CFLAGS += -DTCPIPSTACK_EN
 GLOBAL_CFLAGS += \
-				-malign-functions -falign-functions=4 \
-				-ffunction-sections -fdata-sections -fno-builtin \
-				-Wno-attributes \
-				--short-enums \
-			    -w -Wall \
-				-Wno-unused-function \
-				-Wno-unused-variable \
-				-Wno-unused-but-set-variable \
-				-DLWIP_NOASSERT \
+                -malign-functions -falign-functions=4 \
+                -ffunction-sections -fdata-sections -fno-builtin \
+                -Wno-attributes \
+                --short-enums \
+                -w -Wall \
+                -Wno-unused-function \
+                -Wno-unused-variable \
+                -Wno-unused-but-set-variable \
+                -DLWIP_NOASSERT \
                 -fno-delete-null-pointer-checks
 
 #GLOBAL_LDS_FILES += platform/mcu/sv6266/ld/flash.lds.S
@@ -160,12 +160,13 @@ GLOBAL_LDFLAGS += platform/mcu/sv6266/drivers/do_printf.o
 $(NAME)_INCLUDES += $(SDKDIR)/components/third_party/cJSON \
                     $(SDKDIR)/components/sys \
 
-$(NAME)_SOURCES  +=	drivers/libc_patch.c \
+$(NAME)_SOURCES  += drivers/libc_patch.c \
+                    drivers/osal_rhino.c \
                     drivers/cfg/sa_cfg.c \
                     drivers/cfg/mac_cfg.c \
                     drivers/cfg/user_cfg.c \
-					hal/uart.c \
-					hal/flash_port.c \
+                    hal/uart.c \
+                    hal/flash_port.c \
                     hal/wifi_port.c \
                     hal/rf_cmd.c \
                     hal/hw.c \
