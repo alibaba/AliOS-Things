@@ -2374,7 +2374,8 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    static char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    memset(product_key, 0, sizeof(product_key));
     HAL_GetProductKey(product_key);
     rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key, product_key);
 
