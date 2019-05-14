@@ -5,9 +5,12 @@ import re, shutil
 
 import xml.etree.ElementTree as etree
 import config_mk
+import gen_sensor_cb_3rd
+
 from xml.etree.ElementTree import SubElement
 from xml_format import gen_indent
 from config_mk import Projects
+
 
 #
 # config_mk.py was generated while building, it defines:
@@ -179,6 +182,11 @@ def gen_projxfile(tree, target, buildstring, Projects):
     for group in Projects:
         # don't add an empty group
         if len(group['src']) != 0:
+
+	    if group['name'] == 'sensor':
+	    	gen_sensor_cb_3rd.process(group['src'],'./projects/Keil/gen_sensor.c')
+		group['src'].append('./projects/Keil/gen_sensor.c')
+
             group_tree = add_group(groups, group['name'], group['src'], project_path)
 
             # add GroupOption
