@@ -313,8 +313,8 @@ int udev_mqtt_subscript(int fd, const char* topic_filter, mc_qos_e qos, mc_handl
  */
     if (fd < 0)
         goto exit;
-
-    len = MQTTSerialize_subscribe(mqtt_rbuf, MQTT_RBUF_SIZE, 0, package_id++, 1, &topic, (int*)&qos);
+    int qos_int = (int)qos;
+    len = MQTTSerialize_subscribe(mqtt_rbuf, MQTT_RBUF_SIZE, 0, package_id++, 1, &topic, (int*)&qos_int);
     if (len <= 0)
         goto exit;
     if ((rc = udev_send_packet(fd, mqtt_rbuf, len, timeout)) != 0) /* send the subscribe packet */
