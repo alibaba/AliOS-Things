@@ -339,7 +339,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
     /* if the proprety id is %s.%s, please follow this code */
     /* get new property value */
     if (strstr(property, "HSVColor") != 0) {
-        dobule hue, saturation, value;
+        double hue, saturation, value;
 
         /* generate property identifier HSVColor.Hue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");

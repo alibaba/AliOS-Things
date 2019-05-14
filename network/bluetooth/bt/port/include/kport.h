@@ -311,7 +311,7 @@ void k_timer_stop(k_timer_t *timer);
  * @return time(in milliseconds)
  */
 int64_t      k_uptime_get();
-inline u32_t k_uptime_get_32(void)
+static inline u32_t k_uptime_get_32(void)
 {
     return (u32_t)aos_now_ms();
 }
