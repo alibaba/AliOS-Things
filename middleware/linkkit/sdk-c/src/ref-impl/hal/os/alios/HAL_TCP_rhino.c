@@ -6,7 +6,7 @@
 #include <string.h>
 #include "aos/kernel.h"
 #include <network/network.h>
-#include <aos/errno.h>
+#include <errno.h>
 
 #include "iot_import.h"
 
@@ -191,7 +191,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         PLATFORM_LOG_E("%s error: fd (%d) >= FD_SETSIZE (%d)", __func__, fd, FD_SETSIZE);
         return -1;
     }
- 
+
     t_end    = HAL_UptimeMs() + timeout_ms;
     len_recv = 0;
     err_code = 0;
