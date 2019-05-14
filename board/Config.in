@@ -56,6 +56,15 @@ if AOS_BOARD_BK7231
     source "platform/arch/arm/armv5/Config.in"
 endif
 
+source "board/bk7231sdevkitc/Config.in"
+if AOS_BOARD_BK7231S
+    config AOS_BUILD_BOARD
+        default "bk7231sdevkitc"
+
+    source "platform/mcu/bk7231s/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
+endif
+
 source "board/bk7231udevkitc/Config.in"
 if AOS_BOARD_BK7231U
     config AOS_BUILD_BOARD
