@@ -1,0 +1,50 @@
+config AOS_BOARD_BK7231S
+    bool "BK7231S"
+    select AOS_MCU_BK7231S
+    select AOS_COMP_KERNEL_INIT
+    help
+      configuration for board bk7231s
+
+if AOS_BOARD_BK7231S
+# Configurations for board board_bk7231s
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_WDG
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+endif
