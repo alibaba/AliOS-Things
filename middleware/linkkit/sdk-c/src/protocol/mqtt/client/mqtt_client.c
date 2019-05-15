@@ -660,9 +660,9 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         mqtt_free(handler);
         return FAIL_RETURN;
     }
-
+    int qos_int = (int)qos;
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
-                                  (int *)&qos);
+                                  (int *)&qos_int);
     if (len <= 0) {
         mqtt_free(handler->topic_filter);
         mqtt_free(handler);
