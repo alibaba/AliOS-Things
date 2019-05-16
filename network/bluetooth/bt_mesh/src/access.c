@@ -24,7 +24,7 @@
 #include "transport.h"
 #include "access.h"
 #include "foundation.h"
-//#include "bt_mesh_custom_log.h"
+#include "bt_mesh_custom_log.h"
 
 static const struct bt_mesh_comp *dev_comp;
 static u16_t dev_primary_addr;
@@ -572,16 +572,10 @@ static int model_send(struct bt_mesh_model *model,
 	       tx->ctx->app_idx, tx->ctx->addr);
 	BT_DBG("len %u: %s", msg->len, bt_hex(msg->data, msg->len));
 
-	#if CONFIG_BT_MESH_PROVISIONER
-	if (!bt_mesh_is_provisioner_en()) {
-	#endif
-		if (!bt_mesh_is_provisioned()) {
-			BT_ERR("Local node is not yet provisioned");
-			return -EAGAIN;
-		}
-	#if CONFIG_BT_MESH_PROVISIONER
+	if (!bt_mesh_is_provisioned()) {
+		BT_ERR("Local node is not yet provisioned");
+		return -EAGAIN;
 	}
-	#endif
 
 	if (net_buf_simple_tailroom(msg) < 4) {
 		BT_ERR("Not enough tailroom for TransMIC");
