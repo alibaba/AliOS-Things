@@ -23,8 +23,6 @@ struct bt_mesh_app_key {
 	u16_t net_idx;
 	u16_t app_idx;
 	bool  updated;
-	bool  appkey_active;
-
 	struct bt_mesh_app_keys {
 		u8_t id;
 		u8_t val[16];
@@ -51,8 +49,6 @@ struct bt_mesh_subnet {
 	u32_t node_id_start;      /* Node Identity started timestamp */
 
 	u8_t  auth[8];            /* Beacon Authentication Value */
-
-    bool  subnet_active;
 
 	struct bt_mesh_subnet_keys {
 		u8_t net[16];       /* NetKey */
@@ -221,22 +217,6 @@ struct bt_mesh_net {
 	struct bt_mesh_subnet sub[CONFIG_BT_MESH_SUBNET_COUNT];
 
 	struct bt_mesh_rpl rpl[CONFIG_BT_MESH_CRPL];
-
-#if CONFIG_BT_MESH_PROVISIONER
-	/* Provisioner and node share arguments from 'iv_index' to 'local_queue' + 'ivu_complete' */
-
-	/* Application keys stored by provisioner */
-	struct bt_mesh_app_key p_app_keys[CONFIG_BT_MESH_PROVISIONER_APP_KEY_COUNT];
-
-	/* Next app_idx can be assigned */
-	u16_t p_app_idx_next;
-
-	/* Network keys stored by provisioner */
-	struct bt_mesh_subnet p_sub[CONFIG_BT_MESH_PROVISIONER_SUBNET_COUNT];
-
-	/* Next net_idx can be assigned */
-	u16_t p_net_idx_next;
-#endif
 };
 
 /* Network interface */

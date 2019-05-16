@@ -827,14 +827,6 @@ int bt_mesh_prov_decrypt(const u8_t key[16], u8_t nonce[13],
 	return bt_mesh_ccm_decrypt(key, nonce, data, 25, NULL, 0, out, 8);
 }
 
-#if CONFIG_BT_MESH_PROVISIONER
-int bt_mesh_prov_encrypt(const u8_t key[16], u8_t nonce[13],
-								const u8_t data[25], u8_t out[33])
-{
-	return bt_mesh_ccm_encrypt(key, nonce, data, 25, NULL, 0, out, 8);
-}
-#endif
-
 int bt_mesh_beacon_auth(const u8_t beacon_key[16], u8_t flags,
 			const u8_t net_id[8], u32_t iv_index,
 			u8_t auth[8])
