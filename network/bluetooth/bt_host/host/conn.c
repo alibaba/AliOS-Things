@@ -664,6 +664,7 @@ static bool send_buf(struct bt_conn *conn, struct net_buf *buf)
         goto exit;
     }
 
+
     conn->tx_flag = SEND_BUF_HEAD;
     ret = send_frag(conn, frag, BT_ACL_START_NO_FLUSH, true);
     if (ret != SEND_FRAG_SUCCESS) {
@@ -693,7 +694,7 @@ exit:
         return false;
     }
 
-    if ((conn->tx_flag == SEND_BUF_TAIL || conn->tx_flag == SEND_BUF_ONE) && (ret == SEND_FRAG_SUCCESS)) {
+    if (conn->tx_flag == SEND_BUF_TAIL || conn->tx_flag == SEND_BUF_ONE) {
         conn->tx = NULL;
     }
 
@@ -1236,9 +1237,6 @@ struct bt_conn *bt_conn_create_le(const bt_addr_le_t *peer, const struct bt_le_c
             case BT_CONN_CONNECT:
             case BT_CONN_CONNECTED:
                 return conn;
-            case BT_CONN_DISCONNECTED:
-                atomic_set(&conn->ref, 0);
-                break;
             default:
                 bt_conn_unref(conn);
                 return NULL;
