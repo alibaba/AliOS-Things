@@ -237,14 +237,6 @@ static int ota_download_start(void *pctx)
         } else {
              retry = 0;
         }
-        if (nbytes < 0) {
-            if (errno != EINTR) {
-                ret = OTA_DOWNLOAD_READ_FAIL;
-                break;
-            } else {
-                continue;
-            }
-        }
         if (!header_found) {
             if (!file_size) {
                 char *ptr = strstr(http_buffer, "Content-Length:");
