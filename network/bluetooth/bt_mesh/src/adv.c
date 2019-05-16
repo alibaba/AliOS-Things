@@ -23,7 +23,6 @@
 #include "prov.h"
 #include "proxy.h"
 #include <port/mesh_hal_ble.h>
-#include "provisioner_prov.h"
 //#include "bt_mesh_custom_log.h"
 
 /* Window and Interval are equal for continuous scanning */
@@ -62,8 +61,6 @@ NET_BUF_POOL_DEFINE(adv_buf_pool, CONFIG_BT_MESH_ADV_BUF_COUNT,
                     BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
 
 static struct bt_mesh_adv adv_pool[CONFIG_BT_MESH_ADV_BUF_COUNT];
-
-static const bt_addr_le_t *dev_addr;
 
 static struct bt_mesh_adv *adv_alloc(int id)
 {
@@ -255,25 +252,14 @@ void bt_mesh_adv_send(struct net_buf *buf, const struct bt_mesh_send_cb *cb,
     net_buf_put(&adv_queue, net_buf_ref(buf));
 }
 
-const bt_addr_le_t *bt_mesh_pba_get_addr(void)
-{
-	return dev_addr;
-}
-
 static void bt_mesh_scan_cb(const bt_mesh_addr_le_t *addr, s8_t rssi,
                             u8_t adv_type, struct net_buf_simple *buf)
 {
-#if CONFIG_BT_MESH_PROVISIONER
-	u16_t uuid = 0;
-#endif
-
-    if (adv_type != BT_MESH_LE_ADV_NONCONN_IND && adv_type != BT_LE_ADV_IND) {
+    if (adv_type != BT_MESH_LE_ADV_NONCONN_IND) {
         return;
     }
 
     BT_DBG("len %u: %s", buf->len, bt_hex(buf->data, buf->len));
-
-	dev_addr = addr;
 
     while (buf->len > 1) {
         struct net_buf_simple_state state;
@@ -297,61 +283,20 @@ static void bt_mesh_scan_cb(const bt_mesh_addr_le_t *addr, s8_t rssi,
         buf->len = len - 1;
 
         switch (type) {
-			if (adv_type == BT_LE_ADV_NONCONN_IND) {
             case BT_MESH_DATA_MESH_MESSAGE:
                 bt_mesh_net_recv(buf, rssi, BT_MESH_NET_IF_ADV);
                 break;
 #if defined(CONFIG_BT_MESH_PB_ADV)
             case BT_MESH_DATA_MESH_PROV:
-			#if CONFIG_BT_MESH_PROVISIONER
-				if (bt_mesh_is_provisioner_en()) {
-					provisioner_pb_adv_recv(buf);
-
-					break;
-				}
-			#else
                 bt_mesh_pb_adv_recv(buf);
-			#endif
                 break;
 #endif
             case BT_MESH_DATA_MESH_BEACON:
-			#if CONFIG_BT_MESH_PROVISIONER
-				if (bt_mesh_is_provisioner_en()) {
-					provisioner_beacon_recv(buf);
-				}
-			#else
                 bt_mesh_beacon_recv(buf);
-			#endif
                 break;
-        	} else if (adv_type == BT_LE_ADV_IND) {
-#if CONFIG_BT_MESH_PROVISIONER && CONFIG_BT_MESH_PB_GATT
-			case BT_DATA_FLAGS:
-                if (bt_mesh_is_provisioner_en()) {
-                    if (!provisioner_flags_match(buf)) {
-                        BT_DBG("Flags mismatch, ignore this adv pkt");
-                        return;
-                    }
-                }
-				break;
-			case BT_DATA_SERVICE_UUID:
-                if (bt_mesh_is_provisioner_en()) {
-                    uuid = provisioner_srv_uuid_recv(buf);
-                    if (!uuid) {
-                        BT_DBG("Service UUID mismatch, ignore this adv pkt");
-                        return;
-                    }
-                }
-				break;
-			case BT_DATA_SERVICE_DATA:
-                if (bt_mesh_is_provisioner_en()) {
-                    provisioner_srv_data_recv(buf, addr, uuid);
-                }
-				break;
-#endif
-			}
-			default:
-				break;
-    	}
+            default:
+                break;
+        }
 
         net_buf_simple_restore(buf, &state);
         net_buf_simple_pull(buf, len);
@@ -376,7 +321,7 @@ int bt_mesh_scan_enable(void)
         .window     = MESH_SCAN_WINDOW
     };
 
-    BT_DBG("%s", __func__);
+    BT_DBG("");
 
     return bt_mesh_scan_start(&scan_param, bt_mesh_scan_cb);
 }

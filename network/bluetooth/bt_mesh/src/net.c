@@ -33,7 +33,7 @@
 #include "beacon.h"
 #include "main.h"
 #include <mesh_config.h>
-//#include "bt_mesh_custom_log.h"
+#include "bt_mesh_custom_log.h"
 
 /* Minimum valid Mesh Network PDU length. The Network headers
  * themselves take up 9 bytes. After that there is a minumum of 1 byte
@@ -152,18 +152,6 @@ static bool msg_cache_match(struct bt_mesh_net_rx *rx,
 struct bt_mesh_subnet *bt_mesh_subnet_get(u16_t net_idx)
 {
 	int i;
-
-#if CONFIG_BT_MESH_PROVISIONER
-	if (net_idx == BT_MESH_KEY_ANY) {
-		return &bt_mesh.p_sub[0];
-	}
-
-	for (i = 0; i < ARRAY_SIZE(bt_mesh.p_sub); i++) {
-		if (bt_mesh.p_sub[i].net_idx == net_idx) {
-			return &bt_mesh.p_sub[i];
-		}
-	}
-#endif
 
 	if (net_idx == BT_MESH_KEY_ANY) {
 		return &bt_mesh.sub[0];
@@ -889,14 +877,6 @@ int bt_mesh_net_send(struct bt_mesh_net_tx *tx, struct net_buf *buf,
 	 * "The output filter of the interface connected to advertising or
 	 * GATT bearers shall drop all messages with TTL value set to 1."
 	 */
-
-#if CONFIG_BT_MESH_PROVISIONER
-    if (IS_ENABLED(CONFIG_BT_MESH_GATT_PROXY) && bt_mesh_is_provisioner_en()) {
-        if (0 == provisioner_proxy_pdu_send(&buf->b)) {
-        	goto done;
-		}
-    }
-#else
 	if (IS_ENABLED(CONFIG_BT_MESH_GATT_PROXY) &&
 	    tx->ctx->send_ttl != 1) {
 		if (bt_mesh_proxy_relay(&buf->b, tx->ctx->addr) &&
@@ -918,7 +898,6 @@ int bt_mesh_net_send(struct bt_mesh_net_tx *tx, struct net_buf *buf,
 			goto done;
 		}
 	}
-#endif
 
 	/* Deliver to local network interface if necessary */
 	if (bt_mesh_fixed_group_match(tx->ctx->addr) ||
@@ -1080,35 +1059,17 @@ static bool net_find_and_decrypt(const u8_t *data, size_t data_len,
 				 struct bt_mesh_net_rx *rx,
 				 struct net_buf_simple *buf)
 {
-	struct bt_mesh_subnet *sub = NULL;
-	int 	i;
-	u32_t	array_size = 0;
+	struct bt_mesh_subnet *sub;
+	int i;
 
-	BT_DBG("%s", __func__);
+	BT_DBG("");
 
-#if CONFIG_BT_MESH_PROVISIONER
-	if (bt_mesh_is_provisioner_en()) {
-		array_size = ARRAY_SIZE(bt_mesh.p_sub);
-	}
-#else
-	array_size = ARRAY_SIZE(bt_mesh.sub);
-#endif
-
-	for (i = 0; i < array_size; i++) {
-#if CONFIG_BT_MESH_PROVISIONER
-		if (bt_mesh_is_provisioner_en()) {
-			sub = &bt_mesh.p_sub[i];
-		} else {
-			return false;
-		}
-#else
+	for (i = 0; i < ARRAY_SIZE(bt_mesh.sub); i++) {
 		sub = &bt_mesh.sub[i];
-#endif
 		if (sub->net_idx == BT_MESH_KEY_UNUSED) {
 			continue;
 		}
 
-#ifndef CONFIG_BT_MESH_PROVISIONER
 #if (defined(CONFIG_BT_MESH_LOW_POWER) || \
      defined(CONFIG_BT_MESH_FRIEND))
 		if (!friend_decrypt(sub, data, data_len, rx, buf)) {
@@ -1117,7 +1078,6 @@ static bool net_find_and_decrypt(const u8_t *data, size_t data_len,
 			rx->sub = sub;
 			return true;
 		}
-#endif
 #endif
 
 		if (NID(data) == sub->keys[0].nid &&
@@ -1340,15 +1300,9 @@ void bt_mesh_net_recv(struct net_buf_simple *data, s8_t rssi,
 
 	BT_DBG("rssi %d net_if %u", rssi, net_if);
 
-#if CONFIG_BT_MESH_PROVISIONER
-	if (!bt_mesh_is_provisioner_en()) {
-		return;
-	}
-#else
 	if (!bt_mesh_is_provisioned()) {
 		return;
 	}
-#endif
 
 	if (bt_mesh_net_decode(data, net_if, &rx, buf)) {
 		return;
