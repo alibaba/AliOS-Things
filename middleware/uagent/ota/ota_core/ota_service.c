@@ -235,7 +235,7 @@ static void ota_download_thread(void *hand)
     aos_task_delete("event_task");
     ota_msleep(500);
 #endif
-    tmp_breakpoint = 0;
+    tmp_breakpoint = ota_get_break_point();
     memset(&last_hash, 0x00, sizeof(last_hash));
     ota_get_last_hash_value((char *)&last_hash);
     if (tmp_breakpoint && (strncmp((char *)&last_hash, ctx->hash, OTA_HASH_LEN) == 0)) {
