@@ -190,7 +190,7 @@ void mbedtls_net_free( mbedtls_net_context *ctx )
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <aos/errno.h>
+#include <errno.h>
 
 #include <network/network.h>
 
