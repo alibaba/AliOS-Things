@@ -1,4 +1,4 @@
-config AOS_MCU_BK7231U
+config AOS_MCU_BK7231S
     bool
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
@@ -9,8 +9,8 @@ config AOS_MCU_BK7231U
     select AOS_COMP_LIBPROV
     select AOS_ARCH_ARMV5
     help
-      driver & sdk for platform/mcu bk7231u
+      driver & sdk for platform/mcu bk7231s
 
-if AOS_MCU_BK7231U
-# Configurations for mcu bk7231u
+if AOS_MCU_BK7231S
+# Configurations for mcu bk7231s
 endif
