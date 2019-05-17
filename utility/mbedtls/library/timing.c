@@ -326,6 +326,9 @@ static void sighandler( int signum )
 
 void mbedtls_set_alarm( int seconds )
 {
+#if defined (__CC_ARM) || (__ICCARM__)
+#define SIGALRM 14
+#endif
     mbedtls_timing_alarmed = 0;
     signal( SIGALRM, sighandler );
     alarm( seconds );
