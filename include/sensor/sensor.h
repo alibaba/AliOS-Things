@@ -127,6 +127,7 @@ typedef enum {
 #define MAGNETOMETER_UNIT_FACTOR  1000    /* mGauss */
 #define GYROSCOPE_UNIT_FACTOR     1000000 /* uDPS */
 
+#define DEV_ACC_PATH(x)   dev_acc_path  "/" ToString(x)
 #define DEV_HUMI_PATH(x)  dev_humi_path "/" ToString(x)
 #define DEV_TEMP_PATH(x)  dev_temp_path "/" ToString(x)
 #define DEV_NOISE_PATH(x) dev_noise_path "/" ToString(x)
