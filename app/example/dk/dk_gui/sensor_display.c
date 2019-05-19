@@ -144,27 +144,27 @@ static void littlevgl_refresh_task(void *arg)
 void app_init(void)
 {
     /* open acc sensor */
-    fd_acc = aos_open(dev_acc_path, O_RDWR);
+    fd_acc = aos_open(DEV_ACC_PATH(0), O_RDWR);
 
     if (fd_acc < 0) {
         printf("acc sensor open failed !\n");
     }
 
     /* open temp sensor */
-    fd_temp = aos_open(dev_temp_path, O_RDWR);
+    fd_temp = aos_open(DEV_TEMP_PATH(0), O_RDWR);
 
     if (fd_temp < 0) {
         printf("temp sensor open failed !\n");
     }
 
     /* open temp sensor */
-    fd_humi = aos_open(dev_humi_path, O_RDWR);
+    fd_humi = aos_open(DEV_HUMI_PATH(0), O_RDWR);
 
     if (fd_humi < 0) {
         printf("humi sensor open failed !\n");
     }
 
-    fd_baro = aos_open(dev_baro_path, O_RDWR);
+    fd_baro = aos_open(DEV_BARO_PATH(0), O_RDWR);
 
     if (fd_baro < 0) {
         printf("baro sensor open failed !\n");
