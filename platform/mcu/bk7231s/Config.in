@@ -1,0 +1,16 @@
+config AOS_MCU_BK7231U
+    bool
+    select AOS_COMP_LWIP
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_ALICRYPTO
+    select AOS_COMP_NETMGR
+    select AOS_COMP_RHINO
+    select AOS_COMP_YLOOP
+    select AOS_COMP_LIBPROV
+    select AOS_ARCH_ARMV5
+    help
+      driver & sdk for platform/mcu bk7231u
+
+if AOS_MCU_BK7231U
+# Configurations for mcu bk7231u
+endif
