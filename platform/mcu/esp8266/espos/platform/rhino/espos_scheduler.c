@@ -86,14 +86,39 @@ bool espos_os_isr(void)
     return (s_os_nested_count[0] > 0) ? true : false;
 }
 
+static inline uint32_t __set_int(void)
+{
+    uint32_t flags;
+
+    __asm__ __volatile__(
+            "rsil %0, 2\n"
+            : "=a"(flags)
+            :
+            : "memory"
+    );
+
+    return flags;
+}
+
+static inline void __set_ps(uint32_t flags)
+{
+     __asm__ __volatile__(
+            "wsr %0, ps\n"
+            "esync"
+            :
+            : "a"(flags)
+            : "memory"
+    );
+}
+
 /**
  * @brief enter ESPOS system critical state
  */
-espos_critical_t _espos_enter_critical(espos_spinlock_t *spinlock)
+espos_critical_t IRAM_ATTR _espos_enter_critical(espos_spinlock_t *spinlock)
 {
     espos_critical_t tmp;
 
-    tmp = (espos_critical_t)XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL);
+    tmp = (espos_critical_t)__set_int();
     if (!s_critial_count[espos_get_core_id()]) {
         s_critial_status[espos_get_core_id()] = tmp;
     }
@@ -105,12 +130,12 @@ espos_critical_t _espos_enter_critical(espos_spinlock_t *spinlock)
 /**
  * @brief exit ESPOS system critical state
  */
-void _espos_exit_critical(espos_spinlock_t *spinlock, espos_critical_t tmp)
+void IRAM_ATTR _espos_exit_critical(espos_spinlock_t *spinlock, espos_critical_t tmp)
 {
     s_critial_count[espos_get_core_id()]--;
     if (!s_critial_count[espos_get_core_id()]) {
         tmp = s_critial_status[espos_get_core_id()];
-        XTOS_RESTORE_JUST_INTLEVEL(tmp);
+        __set_ps(tmp);
     }
 }
 
