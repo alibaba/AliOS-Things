@@ -67,7 +67,7 @@ void user_init(void)
         printf("waring: wifi init fail ret is %d \r\n", ret);
     }
 #ifdef ESP8266_CHIPSET
-    aos_task_new("main", app_entry, 0, 3*1024);
+    aos_task_new("main", app_entry, 0, 2*1024);
 #else
     aos_task_new("main", app_entry, 0, 6*1024);
 #endif

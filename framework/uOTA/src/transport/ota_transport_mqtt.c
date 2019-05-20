@@ -146,16 +146,6 @@ static int ota_trans_upgrade(void* pctx)
     if (ret < 0) {
         return OTA_TRANSPORT_FAIL;
     }
-    memset(name, 0, OTA_MQTT_TOPIC_LEN);
-    ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, "request", ctx->pk, ctx->dn);
-    if (ret < 0) {
-        return -1;
-    }
-    OTA_LOG_I("request:%s",name);
-    ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
-    if (ret < 0) {
-        return OTA_TRANSPORT_FAIL;
-    }
     return ret;
 }
 
@@ -174,49 +164,49 @@ static int ota_trans_status(int progress, void* pctx)
         progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota init failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota init failed");
                 break;
             case OTA_INIT_VER_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota version not match");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota version not match");
                 break;
             case OTA_DOWNLOAD_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download failed");
                 break;
             case OTA_DOWNLOAD_URL_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download url failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download url failed");
                 break;
             case OTA_DOWNLOAD_IP_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download ip failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download ip failed");
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download connect failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download connect failed");
                 break;
             case OTA_DOWNLOAD_READ_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download read failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download read failed");
                 break;
             case OTA_DOWNLOAD_WRITE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download write failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download write failed");
                 break;
             case OTA_VERIFY_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify failed");
                 break;
             case OTA_UPGRADE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota upgrade failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota upgrade failed");
                 break;
             case OTA_REBOOT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota reboot failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota reboot failed");
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify rsa failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify rsa failed");
                 break;
             case OTA_VERIFY_HASH_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify hash failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify hash failed");
                 break;
             case OTA_UPGRADE_DIFF_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota diff failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota diff failed");
                 break;
             default:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota undefined failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota undefined failed");
                 break;
         }
     }

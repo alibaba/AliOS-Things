@@ -56,6 +56,7 @@ void ota_reboot_bank(void)
     ota_msleep(300);
     system_upgrade_init();
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
+    printf("---reboot_system---\n");
     system_upgrade_reboot();
 #elif defined (STM32L496xx) || defined (SV6266)
     extern int flash_sw_bank(void);

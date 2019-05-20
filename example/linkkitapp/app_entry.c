@@ -253,7 +253,7 @@ void do_awss_dev_ap()
 void do_awss()
 {
     aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
-    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
+    aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 }
 
 static void linkkit_reset(void *p)
@@ -411,7 +411,7 @@ int application_start(int argc, char **argv)
 #ifdef EN_COMBO_NET
     combo_net_init();
 #else
-    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
+    aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 #endif
     aos_loop_run();
 

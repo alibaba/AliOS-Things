@@ -5,7 +5,7 @@
 #ifndef K_COMPILER_H
 #define K_COMPILER_H
 
-//#define RHINO_INLINE                static inline
+#define RHINO_INLINE                static inline
 /* get the return address of the current function
    void * __builtin_return_address (unsigned int level) */
 #define RHINO_GET_RA()              __builtin_return_address(0)

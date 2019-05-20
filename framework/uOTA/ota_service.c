@@ -119,7 +119,8 @@ static int ota_parse(void* pctx, const char *json)
         cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
         if (signMethod) {
             memset(hash, 0x00, OTA_HASH_LEN);
-            if (0 == strncmp(signMethod->valuestring, "Md5", strlen("Md5"))) {
+            ota_to_capital(signMethod->valuestring, strlen(signMethod->valuestring));
+            if (0 == strncmp(signMethod->valuestring, "MD5", strlen("MD5"))) {
                 cJSON *md5 = cJSON_GetObjectItem(json_obj, "sign");
                 if (!md5) {
                     ret = OTA_PARSE_FAIL;

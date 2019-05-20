@@ -944,7 +944,9 @@ _xt_user_entry1:
     s32i    a1, a3, 0
     mov     a1, a3
 
-    call0   _xt_isr_handler
+    //call0   _xt_isr_handler
+    movi a0,   _xt_isr_handler
+    callx0 a0
 
     movi    a3, usr_int_stack_top
     l32i    a1, a3, 0

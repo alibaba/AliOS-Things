@@ -95,13 +95,29 @@ SECTIONS
     *(.init)
     *esp8266.a:entry.o(.literal .text .literal.* .text.*)
     *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
-    *xtensa.a:(.literal .text .literal.* .text.*)
+
+    *xtensa*.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
+    *xtensa*.a:port.o(.literal .text .literal.* .text.*)
+
+    *rhino.a:(.literal.ready_list_add_head .text.ready_list_add_head)
+    *rhino.a:(.literal.ready_list_add_tail .text.ready_list_add_tail)
+    *rhino.a:(.literal.ready_list_add .text.ready_list_add)
+    *rhino.a:(.literal.ringbuf_headlen_compress .text.ringbuf_headlen_compress)
+    *rhino.a:(.literal.ringbuf_push .text.ringbuf_push)
+    *rhino.a:(.literal.ringbuf_is_full .text.ringbuf_is_full)
+    *rhino.a:(.literal.pend_task_wakeup .text.pend_task_wakeup)
+    *rhino.a:(.literal.buf_queue_send .text.buf_queue_send)
+    *rhino.a:(.literal.krhino_buf_queue_send .text.krhino_buf_queue_send)
+    *rhino.a:(.literal.k_err_proc .text.k_err_proc)
+
     *(.literal .text)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)
     _text_end = ABSOLUTE(.);
     _etext = .;
+    . = ALIGN (1024);
+    _iram_heap_start = ABSOLUTE(.);
   } >iram1_0_seg :iram1_0_phdr
 
   .irom0.text : ALIGN(4)
@@ -152,15 +168,6 @@ SECTIONS
     _bss_end = ABSOLUTE(.);
     _heap_start = ABSOLUTE(.);
   } >dram0_0_seg :dram0_0_bss_phdr
-
-  .lit4 : ALIGN(4)
-  {
-    _lit4_start = ABSOLUTE(.);
-    *(*.lit4)
-    *(.lit4.*)
-    *(.gnu.linkonce.lit4.*)
-    _lit4_end = ABSOLUTE(.);
-  } >iram1_0_seg :iram1_0_phdr
 }
 
 /* get ROM code address */

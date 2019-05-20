@@ -461,23 +461,44 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
         goto ALLOCEXIT;
     }
 
+#if (RHINO_CONFIG_MM_QUICK > 0)
     /* try to find in higher level */
     get_b = find_up_level(mmhead, level);
     if (get_b == NULL) {
         /* try to find in same level */
         get_b = mmhead->freelist[level];
-        while (get_b != NULL) {
-            if (MM_GET_BUF_SIZE(get_b) >= size) {
+        while ( get_b != NULL ) {
+            if ( MM_GET_BUF_SIZE(get_b) >= size ) {
                 break;
             }
             get_b = get_b->mbinfo.free_ptr.next;
         }
 
-        if (get_b == NULL) {
+        if ( get_b == NULL ) {
             /* do not find availalbe freeblk */
             goto ALLOCEXIT;
         }
     }
+#else
+    /* try to find in same level */
+    get_b = mmhead->freelist[level];
+    while ( get_b != NULL ) {
+        if ( MM_GET_BUF_SIZE(get_b) >= size ) {
+            break;
+        }
+        get_b = get_b->mbinfo.free_ptr.next;
+    }
+
+    if ( get_b == NULL ) {
+        /* try to find in higher level */
+        get_b = find_up_level(mmhead, level);
+        if ( get_b == NULL ) {
+            /* do not find availalbe freeblk */
+            goto ALLOCEXIT;
+        }
+    }
+#endif
+
     k_mm_freelist_delete(mmhead, get_b);
 
     next_b = MM_GET_NEXT_BLK(get_b);

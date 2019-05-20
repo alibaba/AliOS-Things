@@ -23,3 +23,4 @@ MEMORY
 INCLUDE "../ld/eagle.app.v6.common.ld"
 
 _heap_size = 0x40000000 - _heap_start;
+_iram_heap_size = 0x4010C000 - _iram_heap_start;

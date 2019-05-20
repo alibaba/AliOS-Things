@@ -53,7 +53,7 @@ void aos_mbedtls_free( void *ptr )
         free( ptr );
 }
 
-#else /*XTENSE_MALLOC_IRAM*/
+#else /*XTENSA_MALLOC_IRAM*/
 
 void * aos_mbedtls_calloc( size_t n, size_t size )
 {
@@ -75,6 +75,6 @@ void aos_mbedtls_free( void *ptr )
 
     aos_free( ptr );
 }
-#endif /*XTENSE_MALLOC_IRAM*/
+#endif /*XTENSA_MALLOC_IRAM*/
 #endif /*MBEDTLS_PLATFORM_MEMORY*/
 #endif /*MBEDTLS_PLATFORM_C*/

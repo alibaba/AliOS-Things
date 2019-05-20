@@ -96,7 +96,7 @@ static void mbedtls_zeroize(void *v, size_t n)
 #endif
 
 #if defined(MBEDTLS_PLATFORM_ALT)
-#if defined(XTENSE_MALLOC_IRAM)
+#if defined(XTENSA_MALLOC_IRAM)
 extern void *iram_heap_malloc(size_t xWantedSize);
 extern void  iram_heap_free(void *pv);
 extern int   iram_heap_check_addr(void *addr);
@@ -107,7 +107,6 @@ void *       mbedtls_calloc(size_t n, size_t size)
     if (n == 0 || size == 0) {
         return NULL;
     }
-
     buf = iram_heap_malloc(n * size);
     if (!buf) {
         buf = malloc(n * size);
