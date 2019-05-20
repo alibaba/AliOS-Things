@@ -14,7 +14,7 @@ GLOBAL_DEFINES      += MBEDTLS_CONFIG_FILE=\"mbedtls_config.h\"
 endif
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
-$(NAME)_DEFINES     += XTENSE_MALLOC_IRAM
+$(NAME)_DEFINES     += XTENSA_MALLOC_IRAM
 endif
 
 # Build crypto
