@@ -73,7 +73,7 @@ esp_err_t espos_queue_set_name(espos_queue_t queue, const char *name)
 /**
  * @brief send a message to the queue
  */
-esp_err_t espos_queue_send_generic (
+esp_err_t IRAM_ATTR espos_queue_send_generic (
     espos_queue_t queue,
     void *msg,
     espos_tick_t wait_ticks,

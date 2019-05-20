@@ -101,13 +101,26 @@ SECTIONS
     *(.entry.text)
     *(.init.literal)
     *(.init)
-    *mcu_esp8266.a:entry.o(.literal .text .literal.* .text.*)
+    *esp8266.a:entry.o(.literal .text .literal.* .text.*)
     *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
-    *arch_xtensa_lx106.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
-    *arch_xtensa_lx106.a:port.o(.literal .text .literal.* .text.*)
+
+    *xtensa*.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
+    *xtensa*.a:port.o(.literal .text .literal.* .text.*)
+
+    *rhino.a:(.literal.ready_list_add_head .text.ready_list_add_head)
+    *rhino.a:(.literal.ready_list_add_tail .text.ready_list_add_tail)
+    *rhino.a:(.literal.ready_list_add .text.ready_list_add)
+    *rhino.a:(.literal.ringbuf_push .text.ringbuf_push)
+    *rhino.a:(.literal.pend_task_wakeup .text.pend_task_wakeup)
+    *rhino.a:(.literal.buf_queue_send .text.buf_queue_send)
+    *rhino.a:(.literal.krhino_buf_queue_send .text.krhino_buf_queue_send)
+    *rhino.a:(.literal.k_err_proc .text.k_err_proc)
+
     *(.literal .text)
     _text_end = ABSOLUTE(.);
     _etext = .;
+    . = ALIGN (1024);
+    _iram_heap_start = ABSOLUTE(.);
   } >iram1_0_seg :iram1_0_phdr
 
   .irom0.text : ALIGN(4)
