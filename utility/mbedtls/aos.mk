@@ -6,7 +6,12 @@ $(NAME)_SUMMARY := mbedtls is an implemetation of TLS/SSL protocol and cryptogra
 
 GLOBAL_INCLUDES     += aos/include/ include
 
+
+ifeq ($(COMPILER),armcc)
+GLOBAL_CFLAGS      += -DMBEDTLS_CONFIG_FILE=\"mbedtls_config.h\"
+else
 GLOBAL_DEFINES      += MBEDTLS_CONFIG_FILE=\"mbedtls_config.h\"
+endif
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 $(NAME)_DEFINES     += XTENSE_MALLOC_IRAM
