@@ -78,7 +78,7 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 
 #if defined(MBEDTLS_PLATFORM_ALT)
 
-#if defined(XTENSE_MALLOC_IRAM)
+#if defined(XTENSA_MALLOC_IRAM)
 extern void *iram_heap_malloc(size_t xWantedSize);
 extern void  iram_heap_free(void *pv);
 extern int   iram_heap_check_addr(void *addr);
@@ -471,7 +471,7 @@ int rsa_sign_alt(void *ctx, size_t hash_id,
     return -1;
 }
 
-int rsa_decrypt_alt(void *ctx, 
+int rsa_decrypt_alt(void *ctx,
                     const unsigned char *input, size_t ilen,
                     unsigned char *output, size_t *olen)
 {
