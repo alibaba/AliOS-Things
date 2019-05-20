@@ -82,7 +82,7 @@ void user_init(void)
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
     aos_task_new("main", app_entry, 0, 7.5*1024);
 #elif defined(ESP8266_CHIPSET)
-    aos_task_new("main", app_entry, 0, 3*1024);
+    aos_task_new("main", app_entry, 0, 2*1024);
 #else
     aos_task_new("main", app_entry, 0, 6*1024);
 #endif
