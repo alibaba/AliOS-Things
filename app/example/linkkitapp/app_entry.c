@@ -265,7 +265,7 @@ void do_awss()
 {
     aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
     netmgr_clear_ap_config();
-    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
+    aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 }
 #endif
 
@@ -428,9 +428,9 @@ int application_start(int argc, char **argv)
     combo_net_init();
 #else
 #ifdef SUPPORT_DEV_AP
-     aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
+    aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
-    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
+    aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 #endif
 #endif
     aos_loop_run();
