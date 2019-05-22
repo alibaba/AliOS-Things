@@ -409,7 +409,7 @@ OTA_CALCUL_IMAGE_HASH_VALUE_OVER:
 int ota_check_image(unsigned int size)
 {
     int ret                         = OTA_CRYPTO_RET_SUCCESS;
-#if defined (OTA_CONFIG_FW_MD5)
+#if !defined (OTA_CONFIG_BANK_DUAL)
     int i = 0;
     int off_set                     = 0;
     char image_md5_value[16]        = {0};
