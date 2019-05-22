@@ -29,14 +29,8 @@ config OTA_CONFIG_ITLS
 
 config OTA_CONFIG_RSA
     bool "RSA Verify Support"
-    default y
+    default n
     help
     select Y to support RSA Verify Support.
-
-config OTA_CONFIG_FW_MD5
-    bool "Firmware MD5 Support"
-    default y
-    help
-    select Y to support Firmware MD5 check for OTA.
 
 endif
