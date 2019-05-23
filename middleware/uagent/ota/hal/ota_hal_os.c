@@ -562,7 +562,7 @@ void ota_crc16_init(ota_crc16_ctx *inCtx)
     inCtx->crc = 0;
 }
 
-void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, size_t inLen)
+void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, unsigned int inLen)
 {
     const unsigned char *src = (const unsigned char *) inSrc;
     const unsigned char *srcEnd = src + inLen;
