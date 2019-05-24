@@ -5,10 +5,10 @@
 #include "UART1.h"
 #include "UART5.h"
 #include "uart_port.h"
-
+#include "aos/hal/uart.h"
 #include <stdio.h>
 #include <k_api.h>
-#include <aos\kernel.h>
+#include <aos/kernel.h>
 
 uart_dev_t uart_0;
 
@@ -40,7 +40,7 @@ int default_UART_Init(void)
 
 PUTCHAR_PROTOTYPE;
 GETCHAR_PROTOTYPE;
-    
+
 /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
    set to 'Yes') calls __io_putchar() */
     /* Add an explicit reference to the floating point printf library to allow
@@ -67,7 +67,7 @@ GETCHAR_PROTOTYPE;
         }
         return (nChars);
     }
-    
+
     __asm (".global _scanf_float");
     __attribute__((weak)) int _read (int fd, char *ptr, int len)
     {
@@ -86,7 +86,7 @@ GETCHAR_PROTOTYPE;
             }
         }
         return (nChars);
-    }    
+    }
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
 /**
@@ -115,9 +115,9 @@ GETCHAR_PROTOTYPE
     uint8_t ch = 0;
     uint32_t recv_size;
 	int32_t ret = 0;
-	
+
     ret = hal_uart_recv_II(&console_uart, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
-	
+
 	if(ret == 0)
 	{
 		return ch;
@@ -147,30 +147,30 @@ void scb1_callback(uint32_t event)
 {
     switch(event)
     {
-        case CY_SCB_UART_TRANSMIT_DONE_EVENT:	
+        case CY_SCB_UART_TRANSMIT_DONE_EVENT:
         aos_sem_signal(&scb1_tx_sema);
         break;
-				
+
         case CY_SCB_UART_RECEIVE_DONE_EVENT:
         aos_sem_signal(&scb1_rx_sema);
         break;
-				
+
         case CY_SCB_UART_TRANSMIT_IN_FIFO_EVENT:
         break;
-				
+
         case CY_SCB_UART_RECEIVE_ERR_EVENT:
         break;
-	      
+
         case CY_SCB_UART_TRANSMIT_ERR_EVENT:
-        break;	
+        break;
 
         case CY_SCB_UART_RB_FULL_EVENT:
         //printf("receive buffer full");
         break;
-				
+
         default:
         break;
-    }				
+    }
 
 }
 
@@ -178,30 +178,30 @@ void scb5_callback(uint32_t event)
 {
     switch(event)
     {
-        case CY_SCB_UART_TRANSMIT_DONE_EVENT:	
+        case CY_SCB_UART_TRANSMIT_DONE_EVENT:
         aos_sem_signal(&scb5_tx_sema);
         break;
-				
+
         case CY_SCB_UART_RECEIVE_DONE_EVENT:
         aos_sem_signal(&scb5_rx_sema);
         break;
-				
+
         case CY_SCB_UART_TRANSMIT_IN_FIFO_EVENT:
         break;
-				
+
         case CY_SCB_UART_RECEIVE_ERR_EVENT:
         break;
-	      
+
         case CY_SCB_UART_TRANSMIT_ERR_EVENT:
-        break;	
+        break;
 
         case CY_SCB_UART_RB_FULL_EVENT:
         //printf("receive buffer full");
         break;
-				
+
         default:
         break;
-    }				
+    }
 
 }
 
@@ -217,7 +217,7 @@ int32_t hal_uart_recv_buf_queue_1byte(uart_dev_t *uart, uint8_t *pdata, uint32_t
 
         if(UART1_context.buffer_queue != NULL)
         {
-            ret = krhino_buf_queue_recv(UART1_context.buffer_queue, AOS_WAIT_FOREVER, pdata, &rev_size);     
+            ret = krhino_buf_queue_recv(UART1_context.buffer_queue, AOS_WAIT_FOREVER, pdata, &rev_size);
             if((ret == 0) && (rev_size == 1))
             {
                 ret = 0;
@@ -232,13 +232,13 @@ int32_t hal_uart_recv_buf_queue_1byte(uart_dev_t *uart, uint8_t *pdata, uint32_t
             ret = 2;
         }
         break;
-        
+
         case UART5:
         Cy_SCB_UART_Receive(SCB5, pdata, 1, &UART5_context);
 
         if(UART5_context.buffer_queue != NULL)
         {
-            ret = krhino_buf_queue_recv(UART5_context.buffer_queue, AOS_WAIT_FOREVER, pdata, &rev_size);     
+            ret = krhino_buf_queue_recv(UART5_context.buffer_queue, AOS_WAIT_FOREVER, pdata, &rev_size);
             if((ret == 0) && (rev_size == 1))
             {
                 ret = 0;
@@ -251,12 +251,12 @@ int32_t hal_uart_recv_buf_queue_1byte(uart_dev_t *uart, uint8_t *pdata, uint32_t
         else
         {
             ret = 2;
-        } 
-        break;       
-        
+        }
+        break;
+
         default:
         break;
-    } 
+    }
 
     return ret;
 }
@@ -265,7 +265,7 @@ int32_t hal_uart_recv_buf_queue_1byte(uart_dev_t *uart, uint8_t *pdata, uint32_t
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     switch(uart->port)
-    {        
+    {
         case UART1:
         UART1_Start();
         Cy_SCB_UART_RegisterCallback(SCB1, scb1_callback, &UART1_context);
@@ -279,7 +279,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
         aos_mutex_new(&scb1_tx_mutex);
         aos_mutex_new(&scb1_rx_mutex);
         break;
-        
+
         case UART5:
         UART5_Start();
         Cy_SCB_UART_RegisterCallback(SCB5, scb5_callback, &UART5_context);
@@ -293,11 +293,11 @@ int32_t hal_uart_init(uart_dev_t *uart)
         aos_mutex_new(&scb5_tx_mutex);
         aos_mutex_new(&scb5_rx_mutex);
         break;
-        
+
         default:
         break;
     }
-    
+
     return 0;
 }
 
@@ -324,7 +324,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 #endif
 	    for(i=0; i<size; i++)
 		{
-            buf[i]=pdata[i];    
+            buf[i]=pdata[i];
 		}
 
 		buf[i]='\0';
@@ -337,18 +337,18 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     {
         case UART1:
         aos_mutex_lock(&scb1_tx_mutex, AOS_WAIT_FOREVER);
-        Cy_SCB_UART_Transmit(SCB1, (void *)data, size, &UART1_context); 
+        Cy_SCB_UART_Transmit(SCB1, (void *)data, size, &UART1_context);
         aos_sem_wait(&scb1_tx_sema, AOS_WAIT_FOREVER);
         aos_mutex_unlock(&scb1_tx_mutex);
         break;
-        
+
         case UART5:
         aos_mutex_lock(&scb5_tx_mutex, AOS_WAIT_FOREVER);
         Cy_SCB_UART_Transmit(SCB5, (void *)data, size, &UART5_context);
-        aos_sem_wait(&scb5_tx_sema, AOS_WAIT_FOREVER);  
+        aos_sem_wait(&scb5_tx_sema, AOS_WAIT_FOREVER);
         aos_mutex_unlock(&scb5_tx_mutex);
         break;
-        
+
         default:
         break;
     }
@@ -367,13 +367,13 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-    
+
     switch(uart->port)
     {
     case UART1:
         aos_mutex_lock(&scb1_rx_mutex, AOS_WAIT_FOREVER);
         Cy_SCB_UART_Receive(SCB1, pdata, expect_size, &UART1_context);
-        aos_sem_wait(&scb1_rx_sema, AOS_WAIT_FOREVER);       
+        aos_sem_wait(&scb1_rx_sema, AOS_WAIT_FOREVER);
         rx_count = Cy_SCB_UART_GetNumReceived(SCB1, &UART1_context);
         aos_mutex_unlock(&scb1_rx_mutex);
         break;
@@ -414,14 +414,14 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         case UART1:
         Cy_SCB_UART_DeInit(SCB1);
         break;
-        
+
         case UART5:
         Cy_SCB_UART_DeInit(SCB5);
         break;
-        
+
         default:
         break;
     }
-    
+
     return 0;
 }

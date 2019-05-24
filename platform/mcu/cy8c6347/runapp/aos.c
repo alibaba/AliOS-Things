@@ -3,6 +3,7 @@
  */
 
 #include "aos/kernel.h"
+#include "aos/init.h"
 #include <k_api.h>
 #include <aos/kernel.h>
 #include <stdio.h>
@@ -36,7 +37,7 @@ void SysTick_IRQ(void)
 {
     krhino_intrpt_enter();
     krhino_tick_proc();
-    krhino_intrpt_exit();	
+    krhino_intrpt_exit();
 }
 
 static void sys_init(void)
@@ -73,7 +74,7 @@ static void sys_start(void)
 int main(void)
 {
     __enable_irq(); /* Enable global interrupts. */
-      
+
     sys_start();
     return 0;
 }

@@ -1,4 +1,5 @@
 
+#include "aos/hal/flash.h"
 #include "flash/cy_flash.h"
 #include "aos/kernel.h"
 #include <stdio.h>
@@ -17,7 +18,7 @@ extern const hal_logic_partition_t hal_partitions[];
   * @note   The FLASH chunk must no cross a FLASH bank boundary.
   * @note   The source and destination buffers have no specific alignment constraints.
   * @param  In: dst_addr    Destination address in the FLASH memory.
-  * @param  In: data        Source address. 
+  * @param  In: data        Source address.
   * @param  In: size        Number of bytes to update.
   * @retval  0:  Success.
   *         <0:  Failure.
@@ -40,7 +41,7 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
         int len = MIN(FLASH_PAGE_SIZE - fl_offset, size);
 
         /* Load from the flash into the cache */
-        memcpy(page_cache, (void *) fl_addr, FLASH_PAGE_SIZE);  
+        memcpy(page_cache, (void *) fl_addr, FLASH_PAGE_SIZE);
         /* Update the cache from the source */
         memcpy((uint8_t *)page_cache + fl_offset, src_addr, len);
 
@@ -100,14 +101,14 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 {
     uint32_t start_addr;
     hal_logic_partition_t *partition_info;
-		
+
     partition_info = hal_flash_get_info( pno );
     start_addr = partition_info->partition_start_addr + *poff;
     if (CY_FLASH_DRV_SUCCESS != FLASH_update(start_addr, buf, buf_size)) {
         printf("FLASH_update failed!\n");
     }
     *poff += buf_size;
-		
+
 
     return 0;
 }
@@ -150,7 +151,7 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     for(uint32_t i=0; i<size/FLASH_PAGE_SIZE; i++)
     {
         status = Cy_Flash_WriteRow(start_addr, page_cache);
-  
+
         if(status != CY_FLASH_DRV_SUCCESS)
         {
             printf("Flash erase failed\n");
