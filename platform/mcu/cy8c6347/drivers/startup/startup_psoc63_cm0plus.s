@@ -1,345 +1,420 @@
-;/**************************************************************************//**
-; * @file     startup_psoc63_cm0plus.s
-; * @brief    CMSIS Core Device Startup File for
-; *           ARMCM0plus Device Series
-; * @version  V5.00
-; * @date     02. March 2016
-; ******************************************************************************/
-;/*
-; * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
-; *
-; * SPDX-License-Identifier: Apache-2.0
-; *
-; * Licensed under the Apache License, Version 2.0 (the License); you may
-; * not use this file except in compliance with the License.
-; * You may obtain a copy of the License at
-; *
-; * www.apache.org/licenses/LICENSE-2.0
-; *
-; * Unless required by applicable law or agreed to in writing, software
-; * distributed under the License is distributed on an AS IS BASIS, WITHOUT
-; * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; * See the License for the specific language governing permissions and
-; * limitations under the License.
-; */
+/**************************************************************************//**
+ * @file     startup_psoc63_cm0plus.s
+ * @brief    CMSIS Core Device Startup File for
+ *           ARMCM0plus Device Series
+ * @version  V5.00
+ * @date     02. March 2016
+ ******************************************************************************/
+/*
+ * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-;/*
-;//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
-;*/
+    /* Address of the NMI handler */
+    #define CY_NMI_HANLDER_ADDR         0x0000000D
 
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-                IF :DEF:__STACK_SIZE
-Stack_Size      EQU     __STACK_SIZE
-                ELSE
-Stack_Size      EQU     0x00001000
-                ENDIF
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
+    /* The CPU VTOR register */
+    #define CY_CPU_VTOR_ADDR                 0xE000ED08
 
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-                IF :DEF:__HEAP_SIZE
-Heap_Size       EQU     __HEAP_SIZE
-                ELSE
-Heap_Size       EQU     0x00000400
-                ENDIF
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
+    /* Copy flash vectors and data section to RAM */
+    #define __STARTUP_COPY_MULTIPLE
 
+    /* Clear single BSS section */
+    #define __STARTUP_CLEAR_BSS
 
-                PRESERVE8
-                THUMB
+    .syntax    unified
+    .arch    armv6-m
 
+    .section .stack
+    .align    3
+#ifdef __STACK_SIZE
+    .equ    Stack_Size, __STACK_SIZE
+#else
+    .equ    Stack_Size, 0x00001000
+#endif
+    .globl    __StackTop
+    .globl    __StackLimit
+__StackLimit:
+    .space    Stack_Size
+    .size    __StackLimit, . - __StackLimit
+__StackTop:
+    .size    __StackTop, . - __StackTop
 
-; Vector Table Mapped to Address 0 at Reset
+    .section .heap
+    .align    3
+#ifdef __HEAP_SIZE
+    .equ    Heap_Size, __HEAP_SIZE
+#else
+    .equ    Heap_Size, 0x00000400
+#endif
+    .globl    __HeapBase
+    .globl    __HeapLimit
+__HeapBase:
+    .if    Heap_Size
+    .space    Heap_Size
+    .endif
+    .size    __HeapBase, . - __HeapBase
+__HeapLimit:
+    .size    __HeapLimit, . - __HeapLimit
 
-                AREA    RESET, DATA, READONLY
-                EXPORT  __Vectors
-                EXPORT  __Vectors_End
-                EXPORT  __Vectors_Size
+    .section .vectors
+    .align 2
+    .globl    __Vectors
+__Vectors:
+    .long    __StackTop            /* Top of Stack */
+    .long    Reset_Handler         /* Reset Handler */
+    .long    CY_NMI_HANLDER_ADDR   /* NMI Handler */
+    .long    HardFault_Handler     /* Hard Fault Handler */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    SVC_Handler           /* SVCall Handler */
+    .long    0                     /* Reserved */
+    .long    0                     /* Reserved */
+    .long    PendSV_Handler        /* PendSV Handler */
+    .long    SysTick_Handler       /* SysTick Handler */
 
-__Vectors       DCD     __initial_sp              ; Top of Stack
-                DCD     Reset_Handler             ; Reset Handler
+     /* External interrupts                             Description */
+    .long    NvicMux0_IRQHandler                     /* CM0 + NVIC Mux input 0 */
+    .long    NvicMux1_IRQHandler                     /* CM0 + NVIC Mux input 1 */
+    .long    NvicMux2_IRQHandler                     /* CM0 + NVIC Mux input 2 */
+    .long    NvicMux3_IRQHandler                     /* CM0 + NVIC Mux input 3 */
+    .long    NvicMux4_IRQHandler                     /* CM0 + NVIC Mux input 4 */
+    .long    NvicMux5_IRQHandler                     /* CM0 + NVIC Mux input 5 */
+    .long    NvicMux6_IRQHandler                     /* CM0 + NVIC Mux input 6 */
+    .long    NvicMux7_IRQHandler                     /* CM0 + NVIC Mux input 7 */
+    .long    NvicMux8_IRQHandler                     /* CM0 + NVIC Mux input 8 */
+    .long    NvicMux9_IRQHandler                     /* CM0 + NVIC Mux input 9 */
+    .long    NvicMux10_IRQHandler                    /* CM0 + NVIC Mux input 10 */
+    .long    NvicMux11_IRQHandler                    /* CM0 + NVIC Mux input 11 */
+    .long    NvicMux12_IRQHandler                    /* CM0 + NVIC Mux input 12 */
+    .long    NvicMux13_IRQHandler                    /* CM0 + NVIC Mux input 13 */
+    .long    NvicMux14_IRQHandler                    /* CM0 + NVIC Mux input 14 */
+    .long    NvicMux15_IRQHandler                    /* CM0 + NVIC Mux input 15 */
+    .long    NvicMux16_IRQHandler                    /* CM0 + NVIC Mux input 16 */
+    .long    NvicMux17_IRQHandler                    /* CM0 + NVIC Mux input 17 */
+    .long    NvicMux18_IRQHandler                    /* CM0 + NVIC Mux input 18 */
+    .long    NvicMux19_IRQHandler                    /* CM0 + NVIC Mux input 19 */
+    .long    NvicMux20_IRQHandler                    /* CM0 + NVIC Mux input 20 */
+    .long    NvicMux21_IRQHandler                    /* CM0 + NVIC Mux input 21 */
+    .long    NvicMux22_IRQHandler                    /* CM0 + NVIC Mux input 22 */
+    .long    NvicMux23_IRQHandler                    /* CM0 + NVIC Mux input 23 */
+    .long    NvicMux24_IRQHandler                    /* CM0 + NVIC Mux input 24 */
+    .long    NvicMux25_IRQHandler                    /* CM0 + NVIC Mux input 25 */
+    .long    NvicMux26_IRQHandler                    /* CM0 + NVIC Mux input 26 */
+    .long    NvicMux27_IRQHandler                    /* CM0 + NVIC Mux input 27 */
+    .long    NvicMux28_IRQHandler                    /* CM0 + NVIC Mux input 28 */
+    .long    NvicMux29_IRQHandler                    /* CM0 + NVIC Mux input 29 */
+    .long    NvicMux30_IRQHandler                    /* CM0 + NVIC Mux input 30 */
+    .long    NvicMux31_IRQHandler                    /* CM0 + NVIC Mux input 31 */
 
-                DCD     0x0000000D                ; NMI Handler located at ROM code
-                DCD     HardFault_Handler         ; Hard Fault Handler
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     SVC_Handler               ; SVCall Handler
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     PendSV_Handler            ; PendSV Handler
-                DCD     SysTick_Handler           ; SysTick Handler
+    .size    __Vectors, . - __Vectors
+    .equ    __VectorsSize, . - __Vectors
 
-
-                ; External interrupts                           Description
-                DCD     NvicMux0_IRQHandler                   ; CM0 + NVIC Mux input 0 
-                DCD     NvicMux1_IRQHandler                   ; CM0 + NVIC Mux input 1 
-                DCD     NvicMux2_IRQHandler                   ; CM0 + NVIC Mux input 2 
-                DCD     NvicMux3_IRQHandler                   ; CM0 + NVIC Mux input 3 
-                DCD     NvicMux4_IRQHandler                   ; CM0 + NVIC Mux input 4 
-                DCD     NvicMux5_IRQHandler                   ; CM0 + NVIC Mux input 5 
-                DCD     NvicMux6_IRQHandler                   ; CM0 + NVIC Mux input 6 
-                DCD     NvicMux7_IRQHandler                   ; CM0 + NVIC Mux input 7 
-                DCD     NvicMux8_IRQHandler                   ; CM0 + NVIC Mux input 8 
-                DCD     NvicMux9_IRQHandler                   ; CM0 + NVIC Mux input 9 
-                DCD     NvicMux10_IRQHandler                  ; CM0 + NVIC Mux input 10 
-                DCD     NvicMux11_IRQHandler                  ; CM0 + NVIC Mux input 11 
-                DCD     NvicMux12_IRQHandler                  ; CM0 + NVIC Mux input 12 
-                DCD     NvicMux13_IRQHandler                  ; CM0 + NVIC Mux input 13 
-                DCD     NvicMux14_IRQHandler                  ; CM0 + NVIC Mux input 14 
-                DCD     NvicMux15_IRQHandler                  ; CM0 + NVIC Mux input 15 
-                DCD     NvicMux16_IRQHandler                  ; CM0 + NVIC Mux input 16 
-                DCD     NvicMux17_IRQHandler                  ; CM0 + NVIC Mux input 17 
-                DCD     NvicMux18_IRQHandler                  ; CM0 + NVIC Mux input 18 
-                DCD     NvicMux19_IRQHandler                  ; CM0 + NVIC Mux input 19 
-                DCD     NvicMux20_IRQHandler                  ; CM0 + NVIC Mux input 20 
-                DCD     NvicMux21_IRQHandler                  ; CM0 + NVIC Mux input 21 
-                DCD     NvicMux22_IRQHandler                  ; CM0 + NVIC Mux input 22 
-                DCD     NvicMux23_IRQHandler                  ; CM0 + NVIC Mux input 23 
-                DCD     NvicMux24_IRQHandler                  ; CM0 + NVIC Mux input 24 
-                DCD     NvicMux25_IRQHandler                  ; CM0 + NVIC Mux input 25 
-                DCD     NvicMux26_IRQHandler                  ; CM0 + NVIC Mux input 26 
-                DCD     NvicMux27_IRQHandler                  ; CM0 + NVIC Mux input 27 
-                DCD     NvicMux28_IRQHandler                  ; CM0 + NVIC Mux input 28 
-                DCD     NvicMux29_IRQHandler                  ; CM0 + NVIC Mux input 29 
-                DCD     NvicMux30_IRQHandler                  ; CM0 + NVIC Mux input 30 
-                DCD     NvicMux31_IRQHandler                  ; CM0 + NVIC Mux input 31 
-
-__Vectors_End
-
-__Vectors_Size  EQU     __Vectors_End - __Vectors
-                EXPORT __ramVectors
-                AREA    RESET_RAM, READWRITE, NOINIT
-__ramVectors    SPACE   __Vectors_Size
-
-
-                AREA    |.text|, CODE, READONLY
-
-
-; Saves and disables the interrupts
-Cy_SaveIRQ       PROC
-                EXPORT Cy_SaveIRQ
-                MRS r0, PRIMASK
-                CPSID I
-                BX LR
-                ENDP
-
-
-; Restores the interrupts
-Cy_RestoreIRQ    PROC
-                EXPORT Cy_RestoreIRQ
-                MSR PRIMASK, r0
-                BX LR
-                ENDP
+    .section .ram_vectors
+    .align 2
+    .globl __ramVectors
+__ramVectors:
+    .space  __VectorsSize
+    .size   __ramVectors, . - __ramVectors
 
 
-; Weak function for startup customization
-Cy_OnResetUser PROC
-                EXPORT  Cy_OnResetUser             [WEAK]
-                BX      LR
-                ENDP
+    .text
+    .thumb
+    .thumb_func
+    .align  2
 
-; Reset Handler
-Reset_Handler   PROC
-                EXPORT  Reset_Handler               [WEAK]
-                IMPORT  SystemInit
-                IMPORT  __main
+    /* Device startup customization */
+    .weak   Cy_OnResetUser
+    .func Cy_OnResetUser, Cy_OnResetUser
+    .type   Cy_OnResetUser, %function
+Cy_OnResetUser:
 
-                ; Define strong function for startup customization
-                BL      Cy_OnResetUser
+    bx lr
+    .size   Cy_OnResetUser, . - Cy_OnResetUser
+    .endfunc
 
-                ; Disable global interrupts
-                CPSID I
+    /* Saves and disables the interrupts */
+    .global Cy_SaveIRQ
+    .func   Cy_SaveIRQ, Cy_SaveIRQ
+    .type   Cy_SaveIRQ, %function
+Cy_SaveIRQ:
+    mrs r0, PRIMASK
+    cpsid i
+    bx lr
+    .size   Cy_SaveIRQ, . - Cy_SaveIRQ
+    .endfunc
 
-                ; Copy vectors from ROM to RAM
-                LDR r1, =__Vectors
-                LDR r0, =__ramVectors
-                LDR r2, =__Vectors_Size
-Vectors_Copy
-                LDR r3, [r1]
-                STR r3, [r0]
-                ADDS r0, r0, #4
-                ADDS r1, r1, #4
-                SUBS r2, r2, #1
-                CMP r2, #0
-                BNE Vectors_Copy
+    /* Restores the interrupts */
+    .global Cy_RestoreIRQ
+    .func   Cy_RestoreIRQ, Cy_RestoreIRQ
+    .type   Cy_RestoreIRQ, %function
+Cy_RestoreIRQ:
+    msr PRIMASK, r0
+    bx lr
+    .size   Cy_RestoreIRQ, . - Cy_RestoreIRQ
+    .endfunc
 
-                ; Update Vector Table Offset Register. */
-                LDR r0, =__ramVectors
-                LDR r1, =0xE000ED08
-                STR r0, [r1]
-                dsb 0xF
+    /* Reset handler */
+    .weak    Reset_Handler
+    .type    Reset_Handler, %function
+Reset_Handler:
 
-                LDR     R0, =__main
-                BLX     R0
+    bl Cy_OnResetUser
+    cpsid i
 
-                ; Should never get here
-                B       .
+/*  Firstly it copies data from read only memory to RAM. There are two schemes
+ *  to copy. One can copy more than one sections. Another can only copy
+ *  one section.  The former scheme needs more instructions and read-only
+ *  data to implement than the latter.
+ *  Macro __STARTUP_COPY_MULTIPLE is used to choose between two schemes.  */
 
-                ENDP
+#ifdef __STARTUP_COPY_MULTIPLE
+/*  Multiple sections scheme.
+ *
+ *  Between symbol address __copy_table_start__ and __copy_table_end__,
+ *  there are array of triplets, each of which specify:
+ *    offset 0: LMA of start of a section to copy from
+ *    offset 4: VMA of start of a section to copy to
+ *    offset 8: size of the section to copy. Must be multiply of 4
+ *
+ *  All addresses must be aligned to 4 bytes boundary.
+ */
+    ldr    r4, =__copy_table_start__
+    ldr    r5, =__copy_table_end__
 
-; $Sub$$main
-|$Sub$$main|    PROC
-                EXPORT  |$Sub$$main|
-                IMPORT  |$Super$$main|
+.L_loop0:
+    cmp    r4, r5
+    bge    .L_loop0_done
+    ldr    r1, [r4]
+    ldr    r2, [r4, #4]
+    ldr    r3, [r4, #8]
 
-                LDR     R0, =SystemInit
-                BLX     R0
+.L_loop0_0:
+    subs    r3, #4
+    blt    .L_loop0_0_done
+    ldr    r0, [r1, r3]
+    str    r0, [r2, r3]
+    b    .L_loop0_0
 
-                LDR     R0, =|$Super$$main|
-                BX      R0
-                ENDP
+.L_loop0_0_done:
+    adds    r4, #12
+    b    .L_loop0
 
-; Dummy Exception Handlers (infinite loops which can be modified)
-NMI_Handler         PROC
-                    EXPORT  NMI_Handler               [WEAK]
-                    B       .
-                    ENDP
+.L_loop0_done:
+#else
+/*  Single section scheme.
+ *
+ *  The ranges of copy from/to are specified by following symbols
+ *    __etext: LMA of start of the section to copy from. Usually end of text
+ *    __data_start__: VMA of start of the section to copy to
+ *    __data_end__: VMA of end of the section to copy to
+ *
+ *  All addresses must be aligned to 4 bytes boundary.
+ */
+    ldr    r1, =__etext
+    ldr    r2, =__data_start__
+    ldr    r3, =__data_end__
 
-Cy_SysLib_FaultHandler PROC
-                    EXPORT  Cy_SysLib_FaultHandler    [WEAK]
-                    B       .
-                    ENDP
+    subs    r3, r2
+    ble    .L_loop1_done
 
-HardFault_Handler   PROC
-                    EXPORT HardFault_Handler          [WEAK]
-                    movs r0, #4
-                    mov r1, LR
-                    tst r0, r1
-                    beq L_MSP
-                    mrs r0, PSP
-                    bl L_API_call
-L_MSP
-                    mrs r0, MSP
-L_API_call
-                    bl Cy_SysLib_FaultHandler
-                    ENDP
+.L_loop1:
+    subs    r3, #4
+    ldr    r0, [r1,r3]
+    str    r0, [r2,r3]
+    bgt    .L_loop1
 
-SVC_Handler         PROC
-                    EXPORT  SVC_Handler               [WEAK]
-                    B       .
-                    ENDP
-PendSV_Handler      PROC
-                    EXPORT  PendSV_Handler            [WEAK]
-                    B       .
-                    ENDP
-SysTick_Handler     PROC
-                    EXPORT  SysTick_Handler           [WEAK]
-                    B       .
-                    ENDP
+.L_loop1_done:
+#endif /*__STARTUP_COPY_MULTIPLE */
 
-Default_Handler PROC
-                    EXPORT      Default_Handler                        [WEAK]
-                    EXPORT  NvicMux0_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux1_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux2_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux3_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux4_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux5_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux6_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux7_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux8_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux9_IRQHandler                   [WEAK]
-                    EXPORT  NvicMux10_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux11_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux12_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux13_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux14_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux15_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux16_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux17_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux18_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux19_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux20_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux21_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux22_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux23_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux24_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux25_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux26_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux27_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux28_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux29_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux30_IRQHandler                  [WEAK]
-                    EXPORT  NvicMux31_IRQHandler                  [WEAK]
+/*  This part of work usually is done in C library startup code. Otherwise,
+ *  define this macro to enable it in this startup.
+ *
+ *  There are two schemes too. One can clear multiple BSS sections. Another
+ *  can only clear one section. The former is more size expensive than the
+ *  latter.
+ *
+ *  Define macro __STARTUP_CLEAR_BSS_MULTIPLE to choose the former.
+ *  Otherwise efine macro __STARTUP_CLEAR_BSS to choose the later.
+ */
+#ifdef __STARTUP_CLEAR_BSS_MULTIPLE
+/*  Multiple sections scheme.
+ *
+ *  Between symbol address __copy_table_start__ and __copy_table_end__,
+ *  there are array of tuples specifying:
+ *    offset 0: Start of a BSS section
+ *    offset 4: Size of this BSS section. Must be multiply of 4
+ */
+    ldr    r3, =__zero_table_start__
+    ldr    r4, =__zero_table_end__
 
-NvicMux0_IRQHandler
-NvicMux1_IRQHandler
-NvicMux2_IRQHandler
-NvicMux3_IRQHandler
-NvicMux4_IRQHandler
-NvicMux5_IRQHandler
-NvicMux6_IRQHandler
-NvicMux7_IRQHandler
-NvicMux8_IRQHandler
-NvicMux9_IRQHandler
-NvicMux10_IRQHandler
-NvicMux11_IRQHandler
-NvicMux12_IRQHandler
-NvicMux13_IRQHandler
-NvicMux14_IRQHandler
-NvicMux15_IRQHandler
-NvicMux16_IRQHandler
-NvicMux17_IRQHandler
-NvicMux18_IRQHandler
-NvicMux19_IRQHandler
-NvicMux20_IRQHandler
-NvicMux21_IRQHandler
-NvicMux22_IRQHandler
-NvicMux23_IRQHandler
-NvicMux24_IRQHandler
-NvicMux25_IRQHandler
-NvicMux26_IRQHandler
-NvicMux27_IRQHandler
-NvicMux28_IRQHandler
-NvicMux29_IRQHandler
-NvicMux30_IRQHandler
-NvicMux31_IRQHandler
+.L_loop2:
+    cmp    r3, r4
+    bge    .L_loop2_done
+    ldr    r1, [r3]
+    ldr    r2, [r3, #4]
+    movs    r0, 0
 
-                B       .
-                ENDP
+.L_loop2_0:
+    subs    r2, #4
+    blt    .L_loop2_0_done
+    str    r0, [r1, r2]
+    b    .L_loop2_0
+.L_loop2_0_done:
 
-                ALIGN
+    adds    r3, #8
+    b    .L_loop2
+.L_loop2_done:
+#elif defined (__STARTUP_CLEAR_BSS)
+/*  Single BSS section scheme.
+ *
+ *  The BSS section is specified by following symbols
+ *    __bss_start__: start of the BSS section.
+ *    __bss_end__: end of the BSS section.
+ *
+ *  Both addresses must be aligned to 4 bytes boundary.
+ */
+    ldr    r1, =__bss_start__
+    ldr    r2, =__bss_end__
 
+    movs    r0, 0
 
-; User Initial Stack & Heap
+    subs    r2, r1
+    ble    .L_loop3_done
 
-                IF      :DEF:__MICROLIB
+.L_loop3:
+    subs    r2, #4
+    str    r0, [r1, r2]
+    bgt    .L_loop3
+.L_loop3_done:
+#endif /* __STARTUP_CLEAR_BSS_MULTIPLE || __STARTUP_CLEAR_BSS */
 
-                EXPORT  __initial_sp
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
+    /* Update Vector Table Offset Register. */
+    ldr r0, =__ramVectors
+     ldr r1, =CY_CPU_VTOR_ADDR
+    str r0, [r1]
+    dsb 0xF
 
-                ELSE
+#ifndef __NO_SYSTEM_INIT
+    bl    SystemInit
+#endif
 
-                IMPORT  __use_two_region_memory
-                EXPORT  __user_initial_stackheap
+    bl    main
 
-__user_initial_stackheap PROC
-                LDR     R0, =Heap_Mem
-                LDR     R1, =(Stack_Mem + Stack_Size)
-                LDR     R2, =(Heap_Mem +  Heap_Size)
-                LDR     R3, =Stack_Mem
-                BX      LR
-                ENDP
+    /* Should never get here */
+    b   .
 
-                ALIGN
+    .pool
+    .size    Reset_Handler, . - Reset_Handler
 
-                ENDIF
-
-                END
+    .align    1
+    .thumb_func
+    .weak    Default_Handler
+    .type    Default_Handler, %function
+Default_Handler:
+    b    .
+    .size    Default_Handler, . - Default_Handler
 
 
-; [] END OF FILE
+    .weak    Cy_SysLib_FaultHandler
+    .type    Cy_SysLib_FaultHandler, %function
+Cy_SysLib_FaultHandler:
+    b    .
+    .size    Cy_SysLib_FaultHandler, . - Cy_SysLib_FaultHandler
+
+
+    .type Fault_Handler, %function
+Fault_Handler:
+    /* Storing LR content for Creator call stack trace */
+    push {LR}
+    movs r0, #4
+    mov r1, LR
+    tst r0, r1
+    beq .L_MSP
+    mrs r0, PSP
+    b .L_API_call
+.L_MSP:
+    mrs r0, MSP
+.L_API_call:
+    /* Compensation of stack pointer address due to pushing 4 bytes of LR */
+    adds r0, r0, #4
+    bl Cy_SysLib_FaultHandler
+    b   .
+    .size    Fault_Handler, . - Fault_Handler
+
+.macro    def_fault_Handler    fault_handler_name
+    .weak    \fault_handler_name
+    .set    \fault_handler_name, Fault_Handler
+    .endm
+
+/*    Macro to define default handlers. Default handler
+ *    will be weak symbol and just dead loops. They can be
+ *    overwritten by other handlers */
+    .macro    def_irq_handler    handler_name
+    .weak    \handler_name
+    .set    \handler_name, Default_Handler
+    .endm
+
+    def_irq_handler    NMI_Handler
+
+    def_fault_Handler  HardFault_Handler
+
+    def_irq_handler    SVC_Handler
+    def_irq_handler    PendSV_Handler
+    def_irq_handler    SysTick_Handler
+
+    def_irq_handler  NvicMux0_IRQHandler                     /* CM0 + NVIC Mux input 0 */
+    def_irq_handler  NvicMux1_IRQHandler                     /* CM0 + NVIC Mux input 1 */
+    def_irq_handler  NvicMux2_IRQHandler                     /* CM0 + NVIC Mux input 2 */
+    def_irq_handler  NvicMux3_IRQHandler                     /* CM0 + NVIC Mux input 3 */
+    def_irq_handler  NvicMux4_IRQHandler                     /* CM0 + NVIC Mux input 4 */
+    def_irq_handler  NvicMux5_IRQHandler                     /* CM0 + NVIC Mux input 5 */
+    def_irq_handler  NvicMux6_IRQHandler                     /* CM0 + NVIC Mux input 6 */
+    def_irq_handler  NvicMux7_IRQHandler                     /* CM0 + NVIC Mux input 7 */
+    def_irq_handler  NvicMux8_IRQHandler                     /* CM0 + NVIC Mux input 8 */
+    def_irq_handler  NvicMux9_IRQHandler                     /* CM0 + NVIC Mux input 9 */
+    def_irq_handler  NvicMux10_IRQHandler                    /* CM0 + NVIC Mux input 10 */
+    def_irq_handler  NvicMux11_IRQHandler                    /* CM0 + NVIC Mux input 11 */
+    def_irq_handler  NvicMux12_IRQHandler                    /* CM0 + NVIC Mux input 12 */
+    def_irq_handler  NvicMux13_IRQHandler                    /* CM0 + NVIC Mux input 13 */
+    def_irq_handler  NvicMux14_IRQHandler                    /* CM0 + NVIC Mux input 14 */
+    def_irq_handler  NvicMux15_IRQHandler                    /* CM0 + NVIC Mux input 15 */
+    def_irq_handler  NvicMux16_IRQHandler                    /* CM0 + NVIC Mux input 16 */
+    def_irq_handler  NvicMux17_IRQHandler                    /* CM0 + NVIC Mux input 17 */
+    def_irq_handler  NvicMux18_IRQHandler                    /* CM0 + NVIC Mux input 18 */
+    def_irq_handler  NvicMux19_IRQHandler                    /* CM0 + NVIC Mux input 19 */
+    def_irq_handler  NvicMux20_IRQHandler                    /* CM0 + NVIC Mux input 20 */
+    def_irq_handler  NvicMux21_IRQHandler                    /* CM0 + NVIC Mux input 21 */
+    def_irq_handler  NvicMux22_IRQHandler                    /* CM0 + NVIC Mux input 22 */
+    def_irq_handler  NvicMux23_IRQHandler                    /* CM0 + NVIC Mux input 23 */
+    def_irq_handler  NvicMux24_IRQHandler                    /* CM0 + NVIC Mux input 24 */
+    def_irq_handler  NvicMux25_IRQHandler                    /* CM0 + NVIC Mux input 25 */
+    def_irq_handler  NvicMux26_IRQHandler                    /* CM0 + NVIC Mux input 26 */
+    def_irq_handler  NvicMux27_IRQHandler                    /* CM0 + NVIC Mux input 27 */
+    def_irq_handler  NvicMux28_IRQHandler                    /* CM0 + NVIC Mux input 28 */
+    def_irq_handler  NvicMux29_IRQHandler                    /* CM0 + NVIC Mux input 29 */
+    def_irq_handler  NvicMux30_IRQHandler                    /* CM0 + NVIC Mux input 30 */
+    def_irq_handler  NvicMux31_IRQHandler                    /* CM0 + NVIC Mux input 31 */
+
+    .end
+
+
+/* [] END OF FILE */

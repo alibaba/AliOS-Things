@@ -72,6 +72,7 @@ endif
 
 $(NAME)_SOURCES := drivers/cy_ipc_config.c                                         \
                    drivers/system_psoc63_cm4.c                                     \
+				   drivers/startup/startup_psoc63_cm4.s                            \
                    drivers/PSoC6/cyfitter_sysint_cfg.c                             \
                    drivers/PSoC6/cymetadata.c                                        \
                    drivers/PSoC6/UART1.c                                           \
