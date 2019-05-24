@@ -14,9 +14,9 @@ GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
 GLOBAL_INCLUDES += drivers                                  \
                    drivers/PSoC6                            \
                    drivers/PSoC6/pdl/drivers/peripheral     \
-                   drivers/pdl/cmsis/include                \
-                   drivers/pdl/devices/psoc6/ip             \
-                   drivers/pdl/devices/psoc6/psoc63/include \
+                   drivers/PSoC6/pdl/cmsis/include                \
+                   drivers/PSoC6/pdl/devices/psoc6/ip             \
+                   drivers/PSoC6/pdl/devices/psoc6/psoc63/include \
                    drivers/PSoC6/pdl/middleware
 
 ifeq ($(COMPILER),armcc)
@@ -72,9 +72,8 @@ endif
 
 $(NAME)_SOURCES := drivers/cy_ipc_config.c                                         \
                    drivers/system_psoc63_cm4.c                                     \
-                   drivers/startup/startup_psoc63_cm4.s                            \
                    drivers/PSoC6/cyfitter_sysint_cfg.c                             \
-                   drivers/PSoC6/cymedata.c                                        \
+                   drivers/PSoC6/cymetadata.c                                        \
                    drivers/PSoC6/UART1.c                                           \
                    drivers/PSoC6/UART5.c                                           \
                    drivers/PSoC6/pdl/drivers/peripheral/flash/cy_flash.c           \
@@ -98,4 +97,4 @@ $(NAME)_SOURCES := drivers/cy_ipc_config.c                                      
                    hal/hw.c                                                        \
                    hal/flash_port.c                                                \
                    hal/uart_port.c                                                 \
-                   runapp\aos.c
+                   runapp/aos.c
