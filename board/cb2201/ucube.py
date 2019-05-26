@@ -11,4 +11,4 @@ component.add_global_cflags('-std=gnu99')
 
 aos_global_config.add_ld_files('gcc_csky.ld')
 
-linux_only_targets="coapapp helloworld id2_app mqttapp otaapp tls udataapp udevapp yts"
+linux_only_targets="coapapp helloworld id2_app mqttapp otaapp tls udata_demo.sensor_local_demo udataapp udevapp yts"
