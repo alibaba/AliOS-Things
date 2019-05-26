@@ -1,1 +1,1 @@
-linux_only_targets="helloworld lorawan.linkwan"
+linux_only_targets="helloworld lorawan.linkwan udata_demo.sensor_local_demo"

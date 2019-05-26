@@ -1,1 +1,1 @@
-linux_only_targets="helloworld linkkitapp mqttapp http2app yts"
+linux_only_targets="helloworld http2app linkkitapp mqttapp yts"
