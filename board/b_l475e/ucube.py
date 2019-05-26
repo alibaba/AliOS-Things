@@ -31,5 +31,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+CONFIG_SYSINFO_DEVICE_NAME
 component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
 
-linux_only_targets="blink coapapp helloworld http2app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tls udataapp udevapp ulocationapp yts"
+linux_only_targets="blink coapapp helloworld http2app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp udevapp ulocationapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
