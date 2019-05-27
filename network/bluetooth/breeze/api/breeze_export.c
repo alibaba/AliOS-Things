@@ -68,7 +68,9 @@ static void event_handler(ali_event_t *p_event)
             } else
 #endif		
             {
+#ifndef BLE_ADV_ASYN
                  breeze_restart_advertising();
+#endif
             }
             break;
 
