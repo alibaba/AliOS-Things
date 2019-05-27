@@ -1,12 +1,13 @@
-config AOS_BOARD_BK7231U
-    bool "BK7231U"
-    select AOS_MCU_BK7231U
+config AOS_BOARD_ASR5501
+    bool "ASR5501"
+    select AOS_MCU_ASR5501
     select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LWIP if AOS_NETWORK_SAL
+    select AOS_COMP_NETMGR
     help
-      configuration for board bk7231u
 
-if AOS_BOARD_BK7231U
-# Configurations for board board_bk7231u
+if AOS_BOARD_ASR5501
+# Configurations for board asr5501
 
 config DEBUG_CONFIG_PANIC
     bool "Enable debug panic feature"
@@ -35,11 +36,7 @@ config BSP_SUPPORT_FLASH
     bool
     default y
 
-config BSP_SUPPORT_TIMER
-    bool
-    default y
-
-config BSP_SUPPORT_WDG
+config BSP_SUPPORT_I2C
     bool
     default y
 
