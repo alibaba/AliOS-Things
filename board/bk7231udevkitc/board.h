@@ -8,6 +8,6 @@
 #define STDIO_UART 0
 #define STDIO_UART_BUADRATE 115200
 
-#define BK_UART  1   ///first uart
-#define BK_UART_BUADRATE 115200  ///bps
+#define BK_UART  1
+#define BK_UART_BUADRATE 115200
 

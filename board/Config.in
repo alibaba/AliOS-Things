@@ -47,6 +47,15 @@ if AOS_BOARD_ATSAME54_XPRO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "board/asr5501/Config.in"
+if AOS_BOARD_ASR5501
+    config AOS_BUILD_BOARD
+        default "asr5501"
+
+    source "platform/mcu/asr5501/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "board/b_l475e/Config.in"
 if AOS_BOARD_B_L475E
     config AOS_BUILD_BOARD
