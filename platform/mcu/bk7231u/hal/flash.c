@@ -182,3 +182,4 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 
     return 0;
 }
+

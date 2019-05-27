@@ -10,9 +10,6 @@
 #include <hal/wifi.h>
 //#include <k_api.h>
 #endif
-#if CFG_SUPPORT_BLE
-#include "ble_pub.h"
-#endif
 
 #define ICU_BASE                                     (0x00802000)
 #define ICU_INT_STATUS                               (ICU_BASE + 19 * 4)
@@ -236,15 +233,6 @@ typedef struct vif_addcfg_st {
 typedef void (*monitor_data_cb_t)(uint8_t *data, int len, hal_wifi_link_info_t *info);
 #endif
 
-#if CFG_SUPPORT_BLE
-typedef struct
-{
-    char wifi_ssid[32];
-    char wifi_key[64];
-	char bssid[6];
-}hal_ap_info_t;
-typedef void (*ble_data_cb_t)(hal_ap_info_t *info);
-#endif
 /** @brief  Connect or establish a Wi-Fi network in normal mode (station or soft ap mode).
  * 
  *  @detail This function can establish a Wi-Fi connection as a station or create
@@ -459,12 +447,6 @@ monitor_data_cb_t wlan_get_mesh_monitor_cb(void);
 int wlan_is_mesh_monitor_mode(void);
 int wlan_set_mesh_bssid(uint8_t *bssid);
 uint8_t *wlan_get_mesh_bssid(void);
-#endif
-
-#if CFG_SUPPORT_BLE
-void bk_wlan_register_ble_cb(ble_data_cb_t fn);
-ble_data_cb_t bk_wlan_get_ble_cb(void);
-int bk_wlan_start_ble(void);
 #endif
 
 #if CFG_SUPPORT_ALIOS

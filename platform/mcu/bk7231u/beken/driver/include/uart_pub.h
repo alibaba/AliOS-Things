@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #if CFG_SUPPORT_ALIOS
-#include "aos/hal/flash.h"
+#include "aos/hal/uart.h"
 #endif
 
 #if CFG_RELEASE_FIRMWARE
