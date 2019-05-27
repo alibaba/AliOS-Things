@@ -118,3 +118,4 @@ pwr_status_t mcu_one_shot_stop(uint64_t *pPassedUs)
 
 #endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 
+

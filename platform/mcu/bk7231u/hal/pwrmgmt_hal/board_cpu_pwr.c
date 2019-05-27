@@ -7,6 +7,7 @@
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
+#include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
 #include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
@@ -153,4 +154,5 @@ void cpu_pwr_resume_devices()
 }
 
 #endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
+
 

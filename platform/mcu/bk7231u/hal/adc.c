@@ -1,8 +1,4 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
-
-#include "aos/hal/adc.h"
+#include "hal/soc/soc.h"
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
 #include "saradc_pub.h"

@@ -159,5 +159,9 @@
 #define CFG_USE_AUD_DAC                            0
 #define CFG_USE_AUD_ADC                            0
 
+#define CFG_RF_USER_BLE                            1
+#define CFG_RF_USER_WIFI                           2
+
+#define CFG_DEFAULT_RF_USER                        CFG_RF_USER_WIFI
 
 #endif // _SYS_CONFIG_H_
