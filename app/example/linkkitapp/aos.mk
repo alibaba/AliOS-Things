@@ -42,7 +42,7 @@ ifeq ($(LINKKITAPP_CONFIG_COMBOAPP),y)
 ifneq ($(CONFIG_COMP_BZ_EN_AWSS), y)
 $(error need enable AWSS in breeze settings first)
 endif
-$(NAME)_COMPONENTS += breeze breeze_hal
+$(NAME)_COMPONENTS += breeze
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
 GLOBAL_INCLUDES += combo
