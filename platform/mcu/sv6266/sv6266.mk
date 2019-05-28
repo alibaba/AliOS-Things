@@ -149,7 +149,7 @@ GLOBAL_DEFINES += SETTING_PSRAM_HEAP_SIZE=$(SETTING_PSRAM_HEAP_SIZE)
 ################################################################
 # kv
 ################################################################
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=5
+#GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=5
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
 ################################################################
