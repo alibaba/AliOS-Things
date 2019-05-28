@@ -16,7 +16,7 @@ $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr cjson lw
 ################################################################
 # kv
 ################################################################
-GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
+#GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
 GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=8192
 GLOBAL_DEFINES += DEBUG_CONFIG_ERRDUMP=0
 
