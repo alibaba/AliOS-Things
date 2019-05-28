@@ -5,24 +5,31 @@
 #include <errno.h>
 #include "aos/kernel.h"
 #include "aos/kv.h"
+
 #include "hal/soc/flash.h"
+
 #include "ota_hal_plat.h"
 #include "ota_hal_os.h"
 #include "ota_log.h"
 
-#define OTA_CRC16  "hal_ota_get_crc16"
-static int boot_part = HAL_PARTITION_OTA_TEMP;
-const char ota_board_string[] = "board "SYSINFO_PRODUCT_MODEL;  /*don't delete it, used for ota diff recovery*/
-
-
-#define OTA_TWO_IMAGE_SWITCH_RUN       1
-#define KV_HAL_OTA_CRC16               "hal_ota_get_crc16"
+#define KV_HAL_OTA_CRC16  "hal_ota_get_crc16"
+#define OTA_UPG_FLAG          0xA55A
+#define OTA_PINGPONG_FLAG     0xB55B
 
 typedef struct
 {
     uint32_t ota_len;
     uint32_t ota_crc;
 } ota_reboot_info_t;
+
+typedef struct
+{
+    uint32_t dst_adr;
+    uint32_t src_adr;
+    uint32_t size;
+    uint16_t crc;
+    uint16_t upg_flag;
+} __attribute__((packed)) ota_hdl_t;
 
 static ota_reboot_info_t ota_info = {0};
 static ota_crc16_ctx contex = {0};
@@ -31,10 +38,10 @@ static uint32_t _off_set = 0;
 static uint16_t hal_ota_get_crc16(void);
 static void hal_ota_save_crc16(uint16_t crc16);
 
+#ifdef AOS_OTA_BANK_DUAL
 #define OTA_IMAGE_A    0
 #define OTA_IMAGE_B    1
 #define KV_HAL_OTA_HDR  "hal_ota_get_hdr"
-
 typedef struct
 {
     uint32_t version;
@@ -314,10 +321,11 @@ static int ota_write(int* off, char* in_buf, int in_buf_len)
 static int ota_boot(void *something)
 {
     int ret = 0;
-    uint32_t offset, addr_rb, boot_addr;
+    uint32_t offset;
     uint32_t crc_partition_idx, crc_len;
     hal_logic_partition_t *partition_info;
     ota_boot_param_t *param;
+    ota_hdl_t ota_hdl, ota_hdl_rb;
 
     param = (ota_boot_param_t *)something;
     if (param == NULL) {
@@ -341,21 +349,24 @@ static int ota_boot(void *something)
             crc_len = ota_hdr_info.ota_file[1].img_len;
             partition_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
         }
-        boot_addr = partition_info->partition_start_addr;
         ret = hal_verify_ota_checksum(crc_partition_idx, crc_len);
         if(ret) {
             return -1;
         }
         offset = 0x00;
-        hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, sizeof(boot_addr));
+        hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, sizeof(ota_hdl));
         offset = 0x00;
-        hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, (const void *)&boot_addr, sizeof(boot_addr));
+        memset(&ota_hdl, 0, sizeof(ota_hdl_t));
+        ota_hdl.dst_adr = partition_info->partition_start_addr;
+        ota_hdl.upg_flag = OTA_PINGPONG_FLAG;
+        hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, (const void *)&ota_hdl, sizeof(ota_hdl));
         offset = 0x00;
-        hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, &addr_rb, sizeof(addr_rb));
-        if(addr_rb != boot_addr) {
-            OTA_LOG_E("write boot address fail.");
+        memset(&ota_hdl_rb, 0, sizeof(ota_hdl_t));
+        hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, &ota_hdl_rb, sizeof(ota_hdl_rb));
+        if(memcmp(&ota_hdl, &ota_hdl_rb, sizeof(ota_hdl_t)) != 0) {
+            OTA_LOG_I("write boot address fail.\r\n");
             return -1;
-        }
+       }
     }
     else {
         ret = hal_ota_save_hdr();
@@ -365,10 +376,101 @@ static int ota_boot(void *something)
         }
         hal_ota_save_crc16(contex.crc);
     }
-
     hal_reboot();
     return ret;
 }
+#else
+static int hal_ota_switch_to_new_fw(void)
+{
+    hal_logic_partition_t *partition_info;
+    uint32_t offset;
+    ota_hdl_t ota_hdl, ota_hdl_rb;
+
+    offset = 0x00;
+    hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, sizeof(ota_hdl_t));
+    offset = 0x00;
+    memset(&ota_hdl, 0, sizeof(ota_hdl_t));
+    partition_info = hal_flash_get_info(HAL_PARTITION_APPLICATION);
+    ota_hdl.dst_adr = partition_info->partition_start_addr;
+    partition_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
+    ota_hdl.src_adr = partition_info->partition_start_addr;
+    ota_hdl.size = ota_info.ota_len;
+    ota_hdl.crc = ota_info.ota_crc;
+    ota_hdl.upg_flag = OTA_UPG_FLAG;
+    hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, (const void *)&ota_hdl, sizeof(ota_hdl_t));
+    offset = 0x00;
+    memset(&ota_hdl_rb, 0, sizeof(ota_hdl_t));
+    hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, &ota_hdl_rb, sizeof(ota_hdl_t));
+    if(memcmp(&ota_hdl, &ota_hdl_rb, sizeof(ota_hdl_t)) != 0) {
+        OTA_LOG_I("OTA header compare failed.\r\n");
+        return -1;
+    }
+    /* reboot */
+    hal_reboot();
+    return 0;
+}
+
+static int ota_init(void *something)
+{
+    ota_boot_param_t *param = (ota_boot_param_t *)something;
+    if(param == NULL) {
+        return -1;
+    }
+    hal_logic_partition_t *part_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
+    if(part_info->partition_length < param->len || param->len == 0) {
+        return -1;
+    }
+    ota_info.ota_len = param->off_bp;
+    hal_flash_dis_secure(0, 0, 0);//disable flash protect
+    if(param->off_bp == 0) {
+        hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0, part_info->partition_length);
+        ota_crc16_init(&contex);
+    }
+    else {
+        contex.crc = hal_ota_get_crc16();
+        OTA_LOG_I("--------get crc16 context.crc=%d!--------\n", contex.crc);
+    }
+    return 0;
+}
+
+static int ota_write(int *off_set, char *in_buf , int in_buf_len)
+{
+    int ret = 0;
+    if(ota_info.ota_len == 0) {
+        _off_set = 0;
+        ota_crc16_init(&contex);
+        memset(&ota_info, 0, sizeof(ota_info));
+    }
+    ota_crc16_update(&contex, in_buf, in_buf_len);
+    ret = hal_flash_write(HAL_PARTITION_OTA_TEMP, &_off_set, in_buf, in_buf_len);
+    ota_info.ota_len += in_buf_len;
+    return ret;
+}
+
+static int ota_read(int *off_set, char *out_buf , int out_buf_len)
+{
+    hal_flash_read(HAL_PARTITION_OTA_TEMP, off_set, out_buf, out_buf_len);
+    return 0;
+}
+
+static int ota_boot(void *something)
+{
+    ota_boot_param_t *param = (ota_boot_param_t *)something;
+    if(param == NULL) {
+        return -1;
+    }
+    if(param->res_type == OTA_FINISH) {
+        ota_crc16_final(&contex, &ota_info.ota_crc);
+        OTA_LOG_I("beken set boot\n");
+        hal_ota_switch_to_new_fw();
+    }
+    else if(param->res_type == OTA_BREAKPOINT) {
+        OTA_LOG_I("-------save bp crc=%d--------------\n", contex.crc);
+        hal_ota_save_crc16(contex.crc);
+    }
+    return 0;
+}
+#endif
 
 static uint16_t hal_ota_get_crc16(void)
 {
@@ -414,14 +516,13 @@ static int ota_rollback(void *something)
     return 0;
 }
 
-
+const char   *aos_get_app_version(void);
 static const char *ota_get_version(unsigned char dev_type)
 {
     if(dev_type) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
-    }
-    else {
-        return SYSINFO_APP_VERSION;
+    } else {
+        return aos_get_app_version();
     }
 }
 
@@ -433,4 +534,3 @@ ota_hal_module_t ota_hal_module = {
     .rollback = ota_rollback,
     .version  = ota_get_version,
 };
-

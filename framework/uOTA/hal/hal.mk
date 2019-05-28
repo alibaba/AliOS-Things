@@ -20,14 +20,24 @@ $(NAME)_SOURCES := \
 ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
 $(NAME)_SOURCES += ota_hal_host.c
 else
-ifneq (,$(filter esp32 bk7231u,$(HOST_MCU_FAMILY)))
+ifneq (,$(filter esp32,$(HOST_MCU_FAMILY)))
 GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
 GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
 $(NAME)_SOURCES += ota_hal_$(HOST_MCU_FAMILY).c
 else
+ifneq (,$(filter bk7231u,$(HOST_MCU_FAMILY)))
+GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
+GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
+$(NAME)_SOURCES += ota_hal_beken.c
+else
+ifneq (,$(filter bk7231s,$(HOST_MCU_FAMILY)))
+$(NAME)_SOURCES += ota_hal_beken.c
+else
 ifneq (,$(filter rtl8710bn,$(HOST_MCU_FAMILY)))
 else
 $(NAME)_SOURCES += ota_hal_plat.c
+endif
+endif
 endif
 endif
 endif
