@@ -963,7 +963,11 @@ dns_check_entry(u8_t i)
                     break;
                 } else {
                     entry->tmr = 1 << entry->retries;
-                    if (entry->tmr > DNS_MAX_RETRY_INTERVAL) {
+                    /**
+                     * entry->tmr is of uint8_t type, so we handle 8 and above
+                     * left-shift operation carefully here.
+                     **/
+                    if ((entry->tmr > DNS_MAX_RETRY_INTERVAL) || (entry->retries > 7)) {
                         entry->tmr = DNS_MAX_RETRY_INTERVAL;
                     }
                 }
