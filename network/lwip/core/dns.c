@@ -1060,7 +1060,7 @@ dns_check_entry(u8_t i)
                     break;
                 } else {
                     entry->tmr = 1 << entry->retries;
-                    if (entry->tmr > DNS_MAX_RETRY_INTERVAL) {
+                    if ((entry->tmr > DNS_MAX_RETRY_INTERVAL) || (entry->retries > 7)) {
                         entry->tmr = DNS_MAX_RETRY_INTERVAL;
                     }
                 }
