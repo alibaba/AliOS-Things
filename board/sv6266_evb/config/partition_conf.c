@@ -37,10 +37,20 @@ void flash_partition_init(void)
     /////HAL_PARTITION_PARAMETER_1
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_owner               = HAL_FLASH_EMBEDDED;
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_description         = "PARAMETER1";
-    hal_partitions[HAL_PARTITION_PARAMETER_1].partition_start_addr          = (up_partition_start_addr = (up_partition_start_addr+up_partition_length));
-    hal_partitions[HAL_PARTITION_PARAMETER_1].partition_length              = (up_partition_length = flash_total_size - (2*main_partition_size));
+    hal_partitions[HAL_PARTITION_PARAMETER_1].partition_start_addr          = (up_partition_start_addr = (flash_total_size - 0x3000));
+    hal_partitions[HAL_PARTITION_PARAMETER_1].partition_length              = (up_partition_length = 0x1000);
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_options             = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
     printf("HAL_PARTITION_PARAMETER_1 start 0x%lx, len %lu\n",
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_start_addr,
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_length);
+
+    /////HAL_PARTITION_PARAMETER_2
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_owner               = HAL_FLASH_EMBEDDED;
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_description         = "PARAMETER2";
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_start_addr          = (up_partition_start_addr = (up_partition_start_addr+up_partition_length));
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_length              = (up_partition_length = 0x2000);
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_options             = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
+    printf("HAL_PARTITION_PARAMETER_2 start 0x%lx, len %lu\n",
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_start_addr,
+    hal_partitions[HAL_PARTITION_PARAMETER_2].partition_length);
 }
