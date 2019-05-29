@@ -480,6 +480,14 @@ void platform_loguart_irq( void* id)
     platform_uart_driver_t* driver = &platform_uart_drivers[0];
     u8      UartReceiveData = 0;
     BOOL    PullMode = _FALSE;
+    volatile u8 reg_iir;
+    u32 RegValue;
+
+    reg_iir = UART_IntStatus(UART2_DEV);
+    if ((reg_iir & RUART_RECEIVE_LINE_STATUS) != 0) {
+        RegValue = UART_LineStatusGet(UART2_DEV);
+        return;
+    }
 
     u32 IrqEn = DiagGetIsrEnReg();
 
