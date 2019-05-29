@@ -3088,7 +3088,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         char device_secret[DEVICE_SECRET_LEN + 1];
 
         if (g_mqtt_client != NULL) {
-            return NULL;
+            return g_mqtt_client;
         }
 
         mqtt_params = (iotx_mqtt_param_t *)mqtt_malloc(sizeof(iotx_mqtt_param_t));

@@ -212,13 +212,13 @@ typedef struct {
 static void task_wrapper(void *arg)
 {
     task_context_t *task = arg;
-
+    if(task == NULL) {
+        return;
+    }
     task->routine(task->arg);
 
-    if (task) {
-        aos_free(task);
-        task = NULL;
-    }
+    aos_free(task);
+    task = NULL; 
 }
 
 #define DEFAULT_THREAD_NAME "AosThread"
