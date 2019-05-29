@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu cy8c4147
 
 $(NAME)_COMPONENTS += arch_armv6m
-$(NAME)_COMPONENTS += newlib_stub rhino
+$(NAME)_COMPONENTS += rhino
 
 GLOBAL_INCLUDES += ../../arch/arm/armv6m/gcc/m0
 
@@ -24,8 +24,7 @@ else
 GLOBAL_CFLAGS += -mcpu=cortex-m0plus          \
                  -mlittle-endian           \
                  -mthumb -mthumb-interwork \
-                 -w \
-				 -lm
+                 -w
 endif
 
 ifeq ($(COMPILER),armcc)
@@ -53,7 +52,7 @@ else
 GLOBAL_LDFLAGS += -mcpu=cortex-m0plus           \
                   -mlittle-endian           \
                   -mthumb -mthumb-interwork \
-                  -nostartfiles             \
+				  -lm \
                   --specs=nosys.specs       \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
