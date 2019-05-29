@@ -29,6 +29,15 @@ if AOS_BOARD_AP80A0
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "board/asr6501/Config.in"
+if AOS_BOARD_ASR6501
+    config AOS_BUILD_BOARD
+        default "asr6501"
+    
+    source "platform/mcu/cy8c4147/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
 source "board/atsame54-xpro/Config.in"
 if AOS_BOARD_ATSAME54_XPRO
     config AOS_BUILD_BOARD

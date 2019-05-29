@@ -75,13 +75,13 @@ uint32_t SX126xGetBoardTcxoWakeupTime( void )
 void SX126xReset( void )
 {
     SPI_NRESET_SetDriveMode(SPI_NRESET_DM_STRONG);
-    
+
     DelayMs( 20 );
     GpioInit( &SX126x.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     DelayMs( 40 );
     GpioInit( &SX126x.Reset, RADIO_RESET, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 ); // internal pull-up
     DelayMs( 20 );
-    
+
     SPI_NRESET_SetDriveMode(SPI_NRESET_DM_ALG_HIZ);
 }
 
@@ -146,14 +146,14 @@ void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size 
 
 void SX126xWriteRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
 {
-   
+
     SX126xCheckDeviceReady( );
     GpioWrite( &SX126x.Spi.Nss, 0 );
 
     SpiInOut( &SX126x.Spi, RADIO_WRITE_REGISTER );
     SpiInOut( &SX126x.Spi, ( address & 0xFF00 ) >> 8 );
     SpiInOut( &SX126x.Spi, address & 0x00FF );
-    
+
     for( uint16_t i = 0; i < size; i++ )
     {
         SpiInOut( &SX126x.Spi, buffer[i] );
@@ -186,7 +186,7 @@ void SX126xReadRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
     GpioWrite( &SX126x.Spi.Nss, 1 );
 
     SX126xWaitOnBusy( );
-   
+
 }
 
 uint8_t SX126xReadRegister( uint16_t address )
@@ -198,7 +198,7 @@ uint8_t SX126xReadRegister( uint16_t address )
 
 void SX126xWriteBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
 {
-    
+
     SX126xCheckDeviceReady( );
 
     GpioWrite( &SX126x.Spi.Nss, 0 );
@@ -230,7 +230,7 @@ void SX126xReadBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
     GpioWrite( &SX126x.Spi.Nss, 1 );
 
     SX126xWaitOnBusy( );
-   
+
 }
 
 void SX126xSetRfTxPower( int8_t power )
@@ -252,7 +252,7 @@ uint8_t SX126xGetPaOpt( )
 void SX126xSetPaOpt( uint8_t opt )
 {
     if(opt>3) return;
-    
+
     gPaOptSetting = opt;
 }
 
@@ -276,7 +276,7 @@ bool SX126xCheckRfFrequency( uint32_t frequency )
 
 void BoardDisableIrq( void )
 {
-    CyGlobalIntDisable;    
+    CyGlobalIntDisable;
 }
 
 void BoardEnableIrq( void )
@@ -304,11 +304,11 @@ char * strtok_l (char *s, const char *delim)
     }
 
     token = s;
-    s = strpbrk (token, delim);  
+    s = strpbrk (token, delim);
     if (s == NULL)
         olds = rawmemchr (token, '\0');
-    else {      
-        *s = '\0';        
+    else {
+        *s = '\0';
         olds = s + 1;
     }
     return token;
@@ -328,7 +328,7 @@ double floor(double x)
 	if(j0<20) {
 	    if(j0<0) { 	/* raise inexact if x != 0 */
 		if(huge+x>0.0) {/* return 0*sign(x) if |x|<1 */
-		    if(i0>=0) {i0=i1=0;} 
+		    if(i0>=0) {i0=i1=0;}
 		    else if(((i0&0x7fffffff)|i1)!=0)
 			{ i0=0xbff00000;i1=0;}
 		}
@@ -348,7 +348,7 @@ double floor(double x)
 	    if((i1&i)==0) return x;	/* x is integral */
 	    if(huge+x>0.0) { 		/* raise inexact flag */
 		if(i0<0) {
-		    if(j0==20) i0+=1; 
+		    if(j0==20) i0+=1;
 		    else {
 			j = i1+(1<<(52-j0));
 			if(j<i1) i0 +=1 ; 	/* got a carry */
@@ -373,7 +373,7 @@ double ceil(double x)
 	if(j0<20) {
 	    if(j0<0) { 	/* raise inexact if x != 0 */
 		if(huge+x>0.0) {/* return 0*sign(x) if |x|<1 */
-		    if(i0<0) {i0=0x80000000;i1=0;} 
+		    if(i0<0) {i0=0x80000000;i1=0;}
 		    else if((i0|i1)!=0) { i0=0x3ff00000;i1=0;}
 		}
 	    } else {
@@ -392,7 +392,7 @@ double ceil(double x)
 	    if((i1&i)==0) return x;	/* x is integral */
 	    if(huge+x>0.0) { 		/* raise inexact flag */
 		if(i0>0) {
-		    if(j0==20) i0+=1; 
+		    if(j0==20) i0+=1;
 		    else {
 			j = i1 + (1<<(52-j0));
 			if(j<i1) i0+=1;	/* got a carry */
@@ -422,7 +422,7 @@ double rint(double x)
 	i1 =  __LO(x);
 	j0 = ((i0>>20)&0x7ff)-0x3ff;
 	if(j0<20) {
-	    if(j0<0) { 	
+	    if(j0<0) {
 		if(((i0&0x7fffffff)|i1)==0) return x;
 		i1 |= (i0&0x0fffff);
 		i0 &= 0xfffe0000;
@@ -475,17 +475,17 @@ int DBG_LogLevelGet()
 
 char *HW_Get_MFT_ID(void)
 {
-    return CONFIG_MANUFACTURER;
+    return SYSINFO_MANUFACTURER;
 }
 
 char *HW_Get_MFT_Model(void)
 {
-    return CONFIG_DEVICE_MODEL;   
+    return SYSINFO_DEVICE_MODEL;
 }
 
 char *HW_Get_MFT_Rev(void)
 {
-    return CONFIG_VERSION;
+    return SYSINFO_VERSION;
 }
 
 char *HW_Get_MFT_SN(void)
@@ -497,12 +497,12 @@ char *HW_Get_MFT_SN(void)
 }
 
 bool HW_Set_MFT_Baud(uint32_t baud)
-{   
+{
     uint32_t div = (float)CYDEV_BCLK__HFCLK__HZ/baud/UART_1_UART_OVS_FACTOR + 0.5 - 1;
     UART_1_SCBCLK_DIV_REG = div<<8;
     UART_1_SCBCLK_CMD_REG = 0x8000FF41u;
-    
-    gBaudRate = baud;   
+
+    gBaudRate = baud;
     return true;
 }
 
@@ -517,7 +517,7 @@ void HW_Reset(int mode)
 	    CySoftwareReset();
     } else if (mode == 1) {
         Bootloadable_1_Load();
-    } 
+    }
 }
 
 static uint8_t get_battery_level(void)
@@ -543,7 +543,7 @@ hal_lrwan_sys_t aos_lrwan_sys = {
 
 void linkwan_at_prompt_print()
 {
-    PRINTF_RAW("\r\n%s%s:~# ", CONFIG_MANUFACTURER, CONFIG_DEVICE_MODEL);
+    PRINTF_RAW("\r\n%s%s:~# ", SYSINFO_MANUFACTURER, SYSINFO_DEVICE_MODEL);
 }
 
 int linkwan_serial_output(uint8_t *buffer, int len)
