@@ -40,7 +40,7 @@
 #endif
 
 /* maximum republish elements in list */
-#define IOTX_MC_REPUB_NUM_MAX                   (20)
+#define IOTX_MC_REPUB_NUM_MAX                   (10)
 
 /* MQTT client version number */
 #define IOTX_MC_MQTT_VERSION                    (4)
