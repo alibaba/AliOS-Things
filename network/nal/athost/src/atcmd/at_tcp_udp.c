@@ -814,7 +814,12 @@ static int notify_cip_connect_status_events(int sockid, int status,
         }
 
         remoteip = inet_ntoa(peer.sin_addr);
-        // TODO: check len
+        // check len
+        if (strlen(remoteip) >= sizeof(addr_str)) {
+            LOGE(TAG, "invalid remote ip addr len %d\n", strlen(remoteip));
+            goto err;
+        }
+
         memcpy(addr_str, remoteip, strlen(remoteip));
         port = peer.sin_port;
     } else if (type == UDP_BROADCAST || type == UDP_UNICAST) {
