@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <k_api.h>
-#include <aos\kernel.h>
+#include <aos/kernel.h>
 #include <stdbool.h>
 uart_dev_t uart_0;
 #ifndef CERTIFICATION
@@ -36,18 +36,18 @@ void UART_API(_customISR)(void)
         char ch=0;
         ch=(char)UART_API(_UartGetChar());
         UART_API(_ClearRxInterruptSource)(UART_FLAG(_INTR_RX_NOT_EMPTY));
-        
-#ifndef LOW_POWER_DISABLE        
-        wakeup_from_uart(ch);
-#endif  
 
-        if(isprint(ch) || ch == '\r' || ch == '\n') {            
+#ifndef LOW_POWER_DISABLE
+        wakeup_from_uart(ch);
+#endif
+
+        if(isprint(ch) || ch == '\r' || ch == '\n') {
 #ifdef CONFIG_LINKWAN_AT
         linkwan_serial_input(ch);
 #endif
-#ifndef CONFIG_PRINT_ECHO_DISABLE            
+#ifndef CONFIG_PRINT_ECHO_DISABLE
             UART_API(_UartPutChar(ch));
-#endif            
+#endif
         }
         #ifndef CERTIFICATION
         if(ch){
@@ -61,7 +61,7 @@ void UART_API(_customISR)(void)
     {
         UART_API(_ClearTxInterruptSource)(UART_FLAG(_INTR_TX_UART_DONE));
         #ifndef CERTIFICATION
-        
+
         aos_sem_signal(&uart_os[STDIO_UART].uart_tx_sem);
         #endif
     }
@@ -73,7 +73,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     {
         case UART0:
         #ifndef CERTIFICATION
-        
+
         aos_sem_new(&uart_os[uart->port].uart_tx_sem, 0);
         aos_sem_new(&uart_os[uart->port].uart_rx_sem, 0);
         aos_mutex_new(&uart_os[uart->port].uart_tx_mutex);
@@ -83,7 +83,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
         UART_API(_SetCustomInterruptHandler)(&UART_API(_customISR));
         UART_API(_Start)();
         break;
-        
+
         default:
         break;
     }
@@ -93,14 +93,14 @@ int32_t hal_uart_init(uart_dev_t *uart)
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
     uint8 *pdata = (uint8 *)data;
-    
+
     (void) timeout;
-    
+
     if((uart == NULL) || (data == NULL))
     {
         return -1;
     }
-    
+
     switch(uart->port)
     {
         case UART0:
@@ -113,7 +113,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
         aos_mutex_unlock(&uart_os[uart->port].uart_tx_mutex);
         #endif
         break;
-        
+
         default:
         break;
     }    return 0;
@@ -123,9 +123,9 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
 {
     uint32 *pdata = (uint32 *)data;
     uint32 i = 0;
-    
+
     (void)timeout;
-    
+
     switch(uart->port)
     {
         case UART0:
@@ -140,7 +140,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
         aos_mutex_unlock(&uart_os[uart->port].uart_rx_mutex);
         #endif
         break;
-        
+
         default:
         break;
     }
@@ -157,7 +157,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     char ch=0;
     unsigned int size=0;
     (void)timeout;
-    
+
     switch(uart->port)
     {
         case UART0:
@@ -166,44 +166,44 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         aos_mutex_lock(&uart_os[uart->port].uart_rx_mutex, AOS_WAIT_FOREVER);
         #endif
         for(i = 0; i < expect_size; i++)
-        {            
+        {
             aos_queue_recv(&rx_queue,timeout,&ch,&size);
             *pdata = ch;
             if(*pdata != 0x0)
             {
                 rx_count++;
-            }   
+            }
         }
         if(recv_size != NULL)
         {
             *recv_size = rx_count;
         }
-        #ifndef CERTIFICATION        
+        #ifndef CERTIFICATION
         aos_mutex_unlock(&uart_os[uart->port].uart_rx_mutex);
         #endif
         break;
-        
+
         default:
         break;
     }
-    
+
     return 0;
 }
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
     (void)uart;
-    
+
     switch(uart->port)
     {
         case UART0:
         UART_API(_Stop());
         break;
-        
+
         default:
         break;
     }
-    
+
     return 0;
 }
 
@@ -223,6 +223,6 @@ int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
 #ifndef CERTIFICATION
 void log_cli_init(void)
 {
-    
+
 }
 #endif

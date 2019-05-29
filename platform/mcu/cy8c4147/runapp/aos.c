@@ -6,7 +6,8 @@
 #include "project.h"
 #include <k_api.h>
 #include <stdio.h>
-#include <aos\aos.h>
+#include "aos/kernel.h"
+#include "aos/init.h"
 
 #define AOS_START_STACK 1024
 
@@ -17,17 +18,17 @@ static kinit_t kinit;
 void board_init(void);
 int default_UART_Init(void);
 void test_certificate(void);
-
+#if 0
 int application_start(int argc, char **argv)
 {
     //supress warning
     (void)argc;
     (void)argv;
-    
+
     test_certificate();
     return 0;
 }
-
+#endif
 void PendSV_Handler(void);
 
 static void var_init()
@@ -41,43 +42,43 @@ void SysTick_IRQ(void)
 {
     krhino_intrpt_enter();
     krhino_tick_proc();
-    krhino_intrpt_exit();	
+    krhino_intrpt_exit();
 }
 
 static void sys_init(void)
 {
     default_UART_Init();
-	
+
     board_init();
     var_init();
-    aos_kernel_init(&kinit);   
+    aos_kernel_init(&kinit);
 }
 
 static void sys_start(void)
 {
     kstat_t stat;
-    
+
     aos_init();
-    
+
     CySysTickInit();
     CySysTickSetReload(CYDEV_BCLK__SYSCLK__HZ/RHINO_CONFIG_TICKS_PER_SECOND);
     CyIntSetSysVector(CY_INT_PEND_SV_IRQN, PendSV_Handler);
     CySysTickEnable();
     CySysTickSetCallback(0, SysTick_IRQ);
-         
+
     stat = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
     if(stat != RHINO_SUCCESS)
     {
         return;
     }
-       
+
     aos_start();
 }
 
 int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
-	  
+
     sys_start();
     return 0;
 }
