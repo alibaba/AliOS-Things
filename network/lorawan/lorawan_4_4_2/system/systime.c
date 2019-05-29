@@ -120,10 +120,15 @@ SysTime_t SysTimeGet( void )
     SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
     SysTime_t sysTime = { .Seconds = 0, .SubSeconds = 0 };
     SysTime_t deltaTime;
+    uint32_t  deltaSeconds;
+    uint32_t  deltaSubSeconds;
 
     calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
 
-    RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    RtcBkupRead( &deltaSeconds, &deltaSubSeconds );
+
+    deltaTime.Seconds    = deltaSeconds;
+    deltaTime.SubSeconds = (int16_t)deltaSubSeconds;
 
     sysTime = SysTimeAdd( deltaTime, calendarTime );
 
@@ -142,7 +147,14 @@ SysTime_t SysTimeGetMcuTime( void )
 uint32_t SysTime2Ms( SysTime_t sysTime )
 {
     SysTime_t deltaTime;
-    RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    uint32_t  deltaSeconds;
+    uint32_t  deltaSubSeconds;
+
+    RtcBkupRead( &deltaSeconds, &deltaSubSeconds );
+
+    deltaTime.Seconds    = deltaSeconds;
+    deltaTime.SubSeconds = (int16_t)deltaSubSeconds;
+
     SysTime_t calendarTime = SysTimeSub( sysTime, deltaTime );
     return calendarTime.Seconds * 1000 + calendarTime.SubSeconds;
 }
