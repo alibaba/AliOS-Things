@@ -1,0 +1,226 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__ = 0x00000000;
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__ = 0x0;
+define symbol __ICFEDIT_region_ROM_end__   = 131072 - 1;
+define symbol __ICFEDIT_region_RAM_start__ = 0x20000000;
+define symbol __ICFEDIT_region_RAM_end__   = 0x20000000 + 16384 - 1;
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__ = 0x0080;
+define symbol __ICFEDIT_size_heap__   = 0x1100;
+/**** End of ICF editor section. ###ICF###*/
+
+
+/******** Definitions ********/
+define symbol CY_FLASH_SIZE     = 131072;
+define symbol CY_APPL_ORIGIN    = 0;
+define symbol CY_FLASH_ROW_SIZE = 256;
+define symbol CY_APPL_LOADABLE  = 0;
+define symbol CY_APPL_LOADER    = 0;
+define symbol CY_APPL_NUM       = 1;
+define symbol CY_METADATA_SIZE  = 64;
+define symbol CY_APPL_MAX       = 1;
+define symbol CY_CHECKSUM_EXCLUDE_SIZE = 0;
+define symbol CY_APPL_FOR_STACK_AND_COPIER  = 0;
+define symbol CY_FIRST_AVAILABLE_META_ROW   = 0;
+
+define symbol CYDEV_IS_IMPORTING_CODE = 0;
+define symbol CYDEV_IS_EXPORTING_CODE = 0;
+
+
+
+if (!CY_APPL_LOADABLE) {
+    define symbol CYDEV_BTLDR_SIZE = 0;
+
+    /* The first 0x100 Flash bytes become unavailable right after remapping of the vector table to RAM.
+     * This space should be used for .romvectors section.
+     */
+    define block ROMVEC with size = 0x100 {readonly section .romvectors};
+
+    define block APPL with fixed order {block ROMVEC, section .psocinit, readonly};
+} else {
+    define block APPL with fixed order {readonly section .romvectors, section .psocinit, readonly};
+}
+
+define memory mem with size = 4G;
+define region ROM_region   = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];
+define region RAM_region   = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__];
+
+define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HSTACK     {block HEAP, last block CSTACK};
+
+define block RAMVEC     with fixed order {readwrite section .ramvectors, readwrite section .bootloaderruntype};
+
+if (CY_APPL_LOADABLE)
+{
+    define block LOADER     { readonly section .cybootloader };
+}
+
+/* The address of the Flash row next after the Bootloader image */
+define symbol CY_BTLDR_END      = CYDEV_BTLDR_SIZE +
+                                    ((CYDEV_BTLDR_SIZE % CY_FLASH_ROW_SIZE) ?
+                                    (CY_FLASH_ROW_SIZE - (CYDEV_BTLDR_SIZE % CY_FLASH_ROW_SIZE)) : 0);
+
+/* The start address of Standard/Loader/Loadable#1 image */
+define symbol CY_APPL1_START    = CY_APPL_ORIGIN ? CY_APPL_ORIGIN : CY_BTLDR_END;
+
+/* The number of metadata records located at the end of Flash */
+define symbol CY_METADATA_CNT   = (CY_APPL_NUM == 2) ? 2 : ((CY_APPL_LOADER || CY_APPL_LOADABLE) ? 1 : 0);
+
+/* The application area size measured in rows */
+define symbol CY_APPL_ROW_CNT   = ((CY_FLASH_SIZE - CY_APPL1_START) / CY_FLASH_ROW_SIZE) - CY_METADATA_CNT;
+
+/* The start address of Loadable#2 image if any */
+define symbol CY_APPL2_START    = CY_APPL1_START + (CY_APPL_ROW_CNT / 2 + CY_APPL_ROW_CNT % 2) * CY_FLASH_ROW_SIZE;
+
+/* The current image (Standard/Loader/Loadable) start address */
+define symbol CY_APPL_START     = (CY_APPL_NUM == 1) ? CY_APPL1_START : CY_APPL2_START;
+
+/* Define APPL region that will limit application size */
+define region APPL_region     = mem:[from CY_APPL_START size CY_APPL_ROW_CNT * CY_FLASH_ROW_SIZE];
+
+
+/****** Initializations ******/
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+do not initialize  { readwrite section .ramvectors, readwrite section .bootloaderruntype };
+
+/******** Placements *********/
+if (CY_APPL_LOADABLE)
+{
+".cybootloader"    : place at start of ROM_region {block LOADER};
+}
+
+"APPL"             : place at start of APPL_region {block APPL};
+
+"RAMVEC"           : place at start of RAM_region { block RAMVEC };
+"readwrite"        : place in RAM_region          { readwrite };
+"HSTACK"           : place at end of RAM_region   { block HSTACK};
+
+keep {  section .cybootloader,
+        section .cyloadermeta,
+        section .cyloadablemeta,
+        section .cy_checksum_exclude,
+        section .cyflashprotect,
+        section .cymeta,
+        section .cychipprotect };
+
+
+/*******************************************************************************
+* Bootloader Metadata Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+if ((CY_APPL_LOADER)&&!(CY_APPL_LOADABLE))
+{
+    ".cyloadermeta"     : place at address mem : (CY_FLASH_SIZE - CY_METADATA_SIZE) { readonly section .cyloadermeta };
+}
+else
+{
+     if ((CYDEV_IS_IMPORTING_CODE == 1) && (CY_FIRST_AVAILABLE_META_ROW == 2))
+     {
+          ".cyloadermeta" : place at address mem : (CY_FLASH_SIZE - CY_METADATA_SIZE) { readonly section .cyloadermeta };
+     }
+     else
+     {
+          /* Must be part of the image, but beyond rom memory. */
+          ".cyloadermeta" : place at address mem : 0x90700000 { readonly section .cyloadermeta };
+     }
+}
+
+
+
+/*******************************************************************************
+* Bootloadable Metadata Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+if (CY_APPL_LOADABLE)
+{
+    /* General case */
+    if ((CYDEV_IS_EXPORTING_CODE == 0) && (CYDEV_IS_IMPORTING_CODE == 0))
+    {
+        define symbol CY_APPL_METADATA_SLOT_NUM = (CY_APPL_NUM - 1);
+    }
+
+    /* Stack Project (SP) */
+    if (CYDEV_IS_EXPORTING_CODE == 1)
+    {
+        define symbol CY_APPL_METADATA_SLOT_NUM = (0);
+    }
+
+    /* App for SP+L */
+    if ((CYDEV_IS_IMPORTING_CODE == 1) && (CY_FIRST_AVAILABLE_META_ROW == 2))
+    {
+       define symbol CY_APPL_METADATA_SLOT_NUM = (1);
+    }
+
+    define symbol CYLOADABLEMETA_START_ADDR = (CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * CY_APPL_METADATA_SLOT_NUM - CY_METADATA_SIZE);
+
+
+    ".cyloadablemeta"      : place at address mem : CYLOADABLEMETA_START_ADDR { readonly section .cyloadablemeta };
+}
+
+
+/*******************************************************************************
+* Checksum Exclude Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+if (CY_APPL_LOADABLE)
+{
+    /* Align size to the flash row size */
+    define symbol CY_CHECKSUM_EXCLUDE_SIZE_ALIGNED = CY_CHECKSUM_EXCLUDE_SIZE + ((CY_CHECKSUM_EXCLUDE_SIZE % CY_FLASH_ROW_SIZE) ? (CY_FLASH_ROW_SIZE - (CY_CHECKSUM_EXCLUDE_SIZE % CY_FLASH_ROW_SIZE)) : 0);
+
+    if (CY_CHECKSUM_EXCLUDE_SIZE != 0)
+    {
+
+        /* General case */
+        if ((CYDEV_IS_EXPORTING_CODE == 0) && (CYDEV_IS_IMPORTING_CODE == 0))
+        {
+            if ((CY_APPL_NUM == 1) && (CY_APPL_MAX == 2))
+            {
+                define symbol CY_CHECKSUM_EXCLUDE_START =   CY_APPL2_START - CY_CHECKSUM_EXCLUDE_SIZE_ALIGNED;
+            }
+            else
+            {
+                define symbol CY_CHECKSUM_EXCLUDE_START =   (CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * CY_APPL_MAX) - CY_CHECKSUM_EXCLUDE_SIZE_ALIGNED;
+            }
+
+            define symbol CY_CHECKSUM_EXCLUDE_START_ALIGNED   = CY_CHECKSUM_EXCLUDE_START + ((CY_CHECKSUM_EXCLUDE_START % CY_FLASH_ROW_SIZE) ? (CY_FLASH_ROW_SIZE - (CY_CHECKSUM_EXCLUDE_START % CY_FLASH_ROW_SIZE)) : 0);
+
+            ".cy_checksum_exclude" : place at address mem : (CY_CHECKSUM_EXCLUDE_START_ALIGNED) { readonly section .cy_checksum_exclude };
+        }
+
+
+        if (CY_APPL_MAX == 1)
+        {
+            /* Stack Project (SP) */
+            if (CYDEV_IS_EXPORTING_CODE == 1)
+            {
+                ".cy_checksum_exclude" : place in ROM_region { readonly section .cy_checksum_exclude };
+            }
+
+            /* App for SP+L */
+            if ((CYDEV_IS_IMPORTING_CODE == 1) && (CY_FIRST_AVAILABLE_META_ROW == 2))
+            {
+                define symbol CY_CHECKSUM_EXCLUDE_START =   (CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * 2) - CY_CHECKSUM_EXCLUDE_SIZE_ALIGNED;
+
+                define symbol CY_CHECKSUM_EXCLUDE_START_ALIGNED   = CY_CHECKSUM_EXCLUDE_START + ((CY_CHECKSUM_EXCLUDE_START % CY_FLASH_ROW_SIZE) ? (CY_FLASH_ROW_SIZE - (CY_CHECKSUM_EXCLUDE_START % CY_FLASH_ROW_SIZE)) : 0);
+
+                ".cy_checksum_exclude" : place at address mem : (CY_CHECKSUM_EXCLUDE_START_ALIGNED) { readonly section .cy_checksum_exclude };
+            }
+        }
+
+    } /* (CY_CHECKSUM_EXCLUDE_SIZE_ALIGNED != 0) */
+}
+else
+{
+    ".cy_checksum_exclude" : place in ROM_region { readonly section .cy_checksum_exclude };
+}
+
+
+".cyflashprotect"   : place at address mem : 0x90400000 { readonly section .cyflashprotect };
+".cymeta"           : place at address mem : 0x90500000 { readonly section .cymeta };
+".cychipprotect"    : place at address mem : 0x90600000 { readonly section .cychipprotect };
+
+
+/* EOF */

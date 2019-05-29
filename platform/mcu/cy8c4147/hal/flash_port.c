@@ -1,4 +1,5 @@
 
+#include "aos/hal/flash.h"
 #include "aos/kernel.h"
 #include <stdio.h>
 #include <string.h>
@@ -16,7 +17,7 @@ extern const hal_logic_partition_t hal_partitions[];
   * @note   The FLASH chunk must no cross a FLASH bank boundary.
   * @note   The source and destination buffers have no specific alignment constraints.
   * @param  In: dst_addr    Destination address in the FLASH memory.
-  * @param  In: data        Source address. 
+  * @param  In: data        Source address.
   * @param  In: size        Number of bytes to update.
   * @retval  0:  Success.
   *         <0:  Failure.
@@ -39,7 +40,7 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
         int len = MIN(FLASH_PAGE_SIZE - fl_offset, size);
 
         /* Load from the flash into the cache */
-        memcpy(page_cache, (void *) fl_addr, FLASH_PAGE_SIZE);  
+        memcpy(page_cache, (void *) fl_addr, FLASH_PAGE_SIZE);
         /* Update the cache from the source */
         memcpy((uint8_t *)page_cache + fl_offset, src_addr, len);
 
@@ -58,7 +59,7 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
     while ((status == CY_SYS_FLASH_SUCCESS) && (remaining > 0));
 
     aos_free(page_cache);
-    
+
     return 0;
 }
 
@@ -103,7 +104,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 
     partition_info = hal_flash_get_info( pno );
     start_addr = partition_info->partition_start_addr + *poff;
-    
+
     if (0 != FLASH_update(start_addr, buf, buf_size)) {
         printf("FLASH_update failed!\n");
     }
@@ -150,7 +151,7 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     for(uint32_t i=0; i<size/FLASH_PAGE_SIZE; i++)
     {
         status = CySysFlashWriteRow(start_addr/FLASH_PAGE_SIZE, (uint8 *)page_cache);
-  
+
         if(status != CY_SYS_FLASH_SUCCESS)
         {
             printf("Flash erase failed\n");
@@ -167,7 +168,7 @@ int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uin
     (void)partition;
     (void)off_set;
     (void)size;
-    
+
     return 0;
 }
 
@@ -176,6 +177,6 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
     (void)partition;
     (void)off_set;
     (void)size;
-    
+
     return 0;
 }
