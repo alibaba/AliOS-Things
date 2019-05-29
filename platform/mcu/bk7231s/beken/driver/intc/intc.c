@@ -30,6 +30,9 @@
 extern void do_irq( void );
 extern void do_fiq( void );
 extern void do_swi( void );
+extern void __wrap_boot_undefined();
+extern void __wrap_boot_pabort();
+extern void __wrap_boot_dabort();
 #else
 #include "power_save_pub.h"
 #endif
@@ -264,6 +267,10 @@ void intc_init(void)
     *((volatile uint32_t *)0x400000) = &do_irq;
     *((volatile uint32_t *)0x400004) = &do_fiq;
     *((volatile uint32_t *)0x400008) = &do_swi;
+    *((volatile uint32_t *)0x40000c) = &__wrap_boot_undefined;
+    *((volatile uint32_t *)0x400010) = &__wrap_boot_pabort;
+    *((volatile uint32_t *)0x400014) = &__wrap_boot_dabort;
+    *((volatile uint32_t *)0x400018) = &__wrap_boot_undefined;
 #endif
     intc_enable(FIQ_MAC_GENERAL);
     intc_enable(FIQ_MAC_PROT_TRIGGER);
