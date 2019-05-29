@@ -1,0 +1,245 @@
+#! armcc -E
+; The first line specifies a preprocessor command that the linker invokes
+; to pass a scatter file through a C preprocessor.
+
+;********************************************************************************
+;* \file Cm0RealView.scat
+;* \version 5.70
+;*
+;* \brief This Linker Descriptor file describes the memory layout of the PSOC4
+;* device family.  The memory layout of the final binary and hex images as well
+;* as the placement in the PSOC4 memory is described.
+;*
+;*  romvectors: Cypress default Interrupt service routine vector table.
+;*
+;*      This is the ISR vector table at bootup. Used only for the reset vector.
+;*
+;*
+;*  ramvectors: Cypress ram interrupt service routine vector table.
+;*
+;*      This is the ISR vector table used by the application.
+;*
+;********************************************************************************
+;* Copyright 2010-2018, Cypress Semiconductor Corporation.  All rights reserved.
+;* You may use this file only in accordance with the license, terms, conditions,
+;* disclaimers, and limitations in the end user license agreement accompanying
+;* the software package with which this file was provided.
+;********************************************************************************/
+#include "cyfitter.h"
+#include "cycodeshareimport.scat"
+
+#define CY_FLASH_SIZE                   131072
+#define CY_APPL_ORIGIN                  0
+#define CY_FLASH_ROW_SIZE               256
+#define CY_METADATA_SIZE                64
+
+#define CY_APPL_FOR_STACK_AND_COPIER    0
+#define CY_CHECKSUM_EXCLUDE_SIZE        AlignExpr(0, CY_FLASH_ROW_SIZE)
+#define CY_APPL_NUM                     1
+#define CY_APPL_MAX                     1
+
+
+; Define application base address
+#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLE || \
+     CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
+
+    #if CY_APPL_ORIGIN
+        #define APPL1_START     CY_APPL_ORIGIN
+    #else
+        #define APPL1_START     AlignExpr(ImageLimit(CYBOOTLOADER), CY_FLASH_ROW_SIZE)
+    #endif
+
+    #define APPL_START          (APPL1_START + AlignExpr(((CY_FLASH_SIZE - APPL1_START - 2 * CY_FLASH_ROW_SIZE) / 2 ) * (CY_APPL_NUM - 1), CY_FLASH_ROW_SIZE))
+
+#else
+
+    #define APPL_START          0
+
+#endif
+
+
+; Place Bootloader at the beginning of Flash
+#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLE || \
+     CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
+
+    CYBOOTLOADER 0
+    {
+        .cybootloader +0
+        {
+            * (.cybootloader)
+        }
+    }
+
+    #if CY_APPL_ORIGIN
+        ScatterAssert(APPL_START >= LoadLimit(CYBOOTLOADER))
+    #endif
+
+#endif
+
+
+APPLICATION APPL_START (CY_FLASH_SIZE - APPL_START)
+{
+    VECTORS +0
+    {
+        * (.romvectors)
+    }
+
+    RELOCATION +0
+    {
+        * (.psocinit)
+    }
+
+    CODE ((ImageLimit(RELOCATION) < 0x100) ? 0x100 : ImageLimit(RELOCATION)) FIXED
+    {
+        * (+RO)
+    }
+
+    ISRVECTORS (0x20000000) UNINIT
+    {
+        * (.ramvectors, +FIRST)
+    }
+
+    #if (CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_STANDARD)
+        BTLDR_RUN +0 UNINIT
+        {
+            * (.bootloaderruntype)
+        }
+    #endif
+
+    NOINIT_DATA +0 UNINIT
+    {
+        * (.noinit)
+    }
+
+    DATA +0
+    {
+        .ANY (+RW, +ZI)
+    }
+
+    ARM_LIB_HEAP (0x20000000 + 16384 - 0x1100 - 0x0080) EMPTY 0x1100
+    {
+    }
+
+    ARM_LIB_STACK (0x20000000 + 16384) EMPTY -0x0080
+    {
+    }
+}
+
+
+/*******************************************************************************
+* Checksum Exclude Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+#if ((CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLE) || (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER))
+
+    #if (0 != 0)
+
+        /* General case */
+        #if ((CYDEV_IS_EXPORTING_CODE == 0) && (CYDEV_IS_IMPORTING_CODE == 0))
+            #if ((CY_APPL_NUM == 1) && (CY_APPL_MAX == 2))
+                #define CY_CHECKSUM_APPL2_START             (APPL1_START + AlignExpr(((CY_FLASH_SIZE - APPL1_START - 2 * CY_FLASH_ROW_SIZE) / 2 ), CY_FLASH_ROW_SIZE))
+                #define CY_CHECKSUM_EXCLUDE_START           AlignExpr(CY_CHECKSUM_APPL2_START - CY_CHECKSUM_EXCLUDE_SIZE, CY_FLASH_ROW_SIZE)
+            #else
+                #define CY_CHECKSUM_EXCLUDE_START           AlignExpr((CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * CY_APPL_MAX) - CY_CHECKSUM_EXCLUDE_SIZE, CY_FLASH_ROW_SIZE)
+            #endif
+        #endif
+
+        #if (CY_APPL_MAX == 1)
+
+            /* Stack Project (SP) */
+            #if (CYDEV_IS_EXPORTING_CODE == 1)
+                #define CY_CHECKSUM_EXCLUDE_START           (+0)
+            #endif
+
+            /* App for SP+L */
+            #if ((CYDEV_IS_IMPORTING_CODE == 1) && (0 == 2))
+                #define CY_CHECKSUM_EXCLUDE_START           AlignExpr((CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * 2) - CY_CHECKSUM_EXCLUDE_SIZE, CY_FLASH_ROW_SIZE)
+            #endif
+        #endif
+
+        CY_CHECKSUM_EXCLUDE (CY_CHECKSUM_EXCLUDE_START)
+        {
+            .cy_checksum_exclude +0
+            {
+                * (.cy_checksum_exclude)
+            }
+        }
+
+    #endif /* (0 != 0) */
+
+#endif
+
+
+/*******************************************************************************
+* Bootloader Metadata Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_BOOTLOADER         || \
+     CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_MULTIAPPBOOTLOADER || \
+     CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER           || \
+     CY_APPL_FOR_STACK_AND_COPIER)
+
+    CYLOADERMETA (CY_FLASH_SIZE - CY_METADATA_SIZE)
+    {
+        .cyloadermeta +0 { * (.cyloadermeta) }
+    }
+
+#endif
+
+
+/*******************************************************************************
+* Bootloadable Metadata Section. See cm0gcc.ld on placement details.
+*******************************************************************************/
+#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLE || CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
+
+    /* General case */
+    #if ((CYDEV_IS_EXPORTING_CODE == 0) && (CYDEV_IS_IMPORTING_CODE == 0))
+        #define CY_APPL_METADATA_SLOT_NUM           (CY_APPL_NUM - 1)
+    #endif
+
+    /* Stack Project (SP) */
+    #if (CYDEV_IS_EXPORTING_CODE == 1)
+        #define CY_APPL_METADATA_SLOT_NUM       (0)
+    #endif
+
+    /* App for SP+L */
+    #if ((CYDEV_IS_IMPORTING_CODE == 1) && (0 == 2))
+       #define CY_APPL_METADATA_SLOT_NUM        (1)
+    #endif
+
+    #define CYLOADABLEMETA_START_ADDR   (CY_FLASH_SIZE - CY_FLASH_ROW_SIZE * CY_APPL_METADATA_SLOT_NUM - CY_METADATA_SIZE)
+
+    CYLOADABLEMETA (CYLOADABLEMETA_START_ADDR)
+    {
+        .cyloadablemeta +0 { * (.cyloadablemeta) }
+    }
+#endif
+
+CYFLASHPROTECT 0x90400000
+{
+    .cyflashprotect +0 { * (.cyflashprotect) }
+}
+
+CYMETA 0x90500000
+{
+    .cymeta +0 { * (.cymeta) }
+}
+
+CYCHIPPROTECT 0x90600000
+{
+    .cychipprotect +0 { * (.cychipprotect) }
+}
+
+
+/*******************************************************************************
+* Bootloader Metadata Section. Must be part of the image, but beyond rom memory.
+*******************************************************************************/
+#if ((CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLE || \
+     CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) && \
+     !(CY_APPL_FOR_STACK_AND_COPIER))
+
+    CYLOADERMETA +0
+    {
+        .cyloadermeta +0 { * (.cyloadermeta) }
+    }
+
+#endif
+
