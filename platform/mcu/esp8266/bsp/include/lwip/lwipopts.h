@@ -255,7 +255,7 @@
  * TCP_WND: The size of a TCP window.  This must be at least
  * (2 * TCP_MSS) for things to work well
  */
-#define TCP_WND                         (4 * TCP_MSS)
+#define TCP_WND                         (2 * TCP_MSS)
 
 
 /**
