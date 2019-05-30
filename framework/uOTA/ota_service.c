@@ -205,8 +205,6 @@ parse_success:
 static void ota_download_thread(void *hand)
 {
     int ret = 0;
-    int tmp_breakpoint = 0;
-    ota_hash_t last_hash  = {0};
     ota_service_t* ctx = hand;
     if (!ctx) {
         OTA_LOG_E("ctx is NULL.\n");
@@ -248,14 +246,7 @@ static void ota_download_thread(void *hand)
     krhino_task_dyn_del(h);
     ota_msleep(500);
 #endif
-    tmp_breakpoint = ota_get_break_point();
-    memset(&last_hash, 0x00, sizeof(last_hash));
-    ota_get_last_hash((char *)&last_hash);
-    if (tmp_breakpoint && (strncmp((char*)&last_hash, ctx->hash, OTA_HASH_LEN) == 0)) {
-        ota_param->off_bp = ota_get_break_point();
-    } else {
-        ota_param->off_bp = 0;
-    }
+    ota_param->off_bp = 0;
     ota_param->res_type = OTA_FINISH;
     ret = ota_hal_init((void *)(ota_param));
     if(ret < 0) {
@@ -308,7 +299,6 @@ static void ota_download_thread(void *hand)
     ota_param->res_type = OTA_FINISH;
     ret = ota_hal_boot(ota_param);
     ctx->upg_status = OTA_REBOOT;
-    ota_set_break_point(0);
 
 ERR:
     OTA_LOG_E("upgrade over err:%d", ret);
