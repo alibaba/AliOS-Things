@@ -1,4 +1,6 @@
-EXTRA_POST_BUILD_TARGETS_2BOOT += gen_standard_images_2boot
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+EXTRA_POST_BUILD_TARGETS += gen_standard_images_2boot
+endif
 
 #OTA_OUTPUT_DIR := $(OUTPUT_DIR)/binary/ota
 2BOOT_BIN_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=$(BIN_OUTPUT_SUFFIX))
