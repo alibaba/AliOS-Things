@@ -5,7 +5,7 @@
 #include "k_api.h"
 #include "espos_err.h"
 
-int IRAM_ATTR espos_err_map (kstat_t err_code)
+int espos_err_map (kstat_t err_code)
 {
     if (err_code == RHINO_SUCCESS) {
         return 0;
