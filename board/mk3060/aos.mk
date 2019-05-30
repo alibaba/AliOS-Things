@@ -46,9 +46,11 @@ GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+GLOBAL_LDS_INCLUDES = $($(NAME)_LOCATION)/memory_2boot.ld.S
+else
 GLOBAL_LDS_INCLUDES += $($(NAME)_LOCATION)/memory.ld.S
-
-GLOBAL_2BOOT_LDS_INCLUDES = $($(NAME)_LOCATION)/memory_2boot.ld.S
+endif
 
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
