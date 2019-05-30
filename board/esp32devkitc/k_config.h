@@ -204,5 +204,13 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
+#ifndef RHINO_CONFIG_BACKTRACE
+#define RHINO_CONFIG_BACKTRACE               0
+#endif
+
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                   0
+#endif
+
 #endif /* CONFIG_H */
 

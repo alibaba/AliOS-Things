@@ -219,8 +219,6 @@ void panicHandler(void *context)
     RHINO_CPU_INTRPT_ENABLE();
 }
 
-#endif
-
 
 void debug_fatal_error(kstat_t err, char *file, int line)
 {
@@ -265,3 +263,4 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     }
     RHINO_CPU_INTRPT_ENABLE();
 }
+#endif
