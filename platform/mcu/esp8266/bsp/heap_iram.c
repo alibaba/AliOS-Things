@@ -2,12 +2,10 @@
 #include <stdio.h>
 #include "k_api.h"
 
-extern uint8_t _iram_heap_start, _iram_heap_size;
-
 /* Heap should align to IRAM_HEAP_ALIGNMENT */
-#define IRAM_HEAP_BASE              ((uintptr_t)&_iram_heap_start)
+#define IRAM_HEAP_BASE              (0x40109000)
 /* Size should be smaller than ~IRAM_HEAP_MAGIC */
-#define IRAM_HEAP_SIZE              ((uintptr_t)&_iram_heap_size)
+#define IRAM_HEAP_SIZE              (12 * 1024)
 
 #define ALIGN(x,a)                  (((x) + (a) - 1) & ~((a) - 1))
 #define IRAM_HEAP_ALIGNMENT         4
@@ -17,7 +15,7 @@ extern uint8_t _iram_heap_start, _iram_heap_size;
 /* Block sizes must not get too small. */
 #define IRAM_HEAP_BLK_MIN	        ((IRAM_HEAP_BLK_HEAD_SIZE) << 1)
 
-/* blk belong to APP, magic set
+/* blk belong to APP, magic set 
    blk belong to free list, magic clear */
 #define IRAM_HEAP_MAGIC             (0xF0000000)
 
@@ -29,7 +27,7 @@ typedef struct ih_blklist
 	/* when blk in APP: IRAM_HEAP_MAGIC & size
 	   when blk in freelist: only size
 	   size include ih_blk_head_t self */
-	size_t magic_size;
+	size_t magic_size; 
 } ih_blk_head_t;
 
 /* free block list: order by address, from low to high */
@@ -54,7 +52,7 @@ static void iram_heap_init(void)
         printf("[iram_heap] fatal error: heap parameter invalid!\n");
         return;
     }
-
+    
 	s_freelist_head.next = (void *) IRAM_HEAP_BASE;
 	s_freelist_head.magic_size = (size_t) 0;
 
@@ -87,7 +85,7 @@ static void iram_heap_freeblk_insert(ih_blk_head_t *blk_insert)
     blk_after = blk_before->next;
 
     /* now: blk_before < blk_insert < blk_after */
-
+    
     /* try to merge blk_before and blk_insert */
 	if ((char *)blk_before + blk_before->magic_size == (char *)blk_insert)
     {
@@ -116,7 +114,7 @@ static void iram_heap_freeblk_insert(ih_blk_head_t *blk_insert)
 
 void *iram_heap_malloc(size_t alloc_size)
 {
-    ih_blk_head_t *blk_alloc;
+    ih_blk_head_t *blk_alloc; 
     ih_blk_head_t *blk_prev;
     ih_blk_head_t *blk_left;
 
@@ -128,14 +126,14 @@ void *iram_heap_malloc(size_t alloc_size)
     	iram_heap_init();
     }
 
-	if  ((alloc_size == 0)
+	if  ((alloc_size == 0) 
       || (alloc_size > s_heap_free_size))
     {
         /* not enough memory */
         krhino_sched_enable();
         return NULL;
     }
-
+    
 	alloc_size += IRAM_HEAP_BLK_HEAD_SIZE;
     alloc_size  = ALIGN(alloc_size, IRAM_HEAP_ALIGNMENT);
 
@@ -182,7 +180,7 @@ void *iram_heap_malloc(size_t alloc_size)
     /* blk belong to APP, magic set */
 	blk_alloc->magic_size |= IRAM_HEAP_MAGIC;
 	blk_alloc->next = NULL;
-
+    
     /* app used addr is after ih_blk_head_t */
 	return (void *)((char *)blk_alloc + IRAM_HEAP_BLK_HEAD_SIZE);
 }
@@ -195,7 +193,7 @@ void iram_heap_free(void *pfree)
     {
         return;
     }
-
+    
     /* app used addr is after ih_blk_head_t */
 	free_blk = (ih_blk_head_t *)((char *)pfree - IRAM_HEAP_BLK_HEAD_SIZE);
 
@@ -213,9 +211,9 @@ void iram_heap_free(void *pfree)
 	s_heap_free_size += free_blk->magic_size;
 
 	krhino_sched_disable();
-
+	
 	iram_heap_freeblk_insert(free_blk);
-
+    	
     krhino_sched_enable();
 }
 
