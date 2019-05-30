@@ -7,8 +7,11 @@ TARGET=application
 
 ota1_offset = 0x0800B000
 ota2_offset = 0x08019000
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+EXTRA_POST_BUILD_TARGETS += gen_crc_bin_2boot gen_standard_images_2boot
+else
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin gen_standard_images
-EXTRA_POST_BUILD_TARGETS_2BOOT += gen_crc_bin_2boot gen_standard_images_2boot
+endif
 
 gen_crc_bin:
 ifneq ($(findstring $(HOST_OS),Win32 Win64),)
