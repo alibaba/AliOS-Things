@@ -1,0 +1,11 @@
+config AOS_MCU_ASR5501
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu asr5501
+
+if AOS_MCU_ASR5501
+# Configurations for mcu asr5501
+endif
