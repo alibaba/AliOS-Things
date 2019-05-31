@@ -4,6 +4,7 @@
 
 #include <k_api.h>
 #include "frxt/xtensa_config.h"
+#include "rec_define.h"
 
 #define WDT_TIMEOUT_MS  20000
 void soc_hw_timer_init()
