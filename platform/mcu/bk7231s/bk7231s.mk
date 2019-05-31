@@ -9,7 +9,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231s
 $(NAME)_COMPONENTS := /platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop modules.fs.kv alicrypto digest_algorithm
 $(NAME)_COMPONENTS += protocols.net
-$(NAME)_COMPONENTS += hal
+$(NAME)_COMPONENTS += hal framework.common
 $(NAME)_COMPONENTS += platform/mcu/bk7231s/beken/alios/entry
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
