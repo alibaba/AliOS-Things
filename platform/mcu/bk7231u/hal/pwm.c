@@ -1,4 +1,3 @@
-
 #include "aos/hal/pwm.h"
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
@@ -12,12 +11,12 @@ int32_t hal_pwm_init(pwm_dev_t *pwm)
     /*init pwm*/
     param.channel         = pwm->port;
     param.cfg.bits.en     = PWM_DISABLE;
-    param.cfg.bits.int_en = PWM_INT_EN;
+    param.cfg.bits.int_en = PWM_INT_DIS;
     param.cfg.bits.mode   = PMODE_PWM;
     param.cfg.bits.clk    = PWM_CLK_26M;
     param.p_Int_Handler   = 0;
-    param.duty_cycle      = pwm->config.duty_cycle;
-    param.end_value       = pwm->config.freq;
+    param.duty_cycle      = (pwm->config.duty_cycle * 26000);
+    param.end_value       = (pwm->config.freq * 26000);
 	
     ret = sddev_control(PWM_DEV_NAME, CMD_PWM_INIT_PARAM, &param);
 
