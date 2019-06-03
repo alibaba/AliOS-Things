@@ -7,8 +7,8 @@ DESCRIPTION
 This file provides base type define power state.
 */
 
-#ifndef PWRMGMT_STATE_H
-#define PWRMGMT_STATE_H
+#ifndef CPU_PWR_STATE_H
+#define CPU_PWR_STATE_H
 
 #ifdef __cplusplus
 extern "C"
@@ -108,4 +108,4 @@ typedef enum {
 }
 #endif
 
-#endif /* PWRMGMT_STATE_H */
+#endif /* CPU_PWR_STATE_H */

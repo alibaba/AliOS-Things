@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "pwrmgmt_api.h"
-#include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
 #include "pwrmgmt_debug.h"
 
@@ -100,11 +98,13 @@ void cpu_pwr_state_show(void)
 #endif /* RHINO_CONFIG_CPU_PWR_SHOW */
 
 #if (PWRMGMT_CONFIG_DEBUG > 0)
-void pwr_debug(pwr_debug_level_t debug_level, const char *fmt_str, ...)
+void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...)
 {
     va_list param;
 
-    if (debug_level >= PWR_DEBUG_LEVEL) {
+    printf("pwrmgmt:");
+
+    if (debug_level >= PWRMGMT_LOG_LEVEL) {
         va_start(param,fmt_str);
         vprintf(fmt_str,param);
         va_end(param);

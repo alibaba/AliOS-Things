@@ -10,14 +10,16 @@ extern "C"
 {
 #endif
 
-#include "pwrmgmt_api.h"
-
 #ifndef PWRMGMT_CONFIG_SHOW
-#define PWRMGMT_CONFIG_SHOW 0
+#define PWRMGMT_CONFIG_SHOW       0
 #endif
 
 #ifndef PWRMGMT_CONFIG_DEBUG
-#define PWRMGMT_CONFIG_DEBUG 0
+#define PWRMGMT_CONFIG_DEBUG      0
+#endif
+
+#ifndef PWRMGMT_CONFIG_CPU_ACTIVE
+#define PWRMGMT_CONFIG_CPU_ACTIVE 1
 #endif
 
 #ifdef __cplusplus
