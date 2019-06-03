@@ -7,8 +7,6 @@
 #include <string.h>
 
 #include <k_api.h>
-#include "ulog/ulog.h"
-
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
 #include <CyLib.h>
@@ -27,7 +25,7 @@ void hal_reboot(void)
 static void _timer_cb(void *timer, void *arg)
 {
     (void)timer;
-    
+
     timer_dev_t *tmr = arg;
     tmr->config.cb(tmr->config.arg);
 }
