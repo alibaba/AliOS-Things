@@ -1,7 +1,6 @@
 config AOS_MCU_CY8C4147
     bool
     select AOS_ARCH_ARMV6M
-    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu cy8c4147
