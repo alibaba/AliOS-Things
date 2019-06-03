@@ -68,9 +68,15 @@ $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
 $(NAME)_PREBUILT_LIBRARY := beken.a
 
 
+<<<<<<< HEAD
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort
+=======
+$(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
+                    hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
+                    hal/pwrmgmt_hal/board_cpu_pwr_timer.c
+>>>>>>> e278ce31f (BugID:18744724:add lowpower suspend/resume api)
 
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
