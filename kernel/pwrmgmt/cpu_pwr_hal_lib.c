@@ -10,7 +10,6 @@ This file provides Hardware Abstraction Layer of CPU power management support.
 
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwrmgmt_api.h"
 #include "pwrmgmt_debug.h"
 
 #define CPU_TREE_MUX_LOCK() \
@@ -62,7 +61,7 @@ pwr_status_t cpu_pwr_node_init_(char *name, uint32_t unit, cpu_pwr_t *p_cpu_node
     p_cpu_node->current_c_state  = CPU_CSTATE_NONE;
     p_cpu_node->support_bitset_c = 0;
 
-    PWR_DBG(DBG_INFO, "init %s%d done\n", name, unit);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "init %s%d done\n", name, unit);
 
     return PWR_OK;
 }
@@ -107,7 +106,7 @@ pwr_status_t cpu_pwr_node_init_dyn(char *name, uint32_t unit, cpu_pwr_t **pp_cpu
 
     p_cpu_node = (cpu_pwr_t *)malloc(sizeof(cpu_pwr_t));
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "malloc failed\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "malloc failed\n");
         return PWR_ERR;
     }
 
@@ -136,20 +135,20 @@ pwr_status_t cpu_pwr_node_init_dyn(char *name, uint32_t unit, cpu_pwr_t **pp_cpu
 pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpu_idx)
 {
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "p_cpu_node == NULL\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node == NULL\n");
 
         return PWR_ERR;
     }
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n",
+                    cpu_idx, RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
 
     if (p_cpu_node_array[cpu_idx] != NULL) {
-        PWR_DBG(DBG_ERR, "p_cpu_node_array[%d] != NULL\n", cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node_array[%d] != NULL\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -159,8 +158,8 @@ pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpu_idx)
 
     p_cpu_node_array[cpu_idx] = p_cpu_node;
 
-    PWR_DBG(DBG_INFO, "%s%d connect to logic id %d done\n", p_cpu_node->name,
-            p_cpu_node->unit, cpu_idx);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "%s%d connect to logic id %d done\n",
+                p_cpu_node->name, p_cpu_node->unit, cpu_idx);
 
     return PWR_OK;
 }
@@ -177,8 +176,8 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n",
+                    cpu_idx, RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -187,8 +186,8 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n", cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                    "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -201,10 +200,10 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_
     /* set C state to C0 by default, is here the right place ?*/
     p_cpu_node->current_c_state = CPU_CSTATE_C0;
 
-    PWR_DBG(DBG_INFO, "set CPU(%s%d) C-state-set(function) to 0x%08x\n",
-            p_cpu_node->name, p_cpu_node->unit, cpu_cstate_set_func);
-    PWR_DBG(DBG_INFO, "set CPU(%s%d) current_c_state to C%d\n",
-            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->current_c_state);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "set CPU(%s%d) C-state-set(function) to 0x%08x\n",
+                p_cpu_node->name, p_cpu_node->unit, cpu_cstate_set_func);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "set CPU(%s%d) current_c_state to C%d\n",
+                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->current_c_state);
     CPU_TREE_MUX_UNLOCK();
 
     return ret;
@@ -218,18 +217,18 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *p_cpu_node,
     uint32_t     state_c_match = 0;
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "PWR_ERR: p_cpu_node == NULL\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "PWR_ERR: p_cpu_node == NULL\n");
         return PWR_ERR;
     }
 
     state_c_match = (CPU_STATE_BIT(cpu_c_state) & p_cpu_node->support_bitset_c);
 
     if ((p_cpu_node->cpu_cstate_set_func != NULL) && (state_c_match == 0)) {
-        PWR_DBG(DBG_INFO,
-                "%s%d(with supportCBitset[0x%08x]) "
-                "do not support C state P%d\n",
-                p_cpu_node->name, p_cpu_node->unit,
-                p_cpu_node->support_bitset_c, cpu_c_state);
+        PWRMGMT_LOG(PWRMGMT_LOG_INFO,
+                    "%s%d(with supportCBitset[0x%08x]) "
+                    "do not support C state P%d\n",
+                    p_cpu_node->name, p_cpu_node->unit,
+                    p_cpu_node->support_bitset_c, cpu_c_state);
     }
 
     /*
@@ -276,8 +275,8 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *p_cpu_node,
         ret = p_cpu_node->cpu_cstate_set_func(cpu_c_state, master);
 
         if (ret != PWR_OK) {
-            PWR_DBG(DBG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
-                    p_cpu_node->name, p_cpu_node->unit, cpu_c_state);
+            PWRMGMT_LOG(PWRMGMT_LOG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
+                        p_cpu_node->name, p_cpu_node->unit, cpu_c_state);
             return PWR_ERR;
         }
 
@@ -291,8 +290,9 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *p_cpu_node,
      * 2) - the request C state is not support
      */
 
-    PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func or the request C state is not support\n",
-            p_cpu_node->name, p_cpu_node->unit);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func"
+                " or the request C state is not support\n",
+                p_cpu_node->name, p_cpu_node->unit);
 
     return PWR_OK;
 }
@@ -311,8 +311,8 @@ static pwr_status_t _cpu_pwr_c_state_get(uint32_t cpu_idx,
     cpu_pwr_t *p_cpu_node;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
+                    RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -321,8 +321,8 @@ static pwr_status_t _cpu_pwr_c_state_get(uint32_t cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n", cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                    "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -369,13 +369,14 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
-                cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
+                    cpu_idx);
 
         return PWR_ERR;
     }
 
     if (p_cpu_node->current_c_state == target_c_state) {
+        PWRMGMT_LOG(PWRMGMT_LOG_DBG, "already in target state %d\r\n", target_c_state);
         return PWR_OK;
     }
 
@@ -447,8 +448,8 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
                      */
                     ret = p_cpu_node->cpu_cstate_set_func(target_c_state, master);
                     if (ret != PWR_OK) {
-                        PWR_DBG(DBG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
-                                p_cpu_node->name, p_cpu_node->unit, target_c_state);
+                        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
+                                    p_cpu_node->name, p_cpu_node->unit, target_c_state);
                         ret = PWR_ERR;
                     }
                 }
@@ -467,8 +468,8 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
                 if (p_cpu_node->cpu_cstate_set_func != NULL) {
                     ret = p_cpu_node->cpu_cstate_set_func(target_c_state, master);
                     if (ret != PWR_OK) {
-                        PWR_DBG(DBG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
-                                p_cpu_node->name, p_cpu_node->unit, target_c_state);
+                        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
+                                    p_cpu_node->name, p_cpu_node->unit, target_c_state);
 
                         ret = PWR_ERR;
                     }
@@ -530,7 +531,7 @@ static pwr_status_t cpu_pwr_c_state_capability_set_(cpu_pwr_t *p_cpu_node,
                                                     int cpu_idx, int32_t support_bitset_c)
 {
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "p_cpu_node == NULL\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node == NULL\n");
         return PWR_ERR;
     }
 
@@ -539,14 +540,14 @@ static pwr_status_t cpu_pwr_c_state_capability_set_(cpu_pwr_t *p_cpu_node,
     if (p_cpu_node->cpu_cstate_set_func != NULL) {
         p_cpu_node->support_bitset_c = support_bitset_c;
 
-        PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
-                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
+        PWRMGMT_LOG(PWRMGMT_LOG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
+                    p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
         return PWR_OK;
     }
 
-    PWR_DBG(DBG_ERR, "PWR_ERR: p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
-            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
+    PWRMGMT_LOG(PWRMGMT_LOG_ERR, "PWR_ERR: p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
+                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
     return PWR_ERR;
 }
@@ -555,7 +556,7 @@ static pwr_status_t cpu_pwr_c_state_capability_get_(cpu_pwr_t *p_cpu_node, int c
                                                     uint32_t *p_support_bitset_c)
 {
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "p_cpu_node == NULL\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node == NULL\n");
         return PWR_ERR;
     }
 
@@ -566,8 +567,8 @@ static pwr_status_t cpu_pwr_c_state_capability_get_(cpu_pwr_t *p_cpu_node, int c
     if (p_cpu_node->cpu_cstate_set_func != NULL) {
         *p_support_bitset_c |= p_cpu_node->support_bitset_c;
 
-        PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
-                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
+        PWRMGMT_LOG(PWRMGMT_LOG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
+                    p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
         /* do not return, continue check if any support C state from parent */
     }
@@ -594,8 +595,8 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx, uint32_t support_b
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
+                    RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -604,8 +605,8 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx, uint32_t support_b
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
-                cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                    "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -632,8 +633,8 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx,
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
+                    RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -642,8 +643,8 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
-                cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                    "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -657,8 +658,8 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx,
 
     CPU_TREE_MUX_UNLOCK();
 
-    PWR_DBG(DBG_INFO, "%s%d C support bit set 0x%08x\n", p_cpu_node->name,
-            p_cpu_node->unit, *p_support_bitset_c);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "%s%d C support bit set 0x%08x\n", p_cpu_node->name,
+                p_cpu_node->unit, *p_support_bitset_c);
 
     return ret;
 }
@@ -672,7 +673,7 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
     size_t spaceSize = 0;
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "PWR_ERR: p_cpu_node == NULL\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "PWR_ERR: p_cpu_node == NULL\n");
         return PWR_ERR;
     }
 
@@ -694,8 +695,8 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
     }
 
     if (i > CPU_CSTATE_MAX) {
-        PWR_DBG(DBG_ERR, "PWR_ERR: cpu_c_state(%d) > CPU_CSTATE_MAX(%d)\n",
-                cpu_c_state, CPU_PSTATE_MAX);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "PWR_ERR: cpu_c_state(%d) > CPU_CSTATE_MAX(%d)\n",
+                    cpu_c_state, CPU_PSTATE_MAX);
         return PWR_ERR;
     }
 
@@ -705,8 +706,8 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
             p_cpu_node->cstate_nums = num_of_bit_one_get(p_cpu_node->support_bitset_c);
 
             if (p_cpu_node->cstate_nums == 0) {
-                PWR_DBG(DBG_ERR, "%s%d->support_bitset_c(%d), cstate_nums() = 0\n",
-                        p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
+                PWRMGMT_LOG(PWRMGMT_LOG_ERR, "%s%d->support_bitset_c(%d), cstate_nums() = 0\n",
+                            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
                 return PWR_ERR;
             }
@@ -718,7 +719,7 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
             p_cpu_node->p_pair_latency = (state_val_pair_t *)malloc(spaceSize);
 
             if (p_cpu_node->p_pair_latency == NULL) {
-                PWR_DBG(DBG_ERR, "zalloc failed\n");
+                PWRMGMT_LOG(PWRMGMT_LOG_ERR, "zalloc failed\n");
 
                 return PWR_ERR;
             }
@@ -756,8 +757,8 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
 
             /* if search free space failed */
             if (i == p_cpu_node->cstate_nums) {
-                PWR_DBG(DBG_ERR, "p_cpu_node(%s%d) search free space failed\n",
-                        p_cpu_node->name, p_cpu_node->unit);
+                PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node(%s%d) search free space failed\n",
+                            p_cpu_node->name, p_cpu_node->unit);
                 return PWR_ERR;
             }
         }
@@ -770,9 +771,9 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
      * 2) this node support cpu_cstate_set_func, but the given C state
      * cpu_c_state is not supported
      */
-    PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func "
-            "or the given C state cpu_c_state is not supported\n",
-            p_cpu_node->name, p_cpu_node->unit);
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func "
+                "or the given C state cpu_c_state is not supported\n",
+                p_cpu_node->name, p_cpu_node->unit);
 
     return PWR_OK;
 }
@@ -792,8 +793,8 @@ pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpu_idx, cpu_cstate_t cpu_c_s
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
+                    RHINO_CONFIG_CPU_NUM - 1);
         return PWR_ERR;
     }
 
@@ -801,8 +802,8 @@ pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpu_idx, cpu_cstate_t cpu_c_s
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
-                cpu_idx);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -822,7 +823,7 @@ static uint32_t cpu_pwr_c_state_latency_get_(cpu_pwr_t *p_cpu_node,
     int i;
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR, "p_cpu_node is NULL\n", p_cpu_node);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node is NULL\n", p_cpu_node);
 
         return (uint32_t)CPU_LATENCY_UNKNOW;
     }
@@ -844,8 +845,8 @@ static uint32_t cpu_pwr_c_state_latency_get_(cpu_pwr_t *p_cpu_node,
                     }
                 }
             } else {
-                PWR_DBG(DBG_ERR, "p_cpu_node(%s%d)->pPStateAttrArray is not initialized\n",
-                        p_cpu_node->name, p_cpu_node->unit);
+                PWRMGMT_LOG(PWRMGMT_LOG_ERR, "p_cpu_node(%s%d)->pPStateAttrArray is "
+                            "not initialized\n", p_cpu_node->name, p_cpu_node->unit);
 
                 return (uint32_t)CPU_LATENCY_UNKNOW;
             }
@@ -875,8 +876,8 @@ uint32_t cpu_pwr_c_state_latency_get(uint32_t cpu_idx, cpu_cstate_t cpu_c_state)
     cpu_pwr_t *p_cpu_node;
 
     if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
-        PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                RHINO_CONFIG_CPU_NUM - 1);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
+                    RHINO_CONFIG_CPU_NUM - 1);
 
         return (uint32_t)CPU_LATENCY_UNKNOW;
     }
@@ -901,7 +902,7 @@ void cpu_pwr_hal_lib_init(void)
     krhino_spin_lock_init(&cpu_pwr_lock);
 
     if (krhino_mutex_create(&cpu_pwr_hal_mux, "cpu_pwr_hal_mux") != PWR_OK) {
-        PWR_DBG(DBG_ERR, "krhino_mutex_create(cpu_pwr_hal_mux) failed!\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "krhino_mutex_create(cpu_pwr_hal_mux) failed!\n");
         return;
     }
 
@@ -915,7 +916,7 @@ void cpu_pwr_hal_lib_init(void)
      */
     (void)cpu_pwr_idle_mode_set(CPU_IDLE_MODE_SLEEP);
 
-    PWR_DBG(DBG_INFO, "cpu_pwr_hal_lib_init() done!\n");
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "cpu_pwr_hal_lib_init() done!\n");
 }
 
 /**
