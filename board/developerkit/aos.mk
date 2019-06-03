@@ -60,10 +60,6 @@ $(NAME)_SOURCES += aos/board.c                         \
                    aos/board_cli.c                     \
                    aos/soc_init.c                      \
                    aos/st7789.c                        \
-                   pwrmgmt_hal/board_cpu_pwr.c         \
-                   pwrmgmt_hal/board_cpu_pwr_rtc.c     \
-                   pwrmgmt_hal/board_cpu_pwr_systick.c \
-                   pwrmgmt_hal/board_cpu_pwr_timer.c   \
                    mbmaster_hal/port_serial.c
 
 $(NAME)_SOURCES += Src/adc.c
