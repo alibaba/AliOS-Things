@@ -16,10 +16,9 @@ provides low-level interface for setting CPU P-states.
 
 #if (AOS_COMP_PWRMGMT > 0)
 
-#include <pwrmgmt_api.h>
 #include <cpu_pwr_hal_lib.h>
-#include <pwrmgmt_debug.h>
 #include <cpu_tickless.h>
+#include <pwrmgmt_debug.h>
 
 #include <rtl8710b.h>
 
@@ -102,9 +101,6 @@ void sleep_ex_cg(uint32_t wakeup_event,  uint32_t sleep_duration)
  */
 static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
 {
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-     static sys_time_t last_log_entersleep = 0;
-#endif
     switch (cpuCState) {
         case CPU_CSTATE_C0:
 
@@ -122,19 +118,13 @@ static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
             }
             /* put CPU into C1 state, for ARM we can call WFI instruction
                to put CPU into C1 state. */
-            PWR_DBG(DBG_INFO, "enter C1\n");
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-            if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
-                last_log_entersleep = krhino_sys_tick_get();
-                printf("enter sleep %d ms\r\n", (uint32_t) expeted_sleep_ms);
-            }
-#endif
+            PWRMGMT_LOG(PWRMGMT_LOG_DBG, "enter C1\n");
             sleep_ex_cg(wakeup_event, (uint32_t)expeted_sleep_ms);
-            PWR_DBG(DBG_INFO, "exit C1\n");
+            PWRMGMT_LOG(PWRMGMT_LOG_DBG, "exit C1\n");
             break;
 
         default:
-            PWR_DBG(DBG_ERR, "invalid C state: C%d\n", cpuCState);
+            PWRMGMT_LOG(PWRMGMT_LOG_ERR, "invalid C state: C%d\n", cpuCState);
             break;
     }
 

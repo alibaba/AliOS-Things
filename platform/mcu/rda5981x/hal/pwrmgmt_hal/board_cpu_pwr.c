@@ -16,7 +16,6 @@ provides low-level interface for setting CPU P-states.
 
 #if RHINO_CONFIG_CPU_PWR_MGMT
 
-#include <pwrmgmt_api.h>
 #include <cpu_pwr_hal_lib.h>
 #include <pwrmgmt_debug.h>
 #include <cpu_tickless.h>
@@ -58,15 +57,15 @@ static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
 
             /* put CPU into C1 state, for ARM we can call WFI instruction
                to put CPU into C1 state. */
-            PWR_DBG(DBG_INFO, "enter C1\n");
+            PWRMGMT_LOG(PWRMGMT_LOG_DBG, "enter C1\n");
             __DSB();
             __WFI();
             __ISB();
-            PWR_DBG(DBG_INFO, "exit C1\n");
+            PWRMGMT_LOG(PWRMGMT_LOG_DBG, "exit C1\n");
             break;
 
         default:
-            PWR_DBG(DBG_ERR, "invalid C state: C%d\n", cpuCState);
+            PWRMGMT_LOG(PWRMGMT_LOG_ERR, "invalid C state: C%d\n", cpuCState);
             break;
     }
 

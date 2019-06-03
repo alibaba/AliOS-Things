@@ -75,11 +75,9 @@ GLOBAL_INCLUDES += beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
 $(NAME)_SOURCES += hal/ble.c
 $(NAME)_SOURCES += hal/breeze_hal_os.c
 
-ifneq ($(filter pwrmgmt,$(COMPONENTS)),)
 $(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
                     hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
                     hal/pwrmgmt_hal/board_cpu_pwr_timer.c
-endif
 
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort

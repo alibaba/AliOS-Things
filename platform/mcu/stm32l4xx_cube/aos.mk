@@ -158,6 +158,11 @@ $(NAME)_SOURCES += aos/soc_impl.c          \
                    hal/hal_nand_stm32l4.c  \
                    hal/hal_nor_stm32l4.c
 
+ $(NAME)_SOURCES +=hal/pwrmgmt_hal/board_cpu_pwr.c         \
+                   hal/pwrmgmt_hal/board_cpu_pwr_rtc.c     \
+                   hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
+                   hal/pwrmgmt_hal/board_cpu_pwr_timer.c
+
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
 else ifeq ($(COMPILER),iar)
