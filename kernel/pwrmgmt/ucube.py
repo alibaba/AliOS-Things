@@ -1,8 +1,9 @@
 src     = Split('''
         cpu_pwr_hal_lib.c
         cpu_pwr_lib.c
-        cpu_pwr_show.c
+        pwrmgmt_debug.c
         cpu_tickless.c
+        pwrmgmt.c
 ''')
 component = aos_component('pwrmgmt', src)
 

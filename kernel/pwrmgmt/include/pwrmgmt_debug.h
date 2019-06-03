@@ -13,27 +13,35 @@ extern "C"
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <k_api.h>
+
 #include "pwrmgmt_default_config.h"
 
 /*
  * when use debug, do not close uart when turn into pwr down state
  */
-#define PWR_DEBUG_LEVEL DBG_INFO
+#define PWRMGMT_LOG_LEVEL PWRMGMT_LOG_INFO
 
 typedef enum {
-    DBG_OFF  = 0x00000000,
-    DBG_INFO = 0x00000001,
-    DBG_WARN = 0x00000002,
-    DBG_ERR  = 0x00000003,
-} pwr_debug_level_t;
+    PWRMGMT_LOG_OFF  = 0,
+    PWRMGMT_LOG_DBG  = 1,
+    PWRMGMT_LOG_INFO = 2,
+    PWRMGMT_LOG_WARN = 3,
+    PWRMGMT_LOG_ERR  = 4,
+} pwrmgmt_log_level_t;
 
-void pwr_debug(pwr_debug_level_t debug_level, const char *fmt_str, ...);
+void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...);
 
 #if (PWRMGMT_CONFIG_DEBUG > 0)
-#define PWR_DBG pwr_debug
+#define PWRMGMT_LOG pwrmgmt_log
 #else
-#define PWR_DBG(lvl, ...)
+#define PWRMGMT_LOG(lvl, ...)
 #endif /* PWRMGMT_CONFIG_DEBUG > DBG_OFF */
+
+#if (PWRMGMT_CONFIG_SHOW > 0)
+void cpu_pwr_state_show(void);
+void cpu_pwr_info_show(void);
+#endif /* PWRMGMT_CONFIG_SHOW */
 
 #ifdef __cplusplus
 }
