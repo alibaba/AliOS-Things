@@ -7,7 +7,6 @@
 
 #ifdef AOS_COMP_PWRMGMT
 
-#include "cpu_pwr.h"
 #include "cpu_pwr_hal_lib.h"
 #include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
@@ -42,18 +41,18 @@ static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
     case CPU_CSTATE_C1:
         /* put CPU into C1 state, for ARM we can call WFI instruction
            or sleep instruction. */
-        PWR_DBG(DBG_INFO, "enter C1\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_DBG, "enter C1\n");
         aos_mcu_ps_sleep();
 
 
         break;
     case CPU_CSTATE_C2:
-        PWR_DBG(DBG_INFO, "enter C2\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_DBG, "enter C2\n");
 
         break;
 
     default:
-        PWR_DBG(DBG_ERR, "invalid C state: C%d\n", cpuCState);
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "invalid C state: C%d\n", cpuCState);
         break;
     }
 
