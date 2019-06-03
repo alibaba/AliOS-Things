@@ -9,7 +9,11 @@
 extern "C"
 {
 #endif
-#include "pwrmgmt_state.h"
+
+#include <k_api.h>
+
+#include "pwrmgmt_default_config.h"
+#include "cpu_pwr_state.h"
 
 #define CPU_PWR_NODE_NAME_LEN 64
 
@@ -41,16 +45,20 @@ typedef struct cpu_pwr {
     uint32_t          unit;
 } cpu_pwr_t;
 
-extern void         cpu_pwr_hal_lib_init(void);
-extern pwr_status_t cpu_pwr_node_init_static(char *, uint32_t, cpu_pwr_t *);
-extern pwr_status_t cpu_pwr_node_init_dyn(char *, uint32_t, cpu_pwr_t **);
-extern cpu_pwr_t *  cpu_pwr_node_find_by_name(char *pName, uint32_t index);
-extern pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpuIndex);
-extern pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpuIndex, uint32_t supportBitsetC);
-extern pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpuIndex, cpu_cstate_t cpu_state,
+void         cpu_pwr_hal_lib_init(void);
+pwr_status_t cpu_pwr_node_init_static(char *, uint32_t, cpu_pwr_t *);
+pwr_status_t cpu_pwr_node_init_dyn(char *, uint32_t, cpu_pwr_t **);
+cpu_pwr_t *  cpu_pwr_node_find_by_name(char *pName, uint32_t index);
+pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpuIndex);
+pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpuIndex, uint32_t supportBitsetC);
+pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpuIndex, cpu_cstate_t cpu_state,
                                                  uint32_t latency);
-extern uint32_t     cpu_pwr_c_state_latency_get(uint32_t cpuIndex, cpu_cstate_t CState);
-extern pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_set_func);
+uint32_t     cpu_pwr_c_state_latency_get(uint32_t cpuIndex, cpu_cstate_t CState);
+pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_set_func);
+
+pwr_status_t cpu_pwr_c_state_set(cpu_cstate_t target_c_state);
+pwr_status_t cpu_pwr_c_state_get(uint32_t cpu_idx, cpu_cstate_t *p_cstate);
+pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx, uint32_t *p_support_bitset_c);
 
 #ifdef __cplusplus
 }

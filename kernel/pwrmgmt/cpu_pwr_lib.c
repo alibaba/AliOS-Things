@@ -2,13 +2,12 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include "pwrmgmt_api.h"
-#include "cpu_pwr_hal_lib.h"
 #include "cpu_pwr_lib.h"
-#include "cpu_tickless.h"
+#include "pwrmgmt_debug.h"
 
-static CPU_IDLE_MODE cpu_pwr_idle_mode = CPU_IDLE_MODE_RUN;
-static int           cpu_pwr_init_flag = 0;
+static CPU_IDLE_MODE cpu_pwr_idle_mode    = CPU_IDLE_MODE_RUN;
+static int           cpu_pwr_init_flag    = 0;
+static int           cpu_pwr_suspend_flag = 0;
 
 static kspinlock_t cpu_pwr_spin;
 
@@ -47,6 +46,13 @@ int cpu_pwrmgmt_init(void)
 void cpu_pwr_down(void)
 {
     if (cpu_pwr_init_flag == 0) {
+        return;
+    }
+
+    /* This check is not enough. cpu_pwr_is_suspend() must be called to check
+     * again before entering low power.
+     */
+    if (cpu_pwr_suspend_flag == 1) {
         return;
     }
 
@@ -120,3 +126,37 @@ CPU_IDLE_MODE cpu_pwr_idle_mode_get(void)
 {
     return cpu_pwr_idle_mode;
 }
+
+/**
+ * cpu_pwr_suspend suspend cpu low power. cpu_pwr_is_suspend() must be called
+ * to check cpu_pwr_suspend_flag before entering low power.
+ *
+ * @return  PWR_OK, or PWR_ERR in case of failure
+ */
+pwr_status_t cpu_pwr_suspend(void)
+{
+    cpu_pwr_suspend_flag = 1;
+    return PWR_OK;
+}
+
+/**
+ * cpu_pwr_resume  resume cpu low power. This function does not need critical
+ * region protection because the idle task will try again to enter low power.
+ *
+ * @return  PWR_OK, or PWR_ERR in case of failure
+ */
+pwr_status_t cpu_pwr_resume(void)
+{
+    cpu_pwr_suspend_flag = 0;
+    return PWR_OK;
+}
+
+/**
+ * cpu_pwr_is_suspend return the current status of cpu low power suspend
+ *
+ * @return  1 if cpu power is suspend, or 0 if cpu power is not suspend */
+int cpu_pwr_is_suspend(void)
+{
+    return cpu_pwr_suspend_flag;
+}
+

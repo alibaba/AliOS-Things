@@ -13,11 +13,10 @@ idle is entered when all CPUs are ready.
 
 #include <stdlib.h>
 
-#include "pwrmgmt_api.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
+#include "pwrmgmt_debug.h"
 
 /* 100 * 365 * 24 * 3600 * 1000 * 1000 = 0xB342EB7C38000 */
 #define TIME_100_YEARS_IN_US 0xB342EB7C38000ULL
@@ -148,7 +147,7 @@ static pwr_status_t tickless_timer_init(void)
 static pwr_status_t tickless_one_shot_start(uint64_t sleep_time, cpu_cstate_t c_state_to_enter)
 {
     if (cStateOneShotTimer[c_state_to_enter]->one_shot_start(sleep_time) != PWR_OK) {
-        PWR_DBG(DBG_DBG, "start one shot(%lld us) fail\n", sleep_time);
+        PWRMGMT_LOG(PWRMGMT_LOG_DBG, "start one shot(%lld us) fail\n", sleep_time);
 
         return (PWR_ERR);
     }
@@ -165,7 +164,7 @@ static tick_t tickless_one_shot_stop(cpu_cstate_t c_state_current)
 
     if (cStateOneShotTimer[c_state_current]->one_shot_stop(&passed_micro_sec) !=
         PWR_OK) {
-        PWR_DBG(DBG_ERR, "timerOneShotCancel fail\n");
+        PWRMGMT_LOG(PWRMGMT_LOG_ERR, "timerOneShotCancel fail\n");
 
         return 0;
     }
@@ -240,6 +239,9 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
     if (n_ticks == RHINO_WAIT_FOREVER) {
         sleep_time_us = TIME_100_YEARS_IN_US;
     } else {
+        if (n_ticks > 1) {
+            n_ticks = n_ticks -1;
+        }
         sleep_time_us = 1000000ull * n_ticks / RHINO_CONFIG_TICKS_PER_SECOND;
     }
 
@@ -327,6 +329,14 @@ static void tickless_enter(void)
          * unless another asynchronous event has woken up the CPU already.
          */
         if (tickless_one_shot_start(sleep_time, cstate_to_enter) == PWR_OK) {
+
+#if (PWRMGMT_CONFIG_DEBUG > 0)
+            if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
+                last_log_entersleep = krhino_sys_tick_get();
+                PWRMGMT_LOG(PWRMGMT_LOG_INFO, "enter sleep %d ms\r\n",
+                            (uint32_t)sleep_time/1000);
+            }
+#endif
             is_current_tickless = TRUE;
         }
     }

@@ -12,7 +12,8 @@ extern "C"
 
 #include <k_api.h>
 
-#include "pwrmgmt_state.h"
+#include "pwrmgmt_default_config.h"
+#include "cpu_pwr_state.h"
 
 typedef pwr_status_t (*one_shot_init_t)(void);
 typedef uint32_t     (*one_shot_seconds_max_t)(void);
