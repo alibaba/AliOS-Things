@@ -475,17 +475,17 @@ int DBG_LogLevelGet()
 
 char *HW_Get_MFT_ID(void)
 {
-    return SYSINFO_MANUFACTURER;
+    return CONFIG_MANUFACTURER;
 }
 
 char *HW_Get_MFT_Model(void)
 {
-    return SYSINFO_DEVICE_MODEL;
+    return CONFIG_DEVICE_MODEL;
 }
 
 char *HW_Get_MFT_Rev(void)
 {
-    return SYSINFO_VERSION;
+    return CONFIG_VERSION;
 }
 
 char *HW_Get_MFT_SN(void)
@@ -543,7 +543,7 @@ hal_lrwan_sys_t aos_lrwan_sys = {
 
 void linkwan_at_prompt_print()
 {
-    PRINTF_RAW("\r\n%s%s:~# ", SYSINFO_MANUFACTURER, SYSINFO_DEVICE_MODEL);
+    PRINTF_RAW("\r\n%s%s:~# ", CONFIG_MANUFACTURER, CONFIG_DEVICE_MODEL);
 }
 
 int linkwan_serial_output(uint8_t *buffer, int len)
