@@ -5,7 +5,7 @@
 
 #include <k_api.h>
 
-#ifdef AOS_COMP_PWRMGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include "cpu_pwr_hal_lib.h"
 #include "pwrmgmt_debug.h"
@@ -152,5 +152,5 @@ void cpu_pwr_resume_devices()
 {
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 

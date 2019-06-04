@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include <nrf_systick.h>
 
@@ -34,5 +34,5 @@ void systick_resume(void)
     ctrl |= (SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk);
     nrf_systick_csr_set(ctrl);
 }
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 
