@@ -1,0 +1,8 @@
+config AOS_COMP_MM
+    bool "mm"
+    default y
+    help
+
+if AOS_COMP_MM
+# Configurations for component mm
+endif

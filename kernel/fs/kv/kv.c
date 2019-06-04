@@ -642,14 +642,13 @@ static int32_t kv_init_internal(void)
  */
 static void kv_gc_task(void *arg)
 {
-    int32_t   res;
     kv_size_t origin_pos;
     uint8_t   i;
     uint8_t   gc_idx;
 
     uint8_t gc_copy = 0;
 
-    if ((res = kv_lock(g_kv_mgr.lock)) != KV_OK) {
+    if ((kv_lock(g_kv_mgr.lock)) != KV_OK) {
         goto exit;
     }
 
@@ -892,8 +891,6 @@ int32_t kv_item_set(const char *key, const void *val, int32_t len)
 
 int32_t kv_item_get(const char *key, void *buffer, int32_t *buffer_len)
 {
-    int32_t res;
-
     kv_item_t *item = NULL;
 
 #if (KV_SECURE_SUPPORT) && (KV_SECURE_LEVEL > 1)
@@ -904,7 +901,7 @@ int32_t kv_item_get(const char *key, void *buffer, int32_t *buffer_len)
         return KV_ERR_INVALID_PARAM;
     }
 
-    if ((res = kv_lock(g_kv_mgr.lock)) != KV_OK) {
+    if ((kv_lock(g_kv_mgr.lock)) != KV_OK) {
         return KV_ERR_OS_LOCK;
     }
 
@@ -956,9 +953,8 @@ int32_t kv_item_delete(const char *key)
 int32_t kv_item_delete_by_prefix(const char *prefix)
 {
     int32_t i;
-    int32_t res;
 
-    if ((res = kv_lock(g_kv_mgr.lock)) != KV_OK) {
+    if ((kv_lock(g_kv_mgr.lock)) != KV_OK) {
         return KV_ERR_OS_LOCK;
     }
 
