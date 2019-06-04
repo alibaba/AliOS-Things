@@ -123,7 +123,7 @@ static void sys_init(void)
 
 #if ATE_APP_FUN
     if (get_ate_mode_state()) {
-#ifdef AOS_COMP_PWRMGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
         cpu_pwrmgmt_init();
 #endif
 

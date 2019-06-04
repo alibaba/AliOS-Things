@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if RHINO_CONFIG_CPU_PWR_MGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include <cpu_tickless.h>
 #include "rda5981.h"

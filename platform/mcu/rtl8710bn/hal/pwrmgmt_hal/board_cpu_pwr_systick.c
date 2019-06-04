@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include <rtl8710b.h>
 
@@ -33,4 +33,4 @@ void systick_resume(void)
     pmu_yield_os_set(1);
 }
 
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
