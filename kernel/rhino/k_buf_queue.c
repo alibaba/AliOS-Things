@@ -9,7 +9,9 @@
 static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name, void *buf, size_t size,
                                 size_t max_msg, uint8_t mm_alloc_flag, size_t type)
 {
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(queue);
     NULL_PARA_CHK(buf);

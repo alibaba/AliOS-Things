@@ -6,7 +6,9 @@
 
 kstat_t mutex_create(kmutex_t *mutex, const name_t *name, uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(mutex);
     NULL_PARA_CHK(name);
