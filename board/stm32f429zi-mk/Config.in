@@ -1,0 +1,32 @@
+config AOS_BOARD_STM32F429ZI_MK
+    bool "stm32f429zi-mk"
+    select AOS_MCU_STM32F4XX_CUBE
+    select AOS_COMP_LWIP if AOS_NETWORK_SAL
+    select AOS_COMP_CLI
+    help
+
+if AOS_BOARD_STM32F429ZI_MK
+# Configurations for board stm32f429zi-mk
+
+# Set default value of AOS_NETWORK_SAL
+config AOS_NETWORK_SAL
+    bool "AOS_NETWORK_SAL"
+    default n
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool "BSP_SUPPORT_GPIO"
+    default y
+
+config BSP_SUPPORT_I2C
+    bool "BSP_SUPPORT_I2C"
+    default y
+
+endif
