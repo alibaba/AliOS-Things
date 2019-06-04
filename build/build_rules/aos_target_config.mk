@@ -378,7 +378,6 @@ endif
 # MBINS build support
 ifeq ($(MBINS),app)
 ifeq ($(ENABLE_USPACE),1)
-COMPONENTS += mm
 COMPONENTS += uspace
 else
 COMPONENTS += mbins.umbins
@@ -388,7 +387,7 @@ AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -nostartfiles
 else ifeq ($(MBINS),kernel)
 ifeq ($(ENABLE_USPACE),1)
-COMPONENTS += uspace
+COMPONENTS += kspace
 else
 COMPONENTS += mbins.kmbins
 endif
