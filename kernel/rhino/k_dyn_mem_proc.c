@@ -8,100 +8,100 @@
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
 
-static void res_user_free(ktask_t *task)
+#include "task_group.h"
+#include "res.h"
+#include "k_proc.h"
+
+static void free_user_res(task_group_t *group)
 {
-    klist_t      *listnode;
     kmutex_t     *mutex;
-    ksem_t       *sem;
-    kqueue_t     *queue;
-    kbuf_queue_t *buf_queue;
-    kevent_t     *event;
-    klist_t      *head, *end, *tmp;
+    klist_t      *head, *iter;
 
-    /* mutex res exit */
-    head = &(task->kobj_list.mutex_head);
-    end  = head;
-    tmp  = head->next;
+    /*mutex res exit*/
+    head = &(group->kobj_list.mutex_head);
+    iter = head->next;
 
-    while (tmp != end) {
-        mutex = krhino_list_entry(tmp, kmutex_t, blk_obj.obj_list);
-        tmp   = tmp->next;
+    while (iter != head) {
+        mutex = krhino_list_entry(iter, kmutex_t, blk_obj.obj_list);
+        iter = iter->next;
         krhino_mutex_dyn_del(mutex);
     }
 
-    /* sem res exit */
-    head = &(task->kobj_list.sem_head);
-    end  = head;
-    tmp  = head->next;
+    /*sem res exit*/
+#if (RHINO_CONFIG_SEM > 0)
+    ksem_t       *sem;
+    head = &(group->kobj_list.sem_head);
+    iter = head->next;
 
-    while (tmp != end) {
-        sem = krhino_list_entry(tmp, ksem_t, blk_obj.obj_list);
-        tmp = tmp->next;
+    while (iter != head) {
+        sem = krhino_list_entry(iter, ksem_t, blk_obj.obj_list);
+        iter = iter->next;
         krhino_sem_dyn_del(sem);
     }
+#endif
 
-    /* queue res exit */
-    head = &(task->kobj_list.queue_head);
-    end  = head;
-    tmp  = head->next;
+    /*queue res exit*/
+#if (RHINO_CONFIG_QUEUE > 0)
+    kqueue_t     *queue;
+    head = &(group->kobj_list.queue_head);
+    iter = head->next;
 
-    while (tmp != end) {
-        queue = krhino_list_entry(tmp, kqueue_t, blk_obj.obj_list);
-        tmp   = tmp->next;
+    while (iter != head) {
+        queue = krhino_list_entry(iter, kqueue_t, blk_obj.obj_list);
+        iter = iter->next;
         krhino_queue_dyn_del(queue);
     }
+#endif
 
-    /* buf queue res exit */
-    head = &(task->kobj_list.buf_queue_head);
-    end  = head;
-    tmp  = head->next;
+    /*buf queue res exit*/
+#if (RHINO_CONFIG_BUF_QUEUE > 0)
+    kbuf_queue_t *buf_queue;
+    head = &(group->kobj_list.buf_queue_head);
+    iter = head->next;
 
-    while (tmp != end) {
-        buf_queue = krhino_list_entry(tmp, kbuf_queue_t, blk_obj.obj_list);
-        tmp       = tmp->next;
+    while (iter != head) {
+        buf_queue = krhino_list_entry(iter, kbuf_queue_t, blk_obj.obj_list);
+        iter = iter->next;
         krhino_buf_queue_dyn_del(buf_queue);
     }
+#endif
+
+    /* event res exit*/
+#if (RHINO_CONFIG_EVENT_FLAG > 0)
+    kevent_t     *event;
+    head = &(group->kobj_list.event_head);
+    iter = head->next;
+
+    while (iter != head) {
+        event = krhino_list_entry(iter, kevent_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_event_dyn_del(event);
+    }
+#endif
 }
 
 static void proc_free(ktask_t *task)
 {
-    CPSR_ALLOC();
+    task_group_t *group;
+    int           pid;
 
-    ktask_t        *proc = task->proc_addr;
-    kqueue_t       *res_q;
-    klist_t        *head = &task->task_head;
-    static klist_t *head_tmp;
+    group = task->task_group;
+    if (NULL == group) {
+        return;
+    }
 
-    if (task->is_proc == 1u) {
-        res_q = proc->res_q;
+    task_group_remove_res_obj(group, RES_OBJ_TASK, task);
 
-        /* save task_head before utask delete */
-        head_tmp = head;
-
-        RHINO_CRITICAL_ENTER();
-        klist_rm(&task->task_user);
-
-        RHINO_CRITICAL_EXIT();
-        krhino_queue_back_send(res_q, 0);
-    } else {
-        if (task->proc_addr != 0) {
-            res_q = proc->res_q;
-
-            RHINO_CRITICAL_ENTER();
-            klist_rm(&task->task_user);
-
-            if (head_tmp->next == head_tmp) {
-                /* for next process exit */
-                head_tmp = head;
-
-                RHINO_CRITICAL_EXIT();
-
-                res_user_free(task->proc_addr);
-                k_proc_unload(task->pid);
-            }
-            RHINO_CRITICAL_EXIT();
-            krhino_queue_back_send(res_q, task->task_ustack_base);
+    if (group->task_cnt > 0) {
+        if (group->state == TGS_NORMAL) {
+            res_free(group->pid, task->task_ustack_base);
         }
+    } else {
+        pid = group->pid;
+        free_user_res(group);
+        task_group_release(group);
+        task_group_destory(group);
+        k_proc_unload(pid);
     }
 }
 #endif

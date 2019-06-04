@@ -34,10 +34,12 @@ void kobj_list_init(void)
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
 void krhino_stack_ovf_check(void)
 {
+    ktask_t     *cur;
     cpu_stack_t *stack_start;
     uint8_t      i;
 
-    stack_start = g_active_task[cpu_cur_get()]->task_stack_base;
+    cur = g_active_task[cpu_cur_get()];
+    stack_start = cur->task_stack_base;
 
     for (i = 0; i < RHINO_CONFIG_STK_CHK_WORDS; i++) {
         if (*stack_start++ != RHINO_TASK_STACK_OVF_MAGIC) {
@@ -45,21 +47,42 @@ void krhino_stack_ovf_check(void)
         }
     }
 
-    if ((cpu_stack_t *)(g_active_task[cpu_cur_get()]->task_stack) < stack_start) {
+    if ((cpu_stack_t *)(cur->task_stack) < stack_start) {
         k_err_proc(RHINO_TASK_STACK_OVF);
     }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    if (cur->pid == 0) {
+        return;
+    }
+
+    stack_start = cur->task_ustack_base;
+
+    for (i = 0; i < RHINO_CONFIG_STK_CHK_WORDS; i++) {
+        if (*stack_start++ != RHINO_TASK_STACK_OVF_MAGIC) {
+            k_err_proc(RHINO_TASK_STACK_OVF);
+        }
+    }
+
+    if ((cpu_stack_t *)(cur->task_ustack) < stack_start) {
+        k_err_proc(RHINO_TASK_STACK_OVF);
+    }
+#endif
 }
 
 #else
 
 void krhino_stack_ovf_check(void)
 {
+    ktask_t     *cur;
     cpu_stack_t *stack_start;
     cpu_stack_t *stack_end;
     uint8_t      i;
 
-    stack_start = g_active_task[cpu_cur_get()]->task_stack_base;
-    stack_end   = stack_start + g_active_task[cpu_cur_get()]->stack_size
+    cur = g_active_task[cpu_cur_get()];
+
+    stack_start = cur->task_stack_base;
+    stack_end   = stack_start + cur->stack_size
                   - RHINO_CONFIG_STK_CHK_WORDS;
 
     for (i = 0; i < RHINO_CONFIG_STK_CHK_WORDS; i++) {
@@ -68,9 +91,29 @@ void krhino_stack_ovf_check(void)
         }
     }
 
-    if ((cpu_stack_t *)(g_active_task[cpu_cur_get()]->task_stack) > stack_end) {
+    if ((cpu_stack_t *)(cur->task_stack) > stack_end) {
         k_err_proc(RHINO_TASK_STACK_OVF);
     }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    if (cur->pid == 0) {
+        return;
+    }
+
+    stack_start = cur->task_ustack_base;
+    stack_end   = stack_start + cur->ustack_size
+                  - RHINO_CONFIG_STK_CHK_WORDS;
+
+    for (i = 0; i < RHINO_CONFIG_STK_CHK_WORDS; i++) {
+        if (*stack_end++ != RHINO_TASK_STACK_OVF_MAGIC) {
+            k_err_proc(RHINO_TASK_STACK_OVF);
+        }
+    }
+
+    if ((cpu_stack_t *)(cur->task_ustack) > stack_end) {
+        k_err_proc(RHINO_TASK_STACK_OVF);
+    }
+#endif
 }
 #endif
 #endif
