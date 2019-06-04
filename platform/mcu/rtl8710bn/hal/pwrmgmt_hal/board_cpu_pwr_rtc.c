@@ -10,7 +10,7 @@
  */
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -74,4 +74,4 @@ static uint32_t rtc_one_shot_max_seconds(void)
     }
 }
 
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */

@@ -14,7 +14,7 @@ provides low-level interface for setting CPU P-states.
 
 #include <k_api.h>
 
-#if RHINO_CONFIG_CPU_PWR_MGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include <cpu_pwr_hal_lib.h>
 #include <pwrmgmt_debug.h>
@@ -147,4 +147,4 @@ pwr_status_t board_cpu_pwr_init(void)
     return retVal;
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */

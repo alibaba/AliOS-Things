@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#ifdef AOS_COMP_PWRMGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 void systick_suspend(void)
 {
@@ -24,5 +24,5 @@ void systick_suspend(void)
 void systick_resume(void)
 {
 }
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 

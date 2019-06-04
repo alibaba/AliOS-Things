@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
 
@@ -28,4 +28,4 @@ void systick_resume(void)
 {
     HAL_ResumeTick();
 }
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */

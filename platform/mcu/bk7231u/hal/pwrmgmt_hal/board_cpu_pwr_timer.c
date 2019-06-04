@@ -9,7 +9,7 @@
 
 #include <k_api.h>
 
-#ifdef AOS_COMP_PWRMGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include "mcu_ps_pub.h"
 #include "cpu_tickless.h"
@@ -116,5 +116,5 @@ pwr_status_t mcu_one_shot_stop(uint64_t *pPassedUs)
 }
 
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 

@@ -143,7 +143,7 @@ static void board_mode_check(void)
 
 void sys_init_func(void)
 {
-#ifdef AOS_COMP_PWRMGMT
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     pmu_set_sysactive_time();
 #endif
     hal_init();
