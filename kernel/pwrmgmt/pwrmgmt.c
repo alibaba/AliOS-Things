@@ -12,7 +12,7 @@
 
 static kmutex_t pwrmgmt_mutex;
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 static uint32_t cpu_suspend_lock = 0;
 #endif
 
@@ -20,7 +20,7 @@ static uint32_t cpu_suspend_lock = 0;
 static uint32_t wifi_suspend_lock = 0;
 #endif
 
-#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
 #define PWRMGMT_TASK_STACK_SIZE 200
 #define PWRMGMT_TASK_PRI        (RHINO_IDLE_PRI - 1)
 
@@ -37,7 +37,11 @@ int pwrmgmt_init() {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt init\r\n");
     krhino_mutex_create(&pwrmgmt_mutex, "pwrmgmt_mutex");
 
-#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
+    cpu_pwrmgmt_init();
+#endif
+
+#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt active function init\r\n");
 
     krhino_sem_create(&pwrmgmt_sem, "pwrmgmt_sem", 0);
@@ -45,10 +49,6 @@ int pwrmgmt_init() {
                         100, 0, NULL, 0);
     krhino_task_create(&pwrmgmt_task, "pwrmgmt_task", NULL, PWRMGMT_TASK_PRI, 5,
                        pwrmgmt_task_stack, PWRMGMT_TASK_STACK_SIZE, pwrmgmt_task_entry, 1);
-#endif
-
-#if (RHINO_CONFIG_PWRMGMT > 0)
-    cpu_pwrmgmt_init();
 #endif
     return 0;
 }
@@ -59,7 +59,7 @@ int pwrmgmt_lowpower_suspend(uint32_t suspend_module)
 
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "suspend lowpower\r\n");
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     if ((cpu_suspend_lock & SET_BIT(suspend_module)) != 0) {
         PWRMGMT_LOG(PWRMGMT_LOG_ERR, "suspend low power error suspend_lock=%x, "
                     "suspend_module=%x\r\n", cpu_suspend_lock, SET_BIT(suspend_module));
@@ -75,7 +75,7 @@ int pwrmgmt_lowpower_suspend(uint32_t suspend_module)
 
     krhino_mutex_lock(&pwrmgmt_mutex, RHINO_WAIT_FOREVER);
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     if (cpu_suspend_lock == 0) {
         cpu_pwr_suspend();
     }
@@ -102,7 +102,7 @@ int pwrmgmt_lowpower_resume(uint32_t resume_module)
 
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "resume lowpower\r\n");
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     if ((cpu_suspend_lock & SET_BIT(resume_module)) != SET_BIT(resume_module)) {
         PWRMGMT_LOG(PWRMGMT_LOG_ERR, "resume low power error suspend_lock=%x, "
                     "reusme_module=%x\r\n", cpu_suspend_lock, SET_BIT(resume_module));
@@ -118,7 +118,7 @@ int pwrmgmt_lowpower_resume(uint32_t resume_module)
 
     krhino_mutex_lock(&pwrmgmt_mutex, RHINO_WAIT_FOREVER);
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     cpu_suspend_lock &= ~SET_BIT(resume_module);
 
     if (cpu_suspend_lock == 0) {
@@ -139,7 +139,7 @@ int pwrmgmt_lowpower_resume(uint32_t resume_module)
     return 0;
 }
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
 {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "suspend cpu low power\r\n");
@@ -229,7 +229,7 @@ int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
 }
 #endif
 
-#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
 static void pwrmgmt_task_entry(void *arg)
 {
     while(1){

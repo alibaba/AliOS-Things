@@ -28,7 +28,7 @@ int pwrmgmt_lowpower_suspend(uint32_t suspend_module);
 int pwrmgmt_lowpower_resume(uint32_t resume_module);
 
 
-#if (RHINO_CONFIG_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module);
 int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module);
 #endif
