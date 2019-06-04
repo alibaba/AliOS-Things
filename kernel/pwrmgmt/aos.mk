@@ -24,7 +24,13 @@ GLOBAL_DEFINES      += __BSD_VISIBLE
 endif
 
 GLOBAL_INCLUDES    += include
+#This MACRO is defined when pwrmgmt module is selected.
 GLOBAL_DEFINES     += AOS_COMP_PWRMGMT
+#This MACRO is used to enable MCU low powr. MCU low power is enabled by defualt,
+#when pwrmgmt module is selected, so it is set to 1 by default.
+GLOBAL_DEFINES     += PWRMGMT_CONFIG_CPU_LOWPOWER=1
+#This MACRO has the same meaning as PWRMGMT_CONFIG_CPU_LOWPOWER, so it should be set
+#the same value. This MACRO is used by Rhino only, other module should not reference 
+#it.
 GLOBAL_DEFINES     += RHINO_CONFIG_PWRMGMT=1
-GLOBAL_DEFINES     += RHINO_CONFIG_CPU_PWR_MGMT=1
 AOS_COMP_PWRMGMT   := y

@@ -19,7 +19,7 @@ extern "C"
 #endif
 
 #ifndef PWRMGMT_CONFIG_CPU_ACTIVE
-#define PWRMGMT_CONFIG_CPU_ACTIVE 1
+#define PWRMGMT_CONFIG_CPU_ACTIVE 0
 #endif
 
 #ifdef __cplusplus
