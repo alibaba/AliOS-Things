@@ -7,7 +7,9 @@
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
 static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags, uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(event);
     NULL_PARA_CHK(name);
