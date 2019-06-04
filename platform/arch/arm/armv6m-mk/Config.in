@@ -1,0 +1,8 @@
+config AOS_ARCH_ARMV6M-MK
+    bool
+    help
+      arch for armv6m-mk
+
+if AOS_ARCH_ARMV6M
+# Configurations for arch armv6m
+endif
