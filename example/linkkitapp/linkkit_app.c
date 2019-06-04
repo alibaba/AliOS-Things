@@ -247,7 +247,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
 
     /* get new property value */
     if (strstr(property, "HSVColor") != 0) {
-        int hue, saturation, value;
+        double hue, saturation, value;
 
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
@@ -258,11 +258,11 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Value");
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &value, &value_str);
 
-        LINKKIT_PRINTF("property(%s), Hue:%d, Saturation:%d, Value:%d\n", property, hue, saturation, value);
+        LINKKIT_PRINTF("property(%s), Hue:%lf, Saturation:%lf, Value:%lf\n", property, hue, saturation, value);
 
         /* XXX: do user's process logical here. */
     } else if (strstr(property, "HSLColor") != 0) {
-        int hue, saturation, lightness;
+        double hue, saturation, lightness;
 
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
@@ -273,7 +273,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Lightness");
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &lightness, &value_str);
 
-        LINKKIT_PRINTF("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n", property, hue, saturation, lightness);
+        LINKKIT_PRINTF("property(%s), Hue:%lf, Saturation:%lf, Lightness:%lf\n", property, hue, saturation, lightness);
         /* XXX: do user's process logical here. */
     }  else if (strstr(property, "RGBColor") != 0) {
         int red, green, blue;
