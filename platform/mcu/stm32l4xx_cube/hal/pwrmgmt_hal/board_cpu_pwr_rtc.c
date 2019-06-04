@@ -11,7 +11,7 @@
 
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_rtc.h"
@@ -341,4 +341,4 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 #endif /* RTC_ONE_SHOT_DBG */
 
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */

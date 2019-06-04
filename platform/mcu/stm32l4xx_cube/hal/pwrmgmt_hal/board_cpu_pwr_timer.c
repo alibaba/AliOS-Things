@@ -14,7 +14,7 @@
 
 #include <k_api.h>
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_tim.h"
@@ -321,4 +321,4 @@ void tim5_info_show(void)
 }
 #endif /* TIM5_DBG */
 
-#endif /* AOS_COMP_PWRMGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */

@@ -16,7 +16,7 @@ detail for how to implement these two functions.
 #include <k_api.h>
 #include "rda5981.h"
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 
 void systick_suspend(void)
 {
@@ -27,5 +27,5 @@ void systick_resume(void)
 {
     SysTick->CTRL |= (SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk);
 }
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER */
 

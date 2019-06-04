@@ -31,7 +31,25 @@ static void sys_init(void)
 
     board_init();
 
+<<<<<<< HEAD
     aos_components_init(&kinit);
+=======
+#if ATE_APP_FUN
+    if (get_ate_mode_state()) {
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
+        cpu_pwrmgmt_init();
+#endif
+
+#ifdef AOS_COMP_CLI
+        cli_service_init(&kinit);
+        aos_cli_register_commands(&cli_cmd_rftest[0], sizeof(cli_cmd_rftest) / sizeof(struct cli_command));
+#endif
+
+    } else
+#endif
+    {
+        aos_components_init(&kinit);
+>>>>>>> 89b29036d (BugID:18744724:unify the use of macro)
 #ifndef AOS_BINS
     application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
 #endif
