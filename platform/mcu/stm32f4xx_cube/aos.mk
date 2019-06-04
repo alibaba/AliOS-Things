@@ -5,7 +5,12 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx_cube
 
+ifeq ($(ENABLE_USPACE),1)
+$(NAME)_COMPONENTS += arch_armv7m-mk
+else
 $(NAME)_COMPONENTS += arch_armv7m
+endif
+
 $(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
@@ -102,15 +107,12 @@ $(NAME)_SOURCES := Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c             
                    Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
 
 $(NAME)_SOURCES += aos/soc_impl.c          \
-                   aos/aos.c               \
-                   hal/hal_uart_stm32f4.c  \
                    hal/hw.c                \
+                   hal/hal_uart_stm32f4.c  \
                    hal/hal_flash_stm32f4.c \
                    hal/hal_gpio_stm32f4.c  \
                    hal/hal_spi_stm32f4.c   \
-                   hal/hal_i2c_stm32f4.c   \
-                   hal/hal_can_stm32f4.c   \
-                   hal/hal_timer_stm32f4.c #\
+                   hal/hal_i2c_stm32f4.c   #\
                    hal/hal_sd_stm32f4.c \
                    hal/hal_adc_stm32f4.c \
                    hal/hal_rtc_stm32f4.c \
@@ -118,6 +120,12 @@ $(NAME)_SOURCES += aos/soc_impl.c          \
                    hal/hal_qspi_stm32f4.c \
                    hal/hal_nand_stm32f4.c \
                    hal/hal_nor_stm32f4.c
+
+ifneq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES += aos/aos.c 			   \
+                   hal/hal_can_stm32f4.c   \
+                   hal/hal_timer_stm32f4.c
+endif
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
