@@ -36,13 +36,10 @@ typedef struct {
     uint32_t         pid;
     uint8_t          mode;
     uint8_t          is_proc;
-    void            *proc_addr;
+    uint8_t          cancel;
     cpu_stack_t     *task_ustack_base;
-    void            *res_q;
-    klist_t          task_head;
     klist_t          task_user;
-    kobj_list_t      kobj_list;
-    void            *cli_q;
+    void            *task_group;
 #endif
 
     cpu_stack_t     *task_stack_base;
