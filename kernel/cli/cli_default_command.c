@@ -5,12 +5,14 @@
 #include <stdlib.h>
 
 #include "k_api.h"
-
-
-
 #include "cli_conf.h"
 #include "cli_api.h"
 #include "cli_adapt.h"
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include "task_group.h"
+#include "utask.h"
+#endif
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define TOSTR(s) #s
@@ -38,6 +40,12 @@ static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 
 #endif
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+static void process_info_cmd(char *buf, int len, int argc, char **argv);
+static void kill_process_cmd(char *buf, int len, int argc, char **argv);
+#endif
+
+
 extern void log_cli_init(void);
 
 #if (CLI_SUPPORT_BOARD_CMD > 0)
@@ -64,6 +72,12 @@ static const struct cli_command_st built_ins[] = {
     { "exit", "close CLI", exit_cmd },
     { "devname", "print device name", devname_cmd },
 #endif
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    { "process", "process info", process_info_cmd },
+    { "kill", "kill process", kill_process_cmd },
+#endif
+
 };
 
 static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
@@ -72,6 +86,11 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
     struct cli_command_st *cmd = NULL;
 
     uint32_t build_in_count = sizeof(built_ins) / sizeof(built_ins[0]);
+#if (RHINO_CONFIG_UCLI > 0)
+    klist_t             *head;
+    klist_t             *iter;
+    struct ucli_command *ucmd;
+#endif
 
     commands_num = cli_get_commands_num();
 
@@ -90,6 +109,19 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
             }
         }
     }
+#if (RHINO_CONFIG_UCLI > 0)
+    cli_printf("====User app Commands====\r\n");
+    head = cli_get_ucmd_list();
+    iter = head->next;
+    while (iter != head) {
+        ucmd = krhino_list_entry(iter, struct ucli_command, node);
+        iter = iter->next;
+        if (ucmd->cmd->name) {
+            cli_printf("%-10s: %s\r\n", ucmd->cmd->name,
+                            ucmd->cmd->help ? ucmd->cmd->help: "");
+        }
+    }
+#endif
 }
 
 static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv)
@@ -278,6 +310,42 @@ static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 
 #endif
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+void process_info_cmd(char *buf, int len, int argc, char **argv)
+{
+    klist_t      *head;
+    klist_t      *iter;
+    task_group_t *group;
+
+    head  = task_group_get_list_head();
+
+    if (!is_klist_empty(head)) {
+        cli_printf("============ process info ============\r\n");
+        cli_printf("Name                pid       tasks\r\n");
+        for (iter  = head->next; iter != head; iter = iter->next) {
+            group = group_info_entry(iter, task_group_t, node);
+            cli_printf("%-20s%-10d%-10d\r\n",group->tg_name, group->pid, group->task_cnt);
+        }
+    }
+}
+
+void kill_process_cmd(char *buf, int len, int argc, char **argv)
+{
+    int pid;
+
+    if (argc != 2) {
+        cli_printf("Usage: kill pid\r\n");
+        return;
+    }
+
+    pid = atoi(argv[1]);
+
+    if (pid > 0) {
+        krhino_uprocess_kill(pid);
+    }
+}
+#endif
+
 int32_t cli_register_default_commands(void)
 {
     int32_t ret;
@@ -293,3 +361,4 @@ int32_t cli_register_default_commands(void)
 
     return CLI_OK;
 }
+

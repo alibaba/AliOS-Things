@@ -23,10 +23,6 @@ kstat_t krhino_init(void)
 {
     g_sys_stat = RHINO_STOPPED;
 
-#if (RHINO_CONFIG_USER_HOOK > 0)
-    krhino_init_hook();
-#endif
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
     krhino_spin_lock_init(&g_sys_lock);
     klist_init(&g_task_del_head);
@@ -38,6 +34,10 @@ kstat_t krhino_init(void)
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
     kobj_list_init();
+#endif
+
+#if (RHINO_CONFIG_USER_HOOK > 0)
+    krhino_init_hook();
 #endif
 
 #if (RHINO_CONFIG_MM_TLF > 0)
