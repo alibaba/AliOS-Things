@@ -3,6 +3,10 @@
  */
 
 #include "debug_api.h"
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include "task_group.h"
+#include "utask.h"
+#endif
 
 /* convert int to ascii(HEX)
    while using format % in libc, malloc/free is involved.
@@ -94,18 +98,130 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...))
 #endif
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
-void debug_task_overview(int (*print_func)(const char *fmt, ...))
+static void debug_task_show(int (*print_func)(const char *fmt, ...), ktask_t *task)
 {
     size_t        free_size;
-    klist_t      *listnode;
-    ktask_t      *task;
     int           stat_idx;
     int           i;
     char         *cpu_stat[] = { "UNK",      "RDY", "PEND",    "SUS",
                          "PEND_SUS", "SLP", "SLP_SUS", "DEL" };
     const name_t *task_name;
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    char s_task_overview[] = "                              0x         0x      "
+                             "   0x        (0x        )"
+                             "   0x          0x        (0x        )\r\n";
+#else
     char s_task_overview[] = "                              0x         0x      "
                              "   0x        (0x        )\r\n";
+#endif
+
+    if (krhino_task_stack_min_free(task, &free_size) != RHINO_SUCCESS) {
+        free_size = 0;
+    }
+    free_size *= sizeof(cpu_stack_t);
+
+    /* set name */
+    task_name = task->task_name == NULL ? "anonym" : task->task_name;
+    for (i = 0; i < 20; i++) {
+        s_task_overview[i] = ' ';
+    }
+    for (i = 0; i < 20; i++) {
+        if (task_name[i] == '\0') {
+            break;
+        }
+        s_task_overview[i] = task_name[i];
+    }
+
+    /* set state */
+    stat_idx = task->task_state >= sizeof(cpu_stat) / sizeof(char *)
+        ? 0
+        : task->task_state;
+    for (i = 21; i < 29; i++) {
+        s_task_overview[i] = ' ';
+    }
+    for (i = 21; i < 29; i++) {
+        if (cpu_stat[stat_idx][i - 21] == '\0') {
+            break;
+        }
+        s_task_overview[i] = cpu_stat[stat_idx][i - 21];
+    }
+
+    /* set stack priority */
+    k_int2str(task->prio, &s_task_overview[32]);
+
+    /* set stack info */
+    k_int2str((int)task->task_stack_base, &s_task_overview[43]);
+    k_int2str((int)task->stack_size * sizeof(cpu_stack_t),
+            &s_task_overview[54]);
+    k_int2str((int)free_size, &s_task_overview[65]);
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    /* uspace info */
+    k_int2str((int)task->task_ustack_base, &s_task_overview[79]);
+    k_int2str((int)task->ustack_size * sizeof(cpu_stack_t),
+            &s_task_overview[91]);
+
+    if (krhino_utask_stack_min_free(task, &free_size) != RHINO_SUCCESS) {
+        free_size = 0;
+    }
+    free_size *= sizeof(cpu_stack_t);
+    k_int2str((int)free_size, &s_task_overview[102]);
+#endif
+
+    /* print */
+    print_func(s_task_overview);
+
+}
+#if (RHINO_CONFIG_USER_SPACE > 0)
+void debug_task_overview(int (*print_func)(const char *fmt, ...))
+{
+    ktask_t      *task;
+    klist_t      *listnode, *head, *iter;
+    task_group_t *group;
+
+    if (print_func == NULL) {
+        print_func = printf;
+    }
+
+    print_func("---------------------------------------------------------------"
+            "-------------------------------------------------\r\n");
+    print_func("TaskName             State    Prio       Kstack      KstackSize "
+            "(MinFree)    Ustack      UstackSize (MinFree)\r\n");
+    print_func("---------------------------------------------------------------"
+            "-------------------------------------------------\r\n");
+
+    print_func("[kernel task]\r\n");
+    for (listnode = g_kobj_list.task_head.next;
+            listnode != &g_kobj_list.task_head; listnode = listnode->next) {
+        task = krhino_list_entry(listnode, ktask_t, task_stats_item);
+        if (task->pid == 0) /*kenel task pid is 0*/
+            debug_task_show(print_func, task);
+    }
+
+    print_func("\r\n");
+
+    head = task_group_get_list_head();
+
+    if (!is_klist_empty(head)) {
+        for (iter  = head->next; iter != head; iter = iter->next) {
+            group = group_info_entry(iter, task_group_t, node);
+            print_func("[%s - pid:%d - task_num:%d]\r\n", group->tg_name, group->pid, group->task_cnt);
+
+            for (listnode = group->kobj_list.task_head.next;
+                    listnode != &group->kobj_list.task_head; listnode = listnode->next) {
+                task = krhino_list_entry(listnode, ktask_t, task_user);
+                debug_task_show(print_func, task);
+            }
+            print_func("\r\n");
+        }
+    }
+}
+#else
+void debug_task_overview(int (*print_func)(const char *fmt, ...))
+{
+    klist_t      *listnode;
+    ktask_t      *task;
 
     if (print_func == NULL) {
         print_func = printf;
@@ -121,51 +237,10 @@ void debug_task_overview(int (*print_func)(const char *fmt, ...))
     for (listnode = g_kobj_list.task_head.next;
          listnode != &g_kobj_list.task_head; listnode = listnode->next) {
         task = krhino_list_entry(listnode, ktask_t, task_stats_item);
-
-        if (krhino_task_stack_min_free(task, &free_size) != RHINO_SUCCESS) {
-            free_size = 0;
-        }
-        free_size *= sizeof(cpu_stack_t);
-
-        /* set name */
-        task_name = task->task_name == NULL ? "anonym" : task->task_name;
-        for (i = 0; i < 20; i++) {
-            s_task_overview[i] = ' ';
-        }
-        for (i = 0; i < 20; i++) {
-            if (task_name[i] == '\0') {
-                break;
-            }
-            s_task_overview[i] = task_name[i];
-        }
-
-        /* set state */
-        stat_idx = task->task_state >= sizeof(cpu_stat) / sizeof(char *)
-                     ? 0
-                     : task->task_state;
-        for (i = 21; i < 29; i++) {
-            s_task_overview[i] = ' ';
-        }
-        for (i = 21; i < 29; i++) {
-            if (cpu_stat[stat_idx][i - 21] == '\0') {
-                break;
-            }
-            s_task_overview[i] = cpu_stat[stat_idx][i - 21];
-        }
-
-        /* set stack priority */
-        k_int2str(task->prio, &s_task_overview[32]);
-
-        /* set stack info */
-        k_int2str((int)task->task_stack_base, &s_task_overview[43]);
-        k_int2str((int)task->stack_size * sizeof(cpu_stack_t),
-                  &s_task_overview[54]);
-        k_int2str((int)free_size, &s_task_overview[65]);
-
-        /* print */
-        print_func(s_task_overview);
+            debug_task_show(print_func, task);
     }
 }
+#endif /* if (RHINO_CONFIG_USER_SPACE > 0) */
 #else
 void debug_task_overview(int (*print_func)(const char *fmt, ...))
 {
@@ -175,7 +250,7 @@ void debug_task_overview(int (*print_func)(const char *fmt, ...))
 
     print_func("RHINO_CONFIG_KOBJ_LIST in k_config.h is closed!\r\n");
 }
-#endif
+#endif /* #if (RHINO_CONFIG_KOBJ_LIST > 0) */
 
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 #if (RHINO_CONFIG_KOBJ_LIST > 0)

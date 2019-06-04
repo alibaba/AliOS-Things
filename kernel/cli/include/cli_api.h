@@ -20,6 +20,54 @@ struct cli_command_st {
     void (*function)(char *outbuf, int32_t len, int32_t argc, char **argv);
 };
 
+#include <k_api.h>
+#if (RHINO_CONFIG_UCLI > 0)
+struct ucli_command {
+    klist_t                      node;       /**< ucli cmd node */
+    const struct cli_command_st *cmd;        /**< cli cmd pointer */
+    kbuf_queue_t                *push_queue; /**< where the command should be pushed into */
+    int                          owner_pid;  /**< owner process ID */
+};
+
+typedef struct {
+    int    argc; /**< ucli cmd argu count */
+    char **argv; /**< ucli cmd argu vector */
+    void  *func; /**< ucli cmd function pointer */
+} ucli_msg_t;
+
+/**
+ * @brief init process cli component
+ *
+ * @param[in] pid   the process ID
+ *
+ * @return On success, return 0, else return -1
+ */
+int cli_process_init(int pid);
+
+/**
+ * @brief delete all the cli cmds regitered by the process
+ *
+ * @param[in] pid   the process ID
+ */
+void cli_process_exit(int pid);
+
+/**
+ * @brief destory the process cli component
+ *
+ * @param[in] pid   the process ID
+ */
+void cli_process_destory(int pid);
+
+/**
+ * @brief Get CLI user command list head
+ *
+ *
+ * @return user command list head
+ *
+ */
+klist_t* cli_get_ucmd_list(void);
+#endif
+
 /**
  * @brief Initialize the CLI module
  *

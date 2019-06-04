@@ -59,7 +59,7 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...));
  * @param[in]   print_func    function to output information, NULL for
  * "printf"
  */
-void debug_overview();
+void debug_overview(void);
 
 #ifdef __cplusplus
 }

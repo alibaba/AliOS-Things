@@ -11,11 +11,7 @@
 #include "cli_conf.h"
 #include "cli_api.h"
 #include "cli_adapt.h"
-
-#include "k_config.h"
-#if (RHINO_CONFIG_USER_SPACE > 0)
-#include "uapp.h"
-#endif
+#include "k_api.h"
 
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
@@ -39,6 +35,11 @@
 #define CLI_MAX_ONCECMD_NUM 1
 #endif
 
+#if (RHINO_CONFIG_UCLI > 0)
+#include "task_group.h"
+#include "res.h"
+#endif
+
 struct cli_status {
     int32_t  inited;
     uint32_t num;
@@ -50,11 +51,8 @@ struct cli_status {
 
     const struct cli_command_st *cmds[CLI_MAX_COMMANDS];
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-    /* user cli: pid = 1,2,3..*/
-    const struct cli_command_st *u_cmds[MAX_APP_BINS + 1][CLI_MAX_COMMANDS];
-    uint32_t     u_num[MAX_APP_BINS + 1];
-    kqueue_t    *u_cli_queue[MAX_APP_BINS + 1];
+#if (RHINO_CONFIG_UCLI > 0)
+    klist_t ucmd_list_head;
 #endif
 
 #if (CLI_MINIMUM_MODE <= 0)
@@ -72,26 +70,6 @@ static int32_t volatile g_cli_exit = 0;
 
 static char    g_cli_tag[64] = {0};
 static uint8_t g_cli_tag_len =  0;
-
-#if (RHINO_CONFIG_USER_SPACE > 0)
-static uint32_t lookup_command_pid(const char *name)
-{
-    uint32_t pid_i = 1, j = 0, user_cmd_num = 0;
-
-    while (pid_i < (MAX_APP_BINS + 1)) {
-
-        user_cmd_num = g_cli->u_num[pid_i];
-
-        for (j = 0; j < user_cmd_num; j++) {
-            if (!strcmp(g_cli->u_cmds[pid_i][j]->name, name))
-                return pid_i;
-        }
-
-        pid_i++;
-    }
-    return 0;
-}
-#endif
 
 static const struct cli_command_st *lookup_command(char *name, int len)
 {
@@ -121,6 +99,37 @@ static const struct cli_command_st *lookup_command(char *name, int len)
     return NULL;
 }
 
+#if (RHINO_CONFIG_UCLI > 0)
+static const struct ucli_command* lookup_user_command(char *name, int len)
+{
+    struct ucli_command *ucmd;
+    klist_t             *head;
+    klist_t             *iter;
+    klist_t             *next;
+
+    head = &g_cli->ucmd_list_head;
+    iter = head->next;
+
+    /* check whether the cmd has been registered */
+    while (iter != head) {
+        next = iter->next;
+        ucmd = krhino_list_entry(iter, struct ucli_command, node);
+        if (len) {
+            if (!strncmp(ucmd->cmd->name, name, len)) {
+                return ucmd;
+            }
+        } else {
+            if (!strcmp(ucmd->cmd->name, name)) {
+                return ucmd;
+            }
+        }
+        iter = next;
+    }
+
+    return NULL;
+}
+#endif
+
 static int32_t proc_onecmd(int argc, char *argv[])
 {
     int32_t i = 0;
@@ -130,9 +139,17 @@ static int32_t proc_onecmd(int argc, char *argv[])
 
     const struct cli_command_st *command = NULL;
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-    uint32_t  pid;
-    kqueue_t *cli_q;
+#if (RHINO_CONFIG_UCLI > 0)
+    const struct ucli_command *ucmd;
+
+    task_group_t  *group;
+    void          *user_ptr;
+    char         **argv_ptr;
+    char          *ptr;
+    size_t         size;
+    size_t         str_len;
+    int            arg_cnt;
+    ucli_msg_t     ucli_msg;
 #endif
 
     if (argc < 1) {
@@ -155,18 +172,44 @@ static int32_t proc_onecmd(int argc, char *argv[])
 
     command = lookup_command(argv[0], i);
     if (command == NULL) {
+#if (RHINO_CONFIG_UCLI > 0)
+        ucmd = lookup_user_command(argv[0], i);
+        if (ucmd != NULL) {
+            if (argc > 0) {
+                size = 0;
+                for (arg_cnt = 0; arg_cnt < argc; arg_cnt++) {
+                     size += strlen(argv[arg_cnt]) + 1;
+                }
+                size += arg_cnt * sizeof(void*);
+                group = task_group_get_by_pid(ucmd->owner_pid);
+                user_ptr = res_malloc(group->pid, size);
+                if (user_ptr) {
+                    memset(user_ptr, 0, size);
+                    argv_ptr = (char**)user_ptr;
+                    ptr = (char*)user_ptr + argc * sizeof(void*);
+                    for (arg_cnt = 0; arg_cnt < argc; arg_cnt++) {
+                        str_len = strlen(argv[arg_cnt]);
+                        memcpy(ptr, argv[arg_cnt], str_len);
+                        argv_ptr[arg_cnt] = ptr;
+                        ptr += str_len + 1;
+                    }
+                    ucli_msg.argc = argc;
+                    ucli_msg.argv = argv_ptr;
+                }
+            } else {
+                ucli_msg.argc = 0;
+                ucli_msg.argv = NULL;
+            }
+            ucli_msg.func = (void*)ucmd->cmd->function;
+            krhino_buf_queue_send(ucmd->push_queue, (void*)&ucli_msg, sizeof(ucli_msg_t));
+            return 0;
+        }
+
         return 1;
-    }
-
-#if (RHINO_CONFIG_USER_SPACE > 0)
-    pid = lookup_command_pid(command->name);
-
-    if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
-        cli_q = g_cli->u_cli_queue[pid];
-        krhino_queue_back_send(cli_q, (void*)command);
-        return 0;
-    }
+#else
+    return 1;
 #endif
+    }
 
     g_cli->outbuf = cli_malloc(CLI_OUTBUF_SIZE);
     if (NULL == g_cli->outbuf) {
@@ -686,6 +729,66 @@ void cli_main(void *data)
     cli_task_exit();
 }
 
+#if (RHINO_CONFIG_UCLI > 0)
+klist_t* cli_get_ucmd_list(void)
+{
+    if (NULL != g_cli)
+        return &g_cli->ucmd_list_head;
+    else
+        return NULL;
+}
+
+int cli_process_init(int pid)
+{
+    kbuf_queue_t *cli_buf_q;
+    task_group_t *group;
+    int ret;
+
+    group = task_group_get_by_pid(pid);
+
+    ret = krhino_fix_buf_queue_dyn_create(&cli_buf_q,
+                                          "cli_buf_queue",
+                                          sizeof(ucli_msg_t),
+                                          2);
+    if (ret != RHINO_SUCCESS) {
+        return -1;
+    }
+
+    group->cli_q = cli_buf_q;
+
+    return 0;
+}
+
+void cli_process_exit(int pid)
+{
+    struct ucli_command *ucmd;
+    klist_t             *head;
+    klist_t             *iter;
+
+    head = &g_cli->ucmd_list_head;
+    iter = head->next;
+    while (iter != head) {
+        ucmd = krhino_list_entry(iter, struct ucli_command, node);
+        iter = iter->next;
+        if (ucmd->owner_pid == pid) {
+            klist_rm(&ucmd->node);
+            cli_free(ucmd);
+        }
+    }
+}
+
+void cli_process_destory(int pid)
+{
+    task_group_t *group;
+
+    group = task_group_get_by_pid(pid);
+    if (group->cli_q) {
+        krhino_buf_queue_dyn_del(group->cli_q);
+        group->cli_q = NULL;
+    }
+}
+#endif
+
 int32_t cli_init(void)
 {
     int32_t ret;
@@ -702,6 +805,10 @@ int32_t cli_init(void)
         cli_printf("Error: Failed to create cli thread: %d\r\n", ret);
         goto init_err;
     }
+
+#if (RHINO_CONFIG_UCLI > 0)
+    klist_init(&g_cli->ucmd_list_head);
+#endif
 
     g_cli->inited        = 1;
     g_cli->echo_disabled = 0;
@@ -739,10 +846,12 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
 {
     int32_t i = 0;
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-    uint32_t  pid = 0;
-    void     *cli_q;
-    ktask_t  *cur_task, *cur_proc;
+#if (RHINO_CONFIG_UCLI > 0)
+    klist_t             *head;
+    struct ucli_command *ucmd;
+    klist_t             *iter, *next;
+    ktask_t             *cur_task;
+    task_group_t        *group;
 #endif
 
     if (g_cli == NULL) {
@@ -767,29 +876,40 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
         }
     }
 
-    g_cli->cmds[g_cli->num++] = cmd;
-
-#if (RHINO_CONFIG_USER_SPACE > 0)
+#if (RHINO_CONFIG_UCLI > 0)
     cur_task = krhino_cur_task_get();
-    cur_proc = cur_task->proc_addr;
-
-    if (cur_proc == NULL)
-        return 0;
-
-    pid   = cur_proc->pid;
-    cli_q = cur_proc->cli_q;
-
-    if (!cli_q)
-        return CLI_ERR_INVALID;
-
-    /*user app pid:1,2,3..*/
-    if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
-        g_cli->u_cmds[pid][g_cli->u_num[pid]] = cmd;
-        g_cli->u_num[pid] ++;
-        if (g_cli->u_cli_queue[pid] == NULL)
-            g_cli->u_cli_queue[pid] = (kqueue_t *)cli_q;
+    group = cur_task->task_group;
+    if (NULL == group) {
+        goto register_kernel_cmd;
     }
+
+    head = &g_cli->ucmd_list_head;
+    iter = head->next;
+    while (iter != head) {
+        next = iter->next;
+        ucmd = krhino_list_entry(iter, struct ucli_command, node);
+        if (!strcmp(ucmd->cmd->name, cmd->name)) {
+            cli_printf("Warning: user cmd %s is already registered\r\n",
+                       cmd->name);
+            return CLI_OK;
+        }
+        iter = next;
+    }
+
+    ucmd = (struct ucli_command*)cli_malloc(sizeof(struct ucli_command));
+    if (NULL == ucmd) {
+        return CLI_ERR_NOMEM;
+    }
+
+    ucmd->cmd = cmd;
+    ucmd->push_queue = group->cli_q;
+    ucmd->owner_pid = group->pid;
+    klist_add(head, &ucmd->node);
+    return CLI_OK;
+register_kernel_cmd:
 #endif
+
+    g_cli->cmds[g_cli->num++] = cmd;
 
     return CLI_OK;
 }
@@ -798,6 +918,12 @@ int32_t cli_unregister_command(const struct cli_command_st *cmd)
 {
     int32_t remaining_cmds;
     int32_t i = 0;
+#if (RHINO_CONFIG_UCLI > 0)
+    struct ucli_command *ucmd;
+    klist_t             *head;
+    klist_t             *iter;
+    klist_t             *next;
+#endif
 
     if (g_cli == NULL) {
         return CLI_ERR_DENIED;
@@ -806,6 +932,23 @@ int32_t cli_unregister_command(const struct cli_command_st *cmd)
     if (!cmd->name || !cmd->function) {
         return CLI_ERR_INVALID;
     }
+
+#if (RHINO_CONFIG_UCLI > 0)
+    head = &g_cli->ucmd_list_head;
+    iter = head->next;
+    while (iter != head) {
+        next = iter->next;
+        ucmd = krhino_list_entry(iter, struct ucli_command, node);
+        if (!strcmp(ucmd->cmd->name, cmd->name)) {
+            cli_printf("%s: unregister ucmd %s\r\n",
+                       __func__, ucmd->cmd->name);
+            klist_rm(&ucmd->node);
+            cli_free(ucmd);
+            return CLI_OK;
+        }
+        iter = next;
+    }
+#endif
 
     for (i = 0; i < g_cli->num; i++) {
         if (g_cli->cmds[i] == cmd) {
