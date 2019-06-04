@@ -4,57 +4,34 @@
 
 #ifdef __ICCARM__
 #include <stdarg.h>
-#include <sys/types.h>
-#include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include "aos/kernel.h"
 
+#include "sys/types.h"
+#include "sys/time.h"
 #include "aos/hal/uart.h"
+#include "umm.h"
 
 int errno;
 
-extern void      *aos_malloc(unsigned int size);
-extern void       aos_alloc_trace(void *addr, size_t allocator);
-extern void       aos_free(void *mem);
-extern void      *aos_realloc(void *mem, unsigned int size);
 extern long long  aos_now_ms(void);
 
 __ATTRIBUTES void *malloc(unsigned int size)
 {
-    void *mem;
-
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
-    mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_malloc(size);
-#endif
-
-    return mem;
+    return umm_alloc(size);
 }
 
 __ATTRIBUTES void *realloc(void *old, unsigned int newlen)
 {
-    void *mem;
-
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
-    mem = aos_realloc(old, newlen | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_realloc(old, newlen);
-#endif
-
-    return mem;
+    return umm_realloc(old, newlen);
 }
 
 __ATTRIBUTES void *calloc(size_t len, size_t elsize)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
-    mem = aos_malloc((elsize * len) | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_malloc(elsize * len);
-#endif
+    mem = umm_alloc(elsize * len);
 
     if (mem) {
         memset(mem, 0, elsize * len);
@@ -65,7 +42,7 @@ __ATTRIBUTES void *calloc(size_t len, size_t elsize)
 
 __ATTRIBUTES void free(void *mem)
 {
-    aos_free(mem);
+    umm_free(mem);
 }
 
 __ATTRIBUTES time_t time(time_t *tod)
@@ -138,9 +115,9 @@ int remove(char const *p)
     return 0;
 }
 
-void gettimeofday()
+int gettimeofday(struct timeval *tp, void *ignore)
 {
-
+    return 0;
 }
 
 void getopt()
