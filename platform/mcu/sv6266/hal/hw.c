@@ -2,10 +2,16 @@
 #include <hal/wifi.h>
 #include <hal/ota.h>
 #include "soc_defs.h"
+#include "osal.h"
 
 void hal_reboot(void)
 {
-    REG32(0xC0000000) = (1<<21);
+    OS_DeclareCritical();
+    OS_EnterCritical();
+    drv_wdt_init();
+    drv_wdt_enable(1, 100);
+    while(1);
+    OS_ExitCritical();
 }
 
 extern hal_wifi_module_t sim_aos_wifi_icomm;
