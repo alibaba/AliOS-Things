@@ -43,13 +43,13 @@ void tim5_info_show(void);
 #endif /* TIM5_DBG */
 
 static pwr_status_t tim5_timer_init(void);
-static uint32_t     tim5_one_shot_max_seconds(void);
+static uint32_t     tim5_one_shot_max_msec(void);
 static pwr_status_t tim5_one_shot_start(uint64_t planUs);
 static pwr_status_t tim5_one_shot_stop(uint64_t *pPassedUs);
 
 one_shot_timer_t tim5_one_shot = {
     tim5_timer_init,
-    tim5_one_shot_max_seconds,
+    tim5_one_shot_max_msec,
     tim5_one_shot_start,
     tim5_one_shot_stop,
 };
@@ -156,10 +156,10 @@ void TIM5_IRQHandler(void)
 }
 
 /* return the max period(in second) that could trigger interrupt */
-uint32_t tim5_one_shot_max_seconds(void)
+uint32_t tim5_one_shot_max_msec(void)
 {
     /* the max 32 bit value / count frequency */
-    return (0xffffffff / 710000);
+    return ((uint64_t)0xffffffff * 1000 / 710000);
 }
 
 /**
@@ -316,7 +316,7 @@ void tim5_info_show(void)
     printf("freq_of_internal_count = %d\n", freq_of_internal_count);
     printf("internal_prescaler_val = %d\n", internal_prescaler_val);
     printf("count_per_tick         = %d\n", count_per_tick);
-    printf("max intrpt seconds     = %d\n", tim5_one_shot_max_seconds());
+    printf("max intrpt seconds     = %d\n", tim5_one_shot_max_msec());
     printf("tim5_irq_count         = %d\n", tim5_irq_count);
 }
 #endif /* TIM5_DBG */
