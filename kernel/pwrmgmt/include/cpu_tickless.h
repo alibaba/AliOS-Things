@@ -16,13 +16,13 @@ extern "C"
 #include "cpu_pwr_state.h"
 
 typedef pwr_status_t (*one_shot_init_t)(void);
-typedef uint32_t     (*one_shot_seconds_max_t)(void);
+typedef uint32_t     (*one_shot_msec_max_t)(void);
 typedef pwr_status_t (*one_shot_start_t)(uint64_t planUse);
 typedef pwr_status_t (*one_shot_stop_t)(uint64_t *pPassedUs);
 
 typedef struct {
     one_shot_init_t        one_shot_init;
-    one_shot_seconds_max_t one_shot_seconds_max;
+    one_shot_msec_max_t    one_shot_msec_max;
     one_shot_start_t       one_shot_start;
     one_shot_stop_t        one_shot_stop;
 } one_shot_timer_t;
