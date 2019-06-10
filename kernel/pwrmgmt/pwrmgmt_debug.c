@@ -102,8 +102,6 @@ void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...)
 {
     va_list param;
 
-    printf("pwrmgmt:");
-
     if (debug_level >= PWRMGMT_LOG_LEVEL) {
         va_start(param,fmt_str);
         vprintf(fmt_str,param);
