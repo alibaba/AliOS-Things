@@ -22,7 +22,7 @@
 #define TIMER_FREQ 32768
 
 static pwr_status_t rtc_init(void);
-static uint32_t     rtc_one_shot_max_seconds(void);
+static uint32_t     rtc_one_shot_max_msec(void);
 static pwr_status_t rtc_one_shot_start(uint64_t planUs);
 static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs);
 
@@ -30,7 +30,7 @@ uint64_t expeted_sleep_ms = 0;
 
 one_shot_timer_t rtc_one_shot = {
     rtc_init,
-    rtc_one_shot_max_seconds,
+    rtc_one_shot_max_msec,
     rtc_one_shot_start,
     rtc_one_shot_stop,
 };
@@ -65,10 +65,10 @@ static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs)
     return PWR_OK;
 }
 
-static uint32_t rtc_one_shot_max_seconds(void)
+static uint32_t rtc_one_shot_max_msec(void)
 {
     if (pmu_get_wakelock_status() == 0) {
-        return 0xffffffff/TIMER_FREQ;
+        return ((uint64_t)0xffffffff * 1000 / TIMER_FREQ);
     } else {
         return 0;
     }
