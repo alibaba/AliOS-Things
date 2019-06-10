@@ -22,14 +22,14 @@ static uint32_t init_flag = 0;
 
 
 static pwr_status_t mcu_timer_init(void);
-static uint32_t     mcu_one_shot_max_seconds(void);
+static uint32_t     mcu_one_shot_max_msec(void);
 static pwr_status_t mcu_one_shot_start(uint64_t planUs);
 static pwr_status_t mcu_one_shot_stop(uint64_t *pPassedUs);
 
 one_shot_timer_t mcu_one_shot =
 {
     mcu_timer_init,
-    mcu_one_shot_max_seconds,
+    mcu_one_shot_max_msec,
     mcu_one_shot_start,
     mcu_one_shot_stop,
 };
@@ -56,10 +56,10 @@ pwr_status_t mcu_timer_init(void)
 
 
 /* return the max period(in second) that could trigger interrupt */
-uint32_t mcu_one_shot_max_seconds(void)
+uint32_t mcu_one_shot_max_msec(void)
 {
     /* the max 32 bit value / count frequency */
-    return (0xffffffff / 32000);
+    return ((uint64_t)0xffffffff * 1000 / 32000);
 }
 
 /**

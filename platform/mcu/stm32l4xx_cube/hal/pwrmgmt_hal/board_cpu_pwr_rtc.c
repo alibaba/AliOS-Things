@@ -30,7 +30,7 @@ extern void SystemClock_Config(void);
 
 static uint32_t          one_shot_enabled     = 0;
 static uint32_t          one_shot_start_value = 0;
-static uint32_t          one_shot_max_period  = 0; /* seconds */
+static uint32_t          one_shot_max_period  = 0; /*microseconds */
 static kspinlock_t       rtc_spin;
 static RTC_HandleTypeDef RtcHandle;
 
@@ -39,18 +39,18 @@ static int               rtc_wakeup_irq_count  = 0;
 #endif /* RTC_ONE_SHOT_DBG */
 
 static pwr_status_t rtc_init(void);
-static uint32_t     rtc_one_shot_max_seconds(void);
+static uint32_t     rtc_one_shot_max_msec(void);
 static pwr_status_t rtc_one_shot_start(uint64_t planUs);
 static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs);
 
 one_shot_timer_t rtc_one_shot = {
     rtc_init,
-    rtc_one_shot_max_seconds,
+    rtc_one_shot_max_msec,
     rtc_one_shot_start,
     rtc_one_shot_stop,
 };
 
-static uint32_t rtc_one_shot_max_seconds(void)
+static uint32_t rtc_one_shot_max_msec(void)
 {
     return one_shot_max_period;
 }
@@ -116,10 +116,10 @@ static pwr_status_t rtc_init(void)
     }
 
 #ifdef RTC_WAKEUP_SOURCE_FREQ_2000HZ
-    one_shot_max_period = (RTC_WAKE_UP_RGE_MAX / 2000);
+    one_shot_max_period = (RTC_WAKE_UP_RGE_MAX * (uint64_t)1000 / 2000);
 #endif
 #ifdef RTC_WAKEUP_SOURCE_FREQ_1HZ
-    one_shot_max_period = RTC_WAKE_UP_RGE_MAX;
+    one_shot_max_period = RTC_WAKE_UP_RGE_MAX * 1000;
 #endif
 
 #ifdef RTC_ONE_SHOT_DBG
@@ -162,7 +162,7 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
     uint64_t wakeup_ms      = planUs / 1000;
     uint32_t wakeup_s       = wakeup_ms / 1000;
 
-    if ((wakeup_s > one_shot_max_period)
+    if ((wakeup_s > (one_shot_max_period / 1000))
 #ifdef RTC_WAKEUP_SOURCE_FREQ_1HZ
         || (wakeup_s == 0))
 #endif
