@@ -40,7 +40,7 @@ extern void rda_timer_irq_set(void);
 extern void rda_ccfg_aontmr_cksrc(int cksrc);
 
 static pwr_status_t lpticker_init(void);
-static uint32_t     lpticker_one_shot_max_seconds(void);
+static uint32_t     lpticker_one_shot_max_msec(void);
 static pwr_status_t lpticker_one_shot_start(uint64_t planUs);
 static pwr_status_t lpticker_one_shot_stop(uint64_t *pPassedUs);
 static void lp_timer_isr(void);
@@ -48,7 +48,7 @@ static uint32_t last_timetamp;
 
 one_shot_timer_t lpticker_one_shot = {
     lpticker_init,
-    lpticker_one_shot_max_seconds,
+    lpticker_one_shot_max_msec,
     lpticker_one_shot_start,
     lpticker_one_shot_stop,
 };
@@ -265,8 +265,8 @@ static pwr_status_t lpticker_one_shot_stop(uint64_t *pPassedUs)
     return PWR_OK;
 }
 
-static uint32_t lpticker_one_shot_max_seconds(void){
-    return (FREE_TIMER_INIT_VAL/LP_TIMER_CLOCK_SOURCE);
+static uint32_t lpticker_one_shot_max_msec(void){
+    return (FREE_TIMER_INIT_VAL * (uint64_t)1000 / LP_TIMER_CLOCK_SOURCE);
 }
 
 static void lp_timer_isr(void){
