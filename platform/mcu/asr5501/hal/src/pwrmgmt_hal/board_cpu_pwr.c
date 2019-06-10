@@ -16,7 +16,7 @@ provides low-level interface for setting CPU P-states.
 
 #if (AOS_COMP_PWRMGMT > 0)
 
-#include <cpu_pwr.h>
+#include <pwrmgmt_api.h>
 #include <cpu_pwr_hal_lib.h>
 #include <pwrmgmt_debug.h>
 #include <cpu_tickless.h>
@@ -144,5 +144,20 @@ pwr_status_t board_cpu_pwr_init(void)
 
     return retVal;
 }
+
+int pwrmgmt_suspend_lowpower() {
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_exit_powersave();
+#endif
+    return 1;
+}
+
+int pwrmgmt_resume_lowpower() {
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    wifi_enter_powersave();
+#endif
+    return 1;
+}
+
 
 #endif /* AOS_COMP_PWRMGMT */

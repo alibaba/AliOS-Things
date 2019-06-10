@@ -41,10 +41,20 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
 {
     uint32_t status = 0;
     uint32_t cc_counter = planUs * RTC_FREQ / 1000000;
+#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
+     static sys_time_t last_log_entersleep = 0;
+#endif
 
     if ((planUs / 1000) < 4) {
         return PWR_ERR;
     }
+
+#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
+    if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
+        last_log_entersleep = krhino_sys_tick_get();
+        printf("enter sleep %d ms\r\n", (uint32_t) planUs/1000);
+    }
+#endif
 
     status = lega_drv_rtc_cc_set(cc_counter, PMU_STATE_MODEMSLEEP);
     if (status == 0) {
