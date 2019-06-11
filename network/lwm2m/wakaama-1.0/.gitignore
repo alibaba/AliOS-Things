@@ -1,0 +1,35 @@
+# Object files, release bundles
+*.o
+*.lo
+*~
+*.la
+*.pc
+*.tgz
+*.gz
+*.user
+.dirstamp
+
+# Eclipse
+.cproject
+.project
+.settings
+
+# QtCreator
+build-*
+
+# In source build
+Makefile
+CMakeCache.txt
+CMakeFiles
+Debug
+Release
+DebugServer
+ReleaseServer
+cmake_install.cmake
+core/CMakeCache.txt
+core/CMakeFiles
+core/Makefile
+core/cmake_install.cmake
+lwm2mclient
+lwm2mserver
+tlvdecode

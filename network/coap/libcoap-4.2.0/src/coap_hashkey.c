@@ -5,7 +5,7 @@
  * This file is part of the CoAP library libcoap. Please see
  * README for terms of use.
  */
-
+#include "coap_config.h"
 #include "coap_hashkey.h"
 
 void
