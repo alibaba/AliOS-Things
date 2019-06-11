@@ -119,6 +119,12 @@ if AOS_APP_LINKWAN
         default "lorawan.linkwan"
 endif
 
+source "app/example/lwm2mapp/Config.in"
+if AOS_APP_LWM2MAPP
+    config AOS_BUILD_APP
+        default "lwm2mapp"
+endif
+
 source "app/example/meshapp/Config.in"
 if AOS_APP_MESHAPP
     config AOS_BUILD_APP
