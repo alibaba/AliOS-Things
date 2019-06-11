@@ -11,7 +11,7 @@
 
 #if !defined(HAVE_LIBTINYDTLS) && !defined(HAVE_OPENSSL) && !defined(HAVE_LIBGNUTLS)
 
-#include "../coap2/net.h"
+#include "coap_net.h"
 
 #ifdef __GNUC__
 #define UNUSED __attribute__((unused))

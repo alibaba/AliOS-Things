@@ -1,0 +1,20 @@
+config AOS_COMP_COAP
+    bool "Coap"
+    default n
+    help
+        AliOS Things coap client
+
+if AOS_COMP_COAP
+# Configurations for comp coap component
+
+config COAP_WITH_DTLS
+    bool "COAP WITH DTLS"
+    select AOS_COMP_MBEDTLS
+    select UTILS_LITE_CJSON
+    select AOS_COMP_LINKKIT_SDK_C
+    select AOS_COMP_IOTX_HAL
+    select HAL_CRYPTO
+    default y
+    help
+
+endif

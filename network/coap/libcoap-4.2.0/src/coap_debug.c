@@ -36,7 +36,7 @@
 #include "block.h"
 #include "coap_debug.h"
 #include "encode.h"
-#include "../coap2/net.h"
+#include "coap_net.h"
 
 #ifdef WITH_LWIP_LIBCOAP
 # define fprintf(fd, ...) LWIP_PLATFORM_DIAG((__VA_ARGS__))

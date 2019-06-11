@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := libcoap component
 
-$(NAME)_COMPONENTS := imbedtls activation chip_code libiot_sdk_impl libiot_system libiot_utils iotx-hal
+$(NAME)_COMPONENTS := mbedtls activation chip_code libiot_sdk_impl libiot_system libiot_utils iotx-hal
 
 LIBCOAP_SRC_PATH := ./libcoap-4.2.0/src
 
@@ -25,9 +25,18 @@ $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    $(LIBCOAP_SRC_PATH)/net.c \
                    $(LIBCOAP_SRC_PATH)/address.c \
                    $(LIBCOAP_SRC_PATH)/coap_debug.c  \
-                   $(LIBCOAP_SRC_PATH)/coap_mbeddtls.c \
                    $(LIBCOAP_SRC_PATH)/mem.c  \
                    ./iotx_coap_api.c
+
+ifeq (y,$(AOS_COMP_LWM2M))
+$(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/wakaa_lwm2m_adapter.c
+endif
+
+ifeq (y,$(COAP_WITH_DTLS))
+$(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_mbedtls.c
+else
+$(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
+endif
 
 GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/
 
