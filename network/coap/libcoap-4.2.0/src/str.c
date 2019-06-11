@@ -12,7 +12,7 @@
 
 #include "libcoap.h"
 #include "coap_debug.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "str.h"
 
 coap_string_t *coap_new_string(size_t size) {

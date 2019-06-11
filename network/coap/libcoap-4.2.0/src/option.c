@@ -21,7 +21,7 @@
 #include "option.h"
 #include "encode.h"                /* for coap_fls() */
 #include "coap_debug.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "utlist.h"
 
 #define ADVANCE_OPT(o,e,step) if ((e) < step) {           \

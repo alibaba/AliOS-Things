@@ -1,0 +1,51 @@
+This is a simple Bootstrap Server.
+Usage: bootstap_server [OPTION]
+Options:
+  -f FILE   Specify BootStrap Information file. Default: ./bootstrap_info.ini
+  -p PORT   Set the local UDP port of the Client. Default: 5685
+
+When it receives a Bootstrap Request from a LWM2M Client, it sends commands as
+described in the Bootstrap Information file.
+This file is a custom .INI file:
+
+Commented lines starts either with a # or a ;
+Spaces before [ and key names are ignored. Spaces around = are ignored.
+Spaces at the end of lines are ignored.
+
+Supported sections are [Server] and [Endpoint].
+
+[Server] describes a LWM2M Server account. Keys are:
+  - id: the short ID of the LWM2M Server. Also used as the instance ID
+        to avoid collisions. (MANDATORY)
+  - uri: the URI of the LWM2M Server (MANDATORY)
+  - bootstrap: supported values are YES or NO. Determines if this
+               server is a Bootstrap Server. (Optional, default is no)
+  - lifetime: registration lifetime. (optional)
+  - security: security mode. Supported values are NoSec, PSK, RPK and
+              Certificate. (MANDATORY)
+  - public: the client public key or identity as defined by resource
+            /0/x/3
+  - server: the server public key as defined by resource /0/x/4
+  - secret: the private key or secret key as defined by resource /0/x/5
+
+Keys are hexadecimal strings. No spaces, no dashes. Upper of lower case letters.
+
+[Endpoint] contains the Bootstrap operations. If no Name is specified,
+these operations will be sent to any unknown Client that requests
+Bootstrap Information. If a Name is specified, the operations will be
+sent only to the Client with the matching Endpoint Name. (No wildcards).
+Operations are sent in the same order as they appear in this file.
+
+Supported keys for this section are:
+  - Name: Endpoint Name of the Client (Optional)
+  - Delete: Value must be a valid LWM2M URI. / is allowed. Send a Delete
+            operation on the URI.
+  - Server: [Value] is a Server ID matching a Server section. Send one
+            or two Write operations containing the LWM2M Server
+            informations (one operation only for Bootstrap Servers as they
+            do not have a matching LWM2M Server Object instance.)
+
+All keywords (section names, key names, "yes", "no", "NoSec", "PSK",
+"RPK", "Certificate") are case-insensitive.
+
+Please see the example provided in this folder.

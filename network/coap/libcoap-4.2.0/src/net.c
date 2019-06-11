@@ -44,14 +44,14 @@
 #include "libcoap.h"
 #include "utlist.h"
 #include "coap_debug.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "str.h"
 #include "async.h"
 #include "resource.h"
 #include "option.h"
 #include "encode.h"
 #include "block.h"
-#include "../coap2/net.h"
+#include "coap_net.h"
 #include "utlist.h"
 
 #ifndef min

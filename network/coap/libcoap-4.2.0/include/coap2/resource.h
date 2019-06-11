@@ -26,7 +26,7 @@
 #include "async.h"
 #include "str.h"
 #include "pdu.h"
-#include "../coap2/net.h"
+#include "coap_net.h"
 #include "subscribe.h"
 
 /**

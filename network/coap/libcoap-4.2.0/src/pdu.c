@@ -31,7 +31,7 @@
 #include "pdu.h"
 #include "option.h"
 #include "encode.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "coap_session.h"
 
 #ifndef min
@@ -168,7 +168,7 @@ coap_pdu_resize(coap_pdu_t *pdu, size_t new_size) {
     } else {
       offset = 0;
     }
-    new_hdr = (uint8_t*)realloc(pdu->token - pdu->max_hdr_size, new_size + pdu->max_hdr_size);
+    new_hdr = (uint8_t*)coap_realloc(pdu->token - pdu->max_hdr_size, new_size + pdu->max_hdr_size);
     if (new_hdr == NULL) {
       coap_log(LOG_WARNING, "coap_pdu_resize: realloc failed\n");
       return 0;
