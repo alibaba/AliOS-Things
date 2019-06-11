@@ -113,4 +113,7 @@ COAP_STATIC_INLINE void coap_free(void *pointer) {
 
 #endif /* WITH_LWIP_LIBCOAP */
 
+void *
+coap_realloc(void *mem, unsigned int size);
+
 #endif /* COAP_MEM_H_ */

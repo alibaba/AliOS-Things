@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #include "libcoap.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "coap_debug.h"
 #include "pdu.h"
 #include "option.h"

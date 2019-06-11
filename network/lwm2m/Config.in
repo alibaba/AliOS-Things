@@ -1,0 +1,23 @@
+config AOS_COMP_LWM2M
+    bool "LwM2M Client"
+    default n
+    select AOS_COMP_COAP
+    help
+        AliOS Things lwm2m component
+
+if AOS_COMP_LWM2M
+# Configurations for comp lwm2m client component
+
+config LWM2M_BOOTSTRAP_CLIENT_SUPPORT
+    bool "LwM2M Bootstrap Client"
+    default n
+    help
+      
+config LWM2M_WITH_DTLS
+    bool "LwM2M WITH DTLS"
+    select MBEDTLS_CONFIG_CRYPTO_AES
+    select MBEDTLS_CONFIG_CRYPTO_MODE_CCM
+    default y
+    help
+
+endif

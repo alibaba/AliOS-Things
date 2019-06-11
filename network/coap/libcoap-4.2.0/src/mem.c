@@ -9,7 +9,7 @@
 
 #include "coap_config.h"
 #include "libcoap.h"
-#include "../coap2/mem.h"
+#include "coap_mem.h"
 #include "coap_debug.h"
 
 #ifdef HAVE_ASSERT_H
@@ -44,6 +44,12 @@ coap_free_type(coap_memory_tag_t type, void *p) {
   (void)type;
   //free(p);
   aos_free(p);
+}
+
+void *
+coap_realloc(void *mem, unsigned int size)
+{
+  return aos_realloc(mem, size);
 }
 
 #else /* HAVE_MALLOC */
@@ -149,6 +155,12 @@ coap_malloc_type(coap_memory_tag_t type, size_t size) {
 void
 coap_free_type(coap_memory_tag_t type, void *object) {
   memb_free(get_container(type), object);
+}
+void *
+coap_realloc(void *mem, unsigned int size)
+{
+    coap_log(LOG_ERR, "coap_realloc is not implementd\n");
+    return -1;
 }
 #endif /* WITH_CONTIKI */
 

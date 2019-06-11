@@ -1,24 +1,27 @@
 /*
- * coap_mbeddtls.c -- Datagram Transport Layer Support for libcoap
+ * coap_mbedtls.c -- Datagram Transport Layer Support for libcoap
  *
  * Copyright (C) 2016 Olaf Bergmann <bergmann@tzi.org>
  *
  * This file is part of the CoAP library libcoap. Please see README for terms
  * of use.
  */
-
 #include "coap_config.h"
 
 #ifdef HAVE_MBEDTLS
 
 #include <errno.h>
 
-#include "../coap2/net.h"
-#include "../coap2/mem.h"
+#include "coap_net.h"
+#include "coap_mem.h"
 #include "coap_debug.h"
 
-#include "ali_crypto.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+#include "mbedtls/ctr_drbg.h"
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/ssl.h"
@@ -39,12 +42,12 @@ typedef struct coap_mbedtls_st {
   coap_tick_t timeout;
 } coap_mbedtls_data;
 
-typedef struct coap_mbeddtls_context_t {
+typedef struct coap_mbedtls_context_t {
     char *root_ca_file;
     char *root_ca_path;
-} coap_mbeddtls_context_t;
+} coap_mbedtls_context_t;
 
-typedef struct coap_mbeddtls_session_t {
+typedef struct coap_mbedtls_session_t {
     mbedtls_ssl_context          context;
     mbedtls_ssl_config           config;
 #ifdef MBEDTLS_ENTROPY_C
@@ -59,7 +62,7 @@ typedef struct coap_mbeddtls_session_t {
     mbedtls_ssl_cookie_ctx       cookie_ctx;
     coap_mbedtls_data            coap_ssl_data;
     int                          established;
-} coap_mbeddtls_session_t;
+} coap_mbedtls_session_t;
 
 typedef struct {
     unsigned char             *p_ca_cert_pem;
@@ -80,13 +83,14 @@ typedef struct {
 
 static int ssl_random(void *prng, unsigned char *output, size_t output_len)
 {
-    struct timeval tv;
+    uint32_t rnglen = output_len;
+    uint8_t rngoffset = 0;
 
-    (void)prng;
-
-    gettimeofday(&tv, NULL);
-    ali_seed((uint8_t *)&tv.tv_usec, sizeof(suseconds_t));
-    ali_rand_gen(output, output_len);
+    while (rnglen > 0) {
+        *(output + rngoffset) = (uint8_t)rand();
+        rngoffset++;
+        rnglen--;
+    }
 
     return 0;
 }
@@ -161,7 +165,7 @@ static void coap_dtls_log(void  *p_ctx, int level,
     coap_log(LOG_INFO,"[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
 }
 
-static int coap_dtls_verify_options_set(coap_mbeddtls_session_t *p_session,
+static int coap_dtls_verify_options_set(coap_mbedtls_session_t *p_session,
                                         unsigned char *p_ca_cert_pem, char *host)
 {
     int ret;
@@ -196,7 +200,7 @@ static int coap_dtls_verify_options_set(coap_mbeddtls_session_t *p_session,
     return err_code;
 }
 
-static int coap_dtls_session_config(coap_mbeddtls_session_t *p_session)
+static int coap_dtls_session_config(coap_mbedtls_session_t *p_session)
 {
     int ret;
 
@@ -229,12 +233,14 @@ static int coap_dtls_session_config(coap_mbeddtls_session_t *p_session)
     mbedtls_ssl_conf_rng(&p_session->config, ssl_random, NULL);
 
 #ifdef MBEDTLS_ENTROPY_C
+#if 0
     ret = mbedtls_ssl_cookie_setup(&p_session->cookie_ctx, mbedtls_ctr_drbg_random,
                                    &p_session->ctr_drbg);
     if (0 != ret) {
         coap_log(LOG_ERR, "mbedtls_ssl_cookie_setup result %d\n", ret);
         return -1;
     }
+#endif
 #endif
 
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
@@ -257,7 +263,7 @@ coap_dgram_read(void *context, unsigned char *buf, size_t len)
         return -1;
     }
 
-    data = &((coap_mbeddtls_session_t *)c_session->tls)->coap_ssl_data;
+    data = &((coap_mbedtls_session_t *)c_session->tls)->coap_ssl_data;
     if (buf != NULL) {
         if (data != NULL && data->pdu_len > 0) {
             if (len < data->pdu_len) {
@@ -327,7 +333,7 @@ coap_dgram_read_timeout(void *context, unsigned char *buf, size_t len,
 }
 
 static int coap_dtls_session_setup(coap_session_t *c_session,
-                                   coap_mbeddtls_session_t *p_session,
+                                   coap_mbedtls_session_t *p_session,
                                    coap_dtls_options_t *p_options)
 {
     int ret = 0;
@@ -378,31 +384,31 @@ static int coap_dtls_session_setup(coap_session_t *c_session,
 }
 
 void *coap_dtls_new_context(struct coap_context_t *coap_context) {
-    coap_mbeddtls_context_t  *ctx = NULL;
+    coap_mbedtls_context_t  *ctx = NULL;
     (void)coap_context;
     
-    ctx = (coap_mbeddtls_context_t *) coap_malloc(sizeof(coap_mbeddtls_context_t));
+    ctx = (coap_mbedtls_context_t *) coap_malloc(sizeof(coap_mbedtls_context_t));
     if (NULL == ctx) {
-        coap_log(LOG_ERR, "Fail to alloc mbeddtls context\n");
+        coap_log(LOG_ERR, "Fail to alloc mbedtls context\n");
     }
 
     return ctx;
 }
 
 void coap_dtls_free_context(void *handle) {
-    coap_mbeddtls_context_t  *ctx = (coap_mbeddtls_context_t *)handle;
+    coap_mbedtls_context_t  *ctx = (coap_mbedtls_context_t *)handle;
     if (ctx) {
         coap_free(ctx);
     }
 }
 
-static coap_mbeddtls_session_t *coap_dtls_session_init()
+static coap_mbedtls_session_t *coap_dtls_session_init()
 {
-    coap_mbeddtls_session_t *p_session = NULL;
-    p_session = coap_malloc(sizeof(coap_mbeddtls_session_t));
+    coap_mbedtls_session_t *p_session = NULL;
+    p_session = coap_malloc(sizeof(coap_mbedtls_session_t));
 
     if (NULL != p_session) {
-        memset(p_session, 0x00, sizeof(coap_mbeddtls_session_t));
+        memset(p_session, 0x00, sizeof(coap_mbedtls_session_t));
         mbedtls_net_init(&p_session->fd);
         mbedtls_ssl_init(&p_session->context);
         mbedtls_ssl_config_init(&p_session->config);
@@ -419,7 +425,7 @@ static coap_mbeddtls_session_t *coap_dtls_session_init()
     return p_session;
 }
 
-static void coap_dtls_session_deinit(coap_mbeddtls_session_t *p_session)
+static void coap_dtls_session_deinit(coap_mbedtls_session_t *p_session)
 {
     int ret;
     
@@ -450,7 +456,7 @@ void *coap_dtls_new_server_session(coap_session_t *session) {
 
 void *coap_dtls_new_client_session(coap_session_t *c_session) {
     int ret;
-    coap_mbeddtls_session_t *p_session = NULL;
+    coap_mbedtls_session_t *p_session = NULL;
     //FIXME
     coap_dtls_options_t  options = {NULL, "", 5684 };
     coap_dtls_options_t  *p_options = &options; 
@@ -500,7 +506,7 @@ err:
 }
 
 void coap_dtls_free_session(coap_session_t *coap_session) {
-    coap_mbeddtls_session_t *p_session = (coap_mbeddtls_session_t *)coap_session->tls;
+    coap_mbedtls_session_t *p_session = (coap_mbedtls_session_t *)coap_session->tls;
 
     coap_dtls_session_deinit(p_session);
 
@@ -513,13 +519,13 @@ void coap_dtls_session_update_mtu(coap_session_t *session) {
 int coap_dtls_send(coap_session_t *c_session,
                    const uint8_t *data, size_t data_len) {
     int ret = 0;
-    coap_mbeddtls_session_t *p_session = NULL;
+    coap_mbedtls_session_t *p_session = NULL;
 
     if (NULL == c_session || NULL == data || data_len == 0) {
         return -1;
     }
     
-    p_session = (coap_mbeddtls_session_t *)c_session->tls;
+    p_session = (coap_mbedtls_session_t *)c_session->tls;
     if (NULL == p_session) {
         return -1;
     }
@@ -583,14 +589,14 @@ int coap_dtls_receive(coap_session_t *c_session,
 {
     int ret = 0;
 
-    coap_mbeddtls_session_t *p_session = NULL;
+    coap_mbedtls_session_t *p_session = NULL;
     coap_mbedtls_data *ssl_data = NULL;
 
    if (NULL == c_session || NULL == data || data_len == 0) {
        return -1;
    }
     
-    p_session = (coap_mbeddtls_session_t *)c_session->tls;
+    p_session = (coap_mbedtls_session_t *)c_session->tls;
     if (NULL == p_session) {
         return -1;
     }

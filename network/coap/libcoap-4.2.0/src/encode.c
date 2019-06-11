@@ -12,7 +12,7 @@
 
 #include "coap_config.h"
 #include "coap.h"
-#include "mem.h"
+#include "coap_mem.h"
 #include "encode.h"
 
 /* Carsten suggested this when fls() is not available: */
