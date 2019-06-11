@@ -1,0 +1,10 @@
+config AOS_APP_LWM2MAPP
+    bool "lwm2mapp"
+    select AOS_COMP_OSAL_AOS   
+    select AOS_COMP_LWM2M 
+    help
+        lwm2m app
+
+if AOS_APP_LWM2MAPP
+# Configurations for app lwm2m client
+endif
