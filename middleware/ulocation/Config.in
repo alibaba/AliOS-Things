@@ -12,4 +12,13 @@ config ULOCATION_CONFIG_SELFTASK
     help
         Enable uLocation Private Task
 
+config QXWZ_ENABLED
+    bool "qianxunweizhi"
+    default n
+    help
+      support qianxunweizhi SDK library.
+
+      Switching to "y" leads to support qianxunweizhi library.
+      Switching to "n" leads to not support qianxunweizhi library.
+
 endif
