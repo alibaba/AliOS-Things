@@ -17,7 +17,6 @@
  * there are other platforms in future there need to be analogous environments.
  *
  * The CONTIKI variable is within the Contiki build environment! */
-
 #if defined(_WIN32)
 #pragma comment(lib,"Ws2_32.lib")
 #include <ws2tcpip.h>
@@ -25,6 +24,7 @@ typedef SSIZE_T ssize_t;
 typedef USHORT in_port_t;
 #elif !defined (CONTIKI)
 #ifdef WITH_LWIP
+#include <unistd.h>
 #include <lwip/def.h>
 #include <lwip/netdb.h>
 #include <lwip/ip_addr.h>
