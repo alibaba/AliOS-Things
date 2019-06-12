@@ -3,8 +3,7 @@ config AOS_APP_COAPAPP
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
-    select AOS_COMP_LINKKIT_SDK_C
-    select APP_FEATURE_LINKKIT_COAP
+    select AOS_COMP_COAP
     help
         coap cloud example
 
