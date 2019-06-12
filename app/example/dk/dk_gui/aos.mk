@@ -3,7 +3,7 @@ NAME := dk_gui
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Developer Kit GUI example
-$(NAME)_SOURCES := developerkitgui.c AliOS_Things_logo.c sensor_display.c house.c weather.c
+$(NAME)_SOURCES := developerkitgui.c sensor_display.c AliOS_Things_logo.c
 
 $(NAME)_COMPONENTS := yloop cli
 
