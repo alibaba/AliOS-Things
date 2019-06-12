@@ -1,4 +1,5 @@
 $(NAME)_SOURCES     += ./lvgl/lv_core/lv_group.c
+$(NAME)_SOURCES     += ./lvgl/lv_core/lv_lang.c
 $(NAME)_SOURCES     += ./lvgl/lv_core/lv_indev.c
 $(NAME)_SOURCES     += ./lvgl/lv_core/lv_obj.c
 $(NAME)_SOURCES     += ./lvgl/lv_core/lv_refr.c
