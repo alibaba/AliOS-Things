@@ -84,7 +84,23 @@ coap_split_uri(const uint8_t *str_var, size_t len, coap_uri_t *uri) {
     ++p; --len;
     uri->scheme = COAP_URI_SCHEME_COAPS;
     uri->port = COAPS_DEFAULT_PORT;
-  } else {
+  }else if (len &&(*p == '-')) {
+        ++p;
+        --len;
+        q = (char *)"psk";
+        while (len && *q && tolower(*p) == *q) {
+            ++p;
+            ++q;
+            --len;
+        }
+        if (*q) {
+            res = -1;
+            goto error;
+        }
+    uri->scheme = COAP_URI_SCHEME_COAP_PSK;
+    uri->port = COAP_DEFAULT_PORT;
+  }
+  else {
     uri->scheme = COAP_URI_SCHEME_COAP;
   }
 

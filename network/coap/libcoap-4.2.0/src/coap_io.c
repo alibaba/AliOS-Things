@@ -217,6 +217,8 @@ coap_socket_bind_udp(coap_socket_t *sock,
 
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
+#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+  if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #endif
@@ -302,6 +304,8 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
 
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
+#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+  if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #endif
@@ -442,6 +446,8 @@ coap_socket_bind_tcp(coap_socket_t *sock,
 
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
+#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+  if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #endif
@@ -527,8 +533,10 @@ coap_socket_accept_tcp(coap_socket_t *server,
     coap_log(LOG_WARNING, "coap_socket_accept_tcp: getsockname: %s\n",
              coap_socket_strerror());
 
-  #ifdef _WIN32
+#ifdef _WIN32
   if (ioctlsocket(new_client->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
+#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+  if (ioctlsocket(new_client->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(new_client->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #endif
@@ -565,6 +573,8 @@ coap_socket_connect_udp(coap_socket_t *sock,
 
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
+#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+  if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #endif
@@ -1156,11 +1166,13 @@ coap_write(coap_context_t *ctx,
            coap_tick_t now)
 {
   coap_queue_t *nextpdu;
-  coap_endpoint_t *ep;
   coap_session_t *s;
-  coap_tick_t session_timeout;
   coap_tick_t timeout = 0;
   coap_session_t *tmp;
+#ifdef LIBCOAP_SERVER_SUPPORT
+  coap_endpoint_t *ep;
+  coap_tick_t session_timeout;
+#endif
 
   *num_sockets = 0;
 
@@ -1169,12 +1181,12 @@ coap_write(coap_context_t *ctx,
   coap_check_notify(ctx);
 #endif
 
+#ifdef LIBCOAP_SERVER_SUPPORT
   if (ctx->session_timeout > 0)
     session_timeout = ctx->session_timeout * COAP_TICKS_PER_SECOND;
   else
     session_timeout = COAP_DEFAULT_SESSION_TIMEOUT * COAP_TICKS_PER_SECOND;
 
-#ifdef LIBCOAP_SERVER_SUPPORT
   LL_FOREACH(ctx->endpoint, ep) {
     if (ep->sock.flags & (COAP_SOCKET_WANT_READ | COAP_SOCKET_WANT_WRITE | COAP_SOCKET_WANT_ACCEPT)) {
       if (*num_sockets < max_sockets)

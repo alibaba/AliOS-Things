@@ -499,9 +499,11 @@ coap_new_context(
 
   return c;
 
+#ifdef LIBCOAP_SERVER_SUPPORT
 onerror:
   coap_free_type(COAP_CONTEXT, c);
   return NULL;
+#endif
 }
 
 void
@@ -518,7 +520,9 @@ coap_get_app_data(const coap_context_t *ctx) {
 
 void
 coap_free_context(coap_context_t *context) {
+#ifdef LIBCOAP_SERVER_SUPPORT
   coap_endpoint_t *ep, *tmp;
+#endif
   coap_session_t *sp, *stmp;
 
   if (!context)
@@ -1050,6 +1054,7 @@ coap_handle_dgram_for_proto(coap_context_t *ctx, coap_session_t *session, coap_p
   return result;
 }
 
+#ifdef LIBCOAP_RELIABLE_CONNECT
 static void
 coap_connect_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now) {
   (void)ctx;
@@ -1077,7 +1082,9 @@ coap_connect_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t n
     coap_session_disconnected(session, COAP_NACK_NOT_DELIVERABLE);
   }
 }
+#endif
 
+#if defined(LIBCOAP_SERVER_SUPPORT) || defined(LIBCOAP_RELIABLE_CONNECT)
 static void
 coap_write_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now) {
   (void)ctx;
@@ -1120,6 +1127,7 @@ coap_write_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now
     coap_delete_node(q);
   }
 }
+#endif
 
 #ifdef WITH_CONTIKI
 COAP_STATIC_INLINE coap_packet_t *
@@ -1266,6 +1274,7 @@ coap_read_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now)
 #endif
 }
 
+#ifdef LIBCOAP_SERVER_SUPPORT
 static int
 coap_read_endpoint(coap_context_t *ctx, coap_endpoint_t *endpoint, coap_tick_t now) {
   ssize_t bytes_read = -1;
@@ -1328,6 +1337,7 @@ coap_accept_endpoint(coap_context_t *ctx, coap_endpoint_t *endpoint,
     session->last_rx_tx = now;
   return session != NULL;
 }
+#endif
 
 void
 coap_read(coap_context_t *ctx, coap_tick_t now) {
@@ -1393,7 +1403,9 @@ coap_handle_dgram(coap_context_t *ctx, coap_session_t *session,
 
   assert(COAP_PROTO_NOT_RELIABLE(session->proto));
 
-  pdu = coap_pdu_init(0, 0, 0, msg_len - 4);
+  /* Reserved more payload for decrypt data.
+     Change 'msg_len - 4' to 2*(msg_len - 4) */
+  pdu = coap_pdu_init(0, 0, 0, (msg_len - 4)*2);
   if (!pdu)
     goto error;
 
@@ -1635,8 +1647,9 @@ coap_new_error_response(coap_pdu_t *request, unsigned char code,
 
 #if COAP_ERROR_PHRASE_LENGTH > 0
     /* note that diagnostic messages do not need a Content-Format option. */
-    if (phrase)
+    if (phrase){
       coap_add_data(response, (size_t)strlen(phrase), (const uint8_t *)phrase);
+    }
 #endif
   }
 
@@ -1831,6 +1844,7 @@ coap_cancel(coap_context_t *context, const coap_queue_t *sent) {
  */
 enum respond_t { RESPONSE_DEFAULT, RESPONSE_DROP, RESPONSE_SEND };
 
+#ifdef LIBCOAP_SERVER_SUPPORT
 /**
  * Checks for No-Response option in given @p request and
  * returns @c 1 if @p response should be suppressed
@@ -2126,6 +2140,7 @@ handle_request(coap_context_t *context, coap_session_t *session, coap_pdu_t *pdu
   assert(response == NULL);
   coap_delete_string(uri_path);
 }
+#endif
 
 static void
 handle_response(coap_context_t *context, coap_session_t *session,
@@ -2145,6 +2160,7 @@ handle_response(coap_context_t *context, coap_session_t *session,
   }
 }
 
+#ifdef LIBCOAP_SERVER_SUPPORT
 static void
 handle_signaling(coap_context_t *context, coap_session_t *session,
   coap_pdu_t *pdu) {
@@ -2184,13 +2200,16 @@ handle_signaling(coap_context_t *context, coap_session_t *session,
     coap_session_disconnected(session, COAP_NACK_RST);
   }
 }
+#endif
 
 void
 coap_dispatch(coap_context_t *context, coap_session_t *session,
   coap_pdu_t *pdu) {
   coap_queue_t *sent = NULL;
-  coap_pdu_t *response;
   coap_opt_filter_t opt_filter;
+#ifdef LIBCOAP_SERVER_SUPPORT
+  coap_pdu_t *response;
+#endif
 
 #ifndef NDEBUG
   if (LOG_DEBUG <= coap_get_log_level()) {
@@ -2346,7 +2365,9 @@ coap_handle_event(coap_context_t *context, coap_event_t event, coap_session_t *s
 
 int
 coap_can_exit(coap_context_t *context) {
+#ifdef LIBCOAP_SERVER_SUPPORT
   coap_endpoint_t *ep;
+#endif
   coap_session_t *s;
   if (!context)
     return 1;

@@ -382,8 +382,9 @@ void coap_session_connected(coap_session_t *session) {
 
 void coap_session_disconnected(coap_session_t *session, coap_nack_reason_t reason) {
   (void)reason;
+#ifdef LIBCOAP_RELIABLE_CONNECT
   coap_session_state_t state = session->state;
-
+#endif
   coap_log(LOG_DEBUG, "***%s: session disconnected (reason %d)\n",
            coap_session_str(session), reason);
 #ifndef WITHOUT_OBSERVE
@@ -934,7 +935,9 @@ coap_session_get_by_peer(coap_context_t *ctx,
   const coap_address_t *remote_addr,
   int ifindex) {
   coap_session_t *s;
+#ifdef LIBCOAP_SERVER_SUPPORT
   coap_endpoint_t *ep;
+#endif
   LL_FOREACH(ctx->sessions, s) {
     if (s->ifindex == ifindex && coap_address_equals(&s->remote_addr, remote_addr))
       return s;

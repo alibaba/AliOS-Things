@@ -101,6 +101,7 @@ coap_free_subscription(coap_subscription_t *subscription) {
     }                                                                        \
   }
 
+#ifndef WITHOUT_QUERY_FILTER
 static int
 match(const coap_str_const_t *text, const coap_str_const_t *pattern, int match_prefix,
   int match_substring
@@ -137,6 +138,7 @@ match(const coap_str_const_t *text, const coap_str_const_t *pattern, int match_p
   return (match_prefix || pattern->length == text->length) &&
     memcmp(text->s, pattern->s, pattern->length) == 0;
 }
+#endif
 
 /**
  * Prints the names of all known resources to @p buf. This function
