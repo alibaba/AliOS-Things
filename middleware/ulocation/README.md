@@ -21,11 +21,18 @@ There are mainly 3 layers in uLocation framework, on the bottom is hardware adap
     │   ├── uloc_hal_gps.c
     │   ├── uloc_hal.h
     │   └── uloc_hal_wifi.c
+    ├── qianxun
+    │   ├── include
+    │   ├── lib
+    │   ├── qxwz_common.h
+    |   ├── qxwz_gga.c
+    │   └── qxwz_socket.c
     ├── include
     ├── uloc_common.h
     ├── uloc_main.c
     ├── uloc_north.c
     └── uloc_south.c
+
 
 
 ```
