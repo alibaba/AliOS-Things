@@ -17,4 +17,9 @@ config COAP_WITH_DTLS
     default y
     help
 
+config COAP_WITH_ALI_AUTH
+    bool "COAP WITH ALI AUTHENTICATION"
+    default y
+    help
+
 endif

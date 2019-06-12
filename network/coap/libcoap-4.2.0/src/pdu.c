@@ -112,6 +112,7 @@ coap_pdu_init(uint8_t type, uint8_t code, uint16_t tid, size_t size) {
   pdu->token = (uint8_t *)pdu->pbuf->payload + pdu->max_hdr_size;
 #else /* WITH_LWIP_LIBCOAP */
   uint8_t *buf;
+
   pdu->alloc_size = min(size, 256);
   buf = coap_malloc_type(COAP_PDU_BUF, pdu->alloc_size + pdu->max_hdr_size);
   if (buf == NULL) {
@@ -158,7 +159,7 @@ coap_pdu_resize(coap_pdu_t *pdu, size_t new_size) {
     size_t offset;
 #endif
     if (pdu->max_size && new_size > pdu->max_size) {
-      coap_log(LOG_WARNING, "coap_pdu_resize: pdu too big\n");
+      coap_log(LOG_WARNING, "coap_pdu_resize: pdu size (%d) too big than max size(%d)\n", new_size, pdu->max_size);
       return 0;
     }
 #if !defined(WITH_LWIP_LIBCOAP) && !defined(WITH_CONTIKI)
@@ -314,11 +315,11 @@ uint8_t *
 coap_add_data_after(coap_pdu_t *pdu, size_t len) {
   assert(pdu);
   assert(pdu->data == NULL);
-
   pdu->data = NULL;
 
   if (len == 0)
     return NULL;
+
 
   if (!coap_pdu_resize(pdu, pdu->used_size + len + 1))
     return 0;
