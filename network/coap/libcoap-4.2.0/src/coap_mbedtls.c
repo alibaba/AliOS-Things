@@ -7,7 +7,7 @@
  * of use.
  */
 #include "coap_config.h"
-
+#include "libcoap.h"
 #ifdef HAVE_MBEDTLS
 
 #include <errno.h>
@@ -158,13 +158,6 @@ coap_dtls_get_log_level(void) {
   return dtls_log_level;
 }
 
-static void coap_dtls_log(void  *p_ctx, int level,
-                          const char *p_file, int line,
-                          const char *p_str)
-{
-    coap_log(LOG_INFO,"[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
-}
-
 static int coap_dtls_verify_options_set(coap_mbedtls_session_t *p_session,
                                         unsigned char *p_ca_cert_pem, char *host)
 {
@@ -233,14 +226,12 @@ static int coap_dtls_session_config(coap_mbedtls_session_t *p_session)
     mbedtls_ssl_conf_rng(&p_session->config, ssl_random, NULL);
 
 #ifdef MBEDTLS_ENTROPY_C
-#if 0
     ret = mbedtls_ssl_cookie_setup(&p_session->cookie_ctx, mbedtls_ctr_drbg_random,
                                    &p_session->ctr_drbg);
     if (0 != ret) {
         coap_log(LOG_ERR, "mbedtls_ssl_cookie_setup result %d\n", ret);
         return -1;
     }
-#endif
 #endif
 
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
@@ -303,33 +294,6 @@ coap_dgram_write(void *context, const unsigned char *buf, size_t len) {
     ret = 0;
   }
   return ret;
-}
-
-static int
-coap_dgram_read_timeout(void *context, unsigned char *buf, size_t len,
-                        uint32_t timeout) 
-{
-    coap_session_t *c_session = (struct coap_session_t *)context;
-
-    if (c_session) {
-        fd_set readfds, writefds, exceptfds;
-        struct timeval tv;
-        int nfds = c_session->sock.fd +1;
-
-        FD_ZERO(&readfds);
-        FD_ZERO(&writefds);
-        FD_ZERO(&exceptfds);
-        FD_SET (c_session->sock.fd, &readfds);
-        FD_SET (c_session->sock.fd, &writefds);
-        FD_SET (c_session->sock.fd, &exceptfds);
-        /* Polling */    
-        tv.tv_sec  = timeout / 1000;
-        tv.tv_usec = ( timeout % 1000 ) * 1000;
-
-        return select(nfds, &readfds, &writefds, &exceptfds, &tv);
-     }
-
-    return 1;
 }
 
 static int coap_dtls_session_setup(coap_session_t *c_session,

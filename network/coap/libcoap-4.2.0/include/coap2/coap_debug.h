@@ -10,6 +10,7 @@
 #ifndef COAP_DEBUG_H_
 #define COAP_DEBUG_H_
 
+#include <stdio.h>
 /**
  * @defgroup logging Logging Support
  * API functions for logging support
@@ -37,17 +38,8 @@
  */
 typedef short coap_log_t;
 #else
-/** Pre-defined log levels akin to what is used in \b syslog. */
-typedef enum {
-  LOG_EMERG=0, /**< Emergency */
-  LOG_ALERT,   /**< Alert */
-  LOG_CRIT,    /**< Critical */
-  LOG_ERR,     /**< Error */
-  LOG_WARNING, /**< Warning */
-  LOG_NOTICE,  /**< Notice */
-  LOG_INFO,    /**< Information */
-  LOG_DEBUG    /**< Debug */
-} coap_log_t;
+#include "ulog/ulog.h"
+typedef short coap_log_t;
 #endif
 
 /**
@@ -115,17 +107,17 @@ void coap_log_impl(coap_log_t level, const char *format, ...);
  * Logging function.
  * Writes the given text to @c COAP_ERR_FD (for @p level <= @c LOG_CRIT) or @c
  * COAP_DEBUG_FD (for @p level >= @c LOG_ERR). The text is output only when
- * @p level is below or equal to the log level that set by coap_set_log_level().
+ * @p level :wq
+is below or equal to the log level that set by coap_set_log_level().
  *
  * @param level One of the LOG_* values.
  */
-#define coap_log(level, ...)
-#if 0
+#define TAG "COAP"
 #define coap_log(level, ...) do { \
   if ((int)((level))<=(int)coap_get_log_level()) \
-     coap_log_impl((level), __VA_ARGS__); \
+      LOGD(TAG, __VA_ARGS__); \
+      printf(__VA_ARGS__); \
 } while(0)
-#endif
 #endif
 
 #include "pdu.h"

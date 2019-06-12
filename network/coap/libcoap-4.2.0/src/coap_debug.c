@@ -7,6 +7,7 @@
  */
 
 #include "coap_config.h"
+#include "libcoap.h"
 
 #if defined(HAVE_STRNLEN) && defined(__GNUC__) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE 1
@@ -32,7 +33,6 @@
 #include <time.h>
 #endif
 
-#include "libcoap.h"
 #include "block.h"
 #include "coap_debug.h"
 #include "encode.h"
