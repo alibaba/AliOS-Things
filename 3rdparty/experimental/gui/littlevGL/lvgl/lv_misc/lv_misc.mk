@@ -9,8 +9,9 @@ $(NAME)_SOURCES     += ./lvgl/lv_misc/lv_ll.c
 $(NAME)_SOURCES     += ./lvgl/lv_misc/lv_color.c
 $(NAME)_SOURCES     += ./lvgl/lv_misc/lv_txt.c
 $(NAME)_SOURCES     += ./lvgl/lv_misc/lv_ufs.c
-$(NAME)_SOURCES     += ./lvgl/lv_misc/lv_trigo.c
 $(NAME)_SOURCES     += ./lvgl/lv_misc/lv_math.c
+$(NAME)_SOURCES     += ./lvgl/lv_misc/lv_log.c
+$(NAME)_SOURCES     += ./lvgl/lv_misc/lv_gc.c
 
 $(NAME)_INCLUDES    += .
 $(NAME)_INCLUDES    += /lvgl
