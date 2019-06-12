@@ -52,6 +52,9 @@ const  char *input_data[]= {"coapapp","-e","online","-l","-s","dtls"};
 #endif
 int application_start(int argc, char **argv)
 {
+#ifdef WITH_SAL
+    LOG("Coapapp should run on the board which not support SAL");
+#else
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -63,9 +66,6 @@ int application_start(int argc, char **argv)
     entry_paras.argc = argc;
     entry_paras.argv = argv;
 
-#ifdef WITH_SAL
-    sal_init();
-#endif
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
@@ -73,6 +73,7 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     netmgr_start(false);
+#endif
 
     aos_loop_run();
 
