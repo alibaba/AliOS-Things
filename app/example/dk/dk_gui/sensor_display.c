@@ -47,6 +47,8 @@ lv_chart_series_t *dl1_1  = NULL;
 lv_chart_series_t *dl1_2  = NULL;
 lv_chart_series_t *dl1_3  = NULL;
 
+lv_obj_t *calendar = NULL;
+
 aos_timer_t refresh_timer;
 
 /* sensor fd */
@@ -57,7 +59,7 @@ int fd_baro = -1;
 
 int key_pressed_cnt     = 0;
 int weather_create_flag = 0;
-int house_create_flag   = 0;
+int calendar_create_flag   = 0;
 int acc_create_flag     = 0;
 
 static lv_style_t style;
@@ -80,9 +82,9 @@ static void weather_display(void);
 static void create_weather(void);
 static void refresh_weather(void);
 
-static void house_display(void);
-static void create_house(void);
-static void refresh_house(void);
+static void calendar_display(void);
+static void create_calendar(void);
+static void refresh_calendar(void);
 
 static void acc_display(void);
 static void create_acc(void);
@@ -171,7 +173,7 @@ void app_init(void)
     }
 
     /* create a timer to refresh sensor data */
-    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 300, 1);
+    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 800, 1);
 }
 
 static void sensor_refresh_task(void *arg)
@@ -221,11 +223,11 @@ static void sensor_display(void)
 
     } else if (key_pressed_cnt % 3 == 1) {
 
-        if (house_create_flag == 0) {
+        if (calendar_create_flag == 0) {
             clean_screen();
         }
 
-        house_display();
+        calendar_display();
     } else {
 
         if (acc_create_flag == 0) {
@@ -248,15 +250,15 @@ static void weather_display(void)
     }
 }
 
-static void house_display(void)
+static void calendar_display(void)
 {
-    if (house_create_flag == 0) {
-        create_house();
-        house_create_flag = 1;
+    if (calendar_create_flag == 0) {
+        create_calendar();
+        calendar_create_flag = 1;
     }
 
-    if (house_create_flag == 1) {
-        refresh_house();
+    if (calendar_create_flag == 1) {
+        refresh_calendar();
     }
 }
 
@@ -274,17 +276,11 @@ static void acc_display(void)
 
 static void create_weather(void)
 {
-    img_src = lv_img_create(scr, NULL); /*Crate an image object*/
-    lv_img_set_src(img_src,
-                   &weather); /*Set the created file as image (a red fl  ower)*/
-    lv_obj_set_pos(img_src, 0, 0); /*Set the positions*/
-    lv_obj_set_drag(img_src, true);
-
     static lv_style_t style_lmeter1;
     lv_style_copy(&style_lmeter1, &lv_style_pretty_color);
     style_lmeter1.line.width      = 2;
-    style_lmeter1.line.color      = LV_COLOR_WHITE;
-    style_lmeter1.body.main_color = LV_COLOR_BLACK;  /*Light blue*/
+    style_lmeter1.line.color      = LV_COLOR_YELLOW;
+    style_lmeter1.body.main_color = LV_COLOR_RED;  /*Light blue*/
     style_lmeter1.body.grad_color = LV_COLOR_PURPLE; /*Dark blue*/
 
     /*Create the first line meter */
@@ -363,34 +359,75 @@ static void create_weather(void)
     lv_label_set_text(label8, "Noise(DB)");
 }
 
-static void create_house(void)
+static void create_calendar(void)
 {
-    img_src = lv_img_create(scr, NULL); /*Crate an image object*/
-    lv_img_set_src(img_src,
-                   &house); /*Set the created file as image (a red fl  ower)*/
-    lv_obj_set_pos(img_src, 0, 0); /*Set the positions*/
-    lv_obj_set_drag(img_src, true);
+    /*Create a Calendar object*/
+    calendar = lv_calendar_create(lv_scr_act(), NULL);
+    lv_obj_set_size(calendar, 240, 240);
+    lv_obj_align(calendar, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    /* create a label to display acc_x */
-    label1 = lv_label_create(scr, NULL);
-    lv_obj_set_pos(label1, 5, 20);
-    lv_style_copy(&style1, &lv_style_plain);
-    style1.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label1, &style1);
+    /*Create a style for the current week*/
+    static lv_style_t style_week_box;
+    lv_style_copy(&style_week_box, &lv_style_plain);
+    style_week_box.body.border.width = 1;
+    style_week_box.body.border.color = LV_COLOR_HEX3(0x333);
+    style_week_box.body.empty = 1;
+    style_week_box.body.radius = LV_RADIUS_CIRCLE;
+    style_week_box.body.padding.ver = 3;
+    style_week_box.body.padding.hor = 3;
 
-    /* create a label to display acc_y */
-    label2 = lv_label_create(scr, NULL);
-    lv_obj_set_pos(label2, 20, 50);
-    lv_style_copy(&style2, &lv_style_plain);
-    style2.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label2, &style2);
+    /*Create a style for today*/
+    static lv_style_t style_today_box;
+    lv_style_copy(&style_today_box, &lv_style_plain);
+    style_today_box.body.border.width = 2;
+    style_today_box.body.border.color = LV_COLOR_NAVY;
+    style_today_box.body.empty = 1;
+    style_today_box.body.radius = LV_RADIUS_CIRCLE;
+    style_today_box.body.padding.ver = 3;
+    style_today_box.body.padding.hor = 3;
+    style_today_box.text.color= LV_COLOR_BLUE;
 
-    /* create a label to display acc_z */
-    label3 = lv_label_create(scr, NULL);
-    lv_obj_set_pos(label3, 35, 80);
-    lv_style_copy(&style3, &lv_style_plain);
-    style3.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label3, &style3);
+    /*Create a style for the highlighted days*/
+    static lv_style_t style_highlighted_day;
+    lv_style_copy(&style_highlighted_day, &lv_style_plain);
+    style_highlighted_day.body.border.width = 2;
+    style_highlighted_day.body.border.color = LV_COLOR_NAVY;
+    style_highlighted_day.body.empty = 1;
+    style_highlighted_day.body.radius = LV_RADIUS_CIRCLE;
+    style_highlighted_day.body.padding.ver = 3;
+    style_highlighted_day.body.padding.hor = 3;
+    style_highlighted_day.text.color= LV_COLOR_BLUE;
+
+    /*Apply the styles*/
+    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_WEEK_BOX, &style_week_box);
+    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_TODAY_BOX, &style_today_box);
+    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_HIGHLIGHTED_DAYS, &style_highlighted_day);
+
+
+    /*Set the today*/
+    lv_calendar_date_t today;
+    today.year = 2018;
+    today.month = 10;
+    today.day = 23;
+
+    lv_calendar_set_today_date(calendar, &today);
+    lv_calendar_set_showed_date(calendar, &today);
+
+    /*Highlight some days*/
+    static lv_calendar_date_t highlihted_days[3];       /*Only it's pointer will be saved so should be static*/
+    highlihted_days[0].year = 2018;
+    highlihted_days[0].month = 10;
+    highlihted_days[0].day = 6;
+
+    highlihted_days[1].year = 2018;
+    highlihted_days[1].month = 10;
+    highlihted_days[1].day = 11;
+
+    highlihted_days[2].year = 2018;
+    highlihted_days[2].month = 11;
+    highlihted_days[2].day = 22;
+
+    lv_calendar_set_highlighted_dates(calendar, highlihted_days, 3);
 }
 
 static void create_acc(void)
@@ -539,60 +576,24 @@ static void refresh_weather(void)
     lv_lmeter_set_value(lmeter4, (int16_t)temp);
 }
 
-static void refresh_house(void)
+static void refresh_calendar(void)
 {
-    int            i     = 0;
-    static int     count = 0;
-    float          ch2o  = 0;
-    float          co2   = 0;
-    float          pm2d5 = 0;
-    int            ret   = -1;
-    static int32_t cnt   = 0;
+    static int day = 1;
 
-    /* get ch2o sensor data */
-    ret = get_CH2O_data(&ch2o);
-    if (ret != 0) {
-        printf("ch2o sensor read failed !\n");
-        return;
+    /*Set the today*/
+    lv_calendar_date_t today;
+    today.year = 2018;
+    today.month = 10;
+    today.day = day;
+
+    lv_calendar_set_today_date(calendar, &today);
+    lv_calendar_set_showed_date(calendar, &today);
+
+    day++;
+
+    if (day > 31) {
+        day = 1;
     }
-
-    /* get co2 sensor data */
-    ret = get_CO2_data(&co2);
-    if (ret != 0) {
-        printf("co2 sensor read failed !\n");
-        return;
-    }
-
-    /* get pm2d5 sensor data */
-    ret = get_PM2d5_data(&pm2d5);
-    if (ret != 0) {
-        printf("pm2d5 sensor read failed !\n");
-        return;
-    }
-
-    /* refresh label */
-    sprintf(number_buf, "%.2f", ch2o);
-    strcpy(msg_buffer, "CH2O: ");
-    strcat(msg_buffer, number_buf);
-    strcat(msg_buffer, " mg/m3");
-
-    lv_label_set_text(label1, msg_buffer);
-
-    sprintf(number_buf, "%.2f", co2);
-    strcpy(msg_buffer, "CO2: ");
-    strcat(msg_buffer, number_buf);
-    strcat(msg_buffer, " ppm");
-
-    lv_label_set_text(label2, msg_buffer);
-
-    sprintf(number_buf, "%.2f", pm2d5);
-    strcpy(msg_buffer, "PM2.5: ");
-    strcat(msg_buffer, number_buf);
-    strcat(msg_buffer, " ug/m3");
-
-    lv_label_set_text(label3, msg_buffer);
-
-    count++;
 }
 
 static void refresh_acc(void)
@@ -788,7 +789,7 @@ void key1_handle(void)
 {
     key_pressed_cnt += 1;
     weather_create_flag = 0;
-    house_create_flag   = 0;
+    calendar_create_flag   = 0;
     acc_create_flag     = 0;
 }
 
@@ -796,7 +797,7 @@ void key2_handle(void)
 {
     key_pressed_cnt += 1;
     weather_create_flag = 0;
-    house_create_flag   = 0;
+    calendar_create_flag   = 0;
     acc_create_flag     = 0;
 }
 
@@ -804,7 +805,7 @@ void key3_handle(void)
 {
     key_pressed_cnt += 1;
     weather_create_flag = 0;
-    house_create_flag   = 0;
+    calendar_create_flag   = 0;
     acc_create_flag     = 0;
 }
 

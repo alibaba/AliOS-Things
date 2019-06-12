@@ -16,15 +16,13 @@ devkit/dk_gui
 	├── AliOS_Things_logo.c
 	├── Config.in
 	├── developerkitgui.c
-	├── dk_gui.mk
-	├── house.c
+	├── aos.mk
 	├── k_app_config.h
 	├── lv_conf_developerkit.h
 	├── README.md
 	├── sensor_display.c
 	├── sensor_display.h
-	├── ucube.py
-	└── weather.c
+	└── ucube.py
 ```
 
 ### Dependencies
