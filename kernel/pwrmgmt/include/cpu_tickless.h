@@ -21,15 +21,16 @@ typedef pwr_status_t (*one_shot_start_t)(uint64_t planUse);
 typedef pwr_status_t (*one_shot_stop_t)(uint64_t *pPassedUs);
 
 typedef struct {
-    one_shot_init_t        one_shot_init;
-    one_shot_msec_max_t    one_shot_msec_max;
-    one_shot_start_t       one_shot_start;
-    one_shot_stop_t        one_shot_stop;
+    one_shot_init_t     one_shot_init;
+    one_shot_msec_max_t one_shot_msec_max;
+    one_shot_start_t    one_shot_start;
+    one_shot_stop_t     one_shot_stop;
 } one_shot_timer_t;
 
 extern pwr_status_t tickless_init(void);
 extern void         tickless_c_states_add(uint32_t c_state_set);
-extern void         tickless_one_shot_timer_save(cpu_cstate_t c_state, one_shot_timer_t *p_timer);
+extern void         tickless_one_shot_timer_save(cpu_cstate_t c_state,
+                                                 one_shot_timer_t *p_timer);
 
 #ifdef __cplusplus
 }
