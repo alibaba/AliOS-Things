@@ -50,6 +50,9 @@ pwr_status_t cpu_pwr_suspend(void);
 pwr_status_t cpu_pwr_resume(void);
 int          cpu_pwr_is_suspend(void);
 
+pwr_status_t cpu_pwr_minisleep_msec_set(uint32_t minisleep_time_ms);
+uint32_t     cpu_pwr_minisleep_msec_get(void);
+
 extern void (*_func_cpu_tickless_up)(void);
 extern void (*_func_cpu_tickless_down)(void);
 

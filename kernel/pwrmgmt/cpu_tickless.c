@@ -243,6 +243,10 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
             n_ticks = n_ticks -1;
         }
         sleep_time_us = 1000000ull * n_ticks / RHINO_CONFIG_TICKS_PER_SECOND;
+
+        if ((sleep_time_us / 1000) <= cpu_pwr_minisleep_msec_get()) {
+            sleep_time_us = cpu_pwr_minisleep_msec_get() * 1000;
+        }
     }
 
     /* get max valid Cx from cstate_cfg */
@@ -309,7 +313,8 @@ static void tickless_enter(void)
     CPSR_ALLOC();
 
 #if (PWRMGMT_CONFIG_DEBUG > 0)
-    static sys_time_t last_log_entersleep = 0;
+    static sys_time_t last_log_entersleep        = 0;
+    static uint32_t   cpu_lowpower_enter_counter = 0;
 #endif
     krhino_spin_lock_irq_save(&ticklessSpin);
 
@@ -333,9 +338,10 @@ static void tickless_enter(void)
 #if (PWRMGMT_CONFIG_DEBUG > 0)
             if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
                 last_log_entersleep = krhino_sys_tick_get();
-                PWRMGMT_LOG(PWRMGMT_LOG_INFO, "enter sleep %d ms\r\n",
-                            (uint32_t)sleep_time/1000);
+                PWRMGMT_LOG(PWRMGMT_LOG_INFO, "enter sleep %d ms,enter counter %d\r\n",
+                            (uint32_t)sleep_time/1000, cpu_lowpower_enter_counter);
             }
+            cpu_lowpower_enter_counter++;
 #endif
             is_current_tickless = TRUE;
         }

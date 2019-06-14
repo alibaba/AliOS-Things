@@ -36,12 +36,12 @@ void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...);
 #define PWRMGMT_LOG pwrmgmt_log
 #else
 #define PWRMGMT_LOG(lvl, ...)
-#endif /* PWRMGMT_CONFIG_DEBUG > DBG_OFF */
+#endif /* PWRMGMT_CONFIG_DEBUG > 0 */
 
 #if (PWRMGMT_CONFIG_SHOW > 0)
 void cpu_pwr_state_show(void);
 void cpu_pwr_info_show(void);
-#endif /* PWRMGMT_CONFIG_SHOW */
+#endif /* PWRMGMT_CONFIG_SHOW > 0 */
 
 #ifdef __cplusplus
 }

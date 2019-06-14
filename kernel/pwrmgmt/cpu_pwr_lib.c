@@ -5,9 +5,10 @@
 #include "cpu_pwr_lib.h"
 #include "pwrmgmt_debug.h"
 
-static CPU_IDLE_MODE cpu_pwr_idle_mode    = CPU_IDLE_MODE_RUN;
-static int           cpu_pwr_init_flag    = 0;
-static int           cpu_pwr_suspend_flag = 0;
+static CPU_IDLE_MODE cpu_pwr_idle_mode         = CPU_IDLE_MODE_RUN;
+static int           cpu_pwr_init_flag         = 0;
+static int           cpu_pwr_suspend_flag      = 0;
+static uint32_t      cpu_pwr_minisleep_time_ms = 0;
 
 static kspinlock_t cpu_pwr_spin;
 
@@ -158,5 +159,26 @@ pwr_status_t cpu_pwr_resume(void)
 int cpu_pwr_is_suspend(void)
 {
     return cpu_pwr_suspend_flag;
+}
+
+/**
+ * cpu_pwr_minisleep_ms_set set the minimum sleep time.
+ *
+ * @return  PWR_OK, or PWR_ERR in case of failure
+ */
+pwr_status_t cpu_pwr_minisleep_msec_set(uint32_t minisleep_time_ms)
+{
+    cpu_pwr_minisleep_time_ms = minisleep_time_ms;
+    return PWR_OK;
+}
+
+/**
+ * cpu_pwr_minisleep_ms_get return the minimum sleep time.
+ *
+ * @return  the minimum sleep time.
+ */
+uint32_t cpu_pwr_minisleep_msec_get(void)
+{
+    return cpu_pwr_minisleep_time_ms;
 }
 
