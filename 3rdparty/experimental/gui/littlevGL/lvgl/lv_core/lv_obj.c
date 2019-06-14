@@ -21,6 +21,10 @@
 #include <string.h>
 #include "../lv_misc/lv_gc.h"
 
+#if USE_FREETYPE != 0
+extern int freetype_init(void);
+#endif
+
 #if defined(LV_GC_INCLUDE)
 #   include LV_GC_INCLUDE
 #endif /* LV_ENABLE_GC */
@@ -115,6 +119,10 @@ void lv_init(void)
 #if LV_INDEV_READ_PERIOD != 0
     /*Init the input device handling*/
     lv_indev_init();
+#endif
+
+#if USE_FREETYPE != 0
+    freetype_init();
 #endif
 
     _lv_initialized = true;
