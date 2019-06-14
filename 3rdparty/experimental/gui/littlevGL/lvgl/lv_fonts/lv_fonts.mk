@@ -16,6 +16,11 @@ $(NAME)_SOURCES     += ./lvgl/lv_fonts/lv_font_symbol_20.c
 $(NAME)_SOURCES     += ./lvgl/lv_fonts/lv_font_symbol_30.c
 $(NAME)_SOURCES     += ./lvgl/lv_fonts/lv_font_symbol_40.c
 $(NAME)_SOURCES     += ./lvgl/lv_fonts/lv_font_monospace_8.c
+$(NAME)_SOURCES     += ./lvgl/lv_fonts/font_freetype/freetype_font.c
+$(NAME)_SOURCES     += ./lvgl/lv_fonts/font_freetype/freetype_font_20.c
+$(NAME)_SOURCES     += ./lvgl/lv_fonts/font_freetype/freetype_font_22.c
+$(NAME)_SOURCES     += ./lvgl/lv_fonts/font_freetype/freetype_font_24.c
+$(NAME)_SOURCES     += ./lvgl/lv_fonts/font_freetype/freetype_font_26.c
 
 $(NAME)_INCLUDES    += .
 $(NAME)_INCLUDES    += /lvgl
