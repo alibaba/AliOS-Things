@@ -67,15 +67,13 @@ static lv_style_t style1;
 static lv_style_t style2;
 static lv_style_t style3;
 
-/* display driver */
-lv_disp_drv_t dis_drv;
-
 static void littlevgl_refresh_task(void *arg);
+static void freetype_display(void);
 static void app_init(void);
 static void key_init(void);
 
 static void logo_display(void);
-static void sensor_display(void);
+static void sensor_data_display(void);
 static void sensor_refresh_task(void *arg);
 
 static void weather_display(void);
@@ -102,49 +100,11 @@ static int get_CH2O_data(float *data);
 static int get_CO2_data(float *data);
 static int get_PM2d5_data(float *data);
 
-static void lvgl_drv_register(void);
-static void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                          const lv_color_t *color_p);
-static void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                         lv_color_t color);
-static void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                        const lv_color_t *color_p);
-
-void sensor_display_init(void)
+void sensor_display(void)
 {
-    printf("application_start\n");
-
-    /* init littlevGL */
-    lv_init();
-
-    /* init LCD */
-    st7789_init();
-
-    /* register driver for littlevGL */
-    lvgl_drv_register();
-
     /* key init */
     key_init();
 
-    /* create a task to refresh the LCD */
-    aos_task_new("littlevgl_refresh_task", littlevgl_refresh_task, NULL, 2048);
-
-    /* int app */
-    app_init();
-}
-
-static void littlevgl_refresh_task(void *arg)
-{
-    while (1) {
-        /* this function is used to refresh the LCD */
-        lv_task_handler();
-
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 10);
-    }
-}
-
-void app_init(void)
-{
     /* open acc sensor */
     fd_acc = aos_open(DEV_ACC_PATH(0), O_RDWR);
 
@@ -194,7 +154,7 @@ static void sensor_refresh_task(void *arg)
 
     /* refresh sensor data */
     if (task1_count >= 5) {
-        sensor_display();
+        sensor_data_display();
     }
 
     if ((task1_count >= 15) && (task1_count <= 45)) {
@@ -212,7 +172,7 @@ static void logo_display(void)
     lv_obj_set_drag(img_src, true);
 }
 
-static void sensor_display(void)
+static void sensor_data_display(void)
 {
     if (key_pressed_cnt % 3 == 0) {
         if (weather_create_flag == 0) {
@@ -296,6 +256,7 @@ static void create_weather(void)
     lv_label_set_text(label1, "0");
     lv_style_copy(&style, &lv_style_plain);
     style.text.color = LV_COLOR_PURPLE;
+
     lv_label_set_style(label1, &style);
     lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_pos(label1, 25, 40);
@@ -821,54 +782,5 @@ void key_init(void)
                                IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
     if (ret != 0) {
         printf("hal_gpio_enable_irq key return failed.\n");
-    }
-}
-
-void lvgl_drv_register(void)
-{
-    lv_disp_drv_init(&dis_drv);
-
-    dis_drv.disp_flush = my_disp_flush;
-    dis_drv.disp_fill  = my_disp_fill;
-    dis_drv.disp_map   = my_disp_map;
-    lv_disp_drv_register(&dis_drv);
-}
-
-void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                   const lv_color_t *color_p)
-{
-    int32_t x = 0;
-    int32_t y = 0;
-
-    for (y = y1; y <= y2; y++) {
-        ST7789H2_WriteLine(x1, y, (uint8_t *)color_p, (x2 - x1 + 1));
-        color_p += (x2 - x1 + 1);
-    }
-
-    lv_flush_ready();
-}
-
-void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                  lv_color_t color)
-{
-    int32_t i = 0;
-    int32_t j = 0;
-
-    for (i = x1; i <= x2; i++) {
-        for (j = y1; j <= y2; j++) {
-            ST7789H2_WritePixel(i, j, color.full);
-        }
-    }
-}
-
-void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                 const lv_color_t *color_p)
-{
-    int32_t x = 0;
-    int32_t y = 0;
-
-    for (y = y1; y <= y2; y++) {
-        ST7789H2_WriteLine(x1, y, (int16_t *)color_p, (x2 - x1 + 1));
-        color_p += (x2 - x1 + 1);
     }
 }
