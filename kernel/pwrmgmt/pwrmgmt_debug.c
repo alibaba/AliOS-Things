@@ -95,7 +95,7 @@ void cpu_pwr_state_show(void)
     printf("\n");
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_SHOW */
+#endif /* PWRMGMT_CONFIG_SHOW > 0 */
 
 #if (PWRMGMT_CONFIG_DEBUG > 0)
 void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...)
@@ -108,4 +108,4 @@ void pwrmgmt_log(pwrmgmt_log_level_t debug_level, const char *fmt_str, ...)
         va_end(param);
     }
 }
-#endif /* RHINO_CONFIG_CPU_PWR_DEBUG > 0 */
+#endif /* PWRMGMT_CONFIG_DEBUG > 0 */
