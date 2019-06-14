@@ -35,8 +35,13 @@ static void pwrmgmt_timer_callback(void *timer, void *arg);
 #endif
 
 int pwrmgmt_init() {
+    kstat_t stat;
+
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt init\r\n");
-    krhino_mutex_create(&pwrmgmt_mutex, "pwrmgmt_mutex");
+    stat = krhino_mutex_create(&pwrmgmt_mutex, "pwrmgmt_mutex");
+    if (stat != RHINO_SUCCESS) {
+        return -1;
+    }
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     cpu_pwrmgmt_init();
@@ -45,11 +50,22 @@ int pwrmgmt_init() {
 #if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt active function init\r\n");
 
-    krhino_sem_create(&pwrmgmt_sem, "pwrmgmt_sem", 0);
-    krhino_timer_create(&pwrmgmt_timer, "pwrmgmt_timer", pwrmgmt_timer_callback,
-                        100, 0, NULL, 0);
-    krhino_task_create(&pwrmgmt_task, "pwrmgmt_task", NULL, PWRMGMT_TASK_PRI, 5,
-                       pwrmgmt_task_stack, PWRMGMT_TASK_STACK_SIZE, pwrmgmt_task_entry, 1);
+    stat = krhino_sem_create(&pwrmgmt_sem, "pwrmgmt_sem", 0);
+    if (stat != RHINO_SUCCESS) {
+        return -1;
+    }
+
+    stat = krhino_timer_create(&pwrmgmt_timer, "pwrmgmt_timer", pwrmgmt_timer_callback,
+                               100, 0, NULL, 0);
+    if (stat != RHINO_SUCCESS) {
+        return -1;
+    }
+
+    stat = krhino_task_create(&pwrmgmt_task, "pwrmgmt_task", NULL, PWRMGMT_TASK_PRI,
+                              5, pwrmgmt_task_stack, PWRMGMT_TASK_STACK_SIZE, pwrmgmt_task_entry, 1);
+    if (stat != RHINO_SUCCESS) {
+        return -1;
+    }
 #endif
     return 0;
 }
