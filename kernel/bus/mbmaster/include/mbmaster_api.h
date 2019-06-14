@@ -26,6 +26,7 @@ typedef enum {
 
 typedef enum mb_status {
     MB_SUCCESS = 0u,
+    MB_MUTEX_ERROR,
     MB_INVALID_SLAVE_ADDR,
     MB_INVALID_PARAM,
     MB_RESPOND_EXCEPTION,
