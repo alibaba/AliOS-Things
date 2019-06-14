@@ -177,6 +177,8 @@
 /* More info about fonts: https://docs.littlevgl.com/#Fonts
  * To enable a built-in font use 1,2,4 or 8 values
  * which will determine the bit-per-pixel. Higher value means smoother fonts */
+#define USE_FREETYPE                       1
+
 #define USE_LV_FONT_DEJAVU_10              4
 #define USE_LV_FONT_DEJAVU_10_LATIN_SUP    4
 #define USE_LV_FONT_DEJAVU_10_CYRILLIC     4

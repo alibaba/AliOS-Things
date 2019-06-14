@@ -2,15 +2,15 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef SENSOR_DISPLAY_H
-#define SENSOR_DISPLAY_H
+#ifndef FREETYPE_DISPLAY_H
+#define FREETYPE_DISPLAY_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-void sensor_display(void);
+void freetype_display(void);
 
 #ifdef __cplusplus
 }
