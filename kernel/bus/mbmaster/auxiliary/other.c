@@ -33,24 +33,44 @@ void mb_free_handler(mb_handler_t *handler)
 
 mb_status_t mb_mutex_create(MB_MUTEX_T *mutex)
 {
-    krhino_mutex_create(mutex, "mb_mutex");
-    return MB_SUCCESS;
+    kstat_t stat;
+    stat = krhino_mutex_create(mutex, "mb_mutex");
+    if (stat == RHINO_SUCCESS) {
+        return MB_SUCCESS;
+    } else {
+        return MB_MUTEX_ERROR;
+    }
 }
 
 mb_status_t mb_mutex_lock(MB_MUTEX_T *mutex)
 {
-    krhino_mutex_lock(mutex, RHINO_WAIT_FOREVER);
-    return MB_SUCCESS;
+    kstat_t stat;
+    stat = krhino_mutex_lock(mutex, RHINO_WAIT_FOREVER);
+    if (stat == RHINO_SUCCESS) {
+        return MB_SUCCESS;
+    } else {
+        return MB_MUTEX_ERROR;
+    }
 }
 
 mb_status_t mb_mutex_unlock(MB_MUTEX_T *mutex)
 {
-    krhino_mutex_unlock(mutex);
-    return MB_SUCCESS;
+    kstat_t stat;
+    stat = krhino_mutex_unlock(mutex);
+    if (stat == RHINO_SUCCESS) {
+        return MB_SUCCESS;
+    } else {
+        return MB_MUTEX_ERROR;
+    }
 }
 
 mb_status_t mb_mutex_del(MB_MUTEX_T *mutex)
 {
-    krhino_mutex_del(mutex);
-    return MB_SUCCESS;
+    kstat_t stat;
+    stat = krhino_mutex_del(mutex);
+    if (stat == RHINO_SUCCESS) {
+        return MB_SUCCESS;
+    } else {
+        return MB_MUTEX_ERROR;
+    }
 }
