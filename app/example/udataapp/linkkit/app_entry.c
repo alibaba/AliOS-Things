@@ -263,6 +263,7 @@ static struct cli_command ncmd = { .name     = "active_awss",
 
 
 #ifdef WITH_SAL
+extern int sal_add_dev(char* driver_name, void* data);
 extern int sal_init(void);
 #endif
 
@@ -275,6 +276,7 @@ int linkkit_sample_start(void)
 #endif
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 

@@ -104,6 +104,7 @@ static struct cli_command otacmd = { .name     = "OTA_APP",
 int application_start(int argc, char *argv[])
 {
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
     aos_set_log_level(AOS_LL_DEBUG);
