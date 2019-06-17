@@ -295,6 +295,24 @@ int mbedtls_x509_crt_parse_file( mbedtls_x509_crt *chain, const char *path );
 int mbedtls_x509_crt_parse_path( mbedtls_x509_crt *chain, const char *path );
 #endif /* MBEDTLS_FS_IO */
 
+/* Modify for AliOS Things begin. 2019-06-17 */
+
+/**
+ * \brief          Returns an informational string about the
+ *                 subject identifier of the certificate.
+ *
+ * \param buf      Buffer to write to
+ * \param size     Maximum size of buffer
+ * \param crt      The X509 certificate to represent
+ *
+ * \return         The length of the string written (not including the
+ *                 terminated nul byte), or a negative error code.
+ */
+int mbedtls_x509_subjectid_gets( char *buf, size_t size,
+                                 const mbedtls_x509_crt *crt );
+
+/* Modify for AliOS Things end. 2019-06-17 */
+
 /**
  * \brief          Returns an informational string about the
  *                 certificate.
