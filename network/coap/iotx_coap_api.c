@@ -868,7 +868,10 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     coap_log(LOG_ERR, "Send authentication message to server\n");
     coap_log(LOG_INFO, "The payload is: %s\n", p_payload);
     coap_log(LOG_INFO, "Send authentication message to server\n");
-    ret = coap_send(p_session, pdu);
+    if (coap_send(p_session, pdu) == COAP_INVALID_TID) {
+       coap_log(LOG_WARNING, "cannot send pdu for transaction %u\n",
+                   pdu->tid);
+    }
     int count = 0;
     while (p_session->state != COAP_SESSION_STATE_ESTABLISHED) {
         coap_run_once(p_coap_ctx, 50);
@@ -1039,7 +1042,6 @@ static int iotx_split_path_2_option(char *uri, coap_pdu_t *message)
 int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_message_t *p_message)
 {
     int len = 0;
-    int ret = IOTX_SUCCESS;
     iotx_coap_t *p_iotx_coap = NULL;
     coap_context_t *p_coap_ctx = NULL;
     coap_pdu_t     *pdu;
@@ -1123,7 +1125,8 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
                                   p_message->resp_callback) != 0) {
             coap_log(LOG_ERR, "cannot add msg callback\n");
         }
-    if (COAP_URI_SCHEME_COAP_PSK == p_iotx_coap->p_coap_ctx->scheme) {
+
+        if (COAP_URI_SCHEME_COAP_PSK == p_iotx_coap->p_coap_ctx->scheme) {
             unsigned char buff[32] = {0};
             unsigned char seq[33] = {0};
             HAL_Snprintf((char *)buff, sizeof(buff) - 1, "%d", p_iotx_coap->seq++);
@@ -1149,11 +1152,13 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
             HEXDUMP_DEBUG(payload, len);
             coap_add_data(pdu, len, payload);
-    } else {
-        coap_add_data(pdu, p_message->payload_len, p_message->p_payload);
-    }
-        ret = coap_send(p_session, pdu);
-        if (ret != pdu->tid) {
+        } else {
+            coap_add_data(pdu, p_message->payload_len, p_message->p_payload);
+        }
+
+        if (coap_send(p_session, pdu) == COAP_INVALID_TID) {
+           coap_log(LOG_WARNING, "cannot send pdu for transaction %u\n",
+                   pdu->tid);
         }
 
         if (NULL != payload) {
@@ -1173,12 +1178,9 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         pdu->code = COAP_REQUEST_POST;
         coap_add_data(pdu, p_message->payload_len, p_message->p_payload);
 
-        ret = coap_send(p_session, pdu);
-        if (ret != pdu->tid) {
-        }
-        if (NULL != payload) {
-            coap_free(payload);
-            payload = NULL;
+        if (coap_send(p_session, pdu) == COAP_INVALID_TID) {
+           coap_log(LOG_WARNING, "cannot send pdu for transaction %u\n",
+                   pdu->tid);
         }
         return IOTX_SUCCESS;
     }
