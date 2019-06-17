@@ -48,7 +48,9 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
     SET_U16_LE(g_core.adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
     /*extract Breeze version from BZ_VERSION*/
-    p = strtok(BZ_VERSION, ".");
+    char t_ver_info[20] = { 0 };
+    strncpy(t_ver_info, BZ_VERSION, sizeof(t_ver_info) - 1);
+    p = strtok(t_ver_info, ".");
     while(p = strtok(NULL, ".")){
         ver_str = p;
     }
