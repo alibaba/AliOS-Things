@@ -5,8 +5,9 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := breezeapp
 $(NAME)_SOURCES := breezeapp.c
 
-
 $(NAME)_COMPONENTS := breeze cli
+
+BLE = 1
 
 GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += BUILD_AOS
