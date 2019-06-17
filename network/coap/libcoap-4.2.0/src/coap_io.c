@@ -1274,8 +1274,11 @@ coap_write(coap_context_t *ctx,
     coap_retransmit(ctx, coap_pop_next(ctx));
     nextpdu = coap_peek_next(ctx);
   }
-
+#if defined(LIBCOAP_RELIABLE_CONNECT) || defined(LIBCOAP_SERVER_SUPPORT)
   if (nextpdu && (timeout == 0 || nextpdu->t - ( now - ctx->sendqueue_basetime ) < timeout))
+#else
+  if (nextpdu)
+#endif
     timeout = nextpdu->t - (now - ctx->sendqueue_basetime);
 
   if (ctx->dtls_context) {
