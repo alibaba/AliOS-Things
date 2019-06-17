@@ -5638,6 +5638,50 @@ static int ssl_parse_certificate_chain( mbedtls_ssl_context *ssl )
     return( 0 );
 }
 
+/* Modify for AliOS Things begin. 2019-06-17 */
+/* compare certificate chain instead of verify. */
+static int ssl_compare_certificate_chain( mbedtls_ssl_context *ssl )
+{
+    mbedtls_x509_crt *local_cert;
+    mbedtls_x509_crt *peer_cert;
+
+    MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> compare certificate" ) );
+
+    if( ( ssl == NULL ) || ( ssl->conf == NULL ) || ( ssl->conf->ca_chain == NULL ) ||
+        ( ssl->session_negotiate == NULL ) || ( ssl->session_negotiate->peer_cert == NULL ) )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "invalid parameter" ) );
+        return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
+    }
+
+    local_cert = ssl->conf->ca_chain;
+    peer_cert = ssl->session_negotiate->peer_cert;
+
+    do
+    {
+        if( local_cert->raw.tag != peer_cert->raw.tag )
+        {
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "compare certificate failed, raw.tag not equal." ) );
+            return( MBEDTLS_ERR_X509_CERT_VERIFY_FAILED );
+        }
+        if( local_cert->raw.len != peer_cert->raw.len )
+        {
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "compare certificate failed, raw.len not equal." ) );
+            return( MBEDTLS_ERR_X509_CERT_VERIFY_FAILED );
+        }
+        if( memcmp( local_cert->raw.p, peer_cert->raw.p, local_cert->raw.len ) != 0 )
+        {
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "compare certificate failed, content not equal." ) );
+            return( MBEDTLS_ERR_X509_CERT_VERIFY_FAILED );
+        }
+
+    } while( ( local_cert->next != NULL ) && ( peer_cert->next != NULL ) );
+
+    MBEDTLS_SSL_DEBUG_MSG( 2, ( "<= compare certificate" ) );
+    return( 0 );
+}
+/* Modify for AliOS Things end. 2019-06-17 */
+
 int mbedtls_ssl_parse_certificate( mbedtls_ssl_context *ssl )
 {
     int ret;
@@ -5740,17 +5784,31 @@ crt_verify:
             ca_chain = ssl->conf->ca_chain;
             ca_crl   = ssl->conf->ca_crl;
         }
+        /* Modify for AliOS Things begin. 2019-06-17 */
+        if( authmode == MBEDTLS_SSL_VERIFY_COMPARE )
+        {
+            /* Main check: compare certificate */
+            ret = ssl_compare_certificate_chain( ssl );
+            if( ret != 0 )
+            {
+                ssl->session_negotiate->verify_result |= MBEDTLS_X509_BADCERT_OTHER;
+            }
+        }
+        else
+        {
+            /*
+             * Main check: verify certificate
+             */
+            ret = mbedtls_x509_crt_verify_restartable(
+                                    ssl->session_negotiate->peer_cert,
+                                    ca_chain, ca_crl,
+                                    ssl->conf->cert_profile,
+                                    ssl->hostname,
+                                   &ssl->session_negotiate->verify_result,
+                                    ssl->conf->f_vrfy, ssl->conf->p_vrfy, rs_ctx );
 
-        /*
-         * Main check: verify certificate
-         */
-        ret = mbedtls_x509_crt_verify_restartable(
-                                ssl->session_negotiate->peer_cert,
-                                ca_chain, ca_crl,
-                                ssl->conf->cert_profile,
-                                ssl->hostname,
-                               &ssl->session_negotiate->verify_result,
-                                ssl->conf->f_vrfy, ssl->conf->p_vrfy, rs_ctx );
+        }
+        /* Modify for AliOS Things end. 2019-06-17 */
 
         if( ret != 0 )
         {
@@ -5806,7 +5864,10 @@ crt_verify:
             ret = 0;
         }
 
-        if( ca_chain == NULL && authmode == MBEDTLS_SSL_VERIFY_REQUIRED )
+        /* Modify for AliOS Things begin. 2019-06-17 */
+        if( ca_chain == NULL && ( ( authmode == MBEDTLS_SSL_VERIFY_REQUIRED )
+                               || ( authmode == MBEDTLS_SSL_VERIFY_COMPARE ) ) )
+        /* Modify for AliOS Things end. 2019-06-17 */
         {
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "got no CA chain" ) );
             ret = MBEDTLS_ERR_SSL_CA_CHAIN_REQUIRED;

@@ -166,6 +166,9 @@
 #define MBEDTLS_SSL_VERIFY_OPTIONAL             1
 #define MBEDTLS_SSL_VERIFY_REQUIRED             2
 #define MBEDTLS_SSL_VERIFY_UNSET                3 /* Used only for sni_authmode */
+/* Modify for AliOS Things begin. 2019-06-17 */
+#define MBEDTLS_SSL_VERIFY_COMPARE              4
+/* Modify for AliOS Things end. 2019-06-17 */
 
 #define MBEDTLS_SSL_LEGACY_RENEGOTIATION        0
 #define MBEDTLS_SSL_SECURE_RENEGOTIATION        1
@@ -979,7 +982,9 @@ struct mbedtls_ssl_config
 
     unsigned int endpoint : 1;      /*!< 0: client, 1: server               */
     unsigned int transport : 1;     /*!< stream (TLS) or datagram (DTLS)    */
-    unsigned int authmode : 2;      /*!< MBEDTLS_SSL_VERIFY_XXX             */
+    /* Modify for AliOS Things begin. 2019-06-17 */
+    unsigned int authmode : 3;      /*!< MBEDTLS_SSL_VERIFY_XXX             */
+    /* Modify for AliOS Things end. 2019-06-17 */
     /* needed even with renego disabled for LEGACY_BREAK_HANDSHAKE          */
     unsigned int allow_legacy_renegotiation : 2 ; /*!< MBEDTLS_LEGACY_XXX   */
 #if defined(MBEDTLS_ARC4_C)
