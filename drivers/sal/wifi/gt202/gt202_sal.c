@@ -98,7 +98,7 @@ static int socket_to_fd(int socket)
     return -1;
 }
 
-int HAL_SAL_DomainToIp(char *domain, char ip[16])
+static int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     uint32_t addr = 0;
     A_STATUS status;
@@ -129,7 +129,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
     return status;
 }
 
-int HAL_SAL_Start(sal_conn_t *c)
+static int HAL_SAL_Start(sal_conn_t *c)
 {
     int sock, ret;
     SOCKADDR_T l_addr, r_addr;
@@ -240,7 +240,7 @@ int HAL_SAL_Start(sal_conn_t *c)
     return 0;
 }
 
-int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port, int32_t timeout)
+static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     volatile int sent;
     int qcom_socket = 0;
@@ -285,7 +285,7 @@ int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_
     return 0;
 }
               
-int HAL_SAL_Close(int fd, int32_t remote_port)
+static int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int sock;
 
@@ -302,7 +302,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     return 0;
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     PRINTF("sal_qcom_register_netconn_data_input_cb\r\n");
 
@@ -312,7 +312,7 @@ int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-int HAL_SAL_Deinit(void)
+static int HAL_SAL_Deinit(void)
 {
     return 0;
 }
@@ -366,7 +366,7 @@ void sal_recv_task(void *param)
 
 static ktask_t *g_sal_task = NULL;
 #define WIFI_SAL_STACK_SIZE 256
-int sal_device_init()
+int gt202_sal_add_dev(char* driver_name, void* data)
 {
     kstat_t status;
     int i = 0;
@@ -390,4 +390,21 @@ int sal_device_init()
     return 0;
 }
 
+sal_op_t sal_op = {
+    .next = NULL,
+    .version = "1.0.0",
+    .name = "gt202",
+    .add_dev = gt202_sal_add_dev,
+    .init = HAL_SAL_Init,
+    .start = HAL_SAL_Start,
+    .send_data = HAL_SAL_Send,
+    .domain_to_ip = HAL_SAL_DomainToIp,
+    .finish = HAL_SAL_Close,
+    .deinit = HAL_SAL_Deinit,
+    .register_netconn_data_input_cb = HAL_SAL_RegisterNetconnDataInputCb,
+};
 
+int gt202_sal_device_init(void)
+{
+    return sal_module_register(&sal_op);
+} 
