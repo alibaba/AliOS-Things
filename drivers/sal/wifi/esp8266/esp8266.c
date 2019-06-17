@@ -129,7 +129,7 @@ static void esp8266_wifi_module_socket_data_handle(int linkid, void *data, size_
 /*****************************************
 * esp8266_wifi_module interface
 *****************************************/
-int HAL_SAL_Init(void)
+static int HAL_SAL_Init(void)
 {
     int ret = 0;
     int i;
@@ -173,8 +173,7 @@ err:
     return -1;
 }
 
-
-int HAL_SAL_Deinit()
+static int HAL_SAL_Deinit()
 {
     if (!inited) {
         return 0;
@@ -186,7 +185,7 @@ int HAL_SAL_Deinit()
     return 0;
 }
 
-int HAL_SAL_DomainToIp(char *domain, char ip[16])
+static int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     int ret = -1;
 
@@ -210,7 +209,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
     return 0;
 }
 
-int HAL_SAL_Start(sal_conn_t *conn)
+static int HAL_SAL_Start(sal_conn_t *conn)
 {
     int  linkid = 0;
     int ret = -1;
@@ -275,7 +274,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
 
 }
 
-int HAL_SAL_Close(int fd, int32_t remote_port)
+static int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -304,7 +303,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     return ret;
 }
 
-int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
+static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
                  char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     int  linkid;
@@ -343,7 +342,7 @@ int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
     return 0;
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -354,7 +353,7 @@ int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-int sal_device_init()
+static int esp8266_sal_add_dev(char* driver_name, void* data)
 {
     int ret = netm_init();
 
@@ -366,3 +365,21 @@ int sal_device_init()
     return 0;
 }
 
+sal_op_t sal_op = {
+    .next = NULL,
+    .version = "1.0.0",
+    .name = "esp8266",
+    .add_dev = esp8266_sal_add_dev,
+    .init = HAL_SAL_Init,
+    .start = HAL_SAL_Start,
+    .send_data = HAL_SAL_Send,
+    .domain_to_ip = HAL_SAL_DomainToIp,
+    .finish = HAL_SAL_Close,
+    .deinit = HAL_SAL_Deinit,
+    .register_netconn_data_input_cb = HAL_SAL_RegisterNetconnDataInputCb,
+};
+
+int esp8266_sal_device_init(void)
+{
+    return sal_module_register(&sal_op);
+} 

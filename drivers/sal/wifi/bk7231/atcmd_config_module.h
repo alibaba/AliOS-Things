@@ -20,4 +20,9 @@
 #define AT_UART_STOP_BITS STOP_BITS_1
 #define AT_UART_FLOW_CONTROL FLOW_CONTROL_DISABLED
 #define AT_UART_MODE MODE_TX_RX
+
+typedef struct {
+   uart_dev_t            uart_dev;
+} sal_device_config_t;
+
 #endif
