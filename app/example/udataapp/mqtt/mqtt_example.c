@@ -444,6 +444,7 @@ int mqtt_sample_start(void)
 #endif
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 

@@ -66,6 +66,7 @@ int application_start(int argc, char **argv)
     entry_paras.argv = argv;
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
