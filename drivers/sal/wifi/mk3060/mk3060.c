@@ -556,7 +556,7 @@ static uint8_t inited = 0;
 
 #define NET_OOB_PREFIX "+CIPEVENT:"
 #define WIFIEVENT_OOB_PREFIX "+WEVENT:"
-int HAL_SAL_Init(void)
+static int HAL_SAL_Init(void)
 {
     int link;
     char cmd[STOP_AUTOCONN_CMD_LEN] = {0};
@@ -608,7 +608,7 @@ int HAL_SAL_Init(void)
     return 0;
 }
 
-int HAL_SAL_Deinit(void)
+static int HAL_SAL_Deinit(void)
 {
     if (!inited) {
         return 0;
@@ -625,7 +625,7 @@ static char *start_cmd_type_str[] = {"tcp_server", "tcp_client", \
                                      "ssl_client", "udp_broadcast", "udp_unicast"
                                     };
 
-int HAL_SAL_Start(sal_conn_t *c)
+static int HAL_SAL_Start(sal_conn_t *c)
 {
     int link_id;
     char cmd[START_CMD_LEN] = {0};
@@ -767,7 +767,7 @@ static int fd_to_linkid(int fd)
 
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
-int HAL_SAL_Send(int fd,
+static int HAL_SAL_Send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
@@ -841,7 +841,7 @@ int HAL_SAL_Send(int fd,
 #define DOMAIN_CMD "AT+CIPDOMAIN"
 #define DOMAIN_CMD_LEN (sizeof(DOMAIN_CMD)+MAX_DOMAIN_LEN+1)
 /* Return the first IP if multiple found. */
-int HAL_SAL_DomainToIp(char *domain,
+static int HAL_SAL_DomainToIp(char *domain,
                                  char ip[16])
 {
     char cmd[DOMAIN_CMD_LEN] = {0}, out[256] = {0}, *head, *end;
@@ -903,8 +903,7 @@ err:
     return -1;
 }
 
-
-int HAL_SAL_Close(int fd,
+static int HAL_SAL_Close(int fd,
                   int32_t remote_port)
 {
     int link_id;
@@ -951,7 +950,7 @@ err:
 
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -969,12 +968,25 @@ static int mk3060_client_status_notify(netconn_client_status_notify_t cb)
 }
 #endif
 
-int sal_device_init(void)
+int mk3060_sal_add_dev(char* driver_name, void* data)
 {
     at_config_t at_config = { 0 };
 
     at_init();
 
+    if(data != NULL)
+    {
+        sal_device_config_t* config = (sal_device_config_t *)data;    
+        uart_dev.port  = config->uart_dev.port;
+        uart_dev.config.baud_rate    = config->uart_dev.config.baud_rate;
+        uart_dev.config.data_width   = config->uart_dev.config.data_width;
+        uart_dev.config.parity       = config->uart_dev.config.parity;
+        uart_dev.config.stop_bits    = config->uart_dev.config.stop_bits;
+        uart_dev.config.flow_control = config->uart_dev.config.flow_control;
+        uart_dev.config.mode         = config->uart_dev.config.mode;
+    }
+    else
+    {
     /* uart_dev should be maintained in whole life cycle */
     uart_dev.port                = AT_UART_PORT;
     uart_dev.config.baud_rate    = AT_UART_BAUDRATE;
@@ -983,7 +995,7 @@ int sal_device_init(void)
     uart_dev.config.stop_bits    = AT_UART_STOP_BITS;
     uart_dev.config.flow_control = AT_UART_FLOW_CONTROL;
     uart_dev.config.mode         = AT_UART_MODE;
-
+    }
     /* configure and add one uart dev */
     at_config.type                             = AT_DEV_UART;
     at_config.port                             = AT_UART_PORT;
@@ -1002,3 +1014,20 @@ int sal_device_init(void)
     return 0;
 }
 
+sal_op_t sal_op = {
+    .next = NULL,
+    .version = "1.0.0",
+    .name = "mk3060",
+    .add_dev = mk3060_sal_add_dev,
+    .init = HAL_SAL_Init,
+    .start = HAL_SAL_Start,
+    .send_data = HAL_SAL_Send,
+    .domain_to_ip = HAL_SAL_DomainToIp,
+    .finish = HAL_SAL_Close,
+    .deinit = HAL_SAL_Deinit,
+    .register_netconn_data_input_cb = HAL_SAL_RegisterNetconnDataInputCb,
+};
+int mk3060_sal_device_init(void)
+{
+    return sal_module_register(&sal_op);
+} 
