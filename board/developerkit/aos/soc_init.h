@@ -60,39 +60,44 @@
 /* Private define ------------------------------------------------------------*/
 
 typedef enum {
-    GPIO_ALS_INT,
-    GPIO_AUDIO_CTL,
-    GPIO_AUDIO_RST,
-    GPIO_AUDIO_WU,
-    GPIO_CAM_PD,
-    GPIO_CAM_RST,
-    GPIO_LED_1,
-    GPIO_LED_2,
-    GPIO_LED_3,
-    GPIO_KEY_1,
-    GPIO_KEY_2,
-    GPIO_KEY_3,
-    GPIO_LCD_DCX,
-    GPIO_LCD_PWR,
-    GPIO_LCD_RST,
-    GPIO_PCIE_RST,
-    GPIO_SECURE_CLK,
-    GPIO_SECURE_IO,
-    GPIO_SECURE_RST,
-    GPIO_SIM_DET,
-    GPIO_USB_PCIE_SW,
-    GPIO_WIFI_RST,
-    GPIO_WIFI_WU,
-    GPIO_ZIGBEE_INT,
-    GPIO_ZIGBEE_RST,
-    MAX_GPIO_NUM
+	GPIO_ALS_INT,
+	GPIO_AUDIO_CTL,
+	GPIO_AUDIO_RST,
+	GPIO_AUDIO_WU,
+	GPIO_CAM_PD,
+	GPIO_CAM_RST,
+	GPIO_LED_1,
+	GPIO_LED_2,
+	GPIO_LED_3,
+	GPIO_KEY_1,
+	GPIO_KEY_2,
+	GPIO_KEY_3,
+	GPIO_LCD_DCX,
+	GPIO_LCD_PWR,
+	GPIO_LCD_RST,
+	GPIO_PCIE_RST,
+	GPIO_SECURE_RST,
+	GPIO_SIM_DET,
+	GPIO_USB_PCIE_SW,
+	GPIO_WIFI_RST,
+	GPIO_WIFI_WU,
+	GPIO_ZIGBEE_INT,
+	MAX_GPIO_NUM
 } BOARD_GPIO;
+
+typedef enum {
+	BOARD_HW_UNKNOW = 0,
+	BOARD_HW_VER12,
+	BOARD_HW_VER13,
+	BOARD_HW_END
+} BOARD_HW_VERSION;
 
 extern gpio_dev_t brd_gpio_table[];
 extern i2c_dev_t brd_i2c2_dev;
 extern i2c_dev_t brd_i2c3_dev;
 extern i2c_dev_t brd_i2c4_dev;
 extern uart_dev_t uart_0;
+extern uart_dev_t uart_arduino;
 
 #define KIDS_A10_PRT(fmt, args...)  \
   printf("%s: [%s-->%d]=> "fmt,   \

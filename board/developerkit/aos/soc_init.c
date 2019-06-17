@@ -38,18 +38,29 @@ size_t g_iram1_total_size = 0x00040000;
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
 uart_dev_t uart_0;
+uart_dev_t uart_arduino;
 
 static void stduart_init(void);
+static void arduino_uart_init(void);
 static void brd_peri_init(void);
 
 extern void SystemClock_Config(void);
 
+#ifdef DEVKIT_HWV12 /* Developerkit hardware version 12 */
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
     { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
     { PORT_UART_ARDUINO, USART2,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} }
 };
+#else /* Developerkit hardware version 13 */
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
+    { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
+    { PORT_UART_ARDUINO, UART4,   { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} }
+};
+#endif
 
 void stm32_soc_init(void)
 {
@@ -88,10 +99,12 @@ void stm32_soc_peripheral_init(void)
 {
     /*default uart init*/
     stduart_init();
+    arduino_uart_init();
     brd_peri_init();
     //sufficient time to make the initial GPIO level works, especially wifi reset
     aos_msleep(50);
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
+	hal_gpio_output_high(&brd_gpio_table[GPIO_PCIE_RST]);
 
 #ifdef DEVELOPERKIT_IRDA
     irda_init();
@@ -130,6 +143,19 @@ static void stduart_init(void)
     hal_uart_init(&uart_0);
 }
 
+static void arduino_uart_init(void)
+{
+    uart_arduino.port = 2;
+    uart_arduino.config.baud_rate = 115200;
+    uart_arduino.config.data_width = DATA_WIDTH_8BIT;
+    uart_arduino.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_arduino.config.mode = MODE_TX_RX;
+    uart_arduino.config.parity = NO_PARITY;
+    uart_arduino.config.stop_bits = STOP_BITS_1;
+
+    hal_uart_init(&uart_arduino);
+}
+
 static gpio_irq_trigger_t mode_rising = IRQ_TRIGGER_RISING_EDGE;
 static gpio_irq_trigger_t mode_falling = IRQ_TRIGGER_FALLING_EDGE;
 static gpio_irq_trigger_t mode_both = IRQ_TRIGGER_BOTH_EDGES;
@@ -152,16 +178,13 @@ gpio_dev_t brd_gpio_table[] = {
     {LCD_DCX, OUTPUT_PUSH_PULL, &gpio_set},
     {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
     {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
+    {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
     {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
     {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
     {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_reset}, /*Low Level will reset wifi*/
     {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
     {ZIGBEE_INT, IRQ_MODE, &mode_rising},
-    {ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
 };
 
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};
@@ -186,6 +209,7 @@ static void brd_peri_init(void)
     hal_spi_init(&brd_spi2_dev);
 #endif
 }
+
 /**
 * @brief This function handles System tick timer.
 */

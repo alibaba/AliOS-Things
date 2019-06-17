@@ -181,15 +181,12 @@
 #define LCD_PWR                    HAL_GPIO_71     /*PE7*/
 #define LCD_RST                    HAL_GPIO_18     /*PB2*/
 #define PCIE_RST                   HAL_GPIO_45     /*PC13*/
-#define SECURE_CLK                 HAL_GPIO_79     /*PE15*/
-#define SECURE_IO                  HAL_GPIO_0      /*PA0*/
-#define SECURE_RST                 HAL_GPIO_1      /*PA1*/
+#define SECURE_RST                 HAL_GPIO_79     /*PE15*/
 #define SIM_DET                    HAL_GPIO_66     /*PE2*/
 #define USB_PCIE_SW                HAL_GPIO_21     /*PB5*/
 #define WIFI_RST                   HAL_GPIO_16     /*PB0*/
 #define WIFI_WU                    HAL_GPIO_17     /*PB1*/
 #define ZIGBEE_INT                 HAL_GPIO_72     /*PE8*/
-#define ZIGBEE_RST                 HAL_GPIO_55     /*PD7*/
 
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 

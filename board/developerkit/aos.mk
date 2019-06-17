@@ -164,6 +164,10 @@ endif
 endif
 endif
 
+ifeq ($(hwver),12)
+GLOBAL_DEFINES += DEVKIT_HWV12
+endif
+
 AOS_NETWORK_SAL ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
