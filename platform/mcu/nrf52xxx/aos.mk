@@ -76,7 +76,7 @@ $(NAME)_SOURCES += Drivers/boards/boards.c \
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c
 
-ifeq ($(ble),1)
+ifeq ($(BLE),1)
 $(NAME)_SOURCES  += hal/ble_port.c
 endif
 
