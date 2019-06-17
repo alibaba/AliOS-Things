@@ -39,8 +39,8 @@ GLOBAL_DEFINES-y += CONFIG_BLUETOOTH
 GLOBAL_DEFINES-y += CONFIG_BT_PERIPHERAL
 GLOBAL_DEFINES-y += CONFIG_BLE_50
 
-en_bt_smp ?= 0
-ifeq ($(en_bt_smp),1)
+EN_BT_SMP ?= 0
+ifeq ($(EN_BT_SMP),1)
 GLOBAL_DEFINES-y += CONFIG_BT_SMP
 $(NAME)_SOURCES-y += host/smp.c
 else

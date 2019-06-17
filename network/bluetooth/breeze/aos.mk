@@ -23,11 +23,6 @@ ifeq ($(CONFIG_COMP_BZ_MODEL_SEC), y)
 GLOBAL_DEFINES-y += CONFIG_MODEL_SECURITY
 endif
 
-#btstack ?= zephyr
-#ifeq (zephyr, $(btstack))
-#$(NAME)_COMPONENTS-y += breeze_hal
-#endif
-
 $(NAME)_SOURCES-y += api/breeze_export.c
 
 ifeq ($(CONFIG_COMP_BZ_EN_AUTH), y)
