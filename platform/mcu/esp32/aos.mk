@@ -43,7 +43,7 @@ $(NAME)_SOURCES += hal/uart.c
 $(NAME)_SOURCES += hal/flash.c
 $(NAME)_SOURCES += hal/wifi_port.c
 $(NAME)_SOURCES += bsp/heap_oram.c
-ifeq ($(ble),1)
+ifeq ($(BLE),1)
 $(NAME)_SOURCES += hal/ble_port.c
 endif
 $(NAME)_SOURCES += hal/misc.c
@@ -130,8 +130,8 @@ ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += umesh
 endif
 
-ble                      ?= 0
-ifneq ($(ble),0)
+BLE                      ?= 0
+ifneq ($(BLE),0)
 ifneq ($(bt_mesh_standalone_deploy),1)
 $(NAME)_COMPONENTS       += bt_host
 endif
