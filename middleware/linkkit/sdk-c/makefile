@@ -50,9 +50,6 @@ $(call CompLib_Map, FEATURE_ALCS_ENABLED, \
 $(call CompLib_Map, FEATURE_MAL_ENABLED, \
     src/services/mdal/mal \
 )
-$(call CompLib_Map, FEATURE_SAL_ENABLED, \
-    src/services/mdal/sal \
-)
 
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
