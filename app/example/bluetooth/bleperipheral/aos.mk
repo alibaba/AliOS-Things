@@ -6,8 +6,8 @@ $(NAME)_SUMMARY := bleperipheral
 
 $(NAME)_SOURCES     := main.c
 
-ble = 1
-en_bt_smp = 1
+BLE = 1
+EN_BT_SMP = 1
 
 $(NAME)_COMPONENTS  += bt_host cli bt_profile
 GLOBAL_DEFINES      += AOS_NO_WIFI
