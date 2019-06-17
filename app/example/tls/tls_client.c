@@ -242,6 +242,7 @@ int application_start(int argc, char **argv)
     bzero(cookie, sizeof(*cookie));
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 

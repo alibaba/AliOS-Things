@@ -278,6 +278,7 @@ int application_start(int argc, char **argv)
     memset(cookie, 0, sizeof(*cookie));
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
