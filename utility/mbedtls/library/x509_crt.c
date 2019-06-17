@@ -368,7 +368,9 @@ static void x509_crt_verify_chain_reset(
     for( i = 0; i < MBEDTLS_X509_MAX_VERIFY_CHAIN_SIZE; i++ )
     {
         ver_chain->items[i].crt = NULL;
-        ver_chain->items[i].flags = -1;
+        /* Modify for AliOS Things begin. 2019-06-17 */
+        ver_chain->items[i].flags = (uint32_t)-1;
+        /* Modify for AliOS Things end. 2019-06-17 */
     }
 
     ver_chain->len = 0;
@@ -609,7 +611,9 @@ static int x509_get_ext_key_usage( unsigned char **p,
  *      nameAssigner            [0]     DirectoryString OPTIONAL,
  *      partyName               [1]     DirectoryString }
  *
- * NOTE: we only parse and use dNSName at this point.
+ * Modify for AliOS Things begin. 2019-06-17
+ * NOTE: we only parse and use dNSName and URI at this point.
+ * Modify for AliOS Things end. 2019-06-17
  */
 static int x509_get_subject_alt_name( unsigned char **p,
                                       const unsigned char *end,
@@ -648,8 +652,11 @@ static int x509_get_subject_alt_name( unsigned char **p,
                     MBEDTLS_ERR_ASN1_UNEXPECTED_TAG );
         }
 
-        /* Skip everything but DNS name */
-        if( tag != ( MBEDTLS_ASN1_CONTEXT_SPECIFIC | 2 ) )
+        /* Modify for AliOS Things begin. 2019-06-17 */
+        /* Skip everything but DNS name and URI */
+        if( ( tag != ( MBEDTLS_ASN1_CONTEXT_SPECIFIC | 2 )) &&
+            ( tag != ( MBEDTLS_ASN1_CONTEXT_SPECIFIC | 6 )))
+        /* Modify for AliOS Things end. 2019-06-17 */
         {
             *p += tag_len;
             continue;
@@ -1431,6 +1438,86 @@ static int x509_info_subject_alt_name( char **buf, size_t *size,
     return( 0 );
 }
 
+/* Look up order: DNS-ID, URI-ID.
+ * ID's separator is '\0', end of indicator is double '\0'
+ */
+static int x509_info_subject_alt_name2( char **buf, size_t *size,
+                                       const mbedtls_x509_sequence *subject_alt_name )
+{
+    size_t i;
+    size_t n = *size;
+    char *p = *buf;
+    const mbedtls_x509_sequence *cur = subject_alt_name;
+    const char sep = '\0';
+    size_t sep_len = 0;
+
+    /* Look up DNS-ID */
+    while( cur != NULL )
+    {
+        if( cur->buf.tag != ( MBEDTLS_ASN1_CONTEXT_SPECIFIC | 2 ) )
+        {
+            cur = cur->next;
+            continue;
+        }
+
+        if( cur->buf.len + sep_len >= n - 1 )
+        {
+            *p++ = '\0';
+            *p = '\0';
+            return( MBEDTLS_ERR_X509_BUFFER_TOO_SMALL );
+        }
+
+        n -= cur->buf.len + sep_len;
+        for( i = 0; i < sep_len; i++ )
+            *p++ = sep;
+        for( i = 0; i < cur->buf.len; i++ )
+            *p++ = cur->buf.p[i];
+
+        sep_len = 1;
+
+        cur = cur->next;
+    }
+
+    /* Not found DNS-ID, look up URI-ID */
+    if( p == *buf )
+    {
+        cur = subject_alt_name;
+        while( cur != NULL )
+        {
+            if( cur->buf.tag != ( MBEDTLS_ASN1_CONTEXT_SPECIFIC | 6 ) )
+            {
+                cur = cur->next;
+                continue;
+            }
+
+            if( cur->buf.len + sep_len >= n - 1 )
+            {
+                *p++ = '\0';
+                *p = '\0';
+                return( MBEDTLS_ERR_X509_BUFFER_TOO_SMALL );
+            }
+
+            n -= cur->buf.len + sep_len;
+            for( i = 0; i < sep_len; i++ )
+                *p++ = sep;
+            for( i = 0; i < cur->buf.len; i++ )
+                *p++ = cur->buf.p[i];
+
+            sep_len = 1;
+
+            cur = cur->next;
+        }
+    }
+
+    *p++ = '\0';
+    *p = '\0';
+
+    *size = n;
+    *buf = p;
+
+    return( 0 );
+}
+
 #define PRINT_ITEM(i)                           \
     {                                           \
         ret = mbedtls_snprintf( p, n, "%s" i, sep );    \
@@ -1521,6 +1608,66 @@ static int x509_info_ext_key_usage( char **buf, size_t *size,
 
     return( 0 );
 }
+
+/* Modify for AliOS Things begin. 2019-06-17 */
+/* Get the cn field of a dn of a certificate */
+static int x509_get_cn( char *buf, size_t size, const mbedtls_x509_name *dn )
+{
+    int ret;
+    char dn_buf[MBEDTLS_X509_MAX_DN_NAME_SIZE] = {0};
+    char *cn = NULL;
+
+    if(( buf == NULL) || ( size <= 0 ) || ( dn == NULL ))
+        return( MBEDTLS_ERR_X509_BAD_INPUT_DATA );
+
+    ret = mbedtls_x509_dn_gets( dn_buf, sizeof(dn_buf), dn );
+    if( ret > 0)
+    {
+        cn = strstr( dn_buf, "CN=" );
+        if(cn == NULL)
+            return( MBEDTLS_ERR_X509_BAD_INPUT_DATA );
+
+        cn += 3;
+        strncpy( buf, cn, size -1 );
+        buf[size - 1] = 0;
+        ret = strlen(buf);
+    }
+
+    return ret;
+}
+
+/*
+ * Get the subject identifier of the certificate.
+ * Look up order: DNS-ID, URI-ID, CN-ID.
+ * Note: other identifier type is not supported at this point, e.g.
+ * SRV-ID, for details, read the x509_get_subject_alt_name.
+ */
+int mbedtls_x509_subjectid_gets( char *buf, size_t size,
+                                 const mbedtls_x509_crt *crt )
+{
+    size_t n;
+    char *p;
+
+    if(( buf == NULL) || ( size <= 0 ) || ( crt == NULL ))
+    {
+        return( MBEDTLS_ERR_X509_BAD_INPUT_DATA );
+    }
+
+    p = buf;
+    n = size;
+
+    if( crt->ext_types & MBEDTLS_X509_EXT_SUBJECT_ALT_NAME )
+    {
+        x509_info_subject_alt_name2( &p, &n, &crt->subject_alt_names );
+        if (n < size)
+        {
+            return( size - n );
+        }
+    }
+
+    return x509_get_cn( buf, size, &crt->subject );
+}
+/* Modify for AliOS Things end. 2019-06-17 */
 
 /*
  * Return an informational string about the certificate.
