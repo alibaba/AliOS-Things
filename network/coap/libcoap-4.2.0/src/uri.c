@@ -87,7 +87,7 @@ coap_split_uri(const uint8_t *str_var, size_t len, coap_uri_t *uri) {
   }else if (len &&(*p == '-')) {
         ++p;
         --len;
-        q = (char *)"psk";
+        q = (uint8_t *)"psk";
         while (len && *q && tolower(*p) == *q) {
             ++p;
             ++q;

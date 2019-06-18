@@ -74,16 +74,16 @@ static void prv_displayHelp(command_desc_t * commandArray,
     {
         int i;
 
-        fprintf(stdout, HELP_COMMAND"\t"HELP_DESC"\r\n");
+        lwm2m_log(LOG_DEBUG, HELP_COMMAND"\t"HELP_DESC"\n");
 
         for (i = 0 ; commandArray[i].name != NULL ; i++)
         {
-            fprintf(stdout, "%s\t%s\r\n", commandArray[i].name, commandArray[i].shortDesc);
+            lwm2m_log(LOG_DEBUG, "%s\t%s\n", commandArray[i].name, commandArray[i].shortDesc);
         }
     }
     else
     {
-        fprintf(stdout, "%s\r\n", cmdP->longDesc?cmdP->longDesc:cmdP->shortDesc);
+        lwm2m_log(LOG_DEBUG, "%s\n", cmdP->longDesc?cmdP->longDesc:cmdP->shortDesc);
     }
 }
 
@@ -116,7 +116,7 @@ void handle_command(command_desc_t * commandArray,
         }
         else
         {
-            fprintf(stdout, UNKNOWN_CMD_MSG"\r\n");
+            lwm2m_log(LOG_ERR, UNKNOWN_CMD_MSG"\n");
         }
     }
 }
@@ -170,7 +170,7 @@ static void print_indent(FILE * stream,
     int i;
 
     for ( i = 0 ; i < num ; i++)
-        fprintf(stream, "    ");
+        lwm2m_log(LOG_DEBUG, "    ");
 }
 
 void output_buffer(FILE * stream,
@@ -180,7 +180,7 @@ void output_buffer(FILE * stream,
 {
     int i;
 
-    if (length == 0) fprintf(stream, "\n");
+    if (length == 0) lwm2m_log(LOG_DEBUG, "\n");
 
     if (buffer == NULL) return;
 
@@ -194,27 +194,27 @@ void output_buffer(FILE * stream,
         memcpy(array, buffer+i, 16);
         for (j = 0 ; j < 16 && i+j < length; j++)
         {
-            fprintf(stream, "%02X ", array[j]);
-            if (j%4 == 3) fprintf(stream, " ");
+            lwm2m_log(LOG_DEBUG, "%02X ", array[j]);
+            if (j%4 == 3) lwm2m_log(LOG_DEBUG, " ");
         }
         if (length > 16)
         {
             while (j < 16)
             {
-                fprintf(stream, "   ");
-                if (j%4 == 3) fprintf(stream, " ");
+                lwm2m_log(LOG_DEBUG, "   ");
+                if (j%4 == 3) lwm2m_log(LOG_DEBUG, " ");
                 j++;
             }
         }
-        fprintf(stream, " ");
+        lwm2m_log(LOG_DEBUG, " ");
         for (j = 0 ; j < 16 && i+j < length; j++)
         {
             if (isprint(array[j]))
-                fprintf(stream, "%c", array[j]);
+                lwm2m_log(LOG_DEBUG, "%c", array[j]);
             else
-                fprintf(stream, ".");
+                lwm2m_log(LOG_DEBUG, ".");
         }
-        fprintf(stream, "\n");
+        lwm2m_log(LOG_DEBUG, "\n");
         i += 16;
     }
 }
@@ -234,30 +234,30 @@ void output_tlv(FILE * stream,
     while (0 != (result = lwm2m_decode_TLV((uint8_t*)buffer + length, buffer_len - length, &type, &id, &dataIndex, &dataLen)))
     {
         print_indent(stream, indent);
-        fprintf(stream, "{\r\n");
+        lwm2m_log(LOG_DEBUG, "{\r\n");
         print_indent(stream, indent+1);
-        fprintf(stream, "ID: %d", id);
+        lwm2m_log(LOG_DEBUG, "ID: %d", id);
 
-        fprintf(stream, " type: ");
+        lwm2m_log(LOG_DEBUG, " type: ");
         switch (type)
         {
         case LWM2M_TYPE_OBJECT_INSTANCE:
-            fprintf(stream, "Object Instance");
+            lwm2m_log(LOG_DEBUG, "Object Instance");
             break;
         case LWM2M_TYPE_MULTIPLE_RESOURCE:
-            fprintf(stream, "Multiple Instances");
+            lwm2m_log(LOG_DEBUG, "Multiple Instances");
             break;
         case LWM2M_TYPE_OPAQUE:
-            fprintf(stream, "Resource Value");
+            lwm2m_log(LOG_DEBUG, "Resource Value");
             break;
         default:
-            LOG_ARG("unknown (%d)", (int)type);
+            lwm2m_log(LOG_ERR, "unknown (%d)", (int)type);
             break;
         }
-        fprintf(stream, "\n");
+        lwm2m_log(LOG_DEBUG, "\n");
 
         print_indent(stream, indent+1);
-        fprintf(stream, "{\n");
+        lwm2m_log(LOG_DEBUG, "{\n");
         if (type == LWM2M_TYPE_OBJECT_INSTANCE || type == LWM2M_TYPE_MULTIPLE_RESOURCE)
         {
             output_tlv(stream, buffer + length + dataIndex, dataLen, indent+1);
@@ -269,28 +269,28 @@ void output_tlv(FILE * stream,
             uint8_t tmp;
 
             print_indent(stream, indent+2);
-            fprintf(stream, "data (%ld bytes):\r\n", dataLen);
+            lwm2m_log(LOG_DEBUG, "data (%d bytes):\n", dataLen);
             output_buffer(stream, (uint8_t*)buffer + length + dataIndex, dataLen, indent+2);
 
             tmp = buffer[length + dataIndex + dataLen];
             buffer[length + dataIndex + dataLen] = 0;
-            if (0 < sscanf((const char *)buffer + length + dataIndex, "%"PRId64, &intValue))
+            if (0 < sscanf((const char *)buffer + length + dataIndex, "%lld", &intValue))
             {
                 print_indent(stream, indent+2);
-                fprintf(stream, "data as Integer: %" PRId64 "\r\n", intValue);
+                lwm2m_log(LOG_DEBUG, "data as Integer: %lld\n", intValue);
             }
             if (0 < sscanf((const char*)buffer + length + dataIndex, "%lg", &floatValue))
             {
                 print_indent(stream, indent+2);
-                fprintf(stream, "data as Float: %.16g\r\n", floatValue);
+                lwm2m_log(LOG_DEBUG, "data as Float: %.16g\n", floatValue);
             }
             buffer[length + dataIndex + dataLen] = tmp;
         }
         print_indent(stream, indent+1);
-        fprintf(stream, "}\r\n");
+        lwm2m_log(LOG_DEBUG, "}\r\n");
         length += result;
         print_indent(stream, indent);
-        fprintf(stream, "}\r\n");
+        lwm2m_log(LOG_DEBUG, "}\r\n");
     }
 }
 
@@ -303,47 +303,47 @@ void output_data(FILE * stream,
     int i;
 
     print_indent(stream, indent);
-    fprintf(stream, "%d bytes received of type ", dataLength);
+    lwm2m_log(LOG_DEBUG, "%d bytes received of type ", dataLength);
 
     switch (format)
     {
     case LWM2M_CONTENT_TEXT:
-        fprintf(stream, "text/plain:\r\n");
+        lwm2m_log(LOG_DEBUG, "text/plain:\n");
         output_buffer(stream, data, dataLength, indent);
         break;
 
     case LWM2M_CONTENT_OPAQUE:
-        fprintf(stream, "application/octet-stream:\r\n");
+        lwm2m_log(LOG_DEBUG, "application/octet-stream:\n");
         output_buffer(stream, data, dataLength, indent);
         break;
 
     case LWM2M_CONTENT_TLV:
-        fprintf(stream, "application/vnd.oma.lwm2m+tlv:\r\n");
+        lwm2m_log(LOG_DEBUG, "application/vnd.oma.lwm2m+tlv:\n");
         output_tlv(stream, data, dataLength, indent);
         break;
 
     case LWM2M_CONTENT_JSON:
-        fprintf(stream, "application/vnd.oma.lwm2m+json:\r\n");
+        lwm2m_log(LOG_DEBUG, "application/vnd.oma.lwm2m+json:\n");
         print_indent(stream, indent);
         for (i = 0 ; i < dataLength ; i++)
         {
-            fprintf(stream, "%c", data[i]);
+            lwm2m_log(LOG_DEBUG, "%c", data[i]);
         }
-        fprintf(stream, "\n");
+        lwm2m_log(LOG_DEBUG, "\n");
         break;
 
     case LWM2M_CONTENT_LINK:
-        fprintf(stream, "application/link-format:\r\n");
+        lwm2m_log(LOG_DEBUG, "application/link-format:\n");
         print_indent(stream, indent);
         for (i = 0 ; i < dataLength ; i++)
         {
-            fprintf(stream, "%c", data[i]);
+            lwm2m_log(LOG_DEBUG, "%c", data[i]);
         }
-        fprintf(stream, "\n");
+        lwm2m_log(LOG_DEBUG, "\n");
         break;
 
     default:
-        fprintf(stream, "Unknown (%d):\r\n", format);
+        lwm2m_log(LOG_ERR, "Unknown (%d):\n", format);
         output_buffer(stream, data, dataLength, indent);
         break;
     }
@@ -359,64 +359,64 @@ void dump_tlv(FILE * stream,
     for(i= 0 ; i < size ; i++)
     {
         print_indent(stream, indent);
-        fprintf(stream, "{\r\n");
+        lwm2m_log(LOG_DEBUG, "{\n");
         print_indent(stream, indent+1);
-        fprintf(stream, "id: %d\r\n", dataP[i].id);
+        lwm2m_log(LOG_DEBUG, "id: %d\n", dataP[i].id);
 
         print_indent(stream, indent+1);
-        fprintf(stream, "type: ");
+        lwm2m_log(LOG_DEBUG, "type: ");
         switch (dataP[i].type)
         {
         case LWM2M_TYPE_OBJECT:
-            fprintf(stream, "LWM2M_TYPE_OBJECT\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_OBJECT\n");
             dump_tlv(stream, dataP[i].value.asChildren.count, dataP[i].value.asChildren.array, indent + 1);
             break;
         case LWM2M_TYPE_OBJECT_INSTANCE:
-            fprintf(stream, "LWM2M_TYPE_OBJECT_INSTANCE\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_OBJECT_INSTANCE\n");
             dump_tlv(stream, dataP[i].value.asChildren.count, dataP[i].value.asChildren.array, indent + 1);
             break;
         case LWM2M_TYPE_MULTIPLE_RESOURCE:
-            fprintf(stream, "LWM2M_TYPE_MULTIPLE_RESOURCE\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_MULTIPLE_RESOURCE\n");
             dump_tlv(stream, dataP[i].value.asChildren.count, dataP[i].value.asChildren.array, indent + 1);
             break;
         case LWM2M_TYPE_UNDEFINED:
-            fprintf(stream, "LWM2M_TYPE_UNDEFINED\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_UNDEFINED\n");
             break;
         case LWM2M_TYPE_STRING:
-            fprintf(stream, "LWM2M_TYPE_STRING\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_STRING\n");
             print_indent(stream, indent + 1);
-            fprintf(stream, "\"%.*s\"\r\n", (int)dataP[i].value.asBuffer.length, dataP[i].value.asBuffer.buffer);
+            lwm2m_log(LOG_DEBUG, "\"%.*s\"\n", (int)dataP[i].value.asBuffer.length, dataP[i].value.asBuffer.buffer);
             break;
         case LWM2M_TYPE_OPAQUE:
-            fprintf(stream, "LWM2M_TYPE_OPAQUE\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_OPAQUE\n");
             output_buffer(stream, dataP[i].value.asBuffer.buffer, dataP[i].value.asBuffer.length, indent + 1);
             break;
         case LWM2M_TYPE_INTEGER:
-            fprintf(stream, "LWM2M_TYPE_INTEGER: ");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_INTEGER: ");
             print_indent(stream, indent + 1);
-            fprintf(stream, "%" PRId64, dataP[i].value.asInteger);
-            fprintf(stream, "\r\n");
+            lwm2m_log(LOG_DEBUG, "%lld", dataP[i].value.asInteger);
+            lwm2m_log(LOG_DEBUG, "\n");
             break;
         case LWM2M_TYPE_FLOAT:
-            fprintf(stream, "LWM2M_TYPE_FLOAT: ");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_FLOAT: ");
             print_indent(stream, indent + 1);
-            fprintf(stream, "%" PRId64, dataP[i].value.asInteger);
-            fprintf(stream, "\r\n");
+            lwm2m_log(LOG_DEBUG, "%lld", dataP[i].value.asInteger);
+            lwm2m_log(LOG_DEBUG, "\n");
             break;
         case LWM2M_TYPE_BOOLEAN:
-            fprintf(stream, "LWM2M_TYPE_BOOLEAN: ");
-            fprintf(stream, "%s", dataP[i].value.asBoolean ? "true" : "false");
-            fprintf(stream, "\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_BOOLEAN: ");
+            lwm2m_log(LOG_DEBUG, "%s", dataP[i].value.asBoolean ? "true" : "false");
+            lwm2m_log(LOG_DEBUG, "\n");
             break;
         case LWM2M_TYPE_OBJECT_LINK:
-            fprintf(stream, "LWM2M_TYPE_OBJECT_LINK\r\n");
+            lwm2m_log(LOG_DEBUG, "LWM2M_TYPE_OBJECT_LINK\r\n");
             break;
         default:
-            fprintf(stream, "unknown (%d)\r\n", (int)dataP[i].type);
+            lwm2m_log(LOG_ERR, "unknown (%d)\n", (int)dataP[i].type);
             break;
         }
         print_indent(stream, indent);
-        fprintf(stream, "}\r\n");
+        lwm2m_log(LOG_DEBUG, "}\r\n");
     }
 }
 
@@ -447,7 +447,7 @@ static const char* prv_status_to_string(int status)
 void print_status(FILE * stream,
                   uint8_t status)
 {
-    fprintf(stream, "%d.%02d (%s)", (status&0xE0)>>5, status&0x1F, prv_status_to_string(status));
+    lwm2m_log(LOG_DEBUG, "%d.%02d (%s)", (status&0xE0)>>5, status&0x1F, prv_status_to_string(status));
 }
 
 /**********************************************************

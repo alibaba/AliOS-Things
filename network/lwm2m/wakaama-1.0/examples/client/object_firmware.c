@@ -38,6 +38,7 @@
  * 9 update delivery method    read
  */
 
+#include "internals.h"
 #include "liblwm2m.h"
 
 #include <stdio.h>
@@ -184,7 +185,6 @@ static uint8_t prv_firmware_write(uint16_t instanceId,
 {
     int i;
     uint8_t result;
-    firmware_data_t * data = (firmware_data_t*)(objectP->userData);
 
     // this is a single instance object
     if (instanceId != 0)
@@ -240,7 +240,7 @@ static uint8_t prv_firmware_execute(uint16_t instanceId,
     case RES_M_UPDATE:
         if (data->state == 1)
         {
-            fprintf(stdout, "\n\t FIRMWARE UPDATE\r\n\n");
+            lwm2m_log(LOG_DEBUG,"\n\t FIRMWARE UPDATE\n");
             // trigger your firmware download and update logic
             data->state = 2;
             return COAP_204_CHANGED;
@@ -259,10 +259,10 @@ void display_firmware_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
     firmware_data_t * data = (firmware_data_t *)object->userData;
-    fprintf(stdout, "  /%u: Firmware object:\r\n", object->objID);
+    lwm2m_log(LOG_DEBUG, "  /%u: Firmware object:\n", object->objID);
     if (NULL != data)
     {
-        fprintf(stdout, "    state: %u, result: %u\r\n", data->state,
+        lwm2m_log(LOG_DEBUG, "    state: %u, result: %u\r\n", data->state,
                 data->result);
     }
 #endif

@@ -182,10 +182,10 @@ void display_location_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
     location_data_t * data = (location_data_t *)object->userData;
-    fprintf(stdout, "  /%u: Location object:\r\n", object->objID);
+    lwm2m_log(LOG_DEBUG, "  /%u: Location object:\n", object->objID);
     if (NULL != data)
     {
-        fprintf(stdout, "    latitude: %.6f, longitude: %.6f, altitude: %.6f, radius: %.6f, timestamp: %lu, speed: %.6f\r\n",
+        lwm2m_log(LOG_DEBUG, "    latitude: %.6f, longitude: %.6f, altitude: %.6f, radius: %.6f, timestamp: %lu, speed: %.6f\n",
                 data->latitude, data->longitude, data->altitude, data->radius, data->timestamp, data->speed);
     }
 #endif

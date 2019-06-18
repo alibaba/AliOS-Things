@@ -54,7 +54,7 @@
  * This object is single instance only, and is mandatory to all LWM2M device as it describe the object such as its
  * manufacturer, model, etc...
  */
-
+#include "internals.h"
 #include "liblwm2m.h"
 #include "lwm2mclient.h"
 
@@ -497,14 +497,14 @@ static uint8_t prv_device_execute(uint16_t instanceId,
     switch (resourceId)
     {
     case RES_M_REBOOT:
-        fprintf(stdout, "\n\t REBOOT\r\n\n");
+        lwm2m_log(LOG_DEBUG, "\n\t REBOOT\n");
         g_reboot = 1;
         return COAP_204_CHANGED;
     case RES_O_FACTORY_RESET:
-        fprintf(stdout, "\n\t FACTORY RESET\r\n\n");
+        lwm2m_log(LOG_DEBUG, "\n\t FACTORY RESET\n");
         return COAP_204_CHANGED;
     case RES_O_RESET_ERROR_CODE:
-        fprintf(stdout, "\n\t RESET ERROR CODE\r\n\n");
+        lwm2m_log(LOG_DEBUG, "\n\t RESET ERROR CODE\n");
         ((device_data_t*)(objectP->userData))->error = 0;
         return COAP_204_CHANGED;
     default:
@@ -516,10 +516,10 @@ void display_device_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
     device_data_t * data = (device_data_t *)object->userData;
-    fprintf(stdout, "  /%u: Device object:\r\n", object->objID);
+    lwm2m_log(LOG_DEBUG, "  /%u: Device object:\n", object->objID);
     if (NULL != data)
     {
-        fprintf(stdout, "    time: %lld, time_offset: %s\r\n",
+        lwm2m_log(LOG_DEBUG, "    time: %lld, time_offset: %s\n",
                 (long long) data->time, data->time_offset);
     }
 #endif

@@ -99,7 +99,7 @@ lwm2m_uri_t * uri_decode(char * altPath,
     lwm2m_uri_t * uriP;
     int readNum;
 
-    LOG_ARG("altPath: \"%s\"", altPath);
+    lwm2m_log(LOG_DEBUG, "altPath: \"%s\"\n", altPath);
 
     uriP = (lwm2m_uri_t *)lwm2m_malloc(sizeof(lwm2m_uri_t));
     if (NULL == uriP) return NULL;
@@ -200,7 +200,7 @@ lwm2m_uri_t * uri_decode(char * altPath,
     }
 
 error:
-    LOG("Exiting on error");
+    lwm2m_log(LOG_ERR, "Exiting on error\n");
     lwm2m_free(uriP);
     return NULL;
 }
@@ -212,7 +212,7 @@ int lwm2m_string_to_uri(const char * buffer,
     size_t head;
     int readNum;
 
-    LOG_ARG("buffer_len: %u, buffer: \"%.*s\"", buffer_len, buffer_len, buffer);
+    lwm2m_log(LOG_DEBUG, "buffer_len: %u, buffer: \"%.*s\"\n", buffer_len, buffer_len, buffer);
 
     if (buffer == NULL || buffer_len == 0 || uriP == NULL) return 0;
 
@@ -240,7 +240,7 @@ int lwm2m_string_to_uri(const char * buffer,
     if (buffer[head] == '/') head += 1;
     if (head >= buffer_len)
     {
-        LOG_ARG("Parsed characters: %u", head);
+        lwm2m_log(LOG_DEBUG, "Parsed characters: %u\n", head);
         LOG_URI(uriP);
         return head;
     }
@@ -253,7 +253,7 @@ int lwm2m_string_to_uri(const char * buffer,
     if (buffer[head] == '/') head += 1;
     if (head >= buffer_len)
     {
-        LOG_ARG("Parsed characters: %u", head);
+        lwm2m_log(LOG_DEBUG, "Parsed characters: %u\n", head);
         LOG_URI(uriP);
         return head;
     }
@@ -265,7 +265,7 @@ int lwm2m_string_to_uri(const char * buffer,
 
     if (head != buffer_len) return 0;
 
-    LOG_ARG("Parsed characters: %u", head);
+    lwm2m_log(LOG_DEBUG, "Parsed characters: %u\n", head);
     LOG_URI(uriP);
 
     return head;
@@ -279,7 +279,7 @@ int uri_toString(lwm2m_uri_t * uriP,
     size_t head;
     int res;
 
-    LOG_ARG("bufferLen: %u", bufferLen);
+    lwm2m_log(LOG_DEBUG, "bufferLen: %u\n", bufferLen);
     LOG_URI(uriP);
 
     buffer[0] = '/';
@@ -322,7 +322,7 @@ int uri_toString(lwm2m_uri_t * uriP,
     buffer[head] = '/';
     head++;
 
-    LOG_ARG("length: %u, buffer: \"%.*s\"", head, head, buffer);
+    lwm2m_log(LOG_DEBUG, "length: %u, buffer: \"%.*s\"\n", head, head, buffer);
 
     return head;
 }
