@@ -116,12 +116,12 @@ void lwm2m_trace_free(void* mem, const char* file, const char* function, int lin
         }
         else
         {
-            fprintf(stderr, "memory: free error (no malloc) %s, %d, %s\n", file, lineno, function);
+            lwm2m_log(LOG_INFO, "memory: free error (no malloc) %s, %d, %s\n", file, lineno, function);
             memory_entry_t* entry = prv_memory_find_previous(&prv_memory_free_list, mem);
             if (NULL != entry)
             {
                 entry = entry->next;
-                fprintf(stderr, "memory: already frees at %s, %d, %s\n", entry->file, entry->lineno, entry->function);
+                lwm2m_log(LOG_ERR, "memory: already frees at %s, %d, %s\n", entry->file, entry->lineno, entry->function);
             }
         }
     }
@@ -148,21 +148,21 @@ void trace_print(int loops, int level)
             memory_entry_t* entry = prv_memory_malloc_list.next;
             while (NULL != entry)
             {
-                fprintf(stdout,"memory: #%d, %lu bytes, %s, %d, %s\n", entry->count, (unsigned long) entry->size, entry->file, entry->lineno, entry->function);
+                lwm2m_log(LOG_INFO, "memory: #%d, %lu bytes, %s, %d, %s\n", entry->count, (unsigned long) entry->size, entry->file, entry->lineno, entry->function);
                 ++entries;
                 total += entry->size;
                 entry = entry->next;
             }
             if (entries != prv_memory_malloc_list.count)
             {
-                fprintf(stderr,"memory: error %d entries != %d\n", prv_memory_malloc_list.count, entries);
+                lwm2m_log(LOG_ERR, "memory: error %d entries != %d\n", prv_memory_malloc_list.count, entries);
             }
             if (total != prv_memory_malloc_list.size)
             {
-                fprintf(stdout,"memory: error %lu total bytes != %lu\n", (unsigned long) prv_memory_malloc_list.size, (unsigned long) total);
+                lwm2m_log(LOG_ERR, "memory: error %lu total bytes != %lu\n", (unsigned long) prv_memory_malloc_list.size, (unsigned long) total);
             }
         }
-        fprintf(stdout,"memory: %d entries, %lu total bytes\n", prv_memory_malloc_list.count, (unsigned long) prv_memory_malloc_list.size);
+        lwm2m_log(LOG_INFO, "memory: %d entries, %lu total bytes\n", prv_memory_malloc_list.count, (unsigned long) prv_memory_malloc_list.size);
     }
 }
 

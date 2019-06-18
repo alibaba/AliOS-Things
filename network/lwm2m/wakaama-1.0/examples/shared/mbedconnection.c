@@ -37,8 +37,10 @@
 
 #define MAX_PACKET_SIZE 1024
 
+#ifdef WITH_LOGS
 /* Currently, just IPV4 enabled */
 #define LWIP_IPV4_ON 1
+#endif
 
 extern int sockaddr_cmp(struct sockaddr *x, struct sockaddr *y);
 
@@ -55,7 +57,7 @@ char * security_get_uri(lwm2m_object_t * obj, int instanceId, char * uriBuffer, 
     {
         if (bufferSize > dataP->value.asBuffer.length){
             memset(uriBuffer,0,dataP->value.asBuffer.length+1);
-            strncpy(uriBuffer,dataP->value.asBuffer.buffer,dataP->value.asBuffer.length);
+            strncpy(uriBuffer,(char *)dataP->value.asBuffer.buffer,dataP->value.asBuffer.length);
             lwm2m_data_free(size, dataP);
             return uriBuffer;
         }
@@ -78,7 +80,7 @@ int64_t security_get_mode(lwm2m_object_t * obj, int instanceId){
     }
 
     lwm2m_data_free(size, dataP);
-    LOG("Unable to get security mode : use not secure mode");
+    lwm2m_log(LOG_ERR, "Unable to get security mode : use not secure mode\n");
     return LWM2M_SECURITY_MODE_NONE;
 }
 
@@ -107,12 +109,11 @@ char * security_get_public_id(lwm2m_object_t * obj, int instanceId, int * length
     }
 }
 
-
-char * security_get_secret_key(lwm2m_object_t * obj, int instanceId, int * length){
+static char * security_get_secret_key(lwm2m_object_t * obj, int instanceId, int * length){
     int size = 1;
     lwm2m_data_t * dataP = lwm2m_data_new(size);
     dataP->id = 5; // secret key
-    LOG("security_get_secret_key");
+    lwm2m_log(LOG_DEBUG, "security_get_secret_key\n");
     obj->readFunc(instanceId, &size, &dataP, obj);
     if (dataP != NULL &&
         dataP->type == LWM2M_TYPE_OPAQUE)
@@ -159,7 +160,7 @@ int send_data(dtls_connection_t *connP,
         port = saddr->sin6_port;
     }
 
-    LOG_ARG("Sending %d bytes to [%s]:%hu\r\n", length, s, ntohs(port));
+    lwm2m_log(LOG_DEBUG, "Sending %d bytes to [%s]:%hu\n", length, s, ntohs(port));
 
 #endif
 
@@ -184,35 +185,29 @@ int mbedtls_lwm2m_send( void *connP, const unsigned char *buf, size_t len )
     int fd = ctx->sock;
     int nbSent = -1;
     size_t offset;
-#if LWIP_IPV6_ON
-    char s[INET6_ADDRSTRLEN];
-#elif  LWIP_IPV4_ON
-    char s[INET_ADDRSTRLEN];
-#endif
-    in_port_t port;
 
     if( fd < 0 )
         return( MBEDTLS_ERR_NET_INVALID_CONTEXT );
 
-    s[0] = 0;
-
+#ifdef WITH_LOGS
 #if LWIP_IPV4_ON
     if (AF_INET == ctx->addr.sin_family)
     {
+        char s[INET_ADDRSTRLEN];
         struct sockaddr_in *saddr = (struct sockaddr_in *)&ctx->addr;
         inet_ntop(saddr->sin_family, &saddr->sin_addr, s, INET_ADDRSTRLEN);
-        port = saddr->sin_port;
     }
 #endif
 #if LWIP_IPV6_ON
     if (AF_INET6 == ctx->addr6.sin6_family)
     {
+        char s[INET6_ADDRSTRLEN];
         struct sockaddr_in6 *saddr = (struct sockaddr_in6 *)&ctx->addr;
         inet_ntop(saddr->sin6_family, &saddr->sin6_addr, s, INET6_ADDRSTRLEN);
-        port = saddr->sin6_port;
     }
 #endif
-    LOG_ARG("Sending %d bytes\r\n", len);
+    lwm2m_log(LOG_DEBUG, "Sending %d bytes\n", len);
+#endif
 
     offset = 0;
     while (offset != len)
@@ -231,7 +226,7 @@ int mbedtls_lwm2m_send( void *connP, const unsigned char *buf, size_t len )
         }
         offset += nbSent;
     }
-    LOG_ARG("return len = %d",len);
+    lwm2m_log(LOG_DEBUG, "return len = %d\n", len);
     return nbSent;
 }
 
@@ -263,13 +258,13 @@ int mbedtls_lwm2m_recv( void *ctx, unsigned char *buffer, size_t len )
 
     if (result < 0)
     {
-        LOG( "Error in select(): %d %s\r\n");
+        lwm2m_log(LOG_ERR, "Error in select(): %d %s\n");
         return result;
     }
     else if (result > 0)
     {
         int numBytes;
-	LOG( "select read event happend");
+	lwm2m_log(LOG_DEBUG, "select read event happend\n");
 
         /*
          * If an event happens on the socket
@@ -287,40 +282,43 @@ int mbedtls_lwm2m_recv( void *ctx, unsigned char *buffer, size_t len )
 
             if (0 > numBytes)
             {
-                LOG( "Error in recvfrom(): %d %s\r\n");
+                lwm2m_log(LOG_DEBUG, "Error in recvfrom(): %d %s\n");
             }
             else if (0 < numBytes)
             {
-#if LWIP_IPV4_ON
-                char s[INET_ADDRSTRLEN];
-#else
-                char s[INET6_ADDRSTRLEN];
-#endif
-                in_port_t port = 0;
+#ifdef WITH_LOGS
 #if LWIP_IPV4_ON
                 if (AF_INET == addr.ss_family)
                 {
+                    char s[INET_ADDRSTRLEN];
+                    in_port_t port = 0;
                     struct sockaddr_in *saddr = (struct sockaddr_in *)&addr;
                     inet_ntop(saddr->sin_family, &saddr->sin_addr, s, INET_ADDRSTRLEN);
                     port = saddr->sin_port;
+                    lwm2m_log(LOG_DEBUG, "%d bytes received from [%s]:%hu\n", numBytes, s, ntohs(port));
                 }
 #endif
 #if LWIP_IPV6_ON
                 if (AF_INET6 == addr.ss_family)
                 {
+                    char s[INET6_ADDRSTRLEN];
+                    in_port_t port = 0;
                     struct sockaddr_in6 *saddr = (struct sockaddr_in6 *)&addr;
                     inet_ntop(saddr->sin6_family, &saddr->sin6_addr, s, INET6_ADDRSTRLEN);
                     port = saddr->sin6_port;
+                    lwm2m_log(LOG_DEBUG, "%d bytes received from [%s]:%hu\n", numBytes, s, ntohs(port));
                 }
 #endif
-                LOG_ARG( "%d bytes received from [%s]:%hu\r\n", numBytes, s, ntohs(port));
+#endif
             }
-			return numBytes;
-		}
-		LOG("no read event happend on this socket");
-		return -1;
+
+            return numBytes;
+	}
+
+        lwm2m_log(LOG_DEBUG, "no read event happend on this socket\n");
+        return -1;
     }else{
-    	LOG("timeout !!!");
+    	lwm2m_log(LOG_ERR, "timeout !!!\n");
     	return -1;
     }
 }
@@ -330,7 +328,7 @@ static void lwm2m_debug( void *ctx, int level,
                   const char *param )
 {
     ((void) level);
-    LOG_ARG("%s",param);
+    lwm2m_log(LOG_DEBUG, "%s\n",param);
 
 }
 
@@ -350,8 +348,10 @@ static int ssl_random(void *prng, unsigned char *output, size_t output_len)
 
 int get_dtls_context(dtls_connection_t * connList) {
     int ret;
+#ifdef MBEDTLS_ENTROPY_C
     const char *pers ="lwm2mclient";
-    LOG("Enterring get_dtls_context");
+#endif
+    lwm2m_log(LOG_ERR, "Entering get_dtls_context\n");
 
     connList->server_fd = lwm2m_malloc(sizeof(mbedtls_net_context));
     mbedtls_net_init(connList->server_fd);
@@ -370,19 +370,19 @@ int get_dtls_context(dtls_connection_t * connList) {
     if(( ret = mbedtls_ctr_drbg_seed( connList->ctr_drbg, mbedtls_entropy_func, connList->entropy,
         (const unsigned char *) pers, strlen( pers ) ) ) != 0 )
     {
-        LOG_ARG("mbedtls_ctr_drbg_seed failed...,ret=%d\n",ret);
+        lwm2m_log(LOG_ERR, "mbedtls_ctr_drbg_seed failed...,ret=%d\n",ret);
         return ret;
     }
 #endif
 
     connList->server_fd->fd = connList->sock;
-    LOG_ARG("mbedtls_use the sock=%d\n",connList->sock);
+    lwm2m_log(LOG_DEBUG, "mbedtls_use the sock=%d\n",connList->sock);
     if( ( ret = mbedtls_ssl_config_defaults( connList->conf,
             MBEDTLS_SSL_IS_CLIENT,
             MBEDTLS_SSL_TRANSPORT_DATAGRAM,
             MBEDTLS_SSL_PRESET_DEFAULT ) ) != 0 )
     {
-        LOG_ARG("mbedtls_ssl_config_defaults failed ret = %d\n",ret);
+        lwm2m_log(LOG_ERR, "mbedtls_ssl_config_defaults failed ret = %d\n",ret);
         return ret;
     }
     ret = mbedtls_net_set_block( connList->server_fd );
@@ -392,16 +392,15 @@ int get_dtls_context(dtls_connection_t * connList) {
 
     int length = 0;
     int id_len = 0;
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
     char* psk = security_get_secret_key(connList->securityObj,connList->securityInstId,&length);
-
     char* psk_id = security_get_public_id(connList->securityObj,connList->securityInstId,&id_len);
 
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
-    if( ( ret = mbedtls_ssl_conf_psk( connList->conf, psk, length,
-                         psk_id,
+    if( ( ret = mbedtls_ssl_conf_psk( connList->conf, (const unsigned char*)psk, length,
+                         (const unsigned char*)psk_id,
                          id_len ) ) != 0 )
     {
-        LOG_ARG( " failed! mbedtls_ssl_conf_psk returned %d\n\n", ret);
+        lwm2m_log(LOG_ERR, " failed! mbedtls_ssl_conf_psk returned %d\n", ret);
         return ret;
     }
 #endif
@@ -420,7 +419,7 @@ int get_dtls_context(dtls_connection_t * connList) {
 #endif
     if( ( ret = mbedtls_ssl_setup( connList->ssl, connList->conf ) ) != 0 )
     {
-        LOG_ARG("mbedtls_ssl_setup failed ret = %d\n",ret);
+        lwm2m_log(LOG_ERR, "mbedtls_ssl_setup failed ret = %d\n",ret);
         return ret;
     }
     mbedtls_ssl_set_bio( connList->ssl, connList, mbedtls_lwm2m_send, mbedtls_lwm2m_recv, NULL );
@@ -431,12 +430,12 @@ int get_dtls_context(dtls_connection_t * connList) {
     {
     	if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
     	{
-    		LOG_ARG( " failed ! mbedtls_ssl_handshake returned %x\n\n", -ret );
+    		lwm2m_log(LOG_ERR, " failed ! mbedtls_ssl_handshake returned %x\n", -ret );
     		return ret;
     	}
     }
 
-    LOG( " ok\n" );
+    lwm2m_log(LOG_DEBUG, " ok\n");
     return 0;
 
 }
@@ -454,7 +453,7 @@ int get_port(struct sockaddr *x)
        return ((struct sockaddr_in6 *)x)->sin6_port;
    }
 #endif
-   LOG_ARG("err family(%d) set\n", x->sa_family);
+   lwm2m_log(LOG_ERR, "err family(%d) set\n", x->sa_family);
    return  -1;
 
 }
@@ -499,14 +498,14 @@ int sockaddr_cmp(struct sockaddr *x, struct sockaddr *y)
 #endif
     {
         // unknown address type
-        LOG("non IPV4 or IPV6 address\n");
+        lwm2m_log(LOG_ERR, "non IPV4 or IPV6 address\n");
         return 0;
     }
 }
 
 int create_socket(const char * portStr, int ai_family)
 {
-    LOG("Enterring create_socket");
+    lwm2m_log(LOG_DEBUG, "Entering create_socket\n");
 
     int s = -1;
     struct addrinfo hints;
@@ -556,7 +555,7 @@ dtls_connection_t * connection_new_incoming(dtls_connection_t * connList,
         memcpy(&(connP->addr), addr, addrLen);
         connP->addrLen = addrLen;
         connP->next = connList;
-        LOG("new_incoming");
+        lwm2m_log(LOG_DEBUG, "new_incoming\n");
     }
 
     return connP;
@@ -662,7 +661,7 @@ dtls_connection_t * connection_create(dtls_connection_t * connList,
             sl = p->ai_addrlen;
             if (-1 == connect(s, p->ai_addr, p->ai_addrlen))
             {
-                LOG("failed");
+                lwm2m_log(LOG_ERR, "failed\n");
                 close(s);
                 s = -1;
             }
@@ -673,7 +672,8 @@ dtls_connection_t * connection_create(dtls_connection_t * connList,
         connP = connection_new_incoming(connList, sock, sa, sl);
         close(s);
         if (connP != NULL)
-        {   LOG(" connP != NULL");
+        {
+            lwm2m_log(LOG_DEBUG, " connP != NULL");
             connP->next = connList;
             connP->securityObj = securityObj;
             connP->securityInstId = instanceId;
@@ -753,21 +753,21 @@ int connection_send(dtls_connection_t *connP, uint8_t * buffer, size_t length){
             return -1;
         }
     }
-    LOG("connection_send success");
+    lwm2m_log(LOG_DEBUG, "connection_send success\n");
     return 0;
 }
 
 int connection_handle_packet(dtls_connection_t *connP, uint8_t * buffer, size_t numBytes){
     if (connP->issecure != 0)//(connP->dtlsSession != NULL)
     {
-        LOG("security mode");
+        lwm2m_log(LOG_DEBUG, "security mode\n");
 
 	int result = mbedtls_ssl_read(connP->ssl,buffer,numBytes);
 	if (result < 0) {
-            LOG_ARG("error dtls handling message %d\n",result);
+            lwm2m_log(LOG_ERR, "error dtls handling message %d\n",result);
 	    return result;
         }
-	LOG_ARG("after mbedtls_ssl_read,result=%d",result);
+	lwm2m_log(LOG_DEBUG, "after mbedtls_ssl_read,result=%d\n",result);
 	if(result > 0)
         {
             lwm2m_handle_packet(connP->lwm2mH, buffer, result, (void*)connP);
@@ -790,16 +790,16 @@ uint8_t lwm2m_buffer_send(void * sessionH,
 
     if (connP == NULL)
     {
-        LOG_ARG( "#> failed sending %lu bytes, missing connection\r\n", length);
+        lwm2m_log(LOG_ERR, "#> failed sending %lu bytes, missing connection\n", length);
         return COAP_500_INTERNAL_SERVER_ERROR ;
     }
 
     if (-1 == connection_send(connP, buffer, length))
     {
-        LOG_ARG("#> failed sending %lu bytes\r\n", length);
+        lwm2m_log(LOG_ERR, "#> failed sending %lu bytes\n", length);
         return COAP_500_INTERNAL_SERVER_ERROR ;
     }
-    LOG("lwm2m_buffer_send success");
+    lwm2m_log(LOG_DEBUG, "lwm2m_buffer_send success\n");
     return COAP_NO_ERROR;
 }
 

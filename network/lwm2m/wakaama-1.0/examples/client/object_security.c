@@ -482,11 +482,11 @@ void copy_security_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSr
 void display_security_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
-    fprintf(stdout, "  /%u: Security object, instances:\r\n", object->objID);
+    lwm2m_log(LOG_DEBUG, "  /%u: Security object, instances:\n", object->objID);
     security_instance_t * instance = (security_instance_t *)object->instanceList;
     while (instance != NULL)
     {
-        fprintf(stdout, "    /%u/%u: instanceId: %u, uri: %s, isBootstrap: %s, shortId: %u, clientHoldOffTime: %u\r\n",
+        lwm2m_log(LOG_DEBUG, "    /%u/%u: instanceId: %u, uri: %s, isBootstrap: %s, shortId: %u, clientHoldOffTime: %u\r\n",
                 object->objID, instance->instanceId,
                 instance->instanceId, instance->uri, instance->isBootstrap ? "true" : "false",
                 instance->shortID, instance->clientHoldOffTime);

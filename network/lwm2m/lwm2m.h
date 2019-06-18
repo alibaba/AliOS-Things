@@ -28,7 +28,7 @@ lwm2m_data_t * lwm2m_data_new(int size);
 
 void lwm2m_data_free(int size, lwm2m_data_t * dataP);
 
-void lwm2m_data_encode(lwm2m_data_codec_type_t type, void* valueP, const lwm2m_data_t* dataP);
+void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, lwm2m_data_t* dataP);
 
 int lwm2m_data_decode(lwm2m_data_codec_type_t type, const lwm2m_data_t* dataP, void* value);
 

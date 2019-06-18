@@ -185,7 +185,7 @@ int connection_send(connection_t *connP,
         port = saddr->sin6_port;
     }
 
-    fprintf(stderr, "Sending %lu bytes to [%s]:%hu\r\n", length, s, ntohs(port));
+    lwm2m_log(LOG_DEBUG, "Sending %lu bytes to [%s]:%hu\r\n", length, s, ntohs(port));
 
     output_buffer(stderr, buffer, length, 0);
 #endif
@@ -195,7 +195,7 @@ int connection_send(connection_t *connP,
     {
         nbSent = sendto(connP->sock, buffer + offset, length - offset, 0, (struct sockaddr *)&(connP->addr), connP->addrLen);
         if (nbSent == -1){
-            LOG_ARG("send failed errno=%d\n", errno);
+            lwm2m_log(LOG_ERR, "send failed errno=%d\n", errno);
             return -1;
         }
         offset += nbSent;
@@ -211,13 +211,13 @@ uint8_t lwm2m_buffer_send(void * sessionH,
     connection_t * connP = (connection_t*) sessionH;
     if (connP == NULL)
     {
-        fprintf(stderr, "#> failed sending %lu bytes, missing connection\r\n", length);
+        lwm2m_log(LOG_ERR, "#> failed sending %lu bytes, missing connection\n", length);
         return COAP_500_INTERNAL_SERVER_ERROR ;
     }
 
     if (-1 == connection_send(connP, buffer, length))
     {
-        fprintf(stderr, "#> failed sending %lu bytes\r\n", length);
+        lwm2m_log(LOG_ERR, "#> failed sending %lu bytes\n", length);
         return COAP_500_INTERNAL_SERVER_ERROR ;
     }
 
