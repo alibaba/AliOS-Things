@@ -116,7 +116,6 @@ is below or equal to the log level that set by coap_set_log_level().
 #define coap_log(level, ...) do { \
   if ((int)((level))<=(int)coap_get_log_level()) \
       LOGD(TAG, __VA_ARGS__); \
-      printf(__VA_ARGS__); \
 } while(0)
 #endif
 

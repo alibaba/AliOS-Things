@@ -21,6 +21,9 @@
 #include <stdarg.h>
 #include <sys/time.h>
 #include "ulog/ulog.h"
+#ifdef OSAL_RHINO
+#include "aos/kernel.h"
+#endif
 #define TAG "lwm2m"
 
 #ifndef LWM2M_MEMORY_TRACE
@@ -37,9 +40,9 @@ void * lwm2m_malloc(size_t s)
 void lwm2m_free(void * p)
 {
 #ifdef OSAL_RHINO
-    return aos_free(p);
+    aos_free(p);
 #else
-    return free(p);
+    free(p);
 #endif
 }
 

@@ -168,7 +168,7 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
     uint8_t result;
     lwm2m_media_type_t format;
 
-    LOG_ARG("Code: %02X, server status: %s", message->code, STR_STATUS(serverP->status));
+    lwm2m_log(LOG_DEBUG, "Code: %02X, server status: %s\n", message->code, STR_STATUS(serverP->status));
     LOG_URI(uriP);
 
     if (IS_OPTION(message, COAP_OPTION_CONTENT_TYPE))
@@ -231,7 +231,7 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
                         else
                         {
                             length = (size_t)res;
-                            LOG_ARG("Observe Request[/%d/%d/%d]: %.*s\n", uriP->objectId, uriP->instanceId, uriP->resourceId, length, buffer);
+                            lwm2m_log(LOG_DEBUG, "Observe Request[/%d/%d/%d]: %.*s\n", uriP->objectId, uriP->instanceId, uriP->resourceId, length, buffer);
                         }
                     }
                     lwm2m_data_free(size, dataP);
@@ -388,14 +388,14 @@ static void prv_resultCallback(lwm2m_transaction_t * transacP,
             locationString = coap_get_multi_option_as_string(packet->location_path);
             if (locationString == NULL)
             {
-                LOG("Error: coap_get_multi_option_as_string() failed for Location_path option in prv_resultCallback()");
+                lwm2m_log(LOG_ERR, "Error: coap_get_multi_option_as_string() failed for Location_path option in prv_resultCallback()\n");
                 return;
             }
 
             result = lwm2m_string_to_uri(locationString, strlen(locationString), &locationUri);
             if (result == 0)
             {
-                LOG("Error: lwm2m_string_to_uri() failed for Location_path option in prv_resultCallback()");
+                lwm2m_log(LOG_ERR, "Error: lwm2m_string_to_uri() failed for Location_path option in prv_resultCallback()\n");
                 lwm2m_free(locationString);
                 return;
             }
@@ -479,7 +479,7 @@ int lwm2m_dm_read(lwm2m_context_t * contextP,
     lwm2m_client_t * clientP;
     lwm2m_media_type_t format;
 
-    LOG_ARG("clientID: %d", clientID);
+    lwm2m_log(LOG_DEBUG, "clientID: %d\n", clientID);
     LOG_URI(uriP);
 
     clientP = (lwm2m_client_t *)lwm2m_list_find((lwm2m_list_t *)contextP->clientList, clientID);
@@ -510,7 +510,7 @@ int lwm2m_dm_write(lwm2m_context_t * contextP,
                    lwm2m_result_callback_t callback,
                    void * userData)
 {
-    LOG_ARG("clientID: %d, format: %s, length: %d", clientID, STR_MEDIA_TYPE(format), length);
+    lwm2m_log(LOG_DEBUG, "clientID: %d, format: %s, length: %d\n", clientID, STR_MEDIA_TYPE(format), length);
     LOG_URI(uriP);
     if (!LWM2M_URI_IS_SET_INSTANCE(uriP)
      || length == 0)
@@ -543,7 +543,7 @@ int lwm2m_dm_execute(lwm2m_context_t * contextP,
                      lwm2m_result_callback_t callback,
                      void * userData)
 {
-    LOG_ARG("clientID: %d, format: %s, length: %d", clientID, STR_MEDIA_TYPE(format), length);
+    lwm2m_log(LOG_DEBUG, "clientID: %d, format: %s, length: %d\n", clientID, STR_MEDIA_TYPE(format), length);
     LOG_URI(uriP);
     if (!LWM2M_URI_IS_SET_RESOURCE(uriP))
     {
@@ -565,7 +565,7 @@ int lwm2m_dm_create(lwm2m_context_t * contextP,
                     lwm2m_result_callback_t callback,
                     void * userData)
 {
-    LOG_ARG("clientID: %d, format: %s, length: %d", clientID, STR_MEDIA_TYPE(format), length);
+    lwm2m_log(LOG_DEBUG, "clientID: %d, format: %s, length: %d\n", clientID, STR_MEDIA_TYPE(format), length);
     LOG_URI(uriP);
 
     if (LWM2M_URI_IS_SET_INSTANCE(uriP)
@@ -586,7 +586,7 @@ int lwm2m_dm_delete(lwm2m_context_t * contextP,
                     lwm2m_result_callback_t callback,
                     void * userData)
 {
-    LOG_ARG("clientID: %d", clientID);
+    lwm2m_log(LOG_DEBUG, "clientID: %d\n", clientID);
     LOG_URI(uriP);
     if (!LWM2M_URI_IS_SET_INSTANCE(uriP)
      || LWM2M_URI_IS_SET_RESOURCE(uriP))
@@ -614,7 +614,7 @@ int lwm2m_dm_write_attributes(lwm2m_context_t * contextP,
     uint8_t buffer[_PRV_BUFFER_SIZE];
     size_t length;
 
-    LOG_ARG("clientID: %d", clientID);
+    lwm2m_log(LOG_DEBUG, "clientID: %d\n", clientID);
     LOG_URI(uriP);
     if (attrP == NULL) return COAP_400_BAD_REQUEST;
 
@@ -751,7 +751,7 @@ int lwm2m_dm_discover(lwm2m_context_t * contextP,
     lwm2m_transaction_t * transaction;
     dm_data_t * dataP;
 
-    LOG_ARG("clientID: %d", clientID);
+    lwm2m_log(LOG_DEBUG, "clientID: %d\n", clientID);
     LOG_URI(uriP);
     clientP = (lwm2m_client_t *)lwm2m_list_find((lwm2m_list_t *)contextP->clientList, clientID);
     if (clientP == NULL) return COAP_404_NOT_FOUND;

@@ -299,16 +299,16 @@ coap_parse_message(void *packet, uint8_t *data, uint16_t data_len)
                                                            coap_opt_length(option));
                 break;
             case COAP_OPTION_URI_PATH:
-                coap_add_multi_option( &(coap_pkt->uri_path), coap_opt_value(option),  coap_opt_length(option), 1);
+                coap_add_multi_option( &(coap_pkt->uri_path), (uint8_t *)coap_opt_value(option),  coap_opt_length(option), 1);
                 break;
             case COAP_OPTION_URI_QUERY:
-                coap_add_multi_option( &(coap_pkt->uri_query), coap_opt_value(option),  coap_opt_length(option), 1);
+                coap_add_multi_option( &(coap_pkt->uri_query), (uint8_t *)coap_opt_value(option),  coap_opt_length(option), 1);
                 break;
             case COAP_OPTION_LOCATION_PATH:
-                coap_add_multi_option( &(coap_pkt->location_path), coap_opt_value(option),  coap_opt_length(option), 1);
+                coap_add_multi_option( &(coap_pkt->location_path), (uint8_t *)coap_opt_value(option),  coap_opt_length(option), 1);
                 break;
             case COAP_OPTION_LOCATION_QUERY:
-                coap_merge_multi_option( &(coap_pkt->location_query), &(coap_pkt->location_query_len), coap_opt_value(option), coap_opt_length(option), '&');
+                coap_merge_multi_option( &(coap_pkt->location_query), &(coap_pkt->location_query_len), (uint8_t *)coap_opt_value(option), coap_opt_length(option), '&');
                 break;
             case COAP_OPTION_PROXY_URI:
               /*FIXME check for own end-point */

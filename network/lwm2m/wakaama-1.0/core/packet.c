@@ -98,7 +98,7 @@ static void handle_reset(lwm2m_context_t * contextP,
                          lwm2m_coap_packet_t * message)
 {
 #ifdef LWM2M_CLIENT_MODE
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     observe_cancel(contextP, message->mid, fromSessionH);
 #endif
 }
@@ -111,7 +111,7 @@ static uint8_t handle_request(lwm2m_context_t * contextP,
     lwm2m_uri_t * uriP;
     uint8_t result = COAP_IGNORE;
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
 
 #ifdef LWM2M_CLIENT_MODE
     uriP = uri_decode(contextP->altPath, message->uri_path);
@@ -207,13 +207,13 @@ void lwm2m_handle_packet(void* handler,
     static lwm2m_coap_packet_t response[1];
     lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     coap_error_code = coap_parse_message(message, buffer, (uint16_t)length);
     if (coap_error_code == NO_ERROR)
     {
-        LOG_ARG("Parsed: ver %u, type %u, tkl %u, code %u.%.2u, mid %u, Content type: %d",
+        lwm2m_log(LOG_DEBUG, "Parsed: ver %u, type %u, tkl %u, code %u.%.2u, mid %u, Content type: %d\n",
                 message->version, message->type, message->token_len, message->code >> 5, message->code & 0x1F, message->mid, message->content_type);
-        LOG_ARG("Payload: %.*s", message->payload_len, message->payload);
+        lwm2m_log(LOG_DEBUG, "Payload: %.*s\n", message->payload_len, message->payload);
         if (message->code >= COAP_GET && message->code <= COAP_DELETE)
         {
             uint32_t block_num = 0;
@@ -242,7 +242,7 @@ void lwm2m_handle_packet(void* handler,
             /* get offset for blockwise transfers */
             if (coap_get_header_block2(message, &block_num, NULL, &block_size, &block_offset))
             {
-                LOG_ARG("Blockwise: block request %u (%u/%u) @ %u bytes", block_num, block_size, REST_MAX_CHUNK_SIZE, block_offset);
+                lwm2m_log(LOG_DEBUG, "Blockwise: block request %u (%u/%u) @ %u bytes\n", block_num, block_size, REST_MAX_CHUNK_SIZE, block_offset);
                 block_size = MIN(block_size, REST_MAX_CHUNK_SIZE);
                 new_offset = block_offset;
             }
@@ -274,7 +274,7 @@ void lwm2m_handle_packet(void* handler,
 
                     // parse block1 header
                     coap_get_header_block1(message, &block1_num, &block1_more, &block1_size, NULL);
-                    LOG_ARG("Blockwise: block1 request NUM %u (SZX %u/ SZX Max%u) MORE %u", block1_num, block1_size, REST_MAX_CHUNK_SIZE, block1_more);
+                    lwm2m_log(LOG_DEBUG, "Blockwise: block1 request NUM %u (SZX %u/ SZX Max%u) MORE %u\n", block1_num, block1_size, REST_MAX_CHUNK_SIZE, block1_more);
 
                     // handle block 1
                     coap_error_code = coap_block1_handler(&serverP->block1Data, message->mid, message->payload, message->payload_len, block1_size, block1_num, block1_more, &complete_buffer, &complete_buffer_size);
@@ -308,10 +308,10 @@ void lwm2m_handle_packet(void* handler,
                     /* unchanged new_offset indicates that resource is unaware of blockwise transfer */
                     if (new_offset==block_offset)
                     {
-                        LOG_ARG("Blockwise: unaware resource with payload length %u/%u", response->payload_len, block_size);
+                        lwm2m_log(LOG_DEBUG, "Blockwise: unaware resource with payload length %u/%u\n", response->payload_len, block_size);
                         if (block_offset >= response->payload_len)
                         {
-                            LOG("handle_incoming_data(): block_offset >= response->payload_len");
+                            lwm2m_log(LOG_DEBUG, "handle_incoming_data(): block_offset >= response->payload_len\n");
 
                             response->code = COAP_402_BAD_OPTION;
                             coap_set_payload(response, "BlockOutOfScope", 15); /* a const char str[] and sizeof(str) produces larger code size */
@@ -325,14 +325,14 @@ void lwm2m_handle_packet(void* handler,
                     else
                     {
                         /* resource provides chunk-wise data */
-                        LOG_ARG("Blockwise: blockwise resource, new offset %d", (int) new_offset);
+                        lwm2m_log(LOG_DEBUG, "Blockwise: blockwise resource, new offset %d\n", (int) new_offset);
                         coap_set_header_block2(response, block_num, new_offset!=-1 || response->payload_len > block_size, block_size);
                         if (response->payload_len > block_size) coap_set_payload(response, response->payload, block_size);
                     } /* if (resource aware of blockwise) */
                 }
                 else if (new_offset!=0)
                 {
-                    LOG_ARG("Blockwise: no block option for blockwise resource, using block size %u", REST_MAX_CHUNK_SIZE);
+                    lwm2m_log(LOG_DEBUG, "Blockwise: no block option for blockwise resource, using block size %u\n", REST_MAX_CHUNK_SIZE);
 
                     coap_set_header_block2(response, 0, new_offset!=-1, REST_MAX_CHUNK_SIZE);
                     coap_set_payload(response, response->payload, MIN(response->payload_len, REST_MAX_CHUNK_SIZE));
@@ -395,12 +395,12 @@ void lwm2m_handle_packet(void* handler,
     } /* if (parsed correctly) */
     else
     {
-        LOG_ARG("Message parsing failed %u.%2u", coap_error_code >> 5, coap_error_code & 0x1F);
+        lwm2m_log(LOG_DEBUG, "Message parsing failed %u.%2u\n", coap_error_code >> 5, coap_error_code & 0x1F);
     }
 
     if (coap_error_code != NO_ERROR && coap_error_code != COAP_IGNORE)
     {
-        LOG_ARG("ERROR %u: %s", coap_error_code, coap_error_message);
+        lwm2m_log(LOG_DEBUG, "ERROR %u: %s\n", coap_error_code, coap_error_message);
 
         /* Set to sendable error code. */
         if (coap_error_code >= 192)
@@ -424,9 +424,9 @@ uint8_t message_send(lwm2m_context_t * contextP,
     size_t pktBufferLen = 0;
     size_t allocLen;
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     allocLen = coap_serialize_get_size(message);
-    LOG_ARG("Size to allocate: %d", allocLen);
+    lwm2m_log(LOG_DEBUG, "Size to allocate: %d\n", allocLen);
     if (allocLen == 0) return COAP_500_INTERNAL_SERVER_ERROR;
 
     pktBuffer = (uint8_t *)lwm2m_malloc(allocLen);
@@ -437,7 +437,7 @@ uint8_t message_send(lwm2m_context_t * contextP,
 #else
         pktBufferLen = coap_serialize_message(message, pktBuffer);
 #endif
-        LOG_ARG("coap_serialize_message() returned %d", pktBufferLen);
+        lwm2m_log(LOG_DEBUG, "coap_serialize_message() returned %d\n", pktBufferLen);
         if (0 != pktBufferLen)
         {
             result = lwm2m_buffer_send(sessionH, pktBuffer, pktBufferLen, contextP->userData);

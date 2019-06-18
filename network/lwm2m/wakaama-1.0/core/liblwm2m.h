@@ -342,10 +342,10 @@ void lwm2m_data_free(int size, lwm2m_data_t * dataP);
 
 void lwm2m_data_encode_string(const char * string, lwm2m_data_t * dataP);
 void lwm2m_data_encode_nstring(const char * string, size_t length, lwm2m_data_t * dataP);
-void lwm2m_data_encode_opaque(uint8_t * buffer, size_t length, lwm2m_data_t * dataP);
-void lwm2m_data_encode_int(int64_t value, lwm2m_data_t * dataP);
+void lwm2m_data_encode_opaque(const uint8_t * buffer, size_t length, lwm2m_data_t * dataP);
+void lwm2m_data_encode_int(const int64_t value, lwm2m_data_t * dataP);
 int lwm2m_data_decode_int(const lwm2m_data_t * dataP, int64_t * valueP);
-void lwm2m_data_encode_float(double value, lwm2m_data_t * dataP);
+void lwm2m_data_encode_float(const double value, lwm2m_data_t * dataP);
 int lwm2m_data_decode_float(const lwm2m_data_t * dataP, double * valueP);
 void lwm2m_data_encode_bool(bool value, lwm2m_data_t * dataP);
 int lwm2m_data_decode_bool(const lwm2m_data_t * dataP, bool * valueP);

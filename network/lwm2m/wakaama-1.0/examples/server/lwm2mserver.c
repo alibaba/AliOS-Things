@@ -592,7 +592,7 @@ static void prv_create_client(char * buffer,
     {
         lwm2m_data_t * dataP;
 
-        if (1 != sscanf(buffer, "%"PRId64, &value))
+        if (1 != sscanf(buffer, "%lld", &value))
         {
             fprintf(stdout, "Invalid value !");
             return;

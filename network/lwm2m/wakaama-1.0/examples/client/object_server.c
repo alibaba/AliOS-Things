@@ -431,11 +431,11 @@ void copy_server_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSrc)
 void display_server_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
-    fprintf(stdout, "  /%u: Server object, instances:\r\n", object->objID);
+    lwm2m_log(LOG_DEBUG, "  /%u: Server object, instances:\n", object->objID);
     server_instance_t * serverInstance = (server_instance_t *)object->instanceList;
     while (serverInstance != NULL)
     {
-        fprintf(stdout, "    /%u/%u: instanceId: %u, shortServerId: %u, lifetime: %u, storing: %s, binding: %s\r\n",
+        lwm2m_log(LOG_DEBUG, "    /%u/%u: instanceId: %u, shortServerId: %u, lifetime: %u, storing: %s, binding: %s\r\n",
                 object->objID, serverInstance->instanceId,
                 serverInstance->instanceId, serverInstance->shortServerId, serverInstance->lifetime,
                 serverInstance->storing ? "true" : "false", serverInstance->binding);
