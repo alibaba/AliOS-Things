@@ -347,7 +347,12 @@ endif
 
 all: $(BUILD_STRING)
 
-$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app
+$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS)
+ifeq ($(AOS_SDK_2BOOT_SUPPORT),yes)
+$(BUILD_STRING): main_app 2ndboot
+else
+$(BUILD_STRING): main_app
+endif
 
 ifeq ($(IDE),keil)
 main_app: export-keil
