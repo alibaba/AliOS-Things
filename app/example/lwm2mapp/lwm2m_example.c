@@ -7,12 +7,12 @@
 #include <aos/yloop.h>
 #include "netmgr.h"
 
-extern int lwm2m_main(int argc, char *argv[]) ;
+extern int lwm2m_client_main(int argc, char *argv[]) ;
 
 static void lwm2m_client_example()
 {
     int count = 0;
-    int *value[15];
+    char *value[15];
 
     printf("nano entry here!\r\n");
     value[count] = "lwm2mclient";
