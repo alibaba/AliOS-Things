@@ -568,7 +568,7 @@ static err_t salnetconn_delete(sal_netconn_t *conn)
 static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
 {
     sal_conn_t statconn = {0};
-    ip_addr_t remoteipaddr;
+    ip_addr_t remoteipaddr = {0};
 #if SAL_PACKET_SEND_MODE_ASYNC
     struct sal_sock *sock;
 #endif
