@@ -22,6 +22,8 @@ static char linkkit_started = 0;
 
 static app_main_paras_t entry_paras;
 
+typedef void (*task_fun)(void *);
+
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -42,7 +44,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("iotx_example",linkkit_main,(void *)&entry_paras,1024*6);
+        aos_task_new("iotx_example",(task_fun)linkkit_main,(void *)&entry_paras,1024*6);
         linkkit_started = 1;
     }
 }
