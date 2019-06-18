@@ -13,6 +13,8 @@
 
 #include <event_device.h>
 
+#define CACHE_COUNT 5
+
 static int inited;
 
 typedef struct {
@@ -141,7 +143,7 @@ static ssize_t event_read(file_t *f, void *buf, size_t len)
     cnt = (len > evt->len) ? evt->len : len;
     memcpy(buf, evt->buf, cnt);
 
-    if (pdev->cache_count < 4) {
+    if (pdev->cache_count < CACHE_COUNT) {
         dlist_add(&evt->node, &pdev->buf_cache);
         pdev->cache_count ++;
     } else {
