@@ -1,1 +1,1 @@
-linux_only_targets="helloworld yts"
+linux_only_targets="helloworld linkkitapp yts"
