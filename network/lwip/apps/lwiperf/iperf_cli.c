@@ -242,7 +242,7 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 
 int iperf_cli_register( void )
 {
-    if( 0 == cli_register_commands( iperf_test_message_cmd, 1 ) )
+    if( 0 == aos_cli_register_commands( iperf_test_message_cmd, 1 ) )
         return ERR_OK;
     else
         return ERR_VAL;

@@ -303,7 +303,7 @@ int discover_serialize(lwm2m_context_t * contextP,
     lwm2m_attributes_t * paramP;
     lwm2m_attributes_t mergedParam;
 
-    LOG_ARG("size: %d", size);
+    lwm2m_log(LOG_DEBUG, "size: %d\n", size);
     LOG_URI(uriP);
 
     head = 0;

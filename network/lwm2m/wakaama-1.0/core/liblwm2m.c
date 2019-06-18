@@ -61,7 +61,7 @@ void* lwm2m_init(void * userData)
 {
     lwm2m_context_t * contextP;
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     contextP = (lwm2m_context_t *)lwm2m_malloc(sizeof(lwm2m_context_t));
     if (NULL != contextP)
     {
@@ -79,7 +79,7 @@ void lwm2m_deregister(lwm2m_context_t * context)
 {
     lwm2m_server_t * server = context->serverList;
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     while (NULL != server)
     {
         registration_deregister(context, server);
@@ -174,7 +174,7 @@ void lwm2m_deinit(void * handler)
    lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 #ifdef LWM2M_CLIENT_MODE
 
-    LOG("Entering");
+    lwm2m_log(LOG_DEBUG, "Entering\n");
     lwm2m_deregister(contextP);
     prv_deleteServerList(contextP);
     prv_deleteBootstrapServerList(contextP);
@@ -264,7 +264,7 @@ int lwm2m_configure(void * handler,
 
     lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 
-    LOG_ARG("endpointName: \"%s\", msisdn: \"%s\", altPath: \"%s\", numObject: %d", endpointName, msisdn, altPath, numObject);
+    lwm2m_log(LOG_INFO, "endpointName: \"%s\", msisdn: \"%s\", altPath: \"%s\", numObject: %d\n", endpointName, msisdn, altPath, numObject);
     // This API can be called only once for now
     if (contextP->endpointName != NULL || contextP->objectList != NULL) return COAP_400_BAD_REQUEST;
 
@@ -329,7 +329,7 @@ int lwm2m_add_object(void* handler,
     lwm2m_object_t * targetP;
     lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 
-    LOG_ARG("ID: %d", objectP->objID);
+    lwm2m_log(LOG_INFO, "ID: %d\n", objectP->objID);
     targetP = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, objectP->objID);
     if (targetP != NULL) return COAP_406_NOT_ACCEPTABLE;
     objectP->next = NULL;
@@ -350,7 +350,7 @@ int lwm2m_remove_object(void* handler,
     lwm2m_object_t * targetP;
     lwm2m_context_t * contextP = (lwm2m_context_t*) handler;   
 
-    LOG_ARG("ID: %d", id);
+    lwm2m_log(LOG_INFO, "ID: %d\n", id);
     contextP->objectList = (lwm2m_object_t *)LWM2M_LIST_RM(contextP->objectList, id, &targetP);
 
     if (targetP == NULL) return COAP_404_NOT_FOUND;
@@ -373,12 +373,12 @@ int lwm2m_step(void *handler,
     int result;
     lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 
-    LOG_ARG("timeoutP: %" PRId64, *timeoutP);
+    lwm2m_log(LOG_INFO, "timeoutP: %lld\n", *timeoutP);
     tv_sec = lwm2m_gettime();
     if (tv_sec < 0) return COAP_500_INTERNAL_SERVER_ERROR;
 
 #ifdef LWM2M_CLIENT_MODE
-    LOG_ARG("State: %s", STR_STATE(contextP->state));
+    lwm2m_log(LOG_INFO, "State: %s\n", STR_STATE(contextP->state));
     // state can also be modified in bootstrap_handleCommand().
 
 next_step:
@@ -481,9 +481,9 @@ next_step:
     registration_step(contextP, tv_sec, timeoutP);
     transaction_step(contextP, tv_sec, timeoutP);
 
-    LOG_ARG("Final timeoutP: %" PRId64, *timeoutP);
+    lwm2m_log(LOG_DEBUG, "Final timeoutP: %lld\n", *timeoutP);
 #ifdef LWM2M_CLIENT_MODE
-    LOG_ARG("Final state: %s", STR_STATE(contextP->state));
+    lwm2m_log(LOG_DEBUG, "Final state: %s\n", STR_STATE(contextP->state));
 #endif
     return 0;
 }

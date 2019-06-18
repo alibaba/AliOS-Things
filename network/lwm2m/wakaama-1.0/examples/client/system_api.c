@@ -30,6 +30,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef OSAL_RHINO
+#include "aos/kernel.h"
+#endif
+
 #ifdef LWM2M_EMBEDDED_MODE
 
 static void prv_value_change(void* context,

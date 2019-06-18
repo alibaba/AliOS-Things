@@ -63,9 +63,21 @@
 #include "ulog/ulog.h"
 #include "lwm2m_coap.h"
 
+#define TAG "lwm2m"
+
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
+#define lwm2m_log(level, ...) do { \
+        if( level == LOG_ERR) { \
+           LOGE(TAG, __VA_ARGS__); \
+        } \
+        if( level == LOG_DEBUG) { \
+           LOGD(TAG, __VA_ARGS__); \
+        } \
+        } while(0)
 #define LOG(STR) lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
+#define LOG_DEBUG(STR) lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
+#define LOG_ERR(FMT, ...) lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
 #define LOG_ARG(FMT, ...) lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
 #define LOG_URI(URI)                                                                \
 {                                                                                   \
@@ -111,9 +123,22 @@
 ((S) == STATE_READY ? "STATE_READY" :      \
 "Unknown"))))))
 #else
-#define LOG_ARG(FMT, ...)
+#ifndef LOG
 #define LOG(STR)
+#endif
+#ifndef LOG_ARG
+#define LOG_ARG(FMT, ...)
+#endif
+#ifndef LOG_URI
 #define LOG_URI(URI)
+#endif
+#endif
+#ifndef lwm2m_log
+#define lwm2m_log(level, ...) do { \
+            if( level == LOG_ERR) { \
+                LOGE(TAG, __VA_ARGS__); \
+            } \
+        } while(0)
 #endif
 
 #define LWM2M_DEFAULT_LIFETIME  86400

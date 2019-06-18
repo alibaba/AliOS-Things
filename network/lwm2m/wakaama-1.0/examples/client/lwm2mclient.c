@@ -55,7 +55,7 @@
  Bosch Software Innovations GmbH - Please refer to git log
 
 */
-
+#include "internals.h"
 #include "lwm2mclient.h"
 #include "liblwm2m.h"
 #include "commandline.h"
@@ -89,14 +89,11 @@
 #include "aos/cli.h"
 #include "ulog/ulog.h"
 
+#include "utils_hmac.h"
+
 #define MAX_PACKET_SIZE 1024
 #define DEFAULT_SERVER_IPV6 "[::1]"
 #define DEFAULT_SERVER_IPV4 "127.0.0.1"
-
-#define TAG "lwm2m"
-
-#define lwm2m_debug(format, ...)  LOGD(TAG, format, ##__VA_ARGS__)
-#define lwm2m_err(format, ...)    LOGE(TAG, format, ##__VA_ARGS__)
 
 int g_reboot = 0;
 static int g_quit = 0;
@@ -156,7 +153,7 @@ void handle_value_changed(lwm2m_context_t * lwm2mH,
             dataP = lwm2m_data_new(1);
             if (dataP == NULL)
             {
-                fprintf(stderr, "Internal allocation failure !\n");
+                lwm2m_log(LOG_ERR, "Internal allocation failure !\n");
                 return;
             }
             dataP->id = uri->resourceId;
@@ -177,11 +174,11 @@ void handle_value_changed(lwm2m_context_t * lwm2mH,
 
             if (COAP_204_CHANGED != result)
             {
-                fprintf(stderr, "Failed to change value!\n");
+                lwm2m_log(LOG_ERR, "result(%d), failed to change value!\n", result);
             }
             else
             {
-                fprintf(stderr, "value changed!\n");
+                lwm2m_log(LOG_DEBUG, "value changed!\n");
                 lwm2m_resource_value_changed(lwm2mH, uri);
             }
             lwm2m_data_free(1, dataP);
@@ -189,13 +186,13 @@ void handle_value_changed(lwm2m_context_t * lwm2mH,
         }
         else
         {
-            fprintf(stderr, "write not supported for specified resource!\n");
+            lwm2m_log(LOG_ERR, "write not supported for specified resource!\n");
         }
         return;
     }
     else
     {
-        fprintf(stderr, "Object not found !\n");
+        lwm2m_log(LOG_ERR, "Object not found !\n");
     }
 }
 
@@ -215,7 +212,7 @@ void * lwm2m_connect_server(uint16_t secObjInstID,
   newConnP = connection_create(dataP->connList, dataP->sock, securityObj, instance->id, dataP->lwm2mH, dataP->addressFamily);
   if (newConnP == NULL)
   {
-      fprintf(stderr, "Connection creation failed.\n");
+      lwm2m_log(LOG_ERR, "Connection creation failed.\n");
       return NULL;
   }
 
@@ -264,10 +261,10 @@ void * lwm2m_connect_server(uint16_t secObjInstID,
     *port = 0;
     port++;
 
-    fprintf(stderr, "Opening connection to server at %s:%s\r\n", host, port);
+    lwm2m_log(LOG_INFO, "Opening connection to server at %s:%s\n", host, port);
     newConnP = connection_create(dataP->connList, dataP->sock, host, port, dataP->addressFamily);
     if (newConnP == NULL) {
-        fprintf(stderr, "Connection creation failed.\r\n");
+        lwm2m_log(LOG_ERR, "Connection creation failed.\n");
     }
     else {
         dataP->connList = newConnP;
@@ -332,75 +329,75 @@ static void prv_output_servers(char * buffer,
 
     if (lwm2mH->bootstrapServerList == NULL)
     {
-        fprintf(stdout, "No Bootstrap Server.\r\n");
+        lwm2m_log(LOG_DEBUG, "No Bootstrap Server.\n");
     }
     else
     {
-        fprintf(stdout, "Bootstrap Servers:\r\n");
+        lwm2m_log(LOG_DEBUG, "Bootstrap Servers:\n");
         for (targetP = lwm2mH->bootstrapServerList ; targetP != NULL ; targetP = targetP->next)
         {
-            fprintf(stdout, " - Security Object ID %d", targetP->secObjInstID);
-            fprintf(stdout, "\tHold Off Time: %lu s", (unsigned long)targetP->lifetime);
-            fprintf(stdout, "\tstatus: ");
+            lwm2m_log(LOG_DEBUG, " - Security Object ID %d", targetP->secObjInstID);
+            lwm2m_log(LOG_DEBUG, "\tHold Off Time: %lu s", (unsigned long)targetP->lifetime);
+            lwm2m_log(LOG_DEBUG, "\tstatus: ");
             switch(targetP->status)
             {
             case STATE_DEREGISTERED:
-                fprintf(stdout, "DEREGISTERED\r\n");
+                lwm2m_log(LOG_DEBUG, "DEREGISTERED\n");
                 break;
             case STATE_BS_HOLD_OFF:
-                fprintf(stdout, "CLIENT HOLD OFF\r\n");
+                lwm2m_log(LOG_DEBUG, "CLIENT HOLD OFF\n");
                 break;
             case STATE_BS_INITIATED:
-                fprintf(stdout, "BOOTSTRAP INITIATED\r\n");
+                lwm2m_log(LOG_DEBUG, "BOOTSTRAP INITIATED\n");
                 break;
             case STATE_BS_PENDING:
-                fprintf(stdout, "BOOTSTRAP PENDING\r\n");
+                lwm2m_log(LOG_DEBUG, "BOOTSTRAP PENDING\n");
                 break;
             case STATE_BS_FINISHED:
-                fprintf(stdout, "BOOTSTRAP FINISHED\r\n");
+                lwm2m_log(LOG_DEBUG, "BOOTSTRAP FINISHED\n");
                 break;
             case STATE_BS_FAILED:
-                fprintf(stdout, "BOOTSTRAP FAILED\r\n");
+                lwm2m_log(LOG_DEBUG, "BOOTSTRAP FAILED\n");
                 break;
             default:
-                fprintf(stdout, "INVALID (%d)\r\n", (int)targetP->status);
+                lwm2m_log(LOG_ERR, "INVALID (%d)\n", (int)targetP->status);
             }
         }
     }
 
     if (lwm2mH->serverList == NULL)
     {
-        fprintf(stdout, "No LWM2M Server.\r\n");
+        lwm2m_log(LOG_ERR, "No LWM2M Server.\n");
     }
     else
     {
-        fprintf(stdout, "LWM2M Servers:\r\n");
+        lwm2m_log(LOG_DEBUG, "LWM2M Servers:\n");
         for (targetP = lwm2mH->serverList ; targetP != NULL ; targetP = targetP->next)
         {
-            fprintf(stdout, " - Server ID %d", targetP->shortID);
-            fprintf(stdout, "\tstatus: ");
+            lwm2m_log(LOG_DEBUG, " - Server ID %d", targetP->shortID);
+            lwm2m_log(LOG_DEBUG, "\tstatus: ");
             switch(targetP->status)
             {
             case STATE_DEREGISTERED:
-                fprintf(stdout, "DEREGISTERED\r\n");
+                lwm2m_log(LOG_DEBUG, "DEREGISTERED\n");
                 break;
             case STATE_REG_PENDING:
-                fprintf(stdout, "REGISTRATION PENDING\r\n");
+                lwm2m_log(LOG_DEBUG, "REGISTRATION PENDING\n");
                 break;
             case STATE_REGISTERED:
-                fprintf(stdout, "REGISTERED\tlocation: \"%s\"\tLifetime: %lus\r\n", targetP->location, (unsigned long)targetP->lifetime);
+                lwm2m_log(LOG_DEBUG, "REGISTERED\tlocation: \"%s\"\tLifetime: %lus\n", targetP->location, (unsigned long)targetP->lifetime);
                 break;
             case STATE_REG_UPDATE_PENDING:
-                fprintf(stdout, "REGISTRATION UPDATE PENDING\r\n");
+                lwm2m_log(LOG_DEBUG, "REGISTRATION UPDATE PENDING\n");
                 break;
             case STATE_DEREG_PENDING:
-                fprintf(stdout, "DEREGISTRATION PENDING\r\n");
+                lwm2m_log(LOG_DEBUG, "DEREGISTRATION PENDING\n");
                 break;
             case STATE_REG_FAILED:
-                fprintf(stdout, "REGISTRATION FAILED\r\n");
+                lwm2m_log(LOG_DEBUG, "REGISTRATION FAILED\n");
                 break;
             default:
-                fprintf(stdout, "INVALID (%d)\r\n", (int)targetP->status);
+                lwm2m_log(LOG_ERR, "INVALID (%d)\n", (int)targetP->status);
             }
         }
     }
@@ -424,7 +421,7 @@ static void prv_change(char * buffer,
 
     if (buffer[0] == 0)
     {
-        fprintf(stderr, "report change!\n");
+        lwm2m_log(LOG_DEBUG, "report change!\n");
         lwm2m_resource_value_changed(lwm2mH, &uri);
     }
     else
@@ -434,7 +431,7 @@ static void prv_change(char * buffer,
     return;
 
 syntax_error:
-    fprintf(stdout, "Syntax error !\n");
+    lwm2m_log(LOG_ERR, "Syntax error !\n");
 }
 
 static void prv_object_list(char * buffer,
@@ -447,7 +444,7 @@ static void prv_object_list(char * buffer,
     {
         if (objectP->instanceList == NULL)
         {
-            fprintf(stdout, "/%d ", objectP->objID);
+            lwm2m_log(LOG_DEBUG, "/%d ", objectP->objID);
         }
         else
         {
@@ -455,10 +452,10 @@ static void prv_object_list(char * buffer,
 
             for (instanceP = objectP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
             {
-                fprintf(stdout, "/%d/%d  ", objectP->objID, instanceP->id);
+                lwm2m_log(LOG_DEBUG, "/%d/%d  ", objectP->objID, instanceP->id);
             }
         }
-        fprintf(stdout, "\r\n");
+        lwm2m_log(LOG_DEBUG, "\n");
     }
 }
 
@@ -473,9 +470,9 @@ static void prv_instance_dump(lwm2m_object_t * objectP,
     res = objectP->readFunc(id, &numData, &dataArray, objectP);
     if (res != COAP_205_CONTENT)
     {
-        lwm2m_err("Error ");
+        lwm2m_log(LOG_ERR, "Error ");
         print_status(stdout, res);
-        lwm2m_err("\r\n");
+        lwm2m_log(LOG_ERR, "\n");
         return;
     }
 
@@ -502,7 +499,7 @@ static void prv_object_dump(char * buffer,
     objectP = (lwm2m_object_t *)LWM2M_LIST_FIND(lwm2mH->objectList, uri.objectId);
     if (objectP == NULL)
     {
-        fprintf(stdout, "Object not found.\n");
+        lwm2m_log(LOG_ERR, "Object not found.\n");
         return;
     }
 
@@ -516,16 +513,16 @@ static void prv_object_dump(char * buffer,
 
         for (instanceP = objectP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
         {
-            fprintf(stdout, "Instance %d:\r\n", instanceP->id);
+            lwm2m_log(LOG_DEBUG, "Instance %d:\n", instanceP->id);
             prv_instance_dump(objectP, instanceP->id);
-            fprintf(stdout, "\r\n");
+            lwm2m_log(LOG_DEBUG, "\n");
         }
     }
 
     return;
 
 syntax_error:
-    fprintf(stdout, "Syntax error !\n");
+    lwm2m_log(LOG_ERR, "Object dump syntax error !\n");
 }
 
 static void prv_update(char * buffer,
@@ -538,14 +535,14 @@ static void prv_update(char * buffer,
     int res = lwm2m_update_registration(lwm2mH, serverId, false);
     if (res != 0)
     {
-        fprintf(stdout, "Registration update error: ");
+        lwm2m_log(LOG_DEBUG, "Registration update error: ");
         print_status(stdout, res);
-        fprintf(stdout, "\r\n");
+        lwm2m_log(LOG_DEBUG, "\r\n");
     }
     return;
 
 syntax_error:
-    fprintf(stdout, "Syntax error !\n");
+    lwm2m_log(LOG_ERR, "Object update syntax error !\n");
 }
 
 static void update_battery_level(lwm2m_context_t * context)
@@ -567,7 +564,7 @@ static void update_battery_level(lwm2m_context_t * context)
         if (lwm2m_string_to_uri("/3/0/9", 6, &uri))
         {
             valueLength = sprintf(value, "%d", level);
-            fprintf(stderr, "New Battery Level: %d\n", level);
+            lwm2m_log(LOG_DEBUG, "New Battery Level: %d\n", level);
             handle_value_changed(context, &uri, value, valueLength);
         }
         level = rand() % 20;
@@ -586,19 +583,19 @@ static void prv_add(char * buffer,
     objectP = get_test_object();
     if (objectP == NULL)
     {
-        fprintf(stdout, "Creating object 31024 failed.\r\n");
+        lwm2m_log(LOG_ERR, "Creating object 31024 failed.\n");
         return;
     }
     res = lwm2m_add_object(lwm2mH, objectP);
     if (res != 0)
     {
-        fprintf(stdout, "Adding object 31024 failed: ");
+        lwm2m_log(LOG_ERR, "Adding object 31024 failed: ");
         print_status(stdout, res);
-        fprintf(stdout, "\r\n");
+        lwm2m_log(LOG_ERR, "\n");
     }
     else
     {
-        fprintf(stdout, "Object 31024 added.\r\n");
+        lwm2m_log(LOG_DEBUG, "Object 31024 added.\n");
     }
     return;
 }
@@ -612,13 +609,13 @@ static void prv_remove(char * buffer,
     res = lwm2m_remove_object(lwm2mH, 31024);
     if (res != 0)
     {
-        fprintf(stdout, "Removing object 31024 failed: ");
+        lwm2m_log(LOG_ERR, "Removing object 31024 failed: ");
         print_status(stdout, res);
-        fprintf(stdout, "\r\n");
+        lwm2m_log(LOG_ERR, "\n");
     }
     else
     {
-        fprintf(stdout, "Object 31024 removed.\r\n");
+        lwm2m_log(LOG_DEBUG, "Object 31024 removed.\n");
     }
     return;
 }
@@ -702,7 +699,6 @@ static void prv_display_backup(char * buffer,
        }
    }
 }
-#endif /* LWM2M_BOOTSTRAP */
 
 static void prv_backup_objects(lwm2m_context_t * context)
 {
@@ -755,7 +751,7 @@ static void prv_restore_objects(lwm2m_context_t * context)
     copy_server_object(targetP, backupObjectArray[1]);
 
     // restart the old servers
-    fprintf(stdout, "[BOOTSTRAP] ObjectList restored\r\n");
+    lwm2m_log(LOG_DEBUG, "[BOOTSTRAP] ObjectList restored\n");
 }
 
 static void update_bootstrap_info(lwm2m_client_state_t * previousBootstrapState,
@@ -768,7 +764,7 @@ static void update_bootstrap_info(lwm2m_client_state_t * previousBootstrapState,
         {
             case STATE_BOOTSTRAPPING:
 #ifdef WITH_LOGS
-                fprintf(stdout, "[BOOTSTRAP] backup security and server objects\r\n");
+                lwm2m_log(LOG_DEBUG, "[BOOTSTRAP] backup security and server objects\n");
 #endif
                 prv_backup_objects(context);
                 break;
@@ -799,25 +795,26 @@ static void close_backup_object()
         }
     }
 }
+#endif
 
 void print_usage(void)
 {
-    fprintf(stdout, "Usage: lwm2mclient [OPTION]\r\n");
-    fprintf(stdout, "Launch a LWM2M client.\r\n");
-    fprintf(stdout, "Options:\r\n");
-    fprintf(stdout, "  -n NAME\tSet the endpoint name of the Client. Default: testlwm2mclient\r\n");
-    fprintf(stdout, "  -l PORT\tSet the local UDP port of the Client. Default: 56830\r\n");
-    fprintf(stdout, "  -h HOST\tSet the hostname of the LWM2M Server to connect to. Default: localhost\r\n");
-    fprintf(stdout, "  -p PORT\tSet the port of the LWM2M Server to connect to. Default: "LWM2M_STANDARD_PORT_STR"\r\n");
-    fprintf(stdout, "  -4\t\tUse IPv4 connection. Default: IPv6 connection\r\n");
-    fprintf(stdout, "  -t TIME\tSet the lifetime of the Client. Default: 300\r\n");
-    fprintf(stdout, "  -b\t\tBootstrap requested.\r\n");
-    fprintf(stdout, "  -c\t\tChange battery level over time.\r\n");
+    lwm2m_log(LOG_DEBUG, "Usage: lwm2mclient [OPTION]\n");
+    lwm2m_log(LOG_DEBUG, "Launch a LWM2M client.\n");
+    lwm2m_log(LOG_DEBUG, "Options:\n");
+    lwm2m_log(LOG_DEBUG, "  -n NAME\tSet the endpoint name of the Client. Default: testlwm2mclient\n");
+    lwm2m_log(LOG_DEBUG, "  -l PORT\tSet the local UDP port of the Client. Default: 56830\n");
+    lwm2m_log(LOG_DEBUG, "  -h HOST\tSet the hostname of the LWM2M Server to connect to. Default: localhost\n");
+    lwm2m_log(LOG_DEBUG, "  -p PORT\tSet the port of the LWM2M Server to connect to. Default: "LWM2M_STANDARD_PORT_STR"\n");
+    lwm2m_log(LOG_DEBUG, "  -4\t\tUse IPv4 connection. Default: IPv6 connection\n");
+    lwm2m_log(LOG_DEBUG, "  -t TIME\tSet the lifetime of the Client. Default: 300\n");
+    lwm2m_log(LOG_DEBUG, "  -b\t\tBootstrap requested.\n");
+    lwm2m_log(LOG_DEBUG, "  -c\t\tChange battery level over time.\n");
 #if defined (WITH_TINYDTLS) || defined (WITH_MBEDTLS)
-    fprintf(stdout, "  -i STRING\tSet the device management or bootstrap server PSK identity. If not set use none secure mode\r\n");
-    fprintf(stdout, "  -s HEXSTRING\tSet the device management or bootstrap server Pre-Shared-Key. If not set use none secure mode\r\n");
+    lwm2m_log(LOG_DEBUG, "  -i STRING\tSet the device management or bootstrap server PSK identity. If not set use none secure mode\n");
+    lwm2m_log(LOG_DEBUG, "  -s HEXSTRING\tSet the device management or bootstrap server Pre-Shared-Key. If not set use none secure mode\n");
 #endif
-    fprintf(stdout, "\r\n");
+    lwm2m_log(LOG_DEBUG, "\n");
 }
 
 /*
@@ -868,8 +865,8 @@ command_desc_t commands[] =
 #define IOTX_SIGN_SOURCE_LEN     (256)
 #define IOTX_SIGN_SRC_STR_WITH_RANDOM  "clientId%sdeviceName%sproductKey%srandom%s"
 
-int calc_sign_with_random(const char *p_device_secret, const char *p_client_id,
-                            const char *p_device_name, const char *p_product_key, unsigned int seq, char sign[IOTX_SIGN_LENGTH])
+int calc_sign_with_seq(const char *p_device_secret, const char *p_client_id,
+                            const char *p_device_name, const char *p_product_key, const char* seq, char sign[IOTX_SIGN_LENGTH])
 {
     char *p_msg = NULL;
 
@@ -880,7 +877,7 @@ int calc_sign_with_random(const char *p_device_secret, const char *p_client_id,
     memset(sign,  0x00, IOTX_SIGN_LENGTH);
     memset(p_msg, 0x00, IOTX_SIGN_SOURCE_LEN);
 
-    HAL_Snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
+    snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
                  IOTX_SIGN_SRC_STR_WITH_RANDOM,
                  p_client_id,
                  p_device_name,
@@ -905,8 +902,10 @@ int lwm2m_client_main(int argc, char *argv[])
     int batterylevelchanging = 0;
     time_t reboot_time = 0;
     int opt;
+#ifdef LWM2M_BOOTSTRAP
     bool bootstrapRequested = false;
     bool serverPortChanged = false;
+#endif
 
     char* deviceSecret = NULL;
     char* deviceName = NULL;
@@ -939,10 +938,12 @@ int lwm2m_client_main(int argc, char *argv[])
         }
         switch (argv[opt][1])
         {
+#ifdef LWM2M_BOOTSTRAP
         case 'b':
             bootstrapRequested = true;
             if (!serverPortChanged) serverPort = LWM2M_BSSERVER_PORT_STR;
             break;
+#endif
         case 'c':
             batterylevelchanging = 1;
             break;
@@ -989,7 +990,7 @@ int lwm2m_client_main(int argc, char *argv[])
 
             if(strlen(name) > DEVICE_ID_MAXLEN)
             {
-                fprintf(stderr, "lwm2m name length is too large\r\n");
+                lwm2m_log(LOG_ERR, "lwm2m name length is too large\n");
                 return 0;
             }
             name = argv[opt];
@@ -1020,7 +1021,9 @@ int lwm2m_client_main(int argc, char *argv[])
                 return 0;
             }
             serverPort = argv[opt];
+#ifdef LWM2M_BOOTSTRAP
             serverPortChanged = true;
+#endif
             break;
         case '4':
             data.addressFamily = AF_INET;
@@ -1067,11 +1070,11 @@ int lwm2m_client_main(int argc, char *argv[])
     /*
      *This call an internal function that create an IPV6 socket on the port 5683.
      */
-    fprintf(stderr, "Trying to bind LWM2M Client to port %s\r\n", localPort);
+    lwm2m_log(LOG_INFO, "Trying to bind LWM2M Client to port %s\n", localPort);
     data.sock = create_socket(localPort, data.addressFamily);
     if (data.sock < 0)
     {
-        fprintf(stderr, "Failed to open socket: %d %s\r\n", errno, strerror(errno));
+        lwm2m_log(LOG_ERR, "Failed to open socket: %d %s\n", errno, strerror(errno));
         return -1;
     }
 
@@ -1079,7 +1082,7 @@ int lwm2m_client_main(int argc, char *argv[])
     {
         char * random4 = "random4";
         snprintf(psk_id, IOTX_SIGN_LENGTH,"%s:%s:%s:%s", productKey, deviceName, name, random4);
-        calc_sign_with_random(deviceSecret, name, deviceName, productKey, random4, psk_key);
+        calc_sign_with_seq(deviceSecret, name, deviceName, productKey, random4, psk_key);
         pskId = psk_id;
         psk = psk_key;
         name = pskId;
@@ -1097,7 +1100,7 @@ int lwm2m_client_main(int argc, char *argv[])
 
         if (NULL == pskBuffer)
         {
-            fprintf(stderr, "Failed to create PSK binary buffer\r\n");
+            lwm2m_log(LOG_ERR, "Failed to create PSK binary buffer\n");
             return -1;
         }
         // Hex string to binary
@@ -1112,7 +1115,7 @@ int lwm2m_client_main(int argc, char *argv[])
 
             if (!r || !l)
             {
-                fprintf(stderr, "Failed to parse Pre-Shared-Key HEXSTRING\r\n");
+                lwm2m_log(LOG_ERR, "Failed to parse Pre-Shared-Key HEXSTRING\n");
                 return -1;
             }
 
@@ -1135,7 +1138,7 @@ int lwm2m_client_main(int argc, char *argv[])
 #endif
     if (NULL == objArray[0])
     {
-        fprintf(stderr, "Failed to create security object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create security object\n");
         return -1;
     }
     data.securityObjP = objArray[0];
@@ -1143,49 +1146,49 @@ int lwm2m_client_main(int argc, char *argv[])
     objArray[1] = get_server_object(serverId, "U", lifetime, false);
     if (NULL == objArray[1])
     {
-        fprintf(stderr, "Failed to create server object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create server object\n");
         return -1;
     }
 
     objArray[2] = get_object_device();
     if (NULL == objArray[2])
     {
-        fprintf(stderr, "Failed to create Device object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Device object\n");
         return -1;
     }
 
     objArray[3] = get_object_firmware();
     if (NULL == objArray[3])
     {
-        fprintf(stderr, "Failed to create Firmware object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Firmware object\n");
         return -1;
     }
 
     objArray[4] = get_object_location();
     if (NULL == objArray[4])
     {
-        fprintf(stderr, "Failed to create location object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create location object\n");
         return -1;
     }
 
     objArray[5] = get_test_object();
     if (NULL == objArray[5])
     {
-        fprintf(stderr, "Failed to create test object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create test object\n");
         return -1;
     }
 
     objArray[6] = get_object_conn_m();
     if (NULL == objArray[6])
     {
-        fprintf(stderr, "Failed to create connectivity monitoring object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create connectivity monitoring object\n");
         return -1;
     }
 
     objArray[7] = get_object_conn_s();
     if (NULL == objArray[7])
     {
-        fprintf(stderr, "Failed to create connectivity statistics object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create connectivity statistics object\n");
         return -1;
     }
 
@@ -1193,22 +1196,22 @@ int lwm2m_client_main(int argc, char *argv[])
     objArray[8] = acc_ctrl_create_object();
     if (NULL == objArray[8])
     {
-        fprintf(stderr, "Failed to create Access Control object\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Access Control object\n");
         return -1;
     }
     else if (acc_ctrl_obj_add_inst(objArray[8], instId, 3, 0, serverId)==false)
     {
-        fprintf(stderr, "Failed to create Access Control object instance\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Access Control object instance\n");
         return -1;
     }
     else if (acc_ctrl_oi_add_ac_val(objArray[8], instId, 0, 0b000000000001111)==false)
     {
-        fprintf(stderr, "Failed to create Access Control ACL default resource\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Access Control ACL default resource\n");
         return -1;
     }
     else if (acc_ctrl_oi_add_ac_val(objArray[8], instId, 999, 0b000000000000001)==false)
     {
-        fprintf(stderr, "Failed to create Access Control ACL resource for serverId: 999\r\n");
+        lwm2m_log(LOG_ERR, "Failed to create Access Control ACL resource for serverId: 999\n");
         return -1;
     }
     /*
@@ -1218,7 +1221,7 @@ int lwm2m_client_main(int argc, char *argv[])
     lwm2mH = lwm2m_init(&data);
     if (NULL == lwm2mH)
     {
-        fprintf(stderr, "lwm2m_init() failed\r\n");
+        lwm2m_log(LOG_ERR, "lwm2m_init() failed\n");
         return -1;
     }
 
@@ -1233,7 +1236,7 @@ int lwm2m_client_main(int argc, char *argv[])
     result = lwm2m_configure(lwm2mH, name, NULL, NULL, OBJ_COUNT, objArray);
     if (result != 0)
     {
-        fprintf(stderr, "lwm2m_configure() failed: 0x%X\r\n", result);
+        lwm2m_log(LOG_ERR, "lwm2m_configure() failed: 0x%X\n", result);
         return -1;
     }
 
@@ -1252,8 +1255,8 @@ int lwm2m_client_main(int argc, char *argv[])
     {
         commands[i].userData = (void *)lwm2mH;
     }
-    fprintf(stdout, "LWM2M Client \"%s\" started on port %s\r\n", name, localPort);
-    fprintf(stdout, "> "); fflush(stdout);
+    lwm2m_log(LOG_DEBUG, "LWM2M Client \"%s\" started on port %s\n", name, localPort);
+    lwm2m_log(LOG_DEBUG, "> ");
     /*
      * We now enter in a while loop that will handle the communications from the server
      */
@@ -1277,7 +1280,7 @@ int lwm2m_client_main(int argc, char *argv[])
                 /*
                  * Message should normally be lost with reboot ...
                  */
-                fprintf(stderr, "reboot time expired, rebooting ...");
+                lwm2m_log(LOG_ERR, "reboot time expired, rebooting ...\n");
                 system_reboot();
             }
             else
@@ -1306,39 +1309,39 @@ int lwm2m_client_main(int argc, char *argv[])
          *    (eg. retransmission) and the time between the next operation
          */
         result = lwm2m_step(lwm2mH, &(tv.tv_sec));
-        fprintf(stdout, " -> State: ");
+        lwm2m_log(LOG_INFO, " -> State: ");
         switch (lwm2mH->state)
         {
         case STATE_INITIAL:
-            fprintf(stdout, "STATE_INITIAL\r\n");
+            lwm2m_log(LOG_INFO, "STATE_INITIAL\n");
             break;
         case STATE_BOOTSTRAP_REQUIRED:
-            fprintf(stdout, "STATE_BOOTSTRAP_REQUIRED\r\n");
+            lwm2m_log(LOG_INFO, "STATE_BOOTSTRAP_REQUIRED\n");
             break;
         case STATE_BOOTSTRAPPING:
-            fprintf(stdout, "STATE_BOOTSTRAPPING\r\n");
+            lwm2m_log(LOG_INFO, "STATE_BOOTSTRAPPING\n");
             break;
         case STATE_REGISTER_REQUIRED:
-            fprintf(stdout, "STATE_REGISTER_REQUIRED\r\n");
+            lwm2m_log(LOG_INFO, "STATE_REGISTER_REQUIRED\n");
             break;
         case STATE_REGISTERING:
-            fprintf(stdout, "STATE_REGISTERING\r\n");
+            lwm2m_log(LOG_INFO, "STATE_REGISTERING\n");
             break;
         case STATE_READY:
-            fprintf(stdout, "STATE_READY\r\n");
+            lwm2m_log(LOG_INFO, "STATE_READY\n");
             break;
         default:
-            fprintf(stdout, "Unknown...\r\n");
+            lwm2m_log(LOG_INFO, "Unknown...\n");
             break;
         }
         if (result != 0)
         {
-            fprintf(stderr, "lwm2m_step() failed: 0x%X\r\n", result);
+            lwm2m_log(LOG_INFO, "lwm2m_step() failed: 0x%X\n", result);
 #ifdef LWM2M_BOOTSTRAP
             if(previousState == STATE_BOOTSTRAPPING)
             {
 #ifdef WITH_LOGS
-                fprintf(stdout, "[BOOTSTRAP] restore security and server objects\r\n");
+                lwm2m_log(LOG_DEBUG, "[BOOTSTRAP] restore security and server objects\n");
 #endif
                 prv_restore_objects(lwm2mH);
                 lwm2mH->state = STATE_INITIAL;
@@ -1360,7 +1363,7 @@ int lwm2m_client_main(int argc, char *argv[])
         {
             if (errno != EINTR)
             {
-              fprintf(stderr, "Error in select(): %d %s\r\n", errno, strerror(errno));
+              lwm2m_log(LOG_ERR, "Error in select(): %d %s\n", errno, strerror(errno));
             }
         }
         else if (result > 0)
@@ -1377,7 +1380,7 @@ int lwm2m_client_main(int argc, char *argv[])
                 numBytes = connection_handle_packet(data.connList, buffer, sizeof(buffer));
                 if (numBytes < 0)
                 {
-                    lwm2m_err("error handling message %d\n", numBytes);
+                    lwm2m_log(LOG_ERR, "error handling message %d\n", numBytes);
                 } else if( numBytes > 0)
                 {
                     conn_s_updateRxStatistic(objArray[7], numBytes, false);
@@ -1394,7 +1397,7 @@ int lwm2m_client_main(int argc, char *argv[])
 
                 if (0 > numBytes)
                 {
-                    fprintf(stderr, "Error in recvfrom(): %d %s\r\n", errno, strerror(errno));
+                    lwm2m_log(LOG_ERR, "Error in recvfrom(): %d %s\n", errno, strerror(errno));
                 }
                 else if (0 < numBytes)
                 {
@@ -1426,10 +1429,10 @@ int lwm2m_client_main(int argc, char *argv[])
 #endif
                     else
                     {
-                        fprintf(stderr, "addr family %d err \n", addr.ss_family);
+                        lwm2m_log(LOG_ERR, "addr family %d err \n", addr.ss_family);
                         return ;
                     }
-                    fprintf(stderr, "%d bytes received from [%s]:%hu\r\n", numBytes, s, ntohs(port));
+                    lwm2m_log(LOG_ERR, "%d bytes received from [%s]:%hu\n", numBytes, s, ntohs(port));
 
                     /*
                      * Display it in the STDERR
@@ -1446,7 +1449,7 @@ int lwm2m_client_main(int argc, char *argv[])
                         int result = connection_handle_packet(connP, buffer, numBytes);
                         if (0 != result)
                         {
-                             lwm2m_err("error handling message %d\n",result);
+                             lwm2m_log(LOG_ERR, "error handling message %d\n",result);
                         }
 #else
                         lwm2m_handle_packet(lwm2mH, buffer, numBytes, connP);
@@ -1455,7 +1458,7 @@ int lwm2m_client_main(int argc, char *argv[])
                     }
                     else
                     {
-                        fprintf(stderr, "received bytes ignored!\r\n");
+                        lwm2m_log(LOG_ERR, "received bytes ignored!\n");
                     }
                 }
 #endif /* WITH_MBEDTLS */
@@ -1504,14 +1507,14 @@ int lwm2m_client_main(int argc, char *argv[])
 static void lwm2m_client_help_command( int argc, char **argv )
 {
     int i = 0;
-    lwm2m_debug("Usage: lwm2m [-c] [options]\r\n");
-    lwm2m_debug("       lwm2m [-h]\r\n\n");
+    lwm2m_log(LOG_INFO, "Usage: lwm2m [-c] [options]\n");
+    lwm2m_log(LOG_INFO, "       lwm2m [-h]\n");
     for(i = 0; commands[i].name != NULL; i++)
     {
-        lwm2m_debug("%s    %s\n", commands[i].name, commands[i].shortDesc);
+        lwm2m_log(LOG_INFO, "%s    %s\n", commands[i].name, commands[i].shortDesc);
         if(commands[i].longDesc != NULL)
         {
-            lwm2m_debug("                %s\n", commands[i].longDesc);
+            lwm2m_log(LOG_INFO, "                %s\n", commands[i].longDesc);
         }
     }
 }
@@ -1523,7 +1526,7 @@ void lwm2m_client_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 
     if ((argc < 2) || (argv == NULL))
     {
-        sprintf(stderr, "Invalid command\r\n" );
+        lwm2m_log(LOG_ERR, "Invalid command\n" );
         return ;
     }
 
@@ -1535,7 +1538,7 @@ void lwm2m_client_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 
     if(strcmp( argv[1], "-c" ) != 0)
     {
-        sprintf(stderr, "Invalid command, please use command \"lwm2m -c [option]\"\r\n");
+        lwm2m_log(LOG_ERR, "Invalid command, please use command \"lwm2m -c [option]\"\n");
         return;
     }
 
@@ -1552,7 +1555,7 @@ void lwm2m_client_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 
 int lwm2m_client_cli_register( void )
 {
-    if( 0 == cli_register_commands( lwm2m_client_message_cmd, 1 ) )
+    if( 0 == aos_cli_register_commands( lwm2m_client_message_cmd, 1 ) )
         return -1;
     else
         return 0;
