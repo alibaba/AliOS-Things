@@ -369,14 +369,17 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
                 1, os_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
+            void *mutex = zc_mutex;
             awss_trace("passwd err\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
+            zc_mutex = mutex;
             awss_event_post(AWSS_PASSWD_ERR);
             AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             ret = -1;
             goto exit;
         }
     } else {
+        void *mutex = zc_mutex;
         memcpy((void *)tmp, (const void *)pbuf, passwd_len);
         tmp[passwd_len] = '\0';
         for (i = 0; i < passwd_len; i ++) {
@@ -386,6 +389,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 
         awss_trace("encrypt:%d not support\n", passwd_encrypt);
         memset(zconfig_data, 0, sizeof(*zconfig_data));
+        zc_mutex = mutex;
         ret = -1;
         goto exit;
     }
