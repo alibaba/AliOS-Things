@@ -170,20 +170,20 @@ int backtraceFromStack(int **pSP, char **pPC,
 
     /* 2. scan code, find frame size from "sub" or "sub.w" */
     for (i = 2; i < FUNC_SIZE_LIMIT; i += 2) {
-        if (PC - i < CodeAddr) {
+        if (CodeAddr + i > PC) {
             break;
         }
         /* find "sub    sp, ..." */
-        ins16 = *(unsigned short *)(PC - i);
+        ins16 = *(unsigned short *)(CodeAddr + i);
         if ((ins16 & 0xff80) == 0xb080) {
             framesize += (ins16 & 0x7f);
             break;
         }
 
         /* find "sub.w	sp, sp, ..." */
-        ins32 = *(unsigned short *)(PC - i);
+        ins32 = *(unsigned short *)(CodeAddr + i);
         ins32 <<= 16;
-        ins32 |= *(unsigned short *)(PC - i + 2);
+        ins32 |= *(unsigned short *)(CodeAddr + i + 2);
         if ((ins32 & 0xFBFF8F00) == 0xF1AD0D00) {
             sub = 128 + (ins32 & 0x7f);
             shift  = (ins32 >> 7) & 0x1;
