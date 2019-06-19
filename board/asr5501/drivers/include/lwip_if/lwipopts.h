@@ -220,7 +220,7 @@
 #define TCPIP_MBOX_SIZE                 60
 #define DEFAULT_ACCEPTMBOX_SIZE         10
 #define DEFAULT_RAW_RECVMBOX_SIZE       10
-#define DEFAULT_UDP_RECVMBOX_SIZE       10
+#define DEFAULT_UDP_RECVMBOX_SIZE       20
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
 
 #define LWIP_TCPIP_CORE_LOCKING         1
