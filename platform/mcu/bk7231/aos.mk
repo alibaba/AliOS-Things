@@ -68,3 +68,6 @@ $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
 #endif
 
 $(NAME)_PREBUILT_LIBRARY := beken.a
+
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+

@@ -25,6 +25,7 @@
 #include "aos/hal/timer.h"
 #include "aos/hal/flash.h"
 #include "aos/hal/uart.h"
+#include "aos/hal/wdg.h"
 
 #include "network/hal/base.h"
 #include <hal/wifi.h>
@@ -151,9 +152,33 @@ exit:
     return ret < 0 ? ret : 0;
 }
 
+int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
+{
+    return 0;
+}
+
+hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+{
+    return NULL;
+}
+
 void hal_reboot(void)
 {
 
+}
+
+int32_t hal_wdg_init(wdg_dev_t *wdg)
+{
+    return 0;
+}
+
+void hal_wdg_reload(wdg_dev_t *wdg)
+{
+}
+
+int32_t hal_wdg_finalize(wdg_dev_t *wdg)
+{
+    return 0;
 }
 
 #ifdef OSAL_RHINO

@@ -173,3 +173,6 @@ $(NAME)_SOURCES  += drivers/libc_patch.c \
                     $(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/netif/ethernetif.c \
                     $(SDKDIR)/components/bsp/soc/soc_init/init_mem.c \
                     $(SDKDIR)/components/bsp/soc/soc_init/soc_init.c
+
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+

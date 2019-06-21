@@ -17,7 +17,7 @@ set outputdir=%2\out\%outputplatform%\binary
 
 IF NOT EXIST %bindir% MD %bindir%
 if "%ota_offset%"=="0x0800B000" (
-    copy %outputdir%\%outputplatform%.2boot.elf %bindir%\application.axf
+    copy %outputdir%\%outputplatform%.2ndboot.elf %bindir%\application.axf
 ) else (
     copy %outputdir%\%outputplatform%.elf %bindir%\application.axf
 )
@@ -28,8 +28,8 @@ del Debug\Exe\*.map Debug\Exe\*.asm
 %tooldir%\objdump -d ./Debug/Exe/application.axf > ./Debug/Exe/application.asm
 
 if "%ota_offset%"=="0x0800B000" (
-    copy %bindir%\application.map %bindir%\application.2boot.map
-    copy %bindir%\application.asm %bindir%\application.2boot.asm
+    copy %bindir%\application.map %bindir%\application.2ndboot.map
+    copy %bindir%\application.asm %bindir%\application.2ndboot.asm
 ) else (
     copy %bindir%\application.map %bindir%\application.app.map
     copy %bindir%\application.asm %bindir%\application.app.asm
@@ -77,8 +77,8 @@ if "%ota_idx%"=="2" (
     copy /b %bindir%\xip_image2.p.bin+%bindir%\ram_2.p.bin %bindir%\image2_app.bin
     %tooldir%\checksum %bindir%\image2_app.bin
 ) else (
-    copy /b %bindir%\xip_image2.p.bin+%bindir%\ram_2.p.bin %bindir%\image2_2boot.bin
-    %tooldir%\checksum %bindir%\image2_2boot.bin
+    copy /b %bindir%\xip_image2.p.bin+%bindir%\ram_2.p.bin %bindir%\image2_2ndboot.bin
+    %tooldir%\checksum %bindir%\image2_2ndboot.bin
 )
 
 del Debug\Exe\ram_2.bin
@@ -100,7 +100,7 @@ if "%ota_idx%"=="2" (
 	copy %bindir%\ota_all.bin %outputdir%\ota_all.bin
 ) else (
 	copy %bindir%\boot_all.bin %outputdir%\boot_all.bin
-	copy %bindir%\image2_2boot.bin %outputdir%\image2_2boot.bin
+	copy %bindir%\image2_2ndboot.bin %outputdir%\image2_2ndboot.bin
 )
 
 :: board generator

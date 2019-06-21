@@ -5,17 +5,17 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_LIBSUFFIX := _2boot
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+$(NAME)_LIBSUFFIX := _2ndboot
 
-$(NAME)_COMPONENTS += ota_2nd_boot
+$(NAME)_COMPONENTS += ota_2ndboot
 
-GLOBAL_INCLUDES := Rec/
+GLOBAL_INCLUDES := hal/2ndboot
 
-$(NAME)_SOURCES := Rec/rec_flash.c             \
-		           Rec/rec_uart.c              \
-		           Rec/rec_sys.c               \
-		           Rec/rec_wdt.c
+$(NAME)_SOURCES := hal/2ndboot/flash.c             \
+		   hal/2ndboot/uart.c              \
+		   hal/2ndboot/sys.c               \
+		   hal/2ndboot/wdg.c
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -mlittle-endian \
@@ -136,10 +136,6 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c             
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c            \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_utils.c          \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
-
-ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
-$(NAME)_SOURCES += Rec/rec_clear_ota_flag.c
-endif
 
 $(NAME)_SOURCES += aos/soc_impl.c          \
                    aos/hook_impl.c         \
