@@ -1014,7 +1014,7 @@ int mk3060_sal_add_dev(char* driver_name, void* data)
     return 0;
 }
 
-sal_op_t sal_op = {
+static sal_op_t sal_op = {
     .next = NULL,
     .version = "1.0.0",
     .name = "mk3060",
@@ -1027,7 +1027,8 @@ sal_op_t sal_op = {
     .deinit = HAL_SAL_Deinit,
     .register_netconn_data_input_cb = HAL_SAL_RegisterNetconnDataInputCb,
 };
+
 int mk3060_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
-} 
+}

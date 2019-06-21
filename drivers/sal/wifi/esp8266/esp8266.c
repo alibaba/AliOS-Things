@@ -365,7 +365,7 @@ static int esp8266_sal_add_dev(char* driver_name, void* data)
     return 0;
 }
 
-sal_op_t sal_op = {
+static sal_op_t sal_op = {
     .next = NULL,
     .version = "1.0.0",
     .name = "esp8266",
