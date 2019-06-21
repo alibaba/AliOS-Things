@@ -1,0 +1,7 @@
+config AOS_COMP_SDK_SIGN
+    bool 
+    default n
+    select INFRA_SHA256
+    select AOS_COMP_SDK_WRAPPERS
+
+

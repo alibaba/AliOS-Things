@@ -1,0 +1,28 @@
+config AOS_COMP_SDK_HTTP2
+    bool "FEATURE_HTTP2_COMM_ENABLED"
+    default n
+    select INFRA_HTTPC
+    select INFRA_SHA1
+    select INFRA_TIMER
+    select SUPPORT_TLS
+    select ON_DAILY
+    select AOS_COMP_SDK_NGHTTP2
+    select FS_ENABLED
+    select AOS_COMP_SDK_WRAPPERS
+
+    help
+        Establish persistent connection with AliCloud via HTTP2-stream protocol
+
+
+if AOS_COMP_SDK_HTTP2
+    config HTTP2_COMM_ENABLED
+    bool 
+    default y
+endif
+
+config FS_ENABLED
+    bool
+    default n
+    help
+        USE HAL fs api to enable file upload feature
+
