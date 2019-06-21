@@ -1140,7 +1140,7 @@ int sim800_sal_add_dev(char* driver_name, void* data)
     return 0;
 }
 
-sal_op_t sal_op = {
+static sal_op_t sal_op = {
     .next = NULL,
     .version = "1.0.0",
     .name = "sim800",
@@ -1157,4 +1157,4 @@ sal_op_t sal_op = {
 int sim800_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
-} 
+}
