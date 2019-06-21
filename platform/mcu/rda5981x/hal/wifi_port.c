@@ -8,9 +8,6 @@
 #include "hal/wifi.h"
 #include "lwip/ip4_addr.h"
 #include "lwip/inet.h"
-#ifndef DELETE_HFILOP_CODE
-#include "ota_hal_plat.h"
-#endif
 
 typedef enum {
     SCAN_NORMAL,
@@ -184,11 +181,6 @@ static int wifi_init(hal_wifi_module_t *m)
     rda59xx_wifi_set_event_cb(wifi_event_cb);
 
 #ifndef DELETE_HFILOP_CODE
-  //  extern struct hal_ota_module_s rda59xx_ota_module;
- //   hal_ota_register_module(&rda59xx_ota_module);
-	extern ota_hal_module_t ota_hal_module;
-	ota_hal_register_module(&ota_hal_module);
-
     extern void hfilop_ota_auto_upgrade(char *ssid, char *pwd);
     hfilop_ota_auto_upgrade(NULL, NULL);
 

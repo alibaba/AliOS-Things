@@ -160,3 +160,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   -mfpu=fpv4-sp-d16 \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
+
+ifeq ($(HOST_OS),Win32)
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+endif

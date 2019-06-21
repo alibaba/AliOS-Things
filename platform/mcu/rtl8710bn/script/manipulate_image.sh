@@ -19,7 +19,7 @@ app=`echo $3 | tr '/' '.'`
 outputplatform=$app@$4
 outputdir=$2/out/${outputplatform}/binary
 if [ "${ota_offset}" = "0x0800B000" ]; then
-	outputname=${outputplatform}.2boot
+	outputname=${outputplatform}.2ndboot
 else
 	outputname=${outputplatform}
 fi
@@ -60,7 +60,7 @@ chmod +rx ${PICK} ${CHKSUM} ${PAD} ${OTA}
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.r.bin ${BIN_DIR}/ram_2.bin raw
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.bin ${BIN_DIR}/ram_2.p.bin
 ${PICK} 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/xip_image2.bin ${BIN_DIR}/xip_image2.p.bin
-IMAGE2_OTA1=image2_2boot.bin
+IMAGE2_OTA1=image2_2ndboot.bin
 IMAGE2_OTA2=image2_app.bin
 OTA_ALL=ota_all.bin
 <<<<<<< HEAD
@@ -77,8 +77,12 @@ if [ "${ota_idx}" = "1" ]; then
 =======
 =======
 
+<<<<<<< HEAD
 #2boot bin
 >>>>>>> ea3b1f788 (BugID:17115756:[OTA] support mk3080 2nd bootloader)
+=======
+#2ndboot bin
+>>>>>>> c9aad2eb5 (BugID:20262438: OTA refactor for 2.2.1)
 if [ "${ota_offset}" = "0x0800B000" ]; then
 >>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}

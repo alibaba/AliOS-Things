@@ -17,9 +17,9 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_COMPONENTS += ota_2nd_boot
-$(NAME)_LIBSUFFIX  := _2boot
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+$(NAME)_COMPONENTS += ota_2ndboot
+$(NAME)_LIBSUFFIX  := _2ndboot
 else
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr
@@ -105,8 +105,8 @@ GLOBAL_ASMFLAGS += -DHardFault_Handler=Ali_HardFault_Handler
 
 GLOBAL_CFLAGS += -w
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2-2nd_boot.ld
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2-2ndboot.ld
 else
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
@@ -124,7 +124,7 @@ endif
                   -Wl,--no-wchar-size-warning \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -mthumb\
                   -Os \
@@ -151,12 +151,12 @@ $(NAME)_CFLAGS += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-unin
 $(NAME)_CFLAGS += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS += -Wno-unused-value -Wno-strict-aliasing
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_SOURCES :=  2nd_boot/boot_startup.c \
-                    2nd_boot/rec_flash.c    \
-                    2nd_boot/rec_sys.c      \
-                    2nd_boot/rec_uart.c     \
-                    2nd_boot//rec_wdt.c
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+$(NAME)_SOURCES :=  hal/2ndboot/startup.c  \
+                    hal/2ndboot/flash.c    \
+                    hal/2ndboot/sys.c      \
+                    hal/2ndboot/uart.c     \
+                    hal/2ndboot/wdg.c
 else
 $(NAME)_SOURCES := aos/soc_impl.c   \
                    aos/aos.c        \
@@ -179,7 +179,8 @@ $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr.c
 include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
 endif
 
-GLOBAL_INCLUDES += 2nd_boot
+GLOBAL_INCLUDES += hal/2ndboot
 
 include ./platform/mcu/rtl8710bn/sdk/sdk.mk
 
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
