@@ -1,9 +1,0 @@
-mainmenu "Main Menu"
-comment "Configure Link Kit SDK for IoT Embedded Devices"
-
-config SRCPATH
-    string
-    default "."
-
-source "Config.linkkit"
-

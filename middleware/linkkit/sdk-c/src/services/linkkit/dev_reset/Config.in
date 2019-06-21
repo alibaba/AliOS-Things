@@ -1,9 +1,0 @@
-config AOS_COMP_LIBDEV_RESET
-    bool
-    default n
-    help
-      reset devices with user account
-
-if AOS_COMP_LIBDEV_RESET
-# Configurations for comp libdev_reset
-endif
