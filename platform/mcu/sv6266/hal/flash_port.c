@@ -8,60 +8,6 @@
 #define MIN(a,b)        (((a) < (b)) ? (a) : (b))
 
 
-extern uint32_t FLASH_BEGIN;
-extern uint32_t __lds_reserved_start;
-const char* bootflag = "bootflag";
-
-/*! \brief hal_ota_switch_to_new_fw update bootflag.
- *
- *  check the ota image & update bootflag.
- *
- * \return 0: success, otherwise: failed.
- */
-int flash_sw_bank()
-{
-#define M_OTA_HEADER_CHECK      (6)
-    uint32_t reserved_addr = (uint32_t)(&__lds_reserved_start) - (uint32_t)(&FLASH_BEGIN);
-    uint32_t ota_data_check[M_OTA_HEADER_CHECK];
-    OS_DeclareCritical();
-
-    uint32_t offset = 4;
-    int32_t ret = 0;
-    hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
-    ret = hal_flash_read(pno, &offset, ota_data_check, sizeof(uint32_t)*M_OTA_HEADER_CHECK);
-    if (ret == EIO) {
-        return -1;
-    }
-    if (ota_data_check[0] != XTAL) {
-        return -2;
-    }
-    if (ota_data_check[1] != SYS_BUS_SPEED) {
-        return -3;
-    }
-    if (ota_data_check[2] != XIP_BIT) {
-        return -4;
-    }
-    if (ota_data_check[5] != SETTING_PSRAM_HEAP_BASE) {
-        return -7;
-    }
-    OS_EnterCritical();
-#if defined(CONFIG_ENABLE_WDT)
-    drv_wdt_kick(SYS_WDT);
-#endif
-    flash_sector_erase(reserved_addr);
-#if defined(CONFIG_ENABLE_WDT)
-    drv_wdt_kick(SYS_WDT);
-#endif
-    flash_page_program(reserved_addr, strlen(bootflag), bootflag);
-#if defined(CONFIG_ENABLE_WDT)
-    drv_wdt_kick(SYS_WDT);
-#endif
-    OS_ExitCritical();
-    REG32(0xc0000000) = 0x00200000;
-    return 0;
-}
-
-
 static int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
 {
     uint32_t remaining = size;

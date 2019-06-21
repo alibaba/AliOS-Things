@@ -50,7 +50,7 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s           \
 
 PING_PONG_OTA := 0
 ifeq ($(PING_PONG_OTA),1)
-GLOBAL_DEFINES += CFG_PING_PONG_OTA
+GLOBAL_DEFINES += CONFIG_PING_PONG_OTA
 AOS_IMG1_XIP1_LD_FILE += platform/mcu/bk7231s/bk7231s.ld
 AOS_IMG2_XIP2_LD_FILE += platform/mcu/bk7231s/bk7231s_ex.ld
 else
@@ -85,3 +85,6 @@ $(NAME)_PREBUILT_LIBRARY += beken/ip/ip.a
 $(NAME)_COMPONENTS += entry
 
 include ./platform/mcu/bk7231s/beken/beken.mk
+
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+
