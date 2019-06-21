@@ -138,3 +138,6 @@ include $($(NAME)_LOCATION)/bt_controller/bt_controller.mk
 endif
 
 GLOBAL_DEFINES-y += MBEDTLS_AES_ROM_TABLES
+
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+

@@ -41,6 +41,7 @@ $(NAME)_SOURCES += bsp/setboot_cli.c
 $(NAME)_SOURCES += hal/uart.c
 $(NAME)_SOURCES += hal/flash.c
 $(NAME)_SOURCES += hal/wifi_port.c
+$(NAME)_SOURCES += hal/ota.c
 $(NAME)_SOURCES += bsp/heap_oram.c
 ifeq ($(ble),1)
 $(NAME)_SOURCES += hal/ble_port.c
@@ -170,3 +171,6 @@ GLOBAL_INCLUDES     += bsp/fatfs/include bsp/fatfs/ff/include
 GLOBAL_DEFINES      += AOS_FATFS
 
 include platform/mcu/esp32/espos/espos.mk
+
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+

@@ -48,7 +48,14 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s           \
 
 BINS ?=
 
+PING_PONG_OTA := 1
+ifeq ($(PING_PONG_OTA),1)
+GLOBAL_DEFINES += CONFIG_PING_PONG_OTA
+AOS_IMG1_XIP1_LD_FILE += platform/mcu/bk7231u/bk7231u.ld.S
+AOS_IMG2_XIP2_LD_FILE += platform/mcu/bk7231u/bk7231u_ex.ld.S
+else
 GLOBAL_LDS_FILES += platform/mcu/bk7231u/bk7231u.ld.S
+endif
 
 include ./platform/mcu/bk7231u/beken/beken.mk
 
@@ -65,7 +72,8 @@ $(NAME)_SOURCES += hal/gpio.c        \
                    hal/StringUtils.c \
                    hal/wifi_port.c   \
                    hal/beken_rhino.c \
-                   hal_init/hal_init.c
+                   hal_init/hal_init.c \
+                   hal/ota.c
 
 ifneq ($(filter umesh,$(COMPONENTS)),)
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
@@ -83,3 +91,4 @@ GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort
 
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk

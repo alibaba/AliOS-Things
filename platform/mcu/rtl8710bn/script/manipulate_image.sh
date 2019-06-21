@@ -12,7 +12,7 @@ app=`echo $3 | tr '/' '.'`
 outputplatform=$app@$4
 outputdir=$2/out/${outputplatform}/binary
 if [ "${ota_offset}" = "0x0800B000" ]; then
-	outputname=${outputplatform}.2boot
+	outputname=${outputplatform}.2ndboot
 else
 	outputname=${outputplatform}
 fi
@@ -53,11 +53,11 @@ chmod +rx ${PICK} ${CHKSUM} ${PAD} ${OTA}
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.r.bin ${BIN_DIR}/ram_2.bin raw
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.bin ${BIN_DIR}/ram_2.p.bin
 ${PICK} 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/xip_image2.bin ${BIN_DIR}/xip_image2.p.bin
-IMAGE2_OTA1=image2_2boot.bin
+IMAGE2_OTA1=image2_2ndboot.bin
 IMAGE2_OTA2=image2_app.bin
 OTA_ALL=ota_all.bin
 
-#2boot bin
+#2ndboot bin
 if [ "${ota_offset}" = "0x0800B000" ]; then
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA1}

@@ -63,7 +63,7 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
 
 #$(NAME)_SOURCES := soc_impl.c
 
-ifneq ($(AOS_2BOOT_SUPPORT), yes)
+ifneq ($(AOS_2NDBOOT_SUPPORT), yes)
 #cmsis
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/cmsis/device/app_start.c
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/fwlib/ram_lib/startup.c

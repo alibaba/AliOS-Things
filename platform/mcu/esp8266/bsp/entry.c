@@ -14,12 +14,9 @@
 #include "ets_sys.h"
 
 #include "espos_scheduler.h"
-#include "rec_define.h"
 
 extern int ets_printf(const char *fmt, ...);
 extern void PendSV( char req );
-extern void recovery_main();
-extern int recovery_check();
 
 extern char _bss_start;
 extern char _bss_end;
@@ -66,10 +63,6 @@ void user_init(void)
 
     extern int32_t hal_uart_init(uart_dev_t *uart);
     extern void key_gpio_init(void);
-
-	if(recovery_check() != REC_NORMAL_START) {
-        recovery_main();
-    }
 
     key_gpio_init();
     hal_uart_init(&uart_0);

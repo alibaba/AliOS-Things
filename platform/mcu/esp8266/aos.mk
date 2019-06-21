@@ -8,7 +8,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
 $(NAME)_COMPONENTS := yloop newlib_stub debug
 $(NAME)_COMPONENTS += lwip netmgr
-$(NAME)_COMPONENTS += ota_2nd_boot
 
 use_private_lwip := 1
 
@@ -20,7 +19,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/lwip $(ESP_INC_PATH)/lwip/ipv4 $(ESP_INC_PATH
 # $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
 
-GLOBAL_INCLUDES  += common hal/rec
+GLOBAL_INCLUDES  += common
 
 GLOBAL_CFLAGS    += -u call_user_start    \
                     -fno-inline-functions \
@@ -74,6 +73,7 @@ $(NAME)_SOURCES += bsp/driver/uart.c
 
 $(NAME)_SOURCES += hal/uart.c
 $(NAME)_SOURCES += hal/flash.c
+$(NAME)_SOURCES += hal/wdg.c
 $(NAME)_SOURCES += hal/misc.c
 $(NAME)_SOURCES += hal/gpio.c
 $(NAME)_SOURCES += hal/wifi_port.c
@@ -81,10 +81,6 @@ $(NAME)_SOURCES += hal/upgrade_lib.c
 $(NAME)_SOURCES += hal/hal_adc_esp8266.c
 $(NAME)_SOURCES += hal/hal_i2c_esp8266.c
 $(NAME)_SOURCES += hal/hal_timer_esp8266.c
-$(NAME)_SOURCES += hal/rec/rec_flash.c
-$(NAME)_SOURCES += hal/rec/rec_sys.c
-$(NAME)_SOURCES += hal/rec/rec_uart.c
-$(NAME)_SOURCES += hal/rec/rec_wdt.c
 $(NAME)_SOURCES += bsp/driver/gpio.c
 $(NAME)_SOURCES += bsp/driver/hw_timer.c
 $(NAME)_SOURCES += bsp/driver/i2c_master.c
@@ -116,5 +112,4 @@ endif
 
 include platform/mcu/esp8266/espos/espos.mk
 
-ifneq ($(mesh),0)
-endif
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk

@@ -353,4 +353,13 @@ static uint32_t GetSectorSize(uint32_t Sector)
   return sectorsize;
 }
 */
+int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
+{
+    return 0;
+}
+
+int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
+{
+    return 0;
+}
 #endif

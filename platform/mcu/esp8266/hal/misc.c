@@ -6,6 +6,9 @@
 #include "esp_system.h"
 
 #include "k_api.h"
+#include "upgrade.h"
+#include "lwip/ip4_addr.h"
+#include "esp_wifi.h"
 
 extern void vPortETSIntrLock(void);
 extern void aos_msleep(int ms);
@@ -22,7 +25,6 @@ static void delay()
 void hal_reboot(void)
 {
     printf("reboot!\n");
-
     vPortETSIntrLock();
     krhino_sched_disable();
     delay();
@@ -33,4 +35,19 @@ void hal_reboot(void)
         system_restart();
         aos_msleep(100);
     }
+}
+
+int hal_reboot_bank(void)
+{
+    printf("reboot to banker\n");
+    wifi_set_sleep_type(NONE_SLEEP_T);
+    vPortETSIntrLock();
+    krhino_sched_disable();
+    delay();
+    delay();
+    system_upgrade_init();
+    system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
+    system_upgrade_reboot();
+    aos_msleep(300);
+    return 0;
 }
