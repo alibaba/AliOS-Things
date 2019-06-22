@@ -1,74 +1,56 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+
 #include <string.h>
 #include <stdlib.h>
 #include "ota_log.h"
-#include "ota/ota_service.h"
-#include "ota_hal_os.h"
-#include "ota_hal_plat.h"
-#include "ota_verify.h"
+#include "ota_import.h"
+#include "ota_hal_common.h"
 
-static int ota_gen_info_msg(char *buf, int len, int id, const char *ver)
+/**
+ * ota_mqtt_publish message to Cloud
+ *
+ * @param[in] name      topic name
+ * @param[in] msg       message content
+ * @param[in] pk        product key
+ * @param[in] dn        device name
+ *
+ * @return OTA_SUCCESS         OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ */
+static int ota_mqtt_publish(const char *name, char *msg, char *pk, char *dn)
 {
     int ret = 0;
-    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"version\":\"%s\"}}", id, ver);
-    if (ret < 0) {
-        return -1;
+    char topic[OTA_MSG_LEN] = {0};
+    if (name == NULL || msg == NULL || pk == NULL || dn == NULL) {
+        return OTA_TRANSPORT_INT_FAIL;
     }
-    return 0;
+
+    ret = ota_snprintf(topic, OTA_MSG_LEN-1, "/ota/device/%s/%s/%s", name, pk, dn);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
+    }
+    OTA_LOG_I("Public topic:%s msg:%s", topic, msg);
+    ret = ota_hal_mqtt_publish(topic, 1, (void *)msg, strlen(msg) + 1);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
+    }
+    return ret;
 }
 
-/*
-* Generate report information according to @id, @msg
-* and then copy to @buf.
-* 0, successful; -1, failed
-*/
-static int ota_gen_report_msg(char *buf, int len, int id, int progress, const char *msg)
-{
-    int ret = 0;
-    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id, progress, msg ? msg : NULL);
-    if (ret < 0) {
-        return -1;
-    }
-    return 0;
-}
-
-/*
-* Generate topic name according to @ota_topic_type, @product_key, @device_name
-* and then copy to @buf.
-* 0, successful; -1, failed
-*/
-static int ota_mqtt_gen_topic_name(char *buf, int len, const char *topic, char *pk, char *dn)
-{
-    int ret = 0;
-    ret = ota_snprintf(buf, len, "/ota/device/%s/%s/%s", topic, pk, dn);
-    if (ret < 0) {
-        return -1;
-    }
-    return 0;
-}
-
-static int ota_mqtt_publish(const char *topic, const char *msg, char *pk, char *dn)
-{
-    int ret = 0;
-    char name[OTA_MQTT_TOPIC_LEN] = {0};
-    if (topic == NULL || msg == NULL || pk == NULL || dn == NULL) {
-        return -1;
-    }
-    ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, topic, pk, dn);
-    if (ret < 0) {
-        return -1;
-    }
-    OTA_LOG_I("Public name:%s msg:%s", name, msg);
-    ret = ota_hal_mqtt_publish(name, 1, (void *)msg, strlen(msg) + 1);
-    if (ret < 0) {
-        return ret;
-    }
-    return 0;
-}
-
-static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void *msg)
+/**
+ * ota_mqtt_sub_cb  upgrade callback
+ *
+ * @param[in] pctx      ota context
+ * @param[in] pclient   mqtt pclient
+ * @param[in] msg       mqtt message 
+ *
+ * @return void
+ */
+static void ota_mqtt_sub_cb(void *pctx, void *pclient, void *msg)
 {
     char *payload = NULL;
     if (msg == NULL) {
@@ -82,148 +64,183 @@ static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void *msg)
         default:
             return;
     }
-    if(payload == NULL) {
-        OTA_LOG_E("payload is null");
-        return;
+    if(payload != NULL) {
+        OTA_LOG_I("mqtt cb evt:%d %s", mqtt_msg->event, payload);
+        ota_parse_dl_url(payload);
     }
-    ota_service_t *ctx = (ota_service_t*)pcontext;
-    OTA_LOG_I("mqtt cb evt:%d %s", mqtt_msg->event, payload);
-    if ((NULL == ctx)||(NULL == ctx->upgrade_cb)) {
-        return;
-    }
-    ctx->upgrade_cb(ctx, payload);
 }
 
-static int ota_trans_inform(void *pctx)
+/**
+ * ota_transport_inform  OTA inform version to cloud.
+ *
+ * @param[in] pk        product key
+ * @param[in] dn        device name
+ * @param[in] ver       version string
+ *
+ * @return OTA_SUCCESS         OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ */
+int ota_transport_inform(char* pk, char* dn, char* ver)
 {
-    int  ret                     = 0;
-    char msg[OTA_MSG_INFORM_LEN] = {0};
-    ota_service_t *ctx           = pctx;
-    if (NULL == ctx) {
-        return -1;
+    int  ret              = 0;
+    char msg[OTA_MSG_LEN] = {0};
+    ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"version\":\"%s\"}}", 0, ver);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
     }
-    ret = ota_gen_info_msg(msg, OTA_MSG_INFORM_LEN, 0, ctx->sys_ver);
-    if (ret != 0) {
-        return -1;
-    }
-    ret = ota_mqtt_publish("inform", msg, ctx->pk, ctx->dn);
-    if (0 != ret) {
-        return OTA_TRANSPORT_FAIL;
+    ret = ota_mqtt_publish("inform", msg, pk, dn);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
     }
     return ret;
 }
 
-static int ota_trans_upgrade(void *pctx)
+/**
+ * ota_transport_upgrade  OTA subcribe message from Cloud.
+ *
+ * @param[in] pk        product key
+ * @param[in] dn        device name
+ *
+ * @return OTA_SUCCESS         OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ */
+int ota_transport_upgrade(char* pk, char* dn)
 {
-    int  ret                      = 0;
-    char name[OTA_MQTT_TOPIC_LEN] = {0};
-    ota_service_t *ctx            = pctx;
-    if (NULL == ctx) {
-        return -1;
-    }
-    ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, "upgrade", ctx->pk, ctx->dn);
+    int  ret                = 0;
+    char topic[OTA_MSG_LEN] = {0};
+    ret = ota_snprintf(topic, OTA_MSG_LEN-1, "/ota/device/%s/%s/%s", "upgrade", pk, dn);
     if (ret < 0) {
-        return -1;
+        return OTA_TRANSPORT_INT_FAIL;
     }
-    OTA_LOG_I("upgrade:%s", name);
-    ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
+    OTA_LOG_I("upgrade:%s", topic);
+    ret = ota_hal_mqtt_subscribe(topic, ota_mqtt_sub_cb, NULL);
     if (ret < 0) {
-        return OTA_TRANSPORT_FAIL;
+        return OTA_TRANSPORT_INT_FAIL;
     }
     return ret;
 }
 
-static int ota_trans_status(int progress, void *pctx)
+/**
+ * ota_transport_status  OTA report status to Cloud
+ *
+ * @param[in] pk        product key
+ * @param[in] dn        device name
+ * @param[in] status    [1-100] percent, [<0] error no.
+ *
+ * @return OTA_SUCCESS         OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ */
+int ota_transport_status(char* pk, char* dn, int status)
 {
-    int  ret                     = -1;
-    char msg[OTA_MSG_REPORT_LEN] = {0};
-    char err[OTA_MAX_VER_LEN]    = {0};
-    ota_service_t *ctx           = pctx;
-    if (NULL == ctx) {
-        return -1;
-    }
-    int status = ctx->upg_status;
-    memset(err, 0x00, sizeof(err));
+    int  ret                = 0;
+    char msg[OTA_MSG_LEN]   = {0};
+    char *err_str           = "";
+
     if (status < 0) {
-        progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota init failed");
+                err_str = "OTA init failed";
                 break;
-            case OTA_INIT_VER_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota version not match");
+            case OTA_TRANSPORT_INT_FAIL:
+                err_str = "OTA transport init failed";
                 break;
-            case OTA_DOWNLOAD_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download failed");
+            case OTA_TRANSPORT_VER_FAIL:
+                err_str = "OTA transport verion is too old";
                 break;
-            case OTA_DOWNLOAD_URL_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download url failed");
+            case OTA_TRANSPORT_PAR_FAIL:
+                err_str = "OTA transport parse failed";
                 break;
-            case OTA_DOWNLOAD_IP_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download ip failed");
+            case OTA_DOWNLOAD_INIT_FAIL:
+                err_str = "OTA download init failed";
+                break;
+            case OTA_DOWNLOAD_HEAD_FAIL:
+                err_str = "OTA download header failed";
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download connect failed");
+                err_str = "OTA download connect failed";
                 break;
-            case OTA_DOWNLOAD_READ_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download read failed");
+            case OTA_DOWNLOAD_REQ_FAIL:
+                err_str = "OTA download request failed";
                 break;
-            case OTA_DOWNLOAD_WRITE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download write failed");
+            case OTA_DOWNLOAD_RECV_FAIL:
+                err_str = "OTA download receive failed";
                 break;
-            case OTA_VERIFY_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify failed");
+            case OTA_VERIFY_MD5_FAIL:
+                err_str = "OTA verfiy MD5 failed";
                 break;
-            case OTA_UPGRADE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota upgrade failed");
-                break;
-            case OTA_REBOOT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota reboot failed");
+            case OTA_VERIFY_SHA2_FAIL:
+                err_str = "OTA verfiy SHA256 failed";
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify rsa failed");
+                err_str = "OTA verfiy RSA failed";
                 break;
-            case OTA_VERIFY_HASH_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify hash failed");
+            case OTA_VERIFY_IMAGE_FAIL:
+                err_str = "OTA verfiy image failed";
                 break;
-            case OTA_UPGRADE_DIFF_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota diff failed");
+            case OTA_UPGRADE_WRITE_FAIL:
+                err_str = "OTA upgrade write failed";
+                break;
+            case OTA_UPGRADE_FW_SIZE_FAIL:
+                err_str = "OTA upgrade FW too big";
                 break;
             default:
-                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota undefined failed");
+                err_str = "OTA undefined failed";
                 break;
         }
     }
-    ret = ota_gen_report_msg(msg, OTA_MSG_REPORT_LEN, 0, progress, err);
-    if (0 != ret) {
-        return -1;
+    ret = ota_snprintf(msg, OTA_MSG_LEN -1, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", 1, status, err_str);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
     }
-    ret = ota_mqtt_publish("progress", msg, ctx->pk, ctx->dn);
-    if (0 != ret) {
-        return OTA_TRANSPORT_FAIL;
+    ret = ota_mqtt_publish("progress", msg, pk, dn);
+    if (ret < 0) {
+        return OTA_TRANSPORT_INT_FAIL;
     }
     return ret;
 }
 
-static int ota_trans_init(void)
+/**
+ * ota_transport_init  OTA transport init
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS         OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_transport_init(void)
 {
-    return ota_hal_mqtt_init();
+    int ret = 0;
+    ret = ota_hal_mqtt_init();
+    if(ret < 0){
+        return OTA_TRANSPORT_INT_FAIL;
+    }
+    return ret;
 }
 
-static int ota_trans_deinit(void)
+/**
+ * ota_transport_init  OTA transport deinit
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_transport_deinit(void)
 {
-    return ota_hal_mqtt_deinit();
-}
-
-static ota_transport_t trans_mqtt = {
-    .init             = ota_trans_init,
-    .inform           = ota_trans_inform,
-    .upgrade          = ota_trans_upgrade,
-    .status           = ota_trans_status,
-    .deinit           = ota_trans_deinit,
-};
-
-ota_transport_t *ota_get_transport(void)
-{
-    return &trans_mqtt;
+    int ret = 0;
+    ret = ota_hal_mqtt_deinit();
+    if(ret < 0){
+        ret = OTA_TRANSPORT_INT_FAIL;
+    }
+    return ret;
 }
