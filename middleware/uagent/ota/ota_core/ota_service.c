@@ -1,447 +1,417 @@
 /*
  *Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+
 #include <string.h>
 #include <cJSON.h>
-#include "ota/ota_service.h"
-#include "ota_hal_os.h"
-#include "ota_verify.h"
-#include "ota_hal_plat.h"
 #include "ota_log.h"
+#include "ota_crypto.h"
+#include "ota_import.h"
+#include "ota_plat_ctrl.h"
+#include "ota_hal_common.h"
 #include "aos/kernel.h"
+#include "aos/hal/wdg.h"
 
-#ifdef AOS_COMP_PWRMGMT
-#include "pwrmgmt.h"
+#if defined OTA_CONFIG_SECURE_DL_MODE
+static wdg_dev_t ota_wdg = {0};
+static aos_timer_t  ota_mon_tmr = {0};
+static void ota_monitor_task(void *arg1, void* arg2)
+{
+    hal_wdg_reload(&ota_wdg);
+}
 #endif
 
-extern ota_hal_module_t ota_hal_module;
-static unsigned char ota_is_on_going = 0;
+static ota_boot_param_t *ota_param = NULL;
+static ota_service_t    *ota_ctx   = NULL;
 
-void ota_on_going_reset()
-{
-    ota_is_on_going = 0;
+ota_service_t * ota_get_service_manager(void) {
+    return ota_ctx;
 }
 
-unsigned char ota_get_on_going_status()
+/**
+ * ota_parse_host_url  OTA parse host url
+ *
+ * @param[in] char *url           pasre url to host name & uri.
+ *
+ * @return host_name              host name from download url.
+ * @return host_uri               host uri from download url.
+ */
+void ota_parse_host_url(char *url, char **host_name, char **host_uri)
 {
-    return ota_is_on_going;
-}
-
-void ota_set_status_on_going()
-{
-    ota_is_on_going = 1;
-}
-const char *ota_to_capital(char *value, int len)
-{
-    if ((NULL == value) || (len <= 0)) {
-        return NULL;
+    char *pa;
+    char *pb;
+    if ((url == NULL) || (strlen(url) == 0)) {
+        OTA_LOG_E("url parms error!");
+        return;
     }
-    int i = 0;
-    for (; i < len; i++) {
-        if (*(value + i) >= 'a' && *(value + i) <= 'z') {
-            *(value + i) -= 'a' - 'A';
+    if (!(*url)) {
+        return;
+    }
+    pa = url;
+    if (!strncmp(pa, "https://", 8)) {
+        pa = url + 8;
+    }
+    if (!strncmp(pa, "http://", 7)) {
+        pa = url + 7;
+    }
+    *host_name = url;
+    pb   = strchr(pa, '/');
+    if (pb) {
+        *pb = 0;
+        pb += 1;
+        if (*pb) {
+            *host_uri                   = pb;
+            *((*host_uri) + strlen(pb)) = 0;
+        }
+    } else {
+        (*host_name)[strlen(pa)] = 0;
+    }
+}
+
+/**
+ * ota_service_start  OTA service start: download and upgrade
+ *
+ * @param[in] void
+ *
+ * @return void
+ */
+int ota_service_start(ota_service_t *ctx)
+{
+    int ret = 0;
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_suspend_lowpower();
+#endif
+    ota_ctx = ctx;
+#if defined OTA_CONFIG_SECURE_DL_MODE
+    ota_wdg.config.timeout = 180000;
+    ota_boot_param_t temp  = {0};
+    ota_boot_param_t *param = &temp;
+    hal_wdg_init(&ota_wdg);
+    aos_timer_new(&ota_mon_tmr, ota_monitor_task, NULL, 3000, 1);
+    if(ota_is_download_mode() == 0){
+         return OTA_INIT_FAIL;
+    }
+    ota_read_parameter(param);
+#else 
+    ota_boot_param_t * param = ota_param;
+#endif
+    
+    if(param == NULL) {
+         return OTA_INIT_FAIL;
+    } 
+#if defined BOARD_ESP8266
+    aos_task_delete("linkkit");
+    ota_msleep(500);
+#endif
+    /* OTA download init */
+    ret = ota_download_init();
+    if(ret < 0) {
+        goto EXIT;
+    }
+    /* init ota partition */
+    ret = ota_int(param);
+    if(ret < 0) {
+        ret = OTA_INIT_FAIL;
+        goto EXIT;
+    }
+    /* download start */
+    ret = ota_download_start(param->url);
+    if (ret < 0) {
+        ota_param->upg_status = OTA_BREAKPOINT;
+        goto EXIT;
+    }
+    /* verify RSA signature */
+#if defined OTA_CONFIG_RSA
+    ret = ota_verify_download_rsa_sign((unsigned char*)param->sign, (const char*)param->hash, param->hash_type);
+    if(ret < 0) {
+        ret = OTA_VERIFY_RSA_FAIL;
+        goto EXIT;
+    }
+#endif
+    /* verify image */
+    if((param->upg_flag != OTA_UPGRADE_DIFF)&&(param->upg_flag != OTA_UPGRADE_CUST)) {
+        ret = ota_check_image(param->len);
+        if (ret < 0) {
+            ret = OTA_VERIFY_IMAGE_FAIL;
+            goto EXIT;
         }
     }
-    return value;
+EXIT:
+    OTA_LOG_E("upgrade complete ret:%d.\n", ret);
+    if(ret < 0) {
+        param->upg_status = ret;
+#if !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE
+        if(ctx != NULL)
+        ota_transport_status(ctx->pk, ctx->dn, ret);
+#endif
+    } else {
+        param->upg_status = OTA_FINISH;
+    }
+#ifdef AOS_COMP_PWRMGMT
+    pwrmgmt_resume_lowpower();
+#endif
+    if((ctx != NULL)&&(ctx->on_boot != NULL)) {
+        ctx->on_boot(param);
+    } else {
+        ota_set_boot(param);
+    }
+    return ret;
 }
 
-int ota_hex_str2buf(const char *src, char *dest, unsigned int dest_len)
+/**
+ * ota_parse_dl_url  OTA parse download url from transport message
+ *
+ * @param[in] char *json          transport message from Cloud.
+ *
+ * @return OTA_TRANSPORT_FAIL     transport errno.
+ */
+void ota_parse_dl_url(const char *json)
 {
-    int i, n = 0;
-    if((NULL == src) || (NULL == dest)) {
-        return -1;
-    }
-    if(dest_len < strlen(src) / 2) {
-        return -1;
-    }
-    for(i = 0; src[i]; i += 2) {
-        if(src[i] >= 'A' && src[i] <= 'F')
-            dest[n] = src[i] - 'A' + 10;
-        else
-            dest[n] = src[i] - '0';
-        if(src[i + 1] >= 'A' && src[i + 1] <= 'F')
-            dest[n] = (dest[n] << 4) | (src[i + 1] - 'A' + 10);
-        else dest[n] = (dest[n] << 4) | (src[i + 1] - '0');
-        ++n;
-    }
-    return n;
-}
-
-static int ota_parse(void *pctx, const char *json)
-{
-    int ret            = 0;
+    int ret            = OTA_PAR_SUCCESS;
     cJSON *root        = NULL;
-    ota_service_t *ctx = pctx;
-    if(NULL == ctx) {
-        ret = OTA_PARAM_FAIL;
-        goto parse_end;
+    if(ota_param == NULL) {
+        ret = OTA_INIT_FAIL;
+        goto EXIT;
     }
-    char          *url  = ctx->url;
-    char          *hash = ctx->hash;
-    unsigned char *sign = ctx->sign;
-    ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
-    if((NULL == url) || (NULL == hash) || (NULL == ota_param)) {
-        ret = OTA_PARAM_FAIL;
-        goto parse_end;
-    }
-
+    memset(ota_param->url, 0, sizeof(ota_param->url));
+    memset(ota_param->hash, 0, sizeof(ota_param->hash));
+    memset(ota_param->sign, 0, sizeof(ota_param->sign));
+    memset(ota_param->ver, 0, sizeof(ota_param->ver));
     root = cJSON_Parse(json);
     if (NULL == root) {
-        ret = OTA_PARAM_FAIL;
-        goto parse_end;
+        ret = OTA_TRANSPORT_PAR_FAIL;
+        goto EXIT;
     } else {
         cJSON *message = cJSON_GetObjectItem(root, "message");
         if (NULL == message) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+            ret = OTA_MESSAGE_PAR_FAIL;
+            goto EXIT;
         }
         if ((strncmp(message->valuestring, "success", strlen("success")))) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+            ret = OTA_SUCCESS_PAR_FAIL;
+            goto EXIT;
         }
         cJSON *json_obj = cJSON_GetObjectItem(root, "data");
         if (NULL == json_obj) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+            ret = OTA_DATA_PAR_FAIL;
+            goto EXIT;
         }
-        cJSON *resourceUrl = cJSON_GetObjectItem(json_obj, "url");
-        if (NULL == resourceUrl) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+        cJSON *url = cJSON_GetObjectItem(json_obj, "url");
+        if (NULL == url) {
+            ret = OTA_URL_PAR_FAIL;
+            goto EXIT;
         }
         cJSON *version = cJSON_GetObjectItem(json_obj, "version");
         if (NULL == version) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+            ret = OTA_VER_PAR_FAIL;
+            goto EXIT;
         }
-        strncpy(ctx->ota_ver, version->valuestring, sizeof(ctx->ota_ver));
-        strncpy(url, resourceUrl->valuestring, OTA_URL_LEN - 1);
+        int is_ota = strncmp(version->valuestring, ota_version_get(ota_ctx->dev_type, ota_ctx->dn), strlen(version->valuestring));
+        if(is_ota <= 0) {
+            ret = OTA_TRANSPORT_VER_FAIL;
+            goto EXIT;
+        }
+        strncpy(ota_param->url, url->valuestring, OTA_URL_LEN - 1);
         cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
         if (signMethod != NULL) {
-            memset(hash, 0x00, OTA_HASH_LEN);
-            ota_to_capital(signMethod->valuestring, strlen(signMethod->valuestring));
+            memset(ota_param->hash, 0x00, OTA_HASH_LEN);
+            ret = ota_to_capital(signMethod->valuestring, strlen(signMethod->valuestring));
+            if(ret != 0) {
+                ret = OTA_VER_PAR_FAIL;
+                goto EXIT;
+            }
             if (0 == strncmp(signMethod->valuestring, "MD5", strlen("MD5"))) {
                 cJSON *md5 = cJSON_GetObjectItem(json_obj, "sign");
                 if (NULL == md5) {
-                    ret = OTA_PARSE_FAIL;
-                    goto parse_end;
+                    ret = OTA_MD5_PAR_FAIL;
+                    goto EXIT;
                 }
-                ctx->hash_type = OTA_MD5;
-                strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
-                hash[strlen(md5->valuestring)] = '\0';
-                ota_to_capital(hash, strlen(hash));
+                ota_param->hash_type = OTA_MD5;
+                strncpy(ota_param->hash, md5->valuestring, strlen(md5->valuestring) + 1);
+                ota_param->hash[strlen(md5->valuestring)] = '\0';
+                ret = ota_to_capital(ota_param->hash, strlen(ota_param->hash));
+                if(ret != 0) {
+                    ret = OTA_VER_PAR_FAIL;
+                    goto EXIT;
+                }
             } else if (0 == strncmp(signMethod->valuestring, "SHA256", strlen("SHA256"))) {
                 cJSON *sha256 = cJSON_GetObjectItem(json_obj, "sign");
                 if (NULL == sha256) {
-                    ret = OTA_PARSE_FAIL;
-                    goto parse_end;
+                    ret = OTA_SHA256_PAR_FAIL;
+                    goto EXIT;
                 }
-                ctx->hash_type = OTA_SHA256;
-                strncpy(hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
-                hash[strlen(sha256->valuestring)] = '\0';
-                ota_to_capital(hash, strlen(hash));
+                ota_param->hash_type = OTA_SHA256;
+                strncpy(ota_param->hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
+                ota_param->hash[strlen(sha256->valuestring)] = '\0';
+                ret = ota_to_capital(ota_param->hash, strlen(ota_param->hash));
+                if(ret != 0) {
+                    ret = OTA_VER_PAR_FAIL;
+                    goto EXIT;
+                }
             } else {
-                ret = OTA_PARSE_FAIL;
-                goto parse_end;
+                ret = OTA_HASH_PAR_FAIL;
+                goto EXIT;
             }
         } else { /* old protocol*/
-            memset(hash, 0x00, OTA_HASH_LEN);
+            memset(ota_param->hash, 0x00, OTA_HASH_LEN);
             cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
             if (NULL == md5) {
-                ret = OTA_PARSE_FAIL;
-                goto parse_end;
+                ret = OTA_MD5_PAR_FAIL;
+                goto EXIT;
             }
-            ctx->hash_type = OTA_MD5;
-            strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
-            hash[strlen(md5->valuestring)] = '\0';
-            ota_to_capital(hash, strlen(hash));
+            ota_param->hash_type = OTA_MD5;
+            strncpy(ota_param->hash, md5->valuestring, strlen(md5->valuestring) + 1);
+            ota_param->hash[strlen(md5->valuestring)] = '\0';
+            ret = ota_to_capital(ota_param->hash, strlen(ota_param->hash));
+            if(ret != 0) {
+                ret = OTA_VER_PAR_FAIL;
+                goto EXIT;
+            }
         }
         cJSON *size = cJSON_GetObjectItem(json_obj, "size");
         if (NULL == size) {
-            ret = OTA_PARSE_FAIL;
-            goto parse_end;
+            ret = OTA_SIZE_PAR_FAIL;
+            goto EXIT;
         }
         ota_param->len = size->valueint;
-        ota_param->upg_flag = OTA_RAW;
-        cJSON *diff = cJSON_GetObjectItem(json_obj, "isDiff");
-        if (diff != NULL) {
-            int is_diff = diff->valueint;
-            if (is_diff > 0) {
-                ota_param->rec_size = size->valueint;
-                ota_param->upg_flag = OTA_DIFF;
-                cJSON *splictSize = cJSON_GetObjectItem(json_obj, "splictSize");
-                if (splictSize) {
-                    ota_param->splict_size = splictSize->valueint;
-                }
-            }
-        }
         cJSON *digestSign = cJSON_GetObjectItem(json_obj, "digestsign");
         if (digestSign != NULL) {
-           memset(sign, 0x00, OTA_SIGN_LEN);
-           ctx->sign_en = OTA_SIGN_ON;
-           ctx->sign_len = OTA_SIGN_LEN;
-           if(ota_base64_decode((const unsigned char *)digestSign->valuestring, strlen(digestSign->valuestring), sign, &ctx->sign_len) != 0 ) {
-                ret = OTA_PARSE_FAIL;
-                goto parse_end;
-            }
-            else if(ctx->sign_len != OTA_SIGN_LEN) {
-                ret = OTA_PARSE_FAIL;
-                goto parse_end;
-            }
-        } else {
-           ctx->sign_en = OTA_SIGN_OFF;
+           unsigned int sign_len = OTA_SIGN_LEN;
+           memset(ota_param->sign, 0x00, OTA_SIGN_LEN);
+           if(ota_base64_decode((const unsigned char *)digestSign->valuestring, strlen(digestSign->valuestring), (unsigned char*)ota_param->sign, &sign_len) != 0 ) {
+                ret = OTA_SIGN_PAR_FAIL;
+                goto EXIT;
+           }
         }
     }
 
-parse_end:
-    OTA_LOG_E("parse end ret:%d", ret);
-    if (root != NULL) {
-        cJSON_Delete(root);
+EXIT:
+    OTA_LOG_E("Parse Json ret:%d url:%s\n", ret, ota_param->url);
+    if(ret == OTA_TRANSPORT_VER_FAIL) {
+        OTA_LOG_E("ota version is too old, discard it.");
+        ota_transport_status(ota_ctx->pk, ota_ctx->dn, ret);
     }
-    return ret;
-}
-
-static void ota_download_thread(void *hand)
-{
-    int ret               = 0;
-    int tmp_breakpoint    = 0;
-    ota_hash_t last_hash  = {0};
-    ota_service_t *ctx    = hand;
-    if (NULL == ctx) {
-        OTA_LOG_E("ctx is NULL.\n");
-        ota_on_going_reset();
-        return;
-    }
-    ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
-    if (NULL == ctx->boot_param) {
-        ret = OTA_PARAM_FAIL;
-        ctx->upg_status = OTA_DOWNLOAD_FAIL;
-        goto ERR;
-    }
-#ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
-#endif
-#if (defined BOARD_ESP8266)
-    aos_task_delete("linkkit");
-    ota_msleep(500);
-    #ifdef WIFI_PROVISION_ENABLED
-    extern int awss_suc_notify_stop(void);
-    awss_suc_notify_stop();
-    #endif
-    #ifdef DEV_BIND_ENABLED
-    extern int awss_dev_bind_notify_stop(void);
-    awss_dev_bind_notify_stop();
-    #endif
-    aos_task_delete("event_task");
-    ota_msleep(500);
-#endif
-    tmp_breakpoint = ota_get_break_point();
-    memset(&last_hash, 0x00, sizeof(last_hash));
-    ota_get_last_hash_value((char *)&last_hash);
-    if (tmp_breakpoint && (strncmp((char *)&last_hash, ctx->hash, OTA_HASH_LEN) == 0)) {
-        ota_param->off_bp = ota_get_break_point();
+    else if(ret < 0) {
+        ret = OTA_TRANSPORT_PAR_FAIL;
+        ota_transport_status(ota_ctx->pk, ota_ctx->dn, ret);
     } else {
-        ota_param->off_bp = 0;
-    }
-    ota_param->res_type = OTA_FINISH;
-    ret = ota_hal_init((void *)(ota_param));
-    if(ret < 0) {
-        ctx->upg_status = OTA_DOWNLOAD_FAIL;
-        goto ERR;
-    }
-    ret = ota_make_global_hash_ctx(ctx->hash_type);
-    if (ret < 0) {
-        ret = OTA_PARAM_FAIL;
-        ctx->upg_status = OTA_DOWNLOAD_FAIL;
-        goto ERR;
-    }
-    ctx->upg_status = OTA_DOWNLOAD;
-    ctx->h_tr->status(0, ctx);
-    ret = ctx->h_dl->start((void *)ctx);
-    if (ret < 0) {
-        ota_param->res_type = OTA_BREAKPOINT;
-        ret = ota_hal_boot((void *)(ota_param));
-        ctx->upg_status = OTA_DOWNLOAD_FAIL;
-        goto ERR;
-    }
-    if (ret == OTA_CANCEL) {
-        ota_param->res_type = OTA_BREAKPOINT;
-        ret = ota_hal_boot((void *)(ota_param));
-        ctx->upg_status = OTA_CANCEL;
-        goto ERR;
-    }
-    ret = ota_check_hash((unsigned char)ctx->hash_type, ctx->hash);
-    if (ret < 0) {
-        ctx->upg_status = OTA_VERIFY_HASH_FAIL;
-        goto ERR;
-    }
-    if( ctx->sign_en == OTA_SIGN_ON) {
-#if defined OTA_CONFIG_RSA
-        ret = ota_verify_download_rsa_sign((unsigned char *)ctx->sign, (const char *)ctx->hash, ctx->hash_type);
-        if(ret < 0) {
-            ctx->upg_status = OTA_VERIFY_RSA_FAIL;
-            goto ERR;
-        }
-#endif
-    }
-    if(ota_param->upg_flag != OTA_DIFF) {
-        ret = ota_check_image(ota_param->len);
+#if defined CSP_LINUXHOST
+        void *thread = NULL;
+        ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)ota_ctx, NULL, 1024 * 6);
         if (ret < 0) {
-            ctx->upg_status = OTA_VERIFY_HASH_FAIL;
-            goto ERR;
+            OTA_LOG_E("ota thread create err;%d ",ret);
         }
-    }
-
-    ota_param->res_type = OTA_FINISH;
-    ret = ota_hal_boot(ota_param);
-    ctx->upg_status = OTA_REBOOT;
-    ota_set_break_point(0);
-ERR:
-    OTA_LOG_E("upgrade over err:%d", ret);
-#if defined (RDA5981x) || defined (RDA5981A)
-    OTA_LOG_I("clear ota part. \n");
-    ota_hal_init((void *)(ota_param));
-#endif
-#if (!defined BOARD_ESP8266)
-    ctx->h_tr->status(100, ctx);
-#endif
-    ota_free_global_hash_ctx();
-#ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_lowpower_resume(PWRMGMT_OTA);
-#endif
-    ota_on_going_reset();
-    ota_msleep(3000);
-    ota_reboot();
-}
-
-int ota_upgrade_cb(void *pctx, char *json)
-{
-    int ret = -1;
-    int is_ota = 0;
-    ota_service_t *ctx = pctx;
-    if ((NULL == ctx) || (NULL == json)) {
-        return ret;
-    }
-    if(ota_get_on_going_status() == 1) {
-        OTA_LOG_E("Ota is on going, go out!!!");
-        return ret;
-    }
-    if (0 == ota_parse(ctx, json)) {
-        ret = 0;
-        is_ota = strncmp(ctx->ota_ver,ctx->sys_ver,strlen(ctx->ota_ver));
-        if(is_ota > 0) {
-            void *thread = NULL;
-            ota_set_status_on_going();
-#if defined(OTA_CONFIG_TLS)
-            ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 6);
+#elif defined OTA_CONFIG_SECURE_DL_MODE
+        OTA_LOG_E("OTA secure mode.\n");
+        ota_param->upg_status = OTA_TRANSPORT;
+        ret = ota_update_parameter(ota_param);
+        if(ret != 0) {
+              ota_transport_status(ota_ctx->pk, ota_ctx->dn, OTA_TRANSPORT_PAR_FAIL);
+        }
+        ota_reboot();
 #else
-            ret = ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 4);
-#endif
-            if(ret < 0) {
-                ota_on_going_reset();
-                OTA_LOG_E("ota creat task failed!");
-            }
-        } else {
-            OTA_LOG_E("ota version is too old, discard it.");
-            ctx->upg_status = OTA_INIT_VER_FAIL;
-            ctx->h_tr->status(0, ctx);
+    {
+        OTA_LOG_E("OTA thread start.\n");
+        void *thread = NULL;
+        ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)ota_ctx, NULL, 1024 * 4);
+        if (ret < 0) {
+            OTA_LOG_E("ota thread create err;%d ",ret);
         }
     }
-    return ret;
+#endif
+    }
 }
 
+/**
+ * ota_service_init  OTA service init
+ *
+ * @param[in] ota_service_t *ctx OTA service context
+ *
+ * @return OTA_SUCCESS         OTA service init success.
+ * @return OTA_INIT_FAIL       OTA service init fail.
+ */
 int ota_service_init(ota_service_t *ctx)
 {
     int ret = 0;
+    char *version = NULL;
     if (NULL == ctx) {
-        ctx = ota_malloc(sizeof(ota_service_t));
-        if(NULL == ctx) {
-            ret = OTA_INIT_FAIL;
-            return ret;
-        }
-        memset(ctx, 0x00, sizeof(ota_service_t));
-    }
-    ota_hal_register_module(&ota_hal_module);
-    ctx->upgrade_cb = ota_upgrade_cb;
-    ctx->boot_param = ota_malloc(sizeof(ota_boot_param_t));
-    if(NULL == ctx->boot_param) {
         ret = OTA_INIT_FAIL;
         return ret;
     }
-    memset(ctx->boot_param, 0, sizeof(ota_boot_param_t));
-    if(ctx->inited > 0) {
+    ota_ctx = ctx;
+    if(ota_ctx->inited > 0) {
+        OTA_LOG_E("Reconnected, Redo OTA.");
+        ret = ota_transport_upgrade(ota_ctx->pk, ota_ctx->dn);
+        if(ret < 0) {
+           OTA_LOG_E("Failed to do OTA.");
+           ret = OTA_INIT_FAIL;
+           return ret;
+        } 
+    }
+    ota_ctx->inited = 1;
+    ota_param = ota_malloc(sizeof(ota_boot_param_t));
+    if(ota_param == NULL) {
         ret = OTA_INIT_FAIL;
         return ret;
     }
-    ctx->inited = 1;
-    ota_on_going_reset();
-    ctx->url = ota_malloc(OTA_URL_LEN);
-    if(NULL == ctx->url) {
-        ret = OTA_INIT_FAIL;
-        return ret;
-    }
-    memset(ctx->url, 0, OTA_URL_LEN);
-    ctx->hash = ota_malloc(OTA_HASH_LEN);
-    if(NULL == ctx->hash) {
-        ret = OTA_INIT_FAIL;
-        return ret;
-    }
-    memset(ctx->hash, 0, OTA_HASH_LEN);
-    ctx->sign = ota_malloc(OTA_SIGN_LEN);
-    if(NULL == ctx->sign) {
-        ret = OTA_INIT_FAIL;
-        return ret;
-    }
-    if(ota_hal_get_version(ctx->dev_type) == NULL) {
-        ret = OTA_INIT_FAIL;
-        return ret;
-    }
-    strncpy(ctx->sys_ver, ota_hal_get_version(ctx->dev_type), sizeof(ctx->sys_ver) - 1);
-    memset(ctx->sign, 0, OTA_SIGN_LEN);
-    ctx->h_tr = ota_get_transport();
-    ctx->h_dl = ota_get_download();
-    ctx->h_tr->init();
-    ret = ctx->h_tr->inform(ctx);
+    memset(ota_param, 0, sizeof(ota_boot_param_t));
+    /* transport init */
+    ret = ota_transport_init();
     if(ret < 0) {
-        return ret;
+        //goto EXIT; /*Fixme: share mqtt with linkkit, igonre: mqtt init return -2.*/
     }
-    ret = ctx->h_tr->upgrade(ctx);
-    OTA_LOG_I("ota init success, ver:%s type:%d", ctx->sys_ver, ctx->dev_type);
-    ota_hal_rollback(NULL);
+    /* inform version to cloud */
+    version = (char *)ota_version_get(ota_ctx->dev_type, ota_ctx->dn);
+    if(version == NULL) {
+        ret = OTA_INIT_FAIL;
+        goto EXIT;
+    }
+    ret = ota_transport_inform(ota_ctx->pk, ota_ctx->dn, version);
+    if(ret < 0) {
+        goto EXIT;
+    }
+    /* subcribe uprade */
+    ret = ota_transport_upgrade(ota_ctx->pk, ota_ctx->dn);
+    if(ret < 0) {
+        goto EXIT;
+    }
+    /* rollback set */
+    ret = ota_rollback();
+    if(ret < 0) {
+        ret = OTA_INIT_FAIL;
+        goto EXIT;
+    }
+    OTA_LOG_E("ota init success, ret:%d", ret);
+    return ret;
+EXIT:
+    if(ota_param != NULL) {
+        ota_free(ota_param);
+        ota_param = NULL;
+    }
+    OTA_LOG_E("ota init fail, ret:%d", ret);
+    ota_ctx->inited = 0;
     return ret;
 }
 
+/**
+ * ota_service_deinit  OTA service deinit
+ *
+ * @param[in] ota_service_t *ctx OTA service context
+ *
+ * @return OTA_SUCCESS         OTA service deinit success.
+ * @return OTA_INIT_FAIL       OTA service deinit fail.
+ */
 int ota_service_deinit(ota_service_t *ctx)
 {
-    if(NULL == ctx) {
-        return -1;
+    int ret = 0;
+    if(ota_param != NULL) {
+        ota_free(ota_param);
+        ota_param = NULL;
     }
-    if(ctx->h_ch) {
-        ota_free(ctx->h_ch);
-        ctx->h_ch = NULL;
+    if (NULL == ctx) {
+        ret = OTA_INIT_FAIL;
+        return ret;
     }
-    ctx->h_tr = NULL;
-    ctx->h_dl = NULL;
     ctx->inited = 0;
-    if(ctx->url != NULL) {
-        ota_free(ctx->url);
-        ctx->url = NULL;
-    }
-    if(ctx->hash != NULL) {
-        ota_free(ctx->hash);
-        ctx->hash = NULL;
-    }
-    if(ctx->sign != NULL) {
-        ota_free(ctx->sign);
-        ctx->sign = NULL;
-    }
-    if(ctx->boot_param != NULL) {
-        ota_free(ctx->boot_param);
-        ctx->boot_param = NULL;
-    }
-    if(ctx != NULL) {
-        ota_free(ctx);
-        ctx = NULL;
-    }
-    return 0;
+    return ret;
 }
