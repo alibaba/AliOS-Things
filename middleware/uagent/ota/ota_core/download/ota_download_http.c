@@ -3,41 +3,22 @@
  */
 
 #include <unistd.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
-#include "ota/ota_service.h"
 #include "ota_log.h"
-#include "ota_hal_os.h"
-#include "ota_hal_plat.h"
-#include "ota_verify.h"
+#include "http_api.h"
+#include "ota_crypto.h"
+#include "ota_import.h"
+#include "ota_plat_ctrl.h"
+#include "ota_hal_common.h"
+#include <network/network.h>
+#include "ota/ota_service.h"
 
-#ifndef EINTR
-#define EINTR 4
-#endif
-
-#define OTA_BUFFER_MAX_SIZE 513
-
-#define HTTP_HEADER \
-    "GET /%s HTTP/1.1\r\nAccept:*/*\r\n\
-User-Agent: Mozilla/5.0\r\n\
-Cache-Control: no-cache\r\n\
-Connection: close\r\n\
-Host:%s:%d\r\n\r\n"
-
-#define HTTP_HEADER_RESUME \
-    "GET /%s HTTP/1.1\r\nAccept:*/*\r\n\
-User-Agent: Mozilla/5.0\r\n\
-Cache-Control: no-cache\r\n\
-Connection: close\r\n\
-Range: bytes=%d-\r\n\
-Host:%s:%d\r\n\r\n"
-
-#if defined OTA_CONFIG_TLS
-static const char *ca = \
-{
-    \
+static int ota_upgrading = 0;
+static unsigned char dl_buf[OTA_DOWNLOAD_BLOCK_SIZE] = {0};
+#if !defined BOARD_ESP8266 && defined OTA_CONFIG_SECURE_DL_MODE
+static const char *ca_cert = \
+{   \
     "-----BEGIN CERTIFICATE-----\r\n"
     "MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
     "A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
@@ -61,271 +42,273 @@ static const char *ca = \
     "-----END CERTIFICATE-----"
 };
 #endif
-static int isHttps = 0;
+
 /**
- * @brief http_gethost_info
+ * ota_download_start  OTA download start
  *
- * @Param: src  url
- * @Param: web  WEB
- * @Param: file  download filename
- * @Param: port  default 80
+ * @param[in] char *url            download url
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
-static void http_gethost_info(char *src, char **web, char **file, int *port)
+int ota_download_start(char *url)
 {
-    char *pa;
-    char *pb;
-    isHttps = 0;
-    if ((src == NULL) || (strlen(src) == 0)) {
-        OTA_LOG_E("http_gethost_info parms error!");
-        return;
-    }
-    *port = 0;
-    if (!(*src)) {
-        return;
-    }
-    pa = src;
-    if (!strncmp(pa, "https://", strlen("https://"))) {
-        pa      = src + strlen("https://");
-        isHttps = 1;
-    }
-    if (!isHttps) {
-        if (!strncmp(pa, "http://", strlen("http://"))) {
-            pa = src + strlen("http://");
-        }
-    }
-    *web = pa;
-    pb   = strchr(pa, '/');
-    if (pb) {
-        *pb = 0;
-        pb += 1;
-        if (*pb) {
-            *file                   = pb;
-            *((*file) + strlen(pb)) = 0;
-        }
-    } else {
-        (*web)[strlen(pa)] = 0;
-    }
-#if defined OTA_CONFIG_TLS || defined OTA_CONFIG_ITLS
-    isHttps = 1;
-#else
-    isHttps = 0;
-#endif
-    pa = strchr(*web, ':');
-    if (pa) {
-        *pa   = 0;
-        *port = atoi(pa + 1);
-    } else {
-        if (isHttps) {
-            *port = 443;
-        } else {
-            *port = 80;
-        }
-    }
-}
-
-static int ota_download_start(void *pctx)
-{
-    int                  ret          = 0;
-    void                 *sockfd      = NULL;
-    int                  port         = 0;
-    int                  nbytes       = 0;
-    int                  send         = 0;
-    int                  totalsend    = 0;
-    int                  size         = 0;
-    int                  header_found = 0;
-    char                *pos          = 0;
-    int                  file_size    = 0;
-    ota_hash_ctx_t      *hash_ctx     = NULL;
-    char                *host_file    = NULL;
-    char                *host_addr    = NULL;
-    char                *http_buffer  = NULL;
-    void                *ssl          = NULL;
-    char                retry         = 0;
-    unsigned int        ota_percent   = 0;
-    unsigned int        divisor       = 10;
-    ota_service_t* ctx = (ota_service_t*)pctx;
-    if (ctx == NULL) {
-        ret = OTA_PARAM_FAIL;
-        return ret;
-    }
-    ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
-    if (ctx->boot_param == NULL) {
-        ret = OTA_PARAM_FAIL;
-        return ret;
-    }
-
-    char *url = ctx->url;
-    if ((url == NULL) || (strlen(url) == 0)) {
-        ret = OTA_PARAM_FAIL;
-        return ret;
-    }
-    http_gethost_info(url, &host_addr, &host_file, &port);
-    if (host_file == NULL || host_addr == NULL) {
-        ret = OTA_DOWNLOAD_IP_FAIL;
-        return ret;
-    }
-    if (isHttps) {
+    char hdr[512] = {0};
+    int ret = 0;
+    unsigned int offset = 0;
+    http_rsp_info_t rsp_info = {0};
+    char *content = NULL;
+    char *host_name = NULL;
+    char *host_uri = NULL;
+    int fd = 0;
+    int retry = OTA_DOWNLOAD_RETRY_CNT;
+    int i = 0;
+    int ota_rx_size = 0;
+    int ota_file_size = 0;
+    unsigned char ota_header_found = false;
+    httpc_connection_t settings = {0};
+    httpc_handle_t httpc_handle = 0;
+    int percent                 = 0;
+    int divisor                 = 10; 
 #if defined OTA_CONFIG_ITLS
-        char pkps[128] = {0};
-        int len = strlen(ctx->pk);
-        strncpy(pkps, ctx->pk, len);
-        HAL_GetProductSecret(pkps + len + 1);
-        len += strlen(pkps + len + 1) + 2;
-        ssl = ota_ssl_connect(host_addr, port, pkps,len);
-#elif defined OTA_CONFIG_TLS
-        ssl = ota_ssl_connect(host_addr, port, ca, strlen(ca) + 1);
+    char pkps[128] = {0};
 #endif
-        if (ssl == NULL) {
+    ota_service_t* ctx = ota_get_service_manager();
+    if(ota_upgrading == 1) {
+        ret = OTA_DOWNLOAD_INIT_FAIL;
+        return ret;
+    }
+    ota_parse_host_url((char*)url, &host_name, &host_uri);
+    if (host_name == NULL || host_uri == NULL) {
+        ret = OTA_DOWNLOAD_INIT_FAIL;
+        return ret;
+    }
+
+RETRY:
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        ret = OTA_DOWNLOAD_INIT_FAIL;
+        goto EXIT;
+    }
+    memset(&settings, 0, sizeof(settings));
+    settings.socket = fd;
+    settings.server_name = host_name;
+#if defined BOARD_ESP8266
+    settings.flags = 0x80;
+#elif defined OTA_CONFIG_ITLS
+    if(ctx != NULL) {
+        strncpy(pkps, ctx->pk, strlen(ctx->pk));
+        strncpy(pkps + strlen(ctx->pk) + 1, ctx->ps, strlen(ctx->ps));
+    }
+    settings.ca_cert = pkps;
+#elif defined OTA_CONFIG_SECURE_DL_MODE
+    settings.ca_cert = ca_cert;
+#else
+    settings.flags = 0x80;
+#endif
+    settings.req_buf = dl_buf;
+    settings.req_buf_size = OTA_DOWNLOAD_BLOCK_SIZE;
+    httpc_handle = httpc_init(&settings);
+    if (httpc_handle == 0) {
+        ret = OTA_DOWNLOAD_INIT_FAIL;
+        goto EXIT;
+    }
+
+    if (retry >= OTA_DOWNLOAD_RETRY_CNT) {
+        ret = httpc_construct_header(hdr, 512, "Accept", "*/*");
+        if (ret < 0) {
             ret = OTA_DOWNLOAD_CON_FAIL;
-            return ret;
+            goto EXIT;
         }
     } else {
-        sockfd = ota_socket_connect(host_addr, port);
-        if ((intptr_t)sockfd < 0) {
+        ota_msleep(6000);
+        char resume[64] = {0};
+        ota_snprintf(resume, 64, "bytes=%d-", offset);
+        ret = httpc_construct_header(hdr, 512, "Range", resume);
+        if (ret < 0) {
             ret = OTA_DOWNLOAD_CON_FAIL;
-            return ret;
+            goto EXIT;
         }
     }
-    http_buffer = ota_malloc(OTA_BUFFER_MAX_SIZE);
-    if(NULL == http_buffer) {
-        ret = OTA_DOWNLOAD_FAIL;
-        goto END;
-    }
-    hash_ctx = ota_get_hash_ctx();
-    if (hash_ctx == NULL) {
-        ret = OTA_DOWNLOAD_FAIL;
-        goto END;
-    }
-    memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    if (ota_param->off_bp) {
-        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE - 1, HTTP_HEADER_RESUME, host_file, ota_param->off_bp, host_addr, port);
-        ota_get_last_hash_ctx(hash_ctx);
-    } else {
-        ota_param->off_bp = 0;
-        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE - 1, HTTP_HEADER, host_file, host_addr, port);
-        if (ota_hash_init(hash_ctx) < 0) {
-            ret = OTA_VERIFY_HASH_FAIL;
-            goto END;
+    memset(dl_buf, 0, OTA_DOWNLOAD_BLOCK_SIZE);
+    for(i = 0; i < OTA_DOWNLOAD_RETRY_CNT; i++){
+        ret = httpc_send_request(httpc_handle, HTTP_GET, host_uri, hdr, NULL, NULL, 0);
+        if(ret >= 0){
+            break;
+        }
+        else {
+            ota_msleep(1500);
+            OTA_LOG_E("send cnt;%d ret:%d \n",i ,ret);
         }
     }
-    ota_set_cur_hash_value(ctx->hash);
-    send      = 0;
-    totalsend = 0;
-    nbytes    = strlen(http_buffer);
-    OTA_LOG_I("send %s", http_buffer);
-    while (totalsend < nbytes) {
-        send = ((isHttps) ? ota_ssl_send(ssl, (char *)(http_buffer + totalsend), (int)(nbytes - totalsend))
-                 :ota_socket_send(sockfd, http_buffer + totalsend, nbytes - totalsend));
-        if (send <= 0) {
-            ret = OTA_DOWNLOAD_WRITE_FAIL;
-            goto END;
-        }
-        totalsend += send;
-        OTA_LOG_I("%d bytes send.", totalsend);
+    if (ret < 0) {
+        ret = OTA_DOWNLOAD_REQ_FAIL;
+        goto EXIT;
     }
-    memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while (1) {
-        nbytes = ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1):ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1));
-        if(retry > 5) {
-             OTA_LOG_I("retry complete:%d",nbytes);
-             break;
-        } else if((nbytes <= 0)&&(retry <= 5)){
-             retry++;
-             OTA_LOG_I("retry cn:%d", retry);
-             ota_msleep(500);
-             continue;
+    ota_upgrading = 1;
+    memset(dl_buf, 0, OTA_DOWNLOAD_BLOCK_SIZE);
+    while (ota_file_size == 0 || ota_rx_size < ota_file_size) {
+        for(i = 0; i < OTA_DOWNLOAD_RETRY_CNT; i++){
+            ret = httpc_recv_response(httpc_handle, dl_buf, OTA_DOWNLOAD_BLOCK_SIZE, &rsp_info, OTA_DOWNLOAD_TIMEOUT);
+            if ((ret == HTTP_ERECV) || (ret == HTTP_ETIMEOUT)) {
+               ota_msleep(1500);
+               OTA_LOG_E("recv retry:%d ret:%d \n", i, ret);
+               continue;
+            } else {
+               break;
+            }
+        }
+        if (ota_upgrading == 0) {
+            OTA_LOG_E("download stop.\n");
+            ret = OTA_DOWNLOAD_RECV_FAIL;
+            break;
+        }
+        else if (ret < 0) {
+            ret = OTA_DOWNLOAD_RECV_FAIL;
+            break;
         } else {
-             retry = 0;
-        }
-        if (!header_found) {
-            if (!file_size) {
-                char *ptr = strstr(http_buffer, "Content-Length:");
-                if (ptr) {
-                    ret = sscanf(ptr, "%*[^ ]%d", &file_size);
-                    if(ret < 0) {
-                        OTA_LOG_E("Content-Length error.");
+            if (rsp_info.body_present || rsp_info.message_complete) {
+                if (ota_header_found == false) {
+                    if (ota_file_size == 0) {
+                        content = strstr((const char *)dl_buf, "Content-Length");
+                        if (content) {
+                            ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
+                            if (ret < 0) {
+                                OTA_LOG_I("header fail\n");
+                                break;
+                            }
+                            ota_header_found = true;
+                            OTA_LOG_I("header file size %d\r\n", ota_file_size);
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    content = strstr((const char *)dl_buf, "\r\n\r\n");
+                    if (content) {
+                        content += 4;
+                        ota_rx_size = rsp_info.rsp_len - ((unsigned char *)content - dl_buf);
+                        if((ctx != NULL)&&(ctx->on_data != NULL)) {
+                            ret = ctx->on_data(content, ota_rx_size);
+                        } else {
+                            ret = ota_write(&offset, content, ota_rx_size);
+                        }
+                        if (ret < 0) {
+                            ret = OTA_UPGRADE_WRITE_FAIL;
+                            goto EXIT;
+                        }
+                    }
+                }
+                else {
+                    if((ctx != NULL)&&(ctx->on_data != NULL)) {
+                        ret = ctx->on_data((char *)dl_buf, rsp_info.rsp_len);
+                    } else {
+                        ret = ota_write(&offset, (char *)dl_buf, rsp_info.rsp_len);
+                    }
+                    if (ret < 0) {
+                         ret = OTA_UPGRADE_WRITE_FAIL;
+                         goto EXIT;
+                    }
+                    ota_rx_size += rsp_info.rsp_len;
+                }
+                //OTA_LOG_E("ota (%d/%d) recv len:%d \r\n", ota_rx_size, ota_file_size, rsp_info.rsp_len);
+                if(ota_file_size) {
+                    percent = (ota_rx_size * 100) /ota_file_size;
+                    if(percent / divisor) {
+                         divisor += 10;
+                         if((ctx != NULL)&&(ctx->on_percent != NULL)) {
+                             ctx->on_percent(percent);
+                         } else {
+#if !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE
+                             if(ctx != NULL)
+                             ota_transport_status(ctx->pk, ctx->dn, percent);
+#endif
+                         }
+                         OTA_LOG_I("ota recv data(%d/%d)\r\n", ota_rx_size, ota_file_size);
                     }
                 }
             }
-            pos = strstr(http_buffer, "\r\n\r\n");
-            if (pos != NULL) {
-                pos += 4;
-                int len      = pos - http_buffer;
-                header_found = 1;
-                size         = nbytes - len;
-                if (ota_hash_update((const unsigned char *)pos, size, hash_ctx) < 0) {
-                    ota_set_break_point(0);
-                    ret = OTA_VERIFY_HASH_FAIL;
-                    goto END;
-                }
-                ret = ota_hal_write(&ota_param->off_bp, pos, size);
-                if (ret < 0) {
-                    ret = OTA_UPGRADE_FAIL;
-                    goto END;
-                }
-            }
-            memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-            continue;
         }
-        if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx) < 0) {
-            ota_set_break_point(0);
-            ret = OTA_VERIFY_HASH_FAIL;
-            goto END;
-        }
-        ret = ota_hal_write(NULL, http_buffer, nbytes);
-        if (ret < 0) {
-            ret = OTA_UPGRADE_FAIL;
-            goto END;
-        }
-        size += nbytes;
-        if(file_size) {
-            ota_percent = ((long long)size * 100) / (long long)file_size;
-            if(ota_percent / divisor) {
-                divisor += 5;
-#if (!defined BOARD_ESP8266)
-                ctx->h_tr->status(ota_percent, ctx);
-#endif
-                OTA_LOG_I("s:%d %d per:%d", size, nbytes, ota_percent);
-            }
-        }
-        if (size == file_size) {
-            nbytes = 0;
-            break;
-        }
+    }
 
-        if (ctx->upg_status == OTA_CANCEL) {
-            break;
-        }
+EXIT:
+    ota_upgrading = 0;
+    if(settings.socket > 0) {
+        close(settings.socket);
+        settings.socket = 0;
     }
-    if (nbytes < 0) {
-        ota_save_state(size + ota_param->off_bp, hash_ctx);
-        ret = OTA_DOWNLOAD_FAIL;
-    } else if (nbytes == 0) {
-        ota_set_break_point(0);
-    } else {
-        ota_save_state(size + ota_param->off_bp, hash_ctx);
-        ret = OTA_CANCEL;
+    if(httpc_handle > 0) {
+        httpc_deinit(httpc_handle);
+        httpc_handle = 0;
     }
-END:
-    OTA_LOG_I("download finish ret:%d err:%d.", ret, errno);
-    if(http_buffer)
-        ota_free(http_buffer);
-    if(sockfd)
-        ota_socket_close(sockfd);
+    httpc_handle = 0;
+    ota_header_found = false;
+    ota_file_size = 0;
+    ota_rx_size = 0;
+    if(ret < 0 && retry > 0){
+        retry--;
+        OTA_LOG_E("retry ret:%d  count:%d \n", ret, retry);
+        goto RETRY;
+    }
+    OTA_LOG_E("compelte:%d \n", ret);
     return ret;
 }
 
-static int ota_download_stop(void)
+/**
+ * ota_download_init  OTA download init
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed. 
+ */
+int ota_download_stop(void)
 {
-    return 0;
+    int ret = 0;
+    ota_upgrading = 0;
+    return ret;
 }
 
-static ota_download_t dl_http = {
-    .start = ota_download_start,
-    .stop  = ota_download_stop,
-};
-
-ota_download_t *ota_get_download(void)
+/**
+ * ota_download_init  OTA download init
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
+ */
+int ota_download_init(void)
 {
-    return &dl_http;
+    int ret = 0;
+    ret = http_client_initialize();
+    if(ret < 0) {
+        ret = OTA_DOWNLOAD_INIT_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * ota_download_deinit  OTA download deinit
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
+ */
+int ota_download_deinit(void)
+{
+    int ret = 0;
+    return ret;
 }
