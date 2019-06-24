@@ -9,6 +9,7 @@ scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
     "gprs": ["templates/sal_gprs_template", "drivers/sal/gprs"],
     "wifi": ["templates/sal_wifi_template", "drivers/sal/wifi"],
+    "lte": ["templates/sal_lte_template", "drivers/sal/lte"],
 }
 
 

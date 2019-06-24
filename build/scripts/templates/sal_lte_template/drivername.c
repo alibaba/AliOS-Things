@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <atcmd_config_platform.h>
-#include <atcmd_config_module.h>
-
 #include <sal_import.h>
+
+#include <atcmd_config_module.h>
+#include <atcmd_config_platform.h>
 
 /* To implement SAL Init */
 static int HAL_SAL_Init(void)
@@ -60,7 +60,7 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     /* add your code here */
     return 0;
 }
- 
+
 /* To implement the driver configuration */
 static int @drivername@_sal_add_dev(void* data)
 {
