@@ -70,7 +70,7 @@ static int @drivername@_sal_add_dev(void* data)
     return 0;
 }
 
-sal_op_t sal_op = {
+static sal_op_t sal_op = {
     .next = NULL,
     .version = "1.0.0",
     .name = "@drivername@",
@@ -84,7 +84,7 @@ sal_op_t sal_op = {
     .register_netconn_data_input_cb = HAL_SAL_RegisterNetconnDataInputCb,
 };
 
-int @drivername@_sal_init(void)
+int @drivername@_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
 }
