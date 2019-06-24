@@ -36,10 +36,10 @@
 /**
  * Loopback demo related options.
  */
-//#define LWIP_NETIF_LOOPBACK             1
-//#define LWIP_HAVE_LOOPIF                1
-//#define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
-//#define LWIP_LOOPBACK_MAX_PBUFS         8
+#define LWIP_NETIF_LOOPBACK             1
+#define LWIP_HAVE_LOOPIF                1
+#define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
+#define LWIP_LOOPBACK_MAX_PBUFS         8
 
 #define TCPIP_THREAD_NAME               "tcp/ip"
 #define TCPIP_THREAD_STACKSIZE          3072
