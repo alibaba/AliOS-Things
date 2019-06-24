@@ -126,5 +126,22 @@ int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flag
  */
 int32_t httpc_wrapper_recv(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout);
 
-#endif  /* HTTP_CLIENT_WRAPPER_H */
+/**
+ * Initialize http mutex, do not need to impl in single task env
+ *
+ */
+void httpc_wrapper_init_mutex(void);
 
+/**
+ * Lock http mutex, do not need to impl in single task env
+ *
+ */
+void httpc_wrapper_lock_mutex(void);
+
+/**
+ * Unlock http mutex, do not need to impl in single task env
+ *
+ */
+void httpc_wrapper_unlock_mutex(void);
+
+#endif  /* HTTP_CLIENT_WRAPPER_H */

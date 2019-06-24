@@ -12,8 +12,14 @@
 #include "http_wrapper.h"
 
 #if CONFIG_HTTP_SECURE
+#if CONFIG_HTTP_SECURE_ITLS
+#include "itls/ssl.h"
+#include "itls/net.h"
+#include "itls/debug.h"
+#else
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/debug.h"
+#endif
 #endif
 
 #define HTTP_WRAPPER_SEND_TIMEOUT 10000
@@ -58,10 +64,10 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
         if (ret > 0) {
             if (FD_ISSET(socket, &sets)) {
                 if (http_session == NULL) {
-                    ret = recv(socket, data, size - recv_len, 0);
+                    ret = recv(socket, data + recv_len, size - recv_len, 0);
                 } else {
 #if CONFIG_HTTP_SECURE
-                    ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size - recv_len);
+                    ret = mbedtls_ssl_read(&http_session->https.ssl.context, data + recv_len, size - recv_len);
 #else
                     ret = HTTP_ENOTSUPP;
 #endif
@@ -83,6 +89,13 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
         } else if (ret == 0) {
             ret = HTTP_ETIMEOUT;
         } else {
+            if (EINTR == errno
+#if CONFIG_HTTP_SECURE
+                || ret == MBEDTLS_ERR_SSL_WANT_READ
+#endif
+                ) {
+                continue;
+            }
             ret = HTTP_ERECV;
         }
 
@@ -94,7 +107,7 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
     return (recv_len > 0? recv_len: ret);
 }
 
-static int32_t send_func(int32_t socket, uint8_t *data, uint32_t size, int flags, httpc_handle_t httpc)
+static int32_t send_func(int32_t socket, const uint8_t *data, uint32_t size, int flags, httpc_handle_t httpc)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     struct timeval tv;
@@ -127,10 +140,10 @@ static int32_t send_func(int32_t socket, uint8_t *data, uint32_t size, int flags
         if (ret > 0) {
             if (FD_ISSET(socket, &sets)) {
                 if (http_session == NULL) {
-                    ret = send(socket, data, size - sent_len, 0);
+                    ret = send(socket, data + sent_len, size - sent_len, 0);
                 } else {
 #if CONFIG_HTTP_SECURE
-                    ret = mbedtls_ssl_write(&http_session->https.ssl.context, data, size - sent_len);
+                    ret = mbedtls_ssl_write(&http_session->https.ssl.context, data + sent_len, size - sent_len);
 #else
                     ret = HTTP_ENOTSUPP;
 #endif
@@ -149,6 +162,9 @@ static int32_t send_func(int32_t socket, uint8_t *data, uint32_t size, int flags
         } else if (ret == 0) {
             ret = HTTP_ETIMEOUT;
         } else {
+            if (EINTR == errno) {
+                continue;
+            }
             ret = HTTP_ESEND;
         }
 
@@ -211,11 +227,31 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
 {
     httpc_t *http_session = (httpc_t *)httpc;
     int32_t ret = 0;
+#if CONFIG_HTTP_SECURE_ITLS
+    const char *product_key = NULL;
+    const char *product_secret = NULL;
+#endif
 
     if (http_session->https.is_inited == false) {
         mbedtls_ssl_init(&http_session->https.ssl.context);
         mbedtls_ssl_config_init(&http_session->https.ssl.conf);
 
+#if CONFIG_HTTP_SECURE_ITLS
+        product_key = (const char *)http_session->https.ssl.ca_cert_c;
+        product_secret = (const char *)(http_session->https.ssl.ca_cert_c + strlen(product_key) + 1);
+        ret = mbedtls_ssl_conf_auth_extra(&http_session->https.ssl.conf, product_key,
+                                          strlen(product_key));
+        if (ret != 0) {
+            http_log("%s, mbedtls_ssl_conf_auth_extra err -0x%x", __func__, -ret);
+            goto exit;
+        }
+        ret = mbedtls_ssl_conf_auth_token(&http_session->https.ssl.conf, product_secret,
+                                          strlen(product_secret));
+        if (ret != 0) {
+            http_log("%s, mbedtls_ssl_conf_auth_token err -0x%x", __func__, -ret);
+            goto exit;
+        }
+#else
         mbedtls_x509_crt_init(&http_session->https.ssl.ca_cert);
         if (http_session->https.ssl.ca_cert_c != NULL) {
             ret = mbedtls_x509_crt_parse(&http_session->https.ssl.ca_cert, http_session->https.ssl.ca_cert_c,
@@ -228,6 +264,7 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
 
         mbedtls_ssl_conf_ca_chain(&http_session->https.ssl.conf, &http_session->https.ssl.ca_cert, NULL);
         mbedtls_ssl_conf_authmode(&http_session->https.ssl.conf, MBEDTLS_SSL_VERIFY_REQUIRED);
+#endif
 
         ret = mbedtls_ssl_config_defaults(&http_session->https.ssl.conf,
                                           MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM,
@@ -237,9 +274,7 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
             goto exit;
         }
 
-        mbedtls_debug_set_threshold(3);
         mbedtls_ssl_conf_dbg(&http_session->https.ssl.conf, ssl_debug, NULL);
-
         mbedtls_ssl_conf_rng(&http_session->https.ssl.conf, ssl_random, NULL);
         ret = mbedtls_ssl_setup(&http_session->https.ssl.context, &http_session->https.ssl.conf);
         if (ret < 0) {
@@ -275,6 +310,13 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
 exit:
     if (ret != 0) {
         ret = HTTP_ECONN;
+        http_session->https.is_inited = false;
+        mbedtls_ssl_close_notify(&(http_session->https.ssl.context));
+#if CONFIG_HTTP_SECURE_ITLS == 0
+        mbedtls_x509_crt_free(&(http_session->https.ssl.ca_cert));
+#endif
+        mbedtls_ssl_free(&(http_session->https.ssl.context));
+        mbedtls_ssl_config_free(&(http_session->https.ssl.conf));
     }
     return ret;
 }
@@ -286,7 +328,9 @@ int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc)
 
     http_session->https.is_inited = false;
     mbedtls_ssl_close_notify(&(http_session->https.ssl.context));
+#if CONFIG_HTTP_SECURE_ITLS == 0
     mbedtls_x509_crt_free(&(http_session->https.ssl.ca_cert));
+#endif
     mbedtls_ssl_free(&(http_session->https.ssl.context));
     mbedtls_ssl_config_free(&(http_session->https.ssl.conf));
     return HTTP_SUCCESS;
@@ -314,12 +358,37 @@ int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t
 
 int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flags)
 {
-    return send_func(socket, data, size, flags, NULL);
+    return send_func(socket, data, size, flags, (httpc_handle_t)NULL);
 }
 
 int32_t httpc_wrapper_recv(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout)
 {
-    return recv_func(socket, data, size, timeout, NULL);
+    return recv_func(socket, data, size, timeout, (httpc_handle_t)NULL);
+}
+
+#if CONFIG_HTTP_ENABLE_MUTEX
+static aos_mutex_t http_mutex;
+#endif
+
+void httpc_wrapper_init_mutex(void)
+{
+#if CONFIG_HTTP_ENABLE_MUTEX
+    aos_mutex_new(&http_mutex);
+#endif
+}
+
+void httpc_wrapper_lock_mutex(void)
+{
+#if CONFIG_HTTP_ENABLE_MUTEX
+    aos_mutex_lock(&http_mutex, AOS_WAIT_FOREVER);
+#endif
+}
+
+void httpc_wrapper_unlock_mutex(void)
+{
+#if CONFIG_HTTP_ENABLE_MUTEX
+    aos_mutex_unlock(&http_mutex);
+#endif
 }
 
 void http_log(const char *fmt, ...)
