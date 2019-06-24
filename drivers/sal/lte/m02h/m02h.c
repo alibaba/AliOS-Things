@@ -783,7 +783,7 @@ static int m02h_lte_get_apn_ip(char *apn, int apn_len, char *ipaddr, int ip_len)
     return 0;
 }
 
-int HAL_SAL_Init(void)
+static int HAL_SAL_Init(void)
 {
     int ret = 0;
     uint32_t linknum = 0;
@@ -869,7 +869,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Deinit()
+static int HAL_SAL_Deinit()
 {
     if (!inited) {
         return 0;
@@ -988,7 +988,7 @@ static int m02h_lte_context_sync(void)
     return 0;
 }
 
-int HAL_SAL_DomainToIp(char *domain, char ip[16])
+static int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     char cmd[M02H_DNS_CMD_RSP_LEN] = {0};
     char rsp[M02H_DNS_CMD_RSP_LEN] = {0};
@@ -1030,7 +1030,7 @@ end:
     return ret;
 }
 
-int HAL_SAL_Start(sal_conn_t *conn)
+static int HAL_SAL_Start(sal_conn_t *conn)
 {
     int  linkid = 0;
     char *pccmd = NULL;
@@ -1120,7 +1120,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Close(int fd, int32_t remote_port)
+static int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -1157,7 +1157,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
 }
 
 
-int HAL_SAL_Send(int fd,
+static int HAL_SAL_Send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
@@ -1204,7 +1204,7 @@ int HAL_SAL_Send(int fd,
     return 0;
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -1212,7 +1212,7 @@ int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-int m02h_sal_add_dev(char* driver_name, void* data)
+static int m02h_sal_add_dev(char* driver_name, void* data)
 {
     at_config_t at_config = { 0 };
 
