@@ -77,7 +77,7 @@ def update_configin(configin_file, devicetype, drivername):
 @click.command()
 @click.argument("drivername", metavar="[DRIVERNAME]")
 @click.option("-m", "--mfname", help="The manufacturer of device")
-@click.option("-t", "--devicetype", required=True, type=click.Choice(["gprs", "wifi"]), help="The type of device")
+@click.option("-t", "--devicetype", required=True, type=click.Choice(["gprs", "wifi", "lte"]), help="The type of device")
 @click.option("-a", "--author", help="The author of driver")
 def cli(drivername, mfname, devicetype, author):
     """ Create sal driver staging from template """
