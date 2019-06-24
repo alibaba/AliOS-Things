@@ -13,3 +13,4 @@ else
 $(NAME)_COMPONENTS += cli
 endif
 
+GLOBAL_DEFINES += CONFIG_YTS_TEST

@@ -36,10 +36,12 @@
 /**
  * Loopback demo related options.
  */
-//#define LWIP_NETIF_LOOPBACK             1
-//#define LWIP_HAVE_LOOPIF                1
-//#define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
-//#define LWIP_LOOPBACK_MAX_PBUFS         8
+#ifdef CONFIG_YTS_TEST
+#define LWIP_NETIF_LOOPBACK             1
+#define LWIP_HAVE_LOOPIF                1
+#define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
+#define LWIP_LOOPBACK_MAX_PBUFS         8
+#endif
 
 #define TCP_MAXRTX                      5
 
