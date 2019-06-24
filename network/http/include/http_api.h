@@ -24,9 +24,9 @@ enum {
     HTTP_ETIMEOUT = -9,  // timeout
 };
 
-#define HTTP_ALWAYS_HTTP 0x80
+#define HTTP_ALWAYS_HTTP_FLAG 0x80
 
-typedef int32_t httpc_handle_t;
+typedef uint32_t httpc_handle_t;
 
 /* http client connection settings */
 typedef struct httpc_connection_s {
@@ -49,9 +49,9 @@ typedef struct httpc_connection_s {
 
 typedef struct http_rsp_info_s {
     uint32_t rsp_len;
+    uint8_t *body_start;
     uint8_t content_len_present:1;
     uint8_t body_present:1;
-    uint8_t *body_start;
     uint8_t message_complete:1;
     uint8_t headers_complete:1;
 } http_rsp_info_t;
@@ -105,7 +105,7 @@ int8_t httpc_deinit(httpc_handle_t httpc);
  * @return HTTP_ESEND    send request fail
  *
  */
-int8_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
+int8_t httpc_send_request(httpc_handle_t httpc, int8_t method, char *uri,
                           const char *hdr, const char *content_type, const char *param, uint16_t param_len);
 
 /**

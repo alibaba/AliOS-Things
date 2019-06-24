@@ -5,7 +5,9 @@
 #ifndef HTTP_DEF_CONFIG_H
 #define HTTP_DEF_CONFIG_H
 
+#ifdef CONFIG_DEFINE_HTTP_CONFIG
 #include "http_config.h"
+#endif
 
 #ifndef CONFIG_HTTPC_SESSION_NUM
 #define CONFIG_HTTPC_SESSION_NUM 1
@@ -25,6 +27,16 @@
 
 #ifndef CONFIG_HTTP_SECURE
 #define CONFIG_HTTP_SECURE 0
+#endif
+
+#if CONFIG_HTTP_SECURE
+#ifndef CONFIG_HTTP_SECURE_ITLS
+#define CONFIG_HTTP_SECURE_ITLS 0
+#endif
+#endif
+
+#ifndef CONFIG_HTTP_ENABLE_MUTEX
+#define CONFIG_HTTP_ENABLE_MUTEX 1
 #endif
 
 #define CONFIG_HTTP_DEBUG

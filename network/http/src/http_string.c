@@ -21,15 +21,11 @@ bool http_str_search(char *src, char *searched, uint32_t offset,
 
     dst_start_pos = strstr(src_start_pos, searched);
     if (dst_start_pos == NULL) {
+        src_start_pos[scope] = orig_char;
         return false;
     }
     pos = dst_start_pos - src_start_pos + 1;
-
     src_start_pos[scope] = orig_char;
-
-    if (pos == 0) {
-        return false;
-    }
 
     if (param) {
         param->param = src_start_pos;
