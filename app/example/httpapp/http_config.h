@@ -5,6 +5,7 @@
 #ifndef HTTP_CONFIG_H
 #define HTTP_CONFIG_H
 
+#define CONFIG_HTTP_SECURE 0
 #define CONFIG_HTTPC_DEFAULT_CLIENT "Mozilla/5.0"
 
 #endif
