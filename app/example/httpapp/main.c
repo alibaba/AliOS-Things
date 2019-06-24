@@ -26,6 +26,7 @@ enum {
     HTTP_AUTH,
     HTTP_OTA,
     HTTP_OTA_HEAD,
+    HTTP_DYNAMIC_UP,
     HTTP_INVALID,
 };
 
@@ -52,7 +53,8 @@ uint32_t auth_req_times = 0;
 uint32_t auth_req_fail_times = 0;
 uint32_t auth_rsp_times = 0;
 #endif
-char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://mjfile-test.smartmidea.net:80";
+static char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80";
+static char oss_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://aliosthings.oss-cn-hangzhou.aliyuncs.com/";
 uint32_t ota_req_times = 0;
 uint32_t ota_req_fail_times = 0;
 uint32_t ota_rsp_times = 0;
@@ -397,6 +399,65 @@ exit:
     return ret;
 }
 
+#define HTTP_UP_HDR_SIZE 64
+static char bin_to_up[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
+static char up_url[256];
+static uint32_t up_req_times = 0;
+static uint32_t up_rsp_times = 0;
+static uint32_t up_req_fail_times = 0;
+
+static int32_t httpc_up(char *uri)
+{
+    char hdr[HTTP_UP_HDR_SIZE] = { 0 };
+    int32_t ret;
+    http_rsp_info_t rsp_info;
+
+    if (uri == NULL) {
+        return HTTP_EARG;
+    }
+
+    ret = httpc_construct_header(hdr, HTTP_UP_HDR_SIZE, "Accept",
+                                 "text/xml,text/javascript,text/html,application/json");
+    if (ret < 0) {
+        LOG("http construct header fail\n");
+        return ret;
+    }
+
+    ret = httpc_send_request(httpc_handle, HTTP_PUT, uri, hdr, "", bin_to_up, sizeof(bin_to_up));
+    ++up_req_times;
+    if (ret != HTTP_SUCCESS) {
+        ++up_req_fail_times;
+        goto exit;
+    }
+
+    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    if (ret < 0) {
+        ++up_req_fail_times;
+    } else {
+        LOG("http session %x, buf size %d bytes, recv %d bytes data",
+            httpc_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        if (rsp_info.rsp_len > 0) {
+            LOG("%s", rsp_buf);
+        }
+
+        if (rsp_info.message_complete) {
+            ++up_rsp_times;
+        }
+    }
+
+exit:
+    close(settings.socket);
+    httpc_deinit(httpc_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpc_running = true;
+#endif
+    httpc_handle = 0;
+
+    LOG("up_req_times %d, up_rsp_times %d, up_req_fail_times %d",
+        up_req_times, up_rsp_times, up_req_fail_times);
+    return ret;
+}
+
 #define REQ_BUF_SIZE 1024
 uint8_t req_buf[REQ_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
@@ -425,6 +486,8 @@ static void httpc_delayed_action(void *arg)
 #endif
     if (command == HTTP_OTA || command == HTTP_OTA_HEAD) {
         settings.server_name = ota_server_name;
+    } else if (command == HTTP_DYNAMIC_UP) {
+        settings.server_name = oss_server_name;
     } else {
         close(fd);
         goto exit;
@@ -457,6 +520,9 @@ static void httpc_delayed_action(void *arg)
         case HTTP_OTA_HEAD:
             httpc_ota_head("/050509031881.bin");
             break;
+        case HTTP_DYNAMIC_UP:
+            httpc_up(up_url);
+            break;
         default:
             break;
     }
@@ -487,6 +553,15 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
         } else if (strncmp(type, "ota_head", strlen(type)) == 0) {
             command = HTTP_OTA_HEAD;
             httpc_running = true;
+        } else if (strncmp(type, "up", strlen(type)) == 0) {
+            if (argc > 2) {
+                memset(up_url, 0, sizeof(up_url));
+                strncpy(up_url, argv[2], sizeof(up_url)) - 1;
+                command = HTTP_DYNAMIC_UP;
+                httpc_running = true;
+            } else {
+                LOG("miss url address\n");
+            }
         } else {
             LOG("unknown command\n");
             return;
@@ -496,7 +571,7 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 
 static struct cli_command httpc_cmd = {
     .name = "httpc",
-    .help = "httpc auth | ota | ota_head | stop",
+    .help = "httpc auth | ota | ota_head | up | stop",
     .function = httpc_cmd_handle
 };
 
