@@ -35,7 +35,7 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
             }
             else {
                 ret = hal_flash_erase(boot_part, ota_receive_total_len, part_info->partition_length);
-            } 
+            }
         }
         OTA_LOG_I("ota init part:%d len:%d \n", boot_part, param->len);
     }
@@ -108,10 +108,12 @@ OTA_WEAK int ota_hal_read(unsigned int *off, char *out_buf, unsigned int out_buf
     return ret;
 }
 
+#ifndef OTA_DUBANK
 OTA_WEAK int hal_reboot_bank(void)
 {
     return 0;
 }
+#endif
 
 OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
 {

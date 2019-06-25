@@ -422,37 +422,27 @@ END:
 #if !defined (AOS_COMP_OTA_BLE)
 void ota_sha256_free(ota_sha256_context *ctx)
 {
-#if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_free((mbedtls_sha256_context *)ctx);
-#endif
 }
 
 void ota_sha256_init(ota_sha256_context *ctx)
 {
-#if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_init((mbedtls_sha256_context *)ctx);
-#endif
 }
 
 void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
-#if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_starts((mbedtls_sha256_context *)ctx, is224);
-#endif
 }
 
 void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-#if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_update((mbedtls_sha256_context *)ctx, input, ilen);
-#endif
 }
 
 void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
-#if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_finish((mbedtls_sha256_context *)ctx, output);
-#endif
 }
 /*MD5*/
 
