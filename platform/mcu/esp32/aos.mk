@@ -21,6 +21,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/spi_flash/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/container/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
 
+GLOBAL_CFLAGS  += -DOTA_DUBANK
 GLOBAL_CFLAGS  += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -DESPOS_FOR_ESP32
 GLOBAL_LDFLAGS += -nostdlib -Lplatform/mcu/esp32/ -lc
 GLOBAL_LDFLAGS += -lgcc -lstdc++ -lgcov -lm
@@ -41,7 +42,6 @@ $(NAME)_SOURCES += bsp/setboot_cli.c
 $(NAME)_SOURCES += hal/uart.c
 $(NAME)_SOURCES += hal/flash.c
 $(NAME)_SOURCES += hal/wifi_port.c
-$(NAME)_SOURCES += hal/ota.c
 $(NAME)_SOURCES += bsp/heap_oram.c
 ifeq ($(ble),1)
 $(NAME)_SOURCES += hal/ble_port.c
