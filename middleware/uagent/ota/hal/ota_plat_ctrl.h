@@ -13,6 +13,7 @@
 #endif
 
 int ota_rollback(void);
+int hal_reboot_bank(void);
 int ota_is_download_mode(void);
 int ota_int(ota_boot_param_t *param);
 int ota_set_boot(ota_boot_param_t *param);
