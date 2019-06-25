@@ -21,6 +21,8 @@ GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
 
 GLOBAL_INCLUDES  += common
 
+GLOBAL_CFLAGS    += -DOTA_DUBANK
+
 GLOBAL_CFLAGS    += -u call_user_start    \
                     -fno-inline-functions \
                     -ffunction-sections   \
