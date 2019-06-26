@@ -2,11 +2,16 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifdef DEPRECATED_LINKKIT
-#else
 #include "stdio.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
 #include "app_entry.h"
 
 #define PRODUCT_KEY      "a1X2bEnP82z"
@@ -199,4 +204,3 @@ int linkkit_main(void *paras)
 
     return 0;
 }
-#endif

@@ -1,12 +1,16 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/solo.c"
-#else
 #include "stdio.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
 #include "cJSON.h"
 #include "app_entry.h"
 
@@ -447,7 +451,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
-    IOT_RegisterCallback(ITE_SERVICE_REQUST, user_service_request_event_handler);
+    IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
@@ -540,4 +544,3 @@ int linkkit_main(void *paras)
 
     return 0;
 }
-#endif
