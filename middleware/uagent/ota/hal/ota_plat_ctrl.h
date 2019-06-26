@@ -5,7 +5,6 @@
 #ifndef __OTA_PLAT_CTR_H__
 #define __OTA_PLAT_CTR_H__
 #include "ota/ota_service.h"
-
 #if defined(__ICCARM__)
 #define OTA_WEAK                __weak
 #else
