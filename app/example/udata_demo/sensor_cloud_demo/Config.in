@@ -5,8 +5,7 @@ config AOS_APP_SENSOR_CLOUD_DEMO
     select AOS_COMP_NETMGR
     select AOS_COMP_YLOOP
     select AOS_COMP_CJSON
-    select AOS_COMP_LINKKIT_SDK_C
-    select APP_FEATURE_LINKKIT
+    select AOS_COMP_SDK_DEVMODEL
     help
         sensor cloud demo
 

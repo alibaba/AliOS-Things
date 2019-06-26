@@ -3,9 +3,8 @@
  */
 #ifndef APP_ENTRY_H
 #define APP_ENTRY_H
-
+#include "stdint.h"
 #include "aos/kernel.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

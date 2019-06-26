@@ -13,8 +13,9 @@
 #include "aos/yloop.h"
 #include "ulog/ulog.h"
 #include "netmgr.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_compat.h"
+#include "infra_defs.h"
+#include "dev_model_api.h"
 #include "app_entry.h"
 
 #define SENSOR_SAMPLE_TIME 1000 /* sensor sampling period is 1000 ms*/
