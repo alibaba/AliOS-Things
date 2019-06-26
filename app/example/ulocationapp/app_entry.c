@@ -13,8 +13,9 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "wifi_provision_api.h"
+#include "infra_compat.h"
+#include "infra_defs.h"
 #include "app_entry.h"
 
 #include <ulocation/ulocation.h>
