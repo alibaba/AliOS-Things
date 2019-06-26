@@ -5,7 +5,7 @@
 #define APP_ENTRY_H
 
 #include "aos/kernel.h"
-
+#include "stdint.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

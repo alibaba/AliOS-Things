@@ -6,8 +6,10 @@
 
 #include "app_entry.h"
 #include "cJSON.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
 
 #define USE_CUSTOME_DOMAIN 0
 
