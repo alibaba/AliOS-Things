@@ -8,13 +8,14 @@
 #include <signal.h>
 #include <string.h>
 #include "ota_log.h"
-#include "iot_import.h"
+#include "wrappers.h"
+#include "infra_defs.h"
 #include "ota_hal_common.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 2
-#include "iot_export_coap.h"
+#include "coap_api.h"
 #else
-#include "iot_export.h"
+#include "mqtt_api.h"
 #endif
 
 #if !defined (AOS_COMP_OTA_BLE)
