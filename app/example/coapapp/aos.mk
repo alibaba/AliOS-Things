@@ -2,13 +2,11 @@ NAME := coapapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY := coap example
-$(NAME)_SOURCES := app_entry.c
+$(NAME)_SUMMARY := coap cloud example
+$(NAME)_SOURCES := app_entry.c \
+                   coap_example.c
 
-ifneq ($(AOS_COMP_SAL),y)
-$(NAME)_SOURCES += coap_example.c
-$(NAME)_COMPONENTS += libcoap netmgr cjson cli
-endif
+$(NAME)_COMPONENTS += linkkit_sdk_c netmgr cjson cli
 
 GLOBAL_INCLUDES += ./
 

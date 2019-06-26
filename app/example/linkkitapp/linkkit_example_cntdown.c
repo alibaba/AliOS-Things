@@ -1,17 +1,20 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/cntdown.c"
-#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "linkkit_export.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
 #include "cJSON.h"
 #include "app_entry.h"
 
@@ -502,4 +505,3 @@ int linkkit_main(void *paras)
 
     return 0;
 }
-#endif

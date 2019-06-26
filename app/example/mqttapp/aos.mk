@@ -5,13 +5,12 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := mqtt examples
 
 $(NAME)_SOURCES := app_entry.c
-$(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson
-
-# MQTTAPP_CONFIG_TEST_LOOP ?= y
+$(NAME)_COMPONENTS :=  netmgr cjson linkkit_sdk_c
 
 ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli
 endif
+
 
 ifeq ($(MQTTAPP_CONFIG_CASE_DEFAULT),y)
 $(NAME)_SOURCES += mqtt_example.c
@@ -30,7 +29,7 @@ $(NAME)_SOURCES += mqtt_presstest.c
 endif
 
 ifeq ($(MQTTAPP_CONFIG_TEST_LOOP),y)
-$(NAME)_DEFINES      += TEST_LOOP
+$(NAME)_DEFINES += TEST_LOOP
 endif
 
 GLOBAL_INCLUDES += ./

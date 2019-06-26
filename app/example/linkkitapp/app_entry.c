@@ -13,9 +13,10 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "iot_export.h"
-#include "iot_import.h"
 #include "app_entry.h"
+#include "wifi_provision_api.h"
+#include "infra_compat.h"
+#include "infra_defs.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -23,8 +24,9 @@
 
 #include <k_api.h>
 
-#if defined(ENABLE_AOS_OTA)
+#if defined(ENABLE_AOS_OTA) 
 #include "ota/ota_service.h"
+static ota_service_t ctx = {0};
 #endif
 
 static char linkkit_started = 0;
@@ -36,7 +38,7 @@ extern int combo_net_init(void);
 static char awss_running    = 0;
 #endif
 
-void set_iotx_info();
+extern void set_iotx_info();
 void do_awss_active();
 
 #ifdef CONFIG_PRINT_HEAP
@@ -45,6 +47,25 @@ void print_heap()
     extern k_mm_head *g_kmm_head;
     int               free = g_kmm_head->free_size;
     LOG("============free heap size =%d==========", free);
+}
+#endif
+
+#if defined(ENABLE_AOS_OTA)
+static ota_service_t *ota_get_device_info(void)
+{
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+    HAL_GetProductSecret(product_secret);
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
+    strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
+    strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
+    strncpy(ctx.ds, device_secret, sizeof(ctx.ds)-1);
+    strncpy(ctx.ps, device_secret, sizeof(ctx.ps)-1);
+    return &ctx;
 }
 #endif
 
@@ -57,7 +78,10 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     if (event->code != CODE_WIFI_ON_GOT_IP) {
         return;
     }
-
+#if defined(ENABLE_AOS_OTA) && defined(OTA_CONFIG_SECURE_DL_MODE)
+    LOG("OTA secure download start ...\n");
+    ota_service_start(ota_get_device_info());
+#endif
     netmgr_ap_config_t config;
     memset(&config, 0, sizeof(netmgr_ap_config_t));
     netmgr_get_ap_config(&config);
@@ -77,11 +101,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 #ifdef CONFIG_PRINT_HEAP
         print_heap();
 #endif
-#ifdef MQTT_DIRECT
-        aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 6);
-#else
         aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 8);
-#endif
         linkkit_started = 1;
     }
 }
@@ -228,7 +248,7 @@ void do_awss_active()
     #endif
 }
 
-#ifdef SUPPORT_DEV_AP
+#ifdef AWSS_SUPPORT_DEV_AP
 static void awss_close_dev_ap(void *p)
 {
     awss_dev_ap_stop();
@@ -313,7 +333,7 @@ static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     aos_schedule_call(do_awss_active, NULL);
 }
-#ifdef SUPPORT_DEV_AP
+#ifdef AWSS_SUPPORT_DEV_AP
 static void handle_dev_ap_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     aos_schedule_call(do_awss_dev_ap, NULL);
@@ -350,38 +370,9 @@ static void duration_work(void *p)
 
 static int mqtt_connected_event_handler(void)
 {
-#if defined(ENABLE_AOS_OTA)
-    bool ota_service_inited = false;
-    static ota_service_t ctx = {0};
-
-    if (ota_service_inited == true) {
-        int ret = 0;
-
-        LOG("MQTT reconnected, let's redo OTA upgrade");
-        if ((ctx.h_tr) && (ctx.h_tr->upgrade)) {
-            LOG("Redoing OTA upgrade");
-            ret = ctx.h_tr->upgrade(&ctx);
-            if (ret < 0) LOG("Failed to do OTA upgrade");
-        }
-
-        return ret;
-    }
-
-    LOG("MQTT Construct  OTA start");
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceSecret(device_secret);
-    memset(&ctx, 0, sizeof(ota_service_t));
-    strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
-    strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
-    strncpy(ctx.ds, device_secret, sizeof(ctx.ds)-1);
-    ctx.trans_protcol = 0;
-    ctx.dl_protcol = 3;
-    ota_service_init(&ctx);
-    ota_service_inited = true;
+#if defined(ENABLE_AOS_OTA) 
+    LOG("OTA service init ...\n");
+    ota_service_init(ota_get_device_info());
 #endif
     return 0;
 }
@@ -398,7 +389,6 @@ int application_start(int argc, char **argv)
 #endif
 
 #ifdef WITH_SAL
-    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
@@ -407,7 +397,7 @@ int application_start(int argc, char **argv)
 #endif
 
     aos_set_log_level(AOS_LL_DEBUG);
-
+    set_iotx_info();
     netmgr_init();
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
@@ -417,19 +407,18 @@ int application_start(int argc, char **argv)
 #ifdef AOS_COMP_CLI
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&awss_enable_cmd);
-#ifdef SUPPORT_DEV_AP
+#ifdef AWSS_SUPPORT_DEV_AP
     aos_cli_register_command(&awss_dev_ap_cmd);
     aos_cli_register_command(&awss_cmd);
 #endif
 #endif
-    set_iotx_info();
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
 #ifdef EN_COMBO_NET
     combo_net_init();
 #else
-#ifdef SUPPORT_DEV_AP
-    aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
+#ifdef AWSS_SUPPORT_DEV_AP
+     aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
     aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 #endif
