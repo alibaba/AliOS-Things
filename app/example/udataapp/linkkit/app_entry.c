@@ -13,10 +13,10 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "iot_import.h"
-#include "iot_export.h"
-#include "linkkit_export.h"
-#include "iot_export_linkkit.h"
+#include "wifi_provision_api.h"
+#include "infra_compat.h"
+#include "infra_defs.h"
+#include "dev_model_api.h"
 
 #include "sensor/sensor.h"
 #include "udata/udata.h"
