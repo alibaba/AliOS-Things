@@ -7,9 +7,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "iot_export_mqtt.h"
+#include "mqtt_api.h"
+#include "wrappers.h"
+#include "infra_compat.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 #include "network/network.h"
@@ -18,11 +18,9 @@
 #include <netmgr.h>
 #include <aos/cli.h>
 
-
 #include "sensor/sensor.h"
 #include "udata/udata.h"
 #include "service_data_to_cloud.h"
-
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
@@ -38,9 +36,9 @@
 
 typedef void (*task_fun)(void *);
 
-char __product_key[PRODUCT_KEY_LEN + 1];
-char __device_name[DEVICE_NAME_LEN + 1];
-char __device_secret[DEVICE_SECRET_LEN + 1];
+char __product_key[IOTX_PRODUCT_KEY_LEN + 1];
+char __device_name[IOTX_DEVICE_NAME_LEN + 1];
+char __device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 #define ALINK_BODY_FORMAT \
     "{\"id\":\"%u\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
@@ -314,37 +312,15 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 int mqtt_client(void)
 {
     int rc;
-    iotx_conn_info_pt pconn_info;
+
     iotx_mqtt_param_t mqtt_params;
 
     HAL_GetProductKey(__product_key);
     HAL_GetDeviceName(__device_name);
     HAL_GetDeviceSecret(__device_secret);
 
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(__product_key, __device_name, __device_secret, (void **)&pconn_info)) {
-        EXAMPLE_TRACE("AUTH request failed!");
-        return -1;
-    }
-
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
-
-    mqtt_params.port = pconn_info->port;
-    mqtt_params.host = pconn_info->host_name;
-    mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.username = pconn_info->username;
-    mqtt_params.password = pconn_info->password;
-    mqtt_params.pub_key = pconn_info->pub_key;
-
-    mqtt_params.request_timeout_ms = 2000;
-    mqtt_params.clean_session = 0;
-    mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.read_buf_size = MQTT_MSGLEN;
-    mqtt_params.write_buf_size = MQTT_MSGLEN;
-
-    mqtt_params.handle_event.h_fp = event_handle;
-    mqtt_params.handle_event.pcontext = NULL;
 
     /* Construct a MQTT client with specify parameter */
     gpclient = IOT_MQTT_Construct(&mqtt_params);
@@ -406,7 +382,7 @@ int mqtt_client(void)
 int linkkit_main(void *paras)
 {
     IOT_OpenLog("mqtt");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
+
 
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetDeviceName(DEVICE_NAME);
@@ -423,8 +399,6 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     mqtt_client();
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!");
 

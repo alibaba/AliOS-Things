@@ -1,23 +1,35 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/solo.c"
-#else
-#include "stdio.h"
-#include "iot_export_linkkit.h"
-#include "cJSON.h"
-#include "app_entry.h"
-#include "service_data_to_cloud.h"
 
-#define USE_CUSTOME_DOMAIN      (0)
+#include "aos/kernel.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "infra_config.h"
+#include "wrappers.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
+
+#include "cJSON.h"
+#ifdef ATM_ENABLED
+    #include "at_api.h"
+#endif
+#include "app_entry.h"
 
 // for demo only
-#define PRODUCT_KEY         "a1Aeb21CMq5"
-#define PRODUCT_SECRET      "b1GadfPW0om"
-
-#define DEVICE_NAME         "eaSkr41w8gz8sdVOFwA9"
-#define DEVICE_SECRET       "34nReP7DWHw8wNLHhNXxOnu3o5U8GXif"
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "test_06"
+#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
 
 #if USE_CUSTOME_DOMAIN
@@ -160,7 +172,7 @@ static int user_initialized(const int devid)
         ret = service_dtc_connect_set(true);
         if(0 == ret){
             g_linkkit_con_flag = 1;
-            LOG("service_dtc_connect_set success\n");
+            EXAMPLE_TRACE("service_dtc_connect_set success\n");
         }
     }
 
@@ -374,4 +386,3 @@ int linkkit_main(void *paras)
     IOT_Linkkit_Close(user_example_ctx->master_devid);
     return 0;
 }
-#endif
