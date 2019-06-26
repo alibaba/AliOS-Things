@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "iot_import.h"
-#include "iot_export.h"
+#include "wrappers.h"
+#include "infra_defs.h"
+#include "mqtt_api.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 #include "network/network.h"
@@ -18,8 +19,6 @@
 #endif
 
 #include "ota/ota_service.h"
-#include "ota_hal_plat.h"
-#include "ota_hal_os.h"
 
 static ota_service_t ctx = {0};
 
@@ -56,7 +55,6 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
         usage();
         return;
     }
-    memset(&ctx, 0, sizeof(ota_service_t));
     strncpy(ctx.pk, argv[1], sizeof(ctx.pk)-1);
     strncpy(ctx.dn, argv[2], sizeof(ctx.dn)-1);
     strncpy(ctx.ds, argv[3], sizeof(ctx.ds)-1);
@@ -65,8 +63,6 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
     HAL_SetDeviceName(ctx.dn);
     HAL_SetDeviceSecret(ctx.ds);
     HAL_SetProductSecret(ctx.ps);
-    ctx.trans_protcol = 0;
-    ctx.dl_protcol = 3;
     printf("Hello OTA.\n");
     aos_task_new("ota_example", ota_work, &ctx, 1024 * 6);
 }
@@ -75,17 +71,14 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[0] : "";
     if (strcmp(rtype, "ota_diff") == 0) {
-        if (argc != 3) {
+        if (argc != 2) {
             return;
         }
         uint32_t ota_size = atoi(argv[1]);
-        uint32_t splict_size = atoi(argv[2]);
         ota_boot_param_t ota_info;
-        ota_info.rec_size = ota_size;
-        ota_info.splict_size = splict_size;
-        ota_info.upg_flag = OTA_DIFF;
-        ota_info.res_type = OTA_FINISH;
-        LOG("%s %u %u %p\n", rtype, ota_size, splict_size, &ota_info);
+        ota_info.len = ota_size;
+        ota_info.upg_flag = OTA_UPGRADE_DIFF;
+        LOG("%s %u %p\n", rtype, ota_size, &ota_info);
         ota_hal_boot(&ota_info);
     }
 }
