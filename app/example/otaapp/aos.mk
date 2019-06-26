@@ -7,8 +7,8 @@ $(NAME)_SUMMARY := OTA demo app for developers
 OTAAPP_CONFIG_TEST_LOOP ?= n
 loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
 
-$(NAME)_SOURCES := otaapp.c 
-$(NAME)_COMPONENTS := linkkit_sdk_c netmgr ota cjson cli
+$(NAME)_SOURCES := otaapp.c
+$(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
 ifeq ($(OTAAPP_CONFIG_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
