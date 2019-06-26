@@ -5,8 +5,10 @@
 #include "deprecated/solo.c"
 #else
 #include "stdio.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "infra_config.h"
+#include "wrappers.h"
 #include "cJSON.h"
 #include "app_entry.h"
 #include "ulocation/ulocation.h"
