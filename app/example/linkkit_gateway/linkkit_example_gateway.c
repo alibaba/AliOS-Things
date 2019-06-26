@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/gateway.c"
-#else
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -11,8 +9,11 @@
 #include <unistd.h>
 #include <time.h>
 #include "cJSON.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
 #include "app_entry.h"
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
@@ -521,4 +522,3 @@ int linkkit_main(void *paras)
     IOT_SetLogLevel(IOT_LOG_NONE);
     return 0;
 }
-#endif

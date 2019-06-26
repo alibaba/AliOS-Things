@@ -7,9 +7,10 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "app_entry.h"
+#include "dev_sign_api.h"
+#include "mqtt_api.h"
+#include "wrappers.h"
+#include "infra_compat.h"
 
 #define PRODUCT_KEY             "a1MZxOdcBnO"
 #define PRODUCT_SECRET          "h4I4dneEFp7EImTv"
@@ -154,37 +155,108 @@ int mqtt_client(void)
 {
     int rc;
     void *pclient;
-    iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
     iotx_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
 
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
-        EXAMPLE_TRACE("AUTH request failed!");
-        return -1;
-    }
-
     /* Initialize MQTT parameter */
+    /*
+     * Note:
+     *
+     * If you did NOT set value for members of mqtt_params, SDK will use their default values
+     * If you wish to customize some parameter, just un-comment value assigning expressions below
+     *
+     **/
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
-    mqtt_params.port = pconn_info->port;
-    mqtt_params.host = pconn_info->host_name;
-    mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.username = pconn_info->username;
-    mqtt_params.password = pconn_info->password;
-    mqtt_params.pub_key = pconn_info->pub_key;
+    /**
+     *
+     *  MQTT connect hostname string
+     *
+     *  MQTT server's hostname can be customized here
+     *
+     *  default value is ${productKey}.iot-as-mqtt.cn-shanghai.aliyuncs.com
+     */
+    /* mqtt_params.host = "something.iot-as-mqtt.cn-shanghai.aliyuncs.com"; */
 
-    mqtt_params.request_timeout_ms = 2000;
-    mqtt_params.clean_session = 1;
-    mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.read_buf_size = MQTT_MSGLEN;
-    mqtt_params.write_buf_size = MQTT_MSGLEN;
+    /**
+     *
+     *  MQTT connect port number
+     *
+     *  TCP/TLS port which can be 443 or 1883 or 80 or etc, you can customize it here
+     *
+     *  default value is 1883 in TCP case, and 443 in TLS case
+     */
+    /* mqtt_params.port = 1883; */
 
+    /**
+     *
+     * MQTT request timeout interval
+     *
+     * MQTT message request timeout for waiting ACK in MQTT Protocol
+     *
+     * default value is 2000ms.
+     */
+    /* mqtt_params.request_timeout_ms = 2000; */
+
+    /**
+     *
+     * MQTT clean session flag
+     *
+     * If CleanSession is set to 0, the Server MUST resume communications with the Client based on state from
+     * the current Session (as identified by the Client identifier).
+     *
+     * If CleanSession is set to 1, the Client and Server MUST discard any previous Session and Start a new one.
+     *
+     * default value is 0.
+     */
+    /* mqtt_params.clean_session = 0; */
+
+    /**
+     *
+     * MQTT keepAlive interval
+     *
+     * KeepAlive is the maximum time interval that is permitted to elapse between the point at which
+     * the Client finishes transmitting one Control Packet and the point it starts sending the next.
+     *
+     * default value is 60000.
+     */
+    /* mqtt_params.keepalive_interval_ms = 60000; */
+
+    /**
+     *
+     * MQTT write buffer size
+     *
+     * Write buffer is allocated to place upstream MQTT messages, MQTT client will be limitted
+     * to send packet no longer than this to Cloud
+     *
+     * default value is 1024.
+     *
+     */
+    /* mqtt_params.write_buf_size = 1024; */
+
+    /**
+     *
+     * MQTT read buffer size
+     *
+     * Write buffer is allocated to place downstream MQTT messages, MQTT client will be limitted
+     * to recv packet no longer than this from Cloud
+     *
+     * default value is 1024.
+     *
+     */
+    /* mqtt_params.read_buf_size = 1024; */
+
+    /**
+     *
+     * MQTT event callback function
+     *
+     * Event callback function will be called by SDK when it want to notify user what is happening inside itself
+     *
+     * default value is NULL, which means PUB/SUB event won't be exposed.
+     *
+     */
     mqtt_params.handle_event.h_fp = event_handle;
-    mqtt_params.handle_event.pcontext = NULL;
-
-
     /* Construct a MQTT client with specify parameter */
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {

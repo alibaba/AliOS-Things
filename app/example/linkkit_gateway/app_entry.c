@@ -13,8 +13,9 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "iot_export.h"
-#include "iot_import.h"
+#include "wifi_provision_api.h"
+#include "infra_compat.h"
+#include "infra_defs.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -351,7 +352,6 @@ int application_start(int argc, char **argv)
 #endif
 
 #ifdef WITH_SAL
-    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
