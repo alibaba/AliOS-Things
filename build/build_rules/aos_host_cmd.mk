@@ -216,7 +216,7 @@ RM      := "$(COMMON_TOOLS_PATH)rm$(EXECUTABLE_SUFFIX)" -f
 CP      := "$(COMMON_TOOLS_PATH)cp$(EXECUTABLE_SUFFIX)" -f
 MAKE    := "$(COMMON_TOOLS_PATH)make$(EXECUTABLE_SUFFIX)"
 BIN2C   := "$(COMMON_TOOLS_PATH)bin2c$(EXECUTABLE_SUFFIX)"
-CURRENT_TIME = $(shell $(DATE) +%Y%m%d.%H%M)
+CURRENT_TIME = $(shell $(DATE) +%Y%m%d.%H%M%S)
 
 BUILD_STRING_TO_DIR = $(subst .,/,$(1))
 DIR_TO_BUILD_STRING = $(subst /,.,$(1))
