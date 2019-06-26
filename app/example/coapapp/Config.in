@@ -3,7 +3,9 @@ config AOS_APP_COAPAPP
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
-    select AOS_COMP_COAP
+    select COAP_COMM_ENABLED
+    select COAP_DTLS_SUPPORT 
+
     help
         coap cloud example
 

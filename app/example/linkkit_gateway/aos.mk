@@ -19,12 +19,7 @@ $(NAME)_COMPONENTS += ota
 GLOBAL_DEFINES += ENABLE_AOS_OTA
 endif
 
-ifeq ($(LINKKIT_GATEWAY_CONFIG_DEPRECATED),y)
-$(NAME)_SOURCES += deprecated/gateway.c
-GLOBAL_DEFINES += DEPRECATED_LINKKIT
-else
 $(NAME)_SOURCES += linkkit_example_gateway.c
-endif
 
 ifeq ($(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP),y)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
@@ -36,13 +31,6 @@ $(NAME)_COMPONENTS  += cli
 else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
-
-#for test command
-ifeq ($(LINKKIT_GATEWAY_CONFIG_DEPRECATED),y)
-GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
-$(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
-endif
-#end
 
 GLOBAL_INCLUDES += ./
 

@@ -1,12 +1,16 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/sched.c"
-#else
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "dev_model_api.h"
+#include "wrappers.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
 #include "stdio.h"
-#include "iot_export.h"
-#include "iot_import.h"
 #include "cJSON.h"
 #include "app_entry.h"
 
@@ -433,10 +437,6 @@ int linkkit_main(void *paras)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
 
-#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
-    set_iotx_info();
-#endif
-
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -445,7 +445,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
-    IOT_RegisterCallback(ITE_SERVICE_REQUST, user_service_request_event_handler);
+    IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
@@ -508,4 +508,3 @@ int linkkit_main(void *paras)
     IOT_SetLogLevel(IOT_LOG_NONE);
     return 0;
 }
-#endif
