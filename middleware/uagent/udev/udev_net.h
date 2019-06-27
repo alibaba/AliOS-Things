@@ -5,7 +5,7 @@
 #ifndef UDEV_NET_H
 #define UDEV_NET_H
 
-#include "iot_import.h"
+#include "stdint.h"
 
 int udev_net_read(int fd, unsigned char *buffer, uint32_t len, uint32_t timeout_ms);
 int udev_net_write(int fd, const unsigned char *buffer, uint32_t len, uint32_t timeout_ms);
