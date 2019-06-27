@@ -3,8 +3,7 @@ config AOS_COMP_UDEV
     default n
     select AOS_COMP_CJSON
     select AOS_COMP_OTA
-    select AOS_COMP_LINKKIT_SDK_C
-    select MQTT_COMM_ENABLED
+    select AOS_COMP_SDK_MQTT
     help
         developerment over the air
 
