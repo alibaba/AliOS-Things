@@ -6,5 +6,12 @@ config AOS_APP_LWM2MAPP
         lwm2m app
 
 if AOS_APP_LWM2MAPP
-# Configurations for app lwm2m client
+config LWM2M_WITH_DTLS
+    bool "LwM2M WITH DTLS"
+    select MBEDTLS_CONFIG_CRYPTO_AES
+    select MBEDTLS_CONFIG_CRYPTO_MODE_CCM
+    select MBEDTLS_CONFIG_TLS_DEBUG
+    default y
+    help
+
 endif
