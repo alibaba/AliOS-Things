@@ -4,8 +4,8 @@ config AOS_APP_DAS_CLIENT
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
-    select AOS_COMP_LINKKIT_SDK_C
-    select APP_FEATURE_LINKKIT_MQTT
+    select AOS_COMP_SDK_MQTT
+
     help
         das(Device Attestation) example
 
