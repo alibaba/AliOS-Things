@@ -62,9 +62,18 @@ void sem_buf_queue_coopr_test(void)
 {
     kstat_t ret;
 
-    (void)krhino_sem_dyn_create(&test_sem, "semtest", 0);
-    krhino_buf_queue_create(&test_buf_queue, "bugqueue", (void *)buf_queue_test_buf,
-                            80, 1);
+    ret = krhino_sem_dyn_create(&test_sem, "semtest", 0);
+    if (ret != RHINO_SUCCESS) {
+        test_case_fail++;
+        PRINT_RESULT(MODULE_NAME, FAIL);
+    }
+
+    ret = krhino_buf_queue_create(&test_buf_queue, "bugqueue", (void *)buf_queue_test_buf,
+                                  80, 1);
+    if (ret != RHINO_SUCCESS) {
+        test_case_fail++;
+        PRINT_RESULT(MODULE_NAME, FAIL);
+    }
 
     ret = krhino_task_dyn_create(&task_sem, MODULE_NAME, 0, TASK_COMB_PRI,
                                  0, TASK_TEST_STACK_SIZE, task_sem_opr_entry, 1);
