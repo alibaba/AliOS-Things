@@ -13,11 +13,4 @@ config LWM2M_BOOTSTRAP_CLIENT_SUPPORT
     default n
     help
       
-config LWM2M_WITH_DTLS
-    bool "LwM2M WITH DTLS"
-    select MBEDTLS_CONFIG_CRYPTO_AES
-    select MBEDTLS_CONFIG_CRYPTO_MODE_CCM
-    default y
-    help
-
 endif
