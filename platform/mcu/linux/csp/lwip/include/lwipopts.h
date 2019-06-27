@@ -218,6 +218,8 @@
 #define LWIP_SO_RCVTIMEO                1
 #define SO_REUSE                        1
 
+#define LWIP_NETIF_API                  1
+
 /*
    ---------- Statistics options ----------
 */
