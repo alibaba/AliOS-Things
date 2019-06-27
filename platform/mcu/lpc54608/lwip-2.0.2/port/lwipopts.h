@@ -63,6 +63,8 @@
  */
 #define LWIP_SOCKET 1
 
+#define LWIP_NETIF_API 1
+
 /**
  * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
  * SO_RCVTIMEO processing.
