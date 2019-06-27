@@ -163,11 +163,19 @@ int32_t lega_uart_init(lega_uart_dev_t *uart)
     {
         tmp_value = REG_RD(UART0_PIN_MUX_REG) & (~DW_UART0_GPIO_MASK);
         REG_WR(UART0_PIN_MUX_REG, (tmp_value | DW_UART0_TX | DW_UART0_RX));//gpio0/gpio1
+        tmp_value = REG_RD(HW_CTRL_PE_PS);
+        REG_WR(HW_CTRL_PE_PS, (tmp_value & (~(UART0_PAD_MASK))));
+        tmp_value = REG_RD(PAD_PE_REG);
+        REG_WR(PAD_PE_REG, (tmp_value & (~(UART0_PAD_MASK))));
     }
     else if(UARTx == UART1)
     {
         tmp_value = REG_RD(UART1_PIN_MUX_REG) & (~DW_UART1_GPIO_MASK);
         REG_WR(UART1_PIN_MUX_REG, (tmp_value | DW_UART1_TX | DW_UART1_RX));//gpio2/gpio3
+        tmp_value = REG_RD(HW_CTRL_PE_PS);
+        REG_WR(HW_CTRL_PE_PS, (tmp_value & (~(UART1_PAD_MASK))));
+        tmp_value = REG_RD(PAD_PE_REG);
+        REG_WR(PAD_PE_REG, (tmp_value & (~(UART1_PAD_MASK))));
     }
     else
     {
