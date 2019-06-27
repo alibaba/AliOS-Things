@@ -559,7 +559,7 @@ lwm2m_object_t * get_security_object(int serverId,
                 targetP->publicIdentity = strdup(bsPskId);
                 targetP->publicIdLen = strlen(bsPskId);
             }
-            if (pskLen > 0)
+            if (pskLen > 0 && psk != NULL)
             {
                 targetP->secretKey = (char*)lwm2m_malloc(pskLen);
                 if (targetP->secretKey == NULL)
