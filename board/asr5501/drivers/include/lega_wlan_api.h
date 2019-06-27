@@ -85,13 +85,23 @@ typedef struct {
     int     channel;       /* Channel of the current connected wlan */
 } lega_wlan_link_stat_t;
 
+/* used in open cmd for AP mode */
+typedef struct {
+    char    ssid[32+1];     /* ssid max len:32. +1 is for '\0' when ssidlen is 32  */
+    char    pwd[64+1];      /* pwd max len:64. +1 is for '\0' when pwdlen is 64 */
+    int     interval;       /* beacon listen interval */
+    int     hide;           /* hidden SSID */
+    int     channel;       /* Channel*/
+} lega_wlan_ap_init_t;
+
 /*used in open cmd of hal_wifi_module_t*/
 typedef struct {
     char    wifi_mode;              /* refer to hal_wifi_type_t*/
-    char    wifi_ssid[32];      /* in station mode, indicate SSID of the wlan needs to be connected.
-                                in softap mode, indicate softap SSID*/
-    char    wifi_key[64];       /* in station mode, indicate Security key of the wlan needs to be connected,
-                                in softap mode, indicate softap password.(ignored in an open system.) */
+    char    security;               /* security mode */
+    char    wifi_ssid[32];          /* in station mode, indicate SSID of the wlan needs to be connected.
+                                       in softap mode, indicate softap SSID*/
+    char    wifi_key[64];           /* in station mode, indicate Security key of the wlan needs to be connected,
+                                       in softap mode, indicate softap password.(ignored in an open system.) */
     char    local_ip_addr[16];      /* used in softap mode to config ip for dut */
     char    net_mask[16];           /* used in softap mode to config gateway for dut */
     char    gateway_ip_addr[16];    /* used in softap mode to config netmask for dut */
@@ -124,6 +134,15 @@ int lega_wlan_deinit(void);
  */
 int lega_wlan_open(lega_wlan_init_type_t* init_info);
 
+/** @brief  used in softap mode, open wifi cmd
+ *
+ * @param init_info    : refer to lega_wlan_ap_init_t
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_ap_open(lega_wlan_ap_init_t* init_info);
+
 /** @brief  used in station and softap mode, close wifi cmd
  *
  * @return    0       : on success.
@@ -143,6 +162,14 @@ int lega_wlan_start_scan(void);
  */
 int lega_wlan_start_scan_adv(void);
 
+/** @brief  used in station mode, scan cmd
+ *
+ * @param ssid    : target ssid to scan
+ *
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_start_scan_active(const char *ssid);
 
 /** @brief  used in station and softap mode, get mac address(in hex mode) of WIFI device
  *
@@ -324,6 +351,11 @@ void lega_drv_close_dcdc_pfm(void);
  *
  */
 void lega_wlan_smartconfig_mimo_enable(void);
+
+/** @brief  set country code to update country code, different country may have different channel list
+ *   called after hal_wifi_init
+ */
+void lega_wlan_set_country_code(char *country);
 
 #endif  //_LEGA_WIFI_API_H_
 
