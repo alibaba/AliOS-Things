@@ -429,7 +429,11 @@ FLASH_DRIVER_SEG int lega_flash_alg_check_setqe (void) {
 FLASH_DRIVER_SEG void lega_flash_alg_load_cfg () {
     lega_flash_alg_abort_en();
     lega_flash_alg_check_abort_busy();
+#ifdef CFG_CERTIF_TEST
+    FLASH->QSPI_CR    = FLASH_QSPI_DIV4;  //div4, //offset 0x00
+#else
     FLASH->QSPI_CR    = FLASH_QSPI_DIV2;  //div2, //offset 0x00
+#endif
     FLASH->QSPI_DCR   = 0x00140000  ;        //offset 0x04
     FLASH->QSPI_FCR   = 0x0  ;        //offset 0x0C
     FLASH->QSPI_DLR   = 0x0  ;        //offset 0x10
@@ -448,21 +452,27 @@ FLASH_DRIVER_SEG void lega_flash_alg_load_cfg () {
 // flash crypt bypass test
 FLASH_DRIVER_SEG int lega_flash_alg_init ()
 {
-    lega_flash_alg_abort_en();
-    lega_flash_alg_check_abort_busy();
-
-    lega_flash_alg_setqe(1);
+    //add delay to avoid confilict between flash cfg and instruction fetch by cache
+    lega_flash_alg_f_delay(32);
+    //lega_flash_alg_abort_en();
+    //lega_flash_alg_check_abort_busy();
+    //lega_flash_alg_setqe(1);
 
     lega_flash_alg_load_cfg ();
+
+    //flush cache after flash operation
+    lega_flash_alg_cache_flush();
     return (0);                                  // Finished without Errors
 }
 
 /*
- *  Erase complete Flash Memory
- *    Return Value:   0 - OK,  1 - Failed
+ *  cmd: CHIP_ERASE_CMD or SECTOR_ERASE_CMD or BLOCK32_ERASE_CMD or BLOCK64_ERASE_CMD
+ *  adr: not used for CHIP_ERASE_CMD
  */
+FLASH_DRIVER_SEG int lega_flash_alg_erase(unsigned int cmd, unsigned long adr) {
+    //add delay to avoid confilict between flash cfg and instruction fetch by cache
+    lega_flash_alg_f_delay(32);
 
-FLASH_DRIVER_SEG int lega_flash_alg_erasechip (void) {
     lega_flash_alg_abort_en();
     lega_flash_alg_check_abort_busy();
 
@@ -473,41 +483,11 @@ FLASH_DRIVER_SEG int lega_flash_alg_erasechip (void) {
     lega_flash_alg_check_busy();
     lega_flash_alg_polling_wel();
 
-    FLASH->QSPI_CCR = 0x0000160;//dumode=2'b0,fmode=2'b00,dmode=2'b00,reserved=1'b0,dcyc=5'h0,absize=2'b00,abmode=2'b00,adsize=2'b00,admode=2'b00,imode=2'b01,instruction=8'h60;
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_polling_wip();
-
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_load_cfg ();
-    /* Add your Code */
-    return (0);                                  // Finished without Errors
-}
-
-
-/*
- *  Erase Sector in Flash Memory
- *    Parameter:      adr:  Sector Address
- *    Return Value:   0 - OK,  1 - Failed
- */
-
-FLASH_DRIVER_SEG int lega_flash_alg_erasesector (unsigned long adr) {
-    lega_flash_alg_abort_en();
-    lega_flash_alg_check_abort_busy();
-
-    FLASH->QSPI_CCR = 0x106;//IMODE=2'b01,INSTRUCTION=WREN
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_polling_wel();
-
-    FLASH->QSPI_CCR = 0x0002520;//fmode=2'b00,dmode=2'b00,reserved=1'b0,dcyc=5'h0,absize=2'b00,abmode=2'b00,adsize=2'b10,admode=2'b01,imode=2'b01,instruction=8'h20;
-    FLASH->QSPI_AR = adr;
+    FLASH->QSPI_CCR = cmd;
+    if(CHIP_ERASE_CMD != cmd)
+    {
+        FLASH->QSPI_AR = adr;
+    }
     lega_flash_alg_clr_flg();
     FLASH->SBUS_START = 0x1;
     lega_flash_alg_f_delay(10);
@@ -516,69 +496,10 @@ FLASH_DRIVER_SEG int lega_flash_alg_erasesector (unsigned long adr) {
     lega_flash_alg_polling_wip();
     lega_flash_alg_f_delay(10);
     lega_flash_alg_clr_flg();
-    lega_flash_alg_load_cfg ();
-    /* Add your Code */
-    return (0);                                  // Finished without Errors
-}
+    lega_flash_alg_load_cfg();
 
-/*
- *    Erase Block 32K in Flash Memory
- *    Parameter:      adr:  Block Address
- *    Return Value:   0 - OK,  1 - Failed
- */
-FLASH_DRIVER_SEG int lega_flash_alg_eraseblock32 (unsigned long adr) {
-    lega_flash_alg_abort_en();
-    lega_flash_alg_check_abort_busy();
-
-    FLASH->QSPI_CCR = 0x106;//IMODE=2'b01,INSTRUCTION=WREN
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_polling_wel();
-
-    FLASH->QSPI_CCR = 0x0002552;//fmode=2'b00,dmode=2'b00,reserved=1'b0,dcyc=5'h0,absize=2'b00,abmode=2'b00,adsize=2'b10,admode=2'b01,imode=2'b01,instruction=8'h52;
-    FLASH->QSPI_AR = adr;
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_polling_wip();
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_load_cfg ();
-    /* Add your Code */
-    return (0);                                  // Finished without Errors
-}
-
-/*
- *    Erase Block 32K in Flash Memory
- *    Parameter:      adr:  Block Address
- *    Return Value:   0 - OK,  1 - Failed
- */
-FLASH_DRIVER_SEG int lega_flash_alg_eraseblock64 (unsigned long adr) {
-    lega_flash_alg_abort_en();
-    lega_flash_alg_check_abort_busy();
-
-    FLASH->QSPI_CCR = 0x106;//IMODE=2'b01,INSTRUCTION=WREN
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_polling_wel();
-
-    FLASH->QSPI_CCR = 0x00025D8;//fmode=2'b00,dmode=2'b00,reserved=1'b0,dcyc=5'h0,absize=2'b00,abmode=2'b00,adsize=2'b10,admode=2'b01,imode=2'b01,instruction=8'hD8;
-    FLASH->QSPI_AR = adr;
-    lega_flash_alg_clr_flg();
-    FLASH->SBUS_START = 0x1;
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_check_busy();
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_polling_wip();
-    lega_flash_alg_f_delay(10);
-    lega_flash_alg_clr_flg();
-    lega_flash_alg_load_cfg ();
+    //flush cache after flash operation
+    lega_flash_alg_cache_flush();
     /* Add your Code */
     return (0);                                  // Finished without Errors
 }
@@ -605,6 +526,10 @@ FLASH_DRIVER_SEG int lega_flash_alg_programpage(unsigned long adr, unsigned long
     sz_temp = sz - 1;
 
     sz = (sz + 3) & ~3;                           // Adjust size for Words
+
+    //add delay to avoid confilict between flash cfg and instruction fetch by cache
+    lega_flash_alg_f_delay(32);
+
     lega_flash_alg_abort_en();
     lega_flash_alg_check_abort_busy();
 
@@ -645,6 +570,9 @@ FLASH_DRIVER_SEG int lega_flash_alg_programpage(unsigned long adr, unsigned long
     lega_flash_alg_check_busy();
     lega_flash_alg_polling_wip();
     lega_flash_alg_load_cfg ();
+
+    //flush cache after flash operation
+    lega_flash_alg_cache_flush();
     return (0);                                  // Finished without Errors
 }
 
