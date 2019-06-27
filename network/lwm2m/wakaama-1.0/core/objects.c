@@ -658,6 +658,11 @@ static lwm2m_list_t * prv_findServerInstance(lwm2m_object_t * objectP,
 {
     lwm2m_list_t * instanceP;
 
+    if(objectP == NULL)
+    {
+        return NULL;
+    }
+
     instanceP = objectP->instanceList;
     while (NULL != instanceP)
     {
