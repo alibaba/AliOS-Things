@@ -398,7 +398,7 @@ int32_t lega_spi_init(lega_spi_dev_t *spi)
     REG_WR(SPIx_TXFTL(spi->port), 0x0 & SPI_TFT_MASK);//32/4
     REG_WR(SPIx_RXFTL(spi->port), 0x0 & SPI_RFT_MASK);//32/4
 
-    REG_WR(SPIx_BAUD(spi->port), spi->config.freq & SPI_BAUD_MASK);
+    REG_WR(SPIx_BAUD(spi->port), (SYSTEM_CLOCK/spi->config.freq) & SPI_BAUD_MASK);
     if (spi->port != 2)
         REG_WR(SPIx_SE(spi->port), 0x1);
     REG_WR(SPIx_IM(spi->port), 0x0);
