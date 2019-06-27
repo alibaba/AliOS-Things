@@ -15,9 +15,9 @@
 
 #define ULOCATION_TRACE(...)                                    \
     do {                                                        \
-        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__); \
-        HAL_Printf(__VA_ARGS__);                                \
-        HAL_Printf("\033[0m\r\n");                              \
+        printf("\033[1;32;40m%s.%d: ", __func__, __LINE__); \
+        printf(__VA_ARGS__);                                \
+        printf("\033[0m\r\n");                              \
     } while (0)
 
 static char digit2char(uint8_t u8_arg)
