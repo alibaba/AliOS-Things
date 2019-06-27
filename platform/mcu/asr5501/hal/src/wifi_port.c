@@ -31,11 +31,16 @@ static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
     lega_wlan_set_mac_address(mac);
 }
 
+extern uint8_t user_pmk[32];
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     int ret;
     lega_wlan_init_type_t conf;
     memset(&conf,0,sizeof(lega_wlan_init_type_t));
+    if (init_para->wifi_mode == STATION)
+    {
+        memset(user_pmk, 0, sizeof(user_pmk));
+    }
 
     conf.dhcp_mode = init_para->dhcp_mode;
     conf.wifi_mode = init_para->wifi_mode;
@@ -52,10 +57,53 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     return ret;
 }
 
+static int wifi_start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    int ret;
+    lega_wlan_ap_init_t conf;
+    memset(&conf, 0, sizeof(lega_wlan_ap_init_t));
+    printf("wifi_start_ap[%s %s %d]", ssid,passwd,strlen(passwd));
+    memcpy(conf.ssid, ssid, strlen(ssid));
+    memcpy(conf.pwd, passwd, strlen(passwd));
+    conf.interval = interval;
+    conf.hide = hide;
+
+    ret = lega_wlan_ap_open(&conf);
+
+    return ret;
+}
+
+static int wifi_stop_ap(hal_wifi_module_t *m)
+{
+    return lega_wlan_close();
+}
+
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
-    printf("WiFi HAL %s not implemeted yet!\r\n", __func__);
-    return 0;
+    int ret = -1;
+    lega_wlan_init_type_t conf;
+    memset(&conf, 0, sizeof(lega_wlan_init_type_t));
+    conf.wifi_mode = STATION;
+    memcpy(conf.wifi_ssid, init_para_adv->ap_info.ssid, 32);
+    memcpy(conf.mac_addr, init_para_adv->ap_info.bssid, 6);
+    conf.channel = init_para_adv->ap_info.channel;
+    conf.security = init_para_adv->ap_info.security;
+    memcpy(conf.wifi_key, init_para_adv->key, 64);
+
+    // Consider that this API must have PMK, TBD
+    memcpy(user_pmk, init_para_adv->key, sizeof(user_pmk));
+
+    conf.dhcp_mode = init_para_adv->dhcp_mode;
+    memcpy(conf.local_ip_addr, init_para_adv->local_ip_addr, 16);
+    memcpy(conf.net_mask, init_para_adv->net_mask, 16);
+    memcpy(conf.gateway_ip_addr, init_para_adv->gateway_ip_addr, 16);
+    memcpy(conf.dns_server_ip_addr, init_para_adv->dns_server_ip_addr, 16);
+    memcpy(conf.reserved, init_para_adv->reserved, 32);
+    conf.wifi_retry_interval = init_para_adv->wifi_retry_interval;
+
+    ret = lega_wlan_open(&conf);
+
+    return ret;
 }
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
@@ -399,6 +447,8 @@ hal_wifi_module_t sim_aos_wifi_lega = {
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+    .start_ap = wifi_start_ap,
+    .stop_ap = wifi_stop_ap,
     .start_debug_mode = start_debug_mode,
     .stop_debug_mode = stop_debug_mode,
 #if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)

@@ -351,7 +351,9 @@ struct LEGA_RTC
 #define LEGA_IRQ_STS_REG_ADDR           0x40000100
 
 //retention ram addr need to be planned
-#define RTC_TIME_RETENTION_RAM_ADDR     0x40008000
+#define RETENTION_RAM_ADDR              0x40008000
+#define RTC_TIME_RETENTION_RAM_ADDR     RETENTION_RAM_ADDR
+#define POWERON_FLAG_RETENTION_RAM_ADDR (RETENTION_RAM_ADDR+0x10)
 
 /*
     LEGA RTC END
@@ -636,6 +638,8 @@ typedef struct
 #define DW_UART1_TX                             (0x00000100)
 #define DW_UART1_RX                             (0x00001000)
 
+#define UART0_PAD_MASK                          (0x03)
+#define UART1_PAD_MASK                          (0x0C)
 #if (defined LEGA_A0V1)
 #define DW_UART2_GPIO_MASK                      (0xFF000000) //GPIO6/7
 #define DW_UART2_TX                             (0x03000000)

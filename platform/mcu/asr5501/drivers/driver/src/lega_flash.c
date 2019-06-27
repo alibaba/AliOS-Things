@@ -20,7 +20,6 @@ extern const lega_logic_partition_t lega_partitions[];
  */
 int32_t lega_flash_init(void)
 {
-    lega_flash_alg_cache_flush();
     return lega_flash_alg_init();
 }
 /**
@@ -73,8 +72,7 @@ int32_t lega_flash_erase(lega_partition_t in_partition, uint32_t off_set, uint32
 
     for (addr = start_addr; addr <= end_addr; addr += SPI_FLASH_SEC_SIZE)
     {
-        lega_flash_alg_cache_flush();
-        ret = lega_flash_alg_erasesector(addr);
+        ret = lega_flash_alg_erase(SECTOR_ERASE_CMD, addr);
         if (ret != 0)
         {
             return ret;
@@ -129,7 +127,6 @@ int32_t lega_flash_write(lega_partition_t in_partition, uint32_t *off_set,
         {
             prg_size = left_buf_len;
         }
-        lega_flash_alg_cache_flush();
         lega_flash_alg_programpage(start_addr, prg_size, p_buf);
         p_buf += prg_size;
         start_addr += prg_size;
@@ -195,7 +192,7 @@ int32_t lega_flash_read(lega_partition_t in_partition, uint32_t *off_set,
         return -1;
     }
     start_addr = partition_info->partition_start_addr + *off_set;
-    memcpy(out_buf,(void *)(start_addr),in_buf_len);
+    memcpy(out_buf, (void *)(start_addr), in_buf_len);
     *off_set += in_buf_len;
 
     return ret;

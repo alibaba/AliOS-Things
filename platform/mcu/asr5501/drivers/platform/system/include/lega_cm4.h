@@ -112,7 +112,7 @@ typedef unsigned int    u32;
 #define SYS_REG_BASE_C310_CLK           ((SYS_REG_BASE + 0x900))
 #define REG_INTERRUPT_ENABLE            (SYS_REG_BASE + 0x944)
 
-#define REG_PLF_WAKEUP_INT_EN           (0x1<<23)
+#define REG_PLF_WAKEUP_INT_EN       (0x1<<23)
 #define SDIO_HCLK_EN                    (1 << 4)
 #define PWM_CLK_EN                      (1 << 2)
 #define WDG_CLK_EN                      (1 << 1)
@@ -138,9 +138,19 @@ typedef unsigned int    u32;
 #endif
 
 //efuse memory
-#define EFUSE_MAC_ADDR_START        0x90
-#define EFUSE_MAC_ADDR_END          0x95
-#define EFUSE_FREQ_CALIB_VAL        0x96
+typedef struct
+{
+    uint8_t mac_addr[6];            //0x90-0x95
+    uint8_t freq_err;               //0x96
+    uint8_t tmmt1;                  //0x97
+    uint8_t tmmt2;                  //0x98
+    uint8_t cus_tx_pwr[19];         //0x99-0xab
+    uint8_t cal_tx_pwr[6];          //0xac-0xb1
+    uint8_t cus_tx_total_pwr[3];    //0xb2-0xb4
+    uint8_t cal_tx_evm[6];          //0xb5-0xba
+}efuse_info_t;
+#define EFUSE_INFO_START_ADDR       0x90
+#define EFUSE_INFO_LEN              (sizeof(efuse_info_t))
 
 #ifdef _FLASH_DIRECT_BOOT_EN_
 #define BOOTLOADER_FLASH_START_ADDR 0x00000000

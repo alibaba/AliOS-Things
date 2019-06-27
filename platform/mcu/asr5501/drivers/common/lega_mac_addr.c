@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #ifdef ALIOS_SUPPORT
 #include "lega_rhino.h"
 #else
@@ -34,7 +35,8 @@ void lega_wlan_default_mac_addr(uint8_t *mac_addr)
 void lega_rf_set_xo_freq_bias(void)
 {
 #ifdef XO_FREQ_BIAS_CONFIG
+    //XO freq bias for blue board
     REG_WR(0x40000A74, 0x9191);
 #endif
-    printf("Current xo config is 0x%x\r\n",REG_RD(0x40000A74));
+    printf("Current xo config is 0x%x\r\n",(unsigned int)REG_RD(0x40000A74));
 }
