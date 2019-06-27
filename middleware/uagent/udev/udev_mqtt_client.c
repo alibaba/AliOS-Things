@@ -9,8 +9,7 @@
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include "iot_import.h"
-#include "iot_export.h"
+#include "infra_compat.h"
 #include "udev.h"
 #include "udev_net.h"
 #include "udev_mqtt_client.h"
@@ -155,7 +154,8 @@ static int readPacket(int fd, unsigned int timeout)
     }
 
     header.byte = mqtt_rbuf[0];
-    rc = header.bits.type;
+    rc =  MQTT_HEADER_GET_TYPE(header.byte);
+    /*  rc = header.bits.type;*/
 exit:
     return rc;
 }

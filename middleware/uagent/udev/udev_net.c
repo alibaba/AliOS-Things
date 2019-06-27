@@ -6,12 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-#include "iot_import.h"
-#include "iot_export.h"
-#include "iotx_utils.h"
-#include "utils_net.h"
-#include "iotx_utils_internal.h"
+#include "wrappers.h"
 
 /*** TCP connection ***/
 int udev_net_read(int fd, unsigned char *buffer, uint32_t len, uint32_t timeout_ms)
