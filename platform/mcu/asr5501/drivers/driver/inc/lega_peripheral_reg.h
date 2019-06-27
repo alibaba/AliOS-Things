@@ -351,7 +351,9 @@ struct LEGA_RTC
 #define LEGA_IRQ_STS_REG_ADDR           0x40000100
 
 //retention ram addr need to be planned
-#define RTC_TIME_RETENTION_RAM_ADDR     0x40008000
+#define RETENTION_RAM_ADDR              0x40008000
+#define RTC_TIME_RETENTION_RAM_ADDR     RETENTION_RAM_ADDR
+#define POWERON_FLAG_RETENTION_RAM_ADDR (RETENTION_RAM_ADDR+0x10)
 
 /*
     LEGA RTC END

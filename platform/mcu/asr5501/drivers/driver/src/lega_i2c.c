@@ -303,8 +303,8 @@ int32_t lega_i2c_master_send(lega_i2c_dev_t *i2c, uint16_t dev_addr, const uint8
 
         g_lega_timer1.config.period = timeout*1000; //us
 
-        g_lega_i2c_timeout = 0;
         lega_timer_init(&g_lega_timer1);
+        g_lega_i2c_timeout = 0;
         lega_timer_start(&g_lega_timer1);
     }
 
@@ -312,7 +312,10 @@ int32_t lega_i2c_master_send(lega_i2c_dev_t *i2c, uint16_t dev_addr, const uint8
     {
         if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
         {
-            ret = -1;
+            //clr TX_ABRT sts
+            //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+            I2Cx->IC_CLR_TX_ABRT;
+            ret = -2;
             goto EXIT;
         }
         if(g_lega_i2c_timeout)
@@ -341,6 +344,14 @@ int32_t lega_i2c_master_send(lega_i2c_dev_t *i2c, uint16_t dev_addr, const uint8
             ret = -1;
             goto EXIT;
         }
+    }
+    if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
+    {
+        //clr TX_ABRT sts
+        //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+        I2Cx->IC_CLR_TX_ABRT;
+        ret = -2;
+        goto EXIT;
     }
 
 EXIT:
@@ -406,8 +417,8 @@ int32_t lega_i2c_master_recv(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *da
 
         g_lega_timer1.config.period = timeout*1000; //us
 
-        g_lega_i2c_timeout = 0;
         lega_timer_init(&g_lega_timer1);
+        g_lega_i2c_timeout = 0;
         lega_timer_start(&g_lega_timer1);
     }
 
@@ -434,7 +445,10 @@ int32_t lega_i2c_master_recv(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *da
             {
                 if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
                 {
-                    ret = -1;
+                    //clr TX_ABRT sts
+                    //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+                    I2Cx->IC_CLR_TX_ABRT;
+                    ret = -2;
                     goto EXIT;
                 }
                 if(g_lega_i2c_timeout)
@@ -522,8 +536,8 @@ int32_t lega_i2c_mem_write(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_
 
         g_lega_timer1.config.period = timeout*1000; //us
 
-        g_lega_i2c_timeout = 0;
         lega_timer_init(&g_lega_timer1);
+        g_lega_i2c_timeout = 0;
         lega_timer_start(&g_lega_timer1);
     }
 
@@ -531,7 +545,10 @@ int32_t lega_i2c_mem_write(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_
     {
         if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
         {
-            ret = -1;
+            //clr TX_ABRT sts
+            //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+            I2Cx->IC_CLR_TX_ABRT;
+            ret = -2;
             goto EXIT;
         }
         if(g_lega_i2c_timeout)
@@ -551,7 +568,10 @@ int32_t lega_i2c_mem_write(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_
     {
         if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
         {
-            ret = -1;
+            //clr TX_ABRT sts
+            //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+            I2Cx->IC_CLR_TX_ABRT;
+            ret = -2;
             goto EXIT;
         }
         if(g_lega_i2c_timeout)
@@ -580,6 +600,14 @@ int32_t lega_i2c_mem_write(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_
             ret = -1;
             goto EXIT;
         }
+    }
+    if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
+    {
+        //clr TX_ABRT sts
+        //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+        I2Cx->IC_CLR_TX_ABRT;
+        ret = -2;
+        goto EXIT;
     }
 EXIT:
     if(0xFFFFFFFF != timeout)
@@ -646,8 +674,8 @@ int32_t lega_i2c_mem_read(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_a
 
         g_lega_timer1.config.period = timeout*1000; //us
 
-        g_lega_i2c_timeout = 0;
         lega_timer_init(&g_lega_timer1);
+        g_lega_i2c_timeout = 0;
         lega_timer_start(&g_lega_timer1);
     }
 
@@ -655,7 +683,10 @@ int32_t lega_i2c_mem_read(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_a
     {
         if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
         {
-            ret = -1;
+            //clr TX_ABRT sts
+            //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+            I2Cx->IC_CLR_TX_ABRT;
+            ret = -2;
             goto EXIT;
         }
         if(g_lega_i2c_timeout)
@@ -699,7 +730,10 @@ int32_t lega_i2c_mem_read(lega_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_a
             {
                 if(I2Cx->IC_RAW_INTR_STAT & TX_ABRT)
                 {
-                    ret = -1;
+                    //clr TX_ABRT sts
+                    //The TX FIFO remains in flushed state until the register IC_CLR_TX_ABRT is read
+                    I2Cx->IC_CLR_TX_ABRT;
+                    ret = -2;
                     goto EXIT;
                 }
                 if(g_lega_i2c_timeout)
