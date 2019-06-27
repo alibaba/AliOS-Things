@@ -7,9 +7,10 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "iot_export_mqtt.h"
+#include "dev_sign_api.h"
+#include "mqtt_api.h"
+#include "wrappers.h"
+#include "infra_compat.h"
 #include "app_entry.h"
 
 #include "das.h"
@@ -190,34 +191,11 @@ int mqtt_client(void)
 {
     int rc, cnt = 0;
     void *pclient;
-    iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
-
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
-        EXAMPLE_TRACE("AUTH request failed!");
-        return -1;
-    }
-
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
-    mqtt_params.port = pconn_info->port;
-    mqtt_params.host = pconn_info->host_name;
-    mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.username = pconn_info->username;
-    mqtt_params.password = pconn_info->password;
-    mqtt_params.pub_key = pconn_info->pub_key;
-
-    mqtt_params.request_timeout_ms = 2000;
-    mqtt_params.clean_session = 0;
-    mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.read_buf_size = MQTT_MSGLEN;
-    mqtt_params.write_buf_size = MQTT_MSGLEN;
-
     mqtt_params.handle_event.h_fp = event_handle;
-    mqtt_params.handle_event.pcontext = NULL;
-
 
     /* Construct a MQTT client with specify parameter */
     pclient = IOT_MQTT_Construct(&mqtt_params);
