@@ -68,10 +68,7 @@
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
 #define lwm2m_log(level, ...) do { \
-        if( level == LOG_ERR) { \
-           LOGE(TAG, __VA_ARGS__); \
-        } \
-        if( level == LOG_DEBUG) { \
+        if( level < LOG_DEBUG) { \
            LOGD(TAG, __VA_ARGS__); \
         } \
         } while(0)
@@ -90,6 +87,20 @@
         lwm2m_printf("\r\n");                                                       \
     }                                                                               \
 }
+#else
+#ifndef LOG_URI
+#define LOG_URI(URI)
+#endif
+#ifndef lwm2m_log
+#define lwm2m_log(level, ...) do { \
+            if( level < LOG_DEBUG ) { \
+                LOGE(TAG, __VA_ARGS__); \
+            } \
+        } while(0)
+#endif
+#endif
+
+#if defined(LWM2M_WITH_LOGS) || !defined(NDEBUG)
 #define STR_STATUS(S)                                           \
 ((S) == STATE_DEREGISTERED ? "STATE_DEREGISTERED" :             \
 ((S) == STATE_REG_PENDING ? "STATE_REG_PENDING" :               \
@@ -122,23 +133,6 @@
 ((S) == STATE_REGISTERING ? "STATE_REGISTERING" :      \
 ((S) == STATE_READY ? "STATE_READY" :      \
 "Unknown"))))))
-#else
-#ifndef LOG
-#define LOG(STR)
-#endif
-#ifndef LOG_ARG
-#define LOG_ARG(FMT, ...)
-#endif
-#ifndef LOG_URI
-#define LOG_URI(URI)
-#endif
-#endif
-#ifndef lwm2m_log
-#define lwm2m_log(level, ...) do { \
-            if( level == LOG_ERR) { \
-                LOGE(TAG, __VA_ARGS__); \
-            } \
-        } while(0)
 #endif
 
 #define LWM2M_DEFAULT_LIFETIME  86400

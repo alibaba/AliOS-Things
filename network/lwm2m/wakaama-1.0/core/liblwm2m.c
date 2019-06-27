@@ -373,12 +373,12 @@ int lwm2m_step(void *handler,
     int result;
     lwm2m_context_t * contextP = (lwm2m_context_t *) handler;
 
-    lwm2m_log(LOG_INFO, "timeoutP: %lld\n", *timeoutP);
+    lwm2m_log(LOG_DEBUG, "timeoutP: %lld\n", *timeoutP);
     tv_sec = lwm2m_gettime();
     if (tv_sec < 0) return COAP_500_INTERNAL_SERVER_ERROR;
 
 #ifdef LWM2M_CLIENT_MODE
-    lwm2m_log(LOG_INFO, "State: %s\n", STR_STATE(contextP->state));
+    lwm2m_log(LOG_DEBUG, "State: %s\n", STR_STATE(contextP->state));
     // state can also be modified in bootstrap_handleCommand().
 
 next_step:
