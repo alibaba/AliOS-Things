@@ -5,8 +5,7 @@
 #ifndef UDEV_MQTT_CLIENT_H
 #define UDEV_MQTT_CLIENT_H
 
-#include "iot_export_mqtt.h"
-#include "iotx_mqtt.h"
+#include "mqtt_internal.h"
 
 #define MQTT_RBUF_SIZE          512
 #define MQTT_WBUF_SIZE          512
