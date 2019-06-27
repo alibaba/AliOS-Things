@@ -91,7 +91,7 @@
 #define MEMP_NUM_NETCONN                10
 #define MEMP_NUM_TCPIP_MSG_API          8
 #define MEMP_NUM_TCPIP_MSG_INPKT        12
-#define PBUF_POOL_SIZE                  24
+#define PBUF_POOL_SIZE                  10
 
 /*
    ---------- ARP options ----------
@@ -130,6 +130,7 @@
 */
 #define LWIP_DHCP                       1
 #define LWIP_NETIF_STATUS_CALLBACK      1
+#define DHCP_DOES_ARP_CHECK             0
 
 /*
    ---------- AUTOIP options ----------
@@ -162,8 +163,8 @@
 #define LWIP_TCP                        1
 #define LWIP_LISTEN_BACKLOG             0
 #define TCP_MSS                         1460   //1792
-#define TCP_WND                         (5 * TCP_MSS)
-#define TCP_SND_BUF                     (10 * TCP_MSS)
+#define TCP_WND                         (2 * TCP_MSS)
+#define TCP_SND_BUF                     (4 * TCP_MSS)
 #define TCP_MAXRTX                      12
 #define TCP_SYNMAXRTX                   12
 
@@ -224,7 +225,7 @@
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
 
 #define LWIP_TCPIP_CORE_LOCKING         1
-#define LWIP_TCPIP_CORE_LOCKING_INPUT   1
+#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
 
 #define ETHIF_IN_TASK_STACKSIZE         512 /* unit 4 byte */
 #define ETHIF_IN_TASK_PRIO              10
