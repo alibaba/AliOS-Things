@@ -6,7 +6,6 @@
 #include <cJSON.h>
 
 #include "hal/wifi.h"
-#include "iot_export_linkkit.h"
 #include "ulocation/ulocation.h"
 #include "uloc_common.h"
 
