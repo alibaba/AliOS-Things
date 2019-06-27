@@ -166,6 +166,10 @@ typedef struct {
 #define FLASH_QSPI_L2       0x4E1C253B
 #define FLASH_QSPI_L4       0x6F0CEDEB
 
+#define CHIP_ERASE_CMD      0x0000160
+#define SECTOR_ERASE_CMD    0x0002520
+#define BLOCK32_ERASE_CMD   0x0002552
+#define BLOCK64_ERASE_CMD   0x00025D8
 
 struct FlashSectors  {
   unsigned long   szSector;    // Sector Size in Bytes
@@ -200,10 +204,7 @@ extern          void lega_flash_alg_cache_bypass(void);
 extern          void lega_flash_alg_cache_enable(void);
 extern          void lega_flash_alg_cache_flush(void);
 extern          int  lega_flash_alg_init (void);
-extern          int  lega_flash_alg_erasechip (void);               // Erase complete Device
-extern          int  lega_flash_alg_erasesector (unsigned long adr);  // Erase Sector Function
-extern          int lega_flash_alg_eraseblock32 (unsigned long adr);
-extern          int lega_flash_alg_eraseblock64 (unsigned long adr);
+extern          int lega_flash_alg_erase(unsigned int cmd, unsigned long adr);
 extern          int  lega_flash_alg_programpage (unsigned long adr,   // Program Page Function
                                   unsigned long sz,
                                   unsigned char *buf);
