@@ -36,7 +36,7 @@ $(NAME)_SOURCES += $(LWM2M_EXAMPLE_PATH)/shared/connection.c
 endif
 #end example client
 
-$(NAME)_COMPONENTS += osal_aos lwm2m cli netmgr
+$(NAME)_COMPONENTS += osal_aos lwm2m cli netmgr 
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
