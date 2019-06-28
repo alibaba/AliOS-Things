@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := lwm2m component
 GLOBAL_DEFINES-y += LWM2M_LITTLE_ENDIAN \
                   LWM2M_CLIENT_MODE
 
-GLOBAL_INCLUDES += ./wakaama-1.0/core
+GLOBAL_INCLUDES += ./wakaama-1.0/core \
 
 LWM2M_SRC_PATH := ./wakaama-1.0/core
 
