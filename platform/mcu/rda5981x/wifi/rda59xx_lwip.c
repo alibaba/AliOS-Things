@@ -1,5 +1,4 @@
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
+#include "lwip/netifapi.h"
 #include "netif/etharp.h"
 #include "lwip/sys.h"
 
@@ -256,7 +255,7 @@ void rda59xx_netif_input(struct netif *netif, u8_t *data, u32_t len)
         /* Free buffer */
         pbuf_free(p);
       }
-      LWIP_DEBUGF(NETIF_DEBUG, ("rda5991h_enetif_input: IP input ok\n"));	  
+      LWIP_DEBUGF(NETIF_DEBUG, ("rda5991h_enetif_input: IP input ok\n"));
       break;
 
     default:
@@ -275,17 +274,17 @@ void rda59xx_sta_netif_link_failed()
 void rda59xx_netif_link_down(u32_t netif)
 {
     if(netif == 0)
-        netif_set_link_down(&lwip_sta_netif);
+        netifapi_netif_set_link_down(&lwip_sta_netif);
     else
-        netif_set_link_down(&lwip_ap_netif);
+        netifapi_netif_set_link_down(&lwip_ap_netif);
 }
 
 void rda59xx_netif_link_up(u32_t netif)
 {
     if(netif == 0)
-        netif_set_link_up(&lwip_sta_netif);
+        netifapi_netif_set_link_up(&lwip_sta_netif);
     else
-        netif_set_link_up(&lwip_ap_netif);
+        netifapi_netif_set_link_up(&lwip_ap_netif);
 }
 
 void rda59xx_netif_data_input(u8_t *data, u32_t len, u32_t idx, u32_t netif)
@@ -309,7 +308,7 @@ static void rda59xx_sta_netif_status_irq(struct netif *lwip_netif)
     if (netif_is_up(lwip_netif) && rda59xx_get_netif_ip(lwip_netif) != NULL) {
             sys_sem_signal(&lwip_sta_netif_has_addr);
         }
-    return;    
+    return;
 }
 
 
@@ -323,7 +322,7 @@ err_t rda59xx_sta_netif_init(struct netif *netif)
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
     if(netif->hostname == NULL)
-#ifdef DELETE_HFILOP_CODE 
+#ifdef DELETE_HFILOP_CODE
         netif->hostname = "rda59xx_sta";
 #else
     {
@@ -333,7 +332,7 @@ err_t rda59xx_sta_netif_init(struct netif *netif)
 #endif
 #endif /* LWIP_NETIF_HOSTNAME */
     rda59xx_get_macaddr((u8_t *)(netif->hwaddr), 0);
-    
+
     netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
     /* maximum transfer unit */
@@ -349,8 +348,8 @@ err_t rda59xx_sta_netif_init(struct netif *netif)
     netif->linkoutput = rda59xx_low_level_output;
 
     netif_set_link_callback(&lwip_sta_netif, rda59xx_sta_netif_link_irq);
-    netif_set_status_callback(&lwip_sta_netif, rda59xx_sta_netif_status_irq);    
-    netif_set_default(&lwip_sta_netif);
+    netif_set_status_callback(&lwip_sta_netif, rda59xx_sta_netif_status_irq);
+    netifapi_netif_set_default(&lwip_sta_netif);
     return ERR_OK;
 }
 
@@ -375,7 +374,7 @@ err_t rda59xx_ap_netif_init(struct netif *netif)
         netif->hostname = "rda59xx_ap";
 #endif /* LWIP_NETIF_HOSTNAME */
     rda59xx_get_macaddr((u8_t *)(netif->hwaddr), 1);
-    
+
     netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
     /* maximum transfer unit */
@@ -392,7 +391,7 @@ err_t rda59xx_ap_netif_init(struct netif *netif)
 
     netif_set_link_callback(&lwip_ap_netif, rda59xx_ap_netif_link_irq);
     if(netif_default == NULL)
-        netif_set_default(&lwip_ap_netif);
+        netifapi_netif_set_default(&lwip_ap_netif);
 
     return ERR_OK;
 }
@@ -400,15 +399,15 @@ err_t rda59xx_ap_netif_init(struct netif *netif)
 void rda59xx_netif_down(int netif)
 {
     if(netif == 0)
-        netif_set_down(&lwip_sta_netif);
+        netifapi_netif_set_down(&lwip_sta_netif);
     else
-        netif_set_down(&lwip_ap_netif);
+        netifapi_netif_set_down(&lwip_ap_netif);
 }
 void rda59xx_netif_up(int netif)
 {
     if(netif == 0)
-        netif_set_up(&lwip_sta_netif);
+        netifapi_netif_set_up(&lwip_sta_netif);
     else
-        netif_set_up(&lwip_ap_netif);
+        netifapi_netif_set_up(&lwip_ap_netif);
 }
 
