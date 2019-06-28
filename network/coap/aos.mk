@@ -6,8 +6,6 @@ $(NAME)_SUMMARY := libcoap component
 
 LIBCOAP_SRC_PATH := ./libcoap-4.2.0/src
 
-EXT_SRC_PATH := ../../middleware/linkkit/sdk-c
-
 $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    $(LIBCOAP_SRC_PATH)/resource.c \
                    $(LIBCOAP_SRC_PATH)/pdu.c \
@@ -36,7 +34,8 @@ else
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
-GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/
+GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/ \
+                   ./infra/
 
 GLOBAL_INCLUDES += $(EXT_SRC_PATH)/include/                  \
                    $(EXT_SRC_PATH)/include/imports/          \
@@ -47,9 +46,17 @@ GLOBAL_INCLUDES += $(EXT_SRC_PATH)/include/                  \
                    $(EXT_SRC_PATH)/src/infra/utils/          \
                    $(EXT_SRC_PATH)/src/infra/log/
 
+$(NAME)_SOURCES +=  ./infra/infra_aes.c         \
+                    ./infra/infra_md5.c 
+
 ifeq (y,$(COAP_WITH_ALI_AUTH))
-$(NAME)_COMPONENTS += mbedtls activation chip_code libiot_sdk_impl libiot_system libiot_utils iotx-hal
-GLOBAL_DEFINES += COAP_COMM_ENABLED BUILD_AOS UTILS_MD5 UTILS_STRING UTILS_JSON_PARSER UTILS_SHA256 MQTT_DIRECT USE_EXTERNAL_MEBDTLS WITH_LIBCOAP_DEBUG
+$(NAME)_SOURCES += ./infra/infra_cjson.c        \
+                   ./infra/infra_compat.c       \
+                   ./infra/infra_report.c       \
+                   ./infra/infra_sha256.c       \
+                   ./infra/infra_json_parser.c
+$(NAME)_COMPONENTS += mbedtls activation chip_code
+GLOBAL_DEFINES += BUILD_AOS INFRA_MD5 USE_EXTERNAL_MEBDTLS WITH_LIBCOAP_DEBUG
 else
-GLOBAL_DEFINES += NDEBUG COAP_COMM_ENABLED COAP_WITH_NOAUTH WITH_LIBCOAP_DEBUG
+GLOBAL_DEFINES += NDEBUG COAP_WITH_NOAUTH INFRA_MD5 WITH_LIBCOAP_DEBUG INFRA_MD5
 endif
