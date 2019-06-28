@@ -68,7 +68,16 @@
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
 #define lwm2m_log(level, ...) do { \
-        if( level < LOG_DEBUG) { \
+        if( level == LOG_ERR) { \
+           LOGE(TAG, __VA_ARGS__); \
+        } \
+        else if( level == LOG_WARNING) { \
+           LOGW(TAG, __VA_ARGS__); \
+        } \
+        else if( level == LOG_INFO) { \
+           LOGI(TAG, __VA_ARGS__); \
+        } \
+        else if( level == LOG_DEBUG) { \
            LOGD(TAG, __VA_ARGS__); \
         } \
         } while(0)
@@ -93,8 +102,14 @@
 #endif
 #ifndef lwm2m_log
 #define lwm2m_log(level, ...) do { \
-            if( level < LOG_DEBUG ) { \
+            if( level == LOG_ERR) { \
                 LOGE(TAG, __VA_ARGS__); \
+            } \
+            else if( level == LOG_WARNING) { \
+                LOGW(TAG, __VA_ARGS__); \
+            } \
+            else if( level == LOG_INFO) { \
+                LOGI(TAG, __VA_ARGS__); \
             } \
         } while(0)
 #endif
