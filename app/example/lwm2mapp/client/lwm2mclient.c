@@ -88,8 +88,7 @@
 #include <signal.h>
 #include "aos/cli.h"
 #include "ulog/ulog.h"
-
-#include "utils_hmac.h"
+#include "infra_md5.h"
 
 #define MAX_PACKET_SIZE 1024
 #define DEFAULT_SERVER_IPV6 "[::1]"
