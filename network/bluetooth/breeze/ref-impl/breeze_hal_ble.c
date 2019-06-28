@@ -30,6 +30,11 @@ ais_bt_init_t * bt_init_info = NULL;
 #define BT_UUID_AIS_WWNRC BT_UUID_DECLARE_16(BLE_UUID_AIS_WWNRC)
 #define BT_UUID_AIS_NC BT_UUID_DECLARE_16(BLE_UUID_AIS_NC)
 
+
+#define BT_LE_ADV_BREEZE BT_LE_ADV_PARAM(BT_LE_ADV_OPT_ONE_TIME|BT_LE_ADV_OPT_CONNECTABLE, \
+                       BT_GAP_ADV_FAST_INT_MIN_2, \
+                       BT_GAP_ADV_FAST_INT_MAX_2)
+
 static struct bt_gatt_ccc_cfg ais_ic_ccc_cfg[BT_GATT_CCC_MAX] = {};
 static struct bt_gatt_ccc_cfg ais_nc_ccc_cfg[BT_GATT_CCC_MAX] = {};
 
@@ -534,7 +539,7 @@ ais_err_t ble_advertising_start(ais_adv_init_t *adv)
     sd[0].data     = adv->name.name;
     sd[0].data_len = strlen(adv->name.name);
 
-    err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ad_len, sd, sd_len);
+    err = bt_le_adv_start(BT_LE_ADV_BREEZE, ad, ad_len, sd, sd_len);
     if (err) {
         BZ_LOG_E("Failed to start adv (err %d)", err);
         return AIS_ERR_ADV_FAIL;
