@@ -8,11 +8,14 @@
 #if !defined(_WIN32)
     #include <unistd.h>
 #endif
-
 #include "coap_api.h"
 #include "wrappers.h"
 #include "app_entry.h"
 #include "infra_compat.h"
+
+#include "ulog/ulog.h"
+
+#define TAG "COAPAPP"
 
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.coap.cn-shanghai.link.aliyuncs.com:5683"
@@ -38,8 +41,15 @@ static void iotx_response_handler(void *arg, void *p_response)
     iotx_coap_resp_code_t resp_code;
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
-    HAL_Printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
-    HAL_Printf("[APPL]: Len: %d, Payload: %s\r\n", len, p_payload);
+    LOGI(TAG, "[APPL]: Message response code: 0x%x", resp_code);
+    if(p_payload != NULL)
+    {
+        LOGI(TAG, "[APPL]: Len: %d, Payload: %s", len, p_payload);
+    }
+    else
+    {
+        LOGW("[APPL]: Len: %d, Payload: (null)", len);
+    }
 }
 
 static void iotx_post_data_to_server(void *param)
@@ -48,7 +58,7 @@ static void iotx_post_data_to_server(void *param)
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
     iotx_message_t message;
 
-    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update/", IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME);
+    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update/", IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME);
 
     memset(&message, 0, sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
@@ -73,24 +83,24 @@ static int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
     HAL_GetDeviceName(p_devinfo->device_name);
     HAL_GetDeviceSecret(p_devinfo->device_secret);
     memset(p_devinfo->device_id, 0, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2);
-    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2,
+    snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2,
                  "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
 
-    HAL_Printf("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
-    HAL_Printf("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
-    HAL_Printf("*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
-    HAL_Printf("*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
+    LOGD(TAG, "*****The Product Key  : %s *****", p_devinfo->product_key);
+    LOGD(TAG, "*****The Device Name  : %s *****", p_devinfo->device_name);
+    LOGD(TAG, "*****The Device Secret: %s *****", p_devinfo->device_secret);
+    LOGD(TAG, "*****The Device ID    : %s *****", p_devinfo->device_id);
     return IOTX_SUCCESS;
 }
 
 static void show_usage()
 {
-    HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
-    HAL_Printf("\t-e pre|online|daily\t\tSet the cloud environment.\r\n");
-    HAL_Printf("\t-s nosec|dtls|psk  \t\tSet the security setting.\r\n");
-    HAL_Printf("\t-l                 \t\tSet the program run loop.\r\n");
-    HAL_Printf("\t-r                 \t\tTesting the DTLS session ticket.\r\n");
-    HAL_Printf("\t-h                 \t\tShow this usage.\r\n");
+    LOGI(TAG, "\r\nusage: coap-example [OPTION]...");
+    LOGI(TAG, "\t-e pre|online|daily\t\tSet the cloud environment.");
+    LOGI(TAG, "\t-s nosec|dtls|psk  \t\tSet the security setting.");
+    LOGI(TAG, "\t-l                 \t\tSet the program run loop.");
+    LOGI(TAG, "\t-r                 \t\tTesting the DTLS session ticket.");
+    LOGI(TAG, "\t-h                 \t\tShow this usage.");
 }
 
 int linkkit_main(void *paras)
@@ -162,7 +172,7 @@ int linkkit_main(void *paras)
     m_coap_reconnect = 1;
 #endif
 
-    HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
+    LOGD(TAG, "[COAP-Client]: Enter Coap Client");
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
     if (0 == strncmp(env, "pre", strlen("pre"))) {
         if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
@@ -182,7 +192,7 @@ int linkkit_main(void *paras)
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
         } else {
-            HAL_Printf("Online environment must access with DTLS/PSK\r\n");
+            LOGE(TAG, "Online environment must access with DTLS/PSK\r\n");
             IOT_SetLogLevel(IOT_LOG_NONE);
             return -1;
         }
@@ -209,7 +219,7 @@ reconnect:
 
         IOT_CoAP_Deinit(&p_ctx);
     } else {
-        HAL_Printf("IoTx CoAP init failed\r\n");
+        LOGE(TAG, "IoTx CoAP init failed");
     }
     if (m_coap_reconnect) {
         m_coap_reconnect = 0;
@@ -217,7 +227,7 @@ reconnect:
     }
 
     IOT_SetLogLevel(IOT_LOG_NONE);
-    HAL_Printf("[COAP-Client]: Exit Coap Client\r\n");
+    LOGD("[COAP-Client]: Exit Coap Client");
     return 0;
 }
 
