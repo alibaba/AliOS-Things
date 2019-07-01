@@ -1,5 +1,13 @@
 config AOS_COMP_COAP
     bool "Coap"
+    select INFRA_CJSON
+    select INFRA_JSON_PARSER
+    select INFRA_REPORT
+    select INFRA_MD5
+    select INFRA_SHA256
+    select HAL_CRYPTO
+    select INFRA_AES if !PLATFORM_HAS_MBEDTLS
+    select AOS_COMP_SDK_WRAPPERS
     default n
     help
         AliOS Things coap client

@@ -35,19 +35,15 @@ $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
 GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/ \
-                   ./infra/
-
-GLOBAL_INCLUDES += $(EXT_SRC_PATH)/include/                  \
-                   $(EXT_SRC_PATH)/include/imports/          \
-                   $(EXT_SRC_PATH)/include/exports/          \
-                   $(EXT_SRC_PATH)/src/protocol/coap/        \
-                   $(EXT_SRC_PATH)/src/infra/utils/digest/   \
-                   $(EXT_SRC_PATH)/src/infra/utils/misc/     \
-                   $(EXT_SRC_PATH)/src/infra/utils/          \
-                   $(EXT_SRC_PATH)/src/infra/log/
+                   ./infra/                       \
+                   ./wrappers/                    \
+                   .
 
 $(NAME)_SOURCES +=  ./infra/infra_aes.c         \
-                    ./infra/infra_md5.c 
+                    ./infra/infra_md5.c         \
+                    ./infra/infra_log.c
+
+$(NAME)_COMPONENTS += coap_wrappers
 
 ifeq (y,$(COAP_WITH_ALI_AUTH))
 $(NAME)_SOURCES += ./infra/infra_cjson.c        \
@@ -56,7 +52,7 @@ $(NAME)_SOURCES += ./infra/infra_cjson.c        \
                    ./infra/infra_sha256.c       \
                    ./infra/infra_json_parser.c
 $(NAME)_COMPONENTS += mbedtls activation chip_code
-GLOBAL_DEFINES += BUILD_AOS INFRA_MD5 USE_EXTERNAL_MEBDTLS WITH_LIBCOAP_DEBUG
+GLOBAL_DEFINES += BUILD_AOS INFRA_MD5 WITH_LIBCOAP_DEBUG
 else
-GLOBAL_DEFINES += NDEBUG COAP_WITH_NOAUTH INFRA_MD5 WITH_LIBCOAP_DEBUG INFRA_MD5
+GLOBAL_DEFINES += NDEBUG COAP_WITH_NOAUTH WITH_LIBCOAP_DEBUG
 endif
