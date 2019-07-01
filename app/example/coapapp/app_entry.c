@@ -22,6 +22,8 @@ static char linkkit_started = 0;
 
 static app_main_paras_t entry_paras;
 
+typedef void (*task_fun)(void *);
+
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -42,7 +44,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("iotx_example",linkkit_main,(void *)&entry_paras,1024*6);
+        aos_task_new("iotx_example",(task_fun)linkkit_main,(void *)&entry_paras,1024*6);
         linkkit_started = 1;
     }
 }
@@ -52,6 +54,9 @@ const  char *input_data[]= {"coapapp","-e","online","-l","-s","dtls"};
 #endif
 int application_start(int argc, char **argv)
 {
+#ifdef WITH_SAL
+    LOG("Coapapp should run on the board which not support SAL");
+#else
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -63,9 +68,6 @@ int application_start(int argc, char **argv)
     entry_paras.argc = argc;
     entry_paras.argv = argv;
 
-#ifdef WITH_SAL
-    sal_init();
-#endif
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
@@ -73,6 +75,7 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     netmgr_start(false);
+#endif
 
     aos_loop_run();
 
