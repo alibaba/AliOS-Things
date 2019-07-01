@@ -352,6 +352,7 @@ int application_start(int argc, char **argv)
 #endif
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
