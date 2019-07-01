@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #ifndef _INFRA_DEFS_H_
 #define _INFRA_DEFS_H_
 

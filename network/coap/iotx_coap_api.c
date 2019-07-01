@@ -252,7 +252,6 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
     unsigned char          *p_payload = NULL;
     char                   *msg = NULL;
     iotx_coap_resp_code_t   resp_code;
-
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &p_payload_len);
     coap_log(LOG_DEBUG, "Report response: CoAP response code = %d\n", resp_code);
@@ -928,7 +927,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     CoapInitParam param;
     char url[128] = {0};
     iotx_coap_t *p_iotx_coap = NULL;
-
     if (NULL == p_config) {
         coap_log(LOG_ERR, "Invalid paramter p_config %p\n", p_config);
         return NULL;
@@ -1246,7 +1244,9 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         HEXDUMP_DEBUG(pp_payload, *p_len);
 
         coap_log(LOG_DEBUG, "payload: %s, len %d\n", payload, len);
+
         if (len != 0) {
+            coap_pdu_clear(message, message->alloc_size);
             coap_add_data(message, len, payload);
         }
         coap_free(payload);
