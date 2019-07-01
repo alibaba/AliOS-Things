@@ -117,7 +117,7 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 
 static unsigned int _avRandom()
 {
-    return (((unsigned int)rand() << 16) + rand());
+    return (((unsigned int)aos_rand() << 16) + aos_rand());
 }
 
 static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
@@ -192,15 +192,15 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
 #if defined(MBEDTLS_DEBUG_C)
     mbedtls_debug_set_threshold((int)DEBUG_LEVEL);
 #endif
+    aos_srand((uint32_t)aos_now_ms());
+
     mbedtls_net_init(tcp_fd);
     mbedtls_ssl_init(ssl);
     mbedtls_ssl_config_init(conf);
-    mbedtls_x509_crt_init(crt509_ca);
-
+    mbedtls_x509_crt_init(crt509_ca); 
     /*verify_source->trusted_ca_crt==NULL
      * 0. Initialize certificates
      */
-
     platform_info("Loading the CA root certificate ...");
     if (NULL != ca_crt) {
         if (0 != (ret = mbedtls_x509_crt_parse(

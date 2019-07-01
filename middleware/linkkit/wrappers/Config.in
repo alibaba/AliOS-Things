@@ -5,6 +5,7 @@ config AOS_COMP_SDK_WRAPPERS
     select AOS_COMP_ACTIVATION
     select AOS_COMP_CHIP_CODE
     select AOS_COMP_NETMGR
+    select AOS_COMP_KV
     help
       HAL for AliOS Things
 
