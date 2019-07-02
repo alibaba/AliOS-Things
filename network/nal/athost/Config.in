@@ -2,8 +2,8 @@ config AOS_COMP_ATHOST
     bool
     default n
     select AOS_COMP_LINKKIT_SDK_C if ATHOST_CONFIG_MQTT || ATHOST_CONFIG_COAP
-    select APP_FEATURE_LINKKIT_MQTT if ATHOST_CONFIG_MQTT
-    select APP_FEATURE_LINKKIT_COAP if ATHOST_CONFIG_COAP
+    select AOS_COMP_SDK_MQTT if ATHOST_CONFIG_MQTT
+    select COAP_COMM_ENABLED if ATHOST_CONFIG_COAP
     help
       athost for communicaiton module
 
