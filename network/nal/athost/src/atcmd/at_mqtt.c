@@ -10,9 +10,10 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "iot_export_mqtt.h"
+#include "dev_sign_api.h"
+#include "mqtt_api.h"
+#include "wrappers.h"
+#include "infra_compat.h"
 
 #include "at_util.h"
 
@@ -789,9 +790,9 @@ static void mqtt_authenticate()
 {
     int ret    = 0;
     int notify = MQTT_AUTH_SUCCESS;
-    char productkey[PRODUCT_KEY_MAXLEN]     = { 0 };
-    char devicename[DEVICE_NAME_MAXLEN]     = { 0 };
-    char devicesecret[DEVICE_SECRET_MAXLEN] = { 0 };
+    char productkey[IOTX_PRODUCT_KEY_LEN]     = { 0 };
+    char devicename[IOTX_DEVICE_NAME_LEN]     = { 0 };
+    char devicesecret[IOTX_DEVICE_SECRET_LEN] = { 0 };
 
     HAL_GetProductKey(productkey);
     HAL_GetDeviceName(devicename);
@@ -1160,9 +1161,9 @@ static int atcmd_imqtt_auth()
 {
     const char *mqtt_auth_prefix = "+IMQTTAUTH:";
     char        single;
-    char        productkey[PRODUCT_KEY_MAXLEN + 2]     = { 0 };
-    char        devicename[DEVICE_NAME_MAXLEN + 2]     = { 0 };
-    char        devicesecret[DEVICE_SECRET_MAXLEN + 2] = { 0 };
+    char        productkey[IOTX_PRODUCT_KEY_LEN + 2]     = { 0 };
+    char        devicename[IOTX_DEVICE_NAME_LEN + 2]     = { 0 };
+    char        devicesecret[IOTX_DEVICE_SECRET_LEN + 2] = { 0 };
     int         ret;
     int         error_no = CME_ERROR_UNKNOWN;
     int         offset   = 0;
@@ -1192,9 +1193,9 @@ static int atcmd_imqtt_auth()
     if ('?' == single) {
         // MQTTAUTH prefix + productkey + productkey + devicesecret
         if (offset + strlen(mqtt_auth_prefix) +
-              PRODUCT_KEY_MAXLEN +
-              DEVICE_NAME_MAXLEN +
-              DEVICE_SECRET_MAXLEN + strlen(QUOTE_STR) * 6 +
+              IOTX_PRODUCT_KEY_LEN +
+              IOTX_DEVICE_NAME_LEN +
+              IOTX_DEVICE_SECRET_LEN + strlen(QUOTE_STR) * 6 +
               strlen(SEPARATOR_STR) * 2 <
             MAX_ATCMD_MQTT_MSG_RSP_LEN) {
             HAL_GetProductKey(productkey);
