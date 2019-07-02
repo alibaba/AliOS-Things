@@ -11,11 +11,11 @@
 #define TAG "IPERF_TASK"
 
 #define IPERF_DEBUG_INTERNAL
-#define DBGPRINT_IPERF(FEATURE, _Fmt)   {          \
-            if (g_iperf_debug_feature & FEATURE) { \
-                LOGI(TAG, _Fmt);                   \
-            }                                    \
-        }
+#define DBGPRINT_IPERF(FEATURE, ...)  do {          \
+            if (g_iperf_debug_feature & FEATURE) {  \
+                LOGI(TAG, __VA_ARGS__);             \
+            }                                       \
+        } while(0)
 
 /******************************************************
  *                    Constants
@@ -29,10 +29,6 @@
 #define IPERF_HEADER_VERSION1 0x80000000
 #define IPERF_DEFAULT_UDP_RATE (1024 * 1024)
 #define IPERF_TEST_BUFFER_SIZE (2048)
-
-#define IPERF_DEBUG_RECEIVE     (1<<0)
-#define IPERF_DEBUG_SEND        (1<<1)
-#define IPERF_DEBUG_REPORT      (1<<2)
 
 /******************************************************
  *                   Enumerations
@@ -284,21 +280,21 @@ void iperf_udp_run_server( char *parameters[] )
             client_h_trans.win_band = (int32_t)(ntohl(client_h->win_band));
             client_h_trans.amount = (int32_t)(ntohl(client_h->amount));
 
-            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("UDP server, receive from sockfd \"%d\", id is \"%d\", tv_sec is \"%d\", tv_usec is \"%d\", nbytes is \"%d\"",
-                    sockfd, udp_h_id, ntohl(udp_h->tv_sec), ntohl(udp_h->tv_usec), nbytes));
-            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("UDP server, receive from sin_len = %d, sin_family = %d , port = %d, s_addr = 0x%x", cliaddr.sin_len, cliaddr.sin_family,
-                    cliaddr.sin_port, cliaddr.sin_addr.s_addr));
-            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d] t1 = %d, t2 = %d", __FUNCTION__, __LINE__, t1, t2));
+            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "UDP server, receive from sockfd \"%d\", id is \"%d\", tv_sec is \"%d\", tv_usec is \"%d\", nbytes is \"%d\"",
+                    sockfd, udp_h_id, ntohl(udp_h->tv_sec), ntohl(udp_h->tv_usec), nbytes);
+            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "UDP server, receive from sin_len = %d, sin_family = %d , port = %d, s_addr = 0x%x", cliaddr.sin_len, cliaddr.sin_family,
+                    cliaddr.sin_port, cliaddr.sin_addr.s_addr);
+            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] t1 = %d, t2 = %d", __FUNCTION__, __LINE__, t1, t2);
 
-            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d], client_h_trans.flag = %d, num_threads = %d, port = %d, buffer_len = %d, win_band = %d, amount = %d"
-                    , __FUNCTION__, __LINE__, client_h_trans.flags, client_h_trans.num_threads, client_h_trans.port, client_h_trans.buffer_len, client_h_trans.win_band, client_h_trans.amount));
+            DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d], client_h_trans.flag = %d, num_threads = %d, port = %d, buffer_len = %d, win_band = %d, amount = %d"
+                    , __FUNCTION__, __LINE__, client_h_trans.flags, client_h_trans.num_threads, client_h_trans.port, client_h_trans.buffer_len, client_h_trans.win_band, client_h_trans.amount);
 #endif
 
 #if defined(IPERF_DEBUG_ENABLE)
             if (tmp != nbytes) {
-                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes));
+                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes);
             } else {
-                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("."));
+                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ".");
             }
             tmp = nbytes;
 #endif
@@ -391,7 +387,7 @@ void iperf_udp_run_server( char *parameters[] )
                 }
 
 #if defined(IPERF_DEBUG_ENABLE)
-                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d]send_bytes = %d, nbytes = %d,", __FUNCTION__, __LINE__, send_bytes, nbytes));
+                DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d]send_bytes = %d, nbytes = %d,", __FUNCTION__, __LINE__, send_bytes, nbytes);
 #endif
 
                 client_h = (client_hdr *) &buffer[12];
@@ -415,7 +411,7 @@ void iperf_udp_run_server( char *parameters[] )
         } while ( nbytes > 0 );
 
 #if defined(IPERF_DEBUG_ENABLE)
-        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d] Interval = %d.%d (secs)", __FUNCTION__, __LINE__, t2, t2_h_ms)); //sec.
+        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] Interval = %d.%d (secs)", __FUNCTION__, __LINE__, t2, t2_h_ms); //sec.
 #endif
 
     } while ( 0 );
@@ -539,9 +535,9 @@ void iperf_tcp_run_server( char *parameters[] )
                     }
 #if defined(IPERF_DEBUG_ENABLE)
                     if (tmp != nbytes) {
-                        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes));
+                        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes);
                     } else {
-                        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("."));
+                        DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ".");
                     }
                     tmp = nbytes;
 #endif
@@ -724,7 +720,7 @@ void iperf_tcp_run_client( char *parameters[] )
         nbytes = send( sockfd, buffer, win_size, 0 );
         pkt_count = iperf_calculate_result( nbytes, pkt_count, 0 );
 #if defined(IPERF_DEBUG_ENABLE)
-        DBGPRINT_IPERF(IPERF_DEBUG_SEND, ("[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes));
+        DBGPRINT_IPERF(IPERF_DEBUG_SEND, "[%s:%d]nbytes=%d ", __FUNCTION__, __LINE__, nbytes);
 #endif
         aos_msleep( pkt_delay );
 
@@ -966,8 +962,8 @@ void iperf_udp_run_client( char *parameters[] )
 #if defined(IPERF_DEBUG_INTERNAL)
         // show the debug info per second
         if (((bw == 0) && ((udp_h_id % 5000 == 0))) || (udp_h_id % (bw / nbytes) == 0)) {
-            DBGPRINT_IPERF(IPERF_DEBUG_SEND, ("[%s:%d] nbytes = %d, udp_h_id = %d, pkt_delay = %d, current_tick = %d, current_sleep = %d",
-                    __FUNCTION__, __LINE__, nbytes, udp_h_id, pkt_delay, current_tick, current_sleep));
+            DBGPRINT_IPERF(IPERF_DEBUG_SEND, "[%s:%d] nbytes = %d, udp_h_id = %d, pkt_delay = %d, current_tick = %d, current_sleep = %d",
+                    __FUNCTION__, __LINE__, nbytes, udp_h_id, pkt_delay, current_tick, current_sleep);
         }
 #endif
 
@@ -1061,21 +1057,20 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     unsigned tmp_time = (time * 10) + h_ms_time;
 
 #if defined(IPERF_DEBUG_ENABLE)
-    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("\nTransfer in %d.%d seconds: ", time, h_ms_time));
+    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "\nTransfer in %d.%d seconds: ", time, h_ms_time);
     if (pkt_count.GBytes != 0) {
-        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("%d GBytes ", pkt_count.GBytes));
+        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "%d GBytes ", pkt_count.GBytes);
     }
 
     if (pkt_count.MBytes != 0) {
-        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("%d MBytes ", pkt_count.MBytes));
+        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "%d MBytes ", pkt_count.MBytes);
     }
 
     if (pkt_count.KBytes != 0) {
-        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("%d KBytes ", pkt_count.KBytes));
+        DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "%d KBytes ", pkt_count.KBytes);
     }
 
-    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("[%s:%d], time = %d, h_ms_time = %d, GBytes = %d, MBytes = %d, KBytes= %d, Bytes= %d ", __FUNCTION__, __LINE__,
-            time,i h_ms_time, pkt_count.GBytes, pkt_count.MBytes, pkt_count.KBytes, pkt_count.Bytes));
+    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "[%s:%d], time = %d, h_ms_time = %d, GBytes = %d, MBytes = %d, KBytes= %d, Bytes= %d ", __FUNCTION__, __LINE__, time, h_ms_time, pkt_count.GBytes, pkt_count.MBytes, pkt_count.KBytes, pkt_count.Bytes);
 #endif
 
     LOGI(TAG, "%s Bandwidth: ", report_title );
@@ -1109,7 +1104,7 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     LOGI(TAG, "%d bits/sec", pkt_count.Bytes );
 
 #if defined(IPERF_DEBUG_ENABLE)
-    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("Receive times: %d", pkt_count.times));
+    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "Receive times: %d", pkt_count.times);
 #endif
 
 }
@@ -1186,8 +1181,8 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
     }
 
 #if defined(IPERF_DEBUG_INTERNAL)
-    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("\niperf_diff_count: ret.times = %d, ret.GBytes = %d, ret.MBytes = %d, ret.KBytes = %d, ret.Bytes = %d",
-            tmp_count.times, tmp_count.GBytes, tmp_count.MBytes, tmp_count.KBytes, tmp_count.Bytes));
+    DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "\niperf_diff_count: ret.times = %d, ret.GBytes = %d, ret.MBytes = %d, ret.KBytes = %d, ret.Bytes = %d",
+            tmp_count.times, tmp_count.GBytes, tmp_count.MBytes, tmp_count.KBytes, tmp_count.Bytes);
 #endif
 
     return tmp_count;
@@ -1195,13 +1190,13 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
 
 void iperf_get_current_time( uint32_t *s, uint32_t *ms )
 {
-
+    uint64_t now = aos_now_ms();
     if ( s ) {
-        *s = aos_now();
+        *s = (uint32_t)(now/1000);
     }
 
     if ( ms ) {
-        *ms = aos_now_ms();
+        *ms = (uint32_t)(now);
     }
 }
 
