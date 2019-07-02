@@ -191,8 +191,13 @@ static void _cli_iperf_help_Command( int argc, char **argv )
 static uint8_t _cli_iperf_debug(int argc, char **argv)
 {
     int debug;
+
+    if(argc != 1) {
+        LOGE(TAG, "Invalid iperf debug Command");
+        return -1;
+    }
     debug = atoi(argv[0]);
-    LOGD(TAG, "Set iperf debug to %d(0x%x)\r\n", debug, debug);
+    LOGI(TAG, "Set iperf debug to %d(0x%x)", debug, debug);
     iperf_set_debug_mode(debug);
     return 0;
 }
@@ -203,6 +208,7 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
     if ( argc < 2 ) {
         LOGE(TAG, "Invalid command" );
     }
+
     if ( strcmp( argv[1], "-s" ) == 0 ) {
         _cli_iperf_server_Command( argc - 2, &argv[2] );
     }

@@ -153,7 +153,7 @@ SNMPFILES=apps/snmp/snmp_asn1.c \
 HTTPDFILES=apps/httpd/fs.c \
 	apps/httpd/httpd.c
 
-# LWIPERFFILES: IPERF server
+# LWIPERFFILES: IPERF client/server
 LWIPERFFILES=apps/lwiperf/iperf_task.c \
              apps/lwiperf/iperf_cli.c
 
