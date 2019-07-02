@@ -62,7 +62,11 @@ $(NAME)_PREBUILT_LIBRARY += bsp/lib/libpp.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libwpa.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libphy.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libgcc.a
+ifeq ($(loopback), 1)
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/liblwip_loopback.a
+else
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/liblwip.a
+endif
 
 GLOBAL_CFLAGS   += -DXT_USE_THREAD_SAFE_CLIB=0
 $(NAME)_SOURCES := bsp/entry.c
