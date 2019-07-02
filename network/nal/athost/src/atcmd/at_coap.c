@@ -8,9 +8,9 @@
 
 #include "aos/kernel.h"
 
-#include "iot_import.h"
-#include "iot_export.h"
-#include "CoAPExport.h"
+#include "coap_api.h"
+#include "wrappers.h"
+#include "infra_compat.h"
 
 #include "at_util.h"
 
