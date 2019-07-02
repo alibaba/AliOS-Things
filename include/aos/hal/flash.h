@@ -62,13 +62,14 @@ typedef struct {
 } hal_logic_partition_t;
 
 /**
- * Get the infomation of the specified flash area
+ * Get the information of the specified flash area
  *
- * @param[in]  in_partition  The target flash logical partition
+ * @param[in]  in_partition     The target flash logical partition
+ * @param[in]  partition        The buffer to store partition info
  *
- * @return     HAL_logi_partition struct
+ * @return  0: On success， otherwise is error
  */
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition);
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition);
 
 /**
  * Erase an area on a Flash logical partition
