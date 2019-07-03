@@ -88,6 +88,9 @@
 #if LWIP_IPV6
 #include "lwip/nd6.h"
 #endif
+#ifdef CELLULAR_SUPPORT
+#include "lwip/ip6_zone.h"
+#endif
 
 #if LWIP_NETIF_STATUS_CALLBACK
 #define NETIF_STATUS_CALLBACK(n) do{ if (n->status_callback) { (n->status_callback)(n); }}while(0)
