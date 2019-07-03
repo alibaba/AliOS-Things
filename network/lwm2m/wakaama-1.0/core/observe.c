@@ -611,7 +611,7 @@ void observe_step(lwm2m_context_t * contextP,
                                 break;
                             }
                         }
-                        if ((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_STEP) != 0)
+                        if (((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_STEP) != 0) && (dataP != NULL))
                         {
                             lwm2m_log(LOG_DEBUG, "Checking step\n");
 
