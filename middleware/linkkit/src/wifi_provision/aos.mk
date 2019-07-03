@@ -13,7 +13,7 @@ $(NAME)_SOURCES-$(AWSS_SUPPORT_SMARTCONFIG) += smartconfig/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_SMARTCONFIG_MCAST) += mcast_smartconfig/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_ZEROCONFIG) += zero_config/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_SMARTCONFIG_WPS) += p2p/*.c
-$(NAME)_SOURCES-$(AWSS_SUPPORT_PHONEASAP) += phone_ap/*.c
+$(NAME)_SOURCES-$(AWSS_SUPPORT_AHA) += phone_ap/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_DEV_AP) += dev_ap/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_HT40) += ht40/*.c
 
@@ -29,11 +29,11 @@ endif
 ifeq (y,$(strip $(AWSS_SUPPORT_SMARTCONFIG_WPS)))
 $(NAME)_INCLUDES += p2p
 endif
-ifeq (y,$(strip $(AWSS_SUPPORT_PHONEASAP)))
+ifeq (y,$(strip $(AWSS_SUPPORT_AHA)))
 $(NAME)_INCLUDES += phone_ap
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_DEV_AP)))
-$(NAME)_INCLUDES += dev_ap
+GLOBAL_INCLUDES += dev_ap
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_HT40)))
 $(NAME)_INCLUDES += ht40
@@ -59,28 +59,7 @@ $(NAME)_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_YWSS
 #GLOBAL_DEFINES += DEV_BIND_TEST
 
-#
-# If chipset or die set doesn't support device AP solution,
-# or product doesn't need device AP solution, please remove
-# the defination of AWSS_SUPPORT_DEV_AP
-#
-ifeq ($(AWSS_SUPPORT_DEV_AP), y)
-GLOBAL_DEFINES += AWSS_SUPPORT_DEV_AP
-endif
 
-#
-# If chipset or die set doesn't support smartconfig with broadcast,
-# or product doesn't need smartconfig with broadcast, please remove
-# the defination of AWSS_SUPPORT_SMARCONFIG
-#
-#Note:
-#  AWSS_SUPPORT_SMARTCONFIG is depend on AWSS_SUPPORT_APLIST
-#  AWSS_SUPPORT_SMARTCONFIG cann't work without AWSS_SUPPORT_APLIST
-#
-
-ifeq ($(AWSS_SUPPORT_SMARTCONFIG), y)
-GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG
-endif
 
 #
 # If chipset or die set doesn't support smartconfig with wps,
@@ -105,17 +84,6 @@ endif
 #GLOBAL_DEFINES += AWSS_SUPPORT_HT40
 #endif
 
-#
-# If chipset or die set doesn't suppor AWSS with types of phone ap or router,
-# or product doesn't need AWSS with types of phone ap or router, please remove
-# the defination of AWSS_SUPPORT_AHA
-#
-#  AWSS_SUPPORT_AHA is depend on AWSS_SUPPORT_APLIST
-#  AWSS_SUPPORT_AHA cann't work without AWSS_SUPPORT_APLIST
-#
-ifeq ($(AWSS_SUPPORT_PHONEASAP), y)
-GLOBAL_DEFINES += AWSS_SUPPORT_AHA
-endif
 
 #
 # If chipset or die set doesn't suppor AWSS with type of router, or product
