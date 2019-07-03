@@ -4,8 +4,7 @@
 #if defined(DEV_BIND_ENABLED)
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdio.h>
@@ -82,30 +81,13 @@ static void monitor_data_handler(uint8_t *buf, int len, hal_wifi_link_info_t *in
     unsigned char rssi = -1;
     int link_type = AWSS_LINK_TYPE_NONE;
 
-    if (info) rssi = info->rssi;
+    if (info) {
+        rssi = info->rssi;
+    }
 
     (*g_ieee80211_handler)((char *)buf, len, link_type, with_fcs, rssi);
 }
 
-/*
- * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式,
- * 并在收到802.11帧的时候调用被传入的回调函数
- *
- * @param[in] cb @n A function pointer, called back when wifi receive a frame.
- */
-void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
-{
-    hal_wifi_module_t *module = hal_wifi_get_default_module();
-
-    if (module == NULL) {
-        return;
-    }
-
-    g_ieee80211_handler = cb;
-    hal_wifi_register_monitor_cb(module, monitor_data_handler);
-    hal_wifi_start_wifi_monitor(module);
-    HAL_Awss_Switch_Channel(6, 0, NULL);
-}
 
 /*
  * @brief   设置Wi-Fi网卡离开监听(Monitor)模式,
@@ -207,6 +189,25 @@ void HAL_Awss_Switch_Channel(char primary_channel,
     hal_wifi_set_channel(module, (int)primary_channel);
 }
 
+/*
+ * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式,
+ * 并在收到802.11帧的时候调用被传入的回调函数
+ *
+ * @param[in] cb @n A function pointer, called back when wifi receive a frame.
+ */
+void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
+{
+    hal_wifi_module_t *module = hal_wifi_get_default_module();
+
+    if (module == NULL) {
+        return;
+    }
+
+    g_ieee80211_handler = cb;
+    hal_wifi_register_monitor_cb(module, monitor_data_handler);
+    hal_wifi_start_wifi_monitor(module);
+    HAL_Awss_Switch_Channel(6, 0, NULL);
+}
 /*
  * @brief 检查Wi-Fi网卡、芯片或模组当前的IP地址是否有效，AliOS内部
  *        已经对接完成
@@ -333,8 +334,8 @@ int HAL_Wifi_Send_80211_Raw_Frame(enum HAL_Awss_Frame_Type type,
  * @note None.
  */
 typedef void (*awss_wifi_mgmt_frame_cb_t)(uint8_t *buffer, int len,
-                                          signed char rssi_dbm,
-                                          int buffer_type);
+        signed char rssi_dbm,
+        int buffer_type);
 
 static awss_wifi_mgmt_frame_cb_t monitor_cb = NULL;
 static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
@@ -391,11 +392,11 @@ int HAL_Wifi_Enable_Mgmt_Frame_Filter(uint32_t filter_mask, uint8_t vendor_oui[3
  * @note None.
  */
 typedef int (*awss_wifi_scan_result_cb_t)(const char ssid[HAL_MAX_SSID_LEN],
-                                          const uint8_t bssid[ETH_ALEN],
-                                          enum AWSS_AUTH_TYPE auth,
-                                          enum AWSS_ENC_TYPE  encry,
-                                          uint8_t channel, signed char rssi,
-                                          int is_last_ap);
+        const uint8_t bssid[ETH_ALEN],
+        enum AWSS_AUTH_TYPE auth,
+        enum AWSS_ENC_TYPE  encry,
+        uint8_t channel, signed char rssi,
+        int is_last_ap);
 
 
 

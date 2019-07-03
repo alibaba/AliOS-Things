@@ -31,8 +31,6 @@
 
 #define DEBUG_LEVEL 10
 
-static ssl_hooks_t g_ssl_hooks = {aos_malloc, aos_free};
-
 typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;     /**< mbed TLS control context. */
     mbedtls_net_context fd;      /**< mbed TLS network context. */
@@ -93,7 +91,7 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 #endif
 
 #if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
-    if(session->ticket_len > 0) {
+    if (session->ticket_len > 0) {
         if (session->ticket_len > (size_t)(end - p)) {
             return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
         }
@@ -197,7 +195,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     mbedtls_net_init(tcp_fd);
     mbedtls_ssl_init(ssl);
     mbedtls_ssl_config_init(conf);
-    mbedtls_x509_crt_init(crt509_ca); 
+    mbedtls_x509_crt_init(crt509_ca);
     /*verify_source->trusted_ca_crt==NULL
      * 0. Initialize certificates
      */
@@ -580,7 +578,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
 
                 HAL_GetProductKey(_product_key);
                 HAL_GetDeviceName(_device_name);
-                HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN +5, KV_SESSION_KEY, _product_key, _device_name);
+                HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 5, KV_SESSION_KEY, _product_key, _device_name);
                 HAL_Kv_Set(device_key, (void *)save_buf, real_session_len, 1);
             }
             aos_free(save_buf);
@@ -721,7 +719,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     }
 
     _network_ssl_disconnect((TLSDataParams_t *)handle);
-    HAL_Free((void *)handle);
+    aos_free((void *)handle);
     return 0;
 }
 
@@ -731,7 +729,7 @@ uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt,
     char             port_str[6];
     TLSDataParams_pt pTlsData;
 
-    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
+    pTlsData = aos_malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -742,7 +740,7 @@ uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt,
     if (0 != _TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len,
                                 NULL, 0, NULL, 0, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
-        HAL_Free((void *)pTlsData);
+        aos_free((void *)pTlsData);
         return (uintptr_t)NULL;
     }
 

@@ -6,6 +6,11 @@ $(NAME)_SUMMARY := Alibaba Wireless Setup Service
 
 
 $(NAME)_INCLUDES += . impl/os/  impl/awss_reset 
+
+ifeq (y,$(strip $(AWSS_SUPPORT_AHA)))
+$(NAME)_INCLUDES += ../wifi_provision/phone_ap
+endif 
+
 $(NAME)_SOURCES := impl/*.c  impl/awss_reset/*.c impl/os/*.c 
 
 GLOBAL_INCLUDES +=  . impl/
