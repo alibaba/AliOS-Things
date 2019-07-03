@@ -502,7 +502,7 @@ static void prv_decodeBlock(uint8_t input[4],
     output[2] = (tmp[2] << 6) | tmp[3];
 }
 
-size_t base64_decode(uint8_t * dataP,
+static size_t base64_decode(uint8_t * dataP,
                      size_t dataLen,
                      uint8_t ** bufferP)
 {

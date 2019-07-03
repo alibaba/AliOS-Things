@@ -85,7 +85,9 @@
 #endif
 #include <sys/stat.h>
 #include <errno.h>
+#ifdef CSP_LINUXHOST
 #include <signal.h>
+#endif
 #include "aos/cli.h"
 #include "ulog/ulog.h"
 #include "infra_md5.h"
@@ -1239,7 +1241,9 @@ int lwm2m_client_main(int argc, char *argv[])
         return -1;
     }
 
+#ifdef CSP_LINUXHOST
     signal(SIGINT, handle_sigint);
+#endif
 
     /**
      * Initialize value changed callback.
