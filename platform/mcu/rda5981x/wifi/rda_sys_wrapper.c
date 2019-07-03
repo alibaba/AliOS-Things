@@ -56,6 +56,7 @@ r_void * rda_alarm_create(r_void *func, r_u32 data)
 r_s32 rda_alarm_delete(r_void *handle)
 {
     if (NULL != handle) {
+        aos_timer_stop((aos_timer_t *)handle);
         aos_timer_free((aos_timer_t *)handle);
         r_free(handle);
         handle = NULL;
