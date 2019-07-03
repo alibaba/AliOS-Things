@@ -6,7 +6,6 @@
 #include <string.h>
 #include "aos/kernel.h"
 #include <network/network.h>
-#include <errno.h>
 #include "wrappers_defs.h"
 
 #define PLATFORM_LOG_D(format, ...)                                \
@@ -128,13 +127,13 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len,
     if (fd >= FD_SETSIZE) {
         return -1;
     }
-    t_end    = HAL_UptimeMs() + timeout_ms;
+    t_end    = aos_now_ms() + timeout_ms;
     len_sent = 0;
     err_code = 0;
     ret      = 1; // send one time if timeout_ms is value 0
 
     do {
-        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
+        t_left = aliot_platform_time_left(t_end, aos_now_ms());
 
         if (0 != t_left) {
             struct timeval timeout;
@@ -185,7 +184,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len,
             }
         }
     } while ((len_sent < len) &&
-             (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
+             (aliot_platform_time_left(t_end, aos_now_ms()) > 0));
 
     return err_code == 0 ? len_sent : err_code;
 }
@@ -248,7 +247,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (EINTR == errno) {
                 continue;
             }
-            PLATFORM_LOG_E("select-recv (fd: %d) fail errno=%d",fd, errno);
+            PLATFORM_LOG_E("select-recv (fd: %d) fail errno=%d", fd, errno);
             err_code = -2;
             break;
         }
