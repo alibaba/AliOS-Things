@@ -2,15 +2,23 @@
 # Support for menuconfig
 #
 
-export AOS_CONFIG := $(SOURCE_ROOT).config
-export AOS_DEFCONFIG ?= $(SOURCE_ROOT).defconfig
-export TMP_DEFCONFIG := $(SOURCE_ROOT).defconfig
-export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)build/configs
-export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
+ifneq (,$(APPDIR))
+CONFIG_BASEDIR := $(APPDIR)/
+export AOS_CONFIG_IN := $(APPDIR)/Config.in
+else
+CONFIG_BASEDIR :=
+export AOS_CONFIG_IN := $(SOURCE_ROOT)/build/Config.in
+endif
+
+export AOS_CONFIG := $(CONFIG_BASEDIR).config
+export AOS_DEFCONFIG ?= $(CONFIG_BASEDIR).defconfig
+export TMP_DEFCONFIG := $(CONFIG_BASEDIR).defconfig
+
+export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)/build/configs
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 KCONFIG_TOOLPATH ?=
-KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/$(HOST_OS)/
+KCONFIG_DIR := $(SOURCE_ROOT)/build/kconfig/$(HOST_OS)/
 
 ifneq (,$(wildcard $(KCONFIG_DIR)COPYING))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
@@ -51,7 +59,7 @@ export TMP_DEFCONFIG := $(subst ./,,$(TMP_DEFCONFIG))
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-win32.git
 endif
 
-export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
+export SYSCONFIG_H := $(SOURCE_ROOT)/build/configs/sysconfig.h
 
 # Don't read in .config for these targets
 noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \

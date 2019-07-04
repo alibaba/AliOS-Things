@@ -142,7 +142,7 @@ endif
 # get real app name and check if it available
 appname = $(firstword $(components))
 appdir = $(subst .,/,$(appname))
-appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)app/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/app/*/$(appdir)/aos.mk $(SOURCE_ROOT)/app/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
     $(error App Unknown, Please make sure the "$(appname)" is existing!))
@@ -159,13 +159,13 @@ export AOS_APP_TYPE := AOS_APP_LOCALAPP
 endif
 
 boardname = $(word 2, $(components))
-boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boardname)/aos.mk)
+boardmkfile = $(wildcard $(SOURCE_ROOT)/board/$(boardname)/aos.mk)
 $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
 
 $(if $(filter no,$(AOS_BUILD_COMPATIBLE)), $(call BUILD_INCOMPATIBLE_ERROR,$(boardname)))
-defconfig = $(wildcard $(SOURCE_ROOT)board/$(boardname)/defconfig)
+defconfig = $(wildcard $(SOURCE_ROOT)/board/$(boardname)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
@@ -288,7 +288,11 @@ endif
 	$(QUIET)$(ECHO) Done
 
 distclean: clean
-	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig
+ifneq (,$(APPDIR))
+	$(QUIET)rm -f $(APPDIR)/.config $(APPDIR)/.config.retry $(APPDIR)/.config.old $(APPDIR)/.config.cmd $(APPDIR)/.defconfig $(APPDIR)/..config.tmp
+else
+	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig ..config.tmp
+endif
 
 ifneq ($(BUILD_STRING),)
 ifeq ($(findstring @,$(BUILD_STRING)),)
@@ -315,7 +319,7 @@ export TOOLCHAIN_MAKEFILE := $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 endif
 
 # Support for test suite - create auto_component and register init functions for test components
-AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/auto_component.mk
+AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/aos.mk
 ifneq ($(test), )
 TEST_COMPONENT_COLLECTION = $(AUTO_COMPONENT_DIR)/test_collection.$(test)
 else
