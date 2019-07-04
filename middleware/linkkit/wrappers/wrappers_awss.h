@@ -3,9 +3,9 @@
 
 #include "infra_types.h"
 #include "infra_defs.h"
-#include "iot_import_awss.h"
 
 #ifdef WIFI_PROVISION_ENABLED
+#include "iot_import_awss.h"
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
  *
