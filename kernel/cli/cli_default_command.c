@@ -12,7 +12,12 @@
 #include "cli_api.h"
 #include "cli_adapt.h"
 
+#if defined (__CC_ARM) && defined(__MICROLIB)
 #define TOSTR(s) #s
+#else
+#define TOSTR
+#endif
+
 #define OTA_THREAD_PRIORITY 32
 
 extern void hal_reboot(void);
