@@ -3,7 +3,7 @@ from autotest import Testcase
 
 required_devices = [ [1, 'general'] ]
 
-def main(firmware='mqttapp@esp32-general.bin', model='esp32'):
+def main():
     tc = Testcase('mqtt-connect')
     ap_ssid = tc.ap_ssid
     ap_pass = tc.ap_pass
@@ -16,7 +16,17 @@ def main(firmware='mqttapp@esp32-general.bin', model='esp32'):
         print '\nmqtt connect test failed'
         return [ret, result]
 
-    time.sleep(16)  #wait device boot up
+    responses = at.device_read_log('A', 1, 16, ['Welcome to AliOS Things'])
+    if len(responses) == 0:
+        tc.stop()
+        print '\nmqtt connect test failed: device boot up failed'
+        return [ret, 'device failed to boot up']
+
+    response = at.device_run_cmd('A', 'kv get wifi', 1, 1, ['value is '])
+    if len(response) > 0:
+        at.device_run_cmd('A', 'netmgr clear')
+        at.device_control('A', 'reset')
+        at.device_read_log('A', 1, 16, ['Welcome to AliOS Things'])
 
     at.device_run_cmd('A', 'netmgr connect {0} {1}'.format(ap_ssid, ap_pass)) #connect device A to wifi
     responses = at.device_read_log('A', 1, 120, ['mqtt connect success!'])

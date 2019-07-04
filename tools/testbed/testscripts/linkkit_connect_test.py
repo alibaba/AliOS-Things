@@ -16,7 +16,17 @@ def main():
         print '\nlinkkit connect test failed'
         return [ret, result]
 
-    time.sleep(16)  #wait device boot up
+    responses = at.device_read_log('A', 1, 16, ['Welcome to AliOS Things'])
+    if len(responses) == 0:
+        tc.stop()
+        print '\nlinkkit connect test failed: device boot up failed'
+        return [ret, 'device failed to boot up']
+
+    response = at.device_run_cmd('A', 'kv get wifi', 1, 1, ['value is '])
+    if len(response) > 0:
+        at.device_run_cmd('A', 'netmgr clear')
+        at.device_control('A', 'reset')
+        at.device_read_log('A', 1, 16, ['Welcome to AliOS Things'])
 
     at.device_run_cmd('A', 'netmgr connect {0} {1}'.format(ap_ssid, ap_pass)) #connect device A to wifi
     responses = at.device_read_log('A', 1, 120, ['mqtt connect success!'])
