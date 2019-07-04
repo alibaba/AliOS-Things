@@ -1,9 +1,0 @@
-config AOS_COMP_SDK_NGHTTP2
-    bool "FEATURE_HTTP_COMM_ENABLED"
-    default n
-    help
-       
-
-
-
-
