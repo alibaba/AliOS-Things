@@ -22,7 +22,6 @@
 
 #ifndef CONFIG_NO_TCPIP
 
-
 static uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now)
 {
     uint64_t t_left;
@@ -240,8 +239,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 break;
             }
         } else if (0 == ret) {
-            PLATFORM_LOG_D("%s select (fd: %d) timeout", __func__, fd);
-            err_code = -1;
             break;
         } else {
             if (EINTR == errno) {
@@ -252,9 +249,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             break;
         }
     } while ((len_recv < len));
-
-    // priority to return data bytes if any data be received from TCP
-    // connection. It will get error code on next calling
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
