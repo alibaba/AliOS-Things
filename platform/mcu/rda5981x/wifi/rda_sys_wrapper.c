@@ -56,6 +56,7 @@ r_void * rda_alarm_create(r_void *func, r_u32 data)
 r_s32 rda_alarm_delete(r_void *handle)
 {
     if (NULL != handle) {
+        aos_timer_stop((aos_timer_t *)handle);
         aos_timer_free((aos_timer_t *)handle);
         r_free(handle);
         handle = NULL;
@@ -203,7 +204,7 @@ r_void* rda_queue_create(r_u32 max_msg, r_u32 msg_size)
 
 r_s32 rda_queue_send(r_void *handler, r_u32 msg, r_u32 millisec)
 {
-    rda_queue_handle *r_handler = (rda_queue_handle*)handler; 
+    rda_queue_handle *r_handler = (rda_queue_handle*)handler;
     if (aos_queue_send((aos_queue_t *)(r_handler->queue), (r_void*)msg, r_handler->msg_size) != 0)
         return ERR;
     else
@@ -218,12 +219,12 @@ r_s32 rda_queue_recv(r_void *handler, r_u32 msg, r_u32 millisec)
         return ERR;
     else
         return NO_ERR;
-        
+
 }
 
 r_s32 rda_queue_free(r_void *handler)
 {
-    rda_queue_handle *r_handler = (rda_queue_handle*)handler; 
+    rda_queue_handle *r_handler = (rda_queue_handle*)handler;
     aos_queue_free(r_handler->queue);
     r_free((r_void*)(r_handler->queue));
     r_free(r_handler->buf);
@@ -312,12 +313,14 @@ r_void rda_msleep(r_u32 ms)
     aos_msleep(ms);
 }
 
-//#define CONFIG_DISABLE_ALL_INT
+#define CONFIG_DISABLE_ALL_INT
 #define CRI_SEC_START_PRI_LEVEL 0xF8
 #define CRI_SEC_END_PRI_LEVEL   0x00
 static r_u32 g_critical_sec_counter = 0U;
 #if defined(CONFIG_DISABLE_ALL_INT)
-static r_u32 g_critical_ctxt_saved  = 0U;
+cpu_cpsr_t cpu_intrpt_save(void);
+void   cpu_intrpt_restore(cpu_cpsr_t cpsr);
+static cpu_cpsr_t g_critical_ctxt_saved;
 #endif /* CONFIG_DISABLE_ALL_INT */
 
 
@@ -326,7 +329,7 @@ r_void rda_critical_sec_start(r_void)
     if(__get_IPSR() == 0U) {
         if(0U == g_critical_sec_counter) {
 #if defined(CONFIG_DISABLE_ALL_INT)
-            g_critical_ctxt_saved = __disable_irq();
+            g_critical_ctxt_saved = cpu_intrpt_save();
 #else  /* CONFIG_DISABLE_ALL_INT */
             __set_BASEPRI(CRI_SEC_START_PRI_LEVEL);
 #endif /* CONFIG_DISABLE_ALL_INT */
@@ -341,7 +344,7 @@ r_void rda_critical_sec_end(r_void)
         g_critical_sec_counter--;
         if(0U == g_critical_sec_counter) {
 #if defined(CONFIG_DISABLE_ALL_INT)
-            __set_PRIMASK(g_critical_ctxt_saved);
+            cpu_intrpt_restore(g_critical_ctxt_saved);
 #else  /* CONFIG_DISABLE_ALL_INT */
             __set_BASEPRI(CRI_SEC_END_PRI_LEVEL);
 #endif /* CONFIG_DISABLE_ALL_INT */
