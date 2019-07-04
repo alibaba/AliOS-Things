@@ -137,6 +137,11 @@ def main(argv):
     config_file = argv[2]
     print "Parsing all components ..."
     mklist = find_comp_mkfile(source_root)
+
+    appdir = os.environ.get("APPDIR")
+    if appdir:
+        mklist += find_comp_mkfile(appdir)
+
     ret = write_config_file(source_root, config_file, mklist)
     if ret:
         print "Failed to create %s ...\n" % config_file
