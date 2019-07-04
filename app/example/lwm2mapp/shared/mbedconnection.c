@@ -351,6 +351,10 @@ int get_dtls_context(dtls_connection_t * connList) {
 #ifdef MBEDTLS_ENTROPY_C
     const char *pers ="lwm2mclient";
 #endif
+#if defined(MBEDTLS_CCM_C) && defined(MBEDTLS_AES_C)
+    int force_ciphersuite[2];
+#endif /* MBEDTLS_CCM_C &&  MBEDTLS_AES_C */
+
     lwm2m_log(LOG_DEBUG, "Entering get_dtls_context\n");
 
     connList->server_fd = lwm2m_malloc(sizeof(mbedtls_net_context));
@@ -385,6 +389,13 @@ int get_dtls_context(dtls_connection_t * connList) {
         lwm2m_log(LOG_ERR, "mbedtls_ssl_config_defaults failed ret = %d\n",ret);
         return ret;
     }
+
+#if defined(MBEDTLS_CCM_C) && defined(MBEDTLS_AES_C)
+    force_ciphersuite[0] = mbedtls_ssl_get_ciphersuite_id( "TLS-PSK-WITH-AES-128-CCM-8" );
+    force_ciphersuite[1] = 0;
+    mbedtls_ssl_conf_ciphersuites( connList->conf, force_ciphersuite );
+#endif /* MBEDTLS_CCM_C &&  MBEDTLS_AES_C */
+
     ret = mbedtls_net_set_block( connList->server_fd );
     mbedtls_timing_delay_context *timer = lwm2m_malloc(sizeof (mbedtls_timing_delay_context));
     mbedtls_ssl_set_timer_cb( connList->ssl, timer, mbedtls_timing_set_delay,
