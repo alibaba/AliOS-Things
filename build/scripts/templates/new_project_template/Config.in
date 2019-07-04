@@ -1,0 +1,21 @@
+#
+# The configs required by AliOS Things
+#
+config AOS_BUILD_BOARD
+    string
+    default "@boardname@"
+
+config AOS_BUILD_APP
+    string
+    default "@projectname@"
+
+#
+# The configs for app @projectname@
+#
+config AOS_APP_@PROJECTNAME@
+    bool "AOS_APP_@PROJECTNAME@"
+    default y
+
+if AOS_APP_@PROJECTNAME@
+# Add more configs here ...
+endif
