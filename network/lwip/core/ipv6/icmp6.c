@@ -119,7 +119,6 @@ icmp6_input(struct pbuf *p, struct netif *inp)
   case ICMP6_TYPE_PTB: /* Packet too big */
     nd6_input(p, inp);
     return;
-    break;
   case ICMP6_TYPE_RS:
 #if LWIP_IPV6_FORWARD
     /* @todo implement router functionality */
@@ -131,7 +130,6 @@ icmp6_input(struct pbuf *p, struct netif *inp)
   case ICMP6_TYPE_MLD:
     mld6_input(p, inp);
     return;
-    break;
 #endif
   case ICMP6_TYPE_EREQ:
 #if !LWIP_MULTICAST_PING

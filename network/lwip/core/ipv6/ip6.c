@@ -713,7 +713,6 @@ netif_found:
     }
     default:
       goto options_done;
-      break;
     }
   }
 options_done:
