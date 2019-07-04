@@ -193,12 +193,9 @@ int backtraceFromStack(int **pSP, char **pPC,
             break;
         }
 
-        if ((ins16 & 0xf800) >= 0xe800)
-        {
+        if ((ins16 & 0xf800) >= 0xe800) {
             i += 4;
-        }
-        else
-        {
+        } else {
             i += 2;
         }
     }
