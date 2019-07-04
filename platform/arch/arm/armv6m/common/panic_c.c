@@ -160,7 +160,7 @@ int backtraceFromStack(int **pSP, char **pPC,
     }
 
     /* 2. scan code, find frame size from "sub" or "sub.w" */
-    for (i = 2; i < FUNC_SIZE_LIMIT; i += 2) {
+    for (i = 0; i < FUNC_SIZE_LIMIT;) {
         if (CodeAddr + i > PC) {
             break;
         }
@@ -182,6 +182,12 @@ int backtraceFromStack(int **pSP, char **pPC,
             shift += ((ins32 >> 26) & 0x1) << 4;
             framesize += sub<<(30 - shift);
             break;
+        }
+
+        if ((ins16 & 0xf800) >= 0xe800) {
+            i += 4;
+        } else {
+            i += 2;
         }
     }
 
