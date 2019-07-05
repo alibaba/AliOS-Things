@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #endif
 
-#include "liblwm2m.h"
+#include "lwm2m_api.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/net_sockets.h"
 #ifdef MBEDTLS_ENTROPY_C
