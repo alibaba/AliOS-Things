@@ -19,7 +19,7 @@
 
 #include "internals.h"
 #include <float.h>
-#include "../../lwm2m.h"
+#include "lwm2m_api.h"
 
 #define _PRV_STR_LENGTH 32
 
