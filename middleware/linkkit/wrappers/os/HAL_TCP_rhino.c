@@ -208,8 +208,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     do {
         t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
         if (0 == t_left) {
-            PLATFORM_LOG_D("%s no time left", __func__);
-            err_code = -1;
             break;
         }
         FD_ZERO(&sets);
