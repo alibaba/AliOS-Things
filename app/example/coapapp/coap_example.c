@@ -48,7 +48,7 @@ static void iotx_response_handler(void *arg, void *p_response)
     }
     else
     {
-        LOGW("[APPL]: Len: %d, Payload: (null)", len);
+        LOGW(TAG, "[APPL]: Len: %d, Payload: (null)", len);
     }
 }
 
