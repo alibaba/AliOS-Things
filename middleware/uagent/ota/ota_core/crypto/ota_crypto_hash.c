@@ -284,7 +284,7 @@ int ota_check_image(unsigned int size)
     }
 err:
     if(ret != OTA_CRYPTO_RET_SUCCESS) {
-        OTA_LOG_E("ota:check_iamge_err:%d", ret);
+        OTA_LOG_E("ota:check_image_err:%d", ret);
     }
 #endif
     return ret;

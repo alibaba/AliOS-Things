@@ -193,17 +193,17 @@ static unsigned int ota_breeze_align_to_page(unsigned int val, unsigned int page
     return ((val + page_size - 1) & ~(page_size - 1));
 }
 
-int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int *break_point, bool breakpoint_valid)
+int ota_breeze_breakpoint_process(unsigned int image_size, unsigned int *break_point, bool breakpoint_valid)
 {
     int ret                = 0;
     unsigned int num_pages = 0;
     int err_code           = 0;
-    if(iamge_size == 0 || break_point == NULL) {
+    if(image_size == 0 || break_point == NULL) {
         ret = -1;
         goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
     }
     if (breakpoint_valid) {
-        if(iamge_size == breeze_ota_settings.break_point_offset) {
+        if(image_size == breeze_ota_settings.break_point_offset) {
             *break_point = breeze_ota_settings.break_point_offset;
         }
         else {
@@ -214,7 +214,7 @@ int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int *break_p
         breeze_ota_settings.break_point_offset = 0;
         *break_point = 0;
     }
-    num_pages = ota_breeze_align_to_page(iamge_size - *break_point, erase_sector_size) / erase_sector_size;
+    num_pages = ota_breeze_align_to_page(image_size - *break_point, erase_sector_size) / erase_sector_size;
     if (num_pages == 0) {
         ret = 0;
         goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
