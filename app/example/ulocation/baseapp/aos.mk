@@ -1,8 +1,8 @@
-NAME := ulocationapp
+NAME := baseapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
-$(NAME)_SUMMARY := ulocationapp
+$(NAME)_SUMMARY := ulocation base app
 
 $(NAME)_SOURCES :=   app_entry.c
 $(NAME)_SOURCES += linkkit_example_solo.c

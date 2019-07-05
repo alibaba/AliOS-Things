@@ -185,10 +185,16 @@ if AOS_APP_UDEVAPP
         default "udevapp"
 endif
 
-source "app/example/ulocationapp/Config.in"
-if AOS_APP_ULOCATIONAPP
+source "app/example/ulocation/baseapp/Config.in"
+if AOS_APP_BASEAPP
     config AOS_BUILD_APP
-        default "ulocationapp"
+        default "ulocation.baseapp"
+endif
+
+source "app/example/ulocation/qianxunapp/Config.in"
+if AOS_APP_QIANXUNAPP
+    config AOS_BUILD_APP
+        default "ulocation.qianxunapp"
 endif
 
 source "app/example/yts/Config.in"
