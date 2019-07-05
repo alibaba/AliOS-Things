@@ -82,6 +82,6 @@ int ota_breeze_read(unsigned int *off, char *out_buf, int out_buf_len);
 void ota_breeze_set_image_info_crc16(unsigned char *data, unsigned int len);
 bool ota_breeze_check_if_resume(unsigned char *p_data, unsigned short length);
 void ota_breeze_update_fw_version(unsigned char *p_data, unsigned short length);
-int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int *break_point, bool breakpoint_valid);
+int ota_breeze_breakpoint_process(unsigned int image_size, unsigned int *break_point, bool breakpoint_valid);
 #endif /*OTA_BREEZE_PLAT_H*/
 
