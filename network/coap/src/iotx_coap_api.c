@@ -6,14 +6,7 @@
 
 #include "coap.h"
 #include "coap_api.h"
-#include "infra_aes.h"
-#include "infra_md5.h"
-#ifndef COAP_WITH_NOAUTH
-#include "infra_cjson.h"
-#include "infra_report.h"
-#include "infra_sha256.h"
-#include "infra_json_parser.h"
-#endif
+#include "coap_wrapper.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)
@@ -258,7 +251,7 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
     coap_log(LOG_DEBUG, "Report response: CoAP msg_len = %d\n", p_payload_len);
     if (p_payload_len > 0) {
     coap_log(LOG_DEBUG, "Report response: CoAP payload = %s\n", p_payload);
-        msg = json_get_value_by_name((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
+        msg = coap_wrapper_json_get_value((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
         if (NULL != msg) {
             coap_log(LOG_DEBUG, "Report response: CoAP mid_report responseID = '%s', len = %d\n", msg, p_payload_len);
         } else {
@@ -300,19 +293,19 @@ int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char 
     int pad = len2 - len;
     int ret = 0;
 
-    p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
+    p_Aes128_t aes_e_h = coap_wrapper_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
     if (len1) {
-        ret = infra_aes128_cbc_encrypt(aes_e_h, src, len1 >> 4, out);
+        ret = coap_wrapper_aes128_cbc_encrypt(aes_e_h, src, len1 >> 4, out);
     }
     if (!ret && pad) {
         char buf[16] = {0};
         memcpy(buf, src + len1, len - len1);
         memset(buf + len - len1, pad, pad);
-        ret = infra_aes128_cbc_encrypt(aes_e_h, buf, 1, (unsigned char *)out + len1);
+        ret = coap_wrapper_aes128_cbc_encrypt(aes_e_h, buf, 1, (unsigned char *)out + len1);
 
     }
 
-    infra_aes128_destroy(aes_e_h);
+    coap_wrapper_aes128_destroy(aes_e_h);
     
     coap_log(LOG_INFO, "to encrypt src: %s, len: %d", src, len2);
     return ret == 0 ? len2 : 0;
@@ -326,13 +319,13 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
     int ret = 0;
     int n = len >> 4;
 
-    aes_d_h  = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
+    aes_d_h  = coap_wrapper_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
     if (!aes_d_h) {
         coap_log(LOG_ERR, "fail to decrypt");
         return  0;
     }
     if (n > 1) {
-        ret = infra_aes128_cbc_decrypt(aes_d_h, src, n - 1, out);
+        ret = coap_wrapper_aes128_cbc_decrypt(aes_d_h, src, n - 1, out);
     }
 
     if (ret == 0) {
@@ -341,7 +334,7 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
         out_c[offset] = 0;
 
         if (aes_d_h) {
-            ret = infra_aes128_cbc_decrypt(aes_d_h, src + offset, 1, out_c + offset);
+            ret = coap_wrapper_aes128_cbc_decrypt(aes_d_h, src + offset, 1, out_c + offset);
         } else {
             coap_log(LOG_ERR, "fail to decrypt remain data");
         }
@@ -350,11 +343,11 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
             char pad = out_c[len - 1];
             out_c[len - pad] = 0;
             coap_log(LOG_INFO, "decrypt data:%s, len:%d", out_c, len - pad);
-            infra_aes128_destroy(aes_d_h);
+            coap_wrapper_aes128_destroy(aes_d_h);
             return len - pad;
         }
     }
-    infra_aes128_destroy(aes_d_h);
+    coap_wrapper_aes128_destroy(aes_d_h);
 
     return 0;
 }
@@ -378,7 +371,7 @@ int iotx_calc_sign_with_seq(const char *p_device_secret, const char *p_client_id
                  p_device_name,
                  p_product_key, seq);
     coap_log(LOG_INFO, "The source string: %s\n", p_msg);
-    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    coap_wrapper_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 
     coap_free(p_msg);
     coap_log(LOG_INFO, "The device name sign with seq: %s\n", sign);
@@ -400,12 +393,12 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
 
     memset(&root, 0x00, sizeof(lite_cjson_t));
     memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = lite_cjson_parse(p_str, strlen(p_str), &root);
+    ret = coap_wrapper_cjson_parse(p_str, strlen(p_str), &root);
     if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
 
-    ret = lite_cjson_object_item(&root, "token", strlen("token"), &node);
+    ret = coap_wrapper_cjson_object_item(&root, "token", strlen("token"), &node);
     if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
@@ -416,14 +409,14 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     strncpy(p_iotx_coap->p_auth_token, node.value, node.value_length);
 
     memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = lite_cjson_object_item(&root, "seqOffset", strlen("seqOffset"), &node);
+    ret = coap_wrapper_cjson_object_item(&root, "seqOffset", strlen("seqOffset"), &node);
     if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
     p_iotx_coap->seq = node.value_int;
 
     memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = lite_cjson_object_item(&root, "random", strlen("random"), &node);
+    ret = coap_wrapper_cjson_object_item(&root, "random", strlen("random"), &node);
     if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
@@ -431,7 +424,7 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     memcpy(random, node.value, node.value_length);
     snprintf((char *)buff, sizeof(buff), "%s,%s",
                  p_iotx_coap->p_devinfo->device_secret,  random);
-    utils_sha256(buff,  strlen((char *)buff), key);
+    coap_wrapper_sha256(buff,  strlen((char *)buff), key);
     memcpy(p_iotx_coap->key, key + 8, 16);
 
     HEXDUMP_DEBUG(key, 32);
@@ -698,7 +691,7 @@ static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_value = LITE_json_value_of("token", p_str, 0x1234, "coap.cloud");
+    p_value = coap_wrapper_json_value_of("token", p_str, 0x1234, "coap.cloud");
     if (NULL != p_value) {
         if (len - 1 < strlen(p_value)) {
             return IOTX_ERR_BUFF_TOO_SHORT;
@@ -783,7 +776,7 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                  p_client_id,
                  p_device_name,
                  p_product_key);
-    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    coap_wrapper_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 
     coap_free(p_msg);
     coap_log(LOG_INFO, "The device name sign: %s\n", sign);
@@ -898,21 +891,21 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
         coap_log(LOG_ERR, "CoAP authenticate failed\n");
         return IOTX_ERR_AUTH_FAILED;
     }
-    iotx_set_report_func(coap_report_func);
+    coap_wrapper_set_report_func(coap_report_func);
     /* report module id */
-    ret = iotx_report_mid(p_context);
+    ret = coap_wrapper_report_mid(p_context);
     if (SUCCESS_RETURN != ret) {
         coap_log(LOG_ERR, "Send ModuleId message to server(CoAP) failed, ret = %d\n", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
     /* report device information */
-    ret = iotx_report_devinfo(p_context);
+    ret = coap_wrapper_report_devinfo(p_context);
     if (SUCCESS_RETURN != ret) {
         coap_log(LOG_ERR, "Send devinfo message to server(CoAP) failed, ret = %d\n", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
     /* report firmware */
-    ret = iotx_report_firmware_version(p_context);
+    ret = coap_wrapper_report_firmware_version(p_context);
     if (SUCCESS_RETURN != ret) {
         coap_log(LOG_ERR, "Send firmware message to server(CoAP) failed, ret = %d\n", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
