@@ -118,7 +118,7 @@ typedef struct _ota_ble_global_dat{
     unsigned int rx_fw_size;                  /**< Size of firmware to be received. */
     unsigned int valid_fw_size;               /**< After removing image info size*/
     unsigned int bytes_recvd;                 /**< Size of firmware received. */
-    unsigned int valid_bytes_recvd;           /**< Don't include iamge info FM size*/
+    unsigned int valid_bytes_recvd;           /**< Don't include image info FM size*/
     unsigned short frames_recvd;              /**< Number of frames of firmware received. */
     unsigned short crc;
 }_ota_ble_global_dat_t;
