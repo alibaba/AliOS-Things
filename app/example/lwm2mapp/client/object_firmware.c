@@ -39,7 +39,7 @@
  */
 
 #include "internals.h"
-#include "liblwm2m.h"
+#include "lwm2m_api.h"
 
 #include <stdio.h>
 #include <stdlib.h>
