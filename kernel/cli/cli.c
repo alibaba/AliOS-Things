@@ -461,7 +461,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
     int32_t esc  =  0;
     int32_t key1 = -1;
     int32_t key2 = -1;
-    uint8_t tmp  =  0;
+    uint8_t cli_tag_len =  0;
 
     if (inbuf == NULL) {
         cli_printf("input null\r\n");
@@ -472,6 +472,10 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
         if (c == RET_CHAR || c == END_CHAR) { /* end of input line */
             inbuf[*bp] = '\0';
             *bp = 0;
+            if (cli_tag_len > 0) {
+                g_cli_tag_len = cli_tag_len;
+                cli_tag_len = 0;
+            }
             return 1;
         }
 
@@ -494,11 +498,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                     (*bp)++;
 
                     if (!g_cli->echo_disabled) {
-                        tmp = g_cli_tag_len;
-                        g_cli_tag_len = 0;
-
                         cli_printf("\x1b%c", key1); /* Ignore the cli tag */
-                        g_cli_tag_len = tmp;
                     }
                     esc = 0;
                 }
@@ -510,11 +510,12 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 if (key2 == 't') {
                     g_cli_tag[0]  = 0x1b;
                     g_cli_tag[1]  = key1;
-                    g_cli_tag_len = 2;
+                    cli_tag_len = 2;
                 }
             }
 
             if (key2 != 0x41 && key2 != 0x42 && key2 != 't') {
+                /* not UP key, not DOWN key, not ESC_TAG */
                 inbuf[*bp] = 0x1b;
                 (*bp)++;
 
@@ -525,7 +526,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 (*bp)++;
 
                 g_cli_tag[0]  = '\x0';
-                g_cli_tag_len = 0;
+                cli_tag_len = 0;
                 esc           = 0;
 
                 if (!g_cli->echo_disabled) {
@@ -536,65 +537,51 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
 
 #if CLI_MINIMUM_MODE > 0
             if (key2 == 0x41 || key2 == 0x42) {
-                tmp = g_cli_tag_len;
-                g_cli_tag_len = 0;
-
-                /* Ignore the cli tag */
+                /* UP or DWOWN key */
                 cli_printf("\r\n" PROMPT
                         "Warning! mini cli mode do not support history cmds!");
-                g_cli_tag_len = tmp;
             }
 #else
-            if (key2 == 0x41) {
-                cli_up_history(inbuf);
+            if (key2 == 0x41 || key2 == 0x42) {
+                /* UP or DWOWN key */
+                if (key2 == 0x41) {
+                    cli_up_history(inbuf);
+                } else {
+                    cli_down_history(inbuf);
+                }
+
 
                 *bp           = strlen(inbuf);
                 g_cli_tag[0]  = '\x0';
-                g_cli_tag_len = 0;
-                esc           = 0;
-
-                cli_printf("\r\n" PROMPT "%s", inbuf);
-                continue;
-            }
-
-            if (key2 == 0x42) {
-                cli_down_history(inbuf);
-
-                *bp           = strlen(inbuf);
-                g_cli_tag[0]  = '\x0';
-                g_cli_tag_len = 0;
+                cli_tag_len = 0;
                 esc           = 0;
 
                 cli_printf("\r\n" PROMPT "%s", inbuf);
                 continue;
             }
 #endif
-            /* ESC_TAG */
-            if (g_cli_tag_len >= sizeof(g_cli_tag)) {
-                g_cli_tag[0]  = '\x0';
-                g_cli_tag_len = 0;
-                esc           = 0;
+            if (key2 == 't') {
+                /* ESC_TAG */
+                if (cli_tag_len >= sizeof(g_cli_tag)) {
+                    g_cli_tag[0]  = '\x0';
+                    cli_tag_len = 0;
+                    esc           = 0;
 
-                cli_printf("Error: cli tag buffer overflow\r\n");
+                    cli_printf("Error: cli tag buffer overflow\r\n");
+                    continue;
+                }
+
+                g_cli_tag[cli_tag_len++] = c;
+                if (c == 'm') {
+                    g_cli_tag[cli_tag_len++] = '\x0';
+
+                    if (!g_cli->echo_disabled) {
+                        cli_printf("%s", g_cli_tag);
+                    }
+                    esc = 0;
+                }
                 continue;
             }
-
-            g_cli_tag[g_cli_tag_len++] = c;
-            if (c == 'm') {
-                g_cli_tag[g_cli_tag_len++] = '\x0';
-                tmp = g_cli_tag_len;
-                g_cli_tag_len = 0;
-
-                if (!g_cli->echo_disabled) {
-                    tmp = g_cli_tag_len;
-                    g_cli_tag_len = 0;
-
-                    cli_printf("%s", g_cli_tag);
-                    g_cli_tag_len = tmp;
-                }
-                esc = 0;
-            }
-            continue;
         }
 
         inbuf[*bp] = c;
@@ -603,11 +590,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 (*bp)--;
 
                 if (!g_cli->echo_disabled) {
-                    tmp = g_cli_tag_len;
-                    g_cli_tag_len = 0;
-
                     cli_printf("%c %c", 0x08, 0x08);
-                    g_cli_tag_len = tmp;
                 }
             }
             continue;
@@ -620,11 +603,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
         }
 
         if (!g_cli->echo_disabled) {
-            tmp = g_cli_tag_len;
-            g_cli_tag_len = 0;
-
             cli_printf("%c", c);
-            g_cli_tag_len = tmp;
         }
 
         (*bp)++;
@@ -890,7 +869,7 @@ int32_t cli_printf(const char *buffer, ...)
     memset(message, 0, CLI_OUTBUF_SIZE);
 
     sz = 0;
-    if (g_cli_tag != NULL) {
+    if (g_cli_tag_len > 0) {
         len = strlen(g_cli_tag);
         strncpy(message, g_cli_tag, len);
         sz = len;
