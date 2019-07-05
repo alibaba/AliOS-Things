@@ -1,0 +1,12 @@
+config AOS_APP_QIANXUNAPP
+    bool "qianxunapp"
+    select AOS_COMP_ULOCATION
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_NETMGR
+    select QXWZ_ENABLED
+    help
+
+if AOS_APP_QIANXUNAPP
+# Configurations for app qianxunapp
+endif
