@@ -2,10 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef LWM2M_HDR_H
-#define LWM2M_HDR_H
+#ifndef __LWM2M_API_H__
+#define __LWM2M_API_H__
 
-#include <liblwm2m.h>
+#include "liblwm2m.h"
+#include "internals.h"
 
 typedef enum
 {
