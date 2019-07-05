@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := libcoap component
 
-LIBCOAP_SRC_PATH := ./libcoap-4.2.0/src
+LIBCOAP_SRC_PATH := ./src/libcoap-4.2.0/
 
 $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    $(LIBCOAP_SRC_PATH)/resource.c \
@@ -22,7 +22,7 @@ $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    $(LIBCOAP_SRC_PATH)/address.c \
                    $(LIBCOAP_SRC_PATH)/coap_debug.c  \
                    $(LIBCOAP_SRC_PATH)/mem.c  \
-                   ./iotx_coap_api.c
+                   ./src/iotx_coap_api.c
 
 ifeq (y,$(AOS_COMP_LWM2M))
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/wakaa_lwm2m_adapter.c
@@ -34,25 +34,15 @@ else
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
-GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/ \
-                   ./infra/                       \
-                   ./wrappers/                    \
-                   .
-
-$(NAME)_SOURCES +=  ./infra/infra_aes.c         \
-                    ./infra/infra_md5.c         \
-                    ./infra/infra_log.c
-
-$(NAME)_COMPONENTS += coap_wrappers
+GLOBAL_INCLUDES += ./include/coap2/     \
+                   ./include/
 
 ifeq (y,$(COAP_WITH_ALI_AUTH))
-$(NAME)_SOURCES += ./infra/infra_cjson.c        \
-                   ./infra/infra_compat.c       \
-                   ./infra/infra_report.c       \
-                   ./infra/infra_sha256.c       \
-                   ./infra/infra_json_parser.c
-$(NAME)_COMPONENTS += mbedtls activation chip_code
+$(NAME)_COMPONENTS += mbedtls activation chip_code libiot_infra libiot_wrappers
 GLOBAL_DEFINES += BUILD_AOS INFRA_MD5 WITH_LIBCOAP_DEBUG
 else
 GLOBAL_DEFINES += NDEBUG COAP_WITH_NOAUTH WITH_LIBCOAP_DEBUG
 endif
+
+include $($(NAME)_LOCATION)/wrappers/coap_wrapper.mk
+
