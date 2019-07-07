@@ -15,4 +15,4 @@ aos_global_config.add_ld_files('memory.ld')
 aos_global_config.set('HOST_MCU_VARIANT', 'STM32F411')
 aos_global_config.set('BUS', 'SDIO')
 
-linux_only_targets="coapapp helloworld http2app httpapp linkkit_gateway linkkitapp lwm2mapp modbus_demo mqttapp otaapp tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp udevapp ulocationapp yts"
+linux_only_targets="coapapp helloworld http2app httpapp linkkit_gateway linkkitapp lwm2mapp modbus_demo mqttapp otaapp tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp udevapp ulocation.baseapp yts"
