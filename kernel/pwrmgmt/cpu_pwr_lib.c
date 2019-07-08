@@ -8,7 +8,13 @@
 static CPU_IDLE_MODE cpu_pwr_idle_mode         = CPU_IDLE_MODE_RUN;
 static int           cpu_pwr_init_flag         = 0;
 static int           cpu_pwr_suspend_flag      = 0;
+#if (PWRMGMT_CONFIG_MINISLEEP > 0)
 static uint32_t      cpu_pwr_minisleep_time_ms = 0;
+#endif /* PWRMGMT_CONFIG_MINISLEEP > 0 */
+
+#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+sys_time_t cpu_active_exit_time = 0;
+#endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
 
 static kspinlock_t cpu_pwr_spin;
 
@@ -53,7 +59,7 @@ void cpu_pwr_down(void)
     /* This check is not enough. cpu_pwr_is_suspend() must be called to check
      * again before entering low power.
      */
-    if (cpu_pwr_suspend_flag == 1) {
+    if (cpu_pwr_ready_status_get() == PWR_ERR) {
         return;
     }
 
@@ -128,6 +134,18 @@ CPU_IDLE_MODE cpu_pwr_idle_mode_get(void)
     return cpu_pwr_idle_mode;
 }
 
+#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+void cpu_active_msec_set(uint32_t active_time)
+{
+    sys_time_t active_exit_time = 0;
+
+    active_exit_time = krhino_sys_tick_get() + active_time;
+    if(active_exit_time > cpu_active_exit_time) {
+        cpu_active_exit_time = active_exit_time;
+    }
+}
+#endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
+
 /**
  * cpu_pwr_suspend suspend cpu low power. cpu_pwr_is_suspend() must be called
  * to check cpu_pwr_suspend_flag before entering low power.
@@ -162,6 +180,28 @@ int cpu_pwr_is_suspend(void)
 }
 
 /**
+ * cpu_pwr_ready_status_get return the status whether or not the cpu can enter
+ * low power mode.
+ *
+ * @return  PWR_OK cpu can enter low power mode, or PWR_ERR cpu can not enter low
+ * power mode */
+pwr_status_t cpu_pwr_ready_status_get(void)
+{
+    if (cpu_pwr_is_suspend() == 1) {
+        return PWR_ERR;
+    }
+
+#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+    if(krhino_sys_tick_get() < cpu_active_exit_time) {
+        return PWR_ERR;
+    }
+#endif
+
+    return PWR_OK;
+}
+
+#if (PWRMGMT_CONFIG_MINISLEEP > 0)
+/**
  * cpu_pwr_minisleep_ms_set set the minimum sleep time.
  *
  * @return  PWR_OK, or PWR_ERR in case of failure
@@ -181,4 +221,5 @@ uint32_t cpu_pwr_minisleep_msec_get(void)
 {
     return cpu_pwr_minisleep_time_ms;
 }
+#endif
 
