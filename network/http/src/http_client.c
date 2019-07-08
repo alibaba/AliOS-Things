@@ -41,7 +41,7 @@ static int on_body(struct http_parser *parser, const char *at, size_t length)
     http_session->rsp.body_present = 1;
     http_session->rsp.processed += length;
 
-    //http_log("%s, processed %d, len %d", __func__, http_session->rsp.processed, length);
+    /* http_log("%s, processed %d, len %d", __func__, http_session->rsp.processed, length); */
 
     if (http_session->rsp.body_start == NULL) {
         http_session->rsp.body_start = (uint8_t *)at;
@@ -214,7 +214,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
 
     server_name_offset += param.len;
 
-    // check https or http
+    /* check https or http */
 #if CONFIG_HTTP_SECURE
     if ((settings->flags & HTTP_ALWAYS_HTTP_FLAG) == HTTP_ALWAYS_HTTP_FLAG) {
         http_sessions[index].flags &= (~HTTP_CLIENT_FLAG_SECURE);
@@ -244,7 +244,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     }
     server_name_offset += 3;
 
-    // get host name
+    /* get host name */
     if (http_str_search(settings->server_name, "/",
                         server_name_offset, server_name_len - server_name_offset, &param) == false) {
         if ((server_name_len + 1) >= CONFIG_HTTPC_SERVER_NAME_SIZE) {
@@ -290,10 +290,10 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
         http_sessions[index].flags |= HTTP_CLIENT_FLAG_KEEP_ALIVE;
     }
 
-    // default no cache
+    /* default no cache */
     http_sessions[index].flags |= HTTP_CLIENT_FLAG_NO_CACHE;
 
-    // request buffer
+    /* request buffer */
     http_sessions[index].req.buf = settings->req_buf;
     http_sessions[index].req.buf_size = settings->req_buf_size;
 
