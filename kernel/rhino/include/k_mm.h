@@ -144,6 +144,13 @@ void krhino_mm_free(void *ptr);
  */
 void *krhino_mm_realloc(void *oldmem, size_t newsize);
 
+/*
+ * This function return max free block size
+ * @param[in]  NULL
+ * @return  the max free block size
+ */
+size_t krhino_mm_max_free_size_get(void);
+
 #else
 
 #include <stdlib.h>

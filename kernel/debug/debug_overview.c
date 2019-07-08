@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
+#include "k_api.h"
 #include "debug_api.h"
 #if (RHINO_CONFIG_USER_SPACE > 0)
 #include "task_group.h"
@@ -42,17 +42,23 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...))
 #if (RHINO_CONFIG_MM_BLK > 0)
     mblk_pool_t *mm_pool;
 #endif
+
+    size_t max_free_blk_size = 0;
+#if (RHINO_CONFIG_MM_TLF > 0)
+    max_free_blk_size = krhino_mm_max_free_size_get();
+#endif
+
     char s_heap_overview[] =
-      "      | 0x         | 0x         | 0x         | 0x         |\r\n";
+      "      | 0x         | 0x         | 0x         | 0x         | 0x            |\r\n";
 
     if (print_func == NULL) {
         print_func = printf;
     }
 
     print_func(
-      "-----------------------------------------------------------\r\n");
+      "---------------------------------------------------------------------------\r\n");
     print_func(
-      "[HEAP]| TotalSz    | FreeSz     | UsedSz     | MinFreeSz  |\r\n");
+      "[HEAP]| TotalSz    | FreeSz     | UsedSz     | MinFreeSz  | MaxFreeBlkSz  |\r\n");
 
     k_int2str((int)(g_kmm_head->free_size + g_kmm_head->used_size),
               &s_heap_overview[10]);
@@ -61,14 +67,15 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...))
     k_int2str((int)(g_kmm_head->free_size + g_kmm_head->used_size -
                     g_kmm_head->maxused_size),
               &s_heap_overview[49]);
+    k_int2str((int)max_free_blk_size, &s_heap_overview[62]);
     print_func(s_heap_overview);
 
     print_func(
-      "-----------------------------------------------------------\r\n");
+      "---------------------------------------------------------------------------\r\n");
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     print_func(
-      "[POOL]| PoolSz     | FreeSz     | UsedSz     | BlkSz      |\r\n");
+      "[POOL]| PoolSz     | FreeSz     | UsedSz     | BlkSz      | MaxFreeBlkSz  |\r\n");
     /* little blk, try to get from mm_pool */
     if (g_kmm_head->fix_pool != NULL) {
         mm_pool = (mblk_pool_t *)g_kmm_head->fix_pool;
@@ -80,11 +87,12 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...))
                     mm_pool->blk_size,
                   &s_heap_overview[36]);
         k_int2str((int)mm_pool->blk_size, &s_heap_overview[49]);
+        k_int2str((int)mm_pool->blk_size, &s_heap_overview[62]);
         print_func(s_heap_overview);
     }
 
     print_func(
-      "-----------------------------------------------------------\r\n");
+      "---------------------------------------------------------------------------\r\n");
 #endif
 }
 #else
