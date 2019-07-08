@@ -97,7 +97,7 @@ int ota_download_start(const char *url)
 }
 
 /**
- * ota_download_init  OTA download init
+ * ota_download_stop  OTA download stop
  *
  * @param[in] void
  *
@@ -105,7 +105,7 @@ int ota_download_start(const char *url)
  * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
  * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
  * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed. 
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
 int ota_download_stop(void)
 {
