@@ -183,7 +183,7 @@ static int ssl_tx(void *context, const unsigned char *buf, size_t size)
     int ret = 0;
 
     ret = send(httpc_session->socket, buf, size, 0);
-    //http_log("%s, size %d, ret %d", __func__, size, ret);
+    /* http_log("%s, size %d, ret %d", __func__, size, ret); */
     return ret;
 }
 
@@ -193,7 +193,7 @@ static int ssl_rx(void *context, unsigned char *buf, size_t size)
     int ret = 0;
 
     ret = recv(httpc_session->socket, buf, size, 0);
-    //http_log("%s, size %d, ret %d", __func__, size, ret);
+    /* http_log("%s, size %d, ret %d", __func__, size, ret); */
     if (ret < 0) {
         ret = MBEDTLS_ERR_NET_RECV_FAILED;
     }
