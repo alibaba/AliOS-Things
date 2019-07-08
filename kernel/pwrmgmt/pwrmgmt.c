@@ -14,24 +14,10 @@ static kmutex_t pwrmgmt_mutex;
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 static uint32_t cpu_suspend_lock = 0;
-#endif
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
 
 #if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
 static uint32_t wifi_suspend_lock = 0;
-#endif
-
-#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
-/* Must be set to greater than 130(520 bytes/4) based on the measured results */
-#define PWRMGMT_TASK_STACK_SIZE 150
-#define PWRMGMT_TASK_PRI        (RHINO_IDLE_PRI - 1)
-
-static cpu_stack_t pwrmgmt_task_stack[PWRMGMT_TASK_STACK_SIZE];
-static ktimer_t    pwrmgmt_timer;
-static ktask_t     pwrmgmt_task;
-static ksem_t      pwrmgmt_sem;
-
-static void pwrmgmt_task_entry(void *arg);
-static void pwrmgmt_timer_callback(void *timer, void *arg);
 #endif
 
 int pwrmgmt_init() {
@@ -45,28 +31,7 @@ int pwrmgmt_init() {
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     cpu_pwrmgmt_init();
-#endif
-
-#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
-    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt active function init\r\n");
-
-    stat = krhino_sem_create(&pwrmgmt_sem, "pwrmgmt_sem", 0);
-    if (stat != RHINO_SUCCESS) {
-        return -1;
-    }
-
-    stat = krhino_timer_create(&pwrmgmt_timer, "pwrmgmt_timer", pwrmgmt_timer_callback,
-                               100, 0, NULL, 0);
-    if (stat != RHINO_SUCCESS) {
-        return -1;
-    }
-
-    stat = krhino_task_create(&pwrmgmt_task, "pwrmgmt_task", NULL, PWRMGMT_TASK_PRI,
-                              5, pwrmgmt_task_stack, PWRMGMT_TASK_STACK_SIZE, pwrmgmt_task_entry, 1);
-    if (stat != RHINO_SUCCESS) {
-        return -1;
-    }
-#endif
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
     return 0;
 }
 
@@ -156,18 +121,6 @@ int pwrmgmt_lowpower_resume(uint32_t resume_module)
     return 0;
 }
 
-int pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
-{
-    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "set the minimum sleep time %dms\r\n", time_ms);
-    cpu_pwr_minisleep_msec_set(time_ms);
-    return 0;
-}
-
-uint32_t pwrmgmt_cpu_minisleep_msec_get(void)
-{
-    return cpu_pwr_minisleep_msec_get();
-}
-
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
 {
@@ -206,7 +159,7 @@ int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
     }
     krhino_mutex_unlock(&pwrmgmt_mutex);
 }
-#endif
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
 
 #if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
 int pwrmgmt_wifi_powersave_enable(void)
@@ -267,32 +220,37 @@ int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
 
     return 0;
 }
-#endif
+#endif /* WIFI_CONFIG_SUPPORT_LOWPOWER > 0 */
 
-#if ((PWRMGMT_CONFIG_CPU_LOWPOWER > 0) && (PWRMGMT_CONFIG_CPU_ACTIVE > 0))
-static void pwrmgmt_task_entry(void *arg)
+#if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
+#if (PWRMGMT_CONFIG_MINISLEEP > 0)
+int pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
 {
-    while(1){
-        krhino_sem_take(&pwrmgmt_sem, RHINO_WAIT_FOREVER);
-        PWRMGMT_LOG(PWRMGMT_LOG_INFO, "stop the active state\r\n");
-        krhino_timer_stop(&pwrmgmt_timer);
-        pwrmgmt_cpu_lowpower_resume(PWRMGMT_PWRMGMT);
-    }
+    PWRMGMT_LOG(PWRMGMT_LOG_INFO, "set the minimum sleep time %dms\r\n", time_ms);
+    cpu_pwr_minisleep_msec_set(time_ms);
+    return 0;
 }
 
-static void pwrmgmt_timer_callback(void *timer, void *arg)
+uint32_t pwrmgmt_cpu_minisleep_msec_get(void)
 {
-    krhino_sem_give(&pwrmgmt_sem);
-    krhino_timer_stop(&pwrmgmt_timer);
+    return cpu_pwr_minisleep_msec_get();
 }
+#endif /* PWRMGMT_CONFIG_MINISLEEP > 0 */
 
+#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
 int pwrmgmt_cpu_active_msec_set(uint32_t active_time)
 {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "start to keep cpu be active for %d ms\r\n",
                 active_time);
-    pwrmgmt_cpu_lowpower_suspend(PWRMGMT_PWRMGMT);
-    krhino_timer_stop(&pwrmgmt_timer);
-    krhino_timer_change(&pwrmgmt_timer, krhino_ms_to_ticks(active_time), 0);
-    krhino_timer_start(&pwrmgmt_timer);
+
+    if (active_time == 0) {
+        return 0;
+    }
+
+    cpu_active_msec_set(active_time);
+    return 0;
 }
-#endif
+#endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
+
+#endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
+

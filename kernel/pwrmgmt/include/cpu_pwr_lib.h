@@ -50,8 +50,16 @@ pwr_status_t cpu_pwr_suspend(void);
 pwr_status_t cpu_pwr_resume(void);
 int          cpu_pwr_is_suspend(void);
 
+#if (PWRMGMT_CONFIG_MINISLEEP > 0)
 pwr_status_t cpu_pwr_minisleep_msec_set(uint32_t minisleep_time_ms);
 uint32_t     cpu_pwr_minisleep_msec_get(void);
+#endif /* PWRMGMT_CONFIG_MINISLEEP */
+
+#if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
+void cpu_active_msec_set(uint32_t active_time);
+#endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
+
+pwr_status_t cpu_pwr_ready_status_get(void);
 
 extern void (*_func_cpu_tickless_up)(void);
 extern void (*_func_cpu_tickless_down)(void);

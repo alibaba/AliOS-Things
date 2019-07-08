@@ -244,9 +244,11 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
         }
         sleep_time_us = 1000000ull * n_ticks / RHINO_CONFIG_TICKS_PER_SECOND;
 
+#if (PWRMGMT_CONFIG_MINISLEEP > 0)
         if ((sleep_time_us / 1000) <= cpu_pwr_minisleep_msec_get()) {
             sleep_time_us = cpu_pwr_minisleep_msec_get() * 1000;
         }
+#endif
     }
 
     /* get max valid Cx from cstate_cfg */
@@ -318,7 +320,7 @@ static void tickless_enter(void)
 #endif
     krhino_spin_lock_irq_save(&ticklessSpin);
 
-    if (cpu_pwr_is_suspend() == 1) {
+    if (cpu_pwr_ready_status_get() == PWR_ERR) {
         krhino_spin_unlock_irq_restore(&ticklessSpin);
         return;
     }
@@ -339,7 +341,7 @@ static void tickless_enter(void)
             if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
                 last_log_entersleep = krhino_sys_tick_get();
                 PWRMGMT_LOG(PWRMGMT_LOG_INFO, "enter sleep %d ms,enter counter %d\r\n",
-                            (uint32_t)sleep_time/1000, cpu_lowpower_enter_counter);
+                            (uint32_t)sleep_time / 1000, cpu_lowpower_enter_counter);
             }
             cpu_lowpower_enter_counter++;
 #endif
@@ -399,10 +401,10 @@ static void tickless_enter(void)
         systick_resume();
     }
 
+    krhino_spin_unlock_irq_restore(&ticklessSpin);
+
     RHINO_CRITICAL_ENTER();
     RHINO_CRITICAL_EXIT_SCHED();
-
-    krhino_spin_unlock_irq_restore(&ticklessSpin);
 }
 
 /**
