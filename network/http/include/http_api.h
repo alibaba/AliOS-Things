@@ -10,18 +10,18 @@
 #ifndef HTTP_API_H
 #define HTTP_API_H
 
-// http error code
+/* http error code */
 enum {
-    HTTP_SUCCESS = 0,
-    HTTP_ENOBUFS = -1,  // buffer error
-    HTTP_EARG = -2,  // illegal argument
-    HTTP_ENOTSUPP = -3,  // not support
-    HTTP_EDNS = -4,  // DNS fail
-    HTTP_ECONN = -5,  // connect fail
-    HTTP_ESEND = -6,  // send packet fail
-    HTTP_ECLSD = -7,  // connect closed
-    HTTP_ERECV = -8,  // recv packet fail
-    HTTP_ETIMEOUT = -9,  // timeout
+    HTTP_SUCCESS  = 0,
+    HTTP_ENOBUFS  = -1,  /* buffer error     */
+    HTTP_EARG     = -2,  /* illegal argument */
+    HTTP_ENOTSUPP = -3,  /* not support      */
+    HTTP_EDNS     = -4,  /* DNS fail         */
+    HTTP_ECONN    = -5,  /* connect fail     */
+    HTTP_ESEND    = -6,  /* send packet fail */
+    HTTP_ECLSD    = -7,  /* connect closed   */
+    HTTP_ERECV    = -8,  /* recv packet fail */
+    HTTP_ETIMEOUT = -9,  /* timeout          */
 };
 
 #define HTTP_ALWAYS_HTTP_FLAG 0x80
@@ -30,20 +30,22 @@ typedef uint32_t httpc_handle_t;
 
 /* http client connection settings */
 typedef struct httpc_connection_s {
-    int socket;  // one socket per http session, not support multiple http sessions on one socket
-    bool keep_alive;  // keep alive http connection or not
-    // boot use_proxy;  // not support in this version
-    char *server_name;  // pointer to server name
+    int socket;           /* one socket per http session, 
+                             not support multiple http 
+                             sessions on one socket            */
+    bool keep_alive;      /* keep alive http connection or not */
+    /*boot use_proxy;*/   /* not support in this version       */
+    char *server_name;    /* pointer to server name            */
 #if CONFIG_HTTP_SECURE
-    const char *ca_cert;  // pointer to ca certificate
+    const char *ca_cert;  /* pointer to ca certificate         */
 #endif
     int port;
 
-    uint8_t *req_buf;  // pointer to request buffer
-    int32_t req_buf_size; // request buffer size
+    uint8_t *req_buf;     /* pointer to request buffer         */
+    int32_t req_buf_size; /* request buffer size               */
 
 #if CONFIG_HTTP_SECURE
-    uint8_t flags;  // flags to http client
+    uint8_t flags;        /* flags to http client              */
 #endif
 } httpc_connection_t;
 
