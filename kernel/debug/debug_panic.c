@@ -46,12 +46,12 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
 extern void panicShowRegs(void *context,
                           int (*print_func)(const char *fmt, ...));
 extern void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP);
-#if (DEBUG_CONFIG_BACKTRACE > 0)
-extern int  panicBacktraceCaller(char *PC, int *SP,
-                                 int (*print_func)(const char *fmt, ...));
-extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
-                                 int (*print_func)(const char *fmt, ...));
-#endif
+
+/* functions followed should defined by arch\...\backtrace.c */
+extern int  backtrace_caller(char *PC, int *SP,
+                             int (*print_func)(const char *fmt, ...));
+extern int  backtrace_callee(char *PC, int *SP, char *LR,
+                             int (*print_func)(const char *fmt, ...));
 
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
@@ -141,7 +141,7 @@ void panicHandler(void *context)
             /* Backtrace 1st try: assume ReturnAddr is saved in stack when exception */
             if (SP != NULL) {
                 print_str("========== Call stack ==========\r\n");
-                lvl = panicBacktraceCaller(PC, SP, print_str);
+                lvl = backtrace_caller(PC, SP, print_str);
                 if (lvl > 0) {
                     /* backtrace success, do not try other way */
                     g_crash_steps += 2;
@@ -153,7 +153,7 @@ void panicHandler(void *context)
             if (g_crash_steps == 4) {
                 /* Backtrace 2nd try: assume ReturnAddr is saved in LR when exception */
                 if (SP != NULL) {
-                    lvl = panicBacktraceCallee(PC, SP, LR, print_str);
+                    lvl = backtrace_callee(PC, SP, LR, print_str);
                     if (lvl > 0) {
                         /* backtrace success, do not try other way */
                         g_crash_steps += 1;
@@ -166,7 +166,7 @@ void panicHandler(void *context)
             if (g_crash_steps == 5) {
                 /* Backtrace 3rd try: assume PC is invalalb, backtrace from LR */
                 if (SP != NULL) {
-                    (void)panicBacktraceCaller(LR, SP, print_str);
+                    (void)backtrace_caller(LR, SP, print_str);
                 }
                 g_crash_steps++;
             }
