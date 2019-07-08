@@ -79,7 +79,7 @@ int ota_service_start(ota_service_t *ctx)
 {
     int ret = 0;
 #ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_suspend_lowpower();
+    pwrmgmt_lowpower_suspend();
 #endif
     ota_ctx = ctx;
 #if defined OTA_CONFIG_SECURE_DL_MODE
@@ -148,7 +148,7 @@ EXIT:
         param->upg_status = OTA_FINISH;
     }
 #ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_resume_lowpower();
+    pwrmgmt_lowpower_resume();
 #endif
     if((ctx != NULL)&&(ctx->on_boot != NULL)) {
         ctx->on_boot(param);
