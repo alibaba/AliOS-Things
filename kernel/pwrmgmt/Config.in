@@ -10,7 +10,7 @@ config PWRMGMT_CONFIG_SHOW
     bool "Exclude the functions of state show"
         default n
         help
-            excludes this feature if you want to call state show function:enable cpu_pwr_c_support_print,
+            set to y if you want to call state show function:enable cpu_pwr_c_support_print,
             cpu_pwr_info_show,cpu_pwr_state_show.
             default n
 
@@ -18,6 +18,21 @@ config PWRMGMT_CONFIG_DEBUG
     bool "Enable to show debug infomation"
         default n
         help
-            excludes this feature if you want to show debug infomation.
+            set to y if you want to show debug infomation.
+            default n
+
+config PWRMGMT_CONFIG_CPU_ACTIVE
+    bool "Enable the function to set cpu active time"
+        default n
+        help
+            set to y if you want to use the function which do not enter low power in specified time.
+            default n
+
+config PWRMGMT_CONFIG_MINISLEEP
+    bool "Enable the function to set minimum sleep time"
+        default n
+        help
+            set to y if you want to specify the minimum time for the CPU to enter low power.
             default n
 endif
+
