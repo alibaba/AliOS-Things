@@ -20,6 +20,8 @@ else ifeq ($(findstring cb2201, $(BUILD_STRING)), cb2201)
 	$(NAME)_CFLAGS      += $(TEE_ID2_CFLAGS)
 else ifeq ($(findstring uno-91h, $(BUILD_STRING)), uno-91h)
 	$(NAME)_CFLAGS      += $(KM_ID2_CFLAGS)
+else ifeq ($(findstring hf-lpt230, $(BUILD_STRING)), hf-lpt230)
+    $(NAME)_CFLAGS      += $(KM_ID2_CFLAGS)
 endif
 
 ################################################################################

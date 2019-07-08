@@ -12,5 +12,7 @@ else ifeq ($(findstring cb2201, $(BUILD_STRING)), cb2201)
 $(NAME)_COMPONENTS := irot.tee
 else ifeq ($(findstring uno-91h, $(BUILD_STRING)), uno-91h)
 $(NAME)_COMPONENTS := irot.km
+else ifeq ($(findstring hf-lpt230, $(BUILD_STRING)), hf-lpt230)
+$(NAME)_COMPONENTS := irot.km
 endif
 
