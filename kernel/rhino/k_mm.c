@@ -848,5 +848,26 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
     return tmp;
 }
 
+size_t krhino_mm_max_free_size_get(void)
+{
+    int i;
+    size_t max_free_block_size = 0;
+
+    k_mm_list_t *next;
+    k_mm_list_t *tmp;
+
+    for (i = 0; i < MM_BIT_LEVEL; i++) {
+        next = g_kmm_head->freelist[i];
+        while (next) {
+            if (max_free_block_size < MM_GET_BUF_SIZE(next)) {
+                max_free_block_size = MM_GET_BUF_SIZE(next);
+            }
+            tmp  = next->mbinfo.free_ptr.next;
+            next = tmp;
+        }
+    }
+
+    return max_free_block_size;
+}
 #endif
 
