@@ -315,6 +315,13 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
     }
 #endif
 
+#if (RHINO_CONFIG_MM_TLF > 0)
+    else if (argc == 2 && 0 == strcmp(argv[1], "mm")) {
+        debug_mm_overview(NULL);
+        return RHINO_SUCCESS;
+    }
+#endif
+
     else {
         int len = 0;
         len += snprintf(pcWriteBuffer + len, xWriteBufferLen - len,
@@ -331,6 +338,12 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
           pcWriteBuffer + len, xWriteBufferLen - len,
           "%s\tdumpsys mm_info      : show the memory has alloced.\r\n",
           esc_tag);
+
+        len += snprintf(
+          pcWriteBuffer + len, xWriteBufferLen - len,
+          "%s\tdumpsys mm           : show the system memory.\r\n",
+          esc_tag);
+
 #if (RHINO_CONFIG_SYS_STATS > 0)
         len += snprintf(pcWriteBuffer + len, xWriteBufferLen - len,
                         "%s\tdumpsys info         : show the system info\r\n",

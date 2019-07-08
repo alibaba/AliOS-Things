@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "k_api.h"
+#include "debug_api.h"
 
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
@@ -12,20 +13,6 @@
 #else
 #define print printf
 #endif
-
-void show_mm()
-{
-#if (K_MM_STATISTIC > 0)
-    print("[HEAP]|  TotalSize |   FreeSize |   UsedSize |  MinFreeSz |\r\n");
-    print("      | %10d | %10d | %10d | %10d |\r\n",
-          g_kmm_head->free_size + g_kmm_head->used_size,
-          g_kmm_head->free_size,
-          g_kmm_head->used_size,
-          g_kmm_head->free_size + g_kmm_head->used_size - g_kmm_head->maxused_size);
-#else
-    print("K_MM_STATISTIC is cloesd\r\n");
-#endif
-}
 
 #if (RHINO_CONFIG_MM_DEBUG > 0)
 
@@ -40,23 +27,18 @@ void print_block(k_mm_list_t *b)
     print("%p ", b);
 
     if (b->buf_size & RHINO_MM_FREE) {
-
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (b->dye != RHINO_MM_FREE_DYE) {
             print("!");
         } else {
             print(" ");
         }
-#endif
         print("free ");
     } else {
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (b->dye != RHINO_MM_CORRUPT_DYE) {
             print("!");
         } else {
             print(" ");
         }
-#endif
         print("used ");
     }
 
@@ -66,10 +48,8 @@ void print_block(k_mm_list_t *b)
         print(" sentinel ");
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u)
     print(" %8x ", b->dye);
     print(" 0x%-8x ", b->owner);
-#endif
 
     if (b->buf_size & RHINO_MM_PREVFREE) {
         print("pre-free [%8p];", b->prev);
@@ -140,18 +120,15 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
 #if (K_MM_STATISTIC > 0)
     int i;
 #endif
-#if (RHINO_CONFIG_MM_BLK > 0)
-    mblk_pool_t *pool;
-#endif
 
     if (!mmhead) {
         return;
     }
-#if (K_MM_STATISTIC > 0)
-    print("     free     |     used     |     maxused\r\n");
-    print("  %10d  |  %10d  |  %10d\r\n",
-          mmhead->free_size, mmhead->used_size, mmhead->maxused_size);
+
+    debug_mm_overview(NULL);
     print("\r\n");
+
+#if (K_MM_STATISTIC > 0)
     print("-----------------number of alloc times:-----------------\r\n");
     for (i = 0; i < MM_BIT_LEVEL; i++) {
         if (i % 4 == 0 && i != 0) {
@@ -160,17 +137,6 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
         print("[2^%02d] bytes: %5d   |", (i + MM_MIN_BIT), mmhead->alloc_times[i]);
     }
     print("\r\n");
-#endif
-#if (RHINO_CONFIG_MM_BLK > 0)
-    pool = mmhead->fix_pool;
-    if ( pool != NULL ) {
-        print("-----------------fix pool information:-----------------\r\n");
-        print("     free     |     used     |     total\r\n");
-        print("  %10d  |  %10d  |  %10d\r\n",
-              pool->blk_avail * RHINO_CONFIG_MM_BLK_SIZE,
-              (pool->blk_whole - pool->blk_avail)*RHINO_CONFIG_MM_BLK_SIZE,
-              pool->blk_whole * RHINO_CONFIG_MM_BLK_SIZE);
-    }
 #endif
 }
 
@@ -194,7 +160,7 @@ uint32_t dumpsys_mm_info_func(uint32_t len)
 
     return RHINO_SUCCESS;
 }
-#endif
+#endif /* #if (RHINO_CONFIG_MM_TLF > 0) */
 
-#endif
+#endif /* #if (RHINO_CONFIG_MM_DEBUG > 0) */
 
