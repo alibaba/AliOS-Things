@@ -32,30 +32,29 @@ config AWSS_DISABLE_REGISTRAR
     bool
     default n
 
-config AWSS_SUPPORT_BEACON_ANNOUNCE
-    bool
-    default n
-
-
 config AWSS_SUPPORT_SMARTCONFIG_WPS
     bool
     default n
     
+config AWSS_SUPPORT_DISCOVER
+    bool 
+    default n
 
 menu "Wifi Provision Configurations"
     depends on AOS_COMP_SDK_AWSS
 
-    config AWSS_SUPPORT_SMARTCONFIG_MCAST
-        bool
-        default n
-
     config AWSS_SUPPORT_SMARTCONFIG
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
         select AWSS_SUPPORT_SMARTCONFIG_WPS
-        select AWSS_SUPPORT_BEACON_ANNOUNCE
+        select AWSS_SUPPORT_DISCOVER
         default y
         help
             Switching on a wifi provision method based on length-encoding
+
+    config AWSS_SUPPORT_SMARTCONFIG_MCAST
+        bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG_MCAST"
+        depends on AWSS_SUPPORT_SMARTCONFIG
+        default n
 
     config AWSS_SUPPORT_ZEROCONFIG
         bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
