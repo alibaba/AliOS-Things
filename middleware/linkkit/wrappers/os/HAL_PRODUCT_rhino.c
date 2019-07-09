@@ -131,3 +131,4 @@ int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VERSION_LEN])
 
     return strlen(version);
 }
+
