@@ -1138,6 +1138,11 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     }
     ctx->is_opened = 1;
 
+    HAL_SetProductKey(meta_info->product_key);
+    HAL_SetProductSecret(meta_info->product_secret);
+    HAL_SetDeviceName(meta_info->device_name);
+    HAL_SetDeviceSecret(meta_info->device_secret);
+
     /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {

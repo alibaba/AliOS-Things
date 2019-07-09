@@ -378,7 +378,6 @@ static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type)
     }
 }
 
-
 static void _set_common_handlers()
 {
     if (_mqtt_conncection != NULL) {
@@ -390,5 +389,4 @@ static void _set_common_handlers()
         _mqtt_conncection->close_func = _mqtt_close;
     }
 }
-
 #endif

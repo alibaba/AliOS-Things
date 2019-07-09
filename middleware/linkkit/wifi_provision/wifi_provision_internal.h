@@ -59,12 +59,6 @@
     #include "iotx_coap.h"
 #endif
 
-#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ZEROCONFIG)
-    #ifndef AWSS_SUPPORT_BEACON_ANNOUNCE
-        #define AWSS_SUPPORT_BEACON_ANNOUNCE
-    #endif
-#endif
-
-#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
-    #include "awss_beacon_announce.h"
+#ifdef AWSS_SUPPORT_DISCOVER
+    #include "awss_discover.h"
 #endif
