@@ -2,26 +2,26 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef __OTA_API_H__
-#define __OTA_API_H__
+#ifndef OTA_API_H
+#define OTA_API_H
 #include "ota/ota_service.h"
 
-#define OTA_COAP_OPTION_BLOCK            23        /*OTA coap option block*/
+#define OTA_COAP_OPTION_BLOCK      23    /*OTA coap option block*/
 
 #ifndef OTA_DOWNLOAD_RETRY_CNT
-#define OTA_DOWNLOAD_RETRY_CNT           5         /*OTA download retry count default:5*/
+#define OTA_DOWNLOAD_RETRY_CNT     5     /*OTA download retry count default:5*/
 #endif
 
 #ifndef OTA_DOWNLOAD_TIMEOUT
-#define OTA_DOWNLOAD_TIMEOUT             20000     /*OTA download timeout Unit:ms default:20s*/
+#define OTA_DOWNLOAD_TIMEOUT       20000 /*OTA download timeout Unit:ms default:20s*/
 #endif
 
 #ifndef OTA_DOWNLOAD_BLOCK_SIZE
-#define OTA_DOWNLOAD_BLOCK_SIZE          512      /*OTA download block size:1024*/
+#define OTA_DOWNLOAD_BLOCK_SIZE    512   /*OTA download block size:1024*/
 #endif
 
 #ifndef OTA_FLASH_WRITE_CACHE_SIZE
-#define OTA_FLASH_WRITE_CACHE_SIZE       1024      /*OTA write flash cache size*/
+#define OTA_FLASH_WRITE_CACHE_SIZE 1024 /*OTA write flash cache size*/
 #endif
 
 /**
