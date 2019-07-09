@@ -2,24 +2,24 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef __OTA_HAL_COMMON_H__
-#define __OTA_HAL_COMMON_H__
+#ifndef OTA_HAL_COMMON_H
+#define OTA_HAL_COMMON_H
 
 #define ota_snprintf snprintf
-#define OTA_SHA256_HASH_SIZE            (32)
-#define OTA_MD5_HASH_SIZE               (16)
-#define OTA_IMAGE_INFO_RESERVER_SIZE    (2)
+#define OTA_SHA256_HASH_SIZE         (32)
+#define OTA_MD5_HASH_SIZE            (16)
+#define OTA_IMAGE_INFO_RESERVER_SIZE (2)
 
-#define OTA_MD5_TOTAL_SIZE              (2)
-#define OTA_MD5_STATE_SIZE              (4)
-#define OTA_MD5_BUF_SIZE                (64)
+#define OTA_MD5_TOTAL_SIZE           (2)
+#define OTA_MD5_STATE_SIZE           (4)
+#define OTA_MD5_BUF_SIZE             (64)
 
-#define OTA_SHA256_TOTAL_SIZE           (2)
-#define OTA_SHA256_STATE_SIZE           (8)
-#define OTA_SHA256_BUF_SIZE             (64)
+#define OTA_SHA256_TOTAL_SIZE        (2)
+#define OTA_SHA256_STATE_SIZE        (8)
+#define OTA_SHA256_BUF_SIZE          (64)
 
 typedef struct
-{ 
+{
     unsigned int   image_magic;
     unsigned int   image_size;
     unsigned char  image_md5_value[OTA_MD5_HASH_SIZE];
@@ -166,5 +166,5 @@ int ota_coap_get_code(void *message, void *code);
 int ota_coap_get_payload(void *message, const char **payload, int *len);
 int ota_coap_parse_block(void *message, int type, int *num,int *more, int *size);
 int ota_coap_send_block(char *topic, void *message, int block_type, int num, int more, int size);
-#endif /*__OTA_HAL_COMMON_H__*/
+#endif /*OTA_HAL_COMMON_H*/
 

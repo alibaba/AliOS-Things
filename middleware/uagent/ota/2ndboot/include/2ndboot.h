@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#ifndef _2ND_BOOT_HAL_H_
-#define _2ND_BOOT_HAL_H_
+#ifndef SECOND_BOOT_HAL_H
+#define SECOND_BOOT_HAL_H
 #include "aos/hal/flash.h"
 #include "updater.h"
 
-#define SECTOR_SIZE  0x1000    /* flash sector size */
+#define SECTOR_SIZE 0x1000    /* flash sector size */
 
 #ifndef OTA_2NDBOOT_WDG_TIMEOUT
 #define OTA_2NDBOOT_WDG_TIMEOUT 120
@@ -37,4 +37,4 @@ hal_logic_partition_t *flash_get_info(hal_partition_t no);
 void wdg_init(unsigned int ms);
 void wdg_feed(void);
 void wdg_finish(void);
-#endif /* _2ND_BOOT_HAL_H_ */
+#endif /*SECOND_BOOT_HAL_H */

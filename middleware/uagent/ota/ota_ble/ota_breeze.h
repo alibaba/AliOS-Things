@@ -4,25 +4,25 @@
 #include "ota_breeze_export.h"
 
 #ifndef true
-#define true    (1)
+#define true  (1)
 #endif
 
 #ifndef false
-#define false   (0)
+#define false (0)
 #endif
 
 #ifndef NULL
-#define NULL 0
+#define NULL  0
 #endif
 
-#define OTA_IMAGE_MAGIC_OFFSET      0x00
-#define OTA_IMAGE_SIZE_OFFSET       0X04
-#define OTA_IMAGE_MD5_OFFSET        0x08
+#define OTA_IMAGE_MAGIC_OFFSET        0x00
+#define OTA_IMAGE_SIZE_OFFSET         0x04
+#define OTA_IMAGE_MD5_OFFSET          0x08
 
-#define OTA_BIN_TYPE_MAGIC_APP         0xabababab
-#define OTA_BIN_TYPE_MAGIC_KERNEL      0xcdcdcdcd
-#define OTA_BIN_TYPE_MAGIC_SINGLE      0xefefefef
-#define OTA_BIN_TYPE_MAGIC_APP_KERNEL  0xabcdabcd
+#define OTA_BIN_TYPE_MAGIC_APP        0xabababab
+#define OTA_BIN_TYPE_MAGIC_KERNEL     0xcdcdcdcd
+#define OTA_BIN_TYPE_MAGIC_SINGLE     0xefefefef
+#define OTA_BIN_TYPE_MAGIC_APP_KERNEL 0xabcdabcd
 
 typedef enum
 {

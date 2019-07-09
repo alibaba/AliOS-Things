@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#ifndef NBPATCH_H_
-#define NBPATCH_H_
+#ifndef NBPATCH_H
+#define NBPATCH_H
 
 int ota_nbpatch_main(void);
 int ota_patch_read(unsigned long src, unsigned char *buffer, unsigned long pos, unsigned long size);

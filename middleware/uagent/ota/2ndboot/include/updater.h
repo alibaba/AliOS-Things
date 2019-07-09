@@ -1,5 +1,5 @@
-#ifndef __OTA_UPDATE__
-#define __OTA_UPDATE__
+#ifndef OTA_UPDATE
+#define OTA_UPDATE
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -28,16 +28,16 @@ typedef enum {
 } OTA_UPDATER_E;
 
 /* OTA upgrade magic <--> upg_flag */
-#define OTA_UPGRADE_ALL        0x9669       /* upgrade all image: kernel+framework+app */
-#define OTA_UPGRADE_XZ         0xA55A       /* upgrade xz compressed image */
-#define OTA_UPGRADE_DIFF       0xB44B       /* upgrade diff compressed image */
-#define OTA_UPGRADE_KERNEL     0xC33C       /* upgrade kernel image only */
-#define OTA_UPGRADE_APP        0xD22D       /* upgrade app image only */
+#define OTA_UPGRADE_ALL    0x9669 /* upgrade all image: kernel+framework+app */
+#define OTA_UPGRADE_XZ     0xA55A /* upgrade xz compressed image */
+#define OTA_UPGRADE_DIFF   0xB44B /* upgrade diff compressed image */
+#define OTA_UPGRADE_KERNEL 0xC33C /* upgrade kernel image only */
+#define OTA_UPGRADE_APP    0xD22D /* upgrade app image only */
 
-#define OTA_URL_LEN         256   /*OTA download url max len*/
-#define OTA_HASH_LEN        66    /*OTA download file hash len*/
-#define OTA_SIGN_LEN        256   /*OTA download file sign len*/
-#define OTA_VER_LEN         64    /*OTA version string max len*/
+#define OTA_URL_LEN        256 /*OTA download url max len*/
+#define OTA_HASH_LEN       66  /*OTA download file hash len*/
+#define OTA_SIGN_LEN       256 /*OTA download file sign len*/
+#define OTA_VER_LEN        64  /*OTA version string max len*/
 typedef struct  {
     unsigned int   dst_adr;     /*Single Bank: Destination Address: APP partition.*/
     unsigned int   src_adr;     /*Single Bank: Copy from Source Address: OTA partition.*/
