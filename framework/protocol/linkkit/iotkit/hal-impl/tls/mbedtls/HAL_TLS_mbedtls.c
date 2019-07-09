@@ -30,9 +30,8 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "lite-utils.h"
-
 #include "iot_import.h"
-
+#include "aos/aos.h"
 #define SEND_TIMEOUT_SECONDS (10)
 
 typedef struct _TLSDataParams {
@@ -53,6 +52,26 @@ typedef struct _TLSDataParams {
 
 #define DEBUG_LEVEL 10
 
+static void _aos_srand(unsigned int seed)
+{
+#define SEED_MAGIC 0x123
+    int           ret        = 0;
+    int           seed_len   = 0;
+    unsigned int  seed_val   = 0;
+    static char  *g_seed_key = "seed_key";
+
+    seed_len = sizeof(seed_val);
+    ret = aos_kv_get(g_seed_key, &seed_val, &seed_len);
+    if (ret) {
+        seed_val = SEED_MAGIC;
+    }
+    seed_val += seed;
+    srand(seed_val);
+
+    seed_val = rand();
+    aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+}
+
 static unsigned int _avRandom()
 {
     return (((unsigned int)rand() << 16) + rand());
@@ -70,8 +89,6 @@ static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
     }
     return 0;
 }
-
-
 
 static void _ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
 {
@@ -132,6 +149,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     mbedtls_ssl_config_init(conf);
     mbedtls_x509_crt_init(crt509_ca);
 
+    _aos_srand(aos_now_ms());
     /*verify_source->trusted_ca_crt==NULL
      * 0. Initialize certificates
      */
