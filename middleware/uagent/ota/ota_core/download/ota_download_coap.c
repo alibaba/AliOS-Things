@@ -60,7 +60,7 @@ static void ota_coap_block_cb(void *arg, void *p_response)
 /**
  * ota_download_start  OTA download start
  *
- * @param[in] char *url            download url
+ * @param[in] char *url download url
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
