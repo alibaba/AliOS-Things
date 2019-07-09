@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef _OTA_LIBC_H_
-#define _OTA_LIBC_H_
+#ifndef OTA_LIBC_H
+#define OTA_LIBC_H
 
 #define ALIGN(x,a)                 (((x) + (a) - 1) & ~((a) - 1))
 #define XZ_HEAP_ALIGNMENT          4
@@ -21,19 +21,19 @@
 #else
 extern void *_rec_heap_start;
 extern void *_rec_heap_len;
-#define XZ_HEAP_BASE   ((int)&_rec_heap_start)
-#define XZ_HEAP_SIZE   ((int)&_rec_heap_len)
+#define XZ_HEAP_BASE ((int)&_rec_heap_start)
+#define XZ_HEAP_SIZE ((int)&_rec_heap_len)
 
-#define memset              ota_memset
-#define memcpy              ota_memcpy
-#define memcmp              ota_memcmp
-#define memmove             ota_memmove
-#define strlen              ota_strlen
-#define strcat              ota_strcat
-#define puts                ota_puts
-#define printf              ota_printf
-#define malloc              ota_heap_malloc
-#define free                ota_heap_free
+#define memset  ota_memset
+#define memcpy  ota_memcpy
+#define memcmp  ota_memcmp
+#define memmove ota_memmove
+#define strlen  ota_strlen
+#define strcat  ota_strcat
+#define puts    ota_puts
+#define printf  ota_printf
+#define malloc  ota_heap_malloc
+#define free    ota_heap_free
 #endif
 
 void *ota_memset(void *s, int c, unsigned int n);
