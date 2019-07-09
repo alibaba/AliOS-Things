@@ -201,12 +201,12 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         return -1;
     }
 
-    t_end    = HAL_UptimeMs() + timeout_ms;
+    t_end    = aos_now_ms() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
     do {
-        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
+        t_left = aliot_platform_time_left(t_end, aos_now_ms());
         if (0 == t_left) {
             break;
         }

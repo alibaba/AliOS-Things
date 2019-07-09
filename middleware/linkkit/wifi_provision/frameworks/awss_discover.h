@@ -9,8 +9,11 @@
 extern "C" {
 
 #endif
-#if defined(AWSS_SUPPORT_BEACON_ANNOUNCE)
-int aws_send_beacon_announce(void);
+#if defined(AWSS_SUPPORT_DISCOVER)
+int aws_discover_send_beacon(void);
+int aws_discover_init(void);
+int aws_discover_deinit(void);
+
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

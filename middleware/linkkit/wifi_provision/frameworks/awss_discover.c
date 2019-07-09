@@ -4,19 +4,23 @@
 #include "wifi_provision_internal.h"
 #include "infra_defs.h"
 
-#if defined(AWSS_SUPPORT_BEACON_ANNOUNCE)
+#if defined(AWSS_SUPPORT_DISCOVER)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
 
-#define POLY  0x04C11DB7
+#define AWS_DISCOVER_MIN_DURATION  100
+#define MAX_MNGMT_FRAME_LEN        80
+#define PRINT_DISCOVER_DEBUG       0
+#define AWSS_DISCOVER_USE_QUICK_CRC
+#define VER 0
 
-#define MAX_BEACON_ANNOUNCE_LEN 80
+#define POLY           0x04C11DB7
+#define MNGMT_BEACON   0x80
+#define MNGMT_RESPONSE 0x50
 
-#define AWSS_USE_QUICK_CRC
-
-static const char HEADER[] = {0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-static const char BEACON_INTER[] = {0x2c, 0x01, 0x01, 0x00};
+static const uint8_t BCAST_ADDR[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+static const uint8_t BEACON_INTER[] = {0x2c, 0x01, 0x01, 0x00};
 
 typedef struct simulate_ap {
     uint8_t bssid[6];
@@ -38,10 +42,9 @@ static uint64_t reflect(uint64_t ref, uint8_t ch)
     return value;
 }
 
-
 static void print_hex_array(uint8_t *array, uint16_t len)
 {
-#ifdef PRINT_BEACON_DEBUG
+#if PRINT_DISCOVER_DEBUG
     int i;
     for (i = 0; i < len; i++) {
         HAL_Printf("%02x ", array[i]);
@@ -52,8 +55,7 @@ static void print_hex_array(uint8_t *array, uint16_t len)
 #endif
 }
 
-
-#ifndef AWSS_USE_QUICK_CRC
+#ifndef AWSS_DISCOVER_USE_QUICK_CRC
 static uint32_t crc32_bit(uint8_t *ptr, uint32_t len)
 {
     uint8_t i;
@@ -141,43 +143,65 @@ static void get_fcs(uint8_t *p_buffer, uint16_t length)
     p_buffer[length - 1] = (crc) & 0xff;
 }
 
-static uint16_t  create_beacon_frame(uint8_t *p_buffer, simulate_ap_t  *p_ap)
+static uint16_t create_mng_frame(uint8_t *p_buffer, uint8_t type, uint8_t dst[6], simulate_ap_t  *p_ap)
 {
     uint16_t len = 0;
     uint8_t t_i;
+    static uint16_t seq_id = 0;
     uint64_t  t_timestamp = HAL_UptimeMs() * 1000;
 
-    if (p_buffer == NULL || p_ap == NULL) {
+    if (p_buffer == NULL || p_ap == NULL || dst == NULL) {
         return 0;
     }
-    memcpy(p_buffer, HEADER, 10);
-    memcpy(p_buffer + 10, p_ap->bssid, 6);
-    memcpy(p_buffer + 16, p_ap->bssid, 6);
-    p_buffer[22] = (uint8_t)(p_ap->seq_id & 0xFF);
-    p_buffer[23] = (uint8_t)((p_ap->seq_id >> 8) & 0xFF);
-    p_ap->seq_id += 0x10;
-
+    p_ap->seq_id = seq_id;
+    /* memcpy(p_buffer, HEADER, 10);*/
+    p_buffer[len] = type;
+    len += 1; /*len = 1 */
+    p_buffer[len] = 0;
+    len += 1; /*len = 2 */
+    p_buffer[len] = 0;
+    len += 1; /*len = 3 */
+    p_buffer[len] = 0;
+    len += 1; /*len = 4 */
+    memcpy(p_buffer + len, dst, 6);
+    len += 6; /*len = 10 */
+    memcpy(p_buffer + len, p_ap->bssid, 6);
+    len += 6; /*len = 16 */
+    memcpy(p_buffer + len, p_ap->bssid, 6);
+    len += 6; /*len = 22 */
+    p_buffer[len] = (uint8_t)(p_ap->seq_id & 0xFF);
+    len += 1; /*len = 23 */
+    p_buffer[len] = (uint8_t)((p_ap->seq_id >> 8) & 0xFF);
+    len += 1; /*len = 24 */
+    seq_id += 0x10;
 
     for (t_i = 0; t_i < 8; t_i++) {
-        p_buffer[24 + t_i] = (uint8_t)((t_timestamp >> (t_i << 3)) & 0xFF);
+        p_buffer[len + t_i] = (uint8_t)((t_timestamp >> (t_i << 3)) & 0xFF);
     }
-    memcpy(p_buffer + 32, BEACON_INTER, 4);
-    p_buffer[36] = 0;
-    p_buffer[37] = p_ap->essid_len;
-    memcpy(p_buffer + 38, p_ap->essid, p_ap->essid_len);
-    len = 38 + p_ap->essid_len + 4;
+    len += 8; /*len = 32 */
+
+    memcpy(p_buffer + len, BEACON_INTER, 4);
+    len += 4; /*len = 36 */
+    p_buffer[len] = 0;
+    len += 1; /*len = 37 */
+    p_buffer[len] = p_ap->essid_len;
+    len += 1; /*len = 38 */
+    memcpy(p_buffer + len, p_ap->essid, p_ap->essid_len);
+    len += p_ap->essid_len; /*len = 38+p_ap->essid_len */
+
+    len += 4;
     get_fcs(p_buffer, len);
     print_hex_array(p_buffer, len);
     return len;
 }
 
-static int awss_set_announce_content(simulate_ap_t *ap, char *data)
+static int awss_set_discover_content(simulate_ap_t *ap, char *data)
 {
     uint8_t len;
     if (data == NULL || ap == NULL) {
         return -1;
     }
-    
+
     len = strlen(data);
     if (len > 32) {
         len = 32;
@@ -187,7 +211,6 @@ static int awss_set_announce_content(simulate_ap_t *ap, char *data)
     return 0;
 }
 
-#define VER 0
 static int get_ability(char *src, uint8_t mac[6])
 {
     uint32_t mac_org_bits = 0;
@@ -233,11 +256,12 @@ static int get_ability(char *src, uint8_t mac[6])
     }
     return 8;
 }
-int aws_send_beacon_announce(void)
+
+static int aws_discover_send(uint8_t ftype, uint8_t dst[6])
 {
     int len;
     int ssid_len;
-    uint8_t probe[MAX_BEACON_ANNOUNCE_LEN] = {0};
+    uint8_t probe[MAX_MNGMT_FRAME_LEN] = {0};
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char ssid[33] = {0};
     simulate_ap_t ap;
@@ -253,12 +277,73 @@ int aws_send_beacon_announce(void)
     ssid_len += 1;
     ssid_len += get_ability(ssid + ssid_len, ap.bssid);
 
-    awss_set_announce_content(&ap, ssid);
+    awss_set_discover_content(&ap, ssid);
 
-    len = create_beacon_frame(probe, &ap);
+    len = create_mng_frame(probe, ftype, dst, &ap);
 
     HAL_Wifi_Send_80211_Raw_Frame(FRAME_BEACON, probe, len);
     return 0;
+}
+/**
+ * @brief management frame handler
+ *
+ * @param[in] buffer @n 80211 raw frame or ie(information element) buffer
+ * @param[in] len @n buffer length
+ * @param[in] buffer_type @n 0 when buffer is a 80211 frame,
+ *                          1 when buffer only contain IE info
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+static void aws_discover_callback(uint8_t *buffer, int length, signed char rssi, int buffer_type)
+{
+#define MGMT_BEACON     (0x80)
+#define MGMT_PROBE_REQ  (0x40)
+#define MGMT_PROBE_RESP (0x50)
+#define MGMT_HDR_LEN     (24)
+
+    static uint32_t last_time = 0;
+    /* fc(2) + dur(2) + da(6) + sa(6) + bssid(6) + seq(2) */
+    uint8_t dst[6] = {0};
+    int type = buffer[0];
+    switch (type) {
+        case MGMT_BEACON:
+            break;
+        case MGMT_PROBE_REQ: {
+
+            if (time_elapsed_ms_since(last_time) < AWS_DISCOVER_MIN_DURATION) {
+                break;
+            }
+            last_time = os_get_time_ms();
+            if (length >= 16) {
+                memcpy(dst, buffer + 10, 6);
+            }
+            print_hex_array(buffer, length);
+            aws_discover_send(MNGMT_RESPONSE, dst);
+        }
+        break;
+        case MGMT_PROBE_RESP:
+            break;
+        default:
+            break;
+    }
+}
+
+int aws_discover_send_beacon()
+{
+    return aws_discover_send(MNGMT_BEACON, (uint8_t *)BCAST_ADDR);
+}
+
+int aws_discover_init()
+{
+    return HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_PROBE_REQ_MASK,
+            NULL, aws_discover_callback);
+}
+
+int aws_discover_deinit()
+{
+    return HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_PROBE_REQ_MASK,
+            NULL, NULL);
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

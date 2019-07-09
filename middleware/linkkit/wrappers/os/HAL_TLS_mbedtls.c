@@ -19,7 +19,7 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "wrappers_defs.h"
-
+#include "wrappers_os.h"
 #define LOG_TAG "HAL_TLS"
 
 

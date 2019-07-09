@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 #ifndef MQTTCONNECT_H_
 #define MQTTCONNECT_H_
 
@@ -119,5 +118,3 @@ DLLExport int MQTTSerialize_disconnect(unsigned char *buf, int buflen);
 DLLExport int MQTTSerialize_pingreq(unsigned char *buf, int buflen);
 
 #endif /* MQTTCONNECT_H_ */
-
-
