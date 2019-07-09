@@ -29,9 +29,8 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "lite-utils.h"
-
 #include "iot_import.h"
-
+#include "aos/aos.h"
 #define SEND_TIMEOUT_SECONDS (10)
 
 typedef struct _TLSDataParams {
@@ -56,28 +55,51 @@ static int ssl_fd = -1;
 
 int get_ssl_fd()
 {
-   return ssl_fd;
+    return ssl_fd;
+}
+
+static void _aos_srand(unsigned int seed)
+{
+#define SEED_MAGIC 0x123
+    int           ret        = 0;
+    int           seed_len   = 0;
+    unsigned int  seed_val   = 0;
+    static char  *g_seed_key = "seed_key";
+
+    seed_len = sizeof(seed_val);
+    ret = aos_kv_get(g_seed_key, &seed_val, &seed_len);
+    if (ret) {
+        seed_val = SEED_MAGIC;
+    }
+    seed_val += seed;
+    srand(seed_val);
+
+    seed_val = rand();
+    aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+}
+
+static int _aos_rand(void)
+{
+    return rand();
 }
 
 static unsigned int _avRandom()
 {
-    return (((unsigned int)rand() << 16) + rand());
+    return (((unsigned int)_aos_rand() << 16) + _aos_rand());
 }
 
 static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
 {
-    uint32_t rnglen = output_len;
-    uint8_t   rngoffset = 0;
+    uint32_t rnglen    = output_len;
+    uint8_t  rngoffset = 0;
 
     while (rnglen > 0) {
-        *(output + rngoffset) = (unsigned char)_avRandom() ;
+        *(output + rngoffset) = (unsigned char)_avRandom();
         rngoffset++;
         rnglen--;
     }
     return 0;
 }
-
-
 
 static void _ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
 {
@@ -169,6 +191,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     mbedtls_ssl_config_init(conf);
     mbedtls_x509_crt_init(crt509_ca);
 
+    _aos_srand(aos_now_ms());
     /*verify_source->trusted_ca_crt==NULL
      * 0. Initialize certificates
      */
@@ -462,12 +485,12 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
             } else {
                 //mbedtls_strerror(ret, err_str, sizeof(err_str));
                 SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
-       #ifdef CSP_LINUXHOST
+#ifdef CSP_LINUXHOST
                 if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
                     aos_msleep(200);
                     continue;
                 }
-       #endif
+#endif
                 net_status = -1;
                 return -1; /* Connection error */
             }
@@ -524,8 +547,8 @@ int32_t HAL_SSL_GetFd(uintptr_t handle)
 {
     int32_t fd = -1;
     if ((uintptr_t)NULL == handle) {
-           SSL_LOG("handle is NULL");
-           return fd;
+        SSL_LOG("handle is NULL");
+        return fd;
     }
     fd = ((TLSDataParams_t *)handle)->fd.fd;
     return fd;
@@ -544,7 +567,7 @@ int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len,
 
 int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
-    void *              ptr;
+    void               *ptr;
 
     if ((uintptr_t)NULL == handle) {
         SSL_LOG("handle is NULL");
