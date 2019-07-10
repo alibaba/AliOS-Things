@@ -14,11 +14,11 @@
 #define TRANSPORT_ADDR_LEN 16
 
 #ifndef IP_PKTINFO
-#define IP_PKTINFO IP_MULTICAST_IF
+    #define IP_PKTINFO IP_MULTICAST_IF
 #endif
 
 #ifndef IPV6_PKTINFO
-#define IPV6_PKTINFO IPV6_V6ONL
+    #define IPV6_PKTINFO IPV6_V6ONL
 #endif
 
 #define NETWORK_ADDR_LEN (16)
@@ -36,54 +36,56 @@
  * @retval >= 0 : Success, the value is handle of this UDP socket.
  * @see None.
  */
-intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
+intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
-    int                flag      = 1;
-    int                ret       = -1;
-    int                socket_id = -1;
-    struct sockaddr_in local_addr; /*local addr*/
 
-    if ((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        fprintf(stderr, "socket create failed\r\n");
-        return -1;
+
+    int                     rc = -1;
+    long                    socket_id = -1;
+    char                    port_ptr[6] = {0};
+    struct addrinfo         hints;
+    char                    addr[NETWORK_ADDR_LEN] = {0};
+    struct addrinfo        *res, *ainfo;
+    struct sockaddr_in     *sa = NULL;
+
+    if (NULL == host) {
+        return (-1);
     }
 
-    ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
-    if (ret < 0) {
-        close(socket_id);
-        fprintf(stderr, "setsockopt SO_REUSEADDR failed");
-        return -1;
+    sprintf(port_ptr, "%u", port);
+    memset((char *)&hints, 0x00, sizeof(hints));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = IPPROTO_UDP;
+
+    rc = getaddrinfo(host, port_ptr, &hints, &res);
+    if (0 != rc) {
+        printf("getaddrinfo error");
+        return (-1);
     }
 
-    flag = 1;
-#ifdef IP_RECVPKTINFO
-    if ((ret = setsockopt(socket_id, IPPROTO_IP, IP_RECVPKTINFO, &flag,
-                          sizeof(flag))) < 0)
-#else  /* IP_RECVPKTINFO */
-    if ((ret = setsockopt(socket_id, IPPROTO_IP, IP_PKTINFO, &flag,
-                          sizeof(flag))) < 0)
-#endif /* IP_RECVPKTINFO */
-        if (ret < 0) {
+    for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next) {
+        if (AF_INET == ainfo->ai_family) {
+            sa = (struct sockaddr_in *)ainfo->ai_addr;
+            inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
+            printf("The host IP %s, port is %d\r\n", addr, ntohs(sa->sin_port));
+
+            socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
+            if (socket_id < 0) {
+                printf("create socket error");
+                continue;
+            }
+            if (0 == connect(socket_id, ainfo->ai_addr, ainfo->ai_addrlen)) {
+                break;
+            }
+
             close(socket_id);
-            fprintf(stderr, "setsockopt IP_PKTINFO failed\r\n");
-            return -1;
         }
-
-
-    memset(&local_addr, 0x00, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    if (NULL != host) {
-        inet_aton(host, &local_addr.sin_addr);
-    } else {
-        local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
-    local_addr.sin_port = htons(port);
-    ret = bind(socket_id, (struct sockaddr *)&local_addr, sizeof(local_addr));
+    freeaddrinfo(res);
 
-    // fprintf(stderr,"\r\n[%s LINE #%d]  Create socket port %d fd %d ret
-    // %d\r\n",
-    //                    __FILE__, __LINE__, port, socket_id, ret);
     return socket_id;
+
 }
 
 intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
@@ -95,14 +97,14 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 
     if ((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         platform_err("socket create failed\r\n");
-        return (intptr_t)-1;
+        return (intptr_t) - 1;
     }
 
     ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
     if (ret < 0) {
         close(socket_id);
         platform_err("setsockopt SO_REUSEADDR failed");
-        return (intptr_t)-1;
+        return (intptr_t) - 1;
     }
 
     flag = 1;
@@ -116,7 +118,7 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
         if (ret < 0) {
             close(socket_id);
             platform_err("setsockopt IP_PKTINFO failed\r\n");
-            return (intptr_t)-1;
+            return (intptr_t) - 1;
         }
 
 
@@ -139,12 +141,6 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
 {
     return close((int)sockfd);
-}
-
-int HAL_UDP_connect(_IN_ intptr_t sockfd, _IN_ const char *host,
-                    _IN_ unsigned short port)
-{
-    return 0;
 }
 
 int HAL_UDP_recvfrom(intptr_t sockfd, NetworkAddr *p_remote,
@@ -228,7 +224,7 @@ int HAL_UDP_sendto(intptr_t sockfd, const NetworkAddr *p_remote,
     }
     remote_addr.sin_port = htons(p_remote->port);
     rc                   = sendto(socket_id, p_data, (size_t)datalen, 0,
-                (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
+                                  (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
     if (-1 == rc) {
         return -1;
     }
@@ -271,7 +267,7 @@ int HAL_UDP_read(intptr_t p_socket, unsigned char *p_data, unsigned int datalen)
     long socket_id = -1;
     int  count     = -1;
 
-    if (NULL == p_data || 0 == p_socket) {
+    if (NULL == p_data || p_socket < 0) {
         return -1;
     }
 
@@ -294,7 +290,7 @@ int HAL_UDP_joinmulticast(intptr_t sockfd, char *p_group)
     int loop  = 1;
     socket_id = (int)sockfd;
     err =
-      setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
+                setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
         fprintf(stderr, "setsockopt():IP_MULTICAST_LOOP failed\r\n");
         return err;
@@ -306,7 +302,7 @@ int HAL_UDP_joinmulticast(intptr_t sockfd, char *p_group)
 
     /*join to the mutilcast group*/
     err =
-      setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+                setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
         fprintf(stderr, "setsockopt():IP_ADD_MEMBERSHIP failed\r\n");
         return err;
@@ -346,7 +342,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket, unsigned char *p_data,
     fd_set         read_fds;
     long           socket_id = -1;
 
-    if (0 == p_socket || NULL == p_data) {
+    if (NULL == p_data) {
         return -1;
     }
     socket_id = (long)p_socket;
@@ -362,7 +358,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket, unsigned char *p_data,
     tv.tv_usec = (timeout % 1000) * 1000;
 
     ret =
-      select(socket_id + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv);
+                select(socket_id + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv);
 
     /* Zero fds ready means we timed out */
     if (ret == 0) {
