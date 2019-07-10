@@ -9,12 +9,11 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_PRODUCT_rhino.c \
                    HAL_UDP_rhino.c 
 
+$(NAME)_DEFINES +=  USE_YLOOP
 
 $(NAME)_SOURCES-$(FS_ENABLED) += HAL_FS_rhino.c
 
 $(NAME)_COMPONENTS += ulog activation chip_code netmgr
-
-GLOBAL_DEFINES +=RHINO_CONFIG_TIMER_TASK_STACK_SIZE=1024
 
 ifeq (y,$(strip $(DEV_BIND_ENABLED)))
 $(NAME)_SOURCES += HAL_AWSS_rhino.c
