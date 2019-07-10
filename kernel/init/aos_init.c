@@ -235,6 +235,10 @@ void cli_service_init(kinit_t *kinit)
 }
 
 #endif
+void aos_show_welcome(void)
+{
+    puts("             Welcome to AliOS Things           ");
+}
 
 int aos_kernel_init(kinit_t *kinit)
 {
@@ -296,6 +300,8 @@ int aos_kernel_init(kinit_t *kinit)
 #ifdef AOS_FRAMEWORK_COMMON
     aos_framework_init();
 #endif
+
+    aos_show_welcome();
 
 #ifdef AOS_COMP_PWRMGMT
     cpu_pwrmgmt_init();
