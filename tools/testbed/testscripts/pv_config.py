@@ -60,36 +60,74 @@ buildtargets = {
     #        }
     #    },
     #},
+    'esp32-helloworld': {
+        'buildargs': 'helloworld@esp32devkitc',
+        'bincopy': ["out/helloworld@esp32devkitc/binary/helloworld@esp32devkitc.bin", "helloworld@esp32-general.bin"]
+    },
+    'esp32-mqttapp': {
+        'buildargs': 'mqttapp@esp32devkitc',
+        'bincopy': ["out/mqttapp@esp32devkitc/binary/mqttapp@esp32devkitc.bin", "mqttapp@esp32-general.bin"],
+        'keyinfo':{
+            'keyfile': "example/mqttapp/mqtt_example.c",
+            'keyvalue': {
+                'PRODUCT_KEY': 'a1VmpWRfdCb',
+                'PRODUCT_SECRET': 'iAOf2332l2haSn9i',
+                'DEVICE_NAME': 'mqtt_esp32_test01',
+                'DEVICE_SECRET': 'eQucRNkFJ4SxkfVja1o70K1Oyp2xC2mP'
+            }
+        }
+    },
+    'esp32-linkkitapp': {
+        'buildargs': 'linkkitapp@esp32devkitc pvtest=y',
+        'bincopy': ["out/linkkitapp@esp32devkitc/binary/linkkitapp@esp32devkitc.bin", "linkkitapp@esp32-general.bin"],
+        'keyinfo':{
+            'keyfile': "example/linkkitapp/linkkit_example_solo.c",
+            'keyvalue': {
+                'PRODUCT_KEY': 'a1VmpWRfdCb',
+                'PRODUCT_SECRET': 'iAOf2332l2haSn9i',
+                'DEVICE_NAME': 'linkkit_esp32_test01',
+                'DEVICE_SECRET': '9TZvVGnjgfrnB5lYjIraHT8DKiY99im5'
+            }
+        },
+    },
     'esp8266-helloworld': {
         'buildargs': 'helloworld@esp8266',
         'bincopy': ["out/helloworld@esp8266/binary/helloworld@esp8266.bin", "helloworld@esp8266-general.bin"],
     },
-    #'esp8266-mqttapp': {
-    #    'buildargs': 'mqttapp@esp8266',
-    #    'bincopy': ["out/mqttapp@esp8266/binary/mqttapp@esp8266.bin", "mqttapp@esp8266-general.bin"],
-    #    'keyinfo':{
-    #        'keyfile': "example/mqttapp/mqtt_example.c",
-    #        'keyvalue': {
-    #            'PRODUCT_KEY': 'a16GcXEm4uG',
-    #            'PRODUCT_SECRET': '7YgRyCVZNqAgq5x2',
-    #            'DEVICE_NAME': 'mqtt_esp8266_test01',
-    #            'DEVICE_SECRET': 'i3aO87beMtgxIhNKu7BooBXrEjTe4FDH'
-    #        }
-    #    }
-    #},
-    #'esp8266-linkkitapp': {
-    #    'buildargs': 'linkkitapp@esp8266 pvtest=y',
-    #    'bincopy': ["out/linkkitapp@esp8266/binary/linkkitapp@esp8266.bin", "linkkitapp@esp8266-general.bin"],
-    #    'keyinfo':{
-    #        'keyfile': "example/linkkitapp/linkkit_example_solo.c",
-    #        'keyvalue': {
-    #            'PRODUCT_KEY': 'a12iufuXqUA',
-    #            'PRODUCT_SECRET': 'tbZ7PUfV9VY2rwCl',
-    #            'DEVICE_NAME': 'linkkit_esp8266_test01',
-    #            'DEVICE_SECRET': 'rJrxKebZODECZUNNNwYXonojdhTOL7sU'
-    #        }
-    #    },
-    #},
+    'esp8266-mqttapp': {
+        'buildargs': 'mqttapp@esp8266',
+        'bincopy': ["out/mqttapp@esp8266/binary/mqttapp@esp8266.bin", "mqttapp@esp8266-general.bin"],
+        'keyinfo':{
+            'keyfile': "example/mqttapp/mqtt_example.c",
+            'keyvalue': {
+                'PRODUCT_KEY': 'a1VmpWRfdCb',
+                'PRODUCT_SECRET': 'iAOf2332l2haSn9i',
+                'DEVICE_NAME': 'mqtt_esp8266_test01',
+                'DEVICE_SECRET': 's5DxqBDJhhHVgdBW4KFNmO2zq17wO6O9'
+            }
+        }
+    },
+    'esp8266-linkkitapp': {
+        'buildargs': 'linkkitapp@esp8266 pvtest=y',
+        'bincopy': ["out/linkkitapp@esp8266/binary/linkkitapp@esp8266.bin", "linkkitapp@esp8266-general.bin"],
+        'keyinfo':{
+            'keyfile': "example/linkkitapp/linkkit_example_solo.c",
+            'keyvalue': {
+                'PRODUCT_KEY': 'a1VmpWRfdCb',
+                'PRODUCT_SECRET': 'iAOf2332l2haSn9i',
+                'DEVICE_NAME': 'linkkit_esp8266_test01',
+                'DEVICE_SECRET': 'GeWPjX7IkZ0Nb4Nh58VeIATKq9KHAuQC'
+            }
+        },
+    },
+    'sv6266-helloworld': {
+        'buildargs': 'helloworld@sv6266_evb',
+        'bincopy': ["out/helloworld@sv6266_evb/binary/helloworld@sv6266_evb.bin", "helloworld@sv6266-general.bin"]
+    },
+    'rda5981-helloworld': {
+        'buildargs': 'helloworld@uno-91h',
+        'bincopy': ["out/helloworld@uno-91h/binary/helloworld@uno-91h.bin", "helloworld@rda5981-general.bin"]
+    },
 }
 
 testsuits = {
@@ -141,15 +179,26 @@ models = {
        ['link', 'mqtt_connect'],
        #['link', 'coap_connect'],
        ],
-    #'mk3080': [
-    #   ['basic', 'helloworld'],
-    #   ['link', 'linkkit_connect'],
-    #   ['link', 'mqtt_connect'],
-    #   ],
+    'mk3080': [
+       #['basic', 'helloworld'],
+       #['link', 'linkkit_connect'],
+       #['link', 'mqtt_connect'],
+       ],
+   'esp32': [
+       ['basic', 'helloworld'],
+       ['link', 'linkkit_connect'],
+       ['link', 'mqtt_connect'],
+       ],
    'esp8266': [
        ['basic', 'helloworld'],
        #['link', 'linkkit_connect'],
-       ['link', 'mqtt_connect'],
+       #['link', 'mqtt_connect'],
+       ],
+    'sv6266': [
+       ['basic', 'helloworld'],
+       ],
+    'rda5981': [
+       #['basic', 'helloworld'],
        ],
 }
 

@@ -20,7 +20,7 @@ def main():
     if len(responses) == 0:
         tc.stop()
         print '\nlinkkit connect test failed: device boot up failed'
-        return [ret, 'device failed to boot up']
+        return [1, 'device failed to boot up']
 
     response = at.device_run_cmd('A', 'kv get wifi', 1, 1, ['value is '])
     if len(response) > 0:
