@@ -518,26 +518,21 @@ static int HAL_SAL_Start(sal_conn_t *c)
             g_link[link_id].fd = c->fd;
             if (aos_sem_new(&g_link[link_id].sem_start, 0) != 0) {
                 LOGE(TAG, "failed to allocate semaphore %s", __func__);
-                g_link[link_id].fd = -1;
-                return -1;
+                goto err;
             }
 
             if (aos_sem_new(&g_link[link_id].sem_close, 0) != 0) {
                 LOGE(TAG, "failed to allocate semaphore %s", __func__);
-                aos_sem_free(&g_link[link_id].sem_start);
-                g_link[link_id].fd = -1;
-                return -1;
+                goto err;
             }
             break;
         }
     }
 
-    aos_mutex_unlock(&g_link_mutex);
-
     // The caller should deal with this failure
     if (link_id >= LINK_ID_MAX) {
         LOGI(TAG, "No link available for now, %s failed.", __func__);
-        return -1;
+        goto err;
     }
 
     LOGD(TAG, "Creating %s connection ...", start_cmd_type_str[c->type]);
@@ -583,13 +578,9 @@ static int HAL_SAL_Start(sal_conn_t *c)
 
     LOGD(TAG, "%s sem_wait succeed.", __func__);
 
+    aos_mutex_unlock(&g_link_mutex);
     return 0;
 err:
-    if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
-        LOGE(TAG, "Failed to lock mutex (%s).", __func__);
-        return -1;
-    }
-
     if (aos_sem_is_valid(&g_link[link_id].sem_start)) {
         aos_sem_free(&g_link[link_id].sem_start);
     }
@@ -639,10 +630,15 @@ static int HAL_SAL_Send(int fd,
 
     LOGD(TAG, "%s on fd %d", __func__, fd);
 
+    if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
+        LOGE(TAG, "Failed to lock mutex (%s).", __func__);
+        return -1;
+    }
+
     link_id = fd_to_linkid(fd);
     if (link_id < 0 || link_id >= LINK_ID_MAX) {
         LOGE(TAG, "No connection found for fd (%d) in %s", fd, __func__);
-        return -1;
+        goto err;
     }
 
     /* AT+CIPSEND=id, */
@@ -666,7 +662,7 @@ static int HAL_SAL_Send(int fd,
 
     if ((outdata = (uint8_t *)aos_malloc(len + 1)) == NULL) {
         LOGE(TAG, "%s malloc failed!", __func__);
-        return -1;
+        goto err;
     }
 
     for (int i = 0; i < len; i++) {
@@ -686,10 +682,14 @@ static int HAL_SAL_Send(int fd,
 
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGD(TAG, "%s %d failed", __func__, __LINE__);
-        return -1;
+        goto err;
     }
 
+    aos_mutex_unlock(&g_link_mutex);
     return 0;
+err:
+    aos_mutex_unlock(&g_link_mutex);
+    return -1;
 }
 
 #define DOMAIN_RSP "+CIPDOMAIN:"
