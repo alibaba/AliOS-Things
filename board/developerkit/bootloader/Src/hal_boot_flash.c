@@ -917,7 +917,7 @@ int hal_boot_flash_erase(unsigned int address, unsigned int len_bytes)
     EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
     EraseInit.Banks = boot_flash_get_bank(start_addr);
     if (EraseInit.Banks != boot_flash_get_bank(start_addr + len_bytes - 1)) {
-        rec_printf("banks error\r\n");
+        printf("banks error\r\n");
     } else {
         EraseInit.Page = boot_flash_get_pageinbank(start_addr);
         EraseInit.NbPages = boot_flash_get_pageinbank(start_addr + len_bytes - 1) - EraseInit.Page + 1;
@@ -926,7 +926,7 @@ int hal_boot_flash_erase(unsigned int address, unsigned int len_bytes)
             ret = 0;
         }
         else {
-            rec_printf("erase error\r\n");
+            printf("erase error\r\n");
         }
     }
     HAL_FLASH_Lock();
