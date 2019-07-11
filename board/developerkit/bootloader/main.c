@@ -3,7 +3,8 @@
 #include "hal_boot_uart.h"
 #include "hal_boot_wdg.h"
 #include "hal_boot_process.h"
-#include "rec_define.h"
+
+#include "ota/ota_service.h"
 
 void HAL_PWR_EnableBkUpAccess(void)
 {
@@ -107,7 +108,6 @@ void SystemClock_Config(void)
 static uint32_t delay_i, delay_j, delay_k;
 static void delay()
 {
-
     for(delay_i = 0; delay_i < 100; delay_i++) {
         for(delay_j = 0; delay_j < 100; delay_j++)
             for(delay_k = 0; delay_k < 100; delay_k++){}
@@ -117,43 +117,22 @@ static void delay()
 int main(void)
 {
     int ret = 0, i = 0;
-    uint32_t bank = 0;
-    rec_flag_info_t ota_packet_info;
-
+    unsigned int bank = 0;
+    ota_boot_param_t param = {0};
+    ret = ota_patch_read_param(&param);
+    if(ret < 0) {
+        return -1;
+    }
     HAL_Init();
     SystemClock_Config();
     hal_uart_Init();
-    rec_printf("boot up ...\r\n");
-    if(recovery_check() != REC_NORMAL_START) {
-        recovery_main();
+    if(param.upg_flag == OTA_UPGRADE_DIFF) {
+        ret = ota_nbpatch_main();
+        if(ret != 0) {
+            sys_reboot();
+        }
     }
     bank = hal_get_boot_bank();
-    recovery_get_flag_info(&ota_packet_info);
-    if(ota_packet_info.flag == REC_DUAL_UPDATE_FLAG) {
-        if(ota_packet_info.num == 0x00) {
-            ota_packet_info.num = 0x01;
-            recovery_set_flag_info(&ota_packet_info);
-        }
-        else if(ota_packet_info.num < 0x03) {
-            ota_packet_info.num++; 
-            recovery_set_flag_info(&ota_packet_info);
-        }
-        else {
-            rec_printf("application boot failed over 3 times, switch bank\r\n");
-            ota_packet_info.flag = 0x00;
-            ota_packet_info.num = 0x00;
-            recovery_set_flag_info(&ota_packet_info);
-            delay();
-            sw_bank();
-            delay();
-            rec_reboot();
-        }
-        rec_printf("boot count = %d\r\n", ota_packet_info.num);
-        hal_boot_wdg_init(WDT_INIT_TIME_SECOND);
-    }
-    else {
-        rec_printf("aos Bank%d bootup!\r\n", bank);
-    }
     load_app(APP_LOAD_ADDR);
     return 0;
 }

@@ -99,6 +99,7 @@ void stm32_soc_peripheral_init(void)
 
 }
 
+
 static void stduart_init(void)
 {
     uart_0.port = 0;
@@ -196,5 +197,3 @@ void HardFault_Handler(void)
   }
 }
 #endif
-
-
