@@ -1,3 +1,0 @@
-src     = Split('''
-    udevapp.c
-''')
