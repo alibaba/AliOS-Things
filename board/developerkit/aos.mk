@@ -7,8 +7,8 @@ HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := mcu_stm32l4xx_cube
 HOST_MCU_NAME        := STM32L496VGTx
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_LIBSUFFIX := _2boot
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+$(NAME)_LIBSUFFIX := _2ndboot
 
 HOST_OPENOCD := stm32l4xx
 GLOBAL_DEFINES += USE_HAL_DRIVER
@@ -41,10 +41,10 @@ $(NAME)_SOURCES := bootloader/startup_stm32l496xx_boot.s  \
 
 GLOBAL_LDFLAGS += -T ./board/developerkit/bootloader/STM32L496VGTx_FLASH_bootloader.ld
 
-CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit_2boot
-CONFIG_SYSINFO_DEVICE_NAME := developerkit_2boot
+CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit_2ndboot
+CONFIG_SYSINFO_DEVICE_NAME := developerkit_2ndboot
 
-EXTRA_TARGET_MAKEFILES +=  ./board/developerkit/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  ./board/developerkit/gen_image_bin.mk
 
 else
 
@@ -141,10 +141,7 @@ ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x9000
 GLOBAL_DEFINES += USING_FLAT_FLASH
-GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
-GLOBAL_CFLAGS += -DAOS_OTA_2BOOT_CLI
-GLOBAL_CFLAGS += -DAOS_OTA_RECOVERY_TYPE=2
-AOS_SDK_2BOOT_SUPPORT := yes
+AOS_SDK_2NDBOOT_SUPPORT := yes
 else
 ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
