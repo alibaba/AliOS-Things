@@ -46,6 +46,7 @@ source "drivers/Config.in"
 source "network/Config.in"
 
 menu "Middleware  Configuration"
+source "middleware/jsengine/Config.in"
 source "middleware/linkkit/Config.in"
 source "middleware/uagent/Config.in"
 source "middleware/udata/Config.in"
