@@ -31,6 +31,8 @@ typedef struct {
     char               *send_delimiter;      /* AT sending delimiter between command and data. Optional, "\r" */
     uint32_t           timeout_ms;           /* AT send or receive timeout in millisecond. Optional, 1000 ms by defaut */
     uint8_t            send_wait_prompt;     /* whether AT send waits prompt before sending data. Optional, 0 by default */
+    uint32_t           prompt_timeout_ms;    /* AT send wait prompt timeout in millisecond. Optional, 200 ms by default */
+    uint8_t            send_data_no_wait;    /* whether AT send waits response after sending data. Optional, 0 by default */
     int                recv_task_priority;   /* AT recv task priority. Optional, 32 by default*/
     int                recv_task_stacksize;  /* AT recv task stacksize. Optional, 1K by default */
 } at_config_t;
