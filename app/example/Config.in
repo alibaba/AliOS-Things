@@ -179,12 +179,6 @@ if AOS_APP_UDATAAPP
         default "udataapp"
 endif
 
-source "app/example/udevapp/Config.in"
-if AOS_APP_UDEVAPP
-    config AOS_BUILD_APP
-        default "udevapp"
-endif
-
 source "app/example/ulocation/baseapp/Config.in"
 if AOS_APP_BASEAPP
     config AOS_BUILD_APP
