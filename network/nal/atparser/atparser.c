@@ -356,7 +356,7 @@ static int at_scan_for_response(int fd, char c, char *buf, int *index)
                     AT_SEND_DEFAULT_DATA_PROMPT,
                     strlen(AT_SEND_DEFAULT_DATA_PROMPT)) == 0) {
             tsk->rsp_state = AT_RSP_PENDING;
-            atpsr_sem_signal(tsk->smpr);
+            atpsr_sem_signal(tsk->prompt_smpr);
             memset(buf, 0, offset);
             offset = 0;
         }
@@ -576,6 +576,11 @@ static int at_worker_task_del(int fd, at_task_t *tsk)
     if (tsk->smpr != NULL) {
         atpsr_sem_free(tsk->smpr);
     }
+
+    if (tsk->prompt_smpr != NULL) {
+        atpsr_sem_free(tsk->prompt_smpr);
+    }
+
     if (tsk) {
         atpsr_free(tsk);
     }
@@ -735,6 +740,14 @@ static int init_dev(int fd, at_config_t *config)
     }
 
     dev->_wait_prompt = config->send_wait_prompt;
+
+    if (config->prompt_timeout_ms > 0) {
+        dev->_prompt_timeout_ms = config->prompt_timeout_ms;
+    } else {
+        dev->_prompt_timeout_ms = AT_SEND_DEFAULT_PROMPT_TIMEOUT_MS;
+    }
+
+    dev->_send_data_no_wait = config->send_data_no_wait;
 
     dev->_recv_mutex = atpsr_mutex_new();
     if (NULL == dev->_recv_mutex) {
@@ -1005,7 +1018,7 @@ int at_send_wait_reply(int fd ,const char *cmd, int cmdlen, bool delimiter,
     if (data && datalen) {
         if (dev->_wait_prompt) {
             at_reply_config_t prompt = {NULL, AT_SEND_DEFAULT_DATA_PROMPT, NULL};
-            if (at_yield(fd, NULL, 0, &prompt, dev->_timeout_ms) <  0) {
+            if (at_yield(fd, NULL, 0, &prompt, dev->_prompt_timeout_ms) <  0) {
                 return -1;
             }
         }
@@ -1030,6 +1043,7 @@ int at_send_wait_reply(int fd, const char *cmd, int cmdlen, bool delimiter,
     int ret = 0;
     at_dev_t *dev = NULL;
     at_dev_ops_t *op = NULL;
+    at_task_t *tsk  = NULL;
 
     if (inited == 0) {
         atpsr_err("at module have not init yet\r\n");
@@ -1053,45 +1067,54 @@ int at_send_wait_reply(int fd, const char *cmd, int cmdlen, bool delimiter,
     op = obtain_op_by_type(dev->_type);
 
     atpsr_mutex_lock(dev->_send_mutex);
-    at_task_t *tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
-    if (NULL == tsk) {
-        atpsr_err("tsk buffer allocating failed");
-        atpsr_mutex_unlock(dev->_send_mutex);
-        return -1;
-    }
-    memset(tsk, 0, sizeof(at_task_t));
 
-    if (NULL == (tsk->smpr = atpsr_sem_new())) {
-        atpsr_err("failed to allocate semaphore");
-        goto done;
-    }
+    if (NULL == data || 0 == dev->_send_data_no_wait) {
+        tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
+        if (NULL == tsk) {
+            atpsr_err("tsk buffer allocating failed");
+            atpsr_mutex_unlock(dev->_send_mutex);
+            return -1;
+        }
+        memset(tsk, 0, sizeof(at_task_t));
 
-    if (atcmdconfig) {
-        if (NULL != atcmdconfig->reply_prefix) {
-            tsk->rsp_prefix     = atcmdconfig->reply_prefix;
-            tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
+        if (NULL == (tsk->smpr = atpsr_sem_new())) {
+            atpsr_err("failed to allocate semaphore");
+            goto done;
         }
 
-        if (NULL != atcmdconfig->reply_success_postfix) {
-            tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
-            tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
+        if (atcmdconfig) {
+            if (NULL != atcmdconfig->reply_prefix) {
+                tsk->rsp_prefix     = atcmdconfig->reply_prefix;
+                tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
+            }
+
+            if (NULL != atcmdconfig->reply_success_postfix) {
+                tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
+                tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
+            }
+
+            if (NULL != atcmdconfig->reply_fail_postfix) {
+                tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
+                tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
+            }
         }
 
-        if (NULL != atcmdconfig->reply_fail_postfix) {
-            tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
-            tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
+        tsk->command = (char *)cmd;
+        tsk->rsp     = replybuf;
+        tsk->rsp_len = bufsize;
+        if (dev->_wait_prompt && data != NULL && datalen > 0) {
+           tsk->rsp_state = AT_RSP_WAITPROMPT;
+           tsk->prompt_smpr = atpsr_sem_new();
+           if (NULL == (tsk->prompt_smpr)) {
+                atpsr_err("failed to allocate prompt sem");
+                goto done;
+           }
+        } else {
+           tsk->rsp_state = AT_RSP_PENDING;
         }
+
+        at_worker_task_add(fd, tsk);
     }
-
-    tsk->command = (char *)cmd;
-    tsk->rsp     = replybuf;
-    tsk->rsp_len = bufsize;
-    if (dev->_wait_prompt && data != NULL && datalen > 0)
-       tsk->rsp_state = AT_RSP_WAITPROMPT;
-    else
-       tsk->rsp_state = AT_RSP_PENDING;
-
-    at_worker_task_add(fd, tsk);
 
     if ((ret = op->send(dev->_dev, (void *)cmd, cmdlen,
                         dev->_timeout_ms)) != 0) {
@@ -1109,9 +1132,12 @@ int at_send_wait_reply(int fd, const char *cmd, int cmdlen, bool delimiter,
 
     if (data != NULL && datalen > 0) {
         if (dev->_wait_prompt) {
-            if ((ret = atpsr_sem_wait(tsk->smpr, AT_TASK_DEFAULT_WAIT_TIME_MS)) != 0) {
-                atpsr_err("sem_wait failed");
-                goto done;
+            if (tsk != NULL) {
+                if ((ret = atpsr_sem_wait(tsk->prompt_smpr, dev->_prompt_timeout_ms)) != 0) {
+                    atpsr_err("prompt wait timeout");
+                }
+            } else {
+                aos_msleep(dev->_prompt_timeout_ms);
             }
         }
 
@@ -1121,13 +1147,14 @@ int at_send_wait_reply(int fd, const char *cmd, int cmdlen, bool delimiter,
         }
     }
 
-    if ((ret = atpsr_sem_wait(tsk->smpr, AT_TASK_DEFAULT_WAIT_TIME_MS)) != 0) {
+    if (tsk != NULL && (ret = atpsr_sem_wait(tsk->smpr, AT_TASK_DEFAULT_WAIT_TIME_MS)) != 0) {
         atpsr_err("sem_wait failed");
         goto done;
     }
 
 done:
-    at_worker_task_del(fd, tsk);
+    if (tsk != NULL)
+       at_worker_task_del(fd, tsk);
     atpsr_mutex_unlock(dev->_send_mutex);
     return ret;
 }
