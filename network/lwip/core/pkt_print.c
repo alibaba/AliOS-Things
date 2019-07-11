@@ -1,10 +1,12 @@
 /*
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
+#if PKTPRINT_DEBUG
 #include "lwip/opt.h"
 #include "lwip/pbuf.h"
 #include "lwip/debug.h"
 #include "lwip/def.h"
+#include "lwip/netif.h"
 
 #ifndef u32
 #define u32 uint32_t
@@ -233,7 +235,7 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
 {
     int  len = NULL;
     char* ptr = NULL;
-    DBG_PKT_INFO_T dbg_pkt_info = {0};
+    DBG_PKT_INFO_T dbg_pkt_info;
 
     if(pbuf == NULL){
 	return ;
@@ -246,6 +248,8 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
         return ;
     }
 
+    memset(&dbg_pkt_info, 0, sizeof(DBG_PKT_INFO_T));
+
     /* check if IP v4 header */
     if( 0x40 == (ptr[0] & 0xF0) )
     {
@@ -256,9 +260,7 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
 
         /* check IP header length */
         if( len <= ip4_hlen ){
-#if PKTPRINT_DEBUG
             LWIP_DEBUGF(PKTPRINT_DEBUG, ("LwIP: PacketInfoIp() - invalid len %d < iplen %d\n", len, ip4_hlen));
-#endif
             return ;
         }
 
@@ -429,29 +431,24 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                        //error
                     break;
                 }
-#if PKTPRINT_DEBUG
                 LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%x, netif(%x), IPID(%x), %s, %s(%d)\n",
                    note_ptr, pbuf, netif, ip4_ptr->id, info_str,
                    type_ptr, ip4_ptr->len));
-#endif
             }
             else
             {
-#if PKTPRINT_DEBUG
                LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%x, netif(%x), IPID(%x), FRAG_OFFSET(%d), %s(%d)\n",
                    note_ptr, pbuf, netif, ip4_ptr->id, ip4_ptr->offset,
                    type_ptr, ip4_ptr->len));
-#endif
             }
             break;
             case NL_NONE:
             default:
-#if PKTPRINT_DEBUG
                LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%x, netif(%x), UNKNOWN TYPE(%d)\n",
                   note_ptr, pbuf, netif, pbuf->len));
-#endif
            break;
 
       }
    }
 }
+#endif /* PKTPRINT_DEBUG */
