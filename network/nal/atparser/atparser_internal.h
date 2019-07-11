@@ -44,6 +44,7 @@ typedef struct at_task_s
 {
     slist_t        next;
     void *         smpr;
+    void *         prompt_smpr;
     char *         command;
     char *         rsp;
     char *         rsp_prefix;
@@ -81,6 +82,8 @@ typedef struct
     char           *_default_recv_fail_postfix;
     char           *_send_delimiter;
     uint8_t         _wait_prompt;
+    int             _prompt_timeout_ms;
+    uint8_t         _send_data_no_wait;
     int             _recv_prefix_len;
     int             _recv_success_postfix_len;
     int             _recv_fail_postfix_len;
