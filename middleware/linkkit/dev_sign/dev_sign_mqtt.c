@@ -85,8 +85,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
 
     if (enable_itls > 0) {
         clientid_kv[2][1] = MODE_ITLS_DNS_ID2;
-    }
-    else {
+    } else {
         clientid_kv[2][1] = SECURE_MODE;
     }
 
@@ -115,15 +114,15 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     return SUCCESS_RETURN;
 }
 
+#define SIGN_FMT_LEN  50  /*  "clientId%sdeviceName%sproductKey%stimestamp%s";*/
 int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key,
                                const char *device_secret, char *sign_string)
 {
     char signsource[DEV_SIGN_SOURCE_MAXLEN] = {0};
     uint16_t signsource_len = 0;
-    const char sign_fmt[] = "clientId%sdeviceName%sproductKey%stimestamp%s";
     uint8_t sign_hex[32] = {0};
 
-    signsource_len = sizeof(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(
+    signsource_len = SIGN_FMT_LEN + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(
                                  TIMESTAMP_VALUE);
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
         return ERROR_DEV_SIGN_SOURCE_TOO_SHORT;

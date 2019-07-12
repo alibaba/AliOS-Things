@@ -83,7 +83,7 @@ static uint32_t Table2[256];
 static void gen_normal_table(uint32_t *table)
 {
     uint32_t gx = 0x04c11db7;
-    uint32_t temp, crc;
+    uint32_t temp;
     int i, j;
     for (i = 0; i <= 0xFF; i++) {
         temp = reflect(i, 8);
@@ -99,7 +99,6 @@ static void gen_normal_table(uint32_t *table)
             }
             table[i] = t1 ^ t2;
         }
-        crc = table[i];
         table[i] = reflect(table[i], 32);
     }
 }

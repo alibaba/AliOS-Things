@@ -312,14 +312,16 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
             /* get data from internet and put into "data" buf temporary */
             if (client_data->retrieve_len) {
                 int ret;
-                int max_len_to_receive = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - written_response_buf_len);
+                int max_len_to_receive = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1,
+                                                        client_data->response_buf_len - 1 - written_response_buf_len);
                 max_len_to_receive = HTTPCLIENT_MIN(max_len_to_receive, client_data->retrieve_len);
 
                 ret = _http_recv(client, data, max_len_to_receive, &data_len_actually_received, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
-                httpc_debug("Total- remaind Payload: %d Bytes; currently Read: %d Bytes", client_data->retrieve_len, data_len_actually_received);
+                httpc_debug("Total- remaind Payload: %d Bytes; currently Read: %d Bytes", client_data->retrieve_len,
+                            data_len_actually_received);
 
                 /* TODO  add deadloop processing*/
                 ret = _utils_check_deadloop(data_len_actually_received, &timer, ret, &dead_loop_count,
@@ -595,7 +597,8 @@ typedef struct {
     void *recv_ctx;
 } wrapper_http_handle_t;
 
-static int _replase_str(char **ptr, void *data) {
+static int _replase_str(char **ptr, void *data)
+{
     if (*ptr != NULL) {
         HAL_Free(*ptr);
     }
@@ -615,14 +618,13 @@ void *wrapper_http_init(void)
     if (handle == NULL) {
         return NULL;
     }
-    memset(handle, 0,sizeof(wrapper_http_handle_t));
+    memset(handle, 0, sizeof(wrapper_http_handle_t));
 
     return handle;
 }
 
 int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
 {
-    int res = 0;
     wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
 
     if (handle == NULL || data == NULL) {
@@ -631,7 +633,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
 
     switch (option) {
         case IOTX_HTTPOPT_URL: {
-            res = _replase_str(&http_handle->url, data);
+            _replase_str(&http_handle->url, data);
         }
         break;
         case IOTX_HTTPOPT_PORT: {
@@ -646,7 +648,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         }
         break;
         case IOTX_HTTPOPT_HEADER: {
-            res = _replase_str(&http_handle->header, data);
+            _replase_str(&http_handle->header, data);
         }
         break;
         case IOTX_HTTPOPT_CERT: {
@@ -669,14 +671,13 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         }
         break;
         case IOTX_HTTPOPT_RECVCONTEXT: {
-            http_handle->recv_ctx = data;
+            http_handle->recv_ctx = (recvcallback)data;
         }
         break;
         default: {
             httpc_err("Unknown Option");
             return FAIL_RETURN;
         }
-        break;
     }
 
     return SUCCESS_RETURN;
@@ -713,10 +714,10 @@ int wrapper_http_perform(void *handle, void *data, int length)
     http_handle->http_client_data.post_buf_len = length;
     http_handle->http_client_data.response_buf = response_payload;
     http_handle->http_client_data.response_buf_len = http_handle->receive_maxlen;
-    
 
-    res = _http_send(&http_handle->client, http_handle->url, http_handle->port, 
-                        http_handle->cert, http_handle->method, &http_handle->http_client_data);
+
+    res = _http_send(&http_handle->client, http_handle->url, http_handle->port,
+                     http_handle->cert, (HTTPCLIENT_REQUEST_TYPE)http_handle->method, &http_handle->http_client_data);
     if (SUCCESS_RETURN != res) {
         HAL_Free(response_payload);
         return res;
@@ -732,12 +733,15 @@ int wrapper_http_perform(void *handle, void *data, int length)
         return res;
     }
 
-    received_this_time = http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len - http_handle->already_received;
-    http_handle->already_received = http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len;
+    received_this_time = http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len -
+                         http_handle->already_received;
+    http_handle->already_received = http_handle->http_client_data.response_content_len -
+                                    http_handle->http_client_data.retrieve_len;
 
     if (res >= SUCCESS_RETURN) {
         if (http_handle->recv_cb) {
-            http_handle->recv_cb(response_payload, received_this_time, http_handle->http_client_data.response_content_len, http_handle->recv_ctx);
+            http_handle->recv_cb(response_payload, received_this_time, http_handle->http_client_data.response_content_len,
+                                 http_handle->recv_ctx);
         }
     }
 
