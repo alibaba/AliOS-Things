@@ -11,8 +11,8 @@
 #include "dynreg_internal.h"
 #include "dynreg_api.h"
 #ifdef MQTT_DYNAMIC_REGISTER
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
+    #include "dev_sign_api.h"
+    #include "mqtt_api.h"
 #endif
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           (256)
@@ -83,7 +83,7 @@ static int _parse_dynreg_value(char *payload, char *key, int *pos, int *start, i
         return _parse_string_value(payload, pos, start, end);
     }
 
-    return -1;
+    /* return -1; */
 }
 
 static int _parse_dynreg_result(char *payload, char *key, int *start, int *end)
@@ -179,7 +179,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     iotx_http_method_t   method = IOTX_HTTP_POST;
     int                  timeout_ms = 10000;
     char                 *header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
-                                    "Content-Type: application/x-www-form-urlencoded\r\n";
+                                   "Content-Type: application/x-www-form-urlencoded\r\n";
     int                  http_recv_maxlen = HTTP_RESPONSE_PAYLOAD_LEN;
     dynreg_http_response_t      response;
     int                 start = 0, end = 0, data_start = 0, data_end = 0;
@@ -320,14 +320,15 @@ static int _mqtt_dynreg_sign_password(iotx_dev_meta_info_t *meta_info, iotx_sign
     const char sign_fmt[] = "deviceName%sproductKey%srandom%s";
     uint8_t sign_hex[32] = {0};
 
-    signsource_len = strlen(sign_fmt) + strlen(meta_info->device_name) + 1 + strlen(meta_info->product_key) + strlen(rand) + 1;
+    signsource_len = strlen(sign_fmt) + strlen(meta_info->device_name) + 1 + strlen(meta_info->product_key) + strlen(
+                                 rand) + 1;
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
         return ERROR_DEV_SIGN_SOURCE_TOO_SHORT;
     }
     memset(signsource, 0, signsource_len);
-    memcpy(signsource, "deviceName",strlen("deviceName"));
+    memcpy(signsource, "deviceName", strlen("deviceName"));
     memcpy(signsource + strlen(signsource), meta_info->device_name, strlen(meta_info->device_name));
-    memcpy(signsource + strlen(signsource), "productKey",strlen("productKey"));
+    memcpy(signsource + strlen(signsource), "productKey", strlen("productKey"));
     memcpy(signsource + strlen(signsource), meta_info->product_key, strlen(meta_info->product_key));
     memcpy(signsource + strlen(signsource), "random", strlen("random"));
     memcpy(signsource + strlen(signsource), rand, strlen(rand));
@@ -346,7 +347,7 @@ static int32_t _mqtt_dynreg_sign_clientid(iotx_dev_meta_info_t *meta_info, iotx_
     uint32_t clientid_len = 0;
 
     clientid_len = strlen(meta_info->product_key) + 1 + strlen(meta_info->device_name) +
-                    strlen(clientid1) + strlen(rand) + strlen(clientid2) + 1;
+                   strlen(clientid1) + strlen(rand) + strlen(clientid2) + 1;
     if (clientid_len >= DEV_SIGN_CLIENT_ID_MAXLEN) {
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
@@ -375,7 +376,8 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             uint32_t device_secret_len = 0;
 
             /* parse secret */
-            res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"), &device_secret, &device_secret_len);
+            res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"),
+                                   &device_secret, &device_secret_len);
             if (res == SUCCESS_RETURN) {
                 memcpy(ds, device_secret + 1, device_secret_len - 2);
                 memcpy(device_secret + 1 + 5, asterisk, strlen(asterisk));
@@ -484,7 +486,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     }
 
     timestart = HAL_UptimeMs();
-    while(1) {
+    while (1) {
         timenow = HAL_UptimeMs();
         if (timenow < timestart) {
             timestart = timenow;
@@ -503,7 +505,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
 
     if (strlen(device_secret) > 0) {
         res = SUCCESS_RETURN;
-    }else{
+    } else {
         res = FAIL_RETURN;
     }
 

@@ -210,10 +210,10 @@ int dm_mgr_deinit(void)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_device_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ int *devid)
+int dm_mgr_device_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
-    dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
     /* duplicated parameters check is removed */
@@ -1533,7 +1533,7 @@ static int _dm_mgr_upstream_response_assemble(_IN_ int devid, _IN_ char *msgid, 
     response->service_name = service_name;
     memcpy(response->product_key, node->product_key, strlen(node->product_key));
     memcpy(response->device_name, node->device_name, strlen(node->device_name));
-    response->code = code;
+    response->code = (iotx_dm_error_code_t)code;
 
     return SUCCESS_RETURN;
 }

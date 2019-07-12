@@ -11,8 +11,8 @@ static int _mqtt_sub(iotx_cm_ext_params_t *params, const char *topic,
                      iotx_cm_data_handle_cb topic_handle_func, void *pcontext);
 static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type);
 static int _mqtt_unsub(const char *topic);
-static int _mqtt_close();
-static void _set_common_handlers();
+static int _mqtt_close(void);
+static void _set_common_handlers(void);
 
 iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
@@ -295,7 +295,7 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
 {
 
     int sync = 0;
-    int qos = 0;
+    iotx_mqtt_qos_t qos = IOTX_MQTT_QOS0;
     int timeout = 0;
     int ret;
 
