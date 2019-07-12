@@ -321,6 +321,8 @@ static void netmgr_para_chg_event(hal_wifi_module_t *m,
 {
     int ret;
 
+    if (!ap_info) return;
+
     LOGI("netmgr", "%s %d, bssid: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
          __func__, __LINE__,
          (uint8_t)(ap_info->bssid[0]), (uint8_t)(ap_info->bssid[1]), (uint8_t)(ap_info->bssid[2]),
