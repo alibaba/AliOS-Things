@@ -101,14 +101,17 @@ static void mac_str_to_hex(char *str, uint8_t *mac)
 // mac - hex[6]
 static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 {
-    char mac_str[MAC_STR_LEN+1] = {0};
+    static char mac_str[MAC_STR_LEN+1] = {0};
 
     if (!mac) return;
 
     (void)m;
     LOGD(TAG, "wifi_get_mac_addr!!\n");
 
-    get_mac_helper(mac_str);
+    // reduce AT send frequence
+    if (strlen(mac_str) == 0)
+        get_mac_helper(mac_str);
+
     mac_str_to_hex(mac_str, mac);
     LOGI(TAG, "mac in hex: %02x%02x%02x%02x%02x%02x",
       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -176,7 +179,7 @@ static int get_mac_helper(char *mac)
         return -1;
     }
 
-    sscanf(out, "%*[^:]:\"%[^\"]\"", mac);
+    sscanf(out, "%*[^:]:%[^\r]", mac);
     LOGI(TAG, "mac result: %s\r\n", mac);
 
     return 0;
