@@ -581,7 +581,7 @@ void observe_step(lwm2m_context_t * contextP,
                                 break;
                             }
                         }
-                        if ((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_GREATER_THAN) != 0)
+                        if (((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_GREATER_THAN) != 0) && (dataP != NULL))
                         {
                             lwm2m_log(LOG_DEBUG, "Checking upper threshold\n");
                             // Did we cross the upper threshold ?
