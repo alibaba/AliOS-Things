@@ -47,20 +47,14 @@ iotx_sign_mqtt_t    g_default_sign;
 /* Handle structure of subscribed topic */
 static void iotx_mqtt_report_funcs(void *pclient)
 {
-    int                 err;
-
-#ifndef ATHOST_MQTT_REPORT_DISBALED
-    iotx_set_report_func(IOT_MQTT_Publish_Simple);
-
     /* report firmware version */
-#if !defined(BUILD_AOS) && !defined(MUTE_VERSION_REPORT)
+#if !defined(ATHOST_MQTT_REPORT_DISBALED) && !defined(MUTE_VERSION_REPORT)
+    int err;
+    iotx_set_report_func(IOT_MQTT_Publish_Simple);
     err = iotx_report_firmware_version(pclient);
-
     if (SUCCESS_RETURN != err) {
         mqtt_err("failed to report firmware version");
     }
-#endif
-
 #endif
 }
 
@@ -155,7 +149,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
-    int region = 0;
+    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     int dynamic = 0;
     uint8_t enalbe_itls = 0;
     int ret;
@@ -237,8 +231,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (pInitParams != NULL && pInitParams->customize_info != NULL) {
         if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
             enalbe_itls = 1;
-        }
-        else {
+        } else {
             enalbe_itls = 0;
         }
     }

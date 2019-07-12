@@ -315,7 +315,7 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 
 int iotx_dm_set_opt(int opt, void *data)
 {
-    return dm_opt_set(opt, data);
+    return dm_opt_set((dm_opt_t)opt, data);
 }
 
 int iotx_dm_get_opt(int opt, void *data)
@@ -324,7 +324,7 @@ int iotx_dm_get_opt(int opt, void *data)
         return FAIL_RETURN;
     }
 
-    return dm_opt_get(opt, data);
+    return dm_opt_get((dm_opt_t)opt, data);
 }
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)

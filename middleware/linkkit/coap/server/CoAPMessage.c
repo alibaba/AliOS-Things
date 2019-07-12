@@ -161,7 +161,8 @@ void CoAPMessage_dump(NetworkAddr *remote, CoAPMessage *message)
     COAP_FLOW("Msgid       : %d", message->header.msgid);
     COAP_FLOW("Option      : %d", message->optcount);
     COAP_FLOW("Payload Len : %d", message->payloadlen);
-
+    (void)msgclass;
+    (void)detail;
     CoAPMessageToken_dump(message->token, message->header.tokenlen);
     COAP_FLOW("Remote      : %s:%d", remote->addr, remote->port);
     ret = CoAPUintOption_get(message, COAP_OPTION_CONTENT_FORMAT, &ctype);
