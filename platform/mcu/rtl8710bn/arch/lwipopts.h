@@ -274,6 +274,8 @@
  */
 #define TCP_SYNMAXRTX                   10
 
+#define TCP_MAXRTX                      6
+
 /*
    ----------------------------------------
    ---------- Statistics options ----------
