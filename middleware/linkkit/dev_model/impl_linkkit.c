@@ -1472,7 +1472,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 {
     int res = 0;
 
-    if (dev_type < 0 || dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
+    if (dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
         dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -1690,7 +1690,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
+    if (devid < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
         dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -1823,7 +1823,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
+    if (devid < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
         dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -1930,11 +1930,11 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
     /* rrpc service response */
     if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_RRPC) {
         char *rrpc_id = service_ctx->service_meta.rrpc.rrpc_id;
-        res = iotx_dm_send_rrpc_response(devid, msgid, strlen(msgid), 200, rrpc_id, strlen(rrpc_id),
+        res = iotx_dm_send_rrpc_response(devid, msgid, strlen(msgid), IOTX_DM_ERR_CODE_SUCCESS, rrpc_id, strlen(rrpc_id),
                                          payload, payload_len);
     } else if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_GENERAL) { /* alcs/normal service response */
         void *alcs_ctx = service_ctx->service_meta.general.alcs_ctx;
-        res = iotx_dm_send_service_response(devid, msgid, strlen(msgid), 200, serviceid, serviceid_len,
+        res = iotx_dm_send_service_response(devid, msgid, strlen(msgid), IOTX_DM_ERR_CODE_SUCCESS, serviceid, serviceid_len,
                                             payload, payload_len, alcs_ctx);
     }
 

@@ -257,6 +257,10 @@ void alcs_auth_deinit(void)
 #ifdef SUPPORT_MULTI_DEVICES
     device_auth_list *node = NULL, *next = NULL;
 #endif
+    if (is_inited == 0) {
+        return;
+    }
+    is_inited = 0;
 
     alcs_resource_cb_deinit();
     alcs_auth_list_deinit();
@@ -265,11 +269,13 @@ void alcs_auth_deinit(void)
     list_for_each_entry_safe(node, next, &device_list, lst, device_auth_list) {
         if (node->lst_auth.list_mutex) {
             HAL_MutexDestroy(node->lst_auth.list_mutex);
+            node->lst_auth.list_mutex = NULL;
         }
     }
 #else
     if (_device.lst_auth.list_mutex) {
         HAL_MutexDestroy(_device.lst_auth.list_mutex);
+        _device.lst_auth.list_mutex = NULL;
     }
 #endif
 }
