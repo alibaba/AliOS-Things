@@ -33,6 +33,9 @@ $(NAME)_SOURCES-y += api/breeze_export.c
 ifeq ($(CONFIG_COMP_BZ_EN_AUTH), y)
 GLOBAL_DEFINES-y += EN_AUTH
 $(NAME)_SOURCES-y += core/src/auth.c
+ifeq ($(CONFIG_COMP_BZ_EN_AUTH_OFFLINE), y)
+GLOBAL_DEFINES-y += EN_AUTH_OFFLINE
+endif
 endif
 
 ifeq ($(CONFIG_COMP_BZ_EN_AWSS), y)
