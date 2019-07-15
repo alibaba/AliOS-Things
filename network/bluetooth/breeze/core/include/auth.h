@@ -54,6 +54,21 @@ typedef struct auth_s {
     bool dyn_update_device_secret;
 } auth_t;
 
+
+#ifdef EN_AUTH_OFFLINE
+#define MAX_AUTH_KEYS   5
+#define AUTH_ID_LEN     4
+#define AUTH_KEY_LEN    16
+struct auth_key_pair{
+    uint8_t auth_id[AUTH_ID_LEN];
+    uint8_t auth_key[AUTH_KEY_LEN];
+};
+typedef struct auth_key_storage_s{
+    uint8_t index_to_update;
+    struct auth_key_pair kv_pairs[MAX_AUTH_KEYS];
+} auth_key_storage_t;
+#endif
+
 ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func);
 void auth_reset(void);
 void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length);
@@ -69,6 +84,12 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign);
 #ifdef CONFIG_MODEL_SECURITY
 bool get_auth_update_status(void);
 ret_code_t auth_secret_update_post_process(uint8_t *p_ds, uint16_t length);
+#endif
+
+#ifdef EN_AUTH_OFFLINE
+void auth_keys_init(void);
+bool authkey_set(uint8_t* authid, uint8_t* authkey);
+bool authkey_get(uint8_t* authid, uint8_t* authkey);
 #endif
 
 #ifdef __cplusplus

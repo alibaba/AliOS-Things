@@ -75,7 +75,6 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
     g_core.adv_data[i++] = fmsk;
-
     SET_U32_LE(g_core.adv_data + i, model_id);
     i += sizeof(uint32_t);
 
@@ -101,9 +100,7 @@ static void ais_init_done(uint8_t res)
 
     if (res == 0) {
         ble_get_mac(mac_be);
-
         transport_init(g_ali_init);
-
         extcmd_init(g_ali_init, tx_func_indicate);
         create_bz_adv_data(g_ali_init->model_id, mac_be);
         adv_data.vdata.len = sizeof(adv_data.vdata.data);

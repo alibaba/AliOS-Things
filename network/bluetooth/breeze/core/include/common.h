@@ -28,6 +28,8 @@
 #define BZ_CMD_AUTH_RSP 0x13
 #define BZ_CMD_AUTH_CFM 0x14
 #define BZ_CMD_AUTH_KEY 0x15
+#define BZ_CMD_AUTH_REKEY 0x16
+#define BZ_CMD_AUTH_REKEY_RSP 0x17
 
 #define BZ_CMD_TYPE_OTA 0x20
 #define BZ_CMD_OTA_VER_REQ 0x20

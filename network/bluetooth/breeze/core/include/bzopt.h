@@ -5,8 +5,9 @@
 #ifndef BREEZE_OPT_H
 #define BREEZE_OPT_H
 
-
-#define BZ_VERSION "2.0.5"
+/*update to version 2.0.6 or higher if enable offline authentation.
+ * otherwise should not use this version to avoid compatibility issue.*/
+#define BZ_VERSION "2.0.6"
 
 #define BZ_AUTH_TIMEOUT 10000  // not allowed to be 0
 

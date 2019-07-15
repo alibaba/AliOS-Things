@@ -74,6 +74,7 @@ static bool is_valid_rx_command(uint8_t cmd) {
         cmd == BZ_CMD_EXT_DOWN ||
         cmd == BZ_CMD_AUTH_REQ ||
         cmd == BZ_CMD_AUTH_CFM ||
+        cmd == BZ_CMD_AUTH_REKEY ||
         cmd == BZ_CMD_OTA_VER_REQ ||
         cmd == BZ_CMD_OTA_REQ ||
         cmd == BZ_CMD_OTA_SIZE ||
@@ -91,6 +92,7 @@ static bool is_valid_tx_command(uint8_t cmd) {
         cmd == BZ_CMD_AUTH_RAND ||
         cmd == BZ_CMD_AUTH_RSP ||
         cmd == BZ_CMD_AUTH_KEY ||
+        cmd == BZ_CMD_AUTH_REKEY_RSP ||
         cmd == BZ_CMD_OTA_VER_RSP ||
         cmd == BZ_CMD_OTA_RSP ||
         cmd == BZ_CMD_OTA_PUB_SIZE ||
@@ -273,7 +275,7 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
     }
     if (g_transport.p_key != NULL &&
         (cmd == BZ_CMD_STATUS || cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP ||
-         ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && cmd != BZ_CMD_AUTH_RAND))) {
+         ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && (cmd != BZ_CMD_AUTH_RAND || cmd != BZ_CMD_AUTH_REKEY_RSP)))) {
         g_transport.tx.encrypted = 1;
         pkt_payload_len = (g_transport.max_pkt_size - HEADER_SIZE) & ~(AES_BLK_SIZE - 1);
     } else {

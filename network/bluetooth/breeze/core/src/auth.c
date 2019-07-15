@@ -28,8 +28,11 @@ uint16_t product_secret_len = 0;
 #define HI_CLIENT_STR "Hi,Client"
 #define OK_STR "OK"
 
-bool g_dn_complete = false;
+#ifdef EN_AUTH_OFFLINE
+#define AUTH_KEY_KV_PREFIX "auth_key_pairs"
+#endif
 
+bool g_dn_complete = false;
 auth_t g_auth;
 
 static void on_timeout(void *arg1, void *arg2)
@@ -88,7 +91,7 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
         } else if(memcmp(tmp_secret, g_auth.secret, g_auth.device_secret_len) == 0){//case 2.
                 memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
             } else{
-                BREEZE_LOG_ERR("DS from KV not match user's input, erase DS in KV or modify user's input accordingly %s\n", __func__);
+                BREEZE_LOG_ERR("DS from KV not match user's input  %s\n", __func__);
                 return BZ_EINVALIDPARAM;
             }
     } else if(g_auth.device_secret_len == 0){
@@ -107,6 +110,9 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
         memcpy(g_auth.key, p_init->device_key.p_data, g_auth.key_len);
     }
     ikm_init(p_init);
+#ifdef EN_AUTH_OFFLINE
+    auth_keys_init();
+#endif
     ret = os_timer_new(&g_auth.timer, on_timeout, &g_auth, BZ_AUTH_TIMEOUT);
     return ret;
 }
@@ -119,17 +125,56 @@ void auth_reset(void)
 
 void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    uint32_t err_code;
+    int32_t err_code;
+    uint8_t rekey_rsp[] = {0x01, 0x02};
+    char authkey[16]={0};
+    char authid[4] = {0};
 
     if (length == 0 || (cmd & BZ_CMD_TYPE_MASK) != BZ_CMD_AUTH) {
         return;
     }
-
+    
     switch (g_auth.state) {
         case AUTH_STATE_RAND_SENT:
-            g_dn_complete = true;
+#ifdef EN_AUTH_OFFLINE
+            if(cmd == BZ_CMD_AUTH_REKEY){/*check whether auth-key according to auth-id*/
+                 if(length != AUTH_ID_LEN) {
+                      err_code = g_auth.tx_func(BZ_CMD_AUTH_REKEY_RSP, &rekey_rsp[1] , 1);
+                      BREEZE_LOG_ERR("BZ auth rx re-key (%d)\n", err_code);
+                }
+                memcpy(authid, p_data, AUTH_ID_LEN);
+                if(authkey_get(authid, authkey) == true){
+                    g_dn_complete = true;
+                    g_auth.state = AUTH_STATE_REQ_RECVD;
+                    
+                    /*1.update current auth key*/
+                    transport_update_key(authkey);
+                    /*2.response with "HI Client"*/
+                    err_code = g_auth.tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
+                    BREEZE_LOG_DEBUG("BZ auth rx offline key:(%d)\n", err_code);
+                    if (err_code != BZ_SUCCESS) {
+                        core_handle_err(ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
+                        return;
+                    }
+                    err_code = os_timer_start(&g_auth.timer);
+                    if (err_code != BZ_SUCCESS) {
+                        core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_1, err_code);
+                        return;
+                    }
+                 } else{
+                    err_code = g_auth.tx_func(BZ_CMD_AUTH_REKEY_RSP, &rekey_rsp[0] , 1);
+                    if (err_code != BZ_SUCCESS) {
+                        core_handle_err(ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
+                        return;
+                    }
+                    /*back to re-auth state*/
+                    auth_service_enabled();
+                 }
+            }
+#endif
             if (cmd == BZ_CMD_AUTH_REQ &&
                 memcmp(HI_SERVER_STR, p_data, MIN(length, strlen(HI_SERVER_STR))) == 0) {
+                g_dn_complete = true;
                 g_auth.state = AUTH_STATE_REQ_RECVD;
                 err_code = g_auth.tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
                 BREEZE_LOG_DEBUG("BZ auth rx HI SERVER:(%d)\n", err_code);
@@ -180,6 +225,9 @@ static void update_aes_key(bool use_device_key)
     uint8_t rand_backup[RANDOM_SEQ_LEN];
     SHA256_CTX context;
     uint8_t okm[SHA256_BLOCK_SIZE];
+#ifdef EN_AUTH_OFFLINE
+    uint8_t auth_id[AUTH_ID_LEN];
+#endif
 
     memcpy(rand_backup, g_auth.ikm + g_auth.ikm_len, RANDOM_SEQ_LEN);
     g_auth.ikm_len = 0;
@@ -202,11 +250,21 @@ static void update_aes_key(bool use_device_key)
 
     // notify key updated
     transport_update_key(g_auth.okm);
+
+#ifdef EN_AUTH_OFFLINE
+    if (use_device_key) {
+        sec_sha256_init(&context);
+        sec_sha256_update(&context, rand_backup, sizeof(rand_backup));
+        sec_sha256_final(&context, okm);
+        memcpy(auth_id, okm, AUTH_ID_LEN);
+        authkey_set(auth_id, g_auth.okm);
+    }
+#endif
 }
 
 void auth_connected(void)
 {
-    uint32_t err_code;
+    int32_t err_code;
 
     err_code = os_timer_start(&g_auth.timer);
     if (err_code != BZ_SUCCESS) {
@@ -221,7 +279,7 @@ void auth_connected(void)
 
 void auth_service_enabled(void)
 {
-    uint32_t err_code;
+    int32_t err_code;
 
     g_auth.state = AUTH_STATE_SVC_ENABLED;
     err_code = g_auth.tx_func(BZ_CMD_AUTH_RAND, g_auth.ikm + g_auth.ikm_len, RANDOM_SEQ_LEN);
@@ -234,7 +292,7 @@ void auth_service_enabled(void)
 
 void auth_tx_done(void)
 {
-    uint32_t err_code;
+    int32_t err_code;
 
     if (g_auth.state == AUTH_STATE_SVC_ENABLED) {
         g_auth.state = AUTH_STATE_RAND_SENT;
@@ -334,7 +392,6 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
 #endif
 
 #ifdef CONFIG_MODEL_SECURITY
-
 bool get_auth_update_status(void)
 {
     return g_auth.dyn_update_device_secret;
@@ -357,4 +414,70 @@ ret_code_t auth_secret_update_post_process(uint8_t* p_ds, uint16_t len)
     return BZ_SUCCESS;
 }
 
+#endif
+
+
+#ifdef EN_AUTH_OFFLINE
+void auth_keys_init(void)
+{
+    auth_key_storage_t auth_keys;
+    uint32_t len = sizeof(auth_keys);
+    memset(&auth_keys, 0, len);
+    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) != 0){
+        if(os_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1) != 0){
+            BREEZE_LOG_ERR("BZ auth init keys \r\n");
+            return;
+        }
+    }
+}
+
+bool authkey_set(uint8_t* authid, uint8_t* authkey)
+{
+    uint32_t index = 0;
+    uint8_t tmp_authid[4] = {0};
+    int32_t ret;
+    auth_key_storage_t auth_keys;
+    uint32_t len = sizeof(auth_keys);
+    if(authid == NULL || authkey == NULL){
+        return false;
+    }
+    memset(&auth_keys, 0, len);
+    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
+        index = auth_keys.index_to_update;
+        memcpy(auth_keys.kv_pairs[index].auth_id, authid, AUTH_ID_LEN);
+        memcpy(auth_keys.kv_pairs[index].auth_key, authkey, AUTH_KEY_LEN);
+        auth_keys.index_to_update ++;
+        if(index = MAX_AUTH_KEYS -1){
+           auth_keys.index_to_update = 0;
+        }
+        ret = os_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1);
+        BREEZE_LOG_ERR("BZ auth keys update %s \r\n", ret ? "fail": "success");
+        return true;
+    }
+    return false;
+}
+
+bool authkey_get(uint8_t* authid, uint8_t* authkey)
+{
+    uint32_t index = 0;
+    uint8_t tmp_authid[4] = {0};
+    int32_t ret;
+    auth_key_storage_t auth_keys;
+    uint32_t len = sizeof(auth_keys);
+    if(authid == NULL || authkey == NULL){
+        return false;
+    }
+    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
+        for(; index < MAX_AUTH_KEYS; ++index){
+             if(!memcmp(auth_keys.kv_pairs[index].auth_id, authid, AUTH_ID_LEN)){
+                memcpy(authkey, auth_keys.kv_pairs[index].auth_key, AUTH_KEY_LEN);
+                return true;
+             }
+        }
+        if(index == MAX_AUTH_KEYS){
+            return false;
+        }
+    }
+    return false;
+}
 #endif
