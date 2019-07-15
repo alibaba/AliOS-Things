@@ -1,6 +1,8 @@
 /**
  * File : aos.c
  */
+
+#include "aos/init.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include <k_api.h>
@@ -52,6 +54,9 @@ static void sys_init(void)
 #ifndef DELETE_HFILOP_CODE
     board_init_later();
 #endif
+
+    aos_show_welcome();
+
 #ifdef AOS_COMP_PWRMGMT
     cpu_pwrmgmt_init();
 #endif
