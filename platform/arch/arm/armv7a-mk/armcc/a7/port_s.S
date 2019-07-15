@@ -11,9 +11,6 @@
     IMPORT cpu_interrupt_handler
     IMPORT k_proc_switch
     IMPORT g_sys_stat
-    IMPORT aos_cpu_except_handler
-    IMPORT krhino_intrpt_enter
-    IMPORT krhino_intrpt_exit
     IMPORT krhino_task_sched_stats_get
 
     IF (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
@@ -343,12 +340,8 @@ _interrupt_while_task
     MOV     SP, R3
 
     ; cpu_interrupt_handler(except_type = R0)
-    ;BL      cpu_interrupt_handler
-    PUSH    {R0}
-    BL      krhino_intrpt_enter
-    POP     {R0}
-    BL      aos_cpu_except_handler
-    BL      krhino_intrpt_exit 
+    BL      cpu_interrupt_handler
+
 
 _interrupt_return_address
     ; SP = g_active_task->task_stack;
@@ -372,8 +365,7 @@ _interrupt_while_init
     PUSH    {R1, LR}
 
     ; cpu_interrupt_handler(except_type = R0)
-    BL      aos_cpu_except_handler
-    ;BL      cpu_interrupt_handler
+    BL      cpu_interrupt_handler
     POP     {R1, LR}
     ADD     SP, SP, R1
 
