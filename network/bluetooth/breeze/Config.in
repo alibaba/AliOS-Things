@@ -23,6 +23,11 @@ if AOS_COMP_BREEZE
     config CONFIG_COMP_BZ_EN_AUTH
         bool "Enable authentication."
         default y
+    if CONFIG_COMP_BZ_EN_AUTH
+        config CONFIG_COMP_BZ_EN_AUTH_OFFLINE
+        bool "Authentication offline, otherwise online"
+        default n
+    endif
 
     config CONFIG_COMP_BZ_BUILTIN_HAL
         bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
