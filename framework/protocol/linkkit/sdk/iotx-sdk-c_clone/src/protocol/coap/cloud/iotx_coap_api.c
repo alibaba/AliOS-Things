@@ -386,32 +386,22 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
         COAP_INFO("fail to decrypt");
         return  0;
     }
-    if (n > 1) {
-        ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
+    if (n > 0) {
+        ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n, out);
     }
 
-    if (ret == 0) {
-        char *out_c = (char *)out;
-        int offset = n > 0 ? ((n - 1) << 4) : 0;
-        out_c[offset] = 0;
-
-        if (aes_d_h) {
-            ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
-        } else {
-            COAP_ERR("fail to decrypt remain data");
-        }
-
-        if (ret == 0) {
-            char pad = out_c[len - 1];
-            out_c[len - pad] = 0;
-            COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
-            HAL_Aes128_Destroy(aes_d_h);
-            return len - pad;
-        }
+    if (ret < 0) {
+        return 0;
     }
+    char *out_c = (char *)out;
+    char pad = out_c[len - 1];
+
+    out_c[len - pad] = 0;
+
+    COAP_DEBUG("decrypt data:%s, len:%d ,pad = %d", out_c, len - pad, pad);
     HAL_Aes128_Destroy(aes_d_h);
+    return len - pad;
 
-    return 0;
 }
 
 
@@ -540,7 +530,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     if (SUCCESS_RETURN != ret) {
         COAP_DEBUG("Send firmware message to server(CoAP) failed, ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
-    }    
+    }
 
     return IOTX_SUCCESS;
 }
@@ -616,6 +606,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
     COAP_INFO("Upstream Topic: '%s'", p_path);
     COAP_INFO("Upstream Payload:");
+
     iotx_facility_json_print((const char *)p_message->p_payload, LOG_INFO_LEVEL, '>');
 
     /* as this function only support POST request message, type ACK and RST shall be considered error parameters */
@@ -732,6 +723,7 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         COAP_DEBUG("payload: %s, len %d", payload, len);
         if (len != 0) {
             memcpy(message->payload, payload, len);
+            message->payload[len] = 0;
             message->payloadlen = len;
         }
         coap_free(payload);

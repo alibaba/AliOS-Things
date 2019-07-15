@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #if !defined(_WIN32)
-#include <unistd.h>
+    #include <unistd.h>
 #endif
 
 #include "iot_import.h"
@@ -36,10 +36,10 @@
 
 
 #define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-#define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+#define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
 //char m_coap_client_running = 1;
-char m_coap_reconnect = 0;
+char m_coap_reconnect = 1;
 
 static void iotx_response_handler(void *arg, void *p_response)
 {
@@ -58,12 +58,12 @@ static void iotx_response_handler(void *arg, void *p_response)
     #define IOTX_DEVICE_SECRET       "5FQbVOPWNwhEuCvnVcP1Mvyjmvt8ECQi"
     #define IOTX_DEVICE_ID           "device_2"
 #else
-#if 0
-    #define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
-    #define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
-    #define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
-    #define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
-#endif
+    #if 0
+        #define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
+        #define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
+        #define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
+        #define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
+    #endif
     #define IOTX_PRODUCT_KEY         "a1oMt75YhXL"
     #define IOTX_DEVICE_NAME         "test_coap_01"
     #define IOTX_DEVICE_SECRET       "qIRhaGwUJom2DvgdP6BdsHD6I75FdvxX"
@@ -121,7 +121,7 @@ void show_usage()
     HAL_Printf("\t-h                 \t\tShow this usage.\r\n");
 }
 
-#define SECUR    "dtls"
+#define SECUR    "psk"
 #define ENV      "online"
 #define TEST_CNT 100
 void iotx_main(void *p)
@@ -145,11 +145,9 @@ void iotx_main(void *p)
     if (0 == strncmp(ENV, "pre", strlen("pre"))) {
         if (0 == strncmp(SECUR, "dtls", strlen("dtls"))) {
             config.p_url = IOTX_PRE_DTLS_SERVER_URI;
-        }
-        else if(0 == strncmp(SECUR, "psk", strlen("psk"))){
+        } else if (0 == strncmp(SECUR, "psk", strlen("psk"))) {
             config.p_url = IOTX_PRE_PSK_SERVER_URI;
-        }
-        else {
+        } else {
             config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
     } else if (0 == strncmp(ENV, "online", strlen("online"))) {
@@ -157,24 +155,20 @@ void iotx_main(void *p)
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
-        }
-        else if(0 == strncmp(SECUR, "psk", strlen("psk"))){
+        } else if (0 == strncmp(SECUR, "psk", strlen("psk"))) {
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
 
-        }
-        else {
+        } else {
             HAL_Printf("Online environment must access with DTLS/PSK\r\n");
             IOT_CloseLog();
             return ;
         }
-    }
-    else if(0 == strncmp(ENV, "daily", strlen("daily"))){
+    } else if (0 == strncmp(ENV, "daily", strlen("daily"))) {
         if (0 == strncmp(SECUR, "dtls", strlen("dtls"))) {
             config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
-        }
-        else if(0 == strncmp(SECUR, "psk", strlen("psk"))){
+        } else if (0 == strncmp(SECUR, "psk", strlen("psk"))) {
             config.p_url = IOTX_DAILY_PSK_SERVER_URI;
 
         }
@@ -185,11 +179,11 @@ void iotx_main(void *p)
 #endif
 
     iotx_set_devinfo(&deviceinfo);
-    config.p_devinfo = (iotx_device_info_t*)&deviceinfo;
+    config.p_devinfo = (iotx_device_info_t *)&deviceinfo;
     config.wait_time_ms = 3000;
 
     iotx_coap_context_t *p_ctx = NULL;
-
+    
 reconnect:
     p_ctx = IOT_CoAP_Init(&config);
     if (NULL != p_ctx) {
@@ -202,13 +196,13 @@ reconnect:
             count ++;
             IOT_CoAP_Yield(p_ctx);
             aos_msleep(200);
-        } while (test_cnt++<TEST_CNT);
+        } while (test_cnt++ < TEST_CNT);
 
         IOT_CoAP_Deinit(&p_ctx);
     } else {
         HAL_Printf("IoTx CoAP init failed\r\n");
     }
-    if(m_coap_reconnect){
+    if (m_coap_reconnect) {
         m_coap_reconnect = 0;
         goto reconnect;
     }

@@ -9,8 +9,7 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_PRODUCT_rhino.c \
                    HAL_UDP_rhino.c \
                    HAL_Crypt_rhino.c \
-                   HAL_AWSS_rhino.c  \
-                   infra_aes.c
+                   HAL_AWSS_rhino.c
 
 $(NAME)_COMPONENTS += \
                       digest_algorithm \
@@ -18,8 +17,6 @@ $(NAME)_COMPONENTS += \
                       activation \
                       chip_code \
                       framework/netmgr
-
-$(NAME)_DEFINES  += INFRA_AES INFRA_AES_ROM_TABLES
 
 ifneq (,$(filter ywss4linkkit,$(COMPONENTS)))
 $(NAME)_SOURCES  +=  HAL_AWSS_rhino.c
