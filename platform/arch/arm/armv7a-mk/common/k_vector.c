@@ -6,8 +6,8 @@
 #include "k_arch.h"
 
 /* sdk interrupt entry */
-//extern void os_fiq_handle(void);
-//extern void os_irq_handle(void);
+extern void os_fiq_handle(void);
+extern void os_irq_handle(void);
 
 /* defined in vector_s.S, putted in ".vectors:" section */
 extern uint32_t _vector_table[];
@@ -18,12 +18,12 @@ void cpu_interrupt_handler(unsigned int except_id)
     switch (except_id) {
         case ARM_EXCEPT_FIQ:
             /* bsp fiq entry */
-//            os_fiq_handle();
+            os_fiq_handle();
             break;
 
         case ARM_EXCEPT_IRQ:
             /* bsp irq entry */
-//            os_irq_handle();
+            os_irq_handle();
             break;
 
         default:
