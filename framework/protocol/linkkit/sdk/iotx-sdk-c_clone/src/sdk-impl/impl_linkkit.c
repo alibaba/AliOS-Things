@@ -57,6 +57,7 @@ typedef struct {
 } iotx_linkkit_ctx_t;
 
 static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
+static int _awss_reported = 0;
 
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)
 {
@@ -974,7 +975,13 @@ static int _iotx_linkkit_master_connect(void)
 
     iotx_dm_event_types_t type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
-
+    
+#ifdef DEV_BIND_ENABLED
+    if(_awss_reported == 0) {
+        awss_report_cloud();
+        _awss_reported = 1;
+    }
+#endif
     return SUCCESS_RETURN;
 }
 
@@ -1100,7 +1107,7 @@ static int _iotx_linkkit_master_close(void)
     _iotx_linkkit_mutex_unlock();
     HAL_MutexDestroy(ctx->mutex);
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
-
+    _awss_reported = 0;
     return SUCCESS_RETURN;
 }
 
