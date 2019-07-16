@@ -269,13 +269,14 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
         if (p_data == NULL && length != 0) {
             return BZ_ENULL;
         }
-	if(length > BZ_MAX_PAYLOAD_SIZE){
+        if(length > BZ_MAX_PAYLOAD_SIZE){
             return BZ_EDATASIZE;
-	}
+        }
     }
+
     if (g_transport.p_key != NULL &&
         (cmd == BZ_CMD_STATUS || cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP ||
-         ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && (cmd != BZ_CMD_AUTH_RAND || cmd != BZ_CMD_AUTH_REKEY_RSP)))) {
+        ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && ((cmd != BZ_CMD_AUTH_RAND) && (cmd != BZ_CMD_AUTH_REKEY_RSP))))) {
         g_transport.tx.encrypted = 1;
         pkt_payload_len = (g_transport.max_pkt_size - HEADER_SIZE) & ~(AES_BLK_SIZE - 1);
     } else {
