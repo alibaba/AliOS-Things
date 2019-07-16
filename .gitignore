@@ -47,3 +47,4 @@ projects/autogen/*
 .config
 .config.cmd
 .defconfig
+.vscode
