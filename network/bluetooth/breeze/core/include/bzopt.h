@@ -7,7 +7,11 @@
 
 /*update to version 2.0.6 or higher if enable offline authentation.
  * otherwise should not use this version to avoid compatibility issue.*/
+#ifdef EN_AUTH_OFFLINE
 #define BZ_VERSION "2.0.6"
+#else
+#define BZ_VERSION "2.0.5"
+#endif
 
 #define BZ_AUTH_TIMEOUT 10000  // not allowed to be 0
 
