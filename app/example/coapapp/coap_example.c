@@ -115,6 +115,7 @@ int linkkit_main(void *paras)
     int                     opt;
     iotx_coap_config_t      config;
     iotx_coap_device_info_t deviceinfo;
+    char url[256] = {0};
 
     if (paras != NULL) {
         app_main_paras_t *p = (app_main_paras_t *)paras;
@@ -182,13 +183,12 @@ int linkkit_main(void *paras)
         } else {
             config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
+        (void)url;
     } else if (0 == strncmp(env, "online", strlen("online"))) {
         if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
-            char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
         } else if (0 == strncmp(secur, "psk", strlen("psk"))) {
-            char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
         } else {
