@@ -180,6 +180,9 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     int ret = -1;
 
     static char dev_ap_switchap_parsed = 0;
+    if (awss_dev_ap_ongoing == 0) {
+        return -1;
+    }
     if (dev_ap_switchap_parsed != 0) {
         goto DEV_AP_SWITCHAP_END;
     }
