@@ -269,8 +269,8 @@ void exceptionHandler(void *context)
 
 /* backtrace start with PC and SP, find LR from stack memory
    return levels os callstack */
-int panicBacktraceCaller(char *PC, int *SP,
-                         int (*print_func)(const char *fmt, ...))
+int backtrace_caller(char *PC, int *SP,
+                     int (*print_func)(const char *fmt, ...))
 {
     int  lvl;
     int *FP;
@@ -311,8 +311,8 @@ int panicBacktraceCaller(char *PC, int *SP,
 }
 
 /* backtrace start with PC SP and LR */
-int panicBacktraceCallee(char *PC, int *SP, char *LR,
-                         int (*print_func)(const char *fmt, ...))
+int backtrace_callee(char *PC, int *SP, char *LR,
+                     int (*print_func)(const char *fmt, ...))
 {
     /* with frame pointer, this function is not needed */
     return 0;
