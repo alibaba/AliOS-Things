@@ -8,6 +8,10 @@
 #include "k_api.h"
 #include "task_group.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_ARG_CNT  (8)
 
 typedef struct cb_call_msg {
@@ -26,6 +30,10 @@ kstat_t cb_ret_buf_queue_pop(kbuf_queue_t *buf_queue, cb_ret_msg_t *msg, size_t 
 
 int  cb_init(task_group_t *group);
 void cb_destory(task_group_t *group);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* U_CALLBACK_H */
 
