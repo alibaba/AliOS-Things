@@ -68,19 +68,6 @@ void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
     *pSP = (int *)regs[4];
 }
 
-int panicBacktraceCaller(char *PC, int *SP,
-                         int (*print_func)(const char *fmt, ...))
-{
-    return 0;
-}
-
-int panicBacktraceCallee(char *PC, int *SP, char *LR,
-                         int (*print_func)(const char *fmt, ...))
-{
-    backtraceContext(PC, LR, SP, print_func);
-    return 1;
-}
-
 void xtensaPanic(void *context)
 {
 #if defined (AOS_COMP_CLI)

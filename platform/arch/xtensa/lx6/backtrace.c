@@ -161,3 +161,21 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 
     return lvl;
 }
+
+/* backtrace start with PC and SP, find LR from stack memory
+   return levels of call stack */
+int backtrace_caller(char *PC, int *SP,
+                     int (*print_func)(const char *fmt, ...))
+{
+    return 0;
+}
+
+/* backtrace start with PC SP and LR
+   return levels of call stack */
+int backtrace_callee(char *PC, int *SP, char *LR,
+                     int (*print_func)(const char *fmt, ...))
+{
+    backtraceContext(PC, LR, SP, print_func);
+    return 1;
+}
+
