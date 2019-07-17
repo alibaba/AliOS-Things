@@ -1,0 +1,10 @@
+{
+  "at24c32":{
+    "type":"I2C",
+    "port":2,
+    "address_width":7,
+    "freq":200000,
+    "mode":1,
+    "dev_addr":160
+  }
+}
