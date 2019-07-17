@@ -1292,39 +1292,23 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
     /* Check if the received data length exceeds mqtt read buffer length */
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
-        int remainDataLen;
-        char *remainDataBuf;
-        int needReadLen = c->buf_size_read - len;
+        int needReadLen;
+        *packet_type = 0;
         mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         left_t = iotx_time_left(timer);
         left_t = (left_t == 0) ? 1 : left_t;
-        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, left_t) != needReadLen) {
-            mqtt_err("mqtt read error");
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
+        do {
+            needReadLen = (rem_len > c->buf_size_read) ? c->buf_size_read : rem_len;
+            printf("read len:%d\n", needReadLen);
+            if (c->ipstack->read(c->ipstack, c->buf_read, needReadLen, left_t) != needReadLen) {
+                mqtt_err("mqtt read error");
+                HAL_MutexUnlock(c->lock_read_buf);
+                return FAIL_RETURN;
+            }
+            rem_len -= needReadLen;
+        }while(rem_len);
 
-        /* drop data whitch over the length of mqtt buffer */
-        remainDataLen = rem_len - needReadLen;
-        remainDataBuf = mqtt_malloc(remainDataLen + 1);
-        if (!remainDataBuf) {
-            mqtt_err("allocate remain buffer failed");
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
 
-        left_t = iotx_time_left(timer);
-        left_t = (left_t == 0) ? 1 : left_t;
-        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, left_t) != remainDataLen) {
-            mqtt_err("mqtt read error");
-            mqtt_free(remainDataBuf);
-            remainDataBuf = NULL;
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
-
-        mqtt_free(remainDataBuf);
-        remainDataBuf = NULL;
         HAL_MutexUnlock(c->lock_read_buf);
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
