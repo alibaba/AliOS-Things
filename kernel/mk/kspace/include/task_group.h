@@ -1,11 +1,15 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef TASK_GROUP_H
 #define TASK_GROUP_H
 
 #include "k_api.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* task group object type */
 #define RES_OBJ_TASK      0x00UL
@@ -82,6 +86,10 @@ int task_group_init(task_group_t *group, const char *name, int pid);
 void task_group_release(task_group_t *group);
 
 void task_group_destory(task_group_t *group);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TASK_GROUP_H */
 
