@@ -240,6 +240,8 @@ uint32_t pwrmgmt_cpu_minisleep_msec_get(void)
 #if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
 int pwrmgmt_cpu_active_msec_set(uint32_t active_time)
 {
+    tick_t active_tick = 0;
+
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "start to keep cpu be active for %d ms\r\n",
                 active_time);
 
@@ -247,7 +249,15 @@ int pwrmgmt_cpu_active_msec_set(uint32_t active_time)
         return 0;
     }
 
-    cpu_active_msec_set(active_time);
+    active_tick = krhino_ms_to_ticks(active_time);
+
+    /* if active time is less than 1 tick */
+    if (active_tick == 0) {
+        active_tick = 1;
+    }
+
+    cpu_active_ticks_set(active_tick);
+
     return 0;
 }
 #endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
