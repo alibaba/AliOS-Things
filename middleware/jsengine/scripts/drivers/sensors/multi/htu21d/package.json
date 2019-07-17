@@ -1,0 +1,12 @@
+{
+  "name": "htu21d",
+  "version": "0.0.1",
+  "description": "htu21d驱动",
+  "keywords": ["htu21d"],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}

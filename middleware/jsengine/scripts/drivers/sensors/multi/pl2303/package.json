@@ -1,0 +1,11 @@
+{
+  "name": "pl2303",
+  "version": "0.0.1",
+  "description": "pl2303 driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform":"",
+  "config":"driver.json",
+  "test":"test/index.js"
+}
