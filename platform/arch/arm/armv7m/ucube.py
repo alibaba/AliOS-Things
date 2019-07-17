@@ -1,7 +1,7 @@
 src = []
 
 component = aos_arch_component('armv7m', src)
-component.add_sources('common/panic_c.c', 'common/port_c.c')
+component.add_sources('common/panic_c.c', 'common/port_c.c', 'common/backtrace.c')
 component.add_global_includes('common/')
 
 if aos_global_config.compiler == 'armcc':

@@ -11,5 +11,6 @@ $(NAME)_CFLAGS := -marm -mthumb-interwork
 $(NAME)_SOURCES += gcc/port_c.c    \
                    gcc/port_s.S    \
                    common/panic_c.c \
+                   common/backtrace.c \
                    common/panic_gcc.S
 
