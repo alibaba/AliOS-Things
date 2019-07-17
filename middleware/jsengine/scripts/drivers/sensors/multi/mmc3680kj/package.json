@@ -1,0 +1,11 @@
+{
+  "name": "mmc3680kj",
+  "version": "0.0.2",
+  "description": "this is mmc3680kj magnetic sensor driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform":"ESP32",
+  "config":"driver.json",
+  "test":"test/index_test.js"
+}

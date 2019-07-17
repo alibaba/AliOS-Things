@@ -1,0 +1,11 @@
+{
+  "name": "lcd1602",
+  "version": "0.0.1",
+  "description": "lcd1602 driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform":"",
+  "config":"driver.json",
+  "test":"test/index.js"
+}

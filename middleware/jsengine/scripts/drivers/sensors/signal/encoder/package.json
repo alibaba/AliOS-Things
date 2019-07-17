@@ -1,0 +1,12 @@
+{
+  "name": "encoder",
+  "version": "0.0.1",
+  "description": "encoder驱动",
+  "keywords": ["encoder"],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}
