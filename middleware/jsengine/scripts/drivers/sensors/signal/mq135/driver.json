@@ -1,0 +1,13 @@
+{
+    "mq135.ao":{
+        "type":"ADC",
+        "port":34,
+        "sampling":12000000
+    },
+    "mq135.do":{
+        "type":"GPIO",
+        "port":18,
+        "dir": 1,
+        "pull": 1
+    }
+}
