@@ -1,0 +1,11 @@
+{
+  "name": "ffs06",
+  "version": "0.0.1",
+  "description": "ffs06 driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform":"",
+  "config":"driver.json",
+  "test":"test/index.js"
+}

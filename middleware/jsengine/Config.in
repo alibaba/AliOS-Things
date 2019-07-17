@@ -1,0 +1,38 @@
+menuconfig AOS_COMP_JSENGINE
+    bool "JSEngine"
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_SPIFFS
+    select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
+    select AOS_COMP_CJSON
+    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_HTTP
+    default n
+    help
+
+if AOS_COMP_JSENGINE
+# Configurations for comp JSEngine
+
+choice
+    prompt "Choose Engine Type: "
+    default JSE_ENGINE_MINI
+    help
+      Choose Engine Type. (Default: LiteJSE).
+
+    config JSE_ENGINE_MINI
+        bool "MiniJSE"
+        help
+            LiteEngine is independent develop by Alibaba.
+
+    config JSE_ENGINE_DUKTAPE
+        bool "DuktapeJSE"
+        help
+            Duktape is an OpenSource embeddable Javascript engine, with a focus on portability
+            and compact footprint. (check https://github.com/svaarala/duktape).
+endchoice
+
+# addons configuration
+source "middleware/jsengine/src/jse/Config.in"
+source "middleware/jsengine/src/services/Config.in"
+
+endif
+
