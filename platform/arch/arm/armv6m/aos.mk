@@ -6,6 +6,7 @@ $(NAME)_SUMMARY    := arch for armv6m
 
 $(NAME)_SOURCES := common/panic_c.c
 $(NAME)_SOURCES += common/port_c.c
+$(NAME)_SOURCES += common/backtrace.c
 
 GLOBAL_INCLUDES += common/
 
