@@ -20,6 +20,7 @@ typedef enum pwrmgmt_user_module {
     PWRMGMT_NETMGR  = 2,
     PWRMGMT_NETWORK = 3,
     PWRMGMT_PWRMGMT = 4,
+    PWRMGMT_AT      = 5,
     PWRMGMT_APP     = 16,
 } PWRMGMT_USER_MODULE;
 
