@@ -7,6 +7,10 @@
 
 #include "k_api.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* user resource ID */
 #define USER_RES_REQUEST_BUF_QUEUE 0x00UL
 #define USER_RES_REPLY_BUF_QUEUE   0x01UL
@@ -45,6 +49,10 @@ void krhino_uprocess_try_exit(void);
 void krhino_uprocess_res_get(int32_t id, void **res);
 
 kstat_t krhino_utask_stack_min_free(ktask_t *task, size_t *free);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* U_TASK_H */
 

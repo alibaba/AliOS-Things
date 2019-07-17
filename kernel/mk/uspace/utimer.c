@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -14,10 +14,10 @@
         while (1); \
     } while (0)
 
-static klist_t           u_timer_head;
-static sys_time_t        u_timer_count;
-static ktask_t          *u_timer_task;
-static kbuf_queue_t     *u_timer_queue;
+static klist_t       u_timer_head;
+static sys_time_t    u_timer_count;
+static ktask_t      *u_timer_task;
+static kbuf_queue_t *u_timer_queue;
 
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
 {
