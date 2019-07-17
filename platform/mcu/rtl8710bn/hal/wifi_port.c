@@ -245,6 +245,9 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 		if (ret == 0) {
                         WifiStatusHandler(NOTIFY_STATION_UP);
 			ret = LwIP_DHCP(0, DHCP_START);
+            if(DHCP_TIMEOUT == ret){
+                aos_reboot();
+            }
 			int i = 0;
 			for(i=0;i<NET_IF_NUM;i++){
 				if(rltk_wlan_running(i)){
