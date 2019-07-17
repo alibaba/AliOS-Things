@@ -239,9 +239,6 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
     if (n_ticks == RHINO_WAIT_FOREVER) {
         sleep_time_us = TIME_100_YEARS_IN_US;
     } else {
-        if (n_ticks > 1) {
-            n_ticks = n_ticks -1;
-        }
         sleep_time_us = 1000000ull * n_ticks / RHINO_CONFIG_TICKS_PER_SECOND;
 
 #if (PWRMGMT_CONFIG_MINISLEEP > 0)
@@ -389,6 +386,9 @@ static void tickless_enter(void)
 
         n_ticks = tickless_one_shot_stop(c_state_entered);
 
+        /* resume system tick interrupt */
+        systick_resume();
+
         /* set is_current_tickless to FALSE */
         is_current_tickless = FALSE;
 
@@ -396,9 +396,6 @@ static void tickless_enter(void)
         /* announces elapsed ticks to the kernel */
             tickless_announce_n(n_ticks);
         }
-
-        /* resume system tick interrupt */
-        systick_resume();
     }
 
     krhino_spin_unlock_irq_restore(&ticklessSpin);
@@ -431,15 +428,15 @@ static void tickless_exit(void)
     /* set is_current_tickless to FALSE */
     is_current_tickless = FALSE;
 
+    /* resume system tick interrupt */
+    systick_resume();
+
     krhino_spin_unlock_irq_restore(&ticklessSpin);
 
     if (n_ticks > 0) {
         /* announces elapsed ticks to the kernel */
         tickless_announce_n(n_ticks);
     }
-
-    /* resume system tick interrupt */
-    systick_resume();
 }
 
 /**
