@@ -1,0 +1,14 @@
+{
+  "isd1820.play":{
+    "type":"GPIO",
+    "port":18,
+    "dir":0,
+    "pull":1
+  },
+  "isd1820.record":{
+    "type":"GPIO",
+    "port":19,
+    "dir":0,
+    "pull":1
+  }
+}
