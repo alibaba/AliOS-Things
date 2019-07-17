@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ */
+
+#ifndef U_APP_DEFAULT_CONFIG_H
+#define U_APP_DEFAULT_CONFIG_H
 
 /* user space */
 #if (RHINO_CONFIG_USER_SPACE > 0)
@@ -29,7 +35,7 @@
  * On default set to 512 bytes.
  */
 #ifndef RHINO_CONFIG_URES_TASK_KSTACK_SIZE
-#define  RHINO_CONFIG_URES_TASK_KSTACK_SIZE 128
+#define RHINO_CONFIG_URES_TASK_KSTACK_SIZE 128
 #endif
 
 /**
@@ -39,7 +45,7 @@
  * On default set to 512 bytes.
  */
 #ifndef RHINO_CONFIG_URES_TASK_USTACK_SIZE
-#define  RHINO_CONFIG_URES_TASK_USTACK_SIZE 128
+#define RHINO_CONFIG_URES_TASK_USTACK_SIZE 128
 #endif /* RHINO_CONFIG_URES_TASK_USTACK_SIZE */
 
 #elif (RHINO_CONFIG_URES_SUPPORT > 0)
@@ -68,15 +74,15 @@
 /**
  * config user space cli task's kstack size
  */
-#ifndef RHINO_CONFIG_UCLI_TASK_KSTACK
-#define RHINO_CONFIG_UCLI_TASK_KSTACK 128
+#ifndef RHINO_CONFIG_UCLI_TASK_KSTACK_SIZE
+#define RHINO_CONFIG_UCLI_TASK_KSTACK_SIZE 128
 #endif
 
 /**
  * config user space cli task's ustack size
  */
-#ifndef RHINO_CONFIG_UCLI_TASK_KSTACK
-#define RHINO_CONFIG_UCLI_TASK_KSTACK 128
+#ifndef RHINO_CONFIG_UCLI_TASK_USTACK_SIZE
+#define RHINO_CONFIG_UCLI_TASK_USTACK_SIZE 128
 #endif
 
 #elif (RHINO_CONFIG_UCLI_SUPPORT > 0)
@@ -156,18 +162,5 @@
 
 #endif /* RHINO_CONFIG_USER_SPACE */
 
-
-/********************** UIPC **************************/
-#if (RHINO_CONFIG_UIPC > 0)
-
-/**
- * enable user space ipc.
- */
-#ifndef RHINO_CONFIG_UIPC_SUPPORT
-#define RHINO_CONFIG_UIPC_SUPPORT 0
-#endif
-
-#elif (RHINO_CONFIG_UIPC_SUPPORT > 0)
-#error "kernel doesn't support user ipc"
-#endif /* RHINO_CONFIG_UIPC_SUPPORT */
+#endif /* U_APP_DEFAULT_CONFIG_H */
 
