@@ -1,0 +1,11 @@
+{
+  "name": "d5a2",
+  "version": "0.0.1",
+  "description": "d5a2 driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform":"",
+  "config":"driver.json",
+  "test":"test/index.js"
+}
