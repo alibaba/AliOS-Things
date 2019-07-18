@@ -46,7 +46,7 @@ GLOBAL_INCLUDES += .    \
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_XR809
 CONFIG_SYSINFO_DEVICE_NAME := XR809
 
-CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
+CURRENT_TIME = $($(DATE) +%Y%m%d.%H%M)
 define get-os-version
 "AOS-R"-$(CURRENT_TIME)
 endef
