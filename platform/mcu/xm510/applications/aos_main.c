@@ -65,7 +65,7 @@ void sys_start(void)
 #endif
 
 #ifdef AOS_COMP_ULOG
-    ulog_init("A");
+    ulog_init();
 #endif
     dumpsys_cli_init();
 
