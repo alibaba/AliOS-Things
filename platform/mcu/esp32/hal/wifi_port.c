@@ -533,6 +533,24 @@ static int mesh_disable(hal_wifi_module_t *module)
     return 0;
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+    do {
+        wifi_ap_record_t ap_info;
+        if (ESP_OK != esp_wifi_sta_get_ap_info(&ap_info))
+            return -1;
+        info->rssi = ap_info.rssi;
+    } while (0);
+
+    return 0;
+}
+
 hal_wifi_module_t sim_aos_wifi_eps32 = {
     .base.name           = "sim_aos_wifi_esp32",
     .init                =  wifi_init,
@@ -556,6 +574,7 @@ hal_wifi_module_t sim_aos_wifi_eps32 = {
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
 
+    .get_wireless_info   = get_wireless_info,
     /* mesh related */
     .mesh_register_cb    =  register_mesh_cb,
     .mesh_enable         =  mesh_enable,
