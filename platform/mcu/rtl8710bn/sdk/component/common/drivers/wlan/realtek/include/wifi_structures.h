@@ -235,6 +235,31 @@ typedef struct rtw_mac_filter_list{
 	unsigned char mac_addr[6];
 }rtw_mac_filter_list_t;
 
+/**
+  * @brief  The structure is copy from structure net_device_stats, used to get statistic by customer.
+  */
+typedef struct rtw_net_device_stats {
+	unsigned long   rx_packets;             /* total packets received       */
+	unsigned long   tx_packets;             /* total packets transmitted    */
+	unsigned long   rx_dropped;             /* no space in  buffers    */
+	unsigned long   tx_dropped;             /* no space available   */
+	unsigned long   rx_bytes;               /* total bytes received         */
+	unsigned long   tx_bytes;               /* total bytes transmitted      */
+}rtw_net_device_stats_t;
+
+/**
+  * @brief  The structure is used to get different retry time packet num.
+  */
+typedef struct rtw_fw_retry_drop {
+	unsigned short   retry_0;             /* no retry packet num      */
+	unsigned short   retry_1;             /* retry 1 time packet num  */
+	unsigned short   retry_2;             /* retry 2 times packet num */
+	unsigned short   retry_3;             /* retry 3 times packet num */
+	unsigned short   retry_4;             /* retry 4 times packet num */
+	unsigned short   retry_drop;          /* drop packet num          */
+	unsigned short   data_ready;          /* used to sync data ready  */
+}rtw_fw_retry_drop_t;
+
 #ifdef	__cplusplus
 }
 #endif
