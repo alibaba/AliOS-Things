@@ -36,6 +36,9 @@ typedef struct _TLSDataParams {
 /**< set debug log level, 0 close*/
 #define DEBUG_LEVEL 0
 
+#define ITLS_READ_HEADER_TIMEOUT 30  // 30 ms
+#define ITLS_READ_PAYLOAD_TIMEOUT 20000  // 20s
+
 #if defined(CONFIG_ITLS_TIME_TEST)
 #include <sys/time.h>
 static struct timeval tv1, tv2;
@@ -284,6 +287,12 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv1, NULL);
 #endif
+
+    if (len > 1) {  /* len > 1 indicates that trying to read payload */
+        timeout_ms = ITLS_READ_PAYLOAD_TIMEOUT;
+    } else if (timeout_ms < ITLS_READ_HEADER_TIMEOUT) {
+        timeout_ms = ITLS_READ_HEADER_TIMEOUT;  /* wait for at least 30ms for header type or packet length */
+    }
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
