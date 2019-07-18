@@ -11,7 +11,8 @@
 #include "be_port_hal.h"
 
 static wdg_dev_t g_wdg;
-static be_jse_symbol_t *wdg_start(void) {
+static be_jse_symbol_t *wdg_start(void)
+{
     be_jse_int_t ret      = -1;
     be_jse_symbol_t *arg0 = NULL;
     int32_t value_timeout = 0;
@@ -39,7 +40,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *wdg_feed(void) {
+static be_jse_symbol_t *wdg_feed(void)
+{
     wdg_dev_t *handle = (wdg_dev_t *)&g_wdg;
 
     be_jse_handle_function(0, 0, 0, 0, 0);
@@ -48,7 +50,8 @@ static be_jse_symbol_t *wdg_feed(void) {
     return new_symbol(BE_SYM_NULL);
 }
 
-static be_jse_symbol_t *wdg_stop(void) {
+static be_jse_symbol_t *wdg_stop(void)
+{
     be_jse_int_t ret  = 0;
     wdg_dev_t *handle = (wdg_dev_t *)&g_wdg;
 
@@ -61,7 +64,8 @@ static be_jse_symbol_t *wdg_stop(void) {
 
 static be_jse_symbol_t *wdg_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "start")) {
         return wdg_start();
     }
@@ -74,7 +78,8 @@ static be_jse_symbol_t *wdg_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_wdg_register() {
+void module_wdg_register()
+{
     memset(&g_wdg, 0x00, sizeof(g_wdg));
     be_jse_module_load("WDG", wdg_module_handle_cb);
 }

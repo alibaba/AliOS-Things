@@ -77,7 +77,7 @@ function swingFanUpOrDown(param) {
 }
 
 // 周期行判断网络是否准备好，如果准备好，则连接LD，并注册本地处理函数
-var t1 = setInterval(function() {
+var t1 = setInterval(function () {
   //每秒检测一次网卡是否连上网络？
   var ip = WIFI.getip();
   if (ip != null) {

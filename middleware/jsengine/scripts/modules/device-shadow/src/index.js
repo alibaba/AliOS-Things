@@ -94,10 +94,10 @@ function after_connect_success() {
 function mqtt_start_notify(err) {
   // console.log('mqtt callback, err = ' + err);
 
-  if(err){
+  if (err) {
     // 连接失败
     dev_mqtt_started = 0
-  }else {
+  } else {
     // 连接正常
     dev_mqtt_started = 2;
     // console.log('连接正常,dev_mqtt_started=' + dev_mqtt_started);
@@ -117,11 +117,11 @@ deviceShadow.bindDevID = function (config) {
   dev_config.productKey = config.productKey;
   dev_config.deviceName = config.deviceName;
   dev_config.deviceSecret = config.deviceSecret;
-  if(config.domain){
+  if (config.domain) {
     console.log('config.domain = ' + config.domain);
     dev_config.domain = config.domain;
   }
-  if(config.port)
+  if (config.port)
     dev_config.port = config.port;
 }
 
@@ -225,6 +225,5 @@ deviceShadow.start = function (ntfy_fn) {
   }
   return err;
 }
-
 
 module.exports = deviceShadow;

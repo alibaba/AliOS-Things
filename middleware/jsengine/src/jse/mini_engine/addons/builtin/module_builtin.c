@@ -19,7 +19,8 @@
 
 be_jse_symbol_t* module_handle_cb_js_lite(be_jse_vm_ctx_t* execInfo,
                                           be_jse_symbol_t* var,
-                                          const char* name) {
+                                          const char* name)
+{
     if (strcmp(name, "VERSION") == 0) {
         lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_str_symbol("0.0.1");
@@ -30,7 +31,8 @@ be_jse_symbol_t* module_handle_cb_js_lite(be_jse_vm_ctx_t* execInfo,
 
 be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
                                                   be_jse_symbol_t* var,
-                                                  const char* name) {
+                                                  const char* name)
+{
     if (strcmp(name, "log") == 0) {
         int len;
         be_jse_symbol_t* arg0 = be_jse_handle_single_arg_function();
@@ -51,7 +53,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
 
 #ifdef JSE_IDE_DEBUG
         bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_INFO,
-                                  buf);  /* 网络输出log */
+                                  buf); /* 网络输出log */
 #endif
         free(buf);
 
@@ -63,9 +65,10 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
 
 #ifdef USE_STRING
 
-static char get_char_in_str_symbol(be_jse_symbol_t* s, int idx) {
+static char get_char_in_str_symbol(be_jse_symbol_t* s, int idx)
+{
     if (!symbol_is_string(s)) return 0;
-    if (idx < 0) idx += symbol_str_len(s);  /* <0 goes from end of string */
+    if (idx < 0) idx += symbol_str_len(s); /* <0 goes from end of string */
     if (idx < 0) return 0;
 
     s = symbol_relock(s);
@@ -87,7 +90,8 @@ static char get_char_in_str_symbol(be_jse_symbol_t* s, int idx) {
 
 be_jse_symbol_t* module_handle_cb_js_lite_string(be_jse_vm_ctx_t* execInfo,
                                                  be_jse_symbol_t* var,
-                                                 const char* name) {
+                                                 const char* name)
+{
     /* 不需要get_symbol_value(var);    已经是value了 */
 
     if (strcmp(name, "length") == 0) {
@@ -123,7 +127,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_string(be_jse_vm_ctx_t* execInfo,
             pEnd   = l;
         }
         res = new_symbol(BE_SYM_STRING);
-        if (!res) return 0;  /* out of memory */
+        if (!res) return 0; /* out of memory */
         symbol_str_value_append(res, var, pStart, pEnd - pStart);
         return res;
     }
@@ -138,14 +142,14 @@ be_jse_symbol_t* module_handle_cb_js_lite_string(be_jse_vm_ctx_t* execInfo,
         symbol_unlock(vLen);
         if (pLen < 0) pLen = 0;
         res = new_symbol(BE_SYM_STRING);
-        if (!res) return 0;  /* out of memory */
+        if (!res) return 0; /* out of memory */
         symbol_str_value_append(res, var, pStart, pLen);
         return res;
     }
     if (strcmp(name, "indexOf") == 0) {
         be_jse_symbol_t* v =
             str_to_symbol(be_jse_handle_single_arg_function(), true);
-        if (!v) return 0;  /* out of memory */
+        if (!v) return 0; /* out of memory */
         int idx = -1;
         int l   = (int)symbol_str_len(var) - (int)symbol_str_len(v);
         for (idx = 0; idx < l; idx++) {
@@ -164,7 +168,8 @@ be_jse_symbol_t* module_handle_cb_js_lite_string(be_jse_vm_ctx_t* execInfo,
 #endif
 
 static be_jse_symbol_t* module_handle_cb_js_lite_global(
-    be_jse_vm_ctx_t* execInfo, be_jse_symbol_t* var, const char* name) {
+    be_jse_vm_ctx_t* execInfo, be_jse_symbol_t* var, const char* name)
+{
     be_jse_symbol_t* ret;
 
     /* if (strcmp(name, "getip") == 0) {
@@ -218,7 +223,8 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
                 __dirname  需要记录 */
 
                 /* 读取header */
-                /* struct list_head* headPtr = bone_engine_dirname_get_head(); */
+                /* struct list_head* headPtr = bone_engine_dirname_get_head();
+                 */
                 BE_JSE_DIRNAME_s* firstDir;
 
                 firstDir = bone_engine_dirname_get();
@@ -307,7 +313,8 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
 
 be_jse_symbol_t* module_handle_cb_js_lite_json(be_jse_vm_ctx_t* execInfo,
                                                be_jse_symbol_t* var,
-                                               const char* name) {
+                                               const char* name)
+{
     if (strcmp(name, "stringify") == 0) {
         be_jse_symbol_t* v      = be_jse_handle_single_arg_function();
         be_jse_symbol_t* result = new_str_symbol("");
@@ -334,7 +341,8 @@ be_jse_symbol_t* module_handle_cb_js_lite_json(be_jse_vm_ctx_t* execInfo,
 
 be_jse_symbol_t* module_handle_cb_js_lite_array(be_jse_vm_ctx_t* execInfo,
                                                 be_jse_symbol_t* var,
-                                                const char* name) {
+                                                const char* name)
+{
     if (strcmp(name, "contains") == 0) {
         be_jse_symbol_t* childValue = be_jse_handle_single_arg_function();
         be_jse_node_t found =
@@ -377,7 +385,8 @@ be_jse_symbol_t* module_handle_cb_js_lite_array(be_jse_vm_ctx_t* execInfo,
 #ifdef USE_MODULES
 be_jse_symbol_t* module_handle_cb_js_lite_modules(be_jse_vm_ctx_t* execInfo,
                                                   be_jse_symbol_t* var,
-                                                  const char* name) {
+                                                  const char* name)
+{
     /* Modules 扩展 参考Espruino API */
     /* Modules.addCached("a","module.exports.foo=42;");
        var ta = require("a").foo == 42; */
@@ -395,7 +404,8 @@ be_jse_symbol_t* module_handle_cb_js_lite_modules(be_jse_vm_ctx_t* execInfo,
 }
 #endif
 
-void module_builtin_load(void) {
+void module_builtin_load(void)
+{
     be_jse_module_load("JS", module_handle_cb_js_lite);
     be_jse_module_load("console", module_handle_cb_js_lite_console);
 

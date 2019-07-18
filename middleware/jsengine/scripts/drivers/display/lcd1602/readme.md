@@ -13,7 +13,7 @@
 
 ### Driver配置
 
-```
+```js
 {
     "lcd1602":{
       "type":"I2C",
@@ -24,25 +24,23 @@
       "dev_addr":126
     }
 }
-
 ```
 
-
 ### API说明
+
 ```
 class：lcd1602
 param：@id  i2c端口对应的id信息，对应board.json中的lcd1602;
 method:
       init_lcd() 初始化lcd;
       show_char()显示字符;
-
 ```
-
 
 ### 示例
 
 在第一行和第二行分别顺序显示assic字符;
-```
+
+```js
 var LCD1602 = require('lcd1602/src');
 var handle = new LCD1602('lcd1602');
 

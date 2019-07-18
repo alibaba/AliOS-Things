@@ -1,15 +1,10 @@
-#include <netdb.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <time.h>
-
+#include "miio-device.h"
 #include "be_log.h"
 #include "be_port_osal.h"
+#include "hal/system.h"
 #include "mbedtls/aes.h"
+#include "mbedtls/md5.h"
 #include "miio-common.h"
-#include "miio-device.h"
-#include "utils_md5.h"
 
 #define RECV_TIMEOUT_MS 200
 #define MAX_RECV_COUNT 10
@@ -29,28 +24,8 @@ struct miio_device {
 
 /* 这里假定input和output buffer不会溢出 */
 static int miio_encrypt(miio_device_t *device, unsigned char *input,
-                        int input_len, char *output, int *output_len) {
-#ifdef BE_OS_AOS
-    int len;
-    char *dest = NULL;
-    be_aes_crypt_in_t aes_input;
-
-    aes_input.iv      = device->iv;
-    aes_input.key     = device->key;
-    aes_input.key_len = sizeof(device->key);
-    aes_input.packet  = input;
-    aes_input.pkt_len = input_len;
-    aes_input.type    = BE_AES_CBC;
-    aes_input.padding = BE_SYM_PKCS5_PAD;
-    len               = be_osal_aes_encrypt(&aes_input, &dest);
-    if (len > 0) {
-        *output_len = len;
-        memcpy(output, dest, len);
-        free(dest);
-        return 0;
-    }
-    return -1;
-#else
+                        int input_len, char *output, int *output_len)
+{
     int i;
     int padding_len;
     int payload_len;
@@ -78,33 +53,12 @@ static int miio_encrypt(miio_device_t *device, unsigned char *input,
         return 0;
     }
     return err;
-#endif
 }
 
 /* 这里假定input和output buffer不会溢出 */
 static int miio_decrypt(miio_device_t *device, unsigned char *input,
-                        int input_len, char *output, int *output_len) {
-#ifdef BE_OS_AOS
-    int len;
-    char *dest = NULL;
-    be_aes_crypt_in_t aes_input;
-
-    aes_input.iv      = device->iv;
-    aes_input.key     = device->key;
-    aes_input.key_len = sizeof(device->key);
-    aes_input.packet  = input;
-    aes_input.pkt_len = input_len;
-    aes_input.type    = BE_AES_CBC;
-    aes_input.padding = BE_SYM_PKCS5_PAD;
-    len               = be_osal_aes_decrypt(&aes_input, &dest);
-    if (len > 0) {
-        *output_len = len;
-        memcpy(output, dest, len);
-        free(dest);
-        return 0;
-    }
-    return -1;
-#else
+                        int input_len, char *output, int *output_len)
+{
     /* 调用解密库 */
     mbedtls_aes_context aes;
     mbedtls_aes_init(&aes);
@@ -120,14 +74,14 @@ static int miio_decrypt(miio_device_t *device, unsigned char *input,
         *output_len     = input_len - padding_len;
     }
     return err;
-#endif
 }
 
 /* FIXME:发送和接收分开,对于control信令需会话id进行校验,非当前会话要有重发机制
  */
 static int miio_transmit(miio_device_t *device, const char *send_data,
                          size_t send_data_len, char *recv_buff,
-                         size_t recv_buf_size) {
+                         size_t recv_buf_size)
+{
     struct sockaddr_in peer;
 
     if (!device->sfd) {
@@ -182,7 +136,8 @@ static int miio_transmit(miio_device_t *device, const char *send_data,
 static unsigned char recv_buf[1473];
 
 const char *miio_device_control(miio_device_t *device, const char *method,
-                                const char *args, const char *sid) {
+                                const char *args, const char *sid)
+{
     unsigned char pkt[1472];
     size_t recv_data_len;
     time_t start = time(NULL);
@@ -219,14 +174,14 @@ const char *miio_device_control(miio_device_t *device, const char *method,
     *((unsigned long *)(pkt + 12)) = htonl(timestamp);
 
     /* 计算md5值并填充到[16, 31] */
-    iot_md5_context ctx;
-    utils_md5_init(&ctx);
-    utils_md5_starts(&ctx);
-    utils_md5_update(&ctx, pkt, 16);
-    utils_md5_update(&ctx, device->token, sizeof(device->token));
-    utils_md5_update(&ctx, pkt + 32, len - 32);
-    utils_md5_finish(&ctx, pkt + 16); /* 填充到[16,31] */
-    utils_md5_free(&ctx);
+    mbedtls_md5_context ctx;
+    mbedtls_md5_init(&ctx);
+    mbedtls_md5_starts(&ctx);
+    mbedtls_md5_update(&ctx, pkt, 16);
+    mbedtls_md5_update(&ctx, device->token, sizeof(device->token));
+    mbedtls_md5_update(&ctx, pkt + 32, len - 32);
+    mbedtls_md5_finish(&ctx, pkt + 16); /* 填充到[16,31] */
+    mbedtls_md5_free(&ctx);
 
     /* 传输并接收 */
     if ((recv_data_len =
@@ -254,7 +209,8 @@ failed:
 #define SERVER_PORT 9898
 #define MSGBUFSIZE 1473
 
-static void *event_receive(void *arg) {
+static void *event_receive(void *arg)
+{
     struct sockaddr_in addr;
     socklen_t addrlen;
     int fd;
@@ -316,7 +272,8 @@ static void *event_receive(void *arg) {
 }
 
 void miio_device_set_event_cb(miio_device_t *device,
-                              miio_device_event_callback cb, void *priv) {
+                              miio_device_event_callback cb, void *priv)
+{
     debug("in\n");
 
     /* 创建接收事件线程 */
@@ -330,7 +287,8 @@ void miio_device_set_event_cb(miio_device_t *device,
     }
 }
 
-miio_device_t *miio_device_create(const char *host, const char *token) {
+miio_device_t *miio_device_create(const char *host, const char *token)
+{
     int i;
     int j;
 
@@ -366,16 +324,16 @@ miio_device_t *miio_device_create(const char *host, const char *token) {
     device->id = 1;
 
     /* 生成key */
-    utils_md5(device->token, sizeof(device->token), device->key);
+    mbedtls_md5(device->token, sizeof(device->token), device->key);
 
     /* 生成iv */
-    iot_md5_context ctx;
-    utils_md5_init(&ctx);
-    utils_md5_starts(&ctx);
-    utils_md5_update(&ctx, device->key, sizeof(device->key));
-    utils_md5_update(&ctx, device->token, sizeof(device->token));
-    utils_md5_finish(&ctx, device->iv);
-    utils_md5_free(&ctx);
+    mbedtls_md5_context ctx;
+    mbedtls_md5_init(&ctx);
+    mbedtls_md5_starts(&ctx);
+    mbedtls_md5_update(&ctx, device->key, sizeof(device->key));
+    mbedtls_md5_update(&ctx, device->token, sizeof(device->token));
+    mbedtls_md5_finish(&ctx, device->iv);
+    mbedtls_md5_free(&ctx);
 
     debug("out\n");
     return device;

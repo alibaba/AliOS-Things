@@ -1,8 +1,8 @@
 {
-    "fc51":{
-        "type":"GPIO",
-        "port":18,
-        "dir": 1,
-        "pull": 1
-    }
+  "fc51": {
+    "type": "GPIO",
+    "port": 18,
+    "dir": 1,
+    "pull": 1
+  }
 }

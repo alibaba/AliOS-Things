@@ -9,7 +9,8 @@
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
 
-static duk_ret_t native_open(duk_context *ctx) {
+static duk_ret_t native_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t adc_handle;
     adc_handle.handle     = 0xFFFFFFFF;
@@ -42,7 +43,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_close(duk_context *ctx) {
+static duk_ret_t native_close(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t adc_handle;
     adc_dev_t *adc_device = NULL;
@@ -64,7 +66,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_read(duk_context *ctx) {
+static duk_ret_t native_read(duk_context *ctx)
+{
     int32_t adc_value = -1;
     item_handle_t adc_handle;
     adc_dev_t *adc_device = NULL;
@@ -86,7 +89,8 @@ out:
     return 1;
 }
 
-void module_adc_register(void) {
+void module_adc_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

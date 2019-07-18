@@ -1,50 +1,50 @@
 {
-  "matrixkeypad.C4":{
-    "type":"GPIO",
-    "port":15,
-    "dir":1,
-    "pull":1
+  "matrixkeypad.C4": {
+    "type": "GPIO",
+    "port": 15,
+    "dir": 1,
+    "pull": 1
   },
-  "matrixkeypad.C3":{
-    "type":"GPIO",
-    "port":2,
-    "dir":1,
-    "pull":1
+  "matrixkeypad.C3": {
+    "type": "GPIO",
+    "port": 2,
+    "dir": 1,
+    "pull": 1
   },
-  "matrixkeypad.C2":{
-    "type":"GPIO",
-    "port":4,
-    "dir":1,
-    "pull":1
+  "matrixkeypad.C2": {
+    "type": "GPIO",
+    "port": 4,
+    "dir": 1,
+    "pull": 1
   },
-  "matrixkeypad.C1":{
-    "type":"GPIO",
-    "port":16,
-    "dir":1,
-    "pull":1
+  "matrixkeypad.C1": {
+    "type": "GPIO",
+    "port": 16,
+    "dir": 1,
+    "pull": 1
   },
-  "matrixkeypad.R1":{
-    "type":"GPIO",
-    "port":17,
-    "dir":0,
-    "pull":1
+  "matrixkeypad.R1": {
+    "type": "GPIO",
+    "port": 17,
+    "dir": 0,
+    "pull": 1
   },
-  "matrixkeypad.R2":{
-    "type":"GPIO",
-    "port":5,
-    "dir":0,
-    "pull":1
+  "matrixkeypad.R2": {
+    "type": "GPIO",
+    "port": 5,
+    "dir": 0,
+    "pull": 1
   },
-  "matrixkeypad.R3":{
-    "type":"GPIO",
-    "port":18,
-    "dir":0,
-    "pull":1
+  "matrixkeypad.R3": {
+    "type": "GPIO",
+    "port": 18,
+    "dir": 0,
+    "pull": 1
   },
-  "matrixkeypad.R4":{
-    "type":"GPIO",
-    "port":19,
-    "dir":0,
-    "pull":1
+  "matrixkeypad.R4": {
+    "type": "GPIO",
+    "port": 19,
+    "dir": 0,
+    "pull": 1
   }
 }

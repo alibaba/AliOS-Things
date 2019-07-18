@@ -9,7 +9,8 @@
 
 static be_log_callback log = NULL;
 
-void be_log(const char *tag, int level, const char *format, ...) {
+void be_log(const char *tag, int level, const char *format, ...)
+{
     if (log) {
         char message[BE_LOG_MAX_MESSAGE];
         int len;
@@ -25,4 +26,7 @@ void be_log(const char *tag, int level, const char *format, ...) {
     }
 }
 
-void be_set_log(be_log_callback cb) { log = cb; }
+void be_set_log(be_log_callback cb)
+{
+    log = cb;
+}

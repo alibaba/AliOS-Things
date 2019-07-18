@@ -1,10 +1,10 @@
 {
-  "lsm6dsl":{
-    "type":"I2C",
-    "port":4,
-    "address_width":7,
-    "freq":400000,
-    "mode":1,
-    "dev_addr":214
+  "lsm6dsl": {
+    "type": "I2C",
+    "port": 4,
+    "address_width": 7,
+    "freq": 400000,
+    "mode": 1,
+    "dev_addr": 214
   }
 }

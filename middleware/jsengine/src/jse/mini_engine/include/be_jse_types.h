@@ -5,32 +5,32 @@
 #ifndef BE_JSE_TYPES_H
 #define BE_JSE_TYPES_H
 
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "be_jse_global.h"
 
 typedef enum {
-    BE_SYM_NUM_MASK  = 8,  /* 01000 ~ 01111 之间的都是数字, bit3==1 */
+    BE_SYM_NUM_MASK  = 8, /* 01000 ~ 01111 之间的都是数字, bit3==1 */
     BE_SYM_TYPE_MASK = 15,
 
-    BE_SYM_NULL = 1,  /* NULL */
+    BE_SYM_NULL = 1, /* NULL */
 
-    BE_SYM_STRING     = 2,  /* 字符串 */
-    BE_SYM_STRING_EXT = 3,  /* 字符串扩展 */
-    BE_SYM_ARRAY      = 4,  /* 数组 */
+    BE_SYM_STRING     = 2, /* 字符串 */
+    BE_SYM_STRING_EXT = 3, /* 字符串扩展 */
+    BE_SYM_ARRAY      = 4, /* 数组 */
 
-    BE_SYM_OBJECT   = 5,  /* 对象 */
-    BE_SYM_FUNCTION = 6,  /* 函数 */
-    BE_SYM_INTEGER  = 8,  /* 整型 */
-    BE_SYM_FLOAT    = 9,  /* 浮点型 */
+    BE_SYM_OBJECT   = 5, /* 对象 */
+    BE_SYM_FUNCTION = 6, /* 函数 */
+    BE_SYM_INTEGER  = 8, /* 整型 */
+    BE_SYM_FLOAT    = 9, /* 浮点型 */
 
-    BE_SYM_NAME   = 16,  /* 名称 */
-    BE_SYM_NATIVE = 32,  /* 本地扩展 */
+    BE_SYM_NAME   = 16, /* 名称 */
+    BE_SYM_NATIVE = 32, /* 本地扩展 */
 
     BE_SYM_RECURSING = 128,
     BE_SYM_FUNCTION_ARGVS =
-        BE_SYM_FUNCTION | BE_SYM_NAME,  /* 等同 BE_SYM_STRING */
+        BE_SYM_FUNCTION | BE_SYM_NAME, /* 等同 BE_SYM_STRING */
 
     BE_SYM_ROOT = BE_SYM_OBJECT | BE_SYM_NATIVE,
 
@@ -49,11 +49,11 @@ typedef enum {
 
     /* 逻辑判断 */
 
-    BE_TOKEN_OP_EQUAL,          /* == */
-    BE_TOKEN_OP_STRICT_EQUAL,   /* === */
-    BE_TOKEN_OP_NEQUAL,         /* != */
-    BE_TOKEN_OP_STRICT_NEQUAL,  /* !=== */
-    BE_TOKEN_OP_LESS_EQUAL,     /* <= */
+    BE_TOKEN_OP_EQUAL,         /* == */
+    BE_TOKEN_OP_STRICT_EQUAL,  /* === */
+    BE_TOKEN_OP_NEQUAL,        /* != */
+    BE_TOKEN_OP_STRICT_NEQUAL, /* !=== */
+    BE_TOKEN_OP_LESS_EQUAL,    /* <= */
 
     /* 移位操作 */
 
@@ -132,8 +132,8 @@ typedef enum {
     EXEC_ERROR_MASK  = EXEC_INTERRUPTED | EXEC_ERROR,
     EXEC_SAVE_RESTORE_MASK =
         EXEC_NORMAL | EXEC_IN_LOOP |
-        EXEC_IN_SWITCH,  /* the things JSP_SAVE/RESTORE_EXECUTE should keep
-                            track of */
+        EXEC_IN_SWITCH, /* the things JSP_SAVE/RESTORE_EXECUTE should keep
+                           track of */
 } be_execflag_e;
 
 typedef unsigned short be_jse_node_t;
@@ -151,7 +151,7 @@ typedef union {
     char str[BE_JSE_SYMBOL_DATA_STRING_LEN];
     be_jse_int_t integer;
     be_jse_float_t floating;
-    be_jse_callback callback;  /* native扩展函数 */
+    be_jse_callback callback; /* native扩展函数 */
 } PACKED_FLAGS be_symbol_data_t;
 
 /*
@@ -167,8 +167,8 @@ typedef struct {
     be_jse_node_t node_id;
 #endif
     unsigned char locks;
-    unsigned short refs;         /* 引用计数,用于垃圾回收 */
-    be_jse_symbol_type_e flags;  /* 变量类型 */
+    unsigned short refs;        /* 引用计数,用于垃圾回收 */
+    be_jse_symbol_type_e flags; /* 变量类型 */
 
     /* data若是存放字符串, next_sibling/prev_sibling/first_child都在使用,
        长度增加sizeof(be_jse_entry_id_t)*3 */
@@ -193,12 +193,12 @@ typedef struct {
 } PACKED_FLAGS be_jse_symbol_t;
 
 typedef struct _be_jse_lexer_ctx_t {
-    int tk;  /* token类型 == be_lexer_token_type_e */
+    int tk; /* token类型 == be_lexer_token_type_e */
     int token_start;
     int token_end;
     int token_last_end;
     char token[MAX_TOKEN_LENGTH];
-    int token_len;  /* 当前token长度 */
+    int token_len; /* 当前token长度 */
 
     char curr_char;
     char next_char;
@@ -219,7 +219,7 @@ typedef enum {
 } be_jse_parse_skip_flag_e;
 
 typedef struct {
-    be_jse_node_t root;  /* 所有符号表的根起点 */
+    be_jse_node_t root; /* 所有符号表的根起点 */
     be_jse_node_t zeroInt;
     be_jse_node_t oneInt;
     /* 内嵌的string/object/array/int/math/json对象 */

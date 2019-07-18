@@ -6,9 +6,10 @@
 #include "be_jse_task.h"
 #include "be_port_osal.h"
 
-#include "iot_export.h"
-#include "iot_export_mqtt.h"
-#include "iot_import.h"
+#include "infra_compat.h"
+#include "mqtt_api.h"
+#include "wrappers.h"
+
 #include "mqtt_instance.h"
 
 #ifndef CONFIG_MQTT_STACK_SIZE
@@ -44,7 +45,8 @@ typedef struct {
  *
  */
 
-static void jse_task_cb(void* ctx) {
+static void jse_task_cb(void* ctx)
+{
     JSE_TSK_MSG_s* pmsg = (JSE_TSK_MSG_s*)ctx;
     be_jse_symbol_t** params;
     be_jse_symbol_t* func = pmsg->func;
@@ -85,7 +87,8 @@ static void jse_task_cb(void* ctx) {
 }
 
 static void mqtt_subscribe_cb(char* topic, int topic_len, void* payload_data,
-                              int payload_len, void* ctx) {
+                              int payload_len, void* ctx)
+{
     char ch;
     be_jse_symbol_t* func = (be_jse_symbol_t*)ctx;
     JSE_TSK_MSG_s* pmsg;
@@ -108,7 +111,8 @@ static void mqtt_subscribe_cb(char* topic, int topic_len, void* payload_data,
     be_jse_task_schedule_call(jse_task_cb, pmsg);
 }
 
-static void mqtt_task(void* data) {
+static void mqtt_task(void* data)
+{
     int ret;
     MQTT_MSG_s msg;
     uint32_t xTicksToWait = 50;
@@ -211,7 +215,8 @@ static void mqtt_task(void* data) {
     be_osal_delete_task(handle);
 }
 
-int mqtt_tsk_start() {
+int mqtt_tsk_start()
+{
     int ret = 0;
     if (mqttMutexHandle == NULL) {
         mqttMutexHandle = be_osal_new_mutex();
@@ -228,7 +233,8 @@ int mqtt_tsk_start() {
     return ret;
 }
 
-int mqtt_tsk_stop() {
+int mqtt_tsk_stop()
+{
     MQTT_MSG_s msg;
     memset(&msg, 0, sizeof(MQTT_MSG_s));
 
@@ -243,7 +249,8 @@ int mqtt_tsk_stop() {
     return 0;
 }
 
-int mqtt_send_msg(MQTT_MSG_s* pMsg) {
+int mqtt_send_msg(MQTT_MSG_s* pMsg)
+{
     int32_t ret;
     uint32_t xTicksToWait = 0xffffffffL;
 

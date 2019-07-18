@@ -34,24 +34,28 @@
 extern void sub_call_rename(void *arg);
 extern void sub_call_wifi(void *arg);
 
-static void handle_devdmesg_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_devdmesg_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     /* aos_cli_stop(); */
     /* following code is serial port reply msg */
     be_cli_printf(BE_DEBUGER_DMESG_CMD_REPLY);
 }
 
-static void handle_devreboot_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_devreboot_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_cli_printf(BE_DEBUGER_REBOOT_CMD_REPLY);
     hal_system_reboot();
 }
 
-static void handle_devrename_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_devrename_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_cli_printf(BE_DEBUGER_RENAME_CMD_REPLY);
     be_jse_task_schedule_call(sub_call_rename, argv[1]);
 }
 
 #ifdef JSE_HW_ADDON_WIFI
-static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     char *ssid     = argv[1];
     char *password = argv[2];
 
@@ -81,7 +85,8 @@ static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv) {
 #endif
 }
 
-static void get_ifconfig(void *arg) {
+static void get_ifconfig(void *arg)
+{
     char tmp[256] = {0};
     strcpy(tmp, BE_CLI_REPLY);
     char mac[6]        = {0};
@@ -132,15 +137,15 @@ static void get_ifconfig(void *arg) {
     be_cli_printf(tmp);
 }
 
-static void handle_devifconfig_cmd(char *pwbuf, int blen, int argc,
-                                   char **argv) {
+static void handle_devifconfig_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_jse_task_schedule_call(get_ifconfig, NULL);
 }
 
 #endif
 
-static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc,
-                                  char **argv) {
+static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     char *devKey    = NULL;
     char *devName   = NULL;
     char *devSecret = NULL;
@@ -157,7 +162,8 @@ static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc,
     be_cli_printf(BE_CLI_REPLY_SUCCESS);
 }
 
-static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
 #if 0
         be_upgd_param_t *p_param;
 
@@ -206,8 +212,8 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv) {
     return;
 }
 
-static void handle_getversion_cmd(char *pwbuf, int blen, int argc,
-                                  char **argv) {
+static void handle_getversion_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     char *p_resp_cmd = NULL;
     int buf_len      = 256;
 
@@ -273,7 +279,8 @@ static struct be_cli_command devgetversioncmd = {
     .function = handle_getversion_cmd};
 
 /* 需要整理, 删除无用的命令 */
-void cli_cmd_register_dev() {
+void cli_cmd_register_dev()
+{
     be_cli_register_command(&devrebootcmd);
 #ifdef JSE_HW_ADDON_WIFI
     be_cli_register_command(&devwificmd);
@@ -284,7 +291,8 @@ void cli_cmd_register_dev() {
     be_cli_register_command(&devgetversioncmd);
 }
 
-void websocket_call_cli(char *cmdname, char **argv) {
+void websocket_call_cli(char *cmdname, char **argv)
+{
 #ifdef JSE_HW_ADDON_WIFI
     if (strstr(cmdname, "updateimg")) {
         handle_updateimg_cmd(NULL, 0, 5, argv);

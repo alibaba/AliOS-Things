@@ -2,7 +2,9 @@
   "name": "hxd019",
   "version": "0.0.3",
   "description": "hxd019驱动",
-  "keywords": ["hxd019"],
+  "keywords": [
+    "hxd019"
+  ],
   "main": "src/index.js",
   "author": {
     "name": "jweih.hjw",

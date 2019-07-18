@@ -24,7 +24,7 @@ isd1820模块 GND引脚接ESP32 GND引脚；
 
 ###Driver配置
 
-```
+```json
 {
     "isd1820.play":{
       "type":"GPIO",
@@ -55,7 +55,7 @@ method:
 ###示例
 循环的录音、播放:
 
-```
+```js
 var isd1820 = require('isd1820/src/index.js');
 var handle = new isd1820('isd1820.play','isd1820.record')
 var  index = 0;

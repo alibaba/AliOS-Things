@@ -1,7 +1,5 @@
 # WDG
 
-
-
 ## API
 
 | API                | 说明                                                         |
@@ -12,7 +10,7 @@
 
 ## API接口调用示例
 
-```
+```js
 WDG.start(2000);
 setInterval(function() {
 	WDG.feed();

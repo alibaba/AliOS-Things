@@ -3,7 +3,7 @@ NAME := jsengine
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := an engine for javascript application development
-$(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs
+$(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs netmgr
 
 JSE_ROOT := ${SOURCE_ROOT}middleware/jsengine/src
 
@@ -41,6 +41,7 @@ GLOBAL_DEFINES += BONE_VERSION=\"$(BONE_VERSION)\"
 GLOBAL_DEFINES += JSENGINE BE_OS_AOS
 GLOBAL_DEFINES += SPIFFS_OBJ_NAME_LEN=96
 GLOBAL_DEFINES += SPIFFS_CACHE
+GLOBAL_DEFINES += SUPPORT_NODE_MODELES
 
 $(warning JSEngine Version: ${BONE_VERSION})
 

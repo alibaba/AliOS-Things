@@ -2,7 +2,9 @@
   "name": "lm358",
   "version": "0.0.1",
   "description": "lm358驱动",
-  "keywords": ["lm358"],
+  "keywords": [
+    "lm358"
+  ],
   "main": "src/index.js",
   "author": {
     "name": "jweih.hjw",
