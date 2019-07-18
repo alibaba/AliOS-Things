@@ -15,7 +15,8 @@
 #include "hal/system.h"
 
 int8_t board_setDeviceInfo(char *deviceKey, char *deviceName,
-                           char *deviceSecret) {
+                           char *deviceSecret)
+{
     if (NULL != deviceKey) {
         hal_system_kv_set(DEVICE_KEY_TAG, (void *)deviceKey, strlen(deviceKey),
                           1);
@@ -49,7 +50,8 @@ int8_t board_setDeviceInfo(char *deviceKey, char *deviceName,
 }
 
 int8_t board_getDeviceInfo(char **productKey, char **deviceName,
-                           char **deviceSecret) {
+                           char **deviceSecret)
+{
     char tmp[64] = {0x00};
     int len      = 0;
     int8_t ret   = -1;

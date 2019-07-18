@@ -11,7 +11,8 @@
 #include "miio-discover.h"
 
 /* params: host:string, token:string */
-static duk_ret_t native_createDevice(duk_context *ctx) {
+static duk_ret_t native_createDevice(duk_context *ctx)
+{
     if (!(duk_is_string(ctx, 0) && duk_is_string(ctx, 1))) {
         warn("invalid parameters\n");
         duk_push_string(
@@ -32,7 +33,8 @@ typedef struct async_event_param {
     char *event;
 } async_event_param_t;
 
-static void event_cb(void *arg) {
+static void event_cb(void *arg)
+{
     async_event_param_t *p = (async_event_param_t *)arg;
     duk_context *ctx       = bone_engine_get_context();
     bone_engine_push_ref(ctx, p->js_cb_ref);
@@ -43,7 +45,8 @@ static void event_cb(void *arg) {
     free(p);
 }
 
-static void on_event(void *priv, const char *event) {
+static void on_event(void *priv, const char *event)
+{
     debug("priv: %p, event: %s\n", priv, event);
     if (strstr(event, "heartbeat")) {
         return;
@@ -59,7 +62,8 @@ static void on_event(void *priv, const char *event) {
 }
 
 /* deviceOnEvent(device:pointer, function (event) {}) */
-static duk_ret_t native_deviceOnEvent(duk_context *ctx) {
+static duk_ret_t native_deviceOnEvent(duk_context *ctx)
+{
     debug("in\n");
     if (!(duk_is_pointer(ctx, 0) && duk_is_function(ctx, 1))) {
         warn("invalid parameters\n");
@@ -77,7 +81,8 @@ static duk_ret_t native_deviceOnEvent(duk_context *ctx) {
 }
 
 /* params: device:pointer, method:string, args:string, sid:string */
-static duk_ret_t native_deviceControl(duk_context *ctx) {
+static duk_ret_t native_deviceControl(duk_context *ctx)
+{
     if (!(duk_is_pointer(ctx, 0) && duk_is_string(ctx, 1) &&
           duk_is_string(ctx, 2) &&
           (duk_is_undefined(ctx, 3) || duk_is_string(ctx, 3)))) {
@@ -112,7 +117,8 @@ typedef struct async_discover_param {
     long device_id;
 } async_discover_param_t;
 
-static void discover_cb(void *arg) {
+static void discover_cb(void *arg)
+{
     async_discover_param_t *p = (async_discover_param_t *)arg;
     duk_context *ctx          = bone_engine_get_context();
     bone_engine_push_ref(ctx, p->js_cb_ref);
@@ -123,7 +129,8 @@ static void discover_cb(void *arg) {
     free(p);
 }
 
-static void on_discover(void *priv, char *host, long device_id) {
+static void on_discover(void *priv, char *host, long device_id)
+{
     debug("discover host: %s, device_id: %ld\n", host, device_id);
     async_discover_param_t *p = (async_discover_param_t *)malloc(sizeof(*p));
     p->js_cb_ref              = (int)priv;
@@ -136,7 +143,8 @@ static void on_discover(void *priv, char *host, long device_id) {
 }
 
 /* discover(timeout, function (ip, deviceId) {}) */
-static duk_ret_t native_discover(duk_context *ctx) {
+static duk_ret_t native_discover(duk_context *ctx)
+{
     if (!(duk_is_number(ctx, 0) && duk_is_function(ctx, 1))) {
         warn("invalid parameters\n");
         duk_push_string(
@@ -152,7 +160,8 @@ static duk_ret_t native_discover(duk_context *ctx) {
     return 0;
 }
 
-void module_miio_register(void) {
+void module_miio_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
     duk_push_object(ctx);
 

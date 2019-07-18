@@ -17,19 +17,23 @@ static be_jse_symbol_t *handle_block_syntax(void);
 static be_jse_symbol_t *handle_statement_syntax(void);
 
 /* VM 处理 */
-void be_jse_execute_error() {
+void be_jse_execute_error()
+{
     vm.execute = (vm.execute & (be_execflag_e)~EXEC_NORMAL) | EXEC_ERROR;
 }
 
-static inline void set_vm_idle() {
+static inline void set_vm_idle()
+{
     vm.execute = (vm.execute & (be_execflag_e)(int)~EXEC_RUN_MASK) | EXEC_IDLE;
 }
 
-static inline char be_vm_has_error() {
+static inline char be_vm_has_error()
+{
     return (vm.execute & EXEC_ERROR_MASK) != 0;
 }
 
-static bool be_jse_vm_scope_insert(be_jse_node_t scope) {
+static bool be_jse_vm_scope_insert(be_jse_node_t scope)
+{
     if (vm.scopeCount >= BE_JSE_PARSE_MAX_SCOPES) {
         be_jse_error("Scopes is exceeded");
         be_jse_execute_error();
@@ -39,7 +43,8 @@ static bool be_jse_vm_scope_insert(be_jse_node_t scope) {
     return true;
 }
 
-static void be_jse_vm_scope_remove() {
+static void be_jse_vm_scope_remove()
+{
     if (vm.scopeCount <= 0) {
         be_jse_error("Scopes is over removed ");
         be_jse_execute_error();
@@ -49,7 +54,8 @@ static void be_jse_vm_scope_remove() {
 }
 
 static be_jse_symbol_t *symbol_replace(be_jse_symbol_t *dst,
-                                       be_jse_symbol_t *src) {
+                                       be_jse_symbol_t *src)
+{
     if (!symbol_is_name(dst)) {
         be_jse_error_at("Unable to assign value to non-reference", vm.lex,
                         vm.lex->token_last_end);
@@ -60,7 +66,8 @@ static be_jse_symbol_t *symbol_replace(be_jse_symbol_t *dst,
     return set_symbol_node_name(dst, src);
 }
 
-static be_jse_symbol_t *lookup_symbol_in_scopes(const char *name) {
+static be_jse_symbol_t *lookup_symbol_in_scopes(const char *name)
+{
     int i;
     for (i = vm.scopeCount - 1; i >= 0; i--) {
         be_jse_symbol_t *ref =
@@ -71,7 +78,8 @@ static be_jse_symbol_t *lookup_symbol_in_scopes(const char *name) {
 }
 
 static be_jse_symbol_t *lookup_symbol_on_top(const char *name,
-                                             bool createIfNotFound) {
+                                             bool createIfNotFound)
+{
     if (vm.scopeCount > 0)
         return lookup_named_child_symbol(vm.scopes[vm.scopeCount - 1], name,
                                          createIfNotFound);
@@ -79,7 +87,8 @@ static be_jse_symbol_t *lookup_symbol_on_top(const char *name,
 }
 
 static be_jse_symbol_t *lookup_symbol_name_on_top(be_jse_symbol_t *childName,
-                                                  bool createIfNotFound) {
+                                                  bool createIfNotFound)
+{
     if (vm.scopeCount > 0)
         return lookup_child_symbol(vm.scopes[vm.scopeCount - 1], childName,
                                    createIfNotFound);
@@ -87,7 +96,8 @@ static be_jse_symbol_t *lookup_symbol_name_on_top(be_jse_symbol_t *childName,
 }
 
 static be_jse_symbol_t *lookup_child_in_parent(be_jse_symbol_t *parent,
-                                               const char *name) {
+                                               const char *name)
+{
 /* intClass stringClass arrayClass 当前没有first_child */
 #ifdef USE_INTEGER
     if (symbol_is_int(parent))
@@ -138,7 +148,8 @@ static be_jse_symbol_t *lookup_child_in_parent(be_jse_symbol_t *parent,
     return 0;
 }
 
-static be_jse_symbol_t *get_symbol_from_scopes() {
+static be_jse_symbol_t *get_symbol_from_scopes()
+{
     if (vm.scopeCount == 0) return 0;
 
     int i;
@@ -158,7 +169,8 @@ static be_jse_symbol_t *get_symbol_from_scopes() {
     return arr;
 }
 
-static void store_symbol_into_scopes(be_jse_symbol_t *arr) {
+static void store_symbol_into_scopes(be_jse_symbol_t *arr)
+{
     vm.scopeCount          = 0;
     be_jse_node_t childref = arr->first_child;
     while (childref) {
@@ -171,23 +183,29 @@ static void store_symbol_into_scopes(be_jse_symbol_t *arr) {
 }
 
 static void be_jse_vm_init(be_jse_executor_ctx_t *executor,
-                           be_jse_lexer_ctx_t *lex) {
+                           be_jse_lexer_ctx_t *lex)
+{
     vm.executor   = executor;
     vm.lex        = lex;
     vm.scopeCount = 0;
     vm.execute    = EXEC_NORMAL;
 }
 
-static void be_jse_vm_deinit() {
+static void be_jse_vm_deinit()
+{
     vm.executor = 0;
     vm.lex      = 0;
     be_assert(vm.scopeCount == 0);
 }
 
-be_jse_vm_ctx_t *be_jse_get_vm() { return &vm; }
+be_jse_vm_ctx_t *be_jse_get_vm()
+{
+    return &vm;
+}
 
 /* Ecmascript 不带参数的函数处理 */
-bool be_jse_is_none_arg_function() {
+bool be_jse_is_none_arg_function()
+{
     LEXER_MATCH(BE_TOKEN_ID);
     LEXER_MATCH('(');
     LEXER_MATCH(')');
@@ -195,7 +213,8 @@ bool be_jse_is_none_arg_function() {
 }
 
 /* Ecmascript 单参数函数处理 */
-be_jse_symbol_t *be_jse_handle_single_arg_function() {
+be_jse_symbol_t *be_jse_handle_single_arg_function()
+{
     be_jse_symbol_t *v = 0;
     LEXER_MATCH(BE_TOKEN_ID);
     LEXER_MATCH('(');
@@ -210,7 +229,8 @@ be_jse_symbol_t *be_jse_handle_single_arg_function() {
 }
 
 /* Ecmascript 函数参数处理 */
-static bool be_jse_handle_function_arguments(be_jse_symbol_t *funcVar) {
+static bool be_jse_handle_function_arguments(be_jse_symbol_t *funcVar)
+{
     LEXER_MATCH('(');
     while (vm.lex->tk != ')') {
         if (funcVar) {
@@ -232,7 +252,8 @@ static bool be_jse_handle_function_arguments(be_jse_symbol_t *funcVar) {
 }
 
 /* Ecmascript 函数定义处理 */
-static be_jse_symbol_t *handle_function_definition() {
+static be_jse_symbol_t *handle_function_definition()
+{
     int funcBegin;
 
     be_jse_symbol_t *funcVar = 0;
@@ -268,7 +289,8 @@ static be_jse_symbol_t *handle_function_definition() {
 
 bool be_jse_handle_function(be_jse_parse_skip_flag_e skipName,
                             be_jse_symbol_t **arg0, be_jse_symbol_t **arg1,
-                            be_jse_symbol_t **arg2, be_jse_symbol_t **arg3) {
+                            be_jse_symbol_t **arg2, be_jse_symbol_t **arg3)
+{
     if (arg0) *arg0 = 0;
     if (arg1) *arg1 = 0;
     if (arg2) *arg2 = 0;
@@ -306,7 +328,8 @@ bool be_jse_handle_function(be_jse_parse_skip_flag_e skipName,
 }
 
 /* 本地扩展对象函数 */
-static bool be_jse_handle_native_function(be_jse_callback cb) {
+static bool be_jse_handle_native_function(be_jse_callback cb)
+{
     char fn_name[MAX_TOKEN_LENGTH];
     be_jse_symbol_t *funcVar;
     be_jse_symbol_t *root = symbol_lock(vm.executor->root);
@@ -358,7 +381,8 @@ static bool be_jse_handle_native_function(be_jse_callback cb) {
 }
 
 bool be_jse_add_native_func(be_jse_executor_ctx_t *executor,
-                            const char *funcDesc, be_jse_callback callbackPtr) {
+                            const char *funcDesc, be_jse_callback callbackPtr)
+{
     bool success;
     be_jse_lexer_ctx_t lex;
     BE_SAVE_VM_EXE_STATE();
@@ -386,7 +410,8 @@ bool be_jse_add_native_func(be_jse_executor_ctx_t *executor,
 be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                                          be_jse_symbol_t *parent,
                                          bool isParsing, int argCount,
-                                         be_jse_symbol_t **argPtr) {
+                                         be_jse_symbol_t **argPtr)
+{
     if (BE_VM_PARSE_SHOULD_EXECUTE && !function) {
         if (symbol_is_object(parent)) {
             /* 无法获取parent中获取object name */
@@ -561,7 +586,8 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                         if (len > 0) {
                             sourcePtr = calloc(1, len + 1);
                             symbol_to_str(functionCodeVar, sourcePtr, len);
-                            /* 词法分析JS函数内容,记录在BE_JSE_PARSE_FUNCTION_CODE_NAME命名节点的内容 */
+                            /* 词法分析JS函数内容,记录在BE_JSE_PARSE_FUNCTION_CODE_NAME命名节点的内容
+                             */
                             be_jse_lexer_init(&newLex, sourcePtr, 0, -1);
                         } else {
                             be_jse_lexer_init(&newLex, NULL, 0, 0);
@@ -573,7 +599,9 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                         BE_SAVE_VM_EXE_STATE();
                         handle_block_syntax();
                         bool hasError = be_vm_has_error();
-                        BE_RESTORE_VM_EXE_STATE();  /* because return will probably have set execute to false */
+                        BE_RESTORE_VM_EXE_STATE(); /* because return will
+                                                      probably have set execute
+                                                      to false */
                         be_jse_lexer_deinit(&newLex);
                         if (sourcePtr) free(sourcePtr);
                         vm.lex = oldLex;
@@ -582,7 +610,8 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                                 "[%s][%d] executor function call error  ...\n",
                                 __FUNCTION__, __LINE__);
                             /* be_jse_error_at("executor function call error",
-                                               vm.lex, vm.lex->token_last_end);  */
+                                               vm.lex, vm.lex->token_last_end);
+                             */
                             be_jse_execute_error();
                         }
                     }
@@ -606,7 +635,8 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
         returnVar = unlock_symbol_value(returnVarName);
         if (returnVarName)
             set_symbol_node_name(returnVarName,
-                                 0);  /* remove return value (which helps stops circular references) */
+                                 0); /* remove return value (which helps stops
+                                        circular references) */
         symbol_unlock(root);
         if (returnVar)
             return returnVar;
@@ -626,7 +656,8 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
 }
 
 /* 处理数字，关键词，括号 */
-static be_jse_symbol_t *handle_factor_syntax() {
+static be_jse_symbol_t *handle_factor_syntax()
+{
 /* debug处理 */
 #ifndef BE_JSE_SILENT
     char objectName[MAX_TOKEN_LENGTH];
@@ -762,7 +793,8 @@ static be_jse_symbol_t *handle_factor_syntax() {
                     be_jse_symbol_t *aVar = get_symbol_value(a);
                     if (aVar &&
                         (symbol_is_array(aVar) || symbol_is_object(aVar))) {
-                        /* TODO: If we set to undefined, maybe we should remove the name? */
+                        /* TODO: If we set to undefined, maybe we should remove
+                         * the name? */
                         be_jse_symbol_t *indexValue = get_symbol_value(index);
                         be_jse_symbol_t *child      = lookup_child_symbol(
                             get_symbol_node_id(aVar), indexValue, true);
@@ -791,7 +823,7 @@ static be_jse_symbol_t *handle_factor_syntax() {
     if (vm.lex->tk == BE_TOKEN_INT) {
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             be_jse_int_t v =
-                (be_jse_int_t)string_to_int(lexer_get_token(vm.lex));  /* atol */
+                (be_jse_int_t)string_to_int(lexer_get_token(vm.lex)); /* atol */
             LEXER_MATCH(BE_TOKEN_INT);
             return new_int_symbol(v);
         } else {
@@ -802,7 +834,7 @@ static be_jse_symbol_t *handle_factor_syntax() {
     if (vm.lex->tk == BE_TOKEN_FLOAT) {
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             be_jse_float_t v =
-                string_to_float(lexer_get_token(vm.lex));  /* atof */
+                string_to_float(lexer_get_token(vm.lex)); /* atof */
             LEXER_MATCH(BE_TOKEN_FLOAT);
             return new_float_symbol(v);
         } else {
@@ -954,7 +986,8 @@ static be_jse_symbol_t *handle_factor_syntax() {
     return 0;
 }
 
-static be_jse_symbol_t *handle_postfix_syntax() {
+static be_jse_symbol_t *handle_postfix_syntax()
+{
     be_jse_symbol_t *a;
     bool invert = false;
 
@@ -973,25 +1006,26 @@ static be_jse_symbol_t *handle_postfix_syntax() {
 
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             be_jse_symbol_t *one =
-                symbol_lock(vm.executor->oneInt);  /* a++ 或者 a-- */
+                symbol_lock(vm.executor->oneInt); /* a++ 或者 a-- */
             be_jse_symbol_t *res = symbol_value_maths_op(
-                a, one, op == BE_TOKEN_OP_PLUS_PLUS ? '+' : '-');  /* ++ 或者 -- */
+                a, one,
+                op == BE_TOKEN_OP_PLUS_PLUS ? '+' : '-'); /* ++ 或者 -- */
 
             be_jse_symbol_t *origin;
 
             symbol_unlock(one);
-            origin = get_symbol_value(a);  /* 保存 */
+            origin = get_symbol_value(a); /* 保存 */
             symbol_replace(a, res);
             symbol_unlock(res);
             symbol_unlock(a);
-            a = origin;  /* 后加后减使用的是原数 */
+            a = origin; /* 后加后减使用的是原数 */
         }
     }
 
     if (invert && BE_VM_PARSE_SHOULD_EXECUTE) {
         be_jse_symbol_t *zero = symbol_lock(vm.executor->zeroInt);
         be_jse_symbol_t *res =
-            symbol_value_maths_op(a, zero, BE_TOKEN_OP_EQUAL);  /* a = !a; */
+            symbol_value_maths_op(a, zero, BE_TOKEN_OP_EQUAL); /* a = !a; */
         symbol_unlock(zero);
         symbol_unlock(a);
         a = res;
@@ -1001,7 +1035,8 @@ static be_jse_symbol_t *handle_postfix_syntax() {
 }
 
 /* 处理加/减/乘/除/余 算术运算*/
-static be_jse_symbol_t *handle_precedent_expr() {
+static be_jse_symbol_t *handle_precedent_expr()
+{
     bool negative = false;
     if (vm.lex->tk == '-') {
         LEXER_MATCH('-');
@@ -1016,7 +1051,7 @@ static be_jse_symbol_t *handle_precedent_expr() {
      *   a = a*b*c +e*f+g;
      */
     while (vm.lex->tk == '*' || vm.lex->tk == '/' ||
-           vm.lex->tk == '%') {  /* *，/，% 操作 */
+           vm.lex->tk == '%') { /* *，/，% 操作 */
         be_jse_symbol_t *b;
 
         /* 取操作符号 */
@@ -1029,7 +1064,7 @@ static be_jse_symbol_t *handle_precedent_expr() {
         /* 计算结果，赋值给第一个操作数; */
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             be_jse_symbol_t *res =
-                symbol_value_maths_op(first_ops, b, op);  /* first =a*b; */
+                symbol_value_maths_op(first_ops, b, op); /* first =a*b; */
             symbol_unlock(first_ops);
             first_ops = res;
         }
@@ -1098,7 +1133,8 @@ static be_jse_symbol_t *handle_precedent_expr() {
 }
 
 /* 基本表达式处理 */
-static be_jse_symbol_t *handle_base_expr() {
+static be_jse_symbol_t *handle_base_expr()
+{
     be_jse_symbol_t *right_ops;
     be_jse_symbol_t *second_ops;
 
@@ -1195,7 +1231,7 @@ static be_jse_symbol_t *handle_base_expr() {
             symbol_unlock(left_ops);
 
             if (first) {
-                left_ops = handle_base_expr();  /* 嵌套调用 */
+                left_ops = handle_base_expr(); /* 嵌套调用 */
                 LEXER_MATCH(':');
                 BE_SAVE_VM_EXE_STATE();
                 set_vm_idle();
@@ -1268,7 +1304,8 @@ static be_jse_symbol_t *handle_base_expr() {
     return left_ops;
 }
 
-static be_jse_symbol_t *handle_block_syntax() {
+static be_jse_symbol_t *handle_block_syntax()
+{
     LEXER_MATCH('{');
     if (BE_VM_PARSE_SHOULD_EXECUTE) {
         while (vm.lex->tk && vm.lex->tk != '}') {
@@ -1287,10 +1324,11 @@ static be_jse_symbol_t *handle_block_syntax() {
     return 0;
 }
 
-be_jse_symbol_t *handle_block_or_statement() {
-    if (vm.lex->tk == '{') {  /* 块操作语句 */
+be_jse_symbol_t *handle_block_or_statement()
+{
+    if (vm.lex->tk == '{') { /* 块操作语句 */
         return handle_block_syntax();
-    } else {  /* statement */
+    } else { /* statement */
         be_jse_symbol_t *v = handle_statement_syntax();
         if (vm.lex->tk == ';') LEXER_MATCH(';');
         return v;
@@ -1298,17 +1336,18 @@ be_jse_symbol_t *handle_block_or_statement() {
 }
 
 /*语句处理部分*/
-static be_jse_symbol_t *handle_statement_syntax() {
+static be_jse_symbol_t *handle_statement_syntax()
+{
     if (vm.lex->tk == BE_TOKEN_ID || vm.lex->tk == BE_TOKEN_INT ||
         vm.lex->tk == BE_TOKEN_FLOAT || vm.lex->tk == BE_TOKEN_STR ||
         vm.lex->tk == '-' || vm.lex->tk == '(') {
         be_jse_symbol_t *res = handle_base_expr();
         return res;
-    } else if (vm.lex->tk == '{') {  /* 程序块 { ... } */
+    } else if (vm.lex->tk == '{') { /* 程序块 { ... } */
         handle_block_syntax();
-    } else if (vm.lex->tk == ';') {  /* 语法结束符,新的语法开始; */
+    } else if (vm.lex->tk == ';') { /* 语法结束符,新的语法开始; */
         LEXER_MATCH(';');
-    } else if (vm.lex->tk == BE_TOKEN_KW_VAR) {  /* var 申明语法：var xxx; */
+    } else if (vm.lex->tk == BE_TOKEN_KW_VAR) { /* var 申明语法：var xxx; */
         be_jse_symbol_t *last_var = 0;
 
         LEXER_MATCH(BE_TOKEN_KW_VAR);
@@ -1340,7 +1379,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
                                                   last_var);
             }
 
-            if (vm.lex->tk == '=') {  /* 赋值语句:var a =b ; */
+            if (vm.lex->tk == '=') { /* 赋值语句:var a =b ; */
                 be_jse_symbol_t *b;
                 LEXER_MATCH_WITH_CLEAN_AND_RETURN('=', symbol_unlock(a),
                                                   last_var);
@@ -1361,7 +1400,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
             if (hasComma) LEXER_MATCH_WITH_RETURN(',', last_var);
         }
         return last_var;
-    } else if (vm.lex->tk == BE_TOKEN_KW_IF) {  /* 'if' 判断条件语句 */
+    } else if (vm.lex->tk == BE_TOKEN_KW_IF) { /* 'if' 判断条件语句 */
         bool cond_result;
         be_jse_symbol_t *var;
 
@@ -1401,7 +1440,8 @@ static be_jse_symbol_t *handle_statement_syntax() {
         BE_SAVE_VM_EXE_STATE();
 
         /* 'if' 条件为 FALSE 时,把 VM 设置成 IDLE
-           状态，后续的语法块处理时，不处理逻辑，只是对'{}'对进行遍历，找到{}语句结束块 */
+           状态，后续的语法块处理时，不处理逻辑，只是对'{}'对进行遍历，找到{}语句结束块
+         */
         if (!cond_result) set_vm_idle();
 
         symbol_unlock(handle_block_or_statement());
@@ -1421,15 +1461,15 @@ static be_jse_symbol_t *handle_statement_syntax() {
 
             if (cond_result) BE_RESTORE_VM_EXE_STATE();
         }
-    } else if (vm.lex->tk == BE_TOKEN_KW_WHILE) {  /* 'while' 循环语句 */
-        int loopCount = BE_JSE_PARSE_MAX_LOOPS;  /* 循环次数，避免死循环 */
+    } else if (vm.lex->tk == BE_TOKEN_KW_WHILE) { /* 'while' 循环语句 */
+        int loopCount = BE_JSE_PARSE_MAX_LOOPS; /* 循环次数，避免死循环 */
 
-        int whileCondStart;  /* 循环条件起始位置 */
-        int whileBodyStart;  /* 循环体的起始位置 */
-        bool loopCond;       /* 循环条件 */
+        int whileCondStart; /* 循环条件起始位置 */
+        int whileBodyStart; /* 循环体的起始位置 */
+        bool loopCond;      /* 循环条件 */
 
-        be_jse_lexer_ctx_t whileCond;  /* 循环条件 */
-        be_jse_lexer_ctx_t whileBody;  /* 循环体 */
+        be_jse_lexer_ctx_t whileCond; /* 循环条件 */
+        be_jse_lexer_ctx_t whileBody; /* 循环体 */
 
         be_jse_lexer_ctx_t *oldLex;
         be_jse_symbol_t *cond;
@@ -1443,14 +1483,14 @@ static be_jse_symbol_t *handle_statement_syntax() {
 
         whileCondStart = vm.lex->token_start;
 
-        cond = handle_base_expr();  /* 处理条件部分的语句，到 ')'结束 */
+        cond = handle_base_expr(); /* 处理条件部分的语句，到 ')'结束 */
 
         loopCond = BE_VM_PARSE_SHOULD_EXECUTE && get_symbol_value_bool(cond);
 
         symbol_unlock(cond);
 
         be_jse_lexer_init2(&whileCond, vm.lex,
-                           whileCondStart);  /* 初始化到开始处理位置 */
+                           whileCondStart); /* 初始化到开始处理位置 */
 
         LEXER_MATCH(')');
 
@@ -1468,7 +1508,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
 
         if (vm.execute == EXEC_BREAK) {
             vm.execute  = EXEC_NORMAL;
-            hasHadBreak = true;  /* 退出循环 */
+            hasHadBreak = true; /* 退出循环 */
         }
 
         if (!loopCond) BE_RESTORE_VM_EXE_STATE();
@@ -1570,7 +1610,8 @@ static be_jse_symbol_t *handle_statement_syntax() {
                     symbol_name_cp(loopIndexVar, false, false);
 
                 be_assert(!symbol_is_name(indexValue) && indexValue->refs == 0);
-                /* indexValue->flags &= ~BE_SYM_NAME;                  /* make */
+                /* indexValue->flags &= ~BE_SYM_NAME;                  /* make
+                 */
                 /* sure this is NOT a name */
                 set_symbol_node_name(forStatement, indexValue);
                 symbol_unlock(indexValue);
@@ -1599,7 +1640,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
             symbol_unlock(forStatement);
             symbol_unlock(array);
 #endif
-        } else {  /* for (;;) */
+        } else { /* for (;;) */
             int loopCount = BE_JSE_PARSE_MAX_LOOPS;
             be_jse_symbol_t *cond;
             bool loopCond;
@@ -1620,7 +1661,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
             {
                 BE_SAVE_VM_EXE_STATE();
                 set_vm_idle();
-                symbol_unlock(handle_base_expr());  /* iterator */
+                symbol_unlock(handle_base_expr()); /* iterator */
                 BE_RESTORE_VM_EXE_STATE();
             }
             be_jse_lexer_init2(&forIter, vm.lex, forIterStart);
@@ -1686,7 +1727,7 @@ static be_jse_symbol_t *handle_statement_syntax() {
         be_jse_symbol_t *result = 0;
         LEXER_MATCH(BE_TOKEN_KW_RETURN);
 
-        if (vm.lex->tk != ';') {  /* return 返回带有表达式的处理 */
+        if (vm.lex->tk != ';') { /* return 返回带有表达式的处理 */
             result = unlock_symbol_value(handle_base_expr());
         }
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
@@ -1832,7 +1873,8 @@ static be_jse_symbol_t *handle_statement_syntax() {
     return 0;
 }
 
-void be_jse_executor_init(be_jse_executor_ctx_t *executor) {
+void be_jse_executor_init(be_jse_executor_ctx_t *executor)
+{
     executor->root = symbol_unlock(get_root_node());
 
     be_jse_symbol_t *name;
@@ -1917,7 +1959,8 @@ void be_jse_executor_init(be_jse_executor_ctx_t *executor) {
 #endif
 }
 
-void be_jse_executor_deinit(be_jse_executor_ctx_t *executor) {
+void be_jse_executor_deinit(be_jse_executor_ctx_t *executor)
+{
     DEC_SYMBL_REF_BY_ID(executor->zeroInt);
     DEC_SYMBL_REF_BY_ID(executor->oneInt);
     DEC_SYMBL_REF_BY_ID(executor->stringClass);
@@ -1961,7 +2004,8 @@ void be_jse_executor_deinit(be_jse_executor_ctx_t *executor) {
 
 /* execute a JS string */
 be_jse_symbol_t *be_jse_eval_string(be_jse_executor_ctx_t *executor,
-                                    const char *str) {
+                                    const char *str)
+{
     be_execflag_e execute = EXEC_NORMAL;
     be_jse_lexer_ctx_t lex;
     be_jse_symbol_t *s = 0;
@@ -1983,7 +2027,7 @@ be_jse_symbol_t *be_jse_eval_string(be_jse_executor_ctx_t *executor,
     /* restore state */
     BE_RESTORE_VM_EXE_STATE();
     oldExecInfo.execute =
-        vm.execute;  /* BE_JSP_RESTORE_EXECUTE has made this ok. */
+        vm.execute; /* BE_JSP_RESTORE_EXECUTE has made this ok. */
     vm = oldExecInfo;
 
     /* It may have returned a reference, but we just want the value... */
@@ -1995,7 +2039,8 @@ be_jse_symbol_t *be_jse_eval_string(be_jse_executor_ctx_t *executor,
 }
 
 bool be_jse_execute_func(be_jse_executor_ctx_t *executor, be_jse_symbol_t *func,
-                         int argCount, be_jse_symbol_t **argPtr) {
+                         int argCount, be_jse_symbol_t **argPtr)
+{
     if (func == NULL) {
         int i = 0;
         for (i = 0; i < argCount; i++) {
@@ -2020,13 +2065,14 @@ bool be_jse_execute_func(be_jse_executor_ctx_t *executor, be_jse_symbol_t *func,
     BE_RESTORE_VM_EXE_STATE();
 
     oldExecInfo.execute =
-        vm.execute;  /* BE_JSP_RESTORE_EXECUTE has made this ok. */
+        vm.execute; /* BE_JSP_RESTORE_EXECUTE has made this ok. */
     vm = oldExecInfo;
 
     return result;
 }
 
-void be_jse_async_event_cb(void *arg) {
+void be_jse_async_event_cb(void *arg)
+{
     BE_ASYNC_S *async = (BE_ASYNC_S *)arg;
 
     be_jse_execute_func(bone_engine_get_executor(), async->func,
@@ -2039,7 +2085,8 @@ void be_jse_async_event_cb(void *arg) {
 }
 
 void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
-                       int param_count) {
+                       int param_count)
+{
     int ret;
 
     if (func && symbol_is_function(func)) {
@@ -2068,7 +2115,8 @@ void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
 #ifdef USE_MODULES
 
 static be_jse_node_t jswrap_modules_getModuleList(
-    be_jse_executor_ctx_t *executor) {
+    be_jse_executor_ctx_t *executor)
+{
     be_jse_node_t modules;
     be_jse_symbol_t *name;
 
@@ -2087,18 +2135,21 @@ static be_jse_node_t jswrap_modules_getModuleList(
 }
 
 static BE_JSE_LOAD_MODULE_CB g_load_module_func = NULL;
-void bone_engine_loadmodule_register(BE_JSE_LOAD_MODULE_CB func_cb) {
+void bone_engine_loadmodule_register(BE_JSE_LOAD_MODULE_CB func_cb)
+{
     g_load_module_func = func_cb;
 }
 
-static const char *be_jse_load_module(const char *moduleName) {
+static const char *be_jse_load_module(const char *moduleName)
+{
     if (g_load_module_func) return g_load_module_func(moduleName);
 
     return NULL;
 }
 
 be_jse_symbol_t *be_jse_require(be_jse_executor_ctx_t *executor,
-                                const char *moduleName) {
+                                const char *moduleName)
+{
     be_jse_node_t moduleList = jswrap_modules_getModuleList(executor);
 
     be_jse_symbol_t *module;
@@ -2137,7 +2188,8 @@ be_jse_symbol_t *be_jse_require(be_jse_executor_ctx_t *executor,
 }
 
 be_jse_symbol_t *be_jse_add_module(be_jse_executor_ctx_t *executor,
-                                   be_jse_symbol_t *id, be_jse_symbol_t *code) {
+                                   be_jse_symbol_t *id, be_jse_symbol_t *code)
+{
     be_jse_node_t moduleList = jswrap_modules_getModuleList(executor);
 
     be_jse_symbol_t *moduleExport;
@@ -2167,7 +2219,8 @@ be_jse_symbol_t *be_jse_add_module(be_jse_executor_ctx_t *executor,
 
 /* Evaluate a JavaScript module and return its exports */
 be_jse_symbol_t *jspEvaluateModule(be_jse_executor_ctx_t *executor,
-                                   const char *str) {
+                                   const char *str)
+{
     be_execflag_e execute = EXEC_NORMAL;
     be_jse_lexer_ctx_t lex;
     be_jse_symbol_t *s = 0;
@@ -2203,7 +2256,7 @@ be_jse_symbol_t *jspEvaluateModule(be_jse_executor_ctx_t *executor,
     /* restore state */
     BE_RESTORE_VM_EXE_STATE();
     oldExecInfo.execute =
-        vm.execute;  /* BE_JSP_RESTORE_EXECUTE has made this ok. */
+        vm.execute; /* BE_JSP_RESTORE_EXECUTE has made this ok. */
     vm = oldExecInfo;
 
     be_jse_symbol_t *evaluateVar = unlock_symbol_value(s);
@@ -2215,7 +2268,8 @@ be_jse_symbol_t *jspEvaluateModule(be_jse_executor_ctx_t *executor,
 }
 
 /* convert a symbol array to a malloc buffer ,need free by caller */
-char *be_array_symbol_to_buffer(be_jse_symbol_t *arg) {
+char *be_array_symbol_to_buffer(be_jse_symbol_t *arg)
+{
     int len               = 0;
     int i                 = 0;
     char *src             = NULL;

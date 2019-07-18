@@ -17,7 +17,8 @@ typedef struct lcd_handle {
 
 static lcd_handle_t *lcd_handle = NULL;
 
-static int8_t lcd_init(uint32_t width, uint32_t height) {
+static int8_t lcd_init(uint32_t width, uint32_t height)
+{
     if (NULL != lcd_handle) {
         return -1;
     }
@@ -32,7 +33,8 @@ static int8_t lcd_init(uint32_t width, uint32_t height) {
     return 0;
 }
 
-static int8_t lcd_deinit(void) {
+static int8_t lcd_deinit(void)
+{
     if (NULL != lcd_handle) {
         free(lcd_handle);
         lcd_handle = NULL;
@@ -41,7 +43,8 @@ static int8_t lcd_deinit(void) {
 }
 
 static int8_t lcd_draw_char(uint16_t x, uint16_t y, uint8_t num, uint8_t size,
-                            uint32_t fcolor) {
+                            uint32_t fcolor)
+{
     uint8_t i        = 0;
     uint8_t j        = 0;
     uint8_t temp     = 0;
@@ -84,7 +87,8 @@ static int8_t lcd_draw_char(uint16_t x, uint16_t y, uint8_t num, uint8_t size,
 }
 
 static int8_t lcd_draw_str(uint16_t x, uint16_t y, uint8_t *str, uint8_t size,
-                           uint32_t color, int8_t new_line) {
+                           uint32_t color, int8_t new_line)
+{
     uint16_t xstart = x;
     uint16_t ystart = y;
     uint16_t xres   = 0;
@@ -112,7 +116,8 @@ static int8_t lcd_draw_str(uint16_t x, uint16_t y, uint8_t *str, uint8_t size,
 }
 
 static void lcd_draw_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                          uint32_t color, uint8_t need_fill) {
+                          uint32_t color, uint8_t need_fill)
+{
     int32_t i = 0;
     if (need_fill) {
         for (i = y1; i <= y2; i++) hal_lcd_draw_line(x1, i, color, x2 - x1 + 1);
@@ -128,7 +133,8 @@ static void lcd_draw_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
     }
 }
 
-static duk_ret_t native_lcd_open(duk_context *ctx) {
+static duk_ret_t native_lcd_open(duk_context *ctx)
+{
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
@@ -152,13 +158,15 @@ out:
     return 1;
 }
 
-static duk_ret_t native_lcd_close(duk_context *ctx) {
+static duk_ret_t native_lcd_close(duk_context *ctx)
+{
     lcd_deinit();
     duk_push_int(ctx, 0);
     return 1;
 }
 
-static duk_ret_t native_lcd_fill(duk_context *ctx) {
+static duk_ret_t native_lcd_fill(duk_context *ctx)
+{
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
@@ -203,7 +211,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_lcd_show(duk_context *ctx) {
+static duk_ret_t native_lcd_show(duk_context *ctx)
+{
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
@@ -257,7 +266,8 @@ out:
     return 1;
 }
 
-void module_lcd_register(void) {
+void module_lcd_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

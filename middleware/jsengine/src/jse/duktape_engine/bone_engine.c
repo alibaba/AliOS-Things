@@ -17,7 +17,8 @@ static duk_context *duk_ctx;
 static char *node_modules_path;
 static char resolved_path[MAX_PATH_SIZE];
 
-static char *resolve_path(const char *parent, const char *module_id) {
+static char *resolve_path(const char *parent, const char *module_id)
+{
     char base[MAX_PATH_SIZE];
 
     /* 路径处理 */
@@ -118,7 +119,8 @@ static char *resolve_path(const char *parent, const char *module_id) {
     return NULL;
 }
 
-static duk_ret_t cb_resolve_module(duk_context *ctx) {
+static duk_ret_t cb_resolve_module(duk_context *ctx)
+{
     const char *module_id;
     const char *parent_id;
 
@@ -137,7 +139,8 @@ static duk_ret_t cb_resolve_module(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t cb_load_module(duk_context *ctx) {
+static duk_ret_t cb_load_module(duk_context *ctx)
+{
     const char *filename;
     const char *module_id;
 
@@ -168,7 +171,8 @@ static duk_ret_t cb_load_module(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t handle_assert(duk_context *ctx) {
+static duk_ret_t handle_assert(duk_context *ctx)
+{
     if (duk_to_boolean(ctx, 0)) return 0;
 
     /*
@@ -186,64 +190,66 @@ static duk_ret_t handle_assert(duk_context *ctx) {
 /*
  * 根据Kconfig配置加载所有的addon
  */
-static void bone_engine_register_addons() {
-#ifdef CONFIG_CORE_ADDON_BUILDIN
+static void bone_engine_register_addons()
+{
+#ifdef JSE_CORE_ADDON_BUILDIN
     module_builtin_register();
 #endif
-#ifdef CONFIG_CORE_ADDON_PROCESS
+#ifdef JSE_CORE_ADDON_PROCESS
     module_process_register();
 #endif
-#ifdef CONFIG_CORE_ADDON_TIMER
+#ifdef JSE_CORE_ADDON_TIMER
     module_timer_register();
 #endif
-#ifdef CONFIG_HW_ADDON_MQTT
+#ifdef JSE_NET_ADDON_MQTT
     module_mqtt_register();
 #endif
-#ifdef CONFIG_HW_ADDON_WIFI
+#ifdef JSE_HW_ADDON_WIFI
     module_wifi_register();
 #endif
-#ifdef CONFIG_HW_ADDON_ADC
+#ifdef JSE_HW_ADDON_ADC
     module_adc_register();
 #endif
-#ifdef CONFIG_HW_ADDON_DAC
+#ifdef JSE_HW_ADDON_DAC
     module_dac_register();
 #endif
-#ifdef CONFIG_HW_ADDON_GPIO
+#ifdef JSE_HW_ADDON_GPIO
     module_gpio_register();
 #endif
-#ifdef CONFIG_HW_ADDON_I2C
+#ifdef JSE_HW_ADDON_I2C
     module_i2c_register();
 #endif
-#ifdef CONFIG_HW_ADDON_IR
+#ifdef JSE_HW_ADDON_IR
     module_ir_register();
 #endif
-#ifdef CONFIG_HW_ADDON_LCD
+#ifdef JSE_HW_ADDON_LCD
     module_lcd_register();
 #endif
-#ifdef CONFIG_HW_ADDON_PWM
+#ifdef JSE_HW_ADDON_PWM
     module_pwm_register();
 #endif
-#ifdef CONFIG_HW_ADDON_RTC
+#ifdef JSE_HW_ADDON_RTC
     module_rtc_register();
 #endif
-#ifdef CONFIG_HW_ADDON_UART
+#ifdef JSE_HW_ADDON_UART
     module_uart_register();
 #endif
-#ifdef CONFIG_HW_ADDON_WDG
+#ifdef JSE_HW_ADDON_WDG
     module_wdg_register();
 #endif
-#ifdef CONFIG_HW_ADDON_UDP
+#ifdef JSE_NET_ADDON_UDP
     module_udp_register();
 #endif
-#ifdef CONFIG_HW_ADDON_FS
+#ifdef JSE_CORE_ADDON_FS
     module_fs_register();
 #endif
-#ifdef CONFIG_HW_ADDON_MIIO
+#ifdef JSE_NET_ADDON_MIIO
     module_miio_register();
 #endif
 }
 
-void bone_engine_init() {
+void bone_engine_init()
+{
     if (duk_ctx) {
         warn("bone engine has been initialized\n");
         return;
@@ -270,7 +276,8 @@ void bone_engine_init() {
     bone_engine_register_addons();
 }
 
-static duk_ret_t get_stack_raw(duk_context *ctx, void *udata) {
+static duk_ret_t get_stack_raw(duk_context *ctx, void *udata)
+{
     (void)udata;
 
     if (!duk_is_object(ctx, -1)) {
@@ -289,7 +296,8 @@ static duk_ret_t get_stack_raw(duk_context *ctx, void *udata) {
     return 1;
 }
 
-static void print_pop_error(duk_context *ctx, FILE *f) {
+static void print_pop_error(duk_context *ctx, FILE *f)
+{
     /* Print error objects with a stack trace specially.
      * Note that getting the stack trace may throw an error
      * so this also needs to be safe call wrapped.
@@ -311,7 +319,8 @@ static void print_pop_error(duk_context *ctx, FILE *f) {
     duk_pop(ctx);
 }
 
-static duk_ret_t wrapped_compile_execute(duk_context *ctx, void *udata) {
+static duk_ret_t wrapped_compile_execute(duk_context *ctx, void *udata)
+{
     const char *src_data;
     duk_size_t src_len;
     duk_uint_t comp_flags;
@@ -336,7 +345,8 @@ static duk_ret_t wrapped_compile_execute(duk_context *ctx, void *udata) {
     return 0; /* duk_safe_call() cleans up */
 }
 
-void bone_engine_start(const char *js) {
+void bone_engine_start(const char *js)
+{
     assert(duk_ctx);
     if (!js) {
         warn("js is null\n");
@@ -355,7 +365,8 @@ void bone_engine_start(const char *js) {
     }
 }
 
-void bone_engine_eval_file(const char *filename) {
+void bone_engine_eval_file(const char *filename)
+{
     assert(filename && filename[0] == '/');
 
     debug("eval file: %s\n", filename);
@@ -395,7 +406,8 @@ void bone_engine_eval_file(const char *filename) {
     free(data);
 }
 
-void bone_engine_exit() {
+void bone_engine_exit()
+{
     if (!duk_ctx) {
         warn("bone engine has not been initialized\n");
         return;
@@ -405,6 +417,12 @@ void bone_engine_exit() {
     duk_ctx = NULL;
 }
 
-duk_context *bone_engine_get_context() { return duk_ctx; }
+duk_context *bone_engine_get_context()
+{
+    return duk_ctx;
+}
 
-void bone_engine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb) { be_set_log(cb); }
+void bone_engine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb)
+{
+    be_set_log(cb);
+}

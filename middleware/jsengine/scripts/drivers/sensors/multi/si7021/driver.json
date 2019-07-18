@@ -1,10 +1,10 @@
 {
-  "si7021":{
-    "type":"I2C",
-    "port":2,
-    "address_width":7,
-    "freq":100000,
-    "mode":1,
-    "dev_addr":128
+  "si7021": {
+    "type": "I2C",
+    "port": 2,
+    "address_width": 7,
+    "freq": 100000,
+    "mode": 1,
+    "dev_addr": 128
   }
 }

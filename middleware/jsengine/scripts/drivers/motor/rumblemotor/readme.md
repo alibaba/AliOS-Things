@@ -19,7 +19,7 @@
 
 ### Driver配置
 
-```
+```json
 {
     "rumblemotor":{
         "type":"GPIO",
@@ -50,7 +50,7 @@ method:
 ### 示例
 
 
-```
+```js
 var RUMBELMOTOR = require('rumblemotor/src');
 var handle = new RUMBELMOTOR('rumblemotor');
 

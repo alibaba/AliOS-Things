@@ -22,7 +22,8 @@
 
 #ifdef DUMP_SYMBL_USAGE
 
-static void handle_meminfo_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_meminfo_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_debug(TAG, "memory usage= %d max=%d", be_jse_get_memory_usage(),
              be_jse_get_memory_max_usage());
 #ifdef ESP_PLATFORM
@@ -36,11 +37,13 @@ static struct be_be_cli_command meminfo_cmd = {
     .help     = "show BoneEngine meminfo",
     .function = handle_meminfo_cmd};
 
-static void jstrace(void *arg) {
+static void jstrace(void *arg)
+{
     trace_symbol_info(bone_engine_get_executor()->root, 0);
 }
 
-static void handle_jstrace_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_jstrace_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_jse_task_schedule_call(jstrace, NULL);
 }
 
@@ -55,12 +58,14 @@ static struct be_be_cli_command jstrace_cmd = {
     eval  <js>
     eval hex  <js>    js is hex encode
 */
-static void eval_js(void *arg) {
+static void eval_js(void *arg)
+{
     bone_engine_start(arg);
     free(arg);
 }
 
-static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     if (argc == 2) {
         char *str = calloc(1, strlen(argv[1]) + 1);
         if (NULL == str) {
@@ -95,8 +100,8 @@ static struct be_cli_command eval_cmd = {.name = "eval",
                                          .help = "BoneEngine eval javascript",
                                          .function = handle_eval_cmd};
 
-static void handle_jslook_cmd_cmd(char *pwbuf, int blen, int argc,
-                                  char **argv) {
+static void handle_jslook_cmd_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     if (argc == 2) {
         int id;
         id = atoi(argv[1]);
@@ -109,7 +114,8 @@ static struct be_cli_command jslook_cmd = {.name     = "jslook_cmd",
                                            .function = handle_jslook_cmd_cmd};
 #endif
 
-static void handle_boneflag_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_boneflag_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     int ret;
     int len;
     if (argc > 1) {
@@ -134,7 +140,8 @@ static struct be_cli_command boneflag_cmd = {
         /spiffs/<dir>
 */
 
-static void tree(char *path) {
+static void tree(char *path)
+{
     be_dir_t *dir;
     be_dirent_t *ent;
     char childpath[48] = {0};
@@ -156,7 +163,8 @@ static void tree(char *path) {
     be_cli_printf(childpath);
 }
 
-static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     char *targetname = NULL;
     char path[48]    = {0};
 
@@ -185,14 +193,16 @@ static struct be_cli_command tree_cmd = {
     <target> == format
 */
 
-static void handle_rmdir_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_rmdir_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     be_rmdir(BE_FS_ROOT_DIR);
 }
 
 static struct be_cli_command rmdir_cmd = {
     .name = "rmdir", .help = "rmdir js dir", .function = handle_rmdir_cmd};
 
-static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv) {
+static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
     char *targetname = NULL;
     char path[48]    = {0};
     int fd           = -1;
@@ -229,7 +239,8 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv) {
 static struct be_cli_command rm_cmd = {
     .name = "rm", .help = "rm file", .function = handle_rm_cmd};
 
-void cli_cmd_register_js() {
+void cli_cmd_register_js()
+{
 #ifdef DUMP_SYMBL_USAGE
     be_cli_register_command(&meminfo_cmd);
     be_cli_register_command(&jstrace_cmd);

@@ -14,7 +14,8 @@
 #define WIFI_CONNECT_WAIT_TIME_MS (10 * 1000)
 #define WIFI_CHECKIP_INTERVAL_MS 200
 
-static void js_cb_wifi_conn_status(void *pdata) {
+static void js_cb_wifi_conn_status(void *pdata)
+{
     char ip[32]      = {0};
     int js_cb_ref    = (int)pdata;
     duk_context *ctx = bone_engine_get_context();
@@ -28,7 +29,8 @@ static void js_cb_wifi_conn_status(void *pdata) {
     bone_engine_unref(ctx, js_cb_ref);
 }
 
-static void wifi_check_ip_task(void *arg) {
+static void wifi_check_ip_task(void *arg)
+{
     char ip[32] = {0};
     int count   = 0;
 
@@ -45,7 +47,8 @@ static void wifi_check_ip_task(void *arg) {
     be_osal_delete_task(NULL);
 }
 
-static duk_ret_t native_wifi_connect(duk_context *ctx) {
+static duk_ret_t native_wifi_connect(duk_context *ctx)
+{
     int ret = -1;
 
     debug("in\n");
@@ -82,7 +85,8 @@ out:
  * Output:      return a string object to js api,if it is NULL means can't get
  *ip
  *****************************************************************************/
-static duk_ret_t native_wifi_getip(duk_context *ctx) {
+static duk_ret_t native_wifi_getip(duk_context *ctx)
+{
     char ip[32] = {0};
     int ret     = hal_system_get_ip(ip);
     if (ret == 0) {
@@ -100,7 +104,8 @@ static duk_ret_t native_wifi_getip(duk_context *ctx) {
  * Input:       no input
  * Output:      return a string object to js api what the mac is
  *****************************************************************************/
-static duk_ret_t native_wifi_getssid(duk_context *ctx) {
+static duk_ret_t native_wifi_getssid(duk_context *ctx)
+{
     char ssid[32 + 1] = {0};
     int ret           = hal_system_wifi_ssid_get(ssid, sizeof(ssid));
     if (ret == 0) {
@@ -111,7 +116,8 @@ static duk_ret_t native_wifi_getssid(duk_context *ctx) {
     return 1;
 }
 
-void module_wifi_register(void) {
+void module_wifi_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

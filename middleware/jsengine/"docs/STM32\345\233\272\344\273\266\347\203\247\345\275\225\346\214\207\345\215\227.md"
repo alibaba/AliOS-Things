@@ -1,20 +1,14 @@
 [目录]
 
-[1 准备st-flash工具](#1-准备st-flash工具)
-
-[2 使用st-flash命令/工具烧写固件](#2-使用st-flash工具烧写固件)
-
-​	[MAC系统下烧录](#mac系统下烧录)
-
-​   [LINUX系统烧录](#linux系统烧录)
-
-​	[Windows系统烧录](#windows系统烧录)
-
-​	
+* [1. 准备st-flash工具](#1-准备st-flash工具)
+* [2. 使用st-flash命令/工具烧写固件](#2-使用st-flash工具烧写固件)
+    * [MAC系统下烧录](#mac系统下烧录)
+    * [LINUX系统烧录](#linux系统烧录)
+    * [Windows系统烧录](#windows系统烧录)
 
 # STM32固件烧录指南
 
-文档说明： 
+文档说明：
 
  为了能在STM32上面开发TinyEngine JavaScript应用，需先烧录TinyEngine固件到STM32芯片中。
 
@@ -47,15 +41,11 @@ stm32烧录固件，需要使用st-flash工具，在TinyEngine仓库的【tools/
         └── STM32\ ST-LINK\ Utility\ v4.2.0\ setup.exe
 ```
 
-
-
 * **MAC系统**： 无需安装，直接使用st-flash可执行文件即可。
 
 * **LINUX系统**： 无需安装，直接使用st-flash可执行文件即可。
 
 * **WINDOWS系统**： 点击安装  “STM32\ ST-LINK\ Utility\ v4.2.0\ setup.exe” 文件，并根据提示安装st-link的驱动。安装成功后，插入st-link usb口到PC，查看设备管理器-》端口会出现 “STMicroelectronocs STLink Virtual Com Port”端口。
-
-  
 
 **FAQ**：如未覆盖到您的主机操作系统或者TinyEngine仓库目录下的st-flash执行不了，请参考官方github文档下载st-link源码编译生成st-flash工具使用。
 
@@ -108,7 +98,7 @@ st-flash工具github文档地址：https://github.com/texane/stlink
 
 
 
-* 第二步，连接STM32芯片的ST-LINK usb口到PC，并点击Target->Connect 
+* 第二步，连接STM32芯片的ST-LINK usb口到PC，并点击Target->Connect
 
 ![](https://img.alicdn.com/tfs/TB1M6BXv_mWBKNjSZFBXXXxUFXa-1580-920.jpg)
 
@@ -129,12 +119,4 @@ st-flash工具github文档地址：https://github.com/texane/stlink
 * 最后，等待烧录完成，即进度条跑完。
 
 ![](https://img.alicdn.com/tfs/TB12h.5vH3nBKNjSZFMXXaUSFXa-1092-1162.jpg)
-
-
-
-
-
- 
-
-
 

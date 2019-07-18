@@ -1,26 +1,26 @@
 {
-  "stepmotor.d":{
-    "type":"GPIO",
-    "port":16,
-    "dir":0,
-    "pull":0
+  "stepmotor.d": {
+    "type": "GPIO",
+    "port": 16,
+    "dir": 0,
+    "pull": 0
   },
-  "stepmotor.c":{
-    "type":"GPIO",
-    "port":17,
-    "dir":0,
-    "pull":0
+  "stepmotor.c": {
+    "type": "GPIO",
+    "port": 17,
+    "dir": 0,
+    "pull": 0
   },
-  "stepmotor.b":{
-    "type":"GPIO",
-    "port":18,
-    "dir":0,
-    "pull":0
+  "stepmotor.b": {
+    "type": "GPIO",
+    "port": 18,
+    "dir": 0,
+    "pull": 0
   },
-  "stepmotor.a":{
-    "type":"GPIO",
-    "port":19,
-    "dir":0,
-    "pull":0
+  "stepmotor.a": {
+    "type": "GPIO",
+    "port": 19,
+    "dir": 0,
+    "pull": 0
   }
 }

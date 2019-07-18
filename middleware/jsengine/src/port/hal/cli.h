@@ -10,7 +10,7 @@
 #include "be_port_osal.h"
 
 #define MAX_COMMANDS 64
-#define INBUF_SIZE 1024  /* 必须 >= 1024,因为be push的每次为500字节*2 */
+#define INBUF_SIZE 1024 /* 必须 >= 1024,因为be push的每次为500字节*2 */
 #define OUTBUF_SIZE 2048
 #define HIS_SIZE 5
 

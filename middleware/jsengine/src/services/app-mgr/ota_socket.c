@@ -4,12 +4,13 @@
 
 #include "ota_socket.h"
 #include <errno.h>
+#include <network/network.h>
 #include <stdio.h>
 #include <string.h>
-#include <network/network.h>
 #include <unistd.h>
 
-int ota_socket_connect(int port, char *host_addr) {
+int ota_socket_connect(int port, char *host_addr)
+{
     if (host_addr == NULL || strlen(host_addr) == 0 || port <= 0) {
         printf("ota_socket_connect parms   error\n ");
         return -1;
@@ -28,7 +29,7 @@ int ota_socket_connect(int port, char *host_addr) {
     }
 
     struct timeval timeout;
-    timeout.tv_sec = 10;
+    timeout.tv_sec  = 10;
     timeout.tv_usec = 0;
 
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
@@ -39,8 +40,8 @@ int ota_socket_connect(int port, char *host_addr) {
 
     bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    server_addr.sin_addr = *((struct in_addr *)host->h_addr);
+    server_addr.sin_port   = htons(port);
+    server_addr.sin_addr   = *((struct in_addr *)host->h_addr);
 
     if (connect(sockfd, (struct sockaddr *)(&server_addr),
                 sizeof(struct sockaddr)) == -1) {
@@ -59,7 +60,8 @@ err_out:
     return -1;
 }
 
-int ota_socket_send(int socket, const char *buf, size_t len) {
+int ota_socket_send(int socket, const char *buf, size_t len)
+{
     if (socket < 0) {
         printf("ota_socket_send: invalid socket fd\n");
         return -1;
@@ -72,7 +74,8 @@ int ota_socket_send(int socket, const char *buf, size_t len) {
     return write(socket, buf, len);
 }
 
-int ota_socket_recv(int socket, char *buf, size_t len) {
+int ota_socket_recv(int socket, char *buf, size_t len)
+{
     if (socket < 0) {
         printf("ota_socket_recv: invalid socket fd\n");
         return -1;
@@ -85,9 +88,13 @@ int ota_socket_recv(int socket, char *buf, size_t len) {
     return read(socket, buf, len);
 }
 
-void ota_socket_close(int socket) { close(socket); }
+void ota_socket_close(int socket)
+{
+    close(socket);
+}
 
-int ota_socket_check_conn(int sock) {
+int ota_socket_check_conn(int sock)
+{
     if (sock < 0) {
         printf("ota_socket_check_conn: invalid socket fd\n");
         return -1;

@@ -26,7 +26,8 @@ else ifeq ($(JSE_ENGINE_DUKTAPE),y)
 include ${JSE_ROOT}/duktape_engine.mk
 endif
 
-${info ${JSE_ADDONS_DIR}}
+# 引用components的编译配置文件
+include $(JSE_ROOT)/components/components.mk
 
 # 引用services的编译配置文件
 include $(JSE_ROOT)/services/services.mk

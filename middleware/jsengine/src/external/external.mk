@@ -5,7 +5,7 @@ include $(PROJECT_ROOT)/.config
 exclude_dirs:=libuv cJSON
 
 # 判断是否需要编译 iotkit, 只有配置了MQTT才需要编译iotkit
-ifeq ($(JSE_HW_ADDON_MQTT),y)
+ifeq ($(JSE_NET_ADDON_MQTT),y)
 dirs += iotkit-embedded
 endif
 
