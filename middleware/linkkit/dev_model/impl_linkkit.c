@@ -23,6 +23,7 @@
 
 #ifdef DEV_BIND_ENABLED
     #include "dev_bind_api.h"
+    static int _awss_reported = 0;
 #endif
 
 #define IOTX_LINKKIT_KEY_ID          "id"
@@ -1243,7 +1244,12 @@ static int _iotx_linkkit_master_connect(void)
 
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
-
+#ifdef DEV_BIND_ENABLED
+    if(_awss_reported == 0) {
+        awss_report_cloud();
+        _awss_reported = 1;
+    }
+#endif
     return SUCCESS_RETURN;
 }
 
@@ -1445,6 +1451,9 @@ static int _iotx_linkkit_master_close(void)
 #endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
+#ifdef DEV_BIND_ENABLED
+    _awss_reported = 0;
+#endif
     return SUCCESS_RETURN;
 }
 
