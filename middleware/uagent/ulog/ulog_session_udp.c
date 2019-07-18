@@ -5,10 +5,13 @@
 #include "ulog_api.h"
 #include "ulog/ulog.h"
 
+
 #if ULOG_POP_UDP_ENABLE
 
 #include <string.h>
+#include <stdlib.h>
 #include "network/network.h"
+#include "aos/kernel.h"
 
 static struct sockaddr_in* syslog_watcher_addr = NULL;
 static int32_t syslog_watcher_fd = -1;
@@ -18,7 +21,7 @@ static bool     tcpip_service_on = false;
 
 /* We have to use sync debug to debug async debug .... */
 /* #define SESSION_UDP_INFO printf */
-#define SESSION_UDP_INFO
+#define SESSION_UDP_INFO(...)
 
 /**
 * @brief update address for log pop out via udp
