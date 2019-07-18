@@ -20,6 +20,8 @@
 
 #define RTC_FREQ      (32768)
 
+extern uint32_t cpu_pwr_minisleep_time_ms;
+
 static pwr_status_t rtc_init(void);
 static uint32_t     rtc_one_shot_max_seconds(void);
 static pwr_status_t rtc_one_shot_start(uint64_t planUs);
@@ -44,6 +46,14 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
 #if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
      static sys_time_t last_log_entersleep = 0;
 #endif
+
+    if ((planUs / 1000) <=  cpu_pwr_minisleep_time_ms) {
+        planUs = cpu_pwr_minisleep_time_ms * 1000;
+        cc_counter = planUs * RTC_FREQ / 1000000;
+        if (cc_counter > lega_drv_rtc_max_ticks_get()) {
+            cc_counter = lega_drv_rtc_max_ticks_get();
+        }
+    }
 
     if ((planUs / 1000) < 4) {
         return PWR_ERR;

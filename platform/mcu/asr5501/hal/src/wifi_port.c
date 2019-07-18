@@ -78,6 +78,11 @@ static int wifi_stop_ap(hal_wifi_module_t *m)
     return lega_wlan_close();
 }
 
+void wlan_start_adv_cb(lega_start_adv_results_e status)
+{
+    printf("connect_adv status:%d\n", status);
+}
+
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
     int ret = -1;
@@ -100,7 +105,7 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
     memcpy(conf.dns_server_ip_addr, init_para_adv->dns_server_ip_addr, 16);
     memcpy(conf.reserved, init_para_adv->reserved, 32);
     conf.wifi_retry_interval = init_para_adv->wifi_retry_interval;
-
+    lega_wlan_register_start_adv_cb(wlan_start_adv_cb);
     ret = lega_wlan_open(&conf);
 
     return ret;
@@ -201,21 +206,19 @@ static int set_channel(hal_wifi_module_t *m, int ch)
     return lega_wlan_monitor_set_channel(ch);
 }
 
-static void wlan_monitor_cb(uint8_t*data, int len)
+static void wlan_monitor_cb(uint8_t*data, int len, int rssi)
 {
     hal_wifi_link_info_t info;
-    //rssi TBD
-    info.rssi = -10;
+    info.rssi = rssi;
     if (aos_monitor_cb) {
         aos_monitor_cb(data, len, &info);
     }
 }
 
-static void wlan_mgmt_monitor_cb(uint8_t*data, int len)
+static void wlan_mgmt_monitor_cb(uint8_t*data, int len, int rssi)
 {
     hal_wifi_link_info_t info;
-    //rssi TBD
-    info.rssi = -10;
+    info.rssi = rssi;
     if (aos_mgmt_monitor_cb) {
         aos_mgmt_monitor_cb(data, len, &info);
     }
