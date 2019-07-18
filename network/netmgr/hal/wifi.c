@@ -259,6 +259,18 @@ int hal_wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
     return m->wlan_send_80211_raw_frame(m, buf, len);
 }
 
+int hal_get_wireless_info(hal_wifi_module_t *m, void *info)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    if (m == NULL || m->get_wireless_info == NULL)
+        return -1;
+
+    return m->get_wireless_info(m, info);
+}
+
 void hal_wifi_start_debug_mode(hal_wifi_module_t *m)
 {
     if (m == NULL) {
