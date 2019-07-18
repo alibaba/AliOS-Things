@@ -25,10 +25,10 @@
 #include "app_entry.h"
 
 // for demo only
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define PRODUCT_KEY      "a1FxISeKbq9"
+#define PRODUCT_SECRET   "ThNbP5iNUQ1lQe2Q"
+#define DEVICE_NAME      "alen-activate-test"
+#define DEVICE_SECRET    "jcumDL5AJRgU7zRNcCcnHRiQmtii0vDn"
 
 #define EXAMPLE_TRACE(...)                                          \
     do {                                                            \
@@ -355,6 +355,7 @@ int linkkit_main(void *paras)
         IOT_Linkkit_Yield(EXAMPLE_YIELD_TIMEOUT_MS);
 
         /* Post Proprety Example */
+
         if ((cnt % 5) == 0) {
             user_post_property(); 
         }
@@ -363,6 +364,7 @@ int linkkit_main(void *paras)
         if ((cnt % 20) == 0) {
             user_post_event(); 
         }
+
         cnt++;
 
         if (auto_quit == 1 && cnt > 3600) {

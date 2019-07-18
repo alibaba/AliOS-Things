@@ -11,6 +11,9 @@ ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli
 endif
 
+ifeq ($(AOS_COMP_UND),y)
+$(NAME)_COMPONENTS += und
+endif
 
 ifeq ($(MQTTAPP_CONFIG_CASE_DEFAULT),y)
 $(NAME)_SOURCES += mqtt_example.c
