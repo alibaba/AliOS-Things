@@ -36,7 +36,7 @@ static void sys_init(void)
 
     aos_cli_init();
 
-    ulog_init(NULL);
+    ulog_init();
 
     LOG("strart lwip_tcpip_init\r\n");
 
