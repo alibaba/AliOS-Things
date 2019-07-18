@@ -10,6 +10,9 @@
 #include "aos/errno.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
+#ifdef FEATURE_UND_SUPPORT
+#include "und/und.h"
+#endif
 
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
@@ -408,6 +411,13 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port,
                                         MBEDTLS_NET_PROTO_TCP))) {
         platform_err(" failed ! net_connect returned -0x%04x", -ret);
+#ifdef FEATURE_UND_SUPPORT
+        if (ret == MBEDTLS_ERR_NET_UNKNOWN_HOST) {
+            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DNS_FIAL_REASON);
+        } else {
+            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TCP_FAIL_REASON);
+        }
+#endif
         return ret;
     }
 #endif
@@ -421,6 +431,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
                            &(pTlsData->conf), MBEDTLS_SSL_IS_CLIENT,
                            MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
         platform_err(" failed! mbedtls_ssl_config_defaults returned %d", ret);
+#ifdef FEATURE_UND_SUPPORT
+        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+#endif
         return ret;
     }
 
@@ -452,6 +465,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
                            &(pTlsData->conf), &(pTlsData->clicert), &(pTlsData->pkey))) != 0) {
         platform_err(" failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n",
                      ret);
+#ifdef FEATURE_UND_SUPPORT
+        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+#endif
         return ret;
     }
 #endif
@@ -461,6 +477,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         platform_err("failed! mbedtls_ssl_setup returned %d", ret);
+#ifdef FEATURE_UND_SUPPORT
+        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+#endif
         return ret;
     }
 #if defined(ON_PRE) || defined(ON_DAILY)
@@ -540,6 +559,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
             platform_err("failed  ! mbedtls_ssl_handshake returned -0x%04x",
                          -ret);
+#ifdef FEATURE_UND_SUPPORT
+        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+#endif
             return ret;
         }
     }
@@ -592,6 +614,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     if (0 != (ret = _real_confirm(
                                 mbedtls_ssl_get_verify_result(&(pTlsData->ssl))))) {
         platform_err(" failed  ! verify result not confirmed.");
+#ifdef FEATURE_UND_SUPPORT
+        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+#endif
         return ret;
     }
     /* n->my_socket = (int)((n->tlsdataparams.fd).fd); */
@@ -619,6 +644,12 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
         } else if (ret == 0) {
             /* if ret is 0 and net_status is -2, indicate the connection is
              * closed during last call */
+            if (net_status == -2) {
+#ifdef FEATURE_UND_SUPPORT
+                und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
+                        UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
+#endif
+            }
             return (net_status == -2) ? net_status : readLen;
         } else {
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
@@ -645,6 +676,10 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
                 }
 #endif
                 platform_err("ssl recv error: code = %d", ret);
+#ifdef FEATURE_UND_SUPPORT
+                und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
+                        UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
+#endif
                 net_status = -1;
                 return -1; /* Connection error */
             }
@@ -668,10 +703,18 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer,
             writtenLen += ret;
             continue;
         } else if (ret == 0) {
+#ifdef FEATURE_UND_SUPPORT
+            und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
+                    UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
+#endif
             platform_err("ssl write timeout");
             return 0;
         } else {
             // mbedtls_strerror(ret, err_str, sizeof(err_str));
+#ifdef FEATURE_UND_SUPPORT
+            und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
+                    UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
+#endif
             platform_err("ssl write fail, code=%d", ret);
             return -1; /* Connnection error */
         }
@@ -702,7 +745,6 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
 int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);
-    ;
 }
 
 int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len,
@@ -718,6 +760,9 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
         return 0;
     }
 
+#ifdef FEATURE_UND_SUPPORT
+    und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX, UND_STATIS_NETWORK_PING_EXCEPTION_REASON);
+#endif
     _network_ssl_disconnect((TLSDataParams_t *)handle);
     aos_free((void *)handle);
     return 0;
