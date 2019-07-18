@@ -218,10 +218,10 @@ static void _iotx_alcs_adapter_send_list_destroy(iotx_alcs_adapter_t *adapter)
 
 static void _iotx_alcs_adapter_subdev_list_destroy(iotx_alcs_adapter_t *adapter)
 {
-    iotx_alcs_send_msg_t *node = NULL;
-    iotx_alcs_send_msg_t *next = NULL;
+    iotx_alcs_subdev_item_t *node = NULL;
+    iotx_alcs_subdev_item_t *next = NULL;
 
-    list_for_each_entry_safe(node, next, &adapter->alcs_subdev_list, linked_list, iotx_alcs_send_msg_t) {
+    list_for_each_entry_safe(node, next, &adapter->alcs_subdev_list, linked_list, iotx_alcs_subdev_item_t) {
         list_del(&node->linked_list);
         ALCS_free(node);
     }
