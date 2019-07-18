@@ -33,7 +33,7 @@ ULN2003驱动模块 GND引脚接ESP32 GND引脚；
 ###Driver配置
 esp32kit 示范：
 
-```
+```json
 {
     "stepmotor.d":{
       "type":"GPIO",
@@ -81,7 +81,7 @@ method:
 
 电机反转:
 
-```
+```js
 var stepmotor = require('stepmotor/src/index.js');
 var handle = new stepmotor('stepmotor.a','stepmotor.b','stepmotor.c','stepmotor.d');
 var index = 0;

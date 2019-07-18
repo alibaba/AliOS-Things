@@ -24,48 +24,58 @@ struct be_list_head {
 };
 
 #define BE_LIST_HEAD_INIT(name) \
-    { &(name), &(name) }
+    {                           \
+        &(name), &(name)        \
+    }
 #undef BE_LIST_HEAD
 #define BE_LIST_HEAD(name) struct be_list_head name = BE_LIST_HEAD_INIT(name)
 
-static inline void BE_INIT_LIST_HEAD(struct be_list_head *list) {
+static inline void BE_INIT_LIST_HEAD(struct be_list_head *list)
+{
     list->next = list->prev = list;
 }
 
-static inline bool be_list_empty(const struct be_list_head *head) {
+static inline bool be_list_empty(const struct be_list_head *head)
+{
     return (head->next == head);
 }
 
 static inline bool be_list_is_first(const struct be_list_head *list,
-                                    const struct be_list_head *head) {
+                                    const struct be_list_head *head)
+{
     return list->prev == head;
 }
 
 static inline bool be_list_is_last(const struct be_list_head *list,
-                                   const struct be_list_head *head) {
+                                   const struct be_list_head *head)
+{
     return list->next == head;
 }
 
-static inline void _be_list_del(struct be_list_head *entry) {
+static inline void _be_list_del(struct be_list_head *entry)
+{
     entry->next->prev = entry->prev;
     entry->prev->next = entry->next;
 }
 
-static inline void be_list_del(struct be_list_head *entry) {
+static inline void be_list_del(struct be_list_head *entry)
+{
     _be_list_del(entry);
     entry->next = entry->prev = NULL;
 }
 
 static inline void _be_list_add(struct be_list_head *_new,
                                 struct be_list_head *prev,
-                                struct be_list_head *next) {
+                                struct be_list_head *next)
+{
     next->prev = _new;
     _new->next = next;
     _new->prev = prev;
     prev->next = _new;
 }
 
-static inline void be_list_del_init(struct be_list_head *entry) {
+static inline void be_list_del_init(struct be_list_head *entry)
+{
     _be_list_del(entry);
     BE_INIT_LIST_HEAD(entry);
 }
@@ -101,30 +111,35 @@ static inline void be_list_del_init(struct be_list_head *entry) {
     for (p = (h)->prev, n = p->prev; p != (h); p = n, n = p->prev)
 
 static inline void be_list_add(struct be_list_head *_new,
-                               struct be_list_head *head) {
+                               struct be_list_head *head)
+{
     _be_list_add(_new, head, head->next);
 }
 
 static inline void be_list_add_tail(struct be_list_head *_new,
-                                    struct be_list_head *head) {
+                                    struct be_list_head *head)
+{
     _be_list_add(_new, head->prev, head);
 }
 
 static inline void be_list_move(struct be_list_head *list,
-                                struct be_list_head *head) {
+                                struct be_list_head *head)
+{
     _be_list_del(list);
     be_list_add(list, head);
 }
 
 static inline void be_list_move_tail(struct be_list_head *entry,
-                                     struct be_list_head *head) {
+                                     struct be_list_head *head)
+{
     _be_list_del(entry);
     be_list_add_tail(entry, head);
 }
 
 static inline void _be_list_splice(const struct be_list_head *list,
                                    struct be_list_head *prev,
-                                   struct be_list_head *next) {
+                                   struct be_list_head *next)
+{
     struct be_list_head *first;
     struct be_list_head *last;
 
@@ -139,23 +154,27 @@ static inline void _be_list_splice(const struct be_list_head *list,
 }
 
 static inline void be_list_splice(const struct be_list_head *list,
-                                  struct be_list_head *head) {
+                                  struct be_list_head *head)
+{
     _be_list_splice(list, head, head->next);
 }
 
 static inline void be_list_splice_tail(struct be_list_head *list,
-                                       struct be_list_head *head) {
+                                       struct be_list_head *head)
+{
     _be_list_splice(list, head->prev, head);
 }
 
 static inline void be_list_splice_init(struct be_list_head *list,
-                                       struct be_list_head *head) {
+                                       struct be_list_head *head)
+{
     _be_list_splice(list, head, head->next);
     BE_INIT_LIST_HEAD(list);
 }
 
 static inline void be_list_splice_tail_init(struct be_list_head *list,
-                                            struct be_list_head *head) {
+                                            struct be_list_head *head)
+{
     _be_list_splice(list, head->prev, head);
     BE_INIT_LIST_HEAD(list);
 }

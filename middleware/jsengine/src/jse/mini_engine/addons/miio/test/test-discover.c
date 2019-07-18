@@ -6,11 +6,13 @@
 #include <unistd.h>
 #include "../miio-discover.h"
 
-static void on_discover(void *priv, long device_id) {
+static void on_discover(void *priv, long device_id)
+{
     printf("discover device %ld\n", device_id);
 }
 
-void main() {
+void main()
+{
     miio_device_discover(60, NULL, on_discover);
     while (1) {
         sleep(1);

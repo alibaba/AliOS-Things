@@ -2,13 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <netdb.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #include "be_common.h"
 #include "be_jse_module.h"
@@ -59,7 +56,8 @@ typedef struct {
               return error number when create socket fail
 **************************************************************************************/
 
-static be_jse_symbol_t *module_udp_create_socket() {
+static be_jse_symbol_t *module_udp_create_socket()
+{
     be_jse_symbol_t *arg0 = NULL;
     int ret               = -1;
     int sock_id           = 0;
@@ -84,7 +82,8 @@ static be_jse_symbol_t *module_udp_create_socket() {
               return error number when bind fail
 **************************************************************************************/
 
-static be_jse_symbol_t *module_udp_bind() {
+static be_jse_symbol_t *module_udp_bind()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     be_jse_symbol_t *arg2 = NULL;
@@ -146,7 +145,8 @@ done:
 }
 
 /*C call JS for UDP.recv*/
-static void js_cb_udp_recv(void *pdata) {
+static void js_cb_udp_recv(void *pdata)
+{
     int i                     = 0;
     js_cb_udp_recv_t *p_param = (js_cb_udp_recv_t *)pdata;
 
@@ -167,14 +167,15 @@ static void js_cb_udp_recv(void *pdata) {
     async->params[2] = new_str_symbol(p_param->src_ip);
     async->params[3] = new_int_symbol(p_param->src_port);
 
-    be_jse_async_event_cb(async);  /* async will free automatic */
+    be_jse_async_event_cb(async); /* async will free automatic */
 
     free(p_param->msg);
     free(p_param);
 }
 
 /*C call JS for UDP.send*/
-void js_cb_udp_send(void *pdata) {
+void js_cb_udp_send(void *pdata)
+{
     js_cb_udp_send_t *p_param = (js_cb_udp_send_t *)pdata;
     BE_ASYNC_S *async         = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
     async->func               = p_param->cb;
@@ -193,7 +194,8 @@ void js_cb_udp_send(void *pdata) {
  *Called by:
  **************************************************************************************/
 
-static void task_udp_recv_fun(void *arg) {
+static void task_udp_recv_fun(void *arg)
+{
     schedule_udp_t *msg    = (schedule_udp_t *)arg;
     be_jse_symbol_t *array = NULL;
     int socketid;
@@ -244,7 +246,8 @@ done:
  *Called by:
  **************************************************************************************/
 
-static void task_udp_send_fun(void *arg) {
+static void task_udp_send_fun(void *arg)
+{
     int ret             = -1;
     schedule_udp_t *msg = (schedule_udp_t *)arg;
     int socketid;
@@ -258,7 +261,7 @@ static void task_udp_send_fun(void *arg) {
 
     socketid = msg->socketid;
     memcpy(&udp_options, &(msg->options), sizeof(udp_options_t));
-    be_osal_delay(50);  /* need do things after state changed in main task */
+    be_osal_delay(50); /* need do things after state changed in main task */
 
     struct sockaddr_in addr_in;
 
@@ -305,7 +308,8 @@ param *Output:      return send msg length when send success return error number
 when send fail
 **************************************************************************************/
 
-static be_jse_symbol_t *module_udp_sendto() {
+static be_jse_symbol_t *module_udp_sendto()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     be_jse_symbol_t *arg2 = NULL;
@@ -380,7 +384,8 @@ the peer ip string src_port: the peer port which is a interger
               return error number UDP.recv call fail
 **************************************************************************************/
 
-static be_jse_symbol_t *module_udp_recvfrom() {
+static be_jse_symbol_t *module_udp_recvfrom()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     int ret               = -1;
@@ -438,7 +443,8 @@ done:
               return error number UDP.close call fail
 **************************************************************************************/
 
-static be_jse_symbol_t *module_udp_close_socket() {
+static be_jse_symbol_t *module_udp_close_socket()
+{
     be_jse_symbol_t *arg0 = NULL;
     int ret               = -1;
     int sock_id           = 0;
@@ -463,7 +469,8 @@ done:
 
 static be_jse_symbol_t *udp_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     be_debug(JS_UDP_TAG, "%s Enter: name=%s", __FUNCTION__, name);
 
     if (strcmp(name, "createSocket") == 0) return module_udp_create_socket();
@@ -475,6 +482,7 @@ static be_jse_symbol_t *udp_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_udp_register(void) {
+void module_udp_register(void)
+{
     be_jse_module_load(JS_UDP_TAG, udp_module_handle_cb);
 }

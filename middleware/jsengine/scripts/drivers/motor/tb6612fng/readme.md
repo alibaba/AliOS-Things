@@ -32,7 +32,7 @@
 ###Driver配置
 esp32Kit 示范：
 
-```
+```json
 {
     "codedmotor.ain0":{
       "type":"GPIO",
@@ -73,7 +73,7 @@ method:
 ###示例
 驱动电机正转和反转:
 
-```
+```js
 var codedmotor = require('./src/codemotor/src/index.js');
 var handle = new codedmotor('codedmotor.ain0','codedmotor.ain1','codedmotor.pwma');
 var duty_val = 0;

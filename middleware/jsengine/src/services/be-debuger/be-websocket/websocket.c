@@ -77,7 +77,8 @@ static int pingInterval = 25 * 1000;
 #define VERSION_DESCRIPTION "FREERTOS Version"
 #endif
 
-static int websocket_getVersion() {
+static int websocket_getVersion()
+{
     char* p_resp_cmd = NULL;
     int err_code     = 200;
 
@@ -98,12 +99,14 @@ do_exit:
     return 0;
 }
 
-static void websocket_eval_js(void* arg) {
+static void websocket_eval_js(void* arg)
+{
     bone_engine_start(arg);
     free(arg);
 }
 
-static int random_string(unsigned char* buf, int len) {
+static int random_string(unsigned char* buf, int len)
+{
     srand((int)time(NULL));
 
     for (int i = 0; i < len; i++) {
@@ -113,7 +116,8 @@ static int random_string(unsigned char* buf, int len) {
 }
 
 static int headers_get(const char* headers, const char* key,
-                       unsigned char* value, size_t value_len) {
+                       unsigned char* value, size_t value_len)
+{
     char* p;
     if ((p = strstr(headers, key)) == NULL) return -1;
     p += strlen(key);
@@ -124,27 +128,17 @@ static int headers_get(const char* headers, const char* key,
 }
 
 static int respond_shake_key(const char* accept_key, unsigned char* respond_key,
-                             size_t respond_key_len) {
+                             size_t respond_key_len)
+{
     if (accept_key == NULL) return -1;
 
     char client_key[256] = {0};
     strcat(client_key, accept_key);
     strcat(client_key, BWS_GUID);
 
-    unsigned char decrypt[20];  /* 160 bits */
+    unsigned char decrypt[20]; /* 160 bits */
 
     /* 计算 decrypt */
-#ifdef BE_OS_AOS
-    int ctx_size;
-    void* ctx_sha1;
-    ali_hash_get_ctx_size(SHA1, &ctx_size);
-    ctx_sha1 = calloc(1, ctx_size);
-    ali_hash_init(SHA1, ctx_sha1);
-    ali_hash_update((const uint8_t*)client_key, strlen(client_key), ctx_sha1);
-    ali_hash_final(decrypt, ctx_sha1);
-    ali_hash_reset(ctx_sha1);
-    free(ctx_sha1);
-#else
     mbedtls_sha1_context sha1_ctx;
     mbedtls_sha1_init(&sha1_ctx);
     mbedtls_sha1_starts(&sha1_ctx);
@@ -152,14 +146,14 @@ static int respond_shake_key(const char* accept_key, unsigned char* respond_key,
                         strlen((char*)client_key));
     mbedtls_sha1_finish(&sha1_ctx, decrypt);
     mbedtls_sha1_free(&sha1_ctx);
-#endif
 
     size_t olen = 0;
     return mbedtls_base64_encode(respond_key, respond_key_len, &olen, decrypt,
                                  sizeof(decrypt));
 }
 
-static int match_shake_key(const char* my_key, const char* accept_key) {
+static int match_shake_key(const char* my_key, const char* accept_key)
+{
     unsigned char respond_key[BWS_SHAKE_KEY_LEN] = {0};
     respond_shake_key(my_key, respond_key, sizeof(respond_key));
 
@@ -169,7 +163,8 @@ static int match_shake_key(const char* my_key, const char* accept_key) {
     return -1;
 }
 
-static int request_shake_key(unsigned char* key, int key_len) {
+static int request_shake_key(unsigned char* key, int key_len)
+{
     unsigned char tempKey[16] = {0};
     random_string(tempKey, sizeof(tempKey));
 
@@ -178,7 +173,8 @@ static int request_shake_key(unsigned char* key, int key_len) {
 }
 
 static int frame_encode(unsigned char* payload, size_t payload_len,
-                        bone_websocket_frame_t* frame) {
+                        bone_websocket_frame_t* frame)
+{
     if (payload == NULL || frame->frame_total_len < 2 ||
         frame->frame_data == NULL)
         return -1;
@@ -253,7 +249,8 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
 
 static int pingTimeout = 5000;
 
-static void bone_websocket_timeout(void* arg) {
+static void bone_websocket_timeout(void* arg)
+{
     bone_websocket_client_t* client = (bone_websocket_client_t*)arg;
     if (client == NULL) {
         return;
@@ -269,7 +266,8 @@ static void bone_websocket_timeout(void* arg) {
     be_debuger_websocket_reconnect();
 }
 
-static void ping_timer_cb(void* arg) {
+static void ping_timer_cb(void* arg)
+{
     bone_websocket_client_t* client = (bone_websocket_client_t*)arg;
     if (client == NULL) {
         return;
@@ -310,7 +308,8 @@ static void ping_timer_cb(void* arg) {
 }
 
 static int bone_websocket_send_cmd(bone_websocket_client_t* client, char* cmd,
-                                   bool is_mask) {
+                                   bool is_mask)
+{
     if (client == NULL) {
         return -1;
     }
@@ -340,9 +339,11 @@ static int bone_websocket_send_cmd(bone_websocket_client_t* client, char* cmd,
 /* 处理 be-cli/webide 发来的命令
    原始命令  42["/device/disconnect","arg0","arg1","arg2","arg3","arg4"]
    42["/ide/console",1,"2",{"3":"4","5":"rockzhou"}]
-   0{"sid":"RyTmnKrgBDtX37bsAAAA","upgrades":[],"pingInterval":25000,"pingTimeout":5000} */
+   0{"sid":"RyTmnKrgBDtX37bsAAAA","upgrades":[],"pingInterval":25000,"pingTimeout":5000}
+ */
 static int bone_websocket_on_command(bone_websocket_client_t* client,
-                                     unsigned char* msg, size_t msg_len) {
+                                     unsigned char* msg, size_t msg_len)
+{
     char* strCmd;
     char* args[32];
     int argc = 0;
@@ -359,16 +360,16 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
     if (msg_len >= 2) {
         if (msg[0] == '4') {
             switch (msg[1]) {
-                case '0':  /* CONNECT */
+                case '0': /* CONNECT */
                     break;
-                case '1':  /* DISCONNECT */
+                case '1': /* DISCONNECT */
                     client->state = BWS_STATE_CLOSING;
                     break;
-                case '2':  /* EVENT */
+                case '2': /* EVENT */
                     break;
-                case '3':  /* ACK */
+                case '3': /* ACK */
                     break;
-                case '4':  /* ERROR */
+                case '4': /* ERROR */
                     break;
             }
         } else if (msg[0] == '3') {
@@ -463,7 +464,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             be_debug(MODULE_TAG, "处理 %s ", args[0]);
             bone_websocket_send_frame("/device/disconnect_reply", 200,
                                       "success");
-#ifdef LINUXOSX  /* simulator auto exit(0) */
+#ifdef LINUXOSX /* simulator auto exit(0) */
             be_osal_shutdown();
 #endif
             client->state = BWS_STATE_CLOSING;
@@ -533,7 +534,8 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
 }
 
 static void bone_websocket_process_frame(bone_websocket_client_t* client,
-                                         bone_websocket_frame_t* frame_ptr) {
+                                         bone_websocket_frame_t* frame_ptr)
+{
     be_debug(MODULE_TAG, "frame.type:0x%x", frame_ptr->type);
 
     if (frame_ptr->type == BWS_CLOSE) {
@@ -560,7 +562,8 @@ static void bone_websocket_process_frame(bone_websocket_client_t* client,
     if (frame_ptr->payload) free(frame_ptr->payload);
 }
 
-static void on_read(int fd, void* arg) {
+static void on_read(int fd, void* arg)
+{
     int data_len = 0;
     unsigned char* ptr;
 
@@ -580,7 +583,7 @@ static void on_read(int fd, void* arg) {
         be_jse_task_cancel_timer(client->timeout_tsk_handle);
         client->timeout_tsk_handle = NULL;
 
-        /* */ be_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
+        /* be_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
                                          client); */
 
         data[data_len] = 0;
@@ -694,10 +697,12 @@ static void on_read(int fd, void* arg) {
 
 static bone_websocket_client_t* gWebsocketClient = NULL;
 
-bone_websocket_client_t* bone_websocket_getInstance() {
+bone_websocket_client_t* bone_websocket_getInstance()
+{
     return gWebsocketClient;
 }
-int bone_websocket_init(bone_websocket_client_t* client) {
+int bone_websocket_init(bone_websocket_client_t* client)
+{
     memset(client, 0, sizeof(bone_websocket_client_t));
     client->magic            = BONE_WEBSOCKET_MAGIC;
     client->state            = BWS_STATE_CONNECTING;
@@ -709,7 +714,8 @@ int bone_websocket_init(bone_websocket_client_t* client) {
     return 0;
 }
 
-int bone_websocket_deinit(bone_websocket_client_t* client) {
+int bone_websocket_deinit(bone_websocket_client_t* client)
+{
     if (client == NULL) return -1;
     gWebsocketClient = NULL;
     /* 避免 double free */
@@ -747,7 +753,8 @@ int bone_websocket_deinit(bone_websocket_client_t* client) {
     return 0;
 }
 
-static void websocket_read(void* arg) {
+static void websocket_read(void* arg)
+{
     bone_websocket_client_t* client = (bone_websocket_client_t*)arg;
     fd_set readfds;
     struct timeval tv;
@@ -756,7 +763,7 @@ static void websocket_read(void* arg) {
 
     sockfd = client->fd;
 
-    /* */ int flags;
+    /* int flags;
        flags = fcntl(sockfd, F_GETFL, 0);
        fcntl(sockfd, F_SETFL, flags | O_NONBLOCK); */
     tv.tv_usec = 500000;
@@ -779,7 +786,8 @@ static void websocket_read(void* arg) {
     printf("[%s][%d] ~~ Byte ~~ \n", __FUNCTION__, __LINE__);
 }
 
-int bone_websocket_connect(bone_websocket_client_t* client) {
+int bone_websocket_connect(bone_websocket_client_t* client)
+{
     int succ = 0;
     struct sockaddr_in remote_addr;
     memset(&remote_addr, 0, sizeof(remote_addr));
@@ -850,7 +858,8 @@ int bone_websocket_connect(bone_websocket_client_t* client) {
 }
 
 int bone_websocket_send_raw(bone_websocket_client_t* client,
-                            unsigned char* data, size_t data_len) {
+                            unsigned char* data, size_t data_len)
+{
     int ret;
     if (client->fd >= 0) {
         be_osal_lock_mutex(websocketMutex, 1000);
@@ -868,7 +877,8 @@ int bone_websocket_send_raw(bone_websocket_client_t* client,
  * 避免出现有可能存在的循环调用
  *
  */
-int bone_websocket_send_frame(char* topic, int level, char* msg) {
+int bone_websocket_send_frame(char* topic, int level, char* msg)
+{
     /* double check */
     if (gWebsocketClient == NULL) return 0;
     if (gWebsocketClient->state != BWS_STATE_OPEN) return 0;
@@ -932,8 +942,8 @@ int bone_websocket_send_frame(char* topic, int level, char* msg) {
 
 int bone_websocket_build_frame(unsigned char* payload, size_t payload_len,
                                bool is_mask, bone_websocket_frame_type_t type,
-                               unsigned char* frame_buf,
-                               size_t frame_buf_size) {
+                               unsigned char* frame_buf, size_t frame_buf_size)
+{
     bone_websocket_frame_t frame;
     memset(&frame, 0, sizeof(bone_websocket_frame_t));
     frame.frame_total_len = frame_buf_size;
@@ -945,7 +955,8 @@ int bone_websocket_build_frame(unsigned char* payload, size_t payload_len,
 }
 
 int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
-                               bone_websocket_frame_t* frame) {
+                               bone_websocket_frame_t* frame)
+{
     if (frame_data_len < 2) return -1;
 
 #ifdef BWD_PRINT_FRAME
@@ -1041,5 +1052,8 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
 
 #else
 
-int bone_websocket_send_frame(char* topic, int level, char* msg) { return 0; }
+int bone_websocket_send_frame(char* topic, int level, char* msg)
+{
+    return 0;
+}
 #endif
