@@ -41,11 +41,15 @@ static board_mgr_t g_board_mgr = {0, NULL};
 static int8_t board_add_new_item(addon_module_m module, char *name_id,
                                  void *node);
 
-static board_mgr_t *board_get_handle(void) { return &g_board_mgr; }
+static board_mgr_t *board_get_handle(void)
+{
+    return &g_board_mgr;
+}
 
 #ifdef JSE_HW_ADDON_GPIO
 
-static void board_set_gpio_default(gpio_dev_t *gpio_device) {
+static void board_set_gpio_default(gpio_dev_t *gpio_device)
+{
     if (NULL == gpio_device) {
         return;
     }
@@ -54,7 +58,8 @@ static void board_set_gpio_default(gpio_dev_t *gpio_device) {
     gpio_device->config = OUTPUT_PUSH_PULL;
 }
 
-static int8_t board_parse_gpio(cJSON *gpio, char *id) {
+static int8_t board_parse_gpio(cJSON *gpio, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -141,7 +146,8 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id) {
 #endif
 
 #ifdef JSE_HW_ADDON_UART
-static void board_set_uart_default(uart_dev_t *uart_device) {
+static void board_set_uart_default(uart_dev_t *uart_device)
+{
     if (NULL == uart_device) {
         return;
     }
@@ -155,7 +161,8 @@ static void board_set_uart_default(uart_dev_t *uart_device) {
     uart_device->config.mode         = MODE_TX_RX;
 }
 
-static int8_t board_parse_uart(cJSON *uart, char *id) {
+static int8_t board_parse_uart(cJSON *uart, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -245,7 +252,8 @@ static int8_t board_parse_uart(cJSON *uart, char *id) {
 #endif
 
 #ifdef JSE_HW_ADDON_I2C
-static void board_set_i2c_default(i2c_dev_t *i2c_device) {
+static void board_set_i2c_default(i2c_dev_t *i2c_device)
+{
     if (NULL == i2c_device) {
         return;
     }
@@ -257,7 +265,8 @@ static void board_set_i2c_default(i2c_dev_t *i2c_device) {
     i2c_device->config.dev_addr      = 0xFF;
 }
 
-static int8_t board_parse_i2c(cJSON *i2c, char *id) {
+static int8_t board_parse_i2c(cJSON *i2c, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -325,7 +334,8 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id) {
 #endif
 
 #ifdef JSE_HW_ADDON_PWM
-static void board_set_pwm_default(pwm_dev_t *pwm_device) {
+static void board_set_pwm_default(pwm_dev_t *pwm_device)
+{
     if (NULL == pwm_device) {
         return;
     }
@@ -335,7 +345,8 @@ static void board_set_pwm_default(pwm_dev_t *pwm_device) {
     pwm_device->config.duty_cycle = 100;
 }
 
-static int8_t board_parse_pwm(cJSON *pwm, char *id) {
+static int8_t board_parse_pwm(cJSON *pwm, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -395,17 +406,19 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id) {
 #endif
 
 #ifdef JSE_HW_ADDON_ADC
-static void board_set_adc_default(adc_dev_t *adc_device) {
+static void board_set_adc_default(adc_dev_t *adc_device)
+{
     if (NULL == adc_device) {
         return;
     }
-    adc_device->port                  = 0;
-    adc_device->chan                  = 0;
+    adc_device->port = 0;
+    /* adc_device->chan                  = 0; */
     adc_device->priv                  = NULL;
     adc_device->config.sampling_cycle = 12000000;
 }
 
-static int8_t board_parse_adc(cJSON *adc, char *id) {
+static int8_t board_parse_adc(cJSON *adc, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -435,10 +448,10 @@ static int8_t board_parse_adc(cJSON *adc, char *id) {
             config->sampling_cycle = temp->valueint;
         }
 
-        temp = cJSON_GetObjectItem(item, ADC_CHAN);
+        /* temp = cJSON_GetObjectItem(item, ADC_CHAN);
         if (NULL != temp && cJSON_Number == temp->type) {
             device.chan = temp->valueint;
-        }
+        } */
 
         adc_dev_t *new_adc = calloc(1, sizeof(*new_adc));
         if (NULL == new_adc) {
@@ -467,7 +480,8 @@ static int8_t board_parse_adc(cJSON *adc, char *id) {
 #endif
 
 #ifdef JSE_HW_ADDON_DAC
-static void board_set_dac_default(dac_dev_t *dac_device) {
+static void board_set_dac_default(dac_dev_t *dac_device)
+{
     if (NULL == dac_device) {
         return;
     }
@@ -476,7 +490,8 @@ static void board_set_dac_default(dac_dev_t *dac_device) {
     dac_device->priv = NULL;
 }
 
-static int8_t board_parse_dac(cJSON *dac, char *id) {
+static int8_t board_parse_dac(cJSON *dac, char *id)
+{
     int index   = 0;
     int8_t ret  = -1;
     cJSON *port = NULL;
@@ -529,7 +544,8 @@ static int8_t board_parse_dac(cJSON *dac, char *id) {
 }
 #endif
 
-static char *board_get_json_buff(const char *json_path) {
+static char *board_get_json_buff(const char *json_path)
+{
     void *json_data = NULL;
     uint32_t len    = 0;
     int32_t json_fd = -1;
@@ -579,7 +595,8 @@ static parse_json_t g_parse_json[] = {
     {NULL, MODULE_NUMS, NULL},
 };
 
-static const int8_t board_parse_json_buff(const char *json_buff) {
+static const int8_t board_parse_json_buff(const char *json_buff)
+{
     cJSON *root                 = NULL;
     cJSON *item                 = NULL;
     cJSON *child                = NULL;
@@ -616,7 +633,8 @@ static const int8_t board_parse_json_buff(const char *json_buff) {
 }
 
 static void *board_get_items(addon_module_m module, item_handle_t *handle,
-                             const char *name_id) {
+                             const char *name_id)
+{
     board_mgr_t *mgr_handle = board_get_handle();
     board_item_t *item      = NULL;
     if (NULL == handle && NULL == name_id) {
@@ -641,7 +659,8 @@ static void *board_get_items(addon_module_m module, item_handle_t *handle,
 }
 
 static int8_t board_add_new_item(addon_module_m module, char *name_id,
-                                 void *node) {
+                                 void *node)
+{
     board_item_t *item      = NULL;
     board_mgr_t *mgr_handle = board_get_handle();
     if (NULL == name_id || NULL == node) return (-1);
@@ -677,7 +696,8 @@ out:
 }
 
 int8_t board_attach_item(addon_module_m module, const char *name_id,
-                         item_handle_t *out) {
+                         item_handle_t *out)
+{
     board_item_t *item = NULL;
     if (NULL == name_id) {
         return (-1);
@@ -692,7 +712,8 @@ int8_t board_attach_item(addon_module_m module, const char *name_id,
     return (0);
 }
 
-int8_t board_disattach_item(addon_module_m module, item_handle_t *handle) {
+int8_t board_disattach_item(addon_module_m module, item_handle_t *handle)
+{
     board_item_t *item = NULL;
     if (NULL == handle) {
         return (-1);
@@ -706,7 +727,8 @@ int8_t board_disattach_item(addon_module_m module, item_handle_t *handle) {
     return (0);
 }
 
-int8_t board_check_attach_status(addon_module_m module, item_handle_t *handle) {
+int8_t board_check_attach_status(addon_module_m module, item_handle_t *handle)
+{
     board_item_t *item = NULL;
     if (NULL == handle) {
         return (0);
@@ -719,7 +741,8 @@ int8_t board_check_attach_status(addon_module_m module, item_handle_t *handle) {
     return (item->status);
 }
 
-void *board_get_node_by_name(addon_module_m module, const char *name_id) {
+void *board_get_node_by_name(addon_module_m module, const char *name_id)
+{
     board_item_t *item = NULL;
     if (NULL == name_id) {
         return (NULL);
@@ -732,7 +755,8 @@ void *board_get_node_by_name(addon_module_m module, const char *name_id) {
     return (item->node);
 }
 
-void *board_get_node_by_handle(addon_module_m module, item_handle_t *handle) {
+void *board_get_node_by_handle(addon_module_m module, item_handle_t *handle)
+{
     board_item_t *item = NULL;
     if (NULL == handle) return (NULL);
     item = board_get_items(module, handle, NULL);
@@ -743,7 +767,8 @@ void *board_get_node_by_handle(addon_module_m module, item_handle_t *handle) {
     return (item->node);
 }
 
-int8_t board_mgr_init(const char *json_path) {
+int8_t board_mgr_init(const char *json_path)
+{
     int8_t ret = -1;
     char *json = NULL;
 
@@ -759,7 +784,8 @@ int8_t board_mgr_init(const char *json_path) {
     return (ret);
 }
 
-int8_t board_load_drivers(const char *driver) {
+int8_t board_load_drivers(const char *driver)
+{
     char *p          = driver;
     char *index      = NULL;
     char *json       = NULL;

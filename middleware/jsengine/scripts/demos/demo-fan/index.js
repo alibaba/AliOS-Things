@@ -36,6 +36,6 @@ function fanUD() {
   console.log("let fan up and down shake");
 }
 
-setInterval(function() {
+setInterval(function () {
   console.log("fun is running");
 }, 5000);

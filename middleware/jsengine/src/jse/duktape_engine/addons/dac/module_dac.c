@@ -9,7 +9,8 @@
 #include "bone_engine_inl.h"
 #include "dac.h"
 
-static duk_ret_t native_open(duk_context *ctx) {
+static duk_ret_t native_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t dac_handle;
     dac_handle.handle     = 0xFFFFFFFF;
@@ -51,7 +52,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_setVol(duk_context *ctx) {
+static duk_ret_t native_setVol(duk_context *ctx)
+{
     int8_t ret       = -1;
     uint32_t voltage = 0;
     item_handle_t dac_handle;
@@ -75,7 +77,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_getVol(duk_context *ctx) {
+static duk_ret_t native_getVol(duk_context *ctx)
+{
     int32_t ret = -1;
     item_handle_t dac_handle;
     dac_dev_t *dac_device = NULL;
@@ -97,7 +100,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_close(duk_context *ctx) {
+static duk_ret_t native_close(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t dac_handle;
     dac_dev_t *dac_device = NULL;
@@ -121,7 +125,8 @@ out:
     return 1;
 }
 
-void module_dac_register(void) {
+void module_dac_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

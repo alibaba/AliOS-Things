@@ -1,8 +1,8 @@
 {
-    "i74hc.A1":{
-        "type":"GPIO",
-        "port":18,
-        "dir": 0,
-        "pull": 1
-    }
+  "i74hc.A1": {
+    "type": "GPIO",
+    "port": 18,
+    "dir": 0,
+    "pull": 1
+  }
 }

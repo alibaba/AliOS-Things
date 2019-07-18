@@ -38,12 +38,14 @@ typedef struct mqtt_instance_event_s {
 
 static mqtt_instance_event_t *first_event = NULL;
 
-static void event_list_add(mqtt_instance_event_t *ev) {
+static void event_list_add(mqtt_instance_event_t *ev)
+{
     ev->next    = first_event;
     first_event = ev;
 }
 
-static void event_list_remove(mqtt_instance_event_t *ev) {
+static void event_list_remove(mqtt_instance_event_t *ev)
+{
     mqtt_instance_event_t **ep, *e1;
 
     /* remove connection from list */
@@ -58,7 +60,8 @@ static void event_list_remove(mqtt_instance_event_t *ev) {
 }
 
 static void event_handle(void *pcontext, void *pclient,
-                         iotx_mqtt_event_msg_pt msg) {
+                         iotx_mqtt_event_msg_pt msg)
+{
     int event = 0;
 
     switch (msg->event_type) {
@@ -78,11 +81,18 @@ static void event_handle(void *pcontext, void *pclient,
     }
 }
 
-void *mqtt_get_instance() { return mqtt_client; }
+void *mqtt_get_instance()
+{
+    return mqtt_client;
+}
 
-void mqtt_remove_instance() { mqtt_client = NULL; }
+void mqtt_remove_instance()
+{
+    mqtt_client = NULL;
+}
 
-int mqtt_set_instance(void *mqtt_t) {
+int mqtt_set_instance(void *mqtt_t)
+{
     if (mqtt_client || mqtt_t == NULL) return FAIL_RETURN;
 
     mqtt_client = mqtt_t;
@@ -96,7 +106,8 @@ int mqtt_set_instance(void *mqtt_t) {
  * -1: mqtt instance init fail
  */
 int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret,
-                       int maxMsgSize) {
+                       int maxMsgSize)
+{
     if (mqtt_client) return 1;
 
     IOT_OpenLog("masterslave");
@@ -148,7 +159,8 @@ fail:
     return -1;
 }
 
-int mqtt_deinit_instance(void) {
+int mqtt_deinit_instance(void)
+{
     abort_request = 1;
 
     if (mqtt_rbuf) {
@@ -180,7 +192,8 @@ int mqtt_deinit_instance(void) {
     return 0;
 }
 
-int mqtt_set_event_cb(void (*event_cb)(int event, void *ctx), void *ctx) {
+int mqtt_set_event_cb(void (*event_cb)(int event, void *ctx), void *ctx)
+{
     if (!event_cb) return -1;
 
     if (!mqtt_client) return -1;
@@ -209,12 +222,14 @@ typedef struct mqtt_instance_topic_s {
 
 static mqtt_instance_topic_t *first_topic = NULL;
 
-static void topic_list_add(mqtt_instance_topic_t *t) {
+static void topic_list_add(mqtt_instance_topic_t *t)
+{
     t->next     = first_topic;
     first_topic = t;
 }
 
-static void topic_list_remove(mqtt_instance_topic_t *t) {
+static void topic_list_remove(mqtt_instance_topic_t *t)
+{
     mqtt_instance_topic_t **tp, *t1;
 
     /* remove connection from list */
@@ -228,8 +243,8 @@ static void topic_list_remove(mqtt_instance_topic_t *t) {
     }
 }
 
-static void subscriber_cb(void *ctx, void *pclient,
-                          iotx_mqtt_event_msg_pt msg) {
+static void subscriber_cb(void *ctx, void *pclient, iotx_mqtt_event_msg_pt msg)
+{
     mqtt_instance_topic_t *t            = ctx;
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
@@ -242,7 +257,8 @@ static void subscriber_cb(void *ctx, void *pclient,
 int mqtt_subscribe(char *topic,
                    void (*cb)(char *topic, int topic_len, void *payload,
                               int len, void *ctx),
-                   void *ctx) {
+                   void *ctx)
+{
     if (!topic || !cb) return -1;
 
     if (!mqtt_client) return -1;
@@ -274,7 +290,8 @@ int mqtt_subscribe(char *topic,
     return 0;
 }
 
-int mqtt_unsubscribe(char *topic) {
+int mqtt_unsubscribe(char *topic)
+{
     mqtt_instance_topic_t *t, *t_next;
 
     if (!mqtt_client) return -1;
@@ -294,7 +311,8 @@ int mqtt_unsubscribe(char *topic) {
     return 0;
 }
 
-int mqtt_publish(char *topic, int qos, void *data, int len) {
+int mqtt_publish(char *topic, int qos, void *data, int len)
+{
     iotx_mqtt_topic_info_t mqtt_msg;
 
     if (!mqtt_client) return -1;

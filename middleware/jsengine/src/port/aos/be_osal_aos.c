@@ -2,15 +2,15 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
+#include <k_api.h>
 #include "aos/init.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"
-#include <k_api.h>
 
 #include "be_port_osal.h"
 
@@ -18,13 +18,13 @@ typedef struct {
     aos_timer_t timer;
     os_timer_cb cb;
     void *arg;
-}be_osal_timer_t;
+} be_osal_timer_t;
 
 typedef struct {
     aos_queue_t queue;
     uint8_t *queue_buf;
     uint32_t item_size;
-}be_osal_queue_t;
+} be_osal_queue_t;
 
 uint32_t be_osal_task_get_default_priority(void)
 {
@@ -49,16 +49,14 @@ int32_t be_osal_create_task(const char *name, be_osal_task_handler_t task,
                             void **task_handle)
 {
     aos_task_t *new_handle = NULL;
-    if(0 != aos_task_new_ext(&new_handle, name, task, data, size, priority))
-    {
-        if (NULL != task_handle)
-        {
+    if (0 != aos_task_new_ext(&new_handle, name, task, data, size, priority)) {
+        if (NULL != task_handle) {
             *task_handle = NULL;
         }
         return -1;
     }
 
-    if(NULL != task_handle){
+    if (NULL != task_handle) {
         *task_handle = name;
     }
     return 0;
@@ -77,8 +75,7 @@ int32_t be_osal_create_task(const char *name, be_osal_task_handler_t task,
  **************************************************/
 void be_osal_delete_task(void *handle)
 {
-    if (NULL == handle)
-    {
+    if (NULL == handle) {
         aos_task_exit(0);
     }
 
@@ -126,8 +123,7 @@ uint32_t be_osal_get_clocktime()
 void *be_osal_new_mutex(void)
 {
     aos_mutex_t *pmutex = calloc(1, sizeof(aos_mutex_t));
-    if (aos_mutex_new(&pmutex) == 0)
-    {
+    if (aos_mutex_new(&pmutex) == 0) {
         return pmutex;
     }
     free(pmutex);
@@ -160,8 +156,7 @@ int32_t be_osal_del_mutex(void *mutex)
  **************************************************/
 int32_t be_osal_lock_mutex(void *mutex, uint32_t ms)
 {
-    if (mutex == NULL)
-        return (-3);
+    if (mutex == NULL) return (-3);
 
     return aos_mutex_lock(mutex, ms);
 }
@@ -182,10 +177,8 @@ void be_osal_delay10us(void)
 #if !defined STM32L496xx && !defined CONFIG_MX108
     uint32_t i = 0;
     uint32_t j = 0;
-    for (j = 0; j < 3; ++j)
-    {
-        for (i = 0; i < 85; i++)
-        {
+    for (j = 0; j < 3; ++j) {
+        for (i = 0; i < 85; i++) {
             asm("nop");
         }
     }
@@ -213,18 +206,18 @@ static void timer_cb(void *timer, void *user)
 osTimerId be_osal_timer_create(os_timer_cb callback, be_osal_timer_type type,
                                void *arg)
 {
-    be_osal_timer_t *osal_timer = (be_osal_timer_t *)aos_malloc(sizeof(be_osal_timer_t));
-    if (osal_timer == NULL)
-    {
+    be_osal_timer_t *osal_timer =
+        (be_osal_timer_t *)aos_malloc(sizeof(be_osal_timer_t));
+    if (osal_timer == NULL) {
         return NULL;
     }
 
-    osal_timer->cb = callback;
+    osal_timer->cb  = callback;
     osal_timer->arg = arg;
 
     /* set repeat time to 1000ms default */
-    if (0 != aos_timer_new_ext(&osal_timer->timer, timer_cb, osal_timer, 1000, (int32_t)type, 0))
-    {
+    if (0 != aos_timer_new_ext(&osal_timer->timer, timer_cb, osal_timer, 1000,
+                               (int32_t)type, 0)) {
         aos_free(osal_timer);
         return NULL;
     }
@@ -244,9 +237,11 @@ osTimerId be_osal_timer_create(os_timer_cb callback, be_osal_timer_type type,
  * @return	 成功返回0，失败返回-1
  **************************************************/
 
-int32_t be_osal_timer_start(osTimerId timer_id, uint32_t millisec) {
+int32_t be_osal_timer_start(osTimerId timer_id, uint32_t millisec)
+{
     /* set repeat time */
-    if(0 != aos_timer_change(&((be_osal_timer_t *)timer_id)->timer, millisec)){
+    if (0 !=
+        aos_timer_change(&((be_osal_timer_t *)timer_id)->timer, millisec)) {
         return -1;
     }
 
@@ -263,7 +258,8 @@ int32_t be_osal_timer_start(osTimerId timer_id, uint32_t millisec) {
  * @return	 成功返回0，失败返回-1
  **************************************************/
 
-int32_t be_osal_timer_stop(osTimerId timer_id) {
+int32_t be_osal_timer_stop(osTimerId timer_id)
+{
     return aos_timer_stop(&((be_osal_timer_t *)timer_id)->timer);
 }
 
@@ -277,7 +273,8 @@ int32_t be_osal_timer_stop(osTimerId timer_id) {
  * @return	 成功返回0，失败返回-1
  **************************************************/
 
-int32_t be_osal_timer_delete(osTimerId timer_id) {
+int32_t be_osal_timer_delete(osTimerId timer_id)
+{
     /* free the aos timer */
     aos_timer_free(&((be_osal_timer_t *)timer_id)->timer);
 
@@ -296,7 +293,8 @@ int32_t be_osal_timer_delete(osTimerId timer_id) {
  * @return 	 成功返回一个指针指向arg参数
  **************************************************/
 
-void *be_osal_get_timer_param(void *timerHandle) {
+void *be_osal_get_timer_param(void *timerHandle)
+{
     return timerHandle;
 }
 
@@ -310,26 +308,27 @@ void *be_osal_get_timer_param(void *timerHandle) {
  *
  * @return 	 成功返回对列的handler指针　失败返回NULL
  **************************************************/
-osMessageQId be_osal_messageQ_create(int32_t queue_length, int32_t item_size) {
+osMessageQId be_osal_messageQ_create(int32_t queue_length, int32_t item_size)
+{
     /* malloc queue wrapper */
-    be_osal_queue_t *osal_queue = (aos_queue_t *)aos_malloc(sizeof(be_osal_queue_t));
-    if (osal_queue == NULL)
-    {
+    be_osal_queue_t *osal_queue =
+        (aos_queue_t *)aos_malloc(sizeof(be_osal_queue_t));
+    if (osal_queue == NULL) {
         return NULL;
     }
     memset(osal_queue, 0, sizeof(be_osal_queue_t));
 
     /* malloc queue buffer */
     osal_queue->queue_buf = (uint8_t *)aos_malloc(queue_length * item_size);
-    if (osal_queue->queue_buf == NULL)
-    {
+    if (osal_queue->queue_buf == NULL) {
         aos_free(osal_queue);
         return NULL;
     }
     osal_queue->item_size = item_size;
 
     /* create queue */
-    if(0 != aos_queue_new(&osal_queue->queue, osal_queue->queue_buf, queue_length * item_size, item_size)){
+    if (0 != aos_queue_new(&osal_queue->queue, osal_queue->queue_buf,
+                           queue_length * item_size, item_size)) {
         aos_free(osal_queue->queue_buf);
         aos_free(osal_queue);
         return NULL;
@@ -350,8 +349,10 @@ osMessageQId be_osal_messageQ_create(int32_t queue_length, int32_t item_size) {
  * @return 	 发送成功返回0 失败返回其他
  **************************************************/
 int32_t be_osal_messageQ_put(osMessageQId queue_id, void *p_info,
-                             uint32_t millisec) {
-    return aos_queue_send(&((be_osal_queue_t *)queue_id)->queue, p_info, ((be_osal_queue_t *)queue_id)->item_size);
+                             uint32_t millisec)
+{
+    return aos_queue_send(&((be_osal_queue_t *)queue_id)->queue, p_info,
+                          ((be_osal_queue_t *)queue_id)->item_size);
 }
 
 /**************************************************
@@ -366,10 +367,12 @@ int32_t be_osal_messageQ_put(osMessageQId queue_id, void *p_info,
  * @return 	 成功返回0　失败返回-1
  **************************************************/
 int32_t be_osal_messageQ_get(osMessageQId queue_id, void *p_info,
-                             uint32_t millisec) {
+                             uint32_t millisec)
+{
     uint32_t size = 0;
 
-    return aos_queue_recv(&((be_osal_queue_t *)queue_id)->queue, millisec, p_info, &size);
+    return aos_queue_recv(&((be_osal_queue_t *)queue_id)->queue, millisec,
+                          p_info, &size);
 }
 /***************************************************
  * @fn		 be_osal_messageQ_delete
@@ -380,7 +383,8 @@ int32_t be_osal_messageQ_get(osMessageQId queue_id, void *p_info,
  *
  * @return	 成功返回0，失败返回-1
  **************************************************/
-int32_t be_osal_messageQ_delete(osMessageQId queue_id) {
+int32_t be_osal_messageQ_delete(osMessageQId queue_id)
+{
     aos_free(((be_osal_queue_t *)queue_id)->queue_buf);
     aos_free(queue_id);
     return 0;

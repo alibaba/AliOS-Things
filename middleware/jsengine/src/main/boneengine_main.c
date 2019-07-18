@@ -35,23 +35,25 @@
 
 #define TAG "tiny-engine-main"
 
-#define APP_PACKAGE_FILE_NAME BE_FS_ROOT_DIR"/package.json"
+#define APP_PACKAGE_FILE_NAME BE_FS_ROOT_DIR "/package.json"
 #define MAX_FILE_NAME_LEN 127
 static char js_app_file_name[128];
 
 static int32_t g_console_log_enable = 1;
 
-int32_t bone_console_get_log_flag(){
+int32_t bone_console_get_log_flag()
+{
     return g_console_log_enable;
 }
-void bone_console_log_enable() {
+void bone_console_log_enable()
+{
     g_console_log_enable = 1;
 }
 
-void bone_console_log_disable() {
+void bone_console_log_disable()
+{
     g_console_log_enable = 0;
 }
-
 
 /**
  *
@@ -59,7 +61,8 @@ void bone_console_log_disable() {
  * 1. stdout标准输出打印
  *
  */
-static void be_log_cb(const char* tag, int level, const char* msg, int len) {
+static void be_log_cb(const char *tag, int level, const char *msg, int len)
+{
     if (tag)
         printf("[%s] %s\n", tag, msg);
     else
@@ -72,20 +75,22 @@ static void be_log_cb(const char* tag, int level, const char* msg, int len) {
  * 1. /spiffs/index.js
  * 2. 分析/spiffs/package.json获取【test】或者【main】
  */
-char *search_js_app_main_entry() {
-    cJSON *root = NULL;
-    cJSON *item = NULL;
+char *search_js_app_main_entry()
+{
+    cJSON *root     = NULL;
+    cJSON *item     = NULL;
     void *json_data = NULL;
 
     int js_app_fd = -1;
-    int file_len = 0;
-    int json_fd = -1;
+    int file_len  = 0;
+    int json_fd   = -1;
 
     memset(js_app_file_name, 0, sizeof(js_app_file_name));
 
     strcpy(js_app_file_name, BE_FS_ROOT_DIR "/index.js");
 
-    /* use the currrent dir default index.js file to the main js entry programe */
+    /* use the currrent dir default index.js file to the main js entry programe
+     */
     if ((js_app_fd = be_open(js_app_file_name, O_RDONLY)) > 0) {
         be_close(js_app_fd);
         be_debug(TAG, "find the default file :%s\n", js_app_file_name);
@@ -99,7 +104,7 @@ char *search_js_app_main_entry() {
     }
 
     /* read package config file to json_data buffer */
-    file_len = be_lseek(json_fd, 0, SEEK_END);
+    file_len  = be_lseek(json_fd, 0, SEEK_END);
     json_data = calloc(1, sizeof(char) * (file_len + 1));
     if (NULL == json_data) {
         be_close(json_fd);
@@ -122,7 +127,8 @@ char *search_js_app_main_entry() {
     item = cJSON_GetObjectItem(root, "test");
     if (NULL != item && cJSON_String == item->type &&
         strstr(item->valuestring, ".js")) {
-        snprintf(js_app_file_name, sizeof(js_app_file_name), "%s/%s", BE_FS_ROOT_DIR, item->valuestring);
+        snprintf(js_app_file_name, sizeof(js_app_file_name), "%s/%s",
+                 BE_FS_ROOT_DIR, item->valuestring);
         if ((js_app_fd = be_open(js_app_file_name, O_RDONLY)) > 0) {
             be_close(js_app_fd);
             free(json_data);
@@ -149,7 +155,11 @@ char *search_js_app_main_entry() {
     return NULL;
 }
 
-void be_jse_task_main_entrance() {
+void be_jse_task_main_entrance()
+{
+    uint8_t ssdp_started = 0;
+    char localip[32];
+
     printf("%s %d  ~~~~ Enter ~~~ \r\n", __FUNCTION__, __LINE__);
 
     /* 初始化JSE task */
@@ -169,12 +179,20 @@ void be_jse_task_main_entrance() {
     while (1) {
         /* 处理JS异步操作 */
         bone_engine_task_yield(200);
+
+#ifdef JSE_IDE_DEBUG
+        if (0 == ssdp_started && hal_system_get_ip(localip) == 0) {
+            be_debuger_ssdp_start(localip);
+            ssdp_started = 1;
+        }
+#endif
     }
 
     printf("%s %d  ~~~~ Byte ~~~ \r\n", __FUNCTION__, __LINE__);
 }
 
-void tiny_engine_start() {
+void tiny_engine_start()
+{
     printf("tiny_engine_start...\r\n");
 
     /* BoneEngine log重定向 */
@@ -182,11 +200,11 @@ void tiny_engine_start() {
 
     hal_system_kv_init();
 
-#ifdef _HW_ADDON_WIFI
+#ifdef JSE_HW_ADDON_WIFI
     hal_system_wifi_init();
 #endif
 
-    if( 0 != hal_system_fs_init()){
+    if (0 != hal_system_fs_init()) {
         be_debug(TAG, "fs init failed\r\n");
         return;
     }
@@ -199,23 +217,11 @@ void tiny_engine_start() {
     cli_cmd_register_app();
 #endif
 
-    if(0 != board_mgr_init(BE_FS_ROOT_DIR"/board.json")){
-        be_debug(TAG, "read "BE_FS_ROOT_DIR"/board.json error\r\n");
+    if (0 != board_mgr_init(BE_FS_ROOT_DIR "/board.json")) {
+        be_debug(TAG, "read " BE_FS_ROOT_DIR "/board.json error\r\n");
         return;
     }
 
     be_osal_create_task("jse_task", be_jse_task_main_entrance, NULL, 1024 * 10,
                         JSE_TSK_PRIORITY, NULL);
-
-#ifdef JSE_IDE_DEBUG
-    char localip[32];
-    while (1) {
-        if (hal_system_get_ip(localip) == 0) {
-            be_debuger_ssdp_start(localip);
-            break;
-        } else {
-            be_osal_delay(500);
-        }
-    }
-#endif
 }

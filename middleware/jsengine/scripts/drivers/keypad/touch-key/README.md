@@ -14,7 +14,7 @@ Driver功能：触摸按键
 ###Driver配置
 基于ESP32DEVKITC的Driver配置如下，如其他平台请根据实际连接情况调整Driver的配置。
 
-```
+```json
 {
   "ADC":[
 		{
@@ -43,7 +43,7 @@ method:
 ###示例
 实时监测触摸按键是否按下：
 
-```
+```js
 var touchkey = require('tkey/src/index.js');
 var handle = new touchkey('touchkey.key0','touchkey.key1')
 function keyHandle(val){

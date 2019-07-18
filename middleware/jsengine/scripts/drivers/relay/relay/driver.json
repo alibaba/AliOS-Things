@@ -1,7 +1,7 @@
 {
-  "relay":{
-    "type":"GPIO",
-    "port":18,
+  "relay": {
+    "type": "GPIO",
+    "port": 18,
     "dir": 0,
     "pull": 1
   }

@@ -1,7 +1,7 @@
 {
-  "czn15e":{
-    "type":"GPIO",
-    "port":5,
+  "czn15e": {
+    "type": "GPIO",
+    "port": 5,
     "dir": 1,
     "pull": 1
   }

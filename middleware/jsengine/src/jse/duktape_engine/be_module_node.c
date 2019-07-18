@@ -8,7 +8,8 @@
 
 static void duk__push_module_object(duk_context *ctx, const char *id);
 
-static duk_bool_t duk__get_cached_module(duk_context *ctx, const char *id) {
+static duk_bool_t duk__get_cached_module(duk_context *ctx, const char *id)
+{
     duk_push_global_stash(ctx);
     (void)duk_get_prop_string(ctx, -1,
                               "\xff"
@@ -27,7 +28,8 @@ static duk_bool_t duk__get_cached_module(duk_context *ctx, const char *id) {
  * based on its `.id` property.  As a convenience to the caller, leave the
  * object on top of the value stack afterwards.
  */
-static void duk__put_cached_module(duk_context *ctx) {
+static void duk__put_cached_module(duk_context *ctx)
+{
     /* [ ... module ] */
 
     duk_push_global_stash(ctx);
@@ -45,7 +47,8 @@ static void duk__put_cached_module(duk_context *ctx) {
     duk_pop_3(ctx); /* [ ... module ] */
 }
 
-static void duk__del_cached_module(duk_context *ctx, const char *id) {
+static void duk__del_cached_module(duk_context *ctx, const char *id)
+{
     duk_push_global_stash(ctx);
     (void)duk_get_prop_string(ctx, -1,
                               "\xff"
@@ -54,7 +57,8 @@ static void duk__del_cached_module(duk_context *ctx, const char *id) {
     duk_pop_2(ctx);
 }
 
-static duk_int_t duk__eval_module_source(duk_context *ctx, void *udata) {
+static duk_int_t duk__eval_module_source(duk_context *ctx, void *udata)
+{
     const char *src;
 
     /*
@@ -115,7 +119,8 @@ static duk_int_t duk__eval_module_source(duk_context *ctx, void *udata) {
     return 1;
 }
 
-static duk_ret_t duk__handle_require(duk_context *ctx) {
+static duk_ret_t duk__handle_require(duk_context *ctx)
+{
     /*
      *  Value stack handling here is a bit sloppy but should be correct.
      *  Call handling will clean up any extra garbage for us.
@@ -208,7 +213,8 @@ have_module:
     return 1;
 }
 
-static void duk__push_require_function(duk_context *ctx, const char *id) {
+static void duk__push_require_function(duk_context *ctx, const char *id)
+{
     duk_push_c_function(ctx, duk__handle_require, 1);
     duk_push_string(ctx, "name");
     duk_push_string(ctx, "require");
@@ -227,7 +233,8 @@ static void duk__push_require_function(duk_context *ctx, const char *id) {
     duk_pop(ctx);
 }
 
-static void duk__push_module_object(duk_context *ctx, const char *id) {
+static void duk__push_module_object(duk_context *ctx, const char *id)
+{
     duk_push_object(ctx);
 
     /* Node.js uses the canonicalized filename of a module for both module.id
@@ -252,7 +259,8 @@ static void duk__push_module_object(duk_context *ctx, const char *id) {
     duk_put_prop_string(ctx, -2, "require");
 }
 
-void be_module_node_set_entry(duk_context *ctx, const char *entry) {
+void be_module_node_set_entry(duk_context *ctx, const char *entry)
+{
     duk_push_global_object(ctx);
     duk_get_prop_string(ctx, -1, "require");
     duk_push_string(ctx, entry);
@@ -262,7 +270,8 @@ void be_module_node_set_entry(duk_context *ctx, const char *entry) {
     duk_pop_n(ctx, 2);
 }
 
-void be_module_node_init(duk_context *ctx) {
+void be_module_node_init(duk_context *ctx)
+{
     /*
      *  Stack: [ ... options ] => [ ... ]
      */

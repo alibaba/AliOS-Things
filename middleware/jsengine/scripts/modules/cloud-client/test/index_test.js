@@ -19,21 +19,21 @@ function lightOff() {
 
 //
 cloudClient.start(
-//config
+  //config
   {
     productKey: "please_input_your_key",
     deviceName: "please_input_device_name",
     deviceSecret: "please_input_device_secret"
   },
-  
-//cb
-  function(err, data) {
+
+  //cb
+  function (err, data) {
     console.log("onStart");
     if (err) {
       return;
     }
-//
-    cloudClient.onPropertySet(function(msg) {
+    //
+    cloudClient.onPropertySet(function (msg) {
       if (msg.method === "thing.service.property.set") {
         if (msg.params.LightSwitch === 1) {
           lightOn();
@@ -45,13 +45,12 @@ cloudClient.start(
   }
 );
 
-setInterval(function()
-{
-	if(i)
-		lightOn();
-	else
-		lightOff();
-		
-		i=(i+1)%2;
-	
-},4000);
+setInterval(function () {
+  if (i)
+    lightOn();
+  else
+    lightOff();
+
+  i = (i + 1) % 2;
+
+}, 4000);

@@ -28,7 +28,7 @@ PS2 MS引脚接esp32Kit IO12引脚；
 
 esp32Kit示范:
 
-```
+```json
 {
     "ps2x":{
       "type":"ADC",
@@ -50,7 +50,6 @@ esp32Kit示范:
 
 ```
 
-
 ###API说明
 ```
 class：ps2
@@ -63,12 +62,11 @@ method:
       onz() 监控z轴action;
 ```
 
-
 ###示例
 
 JavaScript
 
-```
+```js
 console.log('TinyEngine Demo run');
 console.log('Welcome to use BoneEngine@lite');
 console.log('产品名称: ps2遥杆');
@@ -111,7 +109,7 @@ MS5661模块 CSB引脚接 DevelopKit VCC引脚；
 ###Driver配置
 DevelopKit示范：
 
-```
+```json
   "ms5611":{
     "type":"I2C",
     "port":2,
@@ -137,7 +135,7 @@ method:
 ###示例
 监控xyz的action数据:
 
-```
+```js
 var ps2 = require('./src/ps2/src/index.js');
 var handle = new ps2('ps2x','ps2y','ps2z');
 function  zhandle_on(value){

@@ -7,11 +7,11 @@ var hcsr501 = require('hcsr501/src/index.js');
 //创建 hcsr501 驱动对象
 var handlehcsr = new hcsr501('hcsr501');
 
-var listen = function(){
-  
+var listen = function () {
+
   // 每隔 200ms 检测一次红外传感器状态
   var val = handlehcsr.check();
-  if(val){
+  if (val) {
     console.log('get it!');
   }
 }

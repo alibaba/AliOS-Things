@@ -27,7 +27,8 @@ static int beJSESymbolMaxUsage = 0;
 static int beJSESymbolUsage    = 0;
 #endif
 
-static be_jse_symbol_t *get_symbol_addr(be_jse_node_t ref) {
+static be_jse_symbol_t *get_symbol_addr(be_jse_node_t ref)
+{
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
     be_jse_node_t t = ref - 1;
     return &gSymbolBlocks[t >> BE_JSE_SYMBOL_TABLE_BLOCK_SHIFT]
@@ -38,8 +39,8 @@ static be_jse_symbol_t *get_symbol_addr(be_jse_node_t ref) {
 #endif
 }
 
-static be_jse_node_t symbol_table_init(be_jse_node_t start,
-                                       unsigned int count) {
+static be_jse_node_t symbol_table_init(be_jse_node_t start, unsigned int count)
+{
     be_jse_node_t i;
     for (i = start; i < start + count; i++) {
         be_jse_symbol_t *v = get_symbol_addr(i);
@@ -55,7 +56,8 @@ static be_jse_node_t symbol_table_init(be_jse_node_t start,
     return start;
 }
 
-be_jse_node_t get_symbol_node_id(be_jse_symbol_t *s) {
+be_jse_node_t get_symbol_node_id(be_jse_symbol_t *s)
+{
     if (!s) return 0;
 
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
@@ -82,7 +84,8 @@ be_jse_node_t get_symbol_node_id(be_jse_symbol_t *s) {
 #endif
 }
 
-void be_jse_symbol_table_init() {
+void be_jse_symbol_table_init()
+{
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
     gSymbolTableSize = BE_JSE_SYMBOL_TABLE_BLOCK_SIZE;
     gSymbolBlocks    = calloc(1, sizeof(be_jse_symbol_t *));
@@ -104,7 +107,8 @@ void be_jse_symbol_table_init() {
 #endif
 }
 
-void be_jse_symbol_table_deinit() {
+void be_jse_symbol_table_deinit()
+{
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
     unsigned int i;
     for (i = 0; i<gSymbolTableSize>> BE_JSE_SYMBOL_TABLE_BLOCK_SHIFT; i++)
@@ -116,7 +120,8 @@ void be_jse_symbol_table_deinit() {
 #endif
 }
 
-void be_jse_set_symbol_table_size(unsigned int newSize) {
+void be_jse_set_symbol_table_size(unsigned int newSize)
+{
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
 
     if (newSize <= gSymbolTableSize) return; /* never allow us to have less! */
@@ -162,7 +167,8 @@ void be_jse_set_symbol_table_size(unsigned int newSize) {
 }
 
 /* 从本地符号表中分配一个新的空的符号表项 */
-static be_jse_symbol_t *new_symbol_node() {
+static be_jse_symbol_t *new_symbol_node()
+{
     if (gSymbolTableFirstFreeSlotID != 0) {
         be_jse_symbol_t *s = symbol_lock(gSymbolTableFirstFreeSlotID);
 
@@ -206,7 +212,8 @@ static be_jse_symbol_t *new_symbol_node() {
 }
 
 /* 释放 symbol表中的节点 */
-void free_symbol_node(be_jse_symbol_t *s) {
+void free_symbol_node(be_jse_symbol_t *s)
+{
     be_assert(symbol_is_string_ext(s) ||
               (!s->next_sibling && !s->prev_sibling));
 
@@ -273,7 +280,8 @@ void free_symbol_node(be_jse_symbol_t *s) {
 
 /* 从缓存的符号表中，分配相应类型的符号变量 */
 
-be_jse_symbol_t *new_symbol(be_jse_symbol_type_e type) {
+be_jse_symbol_t *new_symbol(be_jse_symbol_type_e type)
+{
     be_jse_symbol_t *var = new_symbol_node();
     if (!var) return 0;
     var->flags = type;
@@ -281,16 +289,18 @@ be_jse_symbol_t *new_symbol(be_jse_symbol_type_e type) {
 }
 
 /* 整型 */
-be_jse_symbol_t *new_int_symbol(be_jse_int_t value) {
+be_jse_symbol_t *new_int_symbol(be_jse_int_t value)
+{
     be_jse_symbol_t *var = new_symbol_node();
-    if (!var) return 0;  /* no memory */
+    if (!var) return 0; /* no memory */
     var->flags        = BE_SYM_INTEGER;
     var->data.integer = value;
     return var;
 }
 
 /* Bool型 */
-be_jse_symbol_t *new_bool_symbol(bool value) {
+be_jse_symbol_t *new_bool_symbol(bool value)
+{
     be_jse_symbol_t *var = new_symbol_node();
     if (!var) return 0; /* no memory */
     var->flags        = BE_SYM_INTEGER;
@@ -299,7 +309,8 @@ be_jse_symbol_t *new_bool_symbol(bool value) {
 }
 
 /* 浮点型 */
-be_jse_symbol_t *new_float_symbol(be_jse_float_t value) {
+be_jse_symbol_t *new_float_symbol(be_jse_float_t value)
+{
     be_jse_symbol_t *var = new_symbol_node();
     if (!var) return 0; /* no memory */
     var->flags         = BE_SYM_FLOAT;
@@ -308,7 +319,8 @@ be_jse_symbol_t *new_float_symbol(be_jse_float_t value) {
 }
 
 be_jse_symbol_t *new_named_symbol(be_jse_symbol_t *s,
-                                  be_jse_symbol_t *valueOrZero) {
+                                  be_jse_symbol_t *valueOrZero)
+{
     if (!s) return 0;
     be_assert(s->refs == 0);
     s->flags |= BE_SYM_NAME;
@@ -317,7 +329,8 @@ be_jse_symbol_t *new_named_symbol(be_jse_symbol_t *s,
     return s;
 }
 
-be_jse_symbol_t *new_json_symbol(char *json_str, size_t json_str_len) {
+be_jse_symbol_t *new_json_symbol(char *json_str, size_t json_str_len)
+{
     be_jse_symbol_t *ret;
     char *evalstr = (char *)calloc(1, json_str_len + 3);
     if (!json_str || strlen(json_str) == 0) json_str = "{}";
@@ -337,7 +350,8 @@ be_jse_symbol_t *new_json_symbol(char *json_str, size_t json_str_len) {
 }
 
 /* 从本地符号表中分配一个字符串类型的符号,并把str 保存到该符号表中 */
-be_jse_symbol_t *new_str_symbol(const char *str) {
+be_jse_symbol_t *new_str_symbol(const char *str)
+{
     be_jse_symbol_t *s;
     be_jse_symbol_t *first = new_symbol_node();
     if (!first) {
@@ -378,11 +392,13 @@ be_jse_symbol_t *new_str_symbol(const char *str) {
     return first;
 }
 
-static ALWAYS_INLINE bool is_space(char ch) {
+static ALWAYS_INLINE bool is_space(char ch)
+{
     return (ch == ' ') || (ch == '\t');
 }
 
-static ALWAYS_INLINE char change_state(char c, int *state, int *last) {
+static ALWAYS_INLINE char change_state(char c, int *state, int *last)
+{
     /* 状态机处理 */
     if (*state == 0 || *state == 9) { /* 普通状态 */
         if (c == '/') {
@@ -466,7 +482,8 @@ static ALWAYS_INLINE char change_state(char c, int *state, int *last) {
 }
 
 static ALWAYS_INLINE be_jse_symbol_t *_new_func_code_symbol(
-    be_jse_lexer_ctx_t *lex, int charFrom, int charTo) {
+    be_jse_lexer_ctx_t *lex, int charFrom, int charTo)
+{
     be_jse_symbol_t *first = NULL;
 
     int len         = charTo - charFrom;
@@ -510,7 +527,8 @@ static ALWAYS_INLINE be_jse_symbol_t *_new_func_code_symbol(
 /* 保存JS函数的内容 */
 
 be_jse_symbol_t *new_func_code_symbol(be_jse_lexer_ctx_t *lex, int charFrom,
-                                      int charTo) {
+                                      int charTo)
+{
     be_jse_symbol_t *first;
 
     first = _new_func_code_symbol(lex, charFrom, charTo);
@@ -576,7 +594,8 @@ be_jse_symbol_t *new_func_code_symbol(be_jse_lexer_ctx_t *lex, int charFrom,
     return first;
 }
 
-be_jse_symbol_t *symbol_lock(be_jse_node_t id) {
+be_jse_symbol_t *symbol_lock(be_jse_node_t id)
+{
     /* printf("[%s][%d] id = %d ... \n", __FUNCTION__, __LINE__, id); */
 
     be_jse_symbol_t *s;
@@ -598,13 +617,15 @@ be_jse_symbol_t *symbol_lock(be_jse_node_t id) {
     return s;
 }
 
-be_jse_symbol_t *symbol_relock(be_jse_symbol_t *s) {
+be_jse_symbol_t *symbol_relock(be_jse_symbol_t *s)
+{
     s->locks++;
     if (s->locks == 0) be_jse_error("Too many locks on the symbol!");
     return s;
 }
 
-be_jse_node_t symbol_unlock(be_jse_symbol_t *s) {
+be_jse_node_t symbol_unlock(be_jse_symbol_t *s)
+{
     be_jse_node_t ref;
     if (!s) return 0;
     ref = get_symbol_node_id(s);
@@ -620,11 +641,15 @@ be_jse_node_t symbol_unlock(be_jse_symbol_t *s) {
 }
 
 #ifndef RESIZABLE_JSE_SYMBOL_TABLE
-void *get_symbol_first_ptr() { return &gSymbolTable[0]; }
+void *get_symbol_first_ptr()
+{
+    return &gSymbolTable[0];
+}
 #endif
 
 /* 取符号的根节点 */
-be_jse_symbol_t *get_root_node() {
+be_jse_symbol_t *get_root_node()
+{
     int i;
     for (i = 1; i < gSymbolTableSize; i++) {
         if (get_symbol_addr(i)->flags == BE_SYM_ROOT) {
@@ -636,7 +661,8 @@ be_jse_symbol_t *get_root_node() {
 }
 
 /* === */
-static bool symbol_type_equal(be_jse_symbol_t *a, be_jse_symbol_t *b) {
+static bool symbol_type_equal(be_jse_symbol_t *a, be_jse_symbol_t *b)
+{
     if (a == b) return true;
     if (!a || !b) return false;
 
@@ -691,7 +717,8 @@ static bool symbol_type_equal(be_jse_symbol_t *a, be_jse_symbol_t *b) {
     }
 }
 
-void symbol_to_str(be_jse_symbol_t *s, char *str, size_t len) {
+void symbol_to_str(be_jse_symbol_t *s, char *str, size_t len)
+{
     int cnt = 0;
     if (symbol_is_undefined(s)) {
         strncpy(str, "undefined", len - 1);
@@ -751,7 +778,8 @@ void symbol_to_str(be_jse_symbol_t *s, char *str, size_t len) {
     }
 }
 
-int symbol_str_len(be_jse_symbol_t *v) {
+int symbol_str_len(be_jse_symbol_t *v)
+{
     if (!symbol_is_string(v)) return 0;
 
     int strLength        = 0;
@@ -784,7 +812,8 @@ int symbol_str_len(be_jse_symbol_t *v) {
     return strLength;
 }
 
-void symbol_str_append(be_jse_symbol_t *s, const char *str) {
+void symbol_str_append(be_jse_symbol_t *s, const char *str)
+{
     int blockChars;
     char *ptr;
     be_assert(symbol_is_string(s));
@@ -828,7 +857,8 @@ void symbol_str_append(be_jse_symbol_t *s, const char *str) {
     symbol_unlock(block);
 }
 
-be_jse_symbol_t *str_to_symbol(be_jse_symbol_t *s, bool bUnLock) {
+be_jse_symbol_t *str_to_symbol(be_jse_symbol_t *s, bool bUnLock)
+{
     if (symbol_is_string(s) || symbol_is_name(s)) {
         if (bUnLock) return s;
         return symbol_relock(s);
@@ -841,7 +871,8 @@ be_jse_symbol_t *str_to_symbol(be_jse_symbol_t *s, bool bUnLock) {
 }
 
 void symbol_str_value_append(be_jse_symbol_t *s, be_jse_symbol_t *str,
-                             int stridx, int maxLength) {
+                             int stridx, int maxLength)
+{
     be_assert(symbol_is_string(str) || symbol_is_name(str));
     str = symbol_relock(str);
 
@@ -916,7 +947,8 @@ void symbol_str_value_append(be_jse_symbol_t *s, be_jse_symbol_t *str,
 }
 
 /* 强制类型转换成int */
-ALWAYS_INLINE be_jse_int_t get_symbol_int(be_jse_symbol_t *v) {
+ALWAYS_INLINE be_jse_int_t get_symbol_int(be_jse_symbol_t *v)
+{
     if (!v) return 0;
 
     if (symbol_is_int(v)) return v->data.integer;
@@ -938,12 +970,14 @@ ALWAYS_INLINE be_jse_int_t get_symbol_int(be_jse_symbol_t *v) {
 }
 
 /* 强制类型转换成boolean */
-ALWAYS_INLINE be_jse_bool_t get_symbol_bool(be_jse_symbol_t *v) {
+ALWAYS_INLINE be_jse_bool_t get_symbol_bool(be_jse_symbol_t *v)
+{
     return get_symbol_int(v) != 0;
 }
 
 /* 强制类型转换成double */
-ALWAYS_INLINE be_jse_float_t get_symbol_double(be_jse_symbol_t *s) {
+ALWAYS_INLINE be_jse_float_t get_symbol_double(be_jse_symbol_t *s)
+{
     if (!s) return 0;
     if (symbol_is_float(s)) return s->data.floating;
     if (symbol_is_int(s)) return (be_jse_float_t)s->data.integer;
@@ -953,7 +987,8 @@ ALWAYS_INLINE be_jse_float_t get_symbol_double(be_jse_symbol_t *s) {
 }
 
 /* 取符号的值项（key/value）并强制类型转换成int */
-be_jse_int_t get_symbol_value_int(be_jse_symbol_t *s) {
+be_jse_int_t get_symbol_value_int(be_jse_symbol_t *s)
+{
     be_jse_symbol_t *a = get_symbol_value(s);
     be_jse_int_t l     = get_symbol_int(a);
     symbol_unlock(a);
@@ -961,11 +996,13 @@ be_jse_int_t get_symbol_value_int(be_jse_symbol_t *s) {
 }
 
 /* 取符号的值项,并强制类型转换boolean */
-bool get_symbol_value_bool(be_jse_symbol_t *v) {
+bool get_symbol_value_bool(be_jse_symbol_t *v)
+{
     return get_symbol_value_int(v) != 0;
 }
 
-bool symbol_str_equal(be_jse_symbol_t *var, const char *str) {
+bool symbol_str_equal(be_jse_symbol_t *var, const char *str)
+{
     be_jse_symbol_t *v;
     be_jse_node_t next;
 
@@ -1006,7 +1043,8 @@ bool symbol_str_equal(be_jse_symbol_t *var, const char *str) {
     return true;
 }
 int symbol_str_cmp(be_jse_symbol_t *va, be_jse_symbol_t *vb, int starta,
-                   int startb, bool equalAtEndOfString) {
+                   int startb, bool equalAtEndOfString)
+{
     int idxa = starta;
     int idxb = startb;
     be_assert(symbol_is_string(va) ||
@@ -1056,7 +1094,8 @@ int symbol_str_cmp(be_jse_symbol_t *va, be_jse_symbol_t *vb, int starta,
 }
 
 /* symbol copy */
-be_jse_symbol_t *symbol_cp(be_jse_symbol_t *src) {
+be_jse_symbol_t *symbol_cp(be_jse_symbol_t *src)
+{
     be_jse_symbol_t *dst = new_symbol(src->flags);
     if (!dst) return 0; /* out of memory */
     if (!symbol_is_string_ext(src)) {
@@ -1113,7 +1152,8 @@ be_jse_symbol_t *symbol_cp(be_jse_symbol_t *src) {
 
 /* copy symbol name */
 be_jse_symbol_t *symbol_name_cp(be_jse_symbol_t *src, bool linkChildren,
-                                bool keepAsName) {
+                                bool keepAsName)
+{
     be_jse_symbol_type_e flags = src->flags;
     if (!keepAsName) flags &= (be_jse_symbol_type_e)~BE_SYM_NAME;
     be_jse_symbol_t *dst = new_symbol(flags);
@@ -1144,7 +1184,8 @@ be_jse_symbol_t *symbol_name_cp(be_jse_symbol_t *src, bool linkChildren,
 }
 
 /* added new child node to the parent */
-void add_symbol_node(be_jse_symbol_t *parent, be_jse_symbol_t *namedChild) {
+void add_symbol_node(be_jse_symbol_t *parent, be_jse_symbol_t *namedChild)
+{
     namedChild = INC_SYMBL_REF(namedChild);
     be_assert(symbol_is_name(namedChild));
     if (parent->last_child) {
@@ -1163,8 +1204,8 @@ void add_symbol_node(be_jse_symbol_t *parent, be_jse_symbol_t *namedChild) {
 
 /* 符号表中，给一个符号增加名字节点 */
 be_jse_symbol_t *add_symbol_node_name(be_jse_symbol_t *parent,
-                                      be_jse_symbol_t *child,
-                                      const char *name) {
+                                      be_jse_symbol_t *child, const char *name)
+{
     be_jse_symbol_t *namedChild = new_named_symbol(new_str_symbol(name), child);
     if (!namedChild) return 0;
     add_symbol_node(parent, namedChild);
@@ -1173,7 +1214,8 @@ be_jse_symbol_t *add_symbol_node_name(be_jse_symbol_t *parent,
 
 /* 符号表中设置节点名字 */
 be_jse_symbol_t *set_symbol_node_name(be_jse_symbol_t *name,
-                                      be_jse_symbol_t *src) {
+                                      be_jse_symbol_t *src)
+{
     be_assert(name && symbol_is_name(name));
     be_assert(name != src);
     if (name->first_child) DEC_SYMBL_REF_BY_ID(name->first_child);
@@ -1187,7 +1229,8 @@ be_jse_symbol_t *set_symbol_node_name(be_jse_symbol_t *name,
 /* 从符号表中，根据名字查找子节点， */
 be_jse_symbol_t *lookup_named_child_symbol(be_jse_node_t parent_id,
                                            const char *name,
-                                           bool createIfNotFound) {
+                                           bool createIfNotFound)
+{
     be_jse_symbol_t *parent = symbol_lock(parent_id);
     be_jse_symbol_t *child;
     be_jse_node_t childref = parent->first_child;
@@ -1213,7 +1256,8 @@ be_jse_symbol_t *lookup_named_child_symbol(be_jse_node_t parent_id,
 /* 从符号表中，查找子节点， */
 be_jse_symbol_t *lookup_child_symbol(be_jse_node_t parent_id,
                                      be_jse_symbol_t *childName,
-                                     bool addIfNotFound) {
+                                     bool addIfNotFound)
+{
     be_jse_symbol_t *parent = symbol_lock(parent_id);
     be_jse_symbol_t *child;
     be_jse_node_t childref = parent->first_child;
@@ -1246,7 +1290,8 @@ be_jse_symbol_t *lookup_child_symbol(be_jse_node_t parent_id,
 }
 
 /* 从符号表中，移除子节点， */
-void remove_child_symbol(be_jse_symbol_t *parent, be_jse_symbol_t *child) {
+void remove_child_symbol(be_jse_symbol_t *parent, be_jse_symbol_t *child)
+{
     be_assert(symbol_is_array(parent) || symbol_is_object(parent) ||
               symbol_is_function(parent));
     be_jse_node_t childref = get_symbol_node_id(child);
@@ -1276,7 +1321,8 @@ void remove_child_symbol(be_jse_symbol_t *parent, be_jse_symbol_t *child) {
 /* 数组对象操作 */
 
 /* 取长度 */
-be_jse_int_t get_symbol_array_length(be_jse_symbol_t *v) {
+be_jse_int_t get_symbol_array_length(be_jse_symbol_t *v)
+{
     be_jse_int_t lastIdx   = 0;
     be_jse_node_t childref = v->first_child;
     while (childref) {
@@ -1293,7 +1339,8 @@ be_jse_int_t get_symbol_array_length(be_jse_symbol_t *v) {
 }
 
 /* 取数组某一项 */
-be_jse_symbol_t *get_symbol_array_item(be_jse_symbol_t *arr, int index) {
+be_jse_symbol_t *get_symbol_array_item(be_jse_symbol_t *arr, int index)
+{
     be_jse_node_t childref = arr->first_child;
     while (childref) {
         be_jse_int_t childIndex;
@@ -1314,7 +1361,8 @@ be_jse_symbol_t *get_symbol_array_item(be_jse_symbol_t *arr, int index) {
 
 /* 取数组的某一项索引 */
 be_jse_symbol_t *get_symbol_array_index(be_jse_symbol_t *arr,
-                                        be_jse_symbol_t *value) {
+                                        be_jse_symbol_t *value)
+{
     be_jse_node_t indexref;
     be_assert(symbol_is_array(arr) || symbol_is_object(arr));
     indexref = arr->first_child;
@@ -1334,7 +1382,8 @@ be_jse_symbol_t *get_symbol_array_index(be_jse_symbol_t *arr,
 }
 
 /* 将一项压入到数组中 */
-be_jse_int_t symbol_array_push(be_jse_symbol_t *arr, be_jse_symbol_t *value) {
+be_jse_int_t symbol_array_push(be_jse_symbol_t *arr, be_jse_symbol_t *value)
+{
     be_assert(symbol_is_array(arr));
     be_jse_int_t index   = get_symbol_array_length(arr);
     be_jse_symbol_t *idx = new_named_symbol(new_int_symbol(index), value);
@@ -1348,7 +1397,8 @@ be_jse_int_t symbol_array_push(be_jse_symbol_t *arr, be_jse_symbol_t *value) {
 }
 
 /* 将数组项取出来 */
-be_jse_symbol_t *symbol_array_pop(be_jse_symbol_t *arr) {
+be_jse_symbol_t *symbol_array_pop(be_jse_symbol_t *arr)
+{
     be_assert(symbol_is_array(arr));
     if (arr->last_child) {
         be_jse_symbol_t *child = symbol_lock(arr->last_child);
@@ -1372,7 +1422,8 @@ be_jse_symbol_t *symbol_array_pop(be_jse_symbol_t *arr) {
 
 #endif
 
-be_jse_symbol_t *get_symbol_value(be_jse_symbol_t *a) {
+be_jse_symbol_t *get_symbol_value(be_jse_symbol_t *a)
+{
     be_jse_symbol_t *pa = a;
     if (!a) return a;
 
@@ -1387,7 +1438,8 @@ be_jse_symbol_t *get_symbol_value(be_jse_symbol_t *a) {
 }
 
 /* 取符号引用的计数 */
-int get_symbol_ref_count(be_jse_symbol_t *toCount, be_jse_symbol_t *var) {
+int get_symbol_ref_count(be_jse_symbol_t *toCount, be_jse_symbol_t *var)
+{
     int refCount = 0;
 
     if (symbol_is_name(var)) {
@@ -1417,15 +1469,16 @@ int get_symbol_ref_count(be_jse_symbol_t *toCount, be_jse_symbol_t *var) {
     return refCount;
 }
 
-be_jse_symbol_t *unlock_symbol_value(be_jse_symbol_t *a) {
+be_jse_symbol_t *unlock_symbol_value(be_jse_symbol_t *a)
+{
     be_jse_symbol_t *b = get_symbol_value(a);
     symbol_unlock(a);
     return b;
 }
 
 /* 对整个符号对象操作：符号包括：key/value 或者name/value */
-be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b,
-                                 int op) {
+be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b, int op)
+{
     if (op == BE_TOKEN_OP_STRICT_EQUAL || op == BE_TOKEN_OP_STRICT_NEQUAL) {
         bool eql = (a == 0) == (b == 0);
         if (a && b)
@@ -1583,7 +1636,8 @@ be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b,
 
 /* 对符号对象的值操作 */
 be_jse_symbol_t *symbol_value_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b,
-                                       int op) {
+                                       int op)
+{
     be_jse_symbol_t *pa  = get_symbol_value(a);
     be_jse_symbol_t *pb  = get_symbol_value(b);
     be_jse_symbol_t *res = symbol_maths_op(pa, pb, op);
@@ -1592,7 +1646,8 @@ be_jse_symbol_t *symbol_value_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b,
     return res;
 }
 
-be_jse_symbol_t *symbol_maths_op_error(int op, const char *datatype) {
+be_jse_symbol_t *symbol_maths_op_error(int op, const char *datatype)
+{
 #ifndef BE_JSE_SILENT
     char buf[BE_JSE_ERROR_BUF_SIZE];
     size_t bufpos = 0;
@@ -1621,7 +1676,8 @@ typedef void (*get_JSON_cb_string)(void *data, const char *string);
 typedef void (*get_JSON_cb_var)(void *data, be_jse_symbol_t *var);
 
 void get_JSON_with_cb(be_jse_symbol_t *var, get_JSON_cb_string callbackString,
-                      get_JSON_cb_var callbackVar, void *callbackData) {
+                      get_JSON_cb_var callbackVar, void *callbackData)
+{
     if (symbol_is_undefined(var)) {
         callbackString(callbackData, "undefined");
 #ifdef USE_ARRAY
@@ -1693,17 +1749,20 @@ void get_JSON_with_cb(be_jse_symbol_t *var, get_JSON_cb_string callbackString,
     /* TODO: functions */
 }
 
-void append_str_var_symbol(be_jse_symbol_t *var, be_jse_symbol_t *str) {
+void append_str_var_symbol(be_jse_symbol_t *var, be_jse_symbol_t *str)
+{
     symbol_str_value_append(var, str, 0, BE_JSE_SYMBOL_APPEND_STR_MAX_LEN);
 }
 
-void symbol_to_json_new(be_jse_symbol_t *var, be_jse_symbol_t *result) {
+void symbol_to_json_new(be_jse_symbol_t *var, be_jse_symbol_t *result)
+{
     be_assert(symbol_is_string(result));
     get_JSON_with_cb(var, (get_JSON_cb_string)symbol_str_append,
                      (get_JSON_cb_var)append_str_var_symbol, result);
 }
 
-void symbol_to_json(be_jse_symbol_t *var, be_jse_symbol_t *result) {
+void symbol_to_json(be_jse_symbol_t *var, be_jse_symbol_t *result)
+{
     be_assert(symbol_is_string(result));
     if (symbol_is_undefined(var)) {
         symbol_str_append(result, "undefined");
@@ -1817,13 +1876,23 @@ int be_jse_get_memory_usage()
 beJSESymbolUsage == 上面函数+1
 */
 
-int be_jse_get_memory_usage() { return beJSESymbolUsage; }
+int be_jse_get_memory_usage()
+{
+    return beJSESymbolUsage;
+}
 
-int be_jse_get_memory_max_usage() { return beJSESymbolMaxUsage; }
+int be_jse_get_memory_max_usage()
+{
+    return beJSESymbolMaxUsage;
+}
 
-int be_jse_get_memory_count() { return gSymbolTableSize; }
+int be_jse_get_memory_count()
+{
+    return gSymbolTableSize;
+}
 
-void be_jse_show_symbol_table_used() {
+void be_jse_show_symbol_table_used()
+{
     int i;
     for (i = 1; i < gSymbolTableSize; i++) {
         if (get_symbol_addr(i)->refs != SYM_TABLE_UNUSED_REF) {
@@ -1837,7 +1906,8 @@ void be_jse_show_symbol_table_used() {
 
 #ifdef TRACE_JSE_INFO
 
-void dump_symbol_node_id(int id) {
+void dump_symbol_node_id(int id)
+{
     be_jse_symbol_t *s;
     s = get_symbol_addr(id);
     if (s) {
@@ -1849,11 +1919,13 @@ void dump_symbol_node_id(int id) {
     }
 }
 
-ALWAYS_INLINE void trace_symbol_lock_info(be_jse_symbol_t *v) {
+ALWAYS_INLINE void trace_symbol_lock_info(be_jse_symbol_t *v)
+{
     printf("#%d [r%d,l%d] ", get_symbol_node_id(v), v->refs, v->locks - 1);
 }
 
-void trace_symbol_info(be_jse_node_t ref, int indent) {
+void trace_symbol_info(be_jse_node_t ref, int indent)
+{
 #ifdef BE_JSE_SILENT
     NOT_USED(ref);
     NOT_USED(indent);

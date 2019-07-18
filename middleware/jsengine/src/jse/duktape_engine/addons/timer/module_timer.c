@@ -21,7 +21,8 @@ typedef struct timer_wrap {
  * 在定时器清除过程中，底层又上报了定时消息到task的消息队列中，这时对
  * 应的timer_wrap_t handle已经释放,并且可能又分配出去了
  */
-static void timer_action(void *arg) {
+static void timer_action(void *arg)
+{
     debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)arg;
 
@@ -49,7 +50,8 @@ static void timer_action(void *arg) {
     }
 }
 
-static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat) {
+static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat)
+{
     debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)malloc(sizeof(*t));
     t->magic        = MAGIC;
@@ -59,7 +61,8 @@ static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat) {
     return t;
 }
 
-static void clear_timer(timer_wrap_t *t) {
+static void clear_timer(timer_wrap_t *t)
+{
     debug("in\n");
     if (!t) {
         warn("timer wrap handle is null\n");
@@ -76,7 +79,8 @@ static void clear_timer(timer_wrap_t *t) {
     free(t);
 }
 
-static duk_ret_t native_setTimeout(duk_context *ctx) {
+static duk_ret_t native_setTimeout(duk_context *ctx)
+{
     debug("in\n");
     if (!(duk_is_function(ctx, 0) && duk_is_number(ctx, 1))) {
         warn("invalid parameters\n");
@@ -92,14 +96,16 @@ static duk_ret_t native_setTimeout(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_clearTimeout(duk_context *ctx) {
+static duk_ret_t native_clearTimeout(duk_context *ctx)
+{
     debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)duk_get_pointer(ctx, 0);
     clear_timer(t);
     return 0;
 }
 
-static duk_ret_t native_setInterval(duk_context *ctx) {
+static duk_ret_t native_setInterval(duk_context *ctx)
+{
     debug("in\n");
     if (!(duk_is_function(ctx, 0) && duk_is_number(ctx, 1))) {
         warn("invalid parameters\n");
@@ -115,14 +121,16 @@ static duk_ret_t native_setInterval(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_clearInterval(duk_context *ctx) {
+static duk_ret_t native_clearInterval(duk_context *ctx)
+{
     debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)duk_get_pointer(ctx, 0);
     clear_timer(t);
     return 0;
 }
 
-void module_timer_register(void) {
+void module_timer_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_c_function(ctx, native_setTimeout, 2);

@@ -28,7 +28,8 @@ typedef enum {
     ON_MESSAGE = 0X82,
 } bone_zigbee_package_type_ext_t;
 
-static void call_action(void* arg) {
+static void call_action(void* arg)
+{
     schedule_msg_t* schedule_msg = (schedule_msg_t*)arg;
     if (schedule_msg != NULL) {
         if (schedule_msg->type == ON_CONNECT) {
@@ -130,7 +131,8 @@ static void call_action(void* arg) {
 }
 
 static void on_message(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
-                       size_t msg_size) {
+                       size_t msg_size)
+{
     be_debug(JS_ZIGBEE_TAG, "on_message addr: %d, msg: %.*s (%d bytes)", addr,
              msg_size, msg, msg_size);
 
@@ -146,7 +148,8 @@ static void on_message(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
 }
 
 static void on_connect(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
-                       size_t msg_size) {
+                       size_t msg_size)
+{
     be_debug(JS_ZIGBEE_TAG, "on_connect addr: %d, msg: %.*s (%d bytes)", addr,
              msg_size, msg, msg_size);
 
@@ -161,7 +164,8 @@ static void on_connect(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
     }
 }
 
-static be_jse_symbol_t* start() {
+static be_jse_symbol_t* start()
+{
     be_jse_int_t ret                      = -1;
     be_jse_symbol_t* arg                  = be_jse_handle_single_arg_function();
     be_jse_symbol_t* port_symbol          = NULL;
@@ -227,7 +231,8 @@ end:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t* on() {
+static be_jse_symbol_t* on()
+{
     be_jse_int_t ret      = -1;
     be_jse_symbol_t* arg0 = NULL;
     be_jse_symbol_t* arg1 = NULL;
@@ -261,7 +266,8 @@ end:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t* notify() {
+static be_jse_symbol_t* notify()
+{
     be_jse_is_none_arg_function();
     schedule_msg_t* schedule_msg =
         (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
@@ -270,7 +276,8 @@ static be_jse_symbol_t* notify() {
     return new_int_symbol(0);
 }
 
-static be_jse_symbol_t* search() {
+static be_jse_symbol_t* search()
+{
     be_jse_is_none_arg_function();
     schedule_msg_t* schedule_msg =
         (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
@@ -279,7 +286,8 @@ static be_jse_symbol_t* search() {
     return new_int_symbol(0);
 }
 
-static be_jse_symbol_t* send() {
+static be_jse_symbol_t* send()
+{
     be_jse_int_t ret      = -1;
     be_jse_symbol_t* arg0 = NULL;
     be_jse_symbol_t* arg1 = NULL;
@@ -313,8 +321,8 @@ end:
 }
 
 static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
-                                         be_jse_symbol_t* var,
-                                         const char* name) {
+                                         be_jse_symbol_t* var, const char* name)
+{
     if (strcmp(name, "VERSION") == 0) {
         lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_str_symbol("0.0.1");
@@ -363,7 +371,8 @@ static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_zigbee_load(void) {
+void module_zigbee_load(void)
+{
     memset(&zigbee, 0, sizeof(zigbee));
     be_jse_module_load(JS_ZIGBEE_TAG, module_handle_cb);
 }

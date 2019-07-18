@@ -12,7 +12,8 @@
 
 #include "be_jse_lex.h"
 
-static void append_char(be_jse_lexer_ctx_t *lex, char ch) {
+static void append_char(be_jse_lexer_ctx_t *lex, char ch)
+{
     if (lex->token_len < MAX_TOKEN_LENGTH - 1) {
         lex->token[lex->token_len++] = ch;
     } else {
@@ -20,7 +21,8 @@ static void append_char(be_jse_lexer_ctx_t *lex, char ch) {
                        lex->token_start);
     }
 }
-static bool is_token(be_jse_lexer_ctx_t *lex, const char *token) {
+static bool is_token(be_jse_lexer_ctx_t *lex, const char *token)
+{
     int i;
     for (i = 0; i < lex->token_len; i++) {
         if (lex->token[i] != token[i]) return false;
@@ -29,7 +31,8 @@ static bool is_token(be_jse_lexer_ctx_t *lex, const char *token) {
 }
 
 /*直接跳到指定的字符 */
-void lexer_seekto_char(be_jse_lexer_ctx_t *lex, int seek_to_char) {
+void lexer_seekto_char(be_jse_lexer_ctx_t *lex, int seek_to_char)
+{
     if (lex->src) {
         lex->curr_pos = seek_to_char;
         return;
@@ -37,7 +40,8 @@ void lexer_seekto_char(be_jse_lexer_ctx_t *lex, int seek_to_char) {
 }
 
 /*取下一个字符 */
-void lexer_get_next_char(be_jse_lexer_ctx_t *lex) {
+void lexer_get_next_char(be_jse_lexer_ctx_t *lex)
+{
     if (lex->src) {
         lex->curr_char = lex->next_char;
         if (lex->curr_pos < lex->end_pos) {
@@ -51,7 +55,8 @@ void lexer_get_next_char(be_jse_lexer_ctx_t *lex) {
 }
 
 static inline bool be_jse_lexer_is_token(be_jse_lexer_ctx_t *lex,
-                                         const char *token, int startOffset) {
+                                         const char *token, int startOffset)
+{
     int i;
     for (i = startOffset; i < lex->token_len; i++) {
         if (lex->token[i] != token[i]) return false;
@@ -60,18 +65,19 @@ static inline bool be_jse_lexer_is_token(be_jse_lexer_ctx_t *lex,
 }
 
 /* 根据词法分析，提取JS   语法基本单元(token) */
-static void next_token(be_jse_lexer_ctx_t *lex) {
+static void next_token(be_jse_lexer_ctx_t *lex)
+{
     lex->tk        = BE_TOKEN_END;
     lex->token_len = 0;
 
     /* Javascript 中的空白和注释需要先剔除掉 */
 
     while (lex->curr_char &&
-           is_whitespace(lex->curr_char)) {  /* 去除掉空格或者空行 */
+           is_whitespace(lex->curr_char)) { /* 去除掉空格或者空行 */
         lexer_get_next_char(lex);
     }
 
-    if (lex->curr_char == '/' && lex->next_char == '/') {  /* 去除掉注释 "//" */
+    if (lex->curr_char == '/' && lex->next_char == '/') { /* 去除掉注释 "//" */
 
         while (lex->curr_char && lex->curr_char != '\n')
             lexer_get_next_char(lex);
@@ -80,7 +86,7 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
         return;
     }
 
-    if (lex->curr_char == '/' && lex->next_char == '*') {  /* 去除掉注释 "/*" */
+    if (lex->curr_char == '/' && lex->next_char == '*') { /* 去除掉注释 "/*" */
         while (lex->curr_char &&
                (lex->curr_char != '*' || lex->next_char != '/')) {
             lexer_get_next_char(lex);
@@ -196,7 +202,7 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
 #endif
     }
 
-    else if (is_numeric(lex->curr_char)) {  /* 操作数处理 */
+    else if (is_numeric(lex->curr_char)) { /* 操作数处理 */
         bool canBeFloating = true;
 
         if (lex->curr_char == '0') {
@@ -204,18 +210,18 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
             lexer_get_next_char(lex);
         }
         if (lex->curr_char == 'x' ||
-            lex->curr_char == 'b') {  /* 0xXX or 0bxx 十六进制或者二进制 */
-            canBeFloating = false;    /* 整数 */
+            lex->curr_char == 'b') { /* 0xXX or 0bxx 十六进制或者二进制 */
+            canBeFloating = false; /* 整数 */
             append_char(lex, lex->curr_char);
             lexer_get_next_char(lex);
         }
         lex->tk = BE_TOKEN_INT;
         while (is_numeric(lex->curr_char) ||
-               (!canBeFloating && is_hex_decimal(lex->curr_char))) {  /* 整数 */
+               (!canBeFloating && is_hex_decimal(lex->curr_char))) { /* 整数 */
             append_char(lex, lex->curr_char);
             lexer_get_next_char(lex);
         }
-        if (canBeFloating && lex->curr_char == '.') {  /* 浮点小数 */
+        if (canBeFloating && lex->curr_char == '.') { /* 浮点小数 */
             lex->tk = BE_TOKEN_FLOAT;
             append_char(lex, '.');
             lexer_get_next_char(lex);
@@ -238,7 +244,7 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
                 lexer_get_next_char(lex);
             }
         }
-    } else if (lex->curr_char == '"') {  /* 字符串 */
+    } else if (lex->curr_char == '"') { /* 字符串 */
         lexer_get_next_char(lex);
         while (lex->curr_char && lex->curr_char != '"') {
             if (lex->curr_char == '\\') {
@@ -264,7 +270,7 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
         }
         lexer_get_next_char(lex);
         lex->tk = BE_TOKEN_STR;
-    } else if (lex->curr_char == '\'') {  /* 特殊的转义字符 */
+    } else if (lex->curr_char == '\'') { /* 特殊的转义字符 */
         lexer_get_next_char(lex);
         while (lex->curr_char && lex->curr_char != '\'') {
             if (lex->curr_char == '\\') {
@@ -319,7 +325,7 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
         }
         lexer_get_next_char(lex);
         lex->tk = BE_TOKEN_STR;
-    } else {  /* 运算符处理 */
+    } else { /* 运算符处理 */
         /* single chars */
         lex->tk = lex->curr_char;
         if (lex->curr_char) lexer_get_next_char(lex);
@@ -403,7 +409,8 @@ static void next_token(be_jse_lexer_ctx_t *lex) {
 
 /* 初始化词法分析器 */
 void be_jse_lexer_init(be_jse_lexer_ctx_t *lex, const char *src, int start,
-                       int end) {
+                       int end)
+{
     if (end < 0) {
         end = (int)strlen(src);
     }
@@ -425,7 +432,8 @@ void be_jse_lexer_init(be_jse_lexer_ctx_t *lex, const char *src, int start,
 /* 从如入的JS文本字符串的指定位置开始，初始化词法分析器 */
 
 void be_jse_lexer_init2(be_jse_lexer_ctx_t *lex, be_jse_lexer_ctx_t *from,
-                        int start) {
+                        int start)
+{
     int idx = from->token_last_end + 1;
 
     if (idx >= from->end_pos) idx = from->end_pos;
@@ -437,7 +445,8 @@ void be_jse_lexer_init2(be_jse_lexer_ctx_t *lex, be_jse_lexer_ctx_t *from,
 }
 
 /* 复位词法分析器，复位状态机，buffer */
-void be_jse_lexer_reset(be_jse_lexer_ctx_t *lex) {
+void be_jse_lexer_reset(be_jse_lexer_ctx_t *lex)
+{
     lexer_seekto_char(lex, lex->start_pos);
 
     lexer_get_next_char(lex);
@@ -445,7 +454,8 @@ void be_jse_lexer_reset(be_jse_lexer_ctx_t *lex) {
     next_token(lex);
 }
 
-void be_jse_lexer_deinit(be_jse_lexer_ctx_t *lex) {
+void be_jse_lexer_deinit(be_jse_lexer_ctx_t *lex)
+{
     lex->tk = BE_TOKEN_END;
 
     if (lex->src) {
@@ -456,7 +466,8 @@ void be_jse_lexer_deinit(be_jse_lexer_ctx_t *lex) {
 
 /* 把token 转化成字符串 */
 #ifndef BE_JSE_SILENT
-void lexer_token_to_str(int token, char *str, size_t len) {
+void lexer_token_to_str(int token, char *str, size_t len)
+{
     if (token > 32 && token < 128) {
         be_assert(len >= 4);
         str[0] = '\'';
@@ -603,7 +614,8 @@ void lexer_token_to_str(int token, char *str, size_t len) {
     strncat(str, "]", len);
 }
 
-void lexer_get_token_str(be_jse_lexer_ctx_t *lex, char *str, size_t len) {
+void lexer_get_token_str(be_jse_lexer_ctx_t *lex, char *str, size_t len)
+{
     if (lex->tk == BE_TOKEN_ID) {
         strncpy(str, "ID:", len);
         strncat(str, lexer_get_token(lex), len);
@@ -617,13 +629,15 @@ void lexer_get_token_str(be_jse_lexer_ctx_t *lex, char *str, size_t len) {
 }
 #endif
 
-char *lexer_get_token(be_jse_lexer_ctx_t *lex) {
+char *lexer_get_token(be_jse_lexer_ctx_t *lex)
+{
     be_assert(lex->token_len < MAX_TOKEN_LENGTH);
-    lex->token[lex->token_len] = 0;  /* add final null */
+    lex->token[lex->token_len] = 0; /* add final null */
     return lex->token;
 }
 
-bool lexer_token_cmp(be_jse_lexer_ctx_t *lex, int expected_tk) {
+bool lexer_token_cmp(be_jse_lexer_ctx_t *lex, int expected_tk)
+{
     if (lex->tk != expected_tk) {
 #ifndef BE_JSE_SILENT
         char buf[BE_JSE_ERROR_BUF_SIZE];
@@ -649,7 +663,8 @@ bool lexer_token_cmp(be_jse_lexer_ctx_t *lex, int expected_tk) {
 
 /* 获取行与列信息便于查看出错位置 */
 void lexer_dump_line_and_col(be_jse_lexer_ctx_t *lex, int charPos, int *line,
-                             int *col) {
+                             int *col)
+{
 #ifdef BE_JSE_SILENT
     NOT_USED(lex);
     NOT_USED(charPos);
@@ -674,7 +689,7 @@ void lexer_dump_line_and_col(be_jse_lexer_ctx_t *lex, int charPos, int *line,
 
     /* Go back to where we were */
     be_assert(currentPos >
-              1);  /* must be, as lex should already have been loaded */
+              1); /* must be, as lex should already have been loaded */
     lexer_seekto_char(lex, currentPos - 2);
     lexer_get_next_char(lex);
     lexer_get_next_char(lex);

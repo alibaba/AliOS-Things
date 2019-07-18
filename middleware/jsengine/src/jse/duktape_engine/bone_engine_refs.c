@@ -3,7 +3,8 @@
 /*
  * Create a global array refs in the heap stash.
  */
-void bone_engine_ref_setup(duk_context *ctx) {
+void bone_engine_ref_setup(duk_context *ctx)
+{
     duk_push_heap_stash(ctx);
 
     /* Create a new array with one `0` at index `0`. */
@@ -16,7 +17,8 @@ void bone_engine_ref_setup(duk_context *ctx) {
     duk_pop(ctx);
 }
 
-int bone_engine_ref(duk_context *ctx) {
+int bone_engine_ref(duk_context *ctx)
+{
     int ref;
     if (duk_is_undefined(ctx, -1)) {
         duk_pop(ctx);
@@ -56,7 +58,8 @@ int bone_engine_ref(duk_context *ctx) {
     return ref;
 }
 
-void bone_engine_push_ref(duk_context *ctx, int ref) {
+void bone_engine_push_ref(duk_context *ctx, int ref)
+{
     if (!ref) {
         duk_push_undefined(ctx);
         return;
@@ -71,7 +74,8 @@ void bone_engine_push_ref(duk_context *ctx, int ref) {
     duk_remove(ctx, -2);
 }
 
-void bone_engine_unref(duk_context *ctx, int ref) {
+void bone_engine_unref(duk_context *ctx, int ref)
+{
     if (!ref) return;
 
     /* Get the "refs" array in the heap stash */

@@ -1,20 +1,20 @@
 {
-    "rotekey.sw":{
-        "type":"GPIO",
-        "port":18,
-        "dir":2,
-        "pull":1
+    "rotekey.sw": {
+        "type": "GPIO",
+        "port": 18,
+        "dir": 2,
+        "pull": 1
     },
-    "rotekey.dt":{
-        "type":"GPIO",
-        "port":19,
-        "dir":1,
-        "pull":1
+    "rotekey.dt": {
+        "type": "GPIO",
+        "port": 19,
+        "dir": 1,
+        "pull": 1
     },
-    "rotekey.clk":{
-        "type":"GPIO",
-        "port":16,
-        "dir":2,
-        "pull":1
+    "rotekey.clk": {
+        "type": "GPIO",
+        "port": 16,
+        "dir": 2,
+        "pull": 1
     }
 }

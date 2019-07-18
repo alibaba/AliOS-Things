@@ -22,12 +22,14 @@ typedef struct lcd_handle {
 
 static lcd_handle_t *g_lcd = NULL;
 
-static uint16_t lcd_rgb565(uint8_t r, uint8_t g, uint8_t b) {
+static uint16_t lcd_rgb565(uint8_t r, uint8_t g, uint8_t b)
+{
     return (((uint16_t)(r >> 3)) << 11) + (((uint16_t)(g >> 2)) << 5) +
            ((uint16_t)(b >> 3));
 }
 
-static int8_t lcd_init(uint32_t width, uint32_t height) {
+static int8_t lcd_init(uint32_t width, uint32_t height)
+{
     if (NULL != g_lcd) {
         return (-1);
     }
@@ -42,7 +44,8 @@ static int8_t lcd_init(uint32_t width, uint32_t height) {
     return (0);
 }
 
-static int8_t lcd_deinit(void) {
+static int8_t lcd_deinit(void)
+{
     if (NULL != g_lcd) {
         free(g_lcd);
         g_lcd = NULL;
@@ -51,7 +54,8 @@ static int8_t lcd_deinit(void) {
 }
 
 static int8_t lcd_draw_char(uint16_t x, uint16_t y, uint8_t num, uint8_t size,
-                            uint32_t fcolor) {
+                            uint32_t fcolor)
+{
     uint8_t i            = 0;
     uint8_t j            = 0;
     uint8_t temp         = 0;
@@ -96,7 +100,8 @@ static int8_t lcd_draw_char(uint16_t x, uint16_t y, uint8_t num, uint8_t size,
 }
 
 static int8_t lcd_draw_str(uint16_t x, uint16_t y, uint8_t *str, uint8_t size,
-                           uint32_t color, int8_t new_line) {
+                           uint32_t color, int8_t new_line)
+{
     uint16_t xstart = x;
     uint16_t ystart = y;
     uint16_t xres   = 0;
@@ -124,7 +129,8 @@ static int8_t lcd_draw_str(uint16_t x, uint16_t y, uint8_t *str, uint8_t size,
 }
 
 static void lcd_draw_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                          uint32_t color, uint8_t need_fill) {
+                          uint32_t color, uint8_t need_fill)
+{
     int32_t i = 0;
     int32_t j = 0;
     if (need_fill) {
@@ -143,7 +149,8 @@ static void lcd_draw_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
     }
 }
 
-static be_jse_symbol_t *lcd_open(void) {
+static be_jse_symbol_t *lcd_open(void)
+{
     be_jse_int_t ret                   = 0;
     be_jse_symbol_t *arg               = NULL;
     be_jse_symbol_t *lcd_width_symbol  = NULL;
@@ -176,13 +183,15 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *lcd_close(void) {
+static be_jse_symbol_t *lcd_close(void)
+{
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     lcd_deinit();
     return new_int_symbol(0);
 }
 
-static be_jse_symbol_t *lcd_rect(void) {
+static be_jse_symbol_t *lcd_rect(void)
+{
     int8_t is_fill                    = 0;
     be_jse_int_t ret                  = 0;
     be_jse_symbol_t *arg              = NULL;
@@ -256,7 +265,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *lcd_write(void) {
+static be_jse_symbol_t *lcd_write(void)
+{
     be_jse_int_t ret                 = 0;
     be_jse_symbol_t *arg             = NULL;
     be_jse_symbol_t *lcd_x_symbol    = NULL;
@@ -345,7 +355,8 @@ out:
 }
 
 be_jse_symbol_t *lcd_module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                      be_jse_symbol_t *var, const char *name) {
+                                      be_jse_symbol_t *var, const char *name)
+{
     if (0 == strcmp(name, "open")) return lcd_open();
     if (0 == strcmp(name, "close")) return lcd_close();
     if (0 == strcmp(name, "show")) return lcd_write();
@@ -353,6 +364,7 @@ be_jse_symbol_t *lcd_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_lcd_register(void) {
+void module_lcd_register(void)
+{
     be_jse_module_load("LCD", lcd_module_handle_cb);
 }

@@ -19,7 +19,6 @@ TinyEngine 是一个专门为嵌入式设备提供的 Javascript 运行时环境
 
 
 	“一份应用，全平台运行” 不用关注硬件设备，就可以开发嵌入式应用。
-	
 
 整个TinyEngine软件系统架构图如下：
 
@@ -228,14 +227,9 @@ TinyEngine@mini-JSE 具有如下特点：
 
 ## IDE 开发工具
    为了便于开发者开发和调试 TinyEngine 应用和产品，TinyEngine还提供了图形化的开发工具，目前，支持WebIDE和 App模式的 IDE，WebIDE可以直接在阿里的IOT 开发者平台直接进入( ld.aliyun.com )
-   
 
 还提供了本地的App IDE开发工具，开发者可以从tools目录下下载使用，该工具也会开源给开发者
 
 ![image | left](./graph/IDE.jpg "")
 
 IDE工具支持串口和网络方式与调试的目标设备相连，目前，IDE开发工具支持应用代码编辑，模块和驱动导入，应用程序的打包和下载到设备，支持设备的日志输出，以及 TinyEngine 的 Javascript Shell 功能。
-
-	
-	
-

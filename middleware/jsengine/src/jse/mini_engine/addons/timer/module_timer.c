@@ -17,7 +17,8 @@ typedef struct {
     void *timerid;         /*定时器id*/
 } timer_action_t;
 
-static void timer_call_action(void *arg) {
+static void timer_call_action(void *arg)
+{
     timer_action_t *pdata = (timer_action_t *)arg;
 
     if (pdata->magic != MAGIC) return;
@@ -32,7 +33,8 @@ static void timer_call_action(void *arg) {
     }
 }
 
-static be_jse_symbol_t *setup_timer(int repeat) {
+static be_jse_symbol_t *setup_timer(int repeat)
+{
     be_jse_symbol_t *cbv;
     be_jse_symbol_t *msv;
     void *timer_id = NULL;
@@ -61,7 +63,8 @@ done:
     return new_int_symbol((be_jse_int_t)p_param);
 }
 
-static be_jse_symbol_t *clear_timer() {
+static be_jse_symbol_t *clear_timer()
+{
     be_jse_symbol_t *hv = be_jse_handle_single_arg_function();
 
     if (!hv) {
@@ -79,8 +82,8 @@ static be_jse_symbol_t *clear_timer() {
 }
 
 be_jse_symbol_t *timers_module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                         be_jse_symbol_t *var,
-                                         const char *name) {
+                                         be_jse_symbol_t *var, const char *name)
+{
     if (!strcmp(name, "setTimeout")) return setup_timer(0);
     if (!strcmp(name, "clearTimeout")) return clear_timer();
     if (!strcmp(name, "setInterval")) return setup_timer(1);

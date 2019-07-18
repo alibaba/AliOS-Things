@@ -22,7 +22,8 @@
 
 static rtc_dev_t rtc_dev;
 
-static duk_ret_t native_rtc_open(duk_context *ctx) {
+static duk_ret_t native_rtc_open(duk_context *ctx)
+{
     int ret = hal_rtc_init(&rtc_dev);
     debug("port: %d, format: %d\n", rtc_dev.port, rtc_dev.config.format);
     if (0 != ret) {
@@ -32,7 +33,8 @@ static duk_ret_t native_rtc_open(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_rtc_close(duk_context *ctx) {
+static duk_ret_t native_rtc_close(duk_context *ctx)
+{
     int ret = hal_rtc_finalize(&rtc_dev);
     if (0 != ret) {
         error("hal_rtc_finalize fail!\n");
@@ -41,7 +43,8 @@ static duk_ret_t native_rtc_close(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_rtc_get_time(duk_context *ctx) {
+static duk_ret_t native_rtc_get_time(duk_context *ctx)
+{
     int8_t ret = -1;
     rtc_time_t rtcTime;
 
@@ -63,7 +66,8 @@ static duk_ret_t native_rtc_get_time(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_rtc_set_time(duk_context *ctx) {
+static duk_ret_t native_rtc_set_time(duk_context *ctx)
+{
     int8_t ret = -1;
     rtc_time_t rtcTime;
 
@@ -111,7 +115,8 @@ out:
     return 1;
 }
 
-void module_rtc_register(void) {
+void module_rtc_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

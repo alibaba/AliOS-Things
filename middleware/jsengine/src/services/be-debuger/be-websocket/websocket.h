@@ -11,16 +11,16 @@
 #define BWS_PATH_LEN 128
 
 typedef enum {
-    BWS_TXT_FRAME       = 0x81,  /* text frame */
-    BWS_BIN_FRAME       = 0x82,  /* binary frame */
-    BWS_CLOSE           = 0x88,  /* connection close */
-    BWS_PING            = 0x89,  /* ping */
-    BWS_PONG            = 0x8A,  /* pong */
-    BWS_CONT_FRAME_TXT  = 0x01,  /* continuation frame text begin */
-    BWS_CONT_FRAME_BIN  = 0x02,  /* continuation frame binary begin */
-    BWS_CONT_FRAME_MID  = 0x00,  /* continuation frame middle */
-    BWS_CONT_FRAME_LAST = 0x80,  /* continuation frame last */
-    BWS_UNKNOW          = 0xFF,  /* unknow */
+    BWS_TXT_FRAME       = 0x81, /* text frame */
+    BWS_BIN_FRAME       = 0x82, /* binary frame */
+    BWS_CLOSE           = 0x88, /* connection close */
+    BWS_PING            = 0x89, /* ping */
+    BWS_PONG            = 0x8A, /* pong */
+    BWS_CONT_FRAME_TXT  = 0x01, /* continuation frame text begin */
+    BWS_CONT_FRAME_BIN  = 0x02, /* continuation frame binary begin */
+    BWS_CONT_FRAME_MID  = 0x00, /* continuation frame middle */
+    BWS_CONT_FRAME_LAST = 0x80, /* continuation frame last */
+    BWS_UNKNOW          = 0xFF, /* unknow */
 } bone_websocket_frame_type_t;
 
 typedef enum {

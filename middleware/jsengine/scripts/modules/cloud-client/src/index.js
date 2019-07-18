@@ -15,14 +15,14 @@ var idcbs = {};
 
 // cb  cloudClient 
 
-cloudClient.start = function(config, cb) {
+cloudClient.start = function (config, cb) {
   if (connected) {
     cb(null, "success");
     return;
   }
-  
- //Native MQTT module
-  MQTT.start(config, function(error) {
+
+  //Native MQTT module
+  MQTT.start(config, function (error) {
     if (error) {
       connected = false;
       console.log("mqtt Auth fail");
@@ -30,7 +30,7 @@ cloudClient.start = function(config, cb) {
     } else {
       connected = true;
       prefix = "/sys/" + config.productKey + "/" + config.deviceName + "/";
-      MQTT.subscribe(prefix + "thing/event/property/post_reply", function(msg, topic) {
+      MQTT.subscribe(prefix + "thing/event/property/post_reply", function (msg, topic) {
         console.log(topic);
       });
       cb(null, "success");
@@ -40,18 +40,18 @@ cloudClient.start = function(config, cb) {
 
 //onPropertySet 
 // cb 
-cloudClient.onPropertySet = function(cb) {
-  MQTT.subscribe(prefix + "thing/service/property/set", function(msg, topic) {
+cloudClient.onPropertySet = function (cb) {
+  MQTT.subscribe(prefix + "thing/service/property/set", function (msg, topic) {
     msg && cb && cb(msg);
   });
 };
 
-cloudClient.onEvent = function(cb) {};
-cloudClient.onService = function(cb) {};
+cloudClient.onEvent = function (cb) { };
+cloudClient.onService = function (cb) { };
 
 //postProperty 
 //cb
-cloudClient.postProperty = function(params, cb) {
+cloudClient.postProperty = function (params, cb) {
   if (!connected) {
     cb("MQTT not connected");
     return;
@@ -70,7 +70,7 @@ cloudClient.postProperty = function(params, cb) {
 
 //postEvent 
 // cb 
-cloudClient.postEvent = function(eventName, params, cb) {
+cloudClient.postEvent = function (eventName, params, cb) {
   if (!connected) {
     cb("MQTT not connected");
     return;
@@ -88,7 +88,7 @@ cloudClient.postEvent = function(eventName, params, cb) {
 };
 
 //replySyncService 
-cloudClient.replySyncService = function(msgid, data, cb) {
+cloudClient.replySyncService = function (msgid, data, cb) {
   if (!connected) {
     cb("MQTT not connected");
     return;
@@ -105,7 +105,7 @@ cloudClient.replySyncService = function(msgid, data, cb) {
 };
 
 //replyAsyncService 
-cloudClient.replyAsyncService = function(serviceName, data, cb) {
+cloudClient.replyAsyncService = function (serviceName, data, cb) {
   if (!connected) {
     cb("MQTT not connected");
     return;

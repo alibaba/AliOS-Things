@@ -1,20 +1,20 @@
 {
-  "tcs230.s2":{
-    "type":"GPIO",
-    "port":5,
-    "dir":0,
-    "pull":1
+  "tcs230.s2": {
+    "type": "GPIO",
+    "port": 5,
+    "dir": 0,
+    "pull": 1
   },
-  "tcs230.s3":{
-    "type":"GPIO",
-    "port":16,
-    "dir":0,
-    "pull":1
+  "tcs230.s3": {
+    "type": "GPIO",
+    "port": 16,
+    "dir": 0,
+    "pull": 1
   },
-  "tcs230.out":{
-    "type":"GPIO",
-    "port":17,
-    "dir":1,
-    "pull":1
+  "tcs230.out": {
+    "type": "GPIO",
+    "port": 17,
+    "dir": 1,
+    "pull": 1
   }
 }

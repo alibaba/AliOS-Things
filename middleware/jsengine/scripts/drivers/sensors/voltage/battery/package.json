@@ -2,7 +2,9 @@
   "name": "battery",
   "version": "0.0.1",
   "description": "battery驱动",
-  "keywords": ["battery"],
+  "keywords": [
+    "battery"
+  ],
   "main": "src/index.js",
   "author": {
     "name": "jweih.hjw",

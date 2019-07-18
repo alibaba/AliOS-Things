@@ -8,7 +8,8 @@
 #include "bone_engine_inl.h"
 #include "hal/system.h"
 
-static int convert_fs_mode_to_oflag(const char *mode) {
+static int convert_fs_mode_to_oflag(const char *mode)
+{
     if (strcmp(mode, "w") == 0) return O_WRONLY | O_CREAT | O_TRUNC;
     if (strcmp(mode, "r") == 0) return O_RDONLY;
     if (strcmp(mode, "w+") == 0) return O_RDWR | O_CREAT | O_TRUNC;
@@ -19,7 +20,8 @@ static int convert_fs_mode_to_oflag(const char *mode) {
     return O_WRONLY | O_CREAT;
 }
 
-static int check_fs_is_support() {
+static int check_fs_is_support()
+{
     int ret, fd;
     const char *string = "test if fs mount ok";
     char testfile[64]  = {0};
@@ -56,7 +58,8 @@ static int check_fs_is_support() {
  * Input:       none
  * Output:      1 :support ,0 :not support
  *****************************************************************************/
-static duk_ret_t native_fs_is_support(duk_context *ctx) {
+static duk_ret_t native_fs_is_support(duk_context *ctx)
+{
     int ret;
     ret = check_fs_is_support();
     duk_push_int(ctx, ret);
@@ -71,7 +74,8 @@ static duk_ret_t native_fs_is_support(duk_context *ctx) {
  * Input:       filepath : string
  * Output:      a String object which the file content is
  *****************************************************************************/
-static duk_ret_t native_fs_read(duk_context *ctx) {
+static duk_ret_t native_fs_read(duk_context *ctx)
+{
     int fd   = 0;
     int len  = 0;
     int size = 0;
@@ -125,7 +129,8 @@ out:
  *            mode: could be "w","r","w+","r+","a","a+"
  * Output:      0 write ok ;other write fail
  *****************************************************************************/
-static duk_ret_t native_fs_write(duk_context *ctx) {
+static duk_ret_t native_fs_write(duk_context *ctx)
+{
     int fd;
     size_t str_len = 0;
     size_t nwrite  = 0;
@@ -173,7 +178,8 @@ out:
  * Input:       filepath : string
  * Output:      0 delete ok ;other delete fail
  *****************************************************************************/
-static duk_ret_t native_fs_delete(duk_context *ctx) {
+static duk_ret_t native_fs_delete(duk_context *ctx)
+{
     int ret = -1;
     const char *path;
 
@@ -190,7 +196,8 @@ out:
     return 1;
 }
 
-void module_fs_register(void) {
+void module_fs_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

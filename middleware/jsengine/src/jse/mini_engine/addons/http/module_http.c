@@ -4,21 +4,12 @@
 
 #include <stdio.h>
 #include <string.h>
-#ifdef WITH_LWIP
-#include <lwip/netdb.h>
-#include <lwip/sockets.h>
-#elif defined BE_OS_AOS
-#include <aos/network.h>
-#include <aos/yloop.h>
-#else
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#endif
+
 #include <be_jse_module.h>
 #include "be_jse_api.h"
 #include "be_jse_task.h"
 #include "be_port_osal.h"
+#include "hal/system.h"
 #include "module_http.h"
 
 #define CONFIG_LOGMACRO_DETAILS 1
@@ -42,7 +33,8 @@ typedef struct {
     be_jse_symbol_t *func;
 } schedule_msg_t;
 
-void http_parse_url(char *buf, char *host, int *port, char *file_name) {
+void http_parse_url(char *buf, char *host, int *port, char *file_name)
+{
     int length = 0;
     char port_buf[8];
     char *buf_end = (char *)(buf + strlen(buf));
@@ -79,7 +71,8 @@ void http_parse_url(char *buf, char *host, int *port, char *file_name) {
     host[length] = 0;
 }
 
-static int http_init_connnection(char *hostname, int port) {
+static int http_init_connnection(char *hostname, int port)
+{
     struct addrinfo hints;
     int ret              = -1;
     int sockfd           = 0;
@@ -102,13 +95,13 @@ static int http_init_connnection(char *hostname, int port) {
     return sockfd;
 }
 
-static int http_build_header(char *hostname, char *file_path,
-                             char *http_buffer) {
+static int http_build_header(char *hostname, char *file_path, char *http_buffer)
+{
     int len = 0;
 
     if (strlen(file_path) == 0) {
         len = sprintf(http_buffer, "GET %s HTTP/1.0\r\n",
-                      "/");  /* default get root dirctory */
+                      "/"); /* default get root dirctory */
     } else {
         len = sprintf(http_buffer, "GET %s HTTP/1.0\r\n", file_path);
     }
@@ -119,7 +112,8 @@ static int http_build_header(char *hostname, char *file_path,
     return 0;
 }
 
-static int http_send(int sockfd, char *buffer) {
+static int http_send(int sockfd, char *buffer)
+{
     int bytes_sent = 0;
 
     int size = strlen(buffer);
@@ -135,7 +129,8 @@ static int http_send(int sockfd, char *buffer) {
     return size;
 }
 
-static int http_recv(int sockfd, char *buffer) {
+static int http_recv(int sockfd, char *buffer)
+{
     size_t bytes_received = 0;
     size_t total_received = 0;
     int status            = 0;
@@ -163,13 +158,14 @@ static int http_recv(int sockfd, char *buffer) {
     be_debug(JS_HTTP_TAG, "Finished receiving data =%d.", total_received);
 
     if (total_received <= 0) {
-        return -1;  /* http received fail */
+        return -1; /* http received fail */
     } else {
-        return 0;  /* http request and received ok */
+        return 0; /* http request and received ok */
     }
 }
 
-static int http_request_and_recv(char *url, char *http_buffer) {
+static int http_request_and_recv(char *url, char *http_buffer)
+{
     int socketid      = -1;
     int ret           = -1;
     http_uri_t *p_uri = NULL;
@@ -177,7 +173,7 @@ static int http_request_and_recv(char *url, char *http_buffer) {
     p_uri = calloc(1, sizeof(http_uri_t));
     if (!p_uri) goto done;
 
-    p_uri->port = 80;  /* default http port if no specify */
+    p_uri->port = 80; /* default http port if no specify */
 
     http_parse_url(url, p_uri->hostname, &(p_uri->port), p_uri->filepath);
     socketid = http_init_connnection(p_uri->hostname, p_uri->port);
@@ -196,7 +192,8 @@ done:
 }
 
 /*C call JS 回调*/
-static void js_cb_http_recv(void *pdata) {
+static void js_cb_http_recv(void *pdata)
+{
     int ret             = 0;
     schedule_msg_t *msg = (schedule_msg_t *)pdata;
 
@@ -216,7 +213,8 @@ static void js_cb_http_recv(void *pdata) {
 }
 
 /* 说明: 创建一个task任务，用于http request请求 */
-static void task_http_request_fun(void *arg) {
+static void task_http_request_fun(void *arg)
+{
     int ret                         = -1;
     char *url                       = NULL;
     char *http_buf                  = NULL;
@@ -231,7 +229,7 @@ static void task_http_request_fun(void *arg) {
     url            = msg->arg1;
     http_buf       = msg->arg2;
     js_http_req_cb = msg->func;
-    be_osal_delay(50);  /* need do things after state changed in main task */
+    be_osal_delay(50); /* need do things after state changed in main task */
 
     /* 阻塞式的send和recv */
     ret = http_request_and_recv(url, http_buf);
@@ -254,7 +252,8 @@ callback data is String Object which is the result http request, when data is
 "ERROR" means http request error *Output:      None
 *****************************************************************************/
 
-static be_jse_symbol_t *module_http_request() {
+static be_jse_symbol_t *module_http_request()
+{
     int ret               = -1;
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
@@ -292,8 +291,8 @@ static be_jse_symbol_t *module_http_request() {
     schedule_msg->arg2 = http_buffer;
     schedule_msg->func = arg1;
 
-    INC_SYMBL_REF(
-        arg1);  /* 必须增加引用，否则在函数退出时符号表会被释放，在be_jse_execute_func中DEC_SYMBL_REF */
+    INC_SYMBL_REF(arg1); /* 必须增加引用，否则在函数退出时符号表会被释放，在be_jse_execute_func中DEC_SYMBL_REF
+                          */
 
     be_osal_create_task("http_request", task_http_request_fun, schedule_msg,
                         4096, ADDON_TSK_PRIORRITY, NULL);
@@ -305,15 +304,16 @@ done:
 }
 
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                         be_jse_symbol_t *var,
-                                         const char *name) {
+                                         be_jse_symbol_t *var, const char *name)
+{
     be_debug(JS_HTTP_TAG, "%s Enter: \n\r", __FUNCTION__);
     if (strcmp(name, "request") == 0) return module_http_request();
 
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_http_register(void) {
+void module_http_register(void)
+{
     int ret = -1;
 
     be_jse_module_load(JS_HTTP_TAG, module_handle_cb);

@@ -11,7 +11,8 @@ static be_jse_node_t gModulesRef[BE_JSE_MAX_MODULES];
 static BE_JSE_FUNCTION_EXECUTE_CB gModules[BE_JSE_MAX_MODULES];
 static int gModulesInited = 0;
 
-static BE_JSE_FUNCTION_EXECUTE_CB be_jse_find_modules(be_jse_node_t objRef) {
+static BE_JSE_FUNCTION_EXECUTE_CB be_jse_find_modules(be_jse_node_t objRef)
+{
     int i;
     for (i = 0; i < gModulesCount; i++) {
         if (objRef == gModulesRef[i]) return gModules[i];
@@ -20,7 +21,8 @@ static BE_JSE_FUNCTION_EXECUTE_CB be_jse_find_modules(be_jse_node_t objRef) {
 }
 
 be_jse_symbol_t *be_jse_module_process(be_jse_vm_ctx_t *execInfo,
-                                       be_jse_symbol_t *var, const char *name) {
+                                       be_jse_symbol_t *var, const char *name)
+{
     be_jse_node_t objRef = get_symbol_node_id(var);
 
     /* global function */
@@ -51,7 +53,8 @@ be_jse_symbol_t *be_jse_module_process(be_jse_vm_ctx_t *execInfo,
 }
 
 void be_jse_module_load(const char *moduleName,
-                        BE_JSE_FUNCTION_EXECUTE_CB extension) {
+                        BE_JSE_FUNCTION_EXECUTE_CB extension)
+{
     if (!moduleName || strlen(moduleName) == 0) {
         return;
     }
