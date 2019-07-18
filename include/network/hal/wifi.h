@@ -132,6 +132,12 @@ typedef struct {
     int     channel;       /* Channel of the current connected wlan */
 } hal_wifi_link_stat_t;
 
+typedef struct {
+    int rssi; /* Received Signal Strength Indication */
+    int snr;  /* Signal to Noise Ratio */
+    int per;  /* Packet Error Rate (PPM)*/
+} hal_wireless_info_t;
+
 typedef struct hal_wifi_link_info_s {
     int8_t rssi; /* rssi value of received packet */
 } hal_wifi_link_info_t;
@@ -188,6 +194,9 @@ struct hal_wifi_module_s {
     /* for device ap */
     int  (*start_ap)(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide);
     int  (*stop_ap)(hal_wifi_module_t *m);
+
+    /* for uND to get wireless information */
+    int (*get_wireless_info)(hal_wifi_module_t *m, hal_wireless_info_t *wireless_info);
 
     /* debug related */
     void (*start_debug_mode)(hal_wifi_module_t *m);
