@@ -247,7 +247,11 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     if (NULL == info) {
         return -1;
     }
-
+    
+    if(awss_dev_ap_switchap_done != 0){
+        return -1;
+    } 
+    
     ssid = info->ssid;
     passwd = info->passwd;
     bssid = info->bssid;
