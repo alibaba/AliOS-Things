@@ -566,69 +566,22 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     /* Check if the received data length exceeds mqtt read buffer length */
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         int needReadLen;
-        int remainDataLen;
-#ifdef PLATFORM_HAS_DYNMEM
-        char *remainDataBuf;
-#else
-        char remainDataBuf[IOTX_MC_RX_MAX_LEN] = {0};
-#endif
+
         mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
-        needReadLen = c->buf_size_read - len;
+        *packet_type = 0;
         left_t = iotx_time_left(timer);
         left_t = (left_t == 0) ? 1 : left_t;
-        rc = c->ipstack.read(&c->ipstack, c->buf_read + len, needReadLen, left_t);
-        if (rc < 0) {
-            mqtt_err("mqtt read error");
-            HAL_MutexUnlock(c->lock_read_buf);
-            return MQTT_NETWORK_ERROR;
-        } else if (rc != needReadLen) {
-            mqtt_warning("mqtt read timeout");
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
+        do {
+            needReadLen = (rem_len > c->buf_size_read) ? c->buf_size_read : rem_len;
+            printf("read len:%d\n", needReadLen);
+            if (c->ipstack.read(&c->ipstack, c->buf_read, needReadLen, left_t) != needReadLen) {
+                mqtt_err("mqtt read error");
+                HAL_MutexUnlock(c->lock_read_buf);
+                return FAIL_RETURN;
+            }
+            rem_len -= needReadLen;
+        } while (rem_len);
 
-        /* drop data whitch over the length of mqtt buffer */
-        remainDataLen = rem_len - needReadLen;
-#ifdef PLATFORM_HAS_DYNMEM
-        remainDataBuf = mqtt_malloc(remainDataLen + 1);
-        if (!remainDataBuf) {
-            mqtt_err("allocate remain buffer failed");
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
-#else
-        if (remainDataLen >= IOTX_MC_RX_MAX_LEN) {
-            mqtt_err("IOTX_MC_RX_MAX_LEN too short, remainDataLen: %d, IOTX_MC_RX_MAX_LEN: %d", remainDataLen, IOTX_MC_RX_MAX_LEN);
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
-#endif
-
-        left_t = iotx_time_left(timer);
-        left_t = (left_t == 0) ? 1 : left_t;
-        rc = c->ipstack.read(&c->ipstack, remainDataBuf, remainDataLen, left_t);
-        if (rc < 0) {
-            mqtt_err("mqtt read error");
-#ifdef PLATFORM_HAS_DYNMEM
-            mqtt_free(remainDataBuf);
-            remainDataBuf = NULL;
-#endif
-            HAL_MutexUnlock(c->lock_read_buf);
-            return MQTT_NETWORK_ERROR;
-        } else if (rc != remainDataLen) {
-            mqtt_warning("mqtt read timeout");
-#ifdef PLATFORM_HAS_DYNMEM
-            mqtt_free(remainDataBuf);
-            remainDataBuf = NULL;
-#endif
-            HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;
-        }
-
-#ifdef PLATFORM_HAS_DYNMEM
-        mqtt_free(remainDataBuf);
-        remainDataBuf = NULL;
-#endif
         HAL_MutexUnlock(c->lock_read_buf);
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
@@ -772,7 +725,7 @@ static int _mqtt_connect(void *client)
         return NULL_VALUE_ERROR;
     }
     userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
-    pClient->connect_data.keepAliveInterval = CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX;
+    pClient->connect_data.keepAliveInterval = (userKeepAliveInterval * 2);
     mqtt_info("connect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
               pClient->connect_data.MQTTVersion,
               pClient->connect_data.clientID.cstring,
