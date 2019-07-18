@@ -1,7 +1,9 @@
 ## timer相关接口说明 ##
+
 所有timer相关接口都是全局函数,接口与nodejs中的`timer`兼容
 
 ## 详细API ##
+
 ### setTimeout(callback, delay）###
 设定定时器，在delay毫秒之后执行callback函数
   * callback - function() {}类型的函数

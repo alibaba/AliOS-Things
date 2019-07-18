@@ -14,7 +14,8 @@
 #define GPIO_IRQ_FALLING_EDGE "falling"
 #define GPIO_IRQ_BOTH_EDGE "both"
 
-static duk_ret_t native_open(duk_context *ctx) {
+static duk_ret_t native_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t gpio_handle;
     gpio_handle.handle      = 0xFFFFFFFF;
@@ -53,7 +54,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_close(duk_context *ctx) {
+static duk_ret_t native_close(duk_context *ctx)
+{
     int8_t result = -1;
     item_handle_t gpio_handle;
     gpio_dev_t *gpio_device = NULL;
@@ -79,7 +81,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_write(duk_context *ctx) {
+static duk_ret_t native_write(duk_context *ctx)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     int8_t level  = 0;
@@ -113,7 +116,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_read(duk_context *ctx) {
+static duk_ret_t native_read(duk_context *ctx)
+{
     item_handle_t gpio_handle;
     uint32_t level          = 0;
     gpio_dev_t *gpio_device = NULL;
@@ -140,7 +144,8 @@ struct gpio_irq_notify_param {
     int value;
 };
 
-static void gpio_irq_notify(void *arg) {
+static void gpio_irq_notify(void *arg)
+{
     struct gpio_irq_notify_param *p = (struct gpio_irq_notify_param *)arg;
     debug("value: 0x%x\n", p->value);
     duk_context *ctx = bone_engine_get_context();
@@ -152,7 +157,8 @@ static void gpio_irq_notify(void *arg) {
 }
 
 /* 中断中避免调用打印 */
-static void gpio_irq(void *arg) {
+static void gpio_irq(void *arg)
+{
     uint32_t value   = 0;
     gpio_dev_t *gpio = (gpio_dev_t *)arg;
 
@@ -179,7 +185,8 @@ static void gpio_irq(void *arg) {
     }
 }
 
-static duk_ret_t native_on(duk_context *ctx) {
+static duk_ret_t native_on(duk_context *ctx)
+{
     int8_t ret      = -1;
     int8_t result   = -1;
     int8_t irq_edge = 0;
@@ -226,7 +233,8 @@ out:
     return 1;
 }
 
-void module_gpio_register(void) {
+void module_gpio_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

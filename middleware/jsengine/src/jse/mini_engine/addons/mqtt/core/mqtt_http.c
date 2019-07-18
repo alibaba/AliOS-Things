@@ -8,8 +8,7 @@
 #include "be_utils.h"
 #include "cJSON.h"
 
-#include "ca.h"  /* iotx_ca_get */
-#include "utils_hmac.h"
+// #include "mbedtls/hmac.h"
 #include "utils_httpc.h"
 
 #ifndef CONFIG_MQTT_HTTP_STACK_SIZE
@@ -46,7 +45,8 @@ static const int int_random_length = 15;
 static void *mqttHttpTskHandle = NULL;
 
 extern uint32_t HAL_Random(uint32_t region);
-static char *genRandomString(int length) {
+static char *genRandomString(int length)
+{
     int flag, i;
     char *str;
     if ((str = (char *)malloc(length)) == NULL) {
@@ -76,7 +76,8 @@ static char *genRandomString(int length) {
 
 int _http_response_2(char *payload, const int payload_len,
                      const char *request_string, const char *url,
-                     const int port_num, const char *pkey) {
+                     const int port_num, const char *pkey)
+{
 #define HTTP_POST_MAX_LEN (1024)
 #define HTTP_RESP_MAX_LEN (1024)
 
@@ -139,7 +140,8 @@ RETURN:
 
 static char *_set_auth_req_str(const char *product_key, const char *device_name,
                                const char *client_id, const char *sign,
-                               const char *ts) {
+                               const char *ts)
+{
 #define AUTH_STRING_MAXLEN (1024)
 
     char *req = NULL;
@@ -155,7 +157,8 @@ static char *_set_auth_req_str(const char *product_key, const char *device_name,
 static char *_get_device_secret(const char *product_key,
                                 const char *device_name, const char *client_id,
                                 const char *guider_addr,
-                                const char *request_string) {
+                                const char *request_string)
+{
     char payload[512]  = {0};
     char *deviceSecret = NULL;
 
@@ -171,7 +174,8 @@ static char *_get_device_secret(const char *product_key,
 
     printf("payload = %s \n", payload);
     /* payload =
-       {"code":200,"data":{"deviceName":"123456","deviceSecret":"JkwXalKfOtaP9f9IJGtdqbQaaGr8ghHf","productKey":"a1jbUxTP2VU"},"message":"success"} */
+       {"code":200,"data":{"deviceName":"123456","deviceSecret":"JkwXalKfOtaP9f9IJGtdqbQaaGr8ghHf","productKey":"a1jbUxTP2VU"},"message":"success"}
+     */
 
     cJSON *root = NULL;
     cJSON *item;
@@ -213,7 +217,8 @@ do_exit:
 static int _calc_hmac_signature(const char *product_key,
                                 const char *product_secret,
                                 const char *device_name, char *hmac_sigbuf,
-                                const int hmac_buflen, const char *random) {
+                                const int hmac_buflen, const char *random)
+{
     char signature[64];
     char hmac_source[512];
     int ret = FAIL_RETURN;
@@ -224,15 +229,16 @@ static int _calc_hmac_signature(const char *product_key,
     ret = snprintf(hmac_source, sizeof(hmac_source), string_hmac_format,
                    device_name, product_key, random);
 
-    utils_hmac_sha1(hmac_source, strlen(hmac_source), signature, product_secret,
-                    strlen(product_secret));
+    mbedtls_hmac_sha1(hmac_source, strlen(hmac_source), signature,
+                      product_secret, strlen(product_secret));
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return ret;
 }
 
 char *iot_get_deviceSecret(const char *product_key, const char *product_secret,
-                           const char *device_name, const char *client_id) {
+                           const char *device_name, const char *client_id)
+{
     char *req_str        = NULL;
     char guider_sign[48] = {0};
     char *s_random       = NULL;
@@ -254,7 +260,8 @@ char *iot_get_deviceSecret(const char *product_key, const char *product_secret,
     return deviceSecret;
 }
 
-static void http_task_post_jse(void *arg) {
+static void http_task_post_jse(void *arg)
+{
     IOT_DEVICESECRET_s *iotDeviceSecret = (IOT_DEVICESECRET_s *)arg;
     int ret;
     be_jse_symbol_t **params;
@@ -274,7 +281,8 @@ static void http_task_post_jse(void *arg) {
     free(iotDeviceSecret);
 }
 
-static void mqtt_network_task(void *arg) {
+static void mqtt_network_task(void *arg)
+{
     /* MQTT 一型一密 注册
        ProductKey: a1jbUxTP2VU
        ProductSecret: VtuTmAMhR8QXfMa5 */
@@ -306,9 +314,13 @@ static void mqtt_network_task(void *arg) {
     be_osal_delete_task(handle);
 }
 
-void *mqtt_http_get_instance() { return mqttHttpTskHandle; }
+void *mqtt_http_get_instance()
+{
+    return mqttHttpTskHandle;
+}
 
-void mqtt_http_start(void *iotDeviceSecret) {
+void mqtt_http_start(void *iotDeviceSecret)
+{
     if (mqttHttpTskHandle == NULL) {
         be_osal_create_task("mqttHttpTsk", mqtt_network_task, iotDeviceSecret,
                             1024 * 7, MQTTHTTP_TSK_PRIORITY,

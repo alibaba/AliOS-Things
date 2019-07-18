@@ -19,33 +19,33 @@
 #endif
 
 typedef enum {
-    OTA_REBOOT_FAILED = -6,
-    OTA_UPGRADE_FAILED = -5,
-    OTA_CHECK_FAILED = -4,
+    OTA_REBOOT_FAILED     = -6,
+    OTA_UPGRADE_FAILED    = -5,
+    OTA_CHECK_FAILED      = -4,
     OTA_DECOMPRESS_FAILED = -3,
-    OTA_DOWNLOAD_FAILED = -2,
-    OTA_INIT_FAILED = -1,
-    OTA_INIT = 0,
-    OTA_DOWNLOAD = 1,
-    OTA_DECOMPRESS = 2,
-    OTA_CHECK = 3,
-    OTA_UPGRADE = 4,
-    OTA_REBOOT = 5,
-    OTA_REBOOT_SUCCESS = 6,
-    OTA_CANCEL = 7,
+    OTA_DOWNLOAD_FAILED   = -2,
+    OTA_INIT_FAILED       = -1,
+    OTA_INIT              = 0,
+    OTA_DOWNLOAD          = 1,
+    OTA_DECOMPRESS        = 2,
+    OTA_CHECK             = 3,
+    OTA_UPGRADE           = 4,
+    OTA_REBOOT            = 5,
+    OTA_REBOOT_SUCCESS    = 6,
+    OTA_CANCEL            = 7,
     OTA_MAX
 } OTA_STATUS_T;
 
 typedef enum {
-    OTA_DOWNLOAD_RECV_FAIL = -6,
-    OTA_DOWNLOAD_SEND_FAIL = -5,
+    OTA_DOWNLOAD_RECV_FAIL   = -6,
+    OTA_DOWNLOAD_SEND_FAIL   = -5,
     OTA_DOWNLOAD_SOCKET_FAIL = -4,
-    OTA_DOWNLOAD_IP_FAIL = -3,
-    OTA_DOWNLOAD_URL_FAIL = -2,
-    OTA_DOWNLOAD_FAIL = -1,
-    OTA_DOWNLOAD_CONTINUE = 0,
-    OTA_DOWNLOAD_CANCEL = 1,
-    OTA_DOWNLOAD_FINISH = 2
+    OTA_DOWNLOAD_IP_FAIL     = -3,
+    OTA_DOWNLOAD_URL_FAIL    = -2,
+    OTA_DOWNLOAD_FAIL        = -1,
+    OTA_DOWNLOAD_CONTINUE    = 0,
+    OTA_DOWNLOAD_CANCEL      = 1,
+    OTA_DOWNLOAD_FINISH      = 2
 } OTA_DOWNLOAD_T;
 
 #endif
@@ -84,21 +84,22 @@ static int32_t jspacksize = 0;
 static int32_t jspackfile_offset;
 static int32_t jspackfile_header_offset;
 static int32_t jspackfile_count;
-static int32_t jspack_done = 0;
+static int32_t jspack_done        = 0;
 static int32_t jspack_found_error = 0;
 
 #define JSEPACK_BLOCK_SIZE 2 * 1024
 
 static uint8_t *jspackdst_buf = NULL;
 
-void apppack_init(write_js_cb_t cb) {
-    jspackcb = cb;
-    jspacksize = 0;
-    jspackfile_offset = 0;
+void apppack_init(write_js_cb_t cb)
+{
+    jspackcb                 = cb;
+    jspacksize               = 0;
+    jspackfile_offset        = 0;
     jspackfile_header_offset = 0;
-    jspack_done = 0;
-    jspackfile_count = 0;
-    jspack_found_error = 0;
+    jspack_done              = 0;
+    jspackfile_count         = 0;
+    jspack_found_error       = 0;
 
     jspackdst_buf = malloc(JSEPACK_BLOCK_SIZE);
 
@@ -108,25 +109,26 @@ void apppack_init(write_js_cb_t cb) {
     be_rmdir(BE_FS_ROOT_DIR);
 }
 
-void apppack_final() {
+void apppack_final()
+{
     jspackcb = NULL;
     free(jspackdst_buf);
     jspackdst_buf = NULL;
-    jspack_done = 1;
+    jspack_done   = 1;
 }
 
 static mbedtls_md5_context g_ctx;
-static uint8_t digest[16] = {0};
+static uint8_t digest[16]      = {0};
 static int32_t app_file_offset = 0;
 
 static void jspackoutput(const char *filename, const uint8_t *md5,
                          int32_t file_size, int32_t type, int32_t offset,
-                         uint8_t *buf, int32_t buf_len) {
+                         uint8_t *buf, int32_t buf_len)
+{
     int i;
     int outsize;
 
     if (offset == 0) {
-
         mbedtls_md5_init(&g_ctx);
         mbedtls_md5_starts(&g_ctx);
         app_file_offset = 0;
@@ -174,11 +176,11 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
         }
 
         if (memcmp(digest, md5, 16) == 0) {
-            complete = 1;  /* 校验成功 */
+            complete = 1; /* 校验成功 */
         } else {
-            complete = -1;
+            complete           = -1;
             jspack_found_error = 1;
-            jspack_done = 1;
+            jspack_done        = 1;
         }
 
         if (jspackcb) {
@@ -188,13 +190,14 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
     }
 }
 
-#define JSEPACK_HEADER_SIZE 8   /* sizeof(JSEPACK_HEADER) */
-#define JSEPACK_FILE_HEADER 24  /* sizeof(JSEPACK_FILE)  不包含文件名 */
+#define JSEPACK_HEADER_SIZE 8  /* sizeof(JSEPACK_HEADER) */
+#define JSEPACK_FILE_HEADER 24 /* sizeof(JSEPACK_FILE)  不包含文件名 */
 static uint32_t g_file_header_size = 24 + 1;
-static uint8_t *g_file_name = NULL;
+static uint8_t *g_file_name        = NULL;
 
 /* 上报处理过程 */
-void apppack_post_process_state() {
+void apppack_post_process_state()
+{
     char msg[128];
     if (jspacksize >= JSEPACK_HEADER_SIZE) {
         sprintf(msg, "%d/%d", jspacksize, header.pack_size);
@@ -205,7 +208,8 @@ void apppack_post_process_state() {
 }
 
 /* 递归分析 */
-int apppack_update(uint8_t *ptr, int size) {
+int apppack_update(uint8_t *ptr, int size)
+{
     int len = 0;
     uint8_t *pdst;
 
@@ -255,7 +259,7 @@ int apppack_update(uint8_t *ptr, int size) {
         be_warn("APP_MGR", "pack_size = %d ", header.pack_size);
 
         /* 重设定 jspackfile_header_offset */
-        len = JSEPACK_FILE_HEADER;  /* sizeof(JSEPACK_FILE) */
+        len = JSEPACK_FILE_HEADER; /* sizeof(JSEPACK_FILE) */
         if (len > size) {
             len = size;
         }
@@ -272,7 +276,7 @@ int apppack_update(uint8_t *ptr, int size) {
                 jspackfile_header_offset, size);
 
         len = JSEPACK_FILE_HEADER -
-              jspackfile_header_offset;  /* sizeof(JSEPACK_FILE) */
+              jspackfile_header_offset; /* sizeof(JSEPACK_FILE) */
         if (len > size) {
             len = size;
         }
@@ -367,7 +371,7 @@ int apppack_update(uint8_t *ptr, int size) {
         if (jspackfile_offset == fileheader.file_size) {
             /* 下一个文件 */
             jspackfile_header_offset = 0;
-            jspackfile_offset = 0;
+            jspackfile_offset        = 0;
             /* 恢复g_file_header_size默认值 */
             g_file_header_size = 24 + 1;
             if (jspackfile_count > 0)
@@ -400,7 +404,8 @@ int apppack_update(uint8_t *ptr, int size) {
  * @Param: file  download filename
  * @Param: port  default 80
  */
-static void http_gethost_info(char *src, char **web, char **file, int *port) {
+static void http_gethost_info(char *src, char **web, char **file, int *port)
+{
     char *pa;
     char *pb;
     int isHttps = 0;
@@ -419,7 +424,7 @@ static void http_gethost_info(char *src, char **web, char **file, int *port) {
 
     pa = src;
     if (!strncmp(pa, "https://", strlen("https://"))) {
-        pa = src + strlen("https://");
+        pa      = src + strlen("https://");
         isHttps = 1;
     }
 
@@ -430,12 +435,12 @@ static void http_gethost_info(char *src, char **web, char **file, int *port) {
     }
 
     *web = pa;
-    pb = strchr(pa, '/');
+    pb   = strchr(pa, '/');
     if (pb) {
         *pb = 0;
         pb += 1;
         if (*pb) {
-            *file = pb;
+            *file                   = pb;
             *((*file) + strlen(pb)) = 0;
         }
     } else {
@@ -444,31 +449,32 @@ static void http_gethost_info(char *src, char **web, char **file, int *port) {
 
     pa = strchr(*web, ':');
     if (pa) {
-        *pa = 0;
+        *pa   = 0;
         *port = atoi(pa + 1);
     } else {
         if (isHttps) {
-            *port = 80;  /* 443 */
+            *port = 80; /* 443 */
         } else {
             *port = 80;
         }
     }
 }
 
-int apppack_download(char *url, download_js_cb_t func) {
-    int ret = 0;
-    int sockfd = 0;
-    int port = 0;
-    int nbytes = 0;
-    int send = 0;
-    int totalsend = 0;
+int apppack_download(char *url, download_js_cb_t func)
+{
+    int ret             = 0;
+    int sockfd          = 0;
+    int port            = 0;
+    int nbytes          = 0;
+    int send            = 0;
+    int totalsend       = 0;
     uint32_t breakpoint = 0;
-    int size = 0;
-    int header_found = 0;
-    char *pos = 0;
-    int file_size = 0;
-    char *host_file = NULL;
-    char *host_addr = NULL;
+    int size            = 0;
+    int header_found    = 0;
+    char *pos           = 0;
+    int file_size       = 0;
+    char *host_file     = NULL;
+    char *host_addr     = NULL;
 
     be_warn("APP_MGR", "url = %s ", url);
 
@@ -507,9 +513,9 @@ int apppack_download(char *url, download_js_cb_t func) {
     breakpoint = 0;
     sprintf(http_buffer, HTTP_HEADER, host_file, host_addr, port);
 
-    send = 0;
+    send      = 0;
     totalsend = 0;
-    nbytes = strlen(http_buffer);
+    nbytes    = strlen(http_buffer);
 
     be_warn("APP_MGR", "send %s", http_buffer);
 
@@ -527,7 +533,7 @@ int apppack_download(char *url, download_js_cb_t func) {
         be_warn("APP_MGR", "%d bytes send OK!\n ", totalsend);
     }
 
-#ifdef LINUXOSX  /* clean the root direcoty when user update app */
+#ifdef LINUXOSX /* clean the root direcoty when user update app */
     be_osal_rmdir(BE_FS_ROOT_DIR);
 #else
     be_unlink(BE_FS_ROOT_DIR "/index.js");
@@ -563,9 +569,9 @@ int apppack_download(char *url, download_js_cb_t func) {
                 /* memcpy(headbuf, http_buffer, OTA_BUFFER_MAX_SIZE); */
             } else {
                 pos += 4;
-                int len = pos - http_buffer;
+                int len      = pos - http_buffer;
                 header_found = 1;
-                size = nbytes - len;
+                size         = nbytes - len;
                 func((uint8_t *)pos, size);
 
                 if (size == file_size) {
@@ -605,11 +611,12 @@ DOWNLOAD_END:
 }
 
 static int32_t update_done = 1;
-static int app_fd = -1;
+static int app_fd          = -1;
 
 int write_app_pack(const char *filename, int32_t file_size, int32_t type,
                    int32_t offset, uint8_t *buf, int32_t buf_len,
-                   int32_t complete) {
+                   int32_t complete)
+{
     /* char path[64]; */
     int ret;
 
@@ -629,8 +636,8 @@ int write_app_pack(const char *filename, int32_t file_size, int32_t type,
         }
 
         if ((offset + buf_len) == file_size) {
-            ret = be_sync(app_fd);
-            ret = be_close(app_fd);
+            ret    = be_sync(app_fd);
+            ret    = be_close(app_fd);
             app_fd = -1;
             be_warn("APP_UPDATE", "be_close return %d", ret);
         }
@@ -639,8 +646,8 @@ int write_app_pack(const char *filename, int32_t file_size, int32_t type,
     if (complete != 0) {
         /* 校验出错 */
         if (app_fd > 0) {
-            ret = be_sync(app_fd);
-            ret = be_close(app_fd);
+            ret    = be_sync(app_fd);
+            ret    = be_close(app_fd);
             app_fd = -1;
         }
         be_warn("APP_UPDATE", "file verify %s ",
@@ -651,7 +658,8 @@ int write_app_pack(const char *filename, int32_t file_size, int32_t type,
     return 0;
 }
 
-int download_apppack(uint8_t *buf, int32_t buf_len) {
+int download_apppack(uint8_t *buf, int32_t buf_len)
+{
     be_warn("APP_UPDATE", "download buf len = %d ", buf_len);
     apppack_update(buf, buf_len);
     be_warn("APP_UPDATE", "apppack_post_process_state");
@@ -659,7 +667,8 @@ int download_apppack(uint8_t *buf, int32_t buf_len) {
     return 0;
 }
 
-static void download_work(void *arg) {
+static void download_work(void *arg)
+{
     int ret;
 
     be_warn("APP_UPDATE", "download_work task name=%s", be_osal_get_taskname());
@@ -685,7 +694,8 @@ static void download_work(void *arg) {
     be_osal_delete_task(NULL);
 }
 
-int apppack_upgrade(char *url) {
+int apppack_upgrade(char *url)
+{
     be_warn("APP_UPDATE", "apppack_upgrade url=%s \n", (char *)url);
     if (update_done) {
         update_done = 0;
@@ -718,13 +728,14 @@ int apppack_upgrade(char *url) {
 #endif
 
 #ifdef LINUXOSX
-static int upgrading_mutex = 0;
+static int upgrading_mutex   = 0;
 static int upgrade_file_size = 0;
 
-int upgrade_simulator_reply(uint8_t *buf, int32_t buf_len) {
-    char msg[64] = {0};
+int upgrade_simulator_reply(uint8_t *buf, int32_t buf_len)
+{
+    char msg[64]            = {0};
     static int last_buf_len = 0;
-    static int total_recv = 0;
+    static int total_recv   = 0;
 
     total_recv += buf_len;
     sprintf(msg, "%d/%d", total_recv, upgrade_file_size);
@@ -737,13 +748,14 @@ int upgrade_simulator_reply(uint8_t *buf, int32_t buf_len) {
 #endif
         if (total_recv == upgrade_file_size) {
             last_buf_len = 0;
-            total_recv = 0;
+            total_recv   = 0;
         } else {
             last_buf_len = total_recv;
         }
     }
 }
-static void upgrade_simulator_work(upgrade_image_param_t *arg) {
+static void upgrade_simulator_work(upgrade_image_param_t *arg)
+{
     int ret;
 
     be_warn("upgrade_simulator_work", "url=%s ,size=%d", (char *)arg->url,
@@ -766,11 +778,12 @@ static void upgrade_simulator_work(upgrade_image_param_t *arg) {
     be_osal_exit_task(0);
 }
 
-int simulator_upgrade(upgrade_image_param_t *p_info) {
+int simulator_upgrade(upgrade_image_param_t *p_info)
+{
     be_warn("APP_UPDATE", "simulator_upgrade url=%s %d\n", p_info->url,
             p_info->file_size);
     if (upgrading_mutex == 0) {
-        upgrading_mutex = 1;
+        upgrading_mutex   = 1;
         upgrade_file_size = p_info->file_size;
         be_warn("APP_UPDATE", "simulator_upgrade ...");
 
@@ -798,13 +811,15 @@ int simulator_upgrade(upgrade_image_param_t *p_info) {
 }
 #endif
 
-void app_mgr_set_boneflag(int enable) {
+void app_mgr_set_boneflag(int enable)
+{
     hal_system_kv_set(BoneFlag, &enable, 4, 1);
 }
 
-int app_mgr_get_boneflag() {
+int app_mgr_get_boneflag()
+{
     int flag = 0;
-    int len = 4;
+    int len  = 4;
     hal_system_kv_get(BoneFlag, &flag, &len);
     return flag;
 }
@@ -818,16 +833,19 @@ int app_mgr_get_boneflag() {
 max length 192
 */
 
-void app_mgr_set_devicespec(char *jsonstr) {
+void app_mgr_set_devicespec(char *jsonstr)
+{
     hal_system_kv_set(DeviceSpec, jsonstr, strlen(jsonstr), 1);
 }
 
-int app_mgr_get_devicespec(char *jsonstr, int jsonstrlen) {
+int app_mgr_get_devicespec(char *jsonstr, int jsonstrlen)
+{
     hal_system_kv_get(DeviceSpec, jsonstr, &jsonstrlen);
     return jsonstrlen;
 }
 
-int app_mgr_open_file(const char *targetname) {
+int app_mgr_open_file(const char *targetname)
+{
     int fd;
     char path[256] = {0};
 
@@ -846,7 +864,7 @@ int app_mgr_open_file(const char *targetname) {
         strcat(path, targetname);
     }
 
-    int i = strlen(BE_FS_ROOT_DIR);  /* 8 */
+    int i   = strlen(BE_FS_ROOT_DIR); /* 8 */
     int len = strlen(path);
     for (; i < len; i++) {
         if (path[i] == '/') {

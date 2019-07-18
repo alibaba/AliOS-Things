@@ -51,7 +51,8 @@ static char pLocalAddress[16] = {0};
 #define WEB_SERVER_PORT 9001
 #define WEB_SERVER_PATH "/socket.io/?EIO=3&transport=websocket"
 
-void connect_webserver(void* ip) {
+void connect_webserver(void* ip)
+{
     printf("connect_webserver ip=%s\r\n", (char*)ip);
 
     if (NULL == ip) {
@@ -86,7 +87,8 @@ void connect_webserver(void* ip) {
 
 static char target_ip[16] = {0};
 
-void be_debuger_websocket_reconnect() {
+void be_debuger_websocket_reconnect()
+{
     if (target_ip[0]) {
         be_jse_task_timer_action(200, connect_webserver, strdup(target_ip),
                                  JSE_TIMER_ONCE);
@@ -97,10 +99,11 @@ void be_debuger_websocket_reconnect() {
 
 static int ssdp_sock = -1;
 
-static int socket_add_ipv4_multicast_group(int sock, bool assign_source_if) {
+static int socket_add_ipv4_multicast_group(int sock, bool assign_source_if)
+{
     struct ip_mreq imreq = {0};
     struct in_addr iaddr = {0};
-    int err = 0;
+    int err              = 0;
     /* Configure source interface */
     imreq.imr_interface.s_addr = IPADDR_ANY;
 
@@ -149,10 +152,11 @@ err:
     return err;
 }
 
-static int create_multicast_ipv4_socket() {
+static int create_multicast_ipv4_socket()
+{
     struct sockaddr_in saddr = {0};
-    int sock = -1;
-    int err = 0;
+    int sock                 = -1;
+    int err                  = 0;
 
     sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (sock < 0) {
@@ -162,8 +166,8 @@ static int create_multicast_ipv4_socket() {
 
     be_debug(MODULE_TAG, "create_multicast_ipv4_socket =  %d", sock);
     /* Bind the socket to any address */
-    saddr.sin_family = PF_INET;
-    saddr.sin_port = htons(BE_DEBUGER_SSDP_PORT);
+    saddr.sin_family      = PF_INET;
+    saddr.sin_port        = htons(BE_DEBUGER_SSDP_PORT);
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     err = bind(sock, (struct sockaddr*)&saddr, sizeof(struct sockaddr_in));
     if (err < 0) {
@@ -207,9 +211,10 @@ err:
     return -1;
 }
 
-static void on_ssdp_recv(int sock, void* arg) {
+static void on_ssdp_recv(int sock, void* arg)
+{
     char recvbuf[128] = {0};
-    struct sockaddr_in raddr;  /* Large enough for both IPv4 or IPv6 */
+    struct sockaddr_in raddr; /* Large enough for both IPv4 or IPv6 */
     socklen_t socklen = sizeof(raddr);
 
     int len = recvfrom(sock, recvbuf, sizeof(recvbuf), 0,
@@ -223,7 +228,7 @@ static void on_ssdp_recv(int sock, void* arg) {
     if (urn_prefix != NULL) {
         if (strstr(recvbuf, "NOTIFY * HTTP/1.1") != NULL) {
             char* urn_prefix_end = strstr(urn_prefix, "\r\n");
-            int urn_prefix_len = strlen("urn:be-debuger");
+            int urn_prefix_len   = strlen("urn:be-debuger");
             if (urn_prefix_end != NULL &&
                 (urn_prefix_end - urn_prefix) > urn_prefix_len) {
                 char* st_ip = urn_prefix + urn_prefix_len + 1;
@@ -255,7 +260,8 @@ static void on_ssdp_recv(int sock, void* arg) {
     }
 }
 
-void ssdp_read(void* arg) {
+void ssdp_read(void* arg)
+{
     fd_set readfds;
     struct timeval tv;
     int result;
@@ -267,7 +273,7 @@ void ssdp_read(void* arg) {
        flags = fcntl(sockfd, F_GETFL, 0);
        fcntl(sockfd, F_SETFL, flags | O_NONBLOCK); */
     tv.tv_usec = 0;
-    tv.tv_sec = 1;
+    tv.tv_sec  = 1;
 
     while (true) {
         FD_ZERO(&readfds);
@@ -288,7 +294,8 @@ void ssdp_read(void* arg) {
 #endif
 
 static int ssdp_started = 0;
-int be_debuger_ssdp_start(char* localAddress) {
+int be_debuger_ssdp_start(char* localAddress)
+{
     if (ssdp_started) return 0;
 
     ssdp_started = 1;
@@ -304,7 +311,7 @@ int be_debuger_ssdp_start(char* localAddress) {
                         NULL);
 
     char* remote_address = (char*)calloc(1, 16);
-    uint32_t buffer_len = 16;
+    uint32_t buffer_len  = 16;
     hal_system_kv_get("WS_ADDRESS", remote_address, &buffer_len);
 
     if (strlen(remote_address) != 0) {

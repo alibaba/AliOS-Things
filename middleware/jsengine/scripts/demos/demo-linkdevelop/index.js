@@ -43,13 +43,13 @@ cloudClient.start(
   },
 
   //回调函数cb
-  function(err, data) {
+  function (err, data) {
     console.log("onStart");
     if (err) {
       return;
     }
     //注册响应云端事件的回调函数
-    cloudClient.onPropertySet(function(msg) {
+    cloudClient.onPropertySet(function (msg) {
       //云端下发的设置命令
       if (msg.method === "thing.service.property.set") {
         if (msg.params.LightSwitch === 1) {
@@ -65,7 +65,7 @@ cloudClient.start(
 );
 
 //定时开关灯，10秒
-setInterval(function() {
+setInterval(function () {
   if (i) lightOn();
   else lightOff();
 

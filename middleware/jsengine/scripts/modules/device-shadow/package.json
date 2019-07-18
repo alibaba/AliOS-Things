@@ -5,5 +5,5 @@
   "main": "src/index.js",
   "author": "zhengxiang.zzx@alibaba-inc.com",
   "license": "MIT",
-  "test":"test/index_test.js"
+  "test": "test/index_test.js"
 }

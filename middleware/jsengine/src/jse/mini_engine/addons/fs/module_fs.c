@@ -12,7 +12,8 @@
 
 #define JS_FS_TAG "FS"
 
-static int convert_fs_mode_to_oflag(const char *mode) {
+static int convert_fs_mode_to_oflag(const char *mode)
+{
     if (strcmp(mode, "w") == 0) return (O_WRONLY | O_CREAT | O_TRUNC);
     if (strcmp(mode, "r") == 0) return (O_RDONLY);
     if (strcmp(mode, "w+") == 0) return (O_RDWR | O_CREAT | O_TRUNC);
@@ -23,7 +24,8 @@ static int convert_fs_mode_to_oflag(const char *mode) {
     return (O_WRONLY | O_CREAT);
 }
 
-static int check_fs_is_support() {
+static int check_fs_is_support()
+{
     int ret, fd;
     const char *string = "test if fs mount ok";
     char testfile[64]  = {0};
@@ -60,7 +62,8 @@ static int check_fs_is_support() {
 *Input:       none
 *Output:      1 :support ,0 :not support
 *****************************************************************************/
-static be_jse_symbol_t *module_fs_issupport() {
+static be_jse_symbol_t *module_fs_issupport()
+{
     int ret = 0;
 
     be_jse_handle_function(0, 0, 0, 0, 0);
@@ -76,7 +79,8 @@ static be_jse_symbol_t *module_fs_issupport() {
 *Input:       filepath : string
 *Output:      a String object which the file content is
 *****************************************************************************/
-static be_jse_symbol_t *module_fs_read() {
+static be_jse_symbol_t *module_fs_read()
+{
     int ret                         = -1;
     int fd                          = 0;
     int len                         = 0;
@@ -133,7 +137,8 @@ done:
                           mode: could be "w","r","w+","r+","a","a+"
 *Output:      0 write ok ;other write fail
 *****************************************************************************/
-static be_jse_symbol_t *module_fs_write() {
+static be_jse_symbol_t *module_fs_write()
+{
     int ret                       = -1;
     be_jse_symbol_t *arg0         = NULL;
     be_jse_symbol_t *arg1         = NULL;
@@ -190,7 +195,8 @@ done:
 *Input:       filepath : string
 *Output:      0 delete ok ;other delete fail
 *****************************************************************************/
-static be_jse_symbol_t *module_fs_delete() {
+static be_jse_symbol_t *module_fs_delete()
+{
     be_jse_symbol_t *arg0         = NULL;
     int ret                       = -1;
     char path[BE_FS_PATH_LEN_MAX] = {0};
@@ -210,8 +216,8 @@ done:
 }
 
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                         be_jse_symbol_t *var,
-                                         const char *name) {
+                                         be_jse_symbol_t *var, const char *name)
+{
     be_debug(JS_FS_TAG, "%s Enter: name=%s\n\r", __FUNCTION__, name);
 
     if (strcmp(name, "issupport") == 0) return module_fs_issupport();
@@ -222,7 +228,8 @@ static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_fs_register(void) {
+void module_fs_register(void)
+{
     int ret = -1;
 
     be_jse_module_load(JS_FS_TAG, module_handle_cb);

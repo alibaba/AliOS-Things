@@ -22,7 +22,7 @@ ADXL345模块的SDA连接DevelopKit的SDA引脚；
 
 DevelopKit示范：
 
-```
+```json
 {
     "adxl345":{
       "type":"I2C",
@@ -50,7 +50,7 @@ method:
 ###示例
 读取加速度raw数据:
 
-```
+```js
 var adxl345 = require('adxl345/src/index.js');
 var handle = new adxl345('adxl345');
 var adxl345_val=[0,0,0];

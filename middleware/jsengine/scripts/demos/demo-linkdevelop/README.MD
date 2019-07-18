@@ -30,7 +30,7 @@ deviceSecret: "XXXXXXX",
 * 导入 rgbled 驱动
 * 编写主程序index.js
 
-```
+```js
 //导入上云模块
 var cloudClient = require("cloud-client/src/index.js");
 
@@ -112,7 +112,7 @@ setInterval(function() {
 
 board.json  配置如下：
 
-```
+```json
 {
   "rgbled.r": {
     "type": "GPIO",

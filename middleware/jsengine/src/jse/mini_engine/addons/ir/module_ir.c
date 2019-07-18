@@ -17,7 +17,8 @@ typedef struct ir_notify {
     uint32_t value;
 } ir_notify_t;
 
-static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin) {
+static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin)
+{
     gpio_i2c_reset(scl_pin, sda_pin);
     gpio_i2c_delay_10us(4);
 
@@ -45,7 +46,8 @@ static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin) {
     gpio_i2c_delay_10us(4);
 }
 
-static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff) {
+static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff)
+{
     uint8_t value    = 0;
     uint8_t i        = 0;
     uint8_t checksum = 0;
@@ -94,7 +96,8 @@ static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff) {
 }
 
 static int32_t ir_learn_start(uint32_t scl_pin, uint32_t sda_pin,
-                              uint32_t busy_bin, uint8_t buff[232]) {
+                              uint32_t busy_bin, uint8_t buff[232])
+{
     uint8_t sumValue = 0;
     int32_t count    = 0;
     int8_t ret       = -1;
@@ -123,7 +126,8 @@ static int32_t ir_learn_start(uint32_t scl_pin, uint32_t sda_pin,
     return (232);
 }
 
-static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level) {
+static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level)
+{
     int8_t ret      = 0;
     uint32_t value  = 0;
     uint32_t counts = 0;
@@ -136,7 +140,8 @@ static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level) {
     return (counts);
 }
 
-static uint32_t ir_nec(gpio_dev_t *gpio) {
+static uint32_t ir_nec(gpio_dev_t *gpio)
+{
     uint32_t counts = 0;
     uint32_t value  = 0;
     uint8_t i       = 0;
@@ -169,7 +174,8 @@ static uint32_t ir_nec(gpio_dev_t *gpio) {
     return (value);
 }
 
-static be_jse_symbol_t *ir_open(void) {
+static be_jse_symbol_t *ir_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -226,7 +232,8 @@ out:
     return new_int_symbol(gpio_handle.handle);
 }
 
-static be_jse_symbol_t *ir_close(void) {
+static be_jse_symbol_t *ir_close(void)
+{
     int8_t result = -1;
     item_handle_t gpio_handle;
     be_jse_symbol_t *arg0   = NULL;
@@ -252,7 +259,8 @@ out:
     return new_int_symbol(result);
 }
 
-static void ir_notify(void *arg) {
+static void ir_notify(void *arg)
+{
     ir_notify_t *msg = (ir_notify_t *)arg;
     if (NULL == msg) {
         return;
@@ -264,7 +272,8 @@ static void ir_notify(void *arg) {
     msg = NULL;
 }
 
-static void ir_handle(void *arg) {
+static void ir_handle(void *arg)
+{
     be_jse_symbol_t *fun_symbol = NULL;
     uint32_t value              = 0;
     gpio_dev_t *gpio            = (gpio_dev_t *)arg;
@@ -291,7 +300,8 @@ static void ir_handle(void *arg) {
     be_jse_task_schedule_call(ir_notify, msg);
 }
 
-static be_jse_symbol_t *ir_on(void) {
+static be_jse_symbol_t *ir_on(void)
+{
     int32_t ret   = -1;
     int32_t len   = -1;
     int8_t result = -1;
@@ -330,14 +340,16 @@ out:
     return new_int_symbol(result);
 }
 
-static void ir_delay(uint32_t counts) {
+static void ir_delay(uint32_t counts)
+{
     uint32_t i = 0;
     for (i = 0; i < counts; i++) {
         be_osal_delay10us();
     }
 }
 
-static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData) {
+static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData)
+{
     int8_t i     = 0;
     uint32_t val = 0;
     hal_gpio_output_low(scl);
@@ -365,7 +377,8 @@ static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData) {
 }
 
 static void ir_buff(gpio_dev_t *sda, gpio_dev_t *scl, uint8_t *data,
-                    uint32_t count) {
+                    uint32_t count)
+{
     uint32_t i = 0;
     hal_gpio_output_high(sda);
     hal_gpio_output_high(scl);
@@ -403,7 +416,8 @@ static void ir_buff(gpio_dev_t *sda, gpio_dev_t *scl, uint8_t *data,
     ir_delay(8);
 }
 
-static be_jse_symbol_t *ir_send(void) {
+static be_jse_symbol_t *ir_send(void)
+{
     uint8_t *data = NULL;
     uint32_t len  = 0;
     uint32_t i    = 0;
@@ -465,7 +479,8 @@ out:
     return new_int_symbol(len);
 }
 
-static be_jse_symbol_t *ir_learn(void) {
+static be_jse_symbol_t *ir_learn(void)
+{
     uint32_t i        = 0;
     int32_t ret       = -1;
     int8_t result     = -1;
@@ -526,7 +541,8 @@ out:
 
 static be_jse_symbol_t *ir_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                             be_jse_symbol_t *var,
-                                            const char *name) {
+                                            const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return ir_open();
     }
@@ -546,4 +562,7 @@ static be_jse_symbol_t *ir_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_ir_register(void) { be_jse_module_load("IR", ir_module_handle_cb); }
+void module_ir_register(void)
+{
+    be_jse_module_load("IR", ir_module_handle_cb);
+}
