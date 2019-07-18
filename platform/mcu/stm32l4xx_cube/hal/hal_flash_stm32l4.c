@@ -16,7 +16,7 @@
 extern const hal_logic_partition_t hal_partitions[];
 
 
-int flash_sw_bank(void)
+int hal_reboot_bank(void)
 {
     int ret = 0;
 #if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
