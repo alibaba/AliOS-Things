@@ -12,6 +12,10 @@ extern "C" {
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
+#ifdef FEATURE_UND_WITH_WIFI
+#include "und/und.h"
+#endif
+
 #include <hal/wifi.h>
 #include <netmgr.h>
 #include "wrappers_defs.h"
@@ -289,6 +293,9 @@ int HAL_Awss_Connect_Ap(uint32_t connection_timeout_ms,
             return 0;
         }
     }
+#ifdef FEATURE_UND_WITH_WIFI
+    und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_WIFI_FAIL_REASON);
+#endif
 
     return -1;
 }
