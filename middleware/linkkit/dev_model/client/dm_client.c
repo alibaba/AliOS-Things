@@ -141,13 +141,6 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
 
 static void _dm_client_event_cloud_connected_handle(void)
 {
-#ifdef DEV_BIND_ENABLED
-    static int awss_reported = 0;
-    if(awss_reported == 0) {
-        awss_report_cloud();
-        awss_reported = 1;
-    }
-#endif
     dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
     dm_msg_cloud_connected();
 }

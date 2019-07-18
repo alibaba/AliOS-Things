@@ -106,7 +106,7 @@ int dm_msg_cache_search(_IN_ int msgid, _OU_ dm_msg_cache_node_t **node)
     dm_msg_cache_ctx_t *ctx = _dm_msg_cache_get_ctx();
     dm_msg_cache_node_t *search_node = NULL;
 
-    if (msgid <= 0 || node == NULL || *node != NULL) {
+    if (msgid < 0 || node == NULL || *node != NULL) {
         return DM_INVALID_PARAMETER;
     }
 
