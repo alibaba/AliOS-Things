@@ -6,8 +6,9 @@ $(NAME)_SUMMARY := locating framework
 
 ifeq ($(QXWZ_ENABLED),y)
 $(NAME)_SOURCES += \
-                   qianxun/qxwz_socket.c \
-                   qianxun/qxwz_gga.c
+                   qianxun/uloc_qxwz_socket.c \
+                   qianxun/uloc_qxwz_utils.c  \
+                   qianxun/uloc_qxwz_service.c
 
 GLOBAL_INCLUDES += ./qianxun/include
 GLOBAL_INCLUDES += ./qianxun/
