@@ -15,6 +15,7 @@ int wext_set_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len);
 int wext_set_bssid(const char *ifname, const __u8 *bssid);
 int wext_get_bssid(const char *ifname, __u8 *bssid);
 int wext_set_auth_param(const char *ifname, __u16 idx, __u32 value);
+int wext_set_mfp_support(const char *ifname, __u8 value);
 int wext_set_key_ext(const char *ifname, __u16 alg, const __u8 *addr, int key_idx, int set_tx, const __u8 *seq, __u16 seq_len, __u8 *key, __u16 key_len);
 int wext_get_enc_ext(const char *ifname, __u16 *alg, __u8 *key_idx, __u8 *passphrase);
 int wext_set_passphrase(const char *ifname, const __u8 *passphrase, __u16 passphrase_len);
@@ -24,6 +25,7 @@ int wext_get_mode(const char *ifname, int *mode);
 int wext_set_ap_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len);
 int wext_set_country(const char *ifname, rtw_country_code_t country_code);
 int wext_get_rssi(const char *ifname, int *rssi);
+int wext_get_snr(const char *ifname, int *snr);
 int wext_set_channel(const char *ifname, __u8 ch);
 int wext_get_channel(const char *ifname, __u8 *ch);
 int wext_register_multicast_address(const char *ifname, rtw_mac_t *mac);
@@ -69,6 +71,10 @@ int wext_del_custom_ie(const char *ifname);
 int wext_send_mgnt(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 int wext_send_eapol(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 int wext_set_gen_ie(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
+void wext_suspend_softap(const char *ifname);
+int wext_get_nhm_ratio_level(const char *ifname, __u32 *level);
+int wext_get_retry_drop_num(const char *ifname, rtw_fw_retry_drop_t * retry);
+int wext_get_sw_trx_statistics(const char *ifname, rtw_net_device_stats_t *stats);
 
 #ifdef	__cplusplus
 }

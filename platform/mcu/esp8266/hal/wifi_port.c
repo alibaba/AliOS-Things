@@ -743,6 +743,20 @@ static int stop_ap(hal_wifi_module_t *m)
     return 0;
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    LOGD("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    info->rssi = wifi_station_get_rssi();
+
+    return 0;
+}
+
 hal_wifi_module_t aos_wifi_esp8266 = {
     .base.name           = "aos_wifi_esp8266",
     .init                =  wifi_init,
@@ -765,6 +779,8 @@ hal_wifi_module_t aos_wifi_esp8266 = {
     .stop_ap             =  stop_ap,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
-    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame
+    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+
+    .get_wireless_info   = get_wireless_info,
 };
 
