@@ -339,6 +339,14 @@ int wifi_get_sta_max_data_rate(u8 * inidata_rate);
 int wifi_get_rssi(int *pRSSI);
 
 /**
+ * @brief  Retrieve the latest SNR value.
+ * @param[out]  pRSSI: Points to the integer to store the SNR value gotten from driver.
+ * @return  RTW_SUCCESS: If the SNR is succesfully retrieved.
+ * @return  RTW_ERROR: If the SNR is not retrieved.
+ */
+int wifi_get_snr(int *pSNR);
+
+/**
  * @brief  Set the listening channel for promiscuous mode.
  * @param[in]  channel: The desired channel.
  * @return  RTW_SUCCESS: If the channel is successfully set.
@@ -456,6 +464,15 @@ int wifi_off_fastly(void);
 int wifi_set_power_mode(unsigned char ips_mode, unsigned char lps_mode);
 
 /**
+ * @brief  Set LPS mode.
+ * @param[in] lps_mode: The desired LPS mode. It becomes effective when wlan enter lps.\n
+ *		@ref lps_mode is leisure power save mode. Wi-Fi automatically turns RF off during the association to AP is traffic is not busy while it also automatically turns RF on to listen to beacon. Set 1 to enable leisure power save mode.
+ * @return  RTW_SUCCESS if setting LPS mode successful.
+ * @return  RTW_ERROR otherwise.
+ */
+int wifi_set_powersave_level(u8 level);
+
+/**
  * Set TDMA parameters
  *
  * @param[in] slot_period  : We separate TBTT into 2 or 3 slots.
@@ -491,6 +508,17 @@ int wifi_set_lps_dtim(unsigned char dtim);
  * @return  RTW_ERROR otherwise.
  */
 int wifi_get_lps_dtim(unsigned char *dtim);
+
+/**
+ * @brief  Set Management Frame Protection Support.
+ * @param[in] value:
+ *				- NO_MGMT_FRAME_PROTECTION 		- not support
+ *				- MGMT_FRAME_PROTECTION_OPTIONAL 	- capable
+ *				- MGMT_FRAME_PROTECTION_REQUIRED 	- required
+ * @return  RTW_SUCCESS if setting Management Frame Protection Support successful.
+ * @return  RTW_ERROR otherwise.
+ */
+int wifi_set_mfp_support(unsigned char value);
 
 /**
  * @brief  Trigger Wi-Fi driver to start an infrastructure Wi-Fi network.
@@ -637,14 +665,22 @@ int wifi_get_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
 int wifi_show_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
 
 /**
- * @brief  
-Set the network mode according to the data rate its supported. 
+ * @brief Set the network mode according to the data rate its supported.
  *			Driver works in BGN mode in default after driver initialization. This function is used to
  *			change wireless network mode for station mode before connecting to AP.
  * @param[in]  mode: Network mode to set. The value can be RTW_NETWORK_B/RTW_NETWORK_BG/RTW_NETWORK_BGN.
  * @return  RTW_SUCCESS or RTW_ERROR.
  */
 int wifi_set_network_mode(rtw_network_mode_t mode);
+
+/**
+ * @brief	Get the network mode.
+ *			Driver works in BGN mode in default after driver initialization. This function is used to
+ *			get the current wireless network mode for station mode.
+ * @param[in]  pmode: Network mode to get.
+ * @return  RTW_SUCCESS or RTW_ERROR.
+ */
+int wifi_get_network_mode(rtw_network_mode_t *pmode);
 
 /**
  * @brief  Set the chip to start or stop the promiscuous mode.
@@ -860,6 +896,37 @@ int wifi_disable_packet_filter(unsigned char filter_id);
   * @return  0 if success, otherwise return -1.
   */
 int wifi_remove_packet_filter(unsigned char filter_id);
+
+/**
+  * @brief: Filter out the retransmission MIMO packet in promisc mode.
+  * @param[in]  enable: set 1 to enable filter retransmission pkt function, set 0 to disable this filter function.
+  * @param[in]  filter_interval_ms: if 'enable' equals 0, it's useless; if 'enable' equals 1, this value
+  *				indicate the time(ms) below which an adjacent pkt received will be claimed a retransmission pkt
+  *				if it has the same length with the previous pkt, and driver will drop all retransmission pkts.
+  *				For example, if the packet transmission time interval is 10ms, but driver receives two packets with
+  *				the same length within 3ms then the second packet will be dropped if configed as wifi_retransmit_packet_filter(1,3).
+  * @return 0 if success, otherwise return -1.
+  */
+int wifi_retransmit_packet_filter(u8 enable, u8 filter_interval_ms);
+
+/**
+  * @brief: Only receive the packets sent by the specified ap and phone in promisc mode.
+  * @param[in]  enable: set 1 to enable filter, set 0 to disable this filter function.
+  * @param[in]  ap_mac: if 'enable' equals 0, it's useless; if 'enable' equals 1, this value is the ap's mac address.
+  * @param[in]  phone_mac: if 'enable' equals 0, it's useless; if 'enable' equals 1, this value is the phone's mac address.
+  * @return  None.
+  * @note  Please invoke this function as "wifi_filter_by_ap_and_phone_mac(0,NULL,NULL)" before exiting promisc mode if you enabled it during the promisc mode.
+  */
+void wifi_filter_by_ap_and_phone_mac(u8 enable, void *ap_mac, void *phone_mac);
+
+/**
+  * @brief:	config to report ctrl packet or not under promisc mode.
+  * @param[in]	enable: set 1 to enable ctrl packet report, set 0 to disable ctrl packet report.
+  *
+  * @return	0 if success, otherwise return -1.
+  * @note this function can only be used under promisc mode, i.e. between wifi_set_promisc(enable,...,...) and wifi_set_promisc(disable,...,...)
+  */
+int wifi_promisc_ctrl_packet_rpt(u8 enable);
 #endif
 
 /**
@@ -873,6 +940,52 @@ int wifi_get_antenna_info(unsigned char *antenna);
 
 void wifi_set_indicate_mgnt(int enable);
 
+
+/**
+ * @brief  Get the information of MP driver
+ * @param[out]  ability : 0x1 stand for mp driver, and 0x0 stand for normal driver
+ * @return  RTW_SUCCESS
+ */
+int wifi_get_drv_ability(uint32_t *ability);
+
+/**
+ * @brief  Set channel plan into flash/efuse, must reboot after setting channel plan
+ * @param[in]  channel_plan : the value of channel plan, define in wifi_constants.h
+ * @return  RTW_SUCCESS or RTW_ERROR
+ */
+int wifi_set_channel_plan(uint8_t channel_plan);
+
+/**
+ * @brief  Get channel plan from calibration section
+ * @param[out]  channel_plan : point to the value of channel plan, define in wifi_constants.h
+ * @return  RTW_SUCCESS or RTW_ERROR
+ */
+int wifi_get_channel_plan(uint8_t *channel_plan);
+
+#ifdef CONFIG_AP_MODE
+/**
+ * @brief  Enable packets forwarding in ap mode
+ * @return  RTW_SUCCESS
+ */
+int wifi_enable_forwarding(void);
+
+/**
+ * @brief  Disable packets forwarding in ap mode
+ * @return  RTW_SUCCESS
+ */
+int wifi_disable_forwarding(void);
+#endif
+
+#ifdef CONFIG_CONCURRENT_MODE
+/**
+ * @brief  Set flag for concurrent mode wlan1 issue_deauth when channel switched by wlan0
+ *          usage: wifi_set_ch_deauth(0) -> wlan0 wifi_connect -> wifi_set_ch_deauth(1)
+ * @param[in]  enable : 0 for disable and 1 for enable
+ * @return  RTW_SUCCESS
+ */
+int wifi_set_ch_deauth(__u8 enable);
+#endif
+
 ///@name Ameba1 Only 
 ///@{
 /**
@@ -884,6 +997,72 @@ void wifi_set_indicate_mgnt(int enable);
  */
 void wifi_set_ap_polling_sta(__u8 enabled);
 ///@}
+
+#ifdef CONFIG_CONCURRENT_MODE
+/**
+ * @brief  Concurrent mode wlan1 to stop issueing beacon and processing rx packets
+ * @param[in]  None
+ * @return  None
+ */
+void wifi_suspend_softap(void);
+#endif
+
+/**
+ * @brief  Close private log in driver, including ssid /security /mac addr. Default is opened.
+ * @param[in]  None
+ * @return  None
+ */
+void wifi_close_private_log(void);
+/**
+ * @brief  Open private log in driver, including ssid /security /mac addr. Default is opened.
+ * @param[in]  None
+ * @return  None
+ */
+void wifi_open_private_log(void);
+
+/**
+ * @brief  Enable to check if network is 802.11n(11n only and bgn mixed)
+ * @param[in]  None
+ * @return  None
+ */
+void wifi_enable_check_80211n(void);
+
+/**
+ * @brief  Disable to check if network is 802.11n(11n only and bgn mixed)
+ * @param[in]  None
+ * @return  None
+ */
+void wifi_enable_check_80211n(void);
+
+/**
+ * @brief  Get NHM ratio level in driver.
+ * @param[out]  level: Points to the integer to store the level value gotten from driver.
+				level == 0: Very good environment
+				level == 1: good environment
+				level == 2: normal environment
+				level == 3: bad environment
+				level == 4: very bad environment
+ * @return  RTW_SUCCESS: If the level is succesfully retrieved.
+ * @return  RTW_ERROR: If the level is not retrieved. */
+int wifi_get_nhm_ratio_level(u32 *level);
+
+/**
+ * @brief  Get retry and drop packet num in firmware.
+ * @param[out]  retry: Points to the structure to store the retry and drop packet num value gotten from driver.
+ * @return  RTW_SUCCESS: If the value is succesfully retrieved.
+ * @return  RTW_ERROR: If the value is not retrieved.
+ */
+int wifi_get_retry_drop_num(rtw_fw_retry_drop_t * retry);
+
+/**
+ * @brief  Get tx and rx statistics in driver.
+ * @param[out]  stats: Points to the structure to store the trx statistics gotten from driver.
+ * @return  RTW_SUCCESS: If the value is succesfully retrieved.
+ * @return  RTW_ERROR: If the value is not retrieved.
+ */
+int wifi_get_sw_trx_statistics(rtw_net_device_stats_t *stats);
+
+
 #ifdef __cplusplus
   }
 #endif
