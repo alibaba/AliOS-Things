@@ -108,7 +108,7 @@ static void sys_init(void)
 #endif
 
 #ifdef AOS_COMP_ULOG
-    ulog_init("A");
+    ulog_init();
 #endif
 
 #ifdef AOS_COMP_KV

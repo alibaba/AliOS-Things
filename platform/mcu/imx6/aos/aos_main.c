@@ -38,7 +38,7 @@ static void sys_init(void)
     aos_cli_init();
 #endif
 #ifdef AOS_COMP_ULOG
-    ulog_init("A");
+    ulog_init();
 #endif
 	#ifdef OSAL_RHINO
     dumpsys_cli_init();
