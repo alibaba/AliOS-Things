@@ -12,7 +12,8 @@
 #include "bone_engine_inl.h"
 #include "gpio.h"
 
-static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin) {
+static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin)
+{
     gpio_i2c_reset(scl_pin, sda_pin);
     gpio_i2c_delay_10us(4);
 
@@ -40,7 +41,8 @@ static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin) {
     gpio_i2c_delay_10us(4);
 }
 
-static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff) {
+static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff)
+{
     uint8_t value    = 0;
     uint8_t i        = 0;
     uint8_t checksum = 0;
@@ -89,7 +91,8 @@ static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff) {
 }
 
 static int32_t ir_learn_start(uint32_t scl_pin, uint32_t sda_pin,
-                              uint32_t busy_bin, uint8_t buff[232]) {
+                              uint32_t busy_bin, uint8_t buff[232])
+{
     uint8_t sumValue = 0;
     int32_t count    = 0;
     int8_t ret       = -1;
@@ -116,7 +119,8 @@ static int32_t ir_learn_start(uint32_t scl_pin, uint32_t sda_pin,
     return 232;
 }
 
-static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level) {
+static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level)
+{
     int8_t ret      = 0;
     uint32_t value  = 0;
     uint32_t counts = 0;
@@ -128,7 +132,8 @@ static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level) {
     return counts;
 }
 
-static uint32_t ir_nec(gpio_dev_t *gpio) {
+static uint32_t ir_nec(gpio_dev_t *gpio)
+{
     uint32_t counts = 0;
     uint32_t value  = 0;
     uint8_t i       = 0;
@@ -161,7 +166,8 @@ static uint32_t ir_nec(gpio_dev_t *gpio) {
     return value;
 }
 
-static duk_ret_t native_ir_open(duk_context *ctx) {
+static duk_ret_t native_ir_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t gpio_handle;
     gpio_handle.handle      = 0xFFFFFFFF;
@@ -200,7 +206,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_ir_close(duk_context *ctx) {
+static duk_ret_t native_ir_close(duk_context *ctx)
+{
     int8_t result = -1;
     item_handle_t gpio_handle;
     gpio_dev_t *gpio_device = NULL;
@@ -230,7 +237,8 @@ struct gpio_irq_notify_param {
     int value;
 };
 
-static void gpio_irq_notify(void *arg) {
+static void gpio_irq_notify(void *arg)
+{
     struct gpio_irq_notify_param *p = (struct gpio_irq_notify_param *)arg;
     debug("value: 0x%x\n", p->value);
     duk_context *ctx = bone_engine_get_context();
@@ -242,7 +250,8 @@ static void gpio_irq_notify(void *arg) {
 }
 
 /* 中断中避免调用打印 */
-static void ir_handle(void *arg) {
+static void ir_handle(void *arg)
+{
     uint32_t value   = 0;
     gpio_dev_t *gpio = (gpio_dev_t *)arg;
 
@@ -271,7 +280,8 @@ static void ir_handle(void *arg) {
     }
 }
 
-static duk_ret_t native_ir_on(duk_context *ctx) {
+static duk_ret_t native_ir_on(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t gpio_handle;
     gpio_handle.handle      = 0xFFFFFFFF;
@@ -302,12 +312,14 @@ out:
     return 1;
 }
 
-static void ir_delay(uint32_t counts) {
+static void ir_delay(uint32_t counts)
+{
     uint32_t i = 0;
     for (i = 0; i < counts; i++) be_osal_delay10us();
 }
 
-static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData) {
+static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData)
+{
     int8_t i     = 0;
     uint32_t val = 0;
     hal_gpio_output_low(scl);
@@ -335,7 +347,8 @@ static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData) {
 }
 
 static void ir_buff(gpio_dev_t *sda, gpio_dev_t *scl, uint8_t *data,
-                    uint32_t count) {
+                    uint32_t count)
+{
     uint32_t i = 0;
     hal_gpio_output_high(sda);
     hal_gpio_output_high(scl);
@@ -373,7 +386,8 @@ static void ir_buff(gpio_dev_t *sda, gpio_dev_t *scl, uint8_t *data,
     ir_delay(8);
 }
 
-static duk_ret_t native_ir_send(duk_context *ctx) {
+static duk_ret_t native_ir_send(duk_context *ctx)
+{
     uint8_t *data = NULL;
     uint32_t len  = 0;
     uint32_t i    = 0;
@@ -433,7 +447,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_ir_learn(duk_context *ctx) {
+static duk_ret_t native_ir_learn(duk_context *ctx)
+{
     uint32_t i        = 0;
     int32_t ret       = -1;
     uint8_t buff[232] = {0x00};
@@ -487,7 +502,8 @@ failed:
     return 1;
 }
 
-void module_ir_register(void) {
+void module_ir_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

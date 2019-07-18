@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include "be_jse_api.h"
 #include "be_jse_module.h"
 #include "be_jse_task.h"
@@ -15,7 +12,8 @@
 #include "miio/miio-discover.h"
 
 /* params: host:string, token:string */
-static be_jse_symbol_t *module_miio_create_device() {
+static be_jse_symbol_t *module_miio_create_device()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     char host[17]         = {0};
@@ -40,7 +38,8 @@ typedef struct async_event_param {
     char *event;
 } async_event_param_t;
 
-static void event_cb(void *arg) {
+static void event_cb(void *arg)
+{
     async_event_param_t *p = (async_event_param_t *)arg;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -50,7 +49,7 @@ static void event_cb(void *arg) {
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_str_symbol(p->event);
     int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
-                                        async);  /* async will free automatic */
+                                        async); /* async will free automatic */
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
     } else {
@@ -61,7 +60,8 @@ static void event_cb(void *arg) {
     free(p);
 }
 
-static void on_event(void *priv, const char *event) {
+static void on_event(void *priv, const char *event)
+{
     debug("priv: %p, event: %s\n", priv, event);
     if (strstr(event, "heartbeat")) {
         debug("ignore heartbeet event\n");
@@ -75,7 +75,8 @@ static void on_event(void *priv, const char *event) {
 }
 
 /* params: device:int, cb:function */
-static be_jse_symbol_t *module_miio_device_on_event() {
+static be_jse_symbol_t *module_miio_device_on_event()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
 
@@ -100,7 +101,8 @@ out:
 }
 
 /* params: device:int, method:string, args:string, sid:string */
-static be_jse_symbol_t *module_miio_device_control() {
+static be_jse_symbol_t *module_miio_device_control()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     be_jse_symbol_t *arg2 = NULL;
@@ -151,7 +153,8 @@ typedef struct async_discover_param {
     long device_id;
 } async_discover_param_t;
 
-static void discover_cb(void *arg) {
+static void discover_cb(void *arg)
+{
     async_discover_param_t *p = (async_discover_param_t *)arg;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -161,7 +164,7 @@ static void discover_cb(void *arg) {
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_int_symbol(p->device_id);
     int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
-                                        async);  /* async will free automatic */
+                                        async); /* async will free automatic */
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
     } else {
@@ -171,7 +174,8 @@ static void discover_cb(void *arg) {
     free(p);
 }
 
-static void on_discover(void *priv, long device_id) {
+static void on_discover(void *priv, long device_id)
+{
     debug("discover device %ld\n", device_id);
     async_discover_param_t *p = (async_discover_param_t *)malloc(sizeof(*p));
     p->func                   = (be_jse_symbol_t *)priv;
@@ -180,7 +184,8 @@ static void on_discover(void *priv, long device_id) {
 }
 
 /* params: timeout:int, cb:function */
-static be_jse_symbol_t *module_miio_discover() {
+static be_jse_symbol_t *module_miio_discover()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
 
@@ -204,8 +209,8 @@ out:
 }
 
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                         be_jse_symbol_t *var,
-                                         const char *name) {
+                                         be_jse_symbol_t *var, const char *name)
+{
     if (strcmp(name, "createDevice") == 0) return module_miio_create_device();
     if (strcmp(name, "deviceOnEvent") == 0)
         return module_miio_device_on_event();
@@ -215,6 +220,7 @@ static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_miio_register(void) {
+void module_miio_register(void)
+{
     be_jse_module_load("miio", module_handle_cb);
 }

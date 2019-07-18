@@ -1,8 +1,8 @@
 {
-  "tcrt5000.do":{
-    "type":"GPIO",
-    "port":16,
-    "dir":1,
-    "pull":1
+  "tcrt5000.do": {
+    "type": "GPIO",
+    "port": 16,
+    "dir": 1,
+    "pull": 1
   }
 }

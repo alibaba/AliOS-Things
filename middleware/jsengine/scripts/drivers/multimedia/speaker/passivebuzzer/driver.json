@@ -1,7 +1,7 @@
 {
-    "buzzer":{
-      "type":"DAC",
-      "port":1,
-      "voltage":255
-    }
+  "buzzer": {
+    "type": "DAC",
+    "port": 1,
+    "voltage": 255
+  }
 }

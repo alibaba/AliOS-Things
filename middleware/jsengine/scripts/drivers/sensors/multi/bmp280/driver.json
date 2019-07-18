@@ -1,10 +1,10 @@
 {
-  "bmp280":{
-    "type":"I2C",
-    "port":2,
-    "address_width":7,
-    "freq":400000,
-    "mode":1,
-    "dev_addr":238
+  "bmp280": {
+    "type": "I2C",
+    "port": 2,
+    "address_width": 7,
+    "freq": 400000,
+    "mode": 1,
+    "dev_addr": 238
   }
 }

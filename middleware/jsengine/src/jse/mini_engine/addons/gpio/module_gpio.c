@@ -27,7 +27,8 @@ typedef struct irq_notify {
     int8_t value;
 } irq_notify_t;
 
-static be_jse_symbol_t *gpio_open(void) {
+static be_jse_symbol_t *gpio_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -84,7 +85,8 @@ out:
     return new_int_symbol(gpio_handle.handle);
 }
 
-static be_jse_symbol_t *gpio_close(void) {
+static be_jse_symbol_t *gpio_close(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     item_handle_t gpio_handle;
@@ -120,7 +122,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *gpio_write(void) {
+static be_jse_symbol_t *gpio_write(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     int8_t level  = 0;
@@ -162,7 +165,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *gpio_read(void) {
+static be_jse_symbol_t *gpio_read(void)
+{
     int8_t ret = -1;
     item_handle_t gpio_handle;
     uint32_t level          = 0;
@@ -186,7 +190,8 @@ out:
     return new_int_symbol(level);
 }
 
-static void gpio_notify(void *arg) {
+static void gpio_notify(void *arg)
+{
     irq_notify_t *msg = (irq_notify_t *)arg;
     if (NULL == msg) {
         return;
@@ -198,7 +203,8 @@ static void gpio_notify(void *arg) {
     msg = NULL;
 }
 
-static void gpio_irq(void *arg) {
+static void gpio_irq(void *arg)
+{
     be_jse_symbol_t *fun_symbol = NULL;
     uint32_t value              = 0;
 
@@ -222,7 +228,8 @@ static void gpio_irq(void *arg) {
     be_jse_task_schedule_call(gpio_notify, msg);
 }
 
-static be_jse_symbol_t *gpio_on(void) {
+static be_jse_symbol_t *gpio_on(void)
+{
     int32_t len     = -1;
     char *data      = NULL;
     int8_t ret      = -1;
@@ -292,7 +299,8 @@ out:
     return new_int_symbol(result);
 }
 
-static void gpio_action(void *arg) {
+static void gpio_action(void *arg)
+{
     if (NULL == arg) {
         return;
     }
@@ -304,7 +312,8 @@ static void gpio_action(void *arg) {
     be_jse_execute_func(bone_engine_get_executor(), fun_symbol, 1, argv);
 }
 
-static void gpio_report(void *arg) {
+static void gpio_report(void *arg)
+{
     if (NULL == arg) {
         return;
     }
@@ -321,7 +330,8 @@ static void gpio_report(void *arg) {
     be_jse_task_timer_action(item->delay, gpio_report, item, JSE_TIMER_ONCE);
 }
 
-static void gpio_irqs(void *arg) {
+static void gpio_irqs(void *arg)
+{
     if (NULL == arg) {
         return;
     }
@@ -329,7 +339,8 @@ static void gpio_irqs(void *arg) {
     item->counts += 1;
 }
 
-static be_jse_symbol_t *gpio_count(void) {
+static be_jse_symbol_t *gpio_count(void)
+{
     int32_t len     = -1;
     char *data      = NULL;
     int8_t ret      = -1;
@@ -417,7 +428,8 @@ out:
 
 static be_jse_symbol_t *gpio_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                               be_jse_symbol_t *var,
-                                              const char *name) {
+                                              const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return gpio_open();
     }
@@ -440,6 +452,7 @@ static be_jse_symbol_t *gpio_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_gpio_register(void) {
+void module_gpio_register(void)
+{
     be_jse_module_load("GPIO", gpio_module_handle_cb);
 }
