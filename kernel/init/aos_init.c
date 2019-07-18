@@ -9,6 +9,7 @@
 #include "aos/init.h"
 #include "aos/cli.h"
 #include "ulog/ulog.h"
+#include "uagent/uagent.h"
 #include "aos/kernel.h"
 #include "hal/wifi.h"
 
@@ -266,6 +267,9 @@ int aos_components_init(kinit_t *kinit)
 #ifdef AOS_COMP_VFS
     vfs_init();
 #endif
+#ifdef AOS_COMP_UAGENT
+    uagent_init();
+#endif
 
 #ifdef AOS_COMP_CLI
     cli_service_init(kinit);
@@ -280,7 +284,7 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_COMP_ULOG
-    ulog_init("A");
+    ulog_init();
 #endif
 
 #ifdef AOS_COMP_KV
