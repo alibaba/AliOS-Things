@@ -22,7 +22,7 @@ hs0038 S引脚接esp32Kit IO18引脚；
 ###Driver配置
 ESP32devkitc示范：
 
-```
+```json
 {
     "ir":{
       "type":"GPIO",
@@ -48,7 +48,7 @@ method:
 
 按下遥控器上的对应按键，串口会显示对应的编码：
 
-```
+```js
 var hs0038 = require('hs0038/src/index.js');
 var handle = new hs0038('ir');
 handle.on(function(data){

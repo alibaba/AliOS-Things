@@ -1,6 +1,5 @@
 # <a name="w9yskx"></a>NET 模块说明
 
-
 <div class="bi-table">
   <table>
     <colgroup>
@@ -107,9 +106,7 @@
 
 __js示例程序：__
 
-可参考gravity@lite sample/js/net.js
-
-```
+```js
 var ssid = "Xiaomi_296E_rock";
 var passwd = "rockzhou";
 
@@ -169,5 +166,3 @@ __server端测试工具：__
 
 
 ![image | left](https://cdn.yuque.com/lark/0/2018/png/89215/1525440824861-eec804d9-718e-4e57-98f8-b78a5c177186.png "")
-
-

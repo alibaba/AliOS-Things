@@ -26,7 +26,7 @@ a4950模块的right1引脚接esp32kit的IO16引脚；
 
 esp32Kit示范:
 
-```
+```json
 {
   "a4950.left0":{
     "type":"PWM",
@@ -59,14 +59,11 @@ esp32Kit示范:
 
 ###API说明
 ```
-
-
 class：a4950
 param：@pwmb_id  电机单侧配置引脚，对应board.json中的 
         a4950.left0或a4950.right0;
        @pwma_id  电机单侧配置引脚，对应board.json中的
        a4950.left1或a4950.right1;
-
 
 method:
       stop() 电机停止;
@@ -74,12 +71,11 @@ method:
       reverse() 电机反转;
 ```
 
-
 ###示例
 
 JavaScript
 
-```
+```js
 var a4950 = require("a4950/src/index.js"); 
 var left_motor = new a4950('a4950.left0', 'a4950.left1'); 
 var right_motor = new a4950('a4950.right0', 'a4950.right1'); 

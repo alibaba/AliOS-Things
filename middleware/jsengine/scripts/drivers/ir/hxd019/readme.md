@@ -1,10 +1,8 @@
 # HXD019
 
-
 ###Driver功能: 红外模块
 
 hxd019是一款红外发送和学习模块。
-
 
 ###硬件连接
 
@@ -28,7 +26,7 @@ hxd019是一款红外发送和学习模块。
 
 esp32Kit示范：
 
-```
+```json
 {
   "hxd019.sda":{
     "type":"GPIO",
@@ -67,7 +65,7 @@ method:
 
 学习红外码并发送：
 
-```
+```js
 var hxd019 = require('hxd019/src/index.js');
 var handle = new hxd019('hxd019.scl','hxd019.sda','hxd019.busy');
 

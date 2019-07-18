@@ -33,7 +33,8 @@ static PUSH_s gPushParam;
 extern void sub_call_start(void* arg);
 #endif
 
-static void push(void* arg) {
+static void push(void* arg)
+{
     int type;
     int index;
     int size;
@@ -120,7 +121,8 @@ static void push(void* arg) {
     be_osal_delete_task(NULL);
 }
 
-static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv) {
+static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
+{
     int type;
     int index;
     int size;
@@ -145,7 +147,7 @@ static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv) {
         gPushParam.targetname = targetname;
         gPushParam.outStr     = malloc(size + 1);
 
-        bone_console_log_disable();  /* 关闭bone engine  的log输出 */
+        bone_console_log_disable(); /* 关闭bone engine  的log输出 */
         /* avoid stack overflow !!! */
         int ret = be_osal_create_task("be_push", push, NULL, 4096,
                                       CLI_TSK_PRIORITY, NULL);
@@ -160,7 +162,8 @@ pull   <targetname>
 reply:    BE_CLI_REPLY  <size>  <data>
 */
 
-static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv) {
+static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
+{
     char* targetname = NULL;
     char path[48]    = {0};
     int fd           = -1;
@@ -202,7 +205,7 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv) {
     if (blen == 2048) {
         size = 256;
     } else {
-        size = 128;  /* bad TBD */
+        size = 128; /* bad TBD */
     }
 
     ptr = pwbuf + size * 2 * 32;
@@ -235,7 +238,8 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv) {
 static struct be_cli_command pull_cmd = {
     .name = "pull", .help = "pull file ", .function = handle_pull_cmd};
 
-void cli_cmd_register_file() {
+void cli_cmd_register_file()
+{
     be_cli_register_command(&push_cmd);
     be_cli_register_command(&pull_cmd);
 }

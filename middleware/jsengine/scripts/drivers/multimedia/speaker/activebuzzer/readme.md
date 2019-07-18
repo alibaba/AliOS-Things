@@ -19,7 +19,7 @@
 ###Driver配置
 esp32Kit示范：
 
-```
+```json
 {
     "buzzer":{
       "type":"GPIO",
@@ -28,7 +28,6 @@ esp32Kit示范：
       "pull":1
     }
 }
-  
 
 ```
 
@@ -47,7 +46,7 @@ method:
 
 ## #示例
 
-```
+```js
 var ActiveBuzzer = require('activebuzzer/src');
 var handle = new ActiveBuzzer('buzzer');
 
@@ -62,5 +61,3 @@ setInterval(function() {
 }, 2000);
 
 ```
-
-

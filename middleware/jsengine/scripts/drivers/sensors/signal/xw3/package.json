@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "author": "jweih.hjw",
   "license": "ISC",
-  "platform":"",
-  "config":"driver.json",
-  "test":"test/index.js"
+  "platform": "",
+  "config": "driver.json",
+  "test": "test/index.js"
 }

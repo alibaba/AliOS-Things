@@ -11,7 +11,8 @@
 
 #define I2C_TIMEOUT (0xFFFFFF)
 
-static duk_ret_t native_open(duk_context *ctx) {
+static duk_ret_t native_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t i2c_handle;
     i2c_handle.handle     = 0xFFFFFFFF;
@@ -49,7 +50,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_close(duk_context *ctx) {
+static duk_ret_t native_close(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t i2c_handle;
     i2c_dev_t *i2c_device = NULL;
@@ -76,7 +78,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_write(duk_context *ctx) {
+static duk_ret_t native_write(duk_context *ctx)
+{
     int8_t ret    = -1;
     uint8_t *data = NULL;
     uint32_t len  = 0;
@@ -130,7 +133,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_read(duk_context *ctx) {
+static duk_ret_t native_read(duk_context *ctx)
+{
     int8_t ret    = -1;
     uint8_t *data = NULL;
     uint32_t len  = 0;
@@ -174,7 +178,8 @@ out:
     return 1;
 }
 
-void module_i2c_register(void) {
+void module_i2c_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

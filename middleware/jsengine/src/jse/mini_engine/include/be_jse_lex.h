@@ -14,8 +14,8 @@
 #ifndef BE_JSE_LEX_H
 #define BE_JSE_LEX_H
 
-#include "be_jse_types.h"
 #include "be_jse.h"
+#include "be_jse_types.h"
 
 #ifdef __cplusplus
 extern "C" {

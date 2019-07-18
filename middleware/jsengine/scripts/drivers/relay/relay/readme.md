@@ -17,7 +17,7 @@
 继电器IN引脚接esp32Kit IO18引脚；
 
 ###Driver配置
-```
+```json
 {
     "relay":{
       "type":"GPIO",
@@ -44,7 +44,7 @@ method:
 ###示例
 每隔两秒读取继电器的状态，并进行反转控制:
 
-```
+```js
 var relay = require('relay/src/index.js');
 var handle = new relay('relay');
 setInterval(function() {

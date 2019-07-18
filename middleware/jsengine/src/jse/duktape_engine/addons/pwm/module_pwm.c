@@ -9,7 +9,8 @@
 #include "bone_engine_inl.h"
 #include "pwm.h"
 
-static duk_ret_t native_start(duk_context *ctx) {
+static duk_ret_t native_start(duk_context *ctx)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     item_handle_t pwm_handle;
@@ -47,7 +48,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_stop(duk_context *ctx) {
+static duk_ret_t native_stop(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t pwm_handle;
     pwm_dev_t *pwm_device = NULL;
@@ -72,7 +74,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_getDuty(duk_context *ctx) {
+static duk_ret_t native_getDuty(duk_context *ctx)
+{
     int32_t ret = -1;
     item_handle_t pwm_handle;
     pwm_dev_t *pwm_device = NULL;
@@ -95,7 +98,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_setDuty(duk_context *ctx) {
+static duk_ret_t native_setDuty(duk_context *ctx)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     float duty    = 0;
@@ -121,7 +125,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_getFreq(duk_context *ctx) {
+static duk_ret_t native_getFreq(duk_context *ctx)
+{
     int32_t ret = -1;
     item_handle_t pwm_handle;
     pwm_dev_t *pwm_device = NULL;
@@ -142,7 +147,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_setFreq(duk_context *ctx) {
+static duk_ret_t native_setFreq(duk_context *ctx)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     uint32_t freq = 0;
@@ -170,7 +176,8 @@ out:
     return 1;
 }
 
-void module_pwm_register(void) {
+void module_pwm_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

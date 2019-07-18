@@ -7,7 +7,8 @@
 
 static const char *TAG = "be_utils";
 
-unsigned char hex2num(unsigned char ch) {
+unsigned char hex2num(unsigned char ch)
+{
     if (ch >= 'a') {
         return ch - 'a' + 10;
     }
@@ -15,7 +16,8 @@ unsigned char hex2num(unsigned char ch) {
     return ch - '0';
 }
 
-char itoch(int val) {
+char itoch(int val)
+{
     if (val < 10) {
         return (char)('0' + val);
     }
@@ -23,7 +25,8 @@ char itoch(int val) {
     return (char)('a' + val - 10);
 }
 
-void num2hex(unsigned char ch, unsigned char *hex) {
+void num2hex(unsigned char ch, unsigned char *hex)
+{
     hex[0] = itoch(ch / 16);
     hex[1] = itoch(ch % 16);
 }
@@ -34,7 +37,8 @@ void num2hex(unsigned char ch, unsigned char *hex) {
  *Input:       str1 and str2
  *Output:      if str1 end with str2,return 1 else return 0
  *****************************************************************************/
-int end_with(char *str1, char *str2) {
+int end_with(char *str1, char *str2)
+{
     if (!str1 || !str2) {
         return 0;
     }
@@ -57,7 +61,8 @@ int end_with(char *str1, char *str2) {
  *Input:       title: a string, buff: the dest buff for dump,len:the buffer len
  *Output:      none
  *****************************************************************************/
-void hexdump(const char *title, const void *buff, const int len) {
+void hexdump(const char *title, const void *buff, const int len)
+{
     int i, j, written;
     unsigned char ascii[16 + 1] = {0};
     char header[64]             = {0};

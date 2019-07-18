@@ -8,7 +8,8 @@
 #include "websocket.h"
 #endif
 
-static duk_ret_t native_console_log(duk_context *ctx) {
+static duk_ret_t native_console_log(duk_context *ctx)
+{
     duk_push_string(ctx, "");
     duk_insert(ctx, 0);
     duk_join(ctx, duk_get_top(ctx) - 1);
@@ -28,7 +29,8 @@ static duk_ret_t native_console_log(duk_context *ctx) {
     return 0;
 }
 
-void module_builtin_register(void) {
+void module_builtin_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

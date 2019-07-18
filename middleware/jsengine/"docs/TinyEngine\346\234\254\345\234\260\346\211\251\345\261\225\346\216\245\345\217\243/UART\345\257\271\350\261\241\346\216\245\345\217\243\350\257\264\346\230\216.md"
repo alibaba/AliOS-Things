@@ -1,7 +1,5 @@
 # UART
 
-
-
 ## API
 
 | API                    | 说明                                                         |
@@ -14,7 +12,7 @@
 
 ## 示例代码
 
-```
+```js
 var handle=UART.open('uart2');
 if(handle>0){
 var value = UART.write(handle,'hello\r\n');
