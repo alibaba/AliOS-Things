@@ -74,6 +74,10 @@ extern unsigned char dhcp_mode_sta;
 #endif
 
 unsigned char enable_softap_adjust_phy = 0;
+/* The flag to check if wifi init is completed */
+static int _wifi_is_on = 0;
+/* The flag to check if network is 802.11n(11n only and bgn mixed) */
+int check_80211n_enable = 0;
 
 /******************************************************
  *               Variables Definitions
@@ -375,7 +379,7 @@ void restore_wifi_info_to_flash()
 		channel = setting.channel;
 
 		rtw_memset(psk_essid[index], 0, sizeof(psk_essid[index]));
-		strncpy(psk_essid[index], setting.ssid, strlen(setting.ssid));
+		strncpy((char*)psk_essid[index], (char const*)setting.ssid, strlen((char const*)setting.ssid));
 		switch(setting.security_type){
 			case RTW_SECURITY_OPEN:
 			    rtw_memset(psk_passphrase[index], 0, sizeof(psk_passphrase[index]));
@@ -400,7 +404,7 @@ void restore_wifi_info_to_flash()
 		}
 
 		memcpy(data_to_flash->psk_essid, psk_essid[index], sizeof(data_to_flash->psk_essid));
-		if (strlen(psk_passphrase64) == 64) {
+		if (strlen((char const*)psk_passphrase64) == 64) {
 			memcpy(data_to_flash->psk_passphrase, psk_passphrase64, sizeof(data_to_flash->psk_passphrase));
 		} else {
 			memcpy(data_to_flash->psk_passphrase, psk_passphrase[index], sizeof(data_to_flash->psk_passphrase));
@@ -767,11 +771,13 @@ int wifi_is_up(rtw_interface_t interface)
 {
 	if(interface == RTW_AP_INTERFACE) {
 		if(wifi_mode == RTW_MODE_STA_AP) {
-			return rltk_wlan_running(WLAN1_IDX);
+			return (rltk_wlan_running(WLAN1_IDX) && _wifi_is_on);
 		}
+		else if(wifi_mode != RTW_MODE_AP)
+			return 0;
 	}
 
-	return rltk_wlan_running(WLAN0_IDX);
+	return (rltk_wlan_running(WLAN0_IDX) && _wifi_is_on);
 }
 
 int wifi_is_ready_to_transceive(rtw_interface_t interface)
@@ -875,11 +881,11 @@ int wifi_get_associated_client_list(void * client_list_buffer, uint16_t buffer_l
 //----------------------------------------------------------------------------//
 int wifi_get_ap_bssid(unsigned char *bssid)
 {
-	if( RTW_SUCCESS == wifi_is_ready_to_transceive(RTW_STA_INTERFACE)){
-		rtw_memcpy(bssid, ap_bssid, ETH_ALEN);
-		return RTW_SUCCESS;
-	}
-	return RTW_ERROR;
+	rtw_memcpy(bssid, ap_bssid, ETH_ALEN);
+	if(rtw_memcmp(ap_bssid, 0, ETH_ALEN))
+		return RTW_ERROR;
+
+	return RTW_SUCCESS;
 }
 
 //----------------------------------------------------------------------------//
@@ -955,6 +961,12 @@ int wifi_get_sta_max_data_rate(OUT u8 * inidata_rate)
 int wifi_get_rssi(int *pRSSI)
 {
 	return wext_get_rssi(WLAN0_NAME, pRSSI);
+}
+
+//----------------------------------------------------------------------------//
+int wifi_get_snr(int *pSNR)
+{
+	return wext_get_snr(WLAN0_NAME, pSNR);
 }
 
 //----------------------------------------------------------------------------//
@@ -1043,6 +1055,7 @@ int wifi_on(rtw_mode_t mode)
 	for(idx=0;idx<devnum;idx++){
 		device_mutex_lock(RT_DEV_LOCK_WLAN);
 		ret = rltk_wlan_start(idx);
+		if(ret == 0) _wifi_is_on = 1;
 		device_mutex_unlock(RT_DEV_LOCK_WLAN);
 		if(ret <0){
 			printf("\n\rERROR: Start WIFI Failed!");
@@ -1105,6 +1118,7 @@ int wifi_off(void)
 	printf("\n\rDeinitializing WIFI ...");
 	device_mutex_lock(RT_DEV_LOCK_WLAN);
 	rltk_wlan_deinit();
+	_wifi_is_on = 0;
 	device_mutex_unlock(RT_DEV_LOCK_WLAN);
 
 	while(1) {
@@ -1151,6 +1165,11 @@ int wifi_set_power_mode(unsigned char ips_mode, unsigned char lps_mode)
 	return wext_enable_powersave(WLAN0_NAME, ips_mode, lps_mode);
 }
 
+int wifi_set_powersave_level(u8 level)
+{
+	return rltk_set_lps_level(level);
+}
+
 int wifi_set_tdma_param(unsigned char slot_period, unsigned char rfon_period_len_1, unsigned char rfon_period_len_2, unsigned char rfon_period_len_3)
 {
 	return wext_set_tdma_param(WLAN0_NAME, slot_period, rfon_period_len_1, rfon_period_len_2, rfon_period_len_3);
@@ -1185,6 +1204,11 @@ int wifi_get_last_error(void)
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 int wpas_wps_init(const char* ifname);
 #endif
+
+int wifi_set_mfp_support(unsigned char value)
+{
+	return wext_set_mfp_support(WLAN0_NAME, value);
+}
 
 int wifi_start_ap(
 	char 				*ssid,
@@ -1334,25 +1358,30 @@ void wifi_scan_each_report_hdl( char* buf, int buf_len, int flags, void* userdat
 		if((*result_ptr)->signal_strength > scan_result_handler_ptr.pap_details[scan_result_handler_ptr.max_ap_size-1]->signal_strength){
 			rtw_memcpy(scan_result_handler_ptr.pap_details[scan_result_handler_ptr.max_ap_size-1], *result_ptr, sizeof(rtw_scan_result_t));
 			temp = scan_result_handler_ptr.pap_details[scan_result_handler_ptr.max_ap_size -1];
+			scan_result_handler_ptr.scan_cnt  = scan_result_handler_ptr.max_ap_size -1;
 		}else
 			return;
 	}else{
 		rtw_memcpy(&scan_result_handler_ptr.ap_details[scan_result_handler_ptr.scan_cnt-1], *result_ptr, sizeof(rtw_scan_result_t));
 	}
 
-	for(i=0; i< scan_result_handler_ptr.scan_cnt-1; i++){
+	for(i=0; i< scan_result_handler_ptr.scan_cnt; i++){
 		if((*result_ptr)->signal_strength > scan_result_handler_ptr.pap_details[i]->signal_strength)
 			break;
 	}
 	insert_pos = i;
 
-	for(i = scan_result_handler_ptr.scan_cnt-1; i>insert_pos; i--)
+	for(i = scan_result_handler_ptr.scan_cnt; i>insert_pos; i--)
 		scan_result_handler_ptr.pap_details[i] = scan_result_handler_ptr.pap_details[i-1];
 
 	if(temp != NULL)
 		scan_result_handler_ptr.pap_details[insert_pos] = temp;
 	else
 		scan_result_handler_ptr.pap_details[insert_pos] = &scan_result_handler_ptr.ap_details[scan_result_handler_ptr.scan_cnt-1];
+
+	if(scan_result_handler_ptr.scan_cnt < scan_result_handler_ptr.max_ap_size)
+		scan_result_handler_ptr.scan_cnt++;
+
 	rtw_memset(*result_ptr, 0, sizeof(rtw_scan_result_t));
 }
 
@@ -1482,7 +1511,10 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*buf, int buflen, cha
 				
 				printf("channel = %d,\t", *(scan_buf.buf + plen + 1 + 6 + 4 + 1 + 1));
 				// ssid
-				ssid_len = len - 1 - 6 - 4 - 1 - 1 - 1;
+				if(check_80211n_enable == 0)
+					ssid_len = len - 1 - 6 - 4 - 1 - 1 - 1;
+				else
+					ssid_len = len - 1 - 6 - 4 - 1 - 1 - 1 - 1;
 				ssid = scan_buf.buf + plen + 1 + 6 + 4 + 1 + 1 + 1;
 				printf("ssid = ");
 				for(i=0; i<ssid_len; i++)
@@ -1724,6 +1756,14 @@ int wifi_set_network_mode(rtw_network_mode_t mode)
 {
 	if((mode == RTW_NETWORK_B) || (mode == RTW_NETWORK_BG) || (mode == RTW_NETWORK_BGN))
 		return rltk_wlan_wireless_mode((unsigned char) mode);
+
+	return -1;
+}
+
+int wifi_get_network_mode(rtw_network_mode_t *pmode)
+{
+	if(pmode != NULL)
+		return rltk_wlan_get_wireless_mode((unsigned char *) pmode);
 
 	return -1;
 }
@@ -2040,6 +2080,10 @@ extern int promisc_add_packet_filter(u8 filter_id, rtw_packet_filter_pattern_t *
 extern int promisc_enable_packet_filter(u8 filter_id);
 extern int promisc_disable_packet_filter(u8 filter_id);
 extern int promisc_remove_packet_filter(u8 filter_id);
+extern int promisc_filter_retransmit_pkt(u8 enable, u8 filter_interval_ms);
+extern void promisc_filter_by_ap_and_phone_mac(u8 enable, void *ap_mac, void *phone_mac);
+extern int promisc_ctrl_packet_rpt(u8 enable);
+
 void wifi_init_packet_filter()
 {
 	promisc_init_packet_filter();
@@ -2063,6 +2107,21 @@ int wifi_disable_packet_filter(unsigned char filter_id)
 int wifi_remove_packet_filter(unsigned char filter_id)
 {
 	return promisc_remove_packet_filter(filter_id);
+}
+
+int wifi_retransmit_packet_filter(u8 enable, u8 filter_interval_ms)
+{
+	return promisc_filter_retransmit_pkt(enable, filter_interval_ms);
+}
+
+void wifi_filter_by_ap_and_phone_mac(u8 enable, void *ap_mac, void *phone_mac)
+{
+	promisc_filter_by_ap_and_phone_mac(enable,ap_mac,phone_mac);
+}
+
+int wifi_promisc_ctrl_packet_rpt(u8 enable)
+{
+	return promisc_ctrl_packet_rpt(enable);
 }
 #endif
 
@@ -2108,5 +2167,29 @@ int wifi_get_antenna_info(unsigned char *antenna)
 }
 #endif
 
+void wifi_enable_check_80211n(void)
+{
+	check_80211n_enable = 1;
+}
+
+void wifi_disable_check_80211n(void)
+{
+	check_80211n_enable = 0;
+}
+
+int wifi_get_nhm_ratio_level(u32 *level)
+{
+	return wext_get_nhm_ratio_level(WLAN0_NAME, level);
+}
+
+int wifi_get_retry_drop_num(rtw_fw_retry_drop_t * retry)
+{
+	return wext_get_retry_drop_num(WLAN0_NAME, retry);
+}
+
+int wifi_get_sw_trx_statistics(rtw_net_device_stats_t *stats)
+{
+	return wext_get_sw_trx_statistics(WLAN0_NAME, stats);
+}
 //----------------------------------------------------------------------------//
 #endif	//#if CONFIG_WLAN

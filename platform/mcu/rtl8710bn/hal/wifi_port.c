@@ -489,6 +489,54 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
     return 0;
 }
 
+static rtw_net_device_stats_t last_sw_statis = {0};
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    int rssi, snr;
+    unsigned long int suc = 0;
+    unsigned long int drop = 0;
+
+    rtw_fw_retry_drop_t fw_statis = {0};
+    rtw_net_device_stats_t sw_statis = {0}, tmp;
+
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    DBG_8195A("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    wifi_get_rssi(&rssi);
+    wifi_get_snr(&snr);
+    wifi_get_retry_drop_num(&fw_statis);
+    wifi_get_sw_trx_statistics(&sw_statis);
+
+    memcpy(&tmp, &sw_statis, sizeof(tmp));
+    sw_statis.rx_packets = sw_statis.rx_packets - last_sw_statis.rx_packets;
+    sw_statis.tx_packets = sw_statis.tx_packets - last_sw_statis.tx_packets;
+    sw_statis.rx_dropped = sw_statis.rx_dropped - last_sw_statis.rx_dropped;
+    sw_statis.tx_dropped = sw_statis.tx_dropped - last_sw_statis.tx_dropped;
+    memcpy(&last_sw_statis, &tmp, sizeof(tmp));
+
+    suc = fw_statis.retry_0;
+    suc += fw_statis.retry_1;
+    suc += fw_statis.retry_2;
+    suc += fw_statis.retry_3;
+    suc += fw_statis.retry_4;
+    suc += sw_statis.tx_packets;
+    suc += sw_statis.rx_packets;
+
+    drop += fw_statis.retry_drop;
+    drop += sw_statis.tx_dropped;
+    drop += sw_statis.rx_dropped;
+
+    info->rssi = rssi;
+    info->snr = snr;
+    info->per = drop * 1000000 / (drop + suc);
+
+    return 0;
+}
+
 static void start_scan(hal_wifi_module_t *m)
 {
     DBG_8195A("start_scan\r\n");
@@ -794,6 +842,8 @@ hal_wifi_module_t rtl8710bn_wifi_module = {
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+
+    .get_wireless_info   = get_wireless_info,
 
     /* mesh related */
     .mesh_register_cb    =  register_mesh_cb,

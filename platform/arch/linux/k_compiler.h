@@ -12,9 +12,13 @@
 /* get the return address of the current function */
 __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 {
+#if 0
     void *sp;
     asm volatile("mov %0, SP\n" : "=r" (sp));
     return sp;
+#else
+    return NULL;
+#endif
 }
 /* get the number of leading 0-bits in x
    int __builtin_clz (unsigned int x) */
