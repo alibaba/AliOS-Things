@@ -9,6 +9,10 @@ $(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson
 
+ifeq ($(AOS_COMP_UND),y)
+$(NAME)_COMPONENTS += und
+endif
+
 ifeq ($(AOS_COMP_OTA),y)
 $(NAME)_COMPONENTS += ota
 GLOBAL_DEFINES += ENABLE_AOS_OTA
