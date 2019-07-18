@@ -19,7 +19,8 @@
 #define MAX_SSID_SIZE (32 - 1)
 #define MAX_PWD_SIZE (64 - 1)
 
-static void js_cb_wifi_conn_status(void *pdata) {
+static void js_cb_wifi_conn_status(void *pdata)
+{
     be_jse_symbol_t *jscb = (be_jse_symbol_t *)pdata;
     char ip[32]           = {0};
 
@@ -37,7 +38,8 @@ static void js_cb_wifi_conn_status(void *pdata) {
     be_jse_async_event_cb(async);
 }
 
-static void *wifi_check_ip_task(void *arg) {
+static void *wifi_check_ip_task(void *arg)
+{
     char ip[32] = {0};
     int count   = 0;
 
@@ -55,7 +57,8 @@ static void *wifi_check_ip_task(void *arg) {
     return NULL;
 }
 
-static be_jse_symbol_t *module_wifi_connect() {
+static be_jse_symbol_t *module_wifi_connect()
+{
     int ret                      = -1;
     be_jse_symbol_t *arg0        = NULL;
     be_jse_symbol_t *arg1        = NULL;
@@ -99,7 +102,8 @@ Fail:
  *Input:       no input
  *Output:      return a string object to js api,if it is NULL means can't get ip
  *****************************************************************************/
-static be_jse_symbol_t *module_wifi_getip() {
+static be_jse_symbol_t *module_wifi_getip()
+{
     char ip[32] = {0};
 
     be_jse_handle_function(0, 0, 0, 0, 0);
@@ -118,7 +122,8 @@ static be_jse_symbol_t *module_wifi_getip() {
  *Input:       no input
  *Output:      return a string object to js api what the mac is
  *****************************************************************************/
-static be_jse_symbol_t *module_wifi_getssid() {
+static be_jse_symbol_t *module_wifi_getssid()
+{
     char ssid[32 + 1] = {0};
 
     be_jse_handle_function(0, 0, 0, 0, 0);
@@ -132,7 +137,8 @@ static be_jse_symbol_t *module_wifi_getssid() {
 }
 
 be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                  be_jse_symbol_t *var, const char *name) {
+                                  be_jse_symbol_t *var, const char *name)
+{
     be_debug(JS_WIFI_TAG, "%s,name=%s\n\r", __FUNCTION__, name);
 
     if (strcmp(name, "connect") == 0) return module_wifi_connect();
@@ -142,7 +148,8 @@ be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_wifi_register(void) {
+void module_wifi_register(void)
+{
     int ret = -1;
 
     be_jse_module_load(JS_WIFI_TAG, module_handle_cb);

@@ -11,9 +11,7 @@
 #include "be_common.h"
 #include "be_jse_module.h"
 #include "be_port_osal.h"
-#ifndef BE_OS_AOS
-#include "utils_md5.h"
-#endif
+
 #include "mbedtls/aes.h"
 #include "mbedtls/md5.h"
 
@@ -33,7 +31,8 @@
 *Output:      return NULL when hash fail , return hashed buffer when successed
 **************************************************************************************/
 
-static be_jse_symbol_t *module_crypto_md5() {
+static be_jse_symbol_t *module_crypto_md5()
+{
     be_jse_symbol_t *arg0  = NULL;
     be_jse_symbol_t *item  = NULL;
     be_jse_symbol_t *array = NULL;
@@ -96,7 +95,8 @@ done:
 
 #ifdef BE_OS_AOS
 
-static be_osal_aes_type_t convert_str_to_aes_type(char *str) {
+static be_osal_aes_type_t convert_str_to_aes_type(char *str)
+{
     if (strcasecmp(str, "ecb") == 0) {
         return BE_AES_ECB;
     } else if (strcasecmp(str, "cbc") == 0) {
@@ -112,13 +112,14 @@ static be_osal_aes_type_t convert_str_to_aes_type(char *str) {
     }
 }
 
-static be_osal_aes_padding_t convert_str_to_aes_pad(char *str) {
+static be_osal_aes_padding_t convert_str_to_aes_pad(char *str)
+{
     if (strcasecmp(str, "nopad") == 0) {
         return BE_SYM_NOPAD;
     } else if (strcasecmp(str, "pck5") == 0) {
         return BE_SYM_PKCS5_PAD;
     } else if (strcasecmp(str, "pck7") == 0) {
-        return BE_SYM_PKCS5_PAD;  /* todo:pck7 is the same with pck5 by aes */
+        return BE_SYM_PKCS5_PAD; /* todo:pck7 is the same with pck5 by aes */
     } else if (strcasecmp(str, "zero") == 0) {
         return BE_SYM_ZERO_PAD;
     } else {
@@ -136,7 +137,8 @@ static be_osal_aes_padding_t convert_str_to_aes_pad(char *str) {
 buffer when successed
 **************************************************************************************/
 
-static be_jse_symbol_t *module_crypto_encrypt() {
+static be_jse_symbol_t *module_crypto_encrypt()
+{
     be_jse_symbol_t *arg0  = NULL;
     be_jse_symbol_t *arg1  = NULL;
     be_jse_symbol_t *arg2  = NULL;
@@ -166,7 +168,7 @@ static be_jse_symbol_t *module_crypto_encrypt() {
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
         be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
-        goto done;  /* now just support aes encryption */
+        goto done; /* now just support aes encryption */
     }
 
     type    = convert_str_to_aes_type(aes_type);
@@ -237,7 +239,8 @@ done:
 buffer when successed
 **************************************************************************************/
 
-static be_jse_symbol_t *module_crypto_decrypt() {
+static be_jse_symbol_t *module_crypto_decrypt()
+{
     be_jse_symbol_t *arg0  = NULL;
     be_jse_symbol_t *arg1  = NULL;
     be_jse_symbol_t *arg2  = NULL;
@@ -267,7 +270,7 @@ static be_jse_symbol_t *module_crypto_decrypt() {
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
         be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
-        goto done;  /* now just support aes encryption */
+        goto done; /* now just support aes encryption */
     }
 
     type    = convert_str_to_aes_type(aes_type);
@@ -339,7 +342,8 @@ done:
  *encryped buffer when successed
  **************************************************************************************/
 
-static be_jse_symbol_t *module_crypto_encrypt() {
+static be_jse_symbol_t *module_crypto_encrypt()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     be_jse_symbol_t *arg2 = NULL;
@@ -367,7 +371,7 @@ static be_jse_symbol_t *module_crypto_encrypt() {
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
         be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
-        goto done;  /* now just support aes encryption */
+        goto done; /* now just support aes encryption */
     }
 
     if (strcasecmp(aes_type, "cbc") != 0) {
@@ -460,7 +464,8 @@ done:
  *decryped buffer when successed
  **************************************************************************************/
 
-static be_jse_symbol_t *module_crypto_decrypt() {
+static be_jse_symbol_t *module_crypto_decrypt()
+{
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
     be_jse_symbol_t *arg2 = NULL;
@@ -487,7 +492,7 @@ static be_jse_symbol_t *module_crypto_decrypt() {
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
         be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n");
-        goto done;  /* now just support aes encryption */
+        goto done; /* now just support aes encryption */
     }
 
     if (strcasecmp(aes_type, "cbc") != 0) {
@@ -563,7 +568,8 @@ done:
 
 static be_jse_symbol_t *crypto_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                                 be_jse_symbol_t *var,
-                                                const char *name) {
+                                                const char *name)
+{
     if (strcmp(name, "md5") == 0) return module_crypto_md5();
     if (strcmp(name, "decrypt") == 0) return module_crypto_decrypt();
     if (strcmp(name, "encrypt") == 0) return module_crypto_encrypt();
@@ -571,6 +577,7 @@ static be_jse_symbol_t *crypto_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_crypto_register(void) {
+void module_crypto_register(void)
+{
     be_jse_module_load(JS_CRYPTO_TAG, crypto_module_handle_cb);
 }

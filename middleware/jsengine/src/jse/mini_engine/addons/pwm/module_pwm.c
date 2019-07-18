@@ -12,7 +12,8 @@
 #include "be_port_hal.h"
 #include "board-mgr/board_mgr.h"
 
-static be_jse_symbol_t *pwm_start(void) {
+static be_jse_symbol_t *pwm_start(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -62,7 +63,8 @@ out:
     return new_int_symbol(pwm_handle.handle);
 }
 
-static be_jse_symbol_t *pwm_stop(void) {
+static be_jse_symbol_t *pwm_stop(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     item_handle_t pwm_handle;
@@ -88,7 +90,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *pwm_get_duty(void) {
+static be_jse_symbol_t *pwm_get_duty(void)
+{
     int32_t ret = -1;
     item_handle_t pwm_handle;
     be_jse_symbol_t *arg0 = NULL;
@@ -109,7 +112,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *pwm_set_duty(void) {
+static be_jse_symbol_t *pwm_set_duty(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     uint32_t duty = 0;
@@ -144,7 +148,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *pwm_get_freq(void) {
+static be_jse_symbol_t *pwm_get_freq(void)
+{
     int32_t ret = -1;
     item_handle_t pwm_handle;
     be_jse_symbol_t *arg0 = NULL;
@@ -165,7 +170,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *pwm_set_freq(void) {
+static be_jse_symbol_t *pwm_set_freq(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     uint32_t freq = 0;
@@ -201,7 +207,8 @@ out:
 
 static be_jse_symbol_t *pwm_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "start")) {
         return pwm_start();
     }
@@ -223,6 +230,7 @@ static be_jse_symbol_t *pwm_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_pwm_register(void) {
+void module_pwm_register(void)
+{
     be_jse_module_load("PWM", pwm_module_handle_cb);
 }

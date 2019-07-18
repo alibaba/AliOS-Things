@@ -6,41 +6,26 @@
   * WIFI.getip
   * WIFI.connect
 
-
-
 * WIFI.getip()方法说明
-
   * 功能：获取当前系统的IP地址。
-
   * 参数说明：无
-
   * 返回值：WIFI连接成功，成功获取IP则返回ip STRING字符串。
-
-    ​               WIFI连接失败，未获取到IP则返回NULL。
-
-  
+    WIFI连接失败，未获取到IP则返回NULL。
 
 * WIFI.connect(ssid,password,function(state){})方法说明
-
   * 功能：连接指定的WIFI AP
-
   * 参数说明：ssid为AP的WIFI名称，类型为STRING。
-
-    ​		  passwd为AP的WIFI密码，类型为STRING。
-
-    ​		 function()为连接的回调函数，其参数state为'CONNECTED'时代表WIFI连接成功。
-
-    ​		其参数state为'DISCONNECT'时代表WIFI连接失败。
-
+    passwd为AP的WIFI密码，类型为STRING。
+    function()为连接的回调函数，其参数state为'CONNECTED'时代表WIFI连接成功。
+    其参数state为'DISCONNECT'时代表WIFI连接失败。
   * 返回值：调用成功返回0，失败返回-1.
-
-    ​		注意：WIFI连接的成功与否需要根据回调函数function的参数state判断。
+    ​注意：WIFI连接的成功与否需要根据回调函数function的参数state判断。
 
 
 
 __JS 调用WIFI模块示例：__
 
-```javascript
+```js
 var ssid = "Xiaomi_296E_rock";
 var passwd = "rockzhou";
 

@@ -1,11 +1,11 @@
 {
-    "pl2303":{
-        "type":"UART",
-        "port":1,
-        "data_width":3,
-        "baud_rate":115200,
-        "stop_bits":0,
-        "flow_control":0,
-        "parity_config":0
-    }
+  "pl2303": {
+    "type": "UART",
+    "port": 1,
+    "data_width": 3,
+    "baud_rate": 115200,
+    "stop_bits": 0,
+    "flow_control": 0,
+    "parity_config": 0
+  }
 }

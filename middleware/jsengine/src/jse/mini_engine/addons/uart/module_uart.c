@@ -28,11 +28,13 @@ typedef struct uart_module {
 } uart_module_t;
 
 static uart_module_t *g_uart_module[MAX_UART_PORT] = {NULL};
-static inline uart_module_t **get_handle(void) {
+static inline uart_module_t **get_handle(void)
+{
     return (uart_module_t **)&g_uart_module;
 }
 
-static int32_t uart_get_free() {
+static int32_t uart_get_free()
+{
     uint32_t i             = 0;
     uart_module_t **module = get_handle();
     if (NULL == module) {
@@ -47,7 +49,8 @@ static int32_t uart_get_free() {
     return (-1);
 }
 
-static int8_t uart_get_module(uint32_t item_handle) {
+static int8_t uart_get_module(uint32_t item_handle)
+{
     uint32_t i             = 0;
     uart_module_t **module = get_handle();
     if (NULL == module) {
@@ -63,7 +66,8 @@ static int8_t uart_get_module(uint32_t item_handle) {
     return (-1);
 }
 
-static void uart_handle(void *data) {
+static void uart_handle(void *data)
+{
     uart_module_t *module = (uart_module_t *)data;
     if (NULL == module) {
         return;
@@ -131,7 +135,8 @@ out:
 
 static int8_t uart_add_recv(uart_dev_t *uart, uint32_t item_handle,
                             be_jse_symbol_t *fun_symbol, uint8_t *start_flag,
-                            uint8_t *end_flag) {
+                            uint8_t *end_flag)
+{
     int8_t ret             = -1;
     uart_module_t **handle = get_handle();
     if (NULL == handle) {
@@ -163,7 +168,8 @@ static int8_t uart_add_recv(uart_dev_t *uart, uint32_t item_handle,
     return (0);
 }
 
-static int8_t uart_del_recv(uint32_t item_handle) {
+static int8_t uart_del_recv(uint32_t item_handle)
+{
     int8_t ret             = -1;
     uart_module_t **handle = get_handle();
     if (NULL == handle) {
@@ -192,7 +198,8 @@ static int8_t uart_del_recv(uint32_t item_handle) {
     return (0);
 }
 
-static be_jse_symbol_t *uart_open(void) {
+static be_jse_symbol_t *uart_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -243,7 +250,8 @@ out:
     return new_int_symbol(uart_handle.handle);
 }
 
-static be_jse_symbol_t *uart_close(void) {
+static be_jse_symbol_t *uart_close(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     item_handle_t uart_handle;
@@ -274,7 +282,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *uart_write(void) {
+static be_jse_symbol_t *uart_write(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     char *data    = NULL;
@@ -320,12 +329,14 @@ out:
     return new_int_symbol(len);
 }
 
-static be_jse_symbol_t *uart_read(void) {
+static be_jse_symbol_t *uart_read(void)
+{
     be_error("uart", "todo......\n");
     return new_int_symbol(-1);
 }
 
-static be_jse_symbol_t *uart_watch(void) {
+static be_jse_symbol_t *uart_watch(void)
+{
     int32_t len         = -1;
     char *data          = NULL;
     uint8_t *start_flag = NULL;
@@ -401,7 +412,8 @@ out:
 
 static be_jse_symbol_t *uart_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                               be_jse_symbol_t *var,
-                                              const char *name) {
+                                              const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return uart_open();
     }
@@ -420,6 +432,7 @@ static be_jse_symbol_t *uart_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_uart_register(void) {
+void module_uart_register(void)
+{
     be_jse_module_load("UART", uart_module_handle_cb);
 }

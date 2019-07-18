@@ -12,7 +12,8 @@
 #include "be_port_hal.h"
 #include "board-mgr/board_mgr.h"
 
-static be_jse_symbol_t *adc_open(void) {
+static be_jse_symbol_t *adc_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -60,7 +61,8 @@ out:
     return new_int_symbol(adc_handle.handle);
 }
 
-static be_jse_symbol_t *adc_close(void) {
+static be_jse_symbol_t *adc_close(void)
+{
     int8_t ret = -1;
     item_handle_t adc_handle;
     be_jse_symbol_t *arg0 = NULL;
@@ -85,7 +87,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *adc_read(void) {
+static be_jse_symbol_t *adc_read(void)
+{
     int32_t ret       = -1;
     int32_t adc_value = -1;
     item_handle_t adc_handle;
@@ -109,7 +112,8 @@ out:
 
 static be_jse_symbol_t *adc_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return adc_open();
     }
@@ -122,6 +126,7 @@ static be_jse_symbol_t *adc_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_adc_register(void) {
+void module_adc_register(void)
+{
     be_jse_module_load("ADC", adc_module_handle_cb);
 }

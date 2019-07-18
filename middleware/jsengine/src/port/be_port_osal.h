@@ -13,15 +13,15 @@
 extern "C" {
 #endif
 
-#include <stdint.h>  /* uint32_t uint8_t的类型定义 */
+#include <stdint.h> /* uint32_t uint8_t的类型定义 */
 
 typedef enum {
-    TimerRunOnce     = 0,  /* one-shot timer */
-    TimerRunPeriodic = 1   /* repeating timer */
+    TimerRunOnce     = 0, /* one-shot timer */
+    TimerRunPeriodic = 1  /* repeating timer */
 } be_osal_timer_type;
 
 /* task 任务优先级分配 */
-#define osWaitForever 0xFFFFFFFF  /* wait forever timeout value */
+#define osWaitForever 0xFFFFFFFF /* wait forever timeout value */
 
 /* 任务优先级分配 */
 #define JSE_TSK_PRIORITY be_osal_task_get_default_priority() + 5

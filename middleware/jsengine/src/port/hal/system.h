@@ -18,6 +18,7 @@ extern "C" {
 #include <fcntl.h>
 
 #include "aos/vfs.h"
+#include "network/network.h"
 
 #define BE_FS_ROOT_DIR "/spiffs/"
 

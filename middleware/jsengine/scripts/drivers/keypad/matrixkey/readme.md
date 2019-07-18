@@ -30,7 +30,7 @@
 ###Driver配置
 esp32Kit示范：
 
-```
+```json
 {
     "matrixkeypad.C4":{
       "type":"GPIO",
@@ -103,12 +103,10 @@ method:
 
 ```
 
-
-
 ## #示例
 按下任意按键，终端将输出对应的行列值:
 
-```
+```js
 var matrixkeypad = require('./src/matrixkey/src/index.js');
 var handle = new matrixkeypad('matrixkeypad.C1','matrixkeypad.C2','matrixkeypad.C3','matrixkeypad.C4','matrixkeypad.R1','matrixkeypad.R2','matrixkeypad.R3','matrixkeypad.R4');
 var keycb = function(cval,rval){

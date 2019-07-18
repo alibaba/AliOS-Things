@@ -1,12 +1,9 @@
-#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <time.h>
 
 #include "be_log.h"
 #include "be_port_osal.h"
+#include "hal/system.h"
 #include "miio-common.h"
 #include "miio-discover.h"
 
@@ -18,7 +15,8 @@ struct miio_discover_context {
 
 static struct miio_discover_context ctx;
 
-static void *discover_routin(void *arg) {
+static void *discover_routin(void *arg)
+{
     int fd;
     if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
         printf("socket fail\n");
@@ -76,7 +74,8 @@ static void *discover_routin(void *arg) {
     return NULL;
 }
 
-void miio_device_discover(int timeout, void *priv, miio_discover_callback cb) {
+void miio_device_discover(int timeout, void *priv, miio_discover_callback cb)
+{
     int ret = be_osal_create_task("miio discover task", discover_routin, &ctx,
                                   4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret == 0) {

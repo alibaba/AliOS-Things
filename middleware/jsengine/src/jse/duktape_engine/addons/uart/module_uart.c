@@ -32,7 +32,8 @@ typedef struct uart_module {
  */
 static uart_module_t *uart_modules[MAX_UART_PORT];
 
-static int uart_module_is_on(uint32_t item_handle) {
+static int uart_module_is_on(uint32_t item_handle)
+{
     int i;
     for (i = 0; i < MAX_UART_PORT; i++) {
         uart_module_t *m = uart_modules[i];
@@ -41,7 +42,8 @@ static int uart_module_is_on(uint32_t item_handle) {
     return 0;
 }
 
-static void uart_module_handle(void *data) {
+static void uart_module_handle(void *data)
+{
     uart_module_t *module = (uart_module_t *)data;
     uint8_t *raw_buff     = module->recv_buff;
     uint32_t max_len;
@@ -100,7 +102,8 @@ static void uart_module_handle(void *data) {
 }
 
 static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
-                         uint8_t *start_flag, uint8_t *end_flag) {
+                         uint8_t *start_flag, uint8_t *end_flag)
+{
     /* 找出一个空闲的uart_module */
     int i;
     for (i = 0; i < MAX_UART_PORT; i++)
@@ -137,7 +140,8 @@ static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
     return 0;
 }
 
-static void uart_del_recv(uint32_t item_handle) {
+static void uart_del_recv(uint32_t item_handle)
+{
     int i;
     for (i = 0; i < MAX_UART_PORT; i++) {
         uart_module_t *m = uart_modules[i];
@@ -154,7 +158,8 @@ static void uart_del_recv(uint32_t item_handle) {
     }
 }
 
-static duk_ret_t native_uart_open(duk_context *ctx) {
+static duk_ret_t native_uart_open(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t uart_handle;
     uart_handle.handle      = 0xFFFFFFFF;
@@ -191,7 +196,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_uart_close(duk_context *ctx) {
+static duk_ret_t native_uart_close(duk_context *ctx)
+{
     int8_t ret = -1;
     item_handle_t uart_handle;
     uart_dev_t *uart_device = NULL;
@@ -219,7 +225,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_uart_write(duk_context *ctx) {
+static duk_ret_t native_uart_write(duk_context *ctx)
+{
     int ret          = -1;
     const char *data = NULL;
     uint32_t len     = 0;
@@ -248,7 +255,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_uart_read(duk_context *ctx) {
+static duk_ret_t native_uart_read(duk_context *ctx)
+{
     error("todo......\n");
     duk_push_null(ctx);
     return 1;
@@ -260,7 +268,8 @@ static duk_ret_t native_uart_read(duk_context *ctx) {
  *   start － null 或者 string
  *   end － null 或者 string
  */
-static duk_ret_t native_uart_on(duk_context *ctx) {
+static duk_ret_t native_uart_on(duk_context *ctx)
+{
     int ret = -1;
     item_handle_t uart_handle;
     uart_handle.handle      = 0xFFFFFFFF;
@@ -309,7 +318,8 @@ out:
     return 1;
 }
 
-void module_uart_register(void) {
+void module_uart_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

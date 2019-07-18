@@ -24,7 +24,7 @@ ds1302 SDA引脚接DevelopKit SDA引脚；
 ###Driver配置
 DevelopKit示范:
 
-```
+```json
 {
     "ds1302":{
       "type":"I2C",
@@ -51,7 +51,7 @@ method:
 
 获取当前时间:
 
-```
+```js
 var ds1302 = require('ds1302/src/index.js');
 var handle = new ds1302('ds1302');
 

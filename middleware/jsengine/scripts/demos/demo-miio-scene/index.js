@@ -45,7 +45,7 @@ function setupGateway(host) {
   var motionSensorId = null;
   var timeout = null;
   // 注册监听事件，回调函数
-  miio.deviceOnEvent(gatewayDevice, function(event) {
+  miio.deviceOnEvent(gatewayDevice, function (event) {
     console.log("gateway receive event");
 
     var obj = JSON.parse(event);
@@ -62,7 +62,7 @@ function setupGateway(host) {
         timeout = null;
       }
       //每分钟接收一次
-      timeout = setTimeout(function() {
+      timeout = setTimeout(function () {
         lightOff();
       }, 60 * 1000);
     }
@@ -87,7 +87,7 @@ function setupGateway(host) {
   }
 }
 
-miio.discover(20, function(host, deviceId) {
+miio.discover(20, function (host, deviceId) {
   console.log('discovered device, host: ' + host + ', deviceId: ' + deviceId);
   if (deviceId === 61632282) {
     setupLight(host);

@@ -20,7 +20,7 @@ czn15e模块OUT引脚接esp32Kit IO5引脚；
 
 ###Driver配置
 
-```
+```json
 {
     "czn15e":{
       "type":"GPIO",
@@ -48,7 +48,7 @@ method:
 
 每隔1秒采集czn15e传感器的值，如果周围环境有声音，则打印Sound：YES：
 
-```
+```js
 var czn15e = require('czn15e/src/index.js');
 var handle  = new czn15e('czn15e');
 var t1 = setInterval(function() {

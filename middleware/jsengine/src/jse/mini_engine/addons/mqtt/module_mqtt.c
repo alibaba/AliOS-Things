@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ *  Copyright © 2018 alibaba. All rights reserved.
  */
 
 #include "be_jse_module.h"
 #include "be_list.h"
 #include "be_port_osal.h"
 #include "be_utils.h"
-/* 需要SDK支持 */
+// 需要SDK支持
 #include <mbedtls/sha1.h>
 
 #include "core/mqtt_http.h"
@@ -32,7 +32,8 @@ typedef struct {
 
 static struct be_list_head topic_list = BE_LIST_HEAD_INIT(topic_list);
 
-static be_jse_symbol_t *mqtt_deviceInfo(void) {
+static be_jse_symbol_t *mqtt_deviceInfo(void)
+{
     char *productKey   = NULL;
     char *deviceName   = NULL;
     char *deviceSecret = NULL;
@@ -75,7 +76,8 @@ static be_jse_symbol_t *mqtt_deviceInfo(void) {
 
 static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                                            be_jse_symbol_t *var,
-                                           const char *name) {
+                                           const char *name)
+{
     int i, j;
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
@@ -93,6 +95,8 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_str_symbol("0.0.2");
     }
+
+#if 0
     if (0 == strcmp("device", name)) {
         return mqtt_deviceInfo();
     }
@@ -212,7 +216,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             symbol_unlock(deviceSecretSymbol);
 
             unsigned char *content = NULL;
-            content                = calloc(1, 256);
+            content = calloc(1, 256);
             if (content == NULL) {
                 printf("[%s][%d] out of memory .\n", __FUNCTION__, __LINE__);
                 return new_symbol(BE_SYM_NULL);
@@ -223,7 +227,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
 
             unsigned char k_ipad[64] = {0};
             unsigned char k_opad[64] = {0};
-            unsigned char out[20]    = {0};
+            unsigned char out[20] = {0};
 
             memcpy(k_ipad, deviceSecret, strlen(deviceSecret));
             memcpy(k_opad, deviceSecret, strlen(deviceSecret));
@@ -255,8 +259,8 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             char sign[41];
             for (i = 0; i < sizeof(out); ++i) {
                 char byte[2] = {0};
-                byte[0]      = out[i] / 16;
-                byte[1]      = out[i] % 16;
+                byte[0] = out[i] / 16;
+                byte[1] = out[i] % 16;
 
                 for (j = 0; j < 2; ++j) {
                     if (byte[j] <= 9)
@@ -271,6 +275,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         }
         return new_str_symbol(NULL);
     }
+#endif
 
     if (strcmp(name, "start") == 0) {
         be_jse_handle_function(0, &arg0, &arg1, NULL, NULL);
@@ -338,7 +343,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             symbol_unlock(mqttDomainSymbol);
             symbol_unlock(mqttPortSymbol);
 
-            /* 切换MQTT地址 */
+            // 切换MQTT地址
             if (mqttDomain[0]) {
                 mqtt_set_domain(mqttDomain, mqttPort);
             }
@@ -376,9 +381,10 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             topic_name = calloc(1, len + 1);
             symbol_to_str(arg0, topic_name, len);
             topic_process_t *item;
-            be_list_for_each_entry(item, &topic_list, list) {
+            be_list_for_each_entry(item, &topic_list, list)
+            {
                 if (item == NULL) break;
-                /* 判断是否重复 */
+                // 判断是否重复
                 if (strcmp(topic_name, item->topic_name) == 0) {
                     symbol_unlock(arg0);
                     symbol_unlock(arg1);
@@ -386,7 +392,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                 }
             }
 
-            /* 加到list中 */
+            // 加到list中
             topic_process_t *proc =
                 (topic_process_t *)calloc(1, sizeof(topic_process_t));
             strncpy(proc->topic_name, topic_name, CONFIG_MQTT_TOPIC_MAX_LEN);
@@ -426,14 +432,15 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             symbol_to_str(arg0, topic_name, len);
 
             topic_process_t *item = NULL;
-            be_list_for_each_entry(item, &topic_list, list) {
+            be_list_for_each_entry(item, &topic_list, list)
+            {
                 if (item == NULL) break;
                 if (strcmp(topic_name, item->topic_name) == 0) {
                     break;
                 }
             }
             if (item) {
-                /* 找到已经订阅的topic */
+                // 找到已经订阅的topic
                 msg.unsubscribe.cmd   = MQTT_UNSUBSCRIBE;
                 msg.unsubscribe.topic = topic_name;
                 msg.unsubscribe.func  = item->func;
@@ -495,13 +502,14 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_mqtt_register(void) {
-    /* 结束上一个mqtt task */
+void module_mqtt_register(void)
+{
+    // 结束上一个mqtt task
     mqtt_tsk_stop();
 
-    /* 开启新的 mqtt task */
+    // 开启新的 mqtt task
     mqtt_tsk_start();
 
-    /* 注册JSE addon */
+    // 注册JSE addon
     be_jse_module_load(TAG, module_handle_mqtt);
 }

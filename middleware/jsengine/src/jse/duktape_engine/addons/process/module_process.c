@@ -10,7 +10,8 @@
 #include "bone_engine_inl.h"
 #include "hal/system.h"
 
-static void next_tick_cb(void *arg) {
+static void next_tick_cb(void *arg)
+{
     int ref          = (int)arg;
     duk_context *ctx = bone_engine_get_context();
     bone_engine_push_ref(ctx, ref);
@@ -19,7 +20,8 @@ static void next_tick_cb(void *arg) {
     bone_engine_unref(ctx, ref);
 }
 
-static duk_ret_t native_process_nextTick(duk_context *ctx) {
+static duk_ret_t native_process_nextTick(duk_context *ctx)
+{
     if (!duk_is_function(ctx, -1)) {
         warn("is not function\n");
         duk_push_string(ctx, "nextTick parameter is not function");
@@ -34,17 +36,20 @@ static duk_ret_t native_process_nextTick(duk_context *ctx) {
     return 0;
 }
 
-static duk_ret_t native_process_getTime(duk_context *ctx) {
+static duk_ret_t native_process_getTime(duk_context *ctx)
+{
     duk_push_number(ctx, be_osal_get_clocktime());
     return 1;
 }
 
-static duk_ret_t native_process_uptime(duk_context *ctx) {
+static duk_ret_t native_process_uptime(duk_context *ctx)
+{
     duk_push_number(ctx, be_osal_get_clocktime());
     return 1;
 }
 
-void module_process_register(void) {
+void module_process_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
     duk_push_object(ctx);
 

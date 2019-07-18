@@ -2,7 +2,9 @@
   "name": "hcsr501",
   "version": "0.0.1",
   "description": "hcsr501驱动",
-  "keywords": ["hcsr501"],
+  "keywords": [
+    "hcsr501"
+  ],
   "main": "src/index.js",
   "author": {
     "name": "jweih.hjw",

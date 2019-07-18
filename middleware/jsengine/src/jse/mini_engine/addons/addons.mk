@@ -29,24 +29,12 @@ ifeq ($(JSE_NET_ADDON_MQTT),y)
 
 ${NAME}_SOURCES +=  \
 										${JSE_ADDONS_DIR}/mqtt/module_mqtt.c \
-										${JSE_ADDONS_DIR}/mqtt/core/mqtt_http.c \
 										${JSE_ADDONS_DIR}/mqtt/core/mqtt_instance.c \
 										${JSE_ADDONS_DIR}/mqtt/core/mqtt_task.c
 
 ${NAME}_INCLUDES += \
 										${JSE_ADDONS_DIR}/mqtt/core \
 										${JSE_ADDONS_DIR}/mqtt
-
-# iotkit头文件
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/utils/digest
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/utils/misc
-# ${NAME}_INCLUDES += -I$(PROJECT_ROOT)/port/iotkit
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/sdk-impl
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/system
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/packages/LITE-utils
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/packages/LITE-log
-# ${NAME}_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/sdk-impl/exports
-
 endif
 ifeq ($(JSE_NET_ADDON_NET),y)
 ${NAME}_SOURCES += ${JSE_ADDONS_DIR}/net/module_net.c

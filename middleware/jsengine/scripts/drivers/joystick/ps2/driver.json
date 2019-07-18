@@ -1,18 +1,18 @@
 {
-  "ps2x":{
-    "type":"ADC",
-    "port":34,
-    "sampling":12000000
+  "ps2x": {
+    "type": "ADC",
+    "port": 34,
+    "sampling": 12000000
   },
-  "ps2y":{
-    "type":"ADC",
-    "port":35,
-    "sampling":12000000
+  "ps2y": {
+    "type": "ADC",
+    "port": 35,
+    "sampling": 12000000
   },
-  "ps2z":{
-    "type":"GPIO",
-    "port":12,
-    "dir":2,
-    "pull":1
-  } 
+  "ps2z": {
+    "type": "GPIO",
+    "port": 12,
+    "dir": 2,
+    "pull": 1
+  }
 }

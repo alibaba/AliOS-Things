@@ -21,7 +21,8 @@
     "\"minute\":\"%d\",\"second\":\"%d\"}"
 
 static rtc_dev_t g_rtcdev;
-static be_jse_symbol_t *rtc_open(void) {
+static be_jse_symbol_t *rtc_open(void)
+{
     int8_t ret = -1;
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     ret = hal_rtc_init(&g_rtcdev);
@@ -31,7 +32,8 @@ static be_jse_symbol_t *rtc_open(void) {
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *rtc_close(void) {
+static be_jse_symbol_t *rtc_close(void)
+{
     int8_t ret = -1;
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     ret = hal_rtc_finalize(&g_rtcdev);
@@ -41,7 +43,8 @@ static be_jse_symbol_t *rtc_close(void) {
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *rtc_get_time(void) {
+static be_jse_symbol_t *rtc_get_time(void)
+{
     int8_t ret  = -1;
     uint8_t len = 0;
     rtc_time_t rtcTime;
@@ -59,7 +62,8 @@ static be_jse_symbol_t *rtc_get_time(void) {
     return new_json_symbol(buff, len);
 }
 
-static be_jse_symbol_t *rtc_set_time(void) {
+static be_jse_symbol_t *rtc_set_time(void)
+{
     int8_t ret = -1;
     rtc_time_t rtcTime;
     be_jse_symbol_t *arg0              = NULL;
@@ -129,7 +133,8 @@ out:
 
 static be_jse_symbol_t *rtc_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return rtc_open();
     }
@@ -145,6 +150,7 @@ static be_jse_symbol_t *rtc_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_rtc_register(void) {
+void module_rtc_register(void)
+{
     be_jse_module_load("RTC", rtc_module_handle_cb);
 }

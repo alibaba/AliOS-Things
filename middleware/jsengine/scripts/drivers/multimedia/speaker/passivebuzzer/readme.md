@@ -19,7 +19,7 @@ passivebuzzer GND引脚 接ESP32 GND 引脚；
 ###Driver配置
 esp32Kit示范：
 
-```
+```json
 {
     "buzzer":{
       "type":"DAC",
@@ -44,7 +44,7 @@ method:
 
 ## #示例
 
-```
+```js
 var PassiveBuzzer = require('passivebuzzer/src');
 var handle = new PassiveBuzzer('buzzer');
 
@@ -53,5 +53,3 @@ setInterval(function() {
 }, 3000);
 
 ```
-
-

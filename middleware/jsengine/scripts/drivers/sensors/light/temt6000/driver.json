@@ -1,8 +1,7 @@
 {
-  "temt6000":{
-    "type":"ADC",
-    "port":34,
-    "sampling":12000000
+  "temt6000": {
+    "type": "ADC",
+    "port": 34,
+    "sampling": 12000000
   }
-
 }

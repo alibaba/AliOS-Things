@@ -21,14 +21,18 @@
 
 #ifndef BE_JSE_SILENT
 static char tmp_token[MAX_TOKEN_LENGTH] = {0};
-void be_jse_save_tmp_token(const char *token) {
+void be_jse_save_tmp_token(const char *token)
+{
     if (token)
         strncpy(tmp_token, token, MAX_TOKEN_LENGTH - 1);
     else
         tmp_token[0] = 0;
 }
 
-const char *be_jse_get_tmp_token() { return tmp_token; }
+const char *be_jse_get_tmp_token()
+{
+    return tmp_token;
+}
 #endif
 
 #if 0
@@ -83,20 +87,31 @@ static const unsigned char attr[] = {
     AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
     AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0};
 
-ALWAYS_INLINE bool is_whitespace(char ch) { return (attr[ch] & FL_SPACE) != 0; }
+ALWAYS_INLINE bool is_whitespace(char ch)
+{
+    return (attr[ch] & FL_SPACE) != 0;
+}
 
-ALWAYS_INLINE bool is_numeric(char ch) { return (attr[ch] & FL_DIGIT) != 0; }
+ALWAYS_INLINE bool is_numeric(char ch)
+{
+    return (attr[ch] & FL_DIGIT) != 0;
+}
 
-ALWAYS_INLINE bool is_hex_decimal(char ch) {
+ALWAYS_INLINE bool is_hex_decimal(char ch)
+{
     return (attr[ch] & FL_XDIGIT) != 0;
 }
-ALWAYS_INLINE bool is_alpha(char ch) { return (attr[ch] & FL_ALPHA) != 0; }
+ALWAYS_INLINE bool is_alpha(char ch)
+{
+    return (attr[ch] & FL_ALPHA) != 0;
+}
 
 #endif
 
 #define BonePrefix "BoneEngine > "
 
-NO_INLINE void be_jse_error(const char *message) {
+NO_INLINE void be_jse_error(const char *message)
+{
     /* printf("ERROR: %s\n", message); */
     char *buf = calloc(1, 256);
     snprintf(buf, 255, "%sERROR: %s", BonePrefix, message);
@@ -110,7 +125,8 @@ NO_INLINE void be_jse_error(const char *message) {
 }
 
 NO_INLINE void be_jse_error_at(const char *message, be_jse_lexer_ctx_t *lex,
-                               int tokenPos) {
+                               int tokenPos)
+{
     int line, col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
     be_jse_execute_error();
@@ -128,7 +144,8 @@ NO_INLINE void be_jse_error_at(const char *message, be_jse_lexer_ctx_t *lex,
     free(buf);
 }
 
-NO_INLINE void be_jse_warn(const char *message) {
+NO_INLINE void be_jse_warn(const char *message)
+{
     /* printf("WARNING: %s\n", message); */
     char *buf = calloc(1, 256);
     snprintf(buf, 255, "%sWARNING: %s", BonePrefix, message);
@@ -142,7 +159,8 @@ NO_INLINE void be_jse_warn(const char *message) {
 }
 
 NO_INLINE void be_jse_warn_at(const char *message, be_jse_lexer_ctx_t *lex,
-                              int tokenPos) {
+                              int tokenPos)
+{
     int line, col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
     be_jse_execute_error();
@@ -160,7 +178,8 @@ NO_INLINE void be_jse_warn_at(const char *message, be_jse_lexer_ctx_t *lex,
     free(buf);
 }
 
-NO_INLINE void be_jse_assert_fail(const char *file, int line) {
+NO_INLINE void be_jse_assert_fail(const char *file, int line)
+{
     be_jse_execute_error();
     /* printf("ASSERT FAIL AT %s:%d\n", file, line); */
     char *buf = calloc(1, 256);
@@ -281,7 +300,8 @@ void ftoa_bounded(be_jse_float_t val, char *str, size_t len) {
 }
 #endif
 
-static NO_INLINE int get_radix(const char **s, int forceRadix, bool *hasError) {
+static NO_INLINE int get_radix(const char **s, int forceRadix, bool *hasError)
+{
     int radix = 10;
 
     if (forceRadix > 36) {
@@ -323,7 +343,8 @@ static NO_INLINE int get_radix(const char **s, int forceRadix, bool *hasError) {
     return radix;
 }
 
-int chtod(char ch) {
+int chtod(char ch)
+{
     if (ch >= '0' && ch <= '9')
         return ch - '0';
     else if (ch >= 'a' && ch <= 'z')
@@ -334,7 +355,8 @@ int chtod(char ch) {
         return -1;
 }
 
-static be_jse_float_t string_to_floatr(const char *s, int forceRadix) {
+static be_jse_float_t string_to_floatr(const char *s, int forceRadix)
+{
     while (is_whitespace(*s)) s++;
 
     bool isNegated = false;
@@ -350,7 +372,7 @@ static be_jse_float_t string_to_floatr(const char *s, int forceRadix) {
     int radix = get_radix(&s, forceRadix, 0);
     if (!radix) return NAN;
 
-    be_jse_float_t v = 0;
+    be_jse_float_t v   = 0;
     be_jse_float_t mul = 0.1;
 
     while (*s) {
@@ -408,11 +430,12 @@ static be_jse_float_t string_to_floatr(const char *s, int forceRadix) {
     if (isNegated) return -v;
     return v;
 }
-static long long string_to_intr(const char *s, int forceRadix, bool *hasError) {
+static long long string_to_intr(const char *s, int forceRadix, bool *hasError)
+{
     while (is_whitespace(*s)) s++;
 
     bool isNegated = false;
-    long long v = 0;
+    long long v    = 0;
     if (*s == '-') {
         isNegated = true;
         s++;
@@ -438,13 +461,20 @@ static long long string_to_intr(const char *s, int forceRadix, bool *hasError) {
     return v;
 }
 
-be_jse_float_t string_to_float(const char *s) { return string_to_floatr(s, 0); }
+be_jse_float_t string_to_float(const char *s)
+{
+    return string_to_floatr(s, 0);
+}
 
-long long string_to_int(const char *s) { return string_to_intr(s, 0, 0); }
+long long string_to_int(const char *s)
+{
+    return string_to_intr(s, 0, 0);
+}
 
 #ifdef SUPPORT_NODE_MODELES
 
-static int pathBack(char *path, int pos) {
+static int pathBack(char *path, int pos)
+{
     int i;
     for (i = pos - 2; i > 0; i--) {
         if (path[i] == '/') {
@@ -455,10 +485,11 @@ static int pathBack(char *path, int pos) {
     return i;
 }
 
-char *getFilePath(char *name) {
+char *getFilePath(char *name)
+{
     int i;
     char *str = strdup(name);
-    int pos = strlen(name);
+    int pos   = strlen(name);
 
     for (i = pos - 2; i > 0; i--) {
         if (str[i] == '/') {
@@ -469,11 +500,12 @@ char *getFilePath(char *name) {
     return str;
 }
 
-char *getClearPath(char *path) {
+char *getClearPath(char *path)
+{
     int len = strlen(path);
     int i;
     char *str = calloc(1, len + 1);
-    int pos = 0;
+    int pos   = 0;
 
     /* 拷贝 ./ */
     for (i = 0; i < 2; i++) {
@@ -524,7 +556,8 @@ char *getClearPath(char *path) {
 }
 
 /* node_modules/gpio */
-char *getNodeModulePath(char *path) {
+char *getNodeModulePath(char *path)
+{
     char *fullPath = NULL;
     int path_len;
     int fd;
@@ -558,7 +591,7 @@ char *getNodeModulePath(char *path) {
     fd = be_open(fullPath, O_RDONLY);
     if (fd >= 0) {
         /* 分析package.json */
-        file_len = be_lseek(fd, 0, SEEK_END);
+        file_len  = be_lseek(fd, 0, SEEK_END);
         json_data = calloc(1, sizeof(char) * (file_len + 1));
         if (NULL == json_data) {
             be_close(fd);

@@ -13,7 +13,8 @@
 
 #define I2C_TIMEOUT (0xFFFFFF)
 
-static be_jse_symbol_t *i2c_open(void) {
+static be_jse_symbol_t *i2c_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -65,7 +66,8 @@ out:
     return new_int_symbol(i2c_handle.handle);
 }
 
-static be_jse_symbol_t *i2c_close(void) {
+static be_jse_symbol_t *i2c_close(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     item_handle_t i2c_handle;
@@ -95,7 +97,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *i2c_write(void) {
+static be_jse_symbol_t *i2c_write(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     uint8_t *data = NULL;
@@ -152,7 +155,8 @@ out:
     return new_int_symbol(len);
 }
 
-static be_jse_symbol_t *i2c_read(void) {
+static be_jse_symbol_t *i2c_read(void)
+{
     int8_t ret    = -1;
     int8_t result = -1;
     uint8_t *data = NULL;
@@ -209,7 +213,8 @@ out:
 
 static be_jse_symbol_t *i2c_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return i2c_open();
     }
@@ -225,6 +230,7 @@ static be_jse_symbol_t *i2c_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_i2c_register(void) {
+void module_i2c_register(void)
+{
     be_jse_module_load("I2C", i2c_module_handle_cb);
 }
