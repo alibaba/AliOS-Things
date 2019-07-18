@@ -8,7 +8,7 @@
 /* type define */
 typedef unsigned short ua_mod_t;
 typedef unsigned short ua_func_t;
-typedef unsigned char service_agent_rlt_t;
+typedef unsigned char  service_agent_rlt_t;
 
 #define SERVICE_AGENT_FAIL (service_agent_rlt_t)0x00
 #define SERVICE_AGENT_OK   (service_agent_rlt_t)0x01
@@ -19,17 +19,17 @@ typedef unsigned char service_agent_rlt_t;
 /* Values for ua_send_policy_t are constructed by a bitwise-inclusive OR of flags
  * from the @send_policy_bit_ctrl_t
  */
-typedef unsigned char  ua_send_policy_t;
+typedef unsigned char ua_send_policy_t;
 
-typedef enum{
+typedef enum {
     send_policy_save_cloud      = 0x01,
     send_policy_trans_guarantee = 0x02,
     send_policy_object          = 0x04,
     send_policy_delay           = 0x08,
     send_policy_delay_dump      = 0x10,
-}send_policy_bit_ctrl_t;
+} send_policy_bit_ctrl_t;
 
-#define POLICY_SET(POLICY, MASK) ((POLICY&MASK)==MASK)
+#define POLICY_SET(POLICY, MASK) ((POLICY&MASK) == MASK)
 
 /* uAgent module name */
 #define UAGENT_MOD_UAGENT     (ua_mod_t)0
@@ -50,7 +50,7 @@ typedef enum{
 #define UAGENT_MOD_CLI        (ua_mod_t)0x13
 
 
-#define UAGENT_MOD_BROAD_CAST (ua_mod_t)0xFF
+#define UAGENT_MOD_BROAD_CAST (ua_mod_t)0xff
 
 /* ------------------------ Function List ------------------------ */
 /* Inner function type used to register module */
@@ -98,22 +98,22 @@ typedef enum{
 typedef int (*on_customer_service)(void *arg, const unsigned short len, void *str);
 
 typedef struct {
-    ua_mod_t      mod;
-    unsigned char func_count;
+    ua_mod_t       mod;
+    unsigned char  func_count;
     char          *name;
     char          *version;
 } uagent_mod_info_t;
 
 typedef struct _uagent_func_node_t {
-    ua_func_t                  func;
-    char                       func_name[UAGENT_FUNC_NAME_SIZE];
-    on_customer_service        service;
+    ua_func_t                   func;
+    char                        func_name[UAGENT_FUNC_NAME_SIZE];
+    on_customer_service         service;
     void                       *argu;
     struct _uagent_func_node_t *next;
 } uagent_func_node_t;
 
 typedef struct {
-    uagent_mod_info_t  mod_info;
+    uagent_mod_info_t   mod_info;
     uagent_func_node_t *header;
 } mod_func_t;
 
