@@ -11,7 +11,8 @@
 #include "be_port_hal.h"
 #include "board-mgr/board_mgr.h"
 
-static be_jse_symbol_t *dac_open(void) {
+static be_jse_symbol_t *dac_open(void)
+{
     int32_t len   = -1;
     char *data    = NULL;
     int8_t ret    = -1;
@@ -65,7 +66,8 @@ out:
     return new_int_symbol(dac_handle.handle);
 }
 
-static be_jse_symbol_t *dac_set_vol(void) {
+static be_jse_symbol_t *dac_set_vol(void)
+{
     int8_t ret       = -1;
     int8_t result    = -1;
     uint32_t voltage = 0;
@@ -96,7 +98,8 @@ out:
     return new_int_symbol(result);
 }
 
-static be_jse_symbol_t *dac_get_vol(void) {
+static be_jse_symbol_t *dac_get_vol(void)
+{
     int32_t ret = -1;
     item_handle_t dac_handle;
     be_jse_symbol_t *arg0 = NULL;
@@ -117,7 +120,8 @@ out:
     return new_int_symbol(ret);
 }
 
-static be_jse_symbol_t *dac_close(void) {
+static be_jse_symbol_t *dac_close(void)
+{
     int8_t ret = -1;
     item_handle_t dac_handle;
     be_jse_symbol_t *arg0 = NULL;
@@ -142,7 +146,8 @@ out:
 
 static be_jse_symbol_t *dac_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
-                                             const char *name) {
+                                             const char *name)
+{
     if (0 == strcmp(name, "open")) {
         return dac_open();
     }
@@ -158,6 +163,7 @@ static be_jse_symbol_t *dac_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return (BE_JSE_FUNC_UNHANDLED);
 }
 
-void module_dac_register(void) {
+void module_dac_register(void)
+{
     be_jse_module_load("DAC", dac_module_handle_cb);
 }

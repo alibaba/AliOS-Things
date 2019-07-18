@@ -3,17 +3,11 @@
 * [二 Ubuntu系统下烧录ESP32固件](#二-ubuntu系统下烧录)
 * [三 Windows系统下烧录ESP32固件](#三-windows系统下烧录)
 
-    
-
-
-
 # ESP32固件烧录指南
 
 **文档说明**：在进行TinyEngine JS的开发之前，必须先烧录固件让开发板/硬件支持TinyEngine功能。
 
 所以本文将介绍如何在MAC/Windows/Ubuntu系统下烧录ESP32的TinyEngine固件。
-
-
 
 ### 准备工作
 
@@ -22,8 +16,6 @@ ESP32使用USB转串口进行烧录，所以需要安装串口驱动：
 * Windwos和MAC：点击该[地址]( https://cn.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers)并下载相应系统对应驱动并安装。
 
 * Ubuntu：无需安装驱动，默认自带。
-
-  
 
 ---
 ### 一 MAC系统下烧录
@@ -203,7 +195,7 @@ FAQ：如前所述，如果端口找不到，请确认端口号正确，如提�
 ---
 ### 三 Windows系统下烧录
 
-1) 安装python2.7 
+1) 安装python2.7
 
 * 下载python2.7对应的windows安装包并安装，[地址](https://www.python.org/downloads/windows/)
 

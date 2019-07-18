@@ -172,8 +172,6 @@ var t1 = setInterval(function() {
 │       ├── package.json
 │       └── src
 └── package.json
-
-
 ```
 
 ### 应用延伸

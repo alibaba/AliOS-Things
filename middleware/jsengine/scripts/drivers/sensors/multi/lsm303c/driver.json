@@ -1,10 +1,10 @@
 {
-  "lsm303c":{
-    "type":"I2C",
-    "port":2,
-    "address_width":7,
-    "freq":100000,
-    "mode":1,
-    "dev_addr":58
+  "lsm303c": {
+    "type": "I2C",
+    "port": 2,
+    "address_width": 7,
+    "freq": 100000,
+    "mode": 1,
+    "dev_addr": 58
   }
 }

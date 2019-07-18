@@ -2,7 +2,9 @@
   "name": "a4950",
   "version": "0.0.1",
   "description": "a4950驱动",
-  "keywords": ["a4950"],
+  "keywords": [
+    "a4950"
+  ],
   "main": "src/index.js",
   "author": {
     "name": "jweih.hjw",

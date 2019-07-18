@@ -11,7 +11,8 @@
 
 static wdg_dev_t wdg_dev;
 
-static duk_ret_t native_wdg_start(duk_context *ctx) {
+static duk_ret_t native_wdg_start(duk_context *ctx)
+{
     int ret           = -1;
     int32_t timeout   = 0;
     wdg_dev_t *handle = (wdg_dev_t *)&wdg_dev;
@@ -36,20 +37,23 @@ out:
     return 1;
 }
 
-static duk_ret_t native_wdg_feed(duk_context *ctx) {
+static duk_ret_t native_wdg_feed(duk_context *ctx)
+{
     wdg_dev_t *handle = (wdg_dev_t *)&wdg_dev;
     hal_wdg_reload(handle);
     return 0;
 }
 
-static duk_ret_t native_wdg_stop(duk_context *ctx) {
+static duk_ret_t native_wdg_stop(duk_context *ctx)
+{
     wdg_dev_t *handle = (wdg_dev_t *)&wdg_dev;
     hal_wdg_finalize(handle);
     handle->config.timeout = 0;
     return 0;
 }
 
-void module_wdg_register(void) {
+void module_wdg_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

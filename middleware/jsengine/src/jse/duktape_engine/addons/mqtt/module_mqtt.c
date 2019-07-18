@@ -48,7 +48,8 @@ struct mqtt_sub_cb_param {
     int js_cb_ref;
 };
 
-static void mqtt_sub_topic_notify(void *data) {
+static void mqtt_sub_topic_notify(void *data)
+{
     struct mqtt_sub_cb_param *p = (struct mqtt_sub_cb_param *)data;
     duk_context *ctx            = bone_engine_get_context();
     bone_engine_push_ref(ctx, p->js_cb_ref);
@@ -70,7 +71,8 @@ static void mqtt_sub_topic_notify(void *data) {
  * unsubscribe
  */
 static void mqtt_sub_callback(char *topic, int topic_len, void *payload,
-                              int payload_len, void *ctx) {
+                              int payload_len, void *ctx)
+{
     debug("receive subscribe message, topic: %.*s, payload: %.*s\n", topic_len,
           topic, payload_len, payload);
     struct mqtt_sub_cb_param *p =
@@ -142,7 +144,8 @@ static const int int_random_length = 15;
 #define CM_AUTH_TIMEOUT (10 * 1000)
 
 extern uint32_t HAL_Random(uint32_t region);
-static char *genRandomString(int length) {
+static char *genRandomString(int length)
+{
     int flag, i;
     char *str;
     if ((str = (char *)malloc(length)) == NULL) {
@@ -172,7 +175,8 @@ static char *genRandomString(int length) {
 
 int _http_response(char *payload, const int payload_len,
                    const char *request_string, const char *url,
-                   const int port_num, const char *pkey) {
+                   const int port_num, const char *pkey)
+{
 #define HTTP_POST_MAX_LEN (1024)
 #define HTTP_RESP_MAX_LEN (1024)
 
@@ -235,7 +239,8 @@ RETURN:
 
 static char *_set_auth_req_str(const char *product_key, const char *device_name,
                                const char *client_id, const char *sign,
-                               const char *ts) {
+                               const char *ts)
+{
 #define AUTH_STRING_MAXLEN (1024)
 
     char *req = NULL;
@@ -251,7 +256,8 @@ static char *_set_auth_req_str(const char *product_key, const char *device_name,
 static char *_get_device_secret(const char *product_key,
                                 const char *device_name, const char *client_id,
                                 const char *guider_addr,
-                                const char *request_string) {
+                                const char *request_string)
+{
     char payload[512]  = {0};
     char *deviceSecret = NULL;
 
@@ -307,7 +313,8 @@ do_exit:
 static int _calc_hmac_signature(const char *product_key,
                                 const char *product_secret,
                                 const char *device_name, char *hmac_sigbuf,
-                                const int hmac_buflen, const char *random) {
+                                const int hmac_buflen, const char *random)
+{
     char signature[64];
     char hmac_source[512];
     int ret = FAIL_RETURN;
@@ -326,7 +333,8 @@ static int _calc_hmac_signature(const char *product_key,
 }
 
 char *iot_get_deviceSecret(const char *product_key, const char *product_secret,
-                           const char *device_name, const char *client_id) {
+                           const char *device_name, const char *client_id)
+{
     char *req_str        = NULL;
     char guider_sign[48] = {0};
     char *s_random       = NULL;
@@ -362,7 +370,8 @@ typedef struct {
 
 static void *mqtt_task_handle = NULL;
 
-void mqtt_notify_jse(void *arg) {
+void mqtt_notify_jse(void *arg)
+{
     IOT_DEVICESECRET_s *iotDeviceSecret = (IOT_DEVICESECRET_s *)arg;
     duk_context *ctx                    = bone_engine_get_context();
     bone_engine_push_ref(ctx, iotDeviceSecret->js_cb_ref);
@@ -379,7 +388,8 @@ void mqtt_notify_jse(void *arg) {
     free(iotDeviceSecret);
 }
 
-static void mqtt_get_secret_task(void *arg) {
+static void mqtt_get_secret_task(void *arg)
+{
     /* MQTT 一型一密 注册
      * ProductKey: a1jbUxTP2VU
      * ProductSecret: VtuTmAMhR8QXfMa5
@@ -413,7 +423,8 @@ static void mqtt_get_secret_task(void *arg) {
     be_osal_delete_task(mqtt_task_handle);
 }
 
-static duk_ret_t native_get_device_secret(duk_context *ctx) {
+static duk_ret_t native_get_device_secret(duk_context *ctx)
+{
     int err;
 
     /* 参数有效性检查 */
@@ -482,7 +493,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_device_info(duk_context *ctx) {
+static duk_ret_t native_device_info(duk_context *ctx)
+{
     char *productKey   = NULL;
     char *deviceName   = NULL;
     char *deviceSecret = NULL;
@@ -507,7 +519,8 @@ static duk_ret_t native_device_info(duk_context *ctx) {
     return 1;
 }
 
-static duk_ret_t native_mqtt_sign(duk_context *ctx) {
+static duk_ret_t native_mqtt_sign(duk_context *ctx)
+{
     if (!duk_is_object(ctx, 0)) {
         warn("parameter must be object\n");
         duk_push_null(ctx);
@@ -584,7 +597,8 @@ static duk_ret_t native_mqtt_sign(duk_context *ctx) {
     return 1;
 }
 
-static void mqtt_start_notify(void *arg) {
+static void mqtt_start_notify(void *arg)
+{
     int js_cb_ref    = (int)arg;
     duk_context *ctx = bone_engine_get_context();
 
@@ -595,7 +609,8 @@ static void mqtt_start_notify(void *arg) {
     bone_engine_unref(ctx, js_cb_ref);
 }
 
-static void mqtt_yield_task(void *arg) {
+static void mqtt_yield_task(void *arg)
+{
     int last_mqtt_state = 0;
     void *mqtt_client   = mqtt_get_instance();
 
@@ -610,7 +625,8 @@ static void mqtt_yield_task(void *arg) {
     }
 }
 
-static duk_ret_t native_mqtt_start(duk_context *ctx) {
+static duk_ret_t native_mqtt_start(duk_context *ctx)
+{
     int err;
 
     /* 参数有效性检查 */
@@ -665,7 +681,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_mqtt_subscribe(duk_context *ctx) {
+static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
+{
     int ret = -1;
 
     /* 参数有效性检查 */
@@ -676,7 +693,8 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx) {
 
     const char *topic = duk_get_string(ctx, 0);
     topic_process_t *item;
-    be_list_for_each_entry(item, &topic_list, list) {
+    be_list_for_each_entry(item, &topic_list, list)
+    {
         /* 判断是否重复 */
         if (strcmp(topic, item->topic) == 0) {
             warn("topic %s has been subscribed\n", topic);
@@ -702,7 +720,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx) {
+static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
+{
     int ret = -1;
 
     if (!duk_is_string(ctx, 0)) {
@@ -714,7 +733,8 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx) {
     debug("unsubscribe topic: %s, ret: %d\n", topic, ret);
 
     topic_process_t *item = NULL;
-    be_list_for_each_entry(item, &topic_list, list) {
+    be_list_for_each_entry(item, &topic_list, list)
+    {
         if (strcmp(topic, item->topic) == 0) {
             debug("found topic: %s, js_cb_ref: %d\n", item->topic,
                   item->js_cb_ref);
@@ -729,7 +749,8 @@ out:
     return 1;
 }
 
-static duk_ret_t native_mqtt_publish(duk_context *ctx) {
+static duk_ret_t native_mqtt_publish(duk_context *ctx)
+{
     int ret = -1;
     if (!duk_is_string(ctx, 0) || !duk_is_string(ctx, 1)) {
         warn("parameter must be string and string\n");
@@ -748,7 +769,8 @@ out:
     return 1;
 }
 
-void module_mqtt_register(void) {
+void module_mqtt_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

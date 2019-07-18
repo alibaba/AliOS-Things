@@ -67,7 +67,8 @@ typedef struct {
  * Output:      return socket fd when create socket success,
  *            return error number when create socket fail
  **************************************************************************************/
-static duk_ret_t native_udp_create_socket(duk_context *ctx) {
+static duk_ret_t native_udp_create_socket(duk_context *ctx)
+{
     int sock_id = 0;
 
     sock_id = socket(AF_INET, SOCK_DGRAM, 0);
@@ -87,7 +88,8 @@ static duk_ret_t native_udp_create_socket(duk_context *ctx) {
  * Output:      return 0 when bind successed
  *            return error number when bind fail
  **************************************************************************************/
-static duk_ret_t native_udp_bind(duk_context *ctx) {
+static duk_ret_t native_udp_bind(duk_context *ctx)
+{
     int ret  = -1;
     int port = 0;
     int sock_id;
@@ -132,7 +134,8 @@ out:
     return 1;
 }
 
-static void udp_send_notify(void *pdata) {
+static void udp_send_notify(void *pdata)
+{
     udp_send_notify_param_t *p = (udp_send_notify_param_t *)pdata;
     duk_context *ctx           = bone_engine_get_context();
     bone_engine_push_ref(ctx, p->js_cb_ref);
@@ -148,7 +151,8 @@ static void udp_send_notify(void *pdata) {
  * Description: create a task for blocking sendto call
  * Called by:
  **************************************************************************************/
-static void udp_send_routine(void *arg) {
+static void udp_send_routine(void *arg)
+{
     int ret                      = -1;
     udp_send_param_t *send_param = (udp_send_param_t *)arg;
     int sock_id;
@@ -206,7 +210,8 @@ out:
  *number when send fail
  **************************************************************************************/
 
-static duk_ret_t native_udp_sendto(duk_context *ctx) {
+static duk_ret_t native_udp_sendto(duk_context *ctx)
+{
     int ret = -1;
     udp_options_t options;
     int sock_id;
@@ -280,7 +285,8 @@ out:
     return 1;
 }
 
-static void udp_recv_notify(void *pdata) {
+static void udp_recv_notify(void *pdata)
+{
     int i                      = 0;
     udp_recv_notify_param_t *p = (udp_recv_notify_param_t *)pdata;
     duk_context *ctx           = bone_engine_get_context();
@@ -304,7 +310,8 @@ static void udp_recv_notify(void *pdata) {
  * Description: create a task for blocking recvfrom call
  * Called by:
  **************************************************************************************/
-static void udp_recv_routine(void *arg) {
+static void udp_recv_routine(void *arg)
+{
     udp_recv_param_t *recv_param = (udp_recv_param_t *)arg;
     int sock_id;
     struct sockaddr_in srcaddr;
@@ -349,7 +356,8 @@ out:
  * Output:      return 0 when UDP.recv call ok
  *            return error number UDP.recv call fail
  **************************************************************************************/
-static duk_ret_t native_udp_recvfrom(duk_context *ctx) {
+static duk_ret_t native_udp_recvfrom(duk_context *ctx)
+{
     int ret     = -1;
     int sock_id = 0;
     udp_recv_param_t *recv_param;
@@ -394,7 +402,8 @@ out:
  * Output:      return 0 when UDP.close call ok
  *            return error number UDP.close call fail
  **************************************************************************************/
-static duk_ret_t native_udp_close_socket(duk_context *ctx) {
+static duk_ret_t native_udp_close_socket(duk_context *ctx)
+{
     int ret     = -1;
     int sock_id = 0;
 
@@ -415,7 +424,8 @@ out:
     return 1;
 }
 
-void module_udp_register(void) {
+void module_udp_register(void)
+{
     duk_context *ctx = bone_engine_get_context();
 
     duk_push_object(ctx);

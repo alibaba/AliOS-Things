@@ -9,7 +9,8 @@
 #include "be_jse_task.h"
 #include "be_port_osal.h"
 
-static void nexttick_cb(void* arg) {
+static void nexttick_cb(void* arg)
+{
     be_jse_symbol_t* func = (be_jse_symbol_t*)arg;
 
     be_jse_execute_func(bone_engine_get_executor(), func, 0, NULL);
@@ -18,8 +19,8 @@ static void nexttick_cb(void* arg) {
 }
 
 static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
-                                         be_jse_symbol_t* var,
-                                         const char* name) {
+                                         be_jse_symbol_t* var, const char* name)
+{
     int ret;
     be_jse_symbol_t* arg0;
 
@@ -84,6 +85,7 @@ static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_process_load(void) {
+void module_process_load(void)
+{
     be_jse_module_load("process", module_handle_cb);
 }

@@ -4,11 +4,11 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "be_common.h"
-#include <stdbool.h>
 #include "be_jse_export.h"
 #include "be_log.h"
 
@@ -25,7 +25,8 @@ extern void tiny_engine_load_addon();
 
 extern const char *load_js_module(const char *moduleName);
 
-void sub_call_restart(void *arg) {
+void sub_call_restart(void *arg)
+{
     char *data = NULL;
 
     data = (char *)load_js_module((char *)arg);
@@ -41,7 +42,8 @@ void sub_call_restart(void *arg) {
     }
 }
 
-void sub_call_start(void *arg) {
+void sub_call_start(void *arg)
+{
     char *data;
 
     if (true == stop_flag) {
@@ -57,11 +59,13 @@ void sub_call_start(void *arg) {
     }
 }
 
-void sub_call_stop(void *arg) {
+void sub_call_stop(void *arg)
+{
     stop_flag = true;
     bone_engine_exit();
 }
 
-void sub_call_rename(void *arg) {
+void sub_call_rename(void *arg)
+{
     hal_system_kv_set(DEVICE_NAME, arg, DEVICE_NAME_LEN, 1);
 }

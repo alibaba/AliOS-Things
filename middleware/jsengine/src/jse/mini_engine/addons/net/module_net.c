@@ -2,13 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#define JS_NATIVE_MODULE_NET_C
-
-#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #include "be_jse_api.h"
 #include "be_jse_module.h"
@@ -31,11 +26,48 @@ typedef struct {
     int socketid;
 } js_cb_net_param_t;
 
+#define NET_SOCKET_RECV_BUFF_LEN 512
+typedef void (*ondata)(int conn, char *data);
+typedef void (*onclose)(int conn);
+typedef void (*onconnect)(int conn);
+typedef void (*onerror)(int conn);
+
+/*options for NET.connect*/
+typedef struct {
+    char *addr;
+    onconnect onconn_cb;
+    ondata ondata_cb;
+    onclose onclose_cb;
+    onerror onerror_cb;
+} net_options_t;
+
+typedef struct {
+    int sock_id;
+    char *p_data;
+} send_data_t;
+
+typedef struct {
+    int proto;
+    char host_ip[128];
+    int port;
+} net_sckt_param_t;
+
+typedef struct {
+    int id;
+    int len;
+    char *msg;
+} Message;
+
+#define NET_QUEUE_MAX_MSG_SIZE (sizeof(Message))
+#define NET_QUEUE_MAX_MSG_COUNT (8)
+#define NET_QUEUE_SIZE (NET_QUEUE_MAX_MSG_SIZE * NET_QUEUE_MAX_MSG_COUNT)
+
 static int g_net_recv_mutex = MUTEX_UNLOCKED;
 
-/*for example addr: tcp://www.baidu.com:80*/
+/* for example addr: tcp://www.baidu.com:80 */
 static int parse_net_option_addr(const char *addr,
-                                 net_sckt_param_t *p_sckt_param) {
+                                 net_sckt_param_t *p_sckt_param)
+{
     char *begin;
     char *colon;
 
@@ -71,7 +103,8 @@ static int parse_net_option_addr(const char *addr,
     return 0;
 }
 
-static int net_socket_connect(net_sckt_param_t *p_sckt_param) {
+static int net_socket_connect(net_sckt_param_t *p_sckt_param)
+{
     struct addrinfo hints;
     struct addrinfo *res = NULL;
     int sockfd           = 0;
@@ -98,7 +131,8 @@ static int net_socket_connect(net_sckt_param_t *p_sckt_param) {
 }
 
 /*C call JS for NET.onconnect*/
-void js_cb_net_onconnect(void *param) {
+void js_cb_net_onconnect(void *param)
+{
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -115,12 +149,13 @@ void js_cb_net_onconnect(void *param) {
         be_debug(JS_NET_TAG, "NET.connect error");
     }
 
-    INC_SYMBL_REF(async->func);  /* 统一在task退出时释放符号表 */
+    INC_SYMBL_REF(async->func); /* 统一在task退出时释放符号表 */
     be_jse_async_event_cb(async);
 }
 
 /*C call JS for NET.ondata*/
-void js_cb_net_ondata(void *param) {
+void js_cb_net_ondata(void *param)
+{
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -132,14 +167,15 @@ void js_cb_net_ondata(void *param) {
     printf("js_cb_net_ondata get data=%s\n\r", pdata->data_recv);
     async->params[1] = new_str_symbol(pdata->data_recv);
 
-    INC_SYMBL_REF(async->func);  /* 统一在task退出时释放符号表 */
+    INC_SYMBL_REF(async->func); /* 统一在task退出时释放符号表 */
     be_jse_async_event_cb(async);
     memset(pdata->data_recv, 0, NET_SOCKET_RECV_BUFF_LEN);
     g_net_recv_mutex = MUTEX_UNLOCKED;
 }
 
 /*C call JS for NET.onerror*/
-void js_cb_net_onerror(void *param) {
+void js_cb_net_onerror(void *param)
+{
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -150,12 +186,13 @@ void js_cb_net_onerror(void *param) {
     async->func      = (be_jse_symbol_t *)pdata->onerror_cb;
     async->params[0] = new_str_symbol("recv error");
 
-    INC_SYMBL_REF(async->func);  /* 统一在task退出时释放符号表 */
+    INC_SYMBL_REF(async->func); /* 统一在task退出时释放符号表 */
     be_jse_async_event_cb(async);
 }
 
 /*C call JS for NET.onclose*/
-void js_cb_net_onclose(void *param) {
+void js_cb_net_onclose(void *param)
+{
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
     BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
@@ -166,12 +203,13 @@ void js_cb_net_onclose(void *param) {
     async->func      = (be_jse_symbol_t *)pdata->onclose_cb;
     async->params[0] = new_int_symbol(pdata->socketid);
 
-    INC_SYMBL_REF(async->func);  /* 统一在task退出时释放符号表 */
+    INC_SYMBL_REF(async->func); /* 统一在task退出时释放符号表 */
     be_jse_async_event_cb(async);
 }
 
-/*说明: 创建一个task任务，用于socket请求*/
-static void task_net_connect_fun(void *arg) {
+/* 说明: 创建一个task任务，用于socket请求 */
+static void task_net_connect_fun(void *arg)
+{
     static int socketid;
     int ret                     = -1;
     char *buffer                = NULL;
@@ -211,12 +249,12 @@ static void task_net_connect_fun(void *arg) {
             be_debug(JS_NET_TAG, "ready to recv...socketid=%d", socketid);
             bytes_received =
                 recv(socketid, buffer, NET_SOCKET_RECV_BUFF_LEN, 0);
-            if (bytes_received > 0) {  /* recv成功 */
+            if (bytes_received > 0) { /* recv成功 */
                 be_debug(JS_NET_TAG, "recved...=%s", buffer);
                 pdata->data_recv = buffer;
                 g_net_recv_mutex = MUTEX_LOCKED;
                 be_jse_task_schedule_call(js_cb_net_ondata, pdata);
-            } else if (bytes_received < 0) {  /* recv失败 */
+            } else if (bytes_received < 0) { /* recv失败 */
                 if (errno == EINTR) {
                     continue;
                 }
@@ -250,14 +288,15 @@ done:
     be_osal_delete_task(NULL);
 }
 
-static void task_net_send_fun(void *arg) {
+static void task_net_send_fun(void *arg)
+{
     int ret          = -1;
     int bytes_sent   = 0;
     send_data_t *msg = (send_data_t *)arg;
 
     if (!msg) return;
 
-    int size = strlen(msg->p_data) + 1;  /* TODO,use size */
+    int size = strlen(msg->p_data) + 1; /* TODO,use size */
 
     char *buffer = msg->p_data;
     while (size > 0) {
@@ -286,7 +325,8 @@ static void task_net_send_fun(void *arg) {
                                 }
 *Output: 0 try connect ok ,other try connect fail
 *********************************************************/
-static be_jse_symbol_t *module_net_connect() {
+static be_jse_symbol_t *module_net_connect()
+{
     be_jse_symbol_t *arg0 = NULL;
     int ret               = -1;
 
@@ -354,7 +394,8 @@ done:
  *be sent Output: 0 js call native ok ,other js call native fail
  **************************************************************************************/
 
-static be_jse_symbol_t *module_net_send() {
+static be_jse_symbol_t *module_net_send()
+{
     int ret                  = -1;
     int sock_id              = 0;
     char *data               = NULL;
@@ -402,7 +443,8 @@ done:
 {} *Output:      0 close ok ,other close fail
 *****************************************************************************/
 
-static be_jse_symbol_t *module_net_close() {
+static be_jse_symbol_t *module_net_close()
+{
     be_jse_symbol_t *arg0 = NULL;
     int ret               = -1;
     int sock_id           = 0;
@@ -425,8 +467,8 @@ done:
 }
 
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
-                                         be_jse_symbol_t *var,
-                                         const char *name) {
+                                         be_jse_symbol_t *var, const char *name)
+{
     be_debug(JS_NET_TAG, "%s Enter: name=%s", __FUNCTION__, name);
 
     if (strcmp(name, "connect") == 0) return module_net_connect();
@@ -436,8 +478,7 @@ static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
     return BE_JSE_FUNC_UNHANDLED;
 }
 
-void module_net_register(void) {
+void module_net_register(void)
+{
     be_jse_module_load(JS_NET_TAG, module_handle_cb);
 }
-
-#undef JS_NATIVE_MODULE_NET_C

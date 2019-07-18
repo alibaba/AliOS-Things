@@ -9,11 +9,13 @@
 #include <unistd.h>
 #include "../miio-device.h"
 
-void on_event(void *priv, const char *event) {
+void on_event(void *priv, const char *event)
+{
     printf("receive event: %s\n", event);
 }
 
-int main(void) {
+int main(void)
+{
     /* power switch */
     /* miio_device_t *device = miio_device_create("192.168.8.192",
      * "a3605b0d49c7da8c2e88b8d71233c3bd"); */

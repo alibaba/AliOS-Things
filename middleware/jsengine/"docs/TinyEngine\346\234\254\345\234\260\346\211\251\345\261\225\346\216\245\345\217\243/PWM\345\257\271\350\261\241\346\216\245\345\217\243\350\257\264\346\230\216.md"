@@ -1,7 +1,5 @@
 # PWM
 
-
-
 ## API
 
 | API                       | 说明                                                         |
@@ -13,11 +11,9 @@
 | PWM.setFreq(handle, freq) | 功能：配置freq 参数： handle:资源handle，为PWM.open的返回值; freq:频率 返回值：0=ok other=fail |
 | PWM.stop(handle)          | 功能：停止PWM 参数： handle:资源handle，为PWM.open的返回值;返回值：0=ok other=fail |
 
-
-
 ## API调用示例
 
-```
+```js
 /*samples/js/buzzer.js*/
 print('buzzer uart test.....................');
 var buzzer_handle=PWM.start('buzzer'); 
