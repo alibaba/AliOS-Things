@@ -28,6 +28,8 @@ extern one_shot_timer_t rtc_one_shot;  /* wakeup source for C3,C4 */
 
 static cpu_pwr_t cpu_pwr_node_core_0;
 
+uint32_t cpu_pwr_minisleep_time_ms = 0;
+
 /**
  * board_cpu_c_state_set - program CPU into Cx idle state
  *
@@ -143,6 +145,14 @@ pwr_status_t board_cpu_pwr_init(void)
 #endif
 
     return retVal;
+}
+
+int pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
+{
+    printf("set the minimum sleep time %dms\r\n", time_ms);
+
+    cpu_pwr_minisleep_time_ms = time_ms;
+    return 0;
 }
 
 #endif /* AOS_COMP_PWRMGMT */
