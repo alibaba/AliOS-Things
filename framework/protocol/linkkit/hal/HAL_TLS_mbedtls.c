@@ -18,6 +18,11 @@
 #include "mbedtls/platform.h"
 #include "iot_import.h"
 
+#ifdef CONFIG_NET_LWIP
+#include <lwip/netdb.h>
+#include <lwip/sockets.h>
+#endif
+
 #define LOG_TAG "HAL_TLS"
 
 #define platform_info(format, ...) LOGI(LOG_TAG, format, ##__VA_ARGS__)
@@ -202,9 +207,10 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     return 0;
 }
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if !defined(CSP_LINUXHOST) && !defined(BOARD_ESP8266)
 static int net_prepare(void)
 {
+#if defined(_PLATFORM_IS_LINUX_)
 #if (defined(_WIN32) || defined(_WIN32_WCE)) && !defined(EFIX64) && \
   !defined(EFI32)
     WSADATA    wsaData;
@@ -222,9 +228,9 @@ static int net_prepare(void)
     signal(SIGPIPE, SIG_IGN);
 #endif
 #endif
+#endif /* _PLATFORM_IS_LINUX_ */
     return (0);
 }
-
 
 static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
                                        const char *host, const char *port,
@@ -245,7 +251,11 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
                 proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol =
                 proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
+#ifdef CONFIG_NET_LWIP
+    hints.ai_socktype &= ~O_NONBLOCK;
+#else
     hints.ai_socktype &= ~SOCK_NONBLOCK;
+#endif
     if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
         return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
     }
@@ -268,17 +278,17 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
             platform_err("setsockopt SO_SNDTIMEO error");
         }
 
+#ifdef CONFIG_NET_LWIP
+        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_RCVTIMEO, &sendtimeout,
+                            sizeof(sendtimeout))) {
+#else
         if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_RECVTIMEO, &sendtimeout,
                             sizeof(sendtimeout))) {
+#endif
             platform_err("setsockopt SO_RECVTIMEO error");
         }
 
-        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout,
-                            sizeof(sendtimeout))) {
-            platform_err("setsockopt SO_SNDTIMEO error");
-        }
-
-        platform_info("setsockopt SO_SNDTIMEO  SO_RECVTIMEO  SO_SNDTIMEO timeout: %ds",
+        platform_info("setsockopt SO_SNDTIMEO SO_RECVTIMEO timeout: %ds",
                       sendtimeout.tv_sec);
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
@@ -295,7 +305,6 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
     return (ret);
 }
 #endif
-
 
 /**
  * @brief This function connects to the specific SSL server with TLS, and
@@ -343,7 +352,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
      * 1. Start the connection
      */
     platform_info("Connecting to /%s/%s...", addr, port);
-#if defined(_PLATFORM_IS_LINUX_)
+#if !defined(CSP_LINUXHOST) && !defined(BOARD_ESP8266)
     if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port,
                     MBEDTLS_NET_PROTO_TCP,
                     SEND_TIMEOUT_SECONDS))) {
