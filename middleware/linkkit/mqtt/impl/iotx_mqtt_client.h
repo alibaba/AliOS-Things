@@ -11,7 +11,7 @@
 #include "infra_list.h"
 #include "infra_timer.h"
 #include "iotx_mqtt_config.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 
 #include "MQTTPacket.h"
 
