@@ -13,7 +13,7 @@
 #include "infra_sha1.h"
 #include "infra_report.h"
 #include "http_debug.h"
-#include "http_api.h"
+#include "linkkit/http_api.h"
 #include "wrappers.h"
 
 

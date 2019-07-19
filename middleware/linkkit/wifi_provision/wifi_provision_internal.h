@@ -20,12 +20,12 @@
 #include "awss_packet.h"
 #include "awss_notify.h"
 #include "awss_cmp.h"
-#include "wifi_provision_api.h"
+#include "linkkit/wifi_provision_api.h"
 #include "awss_cmp.h"
 #include "awss_crypt.h"
 #include <stdlib.h>
 #include "infra_json_parser.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "awss_dev_reset_internal.h"
 #include "awss_info.h"
 #include "awss_bind_statis.h"
@@ -55,7 +55,7 @@
 #endif
 
 #if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
-    #include "coap_api.h"
+    #include "linkkit/coap_api.h"
     #include "iotx_coap.h"
 #endif
 

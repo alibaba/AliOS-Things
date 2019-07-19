@@ -12,7 +12,7 @@ static int g_dev_reset_sub_flag = 0;
 iotx_devrst_evt_handle_t g_devrst_event_handle = NULL;
 
 
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 static void mqtt_sub_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     switch (msg->event_type)

@@ -16,6 +16,9 @@ $(NAME)_SOURCES-$(FS_ENABLED) += os/HAL_FS_rhino.c
 
 $(NAME)_COMPONENTS += ulog activation chip_code netmgr
 
+GLOBAL_DEFINES += BUILD_AOS
+$(NAME)_DEFINES += USE_YLOOP
+
 ifeq (y,$(strip $(DEV_BIND_ENABLED)))
 $(NAME)_SOURCES += os/HAL_AWSS_rhino.c
 endif

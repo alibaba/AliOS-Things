@@ -7,7 +7,7 @@
 
 #if (OTA_SIGNAL_CHANNEL) == 1
 
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "ota_api.h"
 #include "iotx_ota_internal.h"
 
