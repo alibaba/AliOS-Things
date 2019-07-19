@@ -224,13 +224,13 @@
 #define DEFAULT_UDP_RECVMBOX_SIZE       20
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
 
-#define LWIP_TCPIP_CORE_LOCKING         1
+#define LWIP_TCPIP_CORE_LOCKING         0
 #define LWIP_TCPIP_CORE_LOCKING_INPUT   0
 
 #define ETHIF_IN_TASK_STACKSIZE         512 /* unit 4 byte */
 #define ETHIF_IN_TASK_PRIO              10
 #define TCPIP_THREAD_STACKSIZE          2048//10240/* unit 4 byte */
-#define TCPIP_THREAD_PRIO               21//0
+#define TCPIP_THREAD_PRIO               7//0
 
 /*
    ---------- Sequential layer options ----------
