@@ -63,6 +63,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 #include "fsl_device_registers.h"
 #include "fsl_common.h"
@@ -318,32 +319,36 @@ hal_logic_partition_t hal_logic_partition[HAL_PARTITION_MAX] =
     { HAL_FLASH_NONE, NULL, 0, 0, PAR_OPT_WRITE_DIS|PAR_OPT_READ_DIS},
 };
 
-
 /**
- * Get the infomation of the specified flash area
+ * Get the information of the specified flash area
  *
- * @param[in]  in_partition  The target flash logical partition which should be erased
+ * @param[in]  in_partition     The target flash logical partition
+ * @param[in]  partition        The buffer to store partition info
  *
- * @return     HAL_logi_partition struct
+ * @return  0: On success， otherwise is error
  */
-/* FIXME: Return value should be a CONST */
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
+    int32_t ret = -1;
+
     hal_logic_partition_t *p_logic_partition = NULL;
 
-    if (in_partition >= HAL_PARTITION_MAX) {
-        return NULL;
+    if (in_partition >= HAL_PARTITION_MAX || partition == NULL) {
+        return -1;
     }
 
     switch (in_partition)
     {
         case HAL_PARTITION_APPLICATION:
         p_logic_partition = &hal_logic_partition[in_partition];
+        memcpy(partition, p_logic_partition, sizeof(hal_logic_partition_t));
+        ret = 0;
         break;
         default:
         break;
     }
-    return p_logic_partition;
+
+    return ret;
 }
 
 /**
@@ -362,13 +367,16 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
  */
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
+    hal_logic_partition_t  logic_partition;
     hal_logic_partition_t *p_logic_partition = NULL;
     uint32_t start_addr_phy = 0;
     flash_device_t *device = NULL;
     int32_t ret = 0;
 
-    p_logic_partition = hal_flash_get_info(in_partition);
-    if ((p_logic_partition == NULL) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
+    p_logic_partition = &logic_partition;
+    memset(p_logic_partition, 0, sizeof(hal_logic_partition_t));
+    ret = hal_flash_info_get(in_partition, p_logic_partition);
+    if ((ret != 0) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
     {
         return -EIO;
     }
@@ -402,13 +410,16 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
                         const void *in_buf, uint32_t in_buf_len)
 {
+    hal_logic_partition_t  logic_partition;
     hal_logic_partition_t *p_logic_partition = NULL;
     uint32_t start_addr_phy = 0;
     flash_device_t *device = NULL;
     int32_t ret = 0;
 
-    p_logic_partition = hal_flash_get_info(in_partition);
-    if ((p_logic_partition == NULL) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
+    p_logic_partition = &logic_partition;
+    memset(p_logic_partition, 0, sizeof(hal_logic_partition_t));
+    ret = hal_flash_info_get(in_partition, p_logic_partition);
+    if ((ret != 0) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
     {
         return -EIO;
     }
@@ -443,13 +454,16 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
 int32_t hal_flash_erase_write(hal_partition_t in_partition, uint32_t *off_set,
                               const void *in_buf, uint32_t in_buf_len)
 {
+    hal_logic_partition_t  logic_partition;
     hal_logic_partition_t *p_logic_partition = NULL;
     uint32_t start_addr_phy = 0;
     flash_device_t *device = NULL;
     int32_t ret = 0;
 
-    p_logic_partition = hal_flash_get_info(in_partition);
-    if ((p_logic_partition == NULL) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
+    p_logic_partition = &logic_partition;
+    memset(p_logic_partition, 0, sizeof(hal_logic_partition_t));
+    ret = hal_flash_info_get(in_partition, p_logic_partition);
+    if ((ret != 0) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
     {
         return -EIO;
     }
@@ -491,13 +505,16 @@ int32_t hal_flash_erase_write(hal_partition_t in_partition, uint32_t *off_set,
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set,
                        void *out_buf, uint32_t in_buf_len)
 {
+    hal_logic_partition_t  logic_partition;
     hal_logic_partition_t *p_logic_partition = NULL;
     uint32_t start_addr_phy = 0;
     flash_device_t *device = NULL;
     int32_t ret = 0;
 
-    p_logic_partition = hal_flash_get_info(in_partition);
-    if ((p_logic_partition == NULL) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
+    p_logic_partition = &logic_partition;
+    memset(p_logic_partition, 0, sizeof(hal_logic_partition_t));
+    ret = hal_flash_info_get(in_partition, p_logic_partition);
+    if ((ret != 0) || (p_logic_partition->partition_owner == HAL_FLASH_NONE))
     {
         return -EIO;
     }
