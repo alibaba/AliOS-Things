@@ -30,6 +30,12 @@ typedef enum {
     EVENT_AP_DOWN,         /*used in softap mode, indicate softap disabled*/
 } lega_wifi_event_e;
 
+typedef enum {
+    CONNECT_SUCC,
+    CONNECT_SCAN_FAIL,
+    CONNECT_CONN_FAIL,
+} lega_start_adv_results_e;
+
 /**
  *  @brief  Scan result using normal scan.
  */
@@ -56,6 +62,7 @@ typedef enum {
 
 /*used in event callback of station mode, indicate softap informatino which is connected*/
 typedef struct {
+    int     rssi;           /* rssi */
     char    ssid[32+1];     /* ssid max len:32. +1 is for '\0' when ssidlen is 32  */
     char    pwd[64+1];      /* pwd max len:64. +1 is for '\0' when pwdlen is 64 */
     char    bssid[6];       /* BSSID of the wlan needs to be connected.*/
@@ -252,7 +259,10 @@ int lega_wlan_set_ps_options(uint8_t listen_bc_mc, uint16_t listen_interval);
 int lega_wlan_set_ps_mode(uint8_t ps_on);
 
 /*when use monitor mode, user should register this type of callback function to get the received MPDU*/
-typedef void (*monitor_cb_t)(uint8_t*data, int len);
+typedef void (*monitor_cb_t)(uint8_t*data, int len, int rssi);
+
+/*when use monitor-ap mode, user should register this type of callback function */
+typedef void (*monitor_ap_cb_t)();
 
 /** @brief  used in sniffer mode, callback function to get received MPDU, should register before start_monitor
  *
@@ -262,6 +272,27 @@ typedef void (*monitor_cb_t)(uint8_t*data, int len);
  *  @return    other   : error occurred
  */
 int lega_wlan_register_monitor_cb(monitor_cb_t fn);
+
+/** @brief  used in sniffer-ap mode, callback function for application
+ *
+ * @param fn    : refer to monitor_ap_cb_t
+ *
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_register_monitor_ap_cb(monitor_ap_cb_t fn);
+
+/* start adv callback function, notify the connect results*/
+typedef void (*start_adv_cb_t)(lega_start_adv_results_e status);
+
+/** @brief  used in sta mode, callback function to notify the connecting results
+ *
+ * @param fn    : refer to start_adv_cb_t
+ *
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_register_start_adv_cb(start_adv_cb_t fn);
 
 /** @brief  used in station mode or sniffer mode, call this cmd to send a MPDU constructed by user
  *
@@ -335,6 +366,7 @@ typedef void (*lega_wlan_cb_associated_ap)(lega_wlan_ap_info_adv_t *ap_info);
  * @return    0       : on success.
  * @return    other   : error occurred
  */
+
 int lega_wlan_associated_ap_cb_register(lega_wlan_cb_associated_ap fn);
 
 /** @brief  calibration RCO clock for RTC
@@ -356,6 +388,28 @@ void lega_wlan_smartconfig_mimo_enable(void);
  *   called after hal_wifi_init
  */
 void lega_wlan_set_country_code(char *country);
+/** @brief  start monitor and ap coexist mode
+ *
+ * @param init_info    : refer to lega_wlan_init_type_t
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_start_monitor_ap(lega_wlan_init_type_t* init_info);
+
+/** @brief  stop monitor and ap coexist mode
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_stop_monitor_ap();
+
+/** @brief  get current temperature (C degree)
+ *  called after hal_wifi_init
+ *
+ *  @return temperature value
+ */
+int16_t  lega_rf_get_temperature(void);
 
 #endif  //_LEGA_WIFI_API_H_
 
