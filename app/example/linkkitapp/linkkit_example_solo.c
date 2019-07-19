@@ -10,7 +10,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "infra_config.h"
 #include "wrappers.h"
 
@@ -269,10 +269,14 @@ static int user_cloud_error_handler(const int code, const char *data, const char
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetProductSecret(PRODUCT_SECRET);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
 }
 
 int linkkit_main(void *paras)
@@ -284,8 +288,8 @@ int linkkit_main(void *paras)
     int domain_type = 0, dynamic_register = 0, post_reply_need = 0, fota_timeout = 30;
     int   argc = 0;
     char  **argv = NULL;
-    
-    if(paras != NULL) {
+
+    if (paras != NULL) {
         argc = ((app_main_paras_t *)paras)->argc;
         argv = ((app_main_paras_t *)paras)->argv;
     }
@@ -304,10 +308,10 @@ int linkkit_main(void *paras)
     memset(&g_user_example_ctx, 0, sizeof(user_example_ctx_t));
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    HAL_GetProductKey(master_meta_info.product_key);
+    HAL_GetDeviceName(master_meta_info.device_name);
+    HAL_GetProductSecret(master_meta_info.product_secret);
+    HAL_GetDeviceSecret(master_meta_info.device_secret);
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
@@ -338,18 +342,23 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
 
     /* Create Master Device Resources */
-    g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (g_user_example_ctx.master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
-
+    do {
+        g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (g_user_example_ctx.master_devid >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Open failed! retry after %d ms\n", 2000);
+        HAL_SleepMs(2000);
+    } while (1);
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
+        if (res >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Connect failed! retry after %d ms\n", 5000);
+        HAL_SleepMs(5000);
+    } while (1);
 
     while (1) {
         IOT_Linkkit_Yield(EXAMPLE_YIELD_TIMEOUT_MS);
@@ -357,12 +366,12 @@ int linkkit_main(void *paras)
         /* Post Proprety Example */
 
         if ((cnt % 5) == 0) {
-            user_post_property(); 
+            user_post_property();
         }
 
         /* Post Event Example */
         if ((cnt % 20) == 0) {
-            user_post_event(); 
+            user_post_event();
         }
 
         cnt++;

@@ -15,7 +15,7 @@
 #include "netmgr.h"
 #include "infra_compat.h"
 #include "infra_defs.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "app_entry.h"
 
 #define SENSOR_SAMPLE_TIME 1000 /* sensor sampling period is 1000 ms*/
