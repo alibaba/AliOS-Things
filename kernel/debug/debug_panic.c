@@ -3,10 +3,18 @@
  */
 #include <stdarg.h>
 #include "debug_api.h"
+#include "k_compiler.h"
 #include "aos/cli.h"
 #include "aos/kernel.h"
 #ifdef AOS_COMP_CLI
 #include "cli_api.h"
+#endif
+
+#ifdef AOS_UND
+#include "und/und.h"
+#include "aos/kv.h"
+#include "aos/errno.h"
+#define DEFAULT_REBOOT_REASON UND_STATIS_DEV_REPOWER_REASON
 #endif
 
 extern void hal_reboot(void);
@@ -59,6 +67,7 @@ volatile uint32_t g_crash_steps = 0;
 
 static void panic_goto_cli(void)
 {
+#if 0
 #if (defined (AOS_COMP_CLI) && (RHINO_CONFIG_KOBJ_LIST > 0))
 
     klist_t      *listnode;
@@ -84,6 +93,7 @@ static void panic_goto_cli(void)
         krhino_task_suspend(task);
     }
 #endif
+#endif
 }
 
 /* should exeception be restored?
@@ -108,6 +118,7 @@ void panicHandler(void *context)
     static int  *SP = NULL;
     static char *PC = NULL;
     static char *LR = NULL;
+    CPSR_ALLOC();
 
     /* g_crash_steps++ before panicHandler */
     if (g_crash_steps > 1 && g_crash_steps < DEBUG_PANIC_STEP_MAX) {
@@ -211,22 +222,27 @@ void panicHandler(void *context)
         default:
             break;
     }
-
+#ifdef AOS_UND
+    debug_reboot_reason_update(UND_STATIS_DEV_PANIC_ERR_REASON);
+#endif
+    RHINO_CPU_INTRPT_DISABLE();
 #if defined (DEBUG)
     while (1);
 #else
     hal_reboot();  /*release version*/
 #endif
+    RHINO_CPU_INTRPT_ENABLE();
 }
 #endif
 
-#if (DEBUG_CONFIG_ERRDUMP > 0)
+#if (RHINO_CONFIG_ERR_DUMP > 0)
 void debug_fatal_error(kstat_t err, char *file, int line)
 {
     char prt_stack[] =
       "stack(0x        ): 0x         0x         0x         0x         \r\n";
     int  x;
     int *SP = RHINO_GET_SP();
+    CPSR_ALLOC();
 
     krhino_sched_disable();
 
@@ -258,6 +274,10 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_backtrace_now();
 #endif
 
+#ifdef AOS_UND
+    debug_reboot_reason_update(UND_STATIS_DEV_FATAL_ERR_REASON);
+#endif
+
     /*panic_goto_cli();*/
 
     RHINO_CPU_INTRPT_DISABLE();
@@ -267,5 +287,55 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     RHINO_CPU_INTRPT_ENABLE();
 }
 #endif
+
+#ifdef AOS_UND
+static debug_reason_t g_debug_reason;
+
+void debug_reboot_reason_update(unsigned int reason)
+{
+    int ret, len;
+
+    if (g_debug_reason.update_reason == reason)
+        return;
+
+    len = sizeof(debug_reason_t);
+
+    g_debug_reason.update_reason = reason;
+
+    ret = aos_kv_set(SYS_REBOOT_REASON, &g_debug_reason, len, 1);
+    if (ret) {
+        print_str("reboot reason set err\n");
+    }
+}
+
+unsigned int debug_reboot_reason_get()
+{
+    int ret = -1, len;
+
+    len = sizeof(debug_reason_t);
+
+    ret = aos_kv_get(SYS_REBOOT_REASON, &g_debug_reason, &len);
+    if (ret == -ENOENT ||
+        g_debug_reason.update_reason > UND_STATIS_DEV_FATAL_ERR_REASON) {
+        /* key not found*/
+        g_debug_reason.return_reason = DEFAULT_REBOOT_REASON;
+        g_debug_reason.update_reason = DEFAULT_REBOOT_REASON;
+        aos_kv_set(SYS_REBOOT_REASON,  &g_debug_reason, len, 1);
+        return DEFAULT_REBOOT_REASON;
+    }
+
+    if (g_debug_reason.return_reason != g_debug_reason.update_reason ||
+        g_debug_reason.update_reason != DEFAULT_REBOOT_REASON) {
+        g_debug_reason.return_reason = g_debug_reason.update_reason;
+        g_debug_reason.update_reason = DEFAULT_REBOOT_REASON;
+        ret = aos_kv_set(SYS_REBOOT_REASON,  &g_debug_reason, len, 1);
+        if (ret)
+            return DEFAULT_REBOOT_REASON;
+    }
+
+    return g_debug_reason.return_reason;
+}
+#endif /* AOS_UND */
+
 
 
