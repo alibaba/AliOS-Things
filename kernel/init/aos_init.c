@@ -31,6 +31,11 @@
 #include "lwip/apps/tftp.h"
 #endif
 
+#ifdef AOS_UND
+#include "und/und.h"
+#include "debug_api.h"
+#endif
+
 #ifdef WITH_LWIP_IPERF
 extern int iperf_cli_register(void);
 #endif
@@ -321,6 +326,10 @@ int aos_components_init(kinit_t *kinit)
 
 #ifdef AOS_COMP_PWRMGMT
     cpu_pwrmgmt_init();
+#endif
+
+#ifdef AOS_UND
+    und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, (int)debug_reboot_reason_get());
 #endif
 
 #ifdef AOS_BINS

@@ -16,8 +16,18 @@ extern "C" {
 void panicHandler(void *context);
 #endif
 
-#if (DEBUG_CONFIG_ERRDUMP > 0)
-void debug_fatal_error(kstat_t err, char *file, int line);
+#ifdef AOS_UND
+/* reboot reason*/
+#define SYS_REBOOT_REASON "reboot reason"
+
+typedef struct {
+    unsigned int return_reason;
+    unsigned int update_reason;
+} debug_reason_t;
+
+void         debug_reboot_reason_update(unsigned int reason);
+unsigned int debug_reboot_reason_get(void);
+
 #endif
 
 #ifdef __cplusplus
