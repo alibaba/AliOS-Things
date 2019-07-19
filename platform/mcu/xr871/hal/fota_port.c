@@ -58,7 +58,8 @@ hal_partition_t ota_partition = HAL_PARTITION_OTA_TEMP;
 static int xr871_ota_init(hal_ota_module_t *m, void *something)
 {
 #if 0
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
 	image_seq_t	seq;
 	ota_cfg_t	cfg;
@@ -83,13 +84,17 @@ static int xr871_ota_init(hal_ota_module_t *m, void *something)
 
 	if (seq == IMAGE_SEQ_1ST) {
 		ota_partition = HAL_PARTITION_OTA_TEMP;
-    	partition_info = hal_flash_get_info( HAL_PARTITION_OTA_TEMP );
-    	hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0 ,partition_info->partition_length);
+        p_partition_info = &partition_info;
+        memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    	hal_flash_info_get( HAL_PARTITION_OTA_TEMP, p_partition_info);
+    	hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0 ,p_partition_info->partition_length);
 	}
 	else if (seq == OTA_IMAGE_2ND) {
 		ota_partition = HAL_PARTITION_APPLICATION;
-    	partition_info = hal_flash_get_info( HAL_PARTITION_APPLICATION);
-    	hal_flash_erase(HAL_PARTITION_APPLICATION, 0 ,partition_info->partition_length);
+        p_partition_info = &partition_info;
+        memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    	hal_flash_info_get( HAL_PARTITION_APPLICATION, p_partition_info);
+    	hal_flash_erase(HAL_PARTITION_APPLICATION, 0, p_partition_info->partition_length);
 	}
 	ota_info.ota_len = 0;
 
@@ -99,7 +104,8 @@ static int xr871_ota_init(hal_ota_module_t *m, void *something)
 	OTA_DEBUG("xr871_ota_init exit\n");
     return 0;
 #endif
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 	image_seq_t seq;
 
 	memset(&ota_info, 0 , sizeof(ota_info));
@@ -114,13 +120,17 @@ static int xr871_ota_init(hal_ota_module_t *m, void *something)
 
 	if (seq == IMAGE_SEQ_1) {
 		ota_partition = HAL_PARTITION_OTA_TEMP;
-    	partition_info = hal_flash_get_info( HAL_PARTITION_OTA_TEMP );
-    	hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0 ,partition_info->partition_length);
+        p_partition_info = &partition_info;
+        memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    	hal_flash_info_get( HAL_PARTITION_OTA_TEMP, p_partition_info );
+    	hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0, p_partition_info->partition_length);
 	}
 	else if (seq == IMAGE_SEQ_0) {
 		ota_partition = HAL_PARTITION_APPLICATION;
-    	partition_info = hal_flash_get_info( HAL_PARTITION_APPLICATION);
-    	hal_flash_erase(HAL_PARTITION_APPLICATION, 0 ,partition_info->partition_length);
+        p_partition_info = &partition_info;
+        memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    	hal_flash_info_get( HAL_PARTITION_APPLICATION, p_partition_info);
+    	hal_flash_erase(HAL_PARTITION_APPLICATION, 0, p_partition_info->partition_length);
 	}
 
 	ota_info.ota_len = 0;
@@ -133,24 +143,27 @@ static int xr871_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uint
 {
 	int ret = 0;
 	unsigned int _off_set = 0;
-	hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
 	OTA_DEBUG("xr871_ota_write enter\n");
-	
-	partition_info = hal_flash_get_info(HAL_PARTITION_BOOTLOADER);
 
-	if (ota_info.ota_len + in_buf_len < partition_info->partition_length) {
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+	hal_flash_info_get(HAL_PARTITION_BOOTLOADER, p_partition_info);
+
+	if (ota_info.ota_len + in_buf_len < p_partition_info->partition_length) {
 		//do nothing
 	}
-	else if(ota_info.ota_len >= partition_info->partition_length)
+	else if(ota_info.ota_len >= p_partition_info->partition_length)
 	{
-		_off_set = ota_info.ota_len -partition_info->partition_length;
+		_off_set = ota_info.ota_len - p_partition_info->partition_length;
 	    ret = hal_flash_write(ota_partition, &_off_set, in_buf, in_buf_len);
 	}
 	else {
 		int rem;
 
-		rem = ota_info.ota_len + in_buf_len - partition_info->partition_length;
+		rem = ota_info.ota_len + in_buf_len - p_partition_info->partition_length;
 		_off_set = 0;
 
 		ret = hal_flash_write(ota_partition, &_off_set, &in_buf[in_buf_len-rem], rem);

@@ -1,5 +1,6 @@
 
 #include <stdint.h>
+#include <string.h>
 #include "wlan_platform_common.h"
 
 /******************************************************
@@ -144,12 +145,17 @@ static uint32_t image_size = 0x0;
 uint32_t platform_get_wifi_image_size(void)
 {
 #define READ_LEN 2048
-    hal_logic_partition_t *driver_partition = hal_flash_get_info( HAL_PARTITION_RF_FIRMWARE );
-    uint32_t offset = driver_partition->partition_length;
+    hal_logic_partition_t  driver_partition;
+    hal_logic_partition_t *p_driver_partition;
+
+    p_driver_partition = &driver_partition;
+    memset(p_driver_partition, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( HAL_PARTITION_RF_FIRMWARE, p_driver_partition );
+    uint32_t offset = p_driver_partition->partition_length;
     uint32_t *p;
     uint32_t *buf = (uint32_t *)malloc(READ_LEN);
 
-    image_size = driver_partition->partition_length;
+    image_size = p_driver_partition->partition_length;
     do {
         offset -= READ_LEN; // Next block
         hal_flash_read( HAL_PARTITION_RF_FIRMWARE, &offset, (uint8_t *)buf, READ_LEN);
@@ -174,10 +180,15 @@ uint32_t platform_get_wifi_image(unsigned char* buffer, uint32_t size, uint32_t 
 {
     uint32_t buffer_size;
     uint32_t read_address = offset;
-    hal_logic_partition_t *driver_partition = hal_flash_get_info( HAL_PARTITION_RF_FIRMWARE );
+    hal_logic_partition_t  driver_partition;
+    hal_logic_partition_t *p_driver_partition;
+
+    p_driver_partition = &driver_partition;
+    memset(p_driver_partition, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( HAL_PARTITION_RF_FIRMWARE, p_driver_partition );
     
     if( image_size == 0)
-      image_size = driver_partition->partition_length;
+      image_size = p_driver_partition->partition_length;
     
     buffer_size = MIN(size, (image_size - offset));
 

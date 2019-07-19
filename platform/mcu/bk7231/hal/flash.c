@@ -32,26 +32,42 @@ extern wdg_dev_t wdg;
 
 extern const hal_logic_partition_t hal_partitions[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
+}
+
+/* Hook implementation for deprecated interface */
+hal_logic_partition_t logic;
+
+hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+{
+    memset(&logic, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(in_partition, &logic);
+
+    return &logic;
 }
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
     uint32_t addr;
     uint32_t start_addr, end_addr;
-    hal_logic_partition_t *partition_info;
 	uint32_t status;
     DD_HANDLE flash_hdl;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
     GLOBAL_INT_DECLARATION();
 
-    partition_info = hal_flash_get_info( in_partition );
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
+
 
     if(size + off_set > partition_info->partition_length)
         return -1;
@@ -76,13 +92,16 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf , uint32_t in_buf_len)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
 	uint32_t status;
     DD_HANDLE flash_hdl;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
     GLOBAL_INT_DECLARATION();
 
-    partition_info = hal_flash_get_info( in_partition );
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
 
     if(off_set == NULL || in_buf == NULL || *off_set + in_buf_len > partition_info->partition_length)
         return -1;
@@ -105,13 +124,17 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t out_buf_len)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-    GLOBAL_INT_DECLARATION();
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( in_partition );
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
+
+    GLOBAL_INT_DECLARATION();
 
     if(off_set == NULL || out_buf == NULL || *off_set + out_buf_len > partition_info->partition_length)
         return -1;

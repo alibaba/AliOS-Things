@@ -1,16 +1,17 @@
-
+#include <string.h>
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 
 extern const hal_logic_partition_t hal_partitions[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 
@@ -31,12 +32,15 @@ static int _convert_partition_to_nor(nor_dev_t *dev, hal_logic_partition_t *part
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nor_dev_t dev;
 
-    partition_info = hal_flash_get_info( pno );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
 
-    ret = _convert_partition_to_nor(&dev, partition_info);
+    ret = _convert_partition_to_nor(&dev, p_partition_info);
     if (ret != 0) {
         return -1;
     }
@@ -50,15 +54,18 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t buf_size)
 {
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nor_dev_t dev;
 
-    partition_info = hal_flash_get_info( pno );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
 
-    if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
+    if(poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length)
         return -1;
 
-    ret = _convert_partition_to_nor(&dev, partition_info);
+    ret = _convert_partition_to_nor(&dev, p_partition_info);
     if (ret != 0) {
         return -1;
     }
@@ -75,14 +82,17 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     uint32_t addr;
     uint32_t start_addr, end_addr;
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nor_dev_t dev;
 
-    partition_info = hal_flash_get_info( pno );
-    if(size + off_set > partition_info->partition_length)
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
+    if(size + off_set > p_partition_info->partition_length)
         return -1;
 
-    ret = _convert_partition_to_nor(&dev, partition_info);
+    ret = _convert_partition_to_nor(&dev, p_partition_info);
     if (ret != 0) {
         return -1;
     }

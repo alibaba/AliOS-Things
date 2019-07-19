@@ -828,7 +828,10 @@ static UINT32 manual_cal_search_opt_tab(UINT32 *len)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -886,7 +889,10 @@ static UINT8 manual_cal_update_flash_area(UINT32 addr_offset, char *buf, UINT32 
     UINT8 *read_buf = NULL;
     UINT8 check_times = BK_FLASH_WRITE_CHECK_TIMES;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1015,7 +1021,10 @@ static UINT8 manual_cal_read_flash(UINT32 addr_offset, char *buf, UINT32 len)
     UINT8 ret = 0;
     DD_HANDLE flash_handle;
 	#if CFG_SUPPORT_ALIOS
-    hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
     bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1046,8 +1055,11 @@ UINT32 manual_cal_load_txpwr_tab_flash(void)
     TXPWR_ELEM_ST head;
     TXPWR_IS_RD is_ready_flash = 0; 
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
-	#else
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
+    #else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
 
@@ -1178,7 +1190,10 @@ int manual_cal_save_txpwr_tab_to_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1355,7 +1370,10 @@ int manual_cal_save_chipinfo_tab_to_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1516,7 +1534,10 @@ int manual_cal_get_macaddr_from_flash(UINT8 *mac_ptr)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1560,7 +1581,10 @@ int manual_cal_write_macaddr_to_flash(UINT8 *mac_ptr)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1602,7 +1626,10 @@ UINT8 manual_cal_wirte_otp_flash(UINT32 addr, UINT32 len, UINT8 *buf)
 {
     UINT8 ret = 0; 
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1636,7 +1663,10 @@ void manual_cal_show_otp_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-    hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
     bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1726,7 +1756,10 @@ void manual_cal_load_lpf_iq_tag_flash(void)
     UINT32 status, addr, addr_start;
     DD_HANDLE flash_handle;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1769,7 +1802,10 @@ void manual_cal_load_differ_tag_from_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1814,7 +1850,10 @@ int manual_cal_load_xtal_tag_from_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -1855,7 +1894,10 @@ int manual_cal_load_temp_tag_from_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
@@ -2171,7 +2213,10 @@ UINT32 manual_cal_load_adc_cali_flash(void)
     DD_HANDLE flash_handle;
     TXPWR_ELEM_ST head;
 	#if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 	#else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 	#endif
