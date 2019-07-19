@@ -14,7 +14,7 @@
  *    David Navarro, Intel Corporation - initial API and implementation
  *******************************************************************************/
 
-#include <lwm2m_api.h>
+#include <network/lwm2m.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

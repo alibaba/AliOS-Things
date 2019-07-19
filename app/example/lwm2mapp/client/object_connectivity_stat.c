@@ -30,7 +30,7 @@
  *  StartOrReset         |  6 |   E   | Single|  Yes | Integer |       |       |             |
  */
 
-#include "lwm2m_api.h"
+#include "network/lwm2m.h"
 
 #include <stdio.h>
 #include <stdlib.h>
