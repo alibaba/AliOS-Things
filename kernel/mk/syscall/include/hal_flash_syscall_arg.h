@@ -10,7 +10,7 @@
 typedef struct {
     hal_partition_t        in_partition;
     hal_logic_partition_t *partition;
-} hal_flash_copy_info_syscall_arg_t;
+} hal_flash_info_get_syscall_arg_t;
 
 typedef struct {
     hal_partition_t in_partition;

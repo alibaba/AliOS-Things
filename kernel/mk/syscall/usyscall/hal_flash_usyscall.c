@@ -11,15 +11,15 @@
 #include "hal_flash_syscall_arg.h"
 #include "syscall_no.h"
 
-hal_logic_partition_t *hal_flash_copy_info(hal_partition_t in_partition,
-                                           hal_logic_partition_t *partition)
+int32_t hal_flash_info_get(hal_partition_t in_partition,
+                           hal_logic_partition_t *partition)
 {
-    hal_flash_copy_info_syscall_arg_t _arg;
+    hal_flash_info_get_syscall_arg_t _arg;
 
     _arg.in_partition = in_partition;
     _arg.partition    = partition;
 
-    return (hal_logic_partition_t *)SYSCALL(SYS_HAL_FLASH_COPY_INFO, (void*)&_arg);
+    return (int32_t)SYSCALL(SYS_HAL_FLASH_INFO_GET, (void*)&_arg);
 }
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
