@@ -22,8 +22,12 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
     int ret = OTA_INIT_FAIL;
     if(param != NULL) {
         ret = 0;
-        hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
-        if(part_info->partition_length < param->len || param->len == 0) {
+        hal_logic_partition_t  part_info;
+        hal_logic_partition_t *p_part_info;
+        p_part_info = &part_info;
+        memset(p_part_info, 0, sizeof(hal_logic_partition_t));
+        ret = hal_flash_info_get(boot_part, p_part_info);
+        if(ret != 0 || p_part_info->partition_length < param->len || param->len == 0) {
             ret = OTA_INIT_FAIL;
         }
         else {
@@ -34,7 +38,7 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
                 ret = OTA_INIT_FAIL;
             }
             else {
-                ret = hal_flash_erase(boot_part, ota_receive_total_len, part_info->partition_length);
+                ret = hal_flash_erase(boot_part, ota_receive_total_len, p_part_info->partition_length);
             }
         }
         OTA_LOG_I("ota init part:%d len:%d \n", boot_part, param->len);
@@ -118,12 +122,18 @@ OTA_WEAK int hal_reboot_bank(void)
 OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
 {
     int ret = OTA_UPGRADE_WRITE_FAIL;
-    hal_logic_partition_t *ota_info = hal_flash_get_info(boot_part);
-    hal_logic_partition_t *app_info = hal_flash_get_info(HAL_PARTITION_APPLICATION);
+    hal_logic_partition_t  ota_info;
+    hal_logic_partition_t  app_info;
+    hal_logic_partition_t *p_ota_info = &ota_info;
+    hal_logic_partition_t *p_app_info = &app_info;
+    memset(p_ota_info, 0, sizeof(hal_logic_partition_t));
+    memset(p_app_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(boot_part, p_ota_info);
+    hal_flash_info_get(HAL_PARTITION_APPLICATION, p_app_info);
     if(param != NULL) {
-       param->src_adr = ota_info->partition_start_addr;
-       param->dst_adr = app_info->partition_start_addr;
-       param->old_size = app_info->partition_length;
+       param->src_adr = p_ota_info->partition_start_addr;
+       param->dst_adr = p_app_info->partition_start_addr;
+       param->old_size = p_app_info->partition_length;
        ret = ota_update_parameter(param);
        if(ret < 0) {
            return OTA_UPGRADE_WRITE_FAIL;
