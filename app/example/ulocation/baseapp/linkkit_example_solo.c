@@ -6,7 +6,7 @@
 #else
 #include "stdio.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "infra_config.h"
 #include "wrappers.h"
 #include "cJSON.h"
