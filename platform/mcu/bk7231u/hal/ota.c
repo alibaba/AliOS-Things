@@ -53,10 +53,17 @@ void crc16_final(crc16_ctx *inCtx, unsigned short *outResult );
 static void hal_get_ota_index(void)
 {
     uint32_t offset, boot_addr;
+    hal_logic_partition_t info;
     hal_logic_partition_t *partition_info;
     offset = 0x00;
     hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, (void *)&boot_addr, sizeof(boot_addr));
-    partition_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
+
+    partition_info = &info;
+
+    if (hal_flash_info_get(HAL_PARTITION_OTA_TEMP, partition_info) != 0) {
+        return -1;
+    }
+
     if(boot_addr == partition_info->partition_start_addr) {
         ota_index = OTA_IMAGE_A; //update to image A
     }
@@ -159,16 +166,17 @@ static int hal_verify_ota_checksum(uint8_t crc_partition_idx, uint32_t crc_len)
 
 int ota_hal_init(ota_boot_param_t *param)
 {
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
     hal_flash_dis_secure(0, 0, 0);//disable flash protect
     hal_get_ota_index();
     printf("ota start :%d  off:%d", ota_index);
     if(ota_index == OTA_IMAGE_A) {
-        partition_info = hal_flash_get_info(HAL_PARTITION_APPLICATION);
+        hal_flash_info_get(HAL_PARTITION_APPLICATION, partition_info);
         hal_flash_erase(HAL_PARTITION_APPLICATION, 0, partition_info->partition_length);
     }
     else {
-        partition_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
+        hal_flash_info_get(HAL_PARTITION_OTA_TEMP, partition_info);
         hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0, partition_info->partition_length);
     }
     _off_set = 0;
@@ -253,7 +261,8 @@ int ota_hal_boot(ota_boot_param_t *param)
     int ret = 0;
     uint32_t offset, addr_rb, boot_addr;
     uint32_t crc_partition_idx, crc_len;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
     if (param == NULL) {
         printf("finish type is null.");
         return -1;
@@ -268,12 +277,12 @@ int ota_hal_boot(ota_boot_param_t *param)
         if(ota_index == OTA_IMAGE_A) {
             crc_partition_idx = HAL_PARTITION_APPLICATION;
             crc_len = ota_hdr_info.ota_file[0].img_len;
-            partition_info = hal_flash_get_info(HAL_PARTITION_APPLICATION);
+            hal_flash_info_get(HAL_PARTITION_APPLICATION, partition_info);
         }
         else {
             crc_partition_idx = HAL_PARTITION_OTA_TEMP;
             crc_len = ota_hdr_info.ota_file[1].img_len;
-            partition_info = hal_flash_get_info(HAL_PARTITION_OTA_TEMP);
+            hal_flash_info_get(HAL_PARTITION_OTA_TEMP, partition_info);
         }
         boot_addr = partition_info->partition_start_addr;
         ret = hal_verify_ota_checksum(crc_partition_idx, crc_len);

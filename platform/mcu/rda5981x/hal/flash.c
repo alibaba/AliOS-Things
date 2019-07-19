@@ -94,22 +94,34 @@ uint32_t get_flash_size()
     return flash_get_size(&flash_obj);
 }
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
-   // if (in_partition != HAL_PARTITION_APPLICATION)
-     //   return NULL;
-    
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[in_partition];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
+
+/* Hook implementation for deprecated interface */
+
+hal_logic_partition_t logic;
+
+hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+{
+    memset(&logic, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(in_partition, &logic);    
+
+    return &logic;
+}
+
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
-    hal_logic_partition_t *partition_info;
     uint32_t start_address, end_addr;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
     if (0 == flash_inited) {
         flash_init(&flash_obj);
@@ -117,7 +129,10 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
         flash_inited = 1;
     }
 
-    partition_info = hal_flash_get_info( in_partition );
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
+
     start_address = partition_info->partition_start_addr + off_set;
 #if 0
     //uint32_t start_address = flash_get_start_address(&flash_obj);
@@ -221,13 +236,20 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
                         const void *in_buf, uint32_t in_buf_len)
 {
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
-
     uint32_t page_size = get_page_size();
-    //uint32_t start_address = flash_get_start_address(&flash_obj);
-    partition_info = hal_flash_get_info( in_partition );
-    uint32_t start_address = partition_info->partition_start_addr + *off_set;
-    uint32_t partition_end = partition_info->partition_start_addr + partition_info->partition_length;
+    uint32_t start_address;
+    uint32_t partition_end;
+
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
+
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
+
+    start_address = partition_info->partition_start_addr + *off_set;
+    partition_end = partition_info->partition_start_addr + partition_info->partition_length;
+
     if(start_address >= partition_end){
         printf("flash over write\r\n");
         return -1;
@@ -285,14 +307,18 @@ int32_t hal_flash_erase_write(hal_partition_t in_partition, uint32_t *off_set,
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set,
                        void *out_buf, uint32_t in_buf_len)
 {
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
     if (0 == flash_inited) {
         flash_init(&flash_obj);
         flash_inited = 1;
     }
 
-    partition_info = hal_flash_get_info( in_partition );
+    if (hal_flash_info_get(in_partition, partition_info) != 0) {
+        return -1;
+    }
+
     uint32_t start_address = partition_info->partition_start_addr + *off_set;
 
     if ((start_address < PARTITION_TABLE_END_ADDR) ||

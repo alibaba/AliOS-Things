@@ -44,9 +44,16 @@ void hal_boot(hal_partition_t partition)
 {
     uint32_t addr;
 
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
+
     intc_deinit();
 
-    addr = hal_flash_get_info(partition)->partition_start_addr;
+    if (hal_flash_info_get(partition, partition_info) != 0) {
+        return -1;
+    }
+
+    addr = partition_info->partition_start_addr;
     __asm volatile ("BX %0" : : "r" (addr) );
 }
 

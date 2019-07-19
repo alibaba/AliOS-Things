@@ -6,6 +6,7 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
 #include "stm32f4xx.h"
 
+#include <string.h>
 #include "aos/hal/flash.h"
 
 #include "k_api.h"
@@ -66,14 +67,14 @@ extern const hal_logic_partition_t hal_partitions[];
 static uint32_t GetSector(uint32_t Address);
 int FLASH_read_at(uint32_t address, uint8_t *pData, uint32_t len_bytes);
 
-
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , uint32_t buf_size)
@@ -82,11 +83,14 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
     uint32_t start_addr;
     uint32_t byte_count=0;//count the number of programmed bytes
     uint8_t* src_data_p;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
-    partition_info = hal_flash_get_info( pno );
-    start_addr = partition_info->partition_start_addr + *poff;
-    if((*poff+buf_size) > partition_info->partition_length)
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
+    start_addr = p_partition_info->partition_start_addr + *poff;
+    if((*poff+buf_size) > p_partition_info->partition_length)
         return -1;
 
     /* Unlock the Flash to enable the flash control register access *************/
@@ -112,17 +116,20 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
 int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
 {
     int32_t ret=0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     uint32_t start_addr;
     uint32_t i=0;
 
-    partition_info = hal_flash_get_info( pno );
-    if (poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length) 
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
+    if (poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length) 
     {
         return -1;
     }
 
-    start_addr = partition_info->partition_start_addr + *poff;	
+    start_addr = p_partition_info->partition_start_addr + *poff;	
     FLASH_read_at(start_addr,(uint8_t*)buf,buf_size);
 
     *poff += buf_size;
@@ -133,18 +140,21 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t 
 int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
     int32_t ret=0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     uint32_t FirstSector = 0, NbOfSectors = 0;
     uint32_t SECTORError = 0;
     FLASH_EraseInitTypeDef EraseInit;
 
-    partition_info = hal_flash_get_info( pno );
-    if (size + off_set > partition_info->partition_length) {
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( pno, p_partition_info );
+    if (size + off_set > p_partition_info->partition_length) {
         return -1;
     }
 
-    FirstSector = GetSector(partition_info->partition_start_addr+off_set);
-    NbOfSectors = GetSector(partition_info->partition_start_addr+off_set + size -1)-FirstSector+1;
+    FirstSector = GetSector(p_partition_info->partition_start_addr+off_set);
+    NbOfSectors = GetSector(p_partition_info->partition_start_addr+off_set + size -1)-FirstSector+1;
 
     EraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
     EraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;//require Device operating range: 2.7V to 3.6V 
