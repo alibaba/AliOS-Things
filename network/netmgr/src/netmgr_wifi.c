@@ -337,7 +337,33 @@ static void netmgr_scan_adv_completed_event(hal_wifi_module_t *         m,
 static void netmgr_para_chg_event(hal_wifi_module_t *     m,
                                   hal_wifi_ap_info_adv_t *ap_info, char *key,
                                   int key_len, void *arg)
-{}
+{
+    int ret;
+
+    if (!ap_info) {
+        LOGE("netmgr", "%s invalid ap_info pointer.", __func__);
+        return;
+    }
+
+    LOGI("netmgr", "%s %d, bssid: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+         __func__, __LINE__,
+         (uint8_t)(ap_info->bssid[0]), (uint8_t)(ap_info->bssid[1]), (uint8_t)(ap_info->bssid[2]),
+         (uint8_t)(ap_info->bssid[3]), (uint8_t)(ap_info->bssid[4]), (uint8_t)(ap_info->bssid[5]));
+
+    /* Update bssid information here */
+    memcpy(g_netmgr_cxt.ap_config.bssid, ap_info->bssid,
+           sizeof(g_netmgr_cxt.saved_conf.bssid));
+
+    memcpy(g_netmgr_cxt.saved_conf.bssid, g_netmgr_cxt.ap_config.bssid,
+           sizeof(g_netmgr_cxt.saved_conf.bssid));
+
+    ret = aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
+                     sizeof(netmgr_ap_config_t), 1);
+    if (ret != 0) {
+        LOGE("netmgr", "%s failed", __func__);
+        return;
+    }
+}
 
 static void netmgr_fatal_err_event(hal_wifi_module_t *m, void *arg) {}
 
