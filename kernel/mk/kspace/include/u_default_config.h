@@ -48,7 +48,7 @@
 
 /*----------------- LWIP ----------------*/
 #if (RHINO_CONFIG_UTCPIP > 0)
-#define CONFIG_LWIP_SYSCALL 1
+#define RHINO_CONFIG_LWIP_SYSCALL 1
 #endif
 
 /* Support user space linkkit */

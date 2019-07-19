@@ -152,7 +152,7 @@
 /* ----------------- hal flash -----------------*/
 #define HAL_FLASH_BASE (HAL_DAC_END + 1)
 
-#define SYS_HAL_FLASH_COPY_INFO     (HAL_FLASH_BASE + 0)
+#define SYS_HAL_FLASH_INFO_GET      (HAL_FLASH_BASE + 0)
 #define SYS_HAL_FLASH_ERASE         (HAL_FLASH_BASE + 1)
 #define SYS_HAL_FLASH_WRITE         (HAL_FLASH_BASE + 2)
 #define SYS_HAL_FLASH_ERASE_WRITE   (HAL_FLASH_BASE + 3)
