@@ -14,7 +14,7 @@
 #ifndef WITHOUT_ASYNC
 
 #include "coap_config.h"
-#include "coap.h"
+#include "coap_internals.h"
 #include "async.h"
 #include "coap_debug.h"
 #include "coap_mem.h"
