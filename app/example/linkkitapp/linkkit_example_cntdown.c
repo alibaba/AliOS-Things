@@ -9,7 +9,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
@@ -312,11 +312,10 @@ static int property_set_handle(const int devid, const char *payload, const int p
             memset(app_ctx->timestamp, 0, sizeof(app_ctx->timestamp));
             memcpy(app_ctx->timestamp, item->valuestring, len);
             EXAMPLE_TRACE("Timestamp is %s", app_ctx->timestamp);
-        }
-        else {
+        } else {
             EXAMPLE_TRACE("Timestamp string error");
             cJSON_Delete(root);
-            return ret;                    
+            return ret;
         }
     } else {
         cJSON_Delete(root);
@@ -351,7 +350,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
 }
 
 static int report_reply_handle(const int devid, const int msgid, const int code, const char *payload,
-                             const int payload_len)
+                               const int payload_len)
 {
     EXAMPLE_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
                   payload == NULL ? "NULL" : payload);
@@ -410,10 +409,10 @@ int linkkit_example()
     iotx_linkkit_dev_meta_info_t linkkit_meta_info;
 
     memset(&linkkit_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(linkkit_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(linkkit_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(linkkit_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(linkkit_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    HAL_GetProductKey(linkkit_meta_info.product_key);
+    HAL_GetDeviceName(linkkit_meta_info.device_name);
+    HAL_GetProductSecret(linkkit_meta_info.product_secret);
+    HAL_GetDeviceSecret(linkkit_meta_info.device_secret);
 
     /* Register Callback */
     IOT_RegisterCallback(ITE_CONNECT_SUCC, on_connect);
@@ -476,10 +475,14 @@ int linkkit_example()
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetProductSecret(PRODUCT_SECRET);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
 }
 
 int linkkit_main(void *paras)

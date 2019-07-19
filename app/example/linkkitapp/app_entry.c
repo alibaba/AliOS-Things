@@ -14,17 +14,18 @@
 
 #include "netmgr.h"
 #include "app_entry.h"
-#include "wifi_provision_api.h"
+#include "linkkit/wifi_provision_api.h"
 #include "infra_compat.h"
 #include "infra_defs.h"
+#include "wrappers.h"
 
 #ifdef CSP_LINUXHOST
-#include <signal.h>
+    #include <signal.h>
 #endif
 
 #include <k_api.h>
 
-#if defined(ENABLE_AOS_OTA) 
+#if defined(ENABLE_AOS_OTA)
 #include "ota/ota_service.h"
 static ota_service_t ctx = {0};
 #endif
@@ -32,10 +33,10 @@ static ota_service_t ctx = {0};
 static char linkkit_started = 0;
 
 #ifdef EN_COMBO_NET
-char awss_running = 0;
-extern int combo_net_init(void);
+    char awss_running = 0;
+    extern int combo_net_init(void);
 #else
-static char awss_running    = 0;
+    static char awss_running    = 0;
 #endif
 
 extern void set_iotx_info();
@@ -61,10 +62,10 @@ static ota_service_t *ota_get_device_info(void)
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
-    strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
-    strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
-    strncpy(ctx.ds, device_secret, sizeof(ctx.ds)-1);
-    strncpy(ctx.ps, device_secret, sizeof(ctx.ps)-1);
+    strncpy(ctx.pk, product_key, sizeof(ctx.pk) - 1);
+    strncpy(ctx.dn, device_name, sizeof(ctx.dn) - 1);
+    strncpy(ctx.ds, device_secret, sizeof(ctx.ds) - 1);
+    strncpy(ctx.ps, device_secret, sizeof(ctx.ps) - 1);
     return &ctx;
 }
 #endif
@@ -91,7 +92,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         return;
     }
 
- #ifdef EN_COMBO_NET
+#ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
     }
@@ -156,7 +157,7 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
             break;
         case IOTX_AWSS_CONNECT_ADHA: // AWSS try to connnect adha (device
-                                     // discover, router solution)
+            // discover, router solution)
             LOG("IOTX_AWSS_CONNECT_ADHA");
             // operate led to indicate user
             break;
@@ -173,7 +174,7 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
             break;
         case IOTX_AWSS_SETUP_NOTIFY: // AWSS sends out device setup information
-                                     // (AP and router solution)
+            // (AP and router solution)
             LOG("IOTX_AWSS_SETUP_NOTIFY");
             // operate led to indicate user
             break;
@@ -182,27 +183,27 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
-                                            // router.
+            // router.
             LOG("IOTX_AWSS_CONNECT_ROUTER_FAIL");
             // operate led to indicate user
             break;
         case IOTX_AWSS_GOT_IP: // AWSS connects destination successfully and got
-                               // ip address
+            // ip address
             LOG("IOTX_AWSS_GOT_IP");
             // operate led to indicate user
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
-                                   // sucess)
+            // sucess)
             LOG("IOTX_AWSS_SUC_NOTIFY");
             // operate led to indicate user
             break;
         case IOTX_AWSS_BIND_NOTIFY: // AWSS sends out bind notify information to
-                                    // support bind between user and device
+            // support bind between user and device
             LOG("IOTX_AWSS_BIND_NOTIFY");
             // operate led to indicate user
             break;
         case IOTX_AWSS_ENABLE_TIMEOUT: // AWSS enable timeout
-                                       // user needs to enable awss again to support get ssid & passwd of router
+            // user needs to enable awss again to support get ssid & passwd of router
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
             break;
@@ -211,7 +212,7 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
             break;
         case IOTX_CONN_CLOUD_FAIL: // Device fails to connect cloud, refer to
-                                   // net_sockets.h for error code
+            // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
             break;
@@ -220,7 +221,7 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
-                         // cloud without any other operation)
+            // cloud without any other operation)
             LOG("IOTX_RESET");
             // operate led to indicate user
             break;
@@ -242,10 +243,10 @@ void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;
-    #ifdef WIFI_PROVISION_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     extern int awss_config_press();
     awss_config_press();
-    #endif
+#endif
 }
 
 #ifdef AWSS_SUPPORT_DEV_AP
@@ -333,6 +334,60 @@ static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     aos_schedule_call(do_awss_active, NULL);
 }
+
+static void _print_devinfo()
+{
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = {0};
+#ifdef DEMO_DEBUG
+    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+    char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = {0};
+#endif
+    HAL_GetProductKey(_product_key);
+    HAL_GetDeviceName(_device_name);
+    LOG("pk:%s", _product_key);
+    LOG("dn:%s", _device_name);
+#ifdef DEMO_DEBUG
+    HAL_GetProductSecret(_product_secret);
+    HAL_GetDeviceSecret(_device_secret);
+    LOG("ps:%s", _product_secret);
+    LOG("ds:%s", _device_secret);
+#endif
+}
+
+static void _set_devinfo(char *pk, char *ps, char *dn, char *ds)
+{
+    if (dn != NULL) {
+        HAL_SetDeviceName(dn);
+    }
+    if (ds != NULL) {
+        HAL_SetDeviceSecret(ds);
+    }
+    if (pk != NULL) {
+        HAL_SetProductKey(pk);
+    }
+    if (ps != NULL) {
+        HAL_SetProductSecret(ps);
+    }
+}
+static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    const char *rtype = argc > 1 ? argv[1] : "";
+    if (strcmp(rtype, "get") == 0) {
+        _print_devinfo();
+    } else if (strcmp(rtype, "set") == 0) {
+        if (argc == 4) {
+            _set_devinfo(NULL, NULL, argv[2], argv[3]);
+        } else if (argc == 6) {
+            _set_devinfo(argv[2], argv[3], argv[4], argv[6]);
+        } else {
+            LOG("arg number err!");
+        }
+    } else {
+        LOG("cmd not support!");
+    }
+}
+
 #ifdef AWSS_SUPPORT_DEV_AP
 static void handle_dev_ap_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
@@ -345,19 +400,29 @@ static void handle_awss_cmd(char *pwbuf, int blen, int argc, char **argv)
 }
 
 static struct cli_command awss_dev_ap_cmd = { .name     = "dev_ap",
-                                              .help     = "awss_dev_ap [start]",
-                                              .function = handle_dev_ap_cmd };
+    .help     = "awss_dev_ap [start]",
+     .function = handle_dev_ap_cmd
+};
 static struct cli_command awss_cmd = { .name     = "awss",
-                                       .help     = "awss [start]",
-                                       .function = handle_awss_cmd };
+    .help     = "awss [start]",
+     .function = handle_awss_cmd
+};
 #endif
+
+static struct cli_command devinfo_cmd = { .name     = "devinfo",
+    .help     = "devinfo [set pk ps dn ds | set dn ds | get ]",
+     .function = handle_devinfo_cmd
+};
+
 static struct cli_command resetcmd = { .name     = "reset",
-                                       .help     = "factory reset",
-                                       .function = handle_reset_cmd };
+    .help     = "factory reset",
+     .function = handle_reset_cmd
+};
 
 static struct cli_command awss_enable_cmd = { .name     = "active_awss",
-                                              .help     = "active_awss [start]",
-                                              .function = handle_active_cmd };
+    .help     = "active_awss [start]",
+     .function = handle_active_cmd
+};
 #endif
 
 #ifdef CONFIG_PRINT_HEAP
@@ -370,7 +435,7 @@ static void duration_work(void *p)
 
 static int mqtt_connected_event_handler(void)
 {
-#if defined(ENABLE_AOS_OTA) 
+#if defined(ENABLE_AOS_OTA)
     LOG("OTA service init ...\n");
     ota_service_init(ota_get_device_info());
 #endif
@@ -403,9 +468,10 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
-    IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
+    IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC, mqtt_connected_event_handler);
 
 #ifdef AOS_COMP_CLI
+    aos_cli_register_command(&devinfo_cmd);
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&awss_enable_cmd);
 #ifdef AWSS_SUPPORT_DEV_AP
@@ -419,7 +485,7 @@ int application_start(int argc, char **argv)
     combo_net_init();
 #else
 #ifdef AWSS_SUPPORT_DEV_AP
-     aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
+    aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
     aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 #endif

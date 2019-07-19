@@ -11,7 +11,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "infra_config.h"
 #include "wrappers.h"
 

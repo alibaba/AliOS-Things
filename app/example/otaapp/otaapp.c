@@ -8,7 +8,7 @@
 
 #include "wrappers.h"
 #include "infra_defs.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 #include "network/network.h"

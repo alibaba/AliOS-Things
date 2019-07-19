@@ -7,16 +7,18 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
+#include "linkkit/dev_sign_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 #include "infra_compat.h"
 
 #define PRODUCT_KEY             "a1MZxOdcBnO"
-#define PRODUCT_SECRET          "h4I4dneEFp7EImTv"
 #define DEVICE_NAME             "test_01"
 #define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
 
+char DEMO_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char DEMO_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char DEMO_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -49,14 +51,14 @@ int example_subscribe(void *handle)
     char *topic = NULL;
     int topic_len = 0;
 
-    topic_len = strlen(fmt) + strlen(PRODUCT_KEY) + strlen(DEVICE_NAME) + 1;
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, PRODUCT_KEY, DEVICE_NAME);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
@@ -77,14 +79,14 @@ int example_publish(void *handle)
     int             topic_len = 0;
     char           *payload = "{\"message\":\"hello!\"}";
 
-    topic_len = strlen(fmt) + strlen(PRODUCT_KEY) + strlen(DEVICE_NAME) + 1;
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, PRODUCT_KEY, DEVICE_NAME);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
     res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
     if (res < 0) {
@@ -115,6 +117,17 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
  *  to its /${productKey}/${deviceName}/user/get for successfully running whole example
  */
 
+void set_iotx_info()
+{
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
+}
+
 int linkkit_main(void *paras)
 {
     void                   *pclient = NULL;
@@ -122,10 +135,12 @@ int linkkit_main(void *paras)
     int                     loop_cnt = 0;
     iotx_mqtt_param_t       mqtt_params;
 
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
-    HAL_SetProductSecret(PRODUCT_SECRET);
+    set_iotx_info();
+
+
+    HAL_GetProductKey(DEMO_PRODUCT_KEY);
+    HAL_GetDeviceName(DEMO_DEVICE_NAME);
+    HAL_GetDeviceSecret(DEMO_DEVICE_SECRET);
 
     EXAMPLE_TRACE("mqtt example");
 

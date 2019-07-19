@@ -13,10 +13,10 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "wifi_provision_api.h"
+#include "linkkit/wifi_provision_api.h"
 #include "infra_compat.h"
 #include "infra_defs.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 
 #include "sensor/sensor.h"
 #include "udata/udata.h"

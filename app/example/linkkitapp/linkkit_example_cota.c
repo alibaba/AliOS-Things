@@ -6,7 +6,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
@@ -130,10 +130,14 @@ void user_post_property(void)
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetProductSecret(PRODUCT_SECRET);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
 }
 
 int linkkit_main(void *paras)
@@ -155,10 +159,10 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    HAL_GetProductKey(master_meta_info.product_key);
+    HAL_GetDeviceName(master_meta_info.device_name);
+    HAL_GetProductSecret(master_meta_info.product_secret);
+    HAL_GetDeviceSecret(master_meta_info.device_secret);
 
     /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
 #if USE_CUSTOME_DOMAIN
