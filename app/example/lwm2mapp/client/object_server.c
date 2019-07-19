@@ -34,7 +34,7 @@
  *
  */
 
-#include "lwm2m_api.h"
+#include "network/lwm2m.h"
 
 #include <stdio.h>
 #include <stdlib.h>
