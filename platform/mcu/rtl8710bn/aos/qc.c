@@ -2,6 +2,7 @@
 #include <sys/errno.h>
 
 #include <stdarg.h>
+#include <string.h>
 
 #include "aos/hal/flash.h"
 #include "aos/hal/uart.h"
@@ -86,15 +87,18 @@ static char *get_bootloader_ver(void)
 
 static uint16_t qc_crc(void)
 {
-    hal_logic_partition_t* part;
+    hal_logic_partition_t  part;
+    hal_logic_partition_t* p_part;
     int total_len, len, offset=0;
     uint8_t data[1024];
     CRC16_Context contex;
     uint16_t crc = 0;
     
     CRC16_Init( &contex );
-    part = hal_flash_get_info((hal_partition_t)HAL_PARTITION_APPLICATION);
-    total_len = part->partition_length;
+    p_part = &part;
+    memset(p_part, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get((hal_partition_t)HAL_PARTITION_APPLICATION, p_part);
+    total_len = p_part->partition_length;
     
     while(total_len > 0){
         if( 1024 < total_len ){

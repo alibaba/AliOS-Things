@@ -157,10 +157,11 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
     return 0;
 }
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
-    return NULL;
+    return 0;
 }
+
 
 void hal_reboot(void)
 {
