@@ -163,5 +163,9 @@ void cpu_pwr_down(void);
 void cpu_pwr_up(void);
 #endif
 
+#if (RHINO_CONFIG_ERR_DUMP > 0)
+void debug_fatal_error(kstat_t err, char *file, int line);
+#endif
+
 #endif /* K_INTERNAL_H */
 
