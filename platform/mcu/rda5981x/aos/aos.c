@@ -4,10 +4,16 @@
 
 #include "aos/init.h"
 #include "aos/kernel.h"
+#include "uagent/uagent.h"
 #include "ulog/ulog.h"
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef AOS_COMP_PWRMGMT
+#include <pwrmgmt.h>
+#endif
+
 #define AOS_START_STACK 2048
 
 // #define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
@@ -37,6 +43,11 @@ static void sys_init(void)
     hw_start_hal();
     vfs_init();
     vfs_device_init();
+
+#ifdef AOS_COMP_UAGEN
+    uagent_init();
+#endif
+
 #ifdef AOS_COMP_CLI
     aos_cli_init();
 #endif
@@ -58,7 +69,7 @@ static void sys_init(void)
     aos_show_welcome();
 
 #ifdef AOS_COMP_PWRMGMT
-    cpu_pwrmgmt_init();
+    pwrmgmt_init();
 #endif
     application_start(0, NULL);
 #endif
