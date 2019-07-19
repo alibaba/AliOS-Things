@@ -5,7 +5,7 @@
 #include "iotx_dm_internal.h"
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "dm_opt.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
@@ -22,7 +22,7 @@
 #endif
 
 #ifdef DEV_BIND_ENABLED
-    #include "dev_bind_api.h"
+    #include "linkkit/dev_bind_api.h"
     static int _awss_reported = 0;
 #endif
 
