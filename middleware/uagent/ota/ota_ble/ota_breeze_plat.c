@@ -269,14 +269,20 @@ int ota_breeze_set_boot()
     unsigned int img_crc    = 0;
     unsigned int tmp_offset = 0;
     int dest_part           = 0;
-    hal_logic_partition_t *dest_part_info = NULL;
-    hal_logic_partition_t *ota_part_info = hal_flash_get_info(ota_part);
+    hal_logic_partition_t  dest_part_info;
+    hal_logic_partition_t  ota_part_info;
+    hal_logic_partition_t *p_dest_part_info = &dest_part_info;
+    hal_logic_partition_t *p_ota_part_info = &ota_part_info;
+
+    memset(p_ota_part_info, 0, sizeof(hal_logic_partition_t));
+    memset(p_dest_part_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(ota_part, p_ota_part_info);
     dest_part = ota_breeze_get_parttion_id(ota_breeze_get_bin_type());
     if(dest_part == 0xff) {
         ret = -1;
         goto OTA_BREEZE_SET_BOOT_OVER;
     }
-    dest_part_info = hal_flash_get_info(dest_part);
+    hal_flash_info_get(dest_part, p_dest_part_info);
     _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         ret = -1;
@@ -295,8 +301,8 @@ int ota_breeze_set_boot()
 
         breeze_ota_settings.image_size = p_ota->valid_fw_size;
         breeze_ota_settings.image_crc32  = img_crc;
-        breeze_ota_settings.dest_addr  = dest_part_info->partition_start_addr;
-        breeze_ota_settings.src_addr = ota_part_info->partition_start_addr;
+        breeze_ota_settings.dest_addr  = p_dest_part_info->partition_start_addr;
+        breeze_ota_settings.src_addr = p_ota_part_info->partition_start_addr;
         breeze_ota_settings.image_has_copy_len = 0;
         breeze_ota_settings.settings_crc32 = ota_breeze_crc32_calculate((unsigned char *)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
         ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, 0x00, erase_sector_size);
