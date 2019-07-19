@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "http2_api.h"
+#include "linkkit/http2_api.h"
 #include "wrappers.h"
 
 #ifdef INFRA_LOG

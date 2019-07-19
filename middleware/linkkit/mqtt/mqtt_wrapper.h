@@ -2,7 +2,7 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 #include "wrappers.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 
 /* mqtt protocol wrapper */
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);

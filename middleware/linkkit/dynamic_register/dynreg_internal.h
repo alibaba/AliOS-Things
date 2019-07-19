@@ -26,7 +26,7 @@
 #endif
 
 #ifdef MQTT_DYNAMIC_REGISTER
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
 int wrapper_mqtt_connect(void *client);
 int wrapper_mqtt_yield(void *client, int timeout_ms);

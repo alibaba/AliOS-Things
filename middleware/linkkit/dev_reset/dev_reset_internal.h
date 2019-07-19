@@ -8,8 +8,8 @@
 #include "infra_defs.h"
 #include "infra_report.h"
 #include "dev_reset_internal.h"
-#include "dev_reset_api.h"
-#include "mqtt_api.h"
+#include "linkkit/dev_reset_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 
 #ifdef INFRA_LOG
