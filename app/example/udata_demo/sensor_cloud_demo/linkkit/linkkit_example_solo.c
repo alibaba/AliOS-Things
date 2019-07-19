@@ -8,7 +8,7 @@
 #include "cJSON.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "wrappers.h"
 
 #define USE_CUSTOME_DOMAIN 0

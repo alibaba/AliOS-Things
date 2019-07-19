@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "app_entry.h"
-#include "http2_api.h"
+#include "linkkit/http2_api.h"
 #include "wrappers.h"
 #include "infra_compat.h"
 
