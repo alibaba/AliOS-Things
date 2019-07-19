@@ -15,8 +15,8 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 #endif
 
 #ifdef MQTT_COMM_ENABLED
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
+#include "linkkit/dev_sign_api.h"
+#include "linkkit/mqtt_api.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"

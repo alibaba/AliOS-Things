@@ -19,7 +19,7 @@
 #include "infra_net.h"
 #include "infra_sha256.h"
 
-#include "dev_sign_api.h"
+#include "linkkit/dev_sign_api.h"
 #include "mqtt_wrapper.h"
 #include "iotx_mqtt_config.h"
 #include "iotx_mqtt_client.h"

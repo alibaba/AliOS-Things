@@ -7,8 +7,8 @@
 #include "infra_sha256.h"
 #include "infra_compat.h"
 #include "mqtt_wrapper.h"
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
+#include "linkkit/dev_sign_api.h"
+#include "linkkit/mqtt_api.h"
 
 #ifdef PLATFORM_HAS_DYNMEM
     #ifdef INFRA_MEM_STATS
@@ -59,7 +59,7 @@ static void iotx_mqtt_report_funcs(void *pclient)
 }
 
 #ifdef DYNAMIC_REGISTER
-#include "dynreg_api.h"
+#include "linkkit/dynreg_api.h"
 int HAL_SetDeviceSecret(char *device_secret);
 int HAL_GetProductSecret(char *product_secret);
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
