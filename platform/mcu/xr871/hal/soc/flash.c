@@ -26,6 +26,9 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include <string.h>
+
 #include "prj_config.h"
 #include "common/prj_conf_opt.h"
 
@@ -91,30 +94,34 @@ static __always_inline void xr_fiq_restore(unsigned long flags)
 
 extern const hal_logic_partition_t hal_partitions[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
     logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
     uint32_t addr;
     uint32_t start_addr, end_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
     GLOBAL_INT_DECLARATION();
 
-    partition_info = hal_flash_get_info( in_partition );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
 
-    if(size + off_set > partition_info->partition_length)
+    if(size + off_set > p_partition_info->partition_length)
         return -1;
 
-    start_addr = (partition_info->partition_start_addr + off_set) & (~0xFFF);
-    end_addr = (partition_info->partition_start_addr + off_set + size - 1) & (~0xFFF);
+    start_addr = (p_partition_info->partition_start_addr + off_set) & (~0xFFF);
+    end_addr = (p_partition_info->partition_start_addr + off_set + size - 1) & (~0xFFF);
 
     for(addr = start_addr; addr <= end_addr; addr += SECTOR_SIZE)
     {
@@ -133,16 +140,19 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf , uint32_t in_buf_len)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
     GLOBAL_INT_DECLARATION();
 
-    partition_info = hal_flash_get_info( in_partition );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
 
-    if(off_set == NULL || in_buf == NULL || *off_set + in_buf_len > partition_info->partition_length)
+    if(off_set == NULL || in_buf == NULL || *off_set + in_buf_len > p_partition_info->partition_length)
         return -1;
 
-    start_addr = partition_info->partition_start_addr + *off_set;
+    start_addr = p_partition_info->partition_start_addr + *off_set;
 
     hal_wdg_reload(&wdg);
     GLOBAL_INT_DISABLE();
@@ -160,16 +170,19 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t out_buf_len)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
     GLOBAL_INT_DECLARATION();
 
-    partition_info = hal_flash_get_info( in_partition );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
 
-    if(off_set == NULL || out_buf == NULL || *off_set + out_buf_len > partition_info->partition_length)
+    if(off_set == NULL || out_buf == NULL || *off_set + out_buf_len > p_partition_info->partition_length)
         return -1;
 
-    start_addr = partition_info->partition_start_addr + *off_set;
+    start_addr = p_partition_info->partition_start_addr + *off_set;
 
     hal_wdg_reload(&wdg);
     GLOBAL_INT_DISABLE();

@@ -1,29 +1,42 @@
-
+#include <string.h>
 
 
 extern const hal_logic_partition_t hal_partitions[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
     logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
-    hal_logic_partition_t *partition_info = hal_flash_get_info( in_partition );
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
-    platform_flash_erase(partition_info->partition_start_addr + off_set, partition_info->partition_start_addr + off_set + size);
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
+
+    platform_flash_erase(p_partition_info->partition_start_addr + off_set, p_partition_info->partition_start_addr + off_set + size);
 
     return 0;
 }
                         
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf , uint32_t in_buf_len)
 {
-    uint32_t addr = hal_flash_get_info( in_partition )->partition_start_addr + *off_set;
+    uint32_t addr;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
+
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
+    addr = p_partition_info->partition_start_addr + *off_set;
 
     platform_flash_write(&addr, in_buf, in_buf_len);
 
@@ -34,7 +47,14 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t out_buf_len)
 {
-    uint32_t addr = hal_flash_get_info( in_partition )->partition_start_addr + *off_set;
+    uint32_t addr;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
+
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( in_partition, p_partition_info );
+    addr = p_partition_info->partition_start_addr + *off_set;
 
     platform_flash_read(&addr, out_buf, out_buf_len);
 

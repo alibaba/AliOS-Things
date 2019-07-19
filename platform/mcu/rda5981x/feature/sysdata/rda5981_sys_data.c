@@ -363,8 +363,14 @@ r_s32 rda5981_init_sys_data()
 {
     //WLAND_DBG(INFO, "Enter set userdata addr: %x:%x:%x\r\n", sys_data_addr);
     hal_partition_t pno = HAL_PARTITION_SYS_DATA;
-    hal_logic_partition_t *partition_info;
-    partition_info = hal_flash_get_info(pno);
+
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
+
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
     if ((partition_info->partition_start_addr)&(SECTOR_SIZE-1))
         return -1;
     if ((partition_info->partition_start_addr) <= RDA5991H_PARTITION_TABLE_END_ADDR)
