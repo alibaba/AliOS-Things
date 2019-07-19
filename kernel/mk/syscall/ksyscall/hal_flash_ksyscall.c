@@ -11,17 +11,16 @@
 #include "aos/hal/flash.h"
 #include "hal_flash_syscall_arg.h"
 
-hal_logic_partition_t* sys_hal_flash_copy_info_stub(void *arg)
+int32_t sys_hal_flash_info_get_stub(void *arg)
 {
-    hal_flash_copy_info_syscall_arg_t *_arg = arg;
-    hal_logic_partition_t *src, *dest;
+    int32_t ret;
 
-    src  = hal_flash_get_info(_arg->in_partition);
-    dest = _arg->partition;
-    memcpy((void*)dest, src, sizeof(hal_logic_partition_t));
-    dest->partition_description = NULL;
+    hal_flash_info_get_syscall_arg_t *_arg = arg;
 
-    return dest;
+    ret = hal_flash_info_get(_arg->in_partition, _arg->partition);
+    _arg->partition->partition_description = NULL;
+
+    return ret;
 }
 
 int32_t sys_hal_flash_erase_stub(void *arg)
