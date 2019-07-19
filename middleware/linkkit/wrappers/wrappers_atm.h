@@ -148,7 +148,7 @@ int HAL_AT_CONN_Close(int fd, int32_t remote_port);
 int HAL_AT_CONN_Deinit(void);
 
 #elif defined(AT_MQTT_ENABLED)
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 
 struct at_mqtt_input {
     char     *topic;

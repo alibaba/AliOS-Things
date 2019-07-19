@@ -16,7 +16,7 @@
 #include "infra_log.h"
 
 #include "http2_internal.h"
-#include "http2_api.h"
+#include "linkkit/http2_api.h"
 #include "http2_config.h"
 
 

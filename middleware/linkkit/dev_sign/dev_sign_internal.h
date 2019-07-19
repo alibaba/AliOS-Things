@@ -5,7 +5,7 @@
 #include <string.h>
 #include "infra_config.h"
 #include "infra_defs.h"
-#include "dev_sign_api.h"
+#include "linkkit/dev_sign_api.h"
 #include "wrappers.h"
 
 #endif
