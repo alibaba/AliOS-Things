@@ -18,22 +18,27 @@
 
 extern const hal_logic_partition_t hal_partitions[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
     logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
     ErrStatus reval;
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( pno );
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
     start_addr = partition_info->partition_start_addr + *poff;
     fmc_unlock();
     reval = xxx_fmc_region_write(start_addr, (void*)buf, buf_size);
@@ -51,9 +56,13 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t buf_size)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
 
-    partition_info = hal_flash_get_info( pno );
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
+
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
 
     if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
         return -1;
@@ -68,9 +77,13 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
                         uint32_t size)
 {
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( pno );
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
     if(size + off_set > partition_info->partition_length)
         return -1;
 

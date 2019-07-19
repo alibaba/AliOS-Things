@@ -1,8 +1,9 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "hal_conf.h"
 #include <stdio.h>
+#include <string.h>
+#include "hal_conf.h"
 #include <k_api.h>
 #include "aos/hal/flash.h"
 #include "aos/errno.h"
@@ -15,13 +16,14 @@
 
 extern hal_logic_partition_t hal_logic_partition[HAL_PARTITION_MAX];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
 	hal_logic_partition_t *logic_partition;
 
-	logic_partition = (hal_logic_partition_t *)&hal_logic_partition[ pno ];
+	logic_partition = (hal_logic_partition_t *)&hal_logic_partition[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-	return logic_partition;
+	return 0;
 }
 
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
@@ -30,7 +32,8 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
 #define	FLASH_BYTES_ALIGNED			16
 
 	uint32_t start_addr = 0,odd = 0,phyAddrAlign = 0,memcpylen = 0,sizeLeft = in_buf_len;
-	hal_logic_partition_t *partition_info;
+	hal_logic_partition_t  partition_info;
+	hal_logic_partition_t *p_partition_info;
 	uint8_t destbuffer[FLASH_BYTES_ALIGNED]={0x00};
 	const uint8_t *srcbuffer = (const uint8_t *)in_buf;
 	
@@ -39,8 +42,10 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
 		return EIO;
 	}
 
-	partition_info = hal_flash_get_info( in_partition );
-	start_addr = partition_info->partition_start_addr + *off_set;
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+	hal_flash_info_get( in_partition, p_partition_info );
+	start_addr = p_partition_info->partition_start_addr + *off_set;
 	
 	/* Check if the startaddress is the page size aligned */
 	if ((start_addr % FLASH_BYTES_ALIGNED) != 0)
@@ -98,17 +103,19 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
 int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
 {
 	uint32_t start_addr,i;
-	hal_logic_partition_t *partition_info;
+	hal_logic_partition_t  partition_info;
+	hal_logic_partition_t *p_partition_info;
 
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+	hal_flash_info_get( in_partition, p_partition_info );
 
-	partition_info = hal_flash_get_info( pno );
-
-	if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
+	if(poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length)
 	{
 		return EIO;
 	}
 	
-	start_addr = partition_info->partition_start_addr + *poff;
+	start_addr = p_partition_info->partition_start_addr + *poff;
 
 	for(i = 0;i < buf_size; i++)
 	{
@@ -124,17 +131,20 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
                         uint32_t size)
 {
 	uint32_t start_addr,end_addr,addr;
-	hal_logic_partition_t *partition_info;
+	hal_logic_partition_t  partition_info;
+	hal_logic_partition_t *p_partition_info;
 
-	partition_info = hal_flash_get_info( pno );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+	hal_flash_info_get( in_partition, p_partition_info );
 
-	if(size + off_set > partition_info->partition_length)
+	if(size + off_set > p_partition_info->partition_length)
 	{
 		return EIO;
 	}
 	
-	start_addr = (( partition_info->partition_start_addr + off_set ) / FLASH_BLOCK_SIZE ) * FLASH_BLOCK_SIZE;
-	end_addr = (( partition_info->partition_start_addr + off_set + size) / FLASH_BLOCK_SIZE ) * FLASH_BLOCK_SIZE;
+	start_addr = (( p_partition_info->partition_start_addr + off_set ) / FLASH_BLOCK_SIZE ) * FLASH_BLOCK_SIZE;
+	end_addr = (( p_partition_info->partition_start_addr + off_set + size) / FLASH_BLOCK_SIZE ) * FLASH_BLOCK_SIZE;
 
 
 	for (addr = start_addr; addr <= end_addr; addr += FLASH_BLOCK_SIZE)

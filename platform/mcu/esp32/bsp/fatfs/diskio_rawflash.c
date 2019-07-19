@@ -87,14 +87,16 @@ DRESULT ff_raw_write (BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 DRESULT ff_raw_ioctl (BYTE pdrv, BYTE cmd, void *buff)
 {
     hal_partition_t pno = ff_raw_handles[pdrv];
-	hal_logic_partition_t * hal_flash = hal_flash_get_info(pno);
+	hal_logic_partition_t hal_flash;
+
+    hal_flash_info_get(pno, &hal_flash);
 
     ESP_LOGV(TAG, "ff_raw_ioctl: cmd=%in", cmd);
     switch (cmd) {
         case CTRL_SYNC:
             return RES_OK;
         case GET_SECTOR_COUNT:
-            *((DWORD *) buff) = (hal_flash->partition_length) / SPI_FLASH_SEC_SIZE;
+            *((DWORD *) buff) = (hal_flash.partition_length) / SPI_FLASH_SEC_SIZE;
             return RES_OK;
         case GET_SECTOR_SIZE:
             *((WORD *) buff) = SPI_FLASH_SEC_SIZE;

@@ -16,7 +16,10 @@ static UINT32 search_info_tbl(UINT8 *buf,UINT32 *cfg_len)
     DD_HANDLE flash_handle;
     TLV_HEADER_ST head;
 #if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_PARAMETER_4);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_PARAMETER_4, pt);
 #else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_NET_PARAM);
 #endif
@@ -101,7 +104,8 @@ UINT32 get_info_item(NET_INFO_ITEM item,UINT8 *ptr0,UINT8 *ptr1, UINT8 *ptr2)
     DD_HANDLE flash_handle;
     INFO_ITEM_ST head;
 #if CFG_SUPPORT_ALIOS
-	hal_logic_partition_t *pt;
+	hal_logic_partition_t info;
+    hal_logic_partition_t *pt;
 #else
 	bk_logic_partition_t *pt;
 #endif
@@ -111,7 +115,8 @@ UINT32 get_info_item(NET_INFO_ITEM item,UINT8 *ptr0,UINT8 *ptr1, UINT8 *ptr2)
 		return ret;
 
 #if CFG_SUPPORT_ALIOS
-	pt = hal_flash_get_info(HAL_PARTITION_PARAMETER_4);
+    pt = &info;
+    hal_flash_info_get(HAL_PARTITION_PARAMETER_4, pt);
 #else
 	pt = bk_flash_get_info(BK_PARTITION_NET_PARAM);
 #endif
@@ -179,7 +184,10 @@ UINT32 save_info_item(NET_INFO_ITEM item,UINT8 *ptr0,UINT8*ptr1,UINT8 *ptr2)
 	INFO_ITEM_ST_PTR item_head_ptr;
 #if CFG_SUPPORT_ALIOS
 	UINT32 offset;
-	hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_PARAMETER_4);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *pt = &info;
+
+    hal_flash_info_get(HAL_PARTITION_PARAMETER_4, pt);
 #else
 	bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_NET_PARAM);
 #endif

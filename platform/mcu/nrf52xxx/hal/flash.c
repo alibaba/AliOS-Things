@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <string.h>
+
 #include "k_api.h"
 
 #include "aos/hal/flash.h"
@@ -20,16 +22,17 @@
 #define FLASH_ALIGN sizeof(uint32_t)
 
 extern const hal_logic_partition_t hal_partitions[];
-static nrf_fstorage_t g_fstorage; 
+static nrf_fstorage_t g_fstorage;
 static int g_fstorage_init = 0;
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
 
-    return logic_partition;
+    return 0;
 }
 
 static nrf_fstorage_t* get_fstorage_instance(hal_logic_partition_t *partition_info)
@@ -59,17 +62,21 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     uint32_t start_addr, len, left_off;
     int32_t ret = 0;
     uint8_t *buffer = NULL;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nrf_fstorage_t *p_fs;
+
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
 
     CPSR_ALLOC();
 
-    partition_info = hal_flash_get_info( pno );
-    p_fs = get_fstorage_instance(partition_info);
+    hal_flash_info_get( pno, p_partition_info );
+    p_fs = get_fstorage_instance(p_partition_info);
     if (p_fs == NULL)
         return -1;
     
-    start_addr = partition_info->partition_start_addr + *poff;
+    start_addr = p_partition_info->partition_start_addr + *poff;
     left_off = start_addr % FLASH_ALIGN;
     len = ((buf_size + left_off) + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
 
@@ -100,19 +107,23 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t 
     int32_t ret = 0;
     uint32_t start_addr, len, left_off;
     uint8_t *buffer = NULL;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nrf_fstorage_t *p_fs;
+
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
 
     CPSR_ALLOC();
 
-    partition_info = hal_flash_get_info( pno );
-    p_fs = get_fstorage_instance(partition_info);
+    hal_flash_info_get( pno, p_partition_info );
+    p_fs = get_fstorage_instance(p_partition_info);
     if (p_fs == NULL)
         return -1;
 
-    if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
+    if(poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length)
         return -1;
-    start_addr = partition_info->partition_start_addr + *poff;
+    start_addr = p_partition_info->partition_start_addr + *poff;
 
     left_off = start_addr % FLASH_ALIGN;
     len = ((buf_size + left_off) + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
@@ -141,16 +152,20 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     uint32_t addr, page_size;
     uint32_t start_addr, end_addr;
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     nrf_fstorage_t *p_fs;
+
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
 
     CPSR_ALLOC();
 
-    partition_info = hal_flash_get_info( pno );
-    if(size + off_set > partition_info->partition_length)
+    ret = hal_flash_info_get( pno, p_partition_info );
+    if(ret != 0 || size + off_set > p_partition_info->partition_length)
         return -1;
 
-    p_fs = get_fstorage_instance(partition_info);
+    p_fs = get_fstorage_instance(p_partition_info);
     if (p_fs == NULL)
         return -1;
 
@@ -159,8 +174,8 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     else
         return -1;
 
-    start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), page_size);
-    end_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set + size - 1), page_size);
+    start_addr = ROUND_DOWN((p_partition_info->partition_start_addr + off_set), page_size);
+    end_addr = ROUND_DOWN((p_partition_info->partition_start_addr + off_set + size - 1), page_size);
 
     for (addr = start_addr; addr <= end_addr; addr += page_size) {
         RHINO_CRITICAL_ENTER();
