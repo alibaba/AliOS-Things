@@ -155,7 +155,7 @@ const __root void * const syscall_tbl[] =
 
     /* ------------------- hal flash ---------------------*/
 #if (RHINO_CONFIG_HAL_FLASH_SYSCALL > 0)
-    [SYS_HAL_FLASH_COPY_INFO]     = (void*)sys_hal_flash_copy_info_stub,
+    [SYS_HAL_FLASH_INFO_GET]      = (void*)sys_hal_flash_info_get_stub,
     [SYS_HAL_FLASH_ERASE]         = (void*)sys_hal_flash_erase_stub,
     [SYS_HAL_FLASH_WRITE]         = (void*)sys_hal_flash_write_stub,
     [SYS_HAL_FLASH_ERASE_WRITE]   = (void*)sys_hal_flash_erase_write_stub,

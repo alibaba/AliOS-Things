@@ -5,9 +5,7 @@
 #ifndef HAL_FLASH_KSYSCALL_H
 #define HAL_FLASH_KSYSCALL_H
 
-#include "aos/hal/flash.h"
-
-hal_logic_partition_t* sys_hal_flash_copy_info_stub(void *arg);
+int32_t sys_hal_flash_info_get_stub(void *arg);
 
 int32_t sys_hal_flash_erase_stub(void *arg);
 
