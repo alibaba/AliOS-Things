@@ -20,11 +20,14 @@ extern void vPortETSIntrUnlock(void);
 #if defined BOARD_ESP8285
 extern const hal_logic_partition_t hal_partitions_1M_512x512[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
-    logic_partition = (hal_logic_partition_t *)&hal_partitions_1M_512x512[pno];
-    return logic_partition;
+
+    logic_partition = (hal_logic_partition_t *)&hal_partitions_1M_512x512[ pno ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
+
+    return 0;
 }
 #else
 extern const hal_logic_partition_t hal_partitions_1M_512x512[];
@@ -33,10 +36,9 @@ extern const hal_logic_partition_t hal_partitions_4M_512x512[];
 extern const hal_logic_partition_t hal_partitions_2M_1024x1024[];
 extern const hal_logic_partition_t hal_partitions_4M_1024x1024[];
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
-    hal_logic_partition_t *app_logic_partition;
     hal_partition_t new_pno = pno;
 
     uint8 spi_size_map = system_get_flash_size_map();
@@ -71,7 +73,8 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
           break;
     }
 
-    return logic_partition;
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
+    return 0;
 }
 #endif
 
@@ -80,9 +83,13 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     uint32_t start_addr, len, left_off;
     int32_t ret = 0;
     uint8_t *buffer = NULL;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( pno );
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
     start_addr = partition_info->partition_start_addr + *poff;
 
     left_off = start_addr % FLASH_ALIGN;
@@ -113,9 +120,13 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t 
     int32_t ret = 0;
     uint32_t start_addr, len, left_off;
     uint8_t *buffer = NULL;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( pno );
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
 
     if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
         return -1;
@@ -145,9 +156,13 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set, uint32_t size)
     uint32_t addr;
     uint32_t start_addr, end_addr;
     int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *partition_info = &info;
 
-    partition_info = hal_flash_get_info( pno );
+    if (hal_flash_info_get(pno, partition_info) != 0) {
+        return -1;
+    }
+
     if((size + off_set) > partition_info->partition_length) {
         return -1;
     }

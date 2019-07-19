@@ -29,6 +29,7 @@
 
 #include <sys/unistd.h>
 #include <sys/errno.h>
+#include <string.h>
 
 #include "aos/hal/uart.h"
 #include "aos/hal/wdg.h"
@@ -75,10 +76,15 @@ void hal_init_post(void)
 void hal_boot(hal_partition_t partition)
 {
     uint32_t addr;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
 
     intc_deinit();
 
-    addr = hal_flash_get_info(partition)->partition_start_addr;
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(partition, p_partition_info);
+    addr = p_partition_info->partition_start_addr;
     __asm volatile ("BX %0" : : "r" (addr) );
 }
 

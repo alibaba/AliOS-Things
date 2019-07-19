@@ -500,7 +500,10 @@ int bkreg_run_command(const char *content, int cnt)
         rx_param        = (REGISTER_PARAM *)pHCIrxBuf->param;
 
 #if CFG_SUPPORT_ALIOS
-		hal_logic_partition_t *pt = hal_flash_get_info(HAL_PARTITION_RF_FIRMWARE);
+        hal_logic_partition_t info;
+        hal_logic_partition_t *pt = &info;
+
+        hal_flash_info_get(HAL_PARTITION_RF_FIRMWARE, pt);
 #else
 		bk_logic_partition_t *pt = bk_flash_get_info(BK_PARTITION_RF_FIRMWARE);
 #endif
