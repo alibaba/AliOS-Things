@@ -41,9 +41,16 @@ extern DMA_HandleTypeDef hdma_sai1_a;
 
 static uint32_t get_audio_part_len(void)
 {
-	hal_logic_partition_t *audio_part = hal_flash_get_info(PART_FOR_AUDIO);
+    hal_logic_partition_t audio_part;
+    int32_t ret = 0;
 
-	return audio_part->partition_length;
+    ret = hal_flash_info_get(PART_FOR_AUDIO, &audio_part);
+
+    if (ret != 0) {
+        return 0;
+    }
+
+    return audio_part.partition_length;
 }
 
 static float get_run_time(void)
