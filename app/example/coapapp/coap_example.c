@@ -8,7 +8,7 @@
 #if !defined(_WIN32)
     #include <unistd.h>
 #endif
-#include "coap_api.h"
+#include "network/coap.h"
 #include "wrappers.h"
 #include "app_entry.h"
 #include "infra_compat.h"
