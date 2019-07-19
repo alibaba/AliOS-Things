@@ -63,6 +63,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include <k_api.h>
 #include "aos/hal/flash.h"
 #include "fsl_clock.h"
@@ -83,20 +84,25 @@ hal_logic_partition_t hal_logic_partition[HAL_PARTITION_MAX] =
     { HAL_FLASH_NONE, NULL, 0, 0, PAR_OPT_WRITE_DIS|PAR_OPT_READ_DIS},
     { HAL_FLASH_NONE, NULL, 0, 0, PAR_OPT_WRITE_DIS|PAR_OPT_READ_DIS},
 };
-
 /**
- * Get the infomation of the specified flash area
+ * Get the information of the specified flash area
  *
- * @param[in]  in_partition  The target flash logical partition which should be erased
+ * @param[in]  in_partition     The target flash logical partition
+ * @param[in]  partition        The buffer to store partition info
  *
- * @return     HAL_logi_partition struct
+ * @return  0: On success， otherwise is error
  */
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
+    hal_logic_partition_t *p_logic_partition;
+
     /* Get the config information first for other flash operations */
     memset(&s_flashConfig, 0, sizeof(flash_config_t));
     FLASH_Init(&s_flashConfig);
-    return &hal_logic_partition[in_partition];
+    p_logic_partition = &hal_logic_partition[in_partition];
+    memcpy(partition, p_logic_partition, sizeof(hal_logic_partition_t));
+
+    return 0;
 }
 
 /**
@@ -116,9 +122,14 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
     status_t status = kStatus_FLASH_Success;
-    hal_logic_partition_t *logic = NULL;
-    logic = hal_flash_get_info(in_partition);
-    uint32_t address = logic->partition_start_addr + off_set;
+    hal_logic_partition_t  logic;
+    hal_logic_partition_t *p_logic = NULL;
+
+    p_logic = &logic;
+    memset(p_logic, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(in_partition, p_logic);
+
+    uint32_t address = p_logic->partition_start_addr + off_set;
 
     status = FLASH_Erase(&s_flashConfig, address, size, 0xFFFFFFFFU);
     if (status == kStatus_FLASH_Success)
@@ -149,9 +160,14 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
     status_t status = kStatus_FLASH_Success;
     uint32_t address = 0;
 
-    hal_logic_partition_t *logic = NULL;
-    logic = hal_flash_get_info(in_partition);
-    address = logic->partition_start_addr + *off_set;
+    hal_logic_partition_t  logic;
+    hal_logic_partition_t *p_logic = NULL;
+
+    p_logic = &logic;
+    memset(p_logic, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(in_partition, p_logic);
+
+    address = p_logic->partition_start_addr + *off_set;
 
     status = FLASH_Program(&s_flashConfig, address, (uint32_t *)in_buf, in_buf_len);
 
@@ -203,9 +219,14 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
 {
     uint32_t address = 0;
 
-    hal_logic_partition_t *logic = NULL;
-    logic = hal_flash_get_info(in_partition);
-    address = logic->partition_start_addr + *off_set;
+    hal_logic_partition_t  logic;
+    hal_logic_partition_t *p_logic = NULL;
+
+    p_logic = &logic;
+    memset(p_logic, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get(in_partition, p_logic);
+
+    address = p_logic->partition_start_addr + *off_set;
 
     memcpy(out_buf, (void *)address, in_buf_len);
     
