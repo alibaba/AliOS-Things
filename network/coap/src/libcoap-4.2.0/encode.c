@@ -11,7 +11,7 @@
 #endif
 
 #include "coap_config.h"
-#include "coap.h"
+#include "coap_internals.h"
 #include "coap_mem.h"
 #include "encode.h"
 

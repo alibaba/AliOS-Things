@@ -4,8 +4,8 @@
 
 #include <aos/vfs.h>
 
-#include "coap.h"
-#include "coap_api.h"
+#include "coap_internals.h"
+#include "network/coap.h"
 #include "coap_wrapper.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
