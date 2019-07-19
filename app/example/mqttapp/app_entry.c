@@ -10,12 +10,13 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
-
+#include "infra_compat.h"
 #include "netmgr.h"
 #include "app_entry.h"
+#include "aos/cli.h"
 
 #ifdef CSP_LINUXHOST
-#include <signal.h>
+    #include <signal.h>
 #endif
 
 static char linkkit_started = 0;
@@ -44,13 +45,73 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("iotx_example",(task_fun)linkkit_main,(void *)&entry_paras,1024*6);
+        aos_task_new("iotx_example", (task_fun)linkkit_main, (void *)&entry_paras, 1024 * 6);
         linkkit_started = 1;
     }
 }
+#ifdef AOS_COMP_CLI
+
+static void _print_devinfo()
+{
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = {0};
+#ifdef DEMO_DEBUG
+    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+    char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = {0};
+#endif
+    HAL_GetProductKey(_product_key);
+    HAL_GetDeviceName(_device_name);
+    LOG("pk:%s", _product_key);
+    LOG("dn:%s", _device_name);
+#ifdef DEMO_DEBUG
+    HAL_GetProductSecret(_product_secret);
+    HAL_GetDeviceSecret(_device_secret);
+    LOG("ps:%s", _product_secret);
+    LOG("ds:%s", _device_secret);
+#endif
+}
+
+static void _set_devinfo(char *pk, char *ps, char *dn, char *ds)
+{
+    if (dn != NULL) {
+        HAL_SetDeviceName(dn);
+    }
+    if (ds != NULL) {
+        HAL_SetDeviceSecret(ds);
+    }
+    if (pk != NULL) {
+        HAL_SetProductKey(pk);
+    }
+    if (ps != NULL) {
+        HAL_SetProductSecret(ps);
+    }
+}
+static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    const char *rtype = argc > 1 ? argv[1] : "";
+    if (strcmp(rtype, "get") == 0) {
+        _print_devinfo();
+    } else if (strcmp(rtype, "set") == 0) {
+        if (argc == 4) {
+            _set_devinfo(NULL, NULL, argv[2], argv[3]);
+        } else if (argc == 6) {
+            _set_devinfo(argv[2], argv[3], argv[4], argv[6]);
+        } else {
+            LOG("arg number err!");
+        }
+    } else {
+        LOG("cmd not support!");
+    }
+}
+
+static struct cli_command devinfo_cmd = { .name     = "devinfo",
+    .help     = "devinfo [set pk ps dn ds | set dn ds | get ]",
+     .function = handle_devinfo_cmd
+};
+#endif
 
 #ifdef TEST_LOOP
-const  char *input_data[2]= {"mqttapp","loop"};
+const  char *input_data[2] = {"mqttapp", "loop"};
 #endif
 int application_start(int argc, char **argv)
 {
@@ -73,7 +134,9 @@ int application_start(int argc, char **argv)
 #ifdef MDAL_MAL_ICA_TEST
     HAL_MDAL_MAL_Init();
 #endif
-
+#ifdef AOS_COMP_CLI
+    aos_cli_register_command(&devinfo_cmd);
+#endif
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
@@ -82,7 +145,7 @@ int application_start(int argc, char **argv)
 
     netmgr_start(false);
 #if defined (CSP_LINUXHOST) && !defined (WITH_SAL)
-    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP,0);
+    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0);
 #endif
     aos_loop_run();
 

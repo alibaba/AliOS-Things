@@ -12,7 +12,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "wrappers.h"
 #include "app_entry.h"
 
@@ -20,8 +20,8 @@
     #include "simulate_subdev/testcmd.h"
 #endif
 
-#if defined(ENABLE_AOS_OTA) 
-#include "ota/ota_service.h"
+#if defined(ENABLE_AOS_OTA)
+    #include "ota/ota_service.h"
 #endif
 
 // for demo only
@@ -213,6 +213,12 @@ static int user_disconnected_event_handler(void)
     return 0;
 }
 
+static int user_property_cloud_error_handler(const int code, const char *data, const char *detail)
+{
+    EXAMPLE_TRACE("code =%d ,data=%s, detail=%s", code, data, detail);
+    return 0;
+}
+
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
@@ -315,10 +321,14 @@ static int user_master_dev_available(void)
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetProductSecret(PRODUCT_SECRET);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
 }
 
 static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
@@ -331,23 +341,23 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         return FAIL_RETURN;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
-#if defined(ENABLE_AOS_OTA) 
-    static ota_service_t ctx = {0};
-    memset(&ctx, 0, sizeof(ota_service_t));
-    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk)-1);
-    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn)-1);
-    strncpy(ctx.ds, meta_info->product_secret, sizeof(ctx.ds)-1);
-    ctx.trans_protcol = 0;
-    ctx.dl_protcol = 3;
-    ctx.dev_type = 1;
-    ota_service_init(&ctx);
-#endif
+
     res = IOT_Linkkit_Connect(devid);
     if (res == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev connect Failed\n");
         return res;
     }
     EXAMPLE_TRACE("subdev connect success: devid = %d\n", devid);
+#if defined(ENABLE_AOS_OTA)
+    static ota_service_t ctx = {0};
+    memset(&ctx, 0, sizeof(ota_service_t));
+    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk) - 1);
+    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn) - 1);
+    strncpy(ctx.ds, meta_info->device_secret, sizeof(ctx.ds) - 1);
+    strncpy(ctx.ps, meta_info->product_secret, sizeof(ctx.ps) - 1);
+    ctx.dev_type = 1;
+    ota_service_init(&ctx);
+#endif
 
     res = IOT_Linkkit_Report(devid, ITM_MSG_LOGIN, NULL, 0);
     if (res == FAIL_RETURN) {
@@ -427,19 +437,23 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
+    IOT_RegisterCallback(ITE_CLOUD_ERROR, user_property_cloud_error_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    HAL_GetProductKey(master_meta_info.product_key);
+    HAL_GetDeviceName(master_meta_info.device_name);
+    HAL_GetProductSecret(master_meta_info.product_secret);
+    HAL_GetDeviceSecret(master_meta_info.device_secret);
 
     /* Create Master Device Resources */
-    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (user_example_ctx->master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
+    do {
+        user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (user_example_ctx->master_devid >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Open failed! retry after %d ms\n", 2000);
+        HAL_SleepMs(2000);
+    } while (1);
 
     /* Choose Login Server */
     int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
@@ -454,11 +468,14 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
+        if (res >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Connect failed! retry after %d ms\n", 5000);
+        HAL_SleepMs(5000);
+    } while (1);
 
     user_example_ctx->g_user_dispatch_thread_running = 1;
     res = HAL_ThreadCreate(&user_example_ctx->g_user_dispatch_thread, user_dispatch_yield, NULL, NULL, NULL);

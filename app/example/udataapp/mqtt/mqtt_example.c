@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 #include "infra_compat.h"
 #include "ulog/ulog.h"
