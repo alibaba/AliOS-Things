@@ -13,9 +13,9 @@
 #include "ota_hal_common.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 2
-#include "coap_api.h"
+#include "linkkit/coap_api.h"
 #else
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #endif
 
 #if !defined (AOS_COMP_OTA_BLE)
