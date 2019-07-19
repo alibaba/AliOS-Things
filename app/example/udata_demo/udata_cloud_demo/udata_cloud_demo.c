@@ -13,7 +13,7 @@
 #include "aos/yloop.h"
 #include "infra_compat.h"
 #include "infra_defs.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "netmgr.h"
 #include "service_mgr.h"
 #include "udata_queue.h"

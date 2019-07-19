@@ -5,7 +5,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
@@ -17,13 +17,13 @@
 #define USE_CUSTOME_DOMAIN      (0)
 
 #ifdef EN_COMBO_NET
-#include "combo_devinfo.h"
+    #include "combo_devinfo.h"
 #else
-#define PRODUCT_KEY    "a1ybTpus98a"
-#define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
-#define DEVICE_NAME    "testdevshadow1228"
-#define DEVICE_SECRET  "XWpUcNcmLDolAjPYi4fOmmrVFvhuxk9v"
-// for demo only
+    #define PRODUCT_KEY    "a1ybTpus98a"
+    #define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
+    #define DEVICE_NAME    "testdevshadow1228"
+    #define DEVICE_SECRET  "XWpUcNcmLDolAjPYi4fOmmrVFvhuxk9v"
+    // for demo only
 #endif
 
 #if USE_CUSTOME_DOMAIN
@@ -182,7 +182,7 @@ static int user_property_desired_delete_trigger()
     unsigned int request_len = strlen(request);
     EXAMPLE_TRACE("user desired delete send request, Request: %s", request);
     IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_PROPERTY_DESIRED_DELETE,
-                             (unsigned char *)request, request_len);
+                       (unsigned char *)request, request_len);
     return 0;
 }
 
@@ -193,7 +193,7 @@ static int user_property_desired_get_trigger()
     unsigned int request_len = strlen(request);
     EXAMPLE_TRACE("send request, Request: %s", request);
     IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_PROPERTY_DESIRED_GET,
-                             (unsigned char *)request, request_len);
+                       (unsigned char *)request, request_len);
     return 0;
 }
 
@@ -201,7 +201,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
         int *response_len)
 {
     char *pp = (char *)malloc(100);
-    const char * ps = "{\"PowerSwitch\":1}";
+    const char *ps = "{\"PowerSwitch\":1}";
     memset(pp, 0, 100);
     memcpy(pp, ps, strlen(ps));
     *response = pp;
@@ -410,12 +410,15 @@ static int user_master_dev_available(void)
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+        HAL_SetProductSecret(PRODUCT_SECRET);
+        HAL_SetDeviceName(DEVICE_NAME);
+        HAL_SetDeviceSecret(DEVICE_SECRET);
+    }
 }
-
 static int max_running_seconds = 0;
 int linkkit_main(void *paras)
 {
@@ -460,10 +463,10 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_DESIRED_GET_REPLY, user_property_desired_get_reply_event_handler);
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    HAL_GetProductKey(master_meta_info.product_key);
+    HAL_GetDeviceName(master_meta_info.device_name);
+    HAL_GetProductSecret(master_meta_info.product_secret);
+    HAL_GetDeviceSecret(master_meta_info.device_secret);
 
     /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
 #if USE_CUSTOME_DOMAIN
