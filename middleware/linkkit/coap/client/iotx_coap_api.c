@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "coap_api.h"
+#include "linkkit/coap_api.h"
 #include "iotx_coap_internal.h"
 #include "Cloud_CoAPPlatform.h"
 #include "Cloud_CoAPPlatform.h"

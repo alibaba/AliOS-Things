@@ -6,7 +6,7 @@
 #ifdef DEPRECATED_LINKKIT
 
 #include "infra_json_parser.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "impl_ntp.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

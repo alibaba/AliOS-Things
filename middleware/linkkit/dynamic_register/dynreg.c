@@ -9,10 +9,10 @@
 #include "infra_httpc.h"
 #include "infra_sha256.h"
 #include "dynreg_internal.h"
-#include "dynreg_api.h"
+#include "linkkit/dynreg_api.h"
 #ifdef MQTT_DYNAMIC_REGISTER
-    #include "dev_sign_api.h"
-    #include "mqtt_api.h"
+    #include "linkkit/dev_sign_api.h"
+    #include "linkkit/mqtt_api.h"
 #endif
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           (256)

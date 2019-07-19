@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 #include "alcs_internal.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "CoAPExport.h"
 #include "alcs_mqtt.h"
 #include "iotx_alcs.h"
