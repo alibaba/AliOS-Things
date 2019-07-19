@@ -4,6 +4,7 @@
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
 #include <stdio.h>
+#include <string.h>
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 #include <k_api.h>
@@ -335,7 +336,7 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
     return ret;
 }
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+int32_t hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
 {
     hal_logic_partition_t *logic_partition;
 #if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
@@ -343,31 +344,34 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
     defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
     defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 
-    hal_partition_t new_pno = pno;
+    hal_partition_t new_pno = in_partition;
     uint32_t memrmp = 0;
     uint32_t current_bank = 0;
     memrmp = READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE);
     current_bank = memrmp ? FLASH_BANK_2 : FLASH_BANK_1;
     if(current_bank == FLASH_BANK_2) {//userbin2
-        if(pno == HAL_PARTITION_APPLICATION) {
+        if(in_partition == HAL_PARTITION_APPLICATION) {
             new_pno = HAL_PARTITION_OTA_TEMP;
         }
-        else if(pno == HAL_PARTITION_OTA_TEMP) {
+        else if(in_partition == HAL_PARTITION_OTA_TEMP) {
             new_pno = HAL_PARTITION_APPLICATION;
         }
     }
     logic_partition = (hal_logic_partition_t *)&hal_partitions[ new_pno ];
 #else
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    logic_partition = (hal_logic_partition_t *)&hal_partitions[ in_partition ];
 #endif
-    return logic_partition;
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
+
+    return 0;
 }
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , uint32_t buf_size)
 {
     int ret = 0;
     uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     hal_partition_t real_pno;
 
     if (HAL_FLASH_Unlock() != 0) {
@@ -377,8 +381,10 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 
     real_pno = pno;
-    partition_info = hal_flash_get_info( real_pno );
-    start_addr = partition_info->partition_start_addr + *poff;
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( real_pno, p_partition_info );
+    start_addr = p_partition_info->partition_start_addr + *poff;
 
 #ifdef USING_FLAT_FLASH
     start_addr = FLASH_flat_addr(start_addr);
@@ -413,18 +419,21 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
 int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
 {
     uint32_t start_addr, len;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     hal_partition_t real_pno;
     uint64_t *pdata;
 
     real_pno = pno;
 
-    partition_info = hal_flash_get_info( real_pno );
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( real_pno, p_partition_info );
 
-    if (poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length) {
+    if (poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length) {
         return -1;
     }
-    start_addr = partition_info->partition_start_addr + *poff;
+    start_addr = p_partition_info->partition_start_addr + *poff;
 
 #ifdef USING_FLAT_FLASH
     start_addr = FLASH_flat_addr(start_addr);
@@ -452,7 +461,8 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     int ret = 0;
     uint32_t start_addr;
     uint32_t erase_size;
-    hal_logic_partition_t *partition_info;
+    hal_logic_partition_t  partition_info;
+    hal_logic_partition_t *p_partition_info;
     hal_partition_t real_pno;
 
     ret = HAL_FLASH_Unlock();
@@ -463,13 +473,15 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 
     real_pno = pno;
-    partition_info = hal_flash_get_info( real_pno );
-    if (size + off_set > partition_info->partition_length) {
+    p_partition_info = &partition_info;
+    memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
+    hal_flash_info_get( real_pno, p_partition_info );
+    if (size + off_set > p_partition_info->partition_length) {
         return -1;
     }
 
-    start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), FLASH_PAGE_SIZE);
-    erase_size = partition_info->partition_start_addr + off_set - start_addr + size;
+    start_addr = ROUND_DOWN((p_partition_info->partition_start_addr + off_set), FLASH_PAGE_SIZE);
+    erase_size = p_partition_info->partition_start_addr + off_set - start_addr + size;
 
 #ifdef USING_FLAT_FLASH
     start_addr = FLASH_flat_addr(start_addr);

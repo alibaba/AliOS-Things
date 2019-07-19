@@ -33,23 +33,27 @@ void EFM32_EFM32_FLASH_Init(void)
     MSC_Init();
 }
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
+int32_t hal_flash_info_get(hal_partition_t pno, hal_logic_partition_t *partition)
 {
-    return &hal_logic_partition[in_partition];
+    hal_logic_partition_t *logic_partition;
+
+    logic_partition = (hal_logic_partition_t *)&hal_logic_partition[ pno ];
+    memcpy(partition, logic_partition, sizeof(hal_logic_partition_t));
+
+    return 0;
 }
 
-int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
+int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
     int32_t             status = 0;
     int                 erase_size = size;
     uint32_t            start_address;
     uint32_t            page_num = 0;
     uint32_t            i;
-    hal_logic_partition_t *logic = NULL;
+    hal_logic_partition_t info;
+    hal_logic_partition_t *logic = &info;
 
-    logic = hal_flash_get_info(in_partition);
-
-    if(NULL == logic) {
+    if (hal_flash_info_get(pno, logic) != 0) {
         return 5;
     }
 
@@ -92,7 +96,7 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
     }
 }
 
-int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf, uint32_t in_buf_len)
+int32_t hal_flash_write(hal_partition_t pno, uint32_t *off_set, const void *in_buf, uint32_t in_buf_len)
 {
     int32_t     status = 0;
     uint32_t    address = 0;
@@ -102,11 +106,11 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
     uint32_t    remain_size = in_buf_len;
     uint32_t    write_size;
     uint8_t    *p_inbuf = (uint8_t *)in_buf;
-    hal_logic_partition_t *logic = NULL;
 
-    logic = hal_flash_get_info(in_partition);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *logic = &info;
 
-    if(NULL==logic) {
+    if (hal_flash_info_get(pno, logic) != 0) {
         return 5;
     }
 
@@ -157,14 +161,14 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
     }
 }
 
-int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t in_buf_len)
+int32_t hal_flash_read(hal_partition_t pno, uint32_t *off_set, void *out_buf, uint32_t in_buf_len)
 {
     uint32_t address = 0;
-    hal_logic_partition_t *logic = NULL;
 
-    logic = hal_flash_get_info(in_partition);
+    hal_logic_partition_t info;
+    hal_logic_partition_t *logic = &info;
 
-    if(NULL == logic) {
+    if (hal_flash_info_get(pno, logic) != 0) {
         return 5;
     }
 
@@ -189,12 +193,12 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
     return 0;
 }
 
-int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
+int32_t hal_flash_enable_secure(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
     return 0;
 }
 
-int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
+int32_t hal_flash_dis_secure(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
     return 0;
 }
