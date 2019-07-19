@@ -1,7 +1,7 @@
 #include "iotx_dm_internal.h"
 
 #ifdef DEV_BIND_ENABLED
-    #include "dev_bind_api.h"
+    #include "linkkit/dev_bind_api.h"
 #endif
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"

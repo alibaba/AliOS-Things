@@ -6,7 +6,7 @@
 
 #if defined(LOG_REPORT_TO_CLOUD) && !defined(DEVICE_MODEL_RAWDATA_SOLO)
 
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 
 const char THING_LOG_POST_PARAMS_HEAD[] =
             "\"%.*s %s %ld ";
