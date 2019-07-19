@@ -31,7 +31,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #endif
-#include <lwm2m_api.h>
+#include <network/lwm2m.h>
 
 #define LWM2M_STANDARD_PORT_STR "5683"
 #define LWM2M_STANDARD_PORT      5683
