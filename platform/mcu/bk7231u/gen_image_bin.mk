@@ -19,7 +19,7 @@ endif # Linux64
 endif # Linux32
 endif # Win32
 
-ota1_offset = 34816 # 0x8800
+ota1_offset = 69632 # 0x11000
 ota2_offset = 1044480 # 0xFF000
 
 CRC_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_crc$(BIN_OUTPUT_SUFFIX))
