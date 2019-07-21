@@ -224,5 +224,9 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
+#ifndef RHINO_CONFIG_ERR_DUMP
+#define RHINO_CONFIG_ERR_DUMP                0
+#endif
+
 #endif /* CONFIG_H */
 
