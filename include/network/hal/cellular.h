@@ -34,7 +34,7 @@ struct hal_cellular_module_s {
 
     const hal_cellular_event_cb_t *ev_cb;
 
-    int  (*init)(hal_cellular_module_t *m);
+    int (*init)(hal_cellular_module_t *m);
 };
 
 /*  @addtogroup wds_qmi_enums

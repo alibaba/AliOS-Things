@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "http_def_config.h"
 #include "http_parser.h"
 
@@ -12,7 +13,7 @@
 
 /* http error code */
 enum {
-    HTTP_SUCCESS  = 0,
+    HTTP_SUCCESS  =  0,
     HTTP_ENOBUFS  = -1,  /* buffer error     */
     HTTP_EARG     = -2,  /* illegal argument */
     HTTP_ENOTSUPP = -3,  /* not support      */
@@ -42,7 +43,7 @@ typedef struct httpc_connection_s {
     int port;
 
     uint8_t *req_buf;     /* pointer to request buffer         */
-    int32_t req_buf_size; /* request buffer size               */
+    int32_t  req_buf_size;/* request buffer size               */
 
 #if CONFIG_HTTP_SECURE
     uint8_t flags;        /* flags to http client              */
@@ -50,12 +51,12 @@ typedef struct httpc_connection_s {
 } httpc_connection_t;
 
 typedef struct http_rsp_info_s {
-    uint32_t rsp_len;
-    uint8_t *body_start;
-    uint8_t content_len_present:1;
-    uint8_t body_present:1;
-    uint8_t message_complete:1;
-    uint8_t headers_complete:1;
+    uint32_t  rsp_len;
+    uint8_t  *body_start;
+    uint8_t   content_len_present:1;
+    uint8_t   body_present:1;
+    uint8_t   message_complete:1;
+    uint8_t   headers_complete:1;
 } http_rsp_info_t;
 
 /**
@@ -108,7 +109,8 @@ int8_t httpc_deinit(httpc_handle_t httpc);
  *
  */
 int8_t httpc_send_request(httpc_handle_t httpc, int8_t method, char *uri,
-                          const char *hdr, const char *content_type, const char *param, uint16_t param_len);
+                          const char *hdr, const char *content_type,
+                          const char *param, uint16_t param_len);
 
 /**
  * http client receive response
@@ -148,3 +150,4 @@ int32_t httpc_recv_response(httpc_handle_t httpc, uint8_t *rsp, uint32_t rsp_siz
 int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data);
 
 #endif
+
