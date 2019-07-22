@@ -5,17 +5,17 @@
 #include <stdio.h>
 
 #include "ulocation/ulocation.h"
-#include "uloc_hal.h"
+#include "ulocation_hal.h"
 
 #ifdef DEV_SAL_SIM800
-#define ULOC_GPRS
+#define ULOCATION_GPRS
 #endif
 
-int uloc_hal_get_gprs(char **cdma, char **bts, char **nearbts)
+int ulocation_hal_get_gprs(char **cdma, char **bts, char **nearbts)
 {
     int rlt = -1;
 
-#ifdef ULOC_GPRS
+#ifdef ULOCATION_GPRS
     /* test */
     static char bts_buf[128];
     static char nbts_buf[128 * 4];
