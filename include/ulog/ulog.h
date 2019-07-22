@@ -5,8 +5,6 @@
 #ifndef ULOG_H
 #define ULOG_H
 
-#include "ulog_config.h"
-
 /**
  * Important!!! Switch on NDEBUG will make no log produced(except use API ULOG),
  * it doesn't work even you try to increase log level.
@@ -15,11 +13,7 @@
 #define CONFIG_LOGMACRO_SILENT
 #endif
 
-#if SYNC_LOG_DETAILS
 #define ULOG_TAG __FILE__, __LINE__
-#else
-#define ULOG_TAG "", 0
-#endif
 
 #define LOG_EMERG   0 /* system is unusable */
 #define LOG_ALERT   1 /* action must be taken immediately */
