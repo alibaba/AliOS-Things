@@ -4,6 +4,7 @@ config AOS_COMP_UND
     select AOS_COMP_OSAL_AOS
     select AOS_COMP_KV
     select AOS_COMP_YLOOP
+    select AOS_COMP_UAGENT if AOS_UND_USE_UAGENT
     help
       AliOS things uND -- Nework Diagnosis
 
