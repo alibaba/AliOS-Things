@@ -12,7 +12,7 @@
 
 #include "qxwz_socket.h"
 #include "qxwz_types.h"
-#include "uloc_qxwz_common.h"
+#include "ulocation_qxwz_common.h"
 
 static soc_cb_t g_soc_funtion;
 static qxwz_s32_t g_soc;

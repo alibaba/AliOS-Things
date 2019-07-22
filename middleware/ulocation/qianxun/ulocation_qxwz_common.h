@@ -34,6 +34,6 @@ typedef struct {
     char nors;         /* 南北纬 */
     char wore;         /* 东西经 */
     double altitude;   /* 高度 */
-} uloc_gga_info;
+} ulocation_gga_info;
 
 #endif
