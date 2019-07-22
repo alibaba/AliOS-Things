@@ -1,7 +1,7 @@
 #ifndef OTA_BREEZE_H
 #define OTA_BREEZE_H
 
-#include "ota_breeze_export.h"
+#include "ota/ota_breeze_export.h"
 
 #ifndef true
 #define true  (1)
