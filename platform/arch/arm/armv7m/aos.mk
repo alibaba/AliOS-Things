@@ -9,7 +9,9 @@ $(NAME)_SOURCES += common/port_c.c
 $(NAME)_SOURCES += common/panic_mpu.c
 $(NAME)_SOURCES += common/backtrace.c
 
-GLOBAL_INCLUDES += common/
+$(NAME)_INCLUDES += common/include
+
+GLOBAL_INCLUDES += include
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_SOURCES += common/panic_armcc.S
