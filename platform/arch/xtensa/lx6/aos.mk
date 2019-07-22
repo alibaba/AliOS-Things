@@ -22,7 +22,7 @@ $(NAME)_INCLUDES := \
                     ../../mcu/esp32/espidf/components/log/include       \
                     ../../mcu/esp32/espidf/components/driver/include
 
-GLOBAL_INCLUDES += . ./include    \
-                   ./include/frxt \
+GLOBAL_INCLUDES += include    \
+                   include/frxt \
                    ../../mcu/esp32/espidf/components/esp32/include
 

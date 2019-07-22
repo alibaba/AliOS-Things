@@ -9,7 +9,10 @@ $(NAME)_SOURCES += common/k_cache.c
 $(NAME)_SOURCES += common/k_mmu_sd.c
 $(NAME)_SOURCES += common/panic.c
 $(NAME)_SOURCES += common/port_c.c
-GLOBAL_INCLUDES += common
+
+$(NAME)_INCLUDES += common/include
+
+GLOBAL_INCLUDES += include
 
 ifeq ($(COMPILER),armcc)
 
