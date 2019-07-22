@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+
 #include "k_api.h"
 #include "res.h"
 #include "fs_fd.h"
@@ -172,8 +173,10 @@ int task_group_init(task_group_t *group, const char *name, int pid)
     group->pid = pid;
 
     len = strlen((const char*)name);
-    if (len >= TG_NAME_MAX_LEN)
+    if (len >= TG_NAME_MAX_LEN) {
         len = TG_NAME_MAX_LEN - 1;
+    }
+
     memcpy(group->tg_name, (const char*)name, len);
 
     group->state = TGS_NORMAL;
