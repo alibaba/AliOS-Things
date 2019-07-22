@@ -8,7 +8,7 @@
 
 #include "aos/kernel.h"
 
-#include "coap_api.h"
+#include "linkkit/coap_api.h"
 #include "wrappers.h"
 #include "infra_compat.h"
 

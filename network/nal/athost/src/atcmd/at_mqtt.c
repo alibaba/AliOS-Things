@@ -10,8 +10,8 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
+#include "linkkit/dev_sign_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 #include "infra_compat.h"
 
