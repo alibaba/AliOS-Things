@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+
 #include "system/timer.h"
 
 /* the struct is for changing the device working mode */

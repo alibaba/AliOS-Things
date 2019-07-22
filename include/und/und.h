@@ -81,14 +81,14 @@ enum {
  *
  * @return  0 on success, otherwise failure.
  */
-int und_init();
+int und_init(void);
 
 /**
  * Deinitialize uND (Network Diagnosis).
  *
  * @return  0 on success, otherwise failure.
  */
-int und_deinit();
+int und_deinit(void);
 
 /**
  * update captures to uND.
@@ -103,3 +103,4 @@ int und_update_statis(int cap_idx, int reason_code);
 
 #endif  /* end of FEATURE_UND_SUPPORT */
 #endif  /* end of UND_H */
+
