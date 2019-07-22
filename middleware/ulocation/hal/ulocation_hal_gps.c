@@ -5,21 +5,21 @@
 #include <stdio.h>
 
 #include "ulocation/ulocation.h"
-#include "uloc_hal.h"
+#include "ulocation_hal.h"
 
 #ifdef DEV_SAL_SIM800
-#define ULOC_GPS
+#define ULOCATION_GPS
 #endif
 
 #define NORTHARCTIC_LAT 90
 #define LATDIFF_ARCTIC  10
 
-int uloc_hal_get_gps(location_t **gps)
+int ulocation_hal_get_gps(location_t **gps)
 {
     int   rlt = -1;
     float tmp;
 
-#ifdef ULOC_GPS
+#ifdef ULOCATION_GPS
     static location_t l;
 
     l.outdoor.latitude = NORTHARCTIC_LAT; /* north pole */
