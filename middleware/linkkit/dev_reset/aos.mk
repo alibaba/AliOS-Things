@@ -6,11 +6,9 @@ $(NAME)_SUMMARY := device reset service
 
 $(NAME)_SOURCES := dev_reset.c 
 
- GLOBAL_INCLUDES += .
-
 $(NAME)_COMPONENTS := libiot_wrappers libiot_mqtt
 
-
+$(NAME)_INCLUDES += .
 
 
 
