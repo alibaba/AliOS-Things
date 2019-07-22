@@ -75,7 +75,7 @@ int uagent_request_service(const ua_mod_t src, const ua_mod_t target,
  *             has no enough room for new service
  */
 int uagent_send(const ua_mod_t mod, const ua_func_t type,
-                const unsigned short len, const void* info_str,
+                const unsigned short len, const void *info_str,
                 const ua_send_policy_t policy);
 
 /**
@@ -101,3 +101,4 @@ int uagent_ext_comm_start(const char *pk, const char *dn);
 #endif
 
 #endif /* UAGENT_H */
+
