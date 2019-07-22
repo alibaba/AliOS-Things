@@ -352,8 +352,6 @@ int application_start(int argc, char **argv)
     aos_cli_register_command(&ncmd);
 #endif
     set_iotx_info();
-    extern void LITE_set_loglevel(int);
-    LITE_set_loglevel(5);
 
 #ifdef EN_COMBO_NET
     combo_net_init();
