@@ -6,6 +6,6 @@ $(NAME)_SUMMARY := device sign service
 
 $(NAME)_SOURCES := dev_sign_mqtt.c 
 
- GLOBAL_INCLUDES += .
-
 $(NAME)_COMPONENTS := libiot_wrappers libiot_infra
+
+$(NAME)_INCLUDES += .

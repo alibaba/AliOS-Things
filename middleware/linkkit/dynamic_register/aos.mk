@@ -6,12 +6,8 @@ $(NAME)_SUMMARY := dynamic register service
 
 $(NAME)_SOURCES := dynreg.c
 
-GLOBAL_INCLUDES += .
-
-#GLOBAL_DEFINES += 
-
 $(NAME)_COMPONENTS := libiot_wrappers libiot_infra 
 
-
+$(NAME)_INCLUDES += .
 
 
