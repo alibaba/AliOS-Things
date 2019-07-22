@@ -6,7 +6,7 @@
 #include "aos/hal/uart.h"
 #include "ulog/ulog.h"
 #include "qxwz_types.h"
-#include "uloc_qxwz_common.h"
+#include "ulocation_qxwz_common.h"
 
 static uart_dev_t uart_dev;
 static uint8_t report_ggadata[REPORT_GGA_DATA_SIZE] = {0};
@@ -113,7 +113,7 @@ static uint8_t uloc_getcomma(uint8_t num, char *str)
             j++;
         }
         if(j == num){
-            return (i+1); /* 返回当前找到的逗号位置的下一个位置 */
+            return (i+1);
         }
     }
 
@@ -126,15 +126,15 @@ static double uloc_convert_atof(char *s)
     uint8_t i = 0;
     double rev;
 
-    i = uloc_getcomma(1, s); /* 得到数据长度 */
+    i = uloc_getcomma(1, s);
     strncpy(buf, s, i);
-    buf[i] = 0;        /* 加字符串结束标志 */
-    rev=atof(buf);     /* 字符串转float */
+    buf[i] = 0;
+    rev=atof(buf);
 
     return rev;
 }
 
-int32_t uloc_ggainfo_parse(char *gga_data, uloc_gga_info *location)
+int32_t uloc_ggainfo_parse(char *gga_data, ulocation_gga_info *location)
 {
     int32_t ret = -1;
     char *buf;
@@ -153,7 +153,7 @@ int32_t uloc_ggainfo_parse(char *gga_data, uloc_gga_info *location)
     return 0;
 }
 
-void show_ggainfo(uloc_gga_info *location)
+void show_ggainfo(ulocation_gga_info *location)
 {
     LOGI("uLocation-qxwz", "status : %c\n", location->status);
     LOGI("uLocation-qxwz", "longitude : %10.4f %c\n", location->longitude, location->wore);
