@@ -27,28 +27,28 @@ extern "C" {
 #define group_info_entry(node, type, member) \
     ((type *)((uint8_t *)(node) - (size_t)(&((type *)0)->member)))
 
-#define TG_NAME_MAX_LEN   (16)
+#define TG_NAME_MAX_LEN (16)
 
 typedef struct {
-    klist_t        node;
-    uint32_t       pid;
-    name_t         tg_name[TG_NAME_MAX_LEN];
-    uint8_t        state;
-    int32_t        task_cnt;
+    klist_t  node;
+    uint32_t pid;
+    name_t   tg_name[TG_NAME_MAX_LEN];
+    uint8_t  state;
+    int32_t  task_cnt;
 
     /* resource list object */
-    kobj_list_t    kobj_list;
+    kobj_list_t kobj_list;
 
     /* resource buf queue, used to malloc and free user space resource */
-    kbuf_queue_t  *res_request_q;
-    kbuf_queue_t  *res_reply_q;
-    kmutex_t       res_mutex;
+    kbuf_queue_t *res_request_q;
+    kbuf_queue_t *res_reply_q;
+    kmutex_t      res_mutex;
 
     /* list fs fd on this list, close the fd duruing
      * process exitting if they are not closed by user
      */
-    klist_t   fs_fd_list;
-    kmutex_t  fs_mutex;
+    klist_t  fs_fd_list;
+    kmutex_t fs_mutex;
 
     /* list socket fd on this list, close the fd duruing
      * process exitting if they are not closed by user
