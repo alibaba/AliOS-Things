@@ -11,5 +11,4 @@ $(NAME)_SOURCES +=           \
       ota_breeze_plat.c      \
       ota_breeze_os.c
 
-GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += AOS_COMP_OTA_BLE
