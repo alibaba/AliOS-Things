@@ -91,6 +91,7 @@ typedef struct {
 
 typedef struct {
     hal_wifi_ap_info_adv_t ap_info;
+
     char key[64];                /* Security key or PMK of the wlan. */
     int  key_len;                /* The length of the key. */
     char local_ip_addr[16];      /* Static IP configuration, Local IP address. */
@@ -289,8 +290,8 @@ int hal_wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para
  *
  * @return      0 on success, otherwise failure.
  */
-int hal_wifi_get_ip_stat(hal_wifi_module_t *m,
-                         hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type);
+int hal_wifi_get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para,
+                         hal_wifi_type_t wifi_type);
 
 /**
  * Get the link status of the wifi instance ,e.g. ssid, bssid, channel, rssi, etc.
