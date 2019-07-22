@@ -44,9 +44,6 @@ void res_task(void *arg)
                 user_ptr = request_msg.arg[0];
                 free(user_ptr);
                 break;
-            case REQUEST_EXIT:
-                krhino_uprocess_try_exit();
-                break;
             default:
                 uassert(0);
                 break;

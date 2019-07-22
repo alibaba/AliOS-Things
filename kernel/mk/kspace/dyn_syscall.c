@@ -10,7 +10,6 @@
 #include "k_config.h"
 #include "syscall_no.h"
 
-
 extern void *syscall_tbl[];
 
 int register_syscall(int syscall_no, void *func)

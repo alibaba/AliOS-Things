@@ -17,7 +17,6 @@ extern "C" {
 
 #define REQUEST_MALLOC 0x01
 #define REQUEST_FREE   0x02
-#define REQUEST_EXIT   0x03
 
 typedef struct {
     uint8_t  type;
