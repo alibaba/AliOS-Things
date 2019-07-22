@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := arch for armv5
 
-GLOBAL_INCLUDES += common
+GLOBAL_INCLUDES += include
 
 $(NAME)_CFLAGS := -marm -mthumb-interwork
 
