@@ -7,12 +7,12 @@
 #include "qxwz_types.h"
 #include "qxwz_status.h"
 #include "qxwz_sdk.h"
-#include "uloc_qxwz_common.h"
+#include "ulocation_qxwz_common.h"
 #include "board.h"
 
 static uint8_t auth_flag = 0;
 static uint8_t s_gga[REPORT_GGA_DATA_SIZE]={0};
-static uloc_gga_info location;
+static ulocation_gga_info location;
 
 static int32_t receive_iprtcm(qxwz_void_t *rtcm, qxwz_u32_t len, qxwz_data_type_e type)
 {

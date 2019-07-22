@@ -21,7 +21,7 @@
 
 #define MIN_INTERVAL 10000
 
-static uloc_scenario_e loc_scen = ULOC_SCENARIO_OUTDOOR;
+static ulocation_scenario_e loc_scen = ULOC_SCENARIO_OUTDOOR;
 
 static int retrive_gps_interval = MIN_INTERVAL;
 
@@ -50,18 +50,18 @@ static bool is_same_spot(const location_t *loc1, const location_t *loc2)
 }
 
 #if ULOCATION_CONFIG_SELFTASK
-static void uloc_tsk(void *arg)
+static void ulocation_tsk(void *arg)
 {
     location_t lo;
 
     while (1) {
         aos_msleep(retrive_gps_interval > MIN_INTERVAL ? retrive_gps_interval : MIN_INTERVAL);
-        uloc_update_gpsinfo(&lo);
+        ulocation_update_gpsinfo(&lo);
     }
 }
 #endif
 
-int uloc_init(uloc_scenario_e scen, int update_inv)
+int ulocation_init(ulocation_scenario_e scen, int update_inv)
 {
     loc_scen = scen;
 
@@ -74,7 +74,7 @@ int uloc_init(uloc_scenario_e scen, int update_inv)
 #if ULOCATION_CONFIG_SELFTASK
     aos_task_t  task;
 
-    if (aos_task_new_ext(&task, "uloc_tsk", uloc_tsk,
+    if (aos_task_new_ext(&task, "ulocation_tsk", ulocation_tsk,
                          NULL, 1024 * 2, AOS_DEFAULT_APP_PRI) != 0) {
         return -1;
     }
@@ -88,7 +88,7 @@ int ulocation_deinit(void)
     aos_mutex_free(&self_position_lock);
 
 #if ULOCATION_CONFIG_SELFTASK
-    aos_task_delete("uloc_tsk");
+    aos_task_delete("ulocation_tsk");
 #endif
 
     return 0;
@@ -104,7 +104,7 @@ void set_location(const location_t *l)
     aos_mutex_unlock(&self_position_lock);
 }
 
-int uloc_get_location(location_t *rlt)
+int ulocation_get_location(location_t *rlt)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -120,7 +120,7 @@ int uloc_get_location(location_t *rlt)
     return 0;
 }
 
-int uloc_get_x(float *x)
+int ulocation_get_x(float *x)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -136,7 +136,7 @@ int uloc_get_x(float *x)
     return 0;
 }
 
-int uloc_get_y(float *y)
+int ulocation_get_y(float *y)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -152,7 +152,7 @@ int uloc_get_y(float *y)
     return 0;
 }
 
-int uloc_get_z(float *z)
+int ulocation_get_z(float *z)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -168,7 +168,7 @@ int uloc_get_z(float *z)
     return 0;
 }
 
-int uloc_get_altitude(float *altitude)
+int ulocation_get_altitude(float *altitude)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -184,7 +184,7 @@ int uloc_get_altitude(float *altitude)
     return 0;
 }
 
-int uloc_get_latitude(float *latitude)
+int ulocation_get_latitude(float *latitude)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -200,7 +200,7 @@ int uloc_get_latitude(float *latitude)
     return 0;
 }
 
-int uloc_get_longitude(float *longitude)
+int ulocation_get_longitude(float *longitude)
 {
     aos_mutex_lock(&self_position_lock, -1);
 
@@ -216,9 +216,9 @@ int uloc_get_longitude(float *longitude)
     return 0;
 }
 
-int uloc_update_gpsinfo(location_t *lo)
+int ulocation_update_gpsinfo(location_t *lo)
 {
-    int rlt = uloc_hal_get_gps(&lo);
+    int rlt = ulocation_hal_get_gps(&lo);
 
     if (lo == NULL || is_same_spot(&inv_loc, lo)) {
         return -1;
