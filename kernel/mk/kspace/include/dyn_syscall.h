@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef SYSCALL_OPS_H
-#define SYSCALL_OPS_H
+#ifndef DYN_SYSCALL_H
+#define DYN_SYSCALL_H
 
 /**
  * register syscall
@@ -22,5 +22,5 @@ int register_syscall(int syscall_no, void *func);
  */
 int unregister_syscall(int syscall_no);
 
-#endif /* SYSCALL_OPS_H */
+#endif /* DYN_SYSCALL_H */
 
