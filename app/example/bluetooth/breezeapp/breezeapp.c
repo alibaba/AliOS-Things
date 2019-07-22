@@ -9,7 +9,7 @@
 #include <breeze_export.h>
 
 #ifdef CONFIG_AIS_OTA
-#include <ota_breeze_export.h>
+#include <ota/ota_breeze.h>
 #endif
 
 #define SOFTWARE_VERSION "xxxxxxxx"
