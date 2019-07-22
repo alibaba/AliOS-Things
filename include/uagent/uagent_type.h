@@ -44,7 +44,7 @@ typedef enum {
 #define UAGENT_MOD_ULOG       (ua_mod_t)0x11
 
 /* uOTA module  */
-#define UAGENT_MOD_UOTA       (ua_mod_t)0x12
+#define UAGENT_MOD_OTA        (ua_mod_t)0x12
 
 /* CLI module  */
 #define UAGENT_MOD_CLI        (ua_mod_t)0x13
@@ -116,26 +116,6 @@ typedef struct {
     uagent_mod_info_t   mod_info;
     uagent_func_node_t *header;
 } mod_func_t;
-
-#define UAGENT_INFO_STR \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"}}"
-
-#define UAGENT_INFO_ACK_OK \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d, \"ack\":%d}}"
-
-#define UAGENT_INFO_ACK_FAIL \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d, \"ack\":%d,\"param\":\"%s\"}}"
-
-#define UAGENT_INFO_OBJ \
-    "{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":%s}}"
-
-#define UAGENT_MAN_T \
-"{\"id\":\"1\",\"version\":\"1.0\",\"params\":\
-{\"dstdev\":\"%s\",\"mod\":%d,\"func\":%d,\"param\":\"%s\"}}"
 
 #define UAGENT_NOTICE_CONNECT "{\"comm conn\":%d}"
 
