@@ -64,7 +64,7 @@ static const struct cli_command_st built_ins[] = {
     { "time", "system time", uptime_cmd },
     { "ota", "system ota", ota_cmd },
 
-#if (AOS_CLI_MINI_SIZE <= 0)
+#if (CLI_MINIMUM_MODE <= 0)
 
     { "p", "print memory", pmem_cmd },
     { "m", "modify memory", mmem_cmd },
