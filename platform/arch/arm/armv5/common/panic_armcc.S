@@ -19,7 +19,7 @@
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
     EXTERN panicHandler
-  
+
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
 ;******************************************************************************
@@ -31,33 +31,33 @@
 ;                             FAULT FUNCTIONS
 ;******************************************************************************
 _exc_udf_handler
-    PUSH    {R0-R3}                                        
+    PUSH    {R0-R3}
     MOV     R2, #1              ; Exception type
     MRS     R1, SPSR            ; CPSR before exception
-    SUB     R0, LR, #2 
+    SUB     R0, LR, #2
     TST     R1, #0x20           ; CPSR[5], 1 Thumb, 0 ARM
     SUBEQ   R0, R0, #2          ; PC before exception
-    PUSH    {R4}                                        
+    PUSH    {R4}
     MOV     R3, SP              ; SP_udf
     ADD     SP, SP, #20
     B       _exc_handler
 
 _exc_pabt_handler
-    PUSH    {R0-R3}                                        
+    PUSH    {R0-R3}
     MOV     R2, #2              ; Exception type
     MRS     R1, SPSR            ; CPSR before exception
     SUB     R0, LR, #4          ; PC before exception
-    PUSH    {R4}                                        
+    PUSH    {R4}
     MOV     R3, SP              ; SP_abt
     ADD     SP, SP, #20
     B       _exc_handler
 
 _exc_dabt_handler
-    PUSH    {R0-R3}                                        
+    PUSH    {R0-R3}
     MOV     R2, #3              ; Exception type
     MRS     R1, SPSR            ; CPSR before exception
     SUB     R0, LR, #8          ; PC before exception
-    PUSH    {R4}                                        
+    PUSH    {R4}
     MOV     R3, SP              ; SP_abt
     ADD     SP, SP, #20
     B       _exc_handler
