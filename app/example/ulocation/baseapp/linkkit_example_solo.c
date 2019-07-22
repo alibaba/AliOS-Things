@@ -434,7 +434,7 @@ void user_post_locationinfoo(void)
     memset(property_payload, 0, sizeof(property_payload));
     memset(event_payload,    0, sizeof(event_payload));
 
-    uloc_update_locationinfo(&gps,
+    ulocation_update_locationinfo(&gps,
                              &mmac,
                              &macs,
                              &cdma,
