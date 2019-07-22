@@ -8,7 +8,7 @@ $(NAME)_SUMMARY := Alibaba coap library
 $(NAME)_INCLUDES += CoAPPacket
 
 ifeq (y,$(strip $(COAP_COMM_ENABLED)))
-GLOBAL_INCLUDES += client
+$(NAME)_INCLUDES += client
 endif
 ifeq (y,$(strip $(COAP_SERVER)))
 GLOBAL_INCLUDES += server
