@@ -615,8 +615,9 @@ static void service_report_func_list()
     }
 
     char *out = cJSON_PrintUnformatted(root);
+    UAGENT_INFO("[uA]up uA List %s\n", out);
     uagent_send(UAGENT_MOD_UAGENT, UAGENT_FUNC_UA_SHOW_LIST,
-        strlen(out) + 1,
+        strlen(out),
         out,
         send_policy_trans_guarantee | send_policy_object);
     cJSON_free(out);
