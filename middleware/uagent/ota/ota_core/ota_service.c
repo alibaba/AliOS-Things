@@ -290,6 +290,10 @@ void ota_parse_dl_url(const char *json)
     }
 
 EXIT:
+    if(root != NULL) {
+        cJSON_Delete(root);
+        root = NULL;
+    }
     OTA_LOG_E("Parse Json ret:%d url:%s\n", ret, ota_param->url);
     if(ret == OTA_TRANSPORT_VER_FAIL) {
         OTA_LOG_E("ota version is too old, discard it.");
@@ -362,7 +366,7 @@ int ota_service_init(ota_service_t *ctx)
     /* transport init */
     ret = ota_transport_init();
     if(ret < 0) {
-        //goto EXIT; /*Fixme: share mqtt with linkkit, igonre: mqtt init return -2.*/
+        goto EXIT;
     }
     /* inform version to cloud */
     version = (char *)ota_version_get(ota_ctx->dev_type, ota_ctx->dn);
