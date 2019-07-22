@@ -11,7 +11,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-GLOBAL_INCLUDES += include hal ota_core/crypto 2ndboot
+$(NAME)_INCLUDES += include hal ota_core/crypto
 
 $(NAME)_SOURCES := ota_core/ota_service.c \
                    ota_core/download/ota_download_http.c   \
