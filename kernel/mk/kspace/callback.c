@@ -30,10 +30,8 @@ int cb_init(task_group_t *group)
     NULL_PARA_CHK(group);
 
     /* 1. allocate cb_ret_buf_queue */
-    ret = krhino_fix_buf_queue_dyn_create(&cb_ret_buf_queue,
-                                          "cb_ret_buf_queue",
-                                          sizeof(cb_ret_msg_t),
-                                          CB_BUF_QUEUE_MSG_NUM);
+    ret = krhino_fix_buf_queue_dyn_create(&cb_ret_buf_queue, "cb_ret_buf_queue",
+                                          sizeof(cb_ret_msg_t), CB_BUF_QUEUE_MSG_NUM);
     if (ret != RHINO_SUCCESS) {
         return -1;
     }
@@ -41,10 +39,8 @@ int cb_init(task_group_t *group)
     group->cb_ret_buf_queue = cb_ret_buf_queue;
 
     /* 2. allocate cb_call_buf_queue */
-    ret = krhino_fix_buf_queue_dyn_create(&cb_call_buf_queue,
-                                          "cb_call_buf_queue",
-                                          sizeof(cb_call_msg_t),
-                                          CB_BUF_QUEUE_MSG_NUM);
+    ret = krhino_fix_buf_queue_dyn_create(&cb_call_buf_queue, "cb_call_buf_queue",
+                                          sizeof(cb_call_msg_t), CB_BUF_QUEUE_MSG_NUM);
     if (ret != RHINO_SUCCESS) {
         krhino_buf_queue_dyn_del(cb_ret_buf_queue);
         group->cb_ret_buf_queue = NULL;

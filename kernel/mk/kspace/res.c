@@ -7,6 +7,7 @@
 #if (RHINO_CONFIG_URES > 0)
 
 #include <stdio.h>
+
 #include "k_api.h"
 #include "res.h"
 
@@ -60,6 +61,7 @@ int res_init(task_group_t *group)
 {
     kbuf_queue_t *res_request_q;
     kbuf_queue_t *res_reply_q;
+
     kstat_t stat;
 
     stat = krhino_fix_buf_queue_dyn_create(&res_request_q,
