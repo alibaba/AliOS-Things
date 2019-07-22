@@ -21,6 +21,7 @@ endif
 
 ifeq (y,$(AOS_UND_USE_UAGENT))
 GLOBAL_DEFINES-y += FEATURE_UND_USE_UAGENT
+$(NAME)_COMPONENTS-y += uagent
 endif
 
 ifeq (y,$(AOS_UND_WITH_WIFI))
