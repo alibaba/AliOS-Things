@@ -6,6 +6,7 @@ $(NAME)_SUMMARY    := arch for risc_v32I
 
 $(NAME)_SOURCES := common/panic_c.c
 $(NAME)_SOURCES += common/port_c.c
-GLOBAL_INCLUDES += common/
+$(NAME)_SOURCES += gcc/port_s.S
 
-$(NAME)_SOURCES := gcc/port_s.S
+GLOBAL_INCLUDES += include
+
