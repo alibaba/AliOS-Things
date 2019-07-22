@@ -7,7 +7,7 @@
 
 #include "hal/wifi.h"
 #include "ulocation/ulocation.h"
-#include "uloc_common.h"
+#include "ulocation_common.h"
 
 #define ULOCATION_TRACE(...)                                    \
     do {                                                        \

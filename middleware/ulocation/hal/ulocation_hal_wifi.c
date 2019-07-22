@@ -7,10 +7,10 @@
 #include "hal/wifi.h"
 
 #include "ulocation/ulocation.h"
-#include "uloc_hal.h"
+#include "ulocation_hal.h"
 
 #if defined(DEV_SAL_MK3060)
-#define ULOC_WIFI
+#define ULOCATION_WIFI
 #endif
 
 #define ULOCATION_TRACE(...)                                    \
@@ -65,11 +65,11 @@ static void conver_ap_info_fmt(char *out_str, const hal_wifi_link_stat_t *p_ap_i
     sprintf(p_out, "%d,%s", p_ap_info->wifi_strength, p_ap_info->ssid);
 }
 
-int uloc_hal_get_wifi(char **mmac, char **macs)
+int ulocation_hal_get_wifi(char **mmac, char **macs)
 {
     int rlt = -1;
 
-#ifdef ULOC_WIFI
+#ifdef ULOCATION_WIFI
     int idx;
     int ap_num;
 
