@@ -35,7 +35,6 @@ int g_device_id  = -1;
 
 void set_iotx_info();
 void do_awss_active();
-extern void LITE_set_loglevel(int);
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -293,7 +292,6 @@ int linkkit_sample_start(void)
     aos_cli_register_command(&ncmd);
 #endif
     set_iotx_info();
-    LITE_set_loglevel(5);
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     return 0;
