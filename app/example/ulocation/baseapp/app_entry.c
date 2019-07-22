@@ -337,7 +337,7 @@ int application_start(int argc, char **argv)
     HAL_MDAL_MAL_Init();
 #endif
 
-    uloc_init(ULOC_SCENARIO_OUTDOOR, 5000);
+    ulocation_init(ULOC_SCENARIO_OUTDOOR, 5000);
 
     aos_set_log_level(AOS_LL_DEBUG);
 
