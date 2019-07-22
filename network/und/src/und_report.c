@@ -244,8 +244,12 @@ void und_targets_report(void *param)
 #ifdef AOS_UND_USE_MQTT
         und_sched_start(UND_REPORT_SCHED_CYCLE_MS);
 #elif defined(AOS_UND_USE_UAGENT)
-        ctx->update = UND_CAP_STATE_INIT;
-        und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
+        if (ctx->update == UND_CAP_STATE_REPORT) {
+            ctx->update = UND_CAP_STATE_INIT;
+            und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
+        } else {
+            und_sched_start(UND_REPORT_SCHED_CYCLE_MS);
+        }
 #endif
     } else {
         und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
