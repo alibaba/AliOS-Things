@@ -15,5 +15,4 @@ $(NAME)_SOURCES     := uagent_comm_mqtt.c \
 
 $(NAME)_CFLAGS      += -Wall -Werror
 
-GLOBAL_INCLUDES += include
-
+$(NAME)_INCLUDES += include

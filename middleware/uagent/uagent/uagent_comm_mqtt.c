@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "uagent_config.h"
 #include "uagent_inner_api.h"
 #include "aos/kernel.h"
