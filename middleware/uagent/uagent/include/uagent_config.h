@@ -36,4 +36,20 @@
 
 #define UAGENT_LOG_TAG   "AGENT"
 
+#define UAGENT_FORMAT_PRE \
+"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":"
+
+#define UAGENT_FORMAT_STR_SUFFIX "\"}}"
+
+#define UAGENT_FORMAT_OBJ_SUFFIX "}}"
+
+#define UAGENT_INFO_ACK_OK \
+"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d}}"
+
+#define UAGENT_INFO_ACK_FAIL \
+"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d,\"param\":\"%s\"}}"
+
 #endif /* !UAGENT_CONFIG_H */
