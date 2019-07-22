@@ -6,12 +6,10 @@ $(NAME)_SUMMARY := Implementation of MQTT protocol
 
 $(NAME)_SOURCES := mqtt_api.c 
 
-GLOBAL_INCLUDES += . impl
-
 $(NAME)_COMPONENTS := libiot_wrappers libiot_infra libiot_sign
 
 $(NAME)_SOURCES := mqtt_api.c 
-
+$(NAME)_INCLUDES += .
 $(NAME)_SOURCES-$(MQTT_DEFAULT_IMPL) += impl/*.c
 
 $(NAME)_DEFINES   +=  \
