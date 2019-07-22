@@ -18,3 +18,4 @@ typedef struct {
 } hal_module_base_t;
 
 #endif /* HAL_BASE_H */
+
