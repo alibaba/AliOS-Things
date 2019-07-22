@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+
 #include "k_api.h"
 #include "utask.h"
 #include "task_group.h"
@@ -76,17 +77,17 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     memset(tmp, 0, kstack_size * sizeof(cpu_stack_t));
 
-    task->task_name          = name;
-    task->prio               = prio;
-    task->b_prio             = prio;
-    task->stack_size         = kstack_size;
-    task->mm_alloc_flag      = mm_alloc_flag;
-    task->cpu_num            = cpu_num;
-    task->ustack_size        = ustack_size;
-    task->task_ustack_base   = ustack_buf;
-    task->mode               = 0x3;
-    task->pid                = pid;
-    task->is_proc            = is_proc;
+    task->task_name        = name;
+    task->prio             = prio;
+    task->b_prio           = prio;
+    task->stack_size       = kstack_size;
+    task->mm_alloc_flag    = mm_alloc_flag;
+    task->cpu_num          = cpu_num;
+    task->ustack_size      = ustack_size;
+    task->task_ustack_base = ustack_buf;
+    task->mode             = 0x3;
+    task->pid              = pid;
+    task->is_proc          = is_proc;
 
     cpu_binded = cpu_binded;
     i          = i;
@@ -130,8 +131,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 #endif
 #endif
 
-    cpu_utask_stack_init(task, kstack_buf, kstack_size,
-                         ustack_buf, ustack_size,
+    cpu_utask_stack_init(task, kstack_buf, kstack_size, ustack_buf, ustack_size,
                          arg, entry);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
@@ -249,7 +249,7 @@ kstat_t krhino_uprocess_create(const name_t *process_name, ktask_t **task,
 
     if (task_group_init(group, process_name, pid) != 0) {
         krhino_mm_free(group);
-        //TODO: set the ret code propoerly
+        /* TODO: set the ret code propoerly */
         ret = RHINO_NO_MEM;
         goto delete_task;
     }
@@ -429,3 +429,4 @@ kstat_t krhino_utask_stack_min_free(ktask_t *task, size_t *free)
 
     return RHINO_SUCCESS;
 }
+
