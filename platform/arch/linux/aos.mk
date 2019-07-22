@@ -13,4 +13,6 @@ $(NAME)_SOURCES += swap.S
 endif
 endif
 
-GLOBAL_INCLUDES += .
+$(NAME)_INCLUDES += .
+
+GLOBAL_INCLUDES += include
