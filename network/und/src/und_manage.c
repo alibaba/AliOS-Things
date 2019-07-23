@@ -269,8 +269,7 @@ static int und_package_wireless_info(char *buf, int buf_len)
     UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_TARGET_BUF_LEN, 32, UND_PARAM_ERR);
 
     if (HAL_GetWirelessInfo(&info) < 0) {
-        und_err("HAL_GetWirelessInfo is not implemented\n");
-        return UND_ERR;
+        und_err("HAL_GetWirelessInfo not implemented, use default value\n");
     }
 
 #if 0

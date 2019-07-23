@@ -4,7 +4,7 @@
 
 #ifdef FEATURE_UND_SUPPORT
 
-#include "mqtt_wrapper.h"
+#include "linkkit/mqtt_api.h"
 
 #include "und/und.h"
 #include "und_hal.h"
