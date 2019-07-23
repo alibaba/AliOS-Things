@@ -49,7 +49,6 @@
 #define MICROPY_PY_CMATH            (0)
 #define MICROPY_PY_IO               (1)
 #define MICROPY_PY_STRUCT           (0)
-#define MICROPY_PY_SYS              (0)
 #define MICROPY_MODULE_FROZEN_MPY   (1)
 #define MICROPY_CPYTHON_COMPAT      (0)
 #define MICROPY_LONGINT_IMPL        (MICROPY_LONGINT_IMPL_MPZ)
@@ -59,10 +58,25 @@
 #define MICROPY_KBD_EXCEPTION       (1)
 #define MICROPY_MODULE_WEAK_LINKS   (1)
 #define MICROPY_READER_POSIX        (1)
-#define MICROPY_PY_THREAD           (0)
 #define MICROPY_REPL_EMACS_KEYS     (1)
 #define MICROPY_USE_INTERNAL_PRINTF (0)
+//#define MICROPY_PY_SYS              (0)
+//#define MICROPY_PY_THREAD           (0)
 
+#if 1
+/*sys path for file system to import py*/
+#define MICROPY_PY_SYS              (1)
+/*enable muti thread*/
+#define MICROPY_PY_THREAD                   (1)
+#define MICROPY_PY_THREAD_GIL               (1)
+#define MICROPY_PY_THREAD_GIL_VM_DIVISOR    (32)
+/*enable import py*/
+#define MICROPY_ENABLE_EXTERNAL_IMPORT (1)
+/*use posix API as open to read file*/
+#define MICROPY_READER_POSIX (1)
+/*print debug info*/
+#define MICROPY_DEBUG_VERBOSE (0)
+#endif
 
 // type definitions for the specific machine
 
@@ -118,6 +132,8 @@ typedef long mp_off_t;
         mp_handle_pending(); \
         krhino_task_sleep(1); \
     } while (0);
+
+#define MICROPY_THREAD_YIELD()
 #endif
 
 
@@ -136,8 +152,13 @@ typedef long mp_off_t;
 #endif
 
 
+extern const struct _mp_obj_module_t utime_module;
+extern const struct _mp_obj_module_t machine_module;
+
 #define MICROPY_PORT_BUILTIN_MODULES \
         MICROPY_PY_UTIME_DEF \
+        {MP_ROM_QSTR(MP_QSTR_utime), MP_ROM_PTR(&utime_module)}, \
+        {MP_ROM_QSTR(MP_QSTR_machine), MP_ROM_PTR(&machine_module)},
 
 #define MICROPY_PORT_BUILTIN_MODULE_WEAK_LINKS \
         MICROPY_PY_UTIME_DEF_WEAK_LINKS \

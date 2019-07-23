@@ -20,12 +20,12 @@ endif
 # can be located. By following this scheme, it allows a single build rule
 # to be used to compile all .c files.
 
-vpath %.S . $(TOP)
+vpath %.S . $(TOP) $(USER_C_MODULES)
 $(BUILD)/%.o: %.S
 	$(ECHO) "CC $<"
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
-vpath %.s . $(TOP)
+vpath %.s . $(TOP) $(USER_C_MODULES)
 $(BUILD)/%.o: %.s
 	$(ECHO) "AS $<"
 	$(Q)$(AS) -o $@ $<
@@ -42,17 +42,14 @@ $(Q)$(CC) $(CFLAGS) -c -MD -o $@ $<
   $(RM) -f $(@:.o=.d)
 endef
 
-vpath %.c . $(TOP)
+vpath %.c . $(TOP) $(USER_C_MODULES)
 $(BUILD)/%.o: %.c
 	$(call compile_c)
 
-# List all native flags since the current build system doesn't have
-# the MicroPython configuration available. However, these flags are
-# needed to extract all qstrings
-QSTR_GEN_EXTRA_CFLAGS += -DNO_QSTR -DN_X64 -DN_X86 -DN_THUMB -DN_ARM -DN_XTENSA
+QSTR_GEN_EXTRA_CFLAGS += -DNO_QSTR
 QSTR_GEN_EXTRA_CFLAGS += -I$(BUILD)/tmp
 
-vpath %.c . $(TOP)
+vpath %.c . $(TOP) $(USER_C_MODULES)
 
 $(BUILD)/%.pp: %.c
 	$(ECHO) "PreProcess $<"
@@ -69,14 +66,18 @@ $(BUILD)/%.pp: %.c
 # to get built before we try to compile any of them.
 $(OBJ): | $(HEADER_BUILD)/qstrdefs.generated.h $(HEADER_BUILD)/mpversion.h
 
-$(HEADER_BUILD)/qstr.i.last: $(SRC_QSTR) | $(HEADER_BUILD)/mpversion.h
+# The logic for qstr regeneration is:
+# - if anything in QSTR_GLOBAL_DEPENDENCIES is newer, then process all source files ($^)
+# - else, if list of newer prerequisites ($?) is not empty, then process just these ($?)
+# - else, process all source files ($^) [this covers "make -B" which can set $? to empty]
+$(HEADER_BUILD)/qstr.i.last: $(SRC_QSTR) $(QSTR_GLOBAL_DEPENDENCIES) | $(HEADER_BUILD)/mpversion.h
 	$(ECHO) "GEN $@"
-	$(Q)$(CPP) $(QSTR_GEN_EXTRA_CFLAGS) $(CFLAGS) $(if $?,$?,$^) >$(HEADER_BUILD)/qstr.i.last;
+	$(Q)$(CPP) $(QSTR_GEN_EXTRA_CFLAGS) $(CFLAGS) $(if $(filter $?,$(QSTR_GLOBAL_DEPENDENCIES)),$^,$(if $?,$?,$^)) >$(HEADER_BUILD)/qstr.i.last
 
 $(HEADER_BUILD)/qstr.split: $(HEADER_BUILD)/qstr.i.last
 	$(ECHO) "GEN $@"
 	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdefs.py split $(HEADER_BUILD)/qstr.i.last $(HEADER_BUILD)/qstr $(QSTR_DEFS_COLLECTED)
-	$(Q)touch $@
+	$(Q)$(TOUCH) $@
 
 $(QSTR_DEFS_COLLECTED): $(HEADER_BUILD)/qstr.split
 	$(ECHO) "GEN $@"
@@ -102,16 +103,12 @@ $(BUILD)/frozen.c: $(wildcard $(FROZEN_DIR)/*) $(HEADER_BUILD) $(FROZEN_EXTRA_DE
 endif
 
 ifneq ($(FROZEN_MPY_DIR),)
-# to build the MicroPython cross compiler
-$(TOP)/mpy-cross/mpy-cross: $(TOP)/py/*.[ch] $(TOP)/mpy-cross/*.[ch] $(TOP)/ports/windows/fmode.c
-	$(Q)$(MAKE) -C $(TOP)/mpy-cross
-
 # make a list of all the .py files that need compiling and freezing
 FROZEN_MPY_PY_FILES := $(shell find -L $(FROZEN_MPY_DIR) -type f -name '*.py' | $(SED) -e 's=^$(FROZEN_MPY_DIR)/==')
 FROZEN_MPY_MPY_FILES := $(addprefix $(BUILD)/frozen_mpy/,$(FROZEN_MPY_PY_FILES:.py=.mpy))
 
 # to build .mpy files from .py files
-$(BUILD)/frozen_mpy/%.mpy: $(FROZEN_MPY_DIR)/%.py $(TOP)/mpy-cross/mpy-cross
+$(BUILD)/frozen_mpy/%.mpy: $(FROZEN_MPY_DIR)/%.py
 	@$(ECHO) "MPY $<"
 	$(Q)$(MKDIR) -p $(dir $@)
 	$(Q)$(MPY_CROSS) -o $@ -s $(<:$(FROZEN_MPY_DIR)/%=%) $(MPY_CROSS_FLAGS) $<
@@ -189,7 +186,7 @@ print-cfg:
 
 print-def:
 	@$(ECHO) "The following defines are built into the $(CC) compiler"
-	touch __empty__.c
+	$(TOUCH) __empty__.c
 	@$(CC) -E -Wp,-dM __empty__.c
 	@$(RM) -f __empty__.c
 
