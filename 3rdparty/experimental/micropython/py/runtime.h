@@ -70,14 +70,17 @@ void mp_handle_pending_tail(mp_uint_t atomic_state);
 #if MICROPY_ENABLE_SCHEDULER
 void mp_sched_lock(void);
 void mp_sched_unlock(void);
-static inline unsigned int mp_sched_num_pending(void) { return MP_STATE_VM(sched_sp); }
+static inline unsigned int mp_sched_num_pending(void) { return MP_STATE_VM(sched_len); }
 bool mp_sched_schedule(mp_obj_t function, mp_obj_t arg);
 #endif
 
 // extra printing method specifically for mp_obj_t's which are integral type
 int mp_print_mp_int(const mp_print_t *print, mp_obj_t x, int base, int base_char, int flags, char fill, int width, int prec);
 
-void mp_arg_check_num(size_t n_args, size_t n_kw, size_t n_args_min, size_t n_args_max, bool takes_kw);
+void mp_arg_check_num_sig(size_t n_args, size_t n_kw, uint32_t sig);
+static inline void mp_arg_check_num(size_t n_args, size_t n_kw, size_t n_args_min, size_t n_args_max, bool takes_kw) {
+    mp_arg_check_num_sig(n_args, n_kw, MP_OBJ_FUN_MAKE_SIG(n_args_min, n_args_max, takes_kw));
+}
 void mp_arg_parse_all(size_t n_pos, const mp_obj_t *pos, mp_map_t *kws, size_t n_allowed, const mp_arg_t *allowed, mp_arg_val_t *out_vals);
 void mp_arg_parse_all_kw_array(size_t n_pos, size_t n_kw, const mp_obj_t *args, size_t n_allowed, const mp_arg_t *allowed, mp_arg_val_t *out_vals);
 NORETURN void mp_arg_error_terse_mismatch(void);
@@ -132,6 +135,7 @@ mp_obj_t mp_load_attr(mp_obj_t base, qstr attr);
 void mp_convert_member_lookup(mp_obj_t obj, const mp_obj_type_t *type, mp_obj_t member, mp_obj_t *dest);
 void mp_load_method(mp_obj_t base, qstr attr, mp_obj_t *dest);
 void mp_load_method_maybe(mp_obj_t base, qstr attr, mp_obj_t *dest);
+void mp_load_method_protected(mp_obj_t obj, qstr attr, mp_obj_t *dest, bool catch_all_exc);
 void mp_load_super_method(qstr attr, mp_obj_t *dest);
 void mp_store_attr(mp_obj_t base, qstr attr, mp_obj_t val);
 
@@ -165,16 +169,17 @@ NORETURN void mp_raise_recursion_depth(void);
 #endif
 
 // helper functions for native/viper code
-mp_uint_t mp_convert_obj_to_native(mp_obj_t obj, mp_uint_t type);
-mp_obj_t mp_convert_native_to_obj(mp_uint_t val, mp_uint_t type);
-mp_obj_t mp_native_call_function_n_kw(mp_obj_t fun_in, size_t n_args_kw, const mp_obj_t *args);
-void mp_native_raise(mp_obj_t o);
+int mp_native_type_from_qstr(qstr qst);
+mp_uint_t mp_native_from_obj(mp_obj_t obj, mp_uint_t type);
+mp_obj_t mp_native_to_obj(mp_uint_t val, mp_uint_t type);
 
 #define mp_sys_path (MP_OBJ_FROM_PTR(&MP_STATE_VM(mp_sys_path_obj)))
 #define mp_sys_argv (MP_OBJ_FROM_PTR(&MP_STATE_VM(mp_sys_argv_obj)))
 
 #if MICROPY_WARNINGS
-void mp_warning(const char *msg, ...);
+#ifndef mp_warning
+void mp_warning(const char *category, const char *msg, ...);
+#endif
 #else
 #define mp_warning(...)
 #endif
