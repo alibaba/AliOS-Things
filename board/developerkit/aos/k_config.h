@@ -5,8 +5,6 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-#include "k_app_config.h"
-
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
 #define RHINO_CONFIG_SEM                     1
