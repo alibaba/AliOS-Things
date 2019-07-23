@@ -5,154 +5,141 @@
 #ifndef OTA_SERVICE_H
 #define OTA_SERVICE_H
 
-#define OTA_VERSION    "1.0.0"
-#define OTA_MAX_VER_LEN 64
+/*******************************************************************
+***********             OTA sequence                  **************
+***********                   |                       **************
+***********                   V                       **************
+***********             OTA service manager           **************
+***********  device ----- inform version -----> cloud **************
+***********  device ---- subcribe upgrade ----> cloud **************
+***********                   |                       **************
+***********                   V                       **************
+***********             OTA transport module          **************
+***********  device <---- transport message --- cloud **************
+***********  device <---- get download url ---- cloud **************
+***********                   |                       **************
+***********                   V                       **************
+***********             OTA download module           **************
+***********  device <---- download firmware --- cloud **************
+***********  device <---- verfiy firmware ----- cloud **************
+***********  device ----- report status ----->  cloud **************
+***********                   |                       **************
+***********                   V                       **************
+***********             OTA common hal module         **************
+***********  device ----- write image ------- reboot  **************
+********************************************************************/
 
-#define OTA_MSG_REPORT_LEN 256
-#define OTA_MSG_INFORM_LEN 128
-#define OTA_MSG_LEN_MAX    2048
+#define OTA_VERSION             "2.0.0"
 
-#define OTA_COAP_URI_MAX_LEN 135
-#define OTA_MQTT_TOPIC_LEN   136
-#define OTA_URL_LEN          512
-#define OTA_RESP_MAX_LEN     (OTA_URL_LEN + 512)
-#define OTA_SIGN_LEN         256
-#define OTA_HASH_LEN         66
-
+/* OTA status code */
 typedef enum {
-   OTA_PROTCOL_MQTT = 0,
-   OTA_PROTCOL_COAP,
-   OTA_PROTCOL_HTTP,
-   OTA_PROTCOL_HTTPS,
-} OTA_PROTCOL_E;
-
-typedef enum {
-    OTA_PARAM_FAIL          = -17,
-    OTA_PARSE_FAIL          = -16,
-    OTA_REBOOT_FAIL         = -15,
-    OTA_UPGRADE_DIFF_FAIL   = -14,
-    OTA_UPGRADE_FAIL        = -13,
-    OTA_VERIFY_RSA_FAIL     = -12,
-    OTA_VERIFY_HASH_FAIL    = -11,
-    OTA_VERIFY_FAIL         = -10,
-    OTA_DOWNLOAD_WRITE_FAIL = -9,
-    OTA_DOWNLOAD_READ_FAIL  = -8,
-    OTA_DOWNLOAD_CON_FAIL   = -7,
-    OTA_DOWNLOAD_IP_FAIL    = -6,
-    OTA_DOWNLOAD_URL_FAIL   = -5,
-    OTA_DOWNLOAD_FAIL       = -4,
-    OTA_TRANSPORT_FAIL      = -3,
-    OTA_INIT_VER_FAIL       = -2,
-    OTA_INIT_FAIL           = -1,
-    OTA_INIT                = 0,
-    OTA_CANCEL              = 1,
-    OTA_TRANSPORT           = 2,
-    OTA_DOWNLOAD            = 3,
-    OTA_VERIFY              = 4,
-    OTA_UPGRADE             = 5,
-    OTA_REBOOT              = 6,
-    OTA_MAX
+        OTA_BREAKPOINT            = 5,   /*OTA breakpoint status*/
+        OTA_FINISH                = 4,   /*OTA finish status*/
+        OTA_DOWNLOAD              = 3,   /*OTA download status*/
+        OTA_TRANSPORT             = 2,   /*OTA transport status*/
+        OTA_INIT                  = 1,   /*OTA init status*/
+        OTA_SUCCESS               = 0,
+        OTA_INIT_FAIL             = -1,  /*OTA init failed.*/
+        OTA_TRANSPORT_INT_FAIL    = -2,  /*OTA transport init failed.*/
+        OTA_TRANSPORT_PAR_FAIL    = -3,  /*OTA transport parse failed.*/
+        OTA_TRANSPORT_VER_FAIL    = -4,  /*OTA transport verion is too old.*/
+        OTA_DOWNLOAD_INIT_FAIL    = -5,  /*OTA download init failed.*/
+        OTA_DOWNLOAD_HEAD_FAIL    = -6,  /*OTA download header failed.*/
+        OTA_DOWNLOAD_CON_FAIL     = -7,  /*OTA download connect failed.*/
+        OTA_DOWNLOAD_REQ_FAIL     = -8,  /*OTA download request failed.*/
+        OTA_DOWNLOAD_RECV_FAIL    = -9,  /*OTA download receive failed.*/
+        OTA_VERIFY_MD5_FAIL       = -10,  /*OTA verfiy MD5 failed.*/
+        OTA_VERIFY_SHA2_FAIL      = -11,  /*OTA verfiy SH256 failed.*/
+        OTA_VERIFY_RSA_FAIL       = -12, /*OTA verfiy RSA failed.*/
+        OTA_VERIFY_IMAGE_FAIL     = -13, /*OTA verfiy image failed.*/
+        OTA_UPGRADE_WRITE_FAIL    = -14, /*OTA upgrade write failed.*/
+        OTA_UPGRADE_PARAM_FAIL    = -15, /*OTA upgrade parameter failed.*/
+        OTA_UPGRADE_FW_SIZE_FAIL  = -16, /*OTA upgrade FW too big.*/
+        OTA_UPGRADE_SET_BOOT_FAIL = -17, /*OTA upgrade set boot failed.*/
 } OTA_STATUS_E;
 
 typedef enum {
-    COAP_CONTENT_TYPE_JSON,
-    COAP_CONTENT_TYPE_CBOR,
-} coap_content_type_e;
+    OTA_PROCESS_NORMAL     = 0,
+    OTA_PROCESS_UAGENT_OTA
+} OTA_PROCESS_T;
 
-typedef enum {
-    COAP_MESSAGE_CON = 0, /* confirmable message */
-    COAP_MESSAGE_NON = 1, /* non-confirmable message */
-} coap_msg_type_e;
+/* OTA transport module: transport message with MQTT,CoAP */
+int ota_transport_init(void);                               /* OTA transport init */
+int ota_transport_inform(char* pk, char*dn, char* ver);     /* OTA transport inform version to cloud*/
+int ota_transport_upgrade(char* pk, char*dn);               /* OTA transport subcribe upgrade from cloud */
+int ota_transport_status(char* pk, char*dn, int status);    /* OTA transport report status:[1-100] percent [<0] errno */
+int ota_transport_deinit(void);                             /* OTA transport deinit */
 
-typedef void (*coap_cb_t)(void *p_arg, void *p_message);
+/* OTA download module: download FW with HTTPs, CoAP */
+int ota_download_init(void);            /* OTA download init */
+int ota_download_start(char* url);      /* OTA download start */
+int ota_download_stop(void);            /* OTA download stop */
+int ota_download_deinit(void);          /* OTA download deinit */
 
+/* OTA upgrade magic <--> upg_flag */
+#define OTA_UPGRADE_CUST       0x8778       /* upgrade user customize image */
+#define OTA_UPGRADE_ALL        0x9669       /* upgrade all image: kernel+framework+app */
+#define OTA_UPGRADE_XZ         0xA55A       /* upgrade xz compressed image */
+#define OTA_UPGRADE_DIFF       0xB44B       /* upgrade diff compressed image */
+#define OTA_UPGRADE_KERNEL     0xC33C       /* upgrade kernel image only */
+#define OTA_UPGRADE_APP        0xD22D       /* upgrade app image only */
+
+#define OTA_URL_LEN                  256   /*OTA download url max len*/
+#define OTA_HASH_LEN                 66    /*OTA download file hash len*/
+#define OTA_SIGN_LEN                 256   /*OTA download file sign len*/
+#define OTA_VER_LEN                  64    /*OTA version string max len*/
+#define OTA_MSG_LEN                  256   /*OTA topic message max len*/
+
+typedef struct  {
+    unsigned int   dst_adr;     /*Single Bank: Destination Address: APP partition.*/
+    unsigned int   src_adr;     /*Single Bank: Copy from Source Address: OTA partition.*/
+    unsigned int   len;         /*Single Bank: Download file len */
+    unsigned short crc;         /*Single Bank: Download file CRC */
+    unsigned short upg_flag;    /*Upgrade flag: OTA_UPGRADE_ALL OTA_UPGRADE_XZ OTA_UPGRADE_DIFF*/
+    unsigned char  boot_count;  /*Boot count: When >=3 Rollback to old version in BL for dual-banker boot*/
+             int   upg_status;  /*OTA upgrade status*/
+    unsigned char  hash_type;   /*OTA download hash type*/
+    char  url[OTA_URL_LEN];     /*OTA download url*/
+    char  sign[OTA_SIGN_LEN];   /*OTA download file sign*/
+    char  hash[OTA_HASH_LEN];   /*OTA download file hash*/
+    char  ver[OTA_VER_LEN];     /*OTA get version*/
+    unsigned int   old_size;    /*Diff upgrade: patch old data size*/
+    unsigned short patch_num;   /*Diff upgrade: patch num*/
+    unsigned short patch_status;/*Diff upgrade: patch status*/
+    unsigned int   patch_off;   /*Diff upgrade: patch offset*/
+    unsigned int   new_off;     /*Diff upgrade: patch new data offset*/
+    unsigned int   new_size;    /*Diff upgrade: patch new data size*/
+    unsigned char  reserve[18];
+    unsigned short param_crc;   /*OTA Parameter crc*/
+} __attribute__((aligned(16))) ota_boot_param_t;
+
+/* OTA common hal module */
+int ota_hal_init(ota_boot_param_t *parm);                                        /* init OTA partition and check */
+int ota_hal_write(unsigned int *off_set, char *in_buf, unsigned int in_buf_len); /* Write data to flash */
+int ota_hal_read(unsigned int *off_set, char *out_buf, unsigned int out_buf_len);/* read data from flash */
+int ota_hal_boot(ota_boot_param_t *parm);                                        /* update parameter and reboot */
+int ota_hal_rollback(void);                                                      /* clear rollock flag */
+const char *ota_hal_version(unsigned char dev_type, char *dn);                   /* get current system version */
+int ota_read_parameter(ota_boot_param_t *ota_param);                             /* ota read parameter */
+int ota_update_parameter(ota_boot_param_t *ota_param);                           /* ota update parameter */
+/* OTA service manager */
 typedef struct {
-    unsigned char       *p_payload;
-    unsigned short       payload_len;
-    coap_content_type_e  content_type;
-    coap_msg_type_e      msg_type;
-    void                *user_data;
-    coap_cb_t            resp_callback;
-} ota_coap_message_t;
+    unsigned char inited;                        /* If is inted */
+    OTA_PROCESS_T ota_process;                   /* ota process */
 
-typedef struct {
-    unsigned short  packet_id;
-    unsigned char   qos;
-    unsigned char   dup;
-    unsigned char   retain;
-    unsigned short  topic_len;
-    unsigned int    payload_len;
-    const char     *ptopic;
-    const char     *payload;
-} ota_mqtt_topic_t;
+    char pk[20+1];                               /* Product Key */
+    char ps[64+1];                               /* Product secret */
+    char dn[32+1];                               /* Device name */
+    char ds[64+1];                               /* Device secret */
 
-typedef enum {
-    OTA_MQTT_EVENT_SUB_SUCCESS  = 3,
-    OTA_MQTT_EVENT_PUB_RECEIVED = 12,
-    OTA_MQTT_EVENT_BUF_OVERFLOW = 13,
-} ota_mqtt_event_t;
+    unsigned char dev_type;                      /* device type: 0-->main dev 1-->sub dev */
 
-typedef struct {
-    ota_mqtt_event_t  event;
-    ota_mqtt_topic_t *topic;
-} ota_mqtt_msg_t;
-
-typedef void (*ota_cloud_cb_t)(void *ctx, char *json);
-
-typedef struct {
-    int  (*init)(void);
-    int  (*inform)(void *ctx);
-    int  (*upgrade)(void *ctx);
-    int  (*status)(int per, void *ctx);
-    int  (*deinit)(void);
-} ota_transport_t;
-
-typedef struct {
-    int (*start)(void *ctx); /* start download */
-    int (*stop)(void);       /* stop download */
-} ota_download_t;
-
-typedef struct {
-    unsigned char inited; /* If is inted */
-
-    char pk[20+1]; /* Product Key */
-    char ps[64+1]; /* Product secret */
-    char dn[32+1]; /* Device name */
-    char ds[64+1]; /* Device secret */
-
-    OTA_PROTCOL_E trans_protcol; /* default:0--> MQTT 1-->COAP */
-    OTA_PROTCOL_E dl_protcol;    /* default:3--> HTTPS 1-->COAP 2-->HTTP */
-
-    char           ota_ver[OTA_MAX_VER_LEN]; /* OTA FW version */
-    char           sys_ver[OTA_MAX_VER_LEN]; /* OTA System version */
-    unsigned char  dev_type;                 /* device type: 0-->main dev 1-->sub dev */
-    unsigned char  hash_type;                /* Hash algor type */
-    unsigned char  sign_en;                  /* Sign is on/off */
-    unsigned char  sign_type;                /* default:0--> sha256 1--> md5 2-->RSA */
-    unsigned int   sign_len;                 /* Sign len */
-    int            upg_status;               /* Upgrade status in progress */
-    char          *url;                      /* Dowdload URL */
-    char          *hash;                     /* Dowdload hash */
-    unsigned char *sign;                     /* Dowdload signatue */
-
-    ota_transport_t *h_tr;       /* OTA tansport manager */
-    ota_download_t  *h_dl;       /* OTA download manager */
-    void            *h_ch;       /* OTA channel handle:mqtt,coap */
-    void            *boot_param; /* Boot parameter */
-
-    int (*upgrade_cb)(void *ctx, char *json); /* upgrade callback */
+    int (*on_data)(char *buf, int len);          /* receive data callback of upgrade firmware */
+    int (*on_percent)(int per);                  /* report percentage to clould */
+    int (*on_boot)(ota_boot_param_t *ota_param); /* Upgrade complete to reboot to the new version */
 } ota_service_t;
 
-int ota_service_init(ota_service_t *ctx);
-
-int ota_service_deinit(ota_service_t *ctx);
-
-/*OTA intenal APIs*/
-ota_transport_t *ota_get_transport(void);
-
-ota_download_t *ota_get_download(void);
-
-int ota_hex_str2buf(const char *src, char *dest, unsigned int dest_len);
-
-#endif /* OTA_SERVICE_H */
-
+int ota_service_init(ota_service_t *ctx);   /* Init ota serivice */
+int ota_service_deinit(ota_service_t *ctx); /* Deinit ota serivice */
+int ota_service_start(ota_service_t *ctx);  /* Start secure download mode */
+#endif /* __OTA_SERVICE_H__ */
