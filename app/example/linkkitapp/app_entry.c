@@ -9,6 +9,7 @@
 
 #include "aos/cli.h"
 #include "aos/kernel.h"
+#include "uagent/uagent.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
@@ -435,6 +436,17 @@ static void duration_work(void *p)
 
 static int mqtt_connected_event_handler(void)
 {
+#ifdef AOS_COMP_UAGENT
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    if(0!=uagent_ext_comm_start(product_key, device_name)) {
+        LOGE("APP", "uagent service start fail");
+    } else {
+        LOGI("APP", "uagent service start sucessfully");
+    }
+#endif /* AOS_COMP_UAGENT */
 #if defined(ENABLE_AOS_OTA)
     LOG("OTA service init ...\n");
     ota_service_init(ota_get_device_info());
