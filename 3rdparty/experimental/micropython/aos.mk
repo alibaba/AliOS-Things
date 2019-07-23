@@ -51,7 +51,7 @@ $(NAME)_SOURCES += \
     py/moduerrno.c \
     py/mpprint.c \
     py/mpstate.c \
-    py/mpy_scheduler.c \
+    py/scheduler.c \
     py/mpz.c \
     py/nativeglue.c \
     py/nlr.c \
@@ -133,7 +133,12 @@ $(NAME)_SOURCES += \
     port/_frozen_mpy.c \
     port/mphalport.c \
     port/mpy_main.c \
-    port/mphalport.c
+    port/mphalport.c \
+    port/modutime.c \
+    port/modmachine.c \
+    port/ipc.c \
+    port/gccollect.c \
+    port/mpthreadport.c \
 
 $(NAME)_SOURCES += \
     extmod/crypto-algorithms/sha256.c \
@@ -158,7 +163,7 @@ $(NAME)_SOURCES += \
     extmod/modutimeq.c \
     extmod/moduzlib.c \
     extmod/modwebrepl.c \
-    extmod/modwebsocket.c \
+    extmod/moduwebsocket.c \
     extmod/uos_dupterm.c \
     extmod/vfs.c \
     extmod/vfs_fat.c \

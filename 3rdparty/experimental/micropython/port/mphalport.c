@@ -3,6 +3,7 @@
 #include "py/runtime.h"
 
 #include <k_api.h>
+#include "aos/hal/uart.h"
 
 /*
  * Core UART functions to implement for a port
@@ -18,7 +19,7 @@ int mp_hal_stdin_rx_chr(void) {
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
 
-    ret = hal_uart_recv_II(&uart_stdio, &c, 1, &recv_size, 1000);
+    ret = hal_uart_recv_II(&uart_stdio, &c, 1, &recv_size, 0xffffffff);
     if ((ret != 0) || (recv_size != 1)) {
         return -1;
     }
@@ -33,7 +34,7 @@ void mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
     if ((len > 0) && (str != NULL)) {
-        hal_uart_send(&uart_stdio, str, len, 0);
+        hal_uart_send(&uart_stdio, str, len, 5000);
     }
 }
 
