@@ -149,9 +149,9 @@ typedef struct _thread_entry_args_t {
     mp_obj_dict_t *dict_globals;
     size_t stack_size;
     mp_obj_t fun;
-    size_t n_args;
-    size_t n_kw;
-    mp_obj_t args[];
+    size_t n_args;  /*list or tuple args num*/
+    size_t n_kw;    /*dict kv argc num*/
+    mp_obj_t args[]; /*list\tuple + {kv,kv}*/
 } thread_entry_args_t;
 
 STATIC void *thread_entry(void *args_in) {
