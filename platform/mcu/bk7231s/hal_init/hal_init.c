@@ -14,8 +14,8 @@ uart_dev_t uart_0;
 
 void hal_init(void)
 {
-    uart_0.port 			   = STDIO_UART;
-    uart_0.config.baud_rate    = STDIO_UART_BUADRATE;
+    uart_0.port 			   = BK_UART;
+    uart_0.config.baud_rate    = BK_UART_BUADRATE;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity	   = NO_PARITY;
     uart_0.config.stop_bits    = STOP_BITS_1;
