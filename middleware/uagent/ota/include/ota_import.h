@@ -5,6 +5,11 @@
 #ifndef OTA_API_H
 #define OTA_API_H
 #include "ota/ota_service.h"
+#include "uagent/uagent_type.h"
+
+#define OTA_INFO        (UAGENT_FUNC_USER_BASE)   /* ota process */
+#define OTA_UPGRADE_CMD (UAGENT_FUNC_USER_BASE+1) /* upgrade command */
+#define VERSION_INFORM  (UAGENT_FUNC_USER_BASE+2) /* version inform */
 
 #define OTA_COAP_OPTION_BLOCK      23    /*OTA coap option block*/
 
@@ -23,6 +28,12 @@
 #ifndef OTA_FLASH_WRITE_CACHE_SIZE
 #define OTA_FLASH_WRITE_CACHE_SIZE 1024 /*OTA write flash cache size*/
 #endif
+
+typedef enum {
+    OTA_REQ_VERSION = 0,
+    OTA_UPGRADE_SOC = 1,
+    OTA_UPGRADE_MCU = 2
+} OTA_UPGRADE_CMD_T;
 
 /**
 *
@@ -44,6 +55,8 @@ typedef enum {
 } OTA_TRANSPORT_ERR_E;
 
 ota_service_t * ota_get_service_manager(void);
+
+int ota_update_process(const char *error_description, const int step);
 
 /**
  * ota_parse_host_url  OTA parse host url

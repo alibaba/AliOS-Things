@@ -220,9 +220,20 @@ int ota_download_start(char *url)
                                  ctx->on_percent(percent);
                              } else {
 #if !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE
-                                 if(ctx != NULL)
-                                 ota_transport_status(ctx->pk, ctx->dn, percent);
-#endif
+                                 if (ctx != NULL) {
+#ifdef OTA_CONFIG_UAGENT
+                                     OTA_LOG_I("download process %d", ctx->ota_process);
+                                     if (OTA_PROCESS_UAGENT_OTA == ctx->ota_process) {
+                                         ota_update_process(NULL, percent);
+                                     } else
+#endif /* OTA_CONFIG_UAGENT */
+                                     {
+                                         ota_transport_status(ctx->pk, ctx->dn, percent);
+                                     }
+                                }else{
+                                    OTA_LOG_W("download ctx NULL");
+                                }
+#endif /* !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE */
                              }
                              OTA_LOG_I("ota recv data(%d/%d)\r\n", ota_rx_size, ota_file_size);
                          }
