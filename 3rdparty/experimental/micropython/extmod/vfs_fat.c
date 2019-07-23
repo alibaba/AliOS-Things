@@ -39,15 +39,16 @@
 #include "extmod/vfs_fat.h"
 #include "lib/timeutils/timeutils.h"
 
-#if _MAX_SS == _MIN_SS
-#define SECSIZE(fs) (_MIN_SS)
+#if FF_MAX_SS == FF_MIN_SS
+#define SECSIZE(fs) (FF_MIN_SS)
 #else
 #define SECSIZE(fs) ((fs)->ssize)
 #endif
 
 #define mp_obj_fat_vfs_t fs_user_mount_t
 
-mp_import_stat_t fat_vfs_import_stat(fs_user_mount_t *vfs, const char *path) {
+STATIC mp_import_stat_t fat_vfs_import_stat(void *vfs_in, const char *path) {
+    fs_user_mount_t *vfs = vfs_in;
     FILINFO fno;
     assert(vfs != NULL);
     FRESULT res = f_stat(&vfs->fatfs, path, &fno);
@@ -110,8 +111,11 @@ STATIC mp_obj_t fat_vfs_mkfs(mp_obj_t bdev_in) {
     fs_user_mount_t *vfs = MP_OBJ_TO_PTR(fat_vfs_make_new(&mp_fat_vfs_type, 1, 0, &bdev_in));
 
     // make the filesystem
-    uint8_t working_buf[_MAX_SS];
+    uint8_t working_buf[FF_MAX_SS];
     FRESULT res = f_mkfs(&vfs->fatfs, FM_FAT | FM_SFD, 0, working_buf, sizeof(working_buf));
+    if (res == FR_MKFS_ABORTED) { // Probably doesn't support FAT16
+        res = f_mkfs(&vfs->fatfs, FM_FAT32, 0, working_buf, sizeof(working_buf));
+    }
     if (res != FR_OK) {
         mp_raise_OSError(fresult_to_errno_table[res]);
     }
@@ -362,7 +366,7 @@ STATIC mp_obj_t fat_vfs_statvfs(mp_obj_t vfs_in, mp_obj_t path_in) {
     t->items[6] = MP_OBJ_NEW_SMALL_INT(0); // f_ffree
     t->items[7] = MP_OBJ_NEW_SMALL_INT(0); // f_favail
     t->items[8] = MP_OBJ_NEW_SMALL_INT(0); // f_flags
-    t->items[9] = MP_OBJ_NEW_SMALL_INT(_MAX_LFN); // f_namemax
+    t->items[9] = MP_OBJ_NEW_SMALL_INT(FF_MAX_LFN); // f_namemax
 
     return MP_OBJ_FROM_PTR(t);
 }
@@ -382,7 +386,7 @@ STATIC mp_obj_t vfs_fat_mount(mp_obj_t self_in, mp_obj_t readonly, mp_obj_t mkfs
     // check if we need to make the filesystem
     FRESULT res = (self->flags & FSUSER_NO_FILESYSTEM) ? FR_NO_FILESYSTEM : FR_OK;
     if (res == FR_NO_FILESYSTEM && mp_obj_is_true(mkfs)) {
-        uint8_t working_buf[_MAX_SS];
+        uint8_t working_buf[FF_MAX_SS];
         res = f_mkfs(&self->fatfs, FM_FAT | FM_SFD, 0, working_buf, sizeof(working_buf));
     }
     if (res != FR_OK) {
@@ -421,11 +425,17 @@ STATIC const mp_rom_map_elem_t fat_vfs_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(fat_vfs_locals_dict, fat_vfs_locals_dict_table);
 
+STATIC const mp_vfs_proto_t fat_vfs_proto = {
+    .import_stat = fat_vfs_import_stat,
+};
+
 const mp_obj_type_t mp_fat_vfs_type = {
     { &mp_type_type },
     .name = MP_QSTR_VfsFat,
     .make_new = fat_vfs_make_new,
+    .protocol = &fat_vfs_proto,
     .locals_dict = (mp_obj_dict_t*)&fat_vfs_locals_dict,
+
 };
 
 #endif // MICROPY_VFS_FAT

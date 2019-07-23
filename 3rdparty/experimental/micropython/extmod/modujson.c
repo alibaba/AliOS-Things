@@ -35,9 +35,7 @@
 #if MICROPY_PY_UJSON
 
 STATIC mp_obj_t mod_ujson_dump(mp_obj_t obj, mp_obj_t stream) {
-    if (!MP_OBJ_IS_OBJ(stream)) {
-        mp_raise_TypeError(NULL);
-    }
+    mp_get_stream_raise(stream, MP_STREAM_OP_WRITE);
     mp_print_t print = {MP_OBJ_TO_PTR(stream), mp_stream_write_adaptor};
     mp_obj_print_helper(&print, obj, PRINT_JSON);
     return mp_const_none;
@@ -187,7 +185,7 @@ STATIC mp_obj_t mod_ujson_load(mp_obj_t stream_obj) {
                     cur = S_CUR(s);
                     if (cur == '.' || cur == 'E' || cur == 'e') {
                         flt = true;
-                    } else if (cur == '-' || unichar_isdigit(cur)) {
+                    } else if (cur == '+' || cur == '-' || unichar_isdigit(cur)) {
                         // pass
                     } else {
                         break;
