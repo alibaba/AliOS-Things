@@ -23,5 +23,5 @@ endif
 $(NAME)_SOURCES     += ulog_session_udp.c
 endif
 
-GLOBAL_INCLUDES += include
+$(NAME)_INCLUDES += include
 
