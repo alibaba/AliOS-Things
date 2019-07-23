@@ -165,17 +165,15 @@ static int on_ulog_handler(void *p, const unsigned short len, void *cmd)
 #if ULOG_UPLOAD_LOG_FILE
         /* log list requset */
         ulog_cmd = cJSON_GetObjectItem(root, "ulog list");
+
         if (ulog_cmd != NULL && cJSON_IsString(ulog_cmd)) {
             if (0 == strlen(ulog_cmd->valuestring)) {
-
                 char *buf = (char*)aos_malloc(1024);
                 memset(buf, 0, 1024);
                 if (NULL != buf) {
                     if (0 == aos_get_ulog_list(buf, 1024)) {
                         rc = uagent_send(UAGENT_MOD_ULOG, ULOG_LOG_LIST,
-                            strlen(buf) + 1,
-                            buf,
-                            send_policy_object);
+                             strlen(buf), buf, send_policy_object);
                     }
                     aos_free(buf);
                 }
