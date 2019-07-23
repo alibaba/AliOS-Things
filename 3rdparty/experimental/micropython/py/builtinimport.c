@@ -38,7 +38,7 @@
 
 #if MICROPY_DEBUG_VERBOSE // print debugging info
 #define DEBUG_PRINT (1)
-#define DEBUG_printf DEBUG_printf
+#define DEBUG_printf printf
 #else // don't print debugging info
 #define DEBUG_PRINT (0)
 #define DEBUG_printf(...) (void)0
@@ -115,6 +115,11 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
             size_t p_len;
             const char *p = mp_obj_str_get_data(path_items[i], &p_len);
             if (p_len > 0) {
+                /*!!!aos modify: fs start with '/' */
+                if(*p != '/'){
+                    vstr_add_char(dest, PATH_SEP_CHAR);
+                }
+
                 vstr_add_strn(dest, p, p_len);
                 vstr_add_char(dest, PATH_SEP_CHAR);
             }
@@ -131,7 +136,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
 #endif
 }
 
-#if MICROPY_ENABLE_COMPILER
+#if MICROPY_MODULE_FROZEN_STR || MICROPY_ENABLE_COMPILER
 STATIC void do_load_from_lexer(mp_obj_t module_obj, mp_lexer_t *lex) {
     #if MICROPY_PY___FILE__
     qstr source_name = lex->source_name;
@@ -182,7 +187,7 @@ STATIC void do_execute_raw_code(mp_obj_t module_obj, mp_raw_code_t *raw_code) {
 #endif
 
 STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
-    #if MICROPY_MODULE_FROZEN || MICROPY_PERSISTENT_CODE_LOAD || MICROPY_ENABLE_COMPILER
+    #if MICROPY_MODULE_FROZEN || MICROPY_ENABLE_COMPILER || (MICROPY_PERSISTENT_CODE_LOAD && MICROPY_HAS_FILE_READER)
     char *file_str = vstr_null_terminated_str(file);
     #endif
 
@@ -213,7 +218,7 @@ STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
 
     // If we support loading .mpy files then check if the file extension is of
     // the correct format and, if so, load and execute the file.
-    #if MICROPY_PERSISTENT_CODE_LOAD
+    #if MICROPY_HAS_FILE_READER && MICROPY_PERSISTENT_CODE_LOAD
     if (file_str[file->len - 3] == 'm') {
         mp_raw_code_t *raw_code = mp_raw_code_load_file(file_str);
         do_execute_raw_code(module_obj, raw_code);
@@ -222,14 +227,13 @@ STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
     #endif
 
     // If we can compile scripts then load the file and compile and execute it.
-    #if MICROPY_ENABLE_COMPILER && MICROPY_PY_IO
+    #if MICROPY_ENABLE_COMPILER
     {
         mp_lexer_t *lex = mp_lexer_new_from_file(file_str);
         do_load_from_lexer(module_obj, lex);
         return;
     }
     #else
-
     // If we get here then the file was not frozen and we can't compile scripts.
     mp_raise_msg(&mp_type_ImportError, "script compilation not supported");
     #endif
@@ -367,7 +371,6 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
             qstr mod_name = qstr_from_strn(mod_str, i);
             DEBUG_printf("Processing module: %s\n", qstr_str(mod_name));
             DEBUG_printf("Previous path: =%.*s=\n", vstr_len(&path), vstr_str(&path));
-
             // find the file corresponding to the module name
             mp_import_stat_t stat;
             if (vstr_len(&path) == 0) {
