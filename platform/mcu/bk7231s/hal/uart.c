@@ -35,9 +35,20 @@ int32_t hal_uart_init(uart_dev_t *uart)
 {
 	struct uart_callback_des uart_rx_callback;
 	struct uart_callback_des uart_tx_callback;
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
     UINT32 status;
     DD_HANDLE uart_hdl;
+	
+    if(uart->port == UART1_PORT)
+    {
+        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		pdrv  = &_uart_drv[1];
+    }
+    else
+    {
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		pdrv  = &_uart_drv[0];
+    }
 
     if(pdrv->status == _UART_STATUS_CLOSED)
     {
@@ -46,15 +57,6 @@ int32_t hal_uart_init(uart_dev_t *uart)
         rtos_init_mutex( &pdrv->tx_mutex );
 		
         pdrv->status = _UART_STATUS_OPENED;
-    }
-	
-    if(uart->port == UART1_PORT)
-    {
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-    }
-    else
-    {
-        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
     }
 
     ddev_control(uart_hdl, CMD_UART_INIT, (void *)&uart->config);
@@ -74,7 +76,16 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
+
+	if(uart->port == UART1_PORT)
+	{
+		pdrv = &_uart_drv[1];
+	}
+	else
+	{
+		pdrv = &_uart_drv[0];
+	}
 
     rtos_deinit_semaphore(&pdrv->rx_semphr);
     rtos_deinit_semaphore(&pdrv->tx_semphr);
@@ -88,33 +99,42 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     uint32_t i = 0;
     (void)timeout;
 
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
     UINT32 status, set;
     DD_HANDLE uart_hdl;
+	uint8_t port;
 
     rtos_lock_mutex( &pdrv->tx_mutex );
 	
     if(uart->port == UART1_PORT)
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-    else
+    {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[1];
+		port = UART2_PORT;
+    }
+    else
+    {
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[0];
+		port = UART1_PORT;
+    }
 
     for( i = 0; i < size; i++ )
 	{
-        if( uart_is_tx_fifo_full(uart->port) )
+        if( uart_is_tx_fifo_full(port) )
 		{
 			set = 1;
             ddev_control(uart_hdl, CMD_SET_STOP_END, &set);
             /* The data in Tx FIFO may have been sent out before enable TX_STOP_END interrupt */
             /* So double check the FIFO status */
-            while( !uart_is_tx_fifo_empty(uart->port) )
+            while( !uart_is_tx_fifo_empty(port) )
                 rtos_get_semaphore( &pdrv->tx_semphr, 50 );
 		
 			set = 0;
             ddev_control(uart_hdl, CMD_SET_STOP_END, &set);
 		}
 		
-        uart_write_byte(uart->port, ((uint8_t *)data)[i] );
+        uart_write_byte(port, ((uint8_t *)data)[i] );
 	}
     
 	ddev_close(uart_hdl);
@@ -130,7 +150,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
     uint32_t start_time, expired_time;
     UINT32 status;
     DD_HANDLE uart_hdl;
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
 	int ret = 0;
 
 	if(uart == NULL || data == NULL || !expect_size)
@@ -144,11 +164,13 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
     if(uart->port == UART1_PORT)
     {
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[1];
     }
     else
     {
-        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[0];
     }
 
 	while(1)
@@ -194,14 +216,32 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
 void uart_rx_cb(uint8_t port, void *param)
 {
-    _uart_drv_t *pdrv = &_uart_drv[port];
+	_uart_drv_t *pdrv;
+	
+	if(port == UART1_PORT)
+	{
+    	pdrv = &_uart_drv[1];
+	}
+	else
+	{
+		pdrv = &_uart_drv[0];
+	}
 
 	rtos_set_semaphore( &pdrv->rx_semphr );
 }
 
 void uart_tx_cb(uint8_t port, void *param)
 {
-    _uart_drv_t *pdrv = &_uart_drv[port];
+	_uart_drv_t *pdrv;
+
+	if(port == UART1_PORT)
+	{
+    	pdrv = &_uart_drv[1];
+	}
+	else
+	{
+		pdrv = &_uart_drv[0];
+	}
 
     rtos_set_semaphore( &pdrv->tx_semphr );
 }
