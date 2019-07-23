@@ -36,7 +36,6 @@ typedef struct {
     uint32_t         pid;
     uint8_t          mode;
     uint8_t          is_proc;
-    uint8_t          cancel;
     cpu_stack_t     *task_ustack_base;
     klist_t          task_user;
     void            *task_group;
@@ -108,6 +107,10 @@ typedef struct {
     uint8_t          cpu_binded;
     uint8_t          cur_exc;
     klist_t          task_del_item;
+#endif
+
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    uint8_t          cancel;
 #endif
 
     /* current prio */
@@ -184,6 +187,20 @@ kstat_t krhino_task_del(ktask_t *task);
  */
 kstat_t krhino_task_dyn_del(ktask_t *task);
 #endif
+
+/**
+ * This function will kill a task
+ * @param[in]  task  the task to be killed.
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_task_kill(ktask_t *task);
+
+/**
+ * This function will cancel a task
+ * @param[in]  task  the task to be cancled.
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_task_cancel_chk(void);
 #endif
 
 /**

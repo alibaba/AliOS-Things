@@ -904,6 +904,39 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 }
 #endif
 
+kstat_t krhino_task_kill(ktask_t *task)
+{
+    CPSR_ALLOC();
+    NULL_PARA_CHK(task);
+
+    RHINO_CRITICAL_ENTER();
+    task->cancel = 1u;
+    RHINO_CRITICAL_EXIT();
+
+    return RHINO_SUCCESS;
+}
+
+kstat_t krhino_task_cancel_chk(void)
+{
+    CPSR_ALLOC();
+
+    ktask_t *cur_task;
+    kstat_t  ret = RHINO_SUCCESS;
+
+    cur_task= krhino_cur_task_get();
+    RHINO_CRITICAL_ENTER();
+    if (cur_task->cancel > 0) {
+#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
+        ret = krhino_task_dyn_del(cur_task);
+#else
+        ret = krhino_task_del(cur_task);
+#endif
+    }
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
+}
+
 #endif
 
 #if (RHINO_CONFIG_SCHED_RR > 0)
