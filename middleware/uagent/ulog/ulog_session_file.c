@@ -132,7 +132,7 @@ static void report_up_process(const http_upload_fail_t status, const char proces
         }
         text = cJSON_PrintUnformatted(resp);
         cJSON_Delete(resp);
-        uagent_send(UAGENT_MOD_ULOG, ULOG_LOG_LIST, strlen(text) + 1, text, send_policy_object);
+        uagent_send(UAGENT_MOD_ULOG, ULOG_LOG_LIST, strlen(text), text, send_policy_object);
         cJSON_free(text);
     }
 }
