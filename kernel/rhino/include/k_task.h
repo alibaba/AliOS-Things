@@ -189,11 +189,11 @@ kstat_t krhino_task_dyn_del(ktask_t *task);
 #endif
 
 /**
- * This function will kill a task
+ * This function will cancel a task
  * @param[in]  task  the task to be killed.
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_task_kill(ktask_t *task);
+kstat_t krhino_task_cancel(ktask_t *task);
 
 /**
  * This function will cancel a task
