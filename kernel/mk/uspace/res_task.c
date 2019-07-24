@@ -8,7 +8,6 @@
 #if (RHINO_CONFIG_URES_SUPPORT > 0)
 
 ktask_t    *res_task_obj;
-cpu_stack_t ustack_buf[RHINO_CONFIG_URES_TASK_USTACK_SIZE];
 
 void res_task(void *arg)
 {
@@ -51,16 +50,12 @@ void res_task(void *arg)
     }
 }
 
-int res_task_start(void)
+int res_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 {
     kstat_t stat;
 
-    stat = krhino_utask_create(&res_task_obj, "res_task", 0,
-                               RHINO_CONFIG_URES_TASK_PRIO,
-                               50 ,ustack_buf,
-                               RHINO_CONFIG_URES_TASK_USTACK_SIZE,
-                               RHINO_CONFIG_URES_TASK_KSTACK_SIZE,
-                               res_task, 1);
+    stat = krhino_utask_dyn_create(&res_task_obj, "res_task", NULL, prio, (tick_t)50,
+                                   ustack_size, kstack_size, res_task, 1u);
 
     uassert(stat == RHINO_SUCCESS);
 

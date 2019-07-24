@@ -5,7 +5,7 @@
 #ifndef LINKKIT_SYSCALL_ARG_H
 #define LINKKIT_SYSCALL_ARG_H
 
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "infra_compat.h"
 
 typedef struct {

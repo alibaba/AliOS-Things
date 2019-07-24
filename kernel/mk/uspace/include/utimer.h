@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-int timer_init(void);
-
 kstat_t krhino_timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
                             sys_time_t first, sys_time_t round, void *arg,
                             uint8_t auto_run);
@@ -32,6 +30,8 @@ kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round)
 kstat_t krhino_timer_arg_change(ktimer_t *timer, void *arg);
 
 kstat_t krhino_timer_arg_change_auto(ktimer_t *timer, void *arg);
+
+int timer_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio, size_t msg_num);
 
 #ifdef __cplusplus
 }
