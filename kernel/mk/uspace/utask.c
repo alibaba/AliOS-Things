@@ -18,6 +18,8 @@ kstat_t krhino_utask_dyn_create(ktask_t **task, const name_t *name, void *arg,
         return RHINO_NO_MEM;
     }
 
+    memset(ustack_buf, 0, ustack * sizeof(cpu_stack_t));
+
     return krhino_utask_create(task, name, arg, pri, ticks, ustack_buf,
                                ustack, kstack, entry, autorun);
 }
