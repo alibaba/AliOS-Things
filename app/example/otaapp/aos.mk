@@ -22,4 +22,4 @@ endif
 #AOS_DEVELOPERKIT_ENABLE_OTA := 1
 #endif
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

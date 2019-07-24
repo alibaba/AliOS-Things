@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := uData sensor framework demo
 $(NAME)_SOURCES :=   udata_example.c
 $(NAME)_COMPONENTS := cli sensor udata
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 
 ifeq ($(dtc),linkkit)
 AOS_CONFIG_DTC_LINKKIT = y
@@ -30,7 +30,7 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 GLOBAL_DEFINES += DTC_LINKKIT
 
 else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
