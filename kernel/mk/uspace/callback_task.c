@@ -17,7 +17,6 @@ typedef int (*f7)(void *arg1, void *arg2, void *arg3, void *arg4, void *arg5, vo
 typedef int (*f8)(void *arg1, void *arg2, void *arg3, void *arg4, void *arg5, void *arg6, void *arg7, void *arg8);
 
 static ktask_t    *cb_task_obj;
-static cpu_stack_t cb_task_ustack[RHINO_CONFIG_UCALLBACK_TASK_USTACK_SIZE];
 
 static int callback_handler(void *fptr, uint16_t arg_cnt, void *value[])
 {
@@ -93,18 +92,15 @@ void cb_task(void *arg)
     }
 }
 
-void cb_task_start(void)
+int cb_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 {
     kstat_t stat;
 
-    stat = krhino_utask_create(&cb_task_obj, "callback_task", 0,
-                               RHINO_CONFIG_UCALLBACK_TASK_PRIO,
-                               50 ,cb_task_ustack,
-                               RHINO_CONFIG_UCALLBACK_TASK_USTACK_SIZE,
-                               RHINO_CONFIG_UCALLBACK_TASK_KSTACK_SIZE,
-                               cb_task, 1);
-
+    stat = krhino_utask_dyn_create(&cb_task_obj, "callback_task", NULL, prio, (tick_t)50,
+                                   ustack_size, kstack_size, cb_task, 1);
     uassert(RHINO_SUCCESS == stat);
+
+    return 0;
 }
 
 #endif /* RHINO_CONFIG_UCALLBACK_SUPPORT */

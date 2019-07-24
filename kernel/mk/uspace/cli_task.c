@@ -35,21 +35,14 @@ void ucli_task(void *arg)
     }
 }
 
-int ucli_task_start(void)
+int ucli_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 {
-    kstat_t      stat;
-    cpu_stack_t *ustack_buf;
+    kstat_t stat;
 
-    ustack_buf = (cpu_stack_t*)malloc(RHINO_CONFIG_UCLI_TASK_USTACK_SIZE * sizeof(cpu_stack_t));
-    uassert(NULL != ustack_buf);
-
-    stat = krhino_utask_create(&ucli_task_obj, "ucli_task", 0,
-                               RHINO_CONFIG_UCLI_TASK_PRIO ,50 , ustack_buf,
-                               RHINO_CONFIG_UCLI_TASK_USTACK_SIZE,
-                               RHINO_CONFIG_UCLI_TASK_KSTACK_SIZE, ucli_task, 1);
+    stat = krhino_utask_dyn_create(&ucli_task_obj, "ucli_task", NULL, prio, (tick_t)50,
+                                   ustack_size, kstack_size, ucli_task, 1);
 
     if (stat != RHINO_SUCCESS) {
-        free(ustack_buf);
         uassert(0);
     }
 
