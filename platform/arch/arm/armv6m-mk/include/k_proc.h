@@ -45,5 +45,12 @@ void k_proc_unload(uint32_t pid);
  */
 void k_proc_switch(void *new, void *old);
 
+/**
+ * @brief start user space apps
+ *
+ * @return On success return 0, else return negative errno
+ */
+int application_start(int argc, char **argv);
+
 #endif /* K_PROC_H */
 
