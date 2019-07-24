@@ -10,7 +10,7 @@
 
 #include "infra_compat.h"
 #include "infra_mem_stats.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 
 #include "mqtt_instance.h"
