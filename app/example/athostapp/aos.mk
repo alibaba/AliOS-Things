@@ -19,6 +19,3 @@ endif
 GLOBAL_DEFINES += DEBUG
 
 $(NAME)_INCLUDES := ./
-
-GLOBAL_INCLUDES += ./
-

@@ -7,5 +7,5 @@ $(NAME)_SUMMARY    := sensor hal demo
 $(NAME)_SOURCES    := sensor_local_demo.c
 $(NAME)_COMPONENTS := cli sensor
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 

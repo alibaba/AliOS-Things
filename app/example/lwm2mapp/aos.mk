@@ -9,7 +9,7 @@ $(NAME)_SOURCES := lwm2m_example.c
 
 LWM2M_EXAMPLE_PATH := .
 
-GLOBAL_INCLUDES += $(LWM2M_EXAMPLE_PATH)/shared \
+$(NAME)_INCLUDES += $(LWM2M_EXAMPLE_PATH)/shared \
                    $(LWM2M_EXAMPLE_PATH)/client
 
 $(NAME)_SOURCES += $(LWM2M_EXAMPLE_PATH)/client/object_access_control.c \
@@ -40,4 +40,4 @@ $(NAME)_COMPONENTS += osal_aos lwm2m cli netmgr
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
