@@ -9,12 +9,16 @@
 #define RHINO_CONFIG_URES               1
 #endif /* RHINO_CONFIG_URES */
 
+#ifndef RHINO_CONFIG_UIPC
+#define RHINO_CONFIG_UIPC               1
+#endif /* RHINO_CONFIG_UIPC */
+
 #ifndef RHINO_CONFIG_UTIMER
 #define RHINO_CONFIG_UTIMER             1
 #endif /* RHINO_CONFIG_UTIMER */
 
 #ifndef RHINO_CONFIG_UCLI
-#define RHINO_CONFIG_UCLI               0
+#define RHINO_CONFIG_UCLI               1
 #endif /* RHINO_CONFIG_UCLI */
 
 #ifndef RHINO_CONFIG_UFS
@@ -22,7 +26,7 @@
 #endif /* RHINO_CONFIG_UFS */
 
 #ifndef RHINO_CONFIG_UTCPIP
-#define RHINO_CONFIG_UTCPIP             0
+#define RHINO_CONFIG_UTCPIP             1
 #endif /* RHINO_CONFIG_UTCPIP */
 
 #ifndef RHINO_CONFIG_ULINKKIT
