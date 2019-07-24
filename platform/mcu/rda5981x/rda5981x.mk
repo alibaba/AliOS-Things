@@ -6,7 +6,7 @@ HOST_OPENOCD := rda5981x
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS := libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
+$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
 
 GLOBAL_DEFINES += DEVICE_SERIAL=1
 GLOBAL_DEFINES += DEVICE_STDIO_MESSAGES=1
@@ -16,9 +16,7 @@ GLOBAL_DEFINES += TARGET_FLASH_CMSIS_ALGO=1
 GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
-				   ../../arch/arm/armv7m/common \
-                   ../../../kernel/protocols/net/include
+GLOBAL_INCLUDES += ../../../kernel/protocols/net/include
 GLOBAL_INCLUDES += include \
                    startup \
                    driver \
@@ -57,10 +55,6 @@ $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 #GLOBAL_LDFLAGS += -T platform/mcu/rda5981x/rda5981x.ld
 
 $(NAME)_SOURCES := startup/soc_init.c \
-                   ../../arch/arm/armv7m/common/port_c.c \
-                   ../../arch/arm/armv7m/gcc/m4/port_s.S \
-				   ../../arch/arm/armv7m/common/panic_c.c \
-				   ../../arch/arm/armv7m/common/panic_gcc.S \
                    aos/aos.c \
                    aos/soc_impl.c \
                    hal/system_rda5981x.c \

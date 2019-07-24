@@ -318,9 +318,9 @@ r_void rda_msleep(r_u32 ms)
 #define CRI_SEC_END_PRI_LEVEL   0x00
 static r_u32 g_critical_sec_counter = 0U;
 #if defined(CONFIG_DISABLE_ALL_INT)
-extern size_t cpu_intrpt_save(void);
-extern void   cpu_intrpt_restore(size_t cpsr);
-static r_u32 g_critical_ctxt_saved  = 0U;
+cpu_cpsr_t cpu_intrpt_save(void);
+void   cpu_intrpt_restore(cpu_cpsr_t cpsr);
+static cpu_cpsr_t g_critical_ctxt_saved;
 #endif /* CONFIG_DISABLE_ALL_INT */
 
 
