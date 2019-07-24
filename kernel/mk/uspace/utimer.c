@@ -454,7 +454,7 @@ static void timer_task(void *pa)
     }
 }
 
-int timer_init(void)
+int timer_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio, size_t msg_num)
 {
     int          ret = 0;
 
@@ -462,14 +462,12 @@ int timer_init(void)
 
     ret = krhino_fix_buf_queue_dyn_create(&u_timer_queue, "timer_queue",
                                           sizeof(k_timer_queue_cb),
-                                          RHINO_CONFIG_UTIMER_MSG_NUM);
+                                          msg_num);
     uassert(RHINO_SUCCESS == ret);
 
     ret = krhino_utask_dyn_create(&u_timer_task, "timer_task", NULL,
-                              RHINO_CONFIG_UTIMER_TASK_PRIO, (tick_t)0u,
-                              RHINO_CONFIG_UTIMER_TASK_USTACK_SIZE, /* ustack */
-                              RHINO_CONFIG_UTIMER_TASK_KSTACK_SIZE, /* kstack */
-                              timer_task, 1u);
+                                  prio, (tick_t)0u, ustack_size, kstack_size,
+                                  timer_task, 1u);
     if (RHINO_SUCCESS != ret) {
         krhino_buf_queue_dyn_del(u_timer_queue);
         uassert(0);
