@@ -904,7 +904,7 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 }
 #endif
 
-kstat_t krhino_task_kill(ktask_t *task)
+kstat_t krhino_task_cancel(ktask_t *task)
 {
     CPSR_ALLOC();
     NULL_PARA_CHK(task);
