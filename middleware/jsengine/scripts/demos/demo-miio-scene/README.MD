@@ -2,9 +2,9 @@
 本程序设计旨在给开发者展示如何通过 miio 接入小米的智能设备，如何编写场景联动程序
 
 ## 基本原理
-TinyEngine 为接入小米设备，在TinyEngine的 Native 层，实现了小米设备 miio 通信协议，并向上提供了 JS 调用接口。Native miio 库实现数据传输通道（包括会话建立、加密发送数据、解密接收数据等）和事件转发，具体的设备模型（属性、接口、事件）在JS应用层可见。
+JSEngine 为接入小米设备，在JSEngine的 Native 层，实现了小米设备 miio 通信协议，并向上提供了 JS 调用接口。Native miio 库实现数据传输通道（包括会话建立、加密发送数据、解密接收数据等）和事件转发，具体的设备模型（属性、接口、事件）在JS应用层可见。
 
-![image | left](../../../docs/graph/miio-module-arch.png "")
+![](https://cdn.nlark.com/lark/0/2018/png/16581/1536659251613-a029a968-a2de-4f35-a043-da3cbcc8d090.png#width=392)
 
 ## MIIO JS 对象接口说明 ##
 
@@ -66,10 +66,10 @@ miio设备接入分为两类，一类 WIFI接入设备，可以连接WIFI AP，�
 ### 所需硬件配置
 * ESP32-DevkitC
 * STM32-developkit
-* TinyEngine 虚拟设备
+* JSEngine 虚拟设备
 
 ### 设备组网图
-![image | left](../../../docs/graph/miio设备组网图.jpg "")
+![](https://cdn.nlark.com/lark/0/2018/jpeg/16581/1536659236266-db5980d0-7b68-4fb8-a3d9-8ca1b3c0389a.jpeg#width=747)
 
 ### 实现代码实例
 
@@ -94,7 +94,7 @@ function lightOff() {
 
 function setupLight(host) {
   // 创建小米灯设备，如何获取小米设备的token，
-  //其具体方法和步骤请见：https://lark.alipay.com/tinyenginedev/developer-documentation/wbm6d5
+  //其具体方法和步骤请见：https://lark.alipay.com/JSEnginedev/developer-documentation/wbm6d5
   lightDevice = miio.createDevice(
     host,
     "ae65d127852df5c2b86f38b6878e8706"
@@ -106,7 +106,7 @@ function setupLight(host) {
 
 function setupGateway(host) {
   // 创建小米 Zigbee 网关设备：如何获取小米设备的token，
-  //其具体方法和步骤请见：https://lark.alipay.com/tinyenginedev/developer-documentation/wbm6d5
+  //其具体方法和步骤请见：https://lark.alipay.com/JSEnginedev/developer-documentation/wbm6d5
   var gatewayDevice = miio.createDevice(
     host,
     "0a7b7e5af0fc0b1b4877b0907834f9a7"

@@ -2,13 +2,6 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/*文件说明:
-  功能：本文件是一个TinyEngine sdk sample例程，用于说明如何使用TinyEngine
-  SDK的API
-       同时将TinyEngine静态库链接进不同平台的SDK，编译出可执行ELF文件用于测试。
-  版本: v0.0.2
-  时间：2018.08.27
- */
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -57,8 +50,7 @@ void bone_console_log_disable()
 
 /**
  *
- * log回调函数
- * 1. stdout标准输出打印
+ * JSEngine stdout callback function
  *
  */
 static void be_log_cb(const char *tag, int level, const char *msg, int len)
@@ -71,9 +63,8 @@ static void be_log_cb(const char *tag, int level, const char *msg, int len)
 }
 
 /**
- * 搜索JS应用程序
- * 1. /spiffs/index.js
- * 2. 分析/spiffs/package.json获取【test】或者【main】
+ * 1. search js entry: /spiffs/index.js in spiffs
+ * 2. get [test] or [main] in /spiffs/package.json
  */
 char *search_js_app_main_entry()
 {
@@ -97,7 +88,7 @@ char *search_js_app_main_entry()
         return js_app_file_name;
     }
 
-    /* cannot find the index.js int current dir*/
+    /* cannot find the index.js int current dir */
     if ((json_fd = be_open(APP_PACKAGE_FILE_NAME, O_RDONLY)) < 0) {
         be_error(TAG, "cannot find the file :%s\n", APP_PACKAGE_FILE_NAME);
         return NULL;
@@ -162,22 +153,22 @@ void be_jse_task_main_entrance()
 
     printf("%s %d  ~~~~ Enter ~~~ \r\n", __FUNCTION__, __LINE__);
 
-    /* 初始化JSE task */
+    /* JSE task init */
     bone_engine_task_init();
 
-    /* 初始化JSE */
+    /* JSE init */
     bone_engine_init();
 
-    /* 查找并执行JS文件 */
+    /* run the js application */
     char *filename = search_js_app_main_entry();
     if (filename) {
         bone_engine_eval_file(filename);
     } else {
-        be_error(TAG, "Run Js With TinyEngine JS apps failed\n");
+        be_error(TAG, "Run Js With JSEngine JS apps failed\n");
     }
 
     while (1) {
-        /* 处理JS异步操作 */
+        /* loop for asynchronous operation */
         bone_engine_task_yield(200);
 
 #ifdef JSE_IDE_DEBUG
@@ -195,7 +186,7 @@ void tiny_engine_start()
 {
     printf("tiny_engine_start...\r\n");
 
-    /* BoneEngine log重定向 */
+    /* redirect JSEngine stdout */
     bone_engine_set_log_cb(be_log_cb);
 
     hal_system_kv_init();

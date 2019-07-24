@@ -5,16 +5,16 @@
 
 *  首先在LD上 [https://linkdevelop.aliyun.com]() 创建一个GAVIN-GUO-LIGHT 的产品
 
-![image | left](../../../docs/graph/LD控制台.jpg "")
+![](https://cdn.nlark.com/lark/0/2018/png/8336/1536720961608-b50f7a2f-5054-4d0b-8787-cf2d1c050136.png#width=)
 
 * 然后，定义产品GAVIN-GUO-LIGHT 的产品设备模型：属性，事件和方法
- 
+
 本示例产品只定义一个属性，即：
 
 ```
 LightSwitch：开：1，关：0
 ```
-	
+
 * 为该产品生成一个具体设备，设备三元组为：
 
 ```
@@ -106,9 +106,9 @@ setInterval(function() {
 }, 10000);
 ```
 ### 调试硬件
-调试设备选用 ESP32 开发板 goouuu-esp-32f ，烧录TinyEngine官方固件，并设置 WIFI 网络
+调试设备选用 ESP32 开发板 goouuu-esp-32f ，烧录JSEngine官方固件，并设置 WIFI 网络
 
-![image | left](../../../docs/graph/ESP Goouuu 开发板.jpg "")
+![](https://cdn.nlark.com/lark/0/2018/png/8336/1536720992404-5954e40a-3787-428e-bd13-5154c1b71c68.png#width=)
 
 board.json  配置如下：
 
