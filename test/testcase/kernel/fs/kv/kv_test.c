@@ -23,9 +23,11 @@ static char *g_val_2 = "val_2";
 static char *g_val_3 = "val_3";
 static char *g_val_4 = "val_4";
 
+#ifdef YTS_LINUX
 static char *g_key_update = "test_1000";
 static char *g_val_update = "val_19";
 static char *g_val_update_2 = "val_30";
+#endif
 
 static void test_kv_add(void)
 {
