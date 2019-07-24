@@ -7,5 +7,5 @@ $(NAME)_SUMMARY    := uData local demo
 $(NAME)_SOURCES    :=   udata_local_demo.c
 $(NAME)_COMPONENTS := cli udata
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 

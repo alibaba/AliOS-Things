@@ -12,4 +12,4 @@ EN_BT_SMP = 1
 $(NAME)_COMPONENTS  += bt_host cli bt_profile
 GLOBAL_DEFINES      += AOS_NO_WIFI
 
-GLOBAL_INCLUDES += ../
+$(NAME)_INCLUDES += ../

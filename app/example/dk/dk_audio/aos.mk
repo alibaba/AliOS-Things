@@ -13,4 +13,4 @@ $(NAME)_COMPONENTS := yloop cli
 
 ENABLE_AUDIO_HAL := 1
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

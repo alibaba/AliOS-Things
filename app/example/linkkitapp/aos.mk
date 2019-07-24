@@ -49,12 +49,12 @@ endif
 $(NAME)_COMPONENTS += breeze
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
-GLOBAL_INCLUDES += combo
+$(NAME)_INCLUDES += combo
 bz_en_auth := 1
 bz_en_awss := 1
 ble := 1
 endif
 
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 
