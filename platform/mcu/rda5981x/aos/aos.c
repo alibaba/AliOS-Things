@@ -44,7 +44,7 @@ static void sys_init(void)
     vfs_init();
     vfs_device_init();
 
-#ifdef AOS_COMP_UAGEN
+#ifdef AOS_COMP_UAGENT
     uagent_init();
 #endif
 
