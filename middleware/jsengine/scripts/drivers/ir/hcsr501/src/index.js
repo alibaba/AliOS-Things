@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-// 人体红外传感器
-// 将 hcsr501 的OUT 管脚直接接到GPIO管脚，hcrs501 需要一个GPIO脚
+// Infrared sensor
+// need to connect GPIO t0 hcsr501 OUT pin
 
 var hcsr501 = function (id) {
   this.handle = GPIO.open(id);
