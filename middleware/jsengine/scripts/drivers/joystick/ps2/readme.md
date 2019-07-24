@@ -6,7 +6,7 @@ ps2模块读取xyz三轴的数据，其中xy轴是以模拟量进行输出的，
 
 ###硬件资源
 
-1.esp32Kit开发板; 
+1.esp32Kit开发板;
 
 2.PS2模块;
 
@@ -45,7 +45,7 @@ esp32Kit示范:
       "port":12,
       "dir":2,
       "pull":1
-    } 
+    }
 }
 
 ```
@@ -67,7 +67,7 @@ method:
 JavaScript
 
 ```js
-console.log('TinyEngine Demo run');
+console.log('JSEngine Demo run');
 console.log('Welcome to use BoneEngine@lite');
 console.log('产品名称: ps2遥杆');
 
@@ -105,7 +105,7 @@ MS5661模块 VCC引脚接 DevelopKit VCC引脚；
 MS5661模块 GND引脚接 DevelopKit GND引脚；
 
 MS5661模块 CSB引脚接 DevelopKit VCC引脚；
- 
+
 ###Driver配置
 DevelopKit示范：
 
