@@ -10,4 +10,4 @@ GLOBAL_DEFINES += AOS_NO_WIFI
 
 $(NAME)_COMPONENTS := yloop cli ulocation netmgr
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

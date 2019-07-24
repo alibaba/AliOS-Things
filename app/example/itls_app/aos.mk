@@ -10,4 +10,4 @@ $(NAME)_COMPONENTS  := itls id2 alicrypto netmgr cli
 
 GLOBAL_CFLAGS += -DON_DAILY
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
