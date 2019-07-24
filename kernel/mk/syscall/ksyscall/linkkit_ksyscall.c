@@ -10,7 +10,7 @@
 #error "linkkit ksyscall depends on RHINO_CONFIG_URES"
 #endif
 
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "infra_compat.h"
 #include "wrappers_defs.h"
 #include "wrappers_os.h"

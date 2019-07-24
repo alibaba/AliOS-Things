@@ -8,8 +8,8 @@
 #define APP_DEFAULT_PRIO    32
 
 #include "k_api.h"
-#include "u_app_config.h"
-#include "u_app_default_config.h"
+#include "u_config.h"
+#include "u_default_config.h"
 
 #include "umm.h"
 #include "utask.h"

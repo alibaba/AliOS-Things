@@ -5,7 +5,7 @@
 #ifndef CALLBACK_TASK_H
 #define CALLBACK_TASK_H
 
-void cb_task_start(void);
+int cb_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio);
 
 #endif /* CALLBACK_TASK_H */
 
