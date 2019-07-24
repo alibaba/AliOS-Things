@@ -7,4 +7,4 @@ $(NAME)_SOURCES := jsengine_app.c
 
 $(NAME)_COMPONENTS += jsengine
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

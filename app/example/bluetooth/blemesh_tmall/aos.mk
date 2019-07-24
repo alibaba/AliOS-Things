@@ -13,4 +13,4 @@ bt_mesh = 1
 $(NAME)_COMPONENTS-y += tmall_model yloop cli
 GLOBAL_DEFINES-y     += AOS_NO_WIFI CONFIG_BT_TINYCRYPT_ECC CONFIG_BT_CONN
 
-GLOBAL_INCLUDES-y    += ../
+$(NAME)_INCLUDES-y    += ../

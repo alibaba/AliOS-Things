@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := uData sensor framework demo
 $(NAME)_SOURCES :=   gateway.c
 $(NAME)_COMPONENTS := cli sensor udata
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 
 ifeq ($(GATEWAYAPP_CONFIG_PT_SCANNER),y)
 GLOBAL_DEFINES     += PT_SCANNER
@@ -31,7 +31,7 @@ $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
 $(NAME)_COMPONENTS += yloop netmgr cjson linkkit_sdk_c
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 GLOBAL_DEFINES += DTC_LINKKIT
 
 else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
