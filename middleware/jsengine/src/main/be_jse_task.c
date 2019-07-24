@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/*
- *文件功能说明：实现bone engine jse main task的消息事件处理机制，
-  所有jse回调事件最终都需要发送消息到该jse main task处理（重要）
- */
+/* this file is the JSEngine message/event process framework */
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,8 +18,8 @@
 #define JSE_MSGQ_MAX_NUM 64
 #define JSE_TASK_MUTEX_WAITIME 5000
 
-static osMessageQId jse_task_mq = NULL; /*JSE MAIN TASK的消息队列*/
-static void *jse_task_mutex     = NULL; /*JSE MAIN TASK的互斥锁*/
+static osMessageQId jse_task_mq = NULL; /* JSEngine message queue */
+static void *jse_task_mutex     = NULL; /* JSEngine mutex */
 
 typedef struct {
     bone_engine_call_t action;

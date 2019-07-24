@@ -1,34 +1,32 @@
 ## smart-fan-with-app-ctrl 应用说明
-本程序旨在给开发者展示如何编写 TinyEngine 的 Javascript 应用程序来控制外设（风扇），让开发者在了解如何开发TinyEngine应用的同时，也可以基于此应用，扩展适合自己需求的应用或产品，演示程序没有版权限制。
+本程序旨在给开发者展示如何编写 JSEngine 的 Javascript 应用程序来控制外设（风扇），让开发者在了解如何开发JSEngine应用的同时，也可以基于此应用，扩展适合自己需求的应用或产品，演示程序没有版权限制。
 
 ### 演示示意图及相关说明
 
-![image | left](../../../docs/graph/fan-demo.jpg "")
+![](https://img.alicdn.com/tfs/TB1L0J4bbr1gK0jSZR0XXbP8XXa-1280-720.jpg)
 
-* TinyEngine 预先通过红外接收头学习电风扇的遥控器，把遥控码放到 ir-code 模块遥控表中，并标注每个遥控码表对应一个遥控键，如：
+* JSEngine 预先通过红外接收头学习电风扇的遥控器，把遥控码放到 ir-code 模块遥控表中，并标注每个遥控码表对应一个遥控键，如：
 
 ```
-PowerOn: 
+PowerOn:
 [
 0x30,0x03,0x52,0x47,0x00,0x34,0x15,0x01,0x2D,0x02,0x21,0x00,0x23,0x00,0x65,0x00,0x24,0x00,0x03,0x0A,0x24,0x00,0x88,0x00,0x33,0x02,0x00,0x00,0x21,0x00,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x01,0x11,0x11,0x11,0x21,0x22,0x22,0x12,0x21,0x11,0x11,
 0x11,0x12,0x22,0x22,0x22,0x23,0x45,0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x04,0x76,0x3E,0xA0
 ],
 
 ```
-* TinyEngine根据用户命令，从遥控码表取相同的遥控码序列，通过红外发射发射出去；
+* JSEngine根据用户命令，从遥控码表取相同的遥控码序列，通过红外发射发射出去；
 * 电风扇接收到遥控码之后，执行相应的操作；
 
 ### 扩展功能说明
 本遥控器应用还可以结合上云模块（cloudClient）或 deviceShadow 与 LD 平台对接，在 LD 工作台创建相应的风扇产品，利用移动App工作台自动生成一个手机 APP，安装到手机上，由手机来控制风扇。
 
-![image | left](../../../docs/graph/smart-fan.jpg "")
-
-
+![](https://img.alicdn.com/tfs/TB14CX4bbj1gK0jSZFuXXcrHpXa-1280-720.jpg)
 
 ### ESP32硬件和红外摄像头管脚连接说明
 
 
-![image | left](../../../docs/graph/fan连线图.jpg "")
+![](https://img.alicdn.com/tfs/TB1vI44beH2gK0jSZJnXXaT1FXa-1280-720.jpg)
 
 其他参考板也可以采用类似的方式,结合硬件规格，适当配置相应的管脚。
 
