@@ -16,4 +16,4 @@ endif
 
 $(NAME)_COMPONENTS  := imbedtls cli alicrypto netmgr
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

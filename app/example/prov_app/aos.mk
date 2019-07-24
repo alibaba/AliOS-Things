@@ -14,4 +14,4 @@ endif
 
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libprov_test.a
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
