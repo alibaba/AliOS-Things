@@ -50,9 +50,9 @@ static void CASE_aosapi_kernel_mutex_param()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void TASK_aosapi_kernel_mutex_lock1(void *arg)
 {
-	int ret;
+	int ret, i;
 	int *pflag = (int*)arg;
-	for(int i=0; i<LOOP_COUNT; i++) {
+	for(i = 0; i < LOOP_COUNT; i++) {
 		ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
@@ -66,9 +66,9 @@ void TASK_aosapi_kernel_mutex_lock1(void *arg)
 }
 void TASK_aosapi_kernel_mutex_lock2(void *arg)
 {
-	int ret;
+	int ret, i;
 	int *pflag = (int*)arg;
-	for(int i=0; i<LOOP_COUNT; i++) {
+	for(i = 0; i < LOOP_COUNT; i++) {
 		ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 

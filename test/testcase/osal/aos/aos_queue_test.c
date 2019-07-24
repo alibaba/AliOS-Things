@@ -182,13 +182,13 @@ static void CASE_aosapi_kernel_queue_send_recv()
 
 static void CASE_aosapi_kernel_queue_full()
 {
-    int ret;
+    int ret, i;
     // create fail
     ret = aos_queue_new(&g_queue, queue_buf, TEST_QUEUE_SIZE,
                         TEST_QUEUE_MAX_MSG_SIZE);
     YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
 
-    for (int i = 0; i < TEST_QUEUE_MAX_MSG_COUNT - 1; i++) {
+    for (i = 0; i < TEST_QUEUE_MAX_MSG_COUNT - 1; i++) {
         ret = aos_queue_send(&g_queue, &send_msg, sizeof(send_msg));
         YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
     }

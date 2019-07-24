@@ -21,6 +21,11 @@
 #endif
 #define SYSINFO_KERNEL      "AOS"
 
+/* dynamic stack size */
+#ifndef TEST_CONFIG_STACK_SIZE
+#define TEST_CONFIG_STACK_SIZE                  (1024)
+#endif
+
 /* dynamic memory alloc test */
 #ifndef TEST_CONFIG_MM_ENABLED
 #define TEST_CONFIG_MM_ENABLED                  (1)
@@ -45,10 +50,6 @@
 
 #if (TEST_CONFIG_TASK_ENABLED > 0)
 
-#ifndef TEST_CONFIG_STACK_SIZE
-#define TEST_CONFIG_STACK_SIZE                  (512)
-#endif
-
 #ifndef TEST_CONFIG_MAX_TASK_COUNT
 #define TEST_CONFIG_MAX_TASK_COUNT              (10)
 #endif
@@ -65,10 +66,6 @@
 #endif
 
 #if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
-
-#ifndef TEST_CONFIG_STACK_SIZE
-#define TEST_CONFIG_STACK_SIZE                  (512)
-#endif
 
 #ifndef TEST_CONFIG_SYNC_TIMES
 #define TEST_CONFIG_SYNC_TIMES                  (100000)
@@ -87,7 +84,7 @@
 
 /* kv test */
 #ifndef TEST_CONFIG_KV_ENABLED
-#define TEST_CONFIG_KV_ENABLED                  (0)
+#define TEST_CONFIG_KV_ENABLED                  (1)
 #endif
 
 #if (TEST_CONFIG_KV_ENABLED > 0)
@@ -425,7 +422,7 @@ static void task9(void *arg)
 #if (TEST_CONFIG_TASK_ENABLED > 0)
 CASE(test_task, aos_1_006)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     int ret = -1;
 
     aos_sem_new(&g_sem_taskexit_sync, 0);
@@ -441,7 +438,7 @@ CASE(test_task, aos_1_006)
 
 CASE(test_task, aos_1_007)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     aos_task_t task;
     int ret = -1;
 
@@ -458,7 +455,7 @@ CASE(test_task, aos_1_007)
 
 CASE(test_task, aos_1_008)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     int ret = -1;
 
     aos_sem_new(&g_sem_taskexit_sync, 0);
@@ -474,7 +471,7 @@ CASE(test_task, aos_1_008)
 
 CASE(test_task, aos_1_009)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     int ret = -1;
 
     aos_sem_new(&g_sem_taskexit_sync, 0);
@@ -490,7 +487,7 @@ CASE(test_task, aos_1_009)
 
 CASE(test_task, aos_1_010)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     int ret = -1;
 
     aos_sem_new(&g_sem_taskexit_sync, 0);
@@ -506,7 +503,7 @@ CASE(test_task, aos_1_010)
 
 CASE(test_task, aos_1_011)
 {
-    unsigned int stack_size = 512;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     char task_name[10] = {0};
     int ret = -1;
     int i = 0;
@@ -530,7 +527,7 @@ CASE(test_task, aos_1_011)
 
 CASE(test_task, aos_1_012)
 {
-    unsigned int stack_size = 512;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     char task_name[10] = {0};
     int ret = -1;
     int i = 0;
@@ -593,7 +590,7 @@ CASE(test_task_comm, aos_1_013)
 
 CASE(test_task_comm, aos_1_014)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     char task_name[10] = {0};
     unsigned int task_count = 4;
     int ret = -1;
@@ -650,7 +647,7 @@ CASE(test_task_comm, aos_1_015)
 
 CASE(test_task_comm, aos_1_016)
 {
-    unsigned int stack_size = 1024;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     char task_name[10] = {0};
     unsigned int task_count = 4;
     int ret = -1;
@@ -718,7 +715,7 @@ CASE(test_task_comm, aos_1_017)
 CASE(test_task_comm, aos_1_018)
 {
     int          ret = -1;
-    unsigned int stack_size = 512;
+    unsigned int stack_size = TEST_CONFIG_STACK_SIZE;
     unsigned int msg_send = 0;
     unsigned int msg_recv = 0;
     unsigned int size_send = sizeof(msg_send);
