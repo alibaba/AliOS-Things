@@ -12,7 +12,7 @@ ENABLE_VFP         := 1
 ENABLE_USPACE      := 1
 APP_FORMAT         := bin
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) lwip cli ulog
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lwip cli ulog
 
 $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
                    src/board.c \
@@ -22,12 +22,11 @@ $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
                    src/usart.c \
                    src/dma.c \
                    src/main.c \
-                   src/uspace_init.c \
                    src/ethernetif.c \
                    src/httpserver-netconn.c
 
 GLOBAL_INCLUDES += include \
-				   include/lwip
+                   include/lwip
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += src/startup_stm32f429xx_keil.s
@@ -57,6 +56,8 @@ GLOBAL_LDFLAGS += board/stm32f429zi-mk/STM32F429ZITx_FLASH_app.ld
 endif
 endif
 endif
+
+GLOBAL_DEFINES += CONFIG_NO_TCPIP
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_f429-mk
 CONFIG_SYSINFO_DEVICE_NAME   := f429-mk
