@@ -128,8 +128,8 @@
 #endif
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
-#include "u_config.h"
-#include "u_default_config.h"
+#include "mk_config.h"
+#include "mk_default_config.h"
 #endif
 
 #endif /* K_CONFIG_H */
