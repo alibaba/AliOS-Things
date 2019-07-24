@@ -3,7 +3,6 @@ NAME := linkwan
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkwan
-GLOBAL_INCLUDES += .
 
 $(NAME)_SOURCES := main.c
 
@@ -18,4 +17,4 @@ endif
 
 $(NAME)_COMPONENTS += kv
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
