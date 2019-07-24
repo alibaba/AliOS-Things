@@ -11,7 +11,7 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #ifdef FEATURE_UND_SUPPORT
-#include "und/und.h"
+    #include "und/und.h"
 #endif
 
 #include "mbedtls/error.h"
@@ -515,9 +515,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     if (NULL == saved_session) {
         do {
             int len = TLS_MAX_SESSION_BUF;
-            char device_key[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 6] = {0};
-            char _product_key[PRODUCT_KEY_LEN + 1] = {0};
-            char _device_name[DEVICE_NAME_LEN + 1] = {0};
+            char device_key[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 6] = {0};
+            char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+            char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
             unsigned char *save_buf = aos_malloc(TLS_MAX_SESSION_BUF);
             if (save_buf ==  NULL) {
                 platform_err(" malloc failed");
@@ -539,7 +539,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
 
             HAL_GetProductKey(_product_key);
             HAL_GetDeviceName(_device_name);
-            HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 5, KV_SESSION_KEY, _product_key, _device_name);
+            HAL_Snprintf(device_key, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 5, KV_SESSION_KEY, _product_key, _device_name);
             ret = HAL_Kv_Get(device_key, save_buf, &len);
 
             if (ret != 0 || len == 0) {
@@ -581,7 +581,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             platform_err("failed  ! mbedtls_ssl_handshake returned -0x%04x",
                          -ret);
 #ifdef FEATURE_UND_SUPPORT
-        und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
+            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TLS_FAIL_REASON);
 #endif
             return ret;
         }
@@ -615,13 +615,13 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
             platform_info("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, real_session_len);
             if (ret == 0) {
-                char device_key[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 6] = {0};
-                char _product_key[PRODUCT_KEY_LEN + 1] = {0};
-                char _device_name[DEVICE_NAME_LEN + 1] = {0};
+                char device_key[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 6] = {0};
+                char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+                char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
                 HAL_GetProductKey(_product_key);
                 HAL_GetDeviceName(_device_name);
-                HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 5, KV_SESSION_KEY, _product_key, _device_name);
+                HAL_Snprintf(device_key, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 5, KV_SESSION_KEY, _product_key, _device_name);
                 HAL_Kv_Set(device_key, (void *)save_buf, real_session_len, 1);
             }
             aos_free(save_buf);
@@ -668,7 +668,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
             if (net_status == -2) {
 #ifdef FEATURE_UND_SUPPORT
                 und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
-                        UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
+                                  UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
 #endif
             }
             return (net_status == -2) ? net_status : readLen;
@@ -699,7 +699,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
                 platform_err("ssl recv error: code = %d", ret);
 #ifdef FEATURE_UND_SUPPORT
                 und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
-                        UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
+                                  UND_STATIS_NETWORK_RD_EXCEPTION_REASON);
 #endif
                 net_status = -1;
                 return -1; /* Connection error */
@@ -726,7 +726,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer,
         } else if (ret == 0) {
 #ifdef FEATURE_UND_SUPPORT
             und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
-                    UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
+                              UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
 #endif
             platform_err("ssl write timeout");
             return 0;
@@ -734,7 +734,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer,
             // mbedtls_strerror(ret, err_str, sizeof(err_str));
 #ifdef FEATURE_UND_SUPPORT
             und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
-                    UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
+                              UND_STATIS_NETWORK_WR_EXCEPTION_REASON);
 #endif
             platform_err("ssl write fail, code=%d", ret);
             return -1; /* Connnection error */
