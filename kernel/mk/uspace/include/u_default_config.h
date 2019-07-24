@@ -8,6 +8,47 @@
 /* user space */
 #if (RHINO_CONFIG_USER_SPACE > 0)
 
+/**
+ * config user space entry task priority
+ */
+#ifndef RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+#define RHINO_CONFIG_APP_ENTRY_TASK_PRIO 20
+#endif
+
+/**
+ * config user space entry task's kstack size
+ * the stack actual size in bytes =
+ *   RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE * sizeof (cpu_stack_t)
+ * On default set to 1K bytes.
+ */
+#ifndef RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+#define RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE 256
+#endif
+
+/**
+ * config user space entry task's kstack size
+ * the stack actual size in bytes =
+ *   RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE * sizeof (cpu_stack_t)
+ * On default set to 1K bytes.
+ */
+#ifndef RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+#define RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE 256
+#endif
+
+/**
+ * config user space app name, it's also entry task name
+ */
+#ifndef RHINO_CONFIG_APP_NAME
+#define RHINO_CONFIG_APP_NAME "uapp"
+#endif
+
+/**
+ * config user space app version
+ */
+#ifndef RHINO_CONFIG_APP_VERSION
+#define RHINO_CONFIG_APP_VERSION 0x00000001
+#endif
+
 /********************** URES **************************/
 #if (RHINO_CONFIG_URES > 0)
 
