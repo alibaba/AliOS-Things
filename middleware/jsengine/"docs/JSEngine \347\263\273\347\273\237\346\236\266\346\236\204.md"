@@ -1,7 +1,7 @@
-## TinyEngine 系统架构概要
+## JSEngine 系统架构概要
 ## 概述
 
-TinyEngine 是一个专门为嵌入式设备提供的 Javascript 运行时环境，它提供极轻量级的JSE，设备抽象模型，应用编程框架，以及相关的辅助开发和调试工具。具体包括：
+JSEngine 是一个专门为嵌入式设备提供的 Javascript 运行时环境，它提供极轻量级的JSE，设备抽象模型，应用编程框架，以及相关的辅助开发和调试工具。具体包括：
 
 
 * 多芯片和硬件支持：
@@ -15,18 +15,18 @@ TinyEngine 是一个专门为嵌入式设备提供的 Javascript 运行时环境
 	抽象硬件驱动模型，可以用Javascript开发硬件驱动程序，还提供大量的IoT相关的设备驱动，包括各种传感器，控制器，以及显示设备
 * 集成开发套件：
 
-	针对不同的开发者，官方提供 TinyEngine 系统固件，用户可定制的TinyEngineSDK，以及完全开源的 TinyEngine
+	针对不同的开发者，官方提供 JSEngine 系统固件，用户可定制的JSEngineSDK，以及完全开源的 JSEngine
 
 
 	“一份应用，全平台运行” 不用关注硬件设备，就可以开发嵌入式应用。
 
-整个TinyEngine软件系统架构图如下：
+整个JSEngine软件系统架构图如下：
 
-![image | left](./graph/arch.jpg "")
+![](https://cdn.nlark.com/lark/0/2018/jpeg/8336/1536912855678-4877a93e-8cab-4635-8518-e5f7ec259421.jpeg#width=747)
 
 ## 芯片及硬件
 
-TinyEngine 可支持多种不同架构的Soc,CPU,MCU:
+JSEngine 可支持多种不同架构的Soc,CPU,MCU:
 
 * 芯片模组：
     * 乐鑫ESP32，ESP8266，
@@ -37,21 +37,21 @@ TinyEngine 可支持多种不同架构的Soc,CPU,MCU:
 
 ## 内核及驱动
 
-TinyEngine 目前可以运行在多种嵌入式设备的RTOS内核上:
+JSEngine 目前可以运行在多种嵌入式设备的RTOS内核上:
 
 * AliOS Things
 * FreeRTOS
 * UCOS-II
 
-TinyEngine 同时还提供了虚拟设备，可运行在Windows，Linux，MacOS等Host主机上，做为调试器使用。
+JSEngine 同时还提供了虚拟设备，可运行在Windows，Linux，MacOS等Host主机上，做为调试器使用。
 
 ## 系统及硬件抽象层
 
-TinyEngine 为支持跨平台，跨操作系统能力，针对不同操作系统，Soc芯片和硬件，统一封装抽象接口，这样客户在应用或产品切换到不同平台时，上层应用不用替换，从而可以保证快速移植和产品化，也能达到“一份代码，处处运行”的目标。
+JSEngine 为支持跨平台，跨操作系统能力，针对不同操作系统，Soc芯片和硬件，统一封装抽象接口，这样客户在应用或产品切换到不同平台时，上层应用不用替换，从而可以保证快速移植和产品化，也能达到“一份代码，处处运行”的目标。
 
-OSAL（系统抽象层）将 TinyEngine 所需的与操作系统的相关函数进行封装。 目前 TinyEngine 主要需要内核提供任务调度，定时器，进程间通讯等基本功能，由于不同的RTOS函数接口不一致，因此系统抽象层将完成操作系统函数的统一。
+OSAL（系统抽象层）将 JSEngine 所需的与操作系统的相关函数进行封装。 目前 JSEngine 主要需要内核提供任务调度，定时器，进程间通讯等基本功能，由于不同的RTOS函数接口不一致，因此系统抽象层将完成操作系统函数的统一。
 
-硬件抽象层则统一不同平台的硬件驱动接口。针对不同平台提供的外部硬件接口，对接硬件接口或者驱动实现统一封装，供TinyEngine的Native eXtension Modules 如 HW 模块调用。 目前 TinyEngine 支持的硬件模块包括:
+硬件抽象层则统一不同平台的硬件驱动接口。针对不同平台提供的外部硬件接口，对接硬件接口或者驱动实现统一封装，供JSEngine的Native eXtension Modules 如 HW 模块调用。 目前 JSEngine 支持的硬件模块包括:
 
 * GPIO
 * I2C
@@ -65,11 +65,11 @@ OSAL（系统抽象层）将 TinyEngine 所需的与操作系统的相关函数�
 * Bluetooth
 * Flash
 
-## <a name="fuouwd"></a>TinyEngine 应用编程框架
+## <a name="fuouwd"></a>JSEngine 应用编程框架
 
-应用编程框架是 TinyEngine 最主要部分，既包括JS应用的运行环境，也包含了大量的扩展模块，扩展模块通过API的方式暴露给JS应用开发者调用。框架的目的在于：一方面隔离应用对底层硬件和操作系统的依赖，一方面封装大量的扩展接口，方便让开发者在JS层调用，另外，扩展模块由Native C实现，可以提高性能，整个框架包括 :
+应用编程框架是 JSEngine 最主要部分，既包括JS应用的运行环境，也包含了大量的扩展模块，扩展模块通过API的方式暴露给JS应用开发者调用。框架的目的在于：一方面隔离应用对底层硬件和操作系统的依赖，一方面封装大量的扩展接口，方便让开发者在JS层调用，另外，扩展模块由Native C实现，可以提高性能，整个框架包括 :
 
-* Javascript 引擎（TinyEngine）
+* Javascript 引擎（JSEngine）
 * 硬件内置扩展模块： GPIO，I2S，I2C，ADC，PWM，SPI，WIFI，Flash
 * IoT相关服务，组件的本地扩展模块： 如 MQTT，HTTP，CoAP
 * 服务
@@ -85,21 +85,21 @@ OSAL（系统抽象层）将 TinyEngine 所需的与操作系统的相关函数�
 
 OSAL 与硬件抽象层的目的是：
 
-* 隔离 TinyEngine 与底层 OS 系统的依赖，便于跨OS移植
-* 隔离 TinyEngine 与底层硬件平台依赖，便于跨芯片移植
+* 隔离 JSEngine 与底层 OS 系统的依赖，便于跨OS移植
+* 隔离 JSEngine 与底层硬件平台依赖，便于跨芯片移植
 
 数据接口定义：
 
 * 任务(task)：create,destroy，delay
 * 事件（event)：post,register
 * 定时器（timer) post,register
-* 硬件 IO： 
+* 硬件 IO：
 
-### 应用管理 AppManager AppManager管理应用的安装，下载，运行. 
+### 应用管理 AppManager AppManager管理应用的安装，下载，运行.
 
-在 TinyEngine 中，为了便于JS应用程序的安全存储，分发和管理，对应用程序打成APP-PACK，该包中，包含了文件应用程序的文件列表，版本，包签名证书等信息。在云端和本地开发环境包含了打包和拆包工具，可以把整个JS程序，board.json 配置文件以及其他库文件打包成整个应用包。
+在 JSEngine 中，为了便于JS应用程序的安全存储，分发和管理，对应用程序打成APP-PACK，该包中，包含了文件应用程序的文件列表，版本，包签名证书等信息。在云端和本地开发环境包含了打包和拆包工具，可以把整个JS程序，board.json 配置文件以及其他库文件打包成整个应用包。
 
-例如：一个普通 TinyEngine 应用程序可以如下几个文件组成：
+例如：一个普通 JSEngine 应用程序可以如下几个文件组成：
 
 ``` .
 .
@@ -135,7 +135,7 @@ package.json
 板级配置管理服务主要负责：
 
 * 动态配置板级的管脚，端口映射
-* 生成 TinyEngine 的静态HW全局JS对象
+* 生成 JSEngine 的静态HW全局JS对象
 * 管理板级硬件资源初始化，资源分配以及释放
 
 智能小车板级配置 board.json 文件如下：
@@ -215,21 +215,21 @@ board.json 配置文件可以和APP-PACK一起下发，也可以在出厂时直�
 
 ## Javascript 引擎
 
-Javascript 引擎专门为资源有限的设备提供的轻量级的 Javascript 引擎，相对于V8，SpideMonkey 功能强大的JS引擎，TinyEngine 不支持JIT功能，但是对JS语法集支持做了精简，而针对IoT特定需求，对硬件驱动，操作系统函数，以及MQTT，MESH等功能模块实现了JS语法扩展，开发者可以直接通过JS API调用这些功能模块
+Javascript 引擎专门为资源有限的设备提供的轻量级的 Javascript 引擎，相对于V8，SpideMonkey 功能强大的JS引擎，JSEngine 不支持JIT功能，但是对JS语法集支持做了精简，而针对IoT特定需求，对硬件驱动，操作系统函数，以及MQTT，MESH等功能模块实现了JS语法扩展，开发者可以直接通过JS API调用这些功能模块
 
-目前，TinyEngine支持两个版本：mini-JSE，full-JSE（ES5.1）
+目前，JSEngine支持两个版本：mini-JSE，full-JSE（ES5.1）
 
-TinyEngine@mini-JSE 具有如下特点：
+JSEngine@mini-JSE 具有如下特点：
 
 * 资源占用：RAM<15KB,ROM(Footprint) <15KB
 * CPU性能：优化的词法和句法分析器，降低CPU使用率
 * JS 支持能力：面向IOT的 ES 精简语法 ，CommonJS 支持，IoT 内置模块
 
 ## IDE 开发工具
-   为了便于开发者开发和调试 TinyEngine 应用和产品，TinyEngine还提供了图形化的开发工具，目前，支持WebIDE和 App模式的 IDE，WebIDE可以直接在阿里的IOT 开发者平台直接进入( ld.aliyun.com )
+   为了便于开发者开发和调试 JSEngine 应用和产品，JSEngine还提供了图形化的开发工具，目前，支持WebIDE和 App模式的 IDE，WebIDE可以直接在阿里的IOT 开发者平台直接进入( https://linkdevelop.aliyun.com/deviceapp#/s )
 
 还提供了本地的App IDE开发工具，开发者可以从tools目录下下载使用，该工具也会开源给开发者
 
-![image | left](./graph/IDE.jpg "")
+![](https://cdn.nlark.com/lark/0/2018/png/8336/1536657138943-05b26770-36aa-4182-a044-0bb0fcc2888e.png#width=747)
 
-IDE工具支持串口和网络方式与调试的目标设备相连，目前，IDE开发工具支持应用代码编辑，模块和驱动导入，应用程序的打包和下载到设备，支持设备的日志输出，以及 TinyEngine 的 Javascript Shell 功能。
+IDE工具支持串口和网络方式与调试的目标设备相连，目前，IDE开发工具支持应用代码编辑，模块和驱动导入，应用程序的打包和下载到设备，支持设备的日志输出，以及 JSEngine 的 Javascript Shell 功能。
