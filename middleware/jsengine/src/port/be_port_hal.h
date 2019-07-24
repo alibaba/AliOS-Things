@@ -2,11 +2,6 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/*文件功能说明:
-  本文件定义了硬件接口抽象层Hardware Abstract Layer,
-  使用统一的头文件定义，并基于不同的平台实现这些接口函数
- */
-
 #ifndef BE_PORT_HAL_H
 #define BE_PORT_HAL_H
 

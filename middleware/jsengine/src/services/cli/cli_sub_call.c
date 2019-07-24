@@ -32,7 +32,7 @@ void sub_call_restart(void *arg)
     data = (char *)load_js_module((char *)arg);
     if (data) {
         be_debug(MODULE_TAG,
-                 "sub_call_restart Running TinyEngine InitApplication...");
+                 "sub_call_restart Running JSEngine InitApplication...");
         bone_engine_exit();
         bone_engine_init();
         bone_engine_load_addon();
@@ -51,7 +51,7 @@ void sub_call_start(void *arg)
     } else {
         data = (char *)load_js_module((char *)arg);
         be_debug(MODULE_TAG,
-                 "sub_call_start Running TinyEngine Init Application...");
+                 "sub_call_start Running JSEngine Init Application...");
         if (data) {
             bone_engine_start(data);
             free(data);

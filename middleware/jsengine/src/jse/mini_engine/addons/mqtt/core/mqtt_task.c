@@ -7,7 +7,7 @@
 #include "be_port_osal.h"
 
 #include "infra_compat.h"
-#include "mqtt_api.h"
+#include "linkkit/mqtt_api.h"
 #include "wrappers.h"
 
 #include "mqtt_instance.h"

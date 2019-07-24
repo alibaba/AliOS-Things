@@ -5,9 +5,9 @@
 
 # ESP32固件烧录指南
 
-**文档说明**：在进行TinyEngine JS的开发之前，必须先烧录固件让开发板/硬件支持TinyEngine功能。
+**文档说明**：在进行JSEngine JS的开发之前，必须先烧录固件让开发板/硬件支持JSEngine功能。
 
-所以本文将介绍如何在MAC/Windows/Ubuntu系统下烧录ESP32的TinyEngine固件。
+所以本文将介绍如何在MAC/Windows/Ubuntu系统下烧录ESP32的JSEngine固件。
 
 ### 准备工作
 
@@ -55,7 +55,7 @@ pip install pyserial
 
 4) 擦除flash （**仅首次烧录需要**）
 
-由于官方flash参数和分区表与TinyEngine定制固件可能不同，所以在您首次烧录TinyEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
+由于官方flash参数和分区表与JSEngine定制固件可能不同，所以在您首次烧录JSEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
 
 方法：
 
@@ -71,9 +71,9 @@ FAQ:
 
 
 
-5) **使用esptool.py命令烧写TinyEngine固件**
+5) **使用esptool.py命令烧写JSEngine固件**
 
-进入到 TinyEngine项目的 firmware/esp32/esp32-devkitc目录，可以看到有如下文件
+进入到 JSEngine项目的 firmware/esp32/esp32-devkitc目录，可以看到有如下文件
 
 custom_partitions.bin：分区表
 
@@ -81,7 +81,7 @@ bootloader.bin： 启动文件
 
 ota_data_initial： fota升级文件
 
-esp32devkitc-xxx.bin： TinyEngine kernel固件。
+esp32devkitc-xxx.bin： JSEngine kernel固件。
 
 
 
@@ -146,7 +146,7 @@ usage: esptool [-h] [—chip {auto,esp8266,esp32}] [—port PORT] [--baud BAUD]
 
 5) 擦除flash （**仅首次烧录需要**）
 
-由于官方flash参数和分区表与TinyEngine定制固件可能不通，所以在您首次烧录TinyEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
+由于官方flash参数和分区表与JSEngine定制固件可能不通，所以在您首次烧录JSEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
 
 方法：
 
@@ -164,9 +164,9 @@ FAQ:
 
 
 
-6) **使用esptool.py命令烧写TinyEngine固件**
+6) **使用esptool.py命令烧写JSEngine固件**
 
-进入到 TinyEngine项目的 [firmware/esp32/esp32-devkitc] 目录，可以看到有如下文件
+进入到 JSEngine项目的 [firmware/esp32/esp32-devkitc] 目录，可以看到有如下文件
 
 custom_partitions.bin：分区表
 
@@ -174,7 +174,7 @@ bootloader.bin： 启动文件
 
 ota_data_initial： fota升级文件
 
-esp32devkitc-xxx.bin： TinyEngine kernel固件。
+esp32devkitc-xxx.bin： JSEngine kernel固件。
 
 `说明：请根据待烧录固件的实际名称将如下命令的esp32devkitc-xxx.bin替换成firmware下的真实文件名`
 
@@ -252,7 +252,7 @@ python -m pip install pyserial
 
 6) 擦除flash （**仅首次烧录需要**）
 
-由于官方flash参数和分区表与TinyEngine定制固件可能不通，所以在您首次烧录TinyEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
+由于官方flash参数和分区表与JSEngine定制固件可能不通，所以在您首次烧录JSEngine固件时需要先擦除一遍Flash。以后再次更新时则不需要重复该操作。
 
 方法：
 
@@ -270,9 +270,9 @@ FAQ:
 
 
 
-7) **使用esptool.py命令烧写TinyEngine固件**
+7) **使用esptool.py命令烧写JSEngine固件**
 
-* 进入到 TinyEngine项目的```firmware/esp32/esp32-devkitc```目录，可以看到有如下文件
+* 进入到 JSEngine项目的```firmware/esp32/esp32-devkitc```目录，可以看到有如下文件
 
 custom_partitions.bin：分区表
 
@@ -280,7 +280,7 @@ bootloader.bin： 启动文件
 
 ota_data_initial： fota升级文件
 
-esp32devkitc-xxx.bin： TinyEngine kernel固件。
+esp32devkitc-xxx.bin： JSEngine kernel固件。
 
 **备注**：windows进入目录的方法是：```cd 路径栏里面的复制路径```
 

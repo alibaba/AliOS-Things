@@ -10,15 +10,15 @@
 
 文档说明：
 
- 为了能在STM32上面开发TinyEngine JavaScript应用，需先烧录TinyEngine固件到STM32芯片中。
+ 为了能在STM32上面开发JSEngine JavaScript应用，需先烧录JSEngine固件到STM32芯片中。
 
- 本文将介绍如何在MAC系统、Ubuntu系统、Windows系统上烧录TinyEngine固件。
+ 本文将介绍如何在MAC系统、Ubuntu系统、Windows系统上烧录JSEngine固件。
 
 
 
 ## 1 准备st-flash工具
 
-stm32烧录固件，需要使用st-flash工具，在TinyEngine仓库的【tools/flash-burn-tools】路径下，我们已经
+stm32烧录固件，需要使用st-flash工具，在JSEngine仓库的【tools/flash-burn-tools】路径下，我们已经
 
 下载了 osx(mac) 、linux64、windows的st-flash可执行文件/安装包。
 
@@ -47,7 +47,7 @@ stm32烧录固件，需要使用st-flash工具，在TinyEngine仓库的【tools/
 
 * **WINDOWS系统**： 点击安装  “STM32\ ST-LINK\ Utility\ v4.2.0\ setup.exe” 文件，并根据提示安装st-link的驱动。安装成功后，插入st-link usb口到PC，查看设备管理器-》端口会出现 “STMicroelectronocs STLink Virtual Com Port”端口。
 
-**FAQ**：如未覆盖到您的主机操作系统或者TinyEngine仓库目录下的st-flash执行不了，请参考官方github文档下载st-link源码编译生成st-flash工具使用。
+**FAQ**：如未覆盖到您的主机操作系统或者JSEngine仓库目录下的st-flash执行不了，请参考官方github文档下载st-link源码编译生成st-flash工具使用。
 
 st-flash工具github文档地址：https://github.com/texane/stlink
 
@@ -57,7 +57,7 @@ st-flash工具github文档地址：https://github.com/texane/stlink
 
 拷贝对应主机系统的st-flash到待烧录固件的同一目录，然后执行对应st-flash命令即可。
 
-**这里以烧录developerkit的tinyengine固件举例**：
+**这里以烧录developerkit的JSEngine固件举例**：
 
 `说明：请根据待烧录固件的实际名称将如下命令的developerkit-xxx.bin替换成firmware下的真实文件名`
 
@@ -86,7 +86,7 @@ st-flash工具github文档地址：https://github.com/texane/stlink
 
 #### Windows系统烧录
 
-* 第一步： 双击打开桌面上的 **STM32 ST-LINK Utility** 图标，点击File-》Open files，并选择TinyEngine仓库中firmware里面的固件bin文件。
+* 第一步： 双击打开桌面上的 **STM32 ST-LINK Utility** 图标，点击File-》Open files，并选择JSEngine仓库中firmware里面的固件bin文件。
 
 ![](https://img.alicdn.com/tfs/TB1zLCcvSMmBKNjSZTEXXasKpXa-1076-840.jpg )
 
