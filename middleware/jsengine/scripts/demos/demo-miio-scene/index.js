@@ -2,11 +2,11 @@ console.log("=================================");
 console.log("         demo-miio-scene         ");
 console.log("=================================");
 
-// miio 为 Natvie Modules，按照小米设备接入协议实现的扩展对象
+// miio is JSEngine Natvie Modules
 
 var lightDevice;
 
-// 控制开灯
+// control light
 function lightOn() {
   console.log("lightOn");
   if (lightDevice) {
@@ -14,7 +14,7 @@ function lightOn() {
   }
 }
 
-// 控制开关
+// control light
 function lightOff() {
   console.log("lightOff");
   if (lightDevice) {
@@ -23,20 +23,18 @@ function lightOff() {
 }
 
 function setupLight(host) {
-  // 创建小米灯设备，如何获取小米设备的token，
-  //其具体方法和步骤请见：https://lark.alipay.com/tinyenginedev/developer-documentation/wbm6d5
+  // create XiaoMi device with the token
   lightDevice = miio.createDevice(
     host,
     "ae65d127852df5c2b86f38b6878e8706"
   );
 
-  // 初次启动时，第一次关闭小米灯
+  // turn off the light when startup
   lightOff();
 }
 
 function setupGateway(host) {
-  // 创建小米 Zigbee 网关设备：如何获取小米设备的token，
-  //其具体方法和步骤请见：https://lark.alipay.com/tinyenginedev/developer-documentation/wbm6d5
+  // create XiaoMi Zigbee gateway device with the token
   var gatewayDevice = miio.createDevice(
     host,
     "0a7b7e5af0fc0b1b4877b0907834f9a7"
@@ -44,7 +42,7 @@ function setupGateway(host) {
 
   var motionSensorId = null;
   var timeout = null;
-  // 注册监听事件，回调函数
+  // register event callback function
   miio.deviceOnEvent(gatewayDevice, function (event) {
     console.log("gateway receive event");
 
@@ -54,21 +52,21 @@ function setupGateway(host) {
     if (obj.data) {
       open = JSON.parse(obj.data).status === "motion";
     }
-    //如果人体感应器检测到人，则开灯，如果一分钟没有感应到人存在，则关灯
+    // turn on the light if detect person
     if (obj.cmd === "report" && obj.sid === motionSensorId && open) {
       lightOn();
       if (timeout) {
         clearTimeout(timeout);
         timeout = null;
       }
-      //每分钟接收一次
+
       timeout = setTimeout(function () {
         lightOff();
       }, 60 * 1000);
     }
   });
 
-  // 获取小米网关的设备列表
+  // get XiaoMi gateway devices
   var device_list = miio.deviceControl(
     gatewayDevice,
     "get_device_prop",
@@ -76,7 +74,6 @@ function setupGateway(host) {
   );
   console.log("device list: " + device_list);
 
-  // 从小米网关下挂的设备列表中，找到人体感应设备，网关下的其他设备可以按照类似的方法
   var deviceList = JSON.parse(device_list);
   for (var i = 0; i < deviceList.result.length; i++) {
     if (deviceList.result[i + 1] === 2) {
