@@ -34,7 +34,7 @@
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         16384
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
