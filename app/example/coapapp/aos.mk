@@ -10,5 +10,5 @@ $(NAME)_SOURCES += coap_example.c
 $(NAME)_COMPONENTS += libcoap netmgr cjson cli ulog
 endif
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 

@@ -11,4 +11,4 @@ $(NAME)_COMPONENTS := yloop cli
 
 ENABLE_CAMERA_HAL := 1
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

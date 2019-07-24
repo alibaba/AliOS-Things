@@ -9,5 +9,5 @@ $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
 $(NAME)_COMPONENTS := cli sensor linkkit_sdk_c yloop netmgr cjson
 
-GLOBAL_INCLUDES += ./ ./linkkit
+$(NAME)_INCLUDES += ./ ./linkkit
 
