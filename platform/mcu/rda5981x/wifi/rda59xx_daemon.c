@@ -149,7 +149,7 @@ static r_s32 rda59xx_sta_init(struct netif *netif)
     }
 
     r_memset(&lwip_sta_netif, 0, sizeof(struct netif));
-    if (!netifapi_netif_add(&lwip_sta_netif,
+    if (ERR_OK != netifapi_netif_add(&lwip_sta_netif,
 #if LWIP_IPV4
                 0, 0, 0,
 #endif
@@ -177,7 +177,7 @@ static r_s32 rda59xx_ap_init(struct netif *netif)
     }
 
     r_memset(&lwip_ap_netif, 0, sizeof(struct netif));
-    if (!netifapi_netif_add(&lwip_ap_netif,
+    if (ERR_OK != netifapi_netif_add(&lwip_ap_netif,
 #if LWIP_IPV4
                 0, 0, 0,
 #endif
@@ -191,9 +191,6 @@ static r_s32 rda59xx_ap_init(struct netif *netif)
 
 static r_s32 rda59xx_sta_disconnect_internal()
 {
-    ip_addr_t ipaddr;
-    ip_addr_t netmask;
-    ip_addr_t gw;
     r_s32 res = R_NOERR;
     rda_msg msg;
 
@@ -210,10 +207,16 @@ static r_s32 rda59xx_sta_disconnect_internal()
         return R_ERR;
     }
 
+#if LWIP_IPV4
+    ip_addr_t ipaddr;
+    ip_addr_t netmask;
+    ip_addr_t gw;
+
     IP4_ADDR(&ipaddr, 0, 0, 0, 0);
     IP4_ADDR(&netmask, 0, 0, 0, 0);
     IP4_ADDR(&gw, 0, 0, 0, 0);
     netifapi_netif_set_addr(&lwip_sta_netif, &ipaddr, &netmask, &gw);
+#endif
 
     sys_sem_free(&lwip_sta_netif_has_addr);
     sys_sem_new(&lwip_sta_netif_has_addr, 0);
