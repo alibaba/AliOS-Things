@@ -36,6 +36,10 @@
 
 #define UAGENT_LOG_TAG   "AGENT"
 
+#define UAGENT_INFO_STR \
+"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"}}"
+
 #define UAGENT_FORMAT_PRE \
 "{\"id\":%lu,\"version\":\"1.0\",\"params\":\
 {\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":"
