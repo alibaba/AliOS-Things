@@ -63,27 +63,20 @@ static int delay_send(const ua_mod_t mod, const ua_func_t func,
     }
 
     if (send_directly) {
-        int msg_len = -1;
-
         UAGENT_DEBUG("call %s will pop out (%d)\n",__func__,msg_delay_pub_len);
         if (msg_delay_pub_len != 0) {
             /* stop the alarm */
             stop_monitor_delay_out();
         }
-        msg_len= snprintf(msg_pub, sizeof(msg_pub), UAGENT_FORMAT_PRE, out_msg_index++,
-            uagent_service_attr.dn, uagent_service_attr.to_console, mod, func);
+        if (uagent_get_mutex()) {
+        int msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, out_msg_index++,
+            uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, out);
         if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
-            msg_pub[msg_len++] = '"';
-            const short empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_STR_SUFFIX)-1;
-            strncpy(&msg_pub[msg_len], out, len<empty_room_for_data?len:empty_room_for_data);
-            msg_len += (len<empty_room_for_data?len:empty_room_for_data);
-            strncpy(&msg_pub[msg_len], UAGENT_FORMAT_STR_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
-            msg_len += strlen(UAGENT_FORMAT_STR_SUFFIX);
-            if(msg_len<UAGENT_INFO_PAYLOAD_SIZE){
-                rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
+            rc = pub_info(msg_len, msg_pub, (policy&send_policy_trans_guarantee) ? 1 : 0);
+            } else {
+                UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
             }
-        } else {
-            UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
+            uagent_release_mutex();
         }
         msg_delay_pub_len = 0;
         memset(msg_delay_pub, 0, UAGENT_INFO_PAYLOAD_SIZE);
