@@ -4,8 +4,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := os interface adaptation layer
 
-GLOBAL_INCLUDES += .
-
 #default gcc
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS += -Wall -Werror
