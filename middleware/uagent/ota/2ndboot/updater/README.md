@@ -1,20 +1,20 @@
 ## Contents
 
 ```sh
-2ndboot
-.
-├── 2ndboot.c
-├── aos.mk
-├── Config.in
+updater
 ├── include
-│   └── 2ndboot.h
-├── README.md
-└── ymodem.c
+│   ├── libc.h
+│   └── updater.h
+├── lib
+│   ├── ARM968E-S
+│   │   └── ota_updater.a
+│   └── Cortex-M4
+│       └── ota_updater.a
 ```
 
 ## Introduction
 
-An common second bootloader, include ota updater that can upgrade an new version FW to the device by DIFF/XZ/COPY/Ymodem..
+ota updater that can upgrade an new version FW to the device by DIFF/XZ/COPY/Ymodem..
 
 ## Features
 
