@@ -337,7 +337,7 @@ static void duration_work(void *p)
 static int mqtt_connected_event_handler(void)
 {
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    static ota_service_inited = false;
+    static bool ota_service_inited = false;
     static ota_service_t ctx = {0};
 
     if (ota_service_inited == true) {
