@@ -11,23 +11,12 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
+$(NAME)_COMPONENTS += ota_updater
+
 $(NAME)_SOURCES += 2ndboot.c \
                    ymodem.c
 
-$(NAME)_SOURCES += updater/nbpatch.c \
-                   updater/nbpatch_io.c \
-                   updater/xzdec.c \
-                   updater/libc.c  \
-                   updater/xzupdater.c \
-                   updater/xz/linux/lib/xz/xz_crc32.c \
-                   updater/xz/linux/lib/xz/xz_dec_lzma2.c \
-                   updater/xz/linux/lib/xz/xz_dec_stream.c  
-
-$(NAME)_INCLUDES += updater/xz/linux/include/linux \
-                    updater/xz/linux/lib/xz \
-                    updater/xz/userspace \
-
-GLOBAL_INCLUDES += . include updater 
+GLOBAL_INCLUDES += include
 
 CONFIG_SYSINFO_2NDBOOT_VERSION = 2ndboot-1.0.0-$(CURRENT_TIME)
 $(info 2ndboot version:${CONFIG_SYSINFO_2NDBOOT_VERSION})
