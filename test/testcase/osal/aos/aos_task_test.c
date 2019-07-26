@@ -8,7 +8,8 @@
 #include <k_api.h>
 #include <aos/kernel.h>
 
-#include <yunit.h>
+#include "yts/yunit.h"
+
 #include <errno.h>
 
 static aos_sem_t sync_sem;
