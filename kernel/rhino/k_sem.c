@@ -245,14 +245,15 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 
     RHINO_CRITICAL_ENTER();
 
+    cur_cpu_num = cpu_cur_get();
+    TASK_CANCEL_CHK();
+
     INTRPT_NESTED_LEVEL_CHK();
 
     if (sem->blk_obj.obj_type != RHINO_SEM_OBJ_TYPE) {
         RHINO_CRITICAL_EXIT();
         return RHINO_KOBJ_TYPE_ERR;
     }
-
-    cur_cpu_num = cpu_cur_get();
 
     if (sem->count > 0u) {
         sem->count--;
