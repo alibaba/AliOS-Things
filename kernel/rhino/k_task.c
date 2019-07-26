@@ -723,7 +723,7 @@ kstat_t krhino_task_del(ktask_t *task)
         if (task->cur_exc == 1) {
             klist_insert(&g_task_del_head, &task->task_del_item);
             RHINO_CRITICAL_EXIT();
-            return RHINO_TRY_AGAIN;
+            return RHINO_SUCCESS;
         }
     }
 #endif
