@@ -23,6 +23,8 @@ typedef enum {
 extern esp_err_t esp_wifi_set_promiscous_autoack(bool, uint8_t *);
 extern esp_err_t esp_wifi_set_auto_connect(bool c);
 
+static uint8_t _bssid[6];
+
 /**
     @brief Wifi scan ready
 */
@@ -154,7 +156,9 @@ static esp_err_t handle_event_cb(void *ctx, system_event_t *evt)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
     hal_wifi_ip_stat_t stat;
+    hal_wifi_ap_info_adv_t info = {0};
     int eid = evt->event_id;
+
     printf("%s %d\n", __func__, eid);
     switch (eid) {
         case SYSTEM_EVENT_STA_START:
@@ -174,6 +178,10 @@ static esp_err_t handle_event_cb(void *ctx, system_event_t *evt)
             if (m->ev_cb && m->ev_cb->ip_got) {
                 m->ev_cb->ip_got(m, &_ip_stat, NULL);
             }
+            if (m->ev_cb && m->ev_cb->para_chg) {
+                memcpy(info.bssid, _bssid, 6);
+                m->ev_cb->para_chg(m, &info, NULL, 0, NULL);
+            }
             break;
         }
         case SYSTEM_EVENT_SCAN_DONE: {
@@ -181,6 +189,7 @@ static esp_err_t handle_event_cb(void *ctx, system_event_t *evt)
         }
         case SYSTEM_EVENT_STA_CONNECTED: {
             wifi_status.sta_connected = 1;
+            memcpy(_bssid, evt->event_info.connected.bssid, 6);
             if (m->ev_cb && m->ev_cb->stat_chg) {
                 m->ev_cb->stat_chg(m, NOTIFY_STATION_UP, NULL);
             }
