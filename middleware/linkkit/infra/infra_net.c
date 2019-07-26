@@ -21,7 +21,64 @@
 
 /*** SSL connection ***/
 #if defined(SUPPORT_TLS)
+#if defined(AT_SSL_ENABLED)
+#include "at_ssl.h"
 
+static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+{
+    if (NULL == pNetwork) {
+        net_err("network is null");
+        return -1;
+    }
+
+    return AT_SSL_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+}
+
+static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+{
+    if (NULL == pNetwork) {
+        net_err("network is null");
+        return -1;
+    }
+
+    return AT_SSL_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+}
+
+static int disconnect_ssl(utils_network_pt pNetwork)
+{
+    if (NULL == pNetwork) {
+        net_err("network is null");
+        return -1;
+    }
+
+    AT_SSL_Destroy((uintptr_t)pNetwork->handle);
+    pNetwork->handle = 0;
+
+    return 0;
+}
+
+static int connect_ssl(utils_network_pt pNetwork)
+{
+    if (NULL == pNetwork) {
+        net_err("network is null");
+        return 1;
+    }
+
+    if (0 != (pNetwork->handle = (intptr_t)AT_SSL_Establish(
+            pNetwork->pHostAddress,
+            pNetwork->port,
+            pNetwork->ca_crt,
+            pNetwork->ca_crt_len + 1))) {
+        return 0;
+    }
+    else {
+        /* TODO SHOLUD not remove this handle space */
+        /* The space will be freed by calling disconnect_ssl() */
+        /* utils_memory_free((void *)pNetwork->handle); */
+        return -1;
+    }
+}
+#else /* AT_SSL_ENABLED */
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
     #define NET_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "infra_net")
@@ -106,6 +163,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 }
+#endif /* AT_SSL_ENABLED */
 #elif defined(AT_TCP_ENABLED)
 #include "at_tcp.h"
 /*** TCP connection ***/
