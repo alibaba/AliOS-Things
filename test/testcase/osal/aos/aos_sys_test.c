@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <aos/kernel.h>
+#include "aos/kernel.h"
 
-#include <yunit.h>
+#include "yts/yunit.h"
 
 static void CASE_aosapi_kernel_sys_version()
 {
