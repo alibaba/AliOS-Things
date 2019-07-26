@@ -44,5 +44,4 @@ ifeq ($(HOST_ARCH), linux)
 $(NAME)_DEFINES += __LINUX
 endif
 
-GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += AOS_COMP_JFFS2
