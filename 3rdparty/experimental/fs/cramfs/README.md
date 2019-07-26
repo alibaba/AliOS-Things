@@ -28,6 +28,7 @@ cramfs
     - Get the AliOS-Things porting version cramfs codes first. (you can contact us via https://github.com/alibaba/AliOS-Things)
     - Put the source files under this directory
     - Add component dependency to your target board or your target app. (e.g. `$(NAME)_COMPONENTS += 3rdparty.experimental.fs.cramfs`)
+    - Move the aos\_cramfs.h to include directory (which is under root directory)
     - Just build and enjoy it !
 
 - License:
