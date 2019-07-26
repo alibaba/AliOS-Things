@@ -7,7 +7,7 @@
 
 #include <aos/kernel.h>
 
-#include <yunit.h>
+#include "yts/yunit.h"
 
 
 static void CASE_aosapi_kernel_mm_param()
