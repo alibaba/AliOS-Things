@@ -10,9 +10,10 @@
 #include "aos/kernel.h"
 #include "aos/vfs.h"
 
-#include <yunit.h>
-#include <yts.h>
-#include <aos_spiffs.h>
+#include "yts/yunit.h"
+#include "yts/yts.h"
+
+#include "spiffs/aos_spiffs.h"
 
 static const char *g_string         = "spiffs test string.";
 static const char *g_filepath       = "/spiffs/test.txt";
