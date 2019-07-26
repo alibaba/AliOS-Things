@@ -21,5 +21,5 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS += -Wall -Werror
 endif
 
-GLOBAL_INCLUDES += include spiffs/include
+$(NAME)_INCLUDES += include spiffs/include
 GLOBAL_DEFINES  += AOS_COMP_SPIFFS
