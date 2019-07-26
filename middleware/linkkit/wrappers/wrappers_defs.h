@@ -5,7 +5,6 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 
-
 #define PLATFORM_WAIT_INFINITE (~0)
 
 typedef struct {
@@ -56,6 +55,62 @@ typedef enum {
 } hal_fs_seek_type_t;
 
 typedef void DTLSContext;
+
+/* link type */
+enum AWSS_LINK_TYPE {
+    /* rtos HAL choose this type */
+    AWSS_LINK_TYPE_NONE,
+
+    /* linux HAL may choose the following type */
+    AWSS_LINK_TYPE_PRISM,
+    AWSS_LINK_TYPE_80211_RADIO,
+    AWSS_LINK_TYPE_80211_RADIO_AVS,
+    AWSS_LINK_TYPE_HT40_CTRL /* for espressif HAL, see struct ht40_ctrl */
+};
+
+typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
+        enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
+
+typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
+        _IN_ signed char rssi_dbm, _IN_ int buffer_type);
+
+struct HAL_Ht40_Ctrl {
+    uint16_t    length;
+    uint8_t     filter;
+    signed char rssi;
+};
+
+/* encryt type */
+enum AWSS_ENC_TYPE {
+    AWSS_ENC_TYPE_NONE,
+    AWSS_ENC_TYPE_WEP,
+    AWSS_ENC_TYPE_TKIP,
+    AWSS_ENC_TYPE_AES,
+    AWSS_ENC_TYPE_TKIPAES,
+    AWSS_ENC_TYPE_MAX = AWSS_ENC_TYPE_TKIPAES,
+    AWSS_ENC_TYPE_INVALID = 0xff,
+};
+/* auth type */
+enum AWSS_AUTH_TYPE {
+    AWSS_AUTH_TYPE_OPEN,
+    AWSS_AUTH_TYPE_SHARED,
+    AWSS_AUTH_TYPE_WPAPSK,
+    AWSS_AUTH_TYPE_WPA8021X,
+    AWSS_AUTH_TYPE_WPA2PSK,
+    AWSS_AUTH_TYPE_WPA28021X,
+    AWSS_AUTH_TYPE_WPAPSKWPA2PSK,
+    AWSS_AUTH_TYPE_MAX = AWSS_AUTH_TYPE_WPAPSKWPA2PSK,
+    AWSS_AUTH_TYPE_INVALID = 0xff,
+};
+
+/* 80211 frame type */
+typedef enum HAL_Awss_Frame_Type {
+    FRAME_ACTION,
+    FRAME_BEACON,
+    FRAME_PROBE_REQ,
+    FRAME_PROBE_RESPONSE,
+    FRAME_DATA
+} HAL_Awss_Frame_Type_t;
 
 #if defined(AT_PARSER_ENABLED)
 /*
@@ -136,6 +191,20 @@ typedef enum {
     /* Add others hereafter */
 } CONN_TYPE;
 
+#if defined(AT_SSL_ENABLED)
+typedef enum {
+    ROOT_CERT,
+    CLIENT_CERT,
+    /* add other type */
+} CERT_TYPE;
+
+typedef struct {
+    int cert_len;
+    char *cert_data;
+    CERT_TYPE cert_type;
+} cert_info_t;
+#endif
+
 /* Fill necessary fileds according to the socket type. */
 typedef struct {
     int fd; /* fd that are used in socket level */
@@ -144,6 +213,7 @@ typedef struct {
     int32_t r_port; /* remote port (set to -1 if not used) */
     int32_t l_port; /* local port (set to -1 if not used) */
     uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
+    void *param;
 } at_conn_t;
 
 struct at_conn_input {
@@ -153,6 +223,7 @@ struct at_conn_input {
     char      *remote_ip;
     uint16_t   remote_port;
 };
+
 #endif
 
 #endif

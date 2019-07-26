@@ -11,6 +11,11 @@
 #define ETH_ALEN            (6)
 #endif
 
+#define FRAME_ACTION_MASK       (1 << FRAME_ACTION)
+#define FRAME_BEACON_MASK       (1 << FRAME_BEACON)
+#define FRAME_PROBE_REQ_MASK    (1 << FRAME_PROBE_REQ)
+#define FRAME_PROBE_RESP_MASK   (1 << FRAME_PROBE_RESPONSE)
+#define FRAME_DATA_MASK         (1 << FRAME_DATA)
 
 #define ZC_MAX_SSID_LEN     (32 + 1)/* ssid: 32 octets at most, include the NULL-terminated */
 #define ZC_MAX_PASSWD_LEN   (64 + 1)/* 8-63 ascii */

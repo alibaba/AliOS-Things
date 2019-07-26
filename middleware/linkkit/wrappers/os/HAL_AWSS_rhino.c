@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(DEV_BIND_ENABLED)
+#if defined(WIFI_PROVISION_ENABLED) 
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +19,6 @@ extern "C" {
 #include <hal/wifi.h>
 #include <netmgr.h>
 #include "wrappers_defs.h"
-#include "iot_import_awss.h"
 /*
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *

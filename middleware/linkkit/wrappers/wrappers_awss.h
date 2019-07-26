@@ -1,11 +1,10 @@
 #ifndef _WRAPPERS_AWSS_H_
 #define _WRAPPERS_AWSS_H_
 
+#ifdef WIFI_PROVISION_ENABLED
 #include "infra_types.h"
 #include "infra_defs.h"
 
-#ifdef WIFI_PROVISION_ENABLED
-#include "iot_import_awss.h"
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
  *
@@ -139,8 +138,8 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
 /* @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
 */
 int HAL_Awss_Close_Ap();
-#endif
 
+#endif
 #ifdef DEV_BIND_ENABLED
 
     /**

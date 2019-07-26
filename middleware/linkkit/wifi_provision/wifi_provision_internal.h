@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+#ifndef __WIFI_PROVISION_INTERNAL_H__
+#define __WIFI_PROVISION_INTERNAL_H__
+
 #include "infra_config.h"
 #include <string.h>
 #include <stdio.h>
@@ -9,7 +16,6 @@
 #include "awss_event.h"
 #include "awss_timer.h"
 #include "awss_main.h"
-#include "iot_import_awss.h"
 #include "os.h"
 #include "infra_compat.h"
 #include "awss_smartconfig.h"
@@ -61,4 +67,6 @@
 
 #ifdef AWSS_SUPPORT_DISCOVER
     #include "awss_discover.h"
+#endif
+
 #endif

@@ -143,3 +143,18 @@ int dm_client_yield(unsigned int timeout)
 
     return iotx_cm_yield(ctx->fd, timeout);
 }
+
+void dm_client_user_sub_request(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                void *context)
+{
+    dm_msg_source_t source;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dm_msg_proc_thing_model_user_sub(&source);
+}

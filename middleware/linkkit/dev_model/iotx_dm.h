@@ -181,6 +181,7 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 
 int iotx_dm_set_opt(int opt, void *data);
 int iotx_dm_get_opt(int opt, void *data);
+int iotx_dm_subscribe_user_topic(char *topic, void *user_callback);
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 #ifdef LOG_REPORT_TO_CLOUD
