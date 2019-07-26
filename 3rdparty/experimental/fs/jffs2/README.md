@@ -30,6 +30,7 @@ jffs2
     - Get the AliOS-Things porting version jffs2 codes first. (you can contact us via https://github.com/alibaba/AliOS-Things)
     - Put the source files under this directory
     - Add component dependency to your target board or your target app. (e.g. `$(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2`)
+    - Move the aos\_jffs2.h to include directory (which is under root directory) 
     - Just build and enjoy it !
 
 - License:
