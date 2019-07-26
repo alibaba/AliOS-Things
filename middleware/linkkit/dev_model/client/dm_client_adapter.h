@@ -14,5 +14,6 @@ int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *contex
 int dm_client_unsubscribe(char *uri);
 int dm_client_publish(char *uri, unsigned char *payload, int payload_len, iotx_cm_data_handle_cb callback);
 int dm_client_yield(unsigned int timeout);
-
+void dm_client_user_sub_request(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                void *context);
 #endif

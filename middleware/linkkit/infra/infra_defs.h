@@ -296,6 +296,11 @@ typedef struct _iotx_dev_meta_info {
 } iotx_dev_meta_info_t;
 
 typedef struct {
+    const char *topic;
+    void * callback;
+} iotx_user_subscribe_context;
+
+typedef struct {
     const char *region;
     uint16_t port;
 } iotx_region_item_t;

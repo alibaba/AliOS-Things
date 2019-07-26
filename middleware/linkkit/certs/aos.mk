@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := cert for mbedtls
 
 $(NAME)_SOURCES := *.c
 
-GLOBAL_INCLUDES += .
 
 
 
