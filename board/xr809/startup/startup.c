@@ -48,7 +48,7 @@ static void sys_init(void)
 
 #ifdef CONFIG_AOS_FATFS_SUPPORT
     /* if enable the macro, please also enable CONFIG_AOS_FATFS_SUPPORT_MMC
-     * and include <fatfs.h>, add modules.fs.fatfs to component dependence
+     * and include <fatfs/aos_fatfs.h>, add modules.fs.fatfs to component dependence
      */
     fatfs_register();
 #endif    
