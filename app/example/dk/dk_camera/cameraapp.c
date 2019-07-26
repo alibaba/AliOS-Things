@@ -3,13 +3,14 @@
  */
 #include <fcntl.h>
 #include <k_api.h>
+
 #include "aos/kernel.h"
-#include "fatfs.h"
+#include "aos/vfs.h"
+#include "fatfs/aos_fatfs.h"
+
 #include "st7789.h" /* LCD */
 #include "gc0329.h" /* camera */
 #include "camera_demo.h"
-#include "fatfs.h"
-#include "aos/vfs.h"
 #include "ulog/ulog.h"
 uint8_t g_sd_valid = 0;
 static uint8_t keyB = 0;
