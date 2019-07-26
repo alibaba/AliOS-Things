@@ -14,7 +14,7 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Bootloader",
 	    .partition_start_addr       = 0x0,
-	    .partition_length           = 0x8000,    //32k bytes
+	    .partition_length           = 0x8000,    /* 32k bytes */
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
 	},
     [HAL_PARTITION_RECOVERY] =
@@ -22,7 +22,7 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Recovery",
 	    .partition_start_addr       = 0xB000,
-	    .partition_length           = 0x6000, //24k bytes
+	    .partition_length           = 0x6000, /* 24k bytes */
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
     [HAL_PARTITION_RECOVERY_BACK_PARA] =
@@ -38,7 +38,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER1",
         .partition_start_addr       = 0x13000,
-        .partition_length           = 0x1000, // 4k bytes
+        .partition_length           = 0x1000, /* 4k bytes */
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_2] =
@@ -46,7 +46,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER2",
         .partition_start_addr       = 0xFE000,
-        .partition_length           = 0x2000, // 8k bytes
+        .partition_length           = 0x2000, /* 8k bytes */
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_3] =
@@ -54,7 +54,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER3",
         .partition_start_addr       = 0x1FD000,
-        .partition_length           = 0x1000, // 4k bytes
+        .partition_length           = 0x1000, /* 4k bytes */
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_4] =
@@ -62,7 +62,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER4",
         .partition_start_addr       = 0x1FE000,
-        .partition_length           = 0x2000,// 8k bytes
+        .partition_length           = 0x2000,//* 8k bytes */
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_APPLICATION] =
@@ -70,17 +70,36 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Application",
 	    .partition_start_addr       = 0x19000,
-	    .partition_length           = 0xE5000, //904k bytes
+	    .partition_length           = 0xE5000, /* 904k bytes */
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
+#ifdef CONFIG_SPIFFS_PHYS_SZ
     [HAL_PARTITION_OTA_TEMP] =
     {
         .partition_owner           = HAL_FLASH_EMBEDDED,
         .partition_description     = "OTA Storage",
         .partition_start_addr      = 0x100000,
-        .partition_length          = 0xE5000, //904k bytes
+        .partition_length          = 0xB0000, /* 704k bytes */
         .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
+    [HAL_PARTITION_SPIFFS] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "spiffs",
+	    .partition_start_addr       = 0x1B0000,
+	    .partition_length           = CONFIG_SPIFFS_PHYS_SZ, /* from config */
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+	},
+#else /* !MK3080_CONFIG_SPIFFS */
+    [HAL_PARTITION_OTA_TEMP] =
+    {
+        .partition_owner           = HAL_FLASH_EMBEDDED,
+        .partition_description     = "OTA Storage",
+        .partition_start_addr      = 0x100000,
+        .partition_length          = 0xE5000, /* 904k bytes */
+        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+#endif
 };
 
 /* Declare a constant to indicate the defined partitions amount */
