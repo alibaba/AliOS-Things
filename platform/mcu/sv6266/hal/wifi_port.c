@@ -74,17 +74,22 @@ void wifi_cbfu(WIFI_RSP *msg)
     u8 dhcpen;
     u8 mac[6];
     u8 ipv4[4];
+    int wifi_strength, channel;
+    u8 ssidlen = 32;
 
     uip_ip4addr_t ipaddr, submask, gateway, dnsserver;
     s8 ret;
     char ipstr[16];
-    hal_wifi_ip_stat_t ipstat;
+    hal_wifi_ip_stat_t ipstat = {0};
+    hal_wifi_ap_info_adv_t info = {0};
 
     if(msg->wifistatus == 1) {
         LOG_AOS_HAL("wifi connected:%d\n", msg->id);
         get_ip_stat(&sim_aos_wifi_icomm, &ipstat, STATION);
         sim_aos_wifi_icomm.ev_cb->stat_chg(&sim_aos_wifi_icomm, NOTIFY_STATION_UP, NULL);
         sim_aos_wifi_icomm.ev_cb->ip_got(&sim_aos_wifi_icomm, &ipstat, NULL);
+        get_connectap_info(0, info.ssid, &ssidlen, info.bssid, 6, (u8 *)&wifi_strength, (u8 *)&(info.channel));
+        sim_aos_wifi_icomm.ev_cb->para_chg(&sim_aos_wifi_icomm, &info, NULL, 0, NULL);
     }
     else {
         LOG_AOS_HAL("wifi disconnected:%d\n", msg->id);
