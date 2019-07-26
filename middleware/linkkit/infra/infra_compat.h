@@ -130,7 +130,7 @@ DECLARE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsigned char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*cb)(const int, const char *, const int, const char *, const int,
                        char **, int *))
-DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*cb)(int, const char *, int, const char *, int, void *))
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*cb)(int, const char *, int, const char *, int, const char *, int, void *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*cb)(const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
@@ -193,6 +193,7 @@ typedef enum {
     IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, /* value(uint32_t*): - set an interval during which a channel is scanned, unit is Ms*/
     IOTX_IOCTL_SET_PROXY_REGISTER,      /* value(int*): 0 - Disable proxy product register, 1 - Enable proxy product register */
     IOTX_IOCTL_QUERY_DEVID,             /* value(iotx_dev_meta_info_t*): device meta info, only productKey and deviceName is required, ret value is subdev_id or -1 */
+    IOTX_IOCTL_SUB_USER_TOPIC,          /* subscribe a topic according to user topic and callback */
 } iotx_ioctl_option_t;
 
 typedef enum {

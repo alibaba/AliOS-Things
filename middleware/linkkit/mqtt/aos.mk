@@ -18,3 +18,6 @@ $(NAME)_DEFINES   +=  \
     WITH_MQTT_DYN_BUF=1  \
     MUTE_VERSION_REPORT
 
+ifeq (y,$(strip $(LOG_REPORT_TO_CLOUD)))
+$(NAME)_INCLUDES += ../dev_model
+endif

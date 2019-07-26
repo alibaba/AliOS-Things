@@ -155,4 +155,6 @@ int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm
         _OU_ unsigned char **data, int *data_len);
 #endif
 
+int dm_msg_proc_thing_model_user_sub(_IN_ dm_msg_source_t *source);
+
 #endif

@@ -18,6 +18,10 @@ if AOS_COMP_SDK_AWSS
     config WIFI_PROVISION_ENABLED
     bool
     default y
+
+    config DEV_BIND_ENABLED
+    bool
+    default y
 endif
 
 config AWSS_SUPPORT_APLIST
