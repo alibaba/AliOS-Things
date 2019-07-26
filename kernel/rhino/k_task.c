@@ -933,6 +933,8 @@ kstat_t krhino_task_cancel_chk(void)
         else {
             ret = krhino_task_del(cur_task);
         }
+#else
+        ret = krhino_task_del(cur_task);
 #endif
     }
     RHINO_CRITICAL_EXIT();
