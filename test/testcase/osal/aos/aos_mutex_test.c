@@ -6,9 +6,10 @@
 #include <stdlib.h>
 
 #include <k_api.h>
-#include <aos/kernel.h>
 
-#include <yunit.h>
+#include "aos/kernel.h"
+
+#include "yts/yunit.h"
 
 
 static aos_mutex_t g_mutex1;
