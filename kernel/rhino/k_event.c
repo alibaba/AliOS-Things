@@ -175,14 +175,15 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
 
     RHINO_CRITICAL_ENTER();
 
+    cur_cpu_num = cpu_cur_get();
+    TASK_CANCEL_CHK();
+
     INTRPT_NESTED_LEVEL_CHK();
 
     if (event->blk_obj.obj_type != RHINO_EVENT_OBJ_TYPE) {
         RHINO_CRITICAL_EXIT();
         return RHINO_KOBJ_TYPE_ERR;
     }
-
-    cur_cpu_num = cpu_cur_get();
 
     /* if option is AND MASK or OR MASK */
     if (opt & RHINO_FLAGS_AND_MASK) {
