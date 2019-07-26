@@ -11,4 +11,3 @@ $(NAME)_COMPONENTS := libiot_wrappers libiot_mqtt
 $(NAME)_INCLUDES += .
 
 
-

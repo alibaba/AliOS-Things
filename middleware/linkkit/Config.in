@@ -7,7 +7,7 @@ menu "Link Kit Configurations"
 
 source "$SRCPATH/mqtt/Config.in"
 source "$SRCPATH/dev_model/Config.in"
-source "$SRCPATH/dev_bind/Config.in"
+#source "$SRCPATH/dev_bind/Config.in"
 source "$SRCPATH/wifi_provision/Config.in"
 source "$SRCPATH/http2/Config.in"
 source "$SRCPATH/iot_http/Config.in"
