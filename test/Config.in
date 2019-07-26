@@ -1,6 +1,5 @@
 menu "Test        Configuration"
 
 source "test/testcase/Config.in"
-source "test/yunit/Config.in"
 
 endmenu

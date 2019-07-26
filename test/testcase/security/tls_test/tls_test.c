@@ -2,12 +2,13 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <yunit.h>
-#include <yts.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "yts/yts.h"
+#include "yts/yunit.h"
 
 #include <aos/errno.h>
 

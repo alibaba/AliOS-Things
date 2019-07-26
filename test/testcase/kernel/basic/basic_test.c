@@ -7,7 +7,7 @@
 #include "aos/kernel.h"
 #include "aos/list.h"
 
-#include "yunit.h"
+#include "yts/yunit.h"
 
 struct test_node {
     int v;
