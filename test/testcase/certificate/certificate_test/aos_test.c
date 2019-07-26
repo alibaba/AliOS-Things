@@ -4,7 +4,8 @@
 
 #include <aos/kernel.h>
 
-#include "yunit.h"
+#include "yts/yunit.h"
+
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH

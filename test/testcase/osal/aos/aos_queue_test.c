@@ -9,7 +9,8 @@
 #include <aos/kernel.h>
 #include <assert.h>
 
-#include <yunit.h>
+#include "yts/yunit.h"
+
 #include <errno.h>
 
 #define TEST_TASK_STACK_SIZE (8192)

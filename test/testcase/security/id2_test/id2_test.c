@@ -2,11 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <yunit.h>
-#include <yts.h>
 #include <id2_client.h>
 #include <stdio.h>
 
+#include "yts/yunit.h"
+#include "yts/yts.h"
 #include "aos/kernel.h"
 
 #define MAX_AUTH_LEN   256
