@@ -302,6 +302,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
+    TASK_CANCEL_CHK();
 
     if ((g_intrpt_nested_level[cur_cpu_num] > 0u) && (ticks != RHINO_NO_WAIT)) {
         RHINO_CRITICAL_EXIT();
