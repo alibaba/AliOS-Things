@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/kernel.h>
 #include "aos/kernel.h"
 #include "aos/yloop.h"
+
 #include "network/hal/base.h"
 #include <hal/wifi.h>
-#include <yunit.h>
-#include <yts.h>
+
+#include "yts/yunit.h"
+#include "yts/yts.h"
 
 #include "netmgr.h"
 

@@ -9,8 +9,9 @@
 
 #include "aos/hal/timer.h"
 
-#include <yunit.h>
-#include <yts.h>
+#include "yts/yunit.h"
+#include "yts/yts.h"
+
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 

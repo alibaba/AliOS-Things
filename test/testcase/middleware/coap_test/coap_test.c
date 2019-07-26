@@ -9,8 +9,10 @@
 #include <unistd.h>
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include <yunit.h>
-#include <yts.h>
+
+#include "yts/yunit.h"
+#include "yts/yts.h"
+
 #include "iot_import.h"
 #include "iot_export.h"
 #include "CoAPExport.h"
