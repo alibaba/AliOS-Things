@@ -27,7 +27,6 @@ It also attempts to provide AOS-compatible filesystem behaviour.
 ```sh
 spiffs
 ├── include
-│   ├── aos_spiffs.h         # SPIFFS register interface declaration
 │   └── spiffs_config.h      # SPIFFS AOS configuration
 ├── spiffs
 │   ├── default

@@ -31,7 +31,6 @@ fatfs
 │       └── integer.h  # Fatfs variable types defination
 ├── include
 │   ├── fatfs_diskio.h # Fatfs disk I/O constant defination
-│   └── fatfs.h        # Fatfs register interface declaration
 └─── README.md
 
 ```
