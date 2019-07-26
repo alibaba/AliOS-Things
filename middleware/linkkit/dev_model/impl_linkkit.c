@@ -101,6 +101,7 @@ static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
 #ifdef ALCS_ENABLED
     extern void dm_server_free_context(_IN_ void *ctx);
 #endif
+extern void iotx_ioctl_clean(void);
 
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)
 {
@@ -619,9 +620,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_GENERAL, lite_item_id.value, NULL, 0, property_get_ctx,
                                              &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
+                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
                             lite_item_serviceid.value,
-                            lite_item_serviceid.value_length, request, lite_item_payload.value_length, service_ctx);
+                            lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, request, lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -901,9 +902,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_RRPC, lite_item_id.value, lite_item_rrpcid.value,
                                              lite_item_rrpcid.value_length, NULL, &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
+                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
                             lite_item_serviceid.value,
-                            lite_item_serviceid.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
+                            lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -1439,6 +1440,7 @@ static int _iotx_linkkit_master_close(void)
     ctx->is_opened = 0;
 
     iotx_dm_close();
+    iotx_ioctl_clean();
 #ifdef DEVICE_MODEL_GATEWAY
     _iotx_linkkit_upstream_sync_callback_list_destroy();
     HAL_MutexDestroy(ctx->upstream_mutex);

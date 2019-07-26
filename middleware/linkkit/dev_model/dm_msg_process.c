@@ -994,3 +994,18 @@ int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm
     return SUCCESS_RETURN;
 }
 #endif
+
+int dm_msg_proc_thing_model_user_sub(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+
+    /* Parse Product Key And Device Name */
+    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
+                                device_name);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+    return dm_msg_thing_model_user_sub(product_key, device_name, (char *)source->payload, source->payload_len);
+}

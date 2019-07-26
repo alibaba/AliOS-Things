@@ -6,7 +6,6 @@ config AOS_COMP_SDK_DEVMODEL
     select INFRA_COMPAT
     select INFRA_CJSON
     select AOS_COMP_SDK_MQTT
-    select LOG_REPORT_TO_CLOUD if MQTT_COMM_ENABLED
     select AOS_COMP_SDK_WRAPPERS
     default n
     help
@@ -20,10 +19,6 @@ if AOS_COMP_SDK_DEVMODEL
     bool 
     default y
 endif
-
-config LOG_REPORT_TO_CLOUD
-    bool
-    default n
 
 menu "Device Model Configurations"
     depends on DEVICE_MODEL_ENABLED
@@ -76,5 +71,8 @@ menu "Device Model Configurations"
     config DEVICE_MODEL_SHADOW
         bool "FEATURE_DEVICE_MODEL_SHADOW"
         default n
+    config LOG_REPORT_TO_CLOUD
+        bool "FEATURE_LOG_REPORT_TO_CLOUD"
+    default n
 endmenu
 

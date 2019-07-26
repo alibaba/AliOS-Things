@@ -4,10 +4,16 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 3.0.1
 $(NAME)_SUMMARY := Alibaba Wireless Setup Service
 
-
-$(NAME)_INCLUDES +=  ../dev_bind/impl/os/ ../dev_bind/impl/os/product/ ../dev_bind/impl/os/platform/ ../dev_bind/impl/ ../dev_bind/impl/awss_reset
-$(NAME)_INCLUDES +=     frameworks/utils/ frameworks/aplist/
+$(NAME)_INCLUDES := frameworks/utils/ frameworks/aplist/
 $(NAME)_SOURCES := frameworks/*.c  frameworks/ieee80211/*.c   frameworks/statics/*.c   frameworks/aplist/*.c frameworks/utils/*.c
+
+$(NAME)_INCLUDES += . impl/os/  impl/awss_reset  dev_bind/  dev_bind/awss_reset dev_bind/os
+
+$(NAME)_INCLUDES += ../iot_coap  ../iot_coap/server
+
+$(NAME)_SOURCES += dev_bind/*.c  dev_bind/awss_reset/*.c dev_bind/os/*.c 
+
+$(NAME)_COMPONENTS := libiot_infra libiot_wrappers libiot_coap
 
 $(NAME)_SOURCES-$(AWSS_SUPPORT_SMARTCONFIG) += smartconfig/*.c
 $(NAME)_SOURCES-$(AWSS_SUPPORT_SMARTCONFIG_MCAST) += mcast_smartconfig/*.c
@@ -24,7 +30,7 @@ ifeq (y,$(strip $(AWSS_SUPPORT_SMARTCONFIG_MCAST)))
 $(NAME)_INCLUDES += mcast_smartconfig
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_ZEROCONFIG)))
-GLOBAL_INCLUDES += zero_config
+$(NAME)_INCLUDES += zero_config
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_SMARTCONFIG_WPS)))
 $(NAME)_INCLUDES += p2p
@@ -33,15 +39,15 @@ ifeq (y,$(strip $(AWSS_SUPPORT_AHA)))
 $(NAME)_INCLUDES += phone_ap
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_DEV_AP)))
-GLOBAL_INCLUDES += dev_ap
+$(NAME)_INCLUDES += dev_ap
 endif
 ifeq (y,$(strip $(AWSS_SUPPORT_HT40)))
 $(NAME)_INCLUDES += ht40
 endif
 
-GLOBAL_INCLUDES += . frameworks frameworks/statics/   frameworks/ieee80211/  frameworks/utils/
+$(NAME)_INCLUDES += . frameworks frameworks/statics/   frameworks/ieee80211/  frameworks/utils/
 
-$(NAME)_COMPONENTS := libiot_infra libiot_wrappers libiot_bind
+$(NAME)_COMPONENTS := libiot_infra libiot_wrappers
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG

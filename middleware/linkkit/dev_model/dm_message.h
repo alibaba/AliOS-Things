@@ -197,4 +197,8 @@ int dm_msg_combine_logout(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                           _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _OU_ dm_msg_request_t *request);
 #endif
+
+int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
+                                _IN_ char device_name[IOTX_DEVICE_NAME_LEN],
+                                _IN_ char *payload, _IN_ int payload_len);
 #endif

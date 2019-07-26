@@ -72,6 +72,43 @@ int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t
 
     return SUCCESS_RETURN;
 }
+extern void * g_user_topic_callback;
+int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
+                                _IN_ char device_name[IOTX_DEVICE_NAME_LEN],
+                                _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0, devid = 0, message_len = 0;
+    char *hexstr = NULL, *message = NULL;
+    unsigned char *request = NULL;
+    void *callback;
+
+    if (product_key == NULL || device_name == NULL ||
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN) ||
+        payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    request = DM_malloc(payload_len + 1);
+    if (request == NULL) {
+         dm_log_err("Not Enough Memory");
+         return FAIL_RETURN;
+    }
+
+    memset(request, 0, payload_len + 1);
+    memcpy(request, payload, payload_len);
+    if (g_user_topic_callback) {
+        ((int (*)(const int, const unsigned char *, const int))g_user_topic_callback)(devid, request, payload_len);
+    }
+    DM_free(request);
+
+    return SUCCESS_RETURN;
+}
 
 int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli, _IN_ int end_deli,
                           _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1])

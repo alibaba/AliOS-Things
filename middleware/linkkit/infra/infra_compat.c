@@ -6,12 +6,14 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 #include "wrappers.h"
-#if defined(WIFI_PROVISION_ENABLED)
-#include "awss_main.h"
-#endif
 
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
+#endif
+
+#if defined(WIFI_PROVISION_ENABLED)
+    extern void awss_set_press_timeout_ms(unsigned int timeout_ms);
+    extern void awss_set_channel_scan_interval_ms(uint32_t timeout_ms);
 #endif
 
 #ifdef MQTT_COMM_ENABLED
@@ -64,7 +66,8 @@ int IOT_SetupConnInfo(const char *product_key,
 #endif
 
 #if defined(DEVICE_MODEL_GATEWAY)
-    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                       char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -227,6 +230,13 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
+#if defined(DEVICE_MODEL_ENABLED)
+        case IOTX_IOCTL_SUB_USER_TOPIC: {
+            iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
+            iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
+        }
+        break;
+#endif
         default: {
             res = FAIL_RETURN;
         }
@@ -234,6 +244,27 @@ int IOT_Ioctl(int option, void *data)
     }
 
     return res;
+}
+
+/* release memory allocated in ioctl */
+void iotx_ioctl_clean(void)
+{
+    sdk_impl_ctx_t *ctx = &g_sdk_impl_ctx;
+
+    if (ctx->cloud_custom_domain) {
+        HAL_Free(ctx->cloud_custom_domain);
+        ctx->cloud_custom_domain = NULL;
+    }
+
+    if (ctx->http_custom_domain) {
+        HAL_Free(ctx->http_custom_domain);
+        ctx->http_custom_domain = NULL;
+    }
+
+    if (ctx->mqtt_customzie_info) {
+        HAL_Free(ctx->mqtt_customzie_info);
+        ctx->mqtt_customzie_info = NULL;
+    }
 }
 
 void IOT_DumpMemoryStats(IOT_LogLevel level)
@@ -312,7 +343,8 @@ DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
-DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, void *))
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, const char *,
+                      int, void *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
 #ifdef DEVICE_MODEL_SHADOW
     DEFINE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*callback)(const char *, const int))
