@@ -130,6 +130,12 @@ kstat_t pend_state_end_proc(ktask_t *task)
             break;
     }
 
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    if (task->cancel == 1u) {
+        status = RHINO_TASK_CANCELED;
+    }
+#endif
+
     return status;
 }
 

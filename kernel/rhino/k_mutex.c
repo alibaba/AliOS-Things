@@ -295,14 +295,15 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
 
     RHINO_CRITICAL_ENTER();
 
+    cur_cpu_num = cpu_cur_get();
+    TASK_CANCEL_CHK();
+
     INTRPT_NESTED_LEVEL_CHK();
 
     if (mutex->blk_obj.obj_type != RHINO_MUTEX_OBJ_TYPE) {
         RHINO_CRITICAL_EXIT();
         return RHINO_KOBJ_TYPE_ERR;
     }
-
-    cur_cpu_num = cpu_cur_get();
 
     /* if the same task get the same mutex again, it causes mutex owner nested */
     if (g_active_task[cur_cpu_num] == mutex->mutex_task) {
