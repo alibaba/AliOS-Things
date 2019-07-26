@@ -2,12 +2,13 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "aos/kernel.h"
-#include <fatfs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "fatfs/aos_fatfs.h"
 
 #define XM_PATH_MAX 256
 //#define XM_LINE_LEN 256
