@@ -18,11 +18,11 @@
 #endif
 
 #ifdef AOS_COMP_SPIFFS
-#include "aos_spiffs.h"
+#include "spiffs/aos_spiffs.h"
 #endif
 
 #ifdef AOS_COMP_FATFS
-#include "fatfs.h"
+#include "fatfs/aos_fatfs.h"
 #endif
 
 #include "network/network.h"
