@@ -21,6 +21,36 @@ config DEBUG_CONFIG_BACKTRACE
         set to y if you want to enable stack backtrace feature when system crash happened,
         default y
 
+config MK3080_CONFIG_SPIFFS
+    bool "Locate SPIFFS for using"
+    default n
+    help
+        Locate flash for spiffs fs, most of them comes from OTA temp room.
+
+if MK3080_CONFIG_SPIFFS
+choice
+    prompt "Choose Size of SPIFFS"
+    default MK3080_CONFIG_SPIFFS_SIZE_256KB
+    help
+        Select the size for spiffs
+
+    config MK3080_CONFIG_SPIFFS_SIZE_64KB
+        bool "64KB"
+
+    config MK3080_CONFIG_SPIFFS_SIZE_128KB
+        bool "128KB"
+
+    config MK3080_CONFIG_SPIFFS_SIZE_256KB
+        bool "256KB"
+endchoice
+
+config CONFIG_SPIFFS_PHYS_SZ
+    int
+    default 65536  if MK3080_CONFIG_SPIFFS_SIZE_64KB
+    default 131072 if MK3080_CONFIG_SPIFFS_SIZE_128KB
+    default 262144 if MK3080_CONFIG_SPIFFS_SIZE_256KB
+endif
+
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
     bool
