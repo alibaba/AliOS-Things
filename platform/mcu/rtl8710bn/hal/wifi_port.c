@@ -244,6 +244,9 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 		if (ret == 0) {
                         WifiStatusHandler(NOTIFY_STATION_UP);
 			ret = LwIP_DHCP(0, DHCP_START);
+                        if (ret == DHCP_TIMEOUT) {
+                            aos_reboot();
+                        }
 			int i = 0;
 			for(i=0;i<NET_IF_NUM;i++){
 				if(rltk_wlan_running(i)){
@@ -651,6 +654,76 @@ static void stop_monitor(hal_wifi_module_t *m)
     return;
 }
 
+void start_softap_thread(void *arg)
+{
+    hal_wifi_init_type_t *init = (hal_wifi_init_type_t *)arg;
+    struct netif *pnetif = &xnetif[0];
+    rtw_security_t security;
+    ip4_addr_t ipaddr;
+    ip4_addr_t netmask;
+    ip4_addr_t gw;
+
+    if (strlen(init->wifi_key) == 0)
+        security = RTW_SECURITY_OPEN;
+    else
+        security = RTW_SECURITY_WPA2_AES_PSK;
+
+    dhcps_deinit();
+    ip4addr_aton(init->local_ip_addr, &ipaddr);
+    ip4addr_aton(init->net_mask, &netmask);
+    ip4addr_aton(init->gateway_ip_addr, &gw);
+    netif_set_addr(pnetif, &ipaddr, &netmask, &gw);
+
+    printf("Restarting Wi-Fi ...\r\n");
+    wifi_off();
+    aos_msleep(20);
+    if (wifi_on(RTW_MODE_AP) < 0) {
+        printf("ERROR: Restart Wi-Fi failed!\r\n");
+        goto exit;
+    }
+    printf("Starting AP ...\r\n");
+    if (wifi_start_ap(init->wifi_ssid, security, init->wifi_key, strlen(init->wifi_ssid), strlen(init->wifi_key), 6) < 0) {
+        printf("ERROR: Start AP failed!\r\n");
+        goto exit;
+    }
+    dhcps_init(pnetif);
+    printf("Start AP Success!\r\n");
+
+exit:
+    rtw_free(init);
+}
+
+static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    DBG_8195A("start_ap: %s(%s) \r\n", ssid, passwd);
+
+    hal_wifi_init_type_t* aws_ap_info = rtw_malloc(sizeof(hal_wifi_init_type_t));
+
+    memset( aws_ap_info, 0x00, sizeof(hal_wifi_init_type_t) );
+
+    strcpy(aws_ap_info->wifi_ssid, ssid);
+    strcpy(aws_ap_info->wifi_key, passwd);
+
+    aws_ap_info->dhcp_mode = DHCP_SERVER;
+    strcpy( aws_ap_info->local_ip_addr, "10.10.100.1" );
+    strcpy( aws_ap_info->net_mask, "255.255.255.0" );
+    strcpy( aws_ap_info->gateway_ip_addr, "10.10.100.1" );
+    strcpy( aws_ap_info->dns_server_ip_addr, "10.10.100.1" );
+
+    aos_task_new("softap thread", start_softap_thread, aws_ap_info, 4096);
+    return 0;
+}
+
+static int stop_ap(hal_wifi_module_t *m)
+{
+    DBG_8195A("stop_ap");
+    wifi_off();
+    aos_msleep(100);
+    wifi_on(RTW_MODE_STA);
+    m->ev_cb->stat_chg(m, NOTIFY_AP_DOWN, NULL);
+    return 0;
+}
+
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
@@ -839,6 +912,8 @@ hal_wifi_module_t rtl8710bn_wifi_module = {
     .get_channel         =  get_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
+    .start_ap            =  start_ap,
+    .stop_ap             =  stop_ap,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
