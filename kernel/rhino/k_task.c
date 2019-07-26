@@ -925,11 +925,14 @@ kstat_t krhino_task_cancel_chk(void)
 
     cur_task= krhino_cur_task_get();
     RHINO_CRITICAL_ENTER();
-    if (cur_task->cancel > 0) {
+    if (cur_task->cancel == 1u) {
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-        ret = krhino_task_dyn_del(cur_task);
-#else
-        ret = krhino_task_del(cur_task);
+        if (cur_task->mm_alloc_flag == K_OBJ_DYN_ALLOC) {
+            ret = krhino_task_dyn_del(cur_task);
+        }
+        else {
+            ret = krhino_task_del(cur_task);
+        }
 #endif
     }
     RHINO_CRITICAL_EXIT();
