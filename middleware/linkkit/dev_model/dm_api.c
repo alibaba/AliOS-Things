@@ -293,6 +293,37 @@ void iotx_dm_dispatch(void)
     }
 }
 
+void *g_user_topic_callback = NULL;
+
+int iotx_dm_subscribe_user_topic(char *topic, void *user_callback)
+{
+    char *uri = NULL;
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    int res = 0;
+
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+
+    res = dm_utils_service_name((char *)DM_URI_SYS_PREFIX, topic,
+                                product_key, device_name, &uri);
+    g_user_topic_callback = user_callback;
+
+    if (res < SUCCESS_RETURN) {
+        return -1;
+    }
+
+    {
+        int retry_cnt = IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS;
+        int local_sub = 0;
+        do {
+            res = dm_client_subscribe(uri, dm_client_user_sub_request, &local_sub);
+        } while (res < SUCCESS_RETURN && --retry_cnt);
+        DM_free(uri);
+    }
+  return 0;
+}
+
 int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
