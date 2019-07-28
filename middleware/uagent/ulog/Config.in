@@ -51,6 +51,7 @@ endif
 
 config ULOG_CONFIG_POP_CLOUD
      bool "Switch on Pop Out Log to Cloud"
+     select AOS_COMP_UAGENT
      select ULOG_CONFIG_ASYNC
      default n
      help
@@ -86,6 +87,22 @@ config ULOG_CONFIG_STOP_FILTERFS
         will be abondoned LOG_EMERG will make none log pop out.
         please keep this value on "LOG_EMERG" if you have no plan to use log out fs
 
+choice
+    prompt "Choose File System Type"
+    default ULOG_CONFIG_FS_SPIFFS
+    help
+        Select the type of fs which ulog recorded in.
+
+    config ULOG_CONFIG_FS_SPIFFS
+        bool "SPIFFS"
+
+    config ULOG_CONFIG_FS_FATFS_SD
+        bool "SD Card"
+
+    config ULOG_CONFIG_FS_FATFS_FLASH
+        bool "FATFS Flash"
+endchoice
+
 config ULOG_CONFIG_LOCAL_FILE_CNT
     int "Max uLog Files on File System"
     default 5
@@ -117,6 +134,7 @@ endif
 
 config ULOG_CONFIG_UPLOAD
     bool "Upload Log File via http"
+    select AOS_COMP_UAGENT
     default n
     help
         Upload Log File via http.
