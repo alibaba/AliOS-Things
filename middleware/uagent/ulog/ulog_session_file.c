@@ -78,7 +78,8 @@ static int pop_fs_tmp(char* data, const unsigned short len)
 
 #if ULOG_UPLOAD_LOG_FILE
 #include "network/network.h"
-#include "http_api.h"
+#include "network/http.h"
+#include "linkkit/http_api.h"
 static httpc_connection_t *settings = NULL;
 static httpc_handle_t httpc_handle = 0;
 static char *up_uri = NULL;
@@ -158,7 +159,7 @@ int http_start(const char *url, const unsigned short idx)
 
                 settings->req_buf = (uint8_t *)aos_malloc(REQ_BUF_SIZE);
                 if (NULL == settings->req_buf) {
-                    LOGE(ULOG_TAG_SELF, "allock req buffer fail");                    
+                    LOGE(ULOG_TAG_SELF, "allock req buffer fail");
                 } else {
                     if (0 == get_server_uri(url, &settings->server_name, &up_uri)) {
                         LOGI(ULOG_TAG_SELF, "get server %s uri %s", settings->server_name, up_uri);
@@ -174,11 +175,11 @@ int http_start(const char *url, const unsigned short idx)
                             rc = ulog_man(buf);
                         }
 
-                        if(0 != rc){                            
+                        if(0 != rc){
                             aos_free(settings->server_name);
                             settings->server_name = NULL;
                             aos_free(up_uri);
-                            up_uri = NULL;                            
+                            up_uri = NULL;
                         }
                     } else {
                         LOGE(ULOG_TAG_SELF, "get server uri fail");
@@ -218,7 +219,7 @@ void on_fs_upload(const uint32_t idx, const uint32_t start)
         char hdr[HTTP_UP_HDR_SIZE] = { 0 };
         if (httpc_construct_header(hdr, HTTP_UP_HDR_SIZE, "Accept",
             "text/xml,text/javascript,text/html,application/json") > 0) {
-            char *upload_stream = (char*)aos_malloc(LOCAL_FILE_SIZE);
+            char *upload_stream = (char*)aos_malloc(LOCAL_FILE_SIZE+ULOG_SIZE);
             if (NULL != upload_stream) {
                 int n = -1;
                 if (0 < (n = aos_read(fd, upload_stream, LOCAL_FILE_SIZE+ULOG_SIZE))) {
