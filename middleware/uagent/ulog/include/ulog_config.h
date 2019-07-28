@@ -248,7 +248,7 @@ typedef enum {
 #if ULOG_POP_FS_ENABLE
 #ifdef CSP_LINUXHOST
 #error(modify below PATH as log file located, then disable this statement)
-#define FS_PATH              "/home/charley/"
+#define FS_PATH              "/workspace/"
 #elif defined (AOS_COMP_SPIFFS)
 #define FS_PATH              "/spiffs/"
 #elif defined (AOS_COMP_FATFS)
