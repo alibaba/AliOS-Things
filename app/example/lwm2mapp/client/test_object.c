@@ -67,7 +67,7 @@
  *
  */
 
-#include "network/lwm2m.h"
+#include <lwm2m.h>
 #include "lwm2mclient.h"
 
 #include <stdio.h>
