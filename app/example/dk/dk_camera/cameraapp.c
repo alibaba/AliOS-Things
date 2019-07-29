@@ -6,7 +6,8 @@
 
 #include "aos/kernel.h"
 #include "aos/vfs.h"
-#include "fatfs/aos_fatfs.h"
+
+#include "fs/fatfs.h"
 
 #include "st7789.h" /* LCD */
 #include "gc0329.h" /* camera */
