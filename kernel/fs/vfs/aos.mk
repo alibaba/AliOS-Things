@@ -24,7 +24,7 @@ else ifeq ($(COMPILER),rvct)
 GLOBAL_DEFINES += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES += . include
+$(NAME)_INCLUDES += . include
 GLOBAL_DEFINES  += AOS_COMP_VFS
 
 AOS_COMP_VFS ?= y

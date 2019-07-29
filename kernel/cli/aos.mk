@@ -15,7 +15,7 @@ endif
 
 $(NAME)_COMPONENTS += ulog debug
 
-GLOBAL_INCLUDES += include
+$(NAME)_INCLUDES += include
 GLOBAL_DEFINES  += AOS_COMP_CLI
 
 AOS_COMP_CLI ?= y

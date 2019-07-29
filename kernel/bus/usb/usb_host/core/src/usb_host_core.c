@@ -2,7 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "usb_host.h"
+#include "usb/usb_host.h"
+
 #include "usb_host_types.h"
 #include "usb_host_core.h"
 #include "usb_host_pipe.h"
