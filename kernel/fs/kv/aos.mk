@@ -13,7 +13,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS += -Wall -Werror
 endif
 
-GLOBAL_INCLUDES += . include
+$(NAME)_INCLUDES += include
 GLOBAL_DEFINES  += AOS_COMP_KV
 
 KV_CONFIG_SECURE_SUPPORT ?= 0
