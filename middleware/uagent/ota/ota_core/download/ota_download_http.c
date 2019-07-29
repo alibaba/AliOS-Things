@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <http.h>
 #include "ota_log.h"
-#include "network/http.h"
 #include "ota_crypto.h"
 #include "ota_import.h"
 #include "ota_plat_ctrl.h"
