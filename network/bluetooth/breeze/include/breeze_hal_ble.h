@@ -322,4 +322,14 @@ ais_err_t ble_advertising_stop();
  */
 ais_err_t ble_get_mac(uint8_t *mac);
 
+#ifdef EN_LONG_MTU
+/**
+ * API to obtain ble link MTU, if ble stack didn't provide, use DEFAULT_ATT_MTU .
+ * @parma[out]  mac  the uint8_t[BD_ADDR_LEN] space the save the mac address.
+ * @return     0 on success, erro code if failure.
+ */
+
+int ble_get_att_mtu(uint16_t *att_mtu);
+#endif
+
 #endif
