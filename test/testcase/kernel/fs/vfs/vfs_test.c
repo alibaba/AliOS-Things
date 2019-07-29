@@ -10,8 +10,8 @@
 
 #include "yts/yunit.h"
 
-#include "vfs_api.h"
-#include "vfs_types.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
 
 #define VFS_FUNC_ATTACH 10001
 
