@@ -22,8 +22,8 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <inttypes.h>
-#include "network/lwm2m.h"
-#include "internals.h"
+#include <lwm2m.h>
+#include "lwm2mdebug.h"
 
 #include "commandline.h"
 
