@@ -18,12 +18,12 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include "http_parser.h"
 #include <assert.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <http_parser.h>
 
 static uint32_t max_header_size = HTTP_MAX_HEADER_SIZE;
 
