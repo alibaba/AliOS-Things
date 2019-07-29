@@ -7,12 +7,14 @@
 #include <errno.h>
 
 #include "spiffs_config.h"
-#include "spiffs.h"
+#include "spiffs_fs.h"
 #include "spiffs_nucleus.h"
 
 #include "aos/hal/flash.h"
 
-#include "vfs_api.h"
+#include "fs/spiffs.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
 
 #define SPIFFS_WAIT_FOREVER 0xFFFFFFFF
 
@@ -539,7 +541,7 @@ static vfs_filesystem_ops_t spiffs_ops = {
     .ioctl      = NULL
 };
 
-int32_t vfs_spiffs_register(void)
+int32_t spiffs_register(void)
 {
     int32_t ret = SPIFFS_OK;
 
@@ -578,7 +580,7 @@ err:
     return ret;
 }
 
-int32_t vfs_spiffs_unregister(void)
+int32_t spiffs_unregister(void)
 {
     SPIFFS_unmount(g_spiffs_mgr->fs);
     _spiffs_deinit();
