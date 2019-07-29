@@ -40,8 +40,10 @@ static uint8_t mm_break_case1(void)
     ptr = k_mm_alloc(pmmhead, RHINO_CONFIG_MM_BLK_SIZE + 1);
 
     MYASSERT(ptr != NULL);
-    MYASSERT((pmmhead->used_size - oldsize ) == 
-      (RHINO_CONFIG_MM_BLK_SIZE + MM_ALIGN_SIZE + MMLIST_HEAD_SIZE));
+    MYASSERT((pmmhead->used_size - oldsize ) ==
+      (RHINO_CONFIG_MM_BLK_SIZE > MM_MIN_SIZE ?
+       RHINO_CONFIG_MM_BLK_SIZE + MM_ALIGN_SIZE + MMLIST_HEAD_SIZE :
+       MM_MIN_SIZE + MMLIST_HEAD_SIZE));
     k_mm_free(pmmhead, ptr);
 #endif
 
