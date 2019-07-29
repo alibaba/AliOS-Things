@@ -52,7 +52,7 @@
 #ifndef _LWM2M_INTERNALS_H_
 #define _LWM2M_INTERNALS_H_
 
-#include "liblwm2m.h"
+#include <liblwm2m.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -61,7 +61,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "ulog/ulog.h"
-#include "lwm2m_coap.h"
+#include <lwm2m_coap.h>
 
 #define TAG "lwm2m"
 

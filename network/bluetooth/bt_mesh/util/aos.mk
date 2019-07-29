@@ -13,7 +13,5 @@ $(NAME)_SOURCES := ./atomic_c.c \
                    ./queue.c \
                    ./poll.c
 
-$(NAME)_INCLUDES := ./include
-
-GLOBAL_INCLUDES += ./include \
-                   ./port/include
+$(NAME)_INCLUDES += ./include \
+                    ./port/include

@@ -12,8 +12,8 @@ $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/ip4_addr.c    \
                    ./src/sal_arch_aos.c
 
-GLOBAL_INCLUDES += ./                  \
-                   ./include
+$(NAME)_INCLUDES += ./                  \
+                    ./include
 
 ifeq (wifi.gt202,$(module))
 $(NAME)_COMPONENTS += device_sal_gt202

@@ -9,11 +9,11 @@ $(NAME)_SOURCES := ./mesh_hal_ble.c \
 
 ifeq ($(bt_mesh_standalone_deploy),1)
 $(NAME)_SOURCES += ./mesh_hal_os.c
-GLOBAL_INCLUDES += .
+$(NAME)_INCLUDES += .
 endif
 
 ifneq ($(bt_mesh_standalone_deploy),1)
 $(NAME)_COMPONENTS += bt_host
-GLOBAL_INCLUDES += ../bt_host/host/ \
-                   ../bt_host/include/
+$(NAME)_INCLUDES += ../bt_host/host/ \
+                    ../bt_host/include/
 endif
