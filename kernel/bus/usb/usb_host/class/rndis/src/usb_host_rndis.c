@@ -2,11 +2,12 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "usb_host.h"
+#include "usb/usb_host.h"
+#include "usb/usb_host_rndis.h"
+
 #include "usb_host_types.h"
 #include "usb_host_core.h"
 #include "usb_host_transfer.h"
-#include "usb_host_rndis.h"
 
 #define USB_RNDIS_WLAN_CLASS            0xE0
 #define USB_RNDIS_WLAN_SUBCLASS         0x01

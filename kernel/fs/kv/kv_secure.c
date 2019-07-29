@@ -9,8 +9,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "fs/kv_api.h"
+
 #include "kv_adapt.h"
-#include "kv_err.h"
 
 #if (KV_SECURE_CRYPT_IMPL == 1)
 
