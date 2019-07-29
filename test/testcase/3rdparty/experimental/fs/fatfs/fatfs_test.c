@@ -13,7 +13,7 @@
 #include "yts/yunit.h"
 #include "yts/yts.h"
 
-#include "fatfs/aos_fatfs.h"
+#include "fs/fatfs.h"
 
 static const char *g_string         = "Fatfs test string.";
 static const char *g_filepath       = "/sdcard/test.txt";
