@@ -16,5 +16,3 @@ $(NAME)_COMPONENTS := lorawan_4_4_0
 endif
 
 $(NAME)_COMPONENTS += kv
-
-$(NAME)_INCLUDES += ./
