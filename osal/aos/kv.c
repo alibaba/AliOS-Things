@@ -1,11 +1,12 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include <stdint.h>
 
 #include "aos/kv.h"
 #include "aos/errno.h"
 
-#include "kv_api.h"
+#include "fs/kv_api.h"
 
 static int _kv_to_aos_res(int res)
 {
@@ -24,6 +25,8 @@ static int _kv_to_aos_res(int res)
         case KV_ERR_FLASH_WRITE:
         case KV_ERR_FLASH_ERASE:
             return -EIO;
+        case KV_ERR_NOT_SUPPORT:
+            return -ENOSYS;
         default:
             return -EBUSY;
     }
@@ -61,19 +64,11 @@ int aos_kv_del_by_prefix(const char *prefix)
 
 int aos_kv_secure_set(const char *key, const void *value, int len, int sync)
 {
-#if KV_SECURE_SUPPORT > 0
     return _kv_to_aos_res(kv_item_secure_set(key, value, len));
-#else
-    return -ENOSYS;
-#endif
 }
 
 int aos_kv_secure_get(const char *key, void *buffer, int *buffer_len)
 {
-#if KV_SECURE_SUPPORT > 0
     return _kv_to_aos_res(kv_item_secure_get(key, buffer, buffer_len));
-#else
-    return -ENOSYS;
-#endif
 }
 
