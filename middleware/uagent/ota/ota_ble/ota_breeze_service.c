@@ -1,7 +1,7 @@
 #include <string.h>
+#include <breeze_export.h>
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
-#include "breeze_export.h"
 #include "ota_breeze_plat.h"
 #include "ota/ota_breeze_export.h"
 #include "ota_breeze_transport.h"
