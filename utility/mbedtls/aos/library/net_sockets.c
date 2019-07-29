@@ -23,7 +23,7 @@
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
-
+#include <errno.h>
 #if !defined(MBEDTLS_NET_C)
 #include <stdio.h>
 #include <stdlib.h>
