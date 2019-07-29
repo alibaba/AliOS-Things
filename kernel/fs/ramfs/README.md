@@ -13,7 +13,6 @@
 ramfs
 ├── include
 │   ├── ramfs_adapt.h # ramfs OS adapt layer declaration
-│   ├── ramfs_api.h   # ramfs module interface declaration
 │   └── ramfs_err.h   # ramfs errno defination
 ├── ramfs_adapt.c     # ramfs OS adapt layer implementation
 ├── ramfs.c           # ramfs core logic
