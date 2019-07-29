@@ -11,34 +11,20 @@
 
 /**
  * @brief Get Usb Host Handler
- * 
+ *
  * @return  usb host handler
  */
 usb_host_t *usbh_get_instance(void);
 
 /**
  * @brief Process Usb Enumeration
- * 
+ *
  * @param[in]  phandle pointer to the usb host handler
  * @param[in]  phelper pointer to the enumerate helper structure
- * 
+ *
  * @return 0:success, otherwise is failed
  */
 int usbh_enumerate(usb_host_t *phandle, enum_helper_t *phelper);
-
-/**
- * @brief Notify Usb Device Connect to Usb Host Task
- *
- * @return NULL
- */
-void usbh_send_device_connected_event(void);
-
-/**
- * @brief Notify Usb Device Disconnect to Usb Host Task
- *
- * @return NULL
- */
-void usbh_send_device_disconnected_event(void);
 
 /**
  * @brief Register Callback For Device Disconnect Event
