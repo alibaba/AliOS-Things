@@ -13,7 +13,7 @@
 #include "yts/yunit.h"
 #include "yts/yts.h"
 
-#include "spiffs/aos_spiffs.h"
+#include "fs/spiffs.h"
 
 static const char *g_string         = "spiffs test string.";
 static const char *g_filepath       = "/spiffs/test.txt";
@@ -114,14 +114,14 @@ static int init(void)
 {
     int ret = 0;
 
-    ret = vfs_spiffs_register();
+    ret = spiffs_register();
     YUNIT_ASSERT(ret == 0);
     return 0;
 }
 
 static int cleanup(void)
 {
-    int ret = vfs_spiffs_unregister();
+    int ret = spiffs_unregister();
     YUNIT_ASSERT(ret == 0);
     return 0;
 }
