@@ -6,7 +6,9 @@
 #include <unistd.h>
 #include "os-alios.h"
 
-#include "vfs_api.h"
+#include "fs/cramfs.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
 
 #include "cramfs_fs.h"
 
@@ -342,7 +344,7 @@ static const vfs_filesystem_ops_t cramfs_ops = {
     .ioctl      = NULL
 };
 
-int32_t vfs_cramfs_register(uint32_t start_addr, uint32_t length)
+int32_t cramfs_register(uint32_t start_addr, uint32_t length)
 {
     int32_t ret;
 
@@ -372,7 +374,7 @@ int32_t vfs_cramfs_register(uint32_t start_addr, uint32_t length)
     return vfs_register_fs(cramfs_mnt_path, &cramfs_ops, NULL);
 }
 
-int32_t vfs_cramfs_unregister(void)
+int32_t cramfs_unregister(void)
 {
     int32_t ret;
 
