@@ -55,9 +55,9 @@
  Bosch Software Innovations GmbH - Please refer to git log
 
 */
-#include "internals.h"
+#include <lwm2m.h>
 #include "lwm2mclient.h"
-#include "network/lwm2m.h"
+#include "lwm2mdebug.h"
 #include "commandline.h"
 #ifdef WITH_TINYDTLS
 #include "dtlsconnection.h"

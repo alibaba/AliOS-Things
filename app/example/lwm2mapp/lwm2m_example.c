@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <aos/kernel.h>
 #include <aos/yloop.h>
-#include "netmgr.h"
+#include <netmgr.h>
 
 extern int lwm2m_client_main(int argc, char *argv[]) ;
 
