@@ -5,8 +5,10 @@
 #include <stdlib.h>
 
 #include "k_api.h"
+
+#include "cli/cli_api.h"
+
 #include "cli_conf.h"
-#include "cli_api.h"
 #include "cli_adapt.h"
 
 #if (RHINO_CONFIG_USER_SPACE > 0)

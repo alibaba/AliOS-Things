@@ -5,8 +5,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vfs_conf.h"
-#include "vfs_types.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_conf.h"
+
 #include "vfs_file.h"
 
 static vfs_file_t g_files[VFS_MAX_FILE_NUM];

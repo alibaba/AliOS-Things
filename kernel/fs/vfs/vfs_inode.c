@@ -6,9 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vfs_conf.h"
-#include "vfs_err.h"
-#include "vfs_types.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
+#include "fs/vfs_conf.h"
+
 #include "vfs_inode.h"
 #include "vfs_adapt.h"
 
