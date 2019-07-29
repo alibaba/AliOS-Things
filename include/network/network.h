@@ -30,10 +30,10 @@ extern "C" {
 #define inet_aton(strptr, addrptr) inet_pton(AF_INET, strptr, addrptr)
 #define bzero(b, len)              memset((b), '\0', (len))
 #elif defined(WITH_SAL)
-#include <sal_arch.h>
-#include <sal_def.h>
-#include <sal_ipaddr.h>
-#include <sal_sockets.h>
+#include <nal/sal/sal_arch.h>
+#include <nal/sal/sal_def.h>
+#include <nal/sal/sal_ipaddr.h>
+#include <nal/sal/sal_sockets.h>
 #elif !defined(CONFIG_NO_TCPIP)
 #include <netdb.h>
 #include <sys/types.h>
