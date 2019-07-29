@@ -6,7 +6,6 @@
 #define LWM2M_API_H
 
 #include "liblwm2m.h"
-#include "internals.h"
 
 typedef enum {
     LWM2M_CODEC_TYPE_UNDEFINED = 0,
