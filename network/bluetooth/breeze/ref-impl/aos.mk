@@ -10,7 +10,9 @@ ifeq ($(CONFIG_COMP_BZ_HAL_BLESTACK), y)
 $(NAME)_COMPONENTS-y := bt_host
 endif
 
-$(NAME)_INCLUDES += include/mbedtls
+$(NAME)_INCLUDES += include/mbedtls \
+                    ../include      \
+                    ../core/include 
 ifeq ($(CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS), y)
 $(NAME)_COMPONENTS-y += mbedtls
 GLOBAL_DEFINES-y += USE_EXTERNAL_MEBDTLS

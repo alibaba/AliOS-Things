@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := lwm2m component
 GLOBAL_DEFINES-y += LWM2M_LITTLE_ENDIAN \
                     LWM2M_CLIENT_MODE
 
-GLOBAL_INCLUDES += ./include \
+$(NAME)_INCLUDES += ./include \
 
 LWM2M_SRC_PATH := ./src/wakaama-1.0
 

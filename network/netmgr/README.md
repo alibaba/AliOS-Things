@@ -12,10 +12,6 @@
 │   ├── net.c
 │   ├── wifi.c
 │   └── cellular.c
-├── include
-│   ├── netmgr.h
-│   ├── netmgr_wifi.h
-│   └── netmgr_cellular.h
 ├── aos.mk
 └── ucube.py
 ```
