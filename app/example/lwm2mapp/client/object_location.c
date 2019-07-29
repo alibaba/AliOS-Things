@@ -44,7 +44,8 @@
  *              |     |      |         |     |         |       |       | for direction: the scalar component of velocity.                                 |
  */
 
-#include "network/lwm2m.h"
+#include <lwm2m.h>
+#include "lwm2mdebug.h"
 
 #include <stdio.h>
 #include <stdlib.h>

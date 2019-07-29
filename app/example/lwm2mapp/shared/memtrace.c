@@ -15,8 +15,6 @@
  *
  *******************************************************************************/
 
-#include "internals.h"
-
 #ifdef LWM2M_MEMORY_TRACE
 
 #undef malloc

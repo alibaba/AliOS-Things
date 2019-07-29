@@ -9,7 +9,7 @@
 #include <aos/cli.h>
 #include <aos/yloop.h>
 #include <network/network.h>
-#include "network/http.h"
+#include <http.h>
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha1.h"

@@ -12,6 +12,7 @@
 
 #include "LoRaMac.h"
 #include "Region.h"
+#include "lorawan.h"
 #include "commissioning.h"
 #include "lorawan_port.h"
 
@@ -36,6 +37,7 @@ static void LoraRxData(lora_AppData_t *AppData)
 }
 
 static LoRaMainCallback_t LoRaMainCallbacks;
+extern hal_lrwan_sys_t aos_lrwan_sys;
 
 static void lora_task_entry(void *arg)
 {
