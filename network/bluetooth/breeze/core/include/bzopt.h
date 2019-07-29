@@ -13,15 +13,28 @@
 #define BZ_VERSION "2.0.5"
 #endif
 
-#define BZ_AUTH_TIMEOUT 10000  // not allowed to be 0
+#define BZ_AUTH_TIMEOUT         10000  // not allowed to be 0
+#define BZ_TRANSPORT_TIMEOUT    10000
 
-#define BZ_TRANSPORT_TIMEOUT 10000
+#ifdef EN_LONG_MTU
+#define BZ_TRANSPORT_VER        1
+#else
+#define BZ_TRANSPORT_VER        0
+#endif
 
-#define BZ_TRANSPORT_VER 0
-#define BZ_MAX_MTU 247
-#define GATT_MTU_SIZE_DEFAULT 23
-#define ENCRYPT_DATA_SIZE 16
-#define BZ_MAX_PAYLOAD_SIZE 256
+#define GATT_MTU_SIZE_DEFAULT   23
+#define BZ_MTU_SIZE_DEFAULT     (GATT_MTU_SIZE_DEFAULT  - 3 - 4)
+#define ENCRYPT_DATA_SIZE       16
+
+#define BZ_MAX_MTU              247
+#define BZ_MTU_SIZE_LIMIT       128
+#define GATT_MTU_SIZE_LIMIT     (BZ_MTU_SIZE_LIMIT + 4 + 3)
+
+#ifdef EN_LONG_MTU
+#define BZ_MAX_PAYLOAD_SIZE      (BZ_MTU_SIZE_LIMIT * 16)
+#else
+#define BZ_MAX_PAYLOAD_SIZE      (BZ_MTU_SIZE_DEFAULT*16)
+#endif
 
 #ifdef  EN_AUTH
 #define BZ_ENABLE_AUTH 1

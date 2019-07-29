@@ -41,3 +41,7 @@ GLOBAL_DEFINES-y += EN_COMBO_NET
 $(NAME)_SOURCES-y += api/breeze_awss_export.c
 endif
 
+ifeq ($(CONFIG_COMP_BZ_EN_LONG_MTU), y)
+GLOBAL_DEFINES-y += EN_LONG_MTU
+endif
+
