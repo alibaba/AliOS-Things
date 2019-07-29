@@ -20,9 +20,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include "lwm2mdebug.h"
 #include "mbedconnection.h"
 #include "commandline.h"
-#include "internals.h"
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
