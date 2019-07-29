@@ -16,7 +16,7 @@ ifeq (y,$(AOS_NET_WITH_CELLULAR))
 GLOBAL_DEFINES-y += NET_WITH_CELLULAR
 $(NAME)_SOURCES-y += hal/cellular.c
 $(NAME)_SOURCES-y += src/netmgr_cellular.c
-GLOBAL_INCLUDES-y += ../include/hal/
+$(NAME)_INCLUDES-y += ../include/hal/
 endif
 
 AOS_NET_WITH_WIFI ?= y
@@ -29,7 +29,7 @@ endif
 ifeq (y,$(AOS_NET_WITH_BLANK))
 $(NAME)_SOURCES-y += hal/net.c
 $(NAME)_SOURCES-y += src/netmgr_net.c
-GLOBAL_INCLUDES-y += ../include/hal/
+$(NAME)_INCLUDES-y += ../include/hal/
 endif
 
 ifeq (y,$(pvtest))
@@ -38,6 +38,6 @@ endif
 
 $(NAME)_COMPONENTS-y += kv osal_aos yloop
 
-GLOBAL_INCLUDES-y += include
+$(NAME)_INCLUDES-y += include
 
 GLOBAL_DEFINES-y += AOS_NETMGR

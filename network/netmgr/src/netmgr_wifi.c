@@ -7,21 +7,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <network/network.h>
+#include <network/hal/wifi.h>
+#include <netmgr.h>
 #include "aos/cli.h"
 #include "aos/kernel.h"
 #include "aos/kv.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
-#include "network/network.h"
-#include "network/hal/wifi.h"
-
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
 #include <lwip/udp.h>
 #endif
-
-#include "netmgr.h"
 
 #ifdef CONFIG_AOS_MESHYTS
 #undef CONFIG_AOS_MESH

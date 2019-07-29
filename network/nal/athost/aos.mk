@@ -7,8 +7,8 @@ $(NAME)_SUMMARY := athost for communicaiton module
 $(NAME)_SOURCES := ./src/athost.c             \
                    ./src/at_util.c 
 
-GLOBAL_INCLUDES += ./                         \
-                   ./src
+$(NAME)_INCLUDES += ./                         \
+                    ./src
 
 ifeq (y,$(ATHOST_CONFIG_WIFI_MGMT))
 $(NAME)_SOURCES += ./src/atcmd/at_wifi_mgmt.c

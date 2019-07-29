@@ -11,7 +11,8 @@ $(NAME)_SOURCES-y += core/src/ble_service.c
 $(NAME)_SOURCES-y += core/src/utils.c
 $(NAME)_SOURCES-y += core/src/extcmd.c
 
-GLOBAL_INCLUDES-y += api include core/include 
+$(NAME)_INCLUDES += include \
+                    core/include 
 
 $(NAME)_COMPONENTS-y := chip_code
 
