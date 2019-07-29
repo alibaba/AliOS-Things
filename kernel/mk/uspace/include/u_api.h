@@ -28,7 +28,7 @@
 #endif
 
 #if (RHINO_CONFIG_UCLI > 0)
-#include "cli_api.h"
+#include "cli/cli_api.h"
 #include "cli_task.h"
 #endif
 

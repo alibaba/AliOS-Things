@@ -7,7 +7,7 @@
 #include "aos/cli.h"
 #include "aos/kernel.h"
 #ifdef AOS_COMP_CLI
-#include "cli_api.h"
+#include "cli/cli_api.h"
 #endif
 
 #ifdef AOS_UND
