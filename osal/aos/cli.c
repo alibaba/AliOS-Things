@@ -5,7 +5,7 @@
 #include "aos/cli.h"
 #include "aos/errno.h"
 
-#include "cli_api.h"
+#include "cli/cli_api.h"
 
 static int _cli_to_aos_res(int res)
 {
