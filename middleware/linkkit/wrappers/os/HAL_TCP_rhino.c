@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "aos/kernel.h"
 #include <network/network.h>
 #include "linkkit/wrappers/wrappers_defs.h"
