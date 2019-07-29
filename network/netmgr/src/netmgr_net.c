@@ -6,17 +6,16 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "aos/kernel.h"
-#include <network/network.h>
-
 #include <hal/net.h>
+#include <network/network.h>
+#include <netmgr.h>
+
+#include "aos/kernel.h"
 
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
 #include <lwip/udp.h>
 #endif
-
-#include "netmgr.h"
 
 #define TAG "NETMGR"
 

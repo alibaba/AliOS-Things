@@ -14,16 +14,15 @@
     #include "iotx_log.h"
 #endif
 
-#include "sal_opts.h"
-#include "sal_arch.h"
-#include "sal_def.h"
-#include "sal_ipaddr.h"
-#include "sal_err.h"
+#include <sal_opts.h>
+#include <sal_arch.h>
+#include <sal_def.h>
+#include <sal_ipaddr.h>
+#include <sal_err.h>
+#include <sal_import.h>
+#include <sal_sockets.h>
 #include "sal_pcb.h"
 #include "sal_arch_internal.h"
-#include "sal_import.h"
-#include "sal_sockets.h"
-
 
 #ifdef __cplusplus
 extern "C" {

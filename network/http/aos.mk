@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := http client component
 
-GLOBAL_INCLUDES += include
+$(NAME)_INCLUDES += include
 GLOBAL_DEFINES += CONFIG_AOS_HTTP
 
 $(NAME)_SOURCES := src/http_client.c \

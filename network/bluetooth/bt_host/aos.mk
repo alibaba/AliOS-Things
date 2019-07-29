@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := BLE stack.
 
 GLOBAL_DEFINES-y += AOS_BT
 
-GLOBAL_INCLUDES-y += include \
+$(NAME)_INCLUDES-y += include \
                      include/drivers
 
 $(NAME)_COMPONENTS-y += bt_common

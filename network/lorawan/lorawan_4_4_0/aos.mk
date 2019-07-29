@@ -19,10 +19,10 @@ $(NAME)_SOURCES := system/crypto/aes.c       \
 
 ifeq ($(LORACHIP), sx1276)
 $(NAME)_SOURCES += radio/sx1276/sx1276.c
-GLOBAL_INCLUDES += radio/sx1276
+$(NAME)_INCLUDES += radio/sx1276
 endif
 
-GLOBAL_INCLUDES +=  .             \
+$(NAME)_INCLUDES +=  .             \
                     system/crypto \
                     radio         \
                     mac           \
@@ -31,18 +31,15 @@ GLOBAL_INCLUDES +=  .             \
 
 linkwan?=0
 ifeq ($(linkwan), 1)
-GLOBAL_DEFINES += CONFIG_LINKWAN
-GLOBAL_DEFINES += CONFIG_DEBUG_LINKWAN
-GLOBAL_DEFINES += CONFIG_AOS_DISABLE_TICK
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-GLOBAL_DEFINES += REGION_CN470A
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-GLOBAL_DEFINES += LOW_POWER_DISABLE
-$(NAME)_SOURCES += linkwan/region/RegionCN470A.c
-$(NAME)_SOURCES += linkwan/linkwan.c
+GLOBAL_DEFINES += CONFIG_LINKWAN CONFIG_DEBUG_LINKWAN     \
+                  CONFIG_AOS_DISABLE_TICK CONFIG_NO_TCPIP \
+                  REGION_CN470A CONFIG_NO_TCPIP           \
+                  LOW_POWER_DISABLE
+$(NAME)_SOURCES += linkwan/region/RegionCN470A.c \
+                   linkwan/linkwan.c
 
-GLOBAL_INCLUDES += linkwan/include
-GLOBAL_INCLUDES += linkwan/region
+$(NAME)_INCLUDES += linkwan/include \
+                    linkwan/region
 
 linkwanat ?= 0
 ifeq ($(linkwanat), 1)

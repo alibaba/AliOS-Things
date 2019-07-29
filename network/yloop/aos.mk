@@ -20,8 +20,8 @@ $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
 GLOBAL_DEFINES      += AOS_LOOP
-GLOBAL_INCLUDES     += include
-GLOBAL_INCLUDES     += hal
+$(NAME)_INCLUDES     += include
+$(NAME)_INCLUDES     += hal
 
 ifeq ($(COMPILER),armcc)
 	$(NAME)_LINK_FILES := src/local_event.o
