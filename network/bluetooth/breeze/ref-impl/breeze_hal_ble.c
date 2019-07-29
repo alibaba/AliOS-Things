@@ -572,3 +572,15 @@ ais_err_t ble_get_mac(uint8_t *mac)
 
     return err;
 }
+
+#ifdef EN_LONG_MTU
+int ble_get_att_mtu(uint16_t *att_mtu)
+{
+    if(att_mtu == NULL || g_conn == NULL){
+        BZ_LOG_E("Failed to get ble connection\r\n");
+        return -1;
+    }
+    *att_mtu = bt_gatt_get_mtu(g_conn);
+    return 0;
+}
+#endif
