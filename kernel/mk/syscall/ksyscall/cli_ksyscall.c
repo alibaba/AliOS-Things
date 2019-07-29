@@ -7,7 +7,7 @@
 #if (RHINO_CONFIG_UCLI_SYSCALL > 0)
 
 #include <stdint.h>
-#include "cli_api.h"
+#include "cli/cli_api.h"
 #include "cli_syscall_arg.h"
 
 int32_t sys_cli_register_command_stub(void *arg)

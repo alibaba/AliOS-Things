@@ -2,12 +2,13 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "usb_host.h"
+#include "usb/usb_host.h"
+#include "usb/usb_host_msd.h"
+
 #include "usb_host_types.h"
 #include "usb_host_core.h"
 #include "usb_host_transfer.h"
 #include "usb_host_request.h"
-#include "usb_host_msd.h"
 
 #define USB_MSD_CLASS    0x08
 #define USB_MSD_SUBCLASS 0x06 /* Subclass Code : Transparent */

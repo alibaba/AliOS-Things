@@ -17,7 +17,7 @@ $(NAME)_SOURCES += usb_host/core/src/usb_host_core.c \
 $(NAME)_SOURCES += usb_host/class/msd/src/usb_host_msd.c \
                    usb_host/class/rndis/src/usb_host_rndis.c
 
-GLOBAL_INCLUDES += usb_host \
+$(NAME)_INCLUDES += usb_host \
                    usb_host/core/include \
                    usb_host/class/msd/include \
                    usb_host/class/rndis/include
@@ -33,7 +33,7 @@ $(NAME)_SOURCES += usb_device/class/msd/src/usb_device_msd.c
 $(NAME)_SOURCES += usb_device/class/hid/src/usb_device_hid.c \
                    usb_device/class/hid/src/usb_device_mouse.c
 
-GLOBAL_INCLUDES += usb_device \
+$(NAME)_INCLUDES += usb_device \
                    usb_device/core/include \
                    usb_device/class/msd/include \
                    usb_device/class/hid/include
