@@ -29,6 +29,10 @@ if AOS_COMP_BREEZE
         default n
     endif
 
+    config CONFIG_COMP_BZ_EN_LONG_MTU
+        bool "Extend MTU from default 20 bytes to long MTU."
+        default n
+
     config CONFIG_COMP_BZ_BUILTIN_HAL
         bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
         default y

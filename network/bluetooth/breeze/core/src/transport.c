@@ -278,7 +278,11 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
         (cmd == BZ_CMD_STATUS || cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP ||
         ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && ((cmd != BZ_CMD_AUTH_RAND) && (cmd != BZ_CMD_AUTH_REKEY_RSP))))) {
         g_transport.tx.encrypted = 1;
+#ifdef EN_LONG_MTU
+        pkt_payload_len = g_transport.max_pkt_size - HEADER_SIZE;
+#else
         pkt_payload_len = (g_transport.max_pkt_size - HEADER_SIZE) & ~(AES_BLK_SIZE - 1);
+#endif
     } else {
         g_transport.tx.encrypted = 0;
         pkt_payload_len = g_transport.max_pkt_size - HEADER_SIZE;
@@ -440,4 +444,9 @@ uint32_t transport_update_key(uint8_t *key)
     }
     g_transport.p_aes_ctx = sec_aes128_init(g_transport.p_key, iv);
     return BZ_SUCCESS;
+}
+
+uint32_t trans_update_mtu(void)
+{
+    return ble_get_att_mtu(&g_transport.max_pkt_size);
 }
