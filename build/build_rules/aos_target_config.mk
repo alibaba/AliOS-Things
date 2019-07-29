@@ -413,7 +413,43 @@ $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal \
                     -I$(SOURCE_ROOT)/include/hal/soc \
-                    -I$(SOURCE_ROOT)/include/network
+                    -I$(SOURCE_ROOT)/include/network \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze/api \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze/core/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/port/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/tinycrypt/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/include/drivers \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/profile \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_mesh/inc \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/tmall_model \
+                    -I$(SOURCE_ROOT)/include/network/coap \
+                    -I$(SOURCE_ROOT)/include/network/hal \
+                    -I$(SOURCE_ROOT)/include/network/http \
+                    -I$(SOURCE_ROOT)/include/network/lwm2m \
+                    -I$(SOURCE_ROOT)/include/network/umesh \
+                    -I$(SOURCE_ROOT)/include/network/nal/athost \
+                    -I$(SOURCE_ROOT)/include/network/nal/atparser \
+                    -I$(SOURCE_ROOT)/include/network/nal/sal \
+                    -I$(SOURCE_ROOT)/include/network/netmgr \
+                    -I$(SOURCE_ROOT)/include/network/yloop
+
+ifeq ($(lorawanback), 0)
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2 \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac/region \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio/sx1276 \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/system
+else ifeq ($(lorawanback), 1)
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0 \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac/region \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/radio \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/radio/sx1276 \
+                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/system
+endif
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
