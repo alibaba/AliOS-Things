@@ -12,6 +12,7 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "bzopt.h"
 
 #define BD_ADDR_LEN      (6)      /**< Length of Bluetooth Device Address. */
 #define STR_MODEL_LEN    (20 + 1) /**< Reserved. */
@@ -58,7 +59,7 @@ typedef enum {
 typedef struct {
     uint8_t  cmd;
     uint8_t  frame;
-    uint8_t  data[256];
+    uint8_t  data[BZ_MAX_PAYLOAD_SIZE];
     uint16_t len;
 } breeze_ota_cmd_t;
 
