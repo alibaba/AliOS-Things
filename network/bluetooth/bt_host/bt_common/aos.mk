@@ -23,8 +23,7 @@ $(NAME)_SOURCES-y := ./atomic_c.c \
                      ./tinycrypt/source/ecc_dh.c \
                      port/aos_port.c
 
-$(NAME)_INCLUDES := include
 
-GLOBAL_INCLUDES-y += include \
+$(NAME)_INCLUDES-y := include \
                      tinycrypt/include \
                      port/include

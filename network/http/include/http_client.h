@@ -2,9 +2,9 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "network/http.h"
+#include <http.h>
+#include <http_parser.h>
 #include "http_string.h"
-#include "http_parser.h"
 
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/x509_crt.h"

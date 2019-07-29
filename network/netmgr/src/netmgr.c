@@ -4,8 +4,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <netmgr.h>
 #include "aos/kernel.h"
-#include "netmgr.h"
 
 int netmgr_init(void)
 {
