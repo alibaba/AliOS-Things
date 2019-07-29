@@ -17,6 +17,9 @@ static void service_enabled(void)
 {
     if (g_ais.is_indication_enabled && g_ais.is_notification_enabled) {
         BREEZE_LOG_INFO("Let's notify that service is enabled.\r\n");
+#ifdef EN_LONG_MTU
+        trans_update_mtu();
+#endif
 #if BZ_ENABLE_AUTH
         auth_service_enabled();
 #endif
