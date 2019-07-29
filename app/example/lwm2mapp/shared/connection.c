@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "internals.h"
 #include "connection.h"
 
 // from commandline.c

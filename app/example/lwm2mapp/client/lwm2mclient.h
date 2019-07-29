@@ -27,8 +27,7 @@
 #ifndef LWM2MCLIENT_H_
 #define LWM2MCLIENT_H_
 
-#include "network/lwm2m.h"
-
+#include <lwm2m.h>
 extern int g_reboot;
 
 /*

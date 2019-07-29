@@ -38,9 +38,8 @@
  * 9 update delivery method    read
  */
 
-#include "internals.h"
-#include "network/lwm2m.h"
-
+#include <lwm2m.h>
+#include "lwm2mdebug.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
