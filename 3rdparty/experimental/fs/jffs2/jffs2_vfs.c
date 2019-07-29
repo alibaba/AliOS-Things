@@ -5,7 +5,9 @@
 #include <k_api.h>
 #include <errno.h>
 
-#include "vfs_api.h"
+#include "fs/jffs2.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
 
 #include "aos/hal/nor.h"
 
@@ -464,7 +466,7 @@ static const vfs_filesystem_ops_t jffs2_ops = {
     .ioctl      = NULL
 };
 
-int32_t vfs_jffs2_register(uint32_t start_addr, uint32_t length)
+int32_t jffs2_register(uint32_t start_addr, uint32_t length)
 {
     int32_t ret;
 
@@ -497,7 +499,7 @@ int32_t vfs_jffs2_register(uint32_t start_addr, uint32_t length)
     return vfs_register_fs(jffs2_mnt_path, &_jffs2_ops, NULL);
 }
 
-int32_t vfs_jffs2_unregister(void)
+int32_t jffs2_unregister(void)
 {
     int32_t ret;
 
