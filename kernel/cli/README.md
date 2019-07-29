@@ -17,9 +17,7 @@ cli
 ├── cli_dumpsys.c         # CLI dump system command implementation
 ├── include
 │   ├── cli_adapt.h       # CLI OS adapt layer declaration
-│   ├── cli_api.h         # CLI module interface declaration
 │   ├── cli_conf.h        # CLI configuration
-│   ├── cli_err.h         # CLI errno defination
 │   └── dumpsys.h         # CLI dumpsys interface declaration
 └──README.md
 ```

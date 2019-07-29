@@ -8,8 +8,9 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "cli/cli_api.h"
+
 #include "cli_conf.h"
-#include "cli_api.h"
 #include "cli_adapt.h"
 #include "k_api.h"
 

@@ -9,7 +9,8 @@
 #include "fs_fd.h"
 #include "socket_fd.h"
 #include "callback.h"
-#include "cli_api.h"
+
+#include "cli/cli_api.h"
 
 extern int linkkit_close(int pid);
 

@@ -16,8 +16,6 @@
 usb_host
 ├── class
 │   ├── msd
-│   │   ├── include
-│   │   │   └── usb_host_msd.h          # Mass-storage class defination
 │   │   └── src
 │   │       └── usb_host_msd.c          # Mass-storage class implementation
 │   └── rndis
@@ -31,7 +29,6 @@ usb_host
 │   │   ├── usb_host_core.h             # USB host core layer defination
 │   │   ├── usb_host_debug.h            # USB host debug interface declaration
 │   │   ├── usb_host_device.h           # USB host device layer declaration
-│   │   ├── usb_host.h                  # USB host common structure defination
 │   │   ├── usb_host_os.h               # USB host OS adapt layer declaration
 │   │   ├── usb_host_pipe.h             # USB host pipe declaration
 │   │   ├── usb_host_request.h          # USB host standard request declaration

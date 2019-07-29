@@ -18,11 +18,11 @@
 #endif
 
 #ifdef AOS_COMP_SPIFFS
-#include "spiffs/aos_spiffs.h"
+#include "fs/spiffs.h"
 #endif
 
 #ifdef AOS_COMP_FATFS
-#include "fatfs/aos_fatfs.h"
+#include "fs/fatfs.h"
 #endif
 
 #include "network/network.h"
@@ -281,7 +281,7 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_COMP_SPIFFS
-    vfs_spiffs_register();
+    spiffs_register();
 #endif
 
 #ifdef AOS_COMP_FATFS

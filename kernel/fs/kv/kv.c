@@ -2,7 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "kv_api.h"
+#include <stdint.h>
+
+#include "fs/kv_api.h"
+
+#include "kv_conf.h"
 #include "kv_adapt.h"
 #include "kv_types.h"
 
@@ -1077,5 +1081,15 @@ int32_t kv_item_secure_get(const char *key, void *buffer, int32_t *buffer_len)
     return KV_OK;
 }
 
+#else
+int32_t kv_item_secure_set(const char *key, const void *val, int32_t len)
+{
+    return KV_ERR_NOT_SUPPORT;
+}
+
+int32_t kv_item_secure_get(const char *key, void *buffer, int32_t *buffer_len)
+{
+    return KV_ERR_NOT_SUPPORT;
+}
 #endif
 

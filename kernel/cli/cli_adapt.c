@@ -6,9 +6,10 @@
 
 #include "aos/hal/uart.h"
 
+#include "cli/cli_api.h"
+
 #include "cli_conf.h"
 #include "cli_adapt.h"
-#include "cli_err.h"
 
 #ifndef STDIO_UART
 #define CLI_UART 0
