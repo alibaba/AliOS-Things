@@ -3,7 +3,7 @@
  */
 
 #include "linkwan.h"
-#include "linkwan/include/commissioning.h"
+#include "commissioning.h"
 #include "utilities.h"
 #include "LoRaMac.h"
 #include "Region.h"

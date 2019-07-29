@@ -34,8 +34,8 @@ else
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
-GLOBAL_INCLUDES += ./include/coap2/     \
-                   ./include/
+$(NAME)_INCLUDES += ./include/coap2/     \
+                    ./include/
 
 ifeq (y,$(COAP_WITH_ALI_AUTH))
 $(NAME)_COMPONENTS += mbedtls activation chip_code libiot_infra libiot_wrappers

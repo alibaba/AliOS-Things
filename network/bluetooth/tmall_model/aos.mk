@@ -7,5 +7,3 @@ $(NAME)_SUMMARY := Tmall BLE Mesh model implementation.
 $(NAME)_COMPONENTS-y := bt_mesh
 
 $(NAME)_SOURCES-y := tmall_model.c
-
-GLOBAL_INCLUDES-y := ./
