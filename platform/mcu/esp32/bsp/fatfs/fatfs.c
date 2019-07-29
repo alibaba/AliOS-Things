@@ -6,7 +6,8 @@
 #include <sys/fcntl.h>
 
 #include "aos/vfs.h"
-#include "fatfs/aos_fatfs.h"
+
+#include "fs/fatfs.h"
 
 #include "fatfs_diskio.h"
 #include "ff.h"

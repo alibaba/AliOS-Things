@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "fatfs/aos_fatfs.h"
+#include "fs/fatfs.h"
 
 #define XM_PATH_MAX 256
 //#define XM_LINE_LEN 256
