@@ -2,15 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef FS_FAT_H
-#define FS_FAT_H
+#ifndef FS_RAMFS_H
+#define FS_RAMFS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int32_t fatfs_register(void);
-int32_t fatfs_unregister(void);
+int32_t ramfs_register(const char *mount_path);
 
 #ifdef __cplusplus
 }
