@@ -9,8 +9,8 @@
 
 #include "linkkit/dev_sign_api.h"
 #include "linkkit/mqtt_api.h"
-#include "wrappers.h"
-#include "infra_compat.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_compat.h"
 
 #define PRODUCT_KEY             "a1MZxOdcBnO"
 #define DEVICE_NAME             "test_01"

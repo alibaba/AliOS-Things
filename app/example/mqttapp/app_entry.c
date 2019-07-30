@@ -10,7 +10,7 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 #include "netmgr.h"
 #include "app_entry.h"
 #include "aos/cli.h"

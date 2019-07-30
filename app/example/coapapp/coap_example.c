@@ -9,9 +9,9 @@
     #include <unistd.h>
 #endif
 #include <coap.h>
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "app_entry.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 
 #include "ulog/ulog.h"
 
