@@ -15,7 +15,7 @@
 
 #ifdef FEATURE_UND_USE_UAGENT
 #include "uagent/uagent.h"
-#include "infra_cjson.h"
+#include "linkkit/infra/infra_cjson.h"
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
