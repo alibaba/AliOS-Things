@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #ifdef HAL_CRYPTO
-#include "infra_aes.h"
+#include "linkkit/infra/infra_aes.h"
 p_Aes128_t coap_wrapper_aes128_init(const uint8_t *key, const uint8_t *iv, AES_DIR_t dir);
 int coap_wrapper_aes128_destroy(p_Aes128_t aes);
 int coap_wrapper_aes128_cbc_decrypt(p_Aes128_t aes, const void *src, size_t blockNum, void *dst);
@@ -20,7 +20,7 @@ int coap_wrapper_aes128_cbc_encrypt(p_Aes128_t aes, const void *src, size_t bloc
 #endif /* HAL_CRYPTO */
 
 #ifdef INFRA_CJSON
-#include "infra_cjson.h"
+#include "linkkit/infra/infra_cjson.h"
 int coap_wrapper_cjson_parse(const char *src, int src_len, lite_cjson_t *lite);
 int coap_wrapper_cjson_object_item(lite_cjson_t *lite, const char *key, int key_len, lite_cjson_t *lite_item);
 #endif /* INFRA_CJSON */
@@ -40,7 +40,7 @@ void coap_wrapper_setloglevel(int level);
 #endif /* defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED) */
 
 #ifdef INFRA_REPORT
-#include "infra_report.h"
+#include "linkkit/infra/infra_report.h"
 void coap_wrapper_set_report_func(info_report_func_pt func);
 int coap_wrapper_report_devinfo(void *pclient);
 int coap_wrapper_report_firmware_version(void *pclient);
