@@ -8,20 +8,20 @@
 
 #include <string.h>
 
-#include "infra_config.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_list.h"
-#include "infra_compat.h"
-#include "infra_timer.h"
+#include "linkkit/infra/infra_config.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_timer.h"
 
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "linkkit/mqtt_api.h"
 
 #include "iotx_cm.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define cm_malloc(size)            LITE_malloc(size, MEM_MAGIC, "cm")
     #define cm_free(ptr)               LITE_free(ptr)
 #else
@@ -30,7 +30,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define cm_debug(...)        log_debug("CM", __VA_ARGS__)
     #define cm_info(...)         log_info("CM", __VA_ARGS__)
     #define cm_warning(...)      log_warning("CM", __VA_ARGS__)

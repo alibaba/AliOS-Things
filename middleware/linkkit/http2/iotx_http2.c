@@ -8,7 +8,7 @@
 
 #include "nghttp2.h"
 #include "nghttp2_session.h"
-#include "infra_httpc.h"
+#include "linkkit/infra/infra_httpc.h"
 #include "http2_internal.h"
 
 #define MAX_HTTP2_HOST_LEN                  (128)

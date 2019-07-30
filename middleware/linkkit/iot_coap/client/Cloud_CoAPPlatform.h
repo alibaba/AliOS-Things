@@ -11,7 +11,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define coap_malloc(size)            LITE_malloc(size, MEM_MAGIC, "coap.cloud")
     #define coap_free(ptr)               LITE_free(ptr)
 #else
