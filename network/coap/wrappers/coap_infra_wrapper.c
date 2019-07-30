@@ -5,7 +5,7 @@
 #include "coap_wrapper.h"
 
 #ifdef HAL_CRYPTO
-#include "infra_aes.h"
+#include "linkkit/infra/infra_aes.h"
 p_Aes128_t coap_wrapper_aes128_init(
             const uint8_t *key,
             const uint8_t *iv,
@@ -57,7 +57,7 @@ int coap_wrapper_aes128_cbc_encrypt(
 #endif /* HAL_CRYPTO */
 
 #ifdef INFRA_CJSON
-#include "infra_cjson.h"
+#include "linkkit/infra/infra_cjson.h"
 int coap_wrapper_cjson_parse(const char *src, int src_len, lite_cjson_t *lite)
 {
     return lite_cjson_parse(src, src_len, lite);
@@ -71,7 +71,7 @@ int coap_wrapper_cjson_object_item(lite_cjson_t *lite, const char *key, int key_
 #endif /* INFRA_CJSON */
 
 #ifdef INFRA_MD5
-#include "infra_md5.h"
+#include "linkkit/infra/infra_md5.h"
 void coap_wrapper_hmac_md5(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
     return utils_hmac_md5(msg, msg_len, digest, key, key_len);
@@ -80,7 +80,7 @@ void coap_wrapper_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 
 #ifdef COAP_WITH_ALI_AUTH
 #ifdef INFRA_JSON_PARSER
-#include "infra_json_parser.h"
+#include "linkkit/infra/infra_json_parser.h"
 char *coap_wrapper_json_get_value(char *p_cJsonStr, int iStrLen, char *p_cName, int *p_iValueLen, int *p_iValueType)
 {
     return json_get_value_by_name(p_cJsonStr, iStrLen, p_cName, p_iValueLen, p_iValueType);
@@ -93,7 +93,7 @@ char *coap_wrapper_json_value_of(char *key, char *src, int magic, char* module_n
 #endif /* INFRA_JSON_PARSER */
 
 #if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED) 
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 void coap_wrapper_setloglevel(int level)
 {
     IOT_SetLogLevel(level);
@@ -101,7 +101,7 @@ void coap_wrapper_setloglevel(int level)
 #endif  /* #if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED) */
 
 #ifdef INFRA_REPORT
-#include "infra_report.h"
+#include "linkkit/infra/infra_report.h"
 void coap_wrapper_set_report_func(info_report_func_pt func)
 {
     iotx_set_report_func(func);
@@ -126,7 +126,7 @@ int coap_wrapper_report_mid(void *pclient)
 #endif /* INFRA_REPORT */
 
 #ifdef INFRA_SHA256
-#include "infra_sha256.h"
+#include "linkkit/infra/infra_sha256.h"
 void coap_wrapper_sha256(const uint8_t *input, uint32_t ilen, uint8_t output[32])
 {
     return utils_sha256(input, ilen, output);
