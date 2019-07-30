@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 int32_t fatfs_register(void);
+
 int32_t fatfs_unregister(void);
 
 #ifdef __cplusplus

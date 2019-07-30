@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2018 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef DIRENT_H
 #define DIRENT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdio.h>
@@ -121,3 +120,4 @@ extern int ioctl(int fildes, int request, ... /* arg */);
 #endif /* __cplusplus */
 
 #endif /* DIRENT_H */
+

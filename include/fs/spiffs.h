@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 int32_t spiffs_register(void);
+
 int32_t spiffs_unregister(void);
 
 #ifdef __cplusplus
