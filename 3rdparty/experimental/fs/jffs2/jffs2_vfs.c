@@ -143,10 +143,10 @@ static int32_t jffs2_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
     return nbytes;
 }
 
-static uint32_t jffs2_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
+static uint32_t jffs2_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
-    int32_t  ret;
-    uint32_t pos;
+    int32_t ret;
+    int64_t pos;
 
     jffs2_file *file = NULL;
 
