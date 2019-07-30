@@ -6,8 +6,7 @@
 #define PTHREAD_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <time.h>
