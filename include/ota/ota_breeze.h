@@ -4,11 +4,12 @@
 
 #ifndef OTA_BREEZE_H
 #define OTA_BREEZE_H
+
 #include <breeze_export.h>
 
 #define OTA_BREEZE_FW_VER_LEN (32)
 
-typedef void (*ota_breeze_get_data_t) (breeze_otainfo_t *breeze_info);
+typedef void (*ota_breeze_get_data_t)(breeze_otainfo_t *breeze_info);
 
 typedef struct {
     unsigned char fw_ver[OTA_BREEZE_FW_VER_LEN];
@@ -24,3 +25,4 @@ typedef struct {
 int ota_breeze_service_init(ota_breeze_service_manage_t *ota_manage);
 
 #endif /*OTA_BREEZE_H*/
+
