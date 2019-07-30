@@ -60,5 +60,9 @@ ifeq ($(AOS_COMP_VFS),y)
 $(NAME)_SOURCES += vfs.c
 endif
 
+ifeq ($(AOS_COMP_PWRMGMT),y)
+$(NAME)_SOURCES += pwrmgmt.c
+endif
+
 endif
 
