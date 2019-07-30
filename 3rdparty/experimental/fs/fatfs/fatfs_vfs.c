@@ -323,9 +323,9 @@ static int32_t fatfs_vfs_access(vfs_file_t *fp, const char *path, int32_t amode)
     return ret;
 }
 
-static uint32_t fatfs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
+static uint32_t fatfs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
-    uint32_t cur_pos, new_pos, size;
+    int64_t cur_pos, new_pos, size;
 
     int32_t ret = -EPERM;
 
