@@ -7,13 +7,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "infra_defs.h"
-#include "infra_types.h"
-#include "infra_httpc.h"
-#include "infra_sha1.h"
-#include "infra_timer.h"
-#include "infra_list.h"
-#include "infra_log.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_sha1.h"
+#include "linkkit/infra/infra_timer.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_log.h"
 
 #include "http2_internal.h"
 #include "linkkit/http2_api.h"

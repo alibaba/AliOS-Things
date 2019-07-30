@@ -7,19 +7,19 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "infra_httpc.h"
-#include "infra_json_parser.h"
-#include "infra_timer.h"
-#include "infra_sha1.h"
-#include "infra_report.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_json_parser.h"
+#include "linkkit/infra/infra_timer.h"
+#include "linkkit/infra/infra_sha1.h"
+#include "linkkit/infra/infra_report.h"
 #include "http_debug.h"
 #include "linkkit/http_api.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define HTTP_API_MALLOC(size)               LITE_malloc(size, MEM_MAGIC, "http.api")
     #define HTTP_API_FREE(ptr)                  LITE_free(ptr)
 #else
