@@ -8,8 +8,8 @@
 #include <signal.h>
 #include <string.h>
 #include "ota_log.h"
-#include "wrappers.h"
-#include "infra_defs.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_defs.h"
 #include "ota_hal_common.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 2
