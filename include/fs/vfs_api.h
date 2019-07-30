@@ -113,7 +113,7 @@ int32_t vfs_do_pollfd(int32_t fd, int32_t flag, vfs_poll_notify_t notify,
  * @return the new offset of the file
  *
  */
-uint32_t vfs_lseek(int32_t fd, uint32_t offset, int32_t whence);
+uint32_t vfs_lseek(int32_t fd, int64_t offset, int32_t whence);
 
 /**
  * @brief Flush any buffers associated with the file

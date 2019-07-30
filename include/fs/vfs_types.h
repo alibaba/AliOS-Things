@@ -84,7 +84,7 @@ struct vfs_filesystem_ops {
     int32_t       (*close)     (vfs_file_t *fp);
     int32_t       (*read)      (vfs_file_t *fp, char *buf, uint32_t len);
     int32_t       (*write)     (vfs_file_t *fp, const char *buf, uint32_t len);
-    uint32_t      (*lseek)     (vfs_file_t *fp, uint32_t off, int32_t whence);
+    uint32_t      (*lseek)     (vfs_file_t *fp, int64_t off, int32_t whence);
     int32_t       (*sync)      (vfs_file_t *fp);
     int32_t       (*stat)      (vfs_file_t *fp, const char *path, vfs_stat_t *st);
     int32_t       (*fstat)     (vfs_file_t *fp, vfs_stat_t *st);
