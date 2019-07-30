@@ -52,6 +52,10 @@ ifeq ($(AOS_COMP_MBMASTER),y)
 $(NAME)_SOURCES += mbmaster.c
 endif
 
+ifeq ($(AOS_COMP_CANOPEN),y)
+$(NAME)_SOURCES += canopen.c
+endif
+
 ifeq ($(AOS_COMP_CLI),y)
 $(NAME)_SOURCES += cli.c
 endif
