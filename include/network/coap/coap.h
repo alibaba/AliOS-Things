@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "infra_defs.h"
+#include "linkkit/infra/infra_defs.h"
 
 /*iotx return code definition*/
 typedef enum {
