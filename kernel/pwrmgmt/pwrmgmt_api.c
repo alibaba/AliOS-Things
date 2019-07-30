@@ -4,7 +4,7 @@
 
 #include <hal/wifi.h>
 
-#include "pwrmgmt.h"
+#include "pwrmgmt_api.h"
 #include "pwrmgmt_debug.h"
 #include "cpu_pwr_lib.h"
 
@@ -139,6 +139,7 @@ int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
 
     cpu_suspend_lock |= SET_BIT(suspend_module);
     krhino_mutex_unlock(&pwrmgmt_mutex);
+    return 0;
 }
 
 int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
@@ -158,6 +159,7 @@ int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
         cpu_pwr_resume();
     }
     krhino_mutex_unlock(&pwrmgmt_mutex);
+    return 0;
 }
 #endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
 
@@ -194,6 +196,7 @@ int pwrmgmt_wifi_powersave_resume(uint32_t resume_module)
     }
 
     krhino_mutex_unlock(&pwrmgmt_mutex);
+    return 0;
 }
 
 int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
