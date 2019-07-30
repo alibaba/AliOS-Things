@@ -7,7 +7,7 @@ $(NAME)_SUMMARY :=
 $(NAME)_SOURCES     := cpu_pwr_lib.c
 $(NAME)_SOURCES     += cpu_pwr_hal_lib.c
 $(NAME)_SOURCES     += cpu_tickless.c
-$(NAME)_SOURCES     += pwrmgmt.c
+$(NAME)_SOURCES     += pwrmgmt_api.c
 $(NAME)_SOURCES     += pwrmgmt_debug.c
 
 ifeq ($(HOST_ARCH),linux)
