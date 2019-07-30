@@ -19,8 +19,6 @@ for i in dependencis:
 
 include_tmp = Split('''
     include
-    middleware/linkkit/sdk-c/include
-    middleware/linkkit/sdk-c/src/infra/log
 ''')
 for i in include_tmp:
     component.add_global_includes(i)
