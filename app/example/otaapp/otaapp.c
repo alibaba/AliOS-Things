@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "wrappers.h"
-#include "infra_defs.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_defs.h"
 #include "linkkit/mqtt_api.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
