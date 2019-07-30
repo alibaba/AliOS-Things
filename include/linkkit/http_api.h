@@ -5,8 +5,8 @@
 #ifndef _IOT_EXPORT_HTTP_H_
 #define _IOT_EXPORT_HTTP_H_
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #if defined(__cplusplus)
 extern "C" {

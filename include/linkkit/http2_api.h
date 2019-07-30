@@ -5,8 +5,8 @@
 #ifndef IOT_EXPORT_HTTP2_STREAM_H
 #define IOT_EXPORT_HTTP2_STREAM_H
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #ifdef __cplusplus
 extern "C" {

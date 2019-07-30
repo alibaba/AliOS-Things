@@ -5,8 +5,8 @@
 #ifndef __OTA_EXPORT_H__
 #define __OTA_EXPORT_H__
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #if defined(__cplusplus)
 extern "C" {

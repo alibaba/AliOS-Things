@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,
