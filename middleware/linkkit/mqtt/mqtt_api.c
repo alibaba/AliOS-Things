@@ -1,18 +1,18 @@
 #include <string.h>
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_string.h"
-#include "infra_list.h"
-#include "infra_report.h"
-#include "infra_sha256.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_report.h"
+#include "linkkit/infra/infra_sha256.h"
+#include "linkkit/infra/infra_compat.h"
 #include "mqtt_wrapper.h"
 #include "linkkit/dev_sign_api.h"
 #include "linkkit/mqtt_api.h"
 
 #ifdef PLATFORM_HAS_DYNMEM
     #ifdef INFRA_MEM_STATS
-        #include "infra_mem_stats.h"
+        #include "linkkit/infra/infra_mem_stats.h"
         #define mqtt_api_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt-api")
         #define mqtt_api_free(ptr)               LITE_free(ptr)
     #else
@@ -25,7 +25,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)
     #define mqtt_crit(...)              log_crit("MQTT", __VA_ARGS__)
     #define mqtt_err(...)               log_err("MQTT", __VA_ARGS__)
@@ -111,7 +111,7 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
 #endif /* #ifdef DYNAMIC_REGISTER */
 
 #ifdef MQTT_PRE_AUTH
-#include "infra_preauth.h"
+#include "linkkit/infra/infra_preauth.h"
 extern int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key,
                                       const char *device_secret, char *sign_string);
 

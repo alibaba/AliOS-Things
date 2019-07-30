@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_HTTPC
 
@@ -9,15 +9,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_httpc.h"
-#include "infra_net.h"
-#include "infra_timer.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_net.h"
+#include "linkkit/infra/infra_timer.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define httpc_err(...)   log_err("httpc", __VA_ARGS__)
     #define httpc_info(...)  log_info("httpc", __VA_ARGS__)
     #define httpc_debug(...) log_debug("httpc", __VA_ARGS__)

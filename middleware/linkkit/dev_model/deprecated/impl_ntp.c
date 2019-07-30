@@ -5,7 +5,7 @@
 
 #ifdef DEPRECATED_LINKKIT
 
-#include "infra_json_parser.h"
+#include "linkkit/infra/infra_json_parser.h"
 #include "linkkit/mqtt_api.h"
 #include "impl_ntp.h"
 
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
+#include "linkkit/infra/infra_mem_stats.h"
 #define IMPL_NTP_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.ntp")
 #define IMPL_NTP_FREE(ptr)               LITE_free(ptr)
 #else

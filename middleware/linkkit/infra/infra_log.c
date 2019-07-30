@@ -1,9 +1,9 @@
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 #include <string.h>
 #include <stdarg.h>
-#include "infra_compat.h"
-#include "infra_log.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_log.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "ulog/ulog.h"
 
 #if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
