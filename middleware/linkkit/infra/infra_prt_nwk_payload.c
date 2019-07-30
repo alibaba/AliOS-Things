@@ -1,11 +1,11 @@
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_LOG_NETWORK_PAYLOAD
 #include <string.h>
 #include <stdarg.h>
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 #if defined(INFRA_CJSON)
-    #include "infra_cjson.h"
+    #include "linkkit/infra/infra_cjson.h"
 #endif
 
 #define JSON_NEWLINE            "\r\n"

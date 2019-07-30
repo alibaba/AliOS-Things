@@ -23,8 +23,6 @@ $(NAME)_SOURCES-$(INFRA_STRING) += infra_string.c
 $(NAME)_SOURCES-$(INFRA_TIMER) += infra_timer.c
 $(NAME)_SOURCES-$(INFRA_STRING) += infra_string.c
 
-$(NAME)_INCLUDES := ./ 
-
 ifeq (y,$(strip $(MQTT_COMM_ENABLED)))
 $(NAME)_INCLUDES += ../mqtt
 endif
@@ -32,5 +30,3 @@ endif
 ifeq (y,$(strip $(DEVICE_MODEL_ENABLED)))
 $(NAME)_INCLUDES += ../dev_model
 endif
-
-GLOBAL_INCLUDES += .

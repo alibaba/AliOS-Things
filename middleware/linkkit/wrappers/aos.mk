@@ -53,4 +53,3 @@ ifeq (y,$(strip $(TLS_SAVE_TICKET)))
 $(NAME)_DEFINES += os/TLS_SAVE_TICKET
 endif
 
-GLOBAL_INCLUDES += . 

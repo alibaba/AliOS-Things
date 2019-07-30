@@ -9,10 +9,10 @@
 extern "C" {
 #endif
 #include <ctype.h>
-#include "infra_defs.h"
+#include "linkkit/infra/infra_defs.h"
 #include <stdio.h>
 #include <string.h>
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 
 #ifndef _IN_OPT_
 #define _IN_OPT_

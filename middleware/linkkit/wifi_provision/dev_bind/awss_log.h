@@ -5,7 +5,7 @@
 #ifndef __AWSS_LOG_H__
 #define __AWSS_LOG_H__
 
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 
 #define awss_flow(...)      log_flow("awss", __VA_ARGS__)
 #define awss_debug(...)     log_debug("awss", __VA_ARGS__)

@@ -1,10 +1,10 @@
 #ifndef _DYNREG_INTERNAL_H_
     #define _DYNREG_INTERNAL_H_
 
-    #include "wrappers.h"
+    #include "linkkit/wrappers/wrappers.h"
 
     #ifdef INFRA_LOG
-        #include "infra_log.h"
+        #include "linkkit/infra/infra_log.h"
         #define dynreg_info(...)                log_info("dynreg", __VA_ARGS__)
         #define dynreg_err(...)                 log_err("dynreg", __VA_ARGS__)
         #define dynreg_dbg(...)                 log_debug("dynreg", __VA_ARGS__)
@@ -15,7 +15,7 @@
     #endif
 
     #ifdef INFRA_MEM_STATS
-        #include "infra_mem_stats.h"
+        #include "linkkit/infra/infra_mem_stats.h"
         #define dynreg_malloc(size)             LITE_malloc(size, MEM_MAGIC, "dynreg")
         #define dynreg_free(ptr)                LITE_free(ptr)
     #else

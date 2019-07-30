@@ -1,7 +1,7 @@
 
-#include "infra_config.h"
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_config.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 const char * g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER] = {
     "iot-as-mqtt.cn-shanghai.aliyuncs.com",       /* Shanghai */

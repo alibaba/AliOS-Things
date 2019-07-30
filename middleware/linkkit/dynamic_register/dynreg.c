@@ -3,11 +3,11 @@
  */
 #include <stdio.h>
 #include "string.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_string.h"
-#include "infra_httpc.h"
-#include "infra_sha256.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_sha256.h"
 #include "dynreg_internal.h"
 #include "linkkit/dynreg_api.h"
 #ifdef MQTT_DYNAMIC_REGISTER

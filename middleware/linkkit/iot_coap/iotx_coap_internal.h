@@ -9,19 +9,19 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "infra_string.h"
-#include "infra_compat.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_log.h"
-#include "infra_json_parser.h"
-#include "infra_cjson.h"
-#include "infra_list.h"
-#include "infra_md5.h"
-#include "infra_sha256.h"
-#include "infra_report.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_log.h"
+#include "linkkit/infra/infra_json_parser.h"
+#include "linkkit/infra/infra_cjson.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_md5.h"
+#include "linkkit/infra/infra_sha256.h"
+#include "linkkit/infra/infra_report.h"
 #include "iotx_coap_config.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

@@ -6,8 +6,8 @@
 #define __AWSS_ENROLLEE_H__
 
 #include <stdint.h>
-#include "infra_sha1.h"
-#include "infra_sha256.h"
+#include "linkkit/infra/infra_sha1.h"
+#include "linkkit/infra/infra_sha256.h"
 #include "passwd.h"
 #include "os.h"
 #include "zconfig_ieee80211.h"

@@ -2,18 +2,18 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_NET
 #include <stdio.h>
 #include <string.h>
-#include "infra_defs.h"
-#include "infra_net.h"
-#include "wrappers_defs.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_net.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define net_err(...)      log_err("infra_net", __VA_ARGS__)
 #else
     #define net_err(...)
@@ -80,7 +80,7 @@ static int connect_ssl(utils_network_pt pNetwork)
 }
 #else /* AT_SSL_ENABLED */
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define NET_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "infra_net")
     #define NET_FREE(ptr)    LITE_free(ptr)
 #else

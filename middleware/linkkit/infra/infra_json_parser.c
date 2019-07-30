@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_JSON_PARSER
 
@@ -10,19 +10,19 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "infra_types.h"
-#include "infra_json_parser.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_json_parser.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 #define jparser_debug(...)              log_debug("jparser", __VA_ARGS__)
 #else
 #define jparser_debug(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
+#include "linkkit/infra/infra_mem_stats.h"
 #define jparser_malloc(size)            LITE_malloc(size, MEM_MAGIC, "jparser")
 #define jparser_free(ptr)               LITE_free(ptr)
 #else

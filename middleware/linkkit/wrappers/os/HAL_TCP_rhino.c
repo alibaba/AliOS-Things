@@ -6,7 +6,7 @@
 #include <string.h>
 #include "aos/kernel.h"
 #include <network/network.h>
-#include "wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_defs.h"
 
 #define PLATFORM_LOG_D(format, ...)                                \
     do {                                                                   \

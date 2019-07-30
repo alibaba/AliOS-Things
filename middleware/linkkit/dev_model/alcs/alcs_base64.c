@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 #include "alcs_base64.h"
 
 static int8_t g_encodingTable[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
