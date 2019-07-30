@@ -135,11 +135,11 @@ static int32_t ramfs_vfs_access(vfs_file_t *fp, const char *path, int32_t amode)
     return ret;
 }
 
-static uint32_t ramfs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
+static uint32_t ramfs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
     ramfs_file_t ramfs_file;
 
-    int32_t offset = 0;
+    int64_t offset = 0;
 
     memset(&ramfs_file, 0, sizeof(ramfs_file));
 
