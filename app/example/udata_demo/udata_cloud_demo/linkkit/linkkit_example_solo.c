@@ -6,10 +6,10 @@
 
 #include "app_entry.h"
 #include "cJSON.h"
-#include "infra_defs.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_compat.h"
 #include "linkkit/dev_model_api.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #define USE_CUSTOME_DOMAIN 0
 

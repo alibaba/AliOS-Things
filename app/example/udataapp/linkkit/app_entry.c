@@ -14,8 +14,8 @@
 
 #include "netmgr.h"
 #include "linkkit/wifi_provision_api.h"
-#include "infra_compat.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_defs.h"
 #include "linkkit/dev_model_api.h"
 
 #include "sensor/sensor.h"

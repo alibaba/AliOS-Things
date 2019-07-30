@@ -7,8 +7,8 @@
 #include <string.h>
 #include "app_entry.h"
 #include "linkkit/http2_api.h"
-#include "wrappers.h"
-#include "infra_compat.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_compat.h"
 
 #ifndef ON_DAILY
     #define ON_DAILY
