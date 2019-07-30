@@ -5,8 +5,8 @@
 #ifndef _HTTP2_UPLOAD_API_H_
 #define _HTTP2_UPLOAD_API_H_
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #ifdef __cplusplus
 extern "C" {

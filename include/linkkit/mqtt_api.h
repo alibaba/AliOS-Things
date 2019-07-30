@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #define MUTLI_SUBSCIRBE_MAX                                     (5)
 
