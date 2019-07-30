@@ -5,7 +5,7 @@
 #ifndef UND_LOG_H
 #define UND_LOG_H
 
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 
 #ifdef __cplusplus
 extern "C" {
