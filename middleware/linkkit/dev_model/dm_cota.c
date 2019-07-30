@@ -6,7 +6,7 @@
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define DM_COTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "dm.cota")
     #define DM_COTA_FREE(ptr)               LITE_free(ptr)
 #else

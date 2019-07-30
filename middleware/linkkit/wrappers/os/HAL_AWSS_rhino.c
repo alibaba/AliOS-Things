@@ -18,7 +18,7 @@ extern "C" {
 
 #include <hal/wifi.h>
 #include <netmgr.h>
-#include "wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_defs.h"
 /*
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *
