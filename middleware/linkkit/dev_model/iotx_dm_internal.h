@@ -9,16 +9,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "infra_compat.h"
-#include "infra_config.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_list.h"
-#include "infra_cjson.h"
-#include "infra_report.h"
-#include "infra_string.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_config.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_cjson.h"
+#include "linkkit/infra/infra_report.h"
+#include "linkkit/infra/infra_string.h"
 #if defined(DEVICE_MODEL_GATEWAY)
-    #include "infra_sha256.h"
+    #include "linkkit/infra/infra_sha256.h"
 #endif
 
 
@@ -53,7 +53,7 @@
 #endif
 
 /* DM Header File */
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "iotx_dm_config.h"
 #include "iotx_dm.h"
 #include "dm_utils.h"
@@ -73,7 +73,7 @@
 #include "dm_intf.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define DM_malloc(size)            LITE_malloc(size, MEM_MAGIC, "dm")
     #define DM_free(ptr)               LITE_free(ptr)
 #else
@@ -88,7 +88,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define dm_log_emerg(...)     log_emerg("DM", __VA_ARGS__)
     #define dm_log_crit(...)      log_crit("DM", __VA_ARGS__)
     #define dm_log_err(...)       log_err("DM", __VA_ARGS__)

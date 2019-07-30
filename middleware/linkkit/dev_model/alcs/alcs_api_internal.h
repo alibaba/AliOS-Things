@@ -7,7 +7,7 @@
 #include "CoAPExport.h"
 #include "alcs_api.h"
 #include "alcs_internal.h"
-#include "infra_aes.h"
+#include "linkkit/infra/infra_aes.h"
 
 #define KEY_MAXCOUNT 10
 #define RANDOMKEY_LEN 16
