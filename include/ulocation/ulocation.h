@@ -87,7 +87,7 @@ int ulocation_get_location(location_t *rlt);
  * when there is no individual self task.
  */
 int ulocation_update_locationinfo(location_t **gps, char **mmac, char **macs, /* wifi */
-                             char **cdma, char **bts, char **nearbts);
+                                  char **cdma, char **bts, char **nearbts);
 
 /**
  * uloc_update_gpsinfo
