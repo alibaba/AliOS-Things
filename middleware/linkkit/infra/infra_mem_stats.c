@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_MEM_STATS
 #include <stdio.h>
@@ -11,9 +11,9 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "infra_mem_stats.h"
+#include "linkkit/infra/infra_mem_stats.h"
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define utils_emerg(...)    log_emerg("util", __VA_ARGS__)
     #define utils_crit(...)     log_crit("util", __VA_ARGS__)
     #define utils_err(...)      log_err("util", __VA_ARGS__)

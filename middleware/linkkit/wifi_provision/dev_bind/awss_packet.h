@@ -4,7 +4,7 @@
 
 #ifndef __AWSS_PACKET_H__
 #define __AWSS_PACKET_H__
-#include "infra_sha1.h"
+#include "linkkit/infra/infra_sha1.h"
 
 #define MSG_REQ_ID_LEN                       (16)
 #define TOPIC_LEN_MAX                        (128)

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_SHA256
 
@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "infra_sha256.h"
+#include "linkkit/infra/infra_sha256.h"
 
 #define SHA256_KEY_IOPAD_SIZE   (64)
 #define SHA256_DIGEST_SIZE      (32)

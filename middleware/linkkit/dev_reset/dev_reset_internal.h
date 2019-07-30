@@ -3,17 +3,17 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "infra_config.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_report.h"
+#include "linkkit/infra/infra_config.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_report.h"
 #include "dev_reset_internal.h"
 #include "linkkit/dev_reset_api.h"
 #include "linkkit/mqtt_api.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define devrst_err(...)               log_err("devrst", __VA_ARGS__)
     #define devrst_info(...)              log_info("devrst", __VA_ARGS__)
     #define devrst_debug(...)             log_debug("devrst", __VA_ARGS__)
@@ -24,7 +24,7 @@
 #endif
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define devrst_malloc(size)            LITE_malloc(size, MEM_MAGIC, "devrst")
     #define devrst_free(ptr)               LITE_free(ptr)
 #else

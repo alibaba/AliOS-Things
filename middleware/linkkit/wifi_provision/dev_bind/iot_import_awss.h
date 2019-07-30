@@ -5,8 +5,8 @@
 #ifndef __IOT_IMPORT_AWSS_H__
 #define __IOT_IMPORT_AWSS_H__
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #ifdef __cplusplus
 extern "C" {

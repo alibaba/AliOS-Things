@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "wifi_provision_internal.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_defs.h"
 
 #if defined(AWSS_SUPPORT_DISCOVER)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

@@ -5,7 +5,7 @@
 #ifndef _LINKKIT_GATEWAY_LEGACY_H_
 #define _LINKKIT_GATEWAY_LEGACY_H_
 
-#include "infra_list.h"
+#include "linkkit/infra/infra_list.h"
 #include "linkkit_gateway_export.h"
 
 #define LINKKIT_GATEWAY_LEGACY_KEY_ID          "id"

@@ -4,7 +4,7 @@
 #include "os.h"
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 #define devrst_err(...)               log_err("devrst", __VA_ARGS__)
 #define devrst_info(...)              log_info("devrst", __VA_ARGS__)
 #define devrst_debug(...)             log_debug("devrst", __VA_ARGS__)
@@ -15,7 +15,7 @@
 #endif
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
+#include "linkkit/infra/infra_mem_stats.h"
 #define devrst_malloc(size)            LITE_malloc(size, MEM_MAGIC, "devrst")
 #define devrst_free(ptr)               LITE_free(ptr)
 #else

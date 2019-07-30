@@ -7,16 +7,16 @@
 #ifndef __IOTX_MQTT_H__
 #define __IOTX_MQTT_H__
 
-#include "infra_types.h"
-#include "infra_list.h"
-#include "infra_timer.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_timer.h"
 #include "iotx_mqtt_config.h"
 #include "linkkit/mqtt_api.h"
 
 #include "MQTTPacket.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
     #define mqtt_free(ptr)               LITE_free(ptr)
 #else

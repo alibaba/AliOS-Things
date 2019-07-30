@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include "wrappers_defs.h"
-#include "infra_aes.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/infra/infra_aes.h"
 #include "ulog/ulog.h"
 #include "aos/kv.h"
 

@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 #ifdef COAP_DTLS_SUPPORT
-#include "wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_defs.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
@@ -21,7 +21,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)

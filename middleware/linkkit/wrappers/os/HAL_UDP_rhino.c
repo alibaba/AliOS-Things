@@ -8,8 +8,8 @@
 #include "ulog/ulog.h"
 #include "aos/kernel.h"
 #include <network/network.h>
-#include "wrappers_defs.h"
-#include "infra_compat.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/infra/infra_compat.h"
 
 #define TRANSPORT_ADDR_LEN 16
 

@@ -10,7 +10,7 @@
 #include "Cloud_CoAPPlatform.h"
 #include "Cloud_CoAPMessage.h"
 #include "Cloud_CoAPExport.h"
-#include "infra_aes.h"
+#include "linkkit/infra/infra_aes.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)

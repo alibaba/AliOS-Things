@@ -13,7 +13,7 @@ extern "C" {
 #if 0
 #include "iotx_utils.h"
 #endif
-#include "infra_string.h"
+#include "linkkit/infra/infra_string.h"
 
 /**
  * @brief string to hex
