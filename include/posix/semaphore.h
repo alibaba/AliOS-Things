@@ -32,3 +32,4 @@ int    sem_destroy(sem_t *sem);
 #endif /* __cplusplus */
 
 #endif /* SEMAPHORE_H */
+

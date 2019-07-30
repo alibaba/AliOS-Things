@@ -473,10 +473,15 @@ typedef struct _dev_gps_data_t {
 } gps_data_t;
 
 int     sensor_hal_init(void);
+
 int     sensor_hal_open(sensor_tag_e tag, uint8_t instance);
+
 int     sensor_hal_close(sensor_tag_e tag, uint8_t instance);
+
 ssize_t sensor_hal_read(sensor_tag_e tag, uint8_t instance, void *buf, size_t len);
+
 ssize_t sensor_hal_write(sensor_tag_e tag, uint8_t instance, const void *buf, size_t len);
+
 int     sensor_hal_ioctl(sensor_tag_e tag, uint8_t instance, sensor_cmd_type cmd, unsigned long arg);
 
 #ifdef __cplusplus
