@@ -9,8 +9,8 @@
 #include "aos/kernel.h"
 
 #include "linkkit/coap_api.h"
-#include "wrappers.h"
-#include "infra_compat.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_compat.h"
 
 #include "at_util.h"
 
