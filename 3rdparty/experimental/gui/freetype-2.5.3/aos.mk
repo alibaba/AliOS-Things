@@ -15,14 +15,9 @@ endif
 
 GLOBAL_DEFINES += FT2_BUILD_LIBRARY
 
-GLOBAL_INCLUDES     += .
 GLOBAL_DEFINES      += AOS_COMP_FREETYPE
 
-GLOBAL_INCLUDES   += /include/
-GLOBAL_INCLUDES   += /include/freetype/
-GLOBAL_INCLUDES   += /include/freetype/config
-GLOBAL_INCLUDES   += /include/freetype/internal
-GLOBAL_INCLUDES   += /include/freetype/internal/services
+GLOBAL_INCLUDES     += /include
 
 $(NAME)_SOURCES     +=./src/autofit/autofit.c
 
