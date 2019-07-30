@@ -18,3 +18,4 @@ int posix_init(void);
 #endif /* __cplusplus */
 
 #endif /* POSIX_INIT_H */
+
