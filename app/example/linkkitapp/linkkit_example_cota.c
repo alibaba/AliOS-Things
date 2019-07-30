@@ -3,14 +3,14 @@
  */
 
 #include "stdio.h"
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_compat.h"
 #include "linkkit/dev_model_api.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
 #endif
 #include "app_entry.h"
 
