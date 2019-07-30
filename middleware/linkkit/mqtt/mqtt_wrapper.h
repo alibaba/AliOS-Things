@@ -1,7 +1,7 @@
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "wrappers_defs.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "linkkit/mqtt_api.h"
 
 /* mqtt protocol wrapper */

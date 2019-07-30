@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,

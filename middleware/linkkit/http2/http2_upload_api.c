@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 #ifdef FS_ENABLED
 
 #include <stdint.h>
@@ -10,19 +10,19 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "infra_defs.h"
-#include "infra_types.h"
-#include "infra_httpc.h"
-#include "infra_sha1.h"
-#include "infra_timer.h"
-#include "infra_list.h"
-#include "infra_log.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_sha1.h"
+#include "linkkit/infra/infra_timer.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_log.h"
 
 #include "http2_internal.h"
 #include "linkkit/http2_api.h"
 #include "linkkit/http2_upload_api.h"
 #include "http2_config.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #define PACKET_LEN                  16384
 #define HTTP2_FS_SERVICE_ID         "c/iot/sys/thing/file/upload"

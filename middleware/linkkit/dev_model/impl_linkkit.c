@@ -13,7 +13,7 @@
 #endif
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define IMPL_LINKKIT_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.linkkit")
     #define IMPL_LINKKIT_FREE(ptr)               LITE_free(ptr)
 #else

@@ -10,10 +10,10 @@ extern "C" {
 #endif
 
 #include "linkkit/http2_api.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
+#include "linkkit/infra/infra_log.h"
 #define h2_emerg(...)                   log_emerg("h2", __VA_ARGS__)
 #define h2_crit(...)                    log_crit("h2", __VA_ARGS__)
 #define h2_err(...)                     log_err("h2", __VA_ARGS__)
@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
+#include "linkkit/infra/infra_mem_stats.h"
 #define HTTP2_STREAM_MALLOC(size)       LITE_malloc(size, MEM_MAGIC, "http2.stream")
 #define HTTP2_STREAM_FREE(ptr)          LITE_free(ptr)
 #else

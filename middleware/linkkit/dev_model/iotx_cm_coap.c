@@ -3,7 +3,7 @@
 #ifdef COAP_COMM_ENABLED
 #include "iotx_cm.h"
 #include "iotx_cm_coap.h"
-#include "infra_timer.h"
+#include "linkkit/infra/infra_timer.h"
 
 #ifdef COAP_DTLS_SUPPORT  /* DTLS */
     #ifdef ON_DAILY

@@ -13,7 +13,7 @@
 
 #include "activation.h"
 #include "chip_code.h"
-#include "wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_defs.h"
 
 #define DEFAULT_THREAD_PRI AOS_DEFAULT_APP_PRI
 

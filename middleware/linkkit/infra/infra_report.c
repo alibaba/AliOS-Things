@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_REPORT
 
 #include <stdio.h>
 #include <string.h>
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_string.h"
-#include "infra_report.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_report.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
     #define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
 #else
@@ -23,7 +23,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define VERSION_DEBUG(...)  log_debug("version", __VA_ARGS__)
     #define VERSION_ERR(...)    log_err("version", __VA_ARGS__)
 #else

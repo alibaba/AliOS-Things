@@ -1,12 +1,12 @@
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_TIMER
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_types.h"
-#include "infra_timer.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_timer.h"
+#include "linkkit/wrappers/wrappers.h"
 
 void iotx_time_start(iotx_time_t *timer)
 {

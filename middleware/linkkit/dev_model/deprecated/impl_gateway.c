@@ -8,7 +8,7 @@
 #include "impl_gateway.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define IMPL_GATEWAY_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.gateway")
     #define IMPL_GATEWAY_FREE(ptr)               IMPL_GATEWAY_FREE(ptr)
 #else
@@ -17,7 +17,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define impl_gateway_err(...)       log_err("impl.gateway", __VA_ARGS__)
     #define impl_gateway_info(...)      log_info("impl.gateway", __VA_ARGS__)
     #define impl_gateway_debug(...)     log_debug("impl.gateway", __VA_ARGS__)
