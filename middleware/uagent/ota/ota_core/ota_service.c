@@ -17,7 +17,7 @@
 #error("not support ota via uagent under security mode temporary, disable 'OTA via uAgent' or discard this warning by remove this statement")
 #endif
 #ifdef AOS_COMP_PWRMGMT
-#include "pwrmgmt.h"
+#include "aos/pwrmgmt.h"
 #endif
 
 #ifdef OTA_CONFIG_UAGENT
@@ -91,7 +91,7 @@ int ota_service_start(ota_service_t *ctx)
 {
     int ret = 0;
 #ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
+    aos_pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
 #endif
     ota_ctx = ctx;
 #if defined OTA_CONFIG_SECURE_DL_MODE
@@ -168,7 +168,7 @@ EXIT:
         param->upg_status = OTA_FINISH;
     }
 #ifdef AOS_COMP_PWRMGMT
-    pwrmgmt_lowpower_resume(PWRMGMT_OTA);
+    aos_pwrmgmt_lowpower_resume(PWRMGMT_OTA);
 #endif
     if ((ctx != NULL) && (ctx->on_boot != NULL)) {
         ctx->on_boot(param);
