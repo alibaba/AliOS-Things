@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef __cplusplus
 extern "C" {
