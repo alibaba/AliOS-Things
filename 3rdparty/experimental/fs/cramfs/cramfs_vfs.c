@@ -117,10 +117,11 @@ static int32_t cramfs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
     return nbytes;
 }
 
-static uint32_t cramfs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
+static uint32_t cramfs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
     int32_t ret;
-    uint32_t pos;
+    int64_t pos;
+
     struct cramfs_dirent *dirent = NULL;
 
     dirent = (struct cramfs_dirent *)(fp->f_arg);
