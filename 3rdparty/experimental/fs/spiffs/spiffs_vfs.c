@@ -224,10 +224,10 @@ static int32_t spiffs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
     return nbytes;
 }
 
-static uint32_t spiffs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
+static uint32_t spiffs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
-    uint32_t ret;
-    int32_t  fd;
+    int64_t ret;
+    int32_t fd;
 
     fd = (int32_t)(fp->f_arg);
     ret = SPIFFS_lseek(g_spiffs_mgr->fs, fd, off, whence);
