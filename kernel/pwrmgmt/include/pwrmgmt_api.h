@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef PWRMGMT_H
-#define PWRMGMT_H
+#ifndef PWRMGMT_API_H
+#define PWRMGMT_API_H
 
 #ifdef __cplusplus
 extern "C"
@@ -13,16 +13,6 @@ extern "C"
 #include <k_api.h>
 
 #include "pwrmgmt_default_config.h"
-
-typedef enum pwrmgmt_user_module {
-    PWRMGMT_RHINO   = 0,
-    PWRMGMT_OTA     = 1,
-    PWRMGMT_NETMGR  = 2,
-    PWRMGMT_NETWORK = 3,
-    PWRMGMT_PWRMGMT = 4,
-    PWRMGMT_AT      = 5,
-    PWRMGMT_APP     = 16,
-} PWRMGMT_USER_MODULE;
 
 int pwrmgmt_init();
 int pwrmgmt_lowpower_suspend(uint32_t suspend_module);
@@ -52,4 +42,4 @@ int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module);
 }
 #endif
 
-#endif /* PWRMGMT_H */
+#endif /* PWRMGMT_API_H */
