@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := test for rhino core
 
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
 
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
