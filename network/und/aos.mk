@@ -40,7 +40,7 @@ endif
 
 $(NAME)_COMPONENTS-y += kv osal_aos yloop linkkit_sdk_c
 
-GLOBAL_INCLUDES-y += include middleware/linkkit/sdk-c/include
+$(NAME)_INCLUDES += include
 
 GLOBAL_DEFINES-y += FEATURE_UND_SUPPORT
 GLOBAL_DEFINES-y += AOS_UND
