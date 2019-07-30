@@ -6,7 +6,7 @@
 #define __AWSS_H__
 
 #include <stdint.h>
-#include "infra_defs.h"
+#include "linkkit/infra/infra_defs.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

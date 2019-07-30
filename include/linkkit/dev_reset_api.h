@@ -1,8 +1,8 @@
 #ifndef __DEV_RESET_API_H__
 #define __DEV_RESET_API_H__
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 typedef enum {
     IOTX_DEVRST_EVT_RECEIVED

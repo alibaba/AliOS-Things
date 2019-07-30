@@ -1,0 +1,20 @@
+#ifndef _WRAPPERS_DTLS_H_
+#define _WRAPPERS_DTLS_H_
+
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+
+DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options);
+
+unsigned int HAL_DTLSSession_write(DTLSContext *context,
+                                   const unsigned char *p_data,
+                                   unsigned int *p_datalen);
+
+unsigned int HAL_DTLSSession_read(DTLSContext *context,
+                                  unsigned char   *p_data,
+                                  unsigned int    *p_datalen,
+                                  unsigned int     timeout);
+
+unsigned int HAL_DTLSSession_free(DTLSContext *context);
+#endif
+
