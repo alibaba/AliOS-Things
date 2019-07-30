@@ -1,8 +1,8 @@
 #ifndef _DYNREG_API_H_
 #define _DYNREG_API_H_
 
-#include "infra_types.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
 
 #define MQTT_DYNREG_TIMEOUT_MS (15 * 1000)
 
