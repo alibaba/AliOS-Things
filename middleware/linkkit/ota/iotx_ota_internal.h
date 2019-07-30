@@ -9,18 +9,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "infra_httpc.h"
-#include "infra_string.h"
-#include "infra_md5.h"
-#include "infra_sha256.h"
-#include "infra_json_parser.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_md5.h"
+#include "linkkit/infra/infra_sha256.h"
+#include "linkkit/infra/infra_json_parser.h"
 #include "iotx_ota.h"
 #include "ota_api.h"
 #include "iotx_ota_config.h"
-#include "wrappers.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define OTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "ota")
     #define OTA_FREE(ptr)               LITE_free(ptr)
     #define OTA_API_MALLOC(size)        LITE_malloc(size, MEM_MAGIC, "ota.api")
@@ -35,7 +35,7 @@
 #define OTA_SNPRINTF                HAL_Snprintf
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define OTA_LOG_CRIT(...)       log_crit("ota", __VA_ARGS__)
     #define OTA_LOG_ERROR(...)      log_err("ota", __VA_ARGS__)
     #define OTA_LOG_WRN(...)        log_warning("ota", __VA_ARGS__)

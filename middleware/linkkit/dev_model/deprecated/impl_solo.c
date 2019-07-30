@@ -9,7 +9,7 @@
 #include "impl_solo.h"
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
+    #include "linkkit/infra/infra_mem_stats.h"
     #define IMPL_SOLO_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.solo")
     #define IMPL_SOLO_FREE(ptr)               LITE_free(ptr)
 #else
@@ -18,7 +18,7 @@
 #endif
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define impl_solo_err(...)       log_err("impl.solo", __VA_ARGS__)
     #define impl_solo_info(...)      log_info("impl.solo", __VA_ARGS__)
     #define impl_solo_debug(...)     log_debug("impl.solo", __VA_ARGS__)

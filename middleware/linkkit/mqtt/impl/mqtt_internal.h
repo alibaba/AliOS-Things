@@ -10,14 +10,14 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_string.h"
-#include "infra_list.h"
-#include "infra_log.h"
-#include "infra_report.h"
-#include "infra_net.h"
-#include "infra_sha256.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_string.h"
+#include "linkkit/infra/infra_list.h"
+#include "linkkit/infra/infra_log.h"
+#include "linkkit/infra/infra_report.h"
+#include "linkkit/infra/infra_net.h"
+#include "linkkit/infra/infra_sha256.h"
 
 #include "linkkit/dev_sign_api.h"
 #include "mqtt_wrapper.h"
@@ -27,7 +27,7 @@
 #include "MQTTPacket.h"
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)
     #define mqtt_crit(...)              log_crit("MQTT", __VA_ARGS__)
     #define mqtt_err(...)               log_err("MQTT", __VA_ARGS__)

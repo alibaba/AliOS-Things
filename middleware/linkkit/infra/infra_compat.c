@@ -1,11 +1,11 @@
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_COMPAT
 #include <string.h>
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_compat.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
@@ -21,7 +21,7 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 #include "linkkit/mqtt_api.h"
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define sdk_err(...)       log_err("infra_compat", __VA_ARGS__)
     #define sdk_info(...)      log_info("infra_compat", __VA_ARGS__)
 #else

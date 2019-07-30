@@ -14,8 +14,8 @@
 #include "itls/net.h"
 #include "itls/debug.h"
 #include "itls/platform.h"
-#include "wrappers_defs.h"
-#include "wrappers_os.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_os.h"
 
 #define LOG_TAG "HAL_iTLS"
 

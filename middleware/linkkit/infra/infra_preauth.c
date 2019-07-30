@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_PREAUTH
 
@@ -9,11 +9,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_httpc.h"
-#include "infra_preauth.h"
-#include "infra_string.h"
+#include "linkkit/infra/infra_types.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/infra/infra_httpc.h"
+#include "linkkit/infra/infra_preauth.h"
+#include "linkkit/infra/infra_string.h"
 
 #define PREAUTH_HTTP_REQ_LEN            300
 #define PREAUTH_HTTP_RSP_LEN            300

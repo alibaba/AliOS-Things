@@ -9,7 +9,7 @@
 #define __HTTP_DEBUG_H__
 
 #ifdef INFRA_LOG
-    #include "infra_log.h"
+    #include "linkkit/infra/infra_log.h"
     #define http_emerg(...)             log_emerg("HTTP", __VA_ARGS__)
     #define http_crit(...)              log_crit("HTTP", __VA_ARGS__)
     #define http_err(...)               log_err("HTTP", __VA_ARGS__)

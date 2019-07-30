@@ -5,7 +5,7 @@
 #ifndef __WIFI_PROVISION_INTERNAL_H__
 #define __WIFI_PROVISION_INTERNAL_H__
 
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 #include <string.h>
 #include <stdio.h>
 #include "aws_lib.h"
@@ -17,9 +17,9 @@
 #include "awss_timer.h"
 #include "awss_main.h"
 #include "os.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 #include "awss_smartconfig.h"
-#include "infra_sha1.h"
+#include "linkkit/infra/infra_sha1.h"
 #include "passwd.h"
 #include "awss_utils.h"
 #include "awss_statis.h"
@@ -30,15 +30,15 @@
 #include "awss_cmp.h"
 #include "awss_crypt.h"
 #include <stdlib.h>
-#include "infra_json_parser.h"
+#include "linkkit/infra/infra_json_parser.h"
 #include "linkkit/mqtt_api.h"
 #include "awss_dev_reset_internal.h"
 #include "awss_info.h"
 #include "awss_bind_statis.h"
 #include "awss_aplist.h"
 #include "connect_ap.h"
-#include "infra_aes.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_aes.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
     #include "awss_wps.h"

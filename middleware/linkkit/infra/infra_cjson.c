@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "infra_config.h"
+#include "linkkit/infra/infra_config.h"
 
 #ifdef INFRA_CJSON
 
@@ -14,8 +14,8 @@
 #include <float.h>
 #include <ctype.h>
 
-#include "infra_cjson.h"
-#include "infra_types.h"
+#include "linkkit/infra/infra_cjson.h"
+#include "linkkit/infra/infra_types.h"
 
 typedef struct {
     const unsigned char *content;
