@@ -8,8 +8,8 @@
 #include <stdarg.h>
 
 #include "linkkit/mqtt_api.h"
-#include "wrappers.h"
-#include "infra_compat.h"
+#include "linkkit/wrappers/wrappers.h"
+#include "linkkit/infra/infra_compat.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 #include "network/network.h"
