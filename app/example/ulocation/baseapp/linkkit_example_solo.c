@@ -5,10 +5,10 @@
 #include "deprecated/solo.c"
 #else
 #include "stdio.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 #include "linkkit/dev_model_api.h"
-#include "infra_config.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_config.h"
+#include "linkkit/wrappers/wrappers.h"
 #include "cJSON.h"
 #include "app_entry.h"
 #include "ulocation/ulocation.h"

@@ -13,8 +13,8 @@
 #include "aos/yloop.h"
 #include "ulog/ulog.h"
 #include "netmgr.h"
-#include "infra_compat.h"
-#include "infra_defs.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_defs.h"
 #include "linkkit/dev_model_api.h"
 #include "app_entry.h"
 
