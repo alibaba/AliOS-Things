@@ -16,9 +16,9 @@
 #include "netmgr.h"
 #include "app_entry.h"
 #include "linkkit/wifi_provision_api.h"
-#include "infra_compat.h"
-#include "infra_defs.h"
-#include "wrappers.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef CSP_LINUXHOST
     #include <signal.h>
