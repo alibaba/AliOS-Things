@@ -11,7 +11,7 @@ extern "C" {
 
 int be_debuger_ssdp_start(char* localAddress);
 
-/* websocket上报信息 */
+/* websocket report frame */
 int bone_websocket_send_frame(char* topic, int level, char* msg);
 
 #if defined(__cplusplus)

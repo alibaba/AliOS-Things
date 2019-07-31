@@ -50,4 +50,4 @@ GLOBAL_DEFINES += SUPPORT_NODE_MODELES
 
 $(warning JSEngine Version: ${BONE_VERSION})
 
-include ${JSE_ROOT}/jse/jse.mk
+include ${JSE_ROOT}/engine/engine.mk
