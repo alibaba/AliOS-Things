@@ -73,4 +73,5 @@ int canopen_od_init(CO_Data *d, co_register_function_callback_t *fun_callback);
 int canopen_od_handler(CO_Data *d, uint16_t index, uint8_t sub_index, co_objectdict_cb *od_callback);
 int init_nodes(CO_Data *d, uint8_t id);
 
-#endif    /* AOS_CANOPEN */
+#endif /* AOS_CANOPEN */
+
