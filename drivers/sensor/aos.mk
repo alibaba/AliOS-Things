@@ -56,6 +56,6 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-GLOBAL_INCLUDES +=  ./include
+$(NAME)_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
 include $(SOURCE_ROOT)/drivers/sensor/drv.mk
