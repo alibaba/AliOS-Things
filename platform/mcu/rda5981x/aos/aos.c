@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #ifdef AOS_COMP_PWRMGMT
-#include <pwrmgmt.h>
+int pwrmgmt_init();
 #endif
 
 #define AOS_START_STACK 2048
