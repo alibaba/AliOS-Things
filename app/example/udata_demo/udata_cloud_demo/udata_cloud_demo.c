@@ -15,9 +15,9 @@
 #include "linkkit/infra/infra_defs.h"
 #include "linkkit/dev_model_api.h"
 #include "netmgr.h"
-#include "service_mgr.h"
-#include "udata_queue.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
+#include "ulog/ulog.h"
 
 #define PROP_POST_FORMAT_TEMP "{\"CurrentTemperature\":%.1f}"
 #define PROP_POST_FORMAT_ACC  "{\"Accelerometer\":{\"x\":%.2f, \"y\":%.2f, \"z\":%.2f}}"
@@ -112,7 +112,7 @@ void udata_report_demo(sensor_msg_pkg_t *msg)
                     /* Report the acceleration data to cloud */
                     ret = IOT_Linkkit_Report(user_ctx->master_devid, ITM_MSG_POST_PROPERTY, (unsigned char *)param, strlen(param) + 1);
                     if(ret == -1){
-                        LOG("%s %s %d\n", uDATA_STR, __func__,__LINE__);
+                        LOG("%s %d\n",  __func__, __LINE__);
                     }
                 }
 
@@ -132,7 +132,7 @@ void udata_report_demo(sensor_msg_pkg_t *msg)
                     /* Report the temperature data to cloud */
                     ret = IOT_Linkkit_Report(user_ctx->master_devid, ITM_MSG_POST_PROPERTY, (unsigned char *)param, strlen(param) + 1);
                     if(ret == -1){
-                        LOG("%s %s %d\n", uDATA_STR, __func__,__LINE__);
+                        LOG("%s %d\n", __func__, __LINE__);
                     }
                 }
 
@@ -201,20 +201,20 @@ void udata_cloud_test(void* arg)
     /* Register msg handler to receive sensor data */
     ret = udata_register_msg_handler(udata_report_demo);
     if (ret < 0) {
-        LOG("%s %s %d\n", uDATA_STR, __func__,__LINE__);
+        LOG("%s %d\n", __func__, __LINE__);
         return;
     }
 
     /* Subscribe acceleration sensor service */
     ret = udata_subscribe(UDATA_SERVICE_ACC);
     if (ret != 0) {
-        LOG("%s %s %d\n", uDATA_STR, __func__, __LINE__);
+        LOG("%s %d\n", __func__, __LINE__);
     }
 
     /* Subscribe temperature sensor service */
     ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (ret != 0) {
-        LOG("%s %s %d\n", uDATA_STR, __func__, __LINE__);
+        LOG("%s %d\n", __func__, __LINE__);
     }
 
     /* Enter loop run to handle linkkit event */
