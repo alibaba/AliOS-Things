@@ -7,8 +7,11 @@
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
-#include <atcmd_config_module.h>
 #include <atparser.h>
+
+#ifndef AT_RECV_FAIL_POSTFIX
+#define AT_RECV_FAIL_POSTFIX "ERROR\r\n"
+#endif
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"

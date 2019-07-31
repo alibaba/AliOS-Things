@@ -6,10 +6,13 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include <atcmd_config_module.h>
 #include <atparser.h>
 
 #include "aos/yloop.h"
+
+#ifndef AT_RECV_FAIL_POSTFIX
+#define AT_RECV_FAIL_POSTFIX "ERROR\r\n"
+#endif
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"
@@ -229,5 +232,4 @@ int board_cli_init(void)
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
     return 0;
 }
-
 
