@@ -3,7 +3,6 @@
  */
 
 #include <stdio.h>
-
 #include "app_entry.h"
 #include "cJSON.h"
 #include "linkkit/infra/infra_defs.h"
