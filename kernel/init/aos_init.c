@@ -40,6 +40,10 @@
 extern int iperf_cli_register(void);
 #endif
 
+#ifdef WITH_LWIP_PING
+extern int ping_cli_register(void);
+#endif
+
 extern int  vfs_init(void);
 extern int  vfs_device_init(void);
 #ifdef AOS_LOOP
@@ -234,6 +238,10 @@ void cli_service_init(kinit_t *kinit)
 
 #ifdef WITH_LWIP_IPERF
         iperf_cli_register();
+#endif
+
+#ifdef WITH_LWIP_PING
+        ping_cli_register();
 #endif
 
 #endif
