@@ -114,5 +114,14 @@ endif
           Switching to "y" leads to support DHCPD module
           Switching to "n" leads to not support DHCPD module
 
+     config PING_ENABLED
+        bool "PING Support"
+        default n
+        help
+          Support PING module
+
+          Switching to "y" leads to support PING module
+          Switching to "n" leads to not support PING module
+
 endmenu
 endif
