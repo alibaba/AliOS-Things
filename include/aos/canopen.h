@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include <canopen_warp.h>
+#include <canopen_wrap.h>
 
 int aos_canopen_init(PORT_CAN_TYPE can_port, PORT_TIMER_TYPE timer_port,
                      uint32_t baud, CO_Data *d);
