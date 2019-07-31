@@ -44,7 +44,7 @@ endif
 if AOS_CONFIG_DTC_LINKKIT
 config AOS_CONFIG_DTC_USE_LWIP
     bool "Use lwip"
-    default y
+    default n
 endif
 
 config AOS_CONFIG_DTC_TYPE

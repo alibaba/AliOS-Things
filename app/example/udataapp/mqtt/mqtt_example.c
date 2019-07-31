@@ -7,38 +7,26 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "aos/yloop.h"
+#include "linkkit/infra/infra_compat.h"
 #include "linkkit/mqtt_api.h"
 #include "linkkit/wrappers/wrappers.h"
-#include "linkkit/infra/infra_compat.h"
-#include "ulog/ulog.h"
-#include "aos/yloop.h"
 #include "network/network.h"
-#include <netmgr.h>
-#include <aos/kernel.h>
-#include <netmgr.h>
-#include <aos/cli.h>
-
-#include "sensor/sensor.h"
-#include "udata/udata.h"
-#include "service_data_to_cloud.h"
-
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
 #endif
+#include "sensor/sensor.h"
+#include "udata/udata.h"
+#include "ulog/ulog.h"
 
-#define MQTT_APP_MSG_LEN     (256)
-#define MQTT_APP_PARAMS_LEN  (128)
-
+#define MQTT_APP_MSG_LEN    (256)
+#define MQTT_APP_PARAMS_LEN (128)
 
 #define PRODUCT_KEY   "a1Aeb21CMq5"
 #define DEVICE_NAME   "eaSkr41w8gz8sdVOFwA9"
 #define DEVICE_SECRET "34nReP7DWHw8wNLHhNXxOnu3o5U8GXif"
-
-typedef void (*task_fun)(void *);
-
-char __product_key[IOTX_PRODUCT_KEY_LEN + 1];
-char __device_name[IOTX_DEVICE_NAME_LEN + 1];
-char __device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 #define ALINK_BODY_FORMAT \
     "{\"id\":\"%u\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
@@ -48,48 +36,31 @@ char __device_secret[IOTX_DEVICE_SECRET_LEN + 1];
     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post_reply"
 #define ALINK_TOPIC_PROP_SET \
     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/service/property/set"
-#define ALINK_METHOD_PROP_POST "thing.event.property.post"
 
-#define PROP_SET_FORMAT_UDATA      "\"dtc_config\":"
+#define ALINK_METHOD_PROP_POST  "thing.event.property.post"
+#define PROP_SET_FORMAT_UDATA   "\"dtc_config\":"
 
+#define DATA_CONVERT_FLOAT(a,b) (((float)(a))/((float)(b)))
+#define DATA_CONVERT_INT(a,b)   (((int32_t)(a))/((int32_t)(b)))
 
-#define DATA_CONVERT_FLOAT(a,b)  (((float)(a))/((float)(b)))
-#define DATA_CONVERT_INT(a,b)    (((int32_t)(a))/((int32_t)(b)))
+#define MQTT_DTC_ACC_ON   "\"acc=1\""
+#define MQTT_DTC_ACC_OFF  "\"acc=0\""
+#define MQTT_DTC_GYRO_ON  "\"gyro=1\""
+#define MQTT_DTC_GYRO_OFF "\"gyro=0\""
+#define MQTT_DTC_MAG_ON   "\"mag=1\""
+#define MQTT_DTC_MAG_OFF  "\"mag=0\""
+#define MQTT_DTC_TEMP_ON  "\"temp=1\""
+#define MQTT_DTC_TEMP_OFF "\"temp=0\""
+#define MQTT_DTC_HUMI_ON  "\"humi=1\""
+#define MQTT_DTC_HUMI_OFF "\"humi=0\""
+#define MQTT_DTC_ALS_ON   "\"als=1\""
+#define MQTT_DTC_ALS_OFF  "\"als=0\""
+#define MQTT_DTC_PS_ON    "\"ps=1\""
+#define MQTT_DTC_PS_OFF   "\"ps=0\""
+#define MQTT_DTC_BARO_ON  "\"baro=1\""
+#define MQTT_DTC_BARO_OFF "\"baro=0\""
 
-
-#define MQTT_DTC_ACC_ON     "\"acc=1\""
-#define MQTT_DTC_ACC_OFF    "\"acc=0\""
-
-#define MQTT_DTC_GYRO_ON    "\"gyro=1\""
-#define MQTT_DTC_GYRO_OFF   "\"gyro=0\""
-
-#define MQTT_DTC_MAG_ON     "\"mag=1\""
-#define MQTT_DTC_MAG_OFF    "\"mag=0\""
-
-#define MQTT_DTC_TEMP_ON    "\"temp=1\""
-#define MQTT_DTC_TEMP_OFF   "\"temp=0\""
-
-#define MQTT_DTC_HUMI_ON    "\"humi=1\""
-#define MQTT_DTC_HUMI_OFF   "\"humi=0\""
-
-#define MQTT_DTC_ALS_ON     "\"als=1\""
-#define MQTT_DTC_ALS_OFF    "\"als=0\""
-
-#define MQTT_DTC_PS_ON      "\"ps=1\""
-#define MQTT_DTC_PS_OFF     "\"ps=0\""
-
-#define MQTT_DTC_BARO_ON    "\"baro=1\""
-#define MQTT_DTC_BARO_OFF   "\"baro=0\""
-#define MQTT_MSGLEN                 (1024)
-
-uint32_t cnt  = 0;
-void *gpclient = NULL;
-static char linkkit_started = 0;
-static int g_mqtt_con_flag = 0;
-
-static udata_type_e g_service_type[UDATA_MAX_CNT] = {0};
-static bool g_service_flag[UDATA_MAX_CNT] = {0};
-
+#define MQTT_MSGLEN       (1024)
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -98,6 +69,19 @@ static bool g_service_flag[UDATA_MAX_CNT] = {0};
         HAL_Printf("%s", "\r\n"); \
     } while(0)
 
+typedef void (*task_fun)(void *);
+
+uint32_t    cnt  = 0;
+void       *gpclient = NULL;
+static char linkkit_started = 0;
+static int  g_mqtt_con_flag = 0;
+
+static udata_type_e g_service_type[UDATA_MAX_CNT] = {0};
+static bool         g_service_flag[UDATA_MAX_CNT] = {0};
+
+char __product_key[IOTX_PRODUCT_KEY_LEN + 1];
+char __device_name[IOTX_DEVICE_NAME_LEN + 1];
+char __device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 int mqtt_client_example(void);
 int linkkit_main(void *paras);
