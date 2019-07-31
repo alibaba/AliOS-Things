@@ -8,7 +8,6 @@
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
 #include "app_entry.h"
-#include "service_data_to_cloud.h"
 #include "device.h"
 
 #define USE_CUSTOME_DOMAIN      (0)

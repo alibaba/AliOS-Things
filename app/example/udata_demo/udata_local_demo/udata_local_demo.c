@@ -9,8 +9,9 @@
 
 #include "aos/cli.h"
 #include "aos/kernel.h"
-#include "service_mgr.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
+#include "ulog/ulog.h"
 
 void udata_report_demo(sensor_msg_pkg_t *msg)
 {
@@ -36,7 +37,7 @@ void udata_report_demo(sensor_msg_pkg_t *msg)
              case UDATA_SERVICE_ACC: {
                 /* Print the acceleration sensor data */
                 acc = (accel_data_t *)(buf.payload);
-                printf("\nAcceleration value: x-axis(%.3f g) y-axis(%.3f g) z-axis(%.3f g) \n", ((float)acc->data[0])/1000 , ((float)acc->data[1])/1000, ((float)acc->data[2])/1000);
+                printf("\nAcceleration value: x-axis(%.3f g) y-axis(%.3f g) z-axis(%.3f g) \n", ((float)acc->data[0])/1000, ((float)acc->data[1])/1000, ((float)acc->data[2])/1000);
                 break;
              }
              case UDATA_SERVICE_TEMP: {
@@ -63,20 +64,20 @@ int udata_local_test(void)
     /* Register msg handler to receive sensor data */
     ret = udata_register_msg_handler(udata_report_demo);
     if (ret < 0) {
-        LOG("%s errline %d\n", __func__,__LINE__);
+        LOG("%s errline %d\n", __func__, __LINE__);
         return ret;
     }
 
     /* Subscribe acceleration sensor service */
     ret = udata_subscribe(UDATA_SERVICE_ACC);
     if (ret != 0) {
-        LOG("%s errline %d\n", __func__,__LINE__);
+        LOG("%s errline %d\n", __func__, __LINE__);
     }
 
     /* Subscribe temperature sensor service */
     ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (ret != 0) {
-        LOG("%s errline %d\n", __func__,__LINE__);
+        LOG("%s errline %d\n", __func__, __LINE__);
     }
 
     return 0;
