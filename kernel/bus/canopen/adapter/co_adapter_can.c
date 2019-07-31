@@ -7,7 +7,7 @@
 #include "co_adapter.h"
 #include "can.h"
 
-static can_dev_t can_dev;
+static can_dev_t  can_dev;
 static CO_Data   *co_data = NULL;
 
 int32_t can_init(uint8_t port, uint32_t baud, CO_Data *d)
@@ -15,7 +15,8 @@ int32_t can_init(uint8_t port, uint32_t baud, CO_Data *d)
     int32_t ret = -1;
 
     co_data = d;
-    can_dev.port = port;
+
+    can_dev.port             = port;
     can_dev.config.baud_rate = baud;
 
     ret = hal_can_init(&can_dev);
@@ -29,16 +30,17 @@ int32_t can_init(uint8_t port, uint32_t baud, CO_Data *d)
 /* canSend is a protocol library interface implement */
 UNS8 canSend(CAN_PORT notused, Message *m)
 {
-    UNS8    ret = 0;
+    UNS8 ret = 0;
+
     uint8_t i;
     uint8_t tx_data[8] = {0};
-    can_frameheader_t  tx_message = {0};
+
+    can_frameheader_t tx_message = {0};
 
     tx_message.id = m->cob_id;
     if (m->rtr != 0) {
         tx_message.rtr = CAN_RTR_REMOTE;
-    }
-    else {
+    } else {
         tx_message.rtr = CAN_RTR_DATA;
     }
     tx_message.dlc = m->len;
@@ -55,27 +57,30 @@ UNS8 canSend(CAN_PORT notused, Message *m)
     return ret;
 }
 
-void can_dispatch()
+void can_dispatch(void)
 {
     int i;
+
     uint8_t rx_data[8] = {0};
 
     can_frameheader_t rx_message = {0};
+
     Message rxm = {0};
 
     hal_can_recv(&can_dev, &rx_message, rx_data, WAIT_FOREVER);
 
     rxm.cob_id = rx_message.id;
-    if(rx_message.rtr != 0) {
+    if (rx_message.rtr != 0) {
         rxm.rtr = 1;
     }
 
     rxm.len = rx_message.dlc;
-    for(i = 0; i < rxm.len; i++) {
+    for (i = 0; i < rxm.len; i++) {
         rxm.data[i] = rx_data[i];
     }
 
     canDispatch(co_data, &rxm);
 }
+
 #endif    /* AOS_CANOPEN */
 
