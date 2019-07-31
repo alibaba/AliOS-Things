@@ -4,7 +4,7 @@
 
 #ifdef AOS_CANOPEN
 
-#include "canopen_warp.h"
+#include "canopen_wrap.h"
 
 int canopen_od_init(CO_Data *d, co_register_function_callback_t *fun_callback)
 {
