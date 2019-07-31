@@ -22,7 +22,7 @@ static void *discover_routin(void *arg)
         printf("socket fail\n");
         return NULL;
     }
-    int optval = 1; /* 这个值一定要设置，否则可能导致sendto()失败 */
+    int optval = 1; /* MUST set optval */
     setsockopt(fd, SOL_SOCKET, SO_BROADCAST | SO_REUSEADDR, &optval,
                sizeof(int));
     struct sockaddr_in sid;
@@ -44,7 +44,6 @@ static void *discover_routin(void *arg)
     long device_id;
 
     do {
-        /* 发送一次接，接收多次 */
         sendto(fd, hello_packet, sizeof(hello_packet), 0,
                (struct sockaddr *)&sid, sizeof(struct sockaddr));
 

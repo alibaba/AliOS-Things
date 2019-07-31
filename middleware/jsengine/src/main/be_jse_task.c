@@ -26,7 +26,7 @@ typedef struct {
     void *arg;
 } shedule_timer_msg_t;
 
-int32_t bone_engine_task_yield(uint32_t timeout)
+int32_t jsengine_task_yield(uint32_t timeout)
 {
     jse_task_msg_t jse_msg;
 
@@ -114,7 +114,7 @@ int32_t be_jse_task_schedule_call(bone_engine_call_t call, void *arg)
     return 0;
 }
 
-int32_t bone_engine_task_init()
+int32_t jsengine_task_init()
 {
     if (jse_task_mq == NULL) {
         jse_task_mq =

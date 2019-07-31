@@ -38,7 +38,7 @@ choice
 endchoice
 
 # addons configuration
-source "middleware/jsengine/src/jse/Config.in"
+source "middleware/jsengine/src/engine/Config.in"
 source "middleware/jsengine/src/services/Config.in"
 
 endif
