@@ -192,7 +192,7 @@ int32_t hal_system_wifi_init(void)
 int32_t hal_system_fs_init(void)
 {
     printf("Initializing SPIFFS\r\n");
-    return vfs_spiffs_register();
+    return spiffs_register();
 }
 
 /**************************************************

@@ -11,68 +11,64 @@
 
 /**
  *
- * BoneEngine初始化
+ * JSEngine initialization
  *
  */
-void bone_engine_init(void);
+void jsengine_init(void);
 
 /**
- * 运行JS语法块
- * 可以多次调用
+ * Running JS code
  *
  */
-void bone_engine_start(const char* js);
+void jsengine_start(const char* js);
 
 /**
- * 运行指定JS文件
- * pathname - 需要执行的文件， 要求全路径
+ * Running JS file
  */
-void bone_engine_eval_file(const char* pathname);
+void jsengine_eval_file(const char* pathname);
 
 /**
- * 退出BoneEngine
- * 释放内存(符号表)
+ * JSEngine exit
+ * free memory(including symbol table)
  */
-void bone_engine_exit(void);
+void jsengine_exit(void);
 
 typedef const char* (*BE_JSE_LOAD_MODULE_CB)(const char* moduleName);
 
 /**
  *
- * 注册load module函数
- * 用于require处理,获取js模块内容
+ * register load module, for require other js file
  *
  */
-void bone_engine_loadmodule_register(BE_JSE_LOAD_MODULE_CB func_cb);
+void jsengine_loadmodule_register(BE_JSE_LOAD_MODULE_CB func_cb);
 
 /**
- * 用于require处理
- * 记录require模块时,保存__dirname
+ * for require js files, saving __dirname
  *
  */
-void bone_engine_save_dirname(const char* name);
+void jsengine_save_dirname(const char* name);
 
 /**
  *
- * 注册LOG输出重定向函数
+ * setting LOG stdout redirect function
  *
  */
 typedef void (*BE_JSE_FUNCTION_LOG_CB)(const char* tag, int level,
                                        const char* msg, int len);
-void bone_engine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb);
+void jsengine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb);
 
 /**
  *
- * BoneEngine task 初始化
+ * JSEngine task initialization
  *
  */
-int32_t bone_engine_task_init();
+int32_t jsengine_task_init();
 
 /**
- * BoneEngine task 做工作, 处理异步回调
+ * JSEngine yield task, for asynchronous event process
  *
  */
-int32_t bone_engine_task_yield(uint32_t timeout);
+int32_t jsengine_task_yield(uint32_t timeout);
 
 int32_t bone_console_get_log_flag(void);
 
