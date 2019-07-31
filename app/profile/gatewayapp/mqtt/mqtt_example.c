@@ -19,10 +19,8 @@
 #include <netmgr.h>
 #include <aos/cli.h>
 
-
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
-#include "service_data_to_cloud.h"
 #include "device.h"
 
 #ifdef LITTLEVGL_DISPLAY
