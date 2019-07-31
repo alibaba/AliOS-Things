@@ -7,19 +7,20 @@
 #include "co_adapter.h"
 
 static timer_dev_t timer_canopen;
-void timer_dispatch();
+
+void timer_dispatch(void);
 
 TIMEVAL last_counter_val = 0;
-TIMEVAL elapsed_time = 0;
+TIMEVAL elapsed_time     = 0;
 
 int32_t timer_init(uint8_t port)
 {
   int32_t ret = -1;
 
-  timer_canopen.port = port;
+  timer_canopen.port               = port;
   timer_canopen.config.reload_mode = TIMER_RELOAD_AUTO;
-  timer_canopen.config.period = MAX_COUNTER_VALUE;
-  timer_canopen.config.cb = timer_dispatch;
+  timer_canopen.config.period      = MAX_COUNTER_VALUE;
+  timer_canopen.config.cb          = timer_dispatch;
 
   ret = hal_timer_init(&timer_canopen);
   if (ret != 0) {
@@ -39,8 +40,11 @@ int32_t timer_init(uint8_t port)
 void setTimer(TIMEVAL value)
 {
     uint32_t timer = hal_timer_getcounter(&timer_canopen);
+
     elapsed_time += timer - last_counter_val;
+
     last_counter_val = MAX_COUNTER_VALUE-value;
+
     hal_timer_setcounter(&timer_canopen, MAX_COUNTER_VALUE-value);
 }
 
@@ -52,13 +56,18 @@ TIMEVAL getElapsedTime(void)
         timer += MAX_COUNTER_VALUE;
     }
     TIMEVAL elapsed = timer - last_counter_val + elapsed_time;
+
     return elapsed;
 }
 
-void timer_dispatch()
+void timer_dispatch(void)
 {
     last_counter_val = 0;
+
     elapsed_time = 0;
+
     TimeDispatch();
 }
-#endif    /* AOS_CANOPEN */
+
+#endif /* AOS_CANOPEN */
+

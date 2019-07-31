@@ -12,17 +12,17 @@ int canopen_od_init(CO_Data *d, co_register_function_callback_t *fun_callback)
         return -EINVAL;
     }
 
-    d->initialisation = fun_callback->initialisation;
-    d->preOperational = fun_callback->preOperational;
-    d->operational = fun_callback->operational;
-    d->stopped = fun_callback->stopped;
-    d->heartbeatError = fun_callback->heartbeatError;
-    d->nodeguardError = fun_callback->nodeGuardError;
-    d->post_sync = fun_callback->post_sync;
-    d->post_TPDO = fun_callback->post_TPDO;
-    d->post_emcy = fun_callback->post_emcy;
+    d->initialisation   = fun_callback->initialisation;
+    d->preOperational   = fun_callback->preOperational;
+    d->operational      = fun_callback->operational;
+    d->stopped          = fun_callback->stopped;
+    d->heartbeatError   = fun_callback->heartbeatError;
+    d->nodeguardError   = fun_callback->nodeGuardError;
+    d->post_sync        = fun_callback->post_sync;
+    d->post_TPDO        = fun_callback->post_TPDO;
+    d->post_emcy        = fun_callback->post_emcy;
     d->post_SlaveBootup = fun_callback->post_Slave_Bootup;
-    d->storeODSubIndex = fun_callback->store_OD_SubIndex;
+    d->storeODSubIndex  = fun_callback->store_OD_SubIndex;
 
     return CO_SUCCESS;
 }
@@ -100,4 +100,6 @@ int canopen_init(PORT_CAN_TYPE can_port, PORT_TIMER_TYPE timer_port, uint32_t ba
 
     return CO_SUCCESS;
 }
-#endif    /* AOS_CANOPEN */
+
+#endif /* AOS_CANOPEN */
+
