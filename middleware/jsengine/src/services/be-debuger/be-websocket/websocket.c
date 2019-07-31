@@ -101,7 +101,7 @@ do_exit:
 
 static void websocket_eval_js(void* arg)
 {
-    bone_engine_start(arg);
+    jsengine_start(arg);
     free(arg);
 }
 
