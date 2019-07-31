@@ -2315,6 +2315,10 @@
  */
 #define LWIP_XR_DEBUG                   LWIP_DBG_OFF
 #endif /* LWIP_XR_IMPL */
+
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_OFF
+#define PING_DEBUG                      LWIP_DBG_OFF
 /**
  * @}
  */
