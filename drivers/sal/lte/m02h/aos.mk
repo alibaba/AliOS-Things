@@ -11,4 +11,4 @@ $(NAME)_COMPONENTS += yloop
 $(NAME)_COMPONENTS += atparser
 $(NAME)_SOURCES += m02h.c
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

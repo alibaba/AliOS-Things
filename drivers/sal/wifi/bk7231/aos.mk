@@ -13,4 +13,5 @@ $(NAME)_COMPONENTS += atparser
 
 $(NAME)_SOURCES += bk7231.c
 endif
-GLOBAL_INCLUDES += ./
+
+$(NAME)_INCLUDES += ./
