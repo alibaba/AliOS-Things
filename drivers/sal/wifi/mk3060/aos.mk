@@ -13,4 +13,5 @@ $(NAME)_COMPONENTS += atparser
 
 $(NAME)_SOURCES += mk3060.c
 endif
-GLOBAL_INCLUDES += ./
+
+$(NAME)_INCLUDES += ./
