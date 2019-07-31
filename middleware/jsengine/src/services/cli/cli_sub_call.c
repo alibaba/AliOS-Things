@@ -33,10 +33,10 @@ void sub_call_restart(void *arg)
     if (data) {
         be_debug(MODULE_TAG,
                  "sub_call_restart Running JSEngine InitApplication...");
-        bone_engine_exit();
-        bone_engine_init();
+        jsengine_exit();
+        jsengine_init();
         bone_engine_load_addon();
-        bone_engine_start(data);
+        jsengine_start(data);
         stop_flag = false;
         free(data);
     }
@@ -53,7 +53,7 @@ void sub_call_start(void *arg)
         be_debug(MODULE_TAG,
                  "sub_call_start Running JSEngine Init Application...");
         if (data) {
-            bone_engine_start(data);
+            jsengine_start(data);
             free(data);
         }
     }
@@ -62,7 +62,7 @@ void sub_call_start(void *arg)
 void sub_call_stop(void *arg)
 {
     stop_flag = true;
-    bone_engine_exit();
+    jsengine_exit();
 }
 
 void sub_call_rename(void *arg)
