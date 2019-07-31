@@ -277,6 +277,9 @@
 #define TCP_FR_DEBUG                    LWIP_DBG_ON
 #define TCP_QLEN_DEBUG                  LWIP_DBG_ON
 #define TCP_RST_DEBUG                   LWIP_DBG_ON
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_OFF
+#define PING_DEBUG                      LWIP_DBG_OFF
 
 #define LWIP_NETIF_STATUS_CALLBACK      1
 #define LWIP_COMPAT_MUTEX_ALLOWED		1

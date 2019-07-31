@@ -89,6 +89,9 @@
 #define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 #define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 #define DNS_DEBUG                       LWIP_DBG_OFF
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_OFF
+#define PING_DEBUG                      LWIP_DBG_OFF
 //#define LWIP_COMPAT_MUTEX              1
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
