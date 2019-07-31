@@ -16,7 +16,6 @@ provides low-level interface for setting CPU P-states.
 
 #if (AOS_COMP_PWRMGMT > 0)
 
-#include <cpu_pwr.h>
 #include <cpu_pwr_hal_lib.h>
 #include <pwrmgmt_debug.h>
 #include <cpu_tickless.h>
@@ -27,8 +26,6 @@ provides low-level interface for setting CPU P-states.
 extern one_shot_timer_t rtc_one_shot;  /* wakeup source for C3,C4 */
 
 static cpu_pwr_t cpu_pwr_node_core_0;
-
-uint32_t cpu_pwr_minisleep_time_ms = 0;
 
 /**
  * board_cpu_c_state_set - program CPU into Cx idle state
@@ -56,14 +53,11 @@ static pwr_status_t board_cpu_c_state_set(uint32_t cpuCState, int master)
 
             /* put CPU into C1 state, for ARM we can call WFI instruction
                to put CPU into C1 state. */
-            PWR_DBG(DBG_DBG, "enter C1\n");
             lega_drv_goto_sleep(PMU_STATE_MODEMSLEEP);
             __WFI__();
-            PWR_DBG(DBG_DBG, "exit C1\n");
             break;
 
         default:
-            PWR_DBG(DBG_ERR, "invalid C state: C%d\n", cpuCState);
             break;
     }
 
@@ -147,12 +141,5 @@ pwr_status_t board_cpu_pwr_init(void)
     return retVal;
 }
 
-int pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
-{
-    printf("set the minimum sleep time %dms\r\n", time_ms);
-
-    cpu_pwr_minisleep_time_ms = time_ms;
-    return 0;
-}
-
 #endif /* AOS_COMP_PWRMGMT */
+
