@@ -307,6 +307,9 @@
 #define TCP_FR_DEBUG                    LWIP_DBG_OFF
 #define TCP_QLEN_DEBUG                  LWIP_DBG_OFF
 #define TCP_RST_DEBUG                   LWIP_DBG_OFF
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_OFF
+#define PING_DEBUG                      LWIP_DBG_OFF
 
 /*
    ---------- Performance tracking options ----------
