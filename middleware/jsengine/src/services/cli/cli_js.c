@@ -39,7 +39,7 @@ static struct be_be_cli_command meminfo_cmd = {
 
 static void jstrace(void *arg)
 {
-    trace_symbol_info(bone_engine_get_executor()->root, 0);
+    trace_symbol_info(jsengine_get_executor()->root, 0);
 }
 
 static void handle_jstrace_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -60,7 +60,7 @@ static struct be_be_cli_command jstrace_cmd = {
 */
 static void eval_js(void *arg)
 {
-    bone_engine_start(arg);
+    jsengine_start(arg);
     free(arg);
 }
 
