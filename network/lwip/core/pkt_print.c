@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
-#if PKTPRINT_DEBUG
 #include "lwip/opt.h"
+#if PKTPRINT_DEBUG
 #include "lwip/pbuf.h"
 #include "lwip/debug.h"
 #include "lwip/def.h"
