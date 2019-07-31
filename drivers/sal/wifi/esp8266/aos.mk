@@ -9,4 +9,4 @@ $(NAME)_COMPONENTS += yloop
 
 $(NAME)_SOURCES += esp8266.c
 $(NAME)_SOURCES += esp8266_at.c
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
