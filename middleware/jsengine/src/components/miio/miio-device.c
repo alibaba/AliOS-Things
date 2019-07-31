@@ -16,13 +16,13 @@ struct miio_device {
     char key[KEY_IV_SIZE];
     char iv[KEY_IV_SIZE];
     int id;
-    unsigned long last; /* TOTO:距上一次交互,2分钟内有效 */
-    /* 事件监听相关 */
+    unsigned long last; /* TOTO: available in 2 minutes */
+    /* event trigger */
     miio_device_event_callback cb;
     void *priv;
 };
 
-/* 这里假定input和output buffer不会溢出 */
+/* Assumes that input and output buffer will not overflow. */
 static int miio_encrypt(miio_device_t *device, unsigned char *input,
                         int input_len, char *output, int *output_len)
 {
@@ -30,7 +30,7 @@ static int miio_encrypt(miio_device_t *device, unsigned char *input,
     int padding_len;
     int payload_len;
 
-    /* PKCS#7方式数据填充 */
+    /* PKCS#7 padding */
     if (input_len & 15)
         padding_len = 16 - (input_len & 15);
     else
@@ -39,7 +39,7 @@ static int miio_encrypt(miio_device_t *device, unsigned char *input,
     for (i = 0; i < padding_len; i++)
         input[input_len + i] = (unsigned char)padding_len;
 
-    /* 调用加密库 */
+    /* Using mbedtls */
     mbedtls_aes_context aes;
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, device->key, KEY_IV_SIZE * 8);
@@ -55,11 +55,11 @@ static int miio_encrypt(miio_device_t *device, unsigned char *input,
     return err;
 }
 
-/* 这里假定input和output buffer不会溢出 */
+/* Assumes that input and output buffer will not overflow. */
 static int miio_decrypt(miio_device_t *device, unsigned char *input,
                         int input_len, char *output, int *output_len)
 {
-    /* 调用解密库 */
+    /* Using mbedtls */
     mbedtls_aes_context aes;
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_dec(&aes, device->key, KEY_IV_SIZE * 8);
@@ -69,14 +69,15 @@ static int miio_decrypt(miio_device_t *device, unsigned char *input,
                                     iv_tmp, input, output);
     mbedtls_aes_free(&aes);
     if (!err) {
-        /* 去除填充字段 */
+        /* Remove padding */
         int padding_len = output[input_len - 1];
         *output_len     = input_len - padding_len;
     }
     return err;
 }
 
-/* FIXME:发送和接收分开,对于control信令需会话id进行校验,非当前会话要有重发机制
+/* FIXME: Send and receive separately, checking session ID for control command,
+ * and retransmit for non-current session.
  */
 static int miio_transmit(miio_device_t *device, const char *send_data,
                          size_t send_data_len, char *recv_buff,
@@ -130,8 +131,7 @@ static int miio_transmit(miio_device_t *device, const char *send_data,
 }
 
 /*
- * 以太网上UDP最大有效报文长度为1472字节, 1500(以太网MTU) - 20(IP报文)
- * - 8(UDP报文头) = 1472
+ * udp package length: 1472(bytes) = 1500(MTU) - 20(IP header) -8(UDP header)
  */
 static unsigned char recv_buf[1473];
 
@@ -149,7 +149,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
         goto failed;
     }
 
-    /* 暂时借用recv_buf */
+    /* saving to recv_buf */
     if (!sid)
         snprintf(recv_buf, sizeof(recv_buf),
                  "{\"id\":%d,\"method\":\"%s\",\"params\":%s}", device->id++,
@@ -160,30 +160,30 @@ const char *miio_device_control(miio_device_t *device, const char *method,
                  device->id++, method, args, sid);
     debug("info: %s\n", recv_buf);
 
-    /* 加密数据并填充length字段 */
+    /* encrypt and adding length */
     int len = 0;
     miio_encrypt(device, recv_buf, strlen(recv_buf), pkt + 32, &len);
     len += 32;
     pkt[2] = (unsigned char)((unsigned int)len >> 8);
     pkt[3] = (unsigned char)len;
 
-    /* 更新时间戳 */
+    /* update timestamp */
     unsigned long timestamp =
         pkt[12] << 24 | pkt[13] << 16 | pkt[14] << 8 | pkt[15];
     timestamp += time(NULL) - start;
     *((unsigned long *)(pkt + 12)) = htonl(timestamp);
 
-    /* 计算md5值并填充到[16, 31] */
+    /* calculate md5 and fill to [16, 31] */
     mbedtls_md5_context ctx;
     mbedtls_md5_init(&ctx);
     mbedtls_md5_starts(&ctx);
     mbedtls_md5_update(&ctx, pkt, 16);
     mbedtls_md5_update(&ctx, device->token, sizeof(device->token));
     mbedtls_md5_update(&ctx, pkt + 32, len - 32);
-    mbedtls_md5_finish(&ctx, pkt + 16); /* 填充到[16,31] */
+    mbedtls_md5_finish(&ctx, pkt + 16); /* fill to [16,31] */
     mbedtls_md5_free(&ctx);
 
-    /* 传输并接收 */
+    /* transmitting and receiving */
     if ((recv_data_len =
              miio_transmit(device, pkt, len, recv_buf, sizeof(recv_buf))) < 0) {
         perror("miio_transmit failed\n");
@@ -191,7 +191,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
     }
     debug("receive data size: %d\n", (int)recv_data_len);
 
-    /* 解密回复报文 */
+    /* decrypto receiving package */
     int decrypted_data_len = 0;
     if (!miio_decrypt(device, recv_buf + 32, recv_data_len - 32, pkt,
                       &decrypted_data_len)) {
@@ -276,7 +276,7 @@ void miio_device_set_event_cb(miio_device_t *device,
 {
     debug("in\n");
 
-    /* 创建接收事件线程 */
+    /* create event process task */
     int ret = be_osal_create_task("miio event receive task", event_receive,
                                   device, 4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret == 0) {
@@ -301,7 +301,7 @@ miio_device_t *miio_device_create(const char *host, const char *token)
 
     device->peer = inet_addr(host);
 
-    /* 转为16进制  */
+    /* convert to hex */
     for (j = 0, i = 0; i < 32; i += 2, j++) {
         unsigned char ch = token[i];
         if (ch >= '0' && ch <= '9') {
@@ -323,10 +323,10 @@ miio_device_t *miio_device_create(const char *host, const char *token)
 
     device->id = 1;
 
-    /* 生成key */
+    /* generate key */
     mbedtls_md5(device->token, sizeof(device->token), device->key);
 
-    /* 生成iv */
+    /* generate iv */
     mbedtls_md5_context ctx;
     mbedtls_md5_init(&ctx);
     mbedtls_md5_starts(&ctx);

@@ -31,7 +31,6 @@ void be_log(const char *tag, int level, const char *format, ...);
 #define be_warn(tag, fmt, agrs...) be_log(tag, BE_LOG_LEVEL_WARN, fmt, ##agrs)
 #define be_error(tag, fmt, agrs...) be_log(tag, BE_LOG_LEVEL_ERROR, fmt, ##agrs)
 
-/* 优先在文件中控制 */
 #ifndef LOG_NDEBUG
 #ifdef _DEBUG
 #define LOG_NDEBUG 0
