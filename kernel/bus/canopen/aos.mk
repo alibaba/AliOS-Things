@@ -20,7 +20,7 @@ $(NAME)_SOURCES     += src/timer.c
 
 $(NAME)_SOURCES     += adapter/co_adapter_can.c
 $(NAME)_SOURCES     += adapter/co_adapter_timer.c
-$(NAME)_SOURCES     += warp/canopen_warp.c
+$(NAME)_SOURCES     += wrap/canopen_wrap.c
 
 ifeq ($(HOST_ARCH),linux)
 $(NAME)_DEFINES     += IO_NEED_TRAP
@@ -35,6 +35,6 @@ else ifeq ($(COMPILER),armcc)
 GLOBAL_DEFINES      += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES     += warp adapter include
+GLOBAL_INCLUDES     += wrap adapter include
 GLOBAL_DEFINES      += AOS_CANOPEN
 endif
