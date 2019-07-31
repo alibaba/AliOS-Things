@@ -10,9 +10,8 @@
 
 #include "aos/cli.h"
 #include "aos/kernel.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
-#include "udata_queue.h"
-#include "service_mgr.h"
 #include "device.h"
 
 #if defined(UDATA_CJSON_SUPPORTED) || defined(DTC_LINKKIT)
@@ -239,33 +238,33 @@ int gateway_sample(void)
     int ret = 0;
     ret = udata_register_msg_handler(gateway_report_demo);
     if (ret < 0) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
         return ret;
     }
     #ifdef PT_SENSOR
     ret = udata_subscribe(UDATA_SERVICE_ACC);
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
 
     ret = udata_subscribe(UDATA_SERVICE_GYRO);
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
 
     ret = udata_subscribe(UDATA_SERVICE_HUMI);
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
 
     ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
 
     ret = udata_subscribe(UDATA_SERVICE_RTC);
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
     #endif
     return 0;
@@ -284,7 +283,7 @@ int application_start(int argc, char **argv)
 
     ret = udata_init();
     if (unlikely(ret != 0)) {
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        LOG("%s %s %d\n", __func__, ERROR_LINE, __LINE__);
     }
 
 #if defined DTC_LINKKIT
