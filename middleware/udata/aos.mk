@@ -29,7 +29,7 @@ EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
 endif
 
-GLOBAL_INCLUDES += ./include
+$(NAME)_INCLUDES += ./include
 
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
