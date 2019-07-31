@@ -153,9 +153,9 @@ SNMPFILES=apps/snmp/snmp_asn1.c \
 HTTPDFILES=apps/httpd/fs.c \
 	apps/httpd/httpd.c
 
-# LWIPERFFILES: IPERF client/server
-LWIPERFFILES=apps/lwiperf/iperf_task.c \
-             apps/lwiperf/iperf_cli.c
+# IPERFFILES: IPERF client/server
+IPERFFILES=apps/iperf/iperf_task.c \
+        apps/iperf/iperf_cli.c
 
 # SNTPFILES: SNTP client
 SNTPFILES=apps/sntp/sntp.c
@@ -179,13 +179,18 @@ TELNETDFILES=apps/telnetd/telnetserver.c \
 # DHCPDFILES: DHCP Server files
 DHCPDFILES=apps/dhcpd/dhcps.c
 
+# PINGFILES: PING client files
+PINGFILES=apps/ping/ping.c \
+          apps/ping/ping_cli.c
+
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
-	$(LWIPERFFILES) \
+	$(IPERFFILES) \
 	$(SNTPFILES) \
 	$(MDNSFILES) \
 	$(NETBIOSNSFILES) \
 	$(TFTPFILES) \
 	$(TELNETDFILES) \
-	$(DHCPDFILES)
+	$(DHCPDFILES) \
+	$(PINGFILES)
