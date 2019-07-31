@@ -1,8 +1,10 @@
 /*
- * Copyright (C) 2018 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #include "aos/pwrmgmt.h"
+
+#include "pwrmgmt_api.h"
 
 int aos_pwrmgmt_lowpower_suspend(uint32_t suspend_module)
 {
