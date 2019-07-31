@@ -59,6 +59,9 @@
 #define LWIP_DEBUG                      0
 #define SOCKETS_DEBUG                   0
 #define LWIP_DEBUG_TRACE                0
+#define PKTPRINT_DEBUG                  0
+#define IPERF_DEBUG                     0
+#define PING_DEBUG                      0
 /**
  * MEM_ALIGNMENT: should be set to the alignment of the CPU
  *    4 byte alignment -> #define MEM_ALIGNMENT 4
