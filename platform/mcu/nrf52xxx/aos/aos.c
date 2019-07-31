@@ -22,7 +22,7 @@
 #include "nrf_drv_systick.h"
 
 #ifdef AOS_COMP_PWRMGMT
-#include <pwrmgmt.h>
+int pwrmgmt_init();
 #endif /* AOS_COMP_PWRMGMT */
 
 #if POWER_ENABLED
