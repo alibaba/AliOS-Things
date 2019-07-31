@@ -12,4 +12,4 @@ $(NAME)_COMPONENTS += atparser
 
 $(NAME)_SOURCES += sim800.c
 endif
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./
