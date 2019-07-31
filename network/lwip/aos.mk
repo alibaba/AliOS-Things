@@ -89,6 +89,12 @@ ifneq ($(use_private_dhcpd), 1)
 $(NAME)_SOURCES += $(DHCPDFILES)
 endif
 endif
+
+ifeq (y,$(PING_ENABLED))
+GLOBAL_DEFINES += WITH_LWIP_PING
+$(NAME)_SOURCES += $(PINGFILES)
+endif
+
 $(NAME)_SOURCES += port/sys_arch.c
 
 endif
