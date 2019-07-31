@@ -25,3 +25,4 @@ int aos_init_nodes(CO_Data *d, uint8_t id)
 {
     return init_nodes(d, id);
 }
+
