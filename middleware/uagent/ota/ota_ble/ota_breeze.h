@@ -67,6 +67,7 @@ typedef enum {
 #define OTA_BREEZE_ERROR_SAVE_BREAKPOINT_FAIL           (21)
 #define OTA_BREEZE_ERROR_GET_BREAKPOINT_FAIL            (22)
 #define OTA_BREEZE_ERROR_INVALID_VERSION                (23)
+#define OTA_BREEZE_ERROR_INIT_FAIL                      (24)
 
 #define OTA_BREEZE_CMD_TYPE_GENERIC                     0x00                /**< Command type: generic */
 #define OTA_BREEZE_CMD_ERROR         (OTA_BREEZE_CMD_TYPE_GENERIC | 0xF)    /**< Error notification from peripheral to central. */
@@ -128,6 +129,7 @@ typedef struct {
     unsigned int magic;
 } ota_breeze_bin_info_t;
 
+int ota_breeze_hal_init(void);
 ota_breeze_state_t ota_breeze_get_status(void);
 ota_breeze_version_t* ota_breeze_get_version(void);
 void ota_breeze_set_status(ota_breeze_state_t status);
