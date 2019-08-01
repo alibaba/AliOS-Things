@@ -3,167 +3,182 @@
  */
 
 #ifdef QXWZ_ENABLED
+
 #include "aos/hal/uart.h"
 #include "ulog/ulog.h"
 #include "qxwz_types.h"
 #include "ulocation_qxwz_common.h"
 
 static uart_dev_t uart_dev;
-static uint8_t report_ggadata[REPORT_GGA_DATA_SIZE] = {0};
+uint8_t gps_raw_data[GPS_RAW_DATA_SIZE] = {0};
 
-static int32_t qxwz_gga_filter(uint8_t gps_rawdata[], int len)
+static int32_t ulocation_gga_filter(char *gps_raw_data, uint8_t *gga_raw_data)
 {
     int32_t ret = -1;
-    static int i,j;
-    static uint8_t data;
-    static gga_data_filter_index cur_state = NONE;
+    uint8_t *p1;
+    uint8_t *p2 = gga_raw_data;
 
-    if (len < GPS_RAW_DATA_SIZE){
-        LOGE("uLocation-qxwz", "gps_rawdata is error!\n");
+    if (gps_raw_data == NULL || gga_raw_data == NULL) {
+        LOGE("uLocation-qxwz", "GPS data is null!");
         return ret;
     }
-
-    for (i = 0; i < len; i++) {
-        data = gps_rawdata[i];
-        switch (cur_state) {
-            case NONE:
-                if('$' == data){
-                    cur_state = SYNC;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case SYNC:
-                if('G' == data){
-                    cur_state = SYNC1;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case SYNC1:
-                if('N' == data){
-                    cur_state = SYNC2;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case SYNC2:
-                if('G' == data){
-                    cur_state = SYNC3;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case SYNC3:
-                if('G' == data){
-                    cur_state = SYNC4;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case SYNC4:
-                if('A' == data){
-                    cur_state = GET_DATA;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case GET_DATA:
-                if('\r' != data){
-                    report_ggadata[j] = data;
-                    j++;
-                    break;
-                }
-                else{
-                    cur_state = END_CR;
-                }
-            case END_CR:
-                if('\r' == data){
-                    cur_state = END_NL;
-                    report_ggadata[j] = data;
-                    j++;
-                }
-                break;
-            case END_NL:
-                if('\n' == data){
-                    cur_state = NONE;
-                    report_ggadata[j] = data;
-                    j = 0;
-                    ret = 0;
-                }
-                break;
-        }
+    p1=(uint8_t*)strstr((const char *)gps_raw_data,"$GNGGA");
+    while (*p1 != '\n') {
+        *p2++ = *p1++;
     }
-    return ret;
-}
-
-
-static uint8_t uloc_getcomma(uint8_t num, char *str)
-{
-    uint8_t i,j = 0;
-    uint8_t len = 0;
-
-    if (num <= 0 || str == NULL){
-        return -1;
-    }
-
-    len = strlen(str);
-    for(i = 0; i < len; i++){
-        if(str[i] == ','){
-            j++;
-        }
-        if(j == num){
-            return (i+1);
-        }
-    }
+    *p2 = '\n';
 
     return 0;
 }
 
-static double uloc_convert_atof(char *s)
+static uint8_t ulocation_comma_pos(uint8_t *buf, uint8_t cx)
 {
-    char buf[128];
-    uint8_t i = 0;
-    double rev;
+    uint8_t *p = buf;
 
-    i = uloc_getcomma(1, s);
-    strncpy(buf, s, i);
-    buf[i] = 0;
-    rev=atof(buf);
+    while(cx) {
+        if ((*buf == '*') || (*buf < ' ') || (*buf > 'z')) {
+            return 0xFF;
+        }
+        if (*buf == ',') {
+            cx--;
+        }
+        buf++;
+    }
 
-    return rev;
+    return buf-p;
 }
 
-int32_t uloc_ggainfo_parse(char *gga_data, ulocation_gga_info *location)
+static int ulocation_num_pow(uint8_t m, uint8_t n)
+{
+    int result = 1;
+
+    while (n--) {
+        result *= m;
+    }
+
+    return result;
+}
+
+static int ulocation_str2num(uint8_t *buf, uint8_t *dx)
+{
+    uint8_t *p = buf;
+    uint8_t ilen = 0, flen = 0, mask = 0, i;
+    int ires = 0, fres = 0;
+    int res;
+
+    while (1) {
+        if (*p == '-') {
+            mask|=0x02;
+            p++;
+        }
+        if ((*p == ',') || (*p=='*')) {
+            break;
+        }
+        if (*p == '.') {
+            mask |= 0x01;
+            p++;
+        } else if ((*p > '9') || (*p<'0')) {
+            ilen=0;
+            flen=0;
+            break;
+        }
+        if (mask&0x01) {
+            flen++;
+        } else {
+            ilen++;
+        }
+        p++;
+    }
+
+    if (mask&0x02) {
+        buf++;
+    }
+
+    for (i = 0; i < ilen; i++) {
+        ires += ulocation_num_pow(10, ilen-1-i)*(buf[i] - '0');
+    }
+    if (flen > 5) {
+        flen = 5;
+    }
+    *dx = flen;
+    for (i = 0; i < flen; i++) {
+        fres += ulocation_num_pow(10, flen-1-i)*(buf[ilen+1+i] - '0');
+    }
+
+    res = ires * ulocation_num_pow(10, flen) + fres;
+    if (mask&0x02) {
+        res = -res;
+    }
+
+    return res;
+}
+
+int32_t ulocation_ggainfo_parse(uint8_t *gga_data, ulocation_gga_info *location)
 {
     int32_t ret = -1;
-    char *buf;
+    uint32_t temp;
+    uint8_t *buf,dx;
+    uint8_t posx;
+    float rs;
 
-    if (gga_data == NULL || location == NULL){
+    if (gga_data == NULL || location == NULL) {
         return ret;
     }
     buf = gga_data;
-    location->status = buf[uloc_getcomma(6, buf)];
-    location->longitude = uloc_convert_atof(&buf[uloc_getcomma(4, buf)]);
-    location->latitude = uloc_convert_atof(&buf[uloc_getcomma(2, buf)]);
-    location->nors = buf[uloc_getcomma(3, buf)];
-    location->wore = buf[uloc_getcomma(5, buf)];
-    location->altitude = uloc_convert_atof(&buf[uloc_getcomma(9, buf)]);
+
+    posx = ulocation_comma_pos(buf, 2); /* latitude */
+    if (posx != 0xFF) {
+        temp = ulocation_str2num((buf + posx), &dx);
+        location->latitude = temp/ulocation_num_pow(10, dx+2);
+        rs = temp % ulocation_num_pow(10, dx+2);
+        location->latitude = location->latitude * ulocation_num_pow(10, 5) + (rs * ulocation_num_pow(10, 5-dx))/60;
+    }
+
+    posx = ulocation_comma_pos(buf,3); /* N or S*/
+    if (posx != 0xFF) {
+        location->nors = *(buf + posx);
+    }
+
+    posx = ulocation_comma_pos(buf, 4); /* longitude */
+    if (posx != 0xFF) {
+        temp = ulocation_str2num((buf + posx), &dx);
+        location->longitude = temp/ulocation_num_pow(10, dx+2);
+        rs = temp % ulocation_num_pow(10, dx+2);
+        location->longitude = location->longitude * ulocation_num_pow(10, 5) + (rs * ulocation_num_pow(10, 5-dx))/60;
+    }
+
+    posx = ulocation_comma_pos(buf,5); /* W or E*/
+    if (posx != 0xFF) {
+        location->wore = *(buf + posx);
+    }
+
+    posx = ulocation_comma_pos(buf,6); /* status */
+    if (posx != 0xFF) {
+        location->status=ulocation_str2num(buf+posx, &dx);
+    }
+
+    posx = ulocation_comma_pos(buf,9); /* altitude */
+    if (posx != 0xFF) {
+        location->altitude = ulocation_str2num(buf+posx, &dx);
+    }
 
     return 0;
 }
 
 void show_ggainfo(ulocation_gga_info *location)
 {
-    LOGI("uLocation-qxwz", "status : %c\n", location->status);
-    LOGI("uLocation-qxwz", "longitude : %10.4f %c\n", location->longitude, location->wore);
-    LOGI("uLocation-qxwz", "latitude : %10.4f %c\n", location->latitude, location->nors);
-    LOGI("uLocation-qxwz", "altitude : %10.4f\n", location->altitude);
+    if (location->status > 0) {
+    LOGI("uLocation-qxwz", "status : %d", location->status);
+    LOGI("uLocation-qxwz", "longitude : %f %c", (float)location->longitude / 100000, location->wore);
+    LOGI("uLocation-qxwz", "latitude : %f %c", (float)location->latitude / 100000, location->nors);
+    LOGI("uLocation-qxwz", "altitude : %f", (float)location->altitude / 1000);
+    }
 }
 
-int32_t qxwz_gga_init(uint8_t port, uint32_t baud)
+int32_t ulocation_qxwz_init(uint8_t port, uint32_t baud)
 {
     int32_t ret = -1;
+    uint32_t *recv_size;
 
     uart_dev.port = port;
     uart_dev.config.baud_rate = baud;
@@ -174,53 +189,56 @@ int32_t qxwz_gga_init(uint8_t port, uint32_t baud)
     uart_dev.config.stop_bits = STOP_BITS_1;
 
     ret = hal_uart_init(&uart_dev);
-    if (ret == -1){
-        LOGE("uLocation-qxwz", "qxwz uart init failed!\n");
+    if (ret != 0) {
+        LOGE("uLocation-qxwz", "qxwz uart init failed!");
+        return ret;
+    }
+
+    ret = hal_uart_recv_II(&uart_dev, gps_raw_data, GPS_RAW_DATA_SIZE, recv_size, GGA_DATA_PERIOD);
+    if (ret != 0) {
+        LOGE("uLocation-qxwz", "can not received gps data!");
+        return ret;
     }
 
     return ret;
 }
 
-int32_t qxwz_rtcm_send(qxwz_void_t *rtcm, qxwz_u32_t len)
+int32_t qxwz_rtcm_send(qxwz_void_t *rtcm, uint32_t len)
 {
     int32_t ret = -1;
 
-    if (rtcm == NULL || len < 0){
-        LOGE("uLocation-qxwz", "qxwz rtcm is null\n");
+    if (rtcm == NULL || len < 0) {
+        LOGE("uLocation-qxwz", "qxwz rtcm is null");
         return ret;
     }
     ret = hal_uart_send(&uart_dev, (uint8_t*)rtcm, len, AOS_WAIT_FOREVER);
-    if (ret != 0){
-        LOGE("uLocation-qxwz", "qxwz rtcm data send failed!\n");
+    if (ret != 0) {
+        LOGE("uLocation-qxwz", "qxwz rtcm data send failed!");
         return ret;
     }
     return ret;
 }
 
 /* GPS data receive interface implement */
-int32_t qxwz_gga_get(uint8_t data[], uint32_t data_len)
+int32_t ulocation_qxwz_getgga(uint8_t *gga_raw_data)
 {
     int32_t ret = -1;
     uint32_t *recv_size;
-    uint8_t gps_raw_data[GPS_RAW_DATA_SIZE] = {0};
 
-    if (data_len < 0){
-        LOGE("uLocation-qxwz", "qxwz gps data recv is null!\n");
+    if (gga_raw_data == NULL) {
+        LOGE("uLocation-qxwz", "qxwz gga data is null!");
         return ret;
     }
 
-    ret = hal_uart_recv_II(&uart_dev, &gps_raw_data, GPS_RAW_DATA_SIZE, recv_size, AOS_WAIT_FOREVER);
-    if (ret != 0){
-        LOGE("uLocation-qxwz", "qxwz gps data recv failed!\n");
+    ret = hal_uart_recv_II(&uart_dev, gps_raw_data, GPS_RAW_DATA_SIZE, recv_size, AOS_WAIT_FOREVER);
+    if (ret != 0) {
+        LOGE("uLocation-qxwz", "qxwz gps data recv failed!");
         return ret;
     }
 
-    ret = qxwz_gga_filter(&gps_raw_data, GPS_RAW_DATA_SIZE);
-    if (ret != 0){
+    ret = ulocation_gga_filter(&gps_raw_data, gga_raw_data);
+    if (ret != 0) {
         return ret;
-    }
-    for (int i = 0; i < data_len; i++){
-        data[i] = report_ggadata[i];
     }
 
     return ret;

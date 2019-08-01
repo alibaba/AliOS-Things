@@ -9,6 +9,7 @@ There are mainly 3 layers in uLocation framework, on the bottom is hardware adap
 - wifi locating
 - GPRS cell id locating
 - gps
+- qian xun wei zhi difference SDK
 
 ### Directories
 
@@ -17,21 +18,22 @@ There are mainly 3 layers in uLocation framework, on the bottom is hardware adap
     ├── aos.mk
     ├── Config.in
     ├── hal
-    │   ├── uloc_hal_gprs.c
-    │   ├── uloc_hal_gps.c
-    │   ├── uloc_hal.h
-    │   └── uloc_hal_wifi.c
+    │   ├── ulocation_hal_gprs.c
+    │   ├── ulocation_hal_gps.c
+    │   ├── ulocation_hal.h
+    │   └── ulocation_hal_wifi.c
     ├── qianxun
     │   ├── include
     │   ├── lib
-    │   ├── qxwz_common.h
-    |   ├── qxwz_gga.c
-    │   └── qxwz_socket.c
+    │   ├── ulocation_qxwz_common.h
+    |   ├── ulocation_qxwz_service.c
+    |   ├── ulocation_qxwz_socket.c
+    │   └── ulocation_qxwz_utils.c
     ├── include
-    ├── uloc_common.h
-    ├── uloc_main.c
-    ├── uloc_north.c
-    └── uloc_south.c
+    ├── ulocation_common.h
+    ├── ulocation_main.c
+    ├── ulocation_north.c
+    └── ulocation_south.c
 
 
 
