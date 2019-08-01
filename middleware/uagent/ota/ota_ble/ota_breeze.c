@@ -95,6 +95,7 @@ static unsigned int ota_breeze_start()
     ota_breeze_version_t *tmp_verion = NULL;
     unsigned int error_code          = 0;
     unsigned char send_err           = false;
+    unsigned int timeout_cnt         = 0;
     if(ota_breeze_init() != OTA_BREEZE_SUCCESS) {
         return OTA_BREEZE_ERROR_NULL;
     }
@@ -102,7 +103,12 @@ static unsigned int ota_breeze_start()
         if(ota_breeze_get_task_active_ctrl_status() == false) {
             goto OTA_BREEZE_OVER;
         }
+        timeout_cnt++;
+        if(timeout_cnt > 1000) {
+            goto OTA_BREEZE_OVER;
+        }
         if(ota_breeze_receive_data_consume(&tmp_queue) == OTA_BREEZE_SUCCESS) {
+            timeout_cnt = 0;
             if ((tmp_queue.cmd & OTA_BREEZE_CMD_TYPE_MASK) != OTA_BREEZE_CMD_TYPE_FW_UPGRADE) {
                 OTA_BREEZE_LOG_E("cmd err");
             }
@@ -199,6 +205,9 @@ static unsigned int ota_breeze_start()
         ota_breeze_msleep(1);
     }
 OTA_BREEZE_OVER:
+    if(timeout_cnt > 1000) {
+        OTA_BREEZE_LOG_E("ota ble receive timeout!");
+    }
     OTA_BREEZE_LOG_I("task over!");
     ota_breeze_destroy_receive_buf();
     ota_breeze_set_task_active_flag(false);
