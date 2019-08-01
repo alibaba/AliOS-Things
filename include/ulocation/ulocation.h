@@ -33,6 +33,15 @@ typedef union {
     } coordinate;
 } location_t;
 
+#ifdef QXWZ_ENABLED
+typedef struct ulocation_qxwz_usr_config {
+    char *appkey;
+    char *appsecret;
+    char *device_ID;
+    char *device_Type;
+} ulocation_qxwz_usr_config_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -90,9 +99,16 @@ int ulocation_update_locationinfo(location_t **gps, char **mmac, char **macs, /*
                                   char **cdma, char **bts, char **nearbts);
 
 /**
- * uloc_update_gpsinfo
+ * ulocation_update_gpsinfo
  */
 int ulocation_update_gpsinfo(location_t *lo);
+
+#ifdef QXWZ_ENABLED
+/**
+ * ulocation_qxwz_service
+ */
+int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config);
+#endif
 
 #ifdef __cplusplus
 }
