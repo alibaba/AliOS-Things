@@ -3,9 +3,10 @@
  */
 
 #include <stdlib.h>
-#include "u_api.h"
-
-#if (RHINO_CONFIG_UCLI_SUPPORT > 0)
+#include "k_api.h"
+#include "cli/cli_api.h"
+#include "utask.h"
+#include "uassert.h"
 
 typedef void (*cli_func)(char *pbuffer, int outlen, int argc, char **argv);
 
@@ -48,6 +49,4 @@ int ucli_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 
     return 0;
 }
-
-#endif /* RHINO_CONFIG_UCLI_SUPPORT */
 
