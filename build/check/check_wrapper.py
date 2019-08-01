@@ -3,51 +3,30 @@
 import os
 import sys
 import yaml
+import traceback
 from commands.util import info, warn, error, which
 
 
-def read_yaml(filename):
-    """ Read data from yaml file """
-    data = None
-    with open(filename, "r") as f:
-        data = yaml.load(f)
-
-    return data
-
-
-def help(check_configs):
+def help(commands):
     """ Show help message """
-    check_name = ""
-    check_help = ""
-    warn("Usage: aos check [ID] [ARGS]\n")
+    warn("Usage: aos check [COMMAND] [ARGS]\n")
     warn("Check Functions Available:")
-    for key in check_configs:
-        if "name" in check_configs[key]:
-            check_name = check_configs[key]["name"]
-        if "help" in check_configs[key]:
-            check_help = check_configs[key]["help"]
-
-        warn("[%s] %-10s: %s" % (key, check_name, check_help))
+    index = 0
+    for cmd in commands:
+        warn("[%s] %-10s: %s" % (index, cmd["name"], cmd["short_help"]))
+        index = index + 1
 
 
-def verify_check_config(check_config):
+def check_requires(requires):
     """ Check if required command existing """
+    if not requires:
+        return True
 
-    prefix = "Verify check configs failed:"
-    no_script_defined = "%s \"script\" is not defined!" % prefix
-    if "script" in check_config:
-        if not check_config["script"]:
-            error(no_script_defined)
-    else:
-        error(no_script_defined)
-
-    if "requires" not in check_config:
-        return
-
-    for cmd in check_config["requires"]:
+    for cmd in requires:
         if not which(cmd):
-            error("%s \"%s\" is not installed!" % (prefix, cmd))
+            error("Required command \"%s\" is not installed!" % (cmd))
 
+    return True
 
 def main():
     check_tool = ""
@@ -58,25 +37,58 @@ def main():
     if len(sys.argv) > 2:
         args = " ".join(sys.argv[2:])
 
-    check_commands_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0], "commands")
-    check_function = os.path.join(check_commands_dir, "check_function.yaml")
-    check_configs = read_yaml(check_function)
+    # Load check commands
+    currdir = os.path.dirname(os.path.abspath(__file__))
+    check_command_dir = os.path.join(currdir, "commands")
+    commands = []
+    for cmdfile in os.listdir(check_command_dir):
+        if cmdfile == "__init__.py" or cmdfile == "util.py" or cmdfile.endswith(".pyc"):
+            continue
+
+        if cmdfile.endswith(".py"):
+            cmd = cmdfile[:-3]
+            try:
+                tmp = __import__("commands." + cmd, None, None,
+                                 ["name", "short_help", "requires"])
+
+                if hasattr(tmp, "name"):
+                    name = tmp.name
+                else:
+                    name = os.path.basename(cmdfile).replace(".py", "")
+
+                short_help = ""
+                if hasattr(tmp, "name"):
+                    short_help = tmp.short_help
+
+                requires = []
+                if hasattr(tmp, "requires"):
+                    requires = tmp.requires
+
+                cmd_dict = {"name": name,
+                            "short_help": short_help,
+                            "requires": requires,
+                            "script": cmdfile,
+                           }
+
+                commands.append(cmd_dict)
+            except:
+                traceback.print_exc()
+                return False
 
     if not check_tool or check_tool == "help":
-        help(check_configs)
+        help(commands)
 
-    # Get check tool and run it
-    check_config = {}
-    for key in check_configs:
-        if str(key) == check_tool or check_configs[key]["name"] == check_tool:
-            check_config = check_configs[key]
-            break
+    if check_tool:
+        script = ""
+        requires = []
+        for tmp in commands:
+            if tmp["name"] == check_tool:
+                script = tmp["script"]
+                requires = tmp["requires"]
+                break
 
-    if check_config:
-        if check_tool != "help":
-            verify_check_config(check_config)
-
-        cmd = "/usr/bin/python %s/%s %s" % (check_commands_dir, check_config["script"], args)
+        check_requires(requires)
+        cmd = "/usr/bin/python %s/%s %s" % (check_command_dir, script, args)
         info("Running cmd: %s ..." % cmd)
         os.system(cmd)
 
