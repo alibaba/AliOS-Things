@@ -365,12 +365,12 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
 
-        if ((cnt % 5) == 0) {
+        if ((cnt % 20) == 0) {
             user_post_property();
         }
 
         /* Post Event Example */
-        if ((cnt % 20) == 0) {
+        if ((cnt % 50) == 0) {
             user_post_event();
         }
 
