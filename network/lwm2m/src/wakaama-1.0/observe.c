@@ -507,26 +507,29 @@ void observe_step(lwm2m_context_t * contextP,
         if (LWM2M_URI_IS_SET_RESOURCE(&targetP->uri))
         {
             if (COAP_205_CONTENT != object_readData(contextP, &targetP->uri, &size, &dataP)) continue;
-            switch (dataP->type)
+            if (dataP != NULL)
             {
-            case LWM2M_TYPE_INTEGER:
-                if (1 != lwm2m_data_decode_int(dataP, &integerValue))
+                switch (dataP->type)
                 {
-                    lwm2m_data_free(size, dataP);
-                    continue;
+                    case LWM2M_TYPE_INTEGER:
+                        if (1 != lwm2m_data_decode_int(dataP, &integerValue))
+                        {
+                            lwm2m_data_free(size, dataP);
+                            continue;
+                        }
+                        storeValue = true;
+                        break;
+                    case LWM2M_TYPE_FLOAT:
+                        if (1 != lwm2m_data_decode_float(dataP, &floatValue))
+                        {
+                            lwm2m_data_free(size, dataP);
+                            continue;
+                        }
+                        storeValue = true;
+                        break;
+                    default:
+                        break;
                 }
-                storeValue = true;
-                break;
-            case LWM2M_TYPE_FLOAT:
-                if (1 != lwm2m_data_decode_float(dataP, &floatValue))
-                {
-                    lwm2m_data_free(size, dataP);
-                    continue;
-                }
-                storeValue = true;
-                break;
-            default:
-                break;
             }
         }
         for (watcherP = targetP->watcherList ; watcherP != NULL ; watcherP = watcherP->next)
@@ -549,7 +552,8 @@ void observe_step(lwm2m_context_t * contextP,
 
                     if (notify == false
                      && watcherP->parameters != NULL
-                     && (watcherP->parameters->toSet & ATTR_FLAG_NUMERIC) != 0)
+                     && (watcherP->parameters->toSet & ATTR_FLAG_NUMERIC) != 0
+                     && (dataP != NULL))
                     {
                         if ((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_LESS_THAN) != 0)
                         {
@@ -581,7 +585,7 @@ void observe_step(lwm2m_context_t * contextP,
                                 break;
                             }
                         }
-                        if (((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_GREATER_THAN) != 0) && (dataP != NULL))
+                        if ((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_GREATER_THAN) != 0)
                         {
                             lwm2m_log(LOG_DEBUG, "Checking upper threshold\n");
                             // Did we cross the upper threshold ?
@@ -611,7 +615,7 @@ void observe_step(lwm2m_context_t * contextP,
                                 break;
                             }
                         }
-                        if (((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_STEP) != 0) && (dataP != NULL))
+                        if ((watcherP->parameters->toSet & LWM2M_ATTR_FLAG_STEP) != 0)
                         {
                             lwm2m_log(LOG_DEBUG, "Checking step\n");
 
