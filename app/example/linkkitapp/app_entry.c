@@ -326,17 +326,9 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 }
 
 #ifdef AOS_COMP_CLI
-static void handle_reset_cmd(char *pwbuf, int blen, int argc, char **argv)
-{
-    aos_schedule_call(do_awss_reset, NULL);
-}
 
-static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
-{
-    aos_schedule_call(do_awss_active, NULL);
-}
 
-static void _print_devinfo()
+static void print_devinfo()
 {
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = {0};
@@ -356,37 +348,50 @@ static void _print_devinfo()
 #endif
 }
 
-static void _set_devinfo(char *pk, char *ps, char *dn, char *ds)
+static void set_devinfo(char *pk, char *ps, char *dn, char *ds)
 {
-    if (dn != NULL) {
-        HAL_SetDeviceName(dn);
-    }
-    if (ds != NULL) {
-        HAL_SetDeviceSecret(ds);
-    }
     if (pk != NULL) {
         HAL_SetProductKey(pk);
+    }
+    if (dn != NULL) {
+        HAL_SetDeviceName(dn);
     }
     if (ps != NULL) {
         HAL_SetProductSecret(ps);
     }
+    if (ds != NULL) {
+        HAL_SetDeviceSecret(ds);
+    }
 }
+
 static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
     if (strcmp(rtype, "get") == 0) {
-        _print_devinfo();
+        print_devinfo();
     } else if (strcmp(rtype, "set") == 0) {
         if (argc == 4) {
-            _set_devinfo(NULL, NULL, argv[2], argv[3]);
+            set_devinfo(NULL, NULL, argv[2], argv[3]);
         } else if (argc == 6) {
-            _set_devinfo(argv[2], argv[3], argv[4], argv[6]);
+            set_devinfo(argv[2], argv[3], argv[4], argv[5]);
         } else {
-            LOG("arg number err!");
+            LOG("arg number err! usage:");
+            LOG("devinfo set {pk} {ps} {dn} {ds} | devinfo set {dn} {ds}");
         }
     } else {
-        LOG("cmd not support!");
+        LOG("usage:");
+        LOG("devinfo [set pk ps dn ds | set dn ds | get ]");
     }
+}
+
+static void handle_reset_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss_reset, NULL);
+}
+
+static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss_active, NULL);
 }
 
 #ifdef AWSS_SUPPORT_DEV_AP
@@ -441,7 +446,7 @@ static int mqtt_connected_event_handler(void)
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
-    if(0!=uagent_ext_comm_start(product_key, device_name)) {
+    if (0 != uagent_ext_comm_start(product_key, device_name)) {
         LOGE("APP", "uagent service start fail");
     } else {
         LOGI("APP", "uagent service start sucessfully");
