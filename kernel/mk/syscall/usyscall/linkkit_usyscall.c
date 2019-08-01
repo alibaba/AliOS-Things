@@ -8,7 +8,7 @@
 
 #include "stdio.h"
 #include "syscall.h"
-#include "dev_model_api.h"
+#include "linkkit/dev_model_api.h"
 #include "linkkit_syscall_arg.h"
 #include "syscall_no.h"
 
