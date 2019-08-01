@@ -3,12 +3,11 @@
  */
 
 #define HARDWARE_REVISION   "V1.0"
-#define MODEL               "BK7231"
+#define MODEL               "BK7231U"
 
-#ifdef BOOTLOADER
-#define STDIO_UART 1
+#define STDIO_UART 0
 #define STDIO_UART_BUADRATE 115200
-#else
-#define STDIO_UART 1
-#define STDIO_UART_BUADRATE 115200
-#endif
+
+#define BK_UART  1
+#define BK_UART_BUADRATE 115200
+

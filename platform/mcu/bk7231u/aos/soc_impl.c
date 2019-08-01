@@ -85,7 +85,7 @@ void krhino_idle_hook(void)
 	UINT32 mcu_ps_tick = 24;
 	UINT32 mcu_miss_tick = 0;
 
-#if (NX_POWERSAVE)
+#if 0//(NX_POWERSAVE)
     GLOBAL_INT_DECLARATION();
     CPSR_ALLOC();
 
@@ -102,10 +102,10 @@ void krhino_idle_hook(void)
     GLOBAL_INT_DISABLE();
     if((INT32)(global_tick + (UINT32)1 - g_tick_count) <=  0)
 	{
-
+	    
 	    mcu_miss_tick = mcu_power_save(mcu_ps_tick);
         #if 0
-	    RHINO_CPU_INTRPT_DISABLE();
+	    RHINO_CPU_INTRPT_DISABLE();   
 	    g_tick_count += mcu_miss_tick;
 	    global_tick = g_tick_count;
 	    RHINO_CPU_INTRPT_ENABLE();

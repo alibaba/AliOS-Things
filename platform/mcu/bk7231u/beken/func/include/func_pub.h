@@ -10,8 +10,8 @@
 #define FUNC_WPRT                os_null_printf
 #endif
 
-extern UINT32 func_init(void);
-
+extern UINT32 func_init_extended(void);
+extern UINT32 func_init_basic(void);
 #endif // _FUNC_PUB_H_
 // eof
 

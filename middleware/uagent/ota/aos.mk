@@ -28,7 +28,11 @@ else
 ifneq (,$(filter mcu_esp32,$(HOST_MCU_FAMILY)))
 $(NAME)_SOURCES += hal/ota_hal_esp32.c
 else
+ifneq (,$(filter mcu_bk7231u,$(HOST_MCU_FAMILY)))
+$(NAME)_SOURCES += hal/ota_hal_beken.c
+else
 $(NAME)_SOURCES += hal/ota_hal_plat.c
+endif
 endif
 endif
 

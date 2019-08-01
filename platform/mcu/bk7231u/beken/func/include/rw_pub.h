@@ -3,6 +3,7 @@
 
 #include "ke_msg.h"
 #include "uart_pub.h"
+#include "rw_ieee80211.h"
 #include "rtos_pub.h"
 #include "rw_ieee80211.h"
 #include "apm_task.h"
@@ -11,6 +12,7 @@
 #include "mm.h"
 #include "lwip/netif.h"
 #include "vif_mgmt.h"
+#include "rw_msg_pub.h"
 
 #define RWI_DEBUG
 
@@ -62,29 +64,6 @@ typedef struct cfg80211_disconnect_params
     uint8_t vif_idx;
 }DISCONNECT_PARAM_T;
 
-typedef struct scanu_rst_upload
-{
-    UINT8 scanu_num;
-    struct sta_scan_res **res;
-}SCAN_RST_UPLOAD_T, *SCAN_RST_UPLOAD_PTR;
-
-
-typedef struct sta_scan_res
-{
-    UINT8 bssid[6];
-    char ssid[32];  /**< The SSID of an access point. */
-    char on_channel; // 1: ds IE channel=center_freq, 0: !=   
-    char channel;
-    UINT16 beacon_int;
-    UINT16 caps;
-    int level;
-	int security; // security type
-    UINT8 tsf[8];
-    UINT32 ie_len;
-    /* Followed by ie_len of IE data */
-}SCAN_RST_ITEM_T, *SCAN_RST_ITEM_PTR;
-
-
 typedef struct 
 {  
     char ssid[MAC_SSID_LEN]; 
@@ -113,16 +92,6 @@ typedef struct
     uint16_t freq;
 }BSS_INFO_T;
 
-typedef enum {
-	MSG_IDLE = 0,
-	MSG_CONNECTING,
-	MSG_PASSWD_WRONG,
-	MSG_NO_AP_FOUND,
-	MSG_CONN_FAIL,
-	MSG_CONN_SUCCESS,
-	MSG_GOT_IP,
-}msg_sta_states;
-
 enum nl80211_iftype {
 	NL80211_IFTYPE_UNSPECIFIED,
 	NL80211_IFTYPE_ADHOC,
@@ -140,6 +109,26 @@ enum nl80211_iftype {
 	/* keep last */
 	NUM_NL80211_IFTYPES,
 	NL80211_IFTYPE_MAX = NUM_NL80211_IFTYPES - 1
+};
+
+enum rw_evt_type
+{
+    /* for station mode */
+    RW_EVT_STA_CONNECTED = 0,    /* authentication success */
+    RW_EVT_STA_DISCONNECTED,    /* disconnect with server */
+    RW_EVT_STA_CONNECT_FAILED, /* authentication failed */
+    /* for softap mode */
+    RW_EVT_AP_CONNECTED,          /* a client association success */
+    RW_EVT_AP_DISCONNECTED,    /* a client disconnect */
+    RW_EVT_AP_CONNECT_FAILED, /* a client association failed */
+    RW_EVT_MAX
+};
+
+typedef int (*rw_event_handler)(enum rw_evt_type evt_type, void *data);
+
+struct rw_evt_payload
+{
+    uint8_t mac[6];
 };
 
 struct add_sta_st {
@@ -183,7 +172,6 @@ typedef struct bcn_param_st {
 
 typedef struct vif_info_tag VIF_INF_ST;
 typedef struct vif_info_tag* VIF_INF_PTR;
-
 typedef struct sta_info_tag STA_INF_ST;
 typedef struct sta_info_tag* STA_INF_PTR;
 
@@ -207,8 +195,14 @@ extern UINT32 rwm_transfer(UINT8 vif_idx, UINT8 *buf, UINT32 len);
 extern void* rwm_transfer_pre(UINT8 vif_idx, UINT8 *buf, UINT32 len);
 extern UINT32 rwm_uploaded_data_handle(UINT8 *upper_buf, UINT32 len);
 extern UINT32 rwm_get_rx_valid_node_len(void);
-extern void mhdr_set_station_status(msg_sta_states val);
-extern msg_sta_states mhdr_get_station_status(void);
+
+//
+extern void user_callback_func_register(FUNC_1PARAM_PTR sta_connect_start_func,
+								 FUNC_1PARAM_PTR connection_lost_func,
+								 FUNC_1PARAM_PTR auth_fail_func,
+								 FUNC_1PARAM_PTR assoc_fail_func );
+extern void user_callback_func_unregister(void);
+extern void rw_evt_set_callback(enum rw_evt_type evt_type, rw_event_handler handler);
 
 
 extern int rw_msg_send(const void *msg_params, uint16_t reqid, void *cfm);
@@ -233,12 +227,13 @@ extern int rw_msg_send_connection_loss_ind(u8 vif_index);
 extern int rw_msg_get_bss_info(u8 vif_idx, void *cfm);
 extern int rw_msg_get_channel(void *cfm);
 extern int rw_msg_set_filter(uint32_t filter);
-extern int rw_msg_set_channel(uint32_t channel, void *cfm);
+extern int rw_msg_set_channel(uint32_t channel, uint32_t band_width, void *cfm);
 extern int rw_msg_send_scan_cancel_req(void *cfm);
 extern int rw_msg_send_sm_disconnect_req(DISCONNECT_PARAM_T *param);
 extern int rw_msg_send_sm_connect_req( CONNECT_PARAM_T *sme, void *cfm);
 extern int rw_msg_send_tim_update(u8 vif_idx, u16 aid, u8 tx_status);
 extern int rw_msg_send_apm_stop_req(u8 vif_index);
+extern int rw_msg_set_power(u8 vif_idx, u8 power);
 
 
 
@@ -294,6 +289,8 @@ __INLINE void *rwm_mgmt_get_addr(u8 vif_idx)
 
 extern UINT8 beacon[149];
 
+UINT8 rw_ieee80211_init_scan_chan(struct scanu_start_req *req);
+UINT8 rw_ieee80211_is_scan_rst_in_countrycode(UINT8 freq);
 
 #endif //_RW_PUB_H_
 // eof

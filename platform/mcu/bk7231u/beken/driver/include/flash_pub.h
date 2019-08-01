@@ -30,8 +30,23 @@ enum
     CMD_FLASH_READ_MID,
     CMD_FLASH_ERASE_SECTOR,
 	CMD_FLASH_SET_HPM,
+	CMD_FLASH_GET_PROTECT,
     CMD_FLASH_SET_PROTECT
 };
+
+typedef enum
+{
+    FLASH_PROTECT_NONE,
+    FLASH_PROTECT_ALL,
+    FLASH_PROTECT_HALF,
+    FLASH_UNPROTECT_LAST_BLOCK
+} PROTECT_TYPE;
+
+typedef enum
+{
+    FLASH_XTX_16M_SR_WRITE_DISABLE,
+    FLASH_XTX_16M_SR_WRITE_ENABLE
+} XTX_FLASH_MODE;
 
 typedef struct
 {
@@ -44,4 +59,7 @@ typedef struct
 *******************************************************************************/
 extern void flash_init(void);
 extern void flash_exit(void);
+extern UINT8 flash_get_line_mode(void);
+extern void flash_set_line_mode(UINT8 );
+
 #endif //_FLASH_PUB_H
