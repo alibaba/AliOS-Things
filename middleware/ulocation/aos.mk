@@ -10,9 +10,8 @@ $(NAME)_SOURCES += \
                    qianxun/ulocation_qxwz_utils.c  \
                    qianxun/ulocation_qxwz_service.c
 
-$(NAME)_INCLUDES += ./qianxun/
+$(NAME)_INCLUDES += ./qianxun/ ./qianxun/include
 $(NAME)_PREBUILT_LIBRARY := ./qianxun/lib/$(HOST_ARCH)/qxwz.a
-GLOBAL_INCLUDES += ./qianxun/include
 
 else
 $(NAME)_SOURCES += \
