@@ -6,7 +6,7 @@
 #define LINKKIT_SYSCALL_ARG_H
 
 #include "linkkit/dev_model_api.h"
-#include "infra_compat.h"
+#include "linkkit/infra/infra_compat.h"
 
 typedef struct {
     iotx_linkkit_dev_type_t       dev_type;

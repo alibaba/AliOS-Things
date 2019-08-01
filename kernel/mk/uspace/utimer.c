@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "u_api.h"
-
-#if (RHINO_CONFIG_UTIMER_SUPPORT > 0)
+#include "k_api.h"
+#include "utask.h"
+#include "uassert.h"
 
 #define err_proc(err) \
     do { \
@@ -475,6 +475,4 @@ int timer_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio, size_
 
     return 0;
 }
-
-#endif /* RHINO_CONFIG_UTIMER_SUPPORT */
 
