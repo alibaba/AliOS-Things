@@ -3,7 +3,7 @@
 ```sh
 .
 ├── aos.mk
-├── qianxun.c
+├── qxwz_example.c
 ├── Config.in
 ├── k_app_config.h
 ├── README.md

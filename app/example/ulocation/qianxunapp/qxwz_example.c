@@ -7,24 +7,34 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
+#include "ulocation/ulocation.h"
 
 #include "netmgr.h"
-#include "qxwz_types.h"
-#include "qxwz_sdk.h"
 
-#define QXWZ_APPKEY          "770302"
-#define QXWZ_APPSECRET       "99094b805092d2e7e08f63bcde97a2a7a70bded81a1e0b0f6728dede7fc01902"
-#define QXWZ_DEVICE_ID       "AliOS-Things2.1.1"
-#define QXWZ_DEVICE_TYPE     "uLocation_qianxun"
+#define ULOCATION_QXWZ_APPKEY          "770302"
+#define ULOCATION_QXWZ_APPSECRET       "99094b805092d2e7e08f63bcde97a2a7a70bded81a1e0b0f6728dede7fc01902"
+#define ULOCATION_QXWZ_DEVICE_ID       "AliOS-Things2.1.2"
+#define ULOCATION_QXWZ_DEVICE_TYPE     "uLocation_qianxun"
 
+#define QXWZ_TASK_STACK_SIZE 4096
+#define QXWZ_TASK_PRIO (AOS_DEFAULT_APP_PRI - 4)
+#define PROP_POST_FORMAT_LIGHTSWITCH "{\"LightSwitch\":1}"
+
+aos_task_t g_qianxun_task;
 static qxwz_started = 0;
+static dtc_started = 0;
 
-static const qxwz_usr_config_t s_config = {
-    QXWZ_APPKEY,     /* appKey */
-    QXWZ_APPSECRET,  /* appSecret */
-    QXWZ_DEVICE_ID,  /* device_ID */
-    QXWZ_DEVICE_TYPE /* device_Type */
+static const ulocation_qxwz_usr_config_t config = {
+    ULOCATION_QXWZ_APPKEY,     /* appKey */
+    ULOCATION_QXWZ_APPSECRET,  /* appSecret */
+    ULOCATION_QXWZ_DEVICE_ID,  /* device_ID */
+    ULOCATION_QXWZ_DEVICE_TYPE /* device_Type */
 };
+
+static int32_t qxwz_service_sample()
+{
+    return ulocation_qianxun_service(&config);
+}
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -37,17 +47,12 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         return;
     }
 
-    netmgr_ap_config_t config;
-    memset(&config, 0, sizeof(netmgr_ap_config_t));
-    netmgr_get_ap_config(&config);
-    LOG("wifi_service_event config.ssid %s", config.ssid);
-    if (strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
-        return;
-    }
+    LOG("wifi_service_event!\n");
 
-    if (!qxwz_started){
-        qxwz_started = 1;
-        uloc_qianxun_service(&s_config);
+    ret = aos_task_new_ext(&g_qianxun_task, "qxwz_service_task", qxwz_service_sample,
+                           NULL, QXWZ_TASK_STACK_SIZE, QXWZ_TASK_PRIO);
+    if (ret != 0) {
+        return;
     }
 }
 
@@ -61,6 +66,7 @@ int application_start(int argc, char *argv[])
     sal_init();
 #endif
 
+    aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     netmgr_start(0);
