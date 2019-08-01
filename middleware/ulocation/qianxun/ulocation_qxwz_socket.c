@@ -14,7 +14,7 @@
 #include "qxwz_types.h"
 #include "ulocation_qxwz_common.h"
 
-static soc_cb_t g_soc_funtion;
+static soc_cb_t   g_soc_funtion;
 static qxwz_s32_t g_soc;
 static qxwz_s8_t g_soc_buf[SOCKET_BUFFER] = {0};
 static qxwz_s32_t g_soc_len = 0;
@@ -37,7 +37,7 @@ int qxwz_tcp_establish(const char *host, uint16_t port)
     struct addrinfo  hints;
     struct addrinfo *addrInfoList = NULL;
     struct addrinfo *cur          = NULL;
-    int              fd           = 0;
+    int              fd           = g_soc;
     int              rc           = -1;
     char             service[6];
 
@@ -51,12 +51,12 @@ int qxwz_tcp_establish(const char *host, uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        LOGE("uLocation-qxwz", "getaddrinfo error\n");
+        LOGE("uLocation-qxwz", "getaddrinfo error");
         return -1;
     }
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            LOGE("uLocation-qxwz", "socket type error\n");
+            LOGE("uLocation-qxwz", "socket type error");
             rc = -1;
             continue;
         }
@@ -67,14 +67,14 @@ int qxwz_tcp_establish(const char *host, uint16_t port)
         }
 
         close(fd);
-        LOGE("uLocation-qxwz", "connect error\n");
+        LOGE("uLocation-qxwz", "connect error");
         rc = -1;
     }
 
     if (-1 == rc) {
-        LOGE("uLocation-qxwz", "fail to establish tcp\n");
+        LOGE("uLocation-qxwz", "fail to establish tcp");
     } else {
-        LOGD("uLocation-qxwz", "success to establish tcp, fd=%d\n", rc);
+        LOGD("uLocation-qxwz", "success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
 
@@ -88,13 +88,13 @@ int32_t qxwz_tcp_destroy(uintptr_t fd)
 
     rc = shutdown((int)fd, 2);
     if (0 != rc) {
-        LOGE("uLocation-qxwz", "shutdown error\n");
+        LOGE("uLocation-qxwz", "shutdown error");
         return -1;
     }
 
     rc = close((int)fd);
     if (0 != rc) {
-        LOGE("uLocation-qxwz", "closesocket error\n");
+        LOGE("uLocation-qxwz", "closesocket error");
         return -1;
     }
 
@@ -129,7 +129,7 @@ int32_t qxwz_tcp_write(uintptr_t fd, const char *buf, uint32_t len,
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
-                    LOGD("uLocation-qxwz", "Should NOT arrive\n");
+                    LOGD("uLocation-qxwz", "Should NOT arrive");
                     ret = 0;
                     continue;
                 }
@@ -137,12 +137,12 @@ int32_t qxwz_tcp_write(uintptr_t fd, const char *buf, uint32_t len,
                 break;
             } else {
                 if (EINTR == errno) {
-                    LOGD("uLocation-qxwz", "EINTR be caught\n");
+                    LOGD("uLocation-qxwz", "EINTR be caught");
                     continue;
                 }
 
                 err_code = -1;
-                LOGE("uLocation-qxwz", "select-write fail\n");
+                LOGE("uLocation-qxwz", "select-write fail");
                 break;
             }
         }
@@ -152,15 +152,15 @@ int32_t qxwz_tcp_write(uintptr_t fd, const char *buf, uint32_t len,
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
-                LOGD("uLocation-qxwz", "No data be sent\n");
+                LOGD("uLocation-qxwz", "No data be sent");
             } else {
                 if (EINTR == errno) {
-                    LOGD("uLocation-qxwz", "EINTR be caught\n");
+                    LOGD("uLocation-qxwz", "EINTR be caught");
                     continue;
                 }
 
                 err_code = -1;
-                LOGE("uLocation-qxwz", "send fail\n");
+                LOGE("uLocation-qxwz", "send fail");
                 break;
             }
         }
@@ -199,14 +199,14 @@ int32_t qxwz_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                LOGE("uLocation-qxwz", "connection is closed\n");
+                LOGE("uLocation-qxwz", "connection is closed");
                 err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
                     continue;
                 }
-                LOGE("uLocation-qxwz", "send fail\n");
+                LOGE("uLocation-qxwz", "send fail");
                 err_code = -2;
                 break;
             }
@@ -216,13 +216,13 @@ int32_t qxwz_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms
             if (EINTR == errno) {
                 continue;
             }
-            LOGE("uLocation-qxwz", "select-recv fail errno=%d\n",errno);
+            LOGE("uLocation-qxwz", "select-recv fail errno=%d",errno);
             err_code = -2;
             break;
         }
     } while ((len_recv < len));
 
-    if (len_recv != 0){
+    if (len_recv != 0) {
         g_soc_funtion.cb_recv(fd, buf, len_recv);
     }
 
@@ -231,10 +231,11 @@ int32_t qxwz_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms
 
 qxwz_s32_t qxwz_soc_close(qxwz_s32_t soc)
 {
-    if (soc != g_soc){
-        LOGE("uLocation-qxwz", "socket fd error!\n");
+    if (soc != g_soc) {
+        LOGE("uLocation-qxwz", "socket fd error!");
         return -1;
     }
+
     return qxwz_tcp_destroy(soc);
 }
 
@@ -243,19 +244,21 @@ qxwz_s32_t qxwz_soc_recv_handler(void)
     qxwz_s32_t soc = g_soc;
     memset(g_soc_buf, 0, sizeof(g_soc_buf));
     g_soc_len = sizeof(g_soc_buf);
+
     return qxwz_tcp_read(soc, g_soc_buf, g_soc_len, SOCKET_TIMEOUT);
 }
 
 qxwz_s32_t qxwz_soc_send(qxwz_s32_t soc, const qxwz_s8_t *buf, qxwz_s32_t len)
 {
-    if (soc != g_soc){
-        LOGE("uLocation-qxwz", "socket fd error!\n");
+    if (soc != g_soc) {
+        LOGE("uLocation-qxwz", "socket fd error!");
         return -1;
     }
-    if (buf == NULL || len ==0){
-        LOGE("uLocation-qxwz", "send buffer is empty!\n");
+    if (buf == NULL || len ==0) {
+        LOGE("uLocation-qxwz", "send buffer is empty!");
         return -1;
     }
+
     return qxwz_tcp_write(soc, buf, len, SOCKET_TIMEOUT);
 }
 
@@ -263,19 +266,18 @@ qxwz_s32_t qxwz_soc_connect(qxwz_s32_t soc, host_info_t *host, soc_cb_t *cbs)
 {
     qxwz_s32_t ret;
 
-    if (soc != g_soc){
-        LOGE("uLocation-qxwz", "socket fd error!\n");
+    if (soc != g_soc) {
+        LOGE("uLocation-qxwz", "socket fd error!");
         return -1;
     }
-    if (host == NULL || cbs == NULL){
-        LOGE("uLocation-qxwz", "host and cbs is NULL\n");
+    if (host == NULL || cbs == NULL) {
+        LOGE("uLocation-qxwz", "host and cbs is NULL");
         return -1;
     }
     g_soc_funtion = *cbs;
     ret = qxwz_tcp_establish(host->hostName, host->port);
-    if (ret != 0)
-    {
-        LOGE("uLocation-qxwz", "tcp establish error!\n");
+    if (ret < 0) {
+        LOGE("uLocation-qxwz", "tcp establish error!");
         return -1;
     }
 }
@@ -285,7 +287,7 @@ qxwz_s32_t qxwz_soc_create(qxwz_u32_t nwk_id)
     qxwz_s32_t fd;
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (fd < 0) {
-        LOGE("uLocation-qxwz", "create socket error\n");
+        LOGE("uLocation-qxwz", "create socket error");
         return -1;
     }
     g_soc = fd;
@@ -303,5 +305,7 @@ qxwz_s32_t qxwz_printf(const char *fmt, ...)
     va_end(val);
 
     printf("%s", buf);
+
     return 0;
 }
+
