@@ -421,7 +421,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
 
     if (aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, timeout)) {
-        printf("uart port % recv fail to get mutex \r\n", uart->port);
+        printf("uart port %d recv fail to get mutex \r\n", uart->port);
         return -1;
     }
     
