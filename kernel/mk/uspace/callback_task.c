@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "u_api.h"
-
-#if (RHINO_CONFIG_UCALLBACK_SUPPORT > 0)
+#include "k_api.h"
+#include "utask.h"
+#include "callback.h"
+#include "uassert.h"
 
 typedef int (*f0)(void);
 typedef int (*f1)(void *arg1);
@@ -102,6 +103,4 @@ int cb_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 
     return 0;
 }
-
-#endif /* RHINO_CONFIG_UCALLBACK_SUPPORT */
 

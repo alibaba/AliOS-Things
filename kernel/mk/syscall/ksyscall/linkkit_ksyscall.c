@@ -11,9 +11,9 @@
 #endif
 
 #include "linkkit/dev_model_api.h"
-#include "infra_compat.h"
-#include "wrappers_defs.h"
-#include "wrappers_os.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/wrappers/wrappers_defs.h"
+#include "linkkit/wrappers/wrappers_os.h"
 #include "linkkit_syscall_arg.h"
 #include "k_api.h"
 #include "utask.h"
