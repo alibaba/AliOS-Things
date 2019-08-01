@@ -3,11 +3,12 @@
  */
 
 #include <stdlib.h>
-#include "u_api.h"
+#include "k_api.h"
+#include "utask.h"
+#include "res.h"
+#include "uassert.h"
 
-#if (RHINO_CONFIG_URES_SUPPORT > 0)
-
-ktask_t    *res_task_obj;
+ktask_t *res_task_obj;
 
 void res_task(void *arg)
 {
@@ -61,6 +62,4 @@ int res_task_start(size_t kstack_size, size_t ustack_size, uint8_t prio)
 
     return 0;
 }
-
-#endif /* RHINO_CONFIG_URES_SUPPORT */
 

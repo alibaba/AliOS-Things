@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "u_api.h"
+#include "k_api.h"
+#include "utask.h"
+#include "umm/umm.h"
 #include "aos/errno.h"
 #include "aos/kernel.h"
 
@@ -343,7 +345,6 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
 }
 #endif /* RHINO_CONFIG_BUF */
 
-#if (RHINO_CONFIG_UTIMER_SUPPORT > 0)
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                   int ms, int repeat)
 {
@@ -452,7 +453,6 @@ int aos_timer_change(aos_timer_t *timer, int ms)
 
     return ret;
 }
-#endif /* RHINO_CONFIG_UTIMER_SUPPORT */
 
 void *aos_zalloc(unsigned int size)
 {
