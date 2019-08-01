@@ -100,10 +100,14 @@ static unsigned int ota_breeze_get_image_crc32()
     return crc;
 }
 
+int ota_breeze_hal_init()
+{
+    return 0;
+}
+
 bool ota_breeze_check_if_resume(unsigned char *p_data, unsigned short length)
 {
     bool ret = false;
-    int i;
     if(ota_breeze_get_image_info(&breeze_ota_settings) == 0) {
         if(memcmp(breeze_ota_settings.version_store_buf, p_data, length) == 0) {
             ret = true;

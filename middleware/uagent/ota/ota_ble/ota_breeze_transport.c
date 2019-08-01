@@ -24,16 +24,6 @@ static unsigned char ota_breeze_new_fw = 0;
     *((unsigned char *)(d) + 3) = ((val) >> 24) & 0xFF; \
 }
 
-bool ota_breeze_check_if_bins_supported()
-{
-#ifdef AOS_BINS
-    bool is_support_mbins = true;
-#else
-    bool is_support_mbins = false;
-#endif
-    return is_support_mbins;
-}
-
 void ota_breeze_send_error()
 {
     unsigned int err_code = 0;
@@ -128,6 +118,17 @@ unsigned int ota_breeze_send_crc_result(unsigned char crc_ok)
     return  breeze_post_ext(OTA_BREEZE_CMD_FW_CHECK_RESULT, &ack, 1);
 }
 
+#ifdef BLE_OTA_SUPPORT_IMAGE_HEAD
+bool ota_breeze_check_if_bins_supported()
+{
+#ifdef AOS_BINS
+    bool is_support_mbins = true;
+#else
+    bool is_support_mbins = false;
+#endif
+    return is_support_mbins;
+}
+
 ota_breeze_bin_type_t ota_breeze_get_image_type(unsigned int image_magic)
 {
     ota_breeze_bin_type_t image_type = OTA_BIN_TYPE_INVALID;
@@ -149,11 +150,12 @@ ota_breeze_bin_type_t ota_breeze_get_image_type(unsigned int image_magic)
     }
     return image_type;
 }
+#endif
 
 unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int length)
 {
-             int  ret      = 0;
-    unsigned int  err_code = 0;
+    int ret = 0;
+    unsigned int  err_code = OTA_BREEZE_SUCCESS;
     unsigned char l_len    = 0;
     unsigned char resume   = false;
     _ota_ble_global_dat_t *p_ota = NULL;
@@ -163,6 +165,10 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
     p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
+    }
+    ret = ota_breeze_hal_init();
+    if(ret != 0) {
+        return OTA_BREEZE_ERROR_INIT_FAIL;
     }
     resume = ota_breeze_check_if_resume(buffer, length);
     ret = ota_breeze_check_upgrade_fw_version(&p_ota->verison, buffer, length);
@@ -188,6 +194,9 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
             err_code = OTA_BREEZE_ERROR_DATA_SIZE;
         }
     }
+    else {
+        err_code = OTA_BREEZE_ERROR_INVALID_VERSION;
+    }
     return err_code;
 }
 
@@ -195,9 +204,6 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
 {
     unsigned int           err_code = OTA_BREEZE_SUCCESS;
     unsigned int           i = 0;
-    unsigned int           bin_info_len = 0;
-    ota_breeze_image_t     bin_info;
-    ota_breeze_bin_type_t  bin_type;
     static unsigned short  last_percent = 0;
     unsigned short         percent;
     _ota_ble_global_dat_t  *p_ota = NULL;
@@ -215,8 +221,13 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         err_code = OTA_BREEZE_ERROR_INVALID_PARAM;
         goto OTA_BREEZE_TRANS_ERRO;
     }
-    bin_info_len = sizeof(ota_breeze_image_t);
+
     if (p_ota->valid_bytes_recvd == OTA_IMAGE_MAGIC_OFFSET) {
+#ifdef BLE_OTA_SUPPORT_IMAGE_HEAD
+        unsigned int           bin_info_len = 0;
+        ota_breeze_image_t     bin_info;
+        ota_breeze_bin_type_t  bin_type;
+        bin_info_len = sizeof(ota_breeze_image_t);
         if(length >= bin_info_len) {
             memcpy(&bin_info, buffer, bin_info_len);
             bin_type = ota_breeze_get_image_type(bin_info.image_magic);
@@ -244,6 +255,9 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
             err_code = OTA_BREEZE_ERROR_INVALID_LENGTH;
             goto OTA_BREEZE_TRANS_ERRO;
         }
+#else
+        ota_breeze_set_bin_type(OTA_BIN_TYPE_SINGLE);
+#endif
     }
 
     if (ota_breeze_write(&p_ota->valid_bytes_recvd, (char *)buffer, length) != 0) {
@@ -258,7 +272,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         last_percent = 0;
     }
     if ((percent - last_percent) >= 5) {
-        OTA_BREEZE_LOG_I("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
+        OTA_BREEZE_LOG_I("===>%dB\t%d%% ...", p_ota->bytes_recvd, percent);
         last_percent = percent;
         if(ota_breeze_save_breakpoint(p_ota->valid_bytes_recvd) !=0 ) {
             err_code = OTA_BREEZE_ERROR_SETTINGS_FAIL;
@@ -277,6 +291,9 @@ unsigned int ota_breeze_is_in_check_status()
     }
     if (p_ota->bytes_recvd >= p_ota->rx_fw_size) {
         status = OTA_BREEZE_SUCCESS;
+        if (ota_breeze_save_breakpoint(0) !=0 ) {
+            status = OTA_BREEZE_ERROR_SAVE_BREAKPOINT_FAIL;
+        }
     }
     return status;
 }
@@ -287,7 +304,7 @@ void ota_breeze_reset()
     if(p_ota == NULL) {
         return;
     }
-    OTA_BREEZE_LOG_I("discnt\r\n");
+    OTA_BREEZE_LOG_I("discnt");
     /* Reset state machine. */
     p_ota->ota_breeze_status = OTA_BREEZE_STATE_OFF;
     p_ota->rx_fw_size   = 0;
