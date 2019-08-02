@@ -50,6 +50,10 @@ uint32_t sst_get_obj(const char *name, void **pp_data, uint32_t *p_file_len);
 
 uint32_t sst_delete_obj(const char *name);
 
+uint32_t sst_hal_init();
+
+void sst_hal_deinit();
+
 void sst_set_mig_obj_path(const char *path);
 
 //store data in .mig file

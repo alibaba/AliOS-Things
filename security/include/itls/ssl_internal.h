@@ -291,6 +291,9 @@ struct mbedtls_ssl_handshake_params
 #if defined(MBEDTLS_SSL_EXTENDED_MASTER_SECRET)
     int extended_ms;                    /*!< use Extended Master Secret? */
 #endif
+#if defined(MBEDTLS_SSL_PROTO_ITLS)
+    int auth_code_verified;             /*!< server auth code verified? */
+#endif
 };
 
 /*

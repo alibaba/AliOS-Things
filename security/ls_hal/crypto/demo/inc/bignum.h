@@ -51,8 +51,8 @@
 #define HAL_MPI_MAX_BITS                              ( 8 * HAL_MPI_MAX_SIZE )    /**< Maximum number of bits for usable MPIs. */
 
 /*
- * When reading from files with hal_mpi_read_file() and writing to files with
- * hal_mpi_write_file() the buffer should have space
+ * When reading from files with impl_mpi_read_file() and writing to files with
+ * impl_mpi_write_file() the buffer should have space
  * for a (short) label, the MPI (in the provided radix), the newline
  * characters and the '\0'.
  *
@@ -81,8 +81,8 @@
 #if ( ! defined(HAL_HAVE_INT32) && \
         defined(_MSC_VER) && defined(_M_AMD64) )
   #define HAL_HAVE_INT64
-  typedef  int64_t hal_mpi_sint;
-  typedef uint64_t hal_mpi_uint;
+  typedef  int64_t impl_mpi_sint;
+  typedef uint64_t impl_mpi_uint;
 #else
   #if ( ! defined(HAL_HAVE_INT32) &&               \
         defined(__GNUC__) && (                          \
@@ -92,16 +92,16 @@
         (defined(__sparc__) && defined(__arch64__))  || \
         defined(__s390x__) || defined(__mips64) ) )
      #define HAL_HAVE_INT64
-     typedef  int64_t hal_mpi_sint;
-     typedef uint64_t hal_mpi_uint;
-     /* hal_t_udbl defined as 128-bit unsigned int */
-     typedef unsigned int hal_t_udbl __attribute__((mode(TI)));
+     typedef  int64_t impl_mpi_sint;
+     typedef uint64_t impl_mpi_uint;
+     /* impl_t_udbl defined as 128-bit unsigned int */
+     typedef unsigned int impl_t_udbl __attribute__((mode(TI)));
      #define HAL_HAVE_UDBL
   #else
      #define HAL_HAVE_INT32
-     typedef  int32_t hal_mpi_sint;
-     typedef uint32_t hal_mpi_uint;
-     typedef uint64_t hal_t_udbl;
+     typedef  int32_t impl_mpi_sint;
+     typedef uint32_t impl_mpi_uint;
+     typedef uint64_t impl_t_udbl;
      #define HAL_HAVE_UDBL
   #endif /* !HAL_HAVE_INT32 && __GNUC__ && 64-bit platform */
 #endif /* !HAL_HAVE_INT32 && _MSC_VER && _M_AMD64 */
@@ -117,9 +117,9 @@ typedef struct
 {
     int s;              /*!<  integer sign      */
     size_t n;           /*!<  total # of limbs  */
-    hal_mpi_uint *p;          /*!<  pointer to limbs  */
+    impl_mpi_uint *p;          /*!<  pointer to limbs  */
 }
-hal_mpi;
+impl_mpi;
 
 /**
  * \brief           Initialize one MPI (make internal references valid)
@@ -128,14 +128,14 @@ hal_mpi;
  *
  * \param X         One MPI to initialize.
  */
-void hal_mpi_init( hal_mpi *X );
+void impl_mpi_init( impl_mpi *X );
 
 /**
  * \brief          Unallocate one MPI
  *
  * \param X        One MPI to unallocate.
  */
-void hal_mpi_free( hal_mpi *X );
+void impl_mpi_free( impl_mpi *X );
 
 /**
  * \brief          Enlarge to the specified number of limbs
@@ -146,7 +146,7 @@ void hal_mpi_free( hal_mpi *X );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_grow( hal_mpi *X, size_t nblimbs );
+int impl_mpi_grow( impl_mpi *X, size_t nblimbs );
 
 /**
  * \brief          Resize down, keeping at least the specified number of limbs
@@ -157,7 +157,7 @@ int hal_mpi_grow( hal_mpi *X, size_t nblimbs );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_shrink( hal_mpi *X, size_t nblimbs );
+int impl_mpi_shrink( impl_mpi *X, size_t nblimbs );
 
 /**
  * \brief          Copy the contents of Y into X
@@ -168,7 +168,7 @@ int hal_mpi_shrink( hal_mpi *X, size_t nblimbs );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_copy( hal_mpi *X, const hal_mpi *Y );
+int impl_mpi_copy( impl_mpi *X, const impl_mpi *Y );
 
 /**
  * \brief          Swap the contents of X and Y
@@ -176,7 +176,7 @@ int hal_mpi_copy( hal_mpi *X, const hal_mpi *Y );
  * \param X        First MPI value
  * \param Y        Second MPI value
  */
-void hal_mpi_swap( hal_mpi *X, hal_mpi *Y );
+void impl_mpi_swap( impl_mpi *X, impl_mpi *Y );
 
 /**
  * \brief          Safe conditional assignement X = Y if assign is 1
@@ -189,32 +189,32 @@ void hal_mpi_swap( hal_mpi *X, hal_mpi *Y );
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed,
  *
  * \note           This function is equivalent to
- *                      if( assign ) hal_mpi_copy( X, Y );
+ *                      if( assign ) impl_mpi_copy( X, Y );
  *                 except that it avoids leaking any information about whether
  *                 the assignment was done or not (the above code may leak
  *                 information through branch prediction and/or memory access
  *                 patterns analysis).
  */
-int hal_mpi_safe_cond_assign( hal_mpi *X, const hal_mpi *Y, unsigned char assign );
+int impl_mpi_safe_cond_assign( impl_mpi *X, const impl_mpi *Y, unsigned char assign );
 
 /**
  * \brief          Safe conditional swap X <-> Y if swap is 1
  *
- * \param X        First hal_mpi value
- * \param Y        Second hal_mpi value
+ * \param X        First impl_mpi value
+ * \param Y        Second impl_mpi value
  * \param assign   1: perform the swap, 0: keep X and Y's original values
  *
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed,
  *
  * \note           This function is equivalent to
- *                      if( assign ) hal_mpi_swap( X, Y );
+ *                      if( assign ) impl_mpi_swap( X, Y );
  *                 except that it avoids leaking any information about whether
  *                 the assignment was done or not (the above code may leak
  *                 information through branch prediction and/or memory access
  *                 patterns analysis).
  */
-int hal_mpi_safe_cond_swap( hal_mpi *X, hal_mpi *Y, unsigned char assign );
+int impl_mpi_safe_cond_swap( impl_mpi *X, impl_mpi *Y, unsigned char assign );
 
 /**
  * \brief          Set value from integer
@@ -225,7 +225,7 @@ int hal_mpi_safe_cond_swap( hal_mpi *X, hal_mpi *Y, unsigned char assign );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_lset( hal_mpi *X, hal_mpi_sint z );
+int impl_mpi_lset( impl_mpi *X, impl_mpi_sint z );
 
 /**
  * \brief          Get a specific bit from X
@@ -235,7 +235,7 @@ int hal_mpi_lset( hal_mpi *X, hal_mpi_sint z );
  *
  * \return         Either a 0 or a 1
  */
-int hal_mpi_get_bit( const hal_mpi *X, size_t pos );
+int impl_mpi_get_bit( const impl_mpi *X, size_t pos );
 
 /**
  * \brief          Set a bit of X to a specific value of 0 or 1
@@ -251,7 +251,7 @@ int hal_mpi_get_bit( const hal_mpi *X, size_t pos );
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed,
  *                 HAL_ERR_MPI_BAD_INPUT_DATA if val is not 0 or 1
  */
-int hal_mpi_set_bit( hal_mpi *X, size_t pos, unsigned char val );
+int impl_mpi_set_bit( impl_mpi *X, size_t pos, unsigned char val );
 
 /**
  * \brief          Return the number of zero-bits before the least significant
@@ -261,7 +261,7 @@ int hal_mpi_set_bit( hal_mpi *X, size_t pos, unsigned char val );
  *
  * \param X        MPI to use
  */
-size_t hal_mpi_lsb( const hal_mpi *X );
+size_t impl_mpi_lsb( const impl_mpi *X );
 
 /**
  * \brief          Return the number of bits up to and including the most
@@ -271,14 +271,14 @@ size_t hal_mpi_lsb( const hal_mpi *X );
  *
  * \param X        MPI to use
  */
-size_t hal_mpi_bitlen( const hal_mpi *X );
+size_t impl_mpi_bitlen( const impl_mpi *X );
 
 /**
  * \brief          Return the total size in bytes
  *
  * \param X        MPI to use
  */
-size_t hal_mpi_size( const hal_mpi *X );
+size_t impl_mpi_size( const impl_mpi *X );
 
 /**
  * \brief          Import from an ASCII string
@@ -289,7 +289,7 @@ size_t hal_mpi_size( const hal_mpi *X );
  *
  * \return         0 if successful, or a HAL_ERR_MPI_XXX error code
  */
-int hal_mpi_read_string( hal_mpi *X, int radix, const char *s );
+int impl_mpi_read_string( impl_mpi *X, int radix, const char *s );
 
 /**
  * \brief          Export into an ASCII string
@@ -307,7 +307,7 @@ int hal_mpi_read_string( hal_mpi *X, int radix, const char *s );
  * \note           Call this function with buflen = 0 to obtain the
  *                 minimum required buffer size in *olen.
  */
-int hal_mpi_write_string( const hal_mpi *X, int radix,
+int impl_mpi_write_string( const impl_mpi *X, int radix,
                               char *buf, size_t buflen, size_t *olen );
 
 #if defined(HAL_FS_IO)
@@ -322,7 +322,7 @@ int hal_mpi_write_string( const hal_mpi *X, int radix,
  *                 the file read buffer is too small or a
  *                 HAL_ERR_MPI_XXX error code
  */
-int hal_mpi_read_file( hal_mpi *X, int radix, FILE *fin );
+int impl_mpi_read_file( impl_mpi *X, int radix, FILE *fin );
 
 /**
  * \brief          Write X into an opened file, or stdout if fout is NULL
@@ -336,7 +336,7 @@ int hal_mpi_read_file( hal_mpi *X, int radix, FILE *fin );
  *
  * \note           Set fout == NULL to print X on the console.
  */
-int hal_mpi_write_file( const char *p, const hal_mpi *X, int radix, FILE *fout );
+int impl_mpi_write_file( const char *p, const impl_mpi *X, int radix, FILE *fout );
 #endif /* HAL_FS_IO */
 
 /**
@@ -349,7 +349,7 @@ int hal_mpi_write_file( const char *p, const hal_mpi *X, int radix, FILE *fout )
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_read_binary( hal_mpi *X, const unsigned char *buf, size_t buflen );
+int impl_mpi_read_binary( impl_mpi *X, const unsigned char *buf, size_t buflen );
 
 /**
  * \brief          Export X into unsigned binary data, big endian.
@@ -363,7 +363,7 @@ int hal_mpi_read_binary( hal_mpi *X, const unsigned char *buf, size_t buflen );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_BUFFER_TOO_SMALL if buf isn't large enough
  */
-int hal_mpi_write_binary( const hal_mpi *X, unsigned char *buf, size_t buflen );
+int impl_mpi_write_binary( const impl_mpi *X, unsigned char *buf, size_t buflen );
 
 /**
  * \brief          Left-shift: X <<= count
@@ -374,7 +374,7 @@ int hal_mpi_write_binary( const hal_mpi *X, unsigned char *buf, size_t buflen );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_shift_l( hal_mpi *X, size_t count );
+int impl_mpi_shift_l( impl_mpi *X, size_t count );
 
 /**
  * \brief          Right-shift: X >>= count
@@ -385,7 +385,7 @@ int hal_mpi_shift_l( hal_mpi *X, size_t count );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_shift_r( hal_mpi *X, size_t count );
+int impl_mpi_shift_r( impl_mpi *X, size_t count );
 
 /**
  * \brief          Compare unsigned values
@@ -397,7 +397,7 @@ int hal_mpi_shift_r( hal_mpi *X, size_t count );
  *                -1 if |X| is lesser  than |Y| or
  *                 0 if |X| is equal to |Y|
  */
-int hal_mpi_cmp_abs( const hal_mpi *X, const hal_mpi *Y );
+int impl_mpi_cmp_abs( const impl_mpi *X, const impl_mpi *Y );
 
 /**
  * \brief          Compare signed values
@@ -409,7 +409,7 @@ int hal_mpi_cmp_abs( const hal_mpi *X, const hal_mpi *Y );
  *                -1 if X is lesser  than Y or
  *                 0 if X is equal to Y
  */
-int hal_mpi_cmp_mpi( const hal_mpi *X, const hal_mpi *Y );
+int impl_mpi_cmp_mpi( const impl_mpi *X, const impl_mpi *Y );
 
 /**
  * \brief          Compare signed values
@@ -421,7 +421,7 @@ int hal_mpi_cmp_mpi( const hal_mpi *X, const hal_mpi *Y );
  *                -1 if X is lesser  than z or
  *                 0 if X is equal to z
  */
-int hal_mpi_cmp_int( const hal_mpi *X, hal_mpi_sint z );
+int impl_mpi_cmp_int( const impl_mpi *X, impl_mpi_sint z );
 
 /**
  * \brief          Unsigned addition: X = |A| + |B|
@@ -433,7 +433,7 @@ int hal_mpi_cmp_int( const hal_mpi *X, hal_mpi_sint z );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_add_abs( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_add_abs( impl_mpi *X, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Unsigned subtraction: X = |A| - |B|
@@ -445,7 +445,7 @@ int hal_mpi_add_abs( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_NEGATIVE_VALUE if B is greater than A
  */
-int hal_mpi_sub_abs( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_sub_abs( impl_mpi *X, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Signed addition: X = A + B
@@ -457,7 +457,7 @@ int hal_mpi_sub_abs( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_add_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_add_mpi( impl_mpi *X, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Signed subtraction: X = A - B
@@ -469,7 +469,7 @@ int hal_mpi_add_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_sub_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_sub_mpi( impl_mpi *X, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Signed addition: X = A + b
@@ -481,7 +481,7 @@ int hal_mpi_sub_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_add_int( hal_mpi *X, const hal_mpi *A, hal_mpi_sint b );
+int impl_mpi_add_int( impl_mpi *X, const impl_mpi *A, impl_mpi_sint b );
 
 /**
  * \brief          Signed subtraction: X = A - b
@@ -493,7 +493,7 @@ int hal_mpi_add_int( hal_mpi *X, const hal_mpi *A, hal_mpi_sint b );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_sub_int( hal_mpi *X, const hal_mpi *A, hal_mpi_sint b );
+int impl_mpi_sub_int( impl_mpi *X, const impl_mpi *A, impl_mpi_sint b );
 
 /**
  * \brief          Baseline multiplication: X = A * B
@@ -505,7 +505,7 @@ int hal_mpi_sub_int( hal_mpi *X, const hal_mpi *A, hal_mpi_sint b );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_mul_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_mul_mpi( impl_mpi *X, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Baseline multiplication: X = A * b
@@ -519,10 +519,10 @@ int hal_mpi_mul_mpi( hal_mpi *X, const hal_mpi *A, const hal_mpi *B );
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_mul_int( hal_mpi *X, const hal_mpi *A, hal_mpi_uint b );
+int impl_mpi_mul_int( impl_mpi *X, const impl_mpi *A, impl_mpi_uint b );
 
 /**
- * \brief          Division by hal_mpi: A = Q * B + R
+ * \brief          Division by impl_mpi: A = Q * B + R
  *
  * \param Q        Destination MPI for the quotient
  * \param R        Destination MPI for the rest value
@@ -535,7 +535,7 @@ int hal_mpi_mul_int( hal_mpi *X, const hal_mpi *A, hal_mpi_uint b );
  *
  * \note           Either Q or R can be NULL.
  */
-int hal_mpi_div_mpi( hal_mpi *Q, hal_mpi *R, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_div_mpi( impl_mpi *Q, impl_mpi *R, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Division by int: A = Q * b + R
@@ -551,7 +551,7 @@ int hal_mpi_div_mpi( hal_mpi *Q, hal_mpi *R, const hal_mpi *A, const hal_mpi *B 
  *
  * \note           Either Q or R can be NULL.
  */
-int hal_mpi_div_int( hal_mpi *Q, hal_mpi *R, const hal_mpi *A, hal_mpi_sint b );
+int impl_mpi_div_int( impl_mpi *Q, impl_mpi *R, const impl_mpi *A, impl_mpi_sint b );
 
 /**
  * \brief          Modulo: R = A mod B
@@ -565,12 +565,12 @@ int hal_mpi_div_int( hal_mpi *Q, hal_mpi *R, const hal_mpi *A, hal_mpi_sint b );
  *                 HAL_ERR_MPI_DIVISION_BY_ZERO if B == 0,
  *                 HAL_ERR_MPI_NEGATIVE_VALUE if B < 0
  */
-int hal_mpi_mod_mpi( hal_mpi *R, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_mod_mpi( impl_mpi *R, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Modulo: r = A mod b
  *
- * \param r        Destination hal_mpi_uint
+ * \param r        Destination impl_mpi_uint
  * \param A        Left-hand MPI
  * \param b        Integer to divide by
  *
@@ -579,7 +579,7 @@ int hal_mpi_mod_mpi( hal_mpi *R, const hal_mpi *A, const hal_mpi *B );
  *                 HAL_ERR_MPI_DIVISION_BY_ZERO if b == 0,
  *                 HAL_ERR_MPI_NEGATIVE_VALUE if b < 0
  */
-int hal_mpi_mod_int( hal_mpi_uint *r, const hal_mpi *A, hal_mpi_sint b );
+int impl_mpi_mod_int( impl_mpi_uint *r, const impl_mpi *A, impl_mpi_sint b );
 
 /**
  * \brief          Sliding-window exponentiation: X = A^E mod N
@@ -599,7 +599,7 @@ int hal_mpi_mod_int( hal_mpi_uint *r, const hal_mpi *A, hal_mpi_sint b );
  *                 multiple calls, which speeds up things a bit. It can
  *                 be set to NULL if the extra performance is unneeded.
  */
-int hal_mpi_exp_mod( hal_mpi *X, const hal_mpi *A, const hal_mpi *E, const hal_mpi *N, hal_mpi *_RR );
+int impl_mpi_exp_mod( impl_mpi *X, const impl_mpi *A, const impl_mpi *E, const impl_mpi *N, impl_mpi *_RR );
 
 /**
  * \brief          Fill an MPI X with size bytes of random
@@ -612,7 +612,7 @@ int hal_mpi_exp_mod( hal_mpi *X, const hal_mpi *A, const hal_mpi *E, const hal_m
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_fill_random( hal_mpi *X, size_t size,
+int impl_mpi_fill_random( impl_mpi *X, size_t size,
                      int (*f_rng)(void *, unsigned char *, size_t),
                      void *p_rng );
 
@@ -626,7 +626,7 @@ int hal_mpi_fill_random( hal_mpi *X, size_t size,
  * \return         0 if successful,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-int hal_mpi_gcd( hal_mpi *G, const hal_mpi *A, const hal_mpi *B );
+int impl_mpi_gcd( impl_mpi *G, const impl_mpi *A, const impl_mpi *B );
 
 /**
  * \brief          Modular inverse: X = A^-1 mod N
@@ -640,7 +640,7 @@ int hal_mpi_gcd( hal_mpi *G, const hal_mpi *A, const hal_mpi *B );
  *                 HAL_ERR_MPI_BAD_INPUT_DATA if N is negative or nil
                    HAL_ERR_MPI_NOT_ACCEPTABLE if A has no inverse mod N
  */
-int hal_mpi_inv_mod( hal_mpi *X, const hal_mpi *A, const hal_mpi *N );
+int impl_mpi_inv_mod( impl_mpi *X, const impl_mpi *A, const impl_mpi *N );
 
 /**
  * \brief          Miller-Rabin primality test
@@ -653,7 +653,7 @@ int hal_mpi_inv_mod( hal_mpi *X, const hal_mpi *A, const hal_mpi *N );
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed,
  *                 HAL_ERR_MPI_NOT_ACCEPTABLE if X is not prime
  */
-int hal_mpi_is_prime( const hal_mpi *X,
+int impl_mpi_is_prime( const impl_mpi *X,
                   int (*f_rng)(void *, unsigned char *, size_t),
                   void *p_rng );
 
@@ -671,7 +671,7 @@ int hal_mpi_is_prime( const hal_mpi *X,
  *                 HAL_ERR_MPI_ALLOC_FAILED if memory allocation failed,
  *                 HAL_ERR_MPI_BAD_INPUT_DATA if nbits is < 3
  */
-int hal_mpi_gen_prime( hal_mpi *X, size_t nbits, int dh_flag,
+int impl_mpi_gen_prime( impl_mpi *X, size_t nbits, int dh_flag,
                    int (*f_rng)(void *, unsigned char *, size_t),
                    void *p_rng );
 
@@ -680,7 +680,7 @@ int hal_mpi_gen_prime( hal_mpi *X, size_t nbits, int dh_flag,
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int hal_mpi_self_test( int verbose );
+int impl_mpi_self_test( int verbose );
 
 #ifdef __cplusplus
 }
