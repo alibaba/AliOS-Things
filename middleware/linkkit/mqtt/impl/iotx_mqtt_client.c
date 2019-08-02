@@ -1457,6 +1457,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         c->keepalive_probes = 0;
         mqtt_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
+        return MQTT_STATE_ERROR;
     }
 
     /* read the socket, see what work is due */
