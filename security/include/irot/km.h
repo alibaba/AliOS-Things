@@ -412,6 +412,19 @@ uint32_t km_get_id2(uint8_t *id2, uint32_t *len);
  * */
 uint32_t km_set_id2(uint8_t *id2, uint32_t len);
 
+/*
+ * to set id2 prov state
+ * param: in: prov state
+ * return: see km error code
+ * */
+uint32_t km_set_id2_state(uint32_t state);
+/*
+ * to get id2 prov state
+ * param: out: the prov state
+ * return: see km error code
+ * */
+uint32_t km_get_id2_state(uint32_t *state);
+
 
 #ifdef __cplusplus
 }

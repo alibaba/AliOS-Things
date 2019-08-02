@@ -7,7 +7,7 @@
 
 #include "bignum.h"
 
-#if defined(HAL_HAVE_ASM)
+#if defined(ALI_ALGO_HAVE_ASM)
 
 #ifndef asm
 #define asm __asm
@@ -808,13 +808,13 @@
 
 #define MULADDC_INIT                    \
 {                                       \
-    hal_t_udbl r;                           \
-    hal_mpi_uint r0, r1;
+    impl_t_udbl r;                           \
+    impl_mpi_uint r0, r1;
 
 #define MULADDC_CORE                    \
-    r   = *(s++) * (hal_t_udbl) b;          \
-    r0  = (hal_mpi_uint) r;                   \
-    r1  = (hal_mpi_uint)( r >> biL );         \
+    r   = *(s++) * (impl_t_udbl) b;          \
+    r0  = (impl_mpi_uint) r;                   \
+    r1  = (impl_mpi_uint)( r >> biL );         \
     r0 += c;  r1 += (r0 <  c);          \
     r0 += *d; r1 += (r0 < *d);          \
     c = r1; *(d++) = r0;
@@ -825,8 +825,8 @@
 #else
 #define MULADDC_INIT                    \
 {                                       \
-    hal_mpi_uint s0, s1, b0, b1;              \
-    hal_mpi_uint r0, r1, rx, ry;              \
+    impl_mpi_uint s0, s1, b0, b1;              \
+    impl_mpi_uint r0, r1, rx, ry;              \
     b0 = ( b << biH ) >> biH;           \
     b1 = ( b >> biH );
 
