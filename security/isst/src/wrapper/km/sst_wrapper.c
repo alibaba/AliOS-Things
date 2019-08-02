@@ -9,7 +9,7 @@
 #include "sst_dbg.h"
 #include "sst_osa.h"
 #include "km.h"
-#include "crypto.h"
+#include "ali_crypto.h"
 
 #define INIT_MAGIC(a) \
         do { \
@@ -122,7 +122,7 @@ static uint32_t _sst_enc_data(void *p_sst, const uint8_t *data_in)
 
     /* HASH Plaintext */
     data_len = p_sst_obj->data_size;
-    result = ali_hash_digest(SHA256, data_in, data_len, p_sst_obj->pt_hash);
+    result = ali_sha256_digest(data_in, data_len, p_sst_obj->pt_hash);
     if (result) {
         SST_ERR("hash plain text failed 0x%x\n", result);
         return SST_ERROR_GENERIC;
@@ -192,7 +192,7 @@ static uint32_t _sst_dec_data(void *p_sst, uint8_t *data_out)
     }
 
     /*check hash*/
-    result = ali_hash_digest(SHA256, data_out, (size_t)data_len, hash);
+    result = ali_sha256_digest(data_out, (size_t)data_len, hash);
     if (result != ALI_CRYPTO_SUCCESS) {
         SST_ERR("hash digest failed(%08x)\n", result);
         return SST_ERROR_GENERIC;
@@ -206,17 +206,27 @@ static uint32_t _sst_dec_data(void *p_sst, uint8_t *data_out)
     return ret;
 }
 
-uint32_t sst_imp_get_data_len(void *p_sst)
+//if p_sst is NULL, just to get len for rtos
+uint32_t sst_imp_get_data_len(void *p_sst, uint32_t obj_len)
 {
     sst_head *p_sst_obj = (sst_head *)p_sst;
 
     if (!p_sst_obj) {
+        if (obj_len > sizeof(sst_head)) {
+            return obj_len - sizeof(sst_head);
+        }
         return 0;
     }
     if (!IS_SST_MAGIC_VALID(p_sst_obj->magic)) {
         SST_ERR("the sst magic is error!\n");
         return 0;
     }
+
+    if (p_sst_obj->data_size != obj_len - sizeof(sst_head)) {
+        SST_ERR("error length\n");
+        return 0;
+    }
+
     return p_sst_obj->data_size;
 }
 
@@ -228,7 +238,7 @@ uint32_t sst_imp_set_obj_name(const char *item_name, char *obj_name)
     uint32_t i = 0;
 
     //item name : obj name
-    alicrypto_ret = ali_hash_digest(SHA256, (uint8_t *)item_name, strlen(item_name), hash_dst);
+    alicrypto_ret = ali_sha256_digest((uint8_t *)item_name, strlen(item_name), hash_dst);
     //for hash(item_name)
     if (alicrypto_ret != ALI_CRYPTO_SUCCESS) {
         SST_ERR("alicrypto hash fail 0x%x.\n", alicrypto_ret);
@@ -273,7 +283,7 @@ uint32_t sst_imp_hash_data(uint8_t *data_in, uint32_t size, uint8_t *data_out)
         return SST_ERROR_BAD_PARAMETERS;
     }
 
-    result = ali_hash_digest(SHA256, data_in, size, data_out);
+    result = ali_sha256_digest(data_in, size, data_out);
     if (result != ALI_CRYPTO_SUCCESS) {
         SST_ERR("hash fail(%08x)\n", result);
         return SST_ERROR_GENERIC;
@@ -310,6 +320,11 @@ uint32_t sst_imp_create_obj(const uint8_t *data, uint32_t data_len, uint32_t typ
     return SST_SUCCESS;
 }
 
+uint32_t sst_imp_get_obj_len(uint32_t data_len)
+{
+    return data_len + sizeof(sst_head);
+}
+
 uint32_t sst_imp_get_obj_data(void *p_sst, uint32_t obj_len, uint8_t *data, uint32_t *data_len, uint32_t *type)
 {
     sst_head *p_sst_obj = (sst_head *)p_sst;
@@ -326,8 +341,9 @@ uint32_t sst_imp_get_obj_data(void *p_sst, uint32_t obj_len, uint8_t *data, uint
     }
 
     if (*data_len < p_sst_obj->data_size) {
+        if (*data_len != 0)
+            SST_ERR("short data buffer\n");
         *data_len = p_sst_obj->data_size;
-        SST_ERR("short data buffer\n");
         return SST_ERROR_SHORT_BUFFER;
     }
 
@@ -410,7 +426,7 @@ uint32_t sst_imp_enc_mig_data(uint32_t type,
     }
 
     /* HASH Plaintext and fill pt_hash */
-    result = ali_hash_digest(SHA256, data_in, data_size, hash);
+    result = ali_sha256_digest(data_in, data_size, hash);
     if (result != ALI_CRYPTO_SUCCESS) {
         SST_ERR("hash fail(%08x)\n", result);
         return SST_ERROR_GENERIC;
@@ -533,7 +549,7 @@ uint32_t sst_imp_dec_mig_data(uint32_t *type,
         goto _err;
     }
     /*check hash*/
-    result = ali_hash_digest(SHA256, pt_data, tmp_len, hash);
+    result = ali_sha256_digest(pt_data, tmp_len, hash);
     if (sst_memcmp(p_sst_mig_head->pt_hash, hash, sizeof(p_sst_mig_head->pt_hash))) {
         SST_ERR("the data is corrupt!!\n");
         ret = SST_ERROR_GENERIC;

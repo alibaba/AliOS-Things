@@ -2,14 +2,15 @@
  * Copyright (C) 2017  Alibaba Group Holding Limited.
  **/
 
-/* Alibaba TEE Crypto API: version 1.1 */
+/* Alibaba TEE Crypto API: version 2.0 */
 
 #ifndef _ALI_CRYPTO_H_
 #define _ALI_CRYPTO_H_
 
 #include "ali_crypto_types.h"
-#include "ali_crypto_debug.h"
 
+#define CRYPTO_DBG_LOG(_f, ...) \
+        ls_osa_print("%s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 #define HASH_SIZE(type) (((type) == SHA1) ? (SHA1_HASH_SIZE) : (     \
                              ((type) == SHA224) ? (SHA224_HASH_SIZE) : ( \
@@ -19,32 +20,15 @@
                              ((type) == SHA512) ? (SHA512_HASH_SIZE) : ( \
                              ((type) == MD5) ? (MD5_HASH_SIZE) : (0))))))))
 
-typedef struct _rsa_padding_t {
-    rsa_pad_type_t type;
-    union {
-        struct {
-            hash_type_t type;
-        } rsaes_oaep;
-        struct {
-            hash_type_t type;   /* md5/sha1/sha224/sha256/sha384/sha512 */
-        } rsassa_v1_5;
-        struct {
-            hash_type_t type;   /* sha1/sha224/sha256/sha384/sha512 */
-            size_t salt_len;
-        } rsassa_pss;
-    } pad;
-} rsa_padding_t;
-
-/* internal data types */
-typedef struct __rsa_keypair  rsa_keypair_t;
-typedef struct __rsa_pubkey   rsa_pubkey_t;
-
-typedef struct __ecc_keypair  ecc_keypair_t;
-typedef struct __ecc_pubkey   ecc_pubkey_t;
-
 /********************************************************************/
 /*                             SYM                                  */
 /********************************************************************/
+
+/*
+ * covert ls_hal_crypt errcode to ali_crypto errcode
+ * code[in]:       ls_hal_crypt errcode
+ */
+ali_crypto_result ali_crypt_get_errcode(uint8_t code);
 
 /*
  * type[in]:       must be AES_ECB/AES_CBC/AES_CTR/AES_CFB
@@ -183,26 +167,210 @@ ali_crypto_result ali_des_reset(void *context);
 /********************************************************************/
 /*                             HASH                                 */
 /********************************************************************/
+
+/*
+ * Get sha1 context size
+ * size[in]:       size pointer
+ */
+ali_crypto_result ali_sha1_get_ctx_size(size_t *size);
+
+/*
+ * Get sha1 context size
+ * size[in]:       size pointer
+ */
+ali_crypto_result ali_sha256_get_ctx_size(size_t *size);
+
+/*
+ * Get md5 context size
+ * size[in]:       size pointer
+ */
+ali_crypto_result ali_md5_get_ctx_size(size_t *size);
+
+/*
+ * Initialize sha1 context size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha1_init(void *context);
+
+/*
+ * Initialize sha256 context size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha256_init(void *context);
+
+/*
+ * Initialize md5 context size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_md5_init(void *context);
+
+/*
+ * sha1 update process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha1_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * sha256 update process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha256_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * md5 update process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_md5_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * sha1 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_sha1_final(uint8_t *dgst, void *context);
+
+/*
+ * sha256 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_sha256_final(uint8_t *dgst, void *context);
+
+/*
+ * md5 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_md5_final(uint8_t *dgst, void *context);
+
+/*
+ * SHA1 digest process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * dgst[out]:  ali hash context
+ */
+ali_crypto_result ali_sha1_digest(const uint8_t *src,
+                                  size_t size, uint8_t *dgst);
+
+/*
+ * SHA256 digest process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * dgst[out]:  ali hash context
+ */
+ali_crypto_result ali_sha256_digest(const uint8_t *src,
+                                  size_t size, uint8_t *dgst);
+
+/*
+ * MD5 digest process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * dgst[out]:  ali hash context
+ */
+ali_crypto_result ali_md5_digest(const uint8_t *src,
+                                  size_t size, uint8_t *dgst);
+
+/*
+ * Get context size
+ * type[in]: only supports SHA1/SHA256/MD5
+ * size[in]: size pointer
+ */
 ali_crypto_result ali_hash_get_ctx_size(hash_type_t type, size_t *size);
+
+/*
+ * Initialize context
+ * type[in]:    only supports SHA1/SHA256/MD5
+ * context[in]: ali hash context
+ */
 ali_crypto_result ali_hash_init(hash_type_t type, void *context);
+
+/*
+ * HASH update process
+ * src[in]:     input buffer
+ * size[in]:    input buffer size
+ * context[in]: ali hash context
+ */
 ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * HASH final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
 ali_crypto_result ali_hash_final(uint8_t *dgst, void *context);
+
+/*
+ * HASH digest process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * dgst[out]:  ali hash context
+ */
 ali_crypto_result ali_hash_digest(hash_type_t type,
                                   const uint8_t *src, size_t size, uint8_t *dgst);
+
+/*
+ * Reset ali hash context
+ * context[in]: ali hash context
+ */
 ali_crypto_result ali_hash_reset(void *context);
 
 /********************************************************************/
 /*                             MAC                                  */
 /********************************************************************/
-/* hmac */
+/*
+ * Get context size
+ * type: only supports SHA1/SHA256/MD5
+ * size[in]:       size pointer
+ */
 ali_crypto_result ali_hmac_get_ctx_size(hash_type_t type, size_t *size);
+
+/*
+ * Initialize Hmac context
+ * type: only supports SHA1/SHA256/MD5
+ * key[in]:  key buffer
+ * keybytes[in]: key length in bytes
+ * context:  context pointer
+ */
 ali_crypto_result ali_hmac_init(hash_type_t type,
                                 const uint8_t *key, size_t keybytes, void *context);
+/*
+ * Initialize Hmac context
+ * src[in]:  data buffer
+ * size[in]: data buffer length in bytes
+ * context:  context pointer
+ */
 ali_crypto_result ali_hmac_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * Hmac finalize process
+ * dgst[out]:  data buffer
+  * context:  context pointer
+ */
 ali_crypto_result ali_hmac_final(uint8_t *dgst, void *context);
+
+/*
+ * Initialize Hmac context
+ * type: only supports SHA1/SHA256/MD5
+ * key[in]:  key buffer
+ * keybytes[in]: key length in bytes
+ * src[in]:  data buffer
+ * size[in]: data buffer length in bytes
+ * dgst[out]: output buffer
+ */
 ali_crypto_result ali_hmac_digest(hash_type_t type,
                                   const uint8_t *key, size_t keybytes,
                                   const uint8_t *src, size_t size, uint8_t *dgst);
+
+/*
+ * Reset ali hmac context
+ * context[in]: ali hmac context
+ */
 ali_crypto_result ali_hmac_reset(void *context);
 
 /********************************************************************/
