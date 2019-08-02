@@ -1,0 +1,10 @@
+config AOS_COMP_LIBKM_DEMO
+    bool "Root of trust, KM Demo"
+    default n
+    select AOS_COMP_LS_OSA
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_COMP_LIBKM_DEMO
+# Configurations for comp libkm_demo
+endif

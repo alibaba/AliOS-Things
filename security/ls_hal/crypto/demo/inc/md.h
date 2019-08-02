@@ -27,7 +27,7 @@ typedef enum {
     HAL_MD_SHA384,
     HAL_MD_SHA512,
     HAL_MD_RIPEMD160,
-} hal_md_type_t;
+} impl_md_type_t;
 
 #if defined(HAL_SHA512_C)
 #define HAL_MD_MAX_SIZE         64  /* longest known is SHA512 */
@@ -38,21 +38,21 @@ typedef enum {
 /**
  * Opaque struct defined in md_internal.h
  */
-typedef struct hal_md_info_t hal_md_info_t;
+typedef struct impl_md_info_t impl_md_info_t;
 
 /**
  * Generic message digest context.
  */
 typedef struct {
     /** Information about the associated message digest */
-    const hal_md_info_t *md_info;
+    const impl_md_info_t *md_info;
 
     /** Digest-specific context */
     void *md_ctx;
 
     /** HMAC part of the context */
     void *hmac_ctx;
-} hal_md_context_t;
+} impl_md_context_t;
 
 /**
  * \brief Returns the list of digests supported by the generic digest module.
@@ -60,7 +60,7 @@ typedef struct {
  * \return          a statically allocated array of digests, the last entry
  *                  is 0.
  */
-const int *hal_md_list( void );
+const int *impl_md_list( void );
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -71,7 +71,7 @@ const int *hal_md_list( void );
  * \return          The message digest information associated with md_name or
  *                  NULL if not found.
  */
-const hal_md_info_t *hal_md_info_from_string( const char *md_name );
+const impl_md_info_t *impl_md_info_from_string( const char *md_name );
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -82,21 +82,21 @@ const hal_md_info_t *hal_md_info_from_string( const char *md_name );
  * \return          The message digest information associated with md_type or
  *                  NULL if not found.
  */
-const hal_md_info_t *hal_md_info_from_type( hal_md_type_t md_type );
+const impl_md_info_t *impl_md_info_from_type( impl_md_type_t md_type );
 
 /**
  * \brief           Initialize a md_context (as NONE)
  *                  This should always be called first.
- *                  Prepares the context for hal_md_setup() or hal_md_free().
+ *                  Prepares the context for impl_md_setup() or impl_md_free().
  */
-void hal_md_init( hal_md_context_t *ctx );
+void impl_md_init( impl_md_context_t *ctx );
 
 /**
  * \brief           Free and clear the internal structures of ctx.
- *                  Can be called at any time after hal_md_init().
- *                  Mandatory once hal_md_setup() has been called.
+ *                  Can be called at any time after impl_md_init().
+ *                  Mandatory once impl_md_setup() has been called.
  */
-void hal_md_free( hal_md_context_t *ctx );
+void impl_md_free( impl_md_context_t *ctx );
 
 #if ! defined(HAL_DEPRECATED_REMOVED)
 #if defined(HAL_DEPRECATED_WARNING)
@@ -106,10 +106,10 @@ void hal_md_free( hal_md_context_t *ctx );
 #endif
 /**
  * \brief           Select MD to use and allocate internal structures.
- *                  Should be called after hal_md_init() or hal_md_free().
- *                  Makes it necessary to call hal_md_free() later.
+ *                  Should be called after impl_md_init() or impl_md_free().
+ *                  Makes it necessary to call impl_md_free() later.
  *
- * \deprecated      Superseded by hal_md_setup() in 2.0.0
+ * \deprecated      Superseded by impl_md_setup() in 2.0.0
  *
  * \param ctx       Context to set up.
  * \param md_info   Message digest to use.
@@ -118,14 +118,14 @@ void hal_md_free( hal_md_context_t *ctx );
  *                  \c HAL_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c HAL_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-int hal_md_init_ctx( hal_md_context_t *ctx, const hal_md_info_t *md_info ) HAL_DEPRECATED;
+int impl_md_init_ctx( impl_md_context_t *ctx, const impl_md_info_t *md_info ) HAL_DEPRECATED;
 #undef HAL_DEPRECATED
 #endif /* HAL_DEPRECATED_REMOVED */
 
 /**
  * \brief           Select MD to use and allocate internal structures.
- *                  Should be called after hal_md_init() or hal_md_free().
- *                  Makes it necessary to call hal_md_free() later.
+ *                  Should be called after impl_md_init() or impl_md_free().
+ *                  Makes it necessary to call impl_md_free() later.
  *
  * \param ctx       Context to set up.
  * \param md_info   Message digest to use.
@@ -136,7 +136,7 @@ int hal_md_init_ctx( hal_md_context_t *ctx, const hal_md_info_t *md_info ) HAL_D
  *                  \c HAL_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c HAL_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-int hal_md_setup( hal_md_context_t *ctx, const hal_md_info_t *md_info, int hmac );
+int impl_md_setup( impl_md_context_t *ctx, const impl_md_info_t *md_info, int hmac );
 
 /**
  * \brief           Clone the state of an MD context
@@ -152,8 +152,8 @@ int hal_md_setup( hal_md_context_t *ctx, const hal_md_info_t *md_info, int hmac 
  * \return          \c 0 on success,
  *                  \c HAL_ERR_MD_BAD_INPUT_DATA on parameter failure.
  */
-int hal_md_clone( hal_md_context_t *dst,
-                      const hal_md_context_t *src );
+int impl_md_clone( impl_md_context_t *dst,
+                      const impl_md_context_t *src );
 
 /**
  * \brief           Returns the size of the message digest output.
@@ -162,7 +162,7 @@ int hal_md_clone( hal_md_context_t *dst,
  *
  * \return          size of the message digest output in bytes.
  */
-unsigned char hal_md_get_size( const hal_md_info_t *md_info );
+unsigned char impl_md_get_size( const impl_md_info_t *md_info );
 
 /**
  * \brief           Returns the type of the message digest output.
@@ -171,7 +171,7 @@ unsigned char hal_md_get_size( const hal_md_info_t *md_info );
  *
  * \return          type of the message digest output.
  */
-hal_md_type_t hal_md_get_type( const hal_md_info_t *md_info );
+impl_md_type_t impl_md_get_type( const impl_md_info_t *md_info );
 
 /**
  * \brief           Returns the name of the message digest output.
@@ -180,23 +180,23 @@ hal_md_type_t hal_md_get_type( const hal_md_info_t *md_info );
  *
  * \return          name of the message digest output.
  */
-const char *hal_md_get_name( const hal_md_info_t *md_info );
+const char *impl_md_get_name( const impl_md_info_t *md_info );
 
 /**
  * \brief           Prepare the context to digest a new message.
- *                  Generally called after hal_md_setup() or hal_md_finish().
- *                  Followed by hal_md_update().
+ *                  Generally called after impl_md_setup() or impl_md_finish().
+ *                  Followed by impl_md_update().
  *
  * \param ctx       generic message digest context.
  *
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_starts( hal_md_context_t *ctx );
+int impl_md_starts( impl_md_context_t *ctx );
 
 /**
  * \brief           Generic message digest process buffer
- *                  Called between hal_md_starts() and hal_md_finish().
+ *                  Called between impl_md_starts() and impl_md_finish().
  *                  May be called repeatedly.
  *
  * \param ctx       Generic message digest context
@@ -206,12 +206,12 @@ int hal_md_starts( hal_md_context_t *ctx );
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_update( hal_md_context_t *ctx, const unsigned char *input, size_t ilen );
+int impl_md_update( impl_md_context_t *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief           Generic message digest final digest
- *                  Called after hal_md_update().
- *                  Usually followed by hal_md_free() or hal_md_starts().
+ *                  Called after impl_md_update().
+ *                  Usually followed by impl_md_free() or impl_md_starts().
  *
  * \param ctx       Generic message digest context
  * \param output    Generic message digest checksum result
@@ -219,7 +219,7 @@ int hal_md_update( hal_md_context_t *ctx, const unsigned char *input, size_t ile
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_finish( hal_md_context_t *ctx, unsigned char *output );
+int impl_md_finish( impl_md_context_t *ctx, unsigned char *output );
 
 /**
  * \brief          Output = message_digest( input buffer )
@@ -232,7 +232,7 @@ int hal_md_finish( hal_md_context_t *ctx, unsigned char *output );
  * \returns        0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-int hal_md( const hal_md_info_t *md_info, const unsigned char *input, size_t ilen,
+int impl_md( const impl_md_info_t *md_info, const unsigned char *input, size_t ilen,
         unsigned char *output );
 
 #if defined(HAL_FS_IO)
@@ -247,13 +247,13 @@ int hal_md( const hal_md_info_t *md_info, const unsigned char *input, size_t ile
  *                 HAL_ERR_MD_FILE_IO_ERROR if file input failed,
  *                 HAL_ERR_MD_BAD_INPUT_DATA if md_info was NULL.
  */
-int hal_md_file( const hal_md_info_t *md_info, const char *path,
+int impl_md_file( const impl_md_info_t *md_info, const char *path,
                      unsigned char *output );
 #endif /* HAL_FS_IO */
 
 /**
  * \brief           Set HMAC key and prepare to authenticate a new message.
- *                  Usually called after hal_md_setup() or hal_md_hmac_finish().
+ *                  Usually called after impl_md_setup() or impl_md_hmac_finish().
  *
  * \param ctx       HMAC context
  * \param key       HMAC secret key
@@ -262,13 +262,13 @@ int hal_md_file( const hal_md_info_t *md_info, const char *path,
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_hmac_starts( hal_md_context_t *ctx, const unsigned char *key,
+int impl_md_hmac_starts( impl_md_context_t *ctx, const unsigned char *key,
                     size_t keylen );
 
 /**
  * \brief           Generic HMAC process buffer.
- *                  Called between hal_md_hmac_starts() or hal_md_hmac_reset()
- *                  and hal_md_hmac_finish().
+ *                  Called between impl_md_hmac_starts() or impl_md_hmac_reset()
+ *                  and impl_md_hmac_finish().
  *                  May be called repeatedly.
  *
  * \param ctx       HMAC context
@@ -278,14 +278,14 @@ int hal_md_hmac_starts( hal_md_context_t *ctx, const unsigned char *key,
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_hmac_update( hal_md_context_t *ctx, const unsigned char *input,
+int impl_md_hmac_update( impl_md_context_t *ctx, const unsigned char *input,
                     size_t ilen );
 
 /**
  * \brief           Output HMAC.
- *                  Called after hal_md_hmac_update().
- *                  Usually followed by hal_md_hmac_reset(),
- *                  hal_md_hmac_starts(), or hal_md_free().
+ *                  Called after impl_md_hmac_update().
+ *                  Usually followed by impl_md_hmac_reset(),
+ *                  impl_md_hmac_starts(), or impl_md_free().
  *
  * \param ctx       HMAC context
  * \param output    Generic HMAC checksum result
@@ -293,19 +293,19 @@ int hal_md_hmac_update( hal_md_context_t *ctx, const unsigned char *input,
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_hmac_finish( hal_md_context_t *ctx, unsigned char *output);
+int impl_md_hmac_finish( impl_md_context_t *ctx, unsigned char *output);
 
 /**
  * \brief           Prepare to authenticate a new message with the same key.
- *                  Called after hal_md_hmac_finish() and before
- *                  hal_md_hmac_update().
+ *                  Called after impl_md_hmac_finish() and before
+ *                  impl_md_hmac_update().
  *
  * \param ctx       HMAC context to be reset
  *
  * \returns         0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int hal_md_hmac_reset( hal_md_context_t *ctx );
+int impl_md_hmac_reset( impl_md_context_t *ctx );
 
 /**
  * \brief          Output = Generic_HMAC( hmac key, input buffer )
@@ -320,12 +320,12 @@ int hal_md_hmac_reset( hal_md_context_t *ctx );
  * \returns        0 on success, HAL_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-int hal_md_hmac( const hal_md_info_t *md_info, const unsigned char *key, size_t keylen,
+int impl_md_hmac( const impl_md_info_t *md_info, const unsigned char *key, size_t keylen,
                 const unsigned char *input, size_t ilen,
                 unsigned char *output );
 
 /* Internal use */
-int hal_md_process( hal_md_context_t *ctx, const unsigned char *data );
+int impl_md_process( impl_md_context_t *ctx, const unsigned char *data );
 
 #ifdef __cplusplus
 }

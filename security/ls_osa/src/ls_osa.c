@@ -103,7 +103,7 @@ int ls_osa_mutex_unlock(void *mutex)
 int ls_osa_net_connect(const char *host, const char *port, int type)
 {
     int fd = -1;
-    int ret;
+    int ret = 0;
     struct addrinfo hints, *addr_list, *cur;
 
     /* do name resolution with both IPv6 and IPv4 */
@@ -169,7 +169,7 @@ int ls_osa_net_send(int fd, unsigned char *buf, size_t len, int *ret_orig)
 
     *ret_orig = 0;
 
-    ret = (int)write(fd, buf, len);
+    ret = (int)send(fd, buf, len, 0);
     if (ret < 0) {
         if (errno == EINTR) {
             *ret_orig = -1;
@@ -211,7 +211,7 @@ int ls_osa_net_recv(int fd, unsigned char *buf, size_t len, int timeout, int *re
         return -1;
     }
 
-    ret = (int)read(fd, buf, len);
+    ret = (int)recv(fd, buf, len, 0);
     if (ret < 0) {
         if (errno == EINTR) {
             *ret_orig = -1;
