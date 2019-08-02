@@ -13,7 +13,10 @@
 /*
  * get device unique id
  *
- * param: out:    dev_id: device uinque id
+ * note: if dev_id is NULL and *id_len is 0, return -1
+ *        and set *id_len to the real length of the id
+ *
+ * param: out:  dev_id: device uinque id should be smaller than 100 byte
  *        in_out: id_len: device uinque id length
  *
  * return: 0: success
@@ -24,6 +27,8 @@ int ls_hal_get_dev_id(uint8_t *dev_id, uint32_t *id_len);
 
 /*
  * open the reserved partition that user has read and write permission
+ *
+ * note: if not support file system, return 0 directly
  *
  * parametr: in: flag: LS_HAL_READ: user only has read permission
  *                     LS_HAL_WRITE: user only has write permission

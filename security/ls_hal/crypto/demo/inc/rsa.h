@@ -56,37 +56,45 @@ extern "C" {
  */
 typedef struct
 {
-    int ver;                    /*!<  always 0          */
-    size_t len;                 /*!<  size(N) in chars  */
-
-    hal_mpi N;                      /*!<  public modulus    */
-    hal_mpi E;                      /*!<  public exponent   */
-
-    hal_mpi D;                      /*!<  private exponent  */
-    hal_mpi P;                      /*!<  1st prime factor  */
-    hal_mpi Q;                      /*!<  2nd prime factor  */
-    hal_mpi DP;                     /*!<  D % (P - 1)       */
-    hal_mpi DQ;                     /*!<  D % (Q - 1)       */
-    hal_mpi QP;                     /*!<  1 / (Q % P)       */
-
-    hal_mpi RN;                     /*!<  cached R^2 mod N  */
-    hal_mpi RP;                     /*!<  cached R^2 mod P  */
-    hal_mpi RQ;                     /*!<  cached R^2 mod Q  */
-
-    hal_mpi Vi;                     /*!<  cached blinding value     */
-    hal_mpi Vf;                     /*!<  cached un-blinding value  */
-
-    int padding;                /*!<  HAL_RSA_PKCS_V15 for 1.5 padding and
-                                      HAL_RSA_PKCS_v21 for OAEP/PSS         */
-    int hash_id;                /*!<  Hash identifier of hal_md_type_t as
-                                      specified in the hal_md.h header file
+    int ver;                        /*!<  always 0          */
+    size_t len;                     /*!<  size(N) in chars  */
+    const uint8_t *n;               /*!<  public modulus    */
+    size_t n_size;
+    const uint8_t *e;               /*!<  public exponent   */
+    size_t e_size;
+    const uint8_t *d;               /*!<  private exponent  */
+    size_t d_size;
+    const uint8_t *p;               /*!<  1st prime factor  */
+    size_t p_size;
+    const uint8_t *q;               /*!<  2nd prime factor  */
+    size_t q_size;
+    const uint8_t *dp;              /*!<  D % (P - 1)       */
+    size_t dp_size;
+    const uint8_t *dq;              /*!<  D % (Q - 1)       */
+    size_t dq_size;
+    const uint8_t *qp;              /*!<  1 / (Q % P)       */
+    size_t qp_size;
+    const uint8_t *rn;              /*!<  cached R^2 mod N  */
+    size_t rn_size;
+    const uint8_t *rp;              /*!<  cached R^2 mod P  */
+    size_t rp_size;
+    const uint8_t *rq;              /*!<  cached R^2 mod Q  */
+    size_t rq_size;
+    const uint8_t *vi;              /*!<  cached blinding value     */
+    size_t vi_size;
+    const uint8_t *vf;              /*!<  cached un-blinding value  */
+    size_t vf_size;
+    int padding;                    /*!<  HAL_RSA_PKCS_V15 for 1.5 padding and
+                                         HAL_RSA_PKCS_v21 for OAEP/PSS */
+    int hash_id;                    /*!<  Hash identifier of impl_md_type_t as
+                                      specified in the impl_md.h header file
                                       for the EME-OAEP and EMSA-PSS
-                                      encoding                          */
+                                      encoding */
 #if (CONFIG_MULTH_SUPPORT)
     void  *mutex;              /*!<  Thread-safety mutex       */
 #endif
 }
-hal_rsa_context;
+impl_rsa_context;
 
 /**
  * \brief          Initialize an RSA context
@@ -112,19 +120,19 @@ hal_rsa_context;
  *                 but can be overriden (and always is, if set to
  *                 HAL_MD_NONE) for verifying them.
  */
-void hal_rsa_init( hal_rsa_context *ctx,
+void impl_rsa_init( impl_rsa_context *ctx,
                int padding,
                int hash_id);
 
 /**
  * \brief          Set padding for an already initialized RSA context
- *                 See \c hal_rsa_init() for details.
+ *                 See \c impl_rsa_init() for details.
  *
  * \param ctx      RSA context to be set
  * \param padding  HAL_RSA_PKCS_V15 or HAL_RSA_PKCS_V21
  * \param hash_id  HAL_RSA_PKCS_V21 hash identifier
  */
-void hal_rsa_set_padding( hal_rsa_context *ctx, int padding, int hash_id);
+void impl_rsa_set_padding( impl_rsa_context *ctx, int padding, int hash_id);
 
 /**
  * \brief          Generate an RSA keypair
@@ -135,12 +143,12 @@ void hal_rsa_set_padding( hal_rsa_context *ctx, int padding, int hash_id);
  * \param nbits    size of the public key in bits
  * \param exponent public exponent (e.g., 65537)
  *
- * \note           hal_rsa_init() must be called beforehand to setup
+ * \note           impl_rsa_init() must be called beforehand to setup
  *                 the RSA context.
  *
  * \return         0 if successful, or an HAL_ERR_RSA_XXX error code
  */
-int hal_rsa_gen_key( hal_rsa_context *ctx,
+int impl_rsa_gen_key( impl_rsa_context *ctx,
                  int (*f_rng)(void *, unsigned char *, size_t),
                  void *p_rng,
                  unsigned int nbits, int exponent );
@@ -152,7 +160,7 @@ int hal_rsa_gen_key( hal_rsa_context *ctx,
  *
  * \return         0 if successful, or an HAL_ERR_RSA_XXX error code
  */
-int hal_rsa_check_pubkey( const hal_rsa_context *ctx );
+int impl_rsa_check_pubkey( const impl_rsa_context *ctx );
 
 /**
  * \brief          Check a private RSA key
@@ -161,7 +169,7 @@ int hal_rsa_check_pubkey( const hal_rsa_context *ctx );
  *
  * \return         0 if successful, or an HAL_ERR_RSA_XXX error code
  */
-int hal_rsa_check_privkey( const hal_rsa_context *ctx );
+int impl_rsa_check_privkey( const impl_rsa_context *ctx );
 
 /**
  * \brief          Check a public-private RSA key pair.
@@ -172,7 +180,7 @@ int hal_rsa_check_privkey( const hal_rsa_context *ctx );
  *
  * \return         0 if successful, or an HAL_ERR_RSA_XXX error code
  */
-int hal_rsa_check_pub_priv( const hal_rsa_context *pub, const hal_rsa_context *prv );
+int impl_rsa_check_pub_priv( const impl_rsa_context *pub, const impl_rsa_context *prv );
 
 /**
  * \brief          Do an RSA public key operation
@@ -190,7 +198,7 @@ int hal_rsa_check_pub_priv( const hal_rsa_context *pub, const hal_rsa_context *p
  * \note           The input and output buffers must be large
  *                 enough (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_public( hal_rsa_context *ctx,
+int impl_rsa_public( impl_rsa_context *ctx,
                 const unsigned char *input,
                 unsigned char *output );
 
@@ -208,7 +216,7 @@ int hal_rsa_public( hal_rsa_context *ctx,
  * \note           The input and output buffers must be large
  *                 enough (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_private( hal_rsa_context *ctx,
+int impl_rsa_private( impl_rsa_context *ctx,
                  int (*f_rng)(void *, unsigned char *, size_t),
                  void *p_rng,
                  const unsigned char *input,
@@ -233,7 +241,7 @@ int hal_rsa_private( hal_rsa_context *ctx,
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_pkcs1_encrypt( hal_rsa_context *ctx,
+int impl_rsa_pkcs1_encrypt( impl_rsa_context *ctx,
                        int (*f_rng)(void *, unsigned char *, size_t),
                        void *p_rng,
                        int mode, size_t ilen,
@@ -256,7 +264,7 @@ int hal_rsa_pkcs1_encrypt( hal_rsa_context *ctx,
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_rsaes_pkcs1_v15_encrypt( hal_rsa_context *ctx,
+int impl_rsa_rsaes_pkcs1_v15_encrypt( impl_rsa_context *ctx,
                                  int (*f_rng)(void *, unsigned char *, size_t),
                                  void *p_rng,
                                  int mode, size_t ilen,
@@ -282,7 +290,7 @@ int hal_rsa_rsaes_pkcs1_v15_encrypt( hal_rsa_context *ctx,
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_rsaes_oaep_encrypt( hal_rsa_context *ctx,
+int impl_rsa_rsaes_oaep_encrypt( impl_rsa_context *ctx,
                             int (*f_rng)(void *, unsigned char *, size_t),
                             void *p_rng,
                             int mode,
@@ -311,7 +319,7 @@ int hal_rsa_rsaes_oaep_encrypt( hal_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-int hal_rsa_pkcs1_decrypt( hal_rsa_context *ctx,
+int impl_rsa_pkcs1_decrypt( impl_rsa_context *ctx,
                        int (*f_rng)(void *, unsigned char *, size_t),
                        void *p_rng,
                        int mode, size_t *olen,
@@ -337,7 +345,7 @@ int hal_rsa_pkcs1_decrypt( hal_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-int hal_rsa_rsaes_pkcs1_v15_decrypt( hal_rsa_context *ctx,
+int impl_rsa_rsaes_pkcs1_v15_decrypt( impl_rsa_context *ctx,
                                  int (*f_rng)(void *, unsigned char *, size_t),
                                  void *p_rng,
                                  int mode, size_t *olen,
@@ -365,7 +373,7 @@ int hal_rsa_rsaes_pkcs1_v15_decrypt( hal_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-int hal_rsa_rsaes_oaep_decrypt( hal_rsa_context *ctx,
+int impl_rsa_rsaes_oaep_decrypt( impl_rsa_context *ctx,
                             int (*f_rng)(void *, unsigned char *, size_t),
                             void *p_rng,
                             int mode,
@@ -397,13 +405,13 @@ int hal_rsa_rsaes_oaep_decrypt( hal_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  *
  * \note           In case of PKCS#1 v2.1 encoding, see comments on
- * \note           \c hal_rsa_rsassa_pss_sign() for details on md_alg and hash_id.
+ * \note           \c impl_rsa_rsassa_pss_sign() for details on md_alg and hash_id.
  */
-int hal_rsa_pkcs1_sign( hal_rsa_context *ctx,
+int impl_rsa_pkcs1_sign( impl_rsa_context *ctx,
                     int (*f_rng)(void *, unsigned char *, size_t),
                     void *p_rng,
                     int mode,
-                    hal_md_type_t md_alg,
+                    impl_md_type_t md_alg,
                     unsigned int hashlen,
                     const unsigned char *hash,
                     unsigned char *sig );
@@ -426,11 +434,11 @@ int hal_rsa_pkcs1_sign( hal_rsa_context *ctx,
  * \note           The "sig" buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_rsassa_pkcs1_v15_sign( hal_rsa_context *ctx,
+int impl_rsa_rsassa_pkcs1_v15_sign( impl_rsa_context *ctx,
                                int (*f_rng)(void *, unsigned char *, size_t),
                                void *p_rng,
                                int mode,
-                               hal_md_type_t md_alg,
+                               impl_md_type_t md_alg,
                                unsigned int hashlen,
                                const unsigned char *hash,
                                unsigned char *sig );
@@ -459,11 +467,11 @@ int hal_rsa_rsassa_pkcs1_v15_sign( hal_rsa_context *ctx,
  *                 that is encoded. According to RFC 3447 it is advised to
  *                 keep both hashes the same.
  */
-int hal_rsa_rsassa_pss_sign( hal_rsa_context *ctx,
+int impl_rsa_rsassa_pss_sign( impl_rsa_context *ctx,
                          int (*f_rng)(void *, unsigned char *, size_t),
                          void *p_rng,
                          int mode,
-                         hal_md_type_t md_alg,
+                         impl_md_type_t md_alg,
                          unsigned int hashlen,
                          const unsigned char *hash,
                          unsigned char *sig );
@@ -489,13 +497,13 @@ int hal_rsa_rsassa_pss_sign( hal_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  *
  * \note           In case of PKCS#1 v2.1 encoding, see comments on
- *                 \c hal_rsa_rsassa_pss_verify() about md_alg and hash_id.
+ *                 \c impl_rsa_rsassa_pss_verify() about md_alg and hash_id.
  */
-int hal_rsa_pkcs1_verify( hal_rsa_context *ctx,
+int impl_rsa_pkcs1_verify( impl_rsa_context *ctx,
                       int (*f_rng)(void *, unsigned char *, size_t),
                       void *p_rng,
                       int mode,
-                      hal_md_type_t md_alg,
+                      impl_md_type_t md_alg,
                       unsigned int hashlen,
                       const unsigned char *hash,
                       const unsigned char *sig );
@@ -518,11 +526,11 @@ int hal_rsa_pkcs1_verify( hal_rsa_context *ctx,
  * \note           The "sig" buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-int hal_rsa_rsassa_pkcs1_v15_verify( hal_rsa_context *ctx,
+int impl_rsa_rsassa_pkcs1_v15_verify( impl_rsa_context *ctx,
                                  int (*f_rng)(void *, unsigned char *, size_t),
                                  void *p_rng,
                                  int mode,
-                                 hal_md_type_t md_alg,
+                                 impl_md_type_t md_alg,
                                  unsigned int hashlen,
                                  const unsigned char *hash,
                                  const unsigned char *sig );
@@ -552,11 +560,11 @@ int hal_rsa_rsassa_pkcs1_v15_verify( hal_rsa_context *ctx,
  *                 keep both hashes the same. If hash_id in the RSA context is
  *                 unset, the md_alg from the function call is used.
  */
-int hal_rsa_rsassa_pss_verify( hal_rsa_context *ctx,
+int impl_rsa_rsassa_pss_verify( impl_rsa_context *ctx,
                            int (*f_rng)(void *, unsigned char *, size_t),
                            void *p_rng,
                            int mode,
-                           hal_md_type_t md_alg,
+                           impl_md_type_t md_alg,
                            unsigned int hashlen,
                            const unsigned char *hash,
                            const unsigned char *sig );
@@ -585,14 +593,14 @@ int hal_rsa_rsassa_pss_verify( hal_rsa_context *ctx,
  *
  * \note           The hash_id in the RSA context is ignored.
  */
-int hal_rsa_rsassa_pss_verify_ext( hal_rsa_context *ctx,
+int impl_rsa_rsassa_pss_verify_ext( impl_rsa_context *ctx,
                                int (*f_rng)(void *, unsigned char *, size_t),
                                void *p_rng,
                                int mode,
-                               hal_md_type_t md_alg,
+                               impl_md_type_t md_alg,
                                unsigned int hashlen,
                                const unsigned char *hash,
-                               hal_md_type_t mgf1_hash_id,
+                               impl_md_type_t mgf1_hash_id,
                                int expected_salt_len,
                                const unsigned char *sig );
 
@@ -605,21 +613,21 @@ int hal_rsa_rsassa_pss_verify_ext( hal_rsa_context *ctx,
  * \return         0 on success,
  *                 HAL_ERR_MPI_ALLOC_FAILED on memory allocation failure
  */
-int hal_rsa_copy( hal_rsa_context *dst, const hal_rsa_context *src );
+int impl_rsa_copy( impl_rsa_context *dst, const impl_rsa_context *src );
 
 /**
  * \brief          Free the components of an RSA key
  *
  * \param ctx      RSA Context to free
  */
-void hal_rsa_free( hal_rsa_context *ctx );
+void impl_rsa_free( impl_rsa_context *ctx );
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int hal_rsa_self_test( int verbose );
+int impl_rsa_self_test( int verbose );
 
 #ifdef __cplusplus
 }

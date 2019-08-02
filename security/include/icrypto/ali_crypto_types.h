@@ -8,10 +8,7 @@
 #include <stdint.h>
 #include <stddef.h> /* for size_t */
 #include <stdbool.h>
-
-#if 0
-typedef unsigned char       bool;
-#endif
+#include "ls_osa.h"
 
 #ifndef false
 #define false   (0)
@@ -53,22 +50,28 @@ typedef enum _ali_crypto_result {
 #define DES_IV_SIZE          8
 
 /* hash constants */
-#if (CONFIG_HAL_SHA512 || CONFIG_SAL_SHA512)
-#define MAX_HASH_SIZE         64  /* longest known is SHA512 */
-#else
-#define MAX_HASH_SIZE         32  /* longest known is SHA256 or less */
-#endif
+#define MAX_HASH_SIZE        64  /* longest known is SHA512 */
 
 /* RSA constants */
-#define ALI_CRYPTO_RSA_PUBLIC      0
-#define ALI_CRYPTO_RSA_PRIVATE     1
+#define ALI_CRYPTO_RSA_PUBLIC           0
+#define ALI_CRYPTO_RSA_PRIVATE          1
 
-#define ALI_CRYPTO_RSA_PKCS_V15    0
-#define ALI_CRYPTO_RSA_PKCS_V21    1
+#define ALI_CRYPTO_RSA_PKCS_V15         0
+#define ALI_CRYPTO_RSA_PKCS_V21         1
 
-#define ALI_CRYPTO_RSA_SIGN        1
-#define ALI_CRYPTO_RSA_CRYPT       2
+#define ALI_CRYPTO_RSA_SIGN             1
+#define ALI_CRYPTO_RSA_CRYPT            2
+#define ALI_CRYPTO_RSA_SALT_LEN_ANY    -1
 
+#define ALI_CRYPTO_ASN1_OCTET_STRING            0x04
+#define ALI_CRYPTO_ASN1_NULL                    0x05
+#define ALI_CRYPTO_ASN1_OID                     0x06
+#define ALI_CRYPTO_ASN1_SEQUENCE                0x10
+#define ALI_CRYPTO_ASN1_CONSTRUCTED             0x20
+
+/**
+ * AliCrypto API AES defines 
+ **/
 typedef enum _sym_padding_t {
     SYM_NOPAD       = 0,
     SYM_PKCS5_PAD   = 1,
@@ -81,9 +84,16 @@ typedef enum _aes_type_t {
     AES_CTR         = 2,
     AES_CTS         = 3,
     AES_XTS         = 4,
-    AES_CFB8        = 6,
-    AES_CFB128      = 7,
+    AES_CFB8        = 5,
+    AES_CFB128      = 6,
 } aes_type_t;
+
+typedef struct _api_aes_ctx_t {
+    aes_type_t type;
+    bool       is_enc;
+    uint32_t   hal_size;
+    void *     hal_ctx;
+} api_aes_ctx_t;
 
 typedef enum _sm4_type_t {
     SM4_ECB     = 0,
@@ -97,6 +107,9 @@ typedef enum _des_type_t {
     DES3_CBC    = 3,
 } des_type_t;
 
+/**
+ * AliCrypto API HASH defines 
+ **/
 typedef enum _hash_type_t {
     HASH_NONE   = 0,
     SHA1        = 1,
@@ -108,6 +121,12 @@ typedef enum _hash_type_t {
     SM3         = 7,
 } hash_type_t;
 
+typedef struct {
+    hash_type_t type;
+    uint32_t hal_size;
+    void * hal_ctx;
+} api_hash_ctx_t;
+
 enum {
     MD5_HASH_SIZE       = 16,
     SHA1_HASH_SIZE      = 20,
@@ -117,6 +136,26 @@ enum {
     SHA384_HASH_SIZE    = 48,
     SHA512_HASH_SIZE    = 64,
 };
+
+/**
+ * AliCrypto API RSA defines
+ **/
+typedef struct {
+    size_t          type;
+    uint8_t         opad[64];
+    size_t          opad_size;
+    api_hash_ctx_t  hash_ctx;
+} api_hmac_ctx_t;
+
+#define MAX_BLOCK_SIZE 64
+
+/**
+ * AliCrypto API RSA defines 
+ **/
+typedef struct _api_rsa_ctx_t {
+    uint32_t keybytes;
+    void *   hal_ctx;
+} api_rsa_ctx_t;
 
 typedef enum _rsa_key_attr_t {
     RSA_MODULUS          = 0x130,
@@ -148,5 +187,26 @@ enum {
     CRYPTO_STATUS_FINISHED     = 3,
 };
 
+typedef struct _rsa_padding_t {
+    rsa_pad_type_t type;
+    union {
+        struct {
+            hash_type_t type;
+        } rsaes_oaep;
+        struct {
+            hash_type_t type;   /* md5/sha1/sha224/sha256/sha384/sha512 */
+        } rsassa_v1_5;
+        struct {
+            hash_type_t type;   /* sha1/sha224/sha256/sha384/sha512 */
+            size_t salt_len;
+        } rsassa_pss;
+    } pad;
+} rsa_padding_t;
+
+/* internal data types */
+typedef void rsa_keypair_t;
+typedef void rsa_pubkey_t;
+typedef void ecc_keypair_t;
+typedef void ecc_pubkey_t;
 
 #endif /* _ALI_CRYPTO_TYPES_H_ */
