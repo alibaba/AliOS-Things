@@ -58,6 +58,8 @@ def write_project_config(config_file):
 def cli(projectname, board, projectdir):
     """ Create new project from template """
     templatedir = os.path.join(scriptdir, template)
+    vscodedir = os.path.join(templatedir, '.vscode')
+
     if not projectdir:
         projectdir = os.path.join(scriptdir, "../../app")
 
@@ -69,8 +71,12 @@ def cli(projectname, board, projectdir):
         return 1
     else:
         os.makedirs(destdir)
+        os.makedirs(os.path.join(destdir, '.vscode'))
 
-    sources = os.listdir(templatedir)
+    sources = filter(lambda d: d != '.vscode',os.listdir(templatedir))
+    # for .vscode/
+    sources += map(lambda f: os.path.join('.vscode', f), os.listdir(vscodedir))
+
     for tempfile in sources:
         copy_template(tempfile, templatedir, destdir, projectname, board)
 
