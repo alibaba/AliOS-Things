@@ -589,8 +589,10 @@ void alcs_resource_cb_deinit(void)
 
 void alcs_auth_list_deinit(void)
 {
-    auth_list *auth_list_ctx = get_list(ctx);
     svr_key_item *del_item = NULL, *next_item = NULL;
+    session_item *del_session_item = NULL, *next_session_item = NULL;
+    device_auth_list* dev_lst = get_device (context);
+    auth_list *auth_list_ctx = &dev_lst->lst_auth;
 
     list_for_each_entry_safe(del_item, next_item, &auth_list_ctx->lst_svr, lst, svr_key_item) {
         list_del(&del_item->lst);
@@ -599,6 +601,15 @@ void alcs_auth_list_deinit(void)
         }
         coap_free(del_item);
     }
+    if (auth_list_ctx->revocation) {
+        coap_free(auth_list_ctx->revocation);
+        auth_list_ctx->revocation = NULL;
+    }
+
+    list_for_each_entry_safe(del_session_item, next_session_item, &dev_lst->lst_svr_sessions, lst, session_item) {
+        list_del(&del_session_item->lst);
+        coap_free(del_session_item);
+    } 
 }
 
 void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote, CoAPMessage *request)

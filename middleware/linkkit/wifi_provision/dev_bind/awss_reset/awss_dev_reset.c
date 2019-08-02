@@ -159,7 +159,10 @@ int awss_check_reset()
     int len = 1;
     char rst = 0;
 
-    HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
+    if(HAL_Kv_Get(AWSS_KV_RST, &rst, &len) < 0) {
+        devrst_err("[RST]", "get reset state err\r\n");
+        return 0;
+    }
 
     if (rst != 0x01) { /* reset flag is not set */
         devrst_debug("[RST]", "no rst\r\n");
