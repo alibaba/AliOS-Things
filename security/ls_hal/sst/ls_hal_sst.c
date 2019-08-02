@@ -6,9 +6,9 @@
 #include "aos/kv.h"
 #include "ls_hal.h"
 
-static int _kv_to_hal_res(int err)
+static uint32_t _kv_to_hal_res(int err)
 {
-    int ret;
+    uint32_t ret;
 
     switch (err) {
         case 0:
@@ -34,32 +34,53 @@ static int _kv_to_hal_res(int err)
     return ret;
 }
 
-int ls_hal_kv_init(void)
+uint32_t ls_hal_kv_init(void)
 {
-    int ret = aos_kv_init();
-    return _kv_to_hal_res(ret);
+    return SST_HAL_SUCCESS;
 }
 
 void ls_hal_kv_deinit(void)
 {
-    aos_kv_deinit();
+    return;
 }
 
-int ls_hal_kv_set(const char *key, const void *value, int len, int sync)
+uint32_t ls_hal_kv_set(const char *key, const void *value, uint32_t len)
 {
-    int ret = aos_kv_set(key, value, len, sync);
+    uint32_t ret = aos_kv_set(key, value, len, 1);
     return _kv_to_hal_res(ret);
 }
 
-int ls_hal_kv_get(const char *key, void *buffer, int *buffer_len)
-{
-    int ret = aos_kv_get(key, buffer, buffer_len);
-    return _kv_to_hal_res(ret);
-}
-
-int ls_hal_kv_del(const char *key)
+uint32_t ls_hal_kv_get(const char *key, void *buffer, uint32_t *buffer_len)
 {
     int ret = 0;
+
+    if (!buffer_len) {
+        return SST_HAL_ERROR_BAD_PARAMETERS;
+    }
+
+    //buffer is NULL *buffer is 0 should return SST_HAL_ERROR_SHORT_BUFFER
+    if (!buffer && *buffer_len == 0) {
+        //for aos cannot support buffer is NULL
+        *buffer_len = 1;
+        ret = aos_kv_get(key, buffer_len, (int *)buffer_len);
+        if (!ret) {
+            *buffer_len = 1;
+            return SST_HAL_ERROR_SHORT_BUFFER;
+        }
+    } else {
+        ret = aos_kv_get(key, buffer, (int *)buffer_len);
+    }
+
+    if (ret == -ENOSPC && *buffer_len) {
+        return SST_HAL_ERROR_SHORT_BUFFER;
+    }
+
+    return _kv_to_hal_res(ret);
+}
+
+uint32_t ls_hal_kv_del(const char *key)
+{
+    uint32_t ret = 0;
 
     if (!key) {
         return SST_HAL_ERROR_BAD_PARAMETERS;

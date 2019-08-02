@@ -26,6 +26,12 @@ uint32_t sst_init()
     ret = sst_imp_init();
     if (SST_SUCCESS != ret) {
         SST_ERR("gen key error 0x%x!\n", (unsigned int)ret);
+        return ret;
+    }
+
+    ret = sst_hal_init();
+    if (SST_SUCCESS != ret) {
+        SST_ERR("gen key error 0x%x!\n", (unsigned int)ret);
     }
 
     return ret;
@@ -56,7 +62,7 @@ uint32_t sst_add_item(const char *name,
 
     ret = sst_store_obj(name, p_sst, obj_len, flag);
     if (SST_SUCCESS != ret) {
-        SST_ERR("store sst file error!\n");
+        SST_ERR("store sst file error 0x%x!\n", ret);
         goto clean;
     }
 
@@ -74,22 +80,32 @@ uint32_t sst_get_item(const char *name,
     void *p_sst = NULL;
     uint32_t ret = 0;
     uint32_t obj_len = 0;
+    uint32_t tmp_len = 0;
 
     if (NULL == name || !data_len || (!data && *data_len)) {
         SST_ERR("get item bad param!\n");
         return SST_ERROR_BAD_PARAMETERS;
     }
 
+    tmp_len = *data_len;
+    obj_len = sst_imp_get_obj_len(*data_len);
     ret = sst_get_obj(name, &p_sst, &obj_len);
     if (SST_SUCCESS != ret) {
-        SST_ERR("get sst file error!\n");
+        if (ret == SST_ERROR_SHORT_BUFFER) {
+            *data_len = sst_imp_get_data_len(p_sst, obj_len);
+            goto clean;
+        }
+        SST_ERR("get sst file error 0x%x!\n", ret);
         goto clean;
     }
 
     ret = sst_imp_get_obj_data(p_sst, obj_len,
                                data, data_len, type);
     if (ret) {
-        SST_ERR("get obj data failed\n");
+        if (ret == SST_ERROR_SHORT_BUFFER && tmp_len == 0) {
+            goto clean;
+        }
+        SST_ERR("get obj data failed 0x%x\n", ret);
         goto clean;
     }
 
@@ -110,6 +126,11 @@ uint32_t sst_delete_item(const char *name)
     }
 
     return sst_delete_obj(name);
+}
+
+void sst_cleanup()
+{
+    sst_hal_deinit();
 }
 
 #if CONFIG_SST_MIGRATION

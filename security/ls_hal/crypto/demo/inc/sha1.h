@@ -18,21 +18,25 @@ typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[5];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
-} hal_sha1_context;
+} impl_sha1_context;
+
+typedef struct {
+    impl_sha1_context context;
+} impl_sha1_ctx_t;
 
 /**
  * \brief          Initialize SHA-1 context
  *
  * \param ctx      SHA-1 context to be initialized
  */
-void hal_sha1_init(hal_sha1_context *ctx);
+void impl_sha1_init(impl_sha1_context *ctx);
 
 /**
  * \brief          Clear SHA-1 context
  *
  * \param ctx      SHA-1 context to be cleared
  */
-void hal_sha1_free(hal_sha1_context *ctx);
+void impl_sha1_free(impl_sha1_context *ctx);
 
 /**
  * \brief          Clone (the state of) a SHA-1 context
@@ -40,15 +44,15 @@ void hal_sha1_free(hal_sha1_context *ctx);
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void hal_sha1_clone(hal_sha1_context *dst,
-                   const hal_sha1_context *src);
+void impl_sha1_clone(impl_sha1_context *dst,
+                   const impl_sha1_context *src);
 
 /**
  * \brief          SHA-1 context setup
  *
  * \param ctx      context to be initialized
  */
-void hal_sha1_starts(hal_sha1_context *ctx);
+void impl_sha1_starts(impl_sha1_context *ctx);
 
 /**
  * \brief          SHA-1 process buffer
@@ -57,7 +61,7 @@ void hal_sha1_starts(hal_sha1_context *ctx);
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void hal_sha1_update(hal_sha1_context *ctx, const unsigned char *input, size_t ilen);
+void impl_sha1_update(impl_sha1_context *ctx, const unsigned char *input, size_t ilen);
 
 /**
  * \brief          SHA-1 final digest
@@ -65,10 +69,10 @@ void hal_sha1_update(hal_sha1_context *ctx, const unsigned char *input, size_t i
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
  */
-void hal_sha1_finish(hal_sha1_context *ctx, unsigned char output[20]);
+void impl_sha1_finish(impl_sha1_context *ctx, unsigned char output[20]);
 
 /* Internal use */
-void hal_sha1_process(hal_sha1_context *ctx, const unsigned char data[64]);
+void impl_sha1_process(impl_sha1_context *ctx, const unsigned char data[64]);
 
 #ifdef __cplusplus
 }

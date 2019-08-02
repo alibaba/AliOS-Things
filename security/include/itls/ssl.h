@@ -308,6 +308,28 @@
 #define MBEDTLS_SSL_ALERT_MSG_UNKNOWN_PSK_IDENTITY 115  /* 0x73 */
 #define MBEDTLS_SSL_ALERT_MSG_NO_APPLICATION_PROTOCOL 120 /* 0x78 */
 
+#if defined(MBEDTLS_SSL_PROTO_ITLS)
+#define MBEDTLS_SSL_ALERT_MSG_ID2_GENERIC_ERROR       160  /* id2 generic error */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_NO_QUOTA            161  /* id2 no quota */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_NOT_EXIST           162  /* id2 is not exist */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_AUTHCODE_INVALID    163  /* id2 authcode is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_NOT_ACTIVATED       164  /* id2 has not been activated */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_TIMESTAMP_EXPIRED   165  /* the timestamp used in authcode is expired */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_CHALLENGE_INVALID   166  /* id2 challenge is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_NOT_SUPPORTED       167  /* not support this operation */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_SUSPENDED           168  /* id2 has been suspended */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_DISCARDED           169  /* id2 has been discarded */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_PERMISSION_DENIED   170  /* permission denied, id2 has been binded to other product key */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_PRODUCT_INVALID     171  /* product key is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_PRODUCT_NOT_EXIST   172  /* Product key is not exist */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_SYSTEM_BUSY         173  /* id2 server is busy */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_DEV_FP_INVALID      174  /* the device fingerprint is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_DEV_FP_DUPLICATE    175  /* the device fingerprint is duplicated */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_SRV_RAND_INVALID    176  /* id2 server random is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_MAC_TYPE_INVALID    177  /* hash type used in authcode generated is invalid */
+#define MBEDTLS_SSL_ALERT_MSG_ID2_KEY_TYPE_INVALID    178  /* id2 key type is invalid */
+#endif
+
 #define MBEDTLS_SSL_HS_HELLO_REQUEST            0
 #define MBEDTLS_SSL_HS_CLIENT_HELLO             1
 #define MBEDTLS_SSL_HS_SERVER_HELLO             2
@@ -370,6 +392,8 @@
 #define ITLS_TEST_FLAGS_SRV_HELLO      0x3000
 #define ITLS_TEST_FLAGS_SRV_VERIFY     0x3001
 #define ITLS_TEST_FLAGS_SRV_FINISHED   0x3002
+#define ITLS_TEST_FLAGS_CLI_HELLO      0x3003
+#define ITLS_TEST_FLAGS_CLI_FINISHED   0x3004
 
 #endif
 
@@ -802,9 +826,10 @@ struct mbedtls_ssl_config
     unsigned int   auth_extra_len;
     unsigned char *auth_token;         /* optional */
     unsigned int   auth_token_len;
+    unsigned int   auth_code_verified;
 #endif
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
-    unsigned int  type;
+    unsigned int   type;
 
     unsigned char *key_id;
     unsigned int   key_id_len;
@@ -1878,6 +1903,13 @@ int mbedtls_ssl_conf_auth_extra( mbedtls_ssl_config *conf,
  */
 int mbedtls_ssl_conf_auth_token( mbedtls_ssl_config *conf,
                 const char *auth_token, size_t auth_token_len );
+
+/**
+ * \brief          Get the message alert type if handshake fail.
+ *
+ * \return         the alert type, see macro definitions.
+ */
+uint32_t mbedtls_ssl_get_message_alert_type( void );
 #endif
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
