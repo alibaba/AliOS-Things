@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "alios-studio: Config",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make",
+        "@projectname@@@boardname@",
+        "-c",
+        "config"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Make",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Upload",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "upload",
+        "@projectname@@@boardname@"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Debug",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "debug",
+        "@projectname@@@boardname@"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Serial Monitor",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "monitor",
+        "",
+        ""
+      ],
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "alios-studio: Clean",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make",
+        "clean"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: OTA",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "ota",
+        "@projectname@@@boardname@",
+        "-d",
+        "",
+        "-p",
+        ""
+      ],
+      "presentation": {
+        "focus": true
+      }
+    }
+  ]
+}
