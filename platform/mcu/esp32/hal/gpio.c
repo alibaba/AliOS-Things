@@ -121,6 +121,7 @@ int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
     {
         return -1;
     }
+    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     gpio_set_intr_type(gpio->port, (gpio_int_type_t)trigger);
     ret = gpio_isr_handler_add(gpio->port, handler, arg);
     return ret;
