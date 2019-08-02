@@ -79,7 +79,7 @@ def _upload_image(target, aos_path, registry_file, program_path=None, bin_dir=No
     ret = 0
 
     # Check binary exist
-    elf_file = os.path.join(aos_path, "out", target, "binary", "%s.bin" % target)
+    elf_file = os.path.join(program_path if program_path else aos_path, "out", target, "binary", "%s.bin" % target)
     if not os.path.exists(elf_file):
         error("Please build target[%s] first" % target)
 
@@ -114,13 +114,14 @@ def _upload_image(target, aos_path, registry_file, program_path=None, bin_dir=No
     return ret
 
 def aos_upload(target, work_path=None, bin_dir=None):
-    info("Target: %s" % target)
+    program_path = None
 
     if '@' not in target or len(target.split('@')) != 2:
         error("Target invalid!")
 
     if work_path:
-        aos_path = work_path
+        aos_path = get_config_value('AOS_SDK_PATH')
+        program_path = os.getcwd()
     else:
         if os.path.isdir('./kernel/rhino') or os.path.isdir('./include/aos'):
             info("Currently in aos_sdk_path: '%s'\n" % os.getcwd())
@@ -133,7 +134,7 @@ def aos_upload(target, work_path=None, bin_dir=None):
             else:
                 info("Load aos configs success, set '%s' as sdk path\n" % aos_path)
 
-    program_path = get_config_value('program_path')
+    # program_path = get_config_value('program_path')
 
     registry_file = os.path.split(os.path.realpath(__file__))[0] + '/upload/registry_board.json'
     if os.path.isfile(registry_file):
