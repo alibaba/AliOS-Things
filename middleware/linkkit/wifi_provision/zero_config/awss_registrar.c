@@ -38,8 +38,8 @@ static char registrar_id = 0;
 
 
 #define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
-#ifdef REGISTRAR_IDLE_DUTY
-#if REGISTRAR_IDLE_DUTY > 0
+
+#if (REGISTRAR_IDLE_DUTY > 0)
 uint32_t schedule_timestamp = 0;
 uint32_t schedule_duration = REGISTRAR_WORK_TIME;
 uint8_t last_open = 1;
@@ -64,7 +64,6 @@ void registrar_schedule()
     last_open = 1 - last_open;
 }
 #endif
-#endif
 
 void awss_registrar_init(void)
 {
@@ -78,7 +77,7 @@ void awss_registrar_init(void)
 
     HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                       (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
-#ifdef REGISTRAR_IDLE_DUTY
+#if (REGISTRAR_IDLE_DUTY > 0)
     schedule_timestamp = os_get_time_ms();
     schedule_duration = REGISTRAR_WORK_TIME;
     last_open = 1;
@@ -846,6 +845,20 @@ int enrollee_put(struct enrollee_info *in)
                     enrollee_report();
                 }
                 if (enrollee_info[i].state != ENR_IN_QUEUE) { /* already reported */
+                    if ((0 != memcmp(&(enrollee_info[i].random[0]), &(in->random[0]), RANDOM_MAX_LEN)) &&
+                        (ENR_CHECKIN_ONGOING == enrollee_info[i].state)) {
+                        enrollee_info[i].state = ENR_CHECKIN_ENABLE;
+                        memset(&(enrollee_info[i].random[0]), 0, RANDOM_MAX_LEN);
+                        memcpy(&(enrollee_info[i].random[0]), &(in->random[0]), RANDOM_MAX_LEN);
+                        memset(&(enrollee_info[i].sign), 0, enrollee_info[i].sign_len);
+                        enrollee_info[i].sign_len = in->sign_len;
+                        memcpy(&(enrollee_info[i].sign), &(in->sign), in->sign_len);
+                        awss_trace("fix diff random, %s, %s", in->dev_name, enrollee_info[i].dev_name);
+                    } /* Fix device name not match issue.
+                      It happens only when the enrollee reboots during wifi-provision provison process, thus the random and sign changes.
+                      The registar is not aware of that, keeping on broadcasting wifi-provision info encrypted with previous random and sign.
+                      To fix this issue, the registar has to regenerate wifi-provision info when it detectes enrollee's random changes. */
+
                     return 1;
                 }
                 memcpy(&enrollee_info[i], in, ENROLLEE_INFO_HDR_SIZE);
@@ -1053,7 +1066,7 @@ static void registrar_raw_frame_send(void)
 
 int registar_yield()
 {
-#ifdef REGISTRAR_IDLE_DUTY
+#if(REGISTRAR_IDLE_DUTY > 0)
     registrar_schedule();
 #endif
     enrollee_checkin();

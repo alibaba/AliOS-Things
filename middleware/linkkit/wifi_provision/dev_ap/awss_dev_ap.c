@@ -9,7 +9,8 @@
 extern "C" {
 #endif
 
-#define TIMEOUT_CNT 10
+#define TIMEOUT_CNT       10
+#define GET_GBK_TIMEOUT   6000
 static void *g_awss_dev_ap_mutex = NULL;
 static char awss_dev_ap_switchap_done = 0;
 static char awss_dev_ap_switchap_resp_suc = 0;
@@ -27,7 +28,122 @@ typedef struct {
 } ap_info_t;
 ap_info_t *g_dev_ap_info_ptr = NULL;
 
+struct ssid_config {
+    uint8_t bssid[ETH_ALEN];
+    char ssid[33];
+    uint8_t got_ssid;
+};
 
+static struct ssid_config config;
+
+static int awss_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs,
+                                    signed char rssi)
+{
+    uint8_t ssid[PLATFORM_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
+    struct ieee80211_hdr *hdr;
+    int fc;
+    int ret = -1;
+
+    if (link_type != AWSS_LINK_TYPE_NONE) {
+        return -1;
+    }
+    /* remove FCS filed */
+    if (with_fcs) {
+        length -= 4;
+    }
+
+    hdr = (struct ieee80211_hdr *)buf;
+
+    fc = hdr->frame_control;
+    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc)) {
+        return -1;
+    }
+
+    ret = ieee80211_get_bssid((uint8_t *)hdr, bssid);
+    if (ret < 0) {
+        return -1;
+    }
+
+    awss_trace("bssid = %02x %02x %02x %02x %02x %02x", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    if (memcmp(config.bssid, bssid, ETH_ALEN) != 0) {
+        return -1;
+    }
+
+    ret = ieee80211_get_ssid((uint8_t *)hdr, length, ssid);
+    if (ret < 0) {
+        return -1;
+    }
+
+    memcpy(config.ssid, ssid, sizeof(config.ssid) - 1);
+    config.got_ssid = 1;
+    awss_info("get ssid in RAW FRAME :%s\n", ssid);
+    HAL_Awss_Close_Monitor();
+    return 0;
+}
+
+static char is_str_asii(char *str)
+{
+    int i;
+    for (i = 0; str[i] != '\0'; ++i) {
+        if ((uint8_t)str[i] > 0x7F) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static char bssid_is_valid(uint8_t *bssid)
+{
+    int i;
+    for (i = 0; i < ETH_ALEN; ++i) {
+        if (bssid[i] != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static uint8_t get_next_channel(void)
+{
+    static int aws_chn_index = 0;
+
+    aws_chn_index ++;
+    if (aws_chn_index > 13) {
+        aws_chn_index = 1;    /* rollback to start */
+    }
+
+    return aws_chn_index;
+}
+
+static int try_get_real_ssid(uint32_t timeout, uint8_t *bissd_in, char *ssid_out)
+{
+
+    uint64_t pre_time = HAL_UptimeMs();
+    uint64_t start_time = pre_time;
+    uint64_t cur_time = 0;
+    int ret = -1;
+    memset(&config, 0, sizeof(struct ssid_config));
+
+    memcpy(config.bssid, bissd_in, ETH_ALEN);
+    HAL_Awss_Open_Monitor(awss_80211_frame_handler);
+
+    do {
+        HAL_SleepMs(50);
+        if (config.got_ssid) {
+            strncpy(ssid_out, config.ssid, strlen(config.ssid));
+            ssid_out[strlen(config.ssid)] = 0;
+            ret = 0;
+            break;
+        }
+        cur_time = HAL_UptimeMs();
+        if (cur_time - pre_time > 250) {
+            int channel = get_next_channel();
+            HAL_Awss_Switch_Channel(channel, 0, NULL);
+            pre_time = cur_time;
+        }
+    } while (cur_time - start_time < timeout);
+    return ret;
+}
 static int awss_dev_ap_setup()
 {
     char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
@@ -192,6 +308,7 @@ static int awss_dev_ap_switchap_resp(void *context, int result,
     return 0;
 }
 
+
 static void start_connect_ap()
 {
     int ret = 0;
@@ -207,6 +324,10 @@ static void start_connect_ap()
     }
     HAL_Awss_Close_Ap();
 
+    if (is_str_asii(info->ssid) == 0 &&  bssid_is_valid(info->bssid)) { /*try to get real ssid from mngmt frame */
+        HAL_SleepMs(200); /*wait ap close */
+        try_get_real_ssid(GET_GBK_TIMEOUT, info->bssid, info->ssid);
+    }
     ret = awss_connect(info->ssid, info->passwd, info->bssid, ETH_ALEN,
                        info->token_found == 1 ? info->token : NULL,
                        info->token_found == 1 ? RANDOM_MAX_LEN : 0);
@@ -247,11 +368,11 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     if (NULL == info) {
         return -1;
     }
-    
-    if(awss_dev_ap_switchap_done != 0){
+
+    if (awss_dev_ap_switchap_done != 0) {
         return -1;
-    } 
-    
+    }
+
     ssid = info->ssid;
     passwd = info->passwd;
     bssid = info->bssid;
@@ -372,14 +493,6 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
                                      &(info->msgid), 1);
     (void)result;  /* remove complier warnings */
     awss_trace("sending %s.", result == 0 ? "success" : "fail");
-
-    do {
-        if (!success) {
-            break;
-        }
-        try_to_do_connect_ap();
-
-    } while (0);
 
 DEV_AP_SWITCHAP_END:
     dev_ap_switchap_parsed = 0;

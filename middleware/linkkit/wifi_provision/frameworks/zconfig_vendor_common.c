@@ -403,6 +403,7 @@ success:
     /* don't destroy zconfig_data until monitor_cb is finished. */
     HAL_MutexLock(zc_mutex);
     HAL_MutexUnlock(zc_mutex);
+    awss_trace("ready to call zconfig_destroy to release mem \r\n");
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
@@ -412,6 +413,7 @@ success:
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
     if (aws_stop == AWS_STOPPED) {
+        awss_trace("zconfig mem released \r\n");
         zconfig_force_destroy();
     }
 #if defined(AWSS_SUPPORT_AHA)
@@ -494,24 +496,24 @@ void aws_destroy(void)
     }
 
     if (aws_info == NULL) {
+        HAL_MutexUnlock(aws_mutex);
         return;
     }
 
     if (aws_stop == AWS_STOPPED) {
+        HAL_MutexUnlock(aws_mutex);
         return;
     }
 
-    aws_stop = AWS_STOPPING;
-
     HAL_Awss_Close_Monitor();
+    awss_trace("aws_destroy \r\n");
+    aws_stop = AWS_STOPPING;
 
     while (aws_stop != AWS_STOPPED) {
         if (aws_state == AWS_SUCCESS) {
             break;
         }
-        HAL_MutexUnlock(aws_mutex);
         HAL_SleepMs(100);
-        HAL_MutexLock(aws_mutex);
     }
     if (NULL != aws_info) {
         HAL_Free(aws_info);

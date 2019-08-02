@@ -98,13 +98,7 @@ int IOT_Ioctl(int option, void *data)
         case IOTX_IOCTL_SET_MQTT_DOMAIN: {
             ctx->domain_type = IOTX_CLOUD_REGION_CUSTOM;
 
-            if (ctx->cloud_custom_domain) {
-                HAL_Free(ctx->cloud_custom_domain);
-                ctx->cloud_custom_domain = NULL;
-                g_infra_mqtt_domain[IOTX_CLOUD_REGION_CUSTOM] = NULL;
-            }
-            ctx->cloud_custom_domain = HAL_Malloc(strlen((char *)data) + 1);
-            if (ctx->cloud_custom_domain == NULL) {
+            if (strlen(data) > IOTX_DOMAIN_MAX_LEN) {
                 return FAIL_RETURN;
             }
             memset(ctx->cloud_custom_domain, 0, strlen((char *)data) + 1);
@@ -116,13 +110,7 @@ int IOT_Ioctl(int option, void *data)
         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             ctx->domain_type = IOTX_HTTP_REGION_CUSTOM;
 
-            if (ctx->http_custom_domain) {
-                HAL_Free(ctx->http_custom_domain);
-                ctx->http_custom_domain = NULL;
-                g_infra_http_domain[IOTX_CLOUD_REGION_CUSTOM] = NULL;
-            }
-            ctx->http_custom_domain = HAL_Malloc(strlen((char *)data) + 1);
-            if (ctx->http_custom_domain == NULL) {
+            if (strlen(data) > IOTX_DOMAIN_MAX_LEN) {
                 return FAIL_RETURN;
             }
             memset(ctx->http_custom_domain, 0, strlen((char *)data) + 1);
@@ -188,12 +176,7 @@ int IOT_Ioctl(int option, void *data)
         break;
 #endif
         case IOTX_IOCTL_SET_CUSTOMIZE_INFO: {
-            if (ctx->mqtt_customzie_info) {
-                HAL_Free(ctx->mqtt_customzie_info);
-                ctx->mqtt_customzie_info = NULL;
-            }
-            ctx->mqtt_customzie_info = HAL_Malloc(strlen((char *)data) + 1);
-            if (ctx->mqtt_customzie_info == NULL) {
+            if (strlen(data) > IOTX_CUSTOMIZE_INFO_LEN) {
                 return FAIL_RETURN;
             }
             memset(ctx->mqtt_customzie_info, 0, strlen((char *)data) + 1);
@@ -244,27 +227,6 @@ int IOT_Ioctl(int option, void *data)
     }
 
     return res;
-}
-
-/* release memory allocated in ioctl */
-void iotx_ioctl_clean(void)
-{
-    sdk_impl_ctx_t *ctx = &g_sdk_impl_ctx;
-
-    if (ctx->cloud_custom_domain) {
-        HAL_Free(ctx->cloud_custom_domain);
-        ctx->cloud_custom_domain = NULL;
-    }
-
-    if (ctx->http_custom_domain) {
-        HAL_Free(ctx->http_custom_domain);
-        ctx->http_custom_domain = NULL;
-    }
-
-    if (ctx->mqtt_customzie_info) {
-        HAL_Free(ctx->mqtt_customzie_info);
-        ctx->mqtt_customzie_info = NULL;
-    }
 }
 
 void IOT_DumpMemoryStats(IOT_LogLevel level)
