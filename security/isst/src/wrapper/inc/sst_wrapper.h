@@ -7,7 +7,7 @@
 
 uint32_t sst_imp_init(void);
 
-uint32_t sst_imp_get_data_len(void *p_sst);
+uint32_t sst_imp_get_data_len(void *p_sst, uint32_t obj_len);
 
 uint32_t sst_imp_set_obj_name(const char *item_name, char *obj_name);
 
@@ -18,6 +18,8 @@ uint32_t sst_imp_hash_data(uint8_t *data_in, uint32_t size, uint8_t *data_out);
 uint32_t sst_imp_create_obj(const uint8_t *data, uint32_t data_len, uint32_t type, void **p_sst, uint32_t *obj_len);
 
 uint32_t sst_imp_get_obj_data(void *p_sst, uint32_t obj_len, uint8_t *data, uint32_t *data_len, uint32_t *type);
+
+uint32_t sst_imp_get_obj_len(uint32_t data_len);
 
 void sst_imp_destroy_obj(void *p_sst);
 

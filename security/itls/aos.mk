@@ -8,18 +8,10 @@ RPM_INCLUDE_DIR := ../include/itls
 
 GLOBAL_INCLUDES     += ../include
 
-ifeq ($(CONFIG_LS_KM_SE), y)
-else ifeq ($(CONFIG_LS_KM_TEE), y)
-else
-ifeq ($(CONFIG_LS_ID2_OTP), y)
-$(NAME)_DEFINES     := CONFIG_KEY_OTP_ENABLED
-endif
-endif
-
 ifeq ($(CONFIG_LS_DEBUG), y)
-GLOBAL_DEFINES      += CONFIG_SSL_DEBUG
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls_dbg.a
 else
+GLOBAL_DEFINES           += CONFIG_SSL_DEBUG_NO
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a
 endif
 
@@ -38,4 +30,3 @@ $(NAME)_COMPONENTS  += irot
 
 $(NAME)_SOURCES     := src/mbedtls_net.c
 $(NAME)_SOURCES     += src/mbedtls_alt.c
-$(NAME)_SOURCES     += src/mbedtls_auth.c

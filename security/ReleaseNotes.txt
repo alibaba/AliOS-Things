@@ -1,0 +1,19 @@
+Link Security SDK For AliOS Things:
+
+Changes:
+1. 2019-01-26:
+   1) ID2: MCU and SE, MCU - AES and OTP, SE - 3DES.
+   2) DPM: New Module, Device Password Based on ID2.
+   3) SST: Secure Storage, Support On Soft-KM.
+   4) Prov: ID2 Provisioning and Key Erasion on Soft-KM.
+   5) iTLS: Ligtweigt TLS Based on ID2, Support MQTT +iTLS.
+   6) HAL: New Module, Used for Soft-KM and SST.
+
+2. 2019-08-10:
+   1) ID2: Optimize Config, Add SM1/SM4 On ID2-SE.
+   2) Prov: Re-define APIs.
+   3) iTLS: Optimize Config, MAX_CONTENT_LEN -> 1K.
+   4) iDTLS: New Feature, Support CoAP + iDTLS.
+   5) KM: Add KM Demo SDK.
+   6) HAL: Add Crypto Demo/SW Reference Implemetation.
+

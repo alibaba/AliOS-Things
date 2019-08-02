@@ -52,6 +52,52 @@ uintptr_t hal_itls_establish(
                    const char *product_secret);
 
 /**
+ * @brief Establish a itls connection in timeout seconds.
+ *
+ * @param [in] host: @n Specify the hostname(IP) of the itls server
+ * @param [in] port: @n Specify the port of itls server
+ * @param [in] product_key @n Specify the product key, terminated with '\0'.
+ * @param [in] product_secret @n Specify the product secret, terminated with '\0'.
+ * @param [in] timeout @n Specify the maximum number of seconds to wait.
+ * @return itls handle.
+ * @see None.
+ * @note None.
+ */
+uintptr_t hal_itls_establish_timeout(
+                   const char *host,
+                   uint32_t port,
+                   const char *product_key,
+                   const char *product_secret,
+                   uint32_t timeout);
+
+/**
+ * @brief Get message alert type if hal_itls_establish or hal_itls_establish_timeout fail.
+ *
+ * @return message alert type.
+ * @see extended alert type for id2:
+ *      160 : id2 generic error
+ *      161 : id2 no quota
+ *      162 : id2 is not exist
+ *      163 : id2 authcode is invalid
+ *      164 : id2 has not been activated
+ *      165 : the timestamp used in authcode is expired
+ *      166 : id2 challenge is invalid
+ *      167 : not support this operation
+ *      168 : id2 has been suspended
+ *      169 : id2 has been discarded
+ *      170 : permission denied, id2 has been binded to other product key
+ *      171 : product key is invalid
+ *      172 : Product key is not exist
+ *      173 : id2 server is busy
+ *      174 : the device fingerprint is invalid
+ *      175 : the device fingerprint is duplicated
+ *      176 : id2 server random is invalid
+ *      177 : hash type used in authcode generated is invalid
+ *      178 : id2 key type is invalid
+ */
+uint32_t hal_itls_get_alert_type(void);
+
+/**
  * @brief Destroy the specific itls connection.
  *
  * @param[in] handle: @n Handle of the specific connection.

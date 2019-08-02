@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#define AES_IV_SIZE             16
+#define AES_BLOCK_SIZE          16
+
 /**
  * \brief          AES context structure
  *
@@ -26,21 +29,37 @@ typedef struct {
     int nr;                     /*!<  number of rounds  */
     uint32_t *rk;               /*!<  AES round keys    */
     uint32_t buf[68];           /*!<  unaligned data    */
-} hal_aes_context;
+} impl_aes_context;
+
+typedef enum _impl_aes_type_t {
+    HAL_AES_ECB         = 0,
+    HAL_AES_CBC         = 1,
+    HAL_AES_CTR         = 2,
+    HAL_AES_CFB         = 3,
+} impl_aes_type_t;
+
+typedef struct {
+    uint32_t             mode;
+    impl_aes_type_t       type;
+    uint8_t              iv[AES_IV_SIZE];
+    size_t               offset;
+    uint8_t              stream_block[AES_BLOCK_SIZE];
+    impl_aes_context      ctx;
+} impl_aes_ctx_t;
 
 /**
  * \brief          Initialize AES context
  *
  * \param ctx      AES context to be initialized
  */
-void hal_aes_init(hal_aes_context *ctx);
+void impl_aes_init(impl_aes_context *ctx);
 
 /**
  * \brief          Clear AES context
  *
  * \param ctx      AES context to be cleared
  */
-void hal_aes_free(hal_aes_context *ctx);
+void impl_aes_free(impl_aes_context *ctx);
 
 /**
  * \brief          AES key schedule (encryption)
@@ -51,7 +70,7 @@ void hal_aes_free(hal_aes_context *ctx);
  *
  * \return         0 if successful, or ALI_ALGO_ERR_AES_INVALID_KEY_LENGTH
  */
-int hal_aes_setkey_enc(hal_aes_context *ctx, const unsigned char *key,
+int impl_aes_setkey_enc(impl_aes_context *ctx, const unsigned char *key,
                       unsigned int keybits);
 
 /**
@@ -63,7 +82,7 @@ int hal_aes_setkey_enc(hal_aes_context *ctx, const unsigned char *key,
  *
  * \return         0 if successful, or ALI_ALGO_ERR_AES_INVALID_KEY_LENGTH
  */
-int hal_aes_setkey_dec(hal_aes_context *ctx, const unsigned char *key,
+int impl_aes_setkey_dec(impl_aes_context *ctx, const unsigned char *key,
                       unsigned int keybits);
 
 /**
@@ -76,7 +95,7 @@ int hal_aes_setkey_dec(hal_aes_context *ctx, const unsigned char *key,
  *
  * \return         0 if successful
  */
-int hal_aes_crypt_ecb(hal_aes_context *ctx,
+int impl_aes_crypt_ecb(impl_aes_context *ctx,
                      int mode,
                      const unsigned char input[16],
                      unsigned char output[16]);
@@ -103,7 +122,7 @@ int hal_aes_crypt_ecb(hal_aes_context *ctx,
  *
  * \return         0 if successful, or ALI_ALGO_ERR_AES_INVALID_INPUT_LENGTH
  */
-int hal_aes_crypt_cbc(hal_aes_context *ctx,
+int impl_aes_crypt_cbc(impl_aes_context *ctx,
                      int mode,
                      size_t length,
                      unsigned char iv[16],
@@ -135,7 +154,7 @@ int hal_aes_crypt_cbc(hal_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int hal_aes_crypt_cfb128(hal_aes_context *ctx,
+int impl_aes_crypt_cfb128(impl_aes_context *ctx,
                         int mode,
                         size_t length,
                         size_t *iv_off,
@@ -167,7 +186,7 @@ int hal_aes_crypt_cfb128(hal_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int hal_aes_crypt_cfb8(hal_aes_context *ctx,
+int impl_aes_crypt_cfb8(impl_aes_context *ctx,
                       int mode,
                       size_t length,
                       unsigned char iv[16],
@@ -196,7 +215,7 @@ int hal_aes_crypt_cfb8(hal_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int hal_aes_crypt_ctr(hal_aes_context *ctx,
+int impl_aes_crypt_ctr(impl_aes_context *ctx,
                      size_t length,
                      size_t *nc_off,
                      unsigned char nonce_counter[16],
@@ -213,7 +232,7 @@ int hal_aes_crypt_ctr(hal_aes_context *ctx,
  * \param input     Plaintext block
  * \param output    Output (ciphertext) block
  */
-void hal_aes_encrypt(hal_aes_context *ctx,
+void impl_aes_encrypt(impl_aes_context *ctx,
                     const unsigned char input[16],
                     unsigned char output[16]);
 
@@ -226,7 +245,7 @@ void hal_aes_encrypt(hal_aes_context *ctx,
  * \param input     Ciphertext block
  * \param output    Output (plaintext) block
  */
-void hal_aes_decrypt(hal_aes_context *ctx,
+void impl_aes_decrypt(impl_aes_context *ctx,
                     const unsigned char input[16],
                     unsigned char output[16]);
 

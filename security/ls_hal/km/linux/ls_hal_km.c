@@ -113,18 +113,17 @@ int ls_hal_get_dev_id(uint8_t *dev_id, uint32_t *id_len)
 {
     int i = 0;
 
-    if (*id_len < DEV_ID_LEN + DEV_ID_LEN) {
+    if (*id_len < DEV_ID_LEN) {
         PL_ERR("short buffer id len is %d\n", *id_len);
-        *id_len = DEV_ID_LEN + DEV_ID_LEN;
+        *id_len = DEV_ID_LEN;
         return -1;
     }
 
-    for (i = 0; i < DEV_ID_LEN + DEV_ID_LEN; i++) {
+    for (i = 0; i < DEV_ID_LEN; i++) {
         dev_id[i] = i;
     }
 
-    //fix: length output
-    *id_len = (DEV_ID_LEN + DEV_ID_LEN);
+    *id_len = DEV_ID_LEN;
 
     return 0;
 }
