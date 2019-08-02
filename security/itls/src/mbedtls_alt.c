@@ -12,6 +12,7 @@
 #include "itls/aes.h"
 #include "itls/sha1.h"
 #include "itls/sha256.h"
+#include "itls/timing.h"
 #include "itls/platform.h"
 
 #if defined(MBEDTLS_AES_ALT)
@@ -222,11 +223,10 @@ void mbedtls_sha1_clone_alt(mbedtls_sha1_context *dst,
 void mbedtls_sha1_starts_alt(mbedtls_sha1_context *ctx)
 {
     size_t ctx_size;
-    hash_type_t type = SHA1;
     ali_crypto_result result;
 
     if (NULL == ctx->ali_ctx) {
-        result = ali_hash_get_ctx_size(type, &ctx_size);
+        result = ali_sha1_get_ctx_size(&ctx_size);
         if (result != ALI_CRYPTO_SUCCESS) {
             SSL_DBG_LOG("get ctx size fail - 0x%x\n", result);
             MBEDTLS_ALT_ASSERT(0);
@@ -242,7 +242,7 @@ void mbedtls_sha1_starts_alt(mbedtls_sha1_context *ctx)
         }
     }
 
-    result = ali_hash_init(type, ctx->ali_ctx);
+    result = ali_sha1_init(ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha1 init fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -255,7 +255,7 @@ void mbedtls_sha1_update_alt(mbedtls_sha1_context *ctx, const unsigned char *inp
 {
     ali_crypto_result result;
 
-    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    result = ali_sha1_update(input, ilen, ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha1 update fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -268,7 +268,7 @@ void mbedtls_sha1_finish_alt(mbedtls_sha1_context *ctx, unsigned char output[20]
 {
     ali_crypto_result result;
 
-    result = ali_hash_final(output, ctx->ali_ctx);
+    result = ali_sha1_final(output, ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha1 final fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -324,17 +324,15 @@ void mbedtls_sha256_clone_alt(mbedtls_sha256_context *dst,
 void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224)
 {
     size_t ctx_size;
-    hash_type_t type;
     ali_crypto_result result;
 
-    if (is224 == 0) {
-        type = SHA256;
-    } else {
-        type = SHA224;
+    if (is224 == 1) {
+        SSL_DBG_LOG("sha224 is not surpported!\n");
+        return;
     }
 
     if (NULL == ctx->ali_ctx) {
-        result = ali_hash_get_ctx_size(type, &ctx_size);
+        result = ali_sha256_get_ctx_size(&ctx_size);
         if (result != ALI_CRYPTO_SUCCESS) {
             SSL_DBG_LOG("get ctx size fail - 0x%x\n", result);
             MBEDTLS_ALT_ASSERT(0);
@@ -350,7 +348,7 @@ void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224)
         }
     }
 
-    result = ali_hash_init(type, ctx->ali_ctx);
+    result = ali_sha256_init(ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha256 init fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -363,7 +361,7 @@ void mbedtls_sha256_update_alt(mbedtls_sha256_context *ctx, const unsigned char 
 {
     ali_crypto_result result;
 
-    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    result = ali_sha256_update(input, ilen, ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha256 update fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -376,7 +374,7 @@ void mbedtls_sha256_finish_alt(mbedtls_sha256_context *ctx, unsigned char output
 {
     ali_crypto_result result;
 
-    result = ali_hash_final(output, ctx->ali_ctx);
+    result = ali_sha256_final(output, ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         SSL_DBG_LOG("sha256 final fail - 0x%x\n", result);
         MBEDTLS_ALT_ASSERT(0);
@@ -396,3 +394,59 @@ void mbedtls_sha256_alt(const unsigned char *input, size_t ilen, unsigned char o
     mbedtls_sha256_free_alt( &ctx );
 }
 #endif /* MBEDTLS_SHA256_ALT */
+
+#if defined(MBEDTLS_TIMING_ALT)
+struct _hr_time
+{
+    unsigned long long start;
+};
+
+unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int reset )
+{
+    unsigned long delta;
+    unsigned long long offset;
+    struct _hr_time *t = (struct _hr_time *) val;
+
+    offset = ls_osa_get_time_ms();
+
+    if( reset )
+    {
+        t->start = ls_osa_get_time_ms();
+        return( 0 );
+    }
+
+    delta = offset - t->start;
+
+    return( delta );
+}
+
+void mbedtls_timing_set_delay( void *data, uint32_t int_ms, uint32_t fin_ms )
+{
+    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *) data;
+
+    ctx->int_ms = int_ms;
+    ctx->fin_ms = fin_ms;
+
+    if( fin_ms != 0 )
+        (void) mbedtls_timing_get_timer( &ctx->timer, 1 );
+}
+
+int mbedtls_timing_get_delay( void *data )
+{
+    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *) data;
+    unsigned long elapsed_ms;
+
+    if( ctx->fin_ms == 0 )
+        return( -1 );
+
+    elapsed_ms = mbedtls_timing_get_timer( &ctx->timer, 0 );
+
+    if( elapsed_ms >= ctx->fin_ms )
+        return( 2 );
+
+    if( elapsed_ms >= ctx->int_ms )
+        return( 1 );
+
+    return( 0 );
+}
+#endif /* MBEDTLS_TIMING_ALT */
