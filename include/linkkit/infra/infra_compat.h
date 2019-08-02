@@ -164,14 +164,6 @@ int IOT_SetupConnInfo(const char *product_key,
                       const char *device_secret,
                       void **info_ptr);
 
-typedef struct {
-    int domain_type;
-    int dynamic_register;
-    char *cloud_custom_domain;
-    uint16_t mqtt_port_num;
-    char *http_custom_domain;
-    char *mqtt_customzie_info;
-} sdk_impl_ctx_t;
 
 typedef enum {
     IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
