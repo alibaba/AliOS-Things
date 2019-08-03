@@ -4,13 +4,13 @@ from util import info, warn
 
 name = "flake8"
 short_help = "Check python syntax with flake8"
-requires = ["flake9"]
+requires = ["flake8"]
 
 help = """
-Usage: aos check <ID> [python files ...]
+Usage: aos check %s [python files ...]
 
 Check python syntax with Flake8.
-"""
+""" % name
 
 ## Flake8 check configs
 MAX_LINE_LEN = 100
