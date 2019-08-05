@@ -343,6 +343,32 @@ void rda_ccfg_adc_gp(unsigned char gp, unsigned short cfg)
     wr_rf_usb_reg(0xB2, (val | ((cfg & 0x01U) << ofs_lst[gp - 6])), 0);
 }
 
+/* Config GPADC oenb, use be config to 1 in either Normal mode or GPADC mode */
+void rda_ccfg_adc_oenb(unsigned char ch, unsigned short cfg)
+{
+    unsigned short val = 0U;
+    unsigned char offset = 0U;
+    int ver = rda_ccfg_hwver();
+
+    if ((ch > 1) || (cfg > 1))
+        return;
+
+    if (0 == ch) {
+        offset = 2;
+    } else {
+        if (ver <= 2)
+            offset = 3;
+        else if (ver >= 4)
+            offset = 1;
+    }
+
+    rd_rf_usb_reg(0xB0, &val, 0);
+    val &= ~(0x01U << offset);
+    val |= (cfg << offset);
+    wr_rf_usb_reg(0xB0, val, 0);
+}
+
+
 /* Read ADC value */
 unsigned short rda_ccfg_adc_read(unsigned char ch)
 {
