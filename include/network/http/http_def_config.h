@@ -26,11 +26,19 @@
 #endif
 
 #ifndef CONFIG_HTTP_SECURE
+#if AOS_COMP_ITLS
+#define CONFIG_HTTP_SECURE 1
+#elif AOS_COMP_MBEDTLS
+#define CONFIG_HTTP_SECURE 1
+#else
 #define CONFIG_HTTP_SECURE 0
+#endif
 #endif
 
 #if CONFIG_HTTP_SECURE
-#ifndef CONFIG_HTTP_SECURE_ITLS
+#if AOS_COMP_ITLS
+#define CONFIG_HTTP_SECURE_ITLS 1
+#else
 #define CONFIG_HTTP_SECURE_ITLS 0
 #endif
 #endif
