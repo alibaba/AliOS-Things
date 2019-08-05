@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include "ulog/ulog.h"
 
-#define OTA_LOG_D(fmt, ...) LOGD("uota",fmt,##__VA_ARGS__)
-#define OTA_LOG_I(fmt, ...) LOGE("uota",fmt,##__VA_ARGS__)
-#define OTA_LOG_W(fmt, ...) LOGW("uota",fmt,##__VA_ARGS__)
-#define OTA_LOG_E(fmt, ...) LOGE("uota",fmt,##__VA_ARGS__)
+#define OTA_LOG_D(fmt, ...) LOGD("ota",fmt,##__VA_ARGS__)
+#define OTA_LOG_I(fmt, ...) LOGI("ota",fmt,##__VA_ARGS__)
+#define OTA_LOG_W(fmt, ...) LOGW("ota",fmt,##__VA_ARGS__)
+#define OTA_LOG_E(fmt, ...) LOGE("ota",fmt,##__VA_ARGS__)
 #endif /*OTA_LOG_H*/

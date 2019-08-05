@@ -1,6 +1,5 @@
 menuconfig AOS_COMP_OTA
     bool "OTA Features"
-    select AOS_COMP_MBEDTLS
     select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_MQTT

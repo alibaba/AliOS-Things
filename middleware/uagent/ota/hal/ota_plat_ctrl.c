@@ -65,6 +65,27 @@ int ota_int(ota_boot_param_t *param)
     return ret;
 }
 
+int ota_clear(ota_boot_param_t *param)
+{
+    int ret = OTA_UPGRADE_PARAM_FAIL;
+    unsigned int offset = 0x00;
+    unsigned int len = sizeof(ota_boot_param_t);
+    if(param == NULL) {
+        return ret;
+    }
+    ota_is_header = 0;
+    ret = ota_hal_init(param);
+    if(ret == 0) {
+        if(ota_hash_ctx != NULL) {
+            ota_free(ota_hash_ctx);
+            ota_hash_ctx = NULL;
+        }
+    }
+    ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
+    OTA_LOG_I("ota clear ret = %d\r\n", ret);
+    return ret;
+}
+
 int ota_write(unsigned int *off, char *in_buf, unsigned int in_buf_len)
 {
     int ret = 0;
