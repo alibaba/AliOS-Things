@@ -24,7 +24,7 @@ $(NAME)_SOURCES := ota_core/ota_service.c \
 
 $(NAME)_COMPONENTS += linkkit_sdk_c cjson http
 
-ifeq ($(FEATURE_SUPPORT_ITLS),y)
+ifeq ($(SUPPORT_ITLS),y)
    $(NAME)_COMPONENTS += itls
    ifeq ($(COMPILER),armcc)
    GLOBAL_CFLAGS += -DOTA_CONFIG_ITLS -DCONFIG_HTTP_SECURE_ITLS=1 -DOTA_SIGNAL_CHANNEL=1 -DCONFIG_HTTP_SECURE=1
