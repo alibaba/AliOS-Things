@@ -76,7 +76,7 @@ static PinName PWM_SYNC_CHN[PWM_SYNC_CHN_NUM]= {0UL};
 extern gpio_t gpio_p1;
 
 static uint8_t is_pwmout_started(pwmout_t* obj);
-void pwmout_start(pwmout_t* obj);
+static void pwmout_start(pwmout_t* obj);
 static void pwmout_stop(pwmout_t* obj);
 static void pwmout_update_cfgreg(pwmout_t* obj);
 static void pwmout_cfgreg(pwmout_t* obj);
@@ -650,7 +650,7 @@ static uint8_t is_pwmout_started(pwmout_t* obj)
     return retVal;
 }
 
-void pwmout_start(pwmout_t* obj)
+static void pwmout_start(pwmout_t* obj)
 {
     MBED_ASSERT(PWM_7 >= (PWMName)(obj->channel));
 
