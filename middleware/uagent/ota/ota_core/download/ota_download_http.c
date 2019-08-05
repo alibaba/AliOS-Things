@@ -61,8 +61,6 @@ int ota_download_start(char *url)
     unsigned int offset = 0;
     http_rsp_info_t rsp_info = {0};
     char *content = NULL;
-    char *host_name = NULL;
-    char *host_uri = NULL;
     int fd = 0;
     int i = 0, j = 0;
     int ota_rx_size = 0;
@@ -80,13 +78,15 @@ int ota_download_start(char *url)
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
     }
-    ota_parse_host_url((char*)url, &host_name, &host_uri);
-    if (host_name == NULL || host_uri == NULL) {
-        ret = OTA_DOWNLOAD_INIT_FAIL;
-        return ret;
-    }
 
     for(j = OTA_DOWNLOAD_RETRY_CNT; (j > 0)&&(ret < 0); j--) {
+        char *host_name = NULL;
+        char *host_uri = NULL;
+        ota_parse_host_url((char*)url, &host_name, &host_uri);
+        if (host_name == NULL || host_uri == NULL) {
+            ret = OTA_DOWNLOAD_INIT_FAIL;
+            return ret;
+        }
         fd = socket(AF_INET, SOCK_STREAM, 0);
         if (fd < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
@@ -257,7 +257,7 @@ EXIT:
          ota_file_size = 0;
          ota_rx_size = 0;
     }
-    OTA_LOG_E("download compelte:%d \n", ret);
+    OTA_LOG_E("download complete:%d \n", ret);
     return ret;
 }
 

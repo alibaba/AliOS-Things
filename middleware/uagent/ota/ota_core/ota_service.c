@@ -164,9 +164,13 @@ EXIT:
             }
         }
 #endif /* !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE */
+        ret = ota_clear(param);
     } else {
         param->upg_status = OTA_FINISH;
     }
+#if defined OTA_CONFIG_SECURE_DL_MODE
+    hal_wdg_finalize(&ota_wdg);
+#endif
 #ifdef AOS_COMP_PWRMGMT
     aos_pwrmgmt_lowpower_resume(PWRMGMT_OTA);
 #endif
@@ -383,6 +387,7 @@ EXIT:
         if (ret != 0) {
             ota_transport_status(ota_ctx->pk, ota_ctx->dn, OTA_TRANSPORT_PAR_FAIL);
         }
+        ota_transport_status(ota_ctx->pk, ota_ctx->dn, 1);
         ota_reboot();
 #else
         {
