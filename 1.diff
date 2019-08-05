@@ -1,0 +1,92 @@
+commit 012939bfeec21e04d03650917699169aaaa2ed59
+Author: junping.pjp <junping.pjp@alibaba-inc.com>
+Date:   Mon Aug 5 21:03:22 2019 +0800
+
+    BugID:21898735: fix 0 size binary files issue
+    
+    Change-Id: Ibc6753d18a237d87786d6b1d8a6c72faa9cc8b20
+
+diff --git a/platform/mcu/asr5501/tools/bootload_v1.8.0_20190426151551.bin b/platform/mcu/asr5501/tools/bootload_v1.8.0_20190426151551.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v1.9.0_20190506142012.bin b/platform/mcu/asr5501/tools/bootload_v1.9.0_20190506142012.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v1.9.1_midea_20190514151517.bin b/platform/mcu/asr5501/tools/bootload_v1.9.1_midea_20190514151517.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v1.9.1_mx_20190514151517.bin b/platform/mcu/asr5501/tools/bootload_v1.9.1_mx_20190514151517.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v2.1.0_midea_20190517165957.bin b/platform/mcu/asr5501/tools/bootload_v2.1.0_midea_20190517165957.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v2.1.0_mx_20190517165957.bin b/platform/mcu/asr5501/tools/bootload_v2.1.0_mx_20190517165957.bin
+deleted file mode 100644
+index e69de29bb..000000000
+diff --git a/platform/mcu/asr5501/tools/bootload_v2.4.2_midea_20190620202541.bin b/platform/mcu/asr5501/tools/bootload_v2.4.2_midea_20190620202541.bin
+index e69de29bb..3c542e80d 100644
+Binary files a/platform/mcu/asr5501/tools/bootload_v2.4.2_midea_20190620202541.bin and b/platform/mcu/asr5501/tools/bootload_v2.4.2_midea_20190620202541.bin differ
+diff --git a/platform/mcu/asr5501/tools/bootload_v2.4.2_mx_20190620202541.bin b/platform/mcu/asr5501/tools/bootload_v2.4.2_mx_20190620202541.bin
+index e69de29bb..7e531de4c 100644
+Binary files a/platform/mcu/asr5501/tools/bootload_v2.4.2_mx_20190620202541.bin and b/platform/mcu/asr5501/tools/bootload_v2.4.2_mx_20190620202541.bin differ
+diff --git a/platform/mcu/bk7231u/beken/app/airkiss/libairkiss.a b/platform/mcu/bk7231u/beken/app/airkiss/libairkiss.a
+index e69de29bb..b8eb3ff9d 100644
+Binary files a/platform/mcu/bk7231u/beken/app/airkiss/libairkiss.a and b/platform/mcu/bk7231u/beken/app/airkiss/libairkiss.a differ
+diff --git a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-EM.xls b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-EM.xls
+index e69de29bb..4ea661c41 100644
+Binary files a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-EM.xls and b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-EM.xls differ
+diff --git a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-REG.xls b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-REG.xls
+index e69de29bb..754d05dd8 100644
+Binary files a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-REG.xls and b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/audio/RW-BLE-CORE-REG.xls differ
+diff --git a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-EM.xls b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-EM.xls
+index e69de29bb..b90548605 100644
+Binary files a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-EM.xls and b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-EM.xls differ
+diff --git a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-REG.xls b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-REG.xls
+index e69de29bb..eb5e55b98 100644
+Binary files a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-REG.xls and b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/ble/ll/import/reg/legacy/RW-BLE-CORE-REG.xls differ
+diff --git a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/em/import/RW-CORE-EM.xls b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/em/import/RW-CORE-EM.xls
+index e69de29bb..8f0243097 100644
+Binary files a/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/em/import/RW-CORE-EM.xls and b/platform/mcu/bk7231u/beken/driver/ble/ble_lib/ip/em/import/RW-CORE-EM.xls differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/src/apps/httpd/fs/img/sics.gif b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/src/apps/httpd/fs/img/sics.gif
+index e69de29bb..0a4fc7bb0 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/src/apps/httpd/fs/img/sics.gif and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/src/apps/httpd/fs/img/sics.gif differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/arp/arp_req.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/arp/arp_req.bin
+index e69de29bb..b317334f9 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/arp/arp_req.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/arp/arp_req.bin differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/icmp/icmp_ping.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/icmp/icmp_ping.bin
+index e69de29bb..87e1ea795 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/icmp/icmp_ping.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/icmp/icmp_ping.bin differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/neighbor_solicitation.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/neighbor_solicitation.bin
+index e69de29bb..d2f921c36 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/neighbor_solicitation.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/neighbor_solicitation.bin differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/router_adv.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/router_adv.bin
+index e69de29bb..3aa961569 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/router_adv.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/ipv6/router_adv.bin differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/tcp/tcp_syn.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/tcp/tcp_syn.bin
+index e69de29bb..d77f6d23b 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/tcp/tcp_syn.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/tcp/tcp_syn.bin differ
+diff --git a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/udp/udp_port_5000.bin b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/udp/udp_port_5000.bin
+index e69de29bb..d77e26752 100644
+Binary files a/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/udp/udp_port_5000.bin and b/platform/mcu/bk7231u/beken/func/lwip_intf/lwip-2.0.2/test/fuzz/inputs/udp/udp_port_5000.bin differ
+diff --git a/platform/mcu/bk7231u/bootloader_bk7231u.bin b/platform/mcu/bk7231u/bootloader_bk7231u.bin
+index e69de29bb..253a641c0 100644
+Binary files a/platform/mcu/bk7231u/bootloader_bk7231u.bin and b/platform/mcu/bk7231u/bootloader_bk7231u.bin differ
+diff --git a/platform/mcu/bk7231u/bootloader_bk7231u_low.bin b/platform/mcu/bk7231u/bootloader_bk7231u_low.bin
+index e69de29bb..e31e67ea7 100644
+Binary files a/platform/mcu/bk7231u/bootloader_bk7231u_low.bin and b/platform/mcu/bk7231u/bootloader_bk7231u_low.bin differ
+diff --git a/platform/mcu/bk7231u/bootloader_bk7231u_up.bin b/platform/mcu/bk7231u/bootloader_bk7231u_up.bin
+index e69de29bb..fc1157c7c 100644
+Binary files a/platform/mcu/bk7231u/bootloader_bk7231u_up.bin and b/platform/mcu/bk7231u/bootloader_bk7231u_up.bin differ
+diff --git a/platform/mcu/bk7231u/wifi_win.exe b/platform/mcu/bk7231u/wifi_win.exe
+index e69de29bb..9556f6ac8 100644
+Binary files a/platform/mcu/bk7231u/wifi_win.exe and b/platform/mcu/bk7231u/wifi_win.exe differ
+diff --git a/platform/mcu/bk7231u/xz.exe b/platform/mcu/bk7231u/xz.exe
+index e69de29bb..43b931f9c 100644
+Binary files a/platform/mcu/bk7231u/xz.exe and b/platform/mcu/bk7231u/xz.exe differ
+diff --git a/platform/mcu/bk7231u/xz_32.exe b/platform/mcu/bk7231u/xz_32.exe
+index e69de29bb..e5274d042 100644
+Binary files a/platform/mcu/bk7231u/xz_32.exe and b/platform/mcu/bk7231u/xz_32.exe differ
+diff --git a/platform/mcu/esp8266/bsp/lib/liblwip_loopback.a b/platform/mcu/esp8266/bsp/lib/liblwip_loopback.a
+index e69de29bb..6beb6a44d 100644
+Binary files a/platform/mcu/esp8266/bsp/lib/liblwip_loopback.a and b/platform/mcu/esp8266/bsp/lib/liblwip_loopback.a differ

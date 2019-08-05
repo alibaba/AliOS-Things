@@ -30,6 +30,7 @@ config SUPPORT_ITLS
     depends on !SUPPORT_TLS
     select AOS_COMP_ITLS
     select PLATFORM_HAS_MBEDTLS
+    select INFRA_AES
     default n
     help
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
@@ -58,6 +59,4 @@ config TLS_SAVE_TICKET
     bool
     default y
 endmenu
-
-
 
