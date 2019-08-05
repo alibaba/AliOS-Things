@@ -262,214 +262,76 @@ void ota_thread_exit(void *thread)
 #endif
 }
 
-#if !defined OTA_LINUX
-/*KV set*/
-int ota_kv_set(const char *key, const void *val, int len, int sync)
-{
-    return aos_kv_set(key, val, len, sync);
-}
-
-/*KV get*/
-int ota_kv_get(const char *key, void *buffer, int *len)
-{
-    return aos_kv_get(key, buffer, len);
-}
-#else
-#define KV_FILE_PATH "./uota.kv"
-#define ITEM_MAX_KEY_LEN 128
-#define ITEM_MAX_VAL_LEN 256
-#define ITEM_LEN 512
-
-typedef struct
-{
-    int flag;
-    int val_len;
-} kv_state_t;
-
-typedef struct
-{
-    char       key[ITEM_MAX_KEY_LEN];
-    char       val[ITEM_MAX_VAL_LEN];
-    kv_state_t state;
-} kv_t;
-
-static pthread_mutex_t mutex_kv = PTHREAD_MUTEX_INITIALIZER;
-/* get file size and item num */
-static int hal_fopen(FILE **fp, int *size, int *num)
-{
-    /* create an file to save the kv */
-    if ((*fp = fopen(KV_FILE_PATH, "a+")) == NULL) {
-        OTA_LOG_E("open err:%s\n", strerror(errno));
-        return -1;
-    }
-    fseek(*fp, 0L, SEEK_END);
-    if ((*size = ftell(*fp)) % ITEM_LEN) {
-        fclose(*fp);
-        return -1;
-    }
-    *num = ftell(*fp) / ITEM_LEN;
-    fseek(*fp, 0L, SEEK_SET);
-    return 0;
-}
-/*KV set*/
-int ota_kv_set(const char *key, const void *val, int len, int sync)
-{
-    FILE *fp = NULL;
-    int file_size = 0, block_num = 0, ret = 0, cur_pos = 0;
-    kv_t kv_item;
-    int i;
-    /* check parameter */
-    if (key == NULL || val == NULL) {
-        return -1;
-    }
-    pthread_mutex_lock(&mutex_kv);
-    if (hal_fopen(&fp, &file_size, &block_num) != 0) {
-        goto ERR;
-    }
-    for (i = 0; i < block_num; i++) {
-        memset(&kv_item, 0, sizeof(kv_t));
-        cur_pos = ftell(fp);
-        /* read an kv item(512 bytes) from file */
-        if ((ret = fread(&kv_item, 1, ITEM_LEN, fp)) != ITEM_LEN) {
-            goto ERR;
-        }
-        /* key compared */
-        if (strcmp(kv_item.key, key) == 0) {
-            /* set value and write to file */
-            memset(kv_item.val, 0, ITEM_MAX_VAL_LEN);
-            memcpy(kv_item.val, val, len);
-            kv_item.state.val_len = len;
-            fseek(fp, cur_pos, SEEK_SET);
-            fwrite(&kv_item, 1, ITEM_LEN, fp);
-            goto END;
-        }
-    }
-
-    /* key not compared, append an kv to file */
-    memset(&kv_item, 0, sizeof(kv_t));
-    strcpy(kv_item.key, key);
-    memcpy(kv_item.val, val, len);
-    kv_item.state.val_len = len;
-    fseek(fp, 0L, SEEK_END);
-    fwrite(&kv_item, 1, ITEM_LEN, fp);
-    goto END;
-ERR:
-    if (fp == NULL) {
-        pthread_mutex_unlock(&mutex_kv);
-        return -1;
-    }
-    OTA_LOG_E("read err:%s\n", strerror(errno));
-    fflush(fp);
-    fclose(fp);
-    pthread_mutex_unlock(&mutex_kv);
-
-    return -1;
-END:
-    fflush(fp);
-    fclose(fp);
-    pthread_mutex_unlock(&mutex_kv);
-    return 0;
-}
-
-/*KV get*/
-int ota_kv_get(const char *key, void *buffer, int *len)
-{
-    FILE *fp = NULL;
-    int i;
-    /* read from file */
-    int file_size = 0, block_num = 0;
-    kv_t kv_item;
-    /* check parameter */
-    if (key == NULL || buffer == NULL || len == NULL) {
-        return -1;
-    }
-    pthread_mutex_lock(&mutex_kv);
-    if (hal_fopen(&fp, &file_size, &block_num) != 0) {
-        goto ERR;
-    }
-    for (i = 0; i < block_num; i++) {
-        memset(&kv_item, 0, sizeof(kv_t));
-        /* read an kv item(512 bytes) from file */
-        if (fread(&kv_item, 1, ITEM_LEN, fp) != ITEM_LEN) {
-            goto ERR;
-        }
-        /* key compared */
-        if (strcmp(kv_item.key, key) == 0) {
-            /* set value and write to file */
-            *len = kv_item.state.val_len;
-            memcpy(buffer, kv_item.val, *len);
-            goto END;
-        }
-    }
-    goto END;
-ERR:
-    if (fp == NULL) {
-        pthread_mutex_unlock(&mutex_kv);
-        return -1;
-    }
-    OTA_LOG_E("read err:%s\n", strerror(errno));
-    fflush(fp);
-    fclose(fp);
-    pthread_mutex_unlock(&mutex_kv);
-    return -1;
-END:
-    fflush(fp);
-    fclose(fp);
-    pthread_mutex_unlock(&mutex_kv);
-    return 0;
-}
-#endif /*Linux end*/
-
 #if !defined (AOS_COMP_OTA_BLE)
 void ota_sha256_free(ota_sha256_context *ctx)
 {
+#if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_free((mbedtls_sha256_context *)ctx);
+#endif
 }
 
 void ota_sha256_init(ota_sha256_context *ctx)
 {
+#if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_init((mbedtls_sha256_context *)ctx);
+#endif
 }
 
 void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
+#if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_starts((mbedtls_sha256_context *)ctx, is224);
+#endif
 }
 
 void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
 {
+#if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_update((mbedtls_sha256_context *)ctx, input, ilen);
+#endif
 }
 
 void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
+#if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_finish((mbedtls_sha256_context *)ctx, output);
+#endif
 }
 /*MD5*/
 
 void ota_md5_free(ota_md5_context *ctx)
 {
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_md5_free((mbedtls_md5_context *)ctx);
+#endif
 }
 
 void ota_md5_init(ota_md5_context *ctx)
 {
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_md5_init((mbedtls_md5_context *)ctx);
+#endif
 }
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_md5_starts((mbedtls_md5_context *)ctx);
+#endif
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
 {
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_md5_update((mbedtls_md5_context *)ctx, input, ilen);
+#endif
 }
 
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
 {
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_md5_finish((mbedtls_md5_context *)ctx, output);
+#endif
 }
 /*RSA*/
 int ota_rsa_pubkey_verify(const unsigned char *pubkey_n,
@@ -482,6 +344,7 @@ int ota_rsa_pubkey_verify(const unsigned char *pubkey_n,
                           unsigned int sig_size)
 {
     int                   ret = 0;
+#if !defined (OTA_CONFIG_ITLS)
     mbedtls_rsa_context   ctx;
 
     if (pubkey_n == NULL || pubkey_n == NULL || dig == NULL || sig == NULL) {
@@ -517,6 +380,7 @@ OTA_RSA_PUBKEY_VERIFY_OVER:
         OTA_LOG_E("ota:rsa_pubkey_verify_err = %x", ret);
     }
     mbedtls_rsa_free(&ctx);
+#endif
     return ret;
 }
 
