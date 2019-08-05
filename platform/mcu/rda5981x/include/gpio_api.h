@@ -23,6 +23,54 @@
 extern "C" {
 #endif
 
+#define GPIO_NUM 28
+
+static gpio_t gpio_obj[GPIO_NUM];
+static const uint16_t gpio_map[GPIO_NUM] = {
+    [0] = GPIO_PIN0,
+    [1] = GPIO_PIN1,
+    [2] = GPIO_PIN2,
+    [3] = GPIO_PIN3,
+    [4] = GPIO_PIN4,
+    [5] = GPIO_PIN5,
+    [6] = GPIO_PIN6,
+    [7] = GPIO_PIN7,
+    [8] = GPIO_PIN8,
+    [9] = GPIO_PIN9,
+    [10] = GPIO_PIN10,
+    [11] = GPIO_PIN11,
+    [12] = GPIO_PIN12,
+    [13] = GPIO_PIN13,
+    [14] = GPIO_PIN14,
+    [15] = GPIO_PIN15,
+    [16] = GPIO_PIN16,
+    [17] = GPIO_PIN17,
+    [18] = GPIO_PIN18,
+    [19] = GPIO_PIN19,
+    [20] = GPIO_PIN20,
+    [21] = GPIO_PIN21,
+    [22] = GPIO_PIN22,
+    [23] = GPIO_PIN23,
+    [24] = GPIO_PIN24,
+    [25] = GPIO_PIN25,
+    [26] = GPIO_PIN26,
+    [27] = GPIO_PIN27,
+};
+
+typedef enum {
+    IRQ_NONE,
+    IRQ_RISE,
+    IRQ_FALL
+} gpio_irq_event;
+
+typedef enum {
+    GPIO_IRQ_CH0,
+    GPIO_IRQ_CH1,
+    CHANNEL_NUM
+} GPIO_IRQ_IDX_T;
+
+typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event, uint32_t arg);
+
 /**
  * \defgroup hal_gpio GPIO HAL functions
  * @{
@@ -118,6 +166,37 @@ void gpio_init_out_ex(gpio_t* gpio, PinName pin, int value);
  * @param value     The value to be set for an output pin
  */
 void gpio_init_inout(gpio_t* gpio, PinName pin, PinDirection direction, PinMode mode, int value);
+
+/** Init the pin to support irq
+ *
+ * @param obj       The GPIO object
+ * @param handler   irq callback handler
+ * @param arg       argument of irq callback handler
+ */
+int gpio_irq_init(gpio_t *obj, uint32_t handler, uint32_t arg);
+
+/** Enables or disable an interrupt trigger and set trigger type
+ *
+ * @param obj       The GPIO object
+ * @param event     trigger type
+ * @param enable    Enables or disable an interrupt trigger
+ */
+void gpio_irq_set(gpio_t *obj, gpio_irq_event event, uint32_t enable);
+
+/** Disables an interrupt trigger for an input GPIO pin
+ *
+ * @param obj       The GPIO object
+ */
+void gpio_irq_free(gpio_t *obj);
+
+/** Enable gpio interrupt trigger
+ */
+void gpio_irq_enable();
+
+/** Disable gpio interrupt trigger
+ */
+void gpio_irq_disable();
+
 
 /**@}*/
 
