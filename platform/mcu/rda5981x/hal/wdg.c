@@ -29,7 +29,7 @@ int32_t hal_wdg_init(wdg_dev_t *wdg)
 
     to = wdg->config.timeout/1000;
     if(0x00U != (to & 0xF0U)) {
-        return EIO;
+        to = 0x0F; /*Fixme Timeout <= 15s. set 15s to void crash when > 15s.*/
     }
 
     wdt = (RDA_WDT_TypeDef *)WDT_0;
