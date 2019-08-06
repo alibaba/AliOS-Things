@@ -48,6 +48,6 @@ GLOBAL_DEFINES += SPIFFS_OBJ_NAME_LEN=96
 GLOBAL_DEFINES += SPIFFS_CACHE
 GLOBAL_DEFINES += SUPPORT_NODE_MODELES
 
-$(warning JSEngine Version: ${BONE_VERSION})
+$(info JSEngine Version: ${BONE_VERSION})
 
 include ${JSE_ROOT}/engine/engine.mk
