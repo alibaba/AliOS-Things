@@ -196,11 +196,11 @@ kstat_t krhino_task_dyn_del(ktask_t *task);
 kstat_t krhino_task_cancel(ktask_t *task);
 
 /**
- * This function will cancel a task
- * @param[in]  task  the task to be cancled.
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ * This function will check the task whether is canceled or not.
+ * @param[in]  task  the task to be checked.
+ * @return  the operation status, RHINO_TRUE is TRUE, RHINO_FALSE is FALSE
  */
-kstat_t krhino_task_cancel_chk(void);
+RHINO_BOOL krhino_task_cancel_chk(void);
 #endif
 
 /**
