@@ -17,11 +17,11 @@
 #define CLI_UART STDIO_UART
 #endif
 
+static ktask_t *task_handle = NULL;
+
 int32_t cli_task_create(const char *name, void (*fn)(void *), void *arg,
                         uint32_t stack, uint32_t priority)
 {
-    ktask_t *task_handle = NULL;
-
     return krhino_task_dyn_create(&task_handle, name, arg, priority, 0,
                                   stack / sizeof(cpu_stack_t), fn, 1u);
 }
@@ -29,6 +29,22 @@ int32_t cli_task_create(const char *name, void (*fn)(void *), void *arg,
 void cli_task_exit(void)
 {
     krhino_task_dyn_del(NULL);
+}
+
+void cli_task_cancel(void)
+{
+    if (task_handle != NULL) {
+        krhino_task_cancel(task_handle);
+    }
+}
+
+int32_t cli_task_cancel_check(void)
+{
+    RHINO_BOOL ret;
+
+    ret = krhino_task_cancel_chk();
+
+    return (ret == RHINO_TRUE)? 1: 0;
 }
 
 int32_t cli_getchar(char *inbuf)
