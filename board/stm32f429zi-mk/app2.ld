@@ -34,8 +34,8 @@ ENTRY(app_entry)
 /* Specify the memory areas */
 MEMORY
 {
-    RAM (xrw)   : ORIGIN = 0x10000000, LENGTH = 64K
-    FLASH (rx)  : ORIGIN = 0x8060000,  LENGTH = 128K
+    RAM (xrw)   : ORIGIN = 0x10000000, LENGTH = 32K
+    FLASH (rx)  : ORIGIN = 0x80a0000,  LENGTH = 128K
 }
 
 /* Define output sections */
