@@ -67,8 +67,6 @@ extern int32_t cli_register_default_commands(void);
 
 static struct cli_status *g_cli = NULL;
 
-static int32_t volatile g_cli_exit = 0;
-
 static char    g_cli_tag[64] = {0};
 static uint8_t g_cli_tag_len =  0;
 
@@ -699,7 +697,7 @@ void cli_main(void *data)
 
     char *msg = NULL;
 
-    while (!g_cli_exit) {
+    while (!cli_task_cancel_check()) {
         if (cli_get_input(g_cli->inbuf, &g_cli->bp) != 0) {
             msg = g_cli->inbuf;
 
@@ -833,7 +831,7 @@ init_err:
 
 int32_t cli_stop(void)
 {
-    g_cli_exit = 1;
+    cli_task_cancel();
 
     return CLI_OK;
 }

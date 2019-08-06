@@ -31,6 +31,20 @@ int32_t cli_task_create(const char *name, void (*fn)(void *), void *arg,
 void cli_task_exit(void);
 
 /**
+ * @brief cancel cli task asynchronously
+ *
+ * @return none
+ */
+void cli_task_cancel(void);
+
+/**
+ * @brief check whether cli task is cancelled
+ *
+ * @return 1: the task is cancelled, 0: not cancelled
+ */
+int32_t cli_task_cancel_check(void);
+
+/**
  * @brief Get character from uart
  *
  * @param[out] inbuf pointer to the buffer storing the character
