@@ -29,17 +29,10 @@ void sub_call_restart(void *arg)
 {
     char *data = NULL;
 
-    data = (char *)load_js_module((char *)arg);
-    if (data) {
-        be_debug(MODULE_TAG,
-                 "sub_call_restart Running JSEngine InitApplication...");
-        jsengine_exit();
-        jsengine_init();
-        bone_engine_load_addon();
-        jsengine_start(data);
-        stop_flag = false;
-        free(data);
-    }
+    jsengine_exit();
+    jsengine_init();
+    jsengine_eval_file((char *)arg);
+    stop_flag = false;
 }
 
 void sub_call_start(void *arg)
@@ -49,13 +42,7 @@ void sub_call_start(void *arg)
     if (true == stop_flag) {
         sub_call_restart(arg);
     } else {
-        data = (char *)load_js_module((char *)arg);
-        be_debug(MODULE_TAG,
-                 "sub_call_start Running JSEngine Init Application...");
-        if (data) {
-            jsengine_start(data);
-            free(data);
-        }
+        jsengine_eval_file((char *)arg);
     }
 }
 

@@ -3,31 +3,24 @@
  */
 
 /*
- *  TODO：MQTT.getDeviceSecert和MQTT.sign接口进行有效性验证
+ *  TODO：MQTT.getDeviceSecert & MQTT.sign
  */
 
-#define LOG_NDEBUG 0
-#include <mbedtls/sha1.h>
+#include <stdarg.h>
+
 #include "be_jse_task.h"
 #include "be_list.h"
 #include "be_log.h"
 #include "be_port_osal.h"
 #include "board-mgr/board_info.h"
 #include "bone_engine_inl.h"
-#include "ca.h"
-#include "mqtt_instance.h"
 
-/**
- * AOS 中对于MQTT socket的读写处理
- * get_ssl_fd/get_tcp_fd -> get_iotx_fd
- * 在connectivity/mqtt/mqtt_client.c中使用了aos_cancel_poll_read_fd(get_iotx_fd(),
- * cb_recv, pClient);
- *
- * IOT_MQTT_Construct调用iotx_mc_connect, 调用aos_poll_read_fd(get_iotx_fd(),
- * cb_recv, pClient);
- *
- */
+#include "linkkit/dev_sign_api.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/mqtt_api.h"
+#include "linkkit/wrappers/wrappers.h"
 
+#if 0
 #define MSG_LEN_MAX 2048
 #define IOT_MQTT_TOPIC_NAME_SIZE (128 + 1)
 
@@ -36,9 +29,9 @@ typedef struct {
     int js_cb_ref;
     char topic[IOT_MQTT_TOPIC_NAME_SIZE];
 } topic_process_t;
+#endif
 
-/* subscribe中重复性判断，unsubscribe中用于资源回收 */
-static struct be_list_head topic_list = BE_LIST_HEAD_INIT(topic_list);
+static void *pclient = NULL;
 
 struct mqtt_sub_cb_param {
     char *payload;
@@ -63,59 +56,60 @@ static void mqtt_sub_topic_notify(void *data)
     free(p);
 }
 
-/*
- * 注意： 这里的的topic和payload是连在一起的，字符串不是以0结尾
- *
- * 如何保证be_jse_task_schedule_call的action在unsubscribe后不再执行？
- * 即先timeout cb再subscribe cb，其中timeout cb的action会执行
- * unsubscribe
- */
-static void mqtt_sub_callback(char *topic, int topic_len, void *payload,
-                              int payload_len, void *ctx)
+static void mqtt_sub_callback(void *pcontext, void *pclient,
+                              iotx_mqtt_event_msg_pt msg)
 {
-    debug("receive subscribe message, topic: %.*s, payload: %.*s\n", topic_len,
-          topic, payload_len, payload);
-    struct mqtt_sub_cb_param *p =
-        (struct mqtt_sub_cb_param *)malloc(sizeof(*p));
-    if (!p) {
-        warn("allocate memory failed\n");
-        return;
-    }
+    struct mqtt_sub_cb_param *p        = NULL;
+    iotx_mqtt_topic_info_t *topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
-    p->payload = (char *)malloc(payload_len);
-    if (!p->payload) {
-        warn("allocate payload memory failed\n");
-        free(p);
-        return;
-    }
-    memcpy(p->payload, payload, payload_len);
-    p->payload_len = payload_len;
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            debug("receive subscribe message, topic[%d]: %s, payload[%d]: %s\n",
+                  topic_info->topic_len, topic_info->ptopic,
+                  topic_info->payload_len, topic_info->payload);
 
-    p->topic = (char *)malloc(topic_len);
-    if (!p->topic) {
-        warn("allocate payload memory failed\n");
-        free(p->payload);
-        free(p);
-        return;
-    }
-    memcpy(p->topic, topic, topic_len);
-    p->topic_len = topic_len;
+            /* save payload content */
+            if ((p = (struct mqtt_sub_cb_param *)malloc(
+                     sizeof(struct mqtt_sub_cb_param))) == NULL) {
+                warn("allocate memory failed\n");
+                return;
+            }
+            memset(p, 0, sizeof(struct mqtt_sub_cb_param));
 
-    p->js_cb_ref = (int)ctx;
-    int ret      = be_jse_task_schedule_call(mqtt_sub_topic_notify, p);
-    if (ret < 0) {
-        warn("be_jse_task_schedule_call failed\n");
-        free(p->payload);
-        free(p->topic);
-        free(p);
+            if ((p->payload = (char *)malloc(topic_info->payload_len)) ==
+                NULL) {
+                warn("allocate payload memory failed\n");
+                free(p);
+                return;
+            }
+            memcpy(p->payload, topic_info->payload, topic_info->payload_len);
+            p->payload_len = topic_info->payload_len;
+
+            if ((p->topic = (char *)malloc(topic_info->topic_len)) == NULL) {
+                warn("allocate payload memory failed\n");
+                free(p->payload);
+                free(p);
+                return;
+            }
+            memcpy(p->topic, topic_info->ptopic, topic_info->topic_len);
+            p->topic_len = topic_info->topic_len;
+
+            p->js_cb_ref = (int)pcontext;
+            /* subscribe callback function */
+            int ret = be_jse_task_schedule_call(mqtt_sub_topic_notify, p);
+            if (ret < 0) {
+                warn("be_jse_task_schedule_call failed\n");
+                free(p->payload);
+                free(p->topic);
+                free(p);
+            }
+            break;
+        default:
+            break;
     }
 }
 
-#include <stdarg.h>
-#include "cJSON.h"
-#include "utils_hmac.h"
-#include "utils_httpc.h"
-
+#if 0
 #define CM_READ_ONLY
 static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
 static const char string_MD5_METHOD[] CM_READ_ONLY = "hmacmd5";
@@ -390,7 +384,7 @@ void mqtt_notify_jse(void *arg)
 
 static void mqtt_get_secret_task(void *arg)
 {
-    /* MQTT 一型一密 注册
+    /*
      * ProductKey: a1jbUxTP2VU
      * ProductSecret: VtuTmAMhR8QXfMa5
      */
@@ -427,21 +421,21 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
 {
     int err;
 
-    /* 参数有效性检查 */
+    /* check parameter */
     if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
         warn("parameter must be object and function\n");
         err = -1;
         goto out;
     }
 
-    /* 正在处理 */
+    /* busy */
     if (mqtt_task_handle) {
         warn("Resource busy\n");
         err = -2;
         goto out;
     }
 
-    /* 获取三要素 */
+    /* get device certificate */
     duk_get_prop_string(ctx, 0, "productKey");
     duk_get_prop_string(ctx, 0, "deviceName");
     duk_get_prop_string(ctx, 0, "productSecret");
@@ -454,7 +448,7 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
         goto pop_out;
     }
 
-    /* 创建处理任务并记录回调函数 */
+    /* create process task and set callback */
     IOT_DEVICESECRET_s *iotDeviceSecret =
         (IOT_DEVICESECRET_s *)calloc(1, sizeof(*iotDeviceSecret));
     if (!iotDeviceSecret) {
@@ -596,6 +590,7 @@ static duk_ret_t native_mqtt_sign(duk_context *ctx)
     duk_push_string(ctx, sign);
     return 1;
 }
+#endif
 
 static void mqtt_start_notify(void *arg)
 {
@@ -609,34 +604,115 @@ static void mqtt_start_notify(void *arg)
     bone_engine_unref(ctx, js_cb_ref);
 }
 
+static void mqtt_event_handle(void *pcontext, void *pclient,
+                              iotx_mqtt_event_msg_pt msg)
+{
+    uintptr_t packet_id                = (uintptr_t)msg->msg;
+    iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
+
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_UNDEF:
+            debug("undefined event occur.");
+            break;
+
+        case IOTX_MQTT_EVENT_DISCONNECT:
+            debug("MQTT disconnect.");
+            break;
+
+        case IOTX_MQTT_EVENT_RECONNECT:
+            debug("MQTT reconnect.");
+            break;
+
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            debug("subscribe success, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            debug("subscribe wait ack timeout, packet-id=%u",
+                  (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            debug("subscribe nack, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
+            debug("unsubscribe success, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
+            debug("unsubscribe timeout, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
+            debug("unsubscribe nack, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
+            debug("publish success, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
+            debug("publish timeout, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_PUBLISH_NACK:
+            debug("publish nack, packet-id=%u", (unsigned int)packet_id);
+            break;
+
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            debug(
+                "topic message arrived but without any related handle: "
+                "topic=%.*s, topic_msg=%.*s",
+                topic_info->topic_len, topic_info->ptopic,
+                topic_info->payload_len, topic_info->payload);
+            break;
+
+        case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
+            debug("buffer overflow, %s", msg->msg);
+            break;
+
+        default:
+            debug("Should NOT arrive here.");
+            break;
+    }
+}
+
 static void mqtt_yield_task(void *arg)
 {
     int last_mqtt_state = 0;
-    void *mqtt_client   = mqtt_get_instance();
 
     while (1) {
-        int mqtt_state = IOT_MQTT_CheckStateNormal(mqtt_client);
+        int mqtt_state = IOT_MQTT_CheckStateNormal(pclient);
         if (last_mqtt_state == 0 && mqtt_state == 1) {
-            /* mqtt连接成功通知 */
+            /* notify mqtt connected */
             be_jse_task_schedule_call(mqtt_start_notify, arg);
             last_mqtt_state = 1;
         }
-        IOT_MQTT_Yield(mqtt_client, 200);
+        IOT_MQTT_Yield(pclient, 200);
     }
 }
 
 static duk_ret_t native_mqtt_start(duk_context *ctx)
 {
     int err;
+    iotx_mqtt_param_t mqtt_params;
 
-    /* 参数有效性检查 */
+    /* mqtt client already running? */
+    if (pclient) {
+        warn("mqtt client already start\n");
+        err = -1;
+        goto out;
+    }
+
+    /* check paramters */
     if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
         warn("parameter must be object and function\n");
         err = -1;
         goto out;
     }
 
-    /* 获取三要素并初始化mqtt */
+    /* get device certificate */
     duk_get_prop_string(ctx, 0, "productKey");
     duk_get_prop_string(ctx, 0, "deviceName");
     duk_get_prop_string(ctx, 0, "deviceSecret");
@@ -652,22 +728,30 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     const char *deviceName   = duk_get_string(ctx, -2);
     const char *deviceSecret = duk_get_string(ctx, -1);
     debug("productKey: %s, deviceName: %s\n", productKey, deviceName);
-    if (mqtt_init_instance((char *)productKey, (char *)deviceName,
-                           (char *)deviceSecret, MSG_LEN_MAX) < 0) {
-        warn("mqtt_init_instance failed\n");
+
+    HAL_SetProductKey(productKey);
+    HAL_SetDeviceName(deviceName);
+    HAL_SetDeviceSecret(deviceSecret);
+
+    memset(&mqtt_params, 0x0, sizeof(mqtt_params));
+    mqtt_params.handle_event.h_fp = mqtt_event_handle;
+
+    pclient = IOT_MQTT_Construct(&mqtt_params);
+    if (NULL == pclient) {
+        warn("MQTT construct failed");
         err = -3;
-        goto pop_out;
+        return -1;
     }
 
     duk_dup(ctx, 1);
     int js_cb_ref = bone_engine_ref(ctx);
 
-    /* 创建task执行IOT_MQTT_Yield */
+    /* create task to IOT_MQTT_Yield() */
     err = be_osal_create_task("mqtt yield task", mqtt_yield_task,
-                              (void *)js_cb_ref, 4096, MQTT_TSK_PRIORITY, NULL);
+                              (void *)js_cb_ref, 2048, MQTT_TSK_PRIORITY, NULL);
     if (err) {
         warn("be_osal_create_task failed\n");
-        (void)mqtt_deinit_instance();
+        IOT_MQTT_Destroy(&pclient);
         bone_engine_unref(ctx, js_cb_ref);
         err = -4;
         goto pop_out;
@@ -685,35 +769,21 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
 {
     int ret = -1;
 
-    /* 参数有效性检查 */
+    /* check parameter */
     if (!duk_is_string(ctx, 0) || !duk_is_function(ctx, 1)) {
         warn("parameter must be string and function\n");
         goto out;
     }
 
     const char *topic = duk_get_string(ctx, 0);
-    topic_process_t *item;
-    be_list_for_each_entry(item, &topic_list, list)
-    {
-        /* 判断是否重复 */
-        if (strcmp(topic, item->topic) == 0) {
-            warn("topic %s has been subscribed\n", topic);
-            goto out;
-        }
-    }
 
     duk_dup(ctx, 1);
     int js_cb_ref = bone_engine_ref(ctx);
     debug("subscribe topic: %s, js_cb_ref: %d\n", topic, js_cb_ref);
-    ret = mqtt_subscribe((char *)topic, mqtt_sub_callback, (int)js_cb_ref);
+    ret = IOT_MQTT_Subscribe(pclient, (const char *)topic, IOTX_MQTT_QOS0,
+                             mqtt_sub_callback, (int)js_cb_ref);
     if (ret < 0) {
         warn("mqtt_subscribe failed, ret: %d\n", ret);
-    } else {
-        /* 加到list中 */
-        topic_process_t *proc = (topic_process_t *)calloc(1, sizeof(*proc));
-        strncpy(proc->topic, topic, sizeof(proc->topic) - 1);
-        proc->js_cb_ref = js_cb_ref;
-        be_list_add_tail(&proc->list, &topic_list);
     }
 out:
     duk_push_int(ctx, ret);
@@ -728,22 +798,14 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
         warn("parameter must be string\n");
         goto out;
     }
-    const char *topic = duk_get_string(ctx, 0);
-    ret               = mqtt_unsubscribe((char *)topic);
-    debug("unsubscribe topic: %s, ret: %d\n", topic, ret);
 
-    topic_process_t *item = NULL;
-    be_list_for_each_entry(item, &topic_list, list)
-    {
-        if (strcmp(topic, item->topic) == 0) {
-            debug("found topic: %s, js_cb_ref: %d\n", item->topic,
-                  item->js_cb_ref);
-            bone_engine_unref(ctx, item->js_cb_ref);
-            be_list_del(&item->list);
-            free(item);
-            break;
-        }
+    const char *topic = duk_get_string(ctx, 0);
+
+    ret = IOT_MQTT_Unsubscribe(pclient, (const char *)topic);
+    if (ret < 0) {
+        warn("mqtt_unsubscribe failed, ret: %d\n", ret);
     }
+    debug("unsubscribe topic: %s, ret: %d\n", topic, ret);
 out:
     duk_push_int(ctx, ret);
     return 1;
@@ -760,7 +822,8 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
     int msg_len;
     const char *msg = duk_get_lstring(ctx, 1, &msg_len);
     debug("topic: %s, msg: %s, msg_len: %d\n", topic, msg, msg_len);
-    ret = mqtt_publish((char *)topic, IOTX_MQTT_QOS1, (void *)msg, msg_len);
+    ret = IOT_MQTT_Publish_Simple(pclient, (const char *)topic, IOTX_MQTT_QOS1,
+                                  (void *)msg, msg_len);
     if (ret < 0) {
         warn("mqtt_publish failed, ret: %d\n", ret);
     }
@@ -778,6 +841,7 @@ void module_mqtt_register(void)
     duk_push_string(ctx, "0.0.2");
     duk_put_prop_string(ctx, -2, "VERSION");
 
+    /*
     duk_push_c_function(ctx, native_device_info, 0);
     duk_put_prop_string(ctx, -2, "device");
 
@@ -785,7 +849,7 @@ void module_mqtt_register(void)
     duk_put_prop_string(ctx, -2, "getDeviceSecret");
 
     duk_push_c_function(ctx, native_mqtt_sign, 1);
-    duk_put_prop_string(ctx, -2, "sign");
+    duk_put_prop_string(ctx, -2, "sign"); */
 
     duk_push_c_function(ctx, native_mqtt_start, 2);
     duk_put_prop_string(ctx, -2, "start");

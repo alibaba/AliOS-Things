@@ -42,19 +42,12 @@ void be_log(const char *tag, int level, const char *format, ...);
 #if LOG_NDEBUG
 #define debug(fmt, args...) ((void)0)
 #else
-#define debug(fmt, agrs...)                                                  \
-    be_log(NULL, BE_LOG_LEVEL_DEBUG, "%s:%d:%s(): " fmt, __FILE__, __LINE__, \
-           __func__, ##agrs)
+#define debug(fmt, args...) be_log(NULL, BE_LOG_LEVEL_DEBUG, fmt, ##args)
 #endif
-#define info(fmt, agrs...)                                                  \
-    be_log(NULL, BE_LOG_LEVEL_INFO, "%s:%d:%s(): " fmt, __FILE__, __LINE__, \
-           __func__, ##agrs)
-#define warn(fmt, agrs...)                                                  \
-    be_log(NULL, BE_LOG_LEVEL_WARN, "%s:%d:%s(): " fmt, __FILE__, __LINE__, \
-           __func__, ##agrs)
-#define error(fmt, agrs...)                                                  \
-    be_log(NULL, BE_LOG_LEVEL_ERROR, "%s:%d:%s(): " fmt, __FILE__, __LINE__, \
-           __func__, ##agrs)
+
+#define info(fmt, args...) be_log(NULL, BE_LOG_LEVEL_INFO, fmt, ##args)
+#define warn(fmt, args...) be_log(NULL, BE_LOG_LEVEL_WARN, fmt, ##args)
+#define error(fmt, args...) be_log(NULL, BE_LOG_LEVEL_ERROR, fmt, ##args)
 
 #if defined(__cplusplus)
 }

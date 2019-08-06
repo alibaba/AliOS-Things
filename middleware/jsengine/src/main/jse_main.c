@@ -182,9 +182,9 @@ void be_jse_task_main_entrance()
     printf("%s %d  ~~~~ Byte ~~~ \r\n", __FUNCTION__, __LINE__);
 }
 
-void tiny_engine_start()
+void jsengine_main(void)
 {
-    printf("tiny_engine_start...\r\n");
+    printf("jsengine start...\r\n");
 
     /* redirect JSEngine stdout */
     jsengine_set_log_cb(be_log_cb);
