@@ -29,6 +29,10 @@
 #define OTA_FLASH_WRITE_CACHE_SIZE 1024 /*OTA write flash cache size*/
 #endif
 
+#ifndef OTA_HTTP_HEAD_LEN
+#define OTA_HTTP_HEAD_LEN          512  /*OTA download http header len*/
+#endif
+
 typedef enum {
     OTA_REQ_VERSION = 0,
     OTA_UPGRADE_SOC = 1,
