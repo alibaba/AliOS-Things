@@ -7,13 +7,15 @@
 
 #define RHINO_VERSION  12000
 #define RHINO_IDLE_PRI (RHINO_CONFIG_PRI_MAX - 1)
-#define RHINO_FALSE    0u
-#define RHINO_TRUE     1u
-
 #define RHINO_NO_WAIT      0u
 #define RHINO_WAIT_FOREVER ((uint64_t)-1)
-
 #define MAX_TIMER_TICKS ((tick_t)-1 >> 1)
+
+typedef enum
+{
+    RHINO_FALSE = 0u,
+    RHINO_TRUE  = 1u
+} RHINO_BOOL;
 
 typedef char     name_t;
 typedef uint8_t  suspend_nested_t;
