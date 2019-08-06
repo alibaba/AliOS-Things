@@ -528,7 +528,7 @@ int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
 int ota_hal_mqtt_subscribe(char *topic, void *cb, void *ctx)
 {
 #if (OTA_SIGNAL_CHANNEL) == 1
-    return IOT_MQTT_Subscribe(NULL, topic, 0, cb, ctx);
+    return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, cb, ctx, 1000);
 #else
     return 0;
 #endif
