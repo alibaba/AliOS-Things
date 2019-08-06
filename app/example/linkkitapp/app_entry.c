@@ -378,9 +378,11 @@ static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
             LOG("arg number err! usage:");
             LOG("devinfo set {pk} {ps} {dn} {ds} | devinfo set {dn} {ds}");
         }
+    } else if (strcmp(rtype, "clean") == 0) {
+        set_devinfo(" ", " ", " ", " ");
     } else {
         LOG("usage:");
-        LOG("devinfo [set pk ps dn ds | set dn ds | get ]");
+        LOG("devinfo [set pk ps dn ds | set dn ds | get | clean]");
     }
 }
 
@@ -416,7 +418,7 @@ static struct cli_command awss_cmd = { .name     = "awss",
 #endif
 
 static struct cli_command devinfo_cmd = { .name     = "devinfo",
-    .help     = "devinfo [set pk ps dn ds | set dn ds | get ]",
+    .help     = "devinfo [set pk ps dn ds | set dn ds | get | clean ]",
      .function = handle_devinfo_cmd
 };
 
