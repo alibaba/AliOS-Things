@@ -7,14 +7,14 @@
 #include "aos/yloop.h"
 #include "netmgr.h"
 
-extern int tiny_engine_start(void);
+extern int jsengine_main(void);
 
 /* the entrance for JSEngine on AliOS-things */
 int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
 
-    tiny_engine_start();
+    jsengine_main();
 
     aos_loop_run();
 
