@@ -125,7 +125,7 @@ int ota_service_start(ota_service_t *ctx)
     /* download start */
     ret = ota_download_start(param->url);
     if (ret < 0) {
-        ota_param->upg_status = OTA_BREAKPOINT;
+        param->upg_status = OTA_BREAKPOINT;
         goto EXIT;
     }
     /* verify RSA signature */
