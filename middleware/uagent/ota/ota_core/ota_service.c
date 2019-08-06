@@ -111,10 +111,6 @@ int ota_service_start(ota_service_t *ctx)
     if (param == NULL) {
         return OTA_INIT_FAIL;
     }
-#if defined BOARD_ESP8266
-    aos_task_delete("linkkit");
-    ota_msleep(500);
-#endif
     /* OTA download init */
     ret = ota_download_init();
     if (ret < 0) {
@@ -152,7 +148,7 @@ EXIT:
     OTA_LOG_E("upgrade complete ret:%d.\n", ret);
     if (ret < 0) {
         param->upg_status = ret;
-#if !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE
+#if !defined OTA_CONFIG_SECURE_DL_MODE
         if (ctx != NULL) {
 #ifdef OTA_CONFIG_UAGENT
             if (OTA_PROCESS_UAGENT_OTA == ctx->ota_process) {
@@ -163,7 +159,7 @@ EXIT:
                 ota_transport_status(ctx->pk, ctx->dn, ret);
             }
         }
-#endif /* !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE */
+#endif /* !defined OTA_CONFIG_SECURE_DL_MODE */
         ret = ota_clear(param);
     } else {
         param->upg_status = OTA_FINISH;
