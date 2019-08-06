@@ -280,7 +280,7 @@ static struct cli_command gw_mm = {
     .function = handle_gw_mm_cmd
 };
 
-static void _print_devinfo()
+static void print_devinfo()
 {
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = {0};
@@ -300,7 +300,7 @@ static void _print_devinfo()
 #endif
 }
 
-static void _set_devinfo(char *pk, char *ps, char *dn, char *ds)
+static void set_devinfo(char *pk, char *ps, char *dn, char *ds)
 {
     if (dn != NULL) {
         HAL_SetDeviceName(dn);
@@ -315,21 +315,26 @@ static void _set_devinfo(char *pk, char *ps, char *dn, char *ds)
         HAL_SetProductSecret(ps);
     }
 }
+
 static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
     if (strcmp(rtype, "get") == 0) {
-        _print_devinfo();
+        print_devinfo();
     } else if (strcmp(rtype, "set") == 0) {
         if (argc == 4) {
-            _set_devinfo(NULL, NULL, argv[2], argv[3]);
+            set_devinfo(NULL, NULL, argv[2], argv[3]);
         } else if (argc == 6) {
-            _set_devinfo(argv[2], argv[3], argv[4], argv[6]);
+            set_devinfo(argv[2], argv[3], argv[4], argv[5]);
         } else {
-            LOG("arg number err!");
+            LOG("arg number err! usage:");
+            LOG("devinfo set {pk} {ps} {dn} {ds} | devinfo set {dn} {ds}");
         }
+    } else if (strcmp(rtype, "clean") == 0) {
+        set_devinfo(" ", " ", " ", " ");
     } else {
-        LOG("cmd not support!");
+        LOG("usage:");
+        LOG("devinfo [set pk ps dn ds | set dn ds | get | clean]");
     }
 }
 
@@ -355,7 +360,7 @@ static struct cli_command ncmd = { .name     = "active_awss",
 };
 
 static struct cli_command devinfo_cmd = { .name     = "devinfo",
-    .help     = "devinfo [set pk ps dn ds | set dn ds | get ]",
+    .help     = "devinfo [set pk ps dn ds | set dn ds | get | clean]",
      .function = handle_devinfo_cmd
 };
 #endif
