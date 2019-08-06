@@ -907,41 +907,37 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 kstat_t krhino_task_cancel(ktask_t *task)
 {
     CPSR_ALLOC();
+    kstat_t ret;
+
     NULL_PARA_CHK(task);
 
     RHINO_CRITICAL_ENTER();
     task->cancel = 1u;
-    RHINO_CRITICAL_EXIT();
-
-    return RHINO_SUCCESS;
-}
-
-kstat_t krhino_task_cancel_chk(void)
-{
-    CPSR_ALLOC();
-
-    ktask_t *cur_task;
-    kstat_t  ret = RHINO_SUCCESS;
-
-    cur_task= krhino_cur_task_get();
-    RHINO_CRITICAL_ENTER();
-    if (cur_task->cancel == 1u) {
-#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-        if (cur_task->mm_alloc_flag == K_OBJ_DYN_ALLOC) {
-            ret = krhino_task_dyn_del(cur_task);
-        }
-        else {
-            ret = krhino_task_del(cur_task);
-        }
-#else
-        ret = krhino_task_del(cur_task);
-#endif
-    }
+    ret = krhino_task_wait_abort(task);
     RHINO_CRITICAL_EXIT();
 
     return ret;
 }
 
+RHINO_BOOL krhino_task_cancel_chk(void)
+{
+    CPSR_ALLOC();
+
+    ktask_t   *cur_task;
+    RHINO_BOOL ret;
+
+    cur_task= krhino_cur_task_get();
+    RHINO_CRITICAL_ENTER();
+    if (cur_task->cancel == 1u) {
+        ret = RHINO_TRUE;
+    }
+    else {
+        ret = RHINO_FALSE;
+    }
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
+}
 #endif
 
 #if (RHINO_CONFIG_SCHED_RR > 0)
