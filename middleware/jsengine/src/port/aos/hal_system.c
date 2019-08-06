@@ -168,6 +168,7 @@ int32_t hal_system_wifi_init(void)
     }
     wifi_inited = 1;
 
+    printf("Wifi nitializing...\r\n");
 #ifdef WITH_SAL
     sal_add_dev(NULL, NULL);
     sal_init();
@@ -177,6 +178,7 @@ int32_t hal_system_wifi_init(void)
     netmgr_start(false);
     aos_msleep(200);
 
+    printf("Wifi initialized.\r\n");
     return 0;
 }
 
@@ -191,7 +193,7 @@ int32_t hal_system_wifi_init(void)
  **************************************************/
 int32_t hal_system_fs_init(void)
 {
-    printf("Initializing SPIFFS\r\n");
+    printf("SPIFFS initializing...\r\n");
     return spiffs_register();
 }
 
