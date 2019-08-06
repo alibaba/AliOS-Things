@@ -21,7 +21,7 @@ static char *resolve_path(const char *parent, const char *module_id)
 {
     char base[MAX_PATH_SIZE];
 
-    /* 路径处理 */
+    /* path process */
     if (module_id[0] != '.') {
         snprintf(base, sizeof(base), "%s/%s", node_modules_path, module_id);
     } else {
@@ -82,7 +82,7 @@ static char *resolve_path(const char *parent, const char *module_id)
         warn("file %s not exist\n", resolved_path);
         return NULL;
     }
-    /* 读取并解析package.json */
+    /* parse package.json */
     char *pkg_data = malloc(sb.st_size + 1);
     if (!pkg_data) {
         warn("cannot alloc memory to read package.json for module: %s",
@@ -175,10 +175,6 @@ static duk_ret_t handle_assert(duk_context *ctx)
 {
     if (duk_to_boolean(ctx, 0)) return 0;
 
-    /*
-     * 本来下面部分调用duk_generic_error是最简洁的，但是duk_pcall中的
-     * assert不会打印出来，故这里先打印
-     */
     const char *msg = duk_safe_to_string(ctx, 1);
     fprintf(stderr, "assertion failed: %s\n", msg);
     fflush(stderr);
@@ -188,9 +184,9 @@ static duk_ret_t handle_assert(duk_context *ctx)
 }
 
 /*
- * 根据Kconfig配置加载所有的addon
+ * register addons
  */
-static void bone_engine_register_addons()
+static void jsengine_register_addons()
 {
 #ifdef JSE_CORE_ADDON_BUILDIN
     module_builtin_register();
@@ -272,8 +268,8 @@ void jsengine_init()
     snprintf(tmp, sizeof(tmp), "%s/node_modules", BE_FS_ROOT_DIR);
     node_modules_path = strdup(tmp);
 
-    /* 注册所有addon */
-    bone_engine_register_addons();
+    /* register all addons */
+    jsengine_register_addons();
 }
 
 static duk_ret_t get_stack_raw(duk_context *ctx, void *udata)
@@ -309,7 +305,7 @@ static void print_pop_error(duk_context *ctx, FILE *f)
     fflush(f);
 
 #ifdef JSE_IDE_DEBUG
-    /* 同时发给IDE */
+    /* send to IDE */
     char *buf = (char *)malloc(sizeof(BonePrefix) + strlen(msg));
     sprintf(buf, BonePrefix "%s", msg);
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, (char *)buf);
@@ -371,11 +367,11 @@ void jsengine_eval_file(const char *filename)
 
     debug("eval file: %s\n", filename);
 
-    /* 设置入口路径 */
+    /* set entry */
     be_module_node_set_entry(duk_ctx, filename);
 
-    /* 读取并执行文件 */
-    struct stat sb;
+    /* read & run js file */
+    struct aos_stat sb;
     if (be_stat(filename, &sb) || !S_ISREG(sb.st_mode)) {
         warn("file: %s not exist\n", filename);
         return;
@@ -409,7 +405,7 @@ void jsengine_eval_file(const char *filename)
 void jsengine_exit()
 {
     if (!duk_ctx) {
-        warn("bone engine has not been initialized\n");
+        warn("jsengine has not been initialized\n");
         return;
     }
     duk_destroy_heap(duk_ctx);
