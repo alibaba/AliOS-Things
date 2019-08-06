@@ -1,4 +1,3 @@
-${info ${NAME}}
 # entry
 ${NAME}_SOURCES += src/main/jse_main.c
 ${NAME}_SOURCES += src/main/be_jse_task.c

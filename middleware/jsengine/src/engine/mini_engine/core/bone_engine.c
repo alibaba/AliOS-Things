@@ -102,7 +102,7 @@ void jsengine_modules_register(BE_JSE_FUNCTION_EXECUTE_CB extension)
     be_jse_module_cb = extension;
 }
 
-void bone_engine_load_addon()
+void jsengine_register_addons()
 {
 #ifdef JSE_CORE_ADDON_BUILDIN
     module_builtin_load();
@@ -190,7 +190,7 @@ void jsengine_init()
     BE_INIT_LIST_HEAD(&be_jse_dirname_head);
 #endif
     /* register all addons */
-    bone_engine_load_addon();
+    jsengine_register_addons();
 }
 
 /*
