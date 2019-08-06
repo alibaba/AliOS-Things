@@ -29,6 +29,17 @@
 *****************************************************************************
 */
 
+/**
+ *
+ *   | bin   | flash addr | flash size | ram addr   | ram size |
+ *   ------- |-------------------------------------------------|
+ *   |kernel | 0x08000000 |   512k     | 0x20000000 |  128k    |
+ *   |app1   | 0x08080000 |   128k     | 0x20020000 |  64k     |
+ *   |app2   | 0x080a0000 |   128k     | 0x10000000 |  32k     |
+ *   |app3   | 0x080c0000 |   128k     | 0x10008000 |  32k     |
+ *   ----------------------------------------------------------
+ */
+
 /* Entry Point */
 ENTRY(Reset_Handler)
 
@@ -197,11 +208,9 @@ SECTIONS
     PROVIDE(app_download_addr = 0x0);
     PROVIDE(ota_download_addr = 0x0);
 
-    PROVIDE(app_type = 0xCDCDCDCD);
-
-    PROVIDE(app1_info_addr = 0x8040000);
-    PROVIDE(app2_info_addr = 0x8060000);
-    PROVIDE(app3_info_addr = 0x8000000);
+    PROVIDE(app1_info_addr = 0x8080000);
+    PROVIDE(app2_info_addr = 0x80a0000);
+    PROVIDE(app3_info_addr = 0x80c0000);
 
   /* Remove information from the standard libraries */
   /DISCARD/ :
