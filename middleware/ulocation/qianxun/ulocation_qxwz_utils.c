@@ -15,13 +15,14 @@ uint8_t gps_raw_data[GPS_RAW_DATA_SIZE] = {0};
 static int32_t ulocation_gga_filter(char *gps_raw_data, uint8_t *gga_raw_data)
 {
     int32_t ret = -1;
-    uint8_t *p1;
-    uint8_t *p2 = gga_raw_data;
+    uint8_t *p1 = NULL;
+    uint8_t *p2 = NULL;
 
     if (gps_raw_data == NULL || gga_raw_data == NULL) {
         LOGE("uLocation-qxwz", "GPS data is null!");
         return ret;
     }
+    p2 = gga_raw_data;
     p1=(uint8_t*)strstr((const char *)gps_raw_data,"$GNGGA");
     while (*p1 != '\n') {
         *p2++ = *p1++;
