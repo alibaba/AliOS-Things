@@ -9,11 +9,9 @@
 #include "alcs_internal.h"
 #include "alcs_api_internal.h"
 #include "CoAPExport.h"
-#include "alcs_api.h"
 #include "alcs_adapter.h"
 #include "alcs_mqtt.h"
 #include "alcs_adapter.h"
-#include "CoAPPlatform.h"
 
 static alcs_mqtt_ctx_t g_alcs_mqtt_ctx;
 
