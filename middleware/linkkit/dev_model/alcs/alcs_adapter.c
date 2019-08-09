@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "alcs_internal.h"
-#include "alcs_api.h"
 #include "alcs_coap.h"
 #include "alcs_mqtt.h"
 #include "CoAPInternal.h"
@@ -17,7 +16,6 @@
 #include "alcs_adapter.h"
 #include "alcs_mqtt.h"
 #include "alcs_localsetup.h"
-#include "CoAPPlatform.h"
 
 static iotx_alcs_adapter_t g_alcs_adapter;
 

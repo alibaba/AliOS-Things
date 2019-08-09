@@ -6,10 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "alcs_internal.h"
-#include "alcs_api.h"
 #include "alcs_coap.h"
 #include "alcs_api_internal.h"
-#include "CoAPPlatform.h"
 #include "CoAPObserve.h"
 
 LIST_HEAD(secure_resource_cb_head);
