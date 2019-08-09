@@ -9,7 +9,8 @@
 #include "linkkit/infra/infra_json_parser.h"
 #include "alcs_base64.h"
 #include "linkkit/wrappers/wrappers.h"
-
+#include "linkkit/alcs_api.h"
+#include "linkkit/CoAPPlatform.h"
 #ifdef INFRA_MEM_STATS
     #include "linkkit/infra/infra_mem_stats.h"
     #define ALCS_malloc(size)            LITE_malloc(size, MEM_MAGIC, "alcs")
