@@ -27,17 +27,16 @@ ifeq (y,$(strip $(COAP_SERVER)))
 $(NAME)_SOURCES += os/HAL_UDP_rhino.c
 endif
 
-ifeq (y,$(strip $(SUPPORT_ITLS)))
-$(NAME)_COMPONENTS +=  itls 
-$(NAME)_SOURCES += os/HAL_TLS_itls.c
-else
 ifeq (y,$(strip $(SUPPORT_TLS)))
-$(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
-$(NAME)_COMPONENTS +=  mbedtls libiot_certs
-$(NAME)_SOURCES += os/HAL_TLS_mbedtls.c 
+    ifeq (y,$(strip $(USE_ITLS)))
+        $(NAME)_COMPONENTS +=  itls 
+        $(NAME)_SOURCES += os/HAL_TLS_itls.c
+    else
+        $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
+        $(NAME)_COMPONENTS +=  mbedtls libiot_certs
+        $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c 
+    endif
 endif
-endif
-
 
 ifeq (y,$(strip $(COAP_COMM_ENABLED)))
 ifeq (y,$(strip $(COAP_DTLS_SUPPORT)))
