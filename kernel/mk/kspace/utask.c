@@ -412,6 +412,14 @@ kstat_t krhino_utask_stack_min_free(ktask_t *task, size_t *free)
         return RHINO_INV_TASK_STATE;
     }
 
+    if (task->task_ustack_base == NULL) {
+        return RHINO_NULL_PTR;
+    }
+
+    if (task->ustack_size == 0u) {
+        return RHINO_TASK_INV_STACK_SIZE;
+    }
+
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
     task_stack = task->task_ustack_base + RHINO_CONFIG_STK_CHK_WORDS;
     while (*task_stack++ == 0u) {
