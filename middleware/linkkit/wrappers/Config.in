@@ -8,28 +8,31 @@ config AOS_COMP_SDK_WRAPPERS
     select AOS_COMP_KV
     help
       HAL for AliOS Things
-
-config PLATFORM_HAS_MBEDTLS
-    bool 
-    default n 
     
 menu "Linkkit HAL config"
 depends on AOS_COMP_SDK_WRAPPERS
 
 config SUPPORT_TLS
     bool "support TLS"
-    select AOS_COMP_MBEDTLS
-    select AOS_COMP_SDK_CERT
-    select PLATFORM_HAS_MBEDTLS
     default y 
     help
         This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
 
-config SUPPORT_ITLS
-    bool "support ITLS"
-    depends on !SUPPORT_TLS
+config USE_MBEDTLS
+    bool "use MBEDTLS"
+    depends on SUPPORT_TLS
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_SDK_CERT
+    default y
+    help
+        mbedtls is a TLS implementation
+
+
+config USE_ITLS
+    bool "use iTLS"
+    depends on SUPPORT_TLS
+    depends on !USE_MBEDTLS
     select AOS_COMP_ITLS
-    select PLATFORM_HAS_MBEDTLS
     select INFRA_AES
     default n
     help
@@ -43,7 +46,7 @@ config COAP_DTLS_SUPPORT
 
 config HAL_CRYPTO
     bool 
-    default y if SUPPORT_TLS || COAP_DTLS_SUPPORT
+    default y if USE_MBEDTLS || COAP_DTLS_SUPPORT
     select MBEDTLS_CONFIG_CRYPTO_MODE_CFB
     help
       HAL CRYPTO for AliOS Things
