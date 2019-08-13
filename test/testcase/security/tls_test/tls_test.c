@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "yts/yts.h"
-#include "yts/yunit.h"
+#include "yunit/yts.h"
+#include "yunit/yunit.h"
 
 #include <aos/errno.h>
 
