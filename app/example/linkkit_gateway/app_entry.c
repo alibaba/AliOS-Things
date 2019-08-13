@@ -16,6 +16,7 @@
 #include "linkkit/wifi_provision_api.h"
 #include "linkkit/infra/infra_compat.h"
 #include "linkkit/infra/infra_defs.h"
+#include "linkkit/wrappers/wrappers.h"
 
 #ifdef CSP_LINUXHOST
     #include <signal.h>
@@ -51,10 +52,10 @@ void print_heap()
 #if defined(ENABLE_AOS_OTA)
 static ota_service_t *ota_get_device_info(void)
 {
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    char product_secret[PRODUCT_SECRET_LEN + 1] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
     HAL_GetProductSecret(product_secret);
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
