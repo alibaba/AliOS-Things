@@ -10,7 +10,7 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 
 #define TAG "yunit"
 

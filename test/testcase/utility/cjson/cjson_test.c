@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 #include "aos/kernel.h"
 
