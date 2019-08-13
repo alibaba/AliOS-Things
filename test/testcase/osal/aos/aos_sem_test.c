@@ -8,7 +8,7 @@
 #include <k_api.h>
 #include <aos/kernel.h>
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 
 #include <errno.h>
 

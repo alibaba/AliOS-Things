@@ -8,8 +8,8 @@
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 #include "netmgr.h"
 
