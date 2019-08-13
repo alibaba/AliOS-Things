@@ -5,6 +5,7 @@
 #include "mqtt_task.h"
 #include "be_jse_task.h"
 #include "be_port_osal.h"
+#include "hal/system.h"
 
 #include "linkkit/infra/infra_compat.h"
 #include "linkkit/mqtt_api.h"
@@ -46,7 +47,7 @@ static void jse_task_cb(void* ctx)
 
     switch (pmsg->cmd) {
         case POST_ERROR:
-            params = (be_jse_symbol_t**)calloc(1, sizeof(be_jse_symbol_t*) * 1);
+            params = (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 1);
             if (params) {
                 params[0] = new_str_symbol(pmsg->topic);
                 be_jse_post_async(func, params, 1);
@@ -58,7 +59,7 @@ static void jse_task_cb(void* ctx)
             be_jse_post_async(func, NULL, 0);
             break;
         case POST_SUBSCRIBE:
-            params = (be_jse_symbol_t**)calloc(1, sizeof(be_jse_symbol_t*) * 2);
+            params = (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 2);
             /* maybe call subscribe callback function multiple times! */
             symbol_relock(func);
             if (params) {
@@ -74,9 +75,9 @@ static void jse_task_cb(void* ctx)
             symbol_unlock(func);
             break;
     }
-    free(pmsg->topic);
-    free(pmsg->payload);
-    free(pmsg);
+    jse_free(pmsg->topic);
+    jse_free(pmsg->payload);
+    jse_free(pmsg);
 }
 
 static void mqtt_subscribe_cb(char* topic, int topic_len, void* payload_data,
@@ -86,7 +87,7 @@ static void mqtt_subscribe_cb(char* topic, int topic_len, void* payload_data,
     be_jse_symbol_t* func = (be_jse_symbol_t*)ctx;
     JSE_TSK_MSG_s* pmsg;
 
-    pmsg       = calloc(1, sizeof(JSE_TSK_MSG_s));
+    pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
     pmsg->cmd  = POST_SUBSCRIBE;
     pmsg->func = func;
 
@@ -130,7 +131,7 @@ static void mqtt_task(void* data)
                             msg.start.deviceSecret, MAX_MQTT_MSG_SIZE);
                         if (ret == 0) {
                             /* mqtt connect success. */
-                            pmsg       = calloc(1, sizeof(JSE_TSK_MSG_s));
+                            pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
                             pmsg->cmd  = POST_ONLINE;
                             pmsg->func = msg.start.func;
                             be_jse_task_schedule_call(jse_task_cb, pmsg);
@@ -141,7 +142,7 @@ static void mqtt_task(void* data)
 
                     if (ret != 0) {
                         /* notify JS App */
-                        pmsg       = calloc(1, sizeof(JSE_TSK_MSG_s));
+                        pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
                         pmsg->cmd  = POST_ERROR;
                         pmsg->func = msg.start.func;
                         if (ret == 1) {
@@ -156,24 +157,24 @@ static void mqtt_task(void* data)
                 case MQTT_SUBSCRIBE:
                     ret = mqtt_subscribe(msg.subscribe.topic, mqtt_subscribe_cb,
                                          msg.subscribe.func);
-                    free(msg.subscribe.topic);
+                    jse_free(msg.subscribe.topic);
                     break;
 
                 case MQTT_UNSUBSCRIBE:
                     ret        = mqtt_unsubscribe(msg.unsubscribe.topic);
-                    pmsg       = calloc(1, sizeof(JSE_TSK_MSG_s));
+                    pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
                     pmsg->cmd  = POST_UNSUBSCRIBE;
                     pmsg->func = msg.start.func;
                     be_jse_task_schedule_call(jse_task_cb, pmsg);
-                    free(msg.unsubscribe.topic);
+                    jse_free(msg.unsubscribe.topic);
                     break;
 
                 case MQTT_PUBLISH:
                     ret = mqtt_publish(msg.publish.topic, IOTX_MQTT_QOS1,
                                        msg.publish.payload,
                                        strlen(msg.publish.payload));
-                    free(msg.publish.topic);
-                    free(msg.publish.payload);
+                    jse_free(msg.publish.topic);
+                    jse_free(msg.publish.payload);
                     break;
 
                 case MQTT_STOP:
@@ -187,9 +188,7 @@ static void mqtt_task(void* data)
         } else {
             handle = mqtt_get_instance();
             if (handle) {
-                /* printf("."); */
                 IOT_MQTT_Yield(handle, 50);
-                /* printf("-\n"); */
             }
         }
     }

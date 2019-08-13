@@ -12,7 +12,6 @@
 #include "board_mgr.h"
 #include "hal/system.h"
 
-#define TAG "bone_engine"
 static be_jse_executor_ctx_t beJseExecutor;
 static BE_JSE_FUNCTION_EXECUTE_CB be_user_ext_function_cb = 0;
 static BE_JSE_FUNCTION_EXECUTE_CB be_jse_module_cb        = 0;
@@ -57,8 +56,8 @@ void bone_engine_dirname_pop_del()
 
     be_list_del(&dirPtr->lst);
 
-    free(dirPtr->dirname);
-    free(dirPtr);
+    jse_free(dirPtr->dirname);
+    jse_free(dirPtr);
 }
 
 #endif
@@ -220,13 +219,13 @@ void jsengine_exit()
 #endif
 
 #ifdef DUMP_SYMBL_USAGE
-        be_warn("bone_engine","befor: %d Memory Records Used\n",
+        jse_warn("befor: %d Memory Records Used\n",
         be_jse_get_memory_usage());
 #endif
        be_jse_executor_deinit(&beJseExecutor);
 
 #ifdef DUMP_SYMBL_USAGE
-        be_warn("bone_engine","after: %d Memory Records Used (should be0!)\n", be_jse_get_memory_usage());
+        jse_warn("after: %d Memory Records Used (should be0!)\n", be_jse_get_memory_usage());
     
         be_jse_show_symbol_table_used();
 #endif
@@ -264,22 +263,17 @@ void bone_engine_restart(const char *js)
 void jsengine_save_dirname(const char *name)
 {
 #ifdef SUPPORT_NODE_MODELES
-    BE_JSE_DIRNAME_s *firstDir = calloc(1, sizeof(BE_JSE_DIRNAME_s));
+    BE_JSE_DIRNAME_s *firstDir = jse_calloc(1, sizeof(BE_JSE_DIRNAME_s));
 
     /* add "./" */
-    char *tmpPath = calloc(1, 3 + strlen(name));
+    char *tmpPath = jse_calloc(1, 3 + strlen(name));
     sprintf(tmpPath, "./%s", name);
     char *clearPath   = getClearPath(tmpPath);
     firstDir->dirname = getFilePath(clearPath);
     bone_engine_dirname_push(firstDir);
-    free(tmpPath);
-    free(clearPath);
+    jse_free(tmpPath);
+    jse_free(clearPath);
 #endif
-}
-
-void jsengine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb)
-{
-    be_set_log(cb);
 }
 
 /**
@@ -299,7 +293,7 @@ const char *load_js_module(const char *moduleName)
         return NULL;
     }
 
-    be_debug(TAG, "moduleName =  %s \n", moduleName);
+    jse_debug("moduleName =  %s \n", moduleName);
 
     if (moduleName[0] == '.') {
         if (moduleName[1] == '/') {
@@ -309,7 +303,7 @@ const char *load_js_module(const char *moduleName)
         snprintf(path, sizeof(path), "%s", moduleName);
     }
 
-    be_debug(TAG, "path =  %s \n", path);
+    jse_debug("path =  %s \n", path);
 
     /* board_mgr */
     /* board_load_drivers(path); */
@@ -321,27 +315,27 @@ const char *load_js_module(const char *moduleName)
     }
 
     if (fd == -1) {
-        printf("load %s fail \r\n", moduleName);
+        jse_error("load %s fail \r\n", moduleName);
         return NULL;
     }
 
     
     if((size = be_lseek(fd, 0L, SEEK_END)) <= 0){
-        be_error(TAG, "be_lseek error:%d\r\n", size);
+        jse_error("be_lseek error:%d\r\n", size);
         return NULL;
     }
     be_lseek(fd, 0L, SEEK_SET);
-    printf("%s file size = %d \r\n", path, size);
+    jse_debug("%s file size = %d \r\n", path, size);
 
-    data    = calloc(1, size + 1);
+    data    = jse_calloc(1, size + 1);
     data[0] = 0;
     len     = be_read(fd, data, size);
-    printf("read, len = %d \r\n", len);
+    jse_debug("read, len = %d \r\n", len);
     if (len > 0) {
         data[len] = 0;
     } else {
-        printf("read, errno = %d\n", errno);
-        printf("%s\n", strerror(errno));
+        jse_debug("read, errno = %d\n", errno);
+        jse_debug("%s\n", strerror(errno));
     }
 
     be_close(fd);
@@ -358,16 +352,16 @@ void jsengine_eval_file(const char *filename)
         /* record __dirname */
         jsengine_save_dirname(filename);
 
-        printf("load_js_module: %s \r\n", filename);
+        jse_debug("load_js_module: %s \r\n", filename);
 
         data = (char *)load_js_module(filename);
         if (data) {
-            printf("Run Js File: %s \r\n", filename);
-            printf("date length = %d \r\n", strlen(data));
+            jse_debug("Run Js File: %s \r\n", filename);
+            jse_debug("date length = %d \r\n", strlen(data));
 
             /* execute JS code */
             jsengine_start(data);
-            free(data);
+            jse_free(data);
         }
     }
 }

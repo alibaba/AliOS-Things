@@ -6,14 +6,15 @@
 #include "be_jse_addon.h"
 #include "be_jse_module.h"
 #include "be_utils.h"
+#include "hal/system.h"
+#include "hal/log.h"
+
 #ifdef JSE_IDE_DEBUG
 #include "websocket.h"
 #endif
 #ifdef JSE_CORE_ADDON_TIMER
 #include "module_timer.h"
 #endif
-
-#define TAG "JSE-Buildin"
 
 #define BonePrefix "BoneEngine > "
 
@@ -42,12 +43,12 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
         if (len == 0) len = 32;
 
         int prefix_len = strlen(BonePrefix);
-        buf            = (char*)calloc(1, len + 1 + prefix_len);
+        buf            = (char*)jse_calloc(1, len + 1 + prefix_len);
         strcpy(buf, BonePrefix);
         symbol_to_str(arg0, buf + prefix_len, len);
 
         if (bone_console_get_log_flag()) {
-            printf("%s\r\n", buf);
+            jse_debug("%s\r\n", buf);
             fflush(stdout);
         }
 
@@ -55,7 +56,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
         bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_INFO,
                                   buf); /* log output */
 #endif
-        free(buf);
+        jse_free(buf);
 
         symbol_unlock(arg0);
         return new_symbol(BE_SYM_NULL);
@@ -174,7 +175,7 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
 
     /* if (strcmp(name, "getip") == 0) {
         be_jse_handle_function(0, 0, 0, 0, 0);
-        be_debug("BoneEngine", "getip ...");
+        jse_debug("getip ...");
         return new_symbol(BE_SYM_NULL);
     } */
 
@@ -190,10 +191,10 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
         if (v) {
             int len = symbol_str_len(v);
             if (len) {
-                char* sourcePtr = malloc(len + 1);
+                char* sourcePtr = jse_malloc(len + 1);
                 symbol_to_str(v, sourcePtr, len);
                 result = be_jse_eval_string(execInfo->executor, sourcePtr);
-                free(sourcePtr);
+                jse_free(sourcePtr);
             }
             symbol_unlock(v);
         }
@@ -213,10 +214,10 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
         if (v) {
             int len = symbol_str_len(v);
             if (len) {
-                char* sourcePtr = malloc(len + 1);
+                char* sourcePtr = jse_malloc(len + 1);
                 symbol_to_str(v, sourcePtr, len);
-                be_warn("USE_MODULES", "");
-                be_warn("USE_MODULES", "require(%s)", sourcePtr);
+                jse_warn("");
+                jse_warn("require(%s)", sourcePtr);
 
 #ifdef SUPPORT_NODE_MODELES
                 /* get current sourcePtr (./1.js) and convert to absolute path */
@@ -228,8 +229,8 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
 
                 firstDir = bone_engine_dirname_get();
 
-                /* be_warn("USE_MODULES","firstDir = %p ", firstDir);
-                be_warn("USE_MODULES","firstDir->dirname = %s ",
+                /* jse_warn("firstDir = %p ", firstDir);
+                jse_warn("firstDir->dirname = %s ",
                 firstDir->dirname); */
 
                 /* add new path */
@@ -244,58 +245,58 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
 
                     fullPathSize = strlen(firstDir->dirname) +
                                    strlen(sourcePtr) + 1 + strlen(NODE_MODULES);
-                    fullPath = calloc(1, fullPathSize);
+                    fullPath = jse_calloc(1, fullPathSize);
                     snprintf(fullPath, fullPathSize, "%s%s%s",
                              firstDir->dirname, NODE_MODULES, sourcePtr);
 
-                    be_warn("USE_MODULES", "fullPath = %s ", fullPath);
+                    jse_warn("fullPath = %s ", fullPath);
 
                     /* node_modules/gpio */
                     fullPath = getNodeModulePath(fullPath);
                 } else {
                     fullPathSize =
                         strlen(firstDir->dirname) + strlen(sourcePtr) + 1;
-                    fullPath = calloc(1, fullPathSize);
+                    fullPath = jse_calloc(1, fullPathSize);
                     snprintf(fullPath, fullPathSize, "%s%s", firstDir->dirname,
                              sourcePtr);
                 }
 
                 clearPath = getClearPath(fullPath);
 
-                /* be_warn("USE_MODULES", "fullPath = %s ", fullPath); */
-                /* be_warn("USE_MODULES", "clearPath = %s ", clearPath); */
+                /* jse_warn("fullPath = %s ", fullPath); */
+                /* jse_warn("clearPath = %s ", clearPath); */
 
-                free(fullPath);
+                jse_free(fullPath);
 
                 /* save current dirname */
-                firstDir          = calloc(1, sizeof(BE_JSE_DIRNAME_s));
+                firstDir          = jse_calloc(1, sizeof(BE_JSE_DIRNAME_s));
                 firstDir->dirname = getFilePath(clearPath);
                 bone_engine_dirname_push(firstDir);
 
                 /* module loading */
-                be_warn("USE_MODULES", "be_jse_require  %s ", clearPath);
+                jse_warn("be_jse_require  %s ", clearPath);
                 result = be_jse_require(execInfo->executor, clearPath);
 #else
                 result = be_jse_require(execInfo->executor, sourcePtr);
 #endif
                 if (result == NULL) {
-                    char* buf = calloc(1, 256);
+                    char* buf = jse_calloc(1, 256);
                     snprintf(buf, 255, "%sCannot find module '%s' ", BonePrefix,
                              sourcePtr);
-                    printf("%s\n", buf);
+                    jse_error("%s\n", buf);
                     fflush(stdout);
                     /* report JSEngine error message via websocket */
                     /* bone_websocket_send_frame("/ide/console",
                                               BE_LOG_LEVEL_ERROR, buf); */
-                    free(buf);
+                    jse_free(buf);
                 }
 
 #ifdef SUPPORT_NODE_MODELES
                 /* pop dirname */
                 bone_engine_dirname_pop_del();
-                free(clearPath);
+                jse_free(clearPath);
 #endif
-                free(sourcePtr);
+                jse_free(sourcePtr);
             }
             symbol_unlock(v);
         }
@@ -325,7 +326,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_json(be_jse_vm_ctx_t* execInfo,
     if (strcmp(name, "parse") == 0) {
         be_jse_symbol_t* text =
             str_to_symbol(be_jse_handle_single_arg_function(), true);
-        char* buf = (char*)calloc(1, symbol_str_len(text) + 1);
+        char* buf = (char*)jse_calloc(1, symbol_str_len(text) + 1);
         symbol_to_str(text, buf, symbol_str_len(text));
         symbol_unlock(text);
         return new_json_symbol(buf, (int)strlen(buf));
@@ -390,7 +391,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_modules(be_jse_vm_ctx_t* execInfo,
     /* Modules.addCached("a","module.exports.foo=42;");
        var ta = require("a").foo == 42; */
     if (strcmp(name, "addCached") == 0) {
-        be_warn("USE_MODULES", " Modules.%s\n", name);
+        jse_warn(" Modules.%s\n", name);
         be_jse_symbol_t *id, *code;
         be_jse_symbol_t* result = 0;
         be_jse_handle_function(0, &id, &code, 0, 0);
