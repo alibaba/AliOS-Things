@@ -5,6 +5,11 @@
 #ifndef __CHIP_CONFIG_H__
 #define __CHIP_CONFIG_H__
 
+
+////////////////////////////////////////////////////////////////////////////////
+#ifdef WIN32
+#define snprintf                        _snprintf
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 
 #define CONFIG_CHIP_DEBUG
@@ -22,27 +27,16 @@
 #define CHIP_TYPE_SE_MTK_CMD            2
 
 #ifndef CONFIG_CHIP_KEY_TYPE
-#define CONFIG_CHIP_KEY_TYPE       CHIP_KEY_TYPE_3DES
+#define CONFIG_CHIP_KEY_TYPE            CHIP_KEY_TYPE_SM4
 #endif
 
-#ifndef CONFIG_CHIP_TYPE
-#define CONFIG_CHIP_TYPE           CHIP_TYPE_SE_STD_CMD
-#endif
+#define CONFIG_CHIP_TYPE                CHIP_TYPE_SE_STD_CMD
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if (CONFIG_CHIP_KEY_TYPE != CHIP_KEY_TYPE_3DES && \
-     CONFIG_CHIP_KEY_TYPE != CHIP_KEY_TYPE_AES && \
-     CONFIG_CHIP_KEY_TYPE != CHIP_KEY_TYPE_RSA && \
-     CONFIG_CHIP_KEY_TYPE != CHIP_KEY_TYPE_SM1 && \
-     CONFIG_CHIP_KEY_TYPE != CHIP_KEY_TYPE_SM4)
-#error "CONFIG_CHIP_KEY_TYPE error.";
+#if (CONFIG_CHIP_TYPE != CHIP_TYPE_SE_STD_CMD && \
+     CONFIG_CHIP_TYPE != CHIP_TYPE_SE_MTK_CMD)
+#error("CONFIG_CHIP_TYPE error.");
 #endif
 
-#if (CONFIG_CHIP_TYPE != CHIP_TYPE_SE_STD_CMD && CONFIG_CHIP_TYPE != CHIP_TYPE_SE_MTK_CMD)
-#error "CONFIG_CHIP_TYPE error.";
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-#endif  /* __CHIP_CONFIG_H__ */
