@@ -6,7 +6,7 @@ config AOS_COMP_COAP
     select INFRA_MD5
     select INFRA_SHA256
     select HAL_CRYPTO
-    select INFRA_AES if !PLATFORM_HAS_MBEDTLS
+    select INFRA_AES if !USE_MBEDTLS
     select AOS_COMP_SDK_WRAPPERS
     default n
     help
