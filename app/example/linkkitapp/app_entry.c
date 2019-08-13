@@ -372,14 +372,16 @@ static void handle_devinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
     } else if (strcmp(rtype, "set") == 0) {
         if (argc == 4) {
             set_devinfo(NULL, NULL, argv[2], argv[3]);
+        } else if (argc == 5) {
+            set_devinfo(argv[2], argv[3], argv[4], "");
         } else if (argc == 6) {
             set_devinfo(argv[2], argv[3], argv[4], argv[5]);
         } else {
             LOG("arg number err! usage:");
-            LOG("devinfo set {pk} {ps} {dn} {ds} | devinfo set {dn} {ds}");
+            LOG("devinfo set {pk} {ps} {dn} [ds] | devinfo set {dn} {ds}");
         }
     } else if (strcmp(rtype, "clean") == 0) {
-        set_devinfo(" ", " ", " ", " ");
+        set_devinfo("", "", "", "");
     } else {
         LOG("usage:");
         LOG("devinfo [set pk ps dn ds | set dn ds | get | clean]");
