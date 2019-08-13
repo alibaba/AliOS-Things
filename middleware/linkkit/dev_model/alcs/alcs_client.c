@@ -5,6 +5,7 @@
 
 #include "alcs_internal.h"
 #include "alcs_api_internal.h"
+#include "CoAPPlatform.h"
 #include "CoAPResource.h"
 
 #ifdef ALCS_CLIENT_ENABLED
