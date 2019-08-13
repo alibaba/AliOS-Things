@@ -217,6 +217,9 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count);
  * @param sem the semaphore to signal
  */
 void sys_sem_signal(sys_sem_t *sem);
+#ifdef LWIP_TASK_CANCEL
+u32_t sys_arch_sem_wait_ext(sys_sem_t *sem, u32_t timeout);
+#endif
 /**
  * @ingroup sys_sem
  * Wait for a semaphore for the specified timeout
