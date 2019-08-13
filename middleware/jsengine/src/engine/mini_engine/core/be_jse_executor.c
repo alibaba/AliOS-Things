@@ -7,6 +7,7 @@
 #include <be_jse_task.h>
 #include "be_jse.h"
 #include "be_jse_api.h"
+#include "hal/system.h"
 
 /* JSEngine Object */
 static be_jse_vm_ctx_t vm;
@@ -420,7 +421,8 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
 
 #ifndef BE_JSE_SILENT
             /* for debugging */
-            printf("%s.%s not found \n", be_jse_get_tmp_token(), vm.lex->token);
+            jse_warn("%s.%s not found \n", be_jse_get_tmp_token(),
+                     vm.lex->token);
 #endif
         }
 
@@ -583,7 +585,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                             unlock_symbol_value(functionCode);
                         int len = symbol_str_len(functionCodeVar);
                         if (len > 0) {
-                            sourcePtr = calloc(1, len + 1);
+                            sourcePtr = jse_calloc(1, len + 1);
                             symbol_to_str(functionCodeVar, sourcePtr, len);
                             be_jse_lexer_init(&newLex, sourcePtr, 0, -1);
                         } else {
@@ -600,10 +602,10 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function,
                                                       probably have set execute
                                                       to false */
                         be_jse_lexer_deinit(&newLex);
-                        if (sourcePtr) free(sourcePtr);
+                        if (sourcePtr) jse_free(sourcePtr);
                         vm.lex = oldLex;
                         if (hasError) {
-                            printf(
+                            jse_error(
                                 "[%s][%d] executor function call error  ...\n",
                                 __FUNCTION__, __LINE__);
                             /* be_jse_error_at("executor function call error",
@@ -1005,8 +1007,7 @@ static be_jse_symbol_t *handle_postfix_syntax()
             be_jse_symbol_t *one =
                 symbol_lock(vm.executor->oneInt); /* a++ or a-- */
             be_jse_symbol_t *res = symbol_value_maths_op(
-                a, one,
-                op == BE_TOKEN_OP_PLUS_PLUS ? '+' : '-'); /* ++ or -- */
+                a, one, op == BE_TOKEN_OP_PLUS_PLUS ? '+' : '-'); /* ++ or -- */
 
             be_jse_symbol_t *origin;
 
@@ -1148,8 +1149,8 @@ static be_jse_symbol_t *handle_base_expr()
     /* &, | ,^,&&,|| */
     while (MEET_BIT_ARITHMATICAL_OP || MEET_LOGICAL_OP) {
         bool short_circuit = false; /* if (0&&(a>b)&&a>0)) or if(1||(a>0)) */
-        bool boolean = false;
-        int op       = vm.lex->tk;
+        bool boolean       = false;
+        int op             = vm.lex->tk;
 
         be_jse_symbol_t *b;
 
@@ -1407,7 +1408,7 @@ static be_jse_symbol_t *handle_statement_syntax()
             be_jse_symbol_t *x = get_symbol_value(var);
             /* trace_symbol_info(vm.executor->root, 0); */
             if (BE_VM_PARSE_SHOULD_EXECUTE) {
-                /* printf(" if( x in [...] ) \n"); */
+                /* jse_debug(" if( x in [...] ) \n"); */
                 be_jse_node_t found =
                     symbol_unlock(get_symbol_array_index(array, x));
                 symbol_unlock(var);
@@ -1447,7 +1448,8 @@ static be_jse_symbol_t *handle_statement_syntax()
             if (cond_result) BE_RESTORE_VM_EXE_STATE();
         }
     } else if (vm.lex->tk == BE_TOKEN_KW_WHILE) { /* 'while' */
-        int loopCount = BE_JSE_PARSE_MAX_LOOPS; /* max loops, avoid infinite loop */
+        int loopCount =
+            BE_JSE_PARSE_MAX_LOOPS; /* max loops, avoid infinite loop */
 
         int whileCondStart; /* while condition start */
         int whileBodyStart; /* while start */
@@ -1474,8 +1476,7 @@ static be_jse_symbol_t *handle_statement_syntax()
 
         symbol_unlock(cond);
 
-        be_jse_lexer_init2(&whileCond, vm.lex,
-                           whileCondStart);
+        be_jse_lexer_init2(&whileCond, vm.lex, whileCondStart);
 
         LEXER_MATCH(')');
 
@@ -2064,8 +2065,8 @@ void be_jse_async_event_cb(void *arg)
 
     DEC_SYMBL_REF(async->func);
 
-    if (async->params) free(async->params);
-    free(async);
+    if (async->params) jse_free(async->params);
+    jse_free(async);
 }
 
 void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
@@ -2074,9 +2075,9 @@ void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
     int ret;
 
     if (func && symbol_is_function(func)) {
-        BE_ASYNC_S *async = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+        BE_ASYNC_S *async = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
         if (async == NULL) {
-            printf("[%s][%d] out of memory .\n", __FUNCTION__, __LINE__);
+            jse_error("[%s][%d] out of memory .\n", __FUNCTION__, __LINE__);
             symbol_unlock(func);
             return;
         }
@@ -2087,10 +2088,10 @@ void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
         INC_SYMBL_REF(async->func);
         ret = be_jse_task_schedule_call(be_jse_async_event_cb, async);
         if (ret < 0) {
-            printf("be_osal_schedule_call error");
+            jse_error("be_osal_schedule_call error");
             DEC_SYMBL_REF(async->func);
-            free(async->params);
-            free(async);
+            jse_free(async->params);
+            jse_free(async);
         }
     }
     symbol_unlock(func);
@@ -2145,7 +2146,7 @@ be_jse_symbol_t *be_jse_require(be_jse_executor_ctx_t *executor,
 
     if (moduleExport) {
         /* Found the module! */
-        be_warn("USE_MODULES", " Found the module moduleName=%s\n", moduleName);
+        jse_warn("Found the module moduleName=%s\n", moduleName);
         return moduleExport;
     }
 
@@ -2154,7 +2155,7 @@ be_jse_symbol_t *be_jse_require(be_jse_executor_ctx_t *executor,
 
     if (moduleJS) {
         moduleExport = jspEvaluateModule(executor, moduleJS);
-        free(moduleJS);
+        jse_free(moduleJS);
     }
 
     /* Now save module */
@@ -2181,7 +2182,7 @@ be_jse_symbol_t *be_jse_add_module(be_jse_executor_ctx_t *executor,
     /* 获取JS内容 */
 
     int len        = symbol_str_len(code);
-    char *moduleJS = malloc(len + 1);
+    char *moduleJS = jse_malloc(len + 1);
     symbol_to_str(code, moduleJS, len);
 
     moduleExport = jspEvaluateModule(executor, moduleJS);
@@ -2265,7 +2266,7 @@ char *be_array_symbol_to_buffer(be_jse_symbol_t *arg)
 
     len = get_symbol_array_length(arg);
 
-    src = calloc(1, len);
+    src = jse_calloc(1, len);
     if (src == NULL) {
         return NULL;
     }
@@ -2273,9 +2274,9 @@ char *be_array_symbol_to_buffer(be_jse_symbol_t *arg)
     for (i = 0; i < len; ++i) {
         item = get_symbol_array_item(arg, i);
         if (!item) {
-            free(src);
+            jse_free(src);
             symbol_unlock(item);
-            printf("get_symbol_array_item fail\n\r");
+            jse_error("get_symbol_array_item fail\n\r");
             return NULL;
         }
 

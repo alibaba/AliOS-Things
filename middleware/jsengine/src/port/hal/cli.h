@@ -23,7 +23,7 @@ typedef void (*FUNCPTR)(void);
 
 #define be_cli_command cli_command
 #define be_cli_register_command aos_cli_register_command
-#define be_cli_printf cli_printf
+#define be_cli_printf aos_cli_printf
 #define be_cli_init aos_cli_init
 
 void cli_cmd_register_js(void);

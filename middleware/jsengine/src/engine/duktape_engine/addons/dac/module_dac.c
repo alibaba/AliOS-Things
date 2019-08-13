@@ -4,10 +4,10 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_log.h"
+#include "hal/log.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 
 static duk_ret_t native_open(duk_context *ctx)
 {
@@ -16,18 +16,17 @@ static duk_ret_t native_open(duk_context *ctx)
     dac_handle.handle     = 0xFFFFFFFF;
     dac_dev_t *dac_device = NULL;
 
-    debug("in\n");
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
     const char *id = duk_get_string(ctx, 0);
     ret            = board_attach_item(MODULE_DAC, id, &dac_handle);
     if (0 != ret) {
-        error("board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    debug("dac handle:%u\n", dac_handle.handle);
+    jse_debug("dac handle:%u\n", dac_handle.handle);
     dac_device = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
         error("board_get_node_by_handle fail!\n");
@@ -35,12 +34,12 @@ static duk_ret_t native_open(duk_context *ctx)
     }
     ret = hal_dac_init(dac_device);
     if (0 != ret) {
-        error("hal_dac_init fail!\n");
+        jse_error("hal_dac_init fail!\n");
         goto out;
     }
     ret = hal_dac_start(dac_device, dac_device->port);
     if (0 != ret) {
-        error("hal_dac_start fail!\n");
+        jse_error("hal_dac_start fail!\n");
     }
 out:
     if (0 != ret) {
@@ -59,15 +58,14 @@ static duk_ret_t native_setVol(duk_context *ctx)
     item_handle_t dac_handle;
     dac_dev_t *dac_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_number(ctx, 1)) {
-        warn("parameter must be handle and number\n");
+        jse_warn("parameter must be handle and number\n");
         goto out;
     }
     dac_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     voltage = duk_get_int(ctx, 1);
@@ -83,15 +81,14 @@ static duk_ret_t native_getVol(duk_context *ctx)
     item_handle_t dac_handle;
     dac_dev_t *dac_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     dac_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = (int)hal_dac_get_value(dac_device, dac_device->port);
@@ -106,15 +103,14 @@ static duk_ret_t native_close(duk_context *ctx)
     item_handle_t dac_handle;
     dac_dev_t *dac_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     dac_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_dac_stop(dac_device, dac_device->port);

@@ -15,6 +15,13 @@
 #include "be_port_osal.h"
 
 typedef struct {
+    aos_task_t task;
+    char *name;
+    void *arg;
+    void *(*routine)(void *arg);
+} be_osal_task_t;
+
+typedef struct {
     aos_timer_t timer;
     os_timer_cb cb;
     void *arg;
@@ -30,6 +37,18 @@ uint32_t be_osal_task_get_default_priority(void)
 {
     return AOS_DEFAULT_APP_PRI;
 }
+
+static void task_wrapper(void *arg)
+{
+    be_osal_task_t *osal_task = arg;
+    if (osal_task == NULL) {
+        return;
+    }
+    osal_task->routine(osal_task->arg);
+
+    aos_free(osal_task);
+}
+
 /***************************************************
  * @fn          be_osal_create_task()
  *
@@ -48,16 +67,23 @@ int32_t be_osal_create_task(const char *name, be_osal_task_handler_t task,
                             void *data, uint32_t size, uint32_t priority,
                             void **task_handle)
 {
-    aos_task_t *new_handle = NULL;
-    if (0 != aos_task_new_ext(&new_handle, name, task, data, size, priority)) {
+    be_osal_task_t *osal_task =
+        (be_osal_task_t *)aos_malloc(sizeof(be_osal_task_t));
+    osal_task->arg = data;
+    osal_task->name = name;
+    osal_task->routine = task;
+
+    if (0 != aos_task_new_ext(&osal_task->task, name, task_wrapper, (void *)osal_task,
+                              size, priority)) {
         if (NULL != task_handle) {
             *task_handle = NULL;
         }
+        aos_free(osal_task);
         return -1;
     }
 
     if (NULL != task_handle) {
-        *task_handle = name;
+        *task_handle = (void *)osal_task;
     }
     return 0;
 }
@@ -75,11 +101,14 @@ int32_t be_osal_create_task(const char *name, be_osal_task_handler_t task,
  **************************************************/
 void be_osal_delete_task(void *handle)
 {
+    be_osal_task_t *osal_task = (be_osal_task_t *)handle;
     if (NULL == handle) {
         aos_task_exit(0);
+        aos_free(osal_task);
     }
 
-    aos_task_delete((const char *)handle);
+    aos_task_delete(osal_task->name);
+    aos_free(osal_task);
 }
 
 /***************************************************
@@ -94,7 +123,7 @@ void be_osal_delete_task(void *handle)
  **************************************************/
 char *be_osal_get_taskname(void)
 {
-    return aos_task_name();
+    return (char *)aos_task_name();
 }
 
 /***************************************************
@@ -122,11 +151,11 @@ uint32_t be_osal_get_clocktime()
  **************************************************/
 void *be_osal_new_mutex(void)
 {
-    aos_mutex_t *pmutex = calloc(1, sizeof(aos_mutex_t));
-    if (aos_mutex_new(&pmutex) == 0) {
+    aos_mutex_t *pmutex = aos_calloc(1, sizeof(aos_mutex_t));
+    if (aos_mutex_new(pmutex) == 0) {
         return pmutex;
     }
-    free(pmutex);
+    aos_free(pmutex);
     return (NULL);
 }
 
@@ -312,7 +341,7 @@ osMessageQId be_osal_messageQ_create(int32_t queue_length, int32_t item_size)
 {
     /* malloc queue wrapper */
     be_osal_queue_t *osal_queue =
-        (aos_queue_t *)aos_malloc(sizeof(be_osal_queue_t));
+        (be_osal_queue_t *)aos_malloc(sizeof(be_osal_queue_t));
     if (osal_queue == NULL) {
         return NULL;
     }

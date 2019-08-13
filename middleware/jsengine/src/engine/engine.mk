@@ -3,9 +3,7 @@ ${NAME}_SOURCES += src/main/jse_main.c
 ${NAME}_SOURCES += src/main/be_jse_task.c
 
 # utils
-$(NAME)_SOURCES +=  \
-										src/utils/be_log.c \
-										src/utils/be_utils.c
+$(NAME)_SOURCES += src/utils/be_utils.c
 
 # port
 ${NAME}_SOURCES += \
