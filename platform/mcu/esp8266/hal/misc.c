@@ -41,13 +41,9 @@ int hal_reboot_bank(void)
 {
     printf("reboot to banker\n");
     wifi_set_sleep_type(NONE_SLEEP_T);
-    vPortETSIntrLock();
-    krhino_sched_disable();
-    delay();
-    delay();
+    aos_msleep(300);
     system_upgrade_init();
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
     system_upgrade_reboot();
-    aos_msleep(300);
     return 0;
 }
