@@ -1724,7 +1724,11 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
           }
         }
 
+#ifdef LWIP_TASK_CANCEL
+        waitres = sys_arch_sem_wait_ext(SELECT_SEM_PTR(select_cb.sem), msectimeout);
+#else
         waitres = sys_arch_sem_wait(SELECT_SEM_PTR(select_cb.sem), msectimeout);
+#endif
 #if LWIP_NETCONN_SEM_PER_THREAD
         waited = 1;
 #endif
