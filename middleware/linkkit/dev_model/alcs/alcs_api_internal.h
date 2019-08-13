@@ -5,6 +5,7 @@
 #ifndef __ALCS_API_INTERNAL_H__
 #define __ALCS_API_INTERNAL_H__
 #include "CoAPExport.h"
+#include "linkkit/alcs_api.h"
 #include "alcs_internal.h"
 #include "linkkit/infra/infra_aes.h"
 
