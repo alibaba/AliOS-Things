@@ -9,22 +9,26 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "hal/log.h"
+#include "hal/system.h"
+#include "app_mgr.h"
+
 int ota_socket_connect(int port, char *host_addr)
 {
     if (host_addr == NULL || strlen(host_addr) == 0 || port <= 0) {
-        printf("ota_socket_connect parms   error\n ");
+        jse_error("ota_socket_connect parms   error\n ");
         return -1;
     }
     struct sockaddr_in server_addr;
     struct hostent *host;
     int sockfd;
     if ((host = gethostbyname(host_addr)) == NULL) {
-        printf("Gethostname   error,   %s\n ", strerror(errno));
+        jse_error("Gethostname   error,   %s\n ", strerror(errno));
         return -1;
     }
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        printf("Socket   Error:%s\a\n ", strerror(errno));
+        jse_error("Socket   Error:%s\a\n ", strerror(errno));
         return -1;
     }
 
@@ -34,7 +38,7 @@ int ota_socket_connect(int port, char *host_addr)
 
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                    sizeof(timeout)) < 0) {
-        printf("setsockopt failed\n");
+        jse_error("setsockopt failed\n");
         goto err_out;
     }
 
@@ -45,7 +49,7 @@ int ota_socket_connect(int port, char *host_addr)
 
     if (connect(sockfd, (struct sockaddr *)(&server_addr),
                 sizeof(struct sockaddr)) == -1) {
-        printf("socket connecting %s failed!\n", strerror(errno));
+        jse_error("socket connecting %s failed!\n", strerror(errno));
         if (errno != EINTR) {
             goto err_out;
         }
@@ -63,11 +67,11 @@ err_out:
 int ota_socket_send(int socket, const char *buf, size_t len)
 {
     if (socket < 0) {
-        printf("ota_socket_send: invalid socket fd\n");
+        jse_error("ota_socket_send: invalid socket fd\n");
         return -1;
     }
     if (buf == NULL) {
-        printf("ota_socket_send: buf is NULL\n");
+        jse_error("ota_socket_send: buf is NULL\n");
         return -1;
     }
 
@@ -77,11 +81,11 @@ int ota_socket_send(int socket, const char *buf, size_t len)
 int ota_socket_recv(int socket, char *buf, size_t len)
 {
     if (socket < 0) {
-        printf("ota_socket_recv: invalid socket fd\n");
+        jse_error("ota_socket_recv: invalid socket fd\n");
         return -1;
     }
     if (buf == NULL) {
-        printf("ota_socket_recv: buf is NULL\n");
+        jse_error("ota_socket_recv: buf is NULL\n");
         return -1;
     }
 
@@ -96,7 +100,7 @@ void ota_socket_close(int socket)
 int ota_socket_check_conn(int sock)
 {
     if (sock < 0) {
-        printf("ota_socket_check_conn: invalid socket fd\n");
+        jse_error("ota_socket_check_conn: invalid socket fd\n");
         return -1;
     }
     /*

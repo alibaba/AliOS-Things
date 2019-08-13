@@ -28,7 +28,7 @@ static be_jse_symbol_t *adc_open(void)
     }
 
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -36,21 +36,21 @@ static be_jse_symbol_t *adc_open(void)
 
     ret = board_attach_item(MODULE_ADC, data, &adc_handle);
     if (0 != ret) {
-        be_error("adc", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
 
-    be_debug("adc", "adc handle:%u\n", adc_handle.handle);
+    jse_debug("adc handle:%u\n", adc_handle.handle);
     adc_device = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        be_error("adc", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     result = hal_adc_init(adc_device);
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -76,7 +76,7 @@ static be_jse_symbol_t *adc_close(void)
 
     adc_device = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        be_error("adc", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_adc_finalize(adc_device);
@@ -101,7 +101,7 @@ static be_jse_symbol_t *adc_read(void)
     adc_handle.handle = get_symbol_value_int(arg0);
     adc_device        = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        be_error("adc", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_adc_value_get(adc_device, (void *)&adc_value, 0);

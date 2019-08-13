@@ -44,7 +44,7 @@ static be_jse_symbol_t *gpio_open(void)
     }
 
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -52,19 +52,19 @@ static be_jse_symbol_t *gpio_open(void)
 
     ret = board_attach_item(MODULE_GPIO, data, &gpio_handle);
     if (0 != ret) {
-        be_error("gpio", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("gpio", "gpio handle:%u\n", gpio_handle.handle);
+    jse_debug("gpio handle:%u\n", gpio_handle.handle);
 
     gpio_device = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_gpio_init(gpio_device);
     if (0 != ret) {
-        be_error("gpio", "hal_gpio_init fail!\n");
+        jse_error("hal_gpio_init fail!\n");
         goto out;
     }
     symbol_unlock(gpio_device->priv);
@@ -74,7 +74,7 @@ static be_jse_symbol_t *gpio_open(void)
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -100,19 +100,19 @@ static be_jse_symbol_t *gpio_close(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     /* for esp32,hal_gpio_finalize will uninstall isr !
     ret = hal_gpio_finalize(gpio_device);
     if(0 != ret){
-        be_error("gpio","hal_gpio_finalize fail!\n");
+        jse_error("hal_gpio_finalize fail!\n");
         goto out;
     }*/
     if (symbol_is_function(gpio_device->priv)) {
         symbol_unlock(gpio_device->priv);
     } else {
-        free(gpio_device->priv);
+        jse_free(gpio_device->priv);
     }
     gpio_device->priv = NULL;
     board_disattach_item(MODULE_GPIO, &gpio_handle);
@@ -139,7 +139,7 @@ static be_jse_symbol_t *gpio_write(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_int(arg1)) {
@@ -154,7 +154,7 @@ static be_jse_symbol_t *gpio_write(void)
     }
 
     if (-1 == ret) {
-        be_error("gpio", "gpio output set fail!\n");
+        jse_error("gpio output set fail!\n");
         goto out;
     }
     result = 0;
@@ -180,7 +180,7 @@ static be_jse_symbol_t *gpio_read(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_gpio_input_get(gpio_device, &level);
@@ -199,7 +199,7 @@ static void gpio_notify(void *arg)
     be_jse_symbol_t *argv[1];
     argv[0] = new_int_symbol(msg->value);
     be_jse_execute_func(jsengine_get_executor(), msg->fun, 1, argv);
-    free(msg);
+    jse_free(msg);
     msg = NULL;
 }
 
@@ -210,16 +210,16 @@ static void gpio_irq(void *arg)
 
     gpio_dev_t *gpio = (gpio_dev_t *)arg;
     if (NULL == gpio) {
-        be_error("gpio", "param error!\n");
+        jse_error("param error!\n");
         return;
     }
     fun_symbol = (be_jse_symbol_t *)gpio->priv;
     if (!fun_symbol || !symbol_is_function(fun_symbol)) {
-        be_error("gpio", "fun_symbol error!\n");
+        jse_error("fun_symbol error!\n");
         return;
     }
     hal_gpio_input_get(gpio, &value);
-    irq_notify_t *msg = (irq_notify_t *)calloc(1, sizeof(*msg));
+    irq_notify_t *msg = (irq_notify_t *)jse_calloc(1, sizeof(*msg));
     if (NULL == msg) {
         return;
     }
@@ -249,7 +249,7 @@ static be_jse_symbol_t *gpio_on(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_string(arg1)) {
@@ -260,7 +260,7 @@ static be_jse_symbol_t *gpio_on(void)
         goto out;
     }
     len  = symbol_str_len(arg1);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -273,13 +273,13 @@ static be_jse_symbol_t *gpio_on(void)
     } else if (0 == strcmp(GPIO_IRQ_BOTH_EDGE, data)) {
         irq_edge = IRQ_TRIGGER_BOTH_EDGES;
     } else {
-        be_error("gpio", "irq edge wrong!\n");
+        jse_error("irq edge wrong!\n");
         goto out;
     }
-    be_debug("gpio", "irq_edge:%d port:%d\n", irq_edge, gpio_device->port);
+    jse_debug("irq_edge:%d port:%d\n", irq_edge, gpio_device->port);
     ret = hal_gpio_enable_irq(gpio_device, irq_edge, gpio_irq, gpio_device);
     if (ret < 0) {
-        be_error("gpio", "hal_gpio_enable_irq fail!\n");
+        jse_error("hal_gpio_enable_irq fail!\n");
         goto out;
     }
     symbol_unlock(gpio_device->priv);
@@ -288,7 +288,7 @@ static be_jse_symbol_t *gpio_on(void)
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -321,7 +321,7 @@ static void gpio_report(void *arg)
     irq_counts_t *item          = (irq_counts_t *)arg;
     fun_symbol                  = (be_jse_symbol_t *)item->fun;
     if (!fun_symbol || !symbol_is_function(fun_symbol)) {
-        be_error("gpio", "fun_symbol error!\n");
+        jse_error("fun_symbol error!\n");
         return;
     }
     item->tmp    = item->counts;
@@ -361,7 +361,7 @@ static be_jse_symbol_t *gpio_count(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("gpio", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_string(arg1)) {
@@ -378,7 +378,7 @@ static be_jse_symbol_t *gpio_count(void)
     uint32_t time_delay = get_symbol_value_int(arg2);
 
     len  = symbol_str_len(arg1);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -391,10 +391,10 @@ static be_jse_symbol_t *gpio_count(void)
     } else if (0 == strcmp(GPIO_IRQ_BOTH_EDGE, data)) {
         irq_edge = IRQ_TRIGGER_BOTH_EDGES;
     } else {
-        be_error("gpio", "irq edge wrong!\n");
+        jse_error("irq edge wrong!\n");
         goto out;
     }
-    irq_counts_t *newItem = calloc(1, sizeof(*newItem));
+    irq_counts_t *newItem = jse_calloc(1, sizeof(*newItem));
     if (NULL == newItem) {
         goto out;
     }
@@ -405,7 +405,7 @@ static be_jse_symbol_t *gpio_count(void)
     gpio_device->priv = newItem;
     ret = hal_gpio_enable_irq(gpio_device, irq_edge, gpio_irqs, newItem);
     if (ret < 0) {
-        be_error("gpio", "hal_gpio_enable_irq fail!\n");
+        jse_error("hal_gpio_enable_irq fail!\n");
         goto out;
     }
     be_jse_task_timer_action(time_delay, gpio_report, newItem, JSE_TIMER_ONCE);
@@ -414,7 +414,7 @@ static be_jse_symbol_t *gpio_count(void)
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);

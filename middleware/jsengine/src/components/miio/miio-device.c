@@ -1,5 +1,5 @@
 #include "miio-device.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "hal/system.h"
 #include "mbedtls/aes.h"
@@ -86,7 +86,7 @@ static int miio_transmit(miio_device_t *device, const char *send_data,
     struct sockaddr_in peer;
 
     if (!device->sfd) {
-        debug("init socket\n");
+        jse_debug("init socket\n");
         device->sfd = socket(AF_INET, SOCK_DGRAM, 0);
         if (device->sfd == -1) {
             perror("create socket failed\n");
@@ -94,7 +94,7 @@ static int miio_transmit(miio_device_t *device, const char *send_data,
         }
     }
 
-    debug("send data size: %d\n", (int)send_data_len);
+    jse_debug("send data size: %d\n", (int)send_data_len);
     memset(&peer, 0, sizeof(peer));
     peer.sin_family      = AF_INET;
     peer.sin_addr.s_addr = device->peer;
@@ -121,7 +121,7 @@ static int miio_transmit(miio_device_t *device, const char *send_data,
             addrlen = sizeof(remaddr);
             nread   = recvfrom(device->sfd, recv_buff, recv_buf_size, 0,
                              (struct sockaddr *)&remaddr, &addrlen);
-            debug("receive data size: %d\n", (int)nread);
+            jse_debug("receive data size: %d\n", (int)nread);
             if (nread == -1) continue; /* Ignore failed request */
             return nread;
         }
@@ -141,7 +141,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
     unsigned char pkt[1472];
     size_t recv_data_len;
     time_t start = time(NULL);
-    debug("in\n");
+
     if ((recv_data_len = miio_transmit(
              device, hello_packet, sizeof(hello_packet), pkt, sizeof(pkt))) <
         0) {
@@ -158,7 +158,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
         snprintf(recv_buf, sizeof(recv_buf),
                  "{\"id\":%d,\"method\":\"%s\",\"params\":%s,\"sid\":\"%s\"}",
                  device->id++, method, args, sid);
-    debug("info: %s\n", recv_buf);
+    jse_debug("info: %s\n", recv_buf);
 
     /* encrypt and adding length */
     int len = 0;
@@ -189,7 +189,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
         perror("miio_transmit failed\n");
         goto failed;
     }
-    debug("receive data size: %d\n", (int)recv_data_len);
+    jse_debug("receive data size: %d\n", (int)recv_data_len);
 
     /* decrypto receiving package */
     int decrypted_data_len = 0;
@@ -197,7 +197,7 @@ const char *miio_device_control(miio_device_t *device, const char *method,
                       &decrypted_data_len)) {
         memcpy(recv_buf, pkt, decrypted_data_len);
         recv_buf[decrypted_data_len] = 0;
-        debug("response %s\n", recv_buf);
+        jse_debug("response %s\n", recv_buf);
         return recv_buf;
     }
 
@@ -274,8 +274,6 @@ static void *event_receive(void *arg)
 void miio_device_set_event_cb(miio_device_t *device,
                               miio_device_event_callback cb, void *priv)
 {
-    debug("in\n");
-
     /* create event process task */
     int ret = be_osal_create_task("miio event receive task", event_receive,
                                   device, 4096, ADDON_TSK_PRIORRITY, NULL);
@@ -292,8 +290,7 @@ miio_device_t *miio_device_create(const char *host, const char *token)
     int i;
     int j;
 
-    debug("in\n");
-    miio_device_t *device = calloc(1, sizeof(*device));
+    miio_device_t *device = jse_calloc(1, sizeof(*device));
     if (!device) {
         perror("miio device create failed\n");
         return NULL;
@@ -335,6 +332,5 @@ miio_device_t *miio_device_create(const char *host, const char *token)
     mbedtls_md5_finish(&ctx, device->iv);
     mbedtls_md5_free(&ctx);
 
-    debug("out\n");
     return device;
 }

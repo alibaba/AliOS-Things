@@ -4,6 +4,7 @@
 
 #define CONFIG_LOGMACRO_DETAILS
 #include "board_info.h"
+#include "board_mgr.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

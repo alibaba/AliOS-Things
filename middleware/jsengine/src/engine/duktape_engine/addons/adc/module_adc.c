@@ -4,8 +4,8 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "adc.h"
-#include "be_log.h"
+#include "aos/hal/adc.h"
+#include "hal/log.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
 
@@ -17,19 +17,19 @@ static duk_ret_t native_open(duk_context *ctx)
     adc_dev_t *adc_device = NULL;
 
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
     const char *id = duk_get_string(ctx, 0);
     ret            = board_attach_item(MODULE_ADC, id, &adc_handle);
     if (0 != ret) {
-        error("board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    debug("adc handle:%u\n", adc_handle.handle);
+    jse_debug("adc handle:%u\n", adc_handle.handle);
     adc_device = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_adc_init(adc_device);
@@ -50,13 +50,13 @@ static duk_ret_t native_close(duk_context *ctx)
     adc_dev_t *adc_device = NULL;
 
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     adc_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     adc_device        = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_adc_finalize(adc_device);
@@ -73,17 +73,17 @@ static duk_ret_t native_read(duk_context *ctx)
     adc_dev_t *adc_device = NULL;
 
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     adc_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     adc_device        = board_get_node_by_handle(MODULE_ADC, &adc_handle);
     if (NULL == adc_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     (void)hal_adc_value_get(adc_device, (void *)&adc_value, 0);
-    debug("adc value: %d\n", adc_value);
+    jse_debug("adc value: %d\n", adc_value);
 out:
     duk_push_int(ctx, adc_value > 0 ? adc_value : -1);
     return 1;

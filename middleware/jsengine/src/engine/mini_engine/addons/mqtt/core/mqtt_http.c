@@ -6,6 +6,7 @@
 #include "be_jse_task.h"
 #include "be_port_osal.h"
 #include "be_utils.h"
+#include "hal/log.h"
 #include "cJSON.h"
 
 // #include "mbedtls/hmac.h"
@@ -49,7 +50,7 @@ static char *genRandomString(int length)
 {
     int flag, i;
     char *str;
-    if ((str = (char *)malloc(length)) == NULL) {
+    if ((str = (char *)jse_malloc(length)) == NULL) {
         return NULL;
     }
 
@@ -94,7 +95,7 @@ int _http_response_2(char *payload, const int payload_len,
     httpc.header =
         "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
-    requ_payload = (char *)malloc(HTTP_POST_MAX_LEN);
+    requ_payload = (char *)jse_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
         return ERROR_MALLOC;
     }
@@ -102,7 +103,7 @@ int _http_response_2(char *payload, const int payload_len,
 
     snprintf(requ_payload, HTTP_POST_MAX_LEN, "%s", request_string);
 
-    resp_payload = (char *)malloc(HTTP_RESP_MAX_LEN);
+    resp_payload = (char *)jse_malloc(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
         ret = FAIL_RETURN;
         goto RETURN;
@@ -127,11 +128,11 @@ int _http_response_2(char *payload, const int payload_len,
 
 RETURN:
     if (requ_payload) {
-        free(requ_payload);
+        jse_free(requ_payload);
         requ_payload = NULL;
     }
     if (resp_payload) {
-        free(resp_payload);
+        jse_free(resp_payload);
         resp_payload = NULL;
     }
 
@@ -146,7 +147,7 @@ static char *_set_auth_req_str(const char *product_key, const char *device_name,
 
     char *req = NULL;
 
-    req = malloc(AUTH_STRING_MAXLEN);
+    req = jse_malloc(AUTH_STRING_MAXLEN);
     memset(req, 0, AUTH_STRING_MAXLEN);
 
     snprintf(req, AUTH_STRING_MAXLEN, string_auth_req_format, product_key,
@@ -164,15 +165,15 @@ static char *_get_device_secret(const char *product_key,
 
     strncpy(payload, request_string, strlen(request_string));
 
-    /* printf("[%s][%d] request_string=%s \n", __FUNCTION__, __LINE__,
-       request_string); printf("[%s][%d] guider_addr=%s \n", __FUNCTION__,
+    /* jse_debug("[%s][%d] request_string=%s \n", __FUNCTION__, __LINE__,
+       request_string); jse_debug("[%s][%d] guider_addr=%s \n", __FUNCTION__,
        __LINE__, guider_addr); */
 
     _http_response_2(payload, sizeof(payload), request_string, guider_addr, 443,
                      iotx_ca_get());
     /* CM_INFO(cm_log_info_auth_rsp, payload); */
 
-    printf("payload = %s \n", payload);
+    jse_debug("payload = %s \n", payload);
     /* payload =
        {"code":200,"data":{"deviceName":"123456","deviceSecret":"JkwXalKfOtaP9f9IJGtdqbQaaGr8ghHf","productKey":"a1jbUxTP2VU"},"message":"success"}
      */
@@ -204,9 +205,9 @@ static char *_get_device_secret(const char *product_key,
 
     cJSON *deviceSecretItem = cJSON_GetObjectItem(item, "deviceSecret");
     if (cJSON_IsString(deviceSecretItem)) {
-        /* 获取 deviceSecret */
+        /* got deviceSecret */
         deviceSecret = strdup(deviceSecretItem->valuestring);
-        printf("获取deviceSecret成功, %s\n", deviceSecret);
+        jse_debug("got deviceSecret: %s\n", deviceSecret);
     }
 
 do_exit:
@@ -255,8 +256,8 @@ char *iot_get_deviceSecret(const char *product_key, const char *product_secret,
 
     deviceSecret = _get_device_secret(product_key, device_name, client_id,
                                       string_AUTH_URL, req_str);
-    if (req_str) free(req_str);
-    if (s_random) free(s_random);
+    if (req_str) jse_free(req_str);
+    if (s_random) jse_free(s_random);
     return deviceSecret;
 }
 
@@ -267,18 +268,18 @@ static void http_task_post_jse(void *arg)
     be_jse_symbol_t **params;
 
     if (iotDeviceSecret->deviceSecret[0]) {
-        params = (be_jse_symbol_t **)calloc(1, sizeof(be_jse_symbol_t *) * 2);
+        params = (be_jse_symbol_t **)jse_calloc(1, sizeof(be_jse_symbol_t *) * 2);
         params[0] = new_symbol(BE_SYM_NULL);
         params[1] = new_str_symbol(iotDeviceSecret->deviceSecret);
         be_jse_post_async(iotDeviceSecret->func, params, 2);
 
     } else {
-        params = (be_jse_symbol_t **)calloc(1, sizeof(be_jse_symbol_t *) * 1);
+        params = (be_jse_symbol_t **)jse_calloc(1, sizeof(be_jse_symbol_t *) * 1);
         params[0] = new_str_symbol("something error.");
         be_jse_post_async(iotDeviceSecret->func, params, 1);
     }
 
-    free(iotDeviceSecret);
+    jse_free(iotDeviceSecret);
 }
 
 static void mqtt_network_task(void *arg)
@@ -305,9 +306,9 @@ static void mqtt_network_task(void *arg)
 
     be_jse_task_schedule_call(http_task_post_jse, iotDeviceSecret);
 
-    free(deviceSecret);
+    jse_free(deviceSecret);
 
-    printf("[%s][%d] ~ Byte ~ \n", __FUNCTION__, __LINE__);
+    jse_debug("[%s][%d] ~ Byte ~ \n", __FUNCTION__, __LINE__);
 
     void *handle      = mqttHttpTskHandle;
     mqttHttpTskHandle = NULL;

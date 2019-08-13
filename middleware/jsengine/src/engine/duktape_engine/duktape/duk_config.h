@@ -2120,16 +2120,16 @@ typedef struct duk_hthread duk_context;
  * some compilers don't handle zero length or NULL correctly in realloc().
  */
 #if !defined(DUK_ANSI_MALLOC)
-#define DUK_ANSI_MALLOC      malloc
+#define DUK_ANSI_MALLOC      jse_malloc
 #endif
 #if !defined(DUK_ANSI_REALLOC)
-#define DUK_ANSI_REALLOC     realloc
+#define DUK_ANSI_REALLOC     jse_realloc
 #endif
 #if !defined(DUK_ANSI_CALLOC)
-#define DUK_ANSI_CALLOC      calloc
+#define DUK_ANSI_CALLOC      jse_calloc
 #endif
 #if !defined(DUK_ANSI_FREE)
-#define DUK_ANSI_FREE        free
+#define DUK_ANSI_FREE        jse_free
 #endif
 
 /* ANSI C (various versions) and some implementations require that the

@@ -2,11 +2,13 @@
  *  Copyright © 2018 alibaba. All rights reserved.
  */
 
+#include <mbedtls/sha1.h>
 #include "be_jse_module.h"
 #include "be_list.h"
 #include "be_port_osal.h"
 #include "be_utils.h"
-#include <mbedtls/sha1.h>
+#include "hal/log.h"
+#include "hal/system.h"
 
 #include "core/mqtt_http.h"
 #include "core/mqtt_instance.h"
@@ -14,8 +16,6 @@
 
 #include "be_jse_addon.h"
 #include "board_info.h"
-
-static const char *TAG = "MQTT";
 
 #define CONFIG_LOGMACRO_DETAILS
 
@@ -67,9 +67,9 @@ static be_jse_symbol_t *mqtt_deviceInfo(void)
         symbol_unlock(val);
     }
 
-    free(productKey);
-    free(deviceName);
-    free(deviceSecret);
+    jse_free(productKey);
+    jse_free(deviceName);
+    jse_free(deviceSecret);
     return obj;
 }
 
@@ -122,9 +122,9 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                 symbol_unlock(deviceNameSymbol);
                 symbol_unlock(productSecretSymbol);
 
-                be_error(TAG, "参数错误");
+                jse_error("parameter wrong!");
 
-                params = (be_jse_symbol_t **)calloc(
+                params = (be_jse_symbol_t **)jse_calloc(
                     1, sizeof(be_jse_symbol_t *) * 1);
                 if (params) {
                     params[0] = new_str_symbol("Invalid input parameter");
@@ -137,7 +137,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             }
 
             IOT_DEVICESECRET_s *iotDeviceSecret;
-            iotDeviceSecret = calloc(1, sizeof(IOT_DEVICESECRET_s));
+            iotDeviceSecret = jse_calloc(1, sizeof(IOT_DEVICESECRET_s));
             if (iotDeviceSecret) {
                 symbol_to_str(productKeySymbol, iotDeviceSecret->productKey,
                               sizeof(productKey) - 1);
@@ -148,20 +148,20 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                               sizeof(deviceSecret) - 1);
                 iotDeviceSecret->func = arg1;
 
-                printf("[%s][%d]  productKey = %s \n", __FUNCTION__, __LINE__,
+                jse_debug("[%s][%d]  productKey = %s \n", __FUNCTION__, __LINE__,
                        iotDeviceSecret->productKey);
-                printf("[%s][%d]  deviceName = %s \n", __FUNCTION__, __LINE__,
+                jse_debug("[%s][%d]  deviceName = %s \n", __FUNCTION__, __LINE__,
                        iotDeviceSecret->deviceName);
-                printf("[%s][%d]  productSecret = %s \n", __FUNCTION__,
+                jse_debug("[%s][%d]  productSecret = %s \n", __FUNCTION__,
                        __LINE__, iotDeviceSecret->productSecret);
 
-                printf("[%s][%d]  arg1 = %p \n", __FUNCTION__, __LINE__, arg1);
+                jse_debug("[%s][%d]  arg1 = %p \n", __FUNCTION__, __LINE__, arg1);
 
                 if (mqtt_http_get_instance() == NULL) {
                     mqtt_http_start(iotDeviceSecret);
                 } else {
-                    free(iotDeviceSecret);
-                    params = (be_jse_symbol_t **)calloc(
+                    jse_free(iotDeviceSecret);
+                    params = (be_jse_symbol_t **)jse_calloc(
                         1, sizeof(be_jse_symbol_t *) * 1);
                     params[0] = new_str_symbol(
                         "Resource busy, Please try again later.");
@@ -201,7 +201,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                 symbol_unlock(deviceNameSymbol);
                 symbol_unlock(deviceSecretSymbol);
 
-                be_error(TAG, "wrong parameter");
+                jse_error("wrong parameter");
                 return new_str_symbol(NULL);
             }
 
@@ -215,9 +215,9 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             symbol_unlock(deviceSecretSymbol);
 
             unsigned char *content = NULL;
-            content = calloc(1, 256);
+            content = jse_calloc(1, 256);
             if (content == NULL) {
-                printf("[%s][%d] out of memory .\n", __FUNCTION__, __LINE__);
+                jse_error("[%s][%d] out of memory .\n", __FUNCTION__, __LINE__);
                 return new_symbol(BE_SYM_NULL);
             }
 
@@ -253,7 +253,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             mbedtls_sha1_finish(&sha1_ctx, out);
             mbedtls_sha1_free(&sha1_ctx);
 
-            free(content);
+            jse_free(content);
 
             char sign[41];
             for (i = 0; i < sizeof(out); ++i) {
@@ -307,9 +307,8 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                 symbol_unlock(mqttDomainSymbol);
                 symbol_unlock(mqttPortSymbol);
 
-                be_error(TAG,
-                         "productKey or deviceName or deviceSecret is null");
-                params = (be_jse_symbol_t **)calloc(
+                jse_error("productKey or deviceName or deviceSecret is null");
+                params = (be_jse_symbol_t **)jse_calloc(
                     1, sizeof(be_jse_symbol_t *) * 1);
                 if (params) {
                     params[0] = new_str_symbol(
@@ -348,9 +347,9 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             }
 
             if (mqtt_send_msg(&msg) != 0) {
-                be_warn(TAG, "mqtt start failed\n");
+                jse_warn("mqtt start failed\n");
 
-                params = (be_jse_symbol_t **)calloc(
+                params = (be_jse_symbol_t **)jse_calloc(
                     1, sizeof(be_jse_symbol_t *) * 1);
                 if (params) {
                     params[0] = new_str_symbol("mqtt_send_msg error");
@@ -377,7 +376,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         char *topic_name = NULL;
 
         if (len) {
-            topic_name = calloc(1, len + 1);
+            topic_name = jse_calloc(1, len + 1);
             symbol_to_str(arg0, topic_name, len);
             topic_process_t *item;
             be_list_for_each_entry(item, &topic_list, list)
@@ -393,7 +392,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
 
             /* add to list */
             topic_process_t *proc =
-                (topic_process_t *)calloc(1, sizeof(topic_process_t));
+                (topic_process_t *)jse_calloc(1, sizeof(topic_process_t));
             strncpy(proc->topic_name, topic_name, CONFIG_MQTT_TOPIC_MAX_LEN);
             proc->func = arg1;
             be_list_add_tail(&proc->list, &topic_list);
@@ -403,8 +402,8 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
             msg.subscribe.func  = arg1;
             if (mqtt_send_msg(&msg) != 0) {
                 be_list_del(&proc->list);
-                free(proc);
-                free(topic_name);
+                jse_free(proc);
+                jse_free(topic_name);
 
                 symbol_unlock(arg0);
                 symbol_unlock(arg1);
@@ -427,7 +426,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         char *topic_name = NULL;
 
         if (len) {
-            topic_name = calloc(1, len + 1);
+            topic_name = jse_calloc(1, len + 1);
             symbol_to_str(arg0, topic_name, len);
 
             topic_process_t *item = NULL;
@@ -445,19 +444,19 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
                 msg.unsubscribe.func  = item->func;
 
                 if (mqtt_send_msg(&msg) != 0) {
-                    free(topic_name);
+                    jse_free(topic_name);
                     symbol_unlock(arg0);
                     return new_int_symbol(-1);
                 }
 
-                free(topic_name);
+                jse_free(topic_name);
                 be_list_del(&item->list);
-                free(item);
+                jse_free(item);
                 symbol_unlock(arg0);
                 return new_int_symbol(0);
             }
 
-            free(topic_name);
+            jse_free(topic_name);
         }
 
         symbol_unlock(arg0);
@@ -475,11 +474,11 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         }
 
         int msgLen    = symbol_str_len(arg0);
-        char *arg0Str = (char *)calloc(1, msgLen + 1);
+        char *arg0Str = (char *)jse_calloc(1, msgLen + 1);
         symbol_to_str(arg0, arg0Str, msgLen);
 
         msgLen        = symbol_str_len(arg1);
-        char *arg1Str = (char *)calloc(1, msgLen + 1);
+        char *arg1Str = (char *)jse_calloc(1, msgLen + 1);
         symbol_to_str(arg1, arg1Str, msgLen);
 
         symbol_unlock(arg0);
@@ -490,8 +489,8 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
         msg.publish.payload = arg1Str;
 
         if (mqtt_send_msg(&msg) != 0) {
-            free(arg0Str);
-            free(arg1Str);
+            jse_free(arg0Str);
+            jse_free(arg1Str);
             return new_int_symbol(-1);
         }
 
@@ -510,5 +509,5 @@ void module_mqtt_register(void)
     mqtt_tsk_start();
 
     /* register JSE addon */
-    be_jse_module_load(TAG, module_handle_mqtt);
+    be_jse_module_load("MQTT", module_handle_mqtt);
 }

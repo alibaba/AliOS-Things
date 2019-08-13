@@ -84,7 +84,7 @@ int bone_websocket_connect(bone_websocket_client_t* client);
 int bone_websocket_send_raw(bone_websocket_client_t* client,
                             unsigned char* data, size_t data_len);
 
-/* websocket上报信息 */
+/* send data to webIDE via websocket */
 int bone_websocket_send_frame(char* topic, int level, char* msg);
 
 int bone_websocket_build_frame(unsigned char* payload, size_t payload_len,
