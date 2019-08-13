@@ -14,7 +14,6 @@
 #include "esp_partition.h"
 #include "ota_download.h"
 
-#define TAG "UPGRADER"
 #define BE_CLI_REPLY_SUCCESS "#be-cli-reply#success\n"
 #define BE_CLI_REPLY_FAILED "#be-cli-reply#failed\n"
 
@@ -62,7 +61,7 @@ static int be_upgrade_ota_write_cb(int32_t writed_size, uint8_t *buf,
     }
 
     ota_offset = ota_offset + buf_len;
-    be_debug(TAG, "OTA write %d / %d", ota_offset, be_rom_size);
+    jse_debug("OTA write %d / %d", ota_offset, be_rom_size);
 
     /* 通知IDE升级进度 */
     static int last_len = 0;
@@ -82,7 +81,7 @@ static int be_upgrade_ota_finish_cb(int finished_result, void *updated_type) {
         err = esp_ota_set_boot_partition(ota_part);
     }
 
-    be_debug(TAG, "OTA update success .");
+    jse_debug("OTA update success .");
 
     return err;
 }
@@ -113,7 +112,7 @@ static int be_upgrade_direct_flash_write_cb(int32_t writed_size, uint8_t *buf,
         spiffs_offset += buf_len;
     }
 
-    be_warn(TAG, "write SPIFFS  offset %d  len = %d", (int)spiffs_offset,
+    jse_warn("write SPIFFS  offset %d  len = %d", (int)spiffs_offset,
             buf_len);
 
     return spiffs_offset;
@@ -122,9 +121,9 @@ static int be_upgrade_direct_flash_write_cb(int32_t writed_size, uint8_t *buf,
 static int be_upgrade_direct_flash_finish_cb(int finished_result,
                                              void *updated_type) {
     if (OTA_FINISH == finished_result)
-        be_debug(TAG, "Update SPIFFS success .");
+        jse_debug("Update SPIFFS success .");
     else
-        be_debug(TAG, "Update SPIFFS failed .");
+        jse_debug("Update SPIFFS failed .");
     return 0;
 }
 
@@ -148,18 +147,18 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
         /* 获取需要升级的OTA分区 */
         ota_part = esp_ota_get_next_update_partition(NULL);
         if (ota_part == NULL) {
-            printf("[%s][%d] OTA partition not found \n", __FUNCTION__,
+            jse_error("[%s][%d] OTA partition not found \n", __FUNCTION__,
                    __LINE__);
             return;
         }
         /* 擦除该分区 */
         err = esp_ota_begin(ota_part, 0, &ota_handle);
         if (err != ESP_OK) {
-            printf("[%s][%d] erase ota part failed, err = 0x%x \n",
+            jse_error("[%s][%d] erase ota part failed, err = 0x%x \n",
                    __FUNCTION__, __LINE__, err);
             return;
         }
-        printf("[%s][%d] Format OTA partition success. \n", __FUNCTION__,
+        jse_debug("[%s][%d] Format OTA partition success. \n", __FUNCTION__,
                __LINE__);
         ota_offset = 0;
         be_upgrade_set_callback(be_upgrade_ota_write_cb,
@@ -170,11 +169,11 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
         spiffs_part =
             esp_partition_find_first(ESP_PARTITION_TYPE_DATA, subtype, NULL);
         if (spiffs_part == NULL) {
-            printf("[%s][%d] spiffs partition not found \n", __FUNCTION__,
+            jse_error("[%s][%d] spiffs partition not found \n", __FUNCTION__,
                    __LINE__);
             return;
         }
-        printf("Format SPIFFS partition %s at 0x%x, size 0x%x\n",
+        jse_debug("Format SPIFFS partition %s at 0x%x, size 0x%x\n",
                spiffs_part->label, spiffs_part->address, spiffs_part->size);
         /* 擦除整个分区 */
         esp_partition_erase_range(spiffs_part, 0, spiffs_part->size);
@@ -183,7 +182,7 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
         be_upgrade_set_callback(be_upgrade_direct_flash_write_cb,
                                 be_upgrade_direct_flash_finish_cb);
     } else {
-        be_error(TAG, "unknown type=%d", type);
+        jse_error("unknown type=%d", type);
     }
 }
 
@@ -197,7 +196,7 @@ void be_upgrader_handler(be_upgd_param_t *param) {
         return;
     }
 
-    be_debug(TAG, "md5=%s,type=%d,url=%s,romsize=%d", param->md5, param->type,
+    jse_debug("md5=%s,type=%d,url=%s,romsize=%d", param->md5, param->type,
              param->url, param->total_size);
 
     be_rom_size  = param->total_size;
@@ -213,16 +212,16 @@ void be_upgrader_handler(be_upgd_param_t *param) {
        } */
 
     ret = ota_download(param->url, be_write_cb, param->md5);
-    be_debug(TAG, "ota download ret =%d", ret);
+    jse_debug("ota download ret =%d", ret);
 
     if (ret <= 0) {
-        be_error(TAG, "ota download error");
+        jse_error("ota download error");
         be_finish_cb(OTA_BREAKPOINT, &upgrade_type);
         goto done;
     }
 
     if (ret == OTA_DOWNLOAD_CANCEL) {
-        be_error(TAG, "ota download cancel");
+        jse_error("ota download cancel");
         be_finish_cb(OTA_BREAKPOINT, &upgrade_type);
         goto done;
     }
@@ -230,11 +229,11 @@ void be_upgrader_handler(be_upgd_param_t *param) {
     be_str_to_upper(param->md5, MD5_LEN);
     ret = check_md5(param->md5, MD5_LEN);
 
-    be_debug(TAG, "check_md5 return %d ", ret);
+    jse_debug("check_md5 return %d ", ret);
 
     if (ret == 0) {
-        be_debug(TAG, "be_upgrader_handler update ok");
-        printf(BE_CLI_REPLY_SUCCESS);
+        jse_debug("be_upgrader_handler update ok");
+        jse_debug(BE_CLI_REPLY_SUCCESS);
         bone_websocket_send_frame("/device/updateimg_reply", 200, "success");
         be_osal_delay(200);
 
@@ -246,10 +245,10 @@ void be_upgrader_handler(be_upgd_param_t *param) {
     }
 
 done:
-    free(param->url);
-    free(param);
-    printf(BE_CLI_REPLY_FAILED);
-    be_error(TAG, "be_upgrader_handler fail");
+    jse_free(param->url);
+    jse_free(param);
+    jse_debug(BE_CLI_REPLY_FAILED);
+    jse_error("be_upgrader_handler fail");
     bone_websocket_send_frame("/device/updateimg_reply", 205, "failed");
     be_osal_delay(200);
     be_osal_exit_task(0);

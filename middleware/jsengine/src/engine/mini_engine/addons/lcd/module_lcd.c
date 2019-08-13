@@ -33,7 +33,7 @@ static int8_t lcd_init(uint32_t width, uint32_t height)
     if (NULL != g_lcd) {
         return (-1);
     }
-    lcd_handle_t *new_handle = calloc(1, sizeof(*new_handle));
+    lcd_handle_t *new_handle = jse_calloc(1, sizeof(*new_handle));
     if (NULL == new_handle) {
         return (-1);
     }
@@ -47,7 +47,7 @@ static int8_t lcd_init(uint32_t width, uint32_t height)
 static int8_t lcd_deinit(void)
 {
     if (NULL != g_lcd) {
-        free(g_lcd);
+        jse_free(g_lcd);
         g_lcd = NULL;
     }
     return (0);
@@ -320,7 +320,7 @@ static be_jse_symbol_t *lcd_write(void)
         goto out;
     }
     int str_len    = symbol_str_len(lcd_str_symbol);
-    char *str_buff = malloc(sizeof(char) * (str_len + 1));
+    char *str_buff = jse_malloc(sizeof(char) * (str_len + 1));
     if (NULL == str_buff) {
         ret = -1;
         goto out;
@@ -330,7 +330,7 @@ static be_jse_symbol_t *lcd_write(void)
     lcd_draw_str(x_pos, y_pos, (uint8_t *)str_buff, front_size, fc_color_value,
                  is_newline);
     if (NULL != str_buff) {
-        free(str_buff);
+        jse_free(str_buff);
         str_buff = NULL;
     }
 

@@ -5,11 +5,11 @@
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "uart.h"
+#include "aos/hal/uart.h"
 
 #define UART_BUFF_SIZE 256
 #define MAX_UART_PORT 6
@@ -70,7 +70,7 @@ static void uart_module_handle(void *data)
         start_pos = (uint8_t *)strstr((const char *)raw_buff,
                                       (const char *)module->start_flag);
         if (!start_pos) {
-            debug("start_pos is null\n");
+            jse_debug("start_pos is null\n");
             return;
         }
     }
@@ -86,13 +86,13 @@ static void uart_module_handle(void *data)
             end_pos =
                 strstr((const char *)start_pos, (const char *)module->end_flag);
         if (!end_pos) {
-            debug("recvsize is null\n");
+            jse_debug("recvsize is null\n");
             return;
         }
         end_pos[strlen((const char *)module->end_flag)] = 0;
     }
 
-    debug("start_pos: %s\n", start_pos);
+    jse_debug("start_pos: %s\n", start_pos);
     int js_cb_ref    = module->js_cb_ref;
     duk_context *ctx = bone_engine_get_context();
     bone_engine_push_ref(ctx, js_cb_ref);
@@ -109,13 +109,13 @@ static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
     for (i = 0; i < MAX_UART_PORT; i++)
         if (!uart_modules[i]) break;
     if (i >= MAX_UART_PORT) {
-        warn("No free uart module\n");
+        jse_warn("No free uart module\n");
         return -1;
     }
 
-    uart_module_t *module = calloc(1, sizeof(uart_module_t));
+    uart_module_t *module = jse_calloc(1, sizeof(uart_module_t));
     if (!module) {
-        error("uart_start_recv fail!\n");
+        jse_error("uart_start_recv fail!\n");
         return -1;
     }
     module->js_cb_ref   = js_cb_ref;
@@ -130,9 +130,9 @@ static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
     if (!module->timer_id) {
         duk_context *ctx = bone_engine_get_context();
         bone_engine_unref(ctx, module->js_cb_ref);
-        free(module->start_flag);
-        free(module->end_flag);
-        free(module);
+        jse_free(module->start_flag);
+        jse_free(module->end_flag);
+        jse_free(module);
         return -1;
     }
 
@@ -149,9 +149,9 @@ static void uart_del_recv(uint32_t item_handle)
             duk_context *ctx = bone_engine_get_context();
             bone_engine_unref(ctx, m->js_cb_ref);
             be_jse_task_cancel_timer(m->timer_id);
-            free(m->start_flag);
-            free(m->end_flag);
-            free(m);
+            jse_free(m->start_flag);
+            jse_free(m->end_flag);
+            jse_free(m);
             uart_modules[i] = NULL;
             break;
         }
@@ -165,26 +165,25 @@ static duk_ret_t native_uart_open(duk_context *ctx)
     uart_handle.handle      = 0xFFFFFFFF;
     uart_dev_t *uart_device = NULL;
 
-    debug("in\n");
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
     const char *id = duk_get_string(ctx, 0);
     ret            = board_attach_item(MODULE_UART, id, &uart_handle);
     if (0 != ret) {
-        error("board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("uart", "uart handle:%u\n", uart_handle.handle);
+    jse_debug("UART", "uart handle:%u\n", uart_handle.handle);
     uart_device = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_uart_init(uart_device);
     if (0 != ret) {
-        error("hal_uart_init fail!\n");
+        jse_error("hal_uart_init fail!\n");
     }
 out:
     if (0 != ret) {
@@ -202,20 +201,19 @@ static duk_ret_t native_uart_close(duk_context *ctx)
     item_handle_t uart_handle;
     uart_dev_t *uart_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     uart_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_uart_finalize(uart_device);
     if (0 != ret) {
-        error("hal_uart_init fail!\n");
+        jse_error("hal_uart_init fail!\n");
         goto out;
     }
     board_disattach_item(MODULE_UART, &uart_handle);
@@ -233,22 +231,21 @@ static duk_ret_t native_uart_write(duk_context *ctx)
     item_handle_t uart_handle;
     uart_dev_t *uart_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_string(ctx, 1)) {
-        warn("parameter must be handle and string\n");
+        jse_warn("parameter must be handle and string\n");
         goto out;
     }
     uart_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     data = duk_get_string(ctx, 1);
     len  = strlen(data);
     ret  = hal_uart_send(uart_device, data, len, 0);
     if (-1 == ret) {
-        error("hal_uart_send fail!\n");
+        jse_error("hal_uart_send fail!\n");
     }
 out:
     duk_push_int(ctx, ret);
@@ -257,7 +254,7 @@ out:
 
 static duk_ret_t native_uart_read(duk_context *ctx)
 {
-    error("todo......\n");
+    jse_error("todo......\n");
     duk_push_null(ctx);
     return 1;
 }
@@ -277,33 +274,32 @@ static duk_ret_t native_uart_on(duk_context *ctx)
     uint8_t *start          = NULL;
     uint8_t *end            = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_function(ctx, 3)) {
-        warn("parameter must be handle, null|string, null|string, function\n");
+        jse_warn("parameter must be handle, null|string, null|string, function\n");
         goto out;
     }
     uart_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (uart_module_is_on(uart_handle.handle)) {
-        error("The uart module has set the listener\n");
+        jse_error("The uart module has set the listener\n");
         goto out;
     }
     if (duk_is_string(ctx, 1)) {
         start = strdup(duk_get_string(ctx, 1));
         if (!start) {
-            warn("allocate memory failed\n");
+            jse_warn("allocate memory failed\n");
             goto out;
         }
     }
     if (duk_is_string(ctx, 2)) {
         end = strdup(duk_get_string(ctx, 2));
         if (!end) {
-            warn("allocate memory failed\n");
-            free(start);
+            jse_warn("allocate memory failed\n");
+            jse_free(start);
             goto out;
         }
     }
@@ -311,7 +307,7 @@ static duk_ret_t native_uart_on(duk_context *ctx)
     int js_cb_ref = bone_engine_ref(ctx);
     ret = uart_add_recv(uart_device, uart_handle.handle, js_cb_ref, start, end);
     if (ret < 0) {
-        error("uart_add_recv fail!\n");
+        jse_error("uart_add_recv fail!\n");
     }
 out:
     duk_push_int(ctx, ret);

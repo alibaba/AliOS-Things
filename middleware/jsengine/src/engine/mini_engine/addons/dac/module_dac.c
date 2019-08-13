@@ -27,20 +27,20 @@ static be_jse_symbol_t *dac_open(void)
         goto out;
     }
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
     symbol_to_str(arg0, data, len);
     ret = board_attach_item(MODULE_DAC, data, &dac_handle);
     if (0 != ret) {
-        be_error("dac", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("dac", "dac handle:%u\n", dac_handle.handle);
+    jse_debug("dac handle:%u\n", dac_handle.handle);
     dac_device = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        be_error("dac", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     result = hal_dac_init(dac_device);
@@ -49,12 +49,12 @@ static be_jse_symbol_t *dac_open(void)
     }
     result = hal_dac_start(dac_device, dac_device->port);
     if (0 != result) {
-        be_error("dac", "hal_dac_init fail!\n");
+        jse_error("hal_dac_init fail!\n");
     }
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -83,7 +83,7 @@ static be_jse_symbol_t *dac_set_vol(void)
     dac_handle.handle = get_symbol_value_int(arg0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        be_error("dac", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_int(arg1)) {
@@ -111,7 +111,7 @@ static be_jse_symbol_t *dac_get_vol(void)
     dac_handle.handle = get_symbol_value_int(arg0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        be_error("dac", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = (int)hal_dac_get_value(dac_device, dac_device->port);
@@ -133,7 +133,7 @@ static be_jse_symbol_t *dac_close(void)
     dac_handle.handle = get_symbol_value_int(arg0);
     dac_device        = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        be_error("dac", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_dac_stop(dac_device, dac_device->port);

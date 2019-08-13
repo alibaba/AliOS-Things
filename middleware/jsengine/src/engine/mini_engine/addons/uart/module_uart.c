@@ -146,9 +146,9 @@ static int8_t uart_add_recv(uart_dev_t *uart, uint32_t item_handle,
     if (index < 0) {
         return (-1);
     }
-    uart_module_t *module = calloc(1, sizeof(uart_module_t));
+    uart_module_t *module = jse_calloc(1, sizeof(uart_module_t));
     if (NULL == module) {
-        be_error("uart", "uart_start_recv fail!\n");
+        jse_error("uart_start_recv fail!\n");
         return (-1);
     }
     module->fun_symbol  = fun_symbol;
@@ -160,7 +160,7 @@ static int8_t uart_add_recv(uart_dev_t *uart, uint32_t item_handle,
     module->recv_index  = 0;
     if (NULL ==
         be_jse_task_timer_action(100, uart_handle, module, JSE_TIMER_REPEAT)) {
-        free(module);
+        jse_free(module);
         module = NULL;
         return (-1);
     }
@@ -184,15 +184,15 @@ static int8_t uart_del_recv(uint32_t item_handle)
         return (-1);
     }
     if (NULL != handle[index]->end_flag) {
-        free(handle[index]->end_flag);
+        jse_free(handle[index]->end_flag);
         handle[index]->end_flag = NULL;
     }
     if (NULL != handle[index]->start_flag) {
-        free(handle[index]->start_flag);
+        jse_free(handle[index]->start_flag);
         handle[index]->start_flag = NULL;
     }
     symbol_unlock(handle[index]->fun_symbol);
-    free(handle[index]);
+    jse_free(handle[index]);
     handle[index] = NULL;
 
     return (0);
@@ -214,31 +214,31 @@ static be_jse_symbol_t *uart_open(void)
         goto out;
     }
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
     symbol_to_str(arg0, data, len);
     ret = board_attach_item(MODULE_UART, data, &uart_handle);
     if (0 != ret) {
-        be_error("uart", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("uart", "uart handle:%u\n", uart_handle.handle);
+    jse_debug("uart handle:%u\n", uart_handle.handle);
     uart_device = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        be_error("uart", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_uart_init(uart_device);
     if (0 != ret) {
-        be_error("uart", "hal_uart_init fail!\n");
+        jse_error("hal_uart_init fail!\n");
         goto out;
     }
     result = 0;
 out:
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -265,12 +265,12 @@ static be_jse_symbol_t *uart_close(void)
     uart_handle.handle = get_symbol_value_int(arg0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        be_error("uart", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_uart_finalize(uart_device);
     if (0 != ret) {
-        be_error("uart", "hal_uart_init fail!\n");
+        jse_error("hal_uart_init fail!\n");
         goto out;
     }
     board_disattach_item(MODULE_UART, &uart_handle);
@@ -300,21 +300,21 @@ static be_jse_symbol_t *uart_write(void)
     uart_handle.handle = get_symbol_value_int(arg0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        be_error("uart", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_string(arg1)) {
         goto out;
     }
     len  = symbol_str_len(arg1);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
     symbol_to_str(arg1, data, len);
     ret = hal_uart_send(uart_device, data, len, 0);
     if (-1 == ret) {
-        be_error("uart", "hal_uart_send fail!\n");
+        jse_error("hal_uart_send fail!\n");
         goto out;
     }
     result = 0;
@@ -322,7 +322,7 @@ out:
     symbol_unlock(arg0);
     symbol_unlock(arg1);
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
 
@@ -331,7 +331,7 @@ out:
 
 static be_jse_symbol_t *uart_read(void)
 {
-    be_error("uart", "todo......\n");
+    jse_error("todo......\n");
     return new_int_symbol(-1);
 }
 
@@ -358,11 +358,11 @@ static be_jse_symbol_t *uart_watch(void)
     uart_handle.handle = get_symbol_value_int(arg0);
     uart_device        = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
-        be_error("uart", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (uart_get_module(uart_handle.handle) > 0) {
-        be_error("uart", "uart_get_module fail!\n");
+        jse_error("uart_get_module fail!\n");
         goto out;
     }
 
@@ -371,21 +371,21 @@ static be_jse_symbol_t *uart_watch(void)
     }
     if (arg1 && symbol_is_string(arg1)) {
         len        = symbol_str_len(arg1);
-        start_flag = calloc(1, sizeof(uint8_t) * (len + 1));
+        start_flag = jse_calloc(1, sizeof(uint8_t) * (len + 1));
         if (NULL == start_flag) goto out;
         symbol_to_str(arg1, start_flag, len);
     }
 
     if (arg2 && symbol_is_string(arg2)) {
         len      = symbol_str_len(arg2);
-        end_flag = calloc(1, sizeof(uint8_t) * (len + 1));
+        end_flag = jse_calloc(1, sizeof(uint8_t) * (len + 1));
         if (NULL == end_flag) goto out;
         symbol_to_str(arg2, end_flag, len);
     }
     ret = uart_add_recv(uart_device, uart_handle.handle, arg3, start_flag,
                         end_flag);
     if (ret < 0) {
-        be_error("uart", "uart_add_recv fail!\n");
+        jse_error("uart_add_recv fail!\n");
         goto out;
     }
     result = 0;
@@ -398,11 +398,11 @@ out:
     if (0 != result) {
         symbol_unlock(arg3);
         if (NULL != start_flag) {
-            free(start_flag);
+            jse_free(start_flag);
             start_flag = NULL;
         }
         if (NULL != end_flag) {
-            free(end_flag);
+            jse_free(end_flag);
             end_flag = NULL;
         }
     }

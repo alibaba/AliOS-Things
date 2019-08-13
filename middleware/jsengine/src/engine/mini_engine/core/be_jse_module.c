@@ -75,7 +75,7 @@ void be_jse_module_load(const char *moduleName,
         objRef = name->first_child;
     }
 
-    /* printf("[%s][%s][%d] moduleName=%s objRef = %p \n", __FILE__,
+    /* jse_debug("[%s][%s][%d] moduleName=%s objRef = %p \n", __FILE__,
        __FUNCTION__, __LINE__, moduleName, objRef); */
 
     if (gModulesCount + 1 < BE_JSE_MAX_MODULES) {

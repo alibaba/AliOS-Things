@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "bone_engine_inl.h"
 #include "hal/system.h"
@@ -23,14 +23,14 @@ static void next_tick_cb(void *arg)
 static duk_ret_t native_process_nextTick(duk_context *ctx)
 {
     if (!duk_is_function(ctx, -1)) {
-        warn("is not function\n");
+        jse_warn("is not function\n");
         duk_push_string(ctx, "nextTick parameter is not function");
         return duk_throw(ctx);
     }
     duk_dup(ctx, -1);
     int ref = bone_engine_ref(ctx);
     if (be_jse_task_schedule_call(next_tick_cb, (void *)ref) < 0) {
-        warn("be_jse_task_schedule_call failed\n");
+        jse_warn("be_jse_task_schedule_call failed\n");
         bone_engine_unref(ctx, ref);
     }
     return 0;
