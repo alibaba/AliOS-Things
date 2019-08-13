@@ -10,8 +10,8 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 #include "iot_import.h"
 #include "iot_export.h"
