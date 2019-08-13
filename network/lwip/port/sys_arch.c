@@ -40,6 +40,8 @@
 #include "lwip/mem.h"
 #include "arch/sys_arch.h"
 
+#include "k_api.h"
+
 static aos_mutex_t sys_arch_mutex;
 
 //#define      NET_TASK_NUME 2
@@ -89,7 +91,54 @@ void sys_sem_signal(sys_sem_t *sem)
     aos_sem_signal(sem);
 }
 
+#ifdef LWIP_TASK_CANCEL
+u32_t sys_arch_sem_wait_ext(sys_sem_t *sem, u32_t timeout)
+{
+    u32_t begin_ms, end_ms, elapsed_ms;
+    u32_t ret;
 
+    if (sem == NULL)
+        return SYS_ARCH_TIMEOUT;
+
+    begin_ms = sys_now();
+
+    if( timeout != 0UL ) {
+        ret = aos_sem_wait(sem,timeout);
+        if(ret == 0) {
+            end_ms = sys_now();
+
+            elapsed_ms = end_ms - begin_ms;
+
+            ret = elapsed_ms;
+        } else {
+            ret = SYS_ARCH_TIMEOUT;
+        }
+    } else {
+        while( 1 ) {
+            ret = aos_sem_wait(sem, AOS_WAIT_FOREVER);
+
+            if(ret == 0) {
+                break;
+            }
+            if(ret == RHINO_TASK_CANCELED) {
+                return SYS_ARCH_TIMEOUT;
+            }
+        }
+
+        end_ms = sys_now();
+
+        elapsed_ms = end_ms - begin_ms;
+
+        if( elapsed_ms == 0UL ) {
+            elapsed_ms = 1UL;
+        }
+
+        ret = elapsed_ms;
+    }
+
+    return ret;
+}
+#endif /* LWIP_TASK_CANCEL */
 /*-----------------------------------------------------------------------------------*/
 /*
   Blocks the thread while waiting for the semaphore to be
@@ -300,7 +349,11 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
 
     /* The mutex lock is quick so we don't bother with the timeout
      stuff here. */
+#ifdef LWIP_TASK_CANCEL
+    sys_arch_sem_wait_ext(&mbox->mutex, 0);
+#else
     sys_arch_sem_wait(&mbox->mutex, 0);
+#endif
 
     while (mbox->first == mbox->last) {
         sys_sem_signal(&mbox->mutex);
@@ -309,15 +362,22 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
            must be prepared to timeout. */
         if (timeout != 0) {
             time_needed = sys_arch_sem_wait(&mbox->not_empty, timeout);
-
             if (time_needed == SYS_ARCH_TIMEOUT) {
                 return SYS_ARCH_TIMEOUT;
             }
         } else {
+#ifdef LWIP_TASK_CANCEL
+            sys_arch_sem_wait_ext(&mbox->not_empty, 0);
+#else
             sys_arch_sem_wait(&mbox->not_empty, 0);
+#endif
         }
 
+#ifdef LWIP_TASK_CANCEL
+        sys_arch_sem_wait_ext(&mbox->mutex, 0);
+#else
         sys_arch_sem_wait(&mbox->mutex, 0);
+#endif
     }
 
     if (msg != NULL) {
@@ -480,7 +540,13 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
             ret = SYS_ARCH_TIMEOUT;
         }
     } else {
-        while(aos_queue_recv(mb,AOS_WAIT_FOREVER,msg,(unsigned int*)&len) != 0);
+
+        do {
+            ret = aos_queue_recv(mb,AOS_WAIT_FOREVER,msg,(unsigned int*)&len);
+            if(ret == RHINO_TASK_CANCELED) {
+               return SYS_ARCH_TIMEOUT;
+            }
+        } while(ret != 0);
         end_ms = sys_now();
         elapsed_ms = end_ms - begin_ms;
 
