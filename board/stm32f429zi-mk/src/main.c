@@ -38,15 +38,15 @@ static void sys_init(void)
 {
     stm32_soc_init();
 
-    aos_cli_init();
-
     var_init();
 
     aos_components_init(&kinit);
 
     LOG("strart lwip_tcpip_init\r\n");
 
+#if (ENABLE_LWIP_INIT > 0)
     lwip_tcpip_init();
+#endif
 
     g_proc_var = 0x5a5a;
     LOG("kernel set g_proc_var to 0x%x\r\n", g_proc_var);
