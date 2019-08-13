@@ -9,7 +9,7 @@
 
 #include "aos/kernel.h"
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 
 
 static aos_mutex_t g_mutex1;

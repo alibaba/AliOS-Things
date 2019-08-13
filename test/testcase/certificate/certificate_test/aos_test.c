@@ -4,7 +4,7 @@
 
 #include <aos/kernel.h>
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 
 #include "cutest/cut.h"
 
