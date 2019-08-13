@@ -25,7 +25,11 @@ $(NAME)_SOURCES += config/k_config.c \
 $(NAME)_SOURCES += startup/startup_M480_gcc.c
 
 
+ifeq ($(COMPILER),armcc)
+GLOBAL_LDFLAGS += -L --scatter=board/numaker-iot-m487/M487.sct
+else
 GLOBAL_LDFLAGS  += -T board/numaker-iot-m487/M487.ld
+endif
 
 GLOBAL_INCLUDES += .    \
                    config/   \
@@ -57,7 +61,7 @@ endif
 
 
 ifeq ($(COMPILER),armcc)
-$(NAME)_LINK_FILES := startup_M480.o
+$(NAME)_LINK_FILES := startup/startup_M480_gcc.o
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_NUMAKER_M487
