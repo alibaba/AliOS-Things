@@ -7,11 +7,11 @@ ${NAME}_INCLUDES += $(JSE_SERVICES_DIR)/app-mgr
 # 判断是否需要编译 be-debuger
 ifeq ($(JSE_IDE_DEBUG),y)
 ${NAME}_SOURCES +=  \
-										$(JSE_SERVICES_DIR)/be-debuger/be-ssdp/be_ssdp.c \
-										$(JSE_SERVICES_DIR)/be-debuger/be-websocket/websocket.c
+										$(JSE_SERVICES_DIR)/be-debugger/be-ssdp/be_ssdp.c \
+										$(JSE_SERVICES_DIR)/be-debugger/be-websocket/websocket.c
 ${NAME}_INCLUDES += \
-										$(JSE_SERVICES_DIR)/be-debuger/be-ssdp \
-										$(JSE_SERVICES_DIR)/be-debuger/be-websocket
+										$(JSE_SERVICES_DIR)/be-debugger/be-ssdp \
+										$(JSE_SERVICES_DIR)/be-debugger/be-websocket
 APP_MGR_ENABLE := 1
 endif
 

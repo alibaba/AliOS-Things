@@ -27,7 +27,7 @@ static be_jse_symbol_t *wdg_start(void)
     }
     value_timeout = get_symbol_value_int(arg0);
     if (value_timeout < 0) {
-        be_error("wdg", "get_symbol_value_int error!\n");
+        jse_error("get_symbol_value_int error!\n");
         goto out;
     }
     handle->config.timeout = value_timeout;

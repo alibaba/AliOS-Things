@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "bone_engine_inl.h"
 #include "hal/system.h"
@@ -51,17 +51,16 @@ static duk_ret_t native_wifi_connect(duk_context *ctx)
 {
     int ret = -1;
 
-    debug("in\n");
     if (!duk_is_string(ctx, 0) || !duk_is_string(ctx, 1) ||
         !duk_is_function(ctx, 2)) {
-        warn("parameter must be string, string and function\n");
+        jse_warn("parameter must be string, string and function\n");
         goto out;
     }
     const char *ssid   = duk_get_string(ctx, 0);
     const char *passwd = duk_get_string(ctx, 1);
     ret = hal_system_wifi_connect((uint8_t *)ssid, (uint8_t *)passwd);
     if (ret) {
-        warn("hal_system_wifi_connect failed\n");
+        jse_warn("hal_system_wifi_connect failed\n");
         goto out;
     }
     duk_dup(ctx, 2);
@@ -69,7 +68,7 @@ static duk_ret_t native_wifi_connect(duk_context *ctx)
     ret           = be_osal_create_task("wifi_task", wifi_check_ip_task,
                               (void *)js_cb_ref, 4096, WIFI_TSK_PRIORITY, NULL);
     if (ret) {
-        warn("be_osal_create_task failed\n");
+        jse_warn("be_osal_create_task failed\n");
         bone_engine_unref(ctx, js_cb_ref);
     }
 out:

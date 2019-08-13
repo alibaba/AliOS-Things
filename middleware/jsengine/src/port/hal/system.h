@@ -18,7 +18,14 @@ extern "C" {
 #include <fcntl.h>
 
 #include "aos/vfs.h"
+#include "aos/kv.h"
+#include "netmgr.h"
 #include "network/network.h"
+
+#define jse_malloc aos_malloc
+#define jse_calloc aos_calloc
+#define jse_realloc aos_realloc
+#define jse_free aos_free
 
 #define BE_FS_ROOT_DIR "/spiffs/"
 
@@ -38,6 +45,9 @@ extern "C" {
 #define be_unlink aos_unlink
 #define be_mkdir aos_mkdir
 #define be_rmdir aos_rmdir
+
+#define JSE_MAX_SSID_SIZE MAX_SSID_SIZE
+#define JSE_MAX_PWD_SIZE MAX_PWD_SIZE
 
 /***************************************************
  * @fn			hal_system_get_platform_type

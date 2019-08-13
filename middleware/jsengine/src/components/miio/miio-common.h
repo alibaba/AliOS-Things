@@ -8,7 +8,6 @@
 #define TOKEN_SIZE 16
 #define KEY_IV_SIZE 16
 #define MIIO_SERVER_PORT 54321
-
 #define HELLO_PACKET_SIZE 32
 
 static const unsigned char hello_packet[] = {

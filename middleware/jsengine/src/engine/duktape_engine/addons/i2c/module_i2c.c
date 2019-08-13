@@ -4,10 +4,10 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_log.h"
+#include "hal/log.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 
 #define I2C_TIMEOUT (0xFFFFFF)
 
@@ -18,26 +18,25 @@ static duk_ret_t native_open(duk_context *ctx)
     i2c_handle.handle     = 0xFFFFFFFF;
     i2c_dev_t *i2c_device = NULL;
 
-    debug("in\n");
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
     const char *id = duk_get_string(ctx, 0);
     ret            = board_attach_item(MODULE_I2C, id, &i2c_handle);
     if (0 != ret) {
-        error("board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    debug("i2c handle:%u\n", i2c_handle.handle);
+    jse_debug("i2c handle:%u\n", i2c_handle.handle);
     i2c_device = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_i2c_init(i2c_device);
     if (0 != ret) {
-        error("hal_i2c_init fail!\n");
+        jse_error("hal_i2c_init fail!\n");
         goto out;
     }
 out:
@@ -56,20 +55,19 @@ static duk_ret_t native_close(duk_context *ctx)
     item_handle_t i2c_handle;
     i2c_dev_t *i2c_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     i2c_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_i2c_finalize(i2c_device);
     if (0 != ret) {
-        error("hal_i2c_finalize fail!\n");
+        jse_error("hal_i2c_finalize fail!\n");
         goto out;
     }
     board_disattach_item(MODULE_I2C, &i2c_handle);
@@ -89,30 +87,29 @@ static duk_ret_t native_write(duk_context *ctx)
     int arr_idx;
     int err = -1;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_array(ctx, 1)) {
-        warn("parameter must be handle and array\n");
+        jse_warn("parameter must be handle and array\n");
         goto out;
     }
 
     i2c_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
     arr_idx = duk_normalize_index(ctx, 1);
     len     = duk_get_length(ctx, arr_idx);
-    data    = (uint8_t *)malloc(sizeof(uint8_t) * len);
+    data    = (uint8_t *)jse_malloc(sizeof(uint8_t) * len);
     if (NULL == data) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         goto out;
     }
     for (i = 0; i < len; i++) {
         duk_get_prop_index(ctx, arr_idx, i);
         if (!duk_is_number(ctx, -1)) {
-            warn("data is not number, index: %d\n", i);
+            jse_warn("data is not number, index: %d\n", i);
             duk_pop(ctx);
             goto out;
         }
@@ -123,12 +120,12 @@ static duk_ret_t native_write(duk_context *ctx)
     ret = hal_i2c_master_send(i2c_device, i2c_device->config.dev_addr, data,
                               len, I2C_TIMEOUT);
     if (-1 == ret) {
-        error("hal_i2c_master_send fail!\n");
+        jse_error("hal_i2c_master_send fail!\n");
         goto out;
     }
     err = 0;
 out:
-    free(data);
+    jse_free(data);
     duk_push_int(ctx, err);
     return 1;
 }
@@ -142,27 +139,26 @@ static duk_ret_t native_read(duk_context *ctx)
     item_handle_t i2c_handle;
     i2c_dev_t *i2c_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_number(ctx, 1)) {
-        warn("parameter must be handle and number\n");
+        jse_warn("parameter must be handle and number\n");
         goto out;
     }
     i2c_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     len  = duk_get_int(ctx, 1);
-    data = (uint8_t *)malloc(sizeof(uint8_t) * len);
+    data = (uint8_t *)jse_malloc(sizeof(uint8_t) * len);
     if (NULL == data) {
-        error("allocate memory failed\n");
+        jse_error("allocate memory failed\n");
         goto out;
     }
     ret = hal_i2c_master_recv(i2c_device, i2c_device->config.dev_addr, data,
                               len, I2C_TIMEOUT);
     if (-1 == ret) {
-        error("hal_i2c_master_recv fail!\n");
+        jse_error("hal_i2c_master_recv fail!\n");
     }
 out:
     if (!ret) {
@@ -174,7 +170,7 @@ out:
     } else {
         duk_push_null(ctx);
     }
-    free(data);
+    jse_free(data);
     return 1;
 }
 

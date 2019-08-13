@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include <mbedtls/md5.h>
+#include "be_upgrader.h"
 #include "ota_download.h"
 #include "ota_socket.h"
 
@@ -43,7 +44,7 @@ void http_gethost_info(char *src, char **web, char **file, int *port) {
     int isHttps = 0;
 
     if (!src || strlen(src) == 0) {
-        printf("http_gethost_info parms error!\n");
+        jse_error("http_gethost_info parms error!\n");
         return;
     }
     *port = 0;
@@ -90,7 +91,7 @@ void http_gethost_info(char *src, char **web, char **file, int *port) {
 
 int ota_download(char *url, write_flash_cb_t func, char *md5) {
     if (!url || strlen(url) == 0 || func == NULL || md5 == NULL) {
-        printf("ota_download parms error!\n");
+        jse_error("ota_download parms error!\n");
         return OTA_DOWNLOAD_URL_FAIL;
     }
     int ret                               = 0;
@@ -117,7 +118,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
 
     sockfd = ota_socket_connect(port, host_addr);
     if (sockfd < 0) {
-        printf("ota_socket_connect error\n ");
+        jse_error("ota_socket_connect error\n ");
         ret = OTA_DOWNLOAD_SOCKET_FAIL;
         return ret;
     }
@@ -126,7 +127,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
     ota_get_last_MD5(last_md5);
 
     if (breakpoint && !strncmp(last_md5, md5, 32)) {
-        printf("----resume download,breakpoint=%d------", breakpoint);
+        jse_debug("----resume download,breakpoint=%d------", breakpoint);
         sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint,
         host_addr, port); ota_get_last_MD5_context(&g_ctx);
     } else {
@@ -143,17 +144,17 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
     send      = 0;
     totalsend = 0;
     nbytes    = strlen(http_buffer);
-    printf("send %s", http_buffer);
+    jse_debug("send %s", http_buffer);
     while (totalsend < nbytes) {
         send = ota_socket_send(sockfd, http_buffer + totalsend,
                                nbytes - totalsend);
         if (send == -1) {
-            printf("send error!%s\n ", strerror(errno));
+            jse_error("send error!%s\n ", strerror(errno));
             ret = OTA_DOWNLOAD_SEND_FAIL;
             goto DOWNLOAD_END;
         }
         totalsend += send;
-        printf("%d bytes send OK!\n ", totalsend);
+        jse_debug("%d bytes send OK!\n ", totalsend);
     }
 
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
@@ -161,12 +162,12 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
                                      OTA_BUFFER_MAX_SIZE - 1)) != 0) {
         /* aos_msleep(25);/* for slow-motion test */
         if (nbytes < 0) {
-            printf("ota_socket_recv nbytes < 0");
+            jse_debug("ota_socket_recv nbytes < 0");
             if (errno != EINTR) {
                 break;
             }
             if (ota_socket_check_conn(sockfd) < 0) {
-                printf("download system error %s", strerror(errno));
+                jse_error("download system error %s", strerror(errno));
                 break;
             } else {
                 continue;
@@ -189,7 +190,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
                 header_found = 1;
                 size         = nbytes - len;
                 /* memcpy(headbuf, http_buffer, len);
-                   printf("headbuf=%s",headbuf);
+                   jse_debug("headbuf=%s",headbuf);
                    MD5_Update(&g_ctx, (const uint8_t *)pos, size); */
                 mbedtls_md5_update(&g_ctx, (const uint8_t *)pos, size);
                 func(OTA_BUFFER_MAX_SIZE, (uint8_t *)pos, size, 0);
@@ -199,7 +200,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
         }
 
         size += nbytes;
-        /* printf("size nbytes %d, %d", size, nbytes);
+        /* jse_debug("size nbytes %d, %d", size, nbytes);
            MD5_Update(&g_ctx, (const uint8_t *) http_buffer, nbytes); */
         mbedtls_md5_update(&g_ctx, (const uint8_t *)http_buffer, nbytes);
         func(OTA_BUFFER_MAX_SIZE, (uint8_t *)http_buffer, nbytes, 0);
@@ -215,7 +216,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5) {
     }
 
     if (nbytes < 0) {
-        printf("download read error %s", strerror(errno));
+        jse_error("download read error %s", strerror(errno));
         /* save_state(size + breakpoint, &g_ctx); */
         ret = OTA_DOWNLOAD_FAILED;
     } else if (nbytes == 0) {
@@ -235,17 +236,17 @@ int check_md5(const char *buffer, const int32_t len) {
     uint8_t digest[16]  = {0};
     char digest_str[33] = {0};
     int i               = 0;
-    printf("digest=%s \n", buffer);
+    jse_debug("digest=%s \n", buffer);
     /* MD5_Final((uint8_t *)digest, &g_ctx); */
     mbedtls_md5_finish(&g_ctx, digest);
 
     for (; i < 16; i++) {
         snprintf(digest_str + i * 2, 2 + 1, "%02X", digest[i]);
     }
-    printf("url md5=%s", buffer);
-    printf("digestMD5=%s", digest_str);
+    jse_debug("url md5=%s", buffer);
+    jse_debug("digestMD5=%s", digest_str);
     if (strncmp(digest_str, buffer, 32)) {
-        printf("update_packet md5 check FAIL!");
+        jse_debug("update_packet md5 check FAIL!");
         return -1;
     }
     return 0;

@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "be_utils.h"
 #include <stdio.h>
 
-static const char *TAG = "be_utils";
+#include "be_utils.h"
+#include "hal/log.h"
 
 unsigned char hex2num(unsigned char ch)
 {

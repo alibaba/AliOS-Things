@@ -3,7 +3,7 @@
  */
 
 /* #define LOG_NDEBUG 0 */
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "bone_engine_inl.h"
 #include "hal/system.h"
@@ -30,19 +30,19 @@ static int check_fs_is_support()
              "testfile.txt");
     fd = be_open(testfile, O_RDWR | O_CREAT | O_TRUNC);
     if (fd <= 0) {
-        warn("check_fs_is_support open fail\n");
+        jse_warn("check_fs_is_support open fail\n");
         return 0;
     }
 
     ret = be_write(fd, string, strlen(string));
     if (ret <= 0) {
-        warn("check_fs_is_support write fail\n");
+        jse_warn("check_fs_is_support write fail\n");
         return 0;
     }
 
     ret = be_unlink(testfile);
     if (ret) {
-        warn("check_fs_is_support sync fail\n");
+        jse_warn("check_fs_is_support sync fail\n");
         return 0;
     }
 
@@ -83,30 +83,30 @@ static duk_ret_t native_fs_read(duk_context *ctx)
     char *buf = NULL;
 
     if (!duk_is_string(ctx, 0)) {
-        warn("invalid parameter\n");
+        jse_warn("invalid parameter\n");
         goto out;
     }
 
     path = duk_get_string(ctx, 0);
     fd   = be_open(path, O_RDONLY);
     if (fd < 0) {
-        warn("be_open failed, fd: %d\n", fd);
+        jse_warn("be_open failed, fd: %d\n", fd);
         goto out;
     }
 
     size = be_lseek(fd, 0, SEEK_END);
     be_lseek(fd, 0, SEEK_SET);
 
-    buf = (char *)malloc(size + 1);
+    buf = (char *)jse_malloc(size + 1);
     if (!buf) {
-        warn("malloc failed\n");
+        jse_warn("malloc failed\n");
         goto out;
     }
 
     len = be_read(fd, buf, size);
     if (len > 0) {
         buf[len] = 0;
-        debug("read data: %s\n", buf);
+        jse_debug("read data: %s\n", buf);
     }
     be_close(fd);
 
@@ -115,7 +115,7 @@ out:
         duk_push_string(ctx, buf);
     else
         duk_push_string(ctx, "");
-    free(buf);
+    jse_free(buf);
     return 1;
 }
 
@@ -140,7 +140,7 @@ static duk_ret_t native_fs_write(duk_context *ctx)
 
     if (!duk_is_string(ctx, 0) || !duk_is_string(ctx, 1) ||
         !duk_is_string(ctx, 2)) {
-        warn("invalid parameter\n");
+        jse_warn("invalid parameter\n");
         goto out;
     }
 
@@ -148,19 +148,19 @@ static duk_ret_t native_fs_write(duk_context *ctx)
     mode = duk_get_string(ctx, 2);
     fd   = be_open(path, convert_fs_mode_to_oflag(mode));
     if (fd < 0) {
-        error("be_osal_open fail\n");
+        jse_error("be_osal_open fail\n");
         goto out;
     }
 
     str    = duk_get_lstring(ctx, 1, &str_len);
     nwrite = be_write(fd, str, str_len);
     if (nwrite <= 0) {
-        error("be_osal_write fail\n");
+        jse_error("be_osal_write fail\n");
         be_close(fd);
         goto out;
     }
 
-    debug("FS.write(%s,%s,%s);\n", path, str, mode);
+    jse_debug("FS.write(%s,%s,%s);\n", path, str, mode);
 
     be_sync(fd);
     be_close(fd);
@@ -184,7 +184,7 @@ static duk_ret_t native_fs_delete(duk_context *ctx)
     const char *path;
 
     if (!duk_is_string(ctx, 0)) {
-        warn("invalid parameter\n");
+        jse_warn("invalid parameter\n");
         goto out;
     }
 

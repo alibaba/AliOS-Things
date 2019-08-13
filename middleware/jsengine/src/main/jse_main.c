@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "board_mgr.h"
 
@@ -25,8 +25,6 @@
 #ifdef JSE_IDE_DEBUG
 #include "be_service.h"
 #endif
-
-#define TAG "jsengine-main"
 
 #define APP_PACKAGE_FILE_NAME BE_FS_ROOT_DIR "/package.json"
 #define MAX_FILE_NAME_LEN 127
@@ -46,20 +44,6 @@ void bone_console_log_enable()
 void bone_console_log_disable()
 {
     g_console_log_enable = 0;
-}
-
-/**
- *
- * JSEngine stdout callback function
- *
- */
-static void be_log_cb(const char *tag, int level, const char *msg, int len)
-{
-    if (tag)
-        printf("[%s] %s\n", tag, msg);
-    else
-        printf("%s\n", msg);
-    fflush(stdout);
 }
 
 /**
@@ -84,19 +68,19 @@ char *search_js_app_main_entry()
      */
     if ((js_app_fd = be_open(js_app_file_name, O_RDONLY)) > 0) {
         be_close(js_app_fd);
-        be_debug(TAG, "find the default file :%s\n", js_app_file_name);
+        jse_debug("find the default file :%s\n", js_app_file_name);
         return js_app_file_name;
     }
 
     /* cannot find the index.js int current dir */
     if ((json_fd = be_open(APP_PACKAGE_FILE_NAME, O_RDONLY)) < 0) {
-        be_error(TAG, "cannot find the file :%s\n", APP_PACKAGE_FILE_NAME);
+        jse_error("cannot find the file :%s\n", APP_PACKAGE_FILE_NAME);
         return NULL;
     }
 
     /* read package config file to json_data buffer */
     file_len  = be_lseek(json_fd, 0, SEEK_END);
-    json_data = calloc(1, sizeof(char) * (file_len + 1));
+    json_data = jse_calloc(1, sizeof(char) * (file_len + 1));
     if (NULL == json_data) {
         be_close(json_fd);
         json_fd = -1;
@@ -109,8 +93,8 @@ char *search_js_app_main_entry()
     /* parser the package json data */
     root = cJSON_Parse(json_data);
     if (NULL == root) {
-        free(json_data);
-        be_error(TAG, "cJSON_Parse failed \n");
+        jse_free(json_data);
+        jse_error("cJSON_Parse failed \n");
         return NULL;
     }
 
@@ -122,9 +106,9 @@ char *search_js_app_main_entry()
                  BE_FS_ROOT_DIR, item->valuestring);
         if ((js_app_fd = be_open(js_app_file_name, O_RDONLY)) > 0) {
             be_close(js_app_fd);
-            free(json_data);
+            jse_free(json_data);
             cJSON_Delete(root);
-            be_debug(TAG, "find test index  %s \n", js_app_file_name);
+            jse_debug("find test index  %s \n", js_app_file_name);
             return js_app_file_name;
         }
     }
@@ -134,13 +118,13 @@ char *search_js_app_main_entry()
     if (NULL != item && cJSON_String == item->type &&
         strstr(item->valuestring, ".js")) {
         strncpy(js_app_file_name, item->valuestring, MAX_FILE_NAME_LEN);
-        free(json_data);
+        jse_free(json_data);
         cJSON_Delete(root);
-        printf("find main index  %s \n", js_app_file_name);
+        jse_debug("find main index  %s \n", js_app_file_name);
         return js_app_file_name;
     }
 
-    free(json_data);
+    jse_free(json_data);
     cJSON_Delete(root);
 
     return NULL;
@@ -150,8 +134,6 @@ void be_jse_task_main_entrance()
 {
     uint8_t ssdp_started = 0;
     char localip[32];
-
-    printf("%s %d  ~~~~ Enter ~~~ \r\n", __FUNCTION__, __LINE__);
 
     /* JSE task init */
     jsengine_task_init();
@@ -164,7 +146,7 @@ void be_jse_task_main_entrance()
     if (filename) {
         jsengine_eval_file(filename);
     } else {
-        be_error(TAG, "Run Js With JSEngine JS apps failed\n");
+        jse_error("Run Js With JSEngine JS apps failed\n");
     }
 
     while (1) {
@@ -178,16 +160,11 @@ void be_jse_task_main_entrance()
         }
 #endif
     }
-
-    printf("%s %d  ~~~~ Byte ~~~ \r\n", __FUNCTION__, __LINE__);
 }
 
 void jsengine_main(void)
 {
-    printf("jsengine start...\r\n");
-
-    /* redirect JSEngine stdout */
-    jsengine_set_log_cb(be_log_cb);
+    jse_debug("jsengine start...\r\n");
 
     hal_system_kv_init();
 
@@ -196,7 +173,7 @@ void jsengine_main(void)
 #endif
 
     if (0 != hal_system_fs_init()) {
-        be_debug(TAG, "fs init failed\r\n");
+        jse_debug("fs init failed\r\n");
         return;
     }
 
@@ -209,7 +186,7 @@ void jsengine_main(void)
 #endif
 
     if (0 != board_mgr_init(BE_FS_ROOT_DIR "/board.json")) {
-        be_debug(TAG, "read " BE_FS_ROOT_DIR "/board.json error\r\n");
+        jse_error("read " BE_FS_ROOT_DIR "/board.json error\r\n");
         return;
     }
 

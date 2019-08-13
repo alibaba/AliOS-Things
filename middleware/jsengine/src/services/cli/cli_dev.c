@@ -14,12 +14,9 @@
 #include "websocket.h"
 #endif
 #include <netmgr.h>
-#include "be_log.h"
 #include "board_info.h"
+#include "hal/log.h"
 
-#define TAG "cli_dev"
-#define MAX_SSID_SIZE (32 - 1)
-#define MAX_PWD_SIZE (64 - 1)
 /* assembel information finished then write \n to indicates finished serialport
    data */
 #define BE_CLI_REPLY "#be-cli-reply#"
@@ -38,18 +35,18 @@ static void handle_devdmesg_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     /* aos_cli_stop(); */
     /* following code is serial port reply msg */
-    be_cli_printf(BE_DEBUGER_DMESG_CMD_REPLY);
+    be_cli_printf("%s", BE_DEBUGER_DMESG_CMD_REPLY);
 }
 
 static void handle_devreboot_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_cli_printf(BE_DEBUGER_REBOOT_CMD_REPLY);
+    be_cli_printf("%s", BE_DEBUGER_REBOOT_CMD_REPLY);
     hal_system_reboot();
 }
 
 static void handle_devrename_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_cli_printf(BE_DEBUGER_RENAME_CMD_REPLY);
+    be_cli_printf("%s", BE_DEBUGER_RENAME_CMD_REPLY);
     be_jse_task_schedule_call(sub_call_rename, argv[1]);
 }
 
@@ -59,7 +56,8 @@ static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *ssid     = argv[1];
     char *password = argv[2];
 
-    if (strlen(ssid) > MAX_SSID_SIZE || strlen(password) > MAX_PWD_SIZE) {
+    if (strlen(ssid) > JSE_MAX_SSID_SIZE ||
+        strlen(password) > JSE_MAX_PWD_SIZE) {
 #ifdef JSE_IDE_DEBUG
         bone_websocket_send_frame("/device/wifi_reply", 201, "Bad Request");
 #endif
@@ -74,8 +72,7 @@ static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv)
 
     err = hal_system_wifi_connect(myssid, mypasswd);
 
-    be_debug(TAG, "hal_system_wifi_connect %s %s return %d", myssid, mypasswd,
-             err);
+    jse_debug("hal_system_wifi_connect %s %s return %d", myssid, mypasswd, err);
 #ifdef JSE_IDE_DEBUG
     if (err == 0) {
         bone_websocket_send_frame("/device/wifi_reply", 200, "success");
@@ -134,7 +131,7 @@ static void get_ifconfig(void *arg)
 
     strcat(tmp, BE_CLI_REPLY_SUCCESS);
     /* send reply */
-    be_cli_printf(tmp);
+    be_cli_printf("%s", tmp);
 }
 
 static void handle_devifconfig_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -151,7 +148,7 @@ static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *devSecret = NULL;
 
     if (argc < 4) {
-        be_cli_printf(BE_CLI_REPLY_FAILED);
+        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
         return;
     }
     devKey    = argv[1];
@@ -159,7 +156,7 @@ static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
     devSecret = argv[3];
 
     board_setDeviceInfo(devKey, devName, devSecret);
-    be_cli_printf(BE_CLI_REPLY_SUCCESS);
+    be_cli_printf("%s", BE_CLI_REPLY_SUCCESS);
 }
 
 static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -171,7 +168,7 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
             goto fail;
         }
 
-        p_param = calloc(1, sizeof(be_upgd_param_t));
+        p_param = jse_calloc(1, sizeof(be_upgd_param_t));
         if (p_param == NULL) {
             goto fail;
         }
@@ -184,7 +181,7 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
             goto fail;
         }
 
-        p_param->url = calloc(1, strlen(argv[2]) + 1);
+        p_param->url = jse_calloc(1, strlen(argv[2]) + 1);
         if (p_param->url == NULL) {
             goto fail;
         }
@@ -200,10 +197,9 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
         return;
 
     fail:
-        printf(
-            "error: updateimg [kernel/spiffs] [http://x.x.x.x:port/x.bin] "
+        jse_debug("error: updateimg [kernel/spiffs] [http://x.x.x.x:port/x.bin] "
             "[md5]\r\n");
-        be_cli_printf(BE_CLI_REPLY_FAILED);
+        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
 #endif
 
 #ifdef JSE_IDE_DEBUG
@@ -217,15 +213,15 @@ static void handle_getversion_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *p_resp_cmd = NULL;
     int buf_len      = 256;
 
-    p_resp_cmd = calloc(1, buf_len + 1);
+    p_resp_cmd = jse_calloc(1, buf_len + 1);
     if (p_resp_cmd == NULL) {
-        be_cli_printf(BE_CLI_REPLY_FAILED);
+        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
         return;
     }
 #ifdef BE_OS_AOS
     snprintf(p_resp_cmd, buf_len, "%sVersion:%s\r\n", BE_CLI_REPLY,
              BONE_VERSION);
-    be_cli_printf(p_resp_cmd);
+    be_cli_printf("%s", p_resp_cmd);
     memset(p_resp_cmd, 0, buf_len);
     snprintf(p_resp_cmd, buf_len, "%sVersionInfo:%s\r\n%s", BE_CLI_REPLY,
              VERSION_DESCRIPTION, BE_CLI_REPLY_SUCCESS);
@@ -234,14 +230,14 @@ static void handle_getversion_cmd(char *pwbuf, int blen, int argc, char **argv)
 #ifdef ESP_PLATFORM
     snprintf(p_resp_cmd, buf_len, "%sVersion:%s\r\n", BE_CLI_REPLY,
              "esp32devkitc-sdk-1.0.0819.dkp");
-    be_cli_printf(p_resp_cmd);
+    be_cli_printf("%s", p_resp_cmd);
     memset(p_resp_cmd, 0, buf_len);
     snprintf(p_resp_cmd, buf_len, "%sVersionInfo:%s\r\n%s", BE_CLI_REPLY, "",
              BE_CLI_REPLY_SUCCESS);
 #endif
 
-    be_cli_printf(p_resp_cmd);
-    free(p_resp_cmd);
+    be_cli_printf("%s", p_resp_cmd);
+    jse_free(p_resp_cmd);
     return;
 }
 

@@ -41,10 +41,10 @@
 #include "app_mgr.h"
 #include "be_jse_export.h"
 #include "be_jse_task.h"
-#include "be_log.h"
 #include "be_ssdp.h"
 #include "board_info.h"
 #include "cli.h"
+#include "hal/log.h"
 
 #if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
 
@@ -53,7 +53,6 @@ static void* websocketMutex = NULL;
 #define BWS_READ_SIZE 1024
 #define BWS_LOG_TAG "PAL-WS"
 #define BWS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-#define MODULE_TAG ("websocket")
 
 #define BWS_REQ                     \
     "GET %s HTTP/1.1\r\n"           \
@@ -82,7 +81,7 @@ static int websocket_getVersion()
     char* p_resp_cmd = NULL;
     int err_code     = 200;
 
-    p_resp_cmd = calloc(1, 128);
+    p_resp_cmd = jse_calloc(1, 128);
     if (p_resp_cmd == NULL) {
         snprintf(p_resp_cmd, 128, "getVersion Fail\r\n");
         err_code = 201;
@@ -95,14 +94,14 @@ static int websocket_getVersion()
 do_exit:
     bone_websocket_send_frame("/device/getVersion_reply", err_code, p_resp_cmd);
 
-    free(p_resp_cmd);
+    jse_free(p_resp_cmd);
     return 0;
 }
 
 static void websocket_eval_js(void* arg)
 {
     jsengine_start(arg);
-    free(arg);
+    jse_free(arg);
 }
 
 static int random_string(unsigned char* buf, int len)
@@ -240,7 +239,7 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
         sprintf(frame_4hex, "0x%02X %02X", frame->frame_data[0],
                 frame->frame_data[1]);
     }
-    printf("build frame: %s\r\n", frame_4hex);
+    jse_debug("build frame: %s\r\n", frame_4hex);
 #endif
     return 0;
 }
@@ -256,13 +255,12 @@ static void bone_websocket_timeout(void* arg)
         return;
     }
 
-    be_debug(MODULE_TAG, "websocket pingTimeout (%d) client=%p", pingTimeout,
-             client);
-    be_debug(MODULE_TAG, "websocket close,  client=%p", client);
+    jse_debug("websocket pingTimeout (%d) client=%p", pingTimeout, client);
+    jse_debug("websocket close,  client=%p", client);
 
     bone_websocket_deinit(client);
 
-    be_debug(MODULE_TAG, "websocket reconnect ...");
+    jse_debug("websocket reconnect ...");
     be_debuger_websocket_reconnect();
 }
 
@@ -273,7 +271,7 @@ static void ping_timer_cb(void* arg)
         return;
     }
 
-    be_debug(MODULE_TAG, "websocket 发送 ping packet, client=%p", client);
+    jse_debug("websocket 发送 ping packet, client=%p", client);
 
     int ret;
     unsigned char payload[2]     = "2";
@@ -284,8 +282,8 @@ static void ping_timer_cb(void* arg)
 
     ret = bone_websocket_send_raw(client, frame_buf, frame_size);
 
-    be_debug(MODULE_TAG, "bone_websocket_send_raw return %d, frame_size = %d",
-             ret, frame_size);
+    jse_debug("bone_websocket_send_raw return %d, frame_size = %d", ret,
+              frame_size);
 
     if (ret > 0) {
         /* be_osal_post_delayed_action(pingInterval, ping_timer_cb, client);
@@ -325,13 +323,13 @@ static int bone_websocket_send_cmd(bone_websocket_client_t* client, char* cmd,
 
     ret = bone_websocket_send_raw(client, frame_buf, frame_size);
 
-    be_debug(MODULE_TAG, "bone_websocket_send_raw return %d, frame_size = %d",
-             ret, frame_size);
+    jse_debug("bone_websocket_send_raw return %d, frame_size = %d", ret,
+              frame_size);
 
     /* for(int i; i<frame_size; i++){
-           printf("%0x ", frame_buf[i]);
+           jse_debug("%0x ", frame_buf[i]);
        }
-       printf("\n"); */
+       jse_debug("\n"); */
 
     return ret;
 }
@@ -355,7 +353,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
        Packet类型 CONNECT 0, DISCONNECT 1, EVENT 2, ACK 3, ERROR 4, BINARY_EVENT
        5, BINARY_ACK 6 */
 
-    printf("%d, msg_len = %d, strCmd = %s \n", __LINE__, msg_len, strCmd);
+    jse_debug("%d, msg_len = %d, strCmd = %s \n", __LINE__, msg_len, strCmd);
 
     if (msg_len >= 2) {
         if (msg[0] == '4') {
@@ -390,7 +388,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
         }
     }
 
-    printf("%d, strCmd = %s\n", __LINE__, strCmd);
+    jse_debug("%d, strCmd = %s\n", __LINE__, strCmd);
 
     if (strCmd == NULL) return 0;
 
@@ -401,17 +399,17 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
 
     root = cJSON_Parse(strCmd);
 
-    printf("%d, root = %p\n", __LINE__, root);
+    jse_debug("%d, root = %p\n", __LINE__, root);
 
     if (root == NULL) return 0;
 
     if (cJSON_IsArray(root)) {
         /* 是数组 */
         count = cJSON_GetArraySize(root);
-        printf("count = %d\n", count);
+        jse_debug("count = %d\n", count);
         for (i = 0; i < count; i++) {
             item = cJSON_GetArrayItem(root, i);
-            printf("item type is %d\n", item->type);
+            jse_debug("item type is %d\n", item->type);
 
             switch (item->type) {
                 case cJSON_String:
@@ -422,7 +420,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
                     break;
             }
 
-            /* printf("%s\n", item->valuestring); */
+            /* jse_debug("%s\n", item->valuestring); */
         }
     } else if (cJSON_IsObject(root)) {
         /* 是对象 */
@@ -444,24 +442,24 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
                                                client); */
             }
 
-            printf("pingInterval = %d \n", pingInterval);
+            jse_debug("pingInterval = %d \n", pingInterval);
         }
 
         item = cJSON_GetObjectItem(root, "pingTimeout");
         if (cJSON_IsNumber(item)) {
             pingTimeout = item->valueint;
-            printf("pingTimeout = %d \n", pingTimeout);
+            jse_debug("pingTimeout = %d \n", pingTimeout);
         }
     }
 
     if (argc > 0) {
         for (i = 0; i < argc; i++) {
-            be_debug(MODULE_TAG, "args[%d] = %s ", i, args[i]);
+            jse_debug("args[%d] = %s ", i, args[i]);
         }
 
         if (strcmp("/device/disconnect", args[0]) == 0) {
             /* 断开连接 websocket */
-            be_debug(MODULE_TAG, "处理 %s ", args[0]);
+            jse_debug("处理 %s ", args[0]);
             bone_websocket_send_frame("/device/disconnect_reply", 200,
                                       "success");
 #ifdef LINUXOSX /* simulator auto exit(0) */
@@ -471,7 +469,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
 
         } else if (strcmp("/device/reboot", args[0]) == 0) {
             /* 重启 */
-            be_debug(MODULE_TAG, "处理 %s ", args[0]);
+            jse_debug("处理 %s ", args[0]);
             bone_websocket_send_frame("/device/reboot_reply", 200, "success");
             client->state = BWS_STATE_CLOSING;
             /* 延时 200ms */
@@ -495,7 +493,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
 #ifdef LINUXOSX
             char* url = strdup(args[2]);
             upgrade_image_param_t* p_info =
-                calloc(1, sizeof(upgrade_image_param_t));
+                jse_calloc(1, sizeof(upgrade_image_param_t));
             p_info->url       = url;
             p_info->file_size = atoi(args[4]);
             p_info->type      = atoi(args[1]);
@@ -516,7 +514,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             websocket_getVersion();
         } else if (strcmp("/device/bshell", args[0]) == 0) {
             if (args[1]) {
-                char* str = calloc(1, strlen(args[1]) + 1);
+                char* str = jse_calloc(1, strlen(args[1]) + 1);
                 strcpy(str, args[1]);
                 be_jse_task_schedule_call(websocket_eval_js, str);
                 bone_websocket_send_frame("/device/bshell_reply", 200,
@@ -536,20 +534,20 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
 static void bone_websocket_process_frame(bone_websocket_client_t* client,
                                          bone_websocket_frame_t* frame_ptr)
 {
-    be_debug(MODULE_TAG, "frame.type:0x%x", frame_ptr->type);
+    jse_debug("frame.type:0x%x", frame_ptr->type);
 
     if (frame_ptr->type == BWS_CLOSE) {
-        be_debug(MODULE_TAG, "closing");
+        jse_debug("closing");
         client->state = BWS_STATE_CLOSING;
     } else if (frame_ptr->type == BWS_PING) {
-        be_debug(MODULE_TAG, "ping frame");
+        jse_debug("ping frame");
     } else if (frame_ptr->type == BWS_PONG) {
-        be_debug(MODULE_TAG, "pong frame");
+        jse_debug("pong frame");
     } else if (frame_ptr->type == BWS_TXT_FRAME) {
-        /* be_debug(MODULE_TAG, "text frame"); */
+        /* jse_debug("text frame"); */
 
-        be_debug(MODULE_TAG, "调用 bone_websocket_on_command 处理 msg=%s",
-                 frame_ptr->payload);
+        jse_debug("调用 bone_websocket_on_command 处理 msg=%s",
+                  frame_ptr->payload);
 
         bone_websocket_on_command(client, frame_ptr->payload,
                                   frame_ptr->payload_len);
@@ -559,7 +557,7 @@ static void bone_websocket_process_frame(bone_websocket_client_t* client,
                                frame_ptr->payload_len);
     }
 
-    if (frame_ptr->payload) free(frame_ptr->payload);
+    if (frame_ptr->payload) jse_free(frame_ptr->payload);
 }
 
 static void on_read(int fd, void* arg)
@@ -587,10 +585,10 @@ static void on_read(int fd, void* arg)
                                          client); */
 
         data[data_len] = 0;
-        be_debug(MODULE_TAG, "\n分析websocket 数据, client = %p", client);
-        be_debug(MODULE_TAG, "------recv: %d bytes------", data_len);
+        jse_debug("\n分析websocket 数据, client = %p", client);
+        jse_debug("------recv: %d bytes------", data_len);
         if (data_len >= 3)
-            printf("0x%x 0x%x 0x%x \n", data[0], data[1], data[2]);
+            jse_debug("0x%x 0x%x 0x%x \n", data[0], data[1], data[2]);
 
         /* 不处理握手信息，仅处理正式的command信息 */
 
@@ -602,7 +600,7 @@ static void on_read(int fd, void* arg)
                     headers_get(data, "Sec-WebSocket-Accept: ", accept_key,
                                 sizeof(accept_key));
 
-                be_debug(MODULE_TAG, "accept_key = %s", accept_key);
+                jse_debug("accept_key = %s", accept_key);
 
                 if (succ == 0 && match_shake_key(client->shake_key,
                                                  (char*)accept_key) == 0) {
@@ -611,8 +609,7 @@ static void on_read(int fd, void* arg)
                     bone_websocket_send_cmd(client, "2probe", true);
 
                     /* 处理定期ping */
-                    be_debug(MODULE_TAG,
-                             "websocket 处理 ping action, client=%p", client);
+                    jse_debug("websocket 处理 ping action, client=%p", client);
                     client->ping_tsk_handle = be_jse_task_timer_action(
                         pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
@@ -621,7 +618,7 @@ static void on_read(int fd, void* arg)
                     client->tmp_length = 0;
                     client->frame_size = 0;
                 } else {
-                    be_debug(MODULE_TAG, "出错 !!!");
+                    jse_debug("出错 !!!");
                 }
             } else {
                 /* 数据不够，暂存起来 */
@@ -676,21 +673,21 @@ static void on_read(int fd, void* arg)
             if (succ > 0) {
                 if (succ > client->frame_buf_length) {
                     /* 重新分配内存 */
-                    printf("frame buf is large \n");
+                    jse_debug("frame buf is large \n");
                 }
-                printf("缺少数据, %d %d \n", succ, left);
+                jse_debug("缺少数据, %d %d \n", succ, left);
             }
         }
     }
 
     /* data_len == -1 会产生多次调用bone_websocket_deinit */
-    printf("%s %d data_len = %d state = %d \n", __FUNCTION__, __LINE__,
-           data_len, client->state);
+    jse_debug("%s %d data_len = %d state = %d \n", __FUNCTION__, __LINE__,
+              data_len, client->state);
     if (data_len == -1 || (client->state == BWS_STATE_CLOSING)) {
         client->state = BWS_STATE_CLOSED;
         if (client->on_close) client->on_close(client);
-        printf("%s %d data_len = %d state = %d \n", __FUNCTION__, __LINE__,
-               data_len, client->state);
+        jse_debug("%s %d data_len = %d state = %d \n", __FUNCTION__, __LINE__,
+                  data_len, client->state);
         bone_websocket_deinit(client);
     }
 }
@@ -707,7 +704,7 @@ int bone_websocket_init(bone_websocket_client_t* client)
     client->magic            = BONE_WEBSOCKET_MAGIC;
     client->state            = BWS_STATE_CONNECTING;
     client->frame_buf_length = 1024;
-    client->frame_buf        = calloc(1, client->frame_buf_length);
+    client->frame_buf        = jse_calloc(1, client->frame_buf_length);
     request_shake_key((unsigned char*)client->shake_key,
                       sizeof(client->shake_key));
     client->fd = -1;
@@ -718,10 +715,10 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
 {
     if (client == NULL) return -1;
     gWebsocketClient = NULL;
-    /* 避免 double free */
+    /* invoid double free */
     if (client->magic != BONE_WEBSOCKET_MAGIC) return -2;
 
-    be_debug(MODULE_TAG, "call bone_websocket_deinit, 0x%x ", client->magic);
+    jse_debug("call bone_websocket_deinit, 0x%x ", client->magic);
 
     client->tsk_done = 1;
     client->magic    = 0;
@@ -729,7 +726,7 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
     void* tsk_handle = client->tsk_handle;
 
     /* 必须清除 */
-    be_debug(MODULE_TAG, "终止 websocket ping,  client = %p ", client);
+    jse_debug("终止 websocket ping,  client = %p ", client);
 
     /* be_osal_cancel_delayed_action(pingInterval, ping_timer_cb, client);
        be_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
@@ -741,13 +738,13 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
     client->timeout_tsk_handle = NULL;
 
     if (client->fd != -1) close(client->fd);
-    be_debug(MODULE_TAG, "关闭 websocket, client = %p", client);
+    jse_debug("关闭 websocket, client = %p", client);
 
-    free(client->frame_buf);
-    free(client);
+    jse_free(client->frame_buf);
+    jse_free(client);
 
     /* 结束websocket task, 必须放在最后 */
-    be_debug(MODULE_TAG, "tsk_handle=%p", tsk_handle);
+    jse_debug("tsk_handle=%p", tsk_handle);
     be_osal_delete_task(tsk_handle);
 
     return 0;
@@ -779,11 +776,11 @@ static void websocket_read(void* arg)
         } else if (result < 0) {
             break;
         } else {
-            /* be_debug(TAG, "select timeout"); */
+            /* jse_debug("select timeout"); */
         }
     }
 
-    printf("[%s][%d] ~~ Byte ~~ \n", __FUNCTION__, __LINE__);
+    jse_debug("[%s][%d] ~~ Byte ~~ \n", __FUNCTION__, __LINE__);
 }
 
 int bone_websocket_connect(bone_websocket_client_t* client)
@@ -795,13 +792,13 @@ int bone_websocket_connect(bone_websocket_client_t* client)
     remote_addr.sin_port        = htons(client->port);
     remote_addr.sin_addr.s_addr = inet_addr(client->ip);
 
-    printf("%s client->ip = %s \n", __FUNCTION__, client->ip);
+    jse_debug("%s client->ip = %s \n", __FUNCTION__, client->ip);
 
     int fd = socket(PF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-        be_debug(MODULE_TAG, "websocket socket error: fd=%d", fd);
-        free(client->frame_buf);
-        free(client);
+        jse_debug("websocket socket error: fd=%d", fd);
+        jse_free(client->frame_buf);
+        jse_free(client);
         return -1;
     }
 
@@ -811,20 +808,19 @@ int bone_websocket_connect(bone_websocket_client_t* client)
     timeout.tv_usec = 500 * 1000;
     if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout,
                    sizeof(timeout)) < 0) {
-        be_debug(MODULE_TAG, "setsockopt failed\n");
+        jse_debug("setsockopt failed\n");
         close(fd);
-        free(client->frame_buf);
-        free(client);
+        jse_free(client->frame_buf);
+        jse_free(client);
         return -2;
     }
 
     succ = connect(fd, (struct sockaddr*)&remote_addr, sizeof(remote_addr));
     if (succ != 0) {
-        be_debug(MODULE_TAG,
-                 "websocket connect error: fd=%d ret = %d client->ip=%s", fd,
-                 succ, client->ip);
+        jse_debug("websocket connect error: fd=%d ret = %d client->ip=%s", fd,
+                  succ, client->ip);
         close(fd);
-        free(client);
+        jse_free(client);
         return -2;
     }
 
@@ -837,10 +833,9 @@ int bone_websocket_connect(bone_websocket_client_t* client)
         bone_websocket_send_raw(client, (unsigned char*)buffer, strlen(buffer));
     if (send_len < 0) {
         close(fd);
-        free(client->frame_buf);
-        free(client);
-        be_debug(MODULE_TAG, "websocket send error: fd=%d, send_len=%d", fd,
-                 send_len);
+        jse_free(client->frame_buf);
+        jse_free(client);
+        jse_debug("websocket send error: fd=%d, send_len=%d", fd, send_len);
         return -4;
     }
 
@@ -851,7 +846,7 @@ int bone_websocket_connect(bone_websocket_client_t* client)
 
     if (websocketMutex == NULL) websocketMutex = be_osal_new_mutex();
 
-    be_debug(MODULE_TAG, "bone_websocket_connect 连接成功 ");
+    jse_debug("bone_websocket_connect 连接成功 ");
     gWebsocketClient = client;
 
     return succ;
@@ -873,7 +868,7 @@ int bone_websocket_send_raw(bone_websocket_client_t* client,
 
 /*
  *
- * 在这个函数中不能调用be_debug/be_warn/be_info/be_error,
+ * 在这个函数中不能调用jse_debug/jse_warn/jse_info/jse_error,
  * 避免出现有可能存在的循环调用
  *
  */
@@ -899,7 +894,7 @@ int bone_websocket_send_frame(char* topic, int level, char* msg)
     cJSON_AddItemToArray(root, cJSON_CreateString(msg));
 
     payloadBuf_len = 32 + strlen(topic) + strlen(msg);
-    payloadBuf     = calloc(1, payloadBuf_len);
+    payloadBuf     = jse_calloc(1, payloadBuf_len);
     if (payloadBuf == NULL) return 0;
 
     payloadBuf[0] = '4';
@@ -910,18 +905,18 @@ int bone_websocket_send_frame(char* topic, int level, char* msg)
     cJSON_Delete(root);
 
     if (!ret) {
-        printf("cJSON_PrintPreallocated 出错\n");
-        free(payloadBuf);
+        jse_error("cJSON_PrintPreallocated error\n");
+        jse_free(payloadBuf);
         return 0;
     }
 
     int frame_buf_size = strlen(payloadBuf) + 32;
     uint8_t* frame_buf;
 
-    frame_buf = calloc(1, frame_buf_size);
+    frame_buf = jse_calloc(1, frame_buf_size);
     if (frame_buf == NULL) {
-        printf("bone_websocket_send_frame calloc failed \n");
-        free(payloadBuf);
+        jse_error("bone_websocket_send_frame calloc failed \n");
+        jse_free(payloadBuf);
         return 0;
     }
 
@@ -929,13 +924,13 @@ int bone_websocket_send_frame(char* topic, int level, char* msg)
         bone_websocket_build_frame(payloadBuf, strlen(payloadBuf), false,
                                    BWS_TXT_FRAME, frame_buf, frame_buf_size);
 
-    printf("[%s][%d] topic = %s msg = %s \n", __FUNCTION__, __LINE__, topic,
-           msg);
+    jse_debug("[%s][%d] topic = %s msg = %s \n", __FUNCTION__, __LINE__, topic,
+              msg);
 
     ret = bone_websocket_send_raw(gWebsocketClient, frame_buf, frame_size);
 
-    free(payloadBuf);
-    free(frame_buf);
+    jse_free(payloadBuf);
+    jse_free(frame_buf);
 
     return ret;
 }
@@ -971,7 +966,7 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
     } else {
         sprintf(frame_4hex, "0x%02X %02X", frame_data[0], frame_data[1]);
     }
-    printf("parse frame: %s\r\n", frame_4hex);
+    jse_debug("parse frame: %s\r\n", frame_4hex);
 #endif
 
     frame->type = frame_data[0];
@@ -1031,7 +1026,7 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
             return (int)frame->frame_total_len;
         }
 
-        frame->payload = (unsigned char*)calloc(1, frame->payload_len + 1);
+        frame->payload = (unsigned char*)jse_calloc(1, frame->payload_len + 1);
         if (mask) {
             unsigned char temp1, temp2;
             for (int i = 0, count = 0; i < frame->payload_len; i++, count++) {

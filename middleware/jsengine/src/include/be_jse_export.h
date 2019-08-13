@@ -50,15 +50,6 @@ void jsengine_save_dirname(const char* name);
 
 /**
  *
- * setting LOG stdout redirect function
- *
- */
-typedef void (*BE_JSE_FUNCTION_LOG_CB)(const char* tag, int level,
-                                       const char* msg, int len);
-void jsengine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb);
-
-/**
- *
  * JSEngine task initialization
  *
  */

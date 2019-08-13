@@ -119,7 +119,7 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
                 }
             }
         }
-        gpio_dev_t *new_gpio = calloc(1, sizeof(*new_gpio));
+        gpio_dev_t *new_gpio = jse_calloc(1, sizeof(*new_gpio));
         if (NULL == new_gpio) {
             continue;
         }
@@ -132,11 +132,11 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
             continue;
         }
         if (NULL != gpio_id) {
-            free(gpio_id);
+            jse_free(gpio_id);
             gpio_id = NULL;
         }
         if (NULL != new_gpio) {
-            free(new_gpio);
+            jse_free(new_gpio);
             new_gpio = NULL;
         }
     }
@@ -226,7 +226,7 @@ static int8_t board_parse_uart(cJSON *uart, char *id)
                 config->mode = mode;
             }
         }
-        uart_dev_t *new_uart = calloc(1, sizeof(*new_uart));
+        uart_dev_t *new_uart = jse_calloc(1, sizeof(*new_uart));
         if (NULL == new_uart) {
             continue;
         }
@@ -238,11 +238,11 @@ static int8_t board_parse_uart(cJSON *uart, char *id)
             continue;
         }
         if (NULL != uart_id) {
-            free(uart_id);
+            jse_free(uart_id);
             uart_id = NULL;
         }
         if (NULL != new_uart) {
-            free(new_uart);
+            jse_free(new_uart);
             new_uart = NULL;
         }
     }
@@ -308,7 +308,7 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id)
             config->dev_addr = temp->valueint;
         }
 
-        i2c_dev_t *new_i2c = calloc(1, sizeof(*new_i2c));
+        i2c_dev_t *new_i2c = jse_calloc(1, sizeof(*new_i2c));
         if (NULL == new_i2c) {
             continue;
         }
@@ -320,11 +320,11 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id)
             continue;
         }
         if (NULL != i2c_id) {
-            free(i2c_id);
+            jse_free(i2c_id);
             i2c_id = NULL;
         }
         if (NULL != new_i2c) {
-            free(new_i2c);
+            jse_free(new_i2c);
             new_i2c = NULL;
         }
     }
@@ -379,7 +379,7 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id)
         if (NULL != temp && cJSON_Number == temp->type) {
             config->duty_cycle = temp->valueint / 100.0;
         }
-        pwm_dev_t *new_pwm = calloc(1, sizeof(*new_pwm));
+        pwm_dev_t *new_pwm = jse_calloc(1, sizeof(*new_pwm));
         if (NULL == new_pwm) {
             continue;
         }
@@ -392,11 +392,11 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id)
         }
 
         if (NULL != pwm_id) {
-            free(pwm_id);
+            jse_free(pwm_id);
             pwm_id = NULL;
         }
         if (NULL != new_pwm) {
-            free(new_pwm);
+            jse_free(new_pwm);
             new_pwm = NULL;
         }
     }
@@ -453,7 +453,7 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
             device.chan = temp->valueint;
         } */
 
-        adc_dev_t *new_adc = calloc(1, sizeof(*new_adc));
+        adc_dev_t *new_adc = jse_calloc(1, sizeof(*new_adc));
         if (NULL == new_adc) {
             continue;
         }
@@ -466,11 +466,11 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
         }
 
         if (NULL != adc_id) {
-            free(adc_id);
+            jse_free(adc_id);
             adc_id = NULL;
         }
         if (NULL != new_adc) {
-            free(new_adc);
+            jse_free(new_adc);
             new_adc = NULL;
         }
     }
@@ -518,7 +518,7 @@ static int8_t board_parse_dac(cJSON *dac, char *id)
         if (NULL != temp && cJSON_Number == temp->type) {
             /* config->output_voltage = temp->valueint; */
         }
-        dac_dev_t *new_dac = calloc(1, sizeof(*new_dac));
+        dac_dev_t *new_dac = jse_calloc(1, sizeof(*new_dac));
         if (NULL == new_dac) {
             continue;
         }
@@ -531,11 +531,11 @@ static int8_t board_parse_dac(cJSON *dac, char *id)
         }
 
         if (NULL != dac_id) {
-            free(dac_id);
+            jse_free(dac_id);
             dac_id = NULL;
         }
         if (NULL != new_dac) {
-            free(new_dac);
+            jse_free(new_dac);
             new_dac = NULL;
         }
     }
@@ -556,7 +556,7 @@ static char *board_get_json_buff(const char *json_path)
         return (NULL);
     }
     len       = be_lseek(json_fd, 0, SEEK_END);
-    json_data = calloc(1, sizeof(char) * (len + 1));
+    json_data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == json_data) {
         be_close(json_fd);
         json_fd = -1;
@@ -667,12 +667,12 @@ static int8_t board_add_new_item(addon_module_m module, char *name_id,
     if (NULL != board_get_items(module, NULL, name_id)) {
         return (-1);
     }
-    board_item_t *new_item = calloc(1, sizeof(*new_item));
+    board_item_t *new_item = jse_calloc(1, sizeof(*new_item));
     if (NULL == new_item) {
         return (-1);
     }
-    void *addr = realloc(mgr_handle->item,
-                         sizeof(board_item_t *) * (mgr_handle->item_size + 1));
+    void *addr = jse_realloc(
+        mgr_handle->item, sizeof(board_item_t *) * (mgr_handle->item_size + 1));
     if (NULL == addr) {
         goto out;
     }
@@ -689,7 +689,7 @@ static int8_t board_add_new_item(addon_module_m module, char *name_id,
     return (0);
 out:
     if (NULL != new_item) {
-        free(new_item);
+        jse_free(new_item);
         new_item = NULL;
     }
     return (-1);
@@ -778,7 +778,7 @@ int8_t board_mgr_init(const char *json_path)
         return (-1);
     }
     ret = board_parse_json_buff(json);
-    free(json);
+    jse_free(json);
     json = NULL;
 
     return (ret);
@@ -786,7 +786,7 @@ int8_t board_mgr_init(const char *json_path)
 
 int8_t board_load_drivers(const char *driver)
 {
-    char *p          = driver;
+    char *p          = (char *)driver;
     char *index      = NULL;
     char *json       = NULL;
     char *new_driver = NULL;
@@ -813,7 +813,7 @@ int8_t board_load_drivers(const char *driver)
     if (index <= p) {
         return (-1);
     }
-    new_driver = calloc(1, sizeof(char) * (index - driver + 16));
+    new_driver = jse_calloc(1, sizeof(char) * (index - driver + 16));
     if (NULL == new_driver) {
         return (-1);
     }
@@ -821,7 +821,8 @@ int8_t board_load_drivers(const char *driver)
     memmove(new_driver + (index - driver + 1), DRIVER_NAME,
             strlen(DRIVER_NAME));
 
-    printf("%s%d, new_driver = %s \n", __FUNCTION__, __LINE__, new_driver);
+    jse_debug("%s%d, new_driver = %s \n", __FUNCTION__, __LINE__,
+              new_driver);
 
     json = board_get_json_buff(new_driver);
     if (NULL == json) {
@@ -830,11 +831,11 @@ int8_t board_load_drivers(const char *driver)
     ret = board_parse_json_buff(json);
 out:
     if (NULL != new_driver) {
-        free(new_driver);
+        jse_free(new_driver);
         new_driver = NULL;
     }
     if (NULL != json) {
-        free(json);
+        jse_free(json);
         json = NULL;
     }
     return (ret);

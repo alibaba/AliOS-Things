@@ -10,7 +10,7 @@
 #include <string.h>
 #include "be_common.h"
 #include "be_jse_export.h"
-#include "be_log.h"
+#include "hal/log.h"
 
 #include "be_port_osal.h"
 #include "cli_ext.h"
