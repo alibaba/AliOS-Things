@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <aos/kernel.h>
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 #include <k_api.h>
 #include "test_fw.h"
 
