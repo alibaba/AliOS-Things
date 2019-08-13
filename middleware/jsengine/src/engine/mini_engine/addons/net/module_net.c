@@ -13,8 +13,6 @@
 #include "be_port_osal.h"
 #include "hal/system.h"
 
-#define JS_NET_TAG "NET"
-
 typedef enum { MUTEX_UNLOCKED = 0, MUTEX_LOCKED = 1 } net_mutex_t;
 
 typedef struct {
@@ -80,7 +78,7 @@ static int parse_net_option_addr(const char *addr,
     } else if (strncmp(addr, "raw", strlen("raw")) == 0) {
         p_sckt_param->proto = SOCK_RAW;
     } else {
-        be_error(JS_NET_TAG, "invalid net connection protocol type");
+        jse_error("invalid net connection protocol type");
         return -1;
     }
 
@@ -135,18 +133,18 @@ void js_cb_net_onconnect(void *param)
 {
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     if (pdata->socketid > 0) {
         async->func      = (be_jse_symbol_t *)pdata->onconnect_cb;
         async->params[0] = new_int_symbol(pdata->socketid);
-        be_debug(JS_NET_TAG, "NET.connect ok ,socketid = %d", pdata->socketid);
+        jse_debug("NET.connect ok ,socketid = %d", pdata->socketid);
     } else {
         async->func      = (be_jse_symbol_t *)pdata->onerror_cb;
         async->params[0] = new_str_symbol("connect error");
-        be_debug(JS_NET_TAG, "NET.connect error");
+        jse_debug("NET.connect error");
     }
 
     INC_SYMBL_REF(async->func); /* decrease symble reference when task exit */
@@ -158,13 +156,13 @@ void js_cb_net_ondata(void *param)
 {
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->param_count = 2;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->func      = (be_jse_symbol_t *)pdata->ondata_cb;
     async->params[0] = new_int_symbol(pdata->socketid);
-    printf("js_cb_net_ondata get data=%s\n\r", pdata->data_recv);
+    jse_debug("js_cb_net_ondata get data=%s\n\r", pdata->data_recv);
     async->params[1] = new_str_symbol(pdata->data_recv);
 
     INC_SYMBL_REF(async->func); /* decrease symble reference when task exit */
@@ -178,9 +176,9 @@ void js_cb_net_onerror(void *param)
 {
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
 
     async->func      = (be_jse_symbol_t *)pdata->onerror_cb;
@@ -195,9 +193,9 @@ void js_cb_net_onclose(void *param)
 {
     js_cb_net_param_t *pdata = (js_cb_net_param_t *)param;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
 
     async->func      = (be_jse_symbol_t *)pdata->onclose_cb;
@@ -217,7 +215,7 @@ static void task_net_connect_fun(void *arg)
     net_options_t *msg          = (net_options_t *)arg;
 
     memset(&sckt_param, 0, sizeof(net_sckt_param_t));
-    js_cb_net_param_t *pdata = calloc(1, sizeof(js_cb_net_param_t));
+    js_cb_net_param_t *pdata = jse_calloc(1, sizeof(js_cb_net_param_t));
     if (!pdata) {
         goto done;
     }
@@ -238,7 +236,7 @@ static void task_net_connect_fun(void *arg)
     be_jse_task_schedule_call(js_cb_net_onconnect, pdata);
 
     if (socketid > 0) {
-        buffer             = calloc(1, NET_SOCKET_RECV_BUFF_LEN);
+        buffer             = jse_calloc(1, NET_SOCKET_RECV_BUFF_LEN);
         int bytes_received = 0;
         while (1) {
             if (g_net_recv_mutex == MUTEX_LOCKED) {
@@ -246,11 +244,11 @@ static void task_net_connect_fun(void *arg)
                 be_osal_delay(30);
                 continue;
             }
-            be_debug(JS_NET_TAG, "ready to recv...socketid=%d", socketid);
+            jse_debug("ready to recv...socketid=%d", socketid);
             bytes_received =
                 recv(socketid, buffer, NET_SOCKET_RECV_BUFF_LEN, 0);
             if (bytes_received > 0) { /* data received */
-                be_debug(JS_NET_TAG, "recved...=%s", buffer);
+                jse_debug("recved...=%s", buffer);
                 pdata->data_recv = buffer;
                 g_net_recv_mutex = MUTEX_LOCKED;
                 be_jse_task_schedule_call(js_cb_net_ondata, pdata);
@@ -258,10 +256,10 @@ static void task_net_connect_fun(void *arg)
                 if (errno == EINTR) {
                     continue;
                 }
-                be_warn(JS_NET_TAG, "recv...error=%d", bytes_received);
+                jse_warn("recv...error=%d", bytes_received);
                 break;
             } else {
-                be_warn(JS_NET_TAG, "server closed=%d", bytes_received);
+                jse_warn("server closed=%d", bytes_received);
                 break;
             }
         }
@@ -280,10 +278,10 @@ done:
     if (msg->ondata_cb) symbol_unlock((be_jse_symbol_t *)msg->ondata_cb);
     if (msg->onerror_cb) symbol_unlock((be_jse_symbol_t *)msg->onerror_cb);
     if (msg->onconn_cb) symbol_unlock((be_jse_symbol_t *)msg->onconn_cb);
-    free(msg->addr);
-    free(msg);
-    free(pdata);
-    free(buffer);
+    jse_free(msg->addr);
+    jse_free(msg);
+    jse_free(pdata);
+    jse_free(buffer);
 
     be_osal_delete_task(NULL);
 }
@@ -304,11 +302,11 @@ static void task_net_send_fun(void *arg)
         if (bytes_sent <= 0) break;
         size   = size - bytes_sent;
         buffer = buffer + bytes_sent;
-        printf("task_net_send_fun sent: %d", bytes_sent);
+        jse_debug("task_net_send_fun sent: %d", bytes_sent);
     }
 
-    free(msg->p_data);
-    free(msg);
+    jse_free(msg->p_data);
+    jse_free(msg);
     be_osal_delete_task(NULL);
 }
 
@@ -332,7 +330,7 @@ static be_jse_symbol_t *module_net_connect()
 
     be_jse_handle_function(0, &arg0, NULL, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_object(arg0)) {
-        be_error(JS_NET_TAG, "module_net_connect param invalid");
+        jse_error("module_net_connect param invalid");
         goto done;
     }
 
@@ -349,12 +347,12 @@ static be_jse_symbol_t *module_net_connect()
         lookup_named_child_symbol(get_symbol_node_id(arg0), "onerror", false));
 
     if (addrNetSymbol == NULL || onConnNetSymbol == NULL) {
-        be_error(JS_NET_TAG, "module_net_connect param invalid");
+        jse_error("module_net_connect param invalid");
         goto done;
     }
 
-    net_options_t *p_net_options = calloc(1, sizeof(net_options_t));
-    p_net_options->addr          = calloc(1, symbol_str_len(addrNetSymbol) + 1);
+    net_options_t *p_net_options = jse_calloc(1, sizeof(net_options_t));
+    p_net_options->addr          = jse_calloc(1, symbol_str_len(addrNetSymbol) + 1);
 
     if (!p_net_options || p_net_options->addr == NULL) goto done;
 
@@ -406,26 +404,26 @@ static be_jse_symbol_t *module_net_send()
     be_jse_handle_function(0, &arg0, &arg1, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0) || (arg1 == NULL) ||
         !symbol_is_string(arg1)) {
-        be_error(JS_NET_TAG, "module_net_connect param invalid");
+        jse_error("module_net_connect param invalid");
         goto done;
     }
 
     sock_id = get_symbol_value_int(arg0);
-    data    = calloc(1, symbol_str_len(arg1) + 1);
+    data    = jse_calloc(1, symbol_str_len(arg1) + 1);
     if (!data) goto done;
 
     symbol_to_str(arg1, data, symbol_str_len(arg1));
-    be_debug(JS_NET_TAG, "NET.send(%d,%s)", sock_id, data);
+    jse_debug("NET.send(%d,%s)", sock_id, data);
 
-    p_send_data          = calloc(1, sizeof(send_data_t));
+    p_send_data          = jse_calloc(1, sizeof(send_data_t));
     p_send_data->p_data  = data;
     p_send_data->sock_id = sock_id;
 
     ret = be_osal_create_task("net_connect", task_net_send_fun, p_send_data,
                               4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret < 0) {
-        free(p_send_data);
-        free(p_send_data->p_data);
+        jse_free(p_send_data);
+        jse_free(p_send_data->p_data);
     }
 
 done:
@@ -451,13 +449,13 @@ static be_jse_symbol_t *module_net_close()
 
     be_jse_handle_function(0, &arg0, NULL, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0)) {
-        be_error(JS_NET_TAG, "module_net_close param invalid");
+        jse_error("module_net_close param invalid");
         goto done;
     }
 
     sock_id = get_symbol_value_int(arg0);
     if (sock_id > 0) {
-        be_warn(JS_NET_TAG, "socket id[%d] has been closed", sock_id);
+        jse_warn("socket id[%d] has been closed", sock_id);
         ret = close(sock_id);
     }
 
@@ -469,7 +467,7 @@ done:
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                          be_jse_symbol_t *var, const char *name)
 {
-    be_debug(JS_NET_TAG, "%s Enter: name=%s", __FUNCTION__, name);
+    jse_debug("%s Enter: name=%s", __FUNCTION__, name);
 
     if (strcmp(name, "connect") == 0) return module_net_connect();
     if (strcmp(name, "send") == 0) return module_net_send();
@@ -480,5 +478,5 @@ static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
 
 void module_net_register(void)
 {
-    be_jse_module_load(JS_NET_TAG, module_handle_cb);
+    be_jse_module_load("NET", module_handle_cb);
 }

@@ -6,8 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 #include "be_jse_task.h"
-#include "be_log.h"
 #include "be_port_osal.h"
+#include "hal/log.h"
+#include "hal/system.h"
 
 #ifdef BE_OS_AOS
 #if defined(WITH_LWIP)
@@ -41,9 +42,6 @@
 
 #include "websocket.h"
 
-#define MODULE_TAG ("be_debuger")
-#define CLI_REPLY printf
-
 static char pLocalAddress[16] = {0};
 
 #if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
@@ -53,22 +51,22 @@ static char pLocalAddress[16] = {0};
 
 void connect_webserver(void* ip)
 {
-    printf("connect_webserver ip=%s\r\n", (char*)ip);
+    jse_debug("connect_webserver ip=%s\r\n", (char*)ip);
 
     if (NULL == ip) {
         return;
     }
 
     if (bone_websocket_getInstance() != NULL) {
-        free(ip);
+        jse_free(ip);
         return;
     }
 
     bone_websocket_client_t* client;
 
-    client = calloc(1, sizeof(bone_websocket_client_t));
+    client = jse_calloc(1, sizeof(bone_websocket_client_t));
     if (client == NULL) {
-        free(ip);
+        jse_free(ip);
         return;
     }
 
@@ -78,10 +76,10 @@ void connect_webserver(void* ip)
     client->port = WEB_SERVER_PORT;
     strcpy(client->path, WEB_SERVER_PATH);
 
-    printf("%s ip = %s \n", __FUNCTION__, (char*)ip);
+    jse_debug("%s ip = %s \n", __FUNCTION__, (char*)ip);
     bone_websocket_connect(client);
 
-    free(ip);
+    jse_free(ip);
     ip = NULL;
 }
 
@@ -110,20 +108,19 @@ static int socket_add_ipv4_multicast_group(int sock, bool assign_source_if)
     /* Configure multicast address to listen to */
     err = inet_aton(MULTICAST_IPV4_ADDR, &imreq.imr_multiaddr.s_addr);
     if (err != 1) {
-        be_debug(MODULE_TAG,
-                 "Configured IPV4 multicast address '%s' is invalid.",
-                 MULTICAST_IPV4_ADDR);
+        jse_debug("Configured IPV4 multicast address '%s' is invalid.",
+                  MULTICAST_IPV4_ADDR);
         goto err;
     }
-    be_debug(MODULE_TAG, "Configured IPV4 Multicast address %s",
-             inet_ntoa(imreq.imr_multiaddr));
+    jse_debug("Configured IPV4 Multicast address %s",
+              inet_ntoa(imreq.imr_multiaddr));
 
 #if defined(WITH_LWIP)
     if (!IP_MULTICAST(ntohl(imreq.imr_multiaddr.s_addr))) {
-        be_debug(MODULE_TAG,
-                 "Configured IPV4 multicast address '%s' is not a valid "
-                 "multicast address. This will probably not work.",
-                 MULTICAST_IPV4_ADDR);
+        jse_debug(
+            "Configured IPV4 multicast address '%s' is not a valid "
+            "multicast address. This will probably not work.",
+            MULTICAST_IPV4_ADDR);
     }
 #endif
 
@@ -133,8 +130,7 @@ static int socket_add_ipv4_multicast_group(int sock, bool assign_source_if)
         err = setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, &iaddr,
                          sizeof(struct in_addr));
         if (err < 0) {
-            be_debug(MODULE_TAG, "Failed to set IP_MULTICAST_IF. Error %d",
-                     errno);
+            jse_debug("Failed to set IP_MULTICAST_IF. Error %d", errno);
             goto err;
         }
     }
@@ -142,12 +138,11 @@ static int socket_add_ipv4_multicast_group(int sock, bool assign_source_if)
     err = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &imreq,
                      sizeof(struct ip_mreq));
     if (err < 0) {
-        be_debug(MODULE_TAG, "Failed to set IP_ADD_MEMBERSHIP. Error %d",
-                 errno);
+        jse_debug("Failed to set IP_ADD_MEMBERSHIP. Error %d", errno);
         goto err;
     }
 
-    printf("%s %d\n\r", __FUNCTION__, __LINE__);
+    jse_debug("%s %d\n\r", __FUNCTION__, __LINE__);
 err:
     return err;
 }
@@ -160,18 +155,18 @@ static int create_multicast_ipv4_socket()
 
     sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (sock < 0) {
-        be_debug(MODULE_TAG, "Failed to create socket. Error %d", errno);
+        jse_debug("Failed to create socket. Error %d", errno);
         return -1;
     }
 
-    be_debug(MODULE_TAG, "create_multicast_ipv4_socket =  %d", sock);
+    jse_debug("create_multicast_ipv4_socket =  %d", sock);
     /* Bind the socket to any address */
     saddr.sin_family      = PF_INET;
     saddr.sin_port        = htons(BE_DEBUGER_SSDP_PORT);
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     err = bind(sock, (struct sockaddr*)&saddr, sizeof(struct sockaddr_in));
     if (err < 0) {
-        be_debug(MODULE_TAG, "Failed to bind socket. Error %d", errno);
+        jse_debug("Failed to bind socket. Error %d", errno);
         goto err;
     }
 
@@ -179,7 +174,7 @@ static int create_multicast_ipv4_socket()
     uint8_t ttl = 5;
     setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(uint8_t));
     if (err < 0) {
-        be_debug(MODULE_TAG, "Failed to set IP_MULTICAST_TTL. Error %d", errno);
+        jse_debug("Failed to set IP_MULTICAST_TTL. Error %d", errno);
         goto err;
     }
 
@@ -190,8 +185,7 @@ static int create_multicast_ipv4_socket()
     err = setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback_val,
                      sizeof(uint8_t));
     if (err < 0) {
-        be_debug(MODULE_TAG, "Failed to set IP_MULTICAST_LOOP. Error %d",
-                 errno);
+        jse_debug("Failed to set IP_MULTICAST_LOOP. Error %d", errno);
         goto err;
     }
 #endif
@@ -220,7 +214,7 @@ static void on_ssdp_recv(int sock, void* arg)
     int len = recvfrom(sock, recvbuf, sizeof(recvbuf), 0,
                        (struct sockaddr*)&raddr, &socklen);
     if (len < 0) {
-        be_debug(MODULE_TAG, "multicast recvfrom failed: errno %d", errno);
+        jse_debug("multicast recvfrom failed: errno %d", errno);
         return;
     }
 
@@ -234,7 +228,7 @@ static void on_ssdp_recv(int sock, void* arg)
                 char* st_ip = urn_prefix + urn_prefix_len + 1;
                 if (pLocalAddress != NULL &&
                     strncmp(st_ip, pLocalAddress, strlen(pLocalAddress)) == 0) {
-                    char* remote_address = (char*)calloc(1, 16);
+                    char* remote_address = (char*)jse_calloc(1, 16);
 #ifdef BE_OS_AOS
                     inet_ntoa_r(((struct sockaddr_in*)&raddr)->sin_addr.s_addr,
                                 remote_address, 16);
@@ -242,8 +236,7 @@ static void on_ssdp_recv(int sock, void* arg)
                     inet_ntop(AF_INET, &((struct sockaddr_in*)&raddr)->sin_addr,
                               remote_address, 16);
 #endif
-                    be_debug(MODULE_TAG, "prepare connect: %s\n",
-                             remote_address);
+                    jse_debug("prepare connect: %s\n", remote_address);
                     strcpy(target_ip, remote_address);
                     hal_system_kv_set("WS_ADDRESS", remote_address,
                                       strlen(remote_address), 1);
@@ -255,7 +248,7 @@ static void on_ssdp_recv(int sock, void* arg)
             const char* reply = "HTTP/1.1 200 OK\r\n\r\n";
             sendto(sock, reply, strlen(reply), 0,
                    (const struct sockaddr*)&raddr, socklen);
-            be_debug(MODULE_TAG, "send m-search reply \n");
+            jse_debug("send m-search reply \n");
         }
     }
 }
@@ -286,7 +279,7 @@ void ssdp_read(void* arg)
         } else if (result < 0) {
             break;
         } else {
-            /* be_debug("ssdp", "select timeout%d\n\r",sockfd); */
+            /* jse_debug("select timeout%d\n\r",sockfd); */
         }
     }
 }
@@ -306,17 +299,17 @@ int be_debuger_ssdp_start(char* localAddress)
 
 #if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
     ssdp_sock = create_multicast_ipv4_socket();
-    printf("ssdp_sock=%d\n\r", ssdp_sock);
+    jse_debug("ssdp_sock=%d\n\r", ssdp_sock);
     be_osal_create_task("ssdpTsk", ssdp_read, NULL, 1024 * 4, SSDP_TSK_PRIORITY,
                         NULL);
 
-    char* remote_address = (char*)calloc(1, 16);
+    char* remote_address = (char*)jse_calloc(1, 16);
     uint32_t buffer_len  = 16;
     hal_system_kv_get("WS_ADDRESS", remote_address, &buffer_len);
 
     if (strlen(remote_address) != 0) {
-        be_debug(MODULE_TAG, "be_debuger_ssdp_start remote_address: %s \n",
-                 remote_address);
+        jse_debug("be_debuger_ssdp_start remote_address: %s \n",
+                  remote_address);
         connect_webserver(remote_address);
     }
 #endif

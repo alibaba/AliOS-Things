@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+
 typedef enum addon_module {
 
     MODULE_GPIO = 0x1324,
