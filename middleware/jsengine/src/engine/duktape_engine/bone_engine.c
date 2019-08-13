@@ -3,7 +3,7 @@
  */
 
 #include <assert.h>
-#include "be_log.h"
+#include "hal/log.h"
 #include "bone_engine_inl.h"
 #include "cJSON.h"
 #include "hal/system.h"
@@ -44,7 +44,7 @@ static char *resolve_path(const char *parent, const char *module_id)
                 if (last_slash)
                     last_slash[0] = '\0';
                 else {
-                    warn("resolve path fail\n");
+                    jse_warn("resolve path fail\n");
                     break;
                 }
             }
@@ -55,7 +55,7 @@ static char *resolve_path(const char *parent, const char *module_id)
 
     struct stat sb;
     int ret = be_stat(base, &sb);
-    debug("base: %s, ret: %d\n", base, ret);
+    jse_debug("base: %s, ret: %d\n", base, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         strcpy(resolved_path, base);
         return resolved_path;
@@ -63,29 +63,29 @@ static char *resolve_path(const char *parent, const char *module_id)
 
     snprintf(resolved_path, sizeof(resolved_path), "%s.js", base);
     ret = be_stat(resolved_path, &sb);
-    debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
+    jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         return resolved_path;
     }
 
     snprintf(resolved_path, sizeof(resolved_path), "%s/index.js", base);
     ret = be_stat(resolved_path, &sb);
-    debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
+    jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         return resolved_path;
     }
 
     snprintf(resolved_path, sizeof(resolved_path), "%s/package.json", base);
     ret = be_stat(resolved_path, &sb);
-    debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
+    jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (ret || !S_ISREG(sb.st_mode)) {
-        warn("file %s not exist\n", resolved_path);
+        jse_warn("file %s not exist\n", resolved_path);
         return NULL;
     }
     /* parse package.json */
-    char *pkg_data = malloc(sb.st_size + 1);
+    char *pkg_data = jse_malloc(sb.st_size + 1);
     if (!pkg_data) {
-        warn("cannot alloc memory to read package.json for module: %s",
+        jse_warn("cannot alloc memory to read package.json for module: %s",
              module_id);
         return NULL;
     }
@@ -97,25 +97,25 @@ static char *resolve_path(const char *parent, const char *module_id)
 
     cJSON *json      = cJSON_Parse(pkg_data);
     cJSON *item_main = cJSON_GetObjectItemCaseSensitive(json, "main");
-    debug("item_main: %p\n", item_main);
+    jse_debug("item_main: %p\n", item_main);
     if (cJSON_IsString(item_main) && item_main->valuestring) {
         snprintf(resolved_path, sizeof(resolved_path), "%s/%s", base,
                  item_main->valuestring);
         if (!be_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
             cJSON_Delete(json);
-            free(pkg_data);
+            jse_free(pkg_data);
             return resolved_path;
         }
         snprintf(resolved_path, sizeof(resolved_path), "%s/%s.js", base,
                  item_main->valuestring);
         if (!be_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
             cJSON_Delete(json);
-            free(pkg_data);
+            jse_free(pkg_data);
             return resolved_path;
         }
     }
     cJSON_Delete(json);
-    free(pkg_data);
+    jse_free(pkg_data);
     return NULL;
 }
 
@@ -127,13 +127,13 @@ static duk_ret_t cb_resolve_module(duk_context *ctx)
     module_id = duk_require_string(ctx, 0);
     parent_id = duk_require_string(ctx, 1);
 
-    debug("module_id: %s, parent_id: %s\n", module_id, parent_id);
+    jse_debug("module_id: %s, parent_id: %s\n", module_id, parent_id);
 
     char *path = resolve_path(parent_id, module_id);
     if (!path) return duk_type_error(ctx, "cannot find module: %s", module_id);
 
     duk_push_string(ctx, path);
-    debug("resolve_cb: id:'%s', parent-id:'%s', resolve-to:'%s'\n", module_id,
+    jse_debug("resolve_cb: id:'%s', parent-id:'%s', resolve-to:'%s'\n", module_id,
           parent_id, duk_get_string(ctx, -1));
 
     return 1;
@@ -148,24 +148,24 @@ static duk_ret_t cb_load_module(duk_context *ctx)
     duk_get_prop_string(ctx, 2, "filename");
     filename = duk_require_string(ctx, -1);
 
-    debug("id:'%s', filename:'%s'\n", module_id, filename);
+    jse_debug("id:'%s', filename:'%s'\n", module_id, filename);
 
     int fd = be_open(filename, O_RDONLY);
     assert(fd > 0);
     int len = be_lseek(fd, 0, SEEK_END);
-    debug("file: %s, size: %d\n", filename, len);
+    jse_debug("file: %s, size: %d\n", filename, len);
     be_lseek(fd, 0, SEEK_SET);
-    char *data = (char *)malloc(len);
+    char *data = (char *)jse_malloc(len);
     if (!data) {
         be_close(fd);
-        warn("cannot alloc memory to read module: %s", module_id);
+        jse_warn("cannot alloc memory to read module: %s", module_id);
         return duk_type_error(ctx, "cannot alloc memory to read module: %s",
                               module_id);
     }
 
     be_read(fd, data, len);
     duk_push_lstring(ctx, data, len);
-    free(data);
+    jse_free(data);
     be_close(fd);
 
     return 1;
@@ -247,7 +247,7 @@ static void jsengine_register_addons()
 void jsengine_init()
 {
     if (duk_ctx) {
-        warn("bone engine has been initialized\n");
+        jse_warn("bone engine has been initialized\n");
         return;
     }
     duk_ctx = duk_create_heap_default();
@@ -306,10 +306,10 @@ static void print_pop_error(duk_context *ctx, FILE *f)
 
 #ifdef JSE_IDE_DEBUG
     /* send to IDE */
-    char *buf = (char *)malloc(sizeof(BonePrefix) + strlen(msg));
+    char *buf = (char *)jse_malloc(sizeof(BonePrefix) + strlen(msg));
     sprintf(buf, BonePrefix "%s", msg);
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, (char *)buf);
-    free(buf);
+    jse_free(buf);
 #endif
 
     duk_pop(ctx);
@@ -345,7 +345,7 @@ void jsengine_start(const char *js)
 {
     assert(duk_ctx);
     if (!js) {
-        warn("js is null\n");
+        jse_warn("js is null\n");
         return;
     }
     duk_push_pointer(duk_ctx, (void *)js);
@@ -365,7 +365,7 @@ void jsengine_eval_file(const char *filename)
 {
     assert(filename && filename[0] == '/');
 
-    debug("eval file: %s\n", filename);
+    jse_debug("eval file: %s\n", filename);
 
     /* set entry */
     be_module_node_set_entry(duk_ctx, filename);
@@ -373,13 +373,13 @@ void jsengine_eval_file(const char *filename)
     /* read & run js file */
     struct aos_stat sb;
     if (be_stat(filename, &sb) || !S_ISREG(sb.st_mode)) {
-        warn("file: %s not exist\n", filename);
+        jse_warn("file: %s not exist\n", filename);
         return;
     }
-    debug("file size: %d\n", sb.st_size);
-    char *data = (char *)malloc(sb.st_size);
+    jse_debug("file size: %d\n", sb.st_size);
+    char *data = (char *)jse_malloc(sb.st_size);
     if (!data) {
-        warn("cannot alloc memory\n");
+        jse_warn("cannot alloc memory\n");
         return;
     }
 
@@ -399,26 +399,21 @@ void jsengine_eval_file(const char *filename)
         duk_pop(duk_ctx);
     }
 
-    free(data);
+    jse_free(data);
 }
 
 void jsengine_exit()
 {
     if (!duk_ctx) {
-        warn("jsengine has not been initialized\n");
+        jse_warn("jsengine has not been initialized\n");
         return;
     }
     duk_destroy_heap(duk_ctx);
-    free(node_modules_path);
+    jse_free(node_modules_path);
     duk_ctx = NULL;
 }
 
 duk_context *bone_engine_get_context()
 {
     return duk_ctx;
-}
-
-void jsengine_set_log_cb(BE_JSE_FUNCTION_LOG_CB cb)
-{
-    be_set_log(cb);
 }

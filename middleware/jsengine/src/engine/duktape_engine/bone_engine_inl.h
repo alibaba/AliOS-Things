@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*
- * 获取JSE上下文
+ * get JSEngine context
  */
 duk_context *bone_engine_get_context();
 
@@ -24,37 +24,34 @@ duk_context *bone_engine_get_context();
 void bone_engine_ref_setup(duk_context *ctx);
 
 /*
- * 存储top of stack对象到refs中并返回对象在refs中的存放位置 (注意:top
- * of stack对象会出栈)
+ * saving top of stack to refs, return refs position. (NOTE: top of stack
+ * overflow)
  *
- * 返回值: 0 - 失败; >0 - 成功
  */
 int bone_engine_ref(duk_context *ctx);
 
 /*
- * 获取refs中ref位置的对象
+ * get ref from refs
  */
 void bone_engine_push_ref(duk_context *ctx, int ref);
 
 /*
- * 清空存储在refs中ref位置的对象并腾出ref位置
+ * clear ref in refs
  */
 void bone_engine_unref(duk_context *ctx, int ref);
 
 /*
- * 初始node.js方式的模块管理
+ * module manage initial
  */
 void be_module_node_init(duk_context *ctx);
 
 /*
- * 设置入口文件路径
- * entry － 入口文件路径，需要全路径，如：/spiffs/index.js
+ * set entry file path, e.g. /spiffs/index.js
  */
 void be_module_node_set_entry(duk_context *ctx, const char *entry);
 
 /*
- * 引擎通过bone_websocket_send_frame发出的消息需要带上
- * `BoneEngine > `前缀
+ * JSEngine log prefix, identification for be-cli
  */
 #define BonePrefix "BoneEngine > "
 

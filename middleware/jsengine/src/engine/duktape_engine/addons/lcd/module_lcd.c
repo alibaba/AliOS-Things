@@ -4,11 +4,11 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_log.h"
 #include "be_port_hal.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
 #include "fontlib.h"
+#include "hal/log.h"
 
 typedef struct lcd_handle {
     uint32_t width;
@@ -22,7 +22,7 @@ static int8_t lcd_init(uint32_t width, uint32_t height)
     if (NULL != lcd_handle) {
         return -1;
     }
-    lcd_handle_t *new_handle = calloc(1, sizeof(*new_handle));
+    lcd_handle_t *new_handle = jse_calloc(1, sizeof(*new_handle));
     if (NULL == new_handle) {
         return -1;
     }
@@ -36,7 +36,7 @@ static int8_t lcd_init(uint32_t width, uint32_t height)
 static int8_t lcd_deinit(void)
 {
     if (NULL != lcd_handle) {
-        free(lcd_handle);
+        jse_free(lcd_handle);
         lcd_handle = NULL;
     }
     return 0;
@@ -138,14 +138,14 @@ static duk_ret_t native_lcd_open(duk_context *ctx)
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
-        warn("parameter must be object\n");
+        jse_warn("parameter must be object\n");
         goto out;
     }
     duk_get_prop_string(ctx, 0, "height");
     duk_get_prop_string(ctx, 0, "width");
     /* [ parameter height width ] */
     if (!duk_is_number(ctx, -1) || !duk_is_number(ctx, -2)) {
-        warn("parameter object must be `{height:number,width:number}`\n");
+        jse_warn("parameter object must be `{height:number,width:number}`\n");
         duk_pop_2(ctx);
         goto out;
     }
@@ -170,7 +170,7 @@ static duk_ret_t native_lcd_fill(duk_context *ctx)
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
-        warn("parameter must be object\n");
+        jse_warn("parameter must be object\n");
         goto out;
     }
 
@@ -188,7 +188,7 @@ static duk_ret_t native_lcd_fill(duk_context *ctx)
         || !duk_is_number(ctx, -3) /* ey */
         || !duk_is_number(ctx, -2) /* color */
     ) {
-        warn(
+        jse_warn(
             "parameter object must be "
             "`{sx:number,sy:number,ex:number,ey:number,color:number}`\n");
         goto pop_out;
@@ -216,7 +216,7 @@ static duk_ret_t native_lcd_show(duk_context *ctx)
     int ret = -1;
 
     if (!duk_is_object(ctx, 0)) {
-        warn("parameter must be object\n");
+        jse_warn("parameter must be object\n");
         goto out;
     }
 
@@ -235,7 +235,7 @@ static duk_ret_t native_lcd_show(duk_context *ctx)
         || !duk_is_string(ctx, -2) /* str */
         || !duk_is_number(ctx, -1) /* size */
     ) {
-        warn(
+        jse_warn(
             "parameter object must be "
             "`{x:number,y:number,color:number,newline:number,str:string,size:"
             "number}`\n");

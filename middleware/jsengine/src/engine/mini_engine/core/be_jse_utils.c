@@ -112,16 +112,16 @@ ALWAYS_INLINE bool is_alpha(char ch)
 
 NO_INLINE void be_jse_error(const char *message)
 {
-    /* printf("ERROR: %s\n", message); */
-    char *buf = calloc(1, 256);
+    /* jse_debug("ERROR: %s\n", message); */
+    char *buf = jse_calloc(1, 256);
     snprintf(buf, 255, "%sERROR: %s", BonePrefix, message);
-    printf("%s\n", buf);
+    jse_debug("%s\n", buf);
     fflush(stdout);
 #ifdef JSE_IDE_DEBUG
     /* report JSEngine error message via websocket */
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
-    free(buf);
+    jse_free(buf);
 }
 
 NO_INLINE void be_jse_error_at(const char *message, be_jse_lexer_ctx_t *lex,
@@ -130,32 +130,32 @@ NO_INLINE void be_jse_error_at(const char *message, be_jse_lexer_ctx_t *lex,
     int line, col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
     be_jse_execute_error();
-    /* printf("ERROR: %s at %d:%d current tolken=%s \n", message, line, col,
+    /* jse_debug("ERROR: %s at %d:%d current tolken=%s \n", message, line, col,
               lex->token); */
-    char *buf = calloc(1, 256);
+    char *buf = jse_calloc(1, 256);
     snprintf(buf, 255, "%sERROR: %s at %d:%d, %s is not defined", BonePrefix,
              message, line, col, lex->token);
-    printf("%s\n", buf);
+    jse_debug("%s\n", buf);
     fflush(stdout);
 #ifdef JSE_IDE_DEBUG
     /* report JSEngine error message via websocket */
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
-    free(buf);
+    jse_free(buf);
 }
 
 NO_INLINE void be_jse_warn(const char *message)
 {
-    /* printf("WARNING: %s\n", message); */
-    char *buf = calloc(1, 256);
+    /* jse_debug("WARNING: %s\n", message); */
+    char *buf = jse_calloc(1, 256);
     snprintf(buf, 255, "%sWARNING: %s", BonePrefix, message);
-    printf("%s\n", buf);
+    jse_debug("%s\n", buf);
     fflush(stdout);
     /* report JSEngine error message via websocket */
 #ifdef JSE_IDE_DEBUG
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
-    free(buf);
+    jse_free(buf);
 }
 
 NO_INLINE void be_jse_warn_at(const char *message, be_jse_lexer_ctx_t *lex,
@@ -164,33 +164,33 @@ NO_INLINE void be_jse_warn_at(const char *message, be_jse_lexer_ctx_t *lex,
     int line, col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
     be_jse_execute_error();
-    /* printf("WARNING: %s at %d:%d current tolken=%s \n", message, line, col,
+    /* jse_debug("WARNING: %s at %d:%d current tolken=%s \n", message, line, col,
               lex->token); */
-    char *buf = calloc(1, 256);
+    char *buf = jse_calloc(1, 256);
     snprintf(buf, 255, "%sWARNING: %s at %d:%d current tolken=%s", BonePrefix,
              message, line, col, lex->token);
-    printf("%s\n", buf);
+    jse_debug("%s\n", buf);
     fflush(stdout);
 #ifdef JSE_IDE_DEBUG
     /* report JSEngine error message via websocket */
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
-    free(buf);
+    jse_free(buf);
 }
 
 NO_INLINE void be_jse_assert_fail(const char *file, int line)
 {
     be_jse_execute_error();
-    /* printf("ASSERT FAIL AT %s:%d\n", file, line); */
-    char *buf = calloc(1, 256);
+    /* jse_debug("ASSERT FAIL AT %s:%d\n", file, line); */
+    char *buf = jse_calloc(1, 256);
     snprintf(buf, 255, "%sASSERT FAIL AT %s:%d", BonePrefix, file, line);
-    printf("%s\n", buf);
+    jse_debug("%s\n", buf);
     fflush(stdout);
 #ifdef JSE_IDE_DEBUG
     /* report JSEngine error message via websocket */
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
-    free(buf);
+    jse_free(buf);
 #if defined(USE_FREERTOS)
 
 #else
@@ -504,7 +504,7 @@ char *getClearPath(char *path)
 {
     int len = strlen(path);
     int i;
-    char *str = calloc(1, len + 1);
+    char *str = jse_calloc(1, len + 1);
     int pos   = 0;
 
     /* copy ./ */
@@ -567,37 +567,37 @@ char *getNodeModulePath(char *path)
     char *json_data;
 
     path_len = strlen(path) + 128;
-    fullPath = calloc(1, path_len);
+    fullPath = jse_calloc(1, path_len);
     sprintf(fullPath, "%s/%s", BE_FS_ROOT_DIR, path);
 
     /* clear ./ */
     json_data = getClearPath(fullPath);
     sprintf(fullPath, "%s", json_data);
-    free(json_data);
+    jse_free(json_data);
 
-    printf("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
+    jse_debug("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
 
     fd = be_open(fullPath, O_RDONLY);
     if (fd >= 0) {
         be_close(fd);
-        free(fullPath);
+        jse_free(fullPath);
         return path;
     }
 
     strcat(fullPath, "/package.json");
 
-    printf("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
+    jse_debug("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
 
     fd = be_open(fullPath, O_RDONLY);
     if (fd >= 0) {
         /* parser package.json */
         file_len  = be_lseek(fd, 0, SEEK_END);
-        json_data = calloc(1, sizeof(char) * (file_len + 1));
+        json_data = jse_calloc(1, sizeof(char) * (file_len + 1));
         if (NULL == json_data) {
             be_close(fd);
 
-            free(fullPath);
-            printf("%s %d out of memory \n", __FUNCTION__, __LINE__);
+            jse_free(fullPath);
+            jse_error("%s %d out of memory \n", __FUNCTION__, __LINE__);
             return (path);
         }
         be_lseek(fd, 0, SEEK_SET);
@@ -607,9 +607,9 @@ char *getNodeModulePath(char *path)
         /*parser the package json data */
         root = cJSON_Parse(json_data);
         if (NULL == root) {
-            free(json_data);
-            free(fullPath);
-            printf("%s %d cJSON_Parse failed \n", __FUNCTION__, __LINE__);
+            jse_free(json_data);
+            jse_free(fullPath);
+            jse_error("%s %d cJSON_Parse failed \n", __FUNCTION__, __LINE__);
             return (path);
         }
 
@@ -619,18 +619,18 @@ char *getNodeModulePath(char *path)
             strstr(item->valuestring, ".js")) {
             sprintf(fullPath, "%s/%s", path, item->valuestring);
 
-            free(json_data);
+            jse_free(json_data);
             cJSON_Delete(root);
-            free(path);
+            jse_free(path);
 
-            printf("%s %d package find main, %s \n", __FUNCTION__, __LINE__,
+            jse_debug("%s %d package find main, %s \n", __FUNCTION__, __LINE__,
                    fullPath);
             return fullPath;
         }
 
-        free(json_data);
+        jse_free(json_data);
         cJSON_Delete(root);
-        printf("%s %d package incomplete , package.json = %s \n", __FUNCTION__,
+        jse_debug("%s %d package incomplete , package.json = %s \n", __FUNCTION__,
                __LINE__, fullPath);
         /* default index.js */
         sprintf(fullPath, "%s/%s", path, "index.js");
@@ -640,7 +640,7 @@ char *getNodeModulePath(char *path)
         return fullPath;
     }
 
-    free(fullPath);
+    jse_free(fullPath);
     return path;
 }
 

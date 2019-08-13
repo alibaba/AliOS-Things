@@ -10,10 +10,10 @@
 
 #include "be_jse_task.h"
 #include "be_list.h"
-#include "be_log.h"
 #include "be_port_osal.h"
 #include "board-mgr/board_info.h"
 #include "bone_engine_inl.h"
+#include "hal/log.h"
 
 #include "linkkit/dev_sign_api.h"
 #include "linkkit/infra/infra_compat.h"
@@ -51,9 +51,9 @@ static void mqtt_sub_topic_notify(void *data)
     duk_push_lstring(ctx, p->topic, p->topic_len);
     duk_pcall(ctx, 2);
     duk_pop(ctx);
-    free(p->payload);
-    free(p->topic);
-    free(p);
+    jse_free(p->payload);
+    jse_free(p->topic);
+    jse_free(p);
 }
 
 static void mqtt_sub_callback(void *pcontext, void *pclient,
@@ -64,31 +64,33 @@ static void mqtt_sub_callback(void *pcontext, void *pclient,
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-            debug("receive subscribe message, topic[%d]: %s, payload[%d]: %s\n",
-                  topic_info->topic_len, topic_info->ptopic,
-                  topic_info->payload_len, topic_info->payload);
+            jse_debug(
+                "receive subscribe message, topic[%d]: %s, payload[%d]: %s\n",
+                topic_info->topic_len, topic_info->ptopic,
+                topic_info->payload_len, topic_info->payload);
 
             /* save payload content */
-            if ((p = (struct mqtt_sub_cb_param *)malloc(
+            if ((p = (struct mqtt_sub_cb_param *)jse_malloc(
                      sizeof(struct mqtt_sub_cb_param))) == NULL) {
-                warn("allocate memory failed\n");
+                jse_warn("allocate memory failed\n");
                 return;
             }
             memset(p, 0, sizeof(struct mqtt_sub_cb_param));
 
-            if ((p->payload = (char *)malloc(topic_info->payload_len)) ==
+            if ((p->payload = (char *)jse_malloc(topic_info->payload_len)) ==
                 NULL) {
-                warn("allocate payload memory failed\n");
-                free(p);
+                jse_warn("allocate payload memory failed\n");
+                jse_free(p);
                 return;
             }
             memcpy(p->payload, topic_info->payload, topic_info->payload_len);
             p->payload_len = topic_info->payload_len;
 
-            if ((p->topic = (char *)malloc(topic_info->topic_len)) == NULL) {
-                warn("allocate payload memory failed\n");
-                free(p->payload);
-                free(p);
+            if ((p->topic = (char *)jse_malloc(topic_info->topic_len)) ==
+                NULL) {
+                jse_warn("allocate payload memory failed\n");
+                jse_free(p->payload);
+                jse_free(p);
                 return;
             }
             memcpy(p->topic, topic_info->ptopic, topic_info->topic_len);
@@ -98,10 +100,10 @@ static void mqtt_sub_callback(void *pcontext, void *pclient,
             /* subscribe callback function */
             int ret = be_jse_task_schedule_call(mqtt_sub_topic_notify, p);
             if (ret < 0) {
-                warn("be_jse_task_schedule_call failed\n");
-                free(p->payload);
-                free(p->topic);
-                free(p);
+                jse_warn("be_jse_task_schedule_call failed\n");
+                jse_free(p->payload);
+                jse_free(p->topic);
+                jse_free(p);
             }
             break;
         default:
@@ -142,7 +144,7 @@ static char *genRandomString(int length)
 {
     int flag, i;
     char *str;
-    if ((str = (char *)malloc(length)) == NULL) {
+    if ((str = (char *)jse_malloc(length)) == NULL) {
         return NULL;
     }
 
@@ -187,7 +189,7 @@ int _http_response(char *payload, const int payload_len,
     httpc.header =
         "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
-    requ_payload = (char *)malloc(HTTP_POST_MAX_LEN);
+    requ_payload = (char *)jse_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
         return ERROR_MALLOC;
     }
@@ -195,7 +197,7 @@ int _http_response(char *payload, const int payload_len,
 
     snprintf(requ_payload, HTTP_POST_MAX_LEN, "%s", request_string);
 
-    resp_payload = (char *)malloc(HTTP_RESP_MAX_LEN);
+    resp_payload = (char *)jse_malloc(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
         ret = FAIL_RETURN;
         goto RETURN;
@@ -220,11 +222,11 @@ int _http_response(char *payload, const int payload_len,
 
 RETURN:
     if (requ_payload) {
-        free(requ_payload);
+        jse_free(requ_payload);
         requ_payload = NULL;
     }
     if (resp_payload) {
-        free(resp_payload);
+        jse_free(resp_payload);
         resp_payload = NULL;
     }
 
@@ -239,7 +241,7 @@ static char *_set_auth_req_str(const char *product_key, const char *device_name,
 
     char *req = NULL;
 
-    req = malloc(AUTH_STRING_MAXLEN);
+    req = jse_malloc(AUTH_STRING_MAXLEN);
     memset(req, 0, AUTH_STRING_MAXLEN);
 
     snprintf(req, AUTH_STRING_MAXLEN, string_auth_req_format, product_key,
@@ -258,14 +260,14 @@ static char *_get_device_secret(const char *product_key,
     payload[511] = '\0';
     strncpy(payload, request_string, sizeof(payload) - 1);
 
-    printf("[%s][%d] request_string=%s \n", __FUNCTION__, __LINE__,
+    jse_debug("[%s][%d] request_string=%s \n", __FUNCTION__, __LINE__,
            request_string);
-    printf("[%s][%d] guider_addr=%s \n", __FUNCTION__, __LINE__, guider_addr);
+    jse_debug("[%s][%d] guider_addr=%s \n", __FUNCTION__, __LINE__, guider_addr);
 
     _http_response(payload, sizeof(payload), request_string, guider_addr, 443,
                    iotx_ca_get());
 
-    printf("payload = %s \n", payload);
+    jse_debug("payload = %s \n", payload);
 
     cJSON *root = NULL;
     cJSON *item;
@@ -296,7 +298,7 @@ static char *_get_device_secret(const char *product_key,
     if (cJSON_IsString(deviceSecretItem)) {
         /* get deviceSecret */
         deviceSecret = strdup(deviceSecretItem->valuestring);
-        printf("获取deviceSecret成功, %s\n", deviceSecret);
+        jse_debug("get deviceSecret %s\n", deviceSecret);
     }
 
 do_exit:
@@ -340,17 +342,17 @@ char *iot_get_deviceSecret(const char *product_key, const char *product_secret,
     _calc_hmac_signature(product_key, product_secret, device_name, guider_sign,
                          sizeof(guider_sign), s_random);
 
-    printf("guider_sign = \n");
-    for (int i = 0; i < 40; i++) printf("0x%x ", guider_sign[i]);
-    printf("\n");
+    jse_debug("guider_sign = \n");
+    for (int i = 0; i < 40; i++) jse_debug("0x%x ", guider_sign[i]);
+    jse_debug("\n");
 
     req_str = _set_auth_req_str(product_key, device_name, client_id,
                                 guider_sign, s_random);
 
     deviceSecret = _get_device_secret(product_key, device_name, client_id,
                                       string_AUTH_URL, req_str);
-    if (req_str) free(req_str);
-    if (s_random) free(s_random);
+    if (req_str) jse_free(req_str);
+    if (s_random) jse_free(s_random);
     return deviceSecret;
 }
 
@@ -379,7 +381,7 @@ void mqtt_notify_jse(void *arg)
     duk_pcall(ctx, 2);
     duk_pop(ctx);
     bone_engine_unref(ctx, iotDeviceSecret->js_cb_ref);
-    free(iotDeviceSecret);
+    jse_free(iotDeviceSecret);
 }
 
 static void mqtt_get_secret_task(void *arg)
@@ -408,10 +410,10 @@ static void mqtt_get_secret_task(void *arg)
         iotDeviceSecret->deviceSecret[0] = 0;
 
     if (be_jse_task_schedule_call(mqtt_notify_jse, iotDeviceSecret)) {
-        warn("be_jse_task_schedule_call failed\n");
+        jse_warn("be_jse_task_schedule_call failed\n");
         duk_context *ctx = bone_engine_get_context();
         bone_engine_unref(ctx, iotDeviceSecret->js_cb_ref);
-        free(deviceSecret);
+        jse_free(deviceSecret);
     }
 
     be_osal_delete_task(mqtt_task_handle);
@@ -423,14 +425,14 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
 
     /* check parameter */
     if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
-        warn("parameter must be object and function\n");
+        jse_warn("parameter must be object and function\n");
         err = -1;
         goto out;
     }
 
     /* busy */
     if (mqtt_task_handle) {
-        warn("Resource busy\n");
+        jse_warn("Resource busy\n");
         err = -2;
         goto out;
     }
@@ -441,8 +443,7 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
     duk_get_prop_string(ctx, 0, "productSecret");
     if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) ||
         !duk_is_string(ctx, -1)) {
-        warn(
-            "Parameter 1 must be an object like {productKey: string, "
+        jse_warn("Parameter 1 must be an object like {productKey: string, "
             "deviceName: string, productSecret: string}\n");
         err = -3;
         goto pop_out;
@@ -450,16 +451,16 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
 
     /* create process task and set callback */
     IOT_DEVICESECRET_s *iotDeviceSecret =
-        (IOT_DEVICESECRET_s *)calloc(1, sizeof(*iotDeviceSecret));
+        (IOT_DEVICESECRET_s *)jse_calloc(1, sizeof(*iotDeviceSecret));
     if (!iotDeviceSecret) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         err = -4;
         goto pop_out;
     }
     const char *productKey    = duk_get_string(ctx, -3);
     const char *deviceName    = duk_get_string(ctx, -2);
     const char *productSecret = duk_get_string(ctx, -1);
-    debug("productKey: %s, deviceName: %s\n", productKey, deviceName);
+    jse_debug("productKey: %s, deviceName: %s\n", productKey, deviceName);
     strncpy(iotDeviceSecret->productKey, productKey,
             sizeof(iotDeviceSecret->productKey) - 1);
     strncpy(iotDeviceSecret->deviceName, deviceName,
@@ -470,8 +471,8 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
                         iotDeviceSecret, 1024 * 7, MQTTHTTP_TSK_PRIORITY,
                         &mqtt_task_handle);
     if (!mqtt_task_handle) {
-        warn("be_osal_create_task failed\n");
-        free(iotDeviceSecret);
+        jse_warn("be_osal_create_task failed\n");
+        jse_free(iotDeviceSecret);
         err = -5;
     } else {
         duk_dup(ctx, 1);
@@ -507,16 +508,16 @@ static duk_ret_t native_device_info(duk_context *ctx)
         duk_push_string(ctx, deviceSecret);
         duk_put_prop_string(ctx, -2, "deviceSecret");
     }
-    free(productKey);
-    free(deviceName);
-    free(deviceSecret);
+    jse_free(productKey);
+    jse_free(deviceName);
+    jse_free(deviceSecret);
     return 1;
 }
 
 static duk_ret_t native_mqtt_sign(duk_context *ctx)
 {
     if (!duk_is_object(ctx, 0)) {
-        warn("parameter must be object\n");
+        jse_warn("parameter must be object\n");
         duk_push_null(ctx);
         return 1;
     }
@@ -526,9 +527,7 @@ static duk_ret_t native_mqtt_sign(duk_context *ctx)
     duk_get_prop_string(ctx, 0, "deviceSecret");
     if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) ||
         !duk_is_string(ctx, -1)) {
-        warn(
-            "Parameter 1 must be an object like {productKey: string, "
-            "deviceName: string, deviceSecret: string}\n");
+        jse_warn("Parameter 1 must be an object like {productKey: string, deviceName: string, deviceSecret: string}\n");
         duk_pop_n(ctx, 3);
         duk_push_null(ctx);
         return 1;
@@ -612,56 +611,60 @@ static void mqtt_event_handle(void *pcontext, void *pclient,
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_UNDEF:
-            debug("undefined event occur.");
+            jse_debug("undefined event occur.");
             break;
 
         case IOTX_MQTT_EVENT_DISCONNECT:
-            debug("MQTT disconnect.");
+            jse_debug("MQTT disconnect.");
             break;
 
         case IOTX_MQTT_EVENT_RECONNECT:
-            debug("MQTT reconnect.");
+            jse_debug("MQTT reconnect.");
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            debug("subscribe success, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("subscribe success, packet-id=%u",
+                      (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            debug("subscribe wait ack timeout, packet-id=%u",
-                  (unsigned int)packet_id);
+            jse_debug("subscribe wait ack timeout, packet-id=%u",
+                      (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            debug("subscribe nack, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-            debug("unsubscribe success, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("unsubscribe success, packet-id=%u",
+                      (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-            debug("unsubscribe timeout, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("unsubscribe timeout, packet-id=%u",
+                      (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-            debug("unsubscribe nack, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("unsubscribe nack, packet-id=%u",
+                      (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
-            debug("publish success, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("publish success, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
-            debug("publish timeout, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("publish timeout, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_NACK:
-            debug("publish nack, packet-id=%u", (unsigned int)packet_id);
+            jse_debug("publish nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-            debug(
+            jse_debug(
                 "topic message arrived but without any related handle: "
                 "topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len, topic_info->ptopic,
@@ -669,11 +672,11 @@ static void mqtt_event_handle(void *pcontext, void *pclient,
             break;
 
         case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
-            debug("buffer overflow, %s", msg->msg);
+            jse_debug("buffer overflow, %s", msg->msg);
             break;
 
         default:
-            debug("Should NOT arrive here.");
+            jse_debug("Should NOT arrive here.");
             break;
     }
 }
@@ -700,14 +703,14 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
 
     /* mqtt client already running? */
     if (pclient) {
-        warn("mqtt client already start\n");
+        jse_warn("mqtt client already start\n");
         err = -1;
         goto out;
     }
 
     /* check paramters */
     if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
-        warn("parameter must be object and function\n");
+        jse_warn("parameter must be object and function\n");
         err = -1;
         goto out;
     }
@@ -718,7 +721,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     duk_get_prop_string(ctx, 0, "deviceSecret");
     if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) ||
         !duk_is_string(ctx, -1)) {
-        warn(
+        jse_warn(
             "Parameter 1 must be an object like {productKey: string, "
             "deviceName: string, deviceSecret: string}\n");
         err = -2;
@@ -727,7 +730,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     const char *productKey   = duk_get_string(ctx, -3);
     const char *deviceName   = duk_get_string(ctx, -2);
     const char *deviceSecret = duk_get_string(ctx, -1);
-    debug("productKey: %s, deviceName: %s\n", productKey, deviceName);
+    jse_debug("productKey: %s, deviceName: %s\n", productKey, deviceName);
 
     HAL_SetProductKey(productKey);
     HAL_SetDeviceName(deviceName);
@@ -738,7 +741,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
 
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {
-        warn("MQTT construct failed");
+        jse_warn("MQTT construct failed");
         err = -3;
         return -1;
     }
@@ -750,7 +753,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     err = be_osal_create_task("mqtt yield task", mqtt_yield_task,
                               (void *)js_cb_ref, 2048, MQTT_TSK_PRIORITY, NULL);
     if (err) {
-        warn("be_osal_create_task failed\n");
+        jse_warn("be_osal_create_task failed\n");
         IOT_MQTT_Destroy(&pclient);
         bone_engine_unref(ctx, js_cb_ref);
         err = -4;
@@ -771,7 +774,7 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
 
     /* check parameter */
     if (!duk_is_string(ctx, 0) || !duk_is_function(ctx, 1)) {
-        warn("parameter must be string and function\n");
+        jse_warn("parameter must be string and function\n");
         goto out;
     }
 
@@ -779,11 +782,11 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
 
     duk_dup(ctx, 1);
     int js_cb_ref = bone_engine_ref(ctx);
-    debug("subscribe topic: %s, js_cb_ref: %d\n", topic, js_cb_ref);
+    jse_debug("subscribe topic: %s, js_cb_ref: %d\n", topic, js_cb_ref);
     ret = IOT_MQTT_Subscribe(pclient, (const char *)topic, IOTX_MQTT_QOS0,
                              mqtt_sub_callback, (int)js_cb_ref);
     if (ret < 0) {
-        warn("mqtt_subscribe failed, ret: %d\n", ret);
+        jse_warn("mqtt_subscribe failed, ret: %d\n", ret);
     }
 out:
     duk_push_int(ctx, ret);
@@ -795,7 +798,7 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
     int ret = -1;
 
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
 
@@ -803,9 +806,9 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
 
     ret = IOT_MQTT_Unsubscribe(pclient, (const char *)topic);
     if (ret < 0) {
-        warn("mqtt_unsubscribe failed, ret: %d\n", ret);
+        jse_warn("mqtt_unsubscribe failed, ret: %d\n", ret);
     }
-    debug("unsubscribe topic: %s, ret: %d\n", topic, ret);
+    jse_debug("unsubscribe topic: %s, ret: %d\n", topic, ret);
 out:
     duk_push_int(ctx, ret);
     return 1;
@@ -815,17 +818,17 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
 {
     int ret = -1;
     if (!duk_is_string(ctx, 0) || !duk_is_string(ctx, 1)) {
-        warn("parameter must be string and string\n");
+        jse_warn("parameter must be string and string\n");
         goto out;
     }
     const char *topic = duk_get_string(ctx, 0);
     int msg_len;
     const char *msg = duk_get_lstring(ctx, 1, &msg_len);
-    debug("topic: %s, msg: %s, msg_len: %d\n", topic, msg, msg_len);
+    jse_debug("topic: %s, msg: %s, msg_len: %d\n", topic, msg, msg_len);
     ret = IOT_MQTT_Publish_Simple(pclient, (const char *)topic, IOTX_MQTT_QOS1,
                                   (void *)msg, msg_len);
     if (ret < 0) {
-        warn("mqtt_publish failed, ret: %d\n", ret);
+        jse_warn("mqtt_publish failed, ret: %d\n", ret);
     }
 out:
     duk_push_int(ctx, ret);

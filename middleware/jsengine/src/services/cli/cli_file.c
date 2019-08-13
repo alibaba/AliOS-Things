@@ -68,8 +68,8 @@ static void push(void* arg)
         app_mgr_set_boneflag(1);
 
         sprintf((char*)outStr, "%s %d\n", BE_CLI_REPLY, cli_file_offset);
-        be_cli_printf(outStr);
-        free(outStr);
+        be_cli_printf("%s", outStr);
+        jse_free(outStr);
         /* push finished restart app or reboot device */
         if (type == 0) {
             /* be_jse_task_schedule_call(sub_call_start, targetname); */
@@ -110,14 +110,14 @@ static void push(void* arg)
     if (type == 1) {
         ret = apppack_update(outStr, size);
         if (ret != 0) {
-            be_cli_printf(BE_PUSH_ERROR_REPLY);
+            be_cli_printf("%s", BE_PUSH_ERROR_REPLY);
         }
     }
 
     /* serialport reply */
     sprintf((char*)outStr, "%s %d\n", BE_CLI_REPLY, cli_file_offset);
-    be_cli_printf(outStr);
-    free(outStr);
+    be_cli_printf("%s", outStr);
+    jse_free(outStr);
     be_osal_delete_task(NULL);
 }
 
@@ -145,7 +145,7 @@ static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
         gPushParam.size       = size;
         gPushParam.data       = data;
         gPushParam.targetname = targetname;
-        gPushParam.outStr     = malloc(size + 1);
+        gPushParam.outStr     = jse_malloc(size + 1);
 
         bone_console_log_disable(); /* 关闭bone engine  的log输出 */
         /* avoid stack overflow !!! */
@@ -224,7 +224,7 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
         hex[0] = '\n';
         hex[1] = 0;
 
-        printf(pwbuf);
+        jse_debug(pwbuf);
         fflush(stdout);
 
         /* continue read */

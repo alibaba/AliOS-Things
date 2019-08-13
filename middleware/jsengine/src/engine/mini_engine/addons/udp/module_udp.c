@@ -14,7 +14,6 @@
 #include "hal/system.h"
 #include "module_udp.h"
 
-#define JS_UDP_TAG "UDP"
 #ifdef DEBUG_UDP_ADDON
 #define DEBUG_HEX_DUMP(str, buff, len) hexdump(str, buff, len)
 #else
@@ -66,7 +65,7 @@ static be_jse_symbol_t *module_udp_create_socket()
 
     sock_id = socket(AF_INET, SOCK_DGRAM, 0);
 
-    be_debug(JS_UDP_TAG, "module_udp_create_socket = %d\n\r", sock_id);
+    jse_debug("module_udp_create_socket = %d\n\r", sock_id);
     return new_int_symbol(sock_id);
 }
 
@@ -95,23 +94,23 @@ static be_jse_symbol_t *module_udp_bind()
     be_jse_handle_function(0, &arg0, &arg1, &arg2, NULL);
 
     if ((arg0 == NULL) || !symbol_is_int(arg0)) {
-        be_error(JS_UDP_TAG, "module_udp_bind param 0 invalid");
+        jse_error("module_udp_bind param 0 invalid");
         goto done;
     }
 
     if ((arg1 == NULL) || !symbol_is_string(arg1)) {
-        be_error(JS_UDP_TAG, "module_udp_bind param 1 invalid");
+        jse_error("module_udp_bind param 1 invalid");
         goto done;
     }
 
     if ((arg2 == NULL) || !symbol_is_int(arg2)) {
-        be_error(JS_UDP_TAG, "module_udp_bind param 2 invalid");
+        jse_error("module_udp_bind param 2 invalid");
         goto done;
     }
 
     socketfd = get_symbol_value_int(arg0);
     if (socketfd < 0) {
-        be_error(JS_UDP_TAG, "module_udp_bind socketid[%d] error", port);
+        jse_error("module_udp_bind socketid[%d] error", port);
         goto done;
     }
 
@@ -119,7 +118,7 @@ static be_jse_symbol_t *module_udp_bind()
 
     port = get_symbol_value_int(arg2);
     if (port <= 0) {
-        be_error(JS_UDP_TAG, "module_udp_bind port[%d] error", port);
+        jse_error("module_udp_bind port[%d] error", port);
         goto done;
     }
 
@@ -134,7 +133,7 @@ static be_jse_symbol_t *module_udp_bind()
     }
     addr_in.sin_port = htons(port);
 
-    printf("udp bind socketid=%d,ip=%s,port=%d\n\r", socketfd, ip, port);
+    jse_debug("udp bind socketid=%d,ip=%s,port=%d\n\r", socketfd, ip, port);
     ret = bind(socketfd, (struct sockaddr *)&addr_in, sizeof(addr_in));
 
 done:
@@ -150,10 +149,10 @@ static void js_cb_udp_recv(void *pdata)
     int i                     = 0;
     js_cb_udp_recv_t *p_param = (js_cb_udp_recv_t *)pdata;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->func        = p_param->cb;
     async->param_count = 4;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_int_symbol(p_param->msg_len);
 
@@ -169,23 +168,23 @@ static void js_cb_udp_recv(void *pdata)
 
     be_jse_async_event_cb(async); /* async will free automatic */
 
-    free(p_param->msg);
-    free(p_param);
+    jse_free(p_param->msg);
+    jse_free(p_param);
 }
 
 /*C call JS for UDP.send*/
 void js_cb_udp_send(void *pdata)
 {
     js_cb_udp_send_t *p_param = (js_cb_udp_send_t *)pdata;
-    BE_ASYNC_S *async         = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async         = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->func               = p_param->cb;
     async->param_count        = 1;
-    async->params             = (be_jse_symbol_t **)calloc(
+    async->params             = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_int_symbol(p_param->ret);
 
     be_jse_async_event_cb(async);
-    free(pdata);
+    jse_free(pdata);
 }
 
 /*************************************************************************************
@@ -206,7 +205,7 @@ static void task_udp_recv_fun(void *arg)
     int max_udp_recv_len = 64;
 
     if (msg == NULL) {
-        be_error(JS_UDP_TAG, "error:task_udp_recv_fun arg is null\n\r");
+        jse_error("error:task_udp_recv_fun arg is null\n\r");
         be_osal_delete_task(NULL);
         return;
     }
@@ -221,7 +220,7 @@ static void task_udp_recv_fun(void *arg)
 
     DEBUG_HEX_DUMP("udp recv:", buf, recv_len);
 
-    js_cb_udp_recv_t *p_param = calloc(1, sizeof(js_cb_udp_recv_t));
+    js_cb_udp_recv_t *p_param = jse_calloc(1, sizeof(js_cb_udp_recv_t));
     if (!p_param) {
         goto done;
     }
@@ -236,7 +235,7 @@ static void task_udp_recv_fun(void *arg)
     be_jse_task_schedule_call(js_cb_udp_recv, p_param);
 
 done:
-    free(arg);
+    jse_free(arg);
     be_osal_delete_task(NULL);
 }
 
@@ -254,7 +253,7 @@ static void task_udp_send_fun(void *arg)
     udp_options_t udp_options = {0};
 
     if (msg == NULL) {
-        be_error(JS_UDP_TAG, "error:task_udp_send_fun arg is NULL\n\r");
+        jse_error("error:task_udp_send_fun arg is NULL\n\r");
         be_osal_delete_task(NULL);
         return;
     }
@@ -274,14 +273,14 @@ static void task_udp_send_fun(void *arg)
     if (strcmp(udp_options.ip, "255.255.255.255") == 0) {
         if (setsockopt(socketid, SOL_SOCKET, SO_BROADCAST, &broadcast,
                        sizeof(broadcast)) < 0) {
-            printf("ERROR: setsockopt failed\n");
+            jse_error("ERROR: setsockopt failed\n");
             goto done;
         }
     }
 
     ret                       = sendto(socketid, msg->msg, msg->msg_len, 0,
                  (struct sockaddr *)&addr_in, sizeof(addr_in));
-    js_cb_udp_send_t *p_param = calloc(1, sizeof(js_cb_udp_send_t));
+    js_cb_udp_send_t *p_param = jse_calloc(1, sizeof(js_cb_udp_send_t));
     if (!p_param) {
         goto done;
     }
@@ -291,8 +290,8 @@ static void task_udp_send_fun(void *arg)
     be_jse_task_schedule_call(js_cb_udp_send, p_param);
 
 done:
-    free(msg->msg);
-    free(msg);
+    jse_free(msg->msg);
+    jse_free(msg);
     be_osal_delete_task(NULL);
 }
 
@@ -324,7 +323,7 @@ static be_jse_symbol_t *module_udp_sendto()
     if ((arg0 == NULL) || !symbol_is_int(arg0) || (arg1 == NULL) ||
         !symbol_is_object(arg1) || (arg2 == NULL) || !symbol_is_array(arg2) ||
         (arg3 == NULL) || !symbol_is_function(arg3)) {
-        be_error(JS_UDP_TAG, "module_udp_sendto param invalid");
+        jse_error("module_udp_sendto param invalid");
         goto done;
     }
 
@@ -345,7 +344,7 @@ static be_jse_symbol_t *module_udp_sendto()
     DEBUG_HEX_DUMP("msg:", msg, msg_len);
 
     schedule_udp_t *schedule_msg =
-        (schedule_udp_t *)calloc(1, sizeof(schedule_udp_t));
+        (schedule_udp_t *)jse_calloc(1, sizeof(schedule_udp_t));
     if (!schedule_msg) {
         goto done;
     }
@@ -394,25 +393,25 @@ static be_jse_symbol_t *module_udp_recvfrom()
     be_jse_handle_function(0, &arg0, &arg1, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0) || (arg1 == NULL) ||
         !symbol_is_function(arg1)) {
-        be_error(JS_UDP_TAG, "module_udp_recvfrom param invalid");
+        jse_error("module_udp_recvfrom param invalid");
         goto done;
     }
 
     sock_id = get_symbol_value_int(arg0);
     if (sock_id < 0) {
-        be_warn(JS_UDP_TAG, "socket id[%d] is invalid", sock_id);
+        jse_warn("socket id[%d] is invalid", sock_id);
     }
 
-    be_debug(JS_UDP_TAG, "module_udp_recvfrom id=%d\n\r", sock_id);
+    jse_debug("module_udp_recvfrom id=%d\n\r", sock_id);
     schedule_udp_t *schedule_msg =
-        (schedule_udp_t *)calloc(1, sizeof(schedule_udp_t));
+        (schedule_udp_t *)jse_calloc(1, sizeof(schedule_udp_t));
     if (!schedule_msg) {
         goto done;
     }
 
-    char *msg = calloc(1, MAX_UDP_RECV_LEN + 1);
+    char *msg = jse_calloc(1, MAX_UDP_RECV_LEN + 1);
     if (!msg) {
-        free(schedule_msg);
+        jse_free(schedule_msg);
         goto done;
     }
 
@@ -451,13 +450,13 @@ static be_jse_symbol_t *module_udp_close_socket()
 
     be_jse_handle_function(0, &arg0, NULL, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0)) {
-        be_error(JS_UDP_TAG, "module_udp_recvfrom param invalid");
+        jse_error("module_udp_recvfrom param invalid");
         goto done;
     }
 
     sock_id = get_symbol_value_int(arg0);
     if (sock_id <= 0) {
-        be_warn(JS_UDP_TAG, "socket id[%d] is invalid", sock_id);
+        jse_warn("socket id[%d] is invalid", sock_id);
     }
 
     ret = close(sock_id);
@@ -471,7 +470,7 @@ static be_jse_symbol_t *udp_module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                              be_jse_symbol_t *var,
                                              const char *name)
 {
-    be_debug(JS_UDP_TAG, "%s Enter: name=%s", __FUNCTION__, name);
+    jse_debug("%s Enter: name=%s", __FUNCTION__, name);
 
     if (strcmp(name, "createSocket") == 0) return module_udp_create_socket();
     if (strcmp(name, "bind") == 0) return module_udp_bind();
@@ -484,5 +483,5 @@ static be_jse_symbol_t *udp_module_handle_cb(be_jse_vm_ctx_t *execInfo,
 
 void module_udp_register(void)
 {
-    be_jse_module_load(JS_UDP_TAG, udp_module_handle_cb);
+    be_jse_module_load("UDP", udp_module_handle_cb);
 }

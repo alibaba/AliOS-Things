@@ -7,33 +7,7 @@
 
 #include "be_jse.h"
 #include "be_jse_export.h"
-
-enum BE_JSE_LOG_LEVEL {
-    BE_JSE_LOG_LEVEL_DEBUG = (1 << 0),
-    BE_JSE_LOG_LEVEL_INFO  = (1 << 1),
-    BE_JSE_LOG_LEVEL_WARN  = (1 << 2),
-    BE_JSE_LOG_LEVEL_ERROR = (1 << 3),
-};
-
-/*
-typedef void (*BE_JSE_FUNCTION_LOG_CB)(const char* file, const char* tag,
-                                       int level, int line, const char* func,
-                                       const char* format, ...);
-#define jse_debug(tag, fmt, agrs...) bone_engine_log(__FILE__, tag,
-BE_JSE_LOG_LEVEL_DEBUG, __LINE__, __func__, fmt, ##agrs) #define
-jse_info(tag, fmt, agrs...)  bone_engine_log(__FILE__, tag,
-BE_JSE_LOG_LEVEL_INFO,  __LINE__, __func__, fmt, ##agrs) #define
-jse_warn(tag, fmt, agrs...)  bone_engine_log(__FILE__, tag,
-BE_JSE_LOG_LEVEL_WARN,  __LINE__, __func__, fmt, ##agrs) #define
-jse_error(tag, fmt, agrs...) bone_engine_log(__FILE__, tag,
-BE_JSE_LOG_LEVEL_ERROR, __LINE__, __func__, fmt, ##agrs) */
-
-#include "be_log.h"
-
-#define jse_debug be_debug
-#define jse_info be_info
-#define jse_warn be_warn
-#define jse_error be_error
+#include "hal/log.h"
 
 typedef be_jse_symbol_t *(*BE_JSE_FUNCTION_EXECUTE_CB)(
     be_jse_vm_ctx_t *execInfo, be_jse_symbol_t *a, const char *name);

@@ -27,7 +27,7 @@ static be_jse_symbol_t *rtc_open(void)
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     ret = hal_rtc_init(&g_rtcdev);
     if (0 != ret) {
-        be_error("rtc", "hal_rtc_init fail!\n");
+        jse_error("rtc", "hal_rtc_init fail!\n");
     }
     return new_int_symbol(ret);
 }
@@ -38,7 +38,7 @@ static be_jse_symbol_t *rtc_close(void)
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     ret = hal_rtc_finalize(&g_rtcdev);
     if (0 != ret) {
-        be_error("rtc", "hal_rtc_finalize fail!\n");
+        jse_error("rtc", "hal_rtc_finalize fail!\n");
     }
     return new_int_symbol(ret);
 }
@@ -53,7 +53,7 @@ static be_jse_symbol_t *rtc_get_time(void)
     be_jse_handle_function(0, NULL, NULL, NULL, NULL);
     ret = hal_rtc_get_time(&g_rtcdev, &rtcTime);
     if (0 != ret) {
-        be_error("rtc", "hal_rtc_get_time fail!\n");
+        jse_error("rtc", "hal_rtc_get_time fail!\n");
     }
     len = snprintf(buff, 128, RTC_TIME_FORMAT, rtcTime.year, rtcTime.month,
                    rtcTime.date, rtcTime.hr, rtcTime.min, rtcTime.sec);
@@ -74,7 +74,7 @@ static be_jse_symbol_t *rtc_set_time(void)
     if (!arg0 || !symbol_is_object(arg0)) goto out;
     ret = hal_rtc_get_time(&g_rtcdev, &rtcTime);
     if (ret < 0) {
-        be_error("rtc", "hal_rtc_get_time fail!\n");
+        jse_error("rtc", "hal_rtc_get_time fail!\n");
         goto out;
     }
     temp_symbol =

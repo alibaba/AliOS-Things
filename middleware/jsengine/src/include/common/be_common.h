@@ -12,7 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_utils.h"
 
 #endif /* BE_COMMON_H */

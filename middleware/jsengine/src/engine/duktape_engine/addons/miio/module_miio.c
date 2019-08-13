@@ -3,7 +3,7 @@
  */
 
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "bone_engine_inl.h"
 #include "miio-common.h"
@@ -14,7 +14,7 @@
 static duk_ret_t native_createDevice(duk_context *ctx)
 {
     if (!(duk_is_string(ctx, 0) && duk_is_string(ctx, 1))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(
             ctx,
             "createDevice parameters must be host:string and token:string ");
@@ -22,7 +22,7 @@ static duk_ret_t native_createDevice(duk_context *ctx)
     }
     const char *host  = duk_get_string(ctx, 0);
     const char *token = duk_get_string(ctx, 1);
-    debug("host: %s, token: %s\n", host, token);
+    jse_debug("host: %s, token: %s\n", host, token);
     miio_device_t *device = miio_device_create(host, token);
     duk_push_pointer(ctx, device);
     return 1;
@@ -41,32 +41,31 @@ static void event_cb(void *arg)
     duk_push_string(ctx, p->event);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
-    free(p->event);
-    free(p);
+    jse_free(p->event);
+    jse_free(p);
 }
 
 static void on_event(void *priv, const char *event)
 {
-    debug("priv: %p, event: %s\n", priv, event);
+    jse_debug("priv: %p, event: %s\n", priv, event);
     if (strstr(event, "heartbeat")) {
         return;
     }
-    async_event_param_t *p = (async_event_param_t *)malloc(sizeof(*p));
+    async_event_param_t *p = (async_event_param_t *)jse_malloc(sizeof(*p));
     p->js_cb_ref           = (int)priv;
     p->event               = strdup(event);
     if (be_jse_task_schedule_call(event_cb, p) < 0) {
-        warn("be_jse_task_schedule_call failed\n");
-        free(p->event);
-        free(p);
+        jse_warn("be_jse_task_schedule_call failed\n");
+        jse_free(p->event);
+        jse_free(p);
     }
 }
 
 /* deviceOnEvent(device:pointer, function (event) {}) */
 static duk_ret_t native_deviceOnEvent(duk_context *ctx)
 {
-    debug("in\n");
     if (!(duk_is_pointer(ctx, 0) && duk_is_function(ctx, 1))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(
             ctx,
             "deviceOnEvent parameters must be (device:pointer, cb:function)");
@@ -86,7 +85,7 @@ static duk_ret_t native_deviceControl(duk_context *ctx)
     if (!(duk_is_pointer(ctx, 0) && duk_is_string(ctx, 1) &&
           duk_is_string(ctx, 2) &&
           (duk_is_undefined(ctx, 3) || duk_is_string(ctx, 3)))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(
             ctx,
             "deviceControl parameters must be "
@@ -126,19 +125,19 @@ static void discover_cb(void *arg)
     duk_push_number(ctx, p->device_id);
     duk_pcall(ctx, 2);
     duk_pop(ctx);
-    free(p);
+    jse_free(p);
 }
 
 static void on_discover(void *priv, char *host, long device_id)
 {
-    debug("discover host: %s, device_id: %ld\n", host, device_id);
-    async_discover_param_t *p = (async_discover_param_t *)malloc(sizeof(*p));
+    jse_debug("discover host: %s, device_id: %ld\n", host, device_id);
+    async_discover_param_t *p = (async_discover_param_t *)jse_malloc(sizeof(*p));
     p->js_cb_ref              = (int)priv;
     strcpy(p->host, host);
     p->device_id = device_id;
     if (be_jse_task_schedule_call(discover_cb, p) < 0) {
-        warn("be_jse_task_schedule_call failed\n");
-        free(p);
+        jse_warn("be_jse_task_schedule_call failed\n");
+        jse_free(p);
     }
 }
 
@@ -146,13 +145,13 @@ static void on_discover(void *priv, char *host, long device_id)
 static duk_ret_t native_discover(duk_context *ctx)
 {
     if (!(duk_is_number(ctx, 0) && duk_is_function(ctx, 1))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(
             ctx, "discover parameters must be (timeout:number, cb:function)");
         return duk_throw(ctx);
     }
     long timeout = (long)duk_get_number(ctx, 0);
-    debug("timeout: %ld\n", timeout);
+    jse_debug("timeout: %ld\n", timeout);
     duk_dup(ctx, 1);
     /* TODO:这里的ref需要考虑清除 */
     int js_cb_ref = bone_engine_ref(ctx);

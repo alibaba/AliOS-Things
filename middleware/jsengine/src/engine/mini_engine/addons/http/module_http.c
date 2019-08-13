@@ -13,7 +13,7 @@
 #include "module_http.h"
 
 #define CONFIG_LOGMACRO_DETAILS 1
-#define JS_HTTP_TAG "HTTP"
+
 
 typedef struct {
     int port;
@@ -135,7 +135,7 @@ static int http_recv(int sockfd, char *buffer)
     size_t total_received = 0;
     int status            = 0;
 
-    be_debug(JS_HTTP_TAG, "Receiving data ...");
+    jse_debug("Receiving data ...");
 
     while (total_received < HTTP_BUFF_SIZE) {
         bytes_received =
@@ -144,7 +144,7 @@ static int http_recv(int sockfd, char *buffer)
         if (bytes_received == -1) {
             return -1;
         } else if (bytes_received == 0) {
-            be_debug(JS_HTTP_TAG, "http_recv finish size=%d\n\r",
+            jse_debug("http_recv finish size=%d\n\r",
                      total_received);
             return 0;
         }
@@ -155,7 +155,7 @@ static int http_recv(int sockfd, char *buffer)
         total_received += bytes_received;
     }
 
-    be_debug(JS_HTTP_TAG, "Finished receiving data =%d.", total_received);
+    jse_debug("Finished receiving data =%d.", total_received);
 
     if (total_received <= 0) {
         return -1; /* http received fail */
@@ -170,7 +170,7 @@ static int http_request_and_recv(char *url, char *http_buffer)
     int ret           = -1;
     http_uri_t *p_uri = NULL;
 
-    p_uri = calloc(1, sizeof(http_uri_t));
+    p_uri = jse_calloc(1, sizeof(http_uri_t));
     if (!p_uri) goto done;
 
     p_uri->port = 80; /* default http port if no specify */
@@ -187,7 +187,7 @@ static int http_request_and_recv(char *url, char *http_buffer)
 
 done:
     if (socketid > 0) close(socketid);
-    if (p_uri) free(p_uri);
+    if (p_uri) jse_free(p_uri);
     return ret;
 }
 
@@ -196,19 +196,19 @@ static void js_cb_http_recv(void *pdata)
     int ret             = 0;
     schedule_msg_t *msg = (schedule_msg_t *)pdata;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->func        = msg->func;
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_str_symbol(msg->arg2);
 
     /* async call */
     be_jse_async_event_cb(async);
 
-    free(msg->arg1);
-    free(msg->arg2);
-    free(msg);
+    jse_free(msg->arg1);
+    jse_free(msg->arg2);
+    jse_free(msg);
 }
 
 /* create task for http request */
@@ -263,25 +263,25 @@ static be_jse_symbol_t *module_http_request()
 
     be_jse_handle_function(0, &arg0, &arg1, NULL, NULL);
     if (arg0 == NULL || !symbol_is_string(arg0)) {
-        be_error(JS_HTTP_TAG, "%s arg invalid0\n\r", __FUNCTION__);
+        jse_error("%s arg invalid0\n\r", __FUNCTION__);
         goto done;
     }
 
-    url = calloc(1, symbol_str_len(arg0) + 1);
+    url = jse_calloc(1, symbol_str_len(arg0) + 1);
     if (!url) goto done;
 
     symbol_to_str(arg0, url, symbol_str_len(arg0));
 
-    http_buffer = calloc(1, (HTTP_BUFF_SIZE + 1));
+    http_buffer = jse_calloc(1, (HTTP_BUFF_SIZE + 1));
     if (!http_buffer) {
-        free(url);
+        jse_free(url);
         goto done;
     }
 
-    schedule_msg = (schedule_msg_t *)calloc(1, sizeof(schedule_msg_t));
+    schedule_msg = (schedule_msg_t *)jse_calloc(1, sizeof(schedule_msg_t));
     if (!schedule_msg) {
-        free(http_buffer);
-        free(url);
+        jse_free(http_buffer);
+        jse_free(url);
         goto done;
     }
 
@@ -306,7 +306,7 @@ done:
 static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
                                          be_jse_symbol_t *var, const char *name)
 {
-    be_debug(JS_HTTP_TAG, "%s Enter: \n\r", __FUNCTION__);
+    jse_debug("%s Enter: \n\r", __FUNCTION__);
     if (strcmp(name, "request") == 0) return module_http_request();
 
     return BE_JSE_FUNC_UNHANDLED;
@@ -316,5 +316,5 @@ void module_http_register(void)
 {
     int ret = -1;
 
-    be_jse_module_load(JS_HTTP_TAG, module_handle_cb);
+    be_jse_module_load("HTTP", module_handle_cb);
 }

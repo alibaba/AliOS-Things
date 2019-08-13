@@ -4,10 +4,10 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_log.h"
+#include "hal/log.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "wdg.h"
+#include "aos/hal/wdg.h"
 
 static wdg_dev_t wdg_dev;
 
@@ -17,15 +17,14 @@ static duk_ret_t native_wdg_start(duk_context *ctx)
     int32_t timeout   = 0;
     wdg_dev_t *handle = (wdg_dev_t *)&wdg_dev;
 
-    debug("in\n");
     if (!duk_is_number(ctx, 0)) {
-        warn("parameter must be number\n");
+        jse_warn("parameter must be number\n");
         goto out;
     }
 
     timeout = duk_get_int(ctx, 0);
     if (timeout < 0) {
-        error("invalid timeout: %d\n", timeout);
+        jse_error("invalid timeout: %d\n", timeout);
         goto out;
     }
     handle->config.timeout = timeout;

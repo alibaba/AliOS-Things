@@ -15,7 +15,6 @@
 #include "mbedtls/aes.h"
 #include "mbedtls/md5.h"
 
-#define JS_CRYPTO_TAG "CRYPTO"
 #ifdef DEBUG_CRYPTO
 #define DEBUG_HEX_DUMP(str, buff, len) hexdump(str, buff, len)
 #else
@@ -50,13 +49,13 @@ static be_jse_symbol_t *module_crypto_md5()
     be_jse_handle_function(0, &arg0, NULL, NULL, NULL);
 
     if (!arg0 || !symbol_is_array(arg0)) {
-        be_error(JS_CRYPTO_TAG, "%s arg invalid\n\r", __FUNCTION__);
+        jse_error("%s arg invalid\n\r", __FUNCTION__);
         goto done;
     }
 
     int len = get_symbol_array_length(arg0);
 
-    src = calloc(1, len);
+    src = jse_calloc(1, len);
     if (src == NULL) goto done;
 
     for (i = 0; i < len; ++i) {
@@ -88,7 +87,7 @@ static be_jse_symbol_t *module_crypto_md5()
 
     DEBUG_HEX_DUMP("md5 dest", src, len);
 done:
-    free(src);
+    jse_free(src);
     symbol_unlock(arg0);
     return (array == NULL) ? new_symbol(BE_SYM_NULL) : array;
 }
@@ -167,7 +166,7 @@ static be_jse_symbol_t *module_crypto_encrypt()
     symbol_to_str(arg2, aes_padding, sizeof(aes_padding));
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
-        be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
+        jse_error("not supprted crypte_mode\n\r");
         goto done; /* now just support aes encryption */
     }
 
@@ -175,8 +174,7 @@ static be_jse_symbol_t *module_crypto_encrypt()
     padding = convert_str_to_aes_pad(aes_padding);
 
     if ((type == BE_AES_MAX_TYPE) || (padding == BE_SYM_MAX_PAD)) {
-        be_error(JS_CRYPTO_TAG,
-                 "not support this type or padding with aes\n\r");
+        jse_error("not support this type or padding with aes\n\r");
         goto done;
     }
 
@@ -223,9 +221,9 @@ done:
     symbol_unlock(keySymbol);
     symbol_unlock(ivSymbol);
     symbol_unlock(payloadSymbol);
-    free(key_array);
-    free(iv_array);
-    free(payload_array);
+    jse_free(key_array);
+    jse_free(iv_array);
+    jse_free(payload_array);
     return (array == NULL) ? new_symbol(BE_SYM_NULL) : array;
 }
 
@@ -269,7 +267,7 @@ static be_jse_symbol_t *module_crypto_decrypt()
     symbol_to_str(arg2, aes_padding, sizeof(aes_padding));
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
-        be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
+        jse_error("not supprted crypte_mode\n\r");
         goto done; /* now just support aes encryption */
     }
 
@@ -277,7 +275,7 @@ static be_jse_symbol_t *module_crypto_decrypt()
     padding = convert_str_to_aes_pad(aes_padding);
 
     if ((type == BE_AES_MAX_TYPE) || (padding == BE_SYM_MAX_PAD)) {
-        printf("not support this type or padding with aes\n\r");
+        jse_warn("not support this type or padding with aes\n\r");
         goto done;
     }
 
@@ -324,9 +322,9 @@ done:
     symbol_unlock(keySymbol);
     symbol_unlock(ivSymbol);
     symbol_unlock(payloadSymbol);
-    free(key_array);
-    free(iv_array);
-    free(payload_array);
+    jse_free(key_array);
+    jse_free(iv_array);
+    jse_free(payload_array);
     return (array == NULL) ? new_symbol(BE_SYM_NULL) : array;
 }
 
@@ -370,12 +368,12 @@ static be_jse_symbol_t *module_crypto_encrypt()
     symbol_to_str(arg2, aes_padding, sizeof(aes_padding));
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
-        be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n\r");
+        jse_error("not supprted crypte_mode\n\r");
         goto done; /* now just support aes encryption */
     }
 
     if (strcasecmp(aes_type, "cbc") != 0) {
-        be_warn(JS_CRYPTO_TAG, "aes type only cbc supported\n");
+        jse_warn("aes type only cbc supported\n");
         goto done;
     }
 
@@ -410,13 +408,13 @@ static be_jse_symbol_t *module_crypto_encrypt()
     else
         padding_len = 16;
     payload_len = payload_array_len + padding_len;
-    input = (unsigned char *)malloc(payload_len);
+    input = (unsigned char *)jse_malloc(payload_len);
     memcpy(input, payload_array, payload_array_len);
     for (i = 0; i < padding_len; i++)
         input[payload_array_len + i] = padding_len;
 
     /* save the encrypto data */
-    dest = (unsigned char *)malloc(payload_len);
+    dest = (unsigned char *)jse_malloc(payload_len);
 
     /* using mbedtls */
     mbedtls_aes_context aes;
@@ -433,9 +431,8 @@ static be_jse_symbol_t *module_crypto_encrypt()
             symbol_unlock(idx);
         }
     } else {
-        be_warn(JS_CRYPTO_TAG,
-                "mbedtls_aes_crypt_cbc MBEDTLS_AES_ENCRYPT failed, err: %d\n",
-                err);
+        jse_warn("mbedtls_aes_crypt_cbc MBEDTLS_AES_ENCRYPT failed, err: %d\n",
+                 err);
     }
 
 done:
@@ -446,11 +443,11 @@ done:
     symbol_unlock(keySymbol);
     symbol_unlock(ivSymbol);
     symbol_unlock(payloadSymbol);
-    free(key_array);
-    free(iv_array);
-    free(payload_array);
-    if (input) free(input);
-    if (dest) free(dest);
+    jse_free(key_array);
+    jse_free(iv_array);
+    jse_free(payload_array);
+    if (input) jse_free(input);
+    if (dest) jse_free(dest);
     return (array == NULL) ? new_symbol(BE_SYM_NULL) : array;
 }
 
@@ -491,12 +488,12 @@ static be_jse_symbol_t *module_crypto_decrypt()
     symbol_to_str(arg2, aes_padding, sizeof(aes_padding));
 
     if (strcasecmp(crypte_mode, "aes") != 0) {
-        be_error(JS_CRYPTO_TAG, "not supprted crypte_mode\n");
+        jse_error("not supprted crypte_mode\n");
         goto done; /* now just support aes encryption */
     }
 
     if (strcasecmp(aes_type, "cbc") != 0) {
-        be_warn(JS_CRYPTO_TAG, "aes type only cbc supported\n");
+        jse_warn("aes type only cbc supported\n");
         goto done;
     }
 
@@ -525,7 +522,7 @@ static be_jse_symbol_t *module_crypto_decrypt()
     DEBUG_HEX_DUMP("packet", payload_array, payload_array_len);
 
     /* save encrypto data */
-    dest = (unsigned char *)malloc(payload_array_len);
+    dest = (unsigned char *)jse_malloc(payload_array_len);
 
     /* using mbedtls */
     mbedtls_aes_context aes;
@@ -544,9 +541,8 @@ static be_jse_symbol_t *module_crypto_decrypt()
             symbol_unlock(idx);
         }
     } else {
-        be_warn(JS_CRYPTO_TAG,
-                "mbedtls_aes_crypt_cbc MBEDTLS_AES_DECRYPT failed, err: %d\n",
-                err);
+        jse_warn("mbedtls_aes_crypt_cbc MBEDTLS_AES_DECRYPT failed, err: %d\n",
+                 err);
     }
 
 done:
@@ -557,10 +553,10 @@ done:
     symbol_unlock(keySymbol);
     symbol_unlock(ivSymbol);
     symbol_unlock(payloadSymbol);
-    free(key_array);
-    free(iv_array);
-    free(payload_array);
-    if (dest) free(dest);
+    jse_free(key_array);
+    jse_free(iv_array);
+    jse_free(payload_array);
+    if (dest) jse_free(dest);
     return (array == NULL) ? new_symbol(BE_SYM_NULL) : array;
 }
 
@@ -579,5 +575,5 @@ static be_jse_symbol_t *crypto_module_handle_cb(be_jse_vm_ctx_t *execInfo,
 
 void module_crypto_register(void)
 {
-    be_jse_module_load(JS_CRYPTO_TAG, crypto_module_handle_cb);
+    be_jse_module_load("CRYPTO", crypto_module_handle_cb);
 }

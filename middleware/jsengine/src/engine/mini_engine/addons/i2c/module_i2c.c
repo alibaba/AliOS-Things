@@ -29,32 +29,32 @@ static be_jse_symbol_t *i2c_open(void)
         goto out;
     }
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
     symbol_to_str(arg0, data, len);
     ret = board_attach_item(MODULE_I2C, data, &i2c_handle);
     if (0 != ret) {
-        be_error("i2c", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("i2c", "i2c handle:%u\n", i2c_handle.handle);
+    jse_debug("i2c handle:%u\n", i2c_handle.handle);
     i2c_device = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        be_error("i2c", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_i2c_init(i2c_device);
     if (0 != ret) {
-        be_error("i2c", "hal_i2c_init fail!\n");
+        jse_error("hal_i2c_init fail!\n");
         goto out;
     }
     result = 0;
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -81,12 +81,12 @@ static be_jse_symbol_t *i2c_close(void)
     i2c_handle.handle = get_symbol_value_int(arg0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        be_error("i2c", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_i2c_finalize(i2c_device);
     if (0 != ret) {
-        be_error("i2c", "hal_i2c_finalize fail!\n");
+        jse_error("hal_i2c_finalize fail!\n");
         goto out;
     }
     board_disattach_item(MODULE_I2C, &i2c_handle);
@@ -117,14 +117,14 @@ static be_jse_symbol_t *i2c_write(void)
     i2c_handle.handle = get_symbol_value_int(arg0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        be_error("i2c", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_array(arg1)) {
         goto out;
     }
     len  = get_symbol_array_length(arg1);
-    data = calloc(1, sizeof(uint8_t) * (len + 1));
+    data = jse_calloc(1, sizeof(uint8_t) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -140,7 +140,7 @@ static be_jse_symbol_t *i2c_write(void)
     ret = hal_i2c_master_send(i2c_device, i2c_device->config.dev_addr, data,
                               len, I2C_TIMEOUT);
     if (-1 == ret) {
-        be_error("i2c", "hal_i2c_master_send fail!\n");
+        jse_error("hal_i2c_master_send fail!\n");
         goto out;
     }
     result = 0;
@@ -148,7 +148,7 @@ out:
     symbol_unlock(arg0);
     symbol_unlock(arg1);
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
 
@@ -176,21 +176,21 @@ static be_jse_symbol_t *i2c_read(void)
     i2c_handle.handle = get_symbol_value_int(arg0);
     i2c_device        = board_get_node_by_handle(MODULE_I2C, &i2c_handle);
     if (NULL == i2c_device) {
-        be_error("i2c", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_int(arg1)) {
         goto out;
     }
     len  = get_symbol_value_int(arg1);
-    data = calloc(1, sizeof(uint8_t) * (len + 1));
+    data = jse_calloc(1, sizeof(uint8_t) * (len + 1));
     if (NULL == data) {
         goto out;
     }
     ret = hal_i2c_master_recv(i2c_device, i2c_device->config.dev_addr, data,
                               len, I2C_TIMEOUT);
     if (-1 == ret) {
-        be_error("i2c", "hal_i2c_master_recv fail!\n");
+        jse_error("hal_i2c_master_recv fail!\n");
         goto out;
     }
     arr = new_symbol(BE_SYM_ARRAY);
@@ -204,7 +204,7 @@ out:
     symbol_unlock(arg0);
     symbol_unlock(arg1);
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
 

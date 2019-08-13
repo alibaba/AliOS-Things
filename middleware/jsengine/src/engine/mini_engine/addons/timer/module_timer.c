@@ -2,11 +2,14 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <be_jse_module.h>
-#include <be_jse_task.h>
-#include <be_port_osal.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "be_jse_module.h"
+#include "be_jse_task.h"
+#include "be_port_osal.h"
+#include "hal/system.h"
+#include "hal/log.h"
 
 #ifdef JSE_CORE_ADDON_TIMER
 #define MAGIC 0x55aa55aa
@@ -29,7 +32,7 @@ static void timer_call_action(void *arg)
     if (pdata->repeat != 1) {
         DEC_SYMBL_REF(func);
         pdata->magic = 0;
-        free(arg);
+        jse_free(arg);
     }
 }
 
@@ -41,14 +44,14 @@ static be_jse_symbol_t *setup_timer(int repeat)
     be_jse_handle_function(0, &cbv, &msv, NULL, NULL);
 
     if (!cbv || !msv || (!symbol_is_function(cbv))) {
-        be_error("setInterval", "process timer parameter error\n");
+        jse_error("process timer parameter error\n");
         goto done;
     }
 
     long ms = get_symbol_value_int(msv);
 
     timer_action_t *p_param =
-        (timer_action_t *)calloc(1, sizeof(timer_action_t));
+        (timer_action_t *)jse_calloc(1, sizeof(timer_action_t));
     if (!p_param) goto done;
     p_param->magic  = MAGIC;
     p_param->func   = cbv;
@@ -75,7 +78,7 @@ static be_jse_symbol_t *clear_timer()
     be_osal_timer_delete((osTimerId)p_timer_action->timerid);
     p_timer_action->magic = 0;
     DEC_SYMBL_REF(p_timer_action->func);
-    free(p_timer_action);
+    jse_free(p_timer_action);
 
     symbol_unlock(hv);
     return new_symbol(BE_SYM_NULL);

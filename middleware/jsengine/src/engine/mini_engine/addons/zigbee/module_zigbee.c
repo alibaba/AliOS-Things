@@ -8,7 +8,6 @@
 #include <mbedtls/sha1.h>
 #include <zigbee/bone_zigbee.h>
 
-#define JS_ZIGBEE_TAG "Zigbee"
 #define JS_ZIGBEE_DELAYED_INTERNAL 50
 
 static bone_zigbee_t zigbee;
@@ -41,8 +40,7 @@ static void call_action(void* arg)
 
             if (strlen(productKey) == 0 || strlen(deviceName) == 0 ||
                 strlen(deviceSecret) == 0) {
-                be_error(JS_ZIGBEE_TAG,
-                         "productKey or deviceName or deviceSecret not exist");
+                jse_error("productKey or deviceName or deviceSecret not exist");
                 return;
             }
 
@@ -125,7 +123,7 @@ static void call_action(void* arg)
         } else if (schedule_msg->type == BZB_SEARCH) {
             bone_zigbee_search(&zigbee);
         }
-        free(schedule_msg);
+        jse_free(schedule_msg);
         schedule_msg = NULL;
     }
 }
@@ -133,12 +131,12 @@ static void call_action(void* arg)
 static void on_message(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
                        size_t msg_size)
 {
-    be_debug(JS_ZIGBEE_TAG, "on_message addr: %d, msg: %.*s (%d bytes)", addr,
+    jse_debug("on_message addr: %d, msg: %.*s (%d bytes)", addr,
              msg_size, msg, msg_size);
 
     if (on_message_func) {
         schedule_msg_t* schedule_msg =
-            (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
+            (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
         schedule_msg->type = ON_MESSAGE;
         schedule_msg->addr = addr;
         memcpy(schedule_msg->msg, msg, msg_size);
@@ -150,12 +148,12 @@ static void on_message(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
 static void on_connect(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
                        size_t msg_size)
 {
-    be_debug(JS_ZIGBEE_TAG, "on_connect addr: %d, msg: %.*s (%d bytes)", addr,
+    jse_debug("on_connect addr: %d, msg: %.*s (%d bytes)", addr,
              msg_size, msg, msg_size);
 
     if (on_connect_func) {
         schedule_msg_t* schedule_msg =
-            (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
+            (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
         schedule_msg->type = ON_CONNECT;
         schedule_msg->addr = addr;
         memcpy(schedule_msg->msg, msg, msg_size);
@@ -267,7 +265,7 @@ static be_jse_symbol_t* notify()
 {
     be_jse_is_none_arg_function();
     schedule_msg_t* schedule_msg =
-        (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
+        (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
     schedule_msg->type = BZB_NOTIFY;
     be_osal_schedule_call(call_action, schedule_msg);
     return new_int_symbol(0);
@@ -277,7 +275,7 @@ static be_jse_symbol_t* search()
 {
     be_jse_is_none_arg_function();
     schedule_msg_t* schedule_msg =
-        (schedule_msg_t*)calloc(1, sizeof(schedule_msg_t));
+        (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
     schedule_msg->type = BZB_SEARCH;
     be_osal_schedule_call(call_action, schedule_msg);
     return new_int_symbol(0);
@@ -371,5 +369,5 @@ static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
 void module_zigbee_load(void)
 {
     memset(&zigbee, 0, sizeof(zigbee));
-    be_jse_module_load(JS_ZIGBEE_TAG, module_handle_cb);
+    be_jse_module_load("ZIGBEE", module_handle_cb);
 }
