@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include <hal/wifi.h>
-#include <netmgr.h>
+#include "network/netmgr/netmgr.h"
 #include "aos/kernel.h"
 
 #include <be_common.h>
@@ -115,7 +115,7 @@ int32_t hal_system_kv_set(const char *key, const void *value, int len, int sync)
 
 int32_t hal_system_wifi_connect(uint8_t ssid[32], uint8_t password[64])
 {
-    netmgr_connect(ssid, password, 10 * 1000);
+    netmgr_connect((const char *)ssid, (const char *)password, 10 * 1000);
 
     return 0;
 }
@@ -168,7 +168,7 @@ int32_t hal_system_wifi_init(void)
     }
     wifi_inited = 1;
 
-    printf("Wifi nitializing...\r\n");
+    LOGI("", "Wifi initializing...\r\n");
 #ifdef WITH_SAL
     sal_add_dev(NULL, NULL);
     sal_init();
@@ -178,7 +178,7 @@ int32_t hal_system_wifi_init(void)
     netmgr_start(false);
     aos_msleep(200);
 
-    printf("Wifi initialized.\r\n");
+    LOGI("", "Wifi initialized.\r\n");
     return 0;
 }
 
@@ -193,7 +193,7 @@ int32_t hal_system_wifi_init(void)
  **************************************************/
 int32_t hal_system_fs_init(void)
 {
-    printf("SPIFFS initializing...\r\n");
+    LOGI("", "SPIFFS initializing...\r\n");
     return spiffs_register();
 }
 
@@ -208,6 +208,6 @@ int32_t hal_system_fs_init(void)
  **************************************************/
 void hal_system_reboot(void)
 {
-    printf("reboot!\n");
+    LOGI("", "reboot!\n");
     aos_reboot();
 }

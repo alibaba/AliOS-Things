@@ -8,19 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hal/log.h"
+#include "hal/system.h"
 #include "linkkit/infra/infra_compat.h"
 #include "linkkit/infra/infra_mem_stats.h"
 #include "linkkit/mqtt_api.h"
 #include "linkkit/wrappers/wrappers.h"
-
 #include "mqtt_instance.h"
-
-#define DPRINT(...)                                         \
-    do {                                                    \
-        printf("\033[1;31;40m%s.%d: ", __func__, __LINE__); \
-        printf(__VA_ARGS__);                                \
-        printf("\033[0m");                                  \
-    } while (0)
 
 static void *mqtt_client = NULL;
 
@@ -238,13 +232,13 @@ int mqtt_subscribe(char *topic,
 
     if (!mqtt_client) return -1;
 
-    mqtt_instance_topic_t *t = aos_malloc(sizeof(mqtt_instance_topic_t));
+    mqtt_instance_topic_t *t = jse_malloc(sizeof(mqtt_instance_topic_t));
     if (!t) return -1;
     memset(t, 0, sizeof(mqtt_instance_topic_t));
 
-    t->topic = aos_malloc(strlen(topic) + 1);
+    t->topic = jse_malloc(strlen(topic) + 1);
     if (!t->topic) {
-        aos_free(t);
+        jse_free(t);
         return -1;
     }
     strcpy(t->topic, topic);
@@ -300,7 +294,7 @@ int mqtt_publish(char *topic, int qos, void *data, int len)
     mqtt_msg.payload_len = len;
 
     if (IOT_MQTT_Publish(mqtt_client, topic, &mqtt_msg) < 0) {
-        DPRINT("IOT_MQTT_Publish failed\n");
+        jse_error("IOT_MQTT_Publish failed\n");
         return -1;
     }
 
@@ -311,7 +305,7 @@ static char mqtt_domain[64] = {0};
 static int mqtt_port        = 1883;
 void mqtt_set_domain(char *domain, int port)
 {
-    DPRINT("IOT MQTT set url=%s:%d \n", domain, port);
+    jse_debug("IOT MQTT set url=%s:%d \n", domain, port);
     if (domain) {
         strncpy(mqtt_domain, domain, 63);
         mqtt_port = port;

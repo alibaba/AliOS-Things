@@ -9,7 +9,7 @@
 #include <sys/types.h>
 
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "be_utils.h"
 #include "bone_engine_inl.h"
@@ -72,7 +72,7 @@ static duk_ret_t native_udp_create_socket(duk_context *ctx)
     int sock_id = 0;
 
     sock_id = socket(AF_INET, SOCK_DGRAM, 0);
-    debug("sock_id = %d\n", sock_id);
+    jse_debug("sock_id = %d\n", sock_id);
     duk_push_int(ctx, sock_id);
     return 1;
 }
@@ -97,13 +97,13 @@ static duk_ret_t native_udp_bind(duk_context *ctx)
 
     if (!duk_is_number(ctx, 0) || !duk_is_string(ctx, 1) ||
         !duk_is_number(ctx, 2)) {
-        warn("parameter must be (number, string, number)\n");
+        jse_warn("parameter must be (number, string, number)\n");
         goto out;
     }
 
     sock_id = duk_get_int(ctx, 0);
     if (sock_id < 0) {
-        error("socket id[%d] error\n", sock_id);
+        jse_error("socket id[%d] error\n", sock_id);
         goto out;
     }
 
@@ -111,7 +111,7 @@ static duk_ret_t native_udp_bind(duk_context *ctx)
 
     port = duk_get_int(ctx, 2);
     if (port <= 0) {
-        error("port[%d] error\n", port);
+        jse_error("port[%d] error\n", port);
         goto out;
     }
 
@@ -126,7 +126,7 @@ static duk_ret_t native_udp_bind(duk_context *ctx)
     }
     addr_in.sin_port = htons(port);
 
-    debug("udp bind socket id=%d, ip=%s, port=%d\n", sock_id, ip, port);
+    jse_debug("udp bind socket id=%d, ip=%s, port=%d\n", sock_id, ip, port);
     ret = bind(sock_id, (struct sockaddr *)&addr_in, sizeof(addr_in));
 
 out:
@@ -143,7 +143,7 @@ static void udp_send_notify(void *pdata)
     duk_pcall(ctx, 1);
     duk_pop(ctx);
     bone_engine_unref(ctx, p->js_cb_ref);
-    free(p);
+    jse_free(p);
 }
 
 /*************************************************************************************
@@ -173,7 +173,7 @@ static void udp_send_routine(void *arg)
         int broadcast = 1;
         if (setsockopt(sock_id, SOL_SOCKET, SO_BROADCAST, &broadcast,
                        sizeof(broadcast)) < 0) {
-            error("setsockopt failed\n");
+            jse_error("setsockopt failed\n");
             bone_engine_unref(ctx, send_param->js_cb_ref);
             goto out;
         }
@@ -181,9 +181,9 @@ static void udp_send_routine(void *arg)
 
     ret = sendto(sock_id, send_param->msg, send_param->msg_len, 0,
                  (struct sockaddr *)&addr_in, sizeof(addr_in));
-    p   = calloc(1, sizeof(udp_send_notify_param_t));
+    p   = jse_calloc(1, sizeof(udp_send_notify_param_t));
     if (!p) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         bone_engine_unref(ctx, send_param->js_cb_ref);
         goto out;
     }
@@ -193,8 +193,8 @@ static void udp_send_routine(void *arg)
     be_jse_task_schedule_call(udp_send_notify, p);
 
 out:
-    free(send_param->msg);
-    free(send_param);
+    jse_free(send_param->msg);
+    jse_free(send_param);
     be_osal_delete_task(NULL);
 }
 
@@ -221,20 +221,20 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
 
     if (!duk_is_number(ctx, 0) || !duk_is_object(ctx, 1) ||
         !duk_is_array(ctx, 2) || !duk_is_function(ctx, 3)) {
-        warn("parameter must be (number, object, array, function)\n");
+        jse_warn("parameter must be (number, object, array, function)\n");
         goto out;
     }
 
     sock_id = duk_get_int(ctx, 0);
     if (sock_id <= 0) {
-        warn("socket id[%d] is invalid\n", sock_id);
+        jse_warn("socket id[%d] is invalid\n", sock_id);
         goto out;
     }
 
     memset(&options, 0, sizeof(udp_options_t));
     duk_get_prop_string(ctx, 1, "port");
     if (!duk_is_number(ctx, -1)) {
-        warn("port not specify\n");
+        jse_warn("port not specify\n");
         duk_pop(ctx);
         goto out;
     }
@@ -243,7 +243,7 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
 
     duk_get_prop_string(ctx, 1, "ip");
     if (!duk_is_string(ctx, -1)) {
-        warn("ip not specify\n");
+        jse_warn("ip not specify\n");
         duk_pop(ctx);
         goto out;
     }
@@ -251,9 +251,9 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     duk_pop(ctx);
 
     msg_len = duk_get_length(ctx, 2);
-    msg     = (char *)malloc(msg_len);
+    msg     = (char *)jse_malloc(msg_len);
     if (!msg) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         goto out;
     }
     for (i = 0; i < msg_len; i++) {
@@ -264,10 +264,10 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     DEBUG_HEX_DUMP("send msg:", msg, msg_len);
 
     udp_send_param_t *send_param =
-        (udp_send_param_t *)malloc(sizeof(*send_param));
+        (udp_send_param_t *)jse_malloc(sizeof(*send_param));
     if (!send_param) {
-        error("allocate memory failed\n");
-        free(msg);
+        jse_error("allocate memory failed\n");
+        jse_free(msg);
         goto out;
     }
     send_param->sock_id = sock_id;
@@ -302,7 +302,7 @@ static void udp_recv_notify(void *pdata)
     duk_pcall(ctx, 4);
     duk_pop(ctx);
     bone_engine_unref(ctx, p->js_cb_ref);
-    free(p);
+    jse_free(p);
 }
 
 /*************************************************************************************
@@ -320,9 +320,9 @@ static void udp_recv_routine(void *arg)
     sock_id  = recv_param->sock_id;
     addr_len = sizeof(struct sockaddr_in);
 
-    udp_recv_notify_param_t *p = calloc(1, sizeof(*p));
+    udp_recv_notify_param_t *p = jse_calloc(1, sizeof(*p));
     if (!p) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         duk_context *ctx = bone_engine_get_context();
         bone_engine_unref(ctx, recv_param->js_cb_ref);
         goto out;
@@ -340,7 +340,7 @@ static void udp_recv_routine(void *arg)
     be_jse_task_schedule_call(udp_recv_notify, p);
 
 out:
-    free(recv_param);
+    jse_free(recv_param);
     be_osal_delete_task(NULL);
 }
 
@@ -363,20 +363,20 @@ static duk_ret_t native_udp_recvfrom(duk_context *ctx)
     udp_recv_param_t *recv_param;
 
     if (!duk_is_number(ctx, 0) || !duk_is_function(ctx, 1)) {
-        warn("parameter must be number and function\n");
+        jse_warn("parameter must be number and function\n");
         goto out;
     }
 
     sock_id = duk_get_int(ctx, 0);
     if (sock_id < 0) {
-        warn("socket id[%d] is invalid\n", sock_id);
+        jse_warn("socket id[%d] is invalid\n", sock_id);
         goto out;
     }
 
-    debug("sock_id: %d\n", sock_id);
-    recv_param = (udp_recv_param_t *)calloc(1, sizeof(*recv_param));
+    jse_debug("sock_id: %d\n", sock_id);
+    recv_param = (udp_recv_param_t *)jse_calloc(1, sizeof(*recv_param));
     if (!recv_param) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         goto out;
     }
 
@@ -408,13 +408,13 @@ static duk_ret_t native_udp_close_socket(duk_context *ctx)
     int sock_id = 0;
 
     if (!duk_is_number(ctx, 0)) {
-        warn("parameter must be number\n");
+        jse_warn("parameter must be number\n");
         goto out;
     }
 
     sock_id = duk_get_int(ctx, 0);
     if (sock_id <= 0) {
-        warn("socket id[%d] is invalid", sock_id);
+        jse_warn("socket id[%d] is invalid", sock_id);
         goto out;
     }
     ret = close(sock_id);

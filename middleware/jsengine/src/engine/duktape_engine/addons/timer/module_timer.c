@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "bone_engine_inl.h"
 
@@ -23,12 +23,11 @@ typedef struct timer_wrap {
  */
 static void timer_action(void *arg)
 {
-    debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)arg;
 
     /* 这里判断下，仅能减少出问题的概率 */
     if (t->magic != MAGIC) {
-        error("Timer has been cleared\n");
+        jse_error("Timer has been cleared\n");
         return;
     }
 
@@ -39,21 +38,20 @@ static void timer_action(void *arg)
 
     /* 在js回调函数中清除自身 */
     if (t->magic != MAGIC) {
-        error("Timer has been cleared\n");
+        jse_error("Timer has been cleared\n");
         return;
     }
 
     if (!t->repeat) {
         bone_engine_unref(ctx, t->js_cb_ref);
         t->magic = 0;
-        free(t);
+        jse_free(t);
     }
 }
 
 static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat)
 {
-    debug("in\n");
-    timer_wrap_t *t = (timer_wrap_t *)malloc(sizeof(*t));
+    timer_wrap_t *t = (timer_wrap_t *)jse_malloc(sizeof(*t));
     t->magic        = MAGIC;
     t->js_cb_ref    = js_cb_ref;
     t->repeat       = repeat;
@@ -63,27 +61,25 @@ static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat)
 
 static void clear_timer(timer_wrap_t *t)
 {
-    debug("in\n");
     if (!t) {
-        warn("timer wrap handle is null\n");
+        jse_warn("timer wrap handle is null\n");
         return;
     }
     if (t->magic != MAGIC) {
-        warn("timer wrap handle has be cleared\n");
+        jse_warn("timer wrap handle has be cleared\n");
         return;
     }
     be_jse_task_cancel_timer(t->timer_id);
     duk_context *ctx = bone_engine_get_context();
     bone_engine_unref(ctx, t->js_cb_ref);
     t->magic = 0;
-    free(t);
+    jse_free(t);
 }
 
 static duk_ret_t native_setTimeout(duk_context *ctx)
 {
-    debug("in\n");
     if (!(duk_is_function(ctx, 0) && duk_is_number(ctx, 1))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(ctx,
                         "setTimeout parameters must be function and number");
         return duk_throw(ctx);
@@ -98,7 +94,6 @@ static duk_ret_t native_setTimeout(duk_context *ctx)
 
 static duk_ret_t native_clearTimeout(duk_context *ctx)
 {
-    debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)duk_get_pointer(ctx, 0);
     clear_timer(t);
     return 0;
@@ -106,9 +101,8 @@ static duk_ret_t native_clearTimeout(duk_context *ctx)
 
 static duk_ret_t native_setInterval(duk_context *ctx)
 {
-    debug("in\n");
     if (!(duk_is_function(ctx, 0) && duk_is_number(ctx, 1))) {
-        warn("invalid parameters\n");
+        jse_warn("invalid parameters\n");
         duk_push_string(ctx,
                         "setInterval parameters must be function and number");
         return duk_throw(ctx);
@@ -123,7 +117,6 @@ static duk_ret_t native_setInterval(duk_context *ctx)
 
 static duk_ret_t native_clearInterval(duk_context *ctx)
 {
-    debug("in\n");
     timer_wrap_t *t = (timer_wrap_t *)duk_get_pointer(ctx, 0);
     clear_timer(t);
     return 0;
