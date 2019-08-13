@@ -5,6 +5,7 @@
 
 #include "alcs_internal.h"
 #include "alcs_api_internal.h"
+#include "CoAPPlatform.h"
 #include "CoAPResource.h"
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"
