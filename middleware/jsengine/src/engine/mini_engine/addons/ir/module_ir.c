@@ -191,7 +191,7 @@ static be_jse_symbol_t *ir_open(void)
     }
 
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -199,19 +199,19 @@ static be_jse_symbol_t *ir_open(void)
 
     ret = board_attach_item(MODULE_GPIO, data, &gpio_handle);
     if (0 != ret) {
-        be_error("ir", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("ir", "ir handle:%u\n", gpio_handle.handle);
+    jse_debug("ir handle:%u\n", gpio_handle.handle);
 
     gpio_device = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_gpio_init(gpio_device);
     if (0 != ret) {
-        be_error("ir", "hal_gpio_init fail!\n");
+        jse_error("hal_gpio_init fail!\n");
         goto out;
     }
     symbol_unlock(gpio_device->priv);
@@ -221,7 +221,7 @@ static be_jse_symbol_t *ir_open(void)
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -246,7 +246,7 @@ static be_jse_symbol_t *ir_close(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_gpio_disable_irq(gpio_device);
@@ -268,7 +268,7 @@ static void ir_notify(void *arg)
     be_jse_symbol_t *argv[1];
     argv[0] = new_int_symbol(msg->value);
     be_jse_execute_func(jsengine_get_executor(), msg->fun, 1, argv);
-    free(msg);
+    jse_free(msg);
     msg = NULL;
 }
 
@@ -279,7 +279,7 @@ static void ir_handle(void *arg)
     gpio_dev_t *gpio            = (gpio_dev_t *)arg;
 
     if (NULL == gpio) {
-        be_error("ir", "param error!\n");
+        jse_error("param error!\n");
         return;
     }
     value = ir_nec(gpio);
@@ -288,10 +288,10 @@ static void ir_handle(void *arg)
     }
     fun_symbol = (be_jse_symbol_t *)gpio->priv;
     if (!fun_symbol || !symbol_is_function(fun_symbol)) {
-        be_error("ir", "fun_symbol error!\n");
+        jse_error("fun_symbol error!\n");
         return;
     }
-    ir_notify_t *msg = malloc(sizeof(*msg));
+    ir_notify_t *msg = jse_malloc(sizeof(*msg));
     if (NULL == msg) {
         return;
     }
@@ -318,7 +318,7 @@ static be_jse_symbol_t *ir_on(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_function(arg1)) {
@@ -328,7 +328,7 @@ static be_jse_symbol_t *ir_on(void)
     ret = hal_gpio_enable_irq(gpio_device, IRQ_TRIGGER_FALLING_EDGE, ir_handle,
                               gpio_device);
     if (ret < 0) {
-        be_error("ir", "hal_gpio_enable_irq fail!\n");
+        jse_error("hal_gpio_enable_irq fail!\n");
         goto out;
     }
     symbol_unlock(gpio_device->priv);
@@ -436,13 +436,13 @@ static be_jse_symbol_t *ir_send(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_sda           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_sda) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     gpio_handle.handle = get_symbol_value_int(arg1);
     gpio_scl           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_scl) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
@@ -450,7 +450,7 @@ static be_jse_symbol_t *ir_send(void)
         goto out;
     }
     len  = get_symbol_array_length(arg2);
-    data = calloc(1, sizeof(uint8_t) * (len + 1));
+    data = jse_calloc(1, sizeof(uint8_t) * (len + 1));
     if (NULL == data) {
         goto out;
     }
@@ -473,7 +473,7 @@ out:
     symbol_unlock(arg1);
     symbol_unlock(arg2);
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     return new_int_symbol(len);
@@ -501,32 +501,32 @@ static be_jse_symbol_t *ir_learn(void)
     gpio_handle.handle = get_symbol_value_int(arg0);
     gpio_sda           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_sda) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
     gpio_handle.handle = get_symbol_value_int(arg1);
     gpio_scl           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_scl) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
     gpio_handle.handle = get_symbol_value_int(arg2);
     gpio_busy          = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_busy) {
-        be_error("ir", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = ir_learn_start(gpio_scl->port, gpio_sda->port, gpio_busy->port, buff);
     if (ret <= 0) {
-        be_error("ir", "ir_learn_start fail!\n");
+        jse_error("ir_learn_start fail!\n");
         goto out;
     }
     arr = new_symbol(BE_SYM_ARRAY);
     for (i = 0; i < 232; ++i) {
-        /* printf("0x%x ",buff[i]);
-           if(0 == i%16)printf("\n"); */
+        /* jse_debug("", "0x%x ",buff[i]);
+           if(0 == i%16)jse_debug("", "\n"); */
         be_jse_symbol_t *idx = new_int_symbol(buff[i]);
         symbol_array_push(arr, idx);
         symbol_unlock(idx);

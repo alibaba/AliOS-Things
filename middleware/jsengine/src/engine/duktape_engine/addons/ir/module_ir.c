@@ -5,7 +5,7 @@
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_hal.h"
 #include "be_port_osal.h"
 #include "board-mgr/board_mgr.h"
@@ -173,26 +173,25 @@ static duk_ret_t native_ir_open(duk_context *ctx)
     gpio_handle.handle      = 0xFFFFFFFF;
     gpio_dev_t *gpio_device = NULL;
 
-    debug("in\n");
     if (!duk_is_string(ctx, 0)) {
-        warn("parameter must be string\n");
+        jse_warn("parameter must be string\n");
         goto out;
     }
     const char *id = duk_get_string(ctx, 0);
     ret            = board_attach_item(MODULE_GPIO, id, &gpio_handle);
     if (0 != ret) {
-        error("board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    debug("ir handle:%u\n", gpio_handle.handle);
+    jse_debug("ir handle:%u\n", gpio_handle.handle);
     gpio_device = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_gpio_init(gpio_device);
     if (0 != ret) {
-        error("hal_gpio_init fail!\n");
+        jse_error("hal_gpio_init fail!\n");
         goto out;
     }
     gpio_device->priv = NULL;
@@ -212,15 +211,14 @@ static duk_ret_t native_ir_close(duk_context *ctx)
     item_handle_t gpio_handle;
     gpio_dev_t *gpio_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0)) {
-        warn("parameter must be handle\n");
+        jse_warn("parameter must be handle\n");
         goto out;
     }
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_gpio_disable_irq(gpio_device);
@@ -240,13 +238,13 @@ struct gpio_irq_notify_param {
 static void gpio_irq_notify(void *arg)
 {
     struct gpio_irq_notify_param *p = (struct gpio_irq_notify_param *)arg;
-    debug("value: 0x%x\n", p->value);
+    jse_debug("value: 0x%x\n", p->value);
     duk_context *ctx = bone_engine_get_context();
     bone_engine_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->value);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
-    free(p);
+    jse_free(p);
 }
 
 /* 中断中避免调用打印 */
@@ -256,7 +254,7 @@ static void ir_handle(void *arg)
     gpio_dev_t *gpio = (gpio_dev_t *)arg;
 
     if (NULL == gpio) {
-        /* error("param error!\n"); */
+        /* jse_error("param error!\n"); */
         return;
     }
     value = ir_nec(gpio);
@@ -266,17 +264,17 @@ static void ir_handle(void *arg)
 
     int js_cb_ref = (int)gpio->priv;
     if (js_cb_ref <= 0) {
-        /* error("js cb ref error, ref: %d\n", js_cb_ref); */
+        /* jse_error("js cb ref error, ref: %d\n", js_cb_ref); */
         return;
     }
 
     struct gpio_irq_notify_param *p =
-        (struct gpio_irq_notify_param *)malloc(sizeof(*p));
+        (struct gpio_irq_notify_param *)jse_malloc(sizeof(*p));
     p->js_cb_ref = js_cb_ref;
     p->value     = value & 0xFFFF;
     if (be_jse_task_schedule_call(gpio_irq_notify, p) < 0) {
-        /* warn("be_jse_task_schedule_call failed\n"); */
-        free(p);
+        /* jse_warn("be_jse_task_schedule_call failed\n"); */
+        jse_free(p);
     }
 }
 
@@ -287,21 +285,20 @@ static duk_ret_t native_ir_on(duk_context *ctx)
     gpio_handle.handle      = 0xFFFFFFFF;
     gpio_dev_t *gpio_device = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_function(ctx, 1)) {
-        warn("parameter must be handle and function\n");
+        jse_warn("parameter must be handle and function\n");
         goto out;
     }
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     gpio_device        = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_gpio_enable_irq(gpio_device, IRQ_TRIGGER_FALLING_EDGE, ir_handle,
                               gpio_device);
     if (ret < 0) {
-        error("hal_gpio_enable_irq fail!\n");
+        jse_error("hal_gpio_enable_irq fail!\n");
         goto out;
     }
     duk_dup(ctx, 1);
@@ -397,38 +394,37 @@ static duk_ret_t native_ir_send(duk_context *ctx)
     int arr_idx;
     int err = -1;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_pointer(ctx, 1) ||
         !duk_is_array(ctx, 2)) {
-        warn("parameter must be handle, handle and array\n");
+        jse_warn("parameter must be handle, handle and array\n");
         goto out;
     }
 
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     gpio_sda           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_sda) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 1);
     gpio_scl           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_scl) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
 
     arr_idx = duk_normalize_index(ctx, 2);
     len     = duk_get_length(ctx, arr_idx);
-    data    = (uint8_t *)malloc(sizeof(uint8_t) * len);
+    data    = (uint8_t *)jse_malloc(sizeof(uint8_t) * len);
     if (NULL == data) {
-        warn("allocate memory failed\n");
+        jse_warn("allocate memory failed\n");
         goto out;
     }
     for (i = 0; i < len; i++) {
         duk_get_prop_index(ctx, arr_idx, i);
         if (!duk_is_number(ctx, -1)) {
-            warn("data is not number, index: %d\n", i);
+            jse_warn("data is not number, index: %d\n", i);
             duk_pop(ctx);
             goto out;
         }
@@ -442,7 +438,7 @@ static duk_ret_t native_ir_send(duk_context *ctx)
     /* ir_buff(gpio_sda,gpio_scl,data,len); */
     err = 0;
 out:
-    free(data);
+    jse_free(data);
     duk_push_int(ctx, err);
     return 1;
 }
@@ -457,37 +453,36 @@ static duk_ret_t native_ir_learn(duk_context *ctx)
     gpio_dev_t *gpio_sda  = NULL;
     gpio_dev_t *gpio_busy = NULL;
 
-    debug("in\n");
     if (!duk_is_pointer(ctx, 0) || !duk_is_pointer(ctx, 1) ||
         !duk_is_pointer(ctx, 2)) {
-        warn("parameter must be handle, handle and handle\n");
+        jse_warn("parameter must be handle, handle and handle\n");
         goto failed;
     }
 
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 0);
     gpio_sda           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_sda) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto failed;
     }
 
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 1);
     gpio_scl           = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_scl) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto failed;
     }
 
     gpio_handle.handle = (uint32_t)duk_get_pointer(ctx, 2);
     gpio_busy          = board_get_node_by_handle(MODULE_GPIO, &gpio_handle);
     if (NULL == gpio_busy) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto failed;
     }
 
     ret = ir_learn_start(gpio_scl->port, gpio_sda->port, gpio_busy->port, buff);
     if (ret <= 0) {
-        error("ir_learn_start fail!\n");
+        jse_error("ir_learn_start fail!\n");
         goto failed;
     }
     int arr_idx = duk_push_array(ctx);

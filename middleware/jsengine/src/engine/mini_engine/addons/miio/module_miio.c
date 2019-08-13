@@ -5,7 +5,7 @@
 #include "be_jse_api.h"
 #include "be_jse_module.h"
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "hal/system.h"
 #include "miio/miio-device.h"
@@ -23,7 +23,7 @@ static be_jse_symbol_t *module_miio_create_device()
 
     symbol_to_str(arg0, host, sizeof(host));
     symbol_to_str(arg1, token, sizeof(token));
-    debug("host: %s, token: %s\n", host, token);
+    jse_debug("host: %s, token: %s\n", host, token);
 
     symbol_unlock(arg0);
     symbol_unlock(arg1);
@@ -42,10 +42,10 @@ static void event_cb(void *arg)
 {
     async_event_param_t *p = (async_event_param_t *)arg;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->func        = p->func;
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_str_symbol(p->event);
     int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
@@ -53,22 +53,22 @@ static void event_cb(void *arg)
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
     } else {
-        error("fatal error for be_osal_schedule_call\n\r");
+        jse_error("fatal error for be_osal_schedule_call\n\r");
         DEC_SYMBL_REF(async->func);
     }
-    free(p->event);
-    free(p);
+    jse_free(p->event);
+    jse_free(p);
 }
 
 static void on_event(void *priv, const char *event)
 {
-    debug("priv: %p, event: %s\n", priv, event);
+    jse_debug("priv: %p, event: %s\n", priv, event);
     if (strstr(event, "heartbeat")) {
-        debug("ignore heartbeet event\n");
+        jse_debug("ignore heartbeet event\n");
         return;
     }
 
-    async_event_param_t *p = (async_event_param_t *)malloc(sizeof(*p));
+    async_event_param_t *p = (async_event_param_t *)jse_malloc(sizeof(*p));
     p->func                = (be_jse_symbol_t *)priv;
     p->event               = strdup(event);
     be_jse_task_schedule_call(event_cb, p);
@@ -80,15 +80,13 @@ static be_jse_symbol_t *module_miio_device_on_event()
     be_jse_symbol_t *arg0 = NULL;
     be_jse_symbol_t *arg1 = NULL;
 
-    debug("in\n");
     be_jse_handle_function(PARSE_NOSKIP_ALL, &arg0, &arg1, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0) || (arg1 == NULL) ||
         !symbol_is_function(arg1)) {
-        error("invalid parameter");
+        jse_error("invalid parameter");
         goto out;
     }
 
-    debug("arg1: %p\n", arg1);
     miio_device_t *device = (miio_device_t *)get_symbol_value_int(arg0);
     miio_device_set_event_cb(device, on_event, (void *)arg1);
     INC_SYMBL_REF(arg1);
@@ -118,14 +116,14 @@ static be_jse_symbol_t *module_miio_device_control()
     symbol_to_str(arg1, method, sizeof(method));
 
     int params_len = symbol_str_len(arg2);
-    params         = (char *)malloc(params_len + 1);
+    params         = (char *)jse_malloc(params_len + 1);
     if (!params) goto cleanup;
     symbol_to_str(arg2, params, params_len);
     params[params_len] = 0;
 
     if (arg3) {
         int sid_len = symbol_str_len(arg3);
-        sid         = (char *)malloc(sid_len + 1);
+        sid         = (char *)jse_malloc(sid_len + 1);
         if (!sid) goto cleanup;
         symbol_to_str(arg3, sid, sid_len);
         sid[sid_len] = 0;
@@ -140,8 +138,8 @@ cleanup:
     symbol_unlock(arg2);
     symbol_unlock(arg3);
 
-    if (params) free(params);
-    if (sid) free(sid);
+    if (params) jse_free(params);
+    if (sid) jse_free(sid);
 
     if (res) return new_str_symbol(res);
 
@@ -157,10 +155,10 @@ static void discover_cb(void *arg)
 {
     async_discover_param_t *p = (async_discover_param_t *)arg;
 
-    BE_ASYNC_S *async  = (BE_ASYNC_S *)calloc(1, sizeof(BE_ASYNC_S));
+    BE_ASYNC_S *async  = (BE_ASYNC_S *)jse_calloc(1, sizeof(BE_ASYNC_S));
     async->func        = p->func;
     async->param_count = 1;
-    async->params      = (be_jse_symbol_t **)calloc(
+    async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_int_symbol(p->device_id);
     int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
@@ -168,16 +166,16 @@ static void discover_cb(void *arg)
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
     } else {
-        error("fatal error for be_osal_schedule_call\n\r");
+        jse_error("fatal error for be_osal_schedule_call\n\r");
         DEC_SYMBL_REF(async->func);
     }
-    free(p);
+    jse_free(p);
 }
 
 static void on_discover(void *priv, long device_id)
 {
-    debug("discover device %ld\n", device_id);
-    async_discover_param_t *p = (async_discover_param_t *)malloc(sizeof(*p));
+    jse_debug("discover device %ld\n", device_id);
+    async_discover_param_t *p = (async_discover_param_t *)jse_malloc(sizeof(*p));
     p->func                   = (be_jse_symbol_t *)priv;
     p->device_id              = device_id;
     be_jse_task_schedule_call(discover_cb, p);
@@ -192,12 +190,12 @@ static be_jse_symbol_t *module_miio_discover()
     be_jse_handle_function(PARSE_NOSKIP_ALL, &arg0, &arg1, NULL, NULL);
     if ((arg0 == NULL) || !symbol_is_int(arg0) || (arg1 == NULL) ||
         !symbol_is_function(arg1)) {
-        error("invalid parameter");
+        jse_error("invalid parameter");
         goto out;
     }
 
     int timeout = get_symbol_value_int(arg0);
-    debug("timeout: %d\n", timeout);
+    jse_debug("timeout: %d\n", timeout);
     miio_device_discover(timeout, (void *)arg1, on_discover);
     INC_SYMBL_REF(arg1);
 
@@ -222,5 +220,5 @@ static be_jse_symbol_t *module_handle_cb(be_jse_vm_ctx_t *execInfo,
 
 void module_miio_register(void)
 {
-    be_jse_module_load("miio", module_handle_cb);
+    be_jse_module_load("MIIO", module_handle_cb);
 }

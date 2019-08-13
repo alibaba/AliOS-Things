@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include "be_jse_task.h"
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "hal/system.h"
 
@@ -54,7 +54,7 @@ void *be_jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
 {
     osTimerId timer_id = NULL;
     jse_task_msg_t *p_param =
-        (jse_task_msg_t *)calloc(1, sizeof(jse_task_msg_t));
+        (jse_task_msg_t *)jse_calloc(1, sizeof(jse_task_msg_t));
 
     if (!p_param) return NULL;
 
@@ -83,7 +83,7 @@ void *be_jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
     return timer_id;
 
 fail:
-    free(p_param);
+    jse_free(p_param);
     return NULL;
 }
 
@@ -105,7 +105,7 @@ int32_t be_jse_task_schedule_call(bone_engine_call_t call, void *arg)
     p_param->param    = arg;
     p_param->type     = JSE_TASK_MSG_CALLBACK;
     if (jse_task_mq == NULL) {
-        be_warn("jse_task", "jse_task_mq has not been initlized");
+        jse_warn("jse_task_mq has not been initlized");
         return -1;
     }
     be_osal_lock_mutex(jse_task_mutex, JSE_TASK_MUTEX_WAITIME);

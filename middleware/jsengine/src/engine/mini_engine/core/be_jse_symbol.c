@@ -6,6 +6,7 @@
 #include "be_jse_api.h"
 #include "be_jse_executor.h"
 #include "be_jse_lex.h"
+#include "hal/system.h"
 
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
 be_jse_symbol_t **gSymbolBlocks = 0;
@@ -88,9 +89,9 @@ void be_jse_symbol_table_init()
 {
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
     gSymbolTableSize = BE_JSE_SYMBOL_TABLE_BLOCK_SIZE;
-    gSymbolBlocks    = calloc(1, sizeof(be_jse_symbol_t *));
+    gSymbolBlocks    = jse_calloc(1, sizeof(be_jse_symbol_t *));
     gSymbolBlocks[0] =
-        calloc(1, sizeof(be_jse_symbol_t) * BE_JSE_SYMBOL_TABLE_BLOCK_SIZE);
+        jse_calloc(1, sizeof(be_jse_symbol_t) * BE_JSE_SYMBOL_TABLE_BLOCK_SIZE);
 #else
     memset(gSymbolTable, 0, sizeof(gSymbolTable));
 
@@ -99,11 +100,11 @@ void be_jse_symbol_table_init()
     gSymbolTableFirstFreeSlotID =
         symbol_table_init(1 /* first */, gSymbolTableSize);
 
-    printf("%s %d \n", __FUNCTION__, __LINE__);
-    printf("gSymbolTableSize = %d gSymbolTableFirstFreeSlotID = %d \n",
-           gSymbolTableSize, gSymbolTableFirstFreeSlotID);
+    jse_debug("%s %d \n", __FUNCTION__, __LINE__);
+    jse_debug("gSymbolTableSize = %d gSymbolTableFirstFreeSlotID = %d \n",
+              gSymbolTableSize, gSymbolTableFirstFreeSlotID);
 #ifdef DUMP_SYMBL_USAGE
-    printf("beJSESymbolUsage=%d\n", beJSESymbolUsage);
+    jse_debug("beJSESymbolUsage=%d\n", beJSESymbolUsage);
 #endif
 }
 
@@ -112,8 +113,8 @@ void be_jse_symbol_table_deinit()
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
     unsigned int i;
     for (i = 0; i<gSymbolTableSize>> BE_JSE_SYMBOL_TABLE_BLOCK_SHIFT; i++)
-        free(gSymbolBlocks[i]);
-    free(gSymbolBlocks);
+        jse_free(gSymbolBlocks[i]);
+    jse_free(gSymbolBlocks);
 
     gSymbolTableSize = 0;
     gSymbolBlocks    = 0;
@@ -138,16 +139,16 @@ void be_jse_set_symbol_table_size(unsigned int newSize)
 
     /* resize block table */
     gSymbolBlocks =
-        realloc(gSymbolBlocks, sizeof(be_jse_symbol_t *) * newBlockCount);
-    printf("gSymbolBlocks = %p \n", gSymbolBlocks);
+        jse_realloc(gSymbolBlocks, sizeof(be_jse_symbol_t *) * newBlockCount);
+    jse_debug("gSymbolBlocks = %p \n", gSymbolBlocks);
 
     /* allocate more blocks */
     unsigned int i;
 
     for (i = oldBlockCount; i < newBlockCount; i++) {
-        gSymbolBlocks[i] =
-            calloc(1, sizeof(be_jse_symbol_t) * BE_JSE_SYMBOL_TABLE_BLOCK_SIZE);
-        printf("gSymbolBlocks[%d] = %p \n", i, gSymbolBlocks[i]);
+        gSymbolBlocks[i] = jse_calloc(
+            1, sizeof(be_jse_symbol_t) * BE_JSE_SYMBOL_TABLE_BLOCK_SIZE);
+        jse_debug("gSymbolBlocks[%d] = %p \n", i, gSymbolBlocks[i]);
     }
 
     /** and now reset all the newly allocated vars. We know
@@ -157,9 +158,10 @@ void be_jse_set_symbol_table_size(unsigned int newSize)
     gSymbolTableFirstFreeSlotID =
         symbol_table_init(oldSize + 1, gSymbolTableSize - oldSize);
 
-    printf("Resized memory from %d blocks to %d\n", oldBlockCount,
-           newBlockCount);
-    printf("gSymbolTableFirstFreeSlotID = %d \n", gSymbolTableFirstFreeSlotID);
+    jse_debug("Resized memory from %d blocks to %d\n", oldBlockCount,
+              newBlockCount);
+    jse_debug("gSymbolTableFirstFreeSlotID = %d \n",
+              gSymbolTableFirstFreeSlotID);
 #else
     NOT_USED(newSize);
     be_assert(0);
@@ -197,9 +199,9 @@ static be_jse_symbol_t *new_symbol_node()
 
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
 
-    printf("gSymbolTableSize = %d \n", gSymbolTableSize);
+    jse_debug("gSymbolTableSize = %d \n", gSymbolTableSize);
 #ifdef DUMP_SYMBL_USAGE
-    printf("beJSESymbolUsage = %d \n", beJSESymbolUsage);
+    jse_debug("beJSESymbolUsage = %d \n", beJSESymbolUsage);
 #endif
 
     be_jse_set_symbol_table_size(gSymbolTableSize +
@@ -243,9 +245,10 @@ void free_symbol_node(be_jse_symbol_t *s)
             child->next_sibling = 0;
 
             if (child->refs > 1 || child->locks > 1) {
-                /* printf("%d, string ext,  nodeid  %d \n", __LINE__,
-                   get_symbol_node_id(child)); printf("%d, r %d, l %d, flag = %d
-                   \n", __LINE__, child->refs, child->locks, child->flags); */
+                /* jse_debug("%d, string ext,  nodeid  %d \n",
+                   __LINE__, get_symbol_node_id(child)); jse_debug(
+                   "%d, r %d, l %d, flag = %d \n", __LINE__, child->refs,
+                   child->locks, child->flags); */
                 child->locks = 1; /* bugfix */
                 child->refs  = 1;
             }
@@ -331,7 +334,7 @@ be_jse_symbol_t *new_named_symbol(be_jse_symbol_t *s,
 be_jse_symbol_t *new_json_symbol(char *json_str, size_t json_str_len)
 {
     be_jse_symbol_t *ret;
-    char *evalstr = (char *)calloc(1, json_str_len + 3);
+    char *evalstr = (char *)jse_calloc(1, json_str_len + 3);
     if (!json_str || strlen(json_str) == 0) json_str = "{}";
 
     char *s1 = strchr(json_str, '[');
@@ -343,7 +346,7 @@ be_jse_symbol_t *new_json_symbol(char *json_str, size_t json_str_len)
     }
 
     ret = be_jse_eval_string(jsengine_get_executor(), evalstr);
-    free(evalstr);
+    jse_free(evalstr);
 
     return ret;
 }
@@ -486,7 +489,7 @@ static ALWAYS_INLINE be_jse_symbol_t *_new_func_code_symbol(
     be_jse_symbol_t *first = NULL;
 
     int len         = charTo - charFrom;
-    char *buf       = malloc(len + 1); /* +1 */
+    char *buf       = jse_malloc(len + 1); /* +1 */
     const char *ptr = lex->src + charFrom;
     char ch         = 0;
     char chout;
@@ -510,14 +513,14 @@ static ALWAYS_INLINE be_jse_symbol_t *_new_func_code_symbol(
 
     buf[j] = 0;
     /*
-        printf("function:%s\n", buf);
+        jse_debug("function:%s\n", buf);
         ch = ptr[len+1];
         ptr[len+1] = 0;
         first = new_str_symbol(ptr);
         ptr[len+1] = ch;
     */
     first = new_str_symbol(buf);
-    free(buf);
+    jse_free(buf);
     return first;
 }
 
@@ -580,20 +583,21 @@ be_jse_symbol_t *new_func_code_symbol(be_jse_lexer_ctx_t *lex, int charFrom,
     */
     /*
         int len = symbol_str_len(first);
-        char* buf = malloc(len+1);
+        char* buf = jse_malloc(len+1);
         symbol_to_str(first,buf, len);
 
-        printf("==============\n");
-        printf("len=%d\n", len);
-        printf("function:%s\n", buf);
-        free(buf);
+        jse_debug("==============\n");
+        jse_debug("len=%d\n", len);
+        jse_debug("function:%s\n", buf);
+        jse_free(buf);
     */
     return first;
 }
 
 be_jse_symbol_t *symbol_lock(be_jse_node_t id)
 {
-    /* printf("[%s][%d] id = %d ... \n", __FUNCTION__, __LINE__, id); */
+    /* jse_debug("[%s][%d] id = %d ... \n", __FUNCTION__,
+     * __LINE__, id); */
 
     be_jse_symbol_t *s;
     be_assert(id);
@@ -604,9 +608,10 @@ be_jse_symbol_t *symbol_lock(be_jse_node_t id)
     s->locks++;
 
     if (s->locks == 0) {
-        /* printf("[%s][%d] id = %d ... \n", __FUNCTION__, __LINE__, id);
-           printf("[%s][%d] locks = %d ... \n", __FUNCTION__, __LINE__,
-           s->locks); printf("[%s][%d] refs = %d ... \n", __FUNCTION__,
+        /* jse_debug("[%s][%d] id = %d ... \n", __FUNCTION__,
+           __LINE__, id); jse_debug("[%s][%d] locks = %d ... \n",
+           __FUNCTION__, __LINE__, s->locks); jse_debug("[%s][%d]
+           refs = %d ... \n", __FUNCTION__,
            __LINE__, s->refs); */
         be_jse_error("Too many locks on the symbol!");
     }
@@ -628,7 +633,7 @@ be_jse_node_t symbol_unlock(be_jse_symbol_t *s)
     ref = get_symbol_node_id(s);
 
     if (s->locks == 0) {
-        be_error("JSE", "symbol_unlock error, ret = %d", ref);
+        jse_error("symbol_unlock error, ret = %d", ref);
     }
     be_assert(s->locks > 0);
 
@@ -769,7 +774,7 @@ void symbol_to_str(be_jse_symbol_t *s, char *str, size_t len)
     } else if (symbol_is_array(s)) {
         strncpy(str, "array", len);
     } else {
-        be_warn("JSE", "s->flags = 0x%x\n", s->flags);
+        jse_warn("s->flags = 0x%x\n", s->flags);
         str[0] = ' ';
         str[1] = 0;
     }
@@ -1892,7 +1897,7 @@ void be_jse_show_symbol_table_used()
     int i;
     for (i = 1; i < gSymbolTableSize; i++) {
         if (get_symbol_addr(i)->refs != SYM_TABLE_UNUSED_REF) {
-            printf("USED VAR #%d:", i);
+            jse_debug("USED VAR #%d:", i);
             trace_symbol_info(i, 2);
         }
     }
@@ -1907,17 +1912,17 @@ void dump_symbol_node_id(int id)
     be_jse_symbol_t *s;
     s = get_symbol_addr(id);
     if (s) {
-        printf("nodeid: %d \n", id);
-        printf("r %d, l %d, flag = %d \n", s->refs, s->locks, s->flags);
+        jse_debug("nodeid: %d \n", id);
+        jse_debug("r %d, l %d, flag = %d \n", s->refs, s->locks, s->flags);
         char buf[64];
         symbol_to_str(s, buf, 63);
-        printf("to str: %s \n", buf);
+        jse_debug("to str: %s \n", buf);
     }
 }
 
 ALWAYS_INLINE void trace_symbol_lock_info(be_jse_symbol_t *v)
 {
-    printf("#%d [r%d,l%d] ", get_symbol_node_id(v), v->refs, v->locks - 1);
+    jse_debug("#%d [r%d,l%d] ", get_symbol_node_id(v), v->refs, v->locks - 1);
 }
 
 void trace_symbol_info(be_jse_node_t ref, int indent)
@@ -1930,24 +1935,24 @@ void trace_symbol_info(be_jse_node_t ref, int indent)
     char buf[BE_JSE_ERROR_BUF_SIZE];
     be_jse_symbol_t *var;
 
-    for (i = 0; i < indent; i++) printf(" ");
+    for (i = 0; i < indent; i++) jse_debug(" ");
 
     if (!ref) {
-        printf("undefined\n");
+        jse_debug("undefined\n");
         return;
     }
     var = symbol_lock(ref);
-    printf("#%d[r%d,l%d] ", ref, var->refs, var->locks - 1);
+    jse_debug("#%d[r%d,l%d] ", ref, var->refs, var->locks - 1);
 
     if (symbol_is_name(var)) {
-        if (symbol_is_function_argv(var)) printf("Param ");
+        if (symbol_is_function_argv(var)) jse_debug("Param ");
         symbol_to_str(var, buf, BE_JSE_ERROR_BUF_SIZE - 1);
         if (symbol_is_int(var))
-            printf("Name: int %s  ", buf);
+            jse_debug("Name: int %s  ", buf);
         else if (symbol_is_float(var))
-            printf("Name: flt %s  ", buf);
+            jse_debug("Name: flt %s  ", buf);
         else if (symbol_is_string(var) || symbol_is_function_argv(var))
-            printf("Name: '%s'  ", buf);
+            jse_debug("Name: '%s'  ", buf);
         else
             be_assert(0);
 
@@ -1957,40 +1962,40 @@ void trace_symbol_info(be_jse_node_t ref, int indent)
             var = symbol_lock(ref);
             trace_symbol_lock_info(var);
         } else {
-            printf("undefined\n");
+            jse_debug("undefined\n");
             return;
         }
     }
     if (symbol_is_name(var)) {
-        printf("\n");
+        jse_debug("\n");
         trace_symbol_info(get_symbol_node_id(var), indent + 1);
         symbol_unlock(var);
         return;
     }
     if (symbol_is_object(var))
-        printf("Object {\n");
+        jse_debug("Object {\n");
     else if (symbol_is_array(var))
-        printf("Array [\n");
+        jse_debug("Array [\n");
     else if (symbol_is_int(var))
-        printf("Integer ");
+        jse_debug("Integer ");
     else if (symbol_is_float(var))
-        printf("Double ");
+        jse_debug("Double ");
     else if (symbol_is_string(var))
-        printf("String ");
+        jse_debug("String ");
     else if (symbol_is_function(var))
-        printf("Function {\n");
+        jse_debug("Function {\n");
     else
-        printf("Flags %d\n", var->flags);
+        jse_debug("Flags %d\n", var->flags);
 
     if (!symbol_is_object(var) && !symbol_is_array(var) &&
         !symbol_is_function(var)) {
         symbol_to_str(var, buf, BE_JSE_ERROR_BUF_SIZE - 1);
-        printf("%s", buf);
+        jse_debug("%s", buf);
     }
 
     if (symbol_is_string(var) || symbol_is_string_ext(var)) {
         if (!symbol_is_string_ext(var) && var->first_child) {
-            printf("( Multi-block string ");
+            jse_debug("( Multi-block string ");
             be_jse_node_t child = var->first_child;
             while (child) {
                 be_jse_symbol_t *childVar = symbol_lock(child);
@@ -1998,13 +2003,13 @@ void trace_symbol_info(be_jse_node_t ref, int indent)
                 child = childVar->first_child;
                 symbol_unlock(childVar);
             }
-            printf(")\n");
+            jse_debug(")\n");
         } else
-            printf("\n");
+            jse_debug("\n");
     } else if (!(var->flags & BE_SYM_RECURSING)) {
         var->flags |= BE_SYM_RECURSING;
         be_jse_node_t child = var->first_child;
-        printf("\n");
+        jse_debug("\n");
         /* dump children */
         while (child) {
             be_jse_symbol_t *childVar;
@@ -2015,15 +2020,15 @@ void trace_symbol_info(be_jse_node_t ref, int indent)
         }
         var->flags &= (be_jse_symbol_type_e)~BE_SYM_RECURSING;
     } else {
-        printf(" ... ");
+        jse_debug(" ... ");
     }
 
     if (symbol_is_object(var) || symbol_is_function(var)) {
-        for (i = 0; i < indent; i++) printf(" ");
-        printf("}\n");
+        for (i = 0; i < indent; i++) jse_debug(" ");
+        jse_debug("}\n");
     } else if (symbol_is_array(var)) {
-        for (i = 0; i < indent; i++) printf(" ");
-        printf("]\n");
+        for (i = 0; i < indent; i++) jse_debug(" ");
+        jse_debug("]\n");
     }
 
     symbol_unlock(var);

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "be_log.h"
+#include "hal/log.h"
 #include "be_port_osal.h"
 #include "hal/system.h"
 #include "miio-common.h"
@@ -19,7 +19,7 @@ static void *discover_routin(void *arg)
 {
     int fd;
     if ((fd = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-        printf("socket fail\n");
+        jse_error("socket fail\n");
         return NULL;
     }
     int optval = 1; /* MUST set optval */
@@ -57,13 +57,13 @@ static void *discover_routin(void *arg)
                 addrlen = sizeof(remaddr);
                 nread   = recvfrom(fd, recv_buf, sizeof(recv_buf), 0,
                                  (struct sockaddr *)&remaddr, &addrlen);
-                debug("receive data size: %d\n", (int)nread);
+                jse_debug("receive data size: %d\n", (int)nread);
                 if (nread == -1) continue; /* Ignore failed request */
                 device_id = (recv_buf[8] << 24) | (recv_buf[9] << 16) |
                             (recv_buf[10] << 8) | recv_buf[11];
                 memset(str, 0, sizeof(str));
                 inet_ntop(AF_INET, &(remaddr.sin_addr), str, INET_ADDRSTRLEN);
-                debug("peer address: %s, device_id: %lu\n", str, device_id);
+                jse_debug("peer address: %s, device_id: %lu\n", str, device_id);
                 ctx.cb(ctx.priv, str, device_id);
             }
         }

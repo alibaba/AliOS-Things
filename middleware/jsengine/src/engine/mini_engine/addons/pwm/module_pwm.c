@@ -28,21 +28,21 @@ static be_jse_symbol_t *pwm_start(void)
         goto out;
     }
     len  = symbol_str_len(arg0);
-    data = calloc(1, sizeof(char) * (len + 1));
+    data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == data) goto out;
     symbol_to_str(arg0, data, len);
     ret = board_attach_item(MODULE_PWM, data, &pwm_handle);
     if (0 != ret) {
-        be_error("pwm", "board_attach_item fail!\n");
+        jse_error("board_attach_item fail!\n");
         goto out;
     }
-    be_debug("pwm", "gpio handle:%u\n", pwm_handle.handle);
+    jse_debug("gpio handle:%u\n", pwm_handle.handle);
     pwm_device = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
-    be_debug("pwm", "%s:%d:%d:%f\n", data, pwm_device->port,
+    jse_debug("%s:%d:%d:%f\n", data, pwm_device->port,
              pwm_device->config.freq, pwm_device->config.duty_cycle);
     hal_pwm_stop(pwm_device);
     hal_pwm_init(pwm_device);
@@ -52,7 +52,7 @@ static be_jse_symbol_t *pwm_start(void)
 out:
 
     if (NULL != data) {
-        free(data);
+        jse_free(data);
         data = NULL;
     }
     symbol_unlock(arg0);
@@ -78,7 +78,7 @@ static be_jse_symbol_t *pwm_stop(void)
     pwm_handle.handle = get_symbol_value_int(arg0);
     pwm_device        = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     hal_pwm_stop(pwm_device);
@@ -103,7 +103,7 @@ static be_jse_symbol_t *pwm_get_duty(void)
     pwm_handle.handle = get_symbol_value_int(arg0);
     pwm_device        = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = (int)(pwm_device->config.duty_cycle * 100);
@@ -129,7 +129,7 @@ static be_jse_symbol_t *pwm_set_duty(void)
     pwm_handle.handle = get_symbol_value_int(arg0);
     pwm_device        = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_int(arg1)) {
@@ -161,7 +161,7 @@ static be_jse_symbol_t *pwm_get_freq(void)
     pwm_handle.handle = get_symbol_value_int(arg0);
     pwm_device        = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = (int)(pwm_device->config.freq);
@@ -187,7 +187,7 @@ static be_jse_symbol_t *pwm_set_freq(void)
     pwm_handle.handle = get_symbol_value_int(arg0);
     pwm_device        = board_get_node_by_handle(MODULE_PWM, &pwm_handle);
     if (NULL == pwm_device) {
-        be_error("pwm", "board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     if (!arg1 || !symbol_is_int(arg1)) {

@@ -12,23 +12,21 @@
 #include "app_mgr.h"
 #include "be_common.h"
 #include "be_jse_export.h"
-#include "be_log.h"
+#include "hal/log.h"
 
 #include "be_port_osal.h"
 #include "cli_ext.h"
 #include "hal/system.h"
 
-#define TAG ("cli_js")
-
 #ifdef DUMP_SYMBL_USAGE
 
 static void handle_meminfo_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_debug(TAG, "memory usage= %d max=%d", be_jse_get_memory_usage(),
+    jse_debug("memory usage= %d max=%d", be_jse_get_memory_usage(),
              be_jse_get_memory_max_usage());
 #ifdef ESP_PLATFORM
     extern uint32_t esp_get_free_heap_size(void);
-    be_debug(TAG, "free heap size: %d Byte ", esp_get_free_heap_size());
+    jse_debug("free heap size: %d Byte ", esp_get_free_heap_size());
 #endif
 }
 
@@ -61,13 +59,13 @@ static struct be_be_cli_command jstrace_cmd = {
 static void eval_js(void *arg)
 {
     jsengine_start(arg);
-    free(arg);
+    jse_free(arg);
 }
 
 static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     if (argc == 2) {
-        char *str = calloc(1, strlen(argv[1]) + 1);
+        char *str = jse_calloc(1, strlen(argv[1]) + 1);
         if (NULL == str) {
             return;
         }
@@ -77,7 +75,7 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (strcmp("hex", argv[1]) == 0) {
             int i;
             int size              = strlen(argv[2]);
-            unsigned char *outStr = calloc(1, size / 2 + 1);
+            unsigned char *outStr = jse_calloc(1, size / 2 + 1);
             if (NULL == outStr) {
                 return;
             }
@@ -124,7 +122,7 @@ static void handle_boneflag_cmd(char *pwbuf, int blen, int argc, char **argv)
     } else {
         len = 4;
         hal_system_kv_get(BoneFlag, &ret, &len);
-        be_debug(TAG, "BoneFlag = %d len = %d", ret, len);
+        jse_debug("BoneFlag = %d len = %d", ret, len);
     }
 }
 
@@ -154,13 +152,13 @@ static void tree(char *path)
 #else
             sprintf(childpath, "%s %s\n", BE_CLI_REPLY, ent->d_name);
 #endif
-            be_cli_printf(childpath);
+            be_cli_printf("%s", childpath);
         }
         be_closedir(dir);
     }
 
     sprintf(childpath, "%s success\n", BE_CLI_REPLY);
-    be_cli_printf(childpath);
+    be_cli_printf("%s", childpath);
 }
 
 static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -214,7 +212,7 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
         snprintf(path, sizeof(path), "%s/", BE_FS_ROOT_DIR);
         if (strcmp(argv[1], "format") == 0) {
             sprintf(path, "%s success\n", BE_CLI_REPLY);
-            be_cli_printf(path);
+            be_cli_printf("%s", path);
             return;
         }
 
@@ -232,7 +230,7 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
         } else {
             sprintf(path, "%s fail\n", BE_CLI_REPLY);
         }
-        be_cli_printf(path);
+        be_cli_printf("%s", path);
     }
 }
 
