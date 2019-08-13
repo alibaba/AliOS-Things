@@ -7,8 +7,8 @@
 
 #include "aos/kernel.h"
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 #include "ota_transport.h"
 extern void ota_service_event(input_event_t *event, void *priv_data);

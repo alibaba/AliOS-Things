@@ -7,7 +7,7 @@
 
 #include "aos/kernel.h"
 
-#include "yts/yunit.h"
+#include "yunit/yunit.h"
 
 static void CASE_aosapi_kernel_sys_version()
 {

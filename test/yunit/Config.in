@@ -1,0 +1,5 @@
+config AOS_COMP_YUNIT
+    bool "yunit framework"
+    default n
+    help
+

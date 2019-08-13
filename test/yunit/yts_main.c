@@ -10,8 +10,8 @@
 
 #include <aos/kernel.h>
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 extern void add_test(void);
 

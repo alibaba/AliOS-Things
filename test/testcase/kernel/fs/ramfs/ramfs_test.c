@@ -10,8 +10,8 @@
 #include "aos/kernel.h"
 #include "aos/vfs.h"
 
-#include "yts/yunit.h"
-#include "yts/yts.h"
+#include "yunit/yunit.h"
+#include "yunit/yts.h"
 
 extern int32_t ramfs_register(const char *mount_path);
 
