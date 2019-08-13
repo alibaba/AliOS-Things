@@ -7,8 +7,10 @@
 #include "alcs_internal.h"
 #include "alcs_api_internal.h"
 #include "CoAPExport.h"
+#include "linkkit/alcs_api.h"
 #include "alcs_mqtt.h"
 #include "alcs_adapter.h"
+#include "CoAPPlatform.h"
 #include "CoAPExport.h"
 #include "iotx_alcs.h"
 
