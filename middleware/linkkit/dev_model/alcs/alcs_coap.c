@@ -6,6 +6,7 @@
 #include <string.h>
 #include "alcs_internal.h"
 #include "alcs_coap.h"
+#include "CoAPPlatform.h"
 #include "CoAPResource.h"
 #include "alcs_api_internal.h"
 #include "CoAPServer.h"
