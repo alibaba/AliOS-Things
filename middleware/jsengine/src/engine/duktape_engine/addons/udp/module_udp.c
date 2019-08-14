@@ -8,12 +8,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
+#include "jse_port.h"
+#include "jse_task.h"
 #include "be_utils.h"
 #include "bone_engine_inl.h"
-#include "hal/system.h"
 
 /* #define DEBUG_UDP_ADDON */
 #ifdef DEBUG_UDP_ADDON
@@ -195,7 +193,7 @@ static void udp_send_routine(void *arg)
 out:
     jse_free(send_param->msg);
     jse_free(send_param);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*************************************************************************************
@@ -277,7 +275,7 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     send_param->msg_len   = msg_len;
     memcpy(&(send_param->options), &options, sizeof(udp_options_t));
 
-    ret = be_osal_create_task("udp_send", udp_send_routine, send_param, 4096,
+    ret = jse_osal_create_task("udp_send", udp_send_routine, send_param, 4096,
                               ADDON_TSK_PRIORRITY, NULL);
 
 out:
@@ -341,7 +339,7 @@ static void udp_recv_routine(void *arg)
 
 out:
     jse_free(recv_param);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*************************************************************************************
@@ -384,7 +382,7 @@ static duk_ret_t native_udp_recvfrom(duk_context *ctx)
     duk_dup(ctx, 1);
     recv_param->js_cb_ref = bone_engine_ref(ctx);
 
-    ret = be_osal_create_task("udp_recv", udp_recv_routine, recv_param, 4096,
+    ret = jse_osal_create_task("udp_recv", udp_recv_routine, recv_param, 4096,
                               ADDON_TSK_PRIORRITY, NULL);
 
 out:
