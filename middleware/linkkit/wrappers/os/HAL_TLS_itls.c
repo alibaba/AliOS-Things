@@ -386,16 +386,16 @@ uintptr_t HAL_SSL_Establish(const char *host,
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
-    const char *product_key = NULL;
-    const char *product_secret = NULL;
 
-    if (host == NULL || ca_crt == NULL) {
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
+    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+
+    if (host == NULL ) {
         platform_err("input params are NULL");
         return 0;
     }
-
-    product_key = ca_crt;
-    product_secret = ca_crt + strlen(product_key) + 1;
+    HAL_GetProductKey(_product_key);
+    HAL_GetProductSecret(_product_secret);
 
     pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
@@ -406,7 +406,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     sprintf(port_str, "%u", port);
 
-    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, product_key, product_secret)) {
+    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, _product_key, _product_secret)) {
         HAL_Free((void *)pTlsData);
         return (uintptr_t)NULL; 
     }
