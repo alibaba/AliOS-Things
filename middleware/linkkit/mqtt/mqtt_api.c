@@ -180,6 +180,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
+    /* reconfig clientid, append custome clientKV and itls switch flag */
+    if (pInitParams != NULL && pInitParams->customize_info != NULL) {
+        if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
+            enalbe_itls = 1;
+        } else {
+            enalbe_itls = 0;
+        }
+    }
 #ifdef DYNAMIC_REGISTER /* get device secret through https dynamic register */
     if (dynamic) {
         HAL_GetProductSecret(meta_info.product_secret);
@@ -201,10 +209,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
     }
 #else /* get device secret from hal */
-    HAL_GetDeviceSecret(meta_info.device_secret);
-    if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
-        mqtt_err("Invalid device secret, abort!");
-        return NULL;
+    if(enalbe_itls == 0) {
+        HAL_GetDeviceSecret(meta_info.device_secret);
+        if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
+            mqtt_err("Invalid device secret, abort!");
+            return NULL;
+        }
     }
 #endif /* #ifdef DYNAMIC_REGISTER */
 
@@ -227,15 +237,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     memcpy(device_id + strlen(device_id), ".", strlen("."));
     memcpy(device_id + strlen(device_id), meta_info.device_name, strlen(meta_info.device_name));
 
-    /* reconfig clientid, append custome clientKV and itls switch flag */
-    if (pInitParams != NULL && pInitParams->customize_info != NULL) {
-        if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
-            enalbe_itls = 1;
-        } else {
-            enalbe_itls = 0;
-        }
-    }
-
     if (_sign_get_clientid(g_default_sign.clientid, device_id,
                            (pInitParams != NULL) ? pInitParams->customize_info : NULL, enalbe_itls) != SUCCESS_RETURN) {
         return NULL;
@@ -247,7 +248,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;
-        mqtt_params.pub_key = iotx_ca_crt;
+        if (enalbe_itls == 0) {
+            mqtt_params.pub_key = iotx_ca_crt;
+        }
     }
 #endif
     mqtt_params.request_timeout_ms    = CONFIG_MQTT_REQUEST_TIMEOUT;

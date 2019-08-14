@@ -29,7 +29,7 @@ endif
 
 ifeq (y,$(strip $(SUPPORT_TLS)))
     ifeq (y,$(strip $(USE_ITLS)))
-        $(NAME)_COMPONENTS +=  itls 
+        $(NAME)_COMPONENTS +=  itls id2 alicrypto  libiot_certs 
         $(NAME)_SOURCES += os/HAL_TLS_itls.c
     else
         $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
