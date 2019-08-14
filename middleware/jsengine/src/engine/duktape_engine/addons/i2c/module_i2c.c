@@ -2,12 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "hal/log.h"
+#include "jse_port.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "aos/hal/i2c.h"
 
 #define I2C_TIMEOUT (0xFFFFFF)
 

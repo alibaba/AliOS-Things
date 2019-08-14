@@ -8,8 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hal/log.h"
-#include "hal/system.h"
+#include "jse_port.h"
 #include "linkkit/infra/infra_compat.h"
 #include "linkkit/infra/infra_mem_stats.h"
 #include "linkkit/mqtt_api.h"

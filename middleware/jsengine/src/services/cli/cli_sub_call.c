@@ -8,13 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "jse_port.h"
 #include "be_common.h"
 #include "be_jse_export.h"
-#include "hal/log.h"
 
-#include "be_port_osal.h"
 #include "cli_ext.h"
-#include "hal/system.h"
 
 #define DEVICE_NAME "deviceName"
 #define DEVICE_NAME_LEN 12
@@ -54,5 +53,5 @@ void sub_call_stop(void *arg)
 
 void sub_call_rename(void *arg)
 {
-    hal_system_kv_set(DEVICE_NAME, arg, DEVICE_NAME_LEN, 1);
+    jse_system_kv_set(DEVICE_NAME, arg, DEVICE_NAME_LEN, 1);
 }

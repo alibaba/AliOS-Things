@@ -2,17 +2,17 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "be_jse_utils.h"
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "be_jse.h"
 #include "be_jse_api.h"
+#include "be_jse_utils.h"
 #include "be_utils.h"
 #ifdef SUPPORT_NODE_MODELES
 #include "cJSON.h"
-#include "hal/system.h"
 #endif
 
 #ifdef JSE_IDE_DEBUG
@@ -191,12 +191,7 @@ NO_INLINE void be_jse_assert_fail(const char *file, int line)
     bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_ERROR, buf);
 #endif
     jse_free(buf);
-#if defined(USE_FREERTOS)
-
-#else
-    /* exit(1); */
     abort();
-#endif
 }
 
 #if 0
@@ -568,7 +563,7 @@ char *getNodeModulePath(char *path)
 
     path_len = strlen(path) + 128;
     fullPath = jse_calloc(1, path_len);
-    sprintf(fullPath, "%s/%s", BE_FS_ROOT_DIR, path);
+    sprintf(fullPath, "%s/%s", JSE_FS_ROOT_DIR, path);
 
     /* clear ./ */
     json_data = getClearPath(fullPath);
@@ -577,9 +572,9 @@ char *getNodeModulePath(char *path)
 
     jse_debug("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
 
-    fd = be_open(fullPath, O_RDONLY);
+    fd = jse_open(fullPath, O_RDONLY);
     if (fd >= 0) {
-        be_close(fd);
+        jse_close(fd);
         jse_free(fullPath);
         return path;
     }
@@ -588,21 +583,21 @@ char *getNodeModulePath(char *path)
 
     jse_debug("%s %d try open %s  \n", __FUNCTION__, __LINE__, fullPath);
 
-    fd = be_open(fullPath, O_RDONLY);
+    fd = jse_open(fullPath, O_RDONLY);
     if (fd >= 0) {
         /* parser package.json */
-        file_len  = be_lseek(fd, 0, SEEK_END);
+        file_len  = jse_lseek(fd, 0, SEEK_END);
         json_data = jse_calloc(1, sizeof(char) * (file_len + 1));
         if (NULL == json_data) {
-            be_close(fd);
+            jse_close(fd);
 
             jse_free(fullPath);
             jse_error("%s %d out of memory \n", __FUNCTION__, __LINE__);
             return (path);
         }
-        be_lseek(fd, 0, SEEK_SET);
-        be_read(fd, json_data, file_len);
-        be_close(fd);
+        jse_lseek(fd, 0, SEEK_SET);
+        jse_read(fd, json_data, file_len);
+        jse_close(fd);
 
         /*parser the package json data */
         root = cJSON_Parse(json_data);

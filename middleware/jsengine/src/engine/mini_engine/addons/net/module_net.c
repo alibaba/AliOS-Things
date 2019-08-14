@@ -5,13 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "jse_port.h"
 #include "be_jse_api.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
+#include "jse_task.h"
 #include "module_net.h"
-
-#include "be_port_osal.h"
-#include "hal/system.h"
 
 typedef enum { MUTEX_UNLOCKED = 0, MUTEX_LOCKED = 1 } net_mutex_t;
 
@@ -241,7 +239,7 @@ static void task_net_connect_fun(void *arg)
         while (1) {
             if (g_net_recv_mutex == MUTEX_LOCKED) {
                 /* waitting for NET.onrecv return */
-                be_osal_delay(30);
+                jse_osal_delay(30);
                 continue;
             }
             jse_debug("ready to recv...socketid=%d", socketid);
@@ -283,7 +281,7 @@ done:
     jse_free(pdata);
     jse_free(buffer);
 
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 static void task_net_send_fun(void *arg)
@@ -307,7 +305,7 @@ static void task_net_send_fun(void *arg)
 
     jse_free(msg->p_data);
     jse_free(msg);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*********************************************************
@@ -377,7 +375,7 @@ static be_jse_symbol_t *module_net_connect()
         INC_SYMBL_REF(onErrorNetSymbol);
     }
 
-    ret = be_osal_create_task("net_connect", task_net_connect_fun,
+    ret = jse_osal_create_task("net_connect", task_net_connect_fun,
                               p_net_options, 4096, ADDON_TSK_PRIORRITY, NULL);
 done:
     symbol_unlock(arg0);
@@ -419,7 +417,7 @@ static be_jse_symbol_t *module_net_send()
     p_send_data->p_data  = data;
     p_send_data->sock_id = sock_id;
 
-    ret = be_osal_create_task("net_connect", task_net_send_fun, p_send_data,
+    ret = jse_osal_create_task("net_connect", task_net_send_fun, p_send_data,
                               4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret < 0) {
         jse_free(p_send_data);

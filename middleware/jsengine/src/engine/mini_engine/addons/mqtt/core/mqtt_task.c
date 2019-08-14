@@ -2,22 +2,19 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "mqtt_task.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_port.h"
+#include "jse_task.h"
 
 #include "linkkit/infra/infra_compat.h"
 #include "linkkit/mqtt_api.h"
 #include "linkkit/wrappers/wrappers.h"
 
+#include "mqtt_task.h"
 #include "mqtt_instance.h"
 
 #ifndef CONFIG_MQTT_STACK_SIZE
 #define CONFIG_MQTT_STACK_SIZE 16384
 #endif
-
-static const char* TAG = "mqtt_task";
 
 static void* mqttMutexHandle        = NULL;
 static void* mqttTskHandle          = NULL;
@@ -116,7 +113,7 @@ static void mqtt_task(void* data)
     JSE_TSK_MSG_s* pmsg;
 
     while (!done) {
-        ret = be_osal_messageQ_get(mqttQueueHandle, &msg, xTicksToWait);
+        ret = jse_osal_messageQ_get(mqttQueueHandle, &msg, xTicksToWait);
         if (ret == 0) {
             /* process MQTT Message */
             switch (msg.common.cmd) {
@@ -201,23 +198,23 @@ static void mqtt_task(void* data)
     handle        = mqttTskHandle;
     mqttTskHandle = NULL;
 
-    be_osal_unlock_mutex(mqttMutexHandle);
+    jse_osal_unlock_mutex(mqttMutexHandle);
 
-    be_osal_delete_task(handle);
+    jse_osal_delete_task(handle);
 }
 
 int mqtt_tsk_start()
 {
     int ret = 0;
     if (mqttMutexHandle == NULL) {
-        mqttMutexHandle = be_osal_new_mutex();
+        mqttMutexHandle = jse_osal_new_mutex();
     }
     if (mqttQueueHandle == NULL)
-        mqttQueueHandle = be_osal_messageQ_create(5, sizeof(MQTT_MSG_s));
+        mqttQueueHandle = jse_osal_messageQ_create(5, sizeof(MQTT_MSG_s));
     if (mqttTskHandle == NULL) {
         /* mqtt_tsk_stop() will waiting task exit and free memory */
-        be_osal_lock_mutex(mqttMutexHandle, 0);
-        ret = be_osal_create_task("mqttTsk", mqtt_task, NULL,
+        jse_osal_lock_mutex(mqttMutexHandle, 0);
+        ret = jse_osal_create_task("mqttTsk", mqtt_task, NULL,
                                   CONFIG_MQTT_STACK_SIZE, MQTT_TSK_PRIORITY,
                                   &mqttTskHandle);
     }
@@ -233,8 +230,8 @@ int mqtt_tsk_stop()
         msg.common.cmd = MQTT_STOP;
         mqtt_send_msg(&msg);
         /* waiting mqtt task exit */
-        be_osal_lock_mutex(mqttMutexHandle, 300);
-        be_osal_messageQ_delete(mqttQueueHandle);
+        jse_osal_lock_mutex(mqttMutexHandle, 300);
+        jse_osal_messageQ_delete(mqttQueueHandle);
         mqttQueueHandle = NULL;
     }
     return 0;
@@ -245,7 +242,7 @@ int mqtt_send_msg(MQTT_MSG_s* pMsg)
     int32_t ret;
     uint32_t xTicksToWait = 0xffffffffL;
 
-    ret = be_osal_messageQ_put(mqttQueueHandle, (void*)pMsg, xTicksToWait);
+    ret = jse_osal_messageQ_put(mqttQueueHandle, (void*)pMsg, xTicksToWait);
     if (ret == 0) return 0;
     return -1;
 }
