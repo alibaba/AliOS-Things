@@ -11,7 +11,7 @@ extern "C" {
 #define MARKER_ID "type"
 #define MARKER_PORT "port"
 
-/*UART*/
+/* UART */
 #define MARKER_UART "UART"
 #define UART_DATA_WIDTH "data_width"
 #define UART_BAUD_RATE "baud_rate"
@@ -20,7 +20,7 @@ extern "C" {
 #define UART_PARITY_CONFIG "parity_config"
 #define UART_MODE "mode"
 
-/*GPIO*/
+/* GPIO */
 #define MARKER_GPIO "GPIO"
 #define GPIO_DIR "dir"
 #define GPIO_PULL "pull"
@@ -34,25 +34,25 @@ extern "C" {
 #define GPIO_PULL_UP 1
 #define GPIO_PULL_OPEN 2
 
-/*PWM*/
+/* PWM */
 #define MARKER_PWM "PWM"
 #define PWM_FREQ "freq"
 #define PWM_DUTY "duty"
 #define PWM_CHAN "chan"
 
-/*I2C*/
+/* I2C */
 #define MARKER_I2C "I2C"
 #define I2C_ADDR_WIDTH "address_width"
 #define I2C_FREQ "freq"
 #define I2C_MODE "mode"
 #define I2C_ADDR_DEV "dev_addr"
 
-/*ADC*/
+/* ADC */
 #define MARKER_ADC "ADC"
 #define ADC_SAMPLING "sampling"
 #define ADC_CHAN "chan"
 
-/*DAC*/
+/* DAC */
 #define MARKER_DAC "DAC"
 #define DAC_VOLTAGE "voltage"
 

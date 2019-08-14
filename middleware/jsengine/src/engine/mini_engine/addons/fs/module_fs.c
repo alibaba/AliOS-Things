@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "be_jse_api.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
 
 static int convert_fs_mode_to_oflag(const char *mode)
 {
@@ -28,27 +26,27 @@ static int check_fs_is_support()
     const char *string = "test if fs mount ok";
     char testfile[64]  = {0};
 
-    snprintf(testfile, sizeof(testfile), "%s/%s", BE_FS_ROOT_DIR,
+    snprintf(testfile, sizeof(testfile), "%s/%s", JSE_FS_ROOT_DIR,
              "testfile.txt");
-    fd = be_open(testfile, O_RDWR | O_CREAT | O_TRUNC);
+    fd = jse_open(testfile, O_RDWR | O_CREAT | O_TRUNC);
     if (fd <= 0) {
         jse_warn("check_fs_is_support open fail\n\r");
         return 0;
     }
 
-    ret = be_write(fd, string, strlen(string));
+    ret = jse_write(fd, string, strlen(string));
     if (ret <= 0) {
         jse_warn("check_fs_is_support write fail\n\r");
         return 0;
     }
 
-    ret = be_unlink(testfile);
+    ret = jse_unlink(testfile);
     if (ret) {
         jse_warn("check_fs_is_support sync fail\n\r");
         return 0;
     }
 
-    be_close(fd);
+    jse_close(fd);
     return 1;
 }
 
@@ -96,7 +94,7 @@ static be_jse_symbol_t *module_fs_read()
 
     symbol_to_str(arg0, path, symbol_str_len(arg0));
 
-    fd = be_open(path, O_RDONLY);
+    fd = jse_open(path, O_RDONLY);
     if (fd < 0) goto done;
 
     size = be_lseek(fd, 0, SEEK_END);
@@ -108,11 +106,11 @@ static be_jse_symbol_t *module_fs_read()
         goto done;
     }
 
-    len = be_read(fd, p_read_buff, size);
+    len = jse_read(fd, p_read_buff, size);
     if (len > 0) {
         p_read_buff[len] = 0;
     }
-    be_close(fd);
+    jse_close(fd);
 
 done:
     symbol_unlock(arg0);
@@ -162,20 +160,20 @@ static be_jse_symbol_t *module_fs_write()
 
     jse_debug("FS.write(%s,%s,%s);\n\r", path, str, mode);
 
-    int fd = be_open(path, convert_fs_mode_to_oflag(mode));
+    int fd = jse_open(path, convert_fs_mode_to_oflag(mode));
     if (fd < 0) {
         jse_error("be_osal_open fail\n\r");
         goto done;
     }
 
-    len = be_write(fd, str, strlen(str));
+    len = jse_write(fd, str, strlen(str));
     if (len <= 0) {
         jse_error("be_osal_write fail\n\r");
         goto done;
     }
 
-    be_sync(fd);
-    ret = be_close(fd);
+    jse_sync(fd);
+    ret = jse_close(fd);
 
 done:
     jse_free(str);
@@ -206,7 +204,7 @@ static be_jse_symbol_t *module_fs_delete()
     }
 
     symbol_to_str(arg0, path, symbol_str_len(arg0));
-    ret = be_unlink(path);
+    ret = jse_unlink(path);
 
 done:
     symbol_unlock(arg0);

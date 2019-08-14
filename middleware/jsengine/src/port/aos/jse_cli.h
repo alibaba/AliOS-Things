@@ -2,12 +2,13 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef BE_CLI_H
-#define BE_CLI_H
+#ifndef JSE_CLI_H
+#define JSE_CLI_H
 
+#include "jse_port.h"
+
+#include "ulog/ulog.h"
 #include "aos/cli.h"
-
-#include "be_port_osal.h"
 
 #define MAX_COMMANDS 64
 #define INBUF_SIZE 1024 /* 必须 >= 1024,因为be push的每次为500字节*2 */
@@ -21,10 +22,10 @@
 typedef void (*FUNCPTR)(void);
 #endif
 
-#define be_cli_command cli_command
-#define be_cli_register_command aos_cli_register_command
-#define be_cli_printf aos_cli_printf
-#define be_cli_init aos_cli_init
+#define jse_cli_command cli_command
+#define jse_cli_register_command aos_cli_register_command
+#define jse_cli_printf aos_cli_printf
+#define jse_cli_init aos_cli_init
 
 void cli_cmd_register_js(void);
 void cli_cmd_register_dev(void);
@@ -32,4 +33,4 @@ void cli_cmd_register_file(void);
 void cli_cmd_register_app(void);
 void websocket_call_cli(char *cmdname, char **argv);
 
-#endif /* BE_CLI_H */
+#endif /* JSE_CLI_H */

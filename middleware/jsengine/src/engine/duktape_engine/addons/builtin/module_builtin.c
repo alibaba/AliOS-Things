@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "hal/log.h"
+#include "jse_port.h"
 #include "bone_engine_inl.h"
 #ifdef JSE_IDE_DEBUG
 #include "websocket.h"
@@ -40,7 +40,7 @@ void module_builtin_register(void)
 
     duk_put_global_string(ctx, "console");
 
-    /* 注册一个全局的print打印，有些地方会使用到 */
+    /* print module */
     duk_push_c_function(ctx, native_console_log, DUK_VARARGS);
     duk_put_global_string(ctx, "print");
 }

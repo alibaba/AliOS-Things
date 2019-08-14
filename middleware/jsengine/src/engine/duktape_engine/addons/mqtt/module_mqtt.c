@@ -8,12 +8,11 @@
 
 #include <stdarg.h>
 
-#include "be_jse_task.h"
+#include "jse_port.h"
+#include "jse_task.h"
 #include "be_list.h"
-#include "be_port_osal.h"
 #include "board-mgr/board_info.h"
 #include "bone_engine_inl.h"
-#include "hal/log.h"
 
 #include "linkkit/dev_sign_api.h"
 #include "linkkit/infra/infra_compat.h"
@@ -416,7 +415,7 @@ static void mqtt_get_secret_task(void *arg)
         jse_free(deviceSecret);
     }
 
-    be_osal_delete_task(mqtt_task_handle);
+    jse_osal_delete_task(mqtt_task_handle);
 }
 
 static duk_ret_t native_get_device_secret(duk_context *ctx)
@@ -467,11 +466,11 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
             sizeof(iotDeviceSecret->deviceName) - 1);
     strncpy(iotDeviceSecret->productSecret, productSecret,
             sizeof(iotDeviceSecret->productSecret) - 1);
-    be_osal_create_task("mqtt network task", mqtt_get_secret_task,
+    jse_osal_create_task("mqtt network task", mqtt_get_secret_task,
                         iotDeviceSecret, 1024 * 7, MQTTHTTP_TSK_PRIORITY,
                         &mqtt_task_handle);
     if (!mqtt_task_handle) {
-        jse_warn("be_osal_create_task failed\n");
+        jse_warn("jse_osal_create_task failed\n");
         jse_free(iotDeviceSecret);
         err = -5;
     } else {
@@ -750,10 +749,10 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     int js_cb_ref = bone_engine_ref(ctx);
 
     /* create task to IOT_MQTT_Yield() */
-    err = be_osal_create_task("mqtt yield task", mqtt_yield_task,
+    err = jse_osal_create_task("mqtt yield task", mqtt_yield_task,
                               (void *)js_cb_ref, 2048, MQTT_TSK_PRIORITY, NULL);
     if (err) {
-        jse_warn("be_osal_create_task failed\n");
+        jse_warn("jse_osal_create_task failed\n");
         IOT_MQTT_Destroy(&pclient);
         bone_engine_unref(ctx, js_cb_ref);
         err = -4;

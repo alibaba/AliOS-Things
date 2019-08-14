@@ -10,7 +10,6 @@
 #include <string.h>
 #include "be_common.h"
 #include "be_jse_module.h"
-#include "be_port_osal.h"
 
 #include "mbedtls/aes.h"
 #include "mbedtls/md5.h"
@@ -402,7 +401,7 @@ static be_jse_symbol_t *module_crypto_encrypt()
     DEBUG_HEX_DUMP("iv", iv_array, iv_array_len);
     DEBUG_HEX_DUMP("packet", payload_array, payload_array_len);
 
-    /* PKCS#7方式数据填充 */
+    /* PKCS#7 padding */
     if (payload_array_len & 15)
         padding_len = 16 - (payload_array_len & 15);
     else

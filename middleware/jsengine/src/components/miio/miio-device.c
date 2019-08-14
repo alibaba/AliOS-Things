@@ -1,7 +1,5 @@
 #include "miio-device.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_port.h"
 #include "mbedtls/aes.h"
 #include "mbedtls/md5.h"
 #include "miio-common.h"
@@ -275,7 +273,7 @@ void miio_device_set_event_cb(miio_device_t *device,
                               miio_device_event_callback cb, void *priv)
 {
     /* create event process task */
-    int ret = be_osal_create_task("miio event receive task", event_receive,
+    int ret = jse_osal_create_task("miio event receive task", event_receive,
                                   device, 4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret == 0) {
         device->cb   = cb;
