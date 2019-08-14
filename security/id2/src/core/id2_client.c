@@ -23,6 +23,15 @@
 #define MAX_HASH_LEN                        64
 #define MAX_SYMM_BLOCK_LEN                  16
 
+#if (CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_3DES || \
+     CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_AES  || \
+     CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_SM1  || \
+     CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_SM4)
+#define ID2_AUTH_CODE_BUF_LEN               256
+#else
+#define ID2_AUTH_CODE_BUF_LEN               512
+#endif
+
 static uint8_t s_id2_id[ID2_ID_LEN + 1] = {0};
 static uint8_t s_id2_id_len = 0;
 static uint8_t s_id2_client_inited = 0;
@@ -145,6 +154,10 @@ static irot_result_t _id2_sym_cipher(uint8_t* in, uint32_t in_len,
         id2_log_debug("id2 cipher pkcs5 unpadding.\n");
 
         padding = out[output_len - 1];
+        if (padding > block_len) {
+            id2_log_error("invalid pkcs5 padding, %d\n", padding);
+            return IROT_ERROR_GENERIC;
+        }
 
         for (i = padding; i > 0; i--) {
             if (out[output_len - i] != padding) {
@@ -607,8 +620,6 @@ irot_result_t id2_client_get_id(uint8_t* id, uint32_t* len)
         *len = ID2_ID_LEN;
         return IROT_ERROR_SHORT_BUFFER;
     }
-
-    id2_log_debug("s_id2_id_len: %d\n", s_id2_id_len);
 
     if (s_id2_id_len == 0) {
         km_ret = km_get_id2(id, len);
