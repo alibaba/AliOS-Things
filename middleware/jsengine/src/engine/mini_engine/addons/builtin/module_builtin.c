@@ -3,11 +3,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "jse_port.h"
 #include "be_jse_addon.h"
 #include "be_jse_module.h"
 #include "be_utils.h"
-#include "hal/system.h"
-#include "hal/log.h"
 
 #ifdef JSE_IDE_DEBUG
 #include "websocket.h"

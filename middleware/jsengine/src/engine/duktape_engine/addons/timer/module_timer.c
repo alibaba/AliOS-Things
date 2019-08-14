@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
+
+#include "jse_port.h"
+#include "jse_task.h"
 #include "bone_engine_inl.h"
 
 #define MAGIC 0x55ff0055
@@ -17,15 +17,11 @@ typedef struct timer_wrap {
     void *timer_id;
 } timer_wrap_t;
 
-/*
- * 在定时器清除过程中，底层又上报了定时消息到task的消息队列中，这时对
- * 应的timer_wrap_t handle已经释放,并且可能又分配出去了
- */
 static void timer_action(void *arg)
 {
     timer_wrap_t *t = (timer_wrap_t *)arg;
 
-    /* 这里判断下，仅能减少出问题的概率 */
+    /* Is the timer has been cleared? */
     if (t->magic != MAGIC) {
         jse_error("Timer has been cleared\n");
         return;
@@ -36,7 +32,7 @@ static void timer_action(void *arg)
     duk_pcall(ctx, 0);
     duk_pop(ctx);
 
-    /* 在js回调函数中清除自身 */
+    /* Is the timer has been cleared? */
     if (t->magic != MAGIC) {
         jse_error("Timer has been cleared\n");
         return;

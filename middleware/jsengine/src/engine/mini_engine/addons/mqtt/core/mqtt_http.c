@@ -2,11 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "mqtt_http.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
+#include "jse_port.h"
+#include "jse_task.h"
 #include "be_utils.h"
-#include "hal/log.h"
+#include "mqtt_http.h"
 #include "cJSON.h"
 
 // #include "mbedtls/hmac.h"
@@ -312,7 +311,7 @@ static void mqtt_network_task(void *arg)
 
     void *handle      = mqttHttpTskHandle;
     mqttHttpTskHandle = NULL;
-    be_osal_delete_task(handle);
+    jse_osal_delete_task(handle);
 }
 
 void *mqtt_http_get_instance()
@@ -323,7 +322,7 @@ void *mqtt_http_get_instance()
 void mqtt_http_start(void *iotDeviceSecret)
 {
     if (mqttHttpTskHandle == NULL) {
-        be_osal_create_task("mqttHttpTsk", mqtt_network_task, iotDeviceSecret,
+        jse_osal_create_task("mqttHttpTsk", mqtt_network_task, iotDeviceSecret,
                             1024 * 7, MQTTHTTP_TSK_PRIORITY,
                             &mqttHttpTskHandle);
     }

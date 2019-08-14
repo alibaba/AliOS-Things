@@ -5,12 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <be_port_osal.h>
-#include <hal/system.h>
-
+#include "jse_port.h"
 #include "be_jse_api.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
+#include "jse_task.h"
 #include "module_wifi.h"
 
 #define WIFI_CONNECT_WAIT_TIME_MS (10 * 1000)
@@ -26,7 +24,7 @@ static void js_cb_wifi_conn_status(void *pdata)
     async->param_count = 1;
     async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
-    if (hal_system_get_ip(ip) == 0) {
+    if (jse_system_get_ip(ip) == 0) {
         jse_debug("ip=%s\n\r", ip);
         async->params[0] = new_str_symbol("CONNECTED");
     } else {
@@ -41,16 +39,16 @@ static void wifi_check_ip_task(void *arg)
     int count   = 0;
 
     while (1) {
-        if ((hal_system_get_ip(ip) == 0) ||
+        if ((jse_system_get_ip(ip) == 0) ||
             (count > WIFI_CONNECT_WAIT_TIME_MS / WIFI_CHECKIP_INTERVAL_MS)) {
             be_jse_task_schedule_call(js_cb_wifi_conn_status, arg);
             break;
         }
-        be_osal_delay(WIFI_CHECKIP_INTERVAL_MS);
+        jse_osal_delay(WIFI_CHECKIP_INTERVAL_MS);
         count++;
     }
 
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
     return;
 }
 
@@ -80,9 +78,9 @@ static be_jse_symbol_t *module_wifi_connect()
     symbol_to_str(arg0, (char *)ssid, symbol_str_len(arg0));
     symbol_to_str(arg1, (char *)passwd, symbol_str_len(arg1));
 
-    hal_system_wifi_connect(ssid, passwd);
+    jse_system_wifi_connect(ssid, passwd);
     INC_SYMBL_REF(arg2);
-    ret = be_osal_create_task("wifi_task", wifi_check_ip_task, arg2, 2048,
+    ret = jse_osal_create_task("wifi_task", wifi_check_ip_task, arg2, 2048,
                               WIFI_TSK_PRIORITY, NULL);
 
 Fail:
@@ -104,7 +102,7 @@ static be_jse_symbol_t *module_wifi_getip()
     char ip[32] = {0};
 
     be_jse_handle_function(0, 0, 0, 0, 0);
-    int ret = hal_system_get_ip(ip);
+    int ret = jse_system_get_ip(ip);
     if (ret == 0) {
         return new_str_symbol(ip);
     } else {
@@ -124,7 +122,7 @@ static be_jse_symbol_t *module_wifi_getssid()
     char ssid[32 + 1] = {0};
 
     be_jse_handle_function(0, 0, 0, 0, 0);
-    int ret = hal_system_wifi_ssid_get(ssid, sizeof(ssid));
+    int ret = jse_system_wifi_ssid_get(ssid, sizeof(ssid));
 
     if (ret == 0) {
         return new_str_symbol(ssid);

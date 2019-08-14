@@ -5,8 +5,8 @@
 #ifndef BE_CLI_EXT_H
 #define BE_CLI_EXT_H
 
-#include "be_jse_task.h"
-#include "hal/cli.h"
+#include "jse_port.h"
+#include "jse_task.h"
 
 #ifdef __cplusplus
 extern "C" {

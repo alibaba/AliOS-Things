@@ -2,12 +2,11 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "jse_port.h"
 #include "be_jse_api.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_task.h"
+
 #include "miio/miio-device.h"
 #include "miio/miio-discover.h"
 

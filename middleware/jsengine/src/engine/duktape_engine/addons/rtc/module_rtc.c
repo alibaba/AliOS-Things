@@ -4,10 +4,10 @@
 
 #define LOG_NDEBUG 0
 #include <stdint.h>
-#include "aos/hal/rtc.h"
+
+#include "jse_port.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "hal/log.h"
 
 #define RTC_YEAR "year"
 #define RTC_MONTH "month"
