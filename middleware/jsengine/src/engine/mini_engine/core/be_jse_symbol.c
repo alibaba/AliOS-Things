@@ -2,11 +2,11 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "jse_port.h"
 #include "be_jse_symbol.h"
 #include "be_jse_api.h"
 #include "be_jse_executor.h"
 #include "be_jse_lex.h"
-#include "hal/system.h"
 
 #ifdef RESIZABLE_JSE_SYMBOL_TABLE
 be_jse_symbol_t **gSymbolBlocks = 0;

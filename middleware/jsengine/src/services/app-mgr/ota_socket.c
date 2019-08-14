@@ -2,16 +2,16 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "ota_socket.h"
-#include <errno.h>
-#include <network/network.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "hal/log.h"
-#include "hal/system.h"
+#include "jse_port.h"
 #include "app_mgr.h"
+
+#include "ota_socket.h"
+#include "errno.h"
+#include "network/network.h"
 
 int ota_socket_connect(int port, char *host_addr)
 {

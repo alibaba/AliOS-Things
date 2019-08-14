@@ -3,17 +3,20 @@
  */
 
 #define CONFIG_LOGMACRO_DETAILS
-#include "board_mgr.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "be_port_hal.h"
+
+#include "jse_port.h"
+#include "board_mgr.h"
 #include "board_marker.h"
-#include "cJSON.h"
 #include "default_config.h"
 
-#define DRIVER_DIR BE_FS_ROOT_DIR "/drivers/"
+#include "cJSON.h"
+
+#define DRIVER_DIR JSE_FS_ROOT_DIR "/drivers/"
 
 #define DRIVER_NAME "driver.json"
 
@@ -552,19 +555,19 @@ static char *board_get_json_buff(const char *json_path)
     if (NULL == json_path) {
         return (NULL);
     }
-    if ((json_fd = be_open(json_path, O_RDONLY)) < 0) {
+    if ((json_fd = jse_open(json_path, O_RDONLY)) < 0) {
         return (NULL);
     }
-    len       = be_lseek(json_fd, 0, SEEK_END);
+    len       = jse_lseek(json_fd, 0, SEEK_END);
     json_data = jse_calloc(1, sizeof(char) * (len + 1));
     if (NULL == json_data) {
-        be_close(json_fd);
+        jse_close(json_fd);
         json_fd = -1;
         return (NULL);
     }
-    be_lseek(json_fd, 0, SEEK_SET);
-    be_read(json_fd, json_data, len);
-    be_close(json_fd);
+    jse_lseek(json_fd, 0, SEEK_SET);
+    jse_read(json_fd, json_data, len);
+    jse_close(json_fd);
     return json_data;
 }
 
@@ -803,7 +806,7 @@ int8_t board_load_drivers(const char *driver)
         return (-1);
     }
     p     = p + strlen("/spiffs/");
-    index = driver + len - 1;
+    index = (char *)driver + len - 1;
     while (index > p) {
         if (*index == '/') {
             break;

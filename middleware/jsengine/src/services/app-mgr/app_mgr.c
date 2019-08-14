@@ -2,54 +2,13 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "jse_port.h"
 #include "app_mgr.h"
 #include "be_common.h"
-#include "be_port_osal.h"
-#include "hal/log.h"
-#include "hal/system.h"
-
-#ifdef BE_OS_AOS
-#include "ota/ota_service.h"
-#endif
-
-#ifdef USE_FREERTOS
-
-#ifdef JSE_IDE_DEBUG
 #include "ota_socket.h"
 #include "websocket.h"
-#endif
 
-typedef enum {
-    OTA_REBOOT_FAILED     = -6,
-    OTA_UPGRADE_FAILED    = -5,
-    OTA_CHECK_FAILED      = -4,
-    OTA_DECOMPRESS_FAILED = -3,
-    OTA_DOWNLOAD_FAILED   = -2,
-    OTA_INIT_FAILED       = -1,
-    OTA_INIT              = 0,
-    OTA_DOWNLOAD          = 1,
-    OTA_DECOMPRESS        = 2,
-    OTA_CHECK             = 3,
-    OTA_UPGRADE           = 4,
-    OTA_REBOOT            = 5,
-    OTA_REBOOT_SUCCESS    = 6,
-    OTA_CANCEL            = 7,
-    OTA_MAX
-} OTA_STATUS_T;
-
-typedef enum {
-    OTA_DOWNLOAD_RECV_FAIL   = -6,
-    OTA_DOWNLOAD_SEND_FAIL   = -5,
-    OTA_DOWNLOAD_SOCKET_FAIL = -4,
-    OTA_DOWNLOAD_IP_FAIL     = -3,
-    OTA_DOWNLOAD_URL_FAIL    = -2,
-    OTA_DOWNLOAD_FAIL        = -1,
-    OTA_DOWNLOAD_CONTINUE    = 0,
-    OTA_DOWNLOAD_CANCEL      = 1,
-    OTA_DOWNLOAD_FINISH      = 2
-} OTA_DOWNLOAD_T;
-
-#endif
+#include "ota/ota_service.h"
 
 #ifdef LINUXOSX
 #define OTA_BUFFER_MAX_SIZE 8192
@@ -106,8 +65,8 @@ void apppack_init(write_js_cb_t cb)
 
     jse_debug("sizeof(fileheader) = %d \n", sizeof(fileheader));
 
-    /* 删除所有js app */
-    be_rmdir(BE_FS_ROOT_DIR);
+    /* remove all js file */
+    jse_rmdir(JSE_FS_ROOT_DIR);
 }
 
 void apppack_final()
@@ -151,7 +110,7 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
 
     int32_t complete = 0;
 
-    /* 文件结束，校验MD5 */
+    /* end of file, check MD5 */
     if (file_size == app_file_offset) {
         mbedtls_md5_finish(&g_ctx, digest);
         mbedtls_md5_free(&g_ctx);
@@ -175,7 +134,7 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
         }
 
         if (memcmp(digest, md5, 16) == 0) {
-            complete = 1; /* 校验成功 */
+            complete = 1; /* check success */
         } else {
             complete           = -1;
             jspack_found_error = 1;
@@ -190,11 +149,11 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
 }
 
 #define JSEPACK_HEADER_SIZE 8  /* sizeof(JSEPACK_HEADER) */
-#define JSEPACK_FILE_HEADER 24 /* sizeof(JSEPACK_FILE)  不包含文件名 */
+#define JSEPACK_FILE_HEADER 24 /* sizeof(JSEPACK_FILE)  exclude filename */
 static uint32_t g_file_header_size = 24 + 1;
 static uint8_t *g_file_name        = NULL;
 
-/* 上报处理过程 */
+/* report process state */
 void apppack_post_process_state()
 {
     char msg[128];
@@ -206,7 +165,7 @@ void apppack_post_process_state()
     }
 }
 
-/* 递归分析 */
+/* analysis recursive */
 int apppack_update(uint8_t *ptr, int size)
 {
     int len = 0;
@@ -223,7 +182,7 @@ int apppack_update(uint8_t *ptr, int size)
 
     jse_debug("g_file_header_size = %d \n", g_file_header_size);
 
-    /* 分析文件头 */
+    /* parse file header */
     if (jspacksize == 0) {
         if (size > JSEPACK_HEADER_SIZE) {
             jspacksize = JSEPACK_HEADER_SIZE;
@@ -249,14 +208,14 @@ int apppack_update(uint8_t *ptr, int size)
 
         return apppack_update(ptr + len, size - len);
     } else if (jspacksize == JSEPACK_HEADER_SIZE) {
-        /* 开始分析fileheader */
+        /* start parse file header */
 
         jspackfile_count = header.file_count;
         jse_warn("file_count = %d ", header.file_count);
         jse_warn("pack_version = %d ", header.pack_version);
         jse_warn("pack_size = %d ", header.pack_size);
 
-        /* 重设定 jspackfile_header_offset */
+        /* reset jspackfile_header_offset */
         len = JSEPACK_FILE_HEADER; /* sizeof(JSEPACK_FILE) */
         if (len > size) {
             len = size;
@@ -288,7 +247,7 @@ int apppack_update(uint8_t *ptr, int size)
         return apppack_update(ptr + len, size - len);
 
     } else if (jspackfile_header_offset == JSEPACK_FILE_HEADER) {
-        /* 读取该文件的 g_file_header_size */
+        /* read g_file_header_size */
 
         jse_warn("file_size = %d ", fileheader.file_size);
         jse_warn("header_size = %d ", fileheader.header_size);
@@ -303,10 +262,10 @@ int apppack_update(uint8_t *ptr, int size)
         g_file_name =
             jse_calloc(1, g_file_header_size - JSEPACK_FILE_HEADER + 1);
 
-        /* 获取文件名 */
+        /* get file name */
         len = g_file_header_size - JSEPACK_FILE_HEADER;
         if (len > size) {
-            /* 只获取部分 */
+            /* part of file name */
             len = size;
         }
 
@@ -318,10 +277,10 @@ int apppack_update(uint8_t *ptr, int size)
         return apppack_update(ptr + len, size - len);
 
     } else if (jspackfile_header_offset < g_file_header_size) {
-        /* 继续读取文件名称的剩余长度 */
+        /* read rest length of file name */
         len = g_file_header_size - jspackfile_header_offset;
         if (len > size) {
-            /* 只获取部分 */
+            /* part of file name */
             len = size;
         }
 
@@ -350,12 +309,12 @@ int apppack_update(uint8_t *ptr, int size)
             len = size;
         }
 
-        /* 限长 */
+        /* max length */
         if (len > JSEPACK_BLOCK_SIZE) {
             len = JSEPACK_BLOCK_SIZE;
         }
 
-        /* 分析文件 */
+        /* parse file */
         jspackoutput(g_file_name, fileheader.md5, fileheader.file_size, 3,
                      jspackfile_offset, ptr, len);
 
@@ -366,10 +325,10 @@ int apppack_update(uint8_t *ptr, int size)
                  fileheader.file_size);
 
         if (jspackfile_offset == fileheader.file_size) {
-            /* 下一个文件 */
+            /* next file */
             jspackfile_header_offset = 0;
             jspackfile_offset        = 0;
-            /* 恢复g_file_header_size默认值 */
+            /* reset g_file_header_size to default */
             g_file_header_size = 24 + 1;
             if (jspackfile_count > 0)
                 jse_warn("parse next file\n");
@@ -528,9 +487,9 @@ int apppack_download(char *url, download_js_cb_t func)
     }
 
 #ifdef LINUXOSX /* clean the root direcoty when user update app */
-    be_osal_rmdir(BE_FS_ROOT_DIR);
+    be_osal_rmdir(JSE_FS_ROOT_DIR);
 #else
-    be_unlink(BE_FS_ROOT_DIR "/index.js");
+    jse_unlink(JSE_FS_ROOT_DIR "/index.js");
 #endif
 
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
@@ -624,22 +583,22 @@ int write_app_pack(const char *filename, int32_t file_size, int32_t type,
 
     if (app_fd > 0) {
         if (buf_len > 0) {
-            ret = be_write(app_fd, buf, buf_len);
+            ret = jse_write(app_fd, buf, buf_len);
         }
 
         if ((offset + buf_len) == file_size) {
-            ret    = be_sync(app_fd);
-            ret    = be_close(app_fd);
+            ret    = jse_sync(app_fd);
+            ret    = jse_close(app_fd);
             app_fd = -1;
-            jse_warn("be_close return %d", ret);
+            jse_warn("jse_close return %d", ret);
         }
     }
 
     if (complete != 0) {
-        /* 校验出错 */
+        /* check failed */
         if (app_fd > 0) {
-            ret    = be_sync(app_fd);
-            ret    = be_close(app_fd);
+            ret    = jse_sync(app_fd);
+            ret    = jse_close(app_fd);
             app_fd = -1;
         }
         jse_warn("file verify %s ", (complete == 1 ? "success" : "failed"));
@@ -662,7 +621,7 @@ static void download_work(void *arg)
 {
     int ret;
 
-    jse_warn("download_work task name=%s", be_osal_get_taskname());
+    jse_warn("download_work task name=%s", jse_osal_get_taskname());
     jse_warn("url=%s ", (char *)arg);
 
     ret = apppack_download((char *)arg, download_apppack);
@@ -676,13 +635,13 @@ static void download_work(void *arg)
         app_mgr_set_boneflag(1);
         jse_warn("Upgrade app success");
         bone_websocket_send_frame("/device/updateapp_reply", 200, "success");
-        be_osal_delay(200);
+        jse_osal_delay(200);
     }
 
     jse_warn("reboot ...");
 
-    hal_system_reboot();
-    be_osal_delete_task(NULL);
+    jse_system_reboot();
+    jse_osal_delete_task(NULL);
 }
 
 int apppack_upgrade(char *url)
@@ -696,11 +655,11 @@ int apppack_upgrade(char *url)
 
         jse_warn("create upgrade task ...");
 
-        if (be_osal_create_task("appupdate", download_work, url, 1024 * 4,
+        if (jse_osal_create_task("appupdate", download_work, url, 1024 * 4,
                                 UPDATE_TSK_PRIORITY, NULL) != 0) {
             update_done = 1;
             apppack_final();
-            jse_warn("be_osal_task_new fail");
+            jse_warn("jse_osal_task_new fail");
             bone_websocket_send_frame("/device/updateapp_reply", 203,
                                       "out of memory");
             return -1;
@@ -760,13 +719,13 @@ static void upgrade_simulator_work(upgrade_image_param_t *arg)
 #ifdef JSE_IDE_DEBUG
         bone_websocket_send_frame("/device/updateimg_reply", 200, "success");
 #endif
-        be_osal_delay(200);
+        jse_osal_delay(200);
     }
 
     jse_warn("reboot ...");
 
-    hal_system_reboot();
-    be_osal_exit_task(0);
+    jse_system_reboot();
+    jse_osal_exit_task(0);
 }
 
 int simulator_upgrade(upgrade_image_param_t *p_info)
@@ -777,9 +736,9 @@ int simulator_upgrade(upgrade_image_param_t *p_info)
         upgrade_file_size = p_info->file_size;
         jse_warn("simulator_upgrade ...");
 
-        if (be_osal_new_task("simulator_upgrade", upgrade_simulator_work,
+        if (jse_osal_new_task("simulator_upgrade", upgrade_simulator_work,
                              p_info, 1024 * 4, NULL) != 0) {
-            jse_warn("be_osal_task_new fail");
+            jse_warn("jse_osal_task_new fail");
 #ifdef JSE_IDE_DEBUG
             bone_websocket_send_frame("/device/updateimg_reply", 203,
                                       "out of memory");
@@ -803,14 +762,14 @@ int simulator_upgrade(upgrade_image_param_t *p_info)
 
 void app_mgr_set_boneflag(int enable)
 {
-    hal_system_kv_set(BoneFlag, &enable, 4, 1);
+    jse_system_kv_set(BoneFlag, &enable, 4, 1);
 }
 
 int app_mgr_get_boneflag()
 {
     int flag = 0;
     int len  = 4;
-    hal_system_kv_get(BoneFlag, &flag, &len);
+    jse_system_kv_get(BoneFlag, &flag, &len);
     return flag;
 }
 
@@ -825,12 +784,12 @@ max length 192
 
 void app_mgr_set_devicespec(char *jsonstr)
 {
-    hal_system_kv_set(DeviceSpec, jsonstr, strlen(jsonstr), 1);
+    jse_system_kv_set(DeviceSpec, jsonstr, strlen(jsonstr), 1);
 }
 
 int app_mgr_get_devicespec(char *jsonstr, int jsonstrlen)
 {
-    hal_system_kv_get(DeviceSpec, jsonstr, &jsonstrlen);
+    jse_system_kv_get(DeviceSpec, jsonstr, &jsonstrlen);
     return jsonstrlen;
 }
 
@@ -842,7 +801,7 @@ int app_mgr_open_file(const char *targetname)
     if (targetname == NULL) {
         return -1;
     }
-    snprintf(path, sizeof(path), "%s/", BE_FS_ROOT_DIR);
+    snprintf(path, sizeof(path), "%s/", JSE_FS_ROOT_DIR);
     if (targetname[0] == '.') {
         if (targetname[1] == '/') {
             strcat(path, targetname + 2);
@@ -854,17 +813,17 @@ int app_mgr_open_file(const char *targetname)
         strcat(path, targetname);
     }
 
-    int i   = strlen(BE_FS_ROOT_DIR); /* 8 */
+    int i   = strlen(JSE_FS_ROOT_DIR); /* 8 */
     int len = strlen(path);
     for (; i < len; i++) {
         if (path[i] == '/') {
             path[i] = 0;
-            be_mkdir(path);
+            jse_mkdir(path);
             path[i] = '/';
         }
     }
 
-    fd = be_open(path, O_RDWR | O_CREAT | O_TRUNC);
+    fd = jse_open(path, O_RDWR | O_CREAT | O_TRUNC);
 
     return fd;
 }

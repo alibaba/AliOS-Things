@@ -23,30 +23,20 @@
 #include <sys/types.h>
 #endif
 
-#ifdef USE_FREERTOS
-#include <arpa/inet.h>
-#include <lwip/netdb.h>
-#include <sys/socket.h>
-#endif
+#include "app_mgr.h"
+#include "be_jse_export.h"
+#include "be_ssdp.h"
+#include "board_info.h"
+#include "jse_port.h"
+#include "jse_task.h"
 
-#include "websocket.h"
-
+#include "cJSON.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/sha1.h"
 
-#include "be_port_osal.h"
-#include "cJSON.h"
-#include "hal/system.h"
+#include "websocket.h"
 
-#include "app_mgr.h"
-#include "be_jse_export.h"
-#include "be_jse_task.h"
-#include "be_ssdp.h"
-#include "board_info.h"
-#include "cli.h"
-#include "hal/log.h"
-
-#if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
+#if defined(WITH_LWIP) || defined(LINUXOSX)
 
 static void* websocketMutex = NULL;
 
@@ -244,8 +234,7 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
     return 0;
 }
 
-/* 超时关闭socket, 接收ping回复 */
-
+/* close socket when timeout, reply ping frame */
 static int pingTimeout = 5000;
 
 static void bone_websocket_timeout(void* arg)
@@ -286,8 +275,8 @@ static void ping_timer_cb(void* arg)
               frame_size);
 
     if (ret > 0) {
-        /* be_osal_post_delayed_action(pingInterval, ping_timer_cb, client);
-           be_osal_post_delayed_action(pingTimeout, bone_websocket_timeout,
+        /* jse_osal_post_delayed_action(pingInterval, ping_timer_cb, client);
+           jse_osal_post_delayed_action(pingTimeout, bone_websocket_timeout,
                                        client); */
 
         be_jse_task_cancel_timer(client->ping_tsk_handle);
@@ -299,8 +288,7 @@ static void ping_timer_cb(void* arg)
             pingTimeout, bone_websocket_timeout, client, JSE_TIMER_ONCE);
 
     } else {
-        /* 对方socket关闭
-           关闭websocket */
+        /* deinit websocket if socket closed */
         bone_websocket_deinit(client);
     }
 }
@@ -334,10 +322,10 @@ static int bone_websocket_send_cmd(bone_websocket_client_t* client, char* cmd,
     return ret;
 }
 
-/* 处理 be-cli/webide 发来的命令
-   原始命令  42["/device/disconnect","arg0","arg1","arg2","arg3","arg4"]
-   42["/ide/console",1,"2",{"3":"4","5":"rockzhou"}]
-   0{"sid":"RyTmnKrgBDtX37bsAAAA","upgrades":[],"pingInterval":25000,"pingTimeout":5000}
+/* process and reply be-cli/webide commands
+ * 42["/device/disconnect","arg0","arg1","arg2","arg3","arg4"]
+ * 42["/ide/console",1,"2",{"3":"4","5":"rockzhou"}]
+ * 0{"sid":"RyTmnKrgBDtX37bsAAAA","upgrades":[],"pingInterval":25000,"pingTimeout":5000}
  */
 static int bone_websocket_on_command(bone_websocket_client_t* client,
                                      unsigned char* msg, size_t msg_len)
@@ -349,9 +337,9 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
     int count;
     strCmd = msg;
 
-    /* 4 message：实际发送的消息
-       Packet类型 CONNECT 0, DISCONNECT 1, EVENT 2, ACK 3, ERROR 4, BINARY_EVENT
-       5, BINARY_ACK 6 */
+    /* 4 message：need to send
+       Packet type CONNECT 0, DISCONNECT 1, EVENT 2, ACK 3, ERROR 4,
+       BINARY_EVENT 5, BINARY_ACK 6 */
 
     jse_debug("%d, msg_len = %d, strCmd = %s \n", __LINE__, msg_len, strCmd);
 
@@ -376,7 +364,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
                 bone_websocket_send_cmd(client, "5", true);
             }
         } else if (msg[0] == '6') {
-            /* noop帧 */
+            /* noop frame */
         }
     }
 
@@ -404,7 +392,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
     if (root == NULL) return 0;
 
     if (cJSON_IsArray(root)) {
-        /* 是数组 */
+        /* array */
         count = cJSON_GetArraySize(root);
         jse_debug("count = %d\n", count);
         for (i = 0; i < count; i++) {
@@ -423,22 +411,22 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             /* jse_debug("%s\n", item->valuestring); */
         }
     } else if (cJSON_IsObject(root)) {
-        /* 是对象 */
+        /* object */
         item = cJSON_GetObjectItem(root, "pingInterval");
         if (cJSON_IsNumber(item)) {
             int Interval = item->valueint;
 
             if (Interval != pingInterval) {
-                /* 更新ping周期 */
+                /* clear ping timeout */
                 pingInterval = Interval;
                 be_jse_task_cancel_timer(client->ping_tsk_handle);
                 client->ping_tsk_handle = be_jse_task_timer_action(
                     pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
-                /* be_osal_cancel_delayed_action(pingInterval, ping_timer_cb,
+                /* jse_osal_cancel_delayed_action(pingInterval, ping_timer_cb,
                                                  client);
                    pingInterval = Interval;
-                   be_osal_post_delayed_action(pingInterval, ping_timer_cb,
+                   jse_osal_post_delayed_action(pingInterval, ping_timer_cb,
                                                client); */
             }
 
@@ -458,38 +446,38 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
         }
 
         if (strcmp("/device/disconnect", args[0]) == 0) {
-            /* 断开连接 websocket */
-            jse_debug("处理 %s ", args[0]);
+            /* close websocket */
+            jse_debug("parse %s ", args[0]);
             bone_websocket_send_frame("/device/disconnect_reply", 200,
                                       "success");
 #ifdef LINUXOSX /* simulator auto exit(0) */
-            be_osal_shutdown();
+            jse_osal_shutdown();
 #endif
             client->state = BWS_STATE_CLOSING;
 
         } else if (strcmp("/device/reboot", args[0]) == 0) {
-            /* 重启 */
-            jse_debug("处理 %s ", args[0]);
+            /* reboot */
+            jse_debug("parse %s ", args[0]);
             bone_websocket_send_frame("/device/reboot_reply", 200, "success");
             client->state = BWS_STATE_CLOSING;
-            /* 延时 200ms */
-            be_osal_delay(200);
-            hal_system_reboot();
+            /* delay 200ms */
+            jse_osal_delay(200);
+            jse_system_reboot();
 
         } else if (strcmp("/device/wifi", args[0]) == 0) {
-/* 设置 WIFI */
-#if defined(BE_OS_AOS) || defined(USE_FREERTOS)
+/* set WIFI */
+#if defined(BE_OS_AOS)
             websocket_call_cli("wifi", args);
 #endif
             bone_websocket_send_frame("/device/wifi_reply", 200, "success");
 
         } else if (strcmp("/device/burnKey", args[0]) == 0) {
-            /* 设置 设备上云三要素 */
+            /* set device certificate */
             board_setDeviceInfo(args[1], args[2], args[3]);
             bone_websocket_send_frame("/device/burnKey_reply", 200, "success");
 
         } else if (strcmp("/device/updateimg", args[0]) == 0) {
-            /* http更新固件或应用分区镜像 */
+            /* update image or firmware via http */
 #ifdef LINUXOSX
             char* url = strdup(args[2]);
             upgrade_image_param_t* p_info =
@@ -504,13 +492,13 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             /* websocket_call_cli("updateimg", args); */
 #endif
         } else if (strcmp("/device/updateapp", args[0]) == 0) {
-            /* http更新应用, app.bin */
+            /* update app.bin via http */
             char* url = strdup(args[1]);
 
             be_jse_task_schedule_call((bone_engine_call_t)apppack_upgrade, url);
 
         } else if (strcmp("/device/getVersion", args[0]) == 0) {
-            /* 获取设备版本信息 */
+            /* get device version */
             websocket_getVersion();
         } else if (strcmp("/device/bshell", args[0]) == 0) {
             if (args[1]) {
@@ -546,8 +534,7 @@ static void bone_websocket_process_frame(bone_websocket_client_t* client,
     } else if (frame_ptr->type == BWS_TXT_FRAME) {
         /* jse_debug("text frame"); */
 
-        jse_debug("调用 bone_websocket_on_command 处理 msg=%s",
-                  frame_ptr->payload);
+        jse_debug("call bone_websocket_on_command msg=%s", frame_ptr->payload);
 
         bone_websocket_on_command(client, frame_ptr->payload,
                                   frame_ptr->payload_len);
@@ -570,7 +557,7 @@ static void on_read(int fd, void* arg)
     if (client->magic != BONE_WEBSOCKET_MAGIC) return;
 
     unsigned char* data = client->frame_buf + client->tmp_length;
-    /* 剩余frame_buf长度 */
+    /* rest length of frame_buf */
     size_t recv_buf_length = client->frame_buf_length - client->tmp_length;
 
     do {
@@ -581,16 +568,14 @@ static void on_read(int fd, void* arg)
         be_jse_task_cancel_timer(client->timeout_tsk_handle);
         client->timeout_tsk_handle = NULL;
 
-        /* be_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
+        /* jse_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
                                          client); */
 
         data[data_len] = 0;
-        jse_debug("\n分析websocket 数据, client = %p", client);
+        jse_debug("\nparse websocket data, client = %p", client);
         jse_debug("------recv: %d bytes------", data_len);
         if (data_len >= 3)
             jse_debug("0x%x 0x%x 0x%x \n", data[0], data[1], data[2]);
-
-        /* 不处理握手信息，仅处理正式的command信息 */
 
         if (client && client->state == BWS_STATE_CONNECTING) {
             if (strstr(data, "HTTP/1.1 101 Switching Protocols")) {
@@ -608,8 +593,8 @@ static void on_read(int fd, void* arg)
 
                     bone_websocket_send_cmd(client, "2probe", true);
 
-                    /* 处理定期ping */
-                    jse_debug("websocket 处理 ping action, client=%p", client);
+                    /* parse ping */
+                    jse_debug("websocket parse ping action, client=%p", client);
                     client->ping_tsk_handle = be_jse_task_timer_action(
                         pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
@@ -618,16 +603,16 @@ static void on_read(int fd, void* arg)
                     client->tmp_length = 0;
                     client->frame_size = 0;
                 } else {
-                    jse_debug("出错 !!!");
+                    jse_debug("failed!");
                 }
             } else {
-                /* 数据不够，暂存起来 */
+                /* store data */
                 client->tmp_length = client->tmp_length + data_len;
             }
         } else if (client && client->state == BWS_STATE_OPEN) {
-            /* 可以会存在tcp一次接收多个frame的情况 !!! */
+            /* may receive multi frame once tcp handshark */
 
-            /* 更新frame buffer 数据及长度 */
+            /* update frame buffer and length */
             data     = client->frame_buf;
             data_len = client->tmp_length + data_len;
 
@@ -638,11 +623,11 @@ static void on_read(int fd, void* arg)
 
             memset(&frame, 0, sizeof(frame));
 
-            /* new frame 开始 */
+            /* new frame */
             succ = bone_websocket_parse_frame(data, data_len, &frame);
             if (succ == 0) {
                 bone_websocket_process_frame(client, &frame);
-                /* 剩余 */
+                /* rest */
                 ptr  = data + frame.frame_total_len;
                 left = data_len - frame.frame_total_len;
 
@@ -651,12 +636,12 @@ static void on_read(int fd, void* arg)
                 left = data_len;
             }
 
-            /* 可能还包含下一个frame */
+            /* may include next frame */
             while (succ == 0 && client->state == BWS_STATE_OPEN) {
                 succ = bone_websocket_parse_frame(ptr, left, &frame);
                 if (succ == 0) {
                     bone_websocket_process_frame(client, &frame);
-                    /* 剩余 */
+                    /* rest */
                     ptr  = ptr + frame.frame_total_len;
                     left = left - frame.frame_total_len;
                 }
@@ -669,18 +654,18 @@ static void on_read(int fd, void* arg)
                 client->tmp_length = 0;
             }
 
-            /* 判断最大frame size 是否超出 frame_buf_length */
+            /* frame size > frame_buf_length? */
             if (succ > 0) {
                 if (succ > client->frame_buf_length) {
-                    /* 重新分配内存 */
+                    /* reassign memory */
                     jse_debug("frame buf is large \n");
                 }
-                jse_debug("缺少数据, %d %d \n", succ, left);
+                jse_debug("missing data, %d %d \n", succ, left);
             }
         }
     }
 
-    /* data_len == -1 会产生多次调用bone_websocket_deinit */
+    /* data_len == -1 may call bone_websocket_deinit() multiple times */
     jse_debug("%s %d data_len = %d state = %d \n", __FUNCTION__, __LINE__,
               data_len, client->state);
     if (data_len == -1 || (client->state == BWS_STATE_CLOSING)) {
@@ -725,11 +710,11 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
 
     void* tsk_handle = client->tsk_handle;
 
-    /* 必须清除 */
-    jse_debug("终止 websocket ping,  client = %p ", client);
+    /* must clear */
+    jse_debug("stop websocket ping,  client = %p ", client);
 
-    /* be_osal_cancel_delayed_action(pingInterval, ping_timer_cb, client);
-       be_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
+    /* jse_osal_cancel_delayed_action(pingInterval, ping_timer_cb, client);
+       jse_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
        client); */
 
     be_jse_task_cancel_timer(client->ping_tsk_handle);
@@ -743,9 +728,9 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
     jse_free(client->frame_buf);
     jse_free(client);
 
-    /* 结束websocket task, 必须放在最后 */
+    /* stop websocket task */
     jse_debug("tsk_handle=%p", tsk_handle);
-    be_osal_delete_task(tsk_handle);
+    jse_osal_delete_task(tsk_handle);
 
     return 0;
 }
@@ -802,7 +787,7 @@ int bone_websocket_connect(bone_websocket_client_t* client)
         return -1;
     }
 
-    /* 设置超时 500ms */
+    /* set timeout 500ms */
     struct timeval timeout;
     timeout.tv_sec  = 0;
     timeout.tv_usec = 500 * 1000;
@@ -841,10 +826,10 @@ int bone_websocket_connect(bone_websocket_client_t* client)
 
     /* websocket task */
     client->tsk_done = 0;
-    be_osal_create_task("WebSocketTsk", websocket_read, client, 1024 * 8,
-                        WEBSOCKET_TSK_PRIORITY, &client->tsk_handle);
+    jse_osal_create_task("WebSocketTsk", websocket_read, client, 1024 * 8,
+                         WEBSOCKET_TSK_PRIORITY, &client->tsk_handle);
 
-    if (websocketMutex == NULL) websocketMutex = be_osal_new_mutex();
+    if (websocketMutex == NULL) websocketMutex = jse_osal_new_mutex();
 
     jse_debug("bone_websocket_connect 连接成功 ");
     gWebsocketClient = client;
@@ -857,21 +842,16 @@ int bone_websocket_send_raw(bone_websocket_client_t* client,
 {
     int ret;
     if (client->fd >= 0) {
-        be_osal_lock_mutex(websocketMutex, 1000);
+        jse_osal_lock_mutex(websocketMutex, 1000);
         ret = (int)send(client->fd, data, data_len, 0);
-        be_osal_unlock_mutex(websocketMutex);
+        jse_osal_unlock_mutex(websocketMutex);
         return ret;
     } else {
         return -1;
     }
 }
 
-/*
- *
- * 在这个函数中不能调用jse_debug/jse_warn/jse_info/jse_error,
- * 避免出现有可能存在的循环调用
- *
- */
+/* avoid call jse_debug()/jse_warn()/jse_info()/jse_error() */
 int bone_websocket_send_frame(char* topic, int level, char* msg)
 {
     /* double check */
@@ -879,7 +859,7 @@ int bone_websocket_send_frame(char* topic, int level, char* msg)
     if (gWebsocketClient->state != BWS_STATE_OPEN) return 0;
     if (topic == NULL || msg == NULL) return 0;
 
-    /* 打包成 socket.io 的frame,  42['topic','msg1', 'msg2', 'msg3'] */
+    /* pack into socket.io frames,  42['topic','msg1', 'msg2', 'msg3'] */
     cJSON* root = NULL;
     char* payloadBuf;
     int payloadBuf_len;

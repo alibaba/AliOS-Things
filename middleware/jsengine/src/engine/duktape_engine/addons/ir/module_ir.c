@@ -2,15 +2,11 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_hal.h"
-#include "be_port_osal.h"
+#include "jse_task.h"
+#include "jse_port.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "gpio.h"
 
 static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin)
 {
@@ -21,7 +17,7 @@ static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin)
     gpio_i2c_delay_10us(8);
     gpio_i2c_set_high(scl_pin);
 
-    be_osal_delay(20);
+    jse_osal_delay(20);
     gpio_i2c_start(scl_pin, sda_pin);
     gpio_i2c_delay_10us(4);
 
@@ -51,7 +47,7 @@ static int8_t ir_learn_read(uint32_t scl_pin, uint32_t sda_pin, uint8_t *buff)
     gpio_i2c_set_low(scl_pin);
     gpio_i2c_delay_10us(8);
     gpio_i2c_set_high(scl_pin);
-    be_osal_delay(20);
+    jse_osal_delay(20);
 
     gpio_i2c_start(scl_pin, sda_pin);
     gpio_i2c_delay_10us(4);
@@ -101,7 +97,7 @@ static int32_t ir_learn_start(uint32_t scl_pin, uint32_t sda_pin,
     gpio_i2c_init(scl_pin, sda_pin);
     gpio_i2c_set_in(busy_bin);
     ir_learn_mode(scl_pin, sda_pin);
-    be_osal_delay(50);
+    jse_osal_delay(50);
     while (!gpio_i2c_read_pin(busy_bin)) gpio_i2c_delay_10us(10);
     ret = ir_learn_read(scl_pin, sda_pin, tmp);
     if (0 != ret) {
@@ -127,7 +123,7 @@ static uint32_t ir_counts(gpio_dev_t *gpio, uint8_t level)
     do {
         ret = hal_gpio_input_get(gpio, &value);
         counts += 1;
-        be_osal_delay10us();
+        jse_osal_delay10us();
     } while ((0 == ret) && (value == level));
     return counts;
 }
@@ -247,7 +243,7 @@ static void gpio_irq_notify(void *arg)
     jse_free(p);
 }
 
-/* 中断中避免调用打印 */
+/* avoid stdout in irq function */
 static void ir_handle(void *arg)
 {
     uint32_t value   = 0;
@@ -312,7 +308,7 @@ out:
 static void ir_delay(uint32_t counts)
 {
     uint32_t i = 0;
-    for (i = 0; i < counts; i++) be_osal_delay10us();
+    for (i = 0; i < counts; i++) jse_osal_delay10us();
 }
 
 static void ir_byte(gpio_dev_t *sda, gpio_dev_t *scl, unsigned char bData)
@@ -353,7 +349,7 @@ static void ir_buff(gpio_dev_t *sda, gpio_dev_t *scl, uint8_t *data,
     hal_gpio_output_low(scl);
     ir_delay(8);
     hal_gpio_output_high(scl);
-    be_osal_delay(20);
+    jse_osal_delay(20);
     hal_gpio_output_high(scl);
     hal_gpio_output_high(sda);
     ir_delay(8);

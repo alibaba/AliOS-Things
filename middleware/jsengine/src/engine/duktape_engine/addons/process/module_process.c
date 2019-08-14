@@ -4,11 +4,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
+
+#include "jse_port.h"
+#include "jse_task.h"
 #include "bone_engine_inl.h"
-#include "hal/system.h"
 
 static void next_tick_cb(void *arg)
 {
@@ -38,13 +37,13 @@ static duk_ret_t native_process_nextTick(duk_context *ctx)
 
 static duk_ret_t native_process_getTime(duk_context *ctx)
 {
-    duk_push_number(ctx, be_osal_get_clocktime());
+    duk_push_number(ctx, jse_osal_get_clocktime());
     return 1;
 }
 
 static duk_ret_t native_process_uptime(duk_context *ctx)
 {
-    duk_push_number(ctx, be_osal_get_clocktime());
+    duk_push_number(ctx, jse_osal_get_clocktime());
     return 1;
 }
 
@@ -58,7 +57,7 @@ void module_process_register(void)
     duk_put_prop_string(ctx, -2, "version");
 
     /* platform */
-    duk_push_string(ctx, hal_system_get_platform_type());
+    duk_push_string(ctx, jse_system_get_platform_type());
     duk_put_prop_string(ctx, -2, "platform");
 
     /* nextTick(function () {}) */

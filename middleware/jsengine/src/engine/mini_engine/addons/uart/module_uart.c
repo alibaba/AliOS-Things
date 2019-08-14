@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "be_jse_module.h"
-#include "be_jse_task.h"
+#include "jse_task.h"
 #include "be_port_hal.h"
 #include "board-mgr/board_mgr.h"
 

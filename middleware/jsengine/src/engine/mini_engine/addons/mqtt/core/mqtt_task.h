@@ -8,8 +8,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "jse_port.h"
 #include "be_jse_module.h"
-#include "be_port_osal.h"
 #include "be_utils.h"
 
 #if defined(__cplusplus)

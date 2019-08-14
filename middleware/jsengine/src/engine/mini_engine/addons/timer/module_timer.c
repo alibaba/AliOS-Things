@@ -5,11 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "jse_port.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
-#include "hal/log.h"
+#include "jse_task.h"
 
 #ifdef JSE_CORE_ADDON_TIMER
 #define MAGIC 0x55aa55aa
@@ -75,7 +73,7 @@ static be_jse_symbol_t *clear_timer()
     }
 
     timer_action_t *p_timer_action = (timer_action_t *)get_symbol_value_int(hv);
-    be_osal_timer_delete((osTimerId)p_timer_action->timerid);
+    jse_osal_timer_delete((osTimerId)p_timer_action->timerid);
     p_timer_action->magic = 0;
     DEC_SYMBL_REF(p_timer_action->func);
     jse_free(p_timer_action);

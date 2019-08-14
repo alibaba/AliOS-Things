@@ -4,10 +4,11 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "jse_port.h"
 #include "be_jse_addon.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
+#include "jse_task.h"
 
 static void nexttick_cb(void* arg)
 {
@@ -52,13 +53,13 @@ static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
     if (strcmp(name, "getTime") == 0) {
         be_jse_handle_function(0, 0, 0, 0, 0);
         be_jse_float_t val = 0;
-        val                = be_osal_get_clocktime();
+        val                = jse_osal_get_clocktime();
         return new_float_symbol(val);
     }
 
     if (strcmp(name, "uptime") == 0) {
         be_jse_handle_function(0, 0, 0, 0, 0);
-        return new_int_symbol(be_osal_get_clocktime());
+        return new_int_symbol(jse_osal_get_clocktime());
     }
 
     if (strcmp(name, "memoryUsage") == 0) {

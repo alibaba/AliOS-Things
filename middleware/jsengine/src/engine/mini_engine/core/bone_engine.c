@@ -4,13 +4,14 @@
 
 #include <errno.h>
 #include <stdarg.h>
+
+#include "jse_port.h"
 #include "be_jse.h"
 #include "be_jse_addon.h"
 #include "be_jse_api.h"
 #include "be_jse_module.h"
 #include "be_utils.h"
 #include "board_mgr.h"
-#include "hal/system.h"
 
 static be_jse_executor_ctx_t beJseExecutor;
 static BE_JSE_FUNCTION_EXECUTE_CB be_user_ext_function_cb = 0;
@@ -308,10 +309,10 @@ const char *load_js_module(const char *moduleName)
     /* board_mgr */
     /* board_load_drivers(path); */
 
-    fd = be_open(path, O_RDONLY);
+    fd = jse_open(path, O_RDONLY);
     if (fd == -1) {
         strcat(path, ".js");
-        fd = be_open(path, O_RDONLY);
+        fd = jse_open(path, O_RDONLY);
     }
 
     if (fd == -1) {
@@ -320,16 +321,16 @@ const char *load_js_module(const char *moduleName)
     }
 
     
-    if((size = be_lseek(fd, 0L, SEEK_END)) <= 0){
+    if((size = jse_lseek(fd, 0L, SEEK_END)) <= 0){
         jse_error("be_lseek error:%d\r\n", size);
         return NULL;
     }
-    be_lseek(fd, 0L, SEEK_SET);
+    jse_lseek(fd, 0L, SEEK_SET);
     jse_debug("%s file size = %d \r\n", path, size);
 
     data    = jse_calloc(1, size + 1);
     data[0] = 0;
-    len     = be_read(fd, data, size);
+    len     = jse_read(fd, data, size);
     jse_debug("read, len = %d \r\n", len);
     if (len > 0) {
         data[len] = 0;
@@ -338,7 +339,7 @@ const char *load_js_module(const char *moduleName)
         jse_debug("%s\n", strerror(errno));
     }
 
-    be_close(fd);
+    jse_close(fd);
     return data;
 }
 

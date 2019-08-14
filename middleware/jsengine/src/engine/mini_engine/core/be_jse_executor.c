@@ -4,10 +4,10 @@
 
 /*Ecmascript bytecode executor*/
 
-#include <be_jse_task.h>
+#include "jse_port.h"
+#include "jse_task.h"
 #include "be_jse.h"
 #include "be_jse_api.h"
-#include "hal/system.h"
 
 /* JSEngine Object */
 static be_jse_vm_ctx_t vm;
@@ -2088,7 +2088,7 @@ void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
         INC_SYMBL_REF(async->func);
         ret = be_jse_task_schedule_call(be_jse_async_event_cb, async);
         if (ret < 0) {
-            jse_error("be_osal_schedule_call error");
+            jse_error("jse_osal_schedule_call error");
             DEC_SYMBL_REF(async->func);
             jse_free(async->params);
             jse_free(async);
