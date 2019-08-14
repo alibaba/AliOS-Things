@@ -7,8 +7,8 @@
 #include "ali_crypto.h"
 
 /* ID2 For Debug, which can be got from id2 console */
-#define ID2_ID      "0102030405060708090A0B0C"
-#define ID2_KEY     "0102030405060708090A0B0C0D0E0F101112131415161718"
+#define ID2_ID      "000FFFFFDB1D8DC78DDCB800"
+#define ID2_KEY     "e4cac8c54ab2d7f07939466b332736990598a452ffe33a97"
 
 #define ID2_LEN                             24
 #define MAX_KEY_LEN                         32

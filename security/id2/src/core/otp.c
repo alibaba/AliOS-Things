@@ -22,14 +22,15 @@ enum
     KEY_TYPE_3DES_168   = 5,
 };
 
-#define ID2_OTP_AUTH_CODE_VER   0x00010000
+#define ID2_OTP_AUTH_CODE_VER       0x00010000
 
-#define ID2_SS_KEY_LEN          16
-#define DEVICE_MAX_FP_LEN       128
+#define ID2_OTP_SS_KEY_LEN           16
+#define ID2_OTP_DEV_FP_MAX_LEN       128
+#define ID2_OTP_AUTH_CODE_MAX_LEN    256
 
 #define ID2_ROUNDUP(a, b)       (((a) + ((b) - 1)) & ~((b) - 1))
 
-static uint8_t g_ss_key[ID2_SS_KEY_LEN] = {0};
+static uint8_t g_ss_key[ID2_OTP_SS_KEY_LEN] = {0};
 
 #if (CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_AES)
 static int _id2_aes_ecb(const uint8_t* key, uint32_t key_len,
@@ -164,10 +165,10 @@ static int _otp_get_rept_data(uint8_t key_type,
     id2_log_hex_dump("prov_key", prov_key, key_len);
 
     /* generate session key */
-    id2_plat_get_random(g_ss_key, ID2_SS_KEY_LEN);
+    id2_plat_get_random(g_ss_key, ID2_OTP_SS_KEY_LEN);
 
     /* key_type + ss_key + dev_fp */
-    data_len = 1 + ID2_SS_KEY_LEN + dev_fp_len;
+    data_len = 1 + ID2_OTP_SS_KEY_LEN + dev_fp_len;
     padding = block_size - data_len % block_size;
 
     total_len = SHA256_HASH_SIZE + data_len + padding;
@@ -182,8 +183,8 @@ static int _otp_get_rept_data(uint8_t key_type,
     offset = SHA256_HASH_SIZE;
     memcpy(rept_data + offset, &key_type, 1);
     offset += 1;
-    memcpy(rept_data + offset, g_ss_key, ID2_SS_KEY_LEN);
-    offset += ID2_SS_KEY_LEN;
+    memcpy(rept_data + offset, g_ss_key, ID2_OTP_SS_KEY_LEN);
+    offset += ID2_OTP_SS_KEY_LEN;
     memcpy(rept_data + offset, dev_fp, dev_fp_len);
     offset += dev_fp_len;
     memset(rept_data + offset, padding, padding);
@@ -285,7 +286,7 @@ static int _otp_set_otp_data(uint8_t* otp_data, uint32_t len)
     }
 
 #if (CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_AES)
-    ret = _id2_aes_ecb(g_ss_key, ID2_SS_KEY_LEN,
+    ret = _id2_aes_ecb(g_ss_key, ID2_OTP_SS_KEY_LEN,
                otp_data + key_data_off, key_data_len,
                id2_key, &key_data_len, false);
     if (ret < 0) {
@@ -293,7 +294,7 @@ static int _otp_set_otp_data(uint8_t* otp_data, uint32_t len)
         goto _out;
     }
 #elif (CONFIG_ID2_KEY_TYPE == ID2_KEY_TYPE_3DES)
-    ret = _id2_des3_ecb(g_ss_key, ID2_SS_KEY_LEN,
+    ret = _id2_des3_ecb(g_ss_key, ID2_OTP_SS_KEY_LEN,
                    otp_data + key_data_off, key_data_len,
                    id2_key, &key_data_len, 0);
     if (ret < 0) {
@@ -488,7 +489,7 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t* token, uint32_t token_
 
     id2_log_hex_dump("prov_id", prov_id, 32);
 
-    dev_fp_len = DEVICE_MAX_FP_LEN;
+    dev_fp_len = ID2_OTP_DEV_FP_MAX_LEN;
     dev_fp = ls_osa_malloc(dev_fp_len);
     if (dev_fp == NULL) {
         id2_log_error("malloc %d fail\n", dev_fp_len);
@@ -507,7 +508,7 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t* token, uint32_t token_
 
     /* block size + sha256 hash size */
     rept_len = block_size + 32;
-    rept_len += 1 + ID2_SS_KEY_LEN + dev_fp_len + block_size;
+    rept_len += 1 + ID2_OTP_SS_KEY_LEN + dev_fp_len + block_size;
     rept_data = ls_osa_malloc(rept_len);
     if (rept_data == NULL) {
         id2_log_error("malloc %d fail\n", rept_len);
@@ -530,6 +531,12 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t* token, uint32_t token_
         goto _out;
     } else {
         *len = 4 + 32 + rept_len;
+    }
+
+    if (*len > ID2_OTP_AUTH_CODE_MAX_LEN) {
+        id2_log_error("invalid id2 otp length, %d\n", *len);
+        ret = IROT_ERROR_EXCESS_DATA;
+        goto _out;
     }
 
     memcpy(auth_code, &auth_ver, 4);
