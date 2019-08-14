@@ -10,7 +10,7 @@
 #define ID2_TIMESTAMP       "1512022279204"
 #define ID2_EXTRA           "abcd1234"
 
-#define ID2_REPORT_VERSION  "1.0.0"
+#define ID2_REPORT_VERSION      "1.0.0"
 
 static int _char_to_hex(char c)
 {

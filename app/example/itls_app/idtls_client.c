@@ -460,7 +460,7 @@ int idtls_client_sample(
          char *product_key, char *product_secret, int debug_level)
 {
 
-    SSL_DBG_LOG("iDTLS is not supported for Linux_LE Product!");
+    SSL_DBG_LOG("iDTLS is not supported for Linux_LE Product!\n");
 
     return 0;
 }
