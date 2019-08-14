@@ -9,9 +9,7 @@
 
 #include "be_common.h"
 #include "be_jse_module.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_task.h"
 #include "module_udp.h"
 
 #ifdef DEBUG_UDP_ADDON
@@ -206,7 +204,7 @@ static void task_udp_recv_fun(void *arg)
 
     if (msg == NULL) {
         jse_error("error:task_udp_recv_fun arg is null\n\r");
-        be_osal_delete_task(NULL);
+        jse_osal_delete_task(NULL);
         return;
     }
 
@@ -236,7 +234,7 @@ static void task_udp_recv_fun(void *arg)
 
 done:
     jse_free(arg);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*************************************************************************************
@@ -254,13 +252,13 @@ static void task_udp_send_fun(void *arg)
 
     if (msg == NULL) {
         jse_error("error:task_udp_send_fun arg is NULL\n\r");
-        be_osal_delete_task(NULL);
+        jse_osal_delete_task(NULL);
         return;
     }
 
     socketid = msg->socketid;
     memcpy(&udp_options, &(msg->options), sizeof(udp_options_t));
-    be_osal_delay(50); /* need do things after state changed in main task */
+    jse_osal_delay(50); /* need do things after state changed in main task */
 
     struct sockaddr_in addr_in;
 
@@ -292,7 +290,7 @@ static void task_udp_send_fun(void *arg)
 done:
     jse_free(msg->msg);
     jse_free(msg);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*************************************************************************************
@@ -357,7 +355,7 @@ static be_jse_symbol_t *module_udp_sendto()
 
     INC_SYMBL_REF(schedule_msg->callback);
 
-    ret = be_osal_create_task("udp_send", task_udp_send_fun, schedule_msg, 4096,
+    ret = jse_osal_create_task("udp_send", task_udp_send_fun, schedule_msg, 4096,
                               ADDON_TSK_PRIORRITY, NULL);
 
 done:
@@ -422,7 +420,7 @@ static be_jse_symbol_t *module_udp_recvfrom()
 
     INC_SYMBL_REF(schedule_msg->callback);
 
-    ret = be_osal_create_task("udp_recv", task_udp_recv_fun, schedule_msg, 4096,
+    ret = jse_osal_create_task("udp_recv", task_udp_recv_fun, schedule_msg, 4096,
                               ADDON_TSK_PRIORRITY, NULL);
 
 done:

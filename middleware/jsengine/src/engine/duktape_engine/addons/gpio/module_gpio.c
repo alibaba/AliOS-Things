@@ -2,13 +2,11 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_jse_task.h"
-#include "hal/log.h"
+#include "jse_task.h"
+#include "jse_port.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "aos/hal/gpio.h"
 
 #define GPIO_IRQ_RISING_EDGE "rising"
 #define GPIO_IRQ_FALLING_EDGE "falling"
@@ -152,7 +150,7 @@ static void gpio_irq_notify(void *arg)
     jse_free(p);
 }
 
-/* 中断中避免调用打印 */
+/* avoid stdout in irq function */
 static void gpio_irq(void *arg)
 {
     uint32_t value   = 0;

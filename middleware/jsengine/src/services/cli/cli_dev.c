@@ -7,15 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "be_port_osal.h"
-#include "cli_ext.h"
-#include "hal/system.h"
+
+#include "jse_port.h"
+
+#include "netmgr.h"
+
 #ifdef JSE_IDE_DEBUG
 #include "websocket.h"
 #endif
-#include <netmgr.h>
 #include "board_info.h"
-#include "hal/log.h"
+#include "cli_ext.h"
 
 /* assembel information finished then write \n to indicates finished serialport
    data */
@@ -35,18 +36,18 @@ static void handle_devdmesg_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     /* aos_cli_stop(); */
     /* following code is serial port reply msg */
-    be_cli_printf("%s", BE_DEBUGER_DMESG_CMD_REPLY);
+    jse_cli_printf("%s", BE_DEBUGER_DMESG_CMD_REPLY);
 }
 
 static void handle_devreboot_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_cli_printf("%s", BE_DEBUGER_REBOOT_CMD_REPLY);
-    hal_system_reboot();
+    jse_cli_printf("%s", BE_DEBUGER_REBOOT_CMD_REPLY);
+    jse_system_reboot();
 }
 
 static void handle_devrename_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_cli_printf("%s", BE_DEBUGER_RENAME_CMD_REPLY);
+    jse_cli_printf("%s", BE_DEBUGER_RENAME_CMD_REPLY);
     be_jse_task_schedule_call(sub_call_rename, argv[1]);
 }
 
@@ -70,9 +71,9 @@ static void handle_devwifi_cmd(char *pwbuf, int blen, int argc, char **argv)
     snprintf(myssid, sizeof(myssid), "%s", ssid);
     snprintf(mypasswd, sizeof(mypasswd), "%s", password);
 
-    err = hal_system_wifi_connect(myssid, mypasswd);
+    err = jse_system_wifi_connect(myssid, mypasswd);
 
-    jse_debug("hal_system_wifi_connect %s %s return %d", myssid, mypasswd, err);
+    jse_debug("jse_system_wifi_connect %s %s return %d", myssid, mypasswd, err);
 #ifdef JSE_IDE_DEBUG
     if (err == 0) {
         bone_websocket_send_frame("/device/wifi_reply", 200, "success");
@@ -89,7 +90,7 @@ static void get_ifconfig(void *arg)
     char mac[6]        = {0};
     char formatMac[32] = {0};
 
-    hal_system_wifi_mac_get(mac);
+    jse_system_wifi_mac_get(mac);
 
 #ifndef STM32L496xx
     sprintf(formatMac, "MAC address:%02x-%02x-%02x-%02x-%02x-%02x\r\n", mac[0],
@@ -104,7 +105,7 @@ static void get_ifconfig(void *arg)
 
     char ip[16]       = {0};
     char formatIP[48] = {0};
-    hal_system_get_ip(ip);
+    jse_system_get_ip(ip);
     sprintf(formatIP, "%sIP address:%s\r\n", BE_CLI_REPLY, ip);
     strcat(tmp, formatIP);
 #ifdef BE_OS_AOS
@@ -121,17 +122,9 @@ static void get_ifconfig(void *arg)
     }
 #endif
 
-#ifdef USE_FREERTOS
-    strcat(tmp, "#be-cli-reply#Wifi SSID:");
-    char ssid[64] = {0};
-    hal_system_wifi_ssid_get(ssid, 64);
-    strcat(tmp, ssid);
-    strcat(tmp, "\r\n");
-#endif
-
     strcat(tmp, BE_CLI_REPLY_SUCCESS);
     /* send reply */
-    be_cli_printf("%s", tmp);
+    jse_cli_printf("%s", tmp);
 }
 
 static void handle_devifconfig_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -148,7 +141,7 @@ static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *devSecret = NULL;
 
     if (argc < 4) {
-        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
+        jse_cli_printf("%s", BE_CLI_REPLY_FAILED);
         return;
     }
     devKey    = argv[1];
@@ -156,7 +149,7 @@ static void handle_setdevinfo_cmd(char *pwbuf, int blen, int argc, char **argv)
     devSecret = argv[3];
 
     board_setDeviceInfo(devKey, devName, devSecret);
-    be_cli_printf("%s", BE_CLI_REPLY_SUCCESS);
+    jse_cli_printf("%s", BE_CLI_REPLY_SUCCESS);
 }
 
 static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -191,7 +184,7 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (argc > 4) {
             p_param->total_size = atoi(argv[4]);
         }
-        be_osal_new_task("be_upgrader", be_upgrader_handler, p_param, 4096 +
+        jse_osal_new_task("be_upgrader", be_upgrader_handler, p_param, 4096 +
         1496,
                          NULL);
         return;
@@ -199,7 +192,7 @@ static void handle_updateimg_cmd(char *pwbuf, int blen, int argc, char **argv)
     fail:
         jse_debug("error: updateimg [kernel/spiffs] [http://x.x.x.x:port/x.bin] "
             "[md5]\r\n");
-        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
+        jse_cli_printf("%s", BE_CLI_REPLY_FAILED);
 #endif
 
 #ifdef JSE_IDE_DEBUG
@@ -215,13 +208,13 @@ static void handle_getversion_cmd(char *pwbuf, int blen, int argc, char **argv)
 
     p_resp_cmd = jse_calloc(1, buf_len + 1);
     if (p_resp_cmd == NULL) {
-        be_cli_printf("%s", BE_CLI_REPLY_FAILED);
+        jse_cli_printf("%s", BE_CLI_REPLY_FAILED);
         return;
     }
 #ifdef BE_OS_AOS
     snprintf(p_resp_cmd, buf_len, "%sVersion:%s\r\n", BE_CLI_REPLY,
              BONE_VERSION);
-    be_cli_printf("%s", p_resp_cmd);
+    jse_cli_printf("%s", p_resp_cmd);
     memset(p_resp_cmd, 0, buf_len);
     snprintf(p_resp_cmd, buf_len, "%sVersionInfo:%s\r\n%s", BE_CLI_REPLY,
              VERSION_DESCRIPTION, BE_CLI_REPLY_SUCCESS);
@@ -230,61 +223,60 @@ static void handle_getversion_cmd(char *pwbuf, int blen, int argc, char **argv)
 #ifdef ESP_PLATFORM
     snprintf(p_resp_cmd, buf_len, "%sVersion:%s\r\n", BE_CLI_REPLY,
              "esp32devkitc-sdk-1.0.0819.dkp");
-    be_cli_printf("%s", p_resp_cmd);
+    jse_cli_printf("%s", p_resp_cmd);
     memset(p_resp_cmd, 0, buf_len);
     snprintf(p_resp_cmd, buf_len, "%sVersionInfo:%s\r\n%s", BE_CLI_REPLY, "",
              BE_CLI_REPLY_SUCCESS);
 #endif
 
-    be_cli_printf("%s", p_resp_cmd);
+    jse_cli_printf("%s", p_resp_cmd);
     jse_free(p_resp_cmd);
     return;
 }
 
-static struct be_cli_command devdmesgcmd = {
+static struct jse_cli_command devdmesgcmd = {
     .name = "dmesg", .help = "dmesg", .function = handle_devdmesg_cmd};
 
-static struct be_cli_command devrebootcmd = {.name     = "reboot",
+static struct jse_cli_command devrebootcmd = {.name     = "reboot",
                                              .help     = "reboot the device",
                                              .function = handle_devreboot_cmd};
 
-static struct be_cli_command devrenamecmd = {.name     = "rename",
+static struct jse_cli_command devrenamecmd = {.name     = "rename",
                                              .help     = "rename newname",
                                              .function = handle_devrename_cmd};
 #ifdef JSE_HW_ADDON_WIFI
-static struct be_cli_command devwificmd = {
+static struct jse_cli_command devwificmd = {
     .name = "wifi", .help = "wifi ssid pswd", .function = handle_devwifi_cmd};
 
-static struct be_cli_command devifconfigcmd = {
+static struct jse_cli_command devifconfigcmd = {
     .name = "ifconfig", .help = "ifconfig", .function = handle_devifconfig_cmd};
 #endif
 
-static struct be_cli_command setdevinfocmd = {
+static struct jse_cli_command setdevinfocmd = {
     .name     = "burnKey",
     .help     = "burnKey devKey devName devSecret",
     .function = handle_setdevinfo_cmd};
 
-static struct be_cli_command devupdateimgcmd = {
+static struct jse_cli_command devupdateimgcmd = {
     .name     = "updateimg",
     .help     = "updateimg [type] [url] [md5]",
     .function = handle_updateimg_cmd};
 
-static struct be_cli_command devgetversioncmd = {
+static struct jse_cli_command devgetversioncmd = {
     .name     = "getVersion",
     .help     = "getVersion",
     .function = handle_getversion_cmd};
 
-/* 需要整理, 删除无用的命令 */
 void cli_cmd_register_dev()
 {
-    be_cli_register_command(&devrebootcmd);
+    jse_cli_register_command(&devrebootcmd);
 #ifdef JSE_HW_ADDON_WIFI
-    be_cli_register_command(&devwificmd);
-    be_cli_register_command(&devifconfigcmd);
+    jse_cli_register_command(&devwificmd);
+    jse_cli_register_command(&devifconfigcmd);
 #endif
-    be_cli_register_command(&setdevinfocmd);
-    be_cli_register_command(&devupdateimgcmd);
-    be_cli_register_command(&devgetversioncmd);
+    jse_cli_register_command(&setdevinfocmd);
+    jse_cli_register_command(&devupdateimgcmd);
+    jse_cli_register_command(&devgetversioncmd);
 }
 
 void websocket_call_cli(char *cmdname, char **argv)

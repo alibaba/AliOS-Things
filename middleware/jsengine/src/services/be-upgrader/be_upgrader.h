@@ -25,7 +25,7 @@ typedef struct {
     int total_size;
 } be_upgd_param_t;
 
-typedef int (*be_write_flash_cb_t)(int32_t writed_size, uint8_t *buf,
+typedef int (*jse_write_flash_cb_t)(int32_t writed_size, uint8_t *buf,
                                    int32_t buf_len, int type);
 
 typedef int (*be_upgd_finish_cb_t)(int finish_result, void *updated_version);

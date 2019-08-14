@@ -4,8 +4,7 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "aos/hal/adc.h"
-#include "hal/log.h"
+#include "jse_port.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
 

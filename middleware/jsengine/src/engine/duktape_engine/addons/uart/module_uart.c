@@ -4,12 +4,11 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
+
+#include "jse_port.h"
+#include "jse_task.h"
 #include "board-mgr/board_mgr.h"
 #include "bone_engine_inl.h"
-#include "aos/hal/uart.h"
 
 #define UART_BUFF_SIZE 256
 #define MAX_UART_PORT 6
@@ -104,7 +103,7 @@ static void uart_module_handle(void *data)
 static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
                          uint8_t *start_flag, uint8_t *end_flag)
 {
-    /* 找出一个空闲的uart_module */
+    /* find an free uart_module */
     int i;
     for (i = 0; i < MAX_UART_PORT; i++)
         if (!uart_modules[i]) break;
@@ -259,12 +258,6 @@ static duk_ret_t native_uart_read(duk_context *ctx)
     return 1;
 }
 
-/* JS接口：
- *   UART.on(handle, start, end, function(data) {})
- * 参数说明：
- *   start － null 或者 string
- *   end － null 或者 string
- */
 static duk_ret_t native_uart_on(duk_context *ctx)
 {
     int ret = -1;

@@ -5,10 +5,9 @@
 #include "be_ssdp.h"
 #include <string.h>
 #include <unistd.h>
-#include "be_jse_task.h"
-#include "be_port_osal.h"
-#include "hal/log.h"
-#include "hal/system.h"
+
+#include "jse_port.h"
+#include "jse_task.h"
 
 #ifdef BE_OS_AOS
 #if defined(WITH_LWIP)
@@ -34,17 +33,11 @@
 #include <unistd.h>
 #endif
 
-#ifdef USE_FREERTOS
-#include <lwip/netdb.h>
-#include <sys/socket.h>
-#include "hal/system.h"
-#endif
-
 #include "websocket.h"
 
 static char pLocalAddress[16] = {0};
 
-#if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
+#if defined(WITH_LWIP) || defined(LINUXOSX)
 
 #define WEB_SERVER_PORT 9001
 #define WEB_SERVER_PATH "/socket.io/?EIO=3&transport=websocket"
@@ -238,7 +231,7 @@ static void on_ssdp_recv(int sock, void* arg)
 #endif
                     jse_debug("prepare connect: %s\n", remote_address);
                     strcpy(target_ip, remote_address);
-                    hal_system_kv_set("WS_ADDRESS", remote_address,
+                    jse_system_kv_set("WS_ADDRESS", remote_address,
                                       strlen(remote_address), 1);
                     be_jse_task_timer_action(100, connect_webserver,
                                              remote_address, JSE_TIMER_ONCE);
@@ -297,15 +290,15 @@ int be_debuger_ssdp_start(char* localAddress)
         strncpy(pLocalAddress, localAddress, 16);
     }
 
-#if defined(WITH_LWIP) || defined(LINUXOSX) || defined(USE_FREERTOS)
+#if defined(WITH_LWIP) || defined(LINUXOSX)
     ssdp_sock = create_multicast_ipv4_socket();
     jse_debug("ssdp_sock=%d\n\r", ssdp_sock);
-    be_osal_create_task("ssdpTsk", ssdp_read, NULL, 1024 * 4, SSDP_TSK_PRIORITY,
+    jse_osal_create_task("ssdpTsk", ssdp_read, NULL, 1024 * 4, SSDP_TSK_PRIORITY,
                         NULL);
 
     char* remote_address = (char*)jse_calloc(1, 16);
     uint32_t buffer_len  = 16;
-    hal_system_kv_get("WS_ADDRESS", remote_address, &buffer_len);
+    jse_system_kv_get("WS_ADDRESS", remote_address, &buffer_len);
 
     if (strlen(remote_address) != 0) {
         jse_debug("be_debuger_ssdp_start remote_address: %s \n",
