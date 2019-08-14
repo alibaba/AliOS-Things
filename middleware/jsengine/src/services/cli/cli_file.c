@@ -9,12 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "app_mgr.h"
+
 #include "be_common.h"
 #include "be_jse_export.h"
-#include "be_port_osal.h"
+#include "app_mgr.h"
 #include "cli_ext.h"
-#include "hal/system.h"
 
 static int cli_file_fd     = -1;
 static int cli_file_offset = 0;
@@ -57,8 +56,8 @@ static void push(void* arg)
         /* send finished */
         /* close file */
         if (cli_file_fd != -1) {
-            be_sync(cli_file_fd);
-            be_close(cli_file_fd);
+            jse_sync(cli_file_fd);
+            jse_close(cli_file_fd);
             cli_file_fd = -1;
         }
 
@@ -68,13 +67,13 @@ static void push(void* arg)
         app_mgr_set_boneflag(1);
 
         sprintf((char*)outStr, "%s %d\n", BE_CLI_REPLY, cli_file_offset);
-        be_cli_printf("%s", outStr);
+        jse_cli_printf("%s", outStr);
         jse_free(outStr);
         /* push finished restart app or reboot device */
         if (type == 0) {
             /* be_jse_task_schedule_call(sub_call_start, targetname); */
         } else {
-            hal_system_reboot();
+            jse_system_reboot();
         }
         return;
     }
@@ -104,21 +103,21 @@ static void push(void* arg)
     outStr[i] = 0;
 
     if ((size > 0) && (cli_file_fd != -1)) {
-        be_write(cli_file_fd, outStr, size);
+        jse_write(cli_file_fd, outStr, size);
     }
 
     if (type == 1) {
         ret = apppack_update(outStr, size);
         if (ret != 0) {
-            be_cli_printf("%s", BE_PUSH_ERROR_REPLY);
+            jse_cli_printf("%s", BE_PUSH_ERROR_REPLY);
         }
     }
 
     /* serialport reply */
     sprintf((char*)outStr, "%s %d\n", BE_CLI_REPLY, cli_file_offset);
-    be_cli_printf("%s", outStr);
+    jse_cli_printf("%s", outStr);
     jse_free(outStr);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
@@ -149,12 +148,12 @@ static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
 
         bone_console_log_disable(); /* 关闭bone engine  的log输出 */
         /* avoid stack overflow !!! */
-        int ret = be_osal_create_task("be_push", push, NULL, 4096,
+        int ret = jse_osal_create_task("be_push", push, NULL, 4096,
                                       CLI_TSK_PRIORITY, NULL);
     }
 }
 
-static struct be_cli_command push_cmd = {
+static struct jse_cli_command push_cmd = {
     .name = "push", .help = "push file ", .function = handle_push_cmd};
 
 /*
@@ -178,8 +177,8 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
 
     targetname = argv[1];
 
-    /* strcpy(path, BE_FS_ROOT_DIR); */
-    snprintf(path, sizeof(path), "%s/", BE_FS_ROOT_DIR);
+    /* strcpy(path, JSE_FS_ROOT_DIR); */
+    snprintf(path, sizeof(path), "%s/", JSE_FS_ROOT_DIR);
 
     if (targetname[0] == '.') {
         if (targetname[1] == '/') {
@@ -193,7 +192,7 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
         strcat(path, targetname);
     }
 
-    fd = be_open(path, O_RDONLY);
+    fd = jse_open(path, O_RDONLY);
     if (fd < 0) {
         sprintf(pwbuf, "%s fail\n", BE_CLI_REPLY);
         return;
@@ -213,7 +212,7 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
     int i;
     int j;
     unsigned char* hex;
-    len = be_read(fd, ptr, size);
+    len = jse_read(fd, ptr, size);
     while (len > 0) {
         j   = sprintf(pwbuf, "%s %d ", BE_CLI_REPLY, len);
         hex = (uint8_t*)pwbuf + j;
@@ -228,18 +227,18 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
         fflush(stdout);
 
         /* continue read */
-        len = be_read(fd, ptr, size);
+        len = jse_read(fd, ptr, size);
     }
 
     sprintf(pwbuf, "%s 0 00\n", BE_CLI_REPLY);
-    be_close(fd);
+    jse_close(fd);
 }
 
-static struct be_cli_command pull_cmd = {
+static struct jse_cli_command pull_cmd = {
     .name = "pull", .help = "pull file ", .function = handle_pull_cmd};
 
 void cli_cmd_register_file()
 {
-    be_cli_register_command(&push_cmd);
-    be_cli_register_command(&pull_cmd);
+    jse_cli_register_command(&push_cmd);
+    jse_cli_register_command(&pull_cmd);
 }

@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hal/log.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_port.h"
 #include "miio-common.h"
 #include "miio-discover.h"
 
@@ -75,7 +73,7 @@ static void *discover_routin(void *arg)
 
 void miio_device_discover(int timeout, void *priv, miio_discover_callback cb)
 {
-    int ret = be_osal_create_task("miio discover task", discover_routin, &ctx,
+    int ret = jse_osal_create_task("miio discover task", discover_routin, &ctx,
                                   4096, ADDON_TSK_PRIORRITY, NULL);
     if (ret == 0) {
         ctx.cb      = cb;

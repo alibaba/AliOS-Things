@@ -5,9 +5,9 @@
 #ifndef BE_JSE_API_H
 #define BE_JSE_API_H
 
+#include "jse_port.h"
 #include "be_jse.h"
 #include "be_jse_export.h"
-#include "hal/log.h"
 
 typedef be_jse_symbol_t *(*BE_JSE_FUNCTION_EXECUTE_CB)(
     be_jse_vm_ctx_t *execInfo, be_jse_symbol_t *a, const char *name);

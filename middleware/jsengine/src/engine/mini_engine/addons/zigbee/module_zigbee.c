@@ -3,7 +3,7 @@
  */
 
 #include "module_zigbee.h"
-#include <be_osal.h>
+#include <jse_osal.h>
 #include <jse/be_jse_module.h>
 #include <mbedtls/sha1.h>
 #include <zigbee/bone_zigbee.h>
@@ -141,7 +141,7 @@ static void on_message(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
         schedule_msg->addr = addr;
         memcpy(schedule_msg->msg, msg, msg_size);
         schedule_msg->msg_size = msg_size;
-        be_osal_schedule_call(call_action, schedule_msg);
+        jse_osal_schedule_call(call_action, schedule_msg);
     }
 }
 
@@ -158,7 +158,7 @@ static void on_connect(bone_zigbee_t* zigbee, uint16_t addr, unsigned char* msg,
         schedule_msg->addr = addr;
         memcpy(schedule_msg->msg, msg, msg_size);
         schedule_msg->msg_size = msg_size;
-        be_osal_schedule_call(call_action, schedule_msg);
+        jse_osal_schedule_call(call_action, schedule_msg);
     }
 }
 
@@ -267,7 +267,7 @@ static be_jse_symbol_t* notify()
     schedule_msg_t* schedule_msg =
         (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
     schedule_msg->type = BZB_NOTIFY;
-    be_osal_schedule_call(call_action, schedule_msg);
+    jse_osal_schedule_call(call_action, schedule_msg);
     return new_int_symbol(0);
 }
 
@@ -277,7 +277,7 @@ static be_jse_symbol_t* search()
     schedule_msg_t* schedule_msg =
         (schedule_msg_t*)jse_calloc(1, sizeof(schedule_msg_t));
     schedule_msg->type = BZB_SEARCH;
-    be_osal_schedule_call(call_action, schedule_msg);
+    jse_osal_schedule_call(call_action, schedule_msg);
     return new_int_symbol(0);
 }
 

@@ -5,11 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <be_jse_module.h>
+#include "be_jse_module.h"
 #include "be_jse_api.h"
-#include "be_jse_task.h"
-#include "be_port_osal.h"
-#include "hal/system.h"
+#include "jse_task.h"
 #include "module_http.h"
 
 #define CONFIG_LOGMACRO_DETAILS 1
@@ -221,14 +219,14 @@ static void task_http_request_fun(void *arg)
     schedule_msg_t *msg             = (schedule_msg_t *)arg;
 
     if (msg == NULL || msg->id != HTTP_REQUEST) {
-        be_osal_delete_task(NULL);
+        jse_osal_delete_task(NULL);
         return;
     }
 
     url            = msg->arg1;
     http_buf       = msg->arg2;
     js_http_req_cb = msg->func;
-    be_osal_delay(50); /* need do things after state changed in main task */
+    jse_osal_delay(50); /* need do things after state changed in main task */
 
     /* Blocking send & recv */
     ret = http_request_and_recv(url, http_buf);
@@ -238,7 +236,7 @@ static void task_http_request_fun(void *arg)
     }
 
     be_jse_task_schedule_call(js_cb_http_recv, msg);
-    be_osal_delete_task(NULL);
+    jse_osal_delete_task(NULL);
 }
 
 /*****************************************************************************
@@ -294,7 +292,7 @@ static be_jse_symbol_t *module_http_request()
      * reference in be_jse_execute_func().*/
     INC_SYMBL_REF(arg1);
 
-    be_osal_create_task("http_request", task_http_request_fun, schedule_msg,
+    jse_osal_create_task("http_request", task_http_request_fun, schedule_msg,
                         4096, ADDON_TSK_PRIORRITY, NULL);
 
 done:

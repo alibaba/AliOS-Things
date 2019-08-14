@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "be_jse_task.h"
-#include "hal/log.h"
-#include "be_port_osal.h"
+#include "jse_port.h"
+#include "jse_task.h"
 #include "bone_engine_inl.h"
 #include "miio-common.h"
 #include "miio-device.h"
@@ -73,7 +72,7 @@ static duk_ret_t native_deviceOnEvent(duk_context *ctx)
     }
     miio_device_t *device = (miio_device_t *)duk_get_pointer(ctx, 0);
     duk_dup(ctx, 1);
-    /* 这里的ref不考虑清除 */
+    /* consider not to clear ref */
     int js_cb_ref = bone_engine_ref(ctx);
     miio_device_set_event_cb(device, on_event, (void *)js_cb_ref);
     return 0;
@@ -153,7 +152,7 @@ static duk_ret_t native_discover(duk_context *ctx)
     long timeout = (long)duk_get_number(ctx, 0);
     jse_debug("timeout: %ld\n", timeout);
     duk_dup(ctx, 1);
-    /* TODO:这里的ref需要考虑清除 */
+    /* TODO:consider to clear ref */
     int js_cb_ref = bone_engine_ref(ctx);
     miio_device_discover(timeout, (void *)js_cb_ref, on_discover);
     return 0;

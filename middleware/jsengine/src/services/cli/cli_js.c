@@ -9,14 +9,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "app_mgr.h"
+
+#include "jse_port.h"
 #include "be_common.h"
 #include "be_jse_export.h"
-#include "hal/log.h"
+#include "app_mgr.h"
 
-#include "be_port_osal.h"
 #include "cli_ext.h"
-#include "hal/system.h"
 
 #ifdef DUMP_SYMBL_USAGE
 
@@ -30,7 +29,7 @@ static void handle_meminfo_cmd(char *pwbuf, int blen, int argc, char **argv)
 #endif
 }
 
-static struct be_be_cli_command meminfo_cmd = {
+static struct be_jse_cli_command meminfo_cmd = {
     .name     = "meminfo",
     .help     = "show BoneEngine meminfo",
     .function = handle_meminfo_cmd};
@@ -45,7 +44,7 @@ static void handle_jstrace_cmd(char *pwbuf, int blen, int argc, char **argv)
     be_jse_task_schedule_call(jstrace, NULL);
 }
 
-static struct be_be_cli_command jstrace_cmd = {
+static struct be_jse_cli_command jstrace_cmd = {
     .name     = "jstrace",
     .help     = "show BoneEngine symbol info",
     .function = handle_jstrace_cmd};
@@ -94,7 +93,7 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
 }
 
 #ifdef TRACE_JSE_INFO
-static struct be_cli_command eval_cmd = {.name = "eval",
+static struct jse_cli_command eval_cmd = {.name = "eval",
                                          .help = "BoneEngine eval javascript",
                                          .function = handle_eval_cmd};
 
@@ -107,7 +106,7 @@ static void handle_jslook_cmd_cmd(char *pwbuf, int blen, int argc, char **argv)
         dump_symbol_node_id(id);
     }
 }
-static struct be_cli_command jslook_cmd = {.name     = "jslook_cmd",
+static struct jse_cli_command jslook_cmd = {.name     = "jslook_cmd",
                                            .help     = "BoneEngine look symbol",
                                            .function = handle_jslook_cmd_cmd};
 #endif
@@ -118,15 +117,15 @@ static void handle_boneflag_cmd(char *pwbuf, int blen, int argc, char **argv)
     int len;
     if (argc > 1) {
         ret = atoi(argv[1]);
-        hal_system_kv_set(BoneFlag, &ret, 4, 1);
+        jse_system_kv_set(BoneFlag, &ret, 4, 1);
     } else {
         len = 4;
-        hal_system_kv_get(BoneFlag, &ret, &len);
+        jse_system_kv_get(BoneFlag, &ret, &len);
         jse_debug("BoneFlag = %d len = %d", ret, len);
     }
 }
 
-static struct be_cli_command boneflag_cmd = {
+static struct jse_cli_command boneflag_cmd = {
     .name     = "BoneFlag",
     .help     = "get or set BoneEngine flag ",
     .function = handle_boneflag_cmd};
@@ -140,25 +139,25 @@ static struct be_cli_command boneflag_cmd = {
 
 static void tree(char *path)
 {
-    be_dir_t *dir;
-    be_dirent_t *ent;
+    jse_dir_t *dir;
+    jse_dirent_t *ent;
     char childpath[48] = {0};
 
-    dir = be_opendir(path);
+    dir = jse_opendir(path);
     if (dir) {
-        while ((ent = be_readdir(dir)) != NULL) {
+        while ((ent = jse_readdir(dir)) != NULL) {
 #ifdef STM32F767xx
             sprintf(childpath, "%s %s\n", BE_CLI_REPLY, ent->fname);
 #else
             sprintf(childpath, "%s %s\n", BE_CLI_REPLY, ent->d_name);
 #endif
-            be_cli_printf("%s", childpath);
+            jse_cli_printf("%s", childpath);
         }
-        be_closedir(dir);
+        jse_closedir(dir);
     }
 
     sprintf(childpath, "%s success\n", BE_CLI_REPLY);
-    be_cli_printf("%s", childpath);
+    jse_cli_printf("%s", childpath);
 }
 
 static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -166,9 +165,9 @@ static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *targetname = NULL;
     char path[48]    = {0};
 
-    strcpy(path, BE_FS_ROOT_DIR);
+    strcpy(path, JSE_FS_ROOT_DIR);
     if (argc > 1) {
-        snprintf(path, sizeof(path), "%s/", BE_FS_ROOT_DIR);
+        snprintf(path, sizeof(path), "%s/", JSE_FS_ROOT_DIR);
         targetname = argv[1];
         if (targetname[0] == '.') {
             if (targetname[1] == '/') {
@@ -181,7 +180,7 @@ static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
     tree(path);
 }
 
-static struct be_cli_command tree_cmd = {
+static struct jse_cli_command tree_cmd = {
     .name     = "tree",
     .help     = "list contents of directories in a tree-like format ",
     .function = handle_tree_cmd};
@@ -193,10 +192,10 @@ static struct be_cli_command tree_cmd = {
 
 static void handle_rmdir_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_rmdir(BE_FS_ROOT_DIR);
+    jse_rmdir(JSE_FS_ROOT_DIR);
 }
 
-static struct be_cli_command rmdir_cmd = {
+static struct jse_cli_command rmdir_cmd = {
     .name = "rmdir", .help = "rmdir js dir", .function = handle_rmdir_cmd};
 
 static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -209,10 +208,10 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
     char *ptr;
 
     if (argc > 1) {
-        snprintf(path, sizeof(path), "%s/", BE_FS_ROOT_DIR);
+        snprintf(path, sizeof(path), "%s/", JSE_FS_ROOT_DIR);
         if (strcmp(argv[1], "format") == 0) {
             sprintf(path, "%s success\n", BE_CLI_REPLY);
-            be_cli_printf("%s", path);
+            jse_cli_printf("%s", path);
             return;
         }
 
@@ -225,32 +224,32 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
             strcat(path, targetname);
         }
 
-        if (be_unlink(path) == 0) {
+        if (jse_unlink(path) == 0) {
             sprintf(path, "%s success\n", BE_CLI_REPLY);
         } else {
             sprintf(path, "%s fail\n", BE_CLI_REPLY);
         }
-        be_cli_printf("%s", path);
+        jse_cli_printf("%s", path);
     }
 }
 
-static struct be_cli_command rm_cmd = {
+static struct jse_cli_command rm_cmd = {
     .name = "rm", .help = "rm file", .function = handle_rm_cmd};
 
 void cli_cmd_register_js()
 {
 #ifdef DUMP_SYMBL_USAGE
-    be_cli_register_command(&meminfo_cmd);
-    be_cli_register_command(&jstrace_cmd);
+    jse_cli_register_command(&meminfo_cmd);
+    jse_cli_register_command(&jstrace_cmd);
 #endif
 #ifdef TRACE_JSE_INFO
-    be_cli_register_command(&eval_cmd);
+    jse_cli_register_command(&eval_cmd);
 #endif
-    be_cli_register_command(&boneflag_cmd);
-    be_cli_register_command(&tree_cmd);
-    be_cli_register_command(&rm_cmd);
-    be_cli_register_command(&rmdir_cmd);
+    jse_cli_register_command(&boneflag_cmd);
+    jse_cli_register_command(&tree_cmd);
+    jse_cli_register_command(&rm_cmd);
+    jse_cli_register_command(&rmdir_cmd);
 #ifdef TRACE_JSE_INFO
-    be_cli_register_command(&jslook_cmd);
+    jse_cli_register_command(&jslook_cmd);
 #endif
 }
