@@ -10,6 +10,9 @@
 #define PROV_MAGIC       (0x764f7250)
 #define PROV_REC_NUM     (0x00000003)
 
+/* prov status */
+#define PROV_STAT_ABORT        (0x10001000)
+#define PROV_STAT_FINISHED     (0x10001001)
 
 #define BIN_TO_UINT(buffer) ((((uint8_t *)buffer)[3] << 24) + \
                              (((uint8_t *)buffer)[2] << 16) + \
