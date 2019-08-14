@@ -22,6 +22,9 @@ endif
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), MK3080)
 $(NAME)_SOURCES  += ./km/mk3080/ls_hal_km.c
 endif
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), UNO-91H)
+$(NAME)_SOURCES  += ./km/uno-91h/ls_hal_km.c
+endif
 
 $(NAME)_INCLUDES += ./crypto/demo/inc
 
