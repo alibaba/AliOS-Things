@@ -59,6 +59,7 @@ int ota_download_start(char *url)
     char *hdr = NULL;
     int  ret = OTA_DOWNLOAD_INIT_FAIL;
     unsigned int offset = 0;
+    unsigned int off_size = 0;
     http_rsp_info_t rsp_info = {0};
     char *content = NULL;
     int fd = 0;
@@ -133,9 +134,9 @@ int ota_download_start(char *url)
            }
        } else {
            ota_msleep(6000);
-           OTA_LOG_E("reconnect retry:%d ret:%d \n", j, ret);
            char resume[64] = {0};
-           ota_snprintf(resume, 64, "bytes=%d-", offset);
+           OTA_LOG_E("reconnect retry:%d ret:%d rx_size:%d \n", j, ret, off_size);
+           ota_snprintf(resume, 64, "bytes=%d-", off_size);
            ret = httpc_construct_header(hdr, 512, "Range", resume);
            if (ret < 0) {
                 ret = OTA_DOWNLOAD_CON_FAIL;
@@ -220,7 +221,8 @@ int ota_download_start(char *url)
                          }
                          ota_rx_size += rsp_info.rsp_len;
                     }
-                    //OTA_LOG_E("ota (%d/%d) recv len:%d \r\n", ota_rx_size, ota_file_size, rsp_info.rsp_len);
+                    off_size = ota_rx_size;
+                    //OTA_LOG_E("ota (%d/%d) recv len:%d off:%d \r\n", ota_rx_size, ota_file_size, rsp_info.rsp_len, off_size);
                     if(ota_file_size) {
                          percent = (ota_rx_size * 100) /ota_file_size;
                          if(percent / divisor) {
@@ -244,7 +246,7 @@ int ota_download_start(char *url)
                                 }
 #endif /* !defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE */
                              }
-                             OTA_LOG_I("ota recv data(%d/%d)\r\n", ota_rx_size, ota_file_size);
+                             OTA_LOG_I("ota recv data(%d/%d) off:%d \r\n", ota_rx_size, ota_file_size, off_size);
                          }
                      }
                  }
