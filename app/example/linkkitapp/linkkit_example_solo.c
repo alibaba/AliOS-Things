@@ -328,6 +328,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
 
+
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 
@@ -340,7 +341,16 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_reply_need);
 
     IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
-
+#if defined(TEST_ITLS)
+    {
+        char url[128] = {0};
+        int port = 1883;
+        snprintf(url, 128, "%s.itls.cn-shanghai.aliyuncs.com",master_meta_info.product_key);
+        IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)url);
+        IOT_Ioctl(IOTX_IOCTL_SET_CUSTOMIZE_INFO, (void *)"authtype=id2");
+        IOT_Ioctl(IOTX_IOCTL_SET_MQTT_PORT, &port);
+    } 
+#endif
     /* Create Master Device Resources */
     do {
         g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
