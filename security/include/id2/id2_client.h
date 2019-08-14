@@ -14,7 +14,6 @@ extern "C" {
 
 #define ID2_ID_LEN                   24
 #define ID2_DERIV_SECRET_LEN         64
-#define ID2_AUTH_CODE_BUF_LEN        256
 
 #define ID2_MAX_SERVER_RANDOM_LEN    32
 #define ID2_MAX_DEVICE_RANDOM_LEN    16
@@ -75,7 +74,7 @@ irot_result_t id2_client_get_id(uint8_t* id, uint32_t* len);
  * @param[in]    extra:          extra data, optional data, no more than 512 bytes.
  * @param[in]    extra_len:      length of extra data.
  * @param[out]   auth_code:      the auth code output buffer.
- * @param[inout] auth_code_len:  in - the buffer size, more than ID2_AUTH_CODE_BUF_LEN bytes.
+ * @param[inout] auth_code_len:  in - the buffer size, more than 256 bytes.
  *                               out - the actual length.
  *
  * @return @see id2 error code definitions.
@@ -91,7 +90,7 @@ irot_result_t id2_client_get_challenge_auth_code(const char* server_random,
  * @param[in]    extra:          extra data, optional data, no more than 512 bytes.
  * @param[in]    extra_len:      length of extra data.
  * @param[out]   auth_code:      the auth code output buffer.
- * @param[inout] auth_code_len:  in - the buffer size, more than ID2_AUTH_CODE_BUF_LEN bytes.
+ * @param[inout] auth_code_len:  in - the buffer size, more than 256 bytes.
  *                               out - the actual length.
  *
  * @return @see id2 error code definitions.
