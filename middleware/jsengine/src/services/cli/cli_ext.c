@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "be_port_osal.h"
 
 void cli_cmd_register_ext()
 {

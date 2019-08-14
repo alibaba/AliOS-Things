@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/* #define LOG_NDEBUG 0 */
-#include "hal/log.h"
-#include "be_port_osal.h"
+#include "jse_port.h"
 #include "bone_engine_inl.h"
-#include "hal/system.h"
 
 static int convert_fs_mode_to_oflag(const char *mode)
 {
@@ -26,27 +23,27 @@ static int check_fs_is_support()
     const char *string = "test if fs mount ok";
     char testfile[64]  = {0};
 
-    snprintf(testfile, sizeof(testfile), "%s/%s", BE_FS_ROOT_DIR,
+    snprintf(testfile, sizeof(testfile), "%s/%s", JSE_FS_ROOT_DIR,
              "testfile.txt");
-    fd = be_open(testfile, O_RDWR | O_CREAT | O_TRUNC);
+    fd = jse_open(testfile, O_RDWR | O_CREAT | O_TRUNC);
     if (fd <= 0) {
         jse_warn("check_fs_is_support open fail\n");
         return 0;
     }
 
-    ret = be_write(fd, string, strlen(string));
+    ret = jse_write(fd, string, strlen(string));
     if (ret <= 0) {
         jse_warn("check_fs_is_support write fail\n");
         return 0;
     }
 
-    ret = be_unlink(testfile);
+    ret = jse_unlink(testfile);
     if (ret) {
         jse_warn("check_fs_is_support sync fail\n");
         return 0;
     }
 
-    be_close(fd);
+    jse_close(fd);
     return 1;
 }
 
@@ -88,9 +85,9 @@ static duk_ret_t native_fs_read(duk_context *ctx)
     }
 
     path = duk_get_string(ctx, 0);
-    fd   = be_open(path, O_RDONLY);
+    fd   = jse_open(path, O_RDONLY);
     if (fd < 0) {
-        jse_warn("be_open failed, fd: %d\n", fd);
+        jse_warn("jse_open failed, fd: %d\n", fd);
         goto out;
     }
 
@@ -103,12 +100,12 @@ static duk_ret_t native_fs_read(duk_context *ctx)
         goto out;
     }
 
-    len = be_read(fd, buf, size);
+    len = jse_read(fd, buf, size);
     if (len > 0) {
         buf[len] = 0;
         jse_debug("read data: %s\n", buf);
     }
-    be_close(fd);
+    jse_close(fd);
 
 out:
     if (len > 0)
@@ -146,24 +143,24 @@ static duk_ret_t native_fs_write(duk_context *ctx)
 
     path = duk_get_string(ctx, 0);
     mode = duk_get_string(ctx, 2);
-    fd   = be_open(path, convert_fs_mode_to_oflag(mode));
+    fd   = jse_open(path, convert_fs_mode_to_oflag(mode));
     if (fd < 0) {
         jse_error("be_osal_open fail\n");
         goto out;
     }
 
     str    = duk_get_lstring(ctx, 1, &str_len);
-    nwrite = be_write(fd, str, str_len);
+    nwrite = jse_write(fd, str, str_len);
     if (nwrite <= 0) {
         jse_error("be_osal_write fail\n");
-        be_close(fd);
+        jse_close(fd);
         goto out;
     }
 
     jse_debug("FS.write(%s,%s,%s);\n", path, str, mode);
 
-    be_sync(fd);
-    be_close(fd);
+    jse_sync(fd);
+    jse_close(fd);
 
 out:
     duk_push_int(ctx, nwrite == str_len ? 0 : -1);
@@ -189,7 +186,7 @@ static duk_ret_t native_fs_delete(duk_context *ctx)
     }
 
     path = duk_get_string(ctx, 0);
-    ret  = be_unlink(path);
+    ret  = jse_unlink(path);
 
 out:
     duk_push_int(ctx, ret);

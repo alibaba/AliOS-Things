@@ -4,8 +4,8 @@
 
 #include <stdio.h>
 
+#include "jse_port.h"
 #include "be_utils.h"
-#include "hal/log.h"
 
 unsigned char hex2num(unsigned char ch)
 {

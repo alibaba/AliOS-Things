@@ -2,20 +2,18 @@
  *  Copyright © 2018 alibaba. All rights reserved.
  */
 
-#include <mbedtls/sha1.h>
+#include "jse_port.h"
 #include "be_jse_module.h"
 #include "be_list.h"
-#include "be_port_osal.h"
 #include "be_utils.h"
-#include "hal/log.h"
-#include "hal/system.h"
+#include "be_jse_addon.h"
+#include "board_info.h"
 
 #include "core/mqtt_http.h"
 #include "core/mqtt_instance.h"
 #include "core/mqtt_task.h"
+#include "mbedtls/sha1.h"
 
-#include "be_jse_addon.h"
-#include "board_info.h"
 
 #define CONFIG_LOGMACRO_DETAILS
 
