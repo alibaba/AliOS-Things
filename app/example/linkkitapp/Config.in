@@ -2,7 +2,6 @@ config AOS_APP_LINKKITAPP
     bool "Linkkit Application"
     select AOS_COMP_CLI if !AOS_BOARD_ESP8266
     select AOS_COMP_NETMGR
-    select AOS_COMP_OTA
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_DEVMODEL
     select AOS_COMP_CJSON
@@ -18,6 +17,19 @@ config LINKKITAPP_CONFIG_COMBOAPP
     default n
     help 
         Providing secured ble link for wifi provision.
+
+config ENABLE_OTA
+    bool "Enable OTA"
+    default y
+    select AOS_COMP_OTA
+    help 
+        enable feature OTA.
+
+config TEST_ITLS
+    bool "test itls"
+    default n
+    help 
+        please cancel mbedtls and enable itls first.
 
 choice
     prompt "Select Case"
