@@ -61,7 +61,7 @@ static int itls_hal_sample(const char *host, int port,
     handle = hal_itls_establish(host,
                  port, product_key, product_secret);
     if (handle == (uintptr_t)NULL) {
-        SSL_DBG_LOG("itls establsih fail\n");
+        SSL_DBG_LOG("itls establish fail\n");
         ret = -1;
         goto _out;
     }

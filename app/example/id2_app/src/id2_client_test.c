@@ -78,8 +78,7 @@ static int id2_client_test_get_challenge_auth_code(void)
 
     ret = id2_client_get_challenge_auth_code(
               server_random, NULL, 0, auth_code, &auth_code_len);
-    if (ret != IROT_ERROR_SHORT_BUFFER ||
-        auth_code_len != ID2_AUTH_CODE_BUF_LEN) {
+    if (ret != IROT_ERROR_SHORT_BUFFER) {
         ID2_DBG_LOG("get challenge auth code fail, %d\n", ret);
         ret = IROT_ERROR_GENERIC;
         goto _out;
@@ -130,8 +129,7 @@ static int id2_client_test_get_timestamp_auth_code(void)
 
     ret = id2_client_get_timestamp_auth_code(
               timestamp, NULL, 0, auth_code, &auth_code_len);
-    if (ret != IROT_ERROR_SHORT_BUFFER ||
-        auth_code_len != ID2_AUTH_CODE_BUF_LEN) {
+    if (ret != IROT_ERROR_SHORT_BUFFER) {
         ID2_DBG_LOG("get challenge auth code fail, %d\n", ret);
         ret = IROT_ERROR_GENERIC;
         goto _out;
