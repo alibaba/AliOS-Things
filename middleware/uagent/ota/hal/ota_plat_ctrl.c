@@ -43,6 +43,10 @@ int ota_int(ota_boot_param_t *param)
         return OTA_UPGRADE_PARAM_FAIL;
     }
     ota_param  = param;
+    ret = hal_flash_dis_secure(HAL_PARTITION_PARAMETER_1, 0, 0);
+    if(ret != 0) {
+        return OTA_UPGRADE_PARAM_FAIL;
+    }
     ota_is_header = 0;
     ret = ota_hal_init(param);
     if(ret == 0) {
@@ -196,27 +200,24 @@ int ota_read_parameter(ota_boot_param_t *ota_param)
 int ota_update_parameter(ota_boot_param_t *ota_param)
 {
     int ret = OTA_UPGRADE_PARAM_FAIL;
+    unsigned int offset = 0x00;
+    unsigned int len = sizeof(ota_boot_param_t);
+    ota_boot_param_t comp_buf;
     if(ota_param == NULL) {
         return ret;
     }
     ota_param->param_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
     OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x \n", ota_param->param_crc, ota_param->upg_flag);
-    ret = hal_flash_dis_secure(HAL_PARTITION_PARAMETER_1, 0, 0);
+    memset(&comp_buf, 0, len);
+    ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
     if(ret >= 0) {
-        unsigned int offset = 0x00;
-        unsigned int len = sizeof(ota_boot_param_t);
-        ota_boot_param_t comp_buf;
-        memset(&comp_buf, 0, len);
-	ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
-	if(ret >= 0) {
-            ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, ota_param, len);
-            offset = 0x00;
+        ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, ota_param, len);
+        offset = 0x00;
+        if(ret >= 0) {
+            ret = hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, (unsigned char*)&comp_buf, len);
             if(ret >= 0) {
-                 ret = hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, (unsigned char*)&comp_buf, len);
-                 if(ret >= 0) {
-                     if(memcmp(ota_param, (unsigned char*)&comp_buf, len) != 0) {
-                         ret = OTA_UPGRADE_PARAM_FAIL;
-                     }
+                 if(memcmp(ota_param, (unsigned char*)&comp_buf, len) != 0) {
+                     ret = OTA_UPGRADE_PARAM_FAIL;
                  }
             }
         }
