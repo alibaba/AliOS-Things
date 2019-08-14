@@ -90,9 +90,6 @@ void ota_parse_host_url(char *url, char **host_name, char **host_uri)
 int ota_service_start(ota_service_t *ctx)
 {
     int ret = 0;
-#ifdef AOS_COMP_PWRMGMT
-    aos_pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
-#endif
     ota_ctx = ctx;
 #if defined OTA_CONFIG_SECURE_DL_MODE
     ota_wdg.config.timeout = 180000;
@@ -102,6 +99,9 @@ int ota_service_start(ota_service_t *ctx)
         return OTA_INIT_FAIL;
     }
     ota_read_parameter(&ota_param);
+#endif
+#ifdef AOS_COMP_PWRMGMT
+    aos_pwrmgmt_lowpower_suspend(PWRMGMT_OTA);
 #endif
 #if defined BOARD_ESP8266 && !defined OTA_CONFIG_SECURE_DL_MODE
     aos_task_delete("linkkit");
