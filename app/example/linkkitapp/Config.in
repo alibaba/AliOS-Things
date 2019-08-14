@@ -25,12 +25,6 @@ config ENABLE_OTA
     help 
         enable feature OTA.
 
-config TEST_ITLS
-    bool "test itls"
-    default n
-    help 
-        please cancel mbedtls and enable itls first.
-
 choice
     prompt "Select Case"
     default LINKKITAPP_CONFIG_CASE_SOLO
