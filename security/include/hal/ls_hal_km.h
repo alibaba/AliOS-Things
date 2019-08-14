@@ -16,7 +16,7 @@
  * note: if dev_id is NULL and *id_len is 0, return -1
  *        and set *id_len to the real length of the id
  *
- * param: out:  dev_id: device uinque id should be smaller than 100 byte
+ * param: out:  dev_id: device uinque id should be no longer than 100 byte
  *        in_out: id_len: device uinque id length
  *
  * return: 0: success

@@ -38,7 +38,7 @@ int ls_hal_get_dev_id(uint8_t *dev_id, uint32_t *id_len)
     return 0;
 }
 
-//for mk3060 not support return 0 directly
+/* if not support, return 0 directly */
 int ls_hal_open_rsvd_part(int flag)
 {
     return 0;
