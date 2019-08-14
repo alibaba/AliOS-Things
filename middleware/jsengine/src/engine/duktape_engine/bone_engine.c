@@ -3,10 +3,10 @@
  */
 
 #include <assert.h>
-#include "hal/log.h"
+
+#include "jse_port.h"
 #include "bone_engine_inl.h"
 #include "cJSON.h"
-#include "hal/system.h"
 #ifdef JSE_IDE_DEBUG
 #include "websocket.h"
 #endif
@@ -54,7 +54,7 @@ static char *resolve_path(const char *parent, const char *module_id)
     }
 
     struct stat sb;
-    int ret = be_stat(base, &sb);
+    int ret = jse_stat(base, &sb);
     jse_debug("base: %s, ret: %d\n", base, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         strcpy(resolved_path, base);
@@ -62,21 +62,21 @@ static char *resolve_path(const char *parent, const char *module_id)
     }
 
     snprintf(resolved_path, sizeof(resolved_path), "%s.js", base);
-    ret = be_stat(resolved_path, &sb);
+    ret = jse_stat(resolved_path, &sb);
     jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         return resolved_path;
     }
 
     snprintf(resolved_path, sizeof(resolved_path), "%s/index.js", base);
-    ret = be_stat(resolved_path, &sb);
+    ret = jse_stat(resolved_path, &sb);
     jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (!ret && S_ISREG(sb.st_mode)) {
         return resolved_path;
     }
 
     snprintf(resolved_path, sizeof(resolved_path), "%s/package.json", base);
-    ret = be_stat(resolved_path, &sb);
+    ret = jse_stat(resolved_path, &sb);
     jse_debug("resolved_path: %s, ret: %d\n", resolved_path, ret);
     if (ret || !S_ISREG(sb.st_mode)) {
         jse_warn("file %s not exist\n", resolved_path);
@@ -90,9 +90,9 @@ static char *resolve_path(const char *parent, const char *module_id)
         return NULL;
     }
 
-    int fd = be_open(resolved_path, O_RDONLY);
-    be_read(fd, pkg_data, sb.st_size);
-    be_close(fd);
+    int fd = jse_open(resolved_path, O_RDONLY);
+    jse_read(fd, pkg_data, sb.st_size);
+    jse_close(fd);
     pkg_data[sb.st_size] = '\0';
 
     cJSON *json      = cJSON_Parse(pkg_data);
@@ -101,14 +101,14 @@ static char *resolve_path(const char *parent, const char *module_id)
     if (cJSON_IsString(item_main) && item_main->valuestring) {
         snprintf(resolved_path, sizeof(resolved_path), "%s/%s", base,
                  item_main->valuestring);
-        if (!be_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
+        if (!jse_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
             cJSON_Delete(json);
             jse_free(pkg_data);
             return resolved_path;
         }
         snprintf(resolved_path, sizeof(resolved_path), "%s/%s.js", base,
                  item_main->valuestring);
-        if (!be_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
+        if (!jse_stat(resolved_path, &sb) && S_ISREG(sb.st_mode)) {
             cJSON_Delete(json);
             jse_free(pkg_data);
             return resolved_path;
@@ -150,23 +150,23 @@ static duk_ret_t cb_load_module(duk_context *ctx)
 
     jse_debug("id:'%s', filename:'%s'\n", module_id, filename);
 
-    int fd = be_open(filename, O_RDONLY);
+    int fd = jse_open(filename, O_RDONLY);
     assert(fd > 0);
     int len = be_lseek(fd, 0, SEEK_END);
     jse_debug("file: %s, size: %d\n", filename, len);
     be_lseek(fd, 0, SEEK_SET);
     char *data = (char *)jse_malloc(len);
     if (!data) {
-        be_close(fd);
+        jse_close(fd);
         jse_warn("cannot alloc memory to read module: %s", module_id);
         return duk_type_error(ctx, "cannot alloc memory to read module: %s",
                               module_id);
     }
 
-    be_read(fd, data, len);
+    jse_read(fd, data, len);
     duk_push_lstring(ctx, data, len);
     jse_free(data);
-    be_close(fd);
+    jse_close(fd);
 
     return 1;
 }
@@ -265,7 +265,7 @@ void jsengine_init()
     be_module_node_init(duk_ctx);
 
     char tmp[MAX_PATH_SIZE];
-    snprintf(tmp, sizeof(tmp), "%s/node_modules", BE_FS_ROOT_DIR);
+    snprintf(tmp, sizeof(tmp), "%s/node_modules", JSE_FS_ROOT_DIR);
     node_modules_path = strdup(tmp);
 
     /* register all addons */
@@ -372,7 +372,7 @@ void jsengine_eval_file(const char *filename)
 
     /* read & run js file */
     struct aos_stat sb;
-    if (be_stat(filename, &sb) || !S_ISREG(sb.st_mode)) {
+    if (jse_stat(filename, &sb) || !S_ISREG(sb.st_mode)) {
         jse_warn("file: %s not exist\n", filename);
         return;
     }
@@ -383,9 +383,9 @@ void jsengine_eval_file(const char *filename)
         return;
     }
 
-    int fd = be_open(filename, O_RDONLY);
-    be_read(fd, data, sb.st_size);
-    be_close(fd);
+    int fd = jse_open(filename, O_RDONLY);
+    jse_read(fd, data, sb.st_size);
+    jse_close(fd);
 
     duk_push_pointer(duk_ctx, (void *)data);
     duk_push_uint(duk_ctx, (duk_uint_t)sb.st_size);

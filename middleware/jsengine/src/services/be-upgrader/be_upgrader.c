@@ -2,13 +2,13 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <be_osal.h>
+#include <jse_osal.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "be_osal.h"
+#include "jse_osal.h"
 #include "be_upgrader.h"
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
@@ -20,10 +20,10 @@
 #define OTA_BREAKPOINT -1
 #define OTA_FINISH 0
 
-static be_write_flash_cb_t be_upgd_write_callback;
+static jse_write_flash_cb_t be_upgd_write_callback;
 static be_upgd_finish_cb_t be_upgd_finish_callbak;
 
-/* 需要升级的分区 handle */
+/* ota handle */
 static esp_ota_handle_t ota_handle  = NULL;
 static esp_partition_t *ota_part    = NULL;
 static esp_partition_t *spiffs_part = NULL;
@@ -46,7 +46,7 @@ int be_str_to_upper(char *src, int len) {
 
 /**
  *
- * 写 OTA 分区
+ * ota write flash
  * esp_err_t esp_ota_write(esp_ota_handle_thandle, const void *data, size_t
  * size) esp_err_t esp_ota_end(esp_ota_handle_thandle) esp_err_t
  * esp_ota_set_boot_partition(constesp_partition_t *partition)
@@ -63,7 +63,7 @@ static int be_upgrade_ota_write_cb(int32_t writed_size, uint8_t *buf,
     ota_offset = ota_offset + buf_len;
     jse_debug("OTA write %d / %d", ota_offset, be_rom_size);
 
-    /* 通知IDE升级进度 */
+    /* report progress to webIDE */
     static int last_len = 0;
     char *msg[64];
     sprintf(msg, "%d/%d", ota_offset, be_rom_size);
@@ -88,7 +88,7 @@ static int be_upgrade_ota_finish_cb(int finished_result, void *updated_type) {
 
 /**
  *
- * 写 spiffs 分区
+ * spiffs write
  * esp_err_t esp_partition_write(const esp_partition_t* partition,
                              size_t dst_offset, const void* src, size_t size);
  *  * @param partition Pointer to partition structure obtained using
@@ -127,13 +127,13 @@ static int be_upgrade_direct_flash_finish_cb(int finished_result,
     return 0;
 }
 
-static void be_upgrade_set_callback(be_write_flash_cb_t wcb,
+static void be_upgrade_set_callback(jse_write_flash_cb_t wcb,
                                     be_upgd_finish_cb_t fcb) {
     be_upgd_write_callback = wcb;
     be_upgd_finish_callbak = fcb;
 }
 
-static be_write_flash_cb_t be_upgrade_get_write_cb_fn() {
+static jse_write_flash_cb_t be_upgrade_get_write_cb_fn() {
     return be_upgd_write_callback;
 }
 
@@ -144,14 +144,14 @@ static be_upgd_finish_cb_t be_upgrade_get_finish_cb_fn() {
 static void be_upgrade_register_callback(be_upgd_type_t type) {
     esp_err_t err;
     if (type == BE_UPGD_KERNEL_TYPE) {
-        /* 获取需要升级的OTA分区 */
+        /* get ota flash partition */
         ota_part = esp_ota_get_next_update_partition(NULL);
         if (ota_part == NULL) {
             jse_error("[%s][%d] OTA partition not found \n", __FUNCTION__,
                    __LINE__);
             return;
         }
-        /* 擦除该分区 */
+        /* erase ota partition */
         err = esp_ota_begin(ota_part, 0, &ota_handle);
         if (err != ESP_OK) {
             jse_error("[%s][%d] erase ota part failed, err = 0x%x \n",
@@ -164,7 +164,7 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
         be_upgrade_set_callback(be_upgrade_ota_write_cb,
                                 be_upgrade_ota_finish_cb);
     } else if (type == BE_UPGD_SPIFFS_TYPE) {
-        /* 获取spiffs分区 */
+        /* get spiffs flash partition */
         esp_partition_subtype_t subtype = ESP_PARTITION_SUBTYPE_DATA_SPIFFS;
         spiffs_part =
             esp_partition_find_first(ESP_PARTITION_TYPE_DATA, subtype, NULL);
@@ -175,7 +175,7 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
         }
         jse_debug("Format SPIFFS partition %s at 0x%x, size 0x%x\n",
                spiffs_part->label, spiffs_part->address, spiffs_part->size);
-        /* 擦除整个分区 */
+        /* erase all partition */
         esp_partition_erase_range(spiffs_part, 0, spiffs_part->size);
         spiffs_offset = 0;
 
@@ -188,7 +188,7 @@ static void be_upgrade_register_callback(be_upgd_type_t type) {
 
 void be_upgrader_handler(be_upgd_param_t *param) {
     int ret                          = 0;
-    be_write_flash_cb_t be_write_cb  = NULL;
+    jse_write_flash_cb_t jse_write_cb  = NULL;
     be_upgd_finish_cb_t be_finish_cb = NULL;
     be_upgd_type_t upgrade_type      = BE_UPGD_KERNEL_TYPE;
 
@@ -202,7 +202,7 @@ void be_upgrader_handler(be_upgd_param_t *param) {
     be_rom_size  = param->total_size;
     upgrade_type = param->type;
     be_upgrade_register_callback(upgrade_type);
-    be_write_cb  = be_upgrade_get_write_cb_fn();
+    jse_write_cb  = be_upgrade_get_write_cb_fn();
     be_finish_cb = be_upgrade_get_finish_cb_fn();
 
     /* ota_set_update_breakpoint(0);
@@ -211,7 +211,7 @@ void be_upgrader_handler(be_upgd_param_t *param) {
            be_upgrade_hal_init(ota_get_update_breakpoint());
        } */
 
-    ret = ota_download(param->url, be_write_cb, param->md5);
+    ret = ota_download(param->url, jse_write_cb, param->md5);
     jse_debug("ota download ret =%d", ret);
 
     if (ret <= 0) {
@@ -235,12 +235,12 @@ void be_upgrader_handler(be_upgd_param_t *param) {
         jse_debug("be_upgrader_handler update ok");
         jse_debug(BE_CLI_REPLY_SUCCESS);
         bone_websocket_send_frame("/device/updateimg_reply", 200, "success");
-        be_osal_delay(200);
+        jse_osal_delay(200);
 
         be_finish_cb(OTA_FINISH, &upgrade_type);
 
         /* ota_set_update_breakpoint(0); */
-        hal_system_reboot();
+        jse_system_reboot();
         return;
     }
 
@@ -250,6 +250,6 @@ done:
     jse_debug(BE_CLI_REPLY_FAILED);
     jse_error("be_upgrader_handler fail");
     bone_websocket_send_frame("/device/updateimg_reply", 205, "failed");
-    be_osal_delay(200);
-    be_osal_exit_task(0);
+    jse_osal_delay(200);
+    jse_osal_exit_task(0);
 }
