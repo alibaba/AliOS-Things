@@ -341,7 +341,7 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_reply_need);
 
     IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
-#if defined(TEST_ITLS)
+#if defined(USE_ITLS)
     {
         char url[128] = {0};
         int port = 1883;
