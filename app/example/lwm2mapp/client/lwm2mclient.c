@@ -1063,22 +1063,6 @@ int lwm2m_client_main(int argc, char *argv[])
         opt += 1;
     }
 
-    if (!server)
-    {
-        server = (AF_INET == data.addressFamily ? DEFAULT_SERVER_IPV4 : DEFAULT_SERVER_IPV6);
-    }
-
-    /*
-     *This call an internal function that create an IPV6 socket on the port 5683.
-     */
-    lwm2m_log(LOG_INFO, "Trying to bind LWM2M Client to port %s\n", localPort);
-    data.sock = create_socket(localPort, data.addressFamily);
-    if (data.sock < 0)
-    {
-        lwm2m_log(LOG_ERR, "Failed to open socket: %d %s\n", errno, strerror(errno));
-        return -1;
-    }
-
     if(deviceSecret != NULL && deviceName != NULL && productKey != NULL)
     {
         char * random4 = "random4";
@@ -1260,6 +1244,33 @@ int lwm2m_client_main(int argc, char *argv[])
     }
     lwm2m_log(LOG_DEBUG, "LWM2M Client \"%s\" started on port %s\n", name, localPort);
     lwm2m_log(LOG_DEBUG, "> ");
+
+    if (!server)
+    {
+        server = (AF_INET == data.addressFamily ? DEFAULT_SERVER_IPV4 : DEFAULT_SERVER_IPV6);
+    }
+
+#ifndef LWM2M_BOOTSTRAP
+restart:
+    lwm2mH->state = STATE_INITIAL;
+#endif
+
+    /*
+     *This call an internal function that create an IPV6 socket on the port 5683.
+     */
+    lwm2m_log(LOG_INFO, "Trying to bind LWM2M Client to port %s\n", localPort);
+    data.sock = create_socket(localPort, data.addressFamily);
+    if (data.sock < 0)
+    {
+        lwm2m_log(LOG_ERR, "Failed to open socket: %d %s\n", errno, strerror(errno));
+#ifndef LWM2M_BOOTSTRAP
+        aos_msleep(5000);
+        goto restart;
+#else
+        return -1;
+#endif
+    }
+
     /*
      * We now enter in a while loop that will handle the communications from the server
      */
@@ -1351,7 +1362,15 @@ int lwm2m_client_main(int argc, char *argv[])
             }
             else
 #endif
+           {
+#ifndef LWM2M_BOOTSTRAP
+                close(data.sock);
+                aos_msleep(5000);
+                goto restart;
+#else
                 return -1;
+#endif
+           }
         }
 #ifdef LWM2M_BOOTSTRAP
         update_bootstrap_info(&previousState, lwm2mH);
@@ -1433,7 +1452,7 @@ int lwm2m_client_main(int argc, char *argv[])
                     else
                     {
                         lwm2m_log(LOG_ERR, "addr family %d err \n", addr.ss_family);
-                        return ;
+                        return -1;
                     }
                     lwm2m_log(LOG_ERR, "%d bytes received from [%s]:%hu\n", numBytes, s, ntohs(port));
 
