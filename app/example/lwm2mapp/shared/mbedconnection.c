@@ -531,6 +531,7 @@ int create_socket(const char * portStr, int ai_family)
 
     if (0 != getaddrinfo(NULL, portStr, &hints, &res))
     {
+        lwm2m_log(LOG_ERR, "getaddrinfo failed\n");
         return -1;
     }
 
@@ -539,10 +540,18 @@ int create_socket(const char * portStr, int ai_family)
         s = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (s >= 0)
         {
-            if (-1 == bind(s, p->ai_addr, p->ai_addrlen))
+            int flag = 1;
+            if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) < 0)
             {
                 close(s);
                 s = -1;
+                lwm2m_log(LOG_ERR, "setsockopt SO_REUSEADDR failed\n");
+            }
+            else if (-1 == bind(s, p->ai_addr, p->ai_addrlen))
+            {
+                close(s);
+                s = -1;
+                lwm2m_log(LOG_ERR, "bind failed\n");
             }
         }
     }
