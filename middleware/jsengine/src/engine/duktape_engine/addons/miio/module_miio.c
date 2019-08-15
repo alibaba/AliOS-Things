@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 #include "miio-common.h"
 #include "miio-device.h"
 #include "miio-discover.h"
@@ -35,8 +34,8 @@ typedef struct async_event_param {
 static void event_cb(void *arg)
 {
     async_event_param_t *p = (async_event_param_t *)arg;
-    duk_context *ctx       = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx       = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_string(ctx, p->event);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
@@ -73,7 +72,7 @@ static duk_ret_t native_deviceOnEvent(duk_context *ctx)
     miio_device_t *device = (miio_device_t *)duk_get_pointer(ctx, 0);
     duk_dup(ctx, 1);
     /* consider not to clear ref */
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
     miio_device_set_event_cb(device, on_event, (void *)js_cb_ref);
     return 0;
 }
@@ -118,8 +117,8 @@ typedef struct async_discover_param {
 static void discover_cb(void *arg)
 {
     async_discover_param_t *p = (async_discover_param_t *)arg;
-    duk_context *ctx          = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx          = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_string(ctx, p->host);
     duk_push_number(ctx, p->device_id);
     duk_pcall(ctx, 2);
@@ -153,14 +152,14 @@ static duk_ret_t native_discover(duk_context *ctx)
     jse_debug("timeout: %ld\n", timeout);
     duk_dup(ctx, 1);
     /* TODO:consider to clear ref */
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
     miio_device_discover(timeout, (void *)js_cb_ref, on_discover);
     return 0;
 }
 
 void module_miio_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
     duk_push_object(ctx);
 
     /* createDevice(host:string, token:string) */

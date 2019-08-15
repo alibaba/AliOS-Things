@@ -5,9 +5,8 @@
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
 
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 static wdg_dev_t wdg_dev;
 
@@ -53,7 +52,7 @@ static duk_ret_t native_wdg_stop(duk_context *ctx)
 
 void module_wdg_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

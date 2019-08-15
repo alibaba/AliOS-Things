@@ -10,11 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "be_common.h"
-#include "be_jse_export.h"
+#include "jse_common.h"
 #include "app_mgr.h"
-
 #include "cli_ext.h"
 
 #ifdef DUMP_SYMBL_USAGE
