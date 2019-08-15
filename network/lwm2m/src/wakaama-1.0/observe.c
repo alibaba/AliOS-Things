@@ -439,7 +439,7 @@ lwm2m_observed_t * observe_findByUri(lwm2m_context_t * contextP,
         targetP = targetP->next;
     }
 
-    lwm2m_log(LOG_ERR, "Found nothing\n");
+    lwm2m_log(LOG_WARNING, "Found nothing\n");
     return NULL;
 }
 
