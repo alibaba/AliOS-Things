@@ -40,10 +40,19 @@ void hal_reboot(void)
 int hal_reboot_bank(void)
 {
     printf("reboot to banker\n");
-    wifi_set_sleep_type(NONE_SLEEP_T);
-    aos_msleep(300);
+    vPortETSIntrLock();
+    krhino_sched_disable();
+    delay();
+    delay();
+    rom_i2c_writeReg(0x67, 4, 1, 8);
+    rom_i2c_writeReg(0x67, 4, 2, 0x81);
+    wifi_station_stop();
+    aos_msleep(200);
     system_upgrade_init();
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
-    system_upgrade_reboot();
+    while(1) {
+        system_upgrade_reboot();
+        aos_msleep(100);
+    }
     return 0;
 }
