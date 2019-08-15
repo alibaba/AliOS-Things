@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "jse_port.h"
-#include "bone_engine_inl.h"
-#ifdef JSE_IDE_DEBUG
-#include "websocket.h"
-#endif
+#include "jse_common.h"
+#include "be_inl.h"
 
 static duk_ret_t native_console_log(duk_context *ctx)
 {
@@ -31,7 +28,7 @@ static duk_ret_t native_console_log(duk_context *ctx)
 
 void module_builtin_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

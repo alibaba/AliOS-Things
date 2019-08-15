@@ -12,10 +12,16 @@ extern "C" {
 
 #include <fcntl.h>
 
+#include "aos/kernel.h"
 #include "aos/kv.h"
 #include "aos/vfs.h"
 #include "netmgr.h"
-#include "network/network.h"
+#include "network.h"
+#include "mbedtls/md5.h"
+#include "mbedtls/sha1.h"
+#include "mbedtls/aes.h"
+#include "mbedtls/des.h"
+#include "mbedtls/base64.h"
 
 /* memory operation wrapper */
 #define jse_malloc aos_malloc
@@ -56,6 +62,44 @@ enum BE_LOG_LEVEL {
 
 #define JSE_MAX_SSID_SIZE MAX_SSID_SIZE
 #define JSE_MAX_PWD_SIZE MAX_PWD_SIZE
+
+/* md5 */
+#define jse_md5_context mbedtls_md5_context
+#define jse_md5 mbedtls_md5
+#define jse_md5_init mbedtls_md5_init
+#define jse_md5_starts mbedtls_md5_starts
+#define jse_md5_update mbedtls_md5_update
+#define jse_md5_finish mbedtls_md5_finish
+#define jse_md5_free mbedtls_md5_free
+
+/* sha1 */
+#define jse_sha1_context mbedtls_sha1_context
+#define jse_sha1_init mbedtls_sha1_init
+#define jse_sha1_starts mbedtls_sha1_starts
+#define jse_sha1_update mbedtls_sha1_update
+#define jse_sha1_finish mbedtls_sha1_finish
+#define jse_sha1_free mbedtls_sha1_free
+
+/* aes */
+#define JSE_AES_ENCRYPT MBEDTLS_AES_ENCRYPT
+#define JSE_AES_DECRYPT MBEDTLS_AES_DECRYPT
+#define jse_aes_context mbedtls_aes_context
+#define jse_aes_init mbedtls_aes_init
+#define jse_aes_setkey_enc mbedtls_aes_setkey_enc
+#define jse_aes_setkey_dec mbedtls_aes_setkey_dec
+#define jse_aes_crypt_cbc mbedtls_aes_crypt_cbc
+#define jse_aes_free mbedtls_aes_free
+
+/* des */
+#define jse_des_context mbedtls_des_context
+#define jse_des_init mbedtls_des_init
+#define jse_des_setkey_enc mbedtls_des_setkey_enc
+#define jse_des_crypt_ecb mbedtls_des_crypt_ecb
+#define jse_des_free mbedtls_des_free
+
+/* base64 */
+#define jse_base64_encode mbedtls_base64_encode
+#define jse_base64_decode mbedtls_base64_decode
 
 /**
  * @brief       get platform type
@@ -152,6 +196,9 @@ int32_t jse_system_fs_init(void);
  * @return      void
  */
 void jse_system_reboot(void);
+
+
+
 
 #if defined(__cplusplus)
 }

@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "jse_port.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 static int convert_fs_mode_to_oflag(const char *mode)
 {
@@ -91,8 +91,8 @@ static duk_ret_t native_fs_read(duk_context *ctx)
         goto out;
     }
 
-    size = be_lseek(fd, 0, SEEK_END);
-    be_lseek(fd, 0, SEEK_SET);
+    size = jse_lseek(fd, 0, SEEK_END);
+    jse_lseek(fd, 0, SEEK_SET);
 
     buf = (char *)jse_malloc(size + 1);
     if (!buf) {
@@ -195,7 +195,7 @@ out:
 
 void module_fs_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

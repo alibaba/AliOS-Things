@@ -9,10 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "be_common.h"
-#include "be_jse_export.h"
-
+#include "jse_common.h"
 #include "cli_ext.h"
 
 #define DEVICE_NAME "deviceName"

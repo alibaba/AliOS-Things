@@ -8,13 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "jse_port.h"
+#include "jse_common.h"
 #include "app_mgr.h"
-#include "be_common.h"
 #include "cli_ext.h"
-
-#include "aos/cli.h"
-#include "aos/kernel.h"
 
 /* serial port must write \n to indicates send finished */
 #define BE_DEBUGER_START_CMD_REPLY "#be-debuger-start-reply# \n"
