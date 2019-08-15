@@ -305,6 +305,7 @@ static void aws_discover_callback(uint8_t *buffer, int length, signed char rssi,
     /* fc(2) + dur(2) + da(6) + sa(6) + bssid(6) + seq(2) */
     uint8_t dst[6] = {0};
     int type = buffer[0];
+
     switch (type) {
         case MGMT_BEACON:
             break;
