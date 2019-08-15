@@ -11,7 +11,9 @@
     IMPORT cpu_interrupt_handler
     IMPORT k_proc_switch
     IMPORT g_sys_stat
-    IMPORT krhino_task_sched_stats_get
+    IF (RHINO_CONFIG_SYS_STATS > 0)
+        IMPORT krhino_task_sched_stats_get
+    ENDIF
 
     IF (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
         IMPORT krhino_stack_ovf_check
