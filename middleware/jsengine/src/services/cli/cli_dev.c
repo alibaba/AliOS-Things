@@ -8,13 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "jse_port.h"
+#include "jse_common.h"
 
-#include "netmgr.h"
-
-#ifdef JSE_IDE_DEBUG
-#include "websocket.h"
-#endif
 #include "board_info.h"
 #include "cli_ext.h"
 

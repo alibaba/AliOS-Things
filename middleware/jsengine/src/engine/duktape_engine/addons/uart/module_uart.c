@@ -5,10 +5,8 @@
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 #define UART_BUFF_SIZE 256
 #define MAX_UART_PORT 6
@@ -93,8 +91,8 @@ static void uart_module_handle(void *data)
 
     jse_debug("start_pos: %s\n", start_pos);
     int js_cb_ref    = module->js_cb_ref;
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, js_cb_ref);
     duk_push_string(ctx, start_pos);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
@@ -127,8 +125,8 @@ static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
     module->timer_id = be_jse_task_timer_action(100, uart_module_handle, module,
                                                 JSE_TIMER_REPEAT);
     if (!module->timer_id) {
-        duk_context *ctx = bone_engine_get_context();
-        bone_engine_unref(ctx, module->js_cb_ref);
+        duk_context *ctx = be_get_context();
+        be_unref(ctx, module->js_cb_ref);
         jse_free(module->start_flag);
         jse_free(module->end_flag);
         jse_free(module);
@@ -145,8 +143,8 @@ static void uart_del_recv(uint32_t item_handle)
     for (i = 0; i < MAX_UART_PORT; i++) {
         uart_module_t *m = uart_modules[i];
         if (m && m->item_handle == item_handle) {
-            duk_context *ctx = bone_engine_get_context();
-            bone_engine_unref(ctx, m->js_cb_ref);
+            duk_context *ctx = be_get_context();
+            be_unref(ctx, m->js_cb_ref);
             be_jse_task_cancel_timer(m->timer_id);
             jse_free(m->start_flag);
             jse_free(m->end_flag);
@@ -297,7 +295,7 @@ static duk_ret_t native_uart_on(duk_context *ctx)
         }
     }
     duk_dup(ctx, 1);
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
     ret = uart_add_recv(uart_device, uart_handle.handle, js_cb_ref, start, end);
     if (ret < 0) {
         jse_error("uart_add_recv fail!\n");
@@ -309,7 +307,7 @@ out:
 
 void module_uart_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

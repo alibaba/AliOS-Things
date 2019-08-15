@@ -8,8 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
+#include "jse_common.h"
 
 #define JSE_MAIN_TASK_TICK (500)
 #define JSE_MSGQ_WAITIME (2000)

@@ -5,9 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 #define WIFI_CONNECT_WAIT_TIME_MS (10 * 1000)
 #define WIFI_CHECKIP_INTERVAL_MS 200
@@ -16,15 +15,15 @@ static void js_cb_wifi_conn_status(void *pdata)
 {
     char ip[32]      = {0};
     int js_cb_ref    = (int)pdata;
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, js_cb_ref);
     if (jse_system_get_ip(ip) == 0)
         duk_push_string(ctx, "CONNECTED");
     else
         duk_push_string(ctx, "DISCONNECT");
     duk_pcall(ctx, 1);
     duk_pop(ctx);
-    bone_engine_unref(ctx, js_cb_ref);
+    be_unref(ctx, js_cb_ref);
 }
 
 static void wifi_check_ip_task(void *arg)
@@ -62,12 +61,12 @@ static duk_ret_t native_wifi_connect(duk_context *ctx)
         goto out;
     }
     duk_dup(ctx, 2);
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
     ret           = jse_osal_create_task("wifi_task", wifi_check_ip_task,
                               (void *)js_cb_ref, 4096, WIFI_TSK_PRIORITY, NULL);
     if (ret) {
         jse_warn("jse_osal_create_task failed\n");
-        bone_engine_unref(ctx, js_cb_ref);
+        be_unref(ctx, js_cb_ref);
     }
 out:
     duk_push_int(ctx, ret);
@@ -115,7 +114,7 @@ static duk_ret_t native_wifi_getssid(duk_context *ctx)
 
 void module_wifi_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

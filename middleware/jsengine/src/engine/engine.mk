@@ -3,7 +3,7 @@ ${NAME}_SOURCES += src/main/jse_main.c
 ${NAME}_SOURCES += src/main/jse_task.c
 
 # utils
-$(NAME)_SOURCES += src/utils/be_utils.c
+$(NAME)_SOURCES += src/utils/jse_utils.c
 
 # port
 ${NAME}_SOURCES += \
@@ -16,8 +16,11 @@ $(NAME)_INCLUDES += \
 										src/include/common \
 										src/port/
 
-ifeq ($(JSE_ENGINE_MINI),y)
-include ${JSE_ROOT}/engine/mini_engine.mk
+# engine api
+$(NAME)_INCLUDES += src/engine/
+
+ifeq ($(JSE_ENGINE_LITE),y)
+include ${JSE_ROOT}/engine/lite_engine.mk
 else ifeq ($(JSE_ENGINE_DUKTAPE),y)
 include ${JSE_ROOT}/engine/duktape_engine.mk
 endif

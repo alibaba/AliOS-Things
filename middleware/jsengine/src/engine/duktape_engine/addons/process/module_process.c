@@ -5,18 +5,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 static void next_tick_cb(void *arg)
 {
     int ref          = (int)arg;
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, ref);
     duk_pcall(ctx, 0);
     duk_pop(ctx);
-    bone_engine_unref(ctx, ref);
+    be_unref(ctx, ref);
 }
 
 static duk_ret_t native_process_nextTick(duk_context *ctx)
@@ -27,10 +26,10 @@ static duk_ret_t native_process_nextTick(duk_context *ctx)
         return duk_throw(ctx);
     }
     duk_dup(ctx, -1);
-    int ref = bone_engine_ref(ctx);
+    int ref = be_ref(ctx);
     if (be_jse_task_schedule_call(next_tick_cb, (void *)ref) < 0) {
         jse_warn("be_jse_task_schedule_call failed\n");
-        bone_engine_unref(ctx, ref);
+        be_unref(ctx, ref);
     }
     return 0;
 }
@@ -49,7 +48,7 @@ static duk_ret_t native_process_uptime(duk_context *ctx)
 
 void module_process_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
     duk_push_object(ctx);
 
     /* version */

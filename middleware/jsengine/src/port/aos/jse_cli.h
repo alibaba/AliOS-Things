@@ -5,8 +5,7 @@
 #ifndef JSE_CLI_H
 #define JSE_CLI_H
 
-#include "jse_port.h"
-
+#include "jse_common.h"
 #include "ulog/ulog.h"
 #include "aos/cli.h"
 

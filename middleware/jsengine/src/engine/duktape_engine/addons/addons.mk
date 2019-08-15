@@ -28,35 +28,17 @@ endif
 ifeq ($(JSE_NET_ADDON_MQTT),y)
 ${NAME}_CFLAGS += -Wno-int-conversion
 
-${NAME}_SOURCES +=  \
-										$(JSE_ADDONS_DIR)/mqtt/module_mqtt.c #\
-										$(JSE_ADDONS_DIR)/mqtt/core/mqtt_instance.c
+${NAME}_SOURCES +=  $(JSE_ADDONS_DIR)/mqtt/module_mqtt.c
 
 ${NAME}_INCLUDES += \
 										$(JSE_ADDONS_DIR)/mqtt/core \
 										$(JSE_ADDONS_DIR)/mqtt
 
-# iotkit头文件
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/utils/digest
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/utils/misc
-# C_INCLUDES += -I$(PROJECT_ROOT)/port/iotkit
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/sdk-impl
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/system
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/packages/LITE-utils
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/packages/LITE-log
-# C_INCLUDES += -I$(EXTERNAL_ROOT)/iotkit-embedded/src/sdk-impl/exports
-
-# 加密库 需要 cJson
-# ifeq ($(JSE_ESP32_BOARD),y)
-# C_INCLUDES += -I$(VENDOR_ROOT)/esp-idf/components/mbedtls/mbedtls/include
-# C_INCLUDES += -I$(VENDOR_ROOT)/esp-idf/components/json/cJSON
-# endif
-
 endif
 
 ifeq ($(JSE_NET_ADDON_NET),y)
 # TODO:
-${NAME}_SOURCES += $(JSE_ADDONS_DIR)/net/module_net.c
+# ${NAME}_SOURCES += $(JSE_ADDONS_DIR)/net/module_net.c
 endif
 
 ifeq ($(JSE_NET_ADDON_UDP),y)
@@ -69,10 +51,8 @@ ifeq ($(JSE_NET_ADDON_HTTP),y)
 endif
 
 ifeq ($(JSE_NET_ADDON_MIIO),y)
-# ${NAME}_INCLUDES += $(PROJECT_ROOT)/components/miio
-# ${NAME}_SOURCES += miio/module_miio.c \
-# $(PROJECT_ROOT)/components/miio/miio-discover.c \
-# $(PROJECT_ROOT)/components/miio/miio-device.c
+${NAME}_INCLUDES += $(JSE_ROOT)/components/miio
+${NAME}_SOURCES +=  $(JSE_ADDONS_DIR)/miio/module_miio.c
 endif
 
 # JSE Hardware Addon Modules Selection

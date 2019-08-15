@@ -1,9 +1,9 @@
-# duktape_engine/jse
+# duktape_engine
 ${NAME}_SOURCES +=  \
 										src/engine/duktape_engine/duktape/duktape.c \
 										src/engine/duktape_engine/be_module_node.c \
-										src/engine/duktape_engine/bone_engine_refs.c \
-										src/engine/duktape_engine/bone_engine.c
+										src/engine/duktape_engine/be_refs.c \
+										src/engine/duktape_engine/be.c
 
 # C includes
 $(NAME)_INCLUDES += \

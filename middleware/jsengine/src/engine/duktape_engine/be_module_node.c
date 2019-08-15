@@ -4,7 +4,7 @@
  *  https://nodejs.org/api/modules.html
  */
 
-#include "bone_engine_inl.h"
+#include "be_inl.h"
 
 static void duk__push_module_object(duk_context *ctx, const char *id);
 
