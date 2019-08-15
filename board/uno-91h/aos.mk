@@ -44,6 +44,12 @@ GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
 GLOBAL_CFLAGS  += -DRDA5981X -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 GLOBAL_CFLAGS  += -DRDA5981A
 
+# Link Security Config
+CONFIG_LS_DEBUG      := n
+CONFIG_LS_ID2_OTP    := y
+CONFIG_LS_KM_SE      := n
+CONFIG_LS_KM_TEE     := n
+
 GLOBAL_LDFLAGS += -T uno-91h.ld
 
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
