@@ -17,4 +17,3 @@ const preamble_t *g_app_info[MAX_APP_BINS] =  {
 
 const int g_max_app_cnt = MAX_APP_BINS;
 
-
