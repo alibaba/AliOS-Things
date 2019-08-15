@@ -9,17 +9,21 @@
 
 extern int lwm2m_client_main(int argc, char *argv[]) ;
 
-static void lwm2m_client_example()
+static int lwm2m_client_started = 0;
+
+static void lwm2m_client_example(void *paras)
 {
     int count = 0;
     char *value[15];
+
+    (void) paras;
 
     printf("nano entry here!\r\n");
     value[count] = "lwm2mclient";
     count ++;
     value[count] = "-h";
     count ++;
-    value[count] = "47.111.5.71";
+    value[count] = "11.158.135.221";
     count ++;
     value[count] = "-p";
     count ++;
@@ -59,7 +63,11 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         return;
     }
 
-    lwm2m_client_example();
+    if(!lwm2m_client_started)
+    {
+       aos_task_new("lwm2m_client", (void (*)(void *))lwm2m_client_example, NULL, 1024 * 8);
+       lwm2m_client_started = 1;
+    }
 
 }
 
