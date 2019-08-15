@@ -1,3 +1,5 @@
+EN | [中文](./README-zh.md)
+
 ## Contents
 
 ## Introduction
@@ -30,6 +32,22 @@ JSEngine has the following features:
 JSEngine is suitable for developers of scene application development, device development, driver modules, etc. on the IoT device side.
 
 ### Directories
+
+```
+.
+├── docs                    # documents
+├── scripts                 # javascript scripts, including demos, drivers, modules.
+└── src
+    ├── components          # components, like miio.
+    ├── engine              # JSEngine including duktapeJSE and liteJSE
+    │   ├── duktape_engine
+    │   └── lite_engine
+    ├── include             # includes
+    ├── main                # JSEngine Entry
+    ├── port                # JSEngine port interface
+    ├── services            # JSEngine service, like app manager, board manager, debugger etc.
+    └── utils               # utils
+```
 
 ### Building and Flashing
 

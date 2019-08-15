@@ -3,9 +3,9 @@
  */
 
 #include <stdint.h>
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+
+#include "jse_common.h"
+#include "be_inl.h"
 
 static duk_ret_t native_open(duk_context *ctx)
 {
@@ -27,7 +27,7 @@ static duk_ret_t native_open(duk_context *ctx)
     jse_debug("dac handle:%u\n", dac_handle.handle);
     dac_device = board_get_node_by_handle(MODULE_DAC, &dac_handle);
     if (NULL == dac_device) {
-        error("board_get_node_by_handle fail!\n");
+        jse_error("board_get_node_by_handle fail!\n");
         goto out;
     }
     ret = hal_dac_init(dac_device);
@@ -121,7 +121,7 @@ out:
 
 void module_dac_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 
