@@ -3,10 +3,9 @@
  */
 
 #include <stdint.h>
-#include "jse_task.h"
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+
+#include "jse_common.h"
+#include "be_inl.h"
 
 static void ir_learn_mode(uint32_t scl_pin, uint32_t sda_pin)
 {
@@ -235,8 +234,8 @@ static void gpio_irq_notify(void *arg)
 {
     struct gpio_irq_notify_param *p = (struct gpio_irq_notify_param *)arg;
     jse_debug("value: 0x%x\n", p->value);
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->value);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
@@ -298,7 +297,7 @@ static duk_ret_t native_ir_on(duk_context *ctx)
         goto out;
     }
     duk_dup(ctx, 1);
-    int js_cb_ref     = bone_engine_ref(ctx);
+    int js_cb_ref     = be_ref(ctx);
     gpio_device->priv = (void *)js_cb_ref;
 out:
     duk_push_int(ctx, ret);
@@ -495,7 +494,7 @@ failed:
 
 void module_ir_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 
