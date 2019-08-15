@@ -217,9 +217,9 @@ board.json 配置文件可以和APP-PACK一起下发，也可以在出厂时直�
 
 Javascript 引擎专门为资源有限的设备提供的轻量级的 Javascript 引擎，相对于V8，SpideMonkey 功能强大的JS引擎，JSEngine 不支持JIT功能，但是对JS语法集支持做了精简，而针对IoT特定需求，对硬件驱动，操作系统函数，以及MQTT，MESH等功能模块实现了JS语法扩展，开发者可以直接通过JS API调用这些功能模块
 
-目前，JSEngine支持两个版本：mini-JSE，full-JSE（ES5.1）
+目前，JSEngine支持两个版本：lite-JSE，full-JSE（ES5.1）
 
-JSEngine@mini-JSE 具有如下特点：
+JSEngine@lite-JSE 具有如下特点：
 
 * 资源占用：RAM<15KB,ROM(Footprint) <15KB
 * CPU性能：优化的词法和句法分析器，降低CPU使用率

@@ -8,13 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aos/kernel.h"
-#include "hal/wifi.h"
-#include "netmgr.h"
-#include "fs/spiffs.h"
+#include "jse_common.h"
 
-#include "jse_port.h"
-#include "be_common.h"
+#include "hal/wifi.h"
+#include "fs/spiffs.h"
 
 /**
  * @brief       get platform type
