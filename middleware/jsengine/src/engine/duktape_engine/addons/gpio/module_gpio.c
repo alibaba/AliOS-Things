@@ -3,10 +3,9 @@
  */
 
 #include <stdint.h>
-#include "jse_task.h"
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+
+#include "jse_common.h"
+#include "be_inl.h"
 
 #define GPIO_IRQ_RISING_EDGE "rising"
 #define GPIO_IRQ_FALLING_EDGE "falling"
@@ -68,7 +67,7 @@ static duk_ret_t native_close(duk_context *ctx)
         goto out;
     }
     int js_cb_ref = (int)gpio_device->priv;
-    bone_engine_unref(ctx, js_cb_ref);
+    be_unref(ctx, js_cb_ref);
     gpio_device->priv = NULL;
     board_disattach_item(MODULE_GPIO, &gpio_handle);
     result = 0;
@@ -142,8 +141,8 @@ static void gpio_irq_notify(void *arg)
 {
     struct gpio_irq_notify_param *p = (struct gpio_irq_notify_param *)arg;
     jse_debug("value: 0x%x\n", p->value);
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->value);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
@@ -218,7 +217,7 @@ static duk_ret_t native_on(duk_context *ctx)
         goto out;
     }
     duk_dup(ctx, 2);
-    int js_cb_ref     = bone_engine_ref(ctx);
+    int js_cb_ref     = be_ref(ctx);
     gpio_device->priv = (void *)js_cb_ref;
     result            = 0;
 out:
@@ -228,7 +227,7 @@ out:
 
 void module_gpio_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

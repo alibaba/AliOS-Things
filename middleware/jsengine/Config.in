@@ -21,12 +21,12 @@ if AOS_COMP_JSENGINE
 
 choice
     prompt "Choose Engine Type: "
-    default JSE_ENGINE_MINI
+    default JSE_ENGINE_LITE
     help
       Choose Engine Type. (Default: LiteJSE).
 
-    config JSE_ENGINE_MINI
-        bool "MiniJSE"
+    config JSE_ENGINE_LITE
+        bool "LiteJSE"
         help
             LiteEngine is independent develop by Alibaba.
 

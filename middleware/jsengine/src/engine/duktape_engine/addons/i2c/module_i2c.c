@@ -3,9 +3,9 @@
  */
 
 #include <stdint.h>
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+
+#include "jse_common.h"
+#include "be_inl.h"
 
 #define I2C_TIMEOUT (0xFFFFFF)
 
@@ -174,7 +174,7 @@ out:
 
 void module_i2c_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

@@ -2119,6 +2119,8 @@ typedef struct duk_hthread duk_context;
  * (which is unfortunately named).  May sometimes need replacement, e.g.
  * some compilers don't handle zero length or NULL correctly in realloc().
  */
+#include "jse_common.h"
+
 #if !defined(DUK_ANSI_MALLOC)
 #define DUK_ANSI_MALLOC      jse_malloc
 #endif
