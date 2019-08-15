@@ -4,9 +4,9 @@
 
 /* #define LOG_NDEBUG 0 */
 #include <stdint.h>
-#include "jse_port.h"
-#include "board-mgr/board_mgr.h"
-#include "bone_engine_inl.h"
+
+#include "jse_common.h"
+#include "be_inl.h"
 
 static duk_ret_t native_open(duk_context *ctx)
 {
@@ -90,7 +90,7 @@ out:
 
 void module_adc_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

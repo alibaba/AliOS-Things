@@ -8,17 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "board_mgr.h"
-#include "be_jse_export.h"
-#include "be_utils.h"
-
+#include "jse_common.h"
 #include "cJSON.h"
-
-#ifdef JSE_IDE_DEBUG
-#include "be_service.h"
-#endif
 
 #define APP_PACKAGE_FILE_NAME JSE_FS_ROOT_DIR "/package.json"
 #define MAX_FILE_NAME_LEN 127
