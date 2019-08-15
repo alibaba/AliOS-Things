@@ -15,7 +15,7 @@ VERSION_DESCRIPTION=aos
 
 NOW_DATE:=$(shell date +%m%d)
 
-ifeq ($(JSE_ENGINE_MINI),y)
+ifeq ($(JSE_ENGINE_LITE),y)
 JSE_ENGINE_TYPE := tiny
 else ifeq ($(JSE_ENGINE_DUKTAPE),y)
 JSE_ENGINE_TYPE := dkp
@@ -49,5 +49,9 @@ GLOBAL_DEFINES += SPIFFS_CACHE
 GLOBAL_DEFINES += SUPPORT_NODE_MODELES
 
 $(info JSEngine Version: ${BONE_VERSION})
+
+ifneq (${CLI_CONFIG_INBUF_SIZE}, 1024)
+$(error ****** Please set CLI_CONFIG_INBUF_SIZE to 1024 in menuconfig, Kernel --> Commonad-Line Interface --> Input buffer size ******)
+endif
 
 include ${JSE_ROOT}/engine/engine.mk

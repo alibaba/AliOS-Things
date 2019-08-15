@@ -5,9 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 #define MAGIC 0x55ff0055
 typedef struct timer_wrap {
@@ -27,8 +26,8 @@ static void timer_action(void *arg)
         return;
     }
 
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_push_ref(ctx, t->js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_push_ref(ctx, t->js_cb_ref);
     duk_pcall(ctx, 0);
     duk_pop(ctx);
 
@@ -39,7 +38,7 @@ static void timer_action(void *arg)
     }
 
     if (!t->repeat) {
-        bone_engine_unref(ctx, t->js_cb_ref);
+        be_unref(ctx, t->js_cb_ref);
         t->magic = 0;
         jse_free(t);
     }
@@ -66,8 +65,8 @@ static void clear_timer(timer_wrap_t *t)
         return;
     }
     be_jse_task_cancel_timer(t->timer_id);
-    duk_context *ctx = bone_engine_get_context();
-    bone_engine_unref(ctx, t->js_cb_ref);
+    duk_context *ctx = be_get_context();
+    be_unref(ctx, t->js_cb_ref);
     t->magic = 0;
     jse_free(t);
 }
@@ -81,7 +80,7 @@ static duk_ret_t native_setTimeout(duk_context *ctx)
         return duk_throw(ctx);
     }
     duk_dup(ctx, 0);
-    int js_cb_ref   = bone_engine_ref(ctx);
+    int js_cb_ref   = be_ref(ctx);
     long ms         = (long)duk_get_number(ctx, 1);
     timer_wrap_t *t = setup_timer(js_cb_ref, ms, 0);
     duk_push_pointer(ctx, t);
@@ -104,7 +103,7 @@ static duk_ret_t native_setInterval(duk_context *ctx)
         return duk_throw(ctx);
     }
     duk_dup(ctx, 0);
-    int js_cb_ref   = bone_engine_ref(ctx);
+    int js_cb_ref   = be_ref(ctx);
     long ms         = (long)duk_get_number(ctx, 1);
     timer_wrap_t *t = setup_timer(js_cb_ref, ms, 1);
     duk_push_pointer(ctx, t);
@@ -120,7 +119,7 @@ static duk_ret_t native_clearInterval(duk_context *ctx)
 
 void module_timer_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_c_function(ctx, native_setTimeout, 2);
     duk_put_global_string(ctx, "setTimeout");

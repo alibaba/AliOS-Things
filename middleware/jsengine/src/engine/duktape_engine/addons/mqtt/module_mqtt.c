@@ -8,11 +8,8 @@
 
 #include <stdarg.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "be_list.h"
-#include "board-mgr/board_info.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 #include "linkkit/dev_sign_api.h"
 #include "linkkit/infra/infra_compat.h"
@@ -43,8 +40,8 @@ struct mqtt_sub_cb_param {
 static void mqtt_sub_topic_notify(void *data)
 {
     struct mqtt_sub_cb_param *p = (struct mqtt_sub_cb_param *)data;
-    duk_context *ctx            = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx            = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_lstring(ctx, p->payload, p->payload_len);
     duk_json_decode(ctx, -1);
     duk_push_lstring(ctx, p->topic, p->topic_len);
@@ -368,8 +365,8 @@ static void *mqtt_task_handle = NULL;
 void mqtt_notify_jse(void *arg)
 {
     IOT_DEVICESECRET_s *iotDeviceSecret = (IOT_DEVICESECRET_s *)arg;
-    duk_context *ctx                    = bone_engine_get_context();
-    bone_engine_push_ref(ctx, iotDeviceSecret->js_cb_ref);
+    duk_context *ctx                    = be_get_context();
+    be_push_ref(ctx, iotDeviceSecret->js_cb_ref);
     if (iotDeviceSecret->deviceSecret[0]) {
         duk_push_null(ctx);
         duk_push_string(ctx, iotDeviceSecret->deviceSecret);
@@ -379,7 +376,7 @@ void mqtt_notify_jse(void *arg)
     }
     duk_pcall(ctx, 2);
     duk_pop(ctx);
-    bone_engine_unref(ctx, iotDeviceSecret->js_cb_ref);
+    be_unref(ctx, iotDeviceSecret->js_cb_ref);
     jse_free(iotDeviceSecret);
 }
 
@@ -410,8 +407,8 @@ static void mqtt_get_secret_task(void *arg)
 
     if (be_jse_task_schedule_call(mqtt_notify_jse, iotDeviceSecret)) {
         jse_warn("be_jse_task_schedule_call failed\n");
-        duk_context *ctx = bone_engine_get_context();
-        bone_engine_unref(ctx, iotDeviceSecret->js_cb_ref);
+        duk_context *ctx = be_get_context();
+        be_unref(ctx, iotDeviceSecret->js_cb_ref);
         jse_free(deviceSecret);
     }
 
@@ -475,7 +472,7 @@ static duk_ret_t native_get_device_secret(duk_context *ctx)
         err = -5;
     } else {
         duk_dup(ctx, 1);
-        iotDeviceSecret->js_cb_ref = bone_engine_ref(ctx);
+        iotDeviceSecret->js_cb_ref = be_ref(ctx);
         err                        = 0;
     }
 
@@ -552,21 +549,20 @@ static duk_ret_t native_mqtt_sign(duk_context *ctx)
         k_opad[i] ^= 0x5c;
     }
 
-    /* use mbedtls on freertos/linux/macos */
-    mbedtls_sha1_context sha1_ctx;
-    mbedtls_sha1_init(&sha1_ctx);
-    mbedtls_sha1_starts(&sha1_ctx);
-    mbedtls_sha1_update(&sha1_ctx, k_ipad, sizeof(k_ipad));
-    mbedtls_sha1_update(&sha1_ctx, content, strlen((char *)content));
-    mbedtls_sha1_finish(&sha1_ctx, out);
-    mbedtls_sha1_free(&sha1_ctx);
+    jse_sha1_context sha1_ctx;
+    jse_sha1_init(&sha1_ctx);
+    jse_sha1_starts(&sha1_ctx);
+    jse_sha1_update(&sha1_ctx, k_ipad, sizeof(k_ipad));
+    jse_sha1_update(&sha1_ctx, content, strlen((char *)content));
+    jse_sha1_finish(&sha1_ctx, out);
+    jse_sha1_free(&sha1_ctx);
 
-    mbedtls_sha1_init(&sha1_ctx);
-    mbedtls_sha1_starts(&sha1_ctx);
-    mbedtls_sha1_update(&sha1_ctx, k_opad, sizeof(k_opad));
-    mbedtls_sha1_update(&sha1_ctx, out, sizeof(out));
-    mbedtls_sha1_finish(&sha1_ctx, out);
-    mbedtls_sha1_free(&sha1_ctx);
+    jse_sha1_init(&sha1_ctx);
+    jse_sha1_starts(&sha1_ctx);
+    jse_sha1_update(&sha1_ctx, k_opad, sizeof(k_opad));
+    jse_sha1_update(&sha1_ctx, out, sizeof(out));
+    jse_sha1_finish(&sha1_ctx, out);
+    jse_sha1_free(&sha1_ctx);
 
     int j;
     char sign[41];
@@ -593,13 +589,13 @@ static duk_ret_t native_mqtt_sign(duk_context *ctx)
 static void mqtt_start_notify(void *arg)
 {
     int js_cb_ref    = (int)arg;
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
-    bone_engine_push_ref(ctx, js_cb_ref);
+    be_push_ref(ctx, js_cb_ref);
     duk_push_null(ctx);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
-    bone_engine_unref(ctx, js_cb_ref);
+    be_unref(ctx, js_cb_ref);
 }
 
 static void mqtt_event_handle(void *pcontext, void *pclient,
@@ -746,7 +742,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     }
 
     duk_dup(ctx, 1);
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
 
     /* create task to IOT_MQTT_Yield() */
     err = jse_osal_create_task("mqtt yield task", mqtt_yield_task,
@@ -754,7 +750,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     if (err) {
         jse_warn("jse_osal_create_task failed\n");
         IOT_MQTT_Destroy(&pclient);
-        bone_engine_unref(ctx, js_cb_ref);
+        be_unref(ctx, js_cb_ref);
         err = -4;
         goto pop_out;
     }
@@ -780,7 +776,7 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
     const char *topic = duk_get_string(ctx, 0);
 
     duk_dup(ctx, 1);
-    int js_cb_ref = bone_engine_ref(ctx);
+    int js_cb_ref = be_ref(ctx);
     jse_debug("subscribe topic: %s, js_cb_ref: %d\n", topic, js_cb_ref);
     ret = IOT_MQTT_Subscribe(pclient, (const char *)topic, IOTX_MQTT_QOS0,
                              mqtt_sub_callback, (int)js_cb_ref);
@@ -836,7 +832,7 @@ out:
 
 void module_mqtt_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

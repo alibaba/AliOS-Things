@@ -2,16 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-/* #define LOG_NDEBUG 0 */
-#include <netdb.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
-#include "jse_port.h"
-#include "jse_task.h"
-#include "be_utils.h"
-#include "bone_engine_inl.h"
+#include "jse_common.h"
+#include "be_inl.h"
 
 /* #define DEBUG_UDP_ADDON */
 #ifdef DEBUG_UDP_ADDON
@@ -135,12 +129,12 @@ out:
 static void udp_send_notify(void *pdata)
 {
     udp_send_notify_param_t *p = (udp_send_notify_param_t *)pdata;
-    duk_context *ctx           = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx           = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->ret);
     duk_pcall(ctx, 1);
     duk_pop(ctx);
-    bone_engine_unref(ctx, p->js_cb_ref);
+    be_unref(ctx, p->js_cb_ref);
     jse_free(p);
 }
 
@@ -157,7 +151,7 @@ static void udp_send_routine(void *arg)
     udp_options_t udp_options;
     struct sockaddr_in addr_in;
     udp_send_notify_param_t *p;
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     sock_id = send_param->sock_id;
     memcpy(&udp_options, &(send_param->options), sizeof(udp_options_t));
@@ -172,7 +166,7 @@ static void udp_send_routine(void *arg)
         if (setsockopt(sock_id, SOL_SOCKET, SO_BROADCAST, &broadcast,
                        sizeof(broadcast)) < 0) {
             jse_error("setsockopt failed\n");
-            bone_engine_unref(ctx, send_param->js_cb_ref);
+            be_unref(ctx, send_param->js_cb_ref);
             goto out;
         }
     }
@@ -182,7 +176,7 @@ static void udp_send_routine(void *arg)
     p   = jse_calloc(1, sizeof(udp_send_notify_param_t));
     if (!p) {
         jse_warn("allocate memory failed\n");
-        bone_engine_unref(ctx, send_param->js_cb_ref);
+        be_unref(ctx, send_param->js_cb_ref);
         goto out;
     }
 
@@ -270,7 +264,7 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     }
     send_param->sock_id = sock_id;
     duk_dup(ctx, 3);
-    send_param->js_cb_ref = bone_engine_ref(ctx);
+    send_param->js_cb_ref = be_ref(ctx);
     send_param->msg       = msg;
     send_param->msg_len   = msg_len;
     memcpy(&(send_param->options), &options, sizeof(udp_options_t));
@@ -287,8 +281,8 @@ static void udp_recv_notify(void *pdata)
 {
     int i                      = 0;
     udp_recv_notify_param_t *p = (udp_recv_notify_param_t *)pdata;
-    duk_context *ctx           = bone_engine_get_context();
-    bone_engine_push_ref(ctx, p->js_cb_ref);
+    duk_context *ctx           = be_get_context();
+    be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->recv_len);
     int arr_idx = duk_push_array(ctx);
     duk_push_string(ctx, p->src_ip);
@@ -299,7 +293,7 @@ static void udp_recv_notify(void *pdata)
     }
     duk_pcall(ctx, 4);
     duk_pop(ctx);
-    bone_engine_unref(ctx, p->js_cb_ref);
+    be_unref(ctx, p->js_cb_ref);
     jse_free(p);
 }
 
@@ -321,8 +315,8 @@ static void udp_recv_routine(void *arg)
     udp_recv_notify_param_t *p = jse_calloc(1, sizeof(*p));
     if (!p) {
         jse_warn("allocate memory failed\n");
-        duk_context *ctx = bone_engine_get_context();
-        bone_engine_unref(ctx, recv_param->js_cb_ref);
+        duk_context *ctx = be_get_context();
+        be_unref(ctx, recv_param->js_cb_ref);
         goto out;
     }
 
@@ -380,7 +374,7 @@ static duk_ret_t native_udp_recvfrom(duk_context *ctx)
 
     recv_param->sock_id = sock_id;
     duk_dup(ctx, 1);
-    recv_param->js_cb_ref = bone_engine_ref(ctx);
+    recv_param->js_cb_ref = be_ref(ctx);
 
     ret = jse_osal_create_task("udp_recv", udp_recv_routine, recv_param, 4096,
                               ADDON_TSK_PRIORRITY, NULL);
@@ -424,7 +418,7 @@ out:
 
 void module_udp_register(void)
 {
-    duk_context *ctx = bone_engine_get_context();
+    duk_context *ctx = be_get_context();
 
     duk_push_object(ctx);
 

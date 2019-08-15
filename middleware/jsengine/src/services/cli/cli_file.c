@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "be_common.h"
-#include "be_jse_export.h"
+#include "jse_common.h"
 #include "app_mgr.h"
 #include "cli_ext.h"
 
@@ -146,8 +145,9 @@ static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
         gPushParam.targetname = targetname;
         gPushParam.outStr     = jse_malloc(size + 1);
 
-        bone_console_log_disable(); /* 关闭bone engine  的log输出 */
-        /* avoid stack overflow !!! */
+        /* disable JSEngine logout */
+        bone_console_log_disable();
+        /* create task to parser push data, may cause stack overflow in cli task!!! */
         int ret = jse_osal_create_task("be_push", push, NULL, 4096,
                                       CLI_TSK_PRIORITY, NULL);
     }
