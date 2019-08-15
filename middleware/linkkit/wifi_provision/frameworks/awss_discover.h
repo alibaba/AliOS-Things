@@ -11,8 +11,8 @@ extern "C" {
 
 #if defined(AWSS_SUPPORT_DISCOVER)
 int aws_discover_send_beacon(void);
-int aws_discover_init(void);
-int aws_discover_deinit(void);
+int aws_discover_callback(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res,
+                                  signed char rssi);
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

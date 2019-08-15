@@ -294,7 +294,8 @@ static int aws_discover_send(uint8_t ftype, uint8_t dst[6])
  * @see None.
  * @note None.
  */
-static void aws_discover_callback(uint8_t *buffer, int length, signed char rssi, int buffer_type)
+int aws_discover_callback(uint8_t *buffer, int length, int link_type, struct parser_res *res,
+                                  signed char rssi)
 {
 #define MGMT_BEACON     (0x80)
 #define MGMT_PROBE_REQ  (0x40)
@@ -305,7 +306,6 @@ static void aws_discover_callback(uint8_t *buffer, int length, signed char rssi,
     /* fc(2) + dur(2) + da(6) + sa(6) + bssid(6) + seq(2) */
     uint8_t dst[6] = {0};
     int type = buffer[0];
-
     switch (type) {
         case MGMT_BEACON:
             break;
@@ -327,23 +327,12 @@ static void aws_discover_callback(uint8_t *buffer, int length, signed char rssi,
         default:
             break;
     }
+    return 0;
 }
 
 int aws_discover_send_beacon()
 {
     return aws_discover_send(MNGMT_BEACON, (uint8_t *)BCAST_ADDR);
-}
-
-int aws_discover_init()
-{
-    return HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_PROBE_REQ_MASK,
-            NULL, aws_discover_callback);
-}
-
-int aws_discover_deinit()
-{
-    return HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_PROBE_REQ_MASK,
-            NULL, NULL);
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
