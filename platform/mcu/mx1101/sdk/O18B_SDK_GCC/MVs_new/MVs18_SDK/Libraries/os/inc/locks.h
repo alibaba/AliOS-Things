@@ -1,11 +1,7 @@
 /*
- *  linux/include/asm-arm/locks.h
+ *      Copyright 2011, Mountain View Silicon Tech. Inc., ShangHai, China
+ *                  All rights reserved.
  *
- *  Copyright (C) 2000 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  *
  *  Interrupt safe locking assembler.
  * Changelog:
