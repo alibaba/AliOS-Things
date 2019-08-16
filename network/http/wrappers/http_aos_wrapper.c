@@ -41,9 +41,15 @@ static int32_t recv_func(int32_t socket, uint8_t *data, uint32_t size, uint32_t 
     int32_t recv_len;
     uint64_t ts_end;
     uint64_t ts_left;
+    struct timeval recv_to;
 
     ts_end = aos_now_ms() + timeout;
     recv_len = 0;
+
+    /* set rx timeout to elliminate the impacts when Wi-FI AP is disconnected */
+    recv_to.tv_sec = (timeout / 1000);
+    recv_to.tv_usec = (timeout % 1000) * 1000;
+    setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_to, sizeof(recv_to));
 
     do {
         ts_left = 0;
@@ -192,7 +198,6 @@ static int ssl_rx(void *context, unsigned char *buf, size_t size)
 {
     httpc_t *httpc_session = (httpc_t *)context;
     int ret = 0;
-
     ret = recv(httpc_session->socket, buf, size, 0);
     /* http_log("%s, size %d, ret %d", __func__, size, ret); */
     if (ret < 0) {
