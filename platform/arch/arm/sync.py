@@ -10,7 +10,7 @@ fileopts = [
     ['delete', 'armv6m-mk/common/svc_debug.c'],
     ['delete', 'armv6m-mk/common/k_proc.c'],
     ['copy', 'publish/armv6m-mk_aos.mk', 'armv6m-mk/aos.mk'],
-    ['copy', 'publish/armv6m-mk_lib', 'armv6m-mk/lib'],
+    #['copy', 'publish/armv6m-mk_lib', 'armv6m-mk/lib'],
     ['delete', 'armv7m-mk/common/svc_gcc.S'],
     ['delete', 'armv7m-mk/common/svc_iccarm.S'],
     ['delete', 'armv7m-mk/common/svc_debug.c'],
@@ -22,6 +22,6 @@ fileopts = [
     ['delete', 'armv7a-mk/common/svc_debug.c'],
     ['delete', 'armv7a-mk/common/k_proc.c'],
     ['copy', 'publish/armv7a-mk_aos.mk', 'armv7a-mk/aos.mk'],
-    ['copy', 'publish/armv7a-mk_lib', 'armv7a-mk/lib'],
+    #['copy', 'publish/armv7a-mk_lib', 'armv7a-mk/lib'],
 ]
 
