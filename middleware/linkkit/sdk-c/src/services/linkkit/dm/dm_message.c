@@ -268,15 +268,15 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 #ifdef ALCS_ENABLED
     if (type & DM_MSG_DEST_LOCAL) {
         do {
-            if(strlen(uri) < 6) {
+            if (strlen(uri) < 6) {
                 break;
             }
-            char *end = uri + strlen(uri) - 6;            
+            char *end = uri + strlen(uri) - 6;
             if (strstr(end, "_reply") != 0) {
                 *end = '\0';
-            }           
+            }
             dm_server_send(uri, (unsigned char *)payload, strlen(payload), user_data);
-        }while(0);
+        } while (0);
     }
 #endif
 
@@ -2296,22 +2296,6 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         return DM_INVALID_PARAMETER;
     }
 
-    /* Parse Root */
-    memset(&lite, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_parse(request->params.value, request->params.value_length, &lite);
-    if (res != SUCCESS_RETURN || (!lite_cjson_is_object(&lite) && !lite_cjson_is_array(&lite))) {
-        return DM_JSON_PARSE_FAILED;
-    }
-    /* dm_log_info("Property Set, Size: %d", lite.size); */
-
-    if (lite_cjson_is_object(&lite)) {
-        res = _dm_msg_set_object(DM_MSG_PROPERTY_SET, devid, NULL, &lite);
-    }
-
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
 #ifdef DEVICE_MODEL_GATEWAY
     message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
     message = DM_malloc(message_len);
@@ -2328,6 +2312,23 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
 #else
     int index = 0;
     lite_cjson_t lite_item_key, lite_item_value;
+
+    /* Parse Root */
+    memset(&lite, 0, sizeof(lite_cjson_t));
+    res = lite_cjson_parse(request->params.value, request->params.value_length, &lite);
+    if (res != SUCCESS_RETURN || (!lite_cjson_is_object(&lite) && !lite_cjson_is_array(&lite))) {
+        return DM_JSON_PARSE_FAILED;
+    }
+    /* dm_log_info("Property Set, Size: %d", lite.size); */
+
+    if (lite_cjson_is_object(&lite)) {
+        res = _dm_msg_set_object(DM_MSG_PROPERTY_SET, devid, NULL, &lite);
+    }
+
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
     for (index = 0; index < lite.size; index++) {
         memset(&lite_item_key, 0, sizeof(lite_cjson_t));
         memset(&lite_item_value, 0, sizeof(lite_cjson_t));
@@ -2422,7 +2423,11 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
 {
     int res = 0, id = 0, devid = 0, message_len = 0;
     lite_cjson_t lite;
-    char *key = NULL, *message = NULL;;
+#ifndef DEVICE_MODEL_GATEWAY
+    char *key = NULL;
+#endif
+    char *message = NULL;
+
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (product_key == NULL || device_name == NULL ||
@@ -2442,7 +2447,17 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
-
+#ifdef DEVICE_MODEL_GATEWAY
+    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len +
+                  request->params.value_length + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier,
+                 request->params.value_length, request->params.value);
+#else
     key = DM_malloc(identifier_len + 1);
     if (key == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -2467,18 +2482,6 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
-
-#ifdef DEVICE_MODEL_GATEWAY
-    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len +
-                  request->params.value_length + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier,
-                 request->params.value_length, request->params.value);
-#else
     message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
