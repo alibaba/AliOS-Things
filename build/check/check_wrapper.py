@@ -2,9 +2,8 @@
 
 import os
 import sys
-import yaml
 import traceback
-from commands.util import info, warn, error, which
+from commands.util import warn, error, which
 
 
 def help(commands):
@@ -27,6 +26,7 @@ def check_requires(requires):
             error("Required command \"%s\" is not installed!" % (cmd))
 
     return True
+
 
 def main():
     check_tool = ""
@@ -68,30 +68,40 @@ def main():
                             "short_help": short_help,
                             "requires": requires,
                             "script": cmdfile,
-                           }
+                            }
 
                 commands.append(cmd_dict)
-            except:
+            except Exception as e:
+                print(e)
                 traceback.print_exc()
                 return False
 
     if not check_tool or check_tool == "help":
         help(commands)
+        return 0
 
     if check_tool:
         script = ""
         requires = []
+        found = False
         for tmp in commands:
             if tmp["name"] == check_tool:
                 script = tmp["script"]
                 requires = tmp["requires"]
+                found = True
                 break
 
-        check_requires(requires)
-        cmd = "/usr/bin/python %s/%s %s" % (check_command_dir, script, args)
-        info("Running cmd: %s ..." % cmd)
-        os.system(cmd)
+        if found:
+            check_requires(requires)
+            cmd = "/usr/bin/python %s/%s %s" % (check_command_dir, script, args)
+            ret = os.system(cmd)
+            if ret != 0:
+                return 1
+        else:
+            warn("No such sub command '%s' ...\n" % check_tool)
+            help(commands)
+            return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
