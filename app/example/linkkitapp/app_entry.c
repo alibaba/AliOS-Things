@@ -66,7 +66,7 @@ static ota_service_t *ota_get_device_info(void)
     strncpy(ctx.pk, product_key, sizeof(ctx.pk) - 1);
     strncpy(ctx.dn, device_name, sizeof(ctx.dn) - 1);
     strncpy(ctx.ds, device_secret, sizeof(ctx.ds) - 1);
-    strncpy(ctx.ps, device_secret, sizeof(ctx.ps) - 1);
+    strncpy(ctx.ps, product_secret, sizeof(ctx.ps) - 1);
     return &ctx;
 }
 #endif
