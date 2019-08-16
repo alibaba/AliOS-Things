@@ -1,6 +1,7 @@
 # coding: utf-8
-import os, sys, subprocess
-from util import info, warn
+import os
+import sys
+from util import info, warn, error
 
 name = "license"
 short_help = "Check for 3rd Licenses"
@@ -25,6 +26,7 @@ black_list = [
     "LGPL",
 ]
 
+
 def run():
     """ Check for 3rd Licenses """
     if "help" in sys.argv:
@@ -35,12 +37,15 @@ def run():
     if len(sys.argv) > 1:
         check_files = sys.argv[1:]
 
-    cmd = 'grep -w -E -i -r "%s" %s' % ("|".join(black_list), " ".join(check_files))
+    cmd = 'grep -w -E -i -r --color "%s" %s > %s.log 2>&1' % ("|".join(black_list), " ".join(check_files), name)
     info("Running cmd: %s ..." % cmd)
-    ret = subprocess.call(cmd, shell=True)
-    if not ret:
-        info("Check License Completed!")
+    ret = os.system(cmd)
+    if ret == 0:
+        os.system("cat %s.log" % name)
+        error("Check 3rd License Failed!")
+    else:
+        info("Check 3rd License Passed!")
 
 
 if __name__ == '__main__':
-    run()
+    sys.exit(run())
