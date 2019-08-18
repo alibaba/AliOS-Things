@@ -100,6 +100,8 @@ tcpip_ip_info_t eth_ip_info = {0};
 /* Global Ethernet handle*/
 ETH_HandleTypeDef EthHandle;
 
+static aos_sem_t net_init_done_sem;
+
 /* Private function prototypes -----------------------------------------------*/
 static void ethernetif_input( void const * argument );
 
@@ -488,7 +490,7 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
             post_ip_addr(eth_ip_info);
 
 #ifdef AOS_LOOP
-            aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
+//            aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
 #endif
         }
     }
@@ -536,11 +538,15 @@ static void tcpip_init_done(void *arg)
     netif_set_up(&lwip_netif);
     tcpip_dhcpc_start(&lwip_netif);
     printf("TCP/IP initialized.");
+    aos_sem_signal((aos_sem_t*)arg);
 }
 
 int lwip_tcpip_init(void)
 {
-    tcpip_init(tcpip_init_done, NULL);
+    aos_sem_new(&net_init_done_sem, 0);
+    tcpip_init(tcpip_init_done, (void*)&net_init_done_sem);
+    aos_sem_wait(&net_init_done_sem, AOS_WAIT_FOREVER);
+    aos_sem_free(&net_init_done_sem);
 
     return 0;
 }
