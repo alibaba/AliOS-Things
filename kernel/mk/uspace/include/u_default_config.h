@@ -50,15 +50,14 @@
 
 /********************** URES **************************/
 #if (RHINO_CONFIG_URES > 0)
-
 /**
  * enable user space resoure task.
  * The task enables kernel malloc and
  * free user space memory. To dynamically
  * delete user space task, enable the macro.
  */
-#ifndef RHINO_CONIFG_URES_SUPPORT
-#define RHINO_CONFIG_URES_SUPPORT 1
+#ifndef RHINO_CONIFG_URES_TASK
+#define RHINO_CONFIG_URES_TASK 1
 #endif
 
 /**
@@ -88,10 +87,9 @@
 #define RHINO_CONFIG_URES_TASK_USTACK_SIZE 256
 #endif /* RHINO_CONFIG_URES_TASK_USTACK_SIZE */
 
-#elif (RHINO_CONFIG_URES_SUPPORT > 0)
+#elif (RHINO_CONFIG_URES_TASK > 0)
 #error "kernel doesn't support user space resource"
 #endif /* RHINO_CONFIG_URES */
-
 
 /********************** UCLI **************************/
 #if (RHINO_CONFIG_UCLI > 0)
@@ -100,8 +98,8 @@
  * enable user space cli.
  * user can register cli cmd in app
  */
-#ifndef RHINO_CONFIG_UCLI_SUPPORT
-#define RHINO_CONFIG_UCLI_SUPPORT 0
+#ifndef RHINO_CONFIG_UCLI_TASK
+#define RHINO_CONFIG_UCLI_TASK 0
 #endif
 
 /**
@@ -125,17 +123,17 @@
 #define RHINO_CONFIG_UCLI_TASK_USTACK_SIZE 256
 #endif
 
-#elif (RHINO_CONFIG_UCLI_SUPPORT > 0)
+#elif (RHINO_CONFIG_UCLI_TASK > 0)
 #error "kernel doesn't support user space cli"
-#endif /* RHINO_CONFIG_UCLI_SUPPORT */
+#endif /* RHINO_CONFIG_UCLI_TASK */
 
 /********************** UCALLBACK **************************/
 #if (RHINO_CONFIG_UCALLBACK > 0)
 /**
  * enable user space callback
  */
-#ifndef RHINO_CONFIG_UCALLBACK_SUPPORT
-#define RHINO_CONFIG_UCALLBACK_SUPPORT 0
+#ifndef RHINO_CONFIG_UCALLBACK_TASK
+#define RHINO_CONFIG_UCALLBACK_TASK 0
 #endif
 
 /**
@@ -159,17 +157,16 @@
 #define RHINO_CONFIG_UCALLBACK_TASK_USTACK_SIZE 256
 #endif
 
-#elif (RHINO_CONFIG_UCALLBACK_SUPPORT > 0)
+#elif (RHINO_CONFIG_UCALLBACK_TASK > 0)
 #error "kernel doesn't support user space callback"
 #endif /* RHINO_CONFIG_UCALLBACK */
-
 
 /********************** UTIMER **************************/
 /**
  * enable user space timer
  */
-#ifndef RHINO_CONFIG_UTIMER_SUPPORT
-#define RHINO_CONFIG_UTIMER_SUPPORT 0
+#ifndef RHINO_CONFIG_UTIMER_TASK
+#define RHINO_CONFIG_UTIMER_TASK 0
 #endif
 
 /**
@@ -199,7 +196,6 @@
 #ifndef RHINO_CONFIG_UTIMER_MSG_NUM
 #define RHINO_CONFIG_UTIMER_MSG_NUM 4
 #endif
-
 
 #endif /* U_DEFAULT_CONFIG_H */
 
