@@ -14,6 +14,7 @@
 #include "aos/cli.h"
 #include "aos/init.h"
 #include "ulog/ulog.h"
+#include "cli/cli_api.h"
 
 #define AOS_START_STACK 1536
 
@@ -26,6 +27,29 @@ extern int lwip_tcpip_init(void);
 extern int application_start(int argc, char **argv);
 
 int g_proc_var; /**< for test purpose */
+
+
+static void kernel_read_g_proc_var(char *pbuffer, int outlen, int argc, char **argv)
+{
+    printf("kernel read g_proc_var: %d\r\n", g_proc_var);
+}
+
+static void kernel_set_g_proc_var(char *pbuffer, int outlen, int argc, char **argv)
+{
+    if (argc != 2) {
+        printf("Usage: kernel_set_g_proc_var val\r\n");
+        return;
+    }
+
+    g_proc_var = atoi(argv[1]);
+
+    printf("kernel set g_proc_var: %d\r\n", g_proc_var);
+}
+
+static struct cli_command_st kernel_cmds[] = {
+    {"kernel_read_g_proc_var", "kernel read g_proc_var", kernel_read_g_proc_var},
+    {"kernel_set_g_proc_var", "kernel set g_proc_var", kernel_set_g_proc_var},
+};
 
 static void var_init()
 {
@@ -44,12 +68,11 @@ static void sys_init(void)
 
     LOG("strart lwip_tcpip_init\r\n");
 
-#if (ENABLE_LWIP_INIT > 0)
     lwip_tcpip_init();
-#endif
 
-    g_proc_var = 0x5a5a;
-    LOG("kernel set g_proc_var to 0x%x\r\n", g_proc_var);
+    aos_msleep(1000);
+
+    cli_register_commands(kernel_cmds, sizeof(kernel_cmds)/sizeof(kernel_cmds[0]));
 
     application_start(0, NULL);
 }
