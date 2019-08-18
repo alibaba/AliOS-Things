@@ -23,7 +23,8 @@ $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
                    src/dma.c \
                    src/main.c \
                    src/ethernetif.c \
-                   src/httpserver-netconn.c
+                   src/httpserver-netconn.c \
+                   src/board_partition.c
 
 GLOBAL_INCLUDES += include \
                    include/lwip
