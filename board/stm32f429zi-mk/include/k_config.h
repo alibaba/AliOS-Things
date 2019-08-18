@@ -132,7 +132,5 @@
 #include "mk_default_config.h"
 #endif
 
-#define ENABLE_LWIP_INIT    0
-
 #endif /* K_CONFIG_H */
 
