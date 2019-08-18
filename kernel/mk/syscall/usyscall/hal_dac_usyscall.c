@@ -1,12 +1,9 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_DAC_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "syscall.h"
 #include "hal_dac_syscall_arg.h"
 #include "syscall_no.h"
@@ -69,6 +66,4 @@ int32_t hal_dac_finalize(dac_dev_t *dac)
 
     return (int32_t)SYSCALL(SYS_HAL_DAC_FINALIZE, (void*)&_arg);
 }
-
-#endif /* RHINO_CONFIG_HAL_DAC_SYSCALL */
 
