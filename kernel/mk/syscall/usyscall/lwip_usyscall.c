@@ -1,10 +1,8 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
+
 #include "k_config.h"
-
-#if(RHINO_CONFIG_LWIP_SYSCALL > 0)
-
 #include "syscall.h"
 #include "lwip_syscall_arg.h"
 #include "syscall_no.h"
@@ -417,6 +415,4 @@ free_name:
 
     return ret;
 }
-
-#endif /* RHINO_CONFIG_LWIP_SYSCALL */
 
