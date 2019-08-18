@@ -1,11 +1,8 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #include "k_config.h"
-
-#if (RHINO_CONFIG_UCLI_SYSCALL > 0)
-
 #include "syscall_no.h"
 #include "cli/cli_api.h"
 #include "cli_syscall_arg.h"
@@ -48,6 +45,4 @@ int32_t cli_unregister_commands(const struct cli_command_st *cmd, int32_t num_cm
 
     return (int32_t)SYSCALL(SYS_CLI_UNREGISTER_CMDS, (void*)&_arg);
 }
-
-#endif /* RHINO_CONFIG_UCLI_SYSCALL */
 
