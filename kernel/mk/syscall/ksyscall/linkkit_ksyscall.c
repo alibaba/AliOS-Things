@@ -418,12 +418,14 @@ static int ITE_SERVICE_REQUEST_cb(const int devid, const char *serviceid, const 
             ret = -3;
             goto out;
         }
+        memset(response_ptr, 0, sizeof(char*));
 
         response_len_ptr = (int*)res_malloc(active_pid, sizeof(int*));
         if (NULL == response_len_ptr) {
             ret = -4;
             goto out;
         }
+        memset(response_len_ptr, 0, sizeof(int*));
     }
 
     call_msg.func_ptr     = g_impl_event_callback_map[ITE_SERVICE_REQUEST].callback_user;
@@ -583,12 +585,14 @@ static int ITE_PROPERTY_GET_cb(const int devid, const char *request,
             ret = -2;
             goto out;
         }
+        memset(response_ptr, 0, sizeof(char*));
 
         response_len_ptr = (int*)res_malloc(active_pid, sizeof(int*));
         if (NULL == response_len_ptr) {
             ret = -3;
             goto out;
         }
+        memset(response_len_ptr, 0, sizeof(int*));
     }
 
     call_msg.func_ptr     = g_impl_event_callback_map[ITE_PROPERTY_GET].callback_user;

@@ -1,4 +1,5 @@
 source "kernel/rhino/Config.in"
+source "kernel/mk/kspace/Config.in"
 source "kernel/init/Config.in"
 source "kernel/cli/Config.in"
 source "kernel/debug/Config.in"
