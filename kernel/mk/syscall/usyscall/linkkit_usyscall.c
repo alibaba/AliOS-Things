@@ -1,17 +1,13 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include <stdio.h>
 #include "k_config.h"
-
-#if (RHINO_CONFIG_LINKKIT_SYSCALL > 0)
-
-#include "stdio.h"
 #include "syscall.h"
 #include "linkkit/dev_model_api.h"
 #include "linkkit_syscall_arg.h"
 #include "syscall_no.h"
-
 
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info)
 {
@@ -337,6 +333,4 @@ int HAL_GetDeviceSecret(char *device_secret)
 
     return (int)SYSCALL(SYS_IOT_HAL_IOCTL, &arg);
 }
-
-#endif /* RHINO_CONFIG_LINKKIT_SYSCALL */
 

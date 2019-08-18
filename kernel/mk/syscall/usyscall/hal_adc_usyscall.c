@@ -1,12 +1,9 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_ADC_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "syscall.h"
 #include "hal_adc_syscall_arg.h"
 #include "syscall_no.h"
@@ -39,6 +36,4 @@ int32_t hal_adc_finalize(adc_dev_t *adc)
 
     return (int32_t)SYSCALL(SYS_HAL_ADC_FINALIZE, (void*)&_arg);
 }
-
-#endif /* RHINO_CONFIG_HAL_ADC_SYSCALL */
 
