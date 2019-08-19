@@ -1,4 +1,4 @@
 NAME := buildsystem
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 
 $(NAME)_COMPONENTS := buildconfigs
