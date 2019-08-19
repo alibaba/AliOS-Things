@@ -2,7 +2,7 @@ NAME := mcu_m487jidae
 HOST_OPENOCD := m487jidae
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu m487jidae
 
 $(NAME)_COMPONENTS += arch_armv7m rhino

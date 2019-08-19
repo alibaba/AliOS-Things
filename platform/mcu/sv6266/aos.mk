@@ -3,7 +3,7 @@ NAME := mcu_sv6266
 HOST_OPENOCD := ICEman
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu sv6266
 
 $(NAME)_COMPONENTS += rhino
