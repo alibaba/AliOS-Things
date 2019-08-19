@@ -1,7 +1,7 @@
 NAME := board_xr809
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board xr809
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
