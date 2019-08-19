@@ -3,7 +3,7 @@ NAME := board_sv6266_evb
 JTAG := ICEman
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board sv6266_evb
 MODULE             := 1062
 HOST_ARCH          := ANDES_N10
