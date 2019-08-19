@@ -1,7 +1,7 @@
 NAME := arch_armv6m
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := arch for armv6m
 
 $(NAME)_SOURCES := common/panic_c.c

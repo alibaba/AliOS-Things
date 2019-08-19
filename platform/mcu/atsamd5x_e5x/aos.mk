@@ -7,7 +7,7 @@ HOST_ARCH := Cortex-M4
 HOST_OPENOCD := atsame54
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu atsame54
 
 $(NAME)_COMPONENTS += arch_armv7m

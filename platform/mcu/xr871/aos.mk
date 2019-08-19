@@ -2,7 +2,7 @@ NAME := mcu_xr871
 HOST_OPENOCD := xr871
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu xr871
 
 include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
