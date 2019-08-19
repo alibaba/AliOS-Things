@@ -1,7 +1,7 @@
 NAME := bt_host
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := BLE stack.
 
 GLOBAL_DEFINES-y += AOS_BT

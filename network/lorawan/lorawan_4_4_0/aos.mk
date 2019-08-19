@@ -1,7 +1,7 @@
 NAME := lorawan_4_4_0
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := LoRaWAN Protocal Stack Version 4.4.0
 
 $(NAME)_COMPONENTS += osal_aos
