@@ -18,7 +18,7 @@ extern "C" {
  *   0 if success
  *  -1 if fail
  */
-int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config);
+int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config, ulocation_gga_info *location);
 
 #endif
 
