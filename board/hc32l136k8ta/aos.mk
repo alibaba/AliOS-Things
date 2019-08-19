@@ -1,7 +1,7 @@
 NAME := board_hc32l136k8ta
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board hc32l136k8ta
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
