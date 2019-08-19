@@ -2,7 +2,7 @@ NAME := mcu_stm32l4xx_cube
 
 HOST_OPENOCD := stm32l4xx
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)

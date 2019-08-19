@@ -2,7 +2,7 @@ HOST_OPENOCD := MKL43Z4
 NAME         := mcu_mkl43z4impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl43z4impl
 
 $(NAME)_COMPONENTS += arch_armv6m
