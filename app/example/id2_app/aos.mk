@@ -1,7 +1,7 @@
 NAME := id2_client
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 2.0.0
+$(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := ID2 Sample and Local Test.
 
 $(NAME)_SOURCES := app_entry.c
