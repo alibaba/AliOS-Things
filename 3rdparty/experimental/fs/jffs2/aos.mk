@@ -1,7 +1,7 @@
 NAME := jffs2
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := JFFS2 filesystem
 
 $(NAME)_SOURCES += src/build.c \

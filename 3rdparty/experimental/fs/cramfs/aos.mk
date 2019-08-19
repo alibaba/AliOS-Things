@@ -1,7 +1,7 @@
 NAME := cramfs
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := compress ROM filesystem
 
 $(NAME)_SOURCES += src/cramfs.c \
