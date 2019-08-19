@@ -1,7 +1,7 @@
 NAME := cli
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := Command Line Interface
 
 $(NAME)_SOURCES := cli.c cli_adapt.c cli_default_command.c cli_dumpsys.c
