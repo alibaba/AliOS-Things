@@ -1,7 +1,7 @@
 NAME := ulocation
 
 $(NAME)_TYPE := framework
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := locating framework
 
 ifeq ($(QXWZ_ENABLED),y)
