@@ -18,11 +18,10 @@
 
 #define QXWZ_TASK_STACK_SIZE 4096
 #define QXWZ_TASK_PRIO (AOS_DEFAULT_APP_PRI - 4)
-#define PROP_POST_FORMAT_LIGHTSWITCH "{\"LightSwitch\":1}"
 
 aos_task_t g_qianxun_task;
-static qxwz_started = 0;
-static dtc_started = 0;
+
+static ulocation_gga_info_t location;
 
 static const ulocation_qxwz_usr_config_t config = {
     ULOCATION_QXWZ_APPKEY,     /* appKey */
@@ -33,7 +32,7 @@ static const ulocation_qxwz_usr_config_t config = {
 
 static int32_t qxwz_service_sample()
 {
-    return ulocation_qianxun_service(&config);
+    return ulocation_qianxun_service(&config, &location);
 }
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
