@@ -1,7 +1,7 @@
 NAME := board_esp32sram
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board esp32sram
 MODULE              := 1062
 HOST_ARCH           := xtensa

@@ -3,7 +3,7 @@ NAME := board_m400
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board m400
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
