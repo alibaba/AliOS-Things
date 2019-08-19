@@ -1,7 +1,7 @@
 NAME := umbins
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := mbins for app
 
 $(NAME)_CFLAGS += -Wall -Werror
