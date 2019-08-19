@@ -15,8 +15,6 @@
 static uint8_t auth_flag                  = 0;
 static uint8_t s_gga[REPORT_GGA_DATA_SIZE]={0};
 
-static ulocation_gga_info location;
-
 static int32_t receive_iprtcm(qxwz_void_t *rtcm, qxwz_u32_t len, qxwz_data_type_e type)
 {
     int32_t ret = -1;
@@ -50,7 +48,7 @@ qxwz_status_response_t status_res = {
     receive_status
 };
 
-int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config)
+int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config, ulocation_gga_info *location)
 {
     int s_current_time = 0;
     uint32_t i         = 0;
@@ -93,11 +91,11 @@ int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config)
                 LOGE("uLocation-qxwz", "gga data get error!");
             }
             qxwz_send_data(s_gga, strlen(s_gga) + 1, UDATA_GGA);
-            ret = ulocation_ggainfo_parse(s_gga, &location);
+            ret = ulocation_ggainfo_parse(s_gga, location);
             if (ret != 0) {
                 return ret;
             }
-            show_ggainfo(&location);
+            show_ggainfo(location);
         }
     }
 
