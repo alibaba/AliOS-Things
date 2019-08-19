@@ -1,7 +1,7 @@
 NAME := meshapp
 no_with_lwip := 0
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := uMesh sample application
 
 $(NAME)_SOURCES     := main.c
