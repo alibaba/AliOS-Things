@@ -1,7 +1,7 @@
 NAME := mcu_aamcu_demo
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu aamcu_demo
 
 $(NAME)_COMPONENTS += arch_armv7m

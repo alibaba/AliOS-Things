@@ -3,7 +3,7 @@ HOST_OPENOCD := linux
 NAME := mcu_linuximpl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu linuximpl
 
 no_with_lwip ?= 1

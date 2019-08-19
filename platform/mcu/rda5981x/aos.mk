@@ -4,7 +4,7 @@ NAME := mcu_RDA5981x
 HOST_OPENOCD := rda5981x
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA5981x
 
 $(NAME)_COMPONENTS += arch_armv7m
