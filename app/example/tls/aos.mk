@@ -1,7 +1,7 @@
 NAME := tls_client
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := TLS client example for imbedtls
 
 TLS_CLIENT_CONFIG_DTLS_ENABLED ?= n
