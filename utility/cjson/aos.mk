@@ -1,7 +1,7 @@
 NAME := cjson
 
 $(NAME)_MBINS_TYPE := share
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := An ultra-lightweight, portable, single-file, simple-as-can-be ANSI-C compliant JSON parser, under MIT license.
 
 GLOBAL_INCLUDES += include
