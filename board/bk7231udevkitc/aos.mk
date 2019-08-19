@@ -3,7 +3,7 @@ NAME := board_bk7231u
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board bk7231u
 MODULE             := BK7231U
 HOST_ARCH          := ARM968E-S
