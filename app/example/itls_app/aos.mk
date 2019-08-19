@@ -1,7 +1,7 @@
 NAME := itls_client
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 2.0.0
+$(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := itls sample app
 
 $(NAME)_SOURCES := app_entry.c
