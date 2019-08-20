@@ -13,6 +13,13 @@ Usage: aos check %s [source files ...]
 Check component's makefile aos.mk.
 """ % name
 
+SKIP_CHECK = {
+    "global_includes": ["/board/", "/platform/", "/2ndboot/", "/kernel/",
+                        "/security/", "/3rdparty/", "/utility/", "/tools/",
+                        "/test/"
+                        ],
+}
+
 
 def find_comp_mkfile(dirname):
     """ Find component makefiles from dirname """
@@ -30,6 +37,13 @@ def find_comp_mkfile(dirname):
 
 def check_global_include(mkfile):
     """ Check if GLOBAL_INCLUDES defined """
+    if "global_includes" in SKIP_CHECK:
+        mkfile_abspath = os.path.abspath(mkfile)
+        for item in SKIP_CHECK["global_includes"]:
+            if item in mkfile_abspath:
+                print("Skipp check GLOBAL_INCLUDES for %s" % mkfile)
+                return []
+
     matchlist = ["^GLOBAL_INCLUDES"]
     return check_invalid_chars(mkfile, matchlist)
 
@@ -58,17 +72,17 @@ def run():
     for mkfile in mkfiles:
         tmp = {}
         if os.access(mkfile, os.X_OK):
-            tmp["is_executable"] = True
+            tmp["is_executable"] = "Fix it with: 'chmod -x %s'" % mkfile
         if check_win_format(mkfile):
-            tmp["is_win_format"] = True
+            tmp["is_win_format"] = "Fix it with: 'dos2unix %s'" % mkfile
 
         ret = check_global_include(mkfile)
         if ret:
-            tmp["has_global_includes"] = ",".join(ret)
+            tmp["has_global_includes"] = "Line: " + ",".join(ret)
 
         ret = check_extra_blank(mkfile)
         if ret:
-            tmp["has_extra_blank"] = ",".join(ret)
+            tmp["has_extra_blank"] = "Line: " + ",".join(ret)
 
         if tmp:
             result[mkfile] = tmp
@@ -82,9 +96,9 @@ def run():
                     f.write("  %s: %s\n" % (issue.upper(), result[key][issue]))
                 index += 1
         os.system("cat %s" % log_file)
-        error("Check Component's Makefile Failed!")
+        error("Check Component's Makefile Failed, details refer to: '%s'!\n" % log_file)
     else:
-        info("Check Component's Makefile Passed!")
+        info("Check Component's Makefile Passed!\n")
 
 
 if __name__ == '__main__':
