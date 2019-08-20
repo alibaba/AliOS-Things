@@ -32,6 +32,12 @@ typedef struct {
 } ota_crc16_ctx;
 
 /*Verify API*/
+#if defined OTA_CONFIG_ITLS
+typedef struct {
+    size_t size;
+    void *ali_ctx;
+} ota_md5_context, ota_sha256_context;
+#else
 typedef struct
 {
     unsigned int  total[OTA_MD5_TOTAL_SIZE];
@@ -45,6 +51,7 @@ typedef struct {
     unsigned char buffer[OTA_SHA256_BUF_SIZE];
     int is224;
 } ota_sha256_context;
+#endif
 
 /*memory*/
 void ota_free(void *ptr);
