@@ -43,7 +43,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
         symbol_to_str(arg0, buf + prefix_len, len);
 
         if (bone_console_get_log_flag()) {
-            jse_debug("%s\r\n", buf);
+            jse_warn("%s\r\n", buf);
             fflush(stdout);
         }
 

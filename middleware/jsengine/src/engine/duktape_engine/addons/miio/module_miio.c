@@ -4,9 +4,9 @@
 
 #include "jse_common.h"
 #include "be_inl.h"
-#include "miio-common.h"
-#include "miio-device.h"
-#include "miio-discover.h"
+#include "miio_common.h"
+#include "miio_device.h"
+#include "miio_discover.h"
 
 /* params: host:string, token:string */
 static duk_ret_t native_createDevice(duk_context *ctx)
@@ -52,8 +52,8 @@ static void on_event(void *priv, const char *event)
     async_event_param_t *p = (async_event_param_t *)jse_malloc(sizeof(*p));
     p->js_cb_ref           = (int)priv;
     p->event               = strdup(event);
-    if (be_jse_task_schedule_call(event_cb, p) < 0) {
-        jse_warn("be_jse_task_schedule_call failed\n");
+    if (jse_task_schedule_call(event_cb, p) < 0) {
+        jse_warn("jse_task_schedule_call failed\n");
         jse_free(p->event);
         jse_free(p);
     }
@@ -133,8 +133,8 @@ static void on_discover(void *priv, char *host, long device_id)
     p->js_cb_ref              = (int)priv;
     strcpy(p->host, host);
     p->device_id = device_id;
-    if (be_jse_task_schedule_call(discover_cb, p) < 0) {
-        jse_warn("be_jse_task_schedule_call failed\n");
+    if (jse_task_schedule_call(discover_cb, p) < 0) {
+        jse_warn("jse_task_schedule_call failed\n");
         jse_free(p);
     }
 }

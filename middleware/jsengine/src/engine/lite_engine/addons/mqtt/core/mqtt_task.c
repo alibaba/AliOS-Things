@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "jse_common.h"
 #include "mqtt_task.h"
+#include "jse_common.h"
 #include "mqtt_instance.h"
 
 #include "linkkit/infra/infra_compat.h"
@@ -11,7 +11,7 @@
 #include "linkkit/wrappers/wrappers.h"
 
 #ifndef CONFIG_MQTT_STACK_SIZE
-#define CONFIG_MQTT_STACK_SIZE 16384
+#define CONFIG_MQTT_STACK_SIZE 1024 * 6
 #endif
 
 static void* mqttMutexHandle        = NULL;
@@ -42,7 +42,8 @@ static void jse_task_cb(void* ctx)
 
     switch (pmsg->cmd) {
         case POST_ERROR:
-            params = (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 1);
+            params =
+                (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 1);
             if (params) {
                 params[0] = new_str_symbol(pmsg->topic);
                 be_jse_post_async(func, params, 1);
@@ -54,7 +55,8 @@ static void jse_task_cb(void* ctx)
             be_jse_post_async(func, NULL, 0);
             break;
         case POST_SUBSCRIBE:
-            params = (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 2);
+            params =
+                (be_jse_symbol_t**)jse_calloc(1, sizeof(be_jse_symbol_t*) * 2);
             /* maybe call subscribe callback function multiple times! */
             symbol_relock(func);
             if (params) {
@@ -97,7 +99,7 @@ static void mqtt_subscribe_cb(char* topic, int topic_len, void* payload_data,
     pmsg->payload        = strdup(payload);
     payload[payload_len] = ch;
 
-    be_jse_task_schedule_call(jse_task_cb, pmsg);
+    jse_task_schedule_call(jse_task_cb, pmsg);
 }
 
 static void mqtt_task(void* data)
@@ -129,10 +131,10 @@ static void mqtt_task(void* data)
                             pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
                             pmsg->cmd  = POST_ONLINE;
                             pmsg->func = msg.start.func;
-                            be_jse_task_schedule_call(jse_task_cb, pmsg);
+                            jse_task_schedule_call(jse_task_cb, pmsg);
                         }
 
-                        IOT_SetLogLevel(IOT_LOG_WARNING);
+                        IOT_SetLogLevel(IOT_LOG_INFO);
                     }
 
                     if (ret != 0) {
@@ -145,7 +147,7 @@ static void mqtt_task(void* data)
                         } else {
                             pmsg->topic = strdup("mqtt_init_instance error");
                         }
-                        be_jse_task_schedule_call(jse_task_cb, pmsg);
+                        jse_task_schedule_call(jse_task_cb, pmsg);
                     }
                     break;
 
@@ -160,7 +162,7 @@ static void mqtt_task(void* data)
                     pmsg       = jse_calloc(1, sizeof(JSE_TSK_MSG_s));
                     pmsg->cmd  = POST_UNSUBSCRIBE;
                     pmsg->func = msg.start.func;
-                    be_jse_task_schedule_call(jse_task_cb, pmsg);
+                    jse_task_schedule_call(jse_task_cb, pmsg);
                     jse_free(msg.unsubscribe.topic);
                     break;
 
@@ -204,17 +206,24 @@ static void mqtt_task(void* data)
 int mqtt_tsk_start()
 {
     int ret = 0;
-    if (mqttMutexHandle == NULL) {
-        mqttMutexHandle = jse_osal_new_mutex();
+
+    if (mqttMutexHandle == NULL &&
+        (mqttMutexHandle = jse_osal_new_mutex()) == NULL) {
+        jse_error("mutex create error!\r\n");
     }
-    if (mqttQueueHandle == NULL)
-        mqttQueueHandle = jse_osal_messageQ_create(5, sizeof(MQTT_MSG_s));
+
+    if (mqttQueueHandle == NULL && (mqttQueueHandle = jse_osal_messageQ_create(
+                                        5, sizeof(MQTT_MSG_s))) == NULL) {
+        jse_error("messageQ create error!\r\n");
+        return -1;
+    }
+
     if (mqttTskHandle == NULL) {
         /* mqtt_tsk_stop() will waiting task exit and free memory */
         jse_osal_lock_mutex(mqttMutexHandle, 0);
         ret = jse_osal_create_task("mqttTsk", mqtt_task, NULL,
-                                  CONFIG_MQTT_STACK_SIZE, MQTT_TSK_PRIORITY,
-                                  &mqttTskHandle);
+                                   CONFIG_MQTT_STACK_SIZE, MQTT_TSK_PRIORITY,
+                                   &mqttTskHandle);
     }
     return ret;
 }

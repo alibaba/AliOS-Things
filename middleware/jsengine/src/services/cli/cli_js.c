@@ -38,7 +38,7 @@ static void jstrace(void *arg)
 
 static void handle_jstrace_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_jse_task_schedule_call(jstrace, NULL);
+    jse_task_schedule_call(jstrace, NULL);
 }
 
 static struct be_jse_cli_command jstrace_cmd = {
@@ -66,7 +66,7 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
             return;
         }
         strcpy(str, argv[1]);
-        be_jse_task_schedule_call(eval_js, str);
+        jse_task_schedule_call(eval_js, str);
     } else if (argc == 3) {
         if (strcmp("hex", argv[1]) == 0) {
             int i;
@@ -84,7 +84,7 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
                 outStr[i] = num;
             }
             outStr[i] = 0;
-            be_jse_task_schedule_call(eval_js, outStr);
+            jse_task_schedule_call(eval_js, outStr);
         }
     }
 }

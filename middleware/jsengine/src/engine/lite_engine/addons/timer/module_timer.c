@@ -54,7 +54,7 @@ static be_jse_symbol_t *setup_timer(int repeat)
     p_param->func   = cbv;
     p_param->repeat = repeat;
     INC_SYMBL_REF(p_param->func);
-    timer_id = be_jse_task_timer_action(ms, timer_call_action, p_param, repeat);
+    timer_id = jse_task_timer_action(ms, timer_call_action, p_param, repeat);
     p_param->timerid = timer_id;
 
 done:

@@ -13,7 +13,7 @@ static duk_ret_t native_console_log(duk_context *ctx)
     const char *msg = duk_safe_to_string(ctx, -1);
 
     if (bone_console_get_log_flag()) {
-        jse_debug(BonePrefix "%s\n", msg);
+        jse_warn(BonePrefix "%s\n", msg);
         fflush(stdout);
     }
 
