@@ -38,18 +38,22 @@ def run():
     if len(sys.argv) > 1:
         check_files = sys.argv[1:]
 
-    cmd = 'grep -w -E -i -r --color "%s" %s > %s 2>&1' % ("|".join(black_list), " ".join(check_files), log_file)
-    info("Running cmd: %s ..." % cmd)
+    script_name = os.path.basename(sys.argv[0])
+    file_list = " ".join(check_files)
+
+    cmd = 'grep -w -E -i -r -H -n "%s" %s | grep -v %s > %s 2>&1' % \
+          ("|".join(black_list), file_list, script_name, log_file)
+    info("Check 3rd License with cmd:\n  %s ..." % cmd)
     ret = os.system(cmd)
 
     if ret == 0:
         os.system("cat %s" % log_file)
-        error("Check 3rd License Failed!")
+        error("Check 3rd License Failed, details refer to: '%s'!\n" % log_file)
     elif ret == 256:
-        info("Check 3rd License Passed!")
+        info("Check 3rd License Passed!\n")
     elif ret == 512:
         os.system("cat %s" % log_file)
-        error("Run cmd error: %s" % cmd)
+        error("Run cmd error: %s\n" % cmd)
 
 
 if __name__ == '__main__':
