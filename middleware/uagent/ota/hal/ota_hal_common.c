@@ -19,10 +19,14 @@
 #endif
 
 #if !defined (AOS_COMP_OTA_BLE)
+#if defined OTA_CONFIG_ITLS
+#include "ali_crypto.h"
+#else
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/bignum.h"
 #include "mbedtls/rsa.h"
+#endif
 #endif
 
 #ifdef OTA_LINUX
@@ -266,6 +270,14 @@ void ota_sha256_free(ota_sha256_context *ctx)
 {
 #if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_free((mbedtls_sha256_context *)ctx);
+#else
+    if(ctx == NULL) {
+        return;
+    }
+    if(ctx->ali_ctx) {
+        ota_free(ctx->ali_ctx);
+    }
+    memset(ctx, 0, sizeof(ota_sha256_context));
 #endif
 }
 
@@ -273,6 +285,8 @@ void ota_sha256_init(ota_sha256_context *ctx)
 {
 #if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_init((mbedtls_sha256_context *)ctx);
+#else
+    memset(ctx, 0, sizeof(ota_sha256_context));
 #endif
 }
 
@@ -280,6 +294,27 @@ void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
 #if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_starts((mbedtls_sha256_context *)ctx, is224);
+#else
+    size_t ctx_size;
+    ali_crypto_result result;
+    if (NULL == ctx->ali_ctx) {
+        result = ali_hash_get_ctx_size(SHA256, &ctx_size);
+        if (result != ALI_CRYPTO_SUCCESS) {
+            OTA_LOG_E("get ctx size fail - 0x%x\n", result);
+        }
+
+        ctx->size = ctx_size;
+        ctx->ali_ctx = ota_calloc(1, ctx_size);
+        if (ctx->ali_ctx == NULL) {
+            OTA_LOG_I("mbedtls_calloc(%d) fail\n", (int)ctx_size);
+        } else {
+            memset(ctx->ali_ctx, 0, ctx_size);
+        }
+    }
+    result = ali_hash_init(SHA256, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("sha256 init fail - 0x%x\n", result);
+    }
 #endif
 }
 
@@ -287,6 +322,12 @@ void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsi
 {
 #if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_update((mbedtls_sha256_context *)ctx, input, ilen);
+#else
+    ali_crypto_result result;
+    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("sha256 update fail - 0x%x\n", result);
+    }
 #endif
 }
 
@@ -294,42 +335,91 @@ void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
 #if !defined OTA_CONFIG_ITLS
     mbedtls_sha256_finish((mbedtls_sha256_context *)ctx, output);
+#else
+    ali_crypto_result result;
+    result = ali_hash_final(output, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("sha256 final fail - 0x%x\n", result);
+    }
 #endif
 }
 /*MD5*/
 
 void ota_md5_free(ota_md5_context *ctx)
 {
-#if !defined (OTA_CONFIG_ITLS)
+#if !defined OTA_CONFIG_ITLS
     mbedtls_md5_free((mbedtls_md5_context *)ctx);
+#else
+    if(ctx == NULL) {
+        return;
+    }
+    if(ctx->ali_ctx) {
+        ota_free(ctx->ali_ctx);
+    }
+    memset(ctx, 0, sizeof(ota_md5_context));
 #endif
 }
 
 void ota_md5_init(ota_md5_context *ctx)
 {
-#if !defined (OTA_CONFIG_ITLS)
+#if !defined OTA_CONFIG_ITLS
     mbedtls_md5_init((mbedtls_md5_context *)ctx);
+#else
+    memset(ctx, 0, sizeof(ota_md5_context));
 #endif
 }
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
-#if !defined (OTA_CONFIG_ITLS)
+#if !defined OTA_CONFIG_ITLS
     mbedtls_md5_starts((mbedtls_md5_context *)ctx);
+#else
+    size_t ctx_size;
+    ali_crypto_result result;
+    if (NULL == ctx->ali_ctx) {
+        result = ali_hash_get_ctx_size(MD5, &ctx_size);
+        if (result != ALI_CRYPTO_SUCCESS) {
+            OTA_LOG_I("get ctx size fail - 0x%x\n", result);
+        }
+
+        ctx->size = ctx_size;
+        ctx->ali_ctx = ota_calloc(1, ctx_size);
+        if (ctx->ali_ctx == NULL) {
+            OTA_LOG_I("mbedtls_calloc(%d) fail\n", (int)ctx_size);
+        } else {
+            memset(ctx->ali_ctx, 0, ctx_size);
+        }
+    }
+    result = ali_hash_init(MD5, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("md5 init fail - 0x%x\n", result);
+    }
 #endif
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-#if !defined (OTA_CONFIG_ITLS)
+#if !defined OTA_CONFIG_ITLS
     mbedtls_md5_update((mbedtls_md5_context *)ctx, input, ilen);
+#else
+    ali_crypto_result result;
+    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("md5 update fail - 0x%x\n", result);
+    }
 #endif
 }
 
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
 {
-#if !defined (OTA_CONFIG_ITLS)
+#if !defined OTA_CONFIG_ITLS
     mbedtls_md5_finish((mbedtls_md5_context *)ctx, output);
+#else
+    ali_crypto_result result;
+    result = ali_hash_final(output, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        OTA_LOG_I("md5 final fail - 0x%x\n", result);
+    }
 #endif
 }
 /*RSA*/
