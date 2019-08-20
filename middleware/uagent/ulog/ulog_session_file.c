@@ -28,6 +28,8 @@ static uint8_t session_fs_init = 0;
 
 static int operating_fd = -1;
 
+static uint8_t log_file_failed = 0;
+
 #if ULOG_RESERVED_FS
 static char *ulog_fs_tmp[ULOG_RESERVED_FS_SIZE] = { NULL };
 
@@ -78,8 +80,7 @@ static int pop_fs_tmp(char* data, const unsigned short len)
 
 #if ULOG_UPLOAD_LOG_FILE
 #include "network/network.h"
-#include "network/http.h"
-#include "linkkit/http_api.h"
+#include "http.h"
 static httpc_connection_t *settings = NULL;
 static httpc_handle_t httpc_handle = 0;
 static char *up_uri = NULL;
@@ -352,7 +353,6 @@ static int open_create_log_file(const ulog_idx_type file_idx, const bool keep_op
     return fd;
 }
 
-/* O_APPEND */
 int open_log_file(const ulog_idx_type file_idx, int flag, const off_t off)
 {
     int fd = -1;
@@ -603,6 +603,40 @@ static void stop_operating()
     }
 }
 
+static void write_fail_retry()
+{
+    if (++log_file_failed >= ULOG_FILE_FAIL_COUNT) {
+        operating_fd = -1;
+        int8_t retry = ULOG_FILE_FAIL_COUNT;
+        char log_file_name[ULOG_FILE_PATH_SIZE];
+
+        snprintf(log_file_name, ULOG_FILE_PATH_SIZE, ULOG_FILE_FORMAT, get_working_from_cfg_mm());
+        while(0!=aos_unlink(log_file_name)) {
+            if (--retry <= 0) {
+                SESSION_FS_INFO("file %s error on remove, retry %d\n", log_file_name, retry);
+                break;
+            }
+        }
+
+        if(retry > 0){
+            SESSION_FS_INFO("remove file %s, then create new one %d\n", log_file_name, get_working_from_cfg_mm());
+            if (0 == update_new_log_file(get_working_from_cfg_mm())) {
+                operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, 0);
+#if ULOG_RESERVED_FS
+                if (operating_fd >= 0) {
+                    char buf[ULOG_SIZE];
+                    memset(buf, 0, ULOG_SIZE);
+                    while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
+                        pop_out_on_fs(buf, strlen(buf));
+                       memset(buf, 0, ULOG_SIZE);
+                    }
+                }
+#endif /* ULOG_RESERVED_FS */
+            }
+        }
+    }
+}
+
 /**
 * @brief not thread-safe, but only be used in one task(ulog), so not necessary considering mutex
 * @param data
@@ -617,6 +651,7 @@ int32_t pop_out_on_fs(const char* data, const uint16_t len)
     if (operating_fd >= 0) {
         const int write_rlt = write_log_line(operating_fd, data, true);
         if (write_rlt > 0) {
+            log_file_failed = 0;
             rc = 0;
             operating_file_offset += write_rlt;
             if (operating_file_offset >= LOCAL_FILE_SIZE) {
@@ -634,7 +669,16 @@ int32_t pop_out_on_fs(const char* data, const uint16_t len)
             }
 
         } else {
-            SESSION_FS_INFO("write fail %d\n", write_rlt);
+            SESSION_FS_INFO("write fail %d retry %d\n", write_rlt, log_file_failed);
+#if ULOG_RESERVED_FS
+            /* save them temporary */
+            rc = push_fs_tmp(data, len);
+            if (0 != rc) {
+                SESSION_FS_INFO("*(%d)", rc);
+            }
+#endif /* ULOG_RESERVED_FS */
+            /* check fail count */
+            write_fail_retry();
         }
     } else {
 #if ULOG_RESERVED_FS
@@ -716,8 +760,9 @@ int32_t ulog_fs_init()
         cfg_init_mutex();
         rc = reload_log_argu();
         if (rc == 0) {
-            SESSION_FS_INFO("reload ulog idx %d off %d\n", get_working_from_cfg_mm(), operating_file_offset);
             operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, operating_file_offset);
+            SESSION_FS_INFO("reload ulog idx %d off %d new fd %d\n", get_working_from_cfg_mm(), operating_file_offset, operating_fd);
+
         }
     }
     return rc;

@@ -25,6 +25,8 @@ typedef unsigned short ulog_idx_type;
 
 #define ULOG_CFG_LINE_MAX_SIZE 128
 
+#define ULOG_FILE_PATH_SIZE 32
+
 #define LOG_LINE_SEPARATOR '\n'
 #define LOG_LINE_END_STR   "\n"
 
@@ -80,6 +82,9 @@ typedef struct dirent aos_dirent_t;
 #define aos_sync fsync
 
 #define aos_unlink unlink
+
+#undef ULOG_FILE_PATH_SIZE
+#define ULOG_FILE_PATH_SIZE 256
 
 #endif /*CSP_LINUXHOST */
 
