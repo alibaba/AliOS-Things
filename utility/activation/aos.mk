@@ -1,6 +1,6 @@
 NAME := activation
 $(NAME)_MBINS_TYPE := share
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := for device activation
 GLOBAL_INCLUDES := .
 
