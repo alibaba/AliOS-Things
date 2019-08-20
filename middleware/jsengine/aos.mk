@@ -10,7 +10,7 @@ JSE_ROOT := ${SOURCE_ROOT}middleware/jsengine/src
 # JSEngine version, Naming rule: [mcu]-[os]-[MAJOR].[MINOR].[DATE].[JSE]
 # e.g. : esp32devkitc-aos-1.0.071215.lite
 MAJOR_VERSION=1
-MINOR_VERSION=0
+MINOR_VERSION=1
 VERSION_DESCRIPTION=aos
 
 NOW_DATE:=$(shell date +%m%d)
@@ -48,10 +48,12 @@ GLOBAL_DEFINES += SPIFFS_OBJ_NAME_LEN=96
 GLOBAL_DEFINES += SPIFFS_CACHE
 GLOBAL_DEFINES += SUPPORT_NODE_MODELES
 
-$(info JSEngine Version: ${BONE_VERSION})
-
+# redefine CLI_CONFIG_INBUF_SIZE to 1024,
+# or set CLI_CONFIG_INBUF_SIZE to 1024 in menuconfig: Kernel --> Commonad-Line Interface --> Input buffer size
 ifneq (${CLI_CONFIG_INBUF_SIZE}, 1024)
-$(error ****** Please set CLI_CONFIG_INBUF_SIZE to 1024 in menuconfig, Kernel --> Commonad-Line Interface --> Input buffer size ******)
+cli_CFLAGS += -include middleware/jsengine/src/include/jse_patch.h
 endif
+
+$(info JSEngine Version: ${BONE_VERSION})
 
 include ${JSE_ROOT}/engine/engine.mk

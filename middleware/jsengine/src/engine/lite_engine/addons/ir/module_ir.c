@@ -295,7 +295,7 @@ static void ir_handle(void *arg)
     }
     msg->value = value & 0xFFFF;
     msg->fun   = fun_symbol;
-    be_jse_task_schedule_call(ir_notify, msg);
+    jse_task_schedule_call(ir_notify, msg);
 }
 
 static be_jse_symbol_t *ir_on(void)

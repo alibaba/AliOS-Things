@@ -229,7 +229,7 @@ static void task_udp_recv_fun(void *arg)
     p_param->src_port = ntohs(srcaddr.sin_port);
     p_param->cb       = msg->callback;
 
-    be_jse_task_schedule_call(js_cb_udp_recv, p_param);
+    jse_task_schedule_call(js_cb_udp_recv, p_param);
 
 done:
     jse_free(arg);
@@ -284,7 +284,7 @@ static void task_udp_send_fun(void *arg)
 
     p_param->cb  = msg->callback;
     p_param->ret = ret;
-    be_jse_task_schedule_call(js_cb_udp_send, p_param);
+    jse_task_schedule_call(js_cb_udp_send, p_param);
 
 done:
     jse_free(msg->msg);

@@ -43,7 +43,7 @@ static void handle_devreboot_cmd(char *pwbuf, int blen, int argc, char **argv)
 static void handle_devrename_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     jse_cli_printf("%s", BE_DEBUGER_RENAME_CMD_REPLY);
-    be_jse_task_schedule_call(sub_call_rename, argv[1]);
+    jse_task_schedule_call(sub_call_rename, argv[1]);
 }
 
 #ifdef JSE_HW_ADDON_WIFI
@@ -124,7 +124,7 @@ static void get_ifconfig(void *arg)
 
 static void handle_devifconfig_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    be_jse_task_schedule_call(get_ifconfig, NULL);
+    jse_task_schedule_call(get_ifconfig, NULL);
 }
 
 #endif
