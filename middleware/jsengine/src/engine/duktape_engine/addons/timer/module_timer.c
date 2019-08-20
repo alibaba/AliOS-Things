@@ -50,7 +50,7 @@ static timer_wrap_t *setup_timer(int js_cb_ref, long ms, int repeat)
     t->magic        = MAGIC;
     t->js_cb_ref    = js_cb_ref;
     t->repeat       = repeat;
-    t->timer_id     = be_jse_task_timer_action(ms, timer_action, t, repeat);
+    t->timer_id     = jse_task_timer_action(ms, timer_action, t, repeat);
     return t;
 }
 
@@ -64,7 +64,7 @@ static void clear_timer(timer_wrap_t *t)
         jse_warn("timer wrap handle has be cleared\n");
         return;
     }
-    be_jse_task_cancel_timer(t->timer_id);
+    jse_task_cancel_timer(t->timer_id);
     duk_context *ctx = be_get_context();
     be_unref(ctx, t->js_cb_ref);
     t->magic = 0;

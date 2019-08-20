@@ -107,7 +107,7 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret,
     if (mqtt_client) return 1;
 
     /* IOT_SetLogLevel(IOT_LOG_DEBUG); */
-    IOT_SetLogLevel(IOT_LOG_WARNING);
+    /* IOT_SetLogLevel(IOT_LOG_WARNING); */
     HAL_SetProductKey(productKey);
     HAL_SetDeviceName(deviceName);
     HAL_SetDeviceSecret(deviceSecret);

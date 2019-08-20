@@ -122,7 +122,7 @@ static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref,
     module->start_flag  = start_flag;
     module->end_flag    = end_flag;
     module->recv_index  = 0;
-    module->timer_id = be_jse_task_timer_action(100, uart_module_handle, module,
+    module->timer_id = jse_task_timer_action(100, uart_module_handle, module,
                                                 JSE_TIMER_REPEAT);
     if (!module->timer_id) {
         duk_context *ctx = be_get_context();
@@ -145,7 +145,7 @@ static void uart_del_recv(uint32_t item_handle)
         if (m && m->item_handle == item_handle) {
             duk_context *ctx = be_get_context();
             be_unref(ctx, m->js_cb_ref);
-            be_jse_task_cancel_timer(m->timer_id);
+            jse_task_cancel_timer(m->timer_id);
             jse_free(m->start_flag);
             jse_free(m->end_flag);
             jse_free(m);

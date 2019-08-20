@@ -34,7 +34,7 @@ static void wifi_check_ip_task(void *arg)
     while (1) {
         if ((jse_system_get_ip(ip) == 0) ||
             (count > WIFI_CONNECT_WAIT_TIME_MS / WIFI_CHECKIP_INTERVAL_MS)) {
-            be_jse_task_schedule_call(js_cb_wifi_conn_status, arg);
+            jse_task_schedule_call(js_cb_wifi_conn_status, arg);
             break;
         }
         jse_osal_delay(WIFI_CHECKIP_INTERVAL_MS);
