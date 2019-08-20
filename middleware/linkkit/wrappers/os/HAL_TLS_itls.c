@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "aos/errno.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "itls/ssl.h"
@@ -21,9 +22,6 @@
 
 #define platform_info(format, ...) LOGI(LOG_TAG, format, ##__VA_ARGS__)
 #define platform_err(format, ...) LOGE(LOG_TAG, format, ##__VA_ARGS__)
-
-
-#define CONFIG_ITLS_TIME_TEST
 
 #define SEND_TIMEOUT_SECONDS (10)
 
@@ -317,7 +315,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
                 return readLen;
             } else {
-#ifdef _PLATFORM_IS_LINUX_
+#ifdef CSP_LINUXHOST
                 if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
                     continue;
                 }
