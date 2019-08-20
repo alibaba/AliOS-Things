@@ -300,7 +300,7 @@ static void mqtt_network_task(void *arg)
     else
         iotDeviceSecret->deviceSecret[0] = 0;
 
-    be_jse_task_schedule_call(http_task_post_jse, iotDeviceSecret);
+    jse_task_schedule_call(http_task_post_jse, iotDeviceSecret);
 
     jse_free(deviceSecret);
 

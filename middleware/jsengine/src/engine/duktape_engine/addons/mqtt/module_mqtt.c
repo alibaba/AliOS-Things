@@ -94,9 +94,9 @@ static void mqtt_sub_callback(void *pcontext, void *pclient,
 
             p->js_cb_ref = (int)pcontext;
             /* subscribe callback function */
-            int ret = be_jse_task_schedule_call(mqtt_sub_topic_notify, p);
+            int ret = jse_task_schedule_call(mqtt_sub_topic_notify, p);
             if (ret < 0) {
-                jse_warn("be_jse_task_schedule_call failed\n");
+                jse_warn("jse_task_schedule_call failed\n");
                 jse_free(p->payload);
                 jse_free(p->topic);
                 jse_free(p);
@@ -405,8 +405,8 @@ static void mqtt_get_secret_task(void *arg)
     else
         iotDeviceSecret->deviceSecret[0] = 0;
 
-    if (be_jse_task_schedule_call(mqtt_notify_jse, iotDeviceSecret)) {
-        jse_warn("be_jse_task_schedule_call failed\n");
+    if (jse_task_schedule_call(mqtt_notify_jse, iotDeviceSecret)) {
+        jse_warn("jse_task_schedule_call failed\n");
         duk_context *ctx = be_get_context();
         be_unref(ctx, iotDeviceSecret->js_cb_ref);
         jse_free(deviceSecret);
@@ -684,7 +684,7 @@ static void mqtt_yield_task(void *arg)
         int mqtt_state = IOT_MQTT_CheckStateNormal(pclient);
         if (last_mqtt_state == 0 && mqtt_state == 1) {
             /* notify mqtt connected */
-            be_jse_task_schedule_call(mqtt_start_notify, arg);
+            jse_task_schedule_call(mqtt_start_notify, arg);
             last_mqtt_state = 1;
         }
         IOT_MQTT_Yield(pclient, 200);

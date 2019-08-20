@@ -235,7 +235,7 @@ static void task_http_request_fun(void *arg)
         sprintf(http_buf, "%s", "ERROR");
     }
 
-    be_jse_task_schedule_call(js_cb_http_recv, msg);
+    jse_task_schedule_call(js_cb_http_recv, msg);
     jse_osal_delete_task(NULL);
 }
 

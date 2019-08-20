@@ -267,8 +267,8 @@ static void ir_handle(void *arg)
         (struct gpio_irq_notify_param *)jse_malloc(sizeof(*p));
     p->js_cb_ref = js_cb_ref;
     p->value     = value & 0xFFFF;
-    if (be_jse_task_schedule_call(gpio_irq_notify, p) < 0) {
-        /* jse_warn("be_jse_task_schedule_call failed\n"); */
+    if (jse_task_schedule_call(gpio_irq_notify, p) < 0) {
+        /* jse_warn("jse_task_schedule_call failed\n"); */
         jse_free(p);
     }
 }
