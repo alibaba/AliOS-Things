@@ -25,14 +25,14 @@ typedef struct {
 
 int32_t jsengine_task_yield(uint32_t timeout)
 {
+    int32_t ret = 0;
     jse_task_msg_t jse_msg;
 
-    int32_t ret = jse_osal_messageQ_get(jse_task_mq, &jse_msg, timeout);
-    if (ret != 0) return -1;
+    if ((ret = jse_osal_messageQ_get(jse_task_mq, &jse_msg, timeout)) != 0)
+        return -1;
 
-    if (jse_msg.type == JSE_TASK_MSG_CALLBACK) {
+    if (jse_msg.type == JSE_TASK_MSG_CALLBACK)
         jse_msg.callback(jse_msg.param);
-    }
 
     return 0;
 }
@@ -46,8 +46,8 @@ void be_jse_timer_cb_handler(void *arg)
     jse_osal_unlock_mutex(jse_task_mutex);
 }
 
-void *be_jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
-                               void *arg, jse_timer_type type)
+void *jse_task_timer_action(uint32_t ms, bone_engine_call_t action, void *arg,
+                            jse_timer_type type)
 {
     osTimerId timer_id = NULL;
     jse_task_msg_t *p_param =
@@ -61,10 +61,10 @@ void *be_jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
 
     if (type == JSE_TIMER_REPEAT) {
         timer_id = jse_osal_timer_create(be_jse_timer_cb_handler,
-                                        TimerRunPeriodic, p_param);
+                                         TimerRunPeriodic, p_param);
     } else if (type == JSE_TIMER_ONCE) {
         timer_id = jse_osal_timer_create(be_jse_timer_cb_handler, TimerRunOnce,
-                                        p_param);
+                                         p_param);
     } else {
         goto fail;
     }
@@ -84,19 +84,17 @@ fail:
     return NULL;
 }
 
-int32_t be_jse_task_cancel_timer(void *timerid)
+int32_t jse_task_cancel_timer(void *timerid)
 {
     if (!timerid) return -1;
 
     return jse_osal_timer_delete((osTimerId)timerid);
 }
 
-int32_t be_jse_task_schedule_call(bone_engine_call_t call, void *arg)
+int32_t jse_task_schedule_call(bone_engine_call_t call, void *arg)
 {
     jse_task_msg_t msg_buf;
     jse_task_msg_t *p_param = &msg_buf;
-
-    if (!p_param) return -1;
 
     p_param->callback = call;
     p_param->param    = arg;
@@ -113,10 +111,18 @@ int32_t be_jse_task_schedule_call(bone_engine_call_t call, void *arg)
 
 int32_t jsengine_task_init()
 {
-    if (jse_task_mq == NULL) {
-        jse_task_mq =
-            jse_osal_messageQ_create(JSE_MSGQ_MAX_NUM, sizeof(jse_task_msg_t));
-        jse_task_mutex = jse_osal_new_mutex();
+    if (jse_task_mq != NULL) {
+        return 0;
+    }
+
+    if ((jse_task_mq = jse_osal_messageQ_create(
+             JSE_MSGQ_MAX_NUM, sizeof(jse_task_msg_t))) == NULL) {
+        jse_error("create messageQ error\r\n");
+        return -1;
+    }
+    if ((jse_task_mutex = jse_osal_new_mutex()) == NULL) {
+        jse_error("create mutex error\r\n");
+        return -1;
     }
     return 0;
 }
