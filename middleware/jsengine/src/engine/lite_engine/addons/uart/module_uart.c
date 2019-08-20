@@ -128,7 +128,7 @@ static void uart_handle(void *data)
 
 out:
 
-    /* be_jse_task_schedule_call(uart_handle,module); */
+    /* jse_task_schedule_call(uart_handle,module); */
     /* be_osal_post_delayed_action(module->loop_time,uart_handle,module); */
     return;
 }
@@ -159,7 +159,7 @@ static int8_t uart_add_recv(uart_dev_t *uart, uint32_t item_handle,
     module->end_flag    = end_flag;
     module->recv_index  = 0;
     if (NULL ==
-        be_jse_task_timer_action(100, uart_handle, module, JSE_TIMER_REPEAT)) {
+        jse_task_timer_action(100, uart_handle, module, JSE_TIMER_REPEAT)) {
         jse_free(module);
         module = NULL;
         return (-1);

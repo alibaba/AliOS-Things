@@ -140,7 +140,7 @@ void be_jse_task_main_entrance()
 
 #ifdef JSE_IDE_DEBUG
         if (0 == ssdp_started && jse_system_get_ip(localip) == 0) {
-            be_debuger_ssdp_start(localip);
+            dbg_ssdp_start(localip);
             ssdp_started = 1;
         }
 #endif
@@ -149,6 +149,8 @@ void be_jse_task_main_entrance()
 
 void jsengine_main(void)
 {
+    int ret = 0;
+
     jse_debug("jsengine start...\r\n");
 
     jse_system_kv_init();
@@ -157,8 +159,8 @@ void jsengine_main(void)
     jse_system_wifi_init();
 #endif
 
-    if (0 != jse_system_fs_init()) {
-        jse_debug("fs init failed\r\n");
+    if ((ret = jse_system_fs_init()) != 0) {
+        jse_error("fs init failed:%d\r\n", ret);
         return;
     }
 

@@ -399,6 +399,7 @@ int32_t jse_osal_messageQ_get(osMessageQId queue_id, void *p_info,
  */
 int32_t jse_osal_messageQ_delete(osMessageQId queue_id)
 {
+    aos_queue_free(&((jse_osal_queue_t *)queue_id)->queue);
     aos_free(((jse_osal_queue_t *)queue_id)->queue_buf);
     aos_free(queue_id);
     return 0;

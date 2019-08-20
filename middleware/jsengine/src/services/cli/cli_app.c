@@ -33,7 +33,7 @@ static void handle_appupdate_cmd(char *pwbuf, int blen, int argc, char **argv)
     if (argc > 1) {
         jse_debug("url=%s", argv[1]);
         /* ret = apppack_upgrade(strdup(argv[1])); */
-        be_jse_task_schedule_call((bone_engine_call_t)apppack_upgrade, strdup(argv[1]));
+        jse_task_schedule_call((bone_engine_call_t)apppack_upgrade, strdup(argv[1]));
         jse_debug("apppack_update=%d", ret);
     }
 }
@@ -42,19 +42,19 @@ static void handle_appupdate_cmd(char *pwbuf, int blen, int argc, char **argv)
 static void handle_start_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     jse_cli_printf("%s", BE_DEBUGER_START_CMD_REPLY);
-    be_jse_task_schedule_call(sub_call_start, argv[1]);
+    jse_task_schedule_call(sub_call_start, argv[1]);
 }
 
 static void handle_stop_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     jse_cli_printf("%s", BE_DEBUGER_STOP_CMD_REPLY);
-    be_jse_task_schedule_call(sub_call_stop, argv[1]);
+    jse_task_schedule_call(sub_call_stop, argv[1]);
 }
 
 static void handle_restart_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     jse_cli_printf("%s", BE_DEBUGER_RESTART_CMD_REPLY);
-    be_jse_task_schedule_call(sub_call_restart, argv[1]);
+    jse_task_schedule_call(sub_call_restart, argv[1]);
 }
 #ifdef JSE_IDE_DEBUG
 /* upgrade app package */
