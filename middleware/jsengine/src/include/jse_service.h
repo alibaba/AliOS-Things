@@ -11,7 +11,7 @@ extern "C" {
 
 #include "board_mgr.h"
 
-int be_debuger_ssdp_start(char* localAddress);
+int dbg_ssdp_start(char* localAddress);
 
 /* websocket report frame */
 int bone_websocket_send_frame(char* topic, int level, char* msg);

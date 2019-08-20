@@ -56,7 +56,7 @@ static char target_ip[16] = {0};
 void be_debuger_websocket_reconnect()
 {
     if (target_ip[0]) {
-        be_jse_task_timer_action(200, connect_webserver, strdup(target_ip),
+        jse_task_timer_action(200, connect_webserver, strdup(target_ip),
                                  JSE_TIMER_ONCE);
     }
 }
@@ -203,7 +203,7 @@ static void on_ssdp_recv(int sock, void* arg)
                     strcpy(target_ip, remote_address);
                     jse_system_kv_set("WS_ADDRESS", remote_address,
                                       strlen(remote_address), 1);
-                    be_jse_task_timer_action(100, connect_webserver,
+                    jse_task_timer_action(100, connect_webserver,
                                              remote_address, JSE_TIMER_ONCE);
                 }
             }
@@ -250,7 +250,7 @@ void ssdp_read(void* arg)
 #endif
 
 static int ssdp_started = 0;
-int be_debuger_ssdp_start(char* localAddress)
+int dbg_ssdp_start(char* localAddress)
 {
     if (ssdp_started) return 0;
 
@@ -271,7 +271,7 @@ int be_debuger_ssdp_start(char* localAddress)
     jse_system_kv_get("WS_ADDRESS", remote_address, &buffer_len);
 
     if (strlen(remote_address) != 0) {
-        jse_debug("be_debuger_ssdp_start remote_address: %s \n",
+        jse_debug("dbg_ssdp_start remote_address: %s \n",
                   remote_address);
         connect_webserver(remote_address);
     }

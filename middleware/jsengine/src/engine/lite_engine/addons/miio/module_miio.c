@@ -46,7 +46,7 @@ static void event_cb(void *arg)
     async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_str_symbol(p->event);
-    int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
+    int ret          = jse_task_schedule_call(be_jse_async_event_cb,
                                         async); /* async will free automatic */
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
@@ -69,7 +69,7 @@ static void on_event(void *priv, const char *event)
     async_event_param_t *p = (async_event_param_t *)jse_malloc(sizeof(*p));
     p->func                = (be_jse_symbol_t *)priv;
     p->event               = strdup(event);
-    be_jse_task_schedule_call(event_cb, p);
+    jse_task_schedule_call(event_cb, p);
 }
 
 /* params: device:int, cb:function */
@@ -146,7 +146,7 @@ cleanup:
 
 typedef struct async_discover_param {
     be_jse_symbol_t *func;
-    char host[INET_ADDRSTRLEN];
+    char host[16];
     long device_id;
 } async_discover_param_t;
 
@@ -160,7 +160,7 @@ static void discover_cb(void *arg)
     async->params      = (be_jse_symbol_t **)jse_calloc(
         1, sizeof(be_jse_symbol_t *) * async->param_count);
     async->params[0] = new_int_symbol(p->device_id);
-    int ret          = be_jse_task_schedule_call(be_jse_async_event_cb,
+    int ret          = jse_task_schedule_call(be_jse_async_event_cb,
                                         async); /* async will free automatic */
     if (ret >= 0) {
         INC_SYMBL_REF(async->func);
@@ -178,7 +178,7 @@ static void on_discover(void *priv, char *host, long device_id)
     p->func                   = (be_jse_symbol_t *)priv;
     strcpy(p->host, host);
     p->device_id              = device_id;
-    be_jse_task_schedule_call(discover_cb, p);
+    jse_task_schedule_call(discover_cb, p);
 }
 
 /* params: timeout:int, cb:function */

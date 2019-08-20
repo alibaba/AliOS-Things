@@ -77,9 +77,11 @@ static void websocket_eval_js(void* arg)
 
 static int random_string(unsigned char* buf, int len)
 {
+    int i = 0;
+
     srand((int)time(NULL));
 
-    for (int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         buf[i] = (unsigned char)(rand() % 255 + 1);
     }
     return 0;
@@ -145,6 +147,8 @@ static int request_shake_key(unsigned char* key, int key_len)
 static int frame_encode(unsigned char* payload, size_t payload_len,
                         bone_websocket_frame_t* frame)
 {
+    int i = 0, count = 0;
+
     if (payload == NULL || frame->frame_total_len < 2 ||
         frame->frame_data == NULL)
         return -1;
@@ -161,13 +165,13 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
         frame->frame_data[frame_total_len++] |= (payload_len & 0x7F);
     } else if (payload_len < 65536) {
         frame->frame_data[frame_total_len++] |= 0x7E;
-        for (int i = 1; i >= 0; --i) {
+        for (i = 1; i >= 0; --i) {
             frame->frame_data[frame_total_len++] |=
                 (char)((payload_len >> (8 * i)) & 0xFF);
         }
     } else {
         frame->frame_data[frame_total_len++] |= 0x7F;
-        for (int i = 7; i >= 0; --i) {
+        for (i = 7; i >= 0; --i) {
             frame->frame_data[frame_total_len++] |=
                 (char)((payload_len >> (8 * i)) & 0xFF);
         }
@@ -176,12 +180,12 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
     if (frame->is_mask) {
         unsigned char mask_key[4] = {0};
         random_string(mask_key, sizeof(mask_key));
-        for (int i = 0; i < sizeof(mask_key); ++i) {
+        for (i = 0; i < sizeof(mask_key); ++i) {
             frame->frame_data[frame_total_len++] = mask_key[i];
         }
 
         unsigned char temp1, temp2;
-        for (int i = 0, count = 0; i < payload_len; i++) {
+        for (i = 0, count = 0; i < payload_len; i++) {
             temp1 = mask_key[count];
             temp2 = payload[i];
             frame->frame_data[frame_total_len++] |=
@@ -260,12 +264,12 @@ static void ping_timer_cb(void* arg)
            jse_osal_post_delayed_action(pingTimeout, bone_websocket_timeout,
                                        client); */
 
-        be_jse_task_cancel_timer(client->ping_tsk_handle);
-        client->ping_tsk_handle = be_jse_task_timer_action(
+        jse_task_cancel_timer(client->ping_tsk_handle);
+        client->ping_tsk_handle = jse_task_timer_action(
             pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
-        be_jse_task_cancel_timer(client->timeout_tsk_handle);
-        client->timeout_tsk_handle = be_jse_task_timer_action(
+        jse_task_cancel_timer(client->timeout_tsk_handle);
+        client->timeout_tsk_handle = jse_task_timer_action(
             pingTimeout, bone_websocket_timeout, client, JSE_TIMER_ONCE);
 
     } else {
@@ -400,8 +404,8 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             if (Interval != pingInterval) {
                 /* clear ping timeout */
                 pingInterval = Interval;
-                be_jse_task_cancel_timer(client->ping_tsk_handle);
-                client->ping_tsk_handle = be_jse_task_timer_action(
+                jse_task_cancel_timer(client->ping_tsk_handle);
+                client->ping_tsk_handle = jse_task_timer_action(
                     pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
                 /* jse_osal_cancel_delayed_action(pingInterval, ping_timer_cb,
@@ -468,7 +472,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             p_info->type      = atoi(args[1]);
             strncpy(p_info->md5, args[3], 32);
 
-            be_jse_task_schedule_call(simulator_upgrade, p_info);
+            jse_task_schedule_call(simulator_upgrade, p_info);
 #else
             /* websocket_call_cli("updateimg", args); */
 #endif
@@ -476,7 +480,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             /* update app.bin via http */
             char* url = strdup(args[1]);
 
-            be_jse_task_schedule_call((bone_engine_call_t)apppack_upgrade, url);
+            jse_task_schedule_call((bone_engine_call_t)apppack_upgrade, url);
 
         } else if (strcmp("/device/getVersion", args[0]) == 0) {
             /* get device version */
@@ -485,7 +489,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             if (args[1]) {
                 char* str = jse_calloc(1, strlen(args[1]) + 1);
                 strcpy(str, args[1]);
-                be_jse_task_schedule_call(websocket_eval_js, str);
+                jse_task_schedule_call(websocket_eval_js, str);
                 bone_websocket_send_frame("/device/bshell_reply", 200,
                                           "Success");
             } else {
@@ -546,7 +550,7 @@ static void on_read(int fd, void* arg)
     } while (data_len < 0 && (errno == EINTR));
 
     if (data_len > 0) {
-        be_jse_task_cancel_timer(client->timeout_tsk_handle);
+        jse_task_cancel_timer(client->timeout_tsk_handle);
         client->timeout_tsk_handle = NULL;
 
         /* jse_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
@@ -576,7 +580,7 @@ static void on_read(int fd, void* arg)
 
                     /* parse ping */
                     jse_debug("websocket parse ping action, client=%p", client);
-                    client->ping_tsk_handle = be_jse_task_timer_action(
+                    client->ping_tsk_handle = jse_task_timer_action(
                         pingInterval, ping_timer_cb, client, JSE_TIMER_ONCE);
 
                     if (client->on_open) client->on_open(client);
@@ -698,9 +702,9 @@ int bone_websocket_deinit(bone_websocket_client_t* client)
        jse_osal_cancel_delayed_action(pingTimeout, bone_websocket_timeout,
        client); */
 
-    be_jse_task_cancel_timer(client->ping_tsk_handle);
+    jse_task_cancel_timer(client->ping_tsk_handle);
     client->ping_tsk_handle = NULL;
-    be_jse_task_cancel_timer(client->timeout_tsk_handle);
+    jse_task_cancel_timer(client->timeout_tsk_handle);
     client->timeout_tsk_handle = NULL;
 
     if (client->fd != -1) close(client->fd);
@@ -913,6 +917,8 @@ int bone_websocket_build_frame(unsigned char* payload, size_t payload_len,
 int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
                                bone_websocket_frame_t* frame)
 {
+    int i = 0, count = 0;
+
     if (frame_data_len < 2) return -1;
 
 #ifdef BWD_PRINT_FRAME
@@ -944,7 +950,7 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
     if (frame_data_len >= 3) {
         if (payload_len == 126) {
             payload_len = 0;
-            for (int i = 0; i < 2; ++i) {
+            for (i = 0; i < 2; ++i) {
                 int len = frame_data[2 + i];
                 if (i == 0) {
                     payload_len += len;
@@ -955,12 +961,12 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
 
             payload_start += 2;
             if (mask) {
-                for (int i = 0; i < 4; ++i) mask_key[i] = frame_data[4 + i];
+                for (i = 0; i < 4; ++i) mask_key[i] = frame_data[4 + i];
                 payload_start += 4;
             }
         } else if (payload_len == 127) {
             payload_len = 0;
-            for (int i = 0; i < 8; ++i) {
+            for (i = 0; i < 8; ++i) {
                 int len = frame_data[2 + i];
                 if (i == 0) {
                     payload_len += len;
@@ -970,12 +976,12 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
             }
             payload_start += 8;
             if (mask) {
-                for (int i = 0; i < 4; ++i) mask_key[i] = frame_data[10 + i];
+                for (i = 0; i < 4; ++i) mask_key[i] = frame_data[10 + i];
                 payload_start += 4;
             }
         } else {
             if (mask) {
-                for (int i = 0; i < 4; ++i) mask_key[i] = frame_data[2 + i];
+                for (i = 0; i < 4; ++i) mask_key[i] = frame_data[2 + i];
                 payload_start += 4;
             }
         }
@@ -990,7 +996,7 @@ int bone_websocket_parse_frame(unsigned char* frame_data, size_t frame_data_len,
         frame->payload = (unsigned char*)jse_calloc(1, frame->payload_len + 1);
         if (mask) {
             unsigned char temp1, temp2;
-            for (int i = 0, count = 0; i < frame->payload_len; i++, count++) {
+            for (i = 0, count = 0; i < frame->payload_len; i++, count++) {
                 temp1 = mask_key[count];
                 temp2 = frame_data[i + payload_start];
                 frame->payload[i] =

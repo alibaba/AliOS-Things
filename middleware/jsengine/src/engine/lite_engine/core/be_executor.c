@@ -2085,7 +2085,7 @@ void be_jse_post_async(be_jse_symbol_t *func, be_jse_symbol_t **params,
         async->params      = params;
 
         INC_SYMBL_REF(async->func);
-        ret = be_jse_task_schedule_call(be_jse_async_event_cb, async);
+        ret = jse_task_schedule_call(be_jse_async_event_cb, async);
         if (ret < 0) {
             jse_error("jse_osal_schedule_call error");
             DEC_SYMBL_REF(async->func);

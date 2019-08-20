@@ -91,7 +91,7 @@ config JSE_HW_ADDON_DAC
 
 
 config JSE_HW_ADDON_I2C
-    bool "I2c"
+    bool "I2C"
     default n
     help
         JSEngine js hardware addon of I2c
