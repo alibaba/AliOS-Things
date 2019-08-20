@@ -65,6 +65,13 @@ typedef enum {
 }http_upload_fail_t;
 
 /**
+ * sometimes found the pop log into file always fail, may result from file attribute,
+ * or other unknown reason. If the fail operte on the same file keeps 3 times, then
+ * destroy the log file and create new one.
+ */
+#define ULOG_FILE_FAIL_COUNT        3
+
+/**
  * Specify the port of syslog watcher
  * NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
  */
