@@ -27,10 +27,10 @@ def run():
     info("Running cmd: %s ..." % cmd)
     ret = os.system(cmd)
     if not ret:
-        info("Check Python Syntax Passed!")
+        info("Check Python Syntax Passed!\n")
     else:
         os.system("cat %s" % log_file)
-        error("Check Python Syntax Failed!")
+        error("Check Python Syntax Failed, details refer to: '%s'!\n" % log_file)
 
     return ret
 
