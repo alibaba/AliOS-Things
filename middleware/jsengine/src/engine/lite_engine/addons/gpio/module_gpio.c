@@ -224,7 +224,7 @@ static void gpio_irq(void *arg)
     }
     msg->fun   = fun_symbol;
     msg->value = value;
-    be_jse_task_schedule_call(gpio_notify, msg);
+    jse_task_schedule_call(gpio_notify, msg);
 }
 
 static be_jse_symbol_t *gpio_on(void)
@@ -325,8 +325,8 @@ static void gpio_report(void *arg)
     }
     item->tmp    = item->counts;
     item->counts = 0;
-    be_jse_task_schedule_call(gpio_action, item);
-    be_jse_task_timer_action(item->delay, gpio_report, item, JSE_TIMER_ONCE);
+    jse_task_schedule_call(gpio_action, item);
+    jse_task_timer_action(item->delay, gpio_report, item, JSE_TIMER_ONCE);
 }
 
 static void gpio_irqs(void *arg)
@@ -407,7 +407,7 @@ static be_jse_symbol_t *gpio_count(void)
         jse_error("hal_gpio_enable_irq fail!\n");
         goto out;
     }
-    be_jse_task_timer_action(time_delay, gpio_report, newItem, JSE_TIMER_ONCE);
+    jse_task_timer_action(time_delay, gpio_report, newItem, JSE_TIMER_ONCE);
 
     result = 0;
 out:

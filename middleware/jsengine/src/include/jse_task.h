@@ -25,7 +25,7 @@ typedef struct {
     void *param;
 } jse_task_msg_t;
 
-int32_t be_jse_task_schedule_call(bone_engine_call_t call, void *arg);
+int32_t jse_task_schedule_call(bone_engine_call_t call, void *arg);
 
 /**
  *
@@ -40,9 +40,9 @@ int32_t jsengine_task_init();
  */
 int32_t jsengine_task_yield(uint32_t timeout);
 
-void *be_jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
+void *jse_task_timer_action(uint32_t ms, bone_engine_call_t action,
                                void *arg, jse_timer_type type);
 
-int32_t be_jse_task_cancel_timer(void *timerid);
+int32_t jse_task_cancel_timer(void *timerid);
 
 #endif /* JSE_TASK_H */
