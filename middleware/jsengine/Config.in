@@ -7,7 +7,6 @@ menuconfig AOS_COMP_JSENGINE
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_MQTT
     select AOS_COMP_HTTP
-    select AOS_COMP_YLOOP
     select AOS_COMP_OTA
     select AOS_COMP_LINKKIT_SDK_C
     select APP_FEATURE_LINKKIT_MQTT

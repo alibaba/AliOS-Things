@@ -224,13 +224,13 @@ static void task_net_connect_fun(void *arg)
 
     ret = parse_net_option_addr(msg->addr, &sckt_param);
     if (ret < 0) {
-        be_jse_task_schedule_call(js_cb_net_onerror, pdata);
+        jse_task_schedule_call(js_cb_net_onerror, pdata);
         goto done;
     }
 
     socketid        = net_socket_connect(&sckt_param);
     pdata->socketid = socketid;
-    be_jse_task_schedule_call(js_cb_net_onconnect, pdata);
+    jse_task_schedule_call(js_cb_net_onconnect, pdata);
 
     if (socketid > 0) {
         buffer             = jse_calloc(1, NET_SOCKET_RECV_BUFF_LEN);
@@ -248,7 +248,7 @@ static void task_net_connect_fun(void *arg)
                 jse_debug("recved...=%s", buffer);
                 pdata->data_recv = buffer;
                 g_net_recv_mutex = MUTEX_LOCKED;
-                be_jse_task_schedule_call(js_cb_net_ondata, pdata);
+                jse_task_schedule_call(js_cb_net_ondata, pdata);
             } else if (bytes_received < 0) { /* socket error */
                 if (errno == EINTR) {
                     continue;
@@ -263,9 +263,9 @@ static void task_net_connect_fun(void *arg)
 
         /* callback when close or error */
         if (bytes_received == 0) {
-            be_jse_task_schedule_call(js_cb_net_onclose, pdata);
+            jse_task_schedule_call(js_cb_net_onclose, pdata);
         } else {
-            be_jse_task_schedule_call(js_cb_net_onerror, pdata);
+            jse_task_schedule_call(js_cb_net_onerror, pdata);
         }
     }
 

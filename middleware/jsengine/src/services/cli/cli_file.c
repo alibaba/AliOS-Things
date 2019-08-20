@@ -70,7 +70,7 @@ static void push(void* arg)
         jse_free(outStr);
         /* push finished restart app or reboot device */
         if (type == 0) {
-            /* be_jse_task_schedule_call(sub_call_start, targetname); */
+            /* jse_task_schedule_call(sub_call_start, targetname); */
         } else {
             jse_system_reboot();
         }
@@ -148,7 +148,7 @@ static void handle_push_cmd(char* pwbuf, int blen, int argc, char** argv)
         /* disable JSEngine logout */
         bone_console_log_disable();
         /* create task to parser push data, may cause stack overflow in cli task!!! */
-        int ret = jse_osal_create_task("be_push", push, NULL, 4096,
+        int ret = jse_osal_create_task("be_push", push, NULL, 2048,
                                       CLI_TSK_PRIORITY, NULL);
     }
 }

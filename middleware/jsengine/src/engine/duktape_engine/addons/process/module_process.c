@@ -27,8 +27,8 @@ static duk_ret_t native_process_nextTick(duk_context *ctx)
     }
     duk_dup(ctx, -1);
     int ref = be_ref(ctx);
-    if (be_jse_task_schedule_call(next_tick_cb, (void *)ref) < 0) {
-        jse_warn("be_jse_task_schedule_call failed\n");
+    if (jse_task_schedule_call(next_tick_cb, (void *)ref) < 0) {
+        jse_warn("jse_task_schedule_call failed\n");
         be_unref(ctx, ref);
     }
     return 0;

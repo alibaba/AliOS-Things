@@ -37,7 +37,7 @@ static be_jse_symbol_t* module_handle_cb(be_jse_vm_ctx_t* execInfo,
     if (strcmp(name, "nextTick") == 0) {
         be_jse_handle_function(0, &arg0, 0, 0, 0);
         if (symbol_is_function(arg0)) {
-            ret = be_jse_task_schedule_call(nexttick_cb, arg0);
+            ret = jse_task_schedule_call(nexttick_cb, arg0);
             if (ret >= 0) {
                 /* success */
                 INC_SYMBL_REF(arg0);
