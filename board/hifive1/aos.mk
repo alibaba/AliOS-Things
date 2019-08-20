@@ -1,7 +1,7 @@
 NAME := board_hifive1
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board hifive1
 MODULE             := hifive1
 HOST_ARCH          := RISC-V
