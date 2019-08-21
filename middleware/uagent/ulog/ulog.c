@@ -179,6 +179,7 @@ int ulog(const unsigned char s, const char *mod, const char *f, const unsigned l
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);
+            fflush(stdout);
             printf("\r\n");
 #endif /* if def ULOG_CONFIG_ASYNC */
             log_release_mutex();
