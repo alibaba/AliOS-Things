@@ -36,6 +36,13 @@
 #define RHINO_CONFIG_UIPC 0
 #endif
 
+/**
+ * the max num onwer of IPC
+ */
+#ifndef RHINO_CONFIG_PROC_MSG_MAX_OWNER_NUM
+#define RHINO_CONFIG_PROC_MSG_MAX_OWNER_NUM 8
+#endif
+
 /* Support user space file system */
 #ifndef RHINO_CONFIG_UFS
 #define RHINO_CONFIG_UFS 0
