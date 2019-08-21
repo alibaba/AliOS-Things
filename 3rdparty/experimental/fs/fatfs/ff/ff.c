@@ -3343,6 +3343,10 @@ FRESULT f_mount (
 	if (opt == 0) return FR_OK;			/* Do not mount now, it will be mounted later */
 
 	res = find_volume(&path, &fs, 0);	/* Force mounted the volume */
+    if (res != FR_OK) {
+        FatFs[vol] = NULL;
+    }
+
 	LEAVE_FF(fs, res);
 }
 
