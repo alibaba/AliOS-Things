@@ -43,21 +43,21 @@ unsigned int ota_breeze_send_fw_version_rsp(unsigned char ota_cmd, unsigned char
 
 static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *version, unsigned char *p_data, unsigned char length)
 {
-    unsigned ret = 0;
+    unsigned int ret = 0;
     int version_result = 0;
     unsigned char  l_data_new[OTA_BREEZE_FW_VER_LEN + 1]; /* +1 for trailing zero */
     unsigned char  l_len;
 
     if((version == NULL) || (p_data == NULL) || (length == 0)) {
         ret = OTA_BREEZE_ERROR_INVALID_PARAM;
-        goto VER_ERRO;
+        goto VER_ERR;
     }
 
     l_len = length - sizeof(unsigned int) - sizeof(unsigned short) - 1;
     if(l_len > OTA_BREEZE_FW_VER_LEN) {
         OTA_BREEZE_LOG_E("ver length too long");
         ret = OTA_BREEZE_ERROR_DATA_SIZE;
-        goto VER_ERRO;
+        goto VER_ERR;
     }
     memcpy(l_data_new, p_data, l_len);
     l_data_new[l_len] = 0;
@@ -66,7 +66,7 @@ static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *ve
         ret = OTA_BREEZE_ERROR_INVALID_VERSION;
         OTA_BREEZE_LOG_E("ver same err!");
     }
-VER_ERRO:
+VER_ERR:
     return ret;
 }
 
@@ -158,6 +158,7 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
     unsigned int  err_code = OTA_BREEZE_SUCCESS;
     unsigned char l_len    = 0;
     unsigned char resume   = false;
+    unsigned int  head_len = 0;
     _ota_ble_global_dat_t *p_ota = NULL;
     if((buffer == NULL) || (length <  sizeof(unsigned int) + sizeof(unsigned short))) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
@@ -166,6 +167,9 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
     if(p_ota == NULL) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
+#ifdef BLE_OTA_SUPPORT_IMAGE_HEAD
+    head_len = sizeof(ota_breeze_image_t);
+#endif
     ret = ota_breeze_hal_init();
     if(ret != 0) {
         return OTA_BREEZE_ERROR_INIT_FAIL;
@@ -178,12 +182,12 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
         p_ota->rx_fw_size = EXTRACT_U32(buffer + l_len);
         p_ota->frames_recvd = 0;
         p_ota->crc = EXTRACT_U16(buffer + l_len + sizeof(unsigned int));
-        if(p_ota->rx_fw_size > sizeof(ota_breeze_image_t)) {
-            p_ota->valid_fw_size = p_ota->rx_fw_size - sizeof(ota_breeze_image_t);
+        if(p_ota->rx_fw_size > head_len) {
+            p_ota->valid_fw_size = p_ota->rx_fw_size - head_len;
             ret = ota_breeze_breakpoint_process(p_ota->valid_fw_size, &p_ota->valid_bytes_recvd, resume);
             if(ret == 0) {
                 if(p_ota->valid_bytes_recvd > 0) {
-                    p_ota->bytes_recvd = p_ota->valid_bytes_recvd + sizeof(ota_breeze_image_t);
+                    p_ota->bytes_recvd = p_ota->valid_bytes_recvd + head_len;
                 }
             }
             else {
@@ -209,17 +213,17 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
     _ota_ble_global_dat_t  *p_ota = NULL;
     if((buffer == NULL) || (length == 0)) {
         err_code = OTA_BREEZE_ERROR_INVALID_PARAM;
-        goto OTA_BREEZE_TRANS_ERRO;
+        goto OTA_BREEZE_TRANS_ERR;
     }
     if ((length & 0x03) != 0) {
         ota_breeze_send_error();
         err_code = OTA_BREEZE_ERROR_DATA_SIZE;
-        goto OTA_BREEZE_TRANS_ERRO;
+        goto OTA_BREEZE_TRANS_ERR;
     }
     p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         err_code = OTA_BREEZE_ERROR_INVALID_PARAM;
-        goto OTA_BREEZE_TRANS_ERRO;
+        goto OTA_BREEZE_TRANS_ERR;
     }
 
     if (p_ota->valid_bytes_recvd == OTA_IMAGE_MAGIC_OFFSET) {
@@ -234,16 +238,16 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
             if(bin_type == OTA_BIN_TYPE_INVALID) {
                 OTA_BREEZE_LOG_E("magic error");
                 err_code = OTA_BREEZE_ERROR_NOT_SUPPORTED;
-                goto OTA_BREEZE_TRANS_ERRO;
+                goto OTA_BREEZE_TRANS_ERR;
             }
             if ((bin_type != OTA_BIN_TYPE_SINGLE) &&
                 (ota_breeze_check_if_bins_supported() == false)) {
                     err_code = OTA_BREEZE_ERROR_NOT_SUPPORTED;
-                    goto OTA_BREEZE_TRANS_ERRO;
+                    goto OTA_BREEZE_TRANS_ERR;
             }
             if(bin_info.image_size != p_ota->valid_fw_size) {
                 err_code = OTA_BREEZE_ERROR_INVALID_LENGTH;
-                goto OTA_BREEZE_TRANS_ERRO;
+                goto OTA_BREEZE_TRANS_ERR;
             }
             ota_breeze_set_image_info_crc16(buffer, bin_info_len);
             buffer += bin_info_len;
@@ -253,7 +257,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         }
         else {
             err_code = OTA_BREEZE_ERROR_INVALID_LENGTH;
-            goto OTA_BREEZE_TRANS_ERRO;
+            goto OTA_BREEZE_TRANS_ERR;
         }
 #else
         ota_breeze_set_bin_type(OTA_BIN_TYPE_SINGLE);
@@ -262,7 +266,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
 
     if (ota_breeze_write(&p_ota->valid_bytes_recvd, (char *)buffer, length) != 0) {
         err_code = OTA_BREEZE_ERROR_FLASH_STORE_FAIL;
-        goto OTA_BREEZE_TRANS_ERRO;
+        goto OTA_BREEZE_TRANS_ERR;
     }
     p_ota->frames_recvd += num_frames;
     p_ota->bytes_recvd += length;
@@ -278,7 +282,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
             err_code = OTA_BREEZE_ERROR_SETTINGS_FAIL;
         }
     }
-OTA_BREEZE_TRANS_ERRO:
+OTA_BREEZE_TRANS_ERR:
     return err_code;
 }
 
