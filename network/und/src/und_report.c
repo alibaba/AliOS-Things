@@ -112,6 +112,14 @@ static int und_build_package()
     UND_PTR_SANITY_CHECK(ctx->buf, UND_MEM_ERR);
 
     len = und_platform_strlen(ctx->buf);
+
+    if (len + 32 > UND_REPORT_TARGET_BUF_LEN) {
+        /* buf is not enough, drop real-time capture and collect capture */
+        und_platform_memset(ctx->buf, 0, UND_REPORT_TARGET_BUF_LEN);
+        ctx->update = UND_CAP_STATE_UPDATE;
+        len = 0;
+    }
+
     return und_collect_package(ctx->buf + len,
             UND_REPORT_TARGET_BUF_LEN - len, len,
             ctx->update == UND_CAP_STATE_INIT ? 0 : 1);
