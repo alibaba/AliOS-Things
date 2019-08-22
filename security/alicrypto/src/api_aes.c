@@ -225,6 +225,7 @@ static ali_crypto_result _aes_final(const uint8_t *src, size_t src_size,
     if ( !ctx->is_enc && padding == SYM_PKCS5_PAD) {
         if (_get_pkcs_padding(tmp_buf, tmp_size, &tmp_size)) {
             CRYPTO_DBG_LOG("get pkcs padding fail\n");
+            ret = ALI_CRYPTO_ERROR;
             goto _out;
         }
     }
