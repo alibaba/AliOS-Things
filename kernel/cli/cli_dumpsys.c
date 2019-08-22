@@ -89,10 +89,6 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 #endif
 
 #if (RHINO_CONFIG_SYS_STATS > 0)
-#if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
-    debug_task_cpu_usage_stats();
-#endif
-
     for (corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
         total_cpu_usage[corenum] = debug_total_cpu_usage_get(corenum);
     }
@@ -250,10 +246,6 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
       sprintf(buf + plen, "%s---------------------------------------------\r\n",
               esc_tag);
 #if (RHINO_CONFIG_SYS_STATS > 0)
-#if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
-    debug_task_cpu_usage_stats();
-#endif
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (uint32_t corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
         total_cpu_usage[corenum] = debug_total_cpu_usage_get(corenum);
