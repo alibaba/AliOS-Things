@@ -154,7 +154,6 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits, const uint8_t *e,
 static int myrand(void *rng_state, unsigned char *output, size_t len)
 {
     int ret;
-
     ret = ali_rand_gen(output, len);
     if (ret != ALI_CRYPTO_SUCCESS) {
         CRYPTO_DBG_LOG("gen rand failed(%08x)\n", ret);
@@ -425,6 +424,12 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pubkey,
         case RSAES_PKCS1_V1_5: {
             // pkcs1_v1_5 padding encode
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (ret) {
+                CRYPTO_DBG_LOG("set seed failed(0x08x)\n", ret);
+                return ALI_CRYPTO_ERROR;
+            }
+
             ret = _pkcs_1_v1_5_encode(pubkey, myrand, (uint32_t *)&seed, 
                                       src_size, src, 
                                       dst_size, dst, 
@@ -455,6 +460,12 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pubkey,
             }
 
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (ret) {
+                CRYPTO_DBG_LOG("set seed failed(0x08x)\n", ret);
+                return ALI_CRYPTO_ERROR;
+            }
+
             ret = _pkcs_1_v2_1_encode(pubkey, 
                                       myrand, (uint32_t *)&seed, 
                                       NULL, 0, 
@@ -1171,12 +1182,14 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *privkey,
         CRYPTO_DBG_LOG("invalid padding type(%d)\n", padding.type);
         return ALI_CRYPTO_NOSUPPORT;
 	}
-    if (dig_size != hash_size) {
-        CRYPTO_DBG_LOG("invalid dig_size(%d vs %d)\n", (int)dig_size, (int)hash_size);
-        return ALI_CRYPTO_LENGTH_ERR;
-    }
 
     seed = (uint32_t)ls_osa_get_time_ms();
+    ret = ali_seed((uint8_t *)&seed, 4);
+    if (0 != ret) {
+        CRYPTO_DBG_LOG("fail(%d)\n", ret);
+        return ALI_CRYPTO_ERROR;
+    }
+
     ret = _rsa_pkcs1_sign(privkey,
                           myrand, (uint32_t *)&seed,
                           ali_hash_type, hash_size,
