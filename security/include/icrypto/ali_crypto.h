@@ -25,12 +25,6 @@
 /********************************************************************/
 
 /*
- * covert ls_hal_crypt errcode to ali_crypto errcode
- * code[in]:       ls_hal_crypt errcode
- */
-ali_crypto_result ali_crypt_get_errcode(uint8_t code);
-
-/*
  * type[in]:       must be AES_ECB/AES_CBC/AES_CTR/AES_CFB
  * size[out]:      check size != NULL
  *                   -- caller will alloc "size" memory as context buffer later
@@ -175,34 +169,10 @@ ali_crypto_result ali_des_reset(void *context);
 ali_crypto_result ali_sha1_get_ctx_size(size_t *size);
 
 /*
- * Get sha1 context size
- * size[in]:       size pointer
- */
-ali_crypto_result ali_sha256_get_ctx_size(size_t *size);
-
-/*
- * Get md5 context size
- * size[in]:       size pointer
- */
-ali_crypto_result ali_md5_get_ctx_size(size_t *size);
-
-/*
  * Initialize sha1 context size
  * context[in]:    ali hash context
  */
 ali_crypto_result ali_sha1_init(void *context);
-
-/*
- * Initialize sha256 context size
- * context[in]:    ali hash context
- */
-ali_crypto_result ali_sha256_init(void *context);
-
-/*
- * Initialize md5 context size
- * context[in]:    ali hash context
- */
-ali_crypto_result ali_md5_init(void *context);
 
 /*
  * sha1 update process
@@ -211,43 +181,6 @@ ali_crypto_result ali_md5_init(void *context);
  * context[in]:    ali hash context
  */
 ali_crypto_result ali_sha1_update(const uint8_t *src, size_t size, void *context);
-
-/*
- * sha256 update process
- * src[in]:    input buffer
- * size[in]:   input buffer size
- * context[in]:    ali hash context
- */
-ali_crypto_result ali_sha256_update(const uint8_t *src, size_t size, void *context);
-
-/*
- * md5 update process
- * src[in]:    input buffer
- * size[in]:   input buffer size
- * context[in]:    ali hash context
- */
-ali_crypto_result ali_md5_update(const uint8_t *src, size_t size, void *context);
-
-/*
- * sha1 final process
- * dgst[out]:    input buffer
- * context[in]:  ali hash context
- */
-ali_crypto_result ali_sha1_final(uint8_t *dgst, void *context);
-
-/*
- * sha256 final process
- * dgst[out]:    input buffer
- * context[in]:  ali hash context
- */
-ali_crypto_result ali_sha256_final(uint8_t *dgst, void *context);
-
-/*
- * md5 final process
- * dgst[out]:    input buffer
- * context[in]:  ali hash context
- */
-ali_crypto_result ali_md5_final(uint8_t *dgst, void *context);
 
 /*
  * SHA1 digest process
@@ -259,6 +192,40 @@ ali_crypto_result ali_sha1_digest(const uint8_t *src,
                                   size_t size, uint8_t *dgst);
 
 /*
+ * sha1 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_sha1_final(uint8_t *dgst, void *context);
+
+/*
+ * Get sha1 context size
+ * size[in]:       size pointer
+ */
+ali_crypto_result ali_sha256_get_ctx_size(size_t *size);
+
+/*
+ * Initialize sha256 context size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha256_init(void *context);
+
+/*
+ * sha256 update process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_sha256_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * sha256 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_sha256_final(uint8_t *dgst, void *context);
+
+/*
  * SHA256 digest process
  * src[in]:    input buffer
  * size[in]:   input buffer size
@@ -266,6 +233,33 @@ ali_crypto_result ali_sha1_digest(const uint8_t *src,
  */
 ali_crypto_result ali_sha256_digest(const uint8_t *src,
                                   size_t size, uint8_t *dgst);
+
+/*
+ * Get md5 context size
+ * size[in]:       size pointer
+ */
+ali_crypto_result ali_md5_get_ctx_size(size_t *size);
+
+/*
+ * Initialize md5 context size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_md5_init(void *context);
+
+/*
+ * md5 update process
+ * src[in]:    input buffer
+ * size[in]:   input buffer size
+ * context[in]:    ali hash context
+ */
+ali_crypto_result ali_md5_update(const uint8_t *src, size_t size, void *context);
+
+/*
+ * md5 final process
+ * dgst[out]:    input buffer
+ * context[in]:  ali hash context
+ */
+ali_crypto_result ali_md5_final(uint8_t *dgst, void *context);
 
 /*
  * MD5 digest process
@@ -492,11 +486,28 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
                                  const uint8_t *sig, size_t sig_size,
                                  rsa_padding_t padding, bool *result);
 
-/* random generator */
+/*
+ * Set seed for random generator
+ * seed[in]: seed data buffer
+ * seed_len: length of seed data buffer
+ */
 ali_crypto_result ali_seed(uint8_t *seed, size_t seed_len);
+
+/*
+ * Generate random data and fill input buf
+ * buf[in]: input data buffer
+ * len[in]: length of buf
+ */
 ali_crypto_result ali_rand_gen(uint8_t *buf, size_t len);
 
+/*
+ * Initialize(Optional)
+ */
 ali_crypto_result ali_crypto_init(void);
+
+/*
+ * Cleanup(Optional)
+ */
 void ali_crypto_cleanup(void);
 
 #endif /* _ALI_CRYPTO_H_ */
