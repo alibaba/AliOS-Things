@@ -45,9 +45,9 @@ config COAP_DTLS_SUPPORT
     default n
 
 config HAL_CRYPTO
-    bool 
+    bool
     default y if USE_MBEDTLS || COAP_DTLS_SUPPORT
-    select MBEDTLS_CONFIG_CRYPTO_MODE_CFB
+    select MBEDTLS_CONFIG_CRYPTO_MODE_CFB if USE_MBEDTLS
     help
       HAL CRYPTO for AliOS Things
 
