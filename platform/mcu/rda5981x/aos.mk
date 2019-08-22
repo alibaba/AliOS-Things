@@ -93,3 +93,6 @@ $(NAME)_SOURCES += feature/sysdata/rda5981_sys_data.c
 $(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
                     hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
                     hal/pwrmgmt_hal/board_lp_ticker.c
+
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+
