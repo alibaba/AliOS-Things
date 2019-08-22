@@ -15,23 +15,44 @@ static uint32_t task_cpu_usage_period = 0;
 
 void debug_task_cpu_usage_stats(void)
 {
-    klist_t *taskhead = &g_kobj_list.task_head;
-    klist_t *taskend  = taskhead;
-    klist_t *tmp;
-    ktask_t *task;
+    uint32_t   i;
+    klist_t    *taskhead = &g_kobj_list.task_head;
+    klist_t    *taskend  = taskhead;
+    klist_t    *tmp;
+    ktask_t    *task;
+    lr_timer_t cur_time;
+    lr_timer_t exec_time;
 
     static lr_timer_t stats_start = 0;
     lr_timer_t        stats_end;
 
+    (void)i; /* to avoid compiler warning */
+
     CPSR_ALLOC();
-    RHINO_CPU_INTRPT_DISABLE();
+    RHINO_CRITICAL_ENTER();
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
+        cur_time  = (lr_timer_t)LR_COUNT_GET();
+        exec_time = cur_time - g_active_task[i]->task_time_start;
+
+        g_active_task[i]->task_time_total_run += (sys_time_t)exec_time;
+        g_active_task[i]->task_time_start     = cur_time;
+    }
+#else
+    cur_time  = (lr_timer_t)LR_COUNT_GET();
+    exec_time = cur_time - g_active_task[0]->task_time_start;
+
+    g_active_task[0]->task_time_total_run += (sys_time_t)exec_time;
+    g_active_task[0]->task_time_start     = cur_time;
+#endif
+
     for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
         task = krhino_list_entry(tmp, ktask_t, task_stats_item);
         task->task_exec_time = task->task_time_total_run -
                                task->task_time_total_run_prev;
         task->task_time_total_run_prev = task->task_time_total_run;
     }
-    RHINO_CPU_INTRPT_ENABLE();
+    RHINO_CRITICAL_EXIT();
 
     stats_end             = (lr_timer_t)LR_COUNT_GET();
     task_cpu_usage_period = stats_end - stats_start;
@@ -57,7 +78,7 @@ void debug_total_cpu_usage_show(void)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
         total_cpu_usage[i] = debug_total_cpu_usage_get(i);
-        printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage[i]/100,
+        printf("CPU%d usage :%3d.%02d%%  \n", i, (int)total_cpu_usage[i]/100,
                (int)total_cpu_usage[i]%100);
     }
 #else
@@ -120,6 +141,9 @@ uint32_t debug_task_cpu_usage_get(ktask_t *task)
     }
 
     task_cpu_usage = (uint64_t)(task->task_exec_time) * 10000 / task_cpu_usage_period;
+    if (task_cpu_usage > 10000) {
+        task_cpu_usage = 10000;
+    }
 
     return task_cpu_usage;
 }
@@ -131,33 +155,5 @@ uint32_t debug_total_cpu_usage_get(uint32_t cpuid)
     total_cpu_usage          = 10000 - debug_task_cpu_usage_get(&g_idle_task[cpuid]);
     return total_cpu_usage;
 }
-
-#if (DEBUG_CONFIG_CPU_USAGE_PERIOD > 0)
-static ktimer_t cpu_usage_timer;
-
-static void cpu_usage_timer_handler(void *timer, void *args)
-{
-    debug_task_cpu_usage_stats();
-}
-
-kstat_t debug_task_cpu_usage_init()
-{
-    kstat_t ret = RHINO_SUCCESS;
-    sys_time_t cpu_usage_period = krhino_ms_to_ticks(DEBUG_CONFIG_CPU_USAGE_PERIOD);
-
-    if (cpu_usage_period == 0) {
-        return RHINO_INV_PARAM;
-    }
-
-    ret = krhino_timer_create(&cpu_usage_timer, "cpu_usage_timer",
-                              cpu_usage_timer_handler, 1, cpu_usage_period, NULL, 1);
-    if (ret != RHINO_SUCCESS) {
-        return ret;
-    }
-
-    return ret;
-}
-
-#endif
 
 #endif /* (RHINO_CONFIG_SYS_STATS > 0) */
