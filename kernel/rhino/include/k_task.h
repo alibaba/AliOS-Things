@@ -195,6 +195,13 @@ kstat_t krhino_task_dyn_del(ktask_t *task);
  */
 kstat_t krhino_task_cancel(ktask_t *task);
 
+
+/**
+ * This function will clr the task cancel bit
+ *
+ */
+void krhino_task_cancel_clr(void);
+
 /**
  * This function will check the task whether is canceled or not.
  * @param[in]  task  the task to be checked.
