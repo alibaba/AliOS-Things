@@ -102,7 +102,7 @@ extern klist_t     g_task_del_head;
 #if (RHINO_CONFIG_TASK_DEL > 0)
 #define TASK_CANCEL_CHK()                                      \
             do {                                               \
-                if (g_active_task[cur_cpu_num]->cancel == 1u) {\
+                if (g_active_task[cur_cpu_num]->cancel == 3u) {\
                     RHINO_CRITICAL_EXIT();                     \
                     return RHINO_TASK_CANCELED;                \
                 }                                              \
