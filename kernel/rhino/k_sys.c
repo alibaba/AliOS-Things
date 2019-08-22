@@ -70,10 +70,6 @@ kstat_t krhino_init(void)
     ktimer_init();
 #endif
 
-#if (DEBUG_CONFIG_CPU_USAGE_PERIOD > 0)
-    debug_task_cpu_usage_init();
-#endif
-
     rhino_stack_check_init();
 
     return RHINO_SUCCESS;
