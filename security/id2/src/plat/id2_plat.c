@@ -5,7 +5,9 @@
 #include "id2_plat.h"
 #include "id2_priv.h"
 #include "ali_crypto.h"
+#if (CONFIG_ID2_HASH_TYPE == ID2_HASH_TYPE_SM3)
 #include "irot_hal.h"
+#endif
 
 static const unsigned char encoding_table[] =
 {

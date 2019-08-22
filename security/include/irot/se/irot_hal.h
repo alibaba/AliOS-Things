@@ -29,13 +29,6 @@ extern "C" {
 typedef int irot_result_t;
 
 typedef enum {
-    CIPHER_TYPE_INVALID         = 0x00,
-    CIPHER_TYPE_AES             = 0x01,
-    CIPHER_TYPE_3DES            = 0x03,
-    CIPHER_TYPE_SM4             = 0x04,
-} cipher_t;
-
-typedef enum {
     BLOCK_MODE_ECB              = 0x00,
     BLOCK_MODE_CBC              = 0x01,
     BLOCK_MODE_CTR              = 0x02,
@@ -81,31 +74,6 @@ typedef struct _sym_crypto_param_t {
     irot_sym_padding_t padding_type; ///< padding type
     crypto_mode_t mode;                ///< mode(encrypt or decrypt)
 } sym_crypto_param_t;
-
-enum {
-    KEY_TYPE_3DES            = 0x01,
-    KEY_TYPE_AES             = 0x02,
-    KEY_TYPE_SM4             = 0x03,
-
-    KEY_TYPE_RSA_PUBLIC      = 0x04,
-    KEY_TYPE_RSA_PRIVATE     = 0x05,
-    KEY_TYPE_RSA_CRT_PRIVATE = 0x06,
-};
-
-enum {
-    LENGTH_DES3_2KEY    =   16,
-    LENGTH_DES3_3KEY    =   24,
-};
-
-enum {
-    LENGTH_AES_128      =   16,
-    LENGTH_AES_192      =   24,
-    LENGTH_AES_256      =   32,
-};
-
-enum {
-    LENGTH_RSA_1024     =   128,
-};
 
 // key object
 typedef struct {
