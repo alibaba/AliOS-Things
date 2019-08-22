@@ -919,6 +919,17 @@ kstat_t krhino_task_cancel(ktask_t *task)
     return ret;
 }
 
+void krhino_task_cancel_clr(void)
+{
+    CPSR_ALLOC();
+    ktask_t *cur_task;
+
+    cur_task = krhino_cur_task_get();
+    RHINO_CRITICAL_ENTER();
+    cur_task->cancel = 0u;
+    RHINO_CRITICAL_EXIT();
+}
+
 RHINO_BOOL krhino_task_cancel_chk(void)
 {
     CPSR_ALLOC();
