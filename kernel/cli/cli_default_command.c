@@ -47,8 +47,10 @@ static void process_info_cmd(char *buf, int len, int argc, char **argv);
 static void kill_process_cmd(char *buf, int len, int argc, char **argv);
 #endif
 
-
 extern void log_cli_init(void);
+#if (RHINO_CONFIG_SYS_STATS > 0)
+extern void cpuusage_cmd(char *buf, int32_t len, int32_t argc, char **argv);
+#endif
 
 #if (CLI_SUPPORT_BOARD_CMD > 0)
 extern int board_cli_init(void);
@@ -65,6 +67,9 @@ static const struct cli_command_st built_ins[] = {
     /*aos_rhino*/
     { "time", "system time", uptime_cmd },
     { "ota", "system ota", ota_cmd },
+#if (RHINO_CONFIG_SYS_STATS > 0)
+    { "cpuusage", "show cpu usage", cpuusage_cmd },
+#endif
 
 #if (CLI_MINIMUM_MODE <= 0)
 
