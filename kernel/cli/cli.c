@@ -13,6 +13,7 @@
 #include "cli_conf.h"
 #include "cli_adapt.h"
 #include "k_api.h"
+#include "debug_api.h"
 
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
@@ -504,6 +505,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
     int32_t key1 = -1;
     int32_t key2 = -1;
     uint8_t cli_tag_len =  0;
+    ktask_t *task_to_cancel;
 
     if (inbuf == NULL) {
         cli_printf("input null\r\n");
@@ -525,6 +527,14 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
             esc  = 1;
             key1 = -1;
             key2 = -1;
+            continue;
+        }
+
+        if (c == 0x3) { /* CTRL+C */
+            task_to_cancel = debug_task_find("cpuusage");
+            if (task_to_cancel != NULL) {
+                krhino_task_cancel(task_to_cancel);
+            }
             continue;
         }
 
