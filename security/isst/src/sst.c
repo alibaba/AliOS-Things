@@ -10,18 +10,16 @@
 #include "sst_osa.h"
 #include "sst.h"
 
-#define SST_VER_MAJOR 1
-#define SST_VER_MINOR 0
-#define SST_VER_BLDNR 0
+#define SST_VER_MAJOR     2
+#define SST_VER_MINOR     0
+#define SST_VER_BLDNR     0
 
 uint32_t sst_init()
 {
     uint32_t ret = 0;
 
-#if 0
-    SST_VER("ESS-SST version %d.%d.%d\n", SST_VER_MAJOR,
+    SST_VER("SST version %d.%d.%d\n", SST_VER_MAJOR,
             SST_VER_MINOR, SST_VER_BLDNR);
-#endif
 
     ret = sst_imp_init();
     if (SST_SUCCESS != ret) {

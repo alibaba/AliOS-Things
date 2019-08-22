@@ -5,6 +5,40 @@
 #include "ali_crypto.h"
 #include "ls_hal_crypt.h"
 
+static ali_crypto_result _trans_errno(uint8_t code)
+{
+	ali_crypto_result result;
+
+	switch((ls_hal_crypt_result)code) {
+		case HAL_CRYPT_SUCCESS:
+			result = ALI_CRYPTO_SUCCESS;
+			break;
+		case HAL_CRYPT_NOSUPPORT:
+			result = ALI_CRYPTO_NOSUPPORT;
+			break;
+		case HAL_CRYPT_INVALID_CONTEXT:
+			result = ALI_CRYPTO_INVALID_CONTEXT;
+			break;
+		case HAL_CRYPT_INVALID_ARG:
+			result = ALI_CRYPTO_INVALID_ARG;
+			break;
+		case HAL_CRYPT_LENGTH_ERR:
+			result = ALI_CRYPTO_LENGTH_ERR;
+			break;
+		case HAL_CRYPT_OUTOFMEM:
+			result = ALI_CRYPTO_OUTOFMEM;
+			break;
+		case HAL_CRYPT_SHORT_BUFFER:
+			result = ALI_CRYPTO_SHORT_BUFFER;
+			break;
+		default:
+			result = ALI_CRYPTO_ERROR;
+			break;
+		}
+
+	return result;
+}
+
 // hash crypto api get ctx size according to hash mode
 ali_crypto_result ali_sha1_get_ctx_size(size_t *size)
 {
@@ -84,7 +118,7 @@ ali_crypto_result ali_sha1_init(void *context)
     ctx->hal_size = ls_hal_sha1_get_size();
     ret = ls_hal_sha1_init(ctx->hal_ctx);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_sha256_init(void *context)
@@ -103,7 +137,7 @@ ali_crypto_result ali_sha256_init(void *context)
     ctx->hal_size = ls_hal_sha256_get_size();
     ret = ls_hal_sha256_init(ctx->hal_ctx);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_md5_init(void *context)
@@ -122,7 +156,7 @@ ali_crypto_result ali_md5_init(void *context)
     ctx->hal_size = ls_hal_md5_get_size();
     ret = ls_hal_md5_init(ctx->hal_ctx);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_hash_init(hash_type_t type, void *context)
@@ -172,7 +206,7 @@ ali_crypto_result ali_sha1_update(const uint8_t *src, size_t size, void *context
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_sha1_update(ctx->hal_ctx, src, size);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_sha256_update(const uint8_t *src, size_t size, void *context)
@@ -194,7 +228,7 @@ ali_crypto_result ali_sha256_update(const uint8_t *src, size_t size, void *conte
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_sha256_update(ctx->hal_ctx, src, size);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_md5_update(const uint8_t *src, size_t size, void *context)
@@ -216,7 +250,7 @@ ali_crypto_result ali_md5_update(const uint8_t *src, size_t size, void *context)
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_md5_update(ctx->hal_ctx, src, size);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context)
@@ -272,7 +306,7 @@ ali_crypto_result ali_sha1_final(uint8_t *dgst, void *context)
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_sha1_finish(ctx->hal_ctx, dgst);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_sha256_final(uint8_t *dgst, void *context)
@@ -293,7 +327,7 @@ ali_crypto_result ali_sha256_final(uint8_t *dgst, void *context)
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_sha256_finish(ctx->hal_ctx, dgst);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_md5_final(uint8_t *dgst, void *context)
@@ -314,7 +348,7 @@ ali_crypto_result ali_md5_final(uint8_t *dgst, void *context)
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
     ret = ls_hal_md5_finish(ctx->hal_ctx, dgst);
 
-    return ali_crypt_get_errcode(ret);
+    return _trans_errno(ret);
 }
 
 ali_crypto_result ali_hash_final(uint8_t *dgst, void *context)
