@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#ifdef HAL_CRYPTO
+#ifdef INFRA_AES
 #include "linkkit/infra/infra_aes.h"
 p_Aes128_t coap_wrapper_aes128_init(const uint8_t *key, const uint8_t *iv, AES_DIR_t dir);
 int coap_wrapper_aes128_destroy(p_Aes128_t aes);
@@ -17,7 +17,7 @@ int coap_wrapper_aes128_cbc_decrypt(p_Aes128_t aes, const void *src, size_t bloc
 int coap_wrapper_aes128_cfb_decrypt(p_Aes128_t aes, const void *src, size_t length, void *dst);
 int coap_wrapper_aes128_cfb_encrypt(p_Aes128_t aes, const void *src, size_t length, void *dst);
 int coap_wrapper_aes128_cbc_encrypt(p_Aes128_t aes, const void *src, size_t blockNum, void *dst);
-#endif /* HAL_CRYPTO */
+#endif /* INFRA_AES */
 
 #ifdef INFRA_CJSON
 #include "linkkit/infra/infra_cjson.h"
