@@ -55,7 +55,7 @@ endif
 config RHINO_CONFIG_UCALLBACK_TASK
     bool "ucallback task support"
     depends on RHINO_CONFIG_UCALLBACK
-    default n
+    default y
     help
         "create ucallback task to support user space callback function"
 
