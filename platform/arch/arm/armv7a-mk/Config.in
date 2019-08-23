@@ -1,8 +1,8 @@
-config AOS_ARCH_ARMV7A_SVC
-    bool "armv7a-svc"
+config AOS_ARCH_ARMV7A_MK
+    bool "armv7a-mk"
     help
-      arch for armv7a-svc
+      arch for armv7a-mk
 
-if AOS_ARCH_ARMV7A_SVC
-# Configurations for arch armv7a-svc
+if AOS_ARCH_ARMV7A_MK
+# Configurations for arch armv7a-mk
 endif
