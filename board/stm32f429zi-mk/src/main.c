@@ -29,6 +29,19 @@ extern int application_start(int argc, char **argv);
 int g_proc_var; /**< for test purpose */
 
 
+static void ifconfig_task_main(void *arg)
+{
+    LOG("strart lwip_tcpip_init\r\n");
+    lwip_tcpip_init();
+}
+
+static void ifconfig(char *pbuffer, int outlen, int argc, char **argv)
+{
+    ktask_t *task;
+    krhino_task_dyn_create(&task, "ifconfig-task", NULL, 20, 5, 256,
+                           ifconfig_task_main, 1);
+}
+
 static void kernel_read_g_proc_var(char *pbuffer, int outlen, int argc, char **argv)
 {
     printf("kernel read g_proc_var: %d\r\n", g_proc_var);
@@ -47,6 +60,7 @@ static void kernel_set_g_proc_var(char *pbuffer, int outlen, int argc, char **ar
 }
 
 static struct cli_command_st kernel_cmds[] = {
+    {"ifconfig", "start net interface",ifconfig},
     {"kernel_read_g_proc_var", "kernel read g_proc_var", kernel_read_g_proc_var},
     {"kernel_set_g_proc_var", "kernel set g_proc_var", kernel_set_g_proc_var},
 };
@@ -65,10 +79,6 @@ static void sys_init(void)
     var_init();
 
     aos_components_init(&kinit);
-
-    LOG("strart lwip_tcpip_init\r\n");
-
-    lwip_tcpip_init();
 
     aos_msleep(1000);
 
