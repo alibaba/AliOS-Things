@@ -55,7 +55,7 @@ menu "Device Model Configurations"
         bool "FEATURE_ALCS_ENABLED"
         default n
         select COAP_SERVER
-        select INFRA_AES if !USE_MBEDTLS
+        select INFRA_AES
         help
             ALCS(alink local communication service) is a communication between phone and device
 
