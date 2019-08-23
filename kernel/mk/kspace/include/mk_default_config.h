@@ -9,14 +9,6 @@
 #define RHINO_CONFIG_PROTECTED 1
 #endif
 
-/**
- * load elf file from ram
- * default: load file from file system
- */
-#ifndef RHINO_CONFIG_RAM_LOAD
-#define RHINO_CONFIG_RAM_LOAD 0
-#endif
-
 #ifndef RHINO_CONFIG_DYN_SYSCALL_TBL
 #define RHINO_CONFIG_DYN_SYSCALL_TBL 0
 #endif
