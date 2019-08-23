@@ -100,15 +100,15 @@ extern klist_t     g_task_del_head;
 
 
 #if (RHINO_CONFIG_TASK_DEL > 0)
-#define TASK_CANCEL_CHK()                                      \
+#define TASK_CANCEL_CHK(obj)                                      \
             do {                                               \
-                if (g_active_task[cur_cpu_num]->cancel == 3u) {\
+                if ((g_active_task[cur_cpu_num]->cancel == 3u) && (obj->blk_obj.cancel == 1u)) {\
                     RHINO_CRITICAL_EXIT();                     \
                     return RHINO_TASK_CANCELED;                \
                 }                                              \
             } while (0)
 #else
-#define TASK_CANCEL_CHK()
+#define TASK_CANCEL_CHK(obj)
 #endif
 
 #define RES_FREE_NUM 4
@@ -139,7 +139,7 @@ void pend_task_wakeup(ktask_t *task);
 void pend_to_blk_obj(blk_obj_t *blk_obj, ktask_t *task, tick_t timeout);
 void pend_task_rm(ktask_t *task);
 
-kstat_t pend_state_end_proc(ktask_t *task);
+kstat_t pend_state_end_proc(ktask_t *task, blk_obj_t *blk_obj);
 
 void idle_task(void *p_arg);
 
