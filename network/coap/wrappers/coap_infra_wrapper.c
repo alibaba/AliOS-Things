@@ -4,7 +4,7 @@
 
 #include "coap_wrapper.h"
 
-#ifdef HAL_CRYPTO
+#ifdef INFRA_AES
 #include "linkkit/infra/infra_aes.h"
 p_Aes128_t coap_wrapper_aes128_init(
             const uint8_t *key,
@@ -54,7 +54,7 @@ int coap_wrapper_aes128_cbc_encrypt(
 {
     return infra_aes128_cbc_encrypt(aes, src, blockNum, dst);
 }
-#endif /* HAL_CRYPTO */
+#endif /* INFRA_AES */
 
 #ifdef INFRA_CJSON
 #include "linkkit/infra/infra_cjson.h"
