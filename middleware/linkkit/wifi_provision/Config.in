@@ -2,7 +2,7 @@
 config AOS_COMP_SDK_AWSS 
     bool "FEATURE_WIFI_PROVISION_ENABLED"
     select AOS_COMP_SDK_WRAPPERS
-    select INFRA_AES if !USE_MBEDTLS
+    select INFRA_AES
     select AWSS_DISABLE_ENROLLEE if !AWSS_SUPPORT_ZEROCONFIG
     select AWSS_DISABLE_REGISTRAR if !AWSS_SUPPORT_ZEROCONFIG
     select AWSS_SUPPORT_APLIST
@@ -58,7 +58,7 @@ menu "Wifi Provision Configurations"
     config AWSS_SUPPORT_SMARTCONFIG_MCAST
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG_MCAST"
         depends on AWSS_SUPPORT_SMARTCONFIG
-        default n
+        default y
 
     config AWSS_SUPPORT_ZEROCONFIG
         bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
