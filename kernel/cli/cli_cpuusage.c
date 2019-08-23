@@ -22,10 +22,7 @@ void cpuusage_statistics(void* arg)
 
     printf("start to statistics CPU utilization, period %d\r\n", period);
     debug_task_cpu_usage_stats();
-    status = krhino_task_sleep(period * RHINO_CONFIG_TICKS_PER_SECOND);
-    if (status == RHINO_TASK_CANCELED) {
-        krhino_task_cancel_clr();
-    }
+    krhino_task_sleep(period * RHINO_CONFIG_TICKS_PER_SECOND);
 
     while(1) {
         if (krhino_task_cancel_chk() == RHINO_TRUE) {
@@ -34,9 +31,7 @@ void cpuusage_statistics(void* arg)
         }
         debug_task_cpu_usage_stats();
         status = krhino_task_sleep(period * RHINO_CONFIG_TICKS_PER_SECOND);
-        if (status == RHINO_TASK_CANCELED) {
-            krhino_task_cancel_clr();
-        } else {
+        if (status != RHINO_TASK_CANCELED) {
             debug_total_cpu_usage_show();
         }
     }
