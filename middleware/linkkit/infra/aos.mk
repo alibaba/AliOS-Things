@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := system tools
 
 $(NAME)_SOURCES-y += infra_defs.c
 $(NAME)_SOURCES-$(INFRA_AES) += infra_aes.c
-$(NAME)_SOURCES-$(HAL_CRYPTO) += infra_aes.c
 $(NAME)_SOURCES-$(INFRA_CJSON) += infra_cjson.c
 $(NAME)_SOURCES-$(INFRA_COMPAT) += infra_compat.c
 $(NAME)_SOURCES-$(INFRA_HTTPC) += infra_httpc.c
