@@ -47,4 +47,8 @@ config BSP_SUPPORT_WIFI
     bool
     default y
 
+config BSP_SUPPORT_WIFI_LOWPOWER
+    bool
+    default y
+
 endif

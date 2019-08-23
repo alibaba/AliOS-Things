@@ -90,4 +90,8 @@ config CONFIG_LS_KM_TEE
     bool
     default n
 
+config BSP_SUPPORT_WIFI_LOWPOWER
+    bool
+    default y
+
 endif
