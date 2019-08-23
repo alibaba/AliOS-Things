@@ -22,6 +22,9 @@ kstat_t mutex_create(kmutex_t *mutex, const name_t *name, uint8_t mm_alloc_flag)
     mutex->mutex_task         = NULL;
     mutex->mutex_list         = NULL;
     mutex->mm_alloc_flag      = mm_alloc_flag;
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    mutex->blk_obj.cancel     = 0u;
+#endif
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
@@ -296,7 +299,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
-    TASK_CANCEL_CHK();
+    TASK_CANCEL_CHK(mutex);
 
     INTRPT_NESTED_LEVEL_CHK();
 
@@ -370,7 +373,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
     RHINO_CPU_INTRPT_DISABLE();
 
     /* so the task is waked up, need know which reason cause wake up */
-    ret = pend_state_end_proc(g_active_task[cpu_cur_get()]);
+    ret = pend_state_end_proc(g_active_task[cpu_cur_get()], (blk_obj_t *)mutex);
 
     RHINO_CPU_INTRPT_ENABLE();
 
