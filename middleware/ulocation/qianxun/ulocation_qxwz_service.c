@@ -56,6 +56,11 @@ int ulocation_qianxun_service(ulocation_qxwz_usr_config_t *usr_config, ulocation
 
     s_current_time = time(NULL);
 
+    if (usr_config == NULL || location == NULL) {
+        LOGE("uLocation-qxwz", "ulocation qianxun init failed!");
+        return ret;
+    }
+
     ret = ulocation_qxwz_init(GGA_DATA_PORT, GGA_DATA_BAUD);  /* need modified board logic port name */
     if (ret != 0) {
         LOGE("uLocation-qxwz", "ulocation qianxun init failed!");
