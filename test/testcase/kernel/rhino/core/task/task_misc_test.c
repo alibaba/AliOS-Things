@@ -335,13 +335,6 @@ void task_misc_entry(void *arg)
         test_case_fail++;
     }
 
-    tmp.blk_state = BLK_ABORT;
-    pend_state_end_proc(&tmp);
-
-    tmp.blk_state = BLK_TIMEOUT;
-
-    pend_state_end_proc(&tmp);
-
 #if (RHINO_CONFIG_HW_COUNT > 0)
     krhino_overhead_measure();
 #endif
