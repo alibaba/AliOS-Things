@@ -28,7 +28,7 @@ iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
         cm_err("_mqtt_conncection malloc failed!");
         goto failed;
     }
-
+    memset(_mqtt_conncection, 0, sizeof(iotx_cm_connection_t));
     mqtt_param = (iotx_mqtt_param_t *)cm_malloc(sizeof(iotx_mqtt_param_t));
     if (mqtt_param == NULL) {
         cm_err("mqtt_param malloc failed!");
