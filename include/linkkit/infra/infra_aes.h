@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     #include "linkkit/infra/infra_aes_config.h"
 #endif
 
@@ -29,10 +29,6 @@ extern "C" {
     !defined(inline) && !defined(__cplusplus)
     #define inline __inline
 #endif
-
-#if !defined(INFRA_AES_ALT)
-
-
 
 /**
  * \brief          AES context structure
@@ -262,68 +258,6 @@ int infra_internal_aes_decrypt(infra_aes_context *ctx,
         const unsigned char input[16],
         unsigned char output[16]);
 
-#if !defined(INFRA_DEPRECATED_REMOVED)
-#if defined(INFRA_DEPRECATED_WARNING)
-#define INFRA_DEPRECATED      __attribute__((deprecated))
-#else
-#define INFRA_DEPRECATED
-#endif
-/**
- * \brief           Internal AES block encryption function
- *                  (Only exposed to allow overriding it,
- *                  see INFRA_AES_ENCRYPT_ALT)
- *
- * \deprecated      Superseded by infra_aes_encrypt_ext() in 2.5.0
- *
- * \param ctx       AES context
- * \param input     Plaintext block
- * \param output    Output (ciphertext) block
- */
-#if 0
-INFRA_DEPRECATED static inline void infra_aes_encrypt(
-            infra_aes_context *ctx,
-            const unsigned char input[16],
-            unsigned char output[16])
-{
-    infra_internal_aes_encrypt(ctx, input, output);
-}
-#endif
-
-/**
- * \brief           Internal AES block decryption function
- *                  (Only exposed to allow overriding it,
- *                  see INFRA_AES_DECRYPT_ALT)
- *
- * \deprecated      Superseded by infra_aes_decrypt_ext() in 2.5.0
- *
- * \param ctx       AES context
- * \param input     Ciphertext block
- * \param output    Output (plaintext) block
- */
-#if 0
-INFRA_DEPRECATED static inline void infra_aes_decrypt(
-            infra_aes_context *ctx,
-            const unsigned char input[16],
-            unsigned char output[16])
-{
-    infra_internal_aes_decrypt(ctx, input, output);
-}
-#endif
-
-#undef INFRA_DEPRECATED
-#endif /* !INFRA_DEPRECATED_REMOVED */
-
-#ifdef __cplusplus
-}
-#endif
-
-#else  /* INFRA_AES_ALT */
-#include "aes_alt.h"
-#endif /* INFRA_AES_ALT */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \brief          Checkup routine
@@ -334,7 +268,7 @@ int infra_aes_self_test(int verbose);
 
 typedef infra_aes_context mbedtls_aes_context;
 
-#if !defined(INFRA_AES)
+#if !defined(INFRA_AES_BUILDIN)
 void mbedtls_aes_free( mbedtls_aes_context *ctx );
 void mbedtls_aes_init(mbedtls_aes_context *ctx);
 int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
