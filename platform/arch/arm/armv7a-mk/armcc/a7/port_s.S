@@ -151,13 +151,11 @@ cpu_task_switch
         PUSH_FP_REG R0
     ENDIF
 
+    LDR     R1, =g_active_task
     IF (RHINO_CONFIG_CPU_NUM > 1)
-        getcoreid   R3
+        getcoreid R3
         LSL     R3, R3, #2
-        LDR     R1, =g_active_task
         ADD     R1, R1, R3
-    ELSE
-        LDR     R1, =g_active_task
     ENDIF
 
     ; g_active_task->task_stack = SP;
@@ -211,7 +209,7 @@ cpu_intrpt_switch
     PUSH    {R0-R3,R12,LR}
     MOV     R0, R2
     MOV     R1, R3
-    bl      k_proc_switch
+    BL      k_proc_switch
     POP     {R0-r3, R12,LR}
 
     POP     {FP, PC}
