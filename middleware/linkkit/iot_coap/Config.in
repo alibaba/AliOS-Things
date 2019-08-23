@@ -7,9 +7,8 @@ config COAP_COMM_ENABLED
     select INFRA_MD5
     select INFRA_REPORT
     select INFRA_STRING
-    select HAL_CRYPTO
     select COAP_PACKET
-    select INFRA_AES if !USE_MBEDTLS
+    select INFRA_AES
     select AOS_COMP_SDK_WRAPPERS
 
     help
@@ -26,7 +25,6 @@ config COAP_SERVER
     select INFRA_JSON_PARSER
     select INFRA_SHA1
     select HAL_KV
-    select HAL_CRYPTO
     select COAP_PACKET
-    select INFRA_AES if !USE_MBEDTLS
+    select INFRA_AES
     select AOS_COMP_SDK_WRAPPERS

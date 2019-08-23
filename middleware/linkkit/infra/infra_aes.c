@@ -9,24 +9,20 @@
  *  http://csrc.nist.gov/encryption/aes/rijndael/Rijndael.pdf
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
+#if defined(INFRA_AES)
 #include "linkkit/infra/infra_config.h"
 #include "linkkit/infra/infra_aes.h"
 #include <string.h>
 #include <stdlib.h>
 #include "linkkit/infra/infra_compat.h"
 
-#ifdef INFRA_AES
+#ifdef INFRA_AES_BUILDIN
 
 #if !defined(INFRA_CONFIG_FILE)
 #include "linkkit/infra/infra_aes_config.h"
 #else
 #include INFRA_CONFIG_FILE
 #endif
-
-#if defined(INFRA_AES_C)
-
-
-#if !defined(INFRA_AES_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
 static void infra_aes_zeroize( void *v, size_t n ) {
@@ -1015,19 +1011,11 @@ int infra_aes_crypt_ctr( infra_aes_context *ctx,
 #endif
 #endif /* INFRA_CIPHER_MODE_CTR */
 
-#endif /* !INFRA_AES_ALT */
-
-#endif /* INFRA_AES_C */
-
-#endif /* INFRA_AES */
+#endif /* INFRA_AES_BUILDIN */
 
 
-
-
-
-#if defined(HAL_CRYPTO)
 typedef struct {
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     infra_aes_context ctx;
 #else
     mbedtls_aes_context ctx;
@@ -1051,7 +1039,7 @@ p_Aes128_t infra_aes128_init(
     if (!p_aes128) return p_aes128;
 
 
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     infra_aes_init(&p_aes128->ctx);
     if (dir == AES_ENCRYPTION) {
         ret = infra_aes_setkey_enc(&p_aes128->ctx, key, 128);
@@ -1083,7 +1071,7 @@ int infra_aes128_destroy(p_Aes128_t aes)
     if (!aes) return -1;
 
 
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     infra_aes_free(&((platform_aes_t *)aes)->ctx);
 #else
     mbedtls_aes_free(&((platform_aes_t *)aes)->ctx);
@@ -1106,7 +1094,7 @@ int infra_aes128_cbc_decrypt(
     if (!aes || !src || !dst) return ret;
 
     for (i = 0; i < blockNum; ++i) {
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
         ret = infra_aes_crypt_cbc(&p_aes128->ctx, INFRA_AES_DECRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
 #else
@@ -1132,7 +1120,7 @@ int infra_aes128_cfb_decrypt(
 
     if (!aes || !src || !dst) return ret;
 
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     ret = infra_aes_setkey_enc(&p_aes128->ctx, p_aes128->key, 128);
     ret = infra_aes_crypt_cfb128(&p_aes128->ctx, INFRA_AES_DECRYPT, length,
                                    &offset, p_aes128->iv, src, dst);
@@ -1157,7 +1145,7 @@ int infra_aes128_cfb_encrypt(
 
     if (!aes || !src || !dst) return ret;
 
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
     ret = infra_aes_crypt_cfb128(&p_aes128->ctx, INFRA_AES_ENCRYPT, length,
                                    &offset, p_aes128->iv, src, dst);
 #else
@@ -1180,7 +1168,7 @@ int infra_aes128_cbc_encrypt(
     if (!aes || !src || !dst) return -1;
 
     for (i = 0; i < blockNum; ++i) {
-#if defined(INFRA_AES)
+#if defined(INFRA_AES_BUILDIN)
         ret = infra_aes_crypt_cbc(&p_aes128->ctx, INFRA_AES_ENCRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
 #else
@@ -1194,4 +1182,4 @@ int infra_aes128_cbc_encrypt(
     return ret;
 }
 
-#endif /* HAL_CRYPTO */
+#endif /* INFRA_AES */
