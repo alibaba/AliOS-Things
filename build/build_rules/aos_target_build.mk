@@ -3,9 +3,9 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 # Support 2nd boot build for OTA
 MODULES_DIR := modules
 
-ifeq ($(AOS_2BOOT_SUPPORT),yes)
+ifeq ($(AOS_2NDBOOT_SUPPORT),yes)
 CONFIG_SUFFIX    := _2ndboot
-BIN_2BOOT_SUFFIX := .2boot
+BIN_2NDBOOT_SUFFIX := .2ndboot
 MODULES_DIR      := modules$(CONFIG_SUFFIX)
 endif
 
@@ -21,7 +21,7 @@ include $(TOOLCHAIN_MAKEFILE)
 ##################################
 
 # out/helloworld@xx/binary/helloworld@xx.elf
-LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX)$(LINK_OUTPUT_SUFFIX)
+LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(BIN_2NDBOOT_SUFFIX)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.stripped.elf
 STRIPPED_LINK_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
 # out/helloworld@xx/binary/helloworld@xx.bin
@@ -35,6 +35,9 @@ MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
 
 BIN_OUTPUT_FILE_TMP       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.tmptmp.bin)
 
+# out/helloworld@xx/binary/helloworld@xx_ota.bin
+OTA_BIN_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_ota$(BIN_OUTPUT_SUFFIX))
+
 ifeq ($(PING_PONG_OTA),1)
 LINK_OUTPUT_FILE_XIP2     :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.xip2$(LINK_OUTPUT_SUFFIX))
 STRIPPED_LINK_OUTPUT_FILE_XIP2 :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
@@ -45,9 +48,9 @@ MAP_CSV_OUTPUT_FILE_XIP2        :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=
 endif
 
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
-LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX).opts
+LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2NDBOOT_SUFFIX).opts
 
-LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2BOOT_SUFFIX).opts
+LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LOWER)$(BIN_2NDBOOT_SUFFIX).opts
 
 LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
@@ -357,12 +360,46 @@ else
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
 endif
 
+# Generate Common OTA firmware
+ifeq ($(HOST_OS),Win32)
+XZ := $(TOOLS_ROOT)/cmd/win32/xz.exe
+else  # Win32
+ifeq ($(HOST_OS),Linux32)
+XZ := $(TOOLS_ROOT)/cmd/linux32/xz
+else # Linux32
+ifeq ($(HOST_OS),Linux64)
+XZ := $(TOOLS_ROOT)/cmd/linux64/xz
+else # Linux64
+ifeq ($(HOST_OS),OSX)
+XZ := $(TOOLS_ROOT)/cmd/osx/xz
+else # OSX
+$(error not surport for $(HOST_OS))
+endif # OSX
+endif # Linux64
+endif # Linux32
+endif # Win32
+
+XZ_CMD = if [ -f $(XZ) ]; then $(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE); else echo "xz need be installed"; fi
+MD5_CMD = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE) -m $(IMAGE_MAGIC)
+XZ_MD5 = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE).xz -m $(IMAGE_MAGIC)
+README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
+
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
-ifneq ($(AOS_2BOOT_SUPPORT),yes)
-	$(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)
+ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
+ifneq ($(PING_PONG_OTA),1)
+ifneq ($(BREEZE_OTA),1)
+	$(info Generate Raw OTA image: $(OTA_BIN_OUTPUT_FILE) ...)
+	$(QUIET)$(CP) $(BIN_OUTPUT_FILE) $(OTA_BIN_OUTPUT_FILE)
+	$(MD5_CMD)
+	$(info Generate Compressed OTA image: $(OTA_BIN_OUTPUT_FILE).xz ...)
+	$(XZ_CMD)
+	$(XZ_MD5)
 endif
+endif
+endif
+	$(README)
 
 %.compile: $(LINK_LIBS)
 	$(QUIET)$(ECHO) Build libraries complete
