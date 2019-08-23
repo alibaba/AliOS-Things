@@ -37,6 +37,9 @@ static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name, void *b
     queue->blk_obj.name       = name;
     queue->blk_obj.blk_policy = BLK_POLICY_PRI;
     queue->mm_alloc_flag      = mm_alloc_flag;
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    queue->blk_obj.cancel     = 1u;
+#endif
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
@@ -302,7 +305,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
-    TASK_CANCEL_CHK();
+    TASK_CANCEL_CHK(queue);
 
     if ((g_intrpt_nested_level[cur_cpu_num] > 0u) && (ticks != RHINO_NO_WAIT)) {
         RHINO_CRITICAL_EXIT();
@@ -344,7 +347,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size
 
     cur_cpu_num = cpu_cur_get();
 
-    ret = pend_state_end_proc(g_active_task[cur_cpu_num]);
+    ret = pend_state_end_proc(g_active_task[cur_cpu_num], (blk_obj_t *)queue);
 
     switch (ret) {
         case RHINO_SUCCESS:
