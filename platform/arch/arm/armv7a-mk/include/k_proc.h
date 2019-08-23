@@ -62,6 +62,8 @@ int32_t k_proc_init(void *phyaddr, size_t size);
 
 int32_t k_proc_load(const char *file, const char *name);
 
+int32_t k_proc_ramload(const void *ramaddr, const char *name);
+
 int32_t k_proc_unload(int32_t pid);
 
 /**
