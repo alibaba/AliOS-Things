@@ -127,6 +127,18 @@ config INFRA_PREAUTH
     bool
     default n
 
-config INFRA_AES
+config INFRA_AES_BUILDIN
     bool
     default n
+
+config INFRA_AES_ROM_TABLES
+    bool
+    default n
+
+config INFRA_AES
+    bool
+    select INFRA_AES_BUILDIN if !AOS_COMP_MBEDTLS
+    select INFRA_AES_ROM_TABLES if !AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MODE_CFB if AOS_COMP_MBEDTLS
+    default n
+
