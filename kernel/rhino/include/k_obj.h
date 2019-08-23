@@ -37,6 +37,10 @@ typedef struct blk_obj {
 #if (RHINO_CONFIG_USER_SPACE > 0)
     klist_t       obj_list;
 #endif
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    uint8_t       cancel;
+#endif
+
 } blk_obj_t;
 
 typedef struct {
