@@ -912,22 +912,11 @@ kstat_t krhino_task_cancel(ktask_t *task)
     NULL_PARA_CHK(task);
 
     RHINO_CRITICAL_ENTER();
-    task->cancel = 3u;
+    task->cancel = 1u;
     ret = krhino_task_wait_abort(task);
     RHINO_CRITICAL_EXIT();
 
     return ret;
-}
-
-void krhino_task_cancel_clr(void)
-{
-    CPSR_ALLOC();
-    ktask_t *cur_task;
-
-    cur_task = krhino_cur_task_get();
-    RHINO_CRITICAL_ENTER();
-    cur_task->cancel = 2u;
-    RHINO_CRITICAL_EXIT();
 }
 
 RHINO_BOOL krhino_task_cancel_chk(void)
@@ -939,7 +928,7 @@ RHINO_BOOL krhino_task_cancel_chk(void)
 
     cur_task= krhino_cur_task_get();
     RHINO_CRITICAL_ENTER();
-    if (cur_task->cancel > 0u) {
+    if (cur_task->cancel == 1u) {
         ret = RHINO_TRUE;
     }
     else {
