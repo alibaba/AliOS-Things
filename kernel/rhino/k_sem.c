@@ -26,6 +26,9 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
     sem->blk_obj.name       = name;
     sem->blk_obj.blk_policy = BLK_POLICY_PRI;
     sem->mm_alloc_flag      = mm_alloc_flag;
+#if (RHINO_CONFIG_TASK_DEL > 0)
+    sem->blk_obj.cancel     = 1u;
+#endif
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
@@ -246,7 +249,7 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
-    TASK_CANCEL_CHK();
+    TASK_CANCEL_CHK(sem);
 
     INTRPT_NESTED_LEVEL_CHK();
 
@@ -283,7 +286,7 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 
     RHINO_CPU_INTRPT_DISABLE();
 
-    stat = pend_state_end_proc(g_active_task[cpu_cur_get()]);
+    stat = pend_state_end_proc(g_active_task[cpu_cur_get()], (blk_obj_t *)sem);
 
     RHINO_CPU_INTRPT_ENABLE();
 
