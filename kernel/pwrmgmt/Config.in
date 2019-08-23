@@ -34,5 +34,13 @@ config PWRMGMT_CONFIG_MINISLEEP
         help
             set to y if you want to specify the minimum time for the CPU to enter low power.
             default n
+
+config WIFI_CONFIG_SUPPORT_LOWPOWER
+    bool "Enable wifi low power"
+        depends on BSP_SUPPORT_WIFI_LOWPOWER
+        default y
+        help
+            set y to enable wifi low power. If the board support wifi low power it is enabled by default.
+
 endif
 
