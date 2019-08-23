@@ -41,11 +41,11 @@ def main():
     url = sys.argv[1]
     dest_dir = sys.argv[2]
 
-    if check_url(url):
-        print ("\nCan't reach url: %s" % url)
-        print ("Please check your network and download it manually:\n")
-        print ("  $ git clone %s %s\n" % (url, dest_dir))
-        return 1
+    #if check_url(url):
+    #    print ("\nCan't reach url: %s" % url)
+    #    print ("Please check your network and download it manually:\n")
+    #    print ("  $ git clone %s %s\n" % (url, dest_dir))
+    #    return 1
 
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
