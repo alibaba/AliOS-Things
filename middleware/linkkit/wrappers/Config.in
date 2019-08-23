@@ -6,6 +6,7 @@ config AOS_COMP_SDK_WRAPPERS
     select AOS_COMP_CHIP_CODE
     select AOS_COMP_NETMGR
     select AOS_COMP_KV
+    select INFRA_AES
     help
       HAL for AliOS Things
     
@@ -33,7 +34,6 @@ config USE_ITLS
     depends on SUPPORT_TLS
     depends on !USE_MBEDTLS
     select AOS_COMP_ITLS
-    select INFRA_AES
     default n
     help
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
@@ -43,13 +43,6 @@ config COAP_DTLS_SUPPORT
     select AOS_COMP_MBEDTLS
     select AOS_COMP_SDK_CERT
     default n
-
-config HAL_CRYPTO
-    bool
-    default y if USE_MBEDTLS || COAP_DTLS_SUPPORT
-    select MBEDTLS_CONFIG_CRYPTO_MODE_CFB if USE_MBEDTLS
-    help
-      HAL CRYPTO for AliOS Things
 
 config TLS_SAVE_TICKET
     bool "support save tls ticket"
