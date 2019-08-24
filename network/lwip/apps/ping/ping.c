@@ -94,8 +94,8 @@
 #define PING_RESULT(ping_ok)
 #endif
 
-#ifndef PING_PRIO
-#define PING_PRIO 1536
+#ifndef PING_STACK_SIZE
+#define PING_STACK_SIZE   2048
 #endif
 
 /* ping variables */
@@ -282,7 +282,7 @@ ping_thread(void *arg)
   LWIP_ASSERT("setting receive timeout failed", ret == 0);
   LWIP_UNUSED_ARG(ret);
 
-  while (true) {
+  while (1){
     if(count >= 0) {
         if(count == 0) {
             LWIP_DEBUGF( PING_DEBUG, ("ping: send %"U32_F"times finished", ping_send_count));
@@ -418,7 +418,7 @@ ping_init(const ip_addr_t* ping_addr)
 #if PING_USE_SOCKETS
   if(!ping_started) {
       ping_started = 1;
-      aos_task_new("ping_thread", ping_thread, NULL, PING_PRIO);
+      aos_task_new("ping_thread", ping_thread, NULL, PING_STACK_SIZE);
   }
   else {
       LWIP_DEBUGF( PING_DEBUG, ("ping: ping task is already running\n"));
