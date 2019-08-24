@@ -1,7 +1,7 @@
 NAME := board_stm32f429zi-mk
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board stm32f429zi-mk
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
@@ -39,6 +39,10 @@ $(NAME)_SOURCES    += src/startup_stm32f429xx.S
 endif
 
 GLOBAL_CFLAGS  += -DSTM32F429xx
+
+ifeq ($(RHINO_CONFIG_UTCPIP),y)
+GLOBAL_DEFINES += LWIP_TASK_CANCEL
+endif
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32f429zi-mk/STM32F429ZITx.sct
