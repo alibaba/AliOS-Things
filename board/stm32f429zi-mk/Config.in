@@ -48,4 +48,11 @@ config BSP_SUPPORT_I2C
     bool "BSP_SUPPORT_I2C"
     default y
 
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
 endif
