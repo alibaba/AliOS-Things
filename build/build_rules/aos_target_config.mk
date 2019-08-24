@@ -432,6 +432,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/network/nal/athost \
                     -I$(SOURCE_ROOT)/include/network/nal/atparser \
                     -I$(SOURCE_ROOT)/include/network/nal/sal \
+                    -I$(SOURCE_ROOT)/include/network/lwip \
                     -I$(SOURCE_ROOT)/include/network/netmgr \
                     -I$(SOURCE_ROOT)/include/network/yloop
 
