@@ -12,11 +12,9 @@ endif
 ifneq ($(use_private_lwip),1)
 include network/lwip/Filelists.mk
 
-GLOBAL_INCLUDES += include port/include
+GLOBAL_INCLUDES += include
 
 GLOBAL_DEFINES += CONFIG_NET_LWIP
-
-$(NAME)_INCLUDES += port/include
 
 $(NAME)_SOURCES := $(COREFILES)
 $(NAME)_SOURCES += $(CORE4FILES)
