@@ -7,7 +7,7 @@
         "-i",
         "swd",
         "-f",
-        "@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin",
+        "@AOSROOT@/out/@TARGET@/binary/@TARGET@_all.bin",
         "-p",
         "0x00000000"
     ]
