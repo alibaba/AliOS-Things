@@ -19,6 +19,8 @@ int sys_IOT_Linkkit_Query_stub(void *arg);
 
 int sys_IOT_Linkkit_TriggerEvent_stub(void *arg);
 
+int sys_IOT_Linkkit_AnswerService_stub(void *arg);
+
 void sys_IOT_SetLogLevel_stub(void *arg);
 
 void sys_IOT_DumpMemoryStats_stub(void *arg);
