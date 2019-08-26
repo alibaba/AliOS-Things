@@ -170,8 +170,12 @@ int pwrmgmt_wifi_powersave_enable(void)
 
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt wifi lowpower enable\r\n");
 
-    module = hal_wifi_get_default_module();
-    hal_wifi_enter_powersave(module, WIFI_CONFIG_RECEIVE_DTIM);
+    if (wifi_suspend_lock == 0) {
+        module = hal_wifi_get_default_module();
+        hal_wifi_enter_powersave(module, WIFI_CONFIG_RECEIVE_DTIM);
+    } else {
+        PWRMGMT_LOG(PWRMGMT_LOG_INFO, "wifi lowpower is suspend\r\n");
+    }
     return 0;
 }
 
