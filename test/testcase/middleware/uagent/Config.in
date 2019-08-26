@@ -1,0 +1,5 @@
+menu "uagent Testcase Configuration"
+
+source "test/testcase/middleware/uagent/uagent/Config.in"
+
+endmenu

@@ -1,6 +1,7 @@
 menu "Testcase Configuration"
 
 source "test/testcase/kernel/Config.in"
+source "test/testcase/middleware/uagent/Config.in"
 source "test/testcase/utility/Config.in"
 source "test/testcase/osal/Config.in"
 source "test/testcase/3rdparty/experimental/Config.in"
