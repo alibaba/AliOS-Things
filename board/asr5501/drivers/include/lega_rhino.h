@@ -195,7 +195,7 @@ OSStatus lega_rtos_init_mutex( lega_mutex_t* mutex );
   * @return   kNoErr        : on success.
   * @return   kGeneralErr   : if an error occurred
   */
-OSStatus lega_rtos_lock_mutex( lega_mutex_t* mutex );
+OSStatus lega_rtos_lock_mutex( lega_mutex_t* mutex, uint32_t timeout_ms );
 
 
 /** @brief    Releases the lock on a mutex
