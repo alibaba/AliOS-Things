@@ -19,6 +19,10 @@ extern "C" {
 #include <hal/wifi.h>
 #include <netmgr.h>
 #include "linkkit/wrappers/wrappers_defs.h"
+#ifdef AOS_COMP_PWRMGMT
+#include "aos/pwrmgmt.h"
+#endif
+
 /*
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *
@@ -139,6 +143,9 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
     if (module == NULL || module->start_ap == NULL) {
         return -1;
     }
+#ifdef AOS_COMP_PWRMGMT
+    aos_pwrmgmt_lowpower_suspend(PWRMGMT_NETMGR);
+#endif
     return module->start_ap(module, ssid, passwd, beacon_interval, hide);
 }
 
@@ -205,7 +212,9 @@ void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
     if (module == NULL) {
         return;
     }
-
+#ifdef AOS_COMP_PWRMGMT
+    aos_pwrmgmt_lowpower_suspend(PWRMGMT_NETMGR);
+#endif
     g_ieee80211_handler = cb;
     hal_wifi_register_monitor_cb(module, monitor_data_handler);
     hal_wifi_start_wifi_monitor(module);
@@ -281,6 +290,10 @@ int HAL_Awss_Connect_Ap(uint32_t connection_timeout_ms,
 #endif
     // LOGI("aos_awss", "Will reconnect wifi: %s %s", ssid, passwd);
     netmgr_reconnect_wifi();
+
+#ifdef AOS_COMP_PWRMGMT
+    aos_pwrmgmt_lowpower_resume(PWRMGMT_NETMGR);
+#endif
 
     while (ms_cnt < connection_timeout_ms) {
         if (netmgr_get_ip_state() == false) {
