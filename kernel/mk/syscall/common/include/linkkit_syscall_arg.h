@@ -48,6 +48,15 @@ typedef struct {
 } IOT_Linkkit_TriggerEvent_syscall_arg_t;
 
 typedef struct {
+    int   devid;
+    char *serviceid;
+    int   serviceid_len;
+    char *payload;
+    int   payload_len;
+    void *p_service_ctx;
+} IOT_Linkkit_AnswerService_syscall_arg_t;
+
+typedef struct {
     IOT_LogLevel  level;
     void         *arg;
 } IOT_SetLogLevel_syscall_arg_t;
