@@ -22,6 +22,12 @@ typedef enum {
   STA,      /*Act as a station which can connect to an access point*/
 } lega_wlan_type_e;
 
+enum {
+    WLAN_DHCP_DISABLE = 0,
+    WLAN_DHCP_CLIENT,
+    WLAN_DHCP_SERVER,
+};
+
 typedef enum {
     EVENT_STATION_UP = 1,  /*used in station mode,
                             indicate station associated in open mode or 4-way-handshake done in WPA/WPA2*/
@@ -29,7 +35,6 @@ typedef enum {
     EVENT_AP_UP,           /*used in softap mode, indicate softap enabled*/
     EVENT_AP_DOWN,         /*used in softap mode, indicate softap disabled*/
 } lega_wifi_event_e;
-
 typedef enum {
     CONNECT_SUCC,
     CONNECT_SCAN_FAIL,
@@ -92,15 +97,6 @@ typedef struct {
     int     channel;       /* Channel of the current connected wlan */
 } lega_wlan_link_stat_t;
 
-/* used in open cmd for AP mode */
-typedef struct {
-    char    ssid[32+1];     /* ssid max len:32. +1 is for '\0' when ssidlen is 32  */
-    char    pwd[64+1];      /* pwd max len:64. +1 is for '\0' when pwdlen is 64 */
-    int     interval;       /* beacon listen interval */
-    int     hide;           /* hidden SSID */
-    int     channel;       /* Channel*/
-} lega_wlan_ap_init_t;
-
 /*used in open cmd of hal_wifi_module_t*/
 typedef struct {
     char    wifi_mode;              /* refer to hal_wifi_type_t*/
@@ -118,6 +114,8 @@ typedef struct {
     char    mac_addr[6];            /* connect bssid in sta mode*/
     char    reserved[32];           /* no use currently */
     int     wifi_retry_interval;    /* no use currently */
+    int     interval;               /* used in softap mode to config beacon listen interval */
+    int     hide;                   /* used in softap mode to config hidden SSID */
 } lega_wlan_init_type_t;
 
 /** @brief  wifi init functin, user should call it before use any wifi cmd
@@ -141,15 +139,6 @@ int lega_wlan_deinit(void);
  */
 int lega_wlan_open(lega_wlan_init_type_t* init_info);
 
-/** @brief  used in softap mode, open wifi cmd
- *
- * @param init_info    : refer to lega_wlan_ap_init_t
- *
- * @return    0       : on success.
- * @return    other   : error occurred
- */
-int lega_wlan_ap_open(lega_wlan_ap_init_t* init_info);
-
 /** @brief  used in station and softap mode, close wifi cmd
  *
  * @return    0       : on success.
@@ -172,11 +161,12 @@ int lega_wlan_start_scan_adv(void);
 /** @brief  used in station mode, scan cmd
  *
  * @param ssid    : target ssid to scan
+ * @param is_scan_advance :scan to get bssid, channel and security
  *
  *  @return    0       : on success.
  *  @return    other   : error occurred
  */
-int lega_wlan_start_scan_active(const char *ssid);
+int lega_wlan_start_scan_active(const char *ssid, uint8_t is_scan_advance);
 
 /** @brief  used in station and softap mode, get mac address(in hex mode) of WIFI device
  *
@@ -294,6 +284,7 @@ typedef void (*start_adv_cb_t)(lega_start_adv_results_e status);
  */
 int lega_wlan_register_start_adv_cb(start_adv_cb_t fn);
 
+
 /** @brief  used in station mode or sniffer mode, call this cmd to send a MPDU constructed by user
  *
  * @param buf    :  mac header pointer of the MPDU
@@ -366,7 +357,6 @@ typedef void (*lega_wlan_cb_associated_ap)(lega_wlan_ap_info_adv_t *ap_info);
  * @return    0       : on success.
  * @return    other   : error occurred
  */
-
 int lega_wlan_associated_ap_cb_register(lega_wlan_cb_associated_ap fn);
 
 /** @brief  calibration RCO clock for RTC
@@ -388,6 +378,7 @@ void lega_wlan_smartconfig_mimo_enable(void);
  *   called after hal_wifi_init
  */
 void lega_wlan_set_country_code(char *country);
+
 /** @brief  start monitor and ap coexist mode
  *
  * @param init_info    : refer to lega_wlan_init_type_t
@@ -407,10 +398,34 @@ int lega_wlan_stop_monitor_ap();
 /** @brief  get current temperature (C degree)
  *  called after hal_wifi_init
  *
- *  @return temperature value
+ * @param p_temp    : input param to get temperature, memory managed by caller
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
  */
-int16_t  lega_rf_get_temperature(void);
+int16_t  lega_rf_get_temperature(int16_t *p_temp);
+
+/* temperature get callback function, notify the current temperature*/
+typedef void (*temperature_get_cb_t)(int16_t temperature);
+
+/** @brief  set the timer to get temperature (in second)
+ *  called after hal_wifi_init
+ *
+ * @param timer_in_sec    : the timer in second
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_set_temperature_get_timer(uint64_t timer_in_sec);
+
+/** @brief  register the temperature get callback function
+ *  called after hal_wifi_init
+ *
+ * @param func    : the function will called to notify the temperature.
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_register_temperature_get_cb(temperature_get_cb_t func);
 
 #endif  //_LEGA_WIFI_API_H_
-
-
