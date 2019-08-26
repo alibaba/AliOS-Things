@@ -137,6 +137,17 @@ int sys_IOT_Linkkit_TriggerEvent_stub(void *arg)
                                     _arg->payload_len);
 }
 
+int sys_IOT_Linkkit_AnswerService_stub(void *arg)
+{
+    IOT_Linkkit_AnswerService_syscall_arg_t *_arg;
+
+    _arg = (IOT_Linkkit_AnswerService_syscall_arg_t*)arg;
+
+    return  IOT_Linkkit_AnswerService(_arg->devid, _arg->serviceid,
+                                      _arg->serviceid_len, _arg->payload,
+                                      _arg->payload_len, _arg->p_service_ctx);
+}
+
 void sys_IOT_SetLogLevel_stub(void *arg)
 {
     IOT_SetLogLevel_syscall_arg_t *_arg;
@@ -496,9 +507,93 @@ out:
 }
 
 static int ITE_SERVICE_REQUEST_EXT_cb(const int devid, const char *serviceid, const int serviceid_len,
-                                      const char *request, const int request_len, void *p_service_ctx)
+                                      const char *msgid, const int msgid_len, const char *request, const int request_len,
+                                      void *p_service_ctx)
 {
-    return 0;
+    kstat_t        stat;
+    cb_call_msg_t  call_msg;
+    cb_ret_msg_t   ret_msg;
+    size_t         size;
+    int            ret;
+    char          *serviceid_ptr = NULL;
+    char          *msgid_ptr     = NULL;
+    char          *request_ptr   = NULL;
+
+    /* alloc user space data buffer */
+    if (NULL != serviceid) {
+        serviceid_ptr = res_malloc(active_pid, serviceid_len + 1);
+        if (NULL == serviceid_ptr) {
+            ret = -1;
+            goto out;
+        }
+        /* call user space callback func */
+        memcpy(serviceid_ptr, serviceid, serviceid_len);
+        serviceid_ptr[serviceid_len] = 0;
+    }
+
+    if (NULL != msgid) {
+        msgid_ptr = res_malloc(active_pid, msgid_len + 1);
+        if (NULL == msgid_ptr) {
+            ret = -2;
+            goto out;
+        }
+        /* call user space callback func */
+        memcpy(msgid_ptr, msgid, msgid_len);
+        msgid_ptr[msgid_len] = 0;
+    }
+
+    if (NULL != request) {
+        request_ptr = res_malloc(active_pid, request_len + 1);
+        if (NULL == request_ptr) {
+            ret = -3;
+            goto out;
+        }
+        /* call user space callback func */
+        memcpy(request_ptr, request, request_len);
+        request_ptr[request_len] = 0;
+    }
+
+    call_msg.func_ptr     = g_impl_event_callback_map[ITE_SERVICE_REQUEST_EXT].callback_user;
+    call_msg.arg_cnt      = 8;
+    call_msg.arg_value[0] = (void*)devid;
+    call_msg.arg_value[1] = (void*)serviceid_ptr;
+    call_msg.arg_value[2] = (void*)serviceid_len;
+    call_msg.arg_value[3] = (void*)msgid_ptr;
+    call_msg.arg_value[4] = (void*)msgid_len;
+    call_msg.arg_value[5] = (void*)request_ptr;
+    call_msg.arg_value[6] = (void*)request_len;
+    call_msg.arg_value[7] = (void*)p_service_ctx;
+    call_msg.has_ret      = 1;
+
+    stat = cb_call_buf_queue_push(send_queue, &call_msg);
+    if (stat != RHINO_SUCCESS) {
+        ret = -4;
+        goto out;
+    }
+
+    stat = cb_ret_buf_queue_pop(recv_queue, &ret_msg, &size);
+    if (stat != RHINO_SUCCESS) {
+        ret = -5;
+        goto out;
+    }
+
+    ret = (int)ret_msg.ret_val;
+
+out:
+    /* free user space data buffer */
+    if (NULL != serviceid_ptr) {
+        res_free(active_pid, serviceid_ptr);
+    }
+
+    if (NULL != msgid_ptr) {
+        res_free(active_pid, msgid_ptr);
+    }
+
+    if (NULL != request_ptr) {
+        res_free(active_pid, request_ptr);
+    }
+
+    return ret;
 }
 
 static int ITE_PROPERTY_SET_cb(const int devid, const char *request, const int request_len)
@@ -1107,6 +1202,9 @@ int sys_IOT_RegisterCallback_stub(void *arg)
             break;
         case ITE_SERVICE_REQUEST:
             ret = IOT_RegisterCallback(ITE_SERVICE_REQUEST, ITE_SERVICE_REQUEST_cb);
+            break;
+        case ITE_SERVICE_REQUEST_EXT:
+            ret = IOT_RegisterCallback(ITE_SERVICE_REQUEST_EXT, ITE_SERVICE_REQUEST_EXT_cb);
             break;
         case ITE_PROPERTY_SET:
             ret = IOT_RegisterCallback(ITE_PROPERTY_SET, ITE_PROPERTY_SET_cb);
