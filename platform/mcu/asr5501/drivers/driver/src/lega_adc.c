@@ -104,7 +104,7 @@ int32_t lega_adc_get(lega_adc_dev_t *adc_config)
     uint32_t clk_reg[5] = {0};
     uint32_t adc_base_reg[2] = {0};
     int32_t vol_value = 0;
-//    float vol_val = 0;
+    //float vol_val = 0;
     lega_gpio_dev_t config_gpio;
 
     if(adc_config->port > 7)
@@ -138,11 +138,11 @@ int32_t lega_adc_get(lega_adc_dev_t *adc_config)
     //read base reg
     adc_base_reg[0] = REG_PL_RD(SYS_REG_BASE_AUXADC);
     adc_base_reg[1] = REG_PL_RD(SYS_REG_BASE_XOCTRL2);
-#if defined LEGA_A0V1 || defined LEGA_A0V2
+
     REG_PL_WR(SYS_REG_BASE_AUXADC, 0x040086CE);
     REG_PL_WR(SYS_REG_BASE_AUXADC, REG_PL_RD(SYS_REG_BASE_AUXADC) & (~(uint32_t)(BIT(9))));
-#endif
-//    //Enable AUXADC
+
+    //Enable AUXADC
     adc_set_reg_bit(0x06,14,1,0x0);
     //Enable XO CLK AUCADC, DFF's RB;D_RST_XO_CLK_AUXADC= 0
     reg_f = spi_mst_read(0x0f);
@@ -155,20 +155,16 @@ int32_t lega_adc_get(lega_adc_dev_t *adc_config)
     delay(500);
 
     //Open selected channel
-#if defined LEGA_A0V1
-    adc_set_reg_bit(0x23,4,4,0x0);
-#elif defined LEGA_A0V2
     REG_PL_WR(SYS_REG_BASE_XOCTRL2, ((REG_PL_RD(SYS_REG_BASE_XOCTRL2)&(~(uint32_t)0x7))|(uint32_t)adc_config->port) | ((uint32_t)(BIT(9))));
-#endif
-//     lega_rtos_delay_milliseconds(1);
+
+    //lega_rtos_delay_milliseconds(1);
      delay(500);
 
-#if defined LEGA_A0V1 || defined LEGA_A0V2
     REG_PL_WR(SYS_REG_BASE_AUXADC, REG_PL_RD(SYS_REG_BASE_AUXADC) | ((uint32_t)(BIT(9))));
     vol_value = (spi_mst_read(0xA4) & 0xFFF0) >> 4;
     printf("value is %ld\r\n",vol_value);
-#endif
-//    vol_val = 1.6 * (float)vol_value/4095;
+
+    //vol_val = 1.6 * (float)vol_value/4095;
 
     REG_PL_WR(SYS_REG_BASE_AUXADC,adc_base_reg[0]);
     REG_PL_WR(SYS_REG_BASE_XOCTRL2,adc_base_reg[1]);

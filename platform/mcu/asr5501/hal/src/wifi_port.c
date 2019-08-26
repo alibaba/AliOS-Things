@@ -60,15 +60,16 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 static int wifi_start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
 {
     int ret;
-    lega_wlan_ap_init_t conf;
-    memset(&conf, 0, sizeof(lega_wlan_ap_init_t));
-    printf("wifi_start_ap[%s %s %d]", ssid,passwd,strlen(passwd));
-    memcpy(conf.ssid, ssid, strlen(ssid));
-    memcpy(conf.pwd, passwd, strlen(passwd));
+    lega_wlan_init_type_t conf;
+    memset(&conf, 0, sizeof(lega_wlan_init_type_t));
+    conf.wifi_mode = SOFT_AP;
+    printf("wifi_start_ap [%s %s %d]\r\n", ssid,passwd,strlen(passwd));
+    memcpy(conf.wifi_ssid, ssid, strlen(ssid));
+    memcpy(conf.wifi_key, passwd, strlen(passwd));
     conf.interval = interval;
     conf.hide = hide;
 
-    ret = lega_wlan_ap_open(&conf);
+    ret = lega_wlan_open(&conf);
 
     return ret;
 }
@@ -109,6 +110,20 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
     ret = lega_wlan_open(&conf);
 
     return ret;
+}
+
+void wlan_temperature_get_cb(int16_t temperature)
+{
+    // User can update frequence offset according to current temperature
+    printf("cureent temperature is %d\n", temperature);
+}
+
+void register_wlan_temperature_get_cb(uint64_t timer_in_sec, temperature_get_cb_t func)
+{
+    if (func == NULL)
+        func = wlan_temperature_get_cb;
+    lega_wlan_register_temperature_get_cb(func);
+    lega_wlan_set_temperature_get_timer(timer_in_sec);
 }
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
