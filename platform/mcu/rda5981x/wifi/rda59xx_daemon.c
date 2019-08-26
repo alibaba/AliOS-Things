@@ -10,6 +10,10 @@
 #include "rda5981_sys_data.h"
 #include "trng_api.h"
 
+#ifdef AOS_COMP_PWRMGMT
+#include "aos/pwrmgmt.h"
+#endif
+
 #define WIFISTACK_DEBUG
 #ifdef WIFISTACK_DEBUG
 #define WIFISTACK_PRINT(fmt, ...) do {\
@@ -504,6 +508,9 @@ static r_void rda59xx_daemon(r_void *arg)
                 res = rda59xx_sniffer_enable_internal((sniffer_handler_t)(msg.arg1));
                 rda_sem_release((r_void *)msg.arg3);
                 module_state |= STATE_SNIFFER;
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+                pwrmgmt_wifi_powersave_enable();
+#endif
                 break;
             case DAEMON_SNIFFER_DISABLE:
                 WIFISTACK_PRINT("DAEMON_SNIFFER_DISABLE!\r\n");
