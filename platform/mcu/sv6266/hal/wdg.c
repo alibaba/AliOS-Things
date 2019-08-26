@@ -1,5 +1,5 @@
 
-#include "hal/soc/soc.h"
+#include "aos/hal/wdg.h"
 #include "drv/wdt/hal_wdt.h"
 
 int32_t
