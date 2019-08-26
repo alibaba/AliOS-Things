@@ -81,7 +81,22 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     arg.payload     = payload;
     arg.payload_len = payload_len;
 
-    return (int)SYSCALL(SYS_IOT_lINKKIT_TRIGGEREVENT, &arg);
+    return (int)SYSCALL(SYS_IOT_LINKKIT_TRIGGEREVENT, &arg);
+}
+
+int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, char *payload,
+                              int payload_len, void *p_service_ctx)
+{
+    IOT_Linkkit_AnswerService_syscall_arg_t arg;
+
+    arg.devid         = devid;
+    arg.serviceid     = serviceid;
+    arg.serviceid_len = serviceid_len;
+    arg.payload       = payload;
+    arg.payload_len   = payload_len;
+    arg.p_service_ctx = p_service_ctx;
+
+    return (int)SYSCALL(SYS_IOT_LINKKIT_ANSWERSERVICE, &arg);
 }
 
 void IOT_SetLogLevel(IOT_LogLevel level)
@@ -178,6 +193,11 @@ int iotx_register_for_ITE_SERVICE_REQUEST(int (*callback)(const int, const char 
             const int, char **, int *))
 {
     return _IOT_RegisterCallback(ITE_SERVICE_REQUEST, (void*)callback);
+}
+
+int iotx_register_for_ITE_SERVICE_REQUEST_EXT(int (*callback)(int, const char *, int, const char *, int, const char *, int, void *))
+{
+    return _IOT_RegisterCallback(ITE_SERVICE_REQUEST_EXT, (void*)callback);
 }
 
 int iotx_register_for_ITE_PROPERTY_SET(int (*callback)(const int, const char *, const int))

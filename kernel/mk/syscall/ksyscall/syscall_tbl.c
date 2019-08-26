@@ -291,19 +291,20 @@ const __root void * const syscall_tbl[] =
 
         /* ---------------- linkkit --------------------*/
 #if (RHINO_CONFIG_LINKKIT_SYSCALL > 0)
-    [SYS_IOT_LINKKIT_OPEN]         = (void*)sys_IOT_Linkkit_Open_stub,
-    [SYS_IOT_LINKKIT_CONNECT]      = (void*)sys_IOT_Linkkit_Connect_stub,
-    [SYS_IOT_LINKKIT_YIELD]        = (void*)sys_IOT_Linkkit_Yield_stub,
-    [SYS_IOT_LINKKIT_CLOSE]        = (void*)sys_IOT_Linkkit_Close_stub,
-    [SYS_IOT_LINKKIT_REPORT]       = (void*)sys_IOT_Linkkit_Report_stub,
-    [SYS_IOT_LINKKIT_QUERY]        = (void*)sys_IOT_Linkkit_Query_stub,
-    [SYS_IOT_lINKKIT_TRIGGEREVENT] = (void*)sys_IOT_Linkkit_TriggerEvent_stub,
-    [SYS_IOT_SETLOGLEVEL]          = (void*)sys_IOT_SetLogLevel_stub,
-    [SYS_IOT_DUMPMEMORYSTATS]      = (void*)sys_IOT_DumpMemoryStats_stub,
-    [SYS_IOT_SETUPCONNINFO]        = (void*)sys_IOT_SetupConnInfo_stub,
-    [SYS_IOT_IOCTL]                = (void*)sys_IOT_Ioctl_stub,
-    [SYS_IOT_HAL_IOCTL]            = (void*)sys_IOT_HAL_Ioctl_stub,
-    [SYS_IOT_REGSITERCALLBACK]     = (void*)sys_IOT_RegisterCallback_stub,
+    [SYS_IOT_LINKKIT_OPEN]          = (void*)sys_IOT_Linkkit_Open_stub,
+    [SYS_IOT_LINKKIT_CONNECT]       = (void*)sys_IOT_Linkkit_Connect_stub,
+    [SYS_IOT_LINKKIT_YIELD]         = (void*)sys_IOT_Linkkit_Yield_stub,
+    [SYS_IOT_LINKKIT_CLOSE]         = (void*)sys_IOT_Linkkit_Close_stub,
+    [SYS_IOT_LINKKIT_REPORT]        = (void*)sys_IOT_Linkkit_Report_stub,
+    [SYS_IOT_LINKKIT_QUERY]         = (void*)sys_IOT_Linkkit_Query_stub,
+    [SYS_IOT_LINKKIT_TRIGGEREVENT]  = (void*)sys_IOT_Linkkit_TriggerEvent_stub,
+    [SYS_IOT_LINKKIT_ANSWERSERVICE] = (void*)sys_IOT_Linkkit_AnswerService_stub,
+    [SYS_IOT_SETLOGLEVEL]           = (void*)sys_IOT_SetLogLevel_stub,
+    [SYS_IOT_DUMPMEMORYSTATS]       = (void*)sys_IOT_DumpMemoryStats_stub,
+    [SYS_IOT_SETUPCONNINFO]         = (void*)sys_IOT_SetupConnInfo_stub,
+    [SYS_IOT_IOCTL]                 = (void*)sys_IOT_Ioctl_stub,
+    [SYS_IOT_HAL_IOCTL]             = (void*)sys_IOT_HAL_Ioctl_stub,
+    [SYS_IOT_REGSITERCALLBACK]      = (void*)sys_IOT_RegisterCallback_stub,
 #endif /* RHINO_CONFIG_LINKKIT_SYSCALL */
 
     /* ---------------- end ------------------*/
