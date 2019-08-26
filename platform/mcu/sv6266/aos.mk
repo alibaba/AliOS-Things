@@ -170,6 +170,7 @@ $(NAME)_SOURCES  += drivers/libc_patch.c \
                     hal/wifi_port.c \
                     hal/rf_cmd.c \
                     hal/hw.c \
+                    hal/wdg.c \
                     $(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/netif/ethernetif.c \
                     $(SDKDIR)/components/bsp/soc/soc_init/init_mem.c \
                     $(SDKDIR)/components/bsp/soc/soc_init/soc_init.c
