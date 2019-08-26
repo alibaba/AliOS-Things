@@ -1,0 +1,9 @@
+config AOS_COMP_UAGENT_TEST
+    bool "UAGENT Testcase"
+    select AOS_COMP_UAGENT
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_CJSON
+    select AOS_COMP_SDK_MQTT
+    default n
+    help
