@@ -40,7 +40,7 @@ if 0
           Switching to "n" leads to not support HTTPD module
 endif
 
-    config LWIPERF_ENABLED
+    config IPERF_ENABLED
         bool "IPERF Support"
         default n
         help
