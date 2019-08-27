@@ -13,10 +13,10 @@
 #define RHINO_CONFIG_QUEUE                   1
 #endif
 #ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0
+#define RHINO_CONFIG_TASK_SEM                1
 #endif
 #ifndef RHINO_CONFIG_EVENT_FLAG
-#define RHINO_CONFIG_EVENT_FLAG              0
+#define RHINO_CONFIG_EVENT_FLAG              1
 #endif
 #ifndef RHINO_CONFIG_TIMER
 #define RHINO_CONFIG_TIMER                   1
