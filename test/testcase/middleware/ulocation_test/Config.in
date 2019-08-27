@@ -1,0 +1,8 @@
+config AOS_COMP_ULOCATION_TEST
+    bool "ULOCATION Testcase"
+    select AOS_COMP_ULOCATION
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_CJSON 
+    default n
+    help
