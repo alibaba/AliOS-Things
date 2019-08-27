@@ -1,0 +1,51 @@
+config AOS_BOARD_MK3072
+    bool "MK3072"
+    select AOS_MCU_ASR5501MK
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LWIP if AOS_NETWORK_SAL
+    select AOS_COMP_NETMGR
+    help
+
+if AOS_BOARD_MK3072
+# Configurations for board mk3072
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI_LOWPOWER
+    bool
+    default y
+
+endif
