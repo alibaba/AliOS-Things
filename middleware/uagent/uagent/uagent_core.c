@@ -50,7 +50,7 @@ static aos_timer_t timer_monitor_output_queue;
 
 /* Private Operation Declaration */
 static int update_create_uagent_service_node(const ua_mod_t mod, const ua_func_t func,
-                                             on_customer_service service, void *arg, 
+                                             on_customer_service service, void *arg,
                                              const char add);
 
 static int uagent_on_recv_handler(const unsigned short len, const char *str);
@@ -169,7 +169,7 @@ int uagent_register(const ua_mod_t mod, const char *mod_name,  char *version,
         }
         uagent_exchange_service_t uagent_exchange_service = { func, "", cb, arg };
         memset(uagent_exchange_service.func_name, 0, sizeof(uagent_exchange_service.func_name));
-        strncpy(uagent_exchange_service.func_name, func_name, sizeof(uagent_exchange_service.func_name) - 1);
+        strncpy(uagent_exchange_service.func_name, func_name==NULL?"":func_name, sizeof(uagent_exchange_service.func_name) - 1);
         if (func >= UAGENT_FUNC_USER_BASE) {
             if (NULL != mod_name && NULL != version) {
                 unsigned char i = 0;
@@ -219,23 +219,26 @@ int uagent_request_service(const ua_mod_t src, const ua_mod_t target,
                            const ua_func_t func, const unsigned short len,
                            const void *data)
 {
-    int rc = -1;
-    if (UAGENT_INITED_FINISH) {
-        /* make uagent info */
-        char tmp_buf[UAGENT_PAYLOAD_CMD_SIZE];
-        uagent_exchange_header_t* p = (uagent_exchange_header_t*)tmp_buf;
-        p->src = src;
-        p->mod = target;
-        p->id = UAGENT_MSG_IDX_INVALID;
-        p->func = func;
-        p->len = len < UAGENT_PAYLOAD_CMD_SIZE - sizeof(uagent_exchange_header_t) - 1 ? len : UAGENT_PAYLOAD_CMD_SIZE - sizeof(uagent_exchange_header_t) - 1;
+    int rc = -EINVAL;
+    if (len == 0 || NULL != data) {
+        rc = -1;
+        if (UAGENT_INITED_FINISH) {
+            /* make uagent info */
+            char tmp_buf[UAGENT_PAYLOAD_CMD_SIZE];
+            uagent_exchange_header_t *p = (uagent_exchange_header_t *)tmp_buf;
+            p->src = src;
+            p->mod = target;
+            p->id = UAGENT_MSG_IDX_INVALID;
+            p->func = func;
+            p->len = len < UAGENT_PAYLOAD_CMD_SIZE - sizeof(uagent_exchange_header_t) - 1 ? len : UAGENT_PAYLOAD_CMD_SIZE - sizeof(uagent_exchange_header_t) - 1;
 
-        memcpy(&tmp_buf[sizeof(uagent_exchange_header_t)], data, p->len);
-        if (UAGENT_MOD_UAGENT != target && UAGENT_FUNC_UA_RQST_CONN != func) {
-            UAGENT_INFO("[uA]call %s src 0x%x func 0x%x len %d\n", __func__, p->src, p->func, p->len);
+            memcpy(&tmp_buf[sizeof(uagent_exchange_header_t)], data, p->len);
+            if (UAGENT_MOD_UAGENT != target && UAGENT_FUNC_UA_RQST_CONN != func) {
+                UAGENT_INFO("[uA]call %s src 0x%x func 0x%x len %d\n", __func__, p->src, p->func, p->len);
+            }
+            tmp_buf[p->len + sizeof(uagent_exchange_header_t)] = 0;
+            rc = aos_queue_send(&uagent_queue, p, p->len + sizeof(uagent_exchange_header_t) + 1);
         }
-        tmp_buf[p->len + sizeof(uagent_exchange_header_t)] = 0;
-        rc = aos_queue_send(&uagent_queue, p, p->len + sizeof(uagent_exchange_header_t) + 1);
     }
 
     return rc;

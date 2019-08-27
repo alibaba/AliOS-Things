@@ -71,6 +71,8 @@ int uagent_ext_comm_init(const char pk[12], const char dn[36], on_recv_handler h
             rc = IOT_MQTT_Subscribe(NULL, mqtt_topic_dn, IOTX_MQTT_QOS0, uagent_handler, NULL);
             if (rc < 0) {
                 UAGENT_ERR("[uA]IOT_MQTT_Subscribe(%s) failed, rc = %d\r\n", mqtt_topic_dn, rc);
+            } else {
+                rc = 0;
             }
 #ifdef SP_BROADCAST_TOPIC
             UAGENT_INFO("[uA]Subsrcibe TOPIC %s", broadcast_topic_dn);
