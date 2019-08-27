@@ -16,7 +16,7 @@ endif # Linux64
 endif # Linux32
 endif # Win32
 
-BREEZE_OTA := 1
+CUSTOM_OTA := 1
 LZMA_PACK := $($(HOST_MCU_FAMILY)_LOCATION)/tools/ota_pack_image_lzma.py
 LZMA_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_lmza$(BIN_OUTPUT_SUFFIX))
 

@@ -14,6 +14,6 @@ $(error not surport for $(HOST_OS))
 endif # Linux64
 endif # Linux32
 endif # Win32
-
+CUSTOM_OTA := 1
 gen_ota_bin:
 	$(IMAGE_GEN_HEADER_TOOL) $(BIN_OUTPUT_FILE) $(OTA_IMAGE_MODE)
