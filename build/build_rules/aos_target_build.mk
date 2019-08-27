@@ -389,7 +389,7 @@ $(EXTRA_POST_BUILD_TARGETS): build_done
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
 ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
 ifneq ($(PING_PONG_OTA),1)
-ifneq ($(BREEZE_OTA),1)
+ifneq ($(CUSTOM_OTA),1)
 	$(info Generate Raw OTA image: $(OTA_BIN_OUTPUT_FILE) ...)
 	$(QUIET)$(CP) $(BIN_OUTPUT_FILE) $(OTA_BIN_OUTPUT_FILE)
 	$(MD5_CMD)
