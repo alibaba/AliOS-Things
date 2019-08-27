@@ -99,52 +99,56 @@ int uagent_send(const ua_mod_t mod, const ua_func_t func,
                 const unsigned short len, const void *data,
                 const ua_send_policy_t policy)
 {
-    int rc = -1;
+    int rc = -EINVAL;
 
-    if (UAGENT_INITED_FINISH) {
-        rc = -ENOMEM;
+    if(0==len || NULL !=data) {
+        rc = -1;
 
-        if (len < UAGENT_INFO_PAYLOAD_SIZE) {
+        if (UAGENT_INITED_FINISH) {
+            rc = -ENOMEM;
 
-            if (uagent_get_mutex()) {
+            if (len < UAGENT_INFO_PAYLOAD_SIZE) {
 
-                if (POLICY_SET(policy,send_policy_delay) && !POLICY_SET(policy,send_policy_object)) {
-                    rc = delay_send(mod, func, len, data, policy);
+                if (uagent_get_mutex()) {
 
-                }else{
-                    short msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_FORMAT_PRE, out_msg_index++,
-                                           uagent_service_attr.dn, uagent_service_attr.to_console, mod, func);
+                    if (POLICY_SET(policy,send_policy_delay) && !POLICY_SET(policy,send_policy_object)) {
+                        rc = delay_send(mod, func, len, data, policy);
 
-                    if(msg_len>0){
-                        short empty_room_for_data = 0;
-                        if (POLICY_SET(policy,send_policy_object)) {
-                            empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_OBJ_SUFFIX)-1;
-                            strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
-                            msg_len += (len<empty_room_for_data?len:empty_room_for_data);
-                            strncpy(&msg_pub[msg_len], UAGENT_FORMAT_OBJ_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
-                            msg_len += strlen(UAGENT_FORMAT_OBJ_SUFFIX);
+                    }else{
+                        short msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_FORMAT_PRE, out_msg_index++,
+                                               uagent_service_attr.dn, uagent_service_attr.to_console, mod, func);
+
+                        if(msg_len>0){
+                            short empty_room_for_data = 0;
+                            if (POLICY_SET(policy,send_policy_object)) {
+                                empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_OBJ_SUFFIX)-1;
+                                strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+                                msg_len += (len<empty_room_for_data?len:empty_room_for_data);
+                                strncpy(&msg_pub[msg_len], UAGENT_FORMAT_OBJ_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
+                                msg_len += strlen(UAGENT_FORMAT_OBJ_SUFFIX);
+                            } else {
+                                msg_pub[msg_len++] = '"';
+                                empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_STR_SUFFIX)-1;
+                                strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+                                msg_len += (len<empty_room_for_data?len:empty_room_for_data);
+                                strncpy(&msg_pub[msg_len], UAGENT_FORMAT_STR_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
+                                msg_len += strlen(UAGENT_FORMAT_STR_SUFFIX);
+                            }
+                        }
+
+                        if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
+                            rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
                         } else {
-                            msg_pub[msg_len++] = '"';
-                            empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_STR_SUFFIX)-1;
-                            strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
-                            msg_len += (len<empty_room_for_data?len:empty_room_for_data);
-                            strncpy(&msg_pub[msg_len], UAGENT_FORMAT_STR_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
-                            msg_len += strlen(UAGENT_FORMAT_STR_SUFFIX);
+                            UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
                         }
                     }
 
-                    if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
-                        rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
-                    } else {
-                        UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
-                    }
+                    uagent_release_mutex();
                 }
-
-                uagent_release_mutex();
             }
+        }else{
+            UAGENT_ERR("[uA]uagent send may fail from 0x%x 0x%x as not inited", mod, func);
         }
-    }else{
-        UAGENT_ERR("[uA]uagent send may fail from 0x%x 0x%x as not inited", mod, func);
     }
     return rc;
 }
