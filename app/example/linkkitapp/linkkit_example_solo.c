@@ -124,9 +124,9 @@ static int user_service_request_event_handler(const int devid, const char *servi
         char **response, int *response_len)
 {
     int add_result = 0;
+    int ret = -1;
     cJSON *root = NULL, *item_number_a = NULL, *item_number_b = NULL;
     const char *response_fmt = "{\"Result\": %d}";
-
     EXAMPLE_TRACE("Service Request Received, Service ID: %.*s, Payload: %s", serviceid_len, serviceid, request);
 
     /* Parse Root */
@@ -135,40 +135,37 @@ static int user_service_request_event_handler(const int devid, const char *servi
         EXAMPLE_TRACE("JSON Parse Error");
         return -1;
     }
+    do{
+        if (strlen("Operation_Service") == serviceid_len && memcmp("Operation_Service", serviceid, serviceid_len) == 0) {
+            /* Parse NumberA */
+            item_number_a = cJSON_GetObjectItem(root, "NumberA");
+            if (item_number_a == NULL || !cJSON_IsNumber(item_number_a)) {
+                break;
+            }
+            EXAMPLE_TRACE("NumberA = %d", item_number_a->valueint);
 
-    if (strlen("Operation_Service") == serviceid_len && memcmp("Operation_Service", serviceid, serviceid_len) == 0) {
-        /* Parse NumberA */
-        item_number_a = cJSON_GetObjectItem(root, "NumberA");
-        if (item_number_a == NULL || !cJSON_IsNumber(item_number_a)) {
-            cJSON_Delete(root);
-            return -1;
+            /* Parse NumberB */
+            item_number_b = cJSON_GetObjectItem(root, "NumberB");
+            if (item_number_b == NULL || !cJSON_IsNumber(item_number_b)) {
+                break;
+            }
+            EXAMPLE_TRACE("NumberB = %d", item_number_b->valueint);
+            add_result = item_number_a->valueint + item_number_b->valueint;
+            ret = 0;
+            /* Send Service Response To Cloud */
         }
-        EXAMPLE_TRACE("NumberA = %d", item_number_a->valueint);
-
-        /* Parse NumberB */
-        item_number_b = cJSON_GetObjectItem(root, "NumberB");
-        if (item_number_b == NULL || !cJSON_IsNumber(item_number_b)) {
-            cJSON_Delete(root);
-            return -1;
-        }
-        EXAMPLE_TRACE("NumberB = %d", item_number_b->valueint);
-
-        add_result = item_number_a->valueint + item_number_b->valueint;
-
-        /* Send Service Response To Cloud */
-        *response_len = strlen(response_fmt) + 10 + 1;
-        *response = (char *)HAL_Malloc(*response_len);
-        if (*response == NULL) {
-            EXAMPLE_TRACE("Memory Not Enough");
-            return -1;
-        }
+    }while(0);
+    
+    *response_len = strlen(response_fmt) + 10 + 1;
+    *response = (char *)HAL_Malloc(*response_len);
+    if (*response != NULL) {
         memset(*response, 0, *response_len);
         HAL_Snprintf(*response, *response_len, response_fmt, add_result);
         *response_len = strlen(*response);
     }
 
     cJSON_Delete(root);
-    return 0;
+    return ret;
 }
 
 static int user_timestamp_reply_event_handler(const char *timestamp)
