@@ -9,6 +9,7 @@ $(NAME)_COMPONENTS :=  netmgr cjson linkkit_sdk_c
 
 ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli
+GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=3072
 endif
 
 ifeq ($(AOS_COMP_UND),y)
