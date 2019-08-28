@@ -427,7 +427,7 @@ int linkkit_main(void *paras)
 
     user_example_ctx->subdev_index = -1;
 
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_SetLogLevel(IOT_LOG_INFO);
 
     /* Register Callback */
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
@@ -536,6 +536,5 @@ int linkkit_main(void *paras)
     HAL_ThreadDelete(user_example_ctx->g_user_dispatch_thread);
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_SetLogLevel(IOT_LOG_NONE);
     return 0;
 }
