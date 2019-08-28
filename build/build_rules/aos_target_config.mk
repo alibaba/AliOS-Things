@@ -25,6 +25,7 @@ MODULES_DIR     := modules_2ndboot
 endif
 
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config$(CONFIG_SUFFIX).mk
+DEPENDS_FILE := $(subst config,.depends,$(CONFIG_FILE))
 
 DEPENDENCY_DICT :=
 
@@ -526,6 +527,7 @@ endif
 # Create config.mk
 $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
+	$(QUIET)$(call WRITE_FILE_CREATE, $(DEPENDS_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,TOOLCHAIN_NAME            		:= $(TOOLCHAIN_NAME))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDFLAGS             		+= $(strip $(AOS_SDK_LDFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_FILES                     += $(strip $(AOS_SDK_LDS_FILES)))
