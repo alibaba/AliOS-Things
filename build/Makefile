@@ -329,6 +329,8 @@ $(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
 $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
+-include $(OUTPUT_DIR)/.depends.mk
+-include $(OUTPUT_DIR)/.depends_2ndboot.mk
 # Target to create config.mk file
 $(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
