@@ -54,7 +54,7 @@ config INFRA_LOG_MUTE_FLW
 
 config INFRA_LOG_MUTE_DBG
     bool "MUTE LEVEL of DEBUG (5)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_INF
     bool "MUTE LEVEL of INFO  (4)"
