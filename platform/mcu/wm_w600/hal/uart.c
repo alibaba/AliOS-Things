@@ -99,18 +99,34 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,  uint3
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                          uint32_t *recv_size, uint32_t timeout)
 {   
-		int ret ;
-		char *buf = data;
-	
-    if (expect_size == 0)
-			return 1;   
-   
-    ret = tls_uart_read(uart->port,buf, expect_size);
-		
-		*recv_size = ret;
-     
-	return ret?0:1;
-}
+    int ret ;
+    char *buf = data;
+    uint32_t size = 0;
+  
+    if (expect_size == 0) {
+        return 1;
+    }
 
+    while (expect_size > 0) {
+        int one_time_size = 0;
+        size += (one_time_size = tls_uart_read(uart->port, buf, expect_size));
+        expect_size -= one_time_size;
+        buf += one_time_size;
+        if (!timeout)
+        {
+            break;
+        }
+        if (expect_size > 0)
+        {
+            aos_msleep(1000);
+            timeout--;
+        }
+    }
+
+    if (recv_size != NULL) {
+        *recv_size = size;
+    }
+    return 0;
+}
 
 
