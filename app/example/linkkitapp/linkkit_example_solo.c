@@ -155,7 +155,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
             /* Send Service Response To Cloud */
         }
     }while(0);
-    
+
     *response_len = strlen(response_fmt) + 10 + 1;
     *response = (char *)HAL_Malloc(*response_len);
     if (*response != NULL) {
@@ -310,7 +310,7 @@ int linkkit_main(void *paras)
     HAL_GetProductSecret(master_meta_info.product_secret);
     HAL_GetDeviceSecret(master_meta_info.device_secret);
 
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_SetLogLevel(IOT_LOG_INFO);
 
     /* Register Callback */
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
@@ -391,7 +391,6 @@ int linkkit_main(void *paras)
     IOT_Linkkit_Close(g_user_example_ctx.master_devid);
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_SetLogLevel(IOT_LOG_NONE);
 
     return 0;
 }
