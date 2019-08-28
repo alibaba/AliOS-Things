@@ -209,6 +209,10 @@ int ota_update_parameter(ota_boot_param_t *ota_param)
     ota_param->param_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
     OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x \n", ota_param->param_crc, ota_param->upg_flag);
     memset(&comp_buf, 0, len);
+    ret = hal_flash_dis_secure(HAL_PARTITION_PARAMETER_1, 0, 0);
+    if(ret != 0) {
+        return OTA_UPGRADE_PARAM_FAIL;
+    }
     ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
     if(ret >= 0) {
         ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, ota_param, len);
