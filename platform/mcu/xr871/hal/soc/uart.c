@@ -33,7 +33,7 @@
 #include "board_config.h"
 
 #define MAX_UART_NUM 2
-#define UART_FIFO_SIZE 64
+#define UART_FIFO_SIZE 128
 
 enum _uart_status_e
 {
@@ -176,7 +176,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 				if (recv_size) {
 					*recv_size = totallen;
 				}
-				return -1;
+				return -ret;
 			}
 			if (readlen == 0) {
 				break;
