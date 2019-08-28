@@ -91,13 +91,13 @@ int ota_hal_init(ota_boot_param_t *param)
     int len = 0;
     int offset = 0;
     hal_logic_partition_t part_info;
-    if(param =! NULL) {
+    if(param != NULL) {
         ret = hal_flash_info_get(HAL_PARTITION_OTA_TEMP, &part_info);
+        printf("ota init part:%d len:0x%08x\n", HAL_PARTITION_OTA_TEMP, param->len);
         if (ret != 0 || part_info.partition_length < param->len || param->len == 0) {
             ret  = -1;
             return ret;
         }
-        printf("ota init part:%d len:0x%08x\n", HAL_PARTITION_OTA_TEMP, param->len);
         len = part_info.partition_length;
         while (len > 0) {
             ret = hal_flash_erase(HAL_PARTITION_OTA_TEMP, offset, 4096);
