@@ -4,8 +4,10 @@ import struct
 import shutil
 
 workdir = os.path.dirname(os.path.abspath(sys.argv[0]))
-xzpath = os.path.join(
-    workdir, 'xz', 'osx/xz' if sys.platform == 'darwin' else 'win/xz.exe').replace('\\', '/')
+if sys.argv[2] == 'Win32':
+    xzpath = os.path.join(workdir, 'xz', 'osx/xz' if sys.platform == 'darwin' else 'win/xz.exe').replace('\\', '/')
+else:
+    xzpath = 'xz'
 
 rawfile = sys.argv[1]
 rawsize = os.path.getsize(rawfile)
