@@ -97,16 +97,13 @@ static void _cli_iperf_server_command( int argc, char **argv )
             break;
         }
     }
-    if ( strcmp( argv[i], "-u" ) != 0 ) {
+
+    if ( is_create_task != 1 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Iperf TCP Server: Start!" ));
         LWIP_DEBUGF( IPERF_DEBUG, ("Iperf TCP Server Receive Timeout = 20 (secs)" ));
         aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_server_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
-        is_create_task = 1;
     }
 
-    if ( is_create_task == 0 ) {
-        free( g_iperf_param );
-    }
 }
 
 static void _cli_iperf_client_command( int argc, char **argv )
@@ -137,15 +134,11 @@ static void _cli_iperf_client_command( int argc, char **argv )
         }
     }
 
-    if ( strcmp( argv[i], "-u" ) != 0 ) {
+    if ( is_create_task != 1 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Iperf TCP Client: Start!" ));
         aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
-        is_create_task = 1;
     }
 
-    if ( is_create_task == 0 ) {
-        free( g_iperf_param );
-    }
 }
 
 static void _cli_iperf_help_command( int argc, char **argv )
