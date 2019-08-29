@@ -24,7 +24,41 @@ config JSE_CORE_ADDON_FS
     bool "FileSystem"
     default n
     help
-        JSEngine js  addon of FileSystem,File.open,File.write
+        JSEngine js addon of FileSystem,File.open,File.write
+
+if JSE_ENGINE_LITE && AOS_BOARD_DEVELOPERKIT
+config JSE_CORE_ADDON_GUI
+    bool "GUI"
+    default n
+    help
+        JSEngine GUI, base on LittlevGL
+
+if JSE_CORE_ADDON_GUI
+    config JSE_CORE_ADDON_GUI_LED
+        bool "GUI.led"
+        default y
+        help
+            enable led ui-component
+
+    config JSE_CORE_ADDON_GUI_BAR
+        bool "GUI.bar"
+        default y
+        help
+            enable bar ui-component
+
+    config JSE_CORE_ADDON_GUI_LABEL
+        bool "GUI.label"
+        default y
+        help
+            enable label ui-component
+
+    config JSE_CORE_ADDON_GUI_CANVAS
+        bool "GUI.canvas"
+        default y
+        help
+            enable canvas ui-component
+endif
+endif
 
 endmenu  #endmenu of JSE Core Addon Modules
 
@@ -96,17 +130,17 @@ config JSE_HW_ADDON_I2C
     help
         JSEngine js hardware addon of I2c
 
-config JSE_HW_ADDON_IR
-    bool "IR"
-    default n
-    help
-        JSEngine js hardware addon of IR
+# config JSE_HW_ADDON_IR
+#    bool "IR"
+#    default n
+#    help
+#        JSEngine js hardware addon of IR
 
-config JSE_HW_ADDON_LCD
-    bool "LCD"
-    default n
-    help
-        JSEngine js hardware addon of LCD
+# config JSE_HW_ADDON_LCD
+#    bool "LCD"
+#    default n
+#    help
+#        JSEngine js hardware addon of LCD
 
 config JSE_HW_ADDON_PWM
     bool "PWM"

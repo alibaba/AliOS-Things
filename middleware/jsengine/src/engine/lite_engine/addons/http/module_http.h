@@ -9,7 +9,8 @@
 extern "C" {
 #endif
 
-#define HTTP_BUFF_SIZE 128
+#define HTTP_BUFF_SIZE 1024
+
 void module_http_register(void);
 
 #if defined(__cplusplus)
