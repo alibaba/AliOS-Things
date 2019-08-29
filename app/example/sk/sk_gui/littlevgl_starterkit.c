@@ -3,19 +3,18 @@
  */
 
 #include "aos/kernel.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include <k_api.h>
 #include "st7789.h"
 
 LV_IMG_DECLARE(AliOS_Things_logo);
 
-lv_disp_drv_t dis_drv;
+lv_disp_drv_t disp_drv;
 lv_obj_t *scr = NULL;
 aos_timer_t refresh_timer;
 
-void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
-void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
-void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
+static void lvgl_disp_drv_init(void);
+void my_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 
 static void littlevgl_refresh_task(void *arg)
 {
@@ -47,7 +46,7 @@ static void sensor_refresh_task(void *arg)
         label1 = lv_label_create(scr, NULL);
         lv_style_copy(&style, &lv_style_plain);
         style.text.color = LV_COLOR_PURPLE;
-        lv_label_set_style(label1, &style);
+        lv_label_set_style(label1, 0, &style);
         lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(label1, 65, 200);
     }
@@ -64,7 +63,7 @@ int application_start(int argc, char *argv[])
 
     st7789_init();
 
-    lvgl_drv_register();
+    lvgl_disp_drv_init();
 
     aos_task_new("littlevgl_refresh_task", littlevgl_refresh_task, NULL, 2048);
 
@@ -73,52 +72,44 @@ int application_start(int argc, char *argv[])
     return 0;
 }
 
-void lvgl_drv_register(void)
+void lvgl_disp_drv_init(void)
 {
-    lv_disp_drv_init(&dis_drv);
+    static lv_disp_buf_t disp_buf_2;
+    static lv_color_t buf2_1[LV_HOR_RES_MAX * 10];                        /*A buffer for 10 rows*/
+    static lv_color_t buf2_2[LV_HOR_RES_MAX * 10];                        /*An other buffer for 10 rows*/
+    lv_disp_buf_init(&disp_buf_2, buf2_1, buf2_2, LV_HOR_RES_MAX * 10);   /*Initialize the display buffer*/
 
-    dis_drv.disp_flush = my_disp_flush;
-    dis_drv.disp_fill = my_disp_fill;
-    dis_drv.disp_map = my_disp_map;
-    lv_disp_drv_register(&dis_drv);
+    /*-----------------------------------
+     * Register the display in LittlevGL
+     *----------------------------------*/
+
+    lv_disp_drv_init(&disp_drv);                    /*Basic initialization*/
+
+    /*Set up the functions to access to your display*/
+
+    /*Set the resolution of the display*/
+    disp_drv.hor_res = 240;
+    disp_drv.ver_res = 240;
+
+    /*Used to copy the buffer's content to the display*/
+    disp_drv.flush_cb = my_disp_flush;
+
+    /*Set a display buffer*/
+    disp_drv.buffer = &disp_buf_2;
+
+    /*Finally register the driver*/
+    lv_disp_drv_register(&disp_drv);
 }
 
-void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+void my_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     int32_t x = 0;
     int32_t y = 0;
 
-    for (y = y1; y <= y2; y++) {                        /*Pick the next row*/
-        for (x = x1; x <= x2; x++) {                   /*Pick the a pixel in the row*/
-            ST7789H2_WritePixel(x, y, color_p->full);
-            color_p++;
-        }
+    for (y = area->y1; y <= area->y2; y++) {
+        ST7789H2_WriteLine(area->x1, y, (uint8_t *)color_p, (area->x2 - area->x1 + 1));
+        color_p += (area->x2 - area->x1 + 1);
     }
 
-    lv_flush_ready();
-}
-
-void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
-{
-    int32_t i = 0;
-    int32_t j = 0;
-
-    for (i = x1; i <= x2; i++) {
-        for (j = y1; j <= y2; j++) {
-            ST7789H2_WritePixel(i, j, color.full);
-        }
-    }
-}
-
-void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
-{
-    int32_t i = 0;
-    int32_t j = 0;
-
-    for (i = x1; i <= x2; i++) {
-        for (j = y1; j <= y2; j++) {
-            ST7789H2_WritePixel(i, j, color_p->full);
-            color_p++;
-        }
-    }
+    lv_disp_flush_ready(&disp_drv);
 }
