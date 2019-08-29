@@ -48,8 +48,7 @@ void http_parse_url(char *buf, char *host, int *port, char *file_name)
     if (host_end == NULL) {
         host_end = buf_end;
     } else { /* get filename */
-        file = strrchr(host_end, '/');
-        if (file && (file + 1) != buf_end) strcpy(file_name, file + 1);
+        strcpy(file_name, host_end);
     }
     if (colon) /* get port */
     {
@@ -98,15 +97,17 @@ static int http_build_header(char *hostname, char *file_path, char *http_buffer)
     int len = 0;
 
     if (strlen(file_path) == 0) {
-        len = sprintf(http_buffer, "GET %s HTTP/1.0\r\n",
+        len = sprintf(http_buffer, "GET %s HTTP/1.1\r\n",
                       "/"); /* default get root dirctory */
     } else {
-        len = sprintf(http_buffer, "GET %s HTTP/1.0\r\n", file_path);
+        len = sprintf(http_buffer, "GET %s HTTP/1.1\r\n", file_path);
     }
 
     len += sprintf(http_buffer + len, "Host: %s\r\n", hostname);
+    len += sprintf(http_buffer + len, "Accept: */*\r\n");
     len += sprintf(http_buffer + len, "Connection: close\r\n\r\n");
 
+    jse_debug(http_buffer);
     return 0;
 }
 
