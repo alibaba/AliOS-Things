@@ -16,4 +16,4 @@ endif
 GLOBAL_INCLUDES     += .
 GLOBAL_DEFINES      += AOS_COMP_LITTLEVGL
 
-include ./3rdparty/experimental/gui/littlevGL/lvgl/lvgl.mk
+include ./3rdparty/experimental/gui/littlevGL/src/src.mk
