@@ -5,13 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jse_common.h"
 #include "be_api.h"
 #include "be_module.h"
+#include "jse_common.h"
 #include "module_wifi.h"
 
 #define WIFI_CONNECT_WAIT_TIME_MS (10 * 1000)
 #define WIFI_CHECKIP_INTERVAL_MS (200)
+
+uint8_t ssid[JSE_MAX_SSID_SIZE]  = {0};
+uint8_t passwd[JSE_MAX_PWD_SIZE] = {0};
 
 static void js_cb_wifi_conn_status(void *pdata)
 {
@@ -37,6 +40,9 @@ static void wifi_check_ip_task(void *arg)
     char ip[32] = {0};
     int count   = 0;
 
+    /* connecting to wifi, waitting for 10s */
+    jse_system_wifi_connect(ssid, passwd);
+
     while (1) {
         if ((jse_system_get_ip(ip) == 0) ||
             (count > WIFI_CONNECT_WAIT_TIME_MS / WIFI_CHECKIP_INTERVAL_MS)) {
@@ -53,13 +59,11 @@ static void wifi_check_ip_task(void *arg)
 
 static be_jse_symbol_t *module_wifi_connect()
 {
-    int ret                      = -1;
-    be_jse_symbol_t *arg0        = NULL;
-    be_jse_symbol_t *arg1        = NULL;
-    be_jse_symbol_t *arg2        = NULL;
-    be_jse_symbol_t *func        = NULL;
-    uint8_t ssid[JSE_MAX_SSID_SIZE]  = {0};
-    uint8_t passwd[JSE_MAX_PWD_SIZE] = {0};
+    int ret               = -1;
+    be_jse_symbol_t *arg0 = NULL;
+    be_jse_symbol_t *arg1 = NULL;
+    be_jse_symbol_t *arg2 = NULL;
+    be_jse_symbol_t *func = NULL;
 
     be_jse_handle_function(0, &arg0, &arg1, &arg2, NULL);
     if (arg0 == NULL || arg1 == NULL || arg2 == NULL ||
@@ -68,7 +72,8 @@ static be_jse_symbol_t *module_wifi_connect()
         goto Fail;
     }
 
-    if (!symbol_is_function(arg2) || (symbol_str_len(arg0) > JSE_MAX_SSID_SIZE) ||
+    if (!symbol_is_function(arg2) ||
+        (symbol_str_len(arg0) > JSE_MAX_SSID_SIZE) ||
         (symbol_str_len(arg1) > JSE_MAX_PWD_SIZE)) {
         jse_error("module_wifi_connect arg lend exceed\n\r");
         goto Fail;
@@ -77,10 +82,9 @@ static be_jse_symbol_t *module_wifi_connect()
     symbol_to_str(arg0, (char *)ssid, symbol_str_len(arg0));
     symbol_to_str(arg1, (char *)passwd, symbol_str_len(arg1));
 
-    jse_system_wifi_connect(ssid, passwd);
     INC_SYMBL_REF(arg2);
     ret = jse_osal_create_task("wifi_task", wifi_check_ip_task, arg2, 2048,
-                              WIFI_TSK_PRIORITY, NULL);
+                               WIFI_TSK_PRIORITY, NULL);
 
 Fail:
     symbol_unlock(arg0);

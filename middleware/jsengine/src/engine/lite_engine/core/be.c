@@ -174,6 +174,10 @@ void jsengine_register_addons()
     module_fs_register();
 #endif
 
+#ifdef JSE_CORE_ADDON_GUI
+    module_gui_register();
+#endif
+
 #ifdef JSE_NET_ADDON_MIIO
     module_miio_register();
 #endif

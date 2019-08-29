@@ -12,6 +12,7 @@ menuconfig AOS_COMP_JSENGINE
     select APP_FEATURE_LINKKIT_MQTT
     select AOS_COMP_LOG
     select AOS_COMP_NETMGR
+    select AOS_COMP_LITTLEVGL if JSE_CORE_ADDON_GUI
     default n
     help
 

@@ -11,6 +11,9 @@ unsigned char hex2num(unsigned char ch)
     if (ch >= 'a') {
         return ch - 'a' + 10;
     }
+    else if (ch >= 'A') {
+        return ch - 'A' + 10;
+    }
 
     return ch - '0';
 }
