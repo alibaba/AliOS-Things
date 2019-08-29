@@ -257,6 +257,14 @@ int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
             http_log("%s, mbedtls_ssl_conf_auth_token err -0x%x", __func__, -ret);
             goto exit;
         }
+#if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
+        ret = mbedtls_ssl_conf_max_frag_len(&http_session->https.ssl.conf, MBEDTLS_SSL_MAX_FRAG_LEN_1024);
+        if (ret != 0) {
+            http_log("%s, mbedtls_ssl_conf_max_frag_len err -0x%x", __func__, ret );
+            goto exit;
+        }
+#endif /* MBEDTLS_SSL_MAX_FRAGMENT_LENGTH */
+
 #else
         mbedtls_x509_crt_init(&http_session->https.ssl.ca_cert);
         if (http_session->https.ssl.ca_cert_c != NULL) {
