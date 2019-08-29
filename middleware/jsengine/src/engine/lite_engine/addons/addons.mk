@@ -14,6 +14,17 @@ ifeq ($(JSE_CORE_ADDON_PROCESS),y)
 ${NAME}_SOURCES += ${JSE_ADDONS_DIR}/process/module_process.c
 endif
 
+ifeq ($(JSE_CORE_ADDON_GUI),y)
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/module_gui.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_common.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_obj.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_arc.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_led.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_bar.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_label.c
+${NAME}_SOURCES += ${JSE_ADDONS_DIR}/gui/components/gui_canvas.c
+endif
+
 ifeq ($(JSE_CORE_ADDON_CRYPTO),y)
 ${NAME}_SOURCES += ${JSE_ADDONS_DIR}/crypto/module_crypto.c
 endif
