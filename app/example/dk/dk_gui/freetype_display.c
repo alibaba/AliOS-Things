@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "freetype_display.h"
 
 LV_IMG_DECLARE(freetype_font_20);
@@ -19,7 +19,7 @@ void freetype_display(void)
 
     lv_obj_t *label = lv_label_create(lv_scr_act(), NULL);
     lv_obj_set_pos(label, 10, 20);
-    lv_label_set_style(label, &style);
+    lv_label_set_style(label, 0, &style);
     lv_label_set_text(label, "拣选大家永远");
 
     static lv_style_t style1;
@@ -29,7 +29,7 @@ void freetype_display(void)
 
     lv_obj_t *label1 = lv_label_create(lv_scr_act(), NULL);
     lv_obj_set_pos(label1, 10, 60);
-    lv_label_set_style(label1, &style1);
+    lv_label_set_style(label1, 0, &style1);
     lv_label_set_text(label1, "拣选大家永远");
 
     static lv_style_t style2;
@@ -39,7 +39,7 @@ void freetype_display(void)
 
     lv_obj_t *label2 = lv_label_create(lv_scr_act(), NULL);
     lv_obj_set_pos(label2, 10, 100);
-    lv_label_set_style(label2, &style2);
+    lv_label_set_style(label2, 0, &style2);
     lv_label_set_text(label2, "拣选大家永远");
 
 
@@ -50,6 +50,6 @@ void freetype_display(void)
 
     lv_obj_t *label3 = lv_label_create(lv_scr_act(), NULL);
     lv_obj_set_pos(label3, 10, 140);
-    lv_label_set_style(label3, &style3);
+    lv_label_set_style(label3, 0, &style3);
     lv_label_set_text(label3, "拣选大家永远");
 }
