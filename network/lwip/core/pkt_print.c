@@ -234,7 +234,7 @@ static char s_tcp_state[TCPS_MAX][24] =
 void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
 {
     int  len = NULL;
-    char* ptr = NULL;
+    unsigned char* ptr = NULL;
     DBG_PKT_INFO_T dbg_pkt_info;
 
     if(pbuf == NULL){
