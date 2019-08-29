@@ -19,7 +19,7 @@ def copy_template(tempfile, templatedir, destdir, projectname, board):
             if "@projectname@" in line:
                 line = line.replace("@projectname@", projectname)
             elif "@PROJECTNAME@" in line:
-                line = line.replace("@PROJECTNAME@", projectname.upper())
+                line = line.replace("@PROJECTNAME@", projectname.upper().replace("-", "_"))
             else:
                 pass
 
