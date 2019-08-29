@@ -34,7 +34,7 @@ ifeq (y,$(strip $(SUPPORT_TLS)))
     else
         $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
         $(NAME)_COMPONENTS +=  mbedtls libiot_certs
-        $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c 
+        $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c  os/dns.c
     endif
 endif
 
