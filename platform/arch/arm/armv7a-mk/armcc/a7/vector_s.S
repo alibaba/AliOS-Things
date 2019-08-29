@@ -150,7 +150,7 @@ vector_reset
         ; Enabling VFP support
         MRC     p15, 0, R0, c1, c1, 2               ; Read NSACR, Non-Secure Access Control Register
         ORR     R0, R0, #3<<10                      ; enable Non-secure access to fpu
-        IF :DEF:TARGET_FEATURE_NEON
+        IF {TARGET_FEATURE_NEON} = {TRUE}
             BIC     R0, R0, #3<<14                      ; clear nsasedis/nsd32dis
         ENDIF
 
