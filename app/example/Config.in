@@ -259,5 +259,11 @@ if AOS_APP_JSENGINE_APP
         default "jsengine_app"
 endif
 
+source "app/example/uai_demo/uai_kws_demo/Config.in"
+if AOS_APP_UAI_KWS_DEMO
+    config AOS_BUILD_APP
+        default "uai_demo.uai_kws_demo"
+endif
+
 endchoice
 endif
