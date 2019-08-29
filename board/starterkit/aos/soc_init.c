@@ -12,7 +12,7 @@
 
 
 #ifdef LITTLEVGL_STARTERKIT
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #endif
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
@@ -150,7 +150,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   krhino_tick_proc();
 #ifdef LITTLEVGL_STARTERKIT
-  lv_tick_inc(1);
+  lv_tick_inc(10);
 #endif
   krhino_intrpt_exit();
 }
