@@ -180,7 +180,7 @@ void SysTick_Handler(void)
     krhino_tick_proc();
 
 #ifdef LITTLEVGL_DEVELOPERKIT
-    lv_tick_inc(1);
+    lv_tick_inc(10);
 #endif
 
     krhino_intrpt_exit();
