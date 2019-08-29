@@ -3,9 +3,9 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "jse_common.h"
 #include "be_addon.h"
 #include "be_module.h"
+#include "jse_common.h"
 
 #ifdef JSE_CORE_ADDON_TIMER
 #include "module_timer.h"
@@ -32,26 +32,34 @@ be_jse_symbol_t* module_handle_cb_js_lite_console(be_jse_vm_ctx_t* execInfo,
     if (strcmp(name, "log") == 0) {
         int len;
         be_jse_symbol_t* arg0 = be_jse_handle_single_arg_function();
+        char* buf_header      = NULL;
         char* buf             = NULL;
+        char* line            = NULL;
 
         len = symbol_str_len(arg0);
         if (len == 0) len = 32;
 
-        int prefix_len = strlen(BonePrefix);
-        buf            = (char*)jse_calloc(1, len + 1 + prefix_len);
-        strcpy(buf, BonePrefix);
-        symbol_to_str(arg0, buf + prefix_len, len);
+        buf_header = buf = (char*)jse_calloc(1, len + 1);
+        symbol_to_str(arg0, buf, len);
 
-        if (bone_console_get_log_flag()) {
-            jse_warn("%s\r\n", buf);
-            fflush(stdout);
+        /* add prefix for every line */
+        while (bone_console_get_log_flag() && buf) {
+            line = strchr(buf, '\n');
+            if (line == NULL) {
+                jse_warn(BonePrefix "%s\n", buf);
+                break;
+            } else {
+                *line = '\0';
+                jse_warn(BonePrefix "%s\n", buf);
+                buf = line + 1;
+            }
         }
 
 #ifdef JSE_IDE_DEBUG
         bone_websocket_send_frame("/ide/console", BE_LOG_LEVEL_INFO,
-                                  buf); /* log output */
+                                  buf_header); /* log output */
 #endif
-        jse_free(buf);
+        jse_free(buf_header);
 
         symbol_unlock(arg0);
         return new_symbol(BE_SYM_NULL);
@@ -215,7 +223,8 @@ static be_jse_symbol_t* module_handle_cb_js_lite_global(
                 jse_warn("require(%s)", sourcePtr);
 
 #ifdef SUPPORT_NODE_MODELES
-                /* get current sourcePtr (./1.js) and convert to absolute path */
+                /* get current sourcePtr (./1.js) and convert to absolute path
+                 */
 
                 /* read header */
                 /* struct list_head* headPtr = bone_engine_dirname_get_head();

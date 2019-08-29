@@ -624,10 +624,10 @@ char *getNodeModulePath(char *path)
         jse_debug("%s %d package incomplete , package.json = %s \n", __FUNCTION__,
                __LINE__, fullPath);
         /* default index.js */
-        sprintf(fullPath, "%s/%s", path, "index.js");
+        sprintf(fullPath, "%s/src/%s", path, "index.js");
         return fullPath;
     } else {
-        sprintf(fullPath, "%s/%s", path, "index.js");
+        sprintf(fullPath, "%s/src/%s", path, "index.js");
         return fullPath;
     }
 
