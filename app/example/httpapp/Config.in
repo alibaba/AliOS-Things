@@ -8,5 +8,9 @@ config AOS_APP_HTTPAPP
         HTTP Client app
 
 if AOS_APP_HTTPAPP
+config CONFIG_HTTP_SECURE
+    bool "Support HTTP Secure"
+    default n
+    select AOS_COMP_MBEDTLS
 
 endif
