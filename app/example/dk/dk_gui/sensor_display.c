@@ -6,7 +6,7 @@
 
 #include "aos/kernel.h"
 
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include <k_api.h>
 #include "sensor_display.h"
 #include "sensor/sensor.h"
@@ -14,8 +14,6 @@
 #include "soc_init.h"
 
 LV_IMG_DECLARE(AliOS_Things_logo);
-LV_IMG_DECLARE(weather);
-LV_IMG_DECLARE(house);
 
 #define MAX_MSG_BYTES 100
 #define MAX_NUM_BYTES 20
@@ -57,10 +55,10 @@ int fd_temp = -1;
 int fd_humi = -1;
 int fd_baro = -1;
 
-int key_pressed_cnt     = 0;
-int weather_create_flag = 0;
-int calendar_create_flag   = 0;
-int acc_create_flag     = 0;
+int key_pressed_cnt      = 0;
+int weather_create_flag  = 0;
+int calendar_create_flag = 0;
+int acc_create_flag      = 0;
 
 static lv_style_t style;
 static lv_style_t style1;
@@ -138,30 +136,30 @@ void sensor_display(void)
 
 static void sensor_refresh_task(void *arg)
 {
-    static int task1_count = 0;
+    static int task_count = 0;
 
     /* disaply alios logo */
-    if (task1_count == 0) {
+    if (task_count == 0) {
         scr = lv_scr_act();
 
         logo_display();
     }
 
     /* hide alios logo and display sensor data */
-    if (task1_count == 5) {
+    if (task_count == 5) {
         lv_obj_clean(scr);
     }
 
     /* refresh sensor data */
-    if (task1_count >= 5) {
+    if (task_count >= 5) {
         sensor_data_display();
     }
 
-    if ((task1_count >= 15) && (task1_count <= 45)) {
-        display_note();
+    if ((task_count >= 5) && (task_count <= 25)) {
+        //display_note();
     }
 
-    task1_count++;
+    task_count++;
 }
 
 static void logo_display(void)
@@ -180,7 +178,6 @@ static void sensor_data_display(void)
         }
 
         weather_display();
-
     } else if (key_pressed_cnt % 3 == 1) {
 
         if (calendar_create_flag == 0) {
@@ -247,9 +244,9 @@ static void create_weather(void)
     lmeter1 = lv_lmeter_create(scr, NULL);
     lv_lmeter_set_range(lmeter1, 20, 50);         /*Set the range*/
     lv_lmeter_set_value(lmeter1, 30);             /*Set the current value*/
-    lv_lmeter_set_style(lmeter1, &style_lmeter1); /*Apply the new style*/
+    lv_lmeter_set_style(lmeter1, 0, &style_lmeter1); /*Apply the new style*/
     lv_obj_set_size(lmeter1, 100, 100);
-    lv_obj_set_pos(lmeter1, 10, 10);
+    lv_obj_set_pos(lmeter1, 10, 15);
 
     /*Add a label to show the current value*/
     label1 = lv_label_create(lmeter1, NULL);
@@ -257,37 +254,37 @@ static void create_weather(void)
     lv_style_copy(&style, &lv_style_plain);
     style.text.color = LV_COLOR_PURPLE;
 
-    lv_label_set_style(label1, &style);
+    lv_label_set_style(label1, 0, &style);
     lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_pos(label1, 25, 40);
+    lv_obj_set_pos(label1, 25, 45);
 
     label5 = lv_label_create(scr, label1);
-    lv_obj_set_pos(label5, 10, 100);
+    lv_obj_set_pos(label5, 10, 105);
     lv_label_set_text(label5, "Temp(C)");
 
     /*Create the first line meter */
     lmeter2 = lv_lmeter_create(scr, NULL);
     lv_lmeter_set_range(lmeter2, 0, 100);         /*Set the range*/
     lv_lmeter_set_value(lmeter2, 30);             /*Set the current value*/
-    lv_lmeter_set_style(lmeter2, &style_lmeter1); /*Apply the new style*/
+    lv_lmeter_set_style(lmeter2, 0, &style_lmeter1); /*Apply the new style*/
     lv_obj_set_size(lmeter2, 100, 100);
-    lv_obj_set_pos(lmeter2, 130, 10);
+    lv_obj_set_pos(lmeter2, 130, 15);
 
     /*Add a label to show the current value*/
     label2 = lv_label_create(lmeter2, label1);
     lv_label_set_text(label2, "0");
     lv_obj_align(label2, NULL, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_pos(label2, 25, 40);
+    lv_obj_set_pos(label2, 25, 45);
 
     label6 = lv_label_create(scr, label1);
-    lv_obj_set_pos(label6, 130, 100);
+    lv_obj_set_pos(label6, 130, 105);
     lv_label_set_text(label6, "Humidity(%)");
 
     /*Create the first line meter */
     lmeter3 = lv_lmeter_create(scr, NULL);
     lv_lmeter_set_range(lmeter3, 95, 110);        /*Set the range*/
     lv_lmeter_set_value(lmeter3, 30);             /*Set the current value*/
-    lv_lmeter_set_style(lmeter3, &style_lmeter1); /*Apply the new style*/
+    lv_lmeter_set_style(lmeter3, 0, &style_lmeter1); /*Apply the new style*/
     lv_obj_set_size(lmeter3, 100, 100);
     lv_obj_set_pos(lmeter3, 10, 130);
 
@@ -305,7 +302,7 @@ static void create_weather(void)
     lmeter4 = lv_lmeter_create(scr, NULL);
     lv_lmeter_set_range(lmeter4, 0, 100);         /*Set the range*/
     lv_lmeter_set_value(lmeter4, 30);             /*Set the current value*/
-    lv_lmeter_set_style(lmeter4, &style_lmeter1); /*Apply the new style*/
+    lv_lmeter_set_style(lmeter4, 0, &style_lmeter1); /*Apply the new style*/
     lv_obj_set_size(lmeter4, 100, 100);
     lv_obj_set_pos(lmeter4, 130, 130);
 
@@ -318,52 +315,30 @@ static void create_weather(void)
     label8 = lv_label_create(scr, label1);
     lv_obj_set_pos(label8, 150, 220);
     lv_label_set_text(label8, "Noise(DB)");
+
+    label_note = lv_label_create(lv_scr_act(), NULL);
+    lv_label_set_long_mode(label_note, LV_LABEL_LONG_SROLL_CIRC);     /*Circular scroll*/
+    lv_obj_set_width(label_note, 230);
+    lv_obj_set_pos(label_note, 5, 0);
+    lv_label_set_text(label_note, "Press any button to switch the screen !");
+}
+
+static void event_handler(lv_obj_t * obj, lv_event_t event)
+{
+    if(event == LV_EVENT_CLICKED) {
+        lv_calendar_date_t * date = lv_calendar_get_pressed_date(obj);
+        if(date) {
+            lv_calendar_set_today_date(obj, date);
+        }
+    }
 }
 
 static void create_calendar(void)
 {
-    /*Create a Calendar object*/
     calendar = lv_calendar_create(lv_scr_act(), NULL);
-    lv_obj_set_size(calendar, 240, 240);
+    lv_obj_set_size(calendar, 230, 230);
     lv_obj_align(calendar, NULL, LV_ALIGN_CENTER, 0, 0);
-
-    /*Create a style for the current week*/
-    static lv_style_t style_week_box;
-    lv_style_copy(&style_week_box, &lv_style_plain);
-    style_week_box.body.border.width = 1;
-    style_week_box.body.border.color = LV_COLOR_HEX3(0x333);
-    style_week_box.body.empty = 1;
-    style_week_box.body.radius = LV_RADIUS_CIRCLE;
-    style_week_box.body.padding.ver = 3;
-    style_week_box.body.padding.hor = 3;
-
-    /*Create a style for today*/
-    static lv_style_t style_today_box;
-    lv_style_copy(&style_today_box, &lv_style_plain);
-    style_today_box.body.border.width = 2;
-    style_today_box.body.border.color = LV_COLOR_NAVY;
-    style_today_box.body.empty = 1;
-    style_today_box.body.radius = LV_RADIUS_CIRCLE;
-    style_today_box.body.padding.ver = 3;
-    style_today_box.body.padding.hor = 3;
-    style_today_box.text.color= LV_COLOR_BLUE;
-
-    /*Create a style for the highlighted days*/
-    static lv_style_t style_highlighted_day;
-    lv_style_copy(&style_highlighted_day, &lv_style_plain);
-    style_highlighted_day.body.border.width = 2;
-    style_highlighted_day.body.border.color = LV_COLOR_NAVY;
-    style_highlighted_day.body.empty = 1;
-    style_highlighted_day.body.radius = LV_RADIUS_CIRCLE;
-    style_highlighted_day.body.padding.ver = 3;
-    style_highlighted_day.body.padding.hor = 3;
-    style_highlighted_day.text.color= LV_COLOR_BLUE;
-
-    /*Apply the styles*/
-    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_WEEK_BOX, &style_week_box);
-    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_TODAY_BOX, &style_today_box);
-    lv_calendar_set_style(calendar, LV_CALENDAR_STYLE_HIGHLIGHTED_DAYS, &style_highlighted_day);
-
+    lv_obj_set_event_cb(calendar, event_handler);
 
     /*Set the today*/
     lv_calendar_date_t today;
@@ -403,8 +378,8 @@ static void create_acc(void)
     style.body.main_color   = LV_COLOR_BLACK;
     style.body.grad_color   = LV_COLOR_BLACK;
     lv_obj_set_style(chart1, &style);
-    lv_obj_set_size(chart1, 230, 165);
-    lv_obj_set_pos(chart1, 5, 5);
+    lv_obj_set_size(chart1, 230, 145);
+    lv_obj_set_pos(chart1, 5, 25);
     lv_chart_set_range(chart1, 0, 40);
     lv_chart_set_point_count(chart1, 50);
     lv_chart_set_div_line_count(chart1, 10, 8);
@@ -425,7 +400,7 @@ static void create_acc(void)
     lv_obj_set_pos(label1, 10, 190);
     lv_style_copy(&style1, &lv_style_plain);
     style1.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label1, &style1);
+    lv_label_set_style(label1, 0, &style1);
     lv_obj_set_top(label1, 1);
 
     /* create a label to display acc_y */
@@ -433,7 +408,7 @@ static void create_acc(void)
     lv_obj_set_pos(label2, 10, 210);
     lv_style_copy(&style2, &lv_style_plain);
     style2.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label2, &style2);
+    lv_label_set_style(label2, 0, &style2);
     lv_obj_set_top(label2, 1);
 
     /* create a label to display acc_z */
@@ -441,40 +416,14 @@ static void create_acc(void)
     lv_obj_set_pos(label3, 10, 230);
     lv_style_copy(&style3, &lv_style_plain);
     style3.text.color = LV_COLOR_WHITE;
-    lv_label_set_style(label3, &style3);
+    lv_label_set_style(label3, 0, &style3);
     lv_obj_set_top(label3, 1);
-}
 
-
-static void display_note(void)
-{
-    static int       note_create_flag = 0;
-    static int       note_run_cnt     = 0;
-    static lv_obj_t *obj;
-    int              pos_x = 0;
-
-    if (note_create_flag == 0) {
-        obj = lv_obj_create(scr, NULL);
-        lv_obj_set_size(obj, 240, 30);
-        lv_obj_set_pos(obj, 0, 0);
-        lv_label_set_style(obj, &lv_style_plain_color);
-
-        label_note = lv_label_create(scr, NULL);
-        lv_obj_set_pos(label_note, 5, 20);
-        lv_label_set_style(label_note, &lv_style_plain_color);
-        lv_label_set_text(label_note, "press button A to switch screen");
-        note_create_flag = 1;
-    }
-
-    pos_x = 50 - (note_run_cnt * 5);
-    lv_obj_set_pos(label_note, pos_x, 5);
-
-    note_run_cnt++;
-
-    if (note_run_cnt == 30) {
-        lv_obj_del(label_note);
-        lv_obj_del(obj);
-    }
+    lv_obj_t *label_note2 = lv_label_create(lv_scr_act(), NULL);
+    lv_label_set_long_mode(label_note2, LV_LABEL_LONG_SROLL_CIRC);     /*Circular scroll*/
+    lv_obj_set_width(label_note2, 230);
+    lv_obj_set_pos(label_note2, 5, 0);
+    lv_label_set_text(label_note2, "Shake the board and you can see the graph of the acc !");
 }
 
 static void clean_screen(void)
