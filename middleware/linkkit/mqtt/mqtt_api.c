@@ -75,13 +75,11 @@ int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 
 static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta_info)
 {
-    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    int device_secret_len = IOTX_DEVICE_SECRET_LEN;
     int res = FAIL_RETURN;
 
-    HAL_GetDeviceSecret(device_secret);
+    HAL_GetDeviceSecret(meta_info->device_secret);
     /* Check if Device Secret exist in KV */
-    if (strlen(device_secret) == 0) {
+    if (strlen(meta_info->device_secret) == 0) {
         /* KV not exit, goto dynamic register */
         mqtt_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
 
