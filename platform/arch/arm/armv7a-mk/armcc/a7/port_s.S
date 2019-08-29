@@ -69,7 +69,7 @@ CPSR_THUMB       EQU    0x20                    ; Set Thumb mode.
         VMSR    FPEXC, $reg                                 ; Pop FPEXC.
         POP     {$reg}
         VMSR    FPSCR, $reg                                 ; Pop FPSCR.
-        IF :DEF:TARGET_FEATURE_NEON
+        IF {TARGET_FEATURE_NEON} = {TRUE}
             VPOP    {Q0-Q7}
             VPOP    {Q8-Q15}
         ELSE
@@ -79,7 +79,7 @@ CPSR_THUMB       EQU    0x20                    ; Set Thumb mode.
 
     MACRO
     PUSH_FP_REG $reg
-        IF :DEF:TARGET_FEATURE_NEON
+        IF {TARGET_FEATURE_NEON} = {TRUE}
             VPUSH   {Q8-Q15}
             VPUSH   {Q0-Q7}
         ELSE
