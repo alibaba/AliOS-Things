@@ -11,6 +11,8 @@
 #include "aos/kernel.h"
 #include "aos/kv.h"
 #include "ulog/ulog.h"
+#include <network/network.h>
+
 #ifdef FEATURE_UND_SUPPORT
     #include "und/und.h"
 #endif
@@ -24,6 +26,7 @@
 #include "mbedtls/platform.h"
 #include "linkkit/wrappers/wrappers_defs.h"
 #include "linkkit/wrappers/wrappers_os.h"
+#include "dns.h"
 #define LOG_TAG "HAL_TLS"
 
 
@@ -123,6 +126,93 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
     return (0);
 }
 #endif
+
+void utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
+{
+    uint8_t index = 0;
+    uint32_t temp = 0;
+
+    for (index = 0; index < input_len; index++) {
+        if (input[index] < '0' || input[index] > '9') {
+            return;
+        }
+        temp = temp * 10 + input[index] - '0';
+    }
+    *output = temp;
+}
+
+static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const char *host,
+        const char *port, int proto, unsigned int timeout)
+{
+    int ret;
+    struct sockaddr_in address;
+    size_t addr_len;
+    struct timeval sendtimeout;
+    uint8_t dns_retry = 0, dns_count = 0;
+    uint32_t uint_port = 0;
+    char *ip[DNS_RESULT_COUNT] = {0};
+
+    memset(&address, 0, sizeof(struct sockaddr_in));
+    utils_str2uint((char *)port, strlen(port), &uint_port);
+
+    while (dns_retry++ < 8) {
+        ret = dns_getaddrinfo((char *)host, ip);
+        if (ret != 0) {
+            // if (ret == EAI_AGAIN) {
+            //     int rc = res_init();
+            //     platform_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
+            // }
+            platform_info("getaddrinfo error[%d], res: %d, host: %s, port: %s\n", dns_retry, ret, host, port);
+            HAL_SleepMs(1000);
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    if (ret != 0) {
+        return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
+    }
+
+    /* Try the sockaddrs until a connection succeeds */
+    ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
+    for (dns_count = 0; dns_count < DNS_RESULT_COUNT; dns_count++) {
+        if (ip[dns_count] == NULL || strlen(ip[dns_count]) == 0) {
+            continue;
+        }
+        platform_info("ip address: %s\n", ip[dns_count]);
+
+        ctx->fd = (int) socket(AF_INET, SOCK_STREAM, 0);
+        if (ctx->fd < 0) {
+            ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
+            continue;
+        }
+
+        sendtimeout.tv_sec = timeout;
+        sendtimeout.tv_usec = 0;
+
+        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout, sizeof(sendtimeout))) {
+            platform_err("setsockopt error");
+        }
+        platform_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = inet_addr(ip[dns_count]);
+        address.sin_port = htons(uint_port);
+
+        addr_len = sizeof(address);
+
+        if (connect(ctx->fd, (struct sockaddr *)&address, addr_len) == 0) {
+            ret = 0;
+            break;
+        }
+
+        close(ctx->fd);
+        ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
+    }
+
+    return (ret);
+}
 
 static unsigned int _avRandom()
 {
@@ -311,7 +401,6 @@ static int net_prepare(void)
     return (0);
 }
 
-
 static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
                                        const char *host, const char *port,
                                        int proto, unsigned int timeout)
@@ -437,17 +526,21 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
         return ret;
     }
 #else
-    if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port,
-                                        MBEDTLS_NET_PROTO_TCP))) {
-        platform_err(" failed ! net_connect returned -0x%04x", -ret);
+    if (0 != (ret = mbedtls_net_connect_timeout_backup(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
+                    SEND_TIMEOUT_SECONDS))) {           
+        platform_err(" backup failed ! net_connect returned -0x%04x", -ret);
+        if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port,
+                                            MBEDTLS_NET_PROTO_TCP))) {
+            platform_err(" failed ! net_connect returned -0x%04x", -ret);
 #ifdef FEATURE_UND_SUPPORT
-        if (ret == MBEDTLS_ERR_NET_UNKNOWN_HOST) {
-            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DNS_FIAL_REASON);
-        } else {
-            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TCP_FAIL_REASON);
-        }
+            if (ret == MBEDTLS_ERR_NET_UNKNOWN_HOST) {
+                und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DNS_FIAL_REASON);
+            } else {
+                und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TCP_FAIL_REASON);
+            }
 #endif
-        return ret;
+            return ret;
+        }
     }
 #endif
     platform_info(" ok");
