@@ -648,11 +648,14 @@ static void Retansmit(void *context)
 
 extern void *coap_yield_mutex;
 
+#define COAP_CYCLE_DURATION  100
 int CoAPMessage_cycle(CoAPContext *context)
 {
     int res = 0;
 
     CoAPIntContext *ctx = (CoAPIntContext *)context;
+    uint32_t exp_time, after_time;
+    exp_time = (uint32_t)HAL_UptimeMs() + COAP_CYCLE_DURATION;
 
     if (NULL == context) {
         return COAP_ERROR_NULL;
@@ -670,10 +673,11 @@ int CoAPMessage_cycle(CoAPContext *context)
         HAL_MutexUnlock(coap_yield_mutex);
     }
 
-    if (res < 0) {
-        HAL_SleepMs(20);
-    }
+    after_time = (uint32_t)HAL_UptimeMs();
 
+    if ((exp_time - after_time) < (UINT32_MAX / 2)) {
+        HAL_SleepMs(exp_time - after_time);
+    }
     return res;
 }
 
