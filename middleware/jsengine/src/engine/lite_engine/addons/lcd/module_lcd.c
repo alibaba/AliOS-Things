@@ -246,6 +246,7 @@ static be_jse_symbol_t *lcd_rect(void)
     be_jse_int_t sy          = get_symbol_int(lcd_sy_symbol);
     be_jse_int_t ex          = get_symbol_int(lcd_ex_symbol);
     be_jse_int_t ey          = get_symbol_int(lcd_ey_symbol);
+    // jse_debug("color:%d, sx:%d, sy:%d, ex:%d, ey:%d, is_fill:%d", color_value, sx, sy, ex, ey, is_fill);
     lcd_draw_rect(sx, sy, ex, ey, color_value, is_fill);
 out:
 
@@ -360,7 +361,7 @@ be_jse_symbol_t *lcd_module_handle_cb(be_jse_vm_ctx_t *execInfo,
     if (0 == strcmp(name, "open")) return lcd_open();
     if (0 == strcmp(name, "close")) return lcd_close();
     if (0 == strcmp(name, "show")) return lcd_write();
-    if (0 == strcmp(name, "fill")) return lcd_rect();
+    if (0 == strcmp(name, "rect")) return lcd_rect();
     return BE_JSE_FUNC_UNHANDLED;
 }
 
