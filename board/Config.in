@@ -29,15 +29,6 @@ if AOS_BOARD_AP80A0
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "board/armhflinux/Config.in"
-if AOS_BOARD_ARMHFLINUX
-    config AOS_BUILD_BOARD
-        default "armhflinux"
-
-    source "platform/mcu/linux/Config.in"
-    source "platform/arch/linux/Config.in"
-endif
-
 source "board/asr6501/Config.in"
 if AOS_BOARD_ASR6501
     config AOS_BUILD_BOARD
@@ -506,15 +497,6 @@ if AOS_BOARD_MSP432P4111LAUNCHPAD
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "board/mt7682s/Config.in"
-if AOS_BOARD_MT7682S
-    config AOS_BUILD_BOARD
-        default "mt7682s"
-
-    source "platform/mcu/mtk7682/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
 source "board/numaker-pfm-m487/Config.in"
 if AOS_BOARD_NUMAKER_PFM_M487
     config AOS_BUILD_BOARD
@@ -576,15 +558,6 @@ if AOS_BOARD_PCA10056
 
     source "platform/mcu/nrf52xxx/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "board/rda8955/Config.in"
-if AOS_BOARD_RDA8955
-    config AOS_BUILD_BOARD
-        default "rda8955"
-
-    source "platform/mcu/rda8955/Config.in"
-    source "platform/arch/mips/mips-I/Config.in"
 endif
 
 source "board/rk1108/Config.in"
