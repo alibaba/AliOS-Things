@@ -6,7 +6,7 @@
 #include "jse_common.h"
 
 #include <k_api.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 static be_jse_symbol_t *gui_label(void)
 {
@@ -90,9 +90,9 @@ be_jse_symbol_t *gui_label_handle_cb(be_jse_vm_ctx_t *execInfo,
     if (0 == strcmp(name, "labelSetLongMode")) {
         return gui_label_set_long_mode();
     }
-    if (0 == strcmp(name, "LABEL_LONG_SCROLL")) {
+    if (0 == strcmp(name, "LABEL_LONG_SROLL_CIRC")) {
         lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
-        return new_int_symbol(LV_LABEL_LONG_SCROLL);
+        return new_int_symbol(LV_LABEL_LONG_SROLL_CIRC);
     }
 
     return NULL;
