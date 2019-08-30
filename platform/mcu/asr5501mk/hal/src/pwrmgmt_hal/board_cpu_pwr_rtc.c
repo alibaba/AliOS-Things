@@ -21,13 +21,13 @@
 #define RTC_FREQ      (32768)
 
 static pwr_status_t rtc_init(void);
-static uint32_t     rtc_one_shot_max_seconds(void);
+static uint32_t     rtc_one_shot_max_msec(void);
 static pwr_status_t rtc_one_shot_start(uint64_t planUs);
 static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs);
 
 one_shot_timer_t rtc_one_shot = {
     rtc_init,
-    rtc_one_shot_max_seconds,
+    rtc_one_shot_max_msec,
     rtc_one_shot_start,
     rtc_one_shot_stop,
 };
@@ -64,9 +64,9 @@ static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs)
     return PWR_OK;
 }
 
-static uint32_t rtc_one_shot_max_seconds(void)
+static uint32_t rtc_one_shot_max_msec(void)
 {
-    return (lega_drv_rtc_max_ticks_get() / RTC_FREQ);
+    return (lega_drv_rtc_max_ticks_get() * (uint64_t)1000 / RTC_FREQ);
 }
 
 #endif /* AOS_COMP_PWRMGMT */
