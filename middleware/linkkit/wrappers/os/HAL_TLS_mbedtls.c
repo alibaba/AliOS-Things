@@ -47,12 +47,17 @@ typedef struct _TLSDataParams {
     mbedtls_pk_context  pkey;    /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
+static char *g_fixed_list[3] = {
+    "106.15.83.29",
+    "106.15.100.2",
+    "139.196.135.135"
+};
+
 #if defined(TLS_SAVE_TICKET)
 
 #define KEY_MAX_LEN          64
 #define TLS_MAX_SESSION_BUF  384
 #define KV_SESSION_KEY_FMT   "TLS_%s"
-
 
 extern int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 
@@ -169,9 +174,17 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
             break;
         }
     }
-
     if (ret != 0) {
-        return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
+        //try fixed ip:
+        if(strstr(host, "iot-as-mqtt.cn-shanghai.aliyuncs.com") != NULL) {
+            int i;
+            for(i = 0; i< 3; i++) {
+                ip[i] = g_fixed_list[i];
+            }    
+            platform_info("using fixed ip\n");    
+        } else {
+            return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
+        }
     }
 
     /* Try the sockaddrs until a connection succeeds */
