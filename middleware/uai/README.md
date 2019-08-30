@@ -159,6 +159,25 @@ int32_t uai_dnn_run(int8_t *in_data, int8_t *out_data);
 ```
 for sample code please check [uai_demo](../../../app/example/uai_demo/).
 
+## Trained Model data source example
+* Flash:
+
+  ```pt:1,offset:4096,size:81920```
+
+  pt is flash partition number, always defined is file board/[board_name]/board.c
+
+* memory:
+
+  ```mem:900000,size:81920 ```
+
+  mem is memory address
+
+* file system:
+
+  ```fs:/sdcard/kws_dnn.data```
+
+### ``` Notice: address, offset and size only support decimal number ```
+
 ## RTOS build
 ```sh
 cd ROOT DIR;
