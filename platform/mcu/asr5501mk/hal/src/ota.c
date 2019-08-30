@@ -126,6 +126,8 @@ int ota_hal_read(unsigned int *off, char *out_buf, unsigned int out_buf_len)
 
 static int hal_ota_switch(uint32_t ota_len, uint16_t ota_crc)
 {
+    int ret = 0;
+    int offset = 0;
     uint32_t addr = 0;
     ota_hdr_t ota_hdr = {
         .dst_adr = 0xA000,
@@ -133,7 +135,11 @@ static int hal_ota_switch(uint32_t ota_len, uint16_t ota_crc)
         .siz = ota_len,
         .crc = ota_crc,
     };
-    hal_flash_write(HAL_PARTITION_PARAMETER_1, &addr, (uint8_t *)&ota_hdr, sizeof(ota_hdr));
+    ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, 4096);
+    if(ret == 0) {
+        printf("ota finished, switch to new firmware ... \r\n");
+        hal_flash_write(HAL_PARTITION_PARAMETER_1, &addr, (uint8_t *)&ota_hdr, sizeof(ota_hdr));
+    }
     return 0;
 }
 
@@ -142,7 +148,6 @@ int ota_hal_boot(ota_boot_param_t *param)
     int ret = 0;
     if (param != NULL) {
         param->crc = ota_image_crc(param->len - IMAGE_INFORMATION_LEN);
-        printf("ota finished, switch to new firmware ...\r\n");
         hal_ota_switch(param->len - IMAGE_INFORMATION_LEN, param->crc);
     }
     return ret;
