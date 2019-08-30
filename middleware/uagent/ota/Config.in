@@ -54,5 +54,5 @@ config OTA_FLASH_WRITE_CACHE_SIZE
         This option is limited by the board memory size.
         This value could be 512 1024 2048 4096 ...
         The default value is 1024
-source "middleware/uagent/ota/ota_ble/Config.in"
+source "middleware/uagent/ota/ota_core/ble/Config.in"
 endif
