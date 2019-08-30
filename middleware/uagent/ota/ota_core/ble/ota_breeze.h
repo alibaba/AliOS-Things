@@ -1,7 +1,7 @@
-#ifndef OTA_BREEZE_H
-#define OTA_BREEZE_H
+#ifndef OTA_BREEZE_IN_H
+#define OTA_BREEZE_IN_H
 
-#include "ota/ota_breeze_export.h"
+#include "ota/ota_breeze.h"
 
 #ifndef true
 #define true  (1)
@@ -140,5 +140,5 @@ volatile unsigned char ota_breeze_get_task_active_ctrl_status(void);
 void ota_breeze_set_task_active_ctrl(volatile unsigned char is_enable);
 void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status);
 void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigned char *buffer, unsigned int length);
-#endif /*OTA_BREEZE_H*/
+#endif /*OTA_BREEZE_IN_H*/
 
