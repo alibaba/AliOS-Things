@@ -6,7 +6,7 @@
 #include "jse_common.h"
 
 #include <k_api.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 extern be_jse_symbol_t *gui_set_style(void);
 
