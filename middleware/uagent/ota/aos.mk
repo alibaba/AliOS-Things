@@ -11,13 +11,13 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_INCLUDES += include hal ota_core/crypto
+$(NAME)_INCLUDES += include hal ota_core/verify
 
 $(NAME)_SOURCES := ota_core/ota_service.c \
                    ota_core/download/ota_download_http.c   \
                    ota_core/transport/ota_transport_mqtt.c \
-                   ota_core/crypto/ota_crypto_hash.c       \
-                   ota_core/crypto/ota_crypto_sign.c       \
+                   ota_core/verify/ota_hash.c       \
+                   ota_core/verify/ota_sign.c       \
                    hal/ota_hal_plat.c                      \
                    hal/ota_hal_common.c                    \
                    hal/ota_plat_ctrl.c
