@@ -6,7 +6,7 @@
 #include "jse_common.h"
 
 #include <k_api.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 extern lv_style_t *_symbol_style_parser(be_jse_symbol_t *arg);
 
@@ -40,7 +40,7 @@ static be_jse_symbol_t *gui_bar_set_value(void)
     lv_obj_t *obj = (lv_obj_t *)get_symbol_value_int(arg0);
     int value     = get_symbol_value_int(arg1);
     // jse_debug("obj:%p, value:%d\r\n", obj, value);
-    lv_bar_set_value(obj, value);
+    lv_bar_set_value(obj, value, LV_ANIM_OFF);
 
     symbol_unlock(arg0);
     symbol_unlock(arg1);

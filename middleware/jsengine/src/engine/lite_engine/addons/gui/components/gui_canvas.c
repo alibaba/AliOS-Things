@@ -6,7 +6,7 @@
 #include "jse_common.h"
 
 #include <k_api.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 #define CANVAS_WIDTH 200
 #define CANVAS_HEIGHT 150
