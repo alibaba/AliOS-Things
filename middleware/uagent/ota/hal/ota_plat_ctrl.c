@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "ota_log.h"
-#include "ota_crypto.h"
+#include "ota_verify.h"
 #include "ota_plat_ctrl.h"
 #include "aos/hal/flash.h"
 #include "ota_hal_common.h"

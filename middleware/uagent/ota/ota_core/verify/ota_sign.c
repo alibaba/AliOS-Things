@@ -3,9 +3,9 @@
  */
 #include "string.h"
 #include "ota_log.h"
-#include "ota/ota_service.h"
-#include "ota_public_key_config.h"
+#include "ota_import.h"
 #include "ota_verify.h"
+#include "ota_public_key.h"
 
 static char ota_get_sign_hash_method(void)
 {
@@ -32,37 +32,29 @@ static unsigned int ota_get_pubkey_e_size(void)
     return sizeof(ota_pube_buf);
 }
 
-int ota_make_rsa_verify_dig_data(unsigned char *src_data, int src_len, unsigned char *dig_data, unsigned char hash_type)
+int ota_make_rsa_verify_digital_data(unsigned char *src_data, int src_len, unsigned char *dig_data, unsigned char hash_type)
 {
-    int ret                  = OTA_CRYPTO_RET_SUCCESS;
+    int ret                  = OTA_CRYPTO_INVALID_ARG;
     ota_hash_ctx_t *hash_ctx = NULL;
-
-    if((NULL == src_data) || (0 == src_len) || (NULL == dig_data)) {
-        ret = OTA_CRYPTO_INVALID_ARG;
-        goto OTA_DIG_OVER;
-    }
-    hash_ctx = ota_malloc_hash_ctx(hash_type);
-    if(NULL == hash_ctx) {
+    if((src_data != NULL) && (src_len > 0) && (dig_data != NULL)) {
+        hash_ctx = ota_malloc_hash_ctx(hash_type);
         ret = OTA_CRYPTO_MALLOC_FAIL;
-        goto OTA_DIG_OVER;
+        if(hash_ctx != NULL) {
+            ret = ota_hash_init(hash_ctx);
+            if(ret == OTA_CRYPTO_RET_SUCCESS) {
+                ret = ota_hash_update((const unsigned char *)src_data, src_len, hash_ctx);
+                if(ret == OTA_CRYPTO_RET_SUCCESS) {
+                    ret = ota_hash_final(dig_data, hash_ctx);
+                }
+            }
+        }
     }
-    if(OTA_CRYPTO_RET_SUCCESS != ota_hash_init(hash_ctx)) {
-        ret = OTA_CRYPTO_HASH_INIT_ERR;
-        goto OTA_DIG_OVER;
+    if(hash_ctx != NULL) {
+        ota_free(hash_ctx);
+        hash_ctx = NULL;
     }
-    if(OTA_CRYPTO_RET_SUCCESS != ota_hash_update((const uint8_t *)src_data, src_len, hash_ctx)) {
-        ret = OTA_CRYPTO_HASH_UPDATE_ERR;
-        goto OTA_DIG_OVER;
-    }
-    if(OTA_CRYPTO_RET_SUCCESS != ota_hash_final(dig_data, hash_ctx)) {
-        ret = OTA_CRYPTO_HASH_FINAL_ERR;
-        goto OTA_DIG_OVER;
-    }
-
-OTA_DIG_OVER:
-    ota_free_hash_ctx(hash_ctx);
     if(ret != OTA_CRYPTO_RET_SUCCESS) {
-        OTA_LOG_E("ota:make_rsa_dig_data_err:%x", ret); 
+        OTA_LOG_E("ota:make_rsa_dig_data_err:%x", ret);
     }
     return ret;
 }
@@ -102,8 +94,8 @@ static int ota_verify_rsa_sign(unsigned char *src_value, int src_len, int rsabit
         ret = OTA_CRYPTO_MALLOC_FAIL;
         goto OTA_RSA_OVER;
     }
-    memset(dig_value, 0, dig_value_len);
-    if (ota_make_rsa_verify_dig_data(src_value, src_len, dig_value, hash_method) != 0) {
+    ret = ota_make_rsa_verify_digital_data(src_value, src_len, dig_value, hash_method);
+    if (ret != 0) {
         ret = OTA_CRYPTO_MAKE_DIG_HASH_FAIL;
         goto OTA_RSA_OVER;
     }
@@ -125,33 +117,29 @@ OTA_RSA_OVER:
 
 int ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_dat, unsigned char src_hash_method)
 {
-    int  ret                            = OTA_CRYPTO_RET_SUCCESS;
+    int  ret                            = OTA_CRYPTO_INVALID_ARG;
     int  src_dat_len                    = 0;
-    char tmp_buf[OTA_SHA256_HASH_SIZE]  = {0};
-
-    if((NULL == sign_dat) || (NULL == src_hash_dat)) {
-        ret = OTA_CRYPTO_INVALID_ARG;
-        goto OTA_VERIFY_SIGN_OVER;
+    unsigned char tmp_buf[OTA_SHA256_HASH_SIZE]  = {0};
+    if((sign_dat != NULL) && (src_hash_dat != NULL)) {
+        ret = OTA_CRYPTO_RET_SUCCESS;
+        if(src_hash_method == OTA_MD5) {
+            src_dat_len = OTA_MD5_HASH_SIZE;
+        }
+        else if(src_hash_method == OTA_SHA256) {
+            src_dat_len = OTA_SHA256_HASH_SIZE;
+        }
+        else {
+            ret = OTA_CRYPTO_INVALID_HASH_TYPE;
+        }
+        if(ret == OTA_CRYPTO_RET_SUCCESS) {
+            ret = ota_str2hex(src_hash_dat, (char*)tmp_buf, sizeof(tmp_buf));
+            if(ret == 0) {
+                ret = ota_verify_rsa_sign(tmp_buf, src_dat_len, OTA_SIGN_BITNUMB, sign_dat);
+            }
+        }  
     }
-
-    if(src_hash_method == OTA_MD5) {
-        src_dat_len = OTA_MD5_HASH_SIZE;
-    }
-    else if(src_hash_method == OTA_SHA256) {
-        src_dat_len = OTA_SHA256_HASH_SIZE;
-    }
-    else {
-        ret = OTA_CRYPTO_INVALID_HASH_TYPE;
-        goto OTA_VERIFY_SIGN_OVER;
-    }
-    if(ota_hex_str2buf(src_hash_dat, tmp_buf, sizeof(tmp_buf)) < 0) {
-        goto OTA_VERIFY_SIGN_OVER;
-    }
-    ret = ota_verify_rsa_sign((unsigned char *)tmp_buf, src_dat_len, OTA_SIGN_BITNUMB, sign_dat);
-
-OTA_VERIFY_SIGN_OVER:
     if(ret != OTA_CRYPTO_RET_SUCCESS) {
-       OTA_LOG_E("ota_verify_download_rsa_sign err = %x", ret);
+       OTA_LOG_E("ota_verify_download_rsa_sign err = %d", ret);
     }
     return ret;
 }
