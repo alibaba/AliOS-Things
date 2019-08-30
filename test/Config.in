@@ -1,9 +1,5 @@
 menu "Test        Configuration"
 
-if AOS_APP_NULL
-source "test/develop/Config.in"
-endif
-
 source "test/testcase/Config.in"
 source "test/yunit/Config.in"
 
