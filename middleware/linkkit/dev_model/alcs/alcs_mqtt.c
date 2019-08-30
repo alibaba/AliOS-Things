@@ -336,12 +336,32 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
             char reply_topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
             prefix = json_get_value_by_name(param, param_len, ALCS_MQTT_JSON_KEY_PREFIX, &prefix_len, NULL);
 
-            if (NULL != alcs_mqtt_ctx->coap_ctx && prefix)
-                if (0 != alcs_remove_svr_key(alcs_mqtt_ctx->coap_ctx, prefix)) {
+            if (NULL != alcs_mqtt_ctx->coap_ctx && prefix) {
+                char mprefix[ALCS_MQTT_PREFIX_MAX_LEN + 1] = {0};
+                char msecret[ALCS_MQTT_SECRET_MAX_LEN + 1] = {0};
+                char mpk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+                char mdn[IOTX_DEVICE_NAME_LEN + 1] = {0};
+                uint16_t mpk_len = 0, mdn_len = 0;
+                HAL_GetProductKey(mpk);
+                HAL_GetDeviceName(mdn);
+                mpk_len = strlen(mpk);
+                mdn_len = strlen(mdn);
+                if (alcs_mqtt_prefix_secret_load(mpk, mpk_len, mdn, mdn_len, mprefix, msecret) == ALCS_MQTT_STATUS_SUCCESS) {
+                    char back1 = prefix[prefix_len];
+                    prefix[prefix_len] = 0;
+                    alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, msecret, FROMCLOUDSVR);
+                    prefix[prefix_len] = back1;
+                    if (__alcs_mqtt_prefix_secret_save(mpk, mpk_len, mdn, mdn_len, prefix, prefix_len, msecret,
+                                                       strlen(msecret)) == ALCS_MQTT_STATUS_SUCCESS) {
+                        COAP_INFO("prefix saved\n");
+                    } else {
+                        COAP_ERR("prefix save failed\n");
+                    }
+                } else {
+                    COAP_ERR("update prefix_secret_load failed\n");
                 }
-            if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_del(ALCS_MQTT_JSON_KEY_PREFIX)) {
-                COAP_ERR("Remove the keyprefix from aos_kv fail");
-                ;
+            } else {
+                COAP_ERR("prefix not found, prefix update failed\n");
             }
 
             HAL_Snprintf(reply_topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_REPLY_FMT,
@@ -527,9 +547,11 @@ alcs_mqtt_status_e alcs_mqtt_blacklist_update(void *ctx)
 alcs_mqtt_status_e alcs_mqtt_prefixkey_update(void *ctx)
 {
     CoAPContext *context = (CoAPContext *)ctx;
-    char prefix[ALCS_MQTT_PREFIX_MAX_LEN] = {0};
-    char secret[ALCS_MQTT_SECRET_MAX_LEN] = {0};
-    int prefix_len = ALCS_MQTT_PREFIX_MAX_LEN, secret_len = ALCS_MQTT_SECRET_MAX_LEN;
+    char prefix[ALCS_MQTT_PREFIX_MAX_LEN + 1] = {0};
+    char secret[ALCS_MQTT_SECRET_MAX_LEN + 1] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    uint16_t prodkey_len = 0, devname_len = 0;
 
     if (NULL == context) {
         return ALCS_MQTT_STATUS_ERROR;
@@ -537,13 +559,16 @@ alcs_mqtt_status_e alcs_mqtt_prefixkey_update(void *ctx)
 
     COAP_INFO("start alcs_prefixkey_update\n");
 
-    if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_PREFIX, prefix, &prefix_len) &&
-        ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_SECRET, secret, &secret_len)) {
-        COAP_INFO("The prefix is  %.*s, deviceSecret is %.*s", prefix_len, prefix, secret_len, secret);
-        if (prefix_len && secret_len) {
-            alcs_add_svr_key(context, prefix, secret, FROMCLOUDSVR);
-            return ALCS_MQTT_STATUS_SUCCESS;
-        }
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    prodkey_len = strlen(product_key);
+    devname_len = strlen(device_name);
+    if (alcs_mqtt_prefix_secret_load(product_key, prodkey_len, device_name, devname_len, prefix,
+                                     secret) == ALCS_MQTT_STATUS_SUCCESS) {
+        alcs_add_svr_key(context, prefix, secret, FROMCLOUDSVR);
+        return ALCS_MQTT_STATUS_SUCCESS;
+    } else {
+        COAP_INFO("alcs_prefixkey_update failed\n");
     }
 
     return ALCS_MQTT_STATUS_ERROR;
