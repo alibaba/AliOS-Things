@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <http.h>
 #include "ota_log.h"
-#include "ota_crypto.h"
+#include "ota_verify.h"
 #include "ota_import.h"
 #include "ota_plat_ctrl.h"
 #include "ota_hal_common.h"

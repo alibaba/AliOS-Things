@@ -3,7 +3,7 @@
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
 #include "ota_breeze_plat.h"
-#include "ota/ota_breeze_export.h"
+#include "ota/ota_breeze.h"
 #include "ota_breeze_transport.h"
 
 static _ota_ble_global_dat_t g_ctx;
