@@ -9,6 +9,10 @@ $(NAME)_SOURCES += src/utils/jse_utils.c
 ${NAME}_SOURCES += \
 										src/port/aos/jse_osal.c \
 										src/port/aos/jse_system.c
+# lcd port interface
+ifeq ($(AOS_BOARD_DEVELOPERKIT),y)
+${NAME}_SOURCES += src/port/hal/lcd_developerkit.c
+endif
 
 # C includes
 $(NAME)_INCLUDES += \
