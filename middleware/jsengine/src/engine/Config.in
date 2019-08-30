@@ -136,11 +136,11 @@ config JSE_HW_ADDON_I2C
 #    help
 #        JSEngine js hardware addon of IR
 
-# config JSE_HW_ADDON_LCD
-#    bool "LCD"
-#    default n
-#    help
-#        JSEngine js hardware addon of LCD
+ config JSE_HW_ADDON_LCD
+    bool "LCD"
+    default n
+    help
+        JSEngine js hardware addon of LCD
 
 config JSE_HW_ADDON_PWM
     bool "PWM"
