@@ -24,6 +24,9 @@ static int32_t ulocation_gga_filter(char *gps_raw_data, uint8_t *gga_raw_data)
     }
     p2 = gga_raw_data;
     p1=(uint8_t*)strstr((const char *)gps_raw_data,"$GNGGA");
+    if (p1 == NULL) {
+        return ret;
+    }
     while (*p1 != '\n') {
         *p2++ = *p1++;
     }
