@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <network/network.h>
-
+#include "linkkit/wrappers/wrappers.h"
 #include "dns.h"
 
 /* dns header field */
@@ -203,7 +203,7 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
 
     sock_fd = socket(AF_INET , SOCK_DGRAM , IPPROTO_UDP);
     if (sock_fd < 0) {
-        perror("dns socket: ");
+        HAL_Printf("dns socket: \r\n");
         return -1;
     }
 
@@ -228,7 +228,7 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
     }
     if (FD_ISSET(sock_fd, &send_recv_sets)) {
         if ((res = sendto(sock_fd, (void *)send_message, (size_t)idx, 0, (struct sockaddr*)&dest, sizeof(dest))) < 0) {
-            perror("send dns request message failed: ");
+            HAL_Printf("send dns request message failed.\r\n");
             close(sock_fd);
             return -1;
         }
@@ -250,7 +250,7 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
     if (FD_ISSET(sock_fd, &send_recv_sets)) {
         dest_len = sizeof(dest);
         if ((res = recvfrom(sock_fd, (void *)recv_message, 1024, 0, (struct sockaddr*)&dest, &dest_len)) < 0) {
-            perror("send dns request message failed: ");
+            HAL_Printf("send dns request message failed;\r\n");
             close(sock_fd);
             return -1;
         }
@@ -268,7 +268,7 @@ int dns_getaddrinfo(char *domain, char *ip[DNS_RESULT_COUNT])
 
     memset(g_dns_ip_list, 0, DNS_RESULT_COUNT * 16);
     for (idx = 0;idx < DNS_SERVER_COUNT;idx++) {
-        printf("[prt] dns server: %s\n", g_dns_server_list[idx]);
+        HAL_Printf("[prt] dns server: %s\n", g_dns_server_list[idx]);
         res = dns_resolve(g_dns_server_list[idx], domain, ip);
         if (res < 0) {
             continue;
