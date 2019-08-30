@@ -2,17 +2,18 @@
 
 ```sh
 ble
-├── ble.mk
+├── aos.mk
 ├── Config.in
-├── inc
-│   ├── ais_ota.h
-│   ├── ota_breeze_export.h
-│   ├── ota_breeze.h
-│   └── ota_breeze_transport.h
-├── README.md
-└── src
-    ├── ota_breeze.c
-    └── ota_breeze_transport.c
+├── ota_breeze.c
+├── ota_breeze.h
+├── ota_breeze_os.c
+├── ota_breeze_os.h
+├── ota_breeze_plat.c
+├── ota_breeze_plat.h
+├── ota_breeze_service.c
+├── ota_breeze_transport.c
+├── ota_breeze_transport.h
+└── README.md
 ```
 
 ## Introduction
