@@ -1,0 +1,5 @@
+config AOS_COMP_CMSISNN
+    bool "CMSIS-NN Support"
+    default n
+    help
+      CMSIS NN component

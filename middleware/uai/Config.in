@@ -1,0 +1,5 @@
+config AOS_COMP_UAI
+    bool "uAI Support"
+    default n
+    help
+      uAI component
