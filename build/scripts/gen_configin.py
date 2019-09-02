@@ -6,7 +6,6 @@ import shutil
 from aos_parse_components import get_comp_name
 
 # Global definitions
-templatedir = "build/scripts/kconfig_template"
 top_config_in = "build/Config.in"
 board_config_in = "board/Config.in"
 example_config_in = "app/example/Config.in"
@@ -62,11 +61,11 @@ def get_opt_config(config_file, keyword, sdir):
                         opt_config = "%s/Config.in" % root
                 if opt_config:
                     break
-    if not opt_name:
-        print("Warning: Can't found %s from %s ..." % (keyword, config_file))
+    #if not opt_name:
+    #    print("Warning: Can't found %s from %s ..." % (keyword, config_file))
 
-    if opt_name and not opt_config:
-        print("Warning: The option is not defined %s ..." % (opt_name))
+    #if opt_name and not opt_config:
+    #    print("Warning: The option is not defined %s ..." % (opt_name))
 
     return (opt_name, opt_config)
 
@@ -196,21 +195,6 @@ def main():
         if 'Config.in' in files:
             config_file = "%s/Config.in" % root.replace(source_root, "")
             config_list += [config_file]
-
-    templates = os.listdir(templatedir)
-    for template in templates:
-        destdir = re.sub(r"\.Config\.in", "", template)
-        destdir = re.sub(r"\.", "/", destdir)
-        sourcefile = os.path.join(templatedir, template)
-        destfile = os.path.join(destdir, "Config.in")
-
-        if os.path.isdir(destdir):
-            if "linkkit/Config.in" in destfile:
-                if not os.path.isfile(re.sub(r"Config.in", "sdk-c/aos.mk", destfile)):
-                    continue
-
-            shutil.copyfile(sourcefile, destfile)
-            config_list += [destfile]
 
     if os.path.isfile("middleware/linkkit/sdk-c/Config.linkkit"):
         config_list += ["middleware/linkkit/sdk-c/Config.linkkit"]
