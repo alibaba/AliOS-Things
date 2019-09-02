@@ -11,7 +11,7 @@
 /*
 main task stask size(byte)
 */
-#define OS_MAIN_TASK_STACK (3072/4)
+#define OS_MAIN_TASK_STACK (1024 * 8)//(3072/4)
 #define OS_MAIN_TASK_PRI 32
 
 /*  For user config
