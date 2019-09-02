@@ -139,7 +139,8 @@ OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
            return OTA_UPGRADE_WRITE_FAIL;
        }
        OTA_LOG_I("OTA finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x param crc:0x%04x upg_flag:0x%04x \r\n", param->dst_adr, param->src_adr, param->len, param->crc, param->param_crc, param->upg_flag);
-       ret = hal_reboot_bank();
+       if(param->upg_flag != OTA_UPGRADE_DIFF && param->upg_flag != OTA_UPGRADE_XZ)
+           ret = hal_reboot_bank();
     }
     return ret;
 }
