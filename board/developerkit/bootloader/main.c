@@ -4,7 +4,7 @@
 #include "hal_boot_wdg.h"
 #include "hal_boot_process.h"
 
-#include "ota/ota_service.h"
+#include "2ndboot.h"
 
 void HAL_PWR_EnableBkUpAccess(void)
 {
@@ -61,7 +61,6 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
 
 void SystemClock_Config(void)
 {
-
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
@@ -118,21 +117,35 @@ int main(void)
 {
     int ret = 0, i = 0;
     unsigned int bank = 0;
-    ota_boot_param_t param = {0};
-    ret = ota_patch_read_param(&param);
+    ota_boot_param_t ota_param = {0};
+    ret = ota_patch_read_param(&ota_param);
     if(ret < 0) {
         return -1;
     }
     HAL_Init();
     SystemClock_Config();
     hal_uart_Init();
-    if(param.upg_flag == OTA_UPGRADE_DIFF) {
-        ret = ota_nbpatch_main();
-        if(ret != 0) {
-            sys_reboot();
-        }
-    }
     bank = hal_get_boot_bank();
+    printf("ota:0x%x bank:%d \n", ota_param.upg_flag, bank);
+#if defined OTA_CONFIG_DIFF
+    if(ota_param.upg_flag == OTA_UPGRADE_DIFF) {
+        ret = ota_nbpatch_main();
+    }
+#else
+    if(ota_param.upg_flag == OTA_UPGRADE_XZ){
+        ret = ota_xz_main();
+    }
+#endif
+    if(ret != 0 && ota_param.boot_count <= 3) {
+        printf("fail.\n");
+        ota_patch_write_param(&ota_param);
+        sys_delayms(100);
+        sys_reboot();
+    } else if (ota_param.upg_flag != 0) {
+        ota_param.upg_flag = 0;
+        ota_param.boot_count = 0;
+        ota_patch_write_param(&ota_param);
+    }
     load_app(APP_LOAD_ADDR);
     return 0;
 }
@@ -144,13 +157,3 @@ void _Error_Handler(char *file, int line)
 
     }
 }
-
-#ifdef  USE_FULL_ASSERT
-void assert_failed(uint8_t* file, uint32_t line)
-{
-    /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-    tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    /* USER CODE END 6 */
-}
-#endif /* USE_FULL_ASSERT */
