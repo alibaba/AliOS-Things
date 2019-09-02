@@ -40,8 +40,8 @@ EXIT:
     } else {
         if(ota_param.upg_flag != 0) {
             ota_param.upg_flag = 0;
+            ota_patch_write_param(&ota_param);
         }
-        ota_patch_write_param(&ota_param);
         if(ota_param.boot_count > 3) { /* todo: rollback old version for dual banker boot. */
         }
     }
