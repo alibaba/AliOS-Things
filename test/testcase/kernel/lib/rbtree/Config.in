@@ -1,0 +1,5 @@
+config AOS_COMP_RBTREE_TEST
+    bool "RBTREE Testcase"
+    select AOS_COMP_LIB_RBTREE
+    default n
+    help
