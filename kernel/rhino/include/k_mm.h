@@ -46,11 +46,12 @@
 #define MM_GET_THIS_BLK(buf) ((k_mm_list_t *)((char *)(buf)-MMLIST_HEAD_SIZE))
 
 #if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-#define MM_CRITICAL_ENTER(pmmhead) krhino_spin_lock_irq_save(&(pmmhead->mm_lock));
-#define MM_CRITICAL_EXIT(pmmhead)  krhino_spin_unlock_irq_restore(&(pmmhead->mm_lock));
+#define MM_CRITICAL_ENTER(pmmhead,flags_cpsr) krhino_spin_lock_irq_save(&(pmmhead->mm_lock),flags_cpsr);
+#define MM_CRITICAL_EXIT(pmmhead,flags_cpsr)  krhino_spin_unlock_irq_restore(&(pmmhead->mm_lock),flags_cpsr);
 #else /* (RHINO_CONFIG_MM_REGION_MUTEX != 0) */
-#define MM_CRITICAL_ENTER(pmmhead)                                   \
+#define MM_CRITICAL_ENTER(pmmhead,flags_cpsr)                        \
     do {                                                             \
+        (void)flags_cpsr;                                            \
         CPSR_ALLOC();                                                \
         RHINO_CRITICAL_ENTER();                                      \
         if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {             \
@@ -59,7 +60,11 @@
         RHINO_CRITICAL_EXIT();                                       \
         krhino_mutex_lock(&(pmmhead->mm_mutex), RHINO_WAIT_FOREVER); \
     } while (0);
-#define MM_CRITICAL_EXIT(pmmhead) krhino_mutex_unlock(&(pmmhead->mm_mutex))
+#define MM_CRITICAL_EXIT(pmmhead,flags_cpsr)                         \
+    do {                                                             \
+        (void)flags_cpsr;                                            \
+        krhino_mutex_unlock(&(pmmhead->mm_mutex));                   \
+    } while (0);
 #endif
 
 /* struct of memory list ,every memory block include this information */
