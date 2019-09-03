@@ -242,6 +242,8 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     k_mm_region_info_t *region;
     k_mm_list_t        *firstblk;
     k_mm_list_t        *nextblk;
+    cpu_cpsr_t flags_cpsr;
+    (void)flags_cpsr;
 
     NULL_PARA_CHK(mmhead);
     NULL_PARA_CHK(addr);
@@ -258,7 +260,7 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
 
     memset(addr, 0, len);
 
-    MM_CRITICAL_ENTER(mmhead);
+    MM_CRITICAL_ENTER(mmhead, flags_cpsr);
 
     firstblk = init_mm_region(addr, len);
     nextblk  = MM_GET_NEXT_BLK(firstblk);
@@ -280,7 +282,7 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     mmhead->used_size += MM_GET_BLK_SIZE(nextblk);
 #endif
 
-    MM_CRITICAL_EXIT(mmhead);
+    MM_CRITICAL_EXIT(mmhead, flags_cpsr);
 
     /*mark nextblk as free*/
     k_mm_free(mmhead, nextblk->mbinfo.buffer);
@@ -400,6 +402,8 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
 #if (RHINO_CONFIG_MM_BLK > 0)
     mblk_pool_t *mm_pool;
 #endif
+    cpu_cpsr_t flags_cpsr;
+    (void)flags_cpsr;
 
     (void)req_size;
 
@@ -411,7 +415,7 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
         return NULL;
     }
 
-    MM_CRITICAL_ENTER(mmhead);
+    MM_CRITICAL_ENTER(mmhead, flags_cpsr);
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     /* little blk, try to get from mm_pool */
@@ -420,7 +424,7 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
         if (size <= RHINO_CONFIG_MM_BLK_SIZE && mm_pool->blk_avail > 0) {
             retptr =  k_mm_smallblk_alloc(mmhead, size);
             if (retptr) {
-                MM_CRITICAL_EXIT(mmhead);
+                MM_CRITICAL_EXIT(mmhead, flags_cpsr);
                 return retptr;
             }
         }
@@ -509,7 +513,7 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
 
 ALLOCEXIT:
 
-    MM_CRITICAL_EXIT(mmhead);
+    MM_CRITICAL_EXIT(mmhead, flags_cpsr);
 
     return retptr ;
 }
@@ -517,19 +521,21 @@ ALLOCEXIT:
 void  k_mm_free(k_mm_head *mmhead, void *ptr)
 {
     k_mm_list_t *free_b, *next_b, *prev_b;
+    cpu_cpsr_t flags_cpsr;
+    (void)flags_cpsr;
 
     if (!ptr || !mmhead) {
         return;
     }
 
-    MM_CRITICAL_ENTER(mmhead);
+    MM_CRITICAL_ENTER(mmhead, flags_cpsr);
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     /* fix blk, free to mm_pool */
     if (krhino_mblk_check(mmhead->fix_pool, ptr)) {
         /*it's fixed size memory block*/
         k_mm_smallblk_free(mmhead, ptr);
-        MM_CRITICAL_EXIT(mmhead);
+        MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         return;
     }
 #endif
@@ -538,12 +544,12 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (free_b->dye == RHINO_MM_FREE_DYE) {
-        MM_CRITICAL_EXIT(mmhead);
+        MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         printf("WARNING, memory maybe double free!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
     if (free_b->dye != RHINO_MM_CORRUPT_DYE) {
-        MM_CRITICAL_EXIT(mmhead);
+        MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         printf("WARNING, memory maybe corrupt!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
@@ -566,7 +572,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
         prev_b = free_b->prev;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (prev_b->dye != RHINO_MM_FREE_DYE) {
-            MM_CRITICAL_EXIT(mmhead);
+            MM_CRITICAL_EXIT(mmhead, flags_cpsr);
             printf("WARNING, memory overwritten!!\r\n");
             k_err_proc(RHINO_SYS_FATAL_ERR);
         }
@@ -582,7 +588,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
     next_b = MM_GET_NEXT_BLK(free_b);
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (next_b->dye != RHINO_MM_FREE_DYE && next_b->dye != RHINO_MM_CORRUPT_DYE) {
-        MM_CRITICAL_EXIT(mmhead);
+        MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         printf("WARNING, memory overwritten!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
@@ -590,7 +596,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
     next_b->prev = free_b;
     next_b->buf_size |= RHINO_MM_PREVFREE;
 
-    MM_CRITICAL_EXIT(mmhead);
+    MM_CRITICAL_EXIT(mmhead, flags_cpsr);
 }
 
 void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
@@ -600,6 +606,8 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
     k_mm_list_t *this_b, *split_b, *next_b;
     size_t       old_size, split_size;
     size_t       req_size = 0;
+    cpu_cpsr_t flags_cpsr;
+    (void)flags_cpsr;
 
     (void)req_size;
 
@@ -616,15 +624,15 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 
     req_size =  new_size;
 
-    MM_CRITICAL_ENTER(mmhead);
+    MM_CRITICAL_ENTER(mmhead, flags_cpsr);
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     if (krhino_mblk_check(mmhead->fix_pool, oldmem)) {
         if (new_size <= RHINO_CONFIG_MM_BLK_SIZE) {
             ptr_aux = oldmem;
-            MM_CRITICAL_EXIT(mmhead);
+            MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         } else {
-            MM_CRITICAL_EXIT(mmhead);
+            MM_CRITICAL_EXIT(mmhead, flags_cpsr);
             ptr_aux  = k_mm_alloc(mmhead, new_size);
             if (ptr_aux) {
                 memcpy(ptr_aux, oldmem, RHINO_CONFIG_MM_BLK_SIZE);
@@ -716,11 +724,11 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
         this_b->dye   = RHINO_MM_CORRUPT_DYE;
 #endif
 
-        MM_CRITICAL_EXIT(mmhead);
+        MM_CRITICAL_EXIT(mmhead, flags_cpsr);
         return ptr_aux;
     }
 
-    MM_CRITICAL_EXIT(mmhead);
+    MM_CRITICAL_EXIT(mmhead, flags_cpsr);
 
     /* re alloc blk */
     ptr_aux = k_mm_alloc(mmhead, new_size);
@@ -740,6 +748,7 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 void krhino_owner_attach(void *addr, size_t allocator)
 {
     k_mm_list_t *blk;
+    cpu_cpsr_t flags_cpsr;
 
     if (NULL == addr) {
         return;
@@ -752,12 +761,12 @@ void krhino_owner_attach(void *addr, size_t allocator)
     }
 #endif
 
-    MM_CRITICAL_ENTER(g_kmm_head);
+    MM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
 
     blk        = MM_GET_THIS_BLK(addr);
     blk->owner = allocator;
 
-    MM_CRITICAL_EXIT(g_kmm_head);
+    MM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
 }
 #endif
 

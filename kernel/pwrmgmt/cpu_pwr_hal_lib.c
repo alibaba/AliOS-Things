@@ -335,10 +335,11 @@ static pwr_status_t _cpu_pwr_c_state_get(uint32_t cpu_idx,
 pwr_status_t cpu_pwr_c_state_get(uint32_t cpu_idx, cpu_cstate_t *p_cpu_c_state)
 {
     pwr_status_t ret;
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save(&cpu_pwr_lock);
+    krhino_spin_lock_irq_save(&cpu_pwr_lock, flags_cpsr);
     ret = _cpu_pwr_c_state_get(cpu_idx, p_cpu_c_state);
-    krhino_spin_unlock_irq_restore(&cpu_pwr_lock);
+    krhino_spin_unlock_irq_restore(&cpu_pwr_lock, flags_cpsr);
 
     return ret;
 }
@@ -519,10 +520,11 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
 pwr_status_t cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
 {
     pwr_status_t ret;
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save(&cpu_pwr_lock);
+    krhino_spin_lock_irq_save(&cpu_pwr_lock, flags_cpsr);
     ret = _cpu_pwr_c_state_set(target_c_state);
-    krhino_spin_unlock_irq_restore(&cpu_pwr_lock);
+    krhino_spin_unlock_irq_restore(&cpu_pwr_lock, flags_cpsr);
 
     return ret;
 }
