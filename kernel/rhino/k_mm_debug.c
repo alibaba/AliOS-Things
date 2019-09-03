@@ -142,7 +142,8 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
 
 uint32_t dumpsys_mm_info_func(uint32_t len)
 {
-    MM_CRITICAL_ENTER(g_kmm_head);
+    cpu_cpsr_t flags_cpsr;
+    MM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
 
     print("\r\n");
     print("------------------------------- all memory blocks --------------------------------- \r\n");
@@ -156,7 +157,7 @@ uint32_t dumpsys_mm_info_func(uint32_t len)
     print("------------------------- memory allocation statistic ------------------------------ \r\n");
     dump_kmm_statistic_info(g_kmm_head);
 
-    MM_CRITICAL_EXIT(g_kmm_head);
+    MM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
 
     return RHINO_SUCCESS;
 }
