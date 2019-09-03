@@ -78,11 +78,12 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk)
 {
     kstat_t  status;
     uint8_t *avail_blk;
+    cpu_cpsr_t flags_cpsr;
 
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
 
-    krhino_spin_lock_irq_save(&pool->blk_lock);
+    krhino_spin_lock_irq_save(&pool->blk_lock, flags_cpsr);
 
     if (pool->blk_avail > 0u) {
         avail_blk          = pool->avail_list;
@@ -96,24 +97,25 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk)
         status = RHINO_NO_MEM;
     }
 
-    krhino_spin_unlock_irq_restore(&pool->blk_lock);
+    krhino_spin_unlock_irq_restore(&pool->blk_lock, flags_cpsr);
 
     return status;
 }
 
 kstat_t krhino_mblk_free(mblk_pool_t *pool, void *blk)
 {
+    cpu_cpsr_t flags_cpsr;
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
 
-    krhino_spin_lock_irq_save(&pool->blk_lock);
+    krhino_spin_lock_irq_save(&pool->blk_lock, flags_cpsr);
 
     /* use the first 4 byte of the free block point to head of avail list */
     *((uint8_t **)blk) = pool->avail_list;
     pool->avail_list   = blk;
     pool->blk_avail++;
 
-    krhino_spin_unlock_irq_restore(&pool->blk_lock);
+    krhino_spin_unlock_irq_restore(&pool->blk_lock, flags_cpsr);
 
     return RHINO_SUCCESS;
 }
