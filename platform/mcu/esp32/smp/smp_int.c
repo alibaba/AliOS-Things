@@ -18,8 +18,8 @@
 #include "k_api.h"
 #include "esp_log.h"
 
-#define portENTER_CRITICAL()                
-#define portEXIT_CRITICAL()                 
+#define portENTER_CRITICAL()
+#define portEXIT_CRITICAL()
 
 #define REASON_YIELD (1<<0)
 
@@ -41,10 +41,10 @@ extern void xt_unhandled_interrupt(void * arg);
 void os_set_int_handle(int n,void *f)
 {
     xt_handler_table_entry * entry;
-    
+
     n = n * portNUM_PROCESSORS + xPortGetCoreID();
     entry = _xt_interrupt_table + n;
-    entry->handler = f;    
+    entry->handler = f;
 }
 
 /*xt_set_interrupt_handler in libesp32.a is set only one core,it is should be modified*/
@@ -59,12 +59,12 @@ void os_modify_int_handle(int n,void *f)
 
 void os_set_int_muticore(int n)
 {
-    
+
     return;
     xt_handler_table_entry * entry;
     void * oldhanler;
     int intnum;
-    
+
     intnum = n * 1 + xPortGetCoreID();
     entry = _xt_interrupt_table + intnum;
     oldhanler = entry->handler;
@@ -72,7 +72,7 @@ void os_set_int_muticore(int n)
 
     intnum = n * portNUM_PROCESSORS + xPortGetCoreID();
     entry = _xt_interrupt_table + intnum;
-    entry->handler = oldhanler;  
+    entry->handler = oldhanler;
 
 }*/
 
@@ -130,7 +130,7 @@ void  os_crosscore_int_send_yield(int coreId) {
 
 void cpu_signal(uint8_t cpu_num)
 {
-     extern uint64_t g_cpu_flag;
+     extern volatile uint64_t g_cpu_flag;
      if(g_cpu_flag & (1UL << cpu_num))
      {
          os_crosscore_int_send_yield((int)cpu_num);
