@@ -77,12 +77,13 @@ pwr_status_t mcu_one_shot_start
 {
     uint64_t cnt;
     pwr_status_t ret;
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save(&mcu_spin);
+    krhino_spin_lock_irq_save(&mcu_spin, flags_cpsr);
 
     ret = aos_mcu_ps_timer_start(planUs);
 
-    krhino_spin_unlock_irq_restore (&mcu_spin);
+    krhino_spin_unlock_irq_restore (&mcu_spin, flags_cpsr);
 
     return ret;
 
@@ -102,15 +103,16 @@ pwr_status_t mcu_one_shot_stop(uint64_t *pPassedUs)
     uint32_t count;
     uint32_t passedCount32;
     uint64_t passedCount64;
+    cpu_cpsr_t flags_cpsr;
 
     /* validate the parameters */
     *pPassedUs = 0;
 
-    krhino_spin_lock_irq_save(&mcu_spin);
+    krhino_spin_lock_irq_save(&mcu_spin, flags_cpsr);
 
     aos_mcu_ps_timer_stop(pPassedUs);
 
-    krhino_spin_unlock_irq_restore (&mcu_spin);
+    krhino_spin_unlock_irq_restore (&mcu_spin, flags_cpsr);
 
     return PWR_OK;
 }

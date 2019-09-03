@@ -79,12 +79,12 @@ extern uint32_t          WDEV_INTEREST_EVENT;
    because the NMI isr use "malloc" and "free" in SDK */
 #ifdef MM_CRITICAL_ENTER
 #undef MM_CRITICAL_ENTER
-#define MM_CRITICAL_ENTER(pmmhead)  RHINO_CPU_INTRPT_DISABLE_NMI()
+#define MM_CRITICAL_ENTER(pmmhead, flags_cpsr)  RHINO_CPU_INTRPT_DISABLE_NMI()
 #endif
 
 #ifdef MM_CRITICAL_EXIT
 #undef MM_CRITICAL_EXIT
-#define MM_CRITICAL_EXIT(pmmhead)   RHINO_CPU_INTRPT_ENABLE_NMI()
+#define MM_CRITICAL_EXIT(pmmhead, flags_cpsr)   RHINO_CPU_INTRPT_ENABLE_NMI()
 #endif
 
 RHINO_INLINE uint8_t cpu_cur_get(void)
