@@ -308,6 +308,7 @@ static void tickless_enter(void)
     cpu_cstate_t cstate_to_enter = CPU_CSTATE_C1;
     uint32_t     cpu_idx         = 0;
     tick_t       n_ticks         = 0;
+    cpu_cpsr_t flags_cpsr;
 
     CPSR_ALLOC();
 
@@ -315,10 +316,10 @@ static void tickless_enter(void)
     static sys_time_t last_log_entersleep        = 0;
     static uint32_t   cpu_lowpower_enter_counter = 0;
 #endif
-    krhino_spin_lock_irq_save(&ticklessSpin);
+    krhino_spin_lock_irq_save(&ticklessSpin, flags_cpsr);
 
     if (cpu_pwr_ready_status_get() == PWR_ERR) {
-        krhino_spin_unlock_irq_restore(&ticklessSpin);
+        krhino_spin_unlock_irq_restore(&ticklessSpin, flags_cpsr);
         return;
     }
 
@@ -398,7 +399,7 @@ static void tickless_enter(void)
         }
     }
 
-    krhino_spin_unlock_irq_restore(&ticklessSpin);
+    krhino_spin_unlock_irq_restore(&ticklessSpin, flags_cpsr);
 
     RHINO_CRITICAL_ENTER();
     RHINO_CRITICAL_EXIT_SCHED();
@@ -415,11 +416,12 @@ static void tickless_enter(void)
 static void tickless_exit(void)
 {
     tick_t n_ticks = 0;
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save(&ticklessSpin);
+    krhino_spin_lock_irq_save(&ticklessSpin, flags_cpsr);
 
     if (!is_current_tickless) {
-        krhino_spin_unlock_irq_restore(&ticklessSpin);
+        krhino_spin_unlock_irq_restore(&ticklessSpin, flags_cpsr);
         return;
     }
 
@@ -431,7 +433,7 @@ static void tickless_exit(void)
     /* resume system tick interrupt */
     systick_resume();
 
-    krhino_spin_unlock_irq_restore(&ticklessSpin);
+    krhino_spin_unlock_irq_restore(&ticklessSpin, flags_cpsr);
 
     if (n_ticks > 0) {
         /* announces elapsed ticks to the kernel */
