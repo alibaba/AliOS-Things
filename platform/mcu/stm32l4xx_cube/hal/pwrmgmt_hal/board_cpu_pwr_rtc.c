@@ -161,6 +161,7 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
     uint32_t wakeup_counter = 0;
     uint64_t wakeup_ms      = planUs / 1000;
     uint32_t wakeup_s       = wakeup_ms / 1000;
+    cpu_cpsr_t flags_cpsr;
 
     if ((wakeup_s > (one_shot_max_period / 1000))
 #ifdef RTC_WAKEUP_SOURCE_FREQ_1HZ
@@ -170,7 +171,7 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
         return PWR_ERR;
     }
 
-    krhino_spin_lock_irq_save (&rtc_spin);
+    krhino_spin_lock_irq_save (&rtc_spin, flags_cpsr);
 
     /* Clear all related wakeup flags, PWR_FLAG_WU + RTC_FLAG_WUTF*/
     /* Clear PWR wake up Flag */
@@ -222,7 +223,7 @@ static pwr_status_t rtc_one_shot_start(uint64_t planUs)
 #endif
     one_shot_enabled = 1;
 
-    krhino_spin_unlock_irq_restore (&rtc_spin);
+    krhino_spin_unlock_irq_restore (&rtc_spin, flags_cpsr);
 
     return PWR_OK;
 }
@@ -241,12 +242,13 @@ static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs)
 #ifdef RTC_WAKEUP_SOURCE_FREQ_1HZ
     uint32_t passed_seconds = 0;
 #endif
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save (&rtc_spin);
+    krhino_spin_lock_irq_save (&rtc_spin, flags_cpsr);
 
     if (!one_shot_enabled) {
         *pPassedUs = 0;
-        krhino_spin_unlock_irq_restore(&rtc_spin);
+        krhino_spin_unlock_irq_restore(&rtc_spin, flags_cpsr);
         return PWR_OK;
     }
 
@@ -283,13 +285,13 @@ static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs)
 
     /* Disable RTC Wake-up timer */
     if (HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle) != HAL_OK) {
-        krhino_spin_unlock_irq_restore (&rtc_spin);
+        krhino_spin_unlock_irq_restore (&rtc_spin, flags_cpsr);
         return PWR_ERR;
     }
 
     one_shot_enabled = 0;
 
-    krhino_spin_unlock_irq_restore (&rtc_spin);
+    krhino_spin_unlock_irq_restore (&rtc_spin, flags_cpsr);
 
     return PWR_OK;
 }
