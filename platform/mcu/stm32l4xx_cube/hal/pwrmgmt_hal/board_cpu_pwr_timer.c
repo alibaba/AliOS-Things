@@ -176,8 +176,9 @@ pwr_status_t tim5_one_shot_start
 )
 {
     uint64_t cnt;
+    cpu_cpsr_t flags_cpsr;
 
-    krhino_spin_lock_irq_save(&tim5_spin);
+    krhino_spin_lock_irq_save(&tim5_spin, flags_cpsr);
 
     /*
      * convert microsecond into count value according
@@ -196,7 +197,7 @@ pwr_status_t tim5_one_shot_start
      * to handle this PWR_ERR.
      */
     if (cnt > (uint64_t)TIMER_32BIT_MAX_COUNT) {
-        krhino_spin_unlock_irq_restore (&tim5_spin);
+        krhino_spin_unlock_irq_restore (&tim5_spin, flags_cpsr);
         return (PWR_ERR);
     }
 
@@ -229,7 +230,7 @@ pwr_status_t tim5_one_shot_start
     /* enable update interrupt */
     (void)HAL_TIM_Base_Start_IT(&Tim5Handle);
 
-    krhino_spin_unlock_irq_restore (&tim5_spin);
+    krhino_spin_unlock_irq_restore (&tim5_spin, flags_cpsr);
 
     return PWR_OK;
 
@@ -249,14 +250,15 @@ pwr_status_t tim5_one_shot_stop(uint64_t *pPassedUs)
     uint32_t count;
     uint32_t passedCount32;
     uint64_t passedCount64;
+    cpu_cpsr_t flags_cpsr;
 
     /* validate the parameters */
     *pPassedUs = 0;
 
-    krhino_spin_lock_irq_save(&tim5_spin);
+    krhino_spin_lock_irq_save(&tim5_spin, flags_cpsr);
 
     if (!one_shot_enabled) {
-        krhino_spin_unlock_irq_restore (&tim5_spin);
+        krhino_spin_unlock_irq_restore (&tim5_spin, flags_cpsr);
         return PWR_OK;
     }
 
@@ -304,7 +306,7 @@ pwr_status_t tim5_one_shot_stop(uint64_t *pPassedUs)
 
     one_shot_enabled = 0;
 
-    krhino_spin_unlock_irq_restore (&tim5_spin);
+    krhino_spin_unlock_irq_restore (&tim5_spin, flags_cpsr);
 
     return PWR_OK;
 }
