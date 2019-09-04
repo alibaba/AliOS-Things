@@ -6,7 +6,7 @@
 #include "uai_dnn.h"
 
 static uai_dnn_model_t *g_model = NULL;
-static uai_fconn_func       fconn_func_local[UAI_FCONN_END - 1] = {uai_fully_connected, uai_fully_connected_opt};
+static uai_fconn_func       fconn_func_local[UAI_FCONN_END - 1] = {uai_fc, uai_fc_opt};
 static uai_act_func             act_func_local[UAI_ACT_END - 1] = {uai_relu, uai_relu6, uai_sigmod, uai_tanh};
 static uai_softmax_func softmax_func_local[UAI_SOFTMAX_END - 1] = {uai_softmax};
 
@@ -17,7 +17,7 @@ static char softmax_type_str[UAI_SOFTMAX_END - 1][8] = {"softmax"};
 
 static void uai_dnn_info_show()
 {
-    int32_t idx = 0; 
+    int32_t idx = 0;
 
     UAI_LOGI("DNN info:");
     UAI_LOGI("layer  num: %d", g_model->layer_num);
@@ -28,10 +28,19 @@ static void uai_dnn_info_show()
     for(idx = 0; idx < g_model->layer_num; idx++) {
         uai_dnn_layer_t *layer_info = &g_model->layer_info[idx];
         UAI_LOGI("layer %d info:", idx);
-        UAI_LOGI("in  dim: %d", layer_info->in_dim);
-        UAI_LOGI("out dim: %d", layer_info->out_dim);        
-        UAI_LOGI("bias shift: %d", layer_info->bias_shift);
-        UAI_LOGI("out  shift: %d", layer_info->out_shift);
+        UAI_LOGI("in  dim: %u", layer_info->input.rows);
+        UAI_LOGI("out dim: %u", layer_info->weight.rows);
+        /* input */
+        UAI_LOGI("input size: %u", layer_info->input.size);
+
+        /* weight */
+        UAI_LOGI("weight rows: %u", layer_info->weight.rows);
+        UAI_LOGI("weight size: %u", layer_info->weight.size);
+        /* bias */
+        UAI_LOGI("bias size: %u", layer_info->bias.size);
+        UAI_LOGI("bias shift: %d", layer_info->bias.shift);
+        /* output */
+        UAI_LOGI("out  shift: %d", layer_info->output.shift);
 
         if(layer_info->fconn_func != NULL) {
             UAI_LOGI("fully connected type: %s", fconn_type_str[layer_info->fconn_type - 1]);
@@ -52,21 +61,15 @@ static void uai_dnn_info_show()
 
 static int uai_dnn_preload_trained_data(uai_dnn_layer_t *layer_info, int32_t offset, char *trained_data_src, uai_src_type_e type)
 {
-    uint32_t weight_size = 0;
-    uint32_t bias_size   = 0;
-
-    weight_size = layer_info->in_dim * layer_info->out_dim;
-    bias_size   = layer_info->out_dim;
-
     if(type != UAI_SRC_TYPE_MEM) {
-        layer_info->weight = uai_malloc(weight_size);
-        layer_info->bias = uai_malloc(bias_size);
-        uai_load_trained_data(layer_info->weight, layer_info->bias, weight_size, bias_size, offset, trained_data_src);
+        layer_info->weight.buffer = uai_malloc(layer_info->weight.size);
+        layer_info->bias.buffer   = uai_malloc(layer_info->bias.size);
+        uai_load_trained_data(layer_info->weight.buffer, layer_info->bias.buffer, layer_info->weight.size, layer_info->bias.size, offset, trained_data_src);
     } else {
-        uai_load_trained_data((int8_t *)&layer_info->weight, (int8_t *)&layer_info->bias, weight_size, bias_size, offset, trained_data_src);
+        uai_load_trained_data((int8_t *)&layer_info->weight.buffer, (int8_t *)&layer_info->bias.buffer, layer_info->weight.size, layer_info->bias.size, offset, trained_data_src);
     }
 
-    return weight_size + bias_size;
+    return layer_info->weight.size + layer_info->bias.size;
 }
 
 int32_t uai_dnn_init(uai_dnn_config_t *model_config, char *trained_data_src)
@@ -112,14 +115,33 @@ int32_t uai_dnn_init(uai_dnn_config_t *model_config, char *trained_data_src)
     for(idx = 0; idx < g_model->layer_num; idx ++) {
         uai_dnn_layer_t *layer_info = &g_model->layer_info[idx];
 
-        layer_info->in_dim     = model_config->layer_info[idx].in_dim;
-        layer_info->out_dim    = model_config->layer_info[idx].out_dim;
-        layer_info->bias_shift = model_config->layer_info[idx].bias_shift;
-        layer_info->out_shift  = model_config->layer_info[idx].out_shift;
+        /* input */
+        layer_info->input.buffer  = NULL;
+        layer_info->input.columns = 1;
+        layer_info->input.rows    = model_config->layer_info[idx].in_dim;
+        layer_info->input.size    = model_config->layer_info[idx].in_dim;
+        layer_info->input.width   = 1;
+
+        /* weight */
+        layer_info->weight.buffer  = NULL;
+        layer_info->weight.columns = model_config->layer_info[idx].in_dim;
+        layer_info->weight.rows    = model_config->layer_info[idx].out_dim;
+        layer_info->weight.size    = layer_info->weight.columns * layer_info->weight.rows;
+        layer_info->weight.width   = 1;
+
+        /* bias */
+        layer_info->bias.buffer  = NULL;
+        layer_info->bias.width   = 1;
+        layer_info->bias.shift   = model_config->layer_info[idx].bias_shift;
+        layer_info->bias.size    = model_config->layer_info[idx].out_dim;
+
+        /* output */
+        layer_info->output.width   = 1;
+        layer_info->output.shift   = model_config->layer_info[idx].out_shift;
 
         /* fully connected */
         layer_info->fconn_type = model_config->layer_info[idx].fconn_type;
-        if((layer_info->fconn_type > UAI_FCONN_NULL) && 
+        if((layer_info->fconn_type > UAI_FCONN_NULL) &&
             (layer_info->fconn_type < UAI_FCONN_END)) {
             layer_info->fconn_func = fconn_func_local[layer_info->fconn_type - 1];
         }
@@ -149,9 +171,9 @@ int32_t uai_dnn_init(uai_dnn_config_t *model_config, char *trained_data_src)
             offset += uai_dnn_preload_trained_data(layer_info, offset, trained_data_src, type);
         }
     }
-    
-    g_model->trained_data_src = (char *)uai_malloc(strlen(trained_data_src));
-    memset(g_model->trained_data_src, 0, strlen(trained_data_src));
+
+    g_model->trained_data_src = (char *)uai_malloc(strlen(trained_data_src) + 1);
+    memset(g_model->trained_data_src, 0, strlen(trained_data_src) + 1);
     memcpy(g_model->trained_data_src, trained_data_src, strlen(trained_data_src));
 
     uai_dnn_info_show();
@@ -174,11 +196,11 @@ int32_t uai_dnn_deinit(void)
         type = uai_src_type_parse(g_model->trained_data_src);
         if(type != UAI_SRC_TYPE_MEM) {
             for(idx = 0; idx < g_model->layer_num; idx ++) {
-                if(g_model->layer_info[idx].weight != NULL) {
-                    uai_free(g_model->layer_info[idx].weight);
+                if(g_model->layer_info[idx].weight.buffer != NULL) {
+                    uai_free(g_model->layer_info[idx].weight.buffer);
                 }
-                if(g_model->layer_info[idx].bias != NULL) {
-                    uai_free(g_model->layer_info[idx].bias);
+                if(g_model->layer_info[idx].bias.buffer != NULL) {
+                    uai_free(g_model->layer_info[idx].bias.buffer);
                 }
             }
         }
@@ -198,65 +220,60 @@ static int8_t *uai_dnn_layer_run(uai_dnn_layer_t *layer_info, int8_t* in_buffer,
     int32_t size           = 0;
     int8_t *scratch_buffer = NULL;
     int16_t *vec_buffer    = NULL;
-            
+
     if(out_buffer == NULL) {
-        size = layer_info->in_dim*sizeof(int16_t) + layer_info->out_dim;
+        size = layer_info->input.size*sizeof(int16_t) + layer_info->weight.rows;
         scratch_buffer = uai_malloc(size);
         if(scratch_buffer == NULL) {
             UAI_LOGE("uai_malloc error");
             return NULL;
         }
         memset(scratch_buffer, 0, size);
-        vec_buffer = (int16_t*)(scratch_buffer + layer_info->out_dim);
+        vec_buffer = (int16_t*)(scratch_buffer + layer_info->weight.rows);
         out_buffer = scratch_buffer;
     } else {
-        size = layer_info->in_dim*sizeof(int16_t);
+        size = layer_info->input.size*sizeof(int16_t);
         scratch_buffer = uai_malloc(size);
         if(scratch_buffer == NULL) {
             UAI_LOGE("uai_malloc error");
             return NULL;
         }
 
-        memset(scratch_buffer, 0, layer_info->in_dim);
+        memset(scratch_buffer, 0, size);
         vec_buffer = (int16_t*)(scratch_buffer);
     }
 
     if(g_model->preload == false) {
-        uint32_t weight_size = 0;
-        uint32_t bias_size   = 0;
-
-        weight_size = layer_info->in_dim * layer_info->out_dim;
-        bias_size   = layer_info->out_dim;
-        layer_info->weight = uai_malloc(weight_size);
-        layer_info->bias = uai_malloc(bias_size);
-        ret = uai_load_trained_data(layer_info->weight, layer_info->bias, weight_size, bias_size, *offset, g_model->trained_data_src);
+        layer_info->weight.buffer = uai_malloc(layer_info->weight.size);
+        layer_info->bias.buffer = uai_malloc(layer_info->bias.size);
+        ret = uai_load_trained_data(layer_info->weight.buffer, layer_info->bias.buffer, layer_info->weight.size, layer_info->bias.size, *offset, g_model->trained_data_src);
         if(ret != UAI_SUCCESS) {
             UAI_LOGE("load trained data error");
-            uai_free(layer_info->weight);
-            uai_free(layer_info->bias);
+            uai_free(layer_info->weight.buffer);
+            uai_free(layer_info->bias.buffer);
             uai_free(scratch_buffer);
 
-            layer_info->weight = NULL;
-            layer_info->bias   = NULL;
+            layer_info->weight.buffer = NULL;
+            layer_info->bias.buffer   = NULL;
 
             return NULL;
         }
-        *offset += weight_size + bias_size;
+        *offset += layer_info->weight.size + layer_info->bias.size;
     }
-  
+
+    layer_info->input.buffer  = in_buffer;
+    layer_info->output.buffer = out_buffer;
+
     /* fully connected */
     if(layer_info->fconn_func != NULL) {
         UAI_LOGD("run fully connected");
-        layer_info->fconn_func(in_buffer, layer_info->weight, layer_info->in_dim, 
-                                layer_info->out_dim, layer_info->bias_shift,
-                                layer_info->out_shift, layer_info->bias,
-                                out_buffer, vec_buffer);
+        layer_info->fconn_func(&layer_info->input, &layer_info->weight, &layer_info->bias, &layer_info->output, vec_buffer);
     }
 
     /* activation */
     if(layer_info->act_func != NULL) {
         UAI_LOGD("run activation function");
-        layer_info->act_func(out_buffer, layer_info->out_dim, layer_info->act_width);
+        layer_info->act_func(layer_info->output.buffer, layer_info->weight.rows, layer_info->act_width);
     }
 
     /* pooling */
@@ -269,14 +286,14 @@ static int8_t *uai_dnn_layer_run(uai_dnn_layer_t *layer_info, int8_t* in_buffer,
     /* softmax */
     if(layer_info->softmax_func != NULL) {
         UAI_LOGD("run softmax function");
-        layer_info->softmax_func(out_buffer, g_model->result_num, out_buffer);
+        layer_info->softmax_func(layer_info->output.buffer, g_model->result_num, layer_info->output.buffer);
     }
 
     if(g_model->preload == false) {
-        uai_free(layer_info->weight);
-        uai_free(layer_info->bias);
-        layer_info->weight = NULL;
-        layer_info->bias   = NULL;
+        uai_free(layer_info->weight.buffer);
+        uai_free(layer_info->bias.buffer);
+        layer_info->weight.buffer = NULL;
+        layer_info->bias.buffer   = NULL;
     }
 
     return scratch_buffer;
@@ -284,9 +301,9 @@ static int8_t *uai_dnn_layer_run(uai_dnn_layer_t *layer_info, int8_t* in_buffer,
 
 int32_t uai_dnn_run(int8_t* in_data, int8_t* out_data)
 {
-    int16_t idx            = 0;    
+    int16_t idx            = 0;
     int8_t *in_buffer      = NULL;
-    int8_t *out_buffer     = NULL;    
+    int8_t *out_buffer     = NULL;
     uint32_t offset        = 0;
 
     if(g_model == NULL) {
