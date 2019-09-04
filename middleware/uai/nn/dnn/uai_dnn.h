@@ -15,12 +15,10 @@ extern "C" {
 #endif
 
 typedef struct {
-    int8_t *weight;
-    int8_t *bias;
-    uint16_t in_dim;
-    uint16_t out_dim;
-    uint16_t bias_shift;
-    uint16_t out_shift;
+    uai_input_s input;
+    uai_weight_s weight;
+    uai_bias_s bias;
+    uai_output_s output;
     uint32_t act_width;
     uai_fconn_type_e fconn_type;
     uai_fconn_func fconn_func;
