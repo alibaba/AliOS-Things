@@ -5,34 +5,55 @@
 #ifndef UAI_FUNCTION_H
 #define UAI_FUNCTION_H
 
+#include "stdint.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct {
+    int8_t  *buffer;
+    uint16_t columns;
+    uint16_t rows;
+    uint16_t size;
+    int16_t width;
+}uai_input_s;
+
+typedef struct {
+    int8_t  *buffer;
+    uint16_t columns;
+    uint16_t rows;
+    uint16_t size;
+    int16_t width;
+    int16_t shift;
+}uai_weight_s;
+
+typedef struct {
+    int8_t  *buffer;
+    uint16_t columns;
+    uint16_t rows;
+    uint16_t size;
+    int16_t width;
+    int16_t shift;
+}uai_bias_s;
+
+typedef struct {
+    int8_t  *buffer;
+    uint16_t columns;
+    uint16_t rows;
+    uint16_t size;
+    int16_t width;
+    int16_t shift;
+}uai_output_s;
+
+int uai_fc(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output, int16_t *vec_buffer);
+
+int uai_fc_opt(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output, int16_t *vec_buffer);
 
 void uai_relu(int8_t *data, uint16_t size, uint16_t out_width);
 void uai_relu6(int8_t *data, uint16_t size, uint16_t out_width);
 void uai_sigmod(int8_t *data, uint16_t size, uint16_t out_width);
 void uai_tanh(int8_t *data, uint16_t size, uint16_t out_width);
-
-int uai_fully_connected(const int8_t  *input_buffer,
-                        const int8_t  *weights,
-                        const uint16_t input_size,
-                        const uint16_t weight_rows,
-                        const uint16_t bias_shift,
-                        const uint16_t out_shift,
-                        const int8_t  *bias,
-                        int8_t        *out_buffer,
-                        int16_t       *vec_buffer);
-
-int uai_fully_connected_opt(const int8_t  *input_buffer,
-                            const int8_t  *weights,
-                            const uint16_t input_size,
-                            const uint16_t weight_rows,
-                            const uint16_t bias_shift,
-                            const uint16_t out_shift,
-                            const int8_t   *bias,
-                            int8_t         *out_buffer,
-                            int16_t        *vec_buffer);
 
 void uai_softmax(const int8_t *in_vec, const uint16_t dim_vec, int8_t *out_vec);
 
