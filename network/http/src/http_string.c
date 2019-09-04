@@ -9,30 +9,30 @@
 bool http_str_search(char *src, char *searched, uint32_t offset,
                      uint32_t scope, httpc_param_t *param)
 {
-    char *src_start_pos;
-    char *dst_start_pos;
-    char orig_char;
-    uint32_t pos = 0;
+    uint32_t i = 0;
 
-    src_start_pos = src + offset;
-    orig_char = src_start_pos[scope];
-
-    src_start_pos[scope] = 0;
-
-    dst_start_pos = strstr(src_start_pos, searched);
-    if (dst_start_pos == NULL) {
-        src_start_pos[scope] = orig_char;
+    if (!src || !searched) {
+        printf("%s invalid argument\r\n", __func__);
         return false;
     }
-    pos = dst_start_pos - src_start_pos + 1;
-    src_start_pos[scope] = orig_char;
 
-    if (param) {
-        param->param = src_start_pos;
-        param->len = pos - 1;
+    if (scope < strlen(searched)) {
+        printf("scope less than searched string length\r\n");
+        return false;
     }
 
-    return true;
+    while (i <= (scope - strlen(searched))) {
+        if (memcmp(src + offset + i, searched, strlen(searched)) == 0) {
+            if (param) {
+                param->param = src + offset;
+                param->len = i;
+            }
+            return true;
+        }
+        i++;
+    }
+
+    return false;
 }
 
 bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
