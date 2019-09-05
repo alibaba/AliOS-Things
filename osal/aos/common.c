@@ -11,7 +11,7 @@
 
 extern void hal_reboot(void);
 
-const char *sysinfo_kernel_version="AOS-R-2.1.1";
+const char *sysinfo_kernel_version="AOS-R-2.2.0";
 
 void aos_reboot(void)
 {
