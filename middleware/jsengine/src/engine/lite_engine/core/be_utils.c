@@ -631,8 +631,9 @@ char *getNodeModulePath(char *path)
         return fullPath;
     }
 
+    /* TODO: need to optimization
     jse_free(fullPath);
-    return path;
+    return path; */
 }
 
 #endif

@@ -363,12 +363,12 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     char *pb;
     int isHttps = 0;
 
-    jse_warn("src = %s %d ", src, strlen(src));
-
     if (!src || strlen(src) == 0) {
         jse_warn("http_gethost_info parms error!\n");
         return;
     }
+
+    jse_warn("src = %s %d ", src, strlen(src));
 
     *port = 0;
     if (!(*src)) {
@@ -405,11 +405,13 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
         *pa   = 0;
         *port = atoi(pa + 1);
     } else {
+        /* TODO: support https:443
         if (isHttps) {
-            *port = 80; /* 443 */
+            *port = 80;
         } else {
             *port = 80;
-        }
+        } */
+        *port = 80;
     }
 }
 
@@ -554,7 +556,8 @@ int apppack_download(char *url, download_js_cb_t func)
     } else if (nbytes == 0) {
         ret = OTA_SUCCESS;
     } else {
-        ret = OTA_INIT_FAIL;
+        /* can never reach here */
+        /* ret = OTA_INIT_FAIL; */
     }
 
 DOWNLOAD_END:
@@ -804,13 +807,13 @@ int app_mgr_open_file(const char *targetname)
     snprintf(path, sizeof(path), "%s/", JSE_FS_ROOT_DIR);
     if (targetname[0] == '.') {
         if (targetname[1] == '/') {
-            strcat(path, targetname + 2);
+            strncat(path, targetname + 2, sizeof(path) - 1);
         } else {
             /* .aaa  not support hide file */
             return -1;
         }
     } else {
-        strcat(path, targetname);
+        strncat(path, targetname, sizeof(path) - 1);
     }
 
     int i   = strlen(JSE_FS_ROOT_DIR); /* 8 */
