@@ -100,7 +100,7 @@ static void get_ifconfig(void *arg)
 
     char ip[16]       = {0};
     char formatIP[48] = {0};
-    jse_system_get_ip(ip);
+    (void)jse_system_get_ip(ip);
     sprintf(formatIP, "%sIP address:%s\r\n", BE_CLI_REPLY, ip);
     strcat(tmp, formatIP);
 #ifdef BE_OS_AOS
