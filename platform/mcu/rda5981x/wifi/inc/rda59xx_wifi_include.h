@@ -173,6 +173,7 @@ typedef struct{
 typedef struct {
     r_u8 bssid[ETH_ALEN];
     r_u8 ssid[MAX_SSID_LEN];
+    r_u8 ssid_len;
     /* Refer to dna_wlan_sec_type_e */
     r_u8 channel;
     r_u8 secure;

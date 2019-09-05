@@ -58,9 +58,9 @@ static pwr_status_t rtc_one_shot_stop(uint64_t *pPassedUs)
     uint32_t timer_counter_end = SYSTIMER_TickGet();
 
     if (timer_counter_end >= timer_counter_start) {
-        *pPassedUs = (timer_counter_end - timer_counter_start) * 1000000 / TIMER_FREQ;
+        *pPassedUs = (timer_counter_end - timer_counter_start) * (uint64_t)1000000 / TIMER_FREQ;
     } else {
-        *pPassedUs = (0xffffffff + timer_counter_end - timer_counter_start) * 1000000 / TIMER_FREQ;
+        *pPassedUs = (0xffffffff + timer_counter_end - timer_counter_start) * (uint64_t)1000000 / TIMER_FREQ;
     }
     return PWR_OK;
 }
