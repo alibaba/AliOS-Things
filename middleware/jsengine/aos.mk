@@ -3,7 +3,7 @@ NAME := jsengine
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := an engine for javascript application development
-$(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs netmgr littlevGL
+$(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs netmgr
 
 JSE_ROOT := ${SOURCE_ROOT}middleware/jsengine/src
 
@@ -31,6 +31,7 @@ GLOBAL_DEFINES += CONFIG_SPIFFS_PHYS_SZ=262144
 GLOBAL_DEFINES += CONFIG_SPIFFS_LOG_BLOCK_SZ=16384
 GLOBAL_DEFINES += CONFIG_SPIFFS_LOG_PAGE_SZ=2048 LITTLEVGL_DEVELOPERKIT USE_FREETYPE=0
 TARGET_TYPE=developerkit
+$(NAME)_COMPONENTS += littlevGL
 else ifeq ($(AOS_BOARD_STM32F429ZI_NUCLEO),y)
 GLOBAL_DEFINES += CONFIG_SPIFFS_PHYS_SZ=262144
 GLOBAL_DEFINES += CONFIG_SPIFFS_LOG_BLOCK_SZ=16384

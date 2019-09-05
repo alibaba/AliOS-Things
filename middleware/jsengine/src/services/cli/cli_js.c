@@ -168,10 +168,10 @@ static void handle_tree_cmd(char *pwbuf, int blen, int argc, char **argv)
         targetname = argv[1];
         if (targetname[0] == '.') {
             if (targetname[1] == '/') {
-                strcat(path, targetname + 2);
+                strncat(path, targetname + 2, sizeof(path) - 1);
             }
         } else {
-            strcat(path, targetname);
+            strncat(path, targetname, sizeof(path) - 1);
         }
     }
     tree(path);
@@ -215,10 +215,10 @@ static void handle_rm_cmd(char *pwbuf, int blen, int argc, char **argv)
         targetname = argv[1];
         if (targetname[0] == '.') {
             if (targetname[1] == '/') {
-                strcat(path, targetname + 2);
+                strncat(path, targetname + 2, sizeof(path) - 1);
             }
         } else {
-            strcat(path, targetname);
+            strncat(path, targetname, sizeof(path) - 1);
         }
 
         if (jse_unlink(path) == 0) {
