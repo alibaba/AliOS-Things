@@ -36,8 +36,6 @@ esp32_sram ?= 1
 GLOBAL_INCLUDES += .
 $(NAME)_SOURCES := board.c
 
-EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
-
 ifeq ($(hci_h4),1)
 GLOBAL_CFLAGS += -DCONFIG_BLE_HCI_H4_UART_PORT=1
 endif

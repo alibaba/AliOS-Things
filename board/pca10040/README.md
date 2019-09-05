@@ -19,7 +19,6 @@ pca10040
 ├── board.c
 ├── bt_mesh_opt.h
 ├── Config.in
-├── gen_crc_bin.mk
 ├── k_config.h
 ├── pca10040_boot.bin
 ├── README.md

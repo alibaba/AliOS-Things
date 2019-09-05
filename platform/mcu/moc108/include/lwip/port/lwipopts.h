@@ -87,6 +87,9 @@
 #define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 #define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 #define DNS_DEBUG                       LWIP_DBG_OFF
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_OFF
+#define PING_DEBUG                      LWIP_DBG_OFF
 //#define LWIP_COMPAT_MUTEX      		1
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
@@ -456,6 +459,10 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
 
 #define TCP_QUEUE_OOSEQ 1
+
+#define DHCP_TIMEOUT_WORKAROUND_FOR_BK_WIFI 1
+
+#define MK3060_DHCP_FAIL 1
 
 #endif /* __LWIPOPTS_H__ */
 

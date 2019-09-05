@@ -727,6 +727,14 @@ static int stop_ap(hal_wifi_module_t *m)
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
+	if(fn == NULL) {
+		return;
+	}
+    pmu_acquire_wakelock(0);
+    wifi_off();
+    rtw_mdelay_os(20);
+    wifi_on(RTW_MODE_PROMISC);
+    wifi_disable_powersave();   
     g_promisc_callback = fn;
     DBG_8195A("register_monitor_cb, fn 0x%x\r\n", fn);
     return;
@@ -791,12 +799,24 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
 
 void NetCallback(hal_wifi_ip_stat_t *pnet)
 {
+    hal_wifi_ap_info_adv_t info = {0};
+
     if (rtl8710bn_wifi_module.ev_cb == NULL)
         return;
     if (rtl8710bn_wifi_module.ev_cb->ip_got == NULL)
         return;
 
     rtl8710bn_wifi_module.ev_cb->ip_got(&rtl8710bn_wifi_module, pnet, NULL);
+
+    if (rtl8710bn_wifi_module.ev_cb->para_chg == NULL)
+        return;
+
+    if (wext_get_bssid("wlan0", info.bssid) != 0) {
+        DBG_8195A("%s get bssid failed\r\n", __func__);
+        return;
+    }
+
+    rtl8710bn_wifi_module.ev_cb->para_chg(&rtl8710bn_wifi_module, &info, NULL, 0, NULL);
 }
 
 void connected_ap_info(hal_wifi_ap_info_adv_t *ap_info, char *key, int key_len)
