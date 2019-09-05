@@ -19,7 +19,7 @@ mk3060
 ├── flash_partitions.c
 ├── flash_prog.elf
 ├── k_config.h
-├── memory_2boot.ld.S
+├── memory_2ndboot.ld.S
 ├── memory.ld.S
 ├── README.md
 └── ucube.py

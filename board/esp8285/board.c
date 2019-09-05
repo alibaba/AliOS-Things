@@ -33,14 +33,6 @@ const hal_logic_partition_t hal_partitions_1M_512x512[] =
         .partition_length          = 0x46000, //280k bytes remaining 20k for diff ota
         .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
-    [HAL_PARTITION_RECOVERY_BACK_PARA] =
-    {
-        .partition_owner           = HAL_FLASH_EMBEDDED,
-        .partition_description     = "Recovery backup para",
-        .partition_start_addr      = 0xF5000,
-        .partition_length          = 0x1000, //4K bytes
-        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
-    },
     [HAL_PARTITION_PARAMETER_1] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
