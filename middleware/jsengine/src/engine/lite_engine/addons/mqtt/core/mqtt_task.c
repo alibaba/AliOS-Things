@@ -235,7 +235,7 @@ int mqtt_tsk_stop()
 
     if (mqttQueueHandle) {
         msg.common.cmd = MQTT_STOP;
-        mqtt_send_msg(&msg);
+        (void)mqtt_send_msg(&msg);
         /* waiting mqtt task exit */
         jse_osal_lock_mutex(mqttMutexHandle, 300);
         jse_osal_messageQ_delete(mqttQueueHandle);

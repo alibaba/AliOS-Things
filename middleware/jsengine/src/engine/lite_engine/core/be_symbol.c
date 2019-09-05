@@ -2,6 +2,9 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include <math.h>
+#include <float.h>
+
 #include "jse_common.h"
 #include "be_symbol.h"
 #include "be_api.h"
@@ -207,10 +210,11 @@ static be_jse_symbol_t *new_symbol_node()
     be_jse_set_symbol_table_size(gSymbolTableSize +
                                  BE_JSE_SYMBOL_TABLE_BLOCK_SIZE);
     return new_symbol_node();
-#endif
+#else
 
     be_jse_error("Out of Memory!");
     return 0;
+#endif
 }
 
 /* release symbol */
@@ -590,8 +594,9 @@ be_jse_symbol_t *new_func_code_symbol(be_jse_lexer_ctx_t *lex, int charFrom,
         jse_debug("len=%d\n", len);
         jse_debug("function:%s\n", buf);
         jse_free(buf);
-    */
+
     return first;
+    */
 }
 
 be_jse_symbol_t *symbol_lock(be_jse_node_t id)
@@ -679,10 +684,10 @@ static bool symbol_type_equal(be_jse_symbol_t *a, be_jse_symbol_t *b)
         } else {
             be_assert(symbol_is_float(a));
             if (symbol_is_int(b)) {
-                return a->data.floating == b->data.integer;
+                return (fabs(a->data.floating - b->data.integer) < FLT_MIN);
             } else {
                 be_assert(symbol_is_float(b));
-                return a->data.floating == b->data.floating;
+                return (fabs(a->data.floating - b->data.floating) < FLT_MIN);
             }
         }
     } else if (symbol_is_string(a) && symbol_is_string(b)) {
@@ -1520,6 +1525,9 @@ be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b, int op)
                 case '*':
                     return new_int_symbol(da * db);
                 case '/':
+                    if(db == 0){
+                        return new_int_symbol(0);
+                    }
                     return new_int_symbol(da / db);
                 case '&':
                     return new_int_symbol(da & db);
@@ -1528,6 +1536,9 @@ be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b, int op)
                 case '^':
                     return new_int_symbol(da ^ db);
                 case '%':
+                    if(db == 0){
+                        return new_int_symbol(0);
+                    }
                     return new_int_symbol(da % db);
                 case BE_TOKEN_OP_LEFT_SHIFT:
                     return new_int_symbol(da << db);
@@ -1563,9 +1574,9 @@ be_jse_symbol_t *symbol_maths_op(be_jse_symbol_t *a, be_jse_symbol_t *b, int op)
                 case '/':
                     return new_float_symbol(da / db);
                 case BE_TOKEN_OP_EQUAL:
-                    return new_bool_symbol(da == db);
+                    return new_bool_symbol(fabs(da - db) < FLT_MIN);
                 case BE_TOKEN_OP_NEQUAL:
-                    return new_bool_symbol(da != db);
+                    return new_bool_symbol(fabs(da - db) > FLT_MIN);
                 case '<':
                     return new_bool_symbol(da < db);
                 case BE_TOKEN_OP_LESS_EQUAL:
