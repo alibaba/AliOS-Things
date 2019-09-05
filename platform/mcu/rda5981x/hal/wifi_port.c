@@ -29,6 +29,8 @@ static void handle_connect_fail(void *arg)
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
+    hal_wifi_ip_stat_t ip_stat;
+    hal_wifi_ap_info_adv_t ap_info;
 
     rda59xx_bss_info bss_info;
     switch (evt) {
@@ -45,6 +47,13 @@ void wifi_event_cb(WIFI_EVENT evt, void* info)
                     bss_info.bssid[0], bss_info.bssid[1], bss_info.bssid[2], bss_info.bssid[3], bss_info.bssid[4], bss_info.bssid[5]);
             if (m->ev_cb && m->ev_cb->ip_got) {
                 m->ev_cb->ip_got(m, &ip_stat, NULL);
+            }
+            memcpy(ap_info.bssid, bss_info.bssid, 6);
+            memcpy(ap_info.ssid, bss_info.ssid, bss_info.ssid_len);
+            ap_info.channel = bss_info.channel;
+            ap_info.security = bss_info.secure;
+            if (m->ev_cb && m->ev_cb->para_chg) {
+                m->ev_cb->para_chg(m, &ap_info, NULL, 0, NULL);
             }
             break;
         }

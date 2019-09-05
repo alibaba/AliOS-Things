@@ -351,7 +351,7 @@ endif
 all: $(BUILD_STRING)
 
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS)
-ifeq ($(AOS_SDK_2BOOT_SUPPORT),yes)
+ifeq ($(AOS_SDK_2NDBOOT_SUPPORT),yes)
 $(BUILD_STRING): main_app 2ndboot
 else
 $(BUILD_STRING): main_app
@@ -391,12 +391,11 @@ main_app: prebuild $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(ECHO) Build complete: $(BUILD_STRING)
 
 $(OUTPUT_DIR)/config_2ndboot.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_CONFIG_DIR)/autoconf.h
-	$(QUIET)$(ECHO) $(if $(AOS_SDK_2BOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING) AOS_2BOOT_SUPPORT=yes
+	$(QUIET)$(ECHO) $(if $(AOS_SDK_2NDBOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING) AOS_2NDBOOT_SUPPORT=yes
 
 2ndboot: prebuild $(OUTPUT_DIR)/config_2ndboot.mk $(MAKEFILES_PATH)/aos_target_build.mk
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
@@ -405,7 +404,7 @@ $(OUTPUT_DIR)/config_2ndboot.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFI
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2ndboot.mk $(AUTO_COMPONENT_DIR)
-	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS) AOS_2BOOT_SUPPORT=yes
+	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS) AOS_2NDBOOT_SUPPORT=yes
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config_2ndboot.mk
 	$(QUIET)$(ECHO) Build 2nd boot complete: $(BUILD_STRING)
 

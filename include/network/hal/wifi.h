@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 #include "network/hal/base.h"
-
+#include <k_api.h>
 #ifdef STM32L475xx
 #include "stm32_wifi.h"
 #endif
@@ -213,6 +213,12 @@ struct hal_wifi_module_s {
 
     /* added to support wifi based positioning */
     int  (*scan_ap_list)(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num);
+
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+    int (*set_listeninterval)(hal_wifi_module_t *m, uint8_t listen_interval);
+    int (*enter_powersave)(hal_wifi_module_t *m, uint8_t recvDTIMs);
+    int (*exit_powersave)(hal_wifi_module_t *m);
+#endif
 };
 
 /**
@@ -470,6 +476,32 @@ void hal_wifi_install_event(hal_wifi_module_t *m, const hal_wifi_event_cb_t *cb)
  * @param[in]  m  the wifi instance.
  */
 void hal_umesh_register_wifi(hal_wifi_module_t *m);
+
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+/**
+ * Set the event listen interval for the wifi.
+ * 
+ * @param[in]  m   the wifi instance, NULL for default.
+ * @param[uint8_t]  listen_interval   the listen interval in power save mode.
+ */
+int hal_wifi_set_listeninterval(hal_wifi_module_t *m, uint8_t listen_interval);
+
+/**
+ * enter power save mode.
+ * 
+ * @param[in]  m   the wifi instance, NULL for default.
+ * @param[uint8_t] recvDTIMs set 1 to receive DTIM, set 0 not to receive DTIM .
+ */
+int hal_wifi_enter_powersave(hal_wifi_module_t *m, uint8_t recvDTIMs);
+
+/**
+ * exit power save mode.
+ * 
+ * @param[in]  m   the wifi instance, NULL for default.
+ */
+int hal_wifi_exit_powersave(hal_wifi_module_t *m);
+
+#endif
 
 #endif /* HAL_WIFI_H */
 
