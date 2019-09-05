@@ -88,7 +88,7 @@ static be_jse_symbol_t *module_handle_mqtt(be_jse_vm_ctx_t *execInfo,
     memset(&msg, 0, sizeof(MQTT_MSG_s));
 
     if (strcmp(name, "VERSION") == 0) {
-        lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
+        (void)lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_str_symbol("0.0.2");
     }
 
