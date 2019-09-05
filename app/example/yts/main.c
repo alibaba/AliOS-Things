@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <yts.h>
+#include "yunit/yts.h"
 
 #include "aos/cli.h"
 #include "aos/kernel.h"
