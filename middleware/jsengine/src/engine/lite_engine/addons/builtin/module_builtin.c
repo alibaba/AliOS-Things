@@ -98,7 +98,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_string(be_jse_vm_ctx_t* execInfo,
 {
     /* Don't need get_symbol_value(var) */
     if (strcmp(name, "length") == 0) {
-        lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
+        (void)lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_int_symbol((be_jse_int_t)symbol_str_len(var));
     }
 
@@ -377,7 +377,7 @@ be_jse_symbol_t* module_handle_cb_js_lite_array(be_jse_vm_ctx_t* execInfo,
     }
 
     if (strcmp(name, "length") == 0) {
-        lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
+        (void)lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_int_symbol(get_symbol_array_length(var));
     }
 
