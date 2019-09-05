@@ -1783,10 +1783,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             IOTX_MC_STATE_CONNECT_BLOCK == currentState) {
             /* Reconnection is successful, Resume regularly ping packets */
             rc = iotx_mc_handle_reconnect(pClient);
-            if (SUCCESS_RETURN != rc) {
-            } else if (MQTT_CONNECT_BLOCK == rc) {
-                mqtt_debug("now using async protocol stack, wait network connected...");
-            } else {
+            if (SUCCESS_RETURN == rc) {
                 mqtt_info("network is reconnected!");
                 iotx_mc_reconnect_callback(pClient);
                 pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;

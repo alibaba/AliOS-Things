@@ -125,9 +125,6 @@ int HAL_SetDeviceSecret(char *device_secret)
         return 0;
     }
 
-    if (len > IOTX_DEVICE_SECRET_LEN) {
-        return -1;
-    }
     strncpy(_device_secret, device_secret, len);
 
     do {
