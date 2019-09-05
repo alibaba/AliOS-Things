@@ -27,9 +27,6 @@ GLOBAL_CFLAGS  += -DCONFIG_GPIO_AS_PINRESET -DFLOAT_ABI_HARD -DNRF52_PAN_74 -DCO
 GLOBAL_CFLAGS  += -DCONFIG_CLOCK_CONTROL_NRF5_K32SRC_XTAL
 GLOBAL_CFLAGS  += -DBLE_4_2
 
-# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES += ./board/pca10056/gen_crc_bin.mk
-
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1

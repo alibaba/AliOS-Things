@@ -8,6 +8,7 @@ config AOS_BOARD_MK3060
 if AOS_BOARD_MK3060
 # Configurations for board board_mk3060
 
+
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
     bool

@@ -19,7 +19,7 @@ CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_SUFFIX   :=
 MODULES_DIR     := modules
 
-ifeq ($(AOS_2BOOT_SUPPORT),yes)
+ifeq ($(AOS_2NDBOOT_SUPPORT),yes)
 CONFIG_SUFFIX   := _2ndboot
 MODULES_DIR     := modules_2ndboot
 endif
@@ -401,7 +401,7 @@ endif
 ALL_MAKEFILES :=
 CURDIR :=
 
-ifeq ($(AOS_2BOOT_SUPPORT),yes)
+ifeq ($(AOS_2NDBOOT_SUPPORT),yes)
 COMPONENTS := $(subst ",,$(AOS_BUILD_BOARD)) $(HOST_MCU_FAMILY)
 endif
 
@@ -532,7 +532,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDFLAGS             		+= $(strip $(AOS_SDK_LDFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_FILES                     += $(strip $(AOS_SDK_LDS_FILES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_INCLUDES                  += $(strip $(AOS_SDK_LDS_INCLUDES)))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2BOOT_SUPPORT                 += $(strip $(AOS_SDK_2BOOT_SUPPORT)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2NDBOOT_SUPPORT                 += $(strip $(AOS_SDK_2NDBOOT_SUPPORT)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_IMG1_XIP1_LD_FILE                 += $(strip $(AOS_SDK_IMG1_XIP1_LD_FILE)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_IMG2_XIP2_LD_FILE                 += $(strip $(AOS_SDK_IMG2_XIP2_LD_FILE)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_CFLAGS			+= $(strip $(AOS_SDK_CFLAGS)))
@@ -560,7 +560,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LOCATION         := $($(comp)_LOCATION)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SOURCES          += $($(comp)_SOURCES)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CHECK_HEADERS    += $($(comp)_CHECK_HEADERS)))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_INCLUDES         := $(addprefix -I$($(comp)_LOCATION),$($(comp)_INCLUDES) $($(comp)_INCLUDES-y))))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_INCLUDES         := $(addprefix -I$($(comp)_LOCATION),$($(comp)_INCLUDES))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_DEFINES          := $(addprefix -D,$($(comp)_DEFINES))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CFLAGS           := $(AOS_SDK_CFLAGS) $($(comp)_CFLAGS_ALL)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CXXFLAGS         := $(AOS_SDK_CXXFLAGS) $($(comp)_CXXFLAGS_ALL)))
