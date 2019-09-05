@@ -319,6 +319,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info, bool rc)
             if (res_t == SYS_ARCH_TIMEOUT) {
                 WIFISTACK_PRINT("sta has addr SYS_ARCH_TIMEOUT!\r\n");
                 res = ERR_DHCP;
+                goto reconn;
             }
         }
 
@@ -328,7 +329,7 @@ reconn:
             WIFISTACK_PRINT("Connect successful!\r\n");
             rda59xx_set_data_rate(0, 0);
 #ifndef DELETE_HFILOP_CODE
-             r_memcpy(&r_bss_info, &ap, 6+33);//bssid, ssid, channel, secure type, RSSI
+             r_memcpy(&r_bss_info, &ap, 6+33+1+1+1+1);//bssid, ssid, ssid_len, channel, secure type, RSSI
              r_bss_info.channel = ap.channel;
              r_bss_info.secure = ap.secure_type;
              r_bss_info.rssi = ap.RSSI;
@@ -382,7 +383,7 @@ r_s32 rda59xx_sta_connect_ex(rda59xx_sta_info *sta_info)
 }
 #endif
 
-r_s32 rda59xx_sta_get_ip(r_u32 ip_addr)
+r_s32 rda59xx_sta_get_ip(r_u32* ip_addr)
 {
     if(module_state & STATE_STA)
         r_memcpy(ip_addr, &r_bss_info.ipaddr, sizeof(r_u32));

@@ -1,9 +1,8 @@
 NAME := umesh
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := uMesh provides the ability to form local area mesh network.
-GLOBAL_INCLUDES += include
 GLOBAL_DEFINES += CONFIG_AOS_MESH
 
 ifeq ($(COMPILER),armcc)

@@ -17,7 +17,7 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_length           = 0x8000,    /* 32k bytes */
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
 	},
-    [HAL_PARTITION_RECOVERY] =
+    [HAL_PARTITION_2ND_BOOT] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Recovery",
@@ -25,14 +25,6 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_length           = 0x6000, /* 24k bytes */
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
-    [HAL_PARTITION_RECOVERY_BACK_PARA] =
-    {
-        .partition_owner           = HAL_FLASH_EMBEDDED,
-        .partition_description     = "OTA Para backup",
-        .partition_start_addr      = 0x11000,
-        .partition_length          = 0x2000, //8k bytes
-        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
-    },
     [HAL_PARTITION_PARAMETER_1] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
