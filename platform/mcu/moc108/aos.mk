@@ -2,7 +2,6 @@ NAME := mcu_moc108
 
 HOST_OPENOCD   := moc108
 GLOBAL_DEFINES += CONFIG_MX108
-GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s            \
                  -mthumb -mthumb-interwork  \
@@ -26,25 +25,26 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s           \
                   --specs=nosys.specs       \
                   -nostartfiles
 
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_COMPONENTS += ota_2nd_boot
-$(NAME)_LIBSUFFIX := _2boot
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+$(NAME)_COMPONENTS += ota_2ndboot
+$(NAME)_LIBSUFFIX := _2ndboot
 
-GLOBAL_2BOOT_LDS_FILES += platform/mcu/moc108/link/mx108_2boot.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/link/mx108_2ndboot.ld.S
 
-$(NAME)_SOURCES  += 2ndboot/rec_flash.c \
-                    2ndboot/rec_uart.c  \
-                    2ndboot/rec_sys.c   \
-                    2ndboot/rec_wdt.c   \
-                    2ndboot/boot_recovery.S
+$(NAME)_CFLAGS += -marm
+$(NAME)_SOURCES  += 2ndboot/flash.c \
+                    2ndboot/uart.c  \
+                    2ndboot/sys.c   \
+                    2ndboot/wdg.c   \
+                    2ndboot/boot_2ndboot.S
+
 else
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu moc108
 $(NAME)_COMPONENTS := arch_armv5
-$(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
-$(NAME)_COMPONENTS += libprov
-$(NAME)_COMPONENTS += lwip netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino yloop
+$(NAME)_COMPONENTS += lwip netmgr libprov
 
 GLOBAL_LDFLAGS  += $(CLIB_LDFLAGS_NANO_FLOAT)
 
@@ -53,4 +53,5 @@ GLOBAL_LDS_FILES += platform/mcu/moc108/link/mx108.ld.S
 $(NAME)_PREBUILT_LIBRARY := libmoc108.a
 endif
 
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
 

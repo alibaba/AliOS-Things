@@ -56,6 +56,7 @@ volatile bool wifi_station_static_ip = false;
 volatile bool wifi_station_is_connected = false;
 
 static hal_wifi_ip_stat_t _ip_stat;
+static uint8_t _bssid[6];
 
 static monitor_data_cb_t data_cb = NULL;
 static monitor_data_cb_t mngt_data_cb = NULL;
@@ -103,6 +104,7 @@ static void notify_got_ip(System_Event_t *event)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
     struct ip_addr *addr;
+    hal_wifi_ap_info_adv_t info = {0};
 
     memset(&_ip_stat, 0, sizeof(_ip_stat));
     addr = &(event->event_info.got_ip.ip);
@@ -115,10 +117,16 @@ static void notify_got_ip(System_Event_t *event)
     if (m->ev_cb && m->ev_cb->ip_got) {
         m->ev_cb->ip_got(m, &_ip_stat, NULL);
     }
+
+    if (m->ev_cb && m->ev_cb->para_chg) {
+        memcpy(info.bssid, _bssid, 6);
+        m->ev_cb->para_chg(m, &info, NULL, 0, NULL);
+    }
 }
 
 void ICACHE_FLASH_ATTR wifi_event_handler_cb(System_Event_t *event)
 {
+    uint8_t *bssid;
     static bool station_was_connected = false;
     if (event == NULL) {
         return;
@@ -135,6 +143,8 @@ void ICACHE_FLASH_ATTR wifi_event_handler_cb(System_Event_t *event)
             }
             break;
         case EVENT_STAMODE_CONNECTED:
+            bssid = _bssid;
+            memcpy(_bssid, event->event_info.connected.bssid, 6);
             if(wifi_station_static_ip){
                 wifi_station_is_connected = true;
                 if(!station_was_connected){

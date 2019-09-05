@@ -35,7 +35,13 @@ int hal_wifi_init(void)
     /* do low level init */
     dlist_for_each(t, &g_wifi_module) {
         hal_wifi_module_t *m = (hal_wifi_module_t *)t;
+#if ((WIFI_CONFIG_SUPPORT_LOWPOWER > 0) && (WIFI_CONFIG_LISTENSET_BINIT > 0))
+        m->set_listeninterval(m, WIFI_CONFIG_LISTEN_INTERVAL);
+#endif
         m->init(m);
+#if ((WIFI_CONFIG_SUPPORT_LOWPOWER > 0) && (WIFI_CONFIG_LISTENSET_BINIT == 0))
+        m->set_listeninterval(m, WIFI_CONFIG_LISTEN_INTERVAL);
+#endif
     }
 
     return err;
@@ -296,3 +302,46 @@ void hal_wifi_stop_debug_mode(hal_wifi_module_t *m)
 
     m->stop_debug_mode(m);
 }
+
+#if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
+
+int hal_wifi_set_listeninterval(hal_wifi_module_t *m, uint8_t listen_interval)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    if (m->set_listeninterval == NULL) {
+        return -1;
+    }
+
+    return m->set_listeninterval(m, listen_interval);
+}
+
+int hal_wifi_enter_powersave(hal_wifi_module_t *m, uint8_t recvDTIMs)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    if (m->enter_powersave == NULL) {
+        return -1;
+    }
+
+    return m->enter_powersave(m, recvDTIMs);
+}
+
+int hal_wifi_exit_powersave(hal_wifi_module_t *m)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    if (m->exit_powersave == NULL) {
+        return -1;
+    }
+
+    return m->exit_powersave(m);
+}
+
+#endif

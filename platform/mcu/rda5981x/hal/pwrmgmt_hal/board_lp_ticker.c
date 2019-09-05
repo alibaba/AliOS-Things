@@ -197,21 +197,11 @@ static inline void lp_ticker_free(void)
 
 static pwr_status_t lpticker_one_shot_start(uint64_t planUs)
 {
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-     static sys_time_t last_log_entersleep = 0;
-#endif
     uint32_t cc_counter = planUs * LP_TIMER_CLOCK_SOURCE / 1000000;
 	//printf("%s:%d\r\n",__func__,cc_counter);
     if (cc_counter < 3) {
         return PWR_ERR;
     }
-
-#if (PWRMGMT_CONFIG_LOG_ENTERSLEEP > 0)
-    if (krhino_sys_tick_get() > (last_log_entersleep + RHINO_CONFIG_TICKS_PER_SECOND)) {
-        last_log_entersleep = krhino_sys_tick_get();
-        printf("enter sleep %d ms\r\n", (uint32_t) planUs/1000);
-    }
-#endif
 
     /* Set free timer write_en */
     rRDA_POWER_CONTROL |= (uint32_t)(0x01UL << 8);

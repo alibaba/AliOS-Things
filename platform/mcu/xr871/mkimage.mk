@@ -5,7 +5,6 @@ include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 
 ifeq ($(HOST_OS),Win32)
 MKIMAGE_TOOL := "$(SOURCE_ROOT)/$($(HOST_MCU_FAMILY)_LOCATION)/drivers/tools/mkimage.exe"
-XZ_TOOL := $(COMMON_TOOLS_PATH)xz
 else  # Win32
 ifeq ($(HOST_OS),Linux32)
 MKIMAGE_TOOL := "$(SOURCE_ROOT)/$($(HOST_MCU_FAMILY)_LOCATION)/drivers/tools/mkimage"
@@ -52,24 +51,10 @@ mkimage:
 	$(CP) -vf $(SOURCE_ROOT)out/$(CLEANED_BUILD_STRING)/binary/$(CLEANED_BUILD_STRING).xip.bin  $(IMAGE_PACK_DIR)/app-xip.bin
 ifneq ($(no_with_image_compress),1)
 	$(RM) -vf $(IMAGE_PACK_DIR)/*.bin.xz
-	echo $(XZ_TOOL)
 	$(XZ_TOOL) -vk --check=crc32 --lzma2=preset=6e,dict=32KiB $(IMAGE_PACK_DIR)/net.bin
 	$(XZ_TOOL) -vk --check=crc32 --lzma2=preset=6e,dict=32KiB $(IMAGE_PACK_DIR)/net_ap.bin
 endif
-ifeq ($(HOST_OS),Win32)
-	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/mkimage.exe
-else
 	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/mkimage
-endif	
 	$(CP) -vf $(IMAGE_CFG_FILE)  $(IMAGE_PACK_DIR)/
-	
-ifeq ($(HOST_OS),Win32)
-	cd $(IMAGE_PACK_DIR) && .\mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg
-else
 	cd $(IMAGE_PACK_DIR) && ./mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg
-endif
-
-
-
-	
 
