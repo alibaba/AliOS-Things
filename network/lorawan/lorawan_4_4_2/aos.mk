@@ -1,7 +1,7 @@
 NAME := lorawan_4_4_2
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := LoRaWAN Protocal Stack Version 4.4.2
 
 $(NAME)_COMPONENTS += osal_aos
@@ -9,10 +9,6 @@ $(NAME)_COMPONENTS += osal_aos
 $(NAME)_SOURCES := peripherals/soft-se/aes.c      \
                    peripherals/soft-se/cmac.c     \
                    peripherals/soft-se/soft-se.c  \
-                   system/timer.c                 \
-                   system/delay.c                 \
-                   system/systime.c               \
-                   system/gpio.c                  \
                    mac/region/Region.c            \
                    mac/region/RegionCommon.c      \
                    mac/LoRaMac.c                  \
@@ -26,12 +22,17 @@ $(NAME)_SOURCES := peripherals/soft-se/aes.c      \
                    mac/LoRaMacParser.c            \
                    mac/LoRaMacSerializer.c
 
+
 ifeq ($(LORACHIP), sx1276)
-$(NAME)_SOURCES += radio/sx1276/sx1276.c
-GLOBAL_INCLUDES += radio/sx1276
+$(NAME)_SOURCES += radio/sx1276/sx1276.c  \
+	               system/timer.c         \
+				   system/delay.c         \
+				   system/systime.c       \
+				   system/gpio.c
+$(NAME)_INCLUDES += radio/sx1276
 endif
 
-GLOBAL_INCLUDES +=  .             \
+$(NAME)_INCLUDES +=  .             \
                     system/crypto \
                     radio         \
                     mac           \
@@ -73,8 +74,7 @@ $(NAME)_SOURCES += mac/region/RegionAS923.c    \
                    mac/region/RegionEU868.c    \
                    mac/region/RegionIN865.c    \
                    mac/region/RegionKR920.c    \
-                   mac/region/RegionUS915.c    \
-                   mac/region/RegionUS915-Hybrid.c
+                   mac/region/RegionUS915.c
 endif
 
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/gcc/LoRaMacMulticast.o

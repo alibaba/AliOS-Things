@@ -232,4 +232,3 @@ GETCHAR_PROTOTYPE
       return -1;
   }
 }
-

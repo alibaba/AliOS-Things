@@ -77,13 +77,6 @@ $(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: | $(KCON
 $(DEFCONFIG_FILES): | $(KCONFIG_CONF)
 endif
 
-ifeq (yes,$(DOWNLOAD_KCONFIG))
-menuconfig: $(KCONFIG_MCONF)
-$(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
-$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: | $(KCONFIG_CONF)
-$(DEFCONFIG_FILES): | $(KCONFIG_CONF)
-endif
-
 # Use -include for GCC and --preinclude for other ARM compilers
 GCC_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), -include $(AOS_CONFIG_DIR)/autoconf.h)
 ARMCC_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), --preinclude $(AOS_CONFIG_DIR)/autoconf.h)

@@ -17,4 +17,4 @@ else
 $(NAME)_COMPONENTS += cli
 endif
 
-GLOBAL_INCLUDES += ./
+$(NAME)_INCLUDES += ./

@@ -36,5 +36,4 @@ GLOBAL_CFLAGS  += -std=gnu99
 GLOBAL_LDFLAGS += -Wl,-ckmap='dh5021a.map' -Wl,-zmax-page-size=1024 -lm
 
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
 

@@ -67,7 +67,7 @@ extern r_s32 rda59xx_wifi_init();
 extern r_s32 rda59xx_wifi_set_event_cb(wifi_event_cb_t cb);
 extern r_s32 rda59xx_sta_connect(rda59xx_sta_info *sta_info);
 extern r_s32 rda59xx_sta_disconnect();
-extern r_s32 rda59xx_sta_get_ip(r_u32 ip_addr);
+extern r_s32 rda59xx_sta_get_ip(r_u32* ip_addr);
 extern r_s32 rda59xx_ap_enable(rda59xx_ap_info *ap_info);
 extern r_s32 rda59xx_ap_disable();
 extern r_s32 rda59xx_scan(rda59xx_scan_info *scan_info);

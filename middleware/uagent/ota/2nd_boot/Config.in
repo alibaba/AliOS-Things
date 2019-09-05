@@ -1,8 +1,0 @@
-config AOS_COMP_OTA_2ND_BOOT
-    bool "Differential Incremental Upgrade Support"
-    default n
-    help
-
-if AOS_COMP_OTA_2ND_BOOT
-# Configurations for comp ota_2nd_boot
-endif

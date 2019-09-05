@@ -13,22 +13,6 @@ OTA
 ├── include
 │   ├── ota_import.h
 │   └── ota_log.h
-├── ota_ble
-│   ├── aos.mk
-│   ├── Config.in
-│   ├── inc
-│   │   ├── ota_breeze_export.h
-│   │   ├── ota_breeze.h
-│   │   ├── ota_breeze_os.h
-│   │   ├── ota_breeze_plat.h
-│   │   └── ota_breeze_transport.h
-│   ├── README.md
-│   └── src
-│       ├── ota_breeze.c
-│       ├── ota_breeze_os.c
-│       ├── ota_breeze_plat.c
-│       ├── ota_breeze_service.c
-│       └── ota_breeze_transport.c
 ├── ota_core
 │   ├── crypto
 │   │   ├── ota_crypto.h
