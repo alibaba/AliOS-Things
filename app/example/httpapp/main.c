@@ -457,7 +457,7 @@ exit:
     return ret;
 }
 
-#define REQ_BUF_SIZE 1024
+#define REQ_BUF_SIZE 2048
 uint8_t req_buf[REQ_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
 {
