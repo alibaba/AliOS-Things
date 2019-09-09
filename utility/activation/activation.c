@@ -8,6 +8,7 @@
 #include "linkkit/wrappers/wrappers_defs.h"
 #include "linkkit/wrappers/wrappers_os.h"
 #include "ulog/ulog.h"
+#include "aos/kernel.h"
 
 #ifndef NULL
 #define NULL    ((void *)0)
@@ -21,7 +22,10 @@
 #define TAG "activation"
 /* Don't do anything in release builds */
 #define DEBUG_PRINTF(fmt, ...)
-//#define DEBUG_PRINTF printf 
+//#define DEBUG_PRINTF printf
+
+extern void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE]);
+extern void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE]);
 
 //num is 0~0xF
 UINT8 tans_num2char( UINT8 num )
@@ -55,7 +59,7 @@ UINT32 aos_get_version_info (UINT8 version_num[VERSION_NUM_SIZE], UINT8 random_n
 	{
 		return ENCYPT_FAIL;
 	}
-	
+
 	if( output_buffer_size < OUTPUT_SPACE_SIZE )
 	{
 		printf("output_buffer_size not enough, need %d\n", OUTPUT_SPACE_SIZE);
@@ -63,14 +67,14 @@ UINT32 aos_get_version_info (UINT8 version_num[VERSION_NUM_SIZE], UINT8 random_n
 	}
 
 	DEBUG_PRINTF("in aos_get_version_info!!\n");
-	
+
 	UINT8 encrypt_input[INPUT_SIZE];
 	memcpy( encrypt_input, version_num, VERSION_NUM_SIZE);
 	memcpy( encrypt_input+VERSION_NUM_SIZE, random_num, RANDOM_NUM_SIZE);
 	memcpy( encrypt_input+VERSION_NUM_SIZE+RANDOM_NUM_SIZE,mac_address, MAC_ADDRESS_SIZE);
 	memcpy( encrypt_input+VERSION_NUM_SIZE+RANDOM_NUM_SIZE+MAC_ADDRESS_SIZE, chip_code, CHIP_CODE_SIZE);
 	DEBUG_PRINTF(" after memcpy!!\n");
-    
+
     UINT32 count;
     for( count=0; count<INPUT_SIZE; count++ )
 	{
@@ -78,15 +82,15 @@ UINT32 aos_get_version_info (UINT8 version_num[VERSION_NUM_SIZE], UINT8 random_n
 	}
     memcpy( &output_buffer[2*count], PLAIN_FLAG, strlen(PLAIN_FLAG) );
     output_buffer[2*count+strlen(PLAIN_FLAG)]=0;
-    
+
     DEBUG_PRINTF("output_buffer:%s\n", output_buffer );
-    return ENCYPT_SUCCESS;    
+    return ENCYPT_SUCCESS;
 }
 
 static const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"%d\",\"version\":\"1.0\",\"params\":["
                          "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
                          "],\"method\":\"thing.deviceinfo.update\"}";
-                                     
+
 int iotx_report_ext_msg(info_report_func_pt info_report_func, void * handle)
 {
     int ret = 0;
@@ -185,4 +189,4 @@ int iotx_report_ext_msg(info_report_func_pt info_report_func, void * handle)
     LOGD(TAG,"devinfo report succeed");
 
     return SUCCESS_RETURN;
-}                                     
+}
