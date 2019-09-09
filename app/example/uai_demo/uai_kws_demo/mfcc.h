@@ -40,6 +40,7 @@ static inline float MelScale(float freq) {
 typedef struct {
     int num_mfcc_features;
     int frame_len;
+    int frame_shift;
     int frame_len_padded;
     int mfcc_dec_bits;
     float * frame;
@@ -57,7 +58,8 @@ typedef struct {
     void (*mfcc_compute)(void *mfccp, const int16_t* data, q7_t* mfcc_out);
 }MFCC;
 
-void mfcc_init(MFCC *mfcc, int num_mfcc_features, int frame_len, int mfcc_dec_bits);
-void mfcc_uninit(MFCC *mfcc);
+void kws_mfcc_init(int num_mfcc_features, int frame_len, int frame_shift, int mfcc_dec_bits);
+void kws_get_mfcc_features(int16_t *data, int16_t num_frames, int8_t *buffer);
+int kws_get_top_class(int8_t *prediction, int8_t num);
 
 #endif
