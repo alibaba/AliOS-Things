@@ -22,8 +22,12 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "mfcc.h"
+
 #include "float.h"
+
+#include "mfcc.h"
+
+static MFCC mfcc;
 
 #define M_PI 3.14159265358979323846
 
@@ -47,7 +51,7 @@ static float **create_mel_fbank(void *mfccp) {
     int32_t num_fft_bins = mfcc->frame_len_padded/2;
     float fft_bin_width = ((float)SAMP_FREQ) / mfcc->frame_len_padded;
     float mel_low_freq = MelScale(MEL_LOW_FREQ);
-    float mel_high_freq = MelScale(MEL_HIGH_FREQ); 
+    float mel_high_freq = MelScale(MEL_HIGH_FREQ);
     float mel_freq_delta = (mel_high_freq - mel_low_freq) / (NUM_FBANK_BINS+1);
 
     float *this_bin = malloc(sizeof(float)*num_fft_bins);
@@ -90,7 +94,7 @@ static float **create_mel_fbank(void *mfccp) {
 
         mfcc->fbank_filter_first[bin] = first_index;
         mfcc->fbank_filter_last[bin] = last_index;
-        mel_fbank[bin] = malloc(sizeof(float)*(last_index-first_index+1)); 
+        mel_fbank[bin] = malloc(sizeof(float)*(last_index-first_index+1));
 
         int32_t j = 0;
         /* copy the part we care about */
@@ -99,7 +103,7 @@ static float **create_mel_fbank(void *mfccp) {
         }
     }
     free(this_bin);
-    return mel_fbank; 
+    return mel_fbank;
 }
 
 static void mfcc_compute(void *mfccp, const int16_t * audio_data, q7_t* mfcc_out) {
@@ -108,7 +112,7 @@ static void mfcc_compute(void *mfccp, const int16_t * audio_data, q7_t* mfcc_out
 
     /* TensorFlow way of normalizing .wav data to (-1,1) */
     for (i = 0; i < mfcc->frame_len; i++) {
-        mfcc->frame[i] = (float)audio_data[i]/(1<<15); 
+        mfcc->frame[i] = (float)audio_data[i]/(1<<15);
     }
     /* Fill up remaining with zeros */
     memset(&mfcc->frame[mfcc->frame_len], 0, sizeof(float) * (mfcc->frame_len_padded-mfcc->frame_len));
@@ -131,7 +135,7 @@ static void mfcc_compute(void *mfccp, const int16_t * audio_data, q7_t* mfcc_out
         mfcc->buffer[i] = real*real + im*im;
     }
     mfcc->buffer[0] = first_energy;
-    mfcc->buffer[half_dim] = last_energy;  
+    mfcc->buffer[half_dim] = last_energy;
 
     float sqrt_data;
     /* Apply mel filterbanks */
@@ -164,22 +168,23 @@ static void mfcc_compute(void *mfccp, const int16_t * audio_data, q7_t* mfcc_out
 
         /* Input is Qx.mfcc_dec_bits (from quantization step) */
         sum *= (0x1<<mfcc->mfcc_dec_bits);
-        sum = round(sum); 
+        sum = round(sum);
         if(sum >= 127)
         mfcc_out[i] = 127;
         else if(sum <= -128)
         mfcc_out[i] = -128;
         else
-        mfcc_out[i] = sum; 
+        mfcc_out[i] = sum;
     }
 }
 
-void mfcc_init(MFCC *mfcc, int num_mfcc_features, int frame_len, int mfcc_dec_bits)
+void mfcc_init(MFCC *mfcc, int num_mfcc_features, int frame_len, int frame_shift, int mfcc_dec_bits)
 {
     mfcc->num_mfcc_features = num_mfcc_features;
-    mfcc->frame_len = frame_len;
+    mfcc->frame_len     = frame_len;
+    mfcc->frame_shift   = frame_shift;
     mfcc->mfcc_dec_bits = mfcc_dec_bits;
-    
+
     /* Round-up to nearest power of 2. */
     mfcc->frame_len_padded = pow(2,ceil((log(frame_len)/log(2))));
 
@@ -221,4 +226,34 @@ void mfcc_uninit(MFCC *mfcc) {
     for(int i = 0; i < NUM_FBANK_BINS; i++)
         free(mfcc->mel_fbank[i]);
     free(mfcc->mel_fbank);
+}
+
+void kws_mfcc_init(int num_mfcc_features, int frame_len, int frame_shift, int mfcc_dec_bits)
+{
+    /* mfcc init */
+    memset(&mfcc, 0, sizeof(MFCC));
+    mfcc_init(&mfcc, num_mfcc_features, frame_len, frame_shift, mfcc_dec_bits);
+}
+
+void kws_get_mfcc_features(int16_t *data, int16_t num_frames, int8_t *buffer)
+{
+    int32_t i = 0;
+
+    for (i = 0; i < num_frames; i++) {
+        mfcc.mfcc_compute(&mfcc, data + (i * mfcc.frame_shift), &buffer[i*mfcc.num_mfcc_features]);
+    }
+}
+
+int kws_get_top_class(int8_t *prediction, int8_t num)
+{
+    int max_ind = 0;
+    int max_val = -128;
+
+    for(int i=0; i < num; i++) {
+        if(max_val < prediction[i]) {
+            max_val = prediction[i];
+            max_ind = i;
+        }
+    }
+    return max_ind;
 }
