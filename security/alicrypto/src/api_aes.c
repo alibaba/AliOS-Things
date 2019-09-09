@@ -273,29 +273,22 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
         return ALI_CRYPTO_SUCCESS;
     }
 
+    if (dst_size == NULL) {
+        CRYPTO_DBG_LOG("invalid dst_size\n");
+        return ALI_CRYPTO_INVALID_ARG;
+    }
+
+    if (dst == NULL && *dst_size != 0) {
+        CRYPTO_DBG_LOG("NULL dst but non-zero dst_size(%d)\n", *dst_size);
+        return ALI_CRYPTO_INVALID_ARG;
+    }
+
     ctx = (api_aes_ctx_t *)context;
     ctx->hal_ctx = (char *)&(ctx->hal_ctx) + sizeof(ctx->hal_ctx);
 
     if (padding != SYM_NOPAD && padding != SYM_PKCS5_PAD) {
         CRYPTO_DBG_LOG("not support this padding, %d\n", padding);
         return ALI_CRYPTO_NOSUPPORT;
-    }
-
-    if ((src == NULL && src_size != 0) ||
-        ((dst_size != NULL) && (dst == NULL && *dst_size != 0)) ||
-        context == NULL) {
-        CRYPTO_DBG_LOG("bad input args!\n");
-        return ALI_CRYPTO_INVALID_ARG;
-    }
-
-    if (dst_size == NULL) {
-        CRYPTO_DBG_LOG("invalid dst_size\n");
-        return ALI_CRYPTO_INVALID_ARG;
-    }
-
-    if ((0 != *dst_size) && (dst == NULL)) {
-        CRYPTO_DBG_LOG("NULL dst but non-zero dst_size(%d)\n", *dst_size);
-        return ALI_CRYPTO_INVALID_ARG;
     }
 
     switch(ctx->type) {
