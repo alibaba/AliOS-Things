@@ -20,9 +20,6 @@
 
 #define CONFIG_HTTP_CONTINUE_TEST 0
 
-#define WIFI_SSID "Yuemewifi-3766"
-#define WIFI_PASSWORD "aos12345"
-
 enum {
     HTTP_AUTH,
     HTTP_OTA,
@@ -34,6 +31,7 @@ enum {
 bool httpc_running = false;
 int command = HTTP_INVALID;
 httpc_connection_t settings;
+static bool _ip_got_finished = false;
 
 #if 1
 #define PRODUCT_KEY             "a1cXH4Sgvdu"
@@ -468,7 +466,7 @@ static void httpc_delayed_action(void *arg)
 #endif
     int fd;
 
-    if (httpc_running == false) {
+    if (httpc_running == false || _ip_got_finished == false) {
         goto exit;
     }
 
@@ -576,11 +574,24 @@ static struct cli_command httpc_cmd = {
     .function = httpc_cmd_handle
 };
 
+static void wifi_service_event(input_event_t *event, void *priv_data)
+{
+    if (event->type != EV_WIFI) {
+        return;
+    }
+
+    if (event->code != CODE_WIFI_ON_GOT_IP) {
+        return;
+    }
+
+    _ip_got_finished = true;
+}
+
 int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
-    netmgr_connect(WIFI_SSID, WIFI_PASSWORD, 10000);
+    aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_cli_register_command(&httpc_cmd);
     http_client_initialize();
     aos_post_delayed_action(100, httpc_delayed_action, NULL);
