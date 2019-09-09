@@ -18,7 +18,7 @@ be_jse_symbol_t* module_handle_cb_js_lite(be_jse_vm_ctx_t* execInfo,
                                           const char* name)
 {
     if (strcmp(name, "VERSION") == 0) {
-        lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
+        (void)lexer_token_cmp(execInfo->lex, BE_TOKEN_ID);
         return new_str_symbol("0.0.1");
     }
 
