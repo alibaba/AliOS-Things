@@ -6,13 +6,13 @@
 #include <stdlib.h>
 #include <aos/kernel.h>
 
+#include "ulog/ulog.h"
 #include "uai/uai.h"
 #include "mfcc.h"
 #include "kws.h"
 
 static int8_t output_result[OUT_DIM] = {0};
 static char output_class[OUT_DIM][8] = {"Silence", "Unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"};
-static MFCC mfcc;
 static int8_t *mfcc_buffer = NULL;
 
 extern int16_t  wav_data[];
@@ -24,35 +24,6 @@ static uai_dnn_layer_config_t layer_info[4] = {{IN_DIM, IP1_OUT_DIM, 1, 7, 0, UA
                                                 {IP1_OUT_DIM, IP2_OUT_DIM, 2, 8, 0, UAI_FCONN_BASIC, UAI_ACT_RELU, UAI_POOL_NULL, UAI_LOSS_NULL, UAI_SOFTMAX_NULL},
                                                 {IP2_OUT_DIM, IP3_OUT_DIM, 2, 9, 0, UAI_FCONN_BASIC, UAI_ACT_RELU, UAI_POOL_NULL, UAI_LOSS_NULL, UAI_SOFTMAX_NULL},
                                                 {IP3_OUT_DIM, OUT_DIM, 0, 6, 0,UAI_FCONN_BASIC, UAI_ACT_NULL, UAI_POOL_NULL, UAI_LOSS_NULL, UAI_SOFTMAX}};
-
-static void extract_features(int16_t *data)
-{
-    int32_t i = 0;
-
-    /* compute features */
-    for (i = 0; i < NUM_FRAMES; i++) {
-        mfcc.mfcc_compute(&mfcc, data + (i * FRAME_SHIFT), &mfcc_buffer[i*NUM_MFCC_COEFFS]);
-    }
-}
-
-static void classify(void)
-{    
-    uai_dnn_run(mfcc_buffer, output_result);
-}
-
-static int get_top_class(int8_t* prediction)
-{
-    int max_ind = 0;
-    int max_val = -128;
-
-    for(int i=0; i < OUT_DIM; i++) {
-        if(max_val < prediction[i]) {
-            max_val = prediction[i];
-            max_ind = i;
-        }
-    }
-    return max_ind;
-}
 
 void dnn_init(void)
 {
@@ -76,29 +47,30 @@ void kws_demo(void)
 {
     int max_ind = 0;
 
-    /* mfcc init */
-    memset(&mfcc, 0, sizeof(MFCC));
-    mfcc_init(&mfcc, NUM_MFCC_COEFFS, FRAME_LEN, MFCC_DEC_BITS);
     mfcc_buffer = malloc(MFCC_BUFFER_SIZE);
 
+    kws_mfcc_init(NUM_MFCC_COEFFS, FRAME_LEN, FRAME_SHIFT, MFCC_DEC_BITS);
     dnn_init();
 
-    printf("begin run dnn model to predict ...\n");
-    /* run kws prediction */
-    extract_features(wav_data); /* extract mfcc features */
-    classify();	                /* classify using dnn */
+    printf("Start running the DNN model to predict ...\r\n");
 
-    max_ind = get_top_class(output_result);
-    
-    printf("run dnn model end\n");
-    printf("Detected %s (%d%%)\r\n", output_class[max_ind], ((int)output_result[max_ind]*100/128));
+    /* run kws prediction */
+    kws_get_mfcc_features(wav_data, NUM_FRAMES, mfcc_buffer);
+    uai_dnn_run(mfcc_buffer, output_result);
+    max_ind = kws_get_top_class(output_result, OUT_DIM);
+
+    printf("End of running DNN model\r\n");
+
+    printf("Detected word [%s], score %d%%\r\n", output_class[max_ind], ((int)output_result[max_ind]*100/128));
 
     uai_dnn_deinit();
+    free(mfcc_buffer);
 }
 
 int application_start(int argc, char *argv[])
 {
     printf("uai kws demo entry !\r\n");
+    aos_set_log_level(AOS_LL_INFO);
 
     kws_demo();
 
