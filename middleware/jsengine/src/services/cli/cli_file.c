@@ -182,14 +182,14 @@ static void handle_pull_cmd(char* pwbuf, int blen, int argc, char** argv)
 
     if (targetname[0] == '.') {
         if (targetname[1] == '/') {
-            strcat(path, targetname + 2);
+            strncat(path, targetname + 2, sizeof(path) - 1);
         } else {
             /* .aaa  not support hide file */
         }
     } else if (targetname[0] == '/') {
-        strcat(path, targetname + 1);
+        strncat(path, targetname + 1, sizeof(path) - 1);
     } else {
-        strcat(path, targetname);
+        strncat(path, targetname, sizeof(path) - 1);
     }
 
     fd = jse_open(path, O_RDONLY);
