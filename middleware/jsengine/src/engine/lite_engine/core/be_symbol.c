@@ -679,7 +679,7 @@ static bool symbol_type_equal(be_jse_symbol_t *a, be_jse_symbol_t *b)
                 return a->data.integer == b->data.integer;
             } else {
                 be_assert(symbol_is_float(b));
-                return a->data.integer == b->data.floating;
+                return (fabs(a->data.integer - b->data.floating) < FLT_MIN);
             }
         } else {
             be_assert(symbol_is_float(a));
