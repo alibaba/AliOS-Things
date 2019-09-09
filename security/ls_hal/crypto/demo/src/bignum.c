@@ -1590,7 +1590,7 @@ int impl_mpi_exp_mod(impl_mpi *X, const impl_mpi *A,
 
     wsize = (i > 671) ? 6 : (i > 239) ? 5 : (i > 79) ? 4 : (i > 23) ? 3 : 1;
 
-#if( MBEDTLS_MPI_WINDOW_SIZE < 6 )
+#if( HAL_MPI_WINDOW_SIZE < 6 )
     if (wsize > HAL_MPI_WINDOW_SIZE) {
         wsize = HAL_MPI_WINDOW_SIZE;
     }
