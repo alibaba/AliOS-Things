@@ -15,6 +15,7 @@ extern "C" {
 #include "aos/kernel.h"
 #include "aos/kv.h"
 #include "aos/vfs.h"
+#include "ulog/ulog.h"
 #include "netmgr.h"
 #include "network.h"
 #include "mbedtls/md5.h"
