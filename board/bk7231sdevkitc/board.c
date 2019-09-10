@@ -74,5 +74,6 @@ void board_init(void)
 
 int board_cli_init(void)
 { 
+    return -1;
 }
 
