@@ -8,9 +8,9 @@
 
 int uai_fc(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output, int16_t *vec_buffer)
 {
-    uint16_t width      = 0;
+    uint16_t width = 0;
 
-    width      = ((input->width)<<4) + output->width;
+    width = ((input->width)<<4) + output->width;
 
 #if defined(UAI_USE_CMSIS_NN)
     switch(width) {
@@ -33,9 +33,9 @@ int uai_fc(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_outpu
 
 int uai_fc_opt(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output, int16_t *vec_buffer)
 {
-    uint16_t width      = 0;
+    uint16_t width = 0;
 
-    width      = ((input->width)<<4) + output->width;
+    width = ((input->width)<<4) + output->width;
 
 #if defined(UAI_USE_CMSIS_NN)
     switch(width) {
