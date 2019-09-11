@@ -16,7 +16,7 @@ typedef struct {
     uint16_t columns;
     uint16_t rows;
     uint16_t size;
-    int16_t width;
+    uint16_t width;
 }uai_input_s;
 
 typedef struct {
@@ -24,8 +24,8 @@ typedef struct {
     uint16_t columns;
     uint16_t rows;
     uint16_t size;
-    int16_t width;
-    int16_t shift;
+    uint16_t width;
+    uint16_t shift;
 }uai_weight_s;
 
 typedef struct {
@@ -33,8 +33,8 @@ typedef struct {
     uint16_t columns;
     uint16_t rows;
     uint16_t size;
-    int16_t width;
-    int16_t shift;
+    uint16_t width;
+    uint16_t shift;
 }uai_bias_s;
 
 typedef struct {
@@ -42,8 +42,8 @@ typedef struct {
     uint16_t columns;
     uint16_t rows;
     uint16_t size;
-    int16_t width;
-    int16_t shift;
+    uint16_t width;
+    uint16_t shift;
 }uai_output_s;
 
 int uai_fc(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output, int16_t *vec_buffer);
