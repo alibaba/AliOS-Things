@@ -6,35 +6,22 @@
 #include "arm_nnfunctions.h"
 #endif
 
-#if (defined(UAI_USE_SOFTWARE_FIXPOINT_NN) || defined(UAI_USE_SOFTWARE_FPU_NN))
-void uai_relu_software(int8_t * data, uint16_t size) 
-{
-    uint16_t  i;
-
-    for (i = 0; i < size; i++)
-    {
-        if (data[i] < 0)
-            data[i] = 0;
-    }
-}
-#endif
-
 #ifndef UAI_USE_HARDWARE_NN
-void uai_relu6_software(int8_t * data, uint16_t size) 
+void uai_relu6_software(int8_t *data, uint16_t size)
 {
-    uint16_t  i;
+    uint16_t  i = 0;
 
-    for (i = 0; i < size; i++)
-    {
-        if (data[i] < 0)
+    for (i = 0; i < size; i++) {
+        if (data[i] < 0) {
             data[i] = 0;
-        if (data[i] > 6)
+        }else if (data[i] > 6) {
             data[i] = 6;
+        }
     }
 }
 #endif
 
-void uai_relu(int8_t * data, uint16_t size, uint16_t out_width)
+void uai_relu(int8_t *data, uint16_t size, uint16_t out_width)
 {
     (void)out_width;
 #if defined(UAI_USE_CMSIS_NN)
