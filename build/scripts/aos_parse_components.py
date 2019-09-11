@@ -59,6 +59,9 @@ def get_app_name(mkfile):
         if match:
             name = match.group(2).replace("/", ".")
 
+    if not name:
+        name = get_comp_name(mkfile)
+
     return name
 
 def get_board_name(mkfile):
