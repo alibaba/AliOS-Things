@@ -56,7 +56,7 @@ AliOS Things 能帮助你更加快速地接入[阿里云物联网平台](https:/
 ## 社区
 
 * [技术交流群(钉钉)](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
-* [阿里云IoT开发者社区](https://dev.iot.aliyun.com/)
+* [阿里云IoT开发者社区](https://developer.aliyun.com/group/aliiot)
 
 ## License
 
