@@ -23,6 +23,7 @@ int uai_fc(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_outpu
         default:
             break;
     }
+    return -1;
 #elif defined(UAI_USE_HARDWARE_NN)
     return uai_fully_connected_hal(input, weight, bias, output, vec_buffer);
 #else
@@ -48,6 +49,7 @@ int uai_fc_opt(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_o
         default:
             break;
     }
+    return -1;
 #elif defined(UAI_USE_HARDWARE_NN)
     return uai_fully_connected_hal_opt(input, weight, bias, output, vec_buffer);
 #else
