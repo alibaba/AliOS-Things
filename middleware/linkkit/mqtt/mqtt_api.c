@@ -44,10 +44,6 @@
 static void        *g_mqtt_client = NULL;
 iotx_sign_mqtt_t    g_default_sign;
 
-__attribute__((weak)) int iotx_report_ext_msg(info_report_func_pt fun, void *handle){
-    mqtt_debug("not implement!");
-    return -1; 
-}
 /* Handle structure of subscribed topic */
 static void iotx_mqtt_report_funcs(void *pclient)
 {
@@ -60,7 +56,10 @@ static void iotx_mqtt_report_funcs(void *pclient)
         mqtt_err("failed to report firmware version");
     }
 #endif
+#ifdef BUILD_AOS
+    extern int iotx_report_ext_msg(info_report_func_pt info_report_func, void * handle);
     iotx_report_ext_msg(IOT_MQTT_Publish_Simple, pclient);
+#endif
 }
 
 #ifdef DYNAMIC_REGISTER
