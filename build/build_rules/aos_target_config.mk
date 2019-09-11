@@ -184,6 +184,7 @@ $(eval TEST_COMPONENTS :=)
 $(eval CPLUSPLUS_FLAGS:=)
 $(eval AOS_IMG1_XIP1_LD_FILE :=)
 $(eval AOS_IMG2_XIP2_LD_FILE :=)
+$(eval TMP_SOURCES :=)
 # Cache the last valid RTOS/NS combination for iterative filtering.
 $(eval TEMP_VALID_OSNS_COMBOS := $(VALID_OSNS_COMBOS))
 
