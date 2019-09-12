@@ -5,13 +5,12 @@
 #include <stdlib.h>
 
 #include "aos/kv.h"
+#include "aos/kernel.h"
 #include "k_config.h"
 
 #define SEED_MAGIC 0x123
 
 extern void hal_reboot(void);
-
-const char *sysinfo_kernel_version="AOS-R-2.2.0";
 
 void aos_reboot(void)
 {
@@ -25,7 +24,7 @@ int aos_get_hz(void)
 
 const char *aos_version_get(void)
 {
-    return sysinfo_kernel_version;
+    return SYSINFO_KERNEL_VERSION;
 }
 
 void aos_srand(unsigned int seed)
