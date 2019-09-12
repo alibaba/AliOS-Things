@@ -21,7 +21,7 @@ extern "C" {
 #define cut_free        free
 
 #define CUT_CASE_MAX_CNT        (64)
-#define CUT_MSG_MAX_LEN         (64)
+#define CUT_MSG_MAX_LEN         (128)
 
 extern int cut_main(int argc, char** argv);
 extern struct cut_runtime cut;
