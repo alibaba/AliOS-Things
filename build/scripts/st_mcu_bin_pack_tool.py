@@ -8,9 +8,9 @@ from sys import platform as _platform
 import array,hashlib,struct
 
 def help():
-    print "Usage:"
-    print "<bank_size> <app_offset> <boot_bin> <app_bin> [none_app2]."
-    print "[none_app2] is optional, set 1 to generate bin without app in bank2."
+    print("Usage:")
+    print("<bank_size> <app_offset> <boot_bin> <app_bin> [none_app2].")
+    print("[none_app2] is optional, set 1 to generate bin without app in bank2.")
 
 def pack_bin_ready(boot_bin, app_bin):
     npos = app_bin.index(".bin")
@@ -20,22 +20,22 @@ def pack_bin_ready(boot_bin, app_bin):
         try:
             os.remove(tmp_name)
         except:
-            print "deleted file error!"
+            print("deleted file error!")
             return "" 
     try:
         shutil.copyfile(boot_bin, tmp_name)
     except:
-        print "copy file failed!"
+        print("copy file failed!")
         return "" 
     return tmp_name
 
 def fill_file_blank_addr(target_bin, want_size):
     if target_bin == "" or want_size <=0:
-        print "fill file blank addr parameters error"
+        print("fill file blank addr parameters error")
         return False
     target_bin_size = os.path.getsize(target_bin)
     if target_bin_size > want_size:
-        print "target bin size > want size"
+        print("target bin size > want size")
         return False
     write_len = want_size - target_bin_size
     tmp_buf = [0xff]*write_len
@@ -78,36 +78,36 @@ def main():
             #print "app_offset = %#d"%app_offset
 
         if len(sys.argv) == 6 and sys.argv[5] == "1":
-            print "none app2 mode"
+            print("none app2 mode")
             none_app2 = True
         else:
-            print "dual boot and app mode."
+            print("dual boot and app mode.")
 
         output_file = pack_bin_ready(sys.argv[3], sys.argv[4])
         if output_file == "":
             return
 
         if fill_file_blank_addr(output_file, app_offset) == False:
-            print "fill file1 blank addr failed!"
+            print("fill file1 blank addr failed!")
             return
 
         if combine_files(output_file, sys.argv[4]) == False:
-            print "combine file1 failed!"
+            print("combine file1 failed!")
             return
         if fill_file_blank_addr(output_file, bank_size) == False:
-            print "fill file2 blank addr failed!"
+            print("fill file2 blank addr failed!")
             return
         if combine_files(output_file, sys.argv[3]) == False:
-            print "combine file2 failed!"
+            print("combine file2 failed!")
             return
         if none_app2 == False:
             if fill_file_blank_addr(output_file, bank_size + app_offset) == False:
-                print "fill file3 blank addr failed!"
+                print("fill file3 blank addr failed!")
                 return
             if combine_files(output_file, sys.argv[4]) == False:
-                print "combine file3 failed!"
+                print("combine file3 failed!")
                 return
-        print "pack completed!"
+        print("pack completed!")
 
 if __name__ == "__main__":
     try:

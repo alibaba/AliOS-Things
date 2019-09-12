@@ -9,25 +9,25 @@ from sys import platform as _platform
 
 
 def print_usage():
-    print ""
-    print "Usage: Merge a bin file into an exist bin file, create one if target is not exist"
-    print sys.argv[0]
-    print "Optional Usage:"
-    print " [<-o> <target binary file>]"
-    print "          The file that will be merged into, create <input binary file>_out if not defined."
-    print " [<-f> <the offset>]"
-    print "          The input file will be merged into this address. 0x0 if not defined."
-    print " [-h | --help]"
-    print "          Display usage"
-    print " [<input binary file>]"
-    print "          The input file need to be merged into the exist file."
+    print("")
+    print("Usage: Merge a bin file into an exist bin file, create one if target is not exist")
+    print(sys.argv[0])
+    print("Optional Usage:")
+    print(" [<-o> <target binary file>]")
+    print("          The file that will be merged into, create <input binary file>_out if not defined.")
+    print(" [<-f> <the offset>]")
+    print("          The input file will be merged into this address. 0x0 if not defined.")
+    print(" [-h | --help]")
+    print("          Display usage")
+    print(" [<input binary file>]")
+    print("          The input file need to be merged into the exist file.")
     sys.stdout.flush()
 
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'o:f:h')
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         print_usage()
         sys.exit(2)
 
@@ -41,7 +41,7 @@ def main():
         INPUT_FILE = args[0]
 
     if not os.path.exists(INPUT_FILE):
-        print "Please input an existed input binary file"
+        print("Please input an existed input binary file")
         sys.exit(2)
 
     for opt, arg in opts:

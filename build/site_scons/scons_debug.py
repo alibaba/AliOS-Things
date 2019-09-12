@@ -1,8 +1,12 @@
 from scons_util import *
 import subprocess
-import urllib
 from collections import OrderedDict
 from scons_upload import aos_upload
+
+try:
+    import urllib.request as urllib
+except ImportError:
+    import urllib
 
 def taskkill(host_os, aos_path, exec_name):
     info("Killing %s\n" % exec_name)
@@ -62,8 +66,8 @@ def un_tar(filename, path):
     try:
         tar = tarfile.open(filename)
         tar.extractall(path)
-    except Exception, err:
-        print("[ERROR]: %s" % err)
+    except Exception as err:
+        print(("[ERROR]: %s" % err))
         raise Exception
     finally:
         tar.close()
@@ -111,7 +115,7 @@ def update_launch(aos_path, target, port):
         for toolchain in boards[board]:
             # name = toolchain['name']
             command = toolchain['command'].replace('gcc', 'gdb')
-            if toolchain.has_key('path_specific'):
+            if 'path_specific' in toolchain:
                 gdb_path = '{}/bin/{}'.format(toolchain['path'], command)
             else:
                 gdb_path = '{}/{}/bin/{}'.format(toolchain['path'], host_os, command)
@@ -131,7 +135,7 @@ def update_launch(aos_path, target, port):
     try:
         with open(launch_path, 'r') as f:
             launch_file = json.load(f, object_pairs_hook=OrderedDict)
-    except IOError, e:
+    except IOError as e:
         error(e)
     
     new_launch = {}
@@ -159,7 +163,7 @@ def update_launch(aos_path, target, port):
 
     try:
         write_json(launch_path, new_launch)
-    except IOError, e:
+    except IOError as e:
         error(e)
 
 def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
@@ -175,11 +179,11 @@ def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, 
     if not configs:
         error("Can not read flash configs from %s" % cmd_file)
 
-    if not configs.has_key('port'):
+    if 'port' not in configs:
         error("need PORT in debug config file: %s" % cmd_file)
 
     # upload firmware first
-    if configs.has_key('upload') and configs['upload'] == True:
+    if 'upload' in configs and configs['upload'] == True:
         if aos_upload(target, aos_path):
             error("Upload firmware error")
 

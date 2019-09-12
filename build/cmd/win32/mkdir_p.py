@@ -9,6 +9,6 @@ def mkdir_p(path):
         else: raise
 
 if len(sys.argv) != 2:
-    print "usage:python "+sys.argv[0]+" dirname"
+    print("usage:python "+sys.argv[0]+" dirname")
 else:
     mkdir_p(sys.argv[1])
