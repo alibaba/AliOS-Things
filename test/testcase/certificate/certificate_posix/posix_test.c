@@ -18,6 +18,9 @@
 #ifndef SYSINFO_DEVICE_NAME
 #define SYSINFO_DEVICE_NAME "posix_test"
 #endif
+#ifndef SYSINFO_KERNEL_VERSION
+#define SYSINFO_KERNEL_VERSION "unknown"
+#endif
 #ifndef SYSINFO_APP_VERSION
 #define SYSINFO_APP_VERSION "posix_test"
 #endif
@@ -95,7 +98,7 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
-        PRINT_CONFIG(aos_version_get());
+        PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
         PRINT_CONFIG(SYSINFO_APP_VERSION);
     }
 
