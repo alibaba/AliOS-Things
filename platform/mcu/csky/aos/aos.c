@@ -39,10 +39,6 @@ void soc_err_proc(kstat_t err)
     printf("kernel panic,err %d!\n", err);
 }
 
-uint32_t aos_get_version_info(void)
-{
-    return 0;
-}
 
 static kinit_t kinit;
 
