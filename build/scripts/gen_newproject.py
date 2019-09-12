@@ -73,9 +73,9 @@ def cli(projectname, board, projectdir):
         os.makedirs(destdir)
         os.makedirs(os.path.join(destdir, '.vscode'))
 
-    sources = filter(lambda d: d != '.vscode',os.listdir(templatedir))
+    sources = [d for d in os.listdir(templatedir) if d != '.vscode']
     # for .vscode/
-    sources += map(lambda f: os.path.join('.vscode', f), os.listdir(vscodedir))
+    sources += [os.path.join('.vscode', f) for f in os.listdir(vscodedir)]
 
     for tempfile in sources:
         copy_template(tempfile, templatedir, destdir, projectname, board)

@@ -179,8 +179,8 @@ def gen_project(target, script, buildstring):
             create_file(as_opts_tmp, filename)
      
     if len(repeat_path):
-        print 'repeat name files:', repeat_path
-        print 'will copy them to '+project_path+'/ !'
+        print('repeat name files:', repeat_path)
+        print('will copy them to '+project_path+'/ !')
     
     # add group
     for group in script:
@@ -199,7 +199,7 @@ def main():
     buildstring = sys.argv[1]
     projectPath = "projects/IAR/%s/iar_project/%s.ewp" % (buildstring, buildstring)
 
-    print 'Making iar project '+buildstring
+    print('Making iar project '+buildstring)
     gen_project(projectPath, Projects, buildstring)
 
     # copy out/config/autoconf.h to project dir
@@ -207,7 +207,7 @@ def main():
     if os.path.isfile(autoconf_h):
         shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projectPath), "autoconf.h"))
 
-    print 'iar project: '+ projectPath + ' has generated over'
+    print('iar project: '+ projectPath + ' has generated over')
 
 if __name__ == "__main__":
     main()
