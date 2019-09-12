@@ -1,6 +1,10 @@
 import os
 import sys
-from util import info, warn, error
+
+try:
+    from util import info, warn, error
+except ImportError:
+    from .util import info, warn, error
 
 name = "flake8"
 short_help = "Check python syntax with flake8"

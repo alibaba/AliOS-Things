@@ -2,6 +2,7 @@
 
 import sys
 import re
+from functools import reduce
 
 def get_mem_info(map_file):
     total_ram = 0
@@ -14,7 +15,7 @@ def get_mem_info(map_file):
         mem_config_list = re.findall('Memory Configuration\r?\n\r?\nName             Origin             Length             Attributes\r?\n([\s\S]+)\r?\nLinker script and memory map', s)
         mem_config_text =  '' if not mem_config_list else mem_config_list[0]
         if not mem_config_text:
-            print 'Can\'t parse memory configure, memory info get fail!'
+            print('Can\'t parse memory configure, memory info get fail!')
             return
 
         # find the ROM configuration
@@ -38,7 +39,7 @@ def get_mem_info(map_file):
         mem_map_list = re.findall('Linker script and memory map([\s\S]+?)OUTPUT\('+map_file.replace('.map','.elf'), s)
         mem_map = '' if not mem_map_list else mem_map_list[0]
         if not mem_map:
-            print 'Can\'t parse memory info, memory info get fail!'
+            print('Can\'t parse memory info, memory info get fail!')
             return
 
         mem_map = mem_map.replace('\r', '')
@@ -61,9 +62,9 @@ def get_mem_info(map_file):
             module = module.replace('+', '\+')
             # get module's sections's address and size
             if(module == '*fill*'):
-                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('\*fill\*[ \t]+(0x\w+)[ \t]+(0x\w+)[ \t]+\r?\n', mem_map))
+                sections = [{'address':int(arg[0], 16), 'size':int(arg[1], 16)} for arg in re.findall('\*fill\*[ \t]+(0x\w+)[ \t]+(0x\w+)[ \t]+\r?\n', mem_map)]
             else:
-                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('(0x\w+)[ \t]+(0x\w+)[ \t]+.+[/\\\]'+module+'(\(.+\.o\))?\r?\n', mem_map))
+                sections = [{'address':int(arg[0], 16), 'size':int(arg[1], 16)} for arg in re.findall('(0x\w+)[ \t]+(0x\w+)[ \t]+.+[/\\\]'+module+'(\(.+\.o\))?\r?\n', mem_map)]
             if(not sections):
                 continue
 
@@ -79,23 +80,23 @@ def get_mem_info(map_file):
                         return arg['size']
                 return 0
 
-            ram_size = reduce(lambda x,y:x+y, map(ram_size_def, sections))
-            rom_size = reduce(lambda x,y:x+y, map(rom_size_def, sections))
+            ram_size = reduce(lambda x,y:x+y, list(map(ram_size_def, sections)))
+            rom_size = reduce(lambda x,y:x+y, list(map(rom_size_def, sections)))
 
             total_ram += ram_size
             total_rom += rom_size
 
             map_lines.append('| %-40s | %-8d  | %-8d |'%(re.sub('\.[ao]','',module)[:40],rom_size,ram_size))
 
-    print '\n                        AOS MEMORY MAP                            '
-    print '|=================================================================|'
-    print '| %-40s | %-8s  | %-8s |'%('MODULE','ROM','RAM')
-    print '|=================================================================|'
+    print('\n                        AOS MEMORY MAP                            ')
+    print('|=================================================================|')
+    print('| %-40s | %-8s  | %-8s |'%('MODULE','ROM','RAM'))
+    print('|=================================================================|')
     for line in map_lines:
-        print line
-    print '|=================================================================|'
-    print '| %-40s | %-8d  | %-8d |'%('TOTAL (bytes)', total_rom, total_ram)
-    print '|=================================================================|'
+        print(line)
+    print('|=================================================================|')
+    print('| %-40s | %-8d  | %-8d |'%('TOTAL (bytes)', total_rom, total_ram))
+    print('|=================================================================|')
 
 def main():
     get_mem_info(sys.argv[1])
