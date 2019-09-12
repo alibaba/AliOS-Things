@@ -20,6 +20,9 @@
 #ifndef SYSINFO_APP_VERSION
 #define SYSINFO_APP_VERSION "unknown"
 #endif
+#ifndef SYSINFO_KERNEL_VERSION
+#define SYSINFO_KERNEL_VERSION "unknown"
+#endif
 #define SYSINFO_KERNEL      "AOS"
 
 /* dynamic stack size */
@@ -125,7 +128,7 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
-        PRINT_CONFIG(aos_version_get());
+        PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
         PRINT_CONFIG(SYSINFO_APP_VERSION);
     }
 
