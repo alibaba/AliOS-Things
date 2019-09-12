@@ -72,7 +72,7 @@ def main(apps):
             info[app] = {'compiled': compiled_boards, 'validated': validated_boards}
         with open('{}/app_validate_status.json'.format(work_dir), 'wt') as f:
             json.dump(info, f, indent=4, sort_keys=True)
-        print "app compile & validate info writen to app_validate_status.json"
+        print("app compile & validate info writen to app_validate_status.json")
         return 0
     except:
         traceback.print_exc()
@@ -80,7 +80,7 @@ def main(apps):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print "usage: python {} app1 [app2 ... appN]".format(sys.argv[0])
+        print("usage: python {} app1 [app2 ... appN]".format(sys.argv[0]))
         sys.exit(1)
     apps = sys.argv[1:]
     ret = main(apps)
