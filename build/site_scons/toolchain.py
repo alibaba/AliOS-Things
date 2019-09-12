@@ -61,7 +61,7 @@ class tool_chain:
         self.config.aos_env['READELF'] = os.path.join(self.tools_path, self.prefix + self.readelf)
         self.config.aos_env['RANLIBCOM'] = ''
 
-        for tool, name in self.extend_name_dict.items():
+        for tool, name in list(self.extend_name_dict.items()):
             self.config.aos_env[tool] = os.path.join(self.tools_path, self.prefix + name)
 
     def tools_flag_config(self):
@@ -72,7 +72,7 @@ class tool_chain:
         self.config.aos_env.Append(LINKFLAGS=self.ldflags)
         self.config.aos_env.Replace(ARFLAGS=self.arflags)
 
-        for flag, value in self.extend_flag_dict.items():
+        for flag, value in list(self.extend_flag_dict.items()):
             self.config.aos_env.Append(flag=value)
 
     def tools_config(self):
