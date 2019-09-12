@@ -107,9 +107,9 @@ def write_config_file(source_root, config_file, mklist):
             conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
             config_keys += [name]
         else:
-            print "[ERROR]: Duplicate component found: %s" % name
-            print "- %s: %s" % (name, conf_dict[name])
-            print "- %s: %s" % (name, mkfile)
+            print("[ERROR]: Duplicate component found: %s" % name)
+            print("- %s: %s" % (name, conf_dict[name]))
+            print("- %s: %s" % (name, mkfile))
             return 1
 
     with open (config_file, 'w') as f:
@@ -138,7 +138,7 @@ def main(argv):
 
     source_root = argv[1]
     config_file = argv[2]
-    print "Parsing all components ..."
+    print("Parsing all components ...")
     mklist = find_comp_mkfile(source_root)
 
     appdir = os.environ.get("APPDIR")
@@ -147,7 +147,7 @@ def main(argv):
 
     ret = write_config_file(source_root, config_file, mklist)
     if ret:
-        print "Failed to create %s ...\n" % config_file
+        print("Failed to create %s ...\n" % config_file)
 
 if __name__ == "__main__":
     ret = main(sys.argv)

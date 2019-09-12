@@ -230,7 +230,7 @@ def main():
     projx_file = "projects/Keil/%s/keil_project/%s.uvprojx" % (buildstring, buildstring)
     optx_file = projx_file.replace('.uvprojx', '.uvoptx')
 
-    print "Creating keil project %s" % (buildstring)
+    print("Creating keil project %s" % (buildstring))
     projx_tree = etree.parse(TEMPLATE_PROJX)
     optx_tree = etree.parse(TEMPLATE_OPTX)
 
@@ -245,7 +245,7 @@ def main():
     if os.path.isfile(autoconf_h):
         shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projx_file), "autoconf.h"))
 
-    print "Keil project created at %s" % (projx_file)
+    print("Keil project created at %s" % (projx_file))
 
 if __name__ == "__main__":
     main()

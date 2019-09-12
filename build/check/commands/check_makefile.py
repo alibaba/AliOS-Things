@@ -1,7 +1,11 @@
 # coding: utf-8
 import os
 import sys
-from util import info, warn, error, check_win_format, check_extra_blank, check_invalid_chars
+
+try:
+    from util import info, warn, error, check_win_format, check_extra_blank, check_invalid_chars
+except ImportError:
+    from .util import info, warn, error, check_win_format, check_extra_blank, check_invalid_chars
 
 name = "aosmk"
 short_help = "Check for aos.mk"
