@@ -14,11 +14,11 @@ def list_files(dir_path):
 def main():
 
     if len(sys.argv) != 2:
-        print "Dir args is empty, Enter the path to be processed!"
+        print("Dir args is empty, Enter the path to be processed!")
         os._exit(0)
 
     filedir = sys.argv[1]
-    print filedir.strip()
+    print(filedir.strip())
 
     sys_version = platform.version()
     if "Ubuntu" in sys_version:
@@ -26,7 +26,7 @@ def main():
     elif "CentOS" in sys_version:
         os.environ['syscmd'] = str("dos2unix")
     else:
-        print "Not find the system version!"
+        print("Not find the system version!")
         os._exit(0)
 
     file_list = list_files(filedir)
