@@ -1,7 +1,11 @@
 # coding: utf-8
 import os
 import sys
-from util import info, warn, error
+
+try:
+    from util import info, warn, error
+except ImportError:
+    from .util import info, warn, error
 
 name = "license"
 short_help = "Check for 3rd Licenses"
