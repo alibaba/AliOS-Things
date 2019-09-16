@@ -21,15 +21,13 @@ struct image_header
 """
 
 def pack_image(input_file, lzma_file, ota_file):
-    print 'input_file:', input_file
-    print 'lzma_file:', lzma_file
-    f = file(input_file, 'rb')
-    data = f.read()
-    f.close()
+    print('input_file:', input_file)
+    print('lzma_file:', lzma_file)
+    with open(input_file, 'rb') as f:
+        data = f.read()
 
-    f = file(lzma_file, 'rb')
-    data_lzma = f.read()
-    f.close()
+    with open(lzma_file, 'rb') as f:
+        data_lzma = f.read()
 
     magic = 0xAEAE
     encrypt_algo = 0
@@ -42,20 +40,19 @@ def pack_image(input_file, lzma_file, ota_file):
     version = str(crc32)
 
     size = len(data_lzma)
-    print '   size:', size
-    print '   version:', version
-    print '   crc32_lzma: %08x' % crc32_lzma
+    print('   size:', size)
+    print('   version:', version)
+    print('   crc32_lzma: %08x' % crc32_lzma)
 
-    header = struct.pack("<HBB24sLL", magic, encrypt_algo, rescv, version, crc32_lzma, size)
+    header = struct.pack("<HBB24sLL", magic, encrypt_algo, rescv, version.encode('utf-8'), crc32_lzma, size)
 
-    f = file(ota_file, "wb")
-    f.write(header)
-    f.write(data_lzma)
-    f.close()
+    with open(ota_file, "wb") as f:
+        f.write(header)
+        f.write(data_lzma)
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print sys.argv[0], "input_file", "lzma_file", "ota_file"
+        print(sys.argv[0], "input_file", "lzma_file", "ota_file")
         exit(0)
 
     pack_image(sys.argv[1], sys.argv[2], sys.argv[3])
