@@ -118,7 +118,7 @@ def main():
     with open(sys.argv[1], "r") as f:
         config_mk_str = f.read()
 
-        process_component_init(sys.argv[2])
+        #process_component_init(sys.argv[2])
         process_component_test(sys.argv[2])
 
 if __name__ == "__main__":

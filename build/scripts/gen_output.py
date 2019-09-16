@@ -81,12 +81,12 @@ def gen_readme_file(bin_output_path, ota_file, xz_file, factory_file, version):
         xz_blank = xz_blank + " "
     if os.path.exists(readmename):
         os.remove(readmename)
-    f=file(readmename, "w")
-    f.write("version : " + version + " \r\n")
-    f.write(ota_file + ota_blank +"   :OTA upgrade firmware, default. \r\n")
-    f.write(xz_file + xz_blank +" :OTA upgrade firmware, only XZ compress upgrade support. \r\n")
-    f.write(factory_file + fac_blank + " :Flash burning firmware. \r\n")
-    f.close()
+
+    with open(readmename, "w") as f:
+        f.write("version : " + version + " \r\n")
+        f.write(ota_file + ota_blank +"   :OTA upgrade firmware, default. \r\n")
+        f.write(xz_file + xz_blank +" :OTA upgrade firmware, only XZ compress upgrade support. \r\n")
+        f.write(factory_file + fac_blank + " :Flash burning firmware. \r\n")
 
 def find_version(config_file):
     with open(config_file, "r") as f:
@@ -95,7 +95,7 @@ def find_version(config_file):
         version = find_str.group()
         version = version.replace('DSYSINFO_APP_VERSION=', '')
         version = version.replace('\\"', '')
-    f.close()
+
     return version
 
 def main():
