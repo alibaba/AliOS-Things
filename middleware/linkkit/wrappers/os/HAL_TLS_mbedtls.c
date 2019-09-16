@@ -176,12 +176,12 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
     }
     if (ret != 0) {
         //try fixed ip:
-        if(strstr(host, "iot-as-mqtt.cn-shanghai.aliyuncs.com") != NULL) {
+        if (strstr(host, "iot-as-mqtt.cn-shanghai.aliyuncs.com") != NULL) {
             int i;
-            for(i = 0; i< 3; i++) {
+            for (i = 0; i < 3; i++) {
                 ip[i] = g_fixed_list[i];
-            }    
-            platform_info("using fixed ip\n");    
+            }
+            platform_info("using fixed ip\n");
         } else {
             return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
         }
@@ -540,7 +540,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     }
 #else
     if (0 != (ret = mbedtls_net_connect_timeout_backup(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
-                    SEND_TIMEOUT_SECONDS))) {           
+                    SEND_TIMEOUT_SECONDS))) {
         platform_err(" backup failed ! net_connect returned -0x%04x", -ret);
         if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port,
                                             MBEDTLS_NET_PROTO_TCP))) {
@@ -648,7 +648,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
 
             memset(save_buf, 0x00, TLS_MAX_SESSION_BUF);
             memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
-            HAL_Snprintf(key_buf,KEY_MAX_LEN -1, KV_SESSION_KEY_FMT, addr);
+            HAL_Snprintf(key_buf, KEY_MAX_LEN - 1, KV_SESSION_KEY_FMT, addr);
             ret = HAL_Kv_Get(key_buf, save_buf, &len);
 
             if (ret != 0 || len == 0) {
@@ -740,7 +740,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
             if (ret == 0) {
                 char key_buf[KEY_MAX_LEN] = {0};
-                HAL_Snprintf(key_buf,KEY_MAX_LEN -1, KV_SESSION_KEY_FMT, addr);
+                HAL_Snprintf(key_buf, KEY_MAX_LEN - 1, KV_SESSION_KEY_FMT, addr);
                 ret = HAL_Kv_Set(key_buf, (void *)save_buf, real_session_len, 1);
                 if (ret < 0) {
                     printf("save ticket to kv failed ret =%d ,len = %d\r\n", ret, (int)real_session_len);
@@ -781,9 +781,11 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
     uint32_t   readLen    = 0;
     static int net_status = 0;
     int        ret        = -1;
-    // char            err_str[33] = {0};
 
+    uint32_t cur_time = HAL_UptimeMs();
+    uint32_t expire_time = cur_time + timeout_ms;
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
+
     while (readLen < len) {
         ret = mbedtls_ssl_read(&(pTlsData->ssl),
                                (unsigned char *)(buffer + readLen),
@@ -807,6 +809,16 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
                 platform_err("ssl recv error: code = %d", ret);
                 net_status = -2; /* connection is closed */
                 break;
+#ifdef CSP_LINUXHOST
+            } else if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
+                cur_time = HAL_UptimeMs();
+                if ((cur_time - expire_time) < (UINT32_MAX / 2)) {
+                    return readLen;
+                }
+                HAL_SleepMs(10);
+                continue;
+
+#endif
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret) ||
                        (MBEDTLS_ERR_SSL_CONN_EOF == ret) ||
                        (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret) ||
@@ -820,11 +832,6 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
 
             else {
                 // mbedtls_strerror(ret, err_str, sizeof(err_str));
-#ifdef CSP_LINUXHOST
-                if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
-                    continue;
-                }
-#endif
                 platform_err("ssl recv error: code = %d", ret);
 #ifdef FEATURE_UND_SUPPORT
                 und_update_statis(UND_STATIS_NETWORK_EXCEPTION_IDX,
