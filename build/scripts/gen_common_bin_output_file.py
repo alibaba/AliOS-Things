@@ -64,7 +64,7 @@ def main():
 
     if gap_szie > 0:
         output_file.seek(os.path.getsize(OUTPUT_FILE))
-        output_file.write('\xFF'*gap_szie)
+        output_file.write(b'\xFF' * gap_szie)
 
     output_file.write(input)
     input_file.close()
