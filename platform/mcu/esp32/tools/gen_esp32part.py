@@ -268,7 +268,7 @@ class PartitionDefinition(object):
         res.name = res.name.decode()
         if magic != cls.MAGIC_BYTES:
             raise InputError("Invalid magic bytes (%r) for partition definition" % magic)
-        for flag,bit in cls.FLAGS.items():
+        for flag,bit in list(cls.FLAGS.items()):
             if flags & (1<<bit):
                 setattr(res, flag, True)
                 flags &= ~(1<<bit)
@@ -277,7 +277,7 @@ class PartitionDefinition(object):
         return res
 
     def get_flags_list(self):
-        return [ flag for flag in self.FLAGS.keys() if getattr(self, flag) ]
+        return [ flag for flag in list(self.FLAGS.keys()) if getattr(self, flag) ]
 
     def to_binary(self):
         flags = sum((1 << self.FLAGS[flag]) for flag in self.get_flags_list())
@@ -297,7 +297,7 @@ class PartitionDefinition(object):
             return "0x%x" % a
 
         def lookup_keyword(t, keywords):
-            for k,v in keywords.items():
+            for k,v in list(keywords.items()):
                 if simple_formatting == False and t == v:
                     return k
             return "%d" % t
