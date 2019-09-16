@@ -5,21 +5,21 @@ from sys import platform as _platform
 import array,hashlib,struct
 
 def print_usage():
-    print ""
-    print "discription: generate a bin file summary info"
-    print sys.argv[0]
-    print "Optional Usage:"
-    print " [-o] <target binary file>"
-    print " [-m] <iamge magic type>"
-    print " [-h | --help] Display usage"
-    print " [<input binary file>]"
+    print("")
+    print("discription: generate a bin file summary info")
+    print(sys.argv[0])
+    print("Optional Usage:")
+    print(" [-o] <target binary file>")
+    print(" [-m] <iamge magic type>")
+    print(" [-h | --help] Display usage")
+    print(" [<input binary file>]")
     sys.stdout.flush()
 
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'o:m:h')
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         print_usage()
         sys.exit(2)
 
@@ -30,7 +30,7 @@ def main():
     else:
         INPUT_FILE = args[0]
     if not os.path.exists(INPUT_FILE):
-        print "Please input a binary file"
+        print("Please input a binary file")
         sys.exit(2)
 
     for opt, arg in opts:
@@ -50,7 +50,7 @@ def main():
     data = fin.read()
     magic = int(magic_str, 16)
     size = os.path.getsize(INPUT_FILE)
-    print size
+    print(size)
     fout.write(struct.pack('<I', magic))
     fout.write(struct.pack('<I', size))
     fout.write(hashlib.md5(data).digest())
