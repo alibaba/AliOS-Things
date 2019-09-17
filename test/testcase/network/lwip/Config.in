@@ -1,0 +1,5 @@
+config AOS_COMP_LWIP_TEST
+    bool "LwIP YTS Testcase"
+    select AOS_COMP_LWIP
+    default n
+    help
