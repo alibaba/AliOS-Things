@@ -6,5 +6,6 @@ source "test/testcase/utility/Config.in"
 source "test/testcase/osal/Config.in"
 source "test/testcase/3rdparty/experimental/Config.in"
 source "test/testcase/certificate/Config.in"
+source "test/testcase/network/Config.in"
 
 endmenu
