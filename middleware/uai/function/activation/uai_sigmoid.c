@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
-
+#include "uai_activation.h"
 #ifdef UAI_USE_CMSIS_NN
 #include "arm_nnfunctions.h"
 #endif
