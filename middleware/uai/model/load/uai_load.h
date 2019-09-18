@@ -27,7 +27,7 @@ typedef enum {
 
 uai_src_type_e uai_src_type_parse(char *source);
 
-int uai_load_trained_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *trained_data_src);
+int uai_load_model_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src);
 
 #ifdef __cplusplus
 }
