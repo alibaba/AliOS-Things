@@ -38,6 +38,7 @@ def process_component_test(source_directory):
 
     components = re.findall(r"COMPONENTS\s+\:\=\s+.+\n", config_mk_str)[0]
     for name in components.split(" "):
+        name = name.strip()
         if name.endswith("_test"):
             location = name + "_LOCATION\s+\:\=\s+.+"
             # find all source code files related to test components
@@ -50,7 +51,6 @@ def process_component_test(source_directory):
                         for code in re.findall("AOS_TESTCASE\s*\((.+\)\s*;)", codes):
                             code_list.append(code[:len(code)-2])
 
-    
     for code in code_list:
         source_codes +=  "extern void %s(void);\n"%(code)
 
