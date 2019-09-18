@@ -240,5 +240,11 @@ if AOS_APP_UAI_KWS_DEMO
         default "uai_demo.uai_kws_demo"
 endif
 
+source "app/example/uai_demo/uai_cifar10_demo/Config.in"
+if AOS_APP_UAI_CIFAR10_DEMO
+    config AOS_BUILD_APP
+        default "uai_demo.uai_cifar10_demo"
+endif
+
 endchoice
 endif
