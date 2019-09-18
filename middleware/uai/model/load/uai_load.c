@@ -43,14 +43,14 @@ static int uai_flash_info_parse(char *info, uint32_t *part, uint32_t *offset, in
     return UAI_SUCCESS;
 }
 
-static int uai_load_from_flash(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *trained_data_src)
+static int uai_load_from_flash(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src)
 {
     uint32_t ptno;
     uint32_t off_set;
     int      size;
     int      ret;
 
-    if(UAI_SUCCESS != uai_flash_info_parse(trained_data_src, &ptno, &off_set, &size)) {
+    if(UAI_SUCCESS != uai_flash_info_parse(model_data_src, &ptno, &off_set, &size)) {
         UAI_LOGE("flash info parse fail !\n");
         return UAI_FAIL;
     }
@@ -75,7 +75,7 @@ static int uai_load_from_flash(int8_t *weight, int8_t *bias, int32_t weight_size
         return UAI_FAIL;
     }
 
-    UAI_LOGD("load trained data from flash success !\n");
+    UAI_LOGD("load model data from flash success !\n");
 
     return UAI_SUCCESS;
 }
@@ -110,12 +110,12 @@ static int uai_mem_info_parse(char *info, uint32_t *addr, int *size)
     return UAI_SUCCESS;
 }
 
-static int uai_load_from_mem(uint32_t *weight_addr, uint32_t *bias_addr, int32_t weight_size, int32_t bias_size, int32_t offset, char *trained_data_src)
+static int uai_load_from_mem(uint32_t *weight_addr, uint32_t *bias_addr, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src)
 {
     uint32_t addr;
     int      size;
 
-    if(UAI_SUCCESS != uai_mem_info_parse(trained_data_src, &addr, &size)) {
+    if(UAI_SUCCESS != uai_mem_info_parse(model_data_src, &addr, &size)) {
         UAI_LOGE("flash info parse fail !\n");
         return UAI_FAIL;
     }
@@ -128,7 +128,7 @@ static int uai_load_from_mem(uint32_t *weight_addr, uint32_t *bias_addr, int32_t
     *weight_addr = addr + offset;
     *bias_addr   = addr + offset + weight_size;
 
-    UAI_LOGD("load trained data from mem addr %p success !\n", addr + offset);
+    UAI_LOGD("load model data from mem addr %p success !\n", addr + offset);
 
     return UAI_SUCCESS;
 }
@@ -151,19 +151,19 @@ static int uai_file_info_parse(char *info, char **filename)
         return UAI_FAIL;
     }
 
-    UAI_LOGD("load trained data from file %s success !\n", filename);
+    UAI_LOGD("load model data from file %s success !\n", filename);
 
     return UAI_SUCCESS;
 }
 
-static int uai_load_from_file(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *trained_data_src)
+static int uai_load_from_file(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src)
 {
     char *filename = NULL;
     FILE *fd       = NULL;
     int size       = 0;
     int ret        = 0;
 
-    if(UAI_SUCCESS != uai_file_info_parse(trained_data_src, &filename)) {
+    if(UAI_SUCCESS != uai_file_info_parse(model_data_src, &filename)) {
         UAI_LOGE("file info parse fail !\n");
         return UAI_FAIL;
     }
@@ -222,12 +222,12 @@ uai_src_type_e uai_src_type_parse(char *source)
     return UAI_SRC_TYPE_NULL;
 }
 
-int uai_load_trained_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *trained_data_src)
+int uai_load_model_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src)
 {
     int ret             = UAI_SUCCESS;
     uai_src_type_e type = UAI_SRC_TYPE_NULL;
 
-    type = uai_src_type_parse(trained_data_src);
+    type = uai_src_type_parse(model_data_src);
     if(type == UAI_SRC_TYPE_NULL) {
         UAI_LOGE("source type error !\n");
         return UAI_FAIL;
@@ -235,15 +235,15 @@ int uai_load_trained_data(int8_t *weight, int8_t *bias, int32_t weight_size, int
 
     switch (type) {
         case UAI_SRC_TYPE_FLASH:
-            ret = uai_load_from_flash(weight, bias, weight_size, bias_size, offset, trained_data_src);
+            ret = uai_load_from_flash(weight, bias, weight_size, bias_size, offset, model_data_src);
         break;
 
         case UAI_SRC_TYPE_MEM:
-            ret = uai_load_from_mem((uint32_t *)weight, (uint32_t *)bias, weight_size, bias_size, offset, trained_data_src);
+            ret = uai_load_from_mem((uint32_t *)weight, (uint32_t *)bias, weight_size, bias_size, offset, model_data_src);
         break;
 
         case UAI_SRC_TYPE_FILE:
-            ret = uai_load_from_file(weight, bias, weight_size, bias_size, offset, trained_data_src);
+            ret = uai_load_from_file(weight, bias, weight_size, bias_size, offset, model_data_src);
         break;
 
         default:
