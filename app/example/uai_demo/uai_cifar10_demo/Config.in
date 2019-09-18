@@ -1,0 +1,6 @@
+config AOS_APP_UAI_CIFAR10_DEMO
+    bool "uAI CIFAR10 DEMO"
+    select AOS_COMP_UAI
+    help
+        uAI CIFAR10 DEMO
+
