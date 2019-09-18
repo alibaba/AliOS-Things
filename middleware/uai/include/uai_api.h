@@ -15,12 +15,12 @@ extern "C" {
 /**
  * init dnn configuration.
  *
- * @param[in]  model_config       configuration information.
- * @param[in]  trained_data_src   trained data source description.
+ * @param[in]  model_config     configuration information.
+ * @param[in]  model_data_src   model data source description.
  *
  * @return  UAI_SUCCESS: success; other: fail.
  */
-int32_t uai_dnn_init(uai_dnn_config_t *model_config, char *trained_data_src);
+int32_t uai_dnn_init(uai_dnn_config_t *model_config, char *model_data_src);
 
 /*
  * deinit dnn, free allocated memory
@@ -39,6 +39,36 @@ int32_t uai_dnn_deinit(void);
  * @return  UAI_SUCCESS: success; other: fail.
  */
 int32_t uai_dnn_run(int8_t *in_data, int8_t *out_data);
+#endif
+
+#ifdef UAI_CNN
+/**
+ * init cnn configuration.
+ *
+ * @param[in]  model_config     configuration information.
+ * @param[in]  model_data_src   model data source description.
+ *
+ * @return  UAI_SUCCESS: success; other: fail.
+ */
+int32_t uai_cnn_init(uai_cnn_config_t *model_config, char *model_data_src);
+
+/*
+ * deinit cnn, free allocated memory
+ *
+ *
+ * @return  UAI_SUCCESS: success; other: fail.
+ */
+int32_t uai_cnn_deinit(void);
+
+/*
+ * run dnn model
+ *
+ *
+ * @param  in_data    input data
+ * @param  out_data   output data
+ * @return  UAI_SUCCESS: success; other: fail.
+ */
+int32_t uai_cnn_run(int8_t *in_data, int8_t *out_data);
 #endif
 
 #ifdef __cplusplus
