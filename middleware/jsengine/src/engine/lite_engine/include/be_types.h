@@ -13,7 +13,7 @@
 
 typedef enum {
     BE_SYM_NUM_MASK  = 8, /* 01000 ~ 01111 is number, bit3==1 */
-    BE_SYM_TYPE_MASK = 15,
+    BE_SYM_TYPE_MASK = 255,
 
     BE_SYM_NULL = 1, /* NULL */
 

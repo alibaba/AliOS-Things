@@ -54,7 +54,7 @@ static int websocket_getVersion()
 
     p_resp_cmd = jse_calloc(1, 128);
     if (p_resp_cmd == NULL) {
-        snprintf(p_resp_cmd, 128, "getVersion Fail\r\n");
+        /* snprintf(p_resp_cmd, 128, "getVersion Fail\r\n"); */
         err_code = 201;
         goto do_exit;
     }
@@ -105,8 +105,8 @@ static int respond_shake_key(const char* accept_key, unsigned char* respond_key,
     if (accept_key == NULL) return -1;
 
     char client_key[256] = {0};
-    strcat(client_key, accept_key);
-    strcat(client_key, BWS_GUID);
+    strncat(client_key, accept_key, sizeof(client_key) - 1);
+    strncat(client_key, BWS_GUID, sizeof(client_key) - 1);
 
     unsigned char decrypt[20]; /* 160 bits */
 
@@ -171,7 +171,8 @@ static int frame_encode(unsigned char* payload, size_t payload_len,
         }
     } else {
         frame->frame_data[frame_total_len++] |= 0x7F;
-        for (i = 7; i >= 0; --i) {
+        /* set 7 -> 3, frame should never be so large */
+        for (i = 3; i >= 0; --i) {
             frame->frame_data[frame_total_len++] |=
                 (char)((payload_len >> (8 * i)) & 0xFF);
         }
@@ -289,7 +290,7 @@ static int bone_websocket_send_cmd(bone_websocket_client_t* client, char* cmd,
     unsigned char payload[32];
     unsigned char frame_buf[64] = {0};
 
-    strcpy(payload, cmd);
+    strncpy(payload, cmd, sizeof(payload) - 1);
     int frame_size =
         bone_websocket_build_frame(payload, strlen((char*)payload), is_mask,
                                    BWS_TXT_FRAME, frame_buf, sizeof(frame_buf));
@@ -470,7 +471,7 @@ static int bone_websocket_on_command(bone_websocket_client_t* client,
             p_info->url       = url;
             p_info->file_size = atoi(args[4]);
             p_info->type      = atoi(args[1]);
-            strncpy(p_info->md5, args[3], 32);
+            strncpy(p_info->md5, args[3], 32 - 1);
 
             jse_task_schedule_call(simulator_upgrade, p_info);
 #else
