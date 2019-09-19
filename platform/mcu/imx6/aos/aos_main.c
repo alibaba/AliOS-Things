@@ -16,78 +16,80 @@ ktask_t *g_aos_init;
 static kinit_t kinit = {
     .argc = 0,
     .argv = NULL,
-    .cli_enable = 0
+    .cli_enable = 1
 };
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+extern void os_load_slavecpu(void);
+extern void smp_cpu_init(void);
+
+static ktask_t *g_cpu1_task1;
+static ktask_t *g_cpu2_task1;
+
+static void cpu1_task1_main(void)
+{
+    int cnt = 0;
+    int cpu;
+
+    while (1) {
+        krhino_task_sleep(201);
+        cpu = cpu_cur_get();
+        printf("cpu %d cnt 0x%x\r\n", cpu, cnt);
+        cnt++;
+
+    }
+}
+
+static void cpu2_task1_main(void)
+{
+    int cnt = 0;
+    int cpu;
+
+    while (1) {
+        krhino_task_sleep(200);
+        cpu = cpu_cur_get();
+        printf("cpu %d cnt 0x%x\r\n", cpu, cnt);
+        cnt++;
+
+    }
+}
+#endif
 
 unsigned int qq_tick;
 static void sys_init(void)
 {
     int ret = 0;
+
     hal_uart_init(NULL);
 
     printf("sys_init in\r\n");
 
 	time_init_global_tick();
 
-    #if (RHINO_CONFIG_CPU_NUM > 1)
-    extern void os_load_slavecpu(void);
+    aos_components_init(&kinit);
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    ret = krhino_task_cpu_dyn_create(&g_cpu1_task1, "cpu1_task1", 0, 2, 0, AOS_START_STACK, cpu1_task1_main, 1, 1);
+    if (ret == RHINO_SUCCESS) {
+        printf("create cpu1_task1 success\r\n");
+    }
+    ret = krhino_task_cpu_dyn_create(&g_cpu2_task1, "cpu2_task1", 0, 2, 0, AOS_START_STACK, cpu2_task1_main, 2, 1);
+    if (ret == RHINO_SUCCESS) {
+        printf("create cpu1_task1 success\r\n");
+    }
     os_load_slavecpu();
-    #endif
-    /*
-#ifdef AOS_COMP_CLI
-    aos_cli_init();
 #endif
-#ifdef AOS_COMP_ULOG
-    ulog_init();
-#endif
-	#ifdef OSAL_RHINO
-    dumpsys_cli_init();
-	#endif
-	*/
-    //test_certificate();
 
-    while(1) {
-
-        //printf("tick = %d\r\n", qq_tick++);
-
-        aos_msleep(100);
-        //krhino_task_sleep(100);
-
-    }
+    application_start(0, NULL);
 }
-
-/*
-#define ISR_STK_SIZE     400u
-cpu_stack_t isr_stk[RHINO_CONFIG_CPU_NUM][ISR_STK_SIZE];
-unsigned int const  isr_stk_size = ISR_STK_SIZE;
-cpu_stack_t     *except_stack_top[RHINO_CONFIG_CPU_NUM];
-
-void  isr_stk_init(void)
-{
-    unsigned int   i;
-    cpu_stack_t *p_stk;
-    int coreid;
-    cpu_stack_t * isr_base_ptr;// = &isr_stk[0];
-
-    coreid = cpu_cur_get();
-    isr_base_ptr = &(isr_stk[coreid][0]);
-
-    p_stk = isr_base_ptr;                            // Clear the ISR stack
-    for (i = 0u; i < isr_stk_size; i++) {
-        *p_stk++ = (cpu_stack_t)0u;
-    }
-    except_stack_top[coreid] = (cpu_stack_t *)(isr_base_ptr + isr_stk_size - 2u);
-}
-*/
 
 void sys_start(void)
 {
     int ret;
+
 	platform_init();
 
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
-    extern void smp_cpu_init(void);
     smp_cpu_init();
 #endif
 
@@ -95,15 +97,16 @@ void sys_start(void)
 	//isr_stk_init();
     aos_init();
 
-    #if (RHINO_CONFIG_CPU_NUM > 1)
+#if (RHINO_CONFIG_CPU_NUM > 1)
     /*bind 0 core*/
     ret = krhino_task_cpu_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 0,1);
-
-    //soc_driver_init();
-    #else
+#else
     ret = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 1);
+#endif
 
-    #endif
+    if (RHINO_SUCCESS != ret) {
+        printf("create aos_init task failed\r\n");
+    }
 
     aos_start();
 }

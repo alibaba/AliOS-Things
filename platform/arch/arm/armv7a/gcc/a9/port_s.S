@@ -152,7 +152,7 @@ cpu_task_switch:
 @     void   cpu_intrpt_switch(void);
 @******************************************************************************
 cpu_intrpt_switch:
-    PUSH    {FP, LR}
+    PUSH    {R4, R5, FP, LR}
 
     #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
@@ -169,7 +169,7 @@ cpu_intrpt_switch:
     LDR     R2, [R1, R5, LSL #2]
     STR     R2, [R0, R5, LSL #2]
 
-    POP     {FP, PC}
+    POP     {R4, R5, FP, PC}
 
 @******************************************************************************
 @ _task_restore

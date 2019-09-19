@@ -86,4 +86,8 @@ GLOBAL_LDS_FILES += platform/mcu/imx6/imx6_platform_sdk/apps/common/basic_alios_
 
 GLOBAL_DEFINES += CONFIG_ARM
 
-include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
+ifeq ($(AOS_CONFIG_SMP),y)
+include $($(NAME)_LOCATION)/imx6dq.mk
+else
+include $($(NAME)_LOCATION)/imx6sl.mk
+endif
