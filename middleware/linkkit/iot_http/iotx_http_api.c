@@ -522,6 +522,11 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
         goto do_exit;
     }
 
+    if(strlen(pvalue) > IOTX_HTTP_AUTH_TOKEN_LEN - 1) {
+        http_err("token is out of size");
+        goto do_exit;
+    }
+
     strcpy(iotx_http_context->p_auth_token, pvalue);
     iotx_http_context->is_authed = 1;
     HTTP_API_FREE(pvalue);
