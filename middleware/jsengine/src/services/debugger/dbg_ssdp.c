@@ -40,9 +40,9 @@ void connect_webserver(void* ip)
 
     bone_websocket_init(client);
 
-    strcpy(client->ip, ip);
+    strncpy(client->ip, ip, sizeof(client->ip) - 1);
     client->port = WEB_SERVER_PORT;
-    strcpy(client->path, WEB_SERVER_PATH);
+    strncpy(client->path, WEB_SERVER_PATH, sizeof(client->path) - 1);
 
     jse_debug("%s ip = %s \n", __FUNCTION__, (char*)ip);
     bone_websocket_connect(client);
@@ -200,7 +200,7 @@ static void on_ssdp_recv(int sock, void* arg)
                     inet_ntoa_r(((struct sockaddr_in*)&raddr)->sin_addr.s_addr,
                                 remote_address, 16);
                     jse_debug("prepare connect: %s\n", remote_address);
-                    strcpy(target_ip, remote_address);
+                    strncpy(target_ip, remote_address, sizeof(target_ip) - 1);
                     jse_system_kv_set("WS_ADDRESS", remote_address,
                                       strlen(remote_address), 1);
                     jse_task_timer_action(100, connect_webserver,
@@ -257,7 +257,7 @@ int dbg_ssdp_start(char* localAddress)
     ssdp_started = 1;
 
     if (localAddress) {
-        strncpy(pLocalAddress, localAddress, 16);
+        strncpy(pLocalAddress, localAddress, 16 - 1);
     }
 
 #if defined(WITH_LWIP) || defined(LINUXOSX)
