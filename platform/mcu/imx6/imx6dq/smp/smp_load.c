@@ -44,34 +44,18 @@ void configure_cpu(uint32_t cpu)
 
 void smp_cpu_init(void)
 {
-    uint32_t cpu_id = cpu_get_current();
+    uint32_t cpu_count;
+    uint32_t cpu_id;
 
-    if (cpu_id == 0)
-    {
-        int cpu_count = cpu_get_cores();
+    cpu_id = cpu_get_current();
 
-        /*
-        if (num_cpus > cpu_count)
-        {
-            num_cpus = cpu_count;
-        }*/
-
+    if (cpu_id == 0) {
+        cpu_count = cpu_get_cores();
         num_cpus = (cpu_count >= num_cpus ? num_cpus : cpu_count);
-
-        /*uart have not inited*/
-        /*printf("Using %d CPU core(s)\n", num_cpus);*/
-    }
-    else
-    {
-    
+    } else {
         platform_init();
-        
-        k_vectable_set();
-        //isr_stk_init();
 
-        /*int cross core init*/
-        os_crosscore_int_init();
-        
+        k_vectable_set();
 #if (RHINO_CONFIG_CPU_NUM > 1)
         extern kspinlock_t g_smp_printlock;
         krhino_spin_lock(&g_smp_printlock);
@@ -79,21 +63,20 @@ void smp_cpu_init(void)
 
         printf("Starting scheduler on CPU:%d.\r\n",cpu_id);
 #if (RHINO_CONFIG_CPU_NUM > 1)
-        krhino_spin_unlock(&g_smp_printlock); 
+        krhino_spin_unlock(&g_smp_printlock);
 #endif
-
-        cpu_first_task_start();        
+        cpu_first_task_start();
     }
-   
+
 }
 
 
 void os_load_slavecpu(void)
 {
     int i;
+
     os_crosscore_int_init();
 
-    
     // start all cpus
     for (i = 1; i < num_cpus; i++)
     {
@@ -101,6 +84,5 @@ void os_load_slavecpu(void)
     }
 
     k_wait_allcores();
-    
 }
 
