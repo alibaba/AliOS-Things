@@ -162,17 +162,16 @@ void gic_send_sgi(uint32_t irqID, uint32_t target_list, uint32_t filter_list)
     gicd_t * gicd = gic_get_gicd();
 
     /*secure core to unsecure SGI*/
+    /*
     gicd->SGIR = (filter_list << kBP_GICD_SGIR_TargetListFilter)
                     | (target_list << kBP_GICD_SGIR_CPUTargetList)
                     | (irqID & 0xf) | (1UL<<15);
-
+    */
     /*non secure core to unsecure SGI*/
-    /*
     gicd->SGIR = (filter_list << kBP_GICD_SGIR_TargetListFilter)
                     | (target_list << kBP_GICD_SGIR_CPUTargetList)
                     | (irqID & 0xf);
 
-    */
 }
 
 void gic_cpu_enable(bool enableIt)
