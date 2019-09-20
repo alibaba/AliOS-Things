@@ -182,10 +182,6 @@ int iotx_report_ext_msg(info_report_func_pt info_report_func, void * handle)
     }
 
     aos_free(msg);
-    if (ret < 0) {
-        LOGE(TAG,"publish failed, ret = %d", ret);
-        return FAIL_RETURN;
-    }
     LOGD(TAG,"devinfo report succeed");
 
     return SUCCESS_RETURN;
