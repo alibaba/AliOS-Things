@@ -1,5 +1,25 @@
 import os, sys
 import re
+from aos_parse_components import find_comp_mkfile
+
+def check_appname(appname):
+    appname = appname.replace(".", "/")
+    mklist = []
+    if os.path.isdir("kernel/rhino"):
+        if os.path.isdir("app"):
+            mklist += find_comp_mkfile("app")
+        if os.path.isdir("test/develop"):
+            mklist += find_comp_mkfile("test/develop")
+    else:
+        mklist += find_comp_mkfile("./")
+
+    if mklist:
+        for mkfile in mklist:
+            appdir = os.path.dirname(os.path.abspath(mkfile))
+            if appdir.endswith(appname):
+                return appdir
+
+    return False
 
 def main():
     if len(sys.argv) < 3:
@@ -43,7 +63,11 @@ def main():
 
     if appname != aos_build_app:
         print ("[ERROR]: App name Mismatched! (%s -> %s)" % (appname, aos_build_app))
-        print ("- Please make sure \"%s\" is a valid App and config items for it are correct!\n" % appname)
+        appdir = check_appname(appname)
+        if not appdir:
+            print ("- No such App '%s' found!" % appname)
+        else:
+            print ("- Please config items for it are correct!\n")
         return 1
 
     if boardname != aos_build_board:
