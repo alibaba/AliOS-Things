@@ -9,6 +9,10 @@ config AOS_BUILD_APP
     string
     default "@projectname@"
 
+config AOS_SDK_PATH
+    string
+    default "@aos_sdk_path@"
+
 #
 # The configs for app @projectname@
 #
