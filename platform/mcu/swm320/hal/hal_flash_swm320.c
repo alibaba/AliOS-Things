@@ -108,7 +108,7 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t 
 
     p_partition_info = &partition_info;
     memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
-	hal_flash_info_get( pno, p_partition_info );
+	hal_flash_info_get( in_partition, p_partition_info );
 
 	if(poff == NULL || buf == NULL || *poff + buf_size > p_partition_info->partition_length)
 	{
@@ -136,7 +136,7 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 
     p_partition_info = &partition_info;
     memset(p_partition_info, 0, sizeof(hal_logic_partition_t));
-	hal_flash_info_get( pno, p_partition_info );
+	hal_flash_info_get( in_partition, p_partition_info );
 
 	if(size + off_set > p_partition_info->partition_length)
 	{

@@ -756,17 +756,13 @@ static int stop_ap(hal_wifi_module_t *m)
 static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
 {
     hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
-    signed char rssi;
 
     LOGD("get wireless info\r\n");
 
     if (info == NULL)
         return -1;
 
-    rssi = wifi_station_get_rssi();
-    if (rssi > 0)
-        rssi -= 128;
-    info->rssi = rssi;
+    info->rssi = wifi_station_get_rssi();
 
     return 0;
 }

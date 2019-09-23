@@ -1,9 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include "bootloader.h"
 #include "flash.h"
-#include "aos/hal/flash.h"
-#include "2ndboot.h"
 
 extern const hal_logic_partition_t hal_partitions[];
 extern const size_t hal_partitions_amount;
@@ -81,7 +80,7 @@ static void flash_erase_sector(unsigned int address)
     flash_set_line_mode(2);
 }
 
-int flash_read_data(unsigned int address, unsigned char *buffer, unsigned int len)
+static int flash_read(unsigned int address, unsigned char *buffer, unsigned int len)
 {
     int ret = 0;
     unsigned int i, reg_value;
@@ -118,7 +117,7 @@ int flash_read_data(unsigned int address, unsigned char *buffer, unsigned int le
     return ret;
 }
 
-int flash_write_data(unsigned int address, unsigned char *buffer, unsigned int len)
+static int flash_write(unsigned int address, unsigned char *buffer, unsigned int len)
 {
     int ret = 0;
     unsigned int i, reg_value;
@@ -163,17 +162,94 @@ int flash_write_data(unsigned int address, unsigned char *buffer, unsigned int l
     return ret;
 }
 
-int flash_erase(unsigned int offset,  unsigned int size)
+int32_t hal_flash_init(void)
 {
-    int ret = 0;
-    unsigned int addr;
-    unsigned int start_addr, end_addr;
+    return 0;
+}
 
-    start_addr = ROUND_DOWN(offset, SECTOR_SIZE);
-    end_addr = ROUND_DOWN((offset + size - 1), SECTOR_SIZE);
+int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
+{
+    int                    ret = 0;
+    hal_logic_partition_t *partition;
+    unsigned int           addr;
+    unsigned int           start_addr;
+    unsigned int           end_addr;
+
+    partition = flash_get_info(in_partition);
+    if (partition == NULL) {
+        return -1;
+    }
+
+    start_addr = ROUND_DOWN(partition->partition_start_addr + off_set, SECTOR_SIZE);
+    end_addr = ROUND_DOWN((partition->partition_start_addr + off_set + size - 1), SECTOR_SIZE);
 
     for (addr = start_addr; addr <= end_addr; addr += SECTOR_SIZE) {
         flash_erase_sector(addr);
     }
-    return ret;
+
+    return 0;
 }
+
+int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t in_buf_len)
+{
+    int                    ret = 0;
+    hal_logic_partition_t *partition;
+
+    if (off_set == NULL) {
+        return -1;
+    }
+
+    if (out_buf == NULL) {
+        return -1;
+    }
+
+    if (in_buf_len == 0) {
+        return -1;
+    }
+
+    partition = flash_get_info(in_partition);
+    if (partition == NULL) {
+        return -1;
+    }
+
+    if (0 != flash_read(partition->partition_start_addr + *off_set, out_buf, in_buf_len)) {
+        return -1;
+    }
+
+    *off_set += in_buf_len;
+
+    return 0;
+}
+
+int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf, uint32_t in_buf_len)
+{
+    int                    ret = 0;
+    hal_logic_partition_t *partition;
+
+    if (off_set == NULL) {
+        return -1;
+    }
+
+    if (in_buf == NULL) {
+        return -1;
+    }
+
+    if (in_buf_len == 0) {
+        return -1;
+    }
+
+    partition = flash_get_info(in_partition);
+    if (partition == NULL) {
+        return -1;
+    }
+
+    if (0 != flash_write(partition->partition_start_addr + *off_set, in_buf, in_buf_len)) {
+        return -1;
+    }
+
+    *off_set += in_buf_len;
+
+    return 0;
+}
+
+
