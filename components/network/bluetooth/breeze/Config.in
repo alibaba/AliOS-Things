@@ -1,0 +1,40 @@
+menuconfig AOS_COMP_BREEZE
+    bool "Breeze SDK"
+    default n
+    select AOS_COMP_BREEZE_HAL if CONFIG_COMP_BZ_BUILTIN_HAL
+    help
+      AliOS things Breeze SDK
+
+if AOS_COMP_BREEZE
+# Configurations for comp breeze
+
+    config CONFIG_COMP_BZ_SECURE_ADV
+        bool "Enable secure and sequential advertising."
+        default n
+
+    config CONFIG_COMP_BZ_MODEL_SEC
+        bool "Enable auth per product, otherwise auth for per device."
+        default n
+
+    config CONFIG_COMP_BZ_EN_AWSS
+        bool "Enable AWSS, providing secured ble link for wifi provision."
+        default n
+
+    config CONFIG_COMP_BZ_EN_AUTH
+        bool "Enable authentication."
+        default y
+    if CONFIG_COMP_BZ_EN_AUTH
+        config CONFIG_COMP_BZ_EN_AUTH_OFFLINE
+        bool "Authentication offline, otherwise online"
+        default n
+    endif
+
+    config CONFIG_COMP_BZ_EN_LONG_MTU
+        bool "Extend MTU from default 20 bytes to long MTU."
+        default n
+
+    config CONFIG_COMP_BZ_BUILTIN_HAL
+        bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
+        default y
+
+endif

@@ -1,0 +1,29 @@
+config AOS_COMP_ATHOST
+    bool
+    default n
+    select AOS_COMP_LINKKIT_SDK_C if ATHOST_CONFIG_MQTT || ATHOST_CONFIG_COAP
+    select AOS_COMP_SDK_MQTT if ATHOST_CONFIG_MQTT
+    select COAP_COMM_ENABLED if ATHOST_CONFIG_COAP
+    help
+      athost for communicaiton module
+
+if AOS_COMP_ATHOST
+# Configurations for comp athost
+config ATHOST_CONFIG_WIFI_MGMT
+    bool "Support WIFI connect AT"
+    default y
+
+config ATHOST_CONFIG_CIP
+    bool "Support TCP AT"
+    default y
+
+config ATHOST_CONFIG_MQTT
+    bool "Support ICA MQTT AT"
+    default y
+
+config ATHOST_CONFIG_COAP
+    bool "Support ICA COAP AT"
+    depends on !ATHOST_CONFIG_MQTT
+    default n
+
+endif
