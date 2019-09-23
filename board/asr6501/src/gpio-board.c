@@ -30,7 +30,7 @@
 
 void hal_gpio_write(int pin, int value)
 {
-    switch (pin) 
+    switch (pin)
     {
         case RESET_PIN: SPI_NRESET_Write(value); break;
         case DIO1_PIN: dio1_Write(value); break;
@@ -44,7 +44,7 @@ void hal_gpio_write(int pin, int value)
 
 int hal_gpio_read(int pin)
 {
-    switch (pin) 
+    switch (pin)
     {
         case RESET_PIN: return SPI_NRESET_Read();
         case DIO1_PIN: return dio1_Read();
@@ -71,7 +71,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
     // Sets initial output value
 
     GpioMcuWrite( obj, value );
-   
+
 }
 
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
@@ -97,6 +97,7 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
     if(obj == NULL)
     {
         DBG_PRINTF("write gpio faild!\r\n");
+        return;
     }
 
     // Check if pin is not connected
@@ -113,6 +114,7 @@ void GpioMcuToggle( Gpio_t *obj )
     if(obj == NULL)
     {
         DBG_PRINTF("toggle gpio faild!\r\n");
+        return;
     }
 
     // Check if pin is not connected
@@ -128,6 +130,7 @@ uint32_t GpioMcuRead( Gpio_t *obj )
     if( obj == NULL )
     {
         DBG_PRINTF("gpio read faild!\r\n");
+        return 0;
     }
     // Check if pin is not connected
     if( obj->pin == NC )
