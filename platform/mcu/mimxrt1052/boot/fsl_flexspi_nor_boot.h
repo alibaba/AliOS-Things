@@ -87,9 +87,7 @@ typedef struct _ivt_ {
     extern uint32_t __Vectors[];
     extern uint32_t Image$$RW_m_config_text$$Base[];
 #define IMAGE_ENTRY_ADDRESS ((uint32_t)__Vectors) 
-#define FLASH_BASE  0x60000000  // ((uint32_t)Image$$RW_m_config_text$$Base)   
-#define IMAGE_SIZE  0x0001FC00 //((uint32_t)__IMAGE_SIZE)
-
+#define FLASH_BASE ((uint32_t)Image$$RW_m_config_text$$Base)   
 #elif defined(__MCUXPRESSO)
     extern uint32_t __Vectors[];
     extern uint32_t __boot_hdr_start__[];

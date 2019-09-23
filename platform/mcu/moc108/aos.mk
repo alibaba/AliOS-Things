@@ -26,7 +26,7 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s           \
                   -nostartfiles
 
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
-$(NAME)_COMPONENTS += ota_2ndboot
+$(NAME)_COMPONENTS += bootloader
 $(NAME)_LIBSUFFIX := _2ndboot
 
 GLOBAL_LDS_FILES += platform/mcu/moc108/link/mx108_2ndboot.ld.S
@@ -40,7 +40,7 @@ $(NAME)_SOURCES  += 2ndboot/flash.c \
 
 else
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu moc108
 $(NAME)_COMPONENTS := arch_armv5
 $(NAME)_COMPONENTS += newlib_stub rhino yloop

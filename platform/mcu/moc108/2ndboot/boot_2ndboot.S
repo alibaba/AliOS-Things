@@ -17,7 +17,7 @@
  */
     .globl  _vector_start
     .extern ota_2ndboot_error
-    .extern ota_2ndboot_main
+    .extern boot_main
 
 /*
  *************************************************************************
@@ -272,7 +272,7 @@ _call_ota_2ndboot_error:
 //recovery update process. once run here, never go to normal.
 _2ndboot_process:
     PROCESS_PRAPARE
-    BL    ota_2ndboot_main
+    BL    boot_main
     B     _vector_table+0
 
 /*FUNCTION:     _2ndboot_copy_data_to_ram*/
