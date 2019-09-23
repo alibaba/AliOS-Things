@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include "bootloader.h"
 #include "uart.h"
-#include "2ndboot.h"
 
 static void GPIO_UART_function_enable(unsigned char ucChannel)
 {
@@ -33,18 +33,6 @@ unsigned char uart0_recv_byte(unsigned char *c)
 
     *c = UART0_READ_BYTE();
     return 1;
-}
-
-unsigned char uart_recv_byte(unsigned char *c)
-{
-    unsigned char tc = 0;
-
-    if(uart0_recv_byte(&tc)) {
-        *c = tc;
-        return 1;
-    }
-
-    return 0;
 }
 
 static void uart0_init(void)
@@ -87,30 +75,63 @@ static void uart0_send(unsigned char *buff, int len)
         uart0_send_byte(*buff++);
 }
 
-static void uart0_send_string(char *buff)
-{
-    while (*buff)
-        uart0_send_byte(*buff++);
-}
 
-void uart_init(void)
+int32_t hal_uart_init(uart_dev_t *uart)
 {
     uart0_init();
-    uart0_send_string("uart0 init suc.\n");
+    return 0;
 }
 
-void uart_send_byte(unsigned char c)
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    uart0_send_byte(c);
+    int i = 0;
+    unsigned char* buff = NULL;
+
+    if (data == NULL) {
+        return -1;
+    }
+
+    if (size == 0) {
+        return -1;
+    }
+
+    buff = (unsigned char*)data;
+
+    uart0_send(buff, size);
+
+    return 0;
 }
 
-void uart_send(unsigned char *buff, int len)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
-    uart0_send(buff, len);
-}
+    unsigned char *buff = NULL;
+    uint32_t       size = 0;
+    unsigned char  c;
 
-void uart_send_string(char *buff)
-{
-    uart0_send_string(buff);
+    if ((data == NULL) || (recv_size == NULL)) {
+        return -1;
+    }
+
+    if (expect_size == 0) {
+        return -1;
+    }
+
+    buff = (unsigned char *)data;
+
+    while (1) {
+        if (0 == uart0_recv_byte(&c)) {
+            break;
+        }
+
+        *buff = c;
+        buff++;
+        size++;
+        if (size == expect_size) {
+            break;
+        }
+    }
+
+    *recv_size = size;
+    return 0;
 }
 
