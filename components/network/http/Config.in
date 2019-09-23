@@ -1,0 +1,6 @@
+
+config AOS_COMP_HTTP
+    bool "http"
+    default n
+    help
+        AliOS Things http client

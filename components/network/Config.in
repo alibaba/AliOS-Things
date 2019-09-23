@@ -1,0 +1,21 @@
+menu "Network     Configuration"
+
+source "network/bluetooth/breeze/Config.in"
+source "network/bluetooth/breeze/ref-impl/Config.in"
+source "network/bluetooth/bt_host/Config.in"
+source "network/bluetooth/bt_host/bt_common/Config.in"
+source "network/bluetooth/bt_host/profile/Config.in"
+source "network/bluetooth/bt_mesh/Config.in"
+source "network/bluetooth/tmall_model/Config.in"
+source "network/coap/Config.in"
+source "network/lorawan/Config.in"
+source "network/lwip/Config.in"
+source "network/lwm2m/Config.in"
+source "network/nal/sal/Config.in"
+source "network/netmgr/Config.in"
+source "network/umesh/Config.in"
+source "network/yloop/Config.in"
+source "network/http/Config.in"
+source "network/und/Config.in"
+
+endmenu

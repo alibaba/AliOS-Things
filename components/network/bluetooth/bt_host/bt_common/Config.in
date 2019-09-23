@@ -1,0 +1,10 @@
+config AOS_COMP_BT_COMMON
+    bool 
+    default n
+    select AOS_COMP_OSAL_AOS
+    help
+      AliOS Things NETWORK - Bluetooth common utilities (queue, timer, fifo, etc.)
+
+if AOS_COMP_BT_COMMON
+# Configurations for comp bt_common
+endif
