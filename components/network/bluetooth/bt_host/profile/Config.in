@@ -1,0 +1,8 @@
+config AOS_COMP_BT_PROFILE
+    bool
+    default n
+    help
+
+if AOS_COMP_BT_PROFILE
+# Configurations for comp bt_profile
+endif

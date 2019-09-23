@@ -1,0 +1,81 @@
+/*
+ * Copyright (c) 2018 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#include <stdio.h>
+#include "utilities.h"
+#include "board.h"
+#include "connection.h"
+#include "lora_module_export.h"
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+
+/* Private macro -------------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+typedef struct _app_context
+{
+    int lora_conn_status;
+} app_context_t;
+
+/* Private functions ---------------------------------------------------------*/
+static int lora_on_connect(int success, void* ctx)
+{
+    return 0;
+}
+
+static int lora_on_disconnect(void* ctx)
+{
+    return 0;
+}
+
+static int lora_data_arrived(esl_data_type_t type, uint8_t port, uint8_t* data, int len, void* ctx)
+{
+    return 0;
+}
+
+static esl_connection_ops_cb_t esl_lora_connection_ops_cb = {
+    .data_arrived     = lora_data_arrived,
+    .on_connect       = lora_on_connect,
+    .on_disconnect    = lora_on_disconnect,
+    .lora_classbswitch_result = NULL
+};
+static app_context_t g_app_ctx;
+/**
+  * @brief  Main program
+  * @param  None
+  * @retval None
+  */
+int main( void )
+{
+    BoardInitMcu( );
+    BoardInitPeriph( );
+
+    printf( "\r\n**********************************************\r\n" );
+    printf( "\r\n====== LinkWAN LoRa Node SDK Example App =====\r\n" );
+    printf( "\r\n**********************************************\r\n" );
+
+    lorawan_module_init(&esl_lora_connection_ops_cb, &g_app_ctx);
+
+    #ifdef USED_RTOS
+        osKernelStart();
+    #else
+        while( 1 )
+        {
+            lorawan_module_main(NULL);
+        }
+    #endif
+}
