@@ -1,15 +1,15 @@
 
 #ifndef __2NDBOOT_SYS_H__
 #define __2NDBOOT_SYS_H__
-#include "2ndboot.h"
+#include "bootloader.h"
 
 /* ICU MACROS */
 #define REG_ICU_BASE_ADDR                   (0x00802000UL)
-    
+
 #define REG_ICU_PERI_CLK_PWD_ADDR           (REG_ICU_BASE_ADDR + 0x2 * 4)
 #define REG_ICU_PERI_CLK_PWD_MASK           0x000BFFFFUL
 #define REG_ICU_PERI_CLK_PWD                (*((volatile unsigned long *) REG_ICU_PERI_CLK_PWD_ADDR))
-    
+
 #define ICU_PERI_CLK_PWD_SET(x)             do {REG_ICU_PERI_CLK_PWD |=  (x);} while(0)
 #define ICU_PERI_CLK_PWD_CLEAR(x)           do {REG_ICU_PERI_CLK_PWD &= ~(x);} while(0)
 

@@ -160,24 +160,21 @@ static void stop_debug_mode(hal_wifi_module_t *m)
 static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
 {
     hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
-    wlan_sta_states_t state;
-    wlan_sta_ap_t ap;
+	wlan_sta_states_t state;
+	wlan_sta_ap_t ap;
 
     printf("get wireless info\r\n");
 
     if (info == NULL)
         return -1;
 
-    wlan_sta_state(&state);
-    if (state == WLAN_STA_STATE_CONNECTED) {
-        wlan_sta_ap_info(&ap);
-        if (ap.rssi > 0) {
-            if (ap.rssi >= 128) ap.rssi = 127;
-            ap.rssi -= 128;
-        }
+	wlan_sta_state(&state);
+	if (state == WLAN_STA_STATE_CONNECTED) {
+		wlan_sta_ap_info(&ap);
         info->rssi = ap.rssi;
         return 0;
     }
+
     return -1;
 }
 
