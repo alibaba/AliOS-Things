@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cutest/cut.h"
+#include "aos/kernel.h"
 
 #ifndef SYSINFO_ARCH
 #define SYSINFO_ARCH        ""
