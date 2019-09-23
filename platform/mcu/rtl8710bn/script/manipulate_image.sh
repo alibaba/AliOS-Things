@@ -17,12 +17,7 @@ fi
 BIN_DIR=${platform_dir}/Debug/Exe
 app=`echo $3 | tr '/' '.'`
 outputplatform=$app@$4
-# application mode or not
-if [ -z ${6} ]; then
-  outputdir=$2/out/${outputplatform}/binary
-else
-  outputdir=$6/out/${outputplatform}/binary
-fi
+outputdir=$2/out/${outputplatform}/binary
 if [ "${ota_offset}" = "0x0800B000" ]; then
 	outputname=${outputplatform}.2ndboot
 else

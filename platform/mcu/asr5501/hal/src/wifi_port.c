@@ -311,20 +311,13 @@ void scan_done(lega_wlan_scan_result_t *p_scan_results)
             lega_rtos_free(out_scan_results.ap_list);
     }
 }
-
 static int get_wireless_info(hal_wifi_module_t *m, hal_wireless_info_t *wireless_info)
 {
     int ret = 0;
     if (wireless_info) {
         lega_wireless_info_t wireless_info_t = {0};
-        if (lega_get_wireless_network_info(&wireless_info_t) != 0)
-            return -1;
+        ret = lega_get_wireless_network_info(&wireless_info_t);
 
-        if (wireless_info_t.rssi > 0) {
-            if (wireless_info_t.rssi >= 128)
-                wireless_info_t.rssi = 127;
-            wireless_info_t.rssi -= 128;
-        }
         wireless_info->rssi = wireless_info_t.rssi;
         wireless_info->snr = wireless_info_t.snr;
         wireless_info->per = wireless_info_t.per;
@@ -332,7 +325,6 @@ static int get_wireless_info(hal_wifi_module_t *m, hal_wireless_info_t *wireless
 
     return ret;
 }
-
 void wifi_event_cb(lega_wlan_event_e evt, void* info)
 {
     if (sim_aos_wifi_lega.ev_cb == NULL)

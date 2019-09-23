@@ -3,18 +3,20 @@
  */
 #include "sys.h"
 
-void sys_delayms(volatile int ms)
+void hal_sys_delay(unsigned int ms)
 {
     volatile unsigned long i;
-    while (ms--) {
+	volatile unsigned int loop = ms;
+
+    while (loop--) {
         i = 0;
-	while (i < 29500) {
-	   i++;
-	}
+	    while (i < 29500) {
+	       i++;
+	    }
     }
 }
 
-void sys_reboot(void)
+void hal_sys_reboot(void)
 {
     ICU_PERI_CLK_PWD_CLEAR(ICU_PERI_CLK_PWD_ARM_WDT_MASK);
     // Write WDT key: 0x5A firstly and 0xA5 secondly.
