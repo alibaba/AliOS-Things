@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#define SYSINFO_KERNEL_VERSION "AOS-R-2.2.0"
+#define SYSINFO_KERNEL_VERSION "AOS-R-3.0.0"
 
 #define AOS_WAIT_FOREVER 0xffffffffu
 #define AOS_NO_WAIT      0x0
