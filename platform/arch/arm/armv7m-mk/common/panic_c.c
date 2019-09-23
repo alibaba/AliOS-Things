@@ -464,7 +464,7 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
 #if (DEBUG_CONFIG_BACKTRACE > 0)
 /* backtrace start with PC and SP, find LR from stack memory
    return levels os callstack */
-int backtrace_caller(char *PC, int *SP,
+int panicBacktraceCaller(char *PC, int *SP,
                          int (*print_func)(const char *fmt, ...))
 {
     int  *bt_sp;
@@ -509,7 +509,7 @@ int backtrace_caller(char *PC, int *SP,
 }
 
 /* backtrace start with PC SP and LR */
-int backtrace_callee(char *PC, int *SP, char *LR,
+int panicBacktraceCallee(char *PC, int *SP, char *LR,
                          int (*print_func)(const char *fmt, ...))
 {
     int  *bt_sp;

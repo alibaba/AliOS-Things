@@ -533,11 +533,6 @@ static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
     drop += sw_statis.tx_dropped;
     drop += sw_statis.rx_dropped;
 
-    if (rssi > 0) {
-        if (rssi >= 128) rssi = 127;
-        rssi -= 128;
-    }
-
     info->rssi = rssi;
     info->snr = snr;
     info->per = drop * 1000000 / (drop + suc);
