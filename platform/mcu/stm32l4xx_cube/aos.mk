@@ -34,12 +34,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
 
 else
 
-ifeq ($(RHINO_CONFIG_USER_SPACE),y)
-$(NAME)_COMPONENTS += arch_armv7m-mk
-else
 $(NAME)_COMPONENTS += arch_armv7m
-endif
-
 $(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
@@ -144,6 +139,7 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c             
 
 $(NAME)_SOURCES += aos/soc_impl.c          \
                    aos/hook_impl.c         \
+                   aos/aos.c               \
                    aos/rttest_impl.c       \
                    hal/hal_uart_stm32l4.c  \
                    hal/hw.c                \
@@ -158,14 +154,10 @@ $(NAME)_SOURCES += aos/soc_impl.c          \
                    hal/hal_nand_stm32l4.c  \
                    hal/hal_nor_stm32l4.c
 
-$(NAME)_SOURCES +=hal/pwrmgmt_hal/board_cpu_pwr.c         \
-                  hal/pwrmgmt_hal/board_cpu_pwr_rtc.c     \
-                  hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
-                  hal/pwrmgmt_hal/board_cpu_pwr_timer.c
-
-ifneq ($(RHINO_CONFIG_USER_SPACE),y)
-$(NAME)_SOURCES += aos/aos.c
-endif
+ $(NAME)_SOURCES +=hal/pwrmgmt_hal/board_cpu_pwr.c         \
+                   hal/pwrmgmt_hal/board_cpu_pwr_rtc.c     \
+                   hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
+                   hal/pwrmgmt_hal/board_cpu_pwr_timer.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections

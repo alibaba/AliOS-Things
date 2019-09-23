@@ -3,8 +3,8 @@
 import sys, os
 
 def gen_pad_file(bin_output_file, pad_num, pad_out_put_file):
-    outfile = file(pad_out_put_file, "wb")
-    infile  = file(bin_output_file, "rb")
+    outfile = open(pad_out_put_file, "wb")
+    infile  = open(bin_output_file, "rb")
 
     paddata = bytearray(pad_num)
     data    = infile.read()

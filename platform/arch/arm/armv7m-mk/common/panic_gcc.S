@@ -1,6 +1,5 @@
 #include "k_config.h"
 #include "debug_config.h"
-#include "aux_config.h"
 
 @******************************************************************************
 @                                 EQUATES
@@ -24,10 +23,7 @@
 .extern g_crash_steps
 .extern _first_task_restore
 .extern panicRestoreCheck
-.extern g_active_task
-.extern g_uspace_panic_type;
-.extern krhino_uprocess_exit
-
+  
 @******************************************************************************
 @                            EXPORT FUNCTIONS
 @******************************************************************************
@@ -80,7 +76,7 @@ double_panic_entry:
 
 first_panic:
     @R0 as PANIC_CONTEXT
-    SUB     R0, SP, #CONTEXT_REGION
+    SUB     R0, SP, #CONTEXT_REGION        
 
     @R1 as CONTEXT saved by hardware
     MRS     R1, PSP
@@ -97,7 +93,7 @@ context_save:
 
     STM     R2!,{R8-R11}        @ctx save, R12 LR PC xPSR
 
-    @xPSR[9] and EXC_RETURN[4] to determine whether
+    @xPSR[9] and EXC_RETURN[4] to determine whether 
     @the previous top-of-stack was at offset 0x20, 0x24, 0x68, or0x6C
     ADD     R4, R1, #0x20
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
@@ -136,76 +132,20 @@ sp_save:
     ORR     R0, R0, #0x1000000
     STR     R0, [R1, #28]       @set thumb mode
     CPSID   I
-
-    MRS     R0, CONTROL
-    TST     R0, #1
-    IT      EQ
-    BEQ     .from_kernel
-
-    @from user space
-    LDR     R1, =g_uspace_panic_type
-    MOV     R2, #0x02
-    STR     R2, [R1]
-
-    LDR     R0, =g_active_task
-    LDR     R0, [R0]
-    @set task mode to 0b11, user task, runs in kernel
-    LDRB    R1, [R0, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    BIC     R1,  R1, #0x01
-    STRB    R1, [R0, #RHINO_CONFIG_TASK_MODE_OFFSET]
-
-    @return to priveleged mode
-    MRS     R0, CONTROL
-    BIC     R0, #0x1
-    MSR     CONTROL, R0
-    ISB
-    BX      LR
-
-.from_kernel:
-    LDR     R0, =g_active_task
-    LDR     R0, [R0]
-    LDRB    R1, [R0, #RHINO_CONFIG_TASK_PID_OFFSET]
-    TST     R1, #1
-    IT      EQ
-    BEQ     .kernel_panic
-
-    @panic come user->kernel
-    LDR     R1, =g_uspace_panic_type
-    MOV     R2, #0x1
-    STR     R2, [R1]
-    BX      LR
-
-.kernel_panic:
-    LDR     R1, =g_uspace_panic_type
-    MOV     R2, #0x0
-    STR     R2, [R1]
     BX      LR
 
 panic_entry:
-    @use MSP for print before process_exit
+#if (DEBUG_CONFIG_PANIC_PRT_INT > 0)
     MRS     R1, CONTROL
     MOVS    R2, #2
     BICS    R1, R2
     MSR     CONTROL, R1
     ISB
-
+    @printf use interrupt, so here enable it
+    CPSIE   I
+#endif
     MOV     SP, R0
     BL      panicHandler
-
-    @call process_exit when return here
-    @re-init env
-    LDR     R1, =g_crash_steps
-    LDR     R2, [R1]
-    MOV     R3, #0
-    STR     R3, [R1]
-
-    @use PSP and enable irq
-    MRS     R1, CONTROL
-    ORR     R1, R1, #0x2
-    MSR     CONTROL, R1
-    ISB
-    CPSIE   I
-    BL      krhino_uprocess_exit
     B       .
 
 #endif
