@@ -84,15 +84,23 @@ def get_depends_from_source(comp_info, include_list):
 
     for include_file in include_list:
         found = False
+
         for key in comp_info:
+            # Don't depends on board/arch/mcu/app
+            if "location" in comp_info[key]:
+                loc = comp_info[key]["location"]
+                if loc.startswith("board/") or loc.startswith("platform/") or \
+                    loc.startswith("app/") or loc.startswith("test/develop/"):
+                    continue
+
             if "include_dirs" not in comp_info[key]:
                 continue
 
             dirs = comp_info[key]["include_dirs"]
             files = comp_info[key]["include_files"]
             for dir in dirs:
-                tmp = os.path.abspath(os.path.join(dir, include_file))
-                if os.path.abspath(os.path.join(dir, include_file)) in files:
+                tmp = os.path.abspath(os.path.join(dir, include_file)).replace("\\", "/")
+                if os.path.abspath(tmp) in files:
                     depends.append(key)
                     found = True
                     break
