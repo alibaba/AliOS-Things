@@ -777,11 +777,6 @@ int app_mgr_get_boneflag()
 }
 
 /*
-{
-    "productKey": "a1l42fkZvj8",
-    "DeviceSecret": "zxMnkmAKVn7fW9m3HUYIPR5SqzpbVQOr",
-    "DeviceName": "ESP32-0001"
-}
 max length 192
 */
 
