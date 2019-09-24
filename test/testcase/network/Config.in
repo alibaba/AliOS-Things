@@ -1,5 +1,6 @@
 menu "Network Testcase Configuration"
 
 source "test/testcase/network/lwip/Config.in"
+source "test/testcase/network/ble/Config.in"
 
 endmenu
