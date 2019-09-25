@@ -34,26 +34,14 @@ RHINO_INLINE void tick_list_pri_insert(klist_t *head, ktask_t *task)
 
 void tick_list_insert(ktask_t *task, tick_t time)
 {
-    klist_t *tick_head_ptr;
-
-    if (time > 0u) {
-        task->tick_match  = g_tick_count + time;
-        task->tick_remain = time;
-
-        tick_head_ptr = &g_tick_head;
-        tick_list_pri_insert(tick_head_ptr, task);
-        task->tick_head = tick_head_ptr;
-    }
+    task->tick_match  = g_tick_count + time;
+    task->tick_remain = time;
+    tick_list_pri_insert(&g_tick_head, task);
 }
 
 void tick_list_rm(ktask_t *task)
 {
-    klist_t *tick_head_ptr = task->tick_head;
-
-    if (tick_head_ptr != NULL) {
-        klist_rm(&task->tick_list);
-        task->tick_head = NULL;
-    }
+    klist_rm_init(&task->tick_list);
 }
 
 void tick_list_update(tick_i_t ticks)
