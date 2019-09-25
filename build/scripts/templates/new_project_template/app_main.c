@@ -10,11 +10,11 @@
 int application_start(int argc, char *argv[])
 {
     /*add your code*/
-  
+
     while(1) {
         /*add your code*/
-        /*printf("helloworld\r\n")*/
-      
+        /*printf("helloworld\r\n");*/
+
         aos_msleep(1000);
     };
 }
