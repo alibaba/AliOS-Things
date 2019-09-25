@@ -56,7 +56,6 @@ typedef struct {
     klist_t          tick_list;
     tick_t           tick_match;
     tick_t           tick_remain;
-    klist_t         *tick_head;
 
     void            *msg;
 
