@@ -69,6 +69,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     memset(tmp, 0, stack_size * sizeof(cpu_stack_t));
 
+    klist_init(&task->tick_list);
     task->task_name     = name;
     task->prio          = prio;
     task->b_prio        = prio;
