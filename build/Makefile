@@ -250,7 +250,7 @@ Usage: aos make <target> -c <[config|menuconfig]>
       $> aos make
 
     Clean output directory (without configs)
-      $> make clean
+      $> aos make clean
 
     Clean output directory and configs
       $> aos make distclean
