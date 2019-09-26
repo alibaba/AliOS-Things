@@ -138,9 +138,7 @@ void cpu_signal(uint8_t cpu_num)
 void *cpu_entry(void *arg)
 {
     cpu_set_t mask;
-    cpu_set_t get;
 
-    CPU_ZERO(&get);
     CPU_ZERO(&mask);
     CPU_SET((int)arg, &mask);
 
@@ -257,12 +255,21 @@ void cpu_tmr_sync(void)
     struct sigevent sevp;
     timer_t timerid;
     struct itimerspec ts;
+    cpu_set_t mask;
+
     int     i    = 1;
     uint8_t loop = 1;
     int     ret  = 0;
 
     (void)i;
     (void)loop;
+
+    CPU_ZERO(&mask);
+    CPU_SET(0, &mask);
+
+    if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) != 0) {
+         assert(0);
+    }
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (i = 1; i < RHINO_CONFIG_CPU_NUM; i++) {
