@@ -20,6 +20,7 @@ idle is entered when all CPUs are ready.
 
 /* 100 * 365 * 24 * 3600 * 1000 * 1000 = 0xB342EB7C38000 */
 #define TIME_100_YEARS_IN_US 0xB342EB7C38000ULL
+#define MAX_SLEEP_TICKS      (((uint64_t)-1) / 1000000)
 
 static uint32_t     tickless_ctate_mask; /* C-states support set */
 static cpu_cstate_t c_state_entered;
@@ -239,6 +240,10 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
     if (n_ticks == RHINO_WAIT_FOREVER) {
         sleep_time_us = TIME_100_YEARS_IN_US;
     } else {
+        if (n_ticks > MAX_SLEEP_TICKS) {
+            k_err_proc(RHINO_SYS_FATAL_ERR);
+        }
+
         sleep_time_us = 1000000ull * n_ticks / RHINO_CONFIG_TICKS_PER_SECOND;
 
 #if (PWRMGMT_CONFIG_MINISLEEP > 0)
@@ -446,6 +451,10 @@ static void tickless_exit(void)
  */
 static void tickless_announce_n(tick_t n_ticks)
 {
+    if (n_ticks > MAX_TIMER_TICKS) {
+        k_err_proc(RHINO_INV_PARAM);
+    }
+
     tick_list_update((tick_i_t)n_ticks);
 }
 
