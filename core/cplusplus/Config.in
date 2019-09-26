@@ -1,0 +1,4 @@
+config AOS_COMP_CPLUSPLUS
+    bool "C++ Support"
+    default n
+    help
