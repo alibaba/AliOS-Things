@@ -1,0 +1,115 @@
+config RHINO_CONFIG_URES_TASK
+    bool "ures task support"
+    depends on  RHINO_CONFIG_URES
+    default y
+    help
+        "create ures task for the app"
+
+if RHINO_CONFIG_URES_TASK
+config RHINO_CONFIG_URES_TASK_PRIO
+    int "ures task priority"
+    default 15
+    help
+        "set ures task priority"
+
+config RHINO_CONFIG_URES_TASK_KSTACK_SIZE
+    int "ures task kstack size"
+    default 256
+    help
+        "set ures taks kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_URES_TASK_USTACK_SIZE
+    int "ures task ustack size"
+    default 256
+    help
+        "set ures task ustack size, the unit is cpu_stack_t"
+endif
+
+config RHINO_CONFIG_UCLI_TASK
+    bool "ucli task support"
+    depends on RHINO_CONFIG_UCLI
+    default y
+    help
+        "create ucli task to support user space CLI function"
+
+if RHINO_CONFIG_UCLI_TASK
+config RHINO_CONFIG_UCLI_TASK_PRIO
+    int "ucli task priority"
+    default 25
+    help
+        "set ucli task priority"
+
+config RHINO_CONFIG_UCLI_TASK_KSTACK_SIZE
+    int "ucli task kstack size"
+    default 256
+    help
+        "set ucli taks kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_UCLI_TASK_USTACK_SIZE
+    int "ucli task ustack size"
+    default 256
+    help
+        "set ucli task ustack size, the unit is cpu_stack_t"
+endif
+
+config RHINO_CONFIG_UCALLBACK_TASK
+    bool "ucallback task support"
+    depends on RHINO_CONFIG_UCALLBACK
+    default y
+    help
+        "create ucallback task to support user space callback function"
+
+if RHINO_CONFIG_UCALLBACK_TASK
+config RHINO_CONFIG_UCALLBACK_TASK_PRIO
+    int "ucli task priority"
+    default 10
+    help
+        "set ucallback task priority"
+
+config RHINO_CONFIG_UCALLBACK_TASK_KSTACK_SIZE
+    int "ucallback task kstack size"
+    default 256
+    help
+        "set ucallback taks kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_UCLI_TASK_USTACK_SIZE
+    int "ucallback task ustack size"
+    default 256
+    help
+        "set ucallback task ustack size, the unit is cpu_stack_t"
+
+endif
+
+config RHINO_CONFIG_UTIMER_TASK
+    bool "utimer task support"
+    default n
+    help
+        "create utimer task to support user space software timer"
+
+if RHINO_CONFIG_UTIMER_TASK
+config RHINO_CONFIG_UTIMER_TASK_PRIO
+    int "utimer task priority"
+    default 6
+    help
+        "set utimer task priority"
+
+config RHINO_CONFIG_UTIMER_TASK_KSTACK_SIZE
+    int "utimer task kstack size"
+    default 256
+    help
+        "set utimer taks kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_UTIMER_TASK_USTACK_SIZE
+    int "utimer task ustack size"
+    default 256
+    help
+        "set utimer task ustack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_UTIMER_MSG_NUM
+    int "utimer task max message number"
+    default 6
+    help
+        "set the max message nubmer of utimer"
+
+endif
+
