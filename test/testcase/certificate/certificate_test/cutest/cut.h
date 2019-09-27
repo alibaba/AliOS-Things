@@ -141,20 +141,20 @@ static void CUT_CASE_TEARDOWN(sname)(struct CUT_CASE_DATA(sname) *data)
  * @brief: add a test suite into case list
  * @sname: suite name
  */
-#define ADD_SUITE(sname)                                  \
-    do {                                                  \
-        int i = 0;                                        \
-        extern struct cut_case *cut_suite_##sname[];      \
-        struct cut_case *c = cut_suite_##sname[i];        \
-        if (cut.ccnt_total >= CUT_CASE_MAX_CNT) {         \
-            cut_printf("reaches maximum case count:%d\n", \
-                       CUT_CASE_MAX_CNT);                 \
-            break;                                        \
-        }                                                 \
-        while (c) {                                       \
-            *(cut.clist + cut.ccnt_total++) = c;          \
-            c = *(cut_suite_##sname + (++i));             \
-        }                                                 \
+#define ADD_SUITE(sname)                                      \
+    do {                                                      \
+        int i = 0;                                            \
+        extern struct cut_case *cut_suite_##sname[];          \
+        struct cut_case *c = cut_suite_##sname[i];            \
+        while (c) {                                           \
+            if (cut.ccnt_total >= CUT_CASE_MAX_CNT) {         \
+                cut_printf("reaches maximum case count:%d\n", \
+                           CUT_CASE_MAX_CNT);                 \
+                break;                                        \
+            }                                                 \
+            *(cut.clist + cut.ccnt_total++) = c;              \
+            c = *(cut_suite_##sname + (++i));                 \
+        }                                                     \
     } while (0)
 
 
