@@ -6,9 +6,7 @@
 #define K_SPIN_LOCK_H
 
 typedef struct {
-#if (RHINO_CONFIG_CPU_NUM > 1)
     volatile uint32_t owner;  /* cpu index of owner */
-#endif
 } kspinlock_t;
 
 /* Be careful nested spin lock is not supported */
