@@ -207,8 +207,9 @@ void *os_lvl2tab_alloc(void)
     pgtable = s_pgtbl_pool.freelist;
     if (pgtable != NULL) {
         s_pgtbl_pool.freelist = (void *)(*pgtable);
+        memset(pgtable, 0, MMU_TALBE_SIZE_LVL2);
     }
-    memset(pgtable, 0, MMU_TALBE_SIZE_LVL2);
+
     return pgtable;
 }
 
