@@ -213,11 +213,10 @@ int sys_lwip_gethostbyname_stub(void *arg)
     lwip_gethostbyname_syscall_arg_t *_arg = arg;
 
     hostent = lwip_gethostbyname(_arg->name);
-
-    memcpy((void*)_arg->hostent_addr, (const void*)hostent->h_addr_list[0],
-            sizeof(ip_addr_t));
-
-    strncpy(_arg->hostname, hostent->h_name, DNS_MAX_NAME_LENGTH);
+    if (hostent != NULL) {
+        memcpy((void*)_arg->hostent_addr, (const void*)hostent->h_addr_list[0], sizeof(ip_addr_t));
+        strncpy(_arg->hostname, hostent->h_name, DNS_MAX_NAME_LENGTH);
+    }
     _arg->hostname[DNS_MAX_NAME_LENGTH] = 0;
 
     _arg->aliases = NULL;
@@ -243,11 +242,13 @@ int sys_lwip_gethostbyname_r_stub(void *arg)
     if (NULL == temp_buf) {
         return -1;
     }
-
+    memset(temp_buf, 0, _arg->buflen);
     ret = lwip_gethostbyname_r(_arg->name, _arg->ret, temp_buf, _arg->buflen,
                                 _arg->result, _arg->h_errnop);
+    if (ret == 0) {
+        memcpy(_arg->buf, temp_buf, _arg->buflen);
+    }
 
-    memcpy(_arg->buf, temp_buf, _arg->buflen);
     krhino_mm_free(temp_buf);
 
     h = (struct helper*)LWIP_MEM_ALIGN(_arg->buf);
@@ -275,17 +276,16 @@ int sys_lwip_getaddrinfo_stub(void *arg)
 {
     lwip_getaddrinfo_syscall_arg_t *_arg = arg;
 
-    struct addrinfo *ai;
+    struct addrinfo *ai = NULL;
     int              ret;
 
     ret = lwip_getaddrinfo(_arg->nodename, _arg->servname, _arg->hints, &ai);
-
-    memcpy((void*)_arg->ai, (const void*)ai, sizeof(struct addrinfo));
-    _arg->ai->ai_next = NULL;
-
-    memcpy((void*)_arg->sa, (const void*)ai->ai_addr, sizeof(struct sockaddr));
-
-    lwip_freeaddrinfo(ai);
+    if (ai != NULL) {
+        memcpy((void*)_arg->ai, (const void*)ai, sizeof(struct addrinfo));
+        _arg->ai->ai_next = NULL;
+        memcpy((void*)_arg->sa, (const void*)ai->ai_addr, sizeof(struct sockaddr));
+        lwip_freeaddrinfo(ai);
+    }
 
     return ret;
 }
