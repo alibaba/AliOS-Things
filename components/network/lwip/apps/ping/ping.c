@@ -216,9 +216,7 @@ ping_recv(int s)
       }
 #endif /* LWIP_IPV6 */
 
-      LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
-      ip_addr_debug_print_val(PING_DEBUG, fromaddr);
-      LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (sys_now() - ping_time)));
+      LWIP_PLATFORM_DIAG(("ping: recv %s  %"U32_F" ms\n", ipaddr_ntoa(&fromaddr), sys_now() - ping_time));
 
       /* todo: support ICMP6 echo */
 #if LWIP_IPV4
@@ -333,9 +331,7 @@ ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
     iecho = (struct icmp_echo_hdr *)p->payload;
 
     if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_seq_num))) {
-      LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
-      ip_addr_debug_print(PING_DEBUG, addr);
-      LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (sys_now()-ping_time)));
+      LWIP_PLATFORM_DIAG(("ping: recv %s  %"U32_F" ms\n", ipaddr_ntoa(addr), sys_now() - ping_time));
 
       /* do some ping result processing */
       PING_RESULT(1);
