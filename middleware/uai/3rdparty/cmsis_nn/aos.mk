@@ -1,4 +1,5 @@
 NAME := cmsis_nn
+$(NAME)_VERSION := 1.0.0
 $(NAME)_TYPE := third_party
 
 GLOBAL_INCLUDES    +=   \
