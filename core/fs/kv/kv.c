@@ -647,10 +647,9 @@ static int32_t kv_init_internal(void)
 static void kv_gc_task(void *arg)
 {
     kv_size_t origin_pos;
-    uint8_t   i;
-    uint8_t   gc_idx;
-
-    uint8_t gc_copy = 0;
+    uint32_t  i;
+    uint32_t  gc_idx;
+    uint8_t   gc_copy = 0;
 
     if ((kv_lock(g_kv_mgr.lock)) != KV_OK) {
         goto exit;
@@ -674,7 +673,7 @@ static void kv_gc_task(void *arg)
 
     i = (origin_pos >> KV_BLOCK_SIZE_BITS) + 1;
     while (1) {
-        if (i == KV_BLOCK_NUMS) {
+        if (i >= KV_BLOCK_NUMS) {
             i = 0;
         }
 

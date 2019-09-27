@@ -119,13 +119,15 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 #if (RHINO_CONFIG_UCLI > 0)
     cli_printf("====User app Commands====\r\n");
     head = cli_get_ucmd_list();
-    iter = head->next;
-    while (iter != head) {
-        ucmd = krhino_list_entry(iter, struct ucli_command, node);
-        iter = iter->next;
-        if (ucmd->cmd->name) {
-            cli_printf("%-10s: %s\r\n", ucmd->cmd->name,
-                            ucmd->cmd->help ? ucmd->cmd->help: "");
+    if (head != NULL) {
+        iter = head->next;
+        while (iter != head) {
+            ucmd = krhino_list_entry(iter, struct ucli_command, node);
+            iter = iter->next;
+            if (ucmd->cmd->name) {
+                cli_printf("%-10s: %s\r\n", ucmd->cmd->name,
+                                ucmd->cmd->help ? ucmd->cmd->help: "");
+            }
         }
     }
 #endif
