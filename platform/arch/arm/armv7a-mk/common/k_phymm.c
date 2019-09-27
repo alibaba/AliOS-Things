@@ -26,14 +26,15 @@ int32_t os_phymm_init(kphymm_info_t *info, uintptr_t paddr, size_t len)
 
     /* Only one block when init. */
     blk_free = (kphymm_blk_t *)krhino_mm_alloc(sizeof(kphymm_blk_t));
+    if (blk_free != NULL) {
+        blk_free->next        = NULL;
+        blk_free->paddr_start = paddr;
+        blk_free->paddr_end   = paddr + len;
+        info->freelist.next   = blk_free;
+        return 0;
+    }
 
-    blk_free->next      = NULL;
-    blk_free->paddr_start  = paddr;
-    blk_free->paddr_end = paddr + len;
-
-    info->freelist.next = blk_free;
-
-    return 0;
+    return -1;
 }
 
 /* remove the block from freelist */
@@ -230,7 +231,7 @@ int32_t os_phymm_free(kphymm_info_t *info, uintptr_t paddr_free, size_t free_siz
     if ( info->freelist.next == NULL )
     {
         blk_free = (kphymm_blk_t *)krhino_mm_alloc(sizeof(kphymm_blk_t));
-        if ( info == NULL )
+        if ( blk_free == NULL )
         {
             return -__LINE__;
         }
