@@ -58,8 +58,8 @@ struct cli_status {
 #endif
 
 #if (CLI_MINIMUM_MODE <= 0)
-    int32_t his_idx;
-    int32_t his_cur;
+    uint32_t his_idx;
+    uint32_t his_cur;
     char    history[CLI_INBUF_SIZE];
 #endif
 };
@@ -73,8 +73,8 @@ static uint8_t g_cli_tag_len =  0;
 
 static const struct cli_command_st *lookup_command(char *name, int len)
 {
-    int i = 0;
-    int n = 0;
+    uint32_t i = 0;
+    uint32_t n = 0;
 
     while (i < CLI_MAX_COMMANDS && n < g_cli->num) {
         if (g_cli->cmds[i]->name == NULL) {
@@ -182,6 +182,9 @@ static int32_t proc_onecmd(int argc, char *argv[])
                 }
                 size += arg_cnt * sizeof(void*);
                 group = task_group_get_by_pid(ucmd->owner_pid);
+                if (group == NULL) {
+                    return 2;
+                }
                 user_ptr = res_malloc(group->pid, size);
                 if (user_ptr) {
                     memset(user_ptr, 0, size);
@@ -347,7 +350,7 @@ static int32_t cli_handle_input(char *inbuf)
  */
 static void cli_tab_complete(char *inbuf, unsigned int *bp)
 {
-    int32_t i, n, m;
+    uint32_t i, n, m;
 
     const char *fm = NULL;
 
@@ -394,12 +397,12 @@ static void cli_tab_complete(char *inbuf, unsigned int *bp)
 static void cli_history_input(void)
 {
     char    *inbuf    = g_cli->inbuf;
-    int32_t  charnum  = strlen(g_cli->inbuf) + 1;
-    int32_t  his_cur  = g_cli->his_cur;
-    int32_t  left_num = CLI_INBUF_SIZE - his_cur;
+    uint32_t  charnum  = strlen(g_cli->inbuf) + 1;
+    uint32_t  his_cur  = g_cli->his_cur;
+    uint32_t  left_num = CLI_INBUF_SIZE - his_cur;
 
     char    lastchar;
-    int32_t tmp_idx;
+    uint32_t tmp_idx;
 
     g_cli->his_idx = his_cur;
 
@@ -432,8 +435,8 @@ static void cli_history_input(void)
 
 static void cli_up_history(char *inaddr)
 {
-    int index;
-    int lastindex = 0;
+    uint32_t index;
+    uint32_t lastindex = 0;
 
     lastindex = g_cli->his_idx;
     index     = (g_cli->his_idx - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
@@ -461,8 +464,8 @@ static void cli_up_history(char *inaddr)
 
 static void cli_down_history(char *inaddr)
 {
-    int index;
-    int lastindex = 0;
+    uint32_t index;
+    uint32_t lastindex = 0;
 
     lastindex = g_cli->his_idx;
     index     = g_cli->his_idx;
@@ -614,10 +617,11 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
 #endif
             if (key2 == 't') {
                 /* ESC_TAG */
-                if (cli_tag_len >= sizeof(g_cli_tag)) {
-                    g_cli_tag[0]  = '\x0';
-                    cli_tag_len = 0;
-                    esc           = 0;
+                /* Reserve 2 bytes space for the following */
+                if (cli_tag_len >= sizeof(g_cli_tag) - 1) {
+                    g_cli_tag[0] = '\x0';
+                    cli_tag_len  = 0;
+                    esc          = 0;
 
                     cli_printf("Error: cli tag buffer overflow\r\n");
                     continue;
@@ -754,6 +758,9 @@ int cli_process_init(int pid)
     int ret;
 
     group = task_group_get_by_pid(pid);
+    if (group == NULL) {
+        return -1;
+    }
 
     ret = krhino_fix_buf_queue_dyn_create(&cli_buf_q,
                                           "cli_buf_queue",
@@ -791,7 +798,7 @@ void cli_process_destory(int pid)
     task_group_t *group;
 
     group = task_group_get_by_pid(pid);
-    if (group->cli_q) {
+    if (group != NULL && group->cli_q) {
         krhino_buf_queue_dyn_del(group->cli_q);
         group->cli_q = NULL;
     }
@@ -1023,8 +1030,10 @@ int32_t cli_printf(const char *buffer, ...)
     sz = 0;
     if (g_cli_tag_len > 0) {
         len = strlen(g_cli_tag);
-        strncpy(message, g_cli_tag, len);
-        sz = len;
+        if (len < CLI_OUTBUF_SIZE) {
+            strncpy(message, g_cli_tag, len);
+            sz = len;
+        }
     }
 
     pos = message + sz;
