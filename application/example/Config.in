@@ -244,6 +244,7 @@ source "app/example/uai_demo/uai_cifar10_demo/Config.in"
 if AOS_APP_UAI_CIFAR10_DEMO
     config AOS_BUILD_APP
         default "uai_demo.uai_cifar10_demo"
+endif
 
 source "app/example/uapp1/Config.in"
 if AOS_APP_UAPP1
@@ -255,8 +256,6 @@ source "app/example/uapp2/Config.in"
 if AOS_APP_UAPP2
     config AOS_BUILD_APP
         default "uapp2"
-endif
-
 endif
 
 endchoice
