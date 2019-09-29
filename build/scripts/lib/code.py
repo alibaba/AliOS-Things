@@ -100,7 +100,7 @@ def get_depends_from_source(comp_info, include_list):
             files = comp_info[key]["include_files"]
             for dir in dirs:
                 tmp = os.path.abspath(os.path.join(dir, include_file)).replace("\\", "/")
-                if os.path.abspath(tmp) in files:
+                if tmp in files:
                     depends.append(key)
                     found = True
                     break
