@@ -91,7 +91,7 @@ def find_include_file(dirname):
 
 def get_comp_configin(comp_dir):
     """ Find Config.in of comp """
-    config_file = os.path.join(comp_dir, "Config.in")
+    config_file = os.path.join(comp_dir, "Config.in").replace("\\", "/")
     if os.path.isfile(config_file):
         return config_file
     else:
@@ -178,7 +178,7 @@ def get_comp_info(source_root, mklist, common_include_dir):
     comp_dir, include_dir, include_files, Config.in, dependencies
     """
     comp_info = {}
-    source_root = os.path.abspath(source_root)
+    source_root = os.path.abspath(source_root).replace("\\", "/")
 
     for mkfile in mklist:
         mkfile = mkfile.replace("\\", "/")
@@ -191,7 +191,16 @@ def get_comp_info(source_root, mklist, common_include_dir):
             include_info = get_comp_include_info(comp_name, mkfile, common_include_dir)
             config_file = get_comp_configin(comp_dir)
             deps = get_comp_deps(mkfile)
-            comp_info[comp_name] = include_info
+
+            # Replace "\\" as "/"
+            cleaned_include_info = {}
+            for key in include_info:
+                cleaned_include_info[key] = []
+                for tmp in include_info[key]:
+                    cleaned_include_info[key].append(tmp.replace("\\", "/"))
+
+            config_file = config_file.replace("\\", "/")
+            comp_info[comp_name] = cleaned_include_info
             comp_info[comp_name]["location"] = comp_dir.replace(source_root + "/", "")
             comp_info[comp_name]["config_file"] = config_file.replace(source_root + "/", "")
             comp_info[comp_name]["dependencies"] = deps
