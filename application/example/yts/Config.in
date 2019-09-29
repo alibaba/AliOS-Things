@@ -1,0 +1,44 @@
+config AOS_APP_YTS
+    bool "Test Suite"
+    select AOS_COMP_ULOG
+    select AOS_COMP_LWIP if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_CLI if !AOS_BOARD_LINUXHOST && !AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_NETMGR if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_TESTCASE
+    select AOS_COMP_UMESH if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_FATFS if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_YLOOP
+    select AOS_COMP_DDA if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
+    select AOS_COMP_VFS
+    select AOS_COMP_YUNIT
+    help
+      AliOS Things test suite
+
+
+if AOS_APP_YTS
+# Configurations for app yts
+
+config YTS_CONFIG_TEST_SUITE_DETACHED
+    bool "Yts Test Suite running in Standalone Task"
+    default n
+    help
+        switch on this option will make enough stack for yts unit test suite
+
+if YTS_CONFIG_TEST_SUITE_DETACHED
+config YTS_CONFIG_TASK_DEPTH
+    int "Task Depth of Yts Routine"
+    range 2048 32768
+    default 8192
+    help
+        modify this value follow with count of test case
+endif
+
+config YTS_CONFIG_NET_CONNECT
+    bool "Net Connect Related Running Enviroment"
+    select AOS_COMP_NETMGR
+    select YTS_CONFIG_TEST_SUITE_DETACHED
+    default n
+    help
+        this option is must for test net related test case
+
+endif
