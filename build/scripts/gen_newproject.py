@@ -173,6 +173,7 @@ def get_sources(templatedir):
             tempfile = "%s/%s" % (root, filename)
             sources.append(tempfile.replace("\\", "/"))
 
+    templatedir = templatedir.replace("\\", "/")
     sources = [item.replace(templatedir + "/", "") for item in sources]
 
     return sources
@@ -180,7 +181,6 @@ def get_sources(templatedir):
 
 def copy_template(templatedir, destdir, projectname, board):
     """ Copy predefined template to destdir """
-    vscodedir = os.path.join(templatedir, '.vscode')
     sources = get_sources(templatedir)
 
     for tempfile in sources:
@@ -201,7 +201,7 @@ def copy_demo_app(appdir, destdir, projectname, board, appname):
         copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname)
 
     # copy .vscode from predefined template
-    templatedir = os.path.abspath(os.path.join(scriptdir, template))
+    templatedir = os.path.abspath(os.path.join(scriptdir, template)).replace("\\", "/")
     vscode = os.path.join(templatedir, ".vscode")
     for tempfile in os.listdir(vscode):
         copy_template_file(".vscode/" + tempfile, templatedir, destdir, projectname, board)
@@ -274,7 +274,7 @@ def cli(projectname, board, projectdir, templateapp):
     else:
         templatedir = os.path.join(scriptdir, template)
 
-    templatedir = os.path.abspath(templatedir)
+    templatedir = os.path.abspath(templatedir).replace("\\", "/")
 
     if not projectdir:
         projectdir = os.path.join(scriptdir, "../../app")

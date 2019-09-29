@@ -69,7 +69,7 @@ endif
 # Returns a the location of the given component relative to source-tree-root
 # rather than from the cwd
 # $(1) is component
-GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
+GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(subst :,/,$(SOURCE_ROOT)))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
 
 ###############################################################################
 # MACRO: BUILD_C_RULE
@@ -90,9 +90,9 @@ endef
 # Compiles a C language header file to ensure it is stand alone complete
 # $(1) is component, $(2) is the source header file
 define CHECK_HEADER_RULE
-$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
-.PHONY: $(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk)
-$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d
+$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk) )
+.PHONY: $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk)
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d
 	$(QUIET)$(ECHO) Checking header  $(2)
 	$(QUIET)$(CCACHE) $(CC) -c $(AOS_SDK_CFLAGS) $(filter-out -pedantic -Werror, $($(1)_CFLAGS) $(C_BUILD_OPTIONS) ) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) -o $$@ $$<
 endef
@@ -177,14 +177,14 @@ else ifeq ($(COMPILER), iar)
 else
 	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym
 endif
-	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
+	$(QUIET)python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor.sym $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
 
 ifeq ($(IDE),iar)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
-	@python build/scripts/iar.py $(CLEANED_BUILD_STRING)
+	$(QUIET)python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
+	$(QUIET)python build/scripts/iar.py $(CLEANED_BUILD_STRING)
 else ifeq ($(IDE),keil)
-	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
-	@python build/scripts/keil.py $(CLEANED_BUILD_STRING)
+	$(QUIET)python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c
+	$(QUIET)python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 endif
 
 	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/$(MODULES_DIR)/drivers/sensor/sensor_config.o
@@ -379,7 +379,7 @@ endif # Linux64
 endif # Linux32
 endif # Win32
 
-XZ_CMD = if [ -f $(XZ) ]; then $(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE); else echo "xz need be installed"; fi
+XZ_CMD = $(if $(wildcard $(XZ)),$(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE),$(error xz need to be installed))
 MD5_CMD = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE) -m $(IMAGE_MAGIC)
 XZ_MD5 = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE).xz -m $(IMAGE_MAGIC)
 README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk

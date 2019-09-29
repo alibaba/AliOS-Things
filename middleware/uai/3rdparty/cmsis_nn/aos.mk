@@ -5,7 +5,7 @@ $(NAME)_TYPE := third_party
 GLOBAL_INCLUDES    +=   \
                         CMSIS_5/CMSIS/Core/Include \
                         CMSIS_5/CMSIS/DSP/Include \
-                        CMSIS_5/CMSIS/NN/Include \
+                        CMSIS_5/CMSIS/NN/Include
 
 $(NAME)_SOURCES    += \
                         CMSIS_5/CMSIS/NN/Source/ActivationFunctions/arm_nn_activations_q7.c  \
@@ -364,4 +364,4 @@ $(NAME)_SOURCES    += \
                         CMSIS_5/CMSIS/DSP/Source/ControllerFunctions/arm_pid_init_q31.c  \
                         CMSIS_5/CMSIS/DSP/Source/ControllerFunctions/arm_pid_reset_f32.c  \
                         CMSIS_5/CMSIS/DSP/Source/ControllerFunctions/arm_sin_cos_f32.c  \
-                        CMSIS_5/CMSIS/DSP/Source/ControllerFunctions/arm_pid_reset_q31.c  \
+                        CMSIS_5/CMSIS/DSP/Source/ControllerFunctions/arm_pid_reset_q31.c
