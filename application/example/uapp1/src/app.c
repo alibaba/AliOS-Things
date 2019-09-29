@@ -40,7 +40,6 @@ static void certificate_test(char *pbuffer, int outlen, int argc, char **argv)
                             certificate_task_main, 1);
 }
 
-#if (RHINO_CONFIG_UTCPIP > 0)
 extern int net_parse_host(void);
 static void net_parse_host_task_main(void *arg)
 {
@@ -89,7 +88,6 @@ static void tcp_download_test(char *pbuffer, int outlen, int argc, char **argv)
                             UAPP_USTACK_SIZE, UAPP_KSTACK_SIZE,
                             tcp_download_task_main, 1);
 }
-#endif
 
 static void uapp1_read_g_proc_var(char *pbuffer, int outlen, int argc, char **argv)
 {
@@ -178,10 +176,8 @@ static void uapp1_proc_msg_test(char *pbuffer, int outlen, int argc, char **argv
 static struct cli_command_st ucmds[] = {
     {"uapp1_exit", "uapp1 process exit", uapp1_exit},
     {"certificate", "run user space certificate test", certificate_test},
-#if (RHINO_CONFIG_UTCPIP > 0)
     {"net_parse_host", "parse net host", net_parse_host_test},
     {"tcp_download", "user space tcp download test", tcp_download_test},
-#endif
     {"uapp1_read_g_proc_var", "uapp1 read g_proc_var", uapp1_read_g_proc_var},
     {"uapp1_set_g_proc_var", "uapp1 set g_proc_var", uapp1_set_g_proc_var},
     {"uapp1_proc_msg_test", "uapp1 proc_msg_test", uapp1_proc_msg_test},
@@ -199,7 +195,6 @@ int application_start(int argc, char *argv[])
     cli_register_commands(ucmds, sizeof(ucmds)/sizeof(ucmds[0]));
 #endif
 
-    /* don't return in the first task, only if the app is to exit */
     while (1) {
         krhino_task_sleep(200);
     }
