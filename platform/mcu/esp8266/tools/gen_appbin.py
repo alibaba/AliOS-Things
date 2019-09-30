@@ -279,8 +279,8 @@ def gen_appbin():
             all_bin_crc = abs(all_bin_crc) + 1
         print("bin crc: %x"%all_bin_crc)
         write_file(flash_bin_name,chr((all_bin_crc & 0x000000FF))+chr((all_bin_crc & 0x0000FF00) >> 8)+chr((all_bin_crc & 0x00FF0000) >> 16)+chr((all_bin_crc & 0xFF000000) >> 24))
-    cmd = 'rm eagle.app.sym'
-    os.system(cmd)
+    # cmd = 'rm eagle.app.sym'
+    # os.system(cmd)
 
 if __name__=='__main__':
     gen_appbin()
