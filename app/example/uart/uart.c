@@ -15,8 +15,7 @@
 
 
 #include "aos/kernel.h"
-
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 #include "driver/uart.h"
 
