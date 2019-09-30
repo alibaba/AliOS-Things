@@ -64,6 +64,59 @@ extern int  backtrace_callee(char *PC, int *SP, char *LR,
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include "task_group.h"
+
+typedef enum {
+    PANIC_IN_KERNEL,
+    PANIC_IN_USER_KERNEL,
+    PANIC_IN_USER,
+    PANIC_UNDEFINED
+} uspace_panic_type;
+
+volatile uspace_panic_type g_uspace_panic_type = PANIC_UNDEFINED;
+
+__attribute__((always_inline)) RHINO_INLINE unsigned int get_control(void)
+{
+    unsigned int ctl;
+    asm volatile("mrs %0, control":"=r"(ctl));
+    return ctl;
+}
+
+void uspace_type_show(void)
+{
+    ktask_t *task;
+    task_group_t *group;
+
+    task = krhino_cur_task_get();
+
+    switch(g_uspace_panic_type) {
+        case PANIC_IN_KERNEL:
+            print_str("\r\nkernel space exception\r\n");
+            break;
+        case PANIC_IN_USER_KERNEL:
+            print_str("\r\nuser space result exception in kernel\r\n");
+            break;
+         case PANIC_IN_USER:
+            group = task->task_group;
+
+            print_str("\r\nuser space app %s exception\r\n", group->tg_name);
+            break;
+        default:
+            print_str("\r\ncan not identify usapce exception type\r\n");
+            break;
+    }
+}
+void panicGetUspaceCtx(void *context, char **PC, char **LR, int **SP)
+{
+    int *ptr = context - 32;
+
+    *SP = context;
+    /*  reference to svc */
+    *PC = (char *)ptr[6];
+    *LR = (char *)ptr[5];
+}
+#endif
 
 static void panic_goto_cli(void)
 {
@@ -103,6 +156,27 @@ int panicRestoreCheck(void)
    return 0;
 }
 
+static void backtrace(char *PC, int *SP, char *LR,
+        int (*print_func)(const char *fmt, ...))
+{
+    int lvl;
+
+    if (SP == NULL)
+        return;
+
+    lvl = backtrace_caller(PC, SP, print_str);
+    if (lvl > 0) {
+        return;
+    } else {
+        lvl = backtrace_callee(PC, SP, LR, print_str);
+        if (lvl > 0) {
+            return;
+        } else {
+            (void)backtrace_caller(LR, SP, print_str);
+        }
+    }
+}
+
 /* fault/exception entry
    notice: this function maybe reentried by double exception
    first exception, input context
@@ -112,12 +186,18 @@ void panicHandler(void *context)
     char prt_stack[] =
       "stack(0x        ): 0x         0x         0x         0x         \r\n";
     int x;
-#if (DEBUG_CONFIG_BACKTRACE > 0)
+
     int lvl;
-#endif
     static int  *SP = NULL;
     static char *PC = NULL;
     static char *LR = NULL;
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    static int  *U_SP = NULL;
+    static char *U_PC = NULL;
+    static char *U_LR = NULL;
+#endif
+
     CPSR_ALLOC();
 
     /* g_crash_steps++ before panicHandler */
@@ -128,6 +208,12 @@ void panicHandler(void *context)
     switch (g_crash_steps) {
         case 1:
             print_str("!!!!!!!!!! Exception  !!!!!!!!!!\r\n");
+#if (RHINO_CONFIG_USER_SPACE > 0)
+            uspace_type_show();
+            if (g_uspace_panic_type == PANIC_IN_USER_KERNEL) {
+                panicGetUspaceCtx(g_active_task[cpu_cur_get()]->task_ustack, &U_PC, &U_LR, &U_SP);
+            }
+#endif
             if (context != NULL) {
                 panicGetCtx(context, &PC, &LR, &SP);
             }
@@ -145,37 +231,58 @@ void panicHandler(void *context)
                     print_str(prt_stack);
                 }
             }
+#if (RHINO_CONFIG_USER_SPACE > 0)
+            if (U_SP != NULL) {
+                U_SP -= 8;
+                print_str("========== Uspace Stack info ==========\r\n");
+                for (x = 0; x < 16; x++) {
+                    k_int2str((int)&U_SP[x * 4], &prt_stack[8]);
+                    k_int2str(U_SP[x * 4 + 0], &prt_stack[21]);
+                    k_int2str(U_SP[x * 4 + 1], &prt_stack[32]);
+                    k_int2str(U_SP[x * 4 + 2], &prt_stack[43]);
+                    k_int2str(U_SP[x * 4 + 3], &prt_stack[54]);
+                    print_str(prt_stack);
+                }
+                U_SP += 8;
+            }
+#if (DEBUG_CONFIG_BACKTRACE > 0)
+            if (g_uspace_panic_type == PANIC_IN_USER_KERNEL) {
+                print_str("========== Uspace backtrace  ==========\r\n");
+                backtrace(U_PC, U_SP, U_LR, print_str);
+            }
+#endif
+#endif /* #if (RHINO_CONFIG_USER_SPACE > 0) */
             g_crash_steps++;
 #if (DEBUG_CONFIG_BACKTRACE > 0)
-        /* 3 steps, 3 ways to try backtrace */
+            /*  3 steps, 3 ways to try backtrace */
         case 3:
-            /* Backtrace 1st try: assume ReturnAddr is saved in stack when exception */
+            /*  Backtrace 1st try: assume ReturnAddr is saved in stack when exception */
             if (SP != NULL) {
                 print_str("========== Call stack ==========\r\n");
                 lvl = backtrace_caller(PC, SP, print_str);
                 if (lvl > 0) {
-                    /* backtrace success, do not try other way */
+                    /*  backtrace success, do not try other way */
                     g_crash_steps += 2;
                 }
-                /* else, backtrace fail, try another way */
+                /*  else, backtrace fail, try another way */
             }
             g_crash_steps++;
         case 4:
             if (g_crash_steps == 4) {
-                /* Backtrace 2nd try: assume ReturnAddr is saved in LR when exception */
+                /*  Backtrace 2nd try: assume ReturnAddr is saved in LR when exception */
                 if (SP != NULL) {
                     lvl = backtrace_callee(PC, SP, LR, print_str);
                     if (lvl > 0) {
-                        /* backtrace success, do not try other way */
+                        /*  backtrace success, do not try other way */
                         g_crash_steps += 1;
                     }
-                    /* else, backtrace fail, try another way */
+                    /*  else, backtrace fail, try another way */
                 }
                 g_crash_steps++;
             }
         case 5:
             if (g_crash_steps == 5) {
-                /* Backtrace 3rd try: assume PC is invalalb, backtrace from LR */
+                /*  Backtrace 3rd try: assume PC is invalalb, backtrace from LR */
                 if (SP != NULL) {
                     (void)backtrace_caller(LR, SP, print_str);
                 }
@@ -183,7 +290,7 @@ void panicHandler(void *context)
             }
 #else
             g_crash_steps = 6;
-#endif
+#endif /*  #if (DEBUG_CONFIG_BACKTRACE > 0) */
         case 6:
 #if (RHINO_CONFIG_MM_TLF > 0)
             print_str("========== Heap Info  ==========\r\n");
@@ -225,6 +332,13 @@ void panicHandler(void *context)
 #ifdef AOS_UND
     debug_reboot_reason_update(UND_STATIS_DEV_PANIC_ERR_REASON);
 #endif
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    if (g_uspace_panic_type == PANIC_IN_USER) {
+        return; /* return to panic_gcc.S for process_exit */
+    }
+#endif
+
     RHINO_CPU_INTRPT_DISABLE();
 #if defined (DEBUG)
     while (1);
