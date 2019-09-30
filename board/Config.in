@@ -33,7 +33,7 @@ source "board/asr6501/Config.in"
 if AOS_BOARD_ASR6501
     config AOS_BUILD_BOARD
         default "asr6501"
-    
+
     source "platform/mcu/cy8c4147/Config.in"
     source "platform/arch/arm/armv6m/Config.in"
 endif
@@ -117,6 +117,15 @@ if AOS_BOARD_DEVELOPERKIT
 
     source "platform/mcu/stm32l4xx_cube/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "board/developerkit-mk/Config.in"
+if AOS_BOARD_DEVELOPERKIT_MK
+    config AOS_BUILD_BOARD
+        default "developerkit-mk"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-mk/Config.in"
 endif
 
 source "board/dh5021a_evb/Config.in"

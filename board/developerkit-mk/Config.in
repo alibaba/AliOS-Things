@@ -1,0 +1,86 @@
+config AOS_BOARD_DEVELOPERKIT_MK
+    bool "developerkit-mk"
+    select AOS_MCU_STM32L4XX_CUBE
+    select RHINO_CONFIG_USER_SPACE
+    select RHINO_CONFIG_URES
+    select RHINO_CONFIG_UCLI
+    #select RHINO_CONFIG_UTCPIP
+    #select RHINO_CONFIG_UFS
+    select RHINO_CONFIG_UIPC
+    #select RHINO_CONFIG_ULINKKIT
+    #select RHINO_CONFIG_HAL_ADC_SYSCALL
+    #select RHINO_CONFIG_HAL_DAC_SYSCALL
+    #select RHINO_CONFIG_HAL_ADC_SYSCALL
+    #select RHINO_CONFIG_HAL_FLASH_SYSCALL
+    #select RHINO_CONFIG_HAL_GPIO_SYSCALL
+    #select RHINO_CONFIG_HAL_I2C_SYSCALL
+    #select RHINO_CONFIG_HAL_NAND_SYSCALL
+    #select RHINO_CONFIG_HAL_NOR_SYSCALL
+    #select RHINO_CONFIG_HAL_RTC_SYSCALL
+    #select RHINO_CONFIG_HAL_SD_SYSCALL
+    #select RHINO_CONFIG_HAL_SPI_SYSCALL
+    select RHINO_CONFIG_HAL_UART_SYSCALL
+    #select RHINO_CONFIG_DYN_SYSCALL_TBL
+    help
+      Developer Kit is hardware development board base on AliOS-Things
+
+if AOS_BOARD_DEVELOPERKIT_MK
+# Configurations for board stm32f429zi-mk
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_SPI
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_RTC
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.bk7231"
+
+endif
