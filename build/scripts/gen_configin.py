@@ -6,6 +6,7 @@ import shutil
 from aos_parse_components import get_comp_name
 
 # Global definitions
+templatedir = "build/scripts/kconfig_template"
 top_config_in = "build/Config.in"
 board_config_in = "board/Config.in"
 example_config_in = "app/example/Config.in"
@@ -25,7 +26,7 @@ def update_config_in(config_file, config_list):
             if match:
                 config_tmp = match.group(1)
                 if "linkkit/" in config_file and "$SRCPATH" in config_tmp:
-                    config_tmp = re.sub(r"\$SRCPATH/", "middleware/linkkit/sdk-c/", config_tmp)
+                    config_tmp = re.sub(r"\$SRCPATH/", "middleware/linkkit/", config_tmp)
 
                 if not re.sub(r'"', "", config_tmp) in config_list:
                     continue
@@ -195,9 +196,21 @@ def main():
         if 'Config.in' in files:
             config_file = "%s/Config.in" % root.replace(source_root, "")
             config_list += [config_file]
+    templates = os.listdir(templatedir)
+    for template in templates:
+        destdir = re.sub(r"\.Config\.in", "", template)
+        destdir = re.sub(r"\.", "/", destdir)
+        sourcefile = os.path.join(templatedir, template)
+        destfile = os.path.join(destdir, "Config.in")
 
-    if os.path.isfile("middleware/linkkit/sdk-c/Config.linkkit"):
-        config_list += ["middleware/linkkit/sdk-c/Config.linkkit"]
+        if os.path.isdir(destdir):
+            if "linkkit/Config.in" in destfile:
+                if not os.path.isfile(re.sub(r"Config.in", "aos.mk", destfile)):
+                    continue
+
+            shutil.copyfile(sourcefile, destfile)
+            config_list += [destfile]
+
 
     # Update config files according to installed comps
     for config_file in config_list:
