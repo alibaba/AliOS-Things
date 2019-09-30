@@ -19,13 +19,14 @@ endif
 
 $(NAME)_SOURCES += src/app.c
 
+ifeq ($(RHINO_CONFIG_UTCPIP),y)
 $(NAME)_SOURCES += net/lwip/core/def.c \
                    net/lwip/core/ip4_addr.c \
                    net/lwip/core/ip6_addr.c
 
 $(NAME)_SOURCES += test/lwip/http_download.c \
-                   test/lwip/parse_host.c \
-
+                   test/lwip/parse_host.c
+endif
 
 $(NAME)_SOURCES += test/aos_uspace_test.c \
                    test/cut.c
