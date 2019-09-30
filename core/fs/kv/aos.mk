@@ -35,3 +35,4 @@ endif
 endif
 
 AOS_COMP_KV ?= y
+RPM_INCLUDE_DIR := fs
