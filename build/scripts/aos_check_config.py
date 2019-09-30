@@ -67,7 +67,7 @@ def main():
         if not appdir:
             print ("- No such App '%s' found!" % appname)
         else:
-            print ("- Please config items for it are correct!\n")
+            print ("- Please make sure config items for '%s' are correct!\n" % appname)
         return 1
 
     if boardname != aos_build_board:
