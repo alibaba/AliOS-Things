@@ -27,5 +27,5 @@ $(NAME)_COMPONENTS-$(AOS_COMP_SDK_HTTP2) += libiot_http2stream
 $(NAME)_COMPONENTS-$(AOS_COMP_SDK_MQTT) += libiot_mqtt
 $(NAME)_COMPONENTS-$(AOS_COMP_SDK_AWSS) += libiot_awss
 $(NAME)_COMPONENTS-$(AOS_COMP_SDK_RESET) += libiot_reset
-
+RPM_INCLUDE_DIR := linkkit
 
