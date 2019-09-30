@@ -1,7 +1,8 @@
 config AOS_MCU_STM32L4XX_CUBE
     bool
+    select AOS_ARCH_ARMV7M_MK if AOS_BOARD_DEVELOPERKIT_MK
+    select AOS_ARCH_ARMV7M if !AOS_BOARD_DEVELOPERKIT_MK
     select AOS_COMP_NEWLIB_STUB
-    select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu stm32l4xx_cube

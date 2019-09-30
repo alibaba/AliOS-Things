@@ -116,6 +116,7 @@ int application_start(int argc, char *argv[])
     cli_register_commands(ucmds, sizeof(ucmds)/sizeof(ucmds[0]));
 #endif
 
+    /* don't return in the first task, only if the app is to exit */
     while (1) {
         krhino_task_sleep(200);
     }
