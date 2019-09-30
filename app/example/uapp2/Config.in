@@ -1,0 +1,42 @@
+config AOS_APP_UAPP2
+    bool "uapp2_test"
+    help
+        "user space app"
+
+if AOS_APP_UAPP2
+# Configurations for app uapp1
+
+config RHINO_CONFIG_APP_NAME
+    string "app name"
+    default "uapp2"
+    help
+        "set app name, it's also the first task name"
+
+config RHINO_CONFIG_APP_VERSION
+    hex "app version"
+    default 0x00000001
+    help
+        "set app version"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+    int "app entry task priority"
+    default 20
+    help
+        "set app entry task priority"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+    int "app entry task kstack size"
+    default 256
+    help
+        "set app entry task kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+    int "app entry task ustack size"
+    default 256
+    help
+        "set app entry task ustack size, the unit is cpu_stack_t"
+
+
+source "kernel/mk/uspace/Config.in"
+
+endif
