@@ -19,3 +19,4 @@ endif
 
 $(NAME)_INCLUDES += include
 GLOBAL_DEFINES  += AOS_COMP_RAMFS
+RPM_INCLUDE_DIR := fs
