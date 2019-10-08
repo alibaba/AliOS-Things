@@ -132,6 +132,7 @@ static int _calc_dynreg_sign(
     const char *dynamic_register_sign_fmt = "deviceName%sproductKey%srandom%s";
 
     /* Start Dynamic Register */
+    memset(random, 0, DYNREG_RANDOM_KEY_LENGTH + 1);
     memcpy(random, "8Ygb7ULYh53B6OA", strlen("8Ygb7ULYh53B6OA"));
     dynreg_info("Random Key: %s", random);
 

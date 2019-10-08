@@ -45,7 +45,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
     int deep = 0;
     char *bracket_pre = NULL;
     char *bracket_suf = NULL;
-    char array_index_str[10] = {0};
+    char array_index_str[11] = {0};
 
     if (input == NULL || input_len <= 1 || array_index == NULL) {
         return DM_INVALID_PARAMETER;
@@ -90,6 +90,9 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
         }
 
         /* Get Index */
+        if(bracket_suf - bracket_pre - 1 > 10) {
+            return FAIL_RETURN;
+        }
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return SUCCESS_RETURN;

@@ -78,7 +78,9 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     if (clientid_string == NULL || device_id == NULL) {
         return FAIL_RETURN;
     }
-
+    if (strlen(device_id) + 1 >= DEV_SIGN_CLIENT_ID_MAXLEN) {
+        return FAIL_RETURN;
+    }
     memset(clientid_string, 0, DEV_SIGN_CLIENT_ID_MAXLEN);
     memcpy(clientid_string, device_id, strlen(device_id));
     memcpy(clientid_string + strlen(clientid_string), "|", 1);
