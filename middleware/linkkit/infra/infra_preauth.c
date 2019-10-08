@@ -106,7 +106,7 @@ static int _preauth_get_string_value(char *p_string, char *value_buff, uint32_t 
     return SUCCESS_RETURN;
 }
 
-static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len, iotx_pre_auth_output_t *output)
+static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len, iotx_sign_mqtt_t *output)
 {
     int res = FAIL_RETURN;
     char *p = json_string;
@@ -186,7 +186,7 @@ static int _preauth_recv_callback(char *ptr, int length, int total_length, void 
 }
 
 int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *dev_meta,
-                                const char *sign, const char *device_id, iotx_pre_auth_output_t *preauth_output)
+                                const char *sign, const char *device_id, iotx_sign_mqtt_t *preauth_output)
 {
     char http_url[128] = "http://";
     char http_url_frag[] = "/auth/devicename";
