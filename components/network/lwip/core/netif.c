@@ -1249,7 +1249,7 @@ netif_create_ip6_linklocal_address(struct netif *netif, u8_t from_mac_48bit)
     ip_2_ip6(&netif->ip6_addr[0])->addr[3] = 0;
 
     addr_index = 3;
-    for (i = 0; (i < 8) && (i < netif->hwaddr_len); i++) {
+    for (i = 0; (i < 8) && (i < netif->hwaddr_len) && (netif->hwaddr_len - i - 1 < NETIF_MAX_HWADDR_LEN); i++) {
       if (i == 4) {
         addr_index--;
       }
