@@ -593,7 +593,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0, payload_len = 0;
     char *message = NULL, *payload = NULL, *str_payload = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -666,7 +666,7 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
 {
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -711,7 +711,7 @@ int dm_msg_thing_property_desired_get_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, id = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -755,7 +755,7 @@ int dm_msg_thing_property_desired_delete_reply(dm_msg_response_payload_t *respon
 {
     int res = 0, id = 0, devid = 0,  message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -801,7 +801,7 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -845,7 +845,7 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -888,7 +888,7 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 {
 #ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, id = 0;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -924,7 +924,7 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 {
 #ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, id = 0;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
 #endif
@@ -1593,7 +1593,7 @@ const char DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d
 int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id, message_len = 0;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
     char *message = NULL;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
@@ -1639,7 +1639,7 @@ const char DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"
 int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
     char *message = NULL;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
@@ -1688,7 +1688,7 @@ const char DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d
 int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
     char *message = NULL;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
@@ -1738,7 +1738,7 @@ int dm_msg_topo_get_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, id = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -2787,7 +2787,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     char *key = NULL;
 #endif
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
@@ -2797,6 +2797,9 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     }
 
     /* Message ID */
+    if (request->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, request->id.value, request->id.value_length);
     id = atoi(int_id);
 
