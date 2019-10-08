@@ -156,6 +156,8 @@ int panicRestoreCheck(void)
    return 0;
 }
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 static void backtrace(char *PC, int *SP, char *LR,
         int (*print_func)(const char *fmt, ...))
 {
@@ -176,6 +178,8 @@ static void backtrace(char *PC, int *SP, char *LR,
         }
     }
 }
+#endif
+#endif
 
 /* fault/exception entry
    notice: this function maybe reentried by double exception
