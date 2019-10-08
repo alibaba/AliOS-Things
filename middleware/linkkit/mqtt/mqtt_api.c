@@ -104,14 +104,14 @@ extern int _iotx_generate_sign_string(const char *device_id, const char *device_
                                       const char *device_secret, char *sign_string);
 
 static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *meta,
-                         iotx_pre_auth_output_t *preauth_out)
+                         iotx_sign_mqtt_t *preauth_out)
 {
     uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     char sign_string[65] = {0};
     int res;
 
-    memset(preauth_out, 0, sizeof(iotx_pre_auth_output_t));
+    memset(preauth_out, 0, sizeof(iotx_sign_mqtt_t));
 
     /* setup device_id */
     memcpy(device_id, meta->product_key, strlen(meta->product_key));
@@ -207,7 +207,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #endif /* #ifdef DYNAMIC_REGISTER */
 
 #ifdef MQTT_PRE_AUTH /* preauth mode through https */
-    ret = _iotx_preauth(region, &meta_info, (iotx_pre_auth_output_t *)&g_default_sign); /* type convert */
+    ret = _iotx_preauth(region, &meta_info, (iotx_sign_mqtt_t *)&g_default_sign); /* type convert */
     if (ret < SUCCESS_RETURN) {
         mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
