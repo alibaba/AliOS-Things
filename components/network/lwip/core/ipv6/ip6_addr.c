@@ -215,7 +215,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
         }
         break;
       }
-      if (empty_block_flag == 0) {
+      if ((empty_block_flag == 0) && (((current_block_index + 1) >> 1) < 4)) {
         /* generate empty block "::", but only if more than one contiguous zero block,
          * according to current formatting suggestions RFC 5952. */
         next_block_value = lwip_htonl(addr->addr[(current_block_index + 1) >> 1]);
