@@ -140,7 +140,7 @@ static int32_t translate_addr(char *str)
 static void netmgr_ip_got_event(hal_wifi_module_t *m, hal_wifi_ip_stat_t *pnet,
                                 void *arg)
 {
-    LOGI(TAG, "Got ip : %s, gw : %s, mask : %s", pnet->ip, pnet->gate,
+    LOG("Got ip : %s, gw : %s, mask : %s", pnet->ip, pnet->gate,
          pnet->mask);
 
 #if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
