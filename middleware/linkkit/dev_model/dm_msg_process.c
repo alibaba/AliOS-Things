@@ -303,7 +303,7 @@ int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)
     int res = 0, eventid_start_pos = 0, eventid_end_pos = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     res = dm_utils_memtok((char *)source->uri, strlen(source->uri), DM_URI_SERVICE_DELIMITER, 6 + DM_URI_OFFSET,
@@ -336,6 +336,9 @@ int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -348,7 +351,7 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_PROPERTY_DESIRED_GET_REPLY);
@@ -364,6 +367,9 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -375,7 +381,7 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY);
@@ -391,6 +397,9 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -403,7 +412,7 @@ int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_DEVICEINFO_UPDATE_REPLY);
@@ -419,6 +428,9 @@ int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -430,7 +442,7 @@ int dm_msg_proc_thing_deviceinfo_delete_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_DEVICEINFO_DELETE_REPLY);
@@ -446,6 +458,9 @@ int dm_msg_proc_thing_deviceinfo_delete_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -457,7 +472,7 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_DYNAMICTSL_GET_REPLY);
@@ -473,6 +488,9 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -705,7 +723,7 @@ int dm_msg_proc_thing_sub_register_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_SUB_REGISTER_REPLY);
@@ -723,6 +741,9 @@ int dm_msg_proc_thing_sub_register_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -735,7 +756,7 @@ int dm_msg_proc_thing_proxy_product_register_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_PROXY_PRODUCT_REGISTER_REPLY);
@@ -753,6 +774,9 @@ int dm_msg_proc_thing_proxy_product_register_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -766,7 +790,7 @@ int dm_msg_proc_thing_sub_unregister_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_SUB_UNREGISTER_REPLY);
@@ -784,6 +808,9 @@ int dm_msg_proc_thing_sub_unregister_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -795,7 +822,7 @@ int dm_msg_proc_thing_topo_add_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_ADD_REPLY);
@@ -813,6 +840,9 @@ int dm_msg_proc_thing_topo_add_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -824,7 +854,7 @@ int dm_msg_proc_thing_topo_delete_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_DELETE_REPLY);
@@ -842,6 +872,9 @@ int dm_msg_proc_thing_topo_delete_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -853,7 +886,7 @@ int dm_msg_proc_thing_topo_get_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_GET_REPLY);
@@ -871,6 +904,9 @@ int dm_msg_proc_thing_topo_get_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -882,7 +918,7 @@ int dm_msg_proc_thing_list_found_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_GET_REPLY);
@@ -900,6 +936,9 @@ int dm_msg_proc_thing_list_found_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -911,7 +950,7 @@ int dm_msg_proc_combine_login_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_GET_REPLY);
@@ -929,6 +968,9 @@ int dm_msg_proc_combine_login_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -940,7 +982,7 @@ int dm_msg_proc_combine_logout_reply(_IN_ dm_msg_source_t *source)
     int res = 0;
     dm_msg_response_payload_t response;
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char int_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 #endif
 
     dm_log_info(DM_URI_THING_TOPO_GET_REPLY);
@@ -958,6 +1000,9 @@ int dm_msg_proc_combine_logout_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (response.id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif

@@ -713,7 +713,7 @@ static int _lite_cjson_key_array_index(const char *key, int key_len,
     char *bracket_suf = NULL;
     int index = 0;
     int deep = 0;
-    char array_index_str[10] = {0};
+    char array_index_str[11] = {0};
 
     if (!key || !partial_key_len || !array_key_len || !array_index) {
         return -1;
@@ -755,6 +755,9 @@ static int _lite_cjson_key_array_index(const char *key, int key_len,
         *array_key_len = bracket_suf - key + 1;
 
         /* Get Index */
+        if(bracket_suf - bracket_pre - 1 > 10) {
+            return -1;
+        }
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return 0;
