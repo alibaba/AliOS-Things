@@ -543,7 +543,11 @@ static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
 
     if (get_wifi_status() == 1) {
         get_connectap_info(0, ssid, &ssidlen, bssid, 6, (u8 *)&rssi, (u8 *)&chan);
-        info->rssi = rssi > 0 ? -rssi : rssi;
+        if (rssi > 0) {
+            if (rssi >= 128) rssi = 127;
+            rssi -= 128;
+        }
+        info->rssi = rssi;
         return 0;
     }
 
