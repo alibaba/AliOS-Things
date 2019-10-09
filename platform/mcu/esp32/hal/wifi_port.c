@@ -554,6 +554,9 @@ static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
         wifi_ap_record_t ap_info;
         if (ESP_OK != esp_wifi_sta_get_ap_info(&ap_info))
             return -1;
+        if (ap_info.rssi > 0) {
+            ap_info.rssi -= 128;
+        }
         info->rssi = ap_info.rssi;
     } while (0);
 
