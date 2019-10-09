@@ -202,6 +202,30 @@ void stop_debug_mode(hal_wifi_module_t *m)
 {
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    do {
+        hal_wifi_link_stat_t status;
+        if (bk_wlan_get_link_status(&status) != 0)
+            return -1;
+        if (status.wifi_strength > 0) {
+            if (status.wifi_strength >= 128)
+                status.wifi_strength = 127;
+            status.wifi_strength -= 128;
+        }
+        info->rssi = status.wifi_strength;
+    } while (0);
+
+    return 0;
+}
+
 hal_wifi_module_t sim_aos_wifi_beken = {
     .base.name           = "sim_aos_wifi_beken",
     .init                =  wifi_init,
@@ -226,6 +250,7 @@ hal_wifi_module_t sim_aos_wifi_beken = {
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
     .start_debug_mode = start_debug_mode,
-    .stop_debug_mode = stop_debug_mode
+    .stop_debug_mode = stop_debug_mode,
+    .get_wireless_info   = get_wireless_info,
 };
 
