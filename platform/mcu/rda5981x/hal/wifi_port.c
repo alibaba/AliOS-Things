@@ -532,6 +532,8 @@ static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
     state = rda59xx_get_module_state();
     if (state & STATE_STA) {
         rda59xx_sta_get_bss_info(&bss_info);
+        if (bss_info.rssi > 0)
+            bss_info.rssi -= 128;
         info->rssi = bss_info.rssi;
         return 0;
     }
