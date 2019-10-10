@@ -86,7 +86,7 @@ static void MINI_BL_LoadSectionHeader(void)
 static status_t MINI_BL_StoreSectionHeader(void)
 {
     /* Calculate the new CRC value. */
-    s_sectionHeaderRam.crc = utils_crc16(&(s_sectionHeaderRam.header), sizeof(fsl_mini_bl_section_header_t));
+    //s_sectionHeaderRam.crc = utils_crc16(&(s_sectionHeaderRam.header), sizeof(fsl_mini_bl_section_header_t));
 
     MINI_BL_EraseFlash((uint32_t)p_sectionHeader, sizeof(s_sectionHeaderRam));
 
@@ -174,12 +174,12 @@ status_t MINI_BL_UpdateSection(void)
 
     MINI_BL_LoadSectionHeader();
 
-    if (s_sectionHeaderRam.crc !=
-            utils_crc16(&(s_sectionHeaderRam.header), sizeof(fsl_mini_bl_section_header_t)))
-    {
+    //if (s_sectionHeaderRam.crc !=
+    //        utils_crc16(&(s_sectionHeaderRam.header), sizeof(fsl_mini_bl_section_header_t)))
+    //{
         /* Don't need to update */
-        return kStatus_Success;
-    }
+    //    return kStatus_Success;
+    //}
 
     if ((s_sectionHeaderRam.header.flags & FSL_MINI_BL_SECTION_DIRTY) == FSL_MINI_BL_SECTION_DIRTY)
     {
