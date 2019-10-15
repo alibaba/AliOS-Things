@@ -11,7 +11,7 @@
 #include "ulog_api.h"
 #include "uagent/uagent.h"
 #include "ulog_ring_fifo.h"
-#include "errno.h"
+#include "aos/errno.h"
 static char serverity_name[LOG_NONE] = { 'V', 'A', 'F', 'E', 'W', 'T', 'I', 'D' };
 
 #define UNKNOWN_BUF ""
