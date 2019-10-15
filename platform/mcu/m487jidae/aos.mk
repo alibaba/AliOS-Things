@@ -162,5 +162,5 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
 endif
 
 ifeq ($(HOST_OS),Win32)
-EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
+#EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
 endif
