@@ -10,7 +10,13 @@ GLOBAL_DEFINES += AOS_COMP_ULOG
 #sync mode is default selected using
 $(NAME)_SOURCES     := ulog.c ulog_init.c ulog_utility.c
 
+# armcc & iar without -Wall and -Werror
+ifeq ($(COMPILER), )
 $(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER), gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
+
 $(NAME)_CFLAGS      += -DMOD_VER=\"$($(NAME)_VERSION)\"
 
 #ulog support fs record
