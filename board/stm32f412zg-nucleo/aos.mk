@@ -38,7 +38,7 @@ ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f412zx_keil.s
 $(NAME)_LINK_FILES := startup_stm32f412zx_keil.o
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES    += startup_stm32f412xx_iar.s
+$(NAME)_SOURCES    += startup_stm32f412zx_iar.s
 else
 $(NAME)_SOURCES    += startup_stm32f412zx.s
 endif
