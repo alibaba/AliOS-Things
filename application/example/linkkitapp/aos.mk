@@ -43,17 +43,17 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-ifeq ($(LINKKITAPP_CONFIG_COMBOAPP),y)
+ifeq ($(AWSS_SUPPORT_BLE_PROVISION),y)
 ifneq ($(CONFIG_COMP_BZ_EN_AWSS), y)
 $(error need enable AWSS in breeze settings first)
 endif
-$(NAME)_COMPONENTS += breeze
+
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
 $(NAME)_INCLUDES += combo
 bz_en_auth := 1
 bz_en_awss := 1
-ble := 1
+BLE := 1
 endif
 
 
