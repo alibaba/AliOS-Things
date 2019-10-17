@@ -7,6 +7,7 @@
 #include <string.h>
 #include <network/network.h>
 #include "hal/wifi.h"
+#include "aos/hal/wdg.h"
 #include "esp_smartconfig.h"
 #include "esp_wifi_types.h"
 #include "esp_wifi.h"
@@ -371,6 +372,7 @@ static int wifi_init(hal_wifi_module_t *m)
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
     esp_wifi_set_mode(WIFI_MODE_STA);
     esp_wifi_start();
+    hal_wdg_finalize(NULL);
     return 0;
 };
 
