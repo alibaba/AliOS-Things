@@ -1,16 +1,17 @@
-
-config AOS_COMP_SDK_AWSS 
+config AOS_COMP_SDK_AWSS
     bool "FEATURE_WIFI_PROVISION_ENABLED"
     select AOS_COMP_SDK_WRAPPERS
     select INFRA_AES
     select AWSS_DISABLE_ENROLLEE if !AWSS_SUPPORT_ZEROCONFIG
     select AWSS_DISABLE_REGISTRAR if !AWSS_SUPPORT_ZEROCONFIG
     select AWSS_SUPPORT_APLIST
-    select INFRA_CJSON 
-    select INFRA_COMPAT 
+    select INFRA_CJSON
+    select INFRA_COMPAT
     select AOS_COMP_SDK_BIND
     select COAP_SERVER
-    default n 
+    select AOS_COMP_BREEZE if AWSS_SUPPORT_BLE_PROVISION
+
+    default n
     help
         Enable providing Wifi SSID/PASSWD configration in SDK
 
@@ -39,13 +40,19 @@ config AWSS_DISABLE_REGISTRAR
 config AWSS_SUPPORT_SMARTCONFIG_WPS
     bool
     default n
-    
+
 config AWSS_SUPPORT_DISCOVER
-    bool 
+    bool
     default n
 
 menu "Wifi Provision Configurations"
     depends on AOS_COMP_SDK_AWSS
+
+    config AWSS_SUPPORT_BLE_PROVISION
+        bool "FEATURE_AWSS_SUPPORT_BLE_PROVISION"
+        default n
+        help
+            Switching on a wifi provision method based on ble breeze SDK method
 
     config AWSS_SUPPORT_SMARTCONFIG
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
