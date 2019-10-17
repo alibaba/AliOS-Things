@@ -7,17 +7,11 @@ config AOS_APP_LINKKITAPP
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_AWSS
     select AOS_COMP_UND
-    select AOS_COMP_BREEZE if LINKKITAPP_CONFIG_COMBOAPP
     help
         linkkitapp
 
 if AOS_APP_LINKKITAPP
 # Configurations for app linkkitapp
-config LINKKITAPP_CONFIG_COMBOAPP
-    bool "Enable Breeze AWSS "
-    default n
-    help
-        Providing secured ble link for wifi provision.
 
 config ENABLE_OTA
     bool "Enable OTA"
