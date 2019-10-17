@@ -83,9 +83,7 @@ int task_group_remove_res_obj(task_group_t *group, unsigned int type, void *res)
 
 int task_group_init(task_group_t *group, const char *name, int pid);
 
-void task_group_release(task_group_t *group);
-
-void task_group_destory(task_group_t *group);
+void task_group_proc_free(task_group_t *group);
 
 #ifdef __cplusplus
 }

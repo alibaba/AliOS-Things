@@ -111,5 +111,7 @@ config RHINO_CONFIG_UTIMER_MSG_NUM
     help
         "set the max message nubmer of utimer"
 
+source "kernel/mk/syscall/usyscall/Config.in"
+
 endif
 
