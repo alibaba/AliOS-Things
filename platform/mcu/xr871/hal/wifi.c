@@ -32,6 +32,7 @@
 #include <string.h>
 #include <network/hal/base.h>
 #include <network/hal/wifi.h>
+#include <net/wlan/wlan_defs.h>
 #include "wifi_port.h"
 
 
@@ -156,6 +157,30 @@ static void stop_debug_mode(hal_wifi_module_t *m)
 	xr871_wlan_stop_debug_mode();
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+    wlan_sta_states_t state;
+    wlan_sta_ap_t ap;
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    wlan_sta_state(&state);
+    if (state == WLAN_STA_STATE_CONNECTED) {
+        wlan_sta_ap_info(&ap);
+        if (ap.rssi > 0) {
+            if (ap.rssi >= 128) ap.rssi = 127;
+            ap.rssi -= 128;
+        }
+        info->rssi = ap.rssi;
+        return 0;
+    }
+    return -1;
+}
+
 hal_wifi_module_t sim_aos_wifi_xr871 = {
     .base.name           = "sim_aos_wifi_xr871",
     .init                =  wifi_init,
@@ -178,6 +203,7 @@ hal_wifi_module_t sim_aos_wifi_xr871 = {
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
     .start_debug_mode = start_debug_mode,
-    .stop_debug_mode = stop_debug_mode
+    .stop_debug_mode = stop_debug_mode,
+    .get_wireless_info   = get_wireless_info,
 };
 

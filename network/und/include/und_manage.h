@@ -13,6 +13,8 @@ int und_cap_manage_init();
 
 int und_cap_manage_deinit();
 
+int und_cap_manage_clear_kv();
+
 int und_update_cap(int cap_idx, int reason_code, int wb, int sync);
 
 int und_collect_package(char *buf, int buf_len, int insert_split, int with_exception);

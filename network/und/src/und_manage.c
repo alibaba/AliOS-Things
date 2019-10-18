@@ -29,13 +29,44 @@ struct und_cap_manage_ctx_t {
 };
 
 static int und_package_capture(char *buf, int buf_len);
-static int und_package_wireless_info(char *buf, int buf_len);
+static void und_package_wireless_info(struct und_wireless_info_t *info);
 
 static struct und_cap_manage_ctx_t g_und_cap_ctx = {0};
+
+int und_cap_manage_clear_kv(void)
+{
+    int i;
+    char key[UND_KV_KEY_LEN_MAX + 1];
+    struct und_cap_manage_ctx_t *ctx = &g_und_cap_ctx;
+
+    if (ctx->mutex == NULL) {
+        und_err("save, und cap is not init\n");
+        return UND_ERR;
+    }
+
+    und_platform_mutex_lock(ctx->mutex);
+    for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
+        und_platform_memset(key, 0, sizeof(key));
+        und_platform_snprintf(key, sizeof(key), UND_KV_KEY, i);
+
+        und_platform_kv_del(key);
+    }
+
+    for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
+        if (ctx->targets[i])
+            und_platform_free(ctx->targets[i]);
+    }
+    und_platform_memset(ctx->targets, 0, sizeof(ctx->targets));
+    und_platform_memset(ctx->wb, 0, sizeof(ctx->wb));
+    und_platform_mutex_unlock(ctx->mutex);
+
+    return UND_SUCCESS;
+}
 
 static void und_cap_manage_save_task(void *param)
 {
     int i;
+    int res;
     char res_sched = 0;
     char key[UND_KV_KEY_LEN_MAX + 1];
     int len = sizeof(struct und_cap_manage_t);
@@ -52,8 +83,8 @@ static void und_cap_manage_save_task(void *param)
             continue;
         und_platform_memset(key, 0, sizeof(key));
         und_platform_snprintf(key, sizeof(key), UND_KV_KEY, i);
-        if (und_platform_kv_set(key, ctx->targets[i], len, 0) != 0) {
-            und_err("und cap kv set fail\n");
+        if ((res = und_platform_kv_set(key, ctx->targets[i], len, 0)) != 0) {
+            und_err("und cap kv set %s fail(%d)\n", key, res);
             res_sched = 1;
             continue;
         }
@@ -224,98 +255,86 @@ int und_collect_package(char *buf, int buf_len, int insert_split, int with_excep
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
-
-    if (insert_split)
-        buf[len ++] = ',';
-
-    len += und_platform_snprintf(buf + len, buf_len - len, "\"");
-    l += und_package_wireless_info(buf + len, buf_len - len);
-    if (l <= 0) {
-        buf[len - 2] = 0;  /* remove ',' */
-        buf[len - 1] = 0;  /* remove \" */
-        len -= 2;
-        und_platform_mutex_unlock(ctx->mutex);
+    if (with_exception == 0) {
         return len;
     }
 
-    len += l;
+    und_platform_mutex_lock(ctx->mutex);
 
-    if (with_exception) {
-        len += und_platform_snprintf(buf + len, buf_len - len, " ");
-        l = 0;
-        l += und_package_capture(buf + len, buf_len - len);
-        if (l > 0) {
-            len += l;
-        } else if (buf[len - 1] == ' ') {
-            /* remove the end of space */
-            len --;
-        }
+    if (insert_split) buf[len ++] = ',';
+
+    l += und_package_capture(buf + len, buf_len - len);
+    if (l > 0) {
+        len += l;
+    } else if (buf[len - 1] == ',') {
+        /* remove the end of ',' */
+        buf[-- len] = '\0';
     }
-
-    len += und_platform_snprintf(buf + len, buf_len - len, "\"");
 
     und_platform_mutex_unlock(ctx->mutex);
     return len;
 }
 
-static int und_package_wireless_info(char *buf, int buf_len)
+static void und_package_wireless_info(struct und_wireless_info_t *info)
 {
-    int len = 0, l = 0;
-    char tmp_buf[32] = {0};
-    struct und_wireless_info_t info = {-1, 80, 0};
+    /* init the default value, in cast that some platform does not realise HAL_GetWirelessInfo */
+    info->rssi = -1;
+    info->snr  = 80;
+    info->per  = 0;
 
-    UND_PTR_SANITY_CHECK(buf, UND_PARAM_ERR);
-    UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_TARGET_BUF_LEN, 32, UND_PARAM_ERR);
-
-    if (HAL_GetWirelessInfo(&info) < 0) {
+    if (HAL_GetWirelessInfo(info) < 0) {
         und_err("HAL_GetWirelessInfo not implemented, use default value\n");
     }
 
-#if 0
-    if (info.rssi == 0 && info.snr == 0 && info.per == 0) {
-        und_err("implmentation of HAL_GetWirelessInfo is not right\n");
-        return UND_ERR;
-    }
-#endif
+    und_update_report_cycle(info->per == 0 ? 0 : 1);
 
-    /* check buf is enough to save wireless information or not */
-    l += und_platform_snprintf(tmp_buf, sizeof(tmp_buf) - 1, "%lu %d %d %d",
-            (unsigned long)und_platform_uptime_ms(), info.rssi, info.snr, info.per);
-    und_update_report_cycle(info.per == 0 ? 0 : 1);
-    if (buf_len < l)
-        return len;
-
-    len += und_platform_snprintf(buf + len, buf_len - len, "%s", tmp_buf);
-
-    return len;
+    return;
 }
 
 static int und_package_capture(char *buf, int buf_len)
 {
     int i, j;
     int len = 0;
-    char tmp_buf[32] = {0};
+    int temp_len = 0;
+    int not_first = 0;
+    char *cur_ex = NULL;
+    unsigned int time_stamp = 0;
+    struct und_wireless_info_t wireless_info;
     struct und_cap_manage_ctx_t *ctx = &g_und_cap_ctx;
 
     UND_PTR_SANITY_CHECK(buf, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_TARGET_BUF_LEN, 1, UND_PARAM_ERR);
 
+    cur_ex = (char *)und_platform_malloc(256);
+    UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
+
     for (i = 1; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
         if (ctx->targets[i] == NULL || ctx->targets[i]->idx <= 0)
             continue;
+        und_info("targets[%d]:%p\n", i, ctx->targets[i]);
         for (j = 0; j < ctx->targets[i]->idx; j ++) {
-            int tmp_len = 0;
-            und_platform_memset(tmp_buf, 0, sizeof(tmp_buf));
-            tmp_len = und_platform_snprintf(tmp_buf, sizeof(tmp_buf), "0x%02x,%d,%u;", UND_CAPTURE_GROUP(i),
-                    ctx->targets[i]->caps[j].reason, ctx->targets[i]->caps[j].cnt);
-            if (buf_len < len + tmp_len) /* no space for package */
+            und_package_wireless_info(&wireless_info);
+            und_platform_memset(cur_ex, 0, 256);
+
+            temp_len = und_platform_snprintf(cur_ex, 256,
+                    "{\"wifi\":{\"rssi\":%d,\"snr\":%d,\"per\":%d,\"err_stats\":\"0x%02x,%d,%u\"},\"_time\":%lu}",
+                    wireless_info.rssi, wireless_info.snr, wireless_info.per,
+                    UND_CAPTURE_GROUP(i), ctx->targets[i]->caps[j].reason, ctx->targets[i]->caps[j].cnt,
+                    time_stamp);
+
+            if (len + temp_len + not_first > buf_len) {
+                /* remove end of ',' */
                 break;
-            len += und_platform_snprintf(buf + len, buf_len - len, "%s", tmp_buf);
+            } else {  /* make sure buffer is enough */
+                len += und_platform_snprintf(buf + len, buf_len - len, not_first ? ",%s" : "%s", cur_ex);
+                not_first = 1;
+            }
         }
+        und_info("pkt:%.*s\n", len, buf);
+
+        if (j < ctx->targets[i]->idx) break;
     }
-    /* remove the end of ';' */
-    if (len > 0 && buf[len - 1] == ';') len --;
+    und_platform_free(cur_ex);
 
     return len;
 }
