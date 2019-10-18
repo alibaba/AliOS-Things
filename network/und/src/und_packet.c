@@ -90,18 +90,16 @@ int und_build_topic(const char *fmt, char *topic_buf, int topic_buf_len)
     return len;
 }
 
-int und_build_packet(const char *ver, const char *method, const char *param,
-                     char *buf, int buf_len)
+int und_build_packet(const char *ver, const char *param, char *buf, int buf_len)
 {
     int len = 0;
 
     UND_PTR_SANITY_CHECK(ver, UND_PARAM_ERR);
-    UND_PTR_SANITY_CHECK(method, UND_PARAM_ERR);
     UND_PTR_SANITY_CHECK(param, UND_PARAM_ERR);
     UND_PTR_SANITY_CHECK(buf, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_BUF_LEN_MAX, 1, UND_PARAM_ERR);
 
-    len = und_platform_snprintf(buf, buf_len, UND_REPORT_FMT, und_packet_id(), UND_ALINK_VER, method, param);
+    len = und_platform_snprintf(buf, buf_len, UND_REPORT_FMT, und_packet_id(), UND_ALINK_VER, param);
 
     return len;
 }
@@ -114,7 +112,7 @@ int und_build_packet_param(const char *content, char *param, int param_len)
     UND_PTR_SANITY_CHECK(param, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(param_len, UND_REPORT_BUF_LEN_MAX, 1, UND_PARAM_ERR);
 
-    len = und_platform_snprintf(param, param_len, UND_REPORT_PARAM_FMT, content, (unsigned long)und_platform_uptime_ms());
+    len = und_platform_snprintf(param, param_len, UND_REPORT_PARAM_FMT, content);
 
     return len;
 }

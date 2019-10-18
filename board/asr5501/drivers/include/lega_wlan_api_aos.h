@@ -19,6 +19,12 @@ typedef enum
     WLAN_EVENT_MAX,
 }lega_wlan_event_e;
 
+typedef enum {
+    CONNECT_SUCC,           /* used in sta mode, indicate auth and assoc success */
+    CONNECT_SCAN_FAIL,      /* used in sta mode, indicate scan ssid fail         */
+    CONNECT_CONN_FAIL,      /* used in sta mode, indicate auth and assoc fail    */
+} lega_start_adv_results_e;
+
 /**
  *  @brief  Input network precise paras in lega_wlan_start_adv function.
  */
@@ -45,6 +51,58 @@ typedef struct
  *  @return    other   : error occurred
  */
 int lega_wlan_get_mac_address_inchar(char *puc_mac);
+
+/** @brief  used in station mode, scan cmd
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_start_scan_adv(void);
+
+/*when use monitor-ap mode, user should register this type of callback function */
+typedef void (*monitor_ap_cb_t)();
+
+/** @brief  used in sniffer-ap mode, callback function for application
+ *
+ * @param fn    : refer to monitor_ap_cb_t
+ *
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_register_monitor_ap_cb(monitor_ap_cb_t fn);
+
+/* start adv callback function, notify the connect results*/
+typedef void (*start_adv_cb_t)(lega_start_adv_results_e status);
+
+/** @brief  used in sta mode, callback function to notify the connecting results
+ *
+ * @param fn    : refer to start_adv_cb_t
+ *
+ *  @return    0       : on success.
+ *  @return    other   : error occurred
+ */
+int lega_wlan_register_start_adv_cb(start_adv_cb_t fn);
+
+/** @brief  config to support smartconfig in MIMO scenario
+ *
+ */
+void lega_wlan_smartconfig_mimo_enable(void);
+
+/** @brief  start monitor and ap coexist mode
+ *
+ * @param init_info    : refer to lega_wlan_init_type_t
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_start_monitor_ap(lega_wlan_init_type_t* init_info);
+
+/** @brief  stop monitor and ap coexist mode
+ *
+ * @return    0       : on success.
+ * @return    other   : error occurred
+ */
+int lega_wlan_stop_monitor_ap();
+
 
 int lega_wlan_suspend_sta(void);
 int lega_wlan_suspend_ap(void);

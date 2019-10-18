@@ -788,12 +788,36 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, u8 *buf, int len)
 	tls_wifi_send_raw_data(buf, len-4);		//LEN-FCS
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+    struct tls_curr_bss_t bss = {0};
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    if (WM_WIFI_JOINED != tls_wifi_get_state()) {
+        return -1;
+    }
+
+    tls_wifi_get_current_bss(&bss);
+    if (bss.rssi > 0) {
+        if (bss.rssi >= 128)
+            bss.rssi = 127;
+        bss.rssi -= 128;
+    }
+    info->rssi = bss.rssi;
+
+    return 0;
+}
 
 hal_wifi_module_t aos_wifi_w600 = {
     .base.name           = "aos_wifi_w600",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
-    .set_mac_addr		 =  wifi_set_mac_addr,
+    .set_mac_addr        =  wifi_set_mac_addr,
     .start               =  wifi_start,
     .start_adv           =  wifi_start_adv,
     .get_ip_stat         =  get_ip_stat,
@@ -810,12 +834,11 @@ hal_wifi_module_t aos_wifi_w600 = {
     .stop_monitor        =  stop_monitor,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
-    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame
+    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+    .get_wireless_info   = get_wireless_info,
 };
 
 void w600_wifi_register(void)
 {
 	hal_wifi_register_module(&aos_wifi_w600);
 }
-
-
