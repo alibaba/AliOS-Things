@@ -517,6 +517,29 @@ static int exit_powersave(hal_wifi_module_t *m)
 
 #endif
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    rda59xx_bss_info bss_info;
+    unsigned int state = 0;
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    state = rda59xx_get_module_state();
+    if (state & STATE_STA) {
+        rda59xx_sta_get_bss_info(&bss_info);
+        if (bss_info.rssi > 0)
+            bss_info.rssi -= 128;
+        info->rssi = bss_info.rssi;
+        return 0;
+    }
+    return -1;
+}
+
 hal_wifi_module_t aos_wifi_rda59xx = {
     .base.name           = "aos_wifi_rda59xx",
     .init                =  wifi_init,
@@ -549,6 +572,7 @@ hal_wifi_module_t aos_wifi_rda59xx = {
     .exit_powersave     =  exit_powersave,
 #endif
 
+    .get_wireless_info  = get_wireless_info,
     /* mesh related */
     //.mesh_register_cb    =  register_mesh_cb,
     //.mesh_enable         =  mesh_enable,
