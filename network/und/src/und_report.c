@@ -48,6 +48,9 @@ static void und_target_report_reply(void *pcontext, void *pclient, void *mesg)
         return;
     }
 
+    /* success, kv clean */
+    und_cap_manage_clear_kv();
+
     und_platform_mutex_lock(ctx->mutex);
     if (ctx->update == UND_CAP_STATE_RESYNC) {
         ctx->update = UND_CAP_STATE_UPDATE;
@@ -113,7 +116,7 @@ static int und_build_package()
 
     len = und_platform_strlen(ctx->buf);
 
-    if (len + 32 > UND_REPORT_TARGET_BUF_LEN) {
+    if (len + 128 > UND_REPORT_TARGET_BUF_LEN) {
         /* buf is not enough, drop real-time capture and collect capture */
         und_platform_memset(ctx->buf, 0, UND_REPORT_TARGET_BUF_LEN);
         ctx->update = UND_CAP_STATE_UPDATE;
@@ -140,10 +143,12 @@ int und_update_report(int cap_idx)
         ctx->update = UND_CAP_STATE_UPDATE;
 
     /* combine wireless information with network failure or exception */
+#if 0
     if (cap_idx == UND_CAPTURE_IDX(UND_STATIS_NETWORK_FAIL_IDX) ||
         cap_idx == UND_CAPTURE_IDX(UND_STATIS_NETWORK_EXCEPTION_IDX)) {
         und_build_package();
     }
+#endif
 
     und_platform_mutex_unlock(ctx->mutex);
 
@@ -192,8 +197,12 @@ void und_targets_report(void *param)
         }
         und_platform_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
 
-        if (und_build_package() <= 0 || ctx->buf == NULL)
+        und_build_package();
+
+        if (ctx->buf == NULL || und_platform_strlen(ctx->buf) == 0) {
+            und_info("no capture\n");
             break;
+        }
 
         plen += und_platform_snprintf(pkt_buf + plen, UND_REPORT_BUF_LEN_MAX - plen, "%s", ctx->buf);
 
@@ -212,7 +221,7 @@ void und_targets_report(void *param)
 
         /* build packet of und report */
         und_platform_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
-        plen = und_build_packet(UND_ALINK_VER, UND_METHOD_REPORT, target_buf, pkt_buf, UND_REPORT_BUF_LEN_MAX);
+        plen = und_build_packet(UND_ALINK_VER, target_buf, pkt_buf, UND_REPORT_BUF_LEN_MAX);
         if (plen < 0) {
             und_err("build pkt fail:%d\n", res);
             break;

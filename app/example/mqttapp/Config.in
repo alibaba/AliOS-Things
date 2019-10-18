@@ -4,6 +4,7 @@ config AOS_APP_MQTTAPP
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_MQTT
+    select AOS_COMP_UND
     help
         mqtt examples
 
