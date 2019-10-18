@@ -560,6 +560,28 @@ static int wifi_wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, in
     return 0;
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+    signed char rssi;
+
+    LOGD("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    if (qcom_sta_get_rssi(devId, (uint8_t *)&rssi) != 0)
+        return -1;
+
+    if (rssi > 0) {
+        rssi -= 128;
+    }
+
+    info->rssi = rssi;
+
+    return 0;
+}
+
 hal_wifi_module_t qca_4002_wmi = {
     .base.name = "qca_4002_wmi",
     .ev_cb = NULL,
@@ -581,7 +603,8 @@ hal_wifi_module_t qca_4002_wmi = {
     .stop_monitor = wifi_stop_monitor,
     .register_monitor_cb = wifi_register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = wifi_register_wlan_mgnt_monitor_cb,
-    .wlan_send_80211_raw_frame = wifi_wlan_send_80211_raw_frame
+    .wlan_send_80211_raw_frame = wifi_wlan_send_80211_raw_frame,
+    .get_wireless_info   = get_wireless_info,
 };
 
 
