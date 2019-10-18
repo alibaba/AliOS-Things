@@ -29,6 +29,7 @@ extern "C" {
 #define und_platform_timer_delete     HAL_Timer_Delete
 #define und_platform_kv_set           HAL_Kv_Set
 #define und_platform_kv_get           HAL_Kv_Get
+#define und_platform_kv_del           HAL_Kv_Del
 #define und_platform_get_product_key  HAL_GetProductKey
 #define und_platform_get_device_name  HAL_GetDeviceName
 #define und_platform_uptime_ms        HAL_UptimeMs

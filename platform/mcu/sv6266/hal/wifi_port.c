@@ -526,6 +526,33 @@ void stop_debug_mode(hal_wifi_module_t *m)
 {
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+{
+    int chan;
+    char bssid[6];
+
+    int rssi = -1;
+    int ssidlen = 32;
+    char ssid[32 + 1];
+    hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
+
+    printf("get wireless info\r\n");
+
+    if (info == NULL)
+        return -1;
+
+    if (get_wifi_status() == 1) {
+        get_connectap_info(0, ssid, &ssidlen, bssid, 6, (u8 *)&rssi, (u8 *)&chan);
+        if (rssi > 0) {
+            if (rssi >= 128) rssi = 127;
+            rssi -= 128;
+        }
+        info->rssi = rssi;
+        return 0;
+    }
+
+    return -1;
+}
 
 hal_wifi_module_t sim_aos_wifi_icomm = {
     .base.name           = "sim_aos_wifi_icomm",
@@ -549,6 +576,7 @@ hal_wifi_module_t sim_aos_wifi_icomm = {
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
     .start_debug_mode = start_debug_mode,
-    .stop_debug_mode = stop_debug_mode
+    .stop_debug_mode = stop_debug_mode,
+    .get_wireless_info   = get_wireless_info,
 };
 
