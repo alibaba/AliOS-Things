@@ -17,5 +17,6 @@ source "network/umesh/Config.in"
 source "network/yloop/Config.in"
 source "network/http/Config.in"
 source "network/und/Config.in"
+source "network/websoc/Config.in"
 
 endmenu
