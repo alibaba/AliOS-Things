@@ -1,0 +1,18 @@
+config AOS_COMP_WEBSOC
+    bool "websocket client"
+    default n
+    select AOS_COMP_LWIP
+    select AOS_COMP_OSAL_POSIX
+    help
+        AliOS Things websocket
+
+if AOS_COMP_WEBSOC
+# Configurations for websocket component
+
+config WEBSOC_WITH_TLS
+    bool "websocket WITH TLS"
+    select AOS_COMP_MBEDTLS
+    default y
+    help
+
+endif
