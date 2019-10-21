@@ -106,7 +106,6 @@ rws_bool rws_socket_process_handshake_responce(rws_socket s) {
 	float http_ver = -1;
 	int http_code = -1;
 
-    printf("str %s\n", str);
 	rws_error_delete_clean(&s->error);
 	sub = strstr(str, "HTTP/");
 	if (!sub) {
@@ -180,7 +179,6 @@ rws_bool rws_socket_recv(rws_socket s) {
 	char *buffer = NULL;
 	int buffer_size = 0;
 	int ssl_status = 0;
-	int branch = -1;
 
     buffer = s->recv_buffer;
     buffer_size = s->recv_buffer_size;
@@ -212,14 +210,9 @@ rws_bool rws_socket_recv(rws_socket s) {
 			}
 			memcpy(received, buffer, len);
 			s->received_len += len;
-
-			branch = 1;
 		} else if (len == 0) {
-			branch = 2;
 			is_reading = 0;
 		} else {
-			branch = 3;
-			printf("len %d %d\n", len, error_number);
             is_reading = 0;
 #ifdef WEBSOCKET_SSL_ENABLE
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
@@ -245,8 +238,7 @@ rws_bool rws_socket_recv(rws_socket s) {
 		error_number != WSAEWOULDBLOCK &&
 		error_number != WSAEINPROGRESS &&
 		ssl_status != 1) {
-		//DBG("in close websocket %d  EINTR %d\n", error_number, EINTR);
-        printf("in close websocket %d  EINTR %d branch %d\n", error_number, EINTR, branch);
+		DBG("in close websocket %d  EINTR %d\n", error_number, EINTR);
 
 		s->error = rws_error_new_code_descr(rws_error_code_read_write_socket, "Failed read/write socket");
 		rws_socket_close(s);
@@ -445,7 +437,6 @@ void rws_socket_send_handshake(rws_socket s) {
 						  "\r\n",
 						  "dGhlIHNhbXBsZSBub25jZQ==");
 
-    printf("\n%s\n", buff);
 	if (rws_socket_send(s, buff, writed)) {
 		s->command = COMMAND_WAIT_HANDSHAKE_RESPONCE;
 	} else {
@@ -1148,7 +1139,7 @@ int rws_ssl_conn(rws_socket s)
 
     mbedtls_ssl_conf_rng(&ssl->ssl_conf, _rws_random, NULL);
     mbedtls_ssl_conf_dbg(&ssl->ssl_conf, _rws_debug, NULL);
-    // mbedtls_ssl_conf_rng(&ssl->ssl_conf, mbedtls_ctr_drbg_random, &ssl->ctr_drbg);
+    //mbedtls_ssl_conf_rng(&ssl->ssl_conf, mbedtls_ctr_drbg_random, &ssl->ctr_drbg);
 
     if ((value = mbedtls_ssl_setup(&ssl->ssl_ctx, &ssl->ssl_conf)) != 0) {
         DBG("mbedtls_ssl_setup() failed, value:-0x%x.", -value);
@@ -1157,7 +1148,7 @@ int rws_ssl_conn(rws_socket s)
     }
 
     mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, _rws_tls_net_send, _rws_tls_net_recv, _rws_tls_net_recv_timeout);
-    // mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+    //mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
 	//mbedtls_net_set_block(&ssl->net_ctx);
 
     DBG("start to handshake...");
