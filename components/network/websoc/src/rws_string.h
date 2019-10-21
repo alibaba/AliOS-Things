@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rws_common.h"
 
 #if defined(_MSC_VER)
 #define rws_sprintf(s,l,f,...) sprintf_s(s,l,f,__VA_ARGS__)
