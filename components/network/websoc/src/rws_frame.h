@@ -6,7 +6,6 @@
 #define __RWS_FRAME_H__ 1
 
 #include "websoc/librws.h"
-#include "rws_common.h"
 
 typedef enum _rws_opcode {
 	rws_opcode_continuation = 0x0, // %x0 denotes a continuation frame

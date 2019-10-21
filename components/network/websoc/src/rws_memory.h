@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "rws_common.h"
 
 // size > 0 => malloc
 void * rws_malloc(const size_t size);
