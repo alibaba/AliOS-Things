@@ -6,16 +6,12 @@
 #ifndef __RWS_SOCKET_H__
 #define __RWS_SOCKET_H__ 1
 
-#include "rws_common.h"
-
-#if defined(RWS_OS_WINDOWS)
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#if defined(WITH_LWIP)
+#include "network/network.h"
 #else
-#include <lwip/netdb.h>
+#include <netdb.h>
 #include <posix/sys/socket.h>
 #include <sys/types.h>
-#include <lwip/tcp.h>
 #include <fcntl.h>
 #include <unistd.h>
 #endif
@@ -24,7 +20,6 @@
 #include <errno.h>
 
 #include "rws_error.h"
-#include "rws_thread.h"
 #include "rws_frame.h"
 #include "rws_list.h"
 
