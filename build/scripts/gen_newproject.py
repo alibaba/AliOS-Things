@@ -102,9 +102,6 @@ def copy_template_file(tempfile, templatedir, destdir, projectname, board):
             if "@boardname@" in line:
                 line = line.replace("@boardname@", board)
 
-            if "@aos_sdk_path@" in line:
-                line = line.replace("@aos_sdk_path@", os.environ.get("AOS_SDK_PATH").replace("\\", "/"))
-
             contents += [line]
 
     # Replace projectname from filename
@@ -134,8 +131,8 @@ config AOS_BUILD_APP
 
 config AOS_SDK_PATH
     string
-    default "%s"
-""" % (board, projectname, os.environ.get("AOS_SDK_PATH").replace("\\", "/"))
+    option env="AOS_SDK_PATH"
+""" % (board, projectname)
 
     with open(config_file, "a") as f:
         f.write(contents)
@@ -297,7 +294,6 @@ def cli(projectname, board, projectdir, templateapp):
     (md5sum, include_list) = compute_header_md5sum(destdir)
     depends = get_depends_from_source(comp_info, include_list)
     config_data = {
-        "AOS_SDK_PATH": os.environ.get("AOS_SDK_PATH").replace("\\", "/"),
         "DEPENDENCIES": " ".join(depends),
         "MD5SUM_HEADER": md5sum,
     }
