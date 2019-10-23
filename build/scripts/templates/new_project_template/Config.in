@@ -11,7 +11,7 @@ config AOS_BUILD_APP
 
 config AOS_SDK_PATH
     string
-    default "@aos_sdk_path@"
+    option env="AOS_SDK_PATH"
 
 #
 # The configs for app @projectname@
