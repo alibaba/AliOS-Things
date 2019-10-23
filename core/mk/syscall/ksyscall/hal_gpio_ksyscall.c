@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_GPIO_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "aos/hal/gpio.h"
 #include "hal_gpio_syscall_arg.h"
 
@@ -72,6 +69,4 @@ uint32_t sys_hal_gpio_finialize_stub(void *arg)
 
     return hal_gpio_finalize(_arg->gpio);
 }
-
-#endif /* RHINO_CONFIG_HAL_GPIO_SYSCALL */
 

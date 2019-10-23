@@ -74,7 +74,7 @@ int sys_lwip_close_stub(void *arg)
     cur_task = krhino_cur_task_get();
     ret = lwip_close(_arg->s);
     if (!ret) {
-        socket_fd_dec_ref(cur_task->pid, _arg->s);
+        socketfd_deref(cur_task->pid, _arg->s);
     }
 
     return ret;
@@ -148,7 +148,7 @@ int sys_lwip_socket(void *arg)
 
     ret = lwip_socket(_arg->domain, _arg->type, _arg->protocol);
     if (ret >= 0) {
-        socket_fd_inc_ref(cur_task->pid, ret);
+        socketfd_ref(cur_task->pid, ret);
     }
 
     return ret;
