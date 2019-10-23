@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_DYN_SYSCALL_TBL > 0)
-
 #include <stddef.h>
 #include "k_config.h"
 #include "syscall_no.h"
@@ -42,6 +38,4 @@ int unregister_syscall(int syscall_no)
 
     return 0;
 }
-
-#endif /* RHINO_CONFIG_DYN_SYSCALL_TBL */
 
