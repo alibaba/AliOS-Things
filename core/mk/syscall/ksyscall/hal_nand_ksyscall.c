@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_NAND_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "aos/hal/nand.h"
 #include "hal_nand_syscall_arg.h"
 
@@ -58,6 +55,4 @@ int32_t sys_hal_nand_finalize_stub(void *arg)
 
     return hal_nand_finalize(_arg->nand);
 }
-
-#endif /* RHINO_CONFIG_HAL_NAND_SYSCALL */
 

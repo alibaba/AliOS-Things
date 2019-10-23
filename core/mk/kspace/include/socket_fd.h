@@ -22,7 +22,7 @@ int socket_fd_inc_ref(int pid, int fd);
 
 int socket_init(task_group_t *group);
 
-void socket_destory(task_group_t *group);
+void socket_exit(task_group_t *group);
 
 #ifdef __cplusplus
 }
