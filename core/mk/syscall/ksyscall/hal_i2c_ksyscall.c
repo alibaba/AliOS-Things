@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_I2C_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "aos/hal/i2c.h"
 #include "hal_i2c_syscall_arg.h"
 
@@ -69,6 +66,4 @@ int32_t sys_hal_i2c_finalize_stub(void *arg)
 
     return hal_i2c_finalize(_arg->i2c);
 }
-
-#endif /* RHINO_CONFIG_HAL_I2C_SYSCALL */
 

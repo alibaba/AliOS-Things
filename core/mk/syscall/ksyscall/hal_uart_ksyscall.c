@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include <stdint.h>
 #include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_UART_SYSCALL > 0)
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 #include "k_api.h"
@@ -12,7 +11,6 @@
 extern kspinlock_t g_smp_printlock;
 #endif
 
-#include <stdint.h>
 #include "aos/hal/uart.h"
 #include "hal_uart_syscall_arg.h"
 
@@ -66,6 +64,4 @@ int32_t sys_hal_uart_finalize_stub(void *arg)
 
     return hal_uart_finalize(_arg->uart);
 }
-
-#endif /* RHINO_CONFIG_HAL_UART_SYSCALL */
 
