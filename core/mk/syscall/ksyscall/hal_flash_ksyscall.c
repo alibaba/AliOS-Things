@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_FLASH_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include <string.h>
 #include "aos/hal/flash.h"
 #include "hal_flash_syscall_arg.h"
@@ -67,6 +64,4 @@ int32_t sys_hal_flash_dis_secure_stub(void *arg)
 
     return hal_flash_dis_secure(_arg->in_partition, _arg->off_set, _arg->size);
 }
-
-#endif /*RHINO_CONFIG_HAL_FLASH_SYSCALL */
 

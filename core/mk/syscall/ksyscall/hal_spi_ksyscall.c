@@ -2,11 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "k_config.h"
-
-#if (RHINO_CONFIG_HAL_SPI_SYSCALL > 0)
-
 #include <stdint.h>
+#include "k_config.h"
 #include "aos/hal/spi.h"
 #include "hal_spi_syscall_arg.h"
 
@@ -45,6 +42,4 @@ int32_t sys_hal_spi_finalize_stub(void *arg)
 
     return hal_spi_finalize(_arg->spi);
 }
-
-#endif /* RHINO_CONFIG_HAL_SPI_SYSCALL */
 
