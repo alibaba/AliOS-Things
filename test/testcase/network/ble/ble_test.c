@@ -162,7 +162,6 @@ static void bt_ready(int err)
 
 static void test_ble_init(void)
 {
-    int err;
     YUNIT_ASSERT_FALSE(bt_enable(bt_ready));
     LOGI("ble","Stack initialized");
     /*for async event*/
@@ -176,9 +175,6 @@ static void test_ble_init(void)
 
 static void test_ble_adv(void)
 {
-
-
-    int err;
     bt_addr_t addr = {.val = { 0x80, 0x81, 0x82, 0x83, 0x84, 0x05 }};
     struct bt_le_adv_param adv_param = {
         .options = 0, \
@@ -368,6 +364,8 @@ static void test_ble_gatt_write(void)
     YUNIT_ASSERT_STR_EQUAL(value, test_value);
 #endif
 }
+
+extern int hci_driver_init(void);
 static int init(void)
 {
     int err = hci_driver_init();
