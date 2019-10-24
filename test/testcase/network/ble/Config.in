@@ -6,3 +6,11 @@ config AOS_COMP_BLE_TEST
     select AOS_COMP_YLOOP
     default n
     help
+
+if AOS_COMP_BT_HOST
+config BLE
+    int #"BLE func switch"
+    range 0 1
+    default 1
+endif
+
