@@ -357,6 +357,24 @@ void stop_debug_mode(hal_wifi_module_t *m)
     wifimgr_debug_enable(0);
 }
 
+static int get_wireless_info(hal_wifi_module_t *m, hal_wireless_info_t *wireless_info)
+{
+    int ret = -1;
+    LinkStatusTypeDef status = {0};
+
+    if (wireless_info) {
+        ret = micoWlanGetLinkStatus(&status);
+        if (ret == 0) {
+            if (status.rssi > 127) status.rssi = 127;
+            if (status.rssi == 0) status.rssi = -1;
+            if (status.rssi > 0) status.rssi -= 128;
+            wireless_info->rssi = status.rssi;
+        }
+    }
+
+    return ret;
+}
+
 hal_wifi_module_t sim_aos_wifi_mico = {
     .base.name           = "sim_aos_wifi_mico",
     .init                =  wifi_init,
@@ -378,6 +396,7 @@ hal_wifi_module_t sim_aos_wifi_mico = {
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+    .get_wireless_info   =  get_wireless_info,
     .start_debug_mode = start_debug_mode,
     .stop_debug_mode = stop_debug_mode
 };
