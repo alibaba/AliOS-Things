@@ -438,14 +438,14 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/network/netmgr \
                     -I$(SOURCE_ROOT)/include/network/yloop
 
-ifeq ($(lorawanback), 0)
+ifeq ($(AOS_COMP_LORAWAN_4_4_2), y)
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2 \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac/region \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio/sx1276 \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/system
-else ifeq ($(lorawanback), 1)
+else ifeq ($(AOS_COMP_LORAWAN_4_4_0), y)
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0 \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac \
                     -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac/region \
