@@ -9,8 +9,4 @@ config AOS_CONFIG_ENABLE_CLASS_B
     bool "Enable Class B"
     default n
 
-config AOS_CONFIG_LORAWAN_VERSION_110
-    bool "Enable Specification Version 1.1.0"
-    default n
-
 endif

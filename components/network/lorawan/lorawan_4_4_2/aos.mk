@@ -43,11 +43,13 @@ $(NAME)_INCLUDES +=  .             \
                     LoRaModuleSDK \
                     linkwan/include
 
+ifeq ($(AOS_CONFIG_ENABLE_CLASS_B), y)
 GLOBAL_DEFINES += LORAMAC_CLASSB_ENABLED
-#GLOBAL_DEFINES += LORAWAN_VERSION_110
+endif
+
 GLOBAL_DEFINES += LOW_POWER_DISABLE
 
-linkwan?=0
+linkwan ?= 1
 ifeq ($(linkwan), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN
 GLOBAL_DEFINES += CONFIG_DEBUG_LINKWAN
