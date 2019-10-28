@@ -443,6 +443,27 @@ static int exit_powersave(hal_wifi_module_t *m)
 }
 #endif
 
+static int get_wireless_info(hal_wifi_module_t *m, hal_wireless_info_t *wireless_info)
+{
+    int ret = 0;
+    lega_wlan_link_stat_t status;
+
+    if (wireless_info) {
+        ret = lega_wlan_get_link_status(&status);
+        if (0 == ret) {
+            if (status.wifi_strength > 127)
+                status.wifi_strength = 127;
+            if (status.wifi_strength > 0)
+                status.wifi_strength -= 128;
+
+            wireless_info->rssi = status.wifi_strength;
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
 hal_wifi_module_t sim_aos_wifi_lega = {
     .base.name           = "sim_aos_wifi_lega",
     .init                =  wifi_init,
@@ -465,6 +486,7 @@ hal_wifi_module_t sim_aos_wifi_lega = {
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+    .get_wireless_info   =  get_wireless_info,
     .start_ap = wifi_start_ap,
     .stop_ap = wifi_stop_ap,
     .start_debug_mode = start_debug_mode,
