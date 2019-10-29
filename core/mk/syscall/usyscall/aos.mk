@@ -38,10 +38,13 @@ else ifeq ($(HOST_ARCH),Cortex-M3)
 $(NAME)_SOURCES += svc_asm/armv7m_svc_gcc.S
 else ifeq ($(HOST_ARCH),Cortex-M4)
 $(NAME)_SOURCES += svc_asm/armv7m_svc_gcc.S
+else ifeq ($(HOST_ARCH),Cortex-A7)
+$(NAME)_SOURCES += svc_asm/armv7a_svc_gcc.S
+else ifeq ($(HOST_ARCH),Cortex-A9)
+$(NAME)_SOURCES += svc_asm/armv7a_svc_gcc.S
 endif
 
 endif
-
 
 ifeq ($(RHINO_CONFIG_HAL_ADC_SYSCALL),y)
 $(NAME)_SOURCES += hal_adc_usyscall.c
