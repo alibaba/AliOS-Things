@@ -14,13 +14,13 @@ config RHINO_CONFIG_URES_TASK_PRIO
 
 config RHINO_CONFIG_URES_TASK_KSTACK_SIZE
     int "ures task kstack size"
-    default 256
+    default 512
     help
         "set ures taks kstack size, the unit is cpu_stack_t"
 
 config RHINO_CONFIG_URES_TASK_USTACK_SIZE
     int "ures task ustack size"
-    default 256
+    default 512
     help
         "set ures task ustack size, the unit is cpu_stack_t"
 endif
@@ -41,13 +41,13 @@ config RHINO_CONFIG_UCLI_TASK_PRIO
 
 config RHINO_CONFIG_UCLI_TASK_KSTACK_SIZE
     int "ucli task kstack size"
-    default 256
+    default 512
     help
         "set ucli taks kstack size, the unit is cpu_stack_t"
 
 config RHINO_CONFIG_UCLI_TASK_USTACK_SIZE
     int "ucli task ustack size"
-    default 256
+    default 512
     help
         "set ucli task ustack size, the unit is cpu_stack_t"
 endif
@@ -68,13 +68,13 @@ config RHINO_CONFIG_UCALLBACK_TASK_PRIO
 
 config RHINO_CONFIG_UCALLBACK_TASK_KSTACK_SIZE
     int "ucallback task kstack size"
-    default 256
+    default 512
     help
         "set ucallback taks kstack size, the unit is cpu_stack_t"
 
 config RHINO_CONFIG_UCLI_TASK_USTACK_SIZE
     int "ucallback task ustack size"
-    default 256
+    default 512
     help
         "set ucallback task ustack size, the unit is cpu_stack_t"
 
@@ -95,13 +95,13 @@ config RHINO_CONFIG_UTIMER_TASK_PRIO
 
 config RHINO_CONFIG_UTIMER_TASK_KSTACK_SIZE
     int "utimer task kstack size"
-    default 256
+    default 512
     help
         "set utimer taks kstack size, the unit is cpu_stack_t"
 
 config RHINO_CONFIG_UTIMER_TASK_USTACK_SIZE
     int "utimer task ustack size"
-    default 256
+    default 512
     help
         "set utimer task ustack size, the unit is cpu_stack_t"
 
