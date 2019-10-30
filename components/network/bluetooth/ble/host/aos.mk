@@ -11,17 +11,17 @@ $(NAME)_INCLUDES-y += include \
 
 $(NAME)_COMPONENTS-y += bt_common
 
-$(NAME)_SOURCES-y := host/uuid.c \
-                     host/hci_core.c \
-                     host/conn.c \
-                     host/l2cap.c \
-                     host/att.c \
-                     host/gatt.c \
-                     host/crypto.c \
-                     host/keys.c \
-                     host/rpa.c
+$(NAME)_SOURCES-y := src/uuid.c \
+                     src/hci_core.c \
+                     src/conn.c \
+                     src/l2cap.c \
+                     src/att.c \
+                     src/gatt.c \
+                     src/crypto.c \
+                     src/keys.c \
+                     src/rpa.c
 
-$(NAME)_SOURCES-y += host/hci_ecc.c
+$(NAME)_SOURCES-y += src/hci_ecc.c
 
 ifeq ($(hci_h4),1)
 $(NAME)_SOURCES-y += hci_driver/h4.c
@@ -42,9 +42,9 @@ GLOBAL_DEFINES-y += CONFIG_BLE_50
 EN_BT_SMP ?= 0
 ifeq ($(EN_BT_SMP),1)
 GLOBAL_DEFINES-y += CONFIG_BT_SMP
-$(NAME)_SOURCES-y += host/smp.c
+$(NAME)_SOURCES-y += src/smp.c
 else
-$(NAME)_SOURCES-y += host/smp_null.c
+$(NAME)_SOURCES-y += src/smp_null.c
 endif
 
 ## BLE debug log general control macro (Note: still to be affected by DEBUG)

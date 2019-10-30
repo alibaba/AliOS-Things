@@ -10,8 +10,7 @@
 #include "core.h"
 #include "auth.h"
 #include "utils.h"
-#include "breeze_export.h"
-#include "bzopt.h"
+#include "breeze.h"
 
 #include "breeze_hal_os.h"
 #include "breeze_hal_sec.h"
