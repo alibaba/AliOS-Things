@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include "common.h"
 #include "breeze_hal_os.h"
-#include "bzopt.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -8,6 +8,11 @@ menuconfig AOS_COMP_BT_MESH
 
 if AOS_COMP_BT_MESH
 # Configurations for comp bt_mesh
+config CONFIG_BT_MESH
+    bool# "Enable BT MESH"
+    default y
+    help
+        Enable this option for bt mesh components
 
 config CONFIG_BT_MESH_PB_GATT
 	bool "Enable Provisioning over GATT (PB_GATT)"
