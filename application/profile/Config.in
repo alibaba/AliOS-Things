@@ -10,6 +10,13 @@ if AOS_APP_GATEWAYAPP
     config AOS_BUILD_APP
         default "gatewayapp"
 endif
-
 endchoice
+source "app/profile/tmall_model/Config.in"
+
+if AOS_COMP_TMALL_MODEL
+    config AOS_BUILD_APP
+        default "tmall_model"
+endif
+
+
 endif
