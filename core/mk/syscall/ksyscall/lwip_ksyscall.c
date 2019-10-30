@@ -11,7 +11,7 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip_syscall_arg.h"
-#include "socket_fd.h"
+#include "socketfd.h"
 
 int sys_lwip_accept_stub(void *arg)
 {
