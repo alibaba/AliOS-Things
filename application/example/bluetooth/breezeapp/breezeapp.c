@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <breeze_export.h>
+#include <breeze.h>
 
 #ifdef CONFIG_AIS_OTA
 #include <ota/ota_breeze.h>
