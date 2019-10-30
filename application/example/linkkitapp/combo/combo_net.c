@@ -12,7 +12,7 @@
 #include "ulog/ulog.h"
 #include "netmgr.h"
 
-#include <breeze_awss_export.h>
+#include <breeze_awss.h>
 #include "combo_devinfo.h"
 
 extern char awss_running;
