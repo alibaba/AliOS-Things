@@ -1,9 +1,0 @@
-config AOS_COMP_TMALL_MODEL
-    bool
-    default n
-    select AOS_COMP_BT_MESH
-    help
-
-if AOS_COMP_TMALL_MODEL
-# Configurations for comp ble mesh tmall model
-endif
