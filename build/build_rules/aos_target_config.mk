@@ -416,16 +416,14 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal \
                     -I$(SOURCE_ROOT)/include/hal/soc \
                     -I$(SOURCE_ROOT)/include/network \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze/api \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze/core/include \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/include \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/port/include \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/bt_common/tinycrypt/include \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/include \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/include/drivers \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/bt_host/profile \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/bt_mesh/inc \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/tmall_model \
+                    -I$(SOURCE_ROOT)/include/network/bluetooth/mesh/inc \
                     -I$(SOURCE_ROOT)/include/network/coap \
                     -I$(SOURCE_ROOT)/include/network/hal \
                     -I$(SOURCE_ROOT)/include/network/http \
