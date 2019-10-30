@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "bzopt.h"
+#include "breeze_config.h"
 
 #define BZ_CMD_TYPE_MASK 0xf0
 

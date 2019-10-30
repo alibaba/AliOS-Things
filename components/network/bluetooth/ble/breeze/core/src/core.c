@@ -10,7 +10,6 @@
 #include "extcmd.h"
 #include "common.h"
 #include "ble_service.h"
-#include "bzopt.h"
 #include "utils.h"
 #include "breeze_hal_ble.h"
 #include "breeze_hal_sec.h"

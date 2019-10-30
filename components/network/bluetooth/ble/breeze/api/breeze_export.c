@@ -6,12 +6,12 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "common.h"
+#include "breeze.h"
 #include "core.h"
 #include "transport.h"
-#include "breeze_export.h"
 #include "breeze_hal_ble.h"
 #include "breeze_hal_os.h"
-#include "bzopt.h"
 
 static dev_status_changed_cb m_status_handler;
 static set_dev_status_cb m_ctrl_handler;
