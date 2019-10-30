@@ -8,7 +8,6 @@
 #include "ble_service.h"
 #include "common.h"
 #include "core.h"
-#include "bzopt.h"
 
 ble_ais_t g_ais;
 init_done_t g_init_done;
