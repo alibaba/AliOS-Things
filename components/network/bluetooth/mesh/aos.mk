@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := BLE Mesh stack.
 
 $(NAME)_COMPONENTS :=
-$(NAME)_INCLUDES := ./src/include/
+$(NAME)_INCLUDES := ./include/
 
 ifeq ($(bt_mesh_standalone_deploy),1)
 GLOBAL_DEFINES += CONFIG_MESH_STACK_ALONE
