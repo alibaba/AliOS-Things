@@ -27,7 +27,7 @@
 #include <bluetooth/l2cap.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_vs.h>
-#include <bluetooth/hci_driver.h>
+#include <drivers/hci_driver.h>
 #include <bluetooth/storage.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
