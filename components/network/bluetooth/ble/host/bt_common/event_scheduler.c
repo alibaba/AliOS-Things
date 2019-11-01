@@ -58,7 +58,9 @@ void scheduler_loop(struct k_poll_event *events)
             if (now >= (work->start_ms + work->timeout)) {
                 k_queue_remove(&g_work_queue.queue, work);
                 if (atomic_test_and_clear_bit(work->flags, K_WORK_STATE_PENDING)) {
-                    work->handler(work);
+                    if (work->handler) {
+                        work->handler(work);
+                    }
                 }
             }
         }
