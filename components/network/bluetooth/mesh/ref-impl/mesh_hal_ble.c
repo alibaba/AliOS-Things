@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <port/mesh_hal_ble.h>
+#include "port/mesh_hal_ble.h"
 
 #ifndef CONFIG_MESH_STACK_ALONE
 #include <bluetooth/conn.h>
