@@ -5,7 +5,7 @@
 #ifndef OTA_BREEZE_H
 #define OTA_BREEZE_H
 
-#include <breeze_export.h>
+#include <breeze.h>
 
 #define OTA_BREEZE_FW_VER_LEN (32)
 
