@@ -7,6 +7,7 @@ $(NAME)_SUMMARY := BLE Mesh HAL reference implementation
 $(NAME)_SOURCES := ./mesh_hal_ble.c \
                    ./mesh_hal_sec.c
 
+$(NAME)_INCLUDES += ../include/
 ifeq ($(bt_mesh_standalone_deploy),1)
 $(NAME)_SOURCES += ./mesh_hal_os.c
 $(NAME)_INCLUDES += .
