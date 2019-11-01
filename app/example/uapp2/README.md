@@ -1,82 +1,67 @@
-## Overview
-
-**developerkit-mk** is not a new board, actually the same as **developerkit** board,  developerkit-mk board is created to demostrate user space applications.
-
-## Feature of the Board
-
-### Supported applications
-
-* **uapp1**
-* **uapp2**
-
-Currently the board only supports two applications, user space **uapp1** and **uapp2**, you can find the two applications in app/example directory.
-
-### Directories
+## Contents
 
 ```sh
-developerkit-mk
-├── Config.in                       # board configs
-├── Inc                             # includes files
-├── STM32L496VGTx_FLASH_kernel.ld   # linker file for kernel
-├── Src                             # source files
-├── aos                             # source files
-├── aos.mk                          # make file
-├── app1.ld                         # linker file for app1
-├── app2.ld                         # linker file for app2
-├── gen_image_bin.mk
-├── hal                             # hal files
-└── startup_stm32l496xx.s           # startup file
+app/example/uapp2/
+├── Config.in      	# config file
+├── README.md
+├── aos.mk          # make file
+├── include         # header files
+└── src             # source files
 ```
 
-### Board Hardware Resources
+## Introduction
 
-Please refer to developkerkit board for the hardware resources.
+This example will generate a standalone applications which runs at user space. User can update/load/unload this application at runtime while kernel and other applications still keep running.
 
-### Flash Partitions
+To run this application, you should at least have compiled kernel which runs at kernel space.
 
-| Start Addr | Size      | Description                           |
-| ---------- | --------- | ------------------------------------- |
-| 0x08000000 | 512KBytes | kernel flash region                   |
-| 0x08080000 | 128KBytes | the first application's flash region  |
-| 0x080a0000 | 128KBytes | the second application's flash region |
 
-### RAM Partitions
+```c
+         app              app        app
+    +------------+  +------------+  +---+
+    |   uapp1    |  |    uapp2   |  |   | user space
+    +-  -  -  -  +  +-  -  -  -  +  |...|
+    |  syscall   |  |   syscall  |  |   |
+    +------------+  +------------+  +---+
+=====================================================
+    +-----------------------------------+
+    |             syscall               |
+    |-  -  -  -  -  -  -  -  -  -  -  - | kernel space
+    | rhino | hal | lwip | fs |   ...   |
+    +-----------------------------------+
+                    kernel
+```
 
-| Start Addr | Size      | Description                         |
-| ---------- | --------- | ----------------------------------- |
-| 0x20000000 | 128KBytes | kernel RAM region                   |
-| 0x20020000 | 64KBytes  | the first application's RAM region  |
-| 0x20030000 | 64KBytes  | the second application's RAM region |
+To run uapp2, you should at least have compiled and flashed kernel which runs at kernel space. If you want to run more user space applications, for example uapp1, you should compile and flash kernel image, uapp1 image, and uapp2 image.
 
-## Build images
+**Also you can refer to kernel/mk/doc/AliOS-Things_user_space_program-v0.4.pdf for more complete experience.**
+
+## Supported Boards
+
+- **developerkit-mk**
+- **stm32f429zi-mk**
+
+## Build and flash
 
 Assume you have intalled **aos-cube** tool on your machine. Refer to [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start) for installing aos-cube if you haven't install it.
 
 ### Build kernel image
 
-Build kernel image for the developerkit-mk board
+For example, Build kernel image for the developerkit-mk board.
 
-`aos make uapp1@developerkit-mk -c config`
+`aos make uapp2@developerkit-mk -c config`
 
 `aos make MBINS=kernel`
 
-Kernel image will be generated in `out/uapp1@developerkit-mkkernel/binary` directory.
+Kernel image will be generated in `out/uapp2@developerkit-mkkernel/binary` directory.
 
 ### Build application images
-
-#### uapp1
-
-`aos make uapp1@developerkit-mk -c config`  
-
-`aos make MBINS=app MBINS_APP=app1`
-
-uapp1 will be generated in `out/uapp1@developerkit-mkapp/binary` directory.
 
 #### uapp2
 
 `aos make uapp2@developerkit-mk -c config`
 
-`aos make MBINS=app MBINS_APP=app2`  
+`aos make MBINS=app MBINS_APP=app2`
 
 uapp2 will be generated in `out/uapp2@developerkit-mkapp/binary` directory.
 
@@ -84,15 +69,7 @@ uapp2 will be generated in `out/uapp2@developerkit-mkapp/binary` directory.
 
 You should install **st-link** tool to download kernel and app images to the board. More info about st-link, refer to [**st-link**](https://github.com/texane/stlink) on github.
 
-### Download app images
-
-#### uapp1
-
-flahs uapp1 binary with command:
-
-`st-flash write out/uapp1@developerkit-mkapp/binary/uapp1@developerkit-mk.app.bin 0x08080000`  
-
-#### uapp2
+### Download uapp2 image
 
 flash uapp2 binary with command:
 
@@ -102,7 +79,7 @@ flash uapp2 binary with command:
 
 flash kernel binary with the command:
 
-`st-flash write out/uapp1@developerkit-mkkernel/binary/uapp1@developerkit-mk.kernel.bin 0x08000000`  
+`st-flash write out/uapp1@developerkit-mkkernel/binary/uapp1@developerkit-mk.kernel.bin 0x08000000`
 
 On developerkit-mk board, I recommand you flash kernel and app images twice, and then reset the chip.
 
@@ -118,7 +95,6 @@ kernel have registered some CLI commands related to user space application opera
 
   `========== app info ==========`
   `name                    state`
-  `uapp1                   run`
   `uapp2                   run`
 
 * check user space application PID
@@ -129,16 +105,15 @@ kernel have registered some CLI commands related to user space application opera
 
   `============ process info ============`
   `Name                pid       tasks`
-  `uapp2               2         4         
-  uapp1               1         4` 
+  `uapp2               1         4`
 
 * kill an user space application
 
   to kill a running user space application, issue command `kill PID`, you can check the application's PID number via `process` command
 
-  `# kill 2`
+  `# kill 1`
 
-  `process uapp2  is unloaded, pid 2`
+  `process uapp2  is unloaded, pid 1`
 
 * Load an user space application
 
@@ -146,8 +121,8 @@ kernel have registered some CLI commands related to user space application opera
 
   `# start uapp2`
 
-  `uapp2 start to run...`
-  
+  `uapp1 start to run...`
+
 * list user space commands
 
   Type `help` command in CLI, it wil list all the commands, including user space commands if there are any. For example, the third part commands below are user space commands.
@@ -181,13 +156,10 @@ kernel have registered some CLI commands related to user space application opera
   `start     : start app`
 
   **`====User app Commands====`**
-  **`uapp2_proc_msg_test: uapp2 proc_msg_test`**
+
+  `uapp2_proc_msg_test: uapp2 proc_msg_test`
   **`uapp2_set_g_proc_var: uapp2 set g_proc_var`**
   **`uapp2_read_g_proc_var: uapp2 read g_proc_var`**
   **`uapp2_heap: dump uapp1 heap statistics`**
-  **`uapp1_proc_msg_test: uapp1 proc_msg_test`**
-  **`uapp1_set_g_proc_var: uapp1 set g_proc_var`**
-  **`uapp1_read_g_proc_var: uapp1 read g_proc_var`**
-  **`certificate: run user space certificate test`**
-  **`uapp1_exit: uapp1 process exit`**
-  **`uapp1_heap: dump uapp1 heap statistics`**
+
+Refer to `board/developerkit-mk/README.md` or `board/stm32f429zi-mk/README.md` for details.
