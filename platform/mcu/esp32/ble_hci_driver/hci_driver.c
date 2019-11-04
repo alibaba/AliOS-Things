@@ -9,7 +9,7 @@
 
 #include <misc/slist.h>
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/hci_driver.h>
+#include <drivers/hci_driver.h>
 #include <common/log.h>
 #include <misc/byteorder.h>
 
