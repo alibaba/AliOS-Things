@@ -25,7 +25,7 @@
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
-#include <drivers/bluetooth/hci_driver.h>
+#include <drivers/hci_driver.h>
 
 #ifdef CONFIG_CLOCK_CONTROL_NRF5
 #include <drivers/clock_control/nrf5_clock_control.h>
