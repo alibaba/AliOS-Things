@@ -1,0 +1,20 @@
+config AOS_COMP_SDK_HTTP
+    bool "FEATURE_HTTP_COMM_ENABLED"
+    default n
+    select INFRA_SHA1
+    select INFRA_HTTPC
+    select INFRA_REPORT
+    select INFRA_JSON_PARSER
+    select SUPPORT_TLS
+    select AOS_COMP_SDK_WRAPPERS
+    help
+        Establish persistent connection with AliCloud via HTTP-based protocol
+
+if AOS_COMP_SDK_HTTP
+    config HTTP_COMM_ENABLED
+    bool
+    default y
+endif
+
+
+
