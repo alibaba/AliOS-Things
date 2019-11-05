@@ -1,0 +1,58 @@
+config AOS_COMP_SDK_WRAPPERS
+    bool "Linkkit HAL for AliOS Things"
+    default n
+    select AOS_COMP_ULOG
+    select AOS_COMP_ACTIVATION
+    select AOS_COMP_CHIP_CODE
+    select AOS_COMP_NETMGR
+    select AOS_COMP_KV
+    select INFRA_AES
+    help
+      HAL for AliOS Things
+    
+menu "Linkkit HAL config"
+depends on AOS_COMP_SDK_WRAPPERS
+
+config SUPPORT_TLS
+    bool "support TLS"
+    default y 
+    help
+        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
+
+config USE_MBEDTLS
+    bool "use MBEDTLS"
+    depends on SUPPORT_TLS
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_SDK_CERT
+    default y
+    help
+        mbedtls is a TLS implementation
+
+
+config USE_ITLS
+    bool "use iTLS"
+    depends on SUPPORT_TLS
+    depends on !USE_MBEDTLS
+    select AOS_COMP_ITLS
+    default n
+    help
+        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
+
+config COAP_DTLS_SUPPORT
+    bool "support DTLS"
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_SDK_CERT
+    default n
+
+config TLS_SAVE_TICKET
+    bool "support save tls ticket"
+    default n
+    depends on  SUPPORT_TLS
+    help
+      save tls session and ticket in kv to reduce memory and accelerate connection
+
+    config HAL_KV
+    bool
+    default y
+endmenu
+
