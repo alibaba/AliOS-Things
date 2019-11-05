@@ -13,24 +13,25 @@
 #include <zephyr/types.h>
 #include <misc/util.h>
 #include <misc/byteorder.h>
-#include <api/mesh.h>
+#include <mesh.h>
+#include <mesh_config.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "access_internal.h"
+#include "mesh_internal.h"
+#include "main_internal.h"
+
 #include "adv.h"
 #include "net.h"
 #include "lpn.h"
 #include "transport.h"
 #include "mesh_crypto.h"
-#include "access.h"
 #include "beacon.h"
 #include "proxy.h"
 #include "foundation.h"
 #include "friend.h"
-#include "main.h"
-#include <mesh_config.h>
 #include "bt_mesh_custom_log.h"
 
 #define DEFAULT_TTL 7
