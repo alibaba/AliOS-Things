@@ -353,7 +353,7 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-static int esp8266_sal_add_dev(char* driver_name, void* data)
+static int esp8266_sal_add_dev(void* data)
 {
     int ret = netm_init();
 
@@ -382,4 +382,4 @@ static sal_op_t sal_op = {
 int esp8266_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
-} 
+}
