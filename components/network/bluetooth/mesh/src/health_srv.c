@@ -14,18 +14,18 @@
 #include <misc/byteorder.h>
 #include <misc/util.h>
 
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "mesh_internal.h"
 #include "adv.h"
 #include "net.h"
 #include "transport.h"
-#include "access.h"
+#include "access_internal.h"
 #include "foundation.h"
-#include "health_srv.h"
+#include "health_srv_internal.h"
 #include "bt_mesh_custom_log.h"
 
 #define HEALTH_TEST_STANDARD 0x00

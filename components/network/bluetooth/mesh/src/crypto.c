@@ -22,12 +22,12 @@
 #include <tinycrypt/ccm_mode.h>
 #endif
 
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_CRYPTO)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "mesh_internal.h"
 #include "mesh_crypto.h"
 //#include "bt_mesh_custom_log.h"
 

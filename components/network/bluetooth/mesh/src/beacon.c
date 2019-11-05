@@ -11,13 +11,13 @@
 #include <misc/util.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_BEACON)
 #include "common/log.h"
 
 #include "adv.h"
-#include "mesh.h"
+#include "mesh_internal.h"
 #include "net.h"
 #include "prov.h"
 #include "mesh_crypto.h"
