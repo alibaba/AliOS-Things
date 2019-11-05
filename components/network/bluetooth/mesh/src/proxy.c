@@ -10,21 +10,22 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 #include <errno.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_PROXY)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "access_internal.h"
+#include "mesh_internal.h"
+#include "main_internal.h"
+
 #include "adv.h"
 #include "net.h"
 #include "prov.h"
 #include "beacon.h"
 #include "foundation.h"
-#include "access.h"
 #include "proxy.h"
-#include "main.h"
 #include <port/mesh_hal_ble.h>
 #include "bt_mesh_custom_log.h"
 

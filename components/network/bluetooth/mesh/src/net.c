@@ -15,24 +15,25 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
+#include <mesh_config.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_NET)
 #include "common/log.h"
 
+#include "access_internal.h"
+#include "main_internal.h"
+#include "mesh_internal.h"
+
 #include "mesh_crypto.h"
 #include "adv.h"
-#include "mesh.h"
 #include "net.h"
 #include "lpn.h"
 #include "friend.h"
 #include "proxy.h"
 #include "transport.h"
-#include "access.h"
 #include "foundation.h"
 #include "beacon.h"
-#include "main.h"
-#include <mesh_config.h>
 #include "bt_mesh_custom_log.h"
 
 /* Minimum valid Mesh Network PDU length. The Network headers

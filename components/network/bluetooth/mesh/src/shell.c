@@ -17,15 +17,17 @@
 #include <misc/printk.h>
 #include "errno.h"
 
-#include <api/mesh.h>
+#include <mesh.h>
 #include <port/mesh_hal_os.h>
 
 /* Private includes for raw Network & Transport layer access */
-#include "mesh.h"
+#include "health_srv_internal.h"
+#include "cfg_cli_internal.h"
+
+#include "mesh_internal.h"
 #include "net.h"
 #include "transport.h"
 #include "foundation.h"
-#include "health_srv.h"
 
 #define CID_NVAL   0xffff
 #define CID_LOCAL  0x01a8

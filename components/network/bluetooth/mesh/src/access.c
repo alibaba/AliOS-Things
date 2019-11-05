@@ -12,12 +12,12 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_ACCESS)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "mesh_internal.h"
 #include "adv.h"
 #include "net.h"
 #include "lpn.h"

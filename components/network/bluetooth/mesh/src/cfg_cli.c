@@ -14,13 +14,14 @@
 #include <misc/util.h>
 #include <misc/byteorder.h>
 
-#include <api/mesh.h>
-#include "api/mesh/cfg_cli.h"
+#include <mesh.h>
+#include <cfg_cli.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
 #include "common/log.h"
 
-#include "mesh.h"
+#include "mesh_internal.h"
+#include "cfg_cli_internal.h"
 #include "foundation.h"
 #include "bt_mesh_custom_log.h"
 

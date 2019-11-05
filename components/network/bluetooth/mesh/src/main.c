@@ -11,11 +11,13 @@
 #include <errno.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG)
 #include "common/log.h"
 
+#include "access_internal.h"
+#include "mesh_internal.h"
 #include "test.h"
 #include "adv.h"
 #include "prov.h"
@@ -24,10 +26,8 @@
 #include "lpn.h"
 #include "friend.h"
 #include "transport.h"
-#include "access.h"
 #include "foundation.h"
 #include "proxy.h"
-#include "mesh.h"
 
 #include "bt_mesh_custom_log.h"
 
