@@ -13,21 +13,21 @@
 #include <stddef.h>
 #include <net/buf.h>
 
-#include "mesh/access.h"
-#include "mesh/main.h"
-#include "mesh/cfg_srv.h"
-#include "mesh/health_srv.h"
+#include "access.h"
+#include "main.h"
+#include "cfg_srv.h"
+#include "health_srv.h"
 
 #if defined(CONFIG_BT_MESH_CFG_CLI)
-#include "mesh/cfg_cli.h"
+#include "cfg_cli.h"
 #endif
 
 #if defined(CONFIG_BT_MESH_HEALTH_CLI)
-#include "mesh/health_cli.h"
+#include "health_cli.h"
 #endif
 
 #if defined(CONFIG_BT_MESH_SHELL)
-#include "mesh/shell.h"
+#include "shell.h"
 #endif
 
 #endif /* __BT_MESH_H */
