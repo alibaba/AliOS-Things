@@ -134,7 +134,7 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     lite_cjson_t node;
     unsigned char key[32] = {0};
     unsigned char buff[128] = {0};
-    unsigned char random[32]   = {0};
+    unsigned char random[32 + 1]   = {0};
 
     if (NULL == p_str || NULL == p_iotx_coap) {
         return IOTX_ERR_INVALID_PARAM;
@@ -169,7 +169,9 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
-
+    if (node.value_length > 32) {
+        return IOTX_ERR_BUFF_TOO_SHORT;
+    }
     memcpy(random, node.value, node.value_length);
     HAL_Snprintf((char *)buff, sizeof(buff), "%s,%s",
                  p_iotx_coap->p_devinfo->device_secret,  random);
