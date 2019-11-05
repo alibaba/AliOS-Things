@@ -1,0 +1,14 @@
+config AOS_COMP_SDK_OTA
+    bool 
+    default n
+    select INFRA_STRING
+    select INFRA_JSON_PARSER
+    select INFRA_HTTPC
+    select INFRA_MD5
+    select INFRA_SHA256
+    help
+        Establish persistent connection with AliCloud via HTTP-based protocol
+
+
+
+
