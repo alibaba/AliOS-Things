@@ -18,17 +18,17 @@
 #include <toolchain.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_LOW_POWER)
 #include "common/log.h"
 
+#include "access_internal.h"
+#include "mesh_internal.h"
 #include "mesh_crypto.h"
 #include "adv.h"
-#include "mesh.h"
 #include "net.h"
 #include "transport.h"
-#include "access.h"
 #include "beacon.h"
 #include "foundation.h"
 #include "lpn.h"

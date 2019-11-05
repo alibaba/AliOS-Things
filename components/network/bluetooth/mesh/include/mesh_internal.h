@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef _MESH_MESH_H_
-#define _MESH_MESH_H_
+#ifndef _MESH_MESH_INT_H_
+#define _MESH_MESH_INT_H_
 
 #define MESH_BIT(n) (1UL << (n))
 #define MESH_BIT_MASK(n) (MESH_BIT(n) - 1)
