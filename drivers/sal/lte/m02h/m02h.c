@@ -1212,7 +1212,7 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-static int m02h_sal_add_dev(char* driver_name, void* data)
+static int m02h_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
 
