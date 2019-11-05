@@ -11,7 +11,7 @@
 #include <misc/util.h>
 
 #include <net/buf.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_ADV)
 #include "common/log.h"
