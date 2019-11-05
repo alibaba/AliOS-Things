@@ -66,7 +66,7 @@ static int add_sock_to_list(int fd, int sock)
             return 0;
         }
     }
-    
+
     return 1;
 }
 
@@ -80,7 +80,7 @@ static int fd_to_socket(int fd)
             return sock_list[i].qcom_socket;
         }
     }
-    
+
     return -1;
 }
 
@@ -94,7 +94,7 @@ static int socket_to_fd(int socket)
             return sock_list[i].fd;
         }
     }
-    
+
     return -1;
 }
 
@@ -117,7 +117,7 @@ static int HAL_SAL_DomainToIp(char *domain, char ip[16])
 
     // NOTE: This function returns the address in reverse byte order
     status = qcom_dnsc_get_host_by_name((char *)domain, &addr);
- 
+
     PRINTF("DNS Resolve %d, status = %d\r\n", addr, status);
     if (status == 0)
     {
@@ -135,7 +135,7 @@ static int HAL_SAL_Start(sal_conn_t *c)
     SOCKADDR_T l_addr, r_addr;
     memset(&l_addr, 0, sizeof(l_addr));
     memset(&r_addr, 0, sizeof(r_addr));
-    
+
     A_STATUS status;
 
     if(!c || !c->addr)
@@ -145,13 +145,13 @@ static int HAL_SAL_Start(sal_conn_t *c)
     }
 
     PRINTF("sal_qcom_start %s\r\n", c->addr);
-    
+
     // NOTE: This function returns the address in reverse byte order
     status = qcom_dnsc_get_host_by_name(c->addr, (uint32_t*)&r_addr.sin_addr.s_addr);
     if(status != A_OK)
     {
         /*domain resolve failed, try to use IP directly */
-        
+
         int a0, a1, a2, a3;
         ret = sscanf(c->addr, "%d.%d.%d.%d", &a0, &a1, &a2, &a3);
         if(ret == 4)
@@ -163,7 +163,7 @@ static int HAL_SAL_Start(sal_conn_t *c)
             return 1;
         }
     }
-    
+
     switch(c->type)
     {
         case TCP_CLIENT:
@@ -180,37 +180,37 @@ static int HAL_SAL_Start(sal_conn_t *c)
             return 1;
             break;
     }
-    
+
     if(sock < 0)
     {
         return 1;
     }
-    
+
     if(c->type == TCP_CLIENT || c->type == SSL_CLIENT)
     {
         r_addr.sin_port = c->r_port;
         r_addr.sin_family = ATH_AF_INET;
-        
+
         status = (A_STATUS)qcom_connect(sock, (struct sockaddr *)&r_addr, sizeof(r_addr));
         if(status != A_OK)
         {
             return 1;
         }
     }
-    
+
     if(c->type == TCP_SERVER)
     {
         l_addr.sin_port = c->l_port;
         l_addr.sin_family = ATH_AF_INET;
         l_addr.sin_addr.s_addr = CSV_BYTES_TO_UINT32_IPADDR(0, 0, 0, 0);
-        
+
         status = (A_STATUS)qcom_bind(sock, (struct sockaddr *)(&l_addr), sizeof(l_addr));
         if(status != A_OK)
         {
             qcom_socket_close(sock);
             return 1;
         }
-        
+
         status = qcom_listen(sock, 1);
         if(status != A_OK)
         {
@@ -218,7 +218,7 @@ static int HAL_SAL_Start(sal_conn_t *c)
             return 1;
         }
     }
-    
+
     if(c->type == UDP_UNICAST || c->type == UDP_BROADCAST)
     {
         l_addr.sin_port = c->l_port;
@@ -246,7 +246,7 @@ static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16],
     int qcom_socket = 0;
 
     /* qcom driver enable ZERO_COPY, then must use custom_alloc */
-    
+
     uint8_t *send_buf = custom_alloc(len);
 
     PRINTF("sal_qcom_send fd = %d, size = %d\r\n",fd, len);
@@ -258,9 +258,9 @@ static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16],
         PRINTF("sal_qcom_send allocation failed\r\n");
         return 1;
     }
-    
+
     memcpy(send_buf, data, len);
-    
+
     /* if remote_ip, regard it as TCP send */
     if(remote_ip == NULL)
     {
@@ -271,7 +271,7 @@ static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16],
     {
         int a0, a1, a2, a3;
         sscanf(remote_ip, "%d.%d.%d.%d", &a0, &a1, &a2, &a3);
-        
+
         SOCKADDR_T r_addr;
         r_addr.sin_family = ATH_AF_INET;
         r_addr.sin_port = remote_port;
@@ -280,11 +280,11 @@ static int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16],
         sent = qcom_sendto(qcom_socket, (char*)send_buf, len, 0, (struct sockaddr *)&r_addr, sizeof(SOCKADDR_T));
         PRINTF("UDP Send return %d\r\n", sent);
     }
-    
+
     custom_free(send_buf);
     return 0;
 }
-              
+
 static int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int sock;
@@ -322,7 +322,7 @@ void sal_recv_task(void *param)
 {
     int i, rev_len, timeout, sock, fd;
     char *recv_buf;
-    
+
     SOCKADDR_T r_addr;
     socklen_t r_addr_len;
     PRINTF("sal_recv_task starting... \r\n");
@@ -366,13 +366,13 @@ void sal_recv_task(void *param)
 
 static ktask_t *g_sal_task = NULL;
 #define WIFI_SAL_STACK_SIZE 256
-int gt202_sal_add_dev(char* driver_name, void* data)
+int gt202_sal_add_dev(void* data)
 {
     kstat_t status;
     int i = 0;
 
     PRINTF("gt202_sal_init\r\n");
-    
+
     while (i < CONN_LIST_MAX) {
         sock_list[i].fd = -1;
         sock_list[i].qcom_socket = -1;
@@ -407,4 +407,4 @@ static sal_op_t sal_op = {
 int gt202_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
-} 
+}

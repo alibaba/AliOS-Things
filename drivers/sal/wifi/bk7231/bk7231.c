@@ -51,7 +51,6 @@ static aos_mutex_t g_link_mutex;
 static netconn_data_input_cb_t g_netconn_data_input_cb;
 static char localipaddr[16];
 static uart_dev_t uart_dev;
-static char* driver_name;
 int at_dev_fd = -1;
 
 static void handle_tcp_udp_client_conn_state(uint8_t link_id)
@@ -812,13 +811,13 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-static int bk7231_sal_add_dev(char* driver_name, void* data)
+static int bk7231_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
 
     if(data != NULL)
     {
-        sal_device_config_t* config = (sal_device_config_t *)data;    
+        sal_device_config_t* config = (sal_device_config_t *)data;
         uart_dev.port  = config->uart_dev.port;
         uart_dev.config.baud_rate    = config->uart_dev.config.baud_rate;
         uart_dev.config.data_width   = config->uart_dev.config.data_width;
@@ -876,4 +875,4 @@ static sal_op_t sal_op = {
 int bk7231_sal_device_init(void)
 {
     return sal_module_register(&sal_op);
-} 
+}

@@ -967,7 +967,7 @@ static int mk3060_client_status_notify(netconn_client_status_notify_t cb)
 }
 #endif
 
-int mk3060_sal_add_dev(char* driver_name, void* data)
+int mk3060_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
 
@@ -975,7 +975,7 @@ int mk3060_sal_add_dev(char* driver_name, void* data)
 
     if(data != NULL)
     {
-        sal_device_config_t* config = (sal_device_config_t *)data;    
+        sal_device_config_t* config = (sal_device_config_t *)data;
         uart_dev.port  = config->uart_dev.port;
         uart_dev.config.baud_rate    = config->uart_dev.config.baud_rate;
         uart_dev.config.data_width   = config->uart_dev.config.data_width;

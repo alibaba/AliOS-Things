@@ -1097,7 +1097,7 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-int sim800_sal_add_dev(char* driver_name, void* data)
+int sim800_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
 
@@ -1105,7 +1105,7 @@ int sim800_sal_add_dev(char* driver_name, void* data)
 
     if(data != NULL)
     {
-        sal_device_config_t* config = (sal_device_config_t *)data;    
+        sal_device_config_t* config = (sal_device_config_t *)data;
         uart_dev.port  = config->uart_dev.port;
         uart_dev.config.baud_rate    = config->uart_dev.config.baud_rate;
         uart_dev.config.data_width   = config->uart_dev.config.data_width;
