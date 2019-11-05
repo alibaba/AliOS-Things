@@ -16,7 +16,7 @@
 #include <aos/hal/gpio.h>
 #include <tmall_model.h>
 #include <tmall_config.h>
-#include <api/mesh.h>
+#include <mesh.h>
 
 #define PID_STRING_LEN 4
 #define DEVICE_NAME_LEN 6
