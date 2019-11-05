@@ -1,0 +1,78 @@
+
+
+config AOS_COMP_SDK_DEVMODEL
+
+    bool "FEATURE_DEVICE_MODEL_ENABLED"
+    select INFRA_COMPAT
+    select INFRA_CJSON
+    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_SDK_WRAPPERS
+    default n
+    help
+        Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
+
+        Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+
+if AOS_COMP_SDK_DEVMODEL
+    config DEVICE_MODEL_ENABLED
+    bool 
+    default y
+endif
+
+menu "Device Model Configurations"
+    depends on DEVICE_MODEL_ENABLED
+
+    config DEVICE_MODEL_GATEWAY
+        bool "FEATURE_DEVICE_MODEL_GATEWAY"
+        select INFRA_SHA256
+        default n
+        help
+            Switching Thing-Model related implementations provided in gateway oriented way
+
+    config DEPRECATED_LINKKIT
+        bool "FEATURE_DEPRECATED_LINKKIT"
+        default n
+        select INFRA_JSON_PARSER
+        help
+            Enable providing Thing-Model related functions via being_deprecated/old/obsoleted APIs
+            They are named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
+
+            Switching to "y" leads to SDK providing APIs in linkkit_export.h + linkkit_gateway_export.h
+            Switching to "n" leads to SDK providing APIs in iot_export_linkkit.h
+
+    config DEVICE_MODEL_RAWDATA_SOLO
+        bool "FEATURE_DEVICE_MODEL_RAWDATA_SOLO"
+        depends on DEVICE_MODEL_ENABLED && !DEVICE_MODEL_GATEWAY && !DEPRECATED_LINKKIT
+        default n
+        help
+            Enable only raw data function via IOT_Linkkit_xxx new APIs
+
+            Switching to "y" leads to SDK being compiled only raw data function
+            Switching to "n" leads to SDK being compiled both raw data and thing model function
+
+    config ALCS_ENABLED
+        bool "FEATURE_ALCS_ENABLED"
+        default n
+        select COAP_SERVER
+        select INFRA_AES
+        help
+            ALCS(alink local communication service) is a communication between phone and device
+
+            Switching to "y" leads to SDK being compiled with alcs function
+            Switching to "n" leads to SDK being compiled without alcs function
+
+    config DEVICE_MODEL_SUBDEV_OTA
+        depends on DEVICE_MODEL_GATEWAY
+        depends on OTA_ENABLED
+        bool "FEATURE_DEVICE_MODEL_SUBDEV_OTA"
+        default n
+
+    config DEVICE_MODEL_SHADOW
+        bool "FEATURE_DEVICE_MODEL_SHADOW"
+        default n
+    config LOG_REPORT_TO_CLOUD
+        bool "FEATURE_LOG_REPORT_TO_CLOUD"
+    default n
+endmenu
+

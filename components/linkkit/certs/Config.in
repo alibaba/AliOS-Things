@@ -1,0 +1,3 @@
+config AOS_COMP_SDK_CERT
+    bool 
+    default n
