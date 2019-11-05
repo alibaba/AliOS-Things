@@ -1,0 +1,2 @@
+config AOS_COMP_DEVICE_SAL_SIM800
+    bool "SIM800"
