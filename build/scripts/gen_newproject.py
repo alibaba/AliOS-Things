@@ -22,8 +22,12 @@ from lib.code import compute_header_md5sum, get_depends_from_source
 
 """
 
-reload(sys)
-sys.setdefaultencoding('UTF8')
+from imp import reload
+try:
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
+except:
+    pass
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 template = "templates/new_project_template"

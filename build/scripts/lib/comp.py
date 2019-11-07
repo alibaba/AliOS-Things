@@ -33,7 +33,7 @@ def get_comp_deps(mkfile):
     deps = []
     host_mcu_family = ""
 
-    p1 = re.compile(r'^\HOST_MCU_FAMILY.*=\s*(.*)\s*')
+    p1 = re.compile(r'^HOST_MCU_FAMILY.*=\s*(.*)\s*')
     p2 = re.compile(r'^\$\(NAME\)_COMPONENTS.*=\s*(.*)\s*')
     with open(mkfile, "r") as f:
         for line in f:

@@ -35,7 +35,6 @@ def get_element_value(element_dict, buildstring):
         element_dict["IlinkIcfFile"] = AOS_RELATIVE_PATH + match.group(1)
 
 def add_group(parent, name, files, includes, project_path):
-    cur_encoding = sys.getfilesystemencoding()
     group = SubElement(parent, 'group')
     group_name = SubElement(group, 'name')
     group_name.text = name
@@ -51,9 +50,9 @@ def add_group(parent, name, files, includes, project_path):
             #print 'copy', f, 'to', fnewPath
             shutil.copyfile(f,fnewPath)
             f = "$PROJ_DIR$/"+fnewName
-            file_name.text = f.decode(cur_encoding)
+            file_name.text = f
         else:
-            file_name.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
+            file_name.text = AOS_RELATIVE_PATH + f
     
     
     group_config = SubElement(group, 'configuration')
@@ -83,7 +82,7 @@ def add_group(parent, name, files, includes, project_path):
   
     for i in includes:
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
+        stateTemp.text = AOS_RELATIVE_PATH + i
     
     
     group_config_settings2 = SubElement(group_config, 'settings')
@@ -108,7 +107,7 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name.text = 'AUserIncludes'
     for i in includes:
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
+        stateTemp.text = AOS_RELATIVE_PATH + i
 
 # automation to do
 def changeItemForMcu( tree, element_dict, buildstring ):
@@ -190,7 +189,7 @@ def gen_project(target, script, buildstring):
     gen_indent(root)
     projString = etree.tostring(root, encoding='utf-8')
     with open(target, "w") as out:
-        out.write(projString)
+        out.write(projString.decode())
 
     gen_workspace(target, buildstring)
 
