@@ -33,7 +33,7 @@ def write_md5sum(config_file, md5sum_value):
 
 def md5sum(string):
     """ Get md5sum value for string """
-    return hashlib.md5(string).hexdigest()
+    return hashlib.md5(string.encode()).hexdigest()
 
 
 def get_include_file(code_file):
