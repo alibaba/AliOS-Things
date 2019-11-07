@@ -134,7 +134,6 @@ def add_group(parent, name, files, project_path):
         </File>
       </Files>
     """
-    cur_encoding = sys.getfilesystemencoding()
     group = SubElement(parent, 'Group')
     group_name = SubElement(group, 'GroupName')
     group_name.text = name
@@ -145,11 +144,11 @@ def add_group(parent, name, files, project_path):
         file_name = SubElement(file, 'FileName')
         name = os.path.basename(f)
 
-        file_name.text = name.decode(cur_encoding)
+        file_name.text = name
         file_type = SubElement(file, 'FileType')
         file_type.text = '%d' % file_type_value(name)
         file_path = SubElement(file, 'FilePath')
-        file_path.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
+        file_path.text = AOS_RELATIVE_PATH + f
 
     return group
 
@@ -182,10 +181,9 @@ def gen_projxfile(tree, target, buildstring, Projects):
     for group in Projects:
         # don't add an empty group
         if len(group['src']) != 0:
-
-	    if group['name'] == 'sensor':
-	    	gen_sensor_cb_3rd.process(group['src'],'./projects/Keil/gen_sensor.c')
-		group['src'].append('./projects/Keil/gen_sensor.c')
+            if group['name'] == 'sensor':
+                gen_sensor_cb_3rd.process(group['src'],'./projects/Keil/gen_sensor.c')
+                group['src'].append('./projects/Keil/gen_sensor.c')
 
             group_tree = add_group(groups, group['name'], group['src'], project_path)
 
@@ -213,7 +211,7 @@ def gen_projxfile(tree, target, buildstring, Projects):
     gen_indent(root)
     
     with open(target, 'wb') as f:
-        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n'.encode())
         f.write(etree.tostring(root, encoding='utf-8'))
 
 def gen_optxfile(optx_tree, optx_file, buildstring):
