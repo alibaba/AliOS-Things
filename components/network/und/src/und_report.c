@@ -51,7 +51,7 @@ static void und_target_report_reply(void *pcontext, void *pclient, void *mesg)
     /* success, kv clean */
     und_cap_manage_clear_kv();
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     if (ctx->update == UND_CAP_STATE_RESYNC) {
         ctx->update = UND_CAP_STATE_UPDATE;
     } else if (ctx->update == UND_CAP_STATE_REPORT) {
@@ -64,7 +64,7 @@ static void und_target_report_reply(void *pcontext, void *pclient, void *mesg)
     } else {
         und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
     }
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 }
 
 int und_report_init()
@@ -76,13 +76,13 @@ int und_report_init()
         return UND_SUCCESS;
     }
 
-    ctx->mutex = und_platform_mutex_create();
+    ctx->mutex = undp_mutex_new();
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     ctx->update = UND_CAP_STATE_INIT;
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 }
@@ -94,11 +94,11 @@ int und_report_deinit()
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(mutex);
-    if (ctx->buf) und_platform_free(ctx->buf);
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    undp_mutex_lock(mutex);
+    if (ctx->buf) aos_free(ctx->buf);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return UND_SUCCESS;
 }
@@ -108,17 +108,17 @@ static int und_build_package()
     int len = UND_REPORT_TARGET_BUF_LEN;
     struct und_report_ctx_t *ctx = &g_und_report_ctx;
     if (ctx->buf == NULL) {
-        ctx->buf = (char *)und_platform_malloc(len);
-        if (ctx->buf) und_platform_memset(ctx->buf, 0, len);
+        ctx->buf = (char *)aos_malloc(len);
+        if (ctx->buf) aos_memset(ctx->buf, 0, len);
     }
 
     UND_PTR_SANITY_CHECK(ctx->buf, UND_MEM_ERR);
 
-    len = und_platform_strlen(ctx->buf);
+    len = aos_strlen(ctx->buf);
 
     if (len + 128 > UND_REPORT_TARGET_BUF_LEN) {
         /* buf is not enough, drop real-time capture and collect capture */
-        und_platform_memset(ctx->buf, 0, UND_REPORT_TARGET_BUF_LEN);
+        aos_memset(ctx->buf, 0, UND_REPORT_TARGET_BUF_LEN);
         ctx->update = UND_CAP_STATE_UPDATE;
         len = 0;
     }
@@ -134,7 +134,7 @@ int und_update_report(int cap_idx)
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
 
     if (ctx->update == UND_CAP_STATE_REPORT)
         ctx->update = UND_CAP_STATE_RESYNC;
@@ -150,7 +150,7 @@ int und_update_report(int cap_idx)
     }
 #endif
 
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 }
@@ -185,26 +185,26 @@ void und_targets_report(void *param)
         return;
     }
 
-    topic_buf = (char *)und_platform_malloc(UND_TOPIC_BUF_LEN_MAX + 1);
-    pkt_buf = (char *)und_platform_malloc(UND_REPORT_BUF_LEN_MAX + 1);
-    target_buf = (char *)und_platform_malloc(UND_REPORT_BUF_LEN_MAX + 1);
+    topic_buf = (char *)aos_malloc(UND_TOPIC_BUF_LEN_MAX + 1);
+    pkt_buf = (char *)aos_malloc(UND_REPORT_BUF_LEN_MAX + 1);
+    target_buf = (char *)aos_malloc(UND_REPORT_BUF_LEN_MAX + 1);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     do {
         if (pkt_buf == NULL || target_buf == NULL || topic_buf == NULL) {
             und_err("report, alloc buf fail\n");
             break;
         }
-        und_platform_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
+        aos_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
 
         und_build_package();
 
-        if (ctx->buf == NULL || und_platform_strlen(ctx->buf) == 0) {
+        if (ctx->buf == NULL || aos_strlen(ctx->buf) == 0) {
             und_info("no capture\n");
             break;
         }
 
-        plen += und_platform_snprintf(pkt_buf + plen, UND_REPORT_BUF_LEN_MAX - plen, "%s", ctx->buf);
+        plen += aos_snprintf(pkt_buf + plen, UND_REPORT_BUF_LEN_MAX - plen, "%s", ctx->buf);
 
         if (plen <= 3) {
             und_debug("no capture\n");
@@ -212,7 +212,7 @@ void und_targets_report(void *param)
         }
 
         /* build parameters of und report */
-        und_platform_memset(target_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
+        aos_memset(target_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
         res = und_build_packet_param(pkt_buf, target_buf, UND_REPORT_BUF_LEN_MAX);
         if (res < 0) {
             und_err("build param fail:%d\n", res);
@@ -220,13 +220,13 @@ void und_targets_report(void *param)
         }
 
         /* build packet of und report */
-        und_platform_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
+        aos_memset(pkt_buf, 0, UND_REPORT_BUF_LEN_MAX + 1);
         plen = und_build_packet(UND_ALINK_VER, target_buf, pkt_buf, UND_REPORT_BUF_LEN_MAX);
         if (plen < 0) {
             und_err("build pkt fail:%d\n", res);
             break;
         }
-        und_platform_memset(topic_buf, 0, UND_TOPIC_BUF_LEN_MAX + 1);
+        aos_memset(topic_buf, 0, UND_TOPIC_BUF_LEN_MAX + 1);
         res = und_build_topic(UND_TOPIC_REPORT_REPLY, topic_buf, UND_TOPIC_BUF_LEN_MAX);
         if (res < 0) {
             und_err("build topic reply fail:%d\n", res);
@@ -236,7 +236,7 @@ void und_targets_report(void *param)
         res = und_conn_register_cb(topic_buf, und_target_report_reply);
         und_debug("reg topic res:%d\n", res);
 
-        und_platform_memset(topic_buf, 0, UND_TOPIC_BUF_LEN_MAX + 1);
+        aos_memset(topic_buf, 0, UND_TOPIC_BUF_LEN_MAX + 1);
         res = und_build_topic(UND_TOPIC_REPORT, topic_buf, UND_TOPIC_BUF_LEN_MAX);
         if (res < 0) {
             und_err("build topic fail:%d\n", res);
@@ -247,7 +247,7 @@ void und_targets_report(void *param)
             ctx->update = UND_CAP_STATE_REPORT;
             if (ctx->buf) {
                 /* remove collection about wireless info & capture reported */
-                und_platform_free(ctx->buf);
+                aos_free(ctx->buf);
                 ctx->buf = NULL;
             }
         }
@@ -271,10 +271,10 @@ void und_targets_report(void *param)
     } else {
         und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
     }
-    und_platform_mutex_unlock(ctx->mutex);
-    if (pkt_buf) und_platform_free(pkt_buf);
-    if (topic_buf) und_platform_free(topic_buf);
-    if (target_buf) und_platform_free(target_buf);
+    undp_mutex_unlock(ctx->mutex);
+    if (pkt_buf) aos_free(pkt_buf);
+    if (topic_buf) aos_free(topic_buf);
+    if (target_buf) aos_free(target_buf);
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

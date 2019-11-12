@@ -31,11 +31,11 @@ static int und_packet_id()
 
     UND_PTR_SANITY_CHECK(ctx->mutex, id);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     id = ctx->packet_id ++;
     if (ctx->packet_id == 0)
         ctx->packet_id = 1;
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 
     return id;
 }
@@ -48,13 +48,13 @@ int und_packet_ctx_init()
         return UND_SUCCESS;
     }
 
-    ctx->mutex = und_platform_mutex_create();
+    ctx->mutex = undp_mutex_new();
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     ctx->packet_id = 1;
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
     return UND_SUCCESS;
 }
 
@@ -65,10 +65,10 @@ int und_packet_ctx_deinit()
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(mutex);
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    undp_mutex_lock(mutex);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return UND_SUCCESS;
 }
@@ -82,10 +82,10 @@ int und_build_topic(const char *fmt, char *topic_buf, int topic_buf_len)
     UND_PTR_SANITY_CHECK(topic_buf, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(topic_buf_len, UND_TOPIC_BUF_LEN_MAX, 1, UND_PARAM_ERR);
 
-    und_platform_get_product_key(pk);
-    und_platform_get_device_name(dn);
+    undp_get_product_key(pk);
+    undp_get_device_name(dn);
 
-    len = und_platform_snprintf(topic_buf, topic_buf_len, fmt, pk, dn);
+    len = aos_snprintf(topic_buf, topic_buf_len, fmt, pk, dn);
 
     return len;
 }
@@ -99,7 +99,7 @@ int und_build_packet(const char *ver, const char *param, char *buf, int buf_len)
     UND_PTR_SANITY_CHECK(buf, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_BUF_LEN_MAX, 1, UND_PARAM_ERR);
 
-    len = und_platform_snprintf(buf, buf_len, UND_REPORT_FMT, und_packet_id(), UND_ALINK_VER, param);
+    len = aos_snprintf(buf, buf_len, UND_REPORT_FMT, und_packet_id(), UND_ALINK_VER, param);
 
     return len;
 }
@@ -112,7 +112,7 @@ int und_build_packet_param(const char *content, char *param, int param_len)
     UND_PTR_SANITY_CHECK(param, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(param_len, UND_REPORT_BUF_LEN_MAX, 1, UND_PARAM_ERR);
 
-    len = und_platform_snprintf(param, param_len, UND_REPORT_PARAM_FMT, content);
+    len = aos_snprintf(param, param_len, UND_REPORT_PARAM_FMT, content);
 
     return len;
 }
