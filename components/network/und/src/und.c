@@ -35,11 +35,11 @@ int und_init()
         und_debug("und is ready inited\n");
         return UND_SUCCESS;
     }
-    ctx->mutex = und_platform_mutex_create();
+    ctx->mutex = undp_mutex_new();
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     mutex = ctx->mutex;
 
     if (UND_SUCCESS != (res = und_packet_ctx_init())) {
@@ -62,7 +62,7 @@ int und_init()
         goto UND_INIT_FAIL;
     }
 
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
     return UND_SUCCESS;
 
 UND_INIT_FAIL:
@@ -70,9 +70,9 @@ UND_INIT_FAIL:
     und_cap_manage_deinit();
     und_packet_ctx_deinit();
     und_report_deinit();
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return res;
 }
@@ -86,13 +86,13 @@ int und_deinit()
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(mutex);
+    undp_mutex_lock(mutex);
     res = und_sched_deinit();
     res = und_cap_manage_deinit();
     res = und_packet_ctx_deinit();
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return res;
 }
@@ -108,14 +108,14 @@ int und_update_statis(int cap_idx, int reason_code)
             return res;
         }
     }
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     cap_idx = UND_CAPTURE_IDX(cap_idx);
     res = und_update_cap(cap_idx, reason_code, 1, 1);
     if (res == UND_SUCCESS) {
         und_update_report(cap_idx);
         res = und_sched_start(UND_REPORT_SCHED_CYCLE_MS);
     }
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 
     return res;
 }

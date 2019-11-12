@@ -38,7 +38,7 @@ extern "C" {
 #define UND_STR_PTR_SANITY_CHECK(ptr, err) \
     do { \
         UND_PTR_SANITY_CHECK(ptr, err); \
-        if (0 == und_platform_strlen((ptr))) { \
+        if (0 == aos_strlen((ptr))) { \
             und_err("Invalid param, %s = '%s'", #ptr, (ptr)); \
             return (err); \
         } \
@@ -47,7 +47,7 @@ extern "C" {
 #define UND_STR_PTR_MAXLEN_SANITY_CHECK(ptr, maxlen, err) \
     do { \
         UND_STR_PTR_SANITY_CHECK(ptr, err); \
-        if (maxlen < und_platform_strlen((ptr))) { \
+        if (maxlen < aos_strlen((ptr))) { \
             und_err("Invalid param, %s = '%s'", #ptr, (ptr)); \
             return (err); \
         } \

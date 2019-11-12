@@ -81,12 +81,12 @@ int und_conn_send(char *topic, void *data, int len, int qos)
 #if defined(FEATURE_UND_USE_UAGENT)
     lite_cjson_t lite, lite_params;
     unsigned char policy;
-    und_platform_memset(&lite, 0, sizeof(lite));
+    aos_memset(&lite, 0, sizeof(lite));
     if (lite_cjson_parse(data, len, &lite) != 0) {
         return UND_PARAM_ERR;
     }
-    und_platform_memset(&lite_params, 0, sizeof(lite_params));
-    if (lite_cjson_object_item(&lite, "params", und_platform_strlen("params"), &lite_params) != 0) {
+    aos_memset(&lite_params, 0, sizeof(lite_params));
+    if (lite_cjson_object_item(&lite, "params", aos_strlen("params"), &lite_params) != 0) {
         return UND_PARAM_ERR;
     }
     policy = UND_USE_UAGENT_TX_POLICY_OBJ;
