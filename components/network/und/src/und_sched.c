@@ -27,10 +27,10 @@ int und_sched_start(int cycle_ms)
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
-    und_platform_timer_stop(ctx->sched);
-    und_platform_timer_start(ctx->sched, cycle_ms);
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
+    aos_timer_stop(ctx->sched);
+    aos_timer_start(ctx->sched, cycle_ms);
+    undp_mutex_unlock(ctx->mutex);
     return UND_SUCCESS;
 }
 
@@ -42,12 +42,12 @@ int und_sched_deinit()
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
     /* clear ctx, then release mutex */
-    und_platform_mutex_lock(mutex);
-    und_platform_timer_stop(ctx->sched);
-    und_platform_timer_delete(ctx->sched);
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    undp_mutex_lock(mutex);
+    aos_timer_stop(ctx->sched);
+    aos_timer_delete(ctx->sched);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return UND_SUCCESS;
 }
@@ -61,21 +61,21 @@ int und_sched_init(void *sched_task)
         return UND_SUCCESS;
     }
 
-    ctx->mutex = und_platform_mutex_create();
+    ctx->mutex = undp_mutex_new();
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
-    ctx->sched = und_platform_timer_create("und_sched", (void (*)(void *))sched_task, NULL);
+    undp_mutex_lock(ctx->mutex);
+    ctx->sched = aos_timer_create("und_sched", (void (*)(void *))sched_task, NULL);
     if (ctx->sched == NULL) {
         void *mutex = ctx->mutex;
         und_err("und alloc sched fail\n");
-        und_platform_memset(ctx, 0, sizeof(*ctx));
-        und_platform_mutex_unlock(mutex);
-        und_platform_mutex_destroy(mutex);
+        aos_memset(ctx, 0, sizeof(*ctx));
+        undp_mutex_unlock(mutex);
+        undp_mutex_free(mutex);
         return UND_MEM_ERR;
     }
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 }
