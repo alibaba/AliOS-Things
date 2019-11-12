@@ -44,21 +44,21 @@ int und_cap_manage_clear_kv(void)
         return UND_ERR;
     }
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
-        und_platform_memset(key, 0, sizeof(key));
-        und_platform_snprintf(key, sizeof(key), UND_KV_KEY, i);
+        aos_memset(key, 0, sizeof(key));
+        aos_snprintf(key, sizeof(key), UND_KV_KEY, i);
 
-        und_platform_kv_del(key);
+        aos_kv_del(key);
     }
 
     for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
         if (ctx->targets[i])
-            und_platform_free(ctx->targets[i]);
+            aos_free(ctx->targets[i]);
     }
-    und_platform_memset(ctx->targets, 0, sizeof(ctx->targets));
-    und_platform_memset(ctx->wb, 0, sizeof(ctx->wb));
-    und_platform_mutex_unlock(ctx->mutex);
+    aos_memset(ctx->targets, 0, sizeof(ctx->targets));
+    aos_memset(ctx->wb, 0, sizeof(ctx->wb));
+    undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 }
@@ -77,13 +77,13 @@ static void und_cap_manage_save_task(void *param)
         return;
     }
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
     for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
         if (ctx->wb[i] == 0)
             continue;
-        und_platform_memset(key, 0, sizeof(key));
-        und_platform_snprintf(key, sizeof(key), UND_KV_KEY, i);
-        if ((res = und_platform_kv_set(key, ctx->targets[i], len, 0)) != 0) {
+        aos_memset(key, 0, sizeof(key));
+        aos_snprintf(key, sizeof(key), UND_KV_KEY, i);
+        if ((res = aos_kv_set(key, ctx->targets[i], len, 0)) != 0) {
             und_err("und cap kv set %s fail(%d)\n", key, res);
             res_sched = 1;
             continue;
@@ -93,10 +93,10 @@ static void und_cap_manage_save_task(void *param)
 
     /* writeback fails, re-schedule save task. */
     if (res_sched) {
-        und_platform_timer_stop(ctx->save_sched);
-        und_platform_timer_start(ctx->save_sched, UND_SAVE_SCHED_CYCLE_MS);
+        aos_timer_stop(ctx->save_sched);
+        aos_timer_start(ctx->save_sched, UND_SAVE_SCHED_CYCLE_MS);
     }
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
 }
 
 int und_cap_manage_init()
@@ -111,13 +111,13 @@ int und_cap_manage_init()
         return UND_SUCCESS;
     }
 
-    ctx->mutex = und_platform_mutex_create();
+    ctx->mutex = undp_mutex_new();
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
-    und_platform_mutex_lock(ctx->mutex);
-    und_platform_memset(ctx->targets, 0, sizeof(ctx->targets));
+    undp_mutex_lock(ctx->mutex);
+    aos_memset(ctx->targets, 0, sizeof(ctx->targets));
 
-    ctx->save_sched = und_platform_timer_create("und_save", und_cap_manage_save_task, NULL);
+    ctx->save_sched = aos_timer_create("und_save", und_cap_manage_save_task, NULL);
     if (ctx->save_sched == NULL) {
         und_err("und save init fail\n");
         res = UND_MEM_ERR;
@@ -129,10 +129,10 @@ int und_cap_manage_init()
         char key[UND_KV_KEY_LEN_MAX + 1];
         struct und_cap_manage_t target;
         int len = sizeof(target);
-        und_platform_memset(key, 0, sizeof(key));
-        und_platform_memset(&target, 0, sizeof(target));
-        und_platform_snprintf(key, sizeof(key), UND_KV_KEY, i);
-        und_platform_kv_get(key, &target, &len);
+        aos_memset(key, 0, sizeof(key));
+        aos_memset(&target, 0, sizeof(target));
+        aos_snprintf(key, sizeof(key), UND_KV_KEY, i);
+        aos_kv_get(key, &target, &len);
         for (j = 0; j < target.idx; j ++) {
             while (0 < target.caps[j].cnt --) {
                 res = und_update_cap(i, target.caps[j].reason, 0, 0);
@@ -143,8 +143,8 @@ int und_cap_manage_init()
     }
 
     /* it's no need to writeback capture from kv to kv again */
-    und_platform_memset(ctx->wb, 0, sizeof(ctx->wb));
-    und_platform_mutex_unlock(ctx->mutex);
+    aos_memset(ctx->wb, 0, sizeof(ctx->wb));
+    undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 
@@ -152,15 +152,15 @@ UND_CAP_INIT_FAIL:
     mutex = ctx->mutex;
     for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
         if (ctx->targets[i])
-            und_platform_free(ctx->targets[i]);
+            aos_free(ctx->targets[i]);
     }
     if (ctx->save_sched) {
-        und_platform_timer_stop(ctx->save_sched);
-        und_platform_timer_delete(ctx->save_sched);
+        aos_timer_stop(ctx->save_sched);
+        aos_timer_delete(ctx->save_sched);
     }
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_destroy(mutex);
-    und_platform_mutex_unlock(mutex);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
     return res;
 }
 
@@ -172,18 +172,18 @@ int und_cap_manage_deinit()
 
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    und_platform_mutex_lock(mutex);
+    undp_mutex_lock(mutex);
     for (i = 0; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
         if (ctx->targets[i])
-            und_platform_free(ctx->targets[i]);
+            aos_free(ctx->targets[i]);
     }
     if (ctx->save_sched) {
-        und_platform_timer_stop(ctx->save_sched);
-        und_platform_timer_delete(ctx->save_sched);
+        aos_timer_stop(ctx->save_sched);
+        aos_timer_delete(ctx->save_sched);
     }
-    und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_unlock(mutex);
-    und_platform_mutex_destroy(mutex);
+    aos_memset(ctx, 0, sizeof(*ctx));
+    undp_mutex_unlock(mutex);
+    undp_mutex_free(mutex);
 
     return UND_SUCCESS;
 }
@@ -197,23 +197,23 @@ int und_update_cap(int cap_idx, int reason_code, int wb, int sync)
             UND_ARRAY_SIZE(ctx->targets) - 1, 0, UND_PARAM_ERR);
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_ERR);
 
-    if (sync) und_platform_mutex_lock(ctx->mutex);
+    if (sync) undp_mutex_lock(ctx->mutex);
     if (ctx->targets[cap_idx] == NULL) {
         /* alloc buffer for targets */
         int len = sizeof(struct und_cap_manage_t);
-        ctx->targets[cap_idx] = und_platform_malloc(len);
+        ctx->targets[cap_idx] = aos_malloc(len);
         if (ctx->targets[cap_idx] == NULL) {
             und_err("alloc cap %d fail\n", cap_idx);
-            if (sync) und_platform_mutex_unlock(ctx->mutex);
+            if (sync) undp_mutex_unlock(ctx->mutex);
             return UND_MEM_ERR;
         }
-        und_platform_memset(ctx->targets[cap_idx], 0, len);
+        aos_memset(ctx->targets[cap_idx], 0, len);
         ctx->targets[cap_idx]->size = UND_ELEM_MAX_CNT_PER_TARGET;
     }
 
     if (ctx->targets[cap_idx]->idx >= ctx->targets[cap_idx]->size) {
         und_err("no space for target %d\n", cap_idx);
-        if (sync) und_platform_mutex_unlock(ctx->mutex);
+        if (sync) undp_mutex_unlock(ctx->mutex);
         return UND_ERR;
     }
     for (i = 0; i < ctx->targets[cap_idx]->idx; i ++) {
@@ -237,10 +237,10 @@ int und_update_cap(int cap_idx, int reason_code, int wb, int sync)
     }
 
     if (ctx->wb[cap_idx]) {
-        und_platform_timer_stop(ctx->save_sched);
-        und_platform_timer_start(ctx->save_sched, UND_SAVE_SCHED_CYCLE_MS);
+        aos_timer_stop(ctx->save_sched);
+        aos_timer_start(ctx->save_sched, UND_SAVE_SCHED_CYCLE_MS);
     }
-    if (sync) und_platform_mutex_unlock(ctx->mutex);
+    if (sync) undp_mutex_unlock(ctx->mutex);
 
     return UND_SUCCESS;
 }
@@ -259,7 +259,7 @@ int und_collect_package(char *buf, int buf_len, int insert_split, int with_excep
         return len;
     }
 
-    und_platform_mutex_lock(ctx->mutex);
+    undp_mutex_lock(ctx->mutex);
 
     if (insert_split) buf[len ++] = ',';
 
@@ -271,7 +271,7 @@ int und_collect_package(char *buf, int buf_len, int insert_split, int with_excep
         buf[-- len] = '\0';
     }
 
-    und_platform_mutex_unlock(ctx->mutex);
+    undp_mutex_unlock(ctx->mutex);
     return len;
 }
 
@@ -305,7 +305,7 @@ static int und_package_capture(char *buf, int buf_len)
     UND_PTR_SANITY_CHECK(buf, UND_PARAM_ERR);
     UND_PARAM_RANGE_SANITY_CHECK(buf_len, UND_REPORT_TARGET_BUF_LEN, 1, UND_PARAM_ERR);
 
-    cur_ex = (char *)und_platform_malloc(256);
+    cur_ex = (char *)aos_malloc(256);
     UND_PTR_SANITY_CHECK(ctx->mutex, UND_MEM_ERR);
 
     for (i = 1; i < UND_ARRAY_SIZE(ctx->targets); i ++) {
@@ -314,9 +314,9 @@ static int und_package_capture(char *buf, int buf_len)
         und_info("targets[%d]:%p\n", i, ctx->targets[i]);
         for (j = 0; j < ctx->targets[i]->idx; j ++) {
             und_package_wireless_info(&wireless_info);
-            und_platform_memset(cur_ex, 0, 256);
+            aos_memset(cur_ex, 0, 256);
 
-            temp_len = und_platform_snprintf(cur_ex, 256,
+            temp_len = aos_snprintf(cur_ex, 256,
                     "{\"wifi\":{\"rssi\":%d,\"snr\":%d,\"per\":%d,\"err_stats\":\"0x%02x,%d,%u\"},\"_time\":%lu}",
                     wireless_info.rssi, wireless_info.snr, wireless_info.per,
                     UND_CAPTURE_GROUP(i), ctx->targets[i]->caps[j].reason, ctx->targets[i]->caps[j].cnt,
@@ -326,7 +326,7 @@ static int und_package_capture(char *buf, int buf_len)
                 /* remove end of ',' */
                 break;
             } else {  /* make sure buffer is enough */
-                len += und_platform_snprintf(buf + len, buf_len - len, not_first ? ",%s" : "%s", cur_ex);
+                len += aos_snprintf(buf + len, buf_len - len, not_first ? ",%s" : "%s", cur_ex);
                 not_first = 1;
             }
         }
@@ -334,7 +334,7 @@ static int und_package_capture(char *buf, int buf_len)
 
         if (j < ctx->targets[i]->idx) break;
     }
-    und_platform_free(cur_ex);
+    aos_free(cur_ex);
 
     return len;
 }
