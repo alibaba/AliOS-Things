@@ -39,6 +39,7 @@ ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal
 module             ?= wifi.mk3060
 else
+HTTPD_ENABLED ?= y
 $(NAME)_SOURCES    += ethernetif.c
 $(NAME)_SOURCES    += httpserver-netconn.c
 $(NAME)_COMPONENTS += lwip
