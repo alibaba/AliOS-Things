@@ -15,5 +15,37 @@
 
 * DNN configuration is ```layer_info``` in uai_kws_demo.c, you can change it by your own model.
 
+## Introduction
+
+The **uai_cifar10_demo**  shows uAI CNN model functions.
+
+### Dependencies
+
+* uAI
+* CMSIS NN
+
+### Supported Boards
+
+* mk3080
+* xr871evb
+
+ *<u>In theory, this example can run on all ARM Cortex M platforms. However, some boards may cause compilation errors due to incompatible compilation options or CMSIS library versions not match. You need to modify the corresponding compilation options or upgrade the CMSIS library version.</u>*
+
+### Build
+
+```sh
+# generate uai_demo.uai_kws_demo@xr871evb default config
+aos make uai_demo.uai_kws_demo@xr871evb -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+```
+
+
+
+
 
 
