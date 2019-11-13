@@ -157,11 +157,11 @@ int HAL_SetDeviceSecret(char *device_secret)
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1])
 {
     int len = strlen(_product_key);
+    memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
     if(len == 0) {
         len = IOTX_PRODUCT_KEY_LEN;
         aos_kv_get(DEVINFO_PK, _product_key, &len);
     }
-    memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
 
     strncpy(product_key, _product_key, len);
 
@@ -172,6 +172,7 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 {
     int res;
     int len = strlen(_product_secret);
+    memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
     if(len == 0) {
         char enc_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
         len = IOTX_PRODUCT_SECRET_LEN;
@@ -198,8 +199,6 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
         } while(0);
     }
 
-    memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
-
     strncpy(product_secret, _product_secret, len);
 
     return len;
@@ -208,12 +207,11 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int len = strlen(_device_name);
+    memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
     if(len == 0) {
         len = IOTX_DEVICE_NAME_LEN;
         aos_kv_get(DEVINFO_DN, _device_name, &len);
     }
-    memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
-
     strncpy(device_name, _device_name, len);
 
     return strlen(device_name);
@@ -223,6 +221,7 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
     int res;
     int len = strlen(_device_secret);
+    memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
     if(len == 0) {
         char enc_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
         len = IOTX_DEVICE_SECRET_LEN;
@@ -249,7 +248,6 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
         } while(0);
     }
 
-    memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
     strncpy(device_secret, _device_secret, len);
 
     return len;
