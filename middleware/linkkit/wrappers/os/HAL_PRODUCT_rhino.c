@@ -17,6 +17,7 @@
 #define LOG_TAG     "HAL"   
 static const char *demo_iv = "f165u329c054k637";
 
+
 #define PLATFORM_WAIT_INFINITE (~0)
 
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
@@ -92,6 +93,9 @@ int HAL_SetProductSecret(char *product_secret)
 
     do {
         char dec_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+        if(strlen(_product_key) == 0) {
+                HAL_GetProductKey(_product_key);
+        }
         p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
         if(aes_e_h == NULL ) {
             LOGE(LOG_TAG, "aes init failed");
@@ -129,6 +133,9 @@ int HAL_SetDeviceSecret(char *device_secret)
 
     do {
         char dec_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+        if(strlen(_product_key) == 0) {
+                HAL_GetProductKey(_product_key);
+        }
         p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
         if(aes_e_h == NULL ) {
             LOGE(LOG_TAG, "aes init failed");
@@ -173,6 +180,9 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
             if(res < 0 || len == 0) {
                 LOGE(LOG_TAG, "kv get ps failed,ret = %d, len = %d",res, len);
                 break;
+            }
+            if(strlen(_product_key) == 0) {
+                HAL_GetProductKey(_product_key);
             }
             p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_DECRYPTION);
             if(aes_e_h == NULL ) {
@@ -221,6 +231,9 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
             if(res < 0 || len == 0) {
                 LOGE(LOG_TAG, "kv get ps failed,ret = %d, len = %d",res, len);
                 break;
+            }
+            if(strlen(_product_key) == 0) {
+                HAL_GetProductKey(_product_key);
             }
             p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_DECRYPTION);
             if(aes_e_h == NULL ) {
