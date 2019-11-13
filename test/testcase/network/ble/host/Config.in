@@ -1,5 +1,5 @@
 config AOS_COMP_BLE_TEST
-    bool "BLE YTS Testcase"
+    bool "BLE host YTS Testcase"
     select AOS_COMP_BT_PROFILE
     select AOS_COMP_BT_HOST
     select AOS_COMP_CLI

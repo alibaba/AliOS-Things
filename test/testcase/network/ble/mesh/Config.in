@@ -1,0 +1,24 @@
+config AOS_COMP_BLE_MESH_TEST
+    bool "BLE mesh YTS Testcase"
+    select AOS_COMP_BT_MESH
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_COMP_BT_MESH
+config BLE
+    int #"BLE func switch"
+    range 0 1
+    default 1
+
+config EN_BT_SMP
+    int #"BLE smp switch"
+    range 0 1
+    default 1
+
+config en_mesh_shell
+    int #"mesh shell support"
+    default 1
+
+endif
+
