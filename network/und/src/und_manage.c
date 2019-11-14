@@ -159,8 +159,8 @@ UND_CAP_INIT_FAIL:
         und_platform_timer_delete(ctx->save_sched);
     }
     und_platform_memset(ctx, 0, sizeof(*ctx));
-    und_platform_mutex_destroy(mutex);
     und_platform_mutex_unlock(mutex);
+    und_platform_mutex_destroy(mutex);
     return res;
 }
 
