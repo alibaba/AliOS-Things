@@ -46,7 +46,7 @@
 #include "aos/hal/uart.h"
 
 
-#define MAX_BUF_UART_BYTES   32
+#define MAX_BUF_UART_BYTES   128
 
 static uint8_t tx_buffer[1];
 static uint8_t rx_buffer[1];

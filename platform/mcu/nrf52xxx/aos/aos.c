@@ -128,6 +128,8 @@ static void sys_init(void)
     pwrmgmt_init();
 #endif /* AOS_COMP_PWRMGMT */
 
+    aos_show_welcome();
+
 #ifdef AOS_BINS
     app_pre_init();
 
