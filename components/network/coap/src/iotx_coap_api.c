@@ -421,6 +421,11 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
         return IOTX_ERR_AUTH_FAILED;
     }
 
+    if (node.value_length > sizeof(random)) {
+        coap_log(LOG_ERR, "Invalid random length %d!\n", node.value_length);
+        return IOTX_ERR_INVALID_PARAM;
+    }
+
     memcpy(random, node.value, node.value_length);
     snprintf((char *)buff, sizeof(buff), "%s,%s",
                  p_iotx_coap->p_devinfo->device_secret,  random);
