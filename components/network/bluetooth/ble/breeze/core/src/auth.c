@@ -12,6 +12,8 @@
 #include "breeze_hal_ble.h"
 #include "breeze_hal_sec.h"
 
+#include "breeze_hal_os.h"
+
 
 static uint8_t device_secret[MAX_SECRET_LEN] = { 0 };
 uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
@@ -113,14 +115,14 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
 #ifdef EN_AUTH_OFFLINE
     auth_keys_init();
 #endif
-    ret = os_timer_new(&g_auth.timer, on_timeout, &g_auth, BZ_AUTH_TIMEOUT);
+    ret = aos_timer_new_ext(&g_auth.timer, on_timeout, &g_auth, BZ_AUTH_TIMEOUT, 0, 0);
     return ret;
 }
 
 void auth_reset(void)
 {
     g_auth.state = AUTH_STATE_IDLE;
-    os_timer_stop(&g_auth.timer);
+    aos_timer_stop(&g_auth.timer);
 }
 
 void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
@@ -156,7 +158,7 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
                         core_handle_err(ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
                         return;
                     }
-                    err_code = os_timer_start(&g_auth.timer);
+                    err_code = aos_timer_start(&g_auth.timer);
                     if (err_code != BZ_SUCCESS) {
                         core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_1, err_code);
                         return;
@@ -183,7 +185,7 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
                     return;
                 }
 
-                err_code = os_timer_start(&g_auth.timer);
+                err_code = aos_timer_start(&g_auth.timer);
                 if (err_code != BZ_SUCCESS) {
                     core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_1, err_code);
                     return;
@@ -213,9 +215,9 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
 
     if (g_auth.state == AUTH_STATE_DONE) {
         event_notify(BZ_EVENT_AUTHENTICATED, NULL, 0);
-        os_timer_stop(&g_auth.timer);
+        aos_timer_stop(&g_auth.timer);
     } else if (g_auth.state == AUTH_STATE_FAILED) {
-        os_timer_stop(&g_auth.timer);
+        aos_timer_stop(&g_auth.timer);
         ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
     }
 }
@@ -266,7 +268,7 @@ void auth_connected(void)
 {
     int32_t err_code;
 
-    err_code = os_timer_start(&g_auth.timer);
+    err_code = aos_timer_start(&g_auth.timer);
     if (err_code != BZ_SUCCESS) {
         core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_0, err_code);
         return;
@@ -343,7 +345,7 @@ ret_code_t auth_get_device_secret(uint8_t *p_secret, uint8_t *p_length)
     if(p_secret == NULL || p_length == NULL){
         return BZ_EINVALIDPARAM;
     }
-    return os_kv_get(DEVICE_SECRET_STR, p_secret, p_length);
+    return aos_kv_get(DEVICE_SECRET_STR, p_secret, p_length);
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -423,8 +425,8 @@ void auth_keys_init(void)
     auth_key_storage_t auth_keys;
     uint32_t len = sizeof(auth_keys);
     memset(&auth_keys, 0, len);
-    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) != 0){
-        if(os_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1) != 0){
+    if (aos_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) != 0){
+        if(aos_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1) != 0){
             BREEZE_LOG_ERR("BZ auth init keys \r\n");
             return;
         }
@@ -442,7 +444,7 @@ bool authkey_set(uint8_t* authid, uint8_t* authkey)
         return false;
     }
     memset(&auth_keys, 0, len);
-    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
+    if (aos_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
         index = auth_keys.index_to_update;
         memcpy(auth_keys.kv_pairs[index].auth_id, authid, AUTH_ID_LEN);
         memcpy(auth_keys.kv_pairs[index].auth_key, authkey, AUTH_KEY_LEN);
@@ -450,7 +452,7 @@ bool authkey_set(uint8_t* authid, uint8_t* authkey)
         if(index = MAX_AUTH_KEYS -1){
            auth_keys.index_to_update = 0;
         }
-        ret = os_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1);
+        ret = aos_kv_set(AUTH_KEY_KV_PREFIX, &auth_keys, &len, 1);
         BREEZE_LOG_ERR("BZ auth keys update %s \r\n", ret ? "fail": "success");
         return true;
     }
@@ -467,7 +469,7 @@ bool authkey_get(uint8_t* authid, uint8_t* authkey)
     if(authid == NULL || authkey == NULL){
         return false;
     }
-    if (os_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
+    if (aos_kv_get(AUTH_KEY_KV_PREFIX, &auth_keys, &len) == 0){
         for(; index < MAX_AUTH_KEYS; ++index){
              if(!memcmp(auth_keys.kv_pairs[index].auth_id, authid, AUTH_ID_LEN)){
                 memcpy(authkey, auth_keys.kv_pairs[index].auth_key, AUTH_KEY_LEN);
