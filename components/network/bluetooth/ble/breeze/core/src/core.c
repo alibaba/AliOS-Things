@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "breeze_hal_ble.h"
 #include "breeze_hal_sec.h"
+#include "breeze_hal_os.h"
 
 core_t g_core;
 extern auth_t g_auth;
@@ -173,8 +174,8 @@ static void init_seq_number(uint32_t *seq)
         os_kv_set(AIS_SEQ_KV_KEY, seq, len, 1);
     }
 
-    os_timer_new(&g_secadv_timer, update_seq, NULL, AIS_SEQ_UPDATE_FREQ);
-    os_timer_start(&g_secadv_timer);
+    aos_timer_new_ext(&g_secadv_timer, update_seq, NULL, AIS_SEQ_UPDATE_FREQ, 0, 0);
+    aos_timer_start(&g_secadv_timer);
 }
 #endif
 
