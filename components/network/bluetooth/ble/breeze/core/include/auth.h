@@ -39,7 +39,7 @@ enum {
 typedef struct auth_s {
     uint8_t state;
     tx_func_t tx_func;
-    os_timer_t timer;
+    aos_timer_t timer;
     uint8_t ikm[MAX_IKM_LEN];
     uint16_t ikm_len;
     uint8_t okm[MAX_OKM_LEN];

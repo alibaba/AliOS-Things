@@ -340,12 +340,12 @@ bool ext_get_device_secret()
 
 bool ext_set_device_secret(const uint8_t* p_ds, uint8_t ds_len)
 {
-    return (os_kv_set(DEVICE_SECRET_STR, p_ds, ds_len, 1) == 0)? true: false;
+    return (aos_kv_set(DEVICE_SECRET_STR, p_ds, ds_len, 1) == 0)? true: false;
 }
 
 bool ext_del_device_secret(void)
 {
-    return (os_kv_del(DEVICE_SECRET_STR) == 0)? true: false;
+    return (aos_kv_del(DEVICE_SECRET_STR) == 0)? true: false;
 }
 
 static ret_code_t ext_cmd09_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
