@@ -24,23 +24,28 @@ The **ulocation.qianxunapp**  shows ulocation component use qianxun location ser
 * this sample use the qianxun location service , if you want to use it, you must go to the 
   https://www.qxwz.com/ to get the APPKEY and APPSECRET .
 
-### Build
+### Supported Boards
+
+- stm32f429zi-nucleo
+
+### Build & Flash
 
 ```sh
-aos make clean
+# generate udataapp@developerkit default config
+aos make ulocation.qianxunapp@stm32f429zi-nucleo -c config
+
+# or customize config manually
 aos make menuconfig
-Application selects qianxunapp
-BSP selects whatever board you want to use
+
+# build
 aos make
+
+# upload
+aos upload
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
 
-### Install
-
-```sh
-aos upload ulocation.qianxunapp@yourboard
-```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
 
