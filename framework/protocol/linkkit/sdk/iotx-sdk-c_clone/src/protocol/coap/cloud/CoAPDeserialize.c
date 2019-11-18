@@ -22,11 +22,29 @@ int Cloud_CoAPDeserialize_Header(Cloud_CoAPMessage *msg, unsigned char *buf)
 
 int Cloud_CoAPDeserialize_Token(Cloud_CoAPMessage *msg, unsigned char *buf)
 {
-    memcpy(msg->token, buf, msg->header.tokenlen);
+    memcpy(msg->token, buf, msg->header.tokenlen > COAP_MSG_MAX_TOKEN_LEN ? COAP_MSG_MAX_TOKEN_LEN : msg->header.tokenlen);
     return msg->header.tokenlen;
 }
 
-static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned char *buf, unsigned short *predeltas)
+#define COAP_OPT(o,e,step) if ((e) < step) {           \
+        COAP_ERR("cannot advance opt past end");           \
+        return -1;                                         \
+    } else {                                             \
+        (e) -= step;                                       \
+        (o) = ((o)) + step;                                \
+    }
+
+/*
+ * Used to prevent access to *option when pointing to after end of buffer
+ * after doing a COAP_OPT()
+ */
+#define COAP_OPT_CHECK(o,e,step) do {                  \
+        COAP_OPT(o,e,step);                                \
+        if ((e) < 1)                                       \
+            return -1;                                       \
+    } while (0)
+
+static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned char *buf, int left, unsigned short *predeltas)
 {
     unsigned char  *ptr      = buf;
     unsigned short optdelta  = 0;
@@ -35,18 +53,17 @@ static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned ch
 
     optdelta  = (*ptr & 0xF0) >> 4;
     optlen    = (*ptr & 0x0F);
-    ptr++;
-
+    COAP_OPT_CHECK(ptr, left, 1);
     predelta = *predeltas;
     if (13 == optdelta) {
         predelta += 13 + *ptr;
-        ptr ++;
+        COAP_OPT_CHECK(ptr, left, 1);
 
     } else if (14 == optdelta) {
         predelta += 269;
         predelta += (*ptr << 8);
         predelta +=  *(ptr + 1);
-        ptr += 2;
+        COAP_OPT_CHECK(ptr, left, 2);
     } else {
         predelta += optdelta;
     }
@@ -54,12 +71,15 @@ static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned ch
 
     if (13 == optlen) {
         optlen = 13 + *ptr;
-        ptr ++;
+        COAP_OPT_CHECK(ptr, left, 1);
     } else if (14 == optlen) {
-        optlen = 269;
-        optlen += (*ptr << 8);
-        optlen += *(ptr + 1);
-        ptr += 2;
+        optlen = (*ptr << 8) + (*(ptr + 1));
+        if (optlen + 269 < 269) {
+            return -1;
+        }
+        optlen += 269;
+        COAP_OPT_CHECK(ptr, left, 2);
+
     }
     option->len = optlen;
 
@@ -72,18 +92,21 @@ static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned ch
 int Cloud_CoAPDeserialize_Options(Cloud_CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     int  index = 0;
-    int  count = 0;
     unsigned char  *ptr      = buf;
-    unsigned short len       = 0;
+    int            len       = 0;
+    int            left      = buflen;
     unsigned short optdeltas = 0;
 
     msg->optnum = 0;
-    while ((count < buflen) && (0xFF != *ptr)) {
-        len = Cloud_CoAPDeserialize_Option(&msg->options[index], ptr, &optdeltas);
-        msg->optnum += 1;
+    while (left > 0 && (0xFF != *ptr) && index < COAP_MSG_MAX_OPTION_NUM) {
+        len = Cloud_CoAPDeserialize_Option(&msg->options[index], ptr, left, &optdeltas);
+        if (len < 0) {
+            return len;
+        }
+        msg->optnum+= 1;
         ptr += len;
+        left -= len;
         index ++;
-        count += len;
     }
 
     return (int)(ptr - buf);
@@ -120,15 +143,24 @@ int Cloud_CoAPDeserialize_Message(Cloud_CoAPMessage *msg, unsigned char *buf, in
 
     /* Deserialize CoAP header. */
     count = Cloud_CoAPDeserialize_Header(msg, ptr);
+    if (count > remlen) {
+        return COAP_ERROR_INVALID_LENGTH;
+    }
     ptr += count;
     remlen -= count;
 
     /* Deserialize the token, if any. */
     count = Cloud_CoAPDeserialize_Token(msg, ptr);
+    if (count > remlen) {
+        return COAP_ERROR_INVALID_LENGTH;
+    }
     ptr += count;
     remlen -= count;
 
     count = Cloud_CoAPDeserialize_Options(msg, ptr, remlen);
+    if (count > remlen || count < 0) {
+        return COAP_ERROR_INVALID_LENGTH;
+    }
     ptr += count;
     remlen -= count;
 
