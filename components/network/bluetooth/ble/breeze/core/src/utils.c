@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "utils.h"
+#include "breeze_hal_os.h"
 
 uint8_t hex2ascii(uint8_t digit)
 {
@@ -47,11 +48,10 @@ void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
     utf8_to_str(data, len, pw);
 }
 
-extern long long os_now_ms();
 void get_random(uint8_t *random, uint8_t random_len)
 {
     uint8_t bytes_available = 0;
-    uint32_t seed = os_now_ms();
+    uint32_t seed = aos_now_ms();
     uint8_t byte[5];
     uint32_t result;
     uint16_t bytes_copy;
