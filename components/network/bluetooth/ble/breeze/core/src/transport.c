@@ -41,7 +41,7 @@ static void reset_tx(void)
     g_transport.tx.pkt_req = 0;
     g_transport.tx.pkt_cfm = 0;
     if (g_transport.timeout != 0) {
-        os_timer_stop(&g_transport.tx.timer);
+        aos_timer_stop(&g_transport.tx.timer);
     }
 }
 
@@ -52,7 +52,7 @@ static void reset_rx(void)
     g_transport.rx.frame_seq = 0;
     g_transport.rx.bytes_received = 0;
     if (g_transport.timeout != 0) {
-        os_timer_stop(&g_transport.rx.timer);
+        aos_timer_stop(&g_transport.rx.timer);
     }
 }
 
@@ -205,7 +205,7 @@ static ret_code_t send_fragment(void)
     }  while (bytes_left > 0);
 
     if ((bytes_left != 0) && (g_transport.timeout != 0)) {
-        os_timer_start(&g_transport.tx.timer);
+        aos_timer_start(&g_transport.tx.timer);
     }
     if (g_transport.tx.active_func == ble_ais_send_notification) {
         transport_txdone(pkt_sent);
@@ -242,8 +242,8 @@ ret_code_t transport_init(ali_init_t const *p_init)
     g_transport.timeout = p_init->transport_timeout;
 
     if (g_transport.timeout != 0) {
-        os_timer_new(&g_transport.tx.timer, on_tx_timeout, &g_transport, g_transport.timeout);
-        os_timer_new(&g_transport.rx.timer, on_rx_timeout, &g_transport, g_transport.timeout);
+        aos_timer_new_ext(&g_transport.tx.timer, on_tx_timeout, &g_transport, g_transport.timeout, 0, 0);
+        aos_timer_new_ext(&g_transport.rx.timer, on_rx_timeout, &g_transport, g_transport.timeout, 0, 0);
     }
     return BZ_SUCCESS;
 }
@@ -403,7 +403,7 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         reset_rx();
     } else {
         if (g_transport.timeout != 0) {
-            os_timer_start(&g_transport.rx.timer);
+            aos_timer_start(&g_transport.rx.timer);
         }
     }
 }
