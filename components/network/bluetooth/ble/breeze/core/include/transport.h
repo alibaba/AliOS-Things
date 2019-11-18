@@ -37,7 +37,7 @@ typedef struct transport_s {
         uint8_t zeroes_padded;
         uint16_t pkt_req;
         uint16_t pkt_cfm;
-        os_timer_t timer;
+        aos_timer_t timer;
         transport_tx_func_t active_func;
     } tx;
     struct {
@@ -48,7 +48,7 @@ typedef struct transport_s {
         uint8_t cmd;
         uint8_t total_frame;
         uint8_t frame_seq;
-        os_timer_t timer;
+        aos_timer_t timer;
     } rx;
     uint16_t max_pkt_size;
     void *p_key;
