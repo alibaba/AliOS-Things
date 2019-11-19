@@ -1,0 +1,5 @@
+config AOS_COMP_WEBSOC_YTS_TEST
+    bool "Websocket YTS Testcase"
+    select AOS_COMP_WEBSOC
+    default n
+    help
