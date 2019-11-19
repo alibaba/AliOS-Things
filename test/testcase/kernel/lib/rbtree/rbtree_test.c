@@ -17,14 +17,14 @@
 
 struct my_node {
     struct rbt_node rbt_node;  /* rbttree node */
-    int             key;       /* key */
+    uint64_t        key;       /* key */
 };
 
 /*
  * Search rbtree for the node with key. If the node exist,
  * return the node pointer, else return NULL
  */
-static struct my_node *my_search(struct rbt_root *root, int key)
+static struct my_node *my_search(struct rbt_root *root, uint64_t key)
 {
     struct rbt_node *rbtnode = root->rbt_node;
 
@@ -46,7 +46,7 @@ static struct my_node *my_search(struct rbt_root *root, int key)
 /*
  * Insert @key into rbtree, On success, return 0, else return -1
  */
-static int my_insert(struct rbt_root *root, int key)
+static int my_insert(struct rbt_root *root, uint64_t key)
 {
     struct my_node *mynode; // create new node
     struct rbt_node **tmp = &(root->rbt_node), *parent = NULL;
@@ -57,7 +57,7 @@ static int my_insert(struct rbt_root *root, int key)
         struct my_node *my = rbt_entry(*tmp, struct my_node, rbt_node);
 
         parent = *tmp;
-        if (key < my->key)
+        if (key <= my->key)
             tmp = &((*tmp)->rbt_left);
         else if (key > my->key)
             tmp = &((*tmp)->rbt_right);
@@ -80,7 +80,7 @@ static int my_insert(struct rbt_root *root, int key)
 /*
  * Delete the node whose key value equals @key
  */
-static void my_delete(struct rbt_root *root, int key)
+static void my_delete(struct rbt_root *root, uint64_t key)
 {
     struct my_node *mynode;
 
@@ -94,14 +94,14 @@ static void my_delete(struct rbt_root *root, int key)
 /*
  * Print the rbtree
  */
-static void print_rbttree(struct rbt_node *tree, int key, int direction)
+static void print_rbttree(struct rbt_node *tree, uint64_t key, int direction)
 {
     if(tree != NULL)
     {
         if(direction==0)    // tree is the root node
-            printf("%2d(B) is root\n", key);
+            printf("%2lld(B) is root\n", key);
         else                // tree is child node
-            printf("%2d(%s) is %2d's %6s child\n", key, rbt_is_black(tree)?"B":"R", key, direction==1?"right" : "left");
+            printf("%2lld(%s) is %2lld's %6s child\n", key, rbt_is_black(tree)?"B":"R", key, direction==1?"right" : "left");
 
         if (tree->rbt_left)
             print_rbttree(tree->rbt_left, rbt_entry(tree->rbt_left, struct my_node, rbt_node)->key, -1);
@@ -121,8 +121,8 @@ static void test_rbtree_case(void)
 {
     int i;
     int ilen;
-    int a[] = {10, 40, 30, 60, 90, 70, 20, 50, 80};
-    int b[] = {10, 20, 30, 40, 50, 60, 70, 80, 90};
+    uint64_t a[] = {10, 10, 40, 30, 60, 90, 70, 20, 50, 80};
+    uint64_t b[] = {10, 10, 20, 30, 40, 50, 60, 70, 80, 90};
 
     struct rbt_node *tmp;
     struct my_node  *mynode;
@@ -132,7 +132,7 @@ static void test_rbtree_case(void)
 
     printf("== origin value: ");
     for(i=0; i<ilen; i++) {
-        printf("%d ", a[i]);
+        printf("%lld ", a[i]);
     }
     printf("\r\n");
 
@@ -142,7 +142,7 @@ static void test_rbtree_case(void)
     {
         my_insert(&mytree, a[i]);
 #if CHECK_INSERT
-        printf("== intsert node: %d\r\n", a[i]);
+        printf("== intsert node: %lld\r\n", a[i]);
         printf("== Details of the tree: \r\n");
         my_print(&mytree);
         printf("r\\n");
@@ -151,7 +151,7 @@ static void test_rbtree_case(void)
 
     for (tmp = rbt_first(&mytree), i = 0; tmp; tmp = rbt_next(tmp), i++) {
         mynode = rbt_entry(tmp, struct my_node, rbt_node);
-        printf("%d ", mynode->key);
+        printf("$$$$$$%lld ", mynode->key);
         YUNIT_ASSERT(mynode->key == b[i]);
     }
 
@@ -160,7 +160,7 @@ static void test_rbtree_case(void)
     for (i=0; i<ilen; i++) {
         my_delete(&mytree, a[i]);
 #if CHECK_DELETE
-        printf("== Delete node: %d\r\n", a[i]);
+        printf("== Delete node: %lld\r\n", a[i]);
         printf("== Details of the tree: \r\n");
         my_print(&mytree);
         printf("\r\n");
