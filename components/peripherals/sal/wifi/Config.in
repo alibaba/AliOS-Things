@@ -13,10 +13,10 @@ choice
 config AOS_WIFI_NULL
     bool "Null"
 
-source "drivers/sal/wifi/bk7231/Config.in"
-source "drivers/sal/wifi/esp8266/Config.in"
-source "drivers/sal/wifi/gt202/Config.in"
-source "drivers/sal/wifi/mk3060/Config.in"
+source "components/peripherals/sal/wifi/bk7231/Config.in"
+source "components/peripherals/sal/wifi/esp8266/Config.in"
+source "components/peripherals/sal/wifi/gt202/Config.in"
+source "components/peripherals/sal/wifi/mk3060/Config.in"
 
 endchoice
 
