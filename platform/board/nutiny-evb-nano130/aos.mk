@@ -27,7 +27,7 @@ $(NAME)_SOURCES += config/k_config.c \
 $(NAME)_SOURCES += startup/startup_Nano100Series_gcc.c
 
 
-GLOBAL_LDFLAGS  += -T platform/board/nutiny-evb-nano130/NANO130.ld
+GLOBAL_LDFLAGS  += -T board/nutiny-evb-nano130/NANO130.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \

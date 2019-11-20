@@ -24,7 +24,7 @@ GLOBAL_INCLUDES += . \
                    config/ \
                    startup/
 
-GLOBAL_LDS_FILES += platform/board/sv6266_evb/flash.lds.S
+GLOBAL_LDS_FILES += board/sv6266_evb/flash.lds.S
 
 # Global defines
 

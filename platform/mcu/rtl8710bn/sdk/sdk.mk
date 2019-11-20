@@ -7,7 +7,7 @@
 #  permission of MXCHIP Corporation.
 #
 
-$(NAME)_INCLUDES += ../../../../components/network/lwip/include
+$(NAME)_INCLUDES += ../../../network/lwip/include
 $(NAME)_INCLUDES += ./
 
 $(NAME)_INCLUDES += sdk/project/realtek_amebaz_va0_example/inc
