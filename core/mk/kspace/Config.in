@@ -45,7 +45,7 @@ config RHINO_CONFIG_UTCPIP
     help
         "support user space TCPIP"
 
-source "kernel/mk/syscall/ksyscall/Config.in"
+source "core/mk/syscall/ksyscall/Config.in"
 
 endif
 
