@@ -38,11 +38,11 @@ $(NAME)_SOURCES := board.c                                 \
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += arm/startup_MIMXRT1052.S
-GLOBAL_LDFLAGS += -L --scatter=platform/board/evkbimxrt1050/arm/MIMXRT1052xxxxx_ram.sct
+GLOBAL_LDFLAGS += -L --scatter=board/evkbimxrt1050/arm/MIMXRT1052xxxxx_ram.sct
 else
 # Toolchain related source
 $(NAME)_SOURCES += gcc/startup_MIMXRT1052.S
-GLOBAL_LDFLAGS += -T  platform/board/evkbimxrt1050/gcc/MIMXRT1052xxxxx_sdram_txt.ld
+GLOBAL_LDFLAGS += -T  board/evkbimxrt1050/gcc/MIMXRT1052xxxxx_sdram_txt.ld
 
 endif
 
