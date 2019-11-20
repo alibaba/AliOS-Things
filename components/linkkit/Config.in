@@ -1,7 +1,7 @@
 
     config SRCPATH
         string
-        default "middleware/linkkit"
+        default "components/linkkit"
 
 menu "Link Kit Configurations"
 
