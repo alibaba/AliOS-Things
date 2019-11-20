@@ -30,9 +30,9 @@ DEPENDS_FILE := $(subst config,.depends,$(CONFIG_FILE))
 DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
-                         app/example   \
-                         app/profile   \
-                         board     \
+                         application/example   \
+                         application/profile   \
+                         platform/board     \
                          kernel    \
                          platform  \
                          utility   \
@@ -138,7 +138,6 @@ endef
 define PROCESS_ONE_COMPONENT
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
-
 # Find the component makefile in directory list
 $(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/aos.mk)))))
 $(eval TEMP_MAKEFILE := $(if $(filter %aos.mk,$(TEMP_MAKEFILE)),$(filter %aos.mk,$(TEMP_MAKEFILE)),$(TEMP_MAKEFILE)))
@@ -281,7 +280,6 @@ $(if $(DEBUG_CONFIG), \
     $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled: $(ONLY_IN_CONFIGIN)),) \
 )
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
-
 endef
 
 ##################################
@@ -317,9 +315,9 @@ endif
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $($(comp)_LOCATION)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
-PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/board/$(comp)),$(comp),)))
+PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/$(comp)),$(comp),)))
 
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/app/$(comp) $(SOURCE_ROOT)/app/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
@@ -352,9 +350,9 @@ EXTRA_ASMFLAGS += $(call GCC_INCLUDE_AUTOCONF_H)
 endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
-$(eval CURDIR := $(SOURCE_ROOT)/board/$(PLATFORM_DIRECTORY)/)
+$(eval CURDIR := $(SOURCE_ROOT)/platform/board/$(PLATFORM_DIRECTORY)/)
 
-include $(SOURCE_ROOT)/board/$(PLATFORM_DIRECTORY)/aos.mk
+include $(SOURCE_ROOT)/platform/board/$(PLATFORM_DIRECTORY)/aos.mk
 
 $(eval CURDIR := $($(HOST_MCU_FAMILY)_LOCATION)/)
 include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
@@ -408,7 +406,6 @@ endif
 
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
-
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
@@ -417,8 +414,8 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal/soc \
                     -I$(SOURCE_ROOT)/include/network \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/breeze \
-                    -I$(SOURCE_ROOT)/network/bluetooth/ble/host/include \
-                    -I$(SOURCE_ROOT)/network/bluetooth/ble/host/profile \
+                    -I$(SOURCE_ROOT)/components/bluetooth/ble/host/include \
+                    -I$(SOURCE_ROOT)/components/bluetooth/ble/host/profile \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/mesh \
                     -I$(SOURCE_ROOT)/include/network/coap \
                     -I$(SOURCE_ROOT)/include/network/hal \
@@ -451,8 +448,8 @@ endif
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
 # Make sure the user has specified a component from each category
-$(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
-$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
+$(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard platform/board/*))))
+$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard application/example/*))))
 
 # Make sure a WLAN_CHIP, WLAN_CHIP_REVISION, WLAN_CHIP_FAMILY and HOST_OPENOCD have been defined
 #$(if $(WLAN_CHIP),,$(error No WLAN_CHIP has been defined))
