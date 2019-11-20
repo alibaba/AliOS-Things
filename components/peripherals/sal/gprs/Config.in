@@ -10,7 +10,7 @@ choice
 config AOS_GPRS_NULL
     bool "Null"
 
-source "drivers/sal/gprs/sim800/Config.in"
+source "components/peripherals/sal/gprs/sim800/Config.in"
 
 endchoice
 
