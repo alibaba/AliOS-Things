@@ -5,254 +5,254 @@ if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 
-source "app/example/athostapp/Config.in"
+source "application/example/athostapp/Config.in"
 if AOS_APP_ATHOSTAPP
     config AOS_BUILD_APP
         default "athostapp"
 endif
 
-source "app/example/blink/Config.in"
+source "application/example/blink/Config.in"
 if AOS_APP_BLINK
     config AOS_BUILD_APP
         default "blink"
 endif
 
-source "app/example/bluetooth/bleadv/Config.in"
+source "application/example/bluetooth/bleadv/Config.in"
 if AOS_APP_BLEADV
     config AOS_BUILD_APP
         default "bluetooth.bleadv"
 endif
 
-source "app/example/bluetooth/blemesh_tmall/Config.in"
+source "application/example/bluetooth/blemesh_tmall/Config.in"
 if AOS_APP_BLEMESH_TMALL
     config AOS_BUILD_APP
         default "bluetooth.blemesh_tmall"
 endif
 
-source "app/example/bluetooth/bleperipheral/Config.in"
+source "application/example/bluetooth/bleperipheral/Config.in"
 if AOS_APP_BLEPERIPHERAL
     config AOS_BUILD_APP
         default "bluetooth.bleperipheral"
 endif
 
-source "app/example/bluetooth/breezeapp/Config.in"
+source "application/example/bluetooth/breezeapp/Config.in"
 if AOS_APP_BREEZEAPP
     config AOS_BUILD_APP
         default "bluetooth.breezeapp"
 endif
 
-source "app/example/coapapp/Config.in"
+source "application/example/coapapp/Config.in"
 if AOS_APP_COAPAPP
     config AOS_BUILD_APP
         default "coapapp"
 endif
 
-source "app/example/das_app/Config.in"
-if AOS_APP_DAS_CLIENT
+source "application/example/das_app/Config.in"
+if AOS_APP_DAS_APP
     config AOS_BUILD_APP
         default "das_app"
 endif
 
-source "app/example/dk/dk_audio/Config.in"
+source "application/example/dk/dk_audio/Config.in"
 if AOS_APP_DK_AUDIO
     config AOS_BUILD_APP
         default "dk.dk_audio"
 endif
 
-source "app/example/dk/dk_camera/Config.in"
+source "application/example/dk/dk_camera/Config.in"
 if AOS_APP_DK_CAMERA
     config AOS_BUILD_APP
         default "dk.dk_camera"
 endif
 
-source "app/example/dk/dk_gui/Config.in"
+source "application/example/dk/dk_gui/Config.in"
 if AOS_APP_DK_GUI
     config AOS_BUILD_APP
         default "dk.dk_gui"
 endif
 
-source "app/example/dk/dk_qr/Config.in"
+source "application/example/dk/dk_qr/Config.in"
 if AOS_APP_DK_QR
     config AOS_BUILD_APP
         default "dk.dk_qr"
 endif
 
-source "app/example/helloworld/Config.in"
+source "application/example/helloworld/Config.in"
 if AOS_APP_HELLOWORLD
     config AOS_BUILD_APP
         default "helloworld"
 endif
 
-source "app/example/http2app/Config.in"
+source "application/example/http2app/Config.in"
 if AOS_APP_HTTP2APP
     config AOS_BUILD_APP
         default "http2app"
 endif
 
-source "app/example/id2_app/Config.in"
-if AOS_APP_ID2_CLIENT
+source "application/example/id2_app/Config.in"
+if AOS_APP_ID2_APP
     config AOS_BUILD_APP
         default "id2_app"
 endif
 
-source "app/example/itls_app/Config.in"
-if AOS_APP_ITLS_CLIENT
+source "application/example/itls_app/Config.in"
+if AOS_APP_ITLS_APP
     config AOS_BUILD_APP
         default "itls_app"
 endif
 
-source "app/example/linkkit_gateway/Config.in"
+source "application/example/linkkit_gateway/Config.in"
 if AOS_APP_LINKKIT_GATEWAY
     config AOS_BUILD_APP
         default "linkkit_gateway"
 endif
 
-source "app/example/linkkitapp/Config.in"
+source "application/example/linkkitapp/Config.in"
 if AOS_APP_LINKKITAPP
     config AOS_BUILD_APP
         default "linkkitapp"
 endif
 
-source "app/example/lorawan/linkwan/Config.in"
+source "application/example/lorawan/linkwan/Config.in"
 if AOS_APP_LINKWAN
     config AOS_BUILD_APP
         default "lorawan.linkwan"
 endif
 
-source "app/example/lwm2mapp/Config.in"
+source "application/example/lwm2mapp/Config.in"
 if AOS_APP_LWM2MAPP
     config AOS_BUILD_APP
         default "lwm2mapp"
 endif
 
-source "app/example/meshapp/Config.in"
+source "application/example/meshapp/Config.in"
 if AOS_APP_MESHAPP
     config AOS_BUILD_APP
         default "meshapp"
 endif
 
-source "app/example/modbus_demo/Config.in"
+source "application/example/modbus_demo/Config.in"
 if AOS_APP_MODBUS_DEMO
     config AOS_BUILD_APP
         default "modbus_demo"
 endif
 
-source "app/example/mqttapp/Config.in"
+source "application/example/mqttapp/Config.in"
 if AOS_APP_MQTTAPP
     config AOS_BUILD_APP
         default "mqttapp"
 endif
 
-source "app/example/otaapp/Config.in"
+source "application/example/otaapp/Config.in"
 if AOS_APP_OTAAPP
     config AOS_BUILD_APP
         default "otaapp"
 endif
 
-source "app/example/prov_app/Config.in"
+source "application/example/prov_app/Config.in"
 if AOS_APP_PROV_APP
     config AOS_BUILD_APP
         default "prov_app"
 endif
 
-source "app/example/sk/sk_gui/Config.in"
+source "application/example/sk/sk_gui/Config.in"
 if AOS_APP_SK_GUI
     config AOS_BUILD_APP
         default "sk.sk_gui"
 endif
 
-source "app/example/tls/Config.in"
+source "application/example/tls/Config.in"
 if AOS_APP_TLS_CLIENT
     config AOS_BUILD_APP
         default "tls"
 endif
 
-source "app/example/uart/Config.in"
+source "application/example/uart/Config.in"
 if AOS_APP_UART
     config AOS_BUILD_APP
         default "uart"
 endif
 
-source "app/example/udataapp/Config.in"
+source "application/example/udataapp/Config.in"
 if AOS_APP_UDATAAPP
     config AOS_BUILD_APP
         default "udataapp"
 endif
 
-source "app/example/ulocation/baseapp/Config.in"
+source "application/example/ulocation/baseapp/Config.in"
 if AOS_APP_BASEAPP
     config AOS_BUILD_APP
         default "ulocation.baseapp"
 endif
 
-source "app/example/ulocation/qianxunapp/Config.in"
+source "application/example/ulocation/qianxunapp/Config.in"
 if AOS_APP_QIANXUNAPP
     config AOS_BUILD_APP
         default "ulocation.qianxunapp"
 endif
 
-source "app/example/yts/Config.in"
+source "application/example/yts/Config.in"
 if AOS_APP_YTS
     config AOS_BUILD_APP
         default "yts"
 endif
 
-source "app/example/httpapp/Config.in"
+source "application/example/httpapp/Config.in"
 if AOS_APP_HTTPAPP
     config AOS_BUILD_APP
         default "httpapp"
 endif
 
-source "app/example/udata_demo/sensor_local_demo/Config.in"
+source "application/example/udata_demo/sensor_local_demo/Config.in"
 if AOS_APP_SENSOR_LOCAL_DEMO
     config AOS_BUILD_APP
         default "udata_demo.sensor_local_demo"
 endif
 
-source "app/example/udata_demo/sensor_cloud_demo/Config.in"
+source "application/example/udata_demo/sensor_cloud_demo/Config.in"
 if AOS_APP_SENSOR_CLOUD_DEMO
     config AOS_BUILD_APP
         default "udata_demo.sensor_cloud_demo"
 endif
 
-source "app/example/udata_demo/udata_local_demo/Config.in"
+source "application/example/udata_demo/udata_local_demo/Config.in"
 if AOS_APP_UDATA_LOCAL_DEMO
     config AOS_BUILD_APP
         default "udata_demo.udata_local_demo"
 endif
 
 
-source "app/example/udata_demo/udata_cloud_demo/Config.in"
+source "application/example/udata_demo/udata_cloud_demo/Config.in"
 if AOS_APP_UDATA_CLOUD_DEMO
     config AOS_BUILD_APP
         default "udata_demo.udata_cloud_demo"
 endif
 
-source "app/example/jsengine_app/Config.in"
+source "application/example/jsengine_app/Config.in"
 if AOS_APP_JSENGINE_APP
     config AOS_BUILD_APP
         default "jsengine_app"
 endif
 
-source "app/example/uai_demo/uai_kws_demo/Config.in"
+source "application/example/uai_demo/uai_kws_demo/Config.in"
 if AOS_APP_UAI_KWS_DEMO
     config AOS_BUILD_APP
         default "uai_demo.uai_kws_demo"
 endif
 
-source "app/example/uai_demo/uai_cifar10_demo/Config.in"
+source "application/example/uai_demo/uai_cifar10_demo/Config.in"
 if AOS_APP_UAI_CIFAR10_DEMO
     config AOS_BUILD_APP
         default "uai_demo.uai_cifar10_demo"
 endif
 
-source "app/example/uapp1/Config.in"
+source "application/example/uapp1/Config.in"
 if AOS_APP_UAPP1
     config AOS_BUILD_APP
         default "uapp1"
 endif
 
-source "app/example/uapp2/Config.in"
+source "application/example/uapp2/Config.in"
 if AOS_APP_UAPP2
     config AOS_BUILD_APP
         default "uapp2"

@@ -19,5 +19,5 @@ config ATHOSTAPP_CONFIG_MQTTREPORT
     bool "Support Mqtt Report"
     default y
 
-source "network/nal/athost/Config.in"
+source "components/network/nal/athost/Config.in"
 endif
