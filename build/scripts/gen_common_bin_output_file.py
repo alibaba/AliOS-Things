@@ -73,7 +73,7 @@ def main():
 
 #app = moc_app.read()
 # kernel = moc_kernel.read()
-    
+
 #  crc = CRC16( bytes(app[8::]) )
 
 #  moc_app_output.write( struct.pack('<L', os.path.getsize(MOC_APP_FILE)-8 ) )
