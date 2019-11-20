@@ -56,7 +56,7 @@ GLOBAL_INCLUDES += drivers/os_api/freertos_aos
 
 $(NAME)_SOURCES += startup/startup_mt7682_gcc.s
 
-GLOBAL_LDFLAGS  += -T platform/board/mt7682s/mt7682_flash.ld
+GLOBAL_LDFLAGS  += -T board/mt7682s/mt7682_flash.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \

@@ -30,14 +30,14 @@ $(NAME)_SOURCES += startup/startup_stm32f103xb_keil.s
 $(NAME)_LINK_FILES := startup/startup_stm32f103xb_keil.o
 $(NAME)_LINK_FILES += drivers/stm32f1xx_hal_msp.o
 
-GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f103rb-nucleo/stm32f103rb-nucleo.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32f103rb-nucleo/stm32f103rb-nucleo.sct
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += startup/startup_stm32f103xb_iar.s
-GLOBAL_LDFLAGS += --config platform/board/stm32f103rb-nucleo/stm32f103xb_flash.icf
+GLOBAL_LDFLAGS += --config board/stm32f103rb-nucleo/stm32f103xb_flash.icf
 else
 #GLOBAL_CFLAGS += -DUSE_DIRECT_UART_PUTC
 $(NAME)_SOURCES += startup/startup_stm32f103xb.s
-GLOBAL_LDFLAGS += -T platform/board/stm32f103rb-nucleo/STM32F103RBTx_FLASH.ld
+GLOBAL_LDFLAGS += -T board/stm32f103rb-nucleo/STM32F103RBTx_FLASH.ld
 endif
 
 GLOBAL_INCLUDES += . \
