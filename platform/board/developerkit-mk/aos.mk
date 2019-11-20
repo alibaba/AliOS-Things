@@ -85,18 +85,18 @@ AOS_DEVELOPERKIT_ENABLE_OTA := 1
 endif
 
 ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
-GLOBAL_LDFLAGS += -T platform/board/developerkit/STM32L496VGTx_FLASH_OTA.ld
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x9000
 GLOBAL_DEFINES += USING_FLAT_FLASH
 GLOBAL_DEFINES += OTA_DUBANK
 AOS_SDK_2NDBOOT_SUPPORT := yes
 else
 ifeq ($(MBINS),)
-GLOBAL_LDFLAGS += -T platform/board/developerkit-mk/STM32L496VGTx_FLASH.ld
+GLOBAL_LDFLAGS += -T board/developerkit-mk/STM32L496VGTx_FLASH.ld
 else ifeq ($(MBINS),app)
-GLOBAL_LDFLAGS += -T platform/board/developerkit-mk/$(MBINS_APP).ld
+GLOBAL_LDFLAGS += -T board/developerkit-mk/$(MBINS_APP).ld
 else
-GLOBAL_LDFLAGS += -T platform/board/developerkit-mk/STM32L496VGTx_FLASH_kernel.ld
+GLOBAL_LDFLAGS += -T board/developerkit-mk/STM32L496VGTx_FLASH_kernel.ld
 endif
 endif
 
