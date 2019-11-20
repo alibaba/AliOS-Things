@@ -1,4 +1,4 @@
-config AOS_APP_ID2_CLIENT
+config AOS_APP_ID2_APP
     bool "ID2 Client Sample"
     select AOS_COMP_IROT
     select AOS_COMP_ID2
@@ -6,6 +6,6 @@ config AOS_APP_ID2_CLIENT
     help
         ID2 Sample and Local Test.
 
-if AOS_APP_ID2_CLIENT
+if AOS_APP_ID2_APP
 # Configurations for app id2_client
 endif
