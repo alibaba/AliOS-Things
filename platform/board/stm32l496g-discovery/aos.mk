@@ -35,11 +35,11 @@ GLOBAL_CFLAGS += -DSTM32L496xx
 GLOBAL_DEFINES += STDIO_UART=0
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32l496g-discovery/STM32L496.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32l496g-discovery/STM32L496.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config platform/board/stm32l496g-discovery/STM32L496.icf
+GLOBAL_LDFLAGS += --config board/stm32l496g-discovery/STM32L496.icf
 else
-GLOBAL_LDFLAGS += -T platform/board/stm32l496g-discovery/STM32L496AGIx_FLASH.ld
+GLOBAL_LDFLAGS += -T board/stm32l496g-discovery/STM32L496AGIx_FLASH.ld
 endif
 
 AOS_NETWORK_SAL    ?= y

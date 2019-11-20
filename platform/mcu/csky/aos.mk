@@ -59,7 +59,7 @@ $(NAME)_SOURCES += aos/aos.c                                \
 
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_SOURCES += hal/wifi_port.c
-GLOBAL_INCLUDES += ../../../components/peripherals/sal/wifi/esp8266
+GLOBAL_INCLUDES += ../../../drivers/sal/wifi/esp8266
 $(NAME)_SOURCES += cli/uart_config.c
 endif
 
@@ -77,7 +77,7 @@ GLOBAL_INCLUDES += csi/csi_core/include        \
 
 ifeq ($(HOST_CHIP), zx297100)
 GLOBAL_DEFINES += CONFIG_HAVE_ICU
-GLOBAL_LDFLAGS += -T platform/board/zx297100_evb/gcc_csky.ld
+GLOBAL_LDFLAGS += -T board/zx297100_evb/gcc_csky.ld
 
 DRIVERDIR       := csi/csi_driver/sanechips/common
 CHIPDIR         := csi/csi_driver/sanechips/zx297100
@@ -108,7 +108,7 @@ $(NAME)_SOURCES += $(CHIPDIR)/novic_irq_tbl.c    \
                    $(DRIVERDIR)/zx29_pmu.c       \
                    $(DRIVERDIR)/zx29_bmu.c
 else
-GLOBAL_LDFLAGS += -T platform/board/cb2201/gcc_csky.ld
+GLOBAL_LDFLAGS += -T board/cb2201/gcc_csky.ld
 GLOBAL_INCLUDES += csi/csi_driver/csky/ch2201/include \
                    csi/csi_driver/csky/common/include
 

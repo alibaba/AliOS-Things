@@ -41,11 +41,11 @@ GLOBAL_INCLUDES += .    \
 GLOBAL_CFLAGS += -DSTM32F411xE -DSRAM1_SIZE_MAX=0x20000 -DCENTRALIZE_MAPPING
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f411re-nucleo/stm32f411xe.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32f411re-nucleo/stm32f411xe.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config platform/board/stm32f411re-nucleo/STM32F411.icf
+GLOBAL_LDFLAGS += --config board/stm32f411re-nucleo/STM32F411.icf
 else
-GLOBAL_LDFLAGS += -T platform/board/stm32f411re-nucleo/STM32F411RETx_FLASH.ld
+GLOBAL_LDFLAGS += -T board/stm32f411re-nucleo/STM32F411RETx_FLASH.ld
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_f411-nucleo

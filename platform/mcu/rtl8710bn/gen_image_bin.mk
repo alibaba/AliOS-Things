@@ -1,5 +1,5 @@
 AMEBAZ_DIR = $($(HOST_MCU_FAMILY)_LOCATION)
-SYSTEMBIN_DIR = board/$(PLATFORM)
+SYSTEMBIN_DIR = platform/board/$(PLATFORM)
 AMEBAZ_TOOLDIR	= $(AMEBAZ_DIR)/tools
 BIN_DIR= $(AMEBAZ_DIR)
 
@@ -19,7 +19,7 @@ ifneq ($(findstring $(HOST_OS),Win32 Win64),)
 	$(eval OUT_MSG := $(shell cmd /c %cd%$($(HOST_MCU_FAMILY)_LOCATION)\script\postbuild_img2.bat $(ota2_offset) %cd% $(APP_FULL) $(PLATFORM)))
 else
 	@echo $(HOST_OS) $(ota_idx) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)
-	$(eval OUT_MSG := $(shell sh $($(HOST_MCU_FAMILY)_LOCATION)/script/manipulate_image.sh $(ota2_offset) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
+	$(eval OUT_MSG := $(shell sh $($(HOST_MCU_FAMILY)_LOCATION)/script/manipulate_image.sh $(ota2_offset) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH) $(APPDIR)))
 endif
 
 gen_image_bin_2ndboot:
@@ -28,7 +28,7 @@ ifneq ($(findstring $(HOST_OS),Win32 Win64),)
 	$(eval OUT_MSG := $(shell cmd /c %cd%$($(HOST_MCU_FAMILY)_LOCATION)\script\postbuild_img2.bat $(ota1_offset) %cd% $(APP_FULL) $(PLATFORM)))
 else
 	@echo $(HOST_OS) $(ota_idx) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)
-	$(eval OUT_MSG := $(shell sh $($(HOST_MCU_FAMILY)_LOCATION)/script/manipulate_image.sh $(ota1_offset) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
+	$(eval OUT_MSG := $(shell sh $($(HOST_MCU_FAMILY)_LOCATION)/script/manipulate_image.sh $(ota1_offset) $(SOURCE_ROOT) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH) $(APPDIR)))
 endif
 
 #bootloader

@@ -1,9 +1,9 @@
 EXTRA_POST_BUILD_TARGETS += gen_standard_images
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),pca10056)
-BOOT_BIN_FILE :=$(SOURCE_ROOT)/platform/board/pca10056/pca10056_boot.bin
+BOOT_BIN_FILE :=$(SOURCE_ROOT)/board/pca10056/pca10056_boot.bin
 else
-BOOT_BIN_FILE :=$(SOURCE_ROOT)/platform/board/pca10040/pca10040_boot.bin
+BOOT_BIN_FILE :=$(SOURCE_ROOT)/board/pca10040/pca10040_boot.bin
 endif
 
 ALL_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_all$(BIN_OUTPUT_SUFFIX))
