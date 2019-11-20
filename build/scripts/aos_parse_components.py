@@ -32,7 +32,7 @@ def get_comp_optname(compname, mkfile):
     """ Return config option name of comp """
     optname = None
     compname = compname.upper().replace("-", "_")
-    if "app/" in mkfile:
+    if "application/" in mkfile:
         optname = "AOS_APP_%s" % compname.replace("APP_", "")
     elif "board/" in mkfile:
         optname = "AOS_BOARD_%s" % compname.replace("BOARD_", "")
@@ -48,13 +48,13 @@ def get_comp_optname(compname, mkfile):
 def get_app_name(mkfile):
     """ Return app dir name as app name """
     name = None
-    patten = re.compile(r".*(app/example/|app/profile/|test/develop/)(.*)/aos.mk")
+    patten = re.compile(r".*(application/example/|application/profile/|test/develop/)(.*)/aos.mk")
     match = patten.match(mkfile)
     if match:
         name = match.group(2).replace("/", ".")
 
     if not name:
-        patten = re.compile(r".*/app/(\w*/)?(.*)/aos.mk")
+        patten = re.compile(r".*/application/(\w*/)?(.*)/aos.mk")
         match = patten.match(mkfile)
         if match:
             name = match.group(2).replace("/", ".")
@@ -94,7 +94,7 @@ def write_config_file(source_root, config_file, mklist):
 
         real_names += [name]
 
-        if "app/" in mkfile or "test/develop/" in mkfile:
+        if "application/" in mkfile or "test/develop/" in mkfile:
             comptype = "app"
             aliasname = get_app_name(mkfile)
         elif "board/" in mkfile:
