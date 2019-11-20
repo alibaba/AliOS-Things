@@ -139,7 +139,7 @@ endif
 # get real app name and check if it available
 appname = $(firstword $(components))
 appdir = $(subst .,/,$(appname))
-appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/app/*/$(appdir)/aos.mk $(SOURCE_ROOT)/app/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
     $(error App Unknown, Please make sure the "$(appname)" is existing!))
@@ -156,13 +156,13 @@ export AOS_APP_TYPE := AOS_APP_LOCALAPP
 endif
 
 boardname = $(word 2, $(components))
-boardmkfile = $(wildcard $(SOURCE_ROOT)/board/$(boardname)/aos.mk)
+boardmkfile = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/aos.mk)
 $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
 
 $(if $(filter no,$(AOS_BUILD_COMPATIBLE)), $(call BUILD_INCOMPATIBLE_ERROR,$(boardname)))
-defconfig = $(wildcard $(SOURCE_ROOT)/board/$(boardname)/defconfig)
+defconfig = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
@@ -219,8 +219,8 @@ Usage: aos make <target> -c <[config|menuconfig]>
 
   <target>
     One each of the following mandatory components separated by '@'
-      * Application (apps in app/example/, app/profile/ ...)
-      * Board (boards in board/)
+      * Application (apps in application/example/, application/profile/ ...)
+      * Board (boards in platform/board/)
 
   [VERBOSE=1]
     Shows the commands as they are being executed

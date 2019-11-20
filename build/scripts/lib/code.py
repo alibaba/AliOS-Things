@@ -90,7 +90,7 @@ def get_depends_from_source(comp_info, include_list):
             if "location" in comp_info[key]:
                 loc = comp_info[key]["location"]
                 if loc.startswith("board/") or loc.startswith("platform/") or \
-                    loc.startswith("app/") or loc.startswith("test/develop/"):
+                    loc.startswith("application/") or loc.startswith("test/develop/"):
                     continue
 
             if "include_dirs" not in comp_info[key]:
