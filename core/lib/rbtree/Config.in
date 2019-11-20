@@ -1,9 +1,0 @@
-config AOS_COMP_LIB_RBTREE
-    bool "rbtree code"
-    default y
-    help
-        red-black tree
-
-if AOS_COMP_LIB_RBTREE
-
-endif
