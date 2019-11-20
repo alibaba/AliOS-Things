@@ -1,4 +1,4 @@
-NAME := itls_client
+NAME := itls_app
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 2.0.1

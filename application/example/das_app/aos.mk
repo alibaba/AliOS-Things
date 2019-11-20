@@ -1,4 +1,4 @@
-NAME := das_client
+NAME := das_app
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1

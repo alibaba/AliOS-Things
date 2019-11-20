@@ -1,4 +1,4 @@
-config AOS_APP_ITLS_CLIENT
+config AOS_APP_ITLS_APP
     bool "ITLS Client Sample"
     select AOS_COMP_CLI
     select AOS_COMP_ALICRYPTO
@@ -8,6 +8,6 @@ config AOS_APP_ITLS_CLIENT
     help
         itls sample app
 
-if AOS_APP_ITLS_CLIENT
+if AOS_APP_ITLS_APP
 # Configurations for app itls_client
 endif
