@@ -7,7 +7,7 @@
  */
 
 /* Include memory map */
-INCLUDE platform/board/bk7231udevkitc/bk7231udevkitc.ld
+INCLUDE board/bk7231udevkitc/bk7231udevkitc.ld
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
