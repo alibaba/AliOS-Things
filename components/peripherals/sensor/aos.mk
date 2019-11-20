@@ -58,4 +58,4 @@ endif
 
 $(NAME)_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
-include $(SOURCE_ROOT)/drivers/sensor/drv.mk
+include $(SOURCE_ROOT)/components/peripherals/sensor/drv.mk
