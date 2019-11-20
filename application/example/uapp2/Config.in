@@ -37,6 +37,6 @@ config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
         "set app entry task ustack size, the unit is cpu_stack_t"
 
 
-source "kernel/mk/uspace/Config.in"
+source "core/mk/uspace/Config.in"
 
 endif

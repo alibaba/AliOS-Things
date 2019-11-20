@@ -1,4 +1,4 @@
-NAME := id2_client
+NAME := id2_app
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 2.0.1

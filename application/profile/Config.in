@@ -5,13 +5,13 @@ if AOS_APP_PROFILE
 choice
     prompt "Select profile"
 
-source "app/profile/gatewayapp/Config.in"
+source "application/profile/gatewayapp/Config.in"
 if AOS_APP_GATEWAYAPP
     config AOS_BUILD_APP
         default "gatewayapp"
 endif
 endchoice
-source "app/profile/tmall_model/Config.in"
+source "application/profile/tmall_model/Config.in"
 
 if AOS_COMP_TMALL_MODEL
     config AOS_BUILD_APP
