@@ -10,7 +10,7 @@ with_lwip := 1
 endif
 
 ifneq ($(use_private_lwip),1)
-include network/lwip/Filelists.mk
+include components/network/lwip/Filelists.mk
 
 GLOBAL_INCLUDES += include
 
