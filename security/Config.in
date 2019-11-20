@@ -1,20 +1,19 @@
 menu "Security    Configuration"
 
 ## --- Generated Automatically ---
-source "security/ls_osa/Config.in"
-source "security/ls_hal/Config.in"
-source "security/alicrypto/Config.in"
-source "security/dpm/Config.in"
-source "security/id2/Config.in"
-source "security/irot/Config.in"
-source "security/irot/km/Config.in"
-source "security/irot/se/Config.in"
-source "security/irot/tee/Config.in"
-source "security/irot/demo/Config.in"
-source "security/isst/Config.in"
-source "security/itls/Config.in"
-source "security/mbedtls/Config.in"
-source "security/prov/Config.in"
+source "components/security/ls_osa/Config.in"
+source "components/security/ls_hal/Config.in"
+source "components/security/alicrypto/Config.in"
+source "components/security/dpm/Config.in"
+source "components/security/id2/Config.in"
+source "components/security/irot/Config.in"
+source "components/security/irot/km/Config.in"
+source "components/security/irot/se/Config.in"
+source "components/security/irot/tee/Config.in"
+source "components/security/irot/demo/Config.in"
+source "components/security/isst/Config.in"
+source "components/security/itls/Config.in"
+source "components/security/prov/Config.in"
 ## --- End ---
 
 endmenu
