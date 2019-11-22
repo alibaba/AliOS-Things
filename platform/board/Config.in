@@ -1,0 +1,799 @@
+menu "BSP         Configuration"
+choice
+    prompt "Board Selection"
+
+source "platform/board/aaboard_demo/Config.in"
+if AOS_BOARD_AABOARD_DEMO
+    config AOS_BUILD_BOARD
+        default "aaboard_demo"
+
+    source "platform/mcu/aamcu_demo/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/amebaz_dev/Config.in"
+if AOS_BOARD_AMEBAZ_DEV
+    config AOS_BUILD_BOARD
+        default "amebaz_dev"
+
+    source "platform/mcu/rtl8710bn/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/ap80a0/Config.in"
+if AOS_BOARD_AP80A0
+    config AOS_BUILD_BOARD
+        default "ap80a0"
+
+    source "platform/mcu/mvs_ap80xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/armhflinux/Config.in"
+if AOS_BOARD_ARMHFLINUX
+    config AOS_BUILD_BOARD
+        default "armhflinux"
+
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
+endif
+
+source "platform/board/asr6501/Config.in"
+if AOS_BOARD_ASR6501
+    config AOS_BUILD_BOARD
+        default "asr6501"
+    
+    source "platform/mcu/cy8c4147/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/atsame54-xpro/Config.in"
+if AOS_BOARD_ATSAME54_XPRO
+    config AOS_BUILD_BOARD
+        default "atsame54-xpro"
+
+    source "platform/mcu/atsamd5x_e5x/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/asr5501/Config.in"
+if AOS_BOARD_ASR5501
+    config AOS_BUILD_BOARD
+        default "asr5501"
+
+    source "platform/mcu/asr5501/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/b_l475e/Config.in"
+if AOS_BOARD_B_L475E
+    config AOS_BUILD_BOARD
+        default "b_l475e"
+
+    source "platform/mcu/stm32l475/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/bk7231devkitc/Config.in"
+if AOS_BOARD_BK7231
+    config AOS_BUILD_BOARD
+        default "bk7231devkitc"
+
+    source "platform/mcu/bk7231/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
+endif
+
+source "platform/board/bk7231sdevkitc/Config.in"
+if AOS_BOARD_BK7231S
+    config AOS_BUILD_BOARD
+        default "bk7231sdevkitc"
+
+    source "platform/mcu/bk7231s/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
+endif
+
+source "platform/board/bk7231udevkitc/Config.in"
+if AOS_BOARD_BK7231U
+    config AOS_BUILD_BOARD
+        default "bk7231udevkitc"
+
+    source "platform/mcu/bk7231u/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
+endif
+
+source "platform/board/cb2201/Config.in"
+if AOS_BOARD_CB2201
+    config AOS_BUILD_BOARD
+        default "cb2201"
+
+    source "platform/mcu/csky/Config.in"
+    source "platform/arch/csky/cskyv2-l/Config.in"
+endif
+
+source "platform/board/cy8ckit-062/Config.in"
+if AOS_BOARD_CY8CKIT_062
+    config AOS_BUILD_BOARD
+        default "cy8ckit-062"
+
+    source "platform/mcu/cy8c6347/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/developerkit/Config.in"
+if AOS_BOARD_DEVELOPERKIT
+    config AOS_BUILD_BOARD
+        default "developerkit"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/developerkit-mk/Config.in"
+if AOS_BOARD_DEVELOPERKIT_MK
+    config AOS_BUILD_BOARD
+        default "developerkit-mk"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-mk/Config.in"
+endif
+
+source "platform/board/dh5021a_evb/Config.in"
+if AOS_BOARD_DH5021A_EVB
+    config AOS_BUILD_BOARD
+        default "dh5021a_evb"
+
+    source "platform/mcu/dahua/Config.in"
+    source "platform/arch/csky/cskyv2-l/Config.in"
+endif
+
+source "platform/board/eml3047/Config.in"
+if AOS_BOARD_EML3047
+    config AOS_BUILD_BOARD
+        default "eml3047"
+
+    source "platform/mcu/stm32l0xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/es8p5088fllq/Config.in"
+if AOS_BOARD_ES8P5088FLLQ
+    config AOS_BUILD_BOARD
+        default "es8p5088fllq"
+
+    source "platform/mcu/es8p508x/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/esp32devkitc/Config.in"
+if AOS_BOARD_ESP32DEVKITC
+    config AOS_BUILD_BOARD
+        default "esp32devkitc"
+
+    source "platform/mcu/esp32/Config.in"
+    source "platform/arch/xtensa/lx6/Config.in"
+endif
+
+source "platform/board/esp32sram/Config.in"
+if AOS_BOARD_ESP32SRAM
+    config AOS_BUILD_BOARD
+        default "esp32sram"
+
+    source "platform/mcu/esp32/Config.in"
+    source "platform/arch/xtensa/lx6/Config.in"
+endif
+
+source "platform/board/esp8266/Config.in"
+if AOS_BOARD_ESP8266
+    config AOS_BUILD_BOARD
+        default "esp8266"
+
+    source "platform/mcu/esp8266/Config.in"
+    source "platform/arch/xtensa/lx106/Config.in"
+endif
+
+source "platform/board/esp8285/Config.in"
+if AOS_BOARD_ESP8285
+    config AOS_BUILD_BOARD
+        default "esp8285"
+
+    source "platform/mcu/esp8266/Config.in"
+    source "platform/arch/xtensa/lx106/Config.in"
+endif
+
+source "platform/board/evkbimxrt1050/Config.in"
+if AOS_BOARD_EVKBIMXRT1050
+    config AOS_BUILD_BOARD
+        default "evkbimxrt1050"
+
+    source "platform/mcu/mimxrt1052/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/evkmimxrt1020/Config.in"
+if AOS_BOARD_EVKMIMXRT1020
+    config AOS_BUILD_BOARD
+        default "evkmimxrt1020"
+
+    source "platform/mcu/mimxrt1021/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/fm33a0xx-discovery/Config.in"
+if AOS_BOARD_FM33A0XX_DISCOVERY
+    config AOS_BUILD_BOARD
+        default "fm33a0xx-discovery"
+
+    source "platform/mcu/fm33a0xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl26z/Config.in"
+if AOS_BOARD_FRDMKL26Z
+    config AOS_BUILD_BOARD
+        default "frdmkl26z"
+
+    source "platform/mcu/mkl26z4/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl27z/Config.in"
+if AOS_BOARD_FRDMKL27Z
+    config AOS_BUILD_BOARD
+        default "frdmkl27z"
+
+    source "platform/mcu/mkl27z644/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl28z/Config.in"
+if AOS_BOARD_FRDMKL28Z
+    config AOS_BUILD_BOARD
+        default "frdmkl28z"
+
+    source "platform/mcu/mkl28z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl43z/Config.in"
+if AOS_BOARD_FRDMKL43Z
+    config AOS_BUILD_BOARD
+        default "frdmkl43z"
+
+    source "platform/mcu/mkl43z4/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl81z/Config.in"
+if AOS_BOARD_FRDMKL81Z
+    config AOS_BUILD_BOARD
+        default "frdmkl81z"
+
+    source "platform/mcu/mkl81z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/frdmkl82z/Config.in"
+if AOS_BOARD_FRDMKL82Z
+    config AOS_BUILD_BOARD
+        default "frdmkl82z"
+
+    source "platform/mcu/mkl82z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/gd32f307c-eval/Config.in"
+if AOS_BOARD_GD32F307C_EVAL
+    config AOS_BUILD_BOARD
+        default "gd32f307c-eval"
+
+    source "platform/mcu/gd32f30x/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/gd32f350r-eval/Config.in"
+if AOS_BOARD_GD32F350R_EVAL
+    config AOS_BUILD_BOARD
+        default "gd32f350r-eval"
+
+    source "platform/mcu/gd32f3x0/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/gd32f450z-eval/Config.in"
+if AOS_BOARD_GD32F450Z_EVAL
+    config AOS_BUILD_BOARD
+        default "gd32f450z-eval"
+
+    source "platform/mcu/gd32f4xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/hc32l136k8ta/Config.in"
+if AOS_BOARD_HC32L136K8TA
+    config AOS_BUILD_BOARD
+        default "hc32l136k8ta"
+
+    source "platform/mcu/hc32l136/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/hifive1/Config.in"
+if AOS_BOARD_HIFIVE1
+    config AOS_BUILD_BOARD
+        default "hifive1"
+
+    source "platform/mcu/freedom-e/e310/Config.in"
+    source "platform/arch/risc-v/risc_v32I/Config.in"
+endif
+
+source "platform/board/hk32f103rb_evb/Config.in"
+if AOS_BOARD_HK32F103RB_EVB
+    config AOS_BUILD_BOARD
+        default "hk32f103rb_evb"
+
+    source "platform/mcu/hk32f103/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/hr8p287fjlt/Config.in"
+if AOS_BOARD_HR8P287FJLT
+    config AOS_BUILD_BOARD
+        default "hr8p287fjlt"
+
+    source "platform/mcu/hr8p2xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/hr8p296fllt/Config.in"
+if AOS_BOARD_HR8P296FLLT
+    config AOS_BUILD_BOARD
+        default "hr8p296fllt"
+
+    source "platform/mcu/hr8p2xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/imx6dq/Config.in"
+if AOS_BOARD_IMX6DQ
+    config AOS_BUILD_BOARD
+        default "imx6dq"
+
+    source "platform/mcu/imx6/Config.in"
+    source "platform/arch/arm/armv7a/Config.in"
+endif
+
+source "platform/board/imx6sl/Config.in"
+if AOS_BOARD_IMX6SL
+    config AOS_BUILD_BOARD
+        default "imx6sl"
+
+    source "platform/mcu/imx6/Config.in"
+    source "platform/arch/arm/armv7a/Config.in"
+endif
+
+source "platform/board/linuxhost/Config.in"
+if AOS_BOARD_LINUXHOST
+    config AOS_BUILD_BOARD
+        default "linuxhost"
+
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
+endif
+
+source "platform/board/lpcxpresso54018/Config.in"
+if AOS_BOARD_LPCXPRESSO54018
+    config AOS_BUILD_BOARD
+        default "lpcxpresso54018"
+
+    source "platform/mcu/lpc54018/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/lpcxpresso54102/Config.in"
+if AOS_BOARD_LPCXPRESSO54102
+    config AOS_BUILD_BOARD
+        default "lpcxpresso54102"
+
+    source "platform/mcu/lpc54102/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/lpcxpresso54114/Config.in"
+if AOS_BOARD_LPCXPRESSO54114
+    config AOS_BUILD_BOARD
+        default "lpcxpresso54114"
+
+    source "platform/mcu/lpc54114/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/lpcxpresso54608/Config.in"
+if AOS_BOARD_LPCXPRESSO54608
+    config AOS_BUILD_BOARD
+        default "lpcxpresso54608"
+
+    source "platform/mcu/lpc54608/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/lpcxpresso54628/Config.in"
+if AOS_BOARD_LPCXPRESSO54628
+    config AOS_BUILD_BOARD
+        default "lpcxpresso54628"
+
+    source "platform/mcu/lpc54628/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/m100c/Config.in"
+if AOS_BOARD_M100C
+    config AOS_BUILD_BOARD
+        default "m100c"
+
+    source "platform/mcu/efm32gxx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/m400/Config.in"
+if AOS_BOARD_M400
+    config AOS_BUILD_BOARD
+        default "m400"
+
+    source "platform/mcu/stm32l0xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/mk1101/Config.in"
+if AOS_BOARD_MK1101
+    config AOS_BUILD_BOARD
+        default "mk1101"
+
+    source "platform/mcu/mx1101/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3060/Config.in"
+if AOS_BOARD_MK3060
+    config AOS_BUILD_BOARD
+        default "mk3060"
+
+    source "platform/mcu/moc108/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
+endif
+
+source "platform/board/mk3072/Config.in"
+if AOS_BOARD_MK3072
+    config AOS_BUILD_BOARD
+        default "mk3072"
+
+    source "platform/mcu/asr5501mk/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3080/Config.in"
+if AOS_BOARD_MK3080
+    config AOS_BUILD_BOARD
+        default "mk3080"
+
+    source "platform/mcu/rtl8710bn/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3165/Config.in"
+if AOS_BOARD_MK3165
+    config AOS_BUILD_BOARD
+        default "mk3165"
+
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3166/Config.in"
+if AOS_BOARD_MK3166
+    config AOS_BUILD_BOARD
+        default "mk3166"
+
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3239/Config.in"
+if AOS_BOARD_MK3239
+    config AOS_BUILD_BOARD
+        default "mk3239"
+
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/msp432p4111launchpad/Config.in"
+if AOS_BOARD_MSP432P4111LAUNCHPAD
+    config AOS_BUILD_BOARD
+        default "msp432p4111launchpad"
+
+    source "platform/mcu/msp432p4xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mt7682s/Config.in"
+if AOS_BOARD_MT7682S
+    config AOS_BUILD_BOARD
+        default "mt7682s"
+
+    source "platform/mcu/mtk7682/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/numaker-pfm-m487/Config.in"
+if AOS_BOARD_NUMAKER_PFM_M487
+    config AOS_BUILD_BOARD
+        default "numaker-pfm-m487"
+
+    source "platform/mcu/m487jidae/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/numaker-iot-m487/Config.in"
+if AOS_BOARD_NUMAKER_IOT_M487
+    config AOS_BUILD_BOARD
+        default "numaker-iot-m487"
+
+    source "platform/mcu/m487jidae/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/numaker-pfm-nano130/Config.in"
+if AOS_BOARD_NUMAKER_PFM_NANO130
+    config AOS_BUILD_BOARD
+        default "numaker-pfm-nano130"
+
+    source "platform/mcu/nano130ke3bn/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/nutiny-evb-nano130/Config.in"
+if AOS_BOARD_NUTINY_EVB_NANO130
+    config AOS_BUILD_BOARD
+        default "nutiny-evb-nano130"
+
+    source "platform/mcu/nano130ke3bn/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/pca10040/Config.in"
+if AOS_BOARD_PCA10040
+    config AOS_BUILD_BOARD
+        default "pca10040"
+
+    source "platform/mcu/nrf52xxx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/pca10040e/Config.in"
+if AOS_BOARD_PCA10040E
+    config AOS_BUILD_BOARD
+        default "pca10040e"
+
+    source "platform/mcu/nrf52xxx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/pca10056/Config.in"
+if AOS_BOARD_PCA10056
+    config AOS_BUILD_BOARD
+        default "pca10056"
+
+    source "platform/mcu/nrf52xxx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/rk1108/Config.in"
+if AOS_BOARD_RK1108
+    config AOS_BUILD_BOARD
+        default "rk1108"
+
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
+endif
+
+source "platform/board/saml21_iot_sk/Config.in"
+if AOS_BOARD_SAML21_IOT_SK
+    config AOS_BUILD_BOARD
+        default "saml21_iot_sk"
+
+    source "platform/mcu/atsaml21/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+source "platform/board/ssc1667/Config.in"
+if AOS_BOARD_SSC1667
+    config AOS_BUILD_BOARD
+        default "ssc1667"
+
+    source "platform/mcu/sscp131/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/starterkit/Config.in"
+if AOS_BOARD_STARTERKIT
+    config AOS_BUILD_BOARD
+        default "starterkit"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f091rc-nucleo/Config.in"
+if AOS_BOARD_STM32F091RC_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f091rc-nucleo"
+
+    source "platform/mcu/stm32f0xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+
+source "platform/board/stm32f103rb-nucleo/Config.in"
+if AOS_BOARD_STM32F103RB_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f103rb-nucleo"
+
+    source "platform/mcu/stm32f1xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f401re-nucleo/Config.in"
+if AOS_BOARD_STM32F401RE_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f401re-nucleo"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f411re-nucleo/Config.in"
+if AOS_BOARD_STM32F411RE_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f411re-nucleo"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f412zg-nucleo/Config.in"
+if AOS_BOARD_STM32F412ZG_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f412zg-nucleo"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f429zi-nucleo/Config.in"
+if AOS_BOARD_STM32F429ZI_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f429zi-nucleo"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32f429zi-mk/Config.in"
+if AOS_BOARD_STM32F429ZI_MK
+    config AOS_BUILD_BOARD
+        default "stm32f429zi-mk"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-mk/Config.in"
+endif
+
+source "platform/board/stm32f769i-discovery/Config.in"
+if AOS_BOARD_B_F769
+    config AOS_BUILD_BOARD
+        default "stm32f769i-discovery"
+
+    source "platform/mcu/stm32f7xx/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32l432kc-nucleo/Config.in"
+if AOS_BOARD_STM32L432KC_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32l432kc-nucleo"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32l433rc-nucleo/Config.in"
+if AOS_BOARD_STM32L433RC_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32l433rc-nucleo"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32l476rg-nucleo/Config.in"
+if AOS_BOARD_STM32L476RG_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32l476rg-nucleo"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/stm32l496g-discovery/Config.in"
+if AOS_BOARD_STM32L496G_DISCOVERY
+    config AOS_BUILD_BOARD
+        default "stm32l496g-discovery"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/sv6266_evb/Config.in"
+if AOS_BOARD_SV6266_EVB
+    config AOS_BUILD_BOARD
+        default "sv6266_evb"
+
+    source "platform/mcu/sv6266/Config.in"
+endif
+
+source "platform/board/swm320evb/Config.in"
+if AOS_BOARD_SWM320EVB
+    config AOS_BUILD_BOARD
+        default "swm320evb"
+
+    source "platform/mcu/swm320/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/uno-91h/Config.in"
+if AOS_BOARD_UNO_91H
+    config AOS_BUILD_BOARD
+        default "uno-91h"
+
+    source "platform/mcu/rda5981x/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/wm_w600_kit/Config.in"
+if AOS_BOARD_WM_W600_KIT
+    config AOS_BUILD_BOARD
+        default "wm_w600_kit"
+
+    source "platform/mcu/wm_w600/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/xm510_evb/Config.in"
+if AOS_BOARD_XM510
+    config AOS_BUILD_BOARD
+        default "xm510_evb"
+
+    source "platform/mcu/xm510/Config.in"
+    source "platform/arch/arm/armv7a/Config.in"
+endif
+
+source "platform/board/xr809/Config.in"
+if AOS_BOARD_XR809
+    config AOS_BUILD_BOARD
+        default "xr809"
+
+    source "platform/mcu/xr871/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/xr871evb/Config.in"
+if AOS_BOARD_XR871EVB
+    config AOS_BUILD_BOARD
+        default "xr871evb"
+
+    source "platform/mcu/xr871/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+endchoice
+
+endmenu
