@@ -1,0 +1,13 @@
+config AOS_BOARD_IMX6DQ
+    bool "IMX6DQ"
+    select AOS_MCU_IMX6
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_IMX6DQ
+config AOS_CONFIG_SMP
+    bool "Enable SMP"
+    default y
+
+# Configurations for board imx6dq
+endif
