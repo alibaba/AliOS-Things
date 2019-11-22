@@ -414,8 +414,8 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal/soc \
                     -I$(SOURCE_ROOT)/include/network \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/breeze \
-                    -I$(SOURCE_ROOT)/components/bluetooth/ble/host/include \
-                    -I$(SOURCE_ROOT)/components/bluetooth/ble/host/profile \
+                    -I$(SOURCE_ROOT)/components/network/bluetooth/ble/host/include \
+                    -I$(SOURCE_ROOT)/components/network/bluetooth/ble/host/profile \
                     -I$(SOURCE_ROOT)/include/network/bluetooth/mesh \
                     -I$(SOURCE_ROOT)/include/network/coap \
                     -I$(SOURCE_ROOT)/include/network/hal \

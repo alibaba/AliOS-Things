@@ -33,7 +33,7 @@ function do_build()
     build_board=$2
     build_option=$3
 
-    app_mkfile="app/example/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
+    app_mkfile="application/example/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
     if [ ! -f ${app_mkfile} ]; then
         echo "warning: ${app_mkfile} none exist, build ${build_app}@${build_board} ${build_option} skipped"
         return 0
@@ -82,8 +82,8 @@ function do_build()
 function resolveTargets()
 {
     targets=$1
-    build_type=$(grep "build_type" board/$board/ucube.py | cut -d\" -f2 )
-    platform_options=$(grep "platform_options" board/$board/ucube.py | cut -d\" -f2 )
+    build_type=$(grep "build_type" platform/board/$board/ucube.py | cut -d\" -f2 )
+    platform_options=$(grep "platform_options" platform/board/$board/ucube.py | cut -d\" -f2 )
 
     for target in ${targets[@]};do
         if [ -z "$(echo \"$target\" | grep \|)" ]; then
@@ -105,7 +105,7 @@ function resolveTargets()
 
 #--- main_proces ---
 if [ xx$1 = xx ]; then
-    boards_list=$(ls board)
+    boards_list=$(ls platform/board)
 elif [ ! -f $1 ]; then
     echo "boards list file $1 is not existed!"
     exit 1
@@ -116,17 +116,17 @@ fi
 for board in $boards_list
 do
     #echo $board
-    if [ -f board/$board/ucube.py ];then
-        targets=$(grep "supported_targets" board/$board/ucube.py | cut -d\" -f2)
+    if [ -f platform/board/$board/ucube.py ];then
+        targets=$(grep "supported_targets" platform/board/$board/ucube.py | cut -d\" -f2)
         resolveTargets "$targets"
 
         if [ $CUR_OS = "Windows" ]; then
-            targets=$(grep "windows_only_targets" board/$board/ucube.py | cut -d\" -f2 )
+            targets=$(grep "windows_only_targets" platform/board/$board/ucube.py | cut -d\" -f2 )
             resolveTargets "$targets"
         fi
 
         if [ $CUR_OS = "Linux" ]; then
-            targets=$(grep "linux_only_targets" board/$board/ucube.py | cut -d\" -f2 )
+            targets=$(grep "linux_only_targets" platform/board/$board/ucube.py | cut -d\" -f2 )
             resolveTargets "$targets"
         fi
     fi
