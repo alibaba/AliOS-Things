@@ -1,0 +1,24 @@
+config AOS_BOARD_M100C
+    bool "M100C"
+    select AOS_MCU_EFM32GXX
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LORAWAN_STACK
+    help
+
+if AOS_BOARD_M100C
+# Configurations for board board_m100c
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_LORA
+    bool
+    default y
+
+endif

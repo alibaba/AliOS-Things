@@ -1,0 +1,10 @@
+config AOS_BOARD_ARMHFLINUX
+    bool "ArmHfLinux"
+    select AOS_MCU_LINUXIMPL
+    select AOS_COMP_KERNEL_INIT
+    help
+      configuration for board armhflinux
+
+if AOS_BOARD_ARMHFLINUX
+# Configurations for board board_armhflinux
+endif
