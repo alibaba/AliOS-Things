@@ -1,0 +1,12 @@
+config AOS_BOARD_MT7682S
+    bool "MT7682S"
+    select AOS_MCU_MTK7682
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_NETMGR
+    select AOS_COMP_LWIP
+    help
+
+if AOS_BOARD_MT7682S
+# Configurations for board mt7682s
+endif
