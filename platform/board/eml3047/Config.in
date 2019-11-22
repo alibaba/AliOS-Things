@@ -1,0 +1,23 @@
+config AOS_BOARD_EML3047
+    bool "EML3047"
+    select AOS_MCU_STM32L0XX
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LORAWAN_STACK
+    help
+
+if AOS_BOARD_EML3047
+# Configurations for board eml3047
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_LORA
+    bool
+    default y
+
+endif

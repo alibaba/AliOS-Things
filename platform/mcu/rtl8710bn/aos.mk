@@ -36,8 +36,8 @@ GLOBAL_INCLUDES += include
 
 $(NAME)_INCLUDES += .
 $(NAME)_INCLUDES += include
-$(NAME)_INCLUDES += ../../../network/lwip/include
-$(NAME)_INCLUDES += ../../../network/lwip/include/lwip
+$(NAME)_INCLUDES += ../../../components/network/lwip/include
+$(NAME)_INCLUDES += ../../../components/network/lwip/include/lwip
 $(NAME)_INCLUDES += arch
 $(NAME)_INCLUDES += aos
 $(NAME)_INCLUDES += peripherals
