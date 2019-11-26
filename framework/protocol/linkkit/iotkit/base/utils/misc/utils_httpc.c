@@ -654,7 +654,13 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     /* try to read more header again until find response head ending "\r\n\r\n" */
     while(NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         /* try to read more header */
-        ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_RAED_HEAD_SIZE, &new_trf_len, iotx_time_left(&timer));
+        int max_remain_len = HTTPCLIENT_CHUNK_SIZE - len - 1;
+        if (max_remain_len <= 0) {
+            utils_err("buffer exceeded max\n");
+            return ERROR_HTTP_PARSE;
+        }
+        max_remain_len = max_remain_len > HTTPCLIENT_RAED_HEAD_SIZE ? HTTPCLIENT_RAED_HEAD_SIZE : max_remain_len;
+        ret = httpclient_recv(client, data + len, 1, max_remain_len, &new_trf_len, iotx_time_left(&timer));
         if (ret == ERROR_HTTP_CONN) {
             return ret;
         }
