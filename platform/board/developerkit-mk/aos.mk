@@ -67,9 +67,9 @@ AOS_SENSOR_MAG_MEMSIC_MMC3680KJ = y
 AOS_SENSOR_GYRO_ST_LSM6DSL = y
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
+GLOBAL_LDFLAGS += -L --scatter= platform/board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/developerkit/STM32L496.icf
+GLOBAL_LDFLAGS += --config platform/board/developerkit/STM32L496.icf
 else
 #AOS_DEVELOPERKIT_ENABLE_OTA is used for ctl the  developerkit OTA function
 #if AOS_DEVELOPERKIT_ENABLE_OTA := 1, it will enable OTA function
