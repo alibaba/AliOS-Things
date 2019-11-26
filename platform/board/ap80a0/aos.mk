@@ -20,7 +20,7 @@ $(NAME)_SOURCES += config/k_config.c \
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_keil.c
 $(NAME)_LINK_FILES := startup/startup_keil.o
-GLOBAL_LDFLAGS += -L --scatter= platform/board/ap80a0/ap80xx.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/ap80a0/ap80xx.sct
 endif
 
 GLOBAL_INCLUDES += .    \
