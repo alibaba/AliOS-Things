@@ -20,7 +20,7 @@ $(NAME)_SOURCES += config/k_config.c \
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_keil.s
 $(NAME)_LINK_FILES := startup/startup_keil.o
-GLOBAL_LDFLAGS += -L --scatter= platform/board/fm33a0xx-discovery/fm33a0.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/fm33a0xx-discovery/fm33a0.sct
 endif
 
 GLOBAL_INCLUDES += .    \
