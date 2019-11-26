@@ -21,7 +21,7 @@ $(NAME)_SOURCES += config/k_config.c \
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_hk32f103xb_keil.s
 $(NAME)_LINK_FILES := startup/startup_hk32f103xb_keil.o
-GLOBAL_LDFLAGS += -L --scatter= platform/board/hk32f103rb_evb/hk32f103rb_evb.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/hk32f103rb_evb/hk32f103rb_evb.sct
 endif
 
 GLOBAL_INCLUDES += .    \
