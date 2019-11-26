@@ -1400,6 +1400,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
+        iotx_dm_close();
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
     }
