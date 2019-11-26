@@ -26,9 +26,16 @@ menu "Device Model Configurations"
     config DEVICE_MODEL_GATEWAY
         bool "FEATURE_DEVICE_MODEL_GATEWAY"
         select INFRA_SHA256
+        select DEVICE_MODEL_MULTI_THREAD
         default n
         help
             Switching Thing-Model related implementations provided in gateway oriented way
+
+    config DEVICE_MODEL_MULTI_THREAD
+        bool "FEATURE_MULTI_THREAD"
+        default n
+        help
+            Using independent thread for protocols yielding
 
     config DEPRECATED_LINKKIT
         bool "FEATURE_DEPRECATED_LINKKIT"
