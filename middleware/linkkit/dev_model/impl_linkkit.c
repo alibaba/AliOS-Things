@@ -1558,10 +1558,6 @@ void IOT_Linkkit_Yield(int timeout_ms)
 
     iotx_dm_yield(timeout_ms);
     iotx_dm_dispatch();
-
-#ifdef DEVICE_MODEL_GATEWAY
-    HAL_SleepMs(timeout_ms);
-#endif
 }
 
 int IOT_Linkkit_Close(int devid)
