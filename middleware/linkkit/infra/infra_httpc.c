@@ -378,7 +378,13 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
     /* try to read more header again until find response head ending "\r\n\r\n" */
     while (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         /* try to read more header */
-        ret = _http_recv(client, data + len, HTTPCLIENT_RAED_HEAD_SIZE, &new_trf_len, iotx_time_left(&timer));
+        int max_remain_len = HTTPCLIENT_READ_BUF_SIZE - len -1;
+        if (max_remain_len <= 0) {
+            httpc_debug("buffer exceeded max\n");
+            return ERROR_HTTP_PARSE;
+        }
+        max_remain_len = max_remain_len > HTTPCLIENT_RAED_HEAD_SIZE ? HTTPCLIENT_RAED_HEAD_SIZE : max_remain_len;
+        ret = _http_recv(client, data + len, max_remain_len, &new_trf_len, iotx_time_left(&timer));
         if (ret == ERROR_HTTP_CONN) {
             return ret;
         }
