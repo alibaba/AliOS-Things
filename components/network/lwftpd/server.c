@@ -1,72 +1,100 @@
 #include "common.h"
+#include <aos/kernel.h>
+#include <ulog/ulog.h>
+#include <network/network.h>
+
+#define FTP_CLIENT_MAX 3
+
+/* Welcome message */
+static char *welcome_message = "A very warm welcome!";
+static void client_conn_handler(void *arg);
+
+/* String mappings for cmdlist */
+static const char *cmdlist_str[] = 
+{
+  "ABOR", "CWD", "DELE", "LIST", "MDTM", "MKD", "NLST", "PASS", "PASV",
+  "PORT", "PWD", "QUIT", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE",
+  "STOR", "TYPE", "USER", "NOOP" 
+};
+
 /** 
  * Sets up server and handles incoming connections
  * @param port Server port
  */
-void server(int port)
+void aos_ftp_server(int port)
 {
+  int conn;
   int sock = create_socket(port);
   struct sockaddr_in client_address;
-  int len = sizeof(client_address);
-  int connection, pid, bytes_read;
+  socklen_t len = sizeof(client_address);
+  //char addr_str[128];
 
-  while(1){
-    connection = accept(sock, (struct sockaddr*) &client_address,&len);
-    char buffer[BSIZE];
-    Command *cmd = malloc(sizeof(Command));
-    State *state = malloc(sizeof(State));
-    pid = fork();
-    
-    memset(buffer,0,BSIZE);
+  if (sock < 0) {
+    LOGE(TAG, "Failed to create FTP server.");
+    return;
+  }
 
-    if(pid<0){
-      fprintf(stderr, "Cannot create child process.");
-      exit(EXIT_FAILURE);
-    }
+  LOG("FTP server started on port %d", port);
 
-    if(pid==0){
-      close(sock);
-      char welcome[BSIZE] = "220 ";
-      if(strlen(welcome_message)<BSIZE-4){
-        strcat(welcome,welcome_message);
-      }else{
-        strcat(welcome, "Welcome to nice FTP service.");
+  while(1) {
+    conn = accept(sock, (struct sockaddr*)&client_address, &len);
+    //inet_ntoa_r(((struct sockaddr_in *)&client_address)->sin_addr.s_addr,
+    //            addr_str, sizeof(addr_str) - 1);
+    LOG("Connection from client 0x%08x (fd: %d)", client_address.sin_addr.s_addr, conn);
+    aos_task_new("ftp", client_conn_handler, (void *)conn, 16384);
+  }
+
+  LOG("FTP server to exit");
+  close(sock);
+}
+
+static void client_conn_handler(void *arg)
+{
+  Command *cmd;
+  State *state;
+  char buffer[BSIZE], welcome[BSIZE] = "220";
+  int fd, bytes_read;
+
+  if (!arg) return;
+  else fd = (int)arg;
+
+  cmd = malloc(sizeof(Command));
+  state = malloc(sizeof(State));
+
+  if (strlen(welcome_message) < (BSIZE - 4)) {
+    strcat(welcome, welcome_message);
+  }else{
+    strcat(welcome, "Welcome to nice FTP service.");
+  }
+
+  /* Write welcome message */
+  strcat(welcome, "\n");
+  write(fd, welcome, strlen(welcome));
+
+  /* Read commands from client */
+  while ((bytes_read = read(fd, buffer, BSIZE)) != 0) {
+    if (!(bytes_read > BSIZE)) {
+      /* TODO: output this to log */
+      buffer[BSIZE-1] = '\0';
+      LOG("User %s sent command: %s", (state->username==0) ?
+          "unknown" : state->username, buffer);
+      parse_command(buffer, cmd);
+      state->connection = fd;
+      
+      /* Ignore non-ascii char. Ignores telnet command */
+      if(buffer[0] <= 127 || buffer[0] >= 0) {
+        response(cmd, state);
       }
 
-      /* Write welcome message */
-      strcat(welcome,"\n");
-      write(connection, welcome,strlen(welcome));
-
-      /* Read commands from client */
-      while (bytes_read = read(connection,buffer,BSIZE)){
-        
-        signal(SIGCHLD,my_wait);
-
-        if(!(bytes_read>BSIZE)){
-          /* TODO: output this to log */
-          buffer[BSIZE-1] = '\0';
-          printf("User %s sent command: %s\n",(state->username==0)?"unknown":state->username,buffer);
-          parse_command(buffer,cmd);
-          state->connection = connection;
-          
-          /* Ignore non-ascii char. Ignores telnet command */
-          if(buffer[0]<=127 || buffer[0]>=0){
-            response(cmd,state);
-          }
-          memset(buffer,0,BSIZE);
-          memset(cmd,0,sizeof(cmd));
-        }else{
-          /* Read error */
-          perror("server:read");
-        }
-      }
-      printf("Client disconnected.\n");
-      exit(0);
+      memset(buffer, 0, BSIZE);
+      memset(cmd, 0, sizeof(Command));
     }else{
-      printf("closing... :(\n");
-      close(connection);
+      /* Read error */
+      LOGE(TAG, "server read error");
     }
   }
+
+  LOG("Client (fd: %d) disconnected.", fd);
 }
 
 /**
@@ -80,28 +108,28 @@ int create_socket(int port)
   int reuse = 1;
 
   /* Server addess */
-  struct sockaddr_in server_address = (struct sockaddr_in){  
-     AF_INET,
-     htons(port),
-     (struct in_addr){INADDR_ANY}
-  };
+  struct sockaddr_in server_address;
 
-
-  if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-    fprintf(stderr, "Cannot open socket");
-    exit(EXIT_FAILURE);
+  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    LOGE(TAG, "Cannot open socket");
+    return -1;
   }
 
   /* Address can be reused instantly after program exits */
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof reuse);
 
+  server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+  server_address.sin_family = AF_INET;
+  server_address.sin_port = htons(port);
+
   /* Bind socket to server address */
-  if(bind(sock,(struct sockaddr*) &server_address, sizeof(server_address)) < 0){
-    fprintf(stderr, "Cannot bind socket to address");
-    exit(EXIT_FAILURE);
+  if (bind(sock, (struct sockaddr*)&server_address, sizeof(server_address)) < 0) {
+    LOGE(TAG, "Cannot bind socket to address (errno: %d)", errno);
+    return -2;
   }
 
-  listen(sock,5);
+  listen(sock, FTP_CLIENT_MAX);
+
   return sock;
 }
 
@@ -112,10 +140,10 @@ int create_socket(int port)
  */
 int accept_connection(int socket)
 {
-  int addrlen = 0;
+  socklen_t addrlen = 0;
   struct sockaddr_in client_address;
   addrlen = sizeof(client_address);
-  return accept(socket,(struct sockaddr*) &client_address,&addrlen);
+  return accept(socket, (struct sockaddr*)&client_address, &addrlen);
 }
 
 /**
@@ -140,7 +168,8 @@ void getip(int sock, int *ip)
  * @return Enum index if command found otherwise -1
  */
 
-int lookup_cmd(char *cmd){
+int lookup_cmd(char *cmd)
+{
   const int cmdlist_count = sizeof(cmdlist_str)/sizeof(char *);
   return lookup(cmd, cmdlist_str, cmdlist_count);
 }
@@ -156,9 +185,11 @@ int lookup_cmd(char *cmd){
 int lookup(char *needle, const char **haystack, int count)
 {
   int i;
-  for(i=0;i<count; i++){
+
+  for (i=0; i<count; i++) {
     if(strcmp(needle,haystack[i])==0)return i;
   }
+
   return -1;
 }
 
@@ -180,7 +211,6 @@ void gen_port(Port *port)
   srand(time(NULL));
   port->p1 = 128 + (rand() % 64);
   port->p2 = rand() % 0xff;
-
 }
 
 /**
@@ -190,22 +220,5 @@ void gen_port(Port *port)
  */
 void parse_command(char *cmdstring, Command *cmd)
 {
-  sscanf(cmdstring,"%s %s",cmd->command,cmd->arg);
-}
-
-/**
- * Handles zombies
- * @param signum Signal number
- */
-void my_wait(int signum)
-{
-  int status;
-  wait(&status);
-}
-
-main()
-{
-  server(8021);
-  return 0;
-
+  sscanf(cmdstring,"%s %s", cmd->command, cmd->arg);
 }
