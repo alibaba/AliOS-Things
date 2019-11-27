@@ -16,10 +16,18 @@ int aos_mbmaster_rtu_init(mb_handler_t **handler, uint8_t port,
 
 int aos_mbmaster_rtu_uninit(mb_handler_t *req_handler);
 
-int aos_mbmaster_read_holding_reginster(mb_handler_t *req_handler,
-                                        uint8_t slave_addr, uint16_t start_addr,
-                                        uint16_t quantity, uint8_t *respond_buf,
-                                        uint8_t *respond_count);
+int aos_mbmaster_read_holding_register(mb_handler_t *req_handler,
+                                       uint8_t slave_addr, uint16_t start_addr,
+                                       uint16_t quantity, uint8_t *respond_buf,
+                                       uint8_t *respond_count);
+
+int aos_mbmaster_read_input_register(mb_handler_t *req_handler, uint8_t slave_addr,
+                                     uint16_t start_addr, uint16_t quantity, uint8_t *respond_buf,
+                                     uint8_t *respond_count);
+
+int aos_mbmaster_write_single_register(mb_handler_t *req_handler, uint8_t slave_addr, uint16_t register_addr,
+                                       uint16_t register_value, uint16_t *resp_addr, uint16_t *resp_value,
+                                       uint8_t *exception_code);
 
 #ifdef __cplusplus
 }
