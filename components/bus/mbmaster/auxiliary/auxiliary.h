@@ -28,8 +28,12 @@ typedef enum {
 #define MB_MUTEX_UNLOCK(mutex) mb_mutex_unlock(mutex)
 #define MB_MUTEX_DEL(mutex)    mb_mutex_del(mutex)
 
-#ifndef htobe
-#define htobe(X) (((X >> 8) & 0x00ff) | ((X << 8) & 0xff00))
+#ifndef htobe16
+#define htobe16(X) (((X >> 8) & 0x00ff) | ((X << 8) & 0xff00))
+#endif
+
+#ifndef betoh16
+#define betoh16(X) (((X >> 8) & 0x00ff) | ((X << 8) & 0xff00))
 #endif
 
 void     mb_log(mb_log_level_t log_level, const char *fmt_str, ...);
