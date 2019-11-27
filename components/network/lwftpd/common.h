@@ -5,17 +5,18 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/socket.h>
+#include <network/network.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pwd.h>
-#include <netinet/in.h>
 #include <time.h>
 #include <dirent.h>
 
 #ifndef BSIZE
   #define BSIZE 1024
 #endif
+
+#define TAG "ftp"
 
 typedef struct Port
 {
@@ -73,29 +74,15 @@ typedef enum cmdlist
   STOR, TYPE, USER, NOOP
 } cmdlist;
 
-/* String mappings for cmdlist */
-static const char *cmdlist_str[] = 
-{
-  "ABOR", "CWD", "DELE", "LIST", "MDTM", "MKD", "NLST", "PASS", "PASV",
-  "PORT", "PWD", "QUIT", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE",
-  "STOR", "TYPE", "USER", "NOOP" 
-};
-
-/* Valid usernames for anonymous ftp */
-static const char *usernames[] = 
-{
-  "ftp","anonymous","public","anon","test","foo","siim"
-};
-
-/* Welcome message */
-static char *welcome_message = "A very warm welcome!";
-
 /* Server functions */
 void gen_port(Port *);
 void parse_command(char *, Command *);
 int create_socket(int port);
 void write_state(State *);
 int accept_connection(int);
+int lookup(char *needle, const char **haystack, int count);
+void getip(int sock, int *ip);
+int lookup_cmd(char *cmd);
 
 /* Commands handle functions*/
 void response(Command *, State *);
@@ -111,9 +98,8 @@ void ftp_retr(Command *, State *);
 void ftp_stor(Command *, State *);
 void ftp_dele(Command *, State *);
 void ftp_size(Command *, State *);
-void ftp_quit(State *);
+void ftp_quit(Command *, State *);
 void ftp_type(Command *, State *);
 void ftp_abor(State *);
 
 void str_perm(int, char *);
-void my_wait(int);
