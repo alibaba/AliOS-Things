@@ -5,8 +5,6 @@
 #ifndef ADU_H
 #define ADU_H
 
-#include <mbmaster_api.h>
-
 #define ADU_SER_LENGTH_MIN 4
 #define ADU_SER_LENGTH_MAX 256
 #define ADU_SER_ADDR_OFF   0
