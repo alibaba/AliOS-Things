@@ -4,8 +4,9 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := modbus master
 
-$(NAME)_SOURCES := api/api_readholdingregisters.c
-$(NAME)_SOURCES += pdu/readholdingregisters.c
+$(NAME)_SOURCES := api/api.c
+$(NAME)_SOURCES += api/main_process.c
+$(NAME)_SOURCES += pdu/pdu.c
 $(NAME)_SOURCES += adu/rtu/rtu.c
 $(NAME)_SOURCES += adu/rtu/mbcrc.c
 $(NAME)_SOURCES += physical/serial.c
