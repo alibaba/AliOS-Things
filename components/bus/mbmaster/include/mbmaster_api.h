@@ -38,6 +38,7 @@ typedef enum mb_status {
     MB_FRAME_SEND_ERR,
     MB_SERIAL_INIT_FAILED,
     MB_SERIAL_UNINIT_FAILED,
+    MB_FUNCTION_CODE_NOT_SUPPORT,
 } mb_status_t;
 
 typedef enum {
@@ -80,9 +81,16 @@ mb_status_t mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t bau
 
 mb_status_t mbmaster_rtu_uninit(mb_handler_t *req_handler);
 
-mb_status_t mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave_addr,
-                                            uint16_t start_addr, uint16_t quantity,
-                                            uint8_t *respond_buf, uint8_t *respond_count);
+mb_status_t mbmaster_read_holding_register(mb_handler_t *req_handler, uint8_t slave_addr,
+                                           uint16_t start_addr, uint16_t quantity,
+                                           uint8_t *respond_buf, uint8_t *respond_count);
+
+mb_status_t mbmaster_read_input_register(mb_handler_t *req_handler, uint8_t slave_addr,
+                                         uint16_t start_addr, uint16_t quantity,
+                                         uint8_t *respond_buf, uint8_t *respond_count);
+
+mb_status_t mbmaster_write_single_register(mb_handler_t *req_handler, uint8_t slave_addr, uint16_t register_addr,
+                                           uint16_t register_value, uint16_t *resp_addr, uint16_t *resp_value, uint8_t *exception_code);
 
 #ifdef __cplusplus
 }

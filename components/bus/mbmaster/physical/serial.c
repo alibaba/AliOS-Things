@@ -68,7 +68,7 @@ mb_status_t mb_serial_frame_send(mb_handler_t *handler)
     int32_t     ret;
     uart_dev_t *uart = (mb_handler_t *)handler->private;
 
-    ret = hal_uart_send(uart, handler->mb_frame_buff, handler->mb_frame_length, 1);
+    ret = hal_uart_send(uart, handler->mb_frame_buff, handler->mb_frame_length, 100);
     if (ret == 0) {
         return MB_SUCCESS;
     }
