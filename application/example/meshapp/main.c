@@ -22,8 +22,9 @@
 #endif
 
 #include <umesh.h>
+#ifdef MESHAPP_CONFIG_HAL_TEST
 #include "umesh_hal.h"
-
+#endif
 
 #ifdef MESHAPP_LIGHT_ENABLED
 static gpio_dev_t gpio_led;
