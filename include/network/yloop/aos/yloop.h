@@ -18,13 +18,19 @@ extern "C" {
 #define POLLOUT 0x2
 #define POLLERR 0x4
 
+/**
+ * @brief poll fd type
+ */
 struct pollfd {
+    /* foll fd */
     int   fd;
+    /* event */
     short events;
+    /* read event */
     short revents;
 };
 
-#else
+#else  /* defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL) */
 
 #include <poll.h>
 #include <sys/stat.h>
@@ -63,10 +69,10 @@ struct pollfd {
 #define CODE_ON_GOT_IP CODE_WIFI_ON_GOT_IP
 
 /* Mesh event */
-#define  EV_MESH                  0x0003
+#define EV_MESH                  0x0003
 
 /* user app start 0x1000 - 0x7fff */
-#define EV_USER     0x1000
+#define EV_USER                  0x1000
 
 /** uData event */
 #define EV_UDATA                           0x0004
@@ -83,8 +89,11 @@ struct pollfd {
 #define CODE_UDATA_REPORT_PUBLISH          11
 #define CODE_UDATA_DATA_PUBLISH            12
 #define CODE_UDATA_DATA_SUBSCRIB           13
-#endif
+#endif /* AOS_DOXYGEN_MODE */
 
+/**
+ * @brief input event type
+ */
 typedef struct {
     /* The time event is generated, auto filled by aos event system */
     uint32_t time;
@@ -98,15 +107,31 @@ typedef struct {
     unsigned long extra;
 } input_event_t;
 
-/* Event callback */
+/**
+ * @brief Event callback
+ *
+ * @param[in]  event         input event.
+ * @param[in]  private_data  private data for cb.
+ */
 typedef void (*aos_event_cb)(input_event_t *event, void *private_data);
-/* Delayed execution callback */
+
+/**
+ * @brief Delayed execution callback
+ *
+ * @param[in] arg argument for execution.
+ */
 typedef void (*aos_call_t)(void *arg);
-/* Delayed execution callback */
+
+/**
+ * @brief Poll event callback
+ *
+ * @param[in]  fd    poll fd.
+ * @param[in]  arg   argument for execution.
+ */
 typedef void (*aos_poll_call_t)(int fd, void *arg);
 
 /**
- * Register system event filter callback.
+ * @brief Register system event filter callback.
  *
  * @param[in]  type  event type interested.
  * @param[in]  cb    system event callback.
@@ -117,7 +142,7 @@ typedef void (*aos_poll_call_t)(int fd, void *arg);
 int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 
 /**
- * Unregister native event callback.
+ * @brief Unregister native event callback.
  *
  * @param[in]  type  event type interested.
  * @param[in]  cb    system event callback.
@@ -128,7 +153,7 @@ int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 
 /**
- * Post local event.
+ * @brief Post local event.
  *
  * @param[in]  type   event type.
  * @param[in]  code   event code.
@@ -139,7 +164,7 @@ int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 int aos_post_event(uint16_t type, uint16_t code, unsigned long  value);
 
 /**
- * Register a poll event in main loop.
+ * @brief Register a poll event in main loop.
  *
  * @param[in]  fd      poll fd.
  * @param[in]  action  action to be executed.
@@ -150,7 +175,7 @@ int aos_post_event(uint16_t type, uint16_t code, unsigned long  value);
 int aos_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 
 /**
- * Cancel a poll event to be executed in main loop.
+ * @brief Cancel a poll event to be executed in main loop.
  *
  * @param[in]  fd      poll fd.
  * @param[in]  action  action to be executed.
@@ -159,7 +184,7 @@ int aos_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 void aos_cancel_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 
 /**
- * Post a delayed action to be executed in main loop.
+ * @brief Post a delayed action to be executed in main loop.
  *
  * @param[in]  ms      milliseconds to wait.
  * @param[in]  action  action to be executed.
@@ -170,7 +195,7 @@ void aos_cancel_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 int aos_post_delayed_action(int ms, aos_call_t action, void *arg);
 
 /**
- * Cancel a delayed action to be executed in main loop.
+ * @brief Cancel a delayed action to be executed in main loop.
  *
  * @param[in]  ms      milliseconds to wait, -1 means don't care.
  * @param[in]  action  action to be executed.
@@ -178,9 +203,8 @@ int aos_post_delayed_action(int ms, aos_call_t action, void *arg);
  */
 void aos_cancel_delayed_action(int ms, aos_call_t action, void *arg);
 
-
 /**
- * Schedule a callback in next event loop.
+ * @brief Schedule a callback in next event loop.
  * Unlike aos_post_delayed_action,
  * this function can be called from non-aos-main-loop context.
 
@@ -191,39 +215,42 @@ void aos_cancel_delayed_action(int ms, aos_call_t action, void *arg);
  */
 int aos_schedule_call(aos_call_t action, void *arg);
 
+/**
+ * @brief loop type
+ */
 typedef void *aos_loop_t;
 
 /**
- * Init a per-task event loop.
+ * @brief Init a per-task event loop.
  *
  * @return  the handler of aos_loop_t,NULL failure,others success.
  */
 aos_loop_t aos_loop_init(void);
 
 /**
- * Get current event loop.
+ * @brief Get current event loop.
  *
  * @return  default event loop.
  */
 aos_loop_t aos_current_loop(void);
 
 /**
- * Start event loop.
+ * @brief Start event loop.
  */
 void aos_loop_run(void);
 
 /**
- * Exit event loop, aos_loop_run() will return.
+ * @brief Exit event loop, aos_loop_run() will return.
  */
 void aos_loop_exit(void);
 
 /**
- * Free event loop resources.
+ * @brief Free event loop resources.
  */
 void aos_loop_destroy(void);
 
 /**
- * Schedule a callback specified event loop.
+ * @brief Schedule a callback specified event loop.
  *
  * @param[in]  loop    event loop to be scheduled, NULL for default main loop.
  * @param[in]  action  action to be executed.
@@ -234,7 +261,7 @@ void aos_loop_destroy(void);
 int aos_loop_schedule_call(aos_loop_t *loop, aos_call_t action, void *arg);
 
 /**
- * Schedule a work to be executed in workqueue.
+ * @brief Schedule a work to be executed in workqueue.
  *
  * @param[in]  ms       milliseconds to delay before execution, 0 means immediately.
  * @param[in]  action   action to be executed.
@@ -248,7 +275,7 @@ void *aos_loop_schedule_work(int ms, aos_call_t action, void *arg1,
                              aos_call_t fini_cb, void *arg2);
 
 /**
- * Cancel a work.
+ * @brief Cancel a work.
  *
  * @param[in]  work    work to be cancelled.
  * @param[in]  action  action to be executed.
