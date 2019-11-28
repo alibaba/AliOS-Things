@@ -75,6 +75,7 @@ ifeq ($(linux80211),1)
 $(NAME)_SOURCES += csp/wifi/common.c
 $(NAME)_SOURCES += csp/wifi/linux.c
 $(NAME)_SOURCES += csp/wifi/osdep.c
+$(NAME)_INCLUDES += ../../../components/network/umesh/include
 ifeq ($(HOST_ARCH), rockchiplinux)
 $(NAME)_SOURCES += csp/wifi/mesh-rk1108.c
 else
