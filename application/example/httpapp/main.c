@@ -236,6 +236,7 @@ static int32_t httpc_auth(const char *device_id, const char *product_key,
         goto exit;
     }
 
+    memset(rsp_buf, 0, sizeof(rsp_buf));
     ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
     if (ret < 0) {
         ++auth_req_fail_times;
@@ -290,6 +291,7 @@ static int32_t httpc_ota(const char *uri)
     }
 
     while (ota_file_size == 0 || ota_rx_size < ota_file_size) {
+        memset(rsp_buf, 0, sizeof(rsp_buf));
         ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
         if (ret < 0) {
             ++ota_req_fail_times;
@@ -371,6 +373,7 @@ static int32_t httpc_ota_head(const char *uri)
         goto exit;
     }
 
+    memset(rsp_buf, 0, sizeof(rsp_buf));
     ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 300000);
     if (ret < 0) {
         ++ota_head_req_fail_times;
@@ -429,6 +432,7 @@ static int32_t httpc_up(char *uri)
         goto exit;
     }
 
+    memset(rsp_buf, 0, sizeof(rsp_buf));
     ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
     if (ret < 0) {
         ++up_req_fail_times;
