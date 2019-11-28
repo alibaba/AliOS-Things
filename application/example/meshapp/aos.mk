@@ -28,6 +28,7 @@ endif
 
 ifeq ($(MESHAPP_CONFIG_HAL_TEST),y)
 GLOBAL_DEFINES += MESH_HAL_TEST_ENABLED
+$(NAME)_INCLUDES += ../../../components/network/umesh/include
 endif
 
 $(NAME)_INCLUDES += ./
