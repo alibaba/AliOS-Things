@@ -1,10 +1,12 @@
 ## Contents
 
 ```
-breezeapp
+ble_breeze_app
 .
-├── breezeapp.c
-└── breezeapp.mk
+├── Config.in
+├── README.md
+├── aos.mk
+└── ble_breeze_app.c
 ```
 
 ## Introduction
