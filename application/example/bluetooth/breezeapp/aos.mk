@@ -3,7 +3,7 @@ NAME := breezeapp
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := breezeapp
-$(NAME)_SOURCES := breezeapp.c
+$(NAME)_SOURCES := ble_breeze_app.c
 
 $(NAME)_COMPONENTS := breeze cli
 
