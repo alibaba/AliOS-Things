@@ -9,11 +9,11 @@
 #include <breeze.h>
 
 #ifdef CONFIG_AIS_OTA
+#define SOFTWARE_VERSION "xxxxxxxx"
 #include <ota/ota_breeze.h>
 #endif
 
-#define SOFTWARE_VERSION "xxxxxxxx"
-
+/*device info defination*/
 #ifndef CONFIG_MODEL_SECURITY
 #define PRODUCT_ID     850958
 #define DEVICE_SECRET  "jDp6NxUImRfZ231nt5Nt1AjEVYPJF4e3"
@@ -72,7 +72,8 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
 }
 
 #ifdef CONTINUE_BEL_ADV
-static void adv_work(void *arg)
+/* @brief Continue advertising func, restart ble adv with data reload. */
+static void continue_adv_work(void *arg)
 {
     static uint8_t user_adv[] = {0x55, 0xaa};
 
@@ -81,18 +82,18 @@ static void adv_work(void *arg)
     breeze_append_adv_data(user_adv, sizeof(user_adv) / sizeof(user_adv[0]));
 
     if (!ble_connected) breeze_restart_advertising();
-    aos_post_delayed_action(2000, adv_work, NULL);
+    aos_post_delayed_action(2000, continue_adv_work, NULL);
 }
 #endif
-
+/* @brief Callback when there is AWSS info to get. */
 static void apinfo_handler(breeze_apinfo_t *ap)
 {
     printf("Hello %s\r\n", __func__);
 }
 
+/* @brief Default callbacks for ota event, users should overwrite when OTA is enabled. */
 static void ota_handler(breeze_otainfo_t *ota)
 {
-    /*need to move ota logic here*/
     if(ota != NULL){
         if(ota->type == OTA_CMD){
             printf("RECV OTA CMD\n");
@@ -105,7 +106,8 @@ static void ota_handler(breeze_otainfo_t *ota)
     }
 }
 
-static void alink_work(void *arg)
+/* @brief application entry for breeze SDK. */
+static void breeze_work(void *arg)
 {
     bool                 ret;
     uint32_t             err_code;
@@ -116,7 +118,8 @@ static void alink_work(void *arg)
 #endif
 
     (void)arg;
-
+    
+    /*intialize struct device_config with predfined device info and callbacks*/
     memset(&init_bzlink, 0, sizeof(struct device_config));
     init_bzlink.product_id        = PRODUCT_ID;
     init_bzlink.status_changed_cb = dev_status_changed_handler;
@@ -136,13 +139,20 @@ static void alink_work(void *arg)
     memcpy(init_bzlink.device_key, DEVICE_NAME, init_bzlink.device_key_len);
 
 #ifndef CONFIG_MODEL_SECURITY
+    /*For security per device, initialize device_config.secret and device_config.secret_len*/
     init_bzlink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
 #else
+    /*Otherwise for security per product,initialize device_config.secret_len to 0*/
     init_bzlink.secret_len = 0;
 #endif
 
 #ifdef CONFIG_AIS_OTA
+    /*
+     * When OTA over breeze is enabled:
+     * 1.Initialize OTA component by calling ota_breeze_service_init.
+     * 2.Register callback for breeze component with ota_cb in device_config struct.
+     * */
     ota_module.is_ota_enable = true;
     ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
     if(ota_module.verison.fw_ver_len > sizeof(ota_module.verison.fw_ver)) {
@@ -156,6 +166,7 @@ static void alink_work(void *arg)
 #else
     init_bzlink.ota_cb = ota_handler;
 #endif
+    /*Start breeze service*/
     ret = breeze_start(&init_bzlink);
     if (ret != 0) {
         printf("breeze_start failed.\r\n");
@@ -166,10 +177,10 @@ static void alink_work(void *arg)
 
 int application_start(int argc, char **argv)
 {
-    alink_work(NULL);
+    breeze_work(NULL);
 
 #ifdef CONTINUE_BEL_ADV
-    adv_work(NULL);
+    continue_adv_work(NULL);
 #endif
     return 0;
 }
