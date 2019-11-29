@@ -16,12 +16,19 @@ extern "C"
 #include "netmgr_wifi.h"
 #endif
 
+/**
+ * @brief interface type
+ */
 enum {
     INTERFACE_WIFI,
     INTERFACE_CELLULAR,
 };
 
 #define IP_STR_SIZE 32
+
+/**
+ * @brief netmgr status (e.g. ip availability and ip address) type
+ */
 typedef struct netmgr_stats_s {
     bool ip_available;
     char ip[IP_STR_SIZE];
@@ -29,7 +36,7 @@ typedef struct netmgr_stats_s {
 
 /**
  *
- * initialize netmgr module
+ * @brief Initialize netmgr module
  *
  * @return 0   initialize success
  * @return < 0 initialize fail
@@ -38,7 +45,7 @@ int netmgr_init(void);
 
 /**
  *
- * deinitialize netmgr module
+ * @brief Deinitialize netmgr module
  *
  * @return 0   deinitialize success
  * @return < 0 deinitialize fail
@@ -47,7 +54,7 @@ void netmgr_deinit(void);
 
 /**
  *
- * start netmgr
+ * @brief Start netmgr
  *
  * @param[in] autoconfig start WiFi provision or not
  *
@@ -58,7 +65,7 @@ int netmgr_start(bool autoconfig);
 
 /**
  *
- * get netmgr stats
+ * @brief Get netmgr stats
  *
  * @param[in]     interface interface name
  * @param[in/out] stats network interface stats
@@ -69,7 +76,7 @@ void netmgr_stats(int32_t interface, netmgr_stats_t *stats);
 #ifdef NET_WITH_wIFI
 /**
  *
- * connect to specified WiFi network with given SSID and password
+ * @brief Connect to specified WiFi network with given SSID and password
  *
  * @param[in] ssid     WiFi SSID
  * @param[in] password WiFi password
