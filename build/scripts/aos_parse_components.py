@@ -74,7 +74,7 @@ def get_board_name(mkfile):
 
     return name
 
-def write_config_file(source_root, config_file, mklist):
+def write_config_file(source_root, config_file, mklist, appdir=None):
     """ Parse comps and write data to total config file """
     # contents will be wrote to config file
     conf_dict = {}
@@ -107,10 +107,15 @@ def write_config_file(source_root, config_file, mklist):
             conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
             config_keys += [name]
         else:
-            print("[ERROR]: Duplicate component found: %s" % name)
-            print("- %s: %s" % (name, conf_dict[name]))
-            print("- %s: %s" % (name, mkfile))
-            return 1
+            if appdir:
+                # Override board component with the one from appdir
+                if appdir in mkfile and "/board/" in mkfile:
+                    conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
+            else:
+                print("[ERROR]: Duplicate component found: %s" % name)
+                print("- %s: %s" % (name, conf_dict[name]))
+                print("- %s: %s" % (name, mkfile))
+                return 1
 
     with open (config_file, 'w') as f:
         f.write("REAL_COMPONENTS := %s\n" % " ".join(real_names))
@@ -142,10 +147,13 @@ def main(argv):
     mklist = find_comp_mkfile(source_root)
 
     appdir = os.environ.get("APPDIR")
+    ret = 0
     if appdir:
         mklist += find_comp_mkfile(appdir)
+        ret = write_config_file(source_root, config_file, mklist, appdir)
+    else:
+        ret = write_config_file(source_root, config_file, mklist)
 
-    ret = write_config_file(source_root, config_file, mklist)
     if ret:
         print("Failed to create %s ...\n" % config_file)
 
