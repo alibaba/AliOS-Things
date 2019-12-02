@@ -41,8 +41,9 @@ def get_include_file(code_file):
     include_list = []
 
     patten = re.compile(r'#include\s+(<|")(.*)(>|")')
-    with open(code_file, "r") as f:
+    with open(code_file, "rb") as f:
         for line in f.readlines():
+            line = line.decode("utf-8", "ignore")
             line = line.strip()
             if line.startswith("#include"):
                 line = line.strip()

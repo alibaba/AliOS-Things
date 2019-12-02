@@ -13,6 +13,10 @@ config AOS_SDK_PATH
     string
     option env="AOS_SDK_PATH"
 
+config USER_APP_PATH
+    string
+    option env="APPDIR"
+
 #
 # The configs for app @projectname@
 #
