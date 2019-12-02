@@ -29,11 +29,4 @@ config MBMASTER_CONFIG_HANDLER_MAX
             must call mb_alloc_handler to alloc a handler.
             default 1
 
-config MBMASTER_CONFIG_LOG_LEVEL
-    bool "Set the log level"
-        default n
-        help
-            set n to show information only when error happend. set y to show more information(error and debug).
-            default n
-
 endif

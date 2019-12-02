@@ -22,7 +22,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            mb_log(MB_LOG_ERROR, "invalid funciton code!\n");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -39,7 +39,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
     }
 
      /* wait slave respond */
-    mb_log(MB_LOG_DEBUG, "waiting for respond\n");
+    LOGD(MODBUS_MOUDLE, "waiting for respond");
 
     status = req_handler->frame_recv(req_handler);
     if (status != MB_SUCCESS) {
@@ -56,7 +56,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            mb_log(MB_LOG_ERROR, "invalid funciton code!\n");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -85,7 +85,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            mb_log(MB_LOG_ERROR, "invalid funciton code!\n");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -102,7 +102,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
     }
 
      /* wait slave respond */
-    mb_log(MB_LOG_DEBUG, "waiting for respond\n");
+    LOGD(MODBUS_MOUDLE, "waiting for respond");
 
     status = req_handler->frame_recv(req_handler);
     if (status != MB_SUCCESS) {
@@ -118,7 +118,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            mb_log(MB_LOG_ERROR, "invalid funciton code!\n");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
             break;
     }
     if (status != MB_SUCCESS) {
