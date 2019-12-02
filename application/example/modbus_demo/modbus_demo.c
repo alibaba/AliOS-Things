@@ -4,10 +4,13 @@
 
 #include "aos/kernel.h"
 #include <aos/mbmaster.h>
+#include <ulog/ulog.h>
 
 #define DEVICE1_SLAVE_ADDR 0x1
 #define DEVICE1_REG1_ADDR  0x0
 #define RECV_LEN_MAX       20
+
+#define MODBUSM_APP "modbus_app"
 
 void mb_main()
 {
@@ -21,7 +24,7 @@ void mb_main()
 
     status = aos_mbmaster_rtu_init(&mb_handler, 2, 9600, MB_PAR_NONE);
     if (status != 0) {
-        printf("mbmaster init error\n");
+        LOGE(MODBUSM_APP, "mbmaster init error");
         return;
     }
 
@@ -33,9 +36,9 @@ void mb_main()
         if (status == 0) {
             simulator1 = (uint16_t)((buf[0] << 8) | buf[1]);
             simulator2 = (uint16_t)((buf[2] << 8) | buf[3]);
-            printf("read holding register simulator1: %d,simulator2: %d\n", simulator1, simulator2);
+            LOGI(MODBUSM_APP, "read holding register simulator1: %d,simulator2: %d", simulator1, simulator2);
         } else {
-            printf("read holding register error\n");
+            LOGE(MODBUSM_APP, "read holding register error");
         }
 
         aos_msleep(1000);
@@ -45,9 +48,9 @@ void mb_main()
         if (status == 0) {
             simulator1 = (uint16_t)((buf[0] << 8) | buf[1]);
             simulator2 = (uint16_t)((buf[2] << 8) | buf[3]);
-            printf("read input register simulator1: %d,simulator2: %d\n", simulator1, simulator2);
+            LOGI(MODBUSM_APP, "read input register simulator1: %d,simulator2: %d", simulator1, simulator2);
         } else {
-            printf("read input register error\n");
+            LOGE(MODBUSM_APP, "read input register error");
         }
 
         aos_msleep(1000);
@@ -56,12 +59,12 @@ void mb_main()
                                                     DEVICE1_REG1_ADDR, data_write, NULL, &data_resp, NULL);
         if (status == 0) {
             if (data_write != data_resp) {
-                printf("write single register error\r\n");
+                LOGE(MODBUSM_APP, "write single register error");
             } else {
-                printf("write single register ok\r\n");
+                LOGE(MODBUSM_APP, "write single register ok");
             }
         } else {
-            printf("write single register error\n");
+            LOGE(MODBUSM_APP, "write single register error");
         }
         data_write++;
 
