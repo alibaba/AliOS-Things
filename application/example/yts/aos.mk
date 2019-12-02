@@ -9,7 +9,7 @@ $(NAME)_COMPONENTS := testcase ulog vfs yloop
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable
 
 ifneq (,$(findstring linux, $(BUILD_STRING)))
-$(NAME)_COMPONENTS += lwip umesh dda netmgr fatfs
+$(NAME)_COMPONENTS += lwip netmgr fatfs
 
 GLOBAL_LDFLAGS += -lreadline -lncurses
 GLOBAL_DEFINES += CONFIG_AOS_MESHYTS DEBUG YTS_LINUX

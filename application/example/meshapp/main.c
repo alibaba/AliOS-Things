@@ -12,10 +12,6 @@
 #include "aos/hal/gpio.h"
 
 #include <network/network.h>
-#ifdef CONFIG_AOS_DDA
-#include <stdlib.h>
-#include <dda.h>
-#endif
 
 #ifdef AOS_NETMGR
 #include "netmgr.h"
@@ -156,25 +152,10 @@ int application_start(int argc, char **argv)
 
     aos_set_log_level(AOS_LL_DEBUG);
 
-    if (strcmp(mode, "--mesh-node") == 0) {
-#ifdef CONFIG_AOS_DDA
-        dda_enable(atoi(argv[argc-1]));
-        dda_service_init();
-        dda_service_start();
-#endif
-    }
-    else if (strcmp(mode, "--mesh-master") == 0) {
-#ifdef CONFIG_AOS_DDM
-        ddm_run(argc, argv);
-#endif
-    }
-    else {
-        aos_task_new("meshappmain", app_main_entry, NULL, 8192);
+    aos_task_new("meshappmain", app_main_entry, NULL, 8192);
 #ifdef MESHAPP_LIGHT_ENABLED
-        light_init();
+    light_init();
 #endif
-    }
-
     return 0;
 }
 

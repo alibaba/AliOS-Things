@@ -18,7 +18,6 @@
 static void handle_yts_cmd(char *pwbuf, int blen, int argc, char **argv);
 
 #ifdef YTS_LINUX
-#include <dda.h>
 #else
 #if YTS_CONFIG_TEST_SUITE_DETACHED
 #include "k_config.h"
@@ -143,17 +142,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 int application_start(int argc, char **argv)
 {
 #ifdef YTS_LINUX
-    const char *mode = argc > 1 ? argv[1] : "";
-    if (strcmp(mode, "--mesh-node") == 0) {
-        dda_enable(atoi(argv[argc - 1]));
-        dda_service_init();
-        dda_service_start();
-        return 0;
-    } else if (strcmp(mode, "--mesh-master") == 0) {
-        ddm_run(argc, argv);
-        return 0;
-    }
-
     handle_yts_cmd(NULL, 0, argc, argv);
     aos_kv_deinit();
     exit(0);
