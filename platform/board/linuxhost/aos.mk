@@ -38,7 +38,7 @@ endif
 # Define the default component testcase set
 TEST_COMPONENTS += basic_test aos_test cjson_test
 TEST_COMPONENTS += rhino_test kv_test fatfs_test
-TEST_COMPONENTS += netmgr_test wifi_hal_test mesh_test tls_test
+TEST_COMPONENTS += netmgr_test wifi_hal_test tls_test
 TEST_COMPONENTS += rbtree_test
 
 MESHLOWPOWER := 1
