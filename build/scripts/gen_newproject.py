@@ -2,10 +2,11 @@ import os
 import sys
 import click
 import json
+import shutil
 from lib.code import compute_header_md5sum, get_depends_from_source
 
 """
-1. Create new project base on:
+1. Create new project via:
 * Predefined template: scripts/templates/new_project_template
   - Copy new_project_template/* and replace appname ...
   - Copy new_project_template/.vscode/* and replace appname ...
@@ -15,10 +16,9 @@ from lib.code import compute_header_md5sum, get_depends_from_source
   - Copy new_project_template/.vscode/* and replace appname ...
   - Update Config.in with build required configs
 
-2. Support configs for depends:
-* Source Config.in files of depended comps
-
-3. Write initial headers md5sum.
+2. Copy board to project directory
+3. Source Config.in files from depend
+4. Write initial headers md5sum.
 
 """
 
@@ -73,7 +73,11 @@ def write_depends_config(config_file, board, app=None):
         with open(config_file, "a") as f:
             f.write("\n")
             for config in configs:
-                line = 'source "$AOS_SDK_PATH/%s"\n' % config
+                if board in config:
+                    # USER_APP_PATH (APPDIR) is exported by "aos make"
+                    line = 'source "$USER_APP_PATH/board/%s/Config.in"\n' % board
+                else:
+                    line = 'source "$AOS_SDK_PATH/%s"\n' % config
                 f.write(line)
 
 
@@ -136,6 +140,10 @@ config AOS_BUILD_APP
 config AOS_SDK_PATH
     string
     option env="AOS_SDK_PATH"
+
+config USER_APP_PATH
+    string
+    option env="APPDIR"
 """ % (board, projectname)
 
     with open(config_file, "a") as f:
@@ -187,6 +195,9 @@ def copy_template(templatedir, destdir, projectname, board):
     for tempfile in sources:
         copy_template_file(tempfile, templatedir, destdir, projectname, board)
 
+    # copy board to project directory
+    copy_board_to_project(board, destdir)
+
     # update dest Config.in
     config_file = os.path.join(destdir, "Config.in")
     write_depends_config(config_file, board)
@@ -209,6 +220,9 @@ def copy_demo_app(appdir, destdir, projectname, board, appname):
 
     # copy README.md from predefined template
     copy_template_file("README.md", templatedir, destdir, projectname, board)
+
+    # copy board to project directory
+    copy_board_to_project(board, destdir)
 
     # update dest Config.in
     config_file = os.path.join(destdir, "Config.in")
@@ -254,6 +268,17 @@ def check_project_name(projectname):
             sys.exit(1)
 
     return comp_info
+
+
+def copy_board_to_project(board, dest_dir):
+    """ Copy the board to project directory """
+    aos_sdk = os.environ.get("AOS_SDK_PATH")
+    board_dir = os.path.join(aos_sdk, "platform/board", board)
+    if not os.path.isdir(board_dir):
+        click.echo("[Error] No such directory: %s!" % board_dir)
+
+    dest_dir = os.path.join(dest_dir, "board", board)
+    shutil.copytree(board_dir, dest_dir)
 
 
 @click.command()
