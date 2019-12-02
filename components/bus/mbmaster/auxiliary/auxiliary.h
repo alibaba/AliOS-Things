@@ -9,14 +9,12 @@
 extern "C" {
 #endif
 
+#include <ulog/ulog.h>
+
+#define MODBUS_MOUDLE "modbusm"
 /* forward declaration */
 typedef enum mb_status mb_status_t;
 typedef struct mb_handler mb_handler_t;
-
-typedef enum {
-    MB_LOG_ERROR = 0,
-    MB_LOG_DEBUG = 1
-} mb_log_level_t;
 
 #define MB_CRITICAL_ALLOC() CPSR_ALLOC()
 #define MB_CRITICAL_ENTER() RHINO_CRITICAL_ENTER()
@@ -36,7 +34,6 @@ typedef enum {
 #define betoh16(X) (((X >> 8) & 0x00ff) | ((X << 8) & 0xff00))
 #endif
 
-void     mb_log(mb_log_level_t log_level, const char *fmt_str, ...);
 uint8_t *status_to_string(mb_status_t status);
 
 mb_handler_t *mb_alloc_handler();
