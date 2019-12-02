@@ -2,21 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <mbmaster_api.h>
-
-void mb_log(mb_log_level_t log_level, const char *fmt_str, ...)
-{
-    va_list param;
-
-    if (log_level <= MBMASTER_CONFIG_LOG_LEVEL) {
-        va_start(param,fmt_str);
-        vprintf(fmt_str,param);
-        va_end(param);
-    }
-}
 
 uint8_t* status_to_string(mb_status_t status)
 {
