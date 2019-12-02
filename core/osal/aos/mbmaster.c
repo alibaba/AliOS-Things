@@ -3,6 +3,9 @@
  */
 
 #include "aos/mbmaster.h"
+#include "ulog/ulog.h"
+
+#define MODULE_MODBUSAPI "aos_modbusapi"
 
 #if (MBMASTER_CONFIG_RTU_ENABLED > 0)
 int aos_mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity)
@@ -51,7 +54,7 @@ int aos_mbmaster_read_holding_register(mb_handler_t *req_handler, uint8_t slave_
     status = mbmaster_read_holding_register(req_handler, slave_addr, start_addr,
                                                  quantity, respond_buf, respond_count);
     if (status != MB_SUCCESS) {
-        printf("%s\n", status_to_string(status));
+        LOGE(MODULE_MODBUSAPI, "%s", status_to_string(status));
         return -1;
     }
 
@@ -71,7 +74,7 @@ int aos_mbmaster_read_input_register(mb_handler_t *req_handler, uint8_t slave_ad
     status = mbmaster_read_input_register(req_handler, slave_addr, start_addr,
                                           quantity, respond_buf, respond_count);
     if (status != MB_SUCCESS) {
-        printf("%s\n", status_to_string(status));
+        LOGE(MODULE_MODBUSAPI, "%s", status_to_string(status));
         return -1;
     }
 
@@ -91,7 +94,7 @@ int aos_mbmaster_write_single_register(mb_handler_t *req_handler, uint8_t slave_
     status = mbmaster_write_single_register(req_handler, slave_addr, register_addr, register_value,
                                             resp_addr, resp_value, exception_code);
     if (status != MB_SUCCESS) {
-        printf("%s\n", status_to_string(status));
+        LOGE(MODULE_MODBUSAPI, "%s", status_to_string(status));
         return -1;
     }
 
