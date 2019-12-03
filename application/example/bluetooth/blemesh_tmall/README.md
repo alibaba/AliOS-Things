@@ -3,10 +3,11 @@
 ## Contents
 
 ```shell
-├── aos.mk
+.
 ├── Config.in
-├── main.c
-└── README.md
+├── README.md
+├── aos.mk
+└── ble_mesh_tmall_app.c
 ```
 
 ## Introduction
