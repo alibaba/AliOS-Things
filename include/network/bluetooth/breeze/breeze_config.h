@@ -2,18 +2,19 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef BREEZE_OPT_H
-#define BREEZE_OPT_H
+#ifndef BREEZE_CONFIG_H
+#define BREEZE_CONFIG_H
 
-/*update to version 2.0.6 or higher if enable offline authentation.
- * otherwise should not use this version to avoid compatibility issue.*/
+/* update to version 2.0.6 or higher if enable offline authentation.
+ * otherwise should not use this version to avoid compatibility issue.
+ * */
 #ifdef EN_AUTH_OFFLINE
 #define BZ_VERSION "2.0.6"
 #else
 #define BZ_VERSION "2.0.5"
 #endif
 
-#define BZ_AUTH_TIMEOUT         10000  // not allowed to be 0
+#define BZ_AUTH_TIMEOUT         10000
 #define BZ_TRANSPORT_TIMEOUT    10000
 
 #ifdef EN_LONG_MTU
@@ -89,4 +90,4 @@
 #error "No valid target set."
 #endif
 
-#endif  // BREEZE_OPT_H
+#endif  // BREEZE_CONFIG_H

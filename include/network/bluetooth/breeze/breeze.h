@@ -21,21 +21,23 @@ extern "C"
 #define STR_PROD_KEY_LEN (20 + 1) /**< Length of product key. */
 #define STR_DEV_KEY_LEN  (32 + 1) /**< Length of device name */
 
-/***** BLE STATUS ******/
+/* defination for SDK states */
 typedef enum {
-    CONNECTED,     // connect with phone success
-    DISCONNECTED,  // lost connection with phone
-    AUTHENTICATED, // success authentication
-    TX_DONE,       // send data complete
+    CONNECTED,     /* connect with phone success */
+    DISCONNECTED,  /* lost connection with phone */
+    AUTHENTICATED, /* success authentication */
+    TX_DONE,       /* send data complete */
     NONE
 } breeze_event_t;
 
+/* defination for wifi info, e.g. ssid and password, bssid. */
 typedef struct {
-    char    ssid[32 + 1];
-    char    pw[64 + 1];
+    char ssid[32 + 1];
+    char pw[64 + 1];
     uint8_t bssid[6];
 } breeze_apinfo_t;
 
+/* defination for breeze dev info */
 typedef struct {
     uint32_t product_id;
     char *product_key;
@@ -44,18 +46,21 @@ typedef struct {
     char *device_secret;
 } breeze_dev_info_t;
 
+/* OTA types, used shoud distinguish in the callback */
 typedef enum {
     OTA_CMD = 1,
     OTA_EVT,
 } ota_info_type_t;
 
+/* OTA sub-event for OTA_EVT */
 typedef enum {
-   ALI_OTA_ON_AUTH_EVT,
-   ALI_OTA_ON_TX_DONE,
-   ALI_OTA_ON_DISCONNECTED,
-   ALI_OTA_ON_DISCONTINUE_ERR,
+    ALI_OTA_ON_AUTH_EVT,
+    ALI_OTA_ON_TX_DONE,
+    ALI_OTA_ON_DISCONNECTED,
+    ALI_OTA_ON_DISCONTINUE_ERR,
 } ali_ota_evt_type_re_t;
 
+/* OTA cmd struct for data payload */
 typedef struct {
     uint8_t  cmd;
     uint8_t  frame;
@@ -63,11 +68,13 @@ typedef struct {
     uint16_t len;
 } breeze_ota_cmd_t;
 
+/* OTA event struct */
 typedef struct {
     uint8_t evt;
     uint8_t d;
 } breeze_ota_evt_t;
 
+/* OTA struct for breeze SDK */
 typedef struct {
     ota_info_type_t type;
     union {
