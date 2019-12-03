@@ -2,15 +2,15 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef BREEZE_AWSS_EXPORT_H
-#define BREEZE_AWSS_EXPORT_H
+#ifndef BREEZE_AWSS_H
+#define BREEZE_AWSS_H
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
 #endif
 
-#include "breeze_export.h"
+#include "breeze.h"
 
 /**
  * @brief Initialize breeze awss module.
@@ -37,4 +37,4 @@ void breeze_awss_end();
 }
 #endif
 
-#endif // BREEZE_API_EXPORT_H
+#endif // BREEZE_AWSS_H
