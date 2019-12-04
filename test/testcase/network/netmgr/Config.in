@@ -1,0 +1,5 @@
+config AOS_COMP_NETMGR_YTS_TEST
+    bool "netmgr YTS Testcase"
+    select AOS_COMP_NETMGR
+    default n
+    help
