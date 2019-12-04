@@ -1,0 +1,5 @@
+config AOS_COMP_YLOOP_YTS_TEST
+    bool "Yloop YTS Testcase"
+    select AOS_COMP_YLOOP
+    default n
+    help
