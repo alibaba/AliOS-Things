@@ -6,10 +6,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <aos/aos.h>
 #include <network/network.h>
 #include <netmgr.h>
+#include "ulog/ulog.h"
 #include <hal/cellular.h>
+#include "aos/yloop.h"
+
+#include "include/netmgr_priv.h"
 
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
@@ -18,18 +21,11 @@
 
 #define TAG "NETMGR_CELLULAR"
 
-typedef struct {
-    hal_cellular_module_t *hal_mod;
-    int32_t                      ipv4_owned;
-    int8_t                       disconnected_times;
-    bool                         ip_available;
-} netmgr_cxt_t;
-
-static netmgr_cxt_t g_netmgr_cxt;
-
 #if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
 static void randomize_tcp_local_port();
 #endif
+
+static net_interface_t *g_cellular_interface = NULL;
 
 static void format_ip(uint32_t ip, char *buf)
 {
@@ -68,10 +64,14 @@ static void netmgr_ip_got_event(hal_cellular_module_t *m, hal_cellular_ip_stat_t
     randomize_tcp_local_port();
 #endif
 
-    g_netmgr_cxt.ipv4_owned   = translate_addr(pnet->ip);
-    g_netmgr_cxt.ip_available = true;
+    if (g_cellular_interface) {
+        g_cellular_interface->ipv4_owned = translate_addr(pnet->ip);
+        g_cellular_interface->ip_available = true;
+    }
+
     aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_GOT_IP, 0u);
 }
+
 #if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
 #ifdef LOCAL_PORT_ENHANCED_RAND
 
@@ -187,8 +187,11 @@ static void netmgr_fatal_err_event(hal_cellular_module_t *m, void *arg)
 
 static void netmgr_disconnected_event(hal_cellular_module_t *m, void *arg)
 {
-    g_netmgr_cxt.disconnected_times++;
-    aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_DISCONNECT, NULL);
+    if (g_cellular_interface) {
+        g_cellular_interface->disconnected_times++;
+    }
+
+    aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_DISCONNECT, 0);
 }
 
 static const hal_cellular_event_cb_t g_cellular_hal_event = {
@@ -200,42 +203,68 @@ static const hal_cellular_event_cb_t g_cellular_hal_event = {
 
 static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
 {
-    if (eventinfo->type != EV_CELLULAR) {
+    if (eventinfo->type != EV_CELLULAR || g_cellular_interface == NULL) {
         return;
     }
 
     switch (eventinfo->code) {
         case CODE_CELLULAR_ON_DISCONNECT:
-            g_netmgr_cxt.ip_available = false;
+            if (g_cellular_interface) {
+                g_cellular_interface->ip_available = false;
+            }
         default:
             break;
     }
 }
 
-bool netmgr_get_ip_state()
+bool netmgr_cellular_get_ip_state()
 {
-    return g_netmgr_cxt.ip_available;
+    bool ip_available = false;
+
+    if (g_cellular_interface) {
+        ip_available = g_cellular_interface->ip_available;
+    }
+    return ip_available;
+}
+
+/* Returned IP[16] is in dot format, eg. 192.168.1.1. */
+void netmgr_cellular_get_ip(char ip[])
+{
+    if (!ip) {
+        LOGE(TAG, "Invalid argument in %s", __func__);
+    } else if (g_cellular_interface) {
+        format_ip(g_cellular_interface->ipv4_owned, ip);
+    }
 }
 
 int netmgr_cellular_init(void)
 {
     hal_cellular_module_t *module;
 
+    g_cellular_interface = netmgr_get_net_interface(INTERFACE_CELLULAR);
+    if (g_cellular_interface == NULL) {
+        return -1;
+    }
+
     aos_register_event_filter(EV_CELLULAR, netmgr_events_executor, NULL);
     module = hal_cellular_get_default_module();
-    memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
-    g_netmgr_cxt.ip_available = false;
-    g_netmgr_cxt.hal_mod = module;
-    hal_cellular_install_event(g_netmgr_cxt.hal_mod, &g_cellular_hal_event);
+
+    memset(g_cellular_interface, 0, sizeof(net_interface_t));
+    g_cellular_interface->interface_type = INTERFACE_CELLULAR;
+    g_cellular_interface->ip_available = false;
+    g_cellular_interface->hal_mod = (hal_net_module_t *)module;
+
+    hal_cellular_install_event((hal_cellular_module_t *)g_cellular_interface->hal_mod, &g_cellular_hal_event);
     return 0;
 }
 
 void netmgr_cellular_deinit(void)
 {
-    memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
+    memset(g_cellular_interface, 0, sizeof(net_interface_t));
+    g_cellular_interface->interface_type = INTERFACE_CELLULAR;
 }
 
-int netmgr_cellular_start(bool autoconfig)
+int netmgr_cellular_start(void)
 {
     return 0;
 }
