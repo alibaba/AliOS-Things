@@ -2149,7 +2149,8 @@ static int cmd_bunch_pb_adv(int argc, char *argv[])
 static int cmd_bunch_pb_gatt(int argc, char *argv[])
 {
 	cmd_uuid(argc, argv);
-        prov_bear = BT_MESH_PROV_ADV | BT_MESH_PROV_GATT;
+        //prov_bear = BT_MESH_PROV_ADV | BT_MESH_PROV_GATT;
+        prov_bear =  BT_MESH_PROV_GATT;
 	cmd_init(0, NULL);
 	return 0;
 }
