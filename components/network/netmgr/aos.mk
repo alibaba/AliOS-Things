@@ -32,6 +32,6 @@ endif
 
 $(NAME)_COMPONENTS-y += kv osal_aos yloop
 
-$(NAME)_INCLUDES-y += include
+$(NAME)_INCLUDES += src/include
 
 GLOBAL_DEFINES-y += AOS_NETMGR
