@@ -16,6 +16,8 @@
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
+#include "include/netmgr_priv.h"
+
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
 #include <lwip/udp.h>
@@ -45,23 +47,10 @@
 #define HOTSPOT_AP "aha"
 #define ROUTER_AP "adha"
 
-typedef struct
-{
-    netmgr_ap_config_t           saved_conf;
-    netmgr_ap_config_t           ap_config;
-    hal_wifi_module_t *          wifi_hal_mod;
-    autoconfig_plugin_t *        autoconfig_chain;
-    int32_t                      ipv4_owned;
-    int8_t                       disconnected_times;
-    bool                         doing_smartconfig;
-    bool                         ip_available;
-    netmgr_wifi_scan_result_cb_t cb;
-    bool                         wifi_scan_complete_cb_finished;
-} netmgr_cxt_t;
+static net_interface_t *g_wifi_interface = NULL;
 
 autoconfig_plugin_t g_alink_smartconfig;
 
-static netmgr_cxt_t g_netmgr_cxt;
 #ifndef WITH_SAL
 #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
 static autoconfig_plugin_t g_def_smartconfig;
@@ -147,8 +136,11 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m, hal_wifi_ip_stat_t *pnet,
     randomize_tcp_local_port();
 #endif
 
-    g_netmgr_cxt.ipv4_owned = translate_addr(pnet->ip);
-    g_netmgr_cxt.ip_available = true;
+    if (g_wifi_interface) {
+        g_wifi_interface->ipv4_owned = translate_addr(pnet->ip);
+        g_wifi_interface->ip_available = true;
+    }
+
     aos_post_event(EV_WIFI, CODE_WIFI_ON_PRE_GOT_IP, 0u);
     start_mesh(true);
 }
@@ -266,8 +258,10 @@ static void netmgr_stat_chg_event(hal_wifi_module_t *m, hal_wifi_event_t stat,
     switch (stat) {
         case NOTIFY_STATION_UP:
             g_station_is_up = true;
-            aos_post_event(EV_WIFI, CODE_WIFI_ON_CONNECTED,
-                           (unsigned long)g_netmgr_cxt.ap_config.ssid);
+            if (g_wifi_interface) {
+                aos_post_event(EV_WIFI, CODE_WIFI_ON_CONNECTED,
+                               (unsigned long)g_wifi_interface->ap_config.ssid);
+            }
             break;
         case NOTIFY_STATION_DOWN:
             g_station_is_up = false;
@@ -291,21 +285,22 @@ static void netmgr_scan_completed_event(hal_wifi_module_t *     m,
                                         hal_wifi_scan_result_t *result,
                                         void *                  arg)
 {
-    netmgr_wifi_scan_result_cb_t cb = g_netmgr_cxt.cb;
     int                          i, last_ap = 0;
     uint8_t                      bssid[ETH_ALEN];
 
-    if (g_netmgr_cxt.cb) {
+    if (g_wifi_interface && g_wifi_interface->cb) {
         for (i = 0; i < (result->ap_num); i++) {
             LOGD("netmgr", "AP to add: %s", result->ap_list[i].ssid);
             if (i == (result->ap_num - 1)) {
                 last_ap = 1;
             }
             get_bssid(bssid, ETH_ALEN);
-            cb(result->ap_list[i].ssid, bssid, NETMGR_AWSS_AUTH_TYPE_WPA2PSK,
+            g_wifi_interface->cb(result->ap_list[i].ssid, bssid, NETMGR_AWSS_AUTH_TYPE_WPA2PSK,
                NETMGR_AWSS_ENC_TYPE_NONE, 0, 0, last_ap);
         }
-        g_netmgr_cxt.wifi_scan_complete_cb_finished = true;
+        if (g_wifi_interface) {
+            g_wifi_interface->wifi_scan_complete_cb_finished = true;
+        }
     }
 }
 
@@ -313,22 +308,23 @@ static void netmgr_scan_adv_completed_event(hal_wifi_module_t *         m,
                                             hal_wifi_scan_result_adv_t *result,
                                             void *                      arg)
 {
-    netmgr_wifi_scan_result_cb_t cb = g_netmgr_cxt.cb;
-    int                          i, last_ap = 0;
+    int i, last_ap = 0;
 
-    if (g_netmgr_cxt.cb) {
+    if (g_wifi_interface && g_wifi_interface->cb) {
         for (i = 0; i < (result->ap_num); i++) {
             LOGD("netmgr", "AP to add: %s", result->ap_list[i].ssid);
             if (i == (result->ap_num - 1)) {
                 last_ap = 1;
             }
-            cb(result->ap_list[i].ssid,
+            g_wifi_interface->cb(result->ap_list[i].ssid,
                (const uint8_t *)result->ap_list[i].bssid,
                (enum NETMGR_AWSS_AUTH_TYPE)result->ap_list[i].security,
                NETMGR_AWSS_ENC_TYPE_NONE, result->ap_list[i].channel,
                result->ap_list[i].ap_power, last_ap);
         }
-        g_netmgr_cxt.wifi_scan_complete_cb_finished = true;
+        if (g_wifi_interface) {
+            g_wifi_interface->wifi_scan_complete_cb_finished = true;
+        }
     }
 }
 
@@ -348,18 +344,20 @@ static void netmgr_para_chg_event(hal_wifi_module_t *     m,
          (uint8_t)(ap_info->bssid[0]), (uint8_t)(ap_info->bssid[1]), (uint8_t)(ap_info->bssid[2]),
          (uint8_t)(ap_info->bssid[3]), (uint8_t)(ap_info->bssid[4]), (uint8_t)(ap_info->bssid[5]));
 
-    /* Update bssid information here */
-    memcpy(g_netmgr_cxt.ap_config.bssid, ap_info->bssid,
-           sizeof(g_netmgr_cxt.saved_conf.bssid));
+    if (g_wifi_interface) {
+        /* Update bssid information here */
+        memcpy(g_wifi_interface->ap_config.bssid, ap_info->bssid,
+               sizeof(g_wifi_interface->saved_conf.bssid));
 
-    memcpy(g_netmgr_cxt.saved_conf.bssid, g_netmgr_cxt.ap_config.bssid,
-           sizeof(g_netmgr_cxt.saved_conf.bssid));
+        memcpy(g_wifi_interface->saved_conf.bssid, g_wifi_interface->ap_config.bssid,
+               sizeof(g_wifi_interface->saved_conf.bssid));
 
-    ret = aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
-                     sizeof(netmgr_ap_config_t), 1);
-    if (ret != 0) {
-        LOGE("netmgr", "%s failed", __func__);
-        return;
+        ret = aos_kv_set(NETMGR_WIFI_KEY, &g_wifi_interface->saved_conf,
+                         sizeof(netmgr_ap_config_t), 1);
+        if (ret != 0) {
+            LOGE("netmgr", "%s failed", __func__);
+            return;
+        }
     }
 }
 
@@ -379,52 +377,61 @@ static void reconnect_wifi(void *arg)
 {
     hal_wifi_module_t *  module;
     hal_wifi_init_type_t type;
-    netmgr_ap_config_t * ap_config = &(g_netmgr_cxt.ap_config);
+    netmgr_ap_config_t * ap_config = NULL;
 
-    module = hal_wifi_get_default_module();
+    if (g_wifi_interface) {
+        ap_config = &(g_wifi_interface->ap_config);
+    }
 
-    memset(&type, 0, sizeof(type));
-    type.wifi_mode = STATION;
-    type.dhcp_mode = DHCP_CLIENT;
-    strncpy(type.wifi_ssid, ap_config->ssid, sizeof(type.wifi_ssid) - 1);
-    strncpy(type.wifi_key, ap_config->pwd, sizeof(type.wifi_key) - 1);
-    hal_wifi_start(module, &type);
+    if (ap_config) {
+        module = hal_wifi_get_default_module();
+        memset(&type, 0, sizeof(type));
+        type.wifi_mode = STATION;
+        type.dhcp_mode = DHCP_CLIENT;
+        strncpy(type.wifi_ssid, ap_config->ssid, sizeof(type.wifi_ssid) - 1);
+        strncpy(type.wifi_key, ap_config->pwd, sizeof(type.wifi_key) - 1);
+        hal_wifi_start(module, &type);
+    }
 }
 
 void netmgr_reconnect_wifi()
 {
-    g_netmgr_cxt.ip_available = false;
+    if (g_wifi_interface) {
+        g_wifi_interface->ip_available = false;
+    }
     reconnect_wifi(NULL);
 }
 
 static void get_wifi_ssid(void)
 {
-    memset(g_netmgr_cxt.ap_config.ssid, 0, sizeof(g_netmgr_cxt.ap_config.ssid));
-    strncpy(g_netmgr_cxt.ap_config.ssid, g_netmgr_cxt.saved_conf.ssid,
-            sizeof(g_netmgr_cxt.ap_config.ssid) - 1);
+    if (g_wifi_interface) {
+        memset(g_wifi_interface->ap_config.ssid, 0, sizeof(g_wifi_interface->ap_config.ssid));
+        strncpy(g_wifi_interface->ap_config.ssid, g_wifi_interface->saved_conf.ssid,
+                sizeof(g_wifi_interface->ap_config.ssid) - 1);
 
-    memset(g_netmgr_cxt.ap_config.pwd, 0, sizeof(g_netmgr_cxt.ap_config.pwd));
-    strncpy(g_netmgr_cxt.ap_config.pwd, g_netmgr_cxt.saved_conf.pwd,
-            sizeof(g_netmgr_cxt.ap_config.pwd) - 1);
+        memset(g_wifi_interface->ap_config.pwd, 0, sizeof(g_wifi_interface->ap_config.pwd));
+        strncpy(g_wifi_interface->ap_config.pwd, g_wifi_interface->saved_conf.pwd,
+                sizeof(g_wifi_interface->ap_config.pwd) - 1);
 
-    memset(g_netmgr_cxt.ap_config.bssid, 0,
-           sizeof(g_netmgr_cxt.ap_config.bssid));
-    memcpy(g_netmgr_cxt.ap_config.bssid, g_netmgr_cxt.saved_conf.bssid,
-           sizeof(g_netmgr_cxt.ap_config.bssid));
+        memset(g_wifi_interface->ap_config.bssid, 0,
+               sizeof(g_wifi_interface->ap_config.bssid));
+        memcpy(g_wifi_interface->ap_config.bssid, g_wifi_interface->saved_conf.bssid,
+               sizeof(g_wifi_interface->ap_config.bssid));
+    }
 }
 
 static int clear_wifi_ssid(void)
 {
     int ret = 0;
 
-    memset(g_netmgr_cxt.ap_config.ssid, 0, sizeof(g_netmgr_cxt.ap_config.ssid));
-    memset(g_netmgr_cxt.ap_config.pwd, 0, sizeof(g_netmgr_cxt.ap_config.pwd));
-    memset(g_netmgr_cxt.ap_config.bssid, 0,
-           sizeof(g_netmgr_cxt.ap_config.bssid));
+    if (g_wifi_interface) {
+        memset(g_wifi_interface->ap_config.ssid, 0, sizeof(g_wifi_interface->ap_config.ssid));
+        memset(g_wifi_interface->ap_config.pwd, 0, sizeof(g_wifi_interface->ap_config.pwd));
+        memset(g_wifi_interface->ap_config.bssid, 0, sizeof(g_wifi_interface->ap_config.bssid));
+        memset(&g_wifi_interface->saved_conf, 0, sizeof(netmgr_ap_config_t));
+    }
 
-    memset(&g_netmgr_cxt.saved_conf, 0, sizeof(netmgr_ap_config_t));
-    ret = aos_kv_del(
-      NETMGR_WIFI_KEY); // use kv_del instead of kv_set in case kv is full
+    ret = aos_kv_del(NETMGR_WIFI_KEY); // use kv_del instead of kv_set in case kv is full
 
     return ret;
 }
@@ -434,9 +441,13 @@ static int set_wifi_ssid(void)
     int                ret = -1, len;
     netmgr_ap_config_t tmp;
 
+    if (g_wifi_interface == NULL) {
+        return -1;
+    }
+
     /* Do not save hotspot and router APs. */
-    if (strcmp(g_netmgr_cxt.ap_config.ssid, HOTSPOT_AP) == 0 ||
-        strcmp(g_netmgr_cxt.ap_config.ssid, ROUTER_AP) == 0) {
+    if (strcmp(g_wifi_interface->ap_config.ssid, HOTSPOT_AP) == 0 ||
+        strcmp(g_wifi_interface->ap_config.ssid, ROUTER_AP) == 0) {
         return -1;
     }
 
@@ -444,27 +455,29 @@ static int set_wifi_ssid(void)
     ret = aos_kv_get(NETMGR_WIFI_KEY, &tmp, &len);
 
     /* Do not save if the same AP already saved. */
-    if (!ret && memcmp(&tmp, &(g_netmgr_cxt.ap_config), sizeof(tmp)) == 0) {
+    if (!ret && memcmp(&tmp, &(g_wifi_interface->ap_config), sizeof(tmp)) == 0) {
         return -1;
     }
 
-    memset(&g_netmgr_cxt.saved_conf, 0, sizeof(netmgr_ap_config_t));
-    strncpy(g_netmgr_cxt.saved_conf.ssid, g_netmgr_cxt.ap_config.ssid,
-            sizeof(g_netmgr_cxt.saved_conf.ssid) - 1);
-    strncpy(g_netmgr_cxt.saved_conf.pwd, g_netmgr_cxt.ap_config.pwd,
-            sizeof(g_netmgr_cxt.saved_conf.pwd) - 1);
-    memcpy(g_netmgr_cxt.saved_conf.bssid, g_netmgr_cxt.ap_config.bssid,
-           sizeof(g_netmgr_cxt.saved_conf.bssid));
+    memset(&g_wifi_interface->saved_conf, 0, sizeof(netmgr_ap_config_t));
+    strncpy(g_wifi_interface->saved_conf.ssid, g_wifi_interface->ap_config.ssid,
+            sizeof(g_wifi_interface->saved_conf.ssid) - 1);
+    strncpy(g_wifi_interface->saved_conf.pwd, g_wifi_interface->ap_config.pwd,
+            sizeof(g_wifi_interface->saved_conf.pwd) - 1);
+    memcpy(g_wifi_interface->saved_conf.bssid, g_wifi_interface->ap_config.bssid,
+           sizeof(g_wifi_interface->saved_conf.bssid));
 
-    ret = aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
-                     sizeof(netmgr_ap_config_t), 1);
+    ret = aos_kv_set(NETMGR_WIFI_KEY, &g_wifi_interface->saved_conf, sizeof(netmgr_ap_config_t), 1);
 
     return ret;
 }
 
 static void handle_wifi_disconnect(void)
 {
-    g_netmgr_cxt.disconnected_times++;
+    if (g_wifi_interface) {
+        g_wifi_interface->disconnected_times++;
+    }
+
     stop_mesh();
 }
 
@@ -476,45 +489,46 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
 
     switch (eventinfo->code) {
         case CODE_WIFI_ON_CONNECTED:
-            if (g_station_is_up == true) {
-                g_netmgr_cxt.disconnected_times = 0;
+            if (g_station_is_up == true && g_wifi_interface) {
+                g_wifi_interface->disconnected_times = 0;
             }
             break;
         case CODE_WIFI_ON_DISCONNECT:
             if (g_station_is_up == false) {
                 handle_wifi_disconnect();
-                g_netmgr_cxt.ip_available = false;
+                if (g_wifi_interface) {
+                    g_wifi_interface->ip_available = false;
+                }
             }
             break;
         case CODE_WIFI_ON_PRE_GOT_IP:
-            if (g_netmgr_cxt.doing_smartconfig) {
-                if (strcmp(g_netmgr_cxt.ap_config.ssid, HOTSPOT_AP) != 0 &&
-                    strcmp(g_netmgr_cxt.ap_config.ssid, ROUTER_AP) != 0) {
+            if (g_wifi_interface && g_wifi_interface->doing_smartconfig) {
+                if (strcmp(g_wifi_interface->ap_config.ssid, HOTSPOT_AP) != 0 &&
+                    strcmp(g_wifi_interface->ap_config.ssid, ROUTER_AP) != 0) {
                     LOGI(TAG, "Let's post GOT_IP event.");
-                    g_netmgr_cxt.autoconfig_chain->config_result_cb(
-                      0, g_netmgr_cxt.ipv4_owned);
-                    g_netmgr_cxt.autoconfig_chain->autoconfig_stop();
+                    g_wifi_interface->autoconfig_chain->config_result_cb(
+                      0, g_wifi_interface->ipv4_owned);
+                    g_wifi_interface->autoconfig_chain->autoconfig_stop();
                 } else {
-                    LOGI(
-                      TAG,
-                      "In hotspot/router mode, do not post GOT_IP event here.");
+                    LOGI(TAG, "In hotspot/router mode, do not post GOT_IP event here.");
                 }
             } else {
-                aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP,
-                               (unsigned long)(&g_netmgr_cxt.ipv4_owned));
+                aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, (unsigned long)(&g_wifi_interface->ipv4_owned));
             }
             break;
         case CODE_WIFI_ON_GOT_IP:
-            if (g_netmgr_cxt.doing_smartconfig) {
-                g_netmgr_cxt.doing_smartconfig = false;
+            if (g_wifi_interface && g_wifi_interface->doing_smartconfig) {
+                g_wifi_interface->doing_smartconfig = false;
             }
             set_wifi_ssid();
             break;
         case CODE_WIFI_CMD_RECONNECT:
-            g_netmgr_cxt.disconnected_times = 0;
-            g_netmgr_cxt.ip_available = false;
-            LOGD("netmgr", "reconnect wifi - %s, %s",
-                 g_netmgr_cxt.ap_config.ssid, g_netmgr_cxt.ap_config.pwd);
+            if (g_wifi_interface) {
+                g_wifi_interface->disconnected_times = 0;
+                g_wifi_interface->ip_available = false;
+                LOGD("netmgr", "reconnect wifi - %s, %s",
+                      g_wifi_interface->ap_config.ssid, g_wifi_interface->ap_config.pwd);
+            }
             reconnect_wifi(NULL);
             break;
         default:
@@ -524,21 +538,29 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
 
 void wifi_get_ip(char ips[16])
 {
-    format_ip(g_netmgr_cxt.ipv4_owned, ips);
+    if (g_wifi_interface) {
+        format_ip(g_wifi_interface->ipv4_owned, ips);
+    }
 }
 
 void netmgr_register_wifi_scan_result_callback(netmgr_wifi_scan_result_cb_t cb)
 {
-    g_netmgr_cxt.cb                             = cb;
-    g_netmgr_cxt.wifi_scan_complete_cb_finished = false;
+    if (g_wifi_interface) {
+        g_wifi_interface->cb = cb;
+        g_wifi_interface->wifi_scan_complete_cb_finished = false;
+    }
 }
 
 static void netmgr_wifi_config_start(void)
 {
-    autoconfig_plugin_t *valid_plugin = g_netmgr_cxt.autoconfig_chain;
+    autoconfig_plugin_t *valid_plugin = NULL;
+
+    if (g_wifi_interface) {
+        valid_plugin = g_wifi_interface->autoconfig_chain;
+    }
 
     if (valid_plugin != NULL) {
-        g_netmgr_cxt.doing_smartconfig = true;
+        g_wifi_interface->doing_smartconfig = true;
         valid_plugin->autoconfig_start();
     } else {
         LOGW(TAG, "net mgr none config policy");
@@ -548,7 +570,11 @@ static void netmgr_wifi_config_start(void)
 
 static int32_t has_valid_ap(void)
 {
-    int32_t len = strlen(g_netmgr_cxt.ap_config.ssid);
+    int32_t len = 0;
+
+    if (g_wifi_interface) {
+        len = strlen(g_wifi_interface->ap_config.ssid);
+    }
 
     if (len <= 0) {
         return 0;
@@ -559,8 +585,10 @@ static int32_t has_valid_ap(void)
 
 static void add_autoconfig_plugin(autoconfig_plugin_t *plugin)
 {
-    plugin->next                  = g_netmgr_cxt.autoconfig_chain;
-    g_netmgr_cxt.autoconfig_chain = plugin;
+    if (g_wifi_interface) {
+        plugin->next = g_wifi_interface->autoconfig_chain;
+        g_wifi_interface->autoconfig_chain = plugin;
+    }
 }
 
 int netmgr_get_ap_config(netmgr_ap_config_t *config)
@@ -569,11 +597,14 @@ int netmgr_get_ap_config(netmgr_ap_config_t *config)
         return -1;
     }
 
-    strncpy(config->ssid, g_netmgr_cxt.ap_config.ssid, MAX_SSID_SIZE);
-    strncpy(config->pwd, g_netmgr_cxt.ap_config.pwd, MAX_PWD_SIZE);
-    memcpy(config->bssid, g_netmgr_cxt.ap_config.bssid, sizeof(config->bssid));
+    if (g_wifi_interface) {
+        strncpy(config->ssid, g_wifi_interface->ap_config.ssid, MAX_SSID_SIZE);
+        strncpy(config->pwd, g_wifi_interface->ap_config.pwd, MAX_PWD_SIZE);
+        memcpy(config->bssid, g_wifi_interface->ap_config.bssid, sizeof(config->bssid));
+        return 0;
+    }
 
-    return 0;
+    return -1;
 }
 
 void netmgr_clear_ap_config(void)
@@ -585,12 +616,11 @@ int netmgr_set_ap_config(netmgr_ap_config_t *config)
 {
     int ret = 0;
 
-    strncpy(g_netmgr_cxt.ap_config.ssid, config->ssid,
-            sizeof(g_netmgr_cxt.ap_config.ssid) - 1);
-    strncpy(g_netmgr_cxt.ap_config.pwd, config->pwd,
-            sizeof(g_netmgr_cxt.ap_config.pwd) - 1);
-    memcpy(g_netmgr_cxt.ap_config.bssid, config->bssid,
-           sizeof(g_netmgr_cxt.ap_config.bssid));
+    if (g_wifi_interface) {
+        strncpy(g_wifi_interface->ap_config.ssid, config->ssid, sizeof(g_wifi_interface->ap_config.ssid) - 1);
+        strncpy(g_wifi_interface->ap_config.pwd, config->pwd, sizeof(g_wifi_interface->ap_config.pwd) - 1);
+        memcpy(g_wifi_interface->ap_config.bssid, config->bssid, sizeof(g_wifi_interface->ap_config.bssid));
+    }
 
     return ret;
 }
@@ -606,12 +636,14 @@ static void read_persistent_conf(void)
     int ret;
     int len;
 
-    len = sizeof(netmgr_ap_config_t);
-    ret = aos_kv_get(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf, &len);
-    if (ret < 0) {
-        return;
+    if (g_wifi_interface) {
+        len = sizeof(netmgr_ap_config_t);
+        ret = aos_kv_get(NETMGR_WIFI_KEY, &g_wifi_interface->saved_conf, &len);
+        if (ret < 0) {
+            return;
+        }
+        get_wifi_ssid();
     }
-    get_wifi_ssid();
 }
 
 #ifdef AOS_COMP_CLI
@@ -654,14 +686,25 @@ static struct cli_command ncmd = {
 };
 #endif
 
-bool netmgr_get_ip_state()
+bool netmgr_wifi_get_ip_state()
 {
-    return g_netmgr_cxt.ip_available;
+    bool available = false;
+
+    if (g_wifi_interface) {
+        available = g_wifi_interface->ip_available;
+    }
+
+    return available;
 }
 
 bool netmgr_get_scan_cb_finished()
 {
-    return g_netmgr_cxt.wifi_scan_complete_cb_finished;
+    bool finished = false;
+    if (g_wifi_interface) {
+        finished = g_wifi_interface->wifi_scan_complete_cb_finished;
+    }
+
+    return finished;
 }
 
 /* Returned IP[16] is in dot format, eg. 192.168.1.1. */
@@ -669,8 +712,8 @@ void netmgr_wifi_get_ip(char ip[])
 {
     if (!ip) {
         LOGE(TAG, "Invalid argument in %s", __func__);
-    } else {
-        format_ip(g_netmgr_cxt.ipv4_owned, ip);
+    } else if (g_wifi_interface) {
+        format_ip(g_wifi_interface->ipv4_owned, ip);
     }
 }
 
@@ -689,8 +732,9 @@ static int def_smart_config_start(void)
 
 static void def_smart_config_stop(void)
 {
-    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP,
-                   (unsigned long)(&g_netmgr_cxt.ipv4_owned));
+    if (g_wifi_interface) {
+        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, (unsigned long)(&g_wifi_interface->ipv4_owned));
+    }
 }
 
 static void def_smart_config_result_cb(int result, uint32_t ip) {}
@@ -708,6 +752,11 @@ int netmgr_wifi_init(void)
 {
     hal_wifi_module_t *module;
 
+    g_wifi_interface = netmgr_get_net_interface(INTERFACE_WIFI);
+    if (g_wifi_interface == NULL) {
+        return -1;
+    }
+
     aos_register_event_filter(EV_WIFI, netmgr_events_executor, NULL);
 
 #ifdef AOS_COMP_CLI
@@ -715,10 +764,13 @@ int netmgr_wifi_init(void)
 #endif
 
     module = hal_wifi_get_default_module();
-    memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
-    g_netmgr_cxt.ip_available = false;
-    g_netmgr_cxt.wifi_scan_complete_cb_finished = false;
-    g_netmgr_cxt.wifi_hal_mod = module;
+
+    memset(g_wifi_interface, 0, sizeof(net_interface_t));
+    g_wifi_interface->interface_type = INTERFACE_WIFI;
+    g_wifi_interface->ip_available = false;
+    g_wifi_interface->hal_mod = (hal_net_module_t *)module;
+    g_wifi_interface->wifi_scan_complete_cb_finished = false;
+
 #if !defined(WITH_SAL) || defined(DEV_SAL_ATHOST)
 #if defined(CONFIG_YWSS) && (!defined(CSP_LINUXHOST) || defined(DEV_SAL_ATHOST))
     add_autoconfig_plugin(&g_alink_smartconfig);
@@ -726,7 +778,8 @@ int netmgr_wifi_init(void)
     add_autoconfig_plugin(&g_def_smartconfig);
 #endif
 #endif
-    hal_wifi_install_event(g_netmgr_cxt.wifi_hal_mod, &g_wifi_hal_event);
+
+    hal_wifi_install_event((hal_wifi_module_t *)(g_wifi_interface->hal_mod), &g_wifi_hal_event);
     read_persistent_conf();
 
 #ifdef CONFIG_AOS_MESH
@@ -737,7 +790,8 @@ int netmgr_wifi_init(void)
 
 void netmgr_wifi_deinit(void)
 {
-    memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
+    memset(g_wifi_interface, 0, sizeof(net_interface_t));
+    g_wifi_interface->interface_type = INTERFACE_WIFI;
 }
 
 int netmgr_wifi_start(bool autoconfig)
