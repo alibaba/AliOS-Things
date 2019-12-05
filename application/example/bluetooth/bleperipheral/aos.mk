@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE  := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := bleperipheral
 
-$(NAME)_SOURCES     := main.c
+$(NAME)_SOURCES     := bleperipheral_app.c
 
 BLE = 1
 EN_BT_SMP = 1

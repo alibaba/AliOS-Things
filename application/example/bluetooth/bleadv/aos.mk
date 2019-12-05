@@ -3,7 +3,7 @@ NAME := bleadv
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := Ble adv example.
-$(NAME)_SOURCES     := main.c
+$(NAME)_SOURCES     := bleadv_app.c
 
 BLE = 1
 EN_BT_SMP = 1
