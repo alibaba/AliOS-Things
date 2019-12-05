@@ -9,22 +9,18 @@ config AOS_COMP_NETMGR
 
 if AOS_COMP_NETMGR
 # Configurations for comp netmgr
-
-choice
-    prompt "Config Network:"
-    default AOS_NET_WITH_WIFI
-    help
-      Choose right Network
-
+menu "Config Network Interface Types:"
     config AOS_NET_WITH_CELLULAR
         bool "Cellular"
+        default n
         help
-        support net with Cellular.
+            support net with Cellular.
 
     config AOS_NET_WITH_WIFI
         bool "Wi-Fi"
+        default y
         help
-        support net with Wi-Fi.
-endchoice
+            support net with Wi-Fi.
+endmenu
 
 endif
