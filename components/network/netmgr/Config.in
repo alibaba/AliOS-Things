@@ -25,11 +25,6 @@ choice
         bool "Wi-Fi"
         help
         support net with Wi-Fi.
-
-    config AOS_NET_WITH_BLANK
-        bool "Blank"
-        help
-        support net with BLANK.
 endchoice
 
 endif
