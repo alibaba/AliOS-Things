@@ -1,0 +1,10 @@
+config AOS_APP_SAL_APP
+    bool "sal app test"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_SAL_APP
+# Configurations for sal app
+endif
