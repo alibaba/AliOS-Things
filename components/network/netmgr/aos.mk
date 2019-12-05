@@ -26,12 +26,6 @@ GLOBAL_DEFINES-y += NET_WITH_WIFI
 $(NAME)_SOURCES-y += hal/wifi.c
 endif
 
-ifeq (y,$(AOS_NET_WITH_BLANK))
-$(NAME)_SOURCES-y += hal/net.c
-$(NAME)_SOURCES-y += src/netmgr_net.c
-$(NAME)_INCLUDES-y += ../include/hal/
-endif
-
 ifeq (y,$(pvtest))
 GLOBAL_DEFINES-y += PREVALIDATE_TEST
 endif
