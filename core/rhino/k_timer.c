@@ -398,6 +398,7 @@ static void timer_task(void *pa)
                     g_timer_count = tick_end;
                 } else if (err == RHINO_SUCCESS) {
                     g_timer_count = tick_end;
+                    timer_cb_proc();
                     timer_cmd_proc(&cb_msg);
                 } else {
                     k_err_proc(RHINO_SYS_FATAL_ERR);
