@@ -27,4 +27,9 @@
 /* Subject to change - send wait prompt default '>' */
 #define AT_SEND_DATA_WAIT_PROMPT 0
 
+/* Subject to change - the device config structure */
+typedef struct {
+   uart_dev_t uart_dev;
+} sal_device_config_t;
+
 #endif
