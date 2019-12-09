@@ -308,8 +308,12 @@ def cli(projectname, board, projectdir, templateapp):
     destdir = os.path.join(projectdir, projectname)
     destdir = os.path.abspath(destdir)
 
-    if os.path.isdir(destdir):
-        click.echo("[Error] The project directory is existing!\n%s" % destdir)
+    if os.path.exists(destdir):
+        if os.path.isfile(destdir):
+            click.echo("[Error] Can't create project directory, the file is existing!\n%s" % destdir)
+        else:
+            click.echo("[Error] The project directory is existing!\n%s" % destdir)
+
         return 1
     else:
         os.makedirs(destdir)
