@@ -7,9 +7,10 @@ sys.setdefaultencoding('UTF8')
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
-    "gprs": ["templates/sal_gprs_template", "drivers/sal/gprs"],
-    "wifi": ["templates/sal_wifi_template", "drivers/sal/wifi"],
-    "lte": ["templates/sal_lte_template", "drivers/sal/lte"],
+    "nbiot": ["templates/sal_nbiot_template", "components/peripherals/sal/nbiot"],
+    "gprs": ["templates/sal_gprs_template", "components/peripherals/sal/gprs"],
+    "wifi": ["templates/sal_wifi_template", "components/peripherals/sal/wifi"],
+    "lte": ["templates/sal_lte_template", "components/peripherals/sal/lte"],
 }
 
 
@@ -77,7 +78,7 @@ def update_configin(configin_file, devicetype, drivername):
 @click.command()
 @click.argument("drivername", metavar="[DRIVERNAME]")
 @click.option("-m", "--mfname", help="The manufacturer of device")
-@click.option("-t", "--devicetype", required=True, type=click.Choice(["gprs", "wifi", "lte"]), help="The type of device")
+@click.option("-t", "--devicetype", required=True, type=click.Choice(["nbiot", "gprs", "wifi", "lte"]), help="The type of device")
 @click.option("-a", "--author", help="The author of driver")
 def cli(drivername, mfname, devicetype, author):
     """ Create sal driver staging from template """
