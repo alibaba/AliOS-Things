@@ -559,7 +559,7 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
         } else if (strncmp(type, "up", strlen(type)) == 0) {
             if (argc > 2) {
                 memset(up_url, 0, sizeof(up_url));
-                strncpy(up_url, argv[2], sizeof(up_url)) - 1;
+                strncpy(up_url, argv[2], sizeof(up_url) - 1);
                 command = HTTP_DYNAMIC_UP;
                 httpc_running = true;
             } else {
