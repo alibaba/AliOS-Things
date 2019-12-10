@@ -131,7 +131,6 @@ ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
 else ifeq ($(COMPILER),iar)
 GLOBAL_CFLAGS += --cpu=Cortex-M4  \
-                 --cpu_mode=thumb \
                  --endian=little
 else
 GLOBAL_CFLAGS += -mcpu=cortex-m4           \
@@ -147,7 +146,6 @@ ifeq ($(COMPILER),armcc)
 GLOBAL_ASMFLAGS += --cpu=Cortex-M4 -g --apcs=/hardfp --fpu=vfpv4_sp_d16 --library_type=microlib --pd "__MICROLIB SETA 1"
 else ifeq ($(COMPILER),iar)
 GLOBAL_ASMFLAGS += --cpu Cortex-M4  \
-                   --cpu_mode thumb \
                    --endian little
 else
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4   \
