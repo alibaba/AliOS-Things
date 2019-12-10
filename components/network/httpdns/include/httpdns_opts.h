@@ -9,6 +9,18 @@
 #define HTTP_DNS_USER_ID "189323"
 #endif
 
+#ifndef HTTP_DNS_TASK_PRIO
+#define HTTP_DNS_TASK_PRIO  32
+#endif
+
+#ifndef HTTP_DNS_TASK_STACK
+#define HTTP_DNS_TASK_STACK (8 * 1024)
+#endif
+
+#ifndef HTTP_DNS_QRY_INTV_MS
+#define HTTP_DNS_QRY_INTV_MS 50
+#endif
+
 const char server_list[ ][16] = {
     "203.107.1.1",
     "203.107.1.33",

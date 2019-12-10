@@ -131,7 +131,7 @@ int httpdns_update_cache(dns_cache_t * dns)
     } else {
         httpdns_free_cache(dns);
     }
-    return 0;
+    return -1;
 }
 
 int httpdns_replace_cache(dns_cache_t * dns)
@@ -489,7 +489,7 @@ int httpdns_get_ipaddr_from_cache(dns_cache_t * cache, char * ipaddr)
 int httpdns_prefetch_timeout(char * host_name, dns_cache_t ** cache, int ms)
 {
     int result = 0;
-    int sleep_ms = 50;
+    int sleep_ms = HTTP_DNS_QRY_INTV_MS;
     double timeout = 0;
     struct timespec start = { 0, 0 }, end = { 0, 0 };
 
@@ -688,6 +688,33 @@ void httpdns_free_cache(dns_cache_t * cache)
     free(cache);
 }
 
+static int localdns_parse(char *host_name)
+{
+    int ret = -1;
+    struct addrinfo hints;
+    char portstr[16];
+    struct addrinfo * result = NULL;
+    dns_cache_t * cache = NULL;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    ret = getaddrinfo(host_name, NULL, &hints, &result);
+    if (ret != 0) {
+        HTTPDNS_ERR("%s getaddrinfo failed", __func__);
+        return -1;
+    }
+
+    cache = httpdns_build_cache(result, host_name);
+    if (!cache) {
+        HTTPDNS_ERR("%s httpdns_build_cache failed", __func__);
+        return -1;
+    }
+
+    return httpdns_update_cache(cache);
+}
+
 static int httpdns_process(httpdns_connection_t *conn)
 {
     double elapsedSeconds;
@@ -706,7 +733,6 @@ static int httpdns_process(httpdns_connection_t *conn)
     if(NULL != mem) {
         HTTPDNS_INFO("<HTTPDNS> %s : memory = %s\n", __func__,  mem->memory);
 
-        printf("input==> %s\n", mem->memory);
         cJSON *j = cJSON_Parse(mem->memory);
         if(NULL != j) {
             httpdns_parse_json(conn, j);
@@ -718,12 +744,17 @@ static int httpdns_process(httpdns_connection_t *conn)
         return httpdns_update_cache(conn->dns);
     } else {
        char * host = conn->dns->host_name;
-       httpdns_resolv_lock();
-       if(NULL != resolv)  {
-            HTTPDNS_INFO("<HTTPDNS> %s : delete cache for %s\n", __func__, host);
-            dictDelete(resolv, host);
+        if (0 == localdns_parse(host)) {
+            HTTPDNS_INFO("<HTTPDNS> %s : local dns update cache for %s\n", __func__, host);
+            return 0;
+        } else {
+           httpdns_resolv_lock();
+           if(NULL != resolv)  {
+                HTTPDNS_INFO("<HTTPDNS> %s : delete cache for %s\n", __func__, host);
+                dictDelete(resolv, host);
+           }
+           httpdns_resolv_unlock();
        }
-       httpdns_resolv_unlock();
     }
     return -1;
 }
@@ -762,9 +793,9 @@ static void httpdns_resolv_internal(httpdns_connection_t *conn, int async)
     HTTPDNS_INFO("<HTTPDNS> %s: pthread_create, async = %d\n", __func__, async);
 
     if (pthread_attr_init(&attr) == 0) {
-        pthread_attr_setstacksize(&attr, 8 * 1024);
+        pthread_attr_setstacksize(&attr, HTTP_DNS_TASK_STACK);
         struct sched_param sched;
-        sched.sched_priority = 33;
+        sched.sched_priority = HTTP_DNS_TASK_PRIO;
         pthread_attr_setschedparam(&attr, &sched);
         if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) == 0) {
             ret = pthread_create(&tid, &attr, &httpdns_routine, conn);
