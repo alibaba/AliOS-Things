@@ -41,6 +41,7 @@ AOS_RELATIVE_PATH = "../../../../"
 OPT_DIR = "opts/"
 TEMPLATE_PROJX = "build/scripts/template.uvprojx"
 TEMPLATE_OPTX = "build/scripts/template.uvoptx"
+TEMPLATE_OPTX_BOARD = "build/scripts/template_%s.uvoptx"
 
 # Elements need to be changed:
 element_dict = {
@@ -230,7 +231,11 @@ def main():
 
     print("Creating keil project %s" % (buildstring))
     projx_tree = etree.parse(TEMPLATE_PROJX)
-    optx_tree = etree.parse(TEMPLATE_OPTX)
+    boardname = buildstring.split("@")[1]
+    optfilename = TEMPLATE_OPTX_BOARD % (boardname)
+    if os.path.exists(optfilename) == False:
+        optfilename = TEMPLATE_OPTX
+    optx_tree = etree.parse(optfilename)
 
     # create uvprojx file
     gen_projxfile(projx_tree, projx_file, buildstring, Projects)

@@ -26,7 +26,7 @@ def create_file(data, filename):
         f.write(data)
 
 def get_element_value(element_dict, buildstring):
-    element_dict["OGChipSelectEditMenu"] = config_mk.iar_ogcmenu
+    element_dict["OGChipSelectEditMenu"] = config_mk.iar_ogcmenu.replace(' ', '\t', 1)
     element_dict["IlinkOutputFile"] = buildstring
 
     patten = re.compile(r".*--config\s+(.*\.icf).*")
@@ -94,7 +94,7 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name = SubElement(group_data_option, 'name')
     group_option_name.text = 'AExtraOptionsCheckV2'
     group_option_state = SubElement(group_data_option, 'state')
-    group_option_state.text = '1'
+    group_option_state.text = '0'
     
     group_data_option2 = SubElement(group_settings_data, 'option')
     group_option_name = SubElement(group_data_option2, 'name')
@@ -155,7 +155,12 @@ def gen_project(target, script, buildstring):
         os.makedirs(project_opts_path)
 
     get_element_value(element_dict, buildstring)
-    tree = etree.parse('build/scripts/template.ewp')
+    
+    boardname = buildstring.split("@")[1]
+    projfilename = 'build/scripts/template_%s.ewp' % (boardname)
+    if os.path.exists(projfilename) == False:
+        projfilename = 'build/scripts/template.ewp'
+    tree = etree.parse(projfilename)
     root = tree.getroot()
 
     existedFileNameString=[]
