@@ -151,6 +151,11 @@ void stm32_peripheral_init(void)
     hal_i2c_pre_init();
     /*i2c bus 1 init*/
     I2C1_init();
+#ifndef WITH_SAL
+    /*enable ethernet*/
+    MX_ETH_Init();
+    lwip_tcpip_init();
+#endif
     /*default can init*/
     #ifdef PT_SENSOR
     CAN_init();
