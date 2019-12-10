@@ -6,7 +6,7 @@
 #define _SYS_SELECT_H__
 
 #ifndef	FD_SETSIZE
-#define	FD_SETSIZE	32
+#define	FD_SETSIZE	256
 #endif
 
 #define	NBBY	8		/* number of bits in a byte */
