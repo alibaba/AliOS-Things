@@ -32,7 +32,9 @@ $(eval LIB_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_PREBUILT_LIBRA
 $(foreach complib,$(LIB_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(complib)'$(COMMA)))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'include':[ )
-$(eval INCLUDE_FULLPATH := $(addprefix $($(comp)_LOCATION),$($(comp)_INCLUDES) $($(comp)_INCLUDES-y)) )
+$(eval INCLUDE_FULLPATH := $(subst -I., .,$($(comp)_INCLUDES)) )
+$(eval INCLUDE_FULLPATH += $(subst -I., .,$($(comp)_INCLUDES-y)) )
+$(eval INCLUDE_FULLPATH += $(PROJ_GEN_DIR2) )
 $(eval INCLUDE_FULLPATH += $(subst -I.,.,$(call unique,$(AOS_SDK_INCLUDES))) )
 $(foreach inc,$(INCLUDE_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(inc)'$(COMMA)))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
@@ -73,6 +75,7 @@ endef
 # Generate IAR project
 ifeq ($(IDE),iar)
 PROJ_GEN_DIR := projects/IAR/$(CLEANED_BUILD_STRING)
+PROJ_GEN_DIR2 := projects/IAR/$(CLEANED_BUILD_STRING)/iar_project
 PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
@@ -91,6 +94,7 @@ endif
 # Generate Keil project
 ifeq ($(IDE),keil)
 PROJ_GEN_DIR := projects/Keil/$(CLEANED_BUILD_STRING)
+PROJ_GEN_DIR2 := projects/Keil/$(CLEANED_BUILD_STRING)/keil_project
 PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
