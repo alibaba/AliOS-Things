@@ -1,4 +1,4 @@
-config AOS_APP_ATHOSTAPP
+config AOS_APP_ATHOST_APP
     bool "AT Command Process Sample"
     select AOS_COMP_NETMGR
     select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_ATPARSER
@@ -8,7 +8,7 @@ config AOS_APP_ATHOSTAPP
     help
         An example for receiving and processing AT command sets.
 
-if AOS_APP_ATHOSTAPP
+if AOS_APP_ATHOST_APP
 # Configurations for app athostapp
 
 config ATHOSTAPP_CONFIG_ATPARSER

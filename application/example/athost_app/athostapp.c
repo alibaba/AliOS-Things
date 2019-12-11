@@ -2,6 +2,24 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+/**
+ * @file atparser_app.c
+ *
+ * This file includes sample code of how to implement an AT
+ * device which comply with ICA AT spec, by leveraging the
+ * athost component provided inside AliOS Things.
+ *
+ * Blow two major things have to be done in order to implement
+ * an ICA AT device with the help of AliOS Things athost:
+ *   (0) add AT device, which is usually UART device. The other side
+ *       of AT will communicate with us via the specified AT device.
+ *   (1) implement HAL_Athost_xxx APIs, which is to be used by athost.
+ *   (2) call athost_instance_init(), which will initialize and start
+ *       athost core system. After this, the other side of AT can
+ *       send ICA AT commands to us, and we provide result to the
+ *       other side.
+ */
+
 #include <stdint.h>
 #include <string.h>
 
@@ -9,6 +27,10 @@
 #include "ulog/ulog.h"
 
 #ifdef AOS_ATCMD
+/**
+ * @note **DO** include below 2 lines to use the platform 
+ *       and module dependent AT config
+ */
 #include <atcmd_config_platform.h>
 #include <atcmd_config_module.h>
 #include <atparser.h>
@@ -23,6 +45,19 @@
 static uart_dev_t uart_dev;
 int at_dev_fd = -1;
 
+/**
+ * This function adds AT device via at_dev_add().
+ *
+ * For now the only supported AT device is actually UART device.
+ * Here we need to fill the UART configuration parameters, including
+ * UART port number (board dependent), baudrate (module dependent),
+ * stop bits (module dependent), parity (module dependent), etc.
+ * There UART configurations are defined in board or module header,
+ * so please ensure you have include the atcmd_config_platform.h and
+ * atcmd_config_module.h files which have the UART config definition.
+ *
+ * Note: uart_dev should be maintained in whole life cycle
+ */
 static int at_device_init(void)
 {
     at_config_t at_config = { 0 };
@@ -54,6 +89,7 @@ static int at_device_init(void)
 }
 #endif
 
+/* athost read HAL implementation */
 int HAL_Athost_Read(char *outbuf, uint32_t len)
 {
     int ret = 0;
@@ -64,6 +100,7 @@ int HAL_Athost_Read(char *outbuf, uint32_t len)
     return ret;
 }
 
+/* athost write HAL implementation */
 int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
                      const char *tailer)
 {
@@ -98,6 +135,7 @@ int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
     return ret;
 }
 
+/* athost callback register HAL implementation */
 int HAL_Athost_HandleRegisterCb(const char              *prefix,
                                 athost_atcmd_handle_cb_t fn)
 {
@@ -120,13 +158,33 @@ static void app_delayed_action(void *arg)
 int application_start(int argc, char *argv[])
 {
 #ifdef AOS_ATCMD
+    /**
+     * - Step1:
+     *
+     * Initialize AT device, the athost and the other side of AT will
+     * communicate with each other via the AT device. In this sample, atparser
+     * is used as the AT device. Anyway, users are free to change to use other
+     * AT device (but ensure to implemente the corresponding read/write HAL
+     * APIs above, on which athost depends to function well).
+     */
     at_device_init();
 #endif
 
+    /**
+     * - Step2:
+     *
+     * Initialize athost core system. Hereafter, the athost will be
+     * able to response to the AT commands from the AT channel sent by the
+     * other side.
+     */
     athost_instance_init();
 
     LOG("NEW AT host server start!\n");
+
+    /* Here we add code to post an alive message, not required */
     aos_post_delayed_action(1000, app_delayed_action, NULL);
+
+    /* Enter yloop, never return! */
     aos_loop_run();
 
     return 0;

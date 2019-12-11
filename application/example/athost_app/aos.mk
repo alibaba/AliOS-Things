@@ -1,4 +1,4 @@
-NAME := athostapp
+NAME := athost_app
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
