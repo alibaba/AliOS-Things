@@ -18,8 +18,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef http_parser_h
-#define http_parser_h
+#ifndef HTTP_PARSER_H
+#define HTTP_PARSER_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -436,4 +436,4 @@ void http_parser_set_max_header_size(uint32_t size);
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif /* HTTP_PARSER_H */
