@@ -157,7 +157,7 @@ bool netmgr_get_scan_cb_finished(void);
  * @return true  ip ready.
  * @return false ip not ready.
  */
-bool netmgr_get_ip_state(void);
+bool netmgr_wifi_get_ip_state(void);
 
 /**
  * @brief Reconnect wifi

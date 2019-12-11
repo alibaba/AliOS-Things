@@ -16,12 +16,17 @@ extern "C"
 #include "netmgr_wifi.h"
 #endif
 
+#ifdef NET_WITH_CELLULAR
+#include "netmgr_cellular.h"
+#endif
+
 /**
  * @brief interface type
  */
 enum {
     INTERFACE_WIFI,
     INTERFACE_CELLULAR,
+    INTERFACE_INDEX_MAX,
 };
 
 #define IP_STR_SIZE 32
@@ -70,10 +75,13 @@ int netmgr_start(bool autoconfig);
  * @param[in]     interface interface name
  * @param[in/out] stats network interface stats
  *
+ * @return 0   netmgr get stats success
+ * @return < 0 netmgr get stats fail
+ *
  */
-void netmgr_stats(int32_t interface, netmgr_stats_t *stats);
+int netmgr_stats(int32_t interface, netmgr_stats_t *stats);
 
-#ifdef NET_WITH_wIFI
+#ifdef NET_WITH_WIFI
 /**
  *
  * @brief Connect to specified WiFi network with given SSID and password
