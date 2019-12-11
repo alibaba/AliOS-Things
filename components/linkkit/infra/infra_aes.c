@@ -1101,8 +1101,8 @@ int infra_aes128_cbc_decrypt(
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_DECRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
 #endif
-        src += 16;
-        dst += 16;
+        src = (unsigned char *)src + 16;
+        dst = (unsigned char *)dst + 16;
     }
 
     return ret;
@@ -1175,8 +1175,8 @@ int infra_aes128_cbc_encrypt(
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_ENCRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
 #endif
-        src += 16;
-        dst += 16;
+        src = (unsigned char *)src + 16;
+        dst = (unsigned char *)dst + 16;
     }
 
     return ret;
