@@ -5,10 +5,10 @@ if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 
-source "application/example/athostapp/Config.in"
-if AOS_APP_ATHOSTAPP
+source "application/example/athost_app/Config.in"
+if AOS_APP_ATHOST_APP
     config AOS_BUILD_APP
-        default "athostapp"
+        default "athost_app"
 endif
 
 source "application/example/blink/Config.in"
