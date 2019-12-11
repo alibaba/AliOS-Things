@@ -113,7 +113,7 @@ typedef struct  {
     unsigned int   new_size;     /*Diff upgrade: patch new data size*/
     unsigned char  reserve[18];
     unsigned short param_crc;    /*OTA Parameter crc*/
-} __attribute__((aligned(16))) ota_boot_param_t;
+}ota_boot_param_t;
 
 /* OTA common hal module */
 int ota_hal_init(ota_boot_param_t *parm);                                         /* init OTA partition and check */
