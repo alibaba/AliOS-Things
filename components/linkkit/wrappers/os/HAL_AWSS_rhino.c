@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(WIFI_PROVISION_ENABLED) 
+#if defined(WIFI_PROVISION_ENABLED)
 
 #ifdef __cplusplus
 extern "C" {
@@ -234,7 +234,7 @@ void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
  */
 int HAL_Sys_Net_Is_Ready()
 {
-    return netmgr_get_ip_state() == true ? 1 : 0;
+    return netmgr_wifi_get_ip_state() == true ? 1 : 0;
 }
 
 /*
@@ -296,7 +296,7 @@ int HAL_Awss_Connect_Ap(uint32_t connection_timeout_ms,
 #endif
 
     while (ms_cnt < connection_timeout_ms) {
-        if (netmgr_get_ip_state() == false) {
+        if (netmgr_wifi_get_ip_state() == false) {
             LOGD("[waitConnAP]", "waiting for connecting AP");
             aos_msleep(500);
             ms_cnt += 500;
