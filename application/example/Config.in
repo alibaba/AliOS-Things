@@ -282,5 +282,11 @@ if AOS_APP_HTTPDNS_APP
         default "httpdns_app"
 endif
 
+source "application/example/atparser_app/Config.in"
+if AOS_APP_ATPARSER_APP
+    config AOS_BUILD_APP
+        default "atparser_app"
+endif
+
 endchoice
 endif
