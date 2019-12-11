@@ -49,7 +49,7 @@ void aos_heap_set()
 }
 
 #elif defined (__ICCARM__)/* IAR */
-#define HEAP_BUFFER_SIZE 1024*20
+#define HEAP_BUFFER_SIZE 1024*136
 int           g_region_num = 1;
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
