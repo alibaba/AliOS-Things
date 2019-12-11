@@ -1,6 +1,18 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+
+/*!
+ * @file sal_app.c
+ *
+ * This file includes sample code of how to use SAL component
+ * and its provided socket APIs to communicate with servers.
+ *
+ * In this sample, it will be demonstrated how to initialize AT
+ * device and SAL core, and how to use the SAL provoded socket
+ * APIs to create, read, write, close the socket connection.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
