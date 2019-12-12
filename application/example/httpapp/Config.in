@@ -1,7 +1,8 @@
 config AOS_APP_HTTPAPP
-    bool "HTTP Client Sample"
-    select AOS_COMP_HTTP
+    bool "httpapp"
     select AOS_COMP_NETMGR
+    select AOS_COMP_YLOOP
+    select AOS_COMP_HTTP
     select AOS_COMP_LWIP
     select AOS_COMP_CLI
     help
@@ -12,5 +13,4 @@ config CONFIG_HTTP_SECURE
     bool "Support HTTP Secure"
     default n
     select AOS_COMP_MBEDTLS
-
 endif
