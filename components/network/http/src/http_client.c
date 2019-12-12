@@ -90,6 +90,35 @@ static int httpclient_ssl_nonblock_recv(void *ctx, unsigned char *buf, size_t le
 static int httpclient_ssl_close(httpclient_t *client);
 #endif
 
+#ifndef strncasecmp
+int strncasecmp(const char* str1, const char* str2, size_t len)
+{
+  char c1, c2;
+
+  do {
+    c1 = *str1++;
+    c2 = *str2++;
+    if (c1 != c2) {
+      char c1_upc = c1 | 0x20;
+      if ((c1_upc >= 'a') && (c1_upc <= 'z')) {
+        /* characters are not equal an one is in the alphabet range:
+        downcase both chars and check again */
+        char c2_upc = c2 | 0x20;
+        if (c1_upc != c2_upc) {
+          /* still not equal */
+          /* don't care for < or > */
+          return 1;
+        }
+      } else {
+        /* characters are not equal but none is in the alphabet range */
+        return 1;
+      }
+    }
+  } while (len-- && c1 != 0);
+  return 0;
+}
+#endif
+
 static void print_header_field(int16_t len, const char *str)
 {
 #if defined(CONFIG_HTTP_DEBUG)
