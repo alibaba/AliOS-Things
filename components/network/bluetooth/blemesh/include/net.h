@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <mesh_config.h>
+#include <blemesh_config.h>
 
 #define BT_MESH_NET_FLAG_KR       (1 << 0)
 #define BT_MESH_NET_FLAG_IVU      (1 << 1)

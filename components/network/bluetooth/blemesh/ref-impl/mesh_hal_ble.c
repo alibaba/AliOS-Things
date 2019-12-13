@@ -5,7 +5,7 @@
 #include "port/mesh_hal_ble.h"
 
 #ifndef CONFIG_MESH_STACK_ALONE
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/gatt.h>
 #include <bluetooth/bluetooth.h>
 
