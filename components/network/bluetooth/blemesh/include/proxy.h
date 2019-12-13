@@ -9,7 +9,7 @@
 #ifndef _MESH_PROXY_H_
 #define _MESH_PROXY_H_
 
-#include <mesh_def.h>
+#include <blemesh_def.h>
 
 #define BT_MESH_PROXY_NET_PDU   0x00
 #define BT_MESH_PROXY_BEACON    0x01

@@ -1,7 +1,7 @@
 #ifndef _MESH_MAIN_INTERNAL_H_
 #define _MESH_MAIN_INTERNAL_H_
 
-#include <main.h>
+#include "blemesh_main.h"
 
 /* Primary Network Key index */
 #define BT_MESH_NET_PRIMARY                 0x000
