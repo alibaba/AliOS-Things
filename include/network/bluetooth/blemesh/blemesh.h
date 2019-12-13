@@ -14,7 +14,7 @@
 #include <net/buf.h>
 
 #include "access.h"
-#include "main.h"
+#include "blemesh_main.h"
 #include "cfg_srv.h"
 #include "health_srv.h"
 

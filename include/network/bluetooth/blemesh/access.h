@@ -10,7 +10,7 @@
 #ifndef __BT_MESH_ACCESS_H
 #define __BT_MESH_ACCESS_H
 
-#include <mesh_config.h>
+#include <blemesh_config.h>
 
 /* Group addresses defined in spec V1.0 section 3.4.2.4 */
 #define BT_MESH_ADDR_UNASSIGNED   0x0000
