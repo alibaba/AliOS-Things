@@ -15,8 +15,8 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <mesh.h>
-#include <mesh_config.h>
+#include <blemesh.h>
+#include <blemesh_config.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_NET)
 #include "common/log.h"

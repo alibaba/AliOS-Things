@@ -14,7 +14,7 @@
 #include <misc/util.h>
 #include <misc/byteorder.h>
 
-#include <mesh.h>
+#include <blemesh.h>
 #include <cfg_cli.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)

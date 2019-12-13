@@ -12,7 +12,7 @@
 #include <misc/util.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/hci.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_KEYS)

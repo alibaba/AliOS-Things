@@ -23,7 +23,7 @@
 #include <misc/__assert.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/l2cap.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_vs.h>
