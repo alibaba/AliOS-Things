@@ -139,7 +139,7 @@ static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
     }
 
     stat = buf_queue_create(queue_obj, name, queue_obj->buf, size, max_msg,
-                            K_OBJ_DYN_ALLOC, RINGBUF_TYPE_DYN);
+                            K_OBJ_DYN_ALLOC, type);
 
     if (stat != RHINO_SUCCESS) {
         krhino_mm_free(queue_obj->buf);
