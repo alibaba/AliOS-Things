@@ -10,7 +10,7 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <mesh.h>
+#include <blemesh.h>
 #include <errno.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_PROXY)

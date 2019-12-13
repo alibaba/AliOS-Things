@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <net/buf.h>
-#include <mesh_def.h>
+#include <blemesh_def.h>
 
 typedef struct {
         uint8_t      type; /* 0 - public addr, other - RFU */

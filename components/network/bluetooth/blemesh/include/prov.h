@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <mesh_def.h>
+#include <blemesh_def.h>
 
 void bt_mesh_pb_adv_recv(struct net_buf_simple *buf);
 

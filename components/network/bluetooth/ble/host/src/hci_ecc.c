@@ -19,7 +19,7 @@
 #include <tinycrypt/ecc_dh.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/hci.h>
 #include <drivers/hci_driver.h>
 
