@@ -13,7 +13,7 @@
 
 #include "common/log.h"
 
-#include "mesh.h"
+#include "blemesh.h"
 #include "test.h"
 
 int bt_mesh_test(void)

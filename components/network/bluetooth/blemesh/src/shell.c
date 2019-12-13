@@ -17,7 +17,7 @@
 #include <misc/printk.h>
 #include "errno.h"
 
-#include <mesh.h>
+#include <blemesh.h>
 #include <port/mesh_hal_os.h>
 
 /* Private includes for raw Network & Transport layer access */
