@@ -28,7 +28,7 @@ extern "C" {
 
 #include <atomic.h>
 #include <bluetooth/buf.h>
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/hci.h>
 
 /* L2CAP header size, used for buffer size calculations */
