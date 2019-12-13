@@ -12,7 +12,7 @@
 #include <aos/cli.h>
 
 #include <bluetooth/bluetooth.h>
-#include <mesh.h>
+#include <blemesh.h>
 
 
 /*
