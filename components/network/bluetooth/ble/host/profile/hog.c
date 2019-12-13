@@ -17,8 +17,8 @@
 #include <zephyr.h>
 
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/bluetooth_conn.h>
 #include <bluetooth/hci.h>
-#include <bluetooth/conn.h>
 #include <bluetooth/uuid.h>
 #include <bluetooth/gatt.h>
 
