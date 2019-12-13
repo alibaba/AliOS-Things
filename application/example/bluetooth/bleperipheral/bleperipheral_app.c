@@ -23,7 +23,7 @@
 
 #include <misc/byteorder.h>
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
+#include <bluetooth/bluetooth_conn.h>
 
 #include "hrs.h"
 #include "bas.h"
