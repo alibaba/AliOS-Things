@@ -152,15 +152,14 @@ static void test_non_main_loop(void)
     YUNIT_ASSERT( 0 == ret_i );
 }
 
-static void yloop_read_fd_action(void *arg)
+static void yloop_read_fd_action(int fd, void *arg)
 {
     int ret;
 
     LOGI(TAG, "yloop_read_fd_action cb called! Going to exit current loop");
     memset(recv_buf, 0, BUFFER_SIZE);
-    ret = recv(read_fd, recv_buf, BUFFER_SIZE, 0);
+    ret = recv(fd, recv_buf, BUFFER_SIZE, 0);
     YUNIT_ASSERT(0 == strncmp(recv_buf, TEST_DEFUALT_MSG, strlen(TEST_DEFUALT_MSG)));
-    
     aos_loop_exit();
 }
 
@@ -168,7 +167,7 @@ static void yloop_send_loopback(void)
 {
     int ret, len;
     struct sockaddr_in dest_addr;
-    
+
     len = sizeof(dest_addr);
     bzero(&dest_addr,sizeof(dest_addr));
     dest_addr.sin_family = AF_INET;
