@@ -78,6 +78,7 @@ typedef struct {
     ctx_switch_t     task_ctx_switch_times;
     sys_time_t       task_time_total_run;
     sys_time_t       task_time_total_run_prev;
+    sys_time_t       task_time_this_run;
     lr_timer_t       task_exec_time;
     lr_timer_t       task_time_start;
     hr_timer_t       task_intrpt_disable_time_max;
@@ -96,9 +97,11 @@ typedef struct {
     uint8_t          pend_option;
 #endif
 
-#if (RHINO_CONFIG_SCHED_RR > 0)
+#if ((RHINO_CONFIG_SCHED_RR > 0) || (RHINO_CONFIG_SCHED_CFS > 0))
     uint8_t          sched_policy;
 #endif
+
+    cfs_node         node;
 
     uint8_t          cpu_num;
 
@@ -136,11 +139,20 @@ kstat_t krhino_task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *stack_buf,
                            size_t stack_size, task_entry_t entry, uint8_t autorun);
 
+kstat_t krhino_cfs_task_create(ktask_t *task, const name_t *name, void *arg,
+                                         uint8_t prio, cpu_stack_t *stack_buf, size_t stack_size,
+                                         task_entry_t entry, uint8_t autorun);
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
 kstat_t krhino_task_cpu_create(ktask_t *task, const name_t *name, void *arg,
                                uint8_t prio, tick_t ticks, cpu_stack_t *stack_buf,
                                size_t stack_size, task_entry_t entry, uint8_t cpu_num,
                                uint8_t autorun);
+
+kstat_t krhino_cfs_task_cpu_create(ktask_t *task, const name_t *name, void *arg,
+                                               uint8_t prio, cpu_stack_t *stack_buf, size_t stack_size,
+                                               task_entry_t entry, uint8_t cpu_num, uint8_t autorun);
+
 
 kstat_t krhino_task_cpu_bind(ktask_t *task, uint8_t cpu_num);
 kstat_t krhino_task_cpu_unbind(ktask_t *task);
@@ -164,10 +176,18 @@ kstat_t krhino_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
                                uint8_t pri, tick_t ticks, size_t stack,
                                task_entry_t entry, uint8_t autorun);
 
+kstat_t krhino_cfs_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
+                                               uint8_t pri, size_t stack, task_entry_t entry,
+                                               uint8_t autorun);
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
 kstat_t krhino_task_cpu_dyn_create(ktask_t **task, const name_t *name, void *arg,
-                                   uint8_t pri, tick_t ticks, size_t stack,
-                                   task_entry_t entry, uint8_t cpu_num, uint8_t autorun);
+                                               uint8_t pri, tick_t ticks, size_t stack,
+                                               task_entry_t entry, uint8_t cpu_num, uint8_t autorun);
+
+kstat_t krhino_cfs_task_cpu_dyn_create(ktask_t **task, const name_t *name, void *arg,
+                                                     uint8_t pri, size_t stack, task_entry_t entry,
+                                                     uint8_t cpu_num, uint8_t autorun);
 #endif
 #endif
 
