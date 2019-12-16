@@ -4,19 +4,15 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_FMT_H
+#define RE_FMT_H
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "re_common.h"
 
 struct mbuf;
-
-
-/** Defines a pointer-length string type */
-struct pl {
-	const char *p;  /**< Pointer to string */
-	size_t l;       /**< Length of string  */
-};
 
 /** Initialise a pointer-length object from a constant string */
 #define PL(s) {(s), sizeof((s))-1}
@@ -53,22 +49,7 @@ static inline void pl_advance(struct pl *pl, ssize_t n)
 
 /* Formatted printing */
 
-/**
- * Defines the re_vhprintf() print handler
- *
- * @param p    String to print
- * @param size Size of string to print
- * @param arg  Handler argument
- *
- * @return 0 for success, otherwise errorcode
- */
-typedef int(re_vprintf_h)(const char *p, size_t size, void *arg);
 
-/** Defines a print backend */
-struct re_printf {
-	re_vprintf_h *vph; /**< Print handler   */
-	void *arg;         /**< Handler agument */
-};
 
 /**
  * Defines the %H print handler
@@ -145,3 +126,4 @@ void fmt_param_apply(const struct pl *pl, fmt_param_h *ph, void *arg);
 int utf8_encode(struct re_printf *pf, const char *str);
 int utf8_decode(struct re_printf *pf, const struct pl *pl);
 size_t utf8_byteseq(char u[4], unsigned cp);
+#endif /* RE_FMT_H */
