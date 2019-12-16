@@ -3,6 +3,10 @@
  *
  * Copyright (C) 2010 Creytiv.com
  */
+
+#ifndef RE_NET_H
+#define RE_NET_H
+
 #if defined(WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -102,3 +106,4 @@ int net_rt_debug(struct re_printf *pf, void *unused);
 /* Net strings */
 const char *net_proto2name(int proto);
 const char *net_af2name(int af);
+#endif /* RE_NET_H */
