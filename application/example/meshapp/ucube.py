@@ -38,8 +38,5 @@ def meshapp_post_config(component):
     if "EMW3060" == aos_global_config.get("MODULE"):
         component.add_global_macros("MESHAPP_LIGHT_ENABLED")
 
-    if aos_global_config.get("mesh_hal_test") == 1:
-        component.add_global_macros("MESH_HAL_TEST_ENABLED")
-
 meshapp_post_config(component)
 
