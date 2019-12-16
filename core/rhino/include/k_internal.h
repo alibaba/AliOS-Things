@@ -121,6 +121,7 @@ typedef struct
 } res_free_t;
 
 ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num);
+ktask_t *cfs_preferred_task_get(void);
 
 void core_sched(void);
 void runqueue_init(runqueue_t *rq);

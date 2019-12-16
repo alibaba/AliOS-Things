@@ -152,6 +152,9 @@ void krhino_intrpt_exit(void)
     CPSR_ALLOC();
     uint8_t  cur_cpu_num;
     ktask_t *preferred_task;
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    lr_timer_t cur_task_exec_time;
+#endif
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
     krhino_intrpt_stack_ovf_check();
@@ -174,6 +177,38 @@ void krhino_intrpt_exit(void)
     }
 
     preferred_task = preferred_cpu_ready_task_get(&g_ready_queue, cur_cpu_num);
+
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (preferred_task == &g_idle_task[cur_cpu_num]) {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                if (cur_task_exec_time < MIN_TASK_RUN_TIME) {
+                    return;
+                }
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+             }
+         }
+        preferred_task = cfs_preferred_task_get();
+        if (preferred_task == 0) {
+            preferred_task = &g_idle_task[cur_cpu_num];
+        }
+    }
+    else {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+            }
+        }
+    }
+
+    if (preferred_task->sched_policy == KSCHED_CFS) {
+        cfs_node_del(&preferred_task->node);
+    }
+#endif
 
     if (preferred_task == g_active_task[cur_cpu_num]) {
         RHINO_CPU_INTRPT_ENABLE();

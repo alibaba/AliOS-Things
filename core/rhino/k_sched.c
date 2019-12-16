@@ -86,8 +86,11 @@ kstat_t krhino_sched_enable(void)
 #if (RHINO_CONFIG_CPU_NUM > 1)
 void core_sched(void)
 {
-    uint8_t  cur_cpu_num;
-    ktask_t *preferred_task;
+    uint8_t    cur_cpu_num;
+    ktask_t   *preferred_task;
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    lr_timer_t cur_task_exec_time;
+#endif
 
     cur_cpu_num = cpu_cur_get();
 
@@ -102,6 +105,39 @@ void core_sched(void)
     }
 
     preferred_task = preferred_cpu_ready_task_get(&g_ready_queue, cur_cpu_num);
+
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (preferred_task == &g_idle_task[cur_cpu_num]) {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                if (cur_task_exec_time < MIN_TASK_RUN_TIME) {
+                    krhino_spin_unlock(&g_sys_lock);
+                    return;
+                }
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+             }
+         }
+        preferred_task = cfs_preferred_task_get();
+        if (preferred_task == 0) {
+            preferred_task = &g_idle_task[cur_cpu_num];
+        }
+    }
+    else {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+            }
+        }
+    }
+
+    if (preferred_task->sched_policy == KSCHED_CFS) {
+        cfs_node_del(&preferred_task->node);
+    }
+#endif
 
     /* if preferred task is currently task, then no need to do switch and just return */
     if (preferred_task == g_active_task[cur_cpu_num]) {
@@ -125,29 +161,57 @@ void core_sched(void)
 #else
 void core_sched(void)
 {
-    CPSR_ALLOC();
-    uint8_t  cur_cpu_num;
-    ktask_t *preferred_task;
-
-    RHINO_CPU_INTRPT_DISABLE();
-
+    uint8_t    cur_cpu_num;
+    ktask_t   *preferred_task;
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    lr_timer_t cur_task_exec_time;
+#endif
     cur_cpu_num = cpu_cur_get();
 
     if (g_intrpt_nested_level[cur_cpu_num] > 0u) {
-        RHINO_CPU_INTRPT_ENABLE();
         return;
     }
 
     if (g_sched_lock[cur_cpu_num] > 0u) {
-        RHINO_CPU_INTRPT_ENABLE();
         return;
     }
 
     preferred_task = preferred_cpu_ready_task_get(&g_ready_queue, cur_cpu_num);
 
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (preferred_task == &g_idle_task[cur_cpu_num]) {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                if (cur_task_exec_time < MIN_TASK_RUN_TIME) {
+                    return;
+                }
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+             }
+         }
+        preferred_task = cfs_preferred_task_get();
+        if (preferred_task == 0) {
+            preferred_task = &g_idle_task[cur_cpu_num];
+        }
+    }
+    else {
+        if (g_active_task[cur_cpu_num]->sched_policy == KSCHED_CFS) {
+            if (g_active_task[cur_cpu_num]->task_state == K_RDY) {
+                cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
+                                 ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
+                cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
+            }
+        }
+    }
+
+    if (preferred_task->sched_policy == KSCHED_CFS) {
+        cfs_node_del(&preferred_task->node);
+    }
+#endif
+
     /* if preferred task is currently task, then no need to do switch and just return */
     if (preferred_task == g_active_task[cur_cpu_num]) {
-        RHINO_CPU_INTRPT_ENABLE();
         return;
     }
 
@@ -160,8 +224,6 @@ void core_sched(void)
 #endif
 
     cpu_task_switch();
-
-    RHINO_CPU_INTRPT_ENABLE();
 }
 #endif
 
@@ -248,27 +310,103 @@ static void task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num
     }
 }
 
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+static void cfs_task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num)
+{
+    size_t  i;
+    uint8_t low_pri;
+    size_t  low_pri_cpu_num = 0;
+
+    (void)rq;
+
+    if (g_sys_stat == RHINO_RUNNING) {
+        if (task->cpu_binded == 1) {
+            if (task->cpu_num != cur_cpu_num) {
+                if (g_active_task[task->cpu_num] == &g_idle_task[task->cpu_num]) {
+                    cpu_signal(task->cpu_num);
+                }
+            }
+        } else {
+            /* find the lowest pri */
+            low_pri = g_active_task[0]->prio;
+            for (i = 0; i < RHINO_CONFIG_CPU_NUM - 1; i++) {
+                if (low_pri < g_active_task[i + 1]->prio) {
+                    low_pri = g_active_task[i + 1]->prio;
+                    low_pri_cpu_num = i + 1;
+                }
+            }
+
+            if (low_pri_cpu_num != cur_cpu_num ) {
+                if (g_active_task[low_pri_cpu_num] == &g_idle_task[task->cpu_num]) {
+                    cpu_signal(i);
+                }
+            }
+        }
+    }
+}
+#endif
+
 void ready_list_add_head(runqueue_t *rq, ktask_t *task)
 {
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task->sched_policy == KSCHED_CFS) {
+        cfs_node_insert(&task->node, cfs_node_min_get());
+        cfs_task_sched_to_cpu(rq, task, cpu_cur_get());
+     }
+    else {
+        _ready_list_add_head(rq, task);
+        task_sched_to_cpu(rq, task, cpu_cur_get());
+    }
+#else
     _ready_list_add_head(rq, task);
     task_sched_to_cpu(rq, task, cpu_cur_get());
+#endif
 }
 
 void ready_list_add_tail(runqueue_t *rq, ktask_t *task)
 {
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+     if (task->sched_policy == KSCHED_CFS) {
+        cfs_node_insert(&task->node, cfs_node_min_get());
+        cfs_task_sched_to_cpu(rq, task, cpu_cur_get());
+     }
+     else {
+        _ready_list_add_tail(rq, task);
+        task_sched_to_cpu(rq, task, cpu_cur_get());
+    }
+#else
     _ready_list_add_tail(rq, task);
     task_sched_to_cpu(rq, task, cpu_cur_get());
+#endif
 }
 
 #else
 void ready_list_add_head(runqueue_t *rq, ktask_t *task)
 {
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task->sched_policy == KSCHED_CFS) {
+        cfs_node_insert(&task->node, cfs_node_min_get());
+    }
+    else {
+        _ready_list_add_head(rq, task);
+    }
+#else
     _ready_list_add_head(rq, task);
+#endif
 }
 
 void ready_list_add_tail(runqueue_t *rq, ktask_t *task)
 {
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task->sched_policy == KSCHED_CFS) {
+        cfs_node_insert(&task->node, cfs_node_min_get());
+     }
+    else {
+        _ready_list_add_tail(rq, task);
+    }
+#else
     _ready_list_add_tail(rq, task);
+#endif
 }
 #endif
 
@@ -281,6 +419,15 @@ void ready_list_rm(runqueue_t *rq, ktask_t *task)
 {
     int32_t  i;
     uint8_t  pri = task->prio;
+
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task->sched_policy == KSCHED_CFS) {
+        if (g_active_task[cpu_cur_get()] != task) {
+            cfs_node_del(&task->node);
+        }
+        return;
+    }
+#endif
 
     /* if the ready list is not only one, we do not need to update the highest prio */
     if ((rq->cur_list_item[pri]) != (rq->cur_list_item[pri]->next)) {
@@ -378,6 +525,12 @@ static void _time_slice_update(ktask_t *task, uint8_t i)
 {
     klist_t *head;
 
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task->sched_policy == RHINO_CONFIG_SCHED_CFS) {
+        return;
+    }
+#endif
+
     head = g_ready_queue.cur_list_item[task->prio];
 
     /* if ready list is empty then just return because nothing is to be caculated */
@@ -439,6 +592,14 @@ void time_slice_update(void)
     uint8_t  task_pri;
 
     RHINO_CRITICAL_ENTER();
+
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (g_active_task[cpu_cur_get()]->sched_policy == RHINO_CONFIG_SCHED_CFS) {
+        RHINO_CRITICAL_EXIT();
+        return;
+    }
+#endif
+
     task_pri = g_active_task[cpu_cur_get()]->prio;
 
     head = g_ready_queue.cur_list_item[task_pri];

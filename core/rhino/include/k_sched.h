@@ -7,6 +7,8 @@
 
 #define KSCHED_FIFO          0u
 #define KSCHED_RR            1u
+#define KSCHED_CFS           2u
+
 #define SCHED_MAX_LOCK_COUNT 200u
 #define NUM_WORDS            ((RHINO_CONFIG_PRI_MAX + 31) / 32)
 
