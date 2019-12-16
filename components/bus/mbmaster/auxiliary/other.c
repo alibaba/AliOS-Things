@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <mbmaster_api.h>
+#include <modbus/mbmaster.h>
 
 static mb_handler_t mb_handler[MBMASTER_CONFIG_HANDLER_MAX];
 
