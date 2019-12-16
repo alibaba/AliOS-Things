@@ -1,10 +1,9 @@
-NAME := modbus_demo
+NAME := modbus_app
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := This example is an demo of using modbus master stack
-$(NAME)_SOURCES := modbus_test.c
-$(NAME)_SOURCES += modbus_demo.c
+$(NAME)_SOURCES += modbus_app.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 

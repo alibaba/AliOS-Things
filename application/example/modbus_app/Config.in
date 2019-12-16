@@ -1,4 +1,4 @@
-config AOS_APP_MODBUS_DEMO
+config AOS_APP_MODBUS_APP
     bool "MODBUS Master Sample"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
@@ -6,6 +6,6 @@ config AOS_APP_MODBUS_DEMO
     help
         This example is an demo of using modbus master stack
 
-if AOS_APP_MODBUS_DEMO
-# Configurations for app modbus_demo
+if AOS_APP_MODBUS_APP
+# Configurations for modbus app
 endif

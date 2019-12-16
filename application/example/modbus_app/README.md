@@ -29,8 +29,8 @@ You should connecting a modbus slave device to uart2 port of developerkit board.
 ### Build
 
 ```sh
-# generate modbus_demo@stm32f429zi-nucleo default config
-aos make modbus_demo@stm32f429zi-nucleo -c config
+# generate modbus_app@stm32f429zi-nucleo default config
+aos make modbus_app@stm32f429zi-nucleo -c config
 
 # or customize config manually
 aos make menuconfig
