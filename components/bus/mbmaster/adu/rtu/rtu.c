@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <mbmaster_api.h>
+#include <modbus/mbmaster.h>
 #include "rtu.h"
 #include "../../pdu/pdu.h"
 #include "mbcrc.h"
