@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <mbmaster_api.h>
+#include <modbus/mbmaster.h>
 #include "serial.h"
 
 #if ((MBMASTER_CONFIG_RTU_ENABLED > 0) || (MBMASTER_CONFIG_ASCII_ENABLED > 0))
