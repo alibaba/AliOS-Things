@@ -8,7 +8,7 @@
 
 #include "aos/kernel.h"
 #include "yunit/yunit.h"
-
+#include <k_api.h>
 #include "rbtree_augmented.h"
 
 #define CHECK_INSERT 1
