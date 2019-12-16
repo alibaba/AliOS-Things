@@ -48,10 +48,6 @@ ifeq ($(AOS_COMP_KV),y)
 $(NAME)_SOURCES += kv.c
 endif
 
-ifeq ($(AOS_COMP_MBMASTER),y)
-$(NAME)_SOURCES += mbmaster.c
-endif
-
 ifeq ($(AOS_COMP_CANOPEN),y)
 $(NAME)_SOURCES += canopen.c
 endif
