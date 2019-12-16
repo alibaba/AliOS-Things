@@ -24,13 +24,6 @@ extern "C" {
  */
 
 /**
- * mesh version enum
- */
-enum {
-    MESH_VERSION_1 = 1,  /**< mesh version */
-};
-
-/**
  * mesh error number
  */
 typedef enum ur_error_s {
@@ -47,6 +40,23 @@ typedef enum ur_error_s {
 } ur_error_t;
 
 /**
+ * network address size
+ */
+enum {
+    SHORT_ADDR_SIZE = 2,    /** < short address size */
+    EXT_ADDR_SIZE   = 8,    /** < extension address size */
+    EXT_NETID_SIZE  = 6,    /** < extension network id size */
+};
+
+/**
+ * IP address size
+ */
+enum {
+    UR_IP6_ADDR_SIZE   = 16,  /** < IPv6 address size */
+    MESH_IP4_ADDR_SIZE = 4,   /** < IPv4 address size */
+};
+
+/**
  * mesh media type enum
  */
 typedef enum media_type_s {
@@ -61,23 +71,6 @@ typedef enum media_type_s {
 #endif
 
 /**
- * IP address size
- */
-enum {
-    UR_IP6_ADDR_SIZE   = 16,  /** < IPv6 address size */
-    MESH_IP4_ADDR_SIZE = 4,   /** < IPv4 address size */
-};
-
-/**
- * network address size
- */
-enum {
-    SHORT_ADDR_SIZE = 2,    /** < short address size */
-    EXT_ADDR_SIZE   = 8,    /** < extension address size */
-    EXT_NETID_SIZE  = 6,    /** < extension network id size */
-};
-
-/**
  * IPv6 address
  */
 typedef struct ur_ip6_addr_s {
@@ -87,34 +80,6 @@ typedef struct ur_ip6_addr_s {
         uint32_t m32[UR_IP6_ADDR_SIZE / sizeof(uint32_t)];   /** < IPv6 address in uint32_t */
     };
 } __attribute__((packed)) ur_ip6_addr_t;
-
-/**
- * IPv4 address
- */
-typedef struct ur_ip4_addr_s {
-    union {
-        uint8_t m8[MESH_IP4_ADDR_SIZE];                         /** < IPv4 address in uint8_t */
-        uint16_t m16[MESH_IP4_ADDR_SIZE / sizeof(uint16_t)];    /** < IPv4 address in uint16_t */
-        uint32_t m32;                                           /** < IPv4 address in uint32_t */
-    };
-} __attribute__((packed)) ur_ip4_addr_t;
-
-/**
- * IPv6 address prefix
- */
-typedef struct ur_ip6_prefix_s {
-    ur_ip6_addr_t prefix;                      /** < IPv6 address prefix */
-    uint8_t length;                            /** < prefix length */
-} __attribute__((packed)) ur_ip6_prefix_t;
-
-/**
- * IP packet header length
- */
-enum {
-    UR_IP6_HLEN   = 40,    /** < IPv6 header length */
-    MESH_IP4_HLEN = 20,    /** < IPv4 header length */
-    UR_UDP_HLEN   = 8,     /** < UDP header length  */
-};
 
 /**
  * MAC address
@@ -129,49 +94,12 @@ typedef struct mac_address_s {
 } mac_address_t;
 
 /**
- * uMesh address
- */
-typedef struct ur_addr_s {
-    mac_address_t addr;              /** < uMesh address */
-    uint16_t netid;                  /** < uMesh network ID */
-} ur_addr_t;
-
-/**
  * uMesh extension network ID
  */
 typedef struct umesh_extnetid_s {
     uint8_t netid[EXT_NETID_SIZE];   /** < extension network ID */
     uint8_t len;                     /** < extension network ID length */
 } umesh_extnetid_t;
-
-/**
- * frame format
- */
-typedef struct frame_s {
-    uint8_t *data;                   /** < pointer to data */
-    uint16_t len;                    /** < data length */
-    uint8_t key_index;               /** < frame key index */
-} frame_t;
-
-/**
- * frame information
- */
-typedef struct frame_info_s {
-    mac_address_t peer;              /** < peer mac address */
-    uint8_t channel;                 /** < channel */
-    int8_t rssi;                     /** < RSSI */
-    int8_t key_index;                /** < key index */
-} frame_info_t;
-
-/**
- * frame information
- */
-typedef struct channel_s {
-    uint16_t channel;                /** < channel */
-    uint16_t wifi_channel;           /** < Wi-Fi channel */
-    uint16_t hal_ucast_channel;      /** < HAL unicast channel */
-    uint16_t hal_bcast_channel;      /** < HAL broacast channel */
-} channel_t;
 
 struct pbuf;
 typedef ur_error_t (* adapter_input_t)(struct pbuf *buf);
@@ -191,96 +119,6 @@ typedef struct ur_adapter_callback_s {
 } ur_adapter_callback_t;
 
 /**
- * frame stats
- */
-typedef struct frame_stats_s {
-    uint32_t in_frames;                     /** < input frames */
-    uint32_t out_frames;                    /** < output frames */
-} frame_stats_t;
-
-/**
- * link stats
- */
-typedef struct ur_link_stats_s {
-    uint32_t in_frames;                  /** < input frames number */
-    uint32_t in_command;                 /** < input command number */
-    uint32_t in_data;                    /** < input data number */
-    uint32_t in_filterings;              /** < input filtering number */
-    uint32_t in_drops;                   /** < input drops number */
-
-    uint32_t out_frames;                 /** < output frames number */
-    uint32_t out_command;                /** < output command number */
-    uint32_t out_data;                   /** < output data number */
-    uint32_t out_errors;                 /** < output error number */
-
-    uint16_t send_queue_size;            /** < send queue size */
-    uint16_t recv_queue_size;            /** < recv queue size */
-
-    bool sending;                        /** < sending flag */
-    uint16_t sending_timeouts;           /** < sending timeouts */
-} ur_link_stats_t;
-
-/**
- * mesh mem alloc location tag
- */
-enum {
-    UMESH_1,          /** < uMesh mem alloc location 1, value 0 */
-    MESH_FORWARDER_1, /** < uMesh forward mem alloc location 1, value 1 */
-    MESH_FORWARDER_2, /** < uMesh forward mem alloc location 2, value 2 */
-    MESH_FORWARDER_3, /** < uMesh forward mem alloc location 3, value 3 */
-    MESH_MGMT_1,      /** < uMesh mgmt mem alloc location 1, value 4 */
-    MESH_MGMT_2,      /** < uMesh mgmt mem alloc location 2, value 5 */
-    MESH_MGMT_3,      /** < uMesh mgmt mem alloc location 3, value 6 */
-    MESH_MGMT_4,      /** < uMesh mgmt mem alloc location 4, value 7 */
-    MESH_MGMT_5,      /** < uMesh mgmt mem alloc location 5, value 5 */
-    MESH_MGMT_6,      /** < uMesh mgmt mem alloc location 6, value 6 */
-    MESH_MGMT_7,      /** < uMesh mgmt mem alloc location 7, value 7 */
-    ADDRESS_MGMT_1,   /** < uMesh addr mgmt mem alloc location 1, value 11 */
-    ADDRESS_MGMT_2,   /** < uMesh addr mgmt mem alloc location 2, value 12 */
-    ADDRESS_MGMT_3,   /** < uMesh addr mgmt mem alloc location 3, value 13 */
-    ADDRESS_MGMT_4,   /** < uMesh addr mgmt mem alloc location 4, value 14 */
-    NETWORK_MGMT_1,   /** < uMesh net mgmt mem alloc location 1, value 15 */
-    NETWORK_MGMT_2,   /** < uMesh net mgmt mem alloc location 2, value 16 */
-    LOWPAN6_2,        /** < uMesh lowpan mem alloc location 2, value 18 */
-    LINK_MGMT_1,      /** < uMesh link mgmt mem alloc location 1, value 19 */
-    LINK_MGMT_2,      /** < uMesh link mgmt mem alloc location 2, value 20 */
-    LINK_MGMT_3,      /** < uMesh link mgmt mem alloc location 3, value 21 */
-    ROUTER_MGR_1,     /** < uMesh router mgr mem alloc location 1, value 22 */
-    DIAGS_1,          /** < uMesh diags mem alloc location 1, value 23 */
-    DIAGS_2,          /** < uMesh diags mem alloc location 2, value 24 */
-    UT_MSG,           /** < uMesh UT msg mem alloc location, value 25 */
-    UMESH_2,          /** < uMesh mem alloc location 2, value 26 */
-    MSG_DEBUG_INFO_SIZE, /** < uMesh msg mem debug info size, value 27 */
-};
-
-/**
- * mesh message stats
- */
-typedef struct ur_message_stats_s {
-    int16_t num;                              /** < msg num */
-    int16_t queue_fulls;                      /** < queue fulls number */
-    int16_t mem_fails;                        /** < mem alloc fails number */
-    int16_t pbuf_fails;                       /** < pbuf alloc fails number */
-    int16_t size;
-
-    int16_t debug_info[MSG_DEBUG_INFO_SIZE];
-} ur_message_stats_t;
-
-/**
- * mesh mem stats
- */
-typedef struct ur_mem_stats_s {
-    int32_t num;                             /** < mem number */
-} ur_mem_stats_t;
-
-/**
- * whitelist related number
- */
-enum {
-    WHITELIST_ENTRY_NUM = 16,                /** < whitelist entries number */
-};
-
-/**
  * node modes
  */
 typedef enum node_mode_s {
@@ -292,29 +130,6 @@ typedef enum node_mode_s {
     MODE_LEADER   = 0x40,   /** < leader node mode */
     MODE_HI_MASK  = 0xf0,   /** < mode high mask */
 } node_mode_t;
-
-/**
- * node states enum
- */
-typedef enum node_state_s {
-    DEVICE_STATE_DISABLED     = 0,    /** < node disabled */
-    DEVICE_STATE_DETACHED     = 1,    /** < node detached */
-    DEVICE_STATE_ATTACHED     = 2,    /** < node attached and a normal node */
-    DEVICE_STATE_LEAF         = 3,    /** < node is attached and a leaf node */
-    DEVICE_STATE_LEADER       = 4,    /** < node is attached and a leader node */
-    DEVICE_STATE_SUPER_ROUTER = 5,    /** < node is attached and a super router node */
-    DEVICE_STATE_ROUTER       = 6,    /** < node is attached and a router node */
-} node_state_t;
-
-/**
- * whitelist entry structure
- */
-typedef struct whitelist_entry_s {
-    mac_address_t address;           /** < whitelist mac address */
-    int8_t rssi;                     /** < whitelist constant RSSI for testing */
-    bool valid;                      /** < whitelist is valid or not */
-    bool constant_rssi;              /** < whitelist using constant RSSI or not for testing */
-} whitelist_entry_t;
 
 /**
  * mesh events code
