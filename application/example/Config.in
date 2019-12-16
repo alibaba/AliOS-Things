@@ -131,10 +131,10 @@ if AOS_APP_MESHAPP
         default "meshapp"
 endif
 
-source "application/example/modbus_demo/Config.in"
-if AOS_APP_MODBUS_DEMO
+source "application/example/modbus_app/Config.in"
+if AOS_APP_MODBUS_APP
     config AOS_BUILD_APP
-        default "modbus_demo"
+        default "modbus_app"
 endif
 
 source "application/example/mqttapp/Config.in"
