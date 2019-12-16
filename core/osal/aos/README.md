@@ -21,7 +21,6 @@ aos
 │   ├── sxr.c
 │   └── winnt.c
 ├── kv.c
-├── mbmaster.c
 ├── pwrmgmt.c
 ├── README.md
 ├── rhino.c
