@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := modbus master
 
-$(NAME)_SOURCES := api/api.c
+$(NAME)_SOURCES := api/mbmaster_api.c
 $(NAME)_SOURCES += api/main_process.c
 $(NAME)_SOURCES += pdu/pdu.c
 $(NAME)_SOURCES += adu/rtu/rtu.c
@@ -27,6 +27,7 @@ else ifeq ($(COMPILER),armcc)
 GLOBAL_DEFINES += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES     += include
+GLOBAL_INCLUDES     += include ./
 GLOBAL_DEFINES      += AOS_COMP_MBMASTER
 AOS_COMP_MBMASTER   := y
+

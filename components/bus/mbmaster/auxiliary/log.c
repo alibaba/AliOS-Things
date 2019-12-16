@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <mbmaster_api.h>
+#include <modbus/mbmaster.h>
 
 uint8_t* status_to_string(mb_status_t status)
 {
