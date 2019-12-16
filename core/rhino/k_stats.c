@@ -168,7 +168,12 @@ void krhino_task_sched_stats_get(void)
     exec_time = cur_time - g_active_task[cpu_cur_get()]->task_time_start;
 
     g_active_task[cpu_cur_get()]->task_time_total_run += (sys_time_t)exec_time;
-
+    if (g_active_task[cpu_cur_get()]->task_state == K_RDY) {
+        g_active_task[cpu_cur_get()]->task_time_this_run += (sys_time_t)exec_time;
+    }
+    else {
+         g_active_task[cpu_cur_get()]->task_time_this_run = 0u;
+    }
     g_preferred_ready_task[cpu_cur_get()]->task_time_start = cur_time;
 }
 

@@ -23,6 +23,7 @@ extern "C" {
 #include "k_critical.h"
 #include "k_spin_lock.h"
 #include "k_list.h"
+#include "k_cfs.h"
 #include "k_obj.h"
 #include "k_sched.h"
 #include "k_task.h"
@@ -41,6 +42,7 @@ extern "C" {
 #include "k_mm_region.h"
 #include "k_mm.h"
 #include "k_workqueue.h"
+
 #include "k_internal.h"
 #include "k_trace.h"
 #include "k_soc.h"
