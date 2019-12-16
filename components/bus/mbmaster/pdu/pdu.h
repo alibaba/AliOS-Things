@@ -22,9 +22,15 @@ extern "C" {
 
 /* func code */
 #define FUNC_CODE_READ_COILS             0x01
+#define FUNC_CODE_READ_DISCRETE_INPUTS   0x02
 #define FUNC_CODE_READ_HOLDING_REGISTERS 0x03
 #define FUNC_CODE_READ_INPUT_REGISTERS   0x04
+#define FUNC_CODE_WRITE_SINGLE_COIL      0x05
 #define FUNC_CODE_WRITE_SINGLE_REGISTERS 0x06
+
+/* quantity max */
+#define QUANTITY_MAX_FUNC01 2000
+#define QUANTITY_MAX_FUNC03 125
 
 /* exception code */
 #define EXCEPTION_ILLEGAL_FUNCTION     0x01
@@ -39,10 +45,10 @@ extern "C" {
 
 mb_status_t pdu_type122_assemble(mb_handler_t *req_handler, uint8_t field0, uint16_t field1, uint16_t field2);
 
-mb_status_t pud_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint8_t *respond_buf,
+mb_status_t pdu_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint8_t *respond_buf,
                                     uint8_t *respond_count);
 
-mb_status_t pud_type122_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint16_t *data1,
+mb_status_t pdu_type122_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint16_t *data1,
                                     uint16_t *data2, uint8_t* exception_code);
 
 #ifdef __cplusplus
