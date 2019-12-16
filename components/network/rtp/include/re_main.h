@@ -4,6 +4,8 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_MAIN_H
+#define RE_MAIN_H
 
 enum {
 #ifndef FD_READ
@@ -67,3 +69,4 @@ int              poll_method_set(enum poll_method method);
 enum poll_method poll_method_best(void);
 const char      *poll_method_name(enum poll_method method);
 int poll_method_type(enum poll_method *method, const struct pl *name);
+#endif /* RE_MAIN_H */

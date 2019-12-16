@@ -46,7 +46,7 @@
 #include <stddef.h> /* for size_t */
 
 #ifndef LWIP_PRIVATE_FD_SET
-#include <sys/select.h>
+#include <sys/time.h>
 #endif
 
 #include "lwip/ip_addr.h"
