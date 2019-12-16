@@ -4,6 +4,8 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_RTCP_H
+#define RE_RTCP_H
 
 /** RTCP protocol values */
 enum {
@@ -118,3 +120,4 @@ void rtcp_sess_tx_rtp(struct rtcp_sess *sess, uint32_t ts,
 void rtcp_sess_rx_rtp(struct rtcp_sess *sess, uint16_t seq, uint32_t ts,
 		      uint32_t src, size_t payload_size,
 		      const struct sa *peer);
+#endif /* RE_RTCP_H */
