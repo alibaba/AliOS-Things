@@ -4,6 +4,8 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_SYS_H
+#define RE_SYS_H
 
 #ifndef VERSION
 #define VERSION "?"
@@ -71,3 +73,4 @@ void     rand_bytes(uint8_t *p, size_t size);
 /* File-System */
 int  fs_mkdir(const char *path, uint16_t mode);
 int  fs_gethome(char *path, size_t sz);
+#endif /* RE_MEM_H */

@@ -4,6 +4,9 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_DBG_H
+#define RE_DBG_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -191,3 +194,4 @@ const char *dbg_level_str(int level);
 #ifdef __cplusplus
 }
 #endif
+#endif /* RE_DBG_H */

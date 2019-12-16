@@ -17,11 +17,9 @@
 #include <re_list.h>
 #include <re_tmr.h>
 
-
 #define DEBUG_MODULE "dbg"
 #define DEBUG_LEVEL 0
 #include <re_dbg.h>
-
 
 /** Debug configuration */
 static struct {

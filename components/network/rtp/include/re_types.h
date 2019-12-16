@@ -4,6 +4,9 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_TYPES_H
+#define RE_TYPES_H
+
 #include <stdbool.h>
 #include <network/network.h>
 
@@ -43,4 +46,4 @@
 #ifndef max
 #define max(x,y) MAX(x, y)
 #endif
-
+#endif /* RE_TYPES_H */
