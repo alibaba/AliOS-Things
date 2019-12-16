@@ -148,6 +148,10 @@
 #define RHINO_CONFIG_SCHED_RR                0
 #endif
 
+#ifndef RHINO_CONFIG_SCHED_CFS
+#define RHINO_CONFIG_SCHED_CFS               0
+#endif
+
 #ifndef RHINO_CONFIG_TIME_SLICE_DEFAULT
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
 #endif

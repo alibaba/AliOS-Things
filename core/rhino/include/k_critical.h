@@ -34,8 +34,8 @@
 #define RHINO_CRITICAL_EXIT_SCHED() \
     do {                            \
         RHINO_INTDIS_MEAS_STOP();   \
-        RHINO_CPU_INTRPT_ENABLE();  \
         core_sched();               \
+        RHINO_CPU_INTRPT_ENABLE();  \
     } while (0)
 #endif
 
