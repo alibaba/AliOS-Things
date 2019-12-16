@@ -4,6 +4,8 @@
  * Copyright (C) 2010 Creytiv.com
  */
 
+#ifndef RE_MEM_H
+#define RE_MEM_H
 
 #include <stdint.h>
 /**
@@ -44,3 +46,4 @@ int      mem_get_stat(struct memstat *mstat);
 int  mem_seccmp(const volatile uint8_t *volatile s1,
 		const volatile uint8_t *volatile s2,
 		size_t n);
+#endif /* RE_MEM_H */
