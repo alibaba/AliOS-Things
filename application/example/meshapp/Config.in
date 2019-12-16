@@ -22,11 +22,6 @@ config MESHAPP_CONFIG_IPV6
     default n
     help
 
-config MESHAPP_CONFIG_HAL_TEST
-    bool "Mesh Hal Test"
-    default n
-    help
-
 config MESHAPP_CONFIG_USE_LWIP
     bool "Use lwip"
     default y
