@@ -38,9 +38,15 @@
  *    David Navarro, Intel Corporation - Adapt to usage in liblwm2m
  */
 
-
 #ifndef LWM2M_COAP_H_
 #define LWM2M_COAP_H_
+
+/** @addtogroup aos_lwm2m lwm2m
+ *  lwm2m wrapper for coap
+ *
+ *  @{
+ */
+
 #ifndef LWM2M_LIBCOAP_ENABLED
 /* use default er-coap */
 #include "er-coap-13.h"
@@ -58,6 +64,9 @@ typedef coap_option_t lwm2m_coap_option_t;
 #define REST_MAX_CHUNK_SIZE     128
 #endif
 
+/*
+ * COAP default configuration
+ */
 #define COAP_DEFAULT_MAX_AGE                 60
 #define COAP_RESPONSE_TIMEOUT                2
 #define COAP_MAX_RETRANSMIT                  4
@@ -95,7 +104,7 @@ typedef coap_option_t lwm2m_coap_option_t;
 #endif /* COAP_MAX_HEADER_SIZE */
 
 #define COAP_MAX_PACKET_SIZE  (COAP_MAX_HEADER_SIZE + REST_MAX_CHUNK_SIZE)
-/*                                        0/14          48 for IPv6 (28 for IPv4) */
+/*                                         0/14          48 for IPv6 (28 for IPv4) */
 #if COAP_MAX_PACKET_SIZE > (UIP_BUFSIZE - UIP_LLH_LEN - UIP_IPUDPH_LEN)
 //#error "UIP_CONF_BUFFER_SIZE too small for REST_MAX_CHUNK_SIZE"
 #endif
@@ -213,6 +222,7 @@ typedef enum {
   CONTENT_MAX_VALUE = 0xFFFF
 } coap_content_type_t;
 
+/* mulit option struct */
 typedef struct _multi_option_t {
   struct _multi_option_t *next;
   uint8_t is_static;
@@ -327,78 +337,511 @@ typedef struct {
 /* To store error code and human-readable payload */
 extern const char *coap_error_message;
 
+/**
+ * Get coap mid
+ *
+ * @return mid/
+ */
 uint16_t coap_get_mid(void);
 
+/**
+ * Initialize coap message
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  type            message type.
+ * @param[in]  code            coap code.
+ * @param[in]  mid             mid.
+ *
+ * @return none.
+ */
 void coap_init_message(void *packet, coap_message_type_t type, uint8_t code, uint16_t mid);
+
+/**
+ * Get serialize size
+ *
+ * @param[in]  packet          the address of packet.
+ *
+ * @return size of serialized packet.
+ */
 size_t coap_serialize_get_size(void *packet);
+
+/**
+ * Serialize coap message
+ * 
+ * @param[in]  packet          the address of packet.
+ * @param[in]  buffer          the address of buffer.
+ * @param[in]  buffer_len      the length of buffer
+ *
+ * @return size of serialized packet.
+ */
 size_t coap_serialize_message(void *packet, uint8_t *buffer, uint16_t buffer_len);
-coap_status_t coap_parse_message(void *request, uint8_t *data, uint16_t data_len);
+
+/**
+ * Parse coap message
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  data            the address of data.
+ * @param[in]  data_len        the length of data.
+ *
+ * @return 0 on success, otherwise see coap_status_t.
+ */
+coap_status_t coap_parse_message(void *packet, uint8_t *data, uint16_t data_len);
+
+/**
+ * Free coap header
+ *
+ * @param[in]  packet          the address of packet.
+ *
+ * @return none
+ */
 void coap_free_header(void *packet);
 
+/**
+ * Get multi option as string
+ *
+ * @param[in]  option        the address of multi option.
+ *
+ * @return none-NULL on success, NULL on failure.
+ */
 char * coap_get_multi_option_as_string(multi_option_t * option);
+
+/**
+ * Add multi option
+ *
+ * @param[out]  dst          the address of multi option.
+ * @param[in]   option       the address of option.
+ * @param[in]   option_len   option length.
+ * @param[in]   is_static    whether memory of option is static.
+ *
+ * @return none.
+ */
 void coap_add_multi_option(multi_option_t **dst, uint8_t *option, size_t option_len, uint8_t is_static);
+
+/**
+ * Free multi option
+ * 
+ * @param[in]  dst          the address of multi option.
+ *
+ * @return none.
+ */
 void free_multi_option(multi_option_t *dst);
 
+/**
+ * Get query variable
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  name            the address of query variable name.
+ * @param[out] output          the address of output buffer.
+ *
+ * @return 0 on success, otherwise on failure.
+ */
 int coap_get_query_variable(void *packet, const char *name, const char **output);
+
+
+/**
+ * Get post variable
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  name            the address of post variable name.
+ * @param[out] output          the address of output buffer.
+ *
+ * @return 0 on success, otherwise on failure.
+ */
 int coap_get_post_variable(void *packet, const char *name, const char **output);
 
-/*-----------------------------------------------------------------------------------*/
-
+/**
+ * Set status code
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  code            status code
+ *
+ * @return 0 on success, otherwise on failure.
+ */
 int coap_set_status_code(void *packet, unsigned int code);
 
+/**
+ * Get header content type
+ * 
+ * @param[in]  packet          the address of packet.
+ *
+ * @return status code.
+ */
 unsigned int coap_get_header_content_type(void *packet);
+
+/**
+ * Set header content type
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  code            status code
+ *
+ * @return 0 on success, otherwise on failure.
+ */
 int coap_set_header_content_type(void *packet, unsigned int content_type);
 
+/**
+ * Get header accept field
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  accept          accept field.
+ *
+ * @return accept number
+ */
 int coap_get_header_accept(void *packet, const uint16_t **accept);
+
+
+/**
+ * Set header accept field
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[in]   accept          accept field.
+ *
+ * @return accept number
+ */
 int coap_set_header_accept(void *packet, uint16_t accept);
 
+/**
+ * Get header max age field
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  age             the address of age.
+ *
+ * @return 1 on success, otherwis on failure.
+ */
 int coap_get_header_max_age(void *packet, uint32_t *age);
+
+/**
+ * Set header max age field
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[in]  age             the address of age.
+ *
+ * @return 1 on success, otherwis on failure.
+ */
 int coap_set_header_max_age(void *packet, uint32_t age);
 
+/**
+ * Get header etag field
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  etag            the address of etag.
+ *
+ * @return etag length.
+ */
 int coap_get_header_etag(void *packet, const uint8_t **etag);
+
+/**
+ * Set header etag field
+ *
+ * @param[in]   packet           the address of packet.
+ * @param[in]   etag             the address of etag.
+ * @param[in]   etag_len         the length of etag.
+ *
+ * @return etag length.
+ */
 int coap_set_header_etag(void *packet, const uint8_t *etag, size_t etag_len);
 
+/**
+ * Get COAP option if-match
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  etag            the address of etag.
+ *
+ * @return if-match length
+ */
 int coap_get_header_if_match(void *packet, const uint8_t **etag);
+
+/**
+ * Set COAP option if-match
+ *
+ * @param[in]   packet           the address of packet.
+ * @param[in]   etag             the address of etag.
+ * @param[in]   etag_len         the length of etag.
+ *
+ * @return if-match length.
+ */
 int coap_set_header_if_match(void *packet, const uint8_t *etag, size_t etag_len);
 
+/**
+ * Get COAP option if-none-match
+ *
+ * @param[in]   packet          the address of packet.
+ *
+ * @return 1 on existence, 0 on none
+ */
 int coap_get_header_if_none_match(void *packet);
+
+/**
+ * Set COAP option if-none-match
+ *
+ * @param[in]   packet          the address of packet.
+ *
+ * @return 1 on success, 0 on failure
+ */
 int coap_set_header_if_none_match(void *packet);
 
+/**
+ * Get header token
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  token           the address of token.
+ *
+ * @return token length.
+ */
 int coap_get_header_token(void *packet, const uint8_t **token);
+
+/**
+ * Set header token
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[in]   token           the address of token.
+ * @param[in]   token_length    token length
+ *
+ * @return token length.
+ */
 int coap_set_header_token(void *packet, const uint8_t *token, size_t token_len);
 
+/**
+ * Get header proxy uri
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  uri             the address of uri.
+ *
+ * @return proxy uri length.
+ */
 int coap_get_header_proxy_uri(void *packet, const char **uri); /* In-place string might not be 0-terminated. */
+
+/**
+ * Set header proxy uri
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[in]   uri             the address of uri.
+ *
+ * @return proxy uri length.
+ */
 int coap_set_header_proxy_uri(void *packet, const char *uri);
 
+/**
+ * Get header uri host
+ *
+ * @param[in]   packet          the address of packet.
+ * @param[out]  host            the address of host.
+ *
+ * @return uri host length.
+ */
 int coap_get_header_uri_host(void *packet, const char **host); /* In-place string might not be 0-terminated. */
+
+/**
+ * Set header uri host
+ *
+ * @param[in]  packet          the address of packet.
+ * @param[in]  host            the address of host.
+ *
+ * @return uri host length.
+ */
 int coap_set_header_uri_host(void *packet, const char *host);
 
+/**
+ * Get header uri path
+ *
+ * @param[in]   packet        the address of packet
+ * @param[out]  path          the address of path
+ *
+ * @return uri path length
+ */
 int coap_get_header_uri_path(void *packet, const char **path); /* In-place string might not be 0-terminated. */
+
+/**
+ * Set header uri path
+ *
+ * @param[in]  packet        the address of packet
+ * @param[in]  path          the address of path
+ *
+ * @return uri path length.
+ */
 int coap_set_header_uri_path(void *packet, const char *path);
+
+/**
+ * Set header uri path segment
+ *
+ * @param[in]  packet        the address of packet
+ * @param[in]  path          the address of path
+ *
+ * @return path segment length.
+ */
 int coap_set_header_uri_path_segment(void *packet, const char *path);
 
+/**
+ * Get header uri query
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] query          the address of query.
+ *
+ * @return uri query length.
+ */
 int coap_get_header_uri_query(void *packet, const char **query); /* In-place string might not be 0-terminated. */
+
+/**
+ * Set header uri query
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[in]  query         the address of query.
+ *
+ * @return uri query length.
+ */
 int coap_set_header_uri_query(void *packet, const char *query);
 
+/**
+ * Get header location path
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] path          the address of path.
+ *
+ * @return location path length.
+ */
 int coap_get_header_location_path(void *packet, const char **path); /* In-place string might not be 0-terminated. */
+
+/**
+ * Set header location path
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[in]  path          the address of path.
+ *
+ * @return header loaction length.
+ */
 int coap_set_header_location_path(void *packet, const char *path); /* Also splits optional query into Location-Query option. */
 
+/**
+ * Get header location query
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] query         the address of query.
+ *
+ * @return location query length.
+ */
 int coap_get_header_location_query(void *packet, const char **query); /* In-place string might not be 0-terminated. */
+
+/**
+ * Get header location query
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] query         the address of query.
+ *
+ * @return location query length.
+ */
 int coap_set_header_location_query(void *packet, char *query);
 
+/**
+ * Get header location query
+ *
+ * @param[in]  packet       the address of packet.
+ * @param[out] query         the address of query.
+ *
+ * @return location query length.
+ */
 int coap_get_header_observe(void *packet, uint32_t *observe);
+
+/**
+ * Get header location query
+ *
+ * @param[in]  packet       the address of packet.
+ * @param[out] query         the address of query.
+ *
+ * @return location query length.
+ */
 int coap_set_header_observe(void *packet, uint32_t observe);
 
+/**
+ * Get header block2
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] num           the number of block2.
+ * @param[out] more          whether there is more block2.
+ * @param[out] size          the address of size.
+ * @param[out] offset        the offset of block2.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_get_header_block2(void *packet, uint32_t *num, uint8_t *more, uint16_t *size, uint32_t *offset);
+
+/**
+ * Set header block2
+ *
+ * @param[in] packet        the address of packet.
+ * @param[in] num           the number of block2.
+ * @param[in] more          whether there is more block2.
+ * @param[in] size          the size of block2.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_set_header_block2(void *packet, uint32_t num, uint8_t more, uint16_t size);
 
+/**
+ * Get header block1
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] num           the number of block1.
+ * @param[out] more          whether there is more block1.
+ * @param[out] size          the address of size.
+ * @param[out] offset        the offset of block1.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_get_header_block1(void *packet, uint32_t *num, uint8_t *more, uint16_t *size, uint32_t *offset);
+
+/**
+ * Set header block1
+ *
+ * @param[in] packet        the address of packet.
+ * @param[in] num           the number of block1.
+ * @param[in] more          whether there is more block1.
+ * @param[in] size          the size of block1.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_set_header_block1(void *packet, uint32_t num, uint8_t more, uint16_t size);
 
+/**
+ * Get header size
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] size          the address of size.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_get_header_size(void *packet, uint32_t *size);
+
+/**
+ * Set header size
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[in]  size          size of header.
+ *
+ * @return 1 on success, otherwise on failure.
+ */
 int coap_set_header_size(void *packet, uint32_t size);
 
+/**
+ * Get payload
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] payload       the address of payload.
+ *
+ * @return payload length, positive on success, 0 on failure.
+ */
 int coap_get_payload(void *packet, const uint8_t **payload);
+
+/**
+ * Set payload
+ *
+ * @param[in]  packet        the address of packet.
+ * @param[out] payload       the address of payload.
+ * @param[out] length        payload length
+ *
+ * @return payload length
+ */
 int coap_set_payload(void *packet, const void *payload, size_t length);
-#endif
+
+#endif /* LWM2M_LIBCOAP_ENABLED */
+
+/** @} */
 #endif /* LWM2M_COAP_H_ */
