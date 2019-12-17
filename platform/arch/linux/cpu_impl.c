@@ -479,6 +479,7 @@ static void _cpu_task_switch(void)
     task_ext_t  *to_tcb_ext;
     uint8_t      cur_cpu_num;
 
+    krhino_task_sched_stats_get();
     cur_cpu_num = cpu_cur_get();
 
     from_tcb = g_active_task[cur_cpu_num];
