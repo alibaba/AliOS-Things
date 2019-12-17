@@ -1,0 +1,212 @@
+dist: xenial
+sudo: false
+language: c
+
+env:
+  global:
+    - secure: "QD09MuUxftXRXtz7ZrB7S0NV/3O9yVhjvIlCSbXN8B87rNSDC8wxMThKMT7iZewnqGk53m+Up19PiMw5ERlHose5tm2cmY1FO/l+c9oAyWZaAL+4XNXryq6zI5F5FX5I61NbfqV3xcnfLTI2QIJF6WqDojNxhPjTbNzQGxIDuqw="
+
+matrix:
+  include:
+
+    # linux build
+    - os: linux
+      env:
+        - TEST="linux (gcc / valgrind)"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - valgrind
+      script:
+        - CC=gcc-6 EXTRA_CFLAGS=-Werror ./configure
+        - make
+        - make runtest
+        - make runtest-valgrind
+        - make distclean
+        - mkdir build && cd build
+        - cmake ..
+        - make
+        - make test
+
+    # linux build with openssl
+    - os: linux
+      env:
+        - TEST="linux openssl (gcc / valgrind)"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - valgrind
+      script:
+        - CC=gcc-6 EXTRA_CFLAGS=-Werror ./configure --enable-openssl
+        - make
+        - make runtest
+        - make runtest-valgrind
+        - make distclean
+        - mkdir build && cd build
+        - cmake -DENABLE_OPENSSL=ON ..
+        - make
+        - make test
+        - cd ..
+        - mkdir build_shared && cd build_shared
+        - cmake -DENABLE_OPENSSL=ON -DBUILD_SHARED_LIBS=ON ..
+        - make
+        - make test
+
+    # linux build with openssl and clang
+    - os: linux
+      env:
+        - TEST="linux openssl (clang)"
+      addons:
+        apt:
+          packages:
+            - clang
+      script:
+        - CC=clang EXTRA_CFLAGS=-Werror ./configure --enable-openssl
+        - make
+        - make runtest
+
+    # linux build with nss
+    - os: linux
+      env:
+        - TEST="linux nss (gcc / valgrind)"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - valgrind
+            - libnss3-dev
+      script:
+        - CC=gcc-6 EXTRA_CFLAGS=-Werror ./configure --enable-nss
+        - make
+        - make runtest
+        - make runtest-valgrind
+
+    # default osx build
+    - os: osx
+      env:
+        - TEST="osx"
+      script:
+        - EXTRA_CFLAGS=-Werror ./configure
+        - make
+        - make runtest
+        - make distclean
+        - mkdir build && cd build
+        - cmake ..
+        - make
+        - make test
+
+    # osx build with openssl
+    - os: osx
+      env:
+        - TEST="osx openssl"
+      before_install:
+            - brew install openssl
+      script:
+        - PKG_CONFIG_PATH=/usr/local/opt/openssl/lib/pkgconfig EXTRA_CFLAGS=-Werror ./configure --enable-openssl
+        - make
+        - make runtest
+        - make distclean
+        - mkdir build && cd build
+        - cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DENABLE_OPENSSL=ON ..
+        - make
+        - make test
+
+    # osx build with nss
+    - os: osx
+      env:
+        - TEST="osx nss"
+      before_install:
+            - brew install nss
+      script:
+        - PKG_CONFIG_PATH=/usr/local/opt/nss/lib/pkgconfig EXTRA_CFLAGS=-Werror ./configure --enable-nss
+        - make
+        - make runtest
+
+    # code format check
+    - os: linux
+      env:
+        - TEST="clang-format"
+      addons:
+        apt:
+          packages:
+            - clang-format-3.9
+      script:
+        - CLANG_FORMAT=clang-format-3.9 ./format.sh -d
+
+    # big-endian
+    - os: linux
+      sudo: true
+      env:
+        - TEST="big-endian"
+      services:
+        - docker
+      addons:
+        apt:
+          packages:
+            - qemu-user-static
+            - qemu-system-mips
+      before_install:
+        - sudo docker run --volume $(pwd):/src --workdir /src --name mipsX --tty --detach ubuntu:16.04 tail
+        - sudo docker exec --tty mipsX apt-get update
+        - sudo docker exec --tty mipsX apt-get install build-essential -y
+        - sudo docker exec --tty mipsX apt-get install gcc-mips-linux-gnu -y
+      script:
+        - sudo docker exec --tty mipsX bash -c 'EXTRA_CFLAGS=-static CC=mips-linux-gnu-gcc ./configure --host=mips-linux-gnu'
+        - sudo docker exec --tty mipsX make
+        - sudo docker kill mipsX
+        - file test/srtp_driver
+        - make runtest
+
+    # linux build of fuzzer
+    - os: linux
+      env:
+        - TEST="fuzzer (build only)"
+      addons:
+        apt:
+          packages:
+            - clang
+      script:
+        - CC=clang CXX=clang++ CXXFLAGS="-fsanitize=fuzzer-no-link,address,undefined -g -O3" CFLAGS="-fsanitize=fuzzer-no-link,address,undefined -g -O3" LDFLAGS="-fsanitize=fuzzer-no-link,address,undefined" ./configure
+        - LIBFUZZER="-fsanitize=fuzzer" make srtp-fuzzer
+
+    # coverity scan
+    - os: linux
+      env:
+        - TEST="Coverity Scan"
+      addons:
+        coverity_scan:
+          project:
+            name: "cisco-libSRTP"
+            description: "Build submitted via Travis CI"
+            version: 2
+          notification_email: pabuhler@cisco.com
+          build_command_prepend: "./configure"
+          build_command: "make"
+          branch_pattern: master
+      script:
+        - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+    # windows build
+    - os: windows
+      env:
+        - TEST="windows"
+
+      script:
+        - export PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin":$PATH
+        - mkdir build && cd build
+        - cmake -G "Visual Studio 15 2017" ..
+        - msbuild.exe libsrtp2.sln -p:Configuration=Release
+        - msbuild.exe RUN_TESTS.vcxproj -p:Configuration=Release
+        - cd ..
+        - mkdir build_shared && cd build_shared
+        - cmake -G "Visual Studio 15 2017" -DBUILD_SHARED_LIBS=ON ..
+        - msbuild.exe libsrtp2.sln -p:Configuration=Release
+        - msbuild.exe RUN_TESTS.vcxproj -p:Configuration=Release
