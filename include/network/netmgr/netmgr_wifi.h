@@ -1,5 +1,10 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file netmgr_wifi.h
+ * netmgr Wi-Fi API header file.
+ *
+ * @version   V1.0
+ * @date      2019-11-08
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef NETMGR_WIFI_H
@@ -12,6 +17,12 @@
 extern "C"
 {
 #endif
+
+/** @addtogroup aos_netmgr netmgr_wifi
+ *  Interfaces of Wi-Fi net connection management.
+ *
+ *  @{
+ */
 
 #define MAX_SSID_SIZE  32
 #define MAX_PWD_SIZE   64
@@ -26,7 +37,7 @@ extern "C"
 #define NETMGR_WIFI_KEY "wifi"
 
 /**
- * @brief netmgr AP configuration
+ * netmgr AP configuration struct type
  */
 typedef struct {
     char ssid[MAX_SSID_SIZE + 1];
@@ -35,7 +46,7 @@ typedef struct {
 } netmgr_ap_config_t;
 
 /**
- * @brief autoconfig plugin type
+ * autoconfig plugin type
  */
 typedef struct autoconfig_plugin_s {
     struct autoconfig_plugin_s *next;
@@ -47,7 +58,7 @@ typedef struct autoconfig_plugin_s {
 } autoconfig_plugin_t;
 
 /**
- * @brief auth type
+ * auth type
  */
 enum NETMGR_AWSS_AUTH_TYPE {
     NETMGR_AWSS_AUTH_TYPE_OPEN,
@@ -62,7 +73,7 @@ enum NETMGR_AWSS_AUTH_TYPE {
 };
 
 /**
- * @brief encry type
+ * encry type
  */
 enum NETMGR_AWSS_ENC_TYPE {
     NETMGR_AWSS_ENC_TYPE_NONE,
@@ -75,8 +86,9 @@ enum NETMGR_AWSS_ENC_TYPE {
 };
 
 /**
- * @brief netmgr wifi scan result callback.
- * refer to platform_wifi_scan_result_cb_t definition in alink.
+ * Netmgr wifi scan result callback.
+ *
+ * @note: refer to platform_wifi_scan_result_cb_t definition in alink.
  *
  * @param[in]  ssid       AP ssid.
  * @param[in]  bssid      AP bssid.
@@ -86,8 +98,7 @@ enum NETMGR_AWSS_ENC_TYPE {
  * @param[in]  rssi       channel rssi.
  * @param[in]  is_last_ap whether is last AP.
  *
- * @return 0   success
- * @return <0  failed
+ * @return 0 on success, negative on failure
  */
 typedef int (*netmgr_wifi_scan_result_cb_t)(const char ssid[MAX_SSID_LEN],
                                             const uint8_t bssid[ETH_ALEN],
@@ -98,102 +109,109 @@ typedef int (*netmgr_wifi_scan_result_cb_t)(const char ssid[MAX_SSID_LEN],
                                             int is_last_ap);
 
 /**
- * @brief Get ip address
+ * Get ip address
  *
  * @param[out] ip ip address.
+ *
+ * @return none
  */
 void wifi_get_ip(char ips[16]);
 
 /**
- * @brief Set AP config
+ * Set AP config
  *
  * @param[in] config AP config.
  *
- * @return 0   success
- * @return <0  failed
+ * @return 0 on success, negative on failure
  */
 int netmgr_set_ap_config(netmgr_ap_config_t *config);
 
 /**
- * @brief Get AP config
+ * Get AP config
  *
  * @param[out] config AP config.
  *
- * @return 0   success
- * @return <0  failed
+ * @return 0 on success, negative on failure
  */
 int netmgr_get_ap_config(netmgr_ap_config_t *config);
 
 /**
- * @brief Clear AP config
+ * Clear AP config
+ *
+ * @return none
  */
 void netmgr_clear_ap_config(void);
 
 /**
- * @brief Set smart config plugin
+ * Set smart config plugin
  *
  * @param[in] plugin autoconfig.
+ *
+ * @return none
  */
 void netmgr_set_smart_config(autoconfig_plugin_t *plugin);
 
 /**
- * @brief Register wifi scan result callback
+ * Register wifi scan result callback
  *
  * @param[in] cb callback.
+ *
+ * @return none
  */
 void netmgr_register_wifi_scan_result_callback(netmgr_wifi_scan_result_cb_t cb);
 
 /**
- * @brief Get whether scan callback finish
+ * Get whether scan callback finish
  *
- * @return true  finished.
- * @return false not finished.
+ * @return true on finished, false on unfinished.
  */
 bool netmgr_get_scan_cb_finished(void);
 
 /**
- * @brief Get ip status
+ * Get ip status
  *
- * @return true  ip ready.
- * @return false ip not ready.
+ * @return true on ip ready, false on ip not ready.
  */
 bool netmgr_wifi_get_ip_state(void);
 
 /**
- * @brief Reconnect wifi
+ * Reconnect wifi
  *
+ * @return none
  */
 void netmgr_reconnect_wifi(void);
 
 /**
- * @brief Get ip address
+ * Get ip address
  *
+ * @return none
  */
 void netmgr_wifi_get_ip(char *ip);
 
 /**
- * @brief Init netmgr wifi module
+ * Initialize netmgr wifi module
  *
- * @return 0  success
- * @return <0 failed
+ * @return 0 on success, negative on failure.
  */
 int netmgr_wifi_init(void);
 
 /**
- * @brief Deinit netmgr wifi module
+ * Deinit netmgr wifi module
  *
+ * @return none
  */
 void netmgr_wifi_deinit(void);
 
 /**
- * @brief Start netmgr wifi module
+ * Start netmgr wifi module
  *
  * @param[in] autoconfig whether use autoconfig.
  *
- * @return 0   success
- * @return <0  failed
+ * @return 0 on success, negative on failure.
  */
 int netmgr_wifi_start(bool autoconfig);
+
+/** @} */
 
 #if defined(__cplusplus)
 }
