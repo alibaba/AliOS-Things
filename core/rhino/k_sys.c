@@ -185,6 +185,7 @@ void krhino_intrpt_exit(void)
                 cur_task_exec_time = g_active_task[cur_cpu_num]->task_time_this_run +
                                  ((lr_timer_t)LR_COUNT_GET() - g_active_task[cur_cpu_num]->task_time_start);
                 if (cur_task_exec_time < MIN_TASK_RUN_TIME) {
+                    RHINO_CPU_INTRPT_ENABLE();
                     return;
                 }
                 cfs_node_insert(&g_active_task[cur_cpu_num]->node, cur_task_exec_time);
