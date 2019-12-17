@@ -2,7 +2,6 @@ config AOS_COMP_WEBSOC
     bool "websocket client"
     default n
     select AOS_COMP_LWIP
-    select AOS_COMP_OSAL_POSIX
     help
         AliOS Things websocket
 
