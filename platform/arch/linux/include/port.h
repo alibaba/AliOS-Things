@@ -7,6 +7,9 @@
 
 #include <signal.h>
 
+/* 5ms */
+#define MIN_TASK_RUN_TIME 5000000u
+
 cpu_cpsr_t cpu_intrpt_save(void);
 void   cpu_intrpt_restore(cpu_cpsr_t cpsr);
 void   cpu_intrpt_switch(void);
