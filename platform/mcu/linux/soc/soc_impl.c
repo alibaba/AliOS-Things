@@ -12,30 +12,19 @@
 #define _linux_backtrace_depth 10
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
-struct timespec time_start;
 void soc_hw_timer_init(void)
 {
-    clock_gettime (CLOCK_REALTIME, &time_start);
+
 }
 
 hr_timer_t soc_hr_hw_cnt_get(void)
 {
-    return soc_lr_hw_cnt_get();
+    return 0;
 }
 
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
-    lr_timer_t ret;
-    int64_t t1;
-    int64_t t2;
-
-    struct timespec time1 = {0, 0};
-    clock_gettime(CLOCK_REALTIME, &time1);
-
-    t1 = time1.tv_sec - time_start.tv_sec;
-
-    ret = t1  * 1000000000 -  time_start.tv_nsec + time1.tv_nsec;
-    return ret;
+    return 0;
 }
 #endif
 
