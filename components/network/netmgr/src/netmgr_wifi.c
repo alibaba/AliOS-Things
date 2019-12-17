@@ -86,7 +86,7 @@ static void netmgr_connect_fail_event(hal_wifi_module_t *m, int err, void *arg)
 #ifdef CONFIG_AOS_MESH
 static void mesh_delayed_action(void *arg)
 {
-    umesh_set_mode((node_mode_t)arg);
+    umesh_set_mode((uint8_t)arg);
     umesh_stop();
     umesh_start(NULL);
 }
