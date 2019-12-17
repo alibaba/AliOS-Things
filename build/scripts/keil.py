@@ -40,6 +40,7 @@ from config_mk import Projects
 AOS_RELATIVE_PATH = "../../../../"
 OPT_DIR = "opts/"
 TEMPLATE_PROJX = "build/scripts/template.uvprojx"
+TEMPLATE_PROJX_BOARD = "build/scripts/template_%s.uvprojx"
 TEMPLATE_OPTX = "build/scripts/template.uvoptx"
 TEMPLATE_OPTX_BOARD = "build/scripts/template_%s.uvoptx"
 
@@ -230,8 +231,12 @@ def main():
     optx_file = projx_file.replace('.uvprojx', '.uvoptx')
 
     print("Creating keil project %s" % (buildstring))
-    projx_tree = etree.parse(TEMPLATE_PROJX)
     boardname = buildstring.split("@")[1]
+    projxfilename = TEMPLATE_PROJX_BOARD % (boardname)
+    if os.path.exists(projxfilename) == False:
+        projxfilename = TEMPLATE_PROJX
+    projx_tree = etree.parse(projxfilename)
+    
     optfilename = TEMPLATE_OPTX_BOARD % (boardname)
     if os.path.exists(optfilename) == False:
         optfilename = TEMPLATE_OPTX
