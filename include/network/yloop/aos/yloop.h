@@ -1,5 +1,10 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file yloop.h
+ * yloop API header file.
+ *
+ * @version   V1.0
+ * @date      2019-11-08
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_YLOOP_H
@@ -9,8 +14,13 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+/** @addtogroup aos_yloop yloop
+ *  yloop interfaces.
+ *
+ *  @{
+ */
 
+#include <stdint.h>
 #include <event_type_code.h>
 
 #if defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL)
@@ -116,89 +126,97 @@ typedef struct {
 } input_event_t;
 
 /**
- * @brief Event callback
+ * Event callback.
  *
  * @param[in]  event         input event.
  * @param[in]  private_data  private data for cb.
+ *
+ * @return none.
  */
 typedef void (*aos_event_cb)(input_event_t *event, void *private_data);
 
 /**
- * @brief Delayed execution callback
+ * Delayed execution callback.
  *
  * @param[in] arg argument for execution.
+ *
+ * @return none.
  */
 typedef void (*aos_call_t)(void *arg);
 
 /**
- * @brief Poll event callback
+ * Poll event callback.
  *
  * @param[in]  fd    poll fd.
  * @param[in]  arg   argument for execution.
+ *
+ * @return none.
  */
 typedef void (*aos_poll_call_t)(int fd, void *arg);
 
 /**
- * @brief Register system event filter callback.
+ * Register system event filter callback.
  *
  * @param[in]  type  event type interested.
  * @param[in]  cb    system event callback.
  * @param[in]  priv  private data past to cb.
  *
- * @return  the operation status, 0 is OK, others is error.
+ * @return 0 on success, negative on failure
  */
 int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 
 /**
- * @brief Unregister native event callback.
+ * Unregister native event callback.
  *
  * @param[in]  type  event type interested.
  * @param[in]  cb    system event callback.
  * @param[in]  priv  private data past to cb.
  *
- * @return  the operation status, 0 is OK, others is error.
+ * @return 0 on success, negative on failure
  */
 int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv);
 
 /**
- * @brief Post local event.
+ * Post local event.
  *
  * @param[in]  type   event type.
  * @param[in]  code   event code.
  * @param[in]  value  event value.
  *
- * @return  the operation status, 0 is OK,others is error.
+ * @return 0 on success, negative on failure
  */
 int aos_post_event(uint16_t type, uint16_t code, unsigned long  value);
 
 /**
- * @brief Register a poll event in main loop.
+ * Register a poll event in main loop.
  *
  * @param[in]  fd      poll fd.
  * @param[in]  action  action to be executed.
  * @param[in]  param   private data past to action.
  *
- * @return  the operation status, 0 is OK,others is error.
+ * @return 0 on success, negative on failure
  */
 int aos_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 
 /**
- * @brief Cancel a poll event to be executed in main loop.
+ * Cancel a poll event to be executed in main loop.
  *
  * @param[in]  fd      poll fd.
  * @param[in]  action  action to be executed.
  * @param[in]  param   private data past to action.
+ *
+ * @return none.
  */
 void aos_cancel_poll_read_fd(int fd, aos_poll_call_t action, void *param);
 
 /**
- * @brief Post a delayed action to be executed in main loop.
+ * Post a delayed action to be executed in main loop.
  *
  * @param[in]  ms      milliseconds to wait.
  * @param[in]  action  action to be executed.
  * @param[in]  arg     private data past to action.
  *
- * @return  the operation status, 0 is OK,others is error.
+ * @return 0 on success, negative on failure
  */
 int aos_post_delayed_action(int ms, aos_call_t action, void *arg);
 
@@ -208,6 +226,8 @@ int aos_post_delayed_action(int ms, aos_call_t action, void *arg);
  * @param[in]  ms      milliseconds to wait, -1 means don't care.
  * @param[in]  action  action to be executed.
  * @param[in]  arg     private data past to action.
+ *
+ * @return none.
  */
 void aos_cancel_delayed_action(int ms, aos_call_t action, void *arg);
 
@@ -219,57 +239,63 @@ void aos_cancel_delayed_action(int ms, aos_call_t action, void *arg);
  * @param[in]  action  action to be executed.
  * @param[in]  arg     private data past to action.
  *
- * @return  the operation status, <0 is error,others is OK.
+ * @return 0 on success, negative on failure
  */
 int aos_schedule_call(aos_call_t action, void *arg);
 
 /**
- * @brief loop type
+ * loop type
  */
 typedef void *aos_loop_t;
 
 /**
- * @brief Init a per-task event loop.
+ * Init a per-task event loop.
  *
- * @return  the handler of aos_loop_t,NULL failure,others success.
+ * @return  the handler of aos_loop_t, NULL on failure, others on success.
  */
 aos_loop_t aos_loop_init(void);
 
 /**
- * @brief Get current event loop.
+ * Get current event loop.
  *
  * @return  default event loop.
  */
 aos_loop_t aos_current_loop(void);
 
 /**
- * @brief Start event loop.
+ * Start event loop.
+ *
+ * @return none.
  */
 void aos_loop_run(void);
 
 /**
- * @brief Exit event loop, aos_loop_run() will return.
+ * Exit event loop, aos_loop_run() will return.
+ *
+ * @return none.
  */
 void aos_loop_exit(void);
 
 /**
- * @brief Free event loop resources.
+ * Free event loop resources.
+ *
+ * @return none.
  */
 void aos_loop_destroy(void);
 
 /**
- * @brief Schedule a callback specified event loop.
+ * Schedule a callback specified event loop.
  *
  * @param[in]  loop    event loop to be scheduled, NULL for default main loop.
  * @param[in]  action  action to be executed.
  * @param[in]  arg     private data past to action.
  *
- * @return  the operation status, <0 is error,others is OK.
+ * @return 0 on success, negative on failure
  */
 int aos_loop_schedule_call(aos_loop_t *loop, aos_call_t action, void *arg);
 
 /**
- * @brief Schedule a work to be executed in workqueue.
+ * Schedule a work to be executed in workqueue.
  *
  * @param[in]  ms       milliseconds to delay before execution, 0 means immediately.
  * @param[in]  action   action to be executed.
@@ -277,19 +303,23 @@ int aos_loop_schedule_call(aos_loop_t *loop, aos_call_t action, void *arg);
  * @param[in]  fini_cb  finish callback to be executed after action is done in current event loop.
  * @param[in]  arg2     data past to fini_cb.
  *
- * @return  work handle,NULL failure,others is OK.
+ * @return  work handle, NULL on failure, non-NULL on success
  */
 void *aos_loop_schedule_work(int ms, aos_call_t action, void *arg1,
                              aos_call_t fini_cb, void *arg2);
 
 /**
- * @brief Cancel a work.
+ * Cancel a work.
  *
  * @param[in]  work    work to be cancelled.
  * @param[in]  action  action to be executed.
  * @param[in]  arg1    private data past to action.
+ *
+ * @return none.
  */
 void aos_cancel_work(void *work, aos_call_t action, void *arg1);
+
+/** @} */
 
 #ifdef __cplusplus
 }
