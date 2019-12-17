@@ -27,10 +27,16 @@ static void app_delayed_action(void *arg)
 #endif
 
     /**
+     * Initialize uMesh
+     */
+    umesh_init(MODE_RX_ON);
+
+    /**
      * set node mode to normal mode
      */
     mode = umesh_get_mode() & (~MODE_LEADER);
     umesh_set_mode(mode);
+
     /**
      * start uMesh
      */
