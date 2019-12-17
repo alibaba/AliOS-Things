@@ -118,9 +118,5 @@
 #define RHINO_CONFIG_CPU_NUM                 2
 #endif
 
-#ifndef RHINO_CONFIG_SCHED_CFS
-#define RHINO_CONFIG_SCHED_CFS               1
-#endif
-
 #endif /* K_CONFIG_H */
 
