@@ -1,5 +1,10 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file netmgr.h
+ * netmgr API header file.
+ *
+ * @version   V1.0
+ * @date      2019-11-08
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef NETMGR_H
@@ -9,6 +14,12 @@
 extern "C"
 {
 #endif
+
+/** @addtogroup aos_netmgr netmgr
+ *  Interfaces of net connection management.
+ *
+ *  @{
+ */
 
 #include <stdbool.h>
 
@@ -21,7 +32,7 @@ extern "C"
 #endif
 
 /**
- * @brief interface type
+ * Interface type
  */
 enum {
     INTERFACE_WIFI,
@@ -32,7 +43,7 @@ enum {
 #define IP_STR_SIZE 32
 
 /**
- * @brief netmgr status (e.g. ip availability and ip address) type
+ * Netmgr status (e.g. ip availability and ip address) type
  */
 typedef struct netmgr_stats_s {
     bool ip_available;
@@ -41,42 +52,39 @@ typedef struct netmgr_stats_s {
 
 /**
  *
- * @brief Initialize netmgr module
+ * Initialize netmgr module
  *
- * @return 0   initialize success
- * @return < 0 initialize fail
+ * @return 0 on success, negative on failure
  */
 int netmgr_init(void);
 
 /**
  *
- * @brief Deinitialize netmgr module
+ * Deinitialize netmgr module
  *
- * @return 0   deinitialize success
- * @return < 0 deinitialize fail
+ * @return none
  */
 void netmgr_deinit(void);
 
 /**
  *
- * @brief Start netmgr
+ * Start netmgr module
  *
  * @param[in] autoconfig start WiFi provision or not
  *
- * @return 0   start network interface success
- * @return < 0 start network interface fail
+ * @return 0 on success, negative on failure
+ *
  */
 int netmgr_start(bool autoconfig);
 
 /**
  *
- * @brief Get netmgr stats
+ * Get netmgr stats
  *
  * @param[in]     interface interface name
  * @param[in/out] stats network interface stats
  *
- * @return 0   netmgr get stats success
- * @return < 0 netmgr get stats fail
+ * @return 0 on success, negative on failure
  *
  */
 int netmgr_stats(int32_t interface, netmgr_stats_t *stats);
@@ -84,18 +92,19 @@ int netmgr_stats(int32_t interface, netmgr_stats_t *stats);
 #ifdef NET_WITH_WIFI
 /**
  *
- * @brief Connect to specified WiFi network with given SSID and password
+ * Connect to specified WiFi network with given SSID and password
  *
  * @param[in] ssid     WiFi SSID
  * @param[in] password WiFi password
  * @param[in] timeout  timeout in milliseconds
  *
- * @return 0  connect success
- * @return -1 connect param error
- * @return -2 connect timeout
+ * @return  0 on connect success, -1 on connect param error, -2 on connect timeout
+ *
  */
 int32_t netmgr_connect(const char *ssid, const uint8_t *password, uint32_t timeout);
 #endif
+
+/** @} */
 
 #if defined(__cplusplus)
 }
