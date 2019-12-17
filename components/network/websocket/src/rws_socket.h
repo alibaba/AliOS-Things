@@ -6,15 +6,7 @@
 #ifndef __RWS_SOCKET_H__
 #define __RWS_SOCKET_H__ 1
 
-#if defined(WITH_LWIP)
 #include "network/network.h"
-#else
-#include <netdb.h>
-#include <posix/sys/socket.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
 
 #include <assert.h>
 #include <errno.h>
