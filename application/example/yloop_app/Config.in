@@ -1,0 +1,10 @@
+config AOS_APP_YLOOP_APP
+    bool "yloop app"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_YLOOP_APP
+# Configurations for yloop app
+endif
