@@ -1,9 +1,20 @@
-/*
- * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+/**
+ * @file librws.h
+ * websocket API header file.
+ *
+ * @version   V1.0
+ * @date      2019-11-08
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef __LIBRWS_H__
-#define __LIBRWS_H__ 1
+#define __LIBRWS_H__
+
+/** @addtogroup aos_websocket websocket
+ *  Interfaces of websocket
+ *
+ *  @{
+ */
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -32,7 +43,6 @@
 #define RWS_EXTERN extern
 #endif
 
-
 /* attribute */
 #if defined(__GNUC__)
 #if (__GNUC__ >= 4)
@@ -50,7 +60,6 @@
 #define RWS_ATTRIB
 #endif
 
-
 /* dll api */
 #if defined(RWS_OS_WINDOWS)
 #if defined(RWS_BUILD)
@@ -60,97 +69,99 @@
 #endif /* defined(RWS_BUILD) */
 #endif /* defined(RWS_OS_WINDOWS) */
 
-
 /* check dll api and define empty if not defined */
 #if !defined(RWS_DYLIB_API)
 #define RWS_DYLIB_API
 #endif
 
-
 /* combined lib api */
 #define RWS_API(return_type) RWS_EXTERN RWS_ATTRIB RWS_DYLIB_API return_type
-
 
 /* types */
 
 /**
- * @brief Boolean type as unsigned byte type.
+ * Boolean type as unsigned byte type.
  */
 typedef unsigned char rws_bool;
 #define rws_true 1
 #define rws_false 0
 
-
 /**
- * @brief Type of all public objects.
+ * Type of all public objects.
  */
 typedef void* rws_handle;
 
-
 /**
- * @brief Socket handle.
+ * Socket handle.
  */
 typedef struct rws_socket_struct * rws_socket;
 
-
 /**
- * @brief Error object handle.
+ * Error object handle.
  */
 typedef struct rws_error_struct * rws_error;
 
-
 /**
- * @brief Mutex object handle.
+ * Mutex object handle.
  */
 typedef rws_handle rws_mutex;
 
-
 /**
- * @brief Thread object handle.
+ * Thread object handle.
  */
 typedef struct rws_thread_struct * rws_thread;
 
 
 /**
- * @brief Callback type of thread function.
+ * Callback type of thread function.
  *
  * @param[in]  user_object  User object provided during thread creation.
+ *
+ * @return none
  */
 typedef void (*rws_thread_funct)(void * user_object);
 
 
 /**
- * @brief Callback type of socket object.
+ * Callback type of socket object.
  *
  * @param[in]  socket  Socket object.
+ *
+ * @return none
  */
 typedef void (*rws_on_socket)(rws_socket socket);
 
 
 /**
- * @brief Callback type on socket receive text frame.
+ * Callback type on socket receive text frame.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  text    Pointer to reseived text.
  * @param[in]  length  Received text lenght without null terminated char.
+ *
+ * @return none
  */
 typedef void (*rws_on_socket_recvd_text)(rws_socket socket, const char * text, const unsigned int length, bool is_finished);
 
 
 /**
- * @brief Callback type on socket receive binary frame.
+ * Callback type on socket receive binary frame.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  data    Received binary data.
  * @param[in]  length  Received binary data lenght.
+ *
+ * @return none
  */
 typedef void (*rws_on_socket_recvd_bin)(rws_socket socket, const void * data, const unsigned int length, bool is_finished);
 
 
 /**
- * @brief Callback type on socket receive pong.
+ * Callback type on socket receive pong.
  *
  * @param[in]  socket  Socket object.
+ *
+ * @return none
  */
 typedef void (*rws_on_socket_recvd_pong)(rws_socket socket);
 
@@ -165,13 +176,15 @@ RWS_API(rws_socket) rws_socket_create(void);
 
 
 /**
- * @brief Set socket connect URL.
+ * Set socket connect URL.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  scheme  Connect URL scheme, "http" or "ws"
  * @param[in]  host    Connect URL host, "echo.websocket.org"
  * @param[in]  port    Connect URL port.
  * @param[in]  path    Connect URL path started with '/' character, "/" - for empty, "/path"
+ *
+ * @return none
  *
  * @code
  * rws_socket_set_url(socket, "http", "echo.websocket.org", 80, "/");
@@ -183,10 +196,12 @@ RWS_API(void) rws_socket_set_url(rws_socket socket, const char * scheme,
                                  const char * path);
 
 /**
- * @brief Set socket connect URL scheme string.
+ * Set socket connect URL scheme string.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  scheme  Connect URL scheme, "http" or "ws"
+ *
+ * @return none
  *
  * @code
  * rws_socket_set_scheme(socket, "http");
@@ -197,7 +212,7 @@ RWS_API(void) rws_socket_set_scheme(rws_socket socket, const char * scheme);
 
 
 /**
- * @brief Get socket connect URL scheme string.
+ * Get socket connect URL scheme string.
  *
  * @param[in]  socket  Socket object.
  *
@@ -207,10 +222,12 @@ RWS_API(const char *) rws_socket_get_scheme(rws_socket socket);
 
 
 /**
- * @brief Set socket connect URL scheme string.
+ * Set socket connect URL scheme string.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  scheme  Connect URL host, "echo.websocket.org"
+ *
+ * @return none
  *
  * @code
  * rws_socket_set_host(socket, "echo.websocket.org");
@@ -220,7 +237,7 @@ RWS_API(void) rws_socket_set_host(rws_socket socket, const char * host);
 
 
 /**
- * @brief Get socket connect URL host string.
+ * Get socket connect URL host string.
  *
  * @param[in]  socket  Socket object.
  *
@@ -230,10 +247,12 @@ RWS_API(const char *) rws_socket_get_host(rws_socket socket);
 
 
 /**
- * @brief Set socket connect URL port.
+ * Set socket connect URL port.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  scheme  Connect URL port.
+ *
+ * @return none
  *
  * @code
  * rws_socket_set_port(socket, 80);
@@ -243,7 +262,7 @@ RWS_API(void) rws_socket_set_port(rws_socket socket, const int port);
 
 
 /**
- * @brief Get socket connect URL port.
+ * Get socket connect URL port.
  *
  * @param[in]  socket  Socket object.
  *
@@ -253,10 +272,12 @@ RWS_API(int) rws_socket_get_port(rws_socket socket);
 
 
 /**
- * @brief Set socket connect URL path string.
+ * Set socket connect URL path string.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  scheme  Connect URL path started with '/' character, "/" - for empty, "/path"
+ *
+ * @return none
  *
  * @code
  * rws_socket_set_path(socket, "/"); // empty path
@@ -267,7 +288,7 @@ RWS_API(void) rws_socket_set_path(rws_socket socket, const char * path);
 
 
 /**
- * @brief Get socket connect URL path string.
+ * Get socket connect URL path string.
  *
  * @param[in]  socket  Socket object.
  *
@@ -278,18 +299,20 @@ RWS_API(const char *) rws_socket_get_path(rws_socket socket);
 
 #ifdef WEBSOCKET_SSL_ENABLE
 /**
- * @brief Set server certificate for ssl connection.
+ * Set server certificate for ssl connection.
  *
  * @param[in]  socket           Socket object.
  * @param[in]  server_cert      Server certificate.
  * @param[in]  server_cert_len  The length of the server certificate caculated by sizeof
+ *
+ * @return none
  */
 RWS_API(void) rws_socket_set_server_cert(rws_socket socket, const char *server_cert, int server_cert_len);
-#endif
+#endif /* WEBSOCKET_SSL_ENABLE */
 
 
 /**
- * @brief Get socket last error object handle.
+ * Get socket last error object handle.
  *
  * @param[in]  socket  Socket object.
  *
@@ -299,9 +322,9 @@ RWS_API(rws_error) rws_socket_get_error(rws_socket socket);
 
 
 /**
- * @brief Start connection.
+ * Start connection.
  *
- * @detailed This method can generate error object.
+ * @note: This method can generate error object.
  *
  * @param[in]  socket  Socket object.
  *
@@ -311,12 +334,11 @@ RWS_API(rws_bool) rws_socket_connect(rws_socket socket);
 
 
 /**
- * @brief Disconnect socket.
+ * Disconnect socket.
  *
- * @detailed Cleanup prev. send messages and start disconnection sequence.
- *           SHOULD forget about this socket handle and don't use it anymore.
- *
- * @warning Don't use this socket object handler after this command.
+ * @note: Cleanup prev. send messages and start disconnection sequence.
+ *        SHOULD forget about this socket handle and don't use it anymore.
+ *        Don't use this socket object handler after this command.
  *
  * @param[in]  socket  Socket object.
  */
@@ -324,9 +346,9 @@ RWS_API(void) rws_socket_disconnect_and_release(rws_socket socket);
 
 
 /**
- * @brief Check is socket has connection to host and handshake(sucessfully done).
+ * Check is socket has connection to host and handshake(sucessfully done).
  *
- * @detailed Thread safe getter.
+ * @note: Thread safe getter.
  *
  * @param[in]  socket  Socket object.
  *
@@ -336,9 +358,9 @@ RWS_API(rws_bool) rws_socket_is_connected(rws_socket socket);
 
 
 /**
- * @brief Send text to connect socket.
+ * Send text to connect socket.
  *
- * @detailed Thread safe method.
+ * @note: Thread safe method.
  *
  * @param[in]  socket  Socket object.
  * @param[in]  text    Text string for sending.
@@ -349,16 +371,18 @@ RWS_API(rws_bool) rws_socket_send_text(rws_socket socket, const char * text);
 
 
 /**
- * @brief Set socket user defined object pointer for identificating socket object.
+ * Set socket user defined object pointer for identificating socket object.
  *
  * @param[in]  socket       Socket object.
  * @param[in]  user_object  Void pointer to user object.
+ *
+ * @return none.
  */
 RWS_API(void) rws_socket_set_user_object(rws_socket socket, void * user_object);
 
 
 /**
- * @brief Get socket user defined object.
+ * Get socket user defined object.
  *
  * @param[in]  socket  Socket object.
  *
@@ -368,7 +392,7 @@ RWS_API(void *) rws_socket_get_user_object(rws_socket socket);
 
 
 /**
- * @brief Set the callback handler for the connection event.
+ * Set the callback handler for the connection event.
  *
  * @param[in]  socket    The socket object.
  * @param[in]  callback  The handler function.
@@ -379,7 +403,7 @@ RWS_API(void) rws_socket_set_on_connected(rws_socket socket, rws_on_socket callb
 
 
 /**
- * @brief Set the callback handler for the disconnection event.
+ * Set the callback handler for the disconnection event.
  *
  * @param[in]  socket    The socket object.
  * @param[in]  callback  The handler function.
@@ -390,7 +414,7 @@ RWS_API(void) rws_socket_set_on_disconnected(rws_socket socket, rws_on_socket ca
 
 
 /**
- * @brief Set the callback handler when text received.
+ * Set the callback handler when text received.
  *
  * @param[in]  socket    The socket object.
  * @param[in]  callback  The handler function.
@@ -401,7 +425,7 @@ RWS_API(void) rws_socket_set_on_received_text(rws_socket socket, rws_on_socket_r
 
 
 /**
- * @brief Set the callback handler when bin data received.
+ * Set the callback handler when bin data received.
  *
  * @param[in]  socket    The socket object.
  * @param[in]  callback  The handler function.
@@ -412,7 +436,7 @@ RWS_API(void) rws_socket_set_on_received_bin(rws_socket socket, rws_on_socket_re
 
 
 /**
- * @brief Set the callback handler when pong data received.
+ * Set the callback handler when pong data received.
  *
  * @param[in]  socket    The socket object.
  * @param[in]  callback  The handler function.
@@ -423,7 +447,7 @@ RWS_API(void) rws_socket_set_on_received_pong(rws_socket socket, rws_on_socket_r
 
 
 /**
- * @brief Send bin header to connect socket.
+ * Send bin header to connect socket.
  *
  * @detailed Thread safe method.
  *
@@ -437,7 +461,7 @@ RWS_API(rws_bool) rws_socket_send_bin_start(rws_socket socket, const char *bin, 
 
 
 /**
- * @brief Send bin content to connect socket.
+ * Send bin content to connect socket.
  *
  * @detailed Thread safe method.
  *
@@ -451,7 +475,7 @@ RWS_API(rws_bool) rws_socket_send_bin_continue(rws_socket socket, const char *bi
 
 
 /**
- * @brief Send final bin to connect socket.
+ * Send final bin to connect socket.
  *
  * @detailed Thread safe method.
  *
@@ -464,8 +488,7 @@ RWS_API(rws_bool) rws_socket_send_bin_continue(rws_socket socket, const char *bi
 RWS_API(rws_bool) rws_socket_send_bin_finish(rws_socket socket, const char * bin, size_t len);
 
 
-/* error */
-
+/* error code type */
 typedef enum _rws_error_code {
 	rws_error_code_none = 0,
 	rws_error_code_missed_parameter,
@@ -483,7 +506,7 @@ typedef enum _rws_error_code {
 
 
 /**
- * @brief Get the code of the error object.
+ * Get the code of the error object.
  *
  * @param[in]  error  The error.
  *
@@ -493,7 +516,7 @@ RWS_API(int) rws_error_get_code(rws_error error);
 
 
 /**
- * @brief Get the code of the http error object.
+ * Get the code of the http error object.
  *
  * @param[in]  error  The error.
  *
@@ -503,7 +526,7 @@ RWS_API(int) rws_error_get_http_error(rws_error error);
 
 
 /**
- * @brief Get the description of the error object.
+ * Get the description of the error object.
  *
  * @param[in]  error  The error.
  *
@@ -515,7 +538,7 @@ RWS_API(const char *) rws_error_get_description(rws_error error);
 /* mutex */
 
 /**
- * @brief Creates recursive mutex object.
+ * Creates recursive mutex object.
  *
  * @return The mutex object.
  */
@@ -523,7 +546,7 @@ RWS_API(rws_mutex) rws_mutex_create_recursive(void);
 
 
 /**
- * @brief Lock mutex object.
+ * Lock mutex object.
  *
  * @param[in]  mutex  The mutex object.
  *
@@ -533,7 +556,7 @@ RWS_API(void) rws_mutex_lock(rws_mutex mutex);
 
 
 /**
- * @brief Unlock mutex object.
+ * Unlock mutex object.
  *
  * @param[in]  mutex  The mutex object.
  *
@@ -543,7 +566,7 @@ RWS_API(void) rws_mutex_unlock(rws_mutex mutex);
 
 
 /**
- * @brief Delete mutex object.
+ * Delete mutex object.
  *
  * @param[in]  mutex  The mutex object.
  *
@@ -555,7 +578,7 @@ RWS_API(void) rws_mutex_delete(rws_mutex mutex);
 /* thread */
 
 /**
- * @brief Create thread object that start immidiatelly.
+ * Create thread object that start immidiatelly.
  *
  * @param[in]  thread_function  The function to be executed in the thread.
  * @param[in]  user_object      The argument of the thread function.
@@ -566,12 +589,14 @@ RWS_API(rws_thread) rws_thread_create(rws_thread_funct thread_function, void * u
 
 
 /**
- * @brief Pause current thread for a number of milliseconds.
+ * Pause current thread for a number of milliseconds.
  *
  * param[in]  millisec  The number of milliseconds.
  *
  * @return None.
  */
 RWS_API(void) rws_thread_sleep(const unsigned int millisec);
+
+/** @} */
 
 #endif /* __LIBRWS_H__ */
