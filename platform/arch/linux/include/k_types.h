@@ -15,8 +15,8 @@
 #define RHINO_MM_FREE_DYE            0xABABABAB
 
 typedef uint32_t cpu_stack_t;
-typedef uint64_t hr_timer_t;
-typedef uint64_t lr_timer_t;
+typedef uint32_t hr_timer_t;
+typedef uint32_t lr_timer_t;
 typedef sigset_t cpu_cpsr_t;
 
 #endif /* K_TYPES_H */
