@@ -1,9 +1,20 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file event_type_code.h
+ * Definitions of event codes.
+ *
+ * @version   V1.0
+ * @date      2019-11-08
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_EVENT_TYPE_CODE_API_H
 #define AOS_EVENT_TYPE_CODE_API_H
+
+/** @addtogroup aos_yloop event_type_code
+ *  Definitions of event codes.
+ *
+ *  @{
+ */
 
 /* remote procedure call */
 #define EV_RPC 0x0100
@@ -152,5 +163,7 @@
 #define EV_AT 0x020D
 #define CODE_AT_IF_READY 1
 #define CODE_AT_IF_DISAPPEAR 2
+
+/** @} */
 
 #endif /* AOS_EVENT_TYPE_CODE_API_H */
