@@ -544,7 +544,7 @@ static int mesh_disable(hal_wifi_module_t *module)
     return 0;
 }
 
-static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
+static int get_wireless_info(hal_wifi_module_t *m, hal_wireless_info_t *wireless_info)
 {
     hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
 
