@@ -1,12 +1,11 @@
 config AOS_APP_HTTPAPP
-    bool "httpapp"
-    select AOS_COMP_NETMGR
-    select AOS_COMP_YLOOP
+    bool "HTTP Client App"
     select AOS_COMP_HTTP
+    select AOS_COMP_NETMGR
     select AOS_COMP_LWIP
     select AOS_COMP_CLI
     help
-        HTTP Client app
+        HTTP client app
 
 if AOS_APP_HTTPAPP
 config CONFIG_HTTP_SECURE
