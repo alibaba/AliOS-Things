@@ -1,0 +1,12 @@
+config AOS_APP_HTTPDNS_APP
+    bool "httpdns app"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_HTTPDNS
+    help
+        httpdns app
+
+if AOS_APP_HTTPDNS_APP
+# Configurations for httpdns app
+endif
