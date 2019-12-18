@@ -1,0 +1,16 @@
+config AOS_COMP_HTTP_YTS_TEST
+    bool "Http YTS Testcase"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_YLOOP
+    select AOS_COMP_HTTP
+    select AOS_COMP_LWIP
+    select AOS_COMP_CLI
+    help
+        HTTP YTS TEST
+
+if AOS_COMP_HTTP_YTS_TEST
+config CONFIG_HTTP_SECURE
+    bool "Support HTTP Secure"
+    default n
+    select AOS_COMP_MBEDTLS
+endif
