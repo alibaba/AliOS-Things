@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file vfs.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_VFS_H
@@ -16,6 +17,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @addtogroup aos_vfs VFS
+ *  VFS AOS API.
+ *
+ *  @{
+ */
 
 struct aos_utimbuf {
     time_t actime;  /* time of last access */
@@ -48,8 +55,8 @@ typedef struct {
 } aos_dirent_t;
 
 typedef struct {
-    int32_t dd_vfs_fd;
-    int32_t dd_rsv;
+    int32_t dd_vfs_fd;  /* file index in vfs */
+    int32_t dd_rsv;     /* Reserved */
 } aos_dir_t;
 
 typedef const struct file_ops file_ops_t;
@@ -77,6 +84,7 @@ typedef struct {
 
 typedef void (*poll_notify_t)(void *pollfd, void *arg);
 
+/* This struct defined the file operate handles */
 struct file_ops {
     int     (*open)(inode_t *node, file_t *fp);
     int     (*close)(file_t *fp);
@@ -86,6 +94,7 @@ struct file_ops {
     int     (*poll)(file_t *fp, int flag, poll_notify_t notify, void *fd, void *arg);
 };
 
+/* This struct defined the file system operate handles */
 struct fs_ops {
     int           (*open)(file_t *fp, const char *path, int flags);
     int           (*close)(file_t *fp);
@@ -489,6 +498,8 @@ int aos_register_fs(const char *path, fs_ops_t* ops, void *arg);
  *
  */
 int aos_unregister_fs(const char *path);
+
+/** @} */
 
 #ifdef __cplusplus
 }
