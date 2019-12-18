@@ -1,0 +1,12 @@
+config AOS_APP_WEBSOC_APP
+    bool "websoc app"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_WEBSOC
+    help
+        websoc app
+
+if AOS_APP_WEBSOC_APP
+# Configurations for websoc app
+endif
