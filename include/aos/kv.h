@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file kv.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_KV_H
@@ -8,6 +9,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @addtogroup aos_kv KV
+ *  KV AOS API: Data storing service based on key-value paring.
+ *
+ *  @{
+ */
 
 /**
  * Init the kv module.
@@ -38,7 +45,7 @@ int aos_kv_set(const char *key, const void *value, int len, int sync);
 /**
  * Get the KV pair's value stored in buffer by its key.
  *
- * @note: the buffer_len should be larger than the real length of the value,
+ * @note: the buffer_len should not be smaller than the real length of the value,
  *        otherwise buffer would be NULL.
  *
  * @param[in]      key         the key of the KV pair to get.
@@ -94,6 +101,8 @@ int aos_kv_secure_set(const char *key, const void *value, int len, int sync);
  * @return  0 on success, negative error on failure.
  */
 int aos_kv_secure_get(const char *key, void *buffer, int *buffer_len);
+
+/** @} */
 
 #ifdef __cplusplus
 }

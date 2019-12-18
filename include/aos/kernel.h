@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file kernel.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_KERNEL_H
@@ -12,42 +13,61 @@
 extern "C" {
 #endif
 
+/**
+ * @addtogroup aos_kernel kernel
+ * kernel AOS API.
+ *
+ * @{
+ */
+
+/* Define the AliOS-Things' Version */
 #define SYSINFO_KERNEL_VERSION "AOS-R-3.0.0"
 
-#define AOS_WAIT_FOREVER 0xffffffffu
-#define AOS_NO_WAIT      0x0
+/* Defined for API with delay time */
+#define AOS_WAIT_FOREVER 0xffffffffu /* Wait one event for ever */
+#define AOS_NO_WAIT      0x0         /* return immediately if no event */
 
+/* Define default aos task priority*/
 #ifndef AOS_DEFAULT_APP_PRI
-#define AOS_DEFAULT_APP_PRI 32
+#define AOS_DEFAULT_APP_PRI 32       /* Default task priority */
 #endif
 
+/* This struct is used to define the handle for all aos module */
 typedef struct {
     void *hdl;
 } aos_hdl_t;
 
+/* Define the main handle for task module */
 typedef aos_hdl_t aos_task_t;
+/* Define the main handle for mutex module */
 typedef aos_hdl_t aos_mutex_t;
+/* Define the main handle for sem module */
 typedef aos_hdl_t aos_sem_t;
+/* Define the main handle for queue module */
 typedef aos_hdl_t aos_queue_t;
+/* Define the main handle for timer module */
 typedef aos_hdl_t aos_timer_t;
+/* Define the main handle for work module */
 typedef aos_hdl_t aos_work_t;
-
+/* Define the main handle for workqueue module */
 typedef struct {
-    void *hdl;
-    void *stk;
+    void *hdl;     /* internel rhino handle */
+    void *stk;     /* workqueue task stack start addr */
 } aos_workqueue_t;
-
+/* Define the data type for task key index */
 typedef unsigned int aos_task_key_t;
 
 /**
  * Reboot AliOS.
+ *
+ * @return none.
  */
 void aos_reboot(void);
 
 /**
  * Get HZ(ticks per second).
  *
- * @return  RHINO_CONFIG_TICKS_PER_SECOND.
+ * @return RHINO_CONFIG_TICKS_PER_SECOND.
  */
 int aos_get_hz(void);
 
@@ -66,7 +86,7 @@ const char *aos_version_get(void);
  * @param[in]  arg        argument of the function.
  * @param[in]  stacksize  stack-size in bytes.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_task_new(const char *name, void (*fn)(void *), void *arg, int stack_size);
 
@@ -81,7 +101,7 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg, int stack_size
  * @param[in]  stack_size  stack-size in bytes.
  * @param[in]  prio        priority value, the max is RHINO_CONFIG_USER_PRI_MAX(default 60).
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *),
                      void *arg, int stack_size, int prio);
@@ -90,6 +110,8 @@ int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *),
  * Exit a task.
  *
  * @param[in]  code  not used now.
+ *
+ * @return  none.
  */
 void aos_task_exit(int code);
 
@@ -98,7 +120,7 @@ void aos_task_exit(int code);
  *
  * @param[in]  name  task name.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_task_delete(char *name);
 
@@ -122,6 +144,8 @@ int aos_task_key_create(aos_task_key_t *key);
  * Delete a task key.
  *
  * @param[in]  key  key object.
+ *
+ * @return  none.
  */
 void aos_task_key_delete(aos_task_key_t key);
 
@@ -131,7 +155,7 @@ void aos_task_key_delete(aos_task_key_t key);
  * @param[in]  key  key object.
  * @param[in]  vp   pointer of a task-specific value.
  *
- * @return  the check status, 0 is OK, -1 indicates invalid.
+ * @return  the check status, 0: OK, -1: indicates key invalid.
  */
 int aos_task_setspecific(aos_task_key_t key, void *vp);
 
@@ -139,6 +163,8 @@ int aos_task_setspecific(aos_task_key_t key, void *vp);
  * Get the value currently bound to the specified key.
  *
  * @param[in]  key  key object.
+ *
+ * @return  NULL: get fail, otherwise: get succeed.
  */
 void *aos_task_getspecific(aos_task_key_t key);
 
@@ -148,7 +174,7 @@ void *aos_task_getspecific(aos_task_key_t key);
  * @param[in]  mutex  pointer of mutex object, mutex object must be alloced,
  *                    hdl pointer in aos_mutex_t will refer a kernel obj internally.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_mutex_new(aos_mutex_t *mutex);
 
@@ -157,6 +183,8 @@ int aos_mutex_new(aos_mutex_t *mutex);
  *
  * @param[in]  mutex  mutex object, mem refered by hdl pointer in
  *                    aos_mutex_t will be freed internally.
+ *
+ * @return  none.
  */
 void aos_mutex_free(aos_mutex_t *mutex);
 
@@ -165,8 +193,10 @@ void aos_mutex_free(aos_mutex_t *mutex);
  *
  * @param[in]  mutex    mutex object, it contains kernel obj pointer.
  * @param[in]  timeout  waiting until timeout in milliseconds.
+ *                      value:  AOS_WAIT_FOREVER: wait mutex for ever.
+ *                              0: return immediately if not get mutex.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout);
 
@@ -175,7 +205,7 @@ int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout);
  *
  * @param[in]  mutex  mutex object, it contains kernel obj pointer.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_mutex_unlock(aos_mutex_t *mutex);
 
@@ -195,7 +225,7 @@ int aos_mutex_is_valid(aos_mutex_t *mutex);
  *                     alloced, hdl pointer in aos_sem_t will refer a kernel obj internally.
  * @param[in]   count  initial semaphore counter.
  *
- * @return  0:success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_sem_new(aos_sem_t *sem, int count);
 
@@ -204,6 +234,8 @@ int aos_sem_new(aos_sem_t *sem, int count);
  *
  * @param[in]  sem  pointer of semaphore object, mem refered by hdl pointer
  *                  in aos_sem_t will be freed internally.
+ *
+ * @return  none.
  */
 void aos_sem_free(aos_sem_t *sem);
 
@@ -213,8 +245,10 @@ void aos_sem_free(aos_sem_t *sem);
  * @param[in]  sem      semaphore object, it contains kernel obj pointer
  *                      which aos_sem_new alloced.
  * @param[in]  timeout  waiting until timeout in milliseconds.
+ *                      value:  AOS_WAIT_FOREVER: wait mutex for ever.
+ *                              0: return immediately if not get mutex.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_sem_wait(aos_sem_t *sem, unsigned int timeout);
 
@@ -222,6 +256,9 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout);
  * Release a semaphore.
  *
  * @param[in]  sem  semaphore object, it contains kernel obj pointer which aos_sem_new alloced.
+ *                  It will wakeup one task which is waiting for the sem according to task priority.
+ *
+ * @return  none.
  */
 void aos_sem_signal(aos_sem_t *sem);
 
@@ -238,6 +275,9 @@ int aos_sem_is_valid(aos_sem_t *sem);
  * Release all semaphore.
  *
  * @param[in]  sem  semaphore object, it contains kernel obj pointer which aos_sem_new alloced.
+ *                  It will wakeup all tasks waiting for the sem.
+ *
+ * @return  none.
  */
 void aos_sem_signal_all(aos_sem_t *sem);
 
@@ -247,9 +287,9 @@ void aos_sem_signal_all(aos_sem_t *sem);
  * @param[in]  queue    pointer to the queue(the space is provided by user).
  * @param[in]  buf      buf of the queue(provided by user).
  * @param[in]  size     the bytes of the buf.
- * @param[in]  max_msg  the max size of the msg.
+ * @param[in]  max_msg  the max size for one msg.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg);
 
@@ -257,6 +297,8 @@ int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
  * This function will delete a queue.
  *
  * @param[in]  queue  pointer to the queue.
+ *
+ * @return  none.
  */
 void aos_queue_free(aos_queue_t *queue);
 
@@ -267,7 +309,7 @@ void aos_queue_free(aos_queue_t *queue);
  * @param[in]  msg    msg to send.
  * @param[in]  size   size of the msg.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size);
 
@@ -279,7 +321,7 @@ int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size);
  * @param[out]  msg    buf to save msg.
  * @param[out]  size   size of the msg.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg, unsigned int *size);
 
@@ -293,7 +335,7 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg, unsigned int 
 int aos_queue_is_valid(aos_queue_t *queue);
 
 /**
- * This function will return buf ptr if queue is inited.
+ * This function will return buf start ptr if queue is inited.
  *
  * @param[in]  queue  pointer to the queue.
  *
@@ -310,7 +352,7 @@ void *aos_queue_buf_ptr(aos_queue_t *queue);
  * @param[in]  ms      ms of the normal timer triger.
  * @param[in]  repeat  repeat or not when the timer is created.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                   int ms, int repeat);
@@ -322,10 +364,10 @@ int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
  * @param[in]  fn        callbak of the timer.
  * @param[in]  arg       the argument of the callback.
  * @param[in]  ms        ms of the normal timer triger.
- * @param[in]  repeat    repeat or not when the timer is created.
+ * @param[in]  repeat    repeat or not when the timer is expired.
  * @param[in]  auto_run  run auto or not when the timer is created.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                       int ms, int repeat, unsigned char auto_run);
@@ -334,6 +376,8 @@ int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
  * This function will delete a timer.
  *
  * @param[in]  timer  pointer to a timer.
+ *
+ * @return  none.
  */
 void aos_timer_free(aos_timer_t *timer);
 
@@ -342,7 +386,7 @@ void aos_timer_free(aos_timer_t *timer);
  *
  * @param[in]  timer  pointer to the timer.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_timer_start(aos_timer_t *timer);
 
@@ -351,7 +395,7 @@ int aos_timer_start(aos_timer_t *timer);
  *
  * @param[in]  timer  pointer to the timer.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_timer_stop(aos_timer_t *timer);
 
@@ -364,7 +408,7 @@ int aos_timer_stop(aos_timer_t *timer);
  * @note change the timer attributes should follow
  *       the sequence as timer_stop->timer_change->timer_start
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_timer_change(aos_timer_t *timer, int ms);
 
@@ -375,7 +419,7 @@ int aos_timer_change(aos_timer_t *timer, int ms);
  * @param[in]  pri         the priority of the worker.
  * @param[in]  stack_size  the size of the worker-stack.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size);
 
@@ -387,7 +431,7 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size);
  * @param[in]  arg   the paraments of the function.
  * @param[in]  dly   ms to delay before run.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly);
 
@@ -395,6 +439,8 @@ int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly);
  * This function will destroy a work.
  *
  * @param[in]  work  the work to be destroied.
+ *
+ * @return  none.
  */
 void aos_work_destroy(aos_work_t *work);
 
@@ -404,7 +450,7 @@ void aos_work_destroy(aos_work_t *work);
  * @param[in]  workqueue  the workqueue to run work.
  * @param[in]  work       the work to run.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work);
 
@@ -413,7 +459,7 @@ int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work);
  *
  * @param[in]  work  the work to run.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_work_sched(aos_work_t *work);
 
@@ -422,7 +468,7 @@ int aos_work_sched(aos_work_t *work);
  *
  * @param[in]  work  the work to cancel.
  *
- * @return  0: success.
+ * @return  0: success, otherwise: fail.
  */
 int aos_work_cancel(aos_work_t *work);
 
@@ -468,7 +514,9 @@ void *aos_zalloc(unsigned int size);
  * Trace alloced mems.
  *
  * @param[in]  addr       pointer of the mem alloced by malloc.
- * @param[in]  allocator  buildin_address.
+ * @param[in]  allocator  buildin_address to trace the alloc addr.
+ *
+ * @return  none.
  */
 void aos_alloc_trace(void *addr, size_t allocator);
 
@@ -476,20 +524,22 @@ void aos_alloc_trace(void *addr, size_t allocator);
  * Free memory.
  *
  * @param[in]  ptr  address point of the mem.
+ *
+ * @return  none.
  */
 void aos_free(void *mem);
 
 /**
  * Get current time in nano seconds.
  *
- * @return  elapsed time in nano seconds from system starting.
+ * @return  type long long      elapsed time in nano seconds from system starting.
  */
 long long aos_now(void);
 
 /**
  * Get current time in mini seconds.
  *
- * @return  elapsed time in mini seconds from system starting.
+ * @return  type long long      elapsed time in mini seconds from system starting.
  */
 long long aos_now_ms(void);
 
@@ -509,9 +559,11 @@ long long aos_now_ms(void);
 char *aos_now_time_str(char *buffer, const int len);
 
 /**
- * Msleep.
+ * Msleep. Sleep current task for ms.
  *
  * @param[in]  ms  sleep time in milliseconds.
+ *
+ * @return  none.
  */
 void aos_msleep(int ms);
 
@@ -519,6 +571,8 @@ void aos_msleep(int ms);
  * srand function.
  *
  * @param[in]  seed  The seed number to use to generate the random sequence.
+ *
+ * @return  none.
  */
 void aos_srand(unsigned int seed);
 
@@ -538,6 +592,8 @@ void aos_init(void);
  * Start system.
  */
 void aos_start(void);
+
+/** @} */
 
 #ifdef __cplusplus
 }
