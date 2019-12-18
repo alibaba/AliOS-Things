@@ -201,12 +201,12 @@ static yunit_test_case_t aos_websoc_testcases[] = {
 };
 
 static yunit_test_suite_t suites[] = {
-    { "websoc", init, cleanup, setup, teardown, aos_websoc_testcases },
+    { "http", init, cleanup, setup, teardown, aos_websoc_testcases },
     YUNIT_TEST_SUITE_NULL
 };
 
-void test_websoc(void)
+void test_http(void)
 {
     yunit_add_test_suites(suites);
 }
-AOS_TESTCASE(test_websoc);
+AOS_TESTCASE(test_http);
