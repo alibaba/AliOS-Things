@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file cli.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_CLI_H
@@ -9,11 +10,19 @@
 extern "C" {
 #endif
 
-struct cli_command {
-    const char *name;
-    const char *help;
+/**
+ * @addtogroup aos_cli cli
+ * Cli API.
+ *
+ * @{
+ */
 
-    void (*function)(char *outbuf, int len, int argc, char **argv);
+/* This struct is used to define the cli cmd format */
+struct cli_command {
+    const char *name;   /* cmd name */
+    const char *help;   /* cmd help info */
+
+    void (*function)(char *outbuf, int len, int argc, char **argv); /* cmd process function */
 };
 
 /**
@@ -90,6 +99,8 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
  * @return 0 on success, otherwise failed
  */
 #define aos_cli_printf(fmt, ...) printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
+
+/** @} */
 
 #ifdef __cplusplus
 }

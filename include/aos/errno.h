@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file errno.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_ERRNO_H
@@ -9,12 +10,19 @@
 extern "C" {
 #endif
 
+/**
+ * @addtogroup aos_errno errno
+ * Define standard errno.
+ *
+ * @{
+ */
+
 #if defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32)
 
 #include <errno.h>
 
 #else
-
+/* Define standard errno for __CC_ARM and __ICCARM__ */
 #define  EPERM         1  /* Operation not permitted */
 #define  ENOENT        2  /* No such file or directory */
 #define  ESRCH         3  /* No such process */
@@ -201,16 +209,29 @@ extern "C" {
 #else /* BUILD_BIN */
 
 #ifdef BUILD_APP
-
+/**
+ * Get system errno.
+ *
+ * @return  int: return system errno for app bin.
+ */
 extern int  get_errno(void);
+/**
+ * Set system errno.
+ *
+ * @param[in]  err       err to set into system.
+ *
+ * @return  none.
+ */
 extern void set_errno(int err);
 
 #undef errno
-#define errno get_errno()
+#define errno get_errno()   /* Get system errno, unique copy for system */
 
 #endif /* BUILD_APP */
 
 #endif /* BUILD_BIN */
+
+/** @} */
 
 #ifdef __cplusplus
 }
