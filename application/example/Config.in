@@ -276,5 +276,11 @@ if AOS_APP_WEBSOC_APP
         default "websoc_app"
 endif
 
+source "application/example/httpdns_app/Config.in"
+if AOS_APP_HTTPDNS_APP
+    config AOS_BUILD_APP
+        default "httpdns_app"
+endif
+
 endchoice
 endif
