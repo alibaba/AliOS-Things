@@ -1,135 +1,80 @@
-/**
- * Copyright (C) 2018 Alibaba.inc, All rights reserved.
- *
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "aos/kernel.h"
-#include "aos/yloop.h"
-#include "aos/cli.h"
-#include "http.h"
 
+#include <aos/kernel.h>
+#include <aos/cli.h>
+#include <aos/yloop.h>
+#include <network/network.h>
+#include "http_config.h"
+#include <http.h>
+#if CONFIG_HTTP_SECURE
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha1.h"
+#endif
 #include "ulog/ulog.h"
+#include "netmgr.h"
 
 #define TAG "HTTPAPP"
-#define BUF_SIZE 1024
 
-char *geturl    = "https://iot-auth.cn-shanghai.aliyuncs.com/";
-char *posturl   = "https://api.mediatek.com/mcs/v2/devices/D0n2yhrl/datapoints.csv";
-char *puturl    = "https://ec2-52-76-74-57.ap-southeast-1.compute.amazonaws.com/mcs/test/ok/200";
-char *deleteurl = "https://ec2-52-76-74-57.ap-southeast-1.compute.amazonaws.com/mcs/test/ok/200";
-char *commonurl = "https://iot-auth.cn-shanghai.aliyuncs.com/";
+#define CONFIG_HTTP_CONTINUE_TEST 0
 
-/* httpc get method demo */
-int httpc_get_demo(char* url)
-{
-    httpclient_t client = {0};
-    httpclient_data_t client_data = {0};
-    char *buf = NULL;
-    int ret;
+enum {
+    HTTPAPP_AUTH,
+    HTTPAPP_OTA,
+    HTTPAPP_OTA_HEAD,
+    HTTPAPP_DYNAMIC_UP,
+    HTTPAPP_GET,
+    HTTPAPP_POST,
+    HTTPAPP_DELETE,
+    HTTPAPP_PUT,
+    HTTPAPP_INVALID,
+};
 
-    buf = malloc(BUF_SIZE);
-    if (buf == NULL) {
-        LOGE(TAG, "Malloc failed.");
-        return -1;
-    }
-    memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    ret = httpc_get(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGE(TAG, "Data received: %s", client_data.response_buf);
-    }
-    return ret;
-}
+bool httpapp_running = false;
+int command = HTTPAPP_INVALID;
+httpc_connection_t settings;
+static bool _ip_got_finished = false;
 
-/* httpc post method demo */
-int httpc_post_demo(char* url)
-{
-    char *header = "deviceKey:FZoo0S07CpwUHcrt\r\n";
-    char *content_type = "text/csv";
-    char *post_data = "1,,I am string!";
-    httpclient_t client = {0};
-    httpclient_data_t client_data = {0};
-    char *buf = NULL;
-    int ret;
+#if 1
+#define PRODUCT_KEY             "a1cXH4Sgvdu"
+#define PRODUCT_SECRET          "7PCG4aRnzdetZaIH"
+#define DEVICE_NAME             "alios_net_test_1_1"
+#define DEVICE_SECRET           "UgMue4eixCAKyGnhMjde51Bbs07c3tdW"
+#else
+#define PRODUCT_KEY             "a1MZxOdcBnO"
+#define PRODUCT_SECRET          "h4I4dneEFp7EImTv"
+#define DEVICE_NAME             "test_01"
+#define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+#endif
 
-    buf = malloc(BUF_SIZE);
-    if (buf == NULL) {
-        LOGE(TAG, "Malloc failed.\r\n");
-        return -1;
-    }
-    memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    httpc_set_custom_header(&client, header);  //Sets the custom header if needed.
-    client_data.post_buf = post_data;  //Sets the user data to be posted.
-    client_data.post_buf_len = strlen(post_data);  //Sets the post data length.
-    client_data.post_content_type = content_type;  //Sets the content type.
-    ret = httpc_post(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGE(TAG, "Data received: %s", client_data.response_buf);
-    }
-    return ret;
-}
+httpc_handle_t httpapp_handle = 0;
+#if CONFIG_HTTP_SECURE
+char auth_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-auth.cn-shanghai.aliyuncs.com/";
+uint32_t auth_req_times = 0;
+uint32_t auth_req_fail_times = 0;
+uint32_t auth_rsp_times = 0;
+#endif
+static char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80";
+static char oss_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://aliosthings.oss-cn-hangzhou.aliyuncs.com/";
+uint32_t ota_req_times = 0;
+uint32_t ota_req_fail_times = 0;
+uint32_t ota_rsp_times = 0;
+bool ota_header_found = false;
+int32_t ota_file_size = 0;
+int32_t ota_rx_size = 0;
 
-/* httpc put method demo */
-int httpc_put_demo(char* url)
-{
-    char *content_type = "text/csv";
-    char *put_data = "1,,I am string!";
-    httpclient_t client = {0};
-    httpclient_data_t client_data = {0};
-    char *buf = NULL;
-    int ret = 0;
+uint32_t ota_head_req_times = 0;
+uint32_t ota_head_req_fail_times = 0;
+uint32_t ota_head_rsp_times = 0;
 
-    buf = malloc(BUF_SIZE);
-    if (buf == NULL) {
-        LOGE(TAG, "Malloc failed.");
-        return -1;
-    }
-    memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    client_data.post_buf = put_data;  //Sets the user data to be put.
-    client_data.post_buf_len = strlen(put_data);  //Sets the put data length.
-    client_data.post_content_type = content_type;  //Sets the content type.
-    ret = httpc_put(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGD(TAG, "Data received: %s", client_data.response_buf);
-    }
-    return ret;
-}
-
-/* httpc put delete demo */
-int httpc_delete_demo(char* url)
-{
-    httpclient_t client = {0};
-    httpclient_data_t client_data = {0};
-    char *buf = NULL;
-    int ret;
-
-    buf = malloc(BUF_SIZE);
-    if (buf == NULL) {
-        LOGE(TAG, "Malloc failed.");
-        return -1;
-    }
-    memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    ret = httpc_delete(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGD(TAG, "Data received: %s", client_data.response_buf);
-    }
-    return ret;
-}
-
-/* httpc test demo */
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
 {
-        \
+    \
     "-----BEGIN CERTIFICATE-----\r\n"
     "MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
     "A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
@@ -154,137 +99,687 @@ static const char *ca_cert = \
 };
 #endif
 
-#define HTTPS_HDR_SIZE 128
-#define REQ_BUF_SIZE 1024
 #define RSP_BUF_SIZE 2048
-static uint8_t req_buf[REQ_BUF_SIZE] = {0};
-static uint8_t rsp_buf[RSP_BUF_SIZE] = {0};
-static char hdr[HTTPS_HDR_SIZE] = {0};
-HTTPC_RESULT httpc_demo(httpclient_t *client, char *url)
+uint8_t rsp_buf[RSP_BUF_SIZE];
+
+#if CONFIG_HTTP_SECURE
+static int8_t hb2hex(uint8_t hb)
 {
-    int ret = HTTP_ECONN;
-    int fd;
-    httpc_connection_t settings;
-    httpc_handle_t httpc_handle;
+    hb = hb & 0xf;
+    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'a');
+}
+
+#define KEY_IOPAD_SIZE 64
+#define SHA256_DIGEST_SIZE 32
+static void hmac_sha256(char *sign, const char *msg, int msg_len,
+                        const char *key, int key_len)
+{
+    mbedtls_sha256_context context;
+    unsigned char k_ipad[KEY_IOPAD_SIZE];
+    unsigned char k_opad[KEY_IOPAD_SIZE];
+    unsigned char out[SHA256_DIGEST_SIZE];
+    int32_t index;
+
+    memset(k_ipad, 0, sizeof(k_ipad));
+    memset(k_opad, 0, sizeof(k_opad));
+    strncpy(k_ipad, key, key_len);
+    strncpy(k_opad, key, key_len);
+
+    for (index = 0; index < KEY_IOPAD_SIZE; index++) {
+        k_ipad[index] ^= 0x36;
+        k_opad[index] ^= 0x5c;
+    }
+
+    mbedtls_sha256_init(&context);
+    mbedtls_sha256_starts(&context, 0);
+    mbedtls_sha256_update(&context, k_ipad, KEY_IOPAD_SIZE);
+    mbedtls_sha256_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha256_finish(&context, out);
+
+    mbedtls_sha256_init(&context);
+    mbedtls_sha256_starts(&context, 0);
+    mbedtls_sha256_update(&context, k_opad, KEY_IOPAD_SIZE);
+    mbedtls_sha256_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha256_finish(&context, out);
+
+    for (index = 0; index < SHA256_DIGEST_SIZE; ++index) {
+        sign[index * 2] = hb2hex(out[index] >> 4);
+        sign[index * 2 + 1] = hb2hex(out[index]);
+    }
+}
+
+#define SHA1_DIGEST_SIZE 20
+static void hmac_sha1(char *sign, const char *msg, int msg_len,
+                      const char *key, int key_len)
+{
+    mbedtls_sha1_context context;
+    unsigned char k_ipad[KEY_IOPAD_SIZE];
+    unsigned char k_opad[KEY_IOPAD_SIZE];
+    unsigned char out[SHA1_DIGEST_SIZE];
+    int index;
+
+    memset(k_ipad, 0, sizeof(k_ipad));
+    memset(k_opad, 0, sizeof(k_opad));
+    memcpy(k_ipad, key, key_len);
+    memcpy(k_opad, key, key_len);
+    memset(out, 0, SHA1_DIGEST_SIZE);
+
+    for (index = 0; index < KEY_IOPAD_SIZE; index++) {
+        k_ipad[index] ^= 0x36;
+        k_opad[index] ^= 0x5c;
+    }
+
+    mbedtls_sha1_init(&context);
+    mbedtls_sha1_starts(&context);
+    mbedtls_sha1_update(&context, k_ipad, KEY_IOPAD_SIZE);
+    mbedtls_sha1_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha1_finish(&context, out);
+
+    mbedtls_sha1_init(&context);
+    mbedtls_sha1_starts(&context);
+    mbedtls_sha1_update(&context, k_opad, KEY_IOPAD_SIZE);
+    mbedtls_sha1_update(&context, out, SHA1_DIGEST_SIZE);
+    mbedtls_sha1_finish(&context, out);
+
+    for (index = 0; index < SHA1_DIGEST_SIZE; ++index) {
+        sign[index * 2] = hb2hex(out[index] >> 4);
+        sign[index * 2 + 1] = hb2hex(out[index]);
+    }
+}
+
+static int32_t calc_sign(char *sign, const char *device_id, const char *product_key,
+                         const char *device_name, const char *device_secret,
+                         const char *timestamp)
+{
+    char hmac_source[512] = {0};
+
+    snprintf(hmac_source, sizeof(hmac_source),
+             "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+             device_id, device_name, product_key, timestamp);
+
+    hmac_sha1(sign, hmac_source, strlen(hmac_source),
+              device_secret, strlen(device_secret));
+    return HTTP_SUCCESS;
+}
+
+#define HTTP_AUTH_HDR_SIZE 128
+#define HTTP_AUTH_DATA_SIZE 512
+#define HTTP_AUTH_SIGN_SIZE 66
+#define HTTP_AUTH_TS_SIZE 16
+static int32_t httpapp_auth(const char *device_id, const char *product_key,
+                       const char *device_name, const char *device_secret)
+{
+    int32_t ret;
+    char hdr[HTTP_AUTH_HDR_SIZE] = {0};
+    char data[HTTP_AUTH_DATA_SIZE] = {0};
+    char sign[HTTP_AUTH_SIGN_SIZE] = {0};
+    char timestamp[HTTP_AUTH_TS_SIZE] = {"2524608000000"};
+    http_rsp_info_t rsp_info;
+
+    ret = httpc_construct_header(hdr, HTTP_AUTH_HDR_SIZE, "Accept",
+                                "text/xml,text/javascript,text/html,application/json");
+    if (ret < 0) {
+        LOGE(TAG, "http construct header fail");
+        return -1;
+    }
+
+    calc_sign(sign, device_id, product_key, device_name, device_secret, timestamp);
+    ret = snprintf(data, HTTP_AUTH_DATA_SIZE,
+                   "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
+                   "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
+                   product_key, device_name, "hmacsha1", sign, device_id, timestamp);
+
+    if (ret < 0) {
+        LOGE(TAG, "http construct data payload fail");
+        return -1;
+    }
+
+    ret = httpc_send_request(httpapp_handle, HTTP_POST, "/auth/devicename", hdr,
+                       "application/x-www-form-urlencoded;charset=utf-8", data, ret);
+    ++auth_req_times;
+    if (ret != HTTP_SUCCESS) {
+        ++auth_req_fail_times;
+        goto exit;
+    }
+
+    memset(rsp_buf, 0, sizeof(rsp_buf));
+    ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    if (ret < 0) {
+        ++auth_req_fail_times;
+    } else {
+        LOGE(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+            httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        if (rsp_info.rsp_len > 0) {
+            LOGE(TAG, "%s", rsp_buf);
+        }
+
+        if (rsp_info.message_complete) {
+            ++auth_rsp_times;
+        }
+    }
+
+exit:
+    LOGE(TAG, "auth_req_times %d, auth_rsp_times %d, auth_req_fail_times %d",
+         auth_req_times, auth_rsp_times, auth_req_fail_times);
+    close(settings.socket);
+    httpc_deinit(httpapp_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpapp_running = true;
+#endif
+    httpapp_handle = 0;
+    return ret;
+}
+#endif
+
+#define HTTP_OTA_HDR_SIZE 64
+static int32_t httpapp_ota(const char *uri)
+{
+    char hdr[HTTP_OTA_HDR_SIZE] = {0};
+    int ret;
     http_rsp_info_t rsp_info;
     char *content;
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) {
-        LOGE(TAG, "Alloc socket fd fail");
-        goto exit;
+    if (uri == NULL) {
+        return HTTP_EARG;
     }
 
-    memset(&settings, 0, sizeof(settings));
-    settings.socket = fd;
-    settings.server_name = url;
-#if CONFIG_HTTP_SECURE 
-    settings.ca_cert = ca_cert;
-#endif
-    settings.req_buf = req_buf;
-    settings.req_buf_size = REQ_BUF_SIZE;
-    httpc_handle = httpc_init(&settings);
-    if (httpc_handle == 0) {
-        LOGE(TAG, "http session init fail");
-        close(fd);
-        goto exit;
-    }
-
-    ret = httpc_construct_header(hdr, HTTPS_HDR_SIZE, "Accept", "*/*");
+    ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
     if (ret < 0) {
-        LOGE(TAG, "http construct header fail ret=%d\n", ret);
-        close(fd);
-        httpc_deinit(httpc_handle);
+        LOGE(TAG, "http construct header fail");
         return ret;
     }
 
-    ret = httpc_send_request(httpc_handle, HTTP_GET, NULL, hdr, NULL, NULL, 0);
+    ret = httpc_send_request(httpapp_handle, HTTP_GET, uri, hdr, NULL, NULL, 0);
+    ++ota_req_times;
     if (ret != HTTP_SUCCESS) {
-        LOGE(TAG, "http send request fail ret=%d\n", ret);
-        close(fd);
-        httpc_deinit(httpc_handle);
+        ++ota_req_fail_times;
         goto exit;
     }
 
-    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    while (ota_file_size == 0 || ota_rx_size < ota_file_size) {
+        memset(rsp_buf, 0, sizeof(rsp_buf));
+        ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+        if (ret < 0) {
+            ++ota_req_fail_times;
+            break;
+        } else {
+            if (rsp_info.body_present || rsp_info.message_complete) {
+                LOGE(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+                    httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+                if (ota_header_found == false) {
+                    if (ota_file_size == 0) {
+                        content = strstr(rsp_buf, "Content-Length");
+                        if (content) {
+                            ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
+                            if (ret < 0) {
+                                LOGE(TAG, "http session fail to get ota header");
+                                ++ota_req_fail_times;
+                                break;
+                            }
+                            ota_header_found = true;
+                            LOGE(TAG, "ota file size %d", ota_file_size);
+                        } else {
+                            continue;
+                        }
+                    }
+                    content = strstr(rsp_buf, "\r\n\r\n");
+                    if (content) {
+                        content += 4;
+                        ota_rx_size = rsp_info.rsp_len - ((uint8_t *)content - rsp_buf);
+                        LOGE(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
+                    }
+                    continue;
+                }
+                ota_rx_size += rsp_info.rsp_len;
+                LOGE(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
+            }
+        }
+    }
+
+    if (ota_rx_size >= ota_file_size && rsp_info.message_complete) {
+        ++ota_rsp_times;
+    }
+
+exit:
+    close(settings.socket);
+    httpc_deinit(httpapp_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpapp_running = true;
+#endif
+    httpapp_handle = 0;
+    ota_header_found = false;
+    ota_file_size = 0;
+    ota_rx_size = 0;
+    LOGE(TAG, "ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d",
+         ota_req_times, ota_rsp_times, ota_req_fail_times);
+    return ret;
+}
+
+static int32_t httpapp_ota_head(const char *uri)
+{
+    char hdr[HTTP_OTA_HDR_SIZE] = {0};
+    int ret;
+    http_rsp_info_t rsp_info;
+    char *content;
+
+    if (uri == NULL) {
+        return HTTP_EARG;
+    }
+
+    ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
     if (ret < 0) {
-        LOGE(TAG, "http recv response fail ret=%d", ret);
+        LOGE(TAG, "http construct header fail");
+        return ret;
+    }
+
+    ret = httpc_send_request(httpapp_handle, HTTP_HEAD, uri, hdr, NULL, NULL, 0);
+    ++ota_head_req_times;
+    if (ret != HTTP_SUCCESS) {
+        ++ota_head_req_fail_times;
+        goto exit;
+    }
+
+    memset(rsp_buf, 0, sizeof(rsp_buf));
+    ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 300000);
+    if (ret < 0) {
+        ++ota_head_req_fail_times;
     } else {
-        LOGD(TAG, "http session %x, buf size %d bytes, recv %d bytes data\n",
-            httpc_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        LOGD(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+            httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        if (rsp_info.rsp_len > 0) {
+            LOGD(TAG, "%s", rsp_buf);
+        }
+
+        if (rsp_info.headers_complete) {
+            ++ota_head_rsp_times;
+        }
+    }
+
+exit:
+    LOGD("ota_head_req_times %d, ota_head_rsp_times %d, ota_head_req_fail_times %d",
+         ota_head_req_times, ota_head_rsp_times, ota_head_req_fail_times);
+    close(settings.socket);
+    httpc_deinit(httpapp_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpapp_running = true;
+#endif
+    httpapp_handle = 0;
+    return ret;
+}
+
+#define HTTP_UP_HDR_SIZE 64
+static char bin_to_up[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
+static char httpapp_url[256];
+static char httpapp_data[256];
+static uint32_t up_req_times = 0;
+static uint32_t up_rsp_times = 0;
+static uint32_t up_req_fail_times = 0;
+
+static int32_t httpapp_up(char *uri)
+{
+    char hdr[HTTP_UP_HDR_SIZE] = { 0 };
+    int32_t ret;
+    http_rsp_info_t rsp_info;
+
+    if (uri == NULL) {
+        return HTTP_EARG;
+    }
+
+    ret = httpc_construct_header(hdr, HTTP_UP_HDR_SIZE, "Accept",
+                                 "text/xml,text/javascript,text/html,application/json");
+    if (ret < 0) {
+        LOGE(TAG, "http construct header fail");
+        return ret;
+    }
+
+    ret = httpc_send_request(httpapp_handle, HTTP_PUT, uri, hdr, "", bin_to_up, sizeof(bin_to_up));
+    ++up_req_times;
+    if (ret != HTTP_SUCCESS) {
+        ++up_req_fail_times;
+        goto exit;
+    }
+
+    memset(rsp_buf, 0, sizeof(rsp_buf));
+    ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    if (ret < 0) {
+        ++up_req_fail_times;
+    } else {
+        LOGD(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+            httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
         if (rsp_info.rsp_len > 0) {
             LOGD(TAG, "%s", rsp_buf);
         }
 
         if (rsp_info.message_complete) {
-            LOGD(TAG, "message_complete!");
+            ++up_rsp_times;
         }
     }
 
-    close(fd);
-    httpc_deinit(httpc_handle);
-
 exit:
-    LOGE(TAG, "httpclient_connect() result:%d, client:%p", ret, client);
-    return (HTTPC_RESULT)ret;
-}
+    close(settings.socket);
+    httpc_deinit(httpapp_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpapp_running = true;
+#endif
+    httpapp_handle = 0;
 
-int httpc_common_demo(char* commonurl)
-{
-    int ret;
-    httpclient_t client = {0};
-
-    LOGD(TAG, "%s https_connect", __func__);
-
-    ret = httpc_demo(&client, commonurl);
-
-    LOGD(TAG, "%s https_common_demo ret:%d", __func__, ret);
-
+    LOGD(TAG, "up_req_times %d, up_rsp_times %d, up_req_fail_times %d",
+        up_req_times, up_rsp_times, up_req_fail_times);
     return ret;
 }
 
-static void httpc_app()
+#define BUF_SIZE 1024
+static void httpapp_get(char* url)
 {
+    httpclient_t client = {0};
+    httpclient_data_t client_data = {0};
+    char *buf = NULL;
     int ret;
 
-    if(0 !=(ret = httpc_get_demo(geturl))) {
-        LOGE(TAG, "httpc get demo run failed ret=%d", ret);
+    buf = malloc(BUF_SIZE);
+    if (buf == NULL) {
+        LOGE(TAG, "Malloc failed.");
+        return -1;
     }
-
-    if(0 !=(ret = httpc_post_demo(posturl))) {
-        LOGE(TAG, "httpc post demo run failed ret=%d", ret);
+    memset(buf, 0, BUF_SIZE);
+    client_data.response_buf = buf;
+    client_data.response_buf_len = BUF_SIZE;
+    ret = httpc_get(&client, url, &client_data);
+    if( ret == 0 ) {
+        LOGE(TAG, "Data received: %s", client_data.response_buf);
     }
+    return ret;
 
-    if(0 !=(ret = httpc_put_demo(puturl))) {
-        LOGE(TAG, "httpc put demo run failed ret=%d", ret);
-    }
-
-    if(0 !=(ret = httpc_delete_demo(deleteurl))) {
-        LOGE(TAG, "httpc delete demo run failed ret=%d", ret);
-    }
-
-    if(0 !=(ret = httpc_common_demo(commonurl))) {
-        LOGE(TAG, "httpc common demo run failed ret=%d", ret);
-    } 
 }
 
-static void httpc_app_task(void) {
-    aos_task_new("httpc_app", httpc_app, NULL, 20 * 1024);
+static void httpapp_post(char* url, char* post_data)
+{
+    char *header = "deviceKey:FZoo0S07CpwUHcrt\r\n";
+    char *content_type = "text/csv";
+    httpclient_t client = {0};
+    httpclient_data_t client_data = {0};
+    char *buf = NULL;
+    int ret;
+
+    buf = malloc(BUF_SIZE);
+    if (buf == NULL) {
+        LOGE(TAG, "Malloc failed.\r\n");
+        return -1;
+    }
+    memset(buf, 0, BUF_SIZE);
+    client_data.response_buf = buf;
+    client_data.response_buf_len = BUF_SIZE;
+    httpc_set_custom_header(&client, header);
+    client_data.post_buf = post_data;
+    client_data.post_buf_len = strlen(post_data);
+    client_data.post_content_type = content_type;
+    ret = httpc_post(&client, url, &client_data);
+    if( ret == 0 ) {
+        LOGE(TAG, "Data received: %s", client_data.response_buf);
+    }
+    return ret;
 }
 
-static struct cli_command httpc_app_commands[] = {
-    {"httpc", "httpc", httpc_app_task},
+static void httpapp_put(char* url, char* put_data)
+{
+    char *content_type = "text/csv";
+    httpclient_t client = {0};
+    httpclient_data_t client_data = {0};
+    char *buf = NULL;
+    int ret = 0;
+
+    buf = malloc(BUF_SIZE);
+    if (buf == NULL) {
+        LOGE(TAG, "Malloc failed.");
+        return -1;
+    }
+    memset(buf, 0, BUF_SIZE);
+    client_data.response_buf = buf;
+    client_data.response_buf_len = BUF_SIZE;
+    client_data.post_buf = put_data;
+    client_data.post_buf_len = strlen(put_data);
+    client_data.post_content_type = content_type;
+    ret = httpc_put(&client, url, &client_data);
+    if( ret == 0 ) {
+        LOGD(TAG, "Data received: %s", client_data.response_buf);
+    }
+    return ret;
+}
+
+static void httpapp_delete(char* url)
+{
+    httpclient_t client = {0};
+    httpclient_data_t client_data = {0};
+    char *buf = NULL;
+    int ret;
+
+    buf = malloc(BUF_SIZE);
+    if (buf == NULL) {
+        LOGE(TAG, "Malloc failed.");
+        return -1;
+    }
+    memset(buf, 0, BUF_SIZE);
+    client_data.response_buf = buf;
+    client_data.response_buf_len = BUF_SIZE;
+    ret = httpc_delete(&client, url, &client_data);
+    if( ret == 0 ) {
+        LOGD(TAG, "Data received: %s", client_data.response_buf);
+    }
+    return ret;
+}
+
+#define REQ_BUF_SIZE 2048
+uint8_t req_buf[REQ_BUF_SIZE];
+static void httpapp_delayed_action(void *arg)
+{
+#if CONFIG_HTTP_SECURE
+    char device_id[64];
+#endif
+    int fd;
+
+    if (httpapp_running == false || _ip_got_finished == false) {
+        goto exit;
+    }
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        LOGE(TAG, "alloc socket fd fail");
+        goto exit;
+    }
+    memset(&settings, 0, sizeof(settings));
+    settings.socket = fd;
+    //settings.keep_alive = true;
+#if CONFIG_HTTP_SECURE
+    if (command == HTTPAPP_AUTH) {
+        settings.server_name = auth_server_name;
+    } else
+#endif
+    if (command == HTTPAPP_OTA || command == HTTPAPP_OTA_HEAD) {
+        settings.server_name = ota_server_name;
+    } else if (command == HTTPAPP_DYNAMIC_UP) {
+        settings.server_name = oss_server_name;
+    } else {
+        close(fd);
+        goto exit;
+    }
+#if CONFIG_HTTP_SECURE
+    settings.ca_cert = ca_cert;
+#endif
+    settings.req_buf = req_buf;
+    settings.req_buf_size = REQ_BUF_SIZE;
+    httpapp_handle = httpc_init(&settings);
+    if (httpapp_handle == 0) {
+        LOGE(TAG, "http session init fail");
+        close(fd);
+        goto exit;
+    }
+
+    httpapp_running = false;
+    LOGE(TAG, "http session %x command %d at %d", httpapp_handle, command, (uint32_t)aos_now_ms());
+    switch (command) {
+        case HTTPAPP_AUTH:
+#if CONFIG_HTTP_SECURE
+            memset(device_id, 0, 64);
+            snprintf(device_id, 64, "%s.%s", PRODUCT_KEY, DEVICE_NAME);
+            httpapp_auth(device_id, PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET);
+#endif
+            break;
+        case HTTPAPP_OTA:
+            httpapp_ota("050509031881.bin");
+            break;
+        case HTTPAPP_OTA_HEAD:
+            httpapp_ota_head("/050509031881.bin");
+            break;
+        case HTTPAPP_DYNAMIC_UP:
+            httpapp_up(httpapp_url);
+            break;
+        case HTTPAPP_GET:
+            httpapp_get(httpapp_url);
+        case HTTPAPP_POST:
+            httpapp_post(httpapp_url, httpapp_data);
+        case HTTPAPP_DELETE:
+            httpapp_delete(httpapp_url);
+        case HTTPAPP_PUT:
+            httpapp_put(httpapp_url, httpapp_data);
+        default:
+            break;
+    }
+
+exit:
+    aos_post_delayed_action(5000, httpapp_delayed_action, (void *)(long)command);
+}
+
+void httpapp_help_command()
+{
+    LOGD(TAG, "Usage: httpapp" );
+    LOGD(TAG, "       httpapp  [-h]" );
+    LOGD(TAG, "       -s, [stop] Stop httpapp running" );
+    LOGD(TAG, "       -a, [auth] Http auth request" );
+    LOGD(TAG, "       -o, [ota] Ota download request" );
+    LOGD(TAG, "       -e, [ota] head Ota download http head request" );
+    LOGD(TAG, "       -u, [up] Dynamic ota request" );
+    LOGD(TAG, "       -g, [get] Get http request" );
+    LOGD(TAG, "       -p, [post] Post http request" );
+    LOGD(TAG, "       -q, [put] Put http request" );
+    LOGD(TAG, "       -d, [delete] Delete http request" );
+    LOGD(TAG, "Example:" );
+    LOGD(TAG, "httpapp -a" );
+    LOGD(TAG, "httpapp -o" );
+    LOGD(TAG, "httpapp -e" );
+    LOGD(TAG, "httpapp -t" );
+    LOGD(TAG, "httpapp -g www.aliyun.com" );
+    LOGD(TAG, "httpapp -p www.aliyun.com 123456" );
+    LOGD(TAG, "httpapp -q www.aliyun.com 123456" );
+    LOGD(TAG, "httpapp -d www.aliyun.com" );
+}
+
+static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
+{
+    const char *type = argc > 1? argv[1]: "";
+
+   
+    if (strncmp(type, "-s", strlen("-s")) == 0) {
+        httpapp_running = false;
+        return;
+    }
+
+    if (httpapp_running == false) {
+#if CONFIG_HTTP_SECURE
+        if (strncmp(type, "-a", strlen(type)) == 0) {
+            command = HTTPAPP_AUTH;
+            httpapp_running = true;
+        } else
+#endif
+        if (strncmp(type, "-o", strlen(type)) == 0) {
+            command = HTTPAPP_OTA;
+            httpapp_running = true;
+        } else if (strncmp(type, "-t", strlen(type)) == 0) {
+            command = HTTPAPP_OTA_HEAD;
+            httpapp_running = true;
+        } else if (strncmp(type, "-u", strlen(type)) == 0) {
+            if (argc > 2) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                command = HTTPAPP_DYNAMIC_UP;
+                httpapp_running = true;
+            } else {
+                LOGD(TAG, "miss url address");
+            }
+        } else if (strncmp(type, "-g", strlen(type)) == 0) {
+            if (argc > 2) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                command = HTTPAPP_GET;
+                httpapp_running = true;
+            } else {
+                LOGD(TAG, "miss url address");
+            }
+        } else if (strncmp(type, "-p", strlen(type)) == 0) {
+            if (argc > 3) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                memset(httpapp_data, 0, sizeof(httpapp_data));
+                strncpy(httpapp_data, argv[3], sizeof(httpapp_data) - 1);
+                command = HTTPAPP_POST;
+                httpapp_running = true;
+            } else {
+                LOGD(TAG, "miss url address or payload");
+            }
+        } else if (strncmp(type, "-q", strlen(type)) == 0) {
+            if (argc > 3) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                memset(httpapp_data, 0, sizeof(httpapp_data));
+                strncpy(httpapp_data, argv[3], sizeof(httpapp_data) - 1);
+                command = HTTPAPP_PUT;
+                httpapp_running = true;
+            } else {
+                LOGD(TAG, "miss url address or payload");
+            }
+        } else if (strncmp(type, "-d", strlen(type)) == 0) {
+            if (argc > 2) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                command = HTTPAPP_GET;
+                httpapp_running = true;
+            } else {
+                LOGD(TAG, "miss url address");
+            }
+        } else {
+            LOGE(TAG, "unknown command");
+            httpapp_help_command();
+            return;
+        }
+    }
+}
+
+static struct cli_command httpapp_cmd = {
+    .name = "httpapp",
+    .help = "httpapp auth | ota | ota_head | up | stop | get | post | put | delete",
+    .function = httpapp_cmd_handle
 };
+
+static void wifi_service_event(input_event_t *event, void *priv_data)
+{
+    if (event->type != EV_WIFI) {
+        return;
+    }
+
+    if (event->code != CODE_WIFI_ON_GOT_IP) {
+        return;
+    }
+
+    _ip_got_finished = true;
+}
 
 int application_start(int argc, char *argv[])
 {
-    LOGD(TAG, "application started.");
-
-    aos_cli_register_commands(httpc_app_commands,
-            sizeof(httpc_app_commands) / sizeof(struct cli_command));
+    aos_set_log_level(AOS_LL_DEBUG);
+    netmgr_init();
+    aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
+    aos_cli_register_command(&httpapp_cmd);
+    http_client_initialize();
+    aos_post_delayed_action(100, httpapp_delayed_action, NULL);
     aos_loop_run();
-
     return 0;
 }
-
-
