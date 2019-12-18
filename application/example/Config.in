@@ -270,5 +270,11 @@ if AOS_APP_YLOOP_APP
         default "yloop_app"
 endif
 
+source "application/example/websoc_app/Config.in"
+if AOS_APP_WEBSOC_APP
+    config AOS_BUILD_APP
+        default "websoc_app"
+endif
+
 endchoice
 endif
