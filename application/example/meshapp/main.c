@@ -51,8 +51,6 @@ static void app_main_entry(void *arg)
 
 int application_start(int argc, char **argv)
 {
-    const char *mode = argc > 1 ? argv[1] : "";
-
     aos_set_log_level(AOS_LL_DEBUG);
 
     aos_task_new("meshappmain", app_main_entry, NULL, 8192);
