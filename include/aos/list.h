@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file list.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_LIST_H
@@ -8,6 +9,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @addtogroup aos_list LIST
+ *  list data structure manage.
+ *
+ *  @{
+ */
 
 /*
  * Get offset of a member variable.
@@ -33,6 +40,13 @@ typedef struct dlist_s {
     struct dlist_s *next;
 } dlist_t;
 
+/*
+ * add one node into data list.
+ *
+ * @param[in]  node    the data node to be inserted.
+ * @param[in]  prev    previous data node address.
+ * @param[in]  next    next data node address.
+ */
 static inline void __dlist_add(dlist_t *node, dlist_t *prev, dlist_t *next)
 {
     node->next = next;
@@ -52,16 +66,33 @@ static inline void __dlist_add(dlist_t *node, dlist_t *prev, dlist_t *next)
 #define dlist_entry(addr, type, member) \
         ((type *)((long)addr - aos_offsetof(type, member)))
 
+/*
+ * add one node just behind specified node.
+ *
+ * @param[in]  node    the data node to be inserted.
+ * @param[in]  queue   the specified last node.
+ */
 static inline void dlist_add(dlist_t *node, dlist_t *queue)
 {
     __dlist_add(node, queue, queue->next);
 }
 
+/*
+ * add one node just before specified node.
+ *
+ * @param[in]  node    the data node to be inserted.
+ * @param[in]  queue   the specified next node before which new node should be inserted.
+ */
 static inline void dlist_add_tail(dlist_t *node, dlist_t *queue)
 {
     __dlist_add(node, queue->prev, queue);
 }
 
+/*
+ * delete one node from the data list.
+ *
+ * @param[in]  node    the data node to be deleted.
+ */
 static inline void dlist_del(dlist_t *node)
 {
     dlist_t *prev = node->prev;
@@ -71,17 +102,34 @@ static inline void dlist_del(dlist_t *node)
     next->prev = prev;
 }
 
+/*
+ * initialize one node.
+ *
+ * @param[in]  node    the data node to be initialized.
+ */
 static inline void dlist_init(dlist_t *node)
 {
     node->next = node->prev = node;
 }
 
+/*
+ * initialize one node.
+ *
+ * @param[in]  list    the data node to be initialized.
+ */
 static inline void INIT_AOS_DLIST_HEAD(dlist_t *list)
 {
     list->next = list;
     list->prev = list;
 }
 
+/*
+ * Judge whether data list is empty.
+ *
+ * @param[in]  head    the head node of data list.
+ *
+ * @return 1 on empty, 0 FALSE.
+ */
 static inline int dlist_empty(const dlist_t *head)
 {
     return head->next == head;
@@ -174,6 +222,8 @@ static inline int dlist_empty(const dlist_t *head)
  * Get the list length.
  *
  * @param[in]  queue  the head for your list.
+ *
+ * @return list length.
  */
 static inline int dlist_entry_number(dlist_t *queue)
 {
@@ -206,12 +256,24 @@ typedef struct slist_s {
     struct slist_s *next;
 } slist_t;
 
+/*
+ * add one node into a signle link list at head.
+ *
+ * @param[in]  node    the data node to be inserted.
+ * @param[in]  head    the specified head node.
+ */
 static inline void slist_add(slist_t *node, slist_t *head)
 {
     node->next = head->next;
     head->next = node;
 }
 
+/*
+ * add one node into a signle link list at tail.
+ *
+ * @param[in]  node    the data node to be inserted.
+ * @param[in]  head    the specified head node.
+ */
 static inline void slist_add_tail(slist_t *node, slist_t *head)
 {
     while (head->next) {
@@ -221,6 +283,12 @@ static inline void slist_add_tail(slist_t *node, slist_t *head)
     slist_add(node, head);
 }
 
+/*
+ * delete one node from the head list.
+ *
+ * @param[in]  node    the data node to be deleted.
+ * @param[in]  head    the specified head node.
+ */
 static inline void slist_del(slist_t *node, slist_t *head)
 {
     while (head->next) {
@@ -233,11 +301,23 @@ static inline void slist_del(slist_t *node, slist_t *head)
     }
 }
 
+/*
+ * Judge whether data list is empty.
+ *
+ * @param[in]  head    the head node of data list.
+ *
+ * @return 1 on empty, 0 FALSE.
+ */
 static inline int slist_empty(const slist_t *head)
 {
     return !head->next;
 }
 
+/*
+ * initialize one node.
+ *
+ * @param[in]  head    the data node to be initialized.
+ */
 static inline void slist_init(slist_t *head)
 {
     head->next = 0;
@@ -308,6 +388,8 @@ static inline void slist_init(slist_t *head)
  * Get the list length.
  *
  * @param[in]  queue  the head for your list.
+ *
+ * @return list length.
  */
 static inline int slist_entry_number(slist_t *queue)
 {
@@ -320,6 +402,8 @@ static inline int slist_entry_number(slist_t *queue)
 
     return num;
 }
+
+/** @} */
 
 #ifdef __cplusplus
 }
