@@ -50,13 +50,6 @@ k_mm_region_t g_mm_region[] = {
 };
 int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-#if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
-void soc_intrpt_stack_ovf_check(void)
-{
-    return;
-}
-#endif
-
 uint32_t soc_get_cur_sp(void)
 {
     uint32_t result;
