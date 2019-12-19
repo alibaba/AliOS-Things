@@ -25,61 +25,61 @@ extern "C" {
  */
 
 struct aos_utimbuf {
-    time_t actime;  /* time of last access */
-    time_t modtime; /* time of last modification */
+    time_t actime;  /**< time of last access */
+    time_t modtime; /**< time of last modification */
 };
 
 struct aos_statfs {
-    long f_type;    /* fs type */
-    long f_bsize;   /* optimized transport block size */
-    long f_blocks;  /* total blocks */
-    long f_bfree;   /* available blocks */
-    long f_bavail;  /* number of blocks that non-super users can acquire */
-    long f_files;   /* total number of file nodes */
-    long f_ffree;   /* available file nodes */
-    long f_fsid;    /* fs id */
-    long f_namelen; /* max file name length */
+    long f_type;    /**< fs type */
+    long f_bsize;   /**< optimized transport block size */
+    long f_blocks;  /**< total blocks */
+    long f_bfree;   /**< available blocks */
+    long f_bavail;  /**< number of blocks that non-super users can acquire */
+    long f_files;   /**< total number of file nodes */
+    long f_ffree;   /**< available file nodes */
+    long f_fsid;    /**< fs id */
+    long f_namelen; /**< max file name length */
 };
 
 struct aos_stat {
-    uint16_t st_mode;    /* mode of file */
-    uint32_t st_size;    /* bytes of file */
-    time_t   st_actime;  /* time of last access */
-    time_t   st_modtime; /* time of last modification */
+    uint16_t st_mode;    /**< mode of file */
+    uint32_t st_size;    /**< bytes of file */
+    time_t   st_actime;  /**< time of last access */
+    time_t   st_modtime; /**< time of last modification */
 };
 
 typedef struct {
-    int32_t d_ino;    /* file number */
-    uint8_t d_type;   /* type of file */
-    char    d_name[]; /* file name */
+    int32_t d_ino;    /**< file number */
+    uint8_t d_type;   /**< type of file */
+    char    d_name[]; /**< file name */
 } aos_dirent_t;
 
 typedef struct {
-    int32_t dd_vfs_fd;  /* file index in vfs */
-    int32_t dd_rsv;     /* Reserved */
+    int32_t dd_vfs_fd;  /**< file index in vfs */
+    int32_t dd_rsv;     /**< Reserved */
 } aos_dir_t;
 
 typedef const struct file_ops file_ops_t;
 typedef const struct fs_ops   fs_ops_t;
 
 union inode_ops_t {
-    const file_ops_t *i_ops;  /* char driver operations */
-    const fs_ops_t   *i_fops; /* FS operations */
+    const file_ops_t *i_ops;  /**< char driver operations */
+    const fs_ops_t   *i_fops; /**< FS operations */
 };
 
 typedef struct {
-    union inode_ops_t  ops;     /* inode operations */
-    void              *i_arg;   /* per inode private data */
-    char              *i_name;  /* name of inode */
-    int                i_flags; /* flags for inode */
-    uint8_t            type;    /* type for inode */
-    uint8_t            refs;    /* refs for inode */
+    union inode_ops_t  ops;     /**< inode operations */
+    void              *i_arg;   /**< per inode private data */
+    char              *i_name;  /**< name of inode */
+    int                i_flags; /**< flags for inode */
+    uint8_t            type;    /**< type for inode */
+    uint8_t            refs;    /**< refs for inode */
 } inode_t;
 
 typedef struct {
-    inode_t *node;   /* node for file */
-    void    *f_arg;  /* f_arg for file */
-    size_t   offset; /* offset for file */
+    inode_t *node;   /**< node for file */
+    void    *f_arg;  /**< f_arg for file */
+    size_t   offset; /**< offset for file */
 } file_t;
 
 typedef void (*poll_notify_t)(void *pollfd, void *arg);
