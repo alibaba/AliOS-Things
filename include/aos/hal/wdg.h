@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file wdg.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_WDG_H
@@ -9,16 +10,24 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_wdg WDG
+ *  wdg hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
+/* Define wdt expired time */
 typedef struct {
-    uint32_t timeout; /* Watchdag timeout */
+    uint32_t timeout; /**< Watchdag timeout */
 } wdg_config_t;
 
+/* Define wdg dev handle */
 typedef struct {
-    uint8_t       port;   /* wdg port */
-    wdg_config_t  config; /* wdg config */
-    void         *priv;   /* priv data */
+    uint8_t       port;   /**< wdg port */
+    wdg_config_t  config; /**< wdg config */
+    void         *priv;   /**< priv data */
 } wdg_dev_t;
 
 /**
@@ -26,7 +35,7 @@ typedef struct {
  *
  * @param[in]  wdg  the watch dog device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_wdg_init(wdg_dev_t *wdg);
 
@@ -42,9 +51,11 @@ void hal_wdg_reload(wdg_dev_t *wdg);
  *
  * @param[in]  wdg  the watch dog device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_wdg_finalize(wdg_dev_t *wdg);
+
+/** @} */
 
 #ifdef __cplusplus
 }
