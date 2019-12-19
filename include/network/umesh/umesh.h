@@ -43,7 +43,6 @@ typedef enum ur_error_s {
  */
 typedef enum node_mode_s {
     MODE_NONE     = 0x00,   /** < this is only for testing */
-    MODE_MOBILE   = 0x01,   /** < mobile node mode */
     MODE_LOW_MASK = 0x0f,   /** < mode low mask */
     MODE_RX_ON    = 0x10,   /** < normal node mode */
     MODE_SUPER    = 0x20,   /** < super node mode */
