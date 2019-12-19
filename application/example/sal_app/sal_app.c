@@ -155,6 +155,8 @@ static void sal_udp_demo()
     const char *server_ipaddr = "134.102.218.18";
     const short server_port = 5683;
     struct sockaddr_in addr;
+    socklen_t recvaddrlen;
+    char recvbuf[200] = {0};
 
     LOGD(TAG, "SAL UDP demo start");
 
@@ -180,6 +182,16 @@ static void sal_udp_demo()
         LOGD(TAG, "UDP socket sendto OK");
     }
 
+    ret = recvfrom(fd, recvbuf, sizeof(recvbuf), 0, (struct sockaddr*)&addr, &recvaddrlen);
+    if (ret < 0) {
+        LOGE(TAG, "udp sendto failed, errno = %d", errno);
+        close(fd);
+        return;
+    } else {
+        LOGD(TAG, "%d bytes data received.", ret);
+    }
+
+    aos_msleep(3000);
     close(fd);
 
     LOGD(TAG, "SAL UDP demo end");
