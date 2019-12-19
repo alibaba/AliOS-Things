@@ -6,7 +6,7 @@
 #endif
 
 #ifndef HTTP_DNS_USER_ID
-#define HTTP_DNS_USER_ID "189323"
+#define HTTP_DNS_USER_ID "100000"
 #endif
 
 #ifndef HTTP_DNS_TASK_PRIO

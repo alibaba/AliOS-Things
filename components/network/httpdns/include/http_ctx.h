@@ -14,7 +14,6 @@ typedef struct {
    char * url;
    int conn_timeout;
    int timeout;
-   memory_t request;
    memory_t response;
 } http_ctx_t;
 
