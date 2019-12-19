@@ -23,14 +23,6 @@
 #define RWS_VERSION_MINOR 2
 #define RWS_VERSION_PATCH 4
 
-#if defined(WEBSOCKET_DEBUG)
-#include <ulog/ulog.h>
-#define TAG "websocket"
-#define DBG(format, ...) LOGD(TAG, format, ##__VA_ARGS__)
-#else
-#define DBG(format, ...)
-#endif
-
 /* check windows */
 #if defined(WIN32) || defined(_WIN32) || defined(WIN32_LEAN_AND_MEAN) || defined(_WIN64) || defined(WIN64)
 #define RWS_OS_WINDOWS 1
@@ -87,6 +79,11 @@ typedef unsigned char rws_bool;
 #define rws_false 0
 
 /**
+ * Macro for wait forever
+ */
+#define RWS_WAIT_FOREVER 0xffffffffu
+
+/**
  * Type of all public objects.
  */
 typedef void* rws_handle;
@@ -105,6 +102,11 @@ typedef struct rws_error_struct * rws_error;
  * Mutex object handle.
  */
 typedef rws_handle rws_mutex;
+
+/**
+ * Semphore object handle.
+ */
+typedef rws_handle rws_sem;
 
 /**
  * Thread object handle.
@@ -164,6 +166,16 @@ typedef void (*rws_on_socket_recvd_bin)(rws_socket socket, const void * data, co
  * @return none
  */
 typedef void (*rws_on_socket_recvd_pong)(rws_socket socket);
+
+
+/**
+ * Callback type on socket send ping.
+ *
+ * @param[in]  socket  Socket object.
+ *
+ * @return none
+ */
+typedef void (*rws_on_socket_send_ping)(rws_socket socket);
 
 /* socket */
 
@@ -295,6 +307,21 @@ RWS_API(void) rws_socket_set_path(rws_socket socket, const char * path);
  * @return Connect URL path or null.
  */
 RWS_API(const char *) rws_socket_get_path(rws_socket socket);
+
+
+/**
+ * Set socket connect Sec-WebSocket-Protocol field.
+ * @param socket Socket object.
+ * @param Sec-WebSocket-Protocol.
+ *
+ * @code
+ * rws_socket_set_protocol(socket, "echo-protocol")
+ * rws_socket_set_protocol(socket, "chat, superchat")
+ * @endcode
+ *
+ * @return none
+ */
+RWS_API(void) rws_socket_set_protocol(rws_socket socket, const char * protocol);
 
 
 #ifdef WEBSOCKET_SSL_ENABLE
@@ -447,6 +474,16 @@ RWS_API(void) rws_socket_set_on_received_pong(rws_socket socket, rws_on_socket_r
 
 
 /**
+ * Set the callback handler when ping sent.
+ *
+ * @param[in]  socket    The socket object.
+ * @param[in]  callback  The handler function.
+ *
+ * @return None.
+ */
+RWS_API(void) rws_socket_set_on_send_ping(rws_socket socket, rws_on_socket_send_ping callback);
+
+/**
  * Send bin header to connect socket.
  *
  * @detailed Thread safe method.
@@ -486,6 +523,17 @@ RWS_API(rws_bool) rws_socket_send_bin_continue(rws_socket socket, const char *bi
  * @return rws_true - socket and final bin exists and placed to send queue, otherwice rws_false
  */
 RWS_API(rws_bool) rws_socket_send_bin_finish(rws_socket socket, const char * bin, size_t len);
+
+/**
+ * Send ping async to connect socket.
+ *
+ * @detailed Thread safe method.
+ *
+ * @param[in]  socket  Socket object.
+ *
+ * @return rws_true - send ping success, otherwice rws_false
+ */
+RWS_API(rws_bool) rws_socket_send_ping(rws_socket socket);
 
 
 /* error code type */
@@ -587,6 +635,43 @@ RWS_API(void) rws_mutex_delete(rws_mutex mutex);
  */
 RWS_API(rws_thread) rws_thread_create(rws_thread_funct thread_function, void * user_object);
 
+
+/* semphore */
+
+/**
+ * Creates sem object.
+ *
+ * @return sem object.
+ */
+RWS_API(rws_sem) rws_sem_create(void);
+
+/**
+ * Release a semhpore
+ *
+ * @param[in] sem sem object
+ *
+ * @return none
+ */
+RWS_API(void) rws_sem_signal(rws_sem sem);
+
+/**
+ * Wait a semhpore
+ *
+ * @param[in] sem     sem object
+ * @param[in] timeout timeout in millisecond
+ *
+ * @return 0 on success, other on failure
+ */
+RWS_API(int) rws_sem_wait(rws_sem sem, unsigned int timeout);
+
+/**
+ * Release a semhpore
+ *
+ * @param[in] sem sem object
+ *
+ * @return none
+ */
+RWS_API(void) rws_sem_delete(rws_sem sem);
 
 /**
  * Pause current thread for a number of milliseconds.
