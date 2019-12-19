@@ -1,17 +1,1 @@
-config AOS_SAL_GPRS
-    bool "GPRS"
-
-if AOS_SAL_GPRS
-
-choice
-    prompt "Device"
-    default AOS_COMP_DEVICE_SAL_SIM800 if BSP_EXTERNAL_GPRS_MODULE = "gprs.sim800"
-
-config AOS_GPRS_NULL
-    bool "Null"
-
 source "components/peripherals/sal/gprs/sim800/Config.in"
-
-endchoice
-
-endif
