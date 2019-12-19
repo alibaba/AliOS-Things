@@ -24,19 +24,6 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
@@ -64,21 +51,6 @@ k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #endif
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif
-
 
 #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
