@@ -8,8 +8,10 @@ RHINO_INLINE void rhino_stack_check_init(void)
 {
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
+    g_intrpt_stack_bottom  = (cpu_stack_t *)RHINO_CONFIG_INTRPT_STACK_TOP;
     *g_intrpt_stack_bottom = RHINO_INTRPT_STACK_OVF_MAGIC;
 #else
+    g_intrpt_stack_top  = (cpu_stack_t *)RHINO_CONFIG_INTRPT_STACK_TOP;
     *g_intrpt_stack_top = RHINO_INTRPT_STACK_OVF_MAGIC;
 #endif
 #endif /* RHINO_CONFIG_INTRPT_STACK_OVF_CHECK */

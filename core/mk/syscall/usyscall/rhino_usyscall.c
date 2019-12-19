@@ -40,7 +40,6 @@ kstat_t krhino_task_resume(ktask_t *task)
     return (kstat_t)SYSCALL(SYS_KRHINO_TASK_RESUME, (void*)&_arg);
 }
 
-#if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
 kstat_t krhino_task_wait_abort(ktask_t *task)
 {
     krhino_task_wait_abort_syscall_arg_t _arg;
@@ -49,7 +48,6 @@ kstat_t krhino_task_wait_abort(ktask_t *task)
 
     return (kstat_t)SYSCALL(SYS_KRHINO_TASK_WAIT_ABORT, (void*)&_arg);
 }
-#endif
 
 kstat_t krhino_utask_create(ktask_t **task, const name_t *name,
                             void *arg, uint8_t prio, tick_t ticks,

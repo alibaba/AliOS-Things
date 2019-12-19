@@ -70,9 +70,7 @@ const __root void * const syscall_tbl[] =
     [SYS_KRHINO_TASK_SLEEP]      = (void*)sys_krhino_task_sleep_stub,
     [SYS_KRHINO_TASK_SUSPEND]    = (void*)sys_krhino_task_suspend_stub,
     [SYS_KRHINO_TASK_RESUME]     = (void*)sys_krhino_task_resume_stub,
-#if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
     [SYS_KRHINO_TASK_WAIT_ABORT] = (void*)sys_krhino_task_wait_abort_stub,
-#endif /* RHINO_CONFIG_TASK_WAIT_ABORT */
     [SYS_KRHINO_UTASK_CREATE]    = (void*)sys_krhino_utask_create_stub,
     [SYS_KRHINO_UTASK_DEL]       = (void*)sys_krhino_utask_del_stub,
 

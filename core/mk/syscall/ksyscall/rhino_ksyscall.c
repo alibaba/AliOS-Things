@@ -38,14 +38,12 @@ kstat_t sys_krhino_task_resume_stub(void *arg)
     return krhino_task_resume(_arg->task);
 }
 
-#if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
 kstat_t sys_krhino_task_wait_abort_stub(void *arg)
 {
     krhino_task_wait_abort_syscall_arg_t *_arg = arg;
 
     return krhino_task_wait_abort(_arg->task);
 }
-#endif
 
 kstat_t sys_krhino_utask_create_stub(void *arg)
 {
