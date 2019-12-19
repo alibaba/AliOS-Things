@@ -5,10 +5,11 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := sal hal implemenation for m02h
 
 GLOBAL_DEFINES += DEV_SAL_M02H
+GLOBAL_CFLAGS += -D__SAL_DEV_NAME=m02h
 
 $(NAME)_COMPONENTS += yloop
 
 $(NAME)_COMPONENTS += atparser
 $(NAME)_SOURCES += m02h.c
 
-$(NAME)_INCLUDES += ./
+GLOBAL_INCLUDES += ./
