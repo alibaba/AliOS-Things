@@ -398,7 +398,7 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         memcpy(g_transport.rx.buff + g_transport.rx.bytes_received, p_data + HEADER_SIZE, len);
         g_transport.rx.bytes_received += len;
     }
-    if (!rx_frames_left()) {
+    if ((!rx_frames_left()) && (IS_ENC(p_data) != 0)) {
         trans_rx_dispatcher();
         reset_rx();
     } else {
