@@ -56,12 +56,6 @@ float soc_hr_hw_freq_mhz(void)
 
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
-void soc_intrpt_stack_ovf_check(void)
-{
-}
-#endif
-
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 #if defined (__CC_ARM) /* Keil / armcc */

@@ -37,7 +37,7 @@
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
-#define RHINO_CONFIG_TASK_INFO               10
+#define RHINO_CONFIG_TASK_INFO               1
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
@@ -83,11 +83,6 @@
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
-#endif
-
-/* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
 #endif
 
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         0

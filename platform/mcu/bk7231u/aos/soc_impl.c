@@ -21,12 +21,15 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
+<<<<<<< HEAD
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
 }
 #endif
 
+=======
+>>>>>>> ac5a1e481 (bugid:24098725:remove abandoned config macros)
 #include <k_api.h>
 
 void soc_hw_timer_init()
@@ -85,7 +88,11 @@ void krhino_idle_hook(void)
 	UINT32 mcu_ps_tick = 24;
 	UINT32 mcu_miss_tick = 0;
 
+<<<<<<< HEAD
 #if (NX_POWERSAVE)
+=======
+#if 0//(NX_POWERSAVE)
+>>>>>>> ac5a1e481 (bugid:24098725:remove abandoned config macros)
     GLOBAL_INT_DECLARATION();
     CPSR_ALLOC();
 

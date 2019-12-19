@@ -93,10 +93,6 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
 
-#ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#endif
-
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
