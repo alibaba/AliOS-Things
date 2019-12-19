@@ -198,43 +198,6 @@ int lwm2m_update_registration(void *handler, uint16_t shortServerID, bool withOb
 void lwm2m_resource_value_changed(void *contextP, lwm2m_uri_t *uriP);
 #endif /* LWM2M_CLIENT_MODE */
 
-/**
- * Get lwm2m server list
- *
- * @param[in]  handler          the address of lwm2m client context.
- * @param[in]  is_bootstrap     whether is bootstrap server.
- *
- * @return none-NULL on success, NULL on failure.
-*/
-lwm2m_object_t *lwm2m_get_serverlist(void *handler, bool is_bootstrap);
-
-/**
- * Get lwm2m object list
- *
- * @param[in]  handler          the address of lwm2m client context.
- *
- * @return none-NULL on success, NULL on failure.
- */
-lwm2m_object_t *lwm2m_get_objectlist(void *handler);
-
-/**
- * Get lwm2m observerd resources list
- *
- * @param[in]  handler          the address of lwm2m client context.
- *
- * @return none-NULL on success, NULL on failure.
- */
-lwm2m_observed_t *lwm2m_get_observedlist(void *handler);
-
-/**
- * Get lwm2m client state
- *
- * @param[in]  handler          the address of lwm2m client context.
- *
- * @return none-NULL on success, NULL on failure.
- */
-lwm2m_client_state_t *lwm2m_get_client_state(void *handler);
-
 /** @} */
 
 #endif /* LWM2M_HDR_H */
