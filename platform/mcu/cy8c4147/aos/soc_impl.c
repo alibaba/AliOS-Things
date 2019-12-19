@@ -23,19 +23,6 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
@@ -98,8 +85,8 @@ krhino_err_proc_t g_err_proc = soc_err_proc;
 #if defined (__GNUC__)&&!defined(__CC_ARM)
 extern uint32_t __cy_heap_start[];
 extern uint32_t __cy_heap_end[];
-/* 
- * If need to use all rest RAM area, then need to define __cy_heap_size in linker file. 
+/*
+ * If need to use all rest RAM area, then need to define __cy_heap_size in linker file.
  * But remember, regenerate code will overwrite linker file content.
  * For now, define 0x2f00 as heap size which will not overflow ram.
 */
