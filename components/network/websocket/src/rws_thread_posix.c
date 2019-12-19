@@ -5,6 +5,7 @@
 #include "websoc/librws.h"
 #include "rws_thread.h"
 #include "rws_memory.h"
+#include "rws_opts.h"
 
 #include <assert.h>
 
@@ -73,16 +74,15 @@ rws_thread rws_thread_create(rws_thread_funct thread_function, void * user_objec
 	t->user_object = user_object;
 	t->thread_function = thread_function;
 	if (pthread_attr_init(&attr) == 0) {
-        pthread_attr_setstacksize(&attr, 16 * 1024);
+        pthread_attr_setstacksize(&attr, WEBSOC_TASK_STACK);
         struct sched_param sched;
-        sched.sched_priority = 32;
+        sched.sched_priority = WEBSOC_TASK_PRIO;
         pthread_attr_setschedparam(&attr, &sched);
-        //if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) == 0) {
-   		    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) == 0) {
-				res = pthread_create(&t->thread, &attr, &rws_thread_func_priv, (void *)t);
-				pthread_setname_np(t->thread, "GnWebsoc");
-			}
-		//}
+   		if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) == 0) {
+		    res = pthread_create(&t->thread, &attr, &rws_thread_func_priv, (void *)t);
+			pthread_setname_np(t->thread, WEBSOC_TASK_NAME);
+		}
+
 		pthread_attr_destroy(&attr);
 	}
 	assert(res == 0);
@@ -127,3 +127,51 @@ void rws_mutex_delete(rws_mutex mutex) {
 	}
 }
 
+rws_sem rws_sem_create(void)
+{
+	int ret  = -1;
+	sem_t *sem = (sem_t *) rws_malloc_zero(sizeof(sem_t));
+
+	if (sem)
+	   ret = sem_init(sem, 0, 0);
+
+	assert(ret == 0);
+
+	return sem;
+}
+
+void rws_sem_delete(rws_sem sem)
+{
+	if (sem) {
+        sem_destroy(sem);
+        rws_free(sem);
+	}
+}
+
+void rws_sem_signal(rws_sem sem)
+{
+    if (sem) {
+    	sem_post(sem);
+    }
+}
+
+int rws_sem_wait(rws_sem sem, unsigned int timeout_ms)
+{
+    int ret = -1;
+
+	if (sem) {
+		if (timeout_ms == RWS_WAIT_FOREVER) {
+			ret = sem_wait(sem);
+		} else {
+			struct timespec abs_timeout;
+            struct timeval tv;
+            gettimeofday(&tv, NULL);
+
+			abs_timeout.tv_sec = tv.tv_sec + timeout_ms / 1000;
+			abs_timeout.tv_nsec = tv.tv_usec * 1000 + (timeout_ms % 1000) * 1000000;
+			ret = sem_timedwait(sem, &abs_timeout);
+		}
+	}
+
+	return ret;
+}
