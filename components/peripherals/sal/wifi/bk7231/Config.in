@@ -1,2 +1,3 @@
 config AOS_COMP_DEVICE_SAL_BK7231
-    bool "BK7231"
+    bool "wifi.BK7231"
+    select AOS_COMP_ATPARSER
