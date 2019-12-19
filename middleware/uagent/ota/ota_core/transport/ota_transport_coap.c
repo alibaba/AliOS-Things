@@ -44,7 +44,7 @@ static int ota_coap_publish(char *name, char *msg, char *pk, char* dn)
     message.resp_callback = otacoap_response_handler;
     message.msg_type      = COAP_MESSAGE_CON;
     message.content_type  = COAP_CONTENT_TYPE_JSON;
-    ret = ota_snprintf(topic, OTA_MSG_LEN, "/topic/ota/device/%s/%s/%s", name, pk, dn);
+    ret = ota_snprintf(topic, OTA_MSG_LEN - 1, "/topic/ota/device/%s/%s/%s", name, pk, dn);
     if (ret < 0) {
         return OTA_TRANSPORT_INT_FAIL;
     }

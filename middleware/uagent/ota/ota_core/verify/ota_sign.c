@@ -144,4 +144,27 @@ int ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_d
     return ret;
 }
 
+int ota_verify_rsa(unsigned char *sign_dat, const char *hash_dat, unsigned char type)
+{
+    int  ret                            = OTA_VERIFY_RSA_FAIL;
+    int  src_dat_len                    = 0;
+    unsigned char tmp_buf[OTA_SHA256_HASH_SIZE]  = {0};
+    if((sign_dat != NULL) && (hash_dat != NULL)) {
+        ret = 0;
+        if(type == OTA_MD5) {
+            src_dat_len = OTA_MD5_HASH_SIZE;
+        }
+        else if(type == OTA_SHA256) {
+            src_dat_len = OTA_SHA256_HASH_SIZE;
+        }
+        if(ret == 0) {
+            ret = ota_str2hex(hash_dat, (char*)tmp_buf, sizeof(tmp_buf));
+            if(ret == 0) {
+                ret = ota_verify_rsa_sign(tmp_buf, src_dat_len, OTA_SIGN_BITNUMB, sign_dat);
+            }
+        }
+    }
+    OTA_LOG_E("verify rsa ret:%d", ret);
+    return ret;
+}
 
