@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file can.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_CAN_H
@@ -11,41 +12,47 @@ extern "C" {
 
 #include <stdint.h>
 
+/** @addtogroup hal_can CAN
+ *  CAN hal API.
+ *
+ *  @{
+ */
+
 /*
  * CAN handle configuration
  */
 typedef struct {
-    uint32_t baud_rate;           /* baud rate of can */
-    uint8_t  ide;                 /* 0:normal can, 1:extend can */
-    uint8_t  auto_bus_off;        /* 1:enable auto bus off, 0:disable */
-    uint8_t  auto_retry_transmit; /* 1:enable retry transmit, 0:disable */
+    uint32_t baud_rate;           /**< baud rate of can */
+    uint8_t  ide;                 /**< 0:normal can, 1:extend can */
+    uint8_t  auto_bus_off;        /**< 1:enable auto bus off, 0:disable */
+    uint8_t  auto_retry_transmit; /**< 1:enable retry transmit, 0:disable */
 } can_config_t;
 
 /*
  * CAN device description
  */
 typedef struct {
-    uint8_t      port;   /* can port */
-    can_config_t config; /* can config */
-    void        *priv;   /* priv data */
+    uint8_t      port;   /**< can port */
+    can_config_t config; /**< can config */
+    void        *priv;   /**< priv data */
 } can_dev_t;
 
 /*
  * CAN frameheader config
  */
 typedef struct {
-    uint32_t id;  /* id of can */
-    uint8_t  rtr; /* 0:data frame, 1:remote frame */
-    uint8_t  dlc; /* must <=8 */
+    uint32_t id;  /**< id of can */
+    uint8_t  rtr; /**< 0:data frame, 1:remote frame */
+    uint8_t  dlc; /**< must <=8 */
 } can_frameheader_t;
 
 /*
  * CAN filter_item config
  */
 typedef struct{
-    uint8_t  rtr;         /* 0:data frame, 1:remote frame */
-    uint32_t check_id;    /* the filter identification number */
-    uint32_t filter_mask; /* the filter mask number or identification number */
+    uint8_t  rtr;         /**< 0:data frame, 1:remote frame */
+    uint32_t check_id;    /**< the filter identification number */
+    uint32_t filter_mask; /**< the filter mask number or identification number */
 } can_filter_item_t;
 
 /**
@@ -102,6 +109,8 @@ int32_t hal_can_recv(can_dev_t *can, can_frameheader_t *rx_header, void *data, c
  * @return  0 : on success, EIO : if an error occurred with any step
  */
 int32_t hal_can_finalize(can_dev_t *can);
+
+/** @} */
 
 #ifdef __cplusplus
 }

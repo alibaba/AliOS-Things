@@ -19,10 +19,10 @@ extern "C" {
 
 /* This struct is used to define the cli cmd format */
 struct cli_command {
-    const char *name;   /* cmd name */
-    const char *help;   /* cmd help info */
+    const char *name;   /**< cmd name */
+    const char *help;   /**< cmd help info */
 
-    void (*function)(char *outbuf, int len, int argc, char **argv); /* cmd process function */
+    void (*function)(char *outbuf, int len, int argc, char **argv); /**< cmd process function */
 };
 
 /**
