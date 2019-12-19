@@ -22,19 +22,6 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
@@ -114,27 +101,6 @@ k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 #endif
 int g_region_num = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int _cached_sysram_bss_start, _cached_sysram_bss_end;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&_cached_sysram_bss_start, &_cached_sysram_bss_end);
-#endif
-}
-
-#endif
-
-#if 0
-void SysTick_Handler(void)
-{
-    krhino_intrpt_enter();
-    krhino_tick_proc();
-    krhino_intrpt_exit();
-}
-#endif
 
 void print_heap_info()
 {
