@@ -5,11 +5,6 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-/* chip level conf */
-#ifndef RHINO_CONFIG_CPU_STACK_DOWN
-#define RHINO_CONFIG_CPU_STACK_DOWN          1
-#endif
-
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
 #define RHINO_CONFIG_SEM                     1
@@ -45,9 +40,6 @@
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
-#endif
-#ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         1
 #endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
@@ -89,11 +81,6 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
 
-/* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#endif
-
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         1024
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
@@ -116,20 +103,6 @@
 /* kernel hook conf */
 #ifndef RHINO_CONFIG_USER_HOOK
 #define RHINO_CONFIG_USER_HOOK               0
-#endif
-
-/* kernel stats conf */
-#ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            1
-#endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_STATS
-#define RHINO_CONFIG_INTRPT_STATS    0
-#endif
-#ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM

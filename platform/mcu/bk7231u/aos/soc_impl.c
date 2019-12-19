@@ -21,12 +21,6 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
-void soc_intrpt_stack_ovf_check(void)
-{
-}
-#endif
-
 #include <k_api.h>
 
 void soc_hw_timer_init()
@@ -102,10 +96,10 @@ void krhino_idle_hook(void)
     GLOBAL_INT_DISABLE();
     if((INT32)(global_tick + (UINT32)1 - g_tick_count) <=  0)
 	{
-	    
+
 	    mcu_miss_tick = mcu_power_save(mcu_ps_tick);
         #if 0
-	    RHINO_CPU_INTRPT_DISABLE();   
+	    RHINO_CPU_INTRPT_DISABLE();
 	    g_tick_count += mcu_miss_tick;
 	    global_tick = g_tick_count;
 	    RHINO_CPU_INTRPT_ENABLE();
