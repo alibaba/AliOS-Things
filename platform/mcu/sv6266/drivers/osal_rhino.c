@@ -729,7 +729,7 @@ void *OS_MemAlloc( u32 size )
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
         tmp = krhino_mm_alloc(size | AOS_UNSIGNED_INT_MSB);
 
@@ -779,7 +779,7 @@ void* OS_MemRealloc(void *mem, u32 size)
 {
     void *tmp = NULL;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
         tmp = krhino_mm_realloc(mem, size | AOS_UNSIGNED_INT_MSB);
 
