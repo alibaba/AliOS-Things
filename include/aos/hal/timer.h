@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file timer.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_TIMER_H
@@ -9,24 +10,33 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_timer TIMER
+ *  timer hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
-#define TIMER_RELOAD_AUTO  1 /* timer reload automatic */
-#define TIMER_RELOAD_MANU  2 /* timer reload manual */
+#define TIMER_RELOAD_AUTO  1 /**< timer reload automatic */
+#define TIMER_RELOAD_MANU  2 /**< timer reload manual */
 
+/* Define timer handle function type */
 typedef void (*hal_timer_cb_t)(void *arg);
 
+/* Define timer config args */
 typedef struct {
-    uint32_t        period; /* us */
-    uint8_t         reload_mode;
-    hal_timer_cb_t  cb;
-    void           *arg;
+    uint32_t        period;         /**< timer period, us */
+    uint8_t         reload_mode;    /**< auto reload or not */
+    hal_timer_cb_t  cb;             /**< timer handle when expired */
+    void           *arg;            /**< timer handle args */
 } timer_config_t;
 
+/* Define timer dev handle */
 typedef struct {
-    int8_t          port;   /* timer port */
-    timer_config_t  config; /* timer config */
-    void           *priv;   /* priv data */
+    int8_t          port;   /**< timer port */
+    timer_config_t  config; /**< timer config */
+    void           *priv;   /**< priv data */
 } timer_dev_t;
 
 /**
@@ -34,7 +44,7 @@ typedef struct {
  *
  * @param[in]  tim  timer device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_timer_init(timer_dev_t *tim);
 
@@ -43,7 +53,7 @@ int32_t hal_timer_init(timer_dev_t *tim);
  *
  * @param[in]  tim  timer device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_timer_start(timer_dev_t *tim);
 
@@ -62,7 +72,7 @@ void hal_timer_stop(timer_dev_t *tim);
  * @param[in]  tim   timer device
  * @param[in]  para  timer config
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_timer_para_chg(timer_dev_t *tim, timer_config_t para);
 
@@ -71,9 +81,11 @@ int32_t hal_timer_para_chg(timer_dev_t *tim, timer_config_t para);
  *
  * @param[in]  tim  timer device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_timer_finalize(timer_dev_t *tim);
+
+/** @} */
 
 #ifdef __cplusplus
 }
