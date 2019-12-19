@@ -1,2 +1,3 @@
 config AOS_COMP_DEVICE_SAL_ESP8266
-    bool "ESP8266"
+    bool "wifi.ESP8266"
+    select AOS_COMP_ATPARSER
