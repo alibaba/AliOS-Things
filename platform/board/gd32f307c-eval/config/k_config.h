@@ -62,9 +62,6 @@
 
 #define RHINO_CONFIG_TIMER_MSG_NUM           20
 
-/* kernel stack ovf check */
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 
 /* kernel dyn alloc conf */
