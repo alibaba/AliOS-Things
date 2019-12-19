@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file usbd.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_USBD_H
@@ -9,16 +10,22 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_usbd USBD
+ *  usbd hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
 #include "usb_device.h"
 
 /* Endpoint transfer status, for endpoints > 0 */
 typedef enum {
-    EP_COMPLETED, /* Transfer completed */
-    EP_PENDING,   /* Transfer in progress */
-    EP_INVALID,   /* Invalid parameter */
-    EP_STALLED,   /* Endpoint stalled */
+    EP_COMPLETED, /**< Transfer completed */
+    EP_PENDING,   /**< Transfer in progress */
+    EP_INVALID,   /**< Invalid parameter */
+    EP_STALLED,   /**< Endpoint stalled */
 } ep_status;
 
 /* Initialization */
@@ -43,7 +50,7 @@ usbd_stat_t usbd_hal_init(void *pdev);
 usbd_stat_t usbd_hal_deinit(void *pdev);
 
 /**
- * @brief enable usb device driver
+ * @brief start usb device driver
  *
  * @param[in]  pdev  point to usb device handler
  *
@@ -52,7 +59,7 @@ usbd_stat_t usbd_hal_deinit(void *pdev);
 usbd_stat_t usbd_hal_start(void *pdev);
 
 /**
- * @brief disable usb device driver
+ * @brief stop usb device driver
  *
  * @param[in]  pdev  point to usb device handler
  *
@@ -81,7 +88,7 @@ void usbd_hal_configure_device(void);
 void usbd_hal_unconfigure_device(void);
 
 /**
- * @brief unconfigure usb device info
+ * @brief set usb device address
  *
  * @param[in]  pdev     point to usb device handler
  * @param[in]  address  the usb device address
@@ -120,7 +127,7 @@ void usbd_hal_ep0_read_stage(void);
  * @brief Endpoint0 get read result
  *
  * @param[in]  pdev    point to usb device handler
- * @param[in]  buffer  point to packet
+ * @param[out] buffer  point to packet
  *
  * @return the length of read packet
  */
@@ -162,7 +169,7 @@ void usbd_hal_ep0_stall(void *pdev);
  * @param[in]  maxPacket  the max size of packet
  * @param[in]  flags      options flags for configuring endpoints
  *
- * @return true is ok, false is false
+ * @return true is ok, false is fail
  */
 bool usbd_hal_realise_endpoint(void *pdev, uint8_t endpoint, uint32_t maxPacket, uint32_t flags);
 
@@ -180,10 +187,10 @@ ep_status usbd_hal_endpoint_read(void *pdev, uint8_t endpoint, uint32_t maximumS
 /**
  * @brief read the endpoint data
  *
- * @param[in]  pdev       point to usb device handler
- * @param[in]  endpoint   the num of endpoint
- * @param[in]  data       point to receive buffer
- * @param[in]  bytesRead  amount of data be received
+ * @param[in]  pdev        point to usb device handler
+ * @param[in]  endpoint    the num of endpoint
+ * @param[out]  data       point to receive buffer
+ * @param[out]  bytesRead  amount of data be received
  *
  * @return endpoint status
  */
@@ -202,7 +209,7 @@ ep_status usbd_hal_endpoint_read_result(void *pdev, uint8_t endpoint, uint8_t *d
 ep_status usbd_hal_endpoint_write(void *pdev, uint8_t endpoint, uint8_t *data, uint32_t size);
 
 /**
- * @brief write the endpoint data
+ * @brief get writting endpoint data status
  *
  * @param[in]  pdev      point to usb device handler
  * @param[in]  endpoint  the num of endpoint
@@ -240,6 +247,8 @@ void usbd_hal_unstall_endpoint(void *pdev, uint8_t endpoint);
  * @return true is ok, false is false
  */
 bool usbd_hal_get_endpoint_stall_state(void *pdev, uint8_t endpoint);
+
+/** @} */
 
 #ifdef __cplusplus
 }
