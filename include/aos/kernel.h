@@ -24,12 +24,12 @@ extern "C" {
 #define SYSINFO_KERNEL_VERSION "AOS-R-3.0.0"
 
 /* Defined for API with delay time */
-#define AOS_WAIT_FOREVER 0xffffffffu /* Wait one event for ever */
-#define AOS_NO_WAIT      0x0         /* return immediately if no event */
+#define AOS_WAIT_FOREVER 0xffffffffu /**< Wait one event for ever */
+#define AOS_NO_WAIT      0x0         /**< return immediately if no event */
 
 /* Define default aos task priority*/
 #ifndef AOS_DEFAULT_APP_PRI
-#define AOS_DEFAULT_APP_PRI 32       /* Default task priority */
+#define AOS_DEFAULT_APP_PRI 32       /**< Default task priority */
 #endif
 
 /* This struct is used to define the handle for all aos module */
@@ -51,8 +51,8 @@ typedef aos_hdl_t aos_timer_t;
 typedef aos_hdl_t aos_work_t;
 /* Define the main handle for workqueue module */
 typedef struct {
-    void *hdl;     /* internel rhino handle */
-    void *stk;     /* workqueue task stack start addr */
+    void *hdl;     /**< internel rhino handle */
+    void *stk;     /**< workqueue task stack start addr */
 } aos_workqueue_t;
 /* Define the data type for task key index */
 typedef unsigned int aos_task_key_t;

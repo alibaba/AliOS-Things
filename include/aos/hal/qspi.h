@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file qspi.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_QSPI_H
@@ -9,24 +10,31 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_qspi QSPI
+ *  qspi hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
+/* Define the wait forever timeout macro */
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
 
 typedef struct {
-    uint32_t freq; /* communication frequency Hz */
+    uint32_t freq; /**< communication frequency Hz */
 } qspi_config_t;
 
 typedef struct {
-    uint8_t        port;   /* qspi port */
-    qspi_config_t  config; /* qspi config */
-    void          *priv;   /* priv data */
+    uint8_t        port;   /**< qspi port */
+    qspi_config_t  config; /**< qspi config */
+    void          *priv;   /**< priv data */
 } qspi_dev_t;
 
 typedef struct {
-    uint32_t instruction; /* qspi instruction */
-    uint32_t address;     /* qspi cmd address */
-    uint32_t size;        /* qspi cmd size */
+    uint32_t instruction; /**< qspi instruction */
+    uint32_t address;     /**< qspi cmd address */
+    uint32_t size;        /**< qspi cmd size */
 } qspi_cmd_t;
 
 /**
@@ -34,7 +42,7 @@ typedef struct {
  *
  * @param[in]  qspi  the spi device
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_init(qspi_dev_t *qspi);
 
@@ -47,7 +55,7 @@ int32_t hal_qspi_init(qspi_dev_t *qspi);
  * @param[in]  timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
  *                      if you want to wait forever
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_send(qspi_dev_t *qspi, const uint8_t *data, uint32_t timeout);
 
@@ -56,11 +64,10 @@ int32_t hal_qspi_send(qspi_dev_t *qspi, const uint8_t *data, uint32_t timeout);
  *
  * @param[in]   qspi     the qspi device
  * @param[out]  data     qspi recv data
- * @param[in]   size     qspi recv data size
  * @param[in]   timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
  *                       if you want to wait forever
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_recv(qspi_dev_t *qspi, uint8_t *data, uint32_t timeout);
 
@@ -72,7 +79,7 @@ int32_t hal_qspi_recv(qspi_dev_t *qspi, uint8_t *data, uint32_t timeout);
  * @param[in]   timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
  *                       if you want to wait forever
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_command(qspi_dev_t *qspi, qspi_cmd_t *cmd, uint32_t timeout);
 
@@ -84,7 +91,7 @@ int32_t hal_qspi_command(qspi_dev_t *qspi, qspi_cmd_t *cmd, uint32_t timeout);
  * @param[in]   timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
  *                       if you want to wait forever
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_auto_polling(qspi_dev_t *qspi, uint32_t cmd, uint32_t timeout);
 
@@ -93,9 +100,11 @@ int32_t hal_qspi_auto_polling(qspi_dev_t *qspi, uint32_t cmd, uint32_t timeout);
  *
  * @param[in]  qspi  the QSPI device to be de-initialised
  *
- * @return  0 : on success, EIO : if an error occurred
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_qspi_finalize(qspi_dev_t *qspi);
+
+/** @} */
 
 #ifdef __cplusplus
 }

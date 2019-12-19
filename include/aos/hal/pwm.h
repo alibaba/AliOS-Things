@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file pwm.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_PWM_H
@@ -9,17 +10,23 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_pwm PWM
+ *  pwm hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
 typedef struct {
-    float    duty_cycle; /* the pwm duty_cycle */
-    uint32_t freq;       /* the pwm freq */
+    float    duty_cycle; /**< the pwm duty_cycle */
+    uint32_t freq;       /**< the pwm freq */
 } pwm_config_t;
 
 typedef struct {
-    uint8_t       port;   /* pwm port */
-    pwm_config_t  config; /* spi config */
-    void         *priv;   /* priv data */
+    uint8_t       port;   /**< pwm port */
+    pwm_config_t  config; /**< spi config */
+    void         *priv;   /**< priv data */
 } pwm_dev_t;
 
 /**
@@ -27,7 +34,7 @@ typedef struct {
  *
  * @param[in]  pwm  the PWM device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_pwm_init(pwm_dev_t *pwm);
 
@@ -36,7 +43,7 @@ int32_t hal_pwm_init(pwm_dev_t *pwm);
  *
  * @param[in]  pwm  the PWM device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_pwm_start(pwm_dev_t *pwm);
 
@@ -45,7 +52,7 @@ int32_t hal_pwm_start(pwm_dev_t *pwm);
  *
  * @param[in]  pwm  the PWM device
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_pwm_stop(pwm_dev_t *pwm);
 
@@ -55,7 +62,7 @@ int32_t hal_pwm_stop(pwm_dev_t *pwm);
  * @param[in]  pwm   the PWM device
  * @param[in]  para  the para of pwm
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para);
 
@@ -64,9 +71,11 @@ int32_t hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para);
  *
  * @param[in]  pwm  the interface which should be de-initialised
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_pwm_finalize(pwm_dev_t *pwm);
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file rng.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef HAL_RNG_H
@@ -9,11 +10,17 @@
 extern "C" {
 #endif
 
+/** @addtogroup hal_rng RNG
+ *  rng hal API.
+ *
+ *  @{
+ */
+
 #include <stdint.h>
 
 typedef struct {
-    uint8_t  port; /* random device port */
-    void    *priv; /* priv data */
+    uint8_t  port; /**< random device port */
+    void    *priv; /**< priv data */
 } random_dev_t;
 
 /**
@@ -24,9 +31,11 @@ typedef struct {
  *                           in this memory with random numbers after executed
  * @param[in]   inByteCount  Length of the memory buffer (bytes)
  *
- * @return  0 : on success, EIO : if an error occurred with any step
+ * @return  0 : on success,  otherwise is error
  */
 int32_t hal_random_num_read(random_dev_t random, void *buf, int32_t bytes);
+
+/** @} */
 
 #ifdef __cplusplus
 }
