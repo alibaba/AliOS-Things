@@ -149,6 +149,23 @@ static void on_socket_received_pong(rws_socket socket)
     LOGI(TAG, "intance %d socket received pong!", instance->id);
 }
 
+static void on_socket_send_ping(rws_socket socket)
+{
+    websoc_instance_ptr instance = NULL;
+
+    instance = find_websoc_instance(socket);
+    if (instance == NULL)
+        return;
+
+    if (!socket)
+    {
+        LOGE(TAG, "%s: Invalid parameter(s).", __FUNCTION__);
+        return;
+    }
+
+    LOGI(TAG, "intance %d socket ping sent!", instance->id);
+}
+
 static char *text_arr[] = {"12345566778888999999999999999999999999",
                            "12345566778888999999999999999999999999",
                            "12345566778888999999999999999999999999",
@@ -243,6 +260,7 @@ static int websoc_client_task(void)
     rws_socket_set_on_received_text(_socket, &on_socket_received_text);
     rws_socket_set_on_received_bin(_socket, &on_socket_received_bin);
     rws_socket_set_on_received_pong(_socket, &on_socket_received_pong);
+    rws_socket_set_on_send_ping(_socket, &on_socket_send_ping);
 
     /* connect to websocket server */
     ret = rws_socket_connect(_socket);
@@ -280,6 +298,8 @@ static int websoc_client_task(void)
 
             /* send bin finish, indicate the end of the bin sending */
             rws_socket_send_bin_finish(_socket, "finish", strlen("finish"));
+
+            rws_socket_send_ping(_socket);
         } else if (instance->state_flags & WEBSOCKET_DISCONNECTED) {
             LOGI(TAG, "websocket disconnected!");
         } else {
@@ -360,8 +380,8 @@ static void websoc_handler(char *outbuf, int len, int argc, char **argv)
 
     LOGD(TAG, "Server Info: %s %s %s %d", _scheme, _host, _path, _port);
 
-    aos_task_new("websoc_upload_1", websoc_client_task, NULL, 8 * 1024);
-    aos_task_new("websoc_upload_2", websoc_client_task, NULL, 8 * 1024);
+    aos_task_new("websoc_upload_1", websoc_client_task, NULL, 2 * 1024);
+    aos_task_new("websoc_upload_2", websoc_client_task, NULL, 2 * 1024);
 }
 
 /**
