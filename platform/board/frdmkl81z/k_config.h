@@ -77,9 +77,6 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
 
-#ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#endif
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         0
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
