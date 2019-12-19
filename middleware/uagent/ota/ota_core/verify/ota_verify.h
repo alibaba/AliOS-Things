@@ -72,5 +72,6 @@ int ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_d
 int ota_calculate_image_hash_value(unsigned int offset, int image_len, unsigned char hash_method, char *hash_value, int len);
 int ota_rsa_pubkey_verify(const unsigned char *pubkey_n, const unsigned char *pubkey_e,unsigned int pubkey_n_size,
                           unsigned int pubkey_e_size, const unsigned char *dig, unsigned int dig_size, const unsigned char *sig, unsigned int sig_size);
+int ota_verify_rsa(unsigned char *sign_dat, const char *hash_dat, unsigned char hash_type);
 #endif /*OTA_VERIY_H*/
 
