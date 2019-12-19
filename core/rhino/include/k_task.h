@@ -273,14 +273,12 @@ kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free);
  */
 kstat_t krhino_task_pri_change(ktask_t *task, uint8_t pri, uint8_t *old_pri);
 
-#if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
 /**
  * This function will abort a task and wakup the task
  * @param[in]  task  the task to be aborted
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_task_wait_abort(ktask_t *task);
-#endif
 
 #if (RHINO_CONFIG_SCHED_RR > 0)
 /**
