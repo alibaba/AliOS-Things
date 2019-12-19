@@ -53,17 +53,13 @@ void rws_socket_disconnect_and_release(rws_socket socket) {
 
 	if (socket->is_connected) { // connected in loop
 		socket->command = COMMAND_DISCONNECT;
-		socket->need_release = rws_true;
-		rws_mutex_unlock(socket->work_mutex);
 	} else if (socket->work_thread) { // disconnected in loop
 		socket->command = COMMAND_END;
-		socket->need_release = rws_true;
-		rws_mutex_unlock(socket->work_mutex);
-	} else {  //if (socket->command != COMMAND_END) {
-		// not in loop
-		rws_mutex_unlock(socket->work_mutex);
-		rws_socket_delete(socket);
 	}
+
+	rws_mutex_unlock(socket->work_mutex);
+    rws_sem_wait(socket->exit_sem, RWS_WAIT_FOREVER);
+    rws_socket_delete(socket);
 }
 
 rws_bool rws_socket_send_bin_start(rws_socket socket, const char *bin, size_t len) {
@@ -110,6 +106,17 @@ rws_bool rws_socket_send_text(rws_socket socket, const char * text) {
 	return r;
 }
 
+rws_bool rws_socket_send_ping(rws_socket socket) {
+	rws_bool r = rws_false;
+	if (socket) {
+		rws_mutex_lock(socket->send_mutex);
+		if (socket->socket != RWS_INVALID_SOCKET && socket->is_connected)
+		    r = rws_socket_send_ping_priv(socket);
+		rws_mutex_unlock(socket->send_mutex);
+	}
+	return r;
+}
+
 /*void rws_socket_handle_sigpipe(int signal_number) {
 	printf("\nlibrws handle sigpipe %i", signal_number);
 	(void)signal_number;
@@ -144,11 +151,10 @@ rws_socket rws_socket_create(void) {
 
 	s->work_mutex = rws_mutex_create_recursive();
 	s->send_mutex = rws_mutex_create_recursive();
+	s->exit_sem = rws_sem_create();
 
 	static const char * info = "librws ver: " TO_STRING(RWS_VERSION_MAJOR) "." TO_STRING(RWS_VERSION_MINOR) "." TO_STRING(RWS_VERSION_PATCH) "\n";
 	rws_socket_check_info(info);
-
-	s->need_release = rws_false;
 
 	return s;
 }
@@ -168,11 +174,18 @@ void rws_socket_delete(rws_socket s) {
 	rws_string_delete_clean(&s->scheme);
 	rws_string_delete_clean(&s->host);
 	rws_string_delete_clean(&s->path);
+	rws_string_delete_clean(&s->sec_ws_protocol);
 	rws_string_delete_clean(&s->sec_ws_accept);
 	rws_error_delete_clean(&s->error);
 
 	rws_mutex_delete(s->work_mutex);
+	s->work_mutex = NULL;
+
 	rws_mutex_delete(s->send_mutex);
+	s->send_mutex = NULL;
+
+	rws_sem_delete(s->exit_sem);
+	s->exit_sem = NULL;
 
 	rws_free(s->recv_buffer);
 	s->recv_buffer = NULL;
@@ -241,6 +254,13 @@ void rws_socket_set_port(rws_socket socket, const int port) {
 
 int rws_socket_get_port(rws_socket socket) {
 	return socket ? socket->port : -1;
+}
+
+void rws_socket_set_protocol(rws_socket socket, const char * protocol) {
+	if (socket) {
+		rws_string_delete(socket->sec_ws_protocol);
+		socket->sec_ws_protocol = rws_string_copy(protocol);
+	}
 }
 
 /*
@@ -326,11 +346,15 @@ void rws_socket_set_on_received_pong(rws_socket socket, rws_on_socket_recvd_pong
 	}
 }
 
+void rws_socket_set_on_send_ping(rws_socket socket, rws_on_socket_send_ping callback) {
+	if (socket) {
+		socket->on_send_ping = callback;
+	}
+}
+
 #ifdef WEBSOCKET_SSL_ENABLE
 void rws_socket_set_server_cert(rws_socket socket, const char *server_cert, int server_cert_len)
 {
-    DBG("%s: server_cert[len:%d]: \n%s", __FUNCTION__, server_cert_len, server_cert);
-
 	rws_socket s = socket;
 	if (s) {
         s->server_cert = server_cert;
