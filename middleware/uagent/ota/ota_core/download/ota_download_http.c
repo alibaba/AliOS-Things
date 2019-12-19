@@ -70,7 +70,7 @@ int ota_download_start(char *url)
     httpc_connection_t settings = {0};
     httpc_handle_t httpc_handle = 0;
     int percent                 = 0;
-    int divisor                 = 10;
+    int divisor                 = 5;
 #if defined OTA_CONFIG_ITLS
     char pkps[128] = {0};
 #endif
@@ -79,7 +79,8 @@ int ota_download_start(char *url)
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
     }
-    hdr  = ota_malloc(OTA_HTTP_HEAD_LEN);
+    hdr = ota_malloc(OTA_HTTP_HEAD_LEN);
+    memset(hdr, 0x00, OTA_HTTP_HEAD_LEN);
     if(hdr == NULL) {
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
@@ -226,7 +227,7 @@ int ota_download_start(char *url)
                     if(ota_file_size) {
                          percent = (ota_rx_size * 100) /ota_file_size;
                          if(percent / divisor) {
-                             divisor += 10;
+                             divisor += 5;
                              if((ctx != NULL)&&(ctx->on_percent != NULL)) {
                                  ctx->on_percent(percent);
                              } else {
