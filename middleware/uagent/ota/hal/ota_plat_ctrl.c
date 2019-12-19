@@ -139,12 +139,26 @@ int ota_set_boot(ota_boot_param_t *param)
                     else {
                         OTA_LOG_E("ota verify hash failed!");
                     }
+                    /* verify RSA signature */
+#if defined OTA_CONFIG_RSA
+                    ret = ota_verify_rsa((unsigned char*)param->sign, (const char*)calculate_hash_str_value, param->hash_type);
+                    if (ret < 0) {
+                        ret = OTA_VERIFY_RSA_FAIL;
+                    }
+#else
+                    /* verify image */
+                    if ((param->upg_flag != OTA_UPGRADE_DIFF) && (param->upg_flag != OTA_UPGRADE_CUST)) {
+                        ret = ota_check_image(param->len);
+                        if (ret < 0) {
+                            ret = OTA_VERIFY_IMAGE_FAIL;
+                        }
+                    }
+#endif
                 }
             }
         }
         OTA_LOG_I("ota boot finish ret:%d crc:0x%04x ", ret, param->crc);
     }
-    ota_reboot();
     return ret;
 }
 
