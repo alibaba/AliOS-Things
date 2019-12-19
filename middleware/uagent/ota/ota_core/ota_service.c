@@ -124,22 +124,6 @@ int ota_service_start(ota_service_t *ctx)
         ota_param.upg_status = OTA_BREAKPOINT;
         goto EXIT;
     }
-    /* verify RSA signature */
-#if defined OTA_CONFIG_RSA
-    ret = ota_verify_download_rsa_sign((unsigned char*)ota_param.sign, (const char*)ota_param.hash, ota_param.hash_type);
-    if (ret < 0) {
-        ret = OTA_VERIFY_RSA_FAIL;
-        goto EXIT;
-    }
-#endif
-    /* verify image */
-    if ((ota_param.upg_flag != OTA_UPGRADE_DIFF) && (ota_param.upg_flag != OTA_UPGRADE_CUST)) {
-        ret = ota_check_image(ota_param.len);
-        if (ret < 0) {
-            ret = OTA_VERIFY_IMAGE_FAIL;
-            goto EXIT;
-        }
-    }
 EXIT:
     OTA_LOG_E("upgrade complete ret:%d.\n", ret);
     if (ret < 0) {
@@ -166,7 +150,11 @@ EXIT:
     if ((ctx != NULL) && (ctx->on_boot != NULL)) {
         ctx->on_boot(&ota_param);
     } else {
-        ota_set_boot(&ota_param);
+        ret = ota_set_boot(&ota_param);
+        if(ret < 0) {
+            ota_transport_status(ctx->pk, ctx->dn, ret);
+        }
+        ota_reboot();
     }
     return ret;
 }
@@ -193,11 +181,9 @@ void ota_parse_dl_url(const char *json)
     } else {
         /* recover the process type */
         cJSON *cmd = cJSON_GetObjectItem(root, "cmd");
-
         if (NULL == cmd) {
             ota_ctx->ota_process = OTA_PROCESS_NORMAL;
         }
-
         cJSON *message = cJSON_GetObjectItem(root, "message");
         if (NULL == message) {
             ret = OTA_MESSAGE_PAR_FAIL;
@@ -261,7 +247,7 @@ void ota_parse_dl_url(const char *json)
         strncpy(ota_param.url, url->valuestring, OTA_URL_LEN - 1);
         cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
         if (signMethod != NULL) {
-            memset(ota_param.hash, 0x00, OTA_HASH_LEN);
+            memset(ota_param.hash, 0x00, sizeof(ota_param.hash));
             ret = ota_to_capital(signMethod->valuestring, strlen(signMethod->valuestring));
             if (ret != 0) {
                 ret = OTA_VER_PAR_FAIL;
@@ -274,8 +260,7 @@ void ota_parse_dl_url(const char *json)
                     goto EXIT;
                 }
                 ota_param.hash_type = OTA_MD5;
-                strncpy(ota_param.hash, md5->valuestring, strlen(md5->valuestring) + 1);
-                ota_param.hash[strlen(md5->valuestring)] = '\0';
+                strncpy(ota_param.hash, md5->valuestring, sizeof(ota_param.hash) - 1);
                 ret = ota_to_capital(ota_param.hash, strlen(ota_param.hash));
                 if (ret != 0) {
                     ret = OTA_VER_PAR_FAIL;
@@ -288,8 +273,7 @@ void ota_parse_dl_url(const char *json)
                     goto EXIT;
                 }
                 ota_param.hash_type = OTA_SHA256;
-                strncpy(ota_param.hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
-                ota_param.hash[strlen(sha256->valuestring)] = '\0';
+                strncpy(ota_param.hash, sha256->valuestring, sizeof(ota_param.hash) - 1);
                 ret = ota_to_capital(ota_param.hash, strlen(ota_param.hash));
                 if (ret != 0) {
                     ret = OTA_VER_PAR_FAIL;
@@ -300,15 +284,14 @@ void ota_parse_dl_url(const char *json)
                 goto EXIT;
             }
         } else { /* old protocol*/
-            memset(ota_param.hash, 0x00, OTA_HASH_LEN);
+            memset(ota_param.hash, 0x00, sizeof(ota_param.hash));
             cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
             if (NULL == md5) {
                 ret = OTA_MD5_PAR_FAIL;
                 goto EXIT;
             }
             ota_param.hash_type = OTA_MD5;
-            strncpy(ota_param.hash, md5->valuestring, strlen(md5->valuestring) + 1);
-            ota_param.hash[strlen(md5->valuestring)] = '\0';
+            strncpy(ota_param.hash, md5->valuestring, sizeof(ota_param.hash) - 1);
             ret = ota_to_capital(ota_param.hash, strlen(ota_param.hash));
             if (ret != 0) {
                 ret = OTA_VER_PAR_FAIL;
@@ -393,7 +376,6 @@ static int on_ota_handler(void *p, const unsigned short len, void *str)
 
     if (NULL != str && 0 != len) {
         cJSON *root = NULL;
-
         OTA_LOG_I("Handle ota payload %s", str);
         root = cJSON_Parse(str);
         if (NULL != root) {
@@ -441,9 +423,9 @@ int ota_update_process(const char *error_description, const int step)
     char msg[OTA_MSG_LEN] = { 0 };
 
     if (NULL != error_description) {
-        rc = ota_snprintf(msg, sizeof(msg), "{\"step\": %d,\"desc\":\"%s\"}", step, error_description);
+        rc = ota_snprintf(msg, sizeof(msg) - 1, "{\"step\": %d,\"desc\":\"%s\"}", step, error_description);
     } else {
-        rc = ota_snprintf(msg, sizeof(msg), "{\"step\": %d,\"desc\":\"%s\"}", step, "");
+        rc = ota_snprintf(msg, sizeof(msg) - 1, "{\"step\": %d,\"desc\":\"%s\"}", step, "");
     }
     if (rc > 0) {
         rc = uagent_send(UAGENT_MOD_OTA, OTA_INFO, rc < OTA_MSG_LEN ? rc : OTA_MSG_LEN, msg, send_policy_object);
