@@ -7,10 +7,23 @@
 #include "rws_memory.h"
 #include "rws_string.h"
 
-#define READ_TIMEOUT_MS     5000
-#define WRITE_TIMEOUT_MS    5000
+#include "ulog/ulog.h"
+#define WEBSOC_TAG "websoc"
+
+#if defined(WEBSOCKET_DEBUG)
+#define DBG(format, arg...)   LOGD(WEBSOC_TAG, format, ##arg)
+#define WRN(format,arg...)    LOGW(WEBSOC_TAG, format, ##arg)
+#define ERR(format,arg...)    LOGE(WEBSOC_TAG, format, ##arg)
+#else
+#define DBG(format,arg...)
+#define WRN(format,arg...)    LOGW(WEBSOC_TAG, format, ##arg)
+#define ERR(format,arg...)    LOGE(WEBSOC_TAG, format, ##arg)
+#endif
+
+#define READ_TIMEOUT_MS         5000
+#define WRITE_TIMEOUT_MS        5000
 #define RWS_CONNECT_RETRY_DELAY 200
-#define RWS_CONNECT_ATTEMPS 5
+#define RWS_CONNECT_ATTEMPS     2
 
 #define	WSAEWOULDBLOCK  EAGAIN	
 #define	WSAEINPROGRESS  EINPROGRESS
@@ -23,10 +36,13 @@ unsigned int rws_socket_get_next_message_id(rws_socket s) {
 	return mess_id;
 }
 
-void rws_socket_send_ping(rws_socket s) {
+rws_bool rws_socket_send_ping_priv(rws_socket s) {
 	char buff[16];
 	size_t len = 0;
 	_rws_frame * frame = rws_frame_create();
+
+	if (frame == NULL)
+		return rws_false;
 
 	len = rws_sprintf(buff, 16, "%u", rws_socket_get_next_message_id(s));
 
@@ -34,6 +50,8 @@ void rws_socket_send_ping(rws_socket s) {
 	frame->opcode = rws_opcode_ping;
 	rws_frame_fill_with_send_data(frame, buff, len, rws_true);
 	rws_socket_append_send_frames(s, frame);
+
+	return rws_true;
 }
 
 void rws_socket_inform_recvd_frames(rws_socket s) {
@@ -147,29 +165,47 @@ rws_bool rws_socket_process_handshake_responce(rws_socket s) {
 // need close socket on error
 rws_bool rws_socket_send(rws_socket s, const void * data, const size_t data_size) {
 	int sended = -1, error_number = -1;
+	uint32_t writtenLen = 0;
 	rws_error_delete_clean(&s->error);
 
-	//errno = -1;
+	while (writtenLen < data_size) {
 #ifdef WEBSOCKET_SSL_ENABLE
-    if(s->scheme && strcmp(s->scheme, "wss") == 0)
-        sended = mbedtls_ssl_write(&(s->ssl->ssl_ctx), (const unsigned char *)data, (int)data_size);
-    else
+        if (s->scheme && strcmp(s->scheme, "wss") == 0) {
+            if (s->ssl)
+                sended = mbedtls_ssl_write(&(s->ssl->ssl_ctx), (const unsigned char *)(data + writtenLen), (int)(data_size - writtenLen));
+            else {
+            	ERR("%s %d ssl invlalid ctx", __func__, __LINE__);
+            	sended = -1;
+            	break;
+            }
+        }
+        else
 #endif
-	sended = (int)send(s->socket, data, (int)data_size, 0);
-    error_number = errno;
+	        sended = (int)send(s->socket, (data + writtenLen), (int)(data_size - writtenLen), 0);
+
+        if (sended > 0) {
+            writtenLen += sended;
+        } else {
+            error_number = errno;
+            break;
+        }
+    }
 
 	if (sended > 0) {
+		if (sended < data_size) {
+			WRN("%s %d sended %d but want %d", __func__, __LINE__, sended, data_size);
+		}
+
 		return rws_true;
 	}
 
 	rws_socket_check_write_error(s, error_number);
 	if (s->error) {
-		DBG("rws_socket_send return %d\n", error_number);
+		ERR("rws_socket_send return %d\n", error_number);
 		rws_socket_close(s);
-		return rws_false;
 	}
 
-	return rws_true;
+	return rws_false;
 }
 
 rws_bool rws_socket_recv(rws_socket s) {
@@ -191,14 +227,18 @@ rws_bool rws_socket_recv(rws_socket s) {
 	while (is_reading) {
 #ifdef WEBSOCKET_SSL_ENABLE
         if(s->scheme && strcmp(s->scheme, "wss") == 0) {
-            len = mbedtls_ssl_read(&(s->ssl->ssl_ctx), (unsigned char *)buffer, buffer_size);
+        	if (s->ssl) {
+                len = mbedtls_ssl_read(&(s->ssl->ssl_ctx), (unsigned char *)buffer, buffer_size);
+            } else {
+            	ERR("%s %d ssl invlalid ctx", __func__, __LINE__);
+            	return false;
+            }
         }
         else
 #endif
 		    len = (int)recv(s->socket, buffer, buffer_size, 0);
 
 		error_number = errno;
-
 		if (len > 0) {
 			total_len += len;
 			if (s->received_size - s->received_len < len) {
@@ -216,7 +256,7 @@ rws_bool rws_socket_recv(rws_socket s) {
             is_reading = 0;
 #ifdef WEBSOCKET_SSL_ENABLE
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
-                DBG("peer close -0x%04x", -len);
+                ERR("peer close -0x%04x", -len);
                 // net_status = -2; /* connection is closed */
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == len)
                     || (MBEDTLS_ERR_SSL_CONN_EOF == len)
@@ -227,18 +267,17 @@ rws_bool rws_socket_recv(rws_socket s) {
                 ssl_status = 1;
             } else {
             	/* Connection error */
-                DBG("recv -0x%04x", -len); 
+                ERR("recv -0x%04x", -len);
             }
 #endif
         }
 
 	}
 
-	if (error_number != EINTR &&
-		error_number != WSAEWOULDBLOCK &&
-		error_number != WSAEINPROGRESS &&
-		ssl_status != 1) {
-		DBG("in close websocket %d  EINTR %d\n", error_number, EINTR);
+	//if (error_number < 0) return rws_true;
+	if (error_number != WSAEWOULDBLOCK && error_number != WSAEINPROGRESS
+		&& ssl_status != 1) {
+		ERR("in close websocket %d\n", error_number);
 
 		s->error = rws_error_new_code_descr(rws_error_code_read_write_socket, "Failed read/write socket");
 		rws_socket_close(s);
@@ -272,6 +311,8 @@ void rws_socket_process_bin_or_text_frame(rws_socket s, _rws_frame * frame) {
 		last_unfin->is_finished = frame->is_finished;
 		rws_frame_delete(frame);
 	} else if (frame->data && frame->data_size) {
+		rws_socket_append_recvd_frames(s, frame);
+	} else if (frame->data_size == 0 && frame->is_finished) {
 		rws_socket_append_recvd_frames(s, frame);
 	} else {
 		rws_frame_delete(frame);
@@ -361,6 +402,13 @@ void rws_socket_idle_send(rws_socket s) {
 			cur->value.object = NULL;
 			if (frame) {
 				sending = rws_socket_send(s, frame->data, frame->data_size);
+
+				if (sending) {
+					if (rws_opcode_ping == frame->opcode &&
+						s->on_send_ping) {
+						s->on_send_ping(s);
+					}
+				}
 			}
 			rws_frame_delete(frame);
 			cur = cur->next;
@@ -399,7 +447,12 @@ void rws_socket_wait_handshake_responce(rws_socket s) {
 void rws_socket_send_disconnect(rws_socket s) {
 	char buff[16];
 	size_t len = 0;
-	_rws_frame * frame = rws_frame_create();
+	_rws_frame * frame = NULL;
+
+	if (s->socket == RWS_INVALID_SOCKET)
+		return;
+
+	frame = rws_frame_create();
 
 	len = rws_sprintf(buff, 16, "%u", rws_socket_get_next_message_id(s));
 
@@ -416,6 +469,7 @@ void rws_socket_send_handshake(rws_socket s) {
 	char buff[512];
 	char * ptr = buff;
 	size_t writed = 0;
+	char * protocol = (s->sec_ws_protocol ? s->sec_ws_protocol : "chat, superchat");
 	writed = rws_sprintf(ptr, 512, "GET %s HTTP/%s\r\n", s->path, k_rws_socket_min_http_ver);
 
 	if (s->port == 80) {
@@ -432,10 +486,10 @@ void rws_socket_send_handshake(rws_socket s) {
 
 	writed += rws_sprintf(ptr + writed, 512 - writed,
 						  "Sec-WebSocket-Key: %s\r\n"
-						  "Sec-WebSocket-Protocol: chat, superchat\r\n"
+						  "Sec-WebSocket-Protocol: %s\r\n"
 						  "Sec-WebSocket-Version: 13\r\n"
 						  "\r\n",
-						  "dGhlIHNhbXBsZSBub25jZQ==");
+						  "dGhlIHNhbXBsZSBub25jZQ==", protocol);
 
 	if (rws_socket_send(s, buff, writed)) {
 		s->command = COMMAND_WAIT_HANDSHAKE_RESPONCE;
@@ -470,22 +524,24 @@ struct addrinfo * rws_socket_connect_getaddr_info(rws_socket s) {
 			return result;
 		}
 
+		WRN("websoc getaddrinfo failed! try times: %d!", retry_number);
+
 		if (ret != 0) {
 			last_ret = ret;
 		}
-		
+
 		if (result) {
 			freeaddrinfo(result);
 		}
-		
+
 		rws_thread_sleep(RWS_CONNECT_RETRY_DELAY);
 	}
 
-//	s->error = rws_error_new_code_descr(rws_error_code_connect_to_host,
-//										(last_ret > 0) ? gai_strerror(last_ret) : "Failed connect to host");
 	s->error = rws_error_new_code_descr(rws_error_code_connect_to_host,
 										"Failed connect to host");
 	s->command = COMMAND_INFORM_DISCONNECTED;
+
+    ERR("websoc connect_getaddr_info failed!");
 	return NULL;
 }
 
@@ -499,7 +555,7 @@ void rws_socket_connect_to_host(rws_socket s) {
 	if (!result) {
 		return;
 	}
-    
+
 	while ((++retry_number < RWS_CONNECT_ATTEMPS) && (sock == RWS_INVALID_SOCKET)) {
 		for (p = result; p != NULL; p = p->ai_next) {
 			sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
@@ -514,8 +570,11 @@ void rws_socket_connect_to_host(rws_socket s) {
 					break;
 				}
 				RWS_SOCK_CLOSE(sock);
+				sock = RWS_INVALID_SOCKET;
+				WRN("websoc connect failed! try times: %d!", retry_number);
 			}
 		}
+
 		if (sock == RWS_INVALID_SOCKET) {
 			rws_thread_sleep(RWS_CONNECT_RETRY_DELAY);
 		}
@@ -524,6 +583,7 @@ void rws_socket_connect_to_host(rws_socket s) {
 	freeaddrinfo(result);
 
 	if (s->socket == RWS_INVALID_SOCKET) {
+		ERR("websoc rws_socket_connect_to_host failed!");
 		s->error = rws_error_new_code_descr(rws_error_code_connect_to_host, "Failed connect to host");
 		s->command = COMMAND_INFORM_DISCONNECTED;
 	} else {
@@ -533,18 +593,15 @@ void rws_socket_connect_to_host(rws_socket s) {
 
 static void rws_socket_work_th_func(void * user_object) {
 	rws_socket s = (rws_socket)user_object;
-	size_t loop_number = 0;
 
 	while (s->command < COMMAND_END) {
-		loop_number++;
-
 		rws_mutex_lock(s->work_mutex);
 		switch (s->command) {
-			case COMMAND_CONNECT_TO_HOST: 
+			case COMMAND_CONNECT_TO_HOST:
 			{
 				#ifdef WEBSOCKET_SSL_ENABLE
                     if(s->scheme && strcmp(s->scheme, "wss") == 0) {
-                        rws_ssl_conn(s); 
+                        rws_ssl_conn(s);
                         DBG("after rws_ssl_conn %d\n", s->command);
                         break;
                     }
@@ -558,26 +615,18 @@ static void rws_socket_work_th_func(void * user_object) {
 			case COMMAND_WAIT_HANDSHAKE_RESPONCE: rws_socket_wait_handshake_responce(s); break;
 			case COMMAND_DISCONNECT: rws_socket_send_disconnect(s); break;
 			case COMMAND_IDLE:
-				if (loop_number >= 400) {
-					loop_number = 0;
-					
-					if (s->is_connected) {
-						rws_socket_send_ping(s);
-					}
-				}
-				
 				if (s->is_connected) {
 					rws_socket_idle_send(s);
 				}
-				
+
 				if (s->is_connected) {
 					rws_socket_idle_recv(s);
 				}
 				break;
 			default: break;
 		}
-		
-		rws_mutex_unlock(s->work_mutex);     
+
+		rws_mutex_unlock(s->work_mutex);
      	switch (s->command) {
 			case COMMAND_INFORM_CONNECTED:
 				s->command = COMMAND_IDLE;
@@ -593,12 +642,13 @@ static void rws_socket_work_th_func(void * user_object) {
 
                     if (s->error) {
                     	rws_error_delete_clean(&s->error);
-                    } 
+                    }
                     s->error = last_error;
 
                     if (s->on_disconnected)  {
                         s->on_disconnected(s);
                     }
+                    WRN("rws_socket_work_th_func COMMAND_INFORM_DISCONNECTED\n");
                 }
 				break;
 			case COMMAND_IDLE:
@@ -613,9 +663,8 @@ static void rws_socket_work_th_func(void * user_object) {
 
 	rws_socket_close(s);
 	s->work_thread = NULL;
-	if (rws_true == s->need_release)
-	    rws_socket_delete(s);
-	DBG("end rws_socket_work_th_func\n");
+	rws_sem_signal(s->exit_sem);
+	WRN("end rws_socket_work_th_func\n");
 }
 
 rws_bool rws_socket_create_start_work_thread(rws_socket s) {
@@ -1032,6 +1081,7 @@ int rws_ssl_conn(rws_socket s)
         ret = -1;
         goto exit;
     }
+
     ssl = s->ssl;
 
     if (s->server_cert)
@@ -1069,13 +1119,15 @@ int rws_ssl_conn(rws_socket s)
     if (s->client_cert && s->client_pk) {
         ret = mbedtls_x509_crt_parse(&ssl->clicert, (const unsigned char *)s->client_cert, s->client_cert_len);
         if (ret < 0) {
-            DBG("Loading cli_cert failed! mbedtls_x509_crt_parse returned -0x%x.", -ret);
+            ERR("Loading cli_cert failed! mbedtls_x509_crt_parse returned -0x%x.", -ret);
+            ret = -1;
             goto exit;
         }
 
         ret = mbedtls_pk_parse_key(&ssl->pkey, (const unsigned char *)s->client_pk, s->client_pk_len, NULL, 0);
         if (ret != 0) {
-            DBG("failed! mbedtls_pk_parse_key returned -0x%x.", -ret);
+            ERR("failed! mbedtls_pk_parse_key returned -0x%x.", -ret);
+            ret = -1;
             goto exit;
         }
     }
@@ -1087,7 +1139,7 @@ int rws_ssl_conn(rws_socket s)
     if (s->server_cert && ((value = mbedtls_x509_crt_parse(&ssl->cacert,
                                         (const unsigned char *)s->server_cert,
                                         s->server_cert_len)) < 0)) {
-        DBG("mbedtls_x509_crt_parse() failed, value:-0x%x.", -value);
+        ERR("mbedtls_x509_crt_parse() failed, value:-0x%x.", -value);
         ret = -1;
         goto exit;
     }
@@ -1104,7 +1156,8 @@ int rws_ssl_conn(rws_socket s)
     DBG("start to connect to host");
     rws_socket_connect_to_host(s);
     if (s->socket == RWS_INVALID_SOCKET){
-        DBG("failed! mbedtls_net_connect returned.");
+    	ret = -1;
+        ERR("failed! mbedtls_net_connect returned.");
         goto exit;
     } else {
         DBG("connect to host ok");
@@ -1118,7 +1171,7 @@ int rws_ssl_conn(rws_socket s)
                                            MBEDTLS_SSL_IS_CLIENT,
                                            MBEDTLS_SSL_TRANSPORT_STREAM,
                                            MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
-        DBG("mbedtls_ssl_config_defaults() failed, value:-0x%x.", -value);
+        ERR("mbedtls_ssl_config_defaults() failed, value:-0x%x.", -value);
         ret = -1;
         goto exit;
     }
@@ -1133,22 +1186,23 @@ int rws_ssl_conn(rws_socket s)
     mbedtls_ssl_conf_ca_chain(&ssl->ssl_conf, &ssl->cacert, NULL);
 
     if (s->client_cert && (ret = mbedtls_ssl_conf_own_cert(&ssl->ssl_conf, &ssl->clicert, &ssl->pkey)) != 0) {
-        DBG(" failed! mbedtls_ssl_conf_own_cert returned %d.", ret );
+        ERR(" failed! mbedtls_ssl_conf_own_cert returned %d.", ret );
+        ret = -1;
         goto exit;
     }
 
     mbedtls_ssl_conf_rng(&ssl->ssl_conf, _rws_random, NULL);
     mbedtls_ssl_conf_dbg(&ssl->ssl_conf, _rws_debug, NULL);
-    //mbedtls_ssl_conf_rng(&ssl->ssl_conf, mbedtls_ctr_drbg_random, &ssl->ctr_drbg);
+    // mbedtls_ssl_conf_rng(&ssl->ssl_conf, mbedtls_ctr_drbg_random, &ssl->ctr_drbg);
 
     if ((value = mbedtls_ssl_setup(&ssl->ssl_ctx, &ssl->ssl_conf)) != 0) {
-        DBG("mbedtls_ssl_setup() failed, value:-0x%x.", -value);
+        ERR("mbedtls_ssl_setup() failed, value:-0x%x.", -value);
         ret = -1;
         goto exit;
     }
 
     mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, _rws_tls_net_send, _rws_tls_net_recv, _rws_tls_net_recv_timeout);
-    //mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+    // mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
 	//mbedtls_net_set_block(&ssl->net_ctx);
 
     DBG("start to handshake...");
@@ -1157,7 +1211,7 @@ int rws_ssl_conn(rws_socket s)
     */
     while ((ret = mbedtls_ssl_handshake(&ssl->ssl_ctx)) != 0) {
         if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
-            DBG("mbedtls_ssl_handshake() failed, ret:-0x%x.", -ret);
+            ERR("mbedtls_ssl_handshake() failed, ret:-0x%x.", -ret);
             ret = -1;
             goto exit;
         }
@@ -1173,19 +1227,23 @@ int rws_ssl_conn(rws_socket s)
     if ((flags = mbedtls_ssl_get_verify_result(&ssl->ssl_ctx)) != 0) {
 #if defined(MBEDTLS_DEBUG_C)
         char vrfy_buf[512];
-        DBG("svr_cert varification failed. authmode:%d", authmode);
+        ERR("svr_cert varification failed. authmode:%d", authmode);
         mbedtls_x509_crt_verify_info(vrfy_buf, sizeof(vrfy_buf), "  ! ", flags);
         DBG("%s", vrfy_buf);
 #endif
+        ret = -1;
     }
-    else
-        DBG("svr_cert varification ok. authmode:%d", authmode);
+    else {
+    	WRN("svr_cert varification ok. authmode:%d", authmode);
+    }
+
 exit:
     if(ret != 0) {
         DBG("ret=%d.", ret);
     	s->error = rws_error_new_code_descr(rws_error_code_connect_to_host, "Failed connect to host");
-        DBG("%s: code:%d, error:%s", __FUNCTION__, s->error->code, s->error->description);
+        ERR("%s: code:%d, error:%s", __FUNCTION__, s->error->code, s->error->description);
     	s->command = COMMAND_INFORM_DISCONNECTED;
+    	rws_ssl_close(s);
     }
     return ret;
 }
@@ -1193,12 +1251,14 @@ exit:
 int rws_ssl_close(rws_socket s)
 {
     _rws_ssl *ssl = s->ssl;
-    s->client_cert = NULL;
-    s->server_cert = NULL;
-    s->client_pk = NULL;
 
     if (!ssl)
         return -1;
+
+    s->ssl = NULL;
+    s->client_cert = NULL;
+    s->server_cert = NULL;
+    s->client_pk = NULL;
 
     mbedtls_ssl_close_notify(&ssl->ssl_ctx);
     _rws_tls_net_free(&ssl->net_ctx);

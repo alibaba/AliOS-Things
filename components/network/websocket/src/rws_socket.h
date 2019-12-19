@@ -54,6 +54,7 @@ struct rws_socket_struct {
 	char * host;
 	char * path;
 
+    char * sec_ws_protocol;// "Sec-WebSocket-Protocol" field
 	char * sec_ws_accept; // "Sec-WebSocket-Accept" field from handshake
 
 	rws_thread work_thread;
@@ -70,6 +71,7 @@ struct rws_socket_struct {
 	rws_on_socket_recvd_text on_recvd_text;
 	rws_on_socket_recvd_bin on_recvd_bin;
 	rws_on_socket_recvd_pong on_recvd_pong;
+	rws_on_socket_send_ping  on_send_ping;
 
 	void * received;
 	size_t received_size; // size of 'received' memory
@@ -82,6 +84,7 @@ struct rws_socket_struct {
 
 	rws_mutex work_mutex;
 	rws_mutex send_mutex;
+	rws_sem exit_sem;
 
 #ifdef WEBSOCKET_SSL_ENABLE
     const char *server_cert;        /**< Server certification. */
@@ -92,8 +95,6 @@ struct rws_socket_struct {
     int client_pk_len;              /**< Client private key lenght, client_pk buffer size. */
     _rws_ssl *ssl;                  /**< Ssl content. */
 #endif
-
-	rws_bool need_release;
 
 	char *recv_buffer;
 	int recv_buffer_size;
@@ -127,7 +128,7 @@ void rws_socket_wait_handshake_responce(rws_socket s);
 
 unsigned int rws_socket_get_next_message_id(rws_socket s);
 
-void rws_socket_send_ping(rws_socket s);
+rws_bool rws_socket_send_ping_priv(rws_socket s);
 
 void rws_socket_send_disconnect(rws_socket s);
 

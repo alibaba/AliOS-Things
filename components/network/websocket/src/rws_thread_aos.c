@@ -4,6 +4,7 @@
 
 #include "websoc/librws.h"
 #include "rws_memory.h"
+#include "rws_opts.h"
 
 #include <assert.h>
 #include <unistd.h>
@@ -57,9 +58,6 @@ static void * rws_thread_func_priv(void * some_pointer) {
 	return NULL;
 }
 
-#define DEFAULT_WEBSOC_THREAD_STACKSIZE 16 * 1024
-#define DEFAULT_WEBSOC_THREAD_NAME      "websoc"
-#define DEFAULT_WEBSOC_THREAD_PRIO      32
 rws_thread rws_thread_create(rws_thread_funct thread_function, void * user_object)
 {
 	rws_thread t = NULL;
@@ -76,9 +74,9 @@ rws_thread rws_thread_create(rws_thread_funct thread_function, void * user_objec
 	t->user_object = user_object;
 	t->thread_function = thread_function;
     
-    stack_size = DEFAULT_WEBSOC_THREAD_STACKSIZE;
-    name = DEFAULT_WEBSOC_THREAD_NAME;
-    prio = DEFAULT_WEBSOC_THREAD_PRIO;
+    stack_size = WEBSOC_TASK_STACK;
+    name = WEBSOC_TASK_NAME;
+    prio = WEBSOC_TASK_PRIO;
 
     res = aos_task_new_ext((aos_task_t *)&t->task, name, &rws_thread_func_priv, (void *)t, stack_size,
                             prio);
@@ -116,4 +114,30 @@ void rws_mutex_delete(rws_mutex mutex) {
     if (NULL != mutex) {
         aos_mutex_free((aos_mutex_t *)&mutex);
     }
+}
+
+rws_sem rws_sem_create(void)
+{
+    aos_sem_t sem;
+
+    if (0 != aos_sem_new(&sem, 0)) {
+        return NULL;
+    }
+
+    return sem.hdl;
+}
+
+void rws_sem_delete(rws_sem sem)
+{
+	aos_sem_free((aos_sem_t *)&sem);
+}
+
+void rws_sem_signal(rws_sem sem)
+{
+    aos_sem_signal((aos_sem_t *)&sem);
+}
+
+int rws_sem_wait(rws_sem sem, unsigned int timeout_ms)
+{
+	return aos_sem_wait((aos_sem_t *)&sem, timeout_ms);
 }

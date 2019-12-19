@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <time.h>
 
+#define DBG(format,arg...)
+
 _rws_frame * rws_frame_create_with_recv_data(const void * data, const size_t data_size) {
 	if (data && data_size >= 2) {
 		const unsigned char * udata = (const unsigned char *)data;
