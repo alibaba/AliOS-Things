@@ -44,6 +44,7 @@ struct  dns_cache {
 typedef struct httpdns_connection {
     http_ctx_t ctx;
     dns_cache_t * dns;
+    int prefer_local;
 } httpdns_connection_t;
 
 static inline void httpdns_resolv_lock(void)
@@ -743,18 +744,13 @@ static int httpdns_process(httpdns_connection_t *conn)
 
         return httpdns_update_cache(conn->dns);
     } else {
-       char * host = conn->dns->host_name;
-        if (0 == localdns_parse(host)) {
-            HTTPDNS_INFO("<HTTPDNS> %s : local dns update cache for %s\n", __func__, host);
-            return 0;
-        } else {
-           httpdns_resolv_lock();
-           if(NULL != resolv)  {
-                HTTPDNS_INFO("<HTTPDNS> %s : delete cache for %s\n", __func__, host);
-                dictDelete(resolv, host);
-           }
-           httpdns_resolv_unlock();
-       }
+        char * host = conn->dns->host_name;
+        httpdns_resolv_lock();
+        if (NULL != resolv)  {
+            HTTPDNS_INFO("<HTTPDNS> %s : delete cache for %s\n", __func__, host);
+            dictDelete(resolv, host);
+        }
+        httpdns_resolv_unlock();
     }
     return -1;
 }
@@ -770,13 +766,30 @@ static void httpdns_destroy(httpdns_connection_t *conn)
     free(conn);
 }
 
+static void local_dns_process(httpdns_connection_t * conn)
+{
+    char * host = conn->dns->host_name;
+
+    if (0 == localdns_parse(host)) {
+        HTTPDNS_INFO("<HTTPDNS> %s : local dns update cache for %s\n", __func__, host);
+    } else {
+        HTTPDNS_INFO("<HTTPDNS> %s : local dns failed \n", __func__);
+    }
+}
+
 /* resolv dns and update cache */
 static void * httpdns_routine(void * arg)
 {
     httpdns_connection_t * conn = (httpdns_connection_t *) arg;
     if(NULL != conn) {
-        if(0 == httpdns_process(conn)) {
-            HTTPDNS_INFO("<HTTPDNS> %s : httpdns process ok\n", __func__);
+        if (conn->prefer_local) {
+            local_dns_process(conn);
+        } else {
+            if(0 == httpdns_process(conn)) {
+                HTTPDNS_INFO("<HTTPDNS> %s : httpdns process ok\n", __func__);
+            } else {
+                local_dns_process(conn);
+            }
         }
         httpdns_destroy(conn);
     }
@@ -819,6 +832,7 @@ static void httpdns_resolv_internal(httpdns_connection_t *conn, int async)
 void httpdns_resolv_host(char *host_name, int async)
 {
     httpdns_connection_t *conn = (httpdns_connection_t *) malloc(sizeof(httpdns_connection_t));
+    memset(conn, 0, sizeof(httpdns_connection_t));
     if(NULL != conn) {
         if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTPDNS_CONNECT_TIMEOUT, HTTPDNS_TIMEOUT)) {
             httpdns_resolv_internal(conn, async);
@@ -826,4 +840,77 @@ void httpdns_resolv_host(char *host_name, int async)
     } else {
         HTTPDNS_INFO("<HTTPDNS> Alloc httpdns_connection_t Failed!\n");
     }
+}
+
+void httpdns_resolv_host_local(char *host_name, int async)
+{
+    httpdns_connection_t *conn = (httpdns_connection_t *) malloc(sizeof(httpdns_connection_t));
+    memset(conn, 0, sizeof(httpdns_connection_t));
+    if(NULL != conn) {
+        if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTPDNS_CONNECT_TIMEOUT, HTTPDNS_TIMEOUT)) {
+            conn->prefer_local = 1;
+            httpdns_resolv_internal(conn, async);
+        }
+    } else {
+        HTTPDNS_INFO("<HTTPDNS> Alloc httpdns_connection_t Failed!\n");
+    }
+}
+
+int getaddrinfo_async(const char *nodename,
+                      const char *servname,
+                      const struct addrinfo *hints,
+                      struct addrinfo **res,
+                      int timeout_ms,
+                      int local)
+{
+    dns_cache_t *cache = NULL;
+    char ipaddr[16] = {0};
+    char zeroipaddr[16] = {0};
+    struct addrinfo new_hints;
+
+    memset(zeroipaddr, 0, sizeof(zeroipaddr));
+    snprintf(zeroipaddr, sizeof(zeroipaddr), "%s", "0.0.0.0");
+
+    if (!hints) {
+        return -1;
+    }
+
+    memcpy(&new_hints, hints, sizeof(struct addrinfo));
+
+    if(httpdns_is_disabled()) {
+        return -1;
+    }
+
+    /* prfetch */
+    httpdns_prefetch(nodename, &cache);
+
+    /* query if not exist */
+    if (!cache) {
+        if (local){
+            httpdns_resolv_host_local(nodename, ASYNC);
+        } else {
+            httpdns_resolv_host(nodename, ASYNC);
+        }
+
+        httpdns_prefetch_timeout(nodename, &cache, timeout_ms);
+    }
+
+    /* exist */
+    if (cache) {
+        if (httpdns_get_ipaddr_from_cache(cache, ipaddr) == 0) {
+            httpdns_free_cache(cache);
+            return -1;
+        }
+
+        httpdns_free_cache(cache);
+    }
+
+    if (strncmp(ipaddr, zeroipaddr, 16) != 0) {
+        /* Important step */
+        new_hints.ai_flags |= AI_NUMERICHOST;
+
+        return getaddrinfo( ipaddr, servname, &new_hints, res);
+    }
+
+    return -1;
 }
