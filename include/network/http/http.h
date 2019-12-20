@@ -90,12 +90,6 @@ typedef struct {
     char* redirect_url;          /* redirect url when got http 3** response code. */
 } httpclient_data_t;
 
-/** @brief   This structure defines the httpclient and HTTP data structure.  */
-typedef struct {
-    httpclient_t        client;
-    httpclient_data_t   client_data;
-} httpclient_source_t;
-
 #if CONFIG_HTTP_SECURE
 /** @brief   This structure defines the httpclient ssl structure.  */
 typedef struct {
@@ -290,28 +284,6 @@ void httpc_set_custom_header(httpclient_t *client, char *header);
  * @return           0, if value is got. Others, if errors occurred.
  */
 int httpc_get_response_header_value(char *header_buf, char *name, int *val_pos, int *val_len);
-
-/**
- * This function initialize httpclient params.
- * @param[in, out] source          source is a pointer to the #httpclient_source_t.
- * @param[in] header_size          header_size is the max sending header length.
- * @param[in] body_size            body_size is the max response buf length.
- * @return           The HTTP response code of the last request.
- */
-HTTPC_RESULT httpc_prepare(httpclient_source_t *source, int header_size, int body_size);
-/**
- * This function deinitialize httpclient params.
- * @param[in] source               source is a pointer to the #httpclient_t.
- * @return           The HTTP response code of the last request.
- */
-HTTPC_RESULT httpc_unprepare(httpclient_source_t* source);
-
-/**
- * This function reset httpclient params.
- * @param[in] source source is a pointer to the #httpclient_t.
- * @return           None
- */
-void httpc_reset(httpclient_source_t *source);
 
 /**
  * This function add text formdata information.
