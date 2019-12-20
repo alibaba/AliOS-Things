@@ -25,18 +25,18 @@ void mpu_enable(void)
     /* Enable memory manage fault */
     *(SHCSR) |= (1<<16);
 
-    __ASM ("dsb 0xf\t\n"
-           "isb\t\n"
-           :::"memory");
+    RHINO_ASM ("dsb 0xf\t\n"
+               "isb\t\n"
+               :::"memory");
 }
 
 void mpu_disable(void)
 {
     MPU->ctrl = 0U;
 
-    __ASM ("dsb 0xf\t\n"
-           "isb\t\n"
-           :::"memory");
+    RHINO_ASM ("dsb 0xf\t\n"
+               "isb\t\n"
+               :::"memory");
 }
 
 
@@ -60,9 +60,9 @@ void mpu_config_region(MPU_Region_Init_t *init)
         MPU->rasr = 0;
     }
 
-   __ASM ("dsb 0xf\t\n"
-           "isb\t\n"
-           :::"memory");
+   RHINO_ASM ("dsb 0xf\t\n"
+              "isb\t\n"
+              :::"memory");
 }
 
 uint32_t size_to_mpusize(uint64_t size)
