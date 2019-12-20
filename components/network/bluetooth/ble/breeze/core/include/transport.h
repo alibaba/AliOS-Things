@@ -46,6 +46,7 @@ typedef struct transport_s {
         uint16_t bytes_received;
         uint8_t msg_id;
         uint8_t cmd;
+        uint8_t encrypted;
         uint8_t total_frame;
         uint8_t frame_seq;
         aos_timer_t timer;
