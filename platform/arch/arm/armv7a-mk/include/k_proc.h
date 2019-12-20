@@ -81,8 +81,8 @@ kproc_app_t *k_proc_app_get(int32_t pid);
 
 int k_proc_addr_check(int32_t pid, void *addr, size_t size);
 
-__WEAK void k_proc_create_pre_hook(kproc_app_t *proc);
-__WEAK void k_proc_create_post_hook(kproc_app_t *proc);
+RHINO_WEAK void k_proc_create_pre_hook(kproc_app_t *proc);
+RHINO_WEAK void k_proc_create_post_hook(kproc_app_t *proc);
 
 #endif /* K_PROC_H */
 
