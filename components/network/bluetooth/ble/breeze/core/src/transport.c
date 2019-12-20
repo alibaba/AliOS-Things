@@ -48,6 +48,7 @@ static void reset_tx(void)
 static void reset_rx(void)
 {
     g_transport.rx.cmd = 0;
+    g_transport.rx.encrypted = 0;
     g_transport.rx.total_frame = 0;
     g_transport.rx.frame_seq = 0;
     g_transport.rx.bytes_received = 0;
@@ -219,13 +220,18 @@ static void trans_rx_dispatcher(void)
         return;
     }
 
-    if((g_transport.rx.cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH){
+    if(g_transport.rx.encrypted != 0 && (g_transport.rx.cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH){
 #if BZ_ENABLE_AUTH
         auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
 #endif
     } else if(g_transport.rx.cmd == BZ_CMD_EXT_DOWN){
         extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
     } else {
+#if BZ_ENABLE_AUTH
+        if(!auth_is_authdone()){
+            return;
+        }
+#endif
         rx_cmd_post.cmd = g_transport.rx.cmd;
         rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
         rx_cmd_post.p_rx_buf =  g_transport.rx.buff;
@@ -348,6 +354,7 @@ void transport_rx(uint8_t *p_data, uint16_t length)
 
         g_transport.rx.msg_id = MSG_ID(p_data);
         g_transport.rx.cmd = CMD_TYPE(p_data);
+        g_transport.rx.encrypted = IS_ENC(p_data);
         g_transport.rx.total_frame = TOTAL_FRAME(p_data);
         g_transport.rx.frame_seq = 0;
         g_transport.rx.bytes_received = 0;
@@ -370,7 +377,7 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         }
     }
 
-    if (IS_ENC(p_data) != 0) {
+    if (g_transport.rx.encrypted) {
         if ((length - HEADER_SIZE) % 16 != 0) {
             core_handle_err(ALI_ERROR_SRC_TRANSPORT_ENCRYPTED, BZ_EINVALIDDATA);
             reset_rx();
@@ -383,8 +390,8 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         }
     }
 
-    if ((length != HEADER_SIZE + FRAME_LEN(p_data) && IS_ENC(p_data) == 0)
-        || (length < HEADER_SIZE + FRAME_LEN(p_data) && IS_ENC(p_data) != 0)) {
+    if ((length != HEADER_SIZE + FRAME_LEN(p_data) && g_transport.rx.encrypted == 0)
+        || (length < HEADER_SIZE + FRAME_LEN(p_data) && g_transport.rx.encrypted != 0)) {
         core_handle_err(ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES, BZ_EDATASIZE);
         reset_rx();
         return;
@@ -392,13 +399,13 @@ void transport_rx(uint8_t *p_data, uint16_t length)
 
     buff_left = RX_BUFF_LEN - g_transport.rx.bytes_received;
     if ((len = MIN(buff_left, FRAME_LEN(p_data))) > 0) {
-        if (IS_ENC(p_data) != 0) {
+        if (g_transport.rx.encrypted != 0) {
             do_decrypt(p_data + HEADER_SIZE, length - HEADER_SIZE);
         }
         memcpy(g_transport.rx.buff + g_transport.rx.bytes_received, p_data + HEADER_SIZE, len);
         g_transport.rx.bytes_received += len;
     }
-    if ((!rx_frames_left()) && (IS_ENC(p_data) != 0)) {
+    if (!rx_frames_left()) {
         trans_rx_dispatcher();
         reset_rx();
     } else {
