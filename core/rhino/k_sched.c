@@ -594,7 +594,7 @@ void time_slice_update(void)
     RHINO_CRITICAL_ENTER();
 
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-    if (g_active_task[cpu_cur_get()]->sched_policy == RHINO_CONFIG_SCHED_CFS) {
+    if (g_active_task[cpu_cur_get()]->sched_policy == KSCHED_CFS) {
         RHINO_CRITICAL_EXIT();
         return;
     }
