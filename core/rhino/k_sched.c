@@ -526,7 +526,7 @@ static void _time_slice_update(ktask_t *task, uint8_t i)
     klist_t *head;
 
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-    if (task->sched_policy == RHINO_CONFIG_SCHED_CFS) {
+    if (task->sched_policy == KSCHED_CFS) {
         return;
     }
 #endif
