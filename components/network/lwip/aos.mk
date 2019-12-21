@@ -12,7 +12,7 @@ endif
 ifneq ($(use_private_lwip),1)
 include components/network/lwip/Filelists.mk
 
-GLOBAL_INCLUDES += include
+GLOBAL_INCLUDES += include port/include
 
 GLOBAL_DEFINES += CONFIG_NET_LWIP
 
