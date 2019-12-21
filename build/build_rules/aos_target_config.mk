@@ -427,6 +427,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/network/nal/atparser \
                     -I$(SOURCE_ROOT)/include/network/nal/sal \
                     -I$(SOURCE_ROOT)/include/network/netmgr \
+                    -I$(SOURCE_ROOT)/include/network/rtp \
                     -I$(SOURCE_ROOT)/include/network/yloop
 
 ifeq ($(AOS_COMP_LORAWAN_4_4_2), y)
