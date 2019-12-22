@@ -37,6 +37,7 @@ extern "C"
 enum {
     INTERFACE_WIFI,
     INTERFACE_CELLULAR,
+    /* add other type here */
     INTERFACE_INDEX_MAX,
 };
 
