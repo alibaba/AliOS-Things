@@ -15,22 +15,21 @@
 
 static bool _network_ready = false;
 
-#define DEFAULT_ACTION_COUNT       5
+#define DEFAULT_ACTION_COUNT       1000
 #define DEFAULT_DEST_IP            "127.0.0.1"
 #define DEFAULT_ACTION_INTERVAL_MS 1000
 #define DEFAULT_ACTION_DATA_SIZE   10
 #define DEFAULT_ACTION_PORT        9999
 #define DEFAULT_BUFFER_SIZE        1024
-#define MAX_DEST_IP_STR_LEN 15
+#define MAX_DEST_IP_STR_LEN        15
 
-static bool  m_in_aciton = false;
 static char  m_dest_ip[MAX_DEST_IP_STR_LEN + 1] = { 0 };
 static int   m_dest_port = DEFAULT_ACTION_PORT;
 static int   m_action_count = DEFAULT_ACTION_COUNT;
 static int   m_action_intval_ms = DEFAULT_ACTION_INTERVAL_MS;
 static int   m_action_data_size = DEFAULT_ACTION_DATA_SIZE;
 
-static void yloop_para_reset(void)
+static void para_reset(void)
 {
     memset(m_dest_ip, 0, sizeof(m_dest_ip));
     strncpy(m_dest_ip, DEFAULT_DEST_IP, sizeof(m_dest_ip));
@@ -52,18 +51,6 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
     _network_ready = true;
 
     LOGI(TAG, "Got IP! wifi_event_handler cb called!");
-}
-
-static void print_help_message()
-{
-    LOG("Usage:\r\n"
-        "    # yloop [-h] | domain name\r\n"
-        "- Note: please make sure network is connected before executing \"yloop\"\r\n"
-        "        You can connect network with \"netmgr connect <ssid> <passwd>\"\r\n"
-        "- To get help:\r\n"
-        "    # yloop -h \r\n"
-        "- To udp test \r\n"
-        "    # yloop -d <dest_ip> -i <interval> -c <action_count> -s <data_size>\r\n");
 }
 
 static void yloop_read_fd_action(int fd, void *arg)
@@ -140,7 +127,7 @@ static void *local_udp_init(void)
     struct sockaddr_in serv_addr;
     int *read_fd = NULL;
 
-    read_fd = (int *) malloc(sizeof(int));
+    read_fd = (int *) aos_malloc(sizeof(int));
     if (!read_fd) {
         LOGE(TAG, "malloc fd failed\n");
         return NULL;
@@ -179,6 +166,7 @@ static void local_udp_deinit(void *para)
     int *read_fd = (int *) para;
 
     if (read_fd && *read_fd >= 0) {
+        /* yloop interface: unregister a poll event on fd */
         aos_cancel_poll_read_fd(*read_fd, yloop_read_fd_action, NULL);
         close(*read_fd);
     }
@@ -191,9 +179,6 @@ static void app_delayed_action(void *arg)
 {
     int *fd = (int *)arg;
 
-    if (false == m_in_aciton)
-        m_action_count = 0;
-
     if (m_action_count > 0) {
         yloop_udp_send(*fd);
         m_action_count--;
@@ -202,17 +187,17 @@ static void app_delayed_action(void *arg)
     LOGI(TAG, "<%s> in non-main loop remain time %d\r\n", aos_task_name(), m_action_count);
 
     if (m_action_count > 0) {
+        /* yloop interface: schedule a delayed action, send data when timer fires */
         aos_post_delayed_action(m_action_intval_ms, app_delayed_action, arg);
     } else {
-        aos_loop_exit();
+        local_udp_deinit(arg);
     }
 }
 
-static void yloop_proc_task(void *arg)
+static void yloop_proc(void *arg)
 {
     int ret;
     int read_fd;
-    aos_loop_t *loop;
 
     if (!arg)
         return;
@@ -221,141 +206,51 @@ static void yloop_proc_task(void *arg)
     if (read_fd < 0)
         goto err;
 
-    loop = aos_loop_init();
-    if ( !loop )
-        goto err;
-
-    /* schedule a delayed action */
+    /* yloop interface: schedule a delayed action, send data when timer fires */
     ret = aos_post_delayed_action(m_action_intval_ms, app_delayed_action, arg);
     if (ret < 0) {
         LOGE(TAG, "aos_post_delayed_action fail!\n");
         goto err;
     }
 
+    /* yloop interface: register a poll event on fd, read data on data arrival. */
     ret = aos_poll_read_fd(read_fd, yloop_read_fd_action, arg);
     if (ret < 0) {
         LOGE(TAG, "aos_poll_read_fd fail!\n");
         goto err;
     }
 
-    m_in_aciton = true;
-
-    aos_loop_run();
-    aos_loop_destroy();
-
+    return;
 err:
     local_udp_deinit(arg);
-    m_in_aciton = false;
 }
 
-static void yloop_cmd_exec(void)
+static void udp_loopback_run(void)
 {
     void *fd = NULL;
 
+    /* set up parameter */
+    para_reset();
+
+    /* initialize udp fd */
     fd = local_udp_init();
     if (NULL == fd) {
         LOGE(TAG, "local udp init failed!");
         return;
     }
 
-    aos_task_new("yloop_cmd", yloop_proc_task, fd, 4 * 1024);
+    /* call yloop API to set up actions */
+    yloop_proc(fd);
 }
 
-static void yloop_exit_current_action(void)
-{
-    m_in_aciton = false;
-}
-
-static void yloop_handle_cmd(char *buffer, int32_t buf_len, int32_t argc, char **argv)
-{
-    int i;
-    int temp;
-
-    if (m_in_aciton) {
-         /* exit current action */
-        if ( argc > 1 && strcmp( (char *) argv[1], "-e" ) == 0 ) {
-            yloop_exit_current_action();
-        } else {
-            LOGI(TAG, "Use \"yloop -e\" to exit current action first!");
-        }
-
-        return;
-    }
-
-    yloop_para_reset();
-
-    for(i = 1; i < argc; i++) {
-        if ( strcmp( (char *) argv[i], "-c" ) == 0 ) {
-            i++;
-            if ((i < argc) && ((temp = atoi(argv[i])) > 0)) {
-                m_action_count = temp;
-            }
-            else {
-                LOGE(TAG, "yloop: bad action count ");
-                return;
-            }
-        }
-        else if ( strcmp( (char *) argv[i], "-i" ) == 0 ) {
-            i++;
-            if ((i < argc) && ((temp = atoi(argv[i])) > 0)) {
-                m_action_intval_ms = temp;
-            }
-            else {
-                LOGE(TAG, "yloop: bad action interval\n");
-                return;
-            }
-        }
-        else if ( strcmp( (char *) argv[i], "-d" ) == 0 ) {
-            i++;
-            if ((i < argc) && (strlen((char *) argv[i]) <= MAX_DEST_IP_STR_LEN) ) {
-                memset(m_dest_ip, 0, sizeof(m_dest_ip));
-                strncpy(m_dest_ip, argv[i], sizeof(m_dest_ip));
-            }
-            else {
-                LOGE(TAG, "yloop: bad dest ip\n");
-                return;
-            }
-        }
-        else if ( strcmp( (char *) argv[i], "-s" ) == 0 ) {
-            i++;
-            if((i < argc) && ((temp = atoi(argv[i])) > 0)) {
-                m_action_data_size = temp;
-            }
-            else {
-                LOGE(TAG, ("yloop: bad packet data size\n"));
-                return;
-            }
-        }
-        else if (argc != i + 1) {
-            print_help_message();
-            return;
-        }
-    }
-
-    LOGI(TAG, "Input para: dest %s count %d interval %d  size %d\n", m_dest_ip, m_action_count, m_action_intval_ms, m_action_data_size);
-    yloop_cmd_exec();
-}
-
-/**
- * To use the yloop test commands, please follow below steps:
- *   - Setup the network with "netmgr" cli:
- *     # netmgr connect <WiFi_AP_ssid> <WiFi_AP_password>
- *   - Start yloop tests with "yloop" cli:
- *     # start action: yloop -d [destIP] -i [inteval] -c [count] -s [data size]
- *     # yloop -e
+/*
+ *  This example demostrates how to use yloop API to perform periodic action without 'while'.
+ *  Specifcially, this example sends/reads UDP packet to/from loopback address in one loop.
  */
-static struct cli_command yloop_test_commands[] = {
-    {"yloop", "yloop example", yloop_handle_cmd},
-};
-
 int application_start(int argc, char *argv[])
 {
     /* set log level */
     aos_set_log_level(AOS_LL_INFO);
-
-    /* register  test commands */
-    aos_cli_register_commands(yloop_test_commands,
-        sizeof(yloop_test_commands) / sizeof(struct cli_command));
 
     /* setup wifi network event handler */
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
@@ -363,6 +258,9 @@ int application_start(int argc, char *argv[])
     /* use netmgr command to setup network connection */
     netmgr_init();
     netmgr_start(false);
+
+    /* main body */
+    udp_loopback_run();
 
      /* enter main loop */
     aos_loop_run();
