@@ -35,7 +35,7 @@ static int events_executor(input_event_t *eventinfo, void *cb_para, int flag)
         case CODE_WIFI_ON_GOT_IP:
             done_flag |= flag;
             netmgr_deinit();
-            wifi_get_ip(ips);
+            netmgr_wifi_get_ip(ips);
             return 0;
     }
     return -1;
