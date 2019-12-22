@@ -413,6 +413,7 @@ void rws_socket_idle_send(rws_socket s) {
 			rws_frame_delete(frame);
 			cur = cur->next;
 		}
+		rws_socket_delete_all_frames_in_list(s->send_frames);
 		rws_list_delete_clean(&s->send_frames);
 		if (s->error) {
 			s->command = COMMAND_INFORM_DISCONNECTED;
