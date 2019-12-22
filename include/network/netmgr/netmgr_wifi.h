@@ -109,15 +109,6 @@ typedef int (*netmgr_wifi_scan_result_cb_t)(const char ssid[MAX_SSID_LEN],
                                             int is_last_ap);
 
 /**
- * Get ip address
- *
- * @param[out] ip ip address.
- *
- * @return none
- */
-void wifi_get_ip(char ips[16]);
-
-/**
  * Set AP config
  *
  * @param[in] config AP config.
@@ -186,7 +177,7 @@ void netmgr_reconnect_wifi(void);
  *
  * @return none
  */
-void netmgr_wifi_get_ip(char *ip);
+void netmgr_wifi_get_ip(char ip[]);
 
 /**
  * Initialize netmgr wifi module
