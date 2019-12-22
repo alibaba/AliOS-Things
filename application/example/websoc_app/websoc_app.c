@@ -13,16 +13,18 @@
 #define TAG "websoc_app"
 
 #include "websoc/librws.h"
-#define WEBSOCKET_CONNECTED             (0x01)
-#define WEBSOCKET_DISCONNECTED          (0x02)
-#define WEBSOCKET_DATA_NOT_RECVED       (0x04)
-#define WEBSOCKET_MAX_INSTANCE_NUM      2
+#define WEBSOCKET_CONNECTED                (0x01)
+#define WEBSOCKET_DISCONNECTED             (0x02)
+#define WEBSOCKET_DATA_NOT_RECVED          (0x04)
+#define WEBSOCKET_MAX_INSTANCE_NUM         1
+#define WEBSOCKET_DISCON_PONG_TIMEOUT_MS   15000
 
 typedef struct websoc_instance
 {
     int state_flags; /* the state of the websocket */
     rws_socket socket; /* socket context */
     int id; /* instance array index */
+    long long last_recv_pong_ms;
 } websoc_instance_t, *websoc_instance_ptr;
 
 /* network state flag */
@@ -76,24 +78,22 @@ static websoc_instance_ptr create_websoc_instance(void)
     return websoc_ptr;
 }
 
-static void delete_websoc_instance(websoc_instance_ptr ptr)
-{
-    if (!ptr) return;
-    aos_mutex_lock(&websoc_instance_mutex, AOS_WAIT_FOREVER);
-    memset(ptr, 0, sizeof(websoc_instance_ptr));
-    aos_mutex_unlock(&websoc_instance_mutex);
-}
-
 static void on_socket_received_text(rws_socket socket, const char * text, const unsigned int length, bool finished)
 {
-    unsigned int i;
+    websoc_instance_ptr instance = find_websoc_instance(socket);
+    if (instance == NULL)
+        return;
     
-    LOGI(TAG, "\nSocket text received %s", text);
+    LOGI(TAG, "instance %d recv text, len %d finished %d contenct %s \r\n", instance->id, length, finished, text);
 }
 
 static void on_socket_received_bin(rws_socket socket, const void * data, const unsigned int length, bool finished)
 {
-    LOGI(TAG, "rev bin\r\n");
+    websoc_instance_ptr instance = find_websoc_instance(socket);
+    if (instance == NULL)
+        return;
+
+    LOGI(TAG, "instance %d rev bin, len %d finished %d\r\n", instance->id, length, finished);
 }
 
 static void on_socket_connected(rws_socket s)
@@ -122,7 +122,7 @@ static void on_socket_disconnected(rws_socket socket)
 
     rws_error error = rws_socket_get_error(socket);
     if (error) {
-        LOGE(TAG, "intance %d socket disconnect with code, error: %i, %s",
+        LOGE(TAG, "intance %d socket disconnect with code, error: %d, %s",
              instance->id,
              rws_error_get_code(error),
              rws_error_get_description(error));
@@ -146,7 +146,8 @@ static void on_socket_received_pong(rws_socket socket)
         return;
     }
 
-    LOGI(TAG, "intance %d socket received pong!", instance->id);
+    LOGI(TAG, "instance %d socket received pong!", instance->id);
+    instance->last_recv_pong_ms = aos_now_ms();
 }
 
 static void on_socket_send_ping(rws_socket socket)
@@ -242,6 +243,7 @@ static int websoc_client_task(void)
         return -1;
     }
 
+reconnect:
     /* create websocket */
     _socket = rws_socket_create();
     /* store the socket handle in instance array */
@@ -281,6 +283,14 @@ static int websoc_client_task(void)
             int i = 0;
             rws_bool ret;
 
+            /* check whether pong timeout */
+            if (instance->last_recv_pong_ms != 0 &&
+                (aos_now_ms() - instance->last_recv_pong_ms) > WEBSOCKET_DISCON_PONG_TIMEOUT_MS) {
+                instance->state_flags &= ~WEBSOCKET_CONNECTED;
+                instance->state_flags |= WEBSOCKET_DISCONNECTED;
+                continue;
+            }
+
             /* send bin start, if failure this round should be stopped */
             ret = rws_socket_send_bin_start(_socket, "start", strlen("start"));
             if (ret == rws_false) {
@@ -301,15 +311,37 @@ static int websoc_client_task(void)
 
             rws_socket_send_ping(_socket);
         } else if (instance->state_flags & WEBSOCKET_DISCONNECTED) {
-            LOGI(TAG, "websocket disconnected!");
+            rws_error err = rws_socket_get_error(_socket);
+
+            LOGI(TAG, "instance %d disconnected! code: %d descr: %s",
+                instance->id,
+                rws_error_get_code(err),
+                rws_error_get_description(err));
+
+            rws_socket_disconnect_and_release(_socket);
+            instance->socket = _socket = NULL;
+            instance->state_flags = 0;
+            instance->last_recv_pong_ms = 0;
+
+            goto reconnect;
         } else {
             LOGE(TAG,"unknown state %d\n", instance->state_flags);
+            break;
         }
 
         rws_thread_sleep(2000);
    }
 
     return 0;
+}
+
+static void websoc_set_default_para(void)
+{
+    strncpy(_scheme, WEBSOC_SCHEME, sizeof(_scheme) - 1);
+    strncpy(_host, WEBSOC_SERVER, sizeof(_host) - 1);
+    strncpy(_path, WEBSOC_PATH, sizeof(_path) - 1);
+    _port = WEBSOC_PORT;
+    _cert = WEBSOC_CERT;
 }
 
 static void wifi_event_handler(input_event_t *event, void *priv_data)
@@ -323,92 +355,22 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
     }
 
     _network_ready = true;
-}
 
-static void app_delayed_action(void *arg)
-{
-    LOG("%s:%d %s\r\n", __func__, __LINE__, aos_task_name());
-}
-
-static void print_help_message()
-{
-    LOG("\r\n"
-        "Usage:\r\n"
-        "    # websoc [-h|--help] | [cert] | [scheme host pah port]\r\n"
-        "- Note: please make sure network is connected before executing \"websoc\"\r\n"
-        "        You can connect network with \"netmgr connect <ssid> <passwd>\"\r\n"
-        "- To get help:\r\n"
-        "    # websoc -h|--help\r\n"
-        "- To connect default server:\r\n"
-        "    # websoc\r\n"
-        "  The default server is %s://%s%s:%d\r\n"
-        "- To connect default server with certificate:\r\n"
-        "    # websoc cert\r\n"
-        "  The certificate is:\r\n\r\n%s\r\n"
-        "  To connect your specific server:\r\n"
-        "    # websoc <scheme> <host> <path> <port> (e.g. \"ws demos.kaazing.com /echo 80\")",
-        WEBSOC_SCHEME, WEBSOC_SERVER, WEBSOC_PATH, WEBSOC_PORT, WEBSOC_CERT);
-}
-
-static void websoc_handler(char *outbuf, int len, int argc, char **argv)
-{
-    if (argc != 1 && argc != 2 && argc != 5) {
-        LOGE(TAG, "%s invalid argument", __func__);
-         return;
-    }
-
-    if ((argc == 2) && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
-        print_help_message();
-        return;
-    }
-
-    if (argc == 5) {
-        strncpy(_scheme, argv[1], sizeof(_scheme) - 1);
-        strncpy(_host, argv[2], sizeof(_host) - 1);
-        strncpy(_path, argv[3], sizeof(_path) - 1);
-        _port = atoi(argv[4]);
-    } else {
-        strncpy(_scheme, WEBSOC_SCHEME, sizeof(_scheme) - 1);
-        strncpy(_host, WEBSOC_SERVER, sizeof(_host) - 1);
-        strncpy(_path, WEBSOC_PATH, sizeof(_path) - 1);
-        _port = WEBSOC_PORT;
-    }
-
-    if (argc == 2 && strcmp(argv[1], "cert") == 0) {
-        _cert = WEBSOC_CERT;
-    }
-
-    LOGD(TAG, "Server Info: %s %s %s %d", _scheme, _host, _path, _port);
-
+    websoc_set_default_para();
     aos_task_new("websoc_upload_1", websoc_client_task, NULL, 2 * 1024);
+#if (WEBSOCKET_MAX_INSTANCE_NUM > 1)
     aos_task_new("websoc_upload_2", websoc_client_task, NULL, 2 * 1024);
+#endif
 }
 
-/**
- * To use the websocket commands, please follow below steps:
- *   - Setup the network with "netmgr" cli:
- *     # netmgr connect <WiFi_AP_ssid> <WiFi_AP_password>
- *   - Start websocket with "websoc" cli, with default server setting:
- *     # websoc
- *     Or, use default server but with certificate:
- *     # websoc cert
- *     Or, specify the server setting as below:
- *     # websoc ws demos.kaazing.com /echo 80
- *   - If debug message needed, set the log level as below:
- *     # loglevel D 
+/*
+ * This example demostrates how to use websocket API to interact with remote server.
+ * Specifcially, this example set up multiple websocket instances for echo. 
  */
-static struct cli_command websoc_commands[] = {
-    {"websoc", "websoc [-h|--help] | [cert] | [scheme host path port]", websoc_handler},
-};
-
 int application_start(int argc, char *argv[])
 {
     /* set log level */
     aos_set_log_level(AOS_LL_INFO);
-
-    /* register websocket commands */
-    aos_cli_register_commands(websoc_commands,
-        sizeof(websoc_commands) / sizeof(struct cli_command));
 
     /* setup wifi network event handler */
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
@@ -421,7 +383,6 @@ int application_start(int argc, char *argv[])
     websoc_instances_init();
 
     /* enter AOS loop */
-    aos_post_delayed_action(1000, app_delayed_action, NULL);
     aos_loop_run();
 
     return 0;
