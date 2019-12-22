@@ -1,3 +1,25 @@
+/*
+ *   Copyright (c) 2014 - 2019 Oleh Kulykov <info@resident.name>
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *   THE SOFTWARE.
+ */
+
 /**
  * @file librws.h
  * websocket API header file.
@@ -79,7 +101,7 @@ typedef unsigned char rws_bool;
 #define rws_false 0
 
 /**
- * Macro for wait forever
+ * Macro for Wait forever
  */
 #define RWS_WAIT_FOREVER 0xffffffffu
 
@@ -337,17 +359,6 @@ RWS_API(void) rws_socket_set_protocol(rws_socket socket, const char * protocol);
 RWS_API(void) rws_socket_set_server_cert(rws_socket socket, const char *server_cert, int server_cert_len);
 #endif /* WEBSOCKET_SSL_ENABLE */
 
-
-/**
- * Get socket last error object handle.
- *
- * @param[in]  socket  Socket object.
- *
- * @return Last error object handle or null if no error.
- */
-RWS_API(rws_error) rws_socket_get_error(rws_socket socket);
-
-
 /**
  * Start connection.
  *
@@ -382,19 +393,6 @@ RWS_API(void) rws_socket_disconnect_and_release(rws_socket socket);
  * @return rws_true - connected to host and handshacked, otherwice rws_false.
  */
 RWS_API(rws_bool) rws_socket_is_connected(rws_socket socket);
-
-
-/**
- * Send text to connect socket.
- *
- * @note: Thread safe method.
- *
- * @param[in]  socket  Socket object.
- * @param[in]  text    Text string for sending.
- *
- * @return rws_true - socket and text exists and placed to send queue, otherwice rws_false.
- */
-RWS_API(rws_bool) rws_socket_send_text(rws_socket socket, const char * text);
 
 
 /**
@@ -484,6 +482,19 @@ RWS_API(void) rws_socket_set_on_received_pong(rws_socket socket, rws_on_socket_r
 RWS_API(void) rws_socket_set_on_send_ping(rws_socket socket, rws_on_socket_send_ping callback);
 
 /**
+ * Send text to connect socket.
+ *
+ * @note: Thread safe method.
+ *
+ * @param[in]  socket  Socket object.
+ * @param[in]  text    Text string for sending.
+ *
+ * @return rws_true - socket and text exists and placed to send queue, otherwice rws_false.
+ */
+RWS_API(rws_bool) rws_socket_send_text(rws_socket socket, const char * text);
+
+
+/**
  * Send bin header to connect socket.
  *
  * @detailed Thread safe method.
@@ -552,6 +563,15 @@ typedef enum _rws_error_code {
 	rws_error_code_connection_closed,
 } rws_error_code;
 
+
+/**
+ * Get socket last error object handle.
+ *
+ * @param[in]  socket  Socket object.
+ *
+ * @return Last error object handle or null if no error.
+ */
+RWS_API(rws_error) rws_socket_get_error(rws_socket socket);
 
 /**
  * Get the code of the error object.
