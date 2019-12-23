@@ -1102,3 +1102,25 @@ void krhino_task_deathbed(void)
 #endif
 }
 
+ktask_t *krhino_task_find(name_t *name)
+{
+    CPSR_ALLOC();
+
+    klist_t *listnode;
+    ktask_t *task;
+
+    RHINO_CRITICAL_ENTER();
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
+    for (listnode = g_kobj_list.task_head.next;
+            listnode != &g_kobj_list.task_head; listnode = listnode->next) {
+        task = krhino_list_entry(listnode, ktask_t, task_stats_item);
+        if (0 == strcmp(name, task->task_name)) {
+            RHINO_CRITICAL_EXIT();
+            return task;
+        }
+    }
+#endif
+    RHINO_CRITICAL_EXIT();
+
+    return NULL;
+}

@@ -330,5 +330,12 @@ kstat_t krhino_task_info_get(ktask_t *task, size_t idx, void **info);
  */
 void  krhino_task_deathbed(void);
 
+/**
+ * This function will get task by task name
+ * @param[in]   task name
+ * @return  the task
+ */
+ktask_t *krhino_task_find(name_t *name);
+
 #endif /* K_TASK_H */
 

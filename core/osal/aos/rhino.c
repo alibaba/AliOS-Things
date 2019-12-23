@@ -7,7 +7,6 @@
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <time.h>
-#include "debug_api.h"
 
 extern const char* sysinfo_kernel_version;
 
@@ -67,7 +66,7 @@ int aos_task_delete(char *name)
         return -EINVAL;
     }
 
-    task = debug_task_find(name);
+    task = krhino_task_find(name);
     if (task == NULL) {
         return -EINVAL;
     }
