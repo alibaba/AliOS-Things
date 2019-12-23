@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "aos/canopen.h"
+#include "canopen/canopen.h"
 
 int aos_canopen_init(PORT_CAN_TYPE can_port, PORT_TIMER_TYPE timer_port,
                      uint32_t baud, CO_Data *d)
