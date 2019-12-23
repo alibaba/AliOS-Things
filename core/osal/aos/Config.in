@@ -12,7 +12,6 @@ choice
 
     config OSAL_RHINO
         bool "RHINO"
-        select AOS_COMP_DEBUG
         select AOS_COMP_RHINO
 
     config OSAL_FREERTOS
