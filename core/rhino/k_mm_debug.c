@@ -5,7 +5,10 @@
 #include <stdio.h>
 
 #include "k_api.h"
+
+#ifdef AOS_COMP_DEBUG
 #include "debug_api.h"
+#endif
 
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
@@ -125,7 +128,9 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
         return;
     }
 
+#ifdef AOS_COMP_DEBUG
     debug_mm_overview(NULL);
+#endif
     print("\r\n");
 
 #if (K_MM_STATISTIC > 0)

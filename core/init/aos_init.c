@@ -33,7 +33,9 @@
 
 #ifdef AOS_UND
 #include "und/und.h"
+#ifdef AOS_COMP_DEBUG
 #include "debug_api.h"
+#endif
 #endif
 
 #ifdef WITH_LWIP_IPERF
@@ -328,7 +330,9 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_UND
+#ifdef AOS_COMP_DEBUG
     und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, (int)debug_reboot_reason_get());
+#endif
 #endif
 
 #ifdef AOS_BINS
