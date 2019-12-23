@@ -138,6 +138,10 @@ void cpu_signal(uint8_t cpu_num)
 void *cpu_entry(void *arg)
 {
     cpu_set_t mask;
+    struct sigevent sevp;
+    timer_t timerid;
+    struct itimerspec ts;
+    int     ret  = 0;
 
     CPU_ZERO(&mask);
     CPU_SET((int)arg, &mask);
@@ -147,6 +151,21 @@ void *cpu_entry(void *arg)
     }
 
     printf("cpu num is %d\n", (int)arg);
+
+    memset(&sevp, 0, sizeof(sevp));
+    sevp.sigev_notify = SIGEV_SIGNAL | SIGEV_THREAD_ID;
+    sevp.sigev_signo = SIGRTMIN + (int)arg;
+    sevp._sigev_un._tid = gettid();
+    ret = timer_create(CLOCK_REALTIME, &sevp, &timerid);
+    assert(ret == 0);
+
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 1000000000u / RHINO_CONFIG_TICKS_PER_SECOND;
+    ts.it_value.tv_sec = 1;
+    ts.it_value.tv_nsec = 0;
+
+    ret = timer_settime(timerid, CLOCK_REALTIME, &ts, NULL);
+    assert(ret == 0);
 
     ktask_t    *tcb     = g_preferred_ready_task[(int)arg];
     task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
@@ -520,6 +539,15 @@ static void cpu_assert(int signo, siginfo_t *si, void *ucontext)
     krhino_intrpt_exit();
     leave_signal(signo);
 }
+
+static void cpu_local_timer(int signo, siginfo_t *si, void *ucontext)
+{
+    enter_signal(signo);
+    krhino_intrpt_enter();
+    time_slice_update();
+    krhino_intrpt_exit();
+    leave_signal(signo);
+}
 #endif
 
 static void tick_interpt(int signo, siginfo_t *si, void *ucontext)
@@ -626,6 +654,11 @@ void cpu_init_hook(void)
         .sa_flags = SA_SIGINFO | SA_RESTART,
         .sa_sigaction = cpu_assert,
     };
+
+    struct sigaction cpu_local_timer_action = {
+        .sa_flags = SA_SIGINFO | SA_RESTART,
+        .sa_sigaction = cpu_local_timer,
+    };
 #endif
 
     rhino_cpu_thread[0] = pthread_self();
@@ -639,6 +672,9 @@ void cpu_init_hook(void)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     sigaddset(&cpu_sig_set, SIGRTMIN);
     cpu_assert_action.sa_mask   = cpu_sig_set;
+
+    sigaddset(&cpu_sig_set, SIGRTMIN + 1);
+    cpu_assert_action.sa_mask   = cpu_sig_set;
 #endif
 
     event_sig_action.sa_mask    = cpu_sig_set;
@@ -650,6 +686,7 @@ void cpu_init_hook(void)
     ret |= sigaction(SIGIO, &event_io_action, NULL);
 #if (RHINO_CONFIG_CPU_NUM > 1)
     ret |= sigaction(SIGRTMIN, &cpu_assert_action, NULL);
+    ret |= sigaction(SIGRTMIN + 1, &cpu_local_timer_action, NULL);
 #endif
 
     assert(ret == 0);
