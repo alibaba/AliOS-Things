@@ -322,7 +322,7 @@ kstat_t krhino_task_sleep(tick_t ticks)
     RHINO_CPU_INTRPT_DISABLE();
 
     /* is task timeout normally after sleep */
-    ret = pend_state_end_proc(g_active_task[cpu_cur_get()], 0);
+    ret = pend_state_end_proc(g_active_task[cpu_cur_get()], NULL);
 
     RHINO_CPU_INTRPT_ENABLE();
 

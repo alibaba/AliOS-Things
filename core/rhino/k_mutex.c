@@ -364,7 +364,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
 #endif
 
     /* any way block the current task */
-    pend_to_blk_obj((blk_obj_t *)mutex, g_active_task[cur_cpu_num], ticks);
+    pend_to_blk_obj(&mutex->blk_obj, g_active_task[cur_cpu_num], ticks);
 
     TRACE_MUTEX_GET_BLK(g_active_task[cur_cpu_num], mutex, ticks);
 
@@ -373,7 +373,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
     RHINO_CPU_INTRPT_DISABLE();
 
     /* so the task is waked up, need know which reason cause wake up */
-    ret = pend_state_end_proc(g_active_task[cpu_cur_get()], (blk_obj_t *)mutex);
+    ret = pend_state_end_proc(g_active_task[cpu_cur_get()], &mutex->blk_obj);
 
     RHINO_CPU_INTRPT_ENABLE();
 
