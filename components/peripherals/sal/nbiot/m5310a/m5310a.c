@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <atparser.h>
 #include <aos/yloop.h>
+#include <string.h>
 
 /* 0: disable log, 1: emerg, 2: fatal, 3: error, 4: info, 5: debug */
 #define M5310A_AT_DEBUG 5
