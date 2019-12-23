@@ -1548,7 +1548,7 @@ static int httpclient_send_header(httpclient_t *client, char *url, int method, h
 
 #if CONFIG_HTTP_SECURE
     if (client->is_http == false) {
-        http_log("Enter PolarSSL_write");
+        http_log("Enter SSL_write");
         httpclient_ssl_t *ssl = (httpclient_ssl_t *)client->ssl;
         if (httpclient_ssl_send_all(&ssl->ssl_ctx, send_buf, len) != len) {
             http_log("SSL_write failed");
@@ -2579,7 +2579,7 @@ static int httpclient_random(void *prng, unsigned char *output, size_t output_le
 static int httpclient_ssl_conn(httpclient_t *client, char *host)
 {
     int authmode = MBEDTLS_SSL_VERIFY_NONE;
-#ifdef MBEDTLS_ENTROPY_C_ALIOS
+#ifdef MBEDTLS_ENTROPY_C
     const char *pers = "https";
 #endif
     int value, ret = 0;
@@ -2612,7 +2612,7 @@ static int httpclient_ssl_conn(httpclient_t *client, char *host)
     mbedtls_x509_crt_init(&ssl->clicert);
 #endif
     mbedtls_pk_init(&ssl->pkey);
-#ifdef MBEDTLS_ENTROPY_C_ALIOS
+#ifdef MBEDTLS_ENTROPY_C
     mbedtls_ctr_drbg_init(&ssl->ctr_drbg);
     mbedtls_entropy_init(&ssl->entropy);
     if ((value = mbedtls_ctr_drbg_seed(&ssl->ctr_drbg,
@@ -2755,7 +2755,7 @@ static int httpclient_ssl_close(httpclient_t *client)
     mbedtls_pk_free(&ssl->pkey);
     mbedtls_ssl_free(&ssl->ssl_ctx);
     mbedtls_ssl_config_free(&ssl->ssl_conf);
-#ifdef MBEDTLS_ENTROPY_C_ALIOS
+#ifdef MBEDTLS_ENTROPY_C
     mbedtls_ctr_drbg_free(&ssl->ctr_drbg);
     mbedtls_entropy_free(&ssl->entropy);
 #endif
