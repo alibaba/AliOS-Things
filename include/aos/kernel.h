@@ -134,7 +134,7 @@ const char *aos_task_name(void);
 /**
  * Create a task key.
  *
- * @param[in]  key  pointer of key object.
+ * @param[out]  key  pointer of key object.
  *
  * @return  0: success, -EINVAL: error.
  */
