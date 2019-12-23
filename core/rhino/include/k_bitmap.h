@@ -49,11 +49,11 @@ RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
     uint8_t n = 0;
 
     if (x == 0) {
-        return 32;
+        return BITMAP_UNIT_SIZE;
     }
 
 #ifdef RHINO_BIT_CLZ
-    n += RHINO_BIT_CLZ(x);
+    n = RHINO_BIT_CLZ(x);
 #else
     if ((x & 0XFFFF0000) == 0) {
         x <<= 16;
@@ -86,9 +86,12 @@ RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
     uint8_t n = 0;
 
     if (x == 0) {
-        return 32;
+        return BITMAP_UNIT_SIZE;
     }
 
+#ifdef RHINO_BIT_CTZ
+    n = RHINO_BIT_CTZ(x);
+#else
     if ((x & 0X0000FFFF) == 0) {
         x >>= 16;
         n += 16;
@@ -108,6 +111,7 @@ RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
     if ((x & 0X00000001) == 0) {
         n += 1;
     }
+#endif
 
     return n;
 }
@@ -121,41 +125,13 @@ RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
 RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
 {
     int32_t  nr  = 0;
-    uint32_t tmp = 0;
 
     while (*bitmap == 0UL) {
         nr += BITMAP_UNIT_SIZE;
         bitmap++;
     }
 
-    tmp = *bitmap;
-#ifdef RHINO_BIT_CLZ
-    nr += RHINO_BIT_CLZ(tmp);
-#else
-    if (!(tmp & 0XFFFF0000)) {
-        tmp <<= 16;
-        nr   += 16;
-    }
-
-    if (!(tmp & 0XFF000000)) {
-        tmp <<= 8;
-        nr   += 8;
-    }
-
-    if (!(tmp & 0XF0000000)) {
-        tmp <<= 4;
-        nr   += 4;
-    }
-
-    if (!(tmp & 0XC0000000)) {
-        tmp <<= 2;
-        nr   += 2;
-    }
-
-    if (!(tmp & 0X80000000)) {
-        nr   += 1;
-    }
-#endif
+    nr += krhino_clz32(*bitmap);
 
     return nr;
 }
