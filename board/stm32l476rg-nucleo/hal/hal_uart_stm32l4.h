@@ -17,11 +17,6 @@
 #include "aos/kernel.h"
 #include "hal/hal.h"
 
-#define PORT_UART1 1
-#define PORT_UART2 2
-#define PORT_UART3 3
-#define PORT_UART4 4
-
 /***************************** uart1 configure *******************************/
 #define UART1                          USART1
 
@@ -92,6 +87,73 @@
 #define UART2_IRQn                     USART2_IRQn
 
 #define MAX_BUF_UART_BYTES  1024
+
+
+//#define UART4                          UART4                                                      
+                                                                                                    
+#define UART4_BANDRATE                 115200                                                       
+#define UART4_WORD_LENGTH              UART_WORDLENGTH_8B                                           
+#define UART4_STOP_BITS                UART_STOPBITS_1                                              
+#define UART4_PARITY                   UART_PARITY_NONE                                             
+#define UART4_MODE                     UART_MODE_TX_RX                                              
+#define UART4_HW_FLOW_CTL              UART_HWCONTROL_NONE                                          
+#define UART4_OVER_SAMPLING            UART_OVERSAMPLING_16                                         
+#define UART4_ONE_BIT_SAMPLING         UART_ONE_BIT_SAMPLE_DISABLE                                  
+#define UART4_ADV_FEATURE_INIT         UART_ADVFEATURE_NO_INIT                                      
+                                                                                                    
+#define UART4_IRQn                     UART4_IRQn                                                   
+                                                                                                    
+#define UART4_CLK_ENABLE()                                                                          
+#define UART4_CLK_DISABLE()                                                                         
+#define UART4_TX_GPIO_CLK_ENABLE()                                                                  
+#define UART4_TX_GPIO_CLK_DISABLE()                                                                 
+#define UART4_RX_GPIO_CLK_ENABLE()                                                                  
+#define UART4_RX_GPIO_CLK_DISABLE()     
+
+/***************************** uart5 configure *******************************/                     
+//#define UART5                          UART5                                                      
+                                                                                                    
+#define UART5_BANDRATE                 115200                                                       
+#define UART5_WORD_LENGTH              UART_WORDLENGTH_8B                                           
+#define UART5_STOP_BITS                UART_STOPBITS_1                                              
+#define UART5_PARITY                   UART_PARITY_NONE                                             
+#define UART5_MODE                     UART_MODE_TX_RX                                              
+#define UART5_HW_FLOW_CTL              UART_HWCONTROL_NONE                                          
+#define UART5_OVER_SAMPLING            UART_OVERSAMPLING_16                                         
+#define UART5_ONE_BIT_SAMPLING         UART_ONE_BIT_SAMPLE_DISABLE                                  
+#define UART5_ADV_FEATURE_INIT         UART_ADVFEATURE_NO_INIT                                      
+                                                                                                    
+#define UART5_IRQn                     UART5_IRQn                                                   
+                                                                                                    
+#define UART5_CLK_ENABLE()                                                                          
+#define UART5_CLK_DISABLE()                                                                         
+#define UART5_TX_GPIO_CLK_ENABLE()                                                                  
+#define UART5_TX_GPIO_CLK_DISABLE()                                                                 
+#define UART5_RX_GPIO_CLK_ENABLE()                                                                  
+#define UART5_RX_GPIO_CLK_DISABLE()   
+
+#define UART6                          LPUART1                                                      
+                                                                                                    
+#define UART6_BANDRATE                 115200                                                       
+#define UART6_WORD_LENGTH              UART_WORDLENGTH_8B                                           
+#define UART6_STOP_BITS                UART_STOPBITS_1                                              
+#define UART6_PARITY                   UART_PARITY_NONE                                             
+#define UART6_MODE                     UART_MODE_TX_RX                                              
+#define UART6_HW_FLOW_CTL              UART_HWCONTROL_NONE                                          
+#define UART6_OVER_SAMPLING            UART_OVERSAMPLING_16                                         
+#define UART6_ONE_BIT_SAMPLING         UART_ONE_BIT_SAMPLE_DISABLE                                  
+#define UART6_ADV_FEATURE_INIT         UART_ADVFEATURE_NO_INIT                                      
+                                                                                                    
+#define UART6_IRQn                     LPUART1_IRQn                                                 
+                                                                                                    
+#define UART6_CLK_ENABLE()                                                                          
+#define UART6_CLK_DISABLE()                                                                         
+#define UART6_TX_GPIO_CLK_ENABLE()                                                                  
+#define UART6_TX_GPIO_CLK_DISABLE()                                                                 
+#define UART6_RX_GPIO_CLK_ENABLE()                                                                  
+#define UART6_RX_GPIO_CLK_DISABLE()                                                                 
+                                                                                                    
+#define MAX_BUF_UART_BYTES  1024                                     
 
 #ifdef __cplusplus
 }

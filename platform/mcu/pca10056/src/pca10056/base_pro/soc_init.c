@@ -304,18 +304,3 @@ __INLINE void cpu_hardfault_handle(void)
     /*cli*/ 
     //cli_main(NULL);
 }
-
-
-
-void HardFault_Handler(void)
-{
-  //cpu_hardfault_handle();
-
-  while (1)
-  {
-  }
-}
-
-
-
-

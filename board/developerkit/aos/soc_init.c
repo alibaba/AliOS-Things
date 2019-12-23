@@ -127,16 +127,6 @@ void SysTick_Handler(void)
   krhino_intrpt_exit();
 }
 
-void HardFault_Handler(void)
-{
-  while (1)
-  {
-	//#ifdef exc_print
-   // cpu_hardfault_handle();
-   // #endif
-  }
-}
-
 /**
   * @brief  Retargets the C library printf function to the USART.
   * @param  None
