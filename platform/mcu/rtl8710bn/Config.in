@@ -5,6 +5,7 @@ config AOS_MCU_RTL8710BN
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_DEBUG
     help
       driver & sdk for platform/mcu rtl8710bn
 

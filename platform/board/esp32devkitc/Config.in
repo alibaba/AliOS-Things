@@ -8,20 +8,6 @@ config AOS_BOARD_ESP32DEVKITC
 if AOS_BOARD_ESP32DEVKITC
 # Configurations for board esp32devkitc
 
-config DEBUG_CONFIG_PANIC
-    bool "Enable debug panic feature"
-    default y
-    help
-        set to y if you want to enable panic debug feature when system crash happened,
-        default y
-
-config DEBUG_CONFIG_BACKTRACE
-    bool "Enable stack backtrace feature"
-    default y
-    help
-        set to y if you want to enable stack backtrace feature when system crash happened,
-        default y
-
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
     bool

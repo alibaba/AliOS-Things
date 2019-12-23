@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_COMP_DEBUG
+
 #include <stdio.h>
 #include "panic_mpu.h"
 #include "k_compiler.h"
@@ -12,8 +14,6 @@ typedef struct {
     unsigned long size;
     unsigned long mpusize;
 } mem_region_t;
-
-#if (DEBUG_CONFIG_PANIC > 0)
 
 static void mpu_enable(void);
 static void mpu_disable(void);

@@ -64,7 +64,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
     //make a exception, and stack print in "panicHandler"
     ((void (*)())0)();
 #else

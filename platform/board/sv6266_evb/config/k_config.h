@@ -129,9 +129,5 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
-#ifndef RHINO_CONFIG_ERR_DUMP
-#define RHINO_CONFIG_ERR_DUMP                0
-#endif
-
 #endif /* CONFIG_H */
 
