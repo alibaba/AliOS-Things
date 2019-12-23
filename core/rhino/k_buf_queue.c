@@ -337,7 +337,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size
     }
 
     g_active_task[cur_cpu_num]->msg = msg;
-    pend_to_blk_obj((blk_obj_t *)queue, g_active_task[cur_cpu_num], ticks);
+    pend_to_blk_obj(&queue->blk_obj, g_active_task[cur_cpu_num], ticks);
 
     TRACE_BUF_QUEUE_GET_BLK(g_active_task[cur_cpu_num], queue, ticks);
 
@@ -347,7 +347,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size
 
     cur_cpu_num = cpu_cur_get();
 
-    ret = pend_state_end_proc(g_active_task[cur_cpu_num], (blk_obj_t *)queue);
+    ret = pend_state_end_proc(g_active_task[cur_cpu_num], &queue->blk_obj);
 
     switch (ret) {
         case RHINO_SUCCESS:
