@@ -2,10 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_COMP_DEBUG
+
 #include "debug_api.h"
 #include "k_arch.h"
 
-#if (DEBUG_CONFIG_BACKTRACE > 0)
 #define BACK_TRACE_LIMIT 64
 
 extern void _interrupt_return_address();
@@ -149,9 +150,6 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
     return lvl;
 }
 
-#endif
-
-#if (DEBUG_CONFIG_PANIC > 0)
 #define REG_NAME_WIDTH 7
 
 static fault_context_t *s_fcontext;
@@ -253,17 +251,13 @@ void exceptionHandler(void *context)
         context = NULL;
     }
 
-#if (DEBUG_CONFIG_PANIC > 0)
     panicHandler(context);
-#else
+
     printf("exception occur!\n");
     /* app can add exception handler here */
     while (1)
         ;
-#endif
 }
-
-#if (DEBUG_CONFIG_BACKTRACE > 0)
 
 #define PANIC_STACK_LIMIT    0x100000
 
@@ -317,9 +311,8 @@ int backtrace_callee(char *PC, int *SP, char *LR,
     /* with frame pointer, this function is not needed */
     return 0;
 }
-#endif
 
-#else   /*#if (DEBUG_CONFIG_PANIC > 0)*/
+#else   /* #ifdef AOS_COMP_DEBUG */
 void exceptionHandler(void *context)
 {
     while(1);

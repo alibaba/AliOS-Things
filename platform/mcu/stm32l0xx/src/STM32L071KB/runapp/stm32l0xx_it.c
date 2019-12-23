@@ -43,7 +43,7 @@
 /* External variables --------------------------------------------------------*/
 
 /******************************************************************************/
-/*            Cortex-M0+ Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M0+ Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /**
@@ -62,7 +62,7 @@ void NMI_Handler(void)
 /**
 * @brief This function handles Hard fault interrupt.
 */
-#if (DEBUG_CONFIG_PANIC == 0)
+#ifndef AOS_COMP_DEBUG
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -101,7 +101,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-  if (0 == HAL_GetTick() % 10) 
+  if (0 == HAL_GetTick() % 10)
   {
       krhino_intrpt_enter();
       krhino_tick_proc();

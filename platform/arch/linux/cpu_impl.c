@@ -780,4 +780,13 @@ void cpu_call_signal(uint8_t cpu_num,int sig)
     pthread_kill(rhino_cpu_thread[cpu_num], sig);
 }
 
+/* for compile */
+int backtrace_now(int (*print_func)(const char *fmt, ...)) {return 0;}
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...)) {return 0;}
+void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...)) {}
+void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP) {}
+int backtrace_caller(char *PC, int *SP, int (*print_func)(const char *fmt, ...)) {return 0;}
+int backtrace_callee(char *PC, int *SP, char *LR, int (*print_func)(const char *fmt, ...)) {return 0;}
+
+
 

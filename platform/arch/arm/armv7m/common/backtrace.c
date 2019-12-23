@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_COMP_DEBUG
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -458,3 +460,4 @@ int backtrace_callee(char *PC, int *SP, char *LR,
 
     return lvl;
 }
+#endif
