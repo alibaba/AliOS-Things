@@ -480,71 +480,6 @@ ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
 #endif
 
 #if (RHINO_CONFIG_SCHED_RR > 0)
-
-#if (RHINO_CONFIG_CPU_NUM > 1)
-
-static void _time_slice_update(ktask_t *task, uint8_t i)
-{
-    klist_t *head;
-
-#if (RHINO_CONFIG_SCHED_CFS > 0)
-    if (task->sched_policy == KSCHED_CFS) {
-        return;
-    }
-#endif
-
-    head = g_ready_queue.cur_list_item[task->prio];
-
-    /* if ready list is empty then just return because nothing is to be caculated */
-    if (is_ready_list_empty(task->prio)) {
-        return;
-    }
-
-    if (task->sched_policy == KSCHED_FIFO) {
-        return;
-    }
-
-    /* there is only one task on this ready list, so do not need to caculate time slice */
-    /* idle task must satisfy this condition */
-    if (head->next == head) {
-        return;
-    }
-
-    if (task->time_slice > 0u) {
-        task->time_slice--;
-    }
-
-    /* if current active task has time_slice, just return */
-    if (task->time_slice > 0u) {
-        return;
-    }
-
-    /* move current active task to the end of ready list for the same prio */
-    ready_list_head_to_tail(&g_ready_queue, task);
-
-    /* restore the task time slice */
-    task->time_slice = task->time_total;
-
-    if (i != cpu_cur_get()) {
-        cpu_signal(i);
-    }
-
-}
-
-void time_slice_update(void)
-{
-    CPSR_ALLOC();
-    uint8_t i;
-
-    for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
-        RHINO_CRITICAL_ENTER();
-        _time_slice_update(g_active_task[i], i);
-        RHINO_CRITICAL_EXIT();
-    }
-}
-
-
-#else
 void time_slice_update(void)
 {
     CPSR_ALLOC();
@@ -554,16 +489,16 @@ void time_slice_update(void)
     uint8_t  task_pri;
 
     RHINO_CRITICAL_ENTER();
+    task = g_active_task[cpu_cur_get()];
 
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-    if (g_active_task[cpu_cur_get()]->sched_policy == KSCHED_CFS) {
+    if (task->sched_policy == KSCHED_CFS) {
         RHINO_CRITICAL_EXIT();
         return;
     }
 #endif
 
-    task_pri = g_active_task[cpu_cur_get()]->prio;
-
+    task_pri = task->prio;
     head = g_ready_queue.cur_list_item[task_pri];
 
     /* if ready list is empty then just return because nothing is to be caculated */
@@ -571,9 +506,6 @@ void time_slice_update(void)
         RHINO_CRITICAL_EXIT();
         return;
     }
-
-    /* Always look at the first task on the ready list */
-    task = krhino_list_entry(head, ktask_t, task_list);
 
     if (task->sched_policy == KSCHED_FIFO) {
         RHINO_CRITICAL_EXIT();
@@ -605,7 +537,5 @@ void time_slice_update(void)
 
     RHINO_CRITICAL_EXIT();
 }
-#endif
-
 #endif
 
