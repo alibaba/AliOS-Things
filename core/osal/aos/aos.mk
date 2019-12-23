@@ -40,7 +40,7 @@ endif
 
 ifeq ($(osal),rhino)
 GLOBAL_DEFINES     += OSAL_RHINO AOS_HAL
-$(NAME)_COMPONENTS += rhino debug
+$(NAME)_COMPONENTS += rhino
 
 $(NAME)_SOURCES += rhino.c
 
