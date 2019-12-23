@@ -5,6 +5,8 @@
 #ifndef K_INTERNAL_H
 #define K_INTERNAL_H
 
+/* This file is used for rhino internel */
+
 extern kstat_t g_sys_stat;
 extern uint8_t g_idle_task_spawned[RHINO_CONFIG_CPU_NUM];
 

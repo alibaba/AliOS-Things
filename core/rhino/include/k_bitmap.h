@@ -5,6 +5,9 @@
 #ifndef K_BITMAP_H
 #define K_BITMAP_H
 
+/* Start: Used only for task manager bitmap operation */
+/******************************************************************************************/
+
 #define BITMAP_UNIT_SIZE 32U
 #define BITMAP_UNIT_MASK 0X0000001F
 #define BITMAP_UNIT_BITS 5U
@@ -42,8 +45,17 @@ RHINO_INLINE void krhino_bitmap_clear(uint32_t *bitmap, int32_t nr)
     bitmap[BITMAP_WORD(nr)] &= ~BITMAP_MASK(nr);
 }
 
-/* Count Leading Zeros (clz)
-   counts the number of zero bits preceding the most significant one bit. */
+/* End: Used only for task manager bitmap operation */
+/******************************************************************************************/
+
+
+
+/**
+ ** Count Leading Zeros (clz)
+ ** counts the number of zero bits preceding the most significant one bit.
+ ** @param[in]  x  input unsigned int
+ ** @return  0~32
+ **/
 RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
 {
     uint8_t n = 0;
@@ -79,8 +91,12 @@ RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
     return n;
 }
 
+
 /* Count Trailing Zeros (ctz)
-   counts the number of zero bits succeeding the least significant one bit. */
+ **  counts the number of zero bits succeeding the least significant one bit.
+ ** @param[in]  x  input unsigned int
+ ** @return  0~32
+ **/
 RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
 {
     uint8_t n = 0;

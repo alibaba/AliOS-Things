@@ -5,6 +5,7 @@
 #ifndef K_ERR_H
 #define K_ERR_H
 
+/* Define basic errno for rhino modules */
 typedef enum
 {
     RHINO_SUCCESS = 0u,
@@ -93,6 +94,7 @@ extern krhino_err_proc_t g_err_proc;
 
 extern void k_err_proc_debug(kstat_t err, char *file, int line);
 
+/* Error proc for rhino module */
 #define k_err_proc(err) k_err_proc_debug(err, __FILE__, __LINE__)
 
 #endif /* K_ERR_H */

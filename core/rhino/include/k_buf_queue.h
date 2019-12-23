@@ -48,7 +48,7 @@ kstat_t krhino_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
  * @param[in]  queue     pointer to the queue(the space is provided by user)
  * @param[in]  name      name of the queue
  * @param[in]  buf       pointer to the buf
- * @param[in]  msg_size  size of the msg
+ * @param[in]  msg_size  fix size of the msg
  * @param[in]  msg_num   number of msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
@@ -124,8 +124,7 @@ kstat_t krhino_buf_queue_flush(kbuf_queue_t *queue);
 /**
  * This function will get information of a queue
  * @param[in]   queue  pointer to the queue
- * @param[out]  free   free size of the queue buf
- * @param[out]  total  total size of the queue buf
+ * @param[out]  info   info msg of the queue buf
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_buf_queue_info_get(kbuf_queue_t *queue, kbuf_queue_info_t *info);

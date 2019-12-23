@@ -5,44 +5,57 @@
 #ifndef K_MM_H
 #define K_MM_H
 
-/* use two level bit map to find free memory block */
+/* Attention: This file is independent to k_mm_blk.h */
 
 #if (RHINO_CONFIG_MM_TLF > 0)
 
+/* mm used/free size statistic */
 #define K_MM_STATISTIC 1
 
+/* mem boundary align size define */
 #define MM_ALIGN_BIT     3
 #define MM_ALIGN_SIZE    (1 << MM_ALIGN_BIT)
 #define MM_ALIGN_MASK    (MM_ALIGN_SIZE - 1)
 #define MM_ALIGN_UP(a)   (((a) + MM_ALIGN_MASK) & ~MM_ALIGN_MASK)
 #define MM_ALIGN_DOWN(a) ((a) & ~MM_ALIGN_MASK)
 
-/* mm bitmask freelist: */
+/* mm max block element size for once alloc*/
 #define MM_MAX_BIT  RHINO_CONFIG_MM_MAXMSIZEBIT
 #define MM_MAX_SIZE (1 << MM_MAX_BIT)
 
+/* mm min block element size for once alloc */
 #define MM_MIN_BIT   RHINO_CONFIG_MM_MINISIZEBIT
 #define MM_MIN_SIZE  (1 << (MM_MIN_BIT - 1))
+/* size to level upper limit */
 #define MM_BIT_LEVEL (MM_MAX_BIT - MM_MIN_BIT + 2)
 
-#define MIN_FREE_MEMORY_SIZE 1024 /*at least need 1k for user alloced*/
+/* at least need 1k for user alloced */
+#define MIN_FREE_MEMORY_SIZE 1024
 
+/* current mm blk alloc/free state */
 #define RHINO_MM_CURSTAT_MASK 0x1
+/* prev mm blk alloc/free state */
 #define RHINO_MM_PRESTAT_MASK 0x2
 
-/* bit 0 */
+/* current mm blk alloc/free state: bit 0 */
 #define RHINO_MM_FREE    1
 #define RHINO_MM_ALLOCED 0
 
-/* bit 1 */
+/* prev mm blk alloc/free state: bit 1 */
 #define RHINO_MM_PREVFREE    2
 #define RHINO_MM_PREVALLOCED 0
 
+/* head size for every blk, not including RHINO_CONFIG_MM_BLK small blk */
 #define MMLIST_HEAD_SIZE (MM_ALIGN_UP(sizeof(k_mm_list_t) - sizeof(free_ptr_t)))
 
+/* buf size for cur blk */
 #define MM_GET_BUF_SIZE(blk) ((blk)->buf_size & (~MM_ALIGN_MASK))
+/* buf size + head size */
 #define MM_GET_BLK_SIZE(blk) (MM_GET_BUF_SIZE(blk) + MMLIST_HEAD_SIZE)
+
+/* get next blk's head start addr */
 #define MM_GET_NEXT_BLK(blk) ((k_mm_list_t *)((blk)->mbinfo.buffer + MM_GET_BUF_SIZE(blk)))
+/* get this buf's head start addr */
 #define MM_GET_THIS_BLK(buf) ((k_mm_list_t *)((char *)(buf)-MMLIST_HEAD_SIZE))
 
 #if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
