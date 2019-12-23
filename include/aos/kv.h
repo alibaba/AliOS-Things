@@ -50,7 +50,7 @@ int aos_kv_set(const char *key, const void *value, int len, int sync);
  *
  * @param[in]      key         the key of the KV pair to get.
  * @param[out]     buffer      the memory to store the value.
- * @param[in-out]  buffer_len  in: the length of the input buffer.
+ * @param[in,out]  buffer_len  in: the length of the input buffer.
  *                             out: the real length of the value.
  *
  * @return  0 on success, negative error on failure.
