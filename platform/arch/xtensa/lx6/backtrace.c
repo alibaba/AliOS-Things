@@ -1,3 +1,6 @@
+
+#ifdef AOS_COMP_DEBUG
+
 #include <stdio.h>
 #include "k_api.h"
 #include "debug_api.h"
@@ -178,4 +181,4 @@ int backtrace_callee(char *PC, int *SP, char *LR,
     backtraceContext(PC, LR, SP, print_func);
     return 1;
 }
-
+#endif

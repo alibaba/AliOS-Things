@@ -3,7 +3,6 @@
 ;
 
 #include "k_config.h"
-#include "debug_config.h"
 
 ;******************************************************************************
 ;                                 EQUATES
@@ -18,7 +17,7 @@ CONTEXT_REGION  EQU  80   ;bigger than sizeof(PANIC_CONTEXT)
     REQUIRE8
     PRESERVE8
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
 
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
