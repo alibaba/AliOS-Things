@@ -53,10 +53,10 @@
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      10
 #endif
 #ifndef RHINO_CONFIG_PRI_MAX
-#define RHINO_CONFIG_PRI_MAX                 62
+#define RHINO_CONFIG_PRI_MAX                 141
 #endif
 #ifndef RHINO_CONFIG_USER_PRI_MAX
-#define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
+#define RHINO_CONFIG_USER_PRI_MAX            99
 #endif
 
 /* kernel workqueue conf */
