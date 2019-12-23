@@ -233,7 +233,7 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
     g_active_task[cur_cpu_num]->pend_flags  = flags;
     g_active_task[cur_cpu_num]->pend_info   = actl_flags;
 
-    pend_to_blk_obj((blk_obj_t *)event, g_active_task[cur_cpu_num], ticks);
+    pend_to_blk_obj(&event->blk_obj, g_active_task[cur_cpu_num], ticks);
 
     TRACE_EVENT_GET_BLK(g_active_task[cur_cpu_num], event, ticks);
 
@@ -242,7 +242,7 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
     RHINO_CPU_INTRPT_DISABLE();
 
     /* so the task is waked up, need know which reason cause wake up */
-    stat = pend_state_end_proc(g_active_task[cpu_cur_get()], (blk_obj_t *)event);
+    stat = pend_state_end_proc(g_active_task[cpu_cur_get()], &event->blk_obj);
 
     RHINO_CPU_INTRPT_ENABLE();
 
