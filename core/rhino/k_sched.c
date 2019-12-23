@@ -310,53 +310,16 @@ static void task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num
     }
 }
 
-#if (RHINO_CONFIG_SCHED_CFS > 0)
-static void cfs_task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num)
-{
-    size_t  i;
-    uint8_t low_pri;
-    size_t  low_pri_cpu_num = 0;
-
-    (void)rq;
-
-    if (g_sys_stat == RHINO_RUNNING) {
-        if (task->cpu_binded == 1) {
-            if (task->cpu_num != cur_cpu_num) {
-                if (g_active_task[task->cpu_num] == &g_idle_task[task->cpu_num]) {
-                    cpu_signal(task->cpu_num);
-                }
-            }
-        } else {
-            /* find the lowest pri */
-            low_pri = g_active_task[0]->prio;
-            for (i = 0; i < RHINO_CONFIG_CPU_NUM - 1; i++) {
-                if (low_pri < g_active_task[i + 1]->prio) {
-                    low_pri = g_active_task[i + 1]->prio;
-                    low_pri_cpu_num = i + 1;
-                }
-            }
-
-            if (low_pri_cpu_num != cur_cpu_num ) {
-                if (g_active_task[low_pri_cpu_num] == &g_idle_task[task->cpu_num]) {
-                    cpu_signal(i);
-                }
-            }
-        }
-    }
-}
-#endif
-
 void ready_list_add_head(runqueue_t *rq, ktask_t *task)
 {
 #if (RHINO_CONFIG_SCHED_CFS > 0)
     if (task->sched_policy == KSCHED_CFS) {
         cfs_node_insert(&task->node, cfs_node_min_get());
-        cfs_task_sched_to_cpu(rq, task, cpu_cur_get());
-     }
+    }
     else {
         _ready_list_add_head(rq, task);
-        task_sched_to_cpu(rq, task, cpu_cur_get());
     }
+    task_sched_to_cpu(rq, task, cpu_cur_get());
 #else
     _ready_list_add_head(rq, task);
     task_sched_to_cpu(rq, task, cpu_cur_get());
@@ -366,14 +329,13 @@ void ready_list_add_head(runqueue_t *rq, ktask_t *task)
 void ready_list_add_tail(runqueue_t *rq, ktask_t *task)
 {
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-     if (task->sched_policy == KSCHED_CFS) {
+    if (task->sched_policy == KSCHED_CFS) {
         cfs_node_insert(&task->node, cfs_node_min_get());
-        cfs_task_sched_to_cpu(rq, task, cpu_cur_get());
-     }
-     else {
-        _ready_list_add_tail(rq, task);
-        task_sched_to_cpu(rq, task, cpu_cur_get());
     }
+    else {
+        _ready_list_add_tail(rq, task);
+    }
+    task_sched_to_cpu(rq, task, cpu_cur_get());
 #else
     _ready_list_add_tail(rq, task);
     task_sched_to_cpu(rq, task, cpu_cur_get());
