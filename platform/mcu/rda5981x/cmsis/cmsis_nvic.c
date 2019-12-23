@@ -279,7 +279,7 @@ void UsageFault_Handler_C(struct pt_regs *pt_regs)
     panic();
 }
 
-#if (DEBUG_CONFIG_PANIC != 1)
+#ifndef AOS_COMP_DEBUG
 #if defined (__CC_ARM)
 
 __asm void HardFault_Handler(void)
