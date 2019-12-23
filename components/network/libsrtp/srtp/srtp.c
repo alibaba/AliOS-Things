@@ -3442,7 +3442,7 @@ void srtp_crypto_policy_set_aes_gcm_256_16_auth(srtp_crypto_policy_t *p)
  *          if seq_num is invalid
  *
  */
-static srtp_err_status_t srtp_calc_aead_iv_srtcp(
+srtp_err_status_t srtp_calc_aead_iv_srtcp(
     srtp_session_keys_t *session_keys,
     v128_t *iv,
     uint32_t seq_num,
