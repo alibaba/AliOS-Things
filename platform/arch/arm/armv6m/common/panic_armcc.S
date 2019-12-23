@@ -1,6 +1,4 @@
 #include "k_config.h"
-#include "debug_config.h"
-#include "debug_dft_config.h"
 
 ;******************************************************************************
 ;                                 EQUATES
@@ -15,7 +13,7 @@ CONTEXT_REGION  EQU  80   ;bigger than sizeof(PANIC_CONTEXT)
     REQUIRE8
     PRESERVE8
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
 
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
@@ -80,7 +78,7 @@ double_panic_entry
 first_panic
     ;R0 as PANIC_CONTEXT
     MOV     R0, SP
-    SUBS    R0, #CONTEXT_REGION        
+    SUBS    R0, #CONTEXT_REGION
 
     ;R1 as CONTEXT saved by hardware
     MRS     R1, PSP
@@ -93,7 +91,7 @@ context_save
     MOVS    R2, #16
     ADD     R2, R0
     STM     R2!,{R4-R7}         ;ctx save, R4~R7
-    MOV     R4, R8                
+    MOV     R4, R8
     MOV     R5, R9
     MOV     R6, R10
     MOV     R7, R11
@@ -109,7 +107,7 @@ context_save
     MOV     R4, R1              ;SP before exception in R4
     SUBS    R1, #32
 
-    ;xPSR[9] to determine whether 
+    ;xPSR[9] to determine whether
     ;the previous top-of-stack was at offset 0x20, 0x24
     LSLS    R7, R7, #22         ;xPSR:bit9, 0 no-aligner, 1 aligner
     BPL     sp_save

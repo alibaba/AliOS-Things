@@ -1,6 +1,4 @@
 #include "k_config.h"
-#include "debug_config.h"
-#include "debug_dft_config.h"
 
 @******************************************************************************
 @                                 EQUATES
@@ -15,8 +13,7 @@
 .thumb
 .syntax unified
 
-#if (DEBUG_CONFIG_PANIC > 0)
-
+#ifdef AOS_COMP_DEBUG
 @******************************************************************************
 @                            EXTERN PARAMETERS
 @******************************************************************************
@@ -24,7 +21,7 @@
 .extern g_crash_steps
 .extern _first_task_restore
 .extern panicRestoreCheck
-  
+
 @******************************************************************************
 @                            EXPORT FUNCTIONS
 @******************************************************************************
@@ -77,7 +74,7 @@ double_panic_entry:
 
 first_panic:
     @R0 as PANIC_CONTEXT
-    SUB     R0, SP, #CONTEXT_REGION        
+    SUB     R0, SP, #CONTEXT_REGION
 
     @R1 as CONTEXT saved by hardware
     MRS     R1, PSP

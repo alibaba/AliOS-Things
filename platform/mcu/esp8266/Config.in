@@ -6,7 +6,6 @@ config AOS_MCU_ESP8266
     select AOS_COMP_OTA_2ND_BOOT
     select AOS_COMP_RHINO if OSAL_CONFIG = rhino
     select AOS_COMP_YLOOP
-    select AOS_COMP_DEBUG
     select AOS_ARCH_XTENSA_LX106 if OSAL_CONFIG = rhino
     help
       driver & sdk for platform/mcu esp8266

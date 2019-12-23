@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include "k_api.h"
-#include "debug_api.h"
 #include "backtrace.h"
 #include "frxt/xtensa_api.h"
+
+#ifdef AOS_COMP_DEBUG
+#include "debug_api.h"
+#endif
 
 //#define PANIC_PRINT     ets_printf
 #define PANIC_PRINT     printf
 
 extern int printf(const char *fmt, ...);
 extern int ets_printf(const char *fmt, ...);
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
 extern volatile uint32_t g_crash_steps;
 #endif
 
@@ -71,7 +74,7 @@ void xtensaPanic(void *context)
     vPortETSIntrLock();
     krhino_sched_disable();
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
     if(g_crash_steps == 0x87654321) {
         while (1);
     }
