@@ -1,6 +1,4 @@
 #include "k_config.h"
-#include "debug_config.h"
-#include "debug_dft_config.h"
 
 ;******************************************************************************
 ;                                 EQUATES
@@ -13,7 +11,7 @@
     REQUIRE8
     PRESERVE8
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
 
 ;******************************************************************************
 ;                            EXTERN PARAMETERS

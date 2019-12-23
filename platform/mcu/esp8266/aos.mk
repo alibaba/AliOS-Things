@@ -6,7 +6,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
-$(NAME)_COMPONENTS := yloop newlib_stub debug
+$(NAME)_COMPONENTS := yloop newlib_stub
 $(NAME)_COMPONENTS += lwip netmgr
 
 use_private_lwip := 1

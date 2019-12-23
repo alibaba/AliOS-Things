@@ -7,6 +7,7 @@ config AOS_MCU_BK7231U
     select AOS_COMP_YLOOP
     select AOS_ARCH_ARMV5
     select AOS_COMP_LIBPROV
+    select AOS_COMP_DEBUG
     help
       driver & sdk for platform/mcu bk7231u
 

@@ -6,7 +6,6 @@
 #include <k_api.h>
 #include <assert.h>
 #include "aos/hal/uart.h"
-#include <debug_api.h>
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 extern unsigned long long system_clock(void);
