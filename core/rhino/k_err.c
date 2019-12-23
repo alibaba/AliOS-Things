@@ -4,9 +4,13 @@
 
 #include "k_api.h"
 
+#ifdef AOS_COMP_DEBUG
+#include "debug_api.h"
+#endif
+
 void k_err_proc_debug(kstat_t err, char *file, int line)
 {
-#if (RHINO_CONFIG_ERR_DUMP > 0)
+#ifdef AOS_COMP_DEBUG
     debug_fatal_error(err, file, line);
 #endif
 
