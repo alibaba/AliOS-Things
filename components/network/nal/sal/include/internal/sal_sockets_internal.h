@@ -19,7 +19,7 @@
 #include <sal_def.h>
 #include <sal_ipaddr.h>
 #include <sal_err.h>
-#include <sal_import.h>
+#include <hal_sal.h>
 #include <sal_sockets.h>
 #include "sal_pcb.h"
 #include "sal_arch_internal.h"
