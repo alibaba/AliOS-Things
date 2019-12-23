@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_COMP_DEBUG
+
 #include "debug_api.h"
 
-#if (DEBUG_CONFIG_PANIC > 0)
 #define REG_NAME_WIDTH 7
 
 typedef struct

@@ -22,7 +22,7 @@ $(NAME)_COMPONENTS += ota_2ndboot
 $(NAME)_LIBSUFFIX  := _2ndboot
 else
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr debug
 endif
 
 #GLOBAL_DEFINES += WITH_LWIP

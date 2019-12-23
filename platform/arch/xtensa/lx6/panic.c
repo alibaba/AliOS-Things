@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "k_api.h"
-#include "debug_api.h"
 #include "backtrace.h"
 #include "frxt/xtensa_api.h"
 #include "espos_scheduler.h"
@@ -11,7 +10,8 @@
 extern void esp_panic_wdt_close(void);
 extern int printf(const char *fmt, ...);
 extern int ets_printf(const char *fmt, ...);
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
+#include "debug_api.h"
 extern volatile uint32_t g_crash_steps;
 #endif
 
@@ -70,7 +70,7 @@ void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
 
 void xtensaPanic(void *context)
 {
-#if defined (AOS_COMP_CLI)
+#ifdef AOS_COMP_CLI
     esp_panic_wdt_close();
 #endif
     /*
@@ -78,7 +78,7 @@ void xtensaPanic(void *context)
     krhino_sched_disable();
     */
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
     if(g_crash_steps == 0x87654321) {
         while (1);
     }

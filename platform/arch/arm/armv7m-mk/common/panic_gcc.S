@@ -1,5 +1,4 @@
 #include "k_config.h"
-#include "debug_config.h"
 #include "aux_config.h"
 
 @******************************************************************************
@@ -15,7 +14,7 @@
 .thumb
 .syntax unified
 
-#if (DEBUG_CONFIG_PANIC > 0)
+#ifdef AOS_COMP_DEBUG
 
 @******************************************************************************
 @                            EXTERN PARAMETERS

@@ -2,9 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <debug_api.h>
+#ifdef AOS_COMP_DEBUG
 
-#if (DEBUG_CONFIG_BACKTRACE > 0)
+#include "debug_api.h"
+
+//#if (DEBUG_CONFIG_BACKTRACE > 0)
 
 /** WARNING: to use call trace facilities, enable
  *  compiler's frame pointer feature:

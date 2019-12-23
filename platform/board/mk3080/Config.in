@@ -7,20 +7,6 @@ config AOS_BOARD_MK3080
 if AOS_BOARD_MK3080
 # Configurations for board board_mk3080
 
-config DEBUG_CONFIG_PANIC
-    bool "Enable debug panic feature"
-    default y
-    help
-        set to y if you want to enable panic debug feature when system crash happened,
-        default y
-
-config DEBUG_CONFIG_BACKTRACE
-    bool "Enable stack backtrace feature"
-    default y
-    help
-        set to y if you want to enable stack backtrace feature when system crash happened,
-        default y
-
 config MK3080_CONFIG_SPIFFS
     bool "Locate SPIFFS for using"
     default n

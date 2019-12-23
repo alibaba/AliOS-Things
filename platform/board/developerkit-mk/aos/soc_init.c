@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 
-#include "debug_api.h"
 #include "k_config.h"
 #include "soc_init.h"
 
@@ -186,7 +185,7 @@ void SysTick_Handler(void)
     krhino_intrpt_exit();
 }
 
-#if (DEBUG_CONFIG_PANIC != 1)
+#ifndef AOS_COMP_DEBUG
 void HardFault_Handler(void)
 {
   while (1)
