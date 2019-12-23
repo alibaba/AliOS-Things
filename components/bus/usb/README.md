@@ -21,7 +21,6 @@ usb_host
 │   └── rndis
 │       ├── include
 │       │   ├── usb_host_rndis_common.h # Remote NDIS class defination
-│       │   └── usb_host_rndis.h        # Remote NDIS class structure defination
 │       └── src
 │           └── usb_host_rndis.c        # Remote NDIS class implementation
 ├── core
