@@ -6,6 +6,7 @@
 #define K_CRITICAL_H
 
 #if (RHINO_CONFIG_SYS_STATS > 0)
+/* For measure max int disable count */
 #define RHINO_INTDIS_MEAS_START() intrpt_disable_measure_start()
 #define RHINO_INTDIS_MEAS_STOP()  intrpt_disable_measure_stop()
 #else
@@ -13,6 +14,7 @@
 #define RHINO_INTDIS_MEAS_STOP()
 #endif
 
+/* Close interrupt for one core, and also add lock between muticores */
 #define RHINO_CRITICAL_ENTER()      \
     do {                            \
         RHINO_CPU_INTRPT_DISABLE(); \
