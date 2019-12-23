@@ -299,7 +299,7 @@ kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)
         return RHINO_SCHED_DISABLE;
     }
 
-    pend_to_blk_obj((blk_obj_t *)queue, g_active_task[cur_cpu_num], ticks);
+    pend_to_blk_obj(&queue->blk_obj, g_active_task[cur_cpu_num], ticks);
 
     RHINO_CRITICAL_EXIT_SCHED();
 
@@ -307,7 +307,7 @@ kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)
 
     cur_cpu_num = cpu_cur_get();
 
-    ret = pend_state_end_proc(g_active_task[cur_cpu_num], (blk_obj_t *)queue);
+    ret = pend_state_end_proc(g_active_task[cur_cpu_num], &queue->blk_obj);
 
     switch (ret) {
         case RHINO_SUCCESS:
