@@ -278,7 +278,7 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
         return RHINO_SCHED_DISABLE;
     }
 
-    pend_to_blk_obj((blk_obj_t *)sem, g_active_task[cur_cpu_num], ticks);
+    pend_to_blk_obj(&sem->blk_obj, g_active_task[cur_cpu_num], ticks);
 
     TRACE_SEM_GET_BLK(g_active_task[cur_cpu_num], sem, ticks);
 
@@ -286,7 +286,7 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 
     RHINO_CPU_INTRPT_DISABLE();
 
-    stat = pend_state_end_proc(g_active_task[cpu_cur_get()], (blk_obj_t *)sem);
+    stat = pend_state_end_proc(g_active_task[cpu_cur_get()], &sem->blk_obj);
 
     RHINO_CPU_INTRPT_ENABLE();
 

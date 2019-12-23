@@ -253,12 +253,12 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
 {
     ktimer_t *timer = cb->timer;
 
+    if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
+        return;
+    }
+
     switch (cmd) {
         case TIMER_CMD_START:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;
-            }
-
             if (timer->timer_state == TIMER_ACTIVE) {
                 break;
             }
@@ -272,10 +272,6 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             timer->timer_state = TIMER_ACTIVE;
             break;
         case TIMER_CMD_STOP:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;
-            }
-
             if (timer->timer_state == TIMER_DEACTIVE) {
                 break;
             }
@@ -284,10 +280,6 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             break;
         case TIMER_CMD_CHG:
             if (cb->first == 0u) {
-                break;
-            }
-
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
                 break;
             }
 
@@ -300,10 +292,6 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             timer->round_ticks = cb->u.round;
             break;
         case TIMER_ARG_CHG:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;
-            }
-
             if (timer->timer_state != TIMER_DEACTIVE) {
                 break;
             }
@@ -311,10 +299,6 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             timer->timer_cb_arg = cb->u.arg;
             break;
         case TIMER_CMD_DEL:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;
-            }
-
             if (timer->timer_state != TIMER_DEACTIVE) {
                 break;
             }
@@ -328,10 +312,6 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             break;
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
         case TIMER_CMD_DYN_DEL:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;
-            }
-
             if (timer->timer_state != TIMER_DEACTIVE) {
                 break;
             }
@@ -358,7 +338,8 @@ static void timer_cmd_proc(k_timer_queue_cb *cb)
         cmd_proc(cb, TIMER_CMD_STOP);
         cmd_proc(cb, TIMER_ARG_CHG);
         cmd_proc(cb, TIMER_CMD_START);
-    } else {
+    }
+    else {
         cmd_proc(cb, cb->cb_num);
     }
 }

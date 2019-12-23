@@ -462,7 +462,7 @@ ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
         }
 
         if (iter->next == rq->cur_list_item[highest_pri]) {
-            task_bit_map[highest_pri >> 5] &= ~(1u << (31u - (highest_pri & 31u)));
+            krhino_bitmap_clear(task_bit_map, highest_pri);
             highest_pri = krhino_find_first_bit(task_bit_map);
             iter = rq->cur_list_item[highest_pri];
         } else {
