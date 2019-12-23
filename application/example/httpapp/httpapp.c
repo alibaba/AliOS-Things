@@ -656,7 +656,7 @@ void httpapp_help_command()
     LOGD(TAG, "       -s, [stop] Stop httpapp running" );
     LOGD(TAG, "       -a, [auth] Http auth request" );
     LOGD(TAG, "       -o, [ota] Ota download request" );
-    LOGD(TAG, "       -e, [ota] head Ota download http head request" );
+    LOGD(TAG, "       -e, [ota_head] head Ota download http head request" );
     LOGD(TAG, "       -u, [up] Dynamic ota request" );
     LOGD(TAG, "       -g, [get] Get http request" );
     LOGD(TAG, "       -p, [post] Post http request" );
