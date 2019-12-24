@@ -8,10 +8,6 @@
 /* Start: Used only for task manager bitmap operation */
 /******************************************************************************************/
 
-#include <k_compiler.h>
-#if defined (__ICCARM__)
-#include <cmsis_iar.h>
-#endif
 #define BITMAP_UNIT_SIZE 32U
 #define BITMAP_UNIT_MASK 0X0000001F
 #define BITMAP_UNIT_BITS 5U
