@@ -2314,7 +2314,7 @@ static void httpclient_close(httpclient_t *client)
     http_log("httpclient_close() client:%p", client);
 }
 
-int httpclient_get_response_code(httpclient_t *client)
+int httpc_get_response_code(httpclient_t *client)
 {
     return client->response_code;
 }
@@ -2387,7 +2387,7 @@ HTTPC_RESULT httpc_delete(httpclient_t *client, char *url, httpclient_data_t *cl
     return httpclient_common(client, url, HTTP_DELETE, client_data);
 }
 
-int httpclient_get_response_header_value(char *header_buf, char *name, int *val_pos, int *val_len)
+int httpc_get_response_header_value(char *header_buf, char *name, int *val_pos, int *val_len)
 {
     char *data = header_buf;
     char *crlf_ptr, *colon_ptr, *key_ptr, *value_ptr;
