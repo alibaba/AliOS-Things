@@ -5,6 +5,7 @@
 
 #ifdef AOS_COMP_DEBUG
 #include "debug_api.h"
+#include "debug_panic.h"
 #endif
 
 //#define PANIC_PRINT     ets_printf
