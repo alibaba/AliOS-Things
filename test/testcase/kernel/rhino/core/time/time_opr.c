@@ -30,10 +30,10 @@ void gettaskinfo(void)
 
 static uint8_t time_opr_case(void)
 {
-    tick_t     ticks;
+    tick_t ticks;
     sys_time_t ms;
-    sys_time_t start;
-    sys_time_t end;
+    tick_t start;
+    tick_t end;
 
     ticks = krhino_ms_to_ticks(1000);
     MYASSERT(ticks == RHINO_CONFIG_TICKS_PER_SECOND);
