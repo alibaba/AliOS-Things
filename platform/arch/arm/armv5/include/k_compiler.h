@@ -34,6 +34,7 @@
 #endif
 
 #elif defined(__ICCARM__)
+#include "intrinsics.h"
 
 #define RHINO_INLINE                static inline
 
