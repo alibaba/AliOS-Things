@@ -43,6 +43,7 @@
 #define OS_DSB()                    __dsb(15)   /* Full system  Any-Any */
 
 #elif defined(__ICCARM__)
+#include "intrinsics.h"
 
 #define RHINO_INLINE                static inline
 

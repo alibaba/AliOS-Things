@@ -15,6 +15,8 @@
 #define RHINO_GET_SP()              (void *)__current_sp()
 
 #elif defined(__ICCARM__)
+#include "intrinsics.h"
+
 #define RHINO_INLINE                static inline
 /* get the return address of the current function
    unsigned int __get_LR(void) */
