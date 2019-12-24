@@ -128,7 +128,7 @@ void krhino_task_sched_stats_reset(void)
     g_cur_sched_disable_max_time  = 0;
 
     /* system first task starting time should be measured otherwise not correct */
-    cur_time = (lr_timer_t)LR_COUNT_GET();
+    cur_time = LR_COUNT_GET();
     for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
         g_preferred_ready_task[i]->task_time_start = cur_time;
     }
@@ -164,15 +164,15 @@ void krhino_task_sched_stats_get(void)
     g_preferred_ready_task[cpu_cur_get()]->task_ctx_switch_times++;
     g_sys_ctx_switch_times++;
 
-    cur_time  = (lr_timer_t)LR_COUNT_GET();
+    cur_time  = LR_COUNT_GET();
     exec_time = cur_time - g_active_task[cpu_cur_get()]->task_time_start;
 
-    g_active_task[cpu_cur_get()]->task_time_total_run += (sys_time_t)exec_time;
+    g_active_task[cpu_cur_get()]->task_time_total_run += (uint64_t)exec_time;
     if (g_active_task[cpu_cur_get()]->task_state == K_RDY) {
-        g_active_task[cpu_cur_get()]->task_time_this_run += (sys_time_t)exec_time;
+        g_active_task[cpu_cur_get()]->task_time_this_run += exec_time;
     }
     else {
-         g_active_task[cpu_cur_get()]->task_time_this_run = 0u;
+        g_active_task[cpu_cur_get()]->task_time_this_run = 0u;
     }
     g_preferred_ready_task[cpu_cur_get()]->task_time_start = cur_time;
 }

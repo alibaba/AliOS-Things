@@ -341,8 +341,8 @@ osEvent osWait (uint32_t millisec)
 */
 osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument)
 {
-    sys_time_t first = 1;
-    sys_time_t round;
+    tick_t first = 1;
+    tick_t round;
 
     /*
      * we use the round to save information for : one-shot or periodic,

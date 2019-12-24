@@ -13,7 +13,7 @@ static uint32_t      cpu_pwr_minisleep_time_ms = 0;
 #endif /* PWRMGMT_CONFIG_MINISLEEP > 0 */
 
 #if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
-static sys_time_t cpu_pwr_active_exit_tick = 0;
+static tick_t cpu_pwr_active_exit_tick = 0;
 #endif /* PWRMGMT_CONFIG_CPU_ACTIVE > 0 */
 
 static kspinlock_t cpu_pwr_spin;
@@ -137,7 +137,7 @@ CPU_IDLE_MODE cpu_pwr_idle_mode_get(void)
 #if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
 void cpu_active_ticks_set(tick_t active_time)
 {
-    sys_time_t active_exit_time = 0;
+    tick_t active_exit_time = 0;
 
     active_exit_time = krhino_sys_tick_get() + active_time;
     if(active_exit_time > cpu_pwr_active_exit_tick) {
