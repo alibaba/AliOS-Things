@@ -7,6 +7,7 @@ source "test/testcase/network/http/Config.in"
 source "test/testcase/network/libsrtp/Config.in"
 source "test/testcase/network/websoc/Config.in"
 source "test/testcase/network/netmgr/Config.in"
+source "test/testcase/network/rtp/Config.in"
 source "test/testcase/network/yloop/Config.in"
 source "test/testcase/network/lwm2m/Config.in"
 
