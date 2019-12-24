@@ -1,0 +1,9 @@
+config AOS_COMP_RTP_YTS_TEST
+    bool "Rtp YTS Test"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_RTP
+    select AOS_COMP_OSAL_POSIX
+    help
+        RTP YTS TEST

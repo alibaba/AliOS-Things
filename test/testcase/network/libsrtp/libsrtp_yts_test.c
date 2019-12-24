@@ -55,15 +55,6 @@
 #include "yunit/yts.h"
 
 /*
- * Test specific.
- */
-//#include "libsrtp_yts_test.h"
-
-/*
- * Standard library.
- */
-
-/*
  * Forward declarations for all tests.
  */
 
