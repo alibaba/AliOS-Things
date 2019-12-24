@@ -56,29 +56,6 @@ enum {
 };
 
 
-/** Defines a UDP socket */
-struct udp_sock {
-	struct list helpers; /**< List of UDP Helpers         */
-	udp_recv_h *rh;      /**< Receive handler             */
-	udp_error_h *eh;     /**< Error handler               */
-	void *arg;           /**< Handler argument            */
-	int fd;              /**< Socket file descriptor      */
-	int fd6;             /**< IPv6 socket file descriptor */
-	bool conn;           /**< Connected socket flag       */
-	size_t rxsz;         /**< Maximum receive chunk size  */
-	size_t rx_presz;     /**< Preallocated rx buffer size */
-};
-
-/** Defines a UDP helper */
-struct udp_helper {
-	struct le le;
-	int layer;
-	udp_helper_send_h *sendh;
-	udp_helper_recv_h *recvh;
-	void *arg;
-};
-
-
 static void dummy_udp_recv_handler(const struct sa *src,
 				   struct mbuf *mb, void *arg)
 {
@@ -253,7 +230,7 @@ static void udp_read_handler6(int flags, void *arg)
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_listen(struct udp_sock **usp, const struct sa *local,
+int udpsock_listen(struct udp_sock **usp, const struct sa *local,
 	       udp_recv_h *rh, void *arg)
 {
 	struct addrinfo hints, *res = NULL, *r;
@@ -373,7 +350,7 @@ int udp_listen(struct udp_sock **usp, const struct sa *local,
 		goto out;
 	}
 
-	err = udp_thread_attach(us);
+	err = udpsock_thread_attach(us);
 	if (err)
 		goto out;
 
@@ -390,7 +367,6 @@ int udp_listen(struct udp_sock **usp, const struct sa *local,
 	return err;
 }
 
-#if 0
 /**
  * Connect a UDP Socket to a specific peer.
  * When connected, this UDP Socket will only receive data from that peer.
@@ -400,7 +376,7 @@ int udp_listen(struct udp_sock **usp, const struct sa *local,
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_connect(struct udp_sock *us, const struct sa *peer)
+int udpsock_connect(struct udp_sock *us, const struct sa *peer)
 {
 	int fd;
 
@@ -420,7 +396,6 @@ int udp_connect(struct udp_sock *us, const struct sa *peer)
 
 	return 0;
 }
-#endif
 
 static int udp_send_internal(struct udp_sock *us, const struct sa *dst,
 			     struct mbuf *mb, struct le *le)
@@ -464,7 +439,6 @@ static int udp_send_internal(struct udp_sock *us, const struct sa *dst,
 	return 0;
 }
 
-#if 0
 /**
  * Send a UDP Datagram to a peer
  *
@@ -474,14 +448,13 @@ static int udp_send_internal(struct udp_sock *us, const struct sa *dst,
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_send(struct udp_sock *us, const struct sa *dst, struct mbuf *mb)
+int udpsock_send(struct udp_sock *us, const struct sa *dst, struct mbuf *mb)
 {
 	if (!us || !dst || !mb)
 		return EINVAL;
 
 	return udp_send_internal(us, dst, mb, us->helpers.tail);
 }
-#endif
 
 /**
  * Send an anonymous UDP Datagram to a peer
@@ -491,14 +464,14 @@ int udp_send(struct udp_sock *us, const struct sa *dst, struct mbuf *mb)
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_send_anon(const struct sa *dst, struct mbuf *mb)
+int udpsock_send_anon(const struct sa *dst, struct mbuf *mb)
 {
 	struct udp_sock *us;
 	int err;
 
 	if (!dst || !mb)
 		return EINVAL;
-	err = udp_listen(&us, NULL, NULL, NULL);
+	err = udpsock_listen(&us, NULL, NULL, NULL);
 	if (err)
 		return err;
 
@@ -519,7 +492,7 @@ int udp_send_anon(const struct sa *dst, struct mbuf *mb)
  *
  * @todo bug no way to specify AF
  */
-int udp_local_get(const struct udp_sock *us, struct sa *local)
+int udpsock_local_get(const struct udp_sock *us, struct sa *local)
 {
 	if (!us || !local)
 		return EINVAL;
@@ -547,7 +520,7 @@ int udp_local_get(const struct udp_sock *us, struct sa *local)
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_setsockopt(struct udp_sock *us, int level, int optname,
+int udpsock_setsockopt(struct udp_sock *us, int level, int optname,
 		   const void *optval, uint32_t optlen)
 {
 	int err = 0;
@@ -579,7 +552,7 @@ int udp_setsockopt(struct udp_sock *us, int level, int optname,
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_sockbuf_set(struct udp_sock *us, int size)
+int udpsock_sockbuf_set(struct udp_sock *us, int size)
 {
 	int err = 0;
 
@@ -599,7 +572,7 @@ int udp_sockbuf_set(struct udp_sock *us, int size)
  * @param us   UDP Socket
  * @param rxsz Maximum receive chunk size
  */
-void udp_rxsz_set(struct udp_sock *us, size_t rxsz)
+void udpsock_rxsz_set(struct udp_sock *us, size_t rxsz)
 {
 	if (!us)
 		return;
@@ -614,7 +587,7 @@ void udp_rxsz_set(struct udp_sock *us, size_t rxsz)
  * @param us       UDP Socket
  * @param rx_presz Size of preallocate space.
  */
-void udp_rxbuf_presz_set(struct udp_sock *us, size_t rx_presz)
+void udpsock_rxbuf_presz_set(struct udp_sock *us, size_t rx_presz)
 {
 	if (!us)
 		return;
@@ -630,7 +603,7 @@ void udp_rxbuf_presz_set(struct udp_sock *us, size_t rx_presz)
  * @param rh  Receive handler
  * @param arg Handler argument
  */
-void udp_handler_set(struct udp_sock *us, udp_recv_h *rh, void *arg)
+void udpsock_handler_set(struct udp_sock *us, udp_recv_h *rh, void *arg)
 {
 	if (!us)
 		return;
@@ -646,7 +619,7 @@ void udp_handler_set(struct udp_sock *us, udp_recv_h *rh, void *arg)
  * @param us  UDP Socket
  * @param eh  Error handler
  */
-void udp_error_handler_set(struct udp_sock *us, udp_error_h *eh)
+void udpsock_error_handler_set(struct udp_sock *us, udp_error_h *eh)
 {
 	if (!us)
 		return;
@@ -663,7 +636,7 @@ void udp_error_handler_set(struct udp_sock *us, udp_error_h *eh)
  *
  * @return File Descriptor, or -1 for errors
  */
-int udp_sock_fd(const struct udp_sock *us, int af)
+int udpsock_sock_fd(const struct udp_sock *us, int af)
 {
 	if (!us)
 		return -1;
@@ -684,7 +657,7 @@ int udp_sock_fd(const struct udp_sock *us, int af)
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_thread_attach(struct udp_sock *us)
+int udpsock_thread_attach(struct udp_sock *us)
 {
 	int err = 0;
 
@@ -705,7 +678,7 @@ int udp_thread_attach(struct udp_sock *us)
 
  out:
 	if (err)
-		udp_thread_detach(us);
+		udpsock_thread_detach(us);
 
 	return err;
 }
@@ -716,7 +689,7 @@ int udp_thread_attach(struct udp_sock *us)
  *
  * @param us UDP Socket
  */
-void udp_thread_detach(struct udp_sock *us)
+void udpsock_thread_detach(struct udp_sock *us)
 {
 	if (!us)
 		return;
@@ -758,7 +731,7 @@ static bool sort_handler(struct le *le1, struct le *le2, void *arg)
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_register_helper(struct udp_helper **uhp, struct udp_sock *us,
+int udpsock_register_helper(struct udp_helper **uhp, struct udp_sock *us,
 			int layer,
 			udp_helper_send_h *sh, udp_helper_recv_h *rh,
 			void *arg)
@@ -799,7 +772,7 @@ int udp_register_helper(struct udp_helper **uhp, struct udp_sock *us,
  *
  * @return 0 if success, otherwise errorcode
  */
-int udp_send_helper(struct udp_sock *us, const struct sa *dst,
+int udpsock_send_helper(struct udp_sock *us, const struct sa *dst,
 		    struct mbuf *mb, struct udp_helper *uh)
 {
 	if (!us || !dst || !mb || !uh)
@@ -817,7 +790,7 @@ int udp_send_helper(struct udp_sock *us, const struct sa *dst,
  *
  * @return UDP-helper if found, NULL if not found
  */
-struct udp_helper *udp_helper_find(const struct udp_sock *us, int layer)
+struct udp_helper *udpsock_helper_find(const struct udp_sock *us, int layer)
 {
 	struct le *le;
 
