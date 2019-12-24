@@ -5,7 +5,7 @@
 #include "k_api.h"
 
 #ifdef AOS_COMP_DEBUG
-#include "debug_api.h"
+#include "debug_panic.h"
 #endif
 
 void k_err_proc_debug(kstat_t err, char *file, int line)
