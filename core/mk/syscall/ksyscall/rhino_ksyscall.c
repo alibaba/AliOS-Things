@@ -90,7 +90,7 @@ void sys_krhino_uprocess_res_get_stub(void *arg)
 /* ------------------- time ------------------ */
 void sys_krhino_sys_tick_get_stub(void *arg)
 {
-    sys_time_t *sys_time = (sys_time_t*)arg;
+    tick_t *sys_time = (tick_t*)arg;
 
     *sys_time =  krhino_sys_tick_get();
 }
