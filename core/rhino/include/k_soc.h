@@ -12,8 +12,8 @@ lr_timer_t soc_lr_hw_cnt_get(void);
 #define HR_COUNT_GET() soc_hr_hw_cnt_get()
 #define LR_COUNT_GET() soc_lr_hw_cnt_get()
 #else
-#define HR_COUNT_GET() 0u
-#define LR_COUNT_GET() 0u
+#define HR_COUNT_GET() ((hr_timer_t)0u)
+#define LR_COUNT_GET() ((lr_timer_t)0u)
 #endif /* RHINO_CONFIG_HW_COUNT */
 
 void soc_err_proc(kstat_t err);
