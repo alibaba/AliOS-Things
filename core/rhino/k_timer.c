@@ -7,7 +7,7 @@
 #if (RHINO_CONFIG_TIMER > 0)
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
 {
-    sys_time_t  val;
+    tick_t      val;
     klist_t    *q;
     klist_t    *start;
     klist_t    *end;
@@ -39,8 +39,8 @@ static void timer_list_rm(ktimer_t *timer)
     }
 }
 
-static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb, sys_time_t first,
-                            sys_time_t round, void *arg, uint8_t auto_run, uint8_t mm_alloc_flag)
+static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb, tick_t first,
+                            tick_t round, void *arg, uint8_t auto_run, uint8_t mm_alloc_flag)
 {
     kstat_t err = RHINO_SUCCESS;
 
@@ -85,7 +85,7 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb, 
 }
 
 kstat_t krhino_timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
-                            sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
+                            tick_t first, tick_t round, void *arg, uint8_t auto_run)
 {
     return timer_create(timer, name, cb, first, round, arg, auto_run, K_OBJ_STATIC_ALLOC);
 }
@@ -104,7 +104,7 @@ kstat_t krhino_timer_del(ktimer_t *timer)
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name, timer_cb_t cb,
-                                sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
+                                tick_t first, tick_t round, void *arg, uint8_t auto_run)
 {
     kstat_t   ret;
     ktimer_t *timer_obj;
@@ -164,7 +164,7 @@ kstat_t krhino_timer_stop(ktimer_t *timer)
     return krhino_buf_queue_send(&g_timer_queue, &cb, sizeof(k_timer_queue_cb));
 }
 
-kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round)
+kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round)
 {
     k_timer_queue_cb cb;
 
@@ -223,13 +223,13 @@ static void timer_cb_proc(void)
     klist_t  *end;
     ktimer_t *timer;
 
-    sys_time_i_t delta;
+    tick_i_t delta;
 
     start = end = &g_timer_head;
 
     for (q = start->next; q != end; q = q->next) {
         timer = krhino_list_entry(q, ktimer_t, timer_list);
-        delta = (sys_time_i_t)timer->match - (sys_time_i_t)g_timer_count;
+        delta = (tick_i_t)timer->match - (tick_i_t)g_timer_count;
 
         if (delta <= 0) {
             timer->cb(timer, timer->timer_cb_arg);
@@ -349,9 +349,9 @@ static void timer_task(void *pa)
     ktimer_t         *timer;
     k_timer_queue_cb  cb_msg;
     kstat_t           err;
-    sys_time_t        tick_start;
-    sys_time_t        tick_end;
-    sys_time_i_t      delta;
+    tick_t            tick_start;
+    tick_t            tick_end;
+    tick_i_t          delta;
     size_t            msg_size;
 
     (void)pa;
@@ -371,7 +371,7 @@ static void timer_task(void *pa)
         while (!is_klist_empty(&g_timer_head)) {
             timer = krhino_list_entry(g_timer_head.next, ktimer_t, timer_list);
             tick_start = krhino_sys_tick_get();
-            delta = (sys_time_i_t)timer->match - (sys_time_i_t)tick_start;
+            delta = (tick_i_t)timer->match - (tick_i_t)tick_start;
             if (delta > 0) {
                 err = krhino_buf_queue_recv(&g_timer_queue, (tick_t)delta, &cb_msg, &msg_size);
                 tick_end = krhino_sys_tick_get();

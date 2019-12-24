@@ -76,9 +76,9 @@ typedef struct {
 #if (RHINO_CONFIG_SYS_STATS > 0)
     size_t           task_free_stack_size;
     ctx_switch_t     task_ctx_switch_times;
-    sys_time_t       task_time_total_run;
-    sys_time_t       task_time_total_run_prev;
-    sys_time_t       task_time_this_run;
+    uint64_t         task_time_total_run;
+    uint64_t         task_time_total_run_prev;
+    lr_timer_t       task_time_this_run;
     lr_timer_t       task_exec_time;
     lr_timer_t       task_time_start;
     hr_timer_t       task_intrpt_disable_time_max;
