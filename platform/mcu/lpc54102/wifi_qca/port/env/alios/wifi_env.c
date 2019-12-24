@@ -181,11 +181,11 @@ A_STATUS a_event_wait(
         if (waitAll) {
             krhino_event_get(&pEvent->event, flagsToWait, RHINO_AND_CLEAR, setFlags, timeout);
         } else {
-            krhino_event_get(&pEvent->event, flagsToWait, RHINO_OR_CLEAR, setFlags, timeout);			
+            krhino_event_get(&pEvent->event, flagsToWait, RHINO_OR_CLEAR, setFlags, timeout);
         }
     } else {
         if (waitAll) {
-            krhino_event_get(&pEvent->event, flagsToWait, RHINO_AND, setFlags, timeout);			
+            krhino_event_get(&pEvent->event, flagsToWait, RHINO_AND, setFlags, timeout);
         } else {
             krhino_event_get(&pEvent->event, flagsToWait, RHINO_OR, setFlags, timeout);
         }
@@ -196,7 +196,7 @@ A_STATUS a_event_wait(
 
 uint32_t a_time_get_msec(void)
 {
-    sys_time_t ticks;
+    tick_t ticks;
 
     if (__get_IPSR())
     {

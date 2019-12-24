@@ -64,13 +64,13 @@ static __inline void krhino_timer_cb(void *timer, void *arg)
 }
 
 kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name, timer_cb_t cb,
-                               sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run);
+                               tick_t first, tick_t round, void *arg, uint8_t auto_run);
 
 static __inline OS_Status OS_TimerCreate(OS_Timer_t *timer, OS_TimerType type,
                          OS_TimerCallback_t cb, void *ctx, OS_Time_t periodMS)
 {
-	sys_time_t first = krhino_ms_to_ticks((uint32_t)periodMS);
-	sys_time_t round = type == OS_TIMER_ONCE ? 0 : first;
+	tick_t first = krhino_ms_to_ticks((uint32_t)periodMS);
+	tick_t round = type == OS_TIMER_ONCE ? 0 : first;
 	ktimer_t *timer_obj = NULL;
 
 //	if (RHINO_SUCCESS == krhino_timer_dyn_create(&timer_obj, "timer", (timer_cb_t)cb,
@@ -79,7 +79,7 @@ static __inline OS_Status OS_TimerCreate(OS_Timer_t *timer, OS_TimerType type,
 	if (timer->timerCtx == NULL) {
         return RHINO_NO_MEM;
     }
-	
+
 	timer->timerCtx->cb = cb;
 	timer->timerCtx->ctx = ctx;
 
