@@ -17,11 +17,11 @@ void krhino_tick_proc(void)
 #endif
 }
 
-sys_time_t krhino_sys_tick_get(void)
+tick_t krhino_sys_tick_get(void)
 {
     CPSR_ALLOC();
 
-    sys_time_t tick_tmp;
+    tick_t tick_tmp;
 
     RHINO_CPU_INTRPT_DISABLE();
     tick_tmp = g_tick_count;

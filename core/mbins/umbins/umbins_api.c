@@ -90,9 +90,9 @@ sys_time_t krhino_sys_time_get(void)
     return SYS_CALL0(SYS_KRHINO_SYS_TIME_GET, sys_time_t);
 }
 
-sys_time_t krhino_sys_tick_get(void)
+tick_t krhino_sys_tick_get(void)
 {
-    return SYS_CALL0(SYS_KRHINO_SYS_TICK_GET, sys_time_t);
+    return SYS_CALL0(SYS_KRHINO_SYS_TICK_GET, tick_t);
 }
 
 tick_t krhino_ms_to_ticks(sys_time_t ms)
@@ -107,10 +107,10 @@ sys_time_t krhino_ticks_to_ms(tick_t ticks)
 
 kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
                                 timer_cb_t cb,
-                                sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
+                                tick_t first, tick_t round, void *arg, uint8_t auto_run)
 {
     return SYS_CALL7(SYS_KRHINO_TIMER_DYN_CREATE, kstat_t, ktimer_t **, timer, const name_t *, name,
-                        timer_cb_t, cb, sys_time_t, first, sys_time_t, round, void *, arg,
+                        timer_cb_t, cb, tick_t, first, tick_t, round, void *, arg,
                             uint8_t, auto_run);
 }
 
@@ -129,9 +129,9 @@ kstat_t krhino_timer_stop(ktimer_t *timer)
     return SYS_CALL1(SYS_KRHINO_TIMER_STOP, kstat_t, ktimer_t *, timer);
 }
 
-kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round)
+kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round)
 {
-    return SYS_CALL3(SYS_KRHINO_TIMER_CHANGE, kstat_t, ktimer_t *, timer, sys_time_t, first, sys_time_t, round);
+    return SYS_CALL3(SYS_KRHINO_TIMER_CHANGE, kstat_t, ktimer_t *, timer, tick_t, first, tick_t, round);
 }
 
 
