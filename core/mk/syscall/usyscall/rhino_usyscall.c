@@ -122,9 +122,9 @@ void krhino_uprocess_res_get(int32_t id, void **res)
 }
 
 /* ------------------ time ------------------ */
-sys_time_t krhino_sys_tick_get(void)
+tick_t krhino_sys_tick_get(void)
 {
-    sys_time_t sys_time;
+    tick_t sys_time;
 
     SYSCALL(SYS_KRHINO_SYS_TICK_GET, (void*)&sys_time);
 

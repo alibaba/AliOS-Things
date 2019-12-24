@@ -22,7 +22,6 @@ typedef uint8_t  suspend_nested_t;
 typedef uint32_t sem_count_t;
 typedef uint32_t mutex_nested_t;
 typedef uint64_t sys_time_t;
-typedef int64_t  sys_time_i_t;
 typedef uint64_t tick_t;
 typedef int64_t  tick_i_t;
 typedef uint64_t idle_count_t;
