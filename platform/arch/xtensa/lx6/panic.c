@@ -12,6 +12,7 @@ extern int printf(const char *fmt, ...);
 extern int ets_printf(const char *fmt, ...);
 #ifdef AOS_COMP_DEBUG
 #include "debug_api.h"
+#include "debug_panic.h"
 extern volatile uint32_t g_crash_steps;
 #endif
 
