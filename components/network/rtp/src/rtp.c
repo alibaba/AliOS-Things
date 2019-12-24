@@ -124,8 +124,8 @@ static void destructor(void *data)
 	switch (rs->proto) {
 
 	case IPPROTO_UDP:
-		udp_handler_set(rs->sock_rtp, NULL, NULL);
-		udp_handler_set(rs->sock_rtcp, NULL, NULL);
+		udpsock_handler_set(rs->sock_rtp, NULL, NULL);
+		udpsock_handler_set(rs->sock_rtcp, NULL, NULL);
 		break;
 
 	default:
@@ -212,12 +212,12 @@ static int udp_range_listen(struct rtp_sock *rs, const struct sa *ip,
 		port &= 0xfffe;
 
 		sa_set_port(&rs->local, port);
-		err = udp_listen(&us_rtp, &rs->local, udp_recv_handler, rs);
+		err = udpsock_listen(&us_rtp, &rs->local, udp_recv_handler, rs);
 		if (err)
 			continue;
 
 		sa_set_port(&rtcp, port + 1);
-		err = udp_listen(&us_rtcp, &rtcp, rtcp_recv_handler, rs);
+		err = udpsock_listen(&us_rtcp, &rtcp, rtcp_recv_handler, rs);
 		if (err) {
 			mem_deref(us_rtp);
 			continue;
@@ -431,7 +431,7 @@ int rtp_send(struct rtp_sock *rs, const struct sa *dst, bool ext,
 
 	mb->pos = pos;
 
-	return udp_send(rs->sock_rtp, dst, mb);
+	return udpsock_send(rs->sock_rtp, dst, mb);
 }
 
 
@@ -548,7 +548,7 @@ int rtcp_send(struct rtp_sock *rs, struct mbuf *mb)
 	if (!rs || !rs->sock_rtcp || !sa_isset(&rs->rtcp_peer, SA_ALL))
 		return EINVAL;
 
-	return udp_send(rs->rtcp_mux ? rs->sock_rtp : rs->sock_rtcp,
+	return udpsock_send(rs->rtcp_mux ? rs->sock_rtp : rs->sock_rtcp,
 			&rs->rtcp_peer, mb);
 }
 
