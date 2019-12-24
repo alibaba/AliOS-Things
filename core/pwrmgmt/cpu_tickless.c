@@ -318,7 +318,7 @@ static void tickless_enter(void)
     CPSR_ALLOC();
 
 #if (PWRMGMT_CONFIG_DEBUG > 0)
-    static sys_time_t last_log_entersleep        = 0;
+    static tick_t     last_log_entersleep        = 0;
     static uint32_t   cpu_lowpower_enter_counter = 0;
 #endif
     krhino_spin_lock_irq_save(&ticklessSpin, flags_cpsr);

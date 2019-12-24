@@ -21,7 +21,7 @@ sys_time_t krhino_sys_time_get(void);
  * This function will get ticks of the system
  * @return  the system ticks
  */
-sys_time_t krhino_sys_tick_get(void);
+tick_t krhino_sys_tick_get(void);
 
 /**
  * This function will convert ms to ticks
