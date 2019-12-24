@@ -4,10 +4,6 @@
 
 #ifdef AOS_COMP_DEBUG
 
-#include "debug_api.h"
-
-//#if (DEBUG_CONFIG_BACKTRACE > 0)
-
 /** WARNING: to use call trace facilities, enable
  *  compiler's frame pointer feature:
  *  -fno-omit-frame-pointer

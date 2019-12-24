@@ -23,10 +23,6 @@
 #include "osdep_service.h"
 #include "rtl8710b_ota.h"
 
-#ifdef AOS_COMP_DEBUG
-#include "debug_api.h"
-#endif
-
 #define AOS_START_STACK 2048
 
 ktask_t *g_aos_init;
