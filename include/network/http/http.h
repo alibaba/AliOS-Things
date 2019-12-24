@@ -1,4 +1,9 @@
-/*
+/**
+ * @file http.h
+ * http API header file.
+ *
+ * @version   V1.0
+ * @date      2019-12-24
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
@@ -23,113 +28,113 @@
   */
 /** @brief   http client connection settings */
 typedef struct httpc_connection_s {
-    int socket;           /* one socket per http session, 
-                             not support multiple http 
-                             sessions on one socket            */
-    bool keep_alive;      /* keep alive http connection or not */
-    /*boot use_proxy;*/   /* not support in this version       */
-    char *server_name;    /* pointer to server name            */
+    int socket;           /**< one socket per http session, 
+                               not support multiple http 
+                               sessions on one socket            */
+    bool keep_alive;      /**< keep alive http connection or not */
+    /*boot use_proxy;*/   /**< not support in this version       */
+    char *server_name;    /**< pointer to server name            */
 #if CONFIG_HTTP_SECURE
-    const char *ca_cert;  /* pointer to ca certificate         */
+    const char *ca_cert;  /**< pointer to ca certificate         */
 #endif
-    int port;
+    int port;             /**< http server port                  */
 
-    uint8_t *req_buf;     /* pointer to request buffer         */
-    int32_t  req_buf_size;/* request buffer size               */
+    uint8_t *req_buf;     /**< pointer to request buffer         */
+    int32_t  req_buf_size;/**< request buffer size               */
 
 #if CONFIG_HTTP_SECURE
-    uint8_t flags;        /* flags to http client              */
+    uint8_t flags;        /**< flags to http client              */
 #endif
 } httpc_connection_t;
 
 /** @brief   This structure defines the httpclient_t structure   */
 typedef struct {
-    int socket;                     /* socket ID                 */
-    int remote_port;                /* hTTP or HTTPS port        */
-    int response_code;              /* response code             */
-    char *header;                   /* request custom header     */
-    char *auth_user;                /* username for basic authentication         */
-    char *auth_password;            /* password for basic authentication         */
-    bool is_http;                   /* http connection? if 1, http; if 0, https  */
+    int socket;                     /**< socket ID                 */
+    int remote_port;                /**< hTTP or HTTPS port        */
+    int response_code;              /**< response code             */
+    char *header;                   /**< request custom header     */
+    char *auth_user;                /**< username for basic authentication         */
+    char *auth_password;            /**< password for basic authentication         */
+    bool is_http;                   /**< http connection? if 1, http; if 0, https  */
 #if CONFIG_HTTP_SECURE
-    const char *server_cert;        /* server certification      */
-    const char *client_cert;        /* client certification      */
-    const char *client_pk;          /* client private key        */
-    int server_cert_len;            /* server certification lenght, server_cert buffer size  */
-    int client_cert_len;            /* client certification lenght, client_cert buffer size  */
-    int client_pk_len;              /* client private key lenght, client_pk buffer size      */
-    void *ssl;                      /* ssl content               */
+    const char *server_cert;        /**< server certification      */
+    const char *client_cert;        /**< client certification      */
+    const char *client_pk;          /**< client private key        */
+    int server_cert_len;            /**< server certification lenght, server_cert buffer size  */
+    int client_cert_len;            /**< client certification lenght, client_cert buffer size  */
+    int client_pk_len;              /**< client private key lenght, client_pk buffer size      */
+    void *ssl;                      /**< ssl content               */
 #endif
 } httpclient_t;
 
 /** @brief   This structure defines the http_rsp_info_t structure   */
 typedef struct http_rsp_info_s {
-    uint32_t  rsp_len;
-    uint8_t   *body_start;
-    uint8_t   content_len_present:1;
-    uint8_t   body_present:1;
-    uint8_t   message_complete:1;
-    uint8_t   headers_complete:1;
+    uint32_t  rsp_len;              /**< response length            */
+    uint8_t   *body_start;          /**< body start position        */
+    uint8_t   content_len_present:1;/**< content length length flag */
+    uint8_t   body_present:1;       /**< body present flag          */
+    uint8_t   message_complete:1;   /**< message complete flag      */
+    uint8_t   headers_complete:1;   /**< headers complete flag      */
 } http_rsp_info_t;
 
 /** @brief   This structure defines the HTTP data structure.  */
 typedef struct {
-    bool is_more;                /* indicates if more data needs to be retrieved. */
-    bool is_chunked;             /* response data is encoded in portions/chunks.*/
-    int retrieve_len;            /* content length to be retrieved. */
-    int response_content_len;    /* response content length. */
-    int content_block_len;       /* the content length of one block. */
-    int post_buf_len;            /* post data length. */
-    int response_buf_len;        /* response body buffer length. */
-    int header_buf_len;          /* response head buffer lehgth. */
-    char *post_content_type;     /* content type of the post data. */
-    char *post_buf;              /* user data to be posted. */
-    char *response_buf;          /* buffer to store the response body data. */
-    char *header_buf;            /* buffer to store the response head data. */
-    bool  is_redirected;         /* redirected URL? if 1, has redirect url; if 0, no redirect url */
-    char* redirect_url;          /* redirect url when got http 3** response code. */
+    bool is_more;                /**< indicates if more data needs to be retrieved. */
+    bool is_chunked;             /**< response data is encoded in portions/chunks.*/
+    int retrieve_len;            /**< content length to be retrieved. */
+    int response_content_len;    /**< response content length. */
+    int content_block_len;       /**< the content length of one block. */
+    int post_buf_len;            /**< post data length. */
+    int response_buf_len;        /**< response body buffer length. */
+    int header_buf_len;          /**< response head buffer lehgth. */
+    char *post_content_type;     /**< content type of the post data. */
+    char *post_buf;              /**< user data to be posted. */
+    char *response_buf;          /**< buffer to store the response body data. */
+    char *header_buf;            /**< buffer to store the response head data. */
+    bool  is_redirected;         /**< redirected URL? if 1, has redirect url; if 0, no redirect url */
+    char* redirect_url;          /**< redirect url when got http 3** response code. */
 } httpclient_data_t;
 
 #if CONFIG_HTTP_SECURE
 /** @brief   This structure defines the httpclient ssl structure.  */
 typedef struct {
-    mbedtls_ssl_context ssl_ctx;        /* mbedtls ssl context */
-    mbedtls_net_context net_ctx;        /* fill in socket id   */
-    mbedtls_ssl_config ssl_conf;        /* ssl configuration   */
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context ctr_drbg;
-    mbedtls_x509_crt_profile profile;
-    mbedtls_x509_crt cacert;
-    mbedtls_x509_crt clicert;
-    mbedtls_pk_context pkey;
+    mbedtls_ssl_context ssl_ctx;        /**< mbedtls ssl context */
+    mbedtls_net_context net_ctx;        /**< fill in socket id   */
+    mbedtls_ssl_config ssl_conf;        /**< entropy context     */
+    mbedtls_entropy_context entropy;    /**< ssl configuration   */
+    mbedtls_ctr_drbg_context ctr_drbg;  /**< ctr drbg context    */
+    mbedtls_x509_crt_profile profile;   /**< x509 cacert profile */
+    mbedtls_x509_crt cacert;            /**< x509 cacert         */
+    mbedtls_x509_crt clicert;           /**< x509 client cacert  */
+    mbedtls_pk_context pkey;            /**< pkey context        */
 } httpclient_ssl_t;
 #endif
 
 /** @brief   http error code */
 typedef enum {
-    HTTP_EAGAIN   =  1,  /* more data to retrieved */
-    HTTP_SUCCESS  =  0,  /* operation success      */
-    HTTP_ENOBUFS  = -1,  /* buffer error           */
-    HTTP_EARG     = -2,  /* illegal argument       */
-    HTTP_ENOTSUPP = -3,  /* not support            */
-    HTTP_EDNS     = -4,  /* DNS fail               */
-    HTTP_ECONN    = -5,  /* connect fail           */
-    HTTP_ESEND    = -6,  /* send packet fail       */
-    HTTP_ECLSD    = -7,  /* connect closed         */
-    HTTP_ERECV    = -8,  /* recv packet fail       */
-    HTTP_EPARSE   = -9,  /* url parse error        */
-    HTTP_EPROTO   = -10, /* protocol error         */
-    HTTP_EUNKOWN  = -11, /* unknown error          */
-    HTTP_ETIMEOUT = -12, /* timeout                */
+    HTTP_EAGAIN   =  1,  /**< more data to retrieved */
+    HTTP_SUCCESS  =  0,  /**< operation success      */
+    HTTP_ENOBUFS  = -1,  /**< buffer error           */
+    HTTP_EARG     = -2,  /**< illegal argument       */
+    HTTP_ENOTSUPP = -3,  /**< not support            */
+    HTTP_EDNS     = -4,  /**< DNS fail               */
+    HTTP_ECONN    = -5,  /**< connect fail           */
+    HTTP_ESEND    = -6,  /**< send packet fail       */
+    HTTP_ECLSD    = -7,  /**< connect closed         */
+    HTTP_ERECV    = -8,  /**< recv packet fail       */
+    HTTP_EPARSE   = -9,  /**< url parse error        */
+    HTTP_EPROTO   = -10, /**< protocol error         */
+    HTTP_EUNKOWN  = -11, /**< unknown error          */
+    HTTP_ETIMEOUT = -12, /**< timeout                */
 } HTTPC_RESULT;
 
 typedef uint32_t httpc_handle_t;
 
 /* The following content is used in the HttpClient module. */
-#define HTTPCLIENT_DEBUG 0
+#define HTTPCLIENT_DEBUG 0  /**< HTTP client debug flag */
 
-#define HTTP_PORT   80   /* HTTP default port */
-#define HTTPS_PORT  443  /* HTTPS default port */
+#define HTTP_PORT   80      /**<  HTTP default port */
+#define HTTPS_PORT  443     /**<  HTTPS default port */
 
 #define HTTP_ALWAYS_HTTP_FLAG 0x80
 

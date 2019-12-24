@@ -24,10 +24,14 @@
 extern "C" {
 #endif
 
+/** @defgroup aos_http_parser http_parser
+  * @{
+  */
+
 /* Also update SONAME in the Makefile whenever you change these. */
-#define HTTP_PARSER_VERSION_MAJOR 2
-#define HTTP_PARSER_VERSION_MINOR 9
-#define HTTP_PARSER_VERSION_PATCH 0
+#define HTTP_PARSER_VERSION_MAJOR 2   /**< http parser major version */
+#define HTTP_PARSER_VERSION_MINOR 9   /**< http parser minor version */
+#define HTTP_PARSER_VERSION_PATCH 0   /**< http parser patch version */
 
 #include <stddef.h>
 #if defined(_WIN32) && !defined(__MINGW32__) && \
@@ -45,11 +49,8 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-/* Compile with -DHTTP_PARSER_STRICT=0 to make less checks, but run
- * faster
- */
 #ifndef HTTP_PARSER_STRICT
-# define HTTP_PARSER_STRICT 1
+# define HTTP_PARSER_STRICT 1 /**< Compile with -DHTTP_PARSER_STRICT=0 to make less checks, but run faster */
 #endif
 
 /* Maximium header size allowed. If the macro is not defined
@@ -204,6 +205,7 @@ enum http_status
   /* icecast */                     \
   XX(33, SOURCE,      SOURCE)       \
 
+/* @brief http method */
 enum http_method
   {
 #define XX(num, name, string) HTTP_##name = num,
@@ -211,11 +213,10 @@ enum http_method
 #undef XX
   };
 
-
+/* @brief http parser type */
 enum http_parser_type { HTTP_REQUEST, HTTP_RESPONSE, HTTP_BOTH };
 
-
-/* Flag values for http_parser.flags field */
+/* @brief Flag values for http_parser.flags field */
 enum flags
   { F_CHUNKED               = 1 << 0
   , F_CONNECTION_KEEP_ALIVE = 1 << 1
@@ -278,66 +279,65 @@ enum flags
   XX(UNKNOWN, "an unknown error occurred")
 
 
-/* Define HPE_* values for each errno value above */
+/* @brief Define HPE_* values for each errno value above */
 #define HTTP_ERRNO_GEN(n, s) HPE_##n,
 enum http_errno {
   HTTP_ERRNO_MAP(HTTP_ERRNO_GEN)
 };
 #undef HTTP_ERRNO_GEN
 
-
 /* Get an http_errno value from an http_parser */
 #define HTTP_PARSER_ERRNO(p)            ((enum http_errno) (p)->http_errno)
 
-
+/* @brief http parser structure */
 struct http_parser {
   /** PRIVATE **/
-  unsigned int type : 2;         /* enum http_parser_type */
-  unsigned int flags : 8;        /* F_* values from 'flags' enum; semi-public */
-  unsigned int state : 7;        /* enum state from http_parser.c */
-  unsigned int header_state : 7; /* enum header_state from http_parser.c */
-  unsigned int index : 7;        /* index into current matcher */
+  unsigned int type : 2;         /**< enum http_parser_type */
+  unsigned int flags : 8;        /**< F_* values from 'flags' enum; semi-public */
+  unsigned int state : 7;        /**< enum state from http_parser.c */
+  unsigned int header_state : 7; /**< enum header_state from http_parser.c */
+  unsigned int index : 7;        /**< index into current matcher */
   unsigned int lenient_http_headers : 1;
 
-  uint32_t nread;          /* # bytes read in various scenarios */
-  uint64_t content_length; /* # bytes in body (0 if no Content-Length header) */
+  uint32_t nread;          /**< # bytes read in various scenarios */
+  uint64_t content_length; /**< # bytes in body (0 if no Content-Length header) */
 
   /** READ-ONLY **/
-  unsigned short http_major;
-  unsigned short http_minor;
-  unsigned int status_code : 16; /* responses only */
-  unsigned int method : 8;       /* requests only */
-  unsigned int http_errno : 7;
+  unsigned short http_major;     /**< http major version */
+  unsigned short http_minor;     /**< http minor version */
+  unsigned int status_code : 16; /**< responses only     */
+  unsigned int method : 8;       /**< requests only      */
+  unsigned int http_errno : 7;   /**< http errno         */
 
   /* 1 = Upgrade header was present and the parser has exited because of that.
    * 0 = No upgrade header present.
    * Should be checked when http_parser_execute() returns in addition to
    * error checking.
    */
-  unsigned int upgrade : 1;
+  unsigned int upgrade : 1;     /**< upgrade header present */
 
   /** PUBLIC **/
-  void *data; /* A pointer to get hook to the "connection" or "socket" object */
+  void *data; /**<  A pointer to get hook to the "connection" or "socket" object */
 };
 
-
+/* @brief http parser settings structure */
 struct http_parser_settings {
-  http_cb      on_message_begin;
-  http_data_cb on_url;
-  http_data_cb on_status;
-  http_data_cb on_header_field;
-  http_data_cb on_header_value;
-  http_cb      on_headers_complete;
-  http_data_cb on_body;
-  http_cb      on_message_complete;
+  http_cb      on_message_begin;        /**< on message begin callback  */
+  http_data_cb on_url;                  /**< on url callback            */
+  http_data_cb on_status;               /**< on status callback         */
+  http_data_cb on_header_field;         /**< on header field callback   */
+  http_data_cb on_header_value;         /**< on header value callback   */
+  http_cb      on_headers_complete;     /**< on headers complete callback */
+  http_data_cb on_body;                 /**< on body callback           */
+  http_cb      on_message_complete;     /**< on message complete callback */
   /* When on_chunk_header is called, the current chunk length is stored
    * in parser->content_length.
    */
-  http_cb      on_chunk_header;
-  http_cb      on_chunk_complete;
+  http_cb      on_chunk_header;         /**< on chunk header callback   */
+  http_cb      on_chunk_complete;       /**< on chunk complete callback */
 };
 
-
+/* @brief http parser url fields */
 enum http_parser_url_fields
   { UF_SCHEMA           = 0
   , UF_HOST             = 1
@@ -349,8 +349,7 @@ enum http_parser_url_fields
   , UF_MAX              = 7
   };
 
-
-/* Result structure for http_parser_parse_url().
+/* @brief Result structure for http_parser_parse_url().
  *
  * Callers should index into field_data[] with UF_* values iff field_set
  * has the relevant (1 << UF_*) bit set. As a courtesy to clients (and
@@ -358,18 +357,19 @@ enum http_parser_url_fields
  * a uint16_t.
  */
 struct http_parser_url {
-  uint16_t field_set;           /* Bitmask of (1 << UF_*) values */
-  uint16_t port;                /* Converted UF_PORT string */
+  uint16_t field_set;           /**< Bitmask of (1 << UF_*) values */
+  uint16_t port;                /**< Converted UF_PORT string      */
 
   struct {
-    uint16_t off;               /* Offset into buffer in which field starts */
-    uint16_t len;               /* Length of run in buffer */
+    uint16_t off;               /**< Offset into buffer in which field starts */
+    uint16_t len;               /**< Length of run in buffer       */
   } field_data[UF_MAX];
 };
 
-
-/* Returns the library version. Bits 16-23 contain the major version number,
+/**
+ * Returns the library version. Bits 16-23 contain the major version number,
  * bits 8-15 the minor version number and bits 0-7 the patch level.
+ * @note:
  * Usage example:
  *
  *   unsigned long version = http_parser_version();
@@ -380,59 +380,116 @@ struct http_parser_url {
  */
 unsigned long http_parser_version(void);
 
+/**
+ * Initialize http parser initialization
+ * @param[in] parser    a pointer point to http_parser structure
+ * @param[in] type      http parser type
+ * @return    none
+ */
 void http_parser_init(http_parser *parser, enum http_parser_type type);
 
-
-/* Initialize http_parser_settings members to 0
+/**
+ * Initialize http_parser_settings members to 0
+ * @param[in] setting    a pointer point to http_parser_settings structure
+ * @return    none
  */
 void http_parser_settings_init(http_parser_settings *settings);
 
-
-/* Executes the parser. Returns number of parsed bytes. Sets
- * `parser->http_errno` on error. */
+/**
+ * Executes the parser
+ * @param[in] parser   a pointer point to http_parser structure
+ * @param[in] settings a pointer point to http_parser_settings structure
+ * @param[in] data     data
+ * @param[in] len      len
+ * @return   the number of parsed bytes. Sets `parser->http_errno` on error.
+ */
 size_t http_parser_execute(http_parser *parser,
                            const http_parser_settings *settings,
                            const char *data,
                            size_t len);
 
-
-/* If http_should_keep_alive() in the on_headers_complete or
+/** 
+ * If http_should_keep_alive() in the on_headers_complete or
  * on_message_complete callback returns 0, then this should be
  * the last message on the connection.
+ * @return    0, in the on_headers_complete or on_message_complete. Others, failure
+ * @note
  * If you are the server, respond with the "Connection: close" header.
  * If you are the client, close the connection.
  */
 int http_should_keep_alive(const http_parser *parser);
 
-/* Returns a string version of the HTTP method. */
+/**
+ * Returns a string version of the HTTP method.
+ * @param[in] m      http method
+ * @return    http method string
+ */
 const char *http_method_str(enum http_method m);
 
-/* Returns a string version of the HTTP status code. */
+/**
+ * Returns a string version of the HTTP status code.
+ * @param[in] s      http status
+ * @return    http status string
+ */
 const char *http_status_str(enum http_status s);
 
-/* Return a string name of the given error */
+/**
+ * Return a string name of the given error
+ * @param[in] err    http errno
+ * @return    http errno name
+ */
 const char *http_errno_name(enum http_errno err);
 
-/* Return a string description of the given error */
+/**
+ * Return a string description of the given error
+ * @param[in] err    http errno
+ * @return    http errno dscription
+ */
 const char *http_errno_description(enum http_errno err);
 
-/* Initialize all http_parser_url members to 0 */
+/**
+ * Initialize all http_parser_url members to 0
+ * @param[in] u      a pointer point to http_parser_url structure.
+ * @return    none
+ */
 void http_parser_url_init(struct http_parser_url *u);
 
-/* Parse a URL; return nonzero on failure */
+/**
+ * Parse a URL
+ * @param[in] buf         a pointer point to the buffer
+ * @param[in] buflen      buffer length
+ * @param[in] is_connect  1 will be strictly checked. If there is no port or schema in the URL,
+                          will fail and return a non-zero value. 0 will be weakly check
+ * @param[in] u           a pointer point to the http_parser_url structure
+ * @return    zero on success. others, nonzero on failure
+ */
 int http_parser_parse_url(const char *buf, size_t buflen,
                           int is_connect,
                           struct http_parser_url *u);
 
-/* Pause or un-pause the parser; a nonzero value pauses */
+/**
+ * Pause or un-pause the parser
+ * @param[in] parser  a pointer point to http_parser structure.
+ * @param[in] paused  a nonzero value pauses
+ * @return           none
+ */
 void http_parser_pause(http_parser *parser, int paused);
 
-/* Checks if this is the final chunk of the body. */
+/**
+ * Checks if this is the final chunk of the body.
+ * @param[in] parser  a pointer point to http_parser structure.
+ * @return    1, body is final. Others, not.
+ */
 int http_body_is_final(const http_parser *parser);
 
-/* Change the maximum header size provided at compile time. */
+/**
+ * Change the maximum header size provided at compile time.
+ * @param[in] size   max header size
+ * @return           none
+ */
 void http_parser_set_max_header_size(uint32_t size);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif
