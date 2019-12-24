@@ -62,7 +62,7 @@ static const char *ca_cert = \
 };
 #endif
 
-/* httpc get method demo */
+/*@brief http get yts test */
 static int yts_http_get()
 {
     httpclient_t client = {0};
@@ -80,8 +80,10 @@ static int yts_http_get()
     client.client_cert_len = strlen(ca_cert);
 #endif
     memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
+    /* Sets a buffer to store the result */
+    client_data.response_buf = buf;
+    /* Sets the buffer size */
+    client_data.response_buf_len = BUF_SIZE;
     ret = httpc_get(&client, geturl, &client_data);
     YUNIT_ASSERT( 0 <= ret );
     if( 0 <= ret ) {
@@ -95,7 +97,7 @@ static int yts_http_get()
     return ret;
 }
 
-/* httpc post method demo */
+/*@brief http post yts test */
 static int yts_http_post()
 {
     char *header = "deviceKey:FZoo0S07CpwUHcrt\r\n";
@@ -112,25 +114,44 @@ static int yts_http_post()
         return -1;
     }
     memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    httpc_set_custom_header(&client, header);  //Sets the custom header if needed.
-    client_data.post_buf = post_data;  //Sets the user data to be posted.
-    client_data.post_buf_len = strlen(post_data);  //Sets the post data length.
-    client_data.post_content_type = content_type;  //Sets the content type.
+    /* Sets a buffer to store the result */
+    client_data.response_buf = buf;
+    /* Sets the buffer size */
+    client_data.response_buf_len = BUF_SIZE;
+    /* Sets the custom header if needed */
+    httpc_set_custom_header(&client, header);
+    /* Sets the user data to be posted */
+    client_data.post_buf = post_data;
+    /* Sets the post data length */
+    client_data.post_buf_len = strlen(post_data);
+    /* Sets the content type */
+    client_data.post_content_type = content_type;
     ret = httpc_post(&client, posturl, &client_data);
     YUNIT_ASSERT( 0 <= ret );
+
     if( 0 <= ret ) {
+        int code;
+        char* data;
+        int data_len;
+        char content_len[8];
+
         LOGD(TAG, "Data received: %s", client_data.response_buf);
+        code = httpc_get_response_code(client);
+        LOGD(TAG, "Response code: %d", ret);
+        httpclient_get_response_header_value(client_data.response_buf, "Content-Length", data, &data_len);
+        memcpy(content_len, data, data_len);
+        LOGD(TAG, "Content-Length is %s", content_len);
     }
     else {
         LOGE(TAG, "http client post test failed and ret=%d errno=%d", ret, errno);
     }
+
+
     free(buf);
     return ret;
 }
 
-/* httpc put method demo */
+/* @brief http put yts test */
 static int yts_http_put()
 {
     char *content_type = "text/csv";
@@ -146,15 +167,30 @@ static int yts_http_put()
         return -1;
     }
     memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
-    client_data.post_buf = put_data;  //Sets the user data to be put.
-    client_data.post_buf_len = strlen(put_data);  //Sets the put data length.
-    client_data.post_content_type = content_type;  //Sets the content type.
+    /* Sets a buffer to store the result */
+    client_data.response_buf = buf;
+    /* Sets the buffer size */
+    client_data.response_buf_len = BUF_SIZE;
+    /* Sets the user data to be put */
+    client_data.post_buf = put_data;
+    /* Sets the put data length */
+    client_data.post_buf_len = strlen(put_data);
+    /* Sets the content type */
+    client_data.post_content_type = content_type;
     ret = httpc_put(&client, puturl, &client_data);
-    YUNIT_ASSERT( 0 == ret );
-    if( ret == 0 ) {
+    YUNIT_ASSERT( 0 <= ret );
+    if( 0 <= ret ) {
+        int code;
+        char* data;
+        int data_len;
+        char content_len[8];
+
         LOGD(TAG, "Data received: %s", client_data.response_buf);
+        code = httpc_get_response_code(client);
+        LOGD(TAG, "Response code: %d", ret);
+        httpclient_get_response_header_value(client_data.response_buf, "Content-Length", data, &data_len);
+        memcpy(content_len, data, data_len);
+        LOGD(TAG, "Content-Length is %s", content_len);
     }
     else {
         LOGE(TAG, "http client put test failed and ret=%d errno=%d", ret, errno);
@@ -163,7 +199,7 @@ static int yts_http_put()
     return ret;
 }
 
-/* httpc put delete demo */
+/*@brief http delete yts test */
 static int yts_http_delete()
 {
     httpclient_t client = {0};
@@ -177,8 +213,10 @@ static int yts_http_delete()
         return -1;
     }
     memset(buf, 0, BUF_SIZE);
-    client_data.response_buf = buf;  //Sets a buffer to store the result.
-    client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
+    /* Sets a buffer to store the result */
+    client_data.response_buf = buf;
+    /* Sets the buffer size */
+    client_data.response_buf_len = BUF_SIZE;
     ret = httpc_delete(&client, deleteurl, &client_data);
     YUNIT_ASSERT( 0 <= ret );
     if( 0 <= ret ) {
@@ -191,8 +229,7 @@ static int yts_http_delete()
     return ret;
 }
 
-/* httpc test demo */
-
+/* @brief httpc api yts test */
 #define HTTPS_HDR_SIZE 128
 #define REQ_BUF_SIZE 1024
 #define RSP_BUF_SIZE 2048
@@ -208,7 +245,8 @@ static HTTPC_RESULT yts_http_test()
     http_rsp_info_t rsp_info;
     char *content;
 
-    http_client_initialize();
+    ret = http_client_initialize();
+    YUNIT_ASSERT( 0 == ret );
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -225,16 +263,16 @@ static HTTPC_RESULT yts_http_test()
     settings.req_buf = req_buf;
     settings.req_buf_size = REQ_BUF_SIZE;
     httpc_handle = httpc_init(&settings);
+    YUNIT_ASSERT( 0 != httpc_handle );
     if (httpc_handle == 0) {
-        YUNIT_ASSERT( 0 != httpc_handle );
         LOGE(TAG, "http session init fail");
         close(fd);
         goto exit;
     }
 
     ret = httpc_construct_header(hdr, HTTPS_HDR_SIZE, "Accept", "*/*");
+    YUNIT_ASSERT( 0 <= ret );
     if (ret < 0) {
-        YUNIT_ASSERT( 0 <= ret );
         LOGE(TAG, "http construct header fail ret=%d\n", ret);
         close(fd);
         httpc_deinit(httpc_handle);
@@ -242,8 +280,8 @@ static HTTPC_RESULT yts_http_test()
     }
 
     ret = httpc_send_request(httpc_handle, HTTP_GET, NULL, hdr, NULL, NULL, 0);
+    YUNIT_ASSERT( HTTP_SUCCESS == ret );
     if (ret != HTTP_SUCCESS) {
-        YUNIT_ASSERT( HTTP_SUCCESS == ret );
         LOGE(TAG, "http send request fail ret=%d\n", ret);
         close(fd);
         httpc_deinit(httpc_handle);
@@ -267,7 +305,8 @@ static HTTPC_RESULT yts_http_test()
     }
 
     close(fd);
-    httpc_deinit(httpc_handle);
+    ret = httpc_deinit(httpc_handle);
+    YUNIT_ASSERT( 0 == ret );
 
 exit:
     LOGE(TAG, "yts_http_test() result:%d errno=%d", ret, errno);
@@ -294,7 +333,7 @@ static void teardown(void)
 
 }
 
-/* Current http put/delete method url is abnormal */
+/* @brief Current http put/delete method url is abnormal */
 static yunit_test_case_t aos_http_testcases[] = {
     { "yts http get",      yts_http_get},
     { "yts http post",     yts_http_post},
