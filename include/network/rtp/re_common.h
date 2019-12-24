@@ -12,6 +12,20 @@
  * @{
  */
 
+/** Linked-list element */
+struct le {
+	struct le *prev;    /**< Previous element                    */
+	struct le *next;    /**< Next element                        */
+	struct list *list;  /**< Parent list (NULL if not linked-in) */
+	void *data;         /**< User-data                           */
+};
+
+/** Defines a linked list */
+struct list {
+	struct le *head;  /**< First list element */
+	struct le *tail;  /**< Last list element  */
+};
+
 /** Defines a pointer-length string type */
 struct pl {
         const char *p;  /**< Pointer to string */
