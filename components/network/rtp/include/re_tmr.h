@@ -6,22 +6,9 @@
 
 #ifndef RE_TMR_H
 #define RE_TMR_H
-
+#include "re_common.h"
 struct re_printf;
 
-/** Linked-list element */
-struct le {
-	struct le *prev;    /**< Previous element                    */
-	struct le *next;    /**< Next element                        */
-	struct list *list;  /**< Parent list (NULL if not linked-in) */
-	void *data;         /**< User-data                           */
-};
-
-/** Defines a linked list */
-struct list {
-	struct le *head;  /**< First list element */
-	struct le *tail;  /**< Last list element  */
-};
 
 /**
  * Defines the timeout handler
