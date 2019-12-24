@@ -42,7 +42,7 @@ espos_time_t espos_ticks_to_ms(espos_tick_t ticks)
 
 void espos_add_tick_count(size_t t)
 {
-    g_tick_count += (sys_time_t)t;
+    g_tick_count += (tick_t)t;
 }
 
 size_t espos_get_expected_idle_time(void)

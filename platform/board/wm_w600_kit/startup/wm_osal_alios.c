@@ -106,7 +106,7 @@ tls_os_status_t tls_os_task_create(tls_os_task_t *task,
 	{
 		error = krhino_task_create(task, name, param, prio, 0, stk_start, stk_size/4, entry, 1);
 	}
-	
+
     if (error == RHINO_SUCCESS)
         os_status = TLS_OS_SUCCESS;
     else
@@ -133,7 +133,7 @@ tls_os_status_t tls_os_task_create(tls_os_task_t *task,
 */
 #if ( INCLUDE_vTaskDelete == 1 )
 tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
-{	
+{
 
 	return TLS_OS_SUCCESS;
 }
@@ -209,7 +209,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 		if (*sem == NULL)
 			return TLS_OS_ERROR;
 	}
-    return aos_sem_new(*sem, cnt); 
+    return aos_sem_new(*sem, cnt);
 }
 
 
@@ -228,7 +228,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 *********************************************************************************************************
 */
  tls_os_status_t tls_os_sem_delete(tls_os_sem_t *sem)
-{	
+{
 	if (sem){
 		aos_sem_free(sem);
 		tls_mem_free(sem);
@@ -264,7 +264,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 		time = AOS_WAIT_FOREVER;
 	else
 		time = wait_time*1000/HZ;
-	return aos_sem_wait(sem, time);	
+	return aos_sem_wait(sem, time);
 }
 
 /*
@@ -315,7 +315,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 */
 
  tls_os_status_t tls_os_queue_create(tls_os_queue_t **queue, u32 queue_size)
-{   
+{
 #if TLS_USE_AOS_QUEUE
 	u8 *buf = NULL;
 
@@ -324,8 +324,8 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 		*queue = tls_mem_alloc(sizeof(tls_os_queue_t *));
 		if (*queue == NULL)
 			return TLS_OS_ERROR;
-	}	 
-	 
+	}
+
 	buf = tls_mem_alloc(queue_size * sizeof(void *));
 	if (buf == NULL)
 	{
@@ -432,7 +432,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 
 	return aos_queue_recv(queue, xTicksToWait, msg, &msg_size);
 #else
-	
+
 	u8 error;
 	tls_os_status_t os_status;
 	unsigned int xTicksToWait;
@@ -443,7 +443,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 		xTicksToWait = 0xFFFFFFFF;
 	else
 		xTicksToWait = wait_time;
-	return krhino_queue_recv(queue,xTicksToWait, msg);	
+	return krhino_queue_recv(queue,xTicksToWait, msg);
 #endif
 }
 
@@ -547,10 +547,10 @@ u32 os_cnter = 0;
         bool repeat,
         u8 *name)
 {
-    sys_time_t repeat_period = 0;
+    tick_t repeat_period = 0;
 #if TLS_USE_AOS_TIMER
 	period = period * 1000 / HZ;
-	repeat_period  = repeat ? period : 0;	
+	repeat_period  = repeat ? period : 0;
     //if (*timer == NULL)
 	{
 		*timer = tls_mem_alloc(sizeof(tls_os_timer_t*));
@@ -560,11 +560,11 @@ u32 os_cnter = 0;
 	//printf("timer:%p\n", *timer);
     return aos_timer_new_ext(*timer, callback, callback_arg, period, repeat_period, 0);
 #else
-	repeat_period  = repeat?period:0;	
+	repeat_period  = repeat?period:0;
 
 	return krhino_timer_dyn_create(timer, name, callback, period, repeat_period, callback_arg, 0);
 #endif
-	
+
 }
 
 /*
@@ -586,7 +586,7 @@ u32 os_cnter = 0;
 	u8 isrcount = 0;
 
 	return krhino_timer_start(timer);
-#endif	
+#endif
 }
 /*
 ************************************************************************************************************************
@@ -607,9 +607,9 @@ u32 os_cnter = 0;
 	aos_timer_change(timer, ticks*1000/HZ);
 	aos_timer_start(timer);
 #else
-	sys_time_t repeat_ticks = ((ktimer_t *)timer)->round_ticks ? ticks : 0;
-	
-	krhino_timer_change(timer, ticks, repeat_ticks);	
+	tick_t repeat_ticks = ((ktimer_t *)timer)->round_ticks ? ticks : 0;
+
+	krhino_timer_change(timer, ticks, repeat_ticks);
 	tls_os_timer_start(timer);
 #endif
 }
@@ -691,7 +691,7 @@ u32 os_cnter = 0;
 */
 void tls_os_disp_task_stat_info(void)
 {
-	
+
 }
 /*
 *********************************************************************************************************
