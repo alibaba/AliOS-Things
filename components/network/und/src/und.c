@@ -15,6 +15,10 @@
 #include "und_manage.h"
 #include "und_platform.h"
 
+#ifdef AOS_COMP_DEBUG
+#include "debug_api.h"
+#endif
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
@@ -63,6 +67,13 @@ int und_init()
     }
 
     undp_mutex_unlock(ctx->mutex);
+
+#ifdef AOS_COMP_DEBUG
+    und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, (int)debug_reboot_reason_get());
+#else
+    und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, UND_STATIS_DEV_REPOWER_REASON);
+#endif
+
     return UND_SUCCESS;
 
 UND_INIT_FAIL:
