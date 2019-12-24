@@ -1,6 +1,12 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
+/**
+ * @file httpapp.c
+ *
+ * This file includes sample code of how to do http communication.
+ *
+ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +28,8 @@
 
 #define CONFIG_HTTP_CONTINUE_TEST 0
 
-enum {
+/* @brief http app command */
+enum httpapp_command{
     HTTPAPP_AUTH,
     HTTPAPP_OTA,
     HTTPAPP_OTA_HEAD,
@@ -34,41 +41,49 @@ enum {
     HTTPAPP_INVALID,
 };
 
+/* @brief http app status */
 bool httpapp_running = false;
+/* @brief http app command */
 int command = HTTPAPP_INVALID;
+/* @brief http connection settings */
 httpc_connection_t settings;
+/* @brief ip got finished flag */
 static bool _ip_got_finished = false;
 
-#if 1
-#define PRODUCT_KEY             "a1cXH4Sgvdu"
-#define PRODUCT_SECRET          "7PCG4aRnzdetZaIH"
-#define DEVICE_NAME             "alios_net_test_1_1"
-#define DEVICE_SECRET           "UgMue4eixCAKyGnhMjde51Bbs07c3tdW"
-#else
-#define PRODUCT_KEY             "a1MZxOdcBnO"
-#define PRODUCT_SECRET          "h4I4dneEFp7EImTv"
-#define DEVICE_NAME             "test_01"
-#define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
-#endif
-
+/* @brief http app handle */
 httpc_handle_t httpapp_handle = 0;
 #if CONFIG_HTTP_SECURE
+/* @brief auth server name */
 char auth_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-auth.cn-shanghai.aliyuncs.com/";
+/* @brief times of sending auth request */
 uint32_t auth_req_times = 0;
+/* @brief times of reuqest failure      */
 uint32_t auth_req_fail_times = 0;
+/* @brief times of receiving auth response */
 uint32_t auth_rsp_times = 0;
 #endif
+/* @brief ota server name */
 static char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80";
+/* @brief oss server name */
 static char oss_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://aliosthings.oss-cn-hangzhou.aliyuncs.com/";
+/* @brief times of sending ota request */
 uint32_t ota_req_times = 0;
+/* @brief times of ota request failure */
 uint32_t ota_req_fail_times = 0;
+/* @brief times of receiving ota response */
 uint32_t ota_rsp_times = 0;
+/* @brief ota header found flag */
 bool ota_header_found = false;
+/* @brief ota file size */
 int32_t ota_file_size = 0;
+/* @brief ota receive data size */
 int32_t ota_rx_size = 0;
 
+/* @brief times of sending ota head request */
 uint32_t ota_head_req_times = 0;
+/* @brief times of ota head request failure */
 uint32_t ota_head_req_fail_times = 0;
+/* @brief times of receiving ota head response */
 uint32_t ota_head_rsp_times = 0;
 
 #if CONFIG_HTTP_SECURE
@@ -99,8 +114,14 @@ static const char *ca_cert = \
 };
 #endif
 
+/* @brief http response buffer */
 #define RSP_BUF_SIZE 2048
 uint8_t rsp_buf[RSP_BUF_SIZE];
+
+#define PRODUCT_KEY             "a1cXH4Sgvdu"
+#define PRODUCT_SECRET          "7PCG4aRnzdetZaIH"
+#define DEVICE_NAME             "alios_net_test_1_1"
+#define DEVICE_SECRET           "UgMue4eixCAKyGnhMjde51Bbs07c3tdW"
 
 #if CONFIG_HTTP_SECURE
 static int8_t hb2hex(uint8_t hb)
@@ -202,6 +223,7 @@ static int32_t calc_sign(char *sign, const char *device_id, const char *product_
     return HTTP_SUCCESS;
 }
 
+/* @brief http sending http auth example */
 #define HTTP_AUTH_HDR_SIZE 128
 #define HTTP_AUTH_DATA_SIZE 512
 #define HTTP_AUTH_SIGN_SIZE 66
@@ -216,6 +238,7 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
     char timestamp[HTTP_AUTH_TS_SIZE] = {"2524608000000"};
     http_rsp_info_t rsp_info;
 
+    /* construct http header*/
     ret = httpc_construct_header(hdr, HTTP_AUTH_HDR_SIZE, "Accept",
                                 "text/xml,text/javascript,text/html,application/json");
     if (ret < 0) {
@@ -223,6 +246,7 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
         return -1;
     }
 
+    /* calculate signature */
     calc_sign(sign, device_id, product_key, device_name, device_secret, timestamp);
     ret = snprintf(data, HTTP_AUTH_DATA_SIZE,
                    "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
@@ -234,6 +258,7 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
         return -1;
     }
 
+    /* sending the signature */
     ret = httpc_send_request(httpapp_handle, HTTP_POST, "/auth/devicename", hdr,
                        "application/x-www-form-urlencoded;charset=utf-8", data, ret);
     ++auth_req_times;
@@ -243,6 +268,7 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
     }
 
     memset(rsp_buf, 0, sizeof(rsp_buf));
+    /* get the response */
     ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
     if (ret < 0) {
         ++auth_req_fail_times;
@@ -271,6 +297,7 @@ exit:
 }
 #endif
 
+/* @brief http ota example */
 #define HTTP_OTA_HDR_SIZE 64
 static int32_t httpapp_ota(const char *uri)
 {
@@ -283,12 +310,14 @@ static int32_t httpapp_ota(const char *uri)
         return HTTP_EARG;
     }
 
+    /* construct http header*/
     ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
     if (ret < 0) {
         LOGE(TAG, "http construct header fail");
         return ret;
     }
 
+    /* sending the http header */
     ret = httpc_send_request(httpapp_handle, HTTP_GET, uri, hdr, NULL, NULL, 0);
     ++ota_req_times;
     if (ret != HTTP_SUCCESS) {
@@ -296,6 +325,7 @@ static int32_t httpapp_ota(const char *uri)
         goto exit;
     }
 
+    /* receiving the payload in a loop */
     while (ota_file_size == 0 || ota_rx_size < ota_file_size) {
         memset(rsp_buf, 0, sizeof(rsp_buf));
         ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
@@ -355,6 +385,7 @@ exit:
     return ret;
 }
 
+/* @brief http ota head example */
 static int32_t httpapp_ota_head(const char *uri)
 {
     char hdr[HTTP_OTA_HDR_SIZE] = {0};
@@ -365,13 +396,15 @@ static int32_t httpapp_ota_head(const char *uri)
     if (uri == NULL) {
         return HTTP_EARG;
     }
-
+ 
+    /* construct http header */
     ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
     if (ret < 0) {
         LOGE(TAG, "http construct header fail");
         return ret;
     }
 
+    /* sending http header */
     ret = httpc_send_request(httpapp_handle, HTTP_HEAD, uri, hdr, NULL, NULL, 0);
     ++ota_head_req_times;
     if (ret != HTTP_SUCCESS) {
@@ -380,6 +413,7 @@ static int32_t httpapp_ota_head(const char *uri)
     }
 
     memset(rsp_buf, 0, sizeof(rsp_buf));
+    /* receiving http response */
     ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 300000);
     if (ret < 0) {
         ++ota_head_req_fail_times;
@@ -407,6 +441,7 @@ exit:
     return ret;
 }
 
+/* http up example */
 #define HTTP_UP_HDR_SIZE 64
 static char bin_to_up[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
 static char httpapp_url[256];
@@ -414,7 +449,6 @@ static char httpapp_data[256];
 static uint32_t up_req_times = 0;
 static uint32_t up_rsp_times = 0;
 static uint32_t up_req_fail_times = 0;
-
 static int32_t httpapp_up(char *uri)
 {
     char hdr[HTTP_UP_HDR_SIZE] = { 0 };
@@ -425,6 +459,7 @@ static int32_t httpapp_up(char *uri)
         return HTTP_EARG;
     }
 
+    /* construct http header */
     ret = httpc_construct_header(hdr, HTTP_UP_HDR_SIZE, "Accept",
                                  "text/xml,text/javascript,text/html,application/json");
     if (ret < 0) {
@@ -432,6 +467,7 @@ static int32_t httpapp_up(char *uri)
         return ret;
     }
 
+    /* sending http request */
     ret = httpc_send_request(httpapp_handle, HTTP_PUT, uri, hdr, "", bin_to_up, sizeof(bin_to_up));
     ++up_req_times;
     if (ret != HTTP_SUCCESS) {
@@ -440,6 +476,7 @@ static int32_t httpapp_up(char *uri)
     }
 
     memset(rsp_buf, 0, sizeof(rsp_buf));
+    /* receiving http response */
     ret = httpc_recv_response(httpapp_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
     if (ret < 0) {
         ++up_req_fail_times;
@@ -468,6 +505,7 @@ exit:
     return ret;
 }
 
+/* @brief http get example */
 #define BUF_SIZE 1024
 static void httpapp_get(char* url)
 {
@@ -481,6 +519,10 @@ static void httpapp_get(char* url)
         LOGE(TAG, "Malloc failed.");
         return -1;
     }
+#if CONFIG_HTTP_SECURE
+    client.client_cert = ca_cert;
+    client.client_cert_len = strlen(ca_cert);
+#endif
     memset(buf, 0, BUF_SIZE);
     client_data.response_buf = buf;
     client_data.response_buf_len = BUF_SIZE;
@@ -492,6 +534,7 @@ static void httpapp_get(char* url)
 
 }
 
+/* @brief http post example */
 static void httpapp_post(char* url, char* post_data)
 {
     char *header = "deviceKey:FZoo0S07CpwUHcrt\r\n";
@@ -520,6 +563,7 @@ static void httpapp_post(char* url, char* post_data)
     return ret;
 }
 
+/* @brief http put example */
 static void httpapp_put(char* url, char* put_data)
 {
     char *content_type = "text/csv";
@@ -546,6 +590,7 @@ static void httpapp_put(char* url, char* put_data)
     return ret;
 }
 
+/* @brief http delete example */
 static void httpapp_delete(char* url)
 {
     httpclient_t client = {0};
@@ -649,6 +694,7 @@ exit:
     aos_post_delayed_action(5000, httpapp_delayed_action, (void *)(long)command);
 }
 
+/*@brief http app help command */
 void httpapp_help_command()
 {
     LOGD(TAG, "Usage: httpapp" );
@@ -673,6 +719,7 @@ void httpapp_help_command()
     LOGD(TAG, "httpapp -d www.aliyun.com" );
 }
 
+/* @brief httpapp command handle */
 static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
 {
     const char *type = argc > 1? argv[1]: "";
@@ -753,6 +800,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
     }
 }
 
+/* @brief http app command */
 static struct cli_command httpapp_cmd = {
     .name = "httpapp",
     .help = "httpapp auth | ota | ota_head | up | stop | get | post | put | delete",
