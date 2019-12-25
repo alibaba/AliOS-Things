@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "k_api.h"
-#include "debug_api.h"
+#include "debug_overview.h"
 
 #define BACK_TRACE_LIMIT 64
 
@@ -145,7 +145,7 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = ets_printf;
     }
 
-    task = debug_task_find(taskname);
+    task = krhino_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;

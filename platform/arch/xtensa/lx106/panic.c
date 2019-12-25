@@ -4,7 +4,7 @@
 #include "frxt/xtensa_api.h"
 
 #ifdef AOS_COMP_DEBUG
-#include "debug_api.h"
+#include "debug_overview.h"
 #include "debug_panic.h"
 #endif
 
