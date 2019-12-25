@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "panic_mpu.h"
 #include "k_compiler.h"
-#include "debug_api.h"
+#include "k_api.h"
 
 typedef struct {
     unsigned long start;
@@ -201,7 +201,7 @@ void debug_task_stack_ovf_check(char *task_name)
         return;
     }
 
-    task = debug_task_find(task_name);
+    task = krhino_task_find(task_name);
     if (task == NULL) {
         printf("error: task do not exist\r\n");
         return;
