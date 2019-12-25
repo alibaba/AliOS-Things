@@ -4,7 +4,8 @@
 
 #ifdef AOS_COMP_DEBUG
 
-#include "debug_api.h"
+#include <stdio.h>
+#include "debug_overview.h"
 
 #define REG_NAME_WIDTH 7
 
