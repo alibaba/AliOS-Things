@@ -10,6 +10,9 @@
 #include <limits.h>
 #include <stdio.h>
 
+#include "k_api.h"
+#include "debug_overview.h"
+
 /* part of ktask_t */
 typedef struct
 {

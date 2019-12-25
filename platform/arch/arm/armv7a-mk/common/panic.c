@@ -4,8 +4,9 @@
 
 #ifdef AOS_COMP_DEBUG
 
-#include "debug_api.h"
 #include "k_arch.h"
+#include "k_api.h"
+#include "debug_overview.h"
 
 #define BACK_TRACE_LIMIT 64
 
@@ -111,18 +112,19 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    task = debug_task_find(taskname);
+    task = krhino_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
     }
 
+/*
     if (debug_task_is_ready(task)) {
         print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
                    taskname);
         return 0;
     }
-
+*/
     getRLfromCtx(task->task_stack, &FP, &LR);
 
     print_func("TaskName  : %s\n", taskname);
