@@ -2,11 +2,16 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_COMP_DEBUG
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
+
+#include "k_api.h"
+#include "debug_overview.h"
 
 /* part of ktask_t */
 typedef struct
@@ -458,3 +463,4 @@ int backtrace_callee(char *PC, int *SP, char *LR,
 
     return lvl;
 }
+#endif

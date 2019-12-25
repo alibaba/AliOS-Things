@@ -4,7 +4,18 @@
 
 #ifdef AOS_COMP_DEBUG
 
-#include "debug_api.h"
+#include "debug_overview.h"
+
+/* part of ktask_t */
+typedef struct
+{
+    void *task_stack;
+}ktask_t_shadow;
+
+extern void krhino_task_deathbed(void);
+extern ktask_t_shadow *debug_task_find(char *name);
+extern int debug_task_is_running(ktask_t_shadow *task);
+extern void *debug_task_stack_bottom(ktask_t_shadow *task);
 
 #if defined(__CC_ARM)
 #ifdef __BIG_ENDIAN
