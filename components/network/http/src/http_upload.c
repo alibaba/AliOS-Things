@@ -142,7 +142,7 @@ static int http_upload_file(char* url, char* src_path)
 }
 
 static struct cli_command http_commands[] = {
-    {"http", "http [-s|-f|-h]", handle_http_upload_command},
+    {"http", "http [-f|-p|-h]", handle_http_upload_command},
 };
 
 int httpclient_cli_register()
