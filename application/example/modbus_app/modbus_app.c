@@ -24,6 +24,7 @@ void mb_main(void)
     mb_status_t status;
     uint16_t    simulator1 = 0, simulator2 = 0;
     uint16_t    data_write = 0, data_resp = 0;
+    uint16_t   *register_buf;
 
     /* The handler is allocated by calling the aos_mbmaster_rtu_init */
     mb_handler_t *mb_handler;
@@ -47,8 +48,8 @@ void mb_main(void)
          * it's equal to data_write.
          * written.
          */
-        status = mbmaster_write_single_register(mb_handler, DEVICE1_SLAVE_ADDR,
-                                                    DEVICE1_REG1_ADDR, data_write, NULL, &data_resp, NULL);
+        status = mbmaster_write_single_register(mb_handler, DEVICE1_SLAVE_ADDR, DEVICE1_REG1_ADDR,
+                                                data_write, NULL, &data_resp, NULL, AOS_WAIT_FOREVER);
         if (status == MB_SUCCESS) {
             if (data_write != data_resp) {
                 LOGE(MODBUSM_APP, "write single register error");
@@ -69,12 +70,13 @@ void mb_main(void)
          * Initiate read holding registers request
          * The buf length needs to be greater than or equal to (REQ_REGISTER_NUMBER * 2)
          */
-        status = mbmaster_read_holding_registers(mb_handler, DEVICE1_SLAVE_ADDR,
-                                                    DEVICE1_REG1_ADDR, REQ_REGISTER_NUMBER, buf, &len);
+        status = mbmaster_read_holding_registers(mb_handler, DEVICE1_SLAVE_ADDR, DEVICE1_REG1_ADDR,
+                                                 REQ_REGISTER_NUMBER, buf, &len, AOS_WAIT_FOREVER);
         if (status == MB_SUCCESS) {
             /* The register length on modbus is 16 bits, big end mode  */
-            simulator1 = (uint16_t)((buf[0] << 8) | buf[1]);
-            simulator2 = (uint16_t)((buf[2] << 8) | buf[3]);
+            register_buf = buf;
+            simulator1 = register_buf[0];
+            simulator2 = register_buf[1];
             LOGI(MODBUSM_APP, "read holding register simulator1: %d,simulator2: %d", simulator1, simulator2);
         } else {
             LOGE(MODBUSM_APP, "read holding register error");
