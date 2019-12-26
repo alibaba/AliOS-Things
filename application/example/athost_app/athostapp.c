@@ -37,7 +37,7 @@
 #endif
 
 #include "athost_export.h"
-#include "athost_import.h"
+#include "hal_athost.h"
 
 #define TAG "athostapp"
 
@@ -158,7 +158,7 @@ static void app_delayed_action(void *arg)
 int application_start(int argc, char *argv[])
 {
 #ifdef AOS_ATCMD
-    /**
+    /*
      * - Step1:
      *
      * Initialize AT device, the athost and the other side of AT will
@@ -170,7 +170,7 @@ int application_start(int argc, char *argv[])
     at_device_init();
 #endif
 
-    /**
+    /*
      * - Step2:
      *
      * Initialize athost core system. Hereafter, the athost will be
