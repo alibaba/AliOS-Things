@@ -63,12 +63,12 @@ mb_status_t mb_serial_finalize(mb_handler_t *handler)
     return MB_SERIAL_UNINIT_FAILED;
 }
 
-mb_status_t mb_serial_frame_send(mb_handler_t *handler)
+mb_status_t mb_serial_frame_send(mb_handler_t *handler, uint32_t timeout)
 {
     int32_t     ret;
     uart_dev_t *uart = (mb_handler_t *)handler->private;
 
-    ret = hal_uart_send(uart, handler->mb_frame_buff, handler->mb_frame_length, 100);
+    ret = hal_uart_send(uart, handler->mb_frame_buff, handler->mb_frame_length, timeout);
     if (ret == 0) {
         return MB_SUCCESS;
     }
