@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <http.h>
 #include <http_parser.h>
 
 static uint32_t max_header_size = HTTP_MAX_HEADER_SIZE;
