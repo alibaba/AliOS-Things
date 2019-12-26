@@ -20,6 +20,8 @@
 #include "aos/kernel.h"
 #include "aos/yloop.h"
 #include "ulog/ulog.h"
+#include "aos/hal/uart.h"
+#include <atcmd_config_module.h>
 #include <network/network.h>
 #include <netmgr.h>
 
@@ -75,7 +77,7 @@ static void sal_tcp_demo()
         return;
     }
 
-    /**
+    /*
      * getaddrinfo() returns a list of address structures.
      * Try each address until we successfully connect.
      * If socket fails, we (close the socket
@@ -154,7 +156,7 @@ ret:
 /* UDP payload for testing, binary data. */
 static char *udp_payload = "\x40\x01\x73\x6a\x37\x63\x6f\x61\x70\x2e\x6d\x65";
 
-/**
+/*
  * This is UDP client demo, which demenstrates:
  *   (1) create an UDP socket;
  *   (2) send data to UDP server via UDP socket;
@@ -231,12 +233,34 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
     }
 }
 
-/**
+/*
  * Application entry.
  */
 int application_start(int argc, char *argv[])
 {
-    /**
+    sal_device_config_t data = {0};
+
+    /*
+     * uart port number:
+     *    - 1
+     * @note subject to change according to your case.
+     *
+     * uart config:
+     *    - 115200
+     *    - 8n1
+     *    - no flow control
+     *    - tx/rx mode
+     * @note These configs are subject to change according to the module you use.
+     */
+    data.uart_dev.port = 1;
+    data.uart_dev.config.baud_rate = 115200;
+    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
+    data.uart_dev.config.parity = NO_PARITY;
+    data.uart_dev.config.stop_bits  = STOP_BITS_1;
+    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    data.uart_dev.config.mode = MODE_TX_RX;
+
+    /*
      * Register and Initialize SAL device.
      *
      * Attention:
@@ -249,19 +273,22 @@ int application_start(int argc, char *argv[])
      *         in which the <device_name> is the module name of the AT device,
      *         and fill in the <dev_para> with UART config parameters.
      */
-    sal_add_dev(NULL, NULL);
+    if (sal_add_dev("bk7231", &data) != 0) {
+        LOG("Failed to add SAL device!");
+        return -1;
+    }
 
     /* Initialize the SAL core. */
     sal_init();
 
-    /**
+    /*
      * Register WiFi event handler, SAL device will post the GOT_IP
      * event once the network is connected, only after the event socket
      * code can be executed.
      */
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
 
-    /**
+    /*
      * Initialize and start netmgr core, and register netmgr commands,
      * which users may need to trigger network connectin if using
      * WiFi modules.
