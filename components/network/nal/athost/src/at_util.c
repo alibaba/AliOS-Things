@@ -10,7 +10,7 @@
 #include "ulog/ulog.h"
 
 #include "at_util.h"
-#include "athost_import.h"
+#include "hal_athost.h"
 
 #define TAG "AT_UTIL"
 
