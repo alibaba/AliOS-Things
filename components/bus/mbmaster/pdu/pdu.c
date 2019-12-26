@@ -20,12 +20,48 @@ mb_status_t pdu_type122_assemble(mb_handler_t *req_handler, uint8_t field0, uint
     }
 
     pdu_buf[0] = field0;
-    pdu_buf[1] = htobe16(field1);
-    pdu_buf[2] = htobe16(field1) >> 8;
-    pdu_buf[3] = htobe16(field2);
-    pdu_buf[4] = htobe16(field2) >> 8;
+    pdu_buf[1] = htobe16(field1) & 0xFF;
+    pdu_buf[2] = (htobe16(field1) >> 8) & 0xFF;
+    pdu_buf[3] = htobe16(field2) & 0xFF;
+    pdu_buf[4] = (htobe16(field2) >> 8) & 0xFF;
 
     req_handler->pdu_length = 5;
+
+    return status;
+}
+
+/**
+ * Used for 1221n format frame assemble: 1byte function_code:2byte start address:2byte quantity:1byte counts: n byte outputs data
+ * The function code that conform to this format : 0x0F 0x10
+ */
+mb_status_t pdu_type1221n_assemble(mb_handler_t *req_handler, uint8_t function_code, uint16_t start_addr,
+                                   uint16_t quantity, uint8_t byte_count, uint8_t *outputs_buf)
+{
+    uint8_t     i;
+    mb_status_t status  = MB_SUCCESS;
+    uint8_t    *pdu_buf = &req_handler->mb_frame_buff[req_handler->pdu_offset];
+    uint16_t   *register_data = outputs_buf;
+
+    if (req_handler->slave_addr > SLAVE_ADDR_MAX) {
+        status = MB_INVALID_SLAVE_ADDR;
+        return status;
+    }
+
+    pdu_buf[0] = function_code;
+    pdu_buf[1] = htobe16(start_addr) & 0xFF;
+    pdu_buf[2] = (htobe16(start_addr) >> 8) & 0xFF;
+    pdu_buf[3] = htobe16(quantity) & 0xFF;
+    pdu_buf[4] = (htobe16(quantity) >> 8) & 0xFF;
+    pdu_buf[5] = byte_count;
+
+    if (function_code == FUNC_CODE_WRITE_MULTIPLE_REGISTERS) {
+        for (i = 0; i < quantity; i++) {
+            register_data[i] = htobe16(register_data[i]);
+        }
+    }
+    memcpy(&pdu_buf[6], register_data, byte_count);
+
+    req_handler->pdu_length = 6 + byte_count;
 
     return status;
 }
@@ -38,8 +74,10 @@ mb_status_t pdu_type122_assemble(mb_handler_t *req_handler, uint8_t field0, uint
 mb_status_t pdu_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint8_t *respond_buf,
                                     uint8_t *respond_count)
 {
+    uint32_t    i;
     mb_status_t status  = MB_SUCCESS;
     uint8_t    *pdu_buf = &req_handler->mb_frame_buff[req_handler->pdu_offset];
+    uint16_t   *register_data;
 
     if ((respond_buf == NULL) || (respond_count == NULL)) {
         status = MB_INVALID_PARAM;
@@ -62,7 +100,15 @@ mb_status_t pdu_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_
         return status;
     }
 
-    memcpy(respond_buf, &pdu_buf[2], *respond_count);
+    register_data = &pdu_buf[2];
+
+    if ((function_code == FUNC_CODE_READ_HOLDING_REGISTERS) || (function_code == FUNC_CODE_READ_INPUT_REGISTERS)) {
+        for (i = 0; i < (*respond_count / 2); i++) {
+            register_data[i] = betoh16(register_data[i]);
+        }
+    }
+
+    memcpy(respond_buf, register_data, *respond_count);
     return status;
 }
 
@@ -86,12 +132,16 @@ mb_status_t pdu_type122_disassemble(mb_handler_t *req_handler, uint8_t function_
         return status;
     }
 
+    /* For FUNC_CODE_WRITE_SINGLE_COIL, 0xff00 means ON and 0x0000 means OFF,
+     * so conversion is also required */
     if (data1 != NULL) {
         revdata = pdu_buf[2];
         revdata = pdu_buf[1] | (revdata << 8);
         *data1  = betoh16(revdata);
     }
 
+    /* For FUNC_CODE_WRITE_SINGLE_COIL, 0xff00 means ON and 0x0000 means OFF,
+     * so conversion is also required */
     if (data2 != NULL) {
         revdata = pdu_buf[4];
         revdata = pdu_buf[3] | (revdata << 8);

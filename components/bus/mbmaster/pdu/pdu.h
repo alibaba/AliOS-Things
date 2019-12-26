@@ -21,12 +21,14 @@ extern "C" {
 #define SLAVE_ADDR_MAX       247
 
 /* func code */
-#define FUNC_CODE_READ_COILS             0x01
-#define FUNC_CODE_READ_DISCRETE_INPUTS   0x02
-#define FUNC_CODE_READ_HOLDING_REGISTERS 0x03
-#define FUNC_CODE_READ_INPUT_REGISTERS   0x04
-#define FUNC_CODE_WRITE_SINGLE_COIL      0x05
-#define FUNC_CODE_WRITE_SINGLE_REGISTERS 0x06
+#define FUNC_CODE_READ_COILS               0x01
+#define FUNC_CODE_READ_DISCRETE_INPUTS     0x02
+#define FUNC_CODE_READ_HOLDING_REGISTERS   0x03
+#define FUNC_CODE_READ_INPUT_REGISTERS     0x04
+#define FUNC_CODE_WRITE_SINGLE_COIL        0x05
+#define FUNC_CODE_WRITE_SINGLE_REGISTERS   0x06
+#define FUNC_CODE_WRITE_MULTIPLE_COILS     0x0F
+#define FUNC_CODE_WRITE_MULTIPLE_REGISTERS 0x10
 
 /* quantity max */
 #define QUANTITY_MAX_FUNC01 2000
@@ -44,6 +46,9 @@ extern "C" {
 #define EXCEPTION_GATEWAY_TGT_FAILED   0x0B
 
 mb_status_t pdu_type122_assemble(mb_handler_t *req_handler, uint8_t field0, uint16_t field1, uint16_t field2);
+
+mb_status_t pdu_type1221n_assemble(mb_handler_t *req_handler, uint8_t function_code, uint16_t start_addr,
+                                   uint16_t quantity, uint8_t byte_count, uint8_t *outputs_buf);
 
 mb_status_t pdu_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_code, uint8_t *respond_buf,
                                     uint8_t *respond_count);
