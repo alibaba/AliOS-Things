@@ -13,7 +13,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "http_def_config.h"
-#include "http_parser.h"
 #include "network/network.h"
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/net.h"
@@ -139,6 +138,90 @@ typedef uint32_t httpc_handle_t;
 #define HTTP_ALWAYS_HTTP_FLAG 0x80
 
 /**
+ * This function executes a GET request on a given URL. It blocks until completion.
+ * @param[in] client             client is a pointer to the #httpclient_t.
+ * @param[in] url                url is the URL to run the request.
+ * @param[in, out] client_data   client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request.
+ * @return           Please refer to #HTTPC_RESULT.
+ */
+HTTPC_RESULT httpc_get(httpclient_t *client, char *url, httpclient_data_t *client_data);
+
+
+/**
+ * This function executes a POST request on a given URL. It blocks until completion.
+ * @param[in] client              client is a pointer to the #httpclient_t.
+ * @param[in] url                 url is the URL to run the request.
+ * @param[in, out] client_data    client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request. It also contains the data to be posted.
+ * @return           Please refer to #HTTPC_RESULT.
+ */
+HTTPC_RESULT httpc_post(httpclient_t *client, char *url, httpclient_data_t *client_data);
+
+/**
+ * This function executes a PUT request on a given URL. It blocks until completion.
+ * @param[in] client              client is a pointer to the #httpclient_t.
+ * @param[in] url                 url is the URL to run the request.
+ * @param[in, out] client_data    client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request. It also contains the data to be put.
+ * @return           Please refer to #HTTPC_RESULT.
+ */
+HTTPC_RESULT httpc_put(httpclient_t *client, char *url, httpclient_data_t *client_data);
+
+/**
+ * This function executes a DELETE request on a given URL. It blocks until completion.
+ * @param[in] client               client is a pointer to the #httpclient_t.
+ * @param[in] url                  url is the URL to run the request.
+ * @param[in, out] client_data client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request.
+ * @return           Please refer to #HTTPC_RESULT.
+ */
+HTTPC_RESULT httpc_delete(httpclient_t *client, char *url, httpclient_data_t *client_data);
+
+/**
+ * This function gets the HTTP response code assigned to the last request.
+ * @param[in] client               client is a pointer to the #httpclient_t.
+ * @return           The HTTP response code of the last request.
+ */
+int httpc_get_response_code(httpclient_t *client);
+
+/**
+ * This function sets a custom header.
+ * @param[in] client               client is a pointer to the #httpclient_t.
+ * @param[in] header               header is a custom header string.
+ * @return           None.
+ */
+void httpc_set_custom_header(httpclient_t *client, char *header);
+
+/**
+ * This function get specified response header value.
+ * @param[in] header_buf header_buf is the response header buffer.
+ * @param[in] name                 name is the specified http response header name.
+ * @param[in, out] val_pos         val_pos is the position of header value in header_buf.
+ * @param[in, out] val_len         val_len is header value length.
+ * @return           0, if value is got. Others, if errors occurred.
+ */
+int httpc_get_response_header_value(char *header_buf, char *name, int *val_pos, int *val_len);
+
+/**
+ * This function add text formdata information.
+ * @param[in] client_data          client_data is a pointer to the #httpclient_data_t.
+ * @param[in] content_disposition  content_disposition is a pointer to the content disposition string.
+ * @param[in] content_type         content_type is a pointer to the content type string.
+ * @param[in] name                 name is a pointer to the name string.
+ * @param[in] data                 data is a pointer to the data.
+ * @param[in] data_len             data_len is the data length.
+ * @return           The HTTP response code of the last request.
+ */
+int httpc_formdata_addtext(httpclient_data_t* client_data, char* content_disposition, char* content_type, char* name, char* data, int data_len);
+
+/**
+ * This function add file formdata information.
+ * @param[in] client_data          client_data is a pointer to the #httpclient_data_t.
+ * @param[in] content_disposition  content_disposition is a pointer to the content disposition string.
+ * @param[in] content_type         content_type is a pointer to the content type string.
+ * @param[in] file_path            file_path is a pointer to the file path.
+ * @return           The HTTP response code of the last request.
+ */
+int httpc_formdata_addfile(httpclient_data_t* client_data, char* content_disposition, char* name, char* content_type, char* file_path);
+
+/**
  * http client module initialize
  *
  * @return HTTP_SUCCESS http client initialize success
@@ -227,90 +310,6 @@ int32_t httpc_recv_response(httpc_handle_t httpc, uint8_t *rsp, uint32_t rsp_siz
  *
  */
 int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data);
-
-/**
- * This function executes a GET request on a given URL. It blocks until completion.
- * @param[in] client             client is a pointer to the #httpclient_t.
- * @param[in] url                url is the URL to run the request.
- * @param[in, out] client_data   client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request.
- * @return           Please refer to #HTTPC_RESULT.
- */
-HTTPC_RESULT httpc_get(httpclient_t *client, char *url, httpclient_data_t *client_data);
-
-
-/**
- * This function executes a POST request on a given URL. It blocks until completion.
- * @param[in] client              client is a pointer to the #httpclient_t.
- * @param[in] url                 url is the URL to run the request.
- * @param[in, out] client_data    client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request. It also contains the data to be posted.
- * @return           Please refer to #HTTPC_RESULT.
- */
-HTTPC_RESULT httpc_post(httpclient_t *client, char *url, httpclient_data_t *client_data);
-
-/**
- * This function executes a PUT request on a given URL. It blocks until completion.
- * @param[in] client              client is a pointer to the #httpclient_t.
- * @param[in] url                 url is the URL to run the request.
- * @param[in, out] client_data    client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request. It also contains the data to be put.
- * @return           Please refer to #HTTPC_RESULT.
- */
-HTTPC_RESULT httpc_put(httpclient_t *client, char *url, httpclient_data_t *client_data);
-
-/**
- * This function executes a DELETE request on a given URL. It blocks until completion.
- * @param[in] client               client is a pointer to the #httpclient_t.
- * @param[in] url                  url is the URL to run the request.
- * @param[in, out] client_data client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request.
- * @return           Please refer to #HTTPC_RESULT.
- */
-HTTPC_RESULT httpc_delete(httpclient_t *client, char *url, httpclient_data_t *client_data);
-
-/**
- * This function gets the HTTP response code assigned to the last request.
- * @param[in] client               client is a pointer to the #httpclient_t.
- * @return           The HTTP response code of the last request.
- */
-int httpc_get_response_code(httpclient_t *client);
-
-/**
- * This function sets a custom header.
- * @param[in] client               client is a pointer to the #httpclient_t.
- * @param[in] header               header is a custom header string.
- * @return           None.
- */
-void httpc_set_custom_header(httpclient_t *client, char *header);
-
-/**
- * This function get specified response header value.
- * @param[in] header_buf header_buf is the response header buffer.
- * @param[in] name                 name is the specified http response header name.
- * @param[in, out] val_pos         val_pos is the position of header value in header_buf.
- * @param[in, out] val_len         val_len is header value length.
- * @return           0, if value is got. Others, if errors occurred.
- */
-int httpc_get_response_header_value(char *header_buf, char *name, int *val_pos, int *val_len);
-
-/**
- * This function add text formdata information.
- * @param[in] client_data          client_data is a pointer to the #httpclient_data_t.
- * @param[in] content_disposition  content_disposition is a pointer to the content disposition string.
- * @param[in] content_type         content_type is a pointer to the content type string.
- * @param[in] name                 name is a pointer to the name string.
- * @param[in] data                 data is a pointer to the data.
- * @param[in] data_len             data_len is the data length.
- * @return           The HTTP response code of the last request.
- */
-int httpc_formdata_addtext(httpclient_data_t* client_data, char* content_disposition, char* content_type, char* name, char* data, int data_len);
-
-/**
- * This function add file formdata information.
- * @param[in] client_data          client_data is a pointer to the #httpclient_data_t.
- * @param[in] content_disposition  content_disposition is a pointer to the content disposition string.
- * @param[in] content_type         content_type is a pointer to the content type string.
- * @param[in] file_path            file_path is a pointer to the file path.
- * @return           The HTTP response code of the last request.
- */
-int httpc_formdata_addfile(httpclient_data_t* client_data, char* content_disposition, char* name, char* content_type, char* file_path);
 
 /** @} */
 #endif /* HTTP_API_H */
