@@ -14,7 +14,7 @@
     #include "iotx_log.h"
 #endif
 
-#include <sal_opts.h>
+#include "sal_opts.h"
 #include <sal_arch.h>
 #include <sal_def.h>
 #include <sal_ipaddr.h>
