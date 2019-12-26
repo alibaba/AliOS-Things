@@ -9,7 +9,7 @@
 /* process function code 0x01 0x02 0x03 0x04, they have the same request parameters */
 mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t function_code, uint8_t slave_addr,
                                         uint16_t start_addr, uint16_t quantity, uint8_t *respond_buf,
-                                        uint8_t *respond_count)
+                                        uint8_t *respond_count, uint32_t timeout)
 {
     mb_status_t status = MB_SUCCESS;
 
@@ -46,7 +46,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
 
     req_handler->adu_assemble(req_handler);
 
-    status = req_handler->frame_send(req_handler);
+    status = req_handler->frame_send(req_handler, timeout);
     if (status != MB_SUCCESS) {
         MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
         return status;
@@ -84,7 +84,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
 /* process function code 0x05 0x06, they have the same request parameters */
 mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t function_code, uint8_t slave_addr,
                                         uint16_t register_addr, uint16_t register_value, uint16_t *resp_addr,
-                                        uint16_t *resp_value, uint8_t* exception_code)
+                                        uint16_t *resp_value, uint8_t* exception_code, uint32_t timeout)
 {
     mb_status_t status = MB_SUCCESS;
 
@@ -115,7 +115,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
 
     req_handler->adu_assemble(req_handler);
 
-    status = req_handler->frame_send(req_handler);
+    status = req_handler->frame_send(req_handler, timeout);
     if (status != MB_SUCCESS) {
         MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
         return status;
@@ -148,3 +148,69 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
     return status;
 }
 
+/* process function code 0x0F 0x10, they have the same request parameters */
+mb_status_t mbmaster_main_type3_process(mb_handler_t *req_handler, uint8_t function_code, uint8_t slave_addr,
+                                        uint16_t start_addr, uint16_t quantity, uint8_t *outputs_buf, uint16_t *resp_addr,
+                                        uint16_t *resp_quantity, uint8_t *exception_code, uint32_t timeout)
+{
+    uint8_t     byte_count;
+    mb_status_t status = MB_SUCCESS;
+
+    MB_MUTEX_LOCK(&req_handler->mb_mutex);
+
+    req_handler->slave_addr = slave_addr;
+
+    switch (function_code) {
+        case FUNC_CODE_WRITE_MULTIPLE_COILS:
+            byte_count = quantity / 8;
+            byte_count = (quantity % 8)?(byte_count + 1):byte_count;
+            status = pdu_type1221n_assemble(req_handler, function_code, start_addr, quantity, byte_count, outputs_buf);
+            break;
+        case FUNC_CODE_WRITE_MULTIPLE_REGISTERS:
+            byte_count = quantity * 2;
+            status = pdu_type1221n_assemble(req_handler, function_code, start_addr, quantity, byte_count, outputs_buf);
+            break;
+        default:
+            status = MB_FUNCTION_CODE_NOT_SUPPORT;
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
+            break;
+    }
+    if (status != MB_SUCCESS) {
+        MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
+        return status;
+    }
+
+    req_handler->adu_assemble(req_handler);
+
+    status = req_handler->frame_send(req_handler, timeout);
+    if (status != MB_SUCCESS) {
+        MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
+        return status;
+    }
+
+     /* wait slave respond */
+    LOGD(MODBUS_MOUDLE, "waiting for respond");
+
+    status = req_handler->frame_recv(req_handler);
+    if (status != MB_SUCCESS) {
+        MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
+        return status;
+    }
+
+    req_handler->adu_disassemble(req_handler);
+
+    switch (function_code) {
+        case FUNC_CODE_WRITE_MULTIPLE_COILS:
+        case FUNC_CODE_WRITE_MULTIPLE_REGISTERS:
+            status = pdu_type122_disassemble(req_handler, function_code, resp_addr, resp_quantity, exception_code);
+            break;
+        default:
+            status = MB_FUNCTION_CODE_NOT_SUPPORT;
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
+            break;
+    }
+
+    MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
+
+    return status;
+}
