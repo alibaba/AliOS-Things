@@ -116,7 +116,7 @@ static srtp_err_status_t srtp_aes_gcm_mbedtls_alloc(srtp_cipher_t **c,
         return (srtp_err_status_alloc_fail);
     }
     mbedtls_cipher_init( &gcm->cipher_ctx_enc );
-	mbedtls_cipher_init( &gcm->cipher_ctx_dec );
+    mbedtls_cipher_init( &gcm->cipher_ctx_dec );
 
     /* set pointers */
     (*c)->state = gcm;
@@ -155,6 +155,8 @@ static srtp_err_status_t srtp_aes_gcm_mbedtls_dealloc(srtp_cipher_t *c)
 
     ctx = (srtp_aes_gcm_ctx_t *)c->state;
     if (ctx) {
+        mbedtls_cipher_free(&ctx->cipher_ctx_enc);
+        mbedtls_cipher_free(&ctx->cipher_ctx_dec);
         srtp_crypto_free(ctx->key);
         /* zeroize the key material */
         octet_string_set_to_zero(ctx, sizeof(srtp_aes_gcm_ctx_t));
@@ -171,7 +173,7 @@ static srtp_err_status_t srtp_aes_gcm_mbedtls_dealloc(srtp_cipher_t *c)
  * aes_gcm_mbedtls_context_init(...) initializes the aes_gcm_context
  * using the value in key[].
  *
- * the key is the secret key
+ * the key is the secretdecy
  */
 static srtp_err_status_t srtp_aes_gcm_mbedtls_context_init(void *cv,
                                                            const uint8_t *key)
@@ -196,10 +198,12 @@ static srtp_err_status_t srtp_aes_gcm_mbedtls_context_init(void *cv,
         break;
     }
 
-
+    mbedtls_cipher_free(&c->cipher_ctx_enc);
     if(mbedtls_cipher_setup(&c->cipher_ctx_enc, cipher_info) != 0) {
       return srtp_err_status_init_fail;
     }
+
+    mbedtls_cipher_free(&c->cipher_ctx_dec);
     if(mbedtls_cipher_setup(&c->cipher_ctx_dec, cipher_info) != 0) {
       return srtp_err_status_init_fail;
     }
