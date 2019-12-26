@@ -56,6 +56,26 @@
 #define CONFIG_HTTP_ENABLE_MUTEX 1
 #endif
 
+#ifndef HTTP_DELETE
+#define HTTP_DELETE 0
+#endif
+
+#ifndef HTTP_GET
+#define HTTP_GET 1
+#endif
+
+#ifndef HTTP_HEAD
+#define HTTP_HEAD 2
+#endif
+
+#ifndef HTTP_POST
+#define HTTP_POST 3
+#endif
+
+#ifndef HTTP_PUT
+#define HTTP_PUT 4
+#endif
+
 #define CONFIG_HTTP_DEBUG
 /** @} */
 #endif
