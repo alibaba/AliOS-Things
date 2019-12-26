@@ -13,13 +13,6 @@ config MBMASTER_CONFIG_RTU_ENABLED
             excludes this feature if you want to use modbus master with rtu.
             default y
 
-config MBMASTER_CONFIG_READ_HOLDING
-    bool "Enable Read Holding Registers function"
-        default y
-        help
-            excludes this feature if you want to use the read holding register function of modbus master.
-            default y
-
 config MBMASTER_CONFIG_HANDLER_MAX
     int "The max number of handler resources"
         range 0 10
