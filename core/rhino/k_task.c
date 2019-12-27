@@ -4,6 +4,47 @@
 
 #include "k_api.h"
 
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+static void task_policy_change(ktask_t *task, uint8_t new_pri)
+{
+    if ((new_pri >= RT_MIN_PRI) && (new_pri <= RT_MAX_PRI)) {
+        if (task->sched_policy == KSCHED_CFS) {
+            task->sched_policy = KSCHED_FIFO;
+        }
+    }
+    else {
+        task->sched_policy = KSCHED_CFS;
+    }
+}
+
+static kstat_t task_policy_check(uint8_t prio, uint8_t policy)
+{
+    kstat_t err;
+
+    err = RHINO_SUCCESS;
+    switch (policy) {
+        case KSCHED_FIFO:
+        case KSCHED_RR:
+            if (prio > RT_MAX_PRI) {
+                if (prio != RHINO_IDLE_PRI) {
+                    err = RHINO_INV_PARAM;
+                }
+            }
+            break;
+        case KSCHED_CFS:
+            if (prio <= RT_MAX_PRI) {
+                err = RHINO_INV_PARAM;;
+            }
+            break;
+        default:
+            k_err_proc(RHINO_INV_TASK_STATE);
+            err = RHINO_INV_TASK_STATE;
+    }
+
+    return err;
+}
+#endif
+
 static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *stack_buf,
                            size_t stack_size, task_entry_t entry, uint8_t autorun,
@@ -27,6 +68,12 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     if (prio >= RHINO_CONFIG_PRI_MAX) {
         return RHINO_BEYOND_MAX_PRI;
     }
+
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    if (task_policy_check(prio, sched_policy) != RHINO_SUCCESS) {
+        return task_policy_check(prio, sched_policy);
+    }
+#endif
 
     RHINO_CRITICAL_ENTER();
 
@@ -515,20 +562,6 @@ kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free)
 
     return RHINO_SUCCESS;
 }
-
-#if (RHINO_CONFIG_SCHED_CFS > 0)
-static void task_policy_change(ktask_t *task, uint8_t new_pri)
-{
-    if ((new_pri >= RT_MIN_PRI) && (new_pri <= RT_MAX_PRI)) {
-        if (task->sched_policy == KSCHED_CFS) {
-            task->sched_policy = KSCHED_FIFO;
-        }
-    }
-    else {
-        task->sched_policy = KSCHED_CFS;
-    }
-}
-#endif
 
 kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 {
