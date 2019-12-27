@@ -26,6 +26,8 @@ extern ktask_t *g_active_task[RHINO_CONFIG_CPU_NUM];
 extern ktask_t      g_idle_task[RHINO_CONFIG_CPU_NUM];
 extern idle_count_t g_idle_count[RHINO_CONFIG_CPU_NUM];
 extern cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TASK_STACK_SIZE];
+extern per_cpu_t    g_per_cpu[RHINO_CONFIG_CPU_NUM];
+
 
 /* tick attribute */
 extern tick_t  g_tick_count;
