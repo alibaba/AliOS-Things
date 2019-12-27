@@ -1,5 +1,0 @@
-config AOS_COMP_RTP
-    bool "rtp"
-    default n
-    help
-        AliOS Things rtp module

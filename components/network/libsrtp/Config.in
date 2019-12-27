@@ -1,7 +1,0 @@
-config AOS_COMP_SRTP
-    bool "srtp"
-    select AOS_COMP_MBEDTLS
-    select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
-    default n
-    help
-        AliOS Things srtp module
