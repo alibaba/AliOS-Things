@@ -59,6 +59,10 @@ static inline void httpdns_resolv_unlock(void)
 
 static inline void httpnds_resolv_lock_init(void)
 {
+    if (resolv_lock.initted == PTHREAD_INITIALIZED_OBJ) {
+        return;
+    }
+
     pthread_mutex_init(&resolv_lock, NULL);
 }
 
@@ -433,7 +437,7 @@ struct addrinfo* httpdns_build_addrinfo(dns_cache_t *cache, int port)
 
 int httpdns_prefetch(char * host_name, dns_cache_t ** cache)
 {
-    if((NULL == cache) || (NULL == host_name)) {
+    if((NULL == cache) || (NULL == host_name) || (NULL == resolv)) {
         return 0;
     }
     httpdns_resolv_lock();
@@ -693,7 +697,6 @@ static int localdns_parse(char *host_name)
 {
     int ret = -1;
     struct addrinfo hints;
-    char portstr[16];
     struct addrinfo * result = NULL;
     dns_cache_t * cache = NULL;
 
@@ -708,6 +711,9 @@ static int localdns_parse(char *host_name)
     }
 
     cache = httpdns_build_cache(result, host_name);
+
+    freeaddrinfo(result);
+
     if (!cache) {
         HTTPDNS_ERR("%s httpdns_build_cache failed", __func__);
         return -1;
