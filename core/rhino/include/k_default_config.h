@@ -241,6 +241,12 @@
 #define RHINO_CONFIG_PWRMGMT                 0
 #endif
 
+#if (RHINO_CONFIG_SCHED_CFS >= 1)
+#if (RHINO_CONFIG_PRI_MAX != 141)
+#error "RHINO_CONFIG_SCHED_CFS priority set error"
+#endif
+#endif
+
 #if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
 #error "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif
