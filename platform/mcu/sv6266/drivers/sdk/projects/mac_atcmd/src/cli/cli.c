@@ -1,7 +1,7 @@
 //#include <config.h>
 #include "soc_types.h"
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "osal.h"
 #include "net_types.h"
 

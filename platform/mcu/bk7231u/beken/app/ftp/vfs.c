@@ -26,7 +26,7 @@
 #include "include.h"
 #if CFG_USE_FTPD_UPGRADE
 #include "mem_pub.h"
-#include "aos/vfs.h"
+#include "vfs.h"
 #include "ff.h"
 #include <string.h>
 #include <stdlib.h>

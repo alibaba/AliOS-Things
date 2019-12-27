@@ -48,18 +48,17 @@ $(NAME)_LINK_FILES := startup_msp432p4111_uvision.o
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/msp432p4111launchpad/msp432p4111.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/msp432p4111launchpad/msp432p4111.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/msp432p4111launchpad/msp432p4111.icf
+GLOBAL_LDFLAGS += --config platform/board/msp432p4111launchpad/msp432p4111.icf
 else
-GLOBAL_LDFLAGS += -T board/msp432p4111launchpad/msp432p4111.lds
+GLOBAL_LDFLAGS += -T platform/board/msp432p4111launchpad/msp432p4111.lds
 endif
 
 # yloop needs sal or lwip, module means the Plug-in module Type
 AOS_NETWORK_SAL ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif

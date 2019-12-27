@@ -11,10 +11,10 @@
 #include "hal_uart_stm32f4.h"
 #include "board.h"
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/init.h"
 #include "ulog/ulog.h"
-#include "cli_api.h"
+#include "cli/cli_api.h"
 
 #define AOS_START_STACK 1536
 

@@ -50,8 +50,8 @@ for i in global_macros:
 if aos_global_config.get('sal') == None:
     aos_global_config.set('sal',1)
 
-if aos_global_config.get('no_tls') == None:
-    aos_global_config.set('no_tls',1)
+if aos_global_config.get('no_') == None:
+    aos_global_config.set('no_',1)
 
 if aos_global_config.get('sal') == 1:
     component.add_comp_deps('network/sal')
@@ -69,5 +69,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="blink coapapp helloworld http2app modbus_demo mqttapp otaapp sk.sk_gui tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp yts"
+linux_only_targets="blink coapapp helloworld http2app modbus_demo mqttapp otaapp sk.sk_gui  udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
