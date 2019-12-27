@@ -9,7 +9,7 @@
 #include "yunit/yts.h"
 
 #include <aos/kernel.h>
-#include <aos/cli.h>
+#include <cli.h>
 
 #include <bluetooth/bluetooth.h>
 #include <blemesh.h>

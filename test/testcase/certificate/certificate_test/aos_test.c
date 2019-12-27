@@ -836,7 +836,7 @@ SUITE(test_timer) = {
 };
 
 #if (TEST_CONFIG_KV_ENABLED > 0)
-#include <aos/kv.h>
+#include <fs/kv.h>
 CASE(test_kv, aos_2_001)
 {
     char *key = "test_kv_key";
