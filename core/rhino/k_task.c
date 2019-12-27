@@ -56,9 +56,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->time_slice   = task->time_total;
 #endif
 
-#if ((RHINO_CONFIG_SCHED_RR > 0) || (RHINO_CONFIG_SCHED_CFS > 0))
     task->sched_policy = sched_policy;
-#endif
 
     if (autorun > 0u) {
         task->task_state = K_RDY;
@@ -518,9 +516,24 @@ kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free)
     return RHINO_SUCCESS;
 }
 
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+static void task_policy_change(ktask_t *task, uint8_t new_pri)
+{
+    if ((new_pri >= RT_MIN_PRI) && (new_pri <= RT_MAX_PRI)) {
+        if (task->sched_policy == KSCHED_CFS) {
+            task->sched_policy = KSCHED_FIFO;
+        }
+    }
+    else {
+        task->sched_policy = KSCHED_CFS;
+    }
+}
+#endif
+
 kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 {
-    uint8_t  old_pri;
+    uint8_t   old_pri;
+    uint8_t   task_exec;
     kmutex_t *mutex_tmp;
     ktask_t  *mutex_task;
 
@@ -528,12 +541,26 @@ kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
         if (task->prio != new_pri) {
             switch (task->task_state) {
                 case K_RDY:
-                    ready_list_rm(&g_ready_queue, task);
+                    task_exec = is_task_exec(task);
+                    if (task_exec > 0u) {
+                        if (task->sched_policy != KSCHED_CFS) {
+                            ready_list_rm(&g_ready_queue, task);
+                        }
+                    }
+                    else {
+                        ready_list_rm(&g_ready_queue, task);
+                    }
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+                    task_policy_change(task, new_pri);
+#endif
                     task->prio = new_pri;
 
-                    if (task == g_active_task[cpu_cur_get()]) {
-                        ready_list_add_head(&g_ready_queue, task);
-                    } else {
+                    if (task_exec > 0u) {
+                        if (task->sched_policy != KSCHED_CFS) {
+                            ready_list_add_head(&g_ready_queue, task);
+                        }
+                    }
+                    else {
                         ready_list_add_tail(&g_ready_queue, task);
                     }
 
@@ -542,12 +569,18 @@ kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
                 case K_SLEEP:
                 case K_SUSPENDED:
                 case K_SLEEP_SUSPENDED:
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+                    task_policy_change(task, new_pri);
+#endif
                     /* set new task prio */
                     task->prio = new_pri;
                     task = NULL;
                     break;
                 case K_PEND:
                 case K_PEND_SUSPENDED:
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+                    task_policy_change(task, new_pri);
+#endif
                     old_pri    = task->prio;
                     task->prio = new_pri;
                     pend_list_reorder(task);

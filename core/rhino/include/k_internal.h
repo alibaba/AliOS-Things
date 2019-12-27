@@ -101,6 +101,28 @@ extern klist_t     g_task_del_head;
     } while (0)
 
 
+RHINO_INLINE uint8_t is_task_exec(ktask_t *task)
+{
+#if (RHINO_CONFIG_CPU_NUM > 1)
+     if (task->cur_exc > 0u) {
+        return RHINO_TRUE;
+     }
+     else {
+        return RHINO_FALSE;
+     }
+#else
+    if (g_active_task[0] == task) {
+        return RHINO_TRUE;
+    }
+    else {
+        return RHINO_FALSE;
+    }
+#endif
+}
+
+#define RT_MAX_PRI 99u
+#define RT_MIN_PRI 0u
+
 #if (RHINO_CONFIG_TASK_DEL > 0)
 #define TASK_CANCEL_CHK(obj)                                      \
             do {                                               \
