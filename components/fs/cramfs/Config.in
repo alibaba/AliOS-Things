@@ -1,0 +1,9 @@
+config AOS_COMP_CRAMFS
+    bool "cramfs"
+    select AOS_COMP_ZLIB
+    default n
+    help
+
+if AOS_COMP_CRAMFS
+# Configurations for component cramfs
+endif
