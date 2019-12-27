@@ -23,13 +23,13 @@ $(NAME)_SOURCES += config/k_config.c       \
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_keil.s
 $(NAME)_LINK_FILES := startup/startup_keil.o
-GLOBAL_LDFLAGS += -L --scatter=board/aaboard_demo/aaboard_demo.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/aaboard_demo/aaboard_demo.sct
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES    += startup/startup_iar.s
-GLOBAL_LDFLAGS += --config board/aaboard_demo/aaboard_demo.icf
+GLOBAL_LDFLAGS += --config platform/board/aaboard_demo/aaboard_demo.icf
 else
 $(NAME)_SOURCES    += startup/startup_gcc.s
-GLOBAL_LDFLAGS += -T board/aaboard_demo/aaboard_demo.ld
+GLOBAL_LDFLAGS += -T platform/board/aaboard_demo/aaboard_demo.ld
 endif
 
 GLOBAL_INCLUDES += .        \

@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "aos/kernel.h"
-#include "aos/kv.h"
+#include "fs/kv.h"
 #include "aos/hal/flash.h"
 #include "ota/ota_service.h"
 

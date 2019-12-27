@@ -10,8 +10,6 @@ if aos_global_config.get('sal') == None:
     aos_global_config.set('sal',1)
 if aos_global_config.get('sal') == 1:
     component.add_comp_deps('network/sal')
-    if aos_global_config.get('module') == None:
-        aos_global_config.set('module','wifi.mk3060')
 else:
     component.add_global_macros('CONFIG_NO_TCPIP')
 
@@ -31,5 +29,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+CONFIG_SYSINFO_DEVICE_NAME
 component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
 
-linux_only_targets="blink coapapp helloworld http2app jsengine_app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp ulocation.baseapp yts"
+linux_only_targets="blink coapapp helloworld http2app jsengine_app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp  udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp ulocation.baseapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"

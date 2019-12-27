@@ -33,9 +33,9 @@ GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 GLOBAL_LDFLAGS  += -L $($(NAME)_LOCATION)
 
 ifeq ($(APP), linkkitapp)
-GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
+GLOBAL_LDFLAGS += platform/board/uno-91h/hfilop/hfilop.a
 else ifeq ($(APP), inkkit_gateway)
-GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
+GLOBAL_LDFLAGS += platform/board/uno-91h/hfilop/hfilop.a
 else
 GLOBAL_DEFINES += DELETE_HFILOP_CODE
 endif

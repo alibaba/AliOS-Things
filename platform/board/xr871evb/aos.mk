@@ -35,9 +35,9 @@ $(NAME)_ASMFLAGS += -c -x assembler-with-cpp
 
 include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 ifneq ($(no_with_xip),1)
-GLOBAL_LDFLAGS += -T board/xr871evb/xr871-xip.ld
+GLOBAL_LDFLAGS += -T platform/board/xr871evb/xr871-xip.ld
 else
-GLOBAL_LDFLAGS += -T board/xr871evb/xr871.ld
+GLOBAL_LDFLAGS += -T platform/board/xr871evb/xr871.ld
 endif
 
 GLOBAL_INCLUDES += .    \

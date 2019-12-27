@@ -13,7 +13,7 @@
 #include "ble_port.h"
 
 #ifdef AOS_COMP_KV
-#include <aos/kv.h>
+#include <fs/kv.h>
 #endif
 
 #ifndef AOS_COMP_KV

@@ -6,6 +6,15 @@
 #include <k_api.h>
 #include <aos/kernel.h>
 #include <aos/init.h>
+<<<<<<< HEAD
+=======
+#include <cli.h>
+
+#include "ate_app.h"
+#include "cmd_evm.h"
+#include "cmd_rx_sensitivity.h"
+#include "arm_arch.h"
+>>>>>>> 9ce6b4409 (BugID:23266431:AOS code update for folder adjustment)
 
 #define AOS_START_STACK 2048
 

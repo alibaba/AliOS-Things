@@ -16,10 +16,7 @@ component.add_global_macros('STM32L433xx', 'SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_432
 
 if aos_global_config.get('sal', 1) == 1:
     component.add_comp_deps('network/sal')
-    module = aos_global_config.get('module', 'wifi.mk3060')
-    if module == 'wifi.mk3060':
-        aos_global_config.set('module', 'wifi.mk3060')
 
 component.set_enable_vfp()
 
-linux_only_targets="blink coapapp helloworld http2app jsengine_app modbus_demo mqttapp otaapp tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp ulocation.baseapp yts"
+linux_only_targets="blink coapapp helloworld http2app jsengine_app modbus_demo mqttapp otaapp  udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udata_demo.udata_cloud_demo udata_demo.udata_local_demo udataapp ulocation.baseapp yts"
