@@ -161,12 +161,6 @@ if AOS_APP_SK_GUI
         default "sk.sk_gui"
 endif
 
-source "application/example/tls/Config.in"
-if AOS_APP_TLS_CLIENT
-    config AOS_BUILD_APP
-        default "tls"
-endif
-
 source "application/example/uart/Config.in"
 if AOS_APP_UART
     config AOS_BUILD_APP
