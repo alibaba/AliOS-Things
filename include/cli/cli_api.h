@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file cli_api.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef CLI_API_H
@@ -7,6 +8,18 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @addtogroup cli_api cli_api
+ * Cli API.
+ * Used for projects' inside components. Use aos api for APP.
+ * @{
+ */
+
+/* Define CLI return value */
 #define CLI_OK               0
 #define CLI_ERR_NOMEM       -10000
 #define CLI_ERR_DENIED      -10001
@@ -15,15 +28,12 @@
 #define CLI_ERR_SYNTAX      -10004
 #define CLI_ERR_CMDNOTEXIST -10005
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+/* This struct is used to define the cli cmd format */
 struct cli_command_st {
-    const char *name;
-    const char *help;
+    const char *name;   /**< cmd name */
+    const char *help;   /**< cmd help info */
 
-    void (*function)(char *outbuf, int32_t len, int32_t argc, char **argv);
+    void (*function)(char *outbuf, int32_t len, int32_t argc, char **argv); /**< cmd process function */
 };
 
 #if (RHINO_CONFIG_UCLI > 0)
@@ -150,6 +160,8 @@ int32_t cli_set_echo_status(int32_t status);
 *
 */
 void cli_main(void *data);
+
+/** @} */
 
 #ifdef __cplusplus
 }
