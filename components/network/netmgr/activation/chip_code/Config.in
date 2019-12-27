@@ -1,0 +1,5 @@
+config AOS_COMP_CHIP_CODE
+    bool "Chip_code"
+    default n
+    help
+      return the code of specified chip

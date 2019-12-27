@@ -10,9 +10,9 @@
 #include <network/network.h>
 #include <network/hal/wifi.h>
 #include <netmgr.h>
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
-#include "aos/kv.h"
+#include "fs/kv.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
