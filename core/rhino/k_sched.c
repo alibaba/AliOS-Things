@@ -303,7 +303,7 @@ static void task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num
 
             if (task->prio <= low_pri) {
                 if (low_pri_cpu_num != cur_cpu_num ) {
-                    cpu_signal(i);
+                    cpu_signal(low_pri_cpu_num);
                 }
             }
         }

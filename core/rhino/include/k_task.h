@@ -97,9 +97,7 @@ typedef struct {
     uint8_t          pend_option;
 #endif
 
-#if ((RHINO_CONFIG_SCHED_RR > 0) || (RHINO_CONFIG_SCHED_CFS > 0))
     uint8_t          sched_policy;
-#endif
 
     cfs_node         node;
 
