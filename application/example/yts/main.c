@@ -7,10 +7,10 @@
 
 #include "yunit/yts.h"
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include "aos/kv.h"
+#include "fs/kv.h"
 #include "aos/yloop.h"
 
 #include "netmgr.h"

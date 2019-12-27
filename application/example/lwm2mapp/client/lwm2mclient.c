@@ -88,7 +88,7 @@
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
-#include "aos/cli.h"
+#include "cli.h"
 #include "ulog/ulog.h"
 #include "linkkit/infra/infra_md5.h"
 
