@@ -397,12 +397,6 @@ static int at_scan_for_response(int fd, char c, char *buf, int *index)
         tsk->rsp_offset = 0;
     }
 
-    if (offset >= rsp_prefix_len && tsk->rsp_state == AT_RSP_PENDING &&
-        (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
-                 rsp_prefix_len) == 0)) {
-        tsk->rsp_state = AT_RSP_PROCESSING;
-    }
-
     if (tsk->rsp_state == AT_RSP_PROCESSING) {
         if (tsk->rsp_offset < tsk->rsp_len) {
             tsk->rsp[tsk->rsp_offset] = c;
@@ -424,7 +418,14 @@ static int at_scan_for_response(int fd, char c, char *buf, int *index)
             memset(tsk->rsp, 0, tsk->rsp_len);
             tsk->rsp_state = AT_RSP_PENDING;
         }
+    } else {
+        if (offset >= rsp_prefix_len && tsk->rsp_state == AT_RSP_PENDING &&
+            (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
+             rsp_prefix_len) == 0)) {
+            tsk->rsp_state = AT_RSP_PROCESSING;
+        }
     }
+
     *index = offset;
     atpsr_mutex_unlock(dev->_task_mutex);
 
@@ -488,6 +489,11 @@ static void at_worker(void *arg)
 
     atpsr_debug("at_work_%d started", para->fd);
     while (dev->_inited) {
+        if (dev->_worker_halt) {
+            aos_msleep(10);
+            continue;
+        }
+
         // read from uart and store buf
         ret = at_getc(para->fd, &c, dev->_timeout_ms);
         if (ret != 0) {
@@ -1225,5 +1231,41 @@ int at_yield(int fd, char *replybuf, int bufsize, const at_reply_config_t *atcmd
 #else
     atpsr_err("at_yield should not be called in multiple task mode");
     return -1;
+#endif
+}
+
+void at_worker_halt(int fd)
+{
+#if ATPSR_SINGLE_TASK
+    return;
+#else
+    at_dev_t *dev = NULL;
+
+    if (!check_fd_valid(fd) || !check_dev_ready(fd))
+        return;
+
+    dev = obtain_dev_by_fd(fd);
+
+    dev->_worker_halt = 1;
+
+    return;
+#endif
+}
+
+void at_worker_resume(int fd)
+{
+#if ATPSR_SINGLE_TASK
+    return;
+#else
+    at_dev_t *dev = NULL;
+
+    if (!check_fd_valid(fd) || !check_dev_ready(fd))
+        return;
+
+    dev = obtain_dev_by_fd(fd);
+
+    dev->_worker_halt = 0;
+
+    return;
 #endif
 }
