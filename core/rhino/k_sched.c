@@ -94,6 +94,12 @@ void core_sched(void)
 
     cur_cpu_num = cpu_cur_get();
 
+    if (g_per_cpu[cur_cpu_num].dis_sched > 0u) {
+        g_per_cpu[cur_cpu_num].dis_sched = 0u;
+        krhino_spin_unlock(&g_sys_lock);
+        return;
+    }
+
     if (g_intrpt_nested_level[cur_cpu_num] > 0u) {
         krhino_spin_unlock(&g_sys_lock);
         return;
@@ -303,6 +309,9 @@ static void task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num
 
             if (task->prio <= low_pri) {
                 if (low_pri_cpu_num != cur_cpu_num ) {
+                    if (task->prio < g_active_task[cur_cpu_num]->prio) {
+                        g_per_cpu[cur_cpu_num].dis_sched = 1u;
+                    }
                     cpu_signal(low_pri_cpu_num);
                 }
             }

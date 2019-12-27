@@ -23,6 +23,7 @@ ktask_t *g_active_task[RHINO_CONFIG_CPU_NUM];
 ktask_t      g_idle_task[RHINO_CONFIG_CPU_NUM];
 idle_count_t g_idle_count[RHINO_CONFIG_CPU_NUM];
 cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TASK_STACK_SIZE];
+per_cpu_t    g_per_cpu[RHINO_CONFIG_CPU_NUM];
 
 /* tick attribute */
 tick_t  g_tick_count;
@@ -75,8 +76,8 @@ k_mm_head *g_kmm_head;
 #endif
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
-kspinlock_t g_sys_lock;
-klist_t     g_task_del_head;
+kspinlock_t       g_sys_lock;
+klist_t           g_task_del_head;
 volatile uint64_t g_cpu_flag;
 #endif
 
