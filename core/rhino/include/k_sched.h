@@ -18,6 +18,12 @@ typedef struct {
     uint8_t   highest_pri;
 } runqueue_t;
 
+
+typedef struct {
+    /* to add */
+    uint8_t dis_sched;
+} per_cpu_t;
+
 /**
  * This function will disable schedule
  * @return the operation status, RHINO_SUCCESS is OK, others is error
