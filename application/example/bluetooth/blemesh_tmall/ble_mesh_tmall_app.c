@@ -8,7 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <aos/kernel.h>
-#include <aos/cli.h>
+#include <cli.h>
 #include <misc/printk.h>
 #include <aos/hal/gpio.h>
 #include "tmall_model.h"

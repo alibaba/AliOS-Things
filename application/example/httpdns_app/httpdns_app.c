@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"
 #include "ulog/ulog.h"

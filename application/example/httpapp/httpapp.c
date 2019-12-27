@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include <aos/kernel.h>
-#include <aos/cli.h>
+#include <cli.h>
 #include <aos/yloop.h>
 #include <network/network.h>
 #include "http_config.h"

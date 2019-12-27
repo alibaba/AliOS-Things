@@ -15,7 +15,7 @@
 #include <netmgr.h>
 
 #ifdef AOS_COMP_CLI
-#include <aos/cli.h>
+#include <cli.h>
 #endif
 
 #include "ota/ota_service.h"
