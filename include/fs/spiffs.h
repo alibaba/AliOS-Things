@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file spiffs.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef FS_SPIFFS_H
@@ -9,9 +10,30 @@
 extern "C" {
 #endif
 
+/**
+ * @addtogroup fs_spiffs spiffs
+ * spiffs API.
+ * Used for projects' inside components. Use aos api for APP.
+ * @{
+ */
+
+/**
+ * spiffs register
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
 int32_t spiffs_register(void);
 
+/**
+ * spiffs unregister
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
 int32_t spiffs_unregister(void);
+
+/** @} */
 
 #ifdef __cplusplus
 }
