@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "app_entry.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"

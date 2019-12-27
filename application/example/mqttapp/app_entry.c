@@ -13,7 +13,7 @@
 #include "linkkit/infra/infra_compat.h"
 #include "netmgr.h"
 #include "app_entry.h"
-#include "aos/cli.h"
+#include "cli.h"
 
 #ifdef CSP_LINUXHOST
     #include <signal.h>
