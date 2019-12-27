@@ -29,14 +29,14 @@ ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup/startup_stm32f091xc_keil.s
 $(NAME)_LINK_FILES := startup/startup_stm32f091xc_keil.o
 $(NAME)_LINK_FILES += drivers/stm32f0xx_hal_msp.o
-GLOBAL_LDFLAGS += -L --scatter=board/stm32f091rc-nucleo/stm32f091rc-nucleo.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f091rc-nucleo/stm32f091rc-nucleo.sct
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += startup/startup_stm32f091xc_iar.s
-GLOBAL_LDFLAGS += --config board/stm32f091rc-nucleo/stm32f091xc_flash.icf
+GLOBAL_LDFLAGS += --config platform/board/stm32f091rc-nucleo/stm32f091xc_flash.icf
 else
 #GLOBAL_CFLAGS += -DUSE_DIRECT_UART_PUTC
 $(NAME)_SOURCES += startup/startup_stm32f091xc.s
-GLOBAL_LDFLAGS += -T board/stm32f091rc-nucleo/STM32F091RCTx_FLASH.ld
+GLOBAL_LDFLAGS += -T platform/board/stm32f091rc-nucleo/STM32F091RCTx_FLASH.ld
 endif
 
 GLOBAL_INCLUDES += . \

@@ -23,14 +23,14 @@ $(NAME)_SOURCES += startup/startup_keil.s
 $(NAME)_LINK_FILES += startup/startup_keil.o
 $(NAME)_LINK_FILES += drivers/stm32f7xx_it.o
 $(NAME)_LINK_FILES += drivers/stm32f7xx_hal_msp.o
-GLOBAL_LDFLAGS += -L --scatter=board/stm32f769i-discovery/stm32f769i-discovery.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f769i-discovery/stm32f769i-discovery.sct
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += startup/startup_iar.s
-GLOBAL_LDFLAGS += --config board/stm32f769i-discovery/stm32f769i-discovery.icf
+GLOBAL_LDFLAGS += --config platform/board/stm32f769i-discovery/stm32f769i-discovery.icf
 else
 GLOBAL_CFLAGS += -DUSE_DIRECT_UART_PUTC
 $(NAME)_SOURCES += startup/startup_gcc.s
-GLOBAL_LDFLAGS += -T board/stm32f769i-discovery/stm32f769i-discovery.ld
+GLOBAL_LDFLAGS += -T platform/board/stm32f769i-discovery/stm32f769i-discovery.ld
 endif
 GLOBAL_INCLUDES += . \
                    config/ \

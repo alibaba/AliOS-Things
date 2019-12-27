@@ -3,7 +3,7 @@
 #include "stm32l4xx_hal.h"
 #include "soc_init.h"
 #include "aos/hal/flash.h"
-#include "aos/vfs.h"
+#include "fs/vfs.h"
 #include <fcntl.h>
 
 /* #define FLASH_MONO_DATA */
