@@ -1,75 +1,85 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file vfs_types.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef VFS_TYPES_H
 #define VFS_TYPES_H
 
+/**
+ * @addtogroup vfs_types vfstypes
+ * vfs types API.
+ *
+ * @{
+ */
+
 #include <stdint.h>
 #include <time.h>
 
 typedef struct {
-    time_t actime;  /* time of last access */
-    time_t modtime; /* time of last modification */
+    time_t actime;  /**< time of last access */
+    time_t modtime; /**< time of last modification */
 } vfs_utimbuf_t;
 
 typedef struct {
-    uint16_t st_mode;    /* mode of file */
-    uint32_t st_size;    /* bytes of file */
-    time_t   st_actime;  /* time of last access */
-    time_t   st_modtime; /* time of last modification */
+    uint16_t st_mode;    /**< mode of file */
+    uint32_t st_size;    /**< bytes of file */
+    time_t   st_actime;  /**< time of last access */
+    time_t   st_modtime; /**< time of last modification */
 } vfs_stat_t;
 
 typedef struct {
-    int32_t d_ino;    /* file number */
-    uint8_t d_type;   /* type of file */
-    char    d_name[]; /* file name */
+    int32_t d_ino;    /**< file number */
+    uint8_t d_type;   /**< type of file */
+    char    d_name[]; /**< file name */
 } vfs_dirent_t;
 
 typedef struct {
-    int32_t dd_vfs_fd;
+    int32_t dd_vfs_fd; /**< vfs fd for dir */
     int32_t dd_rsv;
 } vfs_dir_t;
 
 typedef struct {
-    int32_t f_type;    /* fs type */
-    int32_t f_bsize;   /* optimized transport block size */
-    int32_t f_blocks;  /* total blocks */
-    int32_t f_bfree;   /* available blocks */
-    int32_t f_bavail;  /* number of blocks that non-super users can acquire */
-    int32_t f_files;   /* total number of file nodes */
-    int32_t f_ffree;   /* available file nodes */
-    int32_t f_fsid;    /* fs id */
-    int32_t f_namelen; /* max file name length */
+    int32_t f_type;    /**< fs type */
+    int32_t f_bsize;   /**< optimized transport block size */
+    int32_t f_blocks;  /**< total blocks */
+    int32_t f_bfree;   /**< available blocks */
+    int32_t f_bavail;  /**< number of blocks that non-super users can acquire */
+    int32_t f_files;   /**< total number of file nodes */
+    int32_t f_ffree;   /**< available file nodes */
+    int32_t f_fsid;    /**< fs id */
+    int32_t f_namelen; /**< max file name length */
 } vfs_statfs_t;
 
+/* file poll call-back function */
 typedef void (*vfs_poll_notify_t)(void *fds, void *arg);
 
 typedef struct vfs_file_ops       vfs_file_ops_t;
 typedef struct vfs_filesystem_ops vfs_filesystem_ops_t;
 
+/* inode ops functions */
 union vfs_inode_ops_t {
     const vfs_file_ops_t       *i_ops;
     const vfs_filesystem_ops_t *i_fops;
 };
 
-
 typedef struct {
-    union vfs_inode_ops_t ops; /* inode operations */
+    union vfs_inode_ops_t ops; /**< inode operations */
 
-    void    *i_arg;   /* per inode private data */
-    char    *i_name;  /* name of inode */
-    int32_t  i_flags; /* flags for inode */
-    uint8_t  type;    /* type for inode */
-    uint8_t  refs;    /* refs for inode */
+    void    *i_arg;   /**< per inode private data */
+    char    *i_name;  /**< name of inode */
+    int32_t  i_flags; /**< flags for inode */
+    uint8_t  type;    /**< type for inode */
+    uint8_t  refs;    /**< refs for inode */
 } vfs_inode_t;
 
 typedef struct {
-    vfs_inode_t *node;   /* node for file or device */
-    void        *f_arg;  /* arguments for file or device */
-    uint32_t     offset; /* offset of the file */
+    vfs_inode_t *node;   /**< inode for file or device */
+    void        *f_arg;  /**< arguments for file or device */
+    uint32_t     offset; /**< offset of the file */
 } vfs_file_t;
 
+/* operation functions for vfs file */
 struct vfs_file_ops {
     int32_t (*open)  (vfs_inode_t *node, vfs_file_t *fp);
     int32_t (*close) (vfs_file_t *fp);
@@ -79,6 +89,7 @@ struct vfs_file_ops {
     int32_t (*poll)  (vfs_file_t *fp, int32_t flag, vfs_poll_notify_t notify, void *fds, void *arg);
 };
 
+/* operation functions for vfs fs */
 struct vfs_filesystem_ops {
     int32_t       (*open)      (vfs_file_t *fp, const char *path, int32_t flags);
     int32_t       (*close)     (vfs_file_t *fp);
@@ -107,6 +118,8 @@ struct vfs_filesystem_ops {
     int32_t       (*fpathconf) (vfs_file_t *fp, int name);
     int32_t       (*utime)     (vfs_file_t *fp, const char *path, const vfs_utimbuf_t *times);
 };
+
+/** @} */
 
 #endif /* VFS_TYPES_H */
 
