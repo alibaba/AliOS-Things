@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "aos/init.h"
-#include "aos/cli.h"
+#include "cli.h"
 #include "ulog/ulog.h"
 #include "uagent/uagent.h"
 #include "aos/kernel.h"
