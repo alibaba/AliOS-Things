@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include "aos/kernel.h"
-#include "aos/vfs.h"
+#include "fs/vfs.h"
 
 #include "yunit/yunit.h"
 #include "yunit/yts.h"
