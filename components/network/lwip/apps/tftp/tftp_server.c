@@ -57,7 +57,7 @@
 
 #ifdef WITH_LWIP_TFTP_FS
 #include <fcntl.h>
-#include "aos/vfs.h"
+#include "fs/vfs.h"
 /* file description for tftp mount to file system. thread safe is not consider
    as currently only one session is allowed for tftp */
 static int fd_tftp_fs = -1;
