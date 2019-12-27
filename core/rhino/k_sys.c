@@ -173,6 +173,12 @@ void krhino_intrpt_exit(void)
         return;
     }
 
+    if (g_per_cpu[cur_cpu_num].dis_sched > 0u) {
+        g_per_cpu[cur_cpu_num].dis_sched = 0u;
+        RHINO_CPU_INTRPT_ENABLE();
+        return;
+    }
+
     if (g_sched_lock[cur_cpu_num] > 0u) {
         RHINO_CPU_INTRPT_ENABLE();
         return;
