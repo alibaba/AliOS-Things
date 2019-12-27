@@ -28,8 +28,6 @@ $(NAME)_SOURCES += drv/board_drv_led.c
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-#module             ?= gprs.sim800
-module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
@@ -52,11 +50,11 @@ GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=262144 #256kb
 GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=17 #(1 << 17) = 128kb
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/stm32f412zg-nucleo/stm32f412zx.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f412zg-nucleo/stm32f412zx.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/stm32f412zg-nucleo/STM32F412.icf
+GLOBAL_LDFLAGS += --config platform/board/stm32f412zg-nucleo/STM32F412.icf
 else
-GLOBAL_LDFLAGS += -T board/stm32f412zg-nucleo/STM32F412ZGTx_FLASH.ld
+GLOBAL_LDFLAGS += -T platform/board/stm32f412zg-nucleo/STM32F412ZGTx_FLASH.ld
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_f412-nucleo

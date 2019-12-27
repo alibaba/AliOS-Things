@@ -46,7 +46,8 @@ DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
-  {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}}
+  {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}},
+  {PORT_UART_AT, USART3, {UART_OVERSAMPLING_16, 256}},
 };
 
 static void stduart_init(void)

@@ -45,7 +45,6 @@ endif
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif

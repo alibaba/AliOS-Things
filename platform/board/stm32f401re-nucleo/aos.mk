@@ -22,7 +22,6 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif
@@ -43,11 +42,11 @@ GLOBAL_INCLUDES += .    \
 GLOBAL_CFLAGS += -DSTM32F401xE -DSRAM1_SIZE_MAX=0x18000 -DCENTRALIZE_MAPPING
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/stm32f401re-nucleo/stm32f401xe.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32f401re-nucleo/stm32f401xe.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/stm32f401re-nucleo/STM32F401.icf
+GLOBAL_LDFLAGS += --config platform/board/stm32f401re-nucleo/STM32F401.icf
 else
-GLOBAL_LDFLAGS += -T board/stm32f401re-nucleo/STM32F401RETx_FLASH.ld
+GLOBAL_LDFLAGS += -T platform/board/stm32f401re-nucleo/STM32F401RETx_FLASH.ld
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_f401-nucleo
