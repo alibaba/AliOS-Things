@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
 #include "sensor/sensor.h"
 #include "udata/udata.h"
