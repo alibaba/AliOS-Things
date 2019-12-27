@@ -565,7 +565,7 @@ static int get_wireless_info(hal_wifi_module_t *m, void *wireless_info)
     hal_wireless_info_t *info = (hal_wireless_info_t *)wireless_info;
     signed char rssi;
 
-    LOGD("get wireless info\r\n");
+    PRINTF("get wireless info\r\n");
 
     if (info == NULL)
         return -1;

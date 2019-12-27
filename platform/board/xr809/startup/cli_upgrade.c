@@ -1,5 +1,5 @@
 
-#include <aos/cli.h>
+#include <cli.h>
 #include "driver/chip/hal_chip.h"
 #include "driver/chip/system_chip.h"
 #include "net/wlan/wlan.h"

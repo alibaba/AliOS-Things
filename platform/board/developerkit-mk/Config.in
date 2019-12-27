@@ -61,12 +61,7 @@ config BSP_SUPPORT_WIFI
     default y
 
 config BSP_SUPPORT_EXTERNAL_MODULE
-    bool
+    bool "Support external module"
     default y
-
-config BSP_EXTERNAL_WIFI_MODULE
-    string
-    depends on BSP_SUPPORT_EXTERNAL_MODULE
-    default "wifi.bk7231"
 
 endif

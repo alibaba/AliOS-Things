@@ -88,11 +88,21 @@ typedef enum {
     MAX_GPIO_NUM
 } BOARD_GPIO;
 
+typedef enum {
+	BOARD_HW_UNKNOW = 0,
+	BOARD_HW_VER12,
+	BOARD_HW_VER13,
+	BOARD_HW_END
+} BOARD_HW_VERSION;
+
 extern gpio_dev_t brd_gpio_table[];
 extern i2c_dev_t brd_i2c2_dev;
 extern i2c_dev_t brd_i2c3_dev;
 extern i2c_dev_t brd_i2c4_dev;
 extern uart_dev_t uart_0;
+
+extern BOARD_HW_VERSION get_devloperkit_hwver(void);
+extern int get_devloperkit_atuart(void);
 
 #define KIDS_A10_PRT(fmt, args...)  \
   printf("%s: [%s-->%d]=> "fmt,   \
@@ -112,9 +122,11 @@ extern uart_dev_t uart_0;
 #ifdef __cplusplus
  extern "C" {
 #endif
+
 void _Error_Handler(char *, int);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+
 #ifdef __cplusplus
 }
 #endif

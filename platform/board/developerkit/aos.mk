@@ -158,10 +158,10 @@ endif
 endif
 endif
 
-AOS_NETWORK_SAL ?= y
+#AOS_NETWORK_SAL ?= y
+$(info AOS_NETWORK_SAL is $(AOS_NETWORK_SAL))
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif

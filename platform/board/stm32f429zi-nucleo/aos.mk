@@ -37,7 +37,6 @@ GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 AOS_NETWORK_SAL    ?= n
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal
-module             ?= wifi.mk3060
 else
 HTTPD_ENABLED ?= y
 $(NAME)_SOURCES    += ethernetif.c
