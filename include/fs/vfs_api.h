@@ -1,10 +1,19 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file vfs_api.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef VFS_API_H
 #define VFS_API_H
 
+/**
+ * @addtogroup vfs_api vfs
+ * vfs API.
+ * Used for projects' inside components. Use aos api for APP.
+ * @{
+ */
+
+/* vfs function return code description */
 #define VFS_OK               0
 #define VFS_ERR_NOMEM       -10000
 #define VFS_ERR_INVAL       -10001
@@ -392,6 +401,8 @@ int32_t vfs_register_fs(const char *path, vfs_filesystem_ops_t* ops, void *arg);
  *
  */
 int32_t vfs_unregister_fs(const char *path);
+
+/** @} */
 
 #ifdef __cplusplus
 }

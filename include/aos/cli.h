@@ -12,8 +12,8 @@ extern "C" {
 
 /**
  * @addtogroup aos_cli cli
- * Cli API.
- *
+ * Cli AOS API.
+ * Used for APP.
  * @{
  */
 
