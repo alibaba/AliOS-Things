@@ -25,7 +25,7 @@ $(NAME)_SOURCES += config/k_config.c \
 $(NAME)_SOURCES += startup/startup_M480_gcc.c
 
 
-GLOBAL_LDFLAGS  += -T board/numaker-pfm-m487/M487.ld
+GLOBAL_LDFLAGS  += -T platform/board/numaker-pfm-m487/M487.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \

@@ -26,9 +26,9 @@ $(NAME)_SOURCES += startup/startup_M480_gcc.c
 
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/numaker-iot-m487/M487.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/numaker-iot-m487/M487.sct
 else
-GLOBAL_LDFLAGS  += -T board/numaker-iot-m487/M487.ld
+GLOBAL_LDFLAGS  += -T platform/board/numaker-iot-m487/M487.ld
 endif
 
 GLOBAL_INCLUDES += .    \

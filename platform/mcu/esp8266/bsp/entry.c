@@ -6,7 +6,7 @@
 #include "aos/hal/uart.h"
 #include <hal/wifi.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/init.h"
 #include "aos/kernel.h"
 

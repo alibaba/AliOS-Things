@@ -22,7 +22,7 @@ $(NAME)_SOURCES += config/k_config.c \
 
 $(NAME)_SOURCES += startup/startup_gd32f3x0_gcc.s
 
-GLOBAL_LDFLAGS  += -T board/gd32f350r-eval/gd32f3x0_flash.ld
+GLOBAL_LDFLAGS  += -T platform/board/gd32f350r-eval/gd32f3x0_flash.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \

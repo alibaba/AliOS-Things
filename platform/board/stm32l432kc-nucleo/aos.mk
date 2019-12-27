@@ -35,17 +35,16 @@ GLOBAL_CFLAGS += -DSTM32L432xx
 GLOBAL_DEFINES += STDIO_UART=0
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.sct
+GLOBAL_LDFLAGS += -L --scatter=platform/board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/stm32l432kc-nucleo/STM32L432.icf
+GLOBAL_LDFLAGS += --config platform/board/stm32l432kc-nucleo/STM32L432.icf
 else
-GLOBAL_LDFLAGS += -T board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.ld
+GLOBAL_LDFLAGS += -T platform/board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.ld
 endif
 
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif

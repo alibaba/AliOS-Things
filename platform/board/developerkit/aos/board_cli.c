@@ -2,11 +2,12 @@
 #include <string.h>
 #include <assert.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
+#ifdef AOS_ATCMD
 #include <atparser.h>
 
 #ifndef AT_RECV_FAIL_POSTFIX
@@ -19,6 +20,7 @@
 #define FOTA_OOB_BUF_SIZE 64
 extern int at_dev_fd;
 static char fota_oob_buf[FOTA_OOB_BUF_SIZE];
+#endif /* AOS_ATCMD */
 
 typedef struct modulefotastatus {
     int ret;
@@ -77,6 +79,7 @@ static int module_fota_firmware_md5_check(char *pcmd5)
     return 0;
 }
 
+#ifdef AOS_ATCMD
 static int wifi_module_fota(char *pcsize, char *pcversion, char *pcurl, char *pcmd5)
 {
     char *pcatcmd = NULL;
@@ -107,7 +110,7 @@ static int wifi_module_fota(char *pcsize, char *pcversion, char *pcurl, char *pc
 
     ret = at_send_wait_reply(at_dev_fd, pcatcmd, strlen(pcatcmd), true,
                              NULL, 0, out, sizeof(out), NULL);
-    LOGD(TAG, "The AT response is: %s", out);
+    printf("The AT response is: %s", out);
     if (strstr(out, AT_RECV_FAIL_POSTFIX) != NULL || ret != 0) {
         printf("%s %d failed", __func__, __LINE__);
         ret = -1;
@@ -124,6 +127,7 @@ end:
     aos_free(pcatcmd);
     return ret;
 }
+#endif /* AOS_ATCMD */
 
 #ifdef AOS_COMP_CLI
 static void handle_module_fota_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -164,6 +168,7 @@ static void handle_module_fota_cmd(char *pwbuf, int blen, int argc, char **argv)
         return;
     }
 
+#ifdef AOS_ATCMD
     printf("It's going to start wifi module fota it will cost several minutes. Please be patient, and Do not power off the module or reboot befor ota is finished. \r\n");
     ret = wifi_module_fota(pcsize, pcversion, pcurl, pcmd5);
     if (ret != 0){
@@ -171,6 +176,9 @@ static void handle_module_fota_cmd(char *pwbuf, int blen, int argc, char **argv)
     }else{
         printf("module-ota excute successed \r\n");
     }
+#else
+    printf("module-ota not support, please check if atparse is available\r\n");
+#endif /* AOS_ATCMD */
     
     return;
 }
@@ -184,6 +192,7 @@ struct cli_command module_ota_cli_cmd[] = {
 };
 #endif
 
+#ifdef AOS_ATCMD
 void fota_event_handler(void *arg, char *buf, int buflen)
 {
     int ret = -1;
@@ -202,6 +211,7 @@ end:
     fota_status.ret = ret;
     aos_sem_signal(&fota_status.stmoduelfotasem);
 }
+#endif /* AOS_ATCMD */
 
 static void wifi_event_handler(input_event_t *event, void *priv_data)
 {
@@ -209,7 +219,9 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
         return;
     
     if (event->code == CODE_WIFI_ON_GOT_IP){
+#ifdef AOS_ATCMD
         at_register_callback(at_dev_fd, FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, fota_oob_buf, FOTA_OOB_BUF_SIZE, fota_event_handler, NULL);
+#endif /* AOS_ATCMD */
 #ifdef AOS_COMP_CLI
         aos_cli_register_commands(&module_ota_cli_cmd[0],sizeof(module_ota_cli_cmd) / sizeof(struct cli_command));
 #endif

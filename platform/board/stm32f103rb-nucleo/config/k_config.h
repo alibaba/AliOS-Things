@@ -80,7 +80,7 @@
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               1
+#define RHINO_CONFIG_WORKQUEUE               0
 #endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    128
@@ -137,7 +137,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
-#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x180
+#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x128
 #endif
 
 #ifndef RHINO_CONFIG_BACKTRACE

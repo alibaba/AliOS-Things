@@ -8,7 +8,7 @@
 
 #include "aos/init.h"
 #include "aos/hal/uart.h"
-#include "aos/cli.h"
+#include "cli.h"
 #include "network/hal/wifi.h"
 
 #include "wm_regs.h"

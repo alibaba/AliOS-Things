@@ -6,7 +6,7 @@
 #include <k_api.h>
 #include <aos/kernel.h>
 #include <aos/init.h>
-#include <aos/cli.h>
+#include <cli.h>
 
 #include "ate_app.h"
 #include "cmd_evm.h"

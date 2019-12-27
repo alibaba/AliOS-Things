@@ -17,7 +17,6 @@ testcases = Split('''
     test/testcase/kernel/vfs_test
     test/testcase/network/protocols/umesh_test
     test/testcase/security/alicrypto_test
-    test/testcase/security/tls_test
     test/testcase/utility/cjson_test
 ''')
 
@@ -26,4 +25,4 @@ aos_global_config.set('MESHLOWPOWER',1)
 
 build_types=""
 
-linux_only_targets="athostapp coapapp das_app helloworld http2app httpapp id2_app itls_app linkkit_gateway linkkitapp lwm2mapp meshapp mqttapp otaapp prov_app tls udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udataapp ulocation.baseapp yts"
+linux_only_targets="athostapp coapapp das_app helloworld http2app httpapp id2_app itls_app linkkit_gateway linkkitapp lwm2mapp meshapp mqttapp otaapp prov_app  udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udataapp ulocation.baseapp yts"
