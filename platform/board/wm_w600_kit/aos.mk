@@ -24,7 +24,7 @@ $(NAME)_SOURCES += config/k_config.c \
 
 $(NAME)_SOURCES += startup/startup_gcc.s
 
-GLOBAL_LDFLAGS  += -T board/wm_w600_kit/link_w600.ld
+GLOBAL_LDFLAGS  += -T platform/board/wm_w600_kit/link_w600.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \

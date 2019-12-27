@@ -15,7 +15,7 @@
 #include "atcmdlib.h"
 #include "atcmd_icomm.h"  //these are all icomm-semi only debug command!!
 
-#include "aos/cli.h"
+#include "cli.h"
 //#include "../../common/drv/flash/drv_flash.h"	//FIXEDME for -I definition!!
 //#include "drv_flash.h"	//FIXEDME for -I definition!!
 //#include "drv_timer.h"    

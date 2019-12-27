@@ -1,5 +1,5 @@
 
-#include <aos/cli.h>
+#include <cli.h>
 #include "driver/chip/hal_chip.h"
 #include "common/cmd/cmd_mem.h"
 #include "common/cmd/cmd_defs.h"

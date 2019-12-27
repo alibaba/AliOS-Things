@@ -2,7 +2,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "aos/cli.h"
+#include "cli.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 

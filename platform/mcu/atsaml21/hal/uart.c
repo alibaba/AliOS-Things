@@ -11,8 +11,8 @@
 
 #include "saml21.h"
 #include "driver_init.h"
-#include "atcmd_config_platform.h"
 
+#define AT_UART_PORT 0
 
 uart_dev_t uart_0 =
 {

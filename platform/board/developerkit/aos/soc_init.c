@@ -46,7 +46,11 @@ extern void SystemClock_Config(void);
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
+#ifdef DEV_SAL_M02H
+    { PORT_UART_AT,      UART4,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
+#else
     { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
+#endif
     { PORT_UART_ARDUINO, USART2,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} }
 };
 
@@ -91,6 +95,7 @@ void stm32_soc_peripheral_init(void)
     //sufficient time to make the initial GPIO level works, especially wifi reset
     aos_msleep(50);
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_PCIE_RST]);
 
 #ifdef DEVELOPERKIT_IRDA
     irda_init();
@@ -134,7 +139,7 @@ gpio_dev_t brd_gpio_table[] = {
     {LCD_DCX, OUTPUT_PUSH_PULL, &gpio_set},
     {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
     {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
     {SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
     {SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
     {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
@@ -168,6 +173,52 @@ static void brd_peri_init(void)
     hal_spi_init(&brd_spi2_dev);
 #endif
 }
+
+BOARD_HW_VERSION get_devloperkit_hwver(void)
+{
+    static BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
+    int ret = 0;
+    
+    if (board_hwver != BOARD_HW_UNKNOW) {
+        return board_hwver;
+    }
+    
+    ret = id2_test_se();
+    if (ret == 0) {
+        board_hwver = BOARD_HW_VER13;
+    } else {
+        //extern SMARTCARD_HandleTypeDef hsmartcard2;
+        //HAL_SMARTCARD_DeInit(&hsmartcard2);
+        board_hwver = BOARD_HW_VER12;
+    }
+    
+    return board_hwver;
+}
+
+int get_devloperkit_atuart(void)
+{
+    BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
+    int ret = -1;
+    
+#ifdef DEV_SAL_BK7231
+    ret = 3;
+#else
+    board_hwver = get_devloperkit_hwver();
+    switch (board_hwver) {
+        case BOARD_HW_VER12:
+            ret = 2;
+            break;
+        case BOARD_HW_VER13:
+            ret = 4;
+            break;
+        default:
+            ret = -1;
+    }
+#endif
+    
+    return ret;
+}
+
 /**
 * @brief This function handles System tick timer.
 */

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include <aos/cli.h>
+#include <cli.h>
 
 extern void os_interrupt_counter_show(char *pwbuf, int blen, int argc, char **argv);
 extern void cmd_regs(char *pwbuf, int blen, int argc, char **argv);
