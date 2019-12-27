@@ -11,7 +11,7 @@
 #endif
 
 #ifdef AOS_COMP_CLI
-#include "aos/cli.h"
+#include "cli.h"
 #define print aos_cli_printf
 #else
 #define print printf

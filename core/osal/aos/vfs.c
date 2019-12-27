@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-#include "aos/vfs.h"
+#include "fs/vfs.h"
 #include "aos/errno.h"
 
 #include "fs/vfs_types.h"

@@ -3,7 +3,7 @@
  */
 #include <stdint.h>
 
-#include "aos/kv.h"
+#include "fs/kv.h"
 #include "aos/errno.h"
 
 #include "fs/kv_api.h"
