@@ -1,0 +1,285 @@
+menuconfig AOS_COMP_MBEDTLS
+    bool "Mbed TLS 2.16.0"
+    default n
+    help
+        The mbedtls provides cryptographic algorithms
+        (AES, RSA, MD5/SHA1/SHA256/SHA512 etc.), X.509 certificate and
+        TLS/DTLS protocol support. For details, please refer to
+        https://tls.mbed.org/.
+
+if AOS_COMP_MBEDTLS
+# Configurations for component mbedtls
+
+config MBEDTLS_CONFIG_USER_CONFIG
+    bool "mbedtls user extra configuration"
+    default n
+    help
+        Provide user extra configuration file or not.
+        If you enable this config, you must set the correct
+        MBEDTLS_CONFIG_USER_FILE, otherwise there will be compiling error.
+
+config MBEDTLS_CONFIG_USER_FILE
+    string "mbedtls user extra configuration header file"
+    default ""
+    depends on MBEDTLS_CONFIG_USER_CONFIG
+    help
+        User custom configuration file to add or override our default
+        configurations.
+        You may place the file into utility/mbedtls/aos/include/.
+
+menuconfig MBEDTLS_CONFIG_CRYPTO
+    bool "Cryptographic algorithms support"
+    default y
+    help
+        Cryptographic algorithms support, that includes Base64 encoding,
+        hash algorithms(MD5/SHA1/SHA224/SHA256/SHA384/SHA512/RIPEMD160 etc),
+        symmetric cryptography algorithms (DES/3DES, AES, Blowfish, ARC4,
+        Camellia,XTEA, ChaCha20 etc), asymmetric cryptography algorithms
+        (RSA, DH, DSA, ECC etc).
+
+if MBEDTLS_CONFIG_CRYPTO
+
+config MBEDTLS_CONFIG_CRYPTO_MD5
+    bool "MD5 hash algorithm"
+    default n
+    help
+        MD5 hash algorithm (RFC1321).
+
+        Warning: MD5 is considered a weak hash algorithm and its use
+        constitutes a security risk. We recommend considering stronger hash
+        algorithm instead.
+
+config MBEDTLS_CONFIG_CRYPTO_SHA1
+    bool "SHA1 hash algorithm"
+    default y
+    help
+        SHA1 hash algorithm (FIPS-180-1).
+
+        Warning: SHA1 is considered a weak hash algorithm and its use
+        constitutes a security risk. We recommend considering stronger hash
+        algorithm instead.
+
+config MBEDTLS_CONFIG_CRYPTO_SHA256
+    bool "SHA224 and SHA256 hash algorithm"
+    default y
+    help
+        SHA224 and SHA256 hash algorithm (FIPS-180-2).
+
+config MBEDTLS_CONFIG_CRYPTO_SHA512
+    bool "SHA384 and SHA512 hash algorithm"
+    default n
+    help
+        SHA384 and SHA512 hash algorithm (FIPS-180-2).
+
+config MBEDTLS_CONFIG_CRYPTO_RIPEMD160
+    bool "RIPEMD160 hash algorithm"
+    default n
+    help
+        RIPEMD160 hash algorithm.
+
+config MBEDTLS_CONFIG_CRYPTO_ARIA
+    bool "ARIA block cipher algorithm"
+    default n
+    help
+        ARIA block cipher algorithm (RFC5794)
+
+config MBEDTLS_CONFIG_CRYPTO_DES
+    bool "DES/3DES block cipher algorithm"
+    default n
+    help
+        DES/3DES-EDE block cipher algorithm(FIPS-46-3).
+
+        Warning: DES/3DES is considered a weak cipher and its use constitutes a
+        security risk. We recommend considering stronger ciphers instead.
+
+config MBEDTLS_CONFIG_CRYPTO_AES
+    bool "AES(128/192/256) block cipher algorithm"
+    default y
+    help
+        AES(128/192/256) block cipher algorithm (FIPS-197).
+
+config MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES
+    bool "Use precomputed AES tables stored in ROM"
+    default n
+    depends on MBEDTLS_CONFIG_CRYPTO_AES
+    help
+        Enable this to Use precomputed AES tables stored in ROM.
+        Disable this to generate AES tables in RAM at runtime.
+
+        Tradeoff: Using precomputed ROM tables reduces RAM usage by ~8kb
+        (or ~2kb if MBEDTLS_AES_FEWER_TABLES is used) and reduces the
+        initialization time before the first AES operation can be performed.
+        It comes at the cost of additional ~8kb ROM use (resp. ~2kb if
+        MBEDTLS_AES_FEWER_TABLES below is used), and potentially degraded
+        performance if ROM access is slower than RAM access.
+
+config MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES
+    bool "Use less ROM/RAM for AES tables"
+    default n
+    depends on MBEDTLS_CONFIG_CRYPTO_AES
+    help
+        Use less ROM/RAM for AES tables.
+        Enable this to omit 75% of the AES tables from ROM/RAM
+        (depending on the value of MBEDTLS_AES_ROM_TABLES) by computing their
+        values on the fly during operations
+        (the tables are entry-wise rotations of one another).
+
+        Tradeoff: Enable this to reduce the RAM / ROM footprint by ~6kb but at
+        the cost of more arithmetic operations during runtime. Specifically,
+        one has to compare 4 accesses within different tables to 4 accesses with
+        additional arithmetic operations within the same table. The performance
+        gain/loss depends on the system and memory details.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_CBC
+    bool "Cipher Block Chaining mode (CBC) for symmetric block ciphers"
+    default y
+    help
+        Enable Cipher Block Chaining mode (CBC) for symmetric block ciphers.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_CFB
+    bool "Cipher Feedback mode (CFB) for symmetric block ciphers"
+    default n
+    help
+        Enable Cipher Feedback mode (CFB) for symmetric block ciphers.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_CTR
+    bool "Counter Block Cipher mode (CTR) for symmetric block ciphers"
+    default n
+    help
+        Enable Counter Block Cipher mode (CTR) for symmetric block ciphers.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_OFB
+    bool "Output Feedback mode (OFB) for symmetric block ciphers"
+    default n
+    help
+        Enable Output Feedback mode (OFB) for symmetric block ciphers.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_XTS
+    bool "Xor-encrypt-xor with ciphertext stealing mode (XTS) for AES"
+    default n
+    depends on MBEDTLS_CONFIG_CRYPTO_AES
+    help
+        Enable Xor-encrypt-xor with ciphertext stealing mode (XTS) for AES.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_GCM
+    bool "Galois/Counter Mode (GCM) for AES or Camellia"
+    default n
+    depends on MBEDTLS_CONFIG_CRYPTO_AES || MBEDTLS_CONFIG_CRYPTO_CAMELLIA
+    help
+        Enable the Galois/Counter Mode (GCM) for AES.
+
+config MBEDTLS_CONFIG_CRYPTO_MODE_CCM
+    bool "Counter with CBC-MAC (CCM) mode for 128-bit block cipher"
+    default n
+    depends on MBEDTLS_CONFIG_CRYPTO_AES || MBEDTLS_CONFIG_CRYPTO_CAMELLIA
+    help
+        Enable the Counter with CBC-MAC (CCM) mode for 128-bit block cipher.
+
+config MBEDTLS_CONFIG_CRYPTO_ARC4
+    bool "ARC4 stream cipher algorithm"
+    default n
+    help
+        ARC4 stream cipher algorithm.
+
+        Warning: ARC4 is considered a weak cipher and its use constitutes a
+        security risk. We recommend considering stronger ciphers instead.
+
+config MBEDTLS_CONFIG_CRYPTO_BLOWFISH
+    bool "Blowfish block cipher algorithm"
+    default n
+    help
+        Blowfish block cipher algorithm
+
+config MBEDTLS_CONFIG_CRYPTO_CAMELLIA
+    bool "Camellia block cipher algorithm"
+    default n
+    help
+        Camellia block cipher algorithm
+
+config MBEDTLS_CONFIG_CRYPTO_XTEA
+    bool "XTEA block cipher"
+    default n
+    help
+    Enable the XTEA block cipher.
+
+config MBEDTLS_CONFIG_CRYPTO_CHACHA20
+    bool "ChaCha20 stream cipher (RFC7539)"
+    default n
+    help
+        Enable the ChaCha20 stream cipher.
+
+config MBEDTLS_CONFIG_CRYPTO_POLY1305
+    bool "Poly1305 MAC algorithm (RFC7539)"
+    default n
+    help
+        Enable the Poly1305 MAC algorithm.
+
+config MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY
+    bool "ChaCha20-Poly1305 AEAD algorithm (RFC7539)"
+    default n
+    select MBEDTLS_CONFIG_CRYPTO_CHACHA20
+    select MBEDTLS_CONFIG_CRYPTO_POLY1305
+    help
+        Enable the ChaCha20-Poly1305 AEAD algorithm.
+
+endif # MBEDTLS_CONFIG_CRYPTO
+
+config MBEDTLS_CONFIG_X509
+    bool "X.509 certificate support"
+    default y
+    select MBEDTLS_CONFIG_CRYPTO
+    select MBEDTLS_CONFIG_CRYPTO_BASE64
+    help
+    X.509 certificate support.
+
+menuconfig MBEDTLS_CONFIG_TLS
+    bool "TLS/DTLS protocol support"
+    default y
+    depends on AOS_ARCH_LINUX || AOS_COMP_LWIP || AOS_COMP_SAL || AOS_COMP_NETMGR
+    select MBEDTLS_CONFIG_X509
+    select MBEDTLS_CONFIG_CRYPTO
+    help
+    TLS/DTLS protocol support.
+
+if MBEDTLS_CONFIG_TLS
+
+    config  MBEDTLS_CONFIG_TLS1_2
+        bool "TLS 1.2 (and DTLS 1.2 if DTLS is enabled) protocol support"
+        default y
+        help
+            TLS 1.2 (and DTLS 1.2 if DTLS is enabled) protocol support
+
+    config  MBEDTLS_CONFIG_DTLS
+        bool "DTLS protocol support"
+        default y
+        help
+            Enable this and MBEDTLS_CONFIG_TLS1_1 to enable DTLS 1.0,
+            and/or this and MBEDTLS_CONFIG_TLS1_2 to enable DTLS 1.2.
+
+    config MBEDTLS_CONFIG_TLS_DEBUG
+        bool "Enable debug functions in TLS/DTLS"
+        default n
+        help
+            Enable debug functions in TLS/DTLS communication, then you can set
+            the debug level and see debug messages in TLS/DTLS communication.
+
+config MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN
+        int "TLS/DTLS maximum incoming/outgoing content length"
+        default 8192 if OTA_CONFIG_SECURE_DL_MODE
+        default 4096
+        help
+            Maximum length (in bytes) of incoming/outgoing plaintext fragments.
+
+endif # MBEDTLS_CONFIG_TLS
+
+config MBEDTLS_CONFIG_SELFTEST
+    bool
+    default n
+
+config MBEDTLS_CONFIG_ERROR
+    bool "Error string support"
+    default n
+    help
+        Enable error code to error string conversion.
+
+endif # AOS_COMP_MBEDTLS
