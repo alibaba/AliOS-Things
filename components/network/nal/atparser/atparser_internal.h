@@ -101,6 +101,7 @@ typedef struct
     void           *_task_start_sem;
     void           *_task_exit_sem;
     slist_t         _task_l;
+    uint8_t         _worker_halt;
 #endif
 } at_dev_t;
 
