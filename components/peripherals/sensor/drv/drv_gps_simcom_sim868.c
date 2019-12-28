@@ -612,6 +612,7 @@ int drv_gps_simcom_sim868_init(void)
     /* fill the gps obj parameters here */
     gpsobj.io_port    = UART_PORT;
     gpsobj.tag        = TAG_DEV_GPS;
+    gpsobj.instance   = 0;
     gpsobj.path       = dev_gps_path;
     gpsobj.mode       = DEV_POLLING;
     gpsobj.open       = drv_gps_simcom_sim868_open;
@@ -619,7 +620,7 @@ int drv_gps_simcom_sim868_init(void)
     gpsobj.read       = drv_gps_simcom_sim868_read;
     gpsobj.write      = NULL;
     gpsobj.ioctl      = drv_gps_simcom_sim868_ioctl;
-    gpsobj.irq_handle = drv_gps_simcom_sim868_irq_handle;         
+    gpsobj.irq_handle = drv_gps_simcom_sim868_irq_handle;
 
     ret = sensor_create_obj(&gpsobj);
     if(unlikely(ret)){
@@ -627,7 +628,7 @@ int drv_gps_simcom_sim868_init(void)
     }
 
     LOG("%s %s successfully \n", GPS_STR, __func__);
-    
+
     return 0;
 }
 
