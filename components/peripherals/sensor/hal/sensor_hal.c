@@ -252,6 +252,7 @@ error:
 
 static int sensor_hal_get_dev_list(void* buf)
 {
+    int index;
     sensor_list_t *sensor_list = buf;
     if (buf == NULL)
         return -1;
@@ -262,7 +263,7 @@ static int sensor_hal_get_dev_list(void* buf)
         return -1;
     }
 
-    for(int index = 0; (index < g_sensor_cnt) && (index < SENSOR_MAX_NUM); index++){
+    for(index = 0; (index < g_sensor_cnt) && (index < SENSOR_MAX_NUM); index++){
         sensor_list->list[index].tag    = g_sensor_obj[index]->tag;
         sensor_list->list[index].instance  = g_sensor_obj[index]->instance;
         sensor_list->list[index].io_port    = g_sensor_obj[index]->io_port;
@@ -480,6 +481,7 @@ int sensor_hal_ioctl(sensor_tag_e tag, uint8_t instance, sensor_cmd_type cmd, un
 int sensor_hal_init(void)
 {
     int ret      = 0;
+    int i;
     if(g_sensor_init_flag != false){
         return 0;
     }
@@ -490,7 +492,7 @@ int sensor_hal_init(void)
         return -1;
     }
 
-    for(int i = 0; i < g_sensor_drv_num; i++){
+    for(i = 0; i < g_sensor_drv_num; i++){
         if(g_sensor_func[i] == NULL){
             continue;
         }
