@@ -22,14 +22,14 @@ extern hal_lrwan_sys_t aos_lrwan_sys;
 
 
 /*
- * Function Name: LoRaTxData
+ * Function Name: LoRaTxDataCallback
  * Function Discription: The Callback of LoRa Tx, called by lorawan stack
  *                       when send data to server.
  * Input Param:  AppData
  * Output Param: None
  * Return:       None
  */
-static void LoraTxData(lora_AppData_t *AppData)
+static void LoraTxDataCallback(lora_AppData_t *AppData)
 {
     uint8_t i = 0;
 
@@ -43,14 +43,14 @@ static void LoraTxData(lora_AppData_t *AppData)
 
 
 /*
- * Function Name: LoRaRxData
+ * Function Name: LoRaRxDataCallback
  * Function Discription: The Callback of LoRa Rx, called by lorawan stack
  *                       when received data from server.
  * Input Param:  AppData
  * Output Param: None
  * Return:       None
  */
-static void LoraRxData(lora_AppData_t *AppData)
+static void LoraRxDataCallback(lora_AppData_t *AppData)
 {
     /* Print RX Info Messages */
     if (AppData->BuffSize > 0) {
@@ -73,8 +73,8 @@ static void lora_task_entry(void *arg)
     LoRaMainCallbacks.BoardGetBatteryLevel = aos_lrwan_sys.get_battery_level;
     LoRaMainCallbacks.BoardGetUniqueId = aos_lrwan_sys.get_unique_id;
     LoRaMainCallbacks.BoardGetRandomSeed = aos_lrwan_sys.get_random_seed;
-    LoRaMainCallbacks.LoraTxData = LoraTxData;
-    LoRaMainCallbacks.LoraRxData = LoraRxData;
+    LoRaMainCallbacks.LoraTxData = LoraTxDataCallback;
+    LoRaMainCallbacks.LoraRxData = LoraRxDataCallback;
 
     /* Initialize the LoRaWAN Stack */
     lora_init(&LoRaMainCallbacks, LORA_APP_CLASS_A);
