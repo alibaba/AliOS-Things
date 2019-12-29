@@ -1295,7 +1295,7 @@ uint8_t get_lora_tx_cfm_trials(void)
     return num_trials;
 }
 
-bool set_lora_state(DeviceState_t state)
+bool set_device_state(DeviceState_t state)
 {
     if (device_state == DEVICE_STATE_SLEEP) {
         TimerStop(&TxNextPacketTimer);
@@ -1512,7 +1512,7 @@ bool send_lora_link_check(void)
     return false;
 }
 
-int get_device_status(void)
+int get_device_state(void)
 {
     return device_state;
 }

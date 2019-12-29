@@ -286,7 +286,7 @@ void process_linkwan_at(void)
             snprintf(atcmd, ATCMD_SIZE, "\r\n%s ERROR\r\n", LORA_AT_CFMTRIALS);
         }
     } else if (strncmp(atcmd, LORA_AT_JOIN, strlen(LORA_AT_JOIN)) == 0) {
-        ret = set_lora_state(DEVICE_STATE_JOIN);
+        ret = set_device_state(DEVICE_STATE_JOIN);
         if (ret == true) {
             snprintf(atcmd, ATCMD_SIZE, "\r\n%s OK\r\n", LORA_AT_JOIN);
         }
