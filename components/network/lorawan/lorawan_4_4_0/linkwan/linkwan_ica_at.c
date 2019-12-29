@@ -66,7 +66,7 @@ void linkwan_serial_input(uint8_t cmd)
         atcmd[atcmd_index] = '\0';
     }
 
-    if (atcmd_index > ATCMD_SIZE) {
+    if (atcmd_index >= ATCMD_SIZE) {
         atcmd_index = 0;
     }
 }
@@ -1068,7 +1068,7 @@ void process_linkwan_at(void)
             }
         } else {
             ret = false;
-        } 
+        }
     } else if (strncmp(rxcmd, LORA_AT_IDEFAULT, strlen(LORA_AT_IDEFAULT)) ==
                0) {
         ret = false;
