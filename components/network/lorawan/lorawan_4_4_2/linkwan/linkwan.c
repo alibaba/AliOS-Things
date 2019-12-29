@@ -1622,15 +1622,6 @@ uint8_t get_lora_tx_cfm_trials(void)
     return num_trials;
 }
 
-bool set_lora_state(DeviceState_t state)
-{
-    if (device_state == DEVICE_STATE_SLEEP) {
-        TimerStop(&TxNextPacketTimer);
-    }
-    device_state = state;
-    return true;
-}
-
 bool set_lora_class(int8_t class)
 {
     lora_dev_t lora_dev;
@@ -1848,7 +1839,16 @@ bool send_lora_link_check(void)
     return false;
 }
 
-int get_device_status(void)
+bool set_device_state(DeviceState_t state)
+{
+    if (device_state == DEVICE_STATE_SLEEP) {
+        TimerStop(&TxNextPacketTimer);
+    }
+    device_state = state;
+    return true;
+}
+
+int get_device_state(void)
 {
     return device_state;
 }
