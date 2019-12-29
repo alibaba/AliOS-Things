@@ -14,7 +14,7 @@
 #define PORT_LEN   4
 
 
-#define LORAWAN_APP_DATA_BUFF_SIZE 128
+#define LORAWAN_APP_DATA_BUFF_SIZE 256
 #define LINKWAN_APP_DATA_SIZE 51
 
 
@@ -52,7 +52,7 @@ void linkwan_serial_input(uint8_t cmd)
         atcmd[atcmd_index] = '\0';
     }
 
-    if (atcmd_index > ATCMD_SIZE) {
+    if (atcmd_index >= ATCMD_SIZE) {
         atcmd_index = 0;
     }
 }
