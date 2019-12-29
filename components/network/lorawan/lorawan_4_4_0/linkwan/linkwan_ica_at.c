@@ -542,7 +542,7 @@ void process_linkwan_at(void)
                      LORA_AT_CSTATUS);
         } else if (rxcmd_index == (strlen(LORA_AT_CSTATUS) + 1) &&
                    rxcmd[strlen(LORA_AT_CSTATUS)] == '?') {
-            status = get_device_status();
+            status = get_device_state();
             snprintf(atcmd, ATCMD_SIZE, "%s:%d\r\nOK\r\n", LORA_AT_CSTATUS,
                      status);
         } else {

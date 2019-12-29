@@ -791,7 +791,7 @@ bool ica_at_status(uint8_t *at_cmd, int16_t at_cmd_len)
     } else if (at_cmd_len == (strlen(LORA_AT_CSTATUS) + 1) &&
                at_cmd[strlen(LORA_AT_CSTATUS)] == '?') {
         snprintf(atcmd, ATCMD_SIZE, "%s:%d\r\nOK\r\n", LORA_AT_CSTATUS,
-                 get_device_status());
+                 get_device_state());
     } else {
         ret = false;
     }
