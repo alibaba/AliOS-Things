@@ -1,9 +1,0 @@
-config AOS_COMP_RAMFS
-    bool "RAM File System"
-    default n
-    help
-        a RAM file system
-
-if AOS_COMP_RAMFS
-# Configurations for component ramfs
-endif

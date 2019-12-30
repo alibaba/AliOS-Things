@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_UAGENT
-    bool "uAgent Support"
-    select AOS_COMP_OSAL_AOS
-
-    default n
-
-if AOS_COMP_UAGENT
-endif
