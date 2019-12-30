@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
+#include "k_api.h"
+
 void     debug_task_cpu_usage_stats(void);
 uint32_t debug_task_cpu_usage_get(ktask_t *task);
 uint32_t debug_total_cpu_usage_get(uint32_t cpuid);

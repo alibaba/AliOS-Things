@@ -1,9 +1,6 @@
 src     = Split('''
-        cli.c
-        cli_dumpsys.c
-        cli_adapt.c
-        cli_cpuusage.c
-        cli_default_command.c
+        cli.c 
+        dumpsys.c
 ''')
 component = aos_component('cli', src)
 
