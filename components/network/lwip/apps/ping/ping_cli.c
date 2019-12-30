@@ -1,6 +1,6 @@
 #include "lwip/debug.h"
 #include "lwip/err.h"
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 /******************************************************
  *                      Macros
