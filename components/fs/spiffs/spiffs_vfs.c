@@ -13,8 +13,8 @@
 #include "aos/hal/flash.h"
 
 #include "fs/spiffs.h"
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 
 #define SPIFFS_WAIT_FOREVER 0xFFFFFFFF
 
