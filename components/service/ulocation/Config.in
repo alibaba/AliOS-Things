@@ -1,0 +1,48 @@
+config AOS_COMP_ULOCATION
+    bool "uLocation Support"
+    default n
+    help
+    	location service
+
+if AOS_COMP_ULOCATION
+# Configurations for comp ulocation
+
+config ULOCATION_GPS
+    bool "GPS"
+    default y
+    help
+        Enable GPS module information to get location.
+
+if ULOCATION_GPS
+menu "High Accuracy Selection"
+    menu "QXSI support"
+        config QXWZ_ENABLED
+            bool "QXSI"
+            default n
+            help
+                Press <Y> here to add support for the QXSI high accuracy service.
+    endmenu
+endmenu
+endif
+
+config ULOCATION_AGPS
+    bool "AGPS"
+    default n
+    help
+        Enable AGPS module information to get location.
+if ULOCATION_AGPS
+menu "assist location"
+    config ULOCATION_GPRS
+        bool "GPRS"
+        help
+            Enable GPRS module information to get location.
+
+    config ULOCATION_WIFI
+        bool "WIFI"
+        help
+            Enable WIFI module information to get location.
+endmenu
+endif
+
+endif
+
