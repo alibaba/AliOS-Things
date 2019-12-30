@@ -1,0 +1,13 @@
+{
+  "name": "rgbled",
+  "version": "0.0.1",
+  "description": "rgbled驱动",
+  "keywords": ["rgbled"],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "test":"test/index_test.js",
+  "license": "MIT"
+}
