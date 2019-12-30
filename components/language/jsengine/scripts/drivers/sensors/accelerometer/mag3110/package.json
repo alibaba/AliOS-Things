@@ -1,0 +1,14 @@
+{
+  "name": "mag3110",
+  "version": "0.0.1",
+  "description": "mag3110",
+  "keywords": [
+    "mag3110"
+  ],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}

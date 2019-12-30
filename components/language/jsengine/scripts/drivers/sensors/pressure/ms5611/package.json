@@ -1,0 +1,14 @@
+{
+  "name": "ms5611",
+  "version": "0.0.1",
+  "description": "ms5611驱动",
+  "keywords": [
+    "ms5611"
+  ],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}

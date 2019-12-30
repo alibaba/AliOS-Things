@@ -1,0 +1,16 @@
+
+menu "JSEngine Service Support"
+
+config JSE_IDE_DEBUG
+    bool "IDE Debug Support"
+    default "y"
+    help
+        Support Local IDE or LinkDevelop Console connect to JSEngine device
+
+config JSE_CLI_DEBUG
+    bool "Command line Interface Debug"
+    default "y"
+    help
+        Command line Interface Debug
+
+endmenu  # JSEngine Service Support
