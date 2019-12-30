@@ -1,6 +1,6 @@
 //#define __SFILE__ "cli_cmd.c"
 #include "soc_types.h"
-#include "cli.h"
+#include "aos/cli.h"
 //#include <regs.h>
 
 
