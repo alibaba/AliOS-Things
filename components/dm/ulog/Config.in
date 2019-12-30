@@ -1,0 +1,197 @@
+menuconfig AOS_COMP_ULOG
+    bool "uLog Support"
+    select AOS_COMP_OSAL_AOS
+
+    default n
+
+if AOS_COMP_ULOG
+# Configurations for component ulog
+
+config ULOG_CONFIG_STOP_FILTER_DEFAULT
+    int "Level Stop Filter of Default Direction(UART for RTOS)"
+    range 0 8
+    default 6
+    help
+        Level Stop Filter of default direction(uart for rtos), any log level qual or lower than this (value higher than it)
+        will be abondoned. 0 will make none log pop out.
+
+config ULOG_CONFIG_LOG_SIZE
+    int "Max Length of Log Text"
+    range 36 512
+    default 256
+    help
+        The max length of every trace log to be recorded, log Content will be trimmed if it's too long.
+
+config ULOG_CONFIG_SYSLOG_TIME_FORMAT
+    bool "Support syslog Time Format when Log"
+    default n
+    help
+        Switch on this option will make log time format follow syslog type
+
+config ULOG_CONFIG_SYNC_LOG_DETAILS
+    bool "Enable Rich Details for Log"
+    default n
+    help
+        enable rich details for log, includes mod name, file path and line.
+
+if ULOG_CONFIG_SYNC_LOG_DETAILS
+
+config ULOG_CONFIG_SYNC_DETAIL_COLOR
+    bool "Enable Color Font for More Details"
+    default n
+    help
+        enable color font for more details
+
+config ULOG_CONFIG_SYNC_ABS_PATH
+    bool "Enable Log Absolute Path under Detail Mode"
+    default n
+    help
+        enable log absolute path
+endif
+
+config ULOG_CONFIG_POP_CLOUD
+     bool "Switch on Pop Out Log to Cloud"
+     select AOS_COMP_UAGENT
+     select ULOG_CONFIG_ASYNC
+     default n
+     help
+        switch on/off the function that pop out log to cloud
+
+if ULOG_CONFIG_POP_CLOUD
+config ULOG_CONFIG_STOP_FILTER_CLOUD
+    int "Level Stop Filter to Cloud"
+    range 0 8
+    default 0
+    help
+        Level Stop Filter of Cloud, any log level qual or lower than this (value higher than it)
+        will be abondoned LOG_EMERG will make none log pop out.
+endif
+
+config ULOG_CONFIG_POP_FS
+     bool "Switch on Pop Out Log Into File System"
+     select ULOG_CONFIG_ASYNC
+     select AOS_COMP_CJSON
+     select AOS_COMP_VFS
+     default n
+     help
+        switch on/off the function that pop out log file into file system
+        comp vfs and spiffs is necessary if switch on this function
+
+if ULOG_CONFIG_POP_FS
+config ULOG_CONFIG_STOP_FILTERFS
+    int "Level Stop Filter of FS"
+    range 0 8
+    default 4
+    help
+        Level Stop Filter of fs, any log level qual or lower than this (value higher than it)
+        will be abondoned LOG_EMERG will make none log pop out.
+        please keep this value on "LOG_EMERG" if you have no plan to use log out fs
+
+choice
+    prompt "Choose File System Type"
+    default ULOG_CONFIG_FS_SPIFFS
+    help
+        Select the type of fs which ulog recorded in.
+
+    config ULOG_CONFIG_FS_SPIFFS
+        bool "SPIFFS"
+
+    config ULOG_CONFIG_FS_FATFS_SD
+        bool "SD Card"
+
+    config ULOG_CONFIG_FS_FATFS_FLASH
+        bool "FATFS Flash"
+endchoice
+
+config ULOG_CONFIG_LOCAL_FILE_CNT
+    int "Max uLog Files on File System"
+    default 5
+    range 1 256
+    help
+        Max log files support in fs, if the recording file more than this value, rolling back mechanism trigged.
+
+config ULOG_CONFIG_LOCAL_FILE_SIZE
+    int "Max uLog File Size"
+    default 4096
+    range 256 10240
+    help
+        Max log file size locate in local file system, if the recording file larger than this value, new files will be used to be recored.
+
+config ULOG_CONFIG_RESERVED_FS
+    bool "Reserved Log Temporary When FS is not Ready"
+    default n
+    help
+        A FIFO queue will be used to save log for temporary until the FS is ready.
+
+if ULOG_CONFIG_RESERVED_FS
+config ULOG_CONFIG_RESERVED_FS_SIZE
+    int "Count of Reserved Log When FS is not Ready"
+    default 64
+    range 8 256
+    help
+        Reserved Log Item when FS is not Ready.
+endif
+
+config ULOG_CONFIG_UPLOAD
+    bool "Upload Log File via http"
+    select AOS_COMP_UAGENT
+    default n
+    help
+        Upload Log File via http.
+
+endif
+
+config ULOG_CONFIG_POP_UDP
+     bool "Switch on Pop Out Log via Syslog UDP"
+     select ULOG_CONFIG_ASYNC
+     default n
+     help
+        switch on/off the function that pop out log file via syslog udp
+        do not switch on if there is no tcp/ip stack in, or sal module included
+        currently only support in soc.
+
+if ULOG_CONFIG_POP_UDP
+config ULOG_CONFIG_STOP_FILTER_UDP
+    int "Level Stop Filter of UDP"
+    range 0 8
+    default 4
+    help
+        Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
+        will be abondoned LOG_EMERG will make none log pop out.
+        please keep this value on "LOG_EMERG" if you have no plan to use udp log
+endif
+
+config ULOG_CONFIG_DEFAULT_DIR_ASYNC
+     bool "Using Async Mode to Log on Default Direct"
+     select ULOG_CONFIG_ASYNC
+     default n
+     help
+        switch on/off the function using async mode
+
+config ULOG_CONFIG_ASYNC
+    bool
+    default n
+    help
+        enable ulog async mode
+
+if ULOG_CONFIG_ASYNC
+# Configurations for ulog async mode
+
+config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+    int "Stack Depth of Log Task Under Async Mode"
+    default 3072
+    help
+        STACK DEPTH of Log Task
+
+config ULOG_CONFIG_ASYNC_BUF_SIZE
+    int "Default Size of Buffer Queue Under Async Mode"
+    default 5120
+    help
+        Default size of buffer queue that used to record log under aync mode.
+        May the trace log miss if this value was set too small.
+        More RAM will be costed if it set too large
+        So consider balance of this value and system resouce
+endif
+
+endif
+
