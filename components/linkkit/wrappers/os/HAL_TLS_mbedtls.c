@@ -9,7 +9,7 @@
 
 #include "aos/errno.h"
 #include "aos/kernel.h"
-#include "fs/kv.h"
+#include "aos/kv.h"
 #include "ulog/ulog.h"
 #include <network/network.h>
 
