@@ -14,7 +14,7 @@
 #define MSG_KEY2 0x4321
 
 #if (RHINO_CONFIG_UCLI_TASK > 0)
-#include "cli/cli_api.h"
+#include "cli_api.h"
 
 int g_proc_var;
 
