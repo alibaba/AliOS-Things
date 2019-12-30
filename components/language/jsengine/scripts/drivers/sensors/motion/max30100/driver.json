@@ -1,0 +1,10 @@
+{
+  "max30100": {
+    "type": "I2C",
+    "port": 1,
+    "address_width": 7,
+    "freq": 400000,
+    "mode": 1,
+    "dev_addr": 174
+  }
+}

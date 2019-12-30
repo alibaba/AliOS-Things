@@ -1,0 +1,20 @@
+{
+  "tube595.sclk": {
+    "type": "GPIO",
+    "port": 16,
+    "dir": 0,
+    "pull": 1
+  },
+  "tube595.rclk": {
+    "type": "GPIO",
+    "port": 17,
+    "dir": 0,
+    "pull": 1
+  },
+  "tube595.io": {
+    "type": "GPIO",
+    "port": 18,
+    "dir": 0,
+    "pull": 1
+  }
+}
