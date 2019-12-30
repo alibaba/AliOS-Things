@@ -8,7 +8,7 @@
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include "fs/vfs.h"
+#include "aos/vfs.h"
 #include "network/hal/base.h"
 #include "sensor_hal.h"
 
