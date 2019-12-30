@@ -1,5 +1,5 @@
 /**
- * @file debug_api.h
+ * @file debug.h
  *
  * @author    yx170385@alibaba-inc.com
  * @version   V1.0
@@ -7,8 +7,8 @@
  * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef DBG_API_H
-#define DBG_API_H
+#ifndef AOS_DBG_H
+#define AOS_DBG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,15 +20,6 @@ extern "C" {
  *  @{
  */
 
-#include <stdio.h>
-#include "k_api.h"
-
-/* system reboot reason description */
-#define DEBUG_REBOOT_REASON_WD_RST	  0x01 /**< Watchdog reset */
-#define DEBUG_REBOOT_REASON_PANIC	  0x02 /**< System panic */
-#define DEBUG_REBOOT_REASON_REPOWER   0x03 /**< System repower */
-#define DEBUG_REBOOT_REASON_FATAL_ERR 0x04 /**< System fatal error */
-
 /**
  * Show backtrace when called by printf
  *
@@ -36,7 +27,7 @@ extern "C" {
  *
  * @retrun NULL
  */
-void debug_backtrace_now(void);
+void aos_debug_backtrace_now(void);
 
 /**
  * Show task backtrace when called by printf
@@ -47,7 +38,7 @@ void debug_backtrace_now(void);
  *
  * @retrun NULL
  */
-void debug_backtrace_task(char *taskname);
+void aos_debug_backtrace_task(char *taskname);
 
 /**
  * Show the overview of memory(heap and pool)
@@ -56,7 +47,7 @@ void debug_backtrace_task(char *taskname);
  *
  * @retrun NULL
  */
-void debug_mm_overview(int (*print_func)(const char *fmt, ...));
+void aos_debug_mm_overview(int (*print_func)(const char *fmt, ...));
 
 /**
  * Show the overview of tasks
@@ -65,7 +56,7 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...));
  *
  * @retrun NULL
  */
-void debug_task_overview(int (*print_func)(const char *fmt, ...));
+void aos_debug_task_overview(int (*print_func)(const char *fmt, ...));
 
 /**
  * Show the overview of buf_queue
@@ -74,7 +65,7 @@ void debug_task_overview(int (*print_func)(const char *fmt, ...));
  *
  * @retrun NULL
  */
-void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...));
+void aos_debug_buf_queue_overview(int (*print_func)(const char *fmt, ...));
 
 /**
  * Show the overview of queue
@@ -83,7 +74,7 @@ void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...));
  *
  * @retrun NULL
  */
-void debug_queue_overview(int (*print_func)(const char *fmt, ...));
+void aos_debug_queue_overview(int (*print_func)(const char *fmt, ...));
 
 /**
  * Show the overview of sem
@@ -92,7 +83,7 @@ void debug_queue_overview(int (*print_func)(const char *fmt, ...));
  *
  * @retrun NULL
  */
-void debug_sem_overview(int (*print_func)(const char *fmt, ...));
+void aos_debug_sem_overview(int (*print_func)(const char *fmt, ...));
 
 /**
  * Show the overview of all(task/memory/bufqueue/queue/sem)
@@ -101,18 +92,18 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...));
  *
  * @retrun NULL
  */
-void debug_overview(void);
+void aos_debug_overview(void);
 
 /**
  * Get system reboot reason
  *
  * @return reboot reason:
- * DEBUG_REBOOT_REASON_WD_RST
- * DEBUG_REBOOT_REASON_PANIC
- * DEBUG_REBOOT_REASON_REPOWER
- * DEBUG_REBOOT_REASON_FATAL_ERR
+ * 0x01 for watchdog reset;
+ * 0x02 for system panic
+ * 0x03 for system repower
+ * 0x04 for system fatal error
  */
-unsigned int debug_reboot_reason_get(void);
+unsigned int aos_debug_reboot_reason_get(void);
 
 /** @} */
 
@@ -120,4 +111,4 @@ unsigned int debug_reboot_reason_get(void);
 }
 #endif
 
-#endif /* DBG_API_H */
+#endif /* AOS_DBG_H */
