@@ -6,7 +6,7 @@
 
 #include "aos/hal/uart.h"
 
-#include "cli_api.h"
+#include "cli/cli_api.h"
 
 #include "cli_conf.h"
 #include "cli_adapt.h"
