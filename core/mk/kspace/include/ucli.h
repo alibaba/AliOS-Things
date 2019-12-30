@@ -5,7 +5,7 @@
 #ifndef UCLI_H
 #define UCLI_H
 
-#include "cli/cli_api.h"
+#include "cli_api.h"
 #include "task_group.h"
 
 int ucli_proc_cmd(int argc, const char *argv[]);

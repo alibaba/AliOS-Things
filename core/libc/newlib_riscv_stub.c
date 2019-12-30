@@ -10,7 +10,7 @@
 #include <k_api.h>
 #include "aos/kernel.h"
 
-#include "fs/vfs_conf.h"
+#include "vfs_conf.h"
 #include "network/network.h"
 
 #define FD_VFS_START VFS_FD_OFFSET

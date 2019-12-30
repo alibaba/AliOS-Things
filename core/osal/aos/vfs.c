@@ -4,11 +4,11 @@
 
 #include <string.h>
 
-#include "fs/vfs.h"
+#include "aos/vfs.h"
 #include "aos/errno.h"
 
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 
 static int _vfs_to_aos_res(int res)
 {
