@@ -130,8 +130,6 @@ int lwm2m_step(void *handler, time_t *timeoutP);
  */
 void lwm2m_handle_packet(void *handler, uint8_t *buffer, int length, void *fromSessionH);
 
-#ifdef LWM2M_CLIENT_MODE
-
 /**
  * Configure lwm2m client context
  *
@@ -196,7 +194,6 @@ int lwm2m_update_registration(void *handler, uint16_t shortServerID, bool withOb
  * @return none
  */
 void lwm2m_resource_value_changed(void *contextP, lwm2m_uri_t *uriP);
-#endif /* LWM2M_CLIENT_MODE */
 
 /** @} */
 
