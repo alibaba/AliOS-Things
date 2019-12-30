@@ -46,7 +46,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "vfs.h"
+#include "aos/vfs.h"
 
 //#define FTPD_DEBUG
 #include "uart_pub.h"
