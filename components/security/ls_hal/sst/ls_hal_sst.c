@@ -3,7 +3,7 @@
  */
 
 #include <errno.h>
-#include "fs/kv.h"
+#include "aos/kv.h"
 #include "ls_hal.h"
 
 static uint32_t _kv_to_hal_res(int err)
