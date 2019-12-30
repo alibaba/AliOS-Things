@@ -1,0 +1,20 @@
+{
+  "rgbled.r": {
+    "type": "GPIO",
+    "port": 27,
+    "dir": 3,
+    "pull": 1
+  },
+  "rgbled.g": {
+    "type": "GPIO",
+    "port": 33,
+    "dir": 3,
+    "pull": 1
+  },
+  "rgbled.b": {
+    "type": "GPIO",
+    "port": 32,
+    "dir": 3,
+    "pull": 1
+  }
+}

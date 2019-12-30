@@ -1,0 +1,14 @@
+{
+  "name": "ds3119",
+  "version": "0.0.1",
+  "description": "ds3119驱动",
+  "keywords": [
+    "ds3119"
+  ],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "hmc5883",
+  "version": "0.0.1",
+  "description": "hmc5883",
+  "keywords": [
+    "hmc5883"
+  ],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}

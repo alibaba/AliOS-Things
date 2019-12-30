@@ -1,0 +1,11 @@
+{
+  "name": "atgm336h",
+  "version": "0.0.1",
+  "description": "atgm336h driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform": "",
+  "config": "driver.json",
+  "test": "test/index.js"
+}
