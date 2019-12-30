@@ -739,13 +739,14 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             httpapp_running = true;
         } else
 #endif
-        if ((strncmp(type, "-o", strlen(type)) == 0) ||
-            (strncmp(type, "ota", strlen("ota")) == 0)) {
-            command = HTTPAPP_OTA;
-            httpapp_running = true;
-        } else if ((strncmp(type, "-t", strlen(type)) == 0) ||
+        if ((strncmp(type, "-t", strlen(type)) == 0) ||
             (strncmp(type, "ota_head", strlen("ota_head")) == 0)) {
             command = HTTPAPP_OTA_HEAD;
+            httpapp_running = true;
+        }
+        else if ((strncmp(type, "-o", strlen(type)) == 0) ||
+            (strncmp(type, "ota", strlen("ota")) == 0)) {
+            command = HTTPAPP_OTA;
             httpapp_running = true;
         } else if ((strncmp(type, "-u", strlen(type)) == 0) ||
             (strncmp(type, "up", strlen("up")) == 0)) {
