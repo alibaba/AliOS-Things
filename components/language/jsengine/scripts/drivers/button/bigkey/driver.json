@@ -1,0 +1,8 @@
+{
+  "bigkey": {
+    "type": "GPIO",
+    "port": 23,
+    "dir": 2,
+    "pull": 1
+  }
+}
