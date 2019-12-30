@@ -6,8 +6,8 @@
 #include <errno.h>
 
 #include "fs/jffs2.h"
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 
 #include "aos/hal/nor.h"
 
