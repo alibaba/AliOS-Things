@@ -7,8 +7,8 @@
 #include "os-alios.h"
 
 #include "fs/cramfs.h"
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 
 #include "cramfs_fs.h"
 
