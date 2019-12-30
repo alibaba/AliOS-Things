@@ -411,13 +411,19 @@ $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal \
+                    -I$(SOURCE_ROOT)/include/cli \
                     -I$(SOURCE_ROOT)/include/hal/soc \
+                    -I$(SOURCE_ROOT)/include/dm \
+                    -I$(SOURCE_ROOT)/include/service \
+                    -I$(SOURCE_ROOT)/include/wireless \
+                    -I$(SOURCE_ROOT)/include/utility \
+                    -I$(SOURCE_ROOT)/include/peripherals \
                     -I$(SOURCE_ROOT)/include/network \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/breeze \
-                    -I$(SOURCE_ROOT)/components/network/bluetooth/ble/host/include \
-                    -I$(SOURCE_ROOT)/components/network/bluetooth/ble/host/profile \
-                    -I$(SOURCE_ROOT)/include/network/bluetooth/blemesh \
+                    -I$(SOURCE_ROOT)/include/wireless/bluetooth \
+                    -I$(SOURCE_ROOT)/include/wireless/bluetooth/breeze \
+                    -I$(SOURCE_ROOT)/components/wireless/bluetooth/ble/host/include \
+                    -I$(SOURCE_ROOT)/components/wireless/bluetooth/ble/host/profile \
+                    -I$(SOURCE_ROOT)/include/wireless/bluetooth/blemesh \
                     -I$(SOURCE_ROOT)/include/network/coap \
                     -I$(SOURCE_ROOT)/include/network/hal \
                     -I$(SOURCE_ROOT)/include/network/http \
@@ -428,22 +434,22 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/network/nal/sal \
                     -I$(SOURCE_ROOT)/include/network/netmgr \
                     -I$(SOURCE_ROOT)/include/network/rtp \
-                    -I$(SOURCE_ROOT)/include/network/yloop
+                    -I$(SOURCE_ROOT)/include/utility/yloop
 
 ifeq ($(AOS_COMP_LORAWAN_4_4_2), y)
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2 \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/mac/region \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/radio/sx1276 \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_2/system
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2 \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/mac \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/mac/region \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/radio \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/radio/sx1276 \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/system
 else ifeq ($(AOS_COMP_LORAWAN_4_4_0), y)
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0 \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/mac/region \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/radio \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/radio/sx1276 \
-                    -I$(SOURCE_ROOT)/include/network/lorawan/lorawan_4_4_0/system
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0 \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/mac \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/mac/region \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/radio \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/radio/sx1276 \
+                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/system
 endif
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
