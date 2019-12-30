@@ -1,0 +1,35 @@
+config AOS_APP_ULOG_APP
+    bool "ulog_app"
+    help
+
+if AOS_APP_ULOG_APP
+# Configurations for app ulog_app
+
+
+config ULOGAPP_CONFIG_UDP
+    bool "enable test ulog pop out via udp"
+    default n
+    help
+        enable ulog pop out via udp
+
+config ULOGAPP_CONFIG_SPIFFS
+    bool "enable test ulog pop out via file system spiffs"
+    default n
+    help
+        enable ulog pop out via file system(spiffs)
+
+config ULOGAPP_CONFIG_FATFS
+    bool "enable test ulog pop out via file system fatfs"
+    default n
+    help
+        enable ulog pop out via file system(fatfs)
+
+if ULOGAPP_CONFIG_FATFS
+config ULOG_APP_CONFIG_SD_CARD
+    bool "active function that pop out log files via SD CARD"
+    default n
+    help
+        active function pop out log files via SD card
+endif
+
+endif
