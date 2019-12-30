@@ -1,4 +1,0 @@
-config AOS_COMP_ACTIVATION
-    bool
-    help
-      Help message for component activation

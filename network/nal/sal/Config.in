@@ -1,8 +1,0 @@
-config AOS_NETWORK_SAL
-    bool
-    default y if BSP_SUPPORT_EXTERNAL_MODULE
-
-config AOS_COMP_SAL
-    bool
-    depends on AOS_NETWORK_SAL
-    default y
