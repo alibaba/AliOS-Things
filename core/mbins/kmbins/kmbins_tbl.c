@@ -5,7 +5,7 @@
 #include <k_api.h>
 #include "aos/kernel.h"
 #include "aos/errno.h"
-#include "fs/vfs.h"
+#include "aos/vfs.h"
 #include "aos/hal/uart.h"
 
 #include <stdarg.h>
