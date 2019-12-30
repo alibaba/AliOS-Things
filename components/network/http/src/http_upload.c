@@ -6,7 +6,7 @@
 #include "string.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"
-#include "cli.h"
+#include "aos/cli.h"
 
 #include "http.h"
 #include "http_client.h"

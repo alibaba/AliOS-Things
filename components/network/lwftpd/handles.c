@@ -1,6 +1,6 @@
 #include "common.h"
 #include <aos/kernel.h>
-#include <fs/vfs.h>
+#include <aos/vfs.h>
 #include <network/network.h>
 #include <ulog/ulog.h>
 
