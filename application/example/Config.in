@@ -258,6 +258,12 @@ if AOS_APP_UAPP2
         default "uapp2"
 endif
 
+source "application/example/ulog_app/Config.in"
+if AOS_APP_ULOG_APP
+    config AOS_BUILD_APP
+        default "ulog_app"
+endif
+
 source "application/example/sal_app/Config.in"
 if AOS_APP_SAL_APP
     config AOS_BUILD_APP
