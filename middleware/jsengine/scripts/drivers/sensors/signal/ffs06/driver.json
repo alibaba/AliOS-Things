@@ -1,8 +1,0 @@
-{
-  "ffs06.do": {
-    "type": "GPIO",
-    "port": 18,
-    "dir": 1,
-    "pull": 1
-  }
-}

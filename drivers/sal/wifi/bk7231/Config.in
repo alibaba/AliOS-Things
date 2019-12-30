@@ -1,2 +1,0 @@
-config AOS_COMP_DEVICE_SAL_BK7231
-    bool "BK7231"

@@ -1,9 +1,0 @@
-config AOS_COMP_MBINS
-    bool "mbins"
-    depends on MBINS_SUPPORT
-    default n
-    help
-
-if AOS_COMP_MBINS
-# Configurations for component mbins
-endif

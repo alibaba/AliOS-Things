@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_MICROPYTHON
-    bool "micropython"
-    default n
-    help
-      micropython support
-
-if AOS_COMP_MICROPYTHON
-# Configurations for component micropython
-endif
