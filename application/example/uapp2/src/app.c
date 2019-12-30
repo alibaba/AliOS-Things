@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #include "u_api.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 
 #define UAPP_USTACK_SIZE 0x100
 #define UAPP_KSTACK_SIZE 0x200
