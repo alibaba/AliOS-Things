@@ -11,7 +11,7 @@
 #include <re_rtp.h>
 #include <stdio.h>
 
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"
 #include "ulog/ulog.h"
