@@ -5,8 +5,8 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 #include "fs/ramfs.h"
 
 #include "ramfs_api.h"
