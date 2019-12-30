@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_LITTLEVGL
-    bool "littlevgl"
-    default y
-    help
-      lightweight GUI lib
-
-if AOS_COMP_LITTLEVGL
-# Configurations for component littlevgl
-endif

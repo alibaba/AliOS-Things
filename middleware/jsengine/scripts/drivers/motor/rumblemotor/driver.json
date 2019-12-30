@@ -1,8 +1,0 @@
-{
-  "rumblemotor": {
-    "type": "GPIO",
-    "port": 18,
-    "dir": 0,
-    "pull": 1
-  }
-}

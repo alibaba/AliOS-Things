@@ -1,9 +1,0 @@
-{
-  "name": "cloud-client",
-  "version": "0.0.1",
-  "description": "linkdevelop sdk",
-  "main": "src/index.js",
-  "author": "wenhao.lwh@alibaba-inc.com",
-  "license": "MIT",
-  "test": "test/index_test.js"
-}

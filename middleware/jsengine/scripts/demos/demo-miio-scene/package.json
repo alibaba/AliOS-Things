@@ -1,8 +1,0 @@
-{
-  "name": "demo-miio-scene",
-  "version": "1.0.0",
-  "description": "人体感应开关灯",
-  "main": "index.js",
-  "author": "xinyang.yxy@alibaba-inc.com",
-  "license": "MIT"
-}
