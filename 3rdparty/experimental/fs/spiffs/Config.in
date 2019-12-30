@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_SPIFFS
-    bool "spiffs"
-    default n
-    help
-
-if AOS_COMP_SPIFFS
-# Configurations for component spiffs
-endif

@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_FATFS
-    bool "fatfs"
-    default n
-    help
-
-if AOS_COMP_FATFS
-# Configurations for component fatfs
-endif

@@ -1,4 +1,0 @@
-config AOS_COMP_OSAL_POSIX
-    bool "POSIX API Support"
-    default n
-    help
