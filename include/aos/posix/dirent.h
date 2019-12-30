@@ -14,7 +14,7 @@ extern "C" {
 #include <fcntl.h>
 
 #include "k_api.h"
-#include "fs/vfs.h"
+#include "aos/vfs.h"
 #include "posix_config.h"
 
 #define DT_UNKNOWN 0
