@@ -13,7 +13,7 @@
 
 #include "aos/hal/uart.h"
 
-#include "fs/vfs_conf.h"
+#include "vfs_conf.h"
 #include "network/network.h"
 #ifdef WITH_LWIP_TELNETD
 #include "lwip/apps/telnetserver.h"

@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include "k_config.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 #include "cli_syscall_arg.h"
 
 int32_t sys_cli_register_command_stub(void *arg)
