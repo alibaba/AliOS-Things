@@ -1,0 +1,11 @@
+{
+  "name": "ne555",
+  "version": "0.0.1",
+  "description": "ne555 driver",
+  "main": "src/index.js",
+  "author": "jweih.hjw",
+  "license": "ISC",
+  "platform": "",
+  "config": "driver.json",
+  "test": "test/index.js"
+}

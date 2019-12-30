@@ -1,0 +1,14 @@
+{
+  "name": "temt6000",
+  "version": "0.0.1",
+  "description": "temt6000驱动",
+  "keywords": [
+    "temt6000"
+  ],
+  "main": "src/index.js",
+  "author": {
+    "name": "jweih.hjw",
+    "email": "jweih.hjw@alibaba-inc.com"
+  },
+  "license": "MIT"
+}
