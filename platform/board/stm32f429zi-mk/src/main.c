@@ -14,7 +14,7 @@
 #include "aos/cli.h"
 #include "aos/init.h"
 #include "ulog/ulog.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 
 #define AOS_START_STACK 1536
 

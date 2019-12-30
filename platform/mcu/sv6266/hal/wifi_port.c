@@ -381,7 +381,9 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
         //Need to use new channel information.
         get_connectap_info(0, out_stat->ssid, &ssidlen, out_stat->bssid, 6, (u8 *)&(out_stat->wifi_strength), (u8 *)&(out_stat->channel));
         out_stat->wifi_strength = -out_stat->wifi_strength;
-    }
+    
+
+}
 	return 0;
 }
 
