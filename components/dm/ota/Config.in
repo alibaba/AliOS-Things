@@ -1,0 +1,58 @@
+menuconfig AOS_COMP_OTA
+    bool "OTA Features"
+    select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
+    select AOS_COMP_CJSON
+    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_HTTP
+    default n
+    help
+
+if AOS_COMP_OTA
+config OTA_CONFIG_SECURE_DL_MODE
+    bool "OTA Secure Downloading Mode"
+    select CONFIG_HTTP_SECURE
+    default n
+    help
+    select Y to enter into OTA secure downloading mode, only run download task in secure downloading mode.
+
+config OTA_CONFIG_UAGENT
+    bool "OTA via uAgent"
+    select AOS_COMP_UAGENT
+    default n
+    help
+    mount ota function to uAgent
+
+config OTA_CONFIG_RSA
+    bool "RSA Verify Support"
+    default n
+    help
+    select Y to support RSA Verify Support.
+
+config OTA_DOWNLOAD_RETRY_CNT
+    int "OTA Download Retry Count"
+    default 5
+    help
+    setup ota download retry count when fail to download.
+
+config OTA_DOWNLOAD_TIMEOUT
+    int "OTA Download Timeout(ms)"
+    default 20000
+    help
+    setup ota download timeout, default:20000.
+
+config OTA_DOWNLOAD_BLOCK_SIZE
+    int "OTA Download Block Size(bytes)"
+    default 512
+    help
+    setup ota download block size.
+
+config OTA_FLASH_WRITE_CACHE_SIZE
+     int "OTA write flash cache size(bytes)"
+     default 1024
+     help
+        This option sets the ota write flash cache size for 8-byte alignment.
+        This option is limited by the board memory size.
+        This value could be 512 1024 2048 4096 ...
+        The default value is 1024
+source "components/dm/ota/ota_core/ble/Config.in"
+endif
