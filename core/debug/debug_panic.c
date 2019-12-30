@@ -4,12 +4,13 @@
 #include <stdarg.h>
 #include "debug_api.h"
 #include "debug_panic.h"
+#include "debug_overview.h"
 #include "k_compiler.h"
 #include "aos/kernel.h"
 
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
-#include "cli_api.h"
+#include "cli/cli_api.h"
 #endif
 
 #ifdef AOS_COMP_KV

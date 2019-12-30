@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "cli_api.h"
+#include "cli/cli_api.h"
 
 #include "cli_adapt.h"
 
