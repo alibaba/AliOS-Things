@@ -10,8 +10,8 @@
 #include "ff.h"
 
 #include "fs/fatfs.h"
-#include "fs/vfs_types.h"
-#include "fs/vfs_api.h"
+#include "vfs_types.h"
+#include "vfs_api.h"
 
 #if FF_USE_LFN == 0
 #define MAX_NAME_LEN 12
