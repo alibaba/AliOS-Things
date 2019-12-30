@@ -1,0 +1,11 @@
+{
+  "name": "tcs230",
+  "version": "0.0.2",
+  "description": "this is tcs230 driver for Esp32",
+  "main": "src/index.js",
+  "author": "",
+  "license": "ISC",
+  "platform": "ESP32",
+  "config": "driver.json",
+  "test": "test/index_test.js"
+}
