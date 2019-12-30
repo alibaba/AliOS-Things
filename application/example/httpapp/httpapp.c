@@ -725,25 +725,30 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
     const char *type = argc > 1? argv[1]: "";
 
    
-    if (strncmp(type, "-s", strlen("-s")) == 0) {
+    if ((strncmp(type, "-s", strlen("-s")) == 0) ||
+       (strncmp(type, "stop", strlen("stop")) == 0)) {
         httpapp_running = false;
         return;
     }
 
     if (httpapp_running == false) {
 #if CONFIG_HTTP_SECURE
-        if (strncmp(type, "-a", strlen(type)) == 0) {
+        if ((strncmp(type, "-a", strlen(type)) == 0) ||
+            (strncmp(type, "auth", strlen("auth")) == 0)) {
             command = HTTPAPP_AUTH;
             httpapp_running = true;
         } else
 #endif
-        if (strncmp(type, "-o", strlen(type)) == 0) {
+        if ((strncmp(type, "-o", strlen(type)) == 0) ||
+            (strncmp(type, "ota", strlen("ota")) == 0)) {
             command = HTTPAPP_OTA;
             httpapp_running = true;
-        } else if (strncmp(type, "-t", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-t", strlen(type)) == 0) ||
+            (strncmp(type, "ota_head", strlen("ota_head")) == 0)) {
             command = HTTPAPP_OTA_HEAD;
             httpapp_running = true;
-        } else if (strncmp(type, "-u", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-u", strlen(type)) == 0) ||
+            (strncmp(type, "up", strlen("up")) == 0)) {
             if (argc > 2) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
                 strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
@@ -752,7 +757,8 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             } else {
                 LOGD(TAG, "miss url address");
             }
-        } else if (strncmp(type, "-g", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-g", strlen(type)) == 0) ||
+                   (strncmp(type, "get", strlen("get")) == 0)) {
             if (argc > 2) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
                 strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
@@ -761,7 +767,8 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             } else {
                 LOGD(TAG, "miss url address");
             }
-        } else if (strncmp(type, "-p", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-p", strlen(type)) == 0) ||
+                   (strncmp(type, "post", strlen("post")) == 0)) {
             if (argc > 3) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
                 strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
@@ -772,7 +779,8 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             } else {
                 LOGD(TAG, "miss url address or payload");
             }
-        } else if (strncmp(type, "-q", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-q", strlen(type)) == 0) ||
+                   (strncmp(type, "put", strlen("put")) == 0)) {
             if (argc > 3) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
                 strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
@@ -783,7 +791,8 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             } else {
                 LOGD(TAG, "miss url address or payload");
             }
-        } else if (strncmp(type, "-d", strlen(type)) == 0) {
+        } else if ((strncmp(type, "-d", strlen(type)) == 0) ||
+                   (strncmp(type, "delete", strlen("delete")) == 0)) {
             if (argc > 2) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
                 strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
@@ -802,8 +811,8 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
 
 /* @brief http app command */
 static struct cli_command httpapp_cmd = {
-    .name = "httpapp",
-    .help = "httpapp auth | ota | ota_head | up | stop | get | post | put | delete",
+    .name = "httpc",
+    .help = "httpc auth | ota | ota_head | up | stop | get | post | put | delete",
     .function = httpapp_cmd_handle
 };
 
