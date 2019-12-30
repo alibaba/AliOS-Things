@@ -1,6 +1,0 @@
-menu "uAgent Configuration"
-source "middleware/uagent/uagent/Config.in"
-source "middleware/uagent/ulog/Config.in"
-source "middleware/uagent/ota/Config.in"
-source "middleware/uagent/ota/2ndboot/Config.in"
-endmenu

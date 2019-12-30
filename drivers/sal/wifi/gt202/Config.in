@@ -1,2 +1,0 @@
-config AOS_COMP_DEVICE_SAL_GT202
-    bool "GT202"

@@ -1,7 +1,0 @@
-config AOS_COMP_SDK_RESET
-    bool "FEATURE_DEVICE_RESET"
-    default n
-    select AOS_COMP_SDK_MQTT
-    select HAL_KV
-
-
