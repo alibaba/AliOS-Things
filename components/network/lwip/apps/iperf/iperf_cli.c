@@ -2,7 +2,7 @@
 #include "lwip/err.h"
 #include "lwip/apps/iperf_debug.h"
 #include "lwip/apps/iperf_task.h"
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 /******************************************************
  *                      Macros
