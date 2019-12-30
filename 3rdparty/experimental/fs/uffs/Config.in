@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_UFFS
-    bool "uffs"
-    default n
-    help
-
-if AOS_COMP_UFFS
-# Configurations for component uffs
-endif
