@@ -8,7 +8,7 @@
 #include "linkkit/wrappers/wrappers_defs.h"
 #include "linkkit/infra/infra_aes.h"
 #include "ulog/ulog.h"
-#include "fs/kv.h"
+#include "aos/kv.h"
 
 #define DEVINFO_DN  "hal_devinfo_dn"
 #define DEVINFO_DS  "hal_devinfo_ds"
