@@ -4,7 +4,7 @@
 
 #include "k_config.h"
 #include "syscall_no.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 #include "cli_syscall_arg.h"
 #include "syscall.h"
 

@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 
-#include "fs/kv.h"
+#include "aos/kv.h"
 #include "aos/kernel.h"
 #include "k_config.h"
 
