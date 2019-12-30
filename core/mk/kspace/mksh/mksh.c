@@ -14,7 +14,7 @@
 
 #if (RHINO_CONFIG_UFS)
 #include "fsfd.h"
-#include "fs/vfs_api.h"
+#include "vfs_api.h"
 #endif
 
 #if (RHINO_CONFIG_UTCPIP)

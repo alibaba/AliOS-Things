@@ -3,7 +3,7 @@
  */
 
 #include <k_api.h>
-#include <cli/cli_api.h>
+#include <cli_api.h>
 #include <task_group.h>
 
 struct ucli_command {
