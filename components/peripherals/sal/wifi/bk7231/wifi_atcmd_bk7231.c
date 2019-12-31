@@ -11,7 +11,7 @@
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 
-#include "atparser.h"
+#include "at/at.h"
 
 #define TAG "wifi_port"
 

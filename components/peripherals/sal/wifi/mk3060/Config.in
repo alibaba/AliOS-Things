@@ -1,3 +1,3 @@
 config AOS_COMP_DEVICE_SAL_MK3060
     bool "wifi.MK3060"
-    select AOS_COMP_ATPARSER
+    select AOS_COMP_AT

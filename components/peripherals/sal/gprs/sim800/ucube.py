@@ -23,5 +23,5 @@ for i in global_macros:
 at_adapter = aos_global_config.get('at_adapter')
 if at_adapter == 1:
     component.add_comp_deps('network/sal')
-    component.add_comp_deps('network/sal/atparser')
+    component.add_comp_deps('network/sal/at')
     src.add_sources('sim800.c')
