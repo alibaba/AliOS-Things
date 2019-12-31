@@ -11,8 +11,7 @@ extern void esp_panic_wdt_close(void);
 extern int printf(const char *fmt, ...);
 extern int ets_printf(const char *fmt, ...);
 #ifdef AOS_COMP_DEBUG
-#include "debug_overview.h"
-#include "debug_panic.h"
+#include "debug_api.h"
 extern volatile uint32_t g_crash_steps;
 #endif
 
