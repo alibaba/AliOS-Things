@@ -5,10 +5,10 @@
 #include <atcmd_config_module.h>
 
 #include <aos/kernel.h>
-#include <sal_import.h>
+#include <hal_sal.h>
 #include <ulog/ulog.h>
 #include <stdbool.h>
-#include <atparser.h>
+#include <at/at.h>
 #include <aos/yloop.h>
 #include <string.h>
 

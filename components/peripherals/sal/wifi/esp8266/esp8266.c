@@ -14,7 +14,7 @@
 
 #include <sal_arch.h>
 #include <sal_ipaddr.h>
-#include <sal_import.h>
+#include <hal_sal.h>
 #include "config_esp8266.h"
 
 #define TAG "sal_esp8266"

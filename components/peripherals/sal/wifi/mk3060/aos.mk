@@ -10,7 +10,7 @@ GLOBAL_CFLAGS += -D__SAL_DEV_NAME=mk3060
 $(NAME)_COMPONENTS += yloop netmgr
 
 ifneq (1, $(at_adapter))
-$(NAME)_COMPONENTS += atparser
+$(NAME)_COMPONENTS += at
 
 $(NAME)_SOURCES += mk3060.c
 endif
