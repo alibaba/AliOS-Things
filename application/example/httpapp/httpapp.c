@@ -273,10 +273,10 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
     if (ret < 0) {
         ++auth_req_fail_times;
     } else {
-        LOGE(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+        LOGI(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
             httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
         if (rsp_info.rsp_len > 0) {
-            LOGE(TAG, "%s", rsp_buf);
+            LOGI(TAG, "%s", rsp_buf);
         }
 
         if (rsp_info.message_complete) {
@@ -285,7 +285,7 @@ static int32_t httpapp_auth(const char *device_id, const char *product_key,
     }
 
 exit:
-    LOGE(TAG, "auth_req_times %d, auth_rsp_times %d, auth_req_fail_times %d",
+    LOGI(TAG, "auth_req_times %d, auth_rsp_times %d, auth_req_fail_times %d",
          auth_req_times, auth_rsp_times, auth_req_fail_times);
     close(settings.socket);
     httpc_deinit(httpapp_handle);
@@ -334,7 +334,7 @@ static int32_t httpapp_ota(const char *uri)
             break;
         } else {
             if (rsp_info.body_present || rsp_info.message_complete) {
-                LOGE(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+                LOGI(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
                     httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
                 if (ota_header_found == false) {
                     if (ota_file_size == 0) {
@@ -347,7 +347,7 @@ static int32_t httpapp_ota(const char *uri)
                                 break;
                             }
                             ota_header_found = true;
-                            LOGE(TAG, "ota file size %d", ota_file_size);
+                            LOGI(TAG, "ota file size %d", ota_file_size);
                         } else {
                             continue;
                         }
@@ -356,12 +356,12 @@ static int32_t httpapp_ota(const char *uri)
                     if (content) {
                         content += 4;
                         ota_rx_size = rsp_info.rsp_len - ((uint8_t *)content - rsp_buf);
-                        LOGE(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
+                        LOGI(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
                     }
                     continue;
                 }
                 ota_rx_size += rsp_info.rsp_len;
-                LOGE(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
+                LOGI(TAG, "ota (%d/%d)", ota_rx_size, ota_file_size);
             }
         }
     }
@@ -380,7 +380,7 @@ exit:
     ota_header_found = false;
     ota_file_size = 0;
     ota_rx_size = 0;
-    LOGE(TAG, "ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d",
+    LOGI(TAG, "ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d",
          ota_req_times, ota_rsp_times, ota_req_fail_times);
     return ret;
 }
@@ -418,10 +418,10 @@ static int32_t httpapp_ota_head(const char *uri)
     if (ret < 0) {
         ++ota_head_req_fail_times;
     } else {
-        LOGD(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+        LOGI(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
             httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
         if (rsp_info.rsp_len > 0) {
-            LOGD(TAG, "%s", rsp_buf);
+            LOGI(TAG, "%s", rsp_buf);
         }
 
         if (rsp_info.headers_complete) {
@@ -430,7 +430,7 @@ static int32_t httpapp_ota_head(const char *uri)
     }
 
 exit:
-    LOGD("ota_head_req_times %d, ota_head_rsp_times %d, ota_head_req_fail_times %d",
+    LOGI(TAG, "ota_head_req_times %d, ota_head_rsp_times %d, ota_head_req_fail_times %d",
          ota_head_req_times, ota_head_rsp_times, ota_head_req_fail_times);
     close(settings.socket);
     httpc_deinit(httpapp_handle);
@@ -481,10 +481,10 @@ static int32_t httpapp_up(char *uri)
     if (ret < 0) {
         ++up_req_fail_times;
     } else {
-        LOGD(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
+        LOGI(TAG, "http session %x, buf size %d bytes, recv %d bytes data",
             httpapp_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
         if (rsp_info.rsp_len > 0) {
-            LOGD(TAG, "%s", rsp_buf);
+            LOGI(TAG, "%s", rsp_buf);
         }
 
         if (rsp_info.message_complete) {
@@ -500,7 +500,7 @@ exit:
 #endif
     httpapp_handle = 0;
 
-    LOGD(TAG, "up_req_times %d, up_rsp_times %d, up_req_fail_times %d",
+    LOGI(TAG, "up_req_times %d, up_rsp_times %d, up_req_fail_times %d",
         up_req_times, up_rsp_times, up_req_fail_times);
     return ret;
 }
@@ -527,8 +527,8 @@ static void httpapp_get(char* url)
     client_data.response_buf = buf;
     client_data.response_buf_len = BUF_SIZE;
     ret = httpc_get(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGE(TAG, "Data received: %s", client_data.response_buf);
+    if( ret >= 0 ) {
+        LOGI(TAG, "Data received: %s", client_data.response_buf);
     }
     return ret;
 
@@ -557,8 +557,8 @@ static void httpapp_post(char* url, char* post_data)
     client_data.post_buf_len = strlen(post_data);
     client_data.post_content_type = content_type;
     ret = httpc_post(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGE(TAG, "Data received: %s", client_data.response_buf);
+    if( ret >= 0 ) {
+        LOGI(TAG, "Data received: %s", client_data.response_buf);
     }
     return ret;
 }
@@ -584,8 +584,8 @@ static void httpapp_put(char* url, char* put_data)
     client_data.post_buf_len = strlen(put_data);
     client_data.post_content_type = content_type;
     ret = httpc_put(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGD(TAG, "Data received: %s", client_data.response_buf);
+    if( ret >= 0 ) {
+        LOGI(TAG, "Data received: %s", client_data.response_buf);
     }
     return ret;
 }
@@ -607,8 +607,8 @@ static void httpapp_delete(char* url)
     client_data.response_buf = buf;
     client_data.response_buf_len = BUF_SIZE;
     ret = httpc_delete(&client, url, &client_data);
-    if( ret == 0 ) {
-        LOGD(TAG, "Data received: %s", client_data.response_buf);
+    if( ret >= 0 ) {
+        LOGI(TAG, "Data received: %s", client_data.response_buf);
     }
     return ret;
 }
@@ -626,41 +626,46 @@ static void httpapp_delayed_action(void *arg)
         goto exit;
     }
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) {
-        LOGE(TAG, "alloc socket fd fail");
-        goto exit;
-    }
-    memset(&settings, 0, sizeof(settings));
-    settings.socket = fd;
-    //settings.keep_alive = true;
+    if((command == HTTPAPP_OTA) || (command == HTTPAPP_OTA_HEAD) ||
+       (command == HTTPAPP_DYNAMIC_UP)) {
+        fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0) {
+            LOGE(TAG, "alloc socket fd fail");
+            goto exit;
+        }
+        memset(&settings, 0, sizeof(settings));
+        settings.socket = fd;
+        //settings.keep_alive = true;
 #if CONFIG_HTTP_SECURE
-    if (command == HTTPAPP_AUTH) {
-        settings.server_name = auth_server_name;
-    } else
+        if (command == HTTPAPP_AUTH) {
+            settings.server_name = auth_server_name;
+        } else
 #endif
-    if (command == HTTPAPP_OTA || command == HTTPAPP_OTA_HEAD) {
-        settings.server_name = ota_server_name;
-    } else if (command == HTTPAPP_DYNAMIC_UP) {
-        settings.server_name = oss_server_name;
-    } else {
-        close(fd);
-        goto exit;
-    }
+        if (command == HTTPAPP_OTA || command == HTTPAPP_OTA_HEAD) {
+            settings.server_name = ota_server_name;
+        } else if (command == HTTPAPP_DYNAMIC_UP) {
+            settings.server_name = oss_server_name;
+        } else {
+            close(fd);
+            goto exit;
+        }
 #if CONFIG_HTTP_SECURE
-    settings.ca_cert = ca_cert;
+        settings.ca_cert = ca_cert;
 #endif
-    settings.req_buf = req_buf;
-    settings.req_buf_size = REQ_BUF_SIZE;
-    httpapp_handle = httpc_init(&settings);
-    if (httpapp_handle == 0) {
-        LOGE(TAG, "http session init fail");
-        close(fd);
-        goto exit;
+        settings.req_buf = req_buf;
+        settings.req_buf_size = REQ_BUF_SIZE;
+        httpapp_handle = httpc_init(&settings);
+        if (httpapp_handle == 0) {
+            LOGE(TAG, "http session init fail");
+            close(fd);
+            goto exit;
+        }
+        LOGI(TAG, "http session %x", httpapp_handle);
     }
 
+    LOGI(TAG, "http command %d at %d", command, (uint32_t)aos_now_ms());
+
     httpapp_running = false;
-    LOGE(TAG, "http session %x command %d at %d", httpapp_handle, command, (uint32_t)aos_now_ms());
     switch (command) {
         case HTTPAPP_AUTH:
 #if CONFIG_HTTP_SECURE
@@ -697,26 +702,36 @@ exit:
 /*@brief http app help command */
 void httpapp_help_command()
 {
-    LOGD(TAG, "Usage: httpapp" );
-    LOGD(TAG, "       httpapp  [-h]" );
-    LOGD(TAG, "       -s, [stop] Stop httpapp running" );
-    LOGD(TAG, "       -a, [auth] Http auth request" );
-    LOGD(TAG, "       -o, [ota] Ota download request" );
-    LOGD(TAG, "       -e, [ota_head] head Ota download http head request" );
-    LOGD(TAG, "       -u, [up] Dynamic ota request" );
-    LOGD(TAG, "       -g, [get] Get http request" );
-    LOGD(TAG, "       -p, [post] Post http request" );
-    LOGD(TAG, "       -q, [put] Put http request" );
-    LOGD(TAG, "       -d, [delete] Delete http request" );
-    LOGD(TAG, "Example:" );
-    LOGD(TAG, "httpapp -a" );
-    LOGD(TAG, "httpapp -o" );
-    LOGD(TAG, "httpapp -e" );
-    LOGD(TAG, "httpapp -t" );
-    LOGD(TAG, "httpapp -g www.aliyun.com" );
-    LOGD(TAG, "httpapp -p www.aliyun.com 123456" );
-    LOGD(TAG, "httpapp -q www.aliyun.com 123456" );
-    LOGD(TAG, "httpapp -d www.aliyun.com" );
+    LOGI(TAG, "Usage: httpc" );
+    LOGI(TAG, "       httpc  [-h]" );
+    LOGI(TAG, "       -a, [auth] Http auth request" );
+    LOGI(TAG, "       -o, [ota] Ota download request" );
+    LOGI(TAG, "       -e, [ota_head] head Ota download http head request" );
+    LOGI(TAG, "       -u, [up] Dynamic ota request" );
+    LOGI(TAG, "       -s, [stop] Stop httpapp running" );
+    LOGI(TAG, "       -g, [get] Get http request" );
+    LOGI(TAG, "       -p, [post] Post http request" );
+    LOGI(TAG, "       -q, [put] Put http request" );
+    LOGI(TAG, "       -d, [delete] Delete http request" );
+    LOGI(TAG, "Example:" );
+    LOGI(TAG, "httpc -a" );
+    LOGI(TAG, "httpc auth" );
+    LOGI(TAG, "httpc -o" );
+    LOGI(TAG, "httpc ota" );
+    LOGI(TAG, "httpc -e" );
+    LOGI(TAG, "httpc ota_head" );
+    LOGI(TAG, "httpc -u www.aliyun.com" );
+    LOGI(TAG, "httpc up http://aliosthings.oss-cn-hangzhou.aliyuncs.com/ota3.bin" );
+    LOGI(TAG, "httpc -s" );
+    LOGI(TAG, "httpc stop" );
+    LOGI(TAG, "httpc -g http://www.aliyun.com/" );
+    LOGI(TAG, "httpc get http://www.aliyun.com/" );
+    LOGI(TAG, "httpc -p http://www.aliyun.com/ 123456" );
+    LOGI(TAG, "httpc post http://www.aliyun.com/ 123456" );
+    LOGI(TAG, "httpc -q http://www.aliyun.com/ 123456" );
+    LOGI(TAG, "httpc put http://www.aliyun.com/ 123456" );
+    LOGI(TAG, "httpc -d http://www.aliyun.com/" );
+    LOGI(TAG, "httpc delete http://www.aliyun.com/" );
 }
 
 /* @brief httpapp command handle */
@@ -727,6 +742,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
    
     if ((strncmp(type, "-s", strlen("-s")) == 0) ||
        (strncmp(type, "stop", strlen("stop")) == 0)) {
+        LOGI(TAG, "set httpapp exit" );
         httpapp_running = false;
         return;
     }
@@ -739,7 +755,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             httpapp_running = true;
         } else
 #endif
-        if ((strncmp(type, "-t", strlen(type)) == 0) ||
+        if ((strncmp(type, "-e", strlen(type)) == 0) ||
             (strncmp(type, "ota_head", strlen("ota_head")) == 0)) {
             command = HTTPAPP_OTA_HEAD;
             httpapp_running = true;
@@ -756,7 +772,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
                 command = HTTPAPP_DYNAMIC_UP;
                 httpapp_running = true;
             } else {
-                LOGD(TAG, "miss url address");
+                LOGW(TAG, "miss url address");
             }
         } else if ((strncmp(type, "-g", strlen(type)) == 0) ||
                    (strncmp(type, "get", strlen("get")) == 0)) {
@@ -766,7 +782,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
                 command = HTTPAPP_GET;
                 httpapp_running = true;
             } else {
-                LOGD(TAG, "miss url address");
+                LOGW(TAG, "miss url address");
             }
         } else if ((strncmp(type, "-p", strlen(type)) == 0) ||
                    (strncmp(type, "post", strlen("post")) == 0)) {
@@ -778,7 +794,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
                 command = HTTPAPP_POST;
                 httpapp_running = true;
             } else {
-                LOGD(TAG, "miss url address or payload");
+                LOGW(TAG, "miss url address or payload");
             }
         } else if ((strncmp(type, "-q", strlen(type)) == 0) ||
                    (strncmp(type, "put", strlen("put")) == 0)) {
@@ -790,7 +806,7 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
                 command = HTTPAPP_PUT;
                 httpapp_running = true;
             } else {
-                LOGD(TAG, "miss url address or payload");
+                LOGW(TAG, "miss url address or payload");
             }
         } else if ((strncmp(type, "-d", strlen(type)) == 0) ||
                    (strncmp(type, "delete", strlen("delete")) == 0)) {
@@ -800,12 +816,12 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
                 command = HTTPAPP_GET;
                 httpapp_running = true;
             } else {
-                LOGD(TAG, "miss url address");
+                LOGW(TAG, "miss url address");
             }
-        } else {
-            LOGE(TAG, "unknown command");
+        } else if (strncmp(type, "-h", strlen(type)) == 0) {
             httpapp_help_command();
-            return;
+        } else {
+            LOGE(TAG, "unknown command, please use help command: httpc -h");
         }
     }
 }
