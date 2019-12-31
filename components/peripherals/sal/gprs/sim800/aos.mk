@@ -9,7 +9,7 @@ GLOBAL_CFLAGS += -D__SAL_DEV_NAME=sim800
 $(NAME)_COMPONENTS += yloop
 
 ifneq (1, $(at_adapter))
-$(NAME)_COMPONENTS += atparser
+$(NAME)_COMPONENTS += at
 
 $(NAME)_SOURCES += sim800.c
 endif
