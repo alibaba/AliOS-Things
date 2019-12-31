@@ -21,7 +21,8 @@
 #endif
 
 #if defined(ENABLE_AOS_OTA)
-    #include "ota/ota_service.h"
+#include "ota/ota_agent.h"
+static ota_service_t subdev_ctx[EXAMPLE_SUBDEV_MAX_NUM];
 #endif
 
 // for demo only
@@ -331,7 +332,23 @@ void set_iotx_info()
     }
 }
 
-static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
+#if defined(ENABLE_AOS_OTA)
+static int ota_subdev_upgrade_cb(ota_service_t *pctx, char *ver, char *url)
+{
+    int ret = -1;
+    LOG("ota version:%s is coming, if OTA upgrade or not ?\n", ver);
+    void *thread = NULL;
+    if(pctx != NULL) {
+        ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 4);
+    }
+    if (ret < 0) {
+        LOG("ota thread err;%d ", ret);
+    }
+    return ret;
+}
+#endif
+
+static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info, unsigned int index)
 {
     int res = 0, devid = -1;
 
@@ -348,15 +365,19 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         return res;
     }
     EXAMPLE_TRACE("subdev connect success: devid = %d\n", devid);
-#if defined(ENABLE_AOS_OTA)
-    static ota_service_t ctx = {0};
-    memset(&ctx, 0, sizeof(ota_service_t));
-    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk) - 1);
-    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn) - 1);
-    strncpy(ctx.ds, meta_info->device_secret, sizeof(ctx.ds) - 1);
-    strncpy(ctx.ps, meta_info->product_secret, sizeof(ctx.ps) - 1);
-    ctx.dev_type = 1;
-    ota_service_init(&ctx);
+#if defined(ENABLE_AOS_OTA) 
+    if(index >= EXAMPLE_SUBDEV_MAX_NUM) {
+        EXAMPLE_TRACE("subdev numb out range\n");
+        return FAIL_RETURN;
+    }
+    memset(&subdev_ctx[index], 0, sizeof(ota_service_t));
+    strncpy(subdev_ctx[index].pk, meta_info->product_key, sizeof(subdev_ctx[index].pk) - 1);
+    strncpy(subdev_ctx[index].dn, meta_info->device_name, sizeof(subdev_ctx[index].dn) - 1);
+    strncpy(subdev_ctx[index].ds, meta_info->device_secret, sizeof(subdev_ctx[index].ds) - 1);
+    strncpy(subdev_ctx[index].ps, meta_info->product_secret, sizeof(subdev_ctx[index].ps) - 1);
+    subdev_ctx[index].dev_type = 1;
+    ota_register_cb(&subdev_ctx[index], OTA_CB_ID_UPGRADE, (void*)ota_subdev_upgrade_cb);
+    ota_service_init(&subdev_ctx[index]);
 #endif
 
     res = IOT_Linkkit_Report(devid, ITM_MSG_LOGIN, NULL, 0);
@@ -401,8 +422,8 @@ int linkkit_main(void *paras)
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
 #if defined(__UBUNTU_SDK_DEMO__)
-    int                             argc = ((app_main_paras_t *)paras)->argc;
-    char                          **argv = ((app_main_paras_t *)paras)->argv;
+    int  argc = ((app_main_paras_t *)paras)->argc;
+    char **argv = ((app_main_paras_t *)paras)->argv;
 
     if (argc > 1) {
         int tmp = atoi(argv[1]);
@@ -503,7 +524,7 @@ int linkkit_main(void *paras)
             (user_example_ctx->auto_add_subdev == 1 || user_example_ctx->permit_join != 0)) {
             if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_ADD_NUM) {
                 /* Add next subdev */
-                if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
+                if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index], user_example_ctx->subdev_index) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
                 } else {
                     EXAMPLE_TRACE("subdev %s add failed", subdevArr[user_example_ctx->subdev_index].device_name);

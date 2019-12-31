@@ -8,9 +8,9 @@
 #include <string.h>
 #include <breeze.h>
 
-#ifdef CONFIG_AIS_OTA
-#define SOFTWARE_VERSION "xxxxxxxx"
-#include <ota/ota_breeze.h>
+#if defined(OTA_CONFIG_BLE)
+#include "ota/ota_agent.h"
+static ota_service_t ctx = {0};
 #endif
 
 /*device info defination*/
@@ -113,10 +113,6 @@ static void breeze_work(void *arg)
     uint32_t             err_code;
     struct device_config init_bzlink;
     uint8_t              bd_addr[BD_ADDR_LEN] = { 0 };
-#ifdef CONFIG_AIS_OTA
-    ota_breeze_service_manage_t ota_module;
-#endif
-
     (void)arg;
     
     /*intialize struct device_config with predfined device info and callbacks*/
@@ -147,22 +143,9 @@ static void breeze_work(void *arg)
     init_bzlink.secret_len = 0;
 #endif
 
-#ifdef CONFIG_AIS_OTA
-    /*
-     * When OTA over breeze is enabled:
-     * 1.Initialize OTA component by calling ota_breeze_service_init.
-     * 2.Register callback for breeze component with ota_cb in device_config struct.
-     * */
-    ota_module.is_ota_enable = true;
-    ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
-    if(ota_module.verison.fw_ver_len > sizeof(ota_module.verison.fw_ver)) {
-        printf("breeze version too long");
-        return;
-    }
-    memcpy(ota_module.verison.fw_ver, SOFTWARE_VERSION, ota_module.verison.fw_ver_len);
-    ota_module.get_dat_cb = NULL;
-    ota_breeze_service_init(&ota_module);
-    init_bzlink.ota_cb = ota_module.get_dat_cb;
+#ifdef OTA_CONFIG_BLE
+    ota_service_init(&ctx);
+    init_bzlink.ota_cb = ctx.on_message;
 #else
     init_bzlink.ota_cb = ota_handler;
 #endif
