@@ -2,7 +2,7 @@ config AOS_COMP_SENSOR
     bool "Sensor Drivers Configuration"
     default n
     select AOS_COMP_MBMASTER if AOS_SENSOR_MODBUS_ENABLE
-    select AOS_COMP_ATPARSER if AOS_SENSOR_GPS_SIMCOM_SIM868
+    select AOS_COMP_AT if AOS_SENSOR_GPS_SIMCOM_SIM868
     select AOS_COMP_DEVICE_SAL_SIM800 if AOS_SENSOR_GPS_SIMCOM_SIM868
     select AOS_COMP_VFS
     help
