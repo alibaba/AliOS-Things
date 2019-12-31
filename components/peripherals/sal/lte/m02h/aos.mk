@@ -9,7 +9,7 @@ GLOBAL_CFLAGS += -D__SAL_DEV_NAME=m02h
 
 $(NAME)_COMPONENTS += yloop
 
-$(NAME)_COMPONENTS += atparser
+$(NAME)_COMPONENTS += at
 $(NAME)_SOURCES += m02h.c
 
 GLOBAL_INCLUDES += ./
