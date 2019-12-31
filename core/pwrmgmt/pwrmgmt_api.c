@@ -20,7 +20,7 @@ static uint32_t cpu_suspend_lock = 0;
 static uint32_t wifi_suspend_lock = 0;
 #endif
 
-int pwrmgmt_init() {
+int32_t pwrmgmt_init(void) {
     kstat_t stat;
 
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt init\r\n");
@@ -35,7 +35,7 @@ int pwrmgmt_init() {
     return 0;
 }
 
-int pwrmgmt_lowpower_suspend(uint32_t suspend_module)
+int32_t pwrmgmt_lowpower_suspend(uint32_t suspend_module)
 {
     hal_wifi_module_t *module = NULL;
 
@@ -78,7 +78,7 @@ int pwrmgmt_lowpower_suspend(uint32_t suspend_module)
     return 0;
 }
 
-int pwrmgmt_lowpower_resume(uint32_t resume_module)
+int32_t pwrmgmt_lowpower_resume(uint32_t resume_module)
 {
     hal_wifi_module_t *module = NULL;
 
@@ -122,7 +122,7 @@ int pwrmgmt_lowpower_resume(uint32_t resume_module)
 }
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
-int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
+int32_t pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
 {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt suspend cpu low power\r\n");
 
@@ -142,7 +142,7 @@ int pwrmgmt_cpu_lowpower_suspend(uint32_t suspend_module)
     return 0;
 }
 
-int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
+int32_t pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
 {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "pwrmgmt resume cpu low power\r\n");
 
@@ -164,7 +164,7 @@ int pwrmgmt_cpu_lowpower_resume(uint32_t resume_module)
 #endif /* PWRMGMT_CONFIG_CPU_LOWPOWER > 0 */
 
 #if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
-int pwrmgmt_wifi_powersave_enable(void)
+int32_t pwrmgmt_wifi_powersave_enable(void)
 {
     hal_wifi_module_t *module = NULL;
 
@@ -179,7 +179,7 @@ int pwrmgmt_wifi_powersave_enable(void)
     return 0;
 }
 
-int pwrmgmt_wifi_powersave_resume(uint32_t resume_module)
+int32_t pwrmgmt_wifi_powersave_resume(uint32_t resume_module)
 {
     hal_wifi_module_t *module = NULL;
 
@@ -203,7 +203,7 @@ int pwrmgmt_wifi_powersave_resume(uint32_t resume_module)
     return 0;
 }
 
-int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
+int32_t pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
 {
     hal_wifi_module_t *module = NULL;
 
@@ -231,7 +231,7 @@ int pwrmgmt_wifi_powersave_suspend(uint32_t suspend_module)
 
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
 #if (PWRMGMT_CONFIG_MINISLEEP > 0)
-int pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
+int32_t pwrmgmt_cpu_minisleep_msec_set(uint32_t time_ms)
 {
     PWRMGMT_LOG(PWRMGMT_LOG_INFO, "set the minimum sleep time %dms\r\n", time_ms);
     cpu_pwr_minisleep_msec_set(time_ms);
@@ -245,7 +245,7 @@ uint32_t pwrmgmt_cpu_minisleep_msec_get(void)
 #endif /* PWRMGMT_CONFIG_MINISLEEP > 0 */
 
 #if (PWRMGMT_CONFIG_CPU_ACTIVE > 0)
-int pwrmgmt_cpu_active_msec_set(uint32_t active_time)
+int32_t pwrmgmt_cpu_active_msec_set(uint32_t active_time)
 {
     tick_t active_tick = 0;
 
