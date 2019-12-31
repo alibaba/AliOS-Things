@@ -8,7 +8,7 @@
 #include "ota_socket.h"
 #include "dbg_ws.h"
 
-#include "ota/ota_service.h"
+#include "ota/ota_agent.h"
 
 #ifdef LINUXOSX
 #define OTA_BUFFER_MAX_SIZE 8192
