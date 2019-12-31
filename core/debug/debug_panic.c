@@ -3,8 +3,6 @@
  */
 #include <stdarg.h>
 #include "debug_api.h"
-#include "debug_panic.h"
-#include "debug_overview.h"
 #include "k_compiler.h"
 #include "aos/kernel.h"
 
