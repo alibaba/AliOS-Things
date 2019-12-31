@@ -16,7 +16,7 @@
 #include "und_platform.h"
 
 #ifdef AOS_COMP_DEBUG
-#include "debug_api.h"
+#include "aos/debug.h"
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -69,7 +69,7 @@ int und_init()
     undp_mutex_unlock(ctx->mutex);
 
 #ifdef AOS_COMP_DEBUG
-    und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, (int)debug_reboot_reason_get());
+    und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, (int)aos_debug_reboot_reason_get());
 #else
     und_update_statis(UND_STATIS_DEV_EXCEPTION_IDX, UND_STATIS_DEV_REPOWER_REASON);
 #endif
