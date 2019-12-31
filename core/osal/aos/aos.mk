@@ -64,5 +64,9 @@ ifeq ($(AOS_COMP_PWRMGMT),y)
 $(NAME)_SOURCES += pwrmgmt.c
 endif
 
+ifeq ($(AOS_COMP_DEBUG),y)
+$(NAME)_SOURCES += debug.c
+endif
+
 endif
 
