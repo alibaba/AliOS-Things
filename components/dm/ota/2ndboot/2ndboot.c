@@ -4,6 +4,13 @@
 #include "2ndboot.h"
 #include "updater.h"
 
+int ota_patch_show_percent(int per)
+{
+   int ret = 0;
+   OTA_LOG_I("Show upgreade percent:%d \n", per);
+   return ret;
+}
+
 int ota_updater(void)
 {
     int ret = -1;

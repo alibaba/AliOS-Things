@@ -1,7 +1,0 @@
-config AOS_COMP_OTA_BLE
-    bool  "BLE OTA Support"
-    default n
-
-if AOS_COMP_OTA_BLE
-# Configurations for comp ota_ble
-endif
