@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "k_api.h"
-#include "debug_overview.h"
+#include "debug_api.h"
 
 #define BACK_TRACE_LIMIT 64
 
