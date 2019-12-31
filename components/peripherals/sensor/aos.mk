@@ -45,7 +45,7 @@ GLOBAL_DEFINES += SENSOR_SPI_ENABLE
 endif
 
 ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
-$(NAME)_COMPONENTS += atparser device_sal_sim800
+$(NAME)_COMPONENTS += at device_sal_sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
 GLOBAL_DEFINES += AOS_SENSOR_GPS_SIMCON_SIM868
 endif

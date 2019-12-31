@@ -13,8 +13,8 @@
 
 #include <atcmd_config_module.h>
 
-#include <atparser.h>
-#include <sal_import.h>
+#include <at/at.h>
+#include <hal_sal.h>
 
 #define TAG "sal_wifi"
 

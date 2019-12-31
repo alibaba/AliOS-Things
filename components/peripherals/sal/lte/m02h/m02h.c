@@ -13,8 +13,8 @@
 
 #include <atcmd_config_module.h>
 
-#include <atparser.h>
-#include <sal_import.h>
+#include <at/at.h>
+#include <hal_sal.h>
 
 typedef enum {
     MODE_BUFFER_ACCESS = 0,
