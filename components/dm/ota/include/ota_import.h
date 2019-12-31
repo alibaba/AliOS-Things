@@ -4,7 +4,7 @@
 
 #ifndef OTA_API_H
 #define OTA_API_H
-#include "ota/ota_service.h"
+#include "ota/ota_agent.h"
 #include "uagent/uagent_type.h"
 
 #define OTA_INFO        (UAGENT_FUNC_USER_BASE)   /* ota process */
@@ -22,7 +22,11 @@
 #endif
 
 #ifndef OTA_DOWNLOAD_BLOCK_SIZE
-#define OTA_DOWNLOAD_BLOCK_SIZE    512   /*OTA download block size:1024*/
+#define OTA_DOWNLOAD_BLOCK_SIZE    512   /*OTA download block size:512*/
+#endif
+
+#ifndef OTA_FLASH_BLOCK_SIZE
+#define OTA_FLASH_BLOCK_SIZE     0x10000   /*OTA erase/write block size:64K*/
 #endif
 
 #ifndef OTA_FLASH_WRITE_CACHE_SIZE
@@ -33,6 +37,43 @@
 #define OTA_HTTP_HEAD_LEN          512  /*OTA download http header len*/
 #endif
 
+/* OTA upgrade flag */
+#define OTA_UPGRADE_CUST   0x8778 /* upgrade user customize image */
+#define OTA_UPGRADE_ALL    0x9669 /* upgrade all image: kernel+framework+app */
+#define OTA_UPGRADE_XZ     0xA55A /* upgrade xz compressed image */
+#define OTA_UPGRADE_DIFF   0xB44B /* upgrade diff compressed image */
+#define OTA_UPGRADE_KERNEL 0xC33C /* upgrade kernel image only */
+#define OTA_UPGRADE_APP    0xD22D /* upgrade app image only */
+#define OTA_BIN_MAGIC_APP     0xabababab
+#define OTA_BIN_MAGIC_KERNEL  0xcdcdcdcd
+#define OTA_BIN_MAGIC_ALL     0xefefefef
+#define OTA_BIN_MAGIC_MCU     0xefcdefcd
+#define OTA_MSG_LEN  256 /*OTA topic message max len*/
+
+#define EXTRACT_U16(d) (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8))
+#define EXTRACT_U32(d)                                              \
+    (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8) | \
+    (*((unsigned char *)(d) + 2) << 16) | (*((unsigned char *)(d) + 3) << 24))
+
+#define ENCODE_U16(d, val)                             \
+{                                                      \
+    *((unsigned char *)(d))     = (val)&0xFF;          \
+    *((unsigned char *)(d) + 1) = ((val) >> 8) & 0xFF; \
+}
+
+#define ENCODE_U32(d, val)                              \
+{                                                       \
+    *((unsigned char *)(d))     = (val)&0xFF;           \
+    *((unsigned char *)(d) + 1) = ((val) >> 8) & 0xFF;  \
+    *((unsigned char *)(d) + 2) = ((val) >> 16) & 0xFF; \
+    *((unsigned char *)(d) + 3) = ((val) >> 24) & 0xFF; \
+}
+
+enum {
+    OTA_PROCESS_NORMAL = 0,
+    OTA_PROCESS_UAGENT_OTA
+};
+
 typedef enum {
     OTA_REQ_VERSION = 0,
     OTA_UPGRADE_SOC = 1,
@@ -41,7 +82,8 @@ typedef enum {
 
 /**
 *
-* ota_parse_dl_url error code
+* ota transport
+*
 **/
 typedef enum {
         OTA_PAR_SUCCESS      = 0,
@@ -58,28 +100,20 @@ typedef enum {
         OTA_SIGN_PAR_FAIL    = -11,
 } OTA_TRANSPORT_ERR_E;
 
-ota_service_t * ota_get_service_manager(void);
+/*
+*
+* ota verify
+*/
+#define OTA_HASH_NONE                (0)
+#define OTA_SHA256                   (1)
+#define OTA_MD5                      (2)
+#define OTA_SHA256_HASH_SIZE         (32)
+#define OTA_MD5_HASH_SIZE            (16)
+#define OTA_SIGN_BITNUMB             (2048)
 
-int ota_update_process(const char *error_description, const int step);
+int ota_check_hash(unsigned char type, char *src, char *dst);  /* ota compare hash value. */
+unsigned short ota_get_upgrade_flag(void);                     /* ota get upgrade flag. */
+int ota_update_upg_flag(unsigned short flag);                  /* ota update upgrade flag. */
 
-/**
- * ota_parse_host_url  OTA parse host url
- *
- * @param[in] char *url           pasre url to host name & uri.
- *
- * @return host_name              host name from download url.
- * @return host_uri               host uri from download url.
- */
-void ota_parse_host_url(char *url, char **host_name, char **host_uri);
-
-/**
- * ota_parse_dl_url  OTA parse download url from transport message
- *
- * @param[in] char *json          transport message from Cloud.
- *
- * @return NULL.
- */
-void ota_parse_dl_url(const char *json);
-
+int ota_update_process(const char *err, const int step);
 #endif /*__OTA_API_H__*/
-
