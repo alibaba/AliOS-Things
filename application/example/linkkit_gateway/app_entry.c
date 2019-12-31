@@ -29,7 +29,7 @@
 #endif
 
 #if defined(ENABLE_AOS_OTA)
-#include "ota/ota_service.h"
+#include "ota/ota_agent.h"
 static ota_service_t ctx = {0};
 #endif
 
@@ -50,7 +50,27 @@ void print_heap()
 #endif
 
 #if defined(ENABLE_AOS_OTA)
-static ota_service_t *ota_get_device_info(void)
+static int ota_upgrade_cb(ota_service_t* pctx, char *ver, char *url)
+{
+    int ret = -1;
+    LOG("ota version:%s is coming, if OTA upgrade or not ?\n", ver);
+#if defined OTA_CONFIG_SECURE_DL_MODE
+    LOG("Secure download mode.\n");
+    ota_msleep(200);
+    ota_reboot();
+#else
+    void *thread = NULL;
+    if(pctx != NULL) {
+        ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
+    }
+    if (ret < 0) {
+        LOG("ota thread err;%d ", ret);
+    }
+#endif
+    return ret;
+}
+
+static ota_service_t *ota_get_ctx(void)
 {
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
@@ -79,7 +99,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 #if defined(ENABLE_AOS_OTA) && defined(OTA_CONFIG_SECURE_DL_MODE)
     LOG("OTA secure download start ...\n");
-    ota_service_start(ota_get_device_info());
+    ota_service_start(ota_get_ctx());
 #endif
     netmgr_ap_config_t config;
     memset(&config, 0, sizeof(netmgr_ap_config_t));
@@ -379,7 +399,8 @@ static int mqtt_connected_event_handler(void)
 {
 #if defined(ENABLE_AOS_OTA)
     LOG("OTA service init ...\n");
-    ota_service_init(ota_get_device_info());
+    ota_register_cb(&ctx, OTA_CB_ID_UPGRADE, (void*)ota_upgrade_cb);
+    ota_service_init(ota_get_ctx());
 #endif
     return 0;
 }
@@ -399,7 +420,6 @@ int application_start(int argc, char **argv)
     sal_add_dev(NULL, NULL);
     sal_init();
 #endif
-
 
     aos_set_log_level(AOS_LL_DEBUG);
 
