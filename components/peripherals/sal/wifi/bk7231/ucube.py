@@ -5,7 +5,7 @@ src = Split('''
 
 component = aos_component('device_sal_bk7231', src)
 
-component.add_comp_deps('network/nal/atparser')
+component.add_comp_deps('network/nal/at')
 component.add_comp_deps('kernel/yloop')
 
 component.add_global_includes('.')

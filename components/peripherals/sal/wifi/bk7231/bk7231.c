@@ -11,8 +11,8 @@
 
 #include "network/hal/wifi.h"
 
-#include <atparser.h>
-#include <sal_import.h>
+#include <at/at.h>
+#include <hal_sal.h>
 #include <atcmd_config_module.h>
 
 #define TAG "sal_wifi"
