@@ -8,7 +8,7 @@
 #include "aos/kernel.h"
 #include "fs/kv.h"
 #include "aos/hal/flash.h"
-#include "ota/ota_service.h"
+#include "ota/ota_hal.h"
 
 typedef struct
 {

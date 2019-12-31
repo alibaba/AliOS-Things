@@ -6,7 +6,7 @@
 #include "aos/kernel.h"
 #include "fs/kv.h"
 #include "aos/hal/flash.h"
-#include "ota/ota_service.h"
+#include "ota/ota_hal.h"
 
 #define OTA_IMAGE_A    0
 #define OTA_IMAGE_B    1
