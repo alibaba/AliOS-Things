@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #include "k_api.h"
-#include "debug_overview.h"
+#include "debug_api.h"
 
 /* part of ktask_t */
 typedef struct
