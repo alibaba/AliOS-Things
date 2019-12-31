@@ -49,6 +49,7 @@ typedef enum {
     HAL_PARTITION_2ND_BOOT,     /**< For 2nd boot */
     HAL_PARTITION_MBINS_APP,    /**< For app bin when muti bins */
     HAL_PARTITION_MBINS_KERNEL, /**< For kernel bin when muti bins */
+    HAL_PARTITION_OTA_SUB,      /**< For Sub device OTA */
     HAL_PARTITION_MAX,
     HAL_PARTITION_NONE,
 } hal_partition_t;
