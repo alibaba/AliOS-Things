@@ -21,8 +21,6 @@ $(NAME)_SOURCES := debug_cpuusage.c  \
 GLOBAL_DEFINES += AOS_COMP_DEBUG
 GLOBAL_ASMFLAGS += -DAOS_COMP_DEBUG
 
-$(NAME)_INCLUDES += ./include
-
-GLOBAL_INCLUDES  += ../../include/debug  ./
+GLOBAL_INCLUDES  += ../../include/debug  ./include
 
 
