@@ -7,7 +7,7 @@
 #ifdef AOS_COMP_DEBUG
 
 #include "k_api.h"
-#include "debug_cpuusage.h"
+#include "debug_api.h"
 
 #if (RHINO_CONFIG_SYS_STATS > 0)
 
