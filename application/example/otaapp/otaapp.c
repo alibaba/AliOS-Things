@@ -153,34 +153,46 @@ static void cmd_devinfo(char *pwbuf, int blen, int argc, char **argv)
 
 static void cmd_download(char *pwbuf, int blen, int argc, char **argv)
 {
-    if (argc <= 1) {
-        LOG("ota_download [url]");
+    ota_boot_param_t param = {0};
+    if (argc <= 2) {
+        LOG("ota_download [url] [size]");
         return;
     }
-    LOG("download url:%s \n", argv[1]);
+    LOG("ota download url:%s size:%d \n", argv[1], argv[2]);
+    param.len = strtoul(argv[2], NULL, 10);
+    ota_int(&param);
     ota_download_init(&ctx);
     ota_download_start(&ctx, argv[1]);
 }
 
 static void cmd_diff_ota(char *pwbuf, int blen, int argc, char **argv)
 {
-    LOG("diff ota start");
-    ota_boot_param_t ota_info = {0};
-    ota_info.upg_flag = 0xB44B;
-    ota_hal_boot(&ota_info);
+    ota_boot_param_t param = {0};
+    if (argc <= 1) {
+        LOG("ota_diff [size]");
+        return;
+    }
+    LOG("ota diff size:%d \n", argv[1]);
+    param.len = strtoul(argv[1], NULL, 10);
+    param.upg_flag = 0xB44B;
+    ota_hal_boot(&param);
 }
 
 static void cmd_mcu_ota(char *pwbuf, int blen, int argc, char **argv)
 {
+    ota_boot_param_t param = {0};
     unsigned char mcu_type = atoi(argv[1]);
-    if (argc <= 1) {
-        LOG("ota_mcu [type: 0->Ymod 1->CAN]");
+    if (argc <= 3) {
+        LOG("ota_mcu [size] [version]");
         return;
     }
-    LOG("mcu ota type:%d \n", mcu_type);
-    ota_boot_param_t ota_info = {0};
-    ota_info.upg_flag = 0xB44B;
-    ota_hal_boot(&ota_info);
+    LOG("ota mcu size:%d version:%s \n", argv[1], argv[2]);
+    param.len = strtoul(argv[2], NULL, 10);
+#if defined OTA_CONFIG_MCU_CAN
+    ota_mcu_can_upgrade(param.len, argv[3], NULL);
+#elif defined OTA_CONFIG_MCU_YMODEM
+    ota_mcu_ymodem_upgrade(param.len, argv[3], NULL);
+#endif
 }
 
 static struct cli_command ota_cmd[5] = {
