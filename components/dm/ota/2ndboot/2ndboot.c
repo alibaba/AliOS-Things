@@ -7,7 +7,7 @@
 int ota_patch_show_percent(int per)
 {
    int ret = 0;
-   OTA_LOG_I("Show upgreade percent:%d \n", per);
+   OTA_LOG_I("Show upgrade percent:%d \n", per);
    return ret;
 }
 
