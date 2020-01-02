@@ -30,6 +30,16 @@ extern "C" {
 #define DEBUG_REBOOT_REASON_FATAL_ERR 0x04 /**< System fatal error */
 
 /**
+ * convert int to ascii(HEX)
+ * while using format % in libc, malloc/free is involved.
+ * this function avoid using malloc/free. so it works when heap corrupt.
+ * @param[in]   num      number
+ * @param[in]   str      fix 8 character str
+ * @return  str
+ */
+char *k_int2str(int num, char *str);
+
+/**
  * Show backtrace when called by printf
  *
  * @note: printf should be check when used in interrupt routing
@@ -102,6 +112,32 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...));
  * @retrun NULL
  */
 void debug_overview(void);
+
+/**
+ * This function will statistics the task run time in the previous statistics cycle
+ * @return NULL
+ */
+void debug_task_cpu_usage_stats(void);
+
+/**
+ * This function will get the cpuusage for the specified task
+ * @param[in]   task   the task to obtain CPU utilization
+ * @return cpuusage, the units are 1/10,000
+ */
+uint32_t debug_task_cpu_usage_get(ktask_t *task);
+
+/**
+ * This function will get the cpuusage for the specified CPU
+ * @param[in]   cpuid   the cpu id to obtain CPU utilization
+ * @return cpuusage, the units are 1/10,000
+ */
+uint32_t debug_total_cpu_usage_get(uint32_t cpuid);
+
+/**
+ * This function will show the statistics for CPU utilization
+ * @return NULL
+ */
+void debug_total_cpu_usage_show(void);
 
 void panicHandler(void *context);
 void debug_fatal_error(kstat_t err, char *file, int line);
