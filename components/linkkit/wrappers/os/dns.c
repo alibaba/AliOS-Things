@@ -51,6 +51,7 @@ static void dns_uint2str(uint8_t *input, char *output)
     uint8_t pos = 0;
     char temp[10] = {0};
 
+    memset(output, 0, 16);
     for (idx = 0;idx < 4;idx++) {
         i = 0;
         j = 0;
@@ -63,9 +64,9 @@ static void dns_uint2str(uint8_t *input, char *output)
         do {
             output[--i + strlen(output)] = temp[j++];
         } while (i > 0);
-        output[strlen(output)] = '.';
+        if(idx < 3)
+            output[strlen(output)] = '.';
     }
-    output[strlen(output) - 1] = 0x00;
 }
 
 void dns_request_message(char *domain, uint8_t buffer[1024], uint32_t *index)
