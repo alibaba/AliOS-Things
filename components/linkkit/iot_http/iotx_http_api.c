@@ -557,7 +557,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
 
 do_exit:
     if (http_handle) {
-        wrapper_http_deinit(http_handle);
+        wrapper_http_deinit(&http_handle);
         http_handle = NULL;
     }
 
@@ -778,7 +778,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 do_exit_pre:
 
     if (http_handle) {
-        wrapper_http_deinit(http_handle);
+        wrapper_http_deinit(&http_handle);
         http_handle = NULL;
     }
 
