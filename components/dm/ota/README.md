@@ -5,41 +5,12 @@ OTA
 ├── aos.mk
 ├── Config.in
 ├── hal
-│   ├── ota_hal_ctrl.c
-│   ├── ota_hal_ctrl.h
-│   ├── ota_hal_digest.c
-│   ├── ota_hal_digest.h
-│   ├── ota_hal_os.c
-│   ├── ota_hal_os.h
-│   ├── ota_hal_param.c
-│   ├── ota_hal_param.h
 │   ├── ota_hal_plat.c
-│   ├── ota_hal_trans.c
-│   └── ota_hal_trans.h
 ├── include
 │   ├── ota_ble.h
 │   ├── ota_import.h
 │   ├── ota_log.h
-├── agent
-│   ├── download
-│   │   ├── ota_download_ble.c
-│   │   ├── ota_download_coap.c
-│   │   └── ota_download_http.c
-│   ├── mcu
-│   │   ├── ota_mcu_can.c
-│   │   ├── ota_mcu_can_slave.c
-│   │   ├── ota_mcu_upgrade.c
-│   │   ├── ota_mcu_upgrade.h
-│   │   └── ota_mcu_ymodem.c
-│   ├── ota_service.c
-│   ├── transport
-│   │   ├── ota_transport_ble.c
-│   │   ├── ota_transport_coap.c
-│   │   └── ota_transport_mqtt.c
-│   └── verify
-│       ├── ota_public_key.h
-│       ├── ota_verify_hash.c
-│       └── ota_verify_rsa.c
+├── lib
 └── README.md
 
 ```
