@@ -12,7 +12,6 @@
 
 #ifdef AOS_COMP_DEBUG
 #include "debug_api.h"
-#include "debug_cpuusage.h"
 #endif
 
 #ifdef OSAL_RHINO
