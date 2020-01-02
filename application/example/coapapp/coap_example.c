@@ -27,8 +27,8 @@
 
 // for demo only
 #define IOTX_PRODUCT_KEY      "a1X2bEnP82z"
-#define IOTX_DEVICE_NAME      "test_06"
-#define IOTX_DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define IOTX_DEVICE_NAME      "test_coap_01"
+#define IOTX_DEVICE_SECRET    "6DY0Kp6wzjEe5aU29mDifGDBJ5sxC2NL"
 
 
 char m_coap_client_running = 0;
@@ -227,7 +227,7 @@ reconnect:
     }
 
     IOT_SetLogLevel(IOT_LOG_NONE);
-    LOGD("[COAP-Client]: Exit Coap Client");
+    LOGD(TAG, "[COAP-Client]: Exit Coap Client");
     return 0;
 }
 
