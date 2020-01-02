@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 /** @addtogroup debug debug
  *  DEBUG API: debug service for AliOS Things
  *
@@ -93,6 +95,38 @@ void aos_debug_sem_overview(int (*print_func)(const char *fmt, ...));
  * @retrun NULL
  */
 void aos_debug_overview(void);
+
+/**
+ * This function will statistics the task run time in the previous statistics cycle
+ *
+ * @return NULL
+ */
+void aos_debug_task_cpu_usage_stats(void);
+
+/**
+ * This function will get the cpuusage for the specified task
+ *
+ * @param[in]  taskname  the task name which is need to be got
+ *
+ * @return cpuusage, the units are 1/10,000
+ */
+int32_t aos_debug_task_cpu_usage_get(char *taskname);
+
+/**
+ * This function will get the cpuusage for the specified CPU
+ *
+ * @param[in]   cpuid   the cpu id to obtain CPU utilization
+ *
+ * @return -1 is error, others is cpuusage, the units are 1/10,000
+ */
+uint32_t aos_debug_total_cpu_usage_get(uint32_t cpuid);
+
+/**
+ * This function will show the statistics for CPU utilization
+ *
+ * @return NULL
+ */
+void aos_debug_total_cpu_usage_show(void);
 
 /**
  * Get system reboot reason
