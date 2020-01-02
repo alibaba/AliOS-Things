@@ -37,6 +37,29 @@
 #define OTA_HTTP_HEAD_LEN          512  /*OTA download http header len*/
 #endif
 
+#define OTA_MCU_BLOCK_SIZE (1024 + 32)
+#define OTA_MCU_TIMEOUT    (20000)
+
+/* MCU upgrade status */
+#define  OTA_MCU_STATUS_INIT    0x00
+#define  OTA_MCU_STATUS_FINISH  0x80
+
+/* MCU data communication command */
+#define  OTA_MCU_CMD_VERSION    0x10
+#define  OTA_MCU_CMD_READY      0x20
+#define  OTA_MCU_CMD_REBOOT     0x30
+#define  OTA_MCU_CMD_DATA       0x40
+
+/* MCU command response code */
+#define  OTA_MCU_RES_SUCCESS    0x14
+#define  OTA_MCU_RES_FAIL       0x15
+#define  OTA_MCU_RES_HEAD_ERR   0x16
+#define  OTA_MCU_RES_FRAME_ERR  0x17
+#define  OTA_MCU_RES_CRC_ERR    0x18
+#define  OTA_MCU_RES_WRITE_ERR  0x19
+#define  OTA_MCU_RES_MD5_ERR    0x1A
+#define  OTA_MCU_RES_ALLOW_UP   0x28
+
 /* OTA upgrade flag */
 #define OTA_UPGRADE_CUST   0x8778 /* upgrade user customize image */
 #define OTA_UPGRADE_ALL    0x9669 /* upgrade all image: kernel+framework+app */
@@ -111,9 +134,29 @@ typedef enum {
 #define OTA_MD5_HASH_SIZE            (16)
 #define OTA_SIGN_BITNUMB             (2048)
 
+#if defined(__ICCARM__)
+#define OTA_WEAK                __weak
+#else
+#define OTA_WEAK                __attribute__((weak))
+#endif
+
+int ota_is_download_mode(void);
+unsigned short ota_get_upgrade_flag(void);
+int ota_update_upg_flag(unsigned short flag);
+int ota_read_parameter(ota_boot_param_t *ota_param);
+int ota_update_parameter(ota_boot_param_t *ota_param);
+
+int hal_reboot_bank(void);
+int ota_is_download_mode(void);
+int ota_int(ota_boot_param_t *param);
+int ota_clear(ota_boot_param_t *param);
+int ota_verify(ota_boot_param_t *param);
+int ota_write(unsigned int *off, char *in_buf, unsigned int in_buf_len);
+int ota_read(unsigned int *off, char *out_buf, unsigned int out_buf_len);
+
 int ota_check_hash(unsigned char type, char *src, char *dst);  /* ota compare hash value. */
 unsigned short ota_get_upgrade_flag(void);                     /* ota get upgrade flag. */
 int ota_update_upg_flag(unsigned short flag);                  /* ota update upgrade flag. */
-
 int ota_update_process(const char *err, const int step);
+int ota_mcu_upgrade_start(unsigned int size, char* ver, char* md5);
 #endif /*__OTA_API_H__*/
