@@ -6,6 +6,9 @@
 #include "linkkit/wrappers/wrappers.h"
 #include <ulog/ulog.h>
 
+#define LITE_printf                     printf
+#define LITE_snprintf                   snprintf
+#define LITE_vsnprintf                  vsnprintf
 #define LOG_NONE_LEVEL                  (0)     /* no log printed at all */
 #define LOG_CRIT_LEVEL                  (1)     /* current application aborting */
 #define LOG_ERR_LEVEL                   (2)     /* current app-module error */
