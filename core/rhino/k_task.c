@@ -1074,25 +1074,42 @@ kstat_t krhino_task_time_slice_set(ktask_t *task, size_t slice)
     return RHINO_SUCCESS;
 }
 
-kstat_t krhino_sched_policy_set(ktask_t *task, uint8_t policy)
+kstat_t krhino_sched_param_set(ktask_t *task, uint8_t policy, uint8_t pri)
 {
     CPSR_ALLOC();
+    uint8_t old_pri;
+    kstat_t ret;
 
+    (void)ret;
     NULL_PARA_CHK(task);
 
-    if ((policy != KSCHED_FIFO) && (policy != KSCHED_RR)) {
+    if ((policy != KSCHED_FIFO) && (policy != KSCHED_RR) && (policy != KSCHED_CFS)) {
         return RHINO_INV_SCHED_WAY;
     }
+#if (RHINO_CONFIG_SCHED_CFS > 0)
+    ret = task_policy_check(pri, policy);
+    if (ret != RHINO_SUCCESS) {
+        return ret;
+    }
+#endif
 
+    krhino_sched_disable();
     RHINO_CRITICAL_ENTER();
-
-    INTRPT_NESTED_LEVEL_CHK();
-
+    krhino_task_pri_change(task, pri, &old_pri);
     task->sched_policy = policy;
     RHINO_CRITICAL_EXIT();
+    krhino_sched_enable();
 
     return RHINO_SUCCESS;
 }
+
+
+kstat_t krhino_sched_policy_set(ktask_t *task, uint8_t policy)
+{
+    NULL_PARA_CHK(task);
+    return krhino_sched_param_set(task, policy, task->prio);
+}
+
 
 kstat_t krhino_sched_policy_get(ktask_t *task, uint8_t *policy)
 {
