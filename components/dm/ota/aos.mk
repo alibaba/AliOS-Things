@@ -23,20 +23,21 @@ $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_esp32.a
 else
 ifneq (,$(filter mcu_stm32l4xx_cube mcu_stm32f4xx_cube mcu_mtk7682 mcu_m487jidae mcu_msp432p4xx, $(HOST_MCU_FAMILY)))
 ifneq (,$(filter sal,$(COMPONENTS)))
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_softabi_sal.a
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_softabi_sal.a #developerkit
 else
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_softabi.a
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_softabi.a     #mtk7682s
 endif
 else
 ifneq (,$(filter sal,$(COMPONENTS)))
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_sal.a
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent_sal.a #cy8ckit-062
 else
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent.a
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/ota_agent.a     #mk3080
 endif
 endif
 endif
 endif
 endif
 
-GLOBAL_INCLUDES += include
+$(NAME)_SOURCES += hal/ota_hal_plat.c
+$(NAME)_INCLUDES += include hal
 
