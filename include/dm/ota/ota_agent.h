@@ -178,7 +178,7 @@ typedef struct ota_service_s {
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_service_init(ota_service_t *ctx);
 
@@ -190,7 +190,7 @@ int ota_service_init(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_service_start(ota_service_t *ctx);
 
@@ -202,7 +202,7 @@ int ota_service_start(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_service_deinit(ota_service_t *ctx);
 
@@ -214,7 +214,7 @@ int ota_service_deinit(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_sevice_parse_msg(ota_service_t *ctx, const char *json);
 
@@ -238,7 +238,7 @@ enum {
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_service_register_cb(ota_service_t *ctx, int id, void* cb);
 
@@ -253,7 +253,7 @@ int ota_service_register_cb(ota_service_t *ctx, int id, void* cb);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_transport_init(ota_service_t *ctx);
 
@@ -266,7 +266,7 @@ int ota_transport_init(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_transport_inform(ota_service_t *ctx, char *ver);
 
@@ -278,7 +278,7 @@ int ota_transport_inform(ota_service_t *ctx, char *ver);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_transport_upgrade(ota_service_t *ctx);
 
@@ -291,7 +291,7 @@ int ota_transport_upgrade(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_transport_status(ota_service_t *ctx, int status);
 
@@ -303,7 +303,7 @@ int ota_transport_status(ota_service_t *ctx, int status);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_transport_deinit(ota_service_t *ctx);
 
@@ -315,7 +315,7 @@ int ota_transport_deinit(ota_service_t *ctx);
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old. 
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 #if defined OTA_CONFIG_BLE
 void ota_ble_transport_msg(breeze_otainfo_t *ble_info);
@@ -421,14 +421,14 @@ int ota_update_parameter(ota_boot_param_t *param);
 #if defined OTA_CONFIG_ITLS
 typedef struct {
     size_t size;
-    void *ali_ctx; 
+    void *ali_ctx;
 } ota_md5_context, ota_sha256_context;
 #else
 /**
  *  Struct:  MD5 Context.
  */
 typedef struct
-{   
+{
     unsigned int  total[2];
     unsigned int  state[4];
     unsigned char buffer[64];
