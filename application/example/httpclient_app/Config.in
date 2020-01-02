@@ -1,14 +1,13 @@
-config AOS_APP_HTTPAPP
-    bool "HTTP App "
+config AOS_APP_HTTPCLIENT_APP
+    bool "HTTP Client App"
     select AOS_COMP_HTTP
-    select AOS_COMP_SDK_HTTP
     select AOS_COMP_NETMGR
     select AOS_COMP_LWIP
     select AOS_COMP_CLI
     help
         HTTP client app
 
-if AOS_APP_HTTPAPP
+if AOS_APP_HTTPCLIENT_APP
 config CONFIG_HTTP_SECURE
     bool "Support HTTP Secure"
     default n
