@@ -159,19 +159,35 @@ enum http_status
 #undef XX
   };
 
-/*
-  Remove HTTP_DELETE, HTTP_GET, HTTP_HEAD
-  HTTP_POST,HTTP_PUT and Add these method
-  in http_def_config.h
+/* Below methods are defined in http_def_config.h,
+   undef these methods here. These methods will redefine in http_method */
+#ifdef HTTP_DELETE
+#undef HTTP_DELETE
+#endif
+
+#ifdef HTTP_GET
+#undef HTTP_GET
+#endif
+
+#ifdef HTTP_HEAD
+#undef HTTP_HEAD
+#endif
+
+#ifdef HTTP_POST
+#undef HTTP_POST
+#endif
+
+#ifdef HTTP_PUT
+#undef HTTP_PUT
+#endif
+
+/* Request Methods */
+#define HTTP_METHOD_MAP(XX)         \
   XX(0,  DELETE,      DELETE)       \
   XX(1,  GET,         GET)          \
   XX(2,  HEAD,        HEAD)         \
   XX(3,  POST,        POST)         \
   XX(4,  PUT,         PUT)          \
-*/
-
-/* Request Methods */
-#define HTTP_METHOD_MAP(XX)         \
   /* pathological */                \
   XX(5,  CONNECT,     CONNECT)      \
   XX(6,  OPTIONS,     OPTIONS)      \
