@@ -295,6 +295,15 @@ kstat_t krhino_task_time_slice_set(ktask_t *task, size_t slice);
  */
 kstat_t krhino_sched_policy_set(ktask_t *task, uint8_t policy);
 
+
+/**
+ * This function will set task sched param
+ * @param[in]  task    the task to be set timeslice
+ * @param[in]  policy  the policy to be set, pllicy option can be either KSCHED_FIFO or KSCHED_RR
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_sched_param_set(ktask_t *task, uint8_t policy, uint8_t pri);
+
 /**
  * This function will get task sched policy
  * @param[in]   task    the task to be get timeslice
