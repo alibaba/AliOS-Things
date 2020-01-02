@@ -62,12 +62,9 @@ aos make
 ```
 netmgr connect ssid passwd
 ```
-2. run ota demo
+2. set devinfo(pk ps dn ds), burn and run ota demo
 
 ```
-OTA_APP pk dn ds ps
-```
-
 ## Reference
 
 * https://github.com/alibaba/AliOS-Things/wiki/OTA-Tutorial
