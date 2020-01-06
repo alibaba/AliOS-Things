@@ -35,6 +35,14 @@ chip_code_st g_chip_codes[] = {
     {STM_CHIP_VENDOR, stm32l4xx_cube, "mcu_stm32l4xx_cube"}, //0x000e001d
     {XRADIO_CHIP_VENDOR, xr871, "mcu_xr871"}, //0x000f001e
     {MTK_CHIP_VENDOR, mtk6261m, "mcu_mtk6261m"}, //0x0010001f
+    {ASR_CHIP_VENDOR, asr3601, "mcu_asr3601"}, //0x00110021
+    /* celluar module */
+    {AIR_CHIP_VENDOR, air202f, "mcu_air202f"}, //0x00120022  合宙模组
+    {NEOWAY_CHIP_VENDOR, N10, "mcu_N10"},      //0x00130023  有方模组
+    {FIBOCOM_CHIP_VENDOR, l718, "mcu_l718"},   //0x00140024  广和通模组
+    {QUECTEL_CHIP_VENDOR, ec100, "mcu_ec100"}, //0x00150025  移远模组
+    {QUECTEL_CHIP_VENDOR, ec200, "mcu_ec200"}, //0x00150026  移远模组
+    {MTK_CHIP_VENDOR, mtk6261d, "mcu_mtk6261d"},//0x00100027 MTK模组
 };
 
 chip_code_st *get_chip_code( char *name)
