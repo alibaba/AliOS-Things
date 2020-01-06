@@ -1,5 +1,6 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file k_default_config.h
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef K_DEFAULT_CONFIG_H
