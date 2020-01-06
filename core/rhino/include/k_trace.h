@@ -1,10 +1,17 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file k_trace.h
+ *
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef K_TRACE_H
 #define K_TRACE_H
 
+/** @addtogroup aos_rhino trace
+ *  Trace
+ *
+ *  @{
+ */
 
 /* task trace */
 #define TRACE_INIT()
@@ -68,6 +75,8 @@
 #define TRACE_WORK_INIT(task, work)
 #define TRACE_WORKQUEUE_CREATE(task, workqueue)
 #define TRACE_WORKQUEUE_DEL(task, workqueue)
+
+/** @} */
 
 #endif
 
