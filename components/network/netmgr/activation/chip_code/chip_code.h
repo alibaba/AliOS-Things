@@ -35,6 +35,11 @@ enum CHIP_VENDOR {
     STM_CHIP_VENDOR,
     XRADIO_CHIP_VENDOR,
     MTK_CHIP_VENDOR,
+    ASR_CHIP_VENDOR,
+    AIR_CHIP_VENDOR,
+    NEOWAY_CHIP_VENDOR,
+    FIBOCOM_CHIP_VENDOR,
+    QUECTEL_CHIP_VENDOR,
     CHIP_VENDOR_LIMIT = 0xFFFF
 };
 
@@ -72,6 +77,13 @@ enum CHIP_ID {
     xr871,
     mtk6261m,
     mx1101,
+    asr3601,
+    air202f,
+    N10,
+    l718,
+    ec100,
+    ec200,
+    mtk6261d,
     CHIP_ID_LIMIT = 0xFFFF
 };
 
