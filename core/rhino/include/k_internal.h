@@ -1,11 +1,17 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file k_internel.h
+ *
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef K_INTERNAL_H
 #define K_INTERNAL_H
 
-/* This file is used for rhino internel */
+/** @addtogroup aos_rhino internal
+ *  OS internal funtions
+ *
+ *  @{
+ */
 
 extern kstat_t g_sys_stat;
 extern uint8_t g_idle_task_spawned[RHINO_CONFIG_CPU_NUM];
@@ -202,6 +208,8 @@ void    k_mm_init(void);
 void cpu_pwr_down(void);
 void cpu_pwr_up(void);
 #endif
+
+/** @} */
 
 #endif /* K_INTERNAL_H */
 
