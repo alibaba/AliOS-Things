@@ -1,9 +1,17 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file k_sys.h
+ *
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef K_SYS_H
 #define K_SYS_H
+
+/** @addtogroup aos_rhino sys
+ *  OS system functions
+ *
+ *  @{
+ */
 
 #define RHINO_VERSION  12000
 #define RHINO_IDLE_PRI (RHINO_CONFIG_PRI_MAX - 1)
@@ -36,49 +44,79 @@ extern cpu_stack_t *g_intrpt_stack_top;
 #endif /* RHINO_CONFIG_INTRPT_STACK_OVF_CHECK */
 
 /**
- * This function will init AliOS
+ * Init krhino.
+ *
+ * @param[in]  NULL
+ *
  * @return the operation status, RHINO_SUCCESS is OK, others is error
+ *
  */
 kstat_t krhino_init(void);
 
 /**
- * This function will start AliOS
+ * Start krhino.
+ *
+ * @param[in]  NULL
+ *
  * @return the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_start(void);
 
 /**
- * This function will enter interrupt
+ * Interrupt handler starts, called when enter interrupt.
+ *
+ * @param[in]  NULL
+ *
  * @return the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_intrpt_enter(void);
 
 /**
- * This function will exit interrupt
+ * Interrupt handler ends, called when exit interrupt.
+ *
+ * @param[in]  NULL
+ *
+ * @return  NULL
  */
 void krhino_intrpt_exit(void);
 
 /**
- * This function will check intrpt-stack overflow
+ * Check system stack (used by interrupt) overflow.
+ *
+ * @param[in]  NULL
+ *
+ * @return  NULL
  */
 void krhino_intrpt_stack_ovf_check(void);
 
 /**
- * This function get the system next sleep ticks
+ * Get the number of ticks before next os tick event.
+ *
+ * @param[in]  NULL
+ *
+ * @return  RHINO_WAIT_FOREVER or the number of ticks
  */
 tick_t krhino_next_sleep_ticks_get(void);
 
 /**
- * This function will get the whole ram space used by kernel
+ * Get the whole ram space used by krhino global variable.
+ *
+ * @param[in]  NULL
+ *
  * @return  the whole ram space used by kernel
  */
 size_t krhino_global_space_get(void);
 
 /**
- * This function will get kernel version
- * @return the operation status, RHINO_SUCCESS is OK, others is error
+ * Get kernel version.
+ *
+ * @param[in]  NULL
+ *
+ * @return the kernel version
  */
 uint32_t krhino_version_get(void);
+
+/** @} */
 
 #endif /* K_SYS_H */
 
