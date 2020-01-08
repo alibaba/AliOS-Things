@@ -309,6 +309,7 @@ ping_thread(void *arg)
     sys_msleep(ping_delay);
   }
 exit:
+    lwip_close(s);
     ping_started = 0;
     ping_do_exit = 0;
     aos_task_exit(0);
