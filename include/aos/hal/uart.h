@@ -113,6 +113,17 @@ int32_t hal_uart_init(uart_dev_t *uart);
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout);
 
 /**
+ * Transmit data on a UART interface with polling
+ *
+ * @param[in]  uart     the UART interface
+ * @param[in]  data     pointer to the start of data
+ * @param[in]  size     number of bytes to transmit
+ *
+ * @return  0 : on success,  otherwise is error
+ */
+int32_t hal_uart_send_poll(uart_dev_t *uart, const void *data, uint32_t size);
+
+/**
  * Receive data on a UART interface
  *
  * @param[in]   uart         the UART interface
@@ -125,8 +136,23 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
  */
 int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t timeout);
 
+
 /**
- * Receive data on a UART interface with interrupt
+ * Receive data on a UART interface with polling
+ *
+ * @param[in]   uart         the UART interface
+ * @param[out]  data         pointer to the buffer which will store incoming data
+ * @param[in]   expect_size  number of bytes to receive
+ * @param[in]   timeout      timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                           if you want to wait forever
+ *
+ * @return  0 : on success,  otherwise is error
+ */
+int32_t hal_uart_recv_poll(uart_dev_t *uart, void *data, uint32_t expect_size);
+
+
+/**
+ * Receive data on a UART interface
  *
  * @param[in]   uart         the UART interface
  * @param[out]  data         pointer to the buffer which will store incoming data
