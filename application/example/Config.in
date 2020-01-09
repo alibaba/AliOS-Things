@@ -83,6 +83,11 @@ if AOS_APP_HELLOWORLD
         default "helloworld"
 endif
 
+source "application/example/halapp/Config.in"
+if AOS_APP_HALAPP
+    config AOS_BUILD_APP
+        default "halapp"
+endif
 source "application/example/http2app/Config.in"
 if AOS_APP_HTTP2APP
     config AOS_BUILD_APP
