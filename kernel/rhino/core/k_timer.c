@@ -411,6 +411,7 @@ static void timer_task(void *pa)
                 }
                 else if (err == RHINO_SUCCESS) {
                     g_timer_count = tick_end;
+                    timer_cb_proc();
                     timer_cmd_proc(&cb_msg);
                 }
                 else {
