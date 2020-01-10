@@ -411,6 +411,7 @@ $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
                     -I$(SOURCE_ROOT)/include/hal \
+                    -I$(SOURCE_ROOT)/include/bus \
                     -I$(SOURCE_ROOT)/include/cli \
                     -I$(SOURCE_ROOT)/include/hal/soc \
                     -I$(SOURCE_ROOT)/include/dm \
