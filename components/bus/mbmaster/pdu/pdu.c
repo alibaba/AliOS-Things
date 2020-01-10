@@ -38,9 +38,9 @@ mb_status_t pdu_type1221n_assemble(mb_handler_t *req_handler, uint8_t function_c
                                    uint16_t quantity, uint8_t byte_count, uint8_t *outputs_buf)
 {
     uint8_t     i;
-    mb_status_t status  = MB_SUCCESS;
-    uint8_t    *pdu_buf = &req_handler->mb_frame_buff[req_handler->pdu_offset];
-    uint16_t   *register_data = outputs_buf;
+    mb_status_t status        = MB_SUCCESS;
+    uint8_t    *pdu_buf       = &req_handler->mb_frame_buff[req_handler->pdu_offset];
+    uint16_t   *register_data = NULL;
 
     if (req_handler->slave_addr > SLAVE_ADDR_MAX) {
         status = MB_INVALID_SLAVE_ADDR;
@@ -54,12 +54,14 @@ mb_status_t pdu_type1221n_assemble(mb_handler_t *req_handler, uint8_t function_c
     pdu_buf[4] = (htobe16(quantity) >> 8) & 0xFF;
     pdu_buf[5] = byte_count;
 
+    memcpy(&pdu_buf[6], outputs_buf, byte_count);
+
+    register_data = &pdu_buf[6];
     if (function_code == FUNC_CODE_WRITE_MULTIPLE_REGISTERS) {
         for (i = 0; i < quantity; i++) {
             register_data[i] = htobe16(register_data[i]);
         }
     }
-    memcpy(&pdu_buf[6], register_data, byte_count);
 
     req_handler->pdu_length = 6 + byte_count;
 
