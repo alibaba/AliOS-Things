@@ -8,7 +8,7 @@
 
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 #endif
 
 #ifdef AOS_COMP_KV

@@ -8,7 +8,7 @@
 extern int backtrace_now(int (*print_func)(const char *fmt, ...));
 extern int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...));
 
-void debug_backtrace_now()
+void debug_backtrace_now(void)
 {
     backtrace_now(printf);
 }
