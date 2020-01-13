@@ -233,11 +233,6 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
-/* System stack size (for ISR, Fault) */
-#ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
-#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0
-#endif
-
 #ifndef RHINO_CONFIG_PWRMGMT
 #define RHINO_CONFIG_PWRMGMT                 0
 #endif
