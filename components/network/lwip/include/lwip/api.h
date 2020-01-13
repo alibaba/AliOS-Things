@@ -242,10 +242,12 @@ struct netconn {
       (or connections to arrive for listening netconns) */
   int recv_timeout;
 #endif /* LWIP_SO_RCVTIMEO */
-#if LWIP_SO_RCVBUF
+#if LWIP_SO_RCVTCPBUF || LWIP_SO_RCVBUF
   /** maximum amount of bytes queued in recvmbox
       not used for TCP: adjust TCP_WND instead! */
   int recv_bufsize;
+#endif /* LWIP_SO_RCVTCPBUF || LWIP_SO_RCVBUF */
+#if LWIP_SO_RCVBUF
   /** number of bytes currently in recvmbox to be received,
       tested against recv_bufsize to limit bytes on recvmbox
       for UDP and RAW, used for FIONREAD */
@@ -376,12 +378,12 @@ err_t   netconn_gethostbyname(const char *name, ip_addr_t *addr);
 /** Get the receive timeout in milliseconds */
 #define netconn_get_recvtimeout(conn)               ((conn)->recv_timeout)
 #endif /* LWIP_SO_RCVTIMEO */
-#if LWIP_SO_RCVBUF
+#if LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF
 /** Set the receive buffer in bytes */
 #define netconn_set_recvbufsize(conn, recvbufsize)  ((conn)->recv_bufsize = (recvbufsize))
 /** Get the receive buffer in bytes */
 #define netconn_get_recvbufsize(conn)               ((conn)->recv_bufsize)
-#endif /* LWIP_SO_RCVBUF*/
+#endif /* LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF */
 
 #if LWIP_NETCONN_SEM_PER_THREAD
 void netconn_thread_init(void);
