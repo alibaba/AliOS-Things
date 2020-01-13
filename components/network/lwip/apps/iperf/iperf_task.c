@@ -510,6 +510,10 @@ void iperf_tcp_run_server( char *parameters[] )
             break;
         }
 
+        int buflen = 64240;
+        if ( setsockopt( listenfd, SOL_SOCKET, SO_RCVBUF, (char *) &buflen, sizeof(buflen) ) < 0 ) {
+                LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive buf len\n" ));
+        }
         do {
             if ( server_port != 0 ) {
                 LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)", server_port ));
@@ -823,9 +827,9 @@ void iperf_udp_run_client( char *parameters[] )
                 i++;
                 LWIP_DEBUGF( IPERF_DEBUG, ("Set bandwidth = %s", (char *) &parameters[i * offset] ));
                 bw = iperf_format_transform( (char *) &parameters[i * offset] );
-                if ( bw > 2621440 || bw <= 0 ) {
-                    bw = 2621440;
-                    LWIP_DEBUGF( IPERF_DEBUG, ("Upper limit of bandwith setting = 10Mbits/sec" ));
+                if ( bw > 15728640 || bw <= 0 ) {
+                    bw = 15728640; /* Change from 2621440 to 15728640 */
+                    LWIP_DEBUGF( IPERF_DEBUG, ("Upper limit of bandwith setting = 60Mbits/sec\n" ));
                 }
                 LWIP_DEBUGF( IPERF_DEBUG, ("bandwidth = %d", bw ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-i" ) == 0 ) {
