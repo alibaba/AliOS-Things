@@ -197,7 +197,9 @@ static uint8_t _cli_iperf_debug(int argc, char **argv)
 void iperf_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
 {
     if ( argc < 2 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Invalid command" ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Invalid command\n"));
+        _cli_iperf_help_command( 0, NULL );
+        return;
     }
 
     if ( strcmp( argv[1], "-s" ) == 0 ) {
