@@ -1826,11 +1826,10 @@
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.
  */
 #if !defined RECV_BUFSIZE_DEFAULT || defined __DOXYGEN__
-#ifdef CELLULAR_SUPPORT
-#define RECV_BUFSIZE_DEFAULT            0x7fffffff
-#else
+#ifndef INT_MAX
+#define INT_MAX                         0x7fffffff
+#endif
 #define RECV_BUFSIZE_DEFAULT            INT_MAX
-#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**
