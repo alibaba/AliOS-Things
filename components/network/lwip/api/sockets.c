@@ -2253,12 +2253,12 @@ lwip_getsockopt_impl(int s, int level, int optname, void *optval, socklen_t *opt
       LWIP_SO_SNDRCVTIMEO_SET(optval, netconn_get_recvtimeout(sock->conn));
       break;
 #endif /* LWIP_SO_RCVTIMEO */
-#if LWIP_SO_RCVBUF
+#if LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF
     case SO_RCVBUF:
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN(sock, *optlen, int);
       *(int *)optval = netconn_get_recvbufsize(sock->conn);
       break;
-#endif /* LWIP_SO_RCVBUF */
+#endif /* LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF */
 #if LWIP_SO_LINGER
     case SO_LINGER:
       {
@@ -2634,12 +2634,17 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
       netconn_set_recvtimeout(sock->conn, (int)LWIP_SO_SNDRCVTIMEO_GET_MS(optval));
       break;
 #endif /* LWIP_SO_RCVTIMEO */
-#if LWIP_SO_RCVBUF
+#if LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF
     case SO_RCVBUF:
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN(sock, optlen, int);
       netconn_set_recvbufsize(sock->conn, *(const int*)optval);
+#if LWIP_SO_RCVTCPBUF
+      if(NETCONN_TCP == NETCONNTYPE_GROUP(netconn_type(sock->conn))) {
+          tcp_setrcvwnd(sock->conn->pcb.tcp, *(const int*)optval);
+      }
+#endif /* LWIP_SO_RCVTCPBUF */
       break;
-#endif /* LWIP_SO_RCVBUF */
+#endif /* LWIP_SO_RCVBUF || LWIP_SO_RCVTCPBUF */
 #if LWIP_SO_LINGER
     case SO_LINGER:
       {
