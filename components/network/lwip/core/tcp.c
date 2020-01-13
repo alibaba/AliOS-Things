@@ -704,8 +704,13 @@ u32_t
 tcp_update_rcv_ann_wnd(struct tcp_pcb *pcb)
 {
   u32_t new_right_edge = pcb->rcv_nxt + pcb->rcv_wnd;
+  tcpwnd_size_t tcp_wnd = TCP_WND;
 
-  if (TCP_SEQ_GEQ(new_right_edge, pcb->rcv_ann_right_edge + LWIP_MIN((TCP_WND / 2), pcb->mss))) {
+  if(pcb->usr_rcv_wnd != 0) {
+      tcp_wnd = pcb->usr_rcv_wnd;
+  }
+
+  if (TCP_SEQ_GEQ(new_right_edge, pcb->rcv_ann_right_edge + LWIP_MIN((tcp_wnd / 2), pcb->mss))) {
     /* we can advertise more window */
     pcb->rcv_ann_wnd = pcb->rcv_wnd;
     return new_right_edge - pcb->rcv_ann_right_edge;
@@ -765,7 +770,13 @@ tcp_recved(struct tcp_pcb *pcb, u16_t len)
    * watermark is TCP_WND/4), then send an explicit update now.
    * Otherwise wait for a packet to be sent in the normal course of
    * events (or more window to be available later) */
-  if (wnd_inflation >= TCP_WND_UPDATE_THRESHOLD) {
+  int tcp_wnd_update_threshold = TCP_WND_UPDATE_THRESHOLD;
+
+  if(pcb->usr_rcv_wnd != 0) {
+      tcp_wnd_update_threshold = LWIP_MIN((pcb->usr_rcv_wnd / 4), (TCP_MSS * 4));
+  }
+
+  if (wnd_inflation >= tcp_wnd_update_threshold) {
     tcp_ack_now(pcb);
     tcp_output(pcb);
   }
@@ -887,9 +898,17 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
   pcb->snd_lbb = iss - 1;
   /* Start with a window that does not need scaling. When window scaling is
      enabled and used, the window is enlarged when both sides agree on scaling. */
-  pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);
+  if(pcb->usr_rcv_wnd == 0) {
+      pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);
+      pcb->snd_wnd = TCP_WND;
+      pcb->ssthresh = TCP_WND;
+  }
+  else {
+      pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(pcb->usr_rcv_wnd);
+      pcb->snd_wnd = pcb->usr_rcv_wnd;
+      pcb->ssthresh = pcb->usr_rcv_wnd;
+  }
   pcb->rcv_ann_right_edge = pcb->rcv_nxt;
-  pcb->snd_wnd = TCP_WND;
   /* As initial send MSS, we use TCP_MSS but limit it to 536.
      The send MSS is updated when an MSS option is received. */
   pcb->mss = INITIAL_MSS;
@@ -897,7 +916,6 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
   pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
   pcb->cwnd = 1;
-  pcb->ssthresh = TCP_WND;
 #if LWIP_CALLBACK_API
   pcb->connected = connected;
 #else /* LWIP_CALLBACK_API */
@@ -1545,6 +1563,7 @@ tcp_alloc(u8_t prio)
     pcb->snd_buf = TCP_SND_BUF;
     /* Start with a window that does not need scaling. When window scaling is
        enabled and used, the window is enlarged when both sides agree on scaling. */
+    pcb->usr_rcv_wnd = 0;
     pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);
     pcb->ttl = TCP_TTL;
     /* As initial send MSS, we use TCP_MSS but limit it to 536.
@@ -1640,6 +1659,16 @@ tcp_arg(struct tcp_pcb *pcb, void *arg)
     pcb->callback_arg = arg;
   }
 }
+
+void
+tcp_setrcvwnd(struct tcp_pcb *pcb, u32_t rcvwnd)
+{
+  /* This function is allowed to set rcv wnd */
+  if ((pcb != NULL) && (rcvwnd != 0)) {
+    pcb->usr_rcv_wnd = (tcpwnd_size_t)rcvwnd;
+  }
+}
+
 #if LWIP_CALLBACK_API
 
 /**
