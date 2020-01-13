@@ -135,13 +135,16 @@ typedef err_t (*tcp_connected_fn)(void *arg, struct tcp_pcb *tpcb, err_t err);
 #define RCV_WND_SCALE(pcb, wnd) (((wnd) >> (pcb)->rcv_scale))
 #define SND_WND_SCALE(pcb, wnd) (((wnd) << (pcb)->snd_scale))
 #define TCPWND16(x)             ((u16_t)LWIP_MIN((x), 0xFFFF))
-#define TCP_WND_MAX(pcb)        ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? TCP_WND : TCPWND16(TCP_WND)))
+#define TCP_WND_MAX(pcb)        (pcb->usr_rcv_wnd == 0) ? \
+                                ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? TCP_WND : TCPWND16(TCP_WND))) \
+                                : ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? pcb->usr_rcv_wnd : TCPWND16(pcb->rcv_wnd)))
 typedef u32_t tcpwnd_size_t;
 #else
 #define RCV_WND_SCALE(pcb, wnd) (wnd)
 #define SND_WND_SCALE(pcb, wnd) (wnd)
 #define TCPWND16(x)             (x)
-#define TCP_WND_MAX(pcb)        TCP_WND
+#define TCP_WND_MAX(pcb)        (pcb->usr_rcv_wnd == 0) ? TCP_WND : pcb->usr_rcv_wnd
+
 typedef u16_t tcpwnd_size_t;
 #endif
 
@@ -184,8 +187,9 @@ struct tcp_sack_range {
   enum tcp_state state; /* TCP state */ \
   u8_t prio; \
   /* ports are in host byte order */ \
-  u16_t local_port
-
+  u16_t local_port; \
+  /* user use setsockopt to set tcp rcv wnd */ \
+  tcpwnd_size_t usr_rcv_wnd
 
 /** the TCP protocol control block for listening pcbs */
 struct tcp_pcb_listen {
@@ -369,6 +373,7 @@ struct tcp_pcb * tcp_new     (void);
 struct tcp_pcb * tcp_new_ip_type (u8_t type);
 
 void             tcp_arg     (struct tcp_pcb *pcb, void *arg);
+void             tcp_setrcvwnd  (struct tcp_pcb *pcb, u32_t newwnd);
 #if LWIP_CALLBACK_API
 void             tcp_recv    (struct tcp_pcb *pcb, tcp_recv_fn recv);
 void             tcp_sent    (struct tcp_pcb *pcb, tcp_sent_fn sent);
