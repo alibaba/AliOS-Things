@@ -15,7 +15,7 @@ endif
 
 $(NAME)_COMPONENTS +=
 
-$(NAME)_INCLUDES += include
+GLOBAL_INCLUDES += include
 GLOBAL_DEFINES  += AOS_COMP_CLI
 
 AOS_COMP_CLI ?= y
