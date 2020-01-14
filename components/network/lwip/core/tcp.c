@@ -973,6 +973,7 @@ tcp_slowtmr_start:
     LWIP_ASSERT("tcp_slowtmr: active pcb->state != TIME-WAIT\n", pcb->state != TIME_WAIT);
     if (pcb->last_timer == tcp_timer_ctr) {
       /* skip this pcb, we have already processed it */
+      prev = pcb;
       pcb = pcb->next;
       continue;
     }
@@ -1146,6 +1147,11 @@ tcp_slowtmr_start:
       /* get the 'next' element now and work with 'prev' below (in case of abort) */
       prev = pcb;
       pcb = pcb->next;
+
+      if (prev->callback_arg == NULL) {
+          LWIP_DEBUGF(TCP_DEBUG, ("skip this pcb %p, this pcb will be removed by app\n", prev));
+          continue;
+      }
 
       /* We check if we should poll the connection. */
       ++prev->polltmr;
