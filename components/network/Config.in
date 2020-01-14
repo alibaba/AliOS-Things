@@ -22,5 +22,6 @@ source "components/dm/und/Config.in"
 source "components/network/websocket/Config.in"
 source "components/network/lwftpd/Config.in"
 source "components/network/httpdns/Config.in"
+source "components/network/mal/Config.in"
 
 endmenu

@@ -1,0 +1,10 @@
+config AOS_COMP_MAL
+    bool "mal"
+    default n
+    select AOS_DEVICE_MAL
+    help
+        AliOS Things mqtt adapter layer
+
+if AOS_COMP_MAL
+# Configurations for mal component
+endif
