@@ -351,7 +351,10 @@ udp_input(struct pbuf *p, struct netif *inp)
       } else
 #endif /* LWIP_UDPLITE */
       {
-        if (udphdr->chksum != 0) {
+#ifndef DNS_SERVER_PORT
+#define DNS_SERVER_PORT 53
+#endif
+        if (lwip_ntohs(udphdr->src) != DNS_SERVER_PORT && udphdr->chksum != 0) {
           if (ip_chksum_pseudo(p, IP_PROTO_UDP, p->tot_len,
                                ip_current_src_addr(),
                                ip_current_dest_addr()) != 0) {
