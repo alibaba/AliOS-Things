@@ -11,10 +11,10 @@
 
 #include "network/hal/wifi.h"
 
-#include <atcmd_config_module.h>
+#include "atcmd_config_module.h"
 
-#include <at/at.h>
-#include <hal_sal.h>
+#include "at/at.h"
+#include "sal/hal_sal.h"
 
 #define TAG "sal_wifi"
 
