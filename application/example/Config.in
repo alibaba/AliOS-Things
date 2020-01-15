@@ -299,5 +299,11 @@ if AOS_APP_LWM2M_APP
         default "lwm2m_app"
 endif
 
+source "application/example/mal_app/Config.in"
+if AOS_APP_MAL_APP
+    config AOS_BUILD_APP
+        default "mal_app"
+endif
+
 endchoice
 endif
