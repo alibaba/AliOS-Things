@@ -1,0 +1,10 @@
+config AOS_APP_KERNEL_APP
+    bool "kernel_app"
+    select AOS_COMP_CLI
+    select AOS_COMP_DEBUG
+    help
+        kernel app
+
+if AOS_APP_KERNEL_APP
+# Configurations for app kernel
+endif
