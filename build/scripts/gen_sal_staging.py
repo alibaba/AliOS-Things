@@ -1,6 +1,7 @@
 import os
 import sys
 import click
+import re
 
 reload(sys)
 sys.setdefaultencoding('UTF8')
@@ -45,6 +46,11 @@ def copy_template(tempfile, templatedir, destdir, drivername):
             for line in contents:
                 f.write(line)
 
+        # add Config.in source
+        if tempfile == "Config.in" and os.path.isfile('%s/../Config.in' % destdir):
+            with open('%s/../Config.in'  % destdir, "a") as f:
+                destdir_relative = re.findall(r'.*(components\/peripherals\/sal.*)', destdir)
+                f.write("\"source %s/Config.in\n\"" % destdir_relative[0])
 
 def update_configin(configin_file, devicetype, drivername):
     """ Update Config.in in paraent directory """
