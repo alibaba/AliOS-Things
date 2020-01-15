@@ -1,0 +1,20 @@
+config AOS_DEVICE_MAL
+    bool "Enable MAL device"
+    default n if BSP_SUPPORT_EXTERNAL_MODULE
+    help
+        Choose to support external MAL device or not
+
+if AOS_DEVICE_MAL
+
+choice
+    prompt "MAL device selection"
+    default AOS_COMP_DEVICE_MAL_SIM800
+    help
+        Choose which device to use as the external module.
+
+    config AOS_MAL_NULL
+        bool "Null"
+    source "components/peripherals/mal/gprs/Config.in"
+endchoice
+
+endif
