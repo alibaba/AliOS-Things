@@ -123,5 +123,14 @@ endif
           Switching to "y" leads to support PING module
           Switching to "n" leads to not support PING module
 
+
+     config ARPCLI_ENABLED
+        bool "ARP Command Support"
+        default n
+        help
+          Support ARP command module
+
+          Switching to "y" leads to support ARPCLI module
+          Switching to "n" leads to not support ARPCLI module
 endmenu
 endif
