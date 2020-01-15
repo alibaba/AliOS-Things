@@ -1,0 +1,3 @@
+config AOS_COMP_DEVICE_MAL_SIM800
+    bool "mal.gprs.SIM800"
+    select AOS_COMP_AT
