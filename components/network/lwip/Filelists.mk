@@ -183,6 +183,10 @@ DHCPDFILES=apps/dhcpd/dhcps.c
 PINGFILES=apps/ping/ping.c \
           apps/ping/ping_cli.c
 
+
+# ARPCLIFILES: ARP command line files
+ARPCLIFILES = apps/arp/arp_cli.c
+
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
