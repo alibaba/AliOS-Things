@@ -97,6 +97,8 @@ err_t etharp_remove_static_entry(const ip4_addr_t *ipaddr);
 
 void etharp_input(struct pbuf *p, struct netif *netif);
 
+int etharp_info_print(void);
+
 #ifdef __cplusplus
 }
 #endif
