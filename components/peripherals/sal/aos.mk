@@ -4,6 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := general component name for sal devices
 
+
 ifeq (y,$(AOS_COMP_DEVICE_SAL_MK3060))
 $(NAME)_COMPONENTS += device_sal_mk3060
 else ifeq (y,$(AOS_COMP_DEVICE_SAL_ESP8266))
