@@ -1,9 +1,14 @@
+/*
+ * Copyright (C) 2017-2019 Alibaba Group Holding Limited
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "lwip/debug.h"
 #include "lwip/sockets.h"
 #include "lwip/apps/iperf_task.h"
 #include "lwip/apps/iperf_debug.h"
-#include <stdio.h>
-#include <stdlib.h>
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -793,7 +798,7 @@ void iperf_udp_run_client( char *parameters[] )
     pkt_delay = 0;
     pkt_delay_offset = 0;
     tos = 0;
-    bw = 2621440;
+    bw = 15728640; /* Change from 2621440 to 15728640 */
 
     //Handle input parameters
     if ( g_iperf_is_tradeoff_test_server == 0 ) {
