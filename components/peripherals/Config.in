@@ -2,5 +2,6 @@ menu "Drivers     Configuration"
 
 source "components/peripherals/sensor/Config.in"
 source "components/peripherals/sal/Config.in"
+source "components/peripherals/mal/Config.in"
 
 endmenu
