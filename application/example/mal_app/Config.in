@@ -1,0 +1,10 @@
+config AOS_APP_MAL_APP
+    bool "mal app"
+    select AOS_COMP_MAL
+    select AOS_COMP_SDK_SIGN
+    help
+        MQTT Adapter layer app
+
+if AOS_APP_MAL_APP
+# Configurations for MAL app
+endif
