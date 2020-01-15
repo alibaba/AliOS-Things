@@ -129,6 +129,33 @@ static u8_t etharp_cached_entry;
 
 static err_t etharp_request_dst(struct netif *netif, const ip4_addr_t *ipaddr, const struct eth_addr* hw_dst_addr);
 
+int etharp_info_print(void)
+{
+  int i;
+  int empty = 1;
+
+  for (i = 0; i < ARP_TABLE_SIZE; ++i) {
+    u8_t state = arp_table[i].state;
+
+    if (state != ETHARP_STATE_EMPTY) {
+      empty = 0;
+      printf("IP\t\tMAC\t\t\tTime\tState\n");
+      printf("%u.%u.%u.%u\t",
+             ip4_addr1_16(&arp_table[i].ipaddr), ip4_addr2_16(&arp_table[i].ipaddr),
+             ip4_addr3_16(&arp_table[i].ipaddr), ip4_addr4_16(&arp_table[i].ipaddr));
+      printf("%02x:%02x:%02x:%02x:%02x:%02x\t",
+             (u16_t)arp_table[i].ethaddr.addr[0], (u16_t)arp_table[i].ethaddr.addr[1], (u16_t)arp_table[i].ethaddr.addr[2],
+             (u16_t)arp_table[i].ethaddr.addr[3], (u16_t)arp_table[i].ethaddr.addr[4], (u16_t)arp_table[i].ethaddr.addr[5]);
+      printf("%u\t", arp_table[i].ctime);
+      printf("%s\n", (arp_table[i].state >= ETHARP_STATE_STABLE ? "stable" : "pending"));
+    }
+  }
+
+  if (empty)
+    return -1;
+
+  return 0;
+}
 
 #if ARP_QUEUEING
 /**
