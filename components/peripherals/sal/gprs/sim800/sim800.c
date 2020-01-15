@@ -10,7 +10,6 @@
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include "aos/yloop.h"
 
 #include <atcmd_config_module.h>
 

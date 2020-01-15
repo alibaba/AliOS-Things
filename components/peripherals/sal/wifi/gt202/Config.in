@@ -1,3 +1,0 @@
-config AOS_COMP_DEVICE_SAL_GT202
-    bool "wifi.GT202"
-    select AOS_COMP_AT
