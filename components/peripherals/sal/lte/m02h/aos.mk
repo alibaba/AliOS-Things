@@ -7,9 +7,6 @@ $(NAME)_SUMMARY := sal hal implemenation for m02h
 GLOBAL_DEFINES += DEV_SAL_M02H
 GLOBAL_CFLAGS += -D__SAL_DEV_NAME=m02h
 
-$(NAME)_COMPONENTS += yloop
-
-$(NAME)_COMPONENTS += at
 $(NAME)_SOURCES += m02h.c
 
 GLOBAL_INCLUDES += ./
