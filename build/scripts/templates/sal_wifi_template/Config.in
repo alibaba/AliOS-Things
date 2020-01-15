@@ -1,2 +1,3 @@
 config AOS_COMP_DEVICE_SAL_@DRIVERNAME@
-    bool "@DRIVERNAME@"
+    bool "wifi.@DRIVERNAME@"
+    select AOS_COMP_AT
