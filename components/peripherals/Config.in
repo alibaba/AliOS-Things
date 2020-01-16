@@ -1,7 +1,29 @@
 menu "Drivers     Configuration"
 
 source "components/peripherals/sensor/Config.in"
+
+choice
+    prompt "External module Configurations"
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default AOS_SAL_DEVICE
+
+config AOS_SAL_DEVICE
+        bool "SAL DEVICE"
+        select AOS_COMP_SAL
+        select AOS_COMP_NETMGR
+
+config AOS_MAL_DEVICE
+        bool "MAL MODULE"
+        select AOS_COMP_MAL
+
+endchoice
+
+if AOS_SAL_DEVICE
 source "components/peripherals/sal/Config.in"
+endif
+
+if AOS_MAL_DEVICE
 source "components/peripherals/mal/Config.in"
+endif
 
 endmenu
