@@ -132,6 +132,15 @@ endif
           Switching to "y" leads to support SENDFILE module
           Switching to "n" leads to not support SENDFILE module
 
+     config DNSCLI_ENABLED
+        bool "DNS Command Support"
+        default n
+        help
+          Support DNS command module
+
+          Switching to "y" leads to support DNSCLI module
+          Switching to "n" leads to not support DNSCLI module
+
      config ARPCLI_ENABLED
         bool "ARP Command Support"
         default n
