@@ -11,6 +11,6 @@ ifneq (y,$(strip $(AOS_COMP_SDK_WRAPPERS)))
 $(NAME)_SOURCES +=  ./mal_aos.c
 endif
 
-GLOBAL_DEFINES += WITH_MAL
+GLOBAL_DEFINES += WITH_MAL CONFIG_NO_TCPIP
 
 $(NAME)_INCLUDES += ./
