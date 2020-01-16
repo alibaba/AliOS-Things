@@ -2805,6 +2805,27 @@
 #if !defined IP6_DEBUG || defined __DOXYGEN__
 #define IP6_DEBUG                       LWIP_DBG_OFF
 #endif
+
+/**
+ * ARP_DEBUG: Enable debugging for pkt print.
+ */
+#if !defined ARP_DEBUG || defined __DOXYGEN__
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#endif
+
+/**
+ * ARP_DEBUG: Enable debugging for ARP app.
+ */
+#if !defined ARP_DEBUG || defined __DOXYGEN__
+#define ARP_DEBUG                       LWIP_DBG_OFF
+#endif
+
+/**
+ * SENDFILE_DEBUG: Enable debugging for Sendfile app.
+ */
+#if !defined SENDFILE_DEBUG || defined __DOXYGEN__
+#define SENDFILE_DEBUG                  LWIP_DBG_OFF
+#endif
 /**
  * @}
  */
