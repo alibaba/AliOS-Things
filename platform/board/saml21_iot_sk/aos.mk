@@ -61,11 +61,7 @@ GLOBAL_LDFLAGS  += -T platform/board/saml21_iot_sk/saml21j18b_flash.ld
 
 GLOBAL_INCLUDES += config
 
-
-AOS_NETWORK_SAL ?= n
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
 
