@@ -187,6 +187,9 @@ PINGFILES=apps/ping/ping.c \
 SENDFILEFILES=apps/sendfile/sendfile.c \
           apps/sendfile/sendfile_cli.c
 
+# DNSCLIFILES: DNS command line files
+DNSCLIFILES = apps/dns/dns_cli.c
+
 # ARPCLIFILES: ARP command line files
 ARPCLIFILES = apps/arp/arp_cli.c
 
