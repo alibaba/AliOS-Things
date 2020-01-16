@@ -97,7 +97,7 @@ def cli(drivername, mfname, devicetype, author):
         os.makedirs(destdir)
 
     if not os.path.isdir(templatedir):
-        click.echo("[Error] The driver templete is not evailable yet!\n")
+        click.echo("[Error] The driver templete is not available yet!\n")
         return 1
 
     sources = os.listdir(templatedir)
