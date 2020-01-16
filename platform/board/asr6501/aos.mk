@@ -29,12 +29,7 @@ manufactory_lora_driver ?= 1
 GLOBAL_INCLUDES += . \
 				   inc
 
-AOS_NETWORK_SAL ?= n
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
 
 GLOBAL_DEFINES += CY8C4147
 

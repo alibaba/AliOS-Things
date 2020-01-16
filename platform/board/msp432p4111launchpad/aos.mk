@@ -56,11 +56,12 @@ GLOBAL_LDFLAGS += -T platform/board/msp432p4111launchpad/msp432p4111.lds
 endif
 
 # yloop needs sal or lwip, module means the Plug-in module Type
-AOS_NETWORK_SAL ?= y
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
-GLOBAL_DEFINES     += CONFIG_NO_TCPIP
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
+GLOBAL_DEFINES += CONFIG_NO_TCPIP
+endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
 endif
 
 # It's defined by the developer

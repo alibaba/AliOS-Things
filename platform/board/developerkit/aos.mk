@@ -158,12 +158,12 @@ endif
 endif
 endif
 
-#AOS_NETWORK_SAL ?= y
-$(info AOS_NETWORK_SAL is $(AOS_NETWORK_SAL))
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
+endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
 endif
 
 ifeq ($(COMPILER),armcc)
