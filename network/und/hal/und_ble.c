@@ -5,6 +5,7 @@
 #ifdef FEATURE_UND_SUPPORT
 
 #ifdef FEATURE_UND_WITH_BLE
+#ifdef BUILD_AOS
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,5 +35,6 @@ int HAL_GetWirelessInfo(struct und_wireless_info_t *info)
 }
 #endif
 
+#endif /* end of BUILD_AOS */
 #endif /* end of FEATURE_UND_WITH_BLE */
 #endif /* end of FEATURE_UND_SUPPORT */
