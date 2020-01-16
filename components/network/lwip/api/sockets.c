@@ -305,6 +305,90 @@ static struct lwip_select_cb *select_cb_list;
     and checked in event_callback to see if it has changed. */
 static volatile int select_cb_ctr;
 
+#ifdef WITH_LWIP_LSFDCLI
+#define CHECK_SOCK_FD    (LSFD_DEBUG == LWIP_DBG_ON)
+
+#if CHECK_SOCK_FD
+#include "k_api.h"
+
+extern int backtrace_now_get(void *trace[], int size, int offset);
+
+#ifndef LSFD_TRACE_LVL
+#define LSFD_TRACE_LVL 4
+#endif /* LSFD_TRACE_LVL */
+
+struct sock_alloc_info
+{
+    int fd;
+    char *task_name;
+    void *trace[LSFD_TRACE_LVL];
+};
+
+static struct sock_alloc_info sock_alloc_infos[NUM_SOCKETS] = { 0 };
+
+static void add_sock_alloc_info(int index, int fd)
+{
+    char *taskname;
+    int len;
+
+    if (index >= NUM_SOCKETS || index < 0 || fd < 0)
+        return;
+
+    if (sock_alloc_infos[index].task_name != NULL) {
+        LWIP_DEBUGF(LSFD_DEBUG, ("sock %d alloc info used!\n", sock_alloc_infos[index].fd));
+        return;
+    }
+
+    sock_alloc_infos[index].fd = fd;
+
+    taskname = krhino_cur_task_get()->task_name;
+    len = strlen(taskname);
+    sock_alloc_infos[index].task_name = aos_malloc(len + 1);
+    memcpy(sock_alloc_infos[index].task_name, taskname, len);
+    sock_alloc_infos[index].task_name[len] = 0;
+
+    backtrace_now_get((void **)sock_alloc_infos[index].trace, LSFD_TRACE_LVL, 2);
+}
+
+static void del_sock_alloc_info(int index)
+{
+    int i;
+
+    if (index >= NUM_SOCKETS || index < 0)
+        return;
+
+    aos_free(sock_alloc_infos[index].task_name);
+    sock_alloc_infos[index].task_name = NULL;
+    sock_alloc_infos[index].fd = 0;
+
+    for (i = 0; i < LSFD_TRACE_LVL; i++)
+      sock_alloc_infos[index].trace[i] = 0;
+}
+
+void print_sock_alloc_info(void)
+{
+    int i, j;
+
+    LWIP_DEBUGF(LSFD_DEBUG, ("fd\ttaskname\tbacktrace\n"));
+
+    for (i = 0; i < NUM_SOCKETS; i++) {
+        if (sock_alloc_infos[i].task_name) {
+            LWIP_DEBUGF(LSFD_DEBUG, ("%d\t%s\t", sock_alloc_infos[i].fd,
+                             sock_alloc_infos[i].task_name));
+
+            LWIP_DEBUGF(LSFD_DEBUG, ("(%p", sock_alloc_infos[i].trace[0]));
+            for (j = 1; j < LSFD_TRACE_LVL; j++) {
+                if (sock_alloc_infos[i].trace[j])
+                    LWIP_DEBUGF(LSFD_DEBUG, (" <- %p", sock_alloc_infos[i].trace[j]));
+            }
+            LWIP_DEBUGF(LSFD_DEBUG, (")\n"));
+        }
+    }
+}
+
+#endif /* CHECK_SOCK_FD */
+#endif /* WITH_LWIP_LSFDCLI */
+
 #if LWIP_SOCKET_SET_ERRNO
 #ifndef set_errno
 #define set_errno(err) do { if (err) { errno = (err); } } while(0)
@@ -464,6 +548,12 @@ alloc_socket(struct netconn *newconn, int accepted)
       sockets[i].errevent   = 0;
       sockets[i].err        = 0;
       sockets[i].select_waiting = 0;
+
+#ifdef WITH_LWIP_LSFDCLI
+#if CHECK_SOCK_ALLOC
+     add_sock_alloc_info(i, i + LWIP_SOCKET_OFFSET);
+#endif
+#endif
       return i + LWIP_SOCKET_OFFSET;
     }
     SYS_ARCH_UNPROTECT(lev);
@@ -702,6 +792,12 @@ lwip_close(int s)
 
   free_socket(sock, is_tcp);
   set_errno(0);
+
+#ifdef WITH_LWIP_LSFDCLI
+#if CHECK_SOCK_ALLOC
+  del_sock_alloc_info(s - LWIP_SOCKET_OFFSET);
+#endif /* CHECK_SOCK_ALLOC */
+#endif /* LWIP_DEBUG */
   return 0;
 }
 
