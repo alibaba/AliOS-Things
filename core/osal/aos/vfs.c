@@ -88,14 +88,14 @@ int aos_stat(const char *path, struct aos_stat *st)
     return _vfs_to_aos_res(vfs_stat(path, (vfs_stat_t *)st));
 }
 
-int aos_fstat(int fh, struct aos_stat *st)
+int aos_fstat(int fd, struct aos_stat *st)
 {
-    return _vfs_to_aos_res(vfs_fstat(fh, (vfs_stat_t *)st));
+    return _vfs_to_aos_res(vfs_fstat(fd, (vfs_stat_t *)st));
 }
 
-int aos_link(const char *path1, const char *path2)
+int aos_link(const char *oldpath, const char *newpath)
 {
-    return _vfs_to_aos_res(vfs_link(path1, path2));
+    return _vfs_to_aos_res(vfs_link(oldpath, newpath));
 }
 
 int aos_unlink(const char *path)
