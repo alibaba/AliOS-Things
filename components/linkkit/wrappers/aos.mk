@@ -32,9 +32,11 @@ ifeq (y,$(strip $(SUPPORT_TLS)))
         $(NAME)_COMPONENTS +=  itls id2 alicrypto  libiot_certs 
         $(NAME)_SOURCES += os/HAL_TLS_itls.c
     else
-        $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
-        $(NAME)_COMPONENTS +=  mbedtls libiot_certs
-        $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c  os/dns.c
+        ifeq (y, $(strip $(MBEDTLS_CONFIG_TLS)))
+          $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
+          $(NAME)_COMPONENTS +=  mbedtls libiot_certs
+          $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c  os/dns.c
+        endif
     endif
 endif
 
