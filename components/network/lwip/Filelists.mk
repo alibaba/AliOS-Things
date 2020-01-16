@@ -193,6 +193,9 @@ DNSCLIFILES = apps/dns/dns_cli.c
 # ARPCLIFILES: ARP command line files
 ARPCLIFILES = apps/arp/arp_cli.c
 
+# LSFDCLIFILES: LSFD command line files
+LSFDCLIFILES = apps/lsfd/lsfd_cli.c
+
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
