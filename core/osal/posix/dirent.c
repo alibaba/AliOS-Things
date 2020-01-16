@@ -89,9 +89,9 @@ int statfs(const char *path, struct statfs *buf)
     return aos_statfs(path, buf);
 }
 
-int link(const char *path1, const char *path2)
+int link(const char *oldpath, const char *newpath)
 {
-    return aos_link(path1, path2);
+    return aos_link(oldpath, newpath);
 }
 
 int unlink(const char *path)

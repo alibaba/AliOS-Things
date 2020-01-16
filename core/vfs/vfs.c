@@ -382,14 +382,14 @@ int32_t vfs_fstat(int fd, vfs_stat_t *st)
     return ret;
 }
 
-int32_t vfs_link(const char *path1, const char *path2)
+int32_t vfs_link(const char *oldpath, const char *newpath)
 {
     int32_t ret = VFS_ERR_NOSYS;
 
     vfs_file_t  *f;
     vfs_inode_t *node;
 
-    if ((path1 == NULL)||(path2 == NULL)) {
+    if ((oldpath == NULL)||(newpath == NULL)) {
         return VFS_ERR_INVAL;
     }
 
@@ -397,7 +397,7 @@ int32_t vfs_link(const char *path1, const char *path2)
         return VFS_ERR_LOCK;
     }
 
-    node = vfs_inode_open(path1);
+    node = vfs_inode_open(oldpath);
 
     if (node == NULL) {
         vfs_unlock(g_vfs_lock_ptr);
@@ -414,7 +414,7 @@ int32_t vfs_link(const char *path1, const char *path2)
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->link) != NULL) {
-            ret = (node->ops.i_fops->link)(f, path1, path2);
+            ret = (node->ops.i_fops->link)(f, oldpath, newpath);
         }
     }
 
