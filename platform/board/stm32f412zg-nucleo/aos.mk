@@ -25,12 +25,14 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 
 $(NAME)_SOURCES += drv/board_drv_led.c
 
-AOS_NETWORK_SAL    ?= y
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
+endif
+
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f412zx_keil.s

@@ -28,12 +28,6 @@ GLOBAL_LDFLAGS  += -m32
 
 GLOBAL_INCLUDES += .
 
-AOS_NETWORK_SAL ?= n
-
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal
-endif
-
 # Define the default component testcase set
 TEST_COMPONENTS += basic_test aos_test cjson_test
 TEST_COMPONENTS += rhino_test kv_test fatfs_test

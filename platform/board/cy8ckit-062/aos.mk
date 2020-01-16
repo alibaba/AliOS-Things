@@ -16,11 +16,12 @@ $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .
 
-AOS_NETWORK_SAL ?= y
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
+endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
 endif
 
 GLOBAL_DEFINES += CY8C6347BZI_BLD53
