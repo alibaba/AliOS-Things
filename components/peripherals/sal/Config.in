@@ -1,11 +1,3 @@
-config AOS_DEVICE_SAL
-    bool "Enable SAL device"
-    default y if BSP_SUPPORT_EXTERNAL_MODULE
-    help
-        Choose to support external SAL device or not
-
-if AOS_DEVICE_SAL
-
 choice
     prompt "SAL device selection"
     default AOS_COMP_DEVICE_SAL_BK7231
@@ -19,5 +11,3 @@ choice
     source "components/peripherals/sal/lte/Config.in"
     source "components/peripherals/sal/nbiot/Config.in"
 endchoice
-
-endif
