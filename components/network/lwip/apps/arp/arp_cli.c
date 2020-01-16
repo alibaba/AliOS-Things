@@ -3,12 +3,12 @@
  */
 
 #include <string.h>
-#include <cli/cli_api.h>
+#include <aos/cli.h>
 #include <lwip/etharp.h>
 
 static void arp_command(char *buffer, int32_t buf_len, int32_t argc, char **argv);
 
-struct cli_command_st arp_cmd[] = {
+struct cli_command arp_cmd[] = {
     { "arp", "arp app", arp_command},
 };
 
