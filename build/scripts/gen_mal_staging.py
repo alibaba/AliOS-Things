@@ -8,12 +8,12 @@ sys.setdefaultencoding('UTF8')
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
-    "nbiot": ["templates/sal_nbiot_template", "components/peripherals/sal/nbiot"],
-    "gprs": ["templates/sal_gprs_template", "components/peripherals/sal/gprs"],
-    "wifi": ["templates/sal_wifi_template", "components/peripherals/sal/wifi"],
-    "lte": ["templates/sal_lte_template", "components/peripherals/sal/lte"],
-    "eth": ["templates/sal_eth_template", "components/peripherals/sal/eth"],
-    "other": ["templates/sal_other_template", "components/peripherals/sal/other"],
+    "nbiot": ["templates/mal_nbiot_template", "components/peripherals/mal/nbiot"],
+    "gprs": ["templates/mal_gprs_template", "components/peripherals/mal/gprs"],
+    "wifi": ["templates/mal_wifi_template", "components/peripherals/mal/wifi"],
+    "lte": ["templates/mal_lte_template", "components/peripherals/mal/lte"],
+    "eth": ["templates/mal_eth_template", "components/peripherals/mal/eth"],
+    "other": ["templates/mal_other_template", "components/peripherals/mal/other"],
 }
 
 
@@ -51,8 +51,8 @@ def copy_template(tempfile, templatedir, destdir, drivername):
         # add Config.in source
         if tempfile == "Config.in":
             father_config = '%s/../Config.in'  % destdir
-            destdir_relative = re.findall(r'.*(components\/peripherals\/sal.*)', destdir)
-            fatherdir_relative = re.findall(r'.*(components\/peripherals\/sal/[a-zA-Z0-9_\-]+)/.*', destdir)
+            destdir_relative = re.findall(r'.*(components\/peripherals\/mal.*)', destdir)
+            fatherdir_relative = re.findall(r'.*(components\/peripherals\/mal/[a-zA-Z0-9_\-]+)/.*', destdir)
 
             newf = []
             newline = []
@@ -85,7 +85,7 @@ def copy_template(tempfile, templatedir, destdir, drivername):
 @click.option("-t", "--devicetype", required=True, type=click.Choice(["nbiot", "gprs", "wifi", "lte", "eth", "other"]), help="The type of device")
 @click.option("-a", "--author", help="The author of driver")
 def cli(drivername, mfname, devicetype, author):
-    """ Create sal driver staging from template """
+    """ Create mal driver staging from template """
     templatedir = os.path.join(scriptdir, templates[devicetype][0])
     destdir = os.path.join(scriptdir, "../../", templates[devicetype][1], drivername)
     destdir = os.path.abspath(destdir)
