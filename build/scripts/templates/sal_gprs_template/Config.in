@@ -1,3 +1,4 @@
 config AOS_COMP_DEVICE_SAL_@DRIVERNAME@
-    bool "gprs.@DRIVERNAME@"
+    bool "gprs.@drivername@"
     select AOS_COMP_AT
+    select AOS_COMP_YLOOP
