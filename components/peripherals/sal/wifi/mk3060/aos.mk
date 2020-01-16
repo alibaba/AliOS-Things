@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := sal hal implementation for mk3060/mk3080
 GLOBAL_DEFINES += DEV_SAL_MK3060
 GLOBAL_CFLAGS += -D__SAL_DEV_NAME=mk3060
 
-$(NAME)_COMPONENTS += yloop at
+$(NAME)_COMPONENTS += yloop
 
 $(NAME)_SOURCES += mk3060.c \
                    wifi_atcmd_mk3060.c
