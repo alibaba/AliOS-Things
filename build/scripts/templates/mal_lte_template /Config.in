@@ -1,4 +1,4 @@
-config AOS_COMP_DEVICE_SAL_@DRIVERNAME@
+config AOS_COMP_DEVICE_MAL_@DRIVERNAME@
     bool "lte.@drivername@"
     select AOS_COMP_AT
     select AOS_COMP_YLOOP

@@ -14,6 +14,13 @@
  */
 /* #include "aos/kernel.h" */
 
+/*
+ *
+ * Header file for yloop. Uncomment following if used.
+ * e.g. Post got IP event.
+ *
+ */
+/* #include "aos/yloop.h" */
 
 /*
  *
