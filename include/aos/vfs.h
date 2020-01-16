@@ -24,6 +24,10 @@ extern "C" {
  *  @{
  */
 
+/**
+ * @brief aos_utimbuf structure describes the filesystem inode's
+ *        last access time and last modification time.
+ */
 struct aos_utimbuf {
     time_t actime;  /**< time of last access */
     time_t modtime; /**< time of last modification */
@@ -84,7 +88,9 @@ typedef struct {
 
 typedef void (*poll_notify_t)(void *pollfd, void *arg);
 
-/* This struct defined the file operate handles */
+/**
+ * @brief file_ops structure defines the file operation handles
+ */
 struct file_ops {
     int     (*open)(inode_t *node, file_t *fp);
     int     (*close)(file_t *fp);
@@ -94,7 +100,9 @@ struct file_ops {
     int     (*poll)(file_t *fp, int flag, poll_notify_t notify, void *fd, void *arg);
 };
 
-/* This struct defined the file system operate handles */
+/**
+ * @brief fs_ops structures defines the filesystem operation handles
+ */
 struct fs_ops {
     int           (*open)(file_t *fp, const char *path, int flags);
     int           (*close)(file_t *fp);
@@ -125,377 +133,476 @@ struct fs_ops {
 };
 
 /**
- * Init vfs.
+ * @brief aos_vfs_init() initializes vfs system.
  *
  * @param[in] NULL
  *
- * @return 0 on success, negative error on failure.
- *
+ * @return  On success, return new file descriptor.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_vfs_init(void);
 
 /**
- * Open the file or device by its path.
+ * @brief aos_open() opens the file or device by its @path.
  *
- * @param[in]  path   the path of the file or device to open.
- * @param[in]  flags  the mode of open operation.
+ * @param[in] path   the path of the file or device to open.
+ * @param[in] flags  the mode of open operation.
  *
- * @return  the new file descriptor, negative error on failure.
- *
+ * @return  On success, return new file descriptor.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_open(const char *path, int flags);
 
 /**
- * Close the file or device by its file descriptor.
+ * @brief aos_close() closes the file or device associated with file
+ *        descriptor @fd.
  *
- * @param[in]  fd  the file descriptor of the file or device.
+ * @param[in] fd  the file descriptor of the file or device.
  *
- * @return  0 on success, negative error on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_close(int fd);
 
 /**
- * Read the contents of a file or device into a buffer.
+ * @brief aos_read() attempts to read up to @nbytes bytes from file
+ *        descriptor @fd into the buffer starting at @buf.
  *
- * @param[in]   fd      the file descriptor of the file or device.
- * @param[in]   nbytes  the number of bytes to read.
- * @param[out]  buf     the buffer to read in to.
+ * @param[in]  fd      the file descriptor of the file or device.
+ * @param[out] buf     the buffer to read bytes into.
+ * @param[in]  nbytes  the number of bytes to read.
  *
- * @return  The number of bytes read, 0 at end of file, negative error on failure.
- *
+ * @return  On success, the number of bytes is returned (0 indicates end
+ *          of file) and the file position is advanced by this number.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 ssize_t aos_read(int fd, void *buf, size_t nbytes);
 
 /**
- * Write the contents of a buffer to file or device.
+ * @brief aos_write() writes up to @nbytes bytes from the buffer starting
+ *        at @buf to the file referred to by the file descriptor @fd.
  *
- * @param[in]  fd      the file descriptor of the file or device.
- * @param[in]  nbytes  the number of bytes to write.
- * @param[in]  buf     the buffer to write from.
+ * @param[in] fd      the file descriptor of the file or device.
+ * @param[in] buf     the buffer to write bytes from.
+ * @param[in] nbytes  the number of bytes to write.
  *
- * @return  The number of bytes written, negative error on failure.
- *
+ * @return  On success, the number of bytes written is returned, adn the file
+ *          position is advanced by this number..
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 ssize_t aos_write(int fd, const void *buf, size_t nbytes);
 
 /**
- * This is a wildcard API for sending controller specific commands.
+ * @brief aos_ioctl() manipulates the underlying device parameters of special
+ *        files. In particular, many operating characteristics of character
+ *        special filse may be controlled with aos_iotcl() requests. The argumnet
+ *        @fd must be an open file descriptor.
  *
- * @param[in]  fd   the file descriptior of the file or device.
- * @param[in]  cmd  A controller specific command.
- * @param[in]  arg  Argument to the command, interpreted according to the command.
+ * @param[in] fd   the file descriptior of the file or device.
+ * @param[in] cmd  A device-dependent request code.
+ * @param[in] arg  Argument to the request code, which is interpreted according
+ *                 to the request code.
  *
- * @return  any return from the command.
- *
+ * @return  Usually, on success 0 is returned. Some requests use the return
+ *          value as an output parameter and return a nonnegative value on success.
+ *          On error, neagtive error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_ioctl(int fd, int cmd, unsigned long arg);
 
 /**
- * @brief This is a wildcard API for executing the particular poll by fd
+ * @brief aos_do_pollfd() is a wildcard API for executing the particular poll events
  *
- * @param[in]  fd      the file descriptor of the file or device
- * @param[in]  flag    the flag of the polling
- * @param[in]  notify  the polling notify callback
- * @param[in]  fds     a pointer to the array of pollfd
- * @param[in]  arg     the arguments of the polling
+ * @param[in] fd      The file descriptor of the file or device
+ * @param[in] flag    The flag of the polling
+ * @param[in] notify  The polling notify callback
+ * @param[in] fds     A pointer to the array of pollfd
+ * @param[in] arg     The arguments of the polling
  *
- * @return 0 on success, negative error on failure
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_do_pollfd(int fd, int flag, poll_notify_t notify, void *fds, void *arg);
 
 /**
- * Move the file position to a given offset from a given location.
+ * @brief aos_lseek() repositions the file offset of the open file
+ *        description associated with the file descriptor @fd to the
+ *        argument @offset according to the directive @whence as follows:
  *
- * @param[in]  fd      the file descriptor of the file.
- * @param[in]  offset  The offset from whence to move to.
- * @param[in]  whence  The start of where to seek.
- *                     SEEK_SET to start from beginning of file.
- *                     SEEK_CUR to start from current position in file.
- *                     SEEK_END to start from end of file.
+ *        SEEK_SET: The file offset is set to @offset bytes.
+ *        SEEK_CUR: The file offset is set to its current location
+ *                  plus @offset bytes.
+ *        SEEK_END: The file offset is set to the size of the file
+ *                  plus @offset bytes.
  *
- * @return  The new offset of the file.
+ * @param[in] fd      The file descriptor of the file.
+ * @param[in] offset  The offset relative to @whence directive.
+ * @param[in] whence  The start position where to seek.
  *
+ * @return  On success, return the resulting offset location as measured
+ *          in bytes from the beginning of the file.
+ *          On error, neagtive error code is returned to indicate the cause
+ *          of the error.
  */
 off_t aos_lseek(int fd, off_t offset, int whence);
 
 /**
- * Flush any buffers associated with the file.
+ * @brief aos_sync causes all pending modifications to filesystem metadata
+ *        and cached file data to be written to the underlying filesystems.
  *
- * @param[in]  fd  the file descriptor of the file.
+ * @param[in] fd  the file descriptor of the file.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_sync(int fd);
 
 /**
- * Store information about the file in a stat structure.
+ * @brief aos_stat() return information about a file pointed to by @path
+ *        in the buffer pointed to by @st.
  *
- * @param[in]   path  The path of the file to find information about.
- * @param[out]  st    The stat buffer to write to.
+ * @param[in]  path  The path of the file to be quried.
+ * @param[out] st    The buffer to receive information.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_stat(const char *path, struct aos_stat *st);
 
 /**
- * Store information about the file in a vfs_stat structure
+ * @brief aos_fstat() return information about a file specified by the file
+ *        descriptor @fd in the buffer pointed to by @st.
  *
- * @param[in]   fh  the fh of the file to find information about
- * @param[out]  st  the vfs_stat buffer to write to
+ * @note  aos_fstat() is identical to aos_stat(), except that the file about
+ *        which information is to be retrieved is specified by the file
+ *        descriptor @fd.
  *
- * @return 0 on success, negative error on failure
+ * @param[in]  fd  The file descriptor of the file to be quired.
+ * @param[out] st  The buffer to receive information.
  *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
-int aos_fstat(int fh, struct aos_stat *st);
+int aos_fstat(int fd, struct aos_stat *st);
 
 /**
- * @brief link path2 to path1
+ * @brief aos_link() creates a new link @newpath to an existing file @oldpath.
  *
- * @param[in]  path1  the path to be linked
- * @param[in]  path2  the path to link
+ * @note  If @newpath exists, it will not be ovrewritten.
  *
- * @return 0 on success, negative error on failure
+ * @param[in] oldpath  The old path
+ * @param[in] newpath  The new path to be created
  *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
-int aos_link(const char *path1, const char *path2);
+int aos_link(const char *oldpath, const char *newpath);
 
 /**
- * Remove a file from the filesystem.
+ * @brief aos_unlink() deletes a name from the filesystem.
  *
- * @param[in]  path  The path of the file to remove.
+ * @param[in] path  The path of the file to be deleted.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_unlink(const char *path);
 
 /**
- * @brief Remove a file from the filesystem
+ * @brief aos_remove() deletes a name from the filesystem.
  *
- * @param[in] path the path of the file to remove
+ * @param[in] path  The path of the file to be deleted.
  *
- * @return 0 on success, negative error on failure
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_remove(const char *path);
 
 /**
- * Rename a file in the filesystem.
+ * @brief aos_rename() renames a file, moving it between directories
+ *        if required.
  *
- * @param[in]  oldpath  The path of the file to rename.
- * @param[in]  newpath  The path to rename it to.
+ * @param[in] oldpath  The old path of the file to rename.
+ * @param[in] newpath  The new path to rename the file to.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_rename(const char *oldpath, const char *newpath);
 
 /**
- * Open a directory on the filesystem.
+ * @brief aos_opendir() opens a directory stream corresponding to the
+ *        directory @path, and returns a pointer to the directory stream.
+ *        The stream is positioned at the first entry in the directory.
  *
- * @param[in]  path  the path of the directory to open.
+ * @param[in] path  the path of the directory to open.
  *
- * @return  a point of directory stream on success, NULL on failure.
- *
+ * @return  On success, return a point of directory stream.
+ *          On error, NULL is returned.
  */
 aos_dir_t *aos_opendir(const char *path);
 
 /**
- * Close a directory.
+ * @brief aos_closedir() closes the directory stream associated with
+ *        @dir. A successful call to aos_closedir() also closes the
+ *        underlying file descriptor associated with @dir. The directory
+ *        stream descriptor @dir is not available after this call.
  *
- * @param[in]  dir  the handle of the directory to close.
+ * @param[in] dir  The directory stream descriptor to be closed.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_closedir(aos_dir_t *dir);
 
 /**
- * Read the next directory entry.
+ * @brief aos_readdir() returns a pointer to an @aos_dirent_t representing
+ *        the next directory entry in the directory stream pointed to by
+ *        @dir. It returns Null on reaching the end of the directory stream
+ *        or if an error occurred.
  *
- * @param[in]  dir  the handle of the directory to read.
+ * @param[in] dir  The directory stream descriptor to read.
  *
- * @return  a pointer to a dirent structure.
- *
+ * @return  On success, aos_readdir() returns a pointer to an @aos_dirent_t
+ *          structure. If the end of the directory stream is reached, NULL is
+ *          returned.
+ *          On error, NULL is returned.
  */
 aos_dirent_t *aos_readdir(aos_dir_t *dir);
 
 /**
- * Create the directory, if they do not already exist.
+ * @brief aos_mkdir() attempts to create a directory named @path
  *
- * @param[in]  path  the path of the directory.
+ * @param[in] path  The name of directory to be created.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_mkdir(const char *path);
 
 /**
- * Remove a directory.
+ * @brief aos_rmdir() deletes a directory, which must be emtpy.
  *
- * @param[in]  path  the path of the directory.
+ * @param[in] path  The directory to be deleted.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_rmdir(const char *path);
 
 /**
- * Reset the position of a directory stream to the beginning of a directory.
+ * @brief aos_rewinddir() resets the position of the directory stream @dir
+ *        to the beginning of the directory.
  *
- * @param[in]  dir  the handle of the directory.
+ * @param[in] dir  The directory stream descriptor pointer.
  *
  * @return  none.
- *
  */
 void aos_rewinddir(aos_dir_t *dir);
 
 /**
- * Obtain the current location associated with the directory stream specified by dirp.
+ * @brief aos_telldir() returns the current location associated with the
+ *        directory stream @dir.
  *
- * @param[in]  dir  the handle of the directory.
+ * @param[in] dir  The directory stream descriptor pointer.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, aos_telldir() returns the current location in the
+ *          directory stream.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 long aos_telldir(aos_dir_t *dir);
 
 /**
- * Reset the position of a directory stream to the beginning of a directory.
+ * @brief aos_seekdir() sets the location in the directory stram from
+ *        which the next aos_readdir() call will start. The @loc argument
+ *        should be a value returnned by a previous call to aos_telldir().
  *
- * @param[in]  dir  the handle of the directory.
- * @param[in]  loc  the position of the directory.
+ * @param[in] dir  The directory stream descriptor pointer.
+ * @param[in] loc  The location in the directory stream from which the next
+ *                 aos_readdir() call will start.
  *
  * @return  none.
- *
  */
 void aos_seekdir(aos_dir_t *dir, long loc);
 
 /**
- * Store information about the file system in a statfs structure.
+ * @brief aos_statfs() gets information about a mounted filesystem.
  *
- * @param[in]   path  The path of the file system to find information about.
- * @param[out]  buf   The statfs buffer to write to.
+ * @param[in]  path  The path name of any file within the mounted filessytem.
+ * @param[out] buf   Buffer points to an aos_statfs structure to receive
+ *                   filesystem information.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success, return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_statfs(const char *path, struct aos_statfs *buf);
 
 /**
- * get access info.
+ * @brief aos_access() checks whether the calling process can access the
+ *        file @path.
  *
- * @param  path  The path of the file.
- * @param  mode  the info to get.
+ * @param[in] path  The path of the file.
+ * @param[in] mode  Specifies the accessibility check(s) to be performed, and
+ *                  is either the value of F_OK, or a mask consisting of the
+ *                  bitwise OR of one or more of R_OK, W_OK, and X_OK. F_OK
+ *                  tests for the existence of the file. R_OK, W_OK and X_OK
+ *                  tests whether the file exists and grants read, write, and
+ *                  execute permissions, repectively.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return On success (all requested permissions granted, or mode is F_OK and
+ *         the file exists), 0 is returned.
+ *         On error (at least one bit in mode asked for a permission that is
+ *         denied, or mode is F_OK and the file does not exist, or some other
+ *         error occurred), negative error code is returned to indicate the
+ *         cause of the error.
  */
 int aos_access(const char *path, int amode);
 
 /**
- * set the pathname of the current working directory
+ * @brief aos_chdir() changes the current working directory of the calling
+ *        process to the directory specified in @path.
  *
- * @param  path  The path to set.
+ * @param[in] path  The path to change to.
  *
- * @return  0 on success, negative error code on failure.
- *
+ * @return  On success return 0.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 int aos_chdir(const char *path);
 
 /**
- * get the pathname of the current working directory.
+ * @brief aos_getcwd() return a null-terminated string containing an absolute
+ *        pathname that is the current working directory of the calling process.
+ *        The pathname is returned as the function result and via the argument
+ *        @buf, if present.
+ *        aos_getcwd() function copies an absolute pathname of the current
+ *        working directory to the array pointed by @buf, which is of length @size.
  *
- * @param  buf   The buffer to save the current working directory.
- * @param  size  The size of buffer.
+ *        If the length of the absolute pathname of the current working directory,
+ *        including the terminating null byte, exceeds @size bytes, NULL is returned.
  *
- * @return  NULL if error occured, buf if succeed.
+ * @param[out] buf   The buffer to receive the current working directory pathname.
+ * @param[in]  size  The size of buffer.
  *
+ * @return On success, aos_getcwd() returns a pointer to a string containing
+ *         the pathname of the current working directory.
+ *         On error, NULL is returned.
  */
 char *aos_getcwd(char *buf, size_t size);
 
 /**
- * @brief Get path conf
+ * @brief aos_pathconf() gets a value for configuration option @name for the
+ *        filename @path.
  *
- * @param[in]  path  the path conf to get from
- * @param[in]  name  the kind of path conf to get
+ * @param[in] path  The path name to quire
+ * @param[in] name  The configuration option
  *
- * @return value of path info
+ * @return On error, negative error code is returned to indicate the cause
+ *         of the error.
+ *         On success, if @name corresponds to an option, a positive value is
+ *         returned if the option is supported.
  */
 long aos_pathconf(const char *path, int name);
 
 /**
- * @brief Get path info
+ * @brief aos_fpathconf() gets a value for the cofiguration option @name for
+ *        the open file descriptor @fd.
  *
- * @param[in]  name  the path info to get
+ * @param[in] fd    The open file descriptor to quire
+ * @param[in] name  The configuration option
  *
- * @return value of path info
+ *  @return On success, if @name corresponds to an option, a positive value is
+ *          returned if the option is supported.
+ *          On error, negative error code is returned to indicate the cause
+ *          of the error.
  */
 long aos_fpathconf(int fd, int name);
 
 /**
- * @brief Set the access and modification times
+ * @brief aos_utime() changes teh access and modification times of the inode
+ *        specified by @path to the actime and modtime fields of the @times
+ *        respectively.
+ *        If @times is NULL, then the access and modification times of the file
+ *        are set to the current time.
  *
- * @param[in]  path   the path conf to get from
- * @param[in]  times  the buffer to store time info
+ * @param[in] path   Path name of the inode to operate.
+ * @param[in] times  Buffer pointer to structure aos_utimbuf whose actime
+ *                    and modtime fields will be set to the inode @path.
  *
  * @return 0 on success, negative error code on failure
  */
 int aos_utime(const char *path, const struct aos_utimbuf *times);
 
 /**
- * get VFS fd offset
+ * @brief aos_vfs_fd_offset_get() gets VFS fd offset
  *
  * @return VFS fd offset
- *
  */
 int aos_vfs_fd_offset_get(void);
 
 /**
  * @brief Bind driver to the file or device
  *
- * @param[in]  path  the path of the file or device
- * @param[in]  ops   the driver operations to bind
- * @param[in]  arg   the arguments of the driver operations
+ * @param[in] path  The path of the file or device
+ * @param[in] ops   The driver operations to bind
+ * @param[in] arg   The arguments of the driver operations
  *
- * @return 0 on success, negative error on failure
- *
+ * @return On success return 0.
+ *         On error, negative error code is returned to indicate the cause
+ *         of the error.
  */
 int aos_register_driver(const char *path, file_ops_t *ops, void *arg);
 
 /**
  * @brief Unbind driver from the file or device
  *
- * @param[in]  path  the path of the file or device
+ * @param[in] path  The path of the file or device
  *
- * @return 0 on success, negative error on failure
- *
+ * @return On success return 0.
+ *         On error, negative error code is returned to indicate the cause
+ *         of the error.
  */
 int aos_unregister_driver(const char *path);
 
 /**
- * @brief Mount filesystem to the path
+ * @brief aos_register_fs() mounts filesystem to the path
  *
- * @param[in]  path  the mount point path
- * @param[in]  ops   the filesystem operations
- * @param[in]  arg   the arguments of the filesystem operations
+ * @param[in] path  The mount point path
+ * @param[in] ops   The filesystem operations
+ * @param[in] arg   The arguments of the filesystem operations
  *
- * @return 0 on success, negative error on failure
- *
+ * @return On success return 0.
+ *         On error, negative error code is returned to indicate the cause
+ *         of the error.
  */
 int aos_register_fs(const char *path, fs_ops_t* ops, void *arg);
 
 /**
- * @brief Unmount the filesystem
+ * @brief aos_unregister_fs() unmounts the filesystem
  *
- * @param[in]  path  the mount point path
+ * @param[in] path  The mount point path
  *
- * @return 0 on success, negative error on failure
- *
+ * @return On success return 0.
+ *         On error, negative error code is returned to indicate the cause
+ *         of the error.
  */
 int aos_unregister_fs(const char *path);
 
