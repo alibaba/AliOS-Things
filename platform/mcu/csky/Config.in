@@ -2,10 +2,8 @@ config AOS_MCU_CSKY
     bool
     select AOS_COMP_CLI
     select AOS_COMP_LWIP if MCU_CSKY_CONFIG_LWIP = y
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
-    select AOS_COMP_NETMGR if AOS_NETWORK_SAL || MCU_CSKY_CONFIG_LWIP = y
+    select AOS_COMP_NETMGR if MCU_CSKY_CONFIG_LWIP = y
     select AOS_COMP_RHINO
-    select AOS_COMP_DEVICE_SAL_ESP8266 if AOS_NETWORK_SAL
     select AOS_ARCH_CSKYV2_L
     help
       driver & sdk for platform/mcu csky

@@ -2,8 +2,6 @@ config AOS_BOARD_DEVELOPERKIT
     bool "DeveloperKit"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
-    select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     select AOS_COMP_SENSOR
     help
       Developer Kit is hardware development board base on AliOS-Things

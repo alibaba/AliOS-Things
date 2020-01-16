@@ -2,7 +2,6 @@ config AOS_BOARD_LINUXHOST
     bool "LinuxHost"
     select AOS_MCU_LINUXIMPL
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
       configuration for board linuxhost
 

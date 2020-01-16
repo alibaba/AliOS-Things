@@ -17,12 +17,6 @@ no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
-AOS_NETWORK_SAL    ?= y
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.esp8266
-endif
-
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_ASMFLAGS += -mcpu=ck802 -ffunction-sections -fdata-sections
@@ -57,9 +51,8 @@ $(NAME)_SOURCES += aos/aos.c                                \
                    hal/flash.c                              \
                    libs/posix/time/clock_gettime.c
 
-ifeq (y,$(AOS_NETWORK_SAL))
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 $(NAME)_SOURCES += hal/wifi_port.c
-GLOBAL_INCLUDES += ../../../components/peripherals/sal/wifi/esp8266
 $(NAME)_SOURCES += cli/uart_config.c
 endif
 
