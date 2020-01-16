@@ -2826,6 +2826,20 @@
 #if !defined SENDFILE_DEBUG || defined __DOXYGEN__
 #define SENDFILE_DEBUG                  LWIP_DBG_OFF
 #endif
+
+/**
+ * DNSCLI_DEBUG: Enable debugging for DNS app.
+ */
+#if !defined DNSCLI_DEBUG || defined __DOXYGEN__
+#define DNSCLI_DEBUG                   LWIP_DBG_OFF
+#endif
+
+/**
+ * LSFD_DEBUG: Enable debugging for Lsfd app.
+ */
+#if !defined LSFD_DEBUG || defined __DOXYGEN__
+#define LSFD_DEBUG                     LWIP_DBG_OFF
+#endif
 /**
  * @}
  */
