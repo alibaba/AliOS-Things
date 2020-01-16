@@ -183,6 +183,9 @@ DHCPDFILES=apps/dhcpd/dhcps.c
 PINGFILES=apps/ping/ping.c \
           apps/ping/ping_cli.c
 
+# SENDFILEFILES: SENDFILE client/server files
+SENDFILEFILES=apps/sendfile/sendfile.c \
+          apps/sendfile/sendfile_cli.c
 
 # ARPCLIFILES: ARP command line files
 ARPCLIFILES = apps/arp/arp_cli.c
