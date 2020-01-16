@@ -139,13 +139,13 @@ int32_t vfs_stat(const char *path, vfs_stat_t *st);
 /**
  * Store information about the file in a vfs_stat structure
  *
- * @param[in]  fh the fh of the file to find information about
+ * @param[in]  fd the file descriptor of the file
  * @param[out] st the vfs_stat buffer to write to
  *
  * @return 0 on success, negative error on failure
  *
  */
-int32_t vfs_fstat(int fh, vfs_stat_t *st);
+int32_t vfs_fstat(int fd, vfs_stat_t *st);
 
 /**
  * @brief link path2 to path1
@@ -156,7 +156,7 @@ int32_t vfs_fstat(int fh, vfs_stat_t *st);
  * @return 0 on success, negative error on failure
  *
  */
-int32_t vfs_link(const char *path1, const char *path2);
+int32_t vfs_link(const char *oldpath, const char *newpath);
 
 /**
  * @brief Remove a file from the filesystem
