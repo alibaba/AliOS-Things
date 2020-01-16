@@ -100,12 +100,12 @@ GLOBAL_LDFLAGS += -T platform/board/developerkit-mk/STM32L496VGTx_FLASH_kernel.l
 endif
 endif
 
-AOS_NETWORK_SAL ?= y
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-module             ?= wifi.bk7231
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
+endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
 endif
 
 ifeq ($(COMPILER),armcc)
