@@ -149,5 +149,15 @@ endif
 
           Switching to "y" leads to support ARPCLI module
           Switching to "n" leads to not support ARPCLI module
+
+      config LSFDCLI_ENABLED
+         bool "LSFD Command Support"
+         default n
+         help
+           Support LSFD command module
+
+           Switching to "y" leads to support LSFDCLI module
+           Switching to "n" leads to not support LSFDCLI module
+
 endmenu
 endif

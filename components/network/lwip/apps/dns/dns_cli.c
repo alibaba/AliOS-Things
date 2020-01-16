@@ -3,12 +3,12 @@
  */
 
 #include <string.h>
-#include <cli/cli_api.h>
+#include <aos/cli.h>
 #include <lwip/netdb.h>
 
 static void dns_command(char *buffer, int32_t buf_len, int32_t argc, char **argv);
 
-struct cli_command_st dns_cmd[] = {
+struct cli_command dns_cmd[] = {
     { "dns", "dns app", dns_command},
 };
 
