@@ -4,9 +4,7 @@
 
 #ifdef FEATURE_UND_SUPPORT
 
-#include "linkkit/mqtt_api.h"
-
-#include "und/und.h"
+#include "und.h"
 #include "und_hal.h"
 #include "und_log.h"
 #include "und_types.h"
@@ -35,9 +33,9 @@ static void und_target_report_reply(void *pcontext, void *pclient, void *mesg)
 {
     struct und_report_ctx_t *ctx = &g_und_report_ctx;
 
-    iotx_mqtt_event_msg_pt msg = (iotx_mqtt_event_msg_pt)mesg;
+    und_mqtt_event_msg_t *msg = (und_mqtt_event_msg_t *)mesg;
     switch (msg->event_type) {
-        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+        case UND_MQTT_EVT_PUBLISH_RECEIVED:
             break;
         default:
             return;

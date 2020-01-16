@@ -6,6 +6,7 @@
 
 #ifdef FEATURE_UND_WITH_WIFI
 
+#ifdef BUILD_AOS
 #include "und_log.h"
 #include "und_hal.h"
 #include "network/hal/wifi.h"
@@ -37,5 +38,6 @@ int HAL_GetWirelessInfo(struct und_wireless_info_t *info)
 }
 #endif
 
+#endif /* endif of BUILD_AOS */
 #endif /* end of FEATURE_UND_WITH_WIFI */
 #endif /* end of FEATURE_UND_SUPPORT */

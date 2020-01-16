@@ -4,8 +4,6 @@
 
 #ifdef FEATURE_UND_SUPPORT
 
-#include "linkkit/mqtt_api.h"
-
 #include "und_log.h"
 #include "und_types.h"
 #include "und_utils.h"
@@ -33,7 +31,7 @@ int und_conn_register_cb(char *topic, void *cb)
     UND_PTR_SANITY_CHECK(cb, UND_PARAM_ERR);
 
 #if defined(FEATURE_UND_USE_MQTT)
-    if (IOT_MQTT_Subscribe(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL) < 0)
+    if (IOT_MQTT_Subscribe(NULL, topic, 0, cb, NULL) < 0)
         return UND_ERR;
 #endif
 #if defined(FEATURE_UND_USE_UAGENT)

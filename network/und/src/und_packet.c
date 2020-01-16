@@ -4,8 +4,6 @@
 
 #ifdef FEATURE_UND_SUPPORT
 
-#include "linkkit/wrappers/wrappers.h"
-
 #include "und_log.h"
 #include "und_types.h"
 #include "und_utils.h"
