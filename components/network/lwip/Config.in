@@ -123,6 +123,14 @@ endif
           Switching to "y" leads to support PING module
           Switching to "n" leads to not support PING module
 
+     config SENDFILE_ENABLED
+        bool "SENDFILE Support"
+        default n
+        help
+          Support SENDFILE module
+
+          Switching to "y" leads to support SENDFILE module
+          Switching to "n" leads to not support SENDFILE module
 
      config ARPCLI_ENABLED
         bool "ARP Command Support"
