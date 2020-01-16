@@ -33,15 +33,14 @@ ywss_support    ?= 0
 GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
 GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 
-#depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
-AOS_NETWORK_SAL    ?= n
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal
-else
-HTTPD_ENABLED ?= y
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 $(NAME)_SOURCES    += ethernetif.c
 $(NAME)_SOURCES    += httpserver-netconn.c
 $(NAME)_COMPONENTS += lwip
+endif
+
+ifeq (y, $(strip $(AOS_COMP_SAL)))
+$(NAME)_COMPONENTS += sal
 endif
 
 ifeq ($(COMPILER), armcc)

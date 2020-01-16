@@ -20,11 +20,7 @@ $(NAME)_SOURCES += config/k_config.c \
                    startup/startup.c
 ywss_support ?= 0
 
-#depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
-AOS_NETWORK_SAL	?= n
-ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += sal netmgr
-else
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
 

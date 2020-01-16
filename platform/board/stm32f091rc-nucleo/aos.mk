@@ -22,9 +22,6 @@ ywss_support ?= 0
 
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 
-#depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
-AOS_NETWORK_SAL	?= n
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup/startup_stm32f091xc_keil.s
 $(NAME)_LINK_FILES := startup/startup_stm32f091xc_keil.o
