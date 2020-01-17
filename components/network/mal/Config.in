@@ -6,5 +6,16 @@ config AOS_COMP_MAL
         AliOS Things mqtt adapter layer
 
 if AOS_COMP_MAL
-# Configurations for mal component
+config MAL_CONFIG_MAX_TOPIC_LEN
+        int "Max topic length"
+        default 128
+        help
+            MAX TOPIC LEN
+
+config MAL_CONFIG_MAX_MSG_LEN
+        int "Max incoming message length"
+        default 256
+        help
+            MAX MSG LEN
+
 endif
