@@ -6,6 +6,9 @@ $(NAME)_SUMMARY := uMesh provides the ability to form local area mesh network.
 
 #GLOBAL_DEFINES += 
 
+$(NAME)_DEFINES += UTILS_AES_BUILDIN
+
+
 $(NAME)_DEFINES += USE_ACTION_FRAME
 $(NAME)_COMPONENTS += yloop
 
