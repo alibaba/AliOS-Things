@@ -729,6 +729,8 @@ static inline int eventfd(unsigned int initval, int flags)
 #define select(maxfdp1,readset,writeset,exceptset,timeout)     lwip_select(maxfdp1,readset,writeset,exceptset,timeout)
 /** @ingroup socket */
 #define ioctlsocket(s,cmd,argp)                   lwip_ioctl(s,cmd,argp)
+/* This is a fix for newlibc does not define HAVE_FCNTL */
+#define fcntl(s,cmd,val)                          _fcntl_r(0,s,cmd,val)
 
 #else
 /** @ingroup socket */
