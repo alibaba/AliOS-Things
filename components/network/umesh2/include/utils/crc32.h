@@ -5,4 +5,5 @@
 
 uint32_t crc32(const void *buf, unsigned long size);
 
+void get_fcs(uint8_t *p_buffer, uint16_t length);
 #endif /* CRC32_H_ */
