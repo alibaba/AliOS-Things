@@ -5,6 +5,10 @@
 #ifndef OTA_HAL_OS_H
 #define OTA_HAL_OS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ota_snprintf snprintf
 
 /*memory*/
@@ -48,4 +52,8 @@ void ota_crc16_init(ota_crc16_ctx *ctx);
 void ota_crc16_update(ota_crc16_ctx *ctx, const void *inSrc, unsigned int inLen);
 void ota_crc16_final(ota_crc16_ctx *ctx, unsigned short *outResult);
 unsigned short ota_get_data_crc16(const unsigned char *buf, unsigned int len);
+
+#ifdef __cplusplus
+}
+#endif
 #endif /*OTA_HAL_OS_H*/
