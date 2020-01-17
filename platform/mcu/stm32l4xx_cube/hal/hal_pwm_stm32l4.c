@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "aos/hal/pwm.h"
 #include "aos/hal/timer.h"
 
 #include "stm32l4xx_hal.h"
@@ -138,34 +139,6 @@ int32_t hal_timer_finalize(timer_dev_t *tim)
     return ret;
 }
 
-/*
-int32_t timer_reload_mode_transform(uint8_t reload_mode_hal,
-        uint8_t *reload_mode_stm32l4)
-{
-    uint32_t reload_mode = 0;
-    int32_t	ret = 0;
-
-    if(reload_mode_hal == TIMER_RELOAD_AUTO)
-    {
-        reload_mode = TIM_AUTORELOAD_PRELOAD_ENABLE;
-    }
-    else if(reload_mode_hal == TIMER_RELOAD_MANU)
-    {
-        reload_mode = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *reload_mode_stm32l4 = reload_mode;
-    }
-
-    return ret;
-}
-*/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM3) {
