@@ -31,8 +31,8 @@ int32_t hal_adc_init(adc_dev_t *adc)
     int32_t ret = -1;
 
     if (adc == NULL) {
-		    return -1;
-		}
+        return -1;
+    }
 
     /*init adc handle*/
     memset(&adc1_handle, 0, sizeof(adc1_handle));
@@ -40,7 +40,7 @@ int32_t hal_adc_init(adc_dev_t *adc)
 
     switch (adc->port) {
         case PORT_ADC1:
-      	    adc->priv = &adc1_handle;
+            adc->priv = &adc1_handle;
             ret = adc1_init(adc);
             break;
 
@@ -103,7 +103,7 @@ int32_t adc1_init(adc_dev_t *adc)
     }
 
     adc1_sConfig.Channel = get_adc_channel(adc->port);
-	  /* Initialize other parameters in struction ADC_ChannelConfTypeDef */
+    /* Initialize other parameters in struction ADC_ChannelConfTypeDef */
 
     ret = HAL_ADC_ConfigChannel(&adc1_handle, &adc1_sConfig);
 

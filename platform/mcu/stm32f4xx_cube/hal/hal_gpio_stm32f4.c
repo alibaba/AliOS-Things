@@ -48,7 +48,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
             printf("gpio %d para transform fail \r\n", gpio->port);
             return ret;
         }
-        
+
         GPIOx = gpio_mapping_table[CurrentPosition].GpioGroup;
         GPIO_InitStruct.Pin = gpio_mapping_table[CurrentPosition].Pin;
         GPIO_InitStruct.Speed = gpio_mapping_table[CurrentPosition].Speed;
@@ -94,7 +94,7 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
         printf("invalid input at %s \r\n", __func__);
         return ret;
     }
-    
+
     ret = get_mapTable_pos(gpio->port,&CurrentPosition);
 
     if(ret == 0)
@@ -103,9 +103,9 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
     }
 
     return ret;
-}	
+}
 
-int32_t hal_gpio_output_low(gpio_dev_t *gpio)	
+int32_t hal_gpio_output_low(gpio_dev_t *gpio)
 {
     uint16_t CurrentPosition = 0;
     int32_t ret = -1;
@@ -114,7 +114,7 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
         printf("invalid input at %s \r\n", __func__);
         return ret;
     }
-    
+
     ret = get_mapTable_pos(gpio->port,&CurrentPosition);
 
     if(ret == 0)
@@ -159,14 +159,14 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
         printf("gpio port %d have already have irq set \r\n", gpio->port);
         return ret;
     }
-    
+
     slop = gpio_slop_get(-1);
     if(NULL == slop) {
         printf("there is no free slop for gpio irq \r\n");
         return ret;
     }
 
-    if((0 == get_mapTable_pos(gpio->port, &CurrentPosition)) && (IRQ_MODE == gpio->config)) 
+    if((0 == get_mapTable_pos(gpio->port, &CurrentPosition)) && (IRQ_MODE == gpio->config))
     {
         ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
         if (ret != 0) {
@@ -187,14 +187,14 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
         GPIO_InitStruct.Speed = gpio_mapping_table[CurrentPosition].Speed;
 
         switch (trigger)
-        { 
-            case IRQ_TRIGGER_RISING_EDGE  : 
+        {
+            case IRQ_TRIGGER_RISING_EDGE  :
                 GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
                 break;
-            case IRQ_TRIGGER_FALLING_EDGE : 
+            case IRQ_TRIGGER_FALLING_EDGE :
                 GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING ;
-                break;       
-            case IRQ_TRIGGER_BOTH_EDGES   : 
+                break;
+            case IRQ_TRIGGER_BOTH_EDGES   :
                 GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
                 break;
             default:
@@ -228,7 +228,7 @@ int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
         return 0;
     }
 
-    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config)) 
+    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config))
     {
         ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
         if (ret != 0) {
@@ -257,14 +257,14 @@ int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
         printf("invalid input %s \r\n", __func__);
         return ret;
     }
-    
+
     slop = gpio_slop_get(gpio->port);
     if(NULL == slop) {
         printf("gpio port %d irq doesn't exist\r\n", gpio->port);
         return ret;
     }
 
-    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config)) 
+    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config))
     {
         ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
         if (ret != 0) {
@@ -293,7 +293,7 @@ int32_t hal_gpio_finalize(gpio_dev_t *gpio)
     }
 
     hal_gpio_disable_irq(gpio);
-    
+
     return 0;
 }
 
@@ -334,6 +334,14 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
     case OUTPUT_OPEN_DRAIN_PULL_UP:
         init_str->Mode      = GPIO_MODE_OUTPUT_OD;
         init_str->Pull      = GPIO_PULLUP;
+        break;
+    case OUTPUT_OPEN_DRAIN_AF:
+        init_str->Mode      = GPIO_MODE_AF_OD;
+        init_str->Pull      = GPIO_NOPULL;
+        break;
+    case OUTPUT_PUSH_PULL_AF:
+        init_str->Mode      = GPIO_MODE_AF_PP;
+        init_str->Pull      = GPIO_NOPULL;
         break;
     default:
         ret = -1;
@@ -441,7 +449,7 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos)
     int i = 0;
 
     for(i = 0; i < TOTAL_GPIO_NUM; i++) {
-        if(port == gpio_mapping_table[i].port) { 
+        if(port == gpio_mapping_table[i].port) {
             *pos = i;
             ret = 0;
             break;

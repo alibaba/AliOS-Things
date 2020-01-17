@@ -19,6 +19,7 @@
 #include "hal_gpio_stm32f4.h"
 #include "hal_can_stm32f4.h"
 #include "hal_timer_stm32f4.h"
+#include "hal_pwm_stm32f4.h"
 
 #ifdef AOS_CANOPEN
 #include "co_adapter.h"
@@ -43,9 +44,12 @@ uart_dev_t uart_0;
 
 const gpio_mapping_t gpio_mapping_table[TOTAL_GPIO_NUM] =
 {
-    {ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW},
-    {ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW},
-    {ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW}
+    {ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {HAL_GPIO_8, GPIOA, GPIO_PIN_8, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {HAL_GPIO_9, GPIOA, GPIO_PIN_9, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {ON_BOARD_TIM4_CH4, GPIOD, GPIO_PIN_15, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP}
 };
 
 gpio_dev_t brd_gpio_table[] =
@@ -66,7 +70,16 @@ CAN_MAPPING CAN_MAPPING_TABLE[] =
 TIMER_MAPPING TIMER_MAPPING_TABLE[] =
 {
     {PORT_TIMER_CANOPEN, TIM3},
+    {PORT_TIMER_3, TIM3},
+    {PORT_TIMER_4, TIM4},
+    {PORT_TIMER_5, TIM5},
 };
+
+PWM_MAPPING PWM_MAPPING_TABLE[] =
+{
+    {PORT_PWM_4, TIM4, HAL_TIM_ACTIVE_CHANNEL_4, GROUP_GPIOD, HAL_GPIO_15},
+};
+
 
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
@@ -153,8 +166,8 @@ void stm32_peripheral_init(void)
     I2C1_init();
 #ifndef WITH_SAL
     /*enable ethernet*/
-    MX_ETH_Init();
-    lwip_tcpip_init();
+    //MX_ETH_Init();
+    //lwip_tcpip_init();
 #endif
     /*default can init*/
     #ifdef PT_SENSOR
