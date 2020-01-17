@@ -12,6 +12,16 @@
 #define OTA_UPDATE_H
 #include "ota_agent.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @addtogroup aos_ota OTA
+ *  OTA upgrade service.
+ *
+ *  @{
+ */
+
 /**
  *  ENUM: OTA Updater ERRNO.
  */
@@ -132,4 +142,9 @@ int ota_patch_read_param(ota_boot_param_t *param);
  * @return OTA_UPGRADE_SET_BOOT_FAIL OTA upgrade set boot fail.
  */
 int ota_patch_write_param(ota_boot_param_t *param);
+
+/** @} */
+#ifdef __cplusplus
+}
+#endif
 #endif
