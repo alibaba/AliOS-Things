@@ -37,6 +37,8 @@ typedef enum {
     OUTPUT_OPEN_DRAIN_PULL_UP, /**< Output actively driven low and is pulled high
                                   with an internal resistor when set high -
                                   can be connected to other open-drain/open-collector outputs. */
+    OUTPUT_OPEN_DRAIN_AF,      /**< Alternate Function Open Drain Mode. */
+    OUTPUT_PUSH_PULL_AF,       /**< Alternate Function Push Pull Mode. */
 } gpio_config_t;
 
 /*
