@@ -328,8 +328,6 @@ int aos_components_init(kinit_t *kinit)
     gps_init();
 #endif
 
-    aos_show_welcome();
-
 #ifdef AOS_COMP_PWRMGMT
     pwrmgmt_init();
 #endif
@@ -337,6 +335,8 @@ int aos_components_init(kinit_t *kinit)
 #ifdef AOS_UND
     und_init();
 #endif
+
+    aos_show_welcome();
 
 #ifdef AOS_BINS
     app_pre_init();
