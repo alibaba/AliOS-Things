@@ -48,6 +48,16 @@
 
 #define OTA_VERSION "3.1.0"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @addtogroup aos_ota OTA
+ *  OTA upgrade service.
+ *
+ *  @{
+ */
+
 /**
  *  ENUM: OTA Agent ERRNO.
  */
@@ -534,5 +544,10 @@ int ota_verify_rsa(unsigned char *sign, const char *hash, unsigned char hash_typ
  * @return OTA_VERIFY_IMAGE_FAIL    OTA verfiy image fail.
  */
 int ota_check_image(unsigned int size);
+
+/** @} */
+#ifdef __cplusplus
+}
+#endif
 #endif /* OTA_AGNET_H */
 
