@@ -12,6 +12,16 @@
 #define OTA_HAL_H
 #include "ota_agent.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @addtogroup aos_ota OTA
+ *  OTA upgrade service.
+ *
+ *  @{
+ */
+
 /**
  * ota_hal_init   ota hal init main OTA partition.
  *
@@ -67,6 +77,19 @@ int ota_hal_write(unsigned int *off, char *buf, unsigned int len);
  * @return OTA_UPGRADE_SET_BOOT_FAIL OTA upgrade set boot fail.
  */
 int ota_hal_boot(ota_boot_param_t *parm);
+
+/**
+ * ota_hal_reboot_bank  ota hal reboot banker
+ *
+ * @param[in] void
+ *
+ * @return OTA_SUCCESS              OTA success.
+ * @return OTA_UPGRADE_WRITE_FAIL   OTA upgrade write fail.
+ * @return OTA_UPGRADE_PARAM_FAIL   OTA upgrade parameter fail.
+ * @return OTA_UPGRADE_FW_SIZE_FAIL OTA upgrade FW too big.
+ * @return OTA_UPGRADE_SET_BOOT_FAIL OTA upgrade set boot fail.
+ */
+int ota_hal_reboot_bank(void);
 
 /**
  * ota_hal_rollback ota hal rollback.
@@ -171,7 +194,7 @@ int ota_mcu_hal_version(void *device, char *version);
  * @return OTA_MCU_HEADER_FAIL       OTA MCU header error.
  * @return OTA_MCU_UPGRADE_FAIL      OTA MCU upgrade fail.
  */
-int ota_mcu_hal_recv(void* device, unsigned char *buf, unsigned int len);      /* recv data from mcu partition */
+int ota_mcu_hal_recv(void* device, unsigned char *buf, unsigned int len);
 
 /**
  * ota_mcu_hal_send   ota hal send data to MCU.
@@ -188,5 +211,26 @@ int ota_mcu_hal_recv(void* device, unsigned char *buf, unsigned int len);      /
  * @return OTA_MCU_HEADER_FAIL       OTA MCU header error.
  * @return OTA_MCU_UPGRADE_FAIL      OTA MCU upgrade fail.
  */
-int ota_mcu_hal_send(void* device, unsigned char *buf, unsigned int len);      /* send data to mcu partition */
+int ota_mcu_hal_send(void* device, unsigned char *buf, unsigned int len);
+
+/**
+ * ota_mcu_upgrade_start   ota MCU upgrade start.
+ *
+ * @param[in] unsigned int size      MCU image size.
+ * @param[in] char* ver              MCU image version.
+ * @param[in] char* md5              MCU image md5.
+ *
+ * @return OTA_SUCCESS               OTA success.
+ * @return OTA_MCU_INIT_FAIL         OTA MCU init fail.
+ * @return OTA_MCU_VERSION_FAIL      OTA MCU version fail.
+ * @return OTA_MCU_NOT_READY         OTA MCU not ready.
+ * @return OTA_MCU_REBOOT_FAIL       OTA MCU fail to reboot.
+ * @return OTA_MCU_HEADER_FAIL       OTA MCU header error.
+ * @return OTA_MCU_UPGRADE_FAIL      OTA MCU upgrade fail.
+ */
+int ota_mcu_upgrade_start(unsigned int size, char* ver, char* md5);
+/** @} */
+#ifdef __cplusplus
+}
+#endif
 #endif  /* OTA_HAL_H */
