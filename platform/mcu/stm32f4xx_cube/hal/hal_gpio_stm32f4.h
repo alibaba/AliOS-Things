@@ -20,7 +20,7 @@
 
 #include "board.h"
 
-typedef struct{ 
+typedef struct{
     uint16_t    port;  //Logical Port
     void*       GpioGroup; //GPIOA, GPIOB
     uint16_t Pin;       /*!< Specifies the GPIO pins to be configured.
@@ -44,7 +44,7 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 #define GROUP_GPIOA    0
 #define GROUP_GPIOB    1
 #define GROUP_GPIOC    2
-#define GROUP_GPIOD    3 
+#define GROUP_GPIOD    3
 #define GROUP_GPIOE    4
 
 #define HAL_GPIO_0                 ((uint8_t)0)        /* represent GPIOA pin 0 */
@@ -63,7 +63,7 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 #define HAL_GPIO_13                ((uint8_t)13)       /* represent GPIOA pin 13 */
 #define HAL_GPIO_14                ((uint8_t)14)       /* represent GPIOA pin 14 */
 #define HAL_GPIO_15                ((uint8_t)15)       /* represent GPIOA pin 15 */
-	 
+
 #define HAL_GPIO_16                ((uint8_t)16)       /* represent GPIOB pin 0 */
 #define HAL_GPIO_17                ((uint8_t)17)       /* represent GPIOB pin 1 */
 #define HAL_GPIO_18                ((uint8_t)18)       /* represent GPIOB pin 2 */
@@ -96,11 +96,29 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 #define HAL_GPIO_44                ((uint8_t)44)       /* represent GPIOC pin 12 */
 #define HAL_GPIO_45                ((uint8_t)45)       /* represent GPIOC pin 13 */
 #define HAL_GPIO_46                ((uint8_t)46)       /* represent GPIOC pin 14 */
-#define HAL_GPIO_47                ((uint8_t)47)       /* represent GPIOC pin 15 */	
+#define HAL_GPIO_47                ((uint8_t)47)       /* represent GPIOC pin 15 */
+
+#define HAL_GPIO_48                ((uint8_t)48)       /* represent GPIOD pin 0 */
+#define HAL_GPIO_49                ((uint8_t)49)       /* represent GPIOD pin 1 */
+#define HAL_GPIO_50                ((uint8_t)50)       /* represent GPIOD pin 2 */
+#define HAL_GPIO_51                ((uint8_t)51)       /* represent GPIOD pin 3 */
+#define HAL_GPIO_52                ((uint8_t)52)       /* represent GPIOD pin 4 */
+#define HAL_GPIO_53                ((uint8_t)53)       /* represent GPIOD pin 5 */
+#define HAL_GPIO_54                ((uint8_t)54)       /* represent GPIOD pin 6 */
+#define HAL_GPIO_55                ((uint8_t)55)       /* represent GPIOD pin 7 */
+#define HAL_GPIO_56                ((uint8_t)56)       /* represent GPIOD pin 8 */
+#define HAL_GPIO_57                ((uint8_t)57)       /* represent GPIOD pin 9 */
+#define HAL_GPIO_58                ((uint8_t)58)       /* represent GPIOD pin 10 */
+#define HAL_GPIO_59                ((uint8_t)59)       /* represent GPIOD pin 11 */
+#define HAL_GPIO_60                ((uint8_t)60)       /* represent GPIOD pin 12 */
+#define HAL_GPIO_61                ((uint8_t)61)       /* represent GPIOD pin 13 */
+#define HAL_GPIO_62                ((uint8_t)62)       /* represent GPIOD pin 14 */
+#define HAL_GPIO_63                ((uint8_t)63)       /* represent GPIOD pin 15 */
 
 #define ON_BOARD_LED01 HAL_GPIO_16
 #define ON_BOARD_LED02 HAL_GPIO_23
 #define ON_BOARD_LED03 HAL_GPIO_30
+#define ON_BOARD_TIM4_CH4   HAL_GPIO_63
 
 #define GPIOA_SPEED    GPIO_SPEED_FREQ_VERY_HIGH
 

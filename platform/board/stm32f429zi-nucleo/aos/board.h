@@ -40,10 +40,22 @@ typedef enum{
 
 typedef enum{
     PORT_TIMER_CANOPEN,
-    PORT_TIMER_PWM,
+    PORT_TIMER_3 = 3,
+    PORT_TIMER_4 = 4,
+    PORT_TIMER_5 = 5,
     PORT_TIMER_SIZE,
     PORT_TIMER_INVALID = 255,
 }PORT_TIMER_TYPE;
+
+typedef enum{
+    PORT_PWM_1,
+    PORT_PWM_2,
+    PORT_PWM_3,
+    PORT_PWM_4,
+    PORT_PWM_SIZE,
+    PORT_PWM_INVALID = 255,
+}PORT_PWM_TYPE;
+
 
 #endif /*__BOARD__H_*/
 

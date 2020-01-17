@@ -112,6 +112,8 @@ $(NAME)_SOURCES += aos/soc_impl.c          \
                    hal/hal_flash_stm32f4.c \
                    hal/hal_gpio_stm32f4.c  \
                    hal/hal_spi_stm32f4.c   \
+				   hal/hal_timer_stm32f4.c \
+				   hal/hal_pwm_stm32f4.c   \
                    hal/hal_i2c_stm32f4.c   #\
                    hal/hal_sd_stm32f4.c \
                    hal/hal_adc_stm32f4.c \
