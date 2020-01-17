@@ -6,13 +6,13 @@
 #include <list.h>
 
 union array_uint16 {
-	uint8_t array[2];
-	uint16_t value16;
+    uint8_t array[2];
+    uint16_t value16;
 };
 
 union array_uint32 {
-	uint8_t array[4];
-	uint32_t value32;
+    uint8_t array[4];
+    uint32_t value32;
 };
 
 /** @brief Opaque buffer used to transport network packets.
@@ -24,18 +24,18 @@ union array_uint32 {
  * @see buf_len
  */
 typedef struct buf {
-	const uint8_t *orig;
-	uint8_t *data;
-	int len;
-	int owned;
-  list_head_t linked_list;
-}umesh_buf_t;
+    const uint8_t *orig;
+    uint8_t *data;
+    int len;
+    int owned;
+    list_head_t linked_list;
+} umesh_buf_t;
 
 
 /* FIXME change interface: only return buffer_error or 0, do not return length */
 
 enum buffer_error {
-  OUT_OF_BOUNDS = -1,
+    OUT_OF_BOUNDS = -1,
 };
 
 /** @brief Allocates a new {@code buf} of given length.
@@ -81,11 +81,11 @@ const uint8_t *buf_data(const struct buf *buf);
 int buf_len(const struct buf *buf);
 
 #define BUF_STRIP(buf, len) \
-  do { \
-    int result = buf_strip(buf, len); \
-    if (result < 0) \
-      goto buffer_error; \
-  } while (0)
+    do { \
+        int result = buf_strip(buf, len); \
+        if (result < 0) \
+            goto buffer_error; \
+    } while (0)
 
 /** @brief Strip {@code len} bytes from the front of {@code buf}.
  *
@@ -94,11 +94,11 @@ int buf_len(const struct buf *buf);
 int buf_strip(const struct buf *buf, int len);
 
 #define BUF_TAKE(buf, len) \
-  do { \
-    int result = buf_take(buf, len); \
-    if (result < 0) \
-      goto buffer_error; \
-  } while (0)
+    do { \
+        int result = buf_take(buf, len); \
+        if (result < 0) \
+            goto buffer_error; \
+    } while (0)
 
 /** @brief Strip {@code len} bytes from the end of {@code buf}.
  *
@@ -116,16 +116,14 @@ int write_le32(struct buf *buf, int offset, uint32_t value);
 
 int write_be32(struct buf *buf, int offset, uint32_t value);
 
-int write_ether_addr(struct buf *buf, int offset, const struct ether_addr *addr);
-
 int write_bytes(struct buf *buf, int offset, const uint8_t *bytes, int length);
 
 #define CHECKED_READ(type, ...) \
-  do { \
-    int result = read_##type(__VA_ARGS__); \
-    if (result < 0) \
-      goto buffer_error; \
-  } while (0)
+    do { \
+        int result = read_##type(__VA_ARGS__); \
+        if (result < 0) \
+            goto buffer_error; \
+    } while (0)
 
 #define READ_U8(...) CHECKED_READ(u8, __VA_ARGS__)
 #define READ_LE16(...) CHECKED_READ(le16, __VA_ARGS__)
@@ -158,8 +156,6 @@ int read_be16(const struct buf *buf, int offset, uint16_t *value);
 int read_le32(const struct buf *buf, int offset, uint32_t *value);
 
 int read_be32(const struct buf *buf, int offset, uint32_t *value);
-
-int read_ether_addr(const struct buf *buf, int offset, struct ether_addr *addr);
 
 int read_bytes(const struct buf *buf, int offset, const uint8_t **bytes, int length);
 

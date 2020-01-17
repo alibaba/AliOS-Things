@@ -6,225 +6,255 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "siphash24.h"
+#include "osal.h"
 
-#define INITIAL_SIZE (256)
+#define INITIAL_SIZE (32)
 #define MAX_CHAIN_LENGTH (8)
 
 /* We need to keep keys and values */
-typedef struct _hashmap_element{
-	mkey_t key;
-	int in_use;
-	any_t data;
+typedef struct _hashmap_element {
+    mkey_t key;
+    int in_use;
+    any_t data;
 } hashmap_element;
 
 /* A hashmap has some maximum size and current size,
  * as well as the data to hold. */
-typedef struct _hashmap_map{
-	int table_size;
-	int size;
-	int key_size; /* size of user's mkey_t in bytes */
-	hashmap_element *data;
-	unsigned char seed[siphash24_KEYBYTES];
+typedef struct _hashmap_map {
+    int table_size;
+    int size;
+    int key_size; /* size of user's mkey_t in bytes */
+    hashmap_element *data;
+    unsigned char seed[siphash24_KEYBYTES];
 } hashmap_map;
 
 /*
  * Return an empty hashmap, or NULL on failure.
  */
-map_t hashmap_new(int key_size) {
-	hashmap_map* m = (hashmap_map*) malloc(sizeof(hashmap_map));
-	if(!m) goto err;
+map_t hashmap_new(int key_size)
+{
+    int size;
+    hashmap_map *m = (hashmap_map *) umesh_malloc(sizeof(hashmap_map));
+    if (!m) {
+        goto err;
+    }
 
-	m->data = (hashmap_element*) calloc(INITIAL_SIZE, sizeof(hashmap_element));
-	if(!m->data) goto err;
+    size = INITIAL_SIZE * sizeof(hashmap_element);
+    m->data = (hashmap_element *) umesh_malloc(size);
+    if (!m->data) {
+        goto err;
+    }
+    memset(m->data, 0, size);
+    m->table_size = INITIAL_SIZE;
+    m->size = 0;
+    m->key_size = key_size;
 
-	m->table_size = INITIAL_SIZE;
-	m->size = 0;
-	m->key_size = key_size;
+    /* TODO init seed randomly */
+    memset(m->seed, 0, siphash24_KEYBYTES);
 
-	/* TODO init seed randomly */
-	memset(m->seed, 0, siphash24_KEYBYTES);
-
-	return m;
+    return m;
 err:
-	if (m)
-		hashmap_free(m);
-	return NULL;
+    if (m) {
+        hashmap_free(m);
+    }
+    return NULL;
 }
 
 /*
  * Hashing function for a string
  */
-unsigned int hashmap_hash_int(hashmap_map *m, mkey_t key) {
-	uint64_t hash;
-	siphash24((unsigned char *) &hash, key, m->key_size, m->seed);
-	return hash % m->table_size;
+unsigned int hashmap_hash_int(hashmap_map *m, mkey_t key)
+{
+    uint64_t hash;
+    siphash24((unsigned char *) &hash, key, m->key_size, m->seed);
+    return hash % m->table_size;
 }
 
 /*
  * Return the integer of the location in data
  * to store the point to the item, or MAP_FULL.
  */
-int hashmap_hash(map_t in, mkey_t key){
-	int curr;
-	int i;
+int hashmap_hash(map_t in, mkey_t key)
+{
+    int curr;
+    int i;
 
-	/* Cast the hashmap */
-	hashmap_map* m = (hashmap_map *) in;
+    /* Cast the hashmap */
+    hashmap_map *m = (hashmap_map *) in;
 
-	/* If full, return immediately */
-	if(m->size >= (m->table_size/2)) return MAP_FULL;
+    /* If full, return immediately */
+    if (m->size >= (m->table_size / 2)) {
+        return MAP_FULL;
+    }
 
-	/* Find the best index */
-	curr = hashmap_hash_int(m, key);
+    /* Find the best index */
+    curr = hashmap_hash_int(m, key);
 
-	/* Linear probing */
-	for(i = 0; i< MAX_CHAIN_LENGTH; i++){
-		if(m->data[curr].in_use == 0)
-			return curr;
+    /* Linear probing */
+    for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
+        if (m->data[curr].in_use == 0) {
+            return curr;
+        }
 
-		if (m->data[curr].in_use == 1 && (memcmp(m->data[curr].key, key, m->key_size) == 0))
-			return curr;
+        if (m->data[curr].in_use == 1 && (memcmp(m->data[curr].key, key, m->key_size) == 0)) {
+            return curr;
+        }
 
-		curr = (curr + 1) % m->table_size;
-	}
+        curr = (curr + 1) % m->table_size;
+    }
 
-	return MAP_FULL;
+    return MAP_FULL;
 }
 
 /*
  * Doubles the size of the hashmap, and rehashes all the elements
  */
-enum map_status hashmap_rehash(map_t in){
-	int i;
-	int old_size;
-	hashmap_element* curr;
+enum map_status hashmap_rehash(map_t in)
+{
+    int i;
+    int old_size;
+    int size;
+    hashmap_element *curr;
 
-	/* Setup the new elements */
-	hashmap_map *m = (hashmap_map *) in;
-	hashmap_element* temp = (hashmap_element *)
-		calloc(2 * m->table_size, sizeof(hashmap_element));
-	if(!temp) return MAP_OMEM;
+    /* Setup the new elements */
+    hashmap_map *m = (hashmap_map *) in;
+    size = 2 * m->table_size * sizeof(hashmap_element);
+    hashmap_element *temp = (hashmap_element *)
+                            umesh_malloc(size);
+    if (!temp) {
+        return MAP_OMEM;
+    }
+    memset(temp, 0, size);
+    /* Update the array */
+    curr = m->data;
+    m->data = temp;
 
-	/* Update the array */
-	curr = m->data;
-	m->data = temp;
+    /* Update the size */
+    old_size = m->table_size;
+    m->table_size = 2 * m->table_size;
+    m->size = 0;
 
-	/* Update the size */
-	old_size = m->table_size;
-	m->table_size = 2 * m->table_size;
-	m->size = 0;
+    /* Rehash the elements */
+    for (i = 0; i < old_size; i++) {
+        int status;
 
-	/* Rehash the elements */
-	for(i = 0; i < old_size; i++){
-		int status;
+        if (curr[i].in_use == 0) {
+            continue;
+        }
 
-		if (curr[i].in_use == 0)
-			continue;
+        status = hashmap_put(m, curr[i].key, curr[i].data);
+        if (status != MAP_OK) {
+            return status;
+        }
+    }
 
-		status = hashmap_put(m, curr[i].key, curr[i].data);
-		if (status != MAP_OK)
-			return status;
-	}
+    free(curr);
 
-	free(curr);
-
-	return MAP_OK;
+    return MAP_OK;
 }
 
 /*
  * Add a pointer to the hashmap with some key
  */
-enum map_status hashmap_put(map_t in, mkey_t key, any_t value){
-	int index;
-	hashmap_map* m;
+enum map_status hashmap_put(map_t in, mkey_t key, any_t value)
+{
+    int index;
+    hashmap_map *m;
 
-	/* Cast the hashmap */
-	m = (hashmap_map *) in;
+    /* Cast the hashmap */
+    m = (hashmap_map *) in;
 
-	/* Find a place to put our value */
-	index = hashmap_hash(in, key);
-	while(index == MAP_FULL){
-		if (hashmap_rehash(in) == MAP_OMEM) {
-			return MAP_OMEM;
-		}
-		index = hashmap_hash(in, key);
-	}
+    /* Find a place to put our value */
+    index = hashmap_hash(in, key);
+    while (index == MAP_FULL) {
+        if (hashmap_rehash(in) == MAP_OMEM) {
+            return MAP_OMEM;
+        }
+        index = hashmap_hash(in, key);
+    }
 
-	/* Set the data */
-	m->data[index].data = value;
-	m->data[index].key = key;
-	m->data[index].in_use = 1;
-	m->size++;
+    /* Set the data */
+    m->data[index].data = value;
+    m->data[index].key = key;
+    m->data[index].in_use = 1;
+    m->size++;
 
-	return MAP_OK;
+    return MAP_OK;
 }
 
 /*
  * Get your pointer out of the hashmap with a key
  */
-enum map_status hashmap_get(map_t in, mkey_t key, any_t *arg, int remove) {
-	int curr;
-	int i;
-	hashmap_map* m;
+enum map_status hashmap_get(map_t in, mkey_t key, any_t *arg, int remove)
+{
+    int curr;
+    int i;
+    hashmap_map *m;
 
-	/* Cast the hashmap */
-	m = (hashmap_map *) in;
+    /* Cast the hashmap */
+    m = (hashmap_map *) in;
 
-	/* Find data location */
-	curr = hashmap_hash_int(m, key);
+    /* Find data location */
+    curr = hashmap_hash_int(m, key);
 
-	/* Linear probing, if necessary */
-	for(i = 0; i<MAX_CHAIN_LENGTH; i++){
+    /* Linear probing, if necessary */
+    for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
 
-		int in_use = m->data[curr].in_use;
-		if (in_use == 1){
-			if (memcmp(m->data[curr].key, key, m->key_size) == 0) {
-				if (arg)
-					*arg = (m->data[curr].data);
+        int in_use = m->data[curr].in_use;
+        if (in_use == 1) {
+            if (memcmp(m->data[curr].key, key, m->key_size) == 0) {
+                if (arg) {
+                    *arg = (m->data[curr].data);
+                }
 
-				if (remove) {
-					/* Blank out the fields */
-					m->data[curr].in_use = 0;
-					m->data[curr].data = NULL;
-					m->data[curr].key = NULL;
+                if (remove) {
+                    /* Blank out the fields */
+                    m->data[curr].in_use = 0;
+                    m->data[curr].data = NULL;
+                    m->data[curr].key = NULL;
 
-					/* Reduce the size */
-					m->size--;
-				}
+                    /* Reduce the size */
+                    m->size--;
+                }
 
-				return MAP_OK;
-			}
-		}
+                return MAP_OK;
+            }
+        }
 
-		curr = (curr + 1) % m->table_size;
-	}
+        curr = (curr + 1) % m->table_size;
+    }
 
-	if (arg)
-		*arg = NULL;
+    if (arg) {
+        *arg = NULL;
+    }
 
-	/* Not found */
-	return MAP_MISSING;
+    /* Not found */
+    return MAP_MISSING;
 }
 
 /* Deallocate the hashmap */
-void hashmap_free(map_t in){
-	hashmap_map* m = (hashmap_map*) in;
-	free(m->data);
-	free(m);
+void hashmap_free(map_t in)
+{
+    hashmap_map *m = (hashmap_map *) in;
+    free(m->data);
+    free(m);
 }
 
 /* Return the length of the hashmap */
-int hashmap_length(map_t in){
-	hashmap_map* m = (hashmap_map *) in;
-	if(m != NULL) return m->size;
-	else return 0;
+int hashmap_length(map_t in)
+{
+    hashmap_map *m = (hashmap_map *) in;
+    if (m != NULL) {
+        return m->size;
+    } else {
+        return 0;
+    }
 }
 
 typedef struct _hashmap_it {
-	hashmap_map *map;
-	int i; /* current index */
+    hashmap_map *map;
+    int i; /* current index */
 } hashmap_it;
 
 /**
@@ -232,11 +262,12 @@ typedef struct _hashmap_it {
  * @param in the hashmap
  * @return a new iterator of hashmap
  */
-map_it_t hashmap_it_new(map_t in) {
-	hashmap_it *it = (hashmap_it *) malloc(sizeof(hashmap_it));
-	it->map = (hashmap_map *) in;
-	it->i = -1;
-	return (map_it_t) it;
+map_it_t hashmap_it_new(map_t in)
+{
+    hashmap_it *it = (hashmap_it *) umesh_malloc(sizeof(hashmap_it));
+    it->map = (hashmap_map *) in;
+    it->i = -1;
+    return (map_it_t) it;
 }
 
 /**
@@ -246,20 +277,23 @@ map_it_t hashmap_it_new(map_t in) {
  * @param value set to current element's value if return MAP_OK
  * @return MAP_OK if had next, MAP_MISSING otherwise
  */
-enum map_status hashmap_it_next(map_it_t _it, mkey_t *key, any_t *value) {
-	hashmap_it *it = (hashmap_it *) _it;
+enum map_status hashmap_it_next(map_it_t _it, mkey_t *key, any_t *value)
+{
+    hashmap_it *it = (hashmap_it *) _it;
 
-	/* Linear probing */
-	for (it->i++; it->i < it->map->table_size; it->i++)
-		if (it->map->data[it->i].in_use != 0) {
-			if (key)
-				*key = it->map->data[it->i].key;
-			if (value)
-				*value = (any_t) (it->map->data[it->i].data);
-			return MAP_OK;
-		}
+    /* Linear probing */
+    for (it->i++; it->i < it->map->table_size; it->i++)
+        if (it->map->data[it->i].in_use != 0) {
+            if (key) {
+                *key = it->map->data[it->i].key;
+            }
+            if (value) {
+                *value = (any_t)(it->map->data[it->i].data);
+            }
+            return MAP_OK;
+        }
 
-	return MAP_MISSING;
+    return MAP_MISSING;
 }
 
 /**
@@ -267,31 +301,36 @@ enum map_status hashmap_it_next(map_it_t _it, mkey_t *key, any_t *value) {
  * @param it hashmap iterator
  * @return MAP_OK if iterator points to valid element, MAP_MISSING otherwise
  */
-enum map_status hashmap_it_remove(map_it_t _it) {
-	hashmap_it *it = (hashmap_it *) _it;
+enum map_status hashmap_it_remove(map_it_t _it)
+{
+    hashmap_it *it = (hashmap_it *) _it;
 
-	if (it->i < 0 || it->i >= it->map->table_size)
-		return MAP_MISSING;
+    if (it->i < 0 || it->i >= it->map->table_size) {
+        return MAP_MISSING;
+    }
 
-	if (!it->map->data[it->i].in_use)
-		/* could be that we are calling remove on an already removed element */
-		return MAP_MISSING;
+    if (!it->map->data[it->i].in_use)
+        /* could be that we are calling remove on an already removed element */
+    {
+        return MAP_MISSING;
+    }
 
-	it->map->data[it->i].in_use = 0;
-	it->map->data[it->i].data = NULL;
-	it->map->data[it->i].key = NULL;
+    it->map->data[it->i].in_use = 0;
+    it->map->data[it->i].data = NULL;
+    it->map->data[it->i].key = NULL;
 
-	/* Reduce the size */
-	it->map->size--;
+    /* Reduce the size */
+    it->map->size--;
 
-	return MAP_OK;
+    return MAP_OK;
 }
 
 /**
  * Frees interator. {@code it} must not be used after calling this method.
  * @param it hashmap iterator
  */
-void hashmap_it_free(map_it_t _it) {
-	hashmap_it *it = (hashmap_it *) _it;
-	free(it);
+void hashmap_it_free(map_it_t _it)
+{
+    hashmap_it *it = (hashmap_it *) _it;
+    free(it);
 }
