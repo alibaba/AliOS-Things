@@ -10,6 +10,7 @@
 #define IEEE80211_MAC_HEADER_LEN            24
 #define UMESH_MTU_MAX_LEN                   1024
 #define UMESH_RANDOM_LEN                    16
+#define UMESH_AES_KEY_LEN                   16
 #define UMESH_RSSI_THRESHOLD_DEFAULT        -65
 #define UMESH_RSSI_GRACE_DEFAULT            -5
 #define UMESH_POLL_TIMEOUOT                 (1 * 1000) /* in ms */
@@ -35,7 +36,6 @@
 #define BIT6                                0x40
 #define BIT7                                0x80
 
-#define UMESH_OUI                           {0x00, 0x00, 0x00}
 
 /* User Input: 0x0100 ~ 0x01FF */
 #define UMESH_ERR_BASE                       (-0x1000)
@@ -64,4 +64,8 @@
 #define UMESH_WIFI_SET_CHAN_FAILED           (UMESH_ERR_BASE - 0x0202)
 #define UMESH_WIFI_NO_CHAN_LIST              (UMESH_ERR_BASE - 0x0202)
 #define UMESH_WIFI_GET_MAC_FAILED            (UMESH_ERR_BASE - 0x0203)
+
+#define UMESH_ERR_AES_INIT                   (UMESH_ERR_BASE - 0x0301)
+#define UMESH_ERR_AES_DECRYPT                (UMESH_ERR_BASE - 0x0302)
+#define UMESH_ERR_AES_ENCRYPT                (UMESH_ERR_BASE - 0x0303)
 #endif /* UMESH_DEFINE_H_ */

@@ -10,5 +10,5 @@
 #define log_w(...)          ulog(LOG_WARNING, LOG_TAG, ULOG_TAG, __VA_ARGS__)
 #define log_e(...)          ulog(LOG_ERR, LOG_TAG, ULOG_TAG, __VA_ARGS__)
 
+int log_hex(const char *tag, const uint8_t *data, uint16_t len);
 #endif
-
