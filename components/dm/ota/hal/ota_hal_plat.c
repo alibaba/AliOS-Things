@@ -257,7 +257,7 @@ OTA_WEAK int ota_hal_rollback(void)
     return ret;
 }
 
-OTA_WEAK int hal_reboot_bank(void)
+OTA_WEAK int ota_hal_reboot_bank(void)
 {
     return 0;
 }
