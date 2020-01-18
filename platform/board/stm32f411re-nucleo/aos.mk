@@ -19,10 +19,6 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
                    Src/main.c              \
                    Src/stm32f4xx_it.c
 
-ifeq (y, $(strip $(AOS_COMP_SAL)))
-$(NAME)_COMPONENTS += sal
-endif
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f411xe_keil.s
 $(NAME)_LINK_FILES := startup_stm32f411xe_keil.o
