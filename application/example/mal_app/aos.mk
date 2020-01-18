@@ -5,4 +5,4 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := MQTT Adapter Layer (MAL) app
 $(NAME)_SOURCES := mal_app.c
 
-$(NAME)_COMPONENTS += libiot_sign cli yloop
+$(NAME)_COMPONENTS += libiot_sign

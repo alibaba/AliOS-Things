@@ -121,6 +121,16 @@ static int gen_aliyun_mqtt_sign(iotx_sign_mqtt_t *sign_mqtt)
     return 0;
 }
 
+#ifdef MAL_APP_DEBUG
+#include <k_api.h>
+void print_heap(void)
+{
+    extern k_mm_head *g_kmm_head;
+    int               free = g_kmm_head->free_size;
+    LOG("============free heap size =%d==========", free);
+}
+#endif
+
 /*
  *  NOTE: About demo topic of /${productKey}/${deviceName}/user/get
  *
@@ -267,8 +277,10 @@ int linkkit_main(void *paras)
             example_publish(pclient);
         }
 
+#ifdef MAL_APP_DEBUG
+        print_heap();
+#endif
         IOT_MQTT_Yield(pclient, 200);
-
         loop_cnt += 1;
     }
 
@@ -292,9 +304,7 @@ int application_start(int argc, char *argv[])
 
     mal_init();
 
-    aos_task_new("mqtt_app", linkkit_main, NULL, 8 * 1024);
-
-    aos_loop_run();
+    linkkit_main(NULL);
 
     return 0;
 }
