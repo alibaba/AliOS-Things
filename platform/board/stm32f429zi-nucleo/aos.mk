@@ -39,10 +39,6 @@ $(NAME)_SOURCES    += httpserver-netconn.c
 $(NAME)_COMPONENTS += lwip
 endif
 
-ifeq (y, $(strip $(AOS_COMP_SAL)))
-$(NAME)_COMPONENTS += sal
-endif
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f429xx_keil.s
 $(NAME)_LINK_FILES := startup_stm32f429xx_keil.o
