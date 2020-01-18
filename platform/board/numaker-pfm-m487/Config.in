@@ -4,17 +4,13 @@ config AOS_BOARD_NUMAKER_PFM_M487
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR
-    select AOS_COMP_SAL if WIFI = 1
-    select AOS_COMP_DEVICE_SAL_MK3060 if WIFI = 1
-    select AOS_COMP_LWIP if ETHERNET = y
-    select AOS_COMP_YLOOP if ETHERNET = y
     help
 
 if AOS_BOARD_NUMAKER_PFM_M487
 # Configurations for board numaker-pfm-m487
 
-config ETHERNET
-    bool "ETHERNET"
-    default y
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool "Support external module"
+    default n
 
 endif
