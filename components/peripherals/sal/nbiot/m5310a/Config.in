@@ -1,3 +1,4 @@
 config AOS_COMP_DEVICE_SAL_M5310A
     bool "nbiot.M5310A"
     select AOS_COMP_AT
+    select AOS_COMP_YLOOP
