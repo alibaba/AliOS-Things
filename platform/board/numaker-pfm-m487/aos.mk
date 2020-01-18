@@ -32,29 +32,16 @@ GLOBAL_INCLUDES += .    \
                    drivers/  \
                    startup/
 
+ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 ETHERNET := 1
-#WIFI  := 0
-
-ifeq ($(ETHERNET),1)
-$(NAME)_SOURCES += drivers/ethernetif.c
+$(NAME)_SOURCES    += drivers/ethernetif.c
 $(NAME)_COMPONENTS  += lwip yloop
 no_with_lwip := 0
 press_test := 1
 HW_CRYPTO_AES_NUVOTON := 1
-GLOBAL_DEFINES += WITH_LWIP
 GLOBAL_DEFINES += LWIP_MAILBOX_QUEUE
 GLOBAL_DEFINES += LWIP_TIMEVAL_PRIVATE=0
-else ifeq ($(WIFI),1)
-SAL := 0
-press_test := 1
-no_with_lwip := 1
-$(NAME)_COMPONENTS  += sal device_sal_mk3060
-GLOBAL_DEFINES += WITH_SAL
-GLOBAL_DEFINES += DEV_SAL_MK3060
-else
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
-
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_LINK_FILES := startup_M480.o
