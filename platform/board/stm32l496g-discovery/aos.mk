@@ -46,10 +46,6 @@ ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
 
-ifeq (y, $(strip $(AOS_COMP_SAL)))
-$(NAME)_COMPONENTS += sal
-endif
-
 ifeq ($(COMPILER),armcc)
 $(NAME)_LINK_FILES := startup_stm32l496xx_keil.o
 endif
