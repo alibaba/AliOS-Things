@@ -12,15 +12,17 @@ $(NAME)_DEFINES += UTILS_AES_BUILDIN
 $(NAME)_DEFINES += USE_ACTION_FRAME
 $(NAME)_COMPONENTS += yloop
 
-$(NAME)_INCLUDES += include/core   \
-                    include/hal    \
+$(NAME)_INCLUDES += include/core       \
+                    include/adapter    \
                     include/utils  
 
-
-$(NAME)_SOURCES := src/core/*.c \
-                   src/hal/*.c \
+$(NAME)_SOURCES := src/core/*.c        \
+                   src/adapter/*.c     \
                    src/utils/*.c                   
 
+
+
+GLOBAL_DEFINES += LWIP_IPV6=0
 
 #default gcc
 ifeq ($(COMPILER),)

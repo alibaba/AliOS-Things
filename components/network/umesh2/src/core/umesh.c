@@ -17,7 +17,9 @@
 #include "unpack.h"
 #include "peers.h"
 #include "utils.h"
+#include "adapter_lwip.h"
 
+extern const uint8_t BCAST_ADDR[];
 const static uint8_t channel_scan_times[] = {2, 2, 2, 2, 2, 20, 2, 2, 2, 2, 2, 2, 2};
 
 static void umesh_main_task(void *context);
@@ -191,6 +193,10 @@ static void umesh_heart_beat(void *context)
         log_d("~~~~~~~~~~~send heart beat~~~~~~~~~~~");
         umesh_heart_update_time(state);
         umesh_send_frame_heart_beat(state);
+        /*if not get connect to wifi ,then ask ap info, beta...*/
+        if(umesh_wifi_get_connect_state() == 0) {
+            umesh_send_frame_zero_req(state, BCAST_ADDR);
+        }
     }
 
     umesh_peers_keeplive(state);
@@ -229,10 +235,14 @@ void umesh_network_deinit(void *handle)
     if (state == NULL) {
         return;
     }
-
+    umesh_timer_cancel(&state->timers.scan_timer, umesh_peer_identify, NULL);
+    umesh_timer_cancel(&state->timers.scan_timer, umesh_peer_scan, NULL);
+    umesh_timer_cancel(&state->timers.heart_timer, umesh_heart_beat, NULL);
+#if LWIP_IPV6 
+    umesh_adapter_interface_deinit(state);
+#endif
     umesh_state_deinit(state);
     umesh_free(state);
-
 }
 
 static int umesh_send_data_to_radio(struct umesh_state *state)
@@ -290,13 +300,42 @@ static void umesh_main_task(void *context)
     }
 }
 
-
-static int recieve_raw_data(const uint8_t *data, uint16_t len, const uint8_t *from, void *context)
+static int recieve_raw_data(const uint8_t *data, uint16_t len, const uint8_t *ta, const uint8_t *sa,  const uint8_t *da,
+                            void *context)
 {
-    log_hex("get data from", from, 6);
-    log_hex("data", data, len);
-    return 0;
+    int ret;
+
+    struct umesh_state *state = (struct umesh_state *)context;
+    if (state == NULL || data == NULL || sa == NULL || da == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+    /*da == self or da = bcast ,send to ip */
+    if (memcmp(da, state->self_addr, IEEE80211_MAC_ADDR_LEN) == NULL) {  /*data to self */
+        log_hex("get data from", sa, IEEE80211_MAC_ADDR_LEN);
+        log_hex("ucast data", data, len);
+        if(state->data_to_ip_cb) {
+            state->data_to_ip_cb(data, len);
+        }
+        return 0;
+    } else if (memcmp(da, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN) == NULL) { /*data to self */
+        log_hex("get data from", sa, IEEE80211_MAC_ADDR_LEN);
+        log_hex("bcast data", data, len);
+        if(state->data_to_ip_cb) {
+            state->data_to_ip_cb(data, len);
+        }
+        return 0;
+    } else { /*data to others */
+        /* only support hop = 1*/
+        ret = umesh_send_frame_data(state, da, sa, da, data, len);
+    }
+    return ret;
 }
+// static int recieve_raw_data(const uint8_t *data, uint16_t len, const uint8_t *from, void *context)
+// {
+//     log_hex("get data from", from, 6);
+//     log_hex("data", data, len);
+//     return 0;
+// }
 
 static void umesh_peer_lost(const uint8_t *addr, void *arg)
 {
@@ -311,7 +350,10 @@ static void umesh_peer_update(const uint8_t *addr, umesh_identify_step_t step, v
     log_hex("peer addr", addr, 6);
 }
 
-
+static void get_ap_info(const char *ssid, const char *pwd, const uint8_t *bssid)
+{
+    log_d("++++++++++get ssid = %s, pwd = %s++++++++++++",ssid, pwd);
+}
 void *umesh_network_init()
 {
     int ret = 0;
@@ -339,6 +381,8 @@ void *umesh_network_init()
     if (ret != 0) {
         goto err;
     }
+
+    ret = umesh_state_set_zero_config_cb(state, get_ap_info);
     ret = umesh_task_start(umesh_main_task, (void *)state, UMESH_TASK_STACK_SIZE, UMESH_TASK_HIGH_PRIO);
     if (ret != 0) {
 
@@ -349,12 +393,23 @@ void *umesh_network_init()
 
     /*ret = umesh_schedule_start(state);*/
     if (ret != 0) {
-        umesh_network_deinit((void *)state);
-        state = NULL;
         goto err;
     }
+#if LWIP_IPV6 
+    ret = umesh_adapter_interface_init(state);
+    if (ret != 0) {
+        goto err;
+    }
+#endif
     return state;
 err:
+    if (state != NULL) {
+        umesh_network_deinit((void *)state);
+#if LWIP_IPV6 
+        umesh_adapter_interface_deinit(state);
+#endif
+        state = NULL;
+    }
     log_e("umesh init err, ret = %d", ret);
     return (void *)state;
     /* */
@@ -383,5 +438,29 @@ static int umesh_set_phase(struct umesh_state *state, umesh_phase_t phase)
             ret = UMESH_NO_ACTION_REQUIRED;
             break;
     }
+    return ret;
+}
+
+int umesh_recv_ip_data(struct umesh_state *state, const uint8_t *data, uint16_t data_len, uint8_t *dst_addr)
+{
+    int ret = 0;
+    struct umesh_peer *to_peer = NULL;
+    const uint8_t *ra = NULL;
+    const uint8_t *da = NULL;
+    if (data == NULL || data == NULL || dst_addr == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    da = dst_addr;
+    /*search if da in neighbor list */
+    ret = umesh_peer_get(state->peers_state.peers, dst_addr, &to_peer);
+    if (ret < 0) {
+        /*todo:search if da in remote peers list */
+        ra = BCAST_ADDR;
+    } else {
+        ra = dst_addr;
+    }
+
+    ret = umesh_send_frame_data(state, ra, state->self_addr, da, data, data_len);
     return ret;
 }
