@@ -6,8 +6,6 @@
 #include "define.h"
 #include "utils_time.h"
 
-#define UMESH_PEER_RANDOM_LEN 8
-
 enum peers_status {
     PEERS_ERR = -2, /* Peer does not exist */
     PEERS_MISSING = -1, /* Peer does not exist */
@@ -44,9 +42,20 @@ typedef struct umesh_peer {
     uint32_t session_id;
     uint8_t  is_lp;
     uint8_t version;
-    uint8_t from_random[UMESH_PEER_RANDOM_LEN];
-    uint8_t to_random[UMESH_PEER_RANDOM_LEN];
+    uint8_t from_random[UMESH_RANDOM_LEN];
+    uint8_t to_random[UMESH_RANDOM_LEN];
+    uint16_t data_seq; /*exclude duplicate data*/
+    uint8_t zero_flag;
 } umesh_peer_t;
+
+typedef struct umesh_remote_peer {
+    umesh_peer_type_t type;
+    uint64_t last_update;
+    uint8_t addr[IEEE80211_MAC_ADDR_LEN];
+    uint8_t neighbor_addr[IEEE80211_MAC_ADDR_LEN];
+    uint8_t version;
+    uint16_t data_seq; /*exclude duplicate data*/
+} umesh_remote_peer_t;
 
 typedef void *umesh_peers_t;
 
@@ -55,6 +64,7 @@ typedef void (*umesh_peer_update_cb)(const uint8_t *addr, umesh_identify_step_t 
 
 typedef struct umesh_peers_state {
     umesh_peers_t peers;
+    umesh_remote_peer_t remote_peers;/*recieve a data from remote peer, need cached it for a while */
     uint8_t joined;
 } umesh_peers_state_t;
 
