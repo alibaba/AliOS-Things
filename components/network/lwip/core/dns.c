@@ -1089,6 +1089,10 @@ dns_check_entry(u8_t i)
                 if (err != ERR_OK) {
                     LWIP_DEBUGF(DNS_DEBUG | LWIP_DBG_LEVEL_WARNING,
                                 ("dns_send returned error: %s\n", lwip_strerr(err)));
+
+                    /* send fail stop retry */
+                    dns_call_found(i, NULL);
+                    entry->state = DNS_STATE_UNUSED;
                 }
             }
             break;
