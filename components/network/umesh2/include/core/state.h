@@ -11,12 +11,15 @@
 #include "define.h"
 #include "list.h"
 
-
-
 struct umesh_state; /* forward declaration for tlv_cb */
 
 typedef int (*umesh_tlv_cb)(umesh_peer_t *, uint8_t, const struct buf *, struct umesh_state *, void *);
-typedef int (*get_raw_data_cb)(const uint8_t *data, uint16_t len, const uint8_t *from, void *);
+// typedef int (*get_raw_data_cb)(const uint8_t *data, uint16_t len, const uint8_t *from, void *);
+typedef int (*get_raw_data_cb)(const uint8_t *data, uint16_t len, const uint8_t *ta, const uint8_t *sa,
+                               const uint8_t *da, void *);
+
+typedef int (*data_to_ip_cb)(void *buf, int len);
+typedef int (*ap_info_cb)(const char *ssid,const  char *pwd,const uint8_t *bssid);
 
 typedef struct  {
     uint64_t tx_mng;
@@ -79,6 +82,8 @@ typedef struct umesh_state {
     umesh_peer_lost_cb peer_remove_cb;
 
     get_raw_data_cb raw_data_cb;
+    data_to_ip_cb   data_to_ip_cb;
+    ap_info_cb      get_ap_info_cb;
     int filter_rssi; /* whether or not to filter (default: true) */
     signed char rssi_threshold; /* peers exceeding this threshold are discovered */
     signed char rssi_grace; /* once discovered accept lower RSSI */

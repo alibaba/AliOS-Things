@@ -1,7 +1,7 @@
-#include "crc32.h"
+#include <stdint.h>
 
 /* crc32 calculation */
-const uint32_t crc32_tab[] = {
+static const uint32_t crc32_tab[] = {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
     0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
     0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91, 0x1db71064, 0x6ab020f2,
@@ -47,7 +47,7 @@ const uint32_t crc32_tab[] = {
     0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-uint32_t crc32(const void *buf, unsigned long size)
+uint32_t umesh_crc32(const void *buf, unsigned long size)
 {
     const uint8_t *p = buf;
     uint32_t crc;
@@ -57,114 +57,3 @@ uint32_t crc32(const void *buf, unsigned long size)
     }
     return crc ^ ~0u;
 }
-
-
-//////////////////////////
-
-#if 0
-#define AWSS_DISCOVER_USE_QUICK_CRC
-
-
-#define POLY           0x04C11DB7
-
-
-static uint64_t reflect(uint64_t ref, uint8_t ch)
-{
-    int i;
-    uint64_t value = 0;
-    for (i = 1; i < (ch + 1); i++) {
-        if (ref & 1) {
-            value |= 1 << (ch - i);
-        }
-        ref >>= 1;
-    }
-    return value;
-}
-
-#ifndef AWSS_DISCOVER_USE_QUICK_CRC
-static uint32_t crc32_bit(uint8_t *ptr, uint32_t len)
-{
-    uint8_t i;
-    uint32_t crc = 0xffffffff;
-    while (len--) {
-        for (i = 1; i != 0; i <<= 1) {
-            if ((crc & 0x80000000) != 0) {
-                crc <<= 1;
-                crc ^= POLY;
-            } else {
-                crc <<= 1;
-            }
-            if ((*ptr & i) != 0) {
-                crc ^= POLY;
-            }
-        }
-        ptr++;
-    }
-    return (reflect(crc, 32) ^ 0xffffffff);
-}
-
-#else
-static uint32_t Table2[256];
-
-static void gen_normal_table(uint32_t *table)
-{
-    uint32_t gx = 0x04c11db7;
-    uint32_t temp;
-    int i, j;
-    for (i = 0; i <= 0xFF; i++) {
-        temp = reflect(i, 8);
-        table[i] = temp << 24;
-        for (j = 0; j < 8; j++) {
-            unsigned long int t1, t2;
-            unsigned long int flag = table[i] & 0x80000000;
-            t1 = (table[i] << 1);
-            if (flag == 0) {
-                t2 = 0;
-            } else {
-                t2 = gx;
-            }
-            table[i] = t1 ^ t2;
-        }
-        table[i] = reflect(table[i], 32);
-    }
-}
-
-static uint32_t reverse_table_crc(uint8_t *data, int32_t len, uint32_t *table)
-{
-    uint32_t crc = 0xffffffff;
-    uint8_t *p = data;
-    int i;
-    for (i = 0; i < len; i++) {
-        crc = table[(crc ^ (*(p + i))) & 0xff] ^ (crc >> 8);
-    }
-    return  ~crc;
-}
-
-static uint32_t crc32_bit(uint8_t *ptr, uint32_t len)
-{
-    uint32_t crc;
-    static uint8_t init_table = 0;
-    if (init_table == 0) {
-        init_table = 1;
-        gen_normal_table(Table2);
-    }
-    crc =  reverse_table_crc(ptr, len, Table2);
-    return crc;
-}
-#endif
-
-void get_fcs(uint8_t *p_buffer, uint16_t length)
-{
-    uint32_t crc;
-    if (length < 4) {
-        return;
-    }
-
-    crc = crc32_bit(p_buffer, length - 4);
-
-    p_buffer[length - 4] = (crc >> 24) & 0xff;
-    p_buffer[length - 3] = (crc >> 16) & 0xff;
-    p_buffer[length - 2] = (crc >> 8) & 0xff;
-    p_buffer[length - 1] = (crc) & 0xff;
-}
-#endif
