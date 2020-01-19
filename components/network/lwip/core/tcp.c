@@ -933,7 +933,8 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
     TCP_REG_ACTIVE(pcb);
     MIB2_STATS_INC(mib2.tcpactiveopens);
 
-    tcp_output(pcb);
+    /* need to know low layer situation */
+    ret = tcp_output(pcb);
   }
   return ret;
 }
