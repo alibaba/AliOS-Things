@@ -92,10 +92,10 @@ struct umesh_peer *umesh_peer_add2(umesh_peers_t peers, const uint8_t *_addr,
     peer->session_id = session_id;
     peer->last_update = now;
     if (from_random != NULL) {
-        memcpy(peer->from_random, from_random, UMESH_PEER_RANDOM_LEN);
+        memcpy(peer->from_random, from_random, UMESH_RANDOM_LEN);
     }
     if (to_random != NULL) {
-        memcpy(peer->to_random, to_random, UMESH_PEER_RANDOM_LEN);
+        memcpy(peer->to_random, to_random, UMESH_RANDOM_LEN);
     }
 
     if (status == MAP_OK) {

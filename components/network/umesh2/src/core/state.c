@@ -88,6 +88,15 @@ fail:
     return UMESH_ERR_MALLOC_FAILED;
 }
 
+int umesh_state_set_zero_config_cb(struct umesh_state *state, ap_info_cb cb)
+{
+    if(state == NULL || cb == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    state->get_ap_info_cb = cb;
+    return 0;
+}
 int umesh_state_deinit(struct umesh_state *state)
 {
     umesh_peers_state_deinit(&state->peers_state);
@@ -267,4 +276,12 @@ int umesh_heart_update_time(struct umesh_state *state)
     }
     umesh_time_countdown_ms(&state->next_heart_time, (uint32_t)(state->heart_duration >> 2));
     return 0;
+}
+
+int umesh_get_self_type(struct umesh_state *state)
+{
+    if (state == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+    return (int)state->self_type;
 }
