@@ -27,6 +27,10 @@
 #define UMESH_IDENTIFY_MAX_CNT              20
 #define UMESH_FCS_LEN                       4
 
+#define UMESH_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
+#define UMESH_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
+
+
 #define BIT0                                0x01
 #define BIT1                                0x02
 #define BIT2                                0x04
@@ -43,10 +47,14 @@
 /*common err */
 /* User input parameters contain unacceptable NULL pointer */
 /* 用户传递给API的参数中含有不合理的空指针参数 */
+
+#define UMESH_OK                             (0)
 #define UMESH_ERR_NULL_POINTER               (UMESH_ERR_BASE - 0x0001)
 #define UMESH_ERR_MALLOC_FAILED              (UMESH_ERR_BASE - 0x0002)
 #define UMESH_ERR_OUT_OF_BOUNDS              (UMESH_ERR_BASE - 0x0003)
 #define UMESH_NO_ACTION_REQUIRED             (UMESH_ERR_BASE - 0x0004)
+#define UMESH_ERR_NOT_INIT                   (UMESH_ERR_BASE - 0x0004)
+
 /*peer err */
 #define UMESH_ERR_PEER_MISSING               (UMESH_ERR_BASE - 0x0101)
 #define UMESH_PEER_ADD_FAILED                (UMESH_ERR_BASE - 0x0102)
@@ -62,10 +70,14 @@
 /*hal err */
 #define UMESH_WIFI_RAW_SEND_FAILED           (UMESH_ERR_BASE - 0x0201)
 #define UMESH_WIFI_SET_CHAN_FAILED           (UMESH_ERR_BASE - 0x0202)
-#define UMESH_WIFI_NO_CHAN_LIST              (UMESH_ERR_BASE - 0x0202)
-#define UMESH_WIFI_GET_MAC_FAILED            (UMESH_ERR_BASE - 0x0203)
+#define UMESH_WIFI_NO_CHAN_LIST              (UMESH_ERR_BASE - 0x0203)
+#define UMESH_WIFI_GET_MAC_FAILED            (UMESH_ERR_BASE - 0x0204)
+#define UMESH_WIFI_GET_AP_INFO_FAILED        (UMESH_ERR_BASE - 0x0205)
 
 #define UMESH_ERR_AES_INIT                   (UMESH_ERR_BASE - 0x0301)
 #define UMESH_ERR_AES_DECRYPT                (UMESH_ERR_BASE - 0x0302)
 #define UMESH_ERR_AES_ENCRYPT                (UMESH_ERR_BASE - 0x0303)
+
+#define UMESH_ERR_IPSTACK_INIT               (UMESH_ERR_BASE - 0x0401)
+#define UMESH_ERR_IP_ADDR                    (UMESH_ERR_BASE - 0x0402)
 #endif /* UMESH_DEFINE_H_ */

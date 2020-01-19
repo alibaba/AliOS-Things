@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "frame.h"
-#include "crc32.h"
+#include "utils_crc32.h"
 #include "define.h"
 #include "state.h"
 #include "peers.h"
@@ -31,32 +31,13 @@ static int umesh_init_header(uint8_t *buf, struct umesh_state *state, umesh_fram
     return sizeof(struct umesh_header);
 }
 
-// static int umesh_init_join_tlv(uint8_t *buf, const struct umesh_state *state, umesh_peer_t *peer) {
-
-//  int len;
-//  int ret;
-
-//  if(buf == NULL || state == NULL || peer == NULL) {
-//      return 0;
-//  }
-
-//  struct umesh_join_paras_tlv *tlv = (struct umesh_join_paras_tlv *) buf;
-
-//  tlv->type = UMESH_JOIN_TLV;
-
-//  tlv->session_id = htole32(peer->session_id);
-//     memcpy(tlv->random, peer->to_random, UMESH_RANDOM_LEN);
-//  len = sizeof(struct umesh_join_paras_tlv);
-//  tlv->length = htole16(len - sizeof(struct tl));
-//  return len;
-// }
-static int umesh_init_join_tlv(uint8_t *buf, const struct umesh_state *state, uint8_t *da)
+static int umesh_init_join_tlv(uint8_t *buf, const struct umesh_state *state, uint8_t *ra)
 {
 
     int len;
     int ret;
     umesh_peer_t *peer = NULL;
-    if (buf == NULL || state == NULL || da == NULL) {
+    if (buf == NULL || state == NULL || ra == NULL) {
         return 0;
     }
 
@@ -65,14 +46,170 @@ static int umesh_init_join_tlv(uint8_t *buf, const struct umesh_state *state, ui
     tlv->type = UMESH_JOIN_TLV;
 
 
-    ret = umesh_peer_get(state->peers_state.peers, da, &peer);
+    ret = umesh_peer_get(state->peers_state.peers, ra, &peer);
     if (ret < 0) {
         return ret;
     }
 
-    tlv->session_id = umesh_htole32(peer->session_id);
+    tlv->session_id = umesh_htole32(state->session_id);
     memcpy(tlv->random, peer->to_random, UMESH_RANDOM_LEN);
     len = sizeof(struct umesh_join_paras_tlv);
+    tlv->length = umesh_htole16(len - sizeof(struct tl));
+    return len;
+}
+
+static int umesh_init_zero_req_tlv(uint8_t *buf, const struct umesh_state *state)
+{
+
+    int len;
+    int ret;
+    umesh_peer_t *peer = NULL;
+    if (buf == NULL || state == NULL) {
+        return 0;
+    }
+
+    struct umesh_zero_common_tlv *tlv = (struct umesh_zero_common_tlv *) buf;
+
+    tlv->type = UMESH_ZERO_REQ_TLV;
+    tlv->flag = 0;
+    len = sizeof(struct umesh_zero_common_tlv);
+
+    tlv->length = umesh_htole16(len - sizeof(struct tl));
+    return len;
+}
+
+static int umesh_init_zero_resp_tlv(uint8_t *buf, const struct umesh_state *state,  uint8_t *ra)
+{
+    int len;
+    int ret;
+    int i;
+    uint8_t value_len;
+    umesh_peer_t *peer = NULL;
+    uint8_t *ptr = buf;
+    char ssid[UMESH_MAX_SSID_LEN] = {0};
+    char passwd[UMESH_MAX_PASSWD_LEN] = {0};
+    uint8_t bssid[IEEE80211_MAC_ADDR_LEN] = {0};
+
+
+    uint8_t *encrypt_data = NULL;
+    uint8_t iv_data[UMESH_AES_KEY_LEN] = {0};
+    uint8_t bcast = 0;
+    p_Aes128_t aes = NULL;
+
+    if (buf == NULL || state == NULL) {
+        return 0;
+    }
+
+    struct umesh_zero_common_tlv *tlv = (struct umesh_zero_common_tlv *) buf;
+
+    tlv->type = UMESH_ZERO_RESP_TLV;
+    tlv->flag = 0;
+
+    len = sizeof(struct umesh_zero_common_tlv);
+    
+    ptr += len;
+    /*get password and ssid*/
+    ret = umesh_wifi_get_ap_info(ssid, passwd, bssid);
+    if(ret < 0) {
+        return UMESH_WIFI_GET_AP_INFO_FAILED;
+    }
+    
+    encrypt_data = umesh_malloc(strlen(passwd) + 1);
+
+////////////////
+
+    if (memcmp(ra, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0) { /* broadcast */
+        bcast = 1;
+    } else { /*unicast*/
+        bcast = 0;
+    }
+    if (bcast == 0) { /* unicast encrypto */
+        struct umesh_peer *to_peer = NULL;
+        ret = umesh_peer_get(state->peers_state.peers, ra, &to_peer);
+        if (ret < 0) {
+            umesh_free(encrypt_data);
+            return UMESH_ERR_PEER_MISSING;
+        }
+
+        umesh_get_ucast_iv(to_peer->from_random, to_peer->to_random, iv_data);
+
+        aes = utils_aes128_init(state->aes_key, iv_data, AES_ENCRYPTION);
+        if (aes == NULL) {
+            umesh_free(encrypt_data);
+            return UMESH_ERR_AES_INIT;
+        }
+
+        ret = utils_aes128_cfb_encrypt(aes, passwd, strlen(passwd), encrypt_data);
+        utils_aes128_destroy(aes);
+        if (ret < 0) {
+            umesh_free(encrypt_data);
+            return UMESH_ERR_AES_ENCRYPT;
+        }
+    } else { /* broadcast encrypto */
+        uint8_t session_array[4] = {0};
+        union array_uint32 temp;
+        temp.value32 = umesh_htole32(state->session_id);
+        memcpy(session_array, temp.array, sizeof(session_array));
+        umesh_get_bcast_iv(state->self_addr, session_array, iv_data);
+
+        aes = utils_aes128_init(state->aes_key, iv_data, AES_ENCRYPTION);
+        if (aes == NULL) {
+            return UMESH_ERR_AES_INIT;
+        }
+
+        ret = utils_aes128_cfb_encrypt(aes, passwd, strlen(passwd),  encrypt_data);
+        utils_aes128_destroy(aes);
+        if (ret < 0) {
+            umesh_free(encrypt_data);
+            return UMESH_ERR_AES_ENCRYPT;
+        }
+    }
+
+////////////////
+    value_len = (uint8_t)strlen(ssid);
+    *ptr = value_len;
+    ptr++;
+    memcpy(ptr,ssid ,value_len);
+    ptr += value_len;
+    value_len = (uint8_t)strlen(passwd);
+    *ptr = value_len;
+    ptr++;
+    memcpy(ptr,encrypt_data ,value_len);   
+    ptr += value_len;
+
+    for(i = 0; i < IEEE80211_MAC_ADDR_LEN; i++) {
+        if(bssid[i] != 0) {
+            break;
+        }
+    }
+
+    if(i != IEEE80211_MAC_ADDR_LEN) {
+        memcpy(ptr, bssid, IEEE80211_MAC_ADDR_LEN);
+        tlv->flag != BIT2;
+        ptr += value_len;
+    }
+
+    len = ptr - buf;
+    tlv->length = umesh_htole16(len - sizeof(struct tl)) ;
+    return len;
+}
+
+static int umesh_init_zero_finish_tlv(uint8_t *buf, const struct umesh_state *state)
+{
+
+    int len;
+    int ret;
+    umesh_peer_t *peer = NULL;
+    if (buf == NULL || state == NULL) {
+        return 0;
+    }
+
+    struct umesh_zero_common_tlv *tlv = (struct umesh_zero_common_tlv *) buf;
+
+    tlv->type = UMESH_ZERO_FINISH_TLV;
+    tlv->flag = 0;
+    len = sizeof(struct umesh_zero_common_tlv);
+
     tlv->length = umesh_htole16(len - sizeof(struct tl));
     return len;
 }
@@ -156,14 +293,14 @@ static int umesh_ieee80211_add_fcs(const uint8_t *start, uint8_t *end)
 {
     union array_uint32 temp;
 
-    temp.value32 = umesh_htole32(crc32(start, end - start));
+    temp.value32 = umesh_htole32(umesh_crc32(start, end - start));
 
     //get_fcs(start, end - start + 4);
     memcpy(end, temp.array, sizeof(uint32_t));
     return sizeof(uint32_t);
 }
 
-int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct umesh_send_message *message)
+static int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct umesh_send_message *message)
 {
     uint8_t *ptr = (uint8_t *)buf_data(buf);
     int len = buf_len(buf);
@@ -177,7 +314,7 @@ int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct um
         return UMESH_ERR_OUT_OF_BOUNDS;
     }
 
-    ptr += umesh_ieee80211_init_hdr(ptr, state, message->ra_enable ? message->ra : message->da);
+    ptr += umesh_ieee80211_init_hdr(ptr, state, message->ra);
 
     ptr += umesh_init_header(ptr, state, message->type);
     switch (message->type) {
@@ -187,6 +324,15 @@ int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct um
             break;
         case UMESH_FRAME_JOIN_REQ:
             break;
+        case UMESH_FRAME_ZERO_REQ:
+            ptr += umesh_init_zero_req_tlv(ptr, state);
+            break;
+        case UMESH_FRAME_ZERO_RESP:
+            ptr += umesh_init_zero_resp_tlv(ptr, state, message->ra);
+            break;
+        case UMESH_FRAME_ZERO_FINISH:
+            ptr += umesh_init_zero_finish_tlv(ptr, state);
+            break;
         case UMESH_FRAME_JOIN_PERMIT:
         case UMESH_FRAME_JOIN_FINISH:
 
@@ -195,7 +341,7 @@ int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct um
                 log_e("buf len = %d , request len = %d", len, request_len);
                 return UMESH_ERR_OUT_OF_BOUNDS;
             }
-            ptr += umesh_init_join_tlv(ptr, state, message->da);
+            ptr += umesh_init_join_tlv(ptr, state, message->ra);
             ptr += umesh_init_heartbeat_tlv(ptr, state);
             break;
         case UMESH_FRAME_HEART_BEAT:
@@ -208,26 +354,32 @@ int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, struct um
             break;
         case UMESH_FRAME_DATA:
             request_len += sizeof(struct umesh_heart_beat_tlv) + sizeof(struct umesh_data_fixed_tlv) + message->data_len +
-                           message->ra_enable ? IEEE80211_MAC_ADDR_LEN * 2 : 0;
+                           message->ext_addr_enable ? IEEE80211_MAC_ADDR_LEN * 2 : 0;
 
             if (len < request_len) {
                 log_e("buf len = %d , request len = %d", len, request_len);
                 return UMESH_ERR_OUT_OF_BOUNDS;
             }
             ptr += umesh_init_heartbeat_tlv(ptr, state);
-            ptr += umesh_init_data_tlv(ptr, state, message->ra_enable ? state->self_addr : NULL,
-                                       message->ra_enable ? message->da : NULL, message->data, message->data_len);
+
+            ptr += umesh_init_data_tlv(ptr, state, message->ext_addr_enable ? message->sa : NULL,
+                                       message->ext_addr_enable ? message->da : NULL, message->data, message->data_len);
             break;
 
     }
 
     ptr += umesh_ieee80211_add_fcs(buf_data(buf), ptr);
     //log_hex("umesh_init_full_frame:",buf_data(buf),ptr - buf_data(buf));
-    return (int)(ptr - buf_data(buf));
+    len = ptr - buf_data(buf);
+    BUF_TAKE(buf, buf_len(buf)- len);
+    return len;
+buffer_error:
+    return UMESH_ERR_OUT_OF_BOUNDS;
+
 }
 
 
-int umesh_init_frame_discovery(umesh_state_t *state, umesh_buf_t **buf)
+static int umesh_init_frame_discovery(umesh_state_t *state, umesh_buf_t **buf)
 {
     int ret = 0;
     struct umesh_send_message message;
@@ -248,7 +400,7 @@ int umesh_init_frame_discovery(umesh_state_t *state, umesh_buf_t **buf)
     *buf = send_buf;
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
-    memcpy(message.da, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
     message.type = UMESH_FRAME_DISCOVERY_REQ;
 
     ret = umesh_init_full_frame(send_buf, state, &message);
@@ -258,7 +410,7 @@ int umesh_init_frame_discovery(umesh_state_t *state, umesh_buf_t **buf)
     return ret;
 }
 
-int umesh_init_frame_discovery_resp(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
+static int umesh_init_frame_discovery_resp(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
 {
     int ret = 0;
     struct buf *send_buf;
@@ -276,7 +428,7 @@ int umesh_init_frame_discovery_resp(umesh_state_t *state, const uint8_t *dst, um
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
     message.type = UMESH_FRAME_DISCOVERY_RESP;
-    memcpy(message.da, dst, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
     ret = umesh_init_full_frame(send_buf, state, &message);
     if (ret < 0) {
         buf_free(send_buf);
@@ -285,7 +437,7 @@ int umesh_init_frame_discovery_resp(umesh_state_t *state, const uint8_t *dst, um
     return ret;
 }
 
-int umesh_init_frame_join_request(umesh_state_t *state, umesh_buf_t **buf)
+static int umesh_init_frame_join_request(umesh_state_t *state, umesh_buf_t **buf)
 {
     int ret = 0;
     int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + UMESH_FCS_LEN;
@@ -302,7 +454,7 @@ int umesh_init_frame_join_request(umesh_state_t *state, umesh_buf_t **buf)
 
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
-    memcpy(message.da, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
     message.type = UMESH_FRAME_JOIN_REQ;
     ret = umesh_init_full_frame(send_buf, state, &message);
     if (ret < 0) {
@@ -311,7 +463,7 @@ int umesh_init_frame_join_request(umesh_state_t *state, umesh_buf_t **buf)
     return ret;
 }
 
-int umesh_init_frame_join_resp(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
+static int umesh_init_frame_join_resp(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
 {
     int ret = 0;
     struct buf *send_buf;
@@ -331,7 +483,7 @@ int umesh_init_frame_join_resp(umesh_state_t *state, const uint8_t *dst, umesh_b
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
     message.type = UMESH_FRAME_JOIN_PERMIT;
-    memcpy(message.da, dst, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
     ret = umesh_init_full_frame(send_buf, state, &message);
     if (ret < 0) {
         buf_free(send_buf);
@@ -340,7 +492,7 @@ int umesh_init_frame_join_resp(umesh_state_t *state, const uint8_t *dst, umesh_b
     return ret;
 }
 
-int umesh_init_frame_join_finish(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
+static int umesh_init_frame_join_finish(umesh_state_t *state, const uint8_t *dst, umesh_buf_t **buf)
 {
     int ret = 0;
     struct buf *send_buf;
@@ -360,7 +512,7 @@ int umesh_init_frame_join_finish(umesh_state_t *state, const uint8_t *dst, umesh
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
     message.type = UMESH_FRAME_JOIN_FINISH;
-    memcpy(message.da, dst, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
     ret = umesh_init_full_frame(send_buf, state, &message);
     if (ret < 0) {
         buf_free(send_buf);
@@ -368,7 +520,7 @@ int umesh_init_frame_join_finish(umesh_state_t *state, const uint8_t *dst, umesh
     return ret;
 }
 
-int umesh_init_frame_heart_beat(umesh_state_t *state, umesh_buf_t **buf)
+static int umesh_init_frame_heart_beat(umesh_state_t *state, umesh_buf_t **buf)
 {
     int ret = 0;
     struct buf *send_buf;
@@ -388,7 +540,7 @@ int umesh_init_frame_heart_beat(umesh_state_t *state, umesh_buf_t **buf)
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
     message.type = UMESH_FRAME_HEART_BEAT;
-    memcpy(message.da, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
+    memcpy(message.ra, BCAST_ADDR, IEEE80211_MAC_ADDR_LEN);
     ret = umesh_init_full_frame(send_buf, state, &message);
     if (ret < 0) {
         log_e("init full frame failed,ret = %d", ret);
@@ -397,22 +549,127 @@ int umesh_init_frame_heart_beat(umesh_state_t *state, umesh_buf_t **buf)
     return ret;
 }
 
-int umesh_init_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t *da,
-                          const uint8_t *data, int data_len, umesh_buf_t **buf)
+static int umesh_init_frame_zero_req(umesh_state_t *state, uint8_t *dst, umesh_buf_t **buf)
+{
+    int ret = 0;
+    struct buf *send_buf;
+    int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + sizeof(struct umesh_zero_common_tlv) +
+                      UMESH_FCS_LEN;
+    struct umesh_send_message message;
+    if (state == NULL || buf == NULL || dst == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    send_buf = buf_new_owned(request_len);
+
+    if (send_buf == NULL) {
+        return UMESH_ERR_MALLOC_FAILED;
+    }
+    *buf = send_buf;
+    memset(send_buf->data, 0, send_buf->len);
+    memset(&message, 0, sizeof(struct umesh_send_message));
+    message.type = UMESH_FRAME_ZERO_REQ;
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
+    ret = umesh_init_full_frame(send_buf, state, &message);
+    if (ret < 0) {
+        log_e("init full frame failed,ret = %d", ret);
+        buf_free(send_buf);
+    }
+    return ret;
+}
+
+static int umesh_init_frame_zero_resp(umesh_state_t *state, uint8_t *dst, umesh_buf_t **buf)
+{
+    int ret = 0;
+    struct buf *send_buf;
+
+    int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + sizeof(struct umesh_zero_common_tlv) +
+                      UMESH_MAX_SSID_LEN + UMESH_MAX_PASSWD_LEN + IEEE80211_MAC_ADDR_LEN+ UMESH_FCS_LEN;
+    struct umesh_send_message message;
+    if (state == NULL || buf == NULL || dst == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    send_buf = buf_new_owned(request_len);
+
+    if (send_buf == NULL) {
+        return UMESH_ERR_MALLOC_FAILED;
+    }
+    *buf = send_buf;
+    memset(send_buf->data, 0, send_buf->len);
+    memset(&message, 0, sizeof(struct umesh_send_message));
+    message.type = UMESH_FRAME_ZERO_RESP;
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
+    ret = umesh_init_full_frame(send_buf, state, &message);
+    if (ret < 0) {
+        log_e("init full frame failed,ret = %d", ret);
+        buf_free(send_buf);
+    }
+
+    return ret;
+}
+
+static int umesh_init_frame_zero_finish(umesh_state_t *state, uint8_t *dst, umesh_buf_t **buf)
+{
+    int ret = 0;
+    struct buf *send_buf;
+    int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + sizeof(struct umesh_zero_common_tlv) +
+                      UMESH_FCS_LEN;
+    struct umesh_send_message message;
+    if (state == NULL || buf == NULL || dst == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    send_buf = buf_new_owned(request_len);
+
+    if (send_buf == NULL) {
+        return UMESH_ERR_MALLOC_FAILED;
+    }
+    *buf = send_buf;
+    memset(send_buf->data, 0, send_buf->len);
+    memset(&message, 0, sizeof(struct umesh_send_message));
+    message.type = UMESH_FRAME_ZERO_FINISH;
+    memcpy(message.ra, dst, IEEE80211_MAC_ADDR_LEN);
+    ret = umesh_init_full_frame(send_buf, state, &message);
+    if (ret < 0) {
+        log_e("init full frame failed,ret = %d", ret);
+        buf_free(send_buf);
+    }
+    return ret;
+}
+
+static int umesh_init_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t *sa, const uint8_t *da,
+                                 const uint8_t *data, int data_len, umesh_buf_t **buf)
 {
     int ret = 0;
     struct buf *send_buf;
     uint8_t *encrypt_data = NULL;
     uint8_t iv_data[UMESH_AES_KEY_LEN] = {0};
     uint8_t bcast = 0;
+    int ext = 0;
     p_Aes128_t aes = NULL;
     int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + sizeof(struct umesh_heart_beat_tlv) +
-                      sizeof(struct umesh_data_fixed_tlv) + (ra == NULL ? 0 : IEEE80211_MAC_ADDR_LEN * 2) + data_len + UMESH_FCS_LEN;
+                      sizeof(struct umesh_data_fixed_tlv) + data_len + UMESH_FCS_LEN;
+
+
     struct umesh_send_message message;
-    if (da == NULL || state == NULL || buf == NULL) {
+    if (ra == NULL || state == NULL || buf == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
 
+    if (da != NULL) {
+        if (memcmp(da, ra, IEEE80211_MAC_ADDR_LEN) != 0) {
+            ext = 1;
+        }
+    }
+    if (sa != NULL) {
+        if (memcmp(sa, state->self_addr, IEEE80211_MAC_ADDR_LEN) != 0) {
+            ext = 1;
+        }
+    }
+    if (ext != 0) {
+        request_len += IEEE80211_MAC_ADDR_LEN * 2;
+    }
     log_d("init data frame len = %d", request_len);
     encrypt_data = umesh_malloc(data_len);
     if (encrypt_data == NULL) {
@@ -429,28 +686,46 @@ int umesh_init_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t
     memset(send_buf->data, 0, send_buf->len);
     memset(&message, 0, sizeof(struct umesh_send_message));
     message.type = UMESH_FRAME_DATA;
-    if (ra != NULL) {
+    message.data = encrypt_data;
+    message.data_len = data_len;
 
-        if (memcmp(ra, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0) { /* broadcast -> unicast*/
-            bcast = 1;
-        } else { /*unicast -> unicast*/
-            bcast = 0;
+    memcpy(message.ra, ra, IEEE80211_MAC_ADDR_LEN);
+
+    if (memcmp(ra, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0) { /* broadcast */
+        bcast = 1;
+    } else { /*unicast*/
+        bcast = 0;
+    }
+
+
+    if (da != NULL) {
+        if (memcmp(ra, da, IEEE80211_MAC_ADDR_LEN) != 0) {
+            memcpy(message.da, da, IEEE80211_MAC_ADDR_LEN);
+
+            if (sa == NULL) {
+                memcpy(message.sa, state->self_addr, IEEE80211_MAC_ADDR_LEN);
+            }
+            message.ext_addr_enable = 1;
+
         }
 
-        memcpy(message.ra, ra, IEEE80211_MAC_ADDR_LEN);
-        message.ra_enable = 1;
-    } else { /*  no relay*/
-        if (memcmp(da, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0) { /* broadcast*/
-            bcast = 1;
-        } else { /* unicast*/
-            bcast = 0;
+
+    }
+
+    if (sa != NULL) {
+        if (memcmp(sa, state->self_addr, IEEE80211_MAC_ADDR_LEN) != 0) {
+            memcpy(message.sa, sa, IEEE80211_MAC_ADDR_LEN);
+            if (da == NULL) {
+                memcpy(message.da, ra, IEEE80211_MAC_ADDR_LEN);
+            }
+
+            message.ext_addr_enable = 1;
         }
     }
 
     if (bcast == 0) { /* unicast encrypto */
-        const uint8_t *to_addr = ra ? ra : da;
         struct umesh_peer *to_peer = NULL;
-        ret = umesh_peer_get(state->peers_state.peers, to_addr, &to_peer);
+        ret = umesh_peer_get(state->peers_state.peers, ra, &to_peer);
         if (ret < 0) {
             buf_free(send_buf);
             umesh_free(encrypt_data);
@@ -494,11 +769,6 @@ int umesh_init_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t
             return UMESH_ERR_AES_ENCRYPT;
         }
     }
-
-    memcpy(message.da, da, IEEE80211_MAC_ADDR_LEN);
-    message.data = encrypt_data;
-    message.data_len = data_len;
-
     /*data seq num not used yet !!!*/
 
     ret = umesh_init_full_frame(send_buf, state, &message);
@@ -626,18 +896,80 @@ int umesh_send_frame_heart_beat(umesh_state_t *state)
     return 0;
 }
 
-int umesh_send_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t *da,
+int umesh_send_frame_data(umesh_state_t *state, const uint8_t *ra, const uint8_t *sa, const uint8_t *da,
                           const uint8_t *data, int data_len)
 {
     int ret;
     umesh_buf_t *buf = NULL;
-    if (state == NULL || da == NULL || data == NULL) {
+    if (state == NULL || ra == NULL || data == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
 
-    ret = umesh_init_frame_data(state, ra, da, data, data_len,  &buf);
+    ret = umesh_init_frame_data(state, ra, sa, da, data, data_len,  &buf);
     if (ret < 0) {
         log_e("init data frame failed,ret = %d", ret);
+        return ret;
+    }
+    umesh_mutex_lock(state->to_radio_list_lock);
+    list_add_tail(&buf->linked_list, &state->send_to_radio_list);
+    umesh_mutex_unlock(state->to_radio_list_lock);
+    umesh_semaphore_post(state->generic_semap);
+    return 0;
+}
+
+int umesh_send_frame_zero_req(umesh_state_t *state, const uint8_t *da)
+{
+    int ret;
+    umesh_buf_t *buf = NULL;
+    if (state == NULL || da == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+    log_d("------------send zero req --------");
+    ret = umesh_init_frame_zero_req(state,da, &buf);
+    if (ret < 0) {
+        log_e("init zero req frame failed,ret = %d", ret);
+        return ret;
+    }
+    umesh_mutex_lock(state->to_radio_list_lock);
+    list_add_tail(&buf->linked_list, &state->send_to_radio_list);
+    umesh_mutex_unlock(state->to_radio_list_lock);
+    umesh_semaphore_post(state->generic_semap);
+    return 0;
+}
+
+int umesh_send_frame_zero_resp(umesh_state_t *state, const uint8_t *da)
+{
+    int ret;
+    umesh_buf_t *buf = NULL;
+    if (state == NULL || da == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    log_d("------------send zero resp --------");
+    ret = umesh_init_frame_zero_resp(state, da, &buf);
+    if (ret < 0) {
+        log_e("init zero resp frame failed,ret = %d", ret);
+        return ret;
+    }
+
+    umesh_mutex_lock(state->to_radio_list_lock);
+    list_add_tail(&buf->linked_list, &state->send_to_radio_list);
+    umesh_mutex_unlock(state->to_radio_list_lock);
+    umesh_semaphore_post(state->generic_semap);
+    return 0;
+}
+
+int umesh_send_frame_zero_finish(umesh_state_t *state, const uint8_t *da)
+{
+    int ret;
+    umesh_buf_t *buf = NULL;
+    if (state == NULL || da == NULL ) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+    log_d("------------send zero finish --------");
+    ret = umesh_init_frame_zero_finish(state, da, &buf);
+    if (ret < 0) {
+        log_e("init zero resp frame failed,ret = %d", ret);
         return ret;
     }
     umesh_mutex_lock(state->to_radio_list_lock);
