@@ -113,17 +113,17 @@ static int at_sim800_gprs_got_ip(void);
 static int at_sim800_gprs_status_check(void);
 static int at_sim800_gprs_ip_init(void);
 
-static int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams)
+static int HAL_MAL_Init(iotx_mqtt_param_t *pInitParams)
 {
     return at_sim800_mqtt_client_init(pInitParams);
 }
 
-static int HAL_AT_MQTT_Deinit()
+static int HAL_MAL_Deinit()
 {
     return at_sim800_mqtt_client_deinit();
 }
 
-static int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret)
+static int HAL_MAL_Connect(char *proKey, char *devName, char *devSecret)
 {
     /* Sim800 module doesn't use Ali ICA MQTT. So don't need to
      use prokey, devName, devSecret. Use username and password instead
@@ -142,27 +142,27 @@ static int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret)
     }
 }
 
-static int HAL_AT_MQTT_Disconnect(void)
+static int HAL_MAL_Disconnect(void)
 {
     return at_sim800_mqtt_client_disconn();
 }
 
-static int HAL_AT_MQTT_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
+static int HAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
 {
     return at_sim800_mqtt_client_subscribe(topic, qos, mqtt_packet_id, mqtt_status, timeout_ms);
 }
 
-static int HAL_AT_MQTT_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
+static int HAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
 {
     return at_sim800_mqtt_client_unsubscribe(topic, mqtt_packet_id, mqtt_status);
 }
 
-static int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigned int msg_len)
+static int HAL_MAL_Publish(const char *topic, int qos, const char *message, unsigned int msg_len)
 {
     return at_sim800_mqtt_client_publish(topic, qos, message);
 }
 
-static int HAL_AT_MQTT_State(void)
+static int HAL_MAL_State(void)
 {
     return at_sim800_mqtt_client_state(true);
 }
@@ -1292,14 +1292,14 @@ static mal_op_t mal_op = {
     .version = "1.0.0",
     .name = "sim800",
     .add_dev = sim800_mal_add_dev,
-    .init = HAL_AT_MQTT_Init,
-    .connect = HAL_AT_MQTT_Connect,
-    .subscribe = HAL_AT_MQTT_Subscribe,
-    .unsubscribe = HAL_AT_MQTT_Unsubscribe,
-    .publish = HAL_AT_MQTT_Publish,
-    .disconn = HAL_AT_MQTT_Disconnect,
-    .deinit = HAL_AT_MQTT_Deinit,
-    .conn_state = HAL_AT_MQTT_State,
+    .init = HAL_MAL_Init,
+    .connect = HAL_MAL_Connect,
+    .subscribe = HAL_MAL_Subscribe,
+    .unsubscribe = HAL_MAL_Unsubscribe,
+    .publish = HAL_MAL_Publish,
+    .disconn = HAL_MAL_Disconnect,
+    .deinit = HAL_MAL_Deinit,
+    .conn_state = HAL_MAL_State,
     .register_mqtt_data_input_cb = HAL_MAL_RegisterMQTTDataInputCb,
 };
 
