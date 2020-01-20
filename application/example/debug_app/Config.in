@@ -1,0 +1,12 @@
+config AOS_APP_DEBUG_APP
+    bool "debug_app"
+    select AOS_COMP_DEBUG
+    select AOS_COMP_CLI
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_KV
+    help
+        demo for debug api
+
+if AOS_APP_DEBUG_APP
+# Configurations for app debug
+endif
