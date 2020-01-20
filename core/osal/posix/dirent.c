@@ -86,7 +86,7 @@ int statfs(const char *path, struct statfs *buf)
         buf->f_namelen = statfs_temp.f_namelen;
     }
 
-    return aos_statfs(path, buf);
+    return ret;
 }
 
 int link(const char *oldpath, const char *newpath)
