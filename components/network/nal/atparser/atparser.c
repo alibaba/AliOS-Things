@@ -856,6 +856,8 @@ int at_init(void)
     }
 
     inited = 1;
+    
+    return 0;
 }
 
 int at_deinit(void)
@@ -870,6 +872,8 @@ int at_deinit(void)
     unregister_at_dev_ops();
 
     inited = 0;
+
+    return 0;
 }
 
 int at_add_dev(at_config_t *config)
