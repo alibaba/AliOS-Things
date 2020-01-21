@@ -139,7 +139,7 @@ endif
 # get real app name and check if it available
 appname = $(firstword $(components))
 appdir = $(subst .,/,$(appname))
-appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
     $(error App Unknown, Please make sure the "$(appname)" is existing!))
@@ -157,12 +157,30 @@ endif
 
 boardname = $(word 2, $(components))
 boardmkfile = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/aos.mk)
+boardmkfile_legacy = $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(boardname)/aos.mk)
+ifneq ($(boardmkfile),)
+ifneq ($(boardmkfile_legacy),)
+$(error ***** boardname Error, Mutiple boardname***** ***)
+endif
+endif
+
 $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
+	
+$(if $(boardmkfile_legacy),\
+    $(eval include $(boardmkfile_legacy)) $(eval real_boardname = $(NAME)),\
+    $(eval real_boardname = $(boardname)))
 
 $(if $(filter no,$(AOS_BUILD_COMPATIBLE)), $(call BUILD_INCOMPATIBLE_ERROR,$(boardname)))
+ifneq ($(boardmkfile),)
 defconfig = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/defconfig)
+else
+ifneq ($(boardmkfile_legacy),)
+defconfig = $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(boardname)/defconfig)
+endif
+endif
+
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)

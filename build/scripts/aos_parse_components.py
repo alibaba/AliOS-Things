@@ -48,7 +48,7 @@ def get_comp_optname(compname, mkfile):
 def get_app_name(mkfile):
     """ Return app dir name as app name """
     name = None
-    patten = re.compile(r".*(application/example/|application/profile/|test/develop/)(.*)/aos.mk")
+    patten = re.compile(r".*(application/example/example_legacy/|application/example/|application/profile/|test/develop/)(.*)/aos.mk")
     match = patten.match(mkfile)
     if match:
         name = match.group(2).replace("/", ".")
@@ -69,9 +69,9 @@ def get_board_name(mkfile):
     name = None
     patten = re.compile(r".*(board/)(.*)/aos.mk")
     match = patten.match(mkfile)
-    if match:
+    if match:	
         name = match.group(2).replace("/", ".")
-
+	name = name.replace("board_legacy.", "")
     return name
 
 def write_config_file(source_root, config_file, mklist, appdir=None):
