@@ -2,7 +2,7 @@ menu "BSP         Configuration"
 choice
     prompt "Board Selection"
 
-source "platform/board/aaboard_demo/Config.in"
+source "platform/board/board_legacy/aaboard_demo/Config.in"
 if AOS_BOARD_AABOARD_DEMO
     config AOS_BUILD_BOARD
         default "aaboard_demo"
@@ -11,7 +11,7 @@ if AOS_BOARD_AABOARD_DEMO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/amebaz_dev/Config.in"
+source "platform/board/board_legacy/amebaz_dev/Config.in"
 if AOS_BOARD_AMEBAZ_DEV
     config AOS_BUILD_BOARD
         default "amebaz_dev"
@@ -20,7 +20,7 @@ if AOS_BOARD_AMEBAZ_DEV
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/ap80a0/Config.in"
+source "platform/board/board_legacy/ap80a0/Config.in"
 if AOS_BOARD_AP80A0
     config AOS_BUILD_BOARD
         default "ap80a0"
@@ -29,7 +29,7 @@ if AOS_BOARD_AP80A0
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/armhflinux/Config.in"
+source "platform/board/board_legacy/armhflinux/Config.in"
 if AOS_BOARD_ARMHFLINUX
     config AOS_BUILD_BOARD
         default "armhflinux"
@@ -38,7 +38,7 @@ if AOS_BOARD_ARMHFLINUX
     source "platform/arch/linux/Config.in"
 endif
 
-source "platform/board/asr6501/Config.in"
+source "platform/board/board_legacy/asr6501/Config.in"
 if AOS_BOARD_ASR6501
     config AOS_BUILD_BOARD
         default "asr6501"
@@ -47,7 +47,7 @@ if AOS_BOARD_ASR6501
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/atsame54-xpro/Config.in"
+source "platform/board/board_legacy/atsame54-xpro/Config.in"
 if AOS_BOARD_ATSAME54_XPRO
     config AOS_BUILD_BOARD
         default "atsame54-xpro"
@@ -56,7 +56,7 @@ if AOS_BOARD_ATSAME54_XPRO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/asr5501/Config.in"
+source "platform/board/board_legacy/asr5501/Config.in"
 if AOS_BOARD_ASR5501
     config AOS_BUILD_BOARD
         default "asr5501"
@@ -65,7 +65,7 @@ if AOS_BOARD_ASR5501
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/b_l475e/Config.in"
+source "platform/board/board_legacy/b_l475e/Config.in"
 if AOS_BOARD_B_L475E
     config AOS_BUILD_BOARD
         default "b_l475e"
@@ -74,7 +74,7 @@ if AOS_BOARD_B_L475E
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/bk7231devkitc/Config.in"
+source "platform/board/board_legacy/bk7231devkitc/Config.in"
 if AOS_BOARD_BK7231
     config AOS_BUILD_BOARD
         default "bk7231devkitc"
@@ -83,7 +83,7 @@ if AOS_BOARD_BK7231
     source "platform/arch/arm/armv5/Config.in"
 endif
 
-source "platform/board/bk7231sdevkitc/Config.in"
+source "platform/board/board_legacy/bk7231sdevkitc/Config.in"
 if AOS_BOARD_BK7231S
     config AOS_BUILD_BOARD
         default "bk7231sdevkitc"
@@ -92,7 +92,7 @@ if AOS_BOARD_BK7231S
     source "platform/arch/arm/armv5/Config.in"
 endif
 
-source "platform/board/bk7231udevkitc/Config.in"
+source "platform/board/board_legacy/bk7231udevkitc/Config.in"
 if AOS_BOARD_BK7231U
     config AOS_BUILD_BOARD
         default "bk7231udevkitc"
@@ -101,7 +101,7 @@ if AOS_BOARD_BK7231U
     source "platform/arch/arm/armv5/Config.in"
 endif
 
-source "platform/board/cb2201/Config.in"
+source "platform/board/board_legacy/cb2201/Config.in"
 if AOS_BOARD_CB2201
     config AOS_BUILD_BOARD
         default "cb2201"
@@ -110,7 +110,7 @@ if AOS_BOARD_CB2201
     source "platform/arch/csky/cskyv2-l/Config.in"
 endif
 
-source "platform/board/cy8ckit-062/Config.in"
+source "platform/board/board_legacy/cy8ckit-062/Config.in"
 if AOS_BOARD_CY8CKIT_062
     config AOS_BUILD_BOARD
         default "cy8ckit-062"
@@ -119,7 +119,7 @@ if AOS_BOARD_CY8CKIT_062
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/developerkit/Config.in"
+source "platform/board/board_legacy/developerkit/Config.in"
 if AOS_BOARD_DEVELOPERKIT
     config AOS_BUILD_BOARD
         default "developerkit"
@@ -128,7 +128,7 @@ if AOS_BOARD_DEVELOPERKIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/developerkit-mk/Config.in"
+source "platform/board/board_legacy/developerkit-mk/Config.in"
 if AOS_BOARD_DEVELOPERKIT_MK
     config AOS_BUILD_BOARD
         default "developerkit-mk"
@@ -137,7 +137,7 @@ if AOS_BOARD_DEVELOPERKIT_MK
     source "platform/arch/arm/armv7m-mk/Config.in"
 endif
 
-source "platform/board/dh5021a_evb/Config.in"
+source "platform/board/board_legacy/dh5021a_evb/Config.in"
 if AOS_BOARD_DH5021A_EVB
     config AOS_BUILD_BOARD
         default "dh5021a_evb"
@@ -146,7 +146,7 @@ if AOS_BOARD_DH5021A_EVB
     source "platform/arch/csky/cskyv2-l/Config.in"
 endif
 
-source "platform/board/eml3047/Config.in"
+source "platform/board/board_legacy/eml3047/Config.in"
 if AOS_BOARD_EML3047
     config AOS_BUILD_BOARD
         default "eml3047"
@@ -155,7 +155,7 @@ if AOS_BOARD_EML3047
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/es8p5088fllq/Config.in"
+source "platform/board/board_legacy/es8p5088fllq/Config.in"
 if AOS_BOARD_ES8P5088FLLQ
     config AOS_BUILD_BOARD
         default "es8p5088fllq"
@@ -164,7 +164,7 @@ if AOS_BOARD_ES8P5088FLLQ
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/esp32devkitc/Config.in"
+source "platform/board/board_legacy/esp32devkitc/Config.in"
 if AOS_BOARD_ESP32DEVKITC
     config AOS_BUILD_BOARD
         default "esp32devkitc"
@@ -173,7 +173,7 @@ if AOS_BOARD_ESP32DEVKITC
     source "platform/arch/xtensa/lx6/Config.in"
 endif
 
-source "platform/board/esp32sram/Config.in"
+source "platform/board/board_legacy/esp32sram/Config.in"
 if AOS_BOARD_ESP32SRAM
     config AOS_BUILD_BOARD
         default "esp32sram"
@@ -182,7 +182,7 @@ if AOS_BOARD_ESP32SRAM
     source "platform/arch/xtensa/lx6/Config.in"
 endif
 
-source "platform/board/esp8266/Config.in"
+source "platform/board/board_legacy/esp8266/Config.in"
 if AOS_BOARD_ESP8266
     config AOS_BUILD_BOARD
         default "esp8266"
@@ -191,7 +191,7 @@ if AOS_BOARD_ESP8266
     source "platform/arch/xtensa/lx106/Config.in"
 endif
 
-source "platform/board/esp8285/Config.in"
+source "platform/board/board_legacy/esp8285/Config.in"
 if AOS_BOARD_ESP8285
     config AOS_BUILD_BOARD
         default "esp8285"
@@ -200,7 +200,7 @@ if AOS_BOARD_ESP8285
     source "platform/arch/xtensa/lx106/Config.in"
 endif
 
-source "platform/board/evkbimxrt1050/Config.in"
+source "platform/board/board_legacy/evkbimxrt1050/Config.in"
 if AOS_BOARD_EVKBIMXRT1050
     config AOS_BUILD_BOARD
         default "evkbimxrt1050"
@@ -209,7 +209,7 @@ if AOS_BOARD_EVKBIMXRT1050
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/evkmimxrt1020/Config.in"
+source "platform/board/board_legacy/evkmimxrt1020/Config.in"
 if AOS_BOARD_EVKMIMXRT1020
     config AOS_BUILD_BOARD
         default "evkmimxrt1020"
@@ -218,7 +218,7 @@ if AOS_BOARD_EVKMIMXRT1020
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/fm33a0xx-discovery/Config.in"
+source "platform/board/board_legacy/fm33a0xx-discovery/Config.in"
 if AOS_BOARD_FM33A0XX_DISCOVERY
     config AOS_BUILD_BOARD
         default "fm33a0xx-discovery"
@@ -227,7 +227,7 @@ if AOS_BOARD_FM33A0XX_DISCOVERY
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl26z/Config.in"
+source "platform/board/board_legacy/frdmkl26z/Config.in"
 if AOS_BOARD_FRDMKL26Z
     config AOS_BUILD_BOARD
         default "frdmkl26z"
@@ -236,7 +236,7 @@ if AOS_BOARD_FRDMKL26Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl27z/Config.in"
+source "platform/board/board_legacy/frdmkl27z/Config.in"
 if AOS_BOARD_FRDMKL27Z
     config AOS_BUILD_BOARD
         default "frdmkl27z"
@@ -245,7 +245,7 @@ if AOS_BOARD_FRDMKL27Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl28z/Config.in"
+source "platform/board/board_legacy/frdmkl28z/Config.in"
 if AOS_BOARD_FRDMKL28Z
     config AOS_BUILD_BOARD
         default "frdmkl28z"
@@ -254,7 +254,7 @@ if AOS_BOARD_FRDMKL28Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl43z/Config.in"
+source "platform/board/board_legacy/frdmkl43z/Config.in"
 if AOS_BOARD_FRDMKL43Z
     config AOS_BUILD_BOARD
         default "frdmkl43z"
@@ -263,7 +263,7 @@ if AOS_BOARD_FRDMKL43Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl81z/Config.in"
+source "platform/board/board_legacy/frdmkl81z/Config.in"
 if AOS_BOARD_FRDMKL81Z
     config AOS_BUILD_BOARD
         default "frdmkl81z"
@@ -272,7 +272,7 @@ if AOS_BOARD_FRDMKL81Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/frdmkl82z/Config.in"
+source "platform/board/board_legacy/frdmkl82z/Config.in"
 if AOS_BOARD_FRDMKL82Z
     config AOS_BUILD_BOARD
         default "frdmkl82z"
@@ -281,7 +281,7 @@ if AOS_BOARD_FRDMKL82Z
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/gd32f307c-eval/Config.in"
+source "platform/board/board_legacy/gd32f307c-eval/Config.in"
 if AOS_BOARD_GD32F307C_EVAL
     config AOS_BUILD_BOARD
         default "gd32f307c-eval"
@@ -290,7 +290,7 @@ if AOS_BOARD_GD32F307C_EVAL
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/gd32f350r-eval/Config.in"
+source "platform/board/board_legacy/gd32f350r-eval/Config.in"
 if AOS_BOARD_GD32F350R_EVAL
     config AOS_BUILD_BOARD
         default "gd32f350r-eval"
@@ -299,7 +299,7 @@ if AOS_BOARD_GD32F350R_EVAL
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/gd32f450z-eval/Config.in"
+source "platform/board/board_legacy/gd32f450z-eval/Config.in"
 if AOS_BOARD_GD32F450Z_EVAL
     config AOS_BUILD_BOARD
         default "gd32f450z-eval"
@@ -308,7 +308,7 @@ if AOS_BOARD_GD32F450Z_EVAL
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/hc32l136k8ta/Config.in"
+source "platform/board/board_legacy/hc32l136k8ta/Config.in"
 if AOS_BOARD_HC32L136K8TA
     config AOS_BUILD_BOARD
         default "hc32l136k8ta"
@@ -317,7 +317,7 @@ if AOS_BOARD_HC32L136K8TA
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/hifive1/Config.in"
+source "platform/board/board_legacy/hifive1/Config.in"
 if AOS_BOARD_HIFIVE1
     config AOS_BUILD_BOARD
         default "hifive1"
@@ -326,7 +326,7 @@ if AOS_BOARD_HIFIVE1
     source "platform/arch/risc-v/risc_v32I/Config.in"
 endif
 
-source "platform/board/hk32f103rb_evb/Config.in"
+source "platform/board/board_legacy/hk32f103rb_evb/Config.in"
 if AOS_BOARD_HK32F103RB_EVB
     config AOS_BUILD_BOARD
         default "hk32f103rb_evb"
@@ -335,7 +335,7 @@ if AOS_BOARD_HK32F103RB_EVB
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/hr8p287fjlt/Config.in"
+source "platform/board/board_legacy/hr8p287fjlt/Config.in"
 if AOS_BOARD_HR8P287FJLT
     config AOS_BUILD_BOARD
         default "hr8p287fjlt"
@@ -344,7 +344,7 @@ if AOS_BOARD_HR8P287FJLT
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/hr8p296fllt/Config.in"
+source "platform/board/board_legacy/hr8p296fllt/Config.in"
 if AOS_BOARD_HR8P296FLLT
     config AOS_BUILD_BOARD
         default "hr8p296fllt"
@@ -353,7 +353,7 @@ if AOS_BOARD_HR8P296FLLT
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/imx6dq/Config.in"
+source "platform/board/board_legacy/imx6dq/Config.in"
 if AOS_BOARD_IMX6DQ
     config AOS_BUILD_BOARD
         default "imx6dq"
@@ -362,7 +362,7 @@ if AOS_BOARD_IMX6DQ
     source "platform/arch/arm/armv7a/Config.in"
 endif
 
-source "platform/board/imx6sl/Config.in"
+source "platform/board/board_legacy/imx6sl/Config.in"
 if AOS_BOARD_IMX6SL
     config AOS_BUILD_BOARD
         default "imx6sl"
@@ -371,7 +371,7 @@ if AOS_BOARD_IMX6SL
     source "platform/arch/arm/armv7a/Config.in"
 endif
 
-source "platform/board/linuxhost/Config.in"
+source "platform/board/board_legacy/linuxhost/Config.in"
 if AOS_BOARD_LINUXHOST
     config AOS_BUILD_BOARD
         default "linuxhost"
@@ -380,7 +380,7 @@ if AOS_BOARD_LINUXHOST
     source "platform/arch/linux/Config.in"
 endif
 
-source "platform/board/lpcxpresso54018/Config.in"
+source "platform/board/board_legacy/lpcxpresso54018/Config.in"
 if AOS_BOARD_LPCXPRESSO54018
     config AOS_BUILD_BOARD
         default "lpcxpresso54018"
@@ -389,7 +389,7 @@ if AOS_BOARD_LPCXPRESSO54018
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/lpcxpresso54102/Config.in"
+source "platform/board/board_legacy/lpcxpresso54102/Config.in"
 if AOS_BOARD_LPCXPRESSO54102
     config AOS_BUILD_BOARD
         default "lpcxpresso54102"
@@ -398,7 +398,7 @@ if AOS_BOARD_LPCXPRESSO54102
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/lpcxpresso54114/Config.in"
+source "platform/board/board_legacy/lpcxpresso54114/Config.in"
 if AOS_BOARD_LPCXPRESSO54114
     config AOS_BUILD_BOARD
         default "lpcxpresso54114"
@@ -407,7 +407,7 @@ if AOS_BOARD_LPCXPRESSO54114
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/lpcxpresso54608/Config.in"
+source "platform/board/board_legacy/lpcxpresso54608/Config.in"
 if AOS_BOARD_LPCXPRESSO54608
     config AOS_BUILD_BOARD
         default "lpcxpresso54608"
@@ -416,7 +416,7 @@ if AOS_BOARD_LPCXPRESSO54608
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/lpcxpresso54628/Config.in"
+source "platform/board/board_legacy/lpcxpresso54628/Config.in"
 if AOS_BOARD_LPCXPRESSO54628
     config AOS_BUILD_BOARD
         default "lpcxpresso54628"
@@ -425,7 +425,7 @@ if AOS_BOARD_LPCXPRESSO54628
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/m100c/Config.in"
+source "platform/board/board_legacy/m100c/Config.in"
 if AOS_BOARD_M100C
     config AOS_BUILD_BOARD
         default "m100c"
@@ -434,7 +434,7 @@ if AOS_BOARD_M100C
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/m400/Config.in"
+source "platform/board/board_legacy/m400/Config.in"
 if AOS_BOARD_M400
     config AOS_BUILD_BOARD
         default "m400"
@@ -443,7 +443,7 @@ if AOS_BOARD_M400
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/mk1101/Config.in"
+source "platform/board/board_legacy/mk1101/Config.in"
 if AOS_BOARD_MK1101
     config AOS_BUILD_BOARD
         default "mk1101"
@@ -452,7 +452,7 @@ if AOS_BOARD_MK1101
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3060/Config.in"
+source "platform/board/board_legacy/mk3060/Config.in"
 if AOS_BOARD_MK3060
     config AOS_BUILD_BOARD
         default "mk3060"
@@ -461,7 +461,7 @@ if AOS_BOARD_MK3060
     source "platform/arch/arm/armv5/Config.in"
 endif
 
-source "platform/board/mk3072/Config.in"
+source "platform/board/board_legacy/mk3072/Config.in"
 if AOS_BOARD_MK3072
     config AOS_BUILD_BOARD
         default "mk3072"
@@ -470,7 +470,7 @@ if AOS_BOARD_MK3072
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3080/Config.in"
+source "platform/board/board_legacy/mk3080/Config.in"
 if AOS_BOARD_MK3080
     config AOS_BUILD_BOARD
         default "mk3080"
@@ -479,7 +479,7 @@ if AOS_BOARD_MK3080
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3165/Config.in"
+source "platform/board/board_legacy/mk3165/Config.in"
 if AOS_BOARD_MK3165
     config AOS_BUILD_BOARD
         default "mk3165"
@@ -488,7 +488,7 @@ if AOS_BOARD_MK3165
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3166/Config.in"
+source "platform/board/board_legacy/mk3166/Config.in"
 if AOS_BOARD_MK3166
     config AOS_BUILD_BOARD
         default "mk3166"
@@ -497,7 +497,7 @@ if AOS_BOARD_MK3166
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3239/Config.in"
+source "platform/board/board_legacy/mk3239/Config.in"
 if AOS_BOARD_MK3239
     config AOS_BUILD_BOARD
         default "mk3239"
@@ -506,7 +506,7 @@ if AOS_BOARD_MK3239
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/msp432p4111launchpad/Config.in"
+source "platform/board/board_legacy/msp432p4111launchpad/Config.in"
 if AOS_BOARD_MSP432P4111LAUNCHPAD
     config AOS_BUILD_BOARD
         default "msp432p4111launchpad"
@@ -515,7 +515,7 @@ if AOS_BOARD_MSP432P4111LAUNCHPAD
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mt7682s/Config.in"
+source "platform/board/board_legacy/mt7682s/Config.in"
 if AOS_BOARD_MT7682S
     config AOS_BUILD_BOARD
         default "mt7682s"
@@ -524,7 +524,7 @@ if AOS_BOARD_MT7682S
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/numaker-pfm-m487/Config.in"
+source "platform/board/board_legacy/numaker-pfm-m487/Config.in"
 if AOS_BOARD_NUMAKER_PFM_M487
     config AOS_BUILD_BOARD
         default "numaker-pfm-m487"
@@ -533,7 +533,7 @@ if AOS_BOARD_NUMAKER_PFM_M487
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/numaker-iot-m487/Config.in"
+source "platform/board/board_legacy/numaker-iot-m487/Config.in"
 if AOS_BOARD_NUMAKER_IOT_M487
     config AOS_BUILD_BOARD
         default "numaker-iot-m487"
@@ -542,7 +542,7 @@ if AOS_BOARD_NUMAKER_IOT_M487
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/numaker-pfm-nano130/Config.in"
+source "platform/board/board_legacy/numaker-pfm-nano130/Config.in"
 if AOS_BOARD_NUMAKER_PFM_NANO130
     config AOS_BUILD_BOARD
         default "numaker-pfm-nano130"
@@ -551,7 +551,7 @@ if AOS_BOARD_NUMAKER_PFM_NANO130
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/nutiny-evb-nano130/Config.in"
+source "platform/board/board_legacy/nutiny-evb-nano130/Config.in"
 if AOS_BOARD_NUTINY_EVB_NANO130
     config AOS_BUILD_BOARD
         default "nutiny-evb-nano130"
@@ -560,7 +560,7 @@ if AOS_BOARD_NUTINY_EVB_NANO130
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/pca10040/Config.in"
+source "platform/board/board_legacy/pca10040/Config.in"
 if AOS_BOARD_PCA10040
     config AOS_BUILD_BOARD
         default "pca10040"
@@ -569,7 +569,7 @@ if AOS_BOARD_PCA10040
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/pca10040e/Config.in"
+source "platform/board/board_legacy/pca10040e/Config.in"
 if AOS_BOARD_PCA10040E
     config AOS_BUILD_BOARD
         default "pca10040e"
@@ -578,7 +578,7 @@ if AOS_BOARD_PCA10040E
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/pca10056/Config.in"
+source "platform/board/board_legacy/pca10056/Config.in"
 if AOS_BOARD_PCA10056
     config AOS_BUILD_BOARD
         default "pca10056"
@@ -587,7 +587,7 @@ if AOS_BOARD_PCA10056
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/rk1108/Config.in"
+source "platform/board/board_legacy/rk1108/Config.in"
 if AOS_BOARD_RK1108
     config AOS_BUILD_BOARD
         default "rk1108"
@@ -596,7 +596,7 @@ if AOS_BOARD_RK1108
     source "platform/arch/linux/Config.in"
 endif
 
-source "platform/board/saml21_iot_sk/Config.in"
+source "platform/board/board_legacy/saml21_iot_sk/Config.in"
 if AOS_BOARD_SAML21_IOT_SK
     config AOS_BUILD_BOARD
         default "saml21_iot_sk"
@@ -605,7 +605,7 @@ if AOS_BOARD_SAML21_IOT_SK
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-source "platform/board/ssc1667/Config.in"
+source "platform/board/board_legacy/ssc1667/Config.in"
 if AOS_BOARD_SSC1667
     config AOS_BUILD_BOARD
         default "ssc1667"
@@ -614,7 +614,7 @@ if AOS_BOARD_SSC1667
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/starterkit/Config.in"
+source "platform/board/board_legacy/starterkit/Config.in"
 if AOS_BOARD_STARTERKIT
     config AOS_BUILD_BOARD
         default "starterkit"
@@ -623,7 +623,7 @@ if AOS_BOARD_STARTERKIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f091rc-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f091rc-nucleo/Config.in"
 if AOS_BOARD_STM32F091RC_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f091rc-nucleo"
@@ -633,7 +633,7 @@ if AOS_BOARD_STM32F091RC_NUCLEO
 endif
 
 
-source "platform/board/stm32f103rb-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f103rb-nucleo/Config.in"
 if AOS_BOARD_STM32F103RB_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f103rb-nucleo"
@@ -642,7 +642,7 @@ if AOS_BOARD_STM32F103RB_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f401re-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f401re-nucleo/Config.in"
 if AOS_BOARD_STM32F401RE_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f401re-nucleo"
@@ -651,7 +651,7 @@ if AOS_BOARD_STM32F401RE_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f411re-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f411re-nucleo/Config.in"
 if AOS_BOARD_STM32F411RE_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f411re-nucleo"
@@ -660,7 +660,7 @@ if AOS_BOARD_STM32F411RE_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f412zg-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f412zg-nucleo/Config.in"
 if AOS_BOARD_STM32F412ZG_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f412zg-nucleo"
@@ -669,7 +669,7 @@ if AOS_BOARD_STM32F412ZG_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f429zi-nucleo/Config.in"
+source "platform/board/board_legacy/stm32f429zi-nucleo/Config.in"
 if AOS_BOARD_STM32F429ZI_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f429zi-nucleo"
@@ -678,7 +678,7 @@ if AOS_BOARD_STM32F429ZI_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32f429zi-mk/Config.in"
+source "platform/board/board_legacy/stm32f429zi-mk/Config.in"
 if AOS_BOARD_STM32F429ZI_MK
     config AOS_BUILD_BOARD
         default "stm32f429zi-mk"
@@ -687,7 +687,7 @@ if AOS_BOARD_STM32F429ZI_MK
     source "platform/arch/arm/armv7m-mk/Config.in"
 endif
 
-source "platform/board/stm32f769i-discovery/Config.in"
+source "platform/board/board_legacy/stm32f769i-discovery/Config.in"
 if AOS_BOARD_B_F769
     config AOS_BUILD_BOARD
         default "stm32f769i-discovery"
@@ -696,7 +696,7 @@ if AOS_BOARD_B_F769
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32l432kc-nucleo/Config.in"
+source "platform/board/board_legacy/stm32l432kc-nucleo/Config.in"
 if AOS_BOARD_STM32L432KC_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32l432kc-nucleo"
@@ -705,7 +705,7 @@ if AOS_BOARD_STM32L432KC_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32l433rc-nucleo/Config.in"
+source "platform/board/board_legacy/stm32l433rc-nucleo/Config.in"
 if AOS_BOARD_STM32L433RC_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32l433rc-nucleo"
@@ -714,7 +714,7 @@ if AOS_BOARD_STM32L433RC_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32l476rg-nucleo/Config.in"
+source "platform/board/board_legacy/stm32l476rg-nucleo/Config.in"
 if AOS_BOARD_STM32L476RG_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32l476rg-nucleo"
@@ -723,7 +723,7 @@ if AOS_BOARD_STM32L476RG_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/stm32l496g-discovery/Config.in"
+source "platform/board/board_legacy/stm32l496g-discovery/Config.in"
 if AOS_BOARD_STM32L496G_DISCOVERY
     config AOS_BUILD_BOARD
         default "stm32l496g-discovery"
@@ -732,7 +732,7 @@ if AOS_BOARD_STM32L496G_DISCOVERY
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/sv6266_evb/Config.in"
+source "platform/board/board_legacy/sv6266_evb/Config.in"
 if AOS_BOARD_SV6266_EVB
     config AOS_BUILD_BOARD
         default "sv6266_evb"
@@ -740,7 +740,7 @@ if AOS_BOARD_SV6266_EVB
     source "platform/mcu/sv6266/Config.in"
 endif
 
-source "platform/board/swm320evb/Config.in"
+source "platform/board/board_legacy/swm320evb/Config.in"
 if AOS_BOARD_SWM320EVB
     config AOS_BUILD_BOARD
         default "swm320evb"
@@ -749,7 +749,7 @@ if AOS_BOARD_SWM320EVB
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/uno-91h/Config.in"
+source "platform/board/board_legacy/uno-91h/Config.in"
 if AOS_BOARD_UNO_91H
     config AOS_BUILD_BOARD
         default "uno-91h"
@@ -758,7 +758,7 @@ if AOS_BOARD_UNO_91H
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/wm_w600_kit/Config.in"
+source "platform/board/board_legacy/wm_w600_kit/Config.in"
 if AOS_BOARD_WM_W600_KIT
     config AOS_BUILD_BOARD
         default "wm_w600_kit"
@@ -767,7 +767,7 @@ if AOS_BOARD_WM_W600_KIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/xm510_evb/Config.in"
+source "platform/board/board_legacy/xm510_evb/Config.in"
 if AOS_BOARD_XM510
     config AOS_BUILD_BOARD
         default "xm510_evb"
@@ -776,7 +776,7 @@ if AOS_BOARD_XM510
     source "platform/arch/arm/armv7a/Config.in"
 endif
 
-source "platform/board/xr809/Config.in"
+source "platform/board/board_legacy/xr809/Config.in"
 if AOS_BOARD_XR809
     config AOS_BUILD_BOARD
         default "xr809"
@@ -785,7 +785,7 @@ if AOS_BOARD_XR809
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/xr871evb/Config.in"
+source "platform/board/board_legacy/xr871evb/Config.in"
 if AOS_BOARD_XR871EVB
     config AOS_BUILD_BOARD
         default "xr871evb"

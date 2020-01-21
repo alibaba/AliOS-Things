@@ -70,7 +70,7 @@ GLOBAL_INCLUDES += csi/csi_core/include        \
 
 ifeq ($(HOST_CHIP), zx297100)
 GLOBAL_DEFINES += CONFIG_HAVE_ICU
-GLOBAL_LDFLAGS += -T platform/board/zx297100_evb/gcc_csky.ld
+GLOBAL_LDFLAGS += -T platform/board/board_legacy/zx297100_evb/gcc_csky.ld
 
 DRIVERDIR       := csi/csi_driver/sanechips/common
 CHIPDIR         := csi/csi_driver/sanechips/zx297100
@@ -101,7 +101,7 @@ $(NAME)_SOURCES += $(CHIPDIR)/novic_irq_tbl.c    \
                    $(DRIVERDIR)/zx29_pmu.c       \
                    $(DRIVERDIR)/zx29_bmu.c
 else
-GLOBAL_LDFLAGS += -T platform/board/cb2201/gcc_csky.ld
+GLOBAL_LDFLAGS += -T platform/board/board_legacy/cb2201/gcc_csky.ld
 GLOBAL_INCLUDES += csi/csi_driver/csky/ch2201/include \
                    csi/csi_driver/csky/common/include
 
