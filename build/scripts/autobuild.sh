@@ -33,10 +33,13 @@ function do_build()
     build_board=$2
     build_option=$3
 
-    app_mkfile="application/example/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
-    if [ ! -f ${app_mkfile} ]; then
-        echo "warning: ${app_mkfile} none exist, build ${build_app}@${build_board} ${build_option} skipped"
-        return 0
+    app_mkfile_legacy="application/example/example_legacy/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
+    if [ ! -f ${app_mkfile_legacy} ]; then
+		app_mkfile="application/example/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
+		if [ ! -f ${app_mkfile} ]; then
+			echo "warning: ${app_mkfile} or ${app_mkfile_legacy} none exist, build ${build_app}@${build_board} ${build_option} skipped"
+			return 0
+		fi	
     fi
 
     build_log=${build_app}_${build_board}.log
@@ -82,8 +85,8 @@ function do_build()
 function resolveTargets()
 {
     targets=$1
-    build_type=$(grep "build_type" platform/board/$board/ucube.py | cut -d\" -f2 )
-    platform_options=$(grep "platform_options" platform/board/$board/ucube.py | cut -d\" -f2 )
+    build_type=$(grep "build_type" platform/board/*/$board/ucube.py | cut -d\" -f2 )
+    platform_options=$(grep "platform_options" platform/board/*/$board/ucube.py | cut -d\" -f2 )
 
     for target in ${targets[@]};do
         if [ -z "$(echo \"$target\" | grep \|)" ]; then
@@ -105,7 +108,7 @@ function resolveTargets()
 
 #--- main_proces ---
 if [ xx$1 = xx ]; then
-    boards_list=$(ls platform/board)
+    boards_list=$(ls platform/board platform/board/board_legacy)
 elif [ ! -f $1 ]; then
     echo "boards list file $1 is not existed!"
     exit 1
@@ -130,5 +133,19 @@ do
             resolveTargets "$targets"
         fi
     fi
+	if [ -f platform/board/board_legacy/$board/ucube.py ];then
+        targets=$(grep "supported_targets" platform/board/board_legacy/$board/ucube.py | cut -d\" -f2)
+        resolveTargets "$targets"
+
+        if [ $CUR_OS = "Windows" ]; then
+            targets=$(grep "windows_only_targets" platform/board/board_legacy/$board/ucube.py | cut -d\" -f2 )
+            resolveTargets "$targets"
+        fi
+
+        if [ $CUR_OS = "Linux" ]; then
+            targets=$(grep "linux_only_targets" platform/board/board_legacy/$board/ucube.py | cut -d\" -f2 )
+            resolveTargets "$targets"
+        fi
+    fi	
 done
 exit ${RET}
