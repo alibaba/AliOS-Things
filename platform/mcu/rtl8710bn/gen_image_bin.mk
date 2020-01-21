@@ -1,5 +1,5 @@
 AMEBAZ_DIR = $($(HOST_MCU_FAMILY)_LOCATION)
-SYSTEMBIN_DIR = platform/board/$(PLATFORM)
+SYSTEMBIN_DIR = platform/board/board_legacy/$(PLATFORM)
 AMEBAZ_TOOLDIR	= $(AMEBAZ_DIR)/tools
 BIN_DIR= $(AMEBAZ_DIR)
 
