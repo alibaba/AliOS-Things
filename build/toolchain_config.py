@@ -2,7 +2,7 @@
 auto_download = "yes"
 
 # Search board from specific directories
-# board_dirs = ["board_dir"]
+board_dirs = ["platform/board/board_legacy"]
 
 # Available toolchains
 toolchains = {

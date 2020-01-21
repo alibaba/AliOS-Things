@@ -30,8 +30,9 @@ DEPENDS_FILE := $(subst config,.depends,$(CONFIG_FILE))
 DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
-                         application/example   \
-                         application/profile   \
+                         application/example/example_legacy   \
+						 application/example   	\
+						 application/profile     \
                          platform/board     \
                          kernel    \
                          platform  \
@@ -315,9 +316,20 @@ endif
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $($(comp)_LOCATION)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
-PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/$(comp)),$(comp),)))
+PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/$(comp)) ,$(comp),)))
+PLATFORM_FULL_LEGACY   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(comp)),$(comp),)))
+PLATFORM_IS_LEGACY :=
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/*/$(comp) $(SOURCE_ROOT)/application/*/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
 
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
+
+ifneq ($(PLATFORM_FULL_LEGACY),)
+ifneq ($(PLATFORM_FULL),)
+$(error mutiple board name in board_legacy:$PLATFORM_FULL: $PLATFORM_FULL_LEGACY )
+else
+PLATFORM_FULL := $(PLATFORM_FULL_LEGACY)
+PLATFORM_IS_LEGACY := board_legacy/
+endif
+endif
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
@@ -350,9 +362,9 @@ EXTRA_ASMFLAGS += $(call GCC_INCLUDE_AUTOCONF_H)
 endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
-$(eval CURDIR := $(SOURCE_ROOT)/platform/board/$(PLATFORM_DIRECTORY)/)
+$(eval CURDIR := $(SOURCE_ROOT)/platform/board/$(PLATFORM_IS_LEGACY)$(PLATFORM_DIRECTORY)/)
 
-include $(SOURCE_ROOT)/platform/board/$(PLATFORM_DIRECTORY)/aos.mk
+include $(SOURCE_ROOT)/platform/board/$(PLATFORM_IS_LEGACY)$(PLATFORM_DIRECTORY)/aos.mk
 
 $(eval CURDIR := $($(HOST_MCU_FAMILY)_LOCATION)/)
 include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
