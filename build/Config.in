@@ -27,6 +27,7 @@ choice
 config AOS_APP_NULL
     bool "Null"
 
+#source "application/example/example_legacy/Config.in"
 source "application/example/Config.in"
 source "application/profile/Config.in"
 source "application/Config.in"
