@@ -74,7 +74,7 @@ GLOBAL_INCLUDES += csi/csi/csi_core/include/core    \
                    csi/csi/csi_kernel/rhino/driver  \
                    hal
 
-GLOBAL_LDFLAGS  += -T platform/board/dh5021a_evb/configs/gcc_eflash.ld
+GLOBAL_LDFLAGS  += -T platform/board/board_legacy/dh5021a_evb/configs/gcc_eflash.ld
 GLOBAL_INCLUDES += csi/csi/csi_driver/dahua/dh5021a/include
 
 $(NAME)_SOURCES += csi/csi/csi_driver/dahua/common/intc/dw_intc.c   \
