@@ -13,10 +13,10 @@
 #include "aos/yloop.h"
 
 #include "netmgr.h"
-#include "iot_import.h"
-#include "iot_export.h"
-#include "linkkit_export.h"
-#include "iot_export_linkkit.h"
+#include "linkkit/wifi_provision_api.h"
+#include "linkkit/infra/infra_compat.h"
+#include "linkkit/infra/infra_defs.h"
+#include "linkkit/dev_model_api.h"
 
 #include "sensor/sensor.h"
 #include "udata/udata.h"
@@ -262,6 +262,7 @@ static struct cli_command ncmd = { .name     = "active_awss",
 
 
 #ifdef WITH_SAL
+extern int sal_add_dev(char* driver_name, void* data);
 extern int sal_init(void);
 #endif
 
@@ -274,6 +275,7 @@ int linkkit_sample_start(void)
 #endif
 
 #ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
     sal_init();
 #endif
 
@@ -295,7 +297,7 @@ int linkkit_sample_start(void)
     return 0;
 }
 
-int gateway_cloud_report(void* pdata, uint32_t len)
+int udata_cloud_report(void* pdata, uint32_t len)
 {
     int     ret = 0;
     if(pdata == NULL){

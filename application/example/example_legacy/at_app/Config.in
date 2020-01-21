@@ -1,0 +1,9 @@
+config AOS_APP_AT_APP
+    bool "at_app"
+    select AOS_COMP_AT
+    help
+        at application
+
+if AOS_APP_AT_APP
+# Configurations for app at_app
+endif

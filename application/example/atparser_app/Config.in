@@ -1,9 +1,0 @@
-config AOS_APP_ATPARSER_APP
-    bool "atparser_app"
-    select AOS_COMP_ATPARSER
-    help
-        atparser application
-
-if AOS_APP_ATPARSER_APP
-# Configurations for app atparser_app
-endif
