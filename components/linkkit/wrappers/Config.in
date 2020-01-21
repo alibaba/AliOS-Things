@@ -19,6 +19,14 @@ config SUPPORT_TLS
     help
         This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
 
+if SUPPORT_TLS
+config HAL_TLS_DNS_ENHANCE
+    bool 
+    default y
+    help
+       Tring ext dns parser after default failed
+endif
+
 config USE_MBEDTLS
     bool "use MBEDTLS"
     depends on SUPPORT_TLS
