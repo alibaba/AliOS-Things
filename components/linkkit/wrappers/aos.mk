@@ -10,7 +10,7 @@ $(NAME)_SOURCES := os/HAL_OS_rhino.c \
                    os/HAL_TCP_rhino.c \
                    os/HAL_PRODUCT_rhino.c \
 
-$(NAME)_DEFINES +=  USE_YLOOP
+$(NAME)_DEFINES +=  USE_YLOOP 
 
 $(NAME)_SOURCES-$(FS_ENABLED) += os/HAL_FS_rhino.c
 
@@ -32,10 +32,14 @@ ifeq (y,$(strip $(SUPPORT_TLS)))
         $(NAME)_COMPONENTS +=  itls id2 alicrypto  libiot_certs 
         $(NAME)_SOURCES += os/HAL_TLS_itls.c
     else
+
         ifeq (y, $(strip $(MBEDTLS_CONFIG_TLS)))
-          $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
-          $(NAME)_COMPONENTS +=  mbedtls libiot_certs
-          $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c  os/dns.c
+        $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
+        $(NAME)_COMPONENTS +=  mbedtls libiot_certs
+        $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c 
+        ifeq (y,$(strip $(HAL_TLS_DNS_ENHANCE)))
+            $(NAME)_SOURCES += os/dns.c
+        endif  
         endif
     endif
 endif

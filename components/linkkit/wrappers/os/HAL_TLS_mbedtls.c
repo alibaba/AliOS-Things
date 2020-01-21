@@ -26,7 +26,9 @@
 #include "mbedtls/platform.h"
 #include "linkkit/wrappers/wrappers_defs.h"
 #include "linkkit/wrappers/wrappers_os.h"
-#include "dns.h"
+#ifdef  HAL_TLS_DNS_ENHANCE
+    #include "dns.h"
+#endif
 #define LOG_TAG "HAL_TLS"
 
 
@@ -47,11 +49,13 @@ typedef struct _TLSDataParams {
     mbedtls_pk_context  pkey;    /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
+#ifdef HAL_TLS_DNS_ENHANCE
 static char *g_fixed_list[3] = {
     "106.15.83.29",
     "106.15.100.2",
     "139.196.135.135"
 };
+#endif
 
 #if defined(TLS_SAVE_TICKET)
 
@@ -132,7 +136,11 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 }
 #endif
 
-void utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
+
+
+
+#ifdef HAL_TLS_DNS_ENHANCE
+static void utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
 {
     uint8_t index = 0;
     uint32_t temp = 0;
@@ -163,10 +171,6 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
     while (dns_retry++ < 8) {
         ret = dns_getaddrinfo((char *)host, ip);
         if (ret != 0) {
-            // if (ret == EAI_AGAIN) {
-            //     int rc = res_init();
-            //     platform_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
-            // }
             platform_info("getaddrinfo error[%d], res: %d, host: %s, port: %s\n", dns_retry, ret, host, port);
             HAL_SleepMs(1000);
             continue;
@@ -226,6 +230,7 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
 
     return (ret);
 }
+#endif
 
 static unsigned int _avRandom()
 {
@@ -391,100 +396,6 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     return 0;
 }
 
-#if defined(_PLATFORM_IS_LINUX_)
-static int net_prepare(void)
-{
-#if (defined(_WIN32) || defined(_WIN32_WCE)) && !defined(EFIX64) && \
-  !defined(EFI32)
-    WSADATA    wsaData;
-    static int wsa_init_done = 0;
-
-    if (wsa_init_done == 0) {
-        if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) {
-            return (MBEDTLS_ERR_NET_SOCKET_FAILED);
-        }
-
-        wsa_init_done = 1;
-    }
-#else
-#if !defined(EFIX64) && !defined(EFI32)
-    signal(SIGPIPE, SIG_IGN);
-#endif
-#endif
-    return (0);
-}
-
-static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
-                                       const char *host, const char *port,
-                                       int proto, unsigned int timeout)
-{
-    int             ret;
-    struct addrinfo hints, *addr_list, *cur;
-    struct timeval  sendtimeout;
-
-    if ((ret = net_prepare()) != 0) {
-        return (ret);
-    }
-
-    /* Do name resolution with both IPv6 and IPv4 */
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype =
-                proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
-    hints.ai_protocol =
-                proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
-    hints.ai_socktype &= ~SOCK_NONBLOCK;
-    if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
-        return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
-    }
-
-    /* Try the sockaddrs until a connection succeeds */
-    ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
-    for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
-        ctx->fd =
-                    (int)socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
-        if (ctx->fd < 0) {
-            ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
-            continue;
-        }
-
-        sendtimeout.tv_sec  = timeout;
-        sendtimeout.tv_usec = 0;
-
-        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout,
-                            sizeof(sendtimeout))) {
-            platform_err("setsockopt SO_SNDTIMEO error");
-        }
-
-        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_RECVTIMEO, &sendtimeout,
-                            sizeof(sendtimeout))) {
-            platform_err("setsockopt SO_RECVTIMEO error");
-        }
-
-        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout,
-                            sizeof(sendtimeout))) {
-            platform_err("setsockopt SO_SNDTIMEO error");
-        }
-
-        platform_info("setsockopt SO_SNDTIMEO  SO_RECVTIMEO  SO_SNDTIMEO timeout: %ds",
-                      sendtimeout.tv_sec);
-
-        if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
-            ret = 0;
-            break;
-        }
-
-        close(ctx->fd);
-        ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
-    }
-
-    freeaddrinfo(addr_list);
-
-    return (ret);
-}
-#endif
-
-
 /**
  * @brief This function connects to the specific SSL server with TLS, and
  * returns a value that indicates whether the connection is create successfully
@@ -531,31 +442,33 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
      * 1. Start the connection
      */
     platform_info("Connecting to /%s/%s...", addr, port);
-#if defined(_PLATFORM_IS_LINUX_)
-    if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port,
-                    MBEDTLS_NET_PROTO_TCP,
-                    SEND_TIMEOUT_SECONDS))) {
-        platform_err(" failed ! net_connect returned -0x%04x", -ret);
-        return ret;
-    }
-#else
-    if (0 != (ret = mbedtls_net_connect_timeout_backup(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
-                    SEND_TIMEOUT_SECONDS))) {
-        platform_err(" backup failed ! net_connect returned -0x%04x", -ret);
-        if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port,
-                                            MBEDTLS_NET_PROTO_TCP))) {
-            platform_err(" failed ! net_connect returned -0x%04x", -ret);
-#ifdef FEATURE_UND_SUPPORT
-            if (ret == MBEDTLS_ERR_NET_UNKNOWN_HOST) {
-                und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DNS_FIAL_REASON);
-            } else {
-                und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TCP_FAIL_REASON);
-            }
-#endif
-            return ret;
+    do {
+        ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP);
+        if (ret == 0) {
+            break;
         }
-    }
+
+        platform_err(" connect failed ! net_connect returned -0x%04x", -ret);
+#if defined(HAL_TLS_DNS_ENHANCE)
+        ret = mbedtls_net_connect_timeout_backup(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
+                SEND_TIMEOUT_SECONDS);
+        if (ret == 0) {
+            break;
+        }
+        platform_err(" backup failed ! net_connect returned -0x%04x", -ret);
 #endif
+
+#ifdef FEATURE_UND_SUPPORT
+        if (ret == MBEDTLS_ERR_NET_UNKNOWN_HOST) {
+            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DNS_FIAL_REASON);
+        } else {
+            und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_TCP_FAIL_REASON);
+        }
+#endif
+        return ret;
+    } while (0);
+
+
     platform_info(" ok");
 
     /*
