@@ -465,13 +465,17 @@ class dependency_process_impl(process):
         # board config tool chain, must add first.
         self.__load_one_component('platform/board/' + aos_global_config.board)
         if (len(aos_global_config.components)) != 1:
-            print('Unsupported board, make sure %s in board directory...' % aos_global_config.board)
-            exit(-1)
+			self.__load_one_component('platform/board/board_legacy/' + aos_global_config.board)
+			if (len(aos_global_config.components)) != 1:	
+				print('Unsupported board, make sure %s in board directory...' % aos_global_config.board)
+				exit(-1)
 
-        self.__load_one_component('application/example/' + aos_global_config.app)
+        self.__load_one_component('application/example/example_legacy/' + aos_global_config.app)
         if (len(aos_global_config.components)) != 2:
-            print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
-            exit(-1)
+			self.__load_one_component('application/example/' + aos_global_config.app)
+			if (len(aos_global_config.components)) != 2:
+				print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
+				exit(-1)
 
         if aos_global_config.app == 'yts':
             if aos_global_config.get('test'):

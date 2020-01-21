@@ -275,8 +275,10 @@ def copy_board_to_project(board, dest_dir):
     aos_sdk = os.environ.get("AOS_SDK_PATH")
     board_dir = os.path.join(aos_sdk, "platform/board", board)
     if not os.path.isdir(board_dir):
-        click.echo("[Error] No such directory: %s!" % board_dir)
-
+		board_dir = os.path.join(aos_sdk, "platform/board/board_legacy", board)
+		if not os.path.isdir(board_dir):
+			click.echo("[Error] No such directory: %s!" % board_dir)
+        
     dest_dir = os.path.join(dest_dir, "board", board)
     shutil.copytree(board_dir, dest_dir)
 
