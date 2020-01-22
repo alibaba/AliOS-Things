@@ -47,4 +47,4 @@ macros =Split('''
 for i in macros:
     component.add_macros(i)
 
-linux_only_targets="helloworld lorawan.linkwan udata_demo.sensor_local_demo"
+linux_only_targets="helloworld lorawan.linkwan udata_demo.sensor_local_demo ulog_app"
