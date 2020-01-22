@@ -6,7 +6,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <pthread.h>
 #include <sys/select.h>
 
 #include "sds.h"
@@ -19,8 +18,8 @@
 #include "cJSON.h"
 
 #include "httpdns_opts.h"
-#include <posix/pthread.h>
-#include <posix/timer.h>
+#include "aos/posix/pthread.h"
+#include "aos/posix/timer.h"
 
 #define HTTPDNS_TIMEOUT 10
 #define HTTPDNS_CONNECT_TIMEOUT 5
