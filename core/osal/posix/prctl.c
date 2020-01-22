@@ -3,7 +3,7 @@
  */
 
 #include <stdarg.h>
-#include "posix/prctl.h"
+#include "aos/posix/prctl.h"
 
 #if (POSIX_CONFIG_PRCTL_ENABLE > 0)
 
