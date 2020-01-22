@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/pthread.h"
-#include "posix/timer.h"
+#include "aos/posix/pthread.h"
+#include "aos/posix/timer.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/pthread.h"
+#include "aos/posix/pthread.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 

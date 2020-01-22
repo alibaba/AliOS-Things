@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/timer.h"
-#include "posix/signal.h"
+#include "aos/posix/timer.h"
+#include "aos/posix/signal.h"
 
 #if (POSIX_CONFIG_TIMER_ENABLE > 0)
 
