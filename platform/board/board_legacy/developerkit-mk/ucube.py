@@ -89,5 +89,3 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'developerkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets=""
-windows_only_targets=""
