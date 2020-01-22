@@ -12,7 +12,7 @@ extern "C" {
 #include <time.h>
 
 #include "k_api.h"
-#include "posix_config.h"
+#include "aos/posix/posix_config.h"
 
 typedef ksem_t *sem_t;
 

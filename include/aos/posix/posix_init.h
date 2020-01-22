@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "posix_config.h"
+#include "aos/posix/posix_config.h"
 
 int posix_init(void);
 
