@@ -10,8 +10,8 @@ extern "C" {
 #endif
 
 #include "k_api.h"
-#include "pthread.h"
-#include "posix_config.h"
+#include "aos/posix/pthread.h"
+#include "aos/posix/posix_config.h"
 
 #define SIGEV_NONE   0
 #define SIGEV_SIGNAL 1
