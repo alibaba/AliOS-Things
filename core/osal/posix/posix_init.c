@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/posix_init.h"
+#include "aos/posix/posix_init.h"
 
 extern int pthread_lock_init(void);
 extern int timer_lock_init(void);

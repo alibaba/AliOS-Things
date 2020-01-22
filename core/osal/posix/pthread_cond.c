@@ -3,7 +3,7 @@
  */
 
 #include <errno.h>
-#include "posix/pthread.h"
+#include "aos/posix/pthread.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
