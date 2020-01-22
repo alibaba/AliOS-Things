@@ -4,8 +4,8 @@
 
 #include <unistd.h>
 
-#include "posix/pthread.h"
-#include "posix/enviro.h"
+#include "aos/posix/pthread.h"
+#include "aos/posix/enviro.h"
 
 #if (POSIX_CONFIG_ENVIRO_ENABLE > 0)
 
