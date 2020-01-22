@@ -13,8 +13,8 @@ extern "C" {
 #include <sys/time.h>
 
 #include "k_api.h"
-#include "posix/posix_config.h"
-#include "posix/enviro.h"
+#include "aos/posix/posix_config.h"
+#include "aos/posix/enviro.h"
 
 /* the value of contentionscope in struct pthread_attr_t */
 #define PTHREAD_SCOPE_PROCESS   0
