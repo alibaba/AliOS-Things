@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/mqueue.h"
+#include "aos/posix/mqueue.h"
 
 #if (POSIX_CONFIG_MQUEUE_ENABLE > 0)
 
