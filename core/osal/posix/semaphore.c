@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "posix/semaphore.h"
+#include "aos/posix/semaphore.h"
 
 #if (POSIX_CONFIG_SEMAPHORE_ENABLE > 0)
 
