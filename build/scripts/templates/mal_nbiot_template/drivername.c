@@ -106,7 +106,7 @@ static int HAL_AT_MQTT_Deinit()
 }
 
 /* To implement the driver configuration */
-static int sim800_mal_add_dev(void* data)
+static int @drivername@_mal_add_dev(void* data)
 {
     /* add your code here */
    return 0;
@@ -116,8 +116,8 @@ static int sim800_mal_add_dev(void* data)
 static mal_op_t mal_op = {
     .next = NULL,
     .version = "1.0.0",
-    .name = "sim800",
-    .add_dev = sim800_mal_add_dev,
+    .name = "@drivername@",
+    .add_dev = @drivername@_mal_add_dev,
     .init = HAL_AT_MQTT_Init,
     .connect = HAL_AT_MQTT_Connect,
     .subscribe = HAL_AT_MQTT_Subscribe,
