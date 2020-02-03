@@ -14,8 +14,9 @@
 extern "C" {
 #endif
 
-/** @addtogroup aos_sal sal
- *  Socket Adapter Layer.
+/** @addtogroup aos_sal API
+ *  Socket Adapter Layer, which provides socket API service
+ *  implemented on top of AT modules.
  *
  *  @{
  */
