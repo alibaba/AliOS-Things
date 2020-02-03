@@ -1,5 +1,5 @@
 /*!
- * @file atparser.h
+ * @file at.h
  *
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/** @addtogroup aos_atparser atparser
+/** @addtogroup aos_at at
  *  AT parser, which is used to ease the operation of AT modules.
  *
  *  @{
@@ -189,6 +189,6 @@ int at_register_callback(int fd, const char *prefix, const char *postfix, char *
 int at_yield(int fd, char *replybuf, int bufsize, const at_reply_config_t *atcmdconfig,
              int timeout_ms);
 
-/** @} */ /* end of group aos_atparser */
+/** @} */ /* end of group aos_at */
 
 #endif
