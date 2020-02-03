@@ -1,0 +1,9 @@
+config AOS_APP_APPDEMO
+    bool "AppDemo"
+    select AOS_COMP_OSAL_AOS
+    help
+        App Demo
+
+if AOS_APP_APPDEMO
+# Configurations for app appdemo
+endif
