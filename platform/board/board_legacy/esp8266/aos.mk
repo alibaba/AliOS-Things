@@ -23,7 +23,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -DBOARD_ESP8266
 
 GLOBAL_INCLUDES += .
-$(NAME)_SOURCES := board.c
+$(NAME)_SOURCES := config/partition_conf.c startup/startup.c startup/board.c
 
 GLOBAL_DEFINES += LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP
 
@@ -31,3 +31,10 @@ ifeq ($(APP), yts)
 GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
 endif
 
+ifeq ($(osal),freertos)
+
+else
+$(NAME)_SOURCES   += config/k_config.c
+endif
+
+GLOBAL_INCLUDES += ./config/ ./drivers/
