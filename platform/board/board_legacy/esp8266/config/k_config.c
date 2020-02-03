@@ -3,9 +3,13 @@
  */
 
 #include <k_api.h>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "frxt/xtensa_config.h"
 
 #define WDT_TIMEOUT_MS  20000
+
 void soc_hw_timer_init()
 {
 }
@@ -67,4 +71,40 @@ void krhino_mm_alloc_hook(void *mem, size_t size)
     (void)mem;
     (void)size;
 }
+
+size_t soc_get_cur_sp()
+{
+    volatile size_t dummy = (size_t)&dummy;
+    return dummy;
+}
+
+#if (RHINO_CONFIG_HW_COUNT > 0)
+hr_timer_t soc_hr_hw_cnt_get(void)
+{
+    return 0;
+}
+#endif
+
+/* iram use as memory heap: */
+#define IRAM_AS_HEAP_ADDR   ((void*)0x40108000)
+#define IRAM_AS_HEAP_LEN    0x4000
+
+extern uint8_t _heap_start, _heap_size;
+const k_mm_region_t g_mm_region[] = {
+    {&_heap_start, (uint32_t)&_heap_size},
+    //{IRAM_AS_HEAP_ADDR, IRAM_AS_HEAP_LEN}
+};
+int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
+
+extern void hal_reboot(void);
+void soc_err_proc(kstat_t err)
+{
+    if ( RHINO_NO_MEM == err )
+    {
+        /* while mem not enought, reboot */
+        hal_reboot();
+    }
+}
+
+krhino_err_proc_t g_err_proc = soc_err_proc;
 
