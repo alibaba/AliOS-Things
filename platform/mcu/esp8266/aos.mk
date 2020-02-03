@@ -19,7 +19,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/lwip $(ESP_INC_PATH)/lwip/ipv4 $(ESP_INC_PATH
 # $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
 
-GLOBAL_INCLUDES  += common
+#GLOBAL_INCLUDES  += common
 
 GLOBAL_CFLAGS    += -DOTA_DUBANK
 
@@ -112,8 +112,8 @@ $(NAME)_PREBUILT_LIBRARY += lib/libespos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libfreertos.a
 else
 $(NAME)_COMPONENTS       += rhino arch_xtensa_lx106
-$(NAME)_SOURCES          += aos/hook_impl.c
-$(NAME)_SOURCES          += aos/soc_impl.c
+#$(NAME)_SOURCES          += aos/hook_impl.c
+#$(NAME)_SOURCES          += aos/soc_impl.c
 endif
 
 include platform/mcu/esp8266/espos/espos.mk

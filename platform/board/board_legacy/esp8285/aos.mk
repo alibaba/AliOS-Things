@@ -23,7 +23,12 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #for activation handle
 GLOBAL_CFLAGS += -DBOARD_ESP8266
 
-GLOBAL_INCLUDES += .
-$(NAME)_SOURCES := board.c
+GLOBAL_INCLUDES += . ./config/ ./drivers/
+$(NAME)_SOURCES := config/partition_conf.c startup/startup.c startup/board.c
+ifeq ($(osal),freertos)
+
+else
+$(NAME)_SOURCES   += config/k_config.c
+endif
 
 GLOBAL_DEFINES += BOARD_ESP8285 LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP
