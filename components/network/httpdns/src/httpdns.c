@@ -1,29 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <time.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <sys/select.h>
 
 #include "sds.h"
 #include "dict.h"
-#include "iplist.h"
-#include "http_ctx.h"
+
+#include "httpdns_opts.h"
+#include "httpdns_internal.h"
 #include "httpdns/httpdns.h"
 
 #include "ulog/ulog.h"
 #include "cJSON.h"
-
-#include "httpdns_opts.h"
-#include "aos/posix/pthread.h"
-#include "aos/posix/timer.h"
-
-#define HTTPDNS_TIMEOUT 10
-#define HTTPDNS_CONNECT_TIMEOUT 5
-#define MAX_DNSCACHE_AGE (15*60)
 
 #define TAG "httpdns"
 #define HTTPDNS_ERR(fmt,arg...)   LOGE(TAG, fmt,##arg)
@@ -31,51 +18,19 @@
 #define HTTPDNS_WARN(fmt,arg...)  LOGW(TAG, fmt,##arg)
 
 static dict * resolv = NULL;
+static httpdns_mutex_t resolv_lock = NULL;
 
-static pthread_mutex_t resolv_lock;
-
-struct  dns_cache {
-    struct list_head host_list;
-    char * host_name;
-    struct timespec ts;
-};
-
-typedef struct httpdns_connection {
-    http_ctx_t ctx;
-    dns_cache_t * dns;
-    int prefer_local;
-} httpdns_connection_t;
-
-static inline void httpdns_resolv_lock(void)
+static long long timespec_to_seconds(struct timespec* ts)
 {
-    pthread_mutex_lock(&resolv_lock);
-}
-
-static inline void httpdns_resolv_unlock(void)
-{
-    pthread_mutex_unlock(&resolv_lock);
-}
-
-static inline void httpnds_resolv_lock_init(void)
-{
-    if (resolv_lock.initted == PTHREAD_INITIALIZED_OBJ) {
-        return;
-    }
-
-    pthread_mutex_init(&resolv_lock, NULL);
-}
-
-static double timespec_to_seconds(struct timespec* ts)
-{
-    return (double)ts->tv_sec + (double)ts->tv_nsec / 1000000000.0;
+    return (ts->tv_sec + ts->tv_nsec / 1000000000);
 }
 
 static void httpdns_age_out(void)
 {
     struct timespec end;
-    double elapsedSeconds = 0;
+    long long elapsedSeconds = 0;
 
-    clock_gettime(CLOCK_MONOTONIC, &end);
+    get_clock_time(&end);
 
     if(NULL != resolv)  {
         dictIterator * di = dictGetSafeIterator(resolv);
@@ -84,7 +39,7 @@ static void httpdns_age_out(void)
             while((de = dictNext(di)) != NULL) {
                 dns_cache_t * cache = (dns_cache_t *)de->val;
                 elapsedSeconds = timespec_to_seconds(&end) - timespec_to_seconds(&(cache->ts));
-                if(elapsedSeconds >= MAX_DNSCACHE_AGE) {
+                if(elapsedSeconds >= HTTP_DNS_MAX_CACHE_AGE) {
                     HTTPDNS_INFO("<HTTPDNS> %s : age out,  free %s\n", __func__, cache->host_name);
                     dictDelete(resolv, cache->host_name);
                     httpdns_free_cache(cache);
@@ -112,9 +67,9 @@ int httpdns_update_cache(dns_cache_t * dns)
     }
     sz = iplist_size(&(dns->host_list));
 
-    clock_gettime(CLOCK_MONOTONIC, &ts);
+    get_clock_time(&ts);
     if(sz > 0) {
-            httpdns_resolv_lock();
+            httpdns_mutex_lock(resolv_lock);
             if(NULL != resolv) {
                 dns_cache_t *cache = (dns_cache_t *) dictFetchValue(resolv, dns->host_name);
                 if(NULL != cache) {
@@ -127,11 +82,11 @@ int httpdns_update_cache(dns_cache_t * dns)
                 } else {
                     HTTPDNS_INFO("<HTTPDNS> %s : success to add cache for %s\n", __func__, dns->host_name);
                     memcpy(&dns->ts, &ts, sizeof(struct timespec));
-                    httpdns_resolv_unlock();
+                    httpdns_mutex_unlock(resolv_lock);
                     return 0;
                 }
             }
-            httpdns_resolv_unlock();
+            httpdns_mutex_unlock(resolv_lock);
     } else {
         httpdns_free_cache(dns);
     }
@@ -146,7 +101,7 @@ int httpdns_replace_cache(dns_cache_t * dns)
     }
     sz = iplist_size(&(dns->host_list));
     if(sz > 0) {
-        httpdns_resolv_lock();
+        httpdns_mutex_lock(resolv_lock);
         if(NULL != resolv) {
             dns_cache_t *cache = (dns_cache_t *) dictFetchValue(resolv, dns->host_name);
             if(NULL != cache) {
@@ -159,24 +114,24 @@ int httpdns_replace_cache(dns_cache_t * dns)
                 httpdns_free_cache(dns);
             } else {
                 HTTPDNS_INFO("<HTTPDNS> %s : success to replace cache for %s\n", __func__, dns->host_name);
-                httpdns_resolv_unlock();
+                httpdns_mutex_unlock(resolv_lock);
                 return 0;
             }
         }
-        httpdns_resolv_unlock();
+        httpdns_mutex_unlock(resolv_lock);
     } else {
         httpdns_free_cache(dns);
     }
     return 0;
 }
 
+extern const char httpdns_server_list[HTTP_DNS_MAX_SERVER_NUM][16];
 static char * httpdns_select_server(void)
 {
-    int sz, index;
+    int index;
     srand(time(NULL));
-    sz = sizeof(server_list)/sizeof(server_list[0]);
-    index =  rand() % sz;
-    return (char *)server_list[index];
+    index =  rand() % HTTP_DNS_MAX_SERVER_NUM;
+    return (char *)httpdns_server_list[index];
 }
 
 void httpdns_get_ip_from_addrinfo(struct addrinfo* res, char * ip)
@@ -328,7 +283,7 @@ struct addrinfo * httpdns_crop_addrinfo(struct addrinfo *ai, int size)
     if(NULL != t) {
        freeaddrinfo(t);
     }
-    //httpdns_print_addrinfo(ai);
+
     return ai;
 }
 
@@ -439,7 +394,7 @@ int httpdns_prefetch(char * host_name, dns_cache_t ** cache)
     if((NULL == cache) || (NULL == host_name) || (NULL == resolv)) {
         return 0;
     }
-    httpdns_resolv_lock();
+    httpdns_mutex_lock(resolv_lock);
 
     httpdns_age_out();
 
@@ -449,17 +404,17 @@ int httpdns_prefetch(char * host_name, dns_cache_t ** cache)
             *cache = (dns_cache_t *) malloc(sizeof(dns_cache_t));
             if(NULL == *cache) {
                 HTTPDNS_INFO("<HTTPDNS> %s : malloc cache failed\n", __func__);
-                httpdns_resolv_unlock();
+                httpdns_mutex_unlock(resolv_lock);
                 return 0;
             }
             (*cache)->host_name = sdsdup(dns_cache->host_name);
             iplist_dup(&((*cache)->host_list),  &(dns_cache->host_list));
         }
-        httpdns_resolv_unlock();
+        httpdns_mutex_unlock(resolv_lock);
         return 1;
     }
 
-    httpdns_resolv_unlock();
+    httpdns_mutex_unlock(resolv_lock);
     return 0;
 }
 
@@ -494,7 +449,6 @@ int httpdns_prefetch_timeout(char * host_name, dns_cache_t ** cache, int ms)
 {
     int result = 0;
     int sleep_ms = HTTP_DNS_QRY_INTV_MS;
-    double timeout = 0;
     struct timespec start = { 0, 0 }, end = { 0, 0 };
 
     if((NULL == cache) || (NULL == host_name) || (ms < 0)) {
@@ -504,10 +458,6 @@ int httpdns_prefetch_timeout(char * host_name, dns_cache_t ** cache, int ms)
     int max_retry = ms / sleep_ms + 1;
 
     HTTPDNS_INFO("<HTTPDNS> %s : prefetch cache, max retry = %d\n", __func__, max_retry);
-
-    if(clock_gettime(CLOCK_MONOTONIC, &start) < 0 ) {
-       HTTPDNS_INFO("<HTTPDNS> %s : get start time failed %s\n", __func__, strerror(errno));
-    }
 
     do {
         result = httpdns_prefetch(host_name, cache);
@@ -522,17 +472,13 @@ int httpdns_prefetch_timeout(char * host_name, dns_cache_t ** cache, int ms)
                 result = 0;
             }
         }
-        usleep(sleep_ms*1000);
+
+        httpdns_thread_msleep(sleep_ms);
     } while(max_retry > 0);
 
-    if(clock_gettime(CLOCK_MONOTONIC, &end) < 0 ) {
-        HTTPDNS_INFO("<HTTPDNS> %s : get end time failed %s\n", __func__, strerror(errno));
-    }
+    HTTPDNS_INFO("<HTTPDNS> %s : prefetch max_retry = %d, result  = %d\n", __func__, max_retry, result);
 
-    timeout = timespec_to_seconds(&end) - timespec_to_seconds(&start);
-    HTTPDNS_INFO("<HTTPDNS> %s : prefetch end,  time = %lf s, max_retry = %d, result  = %d\n", __func__, timeout, max_retry, result);
-
-   return result;
+    return result;
 }
 
 int httpdns_is_valid_ip(char * host_name)
@@ -569,19 +515,21 @@ static int httpdns_init(httpdns_connection_t *conn, char *server_ip, char * user
 {
     sds url = NULL;
     dns_cache_t * cache = NULL;
-    httpnds_resolv_lock_init();
+    if (!resolv_lock) {
+        resolv_lock = httpdns_mutex_create_recursive();
+    }
 
-    httpdns_resolv_lock();
+    httpdns_mutex_lock(resolv_lock);
     if(NULL == resolv)  {
         resolv = dictCreate(&dictTypeHeapStrings, NULL);
         if(NULL == resolv) {
             free(conn);
-            httpdns_resolv_unlock();
+            httpdns_mutex_unlock(resolv_lock);
             HTTPDNS_INFO("<HTTPDNS> %s : Failed to alloc resolv cache\n", __func__);
             return -1;
         }
     }
-    httpdns_resolv_unlock();
+    httpdns_mutex_unlock(resolv_lock);
 
     if(NULL == server_ip) {
          server_ip = httpdns_select_server();
@@ -723,19 +671,15 @@ static int localdns_parse(char *host_name)
 
 static int httpdns_process(httpdns_connection_t *conn)
 {
-    double elapsedSeconds;
     memory_t *mem = NULL;
     struct timespec start, end;
 
     if(NULL == conn) {
         return -1;
     }
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    mem = http_ctx_get(&(conn->ctx));
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    elapsedSeconds = timespec_to_seconds(&end) - timespec_to_seconds(&start);
 
-    HTTPDNS_INFO("<HTTPDNS> %s : elapse time = %lf seconds\n", __func__, elapsedSeconds);
+    mem = http_ctx_get(&(conn->ctx));
+ 
     if(NULL != mem) {
         HTTPDNS_INFO("<HTTPDNS> %s : memory = %s\n", __func__,  mem->memory);
 
@@ -750,12 +694,12 @@ static int httpdns_process(httpdns_connection_t *conn)
         return httpdns_update_cache(conn->dns);
     } else {
         char * host = conn->dns->host_name;
-        httpdns_resolv_lock();
+        httpdns_mutex_lock(resolv_lock);
         if (NULL != resolv)  {
             HTTPDNS_INFO("<HTTPDNS> %s : delete cache for %s\n", __func__, host);
             dictDelete(resolv, host);
         }
-        httpdns_resolv_unlock();
+        httpdns_mutex_unlock(resolv_lock);
     }
     return -1;
 }
@@ -786,6 +730,7 @@ static void local_dns_process(httpdns_connection_t * conn)
 static void * httpdns_routine(void * arg)
 {
     httpdns_connection_t * conn = (httpdns_connection_t *) arg;
+
     if(NULL != conn) {
         if (conn->prefer_local) {
             local_dns_process(conn);
@@ -798,40 +743,8 @@ static void * httpdns_routine(void * arg)
         }
         httpdns_destroy(conn);
     }
-    pthread_exit(NULL);
+
     return NULL;
-}
-
-static void httpdns_resolv_internal(httpdns_connection_t *conn, int async)
-{
-    int ret;
-    pthread_t tid;
-    pthread_attr_t attr;
-
-    HTTPDNS_INFO("<HTTPDNS> %s: pthread_create, async = %d\n", __func__, async);
-
-    if (pthread_attr_init(&attr) == 0) {
-        pthread_attr_setstacksize(&attr, HTTP_DNS_TASK_STACK);
-        struct sched_param sched;
-        sched.sched_priority = HTTP_DNS_TASK_PRIO;
-        pthread_attr_setschedparam(&attr, &sched);
-        if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) == 0) {
-            ret = pthread_create(&tid, &attr, &httpdns_routine, conn);
-            pthread_setname_np(tid, "httpdns");
-        }
-        pthread_attr_destroy(&attr);
-    }
-
-    if(0 != ret)
-    {
-        HTTPDNS_INFO("<HTTPDNS> %s : pthread_create error!\n", __func__);
-        return;
-    }
-    if(async) {
-        pthread_detach(tid);
-    } else {
-        pthread_join(tid, NULL);
-    }
 }
 
 void httpdns_resolv_host(char *host_name, int async)
@@ -839,8 +752,8 @@ void httpdns_resolv_host(char *host_name, int async)
     httpdns_connection_t *conn = (httpdns_connection_t *) malloc(sizeof(httpdns_connection_t));
     memset(conn, 0, sizeof(httpdns_connection_t));
     if(NULL != conn) {
-        if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTPDNS_CONNECT_TIMEOUT, HTTPDNS_TIMEOUT)) {
-            httpdns_resolv_internal(conn, async);
+        if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTP_DNS_CONNECT_TIMEOUT, HTTP_DNS_TIMEOUT)) {
+            httpdns_resolv_thread(conn, &httpdns_routine, async);
         }
     } else {
         HTTPDNS_INFO("<HTTPDNS> Alloc httpdns_connection_t Failed!\n");
@@ -852,9 +765,9 @@ void httpdns_resolv_host_local(char *host_name, int async)
     httpdns_connection_t *conn = (httpdns_connection_t *) malloc(sizeof(httpdns_connection_t));
     memset(conn, 0, sizeof(httpdns_connection_t));
     if(NULL != conn) {
-        if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTPDNS_CONNECT_TIMEOUT, HTTPDNS_TIMEOUT)) {
+        if(0 == httpdns_init(conn, NULL, (char *)HTTP_DNS_USER_ID, host_name, HTTP_DNS_CONNECT_TIMEOUT, HTTP_DNS_TIMEOUT)) {
             conn->prefer_local = 1;
-            httpdns_resolv_internal(conn, async);
+            httpdns_resolv_thread(conn, &httpdns_routine, async);
         }
     } else {
         HTTPDNS_INFO("<HTTPDNS> Alloc httpdns_connection_t Failed!\n");
