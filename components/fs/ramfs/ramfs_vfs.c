@@ -205,8 +205,12 @@ static vfs_dir_t *ramfs_vfs_opendir(vfs_file_t *fp, const char *path)
 
 static int32_t ramfs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    if (fp->f_arg != NULL) {
-        ramfs_mm_free(fp->f_arg);
+    ramfs_vfs_dir_t *dp;
+
+    dp = (ramfs_vfs_dir_t *)fp->f_arg;
+    if (dp != NULL) {
+        ramfs_closedir(&dp->ramfs_dir);
+        ramfs_mm_free((void*)dp);
     }
 
     return 0;
@@ -395,7 +399,7 @@ vfs_filesystem_ops_t ramfs_ops = {
     .fpathconf = &ramfs_vfs_fpathconf,
     .utime     = &ramfs_vfs_utime,
     .rewinddir = &ramfs_vfs_rewinddir,
-    .rmdir     = &ramfs_vfs_rmdir 
+    .rmdir     = &ramfs_vfs_rmdir
 };
 
 int32_t ramfs_register(const char *mount_path)
@@ -420,3 +424,89 @@ int32_t ramfs_register(const char *mount_path)
 
     return ret;
 }
+
+
+static int32_t ramfs_vfs_rmdir_r(char *path)
+{
+    vfs_file_t    fp;
+    vfs_dir_t    *dir;
+    vfs_dirent_t *dirent;
+    int           newpath_len;
+    char         *newpath = NULL;
+    vfs_stat_t    st;
+    int           ret = 0;
+
+    dir = ramfs_vfs_opendir(&fp, path);
+    if(dir) {
+        newpath_len = strlen(path) + MAX_RAMFS_FILE_NAME_BYTES;
+        newpath = ramfs_mm_alloc(newpath_len);
+        if (NULL == newpath) {
+            ramfs_vfs_closedir(&fp, dir);
+            return -1;
+        }
+
+        while (dirent = ramfs_vfs_readdir(&fp, dir)) {
+            if (strcmp(&dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0) {
+                continue;
+            } else {
+                memset(newpath, 0, newpath_len);
+                snprintf(newpath, newpath_len, "%s/%s", path, dirent->d_name);
+                memset(&st, 0, sizeof(vfs_stat_t));
+                if (!ramfs_vfs_stat(NULL, newpath, &st)) {
+                    if (st.st_mode & S_IFDIR) {
+                        ret = ramfs_vfs_rmdir_r(newpath);
+                        if (ret) {
+                            break;
+                        }
+                        ret = ramfs_vfs_rmdir(NULL, newpath);
+                        if (ret) {
+                            break;
+                        }
+                    } else if (st.st_mode & S_IFREG){
+                        ramfs_unlink(newpath);
+                    }
+                } else {
+                    ret = -1;
+                    break;
+                }
+            }
+        }
+
+        ramfs_mm_free(newpath);
+        ramfs_vfs_closedir(&fp, dir);
+
+        return ret;
+    }
+
+    return -1;
+}
+
+int32_t ramfs_unregister(const char *mount_path)
+{
+    int32_t ret;
+
+    if (NULL == mount_path) {
+        mount_path = RAMFS_DEFAULT_MOUNT_PATH;
+    }
+
+    // 1. recursively delete the files and dirs in ramfs
+    ret = ramfs_vfs_rmdir_r(mount_path);
+    if (ret) {
+        return ret;
+    }
+
+    // 2. unregister the fs from vfs
+    ret = vfs_unregister_fs(mount_path);
+    if (ret) {
+        return ret;
+    }
+
+    // 3. rm mount path
+    ret = ramfs_rmdir(mount_path);
+
+    // 4. deinit ramfs
+    ramfs_deinit();
+
+    return ret;
+}
+
