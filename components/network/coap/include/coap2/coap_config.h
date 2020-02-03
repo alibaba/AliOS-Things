@@ -122,7 +122,7 @@
 #define WITHOUT_OBSERVE 1
 #define WITHOUT_QUERY_FILTER 1
 
-#ifndef WITH_LWIP
+#if !defined(WITH_LWIP) && !defined(WITH_SAL)
 /* Define to 1 if you have the <netinet/in.h> header file. */
 /* #undef HAVE_NETINET_IN_H 0 x*/
 #define HAVE_NETINET_IN_H 1
@@ -130,6 +130,7 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 /* #undef  HAVE_ARPA_INET_H 0 x */
 #define HAVE_ARPA_INET_H 1
+
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 /*#undef #HAVE_SYS_IOCTL_H  x*/
