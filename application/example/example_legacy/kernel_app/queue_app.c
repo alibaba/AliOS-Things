@@ -2,20 +2,24 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include <k_api.h>
 #include <ulog/ulog.h>
 
 /* This precompiled macro is for different configurations and is not required for practical use. */
-#if (RHINO_CONFIG_BUF_QUEUE > 0)
+#if (RHINO_CONFIG_QUEUE > 0)
 /**
- * This case demonstrates the use of buf queues, creating two tasks where task1
+ * This case demonstrates the use of queues, creating two tasks where task1
  * sends messages every second and task2 receives them and prints them.
+ * This case does the same thing as the buf queue case. Queue is more
+ * efficient than buf queue, which sends a pointer but buf queue will
+ * copy the contents.
  */
 
 /* module name used by ulog */
-#define MODULE_NAME "bufqueue_app"
+#define MODULE_NAME "queue_app"
 
 /* task1 parameters */
 #define TASK1_NAME      "task1"
@@ -31,12 +35,13 @@
 static ktask_t *task1_tcb = NULL;
 static ktask_t *task2_tcb = NULL;
 
-/* buf queue resource */
-#define MESSAGE_MAX_LENGTH 10 /* maximum message length */
+/* queue length */
+#define MESSAGE_LENGTH      10 /* message length */
+#define TEST_QUEUE_MSG_SIZE 30 /* queue length */
 
 /* Static memory for static creation */
-static kbuf_queue_t buf_queue_handle;                          /* buf queue struct */
-static char         buf_queue_buffer[MESSAGE_MAX_LENGTH * 10]; /* for the internal buffer of the buf queue */
+kqueue_t test_queue;
+void    *test_queue_msg[TEST_QUEUE_MSG_SIZE]; /* used as an internal buffer for queue */
 
 /* task entry */
 static void task1_entry(void *arg)
@@ -44,13 +49,15 @@ static void task1_entry(void *arg)
     uint32_t i;
     kstat_t  status;
     tick_t   sleep_time;
+    char    *message_buf;
 
-    char     message_buf[MESSAGE_MAX_LENGTH]; /* buffer used to send message */
     uint8_t  message_id = 0;
 
     sleep_time = krhino_ms_to_ticks(1000); /* 1000ms to ticks */
 
     while (1) {
+        message_buf = malloc(MESSAGE_LENGTH); /* malloc buffer used to send message */
+
         /**
          * generate message. The sequence of messages is as follows:
          * 0123456789
@@ -58,13 +65,13 @@ static void task1_entry(void *arg)
          * 2345678901
          * ......
          */
-        for (i = 0; i < sizeof(message_buf); i++) {
+        for (i = 0; i < MESSAGE_LENGTH; i++) {
             message_buf[i] = (message_id + i) % 10;
         }
         message_id++;
 
-        /* send message. The message length must not exceed the maximum message length */
-        status = krhino_buf_queue_send(&buf_queue_handle, (void *)message_buf, sizeof(message_buf));
+        /* send message. the message is a pointer */
+        status = krhino_queue_back_send(&test_queue, message_buf);
         if (status != RHINO_SUCCESS) {
             LOGE(MODULE_NAME, "send buf queue error");
         }
@@ -78,38 +85,43 @@ static void task2_entry(void *arg)
 {
     uint32_t i;
     kstat_t  status;
-    /* The buffer must be greater than or equal to the maximum message length */
-    char     message_buf[MESSAGE_MAX_LENGTH];
-    uint32_t rev_size;
+    char    *message_buf = NULL;
 
     while (1) {
         /**
          * receive message. The task will wait until it receives the message.
-         * rev_size is set to the actual length of the received message.
          */
-        status = krhino_buf_queue_recv(&buf_queue_handle, RHINO_WAIT_FOREVER, (void *)message_buf, &rev_size);
+        status = krhino_queue_recv(&test_queue, RHINO_WAIT_FOREVER, (void**)&message_buf);
         if (status == RHINO_SUCCESS) {
             /* show message data */
             LOGI(MODULE_NAME, "recv message : ");
-            for (i = 0; i < rev_size; i++) {
+            for (i = 0; i < MESSAGE_LENGTH; i++) {
                 printf("%d", message_buf[i]);
             }
             printf("\r\n");
+            if (message_buf != NULL) {
+                /**
+                 * free the buffer. It is best to free up memory where it is malloced.
+                 * Be aware of memory leaks if you do not free memory at the malloc location.
+                 */
+                free(message_buf);
+                message_buf = NULL;
+            }
         } else {
             LOGE(MODULE_NAME, "recv buf queue error");
         }
     }
 }
 
-void bufqueue_app(void)
+void queue_app(void)
 {
     kstat_t status;
 
-    /* create buf queues statically */
-    status = krhino_buf_queue_create(&buf_queue_handle, "message queue", (void *)buf_queue_buffer,
-                                     sizeof(buf_queue_buffer), MESSAGE_MAX_LENGTH);
+    /* create queues statically */
+    status = krhino_queue_create(&test_queue, "test_queue",
+                                 (void **)&test_queue_msg, TEST_QUEUE_MSG_SIZE);
     if (status != RHINO_SUCCESS) {
-        LOGE(MODULE_NAME, "create buf queue error");
+        LOGE(MODULE_NAME, "create queue error");
         return;
     }
 
@@ -119,7 +131,7 @@ void bufqueue_app(void)
     status = krhino_task_dyn_create(&task1_tcb, TASK1_NAME, (void *)0, TASK1_PRI, 50,
                                     TASK1_STACKSIZE, task1_entry, 1);
     if (status != RHINO_SUCCESS) {
-        krhino_buf_queue_del(&buf_queue_handle);
+        krhino_queue_del(&test_queue);
         LOGE(MODULE_NAME, "create task1 error");
         return;
     }
@@ -130,7 +142,7 @@ void bufqueue_app(void)
     status = krhino_task_dyn_create(&task2_tcb, TASK2_NAME, (void *)0, TASK2_PRI, 50,
                                     TASK2_STACKSIZE, task2_entry, 1);
     if (status != RHINO_SUCCESS) {
-        krhino_buf_queue_del(&buf_queue_handle);
+        krhino_queue_del(&test_queue);
         LOGE(MODULE_NAME, "create task2 error");
         return;
     }
