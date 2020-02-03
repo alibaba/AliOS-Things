@@ -25,6 +25,15 @@ extern "C" {
  */
 int32_t ramfs_register(const char *mount_path);
 
+/**
+ * ramfs unregister
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int32_t ramfs_unregister(const char *mount_path);
+
+
 /** @} */
 
 #ifdef __cplusplus
