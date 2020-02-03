@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "ulog/ulog.h"
-#include "http_ctx.h"
+#include "httpdns_internal.h"
 #include "http.h"
 
 #define HTTPCLIENT_MAX_SCHEME_LEN  8
