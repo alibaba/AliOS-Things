@@ -29,6 +29,11 @@ typedef USHORT in_port_t;
 #include <lwip/netdb.h>
 #include <lwip/ip_addr.h>
 #include <lwip/sockets.h>
+#elif defined(WITH_SAL)
+#include <sal/sal_arch.h>
+#include <sal/sal_def.h>
+#include <sal/sal_ipaddr.h>
+#include <sal/sal_sockets.h>
 #else
 #include <netinet/in.h>
 #include <sys/socket.h>
