@@ -1,4 +1,6 @@
-/*
+/*!
+ * @file hal_sal.h
+ *
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
@@ -10,6 +12,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @addtogroup aos_sal API
+ *  Socket Adapter Layer, which provides socket API service
+ *  implemented on top of AT modules.
+ *
+ *  @{
+ */
 
 typedef enum {
     /* WiFi */
@@ -24,12 +33,12 @@ typedef enum {
 
 /* Fill necessary fileds according to the socket type. */
 typedef struct {
-    int fd; /* fd that are used in socket level */
+    int fd; //<! fd that are used in socket level
     CONN_TYPE type;
-    char *addr; /* remote ip or domain */
-    int32_t r_port; /* remote port (set to -1 if not used) */
-    int32_t l_port; /* local port (set to -1 if not used) */
-    uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
+    char *addr; //<! remote ip or domain
+    int32_t r_port; //<! remote port (set to -1 if not used)
+    int32_t l_port; //<! local port (set to -1 if not used)
+    uint32_t tcp_keep_alive; //<! tcp keep alive value (set to 0 if not used)
 } sal_conn_t;
 
 /* Socket data state indicator. */
@@ -44,11 +53,11 @@ typedef enum netconn_evt {
 typedef int (*netconn_data_input_cb_t)(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
 
 typedef struct sal_op_s {
-    struct sal_op_s * next;  /* Next sal_op_t structure */
+    struct sal_op_s * next;  //<! Next sal_op_t structure
 
-    char *version; /* Reserved for furture use. */
+    char *version; //<! Reserved for furture use.
 
-    char *name; /* Drvier name */
+    char *name; //<! Drvier name
 
     /* Add sal device */
     int (*add_dev)(void*);
@@ -134,6 +143,8 @@ typedef struct sal_op_s {
      */
     int (*register_netconn_data_input_cb)(netconn_data_input_cb_t cb);
 } sal_op_t;
+
+/** @} */ /* end of group aos_sal */
 
 #ifdef __cplusplus
 }
