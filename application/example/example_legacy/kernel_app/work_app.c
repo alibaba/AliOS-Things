@@ -8,14 +8,16 @@
 #include <ulog/ulog.h>
 
 /* This precompiled macro is for different configurations and is not required for practical use. */
-#if (RHINO_CONFIG_BUF_QUEUE > 0)
+#if (RHINO_CONFIG_WORKQUEUE > 0)
+
 /**
- * This case demonstrates the use of buf queues, creating two tasks where task1
- * sends messages every second and task2 receives them and prints them.
+ * This case does the same thing as the buf queue, except for the way task1 sends the message.
+ * This case demonstrates the use of work queue, creating two tasks where task1 sends messages
+ * through work queue every second and task2 receives them and prints them.
  */
 
 /* module name used by ulog */
-#define MODULE_NAME "bufqueue_app"
+#define MODULE_NAME "work_app"
 
 /* task1 parameters */
 #define TASK1_NAME      "task1"
@@ -38,37 +40,47 @@ static ktask_t *task2_tcb = NULL;
 static kbuf_queue_t buf_queue_handle;                          /* buf queue struct */
 static char         buf_queue_buffer[MESSAGE_MAX_LENGTH * 10]; /* for the internal buffer of the buf queue */
 
-/* task entry */
-static void task1_entry(void *arg)
+/* Static memory for work */
+static kwork_t message_work;
+
+/* This function executes in the background task of work queue*/
+void work_handle(void *arg)
 {
     uint32_t i;
     kstat_t  status;
-    tick_t   sleep_time;
 
-    char     message_buf[MESSAGE_MAX_LENGTH]; /* buffer used to send message */
-    uint8_t  message_id = 0;
+    char            message_buf[MESSAGE_MAX_LENGTH]; /* buffer used to send message */
+    static uint8_t  message_id = 0;
+
+    /**
+     * generate message. The sequence of messages is as follows:
+     * 0123456789
+     * 1234567890
+     * 2345678901
+     * ......
+     */
+    for (i = 0; i < sizeof(message_buf); i++) {
+        message_buf[i] = (message_id + i) % 10;
+    }
+    message_id++;
+
+    /* send message. The message length must not exceed the maximum message length */
+    status = krhino_buf_queue_send(&buf_queue_handle, (void *)message_buf, sizeof(message_buf));
+    if (status != RHINO_SUCCESS) {
+        LOGE(MODULE_NAME, "send buf queue error");
+    }
+}
+
+/* task entry */
+static void task1_entry(void *arg)
+{
+    tick_t   sleep_time;
 
     sleep_time = krhino_ms_to_ticks(1000); /* 1000ms to ticks */
 
     while (1) {
-        /**
-         * generate message. The sequence of messages is as follows:
-         * 0123456789
-         * 1234567890
-         * 2345678901
-         * ......
-         */
-        for (i = 0; i < sizeof(message_buf); i++) {
-            message_buf[i] = (message_id + i) % 10;
-        }
-        message_id++;
-
-        /* send message. The message length must not exceed the maximum message length */
-        status = krhino_buf_queue_send(&buf_queue_handle, (void *)message_buf, sizeof(message_buf));
-        if (status != RHINO_SUCCESS) {
-            LOGE(MODULE_NAME, "send buf queue error");
-        }
-
+        /* start the work, using the default work queue */
+        krhino_work_sched(&message_work);
         krhino_task_sleep(sleep_time); /* sleep 1000ms */
     }
 }
@@ -101,9 +113,12 @@ static void task2_entry(void *arg)
     }
 }
 
-void bufqueue_app(void)
+void work_app(void)
 {
     kstat_t status;
+
+    /* init the message send work. There is no delay in the work */
+    krhino_work_init(&message_work, work_handle, NULL, 0);
 
     /* create buf queues statically */
     status = krhino_buf_queue_create(&buf_queue_handle, "message queue", (void *)buf_queue_buffer,
