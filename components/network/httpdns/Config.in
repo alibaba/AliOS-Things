@@ -2,7 +2,6 @@ config AOS_COMP_HTTPDNS
     bool "httpdns"
     default n
     select AOS_COMP_HTTP
-    select AOS_COMP_OSAL_POSIX
     select AOS_COMP_CJSON
     help
         HTTP DNS function
