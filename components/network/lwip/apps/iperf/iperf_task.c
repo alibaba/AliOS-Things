@@ -167,7 +167,7 @@ void iperf_udp_run_server( char *parameters[] )
     int tmp = 0;
 #endif
     char *buffer = (char*) malloc( IPERF_TEST_BUFFER_SIZE );
-    
+
     uint32_t t1, t2, curr_t, curr_h_ms, t2_h_ms, t1_h_ms, tmp_t, tmp_h_ms, offset_t1, offset_t2, offset_time;
     UDP_datagram *udp_h;
     client_hdr *client_h;
@@ -332,7 +332,7 @@ void iperf_udp_run_server( char *parameters[] )
                     tmp_count = iperf_copy_count( pkt_count, tmp_count );
                     interval_tag++;
                 } else if ( ((udp_h_id < 0) || (nbytes <= 0)) && (((tmp_t) % 10) != 0) && (is_test_started == 1) ) {
-                    LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d.0 - %d.%d sec   ", (int) (curr_t - t1 + 1) / 10 * 10 - 10, 
+                    LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d.0 - %d.%d sec   ", (int) (curr_t - t1 + 1) / 10 * 10 - 10,
                             (int) tmp_t, (int) tmp_h_ms ));
                     iperf_display_report( "UDP Server", (tmp_t - ((curr_t - t1 + 1) / 10 * 10 - 10)), tmp_h_ms,
                                           iperf_diff_count( pkt_count, tmp_count ) );
@@ -856,7 +856,7 @@ void iperf_udp_run_client( char *parameters[] )
         pkt_delay = (1000 * data_size) / bw;
 
         // pkt_dalay add 1ms regularly to reduce the offset
-        pkt_delay_offset = (((1000 * data_size) % bw) * 10 / bw);
+        pkt_delay_offset = (((1000 * data_size) % bw) * 60 / bw);
         if ( pkt_delay_offset ) {
             pkt_delay_offset = 10 / pkt_delay_offset;
         }
@@ -947,7 +947,7 @@ void iperf_udp_run_client( char *parameters[] )
 
         iperf_get_current_time( &curr_t, &current_tick );
 
-        if ( (udp_h_id % pkt_delay_offset) == 0 ) {
+        if ((pkt_delay_offset != 0) && ((udp_h_id % pkt_delay_offset) == 0 )) {
             current_sleep = pkt_delay - (current_tick - last_tick - last_sleep) + 1;
         } else {
             current_sleep = pkt_delay - (current_tick - last_tick - last_sleep);
