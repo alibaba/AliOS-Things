@@ -54,7 +54,7 @@
 #include "utlist.h"
 #include "resource.h"
 
-#ifdef WITH_LWIP
+#if defined(WITH_LWIP) || defined(WITH_SAL)
 # define OPTVAL_T(t)         (t)
 # define OPTVAL_GT(t)        (t)
 #define GEN_IP_PKTINFO        1  /*FIXME*/
@@ -67,7 +67,7 @@
 #elif defined(IP_RECVDSTADDR)
 #  define GEN_IP_PKTINFO IP_RECVDSTADDR
 #else
-#ifndef WITH_LWIP
+#if !defined(WITH_LWIP) && !defined(WITH_SAL)
 #  error "Need IP_PKTINFO or IP_RECVDSTADDR to request ancillary data from OS."
 #endif
 #endif /* IP_PKTINFO */
@@ -215,6 +215,7 @@ coap_socket_bind_udp(coap_socket_t *sock,
     goto error;
   }
 
+#ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
 #elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
@@ -225,6 +226,7 @@ coap_socket_bind_udp(coap_socket_t *sock,
     coap_log(LOG_WARNING,
          "coap_socket_bind_udp: ioctl FIONBIO: %s\n", coap_socket_strerror());
   }
+#endif
 
   if (setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, OPTVAL_T(&on), sizeof(on)) == COAP_SOCKET_ERROR)
     coap_log(LOG_WARNING,
@@ -233,10 +235,12 @@ coap_socket_bind_udp(coap_socket_t *sock,
 
   switch (listen_addr->addr.sa.sa_family) {
   case AF_INET:
+#ifndef WITH_SAL
     if (setsockopt(sock->fd, IPPROTO_IP, GEN_IP_PKTINFO, OPTVAL_T(&on), sizeof(on)) == COAP_SOCKET_ERROR)
       coap_log(LOG_ALERT,
                "coap_socket_bind_udp: setsockopt IP_PKTINFO: %s\n",
                 coap_socket_strerror());
+#endif
     break;
 #ifdef  IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
@@ -302,6 +306,7 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
     goto error;
   }
 
+#ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
 #elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
@@ -313,6 +318,7 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
              "coap_socket_connect_tcp1: ioctl FIONBIO: %s\n",
              coap_socket_strerror());
   }
+#endif
 
   switch (server->addr.sa.sa_family) {
   case AF_INET:
@@ -444,6 +450,7 @@ coap_socket_bind_tcp(coap_socket_t *sock,
     goto error;
   }
 
+#ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
 #elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
@@ -454,6 +461,8 @@ coap_socket_bind_tcp(coap_socket_t *sock,
     coap_log(LOG_WARNING, "coap_socket_bind_tcp: ioctl FIONBIO: %s\n",
                            coap_socket_strerror());
   }
+#endif
+
   if (setsockopt (sock->fd, SOL_SOCKET, SO_KEEPALIVE, OPTVAL_T(&on),
                   sizeof (on)) == COAP_SOCKET_ERROR)
     coap_log(LOG_WARNING,
@@ -533,6 +542,7 @@ coap_socket_accept_tcp(coap_socket_t *server,
     coap_log(LOG_WARNING, "coap_socket_accept_tcp: getsockname: %s\n",
              coap_socket_strerror());
 
+#ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(new_client->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
 #elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
@@ -543,6 +553,7 @@ coap_socket_accept_tcp(coap_socket_t *server,
     coap_log(LOG_WARNING, "coap_socket_accept_tcp: ioctl FIONBIO: %s\n",
              coap_socket_strerror());
   }
+#endif
 
   return 1;
 }
@@ -571,6 +582,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     goto error;
   }
 
+#ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
 #elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
@@ -581,6 +593,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     coap_log(LOG_WARNING, "coap_socket_connect_udp: ioctl FIONBIO: %s\n",
              coap_socket_strerror());
   }
+#endif
 
   switch (connect_addr.addr.sa.sa_family) {
   case AF_INET:
@@ -615,6 +628,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     }
   }
 
+#ifndef WITH_SAL
   /* special treatment for sockets that are used for multicast communication */
   if (is_mcast) {
     if (getsockname(sock->fd, &local_addr->addr.sa, &local_addr->size) == COAP_SOCKET_ERROR) {
@@ -626,6 +640,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     sock->flags |= COAP_SOCKET_MULTICAST;
     return 1;
   }
+#endif
 
   if (connect(sock->fd, &connect_addr.addr.sa, connect_addr.size) == COAP_SOCKET_ERROR) {
     coap_log(LOG_WARNING, "coap_socket_connect_udp: connect: %s\n",
@@ -633,6 +648,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     goto error;
   }
 
+#ifndef WITH_SAL
   if (getsockname(sock->fd, &local_addr->addr.sa, &local_addr->size) == COAP_SOCKET_ERROR) {
     coap_log(LOG_WARNING, "coap_socket_connect_udp: getsockname: %s\n",
              coap_socket_strerror());
@@ -642,6 +658,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     coap_log(LOG_WARNING, "coap_socket_connect_udp: getpeername: %s\n",
              coap_socket_strerror());
   }
+#endif
 
   sock->flags |= COAP_SOCKET_CONNECTED;
   return 1;
