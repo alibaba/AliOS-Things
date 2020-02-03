@@ -2,6 +2,16 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+/*!
+ * @file app_entry.c
+ *
+ * This file includes sample code of start CoAP example task after
+ * got ip event.
+ *
+ * Use CLI command "netmgr connect ssid password" to start WiFi connection
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,10 +30,11 @@
 
 static char linkkit_started = 0;
 
-static app_main_paras_t entry_paras;
-
 typedef void (*task_fun)(void *);
 
+/*
+ * WiFi Got IP event
+ */
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -39,43 +50,39 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     netmgr_get_ap_config(&config);
     LOG("wifi_service_event config.ssid %s", config.ssid);
     if (strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
-        //clear_wifi_ssid();
         return;
     }
 
+    /* Start CoAP task  */
     if (!linkkit_started) {
-        aos_task_new("iotx_example",(task_fun)linkkit_main,(void *)&entry_paras,1024*6);
+        aos_task_new("iotx_example", (task_fun)linkkit_main, NULL, 1024*6);
         linkkit_started = 1;
     }
 }
 
-#ifdef TEST_LOOP
-const  char *input_data[]= {"coapapp","-e","online","-l","-s","dtls"};
+#ifdef WITH_SAL
+#include <atcmd_config_module.h>
 #endif
 int application_start(int argc, char **argv)
 {
-#ifdef WITH_SAL
-    LOG("Coapapp should run on the board which not support SAL");
-#else
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
 
-#ifdef TEST_LOOP
-    argc = 6;
-    argv = input_data;
-#endif    
-    entry_paras.argc = argc;
-    entry_paras.argv = argv;
+#ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
+    sal_init();
+#endif
 
+    /* Set ulog ouput level to DEBUG */
     aos_set_log_level(AOS_LL_DEBUG);
 
-    netmgr_init();
-
+    /* Register WiFi event handle */
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
+    /* Initialize and start net manager */
+    netmgr_init();
     netmgr_start(false);
-#endif
 
     aos_loop_run();
 
