@@ -402,6 +402,14 @@ void ramfs_init(void)
     g_inited = 1;
 }
 
+void ramfs_deinit(void)
+{
+    if (g_inited) {
+        memset(&g_file_ll, 0 , sizeof(g_file_ll));
+        g_inited = 0;
+    }
+}
+
 int32_t ramfs_ready(void)
 {
     return g_inited;
