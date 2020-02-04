@@ -1,7 +1,7 @@
 NAME := board_b_f769
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board b_f769
 MODULE             := 1062
 HOST_ARCH          := Cortex-M7

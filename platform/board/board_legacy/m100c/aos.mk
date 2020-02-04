@@ -3,7 +3,7 @@ NAME := board_m100c
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board m100c
 
 MODULE          := 1062

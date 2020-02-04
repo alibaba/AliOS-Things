@@ -2,7 +2,7 @@ HOST_OPENOCD := MIMXRT1021
 NAME         := mcu_mimxrt1021impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mimxrt1021impl
 
 $(NAME)_COMPONENTS += arch_armv7m

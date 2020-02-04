@@ -3,7 +3,7 @@ NAME := mcu_bk7231s
 HOST_OPENOCD := bk7231s
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231s
 
 $(NAME)_COMPONENTS := arch_armv5

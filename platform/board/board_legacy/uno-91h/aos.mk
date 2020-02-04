@@ -3,7 +3,7 @@ NAME := board_uno-91h
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board uno-91h
 MODULE             := xxx
 HOST_ARCH          := Cortex-M4

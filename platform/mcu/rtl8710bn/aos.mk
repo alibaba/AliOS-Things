@@ -14,7 +14,7 @@ HOST_OPENOCD := rtl8710bn
 #SPI_WIFI_ENABLED := true
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)

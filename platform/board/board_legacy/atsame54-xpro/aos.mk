@@ -2,7 +2,7 @@ NAME := board_atsame54-xpro
 
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board atsame54-xpro
 
 MODULE               := 1062
