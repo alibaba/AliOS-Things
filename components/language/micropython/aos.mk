@@ -1,7 +1,7 @@
 NAME := micropython
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := a lean and efficient Python 3 implementation for MCU
 
 #default gcc
