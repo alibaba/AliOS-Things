@@ -63,7 +63,7 @@ GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(str
 define PREPROCESS_TEST_COMPONENT
 $(if $(filter yts,$(COMPONENTS)), \
 $(if $(test), $(eval TEST_COMPONENTS := $(foreach tmpcomp,$(strip $(subst $(COMMA),$(SPACE),$(test))),$(if $(findstring _test,$(tmpcomp)),$(tmpcomp),$(addsuffix _test,$(tmpcomp))))),) \
-$(eval COMPONENTS += $(TEST_COMPONENTS)))
+$(eval COMPONENTS += $(filter-out $(COMPONENTS),$(TEST_COMPONENTS))))
 endef
 
 #####################################################################################
@@ -75,10 +75,14 @@ define FIND_VARIOUS_COMPONENT
 $(eval COMP := $(word 1,$(1)))
 $(call FIND_ONE_COMPONENT, $(COMP))
 
+$(eval NOT_PROCESSED := $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMP))))
+
+ifneq (,$(NOT_PROCESSED))
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
 $(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
      $(call FIND_VARIOUS_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
 )
+endif
 
 endef
 
@@ -124,9 +128,9 @@ $(foreach dep, $(deps_cube),\
 	$(eval deps_src := $(filter-out $(comp_dep),$(deps_src))))
 
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
-	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
-	$(eval COMPONENTS += $(deps)) \
-	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
+	$(eval ALL_MAKEFILES += $(filter-out $(ALL_MAKEFILES),$(TEMP_MAKEFILE))) \
+	$(eval COMPONENTS += $(filter-out $(COMPONENTS),$(deps))) \
+	$(eval REAL_COMPONENTS_LOCS += $(filter-out $(REAL_COMPONENTS_LOCS),$(COMP))) \
 	$(eval iotx_check_RET:=0)\
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY_DICT += '$(NAME)': '$($(NAME)_COMPONENTS)',)
@@ -249,7 +253,7 @@ AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 AOS_SDK_IMG1_XIP1_LD_FILE +=$(AOS_IMG1_XIP1_LD_FILE)
 AOS_SDK_IMG2_XIP2_LD_FILE +=$(AOS_IMG2_XIP2_LD_FILE)
 AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
-$(eval PROCESSED_COMPONENTS += $(NAME))
+$(eval PROCESSED_COMPONENTS += $(filter-out $(PROCESSED_COMPONENTS),$(NAME)))
 $(eval TMP_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)))))
 $(eval $(NAME)_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(wildcard $(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) ))))
 $(foreach srcfile,$(TMP_SOURCES),$(if $(findstring *,$(srcfile)),,$(if $(filter $(srcfile),$($(NAME)_SOURCES)),,$(error $(NAME): Can not find source: "$($(NAME)_LOCATION)$(srcfile)" ...))))
@@ -270,17 +274,20 @@ define PROCESS_COMPONENT
 AOS_SDK_CFLAGS += -DMCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(eval CONFIG_IN_COMPONENTS := $(sort $(subst board_,,$(OBJ-y))))
 $(eval ONLY_IN_AOSMK := $(filter-out $(CONFIG_IN_COMPONENTS), $(REAL_COMPONENTS_LOCS)))
+$(if $(DEBUG_CONFIG), REAL_COMPONENTS_LOCS_ORIG := $(REAL_COMPONENTS_LOCS))
 $(eval ONLY_IN_CONFIGIN := $(if $(CONFIG_SUFFIX),,$(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS))))
-$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS) $(if $(CONFIG_SUFFIX),,$(ONLY_IN_CONFIGIN)))
+# Find dependency from makefile of the Config.in oriented components
+$(eval COMPONENTS += $(ONLY_IN_CONFIGIN))
+$(eval $(if $(CONFIG_SUFFIX),,$(call FIND_VARIOUS_COMPONENT, $(ONLY_IN_CONFIGIN))))
+$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS))
 $(info *** All Components: $(ALL_COMPONENTS))
 $(if $(DEBUG_CONFIG), \
-    $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS)) \
+    $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS_ORIG)) \
     $(info *** Config Enabled: $(CONFIG_IN_COMPONENTS)) \
     $(if $(ONLY_IN_AOSMK), $(info *** MKFile Enabled Only: $(ONLY_IN_AOSMK)),) \
     $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled Only: $(ONLY_IN_CONFIGIN)),), \
-    $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled: $(ONLY_IN_CONFIGIN)),) \
 )
-$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
+$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 endef
 
 ##################################
