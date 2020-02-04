@@ -12,4 +12,4 @@ component.set_global_arch('ck802')
 component.add_global_cflags('-std=gnu99')
 
 aos_global_config.add_ld_files('gcc_csky.ld')
-linux_only_targets="coapapp helloworld httpapp httpclient_app linkkit_gateway linkkitapp mqttapp otaapp udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udataapp ulocation.baseapp yloop_app yts"
+linux_only_targets="coapapp helloworld httpapp httpclient_app httpdns_app linkkit_gateway linkkitapp mqttapp otaapp udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo udataapp ulocation.baseapp yloop_app yts"
