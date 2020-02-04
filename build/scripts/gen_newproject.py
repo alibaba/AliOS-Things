@@ -3,7 +3,10 @@ import sys
 import click
 import json
 import shutil
+import subprocess
 from lib.code import compute_header_md5sum, get_depends_from_source
+from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
+from app_gen_kconfig import gen_kconfig
 
 """
 1. Create new project via:
@@ -32,24 +35,15 @@ except:
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 template = "templates/new_project_template"
 COMP_INDEX = "aos_comp_index.json"
-
-
-def get_comp_depends(comp_info, comps):
-    """ Get comp depends from comp index """
-    depends = []
-    for comp in comps:
-        if comp in comp_info:
-            depends += comp_info[comp]["dependencies"]
-
-    if depends:
-        depends += get_comp_depends(comp_info, depends)
-
-    return list(set(depends))
-
+CONFIGIN_BACKUP = ".Config.in.bak"
+CONFIGIN_FILE = "Config.in"
+DOT_AOS = ".aos"
 
 def write_depends_config(config_file, board, app=None):
-    """ Source Config.in of depends """
-    configs = []
+    """ append source "xxx/Config.in" of mandatory and optitional depends in 
+    application's Config.in file """
+    mandatory_configs = []
+    optional_configs = []
     comp_info = {}
     aos_sdk = os.environ.get("AOS_SDK_PATH")
     with open(os.path.join(aos_sdk, COMP_INDEX), "r") as f:
@@ -60,29 +54,42 @@ def write_depends_config(config_file, board, app=None):
         comps.append(app)
 
     if comp_info:
-        depends = get_comp_depends(comp_info, comps)
-        depends.append(board)
-        for comp in depends:
+        mandatory_deps = get_comp_mandatory_depends(comp_info, comps)
+        mandatory_deps.append(board)
+        for comp in mandatory_deps:
             if comp in comp_info:
                 config = comp_info[comp]["config_file"]
                 if config:
-                    configs.append(config)
+                    mandatory_configs.append(config)
+        optional_deps = get_comp_optional_depends(comp_info, mandatory_deps)
+        for comp in optional_deps:
+            if comp["comp_name"] in comp_info:
+                config = comp
+                config["config_file"] = comp_info[comp["comp_name"]]["config_file"]
+                # print("config is", config)
+                optional_configs.append(config)
 
-    if configs:
-        configs = sorted(list(set(configs)))
+    if mandatory_configs:
+        mandatory_configs = sorted(list(set(mandatory_configs)))
         with open(config_file, "a") as f:
             f.write("\n")
-            for config in configs:
+            for config in mandatory_configs:
                 if board in config:
                     # USER_APP_PATH (APPDIR) is exported by "aos make"
                     line = 'source "$USER_APP_PATH/board/%s/Config.in"\n' % board
                 else:
                     line = 'source "$AOS_SDK_PATH/%s"\n' % config
                 f.write(line)
+            if optional_configs:
+                for config in optional_configs:
+                    """ one dependency: comp_name, config_file, condition [[]] """
+                    line = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                    # print(line)
+                    f.write(line)
 
 
 def write_file(contents, destfile):
-    """ Write contents to destfile """
+    """ Write contents to destfile line by line """
     subdir = os.path.dirname(destfile)
 
     if not os.path.isdir(subdir):
@@ -94,7 +101,8 @@ def write_file(contents, destfile):
 
 
 def copy_template_file(tempfile, templatedir, destdir, projectname, board):
-    """ Copy template file to destdir """
+    """ Copy template file to destdir and replace projectname, PROJECTNAME,
+    boardname with it's actual name """
     contents = []
 
     # Replace projectname from file contents
@@ -127,7 +135,8 @@ def copy_template_file(tempfile, templatedir, destdir, projectname, board):
 
 
 def update_demo_app_config(config_file, projectname, board):
-    """ Write build required configs to dest Config.in """
+    """ Write build required configs(AOS_BUILD_BOARD, AOS_BUILD_APP, etc) to 
+    dest Config.in """
     contents = """
 config AOS_BUILD_BOARD
     string
@@ -151,7 +160,7 @@ config USER_APP_PATH
 
 
 def copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname):
-    """ Copy demo app source file to destdir """
+    """ Copy demo app source file to destdir and replace NAME with it actual name """
     contents = []
     u_appname = appname.upper()
     u_projectname = projectname.upper()
@@ -172,7 +181,7 @@ def copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname):
 
 
 def get_sources(templatedir):
-    """ Get sources files from templatedir and subdir """
+    """ Get sources files, except ucube.py, from templatedir and subdir """
     sources = []
     for root, dirs, files in os.walk(templatedir):
         for filename in files:
@@ -189,7 +198,9 @@ def get_sources(templatedir):
 
 
 def copy_template(templatedir, destdir, projectname, board):
-    """ Copy predefined template to destdir """
+    """ Copy predefined template app and board folder to destdir, update 
+    application's Config.in by appending source "xxx/Config.in"  """
+    # copy template app to project directory
     sources = get_sources(templatedir)
 
     for tempfile in sources:
@@ -199,17 +210,19 @@ def copy_template(templatedir, destdir, projectname, board):
     copy_board_to_project(board, destdir)
 
     # update dest Config.in
-    config_file = os.path.join(destdir, "Config.in")
+    config_file = os.path.join(destdir, CONFIGIN_FILE)
     write_depends_config(config_file, board)
+    shutil.copyfile(config_file, os.path.join(destdir, CONFIGIN_BACKUP))
 
 
 def copy_demo_app(appdir, destdir, projectname, board, appname):
-    """ Copy builtin demo app to destdir """
+    """ Copy builtin demo app and board to destdir, update application's
+    Config.in by appending source "xxx/Config.in"   """
+    # copy demo app to project directory
     sources = get_sources(appdir)
     for appfile in sources:
         if "README.md" in appfile:
             continue
-
         copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname)
 
     # copy .vscode from predefined template
@@ -225,13 +238,14 @@ def copy_demo_app(appdir, destdir, projectname, board, appname):
     copy_board_to_project(board, destdir)
 
     # update dest Config.in
-    config_file = os.path.join(destdir, "Config.in")
+    config_file = os.path.join(destdir, CONFIGIN_FILE)
     update_demo_app_config(config_file, projectname, board)
     write_depends_config(config_file, board, appname)
+    shutil.copyfile(config_file, os.path.join(destdir, CONFIGIN_BACKUP))
 
 
 def write_project_config(config_file, config_data):
-    """ Write projet config file: .aos """
+    """ Write projet config file: .aos, involve DEPENDENCIES, MD5SUM_HEADER """
     contents = []
     if os.path.isfile(config_file) and config_data:
         with open(config_file, "r") as f:
@@ -250,7 +264,8 @@ def write_project_config(config_file, config_data):
 
 
 def check_project_name(projectname):
-    """ Generate aos_comp_index and check projectname """
+    """ Generate comp index(dependency, aos.mk, Config.in, include, etc) 
+    and check projectname """
     aos_sdk = os.environ.get("AOS_SDK_PATH")
     if not aos_sdk:
         click.echo("[Error] AliOS Things SDK is not found!")
@@ -275,10 +290,8 @@ def copy_board_to_project(board, dest_dir):
     aos_sdk = os.environ.get("AOS_SDK_PATH")
     board_dir = os.path.join(aos_sdk, "platform/board", board)
     if not os.path.isdir(board_dir):
-		board_dir = os.path.join(aos_sdk, "platform/board/board_legacy", board)
-		if not os.path.isdir(board_dir):
-			click.echo("[Error] No such directory: %s!" % board_dir)
-        
+        click.echo("[Error] No such directory: %s!" % board_dir)
+
     dest_dir = os.path.join(dest_dir, "board", board)
     shutil.copytree(board_dir, dest_dir)
 
@@ -299,13 +312,14 @@ def cli(projectname, board, projectdir, templateapp):
             templatedir = os.path.join(aos_sdk, templatedir)
         else:
             click.echo("No such application found: \"%s\"" % templateapp)
+            return 1
     else:
         templatedir = os.path.join(scriptdir, template)
 
     templatedir = os.path.abspath(templatedir).replace("\\", "/")
 
     if not projectdir:
-        projectdir = os.path.join(scriptdir, "../../app")
+        projectdir = os.path.join(scriptdir, "../../application")
 
     destdir = os.path.join(projectdir, projectname)
     destdir = os.path.abspath(destdir)
@@ -315,7 +329,6 @@ def cli(projectname, board, projectdir, templateapp):
             click.echo("[Error] Can't create project directory, the file is existing!\n%s" % destdir)
         else:
             click.echo("[Error] The project directory is existing!\n%s" % destdir)
-
         return 1
     else:
         os.makedirs(destdir)
@@ -327,16 +340,20 @@ def cli(projectname, board, projectdir, templateapp):
 
     # Initial project config
     (md5sum, include_list) = compute_header_md5sum(destdir)
+    # TODO: the depends may not necessary. 
     depends = get_depends_from_source(comp_info, include_list)
     config_data = {
         "DEPENDENCIES": " ".join(depends),
         "MD5SUM_HEADER": md5sum,
     }
-    project_config = os.path.join(destdir, ".aos")
+    project_config = os.path.join(destdir, DOT_AOS)
     write_project_config(project_config, config_data)
 
+    # run makefile and generate .config and aos_config.h
+    gen_kconfig(destdir, projectname, board)
     click.echo("[Info] Project Initialized at: %s" % destdir)
 
+    
 
 if __name__ == "__main__":
     cli()
