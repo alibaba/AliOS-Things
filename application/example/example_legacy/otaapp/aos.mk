@@ -1,7 +1,7 @@
 NAME := otaapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := OTA demo app for developers
 
 OTAAPP_CONFIG_TEST_LOOP ?= n
