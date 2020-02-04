@@ -1,7 +1,7 @@
 NAME := libcoap
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := libcoap component
 
 LIBCOAP_SRC_PATH := ./src/libcoap-4.2.0/
