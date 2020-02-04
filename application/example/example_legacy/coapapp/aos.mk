@@ -1,7 +1,7 @@
 NAME := coapapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 2.3.1
+$(NAME)_VERSION := 2.3.2
 $(NAME)_SUMMARY := coap example
 $(NAME)_SOURCES := app_entry.c
 
