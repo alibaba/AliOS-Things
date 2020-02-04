@@ -26,6 +26,11 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/inet.h"
+#elif defined(WITH_SAL)
+#include <sal/sal_arch.h>
+#include <sal/sal_def.h>
+#include <sal/sal_ipaddr.h>
+#include <sal/sal_sockets.h>
 #else
 #include <netinet/in.h>
 #include <arpa/inet.h>
