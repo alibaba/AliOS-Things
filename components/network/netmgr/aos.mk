@@ -1,7 +1,7 @@
 NAME := netmgr
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := network manager manages different types of RF.
 $(NAME)_SOURCES-y := src/netmgr.c
 

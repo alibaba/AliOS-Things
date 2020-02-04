@@ -1,7 +1,7 @@
 NAME := http
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := http client component
 
 $(NAME)_INCLUDES += include

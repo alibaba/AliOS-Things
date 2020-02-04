@@ -1,0 +1,3 @@
+config AOS_COMP_SAL
+    bool
+    default n
