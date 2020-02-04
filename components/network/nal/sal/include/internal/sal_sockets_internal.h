@@ -218,22 +218,6 @@ typedef struct sal_netconn {
 #define NO_RECOVERY     212
 #define TRY_AGAIN       213
 
-/* input flags for struct addrinfo */
-#define AI_PASSIVE      0x01
-#define AI_CANONNAME    0x02
-#define AI_NUMERICHOST  0x04
-#define AI_NUMERICSERV  0x08
-#define AI_V4MAPPED     0x10
-#define AI_ALL          0x20
-#define AI_ADDRCONFIG   0x40
-
-struct sockaddr_storage {
-    u8_t        s2_len;
-    sa_family_t ss_family;
-    char        s2_data1[2];
-    u32_t       s2_data2[3];
-};
-
 /** Safely copy one IPv6 address to another (src may be NULL) */
 #define ip6_addr_set(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : (src)->addr[0]; \
         (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
