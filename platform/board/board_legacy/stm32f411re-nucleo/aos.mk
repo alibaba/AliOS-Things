@@ -12,8 +12,13 @@ ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
+ifneq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES += aos/aos.c
+endif
+
 $(NAME)_SOURCES += aos/board.c \
-                   aos/soc_init.c
+                   aos/soc_init.c \
+				   aos/soc_impl.c \
 
 $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
                    Src/main.c              \
