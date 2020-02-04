@@ -1,7 +1,7 @@
 NAME := lwm2m
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := lwm2m component
 
 GLOBAL_DEFINES-y += LWM2M_LITTLE_ENDIAN \
