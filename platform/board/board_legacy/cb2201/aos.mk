@@ -3,7 +3,7 @@ NAME := board_cb2201
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board cb2201
 MODULE             := CH2201
 HOST_CHIP          := ch2201

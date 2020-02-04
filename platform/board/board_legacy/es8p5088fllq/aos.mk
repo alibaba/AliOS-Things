@@ -1,7 +1,7 @@
 NAME := board_es8p5088fllq
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board es8p5088fllq
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0

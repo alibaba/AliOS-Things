@@ -1,7 +1,7 @@
 NAME := board_stm32l496g-discovery
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board stm32l496g-discovery
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4

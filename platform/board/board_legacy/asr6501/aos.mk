@@ -3,7 +3,7 @@ NAME := board_asr6501
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board asr6501
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
