@@ -1,7 +1,7 @@
 NAME := arch_risc_v32I
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := arch for risc_v32I
 
 $(NAME)_SOURCES := common/panic_c.c

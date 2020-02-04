@@ -3,7 +3,7 @@ NAME := board_mk3080
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board mk3080
 MODULE             := AmebaZ
 HOST_ARCH          := Cortex-M4

@@ -2,7 +2,7 @@ NAME := board_developerkit-mk
 
 
 $(NAME)_MBINS_TYPE   := kernel
-$(NAME)_VERSION      := 1.0.0
+$(NAME)_VERSION      := 1.0.1
 $(NAME)_SUMMARY      := Developer Kit is hardware development board base on AliOS-Things
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := mcu_stm32l4xx_cube

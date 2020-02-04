@@ -3,7 +3,7 @@ NAME := board_amebaz_dev
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board amabaz_dev
 
 MODULE               := AmebaZ

@@ -2,7 +2,7 @@ NAME := board_asr5501
 
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board ASR5501
 MODULE               := ASR5501
 HOST_ARCH            := Cortex-M4

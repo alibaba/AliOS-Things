@@ -3,7 +3,7 @@ NAME := board_mk3239
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board mk3239
 MODULE             := 3239
 HOST_ARCH          := Cortex-M4

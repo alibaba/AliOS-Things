@@ -2,7 +2,7 @@ HOST_OPENOCD := MKL81Z7
 NAME         := mcu_mkl81z7impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl81z7impl
 
 $(NAME)_COMPONENTS += arch_armv6m
