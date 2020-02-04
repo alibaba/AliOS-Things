@@ -106,14 +106,13 @@ $(NAME)_SOURCES := Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c             
                    Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_utils.c          \
                    Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
 
-$(NAME)_SOURCES += aos/soc_impl.c          \
-                   hal/hw.c                \
+$(NAME)_SOURCES += hal/hw.c                \
                    hal/hal_uart_stm32f4.c  \
                    hal/hal_flash_stm32f4.c \
                    hal/hal_gpio_stm32f4.c  \
                    hal/hal_spi_stm32f4.c   \
-				   hal/hal_timer_stm32f4.c \
-				   hal/hal_pwm_stm32f4.c   \
+                   hal/hal_timer_stm32f4.c \
+                   hal/hal_pwm_stm32f4.c   \
                    hal/hal_i2c_stm32f4.c   #\
                    hal/hal_sd_stm32f4.c \
                    hal/hal_adc_stm32f4.c \
@@ -124,8 +123,7 @@ $(NAME)_SOURCES += aos/soc_impl.c          \
                    hal/hal_nor_stm32f4.c
 
 ifneq ($(ENABLE_USPACE),1)
-$(NAME)_SOURCES += aos/aos.c 			   \
-                   hal/hal_can_stm32f4.c   \
+$(NAME)_SOURCES += hal/hal_can_stm32f4.c   \
                    hal/hal_timer_stm32f4.c
 endif
 
