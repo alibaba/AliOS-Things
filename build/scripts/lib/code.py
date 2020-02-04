@@ -32,12 +32,12 @@ def write_md5sum(config_file, md5sum_value):
 
 
 def md5sum(string):
-    """ Get md5sum value for string """
+    """ Calculat md5sum value for string """
     return hashlib.md5(string.encode()).hexdigest()
 
 
-def get_include_file(code_file):
-    """ Get include files from sources """
+def get_include_comp_list(code_file):
+    """ Get include files from code_file by searching lines started with #include """
     include_list = []
 
     patten = re.compile(r'#include\s+(<|")(.*)(>|")')
@@ -53,9 +53,18 @@ def get_include_file(code_file):
 
     return include_list
 
+def get_include_file(dirname):
+    """ Get *.h from dirname and it's subdir """
+    include_files = []
+    for root, dirs, files in os.walk(dirname):
+        for file in files:
+            if file.endswith(".h"):
+                include_files += [os.path.abspath("%s/%s" % (root, file))]
+
+    return include_files
 
 def get_source_file(dirname):
-    """ Get source files in appdir """
+    """ Get source files(*.c, *.h, *.cpp) in appdir and its subdir """
     sources = []
     for root, dirs, files in os.walk(dirname):
         for file in files:
@@ -64,13 +73,24 @@ def get_source_file(dirname):
 
     return sources
 
+def get_configin_file(comp_dir):
+    """ Find Config.in in the specific directory """
+    config_file = os.path.join(comp_dir, "Config.in").replace("\\", "/")
+    if os.path.isfile(config_file):
+        return config_file
+    else:
+        return ""
 
 def compute_header_md5sum(appdir):
-    """ Compute header's md5sum for App """
+    """ Compute header's md5sum for App:
+    1. get all source files(*.c, *.h, *.cpp) in appdir;
+    2. search include file list in each source file by searching #include
+    3. remove redundant include file list and sort
+    4. calculate md5 checksum """
     code_list = get_source_file(appdir)
     include_list = []
     for code_file in code_list:
-        include_list += get_include_file(code_file)
+        include_list += get_include_comp_list(code_file)
 
     include_list = sorted(list(set(include_list)))
     header_md5sum = md5sum(" ".join(include_list))
@@ -79,7 +99,8 @@ def compute_header_md5sum(appdir):
 
 
 def get_depends_from_source(comp_info, include_list):
-    """ Get comp depends from source """
+    """ Get comp name by searching include file in comp_info, like
+    xxx/cli.h --> cli, xxx/rbtree.h --> lib_rbtree  """
     includes = []
     depends = []
 
