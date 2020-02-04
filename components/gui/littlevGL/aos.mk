@@ -1,7 +1,7 @@
 NAME := littlevGL
 
 $(NAME)_MBINS_TYPE := framework
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := a lightweight GUI lib
 
 #default gcc
