@@ -1,7 +1,7 @@
 NAME := debug
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := coredump and fatal err debug
 
 #default gcc
