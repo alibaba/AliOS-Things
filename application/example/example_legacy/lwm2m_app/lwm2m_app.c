@@ -3,6 +3,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
