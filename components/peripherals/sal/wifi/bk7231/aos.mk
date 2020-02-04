@@ -1,7 +1,7 @@
 NAME := device_sal_bk7231
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := sal hal implemenation for bk7231
 
 GLOBAL_DEFINES += DEV_SAL_BK7231
