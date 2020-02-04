@@ -1,7 +1,7 @@
 NAME := libiot_wrappers
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 3.0.1
+$(NAME)_VERSION := 3.0.2
 $(NAME)_SUMMARY := HAL for AliOS Things
 
 $(NAME)_COMPONENTS += libiot_infra

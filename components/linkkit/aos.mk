@@ -1,7 +1,7 @@
 NAME := linkkit_sdk_c
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 3.0.1
+$(NAME)_VERSION := 3.0.2
 $(NAME)_SUMMARY := IoT Connectivity Devkit Running on Embedded Devices for Alibaba Cloud
 
 GLOBAL_CFLAGS  += -DFORCE_SSL_VERIFY
