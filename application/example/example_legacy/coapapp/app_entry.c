@@ -24,6 +24,10 @@
 #include "netmgr.h"
 #include "app_entry.h"
 
+#ifdef WITH_SAL
+#include <atcmd_config_module.h>
+#endif
+
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -60,9 +64,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 }
 
-#ifdef WITH_SAL
-#include <atcmd_config_module.h>
-#endif
+
 int application_start(int argc, char **argv)
 {
 #ifdef CSP_LINUXHOST
