@@ -10,8 +10,9 @@ externals = {
             'gitee': 'https://gitee.com/mirrors/CMSIS_5',
         },
         'gittag': '5.6.0',
-        'destdir': 'middleware/uai/3rdparty/cmsis_nn/CMSIS_5',
+        'destdir': 'components/service/uai/3rdparty/cmsis_nn/CMSIS_5',
         'postscript': 'middleware/uai/3rdparty/cmsis_nn/get_cmsis_nn.py',
+        'postscript': 'components/service/uai/3rdparty/cmsis_nn/get_cmsis_nn.py',
         'require': 'AOS_COMP_UAI=y',
         },
 }
