@@ -1,7 +1,7 @@
 NAME := board_mk3072
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board MK3072
 MODULE               := xxx
 HOST_ARCH            := Cortex-M4

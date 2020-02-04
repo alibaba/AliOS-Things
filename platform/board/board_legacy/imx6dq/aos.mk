@@ -1,7 +1,7 @@
 NAME := board_imx6dq
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board imx6dq
 MODULE             := imx6dq
 HOST_ARCH          := Cortex-A9

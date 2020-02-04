@@ -9,7 +9,7 @@ MODULE := 1062
 # csky: ck802/ck803
 # MIPS: MIPS-I
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board msp432p4111launchpad
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_msp432p4xx
