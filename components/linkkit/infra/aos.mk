@@ -1,7 +1,7 @@
 NAME := libiot_infra
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 3.0.1
+$(NAME)_VERSION := 3.0.2
 $(NAME)_SUMMARY := system tools
 
 $(NAME)_SOURCES-y += infra_defs.c

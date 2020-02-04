@@ -1,7 +1,7 @@
 NAME := libiot_awss
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 3.0.1
+$(NAME)_VERSION := 3.0.2
 $(NAME)_SUMMARY := Alibaba Wireless Setup Service
 
 $(NAME)_INCLUDES := frameworks/utils/ frameworks/aplist/
