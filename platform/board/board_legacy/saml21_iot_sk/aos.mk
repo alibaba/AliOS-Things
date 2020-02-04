@@ -1,7 +1,7 @@
 NAME := board_saml21_iot_sk
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board saml21_iot_sk
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0

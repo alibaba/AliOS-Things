@@ -2,7 +2,7 @@ HOST_OPENOCD := MKL27Z644
 NAME         := mcu_mkl27z644impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl27z644impl
 
 $(NAME)_COMPONENTS += arch_armv6m

@@ -2,7 +2,7 @@ HOST_OPENOCD := LPC54114
 NAME := mcu_lpc54114impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu lpc54114impl
 
 $(NAME)_COMPONENTS += arch_armv7m

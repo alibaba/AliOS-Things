@@ -1,7 +1,7 @@
 NAME := board_fm33a0xx-discovery
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board fm33a0xx-discovery
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0

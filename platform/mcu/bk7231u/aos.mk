@@ -4,10 +4,14 @@ HOST_OPENOCD := bk7231u
 
 $(NAME)_MBINS_TYPE := kernel
 <<<<<<< HEAD
+<<<<<<< HEAD
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231
 =======
 $(NAME)_VERSION    := 1.0.1
+=======
+$(NAME)_VERSION    := 1.0.2
+>>>>>>> 0952e7845 (BugID:24814458:upgrade component version for publish)
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231u
 >>>>>>> 17c9a0c98 (BugID:22083675:update component version for component release)
 

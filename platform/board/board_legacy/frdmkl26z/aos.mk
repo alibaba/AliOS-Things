@@ -1,7 +1,7 @@
 NAME := board_frdmkl26z
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board frdmkl26z
 
 MODULE          := 26

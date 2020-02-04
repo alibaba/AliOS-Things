@@ -4,7 +4,7 @@ NAME := mcu_stm32l475
 HOST_OPENOCD := stm32l475
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l475
 
 $(NAME)_COMPONENTS += arch_armv7m
