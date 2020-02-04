@@ -1,7 +1,7 @@
 NAME := und
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := network diagnosis provide ablity to report failure/error of network and memeory usage to cloud.
 $(NAME)_SOURCES-y := src/und.c src/und_adapter.c src/und_manage.c src/und_packet.c src/und_sched.c src/und_report.c
 #default gcc
