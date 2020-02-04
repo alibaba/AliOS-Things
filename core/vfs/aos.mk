@@ -1,7 +1,7 @@
 NAME := vfs
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := Virtual File System
 
 $(NAME)_SOURCES := vfs.c
