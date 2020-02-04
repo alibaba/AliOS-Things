@@ -1,7 +1,7 @@
 NAME := mbmaster
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := modbus master
 
 $(NAME)_SOURCES := api/mbmaster_api.c
