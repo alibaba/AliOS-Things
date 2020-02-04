@@ -1,6 +1,6 @@
 NAME := ulog
 
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := ulog module
 $(NAME)_MBINS_TYPE := kernel
 

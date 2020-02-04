@@ -1,7 +1,7 @@
 NAME := ota_updater
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := OTA updater for DIFF/XZ upgrade.
 
 #default gcc
