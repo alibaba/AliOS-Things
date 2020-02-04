@@ -1,7 +1,7 @@
 NAME := mbedtls
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 2.16.1
+$(NAME)_VERSION := 2.16.2
 $(NAME)_SUMMARY := mbedtls is an implemetation of TLS/SSL protocol and cryptographic algorithms and support code required.
 
 GLOBAL_INCLUDES     += aos/include/ include
