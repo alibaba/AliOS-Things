@@ -1,6 +1,6 @@
 NAME := newlib_stub
 
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := libc adaptation layer
 $(NAME)_MBINS_TYPE := share
 
