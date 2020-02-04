@@ -1,7 +1,7 @@
 NAME := libkm_demo
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 2.0.1
+$(NAME)_VERSION := 2.0.2
 $(NAME)_SUMMARY := key management for demo
 
 GLOBAL_INCLUDES    += ../../include/irot
