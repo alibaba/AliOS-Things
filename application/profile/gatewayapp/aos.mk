@@ -38,7 +38,7 @@ else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
 
 $(NAME)_SOURCES    += mqtt/mqtt_example.c
 
-$(NAME)_COMPONENTS += netmgr yloop feature.linkkit-mqtt
+$(NAME)_COMPONENTS += netmgr yloop
 GLOBAL_DEFINES     += USE_LPTHREAD
 
 GLOBAL_DEFINES     += DTC_MQTT
