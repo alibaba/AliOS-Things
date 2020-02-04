@@ -30,6 +30,11 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 
 int application_start(int argc, char *argv[])
 {
+#ifdef WITH_SAL
+    sal_add_dev(NULL, NULL);
+    sal_init();
+#endif
+
     netmgr_init();
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
