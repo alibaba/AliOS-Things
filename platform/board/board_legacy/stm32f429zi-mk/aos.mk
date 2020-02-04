@@ -14,6 +14,10 @@ APP_FORMAT         := bin
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lwip cli ulog
 
+ifneq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES += aos/aos.c
+endif
+
 $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
                    src/board.c \
                    src/soc_init.c \
@@ -24,7 +28,8 @@ $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
                    src/main.c \
                    src/ethernetif.c \
                    src/httpserver-netconn.c \
-                   src/board_partition.c
+                   src/board_partition.c \
+				   aos/soc_impl.c \
 
 GLOBAL_INCLUDES += include \
                    include/lwip
