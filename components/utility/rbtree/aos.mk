@@ -1,7 +1,7 @@
 NAME := lib_rbtree
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := rbtree code
 
 GLOBAL_INCLUDES += include
