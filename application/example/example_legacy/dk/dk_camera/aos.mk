@@ -1,7 +1,7 @@
 NAME := dk_camera
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := developer kit camera demo
 $(NAME)_SOURCES := cameraapp.c
 

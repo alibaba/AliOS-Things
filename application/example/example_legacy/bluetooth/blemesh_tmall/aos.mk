@@ -1,7 +1,7 @@
 NAME := blemesh_tmall
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := Sample code to demenstrate how to join AliGenie BLE Mesh network.
 
 $(NAME)_SOURCES-y   := ble_mesh_tmall_app.c

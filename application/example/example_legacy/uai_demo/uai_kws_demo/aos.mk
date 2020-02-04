@@ -1,7 +1,7 @@
 NAME := uai_kws_demo
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := uAI KWS DEMO
 $(NAME)_SOURCES := uai_kws_demo.c \
 					dnn_weights.c \

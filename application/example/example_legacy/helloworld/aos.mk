@@ -1,7 +1,7 @@
 NAME := helloworld
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := Hello World
 $(NAME)_SOURCES := helloworld.c
 
