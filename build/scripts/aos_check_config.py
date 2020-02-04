@@ -1,6 +1,31 @@
 import os, sys
 import re
 from aos_parse_components import find_comp_mkfile
+from lib.config import merge_config
+
+DOT_CONFIG_FILE = ".config"
+APP_CONFIG_FILE = "app.config"
+BOARD_CONFIG_FILE = "board.config"
+
+def merge_new_config_with_default(dirname, boardname, appname):
+    """ merge config file(.config) with app.config and board.config if existed, 
+    and remove app.config and board.config """
+    if os.path.isdir(os.path.join(dirname, "core/rhino")):
+        board_config = os.path.join(dirname, "platform/board", boardname, BOARD_CONFIG_FILE)
+        appname = appname.replace(".", "/")
+        app_config = os.path.join(dirname, "application/example", appname, APP_CONFIG_FILE)
+    else:
+        board_config = os.path.join(dirname, "board", boardname, BOARD_CONFIG_FILE)
+        app_config = os.path.join(dirname, APP_CONFIG_FILE)
+
+    config_file = os.path.join(dirname, DOT_CONFIG_FILE)
+    if os.path.isfile(board_config):
+        merge_config(config_file, board_config)
+        # os.remove(board_config)
+    if os.path.isfile(app_config):
+        merge_config(config_file, app_config)
+        os.remove(app_config)
+    
 
 def check_appname(appname):
     appname = appname.replace(".", "/")
@@ -22,6 +47,8 @@ def check_appname(appname):
     return False
 
 def main():
+    """ check the appname and boardname between build string and .config file, 
+    and merge .config file with app.board and board.config """
     if len(sys.argv) < 3:
         print ("Usage: %s <config> <build_string>" % sys.argv[0])
         return 1
@@ -74,6 +101,9 @@ def main():
         print ("[ERROR]: Board name Mismatched! (%s -> %s)" % (boardname, aos_build_board))
         print ("- Please make sure \"%s\" is a valid Board and config items for it are correct!\n" % boardname)
         return 1
+
+    merge_new_config_with_default(os.path.dirname(aos_config), boardname, appname)
+    return 0
 
 if __name__ == "__main__":
     ret = main()
