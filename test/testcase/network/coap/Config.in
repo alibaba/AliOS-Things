@@ -1,4 +1,4 @@
 config AOS_COMP_COAP_YTS_TEST
     bool "COAP YTS Testcase"
-    select AOS_COMP_COAP
+    select AOS_COMP_LIBCOAP
     default n
