@@ -111,9 +111,7 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
 /**
  * Set a event
  * opt = RHINO_AND: Clear some bit in 'event->flags', 'event->flags' &= 'flags'.
- * opt = RHINO_AND_CLEAR: Same as 'RHINO_AND'
  * opt = RHINO_OR: Set some bit in 'event->flags', 'event->flags' |= 'flags', may invoke other waiting task
- * opt = RHINO_OR_CLEAR: Same as 'RHINO_OR'
  *
  * @param[in]  event  pointer to a event
  * @param[in]  flags  which users want to be set
