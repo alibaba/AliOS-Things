@@ -2,7 +2,7 @@ NAME := libkm_se
 CHIP_NAME := template
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 2.0.0
+$(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := key management for se
 
 $(NAME)_INCLUDES  := ./inc
