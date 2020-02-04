@@ -192,21 +192,25 @@ reconnect:
     if (NULL != p_ctx) {
 
         /*
-         * CoAP API: send message to CoAP server
+         * CoAP API: device authentication
          */
-        IOT_CoAP_DeviceNameAuth(p_ctx);
-        do {
-            if (count == 11 || 0 == count) {
-                iotx_post_data_to_server((void *)p_ctx);
-                count = 1;
-            }
-            count ++;
+        if (IOT_CoAP_DeviceNameAuth(p_ctx) == IOTX_SUCCESS) {
+            do {
+                if (count == 11 || 0 == count) {
+                    iotx_post_data_to_server((void *)p_ctx);
+                    count = 1;
+                }
 
-            /*
-             * CoAP API: handle message from CoAP server and request timeout
-             */
-            IOT_CoAP_Yield(p_ctx);
-        } while (m_coap_client_running);
+                count ++;
+
+                /*
+                 * CoAP API: handle message from CoAP server and request timeout
+                 */
+                IOT_CoAP_Yield(p_ctx);
+            } while (m_coap_client_running);
+        } else {
+            LOGE(TAG, "CoAP authentication failed");
+        }
 
         /*
          * CoAP API: deinitialize CoAP context
@@ -215,6 +219,7 @@ reconnect:
     } else {
         LOGE(TAG, "IoTx CoAP init failed");
     }
+
     if (m_coap_reconnect) {
         goto reconnect;
     }
