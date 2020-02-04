@@ -1,7 +1,7 @@
 NAME := jsengine
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := an engine for javascript application development
 $(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs netmgr
 
