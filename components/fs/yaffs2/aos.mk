@@ -1,7 +1,7 @@
 NAME := yaffs2
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := Yet Another Flash File System
 
 $(NAME)_SOURCES += yaffs_alios.c yaffs_install_drv.c
