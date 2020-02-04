@@ -12,45 +12,50 @@ ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr
 
-$(NAME)_SOURCES += aos/board_partition.c \
-                   aos/soc_init.c        \
-                   mbmaster_hal/port_serial.c
+ifneq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES += startup/startup.c
+endif
 
-$(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
-                   Src/can.c               \
-                   Src/timer.c             \
-                   Src/i2c.c               \
-                   Src/eth.c               \
-                   Src/gpio.c              \
-                   Src/usart.c             \
-                   Src/usb_otg.c           \
-                   Src/dma.c               \
-                   Src/main.c
+$(NAME)_SOURCES += config/partition_conf.c \
+                   config/k_config.c \
+                   startup/board.c \
+                   drivers/mbmaster_hal/port_serial.c
 
-$(NAME)_SOURCES += drv/board_drv_led.c
+$(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
+                   drivers/Src/can.c               \
+                   drivers/Src/timer.c             \
+                   drivers/Src/i2c.c               \
+                   drivers/Src/eth.c               \
+                   drivers/Src/gpio.c              \
+                   drivers/Src/usart.c             \
+                   drivers/Src/usb_otg.c           \
+                   drivers/Src/dma.c               \
+                   drivers/Src/main.c
+
+$(NAME)_SOURCES += drivers/drv/board_drv_led.c
 ywss_support    ?= 0
 
 GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
 GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 
 ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-$(NAME)_SOURCES    += ethernetif.c
-$(NAME)_SOURCES    += httpserver-netconn.c
+$(NAME)_SOURCES    += drivers/ethernetif.c
+$(NAME)_SOURCES    += drivers/httpserver-netconn.c
 $(NAME)_COMPONENTS += lwip
 endif
 
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES    += startup_stm32f429xx_keil.s
-$(NAME)_LINK_FILES := startup_stm32f429xx_keil.o
+$(NAME)_SOURCES    += startup/startup_stm32f429xx_keil.s
+$(NAME)_LINK_FILES := startup/startup_stm32f429xx_keil.o
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES    += startup_stm32f429xx_iar.s
+$(NAME)_SOURCES    += startup/startup_stm32f429xx_iar.s
 else
-$(NAME)_SOURCES    += startup_stm32f429xx.s
+$(NAME)_SOURCES    += startup/startup_stm32f429xx.s
 endif
 
-GLOBAL_INCLUDES += .    \
-                   aos/ \
-                   Inc/
+GLOBAL_INCLUDES += config \
+                   drivers/Inc \
+                   drivers
 
 GLOBAL_CFLAGS  += -DSTM32F429xx -DCENTRALIZE_MAPPING
 
@@ -73,5 +78,4 @@ $(NAME)_KEIL_VENDOR = STMicroelectronics
 $(NAME)_KEIL_DEVICE = STM32F429ZITx
 
 # Iar project support: OGChipSelectEditMenu
-$(NAME)_IAR_OGCMENU = STM32F429ZI	ST STM32F429ZI
-
+$(NAME)_IAR_OGCMENU = STM32F429ZI   ST STM32F429ZI
