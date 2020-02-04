@@ -229,6 +229,22 @@ typedef struct ip_mreq {
 #define SO_CONTIMEO    0x1009 //!< Unimplemented: connect timeout 
 #define SO_NO_CHECK    0x100a //!< don't create UDP checksum 
 
+/* input flags for struct addrinfo */
+#define AI_PASSIVE      0x01
+#define AI_CANONNAME    0x02
+#define AI_NUMERICHOST  0x04
+#define AI_NUMERICSERV  0x08
+#define AI_V4MAPPED     0x10
+#define AI_ALL          0x20
+#define AI_ADDRCONFIG   0x40
+
+struct sockaddr_storage {
+    u8_t        s2_len;
+    sa_family_t ss_family;
+    char        s2_data1[2];
+    u32_t       s2_data2[3];
+};
+
 /**
  * SAL socket APIs, which will be mapped to standard socket APIs.
  * So generally these APIs are not likely to be used directly;
