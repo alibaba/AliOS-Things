@@ -3,7 +3,7 @@ NAME := mcu_asr5501
 HOST_OPENOCD := asr5501
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu asr5501
 
 LWIP := 1

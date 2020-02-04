@@ -1,7 +1,7 @@
 NAME := mcu_nrf52xxx
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk &ble controller for platform/mcu nrf52810 nrf52832 or nrf52840
 
 $(NAME)_COMPONENTS += arch_armv7m

@@ -3,7 +3,7 @@ HOST_OPENOCD := esp32
 NAME := mcu_esp32
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp32
 
 $(NAME)_COMPONENTS += lwip netmgr mbedtls

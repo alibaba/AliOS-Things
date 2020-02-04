@@ -1,7 +1,7 @@
 NAME := board_pca10040
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board pca10040
 SUPPORT_MBINS      := yes
 MODULE             := 1062

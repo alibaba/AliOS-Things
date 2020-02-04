@@ -3,7 +3,7 @@ HOST_OPENOCD := esp8266
 NAME := mcu_esp8266
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
 $(NAME)_COMPONENTS := yloop newlib_stub
