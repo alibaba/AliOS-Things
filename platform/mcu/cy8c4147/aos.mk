@@ -3,7 +3,7 @@ NAME := mcu_cy8c4147
 HOST_OPENOCD := cy8c4147
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu cy8c4147
 
 $(NAME)_COMPONENTS += arch_armv6m

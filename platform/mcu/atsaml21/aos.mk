@@ -2,7 +2,7 @@ NAME := mcu_atsaml21
 HOST_OPENOCD := at91samdXX
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu atsaml21
 
 $(NAME)_COMPONENTS += arch_armv6m rhino

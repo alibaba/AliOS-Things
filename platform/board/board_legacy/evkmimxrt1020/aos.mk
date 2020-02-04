@@ -1,7 +1,7 @@
 NAME := board_evkmimxrt1020
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.0
+$(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := configuration for board evkmimxrt1020
 MODULE             := 1020
 HOST_ARCH          := Cortex-M7
