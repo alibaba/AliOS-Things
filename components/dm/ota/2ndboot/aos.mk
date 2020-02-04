@@ -1,7 +1,7 @@
 NAME := ota_2ndboot
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.0
+$(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := an common 2ndboot to support device OTA upgrade, inlcude DIFF/XZ/COPY/Ymoderm upgrade.
 
 #default gcc
