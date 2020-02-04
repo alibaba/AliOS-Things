@@ -1,7 +1,7 @@
 NAME := lwip
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 1.0.1
+$(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := lightweight tcp/ip stack
 
 ifneq ($(no_with_lwip),1)
