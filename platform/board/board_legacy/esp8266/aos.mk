@@ -38,3 +38,11 @@ $(NAME)_SOURCES   += config/k_config.c
 endif
 
 GLOBAL_INCLUDES += ./config/ ./drivers/
+
+ifeq ($(SUPPORT_ESP8285),yes)
+GLOBAL_LDS_FILES += platform/board/board_legacy/esp8266/ld/eagle.app.v6.new_8285.1024.app1.ld
+else
+GLOBAL_LDS_FILES += platform/board/board_legacy/esp8266/ld/eagle.app.v6.new.1024.app1.ld
+endif
+
+GLOBAL_LDFLAGS   += -Lplatform/board/board_legacy/esp8266/ld
