@@ -688,6 +688,15 @@ if AOS_BOARD_STM32F429ZI_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "platform/board/stm32f429zi-nucleo-demo/Config.in"
+if AOS_BOARD_STM32F429ZI_NUCLEO_DEMO
+    config AOS_BUILD_BOARD
+        default "stm32f429zi-nucleo-demo"
+
+    source "platform/mcu/stm32f4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "platform/board/board_legacy/stm32f429zi-mk/Config.in"
 if AOS_BOARD_STM32F429ZI_MK
     config AOS_BUILD_BOARD
