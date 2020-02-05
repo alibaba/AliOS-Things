@@ -1,13 +1,12 @@
-NAME := board_esp8285
+NAME := board_esp8266-demo
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
-$(NAME)_SUMMARY    := configuration for board esp8285
+$(NAME)_SUMMARY    := configuration for board esp8266
 MODULE             := 1062
 HOST_ARCH          := xtensa
 HOST_MCU_FAMILY    := mcu_esp8266
 SUPPORT_MBINS      := no
-SUPPORT_ESP8285    := yes
 
 # todo: remove these after rhino/lwip ready
 osal ?= rhino
@@ -23,20 +22,27 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #for activation handle
 GLOBAL_CFLAGS += -DBOARD_ESP8266
 
-GLOBAL_INCLUDES += . ./config/ ./drivers/
-$(NAME)_SOURCES := config/partition_conf.c startup/startup.c startup/board.c
+GLOBAL_INCLUDES += .
+$(NAME)_SOURCES := config/partition_conf.c startup/board.c
+
+GLOBAL_DEFINES += LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP
+
+ifeq ($(APP), yts)
+GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
+endif
+
 ifeq ($(osal),freertos)
 
 else
 $(NAME)_SOURCES   += config/k_config.c
 endif
 
-GLOBAL_DEFINES += BOARD_ESP8285 LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP
+GLOBAL_INCLUDES += ./config/ ./drivers/
 
 ifeq ($(SUPPORT_ESP8285),yes)
-GLOBAL_LDS_FILES += platform/board/board_legacy/esp8285/ld/eagle.app.v6.new_8285.1024.app1.ld
+GLOBAL_LDS_FILES += platform/board/esp8266-demo/ld/eagle.app.v6.new_8285.1024.app1.ld
 else
-GLOBAL_LDS_FILES += platform/board/board_legacy/esp8285/ld/eagle.app.v6.new.1024.app1.ld
+GLOBAL_LDS_FILES += platform/board/esp8266-demo/ld/eagle.app.v6.new.1024.app1.ld
 endif
 
-GLOBAL_LDFLAGS   += -Lplatform/board/board_legacy/esp8285/ld
+GLOBAL_LDFLAGS   += -Lplatform/board/esp8266-demo/ld
