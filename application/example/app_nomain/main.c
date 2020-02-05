@@ -55,8 +55,6 @@ void board_init(void)
 
 void maintask(void* arg)
 {
-    board_init();
-    board_wifi_init();
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
@@ -64,20 +62,17 @@ void maintask(void* arg)
 #endif
 }
 
-int main(void)
+/*
+aos_init\aos_start has been called in boot.
+user_init is in a task also called in boot.
+*/
+int user_init(void)
 {
-    /* board basic init: CLK, heap, define in board\aaboard_demo\startup\board.c */
-    board_basic_init();
-
-    /* kernel init, malloc can use after this! */
-    aos_init();
+    board_init();
+    board_wifi_init();
 
     /* main task to run */
     aos_task_new("main_task", maintask, NULL ,AOS_MAIN_TASK_STACK_SIZE);
 
-    /* kernel start schedule! */
-    aos_start();
-
-    /* never run here */
     return 0;
 }
