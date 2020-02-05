@@ -328,10 +328,46 @@ GETCHAR_PROTOTYPE
   }
 }
 
+/**
 void board_init(void)
 {
     stm32_soc_init();
     stm32_peripheral_init();
+}*/
+
+/**
+  * @brief WIFI Initialization Function
+  * @param None
+  * @retval None
+  */
+void board_wifi_init(void)
+{
+
 }
 
+/**
+* @init the default uart init example.
+*/
+void board_stduart_init(void)
+{
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+void board_dma_init(void)
+{
+
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+void board_gpio_init(void)
+{
+
+}
 
