@@ -277,8 +277,10 @@ $(eval ONLY_IN_AOSMK := $(filter-out $(CONFIG_IN_COMPONENTS), $(REAL_COMPONENTS_
 $(if $(DEBUG_CONFIG), REAL_COMPONENTS_LOCS_ORIG := $(REAL_COMPONENTS_LOCS))
 $(eval ONLY_IN_CONFIGIN := $(if $(CONFIG_SUFFIX),,$(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS))))
 # Find dependency from makefile of the Config.in oriented components
-$(eval COMPONENTS += $(ONLY_IN_CONFIGIN))
-$(eval $(if $(CONFIG_SUFFIX),,$(call FIND_VARIOUS_COMPONENT, $(ONLY_IN_CONFIGIN))))
+$(if $(ONLY_IN_CONFIGIN), \
+    $(eval COMPONENTS += $(ONLY_IN_CONFIGIN)) \
+    $(eval $(if $(CONFIG_SUFFIX),,$(call FIND_VARIOUS_COMPONENT, $(ONLY_IN_CONFIGIN)))) \
+,)
 $(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS))
 $(info *** All Components: $(ALL_COMPONENTS))
 $(if $(DEBUG_CONFIG), \
