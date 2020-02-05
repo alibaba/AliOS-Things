@@ -196,18 +196,14 @@ void board_gpio_init(void)
 
 }
 
-
 /**
-  * @brief Board Initialization Function
+  * @brief WIFI Initialization Function
   * @param None
   * @retval None
   */
-void board_init(void)
+void board_wifi_init(void)
 {
-    board_tick_init();
-    board_stduart_init();
-    board_dma_init();
-    board_gpio_init();
+
 }
 
 
