@@ -1,0 +1,9 @@
+config AOS_APP_APPNOMAIN
+    bool "AppNomain"
+    select AOS_COMP_OSAL_AOS
+    help
+        App Demo
+
+if AOS_APP_APPNOMAIN
+# Configurations for app app_nomain
+endif
