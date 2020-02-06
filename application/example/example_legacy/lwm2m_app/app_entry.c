@@ -6,6 +6,7 @@
 #include <aos/kernel.h>
 #include <aos/yloop.h>
 #include <netmgr.h>
+#include "ulog/ulog.h"
 
 static int lwm2m_client_started = 0;
 
@@ -34,6 +35,9 @@ int application_start(int argc, char *argv[])
     sal_add_dev(NULL, NULL);
     sal_init();
 #endif
+
+    /* Set ulog ouput level to INFO */
+    aos_set_log_level(AOS_LL_INFO);
 
     netmgr_init();
 
