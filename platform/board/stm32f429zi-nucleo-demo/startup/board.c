@@ -14,7 +14,6 @@
 #include "aos/hal/timer.h"
 
 #include "stm32f4xx_hal.h"
-
 #include "hal_uart_stm32f4.h"
 #include "hal_gpio_stm32f4.h"
 #include "hal_can_stm32f4.h"
@@ -44,15 +43,16 @@ uart_dev_t uart_0;
 
 const gpio_mapping_t gpio_mapping_table[TOTAL_GPIO_NUM] =
 {
-    {ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {HAL_GPIO_8, GPIOA, GPIO_PIN_8, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {HAL_GPIO_9, GPIOA, GPIO_PIN_9, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {ON_BOARD_TIM4_CH4, GPIOD, GPIO_PIN_15, /*IRQ_NULL,*/GPIO_SPEED_FREQ_LOW, GPIO_PULLUP}
+    /*  logic port      group    pin            speed               val   */
+    {LED0,    GPIOB, GPIO_PIN_0,  GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {LED1,    GPIOB, GPIO_PIN_7,  GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN},
+    {LED2,    GPIOB, GPIO_PIN_14, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {HAL_GPIO_8,        GPIOA, GPIO_PIN_8,  GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {HAL_GPIO_9,        GPIOA, GPIO_PIN_9,  GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
+    {ON_BOARD_TIM4_CH4, GPIOD, GPIO_PIN_15, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP}
 };
 
-gpio_dev_t brd_gpio_table[] =
+static gpio_dev_t board_gpio_table[] =
 {
     {ON_BOARD_LED01, OUTPUT_PUSH_PULL, NULL},
     {ON_BOARD_LED02, OUTPUT_PUSH_PULL, NULL},
@@ -95,14 +95,14 @@ void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
 static void stduart_init(void);
 static void I2C1_init();
 
-void _Error_Handler(char *file, int line)
+void Error_Handler(char *file, int line)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
 
     printf("Fatel error, file:%s, line:%d\r\n",file, line);
-    while(1)
-    {
+    while(1) {
+
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -133,9 +133,8 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        Error_Handler(__FILE__, __LINE__);
   }
 
     /**Initializes the CPU, AHB and APB busses clocks
@@ -147,9 +146,8 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
+        Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -165,6 +163,8 @@ void board_basic_init(void)
 
     /* Configure the system clock */
     SystemClock_Config();
+
+    HAL_Init();
 }
 
 void board_tick_init(void)
@@ -194,42 +194,67 @@ void hal_timer_setcounter(timer_dev_t *tim, uint32_t counter)
     }
 }
 
-static int32_t brd_gpio_init(void)
+int32_t board_gpio_init(void)
 {
     int32_t i;
     int32_t ret = 0;
 
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+
+
     for (i = 0; i < TOTAL_GPIO_NUM; ++i) {
-        ret = hal_gpio_init(&brd_gpio_table[i]);
+        ret = hal_gpio_init(&board_gpio_table[i]);
         if (ret) {
             printf("gpio %d in gpio table init fail \r\n", i);
         }
     }
-
-    return ret;
-
 }
 
-void stm32_soc_init(void)
+void board_stduart_init(void)
 {
-    HAL_Init();
+    uart_0.port = PORT_UART_STD;
+    uart_0.config.baud_rate = STDIO_UART_BUADRATE;
+    uart_0.config.data_width = DATA_WIDTH_8BIT;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.config.mode = MODE_TX_RX;
+    uart_0.config.parity = NO_PARITY;
+    uart_0.config.stop_bits = STOP_BITS_1;
 
-    /**Configure the Systick interrupt time
-    */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+    hal_uart_init(&uart_0);
+}
 
-    /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-
+void board_dma_init(void)
+{
     MX_DMA_Init();
+}
+
+void board_wifi_init(void)
+{
 
 }
+
+static void I2C1_init()
+{
+    i2c_dev_t i2c_1 = {
+        .port                 = 1,
+        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
+        .config.freq          = I2C_BUS_BIT_RATES_100K,
+        .config.mode          = I2C_MODE_MASTER,
+    };
+
+    if (hal_i2c_init(&i2c_1)) {
+        printf("i2c bus 1 init fail \r\n");
+    }
+}
+
 
 void stm32_peripheral_init(void)
 {
@@ -251,34 +276,6 @@ void stm32_peripheral_init(void)
     CAN_init();
     #endif
 }
-
-static void stduart_init(void)
-{
-    uart_0.port = PORT_UART_STD;
-    uart_0.config.baud_rate = STDIO_UART_BUADRATE;
-    uart_0.config.data_width = DATA_WIDTH_8BIT;
-    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
-    uart_0.config.mode = MODE_TX_RX;
-    uart_0.config.parity = NO_PARITY;
-    uart_0.config.stop_bits = STOP_BITS_1;
-
-    hal_uart_init(&uart_0);
-}
-
-static void I2C1_init()
-{
-    i2c_dev_t i2c_1 = {
-        .port                 = 1,
-        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
-        .config.freq          = I2C_BUS_BIT_RATES_100K,
-        .config.mode          = I2C_MODE_MASTER,
-    };
-
-    if (hal_i2c_init(&i2c_1)) {
-        printf("i2c bus 1 init fail \r\n");
-    }
-}
-
 
 /**
 * @brief This function handles System tick timer.
@@ -326,60 +323,5 @@ GETCHAR_PROTOTYPE
   } else {
       return -1;
   }
-}
-
-/**
-void board_init(void)
-{
-    stm32_soc_init();
-    stm32_peripheral_init();
-}*/
-
-/**
-  * @brief WIFI Initialization Function
-  * @param None
-  * @retval None
-  */
-void board_wifi_init(void)
-{
-
-}
-
-/**
-* @init the default uart init example.
-*/
-void board_stduart_init(void)
-{
-
-}
-
-/**
-  * Enable DMA controller clock
-  */
-void board_dma_init(void)
-{
-
-}
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-void board_gpio_init(void)
-{
-
-}
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-
-  /* USER CODE END Error_Handler_Debug */
 }
 
