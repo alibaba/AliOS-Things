@@ -1,0 +1,9 @@
+config AOS_APP_HALAPPDEMO
+    bool "HalAppDemo"
+    select AOS_COMP_OSAL_AOS
+    help
+        Hal App Demo
+
+if AOS_APP_HALAPPDEMO
+# Configurations for app halappdemo
+endif

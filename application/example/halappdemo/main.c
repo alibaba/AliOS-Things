@@ -20,9 +20,6 @@ Set the correspondence in file platform\board\aaboard_demo\ucube.py.
 extern void board_basic_init(void);
 extern void board_tick_init(void);
 extern void board_stduart_init(void);
-extern void board_dma_init(void);
-extern void board_gpio_init(void);
-extern void board_wifi_init(void);
 
 /*
 main task stask size(byte)
@@ -30,6 +27,7 @@ main task stask size(byte)
 #ifndef AOS_MAIN_TASK_STACK_SIZE
 #define AOS_MAIN_TASK_STACK_SIZE 1024
 #endif
+
 
 /*  For user config
     kinit.argc = 0;
@@ -48,14 +46,11 @@ void board_init(void)
 {
     board_tick_init();
     board_stduart_init();
-    board_dma_init();
-    board_gpio_init();
 }
 
 void maintask(void* arg)
 {
     board_init();
-    board_wifi_init();
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
