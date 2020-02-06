@@ -136,9 +136,9 @@ static int yts_http_post()
         char content_len[8];
 
         LOGD(TAG, "Data received: %s", client_data.response_buf);
-        code = httpc_get_response_code(client);
+        code = httpc_get_response_code(&client);
         LOGD(TAG, "Response code: %d", ret);
-        httpclient_get_response_header_value(client_data.response_buf, "Content-Length", data, &data_len);
+        httpc_get_response_header_value(client_data.response_buf, "Content-Length", data, &data_len);
         memcpy(content_len, data, data_len);
         LOGD(TAG, "Content-Length is %s", content_len);
     }
@@ -186,7 +186,7 @@ static int yts_http_put()
         char content_len[8];
 
         LOGD(TAG, "Data received: %s", client_data.response_buf);
-        code = httpc_get_response_code(client);
+        code = httpc_get_response_code(&client);
         LOGD(TAG, "Response code: %d", ret);
         httpclient_get_response_header_value(client_data.response_buf, "Content-Length", data, &data_len);
         memcpy(content_len, data, data_len);
