@@ -5,5 +5,5 @@ config AOS_APP_HALAPP
         Hal App Demo
 
 if AOS_APP_HALAPP
-# Configurations for app hal demo
+# Configurations for app halapp
 endif
