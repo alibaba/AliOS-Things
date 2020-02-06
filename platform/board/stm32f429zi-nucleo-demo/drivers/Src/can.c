@@ -87,7 +87,7 @@ void MX_CAN1_Init(void)
   hcan1.Init.TransmitFifoPriority = DISABLE;
   if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -164,22 +164,22 @@ void CAN_Config(void)
 
     if (HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig) != HAL_OK)
     {
-      /* Filter configuration Error */
-      Error_Handler();
+        /* Filter configuration Error */
+        Error_Handler(__FILE__, __LINE__);
     }
 
     /*##-3- Start the CAN peripheral ###########################################*/
     if (HAL_CAN_Start(&hcan1) != HAL_OK)
     {
-      /* Start Error */
-      Error_Handler();
+        /* Start Error */
+        Error_Handler(__FILE__, __LINE__);
     }
 
     /*##-4- Activate CAN RX notification #######################################*/
     if (HAL_CAN_DeactivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-      /* Notification Error */
-      Error_Handler();
+        /* Notification Error */
+        Error_Handler(__FILE__, __LINE__);
     }
 }
 
@@ -194,7 +194,7 @@ void CAN1_dataReceive(void* rxDataBuffer, uint8_t dataLen)
       if (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &pRxMsg, RxData) != HAL_OK)
       {
         /* Reception Error */
-        Error_Handler();
+        Error_Handler(__FILE__, __LINE__);
       }
 
       if(pRxMsg.StdId == 0xA)
