@@ -13,6 +13,11 @@
 extern int application_start(int argc, char *argv[]);
 #endif
 
+/*
+If board have no component for example board_xx_init, it indicates that this app does not support this board.
+Set the correspondence in file platform\board\aaboard_demo\ucube.py.
+*/
+extern void board_basic_init(void);
 extern void board_tick_init(void);
 extern void board_stduart_init(void);
 extern void board_dma_init(void);
@@ -26,11 +31,6 @@ main task stask size(byte)
 #define AOS_MAIN_TASK_STACK_SIZE 1024
 #endif
 
-/*
-If board have no component for example board_xx_init, it indicates that this app does not support this board.
-Set the correspondence in file platform\board\aaboard_demo\ucube.py.
-*/
-extern void board_basic_init(void);
 
 /*  For user config
     kinit.argc = 0;
