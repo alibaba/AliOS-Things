@@ -11,6 +11,6 @@ config AOS_COMP_HTTP_YTS_TEST
 if AOS_COMP_HTTP_YTS_TEST
 config CONFIG_HTTP_SECURE
     bool "Support HTTP Secure"
-    default n
+    default y
     select AOS_COMP_MBEDTLS
 endif
