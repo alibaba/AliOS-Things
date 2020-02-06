@@ -57,7 +57,7 @@ extern ETH_HandleTypeDef heth;
 
 /* USER CODE END Private defines */
 
-extern void _Error_Handler(char *, int);
+extern void Error_Handler(char *, int);
 
 void MX_ETH_Init(void);
 

@@ -79,8 +79,26 @@ typedef enum{
 #define AOS_HAL_NAND_ENABLED        0
 #define AOS_HAL_NOR_ENABLED         0
 
+/* Pin and port redefinition */
+
+/* LED */
+
+/** The map of LED Pin of stm32f429zi-nucleo board
+ *  LD1  <--> LED0
+ *  LD2  <--> LDE1
+ *  LD3  <--> LED2
+ */
+#define LED0     HAL_GPIO_16 // LD1 <--> PB0
+#define LED1     HAL_GPIO_23 // LD2 <--> PB7
+#define LED2     HAL_GPIO_30 // LD3 <--> PB14
+
+/* Button */
+#define KEY0     HAL_GPIO_45 // USER <--> PC13
+
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
+
+/* NIC */
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
 #define RMII_MDC_Pin GPIO_PIN_1
@@ -97,12 +115,18 @@ typedef enum{
 #define RMII_RXD1_GPIO_Port GPIOC
 #define RMII_TXD1_Pin GPIO_PIN_13
 #define RMII_TXD1_GPIO_Port GPIOB
-#define LD3_Pin GPIO_PIN_14
-#define LD3_GPIO_Port GPIOB
+#define RMII_TX_EN_Pin GPIO_PIN_11
+#define RMII_TX_EN_GPIO_Port GPIOG
+#define RMII_TXD0_Pin GPIO_PIN_13
+#define RMII_TXD0_GPIO_Port GPIOG
+
+/* STLINK */
 #define STLK_RX_Pin GPIO_PIN_8
 #define STLK_RX_GPIO_Port GPIOD
 #define STLK_TX_Pin GPIO_PIN_9
 #define STLK_TX_GPIO_Port GPIOD
+
+/* USB */
 #define USB_PowerSwitchOn_Pin GPIO_PIN_6
 #define USB_PowerSwitchOn_GPIO_Port GPIOG
 #define USB_OverCurrent_Pin GPIO_PIN_7
@@ -117,16 +141,12 @@ typedef enum{
 #define USB_DM_GPIO_Port GPIOA
 #define USB_DP_Pin GPIO_PIN_12
 #define USB_DP_GPIO_Port GPIOA
+
+/* DEBUG */
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define RMII_TX_EN_Pin GPIO_PIN_11
-#define RMII_TX_EN_GPIO_Port GPIOG
-#define RMII_TXD0_Pin GPIO_PIN_13
-#define RMII_TXD0_GPIO_Port GPIOG
-#define LD2_Pin GPIO_PIN_7
-#define LD2_GPIO_Port GPIOB
 
 #endif /*__BOARD__H_*/
 
