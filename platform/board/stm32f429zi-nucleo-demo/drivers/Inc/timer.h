@@ -60,7 +60,7 @@ extern TIM_HandleTypeDef htim4;
 
 /* USER CODE END Private defines */
 
-extern void _Error_Handler(char *, int);
+extern void Error_Handler(char *, int);
 
 void MX_TIM1_Init(void);
 void MX_TIM2_Init(void);
