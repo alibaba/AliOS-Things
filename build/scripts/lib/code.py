@@ -1,7 +1,9 @@
 import os
 import hashlib
 import re
+import shutil
 
+COMPONENTS_CONFIG_KEYWORD = "KEYWORD: PART2 COMPONENTS CONFIGURATION"
 
 def get_md5sum(config_file):
     """ Get MD5SUM_HEADER from config file .aos """
@@ -97,6 +99,24 @@ def compute_header_md5sum(appdir):
 
     return (header_md5sum, include_list)
 
+def compute_aos_config_md5sum(aosconfig_h):
+    """ Compute md5sum of aos_config.h, except user defined part  """
+    define_list = []
+    with open (aosconfig_h, 'r') as f:
+        started = False
+        for line in f.readlines():
+            line = line.strip()
+            if line.find(COMPONENTS_CONFIG_KEYWORD) >= 0:
+                started = True
+            if started:
+                if line.startswith("#define"):
+                    define_list.append(line)
+
+    define_list = sorted(list(set(define_list)))
+    define_md5sum = md5sum(" ".join(define_list))
+
+    return define_md5sum
+
 
 def get_depends_from_source(comp_info, include_list):
     """ Get comp name by searching include file in comp_info, like
@@ -131,3 +151,42 @@ def get_depends_from_source(comp_info, include_list):
 
     depends = list(set(depends))
     return depends
+
+def copy_file(srcfile, destfile):
+    """ Copy srcfile to destfile, create destdir if not existed """
+    subdir = os.path.dirname(destfile)
+
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+
+    shutil.copyfile(srcfile, destfile)
+
+def write_file(contents, destfile):
+    """ Write contents to destfile line by line """
+    subdir = os.path.dirname(destfile)
+
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+    with open(destfile, "w") as f:
+        for line in contents:
+            f.write(line)
+
+def write_project_config(config_file, config_data):
+    """ Write projet config file: KEY1=VALUE1 """
+    contents = []
+    if os.path.isfile(config_file) and config_data:
+        with open(config_file, "r") as f:
+            for line in f.readlines():
+                line = line.strip()
+                tmp = line.split("=")
+                key, value = tmp[0], tmp[1]
+                if key not in config_data:
+                    config_data[key] = value
+
+    for key in config_data:
+        contents.append("%s=%s\n" % (key, config_data[key]))
+
+    contents = sorted(contents)
+    write_file(contents, config_file)
+
+

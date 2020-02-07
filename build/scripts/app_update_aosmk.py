@@ -8,13 +8,16 @@ import json
 from lib.code import get_md5sum, write_md5sum, compute_header_md5sum, get_depends_from_source
 from lib.config import get_project_config
 from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
+from lib.comp import generate_default_header_file
 from app_gen_kconfig import gen_kconfig
+from aos_autoconf_convert import convert_aosconfig_config
 
 DOT_AOS = ".aos"
 COMP_INDEX = "aos_comp_index.json"
-CONFIGIN_BACKUP = ".Config.in.bak"
+CONFIG_BAK_PATH = ".important.bak"
 CONFIGIN_FILE = "Config.in"
 DOT_CONFIG_FILE = ".config"
+AOS_CONFIG_H_FILE = "aos_config.h"
 APP_CONFIG_FILE = "app.config"
 AOS_MAKEFILE = "aos.mk"
 
@@ -27,7 +30,7 @@ def update_depends_config(dirname, comps):
     if not comps:
         return False
 
-    with open(os.path.join(dirname, CONFIGIN_BACKUP), "r") as f:
+    with open(os.path.join(dirname, CONFIG_BAK_PATH, CONFIGIN_FILE), "r") as f:
         text_config = f.read()
 
     """ Source Config.in of depends """
@@ -128,10 +131,18 @@ def main():
         return 1
 
     app_dir = sys.argv[1]
+
+    # check components config in aos_config.h
+    convert_aosconfig_config(os.path.join(app_dir, AOS_CONFIG_H_FILE), os.path.join(app_dir, DOT_CONFIG_FILE))
+    # check dependencies in app source file
     depends = update_aosmk(app_dir)
-    update_depends_config(app_dir, depends)
     
     if depends:
+        # update app Config.in to involve new components
+        update_depends_config(app_dir, depends)
+        # update components header file of default configuration
+        generate_default_header_file(os.path.join(app_dir, CONFIGIN_FILE))
+        # get appname and boardname
         dot_config_file = os.path.join(app_dir, DOT_CONFIG_FILE)
         appname = get_project_config(dot_config_file, "AOS_BUILD_APP")
         boardname = get_project_config(dot_config_file, "AOS_BUILD_BOARD")
