@@ -54,12 +54,13 @@ static int umesh_parse_join_tlv_resp(umesh_peer_type_t peer_type, const uint8_t 
     uint16_t offset = 0;
 
     log_i("parse resp, tlv len = %d", tlv_buf->len);
+    log_hex("peer mac", from, 6);
 
     umesh_produce_random(to_rand_array, UMESH_RANDOM_LEN);
     READ_LE32(tlv_buf, offset, &session_id);
     offset += sizeof(session_id);
     READ_BYTES_COPY(tlv_buf, offset, from_rand_array, UMESH_RANDOM_LEN);
-
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0) {/*新peer:如果 peer 不存在， 创建新peer,回复信息 */
         peer = umesh_peer_add2(state->peers_state.peers, from, peer_type, UMESH_PEER_IDENTIFY_RESP,
@@ -68,6 +69,7 @@ static int umesh_parse_join_tlv_resp(umesh_peer_type_t peer_type, const uint8_t 
         if (peer == NULL) {
             log_hex("add peer failed", from, 6);
             ret = UMESH_PEER_ADD_FAILED;
+            umesh_mutex_unlock(state->generic_lock);
             return ret;
         }
     } else {/*单向旧peer:如果 peer 已经存在，更新peer 信息 ，回复信息*/
@@ -77,6 +79,9 @@ static int umesh_parse_join_tlv_resp(umesh_peer_type_t peer_type, const uint8_t 
         peer->step = UMESH_PEER_IDENTIFY_RESP;
         peer->last_update = umesh_now_ms();
     }
+
+    umesh_mutex_unlock(state->generic_lock);
+
     /*send finish to dst peer*/
     if (state->peer_add_cb) {
         state->peer_add_cb(from, UMESH_PEER_IDENTIFY_RESP, state);
@@ -84,15 +89,20 @@ static int umesh_parse_join_tlv_resp(umesh_peer_type_t peer_type, const uint8_t 
     ret = umesh_send_frame_join_finish(state, from);
     if (ret == 0) {
         /*update */
-        peer->step = UMESH_PEER_IDENTIFY_FINISH;
+        umesh_mutex_lock(state->generic_lock);
+        ret = umesh_peer_get(state->peers_state.peers, from, &peer);
+
+        if (ret < 0) {
+            umesh_mutex_unlock(state->generic_lock);
+            return ret;
+        }
         state->peers_state.joined = 1;
+        umesh_mutex_unlock(state->generic_lock);
         if (state->peer_add_cb) {
             state->peer_add_cb(from, UMESH_PEER_IDENTIFY_FINISH, state);
         }
-        log_i("recv join resp frame!");
-        log_hex("peer mac", from, 6);
-
     }
+
     return ret;
 buffer_error:
     log_e("UMESH_RX_TOO_SHORT!");
@@ -112,9 +122,10 @@ static int umesh_parse_join_tlv_finish(umesh_peer_type_t peer_type, const uint8_
     READ_LE32(tlv_buf, offset, &session_id);
     offset += sizeof(session_id);
     READ_BYTES_COPY(tlv_buf, offset, from_rand_array, UMESH_RANDOM_LEN);
-
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0) {/*如果peer 不存在，说明 应答有错误，不应该应答*/
+        umesh_mutex_unlock(state->generic_lock);
         log_w("peer not found");
         log_hex("peer mac", from, 6);
     } else {/*单向旧peer:如果 peer 已经存在，更新peer 信息 ，回复信息*/
@@ -127,6 +138,7 @@ static int umesh_parse_join_tlv_finish(umesh_peer_type_t peer_type, const uint8_
         peer->session_id = session_id; /*update session id*/
         peer->last_update = umesh_now_ms();
         peer->step = UMESH_PEER_IDENTIFY_FINISH;
+        umesh_mutex_unlock(state->generic_lock);
         state->peers_state.joined = 1;
         if (state->peer_add_cb) {
             state->peer_add_cb(from, UMESH_PEER_IDENTIFY_FINISH, state);
@@ -147,31 +159,36 @@ static int umesh_parse_heart_tlv(umesh_peer_type_t peer_type, const uint8_t *fro
 {
     int ret = UMESH_PARSE_TLV_FAILED;
     struct umesh_peer *peer = NULL;
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0 || peer == NULL) {
         log_e("can not find the peer");
+        umesh_mutex_unlock(state->generic_lock);
         return UMESH_ERR_PEER_MISSING;
     }
 
     READ_LE16(tlv_buf, 0, &peer->heart_interval);
     peer->last_update = umesh_now_ms();
+    umesh_mutex_unlock(state->generic_lock);
     return ret;
 buffer_error:
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
 static int umesh_parse_zero_req_tlv(const uint8_t *from, const struct buf *tlv_buf,
-                                 umesh_state_t *state)
+                                    umesh_state_t *state)
 {
     int ret = UMESH_PARSE_TLV_FAILED;
     struct umesh_peer *peer = NULL;
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0 || peer == NULL) {
         log_e("can not find the peer");
+        umesh_mutex_unlock(state->generic_lock);
         return UMESH_ERR_PEER_MISSING;
     }
     READ_U8(tlv_buf, 0, &peer->zero_flag);
-    
+    umesh_mutex_unlock(state->generic_lock);
     ret = umesh_send_frame_zero_resp(state, from);
     return ret;
 buffer_error:
@@ -179,25 +196,27 @@ buffer_error:
 }
 
 static int umesh_parse_zero_finish_tlv(const uint8_t *from, const struct buf *tlv_buf,
-                                 umesh_state_t *state)
+                                       umesh_state_t *state)
 {
     int ret = UMESH_PARSE_TLV_FAILED;
     struct umesh_peer *peer = NULL;
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0 || peer == NULL) {
+        umesh_mutex_unlock(state->generic_lock);
         log_e("can not find the peer");
         return UMESH_ERR_PEER_MISSING;
     }
     READ_U8(tlv_buf, 0, &peer->zero_flag);
+    umesh_mutex_unlock(state->generic_lock);
     /*todo*/
-   
     return ret;
 buffer_error:
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
 static int umesh_parse_zero_resp_tlv(const uint8_t *from, const uint8_t *to, const struct buf *tlv_buf,
-                                 umesh_state_t *state)
+                                     umesh_state_t *state)
 {
     uint8_t ssid_len = 0;
     uint8_t pwd_len = 0;
@@ -211,92 +230,99 @@ static int umesh_parse_zero_resp_tlv(const uint8_t *from, const uint8_t *to, con
     struct umesh_peer *from_peer = NULL;
     uint8_t iv_data[UMESH_AES_KEY_LEN] = {0};
     p_Aes128_t  aes = NULL;
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, from, &peer);
     if (ret < 0 || peer == NULL) {
         log_e("can not find the peer");
+        umesh_mutex_unlock(state->generic_lock);
         return UMESH_ERR_PEER_MISSING;
     }
     READ_U8(tlv_buf, offset++, &peer->zero_flag);
+    umesh_mutex_unlock(state->generic_lock);
+
     READ_U8(tlv_buf, offset++, &ssid_len);
 
-    if(ssid_len == 0) {
+    if (ssid_len == 0) {
         goto buffer_error;
     }
-    READ_BYTES_COPY(tlv_buf, offset, ssid , ssid_len);
+    READ_BYTES_COPY(tlv_buf, offset, ssid, ssid_len);
     log_i("---ssid len = %d, ssid = %s", ssid_len, ssid);
     offset += ssid_len;
     READ_U8(tlv_buf, offset++, &pwd_len);
-    if(pwd_len != 0) {
+    if (pwd_len != 0) {
         log_i("---pwd len = %d", pwd_len);
-        READ_BYTES_COPY(tlv_buf, offset, pwd , pwd_len); 
+        READ_BYTES_COPY(tlv_buf, offset, pwd, pwd_len);
         offset += pwd_len;
         decrypt_data = umesh_malloc(pwd_len);
-        if(decrypt_data == NULL) {
+        if (decrypt_data == NULL) {
             return UMESH_ERR_MALLOC_FAILED;
         }
-/////////////////
-    if (memcmp(to, state->self_addr, IEEE80211_MAC_ADDR_LEN) == 0) { /*ucast data to self*/
-        /*decrypt the data*/
-        ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
-        if (ret < 0) {
-            log_w("can not find the peer");
-            return ret;
+        /////////////////
+        if (memcmp(to, state->self_addr, IEEE80211_MAC_ADDR_LEN) == 0) { /*ucast data to self*/
+            /*decrypt the data*/
+            umesh_mutex_lock(state->generic_lock);
+            ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
+            if (ret < 0) {
+                umesh_mutex_unlock(state->generic_lock);
+                log_w("can not find the peer");
+                return ret;
+            }
+
+            umesh_get_ucast_iv(from_peer->from_random, from_peer->to_random, iv_data);
+
+            aes = utils_aes128_init(state->aes_key, iv_data, AES_DECRYPTION);
+            if (aes == NULL) {
+                umesh_free(decrypt_data);
+                return UMESH_ERR_AES_INIT;
+            }
+            ret = utils_aes128_cfb_decrypt(aes, pwd, pwd_len, decrypt_data);
+            utils_aes128_destroy(aes);
+            if (ret < 0) {
+                log_e("decrypt err, ret = %d", ret);
+                umesh_free(decrypt_data);
+                return UMESH_ERR_AES_DECRYPT;
+            }
+
+        } else if (memcmp(to, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0)  { /* bcast to self*/
+            /*if da not in neiborlist, drop it*/
+            uint8_t session_array[sizeof(uint32_t)] = {0};
+            union array_uint32 temp;
+            umesh_mutex_lock(state->generic_lock);
+            ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
+            if (ret < 0) {
+                umesh_mutex_unlock(state->generic_lock);
+                log_w("can not find src peer");
+                return ret;
+            }
+            /*else, recypt it and relay to da*/
+
+            temp.value32 = umesh_htole32(from_peer->session_id);
+            memcpy(session_array, temp.array, sizeof(session_array));
+            umesh_get_bcast_iv(from_peer->addr, session_array, iv_data);
+            umesh_mutex_unlock(state->generic_lock);
+            aes = utils_aes128_init(state->aes_key, iv_data, AES_DECRYPTION);
+            if (aes == NULL) {
+                umesh_free(decrypt_data);
+                return UMESH_ERR_AES_INIT;
+            }
+            ret = utils_aes128_cfb_decrypt(aes, pwd, pwd_len, decrypt_data);
+            utils_aes128_destroy(aes);
+            if (ret < 0) {
+                log_e("decrypt err, ret = %d", ret);
+                umesh_free(decrypt_data);
+                return UMESH_ERR_AES_DECRYPT;
+            }
+
         }
 
-        umesh_get_ucast_iv(from_peer->from_random, from_peer->to_random, iv_data);
 
-        aes = utils_aes128_init(state->aes_key, iv_data, AES_DECRYPTION);
-        if (aes == NULL) {
-            umesh_free(decrypt_data);
-            return UMESH_ERR_AES_INIT;
-        }
-        ret = utils_aes128_cfb_decrypt(aes, pwd, pwd_len, decrypt_data);
-        utils_aes128_destroy(aes);
-        if (ret < 0) {
-            log_e("decrypt err, ret = %d", ret);
-            umesh_free(decrypt_data);
-            return UMESH_ERR_AES_DECRYPT;
-        }
-
-    } else if (memcmp(to, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0)  { /* bcast to self*/
-        /*if da not in neiborlist, drop it*/
-        uint8_t session_array[sizeof(uint32_t)] = {0};
-        union array_uint32 temp;
-
-        ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
-        if (ret < 0) {
-            log_w("can not find src peer");
-            return ret;
-        }
-        /*else, recypt it and relay to da*/
-
-        temp.value32 = umesh_htole32(from_peer->session_id);
-        memcpy(session_array, temp.array, sizeof(session_array));
-        umesh_get_bcast_iv(from_peer->addr, session_array, iv_data);
-
-        aes = utils_aes128_init(state->aes_key, iv_data, AES_DECRYPTION);
-        if (aes == NULL) {
-            umesh_free(decrypt_data);
-            return UMESH_ERR_AES_INIT;
-        }
-        ret = utils_aes128_cfb_decrypt(aes, pwd, pwd_len, decrypt_data);
-        utils_aes128_destroy(aes);
-        if (ret < 0) {
-            log_e("decrypt err, ret = %d", ret);
-            umesh_free(decrypt_data);
-            return UMESH_ERR_AES_DECRYPT;
-        }
-
+        /////////////////
     }
-    
-    
-/////////////////
-    }
 
-    if(peer->zero_flag & BIT2) {
-        READ_BYTES(tlv_buf, offset, bssid , IEEE80211_MAC_ADDR_LEN); 
+    if (peer->zero_flag & BIT2) {
+        READ_BYTES(tlv_buf, offset, bssid, IEEE80211_MAC_ADDR_LEN);
     }
-    if(state->get_ap_info_cb) {
+    if (state->get_ap_info_cb) {
         state->get_ap_info_cb(ssid, decrypt_data, bssid);
     }
     umesh_free(decrypt_data);
@@ -319,6 +345,7 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
     uint16_t data_len = 0;
     struct umesh_peer *to_peer = NULL;
     struct umesh_peer *from_peer = NULL;
+    struct umesh_peer *s_peer = NULL;
     p_Aes128_t  aes = NULL;
     uint8_t iv_data[UMESH_AES_KEY_LEN] = {0};
     uint8_t *decrypt_data = NULL;
@@ -346,13 +373,16 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
 
     if (memcmp(to, state->self_addr, IEEE80211_MAC_ADDR_LEN) == 0) { /*ucast data to self*/
         /*decrypt the data*/
+        umesh_mutex_lock(state->generic_lock);
         ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
         if (ret < 0) {
+            umesh_mutex_unlock(state->generic_lock);
             log_w("can not find the peer");
             return ret;
         }
 
         umesh_get_ucast_iv(from_peer->from_random, from_peer->to_random, iv_data);
+        umesh_mutex_unlock(state->generic_lock);
         decrypt_data = umesh_malloc(data_len);
         if (decrypt_data == NULL) {
             return UMESH_ERR_MALLOC_FAILED;
@@ -370,15 +400,12 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
             umesh_free(decrypt_data);
             return UMESH_ERR_AES_DECRYPT;
         }
-        if (state->raw_data_cb) {
-            state->raw_data_cb(decrypt_data, data_len, from, sa, da, (void *)state);
-        }
-        umesh_free(decrypt_data);
+
     } else if (memcmp(to, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0)  { /* bcast to self*/
         /*if da not in neiborlist, drop it*/
         uint8_t session_array[sizeof(uint32_t)] = {0};
         union array_uint32 temp;
-
+        umesh_mutex_lock(state->generic_lock);
         ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
         if (ret < 0) {
             log_w("can not find src peer");
@@ -389,7 +416,7 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
         temp.value32 = umesh_htole32(from_peer->session_id);
         memcpy(session_array, temp.array, sizeof(session_array));
         umesh_get_bcast_iv(from_peer->addr, session_array, iv_data);
-
+        umesh_mutex_unlock(state->generic_lock);
         decrypt_data = umesh_malloc(data_len);
         if (decrypt_data == NULL) {
             return UMESH_ERR_MALLOC_FAILED;
@@ -408,11 +435,51 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
             return UMESH_ERR_AES_DECRYPT;
         }
 
-        if (state->raw_data_cb) {
-            state->raw_data_cb(decrypt_data, data_len, from, sa, da, (void *)state);
-        }
-        umesh_free(decrypt_data);
+
     }
+    umesh_mutex_lock(state->generic_lock);
+    ret = umesh_peer_get(state->peers_state.peers, sa, &s_peer);
+    umesh_mutex_unlock(state->generic_lock);
+    if (ret < 0) {
+        uint8_t cached = 0;
+        umesh_remote_peer_t *node, *next;
+        umesh_mutex_lock(state->generic_lock);
+        list_for_each_entry_safe(node, next, &state->peers_state.remote_peers_list, linked_list, umesh_remote_peer_t) {
+            if (memcpy(node->addr, sa, IEEE80211_MAC_ADDR_LEN) == 0) {
+                cached = 1;
+                break;
+            }
+        }
+        if (cached) {
+            /*duplicated data*/
+            if (node->data_seq == seq_num) {
+                umesh_free(decrypt_data);
+                umesh_mutex_unlock(state->generic_lock);
+                return UMESH_RX_DUPLICATED;
+            }
+            /*update time*/
+            node->last_update = umesh_now_ms();
+        } else {
+            /*add a new node to remote list*/
+            umesh_remote_peer_t *remote_peer = umesh_malloc(sizeof(umesh_remote_peer_t));
+            if (remote_peer == NULL) {
+                umesh_free(decrypt_data);
+                umesh_mutex_unlock(state->generic_lock);
+                return UMESH_ERR_MALLOC_FAILED;
+            }
+            remote_peer->last_update = umesh_now_ms();
+            memcpy(remote_peer->addr, sa, IEEE80211_MAC_ADDR_LEN);
+            memcpy(remote_peer->neighbor_addr, from, IEEE80211_MAC_ADDR_LEN);
+            list_add_tail(&remote_peer->linked_list, &state->peers_state.remote_peers_list);
+        }
+
+        umesh_mutex_unlock(state->generic_lock);
+    }
+
+    if (state->raw_data_cb) {
+        state->raw_data_cb(decrypt_data, data_len, from, sa, da, (void *)state);
+    }
+    umesh_free(decrypt_data);
     return ret;
 buffer_error:
     return UMESH_ERR_OUT_OF_BOUNDS;
@@ -448,14 +515,14 @@ static int umesh_handle_tlv(umesh_frame_type_t frame_type, umesh_peer_type_t pee
             break;
         case UMESH_ZERO_REQ_TLV:
             log_d("-----recv zero req tlv-------");
-            ret = umesh_parse_zero_req_tlv(from, tlv_buf, state);       
+            ret = umesh_parse_zero_req_tlv(from, tlv_buf, state);
             break;
         case UMESH_ZERO_RESP_TLV:
             log_d("-----recv zero rsp tlv-------");
             ret = umesh_parse_zero_resp_tlv(from, to, tlv_buf, state);
             break;
         case UMESH_ZERO_FINISH_TLV:
-             log_d("-----recv zero finish tlv-------");
+            log_d("-----recv zero finish tlv-------");
             ret = umesh_parse_zero_finish_tlv(from, tlv_buf, state);
             break;
     }
@@ -497,7 +564,6 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
         buf_strip(frame, len);
     }
 
-
     switch (frame_type) {
         case UMESH_FRAME_DISCOVERY_REQ:
             ret = umesh_send_frame_discovery_resp(state, from);
@@ -509,13 +575,14 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
             break;
         case UMESH_FRAME_JOIN_REQ: {
             /*看下sa是否在当前peers列表中，如果不在则创建一个peer,给其分配session id/ token值*/
-
             struct umesh_peer *peer = NULL;
             uint8_t rand_array[UMESH_RANDOM_LEN] = {0};
+            umesh_mutex_lock(state->generic_lock);
             ret = umesh_peer_get(state->peers_state.peers, from, &peer);
             if (ret == 0 && peer != NULL) {
                 if (peer->step > UMESH_PEER_IDENTIFY_RESP) { /* no need action*/
                     ret = UMESH_NO_ACTION_REQUIRED;
+                    umesh_mutex_unlock(state->generic_lock);
                     break;
                 }  /*send join resp*/
                 peer->step = UMESH_PEER_IDENTIFY_REQ;
@@ -527,6 +594,7 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
 
             if (peer == NULL) {
                 ret = UMESH_PEER_ADD_FAILED;
+                umesh_mutex_unlock(state->generic_lock);
                 break;
             }
             if (state->peer_add_cb) {
@@ -539,6 +607,7 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
                     state->peer_add_cb(from, UMESH_PEER_IDENTIFY_RESP, state);
                 }
             }
+            umesh_mutex_unlock(state->generic_lock);
             break;
         }
         case UMESH_FRAME_JOIN_PERMIT: {

@@ -14,13 +14,21 @@
 void umesh_peers_state_init(umesh_peers_state_t *state)
 {
     state->peers = umesh_peers_init();
+    INIT_LIST_HEAD(&state->remote_peers_list);
     state->joined = 0;
     //state->timeout = UMESH_PEERS_DEFAULT_CLEAN_INTERVAL;
 }
 
 void umesh_peers_state_deinit(umesh_peers_state_t *state)
 {
+    umesh_remote_peer_t *node = NULL, *next_node = NULL;
+    /*clean neighbor peers map*/
     umesh_peers_free(state->peers);
+    /*clean remote peers list*/
+    list_for_each_entry_safe(node, next_node, &state->remote_peers_list, linked_list, umesh_remote_peer_t) {
+        list_del(&node->linked_list);
+        umesh_free(node);
+    }
 }
 umesh_peers_t umesh_peers_init()
 {
@@ -46,8 +54,10 @@ void umesh_peers_free(umesh_peers_t peers)
 
 int umesh_peers_length(umesh_peers_t peers)
 {
+    int len;
     map_t map = (map_t) peers;
-    return hashmap_length(map);
+    len = hashmap_length(map);
+    return len;
 }
 
 // static int umesh_peer_is_valid(const struct umesh_peer *peer) {
