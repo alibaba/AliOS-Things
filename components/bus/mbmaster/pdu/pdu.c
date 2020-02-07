@@ -56,7 +56,7 @@ mb_status_t pdu_type1221n_assemble(mb_handler_t *req_handler, uint8_t function_c
 
     memcpy(&pdu_buf[6], outputs_buf, byte_count);
 
-    register_data = &pdu_buf[6];
+    register_data = (uint16_t *)&pdu_buf[6];
     if (function_code == FUNC_CODE_WRITE_MULTIPLE_REGISTERS) {
         for (i = 0; i < quantity; i++) {
             register_data[i] = htobe16(register_data[i]);
@@ -102,7 +102,7 @@ mb_status_t pdu_type11n_disassemble(mb_handler_t *req_handler, uint8_t function_
         return status;
     }
 
-    register_data = &pdu_buf[2];
+    register_data = (uint16_t *)&pdu_buf[2];
 
     if ((function_code == FUNC_CODE_READ_HOLDING_REGISTERS) || (function_code == FUNC_CODE_READ_INPUT_REGISTERS)) {
         for (i = 0; i < (*respond_count / 2); i++) {
