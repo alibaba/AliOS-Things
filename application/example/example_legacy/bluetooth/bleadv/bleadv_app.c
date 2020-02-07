@@ -10,6 +10,8 @@
 #include <misc/slist.h>
 #include <bluetooth/bluetooth.h>
 
+#define BT_PRINT printf
+
 extern int hci_driver_init();
 extern int bt_enable(bt_ready_cb_t cb);
 bool bt_is_ready = false;
@@ -22,7 +24,7 @@ bool bt_is_ready = false;
 static void bt_ready(int err)
 {
     if (err) {
-        printf("Bluetooth init failed (err %d)\n", err);
+        BT_PRINT("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -47,7 +49,7 @@ void ble_sample(void)
         BT_DATA(BT_DATA_FLAGS, data, 1),
         BT_DATA(BT_DATA_NAME_COMPLETE, adv_name, strlen(adv_name))
     };
-    printf("Starting Advertiser Demo\n");
+    BT_PRINT("Starting Advertiser Demo\n");
 
     /* HCI driver init */
     hci_driver_init();
@@ -55,11 +57,11 @@ void ble_sample(void)
     /* BLE stack init */
     err = bt_enable(bt_ready);
     if (err) {
-        printf("Bluetooth init failed (err %d)\n", err);
+        BT_PRINT("Bluetooth init failed (err %d)\n", err);
         return;
     }
     
-    printf("Bluetooth initialized\n");
+    BT_PRINT("Bluetooth initialized\n");
     do {
         aos_msleep(400);
         if (bt_is_ready == false) {
@@ -69,14 +71,14 @@ void ble_sample(void)
         /* advertising */
         err = bt_le_adv_start(&adv_param, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
         if (err) {
-            printf("Advertising failed to start (err %d)\n", err);
+            BT_PRINT("Advertising failed to start (err %d)\n", err);
             return;
         }
 
         aos_msleep(400);
         err = bt_le_adv_stop();
         if (err) {
-            printf("Advertising failed to stop (err %d)\n", err);
+            BT_PRINT("Advertising failed to stop (err %d)\n", err);
             return;
         }
     } while (1);
