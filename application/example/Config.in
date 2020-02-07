@@ -101,10 +101,16 @@ if AOS_APP_HALAPP
         default "halapp"
 endif
 
-source "application/example/example_legacy/kernel_app/Config.in"
-if AOS_APP_KERNEL_APP
+source "application/example/example_legacy/basicfunction_app/krhino_api_app/Config.in"
+if AOS_APP_KRHINO_API_APP
     config AOS_BUILD_APP
-        default "kernel_app"
+        default "basicfunction_app.krhino_api_app"
+endif
+
+source "application/example/example_legacy/basicfunction_app/aos_api_app/Config.in"
+if AOS_APP_AOS_API_APP
+    config AOS_BUILD_APP
+        default "basicfunction_app.aos_api_app"
 endif
 
 source "application/example/example_legacy/http2app/Config.in"
