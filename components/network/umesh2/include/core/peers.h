@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "define.h"
 #include "utils_time.h"
+#include "list.h"
 
 enum peers_status {
     PEERS_ERR = -2, /* Peer does not exist */
@@ -55,6 +56,7 @@ typedef struct umesh_remote_peer {
     uint8_t neighbor_addr[IEEE80211_MAC_ADDR_LEN];
     uint8_t version;
     uint16_t data_seq; /*exclude duplicate data*/
+    struct list_head linked_list;
 } umesh_remote_peer_t;
 
 typedef void *umesh_peers_t;
@@ -64,7 +66,7 @@ typedef void (*umesh_peer_update_cb)(const uint8_t *addr, umesh_identify_step_t 
 
 typedef struct umesh_peers_state {
     umesh_peers_t peers;
-    umesh_remote_peer_t remote_peers;/*recieve a data from remote peer, need cached it for a while */
+    struct list_head   remote_peers_list;/*recieve  data from a remote peer, need cached the peer addr for a while */
     uint8_t joined;
 } umesh_peers_state_t;
 
