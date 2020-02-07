@@ -1,11 +1,69 @@
 import os, sys
 import re
+from lib.code import compute_aos_config_md5sum, write_project_config, get_md5sum
+from lib.comp import from_0_1_to_y_n
+from lib.config import merge_config
+
+CONFIG_BAK_PATH = ".important.bak"
+CONFIG_CHECKSUM_FILE = "aos_config_md5.txt"
+DOT_AOS = ".aos"
+DOT_CONFIG_FILE = ".config"
+APP_CONFIG_FILE = "app.config"
+
+USER_DEFINED_KEYWORD = "KEYWORD: PART1 USER DEFINED CONFIGURATION"
+USER_DEFINED_NOTE = "/* Put user defined macro here */\n"
+
+COMPONENTS_CONFIG_KEYWORD = "KEYWORD: PART2 COMPONENTS CONFIGURATION"
+COMPONENTS_CONFIG_NOTE = "/* Put configuration defined in Config.in files of components here.\n" \
+                        " It's better to modify the configuration by menuconfig, and the \n"    \
+                        " compiler will copy it here automatically.*/\n"
+
+CONFIG_REFERENCE_KEYWORD = "KEYWORD: PART3 COMPONENTS CONFIGURATION REFERENCE"
+CONFIG_REFERENCE_NOTE = "/* Components configuration reference. DO NOT EDIT!\n" \
+                        " It's better to modify the configuraiton by menuconfig. If you really\n" \
+                        " don't like menuconfig, copy the item to be updated to PATR2 please, and\n" \
+                        " then modify it in PATR2. */\n"
+
+COMPONENT_KEYWORD = "KEYWORD: COMPONENT NAME IS "
 
 def print_usage():
     print ("Usage: %s <option> <source file> [destination file]" % sys.argv[0])
     print ("Merge autoconf.h to aos_config.h:       %s 1 </path/to/autoconf.h> </path/to/aos_config.h>" % sys.argv[0])
     print ("Convert aos_config.h to .config:        %s 2 </path/to/aos_config.h> </path/to/.config>" % sys.argv[0])
     print ("Convert aos_config.h to IAR ASM format: %s 3 </path/to/aos_config.h>" % sys.argv[0])
+
+def append_default_header_files(fhandle, header_files_dir):
+    """append header files in backup folder into aos_config.h """
+    for root, dirs, files in os.walk(header_files_dir):
+        for filename in files:
+            if not filename.startswith("comp_"):
+                continue
+            tempfile = "%s/%s" % (root, filename)
+            tempfile = tempfile.replace("\\", "/")
+            with open (tempfile, 'r') as f:
+                fhandle.write(f.read())
+
+
+def get_macro_type(name, header_files_dir):
+    """search "name" in header_files_dir/comp_*.h files, and get type """
+    name = " " + name + " "
+    pattern = re.compile(r"\s+type:\s+(\w*)")
+    macro_type = ""
+    for root, dirs, files in os.walk(header_files_dir):
+        for filename in files:
+            if not filename.startswith("comp_"):
+                continue
+            tempfile = "%s/%s" % (root, filename)
+            tempfile = tempfile.replace("\\", "/")
+            with open (tempfile, 'r') as f:
+                for line in f.readlines():
+                    if name in line:
+                        match = pattern.search(line)
+                        if match:
+                            macro_type = match.group(1)
+                            return macro_type
+    return macro_type
+
 
 def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
     """ copy autoconf.h into aos_config.h, but keep user-defined marco in aos_config.h
@@ -14,6 +72,7 @@ def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
         print ("[ERROR]: No such file %s" % autoconf_h)
         return 1
 
+    root_dir = os.path.dirname(aosconfig_h)
     with open (autoconf_h, "r") as f:
         text_autoconf = f.read()
         pattern = "\/\*[\s\S]+(Automatically generated file; DO NOT EDIT)[\s\S]+?\*\/"
@@ -24,22 +83,69 @@ def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
         with open (aosconfig_h, "r") as f:
             text_aosconfig = f.read()
     
-    keyword_autoconf = "/* The following is copied from the autoconf.h file */\n"
-    pos = text_aosconfig.find(keyword_autoconf)
-    if pos > 0:
+    pos = text_aosconfig.find(COMPONENTS_CONFIG_KEYWORD)
+    if pos >= 0:
+        # delete the old components config
+        pos = text_aosconfig.find("\n#define", pos)
         text_aosconfig = text_aosconfig[:pos]
     else:
-        text_aosconfig = "/* Note: put user defined macro here! */\n\n\n\n"
-    text_aosconfig += keyword_autoconf
-    text_aosconfig += "/* You can update the value if you know the meanings exactly, \n  and you can also copy system and component defined macro here! */\n"
-    text_aosconfig += text_autoconf
+        # first time to generate aos_config.h
+        text_aosconfig = "/* %s */\n" % USER_DEFINED_KEYWORD + USER_DEFINED_NOTE + "\n\n\n\n"
+        text_aosconfig += "/* %s */\n" % COMPONENTS_CONFIG_KEYWORD + COMPONENTS_CONFIG_NOTE
+    # copy autoconf.h
+    text_aosconfig += text_autoconf + "\n\n"
+    # copy components configuration reference
+    text_aosconfig += "/* %s */\n" % CONFIG_REFERENCE_KEYWORD + CONFIG_REFERENCE_NOTE 
     with open (aosconfig_h, "w+") as f:
         f.write(text_aosconfig)
+        append_default_header_files(f, os.path.join(root_dir, CONFIG_BAK_PATH))
+    # store md5 checksum if in appdir which has .aos
+    if os.path.isfile(os.path.join(root_dir, DOT_AOS)):
+        define_md5sum = compute_aos_config_md5sum(aosconfig_h)
+        config_data = {
+            "MD5SUM_HEADER": define_md5sum,
+        }
+        write_project_config(os.path.join(root_dir, CONFIG_BAK_PATH, CONFIG_CHECKSUM_FILE), config_data)
 
 def convert_aosconfig_config(aosconfig_h, config_file):
-    """ convert components configuration porting into .config.
-    TODO: to be implemented """
-    pass
+    """ convert components configuration porting into .config """
+    if not os.path.isfile(aosconfig_h):
+        print ("[ERROR]: No such file %s" % aosconfig_h)
+        return 1
+
+    root_dir = os.path.dirname(aosconfig_h)
+    backup_dir = os.path.join(root_dir, CONFIG_BAK_PATH)
+    old_md5sum = get_md5sum(os.path.join(backup_dir, CONFIG_CHECKSUM_FILE))
+    define_md5sum = compute_aos_config_md5sum(aosconfig_h)
+    if old_md5sum == define_md5sum:
+        return 1
+
+    print("[INFO]: converting aos_config.h to .config ...")
+    patten = re.compile(r"#define\s+(\w*)\s+(.*)")
+    macro_list = []
+    with open (aosconfig_h, "r") as f:
+        started = False
+        for line in f.readlines():
+            if line.find(COMPONENTS_CONFIG_KEYWORD) >= 0:
+                started = True
+            if started:
+                if line.startswith("#define"):
+                    match = patten.match(line)
+                    if match:
+                        macro = match.group(1)
+                        value = match.group(2)
+                        if value == "0" or value == "1" or value == "2":
+                            macro_type = get_macro_type(macro, backup_dir)
+                            value = from_0_1_to_y_n(value, macro_type)
+                        macro_list += [ ("%s=%s" % (macro, value)) ]
+
+    if macro_list:
+        app_config_file = os.path.join(root_dir, APP_CONFIG_FILE)
+        with open (app_config_file, "w+") as f:
+            for macro in macro_list:
+                f.write("%s\n" % macro)
+        merge_config(config_file, app_config_file)
+    return 0
 
 def convert_aosconfig_asm(aosconfig_h):
     """ convert aos_config.h to IAR asm format """
