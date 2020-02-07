@@ -1,10 +1,10 @@
-config AOS_APP_KERNEL_APP
+config AOS_APP_AOS_API_APP
     bool "kernel_app"
     select AOS_COMP_CLI
     select AOS_COMP_DEBUG
     help
-        kernel app
+        An example to show how to use the aos kernel API
 
-if AOS_APP_KERNEL_APP
+if AOS_APP_AOS_API_APP
 # Configurations for app kernel
 endif
