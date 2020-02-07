@@ -160,6 +160,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END UART4_MspInit 0 */
     /* UART4 clock enable */
     __HAL_RCC_UART4_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
   
     /**UART4 GPIO Configuration    
     PC10     ------> UART4_TX
@@ -186,6 +187,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END UART5_MspInit 0 */
     /* UART5 clock enable */
     __HAL_RCC_UART5_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
   
     /**UART5 GPIO Configuration    
     PC12     ------> UART5_TX
@@ -219,6 +222,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END UART7_MspInit 0 */
     /* UART7 clock enable */
     __HAL_RCC_UART7_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
   
     /**UART7 GPIO Configuration    
     PE7     ------> UART7_RX
@@ -245,6 +249,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART3_MspInit 0 */
     /* USART3 clock enable */
     __HAL_RCC_USART3_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
   
     /**USART3 GPIO Configuration    
     PD8     ------> USART3_TX
@@ -271,6 +276,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART6_MspInit 0 */
     /* USART6 clock enable */
     __HAL_RCC_USART6_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
   
     /**USART6 GPIO Configuration    
     PG9     ------> USART6_RX

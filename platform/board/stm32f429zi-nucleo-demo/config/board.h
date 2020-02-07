@@ -4,6 +4,7 @@
 #define MODEL               "STM32F4"
 
 #include "stm32f4xx_hal.h"
+#include "hal_gpio_stm32f4.h"
 
 #ifdef BOOTLOADER
 #define STDIO_UART_BUADRATE 115200
@@ -12,7 +13,7 @@
 #endif
 
 #define SOC_PACKAGE_PIN_MAX      144
-#define TOTAL_GPIO_NUM            3
+#define TOTAL_GPIO_NUM            7
 
 #define MAX_I2C_BUS_NUM          3
 
@@ -66,10 +67,10 @@ typedef enum{
 */
 #define AOS_HAL_GPIO_ENABLED        1
 #define AOS_HAL_UART_ENABLED        1
-#define AOS_HAL_SPI_ENABLED         1
-#define AOS_HAL_I2C_ENABLED         1
-#define AOS_HAL_FLASH_ENABLED       1
-#define AOS_HAL_PWM_ENABLED         1
+#define AOS_HAL_SPI_ENABLED         0
+#define AOS_HAL_I2C_ENABLED         0
+#define AOS_HAL_FLASH_ENABLED       0
+#define AOS_HAL_PWM_ENABLED         0
 #define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_WDG_ENABLED         0
 #define AOS_HAL_RTC_ENABLED         0
@@ -151,7 +152,37 @@ typedef enum{
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 
-#define LED2    23 //GPIO23  //GPIOB-PIN7
+#if (AOS_HAL_GPIO_ENABLED > 0)
+
+/* gpio app macro default value
+   need to ajust for each board
+*/
+#ifndef HALAPP_GPIO_OUT
+#define HALAPP_GPIO_OUT LED0
+#endif
+
+#ifndef HALAPP_GPIO_IN
+#define HALAPP_GPIO_IN KEY0
+#endif
+
+#ifndef HALAPP_GPIO_INT
+#define HALAPP_GPIO_INT KEY0
+#endif
+#endif /* AOS_HAL_GPIO_ENABLED > 0 */
+
+#if (AOS_HAL_TIMER_ENABLED > 0)
+
+/* gpio app macro default value
+   need to ajust for each board
+*/
+#ifndef HALAPP_LED_TEST
+#define HALAPP_LED_TEST      LED0
+#endif
+
+#ifndef HALAPP_TIMER_TEST
+#define HALAPP_TIMER_TEST     PORT_TIMER_5
+#endif
+#endif /* AOS_HAL_TIMER_ENABLED > 0 */
 
 #endif /*__BOARD__H_*/
 
