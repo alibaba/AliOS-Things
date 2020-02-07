@@ -1,6 +1,10 @@
 import os, sys
 import re
 
+CONFIG_BAK_PATH = ".important.bak"
+AOS_MAKEFILE = "aos.mk"
+COMPONENT_KEYWORD = "KEYWORD: COMPONENT NAME IS "
+
 def find_comp_mkfile(dirname):
     """ Find component makefile (aos.mk) from dirname and its subdirectory, 
     exclude out, build, publish folder """
@@ -194,3 +198,165 @@ def get_comp_optional_depends_text(conditions_list, config_file):
     line += conds_line[:-4]
     line += ")\n" + 'source "$AOS_SDK_PATH/%s"\n' % config_file + "endif\n"
     return line
+
+def find_config_in_file(app_config_in):
+    """find Config.in files in application's Config.in """
+    config_in_list = []
+    if not os.path.isfile(app_config_in):
+        return config_in_list
+
+    aos_sdk_path = os.environ["AOS_SDK_PATH"]
+    user_app_path = os.path.dirname(app_config_in)
+
+    pattern = re.compile(r'source \"\$(AOS_SDK_PATH|USER_APP_PATH)\/([\w\-\.\/]+)\"')
+    with open (app_config_in, 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if line.startswith("source"):
+                match = pattern.match(line)
+                if match:
+                    if "AOS_SDK_PATH" == match.group(1):
+                        config_in_list.append(os.path.join(aos_sdk_path, match.group(2)))
+                    elif "USER_APP_PATH" == match.group(1):
+                        config_in_list.append(os.path.join(user_app_path, match.group(2)))
+
+    config_in_list.append(app_config_in)
+    return config_in_list
+
+def get_comp_name_from_configin(config_in_list):
+    """ read aos.mk file in the same directory of Config.in, and get component name from
+    aos.mk """
+    comp_list = []
+    for config_in_file in config_in_list:
+        dirname = os.path.dirname(config_in_file)
+        mkfile = os.path.join(dirname, "aos.mk")
+        if(os.path.isfile(mkfile)):
+            comp = {}
+            comp["comp_name"] = get_comp_name(mkfile)
+            comp["config_file"] = config_in_file
+            comp_list.append(comp)
+
+    return comp_list
+
+def from_y_n_to_0_1(from_y_n, type):
+    if type == "bool":
+        if from_y_n == "y":
+            to_0_1 = "1"
+        else:
+            to_0_1 = "0"
+    elif type == "tristate":
+        if from_y_n == "m":
+            to_0_1 = "1"
+        elif from_y_n == "y":
+            to_0_1 = "2"
+        else:
+            to_0_1 = "0"
+    else:
+        to_0_1 = from_y_n
+    return to_0_1
+
+def from_0_1_to_y_n(from_0_1, type):
+    if type == "bool":
+        if from_0_1 != "0":
+            to_y_n = "y"
+        else:
+            to_y_n = "n"
+    elif type == "tristate":
+        if from_0_1 == "1":
+            to_y_n = "m"
+        elif from_0_1 == "2":
+            to_y_n = "y"
+        else:
+            to_y_n = "n"
+    else:
+        to_y_n = from_0_1
+    return to_y_n
+
+def parse_block_of_configin(lines):
+    """ parse a block of Config.in file to get macro name, type, value """
+    p1 = re.compile(r"(config|menuconfig)\s+(\w*)")
+    p2 = re.compile(r"(bool|int|string|hex|tristate)(\s+\"(.*)\")?")
+    p3 = re.compile(r"default\s+(\w*)")
+    p4 = re.compile(r"default\s+\"(.*)\"")
+    new_macro = {}
+    for line in lines:
+        if line.startswith("config") or line.startswith("menuconfig"):
+            match = p1.match(line)
+            if match:
+                new_macro["name"] = match.group(2)
+        elif line.startswith("bool") or line.startswith("int") or line.startswith("string") \
+        or line.startswith("hex") or line.startswith("tristate"):
+            match = p2.match(line)
+            if match:
+                new_macro["type"] = match.group(1)
+                if new_macro["type"] == "string":
+                    new_macro["value"] = "\"\""
+                else:
+                    new_macro["value"] = "0"
+                if match.group(3):
+                    new_macro["hint"] = match.group(3)
+                else:
+                    new_macro["hint"] = ""
+        elif line.startswith("default"):
+            if new_macro["type"] == "string":
+                match = p4.match(line)
+                if match:
+                    new_macro["value"] = "\"" + match.group(1) + "\""
+            else:
+                match = p3.match(line)
+                if match:
+                    val = from_y_n_to_0_1(match.group(1), new_macro["type"])
+                    new_macro["value"] = val
+
+    return new_macro
+
+def convert_configin_to_header(config_in_file, comp_name, destdir):
+    """ read Config.in file, and convert to C header file """
+    if not os.path.isfile(config_in_file):
+        return False
+    if not os.path.isdir(destdir):
+        return False
+    if not comp_name:
+        return False
+    macro_list = []
+    with open (config_in_file, 'r') as f:
+        lines = []
+        new_block = False
+        for line in f.readlines():
+            line = line.strip()
+            if line:
+                if line.startswith("config") or line.startswith("menuconfig"):
+                    if new_block:
+                        macro = parse_block_of_configin(lines)
+                        macro_list.append(macro)
+                    new_block = True
+                    lines = []
+                if new_block:
+                    lines.append(line)
+        # last block
+        if new_block:
+            macro = parse_block_of_configin(lines)
+            macro_list.append(macro)
+    if macro_list:
+        filename = os.path.join(destdir, "comp_%s.h" % comp_name)
+        with open (filename, 'w+') as f:
+            f.write("//================This is split line================\n")
+            f.write("// %s %s\n\n" % (COMPONENT_KEYWORD, comp_name))
+            for macro in macro_list:
+                f.write("// %s\n" % macro["hint"])
+                f.write("// #define %s %s // type: %s\n\n" % (macro["name"],
+                    macro["value"], macro["type"]))
+
+        
+def generate_default_header_file(config_in_file):
+    """ read application Config.in file, and get all components' Config.in file.
+     Convert to C header file for every components used by this application """
+    if not os.path.isfile(config_in_file):
+        return False
+    
+    dirname = os.path.dirname(config_in_file)
+    destdir = os.path.join(dirname, CONFIG_BAK_PATH)
+    config_in_list = find_config_in_file(config_in_file)
+    comp_list = get_comp_name_from_configin(config_in_list)
+    for comp in comp_list:
+        convert_configin_to_header(comp["config_file"], comp["comp_name"], destdir)
