@@ -13,6 +13,8 @@
 #define UMESH_AES_KEY_LEN                   16
 #define UMESH_RSSI_THRESHOLD_DEFAULT        -65
 #define UMESH_RSSI_GRACE_DEFAULT            -5
+
+#define UMESH_REMOTE_PEER_CLEAN_TIMEOUT     (15 * 1000) /* in ms */
 #define UMESH_POLL_TIMEOUOT                 (1 * 1000) /* in ms */
 #define UMESH_SCAN_PEER_DURATION            (100)  /* in ms */
 #define UMESH_IDENTIFY_REQUEST_DURATION     (500)  /* in ms */
@@ -65,8 +67,9 @@
 #define UMESH_RX_IGNORE_NOT_UMESH            (UMESH_ERR_BASE - 0x0105)
 #define UMESH_RX_UNEXPECTED_TYPE             (UMESH_ERR_BASE - 0x0106)
 #define UMESH_RX_TOO_SHORT                   (UMESH_ERR_BASE - 0x0107)
-#define UMESH_PACK_FAILED                    (UMESH_ERR_BASE - 0x0108)
-#define UMESH_PARSE_TLV_FAILED               (UMESH_ERR_BASE - 0x0109)
+#define UMESH_RX_DUPLICATED                  (UMESH_ERR_BASE - 0x0108)
+#define UMESH_PACK_FAILED                    (UMESH_ERR_BASE - 0x0109)
+#define UMESH_PARSE_TLV_FAILED               (UMESH_ERR_BASE - 0x010a)
 /*hal err */
 #define UMESH_WIFI_RAW_SEND_FAILED           (UMESH_ERR_BASE - 0x0201)
 #define UMESH_WIFI_SET_CHAN_FAILED           (UMESH_ERR_BASE - 0x0202)
