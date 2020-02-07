@@ -3,7 +3,7 @@
 * Copyright (C) 2015-2018 Alibaba Group Holding Limited
 *
 * Contributor:  https://github.com/xuhongv
-* Update date: 2018-9-8 
+* Update date: 2018-9-8
 */
 
 #include <stdint.h>
@@ -88,6 +88,11 @@ int32_t hal_gpio_output_high(aos_gpio_dev_t *gpio)
         return EIO;
     }
 
+    if (gpio ->port > 16)
+    {
+        return EIO;
+    }
+
     if (gpio->port == 16)
     {
         gpio16_output_set(enable);
@@ -110,8 +115,11 @@ int32_t hal_gpio_output_high(aos_gpio_dev_t *gpio)
 
 int32_t hal_gpio_output_low(aos_gpio_dev_t *gpio)
 {
-
     if (gpio == NULL)
+    {
+        return EIO;
+    }
+    if (gpio ->port > 16)
     {
         return EIO;
     }
@@ -138,6 +146,10 @@ int32_t hal_gpio_output_low(aos_gpio_dev_t *gpio)
 int32_t hal_gpio_output_toggle(aos_gpio_dev_t *gpio)
 {
     if (gpio == NULL)
+    {
+        return EIO;
+    }
+    if (gpio ->port > 16)
     {
         return EIO;
     }
@@ -173,6 +185,10 @@ int32_t hal_gpio_input_get(aos_gpio_dev_t *gpio, uint32_t *value)
     {
         return EIO;
     }
+    if (gpio ->port > 16)
+    {
+        return EIO;
+    }
     if (gpio->port == 16)
     {
         *value = gpio16_input_get();
@@ -185,7 +201,7 @@ int32_t hal_gpio_input_get(aos_gpio_dev_t *gpio, uint32_t *value)
 /*
 *   en: enable gpio interrupt function , maybe you will add  #include "esp8266/eagle_soc.h" in the gpio_register.h ,  and the more please see the sample
 *   ch: 这是一个串口中断初始化函数 , 如果编译报错请在gpio_register.h 添加 esp8266/eagle_soc.h , 8266的使用gpio中断有点特殊；
-* 
+*
 *
 */
 int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
@@ -193,6 +209,10 @@ int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
 {
     int32_t ret = EIO;
     if (gpio == NULL || arg == NULL)
+    {
+        return EIO;
+    }
+    if (gpio ->port > 16)
     {
         return EIO;
     }
@@ -215,6 +235,10 @@ int32_t hal_gpio_disable_irq(aos_gpio_dev_t *gpio)
     {
         return EIO;
     }
+    if (gpio ->port > 16)
+    {
+        return EIO;
+    }
     _xt_isr_mask(1 << ETS_GPIO_INUM); //disable interrupt  ETS_GPIO_INTR_DISABLE();
     return 0;
 }
@@ -222,6 +246,10 @@ int32_t hal_gpio_disable_irq(aos_gpio_dev_t *gpio)
 int32_t hal_gpio_clear_irq(aos_gpio_dev_t *gpio)
 {
     if (gpio == NULL)
+    {
+        return EIO;
+    }
+    if (gpio ->port > 16)
     {
         return EIO;
     }
@@ -237,6 +265,10 @@ int32_t hal_gpio_finalize(aos_gpio_dev_t *gpio)
     gpio_config_t io_conf;
 
     if (gpio == NULL)
+    {
+        return EIO;
+    }
+    if (gpio ->port > 16)
     {
         return EIO;
     }
