@@ -142,14 +142,14 @@ static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv)
     uint8_t mac[6] = {0}, i;
 
     if (argc < 2) {
-        printf("Invalid argument.\r\n");
-        printf("Usage: %s\r\n", tmall_cmds[0].help);
+        printk("Invalid argument.\r\n");
+        printk("Usage: %s\r\n", tmall_cmds[0].help);
         return;
     }
 
     for (p = argv[1], i = 0; *p != '\0'; p += 3, i += 3) {
         if (!isxdigit(*p) || !isxdigit(*(p+1))) {
-            printf("Invalid format, MAC not set!!!\r\n");
+            printk("Invalid format, MAC not set!!!\r\n");
             return;
         }
         mac[i / 3] = ((char2u8(p) & 0x0f) << 4) | (char2u8(p+1) & 0x0f);
@@ -160,7 +160,7 @@ static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv)
 int application_start(int argc, char **argv)
 {
 #ifdef CONFIG_PRINT_HEAP
-    printf("After kernel init\r\n");
+    printk("After kernel init\r\n");
     print_heap();
 #endif
 #ifdef AOS_COMP_CLI
@@ -169,7 +169,7 @@ int application_start(int argc, char **argv)
     aos_post_delayed_action(1000, app_delayed_action, NULL);
     ble_storage_init();
 #ifdef CONFIG_PRINT_HEAP
-    printf("After storage init\r\n");
+    printk("After storage init\r\n");
     print_heap();
 #endif
     aos_loop_run();

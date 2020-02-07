@@ -8,6 +8,8 @@
 #include <string.h>
 #include <breeze.h>
 
+#define BZ_PRINT   printf
+
 #if defined(OTA_CONFIG_BLE)
 #include "ota/ota_agent.h"
 static ota_service_t ctx = {0};
@@ -36,20 +38,19 @@ static void dev_status_changed_handler(breeze_event_t event)
     switch (event) {
         case CONNECTED:
             ble_connected = true;
-            printf("dev_status_changed(): Connected.\n");
+            BZ_PRINT("dev_status_changed(): Connected.\n");
             break;
 
         case DISCONNECTED:
             ble_connected = false;
-            printf("dev_status_changed(): Disconnected.\n");
+            BZ_PRINT("dev_status_changed(): Disconnected.\n");
             break;
 
         case AUTHENTICATED:
-            printf("dev_status_changed(): Authenticated.\n");
+            BZ_PRINT("dev_status_changed(): Authenticated.\n");
             break;
 
         case TX_DONE:
-            printf("dev_status_changed(): Tx-done.\n");
             break;
 
         default:
@@ -60,7 +61,7 @@ static void dev_status_changed_handler(breeze_event_t event)
 /* @brief Data handler for control command 0x00. */
 static void set_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
-    printf("%s command (len: %u) received.\r\n", __func__, length);
+    BZ_PRINT("%s command (len: %u) received.\r\n", __func__, length);
 }
 
 /* @brief Data handler for query command 0x02. */
@@ -69,6 +70,7 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
     /* echo the receiving data */
     uint8_t cmd = 0x03;
     breeze_post_ext(cmd, buffer, length);
+    BZ_PRINT("%s command (len: %u) received.\r\n", __func__, length);
 }
 
 #ifdef CONTINUE_BEL_ADV
@@ -88,7 +90,7 @@ static void continue_adv_work(void *arg)
 /* @brief Callback when there is AWSS info to get. */
 static void apinfo_handler(breeze_apinfo_t *ap)
 {
-    printf("Hello %s\r\n", __func__);
+    BZ_PRINT("AWSS event post %s\r\n", __func__);
 }
 
 /* @brief Default callbacks for ota event, users should overwrite when OTA is enabled. */
@@ -96,11 +98,11 @@ static void ota_handler(breeze_otainfo_t *ota)
 {
     if(ota != NULL){
         if(ota->type == OTA_CMD){
-            printf("RECV OTA CMD\n");
+            BZ_PRINT("OTA cmd(%02x) post\n", ota->cmd_evt.m_cmd.cmd);
         } else if(ota->type == OTA_EVT){
-            printf("RECV OTA EVT (%d)\n", ota->cmd_evt.m_evt.evt);
+            BZ_PRINT("OTA evt(%02x) post\n", ota->cmd_evt.m_evt.evt);
         } else{
-            printf("unknown ota info\r\n");
+            BZ_PRINT("unknown ota info\r\n");
         }
 
     }
@@ -152,9 +154,9 @@ static void breeze_work(void *arg)
     /*Start breeze service*/
     ret = breeze_start(&init_bzlink);
     if (ret != 0) {
-        printf("breeze_start failed.\r\n");
+        BZ_PRINT("breeze_start failed.\r\n");
     } else {
-        printf("breeze_start succeed.\r\n");
+        BZ_PRINT("breeze_start succeed.\r\n");
     }
 }
 
