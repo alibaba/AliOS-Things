@@ -2523,8 +2523,8 @@
  * - src: source eth address
  * - dst: destination eth address
  * - eth_type: ethernet type to packet to be sent\n
- * 
- * 
+ *
+ *
  * Return values:
  * - &lt;0: Packet shall not contain VLAN header.
  * - 0 &lt;= return value &lt;= 0xFFFF: Packet shall contain VLAN header. Return value is prio_vid in host byte order.
@@ -2864,5 +2864,9 @@
 /**
  * @}
  */
+
+extern int lwip_rto_flags;
+#define SET_LWIP_LONG_RTO  do {lwip_rto_flags = 1} while(0);
+#define SET_LWIP_SMALL_RTO do {lwip_rto_flags = 0} while(0);
 
 #endif /* LWIP_HDR_OPT_H */
