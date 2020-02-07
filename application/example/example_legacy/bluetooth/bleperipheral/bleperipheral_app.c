@@ -29,6 +29,8 @@
 #include "bas.h"
 #include "dis.h"
 
+#define BT_PRINT  printf
+
 /* device name */
 #define DEVICE_NAME	"AOS-BLE-PERIPHERAL"
 #define DEVICE_NAME_LEN	(sizeof(DEVICE_NAME) - 1)
@@ -63,17 +65,17 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	if (err) {
-		printf("Failed to connect to %s (%u)\n", addr, err);
+		BT_PRINT("Failed to connect to %s (%u)\n", addr, err);
 		return;
 	}
 
     default_conn = bt_conn_ref(conn);
-	printf("Connected %s\n", addr);
+	BT_PRINT("Connected %s\n", addr);
 
 #ifdef CONFIG_BT_SMP
     /* Enable SMP feature */
 	if (bt_conn_security(conn, BT_SECURITY_HIGH)) {
-		printf("Failed to set security\n");
+		BT_PRINT("Failed to set security\n");
 	}
 #endif
 }
@@ -93,7 +95,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
         bt_conn_unref(default_conn);
         default_conn = NULL;
     }
-    printf("Disconnected from %s (reason %u)\n", addr, reason);
+    BT_PRINT("Disconnected from %s (reason %u)\n", addr, reason);
 }
 
 #ifdef CONFIG_BT_SMP
@@ -113,7 +115,7 @@ static void identity_resolved(struct bt_conn *conn, const bt_addr_le_t *rpa,
     bt_addr_le_to_str(identity, addr_identity, sizeof(addr_identity));
     bt_addr_le_to_str(rpa, addr_rpa, sizeof(addr_rpa));
 
-    printf("Identity resolved %s -> %s\n", addr_rpa, addr_identity);
+    BT_PRINT("Identity resolved %s -> %s\n", addr_rpa, addr_identity);
 }
 
 /**
@@ -127,7 +129,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level)
     char addr[BT_ADDR_LE_STR_LEN];
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printf("Security changed: %s level %u\n", addr, level);
+    BT_PRINT("Security changed: %s level %u\n", addr, level);
 }
 #endif
 
@@ -152,11 +154,11 @@ static struct bt_conn_cb conn_callbacks = {
 static void bt_ready(int err)
 {
     if (err) {
-        printf("1Bluetooth init failed (err %d)\n", err);
+        BT_PRINT("1Bluetooth init failed (err %d)\n", err);
         return;
     }
 
-    printf("Bluetooth initialized\n");
+    BT_PRINT("Bluetooth initialized\n");
 
     hrs_init(0x01);
     bas_init();
@@ -166,10 +168,10 @@ static void bt_ready(int err)
     err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
                          sd, ARRAY_SIZE(sd));
     if (err) {
-        printf("Advertising failed to start (err %d)\n", err);
+        BT_PRINT("Advertising failed to start (err %d)\n", err);
         return;
     }
-    printf("Advertising successfully started\n");
+    BT_PRINT("Advertising successfully started\n");
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
@@ -178,7 +180,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	printf("Passkey for %s: %u\n", addr, passkey);
+	BT_PRINT("Passkey for %s: %u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -187,7 +189,7 @@ static void auth_cancel(struct bt_conn *conn)
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	printf("Pairing cancelled: %s\n", addr);
+	BT_PRINT("Pairing cancelled: %s\n", addr);
 }
 
 /**
@@ -213,7 +215,7 @@ void ble_sample(void)
     /* Enable bluetooth stack with callback. */
     err = bt_enable(bt_ready);
     if (err) {
-        printf("Bluetooth init failed (err %d)\n", err);
+        BT_PRINT("Bluetooth init failed (err %d)\n", err);
         return;
     }
 #ifdef CONFIG_BT_SMP
@@ -230,7 +232,7 @@ void ble_sample(void)
         bas_notify();
     }
 
-    printf("Advertising successfully started\n");
+    BT_PRINT("Advertising successfully started\n");
 }
 
 /**
