@@ -11,19 +11,9 @@
 #include <k_api.h>
 
 #if (AOS_HAL_TIMER_ENABLED > 0)
+static gpio_dev_t gpio_out;
 
-/* gpio app macro default value
-   need to ajust for each board
-*/
-#ifndef HALAPP_LED_TEST
-#define HALAPP_LED_TEST      LED2 //
-#endif
-
-#ifndef HALAPP_TIMER_TEST
-#define HALAPP_TIMER_TEST     PORT_TIMER_5   //logic num, define corresponding physical port for each board
-#endif
-
-static void hal_gpio_int_fun(gpio_dev_t * gpio)
+static void hal_timer_int_fun(gpio_dev_t *gpio)
 {
     if(NULL == gpio) {
         return;
@@ -36,36 +26,39 @@ static void hal_gpio_int_fun(gpio_dev_t * gpio)
 void hal_timer_app_run(void)
 {
     int32_t ret;
-    timer_dev_t time;
-    gpio_dev_t * pgpio_out = malloc(sizeof(gpio_dev_t)); /*GPIO8*/
-    if(NULL == pgpio_out) {
-        return;
-    }
+    timer_dev_t timer;
 
     printf("hal_timer_app_run in\r\n");
 
-    memset(pgpio_out,0, sizeof(gpio_dev_t));
+    memset(&gpio_out, 0, sizeof(gpio_dev_t));
 
-    pgpio_out->port = HALAPP_LED_TEST;
-    pgpio_out->config = OUTPUT_PUSH_PULL;
-    pgpio_out->priv = NULL;
-    hal_gpio_init(pgpio_out);
+    gpio_out.port = HALAPP_LED_TEST;
+    gpio_out.config = OUTPUT_PUSH_PULL;
+    gpio_out.priv = NULL;
+    hal_gpio_init(&gpio_out);
 
-    time.port = HALAPP_TIMER_TEST;
-    time.config.period = 1000*1000; //us
-    time.config.reload_mode = TIMER_RELOAD_AUTO;
-    time.config.cb = hal_gpio_int_fun;
-    time.config.arg = pgpio_out;
+    /* timer interrupts every 0.5s */
+    timer.port = HALAPP_TIMER_TEST;
+    timer.config.period = 500*1000;
+    timer.config.reload_mode = TIMER_RELOAD_AUTO;
+    timer.config.cb = hal_timer_int_fun;
+    timer.config.arg = &gpio_out;
 
-    ret = hal_timer_init(&time);
+    ret = hal_timer_init(&timer);
     if(ret){
         return;
     }
 
-    hal_timer_start(&time);
+    hal_timer_start(&timer);
 
-    aos_msleep(5000);
-    hal_timer_stop(&time);
+    /* sleep 10s */
+    aos_msleep(10000);
+
+    hal_timer_stop(&timer);
+
+    hal_timer_finalize(&timer);
+
+    printf("hal_timer_app_run end\r\n");
 }
 
 #endif
