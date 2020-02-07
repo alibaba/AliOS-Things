@@ -45,14 +45,17 @@ static int umesh_init_join_tlv(uint8_t *buf, const struct umesh_state *state, ui
 
     tlv->type = UMESH_JOIN_TLV;
 
-
+    umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, ra, &peer);
     if (ret < 0) {
+        umesh_mutex_unlock(state->generic_lock);
         return ret;
     }
 
     tlv->session_id = umesh_htole32(state->session_id);
     memcpy(tlv->random, peer->to_random, UMESH_RANDOM_LEN);
+    umesh_mutex_unlock(state->generic_lock);
+
     len = sizeof(struct umesh_join_paras_tlv);
     tlv->length = umesh_htole16(len - sizeof(struct tl));
     return len;
@@ -106,17 +109,17 @@ static int umesh_init_zero_resp_tlv(uint8_t *buf, const struct umesh_state *stat
     tlv->flag = 0;
 
     len = sizeof(struct umesh_zero_common_tlv);
-    
+
     ptr += len;
     /*get password and ssid*/
     ret = umesh_wifi_get_ap_info(ssid, passwd, bssid);
-    if(ret < 0) {
+    if (ret < 0) {
         return UMESH_WIFI_GET_AP_INFO_FAILED;
     }
-    
+
     encrypt_data = umesh_malloc(strlen(passwd) + 1);
 
-////////////////
+    ////////////////
 
     if (memcmp(ra, ETHER_BROADCAST, IEEE80211_MAC_ADDR_LEN) == 0) { /* broadcast */
         bcast = 1;
@@ -125,14 +128,17 @@ static int umesh_init_zero_resp_tlv(uint8_t *buf, const struct umesh_state *stat
     }
     if (bcast == 0) { /* unicast encrypto */
         struct umesh_peer *to_peer = NULL;
+        umesh_mutex_lock(state->generic_lock);
         ret = umesh_peer_get(state->peers_state.peers, ra, &to_peer);
+
         if (ret < 0) {
             umesh_free(encrypt_data);
+            umesh_mutex_unlock(state->generic_lock);
             return UMESH_ERR_PEER_MISSING;
         }
 
         umesh_get_ucast_iv(to_peer->from_random, to_peer->to_random, iv_data);
-
+        umesh_mutex_unlock(state->generic_lock);
         aes = utils_aes128_init(state->aes_key, iv_data, AES_ENCRYPTION);
         if (aes == NULL) {
             umesh_free(encrypt_data);
@@ -165,25 +171,25 @@ static int umesh_init_zero_resp_tlv(uint8_t *buf, const struct umesh_state *stat
         }
     }
 
-////////////////
+    ////////////////
     value_len = (uint8_t)strlen(ssid);
     *ptr = value_len;
     ptr++;
-    memcpy(ptr,ssid ,value_len);
+    memcpy(ptr, ssid, value_len);
     ptr += value_len;
     value_len = (uint8_t)strlen(passwd);
     *ptr = value_len;
     ptr++;
-    memcpy(ptr,encrypt_data ,value_len);   
+    memcpy(ptr, encrypt_data, value_len);
     ptr += value_len;
 
-    for(i = 0; i < IEEE80211_MAC_ADDR_LEN; i++) {
-        if(bssid[i] != 0) {
+    for (i = 0; i < IEEE80211_MAC_ADDR_LEN; i++) {
+        if (bssid[i] != 0) {
             break;
         }
     }
 
-    if(i != IEEE80211_MAC_ADDR_LEN) {
+    if (i != IEEE80211_MAC_ADDR_LEN) {
         memcpy(ptr, bssid, IEEE80211_MAC_ADDR_LEN);
         tlv->flag != BIT2;
         ptr += value_len;
@@ -371,7 +377,7 @@ static int umesh_init_full_frame(umesh_buf_t *buf, struct umesh_state *state, st
     ptr += umesh_ieee80211_add_fcs(buf_data(buf), ptr);
     //log_hex("umesh_init_full_frame:",buf_data(buf),ptr - buf_data(buf));
     len = ptr - buf_data(buf);
-    BUF_TAKE(buf, buf_len(buf)- len);
+    BUF_TAKE(buf, buf_len(buf) - len);
     return len;
 buffer_error:
     return UMESH_ERR_OUT_OF_BOUNDS;
@@ -584,7 +590,7 @@ static int umesh_init_frame_zero_resp(umesh_state_t *state, uint8_t *dst, umesh_
     struct buf *send_buf;
 
     int request_len = IEEE80211_MAC_HEADER_LEN + sizeof(struct umesh_header) + sizeof(struct umesh_zero_common_tlv) +
-                      UMESH_MAX_SSID_LEN + UMESH_MAX_PASSWD_LEN + IEEE80211_MAC_ADDR_LEN+ UMESH_FCS_LEN;
+                      UMESH_MAX_SSID_LEN + UMESH_MAX_PASSWD_LEN + IEEE80211_MAC_ADDR_LEN + UMESH_FCS_LEN;
     struct umesh_send_message message;
     if (state == NULL || buf == NULL || dst == NULL) {
         return UMESH_ERR_NULL_POINTER;
@@ -725,15 +731,17 @@ static int umesh_init_frame_data(umesh_state_t *state, const uint8_t *ra, const 
 
     if (bcast == 0) { /* unicast encrypto */
         struct umesh_peer *to_peer = NULL;
+        umesh_mutex_lock(state->generic_lock);
         ret = umesh_peer_get(state->peers_state.peers, ra, &to_peer);
         if (ret < 0) {
             buf_free(send_buf);
             umesh_free(encrypt_data);
+            umesh_mutex_unlock(state->generic_lock);
             return UMESH_ERR_PEER_MISSING;
         }
 
         umesh_get_ucast_iv(to_peer->from_random, to_peer->to_random, iv_data);
-
+        umesh_mutex_unlock(state->generic_lock);
         aes = utils_aes128_init(state->aes_key, iv_data, AES_ENCRYPTION);
         if (aes == NULL) {
             buf_free(send_buf);
@@ -925,7 +933,7 @@ int umesh_send_frame_zero_req(umesh_state_t *state, const uint8_t *da)
         return UMESH_ERR_NULL_POINTER;
     }
     log_d("------------send zero req --------");
-    ret = umesh_init_frame_zero_req(state,da, &buf);
+    ret = umesh_init_frame_zero_req(state, da, &buf);
     if (ret < 0) {
         log_e("init zero req frame failed,ret = %d", ret);
         return ret;
@@ -963,7 +971,7 @@ int umesh_send_frame_zero_finish(umesh_state_t *state, const uint8_t *da)
 {
     int ret;
     umesh_buf_t *buf = NULL;
-    if (state == NULL || da == NULL ) {
+    if (state == NULL || da == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
     log_d("------------send zero finish --------");

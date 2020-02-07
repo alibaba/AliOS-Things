@@ -90,7 +90,7 @@ fail:
 
 int umesh_state_set_zero_config_cb(struct umesh_state *state, ap_info_cb cb)
 {
-    if(state == NULL || cb == NULL) {
+    if (state == NULL || cb == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
 
@@ -99,7 +99,29 @@ int umesh_state_set_zero_config_cb(struct umesh_state *state, ap_info_cb cb)
 }
 int umesh_state_deinit(struct umesh_state *state)
 {
+    peers_scan_node_t *node1 = NULL, *next_node1 = NULL;
+    umesh_buf_t *node2 = NULL, *next_node2 = NULL;
+    umesh_mutex_lock(state->generic_lock);
+
+    list_for_each_entry_safe(node1, next_node1, &state->scaned_peers_list, linked_list, peers_scan_node_t) {
+        list_del(&node1->linked_list);
+        umesh_free(node1);
+    }
+
+    list_for_each_entry_safe(node2, next_node2, &state->send_to_radio_list, linked_list, umesh_buf_t) {
+        list_del(&node2->linked_list);
+        buf_free(node2);
+    }
+
+    list_for_each_entry_safe(node2, next_node2, &state->send_to_ip_list, linked_list, umesh_buf_t) {
+        list_del(&node2->linked_list);
+        buf_free(node2);
+    }
+
+
     umesh_peers_state_deinit(&state->peers_state);
+    umesh_mutex_unlock(state->generic_lock);
+
     umesh_mutex_free(state->to_radio_list_lock);
     umesh_mutex_free(state->to_ip_list_lock);
     umesh_semaphore_free(state->generic_semap);
