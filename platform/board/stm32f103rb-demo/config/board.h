@@ -68,13 +68,24 @@ typedef enum{
 }PORT_UART_TYPE;
 
 typedef enum {
-    PORT_TIMER1,
-    PORT_TIMER2,
-    PORT_TIMER3,
-    PORT_TIMER4,
+    PORT_TIMER_0,
+    PORT_TIMER_1,
+    PORT_TIMER_2,
+    PORT_TIMER_3,
+    PORT_TIMER_4,
+    PORT_TIMER_5,
     PORT_TIMER_SIZE,
     PORT_TIMER_INVALID = 255
 };
+
+typedef enum{
+    PORT_PWM_1,
+    PORT_PWM_2,
+    PORT_PWM_3,
+    PORT_PWM_4,
+    PORT_PWM_SIZE,
+    PORT_PWM_INVALID = 255,
+}PORT_PWM_TYPE;
 
 /*
     hal support list

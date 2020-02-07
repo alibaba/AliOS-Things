@@ -42,7 +42,7 @@ int32_t hal_timer_init(timer_dev_t *tim)
 
     switch (tim->port) {
         case PORT_TIMER3:
-      	    tim->priv = &timer3_handle;
+            tim->priv = &timer3_handle;
             ret = timer3_init(tim);
             break;
 

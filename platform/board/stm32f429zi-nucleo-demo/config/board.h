@@ -41,7 +41,10 @@ typedef enum{
 }PORT_CAN_TYPE;
 
 typedef enum{
-    PORT_TIMER_CANOPEN,
+    PORT_TIMER_CANOPEN = 0,
+    PORT_TIMER_0 = 0,
+    PORT_TIMER_1 = 1,
+    PORT_TIMER_2 = 2,
     PORT_TIMER_3 = 3,
     PORT_TIMER_4 = 4,
     PORT_TIMER_5 = 5,
@@ -147,6 +150,8 @@ typedef enum{
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+
+#define LED2    23 //GPIO23  //GPIOB-PIN7
 
 #endif /*__BOARD__H_*/
 
