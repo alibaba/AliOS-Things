@@ -46,7 +46,6 @@ void mb_main(void)
          * Initiate write single registers request.
          * data_resp: respond from the remote device. If the write operation succeeds,
          * it's equal to data_write.
-         * written.
          */
         status = mbmaster_write_single_register(mb_handler, DEVICE1_SLAVE_ADDR, DEVICE1_REG1_ADDR,
                                                 data_write, NULL, &data_resp, NULL, AOS_WAIT_FOREVER);
@@ -73,8 +72,8 @@ void mb_main(void)
         status = mbmaster_read_holding_registers(mb_handler, DEVICE1_SLAVE_ADDR, DEVICE1_REG1_ADDR,
                                                  REQ_REGISTER_NUMBER, buf, &len, AOS_WAIT_FOREVER);
         if (status == MB_SUCCESS) {
-            /* The register length on modbus is 16 bits, big end mode  */
-            register_buf = buf;
+            /* The register length on modbus is 16 bits */
+            register_buf = (uint16_t *)buf;
             simulator1 = register_buf[0];
             simulator2 = register_buf[1];
             LOGI(MODBUSM_APP, "read holding register simulator1: %d,simulator2: %d", simulator1, simulator2);
