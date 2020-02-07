@@ -19,15 +19,11 @@
 #endif
 
 #ifndef HALAPP_GPIO_IN
-#define HALAPP_GPIO_IN      9
+#define HALAPP_GPIO_IN      9   //PA9
 #endif
 
 #ifndef HALAPP_GPIO_INT
-#define HALAPP_GPIO_INT     9
-#endif
-
-#ifndef ON_BOARD_LED02
-#define ON_BOARD_LED02      23 //PB0
+#define HALAPP_GPIO_INT     9   //PA9
 #endif
 
 /*
