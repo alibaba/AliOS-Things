@@ -4,8 +4,9 @@ import click
 import json
 import shutil
 import subprocess
-from lib.code import compute_header_md5sum, get_depends_from_source
+from lib.code import compute_header_md5sum, get_depends_from_source, copy_file, write_file, write_project_config
 from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
+from lib.comp import generate_default_header_file
 from app_gen_kconfig import gen_kconfig
 
 """
@@ -35,9 +36,11 @@ except:
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 template = "templates/new_project_template"
 COMP_INDEX = "aos_comp_index.json"
-CONFIGIN_BACKUP = ".Config.in.bak"
+CONFIG_BAK_PATH = ".important.bak"
 CONFIGIN_FILE = "Config.in"
 DOT_AOS = ".aos"
+AOS_MAKEFILE = "aos.mk"
+AOS_MAKEFILE_TEMP = "aos.mk.temp"
 
 def write_depends_config(config_file, board, app=None):
     """ append source "xxx/Config.in" of mandatory and optitional depends in 
@@ -88,18 +91,6 @@ def write_depends_config(config_file, board, app=None):
                     f.write(line)
 
 
-def write_file(contents, destfile):
-    """ Write contents to destfile line by line """
-    subdir = os.path.dirname(destfile)
-
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
-
-    with open(destfile, "w") as f:
-        for line in contents:
-            f.write(line)
-
-
 def copy_template_file(tempfile, templatedir, destdir, projectname, board):
     """ Copy template file to destdir and replace projectname, PROJECTNAME,
     boardname with it's actual name """
@@ -121,8 +112,8 @@ def copy_template_file(tempfile, templatedir, destdir, projectname, board):
             contents += [line]
 
     # Replace projectname from filename
-    if tempfile == "aos.mk.temp":
-        destfile = "aos.mk"
+    if tempfile == AOS_MAKEFILE_TEMP:
+        destfile = AOS_MAKEFILE
     elif "projectname" in tempfile:
         destfile = tempfile.replace("projectname", projectname)
     else:
@@ -138,6 +129,10 @@ def update_demo_app_config(config_file, projectname, board):
     """ Write build required configs(AOS_BUILD_BOARD, AOS_BUILD_APP, etc) to 
     dest Config.in """
     contents = """
+config AOS_CREATE_PROJECT
+    bool 
+    default y
+
 config AOS_BUILD_BOARD
     string
     default "%s"
@@ -212,7 +207,7 @@ def copy_template(templatedir, destdir, projectname, board):
     # update dest Config.in
     config_file = os.path.join(destdir, CONFIGIN_FILE)
     write_depends_config(config_file, board)
-    shutil.copyfile(config_file, os.path.join(destdir, CONFIGIN_BACKUP))
+    copy_file(config_file, os.path.join(destdir, CONFIG_BAK_PATH, CONFIGIN_FILE))
 
 
 def copy_demo_app(appdir, destdir, projectname, board, appname):
@@ -241,26 +236,7 @@ def copy_demo_app(appdir, destdir, projectname, board, appname):
     config_file = os.path.join(destdir, CONFIGIN_FILE)
     update_demo_app_config(config_file, projectname, board)
     write_depends_config(config_file, board, appname)
-    shutil.copyfile(config_file, os.path.join(destdir, CONFIGIN_BACKUP))
-
-
-def write_project_config(config_file, config_data):
-    """ Write projet config file: .aos, involve DEPENDENCIES, MD5SUM_HEADER """
-    contents = []
-    if os.path.isfile(config_file) and config_data:
-        with open(config_file, "r") as f:
-            for line in f.readlines():
-                line = line.strip()
-                tmp = line.split("=")
-                key, value = tmp[0], tmp[1]
-                if key not in config_data:
-                    config_data[key] = value
-
-    for key in config_data:
-        contents.append("%s=%s\n" % (key, config_data[key]))
-
-    contents = sorted(contents)
-    write_file(contents, config_file)
+    copy_file(config_file, os.path.join(destdir, CONFIG_BAK_PATH, CONFIGIN_FILE))
 
 
 def check_project_name(projectname):
@@ -337,6 +313,9 @@ def cli(projectname, board, projectdir, templateapp):
         copy_demo_app(templatedir, destdir, projectname, board, templateapp)
     else:
         copy_template(templatedir, destdir, projectname, board)
+
+    # write the default configuration in .h files
+    generate_default_header_file(os.path.join(destdir, CONFIGIN_FILE))
 
     # Initial project config
     (md5sum, include_list) = compute_header_md5sum(destdir)

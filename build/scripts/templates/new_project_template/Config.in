@@ -1,6 +1,10 @@
 #
 # The configs required by AliOS Things
 #
+config AOS_CREATE_PROJECT
+    bool 
+    default y
+    
 config AOS_BUILD_BOARD
     string
     default "@boardname@"

@@ -1,12 +1,10 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
-
 #include <aos/kernel.h>
 
-/**********************user code*************************/
 int application_start(int argc, char *argv[])
 {
     /*add your code*/
