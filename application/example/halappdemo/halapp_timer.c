@@ -15,12 +15,12 @@
 /* gpio app macro default value
    need to ajust for each board
 */
-#ifndef ON_BOARD_LED02
-#define ON_BOARD_LED02      23 //PB0
+#ifndef HALAPP_LED_TEST
+#define HALAPP_LED_TEST      LED2 //
 #endif
 
-#ifndef PORT_TIMER5
-#define PORT_TIMER5         5   //logic num, define corresponding physical port for each board
+#ifndef HALAPP_TIMER_TEST
+#define HALAPP_TIMER_TEST     PORT_TIMER_5   //logic num, define corresponding physical port for each board
 #endif
 
 static void hal_gpio_int_fun(gpio_dev_t * gpio)
@@ -46,12 +46,12 @@ void hal_timer_app_run(void)
 
     memset(pgpio_out,0, sizeof(gpio_dev_t));
 
-    pgpio_out->port = ON_BOARD_LED02;
+    pgpio_out->port = HALAPP_LED_TEST;
     pgpio_out->config = OUTPUT_PUSH_PULL;
     pgpio_out->priv = NULL;
     hal_gpio_init(pgpio_out);
 
-    time.port = PORT_TIMER5;
+    time.port = HALAPP_TIMER_TEST;
     time.config.period = 1000*1000; //us
     time.config.reload_mode = TIMER_RELOAD_AUTO;
     time.config.cb = hal_gpio_int_fun;

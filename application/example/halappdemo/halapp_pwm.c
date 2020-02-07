@@ -15,8 +15,8 @@
 /* gpio app macro default value
    need to ajust for each board
 */
-#ifndef PORT_PWM_4
-#define PORT_PWM_4          3   //logic num, define corresponding physical port for each board
+#ifndef HALAPP_PWM_TEST
+#define HALAPP_PWM_TEST          PORT_PWM_4   //logic num, define corresponding physical port for each board
 #endif
 
 /* output one pwm signal */
@@ -27,7 +27,7 @@ void hal_pwm_app_out(void)
 
     printf("hal_pwm_app_out in\r\n");
 
-    tim.port = PORT_PWM_4;
+    tim.port = HALAPP_PWM_TEST;
     tim.config.freq = 1000;
     tim.config.duty_cycle = 0.5;
     tim.priv = NULL;
@@ -54,7 +54,7 @@ void hal_pwm_chg_args(void)
     printf("hal_pwm_chg_args in\r\n");
 
     pwm_config_t para = {0.25, 1000};
-    tim.port = PORT_PWM_4;
+    tim.port = HALAPP_PWM_TEST;
     tim.config.freq = 1000;
     tim.config.duty_cycle = 0.5;
     tim.priv = NULL;
