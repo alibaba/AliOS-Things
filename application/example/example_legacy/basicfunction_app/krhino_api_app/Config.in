@@ -1,0 +1,10 @@
+config AOS_APP_KRHINO_API_APP
+    bool "krhino_api_app"
+    select AOS_COMP_CLI
+    select AOS_COMP_DEBUG
+    help
+        An example to show how to use the krhino kernel API
+
+if AOS_APP_KRHINO_API_APP
+# Configurations for the krhino api app
+endif
