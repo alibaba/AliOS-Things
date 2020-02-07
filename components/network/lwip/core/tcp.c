@@ -1,5 +1,5 @@
 /**
- * @file 
+ * @file
  * Transmission Control Protocol for IP
  * See also @ref tcp_raw
  *
@@ -84,6 +84,9 @@
 #else
 #define INITIAL_MSS TCP_MSS
 #endif
+
+/*  lwip_rto_flags: 0 means small rto 1 means large rto */
+int lwip_rto_flags = 0;
 
 static const char * const tcp_state_str[] = {
   "CLOSED",
@@ -1021,6 +1024,19 @@ tcp_slowtmr_start:
           /* Double retransmission time-out unless we are trying to
            * connect to somebody (i.e., we are in SYN_SENT). */
           if (pcb->state != SYN_SENT) {
+            if(lwip_rto_flags != pcb->adjrto) {
+              pcb->adjrto = lwip_rto_flags;
+              if(pcb->adjrto == 0) {
+                LWIP_DEBUGF(TCP_RTO_DEBUG, ("change to RTO:500\n"));
+                pcb->rto = 500 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 500. */
+                pcb->sv = 500 / TCP_SLOW_INTERVAL;
+              }
+              else {
+                LWIP_DEBUGF(TCP_RTO_DEBUG, ("change to RTO:1000\n"));
+                pcb->rto = 1000 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 1000.*/
+                pcb->sv = 1000 / TCP_SLOW_INTERVAL;
+              }
+            }
             pcb->rto = ((pcb->sa >> 3) + pcb->sv) << tcp_backoff[pcb->nrtx];
           }
 
@@ -1576,8 +1592,17 @@ tcp_alloc(u8_t prio)
     /* As initial send MSS, we use TCP_MSS but limit it to 536.
        The send MSS is updated when an MSS option is received. */
     pcb->mss = INITIAL_MSS;
-    pcb->rto = 500 / TCP_SLOW_INTERVAL; /* lwip's default is 3000, changed to 500. */
-    pcb->sv = 500 / TCP_SLOW_INTERVAL;
+    pcb->adjrto = lwip_rto_flags;
+    if(pcb->adjrto == 0) {
+      LWIP_DEBUGF(TCP_RTO_DEBUG, ("RTO:500\n"));
+      pcb->rto = 500 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 500. */
+      pcb->sv = 500 / TCP_SLOW_INTERVAL;
+    }
+    else {
+      LWIP_DEBUGF(TCP_RTO_DEBUG, ("RTO:1000\n"));
+      pcb->rto = 1000 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 1000. */
+      pcb->sv = 1000 / TCP_SLOW_INTERVAL;
+    }
     pcb->rtime = -1;
     pcb->cwnd = 1;
     iss = tcp_next_iss();
@@ -1718,7 +1743,7 @@ tcp_sent(struct tcp_pcb *pcb, tcp_sent_fn sent)
  * has occurred on the connection.
  *
  * @note The corresponding pcb is already freed when this callback is called!
- * 
+ *
  * @param pcb tcp_pcb to set the err callback
  * @param err callback function to call for this pcb when a fatal error
  *        has occurred on the connection
