@@ -55,7 +55,7 @@ mb_status_t mb_serial_init(mb_handler_t *handler, uint8_t port, uint32_t baud_ra
 mb_status_t mb_serial_finalize(mb_handler_t *handler)
 {
     int32_t     ret;
-    uart_dev_t *uart = (mb_handler_t*)handler->private;
+    uart_dev_t *uart = (uart_dev_t *)handler->private;
     ret = hal_uart_finalize(uart);
     if (ret == 0) {
         return MB_SUCCESS;
@@ -66,7 +66,7 @@ mb_status_t mb_serial_finalize(mb_handler_t *handler)
 mb_status_t mb_serial_frame_send(mb_handler_t *handler, uint32_t timeout)
 {
     int32_t     ret;
-    uart_dev_t *uart = (mb_handler_t *)handler->private;
+    uart_dev_t *uart = (uart_dev_t *)handler->private;
 
     ret = hal_uart_send(uart, handler->mb_frame_buff, handler->mb_frame_length, timeout);
     if (ret == 0) {
@@ -80,7 +80,7 @@ mb_status_t mb_serial_frame_recv(mb_handler_t *handler)
 {
     int32_t ret;
 
-    uart_dev_t *uart = (mb_handler_t *)handler->private;
+    uart_dev_t *uart = (uart_dev_t *)handler->private;
     LOGD(MODBUS_MOUDLE, "waiting %ld ms for rev frame", handler->respond_timeout);
     ret = hal_uart_recv_II(uart, handler->mb_frame_buff, ADU_BUF_MAX_LENGTH, &handler->mb_frame_length, handler->respond_timeout);
     if (ret == 0) {
