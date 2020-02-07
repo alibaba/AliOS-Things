@@ -108,6 +108,7 @@ typedef enum{
 #define AOS_HAL_NAND_ENABLED        0
 #define AOS_HAL_NOR_ENABLED         0
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 void board_gpio_init(void);
@@ -152,6 +153,37 @@ void Error_Handler(void);
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 
+#if (AOS_HAL_GPIO_ENABLED > 0)
+
+/* gpio app macro default value
+   need to ajust for each board
+*/
+#ifndef HALAPP_GPIO_OUT
+#define HALAPP_GPIO_OUT LED2
+#endif
+
+#ifndef HALAPP_GPIO_IN
+#define HALAPP_GPIO_IN KEY1
+#endif
+
+#ifndef HALAPP_GPIO_INT
+#define HALAPP_GPIO_INT KEY1
+#endif
+#endif /* AOS_HAL_GPIO_ENABLED > 0 */
+
+#if (AOS_HAL_TIMER_ENABLED > 0)
+
+/* gpio app macro default value
+   need to ajust for each board
+*/
+#ifndef HALAPP_LED_TEST
+#define HALAPP_LED_TEST      LED2
+#endif
+
+#ifndef HALAPP_TIMER_TEST
+#define HALAPP_TIMER_TEST     PORT_TIMER_4
+#endif
+#endif /* AOS_HAL_TIMER_ENABLED > 0 */
 
 #ifdef __cplusplus
 }

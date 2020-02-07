@@ -172,7 +172,7 @@ void board_gpio_init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  board_get_gpio_group(LED2,&GPIOx);
+  board_get_gpio_group(LED2, &GPIOx);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOx, board_get_gpio_pin(LED2), GPIO_PIN_RESET);
@@ -181,6 +181,7 @@ void board_gpio_init(void)
   GPIO_InitStruct.Pin = board_get_gpio_pin(KEY1);//KEY1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  board_get_gpio_group(KEY1, &GPIOx);
   HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED2_Pin */
@@ -188,6 +189,7 @@ void board_gpio_init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  board_get_gpio_group(LED2, &GPIOx);
   HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/

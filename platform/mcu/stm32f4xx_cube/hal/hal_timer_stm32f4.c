@@ -170,7 +170,6 @@ static int32_t timer_normal_init(timer_dev_t *tim)
     {
         uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
     }
-    printf("timer_normal_init,uwTimclock:%d\r\n",uwTimclock);
 
     /* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
     uwPrescalerValue = (uint32_t)(uwTimclock / 64000) - 1;
