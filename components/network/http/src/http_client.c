@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <http_def_config.h>
 #include <http_parser.h>
 
 #include "http_client.h"
