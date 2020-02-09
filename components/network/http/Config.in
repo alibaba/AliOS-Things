@@ -1,6 +1,116 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_HTTP
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
 
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_HTTP
     bool "http"
     default n
     help
         AliOS Things http client
+endif
+
+###################################################################
+# Component configuration items
+menu "HTTP Client Configuration"
+config CONFIG_HTTPC_SESSION_NUM
+    int "The maximum http session"
+    default 1
+    help
+        The maximum number of http session
+
+config CONFIG_HTTPC_SERVER_NAME_SIZE
+    int "The size of server name"
+    default 64
+    help
+        The size of server name in bytes
+
+config CONFIG_HTTPC_DEFAULT_CLIENT
+    string "HTTP client user agent"
+    default "AliOS-HTTP-Client/2.1" 
+    help
+        HTTP client user agent
+
+config CONFIG_HTTP_STATUS_SIZE
+    int "http status size"
+    default 32
+    help
+        http status size in bytes
+
+config CONFIG_HTTP_SECURE
+    bool "Support HTTP Secure"
+    default n
+    help 
+        set to y if use HTTPS
+        default n
+
+if CONFIG_HTTP_SECURE
+choice
+    prompt "Security Selection"
+    default CONFIG_HTTP_SECURE_TLS
+    help
+      HTTPS over MbedTLS or iTLS
+
+    config CONFIG_HTTP_SECURE_TLS
+        bool "HTTPS over MbedTLS"
+    # Backward compatibility, to be removed soon 
+        select AOS_COMP_MBEDTLS
+
+    config CONFIG_HTTP_SECURE_ITLS
+        bool "HTTPS over iTLS"
+    # Backward compatibility, to be removed soon 
+        select AOS_COMP_ITLS
+endchoice
+endif
+
+config CONFIG_HTTP_ENABLE_MUTEX
+    bool "Enable mutex"
+    default y
+    help 
+        Enable mutex for HTTP operation
+
+config CONFIG_HTTP_DEBUG
+    bool "Enable debug"
+    default n
+    help 
+        Enable debug function
+
+config HTTP_DELETE
+    int "HTTP delete code"
+    default 0
+    help 
+        HTTP delete code
+
+config HTTP_GET
+    int "HTTP get code"
+    default 1
+    help 
+        HTTP get code
+
+config HTTP_HEAD
+    int "HTTP head code"
+    default 2
+    help 
+        HTTP head code
+
+config HTTP_POST
+    int "HTTP post code"
+    default 3
+    help 
+        HTTP post code
+
+config HTTP_PUT
+    int "HTTP put code"
+    default 4
+    help 
+        HTTP put code
+
+endmenu
