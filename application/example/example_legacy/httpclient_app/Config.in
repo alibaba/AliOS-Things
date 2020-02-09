@@ -1,5 +1,6 @@
 config AOS_APP_HTTPCLIENT_APP
     bool "HTTP Client App"
+# the selection of dependencies are to be removed soon
     select AOS_COMP_HTTP
     select AOS_COMP_NETMGR
     select AOS_COMP_LWIP
@@ -7,9 +8,3 @@ config AOS_APP_HTTPCLIENT_APP
     help
         HTTP client app
 
-if AOS_APP_HTTPCLIENT_APP
-config CONFIG_HTTP_SECURE
-    bool "Support HTTP Secure"
-    default n
-    select AOS_COMP_MBEDTLS
-endif
