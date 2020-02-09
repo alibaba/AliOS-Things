@@ -325,10 +325,11 @@ def convert_configin_to_header(config_in_file, comp_name, destdir):
         for line in f.readlines():
             line = line.strip()
             if line:
-                if line.startswith("config") or line.startswith("menuconfig"):
+                if line.startswith("config ") or line.startswith("menuconfig "):
                     if new_block:
                         macro = parse_block_of_configin(lines)
-                        macro_list.append(macro)
+                        if macro:
+                            macro_list.append(macro)
                     new_block = True
                     lines = []
                 if new_block:
@@ -336,14 +337,15 @@ def convert_configin_to_header(config_in_file, comp_name, destdir):
         # last block
         if new_block:
             macro = parse_block_of_configin(lines)
-            macro_list.append(macro)
+            if macro:
+                macro_list.append(macro)
     if macro_list:
         filename = os.path.join(destdir, "comp_%s.h" % comp_name)
         with open (filename, 'w+') as f:
             f.write("//================This is split line================\n")
             f.write("// %s %s\n\n" % (COMPONENT_KEYWORD, comp_name))
             for macro in macro_list:
-                f.write("// %s\n" % macro["hint"])
+                f.write("// description:%s\n" % macro["hint"])
                 f.write("// #define %s %s // type: %s\n\n" % (macro["name"],
                     macro["value"], macro["type"]))
 

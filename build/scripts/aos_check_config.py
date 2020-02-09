@@ -11,9 +11,15 @@ def merge_new_config_with_default(dirname, boardname, appname):
     """ merge config file(.config) with app.config and board.config if existed, 
     and remove app.config and board.config """
     if os.path.isdir(os.path.join(dirname, "core/rhino")) or os.path.isdir(os.path.join(dirname, "include/aos")):
-        board_config = os.path.join(dirname, "platform/board", boardname, BOARD_CONFIG_FILE)
+        board_dir = os.path.join(dirname, "platform/board", boardname)
+        if not os.path.isdir(board_dir):
+            board_dir = os.path.join(dirname, "platform/board/board_legacy", boardname)
+        board_config = os.path.join(board_dir, BOARD_CONFIG_FILE)
         appname = appname.replace(".", "/")
-        app_config = os.path.join(dirname, "application/example", appname, APP_CONFIG_FILE)
+        app_dir = os.path.join(dirname, "application/example", appname)
+        if not os.path.isdir(app_dir):
+            app_dir = os.path.join(dirname, "application/example/example_legacy", appname)
+        app_config = os.path.join(app_dir, APP_CONFIG_FILE)
         in_appdir = False
     else:
         board_config = os.path.join(dirname, "board", boardname, BOARD_CONFIG_FILE)
