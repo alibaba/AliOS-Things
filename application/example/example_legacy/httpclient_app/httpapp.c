@@ -15,7 +15,6 @@
 #include <aos/cli.h>
 #include <aos/yloop.h>
 #include <network/network.h>
-#include "http_config.h"
 #include <http.h>
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/sha256.h"
