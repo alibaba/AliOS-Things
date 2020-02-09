@@ -12,7 +12,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "http_def_config.h"
 #include "network/network.h"
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/net.h"
