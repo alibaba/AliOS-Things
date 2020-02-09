@@ -56,7 +56,7 @@ def popen_subprocess(command, suppress_error=None, stdin=None, **kwargs):
 
     return proc.returncode
 
-def gen_kconfig(appdir, appname, board):
+def gen_kconfig(appdir, appname, board, defconfig, oldconfig):
     """ call external process to run makefile and generate .config and aos_config.h:
     1. aos make app@board.config to generate default configuration .config, 
       and update .config with app.config and board.config
@@ -108,12 +108,13 @@ def gen_kconfig(appdir, appname, board):
     # print("make_cmd_str: %s" % make_cmd_str)
 
     with _cd(aos_sdk_path):
-        popen_subprocess(make_cmd_str + " %s@%s.config" % (appname, board), 
-            shell=True, cwd=os.getcwd())
+        if defconfig:
+            popen_subprocess(make_cmd_str + " %s@%s.config" % (appname, board), 
+                shell=True, cwd=os.getcwd())
         # print(".config generated for %s@%s" % (appname, board))
-
-        popen_subprocess(make_cmd_str + " silentoldconfig", shell=True, 
-            cwd=os.getcwd())
+        if oldconfig:
+            popen_subprocess(make_cmd_str + " silentoldconfig", shell=True, 
+                cwd=os.getcwd())
         # print("aos_config.h generated for %s@%s" % (appname, board))
 
 
@@ -126,7 +127,7 @@ def main():
     appname = sys.argv[2]
     boardname = sys.argv[3]
 
-    gen_kconfig(appdir, appname, boardname)
+    gen_kconfig(appdir, appname, boardname, True, True)
 
 if __name__ == "__main__":
     main()
