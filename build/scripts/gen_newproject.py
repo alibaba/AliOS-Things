@@ -192,7 +192,7 @@ def get_sources(templatedir):
     return sources
 
 
-def copy_template(templatedir, destdir, projectname, board):
+def copy_template(templatedir, destdir, projectname, board, boarddir):
     """ Copy predefined template app and board folder to destdir, update 
     application's Config.in by appending source "xxx/Config.in"  """
     # copy template app to project directory
@@ -202,7 +202,7 @@ def copy_template(templatedir, destdir, projectname, board):
         copy_template_file(tempfile, templatedir, destdir, projectname, board)
 
     # copy board to project directory
-    copy_board_to_project(board, destdir)
+    copy_board_to_project(board, destdir, boarddir)
 
     # update dest Config.in
     config_file = os.path.join(destdir, CONFIGIN_FILE)
@@ -210,7 +210,7 @@ def copy_template(templatedir, destdir, projectname, board):
     copy_file(config_file, os.path.join(destdir, CONFIG_BAK_PATH, CONFIGIN_FILE))
 
 
-def copy_demo_app(appdir, destdir, projectname, board, appname):
+def copy_demo_app(appdir, destdir, projectname, board, boarddir, appname):
     """ Copy builtin demo app and board to destdir, update application's
     Config.in by appending source "xxx/Config.in"   """
     # copy demo app to project directory
@@ -230,7 +230,7 @@ def copy_demo_app(appdir, destdir, projectname, board, appname):
     copy_template_file("README.md", templatedir, destdir, projectname, board)
 
     # copy board to project directory
-    copy_board_to_project(board, destdir)
+    copy_board_to_project(board, destdir, boarddir)
 
     # update dest Config.in
     config_file = os.path.join(destdir, CONFIGIN_FILE)
@@ -261,13 +261,8 @@ def check_project_name(projectname):
     return comp_info
 
 
-def copy_board_to_project(board, dest_dir):
+def copy_board_to_project(board, dest_dir, board_dir):
     """ Copy the board to project directory """
-    aos_sdk = os.environ.get("AOS_SDK_PATH")
-    board_dir = os.path.join(aos_sdk, "platform/board", board)
-    if not os.path.isdir(board_dir):
-        click.echo("[Error] No such directory: %s!" % board_dir)
-
     dest_dir = os.path.join(dest_dir, "board", board)
     shutil.copytree(board_dir, dest_dir)
 
@@ -309,10 +304,17 @@ def cli(projectname, board, projectdir, templateapp):
     else:
         os.makedirs(destdir)
 
-    if templateapp:
-        copy_demo_app(templatedir, destdir, projectname, board, templateapp)
+    if board in comp_info:
+        boarddir = comp_info[board]["location"]
+        boarddir = os.path.join(aos_sdk, boarddir)
     else:
-        copy_template(templatedir, destdir, projectname, board)
+        click.echo("No such board found: \"%s\"" % board)
+        return 1
+
+    if templateapp:
+        copy_demo_app(templatedir, destdir, projectname, board, boarddir, templateapp)
+    else:
+        copy_template(templatedir, destdir, projectname, board, boarddir)
 
     # write the default configuration in .h files
     generate_default_header_file(os.path.join(destdir, CONFIGIN_FILE))
@@ -329,7 +331,7 @@ def cli(projectname, board, projectdir, templateapp):
     write_project_config(project_config, config_data)
 
     # run makefile and generate .config and aos_config.h
-    gen_kconfig(destdir, projectname, board)
+    gen_kconfig(destdir, projectname, board, True, True)
     click.echo("[Info] Project Initialized at: %s" % destdir)
 
     

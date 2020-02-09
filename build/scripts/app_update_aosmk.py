@@ -27,12 +27,14 @@ def update_depends_config(dirname, comps):
     1. remove the line of source "xxx/Config.in" if the comp is already existed 
     in .Config.in.bak( a copy of Config.in when project generated), 
     2. add the source "xxx/Config.in" for new added comps and their dependencies """
-    if not comps:
-        return False
 
     with open(os.path.join(dirname, CONFIG_BAK_PATH, CONFIGIN_FILE), "r") as f:
         text_config = f.read()
 
+    if not comps:
+        with open(os.path.join(dirname, CONFIGIN_FILE), "w+") as f:
+            f.write(text_config)
+        return
     """ Source Config.in of depends """
     mandatory_configs = []
     optional_configs = []
@@ -85,7 +87,7 @@ def update_aosmk(dirname):
     (new_md5sum, include_list) = compute_header_md5sum(dirname)
 
     if old_md5sum == new_md5sum:
-        return None
+        return False, None
 
     comp_info = {}
     with open(COMP_INDEX, "r") as f:
@@ -123,7 +125,7 @@ def update_aosmk(dirname):
             f.write(line)
 
     write_md5sum(config_file, new_md5sum)
-    return depends
+    return True, depends
 
 def main():
     if len(sys.argv) < 2:
@@ -135,9 +137,9 @@ def main():
     # check components config in aos_config.h
     convert_aosconfig_config(os.path.join(app_dir, AOS_CONFIG_H_FILE), os.path.join(app_dir, DOT_CONFIG_FILE))
     # check dependencies in app source file
-    depends = update_aosmk(app_dir)
+    updated, depends = update_aosmk(app_dir)
     
-    if depends:
+    if updated:
         # update app Config.in to involve new components
         update_depends_config(app_dir, depends)
         # update components header file of default configuration
@@ -148,8 +150,8 @@ def main():
         boardname = get_project_config(dot_config_file, "AOS_BUILD_BOARD")
         os.rename(dot_config_file, os.path.join(app_dir, APP_CONFIG_FILE))
         """ run makefile to get default config for new added components,  and 
-        update .config and aos_config.h """
-        gen_kconfig(app_dir, appname, boardname)
+        update .config """
+        gen_kconfig(app_dir, appname, boardname, True, False)
 
 if __name__ == "__main__":
     main()
