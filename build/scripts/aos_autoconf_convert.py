@@ -9,6 +9,7 @@ CONFIG_CHECKSUM_FILE = "aos_config_md5.txt"
 DOT_AOS = ".aos"
 DOT_CONFIG_FILE = ".config"
 APP_CONFIG_FILE = "app.config"
+TEMP_CONFIG_FILE = "temp.config"
 
 USER_DEFINED_KEYWORD = "KEYWORD: PART1 USER DEFINED CONFIGURATION"
 USER_DEFINED_NOTE = "/* Put user defined macro here */\n"
@@ -140,11 +141,12 @@ def convert_aosconfig_config(aosconfig_h, config_file):
                         macro_list += [ ("%s=%s" % (macro, value)) ]
 
     if macro_list:
-        app_config_file = os.path.join(root_dir, APP_CONFIG_FILE)
-        with open (app_config_file, "w+") as f:
+        temp_config_file = os.path.join(root_dir, TEMP_CONFIG_FILE)
+        with open (temp_config_file, "w+") as f:
             for macro in macro_list:
                 f.write("%s\n" % macro)
-        merge_config(config_file, app_config_file)
+        merge_config(config_file, temp_config_file)
+        os.remove(temp_config_file)
     return 0
 
 def convert_aosconfig_asm(aosconfig_h):
