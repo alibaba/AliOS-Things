@@ -53,10 +53,6 @@ $(NAME)_SOURCES += hal/pwm.c
 $(NAME)_SOURCES += bsp/tcpip_adapter_lwip.c bsp/wlanif.c
 $(NAME)_CFLAGS  := -std=gnu99
 
-ifeq ($(bt_mesh), 1)
-$(NAME)_SOURCES += hal/mesh_bt_hal.c
-endif
-
 ESP_LIB_CORE_TYPE =
 ESP_LIB_SRAM =
 
@@ -123,11 +119,6 @@ $(NAME)_COMPONENTS       += rhino arch_xtensa_lx6
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
-endif
-
-mesh               ?= 0
-ifneq ($(mesh),0)
-$(NAME)_COMPONENTS += umesh
 endif
 
 BLE                      ?= 0
