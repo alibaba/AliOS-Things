@@ -37,7 +37,7 @@ global_cflags = Split('''
         -ffunction-sections
         -fdata-sections
         -fstrict-volatile-bitfields
-        -mlongcalls 
+        -mlongcalls
         -DESPOS_FOR_ESP32
 ''')
 local_cflags = ['-std=gnu99']
@@ -91,7 +91,7 @@ dependencis = Split('''
         osal
         kernel/init
         kernel/fs/kv
-        network/lwip 
+        network/lwip
         security/alicrypto
 ''')
 
@@ -102,10 +102,6 @@ ld_files = Split('''
         bsp/ld/esp32.peripherals.ld
         bsp/ld/esp32.rom.spiram_incompatible_fns.ld
 ''')
-
-
-if aos_global_config.get('bt_mesh') == 1:
-    src.append('hal/mesh_bt_hal.c')
 
 if aos_global_config.get('wifi'):
     local_cflags.append('ENABLE_WIFI')
@@ -124,9 +120,6 @@ else:
     src.append('aos/hook_impl.c')
     src.append('aos/soc_impl.c')
     src.append('aos/heap_wrapper.c')
-
-if aos_global_config.get('mesh'):
-    dependencis.append('network/umesh')
 
 ble = aos_global_config.get('mesh', 0)
 if ble:
