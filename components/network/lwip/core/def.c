@@ -219,7 +219,7 @@ lwip_itoa(char* result, size_t bufsize, int number)
      it will get */
   tmp = &result[bufsize-2];
   while ((n != 0) && (result_len < (result_len - 1))) {
-    char val = '0' + (n % 10);
+    char val = (char)('0' + (n % 10));
     *tmp = val;
     tmp--;
     n = n / 10;
