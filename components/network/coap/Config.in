@@ -1,3 +1,18 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_LIBCOAP
+    bool
+    select INFRA_CJSON
+    select INFRA_JSON_PARSER
+    select INFRA_REPORT
+    select INFRA_MD5
+    select INFRA_SHA256
+    select HAL_CRYPTO
+    select INFRA_AES if !USE_MBEDTLS
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_LIBCOAP
     bool "Coap"
     select INFRA_CJSON
@@ -7,23 +22,64 @@ config AOS_COMP_LIBCOAP
     select INFRA_SHA256
     select HAL_CRYPTO
     select INFRA_AES if !USE_MBEDTLS
-    select AOS_COMP_SDK_WRAPPERS
     default n
     help
         AliOS Things coap client
+endif
 
-if AOS_COMP_LIBCOAP
-# Configurations for comp coap component
+###################################################################
+# Component configuration items
+menu "COAP Configuration"
+depends on AOS_COMP_LIBCOAP
 
 config COAP_WITH_DTLS
     bool "COAP WITH DTLS"
-    select AOS_COMP_MBEDTLS
     default y
+    # Backward compatibility, to be removed soon
+    select AOS_COMP_MBEDTLS
     help
+        COAP WITH DTLS
 
 config COAP_WITH_ALI_AUTH
-    bool "COAP WITH ALI AUTHENTICATION"
+    bool "COAP WITH ALI AUTH"
     default y
     help
+        COAP WITH ALI AUTHENTICATION
+
+config WITH_LIBCOAP_DEBUG
+     bool "LIBCOAP DEBUG OUTPUT"
+     default y
+     help
+        LIBCOAP DEBUG OUTPUT
+
+if COAP_WITH_ALI_AUTH
+config BUILD_AOS
+     bool "Build AOS"
+     default y
+     help
+        Build AOS
+
+config INFRA_MD5
+     bool "Infra MD5"
+     default y
+     help
+        Infra MD5
 
 endif
+
+if !COAP_WITH_ALI_AUTH
+config NDEBUG
+     bool "No Debug Output"
+     default y
+     help
+        No Debug
+
+config COAP_WITH_NOAUTH
+     bool "Coap without Auth"
+     default y
+     help
+        Coap without Auth
+
+endif
+
+endmenu
