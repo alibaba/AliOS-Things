@@ -1,6 +1,0 @@
-config AOS_COMP_LWFTPD
-    bool "lwftpd"
-    default n
-    select AOS_COMP_OSAL_AOS
-    help
-        AliOS Things FTP server
