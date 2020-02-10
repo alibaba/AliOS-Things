@@ -149,12 +149,6 @@ if AOS_APP_LINKWAN
         default "lorawan.linkwan"
 endif
 
-source "application/example/example_legacy/meshapp/Config.in"
-if AOS_APP_MESHAPP
-    config AOS_BUILD_APP
-        default "meshapp"
-endif
-
 source "application/example/example_legacy/modbus_app/Config.in"
 if AOS_APP_MODBUS_APP
     config AOS_BUILD_APP
