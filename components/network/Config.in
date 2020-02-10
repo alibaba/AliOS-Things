@@ -21,7 +21,6 @@ source "components/network/umesh2/Config.in"
 source "components/network/http/Config.in"
 source "components/dm/und/Config.in"
 source "components/network/websocket/Config.in"
-source "components/network/lwftpd/Config.in"
 source "components/network/httpdns/Config.in"
 source "components/network/mal/Config.in"
 
