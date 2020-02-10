@@ -1,10 +1,9 @@
 config AOS_APP_COAPAPP
     bool "COAP Sample"
-    select AOS_COMP_CJSON
+# the selection of dependencies are to be removed soon
+    select AOS_COMP_LIBCOAP
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
-    select AOS_COMP_COAP
-
     help
         coap client example
 
