@@ -183,7 +183,8 @@ lwip_strnicmp(const char* str1, const char* str2, size_t len)
         return 1;
       }
     }
-  } while (len-- && c1 != 0);
+    len--;
+  } while ((len != 0) && (c1 != 0));
   return 0;
 }
 #endif
