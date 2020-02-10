@@ -38,13 +38,13 @@ extern struct netif xnetif[];			//LWIP netif
 /**
  *      rltk_wlan_set_netif_info - set netif hw address and register dev pointer to netif device
  *      @idx_wlan: netif index
- *			    0 for STA only or SoftAP only or STA in STA+SoftAP concurrent mode, 
+ *			    0 for STA only or SoftAP only or STA in STA+SoftAP concurrent mode,
  *			    1 for SoftAP in STA+SoftAP concurrent mode
  *      @dev: register netdev pointer to LWIP. Reserved.
  *      @dev_addr: set netif hw address
  *
  *      Return Value: None
- */     
+ */
 void rltk_wlan_set_netif_info(int idx_wlan, void * dev, unsigned char * dev_addr)
 {
 #if (CONFIG_LWIP_LAYER == 1)
@@ -61,7 +61,7 @@ void rltk_wlan_set_netif_info(int idx_wlan, void * dev, unsigned char * dev_addr
  *      @total_len: total data len
  *
  *      Return Value: None
- */     
+ */
 int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
@@ -94,7 +94,7 @@ int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_le
 
 	for (last_sg = &sg_list[sg_len]; sg_list < last_sg; ++sg_list) {
 		rtw_memcpy((void *)(skb->tail), (void *)(sg_list->buf), sg_list->len);
-		skb_put(skb,  sg_list->len);		
+		skb_put(skb,  sg_list->len);
 	}
 
 	rltk_wlan_send_skb(idx, skb);
@@ -117,13 +117,13 @@ exit:
  *      @sg_len: size of each data buffer
  *
  *      Return Value: None
- */     
+ */
 void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
 	struct eth_drv_sg *last_sg;
 	struct sk_buff *skb;
-	
+
 	DBG_TRACE("%s is called", __FUNCTION__);
 	if(idx == -1){
 		DBG_ERR("skb is NULL");
@@ -145,7 +145,7 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 {
 #if CONFIG_LWIP_LAYER == 1
 	struct netif * pnetif = &xnetif[idx];
-	ip_addr_t addr = { 0 };
+	ip4_addr_t addr = { 0 };
 #ifdef CONFIG_MEMORY_ACCESS_ALIGNED
 	unsigned int temp;
 	memcpy(&temp, ip_dest, sizeof(unsigned int));
@@ -154,22 +154,22 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 	u32_t *ip_dest_addr  = (u32_t*)ip_dest;
 #endif
 	addr.addr = *ip_dest_addr;
-	
-	if(pnetif->ip_addr.addr == 0)
+
+	if(ip_2_ip4(&(pnetif->ip_addr))->addr == 0)
 		return 1;
-	
-	if(ip_addr_ismulticast(&addr) || ip_addr_isbroadcast(&addr,pnetif)){
+
+	if(ip4_addr_ismulticast(&addr) || ip4_addr_isbroadcast(&addr,pnetif)){
 		return 1;
 	}
-		
+
 	//if(ip_addr_netcmp(&(pnetif->ip_addr), &addr, &(pnetif->netmask))) //addr&netmask
 	//	return 1;
 
-	if(ip_addr_cmp(&(pnetif->ip_addr),&addr))
+	if(ip4_addr_cmp(ip_2_ip4(&(pnetif->ip_addr)), &addr))
 		return 1;
 
 	DBG_TRACE("invalid IP: %d.%d.%d.%d ",ip_dest[0],ip_dest[1],ip_dest[2],ip_dest[3]);
-#endif	
+#endif
 #ifdef CONFIG_DONT_CARE_TP
 	if(pnetif->flags & NETIF_FLAG_IPSWITCH)
 		return 1;
@@ -191,7 +191,7 @@ int netif_get_idx(struct netif* pnetif)
 	default:
 		return -1;
 	}
-#else	
+#else
 	return -1;
 #endif
 }
@@ -225,7 +225,7 @@ void netif_post_sleep_processing(void)
 void netif_pre_sleep_processing(void)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-	lwip_PRE_SLEEP_PROCESSING();	
+	lwip_PRE_SLEEP_PROCESSING();
 #endif
 }
 
