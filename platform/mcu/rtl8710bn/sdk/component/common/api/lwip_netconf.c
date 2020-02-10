@@ -49,7 +49,7 @@
 #define AP_IP_ADDR2   43
 #define AP_IP_ADDR3   1
 #endif
-   
+
 /*NETMASK*/
 #ifndef AP_NETMASK_ADDR0
 #define AP_NETMASK_ADDR0   255
@@ -63,7 +63,7 @@
 #define AP_GW_ADDR0   192
 #define AP_GW_ADDR1   168
 #define AP_GW_ADDR2   43
-#define AP_GW_ADDR3   1  
+#define AP_GW_ADDR3   1
 #endif
 
 /*Static IP ADDRESS FOR ETHERNET*/
@@ -114,13 +114,13 @@ int lwip_init_done = 0;
 
 void LwIP_Init(void)
 {
-	ip_addr_t ipaddr;
-	ip_addr_t netmask;
-	ip_addr_t gw;
+	ip4_addr_t ipaddr;
+	ip4_addr_t netmask;
+	ip4_addr_t gw;
 	int8_t idx = 0;
 
 	/* Create tcp_ip stack thread */
-	tcpip_init( NULL, NULL );	
+	tcpip_init( NULL, NULL );
 
 	/* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
 	        struct ip_addr *netmask, struct ip_addr *gw,
@@ -151,12 +151,12 @@ void LwIP_Init(void)
     {
 			IP4_ADDR(&ipaddr, ETH_IP_ADDR0, ETH_IP_ADDR1, ETH_IP_ADDR2, ETH_IP_ADDR3);
 			IP4_ADDR(&netmask, ETH_NETMASK_ADDR0, ETH_NETMASK_ADDR1 , ETH_NETMASK_ADDR2, ETH_NETMASK_ADDR3);
-			IP4_ADDR(&gw, ETH_GW_ADDR0, ETH_GW_ADDR1, ETH_GW_ADDR2, ETH_GW_ADDR3);    	
+			IP4_ADDR(&gw, ETH_GW_ADDR0, ETH_GW_ADDR1, ETH_GW_ADDR2, ETH_GW_ADDR3);
     }
 #endif
 		xnetif[idx].name[0] = 'r';
 		xnetif[idx].name[1] = '0'+idx;
-		
+
 #if CONFIG_ETHERNET
     if(idx == NET_IF_NUM - 1)
       netif_add(&xnetif[idx], &ipaddr, &netmask, &gw, NULL, &ethernetif_mii_init, &tcpip_input);
@@ -168,7 +168,7 @@ void LwIP_Init(void)
     printf("interface %d is initialized\n", idx);
 
 	}
-	
+
 	/*  Registers the default network interface. */
 	netif_set_default(&xnetif[0]);
 
@@ -176,10 +176,10 @@ void LwIP_Init(void)
 	#if 0
 	/*  When the netif is fully configured this function must be called.*/
 	for(idx = 0;idx < NET_IF_NUM;idx++)
-		netif_set_up(&xnetif[idx]); 
+		netif_set_up(&xnetif[idx]);
 	#endif
 
-	lwip_init_done = 1;	 
+	lwip_init_done = 1;
 }
 
 /**
@@ -189,9 +189,9 @@ void LwIP_Init(void)
   */
 uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 {
-	ip_addr_t ipaddr;
-	ip_addr_t netmask;
-	ip_addr_t gw;
+	ip4_addr_t ipaddr;
+	ip4_addr_t netmask;
+	ip4_addr_t gw;
 	uint32_t IPaddress;
 	uint8_t iptab[4];
 	uint8_t DHCP_state;
@@ -199,7 +199,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 	struct netif *pnetif = NULL;
 
 	DHCP_state = dhcp_state;
-	
+
 #if !CONFIG_ETHERNET
 	if(idx > 1)
 		idx = 1;
@@ -210,9 +210,9 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 
 
 	if(DHCP_state == 0){
-		pnetif->ip_addr.addr = 0;
-		pnetif->netmask.addr = 0;
-		pnetif->gw.addr = 0;
+		ip_2_ip4(&(pnetif->ip_addr))->addr = 0;
+		ip_2_ip4(&(pnetif->netmask))->addr = 0;
+		ip_2_ip4(&(pnetif->gw))->addr = 0;
 	}
 
 	for (;;)
@@ -234,22 +234,22 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 		case DHCP_WAIT_ADDRESS:
 		{
 			/* If DHCP stopped by wifi_disconn_hdl*/
-			if(dhcp->state == 0) 
+			if(dhcp->state == 0)
 			{
 				printf("\n\rLwIP_DHCP: dhcp stop.");
 				return DHCP_STOP;
 			}
-			
-			/* Read the new IP address */
-			IPaddress = pnetif->ip_addr.addr;
 
-			if (IPaddress!=0) 
+			/* Read the new IP address */
+			IPaddress = ip_2_ip4(&(pnetif->ip_addr))->addr;
+
+			if (IPaddress!=0)
 			{
-				DHCP_state = DHCP_ADDRESS_ASSIGNED;	
+				DHCP_state = DHCP_ADDRESS_ASSIGNED;
 #if CONFIG_WLAN
 				wifi_reg_event_handler(WIFI_EVENT_BEACON_AFTER_DHCP, wifi_rx_beacon_hdl, NULL);
 #endif
-				
+
 				/* Stop DHCP */
 				// dhcp_stop(pnetif);  /* can not stop, need to renew, Robbie*/
 
@@ -300,7 +300,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 					rtw_msleep_os(DHCP_FINE_TIMER_MSECS);
 					dhcp_fine_tmr();
 					mscnt += DHCP_FINE_TIMER_MSECS;
-					if (mscnt >= DHCP_COARSE_TIMER_SECS*1000) 
+					if (mscnt >= DHCP_COARSE_TIMER_SECS*1000)
 					{
 						dhcp_coarse_tmr();
 						mscnt = 0;
@@ -323,24 +323,24 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state)
 			printf("\n\rLwIP_DHCP: dhcp stop.");
 			dhcp_stop(pnetif);
 			return DHCP_STOP;
-		default: 
+		default:
 			break;
 	}
 
-	}   
+	}
 }
 
 void LwIP_ReleaseIP(uint8_t idx)
 {
-	ip_addr_t ipaddr;
-	ip_addr_t netmask;
-	ip_addr_t gw;
+	ip4_addr_t ipaddr;
+	ip4_addr_t netmask;
+	ip4_addr_t gw;
 	struct netif *pnetif = &xnetif[idx];
-	
+
 	IP4_ADDR(&ipaddr, 0, 0, 0, 0);
 	IP4_ADDR(&netmask, 255, 255, 255, 0);
 	IP4_ADDR(&gw, 0, 0, 0, 0);
-	
+
 	netif_set_addr(pnetif, &ipaddr , &netmask, &gw);
 }
 
@@ -365,7 +365,7 @@ uint8_t* LwIP_GetMASK(struct netif *pnetif)
 }
 
 uint8_t* LwIP_GetBC(struct netif *pnetif)
-{        
+{
 	return NULL;
 }
 
@@ -383,9 +383,9 @@ void LwIP_SetDNS(ip_addr_t* dns)
 #endif
 void LwIP_UseStaticIP(struct netif *pnetif)
 {
-	ip_addr_t ipaddr;
-	ip_addr_t netmask;
-	ip_addr_t gw;
+	ip4_addr_t ipaddr;
+	ip4_addr_t netmask;
+	ip4_addr_t gw;
 
 	/* Static address used */
 	if(pnetif->name[1] == '0'){
@@ -406,7 +406,7 @@ void LwIP_UseStaticIP(struct netif *pnetif)
 		IP4_ADDR(&netmask, AP_NETMASK_ADDR0, AP_NETMASK_ADDR1 , AP_NETMASK_ADDR2, AP_NETMASK_ADDR3);
 		IP4_ADDR(&gw, AP_GW_ADDR0, AP_GW_ADDR1, AP_GW_ADDR2, AP_GW_ADDR3);
 	}
-	
+
 	netif_set_addr(pnetif, &ipaddr , &netmask, &gw);
 }
 #if LWIP_AUTOIP
@@ -445,7 +445,7 @@ void LwIP_AUTOIP(struct netif *pnetif)
 /* Get IPv6 address with lwip 1.5.0 */
 void LwIP_AUTOIP_IPv6(struct netif *pnetif)
 {
-	uint8_t *ipv6 = (uint8_t *) &(pnetif->ip6_addr[0].addr[0]);
+	uint8_t *ipv6 = (uint8_t *) &(pnetif->ip_addr.u_addr.ip6.addr[0]);
 
 	netif_create_ip6_linklocal_address(pnetif, 1);
 	printf("\nIPv6 link-local address: %02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x\n",
