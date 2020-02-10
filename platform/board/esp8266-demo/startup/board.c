@@ -77,3 +77,8 @@ void board_wifi_init(void)
     }
 }
 
+void board_network_init(void)
+{
+    board_wifi_init();
+}
+
