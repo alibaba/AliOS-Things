@@ -21,6 +21,8 @@ endif
 ###################################################################
 # Component configuration items
 menu "HTTP Client Configuration"
+depends on AOS_COMP_HTTP
+
 config CONFIG_HTTPC_SESSION_NUM
     int "The maximum http session"
     default 1

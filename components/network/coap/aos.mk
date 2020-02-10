@@ -1,8 +1,13 @@
 NAME := libcoap
 
+# component information
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := libcoap component
+
+# source files and the folder of internal include files
+$(NAME)_INCLUDES += ./include/coap2/     \
+                    ./include/
 
 LIBCOAP_SRC_PATH := ./src/libcoap-4.2.0/
 
@@ -22,7 +27,8 @@ $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    $(LIBCOAP_SRC_PATH)/address.c \
                    $(LIBCOAP_SRC_PATH)/coap_debug.c  \
                    $(LIBCOAP_SRC_PATH)/mem.c  \
-                   ./src/iotx_coap_api.c
+                   ./src/iotx_coap_api.c      \
+                   ./wrappers/coap_infra_wrapper.c
 
 ifeq (y,$(AOS_COMP_LWM2M))
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/wakaa_lwm2m_adapter.c
@@ -34,15 +40,11 @@ else
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
-$(NAME)_INCLUDES += ./include/coap2/     \
-                    ./include/
 
-ifeq (y,$(COAP_WITH_ALI_AUTH))
-$(NAME)_COMPONENTS += mbedtls activation chip_code libiot_infra libiot_wrappers
-GLOBAL_DEFINES += BUILD_AOS INFRA_MD5 WITH_LIBCOAP_DEBUG
-else
-GLOBAL_DEFINES += NDEBUG COAP_WITH_NOAUTH WITH_LIBCOAP_DEBUG
-endif
+# the folder of API files
+GLOBAL_INCLUDES += ../../../include/network/coap
 
-include $($(NAME)_LOCATION)/wrappers/coap_wrapper.mk
+# mandatory dependencies
 
+# optional dependencies
+$(NAME)_COMPONENTS-$(COAP_WITH_ALI_AUTH) += mbedtls activation chip_code libiot_infra libiot_wrappers
