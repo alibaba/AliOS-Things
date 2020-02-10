@@ -22,6 +22,12 @@ if AOS_APP_HALAPPDEMO
     config AOS_BUILD_APP
         default "halappdemo"
 endif
+
+source "application/example/linkkitappdemo/Config.in"
+if AOS_APP_LINKKITAPPDEMO
+    config AOS_BUILD_APP
+        default "linkkitappdemo"
+endif
 	
 source "application/example/example_legacy/blink/Config.in"
 if AOS_APP_BLINK
