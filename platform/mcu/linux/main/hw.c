@@ -134,7 +134,7 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set,
     int flash_fd = open_flash(in_partition, true);
     if (flash_fd < 0)
         return -1;
-    
+
     char *buf = (char *)malloc(size);
     if (!buf) {
         ret = -1;
@@ -145,7 +145,7 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set,
     ret = pwrite(flash_fd, buf, size, off_set);
     if (ret < 0)
         perror("error erase flash:");
-    
+
 exit:
     close(flash_fd);
     free(buf);
@@ -285,9 +285,5 @@ void hw_start_hal(options_t *poptions)
     hal_wifi_register_module(&aos_wifi_module_athost);
 #else
     hal_wifi_register_module(&sim_aos_wifi_linux);
-#endif
-
-#ifdef LINUX_MESH_80211
-    linux_wifi_register();
 #endif
 }
