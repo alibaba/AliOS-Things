@@ -79,10 +79,10 @@ struct dhcp_msg {
 	uint8_t op; 		/* Message op code/message type. 1 = BOOTREQUEST, 2 = BOOTREPLY */
 	uint8_t	htype;		/* Hardware address type */
 	uint8_t hlen;		/* Hardware address length */
-	uint8_t hops;		/* Client sets to zero, optionally used by relay agents 
+	uint8_t hops;		/* Client sets to zero, optionally used by relay agents
 				   when booting via a relay agent */
 	uint8_t xid[4];		/* Transaction ID, a random number chosen by the client,
-				   used by the client and server to associate messages and 
+				   used by the client and server to associate messages and
 				   responses between a client and a server */
 	uint16_t secs;		/* Filled in by client, seconds elapsed since client began address
 				   acquisition or renewal process.*/
@@ -120,7 +120,7 @@ struct address_pool{
 };
 
 /* 01~32 */
-#define MARK_RANGE1_IP_BIT(table, ip)	((table.ip_range[0]) | (1 << ((ip) - 1)))	 
+#define MARK_RANGE1_IP_BIT(table, ip)	((table.ip_range[0]) | (1 << ((ip) - 1)))
 /* 33~64 */
 #define MARK_RANGE2_IP_BIT(table, ip)	((table.ip_range[1]) | (1 << ((ip) - 1)))
 /* 65~96 */
@@ -128,7 +128,7 @@ struct address_pool{
 /* 97~128 */
 #define MARK_RANGE4_IP_BIT(table, ip)	((table.ip_range[3]) | (1 << ((ip) - 1)))
 /* 129~160 */
-#define MARK_RANGE5_IP_BIT(table, ip)	((table.ip_range[4]) | (1 << ((ip) - 1)))	 
+#define MARK_RANGE5_IP_BIT(table, ip)	((table.ip_range[4]) | (1 << ((ip) - 1)))
 /* 161~192 */
 #define MARK_RANGE6_IP_BIT(table, ip)	((table.ip_range[5]) | (1 << ((ip) - 1)))
 /* 193~224 */
@@ -137,7 +137,7 @@ struct address_pool{
 #define MARK_RANGE8_IP_BIT(table, ip)	((table.ip_range[7]) | (1 << ((ip) - 1)))
 
 /* expose API */
-void dhcps_set_addr_pool(int addr_pool_set, ip_addr_t * addr_pool_start, ip_addr_t *addr_pool_end);
+void dhcps_set_addr_pool(int addr_pool_set, ip4_addr_t * addr_pool_start, ip4_addr_t *addr_pool_end);
 void dhcps_init(struct netif * pnetif);
 void dhcps_deinit(void);
 
