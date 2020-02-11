@@ -6,6 +6,8 @@ $(NAME)_SUMMARY    := rhino core code
 
 GLOBAL_INCLUDES += include ./
 
+$(NAME)_COMPONENTS += lib_rbtree
+
 #default gcc
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS += -Wall -Werror
