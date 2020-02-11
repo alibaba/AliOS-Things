@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include "breeze_awss.h"
-#include "bzopt.h"
 
 static void dev_status_changed_handler(breeze_event_t event)
 {
