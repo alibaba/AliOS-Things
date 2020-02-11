@@ -75,7 +75,7 @@ static const ext_tlv_type_handler_t
   { { 0x01, ext_cmd01_rsp}, { 0x02, ext_cmd02_rsp},
     { 0x03, ext_cmd03_rsp}, { 0x04, ext_cmd04_rsp},
     { 0x05, ext_cmd05_rsp},
-#if BZ_ENABLE_COMBO_NET
+#ifdef EN_COMBO_NET
     { 0x06, ext_cmd06_rsp},
 #endif
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -202,7 +202,7 @@ static ret_code_t ext_cmd05_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t 
     return err_code;
 }
 
-#if BZ_ENABLE_COMBO_NET
+#ifdef EN_COMBO_NET
 static ret_code_t ext_cmd06_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
 {
 
@@ -428,7 +428,7 @@ ret_code_t extcmd_init(ali_init_t const *p_init, tx_func_t tx_func)
 {
     memset(&g_extcmd, 0, sizeof(extcmd_t));
     get_os_info();
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     auth_get_device_name(&g_extcmd.p_device_name, &g_extcmd.device_name_len);
     auth_get_product_key(&g_extcmd.p_product_key, &g_extcmd.product_key_len);
 #endif
@@ -451,8 +451,7 @@ void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
     uint8_t tlv_type, tlv_len;
 
     uint32_t err_code = BZ_SUCCESS;
-
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     if (!auth_is_authdone()) {
         err_code = BZ_EINVALIDSTATE;
     }

@@ -11,7 +11,6 @@
 #include "utils.h"
 #include "breeze_hal_ble.h"
 #include "breeze_hal_sec.h"
-
 #include "breeze_hal_os.h"
 
 

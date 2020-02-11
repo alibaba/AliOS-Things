@@ -1,7 +1,6 @@
 config AOS_COMP_BT_HOST
     bool "Bluetooth Host Stack"
     default n
-    select AOS_COMP_BT_COMMON
     help
 
 if AOS_COMP_BT_HOST
