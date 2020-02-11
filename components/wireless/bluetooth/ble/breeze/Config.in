@@ -23,18 +23,68 @@ if AOS_COMP_BREEZE
     config CONFIG_COMP_BZ_EN_AUTH
         bool "Enable authentication."
         default y
+
     if CONFIG_COMP_BZ_EN_AUTH
         config CONFIG_COMP_BZ_EN_AUTH_OFFLINE
-        bool "Authentication offline, otherwise online"
-        default n
+            bool "Authentication offline, otherwise online"
+            default n
+    
+        config BZ_AUTH_TIMEOUT
+            int "Authentation Timeout, ms"
+            default 10000
+
+        config BZ_TRANSPORT_TIMEOUT
+            int "Transportion Timeout, ms"
+            default 10000
     endif
+
+    config BZ_VERSION
+        string #"Auto Version", invisiable
+        default "2.0.6" if CONFIG_COMP_BZ_EN_AUTH_OFFLINE
+        default "2.0.5"
 
     config CONFIG_COMP_BZ_EN_LONG_MTU
         bool "Extend MTU from default 20 bytes to long MTU."
         default n
 
+    #MTU configurations
+    config GATT_MTU_SIZE_DEFAULT
+        int
+        default 23
+    config BZ_MTU_SIZE_DEFAULT
+        int
+        default 20
+    config ENCRYPT_DATA_SIZE
+        int
+        default 16
+    config BZ_MTU_SIZE_LIMIT
+        int
+        default 128
+    config GATT_MTU_SIZE_LIMIT
+        int
+        default 135
+    config BZ_MAX_PAYLOAD_SIZE
+        int
+        default 2048 if CONFIG_COMP_BZ_EN_LONG_MTU
+        default 256
+
+    config BZ_TRANSPORT_VER
+        int #"Autoset version", invisiable
+        default 1 if CONFIG_COMP_BZ_EN_LONG_MTU
+        default 0
+
+    config BZ_BLUETOOTH_VER
+        int #bt version, 0-4.0;1-4.2;2-5.0
+        range 0 2
+        default 1
+
+    config BZ_MAX_SUPPORTED_MTU
+        int #support MTU
+        default 247
+
     config CONFIG_COMP_BZ_BUILTIN_HAL
         bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
         default y
+
 
 endif
