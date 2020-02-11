@@ -1,7 +1,6 @@
 config AOS_COMP_BREEZE_HAL
     bool
     default n
-#select AOS_COMP_MBEDTLS if CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS
     help
 
 if AOS_COMP_BREEZE_HAL
