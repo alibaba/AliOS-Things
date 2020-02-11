@@ -56,7 +56,7 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
     }
     g_core.adv_data[i++] = atoi(ver_str);
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     fmsk |= 1 << FMSK_SECURITY_Pos;
 #endif
 #if BZ_ENABLE_OTA
@@ -139,7 +139,7 @@ static uint32_t ais_init(ali_init_t const *p_init)
     init_ais.mtu = p_init->max_mtu;
     init_ais.init_done = ais_init_done;
     g_ali_init = p_init;
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     /*this is workaroud for asyn mechanism, auth init should be done first, since data
      * structures :product key, secret, device name parameters are passed by local variable, p_init,
      * if we do in asyn callback, ais_init_done, stack of g_ali_init will be corrupted.
@@ -195,7 +195,7 @@ ret_code_t core_init(ali_init_t const *p_init)
 
 void core_reset(void)
 {
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     auth_reset();
 #endif
     transport_reset();
@@ -219,7 +219,7 @@ void core_handle_err(uint8_t src, uint8_t code)
             }
             break;
         case BZ_AUTH_ERR:
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
             auth_reset();
 #endif
             if (code == BZ_ETIMEOUT) {
@@ -249,7 +249,7 @@ ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
     uint32_t seq;
 
     seq = (++g_seq);
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     auth_calc_adv_sign(seq, sign);
 #endif
     memcpy(p_data, g_core.adv_data, g_core.adv_data_len);

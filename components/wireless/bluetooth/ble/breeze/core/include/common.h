@@ -10,7 +10,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "breeze_config.h"
+#ifndef BREEZE_LOG_DEBUG
+#define BREEZE_LOG_DEBUG printf
+#endif
+
+#ifndef BREEZE_LOG_ERR
+#define BREEZE_LOG_ERR printf
+#endif
+
+#ifndef BREEZE_LOG_INFO
+#define BREEZE_LOG_INFO printf
+#endif
 
 #define BZ_CMD_TYPE_MASK 0xf0
 
