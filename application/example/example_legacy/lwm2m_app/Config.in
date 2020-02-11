@@ -1,6 +1,5 @@
 config AOS_APP_LWM2M_APP
     bool "lwm2mapp"
-    select AOS_COMP_OSAL_AOS   
     select AOS_COMP_LWM2M 
     help
         lwm2m app
@@ -13,5 +12,26 @@ config LWM2M_WITH_DTLS
     select MBEDTLS_CONFIG_TLS_DEBUG
     default y
     help
+        LwM2M WITH DTLS
 
+if LWM2M_WITH_DTLS
+config USE_EXTERNAL_MEBDTLS
+    bool "USE EXTERNAL MEBDTLS"
+    default y
+    help
+        USE EXTERNAL MEBDTLS
+
+config WITH_MBEDTLS
+    bool "WITH MBEDTLS"
+    default y
+    help
+        WITH MBEDTLS
+
+config LWM2M_WITH_MBEDTLS
+    bool "LWM2M WITH MBEDTLS"
+    default y
+    help
+        LWM2M WITH MBEDTLS
+
+endif
 endif

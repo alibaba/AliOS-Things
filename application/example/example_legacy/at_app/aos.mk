@@ -7,6 +7,4 @@ $(NAME)_SOURCES := at_app.c
 
 $(NAME)_COMPONENTS += at
 
-GLOBAL_DEFINES += AOS_NO_WIFI
-
 $(NAME)_INCLUDES += ./
