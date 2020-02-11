@@ -20,12 +20,50 @@ DOT_CONFIG_FILE = ".config"
 AOS_CONFIG_H_FILE = "aos_config.h"
 APP_CONFIG_FILE = "app.config"
 AOS_MAKEFILE = "aos.mk"
+KERNEL_CONFIG_KEYWORD = "Kernel      Configuration"
+COMPONENT_CONFIG_KEYWORD = "Components  Configuration"
+
+def replace_one_config_in(text_config, line, line_repl):
+    """replace existed Config.in or insert into its corresponding menu"""
+    p = "(if (.*)\n)?"+re.escape(line)+"(endif\n)?"
+    match = re.search(p, text_config)
+    if match and not match.lastindex:
+        # found mandatory depends
+        return text_config
+        
+    text_config, cnt = re.subn(p, line_repl, text_config, 1)
+    if cnt == 0:
+        if "AOS_SDK_PATH/core/" in line:
+            p = 'menu "%s"\n' % KERNEL_CONFIG_KEYWORD
+            line_repl = p + line_repl
+            text_config = re.sub(p, line_repl, text_config, 1)
+        elif "AOS_SDK_PATH/components/" in line:
+            p = 'menu "%s"\n' % COMPONENT_CONFIG_KEYWORD
+            line_repl = p + line_repl
+            text_config = re.sub(p, line_repl, text_config, 1)
+    return text_config
+
+def update_depends_config_in(text_config, mandatory_configs, optional_configs):
+    """according to the depends, replace existed Config.in or insert into its 
+    corresponding menu"""
+    if mandatory_configs:
+        mandatory_configs = sorted(list(set(mandatory_configs)))
+        for config in mandatory_configs:
+            line = 'source "$AOS_SDK_PATH/%s"\n' % config
+            text_config = replace_one_config_in(text_config, line, line)
+        if optional_configs:
+            for config in optional_configs:
+                """ one dependency: comp_name, config_file, condition [[]] """
+                line = 'source "$AOS_SDK_PATH/%s"\n' % config["config_file"]
+                line_repl = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                text_config = replace_one_config_in(text_config, line, line_repl)
+    return text_config
 
 def update_depends_config(dirname, comps):
     """ according to the new added components, update source "xxx/Config.in" of 
     mandatory and optitional depends in application's Config.in file:
     1. remove the line of source "xxx/Config.in" if the comp is already existed 
-    in .Config.in.bak( a copy of Config.in when project generated), 
+    in Config.in( a copy of Config.in when project generated), 
     2. add the source "xxx/Config.in" for new added comps and their dependencies """
 
     with open(os.path.join(dirname, CONFIG_BAK_PATH, CONFIGIN_FILE), "r") as f:
@@ -59,21 +97,7 @@ def update_depends_config(dirname, comps):
                 # print("config is", config)
                 optional_configs.append(config)
 
-    if mandatory_configs:
-        mandatory_configs = sorted(list(set(mandatory_configs)))
-        for config in mandatory_configs:
-            line = 'source "$AOS_SDK_PATH/%s"\n' % config
-            text_config.replace(line, "")
-            text_config += line
-        if optional_configs:
-            for config in optional_configs:
-                """ one dependency: comp_name, config_file, condition [[]] """
-                line = 'source "$AOS_SDK_PATH/%s"\n' % config["config_file"]
-                text_config = text_config.replace(line, "")
-                line = get_comp_optional_depends_text(config["condition"], config["config_file"])
-                # print(line)
-                text_config += line
-    
+    text_config = update_depends_config_in(text_config, mandatory_configs, optional_configs)
     with open(os.path.join(dirname, CONFIGIN_FILE), "w+") as f:
         f.write(text_config)
 
