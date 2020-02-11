@@ -1,3 +1,12 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_HTTPDNS
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+
 config AOS_COMP_HTTPDNS
     bool "httpdns"
     default n
@@ -5,3 +14,23 @@ config AOS_COMP_HTTPDNS
     select AOS_COMP_CJSON
     help
         HTTP DNS function
+endif
+
+###################################################################
+# Component configuration items
+menu "httpdns Configuration"
+depends on AOS_COMP_HTTPDNS
+
+config HTTP_DNS_USER_ID
+    string "Aliyun HTTPDNS user ID"
+    default "100000"
+    help
+       Aliyun HTTPDNS user ID
+
+config HTTP_DNS_MAX_CACHE_AGE
+    int "DNS MAX cache age in second"
+    default 900
+    help
+       DNS MAX cache age in second
+
+endmenu
