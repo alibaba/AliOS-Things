@@ -4,21 +4,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := lwm2m component
 
-GLOBAL_DEFINES-y += LWM2M_LITTLE_ENDIAN \
-                    LWM2M_CLIENT_MODE
-
-$(NAME)_INCLUDES += ./include \
-
+# source files and the folder of internal include files
 LWM2M_SRC_PATH := ./src/wakaama-1.0
-
-LWM2M_CLIENT_SRC_PATH = ./src/ref-impl/client
-
-LWM2M_SHARED_SRC_PATH = ./src/ref-impl/shared
-
-ifeq (y,$(LWM2M_BOOTSTRAP_CLIENT_SUPPORT))
-GLOBAL_DEFINES += LWM2M_BOOTSTRAP
-endif
-
 $(NAME)_SOURCES := $(LWM2M_SRC_PATH)/block1.c \
                    $(LWM2M_SRC_PATH)/discover.c \
                    $(LWM2M_SRC_PATH)/json.c \
@@ -36,7 +23,7 @@ $(NAME)_SOURCES := $(LWM2M_SRC_PATH)/block1.c \
                    $(LWM2M_SRC_PATH)/registration.c \
                    $(LWM2M_SRC_PATH)/uri.c
 
-
+LWM2M_CLIENT_SRC_PATH = ./src/ref-impl/client
 $(NAME)_SOURCES += $(LWM2M_CLIENT_SRC_PATH)/object_server.c   \
                    $(LWM2M_CLIENT_SRC_PATH)/object_security.c \
                    $(LWM2M_CLIENT_SRC_PATH)/object_firmware.c \
@@ -44,14 +31,17 @@ $(NAME)_SOURCES += $(LWM2M_CLIENT_SRC_PATH)/object_server.c   \
                    $(LWM2M_CLIENT_SRC_PATH)/object_device.c   \
                    $(LWM2M_CLIENT_SRC_PATH)/lwm2mclient.c
 
-
+LWM2M_SHARED_SRC_PATH = ./src/ref-impl/shared
 $(NAME)_SOURCES += $(LWM2M_SHARED_SRC_PATH)/platform.c \
                    $(LWM2M_SHARED_SRC_PATH)/mbedconnection.c
 
-GLOBAL_INCLUDES += $(LWM2M_SHARED_SRC_PATH)
+$(NAME)_INCLUDES += ./include \
+                    $(LWM2M_CLIENT_SRC_PATH)
 
-$(NAME)_INCLUDES += $(LWM2M_CLIENT_SRC_PATH)
+# the folder of API files
+GLOBAL_INCLUDES += ../../../include/network/lwm2m \
+                   $(LWM2M_SHARED_SRC_PATH)
 
-
+# mandatory dependencies
 $(NAME)_COMPONENTS += libcoap
-GLOBAL_DEFINES  += LWM2M_LIBCOAP_ENABLED
+

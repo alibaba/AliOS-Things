@@ -1,4 +1,4 @@
-config AOS_COMP_COAP
+config AOS_COMP_LIBCOAP
     bool "Coap"
     select INFRA_CJSON
     select INFRA_JSON_PARSER
@@ -12,7 +12,7 @@ config AOS_COMP_COAP
     help
         AliOS Things coap client
 
-if AOS_COMP_COAP
+if AOS_COMP_LIBCOAP
 # Configurations for comp coap component
 
 config COAP_WITH_DTLS
