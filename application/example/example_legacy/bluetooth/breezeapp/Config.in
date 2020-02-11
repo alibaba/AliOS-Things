@@ -12,7 +12,7 @@ if AOS_APP_BREEZEAPP
 
 config CONFIG_COMP_BZ_OTA
     bool "Enable OTA With Breeze Link."
-    default y
+    default n
     help
 
 endif
