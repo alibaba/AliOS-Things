@@ -1,5 +1,6 @@
 config AOS_APP_HTTPDNS_APP
     bool "httpdns app"
+# the selection of dependencies are to be removed soon
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP

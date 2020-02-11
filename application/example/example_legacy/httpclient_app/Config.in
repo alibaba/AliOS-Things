@@ -3,8 +3,6 @@ config AOS_APP_HTTPCLIENT_APP
 # the selection of dependencies are to be removed soon
     select AOS_COMP_HTTP
     select AOS_COMP_NETMGR
-    select AOS_COMP_LWIP
     select AOS_COMP_CLI
     help
         HTTP client app
-
