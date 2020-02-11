@@ -1,11 +1,24 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_MAL
+    bool "mal"
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_MAL
     bool "mal"
     default n
-    select AOS_DEVICE_MAL
     help
         AliOS Things mqtt adapter layer
+endif
 
-if AOS_COMP_MAL
+
+###################################################################
+# Component configuration items
+menu "COAP Configuration"
+depends on AOS_COMP_MAL
+
 config MAL_CONFIG_MAX_TOPIC_LEN
         int "Max topic length"
         default 128
@@ -18,4 +31,25 @@ config MAL_CONFIG_MAX_MSG_LEN
         help
             MAX MSG LEN
 
+if !AOS_COMP_SDK_WRAPPERS
+config MAL_AOS_HAL_IMPL
+        bool "MAL AOS HAL impl"
+        default y
+        help
+           MAL AOS HAL impl
 endif
+
+config WITH_MAL
+        bool "WITH MAL"
+        default y
+        help
+           WITH MAL
+
+
+config CONFIG_NO_TCPIP
+        bool "NO TCPIP"
+        default y
+        help
+           NO TCPIP
+
+endmenu
