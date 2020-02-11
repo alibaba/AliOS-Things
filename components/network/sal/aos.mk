@@ -1,14 +1,11 @@
 NAME := sal
 
+# component information
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.2
 $(NAME)_SUMMARY := socket adapter layer
 
-GLOBAL_DEFINES += WITH_SAL                   \
-                  SAL_USE_AOS_HAL
-
-$(NAME)_COMPONENTS += device_sal
-
+# source files and the folder of internal include files
 $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/sal_err.c     \
                    ./src/ip4_addr.c    \
@@ -16,3 +13,11 @@ $(NAME)_SOURCES := ./src/sal_sockets.c \
 
 $(NAME)_INCLUDES += ./                  \
                     ./include
+
+# the folder of API files
+GLOBAL_INCLUDES += ../../../include/network/sal
+
+# mandatory dependencies
+$(NAME)_COMPONENTS += device_sal
+
+# optional dependencies

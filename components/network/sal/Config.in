@@ -1,3 +1,46 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_SAL
     bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SAL
+    bool "SAL"
     default n
+    help
+        SAL component
+endif
+
+
+###################################################################
+# Component configuration items
+menu "SAL Configuration"
+depends on AOS_COMP_SAL
+
+config WITH_SAL
+    bool "WITH SAL"
+    default y
+    help
+       WITH SAL macro
+
+config SAL_USE_AOS_HAL
+    bool "Use AOS HAL"
+    default y
+    help
+       Use AOS HAL
+
+config SAL_USE_DEBUG
+    bool "SAL Debug"
+    default n
+    help
+        SAL debug mode
+
+config SAL_DEFAULT_INPUTMBOX_SIZE
+    int "SAL input box size"
+    default 32
+    help
+        SAL DEFAULT input box size
+
+endmenu
