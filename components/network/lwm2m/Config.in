@@ -1,16 +1,55 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_LWM2M
-    bool "LwM2M Client"
-    default n
-    select AOS_COMP_COAP
-    help
-        AliOS Things lwm2m component
+    bool 
+    default y
+endif
 
-if AOS_COMP_LWM2M
-# Configurations for comp lwm2m client component
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_LWM2M
+    bool "LwM2M"
+    default n
+    help
+        AliOS Things LwM2M client
+endif
+
+###################################################################
+# Component configuration items
+menu "LwM2M Configuration"
+depends on AOS_COMP_LWM2M
 
 config LWM2M_BOOTSTRAP_CLIENT_SUPPORT
     bool "LwM2M Bootstrap Client"
     default n
     help
-      
+        LwM2M Bootstrap Client
+
+if LWM2M_BOOTSTRAP_CLIENT_SUPPORT
+config LWM2M_BOOTSTRAP
+    bool "LwM2M bootstrap"
+    default y
+    help
+       LwM2M bootstrap
 endif
+
+config LWM2M_LIBCOAP_ENABLED
+    bool "LwM2M LibCOAP Enabled"
+    default y
+    # Backward compatibility, to delete soon
+    select AOS_COMP_LIBCOAP
+    help
+       LwM2M LIBCOAP Enabled
+
+config LWM2M_LITTLE_ENDIAN
+    bool "LwM2M little endian"
+    default y
+    help
+       LwM2M little endian
+
+config LWM2M_CLIENT_MODE
+    bool "LwM2M client mode"
+    default y
+    help
+       LwM2M client mode
+
+endmenu
