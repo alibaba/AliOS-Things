@@ -23,6 +23,12 @@ if AOS_APP_HALAPPDEMO
         default "halappdemo"
 endif
 
+source "application/example/otaappdemo/Config.in"
+if AOS_APP_OTAAPPDEMO
+    config AOS_BUILD_APP
+        default "otaappdemo"
+endif
+
 source "application/example/linkkitappdemo/Config.in"
 if AOS_APP_LINKKITAPPDEMO
     config AOS_BUILD_APP
