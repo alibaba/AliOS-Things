@@ -1,15 +1,12 @@
 NAME := websoc
 
+# component information
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := websocket component
 
+# source files and the folder of internal include files
 $(NAME)_INCLUDES += src
-
-ifeq (y,$(WEBSOC_WITH_TLS))
- GLOBAL_DEFINES += WEBSOCKET_SSL_ENABLE
-$(NAME)_COMPONENTS += mbedtls
-endif
 
 $(NAME)_SOURCES := src/rws_error.c \
                    src/rws_frame.c \
@@ -19,3 +16,11 @@ $(NAME)_SOURCES := src/rws_error.c \
                    src/rws_socketpub.c \
                    src/rws_string.c \
                    src/rws_thread_aos.c
+
+# the folder of API files
+GLOBAL_INCLUDES += ../../../include/network/websoc
+
+# mandatory dependencies
+
+# optional dependencies
+$(NAME)_COMPONENTS-$(WEBSOC_WITH_TLS) += mbedtls

@@ -1,17 +1,39 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_WEBSOC
-    bool "websocket client"
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+
+config AOS_COMP_WEBSOC
+    bool "websocket"
     default n
     select AOS_COMP_LWIP
     help
-        AliOS Things websocket
+        websocket function
+endif
 
-if AOS_COMP_WEBSOC
-# Configurations for websocket component
+###################################################################
+# Component configuration items
+menu "websocket Configuration"
+depends on AOS_COMP_WEBSOC
 
 config WEBSOC_WITH_TLS
     bool "websocket WITH TLS"
+    # Backward compatibility, to be removed soon
     select AOS_COMP_MBEDTLS
     default y
     help
+       websocket WITH TLS
 
+if WEBSOC_WITH_TLS
+config WEBSOCKET_SSL_ENABLE
+    bool "SSL enable"
+    default y
+    help
+       SSL enable
 endif
+
+endmenu
