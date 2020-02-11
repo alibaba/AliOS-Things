@@ -22,7 +22,7 @@ extern auth_t g_auth;
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
 #define AIS_SEQ_UPDATE_FREQ (1 * 60 * 60) /* in second uint */
 static uint32_t g_seq = 0;
-static os_timer_t g_secadv_timer;
+static aos_timer_t g_secadv_timer;
 #endif
 
 static ali_init_t const *g_ali_init;
@@ -157,8 +157,8 @@ static uint32_t ais_init(ali_init_t const *p_init)
 #ifdef CONFIG_AIS_SECURE_ADV
 static void update_seq(void *arg1, void *arg2)
 {
-    os_kv_set(AIS_SEQ_KV_KEY, &g_seq, sizeof(g_seq), 1);
-    os_timer_start(&g_secadv_timer);
+    aos_kv_set(AIS_SEQ_KV_KEY, &g_seq, sizeof(g_seq), 1);
+    aos_timer_start(&g_secadv_timer);
 }
 
 static void init_seq_number(uint32_t *seq)
@@ -168,10 +168,10 @@ static void init_seq_number(uint32_t *seq)
     if (!seq)
         return;
 
-    if (os_kv_get(AIS_SEQ_KV_KEY, seq, &len) != 0) {
+    if (aos_kv_get(AIS_SEQ_KV_KEY, seq, &len) != 0) {
         *seq = 0;
         len  = sizeof(uint32_t);
-        os_kv_set(AIS_SEQ_KV_KEY, seq, len, 1);
+        aos_kv_set(AIS_SEQ_KV_KEY, seq, len, 1);
     }
 
     aos_timer_new_ext(&g_secadv_timer, update_seq, NULL, AIS_SEQ_UPDATE_FREQ, 0, 0);
@@ -268,6 +268,6 @@ ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 void set_adv_sequence(uint32_t seq)
 {
     g_seq = seq;
-    os_kv_set(AIS_SEQ_KV_KEY, &g_seq, sizeof(g_seq), 1);
+    aos_kv_set(AIS_SEQ_KV_KEY, &g_seq, sizeof(g_seq), 1);
 }
 #endif
