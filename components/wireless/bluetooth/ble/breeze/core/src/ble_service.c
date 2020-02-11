@@ -19,7 +19,7 @@ static void service_enabled(void)
 #ifdef EN_LONG_MTU
         trans_update_mtu();
 #endif
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
         auth_service_enabled();
 #endif
     }
@@ -30,8 +30,7 @@ static void connected()
     g_ais.conn_handle = BLE_CONN_HANDLE_MAGIC;
     g_ais.is_indication_enabled = false;
     g_ais.is_notification_enabled = false;
-
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     auth_connected();
 #endif
     event_notify(BZ_EVENT_CONNECTED, NULL, 0);
