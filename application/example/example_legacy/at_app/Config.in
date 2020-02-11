@@ -1,5 +1,6 @@
 config AOS_APP_AT_APP
     bool "at_app"
+# the selection of dependencies are to be removed soon
     select AOS_COMP_AT
     help
         at application

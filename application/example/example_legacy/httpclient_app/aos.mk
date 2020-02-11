@@ -5,8 +5,6 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := HTTP client app
 
 $(NAME)_SOURCES := httpapp.c
-$(NAME)_COMPONENTS := http netmgr lwip cli
-
-GLOBAL_DEFINES += BUILD_AOS
+$(NAME)_COMPONENTS := http netmgr cli
 
 CONFIG_HTTP_SECURE=1
