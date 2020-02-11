@@ -1,31 +1,30 @@
 menuconfig AOS_COMP_BREEZE
     bool "Breeze SDK"
     default n
-    select AOS_COMP_BREEZE_HAL if CONFIG_COMP_BZ_BUILTIN_HAL
     help
       AliOS things Breeze SDK
 
 if AOS_COMP_BREEZE
 # Configurations for comp breeze
 
-    config CONFIG_COMP_BZ_SECURE_ADV
+    config CONFIG_AIS_SECURE_ADV
         bool "Enable secure and sequential advertising."
         default n
 
-    config CONFIG_COMP_BZ_MODEL_SEC
+    config CONFIG_MODEL_SECURITY
         bool "Enable auth per product, otherwise auth for per device."
         default n
 
-    config CONFIG_COMP_BZ_EN_AWSS
+    config EN_COMBO_NET
         bool "Enable AWSS, providing secured ble link for wifi provision."
         default n
 
-    config CONFIG_COMP_BZ_EN_AUTH
+    config EN_AUTH
         bool "Enable authentication."
         default y
 
-    if CONFIG_COMP_BZ_EN_AUTH
-        config CONFIG_COMP_BZ_EN_AUTH_OFFLINE
+    if EN_AUTH
+        config EN_AUTH_OFFLINE
             bool "Authentication offline, otherwise online"
             default n
     
@@ -33,17 +32,18 @@ if AOS_COMP_BREEZE
             int "Authentation Timeout, ms"
             default 10000
 
-        config BZ_TRANSPORT_TIMEOUT
-            int "Transportion Timeout, ms"
-            default 10000
     endif
+   
+    config BZ_TRANSPORT_TIMEOUT
+        int "Transportion Timeout, ms"
+        default 10000
 
     config BZ_VERSION
         string #"Auto Version", invisiable
         default "2.0.6" if CONFIG_COMP_BZ_EN_AUTH_OFFLINE
         default "2.0.5"
 
-    config CONFIG_COMP_BZ_EN_LONG_MTU
+    config EN_LONG_MTU
         bool "Extend MTU from default 20 bytes to long MTU."
         default n
 
@@ -65,12 +65,12 @@ if AOS_COMP_BREEZE
         default 135
     config BZ_MAX_PAYLOAD_SIZE
         int
-        default 2048 if CONFIG_COMP_BZ_EN_LONG_MTU
+        default 2048 if EN_LONG_MTU
         default 256
 
     config BZ_TRANSPORT_VER
         int #"Autoset version", invisiable
-        default 1 if CONFIG_COMP_BZ_EN_LONG_MTU
+        default 1 if EN_LONG_MTU
         default 0
 
     config BZ_BLUETOOTH_VER
