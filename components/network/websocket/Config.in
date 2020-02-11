@@ -10,7 +10,6 @@ if !AOS_CREATE_PROJECT
 config AOS_COMP_WEBSOC
     bool "websocket"
     default n
-    select AOS_COMP_LWIP
     help
         websocket function
 endif
