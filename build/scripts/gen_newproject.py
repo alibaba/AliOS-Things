@@ -41,10 +41,45 @@ CONFIGIN_FILE = "Config.in"
 DOT_AOS = ".aos"
 AOS_MAKEFILE = "aos.mk"
 AOS_MAKEFILE_TEMP = "aos.mk.temp"
+APP_CONFIG_KEYWORD = "Application Configuration"
+BSP_CONFIG_KEYWORD = "BSP         Configuration"
+KERNEL_CONFIG_KEYWORD = "Kernel      Configuration"
+COMPONENT_CONFIG_KEYWORD = "Components  Configuration"
+
+
+def append_depends_config_in(board, mandatory_configs, optional_configs):
+    """put dependencies' Config.in within its corresponding menu """
+    board_config_in = 'menu "%s"\n' % BSP_CONFIG_KEYWORD
+    kernel_config_in = 'menu "%s"\n' % KERNEL_CONFIG_KEYWORD
+    component_config_in = 'menu "%s"\n' % COMPONENT_CONFIG_KEYWORD
+    if mandatory_configs:
+        mandatory_configs = sorted(list(set(mandatory_configs)))
+        for config in mandatory_configs:
+            if config.startswith("platform/board"):
+                # USER_APP_PATH (APPDIR) is exported by "aos make"
+                board_config_in += 'source "$USER_APP_PATH/board/%s/Config.in"\n' % board
+            elif config.startswith("platform/"):
+                board_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
+            elif config.startswith("core/"):
+                kernel_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
+            elif config.startswith("components/"):
+                component_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
+        if optional_configs:
+            for config in optional_configs:
+                """ one dependency: comp_name, config_file, condition [[]] """
+                if config["config_file"].startswith("core/"):
+                    kernel_config_in += get_comp_optional_depends_text(config["condition"], config["config_file"])
+                elif config["config_file"].startswith("components/"):
+                    component_config_in += get_comp_optional_depends_text(config["condition"], config["config_file"])
+    board_config_in += "endmenu\n\n"
+    kernel_config_in += "endmenu\n\n"
+    component_config_in += "endmenu\n\n"
+    text_config = board_config_in + kernel_config_in + component_config_in
+    return text_config
 
 def write_depends_config(config_file, board, app=None):
-    """ append source "xxx/Config.in" of mandatory and optitional depends in 
-    application's Config.in file """
+    """ find mandatory and optitional depends, and append source "xxx/Config.in" of 
+    depends in application's Config.in file """
     mandatory_configs = []
     optional_configs = []
     comp_info = {}
@@ -72,23 +107,13 @@ def write_depends_config(config_file, board, app=None):
                 # print("config is", config)
                 optional_configs.append(config)
 
-    if mandatory_configs:
-        mandatory_configs = sorted(list(set(mandatory_configs)))
-        with open(config_file, "a") as f:
-            f.write("\n")
-            for config in mandatory_configs:
-                if board in config:
-                    # USER_APP_PATH (APPDIR) is exported by "aos make"
-                    line = 'source "$USER_APP_PATH/board/%s/Config.in"\n' % board
-                else:
-                    line = 'source "$AOS_SDK_PATH/%s"\n' % config
-                f.write(line)
-            if optional_configs:
-                for config in optional_configs:
-                    """ one dependency: comp_name, config_file, condition [[]] """
-                    line = get_comp_optional_depends_text(config["condition"], config["config_file"])
-                    # print(line)
-                    f.write(line)
+    text_config = 'menu "%s"\n' % APP_CONFIG_KEYWORD
+    with open (config_file, "r") as f:
+        text_config += f.read()
+    text_config += "endmenu\n\n"
+    with open(config_file, "w+") as f:
+        text_config += append_depends_config_in(board, mandatory_configs, optional_configs)
+        f.write(text_config)  
 
 
 def copy_template_file(tempfile, templatedir, destdir, projectname, board):
