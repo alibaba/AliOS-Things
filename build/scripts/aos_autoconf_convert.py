@@ -135,6 +135,8 @@ def convert_aosconfig_config(aosconfig_h, config_file):
                     if match:
                         macro = match.group(1)
                         value = match.group(2)
+                        if not value.startswith("\""):
+                            value = value.split()[0]
                         if value == "0" or value == "1" or value == "2":
                             macro_type = get_macro_type(macro, backup_dir)
                             value = from_0_1_to_y_n(value, macro_type)
