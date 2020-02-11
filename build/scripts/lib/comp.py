@@ -169,7 +169,13 @@ def get_comp_optional_depends(comp_info, comps):
                 merge_depends.append(tmp)
             else:
                 """ deps with the prio one """
-                merge_depends[-1]["condition"].append(dep["condition"])
+                duplicated = False
+                for cond in merge_depends[-1]["condition"]:
+                    if cond == dep["condition"]:
+                        duplicated = True
+                        break
+                if not duplicated:
+                    merge_depends[-1]["condition"].append(dep["condition"])
 
     # for dep in merge_depends:
     #     print("dep is", dep)
