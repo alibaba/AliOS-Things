@@ -66,7 +66,7 @@ endif
 export SYSCONFIG_H := $(SOURCE_ROOT)/build/configs/sysconfig.h
 
 # Don't read in .config for these targets
-noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
+noconfig_targets := menuconfig update oldconfig silentoldconfig olddefconfig \
     defconfig savedefconfig %_defconfig list-defconfig alldefconfig
 
 .PHONY: $(noconfig_targets)
@@ -105,8 +105,12 @@ endif
 $(KCONFIG_MCONF) $(KCONFIG_CONF):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/aos_download_tools.py $(KCONFIG_URL) $(KCONFIG_DIR)
 
-menuconfig:
+menuconfig_only:
 	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_MCONF) $(AOS_CONFIG_IN)
+
+menuconfig: menuconfig_only $(AOS_CONFIG_DIR)/autoconf.h
+
+update: $(AOS_CONFIG_DIR)/autoconf.h
 
 oldconfig silentoldconfig olddefconfig:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
