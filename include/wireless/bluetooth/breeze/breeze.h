@@ -12,7 +12,6 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "breeze_config.h"
 
 #define BD_ADDR_LEN      (6)      /**< Length of Bluetooth Device Address. */
 #define STR_MODEL_LEN    (20 + 1) /**< Reserved. */
