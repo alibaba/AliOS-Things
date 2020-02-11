@@ -24,7 +24,7 @@
 #define FRAME_SEQ(data) (data[2] & 0x0f)
 #define FRAME_LEN(data) (data[3])
 
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
 extern bool g_dn_complete;
 #endif
 transport_t g_transport;
@@ -152,7 +152,7 @@ static uint32_t build_packet(uint8_t *data, uint16_t len)
             do_encrypt(g_transport.tx.buff + HEADER_SIZE, len);
         }
     }
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     if(g_dn_complete == false){
         g_transport.tx.buff[0] &= (~(0x01 <<4));
     }
@@ -221,13 +221,13 @@ static void trans_rx_dispatcher(void)
     }
 
     if(g_transport.rx.encrypted != 0 && (g_transport.rx.cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH){
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
         auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
 #endif
     } else if(g_transport.rx.cmd == BZ_CMD_EXT_DOWN){
         extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
     } else {
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
         if(!auth_is_authdone()){
             return;
         }
@@ -261,7 +261,7 @@ void transport_reset(void)
 
     sec_aes128_destroy(g_transport.p_aes_ctx);
     g_transport.p_aes_ctx = NULL;
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
     g_dn_complete = false;
 #endif
 }
@@ -431,7 +431,7 @@ void transport_txdone(uint16_t pkt_sent)
         }
         event_notify(BZ_EVENT_TX_DONE, &g_transport.tx.cmd, sizeof(g_transport.tx.cmd));
         reset_tx();
-#if BZ_ENABLE_AUTH
+#ifdef EN_AUTH
         auth_tx_done();
 #endif
     } else if (g_transport.tx.pkt_req < g_transport.tx.pkt_cfm) {
