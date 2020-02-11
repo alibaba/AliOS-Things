@@ -1,6 +1,8 @@
 
 NAME := breeze
 
+$(NAME)_COMPONENTS-$(CONFIG_COMP_BZ_BUILTIN_HAL):= breeze_hal
+
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := breeze provides secure BLE connection to Alibaba IoT cloud and services.
@@ -14,7 +16,6 @@ $(NAME)_SOURCES-y += core/src/extcmd.c
 $(NAME)_INCLUDES += include \
                     core/include 
 
-$(NAME)_COMPONENTS-y := chip_code
 
 ifeq ($(CONFIG_COMP_BZ_SECURE_ADV), y)
 GLOBAL_DEFINES-y += CONFIG_AIS_SECURE_ADV
