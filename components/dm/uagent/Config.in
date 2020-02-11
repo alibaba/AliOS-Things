@@ -1,3 +1,30 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_UAGENT
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_UAGENT
+    bool "uagent"
+    default n
+    help
+        AliOS Things uagent component
+endif
+
+###################################################################
+# Component configuration items
 menu "uAgent Configuration"
-source "components/dm/uagent/uagent/Config.in"
+config CONFIG_UAGENT
+    bool "Platform Topic and Payload Support"
+    default n
+    help
+        Support device report information and get command from platform
+
 endmenu
