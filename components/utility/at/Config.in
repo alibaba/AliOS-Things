@@ -1,0 +1,51 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_AT
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_AT
+    bool "at"
+    default n
+    help
+       AT component
+endif
+
+###################################################################
+# Component configuration items
+menu "AT Configuration"
+depends on AOS_COMP_AT
+
+config AOS_ATCMD
+    bool "AOS ATCMD"
+    default y
+    help
+       AOS ATCMD
+
+config ATPSR_DEV_MAX_NUM
+    int "max dev num"
+    default 1
+    help
+       max dev num
+
+config AT_TASK_DEFAULT_WAIT_TIME_MS
+    int "AT send task wait timeout ms"
+    default 5000
+    help
+       AT send task wait timeout ms
+
+config AT_SEND_RECV_DEFAULT_TIMEOUT_MS
+    int "AT recv timeout ms"
+    default 1000
+    help
+       AT recv timeout ms
+
+config AT_SEND_DEFAULT_PROMPT_TIMEOUT_MS
+    int "AT send wait prompt timeout ms"
+    default 200
+    help
+       AT send wait prompt timeout ms
+
+endmenu
