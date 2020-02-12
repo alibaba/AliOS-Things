@@ -3,7 +3,7 @@ NAME := halappdemo
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := hal app
-$(NAME)_SOURCES := halappdemo.c main.c
+$(NAME)_SOURCES := halappdemo.c maintask.c
 
 $(NAME)_SOURCES += halapp_gpio.c \
                    halapp_pwm.c  \
