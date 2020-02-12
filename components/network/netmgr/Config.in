@@ -1,23 +1,48 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
 config AOS_COMP_NETMGR
-    bool "Network Manager"
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_NETMGR
+    bool "netmgr"
     default n
-    select AOS_COMP_OSAL_AOS
-    select AOS_COMP_KV
-    select AOS_COMP_YLOOP
     help
-      AliOS things NETMGR -- smart config support component
+        AliOS things NETMGR -- smart config support component
+endif
+
+###################################################################
+# Component configuration items
+menu "NETMGR Configuration"
+depends on AOS_COMP_NETMGR
+
+if pvtest
+config PREVALIDATE_TEST
+    bool "Enable prevalidate test"
+    default y
+    help
+        Enable prevalidate test
+endif
+endmenu
 
 if AOS_COMP_NETMGR
 # Configurations for comp netmgr
 menu "Config Network Interface Types:"
     config AOS_NET_WITH_CELLULAR
-        bool "Cellular"
+        bool "Enable Netmgr with Cellular"
         default n
         help
             support net with Cellular.
 
     config AOS_NET_WITH_WIFI
-        bool "Wi-Fi"
+        bool "Enable Netmgr with Wi-Fi"
         default y
         help
             support net with Wi-Fi.
