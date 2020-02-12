@@ -4,12 +4,6 @@ config AOS_APP_EXAMPLE
 if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
-
-source "application/example/app_nomain/Config.in"
-if AOS_APP_APPNOMAIN
-    config AOS_BUILD_APP
-        default "app_nomain"
-endif	
 	
 source "application/example/appdemo/Config.in"
 if AOS_APP_APPDEMO

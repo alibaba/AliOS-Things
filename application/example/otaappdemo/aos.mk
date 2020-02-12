@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := OTA demo app for developers
 OTAAPP_CONFIG_TEST_LOOP ?= n
 loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
 
-$(NAME)_SOURCES := otaappdemo.c main.c
+$(NAME)_SOURCES := otaappdemo.c maintask.c
 $(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
 ifeq ($(OTAAPP_CONFIG_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
