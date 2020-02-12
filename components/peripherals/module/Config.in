@@ -1,0 +1,23 @@
+config AOS_COMP_EXTERNAL_MODULE
+    bool
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default y 
+
+choice
+    prompt "External module Configurations"
+    depends on AOS_COMP_EXTERNAL_MODULE
+    default AOS_SAL_DEVICE
+
+config AOS_SAL_DEVICE
+        bool "SAL DEVICE"
+
+config AOS_MAL_DEVICE
+        bool "MAL MODULE"
+
+endchoice
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+source "components/peripherals/module/mal/Config.in"
+source "components/peripherals/module/sal/Config.in"
+endif
