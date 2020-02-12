@@ -349,3 +349,9 @@ uint32_t user_rf_cal_sector_set(void)
 
     return rf_cal_sec;
 }
+
+void flash_partition_init(void)
+{
+
+}
+
