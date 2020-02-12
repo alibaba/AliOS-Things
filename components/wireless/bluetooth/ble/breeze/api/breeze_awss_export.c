@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-
+#include "common.h"
 #include "breeze_awss.h"
 
 static void dev_status_changed_handler(breeze_event_t event)
