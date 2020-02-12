@@ -1,8 +1,5 @@
 config AOS_APP_BLEADV
     bool "BLE Broadcaster Role Sample"
-    select AOS_COMP_BT_HOST
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
     help
         Ble Broadcaster Role example.
 
