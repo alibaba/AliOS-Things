@@ -1,5 +1,40 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
 config AOS_COMP_RTP
-    bool "rtp"
+    bool
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_RTP
+    bool "srtp"
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
     default n
     help
         AliOS Things rtp module
+endif
+
+###################################################################
+# Component configuration items
+menu "RTP Configuration"
+depends on AOS_COMP_RTP
+
+config HAVE_SELECT
+    bool "Enable select"
+    default y
+    help
+        Enable config
+
+config HAVE_SYS_TIME_H
+    bool "Enable sys time"
+    default y
+    help
+        Enable config
+
+endmenu
