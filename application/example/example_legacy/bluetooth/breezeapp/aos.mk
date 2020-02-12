@@ -13,18 +13,10 @@ GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += BUILD_AOS
 
 ifeq ($(CONFIG_COMP_BZ_OTA), y)
-ifneq ($(CONFIG_COMP_BZ_EN_AUTH), y)
+ifneq ($(EN_AUTH), y)
 $(error OTA need authentication, please set "CONFIG_COMP_BZ_EN_AUTH = y")
 endif
 $(NAME)_COMPONENTS += ota
-endif
-
-ifeq ($(CONFIG_COMP_BZ_SECURE_ADV), y)
-GLOBAL_DEFINES += CONTINUE_BEL_ADV
-endif
-
-ifeq ($(CONFIG_COMP_BZ_MODEL_SEC), y)
-GLOBAL_DEFINES += CONFIG_MODEL_SECURITY
 endif
 
 $(NAME)_INCLUDES += ../
