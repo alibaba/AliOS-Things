@@ -22,12 +22,13 @@ extern "C"
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#ifdef NET_WITH_WIFI
+#ifdef AOS_NET_WITH_WIFI
 #include "netmgr_wifi.h"
 #endif
 
-#ifdef NET_WITH_CELLULAR
+#ifdef AOS_NET_WITH_CELLULAR
 #include "netmgr_cellular.h"
 #endif
 
@@ -90,7 +91,7 @@ int netmgr_start(bool autoconfig);
  */
 int netmgr_stats(int32_t interface, netmgr_stats_t *stats);
 
-#ifdef NET_WITH_WIFI
+#ifdef AOS_NET_WITH_WIFI
 /**
  *
  * Connect to specified WiFi network with given SSID and password
