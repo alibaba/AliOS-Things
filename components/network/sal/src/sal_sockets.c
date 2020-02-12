@@ -1624,58 +1624,13 @@ int sal_module_register(sal_op_t *module)
 
 int sal_device_init()
 {
-   int ret = 0;
+    int ret = 0;
 
-   ret = __SAL_DEV_NAME_sal_device_init();
-   if (ret != 0) {
+    ret = __SAL_DEV_NAME_sal_device_init();
+    if (ret != 0) {
         SAL_ERROR("sal device init failed\n");
-	return -1;
-   }
-
-#if 0
-#ifdef DEV_SAL_M02H
-   if(m02h_sal_device_init() != 0)
-   {
-        SAL_ERROR("m02h sal init failed\n");
-	return -1;
-   }
-#endif
-#ifdef DEV_SAL_BK7231
-   if(bk7231_sal_device_init() != 0)
-   {
-        SAL_ERROR("bk7231 sal init failed\n");
-	return -1;
-   }
-#endif
-#ifdef DEV_SAL_ESP8266
-   if(esp8266_sal_device_init() != 0)
-   {
-        SAL_ERROR("esp8266 sal init failed\n");
-	return -1;
-   }
-#endif
-#ifdef DEV_SAL_GT202
-   if(gt202_sal_device_init() != 0)
-   {
-        SAL_ERROR("gt202 sal init failed\n");
-	return -1;
-   }
-#endif
-#ifdef DEV_SAL_MK3060
-   if(mk3060_sal_device_init() != 0)
-   {
-        SAL_ERROR("mk3060 sal init failed\n");
-	return -1;
-   }
-#endif
-#ifdef DEV_SAL_SIM800
-   if(sim800_sal_device_init() != 0)
-   {
-        SAL_ERROR("sim800 sal init failed\n");
-	return -1;
-   }
-#endif
-#endif
+	    return -1;
+    }
 
     return 0;
 }
