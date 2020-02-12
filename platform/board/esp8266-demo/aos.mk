@@ -23,7 +23,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -DBOARD_ESP8266
 
 GLOBAL_INCLUDES += .
-$(NAME)_SOURCES := config/partition_conf.c startup/board.c
+$(NAME)_SOURCES := config/partition_conf.c startup/board.c startup/startup.c
 
 GLOBAL_DEFINES += LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP
 
