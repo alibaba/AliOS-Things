@@ -1,3 +1,18 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_SRTP
+    bool
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SRTP
     bool "srtp"
     select AOS_COMP_MBEDTLS
@@ -5,3 +20,23 @@ config AOS_COMP_SRTP
     default n
     help
         AliOS Things srtp module
+endif
+
+###################################################################
+# Component configuration items
+menu "SRTP Configuration"
+depends on AOS_COMP_SRTP
+
+config HAVE_CONFIG_H
+    bool "Enable config"
+    default y
+    help
+        Enable config
+
+config GCM
+    bool "Enable gcm"
+    default y
+    help
+        Enable config
+
+endmenu
