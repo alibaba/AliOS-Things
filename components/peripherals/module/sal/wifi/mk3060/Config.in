@@ -1,0 +1,3 @@
+config AOS_COMP_DEVICE_SAL_MK3060
+    bool
+    default y
