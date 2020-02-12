@@ -1,11 +1,26 @@
-menuconfig AOS_COMP_ULOG
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_ULOG
+    bool 
+    default y
+
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_ULOG
     bool "uLog Support"
-    select AOS_COMP_OSAL_AOS
-
     default n
+    help
+        AliOS Things ulog
+endif
 
-if AOS_COMP_ULOG
-# Configurations for component ulog
+###################################################################
+# Component configuration items
+menu "uLog Configuration"
+depends on AOS_COMP_ULOG
 
 config ULOG_CONFIG_STOP_FILTER_DEFAULT
     int "Level Stop Filter of Default Direction(UART for RTOS)"
@@ -51,7 +66,6 @@ endif
 
 config ULOG_CONFIG_POP_CLOUD
      bool "Switch on Pop Out Log to Cloud"
-     select AOS_COMP_UAGENT
      select ULOG_CONFIG_ASYNC
      default n
      help
@@ -70,8 +84,6 @@ endif
 config ULOG_CONFIG_POP_FS
      bool "Switch on Pop Out Log Into File System"
      select ULOG_CONFIG_ASYNC
-     select AOS_COMP_CJSON
-     select AOS_COMP_VFS
      default n
      help
         switch on/off the function that pop out log file into file system
@@ -134,7 +146,6 @@ endif
 
 config ULOG_CONFIG_UPLOAD
     bool "Upload Log File via http"
-    select AOS_COMP_UAGENT
     default n
     help
         Upload Log File via http.
@@ -192,6 +203,4 @@ config ULOG_CONFIG_ASYNC_BUF_SIZE
         More RAM will be costed if it set too large
         So consider balance of this value and system resouce
 endif
-
-endif
-
+endmenu
