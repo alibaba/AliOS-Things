@@ -16,7 +16,7 @@ static ota_service_t ctx = {0};
 #endif
 
 /*device info defination*/
-#ifndef CONFIG_MODEL_SECURITY
+#ifndef CONFIG_COMP_BZ_MODEL_SEC
 #define PRODUCT_ID     850958
 #define DEVICE_SECRET  "jDp6NxUImRfZ231nt5Nt1AjEVYPJF4e3"
 #define DEVICE_NAME    "new_bz_test123"
@@ -73,7 +73,7 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
     BZ_PRINT("%s command (len: %u) received.\r\n", __func__, length);
 }
 
-#ifdef CONTINUE_BEL_ADV
+#ifdef CONFIG_COMP_BZ_SECURE_ADV
 /* @brief Continue advertising func, restart ble adv with data reload. */
 static void continue_adv_work(void *arg)
 {
@@ -136,7 +136,7 @@ static void breeze_work(void *arg)
     init_bzlink.device_key_len = strlen(DEVICE_NAME);
     memcpy(init_bzlink.device_key, DEVICE_NAME, init_bzlink.device_key_len);
 
-#ifndef CONFIG_MODEL_SECURITY
+#ifndef CONFIG_COMP_BZ_MODEL_SEC
     /*For security per device, initialize device_config.secret and device_config.secret_len*/
     init_bzlink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
@@ -145,7 +145,7 @@ static void breeze_work(void *arg)
     init_bzlink.secret_len = 0;
 #endif
 
-#ifdef OTA_CONFIG_BLE
+#ifdef CONFIG_COMP_BZ_OTA
     ota_service_init(&ctx);
     init_bzlink.ota_cb = ctx.on_message;
 #else
@@ -164,7 +164,7 @@ int application_start(int argc, char **argv)
 {
     breeze_work(NULL);
 
-#ifdef CONTINUE_BEL_ADV
+#ifdef CONFIG_COMP_BZ_SECURE_ADV
     continue_adv_work(NULL);
 #endif
     return 0;
