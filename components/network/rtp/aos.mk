@@ -5,8 +5,7 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := rtp component
 
 $(NAME)_INCLUDES += ./include
-
-GLOBAL_DEFINES += HAVE_SELECT HAVE_SYS_TIME_H
+$GLOBAL_INCLUDES += ../../../include/network/rtp
 
 $(NAME)_SOURCES := ./src/fb.c \
                    ./src/member.c \
