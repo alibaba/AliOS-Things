@@ -1,0 +1,29 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_MAL_DEVICE
+    bool
+    default y
+    depends on AOS_MAL_DEVICE
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_MAL_DEVICE
+    bool
+    default y
+    depends on AOS_MAL_DEVICE
+    select AOS_COMP_MAL
+endif
+
+choice
+    prompt "MAL device selection"
+    depends on AOS_COMP_MAL_DEVICE
+    default AOS_MAL_GPRS_SIM800
+    help
+        Choose which device to use as the external module.
+
+    config AOS_MAL_NULL
+        bool "Null"
+   
+    config AOS_MAL_GPRS_SIM800
+        bool "gprs.SIM800"
+
+endchoice
