@@ -18,11 +18,11 @@ static set_dev_status_cb m_ctrl_handler;
 static get_dev_status_cb m_query_handler;
 static ali_init_t init_ali;
 
-#if BZ_ENABLE_COMBO_NET
+#ifdef EN_COMBO_NET
 static apinfo_ready_cb m_apinfo_handler;
 #endif
 
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
 static ota_dev_cb m_ota_dev_handler;
 static bool g_disconnect_by_ota = false;
 #endif
@@ -43,14 +43,14 @@ static void event_handler(ali_event_t *p_event)
 {
     uint32_t err_code;
     bool b_notify_upper = false;
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
     breeze_otainfo_t m_disc_evt;
 #endif
 
     switch (p_event->type) {
         case BZ_EVENT_CONNECTED:
             notify_status(CONNECTED);
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
             g_disconnect_by_ota = false;
 #endif
             break;
@@ -58,7 +58,7 @@ static void event_handler(ali_event_t *p_event)
         case BZ_EVENT_DISCONNECTED:
             core_reset();
             notify_status(DISCONNECTED);
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
             m_disc_evt.type = OTA_EVT;
             m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
             m_disc_evt.cmd_evt.m_evt.d = 0;
@@ -76,7 +76,7 @@ static void event_handler(ali_event_t *p_event)
 
         case BZ_EVENT_AUTHENTICATED:
             notify_status(AUTHENTICATED);
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
             m_disc_evt.type = OTA_EVT;
             m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_AUTH_EVT;
             m_disc_evt.cmd_evt.m_evt.d = 1;
@@ -86,7 +86,7 @@ static void event_handler(ali_event_t *p_event)
 
         case BZ_EVENT_TX_DONE:
             notify_status(TX_DONE);
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
             uint8_t cmd = *p_event->rx_data.p_data;
             if (cmd == BZ_CMD_OTA_CHECK_RESULT || cmd == BZ_CMD_ERR || cmd == BZ_CMD_OTA_PUB_SIZE) {
                 m_disc_evt.type = OTA_EVT;
@@ -104,7 +104,7 @@ static void event_handler(ali_event_t *p_event)
             break;
 
         case BZ_EVENT_APINFO:
-#if BZ_ENABLE_COMBO_NET
+#ifdef EN_COMBO_NET
             if(m_apinfo_handler != NULL){
                 m_apinfo_handler(p_event->rx_data.p_data);
             }
@@ -123,7 +123,7 @@ static void event_handler(ali_event_t *p_event)
                         m_ctrl_handler (r_cmd->p_rx_buf, r_cmd->buf_sz);
                     }
                 }else if((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_TYPE_OTA){
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
                     m_disc_evt.type = OTA_CMD;
                     m_disc_evt.cmd_evt.m_cmd.cmd = r_cmd->cmd;
                     m_disc_evt.cmd_evt.m_cmd.frame = r_cmd->frame_seq;
@@ -134,7 +134,7 @@ static void event_handler(ali_event_t *p_event)
                 }
             }
             break;
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
         case BZ_EVENT_ERR_DISCONT:
             m_disc_evt.type = OTA_EVT;
             m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONTINUE_ERR;
@@ -145,7 +145,7 @@ static void event_handler(ali_event_t *p_event)
         default:
             break;
     }
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
     if(b_notify_upper && (m_ota_dev_handler != NULL)){
         m_ota_dev_handler(&m_disc_evt);
     }
@@ -165,11 +165,11 @@ int breeze_start(struct device_config *dev_conf)
     m_status_handler = dev_conf->status_changed_cb;
     m_ctrl_handler   = dev_conf->set_cb;
     m_query_handler  = dev_conf->get_cb;
-#if BZ_ENABLE_COMBO_NET
+#ifdef EN_COMBO_NET
     m_apinfo_handler = dev_conf->apinfo_cb;
 #endif
 
-#if BZ_ENABLE_OTA
+#ifdef CONFIG_COMP_BZ_OTA
     m_ota_dev_handler = dev_conf->ota_cb;
 #endif
 
