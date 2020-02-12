@@ -3,7 +3,7 @@ NAME := appdemo
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := app demo
-$(NAME)_SOURCES := main.c appdemo.c
+$(NAME)_SOURCES := maintask.c appdemo.c
 
 $(NAME)_COMPONENTS += osal_aos
 
