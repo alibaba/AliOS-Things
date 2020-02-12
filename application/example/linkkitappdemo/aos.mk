@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := linkkitappdemo
 
-$(NAME)_SOURCES :=   app_entry.c main.c
+$(NAME)_SOURCES :=   app_entry.c maintask.c
 $(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson
