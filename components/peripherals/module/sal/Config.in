@@ -34,8 +34,10 @@ choice
 
     config AOS_SAL_WIFI_BK7231
         bool "wifi.bk7231"
+        select AOS_COMP_NETMGR
 
     config AOS_SAL_WIFI_MK3060
         bool "wifi.mk3060"
+        select AOS_COMP_NETMGR
 
 endchoice
