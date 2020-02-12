@@ -17,8 +17,8 @@ config EN_BT_SMP
     default 1
 
 config en_mesh_shell
-    int #"mesh shell support"
-    default 1
+    bool #"mesh shell support"
+    default y
 
 endif
 
