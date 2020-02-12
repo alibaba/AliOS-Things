@@ -16,6 +16,7 @@ $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr
 $(NAME)_SOURCES += config/partition_conf.c \
                    config/k_config.c \
                    startup/board.c \
+                   startup/startup.c \
                    drivers/mbmaster_hal/port_serial.c
 
 $(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
