@@ -6,22 +6,15 @@ $(NAME)_SUMMARY := BLE Mesh stack.
 
 $(NAME)_COMPONENTS :=
 $(NAME)_INCLUDES := ./include/
+GLOBAL_INCLUDES += ../../../../include/wireless/bluetooth/blemesh
 
-ifeq ($(bt_mesh_standalone_deploy),1)
-GLOBAL_DEFINES += CONFIG_MESH_STACK_ALONE
+ifeq ($(bt_mesh_standalone_deploy),y)
 $(NAME)_COMPONENTS += mesh_util
 else
 $(NAME)_COMPONENTS += bt_common
 endif
 
 $(NAME)_COMPONENTS += mesh_hal_ref_impl
-
-ifeq ($(en_mesh_shell),1)
-GLOBAL_DEFINES += CONFIG_BT_MESH_SHELL CONFIG_BT_MESH_CFG_CLI CONFIG_BT_MESH_HEALTH_CLI
-CONFIG_BT_MESH_SHELL := y
-CONFIG_BT_MESH_CFG_CLI := y
-CONFIG_BT_MESH_HEALTH_CLI := y
-endif
 
 $(NAME)_SOURCES := ./src/access.c \
                    ./src/adv.c \
@@ -40,12 +33,6 @@ $(NAME)_SOURCES-$(CONFIG_BT_MESH_LOW_POWER) += ./src/lpn.c
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_CFG_CLI) += ./src/cfg_cli.c
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_HEALTH_CLI) += ./src/health_cli.c
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_SHELL) += ./src/shell.c
-
-GLOBAL_DEFINES-$(CONFIG_BT_MESH_PB_GATT) += CONFIG_BT_MESH_PROXY
-GLOBAL_DEFINES-$(CONFIG_BT_MESH_GATT_PROXY) += CONFIG_BT_MESH_PROXY
-
-GLOBAL_DEFINES += CONFIG_BT_MESH_PROV CONFIG_BT_MESH_PROV CONFIG_BT_MESH_RELAY
-GLOBAL_DEFINES += CONFIG_BT_MESH_PB_ADV
 
 #GLOBAL_DEFINES-$(AOS_COMP_BT_MESH) += CONFIG_BT_MESH
 
