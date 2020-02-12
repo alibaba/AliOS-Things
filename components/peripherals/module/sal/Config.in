@@ -1,0 +1,41 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SAL_DEVICE
+    bool
+    default y
+    depends on AOS_SAL_DEVICE
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SAL_DEVICE
+    bool
+    default y
+    depends on AOS_SAL_DEVICE
+    select AOS_COMP_SAL
+endif
+
+choice
+    prompt "SAL device selection"
+    depends on AOS_COMP_SAL_DEVICE
+    default AOS_SAL_WIFI_BK7231
+    help
+        Choose which device to use as the external module.
+
+    config AOS_SAL_NULL
+        bool "Null"
+
+    config AOS_SAL_GPRS_SIM800
+        bool "gprs.SIM800"
+
+    config AOS_SAL_LTE_M02H
+        bool "lte.m02h"
+
+    config AOS_SAL_NBIOT_M5310A
+        bool "nbiot.M5310A"
+
+    config AOS_SAL_WIFI_BK7231
+        bool "wifi.bk7231"
+
+    config AOS_SAL_WIFI_MK3060
+        bool "wifi.mk3060"
+
+endchoice

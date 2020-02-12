@@ -1,4 +1,0 @@
-config AOS_COMP_DEVICE_SAL_M02H
-    bool "lte.m02h"
-    select AOS_COMP_AT
-    select AOS_COMP_YLOOP

@@ -1,2 +1,0 @@
-source "components/peripherals/sal/wifi/bk7231/Config.in"
-source "components/peripherals/sal/wifi/mk3060/Config.in"
