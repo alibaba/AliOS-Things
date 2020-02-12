@@ -8,12 +8,12 @@ $(NAME)_SOURCES := ./mesh_hal_ble.c \
                    ./mesh_hal_sec.c
 
 $(NAME)_INCLUDES += ../include/
-ifeq ($(bt_mesh_standalone_deploy),1)
+ifeq ($(bt_mesh_standalone_deploy),y)
 $(NAME)_SOURCES += ./mesh_hal_os.c
 $(NAME)_INCLUDES += .
 endif
 
-ifneq ($(bt_mesh_standalone_deploy),1)
+ifneq ($(bt_mesh_standalone_deploy),y)
 $(NAME)_COMPONENTS += bt_host
 $(NAME)_INCLUDES += ../bt_host/host/ \
                     ../bt_host/include/

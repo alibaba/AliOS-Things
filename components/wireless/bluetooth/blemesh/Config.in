@@ -1,8 +1,6 @@
 menuconfig AOS_COMP_BT_MESH
 	bool "Bluetooth Mesh Stack"
 	default n
-	#select AOS_COMP_BT_COMMON
-	#select AOS_COMP_BT_PORT
 	help
 	  AliOS Things NETWORK - Bluetooth Mesh component
 
@@ -22,6 +20,10 @@ config CONFIG_BT_MESH_PB_GATT
 	help
 	  Enable this option to allow the device to be provisioned over
 	  GATT.
+config CONFIG_BT_MESH_PROXY
+    bool
+    default n
+    default y if CONFIG_BT_MESH_PB_GATT
 
 config CONFIG_BT_MESH_GATT_PROXY
 	bool "Enable GATT Proxy Service (GATT_PROXY)"
@@ -31,6 +33,10 @@ config CONFIG_BT_MESH_GATT_PROXY
 	  This option enables support for the Mesh GATT Proxy Service,
 	  i.e. the ability to act as a proxy between a Mesh GATT Client
 	  and a Mesh network.
+config CONFIG_BT_MESH_PROXY
+    bool
+    default n
+    default y if CONFIG_BT_MESH_GATT_PROXY
 
 config CONFIG_BT_MESH_LOW_POWER
 	bool "Enable Low Power Node features (LOW_POWER)"
@@ -55,5 +61,32 @@ config CONFIG_BT_MESH_HEALTH_CLI
 	default n
 	help
 	  Enable support for the health client model.
+config bt_mesh_standalone_deploy
+    bool "standalone deploy"
+    default n
 
+if bt_mesh_standalone_deploy
+config CONFIG_MESH_STACK_ALONE
+    bool
+    default y
+endif
+
+config en_mesh_shell
+    bool "enable shell configuration component"
+    default n
+    select CONFIG_BT_MESH_HEALTH_CLI
+    select CONFIG_BT_MESH_CFG_CLI
+
+if en_mesh_shell
+    config  CONFIG_BT_MESH_SHELL
+        bool
+        default y
+endif
+
+config CONFIG_BT_MESH_PROV
+    bool
+    default y
+config CONFIG_BT_MESH_RELAY
+    bool
+    default y
 endif
