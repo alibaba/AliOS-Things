@@ -10,7 +10,7 @@ typedef enum {
     PORT_TIMER_5,
     PORT_TIMER_SIZE,
     PORT_TIMER_INVALID = 255
-};
+}PORT_TIMER_TYPE;
 
 typedef enum{
     PORT_PWM_1,
