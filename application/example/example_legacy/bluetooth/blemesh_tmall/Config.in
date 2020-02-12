@@ -1,9 +1,5 @@
 config AOS_APP_BLEMESH_TMALL
     bool "AliGenie BLE Mesh Network Sample"
-    select AOS_COMP_BT_HOST
-    select AOS_COMP_TMALL_MODEL
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
     select AOS_CONFIG_BT_SMP if AOS_COMP_BT_HOST
     help
         Sample code to demenstrate how to join AliGenie BLE Mesh network.
