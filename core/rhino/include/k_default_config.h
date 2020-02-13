@@ -22,49 +22,29 @@
 #define RHINO_CONFIG_CPU_STACK_DOWN          1
 #endif
 
-/* kernel feature conf */
+/* kernel feature config */
 #ifndef RHINO_CONFIG_SEM
-#define RHINO_CONFIG_SEM                     0
+#define RHINO_CONFIG_SEM                     1
 #endif
 
 #ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0
+#define RHINO_CONFIG_TASK_SEM                1
 #endif
 
 #ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE                   0
+#define RHINO_CONFIG_QUEUE                   1
 #endif
 
 #ifndef RHINO_CONFIG_BUF_QUEUE
-#define RHINO_CONFIG_BUF_QUEUE               0
+#define RHINO_CONFIG_BUF_QUEUE               1
 #endif
-
-#ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               0
-#endif
-
-#ifndef RHINO_CONFIG_MUTEX_INHERIT
-#define RHINO_CONFIG_MUTEX_INHERIT           1
-#endif
-
-#if (RHINO_CONFIG_WORKQUEUE > 0)
-
-#ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
-#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512
-#endif
-
-#ifndef RHINO_CONFIG_WORKQUEUE_TASK_PRIO
-#define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     20
-#endif
-
-#endif /* RHINO_CONFIG_WORKQUEUE */
 
 #ifndef RHINO_CONFIG_EVENT_FLAG
-#define RHINO_CONFIG_EVENT_FLAG              0
+#define RHINO_CONFIG_EVENT_FLAG              1
 #endif
 
 #ifndef RHINO_CONFIG_TIMER
-#define RHINO_CONFIG_TIMER                   0
+#define RHINO_CONFIG_TIMER                   1
 #endif
 
 #if (RHINO_CONFIG_TIMER > 0)
@@ -83,7 +63,28 @@
 
 #endif /* RHINO_CONFIG_TIMER */
 
-/* heap conf */
+#ifndef RHINO_CONFIG_WORKQUEUE
+#define RHINO_CONFIG_WORKQUEUE               0
+#endif
+
+#ifndef RHINO_CONFIG_MUTEX_INHERIT
+#define RHINO_CONFIG_MUTEX_INHERIT           0
+#endif
+
+#if (RHINO_CONFIG_WORKQUEUE > 0)
+
+#ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
+#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512
+#endif
+
+#ifndef RHINO_CONFIG_WORKQUEUE_TASK_PRIO
+#define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     20
+#endif
+
+#endif /* RHINO_CONFIG_WORKQUEUE */
+
+
+/* heap config */
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
@@ -128,7 +129,7 @@
 
 #endif /* RHINO_CONFIG_MM_TLF */
 
-/* kernel task conf */
+/* kernel task config */
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               0
 #endif
@@ -138,11 +139,11 @@
 #endif
 
 #ifndef RHINO_CONFIG_TASK_DEL
-#define RHINO_CONFIG_TASK_DEL                0
+#define RHINO_CONFIG_TASK_DEL                1
 #endif
 
 #ifndef RHINO_CONFIG_SCHED_RR
-#define RHINO_CONFIG_SCHED_RR                0
+#define RHINO_CONFIG_SCHED_RR                1
 #endif
 
 #ifndef RHINO_CONFIG_SCHED_CFS
@@ -165,7 +166,7 @@
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
 #endif
 
-/* kernel timer&tick conf */
+/* kernel timer&tick config */
 #ifndef RHINO_CONFIG_HW_COUNT
 #define RHINO_CONFIG_HW_COUNT                0
 #endif
@@ -174,7 +175,7 @@
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
 
-/* kernel intrpt conf */
+/* kernel intrpt config */
 /* kernel stack ovf check */
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
@@ -193,9 +194,9 @@
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    0
 #endif
 
-/* kernel dyn alloc conf */
+/* kernel dyn alloc config */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
-#define RHINO_CONFIG_KOBJ_DYN_ALLOC          0
+#define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
@@ -210,7 +211,7 @@
 
 #endif /* RHINO_CONFIG_KOBJ_DYN_ALLOC */
 
-/* kernel idle conf */
+/* kernel idle config */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
 #define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    100
 #endif
@@ -220,7 +221,7 @@
 #define RHINO_CONFIG_USER_HOOK               1
 #endif
 
-/* kernel stats conf */
+/* kernel stats config */
 #ifndef RHINO_CONFIG_KOBJ_LIST
 #define RHINO_CONFIG_KOBJ_LIST               1
 #endif
