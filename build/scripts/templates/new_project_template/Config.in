@@ -25,9 +25,9 @@ config USER_APP_PATH
 # The configs for app @projectname@
 #
 config AOS_APP_@PROJECTNAME@
-    bool "AOS_APP_@PROJECTNAME@"
+    bool 
     default y
 
-if AOS_APP_@PROJECTNAME@
+menu "@PROJECTNAME@"
 # Add more configs here ...
-endif
+endmenu
