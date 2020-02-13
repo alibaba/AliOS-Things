@@ -61,7 +61,7 @@
 /* #undef ERR_REPORTING_STDOUT */
 
 /* Define this to use AES-GCM. */
-/* #undef GCM */
+/* #undef CONFIG_SRTP_GCM */
 
 #ifndef WITH_LWIP
 /* Define to 1 if you have the <arpa/inet.h> header file. */
