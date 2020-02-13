@@ -47,11 +47,6 @@ static kinit_t kinit = {
     .cli_enable = 1
 };
 
-void trace_start(void)
-{
-    printf("trace config close!!!\r\n");
-}
-
 static void sys_init(void)
 {
     aos_components_init(&kinit);
