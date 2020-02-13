@@ -83,7 +83,6 @@
 
 #endif /* RHINO_CONFIG_WORKQUEUE */
 
-
 /* heap config */
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
@@ -206,7 +205,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_K_DYN_MEM_TASK_PRI
-#define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
+#define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      6
 #endif
 
 #endif /* RHINO_CONFIG_KOBJ_DYN_ALLOC */
