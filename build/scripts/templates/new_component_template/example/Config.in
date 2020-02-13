@@ -1,0 +1,10 @@
+#
+# The configs for app @componentname@_app
+#
+config AOS_APP_@COMPONENTNAME@_APP
+    bool 
+    default y
+
+menu "@COMPONENTNAME@_APP"
+# Add more configs here ...
+endmenu
