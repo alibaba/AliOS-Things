@@ -1,4 +1,3 @@
 config AOS_COMP_DEVICE_SAL_@DRIVERNAME@
     bool "nbiot.@drivername@"
-    select AOS_COMP_AT
-    select AOS_COMP_YLOOP
+    default y
