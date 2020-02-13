@@ -5,28 +5,11 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-/* kernel feature conf */
-#ifndef RHINO_CONFIG_SEM
-#define RHINO_CONFIG_SEM 1
-#endif
-#ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE 1
-#endif
-#ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM 1
-#endif
-#ifndef RHINO_CONFIG_EVENT_FLAG
-#define RHINO_CONFIG_EVENT_FLAG 1
-#endif
-#ifndef RHINO_CONFIG_TIMER
-#define RHINO_CONFIG_TIMER 1
-#endif
-#ifndef RHINO_CONFIG_BUF_QUEUE
-#define RHINO_CONFIG_BUF_QUEUE 1
-#endif
+/* heap conf */
 #ifndef RHINO_CONFIG_MM_BLK
 #define RHINO_CONFIG_MM_BLK 1
 #endif
+
 /*
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
@@ -42,9 +25,6 @@
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO 1
-#endif
-#ifndef RHINO_CONFIG_TASK_DEL
-#define RHINO_CONFIG_TASK_DEL 1
 #endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK 1
@@ -64,11 +44,6 @@
 #define RHINO_CONFIG_USER_PRI_MAX (RHINO_CONFIG_PRI_MAX - 2)
 #endif
 
-/* kernel workqueue conf */
-#ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE 0
-#endif
-
 /* kernel timer&tick conf */
 #ifndef RHINO_CONFIG_HW_COUNT
 #define RHINO_CONFIG_HW_COUNT 1
@@ -79,10 +54,6 @@
 
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE 62
-#endif
-
-#ifndef RHINO_CONFIG_TIMER_TASK_PRI
-#define RHINO_CONFIG_TIMER_TASK_PRI 5
 #endif
 
 /* kernel dyn alloc conf */
