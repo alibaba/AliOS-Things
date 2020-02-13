@@ -5,18 +5,6 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-#define RHINO_CONFIG_SEM                     1
-
-#define RHINO_CONFIG_QUEUE                   1
-
-#define RHINO_CONFIG_TASK_SEM                1
-
-#define RHINO_CONFIG_WORKQUEUE               0
-
-#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512
-
-#define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     20
-
 #define RHINO_CONFIG_EVENT_FLAG              0
 
 #define RHINO_CONFIG_TIMER                   0
@@ -29,8 +17,6 @@
 
 #define RHINO_CONFIG_MM_TLF                  1
 
-#define RHINO_CONFIG_MM_MAXMSIZEBIT          20
-
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         512
 
 #define RHINO_CONFIG_MM_DEBUG                0
@@ -39,8 +25,6 @@
 #define RHINO_CONFIG_TASK_INFO               1
 
 #define RHINO_CONFIG_TASK_INFO_NUM           2
-
-#define RHINO_CONFIG_TASK_DEL                1
 
 #define RHINO_CONFIG_SCHED_RR                0
 
@@ -56,23 +40,7 @@
 /* kernel timer&tick conf */
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
-
-#define RHINO_CONFIG_TIMER_TASK_PRI          5
-
-#define RHINO_CONFIG_TIMER_MSG_NUM           20
-
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
-
-/* kernel dyn alloc conf */
-#define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
-
-#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-#define RHINO_CONFIG_K_DYN_TASK_STACK        256
-
-#define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
-
-#endif /* RHINO_CONFIG_KOBJ_DYN_ALLOC */
 
 /* kernel idle conf */
 #define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    64
