@@ -27,13 +27,13 @@ endif
 menu "SRTP Configuration"
 depends on AOS_COMP_SRTP
 
-config HAVE_CONFIG_H
+config CONFIG_SRTP_CONFIG
     bool "Enable config"
     default y
     help
         Enable config
 
-config GCM
+config CONFIG_SRTP_GCM
     bool "Enable gcm"
     default y
     help
