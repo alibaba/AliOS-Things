@@ -65,10 +65,10 @@ static void * get_i2c_instance_by_port(int32_t port)
 {
     if (port >= MAX_I2C_BUS_NUM || port <= 0 )
         return NULL;
-    
+
     return i2c_mapping_table[port - 1];
 }
-
+/*
 void hal_i2c_pre_init()
 {
     int32_t i = 0;
@@ -89,7 +89,31 @@ void hal_i2c_pre_init()
         stm32_i2c[i - 1].hal_i2c_handle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
         stm32_i2c[i - 1].hal_i2c_handle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
     }
+}*/
+
+void hal_i2c_pre_init(int port)
+{
+    int32_t i = port;
+    void *  I2cPhyPort = NULL;
+
+    if(i >= 1 && i <= MAX_I2C_BUS_NUM){
+        I2cPhyPort = get_i2c_instance_by_port(i);
+        if (NULL == I2cPhyPort) {
+            return;
+        }
+        stm32_i2c[i - 1].hal_i2c_handle.Instance = I2cPhyPort;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.ClockSpeed       = 400000;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.DutyCycle        = I2C_DUTYCYCLE_2;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.OwnAddress1      = 0;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.OwnAddress2      = 0;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+        stm32_i2c[i - 1].hal_i2c_handle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+    }
+
 }
+
 
 int32_t hal_i2c_init(i2c_dev_t *i2c)
 {
@@ -107,6 +131,8 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
         return 0;
     }
 
+    hal_i2c_pre_init(i2c->port);
+
     ret = stm32_i2c_param_transform(i2c);
     if (ret) {
         return -1;
@@ -115,7 +141,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
     if (HAL_I2C_GetState(&stm32_i2c[i2c->port - 1].hal_i2c_handle) != HAL_I2C_STATE_RESET) {
         printf("i2c port %d is not in reset status ,init fail\r\n", i2c->port);
         return -1;
-    } 
+    }
 
     /* Init the I2C */
     ret = HAL_I2C_Init(&stm32_i2c[i2c->port - 1].hal_i2c_handle);
@@ -138,7 +164,7 @@ int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *da
     if (NULL == i2c || NULL == data){
         return ret;
     }
-    
+
     if (NULL == get_i2c_instance_by_port(i2c->port)) {
         return ret;
     }
@@ -146,7 +172,7 @@ int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *da
     if (!stm32_i2c[i2c->port - 1].inited) {
         return ret;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port - 1].hal_i2c_handle;
 
     ret = HAL_I2C_Master_Transmit(psti2c, dev_addr, (uint8_t *)data, size, timeout);
@@ -171,7 +197,7 @@ int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
     if (!stm32_i2c[i2c->port - 1].inited) {
         return ret;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port - 1].hal_i2c_handle;
 
     ret = HAL_I2C_Master_Receive(psti2c, dev_addr, data, size, timeout);
@@ -195,7 +221,7 @@ int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, u
     if (!stm32_i2c[i2c->port - 1].inited) {
         return ret;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port].hal_i2c_handle;
 
     ret = HAL_I2C_Slave_Transmit(psti2c, (uint8_t *)data, size, timeout);
@@ -219,7 +245,7 @@ int32_t hal_i2c_slave_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_
     if (!stm32_i2c[i2c->port - 1].inited) {
         return ret;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port - 1].hal_i2c_handle;
 
     ret = HAL_I2C_Slave_Receive(psti2c, data, size, timeout);
@@ -247,16 +273,16 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
     if (!stm32_i2c[i2c->port - 1].inited) {
         return ret;
     }
-    
+
     if (timeout == AOS_WAIT_FOREVER) {
         real_timeout = timeout;
     } else {
         time_tick = krhino_ms_to_ticks(timeout);
         real_timeout = (uint32_t)time_tick;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port - 1].hal_i2c_handle;
-    
+
     if (timeout == AOS_WAIT_FOREVER) {
         real_timeout = timeout;
     } else {
@@ -293,7 +319,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
         printf("i2c port %d have not init yet in call %s \r\n", i2c->port, __func__);
         return ret;
     }
-    
+
     psti2c = &stm32_i2c[i2c->port - 1].hal_i2c_handle;
 
     if (timeout == AOS_WAIT_FOREVER) {
@@ -302,7 +328,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
         time_tick = krhino_ms_to_ticks(timeout);
         real_timeout = (uint32_t)time_tick;
     }
-    
+
     ret = HAL_I2C_Mem_Read(psti2c, dev_addr, mem_addr,
           (uint16_t)mem_addr_size, data, size, real_timeout);
     if (ret) {
@@ -331,7 +357,7 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
     }
 
     stm32_i2c[i2c->port - 1].inited = 0;
-    
+
     return ret;
 }
 
