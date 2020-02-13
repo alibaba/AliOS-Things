@@ -59,12 +59,6 @@ config BUILD_AOS
      help
         Build AOS
 
-config INFRA_MD5
-     bool "Infra MD5"
-     default y
-     help
-        Infra MD5
-
 endif
 
 if !COAP_WITH_ALI_AUTH
