@@ -19,15 +19,8 @@
 
 #include <csi_config.h>
 
-/* kernel feature conf */
-#define RHINO_CONFIG_SEM                     1
-#define RHINO_CONFIG_QUEUE                   1
-#define RHINO_CONFIG_TASK_SEM                1
-#define RHINO_CONFIG_EVENT_FLAG              1
-#define RHINO_CONFIG_TIMER                   1
-#define RHINO_CONFIG_BUF_QUEUE               1
+/* heap conf */
 #define RHINO_CONFIG_MM_BLK                  1
-
 #define RHINO_CONFIG_MM_DEBUG                0
 
 /*
@@ -38,7 +31,6 @@
 
 /* kernel task conf */
 #define RHINO_CONFIG_TASK_INFO               0
-#define RHINO_CONFIG_TASK_DEL                1
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 
 #define RHINO_CONFIG_SCHED_RR                1
@@ -46,9 +38,6 @@
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
 #define RHINO_CONFIG_PRI_MAX                 62
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
-
-/* kernel workqueue conf */
-#define RHINO_CONFIG_WORKQUEUE               0
 
 /* kernel timer&tick conf */
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
