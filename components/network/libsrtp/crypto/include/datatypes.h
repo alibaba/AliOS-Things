@@ -112,7 +112,7 @@ typedef union {
 
 #define pow_minus_one(X) ((X) ? -1 : 1) /* (-1)^X  */
 
-/* Octet get weight 
+/* Octet get weight
  * @param[in] octet         Octet number
  * @retval       The hamming weight (number of bits equal to one) in the octet x
  */
@@ -120,43 +120,43 @@ int octet_get_weight(uint8_t octet);
 
 #define MAX_PRINT_STRING_LEN 1024
 
-/* Change octet string to Hex string 
- * @param[in] str      Octet string       
- * @param[in] length   Octet string length 
+/* Change octet string to Hex string
+ * @param[in] str      Octet string
+ * @param[in] length   Octet string length
  * @retval       A pointer point to the hex string
  * @note        Octet string:"10"     Hex string:"8"
  */
 char *srtp_octet_string_hex_string(const void *str, int length);
 
 /* Change value to Bit string
- * @param[in] x   A pointer point to the v128_t structure 
+ * @param[in] x   A pointer point to the v128_t structure
  * @retval        Bit string
  * @note          Decimal: 7    Bit string:"111"
  */
 char *v128_bit_string(v128_t *x);
 
-/* Change value to hex string 
- * @param[in] x   A pointer point to the v128_t structure 
+/* Change value to hex string
+ * @param[in] x   A pointer point to the v128_t structure
  * @retval        Hex string
  * @note          Decimal: 25    Hex string:"19"
  */
 char *v128_hex_string(v128_t *x);
 
 /* Copy value to octet string
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  * @param[in]  s   A array
  * @retval         Hex string
  */
 void v128_copy_octet_string(v128_t *x, const uint8_t s[16]);
 
 /* Copy word from left side to right side
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  * @param[in]  shift_index Copy start index
  */
 void v128_left_shift(v128_t *x, int shift_index);
 
 /* Copy word from right side to left side
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  * @param[in]  shift_index Copy start index
  */
 void v128_right_shift(v128_t *x, int shift_index);
@@ -250,70 +250,70 @@ void v128_right_shift(v128_t *x, int shift_index);
 #else
 
 /* Set value to zero
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  */
 void v128_set_to_zero(v128_t *x);
 
 /* Check if x and y is equal
- * @param[in]  x   A pointer point to the v128_t structure 
- * @param[in]  y   A pointer point to the v128_t structure 
+ * @param[in]  x   A pointer point to the v128_t structure
+ * @param[in]  y   A pointer point to the v128_t structure
  * @retval         if 0 on success, otherwise failure
  */
 int v128_is_eq(const v128_t *x, const v128_t *y);
 
 /* Copy y to x
- * @param[out]  x   A pointer point to the v128_t structure 
- * @param[in]   y   A pointer point to the v128_t structure 
+ * @param[out]  x   A pointer point to the v128_t structure
+ * @param[in]   y   A pointer point to the v128_t structure
  */
 void v128_copy(v128_t *x, const v128_t *y);
 
 /* z = x xor y
- * @param[out] z   A pointer point to the v128_t structure 
- * @param[in]  x   A pointer point to the v128_t structure 
- * @param[in]  y   A pointer point to the v128_t structure 
+ * @param[out] z   A pointer point to the v128_t structure
+ * @param[in]  x   A pointer point to the v128_t structure
+ * @param[in]  y   A pointer point to the v128_t structure
  */
 void v128_xor(v128_t *z, v128_t *x, v128_t *y);
 
 /* z = x and y
- * @param[out] z   A pointer point to the v128_t structure 
- * @param[in]  x   A pointer point to the v128_t structure 
- * @param[in]  y   A pointer point to the v128_t structure 
+ * @param[out] z   A pointer point to the v128_t structure
+ * @param[in]  x   A pointer point to the v128_t structure
+ * @param[in]  y   A pointer point to the v128_t structure
  */
 void v128_and(v128_t *z, v128_t *x, v128_t *y);
 
 /* z = x or y
- * @param[out] z   A pointer point to the v128_t structure 
- * @param[in]  x   A pointer point to the v128_t structure 
- * @param[in]  y   A pointer point to the v128_t structure 
+ * @param[out] z   A pointer point to the v128_t structure
+ * @param[in]  x   A pointer point to the v128_t structure
+ * @param[in]  y   A pointer point to the v128_t structure
  */
 void v128_or(v128_t *z, v128_t *x, v128_t *y);
 
 /* x complement value x = ~x
- * @param[in]  x   A pointer point to the v128_t structure 
+ * @param[in]  x   A pointer point to the v128_t structure
  */
 void v128_complement(v128_t *x);
 
-/* Get i bit value 
- * @param[in] x   A pointer point to the v128_t structure 
+/* Get i bit value
+ * @param[in] x   A pointer point to the v128_t structure
  * @param[in] i   Bit position
  * @retval       i bit position value
  */
 int v128_get_bit(const v128_t *x, int i);
 
 /* Set i bit value to 1
- * @param[in, out] x   A pointer point to the v128_t structure 
+ * @param[in, out] x   A pointer point to the v128_t structure
  * @param[in]  i       Bit position
  */
 void v128_set_bit(v128_t *x, int i);
 
 /* Clear i bit value to 0
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  * @param[in]  i   bit position
  */
 void v128_clear_bit(v128_t *x, int i);
 
 /* Copy word from right side to left side
- * @param[out] x   A pointer point to the v128_t structure 
+ * @param[out] x   A pointer point to the v128_t structure
  * @param[in]  i   Bit position
  * @param[in]  y   flags: 1, set bit 2, clear bit
  */
@@ -352,7 +352,7 @@ void srtp_cleanse(void *s, size_t len);
  */
 void octet_string_set_to_zero(void *s, size_t len);
 
-#if defined(HAVE_CONFIG_H)
+#ifdef CONFIG_SRTP_CONFIG
 
 /*
  * Convert big endian integers to CPU byte order.
@@ -400,7 +400,7 @@ static inline uint64_t be64_to_cpu(uint64_t v)
 
 #endif /* WORDS_BIGENDIAN */
 
-#endif /* HAVE_CONFIG_H */
+#endif /* CONFIG_SRTP_CONFIG */
 
 /*
  * functions manipulating bitvector_t
@@ -441,58 +441,58 @@ typedef struct {
 
 #else
 
-/* Get bit_index bit position value 
- * @param[in] v   A pointer point to the bitvector structure 
+/* Get bit_index bit position value
+ * @param[in] v   A pointer point to the bitvector structure
  * @param[in] bit_index   Bit position
- * @retval        bit_index bit value 
+ * @retval        bit_index bit value
  */
 int bitvector_get_bit(const bitvector_t *v, int bit_index);
 
 /* Set bit_index bit position value to 1
- * @param[in] v   A pointer point to the bitvector structure 
+ * @param[in] v   A pointer point to the bitvector structure
  * @param[in] bit_index   Bit position
  */
 void bitvector_set_bit(bitvector_t *v, int bit_index);
 
-/* Clear bit_index bit position value, set value to 0 
- * @param[in] v   A pointer point to the bitvector structure 
+/* Clear bit_index bit position value, set value to 0
+ * @param[in] v   A pointer point to the bitvector structure
  * @param[in] bit_index   Bit position
  */
 void bitvector_clear_bit(bitvector_t *v, int bit_index);
 
 /* Change value bit length
- * @param[in] v   A pointer point to the bitvector structure 
- * @retval        length 
+ * @param[in] v   A pointer point to the bitvector structure
+ * @retval        length
  */
 unsigned long bitvector_get_length(const bitvector_t *v);
 
 #endif
 
 /* Alloc a bitvector_alloc structure with specific length
- * @param[in] v   A pointer point to the bitvector structure 
+ * @param[in] v   A pointer point to the bitvector structure
  * @param[in] length  length
- * @retval        if 0 on success, otherwise failure 
+ * @retval        if 0 on success, otherwise failure
  */
 int bitvector_alloc(bitvector_t *v, unsigned long length);
 
-/* Dealloc the bitvector_t structure 
- * @param[in] v   A pointer point to the bitvector structure 
+/* Dealloc the bitvector_t structure
+ * @param[in] v   A pointer point to the bitvector structure
  */
 void bitvector_dealloc(bitvector_t *v);
 
 /* Set the bitvector_alloc structure to zero
- * @param[in] v   A pointer point to the bitvector structure 
+ * @param[in] v   A pointer point to the bitvector structure
  */
 void bitvector_set_to_zero(bitvector_t *x);
 
 /* Copy word from left side to right side
- * @param[in, out] x   A pointer point to the bitvector structure 
+ * @param[in, out] x   A pointer point to the bitvector structure
  * @param[in]  shift_index Copy start index
  */
 void bitvector_left_shift(bitvector_t *x, int index);
 
 /* Change value to Bit string
- * @param[in] x   A pointer point to the bitvector_t structure 
+ * @param[in] x   A pointer point to the bitvector_t structure
  * @retval        Bit string
  * @note          Decimal: 7    Bit string:"111"
  */

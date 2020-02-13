@@ -47,7 +47,7 @@
 #ifndef SHA1_H
 #define SHA1_H
 
-#ifdef HAVE_CONFIG_H
+#ifdef CONFIG_SRTP_CONFIG
 #include <libsrtp_config.h>
 #endif
 

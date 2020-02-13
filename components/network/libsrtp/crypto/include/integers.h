@@ -99,7 +99,7 @@ typedef unsigned int uint32_t;
 typedef int int32_t;
 #endif
 
-#if defined(NO_64BIT_MATH) && defined(HAVE_CONFIG_H)
+#if defined(NO_64BIT_MATH) && defined(CONFIG_SRTP_CONFIG)
 typedef double uint64_t;
 /* assert that sizeof(double) == 8 */
 extern uint64_t make64(uint32_t high, uint32_t low);
