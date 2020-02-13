@@ -42,7 +42,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#ifdef CONFIG_SRTP_CONFIG
 #include <libsrtp_config.h>
 #endif
 
@@ -130,7 +130,7 @@ srtp_err_status_t srtp_crypto_kernel_init()
     if (status) {
         return status;
     }
-#ifdef GCM
+#ifdef CONFIG_SRTP_GCM
 #if 0
     status = srtp_crypto_kernel_load_cipher_type(&srtp_aes_icm_192,
                                                  SRTP_AES_ICM_192);
