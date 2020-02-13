@@ -37,11 +37,6 @@ extern void board_init(void);
 extern int application_start(int argc, char **argv);
 #endif
 
-void trace_start(void)
-{
-    printf("trace config close!!!\r\n");
-}
-
 static void sys_init(void)
 {
     /* user code start*/

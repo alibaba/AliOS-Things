@@ -16,9 +16,6 @@
 #define K_CONFIG_H
 
 /* chip level conf */
-#ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
-#endif
 #ifndef RHINO_CONFIG_CPU_STACK_DOWN
 #define RHINO_CONFIG_CPU_STACK_DOWN          1
 #endif
@@ -57,24 +54,8 @@
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             1
-#endif
-#ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
-#endif
-#ifndef RHINO_CONFIG_RINGBUF_VENDOR
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
-#endif
-
-#ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                1
-#endif
 
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_SUSPEND
-#define RHINO_CONFIG_TASK_SUSPEND            1
-#endif
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               1
 #endif
@@ -86,9 +67,6 @@
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
 
-#ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         1
-#endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 #endif
@@ -122,36 +100,14 @@
 #ifndef RHINO_CONFIG_HW_COUNT
 #define RHINO_CONFIG_HW_COUNT                0
 #endif
-#ifndef RHINO_CONFIG_TICK_TASK
-#define RHINO_CONFIG_TICK_TASK               0
-#endif
 
-#if (RHINO_CONFIG_TICK_TASK > 0)
-#ifndef RHINO_CONFIG_TICK_TASK_STACK_SIZE
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    128
-#endif
-#ifndef RHINO_CONFIG_TICK_TASK_PRI
-#define RHINO_CONFIG_TICK_TASK_PRI           1
-#endif
-#endif
-
-#ifndef RHINO_CONFIG_TICKLESS
-#define RHINO_CONFIG_TICKLESS                0
-#endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-#endif
-/* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
-#ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         8
 #endif
 
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   128
-#endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
@@ -164,12 +120,6 @@
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
 #endif
-#ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
-#endif
-#ifndef RHINO_CONFIG_INTRPT_GUARD
-#define RHINO_CONFIG_INTRPT_GUARD            0
-#endif
 
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
@@ -177,9 +127,6 @@
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-#ifndef RHINO_CONFIG_K_DYN_QUEUE_MSG
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-#endif
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
 #define RHINO_CONFIG_K_DYN_TASK_STACK        128
 #endif
@@ -198,27 +145,8 @@
 #define RHINO_CONFIG_USER_HOOK               0
 #endif
 
-/* kernel stats conf */
-#ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            1
-#endif
-#ifndef RHINO_CONFIG_SCHED_STATS
-#define RHINO_CONFIG_SCHED_STATS             0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_STATS
-#define RHINO_CONFIG_INTRPT_STATS            0
-#endif
-#ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
-
 #ifndef RHINO_CONFIG_CPU_NUM
 #define RHINO_CONFIG_CPU_NUM                 1
-#endif
-
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
 #endif
 
 #ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
