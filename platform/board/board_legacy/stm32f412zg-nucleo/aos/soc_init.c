@@ -132,7 +132,7 @@ void stm32_peripheral_init(void)
     /*gpio init*/
     brd_gpio_init();
     /*i2c pre init*/
-    hal_i2c_pre_init();
+    //hal_i2c_pre_init();
     /*i2c bus 1 init*/
     I2C1_init();
 }
