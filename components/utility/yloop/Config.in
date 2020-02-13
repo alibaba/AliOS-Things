@@ -1,10 +1,19 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_YLOOP
     bool
+    select AOS_COMP_VFS
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_YLOOP
+    bool "http"
     default n
     select AOS_COMP_VFS
     help
-      AliOS things yloop -- event notifications
-
-if AOS_COMP_YLOOP
-# Configurations for comp yloop
+        AliOS things event notifications
 endif
+
+###################################################################
+# Component configuration items
