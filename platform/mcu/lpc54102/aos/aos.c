@@ -65,11 +65,6 @@ extern int sensor_init(void);
 extern i2c_dev_t HTS221_ctx;
 #endif
 
-void trace_start(void)
-{
-    printf("trace config close!!!\r\n");
-}
-
 static void sys_init(void)
 {
     int i = 0;
@@ -129,10 +124,10 @@ static void platform_init(void)
 
     BOARD_InitPins();
     BOARD_BootClockPLL96M(); /* Rev B device can only support max core frequency to 96Mhz.
-                                Rev C device can support 100Mhz,use BOARD_BootClockPLL100M() to boot core to 100Mhz. 
+                                Rev C device can support 100Mhz,use BOARD_BootClockPLL100M() to boot core to 100Mhz.
                                 DEVICE_ID1 register in SYSCON shows the device version.
                                 More details please refer to user manual and errata. */
-    BOARD_InitDebugConsole();	
+    BOARD_InitDebugConsole();
 
     i2c_init();
     spi_init();
@@ -211,7 +206,7 @@ int main(void)
     core_frequency = CLOCK_GetCoreClkFreq();
 
     SysTick_Config(core_frequency / RHINO_CONFIG_TICKS_PER_SECOND); //10ms
-    
+
     aos_init();
     krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
     aos_start();

@@ -58,10 +58,5 @@ void soc_asserted( const char *func, int line )
 	while(1);
 }
 
-void trace_start(void)
-{
-    printf("trace config close!!!\r\n");
-}
-
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
