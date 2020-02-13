@@ -44,7 +44,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#ifdef CONFIG_SRTP_CONFIG
 #include <libsrtp_config.h>
 #endif
 
@@ -304,7 +304,7 @@ static srtp_err_status_t srtp_aes_gcm_mbedtls_do_crypto(void *cv,
     if (encrypt) {
         mbedtls_cipher_update (&c->cipher_ctx_enc, buf, *enc_len, buf,  enc_len);
     } else {
-        mbedtls_cipher_update (&c->cipher_ctx_dec, buf, *enc_len, buf,  enc_len); 
+        mbedtls_cipher_update (&c->cipher_ctx_dec, buf, *enc_len, buf,  enc_len);
     }
 
     // Reset AAD
