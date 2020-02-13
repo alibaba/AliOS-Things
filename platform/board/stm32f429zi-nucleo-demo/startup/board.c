@@ -91,7 +91,7 @@ UART_MAPPING UART_MAPPING_TABLE[] =
     { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
 };
 
-void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
+void* i2c_mapping_table[] = { I2C1, I2C2};
 
 static void stduart_init(void);
 static void I2C1_init();
@@ -275,7 +275,7 @@ void stm32_peripheral_init(void)
     /*gpio init*/
     brd_gpio_init();
     /*i2c pre init*/
-    hal_i2c_pre_init();
+    //hal_i2c_pre_init();
     /*i2c bus 1 init*/
     I2C1_init();
 #ifndef WITH_SAL

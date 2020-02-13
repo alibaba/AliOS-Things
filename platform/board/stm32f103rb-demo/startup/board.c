@@ -24,6 +24,7 @@
 #include "stm32f1xx_hal.h"
 #include "hal_gpio_stm32f1.h"
 #include "hal_uart_stm32f1.h"
+#include "hal_i2c_stm32f1.h"
 
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -32,6 +33,9 @@ UART_MAPPING UART_MAPPING_TABLE[] =
 {
   {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}}
 };
+
+i2c_mapping_t i2c_mapping[PORT_I2C_SIZE] = {{PORT_I2C_1,I2C1}};
+
 /**
   * @general board init entry board_basic_init
   * @retval None
