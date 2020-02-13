@@ -1,7 +1,7 @@
 ## Contents
 
 ```sh
-@projectname@
+@componentname@_app
 ├── Config.in       # kconfig file
 ├── aos.mk          # aos build system file(for make)
 ├── app.config      # aos app config file
@@ -11,17 +11,17 @@
 
 ## Introduction
 
-The **@projectname@** ...
+The **@componentname@_app** ...
 
 ### Dependencies
 
 ### Supported Boards
 
-- @boardname@
 
 ### Build
 
 ```sh
 # build
+aos create project -b boardname -d destdir -t @componentname@_app appname
 aos make
 ```
