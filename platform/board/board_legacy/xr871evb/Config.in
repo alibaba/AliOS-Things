@@ -4,10 +4,10 @@ config AOS_BOARD_XR871EVB
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR
     select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_LWIP
     select AOS_COMP_YLOOP
     select AOS_COMP_CLI
     select AOS_COMP_FATFS
+    select CONFIG_AOS_TCPIP
     help
 
 if AOS_BOARD_XR871EVB

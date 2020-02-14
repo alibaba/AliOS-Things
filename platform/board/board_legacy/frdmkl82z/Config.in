@@ -2,6 +2,7 @@ config AOS_BOARD_FRDMKL82Z
     bool "FRDMKL82Z"
     select AOS_MCU_MKL82Z7IMPL
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_NO_TCPIP
     help
 
 if AOS_BOARD_FRDMKL82Z

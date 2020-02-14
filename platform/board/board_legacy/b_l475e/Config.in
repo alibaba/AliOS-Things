@@ -2,6 +2,8 @@ config AOS_BOARD_B_L475E
     bool "B_L475E"
     select AOS_MCU_STM32L475
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP if !BSP_SUPPORT_EXTERNAL_MODULE
+    select CONFIG_NO_TCPIP  if BSP_SUPPORT_EXTERNAL_MODULE
     help
       configuration for board b_l475e
 

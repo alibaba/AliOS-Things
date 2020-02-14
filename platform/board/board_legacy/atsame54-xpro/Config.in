@@ -2,6 +2,8 @@ config AOS_BOARD_ATSAME54_XPRO
     bool "ATSAME54_XPRO"
     select AOS_MCU_ATSAME54
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP if !BSP_SUPPORT_EXTERNAL_MODULE
+    select CONFIG_NO_TCPIP  if BSP_SUPPORT_EXTERNAL_MODULE
     help
       configuration for board atsame54-xpro
 

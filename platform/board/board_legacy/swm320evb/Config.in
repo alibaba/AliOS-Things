@@ -3,6 +3,7 @@ config AOS_BOARD_SWM320EVB
     select AOS_MCU_SWM320
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP
     help
 
 if AOS_BOARD_SWM320EVB

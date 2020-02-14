@@ -11,7 +11,7 @@
 
 int trap_open(const char *path, int flags)
 {
-#ifdef WITH_LWIP
+#ifdef AOS_CONFIG_TCPIP
     return -ENOSYS;
 #else
     int fd = open(path, flags);

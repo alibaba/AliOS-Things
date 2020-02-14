@@ -9,8 +9,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 $(NAME)_COMPONENTS := yloop newlib_stub
 $(NAME)_COMPONENTS += lwip netmgr
 
-use_private_lwip := 1
-
 ESP_INC_PATH    := bsp/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/xtensa $(ESP_INC_PATH)/espressif $(ESP_INC_PATH)/espressif/esp8266
