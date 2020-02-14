@@ -11,6 +11,10 @@ config AOS_APP_UDATA_CLOUD_DEMO
 
 if AOS_APP_UDATA_CLOUD_DEMO
 # Configurations for comp udata
-
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 
 endif

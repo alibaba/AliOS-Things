@@ -6,4 +6,9 @@ config AOS_APP_HELLOWORLD
 
 if AOS_APP_HELLOWORLD
 # Configurations for app helloworld
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif

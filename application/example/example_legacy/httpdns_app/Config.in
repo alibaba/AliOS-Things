@@ -10,4 +10,9 @@ config AOS_APP_HTTPDNS_APP
 
 if AOS_APP_HTTPDNS_APP
 # Configurations for httpdns app
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif

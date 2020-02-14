@@ -30,5 +30,10 @@ config GATEWAYAPP_CONFIG_DTC_ENABLE
     bool "data to cloud"
     default n
     help
-
+    
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif

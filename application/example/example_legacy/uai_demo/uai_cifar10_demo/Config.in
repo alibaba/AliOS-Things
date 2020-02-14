@@ -4,3 +4,11 @@ config AOS_APP_UAI_CIFAR10_DEMO
     help
         uAI CIFAR10 DEMO
 
+if AOS_APP_UAI_CIFAR10_DEMO
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
+

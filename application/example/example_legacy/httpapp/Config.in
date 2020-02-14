@@ -13,4 +13,10 @@ config CONFIG_HTTP_SECURE
     bool "Support HTTP Secure"
     default n
     select AOS_COMP_MBEDTLS
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif
