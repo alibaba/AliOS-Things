@@ -3,6 +3,7 @@ config AOS_BOARD_M100C
     select AOS_MCU_EFM32GXX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LORAWAN_STACK
+    select CONFIG_NO_TCPIP
     help
 
 if AOS_BOARD_M100C

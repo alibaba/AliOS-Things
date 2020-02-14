@@ -2,6 +2,7 @@ config AOS_BOARD_ES8P5088FLLQ
     bool "ES8P5088FLLQ"
     select AOS_MCU_ES8P508X
     select AOS_COMP_NEWLIB_STUB
+    select CONFIG_NO_TCPIP
     help
 
 if AOS_BOARD_ES8P5088FLLQ

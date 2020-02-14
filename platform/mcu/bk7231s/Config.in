@@ -1,6 +1,5 @@
 config AOS_MCU_BK7231S
     bool
-    select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_ALICRYPTO
     select AOS_COMP_NETMGR

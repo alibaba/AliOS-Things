@@ -2,6 +2,7 @@ config AOS_BOARD_FRDMKL27Z
     bool "FRDMKL27Z"
     select AOS_MCU_MKL27Z644IMPL
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_NO_TCPIP
     help
 
 if AOS_BOARD_FRDMKL27Z

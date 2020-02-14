@@ -1,6 +1,5 @@
 config AOS_MCU_STM32F4XX
     bool
-    select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M

@@ -2,6 +2,7 @@ config AOS_BOARD_XM510
     bool "XM510"
     select AOS_MCU_XM510
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP
     help
 
 if AOS_BOARD_XM510

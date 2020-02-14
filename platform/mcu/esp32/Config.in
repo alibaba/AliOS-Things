@@ -1,6 +1,5 @@
 config AOS_MCU_ESP32
     bool
-    select AOS_COMP_LWIP
     select AOS_COMP_BT_HOST if BLE_CONFIG != n
     select AOS_COMP_MBEDTLS
     select AOS_COMP_NETMGR
