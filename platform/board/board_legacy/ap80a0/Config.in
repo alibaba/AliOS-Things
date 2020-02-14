@@ -2,6 +2,7 @@ config AOS_BOARD_AP80A0
     bool "AP80A0"
     select AOS_MCU_MVS_AP80XX
     select AOS_COMP_NEWLIB_STUB
+    select CONFIG_AOS_TCPIP
     help
 
 if AOS_BOARD_AP80A0

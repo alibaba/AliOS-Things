@@ -91,7 +91,7 @@ int csp_get_args(const char ***pargv)
 
 void aos_features_init(void)
 {
-#ifdef CONFIG_NET_LWIP
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
     if (options.lwip.enable) {
         krhino_lwip_init(options.lwip.tapif);
     }
@@ -146,14 +146,14 @@ int main(int argc, char **argv)
     options.argc        = argc;
     options.argv        = argv;
     options.lwip.enable = true;
-#if defined(TAPIF_DEFAULT_OFF) || !defined(WITH_LWIP)
+#if defined(TAPIF_DEFAULT_OFF) || !defined(CONFIG_AOS_LWIP)
     options.lwip.tapif  = false;
 #else
     options.lwip.tapif  = true;
 #endif
 	WSADATA wsa;
 
-	//Initialize win sock	
+	//Initialize win sock
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf( "###Error Make Sock Failed. Error Code : %d\n", WSAGetLastError());

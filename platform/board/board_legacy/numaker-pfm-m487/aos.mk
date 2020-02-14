@@ -35,8 +35,7 @@ GLOBAL_INCLUDES += .    \
 ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 ETHERNET := 1
 $(NAME)_SOURCES    += drivers/ethernetif.c
-$(NAME)_COMPONENTS  += lwip yloop
-no_with_lwip := 0
+$(NAME)_COMPONENTS  += yloop
 press_test := 1
 HW_CRYPTO_AES_NUVOTON := 1
 GLOBAL_DEFINES += LWIP_MAILBOX_QUEUE

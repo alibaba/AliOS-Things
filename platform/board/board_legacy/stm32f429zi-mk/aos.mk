@@ -12,7 +12,7 @@ ENABLE_VFP         := 1
 ENABLE_USPACE      := 1
 APP_FORMAT         := bin
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lwip cli ulog
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init cli ulog
 
 ifneq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES += aos/aos.c

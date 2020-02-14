@@ -6,16 +6,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu csky
 
-LWIP := 0
-
 $(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino cli
-
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS += lwip netmgr
-no_with_lwip       := 0
-GLOBAL_DEFINES     += WITH_LWIP
-endif
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 

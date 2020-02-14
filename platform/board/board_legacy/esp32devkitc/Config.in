@@ -2,6 +2,7 @@ config AOS_BOARD_ESP32DEVKITC
     bool "ESP32DevKitc"
     select AOS_MCU_ESP32
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP
     help
         **ESP32** is a single 2.4 GHz Wi-Fi-and-Bluetooth combo chip designed with the TSMC ultra-low-power 40 nm technology. It is designed to achieve the best power and RF performance, showing robustness, versatility and reliability in a wide variety of applications and power scenarios.
 

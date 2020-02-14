@@ -2,6 +2,7 @@ config AOS_BOARD_ESP8266
     bool "ESP8266"
     select AOS_MCU_ESP8266
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_VENDOR_TCPIP
     help
         The ESP8266 integrates a Tensilica L106 32-bit RISC processor, which achieves extralow power consumption and reaches a maximum clock speed of 160 MHz. The Real-Time Operating System (RTOS) and Wi-Fi stack allow 80% of the processing power to be available for user application programming and development.
 

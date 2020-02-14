@@ -17,7 +17,7 @@
 #define TAG "vfsTrap"
 int trap_open(const char *path, int flags)
 {
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     return -ENOSYS;
 #else
     int fd = _open(path, flags);
@@ -56,7 +56,7 @@ int trap_fcntl(int fd, int cmd, int val)
     else
     {
         LOGE(TAG,"Unsupport mode %d",cmd);
-    }	
+    }
     return -1;
 }
 
