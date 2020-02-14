@@ -2,14 +2,16 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stdint.h>
+
+#include "fs/ramfs.h"
+
 #include "aos/posix/posix_init.h"
 
 extern int pthread_lock_init(void);
 extern int timer_lock_init(void);
 extern int tmpnam_lock_init(void);
 extern int enviro_lock_init(void);
-
-int ramfs_mount(void);
 
 int posix_init(void)
 {
