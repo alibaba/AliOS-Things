@@ -47,4 +47,11 @@ config LINKKITAPP_CONFIG_PRINT_HEAP
     default n
     help
     displays heap space periodically for debug
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+        
 endif

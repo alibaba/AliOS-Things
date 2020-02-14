@@ -51,5 +51,11 @@ config AOS_CONFIG_DTC_TYPE
     string
     default "linkkit" if AOS_CONFIG_DTC_LINKKIT
     default "mqtt" if AOS_CONFIG_DTC_MQTT
+    
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 
 endif
