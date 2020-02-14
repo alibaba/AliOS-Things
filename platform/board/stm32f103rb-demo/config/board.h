@@ -93,6 +93,11 @@ typedef enum{
     PORT_I2C_INVALID = 255,
 }PORT_I2C_TYPE;
 
+typedef enum{
+    PORT_SPI_1,
+    PORT_SPI_SIZE,
+    PORT_SPI_INVALID =255,
+}PORT_SPI_TYPE;
 
 /*
     hal support list

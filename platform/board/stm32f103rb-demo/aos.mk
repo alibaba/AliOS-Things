@@ -17,6 +17,7 @@ $(NAME)_SOURCES += config/k_config.c \
                    drivers/stm32f1xx_hal_msp.c \
                    drivers/system_stm32f1xx.c \
                    drivers/src/i2c.c \
+                   drivers/src/spi.c \
                    startup/board.c \
                    startup/startup.c \
 
