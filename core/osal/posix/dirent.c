@@ -119,6 +119,11 @@ int fdatasync(int fildes)
     return aos_sync(fildes);
 }
 
+void sync(void)
+{
+    aos_allsync();
+}
+
 int mkdir(const char *path, mode_t mode)
 {
     return aos_mkdir(path);

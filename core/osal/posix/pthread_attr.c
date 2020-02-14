@@ -182,7 +182,7 @@ int pthread_attr_getinheritsched(const pthread_attr_t *restrict attr, int *restr
 
 int pthread_attr_setinheritsched(pthread_attr_t *attr, int inheritsched)
 {
-    if ((attr == NULL)||(inheritsched == NULL)) {
+    if (attr == NULL) {
         return -1;
     }
 

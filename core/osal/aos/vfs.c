@@ -83,6 +83,11 @@ int aos_sync(int fd)
     return _vfs_to_aos_res(vfs_sync(fd));
 }
 
+void aos_allsync(void)
+{
+    vfs_allsync();
+}
+
 int aos_stat(const char *path, struct aos_stat *st)
 {
     return _vfs_to_aos_res(vfs_stat(path, (vfs_stat_t *)st));
