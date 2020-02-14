@@ -11,7 +11,7 @@
 #include <sys/prctl.h>
 #include <pthread.h>
 
-#undef WITH_LWIP
+#undef CONFIG_AOS_LWIP
 #undef WITH_SAL
 #include "aos/kernel.h"
 #include <poll.h>
