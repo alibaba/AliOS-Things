@@ -146,7 +146,7 @@ void httpdns_get_ip_from_addrinfo(struct addrinfo* res, char * ip)
         inet_ntop(AF_INET, &(myaddr->sin_addr), str,  INET_ADDRSTRLEN);
 
     } else if(ai->ai_family == AF_INET6) {
-#ifndef WITH_LWIP
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP)
         struct sockaddr_in6 *myaddr = (struct sockaddr_in6 *) ai->ai_addr;
         memset(str, 0, sizeof(str));
         inet_ntop(AF_INET6, &(myaddr->sin6_addr), str,  INET_ADDRSTRLEN);
@@ -169,7 +169,7 @@ void httpdns_print_addrinfo(struct addrinfo* res)
             ip = sdscat(ip, str);
 
         } else if(ai->ai_family == AF_INET6) {
-#ifndef WITH_LWIP
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP)
             struct sockaddr_in6 *myaddr = (struct sockaddr_in6 *) ai->ai_addr;
             memset(str, 0, sizeof(str));
             inet_ntop(AF_INET6, &(myaddr->sin6_addr), str,  INET_ADDRSTRLEN);
@@ -488,13 +488,13 @@ int httpdns_is_valid_ip(char * host_name)
         return 0;
 
     struct sockaddr_in addr4;
-#ifndef WITH_LWIP
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP)
     struct sockaddr_in6 addr6;
 #endif
 
     if (1 == inet_pton(AF_INET, str, &addr4.sin_addr))
         return 1;
-#ifndef WITH_LWIP
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP)
     else if (1 == inet_pton(AF_INET6, str, &addr6.sin6_addr))
         return 1;
 #endif
@@ -679,7 +679,7 @@ static int httpdns_process(httpdns_connection_t *conn)
     }
 
     mem = http_ctx_get(&(conn->ctx));
- 
+
     if(NULL != mem) {
         HTTPDNS_INFO("<HTTPDNS> %s : memory = %s\n", __func__,  mem->memory);
 

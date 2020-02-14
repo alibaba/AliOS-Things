@@ -14,14 +14,14 @@
 
 #include "include/netmgr_priv.h"
 
-#ifdef WITH_LWIP
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 #include <lwip/priv/tcp_priv.h>
 #include <lwip/udp.h>
 #endif
 
 #define TAG "NETMGR_CELLULAR"
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 static void randomize_tcp_local_port();
 #endif
 
@@ -60,7 +60,7 @@ static void netmgr_ip_got_event(hal_cellular_module_t *m, hal_cellular_ip_stat_t
     LOGI(TAG, "Got ip : %s, gw : %s, mask : %s", pnet->ip, pnet->gate,
          pnet->mask);
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
     randomize_tcp_local_port();
 #endif
 
@@ -72,7 +72,7 @@ static void netmgr_ip_got_event(hal_cellular_module_t *m, hal_cellular_ip_stat_t
     aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_GOT_IP, 0u);
 }
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 #ifdef LOCAL_PORT_ENHANCED_RAND
 
 #define TCP_LOCAL_PORT_SEED "lport_seed"
