@@ -2,7 +2,7 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
 #include "und_log.h"
 #include "und_types.h"
@@ -83,4 +83,4 @@ int und_sched_init(void *sched_task)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif
+#endif  /* end of AOS_COMP_UND */
