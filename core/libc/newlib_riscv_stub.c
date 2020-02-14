@@ -17,7 +17,7 @@
 #define FD_VFS_END (FD_VFS_START + VFS_MAX_FILE_NUM - 1)
 
 #ifdef POSIX_DEVICE_IO_NEED
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
 #define FD_SOCKET_START FD_AOS_SOCKET_OFFSET
 #define FD_SOCKET_END (FD_AOS_SOCKET_OFFSET + FD_AOS_NUM_SOCKETS - 1)
 #define FD_EVENT_START FD_AOS_EVENT_OFFSET
@@ -37,7 +37,7 @@ int _fcntl_r(struct _reent *ptr, int fd, int cmd, int arg)
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
         return aos_fcntl(fd, cmd, arg);
 #ifdef POSIX_DEVICE_IO_NEED
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
         return lwip_fcntl(fd, cmd, arg);
 #endif
@@ -101,7 +101,7 @@ int _close_r(struct _reent *ptr, int fd)
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
         return aos_close(fd);
 #ifdef POSIX_DEVICE_IO_NEED
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
         return lwip_close(fd);
 #endif
@@ -116,7 +116,7 @@ _ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
         return aos_read(fd, buf, nbytes);
 #ifdef POSIX_DEVICE_IO_NEED
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
         return lwip_read(fd, buf, nbytes);
 #endif
@@ -141,7 +141,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
         return aos_write(fd, buf, nbytes);
 #ifdef POSIX_DEVICE_IO_NEED
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
         return lwip_write(fd, buf, nbytes);
 #endif
@@ -175,7 +175,7 @@ int ioctl(int fildes, int request, ... /* arg */)
         (fildes <= (VFS_FD_OFFSET + VFS_MAX_FILE_NUM - 1))) {
         arg = va_arg(args, int);
         return aos_ioctl(fildes, request, arg);
-#ifdef WITH_LWIP
+#ifdef CONFIG_AOS_LWIP
     } else if ((fildes >= FD_AOS_SOCKET_OFFSET) &&
                (fildes <= (FD_AOS_EVENT_OFFSET + FD_AOS_NUM_EVENTS - 1))) {
         argp = va_arg(args, void *);
