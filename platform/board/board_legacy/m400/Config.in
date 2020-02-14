@@ -3,6 +3,7 @@ config AOS_BOARD_M400
     select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LORAWAN_STACK
+    select CONFIG_NO_TCPIP
     help
 
 if AOS_BOARD_M400
