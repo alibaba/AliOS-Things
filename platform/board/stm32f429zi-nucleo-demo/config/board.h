@@ -78,8 +78,8 @@ typedef enum{
 #define AOS_HAL_SPI_ENABLED         0
 #define AOS_HAL_I2C_ENABLED         0
 #define AOS_HAL_FLASH_ENABLED       0
-#define AOS_HAL_PWM_ENABLED         0
 #define AOS_HAL_TIMER_ENABLED       1
+#define AOS_HAL_PWM_ENABLED         1
 #define AOS_HAL_WDG_ENABLED         0
 #define AOS_HAL_RTC_ENABLED         0
 #define AOS_HAL_ADC_ENABLED         0
@@ -162,9 +162,6 @@ typedef enum{
 
 #if (AOS_HAL_GPIO_ENABLED > 0)
 
-/* gpio app macro default value
-   need to ajust for each board
-*/
 #ifndef HALAPP_GPIO_OUT
 #define HALAPP_GPIO_OUT LED0
 #endif
@@ -176,13 +173,11 @@ typedef enum{
 #ifndef HALAPP_GPIO_INT
 #define HALAPP_GPIO_INT KEY0
 #endif
+
 #endif /* AOS_HAL_GPIO_ENABLED > 0 */
 
 #if (AOS_HAL_TIMER_ENABLED > 0)
 
-/* gpio app macro default value
-   need to ajust for each board
-*/
 #ifndef HALAPP_LED_TEST
 #define HALAPP_LED_TEST      LED0
 #endif
@@ -191,6 +186,15 @@ typedef enum{
 #define HALAPP_TIMER_TEST     PORT_TIMER_5
 #endif
 #endif /* AOS_HAL_TIMER_ENABLED > 0 */
+
+#if (AOS_HAL_PWM_ENABLED > 0)
+
+#ifndef HALAPP_PWM_TEST
+#define HALAPP_PWM_TEST          PORT_PWM_3
+#endif
+
+#endif /* AOS_HAL_PWM_ENABLED > 0 */
+
 
 #endif /*__BOARD__H_*/
 

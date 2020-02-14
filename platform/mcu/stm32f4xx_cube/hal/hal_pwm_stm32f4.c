@@ -16,10 +16,15 @@
 
 #define HAL_APB1_DIV_FREQ       64000UL
 
-typedef struct {
-    uint8_t                inited;
-    TIM_HandleTypeDef      hal_timer_handle;
+ typedef struct {
+     uint8_t                inited;
+     TIM_HandleTypeDef      hal_timer_handle;
 }stm32_pwm_t;
+
+uint32_t hal_gpio_pin(uint16_t hal_pin);
+int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx);
+void hal_gpio_enable_clk(GPIO_TypeDef *GPIOx);
+
 
 static stm32_pwm_t stm32_pwm[PORT_PWM_SIZE];
 
@@ -58,61 +63,16 @@ static PORT_PWM_TYPE get_pwm_logical_port(void* physical_port)
 }
 
 
-#ifdef TIM4
-void TIM4_IRQHandler(void)
-{
-    PORT_PWM_TYPE pwm_port = PORT_PWM_INVALID;
-    krhino_intrpt_enter();
-    pwm_port = get_pwm_logical_port(TIM4);
-    if(PORT_PWM_INVALID != pwm_port && (stm32_pwm[pwm_port].inited) ){
-        HAL_TIM_IRQHandler(&(stm32_pwm[pwm_port].hal_timer_handle));
-    }
-    krhino_intrpt_exit();
-}
-#endif
-
-static int32_t timer4_init(pwm_dev_t *tim)
-{
-    int32_t ret = -1;
-    RCC_ClkInitTypeDef    clkconfig;
-    uint32_t              uwTimclock, uwAPB1Prescaler = 0U;
-    uint32_t              pFLatency;
-    uint32_t uwPrescalerValue = 0;
-
-    TIM_HandleTypeDef * const psttimhandle = &stm32_pwm[tim->port].hal_timer_handle;
-    __HAL_RCC_TIM4_CLK_ENABLE();
-    /* Get clock configuration */
-    HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
-    /* Get APB1 prescaler */
-    uwAPB1Prescaler = clkconfig.APB1CLKDivider;
-    /* Compute TIM4 clock */
-    if (uwAPB1Prescaler == RCC_HCLK_DIV1)
-    {
-        uwTimclock = HAL_RCC_GetPCLK1Freq();
-    }
-    else
-    {
-        uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
-    }
-
-    /* Compute the prescaler value to have TIMx counter clock equal to 20000 Hz */
-    uwPrescalerValue = (uint32_t)(uwTimclock / HAL_APB1_DIV_FREQ) - 1;
-    psttimhandle->Init.Period            = (HAL_APB1_DIV_FREQ / tim->config.freq) - 1;
-    psttimhandle->Init.Prescaler         = uwPrescalerValue;
-    psttimhandle->Init.ClockDivision     = 0;
-    psttimhandle->Init.CounterMode       = TIM_COUNTERMODE_UP;
-    psttimhandle->Init.RepetitionCounter = 0;
-
-    ret = HAL_TIM_PWM_Init(psttimhandle);
-
-    stm32_pwm[tim->port].inited = 1;
-
-    return ret;
-}
-
 int32_t hal_pwm_init(pwm_dev_t *tim)
 {
-    int32_t ret = -1;
+    RCC_ClkInitTypeDef clkconfig;
+    uint32_t           uwTimclock, uwAPB1Prescaler = 0U;
+    uint32_t           pFLatency;
+    GPIO_InitTypeDef   GPIO_InitStruct;
+    GPIO_TypeDef       *GPIOx;
+    int      i;
+    uint32_t uwPrescalerValue = 0;
+    int32_t  ret = -1;
 
     if (tim == NULL) {
        return -1;
@@ -128,43 +88,72 @@ int32_t hal_pwm_init(pwm_dev_t *tim)
     {
         memset(&stm32_pwm[tim->port],0,sizeof(stm32_pwm_t));
         TIM_HandleTypeDef * const psttimhandle = &(stm32_pwm[tim->port].hal_timer_handle);
+		memset(psttimhandle, 0, sizeof(TIM_HandleTypeDef));
         psttimhandle->Instance = pwmIns->physical_port;
         tim->priv = psttimhandle;
-        if (pwmIns->physical_port == TIM4){
-            gpio_dev_t gpio_pwm;
-            gpio_pwm.port = ON_BOARD_TIM4_CH4;
-            gpio_pwm.config = OUTPUT_PUSH_PULL_AF;
-            hal_gpio_init(&gpio_pwm);
 
-            ret = timer4_init(tim);
+        for (i = 0; i < pwmIns->channel_cnt; i++) {
+            ret = hal_gpio_group(pwmIns->channels[i].out1.pin, &GPIOx);
+            if (ret) {
+                return ret;
+            }
+            uint16_t pin = hal_gpio_pin(pwmIns->channels[i].out1.pin);
+            hal_gpio_enable_clk(GPIOx);
+
+            GPIO_InitStruct.Pin = pin;
+            GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull = GPIO_PULLUP;
+            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Alternate = pwmIns->channels[i].out1.alt;
+            HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
         }
+
+        /* Get clock configuration */
+        HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
+        /* Get APB1 prescaler */
+        uwAPB1Prescaler = clkconfig.APB1CLKDivider;
+        /* Compute TIM4 clock */
+        if (uwAPB1Prescaler == RCC_HCLK_DIV1)
+        {
+            uwTimclock = HAL_RCC_GetPCLK1Freq();
+        }
+        else
+        {
+            uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
+        }
+
+        /* Compute the prescaler value to have TIMx counter clock equal to 20000 Hz */
+        uwPrescalerValue = (uint32_t)(uwTimclock / HAL_APB1_DIV_FREQ) - 1;
+        psttimhandle->Init.Period            = /*499;*/ (HAL_APB1_DIV_FREQ / tim->config.freq) - 1;
+        psttimhandle->Init.Prescaler         = /*89; */ uwPrescalerValue;
+        psttimhandle->Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+        psttimhandle->Init.CounterMode       = TIM_COUNTERMODE_UP;
+        ret = HAL_TIM_PWM_Init(psttimhandle);
+        if (HAL_OK == ret) {
+            stm32_pwm[tim->port].inited = 1;
+		}
     }
 
     return ret;
 }
 
-static int32_t timer4_start(pwm_dev_t *tim, uint32_t channel)
+static int32_t timer_start(pwm_dev_t *tim)
 {
+    int i;
     TIM_OC_InitTypeDef sConfig;
-    sConfig.OCMode       = TIM_OCMODE_PWM1;
-    sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
-    sConfig.Pulse        = (tim->config.duty_cycle) * (HAL_APB1_DIV_FREQ / tim->config.freq);
-    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
-    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
-    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
-    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_PWM_ConfigChannel(tim->priv, &sConfig, channel) != HAL_OK)
-    {
-      /* Configuration Error */
-      Error_Handler();
+    PWM_MAPPING* pwmIns = get_pwm_list_logical(tim->port);
+
+    for (i = 0; i < pwmIns->channel_cnt; i++) {
+        memset(&sConfig, 0, sizeof(sConfig));
+        sConfig.OCMode       = TIM_OCMODE_PWM1; //pwmIns->channels[i].mode;
+        sConfig.OCPolarity   = TIM_OCPOLARITY_LOW; //pwmIns->channels[i].out1.pol;
+        sConfig.Pulse        = tim->config.duty_cycle*(HAL_APB1_DIV_FREQ / tim->config.freq);
+        HAL_TIM_PWM_ConfigChannel(tim->priv, &sConfig, pwmIns->channels[i].channel);
+
+        HAL_TIM_PWM_Start(tim->priv, pwmIns->channels[i].channel);
     }
 
-    /*##-3- Start PWM signal generation in DMA mode ############################*/
-    if (HAL_TIM_PWM_Start_IT(tim->priv, channel) != HAL_OK)
-    {
-      /* Starting Error */
-      Error_Handler();
-    }
+    return 0;
 }
 
 int32_t hal_pwm_start(pwm_dev_t *tim)
@@ -172,45 +161,43 @@ int32_t hal_pwm_start(pwm_dev_t *tim)
     int32_t ret = -1;
 
     if(tim != NULL && tim->port < PORT_PWM_INVALID){
-        if(!stm32_pwm[tim->port].inited){
+        if (!stm32_pwm[tim->port].inited) {
             ret = -1;
-        }else{
-            PWM_MAPPING* timerIns = get_pwm_list_logical(tim->port);
-            if (timerIns != NULL)
-            {
-                if (timerIns->physical_port == TIM4){
-                    ret = timer4_start(tim,timerIns->channel);
-                }
-            }
+        } else {
+            ret = timer_start(tim);
         }
     }
     return ret;
 }
 
-static int32_t timer4_change(pwm_dev_t *tim, uint32_t channel,pwm_config_t para)
+static int32_t timer_change(pwm_dev_t *tim, pwm_config_t *para)
 {
+    int i;
     TIM_HandleTypeDef * const psttimhandle = &stm32_pwm[tim->port].hal_timer_handle;
     TIM_OC_InitTypeDef sConfig;
 
-    tim->config.freq = para.freq;
-    tim->config.duty_cycle = para.duty_cycle;
+    tim->config.freq = para->freq;
+    tim->config.duty_cycle = para->duty_cycle;
 
     psttimhandle->Init.Period = (HAL_APB1_DIV_FREQ / tim->config.freq) - 1;
     TIM_Base_SetConfig(psttimhandle->Instance, &(psttimhandle->Init));
 
-    sConfig.OCMode       = TIM_OCMODE_PWM1;
-    sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
-    sConfig.Pulse        = (tim->config.duty_cycle) * (HAL_APB1_DIV_FREQ / tim->config.freq);
-    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
-    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
-    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
-    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_PWM_ConfigChannel(tim->priv, &sConfig, channel) != HAL_OK)
-    {
-      /* Configuration Error */
-      Error_Handler();
+    PWM_MAPPING* pwmIns = get_pwm_list_logical(tim->port);
+    if (NULL == pwmIns) {
+        return -1;
     }
 
+    for (i = 0; i < pwmIns->channel_cnt; i++) {
+        sConfig.OCMode       = TIM_OCMODE_PWM1;
+        sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+        sConfig.Pulse        = (tim->config.duty_cycle) * (HAL_APB1_DIV_FREQ / tim->config.freq);
+
+        HAL_TIM_PWM_ConfigChannel(tim->priv, &sConfig, pwmIns->channels[i].channel);
+
+		HAL_TIM_PWM_Start(tim->priv, TIM_CHANNEL_3);
+    }
+
+    return 0;
 }
 
 
@@ -222,58 +209,42 @@ int32_t hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
         if(!stm32_pwm[pwm->port].inited){
             ret = -1;
         }else{
-            PWM_MAPPING* timerIns = get_pwm_list_logical(pwm->port);
-            if (timerIns != NULL)
-            {
-                if (timerIns->physical_port == TIM4){
-                    ret = timer4_change(pwm,timerIns->channel,para);
-                }
-            }
+            ret = timer_change(pwm, &para);
         }
     }
     return ret;
-}
-
-static int32_t timer4_stop(pwm_dev_t *tim, uint32_t channel)
-{
-    return HAL_TIM_PWM_Stop_IT((TIM_HandleTypeDef *)tim->priv, channel);
 }
 
 int32_t hal_pwm_stop(pwm_dev_t *tim)
 {
-    int32_t ret = -1;
+    int i;
     PWM_MAPPING* timerIns = get_pwm_list_logical(tim->port);
-    if (timerIns != NULL)
-    {
-        if (timerIns->physical_port == TIM4){
-            ret = timer4_stop(tim,timerIns->channel);
-        }
+
+    for (i = 0; i < timerIns->channel_cnt; i++) {
+        HAL_TIM_PWM_Stop((TIM_HandleTypeDef *)tim->priv, timerIns->channels[i].channel);
     }
-    return ret;
+
+	return 0;
 }
 
 int32_t hal_pwm_finalize(pwm_dev_t *tim)
 {
     int32_t ret = -1;
 
-    if (tim != NULL)
-    {
-        ret = HAL_TIM_PWM_DeInit((TIM_HandleTypeDef *)tim->priv);
-    }
+	if (NULL == tim) {
+		return -1;
+	}
+	
+	if (stm32_pwm[tim->port].inited != 1) {
+		return -1;
+	}
 
-    return ret;
+    HAL_TIM_PWM_DeInit((TIM_HandleTypeDef *)tim->priv);
+
+	memset(&stm32_pwm[tim->port], 0, sizeof(stm32_pwm_t));
+	stm32_pwm[tim->port].inited = 0;
+
+    return 0;
 }
 
-/*
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == TIM3) {
-        pFun_timer3(arg_timer3);
-    }
-}*/
-
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-{
-
-}
 #endif
