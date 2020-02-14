@@ -8,9 +8,15 @@
 #define IEEE80211_VENDOR_SPECIFIC           127
 #define IEEE80211_MAC_ADDR_LEN              6
 #define IEEE80211_MAC_HEADER_LEN            24
+#define UMESH_IPV6_ADDR_LEN                 16
+#define UMESH_IPV6_ADDR_OFFSET              12
+
 #define UMESH_MTU_MAX_LEN                   1024
 #define UMESH_RANDOM_LEN                    16
 #define UMESH_AES_KEY_LEN                   16
+#define UMESH_PEERS_MAX_NUM                 127
+#define IP_LIST_MAX_NUM                     12
+
 #define UMESH_RSSI_THRESHOLD_DEFAULT        -65
 #define UMESH_RSSI_GRACE_DEFAULT            -5
 
@@ -70,6 +76,8 @@
 #define UMESH_RX_DUPLICATED                  (UMESH_ERR_BASE - 0x0108)
 #define UMESH_PACK_FAILED                    (UMESH_ERR_BASE - 0x0109)
 #define UMESH_PARSE_TLV_FAILED               (UMESH_ERR_BASE - 0x010a)
+#define UMESH_LIST_FULL                      (UMESH_ERR_BASE - 0x010b)
+
 /*hal err */
 #define UMESH_WIFI_RAW_SEND_FAILED           (UMESH_ERR_BASE - 0x0201)
 #define UMESH_WIFI_SET_CHAN_FAILED           (UMESH_ERR_BASE - 0x0202)
