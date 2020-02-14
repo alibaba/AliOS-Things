@@ -2,6 +2,7 @@ config AOS_BOARD_BK7231
     bool "BK7231"
     select AOS_MCU_BK7231
     select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP
     help
       configuration for board bk7231
 

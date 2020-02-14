@@ -1,5 +1,6 @@
 config AOS_BOARD_EVKMIMXRT1020
     bool "EVKMIMXRT1020"
+    select CONFIG_NO_TCPIP
     select AOS_MCU_MIMXRT1021IMPL
     select AOS_COMP_KERNEL_INIT
     help

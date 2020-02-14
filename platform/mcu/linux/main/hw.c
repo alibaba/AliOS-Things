@@ -5,9 +5,9 @@
 /**
  *                      caution
  * linuxhost hw.c won't use any lwip functionalities,
- * disable WITH_LWIP to avoid close() -> lwip_close()
+ * disable CONFIG_AOS_LWIP to avoid close() -> lwip_close()
  */
-#undef WITH_LWIP
+#undef CONFIG_AOS_LWIP
 
 #include <stdio.h>
 #include <stdlib.h>

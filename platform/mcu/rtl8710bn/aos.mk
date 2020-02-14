@@ -25,8 +25,6 @@ $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr debug
 endif
 
-#GLOBAL_DEFINES += WITH_LWIP
-
 GLOBAL_INCLUDES += .
 GLOBAL_INCLUDES += arch
 GLOBAL_INCLUDES += sdk

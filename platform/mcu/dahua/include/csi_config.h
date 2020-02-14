@@ -16,7 +16,7 @@
 #ifdef WITH_SAL
 #define CONFIG_NETIF_WIFI     1
 #endif
-#ifdef WITH_LWIP
+#ifdef AOS_CONFIG_TCPIP
 #define CONFIG_NETIF_ETH    1
 #define CONFIG_ETH_ENC28J60 1
 #define CONFIG_ETH_ENC28J60_USE_PBUF  1
