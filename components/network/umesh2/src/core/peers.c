@@ -52,7 +52,7 @@ void umesh_peers_free(umesh_peers_t peers)
     hashmap_free(peers);
 }
 
-int umesh_peers_length(umesh_peers_t peers)
+int umesh_peers_num(umesh_peers_t peers)
 {
     int len;
     map_t map = (map_t) peers;
