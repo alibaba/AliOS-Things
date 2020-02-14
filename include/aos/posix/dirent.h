@@ -27,6 +27,9 @@ extern "C" {
 #define DT_SOCK    12
 #define DT_WHT     14
 
+#undef  TMP_MAX
+#undef  PATH_MAX
+
 #define TMP_MAX      1024
 #define PATH_MAX     64
 #define NAME_MAX     64
@@ -98,6 +101,7 @@ int            remove(const char *filename);
 int            rename(const char *oldname, const char *newname);
 int            fsync(int fd);
 int            fdatasync(int fildes);
+void           sync(void);
 int            mkdir(const char *path, mode_t mode);
 int            rmdir(const char *path);
 void           rewinddir(DIR *dirp);

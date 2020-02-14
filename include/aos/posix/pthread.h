@@ -168,6 +168,9 @@ int       pthread_setconcurrency(int new_level);
 int       pthread_getconcurrency(void);
 int       pthread_setschedprio(pthread_t thread, int prio);
 
+int       pthread_setname_np(pthread_t thread, const char *name);
+int       pthread_timedjoin_np(pthread_t thread, void **retval, const struct timespec *abstime);
+
 /* function in pthread_sched.c */
 int sched_yield(void);
 int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param);
@@ -191,7 +194,7 @@ int pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackaddr);
 int pthread_attr_setstack(pthread_attr_t *attr, void *stackaddr, size_t stacksize);
 int pthread_attr_getstack(const pthread_attr_t *attr, void **stackaddr, size_t *stacksize);
 int pthread_attr_setinheritsched(pthread_attr_t *attr, int inheritsched);
-int pthread_attr_getinheritsched(const pthread_attr_t *restrict attr, int *restrict inheritsched);
+int pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inheritsched);
 int pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize);
 int pthread_attr_getguardsize(const pthread_attr_t *attr, size_t *guardsize);
 int pthread_attr_setscope(pthread_attr_t *attr, int scope);
@@ -266,7 +269,7 @@ typedef struct pthread_mutexattr {
 typedef struct pthread_mutex {
     int                  initted;
     kmutex_t            *mutex;
-    pthread_mutexattr_t *attr;
+    pthread_mutexattr_t  attr;
 } pthread_mutex_t;
 
 /* function in pthread_mutex.c */
@@ -299,12 +302,13 @@ typedef struct pthread_cond {
     ksem_t   *wait_sem;
     ksem_t   *wait_done;
 
-    pthread_condattr_t *attr;
+    pthread_condattr_t attr;
 } pthread_cond_t;
 
 /* function in pthread_cond.c */
 int pthread_condattr_init(pthread_condattr_t *attr);
 int pthread_condattr_destroy(pthread_condattr_t *attr);
+int pthread_condattr_setclock(pthread_condattr_t *attr, clock_t clock);
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
 int pthread_cond_destroy(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
