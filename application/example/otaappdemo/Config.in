@@ -4,8 +4,8 @@ config AOS_APP_OTAAPPDEMO
     select AOS_COMP_CLI
     select AOS_COMP_OTA
     select AOS_COMP_CJSON
-    select AOS_COMP_LWIP if OTAAPP_CONFIG_USE_LWIP
     select AOS_COMP_SDK_MQTT
+    select CONFIG_AOS_TCPIP if OTAAPP_CONFIG_USE_LWIP
     help
         OTA demo app for developers
 
