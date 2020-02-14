@@ -19,6 +19,7 @@
 #include "hal_can_stm32f4.h"
 #include "hal_timer_stm32f4.h"
 #include "hal_pwm_stm32f4.h"
+#include "hal_spi_stm32f4.h"
 
 #ifdef AOS_CANOPEN
 #include "co_adapter.h"
@@ -106,6 +107,13 @@ UART_MAPPING UART_MAPPING_TABLE[] =
 };
 
 void* i2c_mapping_table[] = { I2C1, I2C2};
+
+SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
+    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} },
+{PORT_SPI_2,SPI3, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
+    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} }
+};
 
 static void stduart_init(void);
 static void I2C1_init();
