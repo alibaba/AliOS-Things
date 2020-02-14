@@ -126,6 +126,15 @@ uint32_t vfs_lseek(int32_t fd, int64_t offset, int32_t whence);
 int32_t vfs_sync(int32_t fd);
 
 /**
+ * @brief Flush all information in memory that updates file systems to be
+ * be written to the file systems
+ *
+ * @return none
+ *
+ */
+void vfs_allsync(void);
+
+/**
  * Store information about the file in a vfs_stat structure
  *
  * @param[in]  path the path of the file to find information about

@@ -11,12 +11,21 @@ int64_t g_realtime_clock_base = 0;
 
 timer_list_t *timer_list_head;
 
-static int64_t timespec_to_nanosecond(struct timespec *value);
-static int     timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
+static int64_t timespec_to_nanosecond(const struct timespec *value);
+static int     timespec_abs_to_relate(const struct timespec *time_abs, struct timespec *time_relate);
 
 static struct timespec nanosecond_to_timespec(int64_t value);
 
 kmutex_t g_timer_mutex;
+
+static void timer_callback(void *timer, void *arg)
+{
+    struct sigevent *evp =(struct sigevent *)arg;
+
+    if ((evp != NULL) && (evp->sigev_notify_function != NULL)) {
+        evp->sigev_notify_function(evp->sigev_value);
+    }
+}
 
 int timer_lock_init(void)
 {
@@ -71,8 +80,8 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
     krhino_mutex_unlock(&g_timer_mutex);
 
     /* create a timer */
-    ret = krhino_timer_dyn_create(&timer_list_m->ktimer, "posix_timer", evp->sigev_notify_function,
-                                  1, 1, NULL, 0);
+    ret = krhino_timer_dyn_create(&timer_list_m->ktimer, "posix_timer", timer_callback,
+                                  1, 1, evp, 0);
     if (ret != 0) {
         return -1;
     }
@@ -324,7 +333,7 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp, 
 
 unsigned int sleep(unsigned int seconds)
 {
-    krhino_task_sleep(seconds * RHINO_CONFIG_TICKS_PER_SECOND);
+    krhino_task_sleep((tick_t)seconds * RHINO_CONFIG_TICKS_PER_SECOND);
 
     return 0;
 }
@@ -337,7 +346,7 @@ int usleep(useconds_t us)
         return -1;
     }
 
-    tick = (us * RHINO_CONFIG_TICKS_PER_SECOND) / MICROSECONDS_PER_SECOND;
+    tick = ((tick_t)us * RHINO_CONFIG_TICKS_PER_SECOND) / MICROSECONDS_PER_SECOND;
     if (tick == 0) {
         tick = 1;
     }
@@ -347,9 +356,9 @@ int usleep(useconds_t us)
     return 0;
 }
 
-int64_t timespec_to_nanosecond(struct timespec *value)
+int64_t timespec_to_nanosecond(const struct timespec *value)
 {
-    return (value->tv_sec * NANOSECONDS_PER_SECOND + value->tv_nsec);
+    return ((int64_t)value->tv_sec * NANOSECONDS_PER_SECOND + value->tv_nsec);
 }
 
 struct timespec nanosecond_to_timespec(int64_t value)
@@ -362,7 +371,7 @@ struct timespec nanosecond_to_timespec(int64_t value)
     return time;
 }
 
-int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate)
+int timespec_abs_to_relate(const struct timespec *time_abs, struct timespec *time_relate)
 {
     int64_t value = 0;
     int     ret   = -1;
@@ -384,6 +393,39 @@ int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_rela
     *time_relate = nanosecond_to_timespec(value);
 
     return 0;
+}
+
+int timespec_abs_to_ticks(clock_t clock, const struct timespec *abstime, tick_t *ticks_relate)
+{
+    int             ret = 0;
+    struct timespec current_time;
+    int64_t         timeout_nsc;
+    int64_t         current_nsc;
+
+    if ((abstime == NULL) || (ticks_relate == NULL)) {
+        return -1;
+    }
+
+    /* get current time */
+    if (clock == CLOCK_MONOTONIC) {
+        ret = clock_gettime(CLOCK_MONOTONIC, &current_time);
+    } else {
+        ret = clock_gettime(CLOCK_REALTIME, &current_time);
+    }
+    if (ret != 0) {
+        return -1;
+    }
+
+    timeout_nsc = timespec_to_nanosecond(abstime);
+    current_nsc = timespec_to_nanosecond(&current_time);
+
+    if (current_nsc >= timeout_nsc) {
+        /* time_abs has exceeded the current time */
+        return -1;
+    } else {
+        *ticks_relate = ((timeout_nsc - current_nsc) / 1000000) / (1000 / RHINO_CONFIG_TICKS_PER_SECOND);
+        return 0;
+    }
 }
 
 #endif

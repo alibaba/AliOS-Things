@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include "aos/posix/pthread.h"
+#include "aos/posix/timer.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
@@ -13,6 +14,12 @@ int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 
     if (cond == NULL) {
         return -1;
+    }
+
+    if (attr != NULL) {
+        cond->attr = *attr;
+    } else {
+        pthread_condattr_init(&cond->attr);
     }
 
     ret = krhino_mutex_dyn_create(&cond->lock, "mutex");
@@ -97,15 +104,23 @@ int pthread_cond_signal(pthread_cond_t *cond)
 
 int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime)
 {
-    kstat_t        retval;
-    tick_t         ticks;
-    struct timeval now;
-    int            ret = 0;
+    kstat_t         retval;
+    tick_t          ticks = RHINO_WAIT_FOREVER;
+    int             ret = 0;
+    clock_t         clock = CLOCK_REALTIME;
 
-    gettimeofday(&now, NULL);
+    if (abstime != NULL) {
+        if (cond != NULL) {
+            clock = cond->attr.clock;
+        }
 
-    ticks = (abstime->tv_sec - now.tv_sec) * RHINO_CONFIG_TICKS_PER_SECOND +
-            ((abstime->tv_nsec - now.tv_usec * 1000) / 1000000) / (1000 / RHINO_CONFIG_TICKS_PER_SECOND);
+        if (abstime != NULL) {
+            if (timespec_abs_to_ticks(clock, abstime, &ticks) != 0) {
+                /* abstime has already been passed */
+                return ETIMEDOUT;
+            }
+        }
+    }
 
     /* Obtain the protection mutex, and increment the number of waiters.
        This allows the signal mechanism to only perform a signal if there
@@ -120,6 +135,9 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 
     /* Wait for a signal */
     retval = krhino_sem_take(cond->wait_sem, ticks);
+    if (retval == RHINO_BLK_TIMEOUT) {
+        ret = ETIMEDOUT;
+    }
 
     /* Let the signaler know we have completed the wait, otherwise
            the signaler can race ahead and get the condition semaphore
@@ -133,7 +151,6 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
         /* If we timed out, we need to eat a condition signal */
         if (retval == RHINO_BLK_TIMEOUT) {
             krhino_sem_take(cond->wait_sem, RHINO_WAIT_FOREVER);
-            ret = ETIMEDOUT;
         }
         /* We always notify the signal thread that we are done */
         krhino_sem_give(cond->wait_done);
@@ -222,6 +239,20 @@ int pthread_condattr_destroy(pthread_condattr_t *attr)
 
     memset(attr, 0 ,sizeof(pthread_condattr_t));
 
+    return 0;
+}
+
+int pthread_condattr_setclock(pthread_condattr_t *attr, clock_t clock)
+{
+    if (attr == NULL) {
+        return -1;
+    }
+
+    if ((clock != CLOCK_REALTIME) && (clock != CLOCK_MONOTONIC)) {
+        return -1;
+    }
+
+    attr->clock = clock;
     return 0;
 }
 
