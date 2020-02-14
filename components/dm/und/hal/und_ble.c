@@ -2,9 +2,9 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
-#ifdef FEATURE_UND_WITH_BLE
+#ifdef UND_CONFIG_WITH_BLE
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,5 +34,5 @@ int HAL_GetWirelessInfo(struct und_wireless_info_t *info)
 }
 #endif
 
-#endif /* end of FEATURE_UND_WITH_BLE */
-#endif /* end of FEATURE_UND_SUPPORT */
+#endif /* end of UND_CONFIG_WITH_BLE */
+#endif /* end of AOS_COMP_UND */
