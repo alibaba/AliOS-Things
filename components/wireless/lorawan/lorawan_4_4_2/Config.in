@@ -1,12 +1,31 @@
 config AOS_COMP_LORAWAN_4_4_2
     bool "v4.4.2"
-    select AOS_COMP_OSAL_AOS
-    help
+    default y
 
 if AOS_COMP_LORAWAN_4_4_2
 # Configurations for comp lorawan_4_4_2
-config AOS_CONFIG_ENABLE_CLASS_B
+config LORAMAC_CLASSB_ENABLED
     bool "Enable Class B"
     default n
+
+config CONFIG_LINKWAN_AT
+    bool "Support LoRaWAN ICA AT Command Process"
+    default n
+
+config CONFIG_LINKWAN
+    bool "Support LinkWAN"
+    default y
+
+config CONFIG_DEBUG_LINKWAN
+    bool "Debug Log ForLinkWAN"
+    default y
+
+config REGION_CN470
+    bool "Region For CN470"
+    default y
+
+config LOW_POWER_DISABLE
+    bool "Disable Low Power"
+    default y
 
 endif
