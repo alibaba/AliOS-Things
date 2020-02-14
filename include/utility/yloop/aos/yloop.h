@@ -23,7 +23,7 @@ extern "C" {
 #include <stdint.h>
 #include <event_type_code.h>
 
-#if defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP) || defined(CONFIG_NO_LWIP) || defined(WITH_SAL)
 #define POLLIN  0x1
 #define POLLOUT 0x2
 #define POLLERR 0x4
@@ -40,12 +40,12 @@ struct pollfd {
     short revents;
 };
 
-#else  /* defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL) */
+#else  /* defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP) || defined(CONFIG_NO_LWIP) || defined(WITH_SAL) */
 
 #include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#endif /* defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL) */
+#endif /* defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP) || defined(CONFIG_NO_LWIP) || defined(WITH_SAL) */
 
 #ifndef AOS_DOXYGEN_MODE
 
