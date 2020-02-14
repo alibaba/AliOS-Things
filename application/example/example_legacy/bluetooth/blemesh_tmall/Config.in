@@ -4,6 +4,11 @@ config AOS_APP_BLEMESH_TMALL
     help
         Sample code to demenstrate how to join AliGenie BLE Mesh network.
 
-#if AOS_APP_BLEMESH_TMALL
+if AOS_APP_BLEMESH_TMALL
 # Configurations for app blemesh_tmall
-#endif
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
