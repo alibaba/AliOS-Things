@@ -2,9 +2,9 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
-#ifdef FEATURE_UND_WITH_WIFI
+#ifdef UND_CONFIG_WITH_WIFI
 
 #include "und_log.h"
 #include "und_hal.h"
@@ -37,5 +37,5 @@ int HAL_GetWirelessInfo(struct und_wireless_info_t *info)
 }
 #endif
 
-#endif /* end of FEATURE_UND_WITH_WIFI */
-#endif /* end of FEATURE_UND_SUPPORT */
+#endif /* end of UND_CONFIG_WITH_WIFI */
+#endif /* end of AOS_COMP_UND */

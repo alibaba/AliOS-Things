@@ -2,7 +2,7 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
 #include "linkkit/mqtt_api.h"
 
@@ -258,16 +258,16 @@ void und_targets_report(void *param)
 
     /* re-schedule to retransmit report pkt when capture is needed to update */
     if (ctx->update != UND_CAP_STATE_INIT) {
-#ifdef AOS_UND_USE_MQTT
+#ifdef UND_CONFIG_USE_MQTT
         und_sched_start(UND_REPORT_SCHED_CYCLE_MS);
-#elif defined(AOS_UND_USE_UAGENT)
+#elif defined(UND_CONFIG_USE_UAGENT)
         if (ctx->update == UND_CAP_STATE_REPORT) {
             ctx->update = UND_CAP_STATE_INIT;
             und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
         } else {
             und_sched_start(UND_REPORT_SCHED_CYCLE_MS);
         }
-#endif
+#endif  /*  end of UND_CONFIG_USE_MQTT or UND_CONFIG_USE_UAGENT */
     } else {
         und_sched_start(UND_REPORT_WIRELESS_INFO_CYCLE_MS);
     }
@@ -280,4 +280,4 @@ void und_targets_report(void *param)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif
+#endif  /* end of AOS_COMP_UND */
