@@ -4,8 +4,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := LoRaWAN Protocal Stack Version 4.4.0
 
-$(NAME)_COMPONENTS += osal_aos
-
 $(NAME)_SOURCES  = mac/region/Region.c       \
                    mac/region/RegionCommon.c \
                    mac/LoRaMac.c             \
@@ -31,33 +29,13 @@ $(NAME)_INCLUDES +=  .             \
                     mac/region    \
                     system
 
-linkwan ?= 1
-ifeq ($(linkwan), 1)
-GLOBAL_DEFINES += CONFIG_LINKWAN CONFIG_DEBUG_LINKWAN     \
-                  CONFIG_AOS_DISABLE_TICK CONFIG_NO_TCPIP \
-                  REGION_CN470A CONFIG_NO_TCPIP           \
-                  LOW_POWER_DISABLE
+GLOBAL_DEFINES += CONFIG_NO_TCPIP
+
 $(NAME)_SOURCES += linkwan/region/RegionCN470A.c \
                    linkwan/linkwan.c
 
 $(NAME)_INCLUDES += linkwan/include \
                     linkwan/region
 
-linkwanat ?= 0
-ifeq ($(linkwanat), 1)
-GLOBAL_DEFINES += CONFIG_LINKWAN_AT
-$(NAME)_SOURCES += linkwan/linkwan_ica_at.c
-#$(NAME)_SOURCES += linkwan/linkwan_at.c
-endif
-else
-$(NAME)_SOURCES += mac/region/RegionAS923.c    \
-                   mac/region/RegionAU915.c    \
-                   mac/region/RegionCN470.c    \
-                   mac/region/RegionCN779.c    \
-                   mac/region/RegionEU433.c    \
-                   mac/region/RegionEU868.c    \
-                   mac/region/RegionIN865.c    \
-                   mac/region/RegionKR920.c    \
-                   mac/region/RegionUS915.c    \
-                   mac/region/RegionUS915-Hybrid.c
-endif
+$(NAME)_SOURCES-$(CONFIG_LINKWAN_AT) += linkwan/linkwan_ica_at.c
+
