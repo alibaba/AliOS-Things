@@ -1,10 +1,17 @@
-menuconfig AOS_COMP_BREEZE
-    bool "Breeze SDK"
-    default n
-    help
-      AliOS things Breeze SDK
+if AOS_CREATE_PROJECT
+config AOS_COMP_BREEZE
+    bool "BLE breeze SDK"
+    default y
+endif
 
-if AOS_COMP_BREEZE
+if !AOS_CREATE_PROJECT
+config AOS_COMP_BREEZE
+    bool "BLE breeze SDK"
+    default n
+endif
+
+menu "Breeze SDK configuration"
+depends on AOS_COMP_BREEZE
 # Configurations for comp breeze
 
     config CONFIG_AIS_SECURE_ADV
@@ -86,5 +93,5 @@ if AOS_COMP_BREEZE
         bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
         default y
 
+endmenu
 
-endif
