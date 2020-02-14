@@ -1,8 +1,12 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_TMALL_MODEL
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_TMALL_MODEL
     bool
     default n
-    help
-
-if AOS_COMP_TMALL_MODEL
-# Configurations for comp ble mesh tmall model
 endif
+
