@@ -25,6 +25,7 @@ $(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
                    drivers/Src/i2c.c               \
                    drivers/Src/eth.c               \
                    drivers/Src/gpio.c              \
+                   drivers/Src/pwm.c               \
                    drivers/Src/usart.c             \
                    drivers/Src/usb_otg.c           \
                    drivers/Src/dma.c
