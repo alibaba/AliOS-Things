@@ -11,7 +11,9 @@ int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr
     kstat_t ret = -1;
 
     if (attr != NULL) {
-        p_mutex->attr = attr;
+        p_mutex->attr = *attr;
+    } else {
+        pthread_mutexattr_init(&p_mutex->attr);
     }
 
     ret = krhino_mutex_dyn_create(&p_mutex->mutex, "mutex");
@@ -168,27 +170,27 @@ int pthread_mutexattr_setprotocol(pthread_mutexattr_t *attr, int protocol)
 
 int pthread_mutex_getprioceiling(const pthread_mutex_t *restrict mutex, int *restrict prioceiling)
 {
-    if ((mutex == NULL)||(mutex->attr == NULL)||(prioceiling == NULL)) {
+    if ((mutex == NULL) || (prioceiling == NULL)) {
         return -1;
     }
 
-    *prioceiling = mutex->attr->prioceiling;
+    *prioceiling = mutex->attr.prioceiling;
 
     return 0;
 }
 
 int pthread_mutex_setprioceiling(pthread_mutex_t *restrict mutex, int prioceiling, int *restrict old_ceiling)
 {
-    if ((mutex == NULL)||(mutex->attr == NULL)) {
+    if (mutex == NULL) {
         return -1;
     }
 
     if (old_ceiling != NULL) {
-        *old_ceiling = mutex->attr->prioceiling;
+        *old_ceiling = mutex->attr.prioceiling;
     }
 
     /* the hightest prio of mutex is equal to POSIX_HIGH_PRI, can not be modified */
-    mutex->attr->prioceiling = POSIX_HIGH_PRI;
+    mutex->attr.prioceiling = POSIX_HIGH_PRI;
 
     return 0;
 }

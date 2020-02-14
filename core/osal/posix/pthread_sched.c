@@ -19,8 +19,8 @@ int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param)
     pthread_t       pth  = NULL;
     _pthread_tcb_t *ptcb = NULL;
 
-    int ret     = -1;
-    int old_pri = 0;
+    int     ret     = -1;
+    uint8_t old_pri = 0;
 
     if (param == NULL) {
         return -1;
