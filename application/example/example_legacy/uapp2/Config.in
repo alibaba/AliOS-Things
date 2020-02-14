@@ -36,7 +36,11 @@ config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
     help
         "set app entry task ustack size, the unit is cpu_stack_t"
 
-
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 source "core/mk/uspace/Config.in"
 
 endif

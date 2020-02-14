@@ -41,4 +41,10 @@ config YTS_CONFIG_NET_CONNECT
     help
         this option is must for test net related test case
 
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+
 endif

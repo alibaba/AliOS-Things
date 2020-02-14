@@ -32,4 +32,10 @@ config ULOG_APP_CONFIG_SD_CARD
         active function pop out log files via SD card
 endif
 
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+        
 endif

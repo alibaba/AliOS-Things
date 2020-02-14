@@ -8,4 +8,9 @@ config AOS_APP_DK_GUI
 
 if AOS_APP_DK_GUI
 # Configurations for app dk_gui
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif

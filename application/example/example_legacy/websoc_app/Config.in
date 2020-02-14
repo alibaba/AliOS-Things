@@ -9,4 +9,9 @@ config AOS_APP_WEBSOC_APP
 
 if AOS_APP_WEBSOC_APP
 # Configurations for websoc app
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif
