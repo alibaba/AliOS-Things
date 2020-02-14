@@ -28,7 +28,8 @@ $(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
                    drivers/Src/pwm.c               \
                    drivers/Src/usart.c             \
                    drivers/Src/usb_otg.c           \
-                   drivers/Src/dma.c
+                   drivers/Src/dma.c               \
+                   drivers/Src/spi.c
 
 $(NAME)_SOURCES += drivers/drv/board_drv_led.c
 ywss_support    ?= 0
