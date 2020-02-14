@@ -40,7 +40,7 @@ config RHINO_CONFIG_UFS
 
 config RHINO_CONFIG_UTCPIP
     bool "UTCPIP"
-    select AOS_COMP_LWIP
+    select CONFIG_AOS_TCPIP
     select RHINO_CONFIG_LWIP_SYSCALL
     help
         "support user space TCPIP"
