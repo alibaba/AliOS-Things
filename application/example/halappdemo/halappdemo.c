@@ -26,15 +26,13 @@ extern void hal_timer_app_run(void);
 
 #if (AOS_HAL_PWM_ENABLED > 0)
 /*GPIO pwm demo*/
-extern void hal_pwm_app_out(void);
-extern void hal_pwm_chg_args(void);
+extern void hal_pwm_app_staitc_out(void);
+extern void hal_pwm_app_dynamic_out(void);
 #endif
 
 int application_start(int argc, char *argv[])
 {
-    int count = 0;
-
-    printf("hal app entry here!\r\n");
+    printf("hal app test start\r\n");
 
     /*gpio*/
 #if (AOS_HAL_GPIO_ENABLED > 0)
@@ -50,11 +48,11 @@ int application_start(int argc, char *argv[])
 
     /*pwm*/
 #if (AOS_HAL_PWM_ENABLED > 0)
-    hal_pwm_app_out();
-    hal_pwm_chg_args();
+    hal_pwm_app_static_out();
+    hal_pwm_app_dynamic_out();
 #endif
 
-    printf("hal app end %d \r\n", count++);
+    printf("hal app test end!\r\n");
 
     while(1) {
         aos_msleep(1000);
