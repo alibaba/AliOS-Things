@@ -18,7 +18,7 @@
 
 #include "include/netmgr_priv.h"
 
-#ifdef WITH_LWIP
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 #include <lwip/priv/tcp_priv.h>
 #include <lwip/udp.h>
 #endif
@@ -63,7 +63,7 @@ static void    netmgr_wifi_config_start(void);
 static void    add_autoconfig_plugin(autoconfig_plugin_t *plugin);
 static int32_t has_valid_ap(void);
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 static void randomize_tcp_local_port();
 #endif
 
@@ -132,7 +132,7 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m, hal_wifi_ip_stat_t *pnet,
     LOG("Got ip : %s, gw : %s, mask : %s", pnet->ip, pnet->gate,
          pnet->mask);
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
     randomize_tcp_local_port();
 #endif
 
@@ -145,7 +145,7 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m, hal_wifi_ip_stat_t *pnet,
     start_mesh(true);
 }
 
-#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 #ifdef LOCAL_PORT_ENHANCED_RAND
 
 #define TCP_LOCAL_PORT_SEED "lport_seed"
