@@ -1,11 +1,19 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_BREEZE_HAL
-    bool
+    bool #"breeze hal"
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_BREEZE_HAL
+    bool #"breeze hal"
     default n
-    help
+endif
 
-if AOS_COMP_BREEZE_HAL
+menu "Breeze HAL Component"
+depends on AOS_COMP_BREEZE_HAL
+
 # Configurations for comp bt_breeze_hal
-
      config CONFIG_COMP_BZ_HAL_BLESTACK
  	bool #"Enable built-in BLE stack"
  	default y
@@ -13,5 +21,5 @@ if AOS_COMP_BREEZE_HAL
      config CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS
         bool #"Enable built-in crypto"
         default n
+endmenu
 
-endif
