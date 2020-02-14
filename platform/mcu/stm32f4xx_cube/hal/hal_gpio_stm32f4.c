@@ -28,12 +28,123 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos);
 static int get_irqn_type(IRQn_Type *IRQn, uint16_t pin);
 static void enable_gpio_clk(GPIO_TypeDef *GPIOx);
 
+int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx)
+{
+    uint16_t group = 0;
+    int32_t ret = 0;
+
+    group = hal_pin / PINS_IN_GROUP;
+
+    switch (group) {
+    case GROUP_GPIOA:
+        *GPIOx = GPIOA;
+        break;
+    case GROUP_GPIOB:
+        *GPIOx = GPIOB;
+        break;
+    case GROUP_GPIOC:
+        *GPIOx = GPIOC;
+        break;
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+    case GROUP_GPIOD:
+        *GPIOx = GPIOD;
+        break;
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+    case GROUP_GPIOE:
+        *GPIOx = GPIOE;
+        break;
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+    case GROUP_GPIOF:
+        *GPIOx = GPIOF;
+        break;
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+    case GROUP_GPIOG:
+        *GPIOx = GPIOG;
+        break;
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+    case GROUP_GPIOH:
+        *GPIOx = GPIOH;
+        break;
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+    case GROUP_GPIOI:
+        *GPIOx = GPIOI;
+        break;
+#endif
+
+    default:
+        ret = -1;
+        break;
+    }
+
+    return ret;
+}
+
+uint32_t hal_gpio_pin(uint16_t hal_pin)
+{
+    uint8_t  pin_t = hal_pin % PINS_IN_GROUP;
+
+    return (uint32_t)1<<pin_t;
+}
+
+void hal_gpio_enable_clk(GPIO_TypeDef *GPIOx)
+{
+    if (GPIOx == GPIOA) {
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+    } else if (GPIOx == GPIOB) {
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+    } else if (GPIOx == GPIOC) {
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+    }
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+    else if (GPIOx == GPIOD)
+    {
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+    else if (GPIOx = GPIOE)
+    {
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+    else if (GPIOx == GPIOF)
+    {
+        __HAL_RCC_GPIOF_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+    else if (GPIOx == GPIOG)
+    {
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+    else if (GPIOx == GPIOH)
+    {
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+    else if (GPIOx == GPIOI)
+    {
+        __HAL_RCC_GPIOI_CLK_ENABLE();
+    }
+#endif
+}
+
+
 int32_t hal_gpio_init(gpio_dev_t *gpio)
 {
-    GPIO_TypeDef *GPIOx = NULL;
+    GPIO_TypeDef     *GPIOx = NULL;
     GPIO_InitTypeDef  GPIO_InitStruct;
-    int16_t CurrentPosition = 0;
-    int32_t ret = -1;
+    int16_t           CurrentPosition = 0;
+    int32_t           ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input at %s \r\n", __func__);
@@ -49,11 +160,18 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
             return ret;
         }
 
-        GPIOx = gpio_mapping_table[CurrentPosition].GpioGroup;
-        GPIO_InitStruct.Pin = gpio_mapping_table[CurrentPosition].Pin;
-        GPIO_InitStruct.Speed = gpio_mapping_table[CurrentPosition].Speed;
+        ret = hal_gpio_group(gpio->port, &GPIOx);
+        if (ret == -1) {
+            return ret;
+        }
 
         enable_gpio_clk(GPIOx);
+
+        GPIO_InitStruct.Pin = hal_gpio_pin(gpio->port);
+        GPIO_InitStruct.Mode = gpio_mapping_table[CurrentPosition].Mode;
+        GPIO_InitStruct.Pull = gpio_mapping_table[CurrentPosition].Pull;
+        GPIO_InitStruct.Speed = gpio_mapping_table[CurrentPosition].Speed;
+
         HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 
         if((GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_PP) || (GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_OD)) {
@@ -68,18 +186,19 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
 
 int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
 {
-    uint16_t CurrentPosition = 0;
-    int32_t ret = -1;
+    GPIO_TypeDef  *GPIOx;
+    uint16_t       GPIO_Pin;
+    int32_t        ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input at %s \r\n", __func__);
         return ret;
     }
 
-    ret = get_mapTable_pos(gpio->port,&CurrentPosition);
-
-    if(ret == 0) {
-        HAL_GPIO_TogglePin(gpio_mapping_table[CurrentPosition].GpioGroup, gpio_mapping_table[CurrentPosition].Pin);
+    ret = hal_gpio_group(gpio->port, &GPIOx);
+    if (ret != -1) {
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        HAL_GPIO_TogglePin(GPIOx, GPIO_Pin);
     }
 
     return ret;
@@ -87,19 +206,19 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
 
 int32_t hal_gpio_output_high(gpio_dev_t *gpio)
 {
-    uint16_t CurrentPosition = 0;
-    int ret = -1;
+    GPIO_TypeDef *GPIOx;
+    uint16_t      GPIO_Pin;
+    int           ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input at %s \r\n", __func__);
         return ret;
     }
 
-    ret = get_mapTable_pos(gpio->port,&CurrentPosition);
-
-    if(ret == 0)
-    {
-        HAL_GPIO_WritePin(gpio_mapping_table[CurrentPosition].GpioGroup, gpio_mapping_table[CurrentPosition].Pin,GPIO_PinState_Set);
+    ret = hal_gpio_group(gpio->port, &GPIOx);
+    if (ret != -1) {
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PinState_Set);
     }
 
     return ret;
@@ -107,19 +226,19 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
 
 int32_t hal_gpio_output_low(gpio_dev_t *gpio)
 {
-    uint16_t CurrentPosition = 0;
-    int32_t ret = -1;
+    GPIO_TypeDef *GPIOx;
+    uint16_t      GPIO_Pin;
+    int32_t       ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input at %s \r\n", __func__);
         return ret;
     }
 
-    ret = get_mapTable_pos(gpio->port,&CurrentPosition);
-
-    if(ret == 0)
-    {
-        HAL_GPIO_WritePin(gpio_mapping_table[CurrentPosition].GpioGroup, gpio_mapping_table[CurrentPosition].Pin,GPIO_PinState_Reset);
+    ret = hal_gpio_group(gpio->port, &GPIOx);
+    if (ret != -1) {
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PinState_Reset);
     }
 
     return ret;
@@ -127,14 +246,14 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
 
 int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 {
-    uint16_t CurrentPosition = 0;
-    int32_t ret = -1;
+    GPIO_TypeDef *GPIOx;
+    uint16_t      GPIO_Pin;
+    int32_t       ret = -1;
 
-    ret = get_mapTable_pos(gpio->port,&CurrentPosition);
-
-    if(ret == 0)
-    {
-        *value=HAL_GPIO_ReadPin(gpio_mapping_table[CurrentPosition].GpioGroup, gpio_mapping_table[CurrentPosition].Pin);
+    ret = hal_gpio_group(gpio->port, &GPIOx);
+    if (ret != -1) {
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        *value = HAL_GPIO_ReadPin(GPIOx, GPIO_Pin);
     }
 
     return ret;
@@ -142,12 +261,13 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 
 int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_irq_handler_t handler, void *arg)
 {
-    GPIO_TypeDef *GPIOx = NULL;
+    GPIO_TypeDef     *GPIOx = NULL;
+    uint16_t          GPIO_Pin;
     GPIO_InitTypeDef  GPIO_InitStruct;
-    IRQn_Type IRQn;
-    uint16_t CurrentPosition = 0;
-    gpio_irq_slop_t * slop = NULL;
-    int32_t ret = -1;
+    IRQn_Type         IRQn;
+    uint16_t          CurrentPosition = 0;
+    gpio_irq_slop_t  *slop = NULL;
+    int32_t           ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input %s \r\n", __func__);
@@ -168,9 +288,16 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
 
     if((0 == get_mapTable_pos(gpio->port, &CurrentPosition)) && (IRQ_MODE == gpio->config))
     {
-        ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
+        ret = hal_gpio_group(gpio->port, &GPIOx);
+        if (ret == -1) {
+            return ret;
+        }
+
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+
+        ret = get_irqn_type(&IRQn, GPIO_Pin);
         if (ret != 0) {
-            printf("fail to get pin %d irq type \r\n", gpio_mapping_table[CurrentPosition].Pin);
+            printf("fail to get pin %d irq type \r\n", GPIO_Pin);
             return -1;
         }
 
@@ -178,12 +305,11 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
         HAL_NVIC_EnableIRQ(IRQn);
 
         slop->pin_num = gpio->port;
-        slop->irq_num = gpio_mapping_table[CurrentPosition].Pin;
+        slop->irq_num = GPIO_Pin;
         slop->handler = handler;
         slop->priv = arg;
 
-        GPIOx = gpio_mapping_table[CurrentPosition].GpioGroup;
-        GPIO_InitStruct.Pin = gpio_mapping_table[CurrentPosition].Pin;
+        GPIO_InitStruct.Pin = GPIO_Pin;
         GPIO_InitStruct.Speed = gpio_mapping_table[CurrentPosition].Speed;
 
         switch (trigger)
@@ -212,10 +338,11 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
 
 int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
 {
-    uint16_t CurrentPosition = 0;
-    IRQn_Type IRQn = 0;
-    gpio_irq_slop_t * slop = NULL;
-    int32_t ret = -1;
+    uint16_t         GPIO_Pin;
+    uint16_t         CurrentPosition = 0;
+    IRQn_Type        IRQn = 0;
+    gpio_irq_slop_t *slop = NULL;
+    int32_t          ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input %s \r\n", __func__);
@@ -228,9 +355,10 @@ int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
         return 0;
     }
 
-    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config))
+    if(IRQ_MODE==gpio->config)
     {
-        ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        ret = get_irqn_type(&IRQn, GPIO_Pin);
         if (ret != 0) {
             return -1;
         }
@@ -248,10 +376,10 @@ int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
 
 int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
 {
-    uint16_t CurrentPosition = 0;
-    IRQn_Type IRQn = 0;
-    gpio_irq_slop_t * slop = NULL;
-    int32_t ret = -1;
+    uint16_t         GPIO_Pin;
+    IRQn_Type        IRQn = 0;
+    gpio_irq_slop_t *slop = NULL;
+    int32_t          ret = -1;
 
     if (NULL == gpio) {
         printf("invalid input %s \r\n", __func__);
@@ -264,9 +392,10 @@ int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
         return ret;
     }
 
-    if((0 == get_mapTable_pos(gpio->port,&CurrentPosition)) && (IRQ_MODE==gpio->config))
+    if(IRQ_MODE==gpio->config)
     {
-        ret = get_irqn_type(&IRQn, gpio_mapping_table[CurrentPosition].Pin);
+        GPIO_Pin = hal_gpio_pin(gpio->port);
+        ret = get_irqn_type(&IRQn, GPIO_Pin);
         if (ret != 0) {
             return -1;
         }
@@ -281,16 +410,22 @@ int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
 
 int32_t hal_gpio_finalize(gpio_dev_t *gpio)
 {
-    int16_t CurrentPosition = 0;
+    GPIO_TypeDef *GPIOx = NULL;
+    uint16_t     GPIO_Pin;
+    int32_t      ret;
 
     if (NULL == gpio) {
         printf("invalid input %s \r\n", __func__);
         return -1;
     }
 
-    if(0 == get_mapTable_pos(gpio->port ,&CurrentPosition)) {
-        HAL_GPIO_DeInit(gpio_mapping_table[CurrentPosition].GpioGroup, gpio_mapping_table[CurrentPosition].Pin);
+    ret = hal_gpio_group(gpio->port, &GPIOx);
+    if (ret) {
+        return ret;
     }
+
+    GPIO_Pin = hal_gpio_pin(gpio->port);
+    HAL_GPIO_DeInit(GPIOx, GPIO_Pin);
 
     hal_gpio_disable_irq(gpio);
 
@@ -299,7 +434,7 @@ int32_t hal_gpio_finalize(gpio_dev_t *gpio)
 
 int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
 {
-    int32_t ret = 0;
+    int32_t   ret = 0;
     IRQn_Type pirqn = 0;
 
     switch (gpio->config) {
@@ -449,7 +584,7 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos)
     int i = 0;
 
     for(i = 0; i < TOTAL_GPIO_NUM; i++) {
-        if(port == gpio_mapping_table[i].port) {
+        if(port == gpio_mapping_table[i].Port) {
             *pos = i;
             ret = 0;
             break;
