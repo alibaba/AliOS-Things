@@ -87,7 +87,7 @@ umesh_peers_t umesh_peers_init();
 
 void umesh_peers_free(umesh_peers_t peers);
 
-int umesh_peers_length(umesh_peers_t peers);
+int umesh_peers_num(umesh_peers_t peers);
 
 enum peers_status umesh_peer_remove(umesh_peers_t peers, const uint8_t *addr, umesh_peer_lost_cb cb, void *arg);
 
