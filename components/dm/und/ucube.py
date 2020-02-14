@@ -24,7 +24,7 @@ for i in include_tmp:
     component.add_global_includes(i)
 
 macro_tmp = Split('''
-    AOS_UND
+    AOS_COMP_UND
 ''')
 for i in macro_tmp:
     component.add_global_macros(i)
