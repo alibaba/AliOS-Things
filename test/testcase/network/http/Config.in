@@ -3,8 +3,8 @@ config AOS_COMP_HTTP_YTS_TEST
     select AOS_COMP_NETMGR
     select AOS_COMP_YLOOP
     select AOS_COMP_HTTP
-    select AOS_COMP_LWIP
     select AOS_COMP_CLI
+    select CONFIG_AOS_TCPIP
     help
         HTTP YTS TEST
 
