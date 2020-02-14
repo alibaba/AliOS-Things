@@ -23,7 +23,7 @@
 typedef SSIZE_T ssize_t;
 typedef USHORT in_port_t;
 #elif !defined (CONTIKI)
-#ifdef WITH_LWIP
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 #include <unistd.h>
 #include <lwip/def.h>
 #include <lwip/netdb.h>

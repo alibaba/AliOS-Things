@@ -7,8 +7,6 @@ config AOS_COMP_SRTP
     select AOS_COMP_MBEDTLS
     select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
     default y
-# do NOT select depend component in this file
-# use $(NAME)_COMPONENTS in aos.mk
 endif
 
 # Backward compatibility

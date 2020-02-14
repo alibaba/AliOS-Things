@@ -305,7 +305,7 @@ static struct lwip_select_cb *select_cb_list;
     and checked in event_callback to see if it has changed. */
 static volatile int select_cb_ctr;
 
-#ifdef WITH_LWIP_LSFDCLI
+#ifdef LSFDCLI_ENABLED
 #define CHECK_SOCK_FD    (LSFD_DEBUG == LWIP_DBG_ON)
 
 #if CHECK_SOCK_FD
@@ -387,7 +387,7 @@ void print_sock_alloc_info(void)
 }
 
 #endif /* CHECK_SOCK_FD */
-#endif /* WITH_LWIP_LSFDCLI */
+#endif /* LSFDCLI_ENABLED */
 
 #if LWIP_SOCKET_SET_ERRNO
 #ifndef set_errno
@@ -527,7 +527,7 @@ alloc_socket(struct netconn *newconn, int accepted)
 
   /* allocate a new socket identifier */
   for (i = 0; i < NUM_SOCKETS; ++i) {
-    
+
     /* Skip reserved sockets for posix standard file descriptors */
     if ((i >= POSIX_EVB_SOCKET_RESERVED_START) && (i <= POSIX_EVB_SOCKET_RESERVED_END))
       continue;
@@ -549,11 +549,11 @@ alloc_socket(struct netconn *newconn, int accepted)
       sockets[i].err        = 0;
       sockets[i].select_waiting = 0;
 
-#ifdef WITH_LWIP_LSFDCLI
+#ifdef LSFDCLI_ENABLED
 #if CHECK_SOCK_ALLOC
      add_sock_alloc_info(i, i + LWIP_SOCKET_OFFSET);
-#endif
-#endif
+#endif /* CHECK_SOCK_ALLOC */
+#endif /* LSFDCLI_ENABLED */
       return i + LWIP_SOCKET_OFFSET;
     }
     SYS_ARCH_UNPROTECT(lev);
@@ -793,11 +793,11 @@ lwip_close(int s)
   free_socket(sock, is_tcp);
   set_errno(0);
 
-#ifdef WITH_LWIP_LSFDCLI
+#ifdef LSFDCLI_ENABLED
 #if CHECK_SOCK_ALLOC
   del_sock_alloc_info(s - LWIP_SOCKET_OFFSET);
 #endif /* CHECK_SOCK_ALLOC */
-#endif /* LWIP_DEBUG */
+#endif /* LSFDCLI_ENABLED */
   return 0;
 }
 
@@ -1313,7 +1313,7 @@ lwip_sendto(int s, const void *data, size_t size, int flags,
   if(IS_AF_PACKET_SOCKET(s))
   {
       return packet_sendto(s, data, size, flags, to, tolen);
-  } 
+  }
 #endif
 
   sock = get_socket(s);
@@ -1785,7 +1785,7 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
           LWIP_ASSERT("sock->select_waiting > 0", sock->select_waiting > 0);
         } else if (event != NULL) {
           event->psem = SELECT_SEM_PTR(select_cb.sem);
-        } 
+        }
 #if LWIP_PACKET
         else if(IS_AF_PACKET_SOCKET(i))
         {
@@ -3080,7 +3080,7 @@ lwip_ioctl(int s, long cmd, void *argp)
         {
           LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_ioctl memset length %d\n", sizeof(sll->sll_addr)));
           memset(sll->sll_addr, 0, sizeof(sll->sll_addr));
-        } 
+        }
         else
         {
           LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_ioctl memcpy length %d\n", (int)min(sizeof(sll->sll_addr), (size_t) netif->hwaddr_len)));
