@@ -423,7 +423,7 @@ $(OUTPUT_DIR)/config_2ndboot.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFI
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2ndboot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS) AOS_2NDBOOT_SUPPORT=yes
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config_2ndboot.mk
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(AOS_CONFIG)
 	$(QUIET)$(ECHO) Build 2nd boot complete: $(BUILD_STRING)
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
