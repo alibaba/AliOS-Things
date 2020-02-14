@@ -1,15 +1,27 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_BT_HOST
-    bool "Bluetooth Host Stack"
+    bool "BLE Host Stack"
+    default y
+    help
+
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_BT_HOST
+    bool "BLE Host stack"
     default n
     help
 
-if AOS_COMP_BT_HOST
-# Configurations for comp bt
+endif
 
-    config AOS_CONFIG_BT_SMP
-        bool "Enable BLE SMP"
-        default n
+menu "BLE host configuration"
+depends on AOS_COMP_BT_HOST
+
+config AOS_CONFIG_BT_SMP
+    bool "Enable BLE SMP"
+    default n
     help
         Enable Security Manager Protocal(SMP) module for BLE pairing.
 
-endif
+endmenu
+
