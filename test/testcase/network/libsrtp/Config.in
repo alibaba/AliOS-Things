@@ -2,8 +2,8 @@ config AOS_COMP_SRTP_YTS_TEST
     bool "Srtp YTS Testcase"
     select AOS_COMP_NETMGR
     select AOS_COMP_YLOOP
-    select AOS_COMP_LWIP
     select AOS_COMP_SRTP
     select AOS_COMP_CLI
+    select CONFIG_AOS_TCPIP
     help
         SRTP YTS TEST
