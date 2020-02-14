@@ -21,14 +21,11 @@
 #include "board.h"
 
 typedef struct{
-    uint16_t    port;  //Logical Port
-    void*       GpioGroup; //GPIOA, GPIOB
-    uint16_t Pin;       /*!< Specifies the GPIO pins to be configured.
-                            This parameter can be any value of @ref GPIO_pins_define */
-    uint16_t Speed;     /*!< Specifies the speed for the selected pins.
-                            This parameter can be a value of @ref GPIO_speed_define */
+    uint16_t Port;  //Logical Port
+    uint8_t  Mode;
+    uint8_t  Speed; // Specifies the speed for the selected pins.
+    uint8_t  Pull;
     gpio_pinstate_t  defaultLogicalVal;//only used for output
-
 }gpio_mapping_t;
 
 typedef  struct gpio_irq_slop {
@@ -40,7 +37,6 @@ typedef  struct gpio_irq_slop {
 
 extern  const gpio_mapping_t gpio_mapping_table[];
 
-#define PINS_IN_GROUP  16
 #define GROUP_GPIOA    0
 #define GROUP_GPIOB    1
 #define GROUP_GPIOC    2

@@ -9,11 +9,13 @@
  extern "C" {
 #endif
 
-#include "stm32f4xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_tim.h"
 #include "aos/kernel.h"
 #include "board.h"
 
