@@ -21,6 +21,8 @@ config AOS_BOARD_DEVELOPERKIT_MK
     #select RHINO_CONFIG_HAL_SPI_SYSCALL
     select RHINO_CONFIG_HAL_UART_SYSCALL
     #select RHINO_CONFIG_DYN_SYSCALL_TBL
+    select CONFIG_AOS_TCPIP if !BSP_SUPPORT_EXTERNAL_MODULE
+    select CONFIG_NO_TCPIP  if BSP_SUPPORT_EXTERNAL_MODULE
     help
       Developer Kit is hardware development board base on AliOS-Things
 

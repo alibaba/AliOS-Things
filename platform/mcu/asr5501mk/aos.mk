@@ -6,14 +6,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu asr5501mk
 
-LWIP := 1
-
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS += lwip
-no_with_lwip       := 0
-GLOBAL_DEFINES     += WITH_LWIP
-endif
-
 $(NAME)_COMPONENTS += arch_armv7m
 
 $(NAME)_CFLAGS += -DLEGA_CM4 -DALIOS_SUPPORT -DWIFI_DEVICE -D_SPI_FLASH_ENABLE_ -DPS_CLOSE_APLL -DDCDC_PFMMODE_CLOSE -D_SPI_FLASH_120MHz_ -DCFG_MIMO_UF

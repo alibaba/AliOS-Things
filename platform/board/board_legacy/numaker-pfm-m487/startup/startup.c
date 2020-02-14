@@ -34,7 +34,7 @@ static void numicro_userconf_check_rewrite (void)
         uint32_t    i, u32Data;            /* variables */
 
     SYS_UnlockReg();
-    
+
     FMC_Open();
 
     if (FMC_GetBootSource() == 0)
@@ -74,7 +74,7 @@ static void numicro_userconf_check_rewrite (void)
     if ( (au32Config[0]&0xC0) != 0x0 )  //Boot from LD-IAP mode?
     {
         FMC_ENABLE_CFG_UPDATE();
-        
+
         au32Config[0] = (au32Config[0] & ~(0xC0)) ;
 
         if (FMC_WriteConfig(au32Config, 2) < 0)
@@ -82,11 +82,11 @@ static void numicro_userconf_check_rewrite (void)
             printf("Error: FMC_WriteConfig!\n");
             goto exit_numicro_userconf_check_rewrite;
         }
-        
+
         memset(au32Config, 0xff ,sizeof(au32Config));
-        
+
         FMC_ReadConfig(au32Config, 2);
-        
+
         if ( (au32Config[0]&0xC0) != 0x0 )
         {
             printf("Error: Program Config Failed - 0:%08x, 1:%08x\n", au32Config[0], au32Config[1]);
@@ -98,8 +98,8 @@ static void numicro_userconf_check_rewrite (void)
         SYS->IPRST0 = SYS_IPRST0_CHIPRST_Msk;
     }
     #endif
-    
-exit_numicro_userconf_check_rewrite:   
+
+exit_numicro_userconf_check_rewrite:
 
     /* Disable FMC ISP function */
     FMC_Close();
@@ -116,27 +116,27 @@ static void sys_init(void)
     */
     /* Configure the Systick interrupt time */
     SysTick_Config ( SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
-    
+
     /* Standard I/O initialization */
     stduart_init();
 
-    numicro_userconf_check_rewrite();   
+    numicro_userconf_check_rewrite();
 
     board_cli_init();
 
 #if defined(DEV_SAL_MK3060)
     extern hal_wifi_module_t aos_wifi_module_mk3060;
-    hal_wifi_register_module(&aos_wifi_module_mk3060);  
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
     hal_wifi_init();
 #endif
 
-#if defined(WITH_SAL) || defined(WITH_LWIP)
+#if defined(WITH_SAL) || defined(CONFIG_AOS_LWIP)
 //    hal_ota_register_module(&numicro_ota_module);
 #endif
 
     hw_start_hal();
-    
-#ifdef WITH_LWIP
+
+#ifdef CONFIG_AOS_LWIP
     extern hal_wifi_module_t numicro_eth_m487;
     extern int lwip_tcpip_init(void);
     hal_wifi_register_module(&numicro_eth_m487);
@@ -165,9 +165,9 @@ int main(void)
     krhino_init();
 
     /*main task to run */
-    krhino_task_create(&g_main_task, "main_task", 0, 
-                       OS_MAIN_TASK_PRI, 0, 
-                       g_main_task_buf, OS_MAIN_TASK_STACK, 
+    krhino_task_create(&g_main_task, "main_task", 0,
+                       OS_MAIN_TASK_PRI, 0,
+                       g_main_task_buf, OS_MAIN_TASK_STACK,
                        (task_entry_t)sys_init, 1);
 
     /*kernel start schedule!*/

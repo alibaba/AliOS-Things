@@ -1,6 +1,5 @@
 config AOS_MCU_DAHUA
     bool
-    select AOS_COMP_LWIP if MCU_DAHUA_CONFIG_LWIP = y
     select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
     select AOS_ARCH_CSKYV2_L

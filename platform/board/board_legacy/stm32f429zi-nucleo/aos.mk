@@ -41,7 +41,6 @@ GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 $(NAME)_SOURCES    += drivers/ethernetif.c
 $(NAME)_SOURCES    += drivers/httpserver-netconn.c
-$(NAME)_COMPONENTS += lwip
 endif
 
 ifeq ($(COMPILER), armcc)

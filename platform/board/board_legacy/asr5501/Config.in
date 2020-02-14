@@ -2,8 +2,8 @@ config AOS_BOARD_ASR5501
     bool "ASR5501"
     select AOS_MCU_ASR5501
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_LWIP
     select AOS_COMP_NETMGR
+    select CONFIG_AOS_TCPIP
     help
 
 if AOS_BOARD_ASR5501
