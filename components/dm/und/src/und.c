@@ -2,7 +2,7 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
 #include "und/und.h"
 #include "und_log.h"
@@ -134,4 +134,4 @@ int und_update_statis(int cap_idx, int reason_code)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif
+#endif  /* end of AOS_COMP_UND */
