@@ -80,6 +80,19 @@ void TIM3_IRQHandler(void)
 }
 #endif
 
+#ifdef TIM4
+void TIM4_IRQHandler(void)
+{
+    PORT_TIMER_TYPE type = PORT_PWM_INVALID;
+    krhino_intrpt_enter();
+    type = get_timer_logical_port(TIM4);
+    if(PORT_TIMER_INVALID != type && (stm32_timer[type].inited) ){
+        HAL_TIM_IRQHandler(&(stm32_timer[type].hal_timer_handle));
+    }
+    krhino_intrpt_exit();
+}
+#endif
+
 #ifdef TIM5
 void TIM5_IRQHandler(void)
 {

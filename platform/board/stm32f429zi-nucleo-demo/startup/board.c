@@ -43,14 +43,14 @@ uart_dev_t uart_0;
 
 const gpio_mapping_t gpio_mapping_table[TOTAL_GPIO_NUM] =
 {
-    /*  logic port      group    pin            speed               val   */
-    {LED0,              GPIOB, GPIO_PIN_0,  GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN},
-    {LED1,              GPIOB, GPIO_PIN_7,  GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN},
-    {LED2,              GPIOB, GPIO_PIN_14, GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN},
-    {KEY0,              GPIOC, GPIO_PIN_13, GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN},
-    {HAL_GPIO_8,        GPIOA, GPIO_PIN_8,  GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {HAL_GPIO_9,        GPIOA, GPIO_PIN_9,  GPIO_SPEED_FREQ_LOW, GPIO_PULLUP},
-    {ON_BOARD_TIM4_CH4, GPIOD, GPIO_PIN_15, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP}
+    /*  logic port      mode           speed  Pullup/Pulldown   default val */
+    {LED0,       GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0},
+    {LED1,       GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0},
+    {LED2,       GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0},
+    {KEY0,       GPIO_MODE_INPUT,     GPIO_SPEED_FREQ_LOW, GPIO_NOPULL, 0},
+    {HAL_GPIO_8, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0},
+    {HAL_GPIO_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0},
+    {ON_BOARD_TIM4_CH4, GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_PULLUP, 0}
 };
 
 static gpio_dev_t board_gpio_table[] =
@@ -76,9 +76,23 @@ TIMER_MAPPING TIMER_MAPPING_TABLE[] =
     {PORT_TIMER_5, TIM5},
 };
 
+
+
+struct stm32_pwmchan_s pwm3chan[] = {
+    {
+        .channel = TIM_CHANNEL_3,
+        .mode = TIM_OCMODE_PWM1,
+            .out1 = {
+                .pol = TIM_OCPOLARITY_LOW,
+                .alt = GPIO_AF2_TIM3,
+                .pin = LED0,
+        },
+    }
+};
+
 PWM_MAPPING PWM_MAPPING_TABLE[] =
 {
-    {PORT_PWM_4, TIM4, HAL_TIM_ACTIVE_CHANNEL_4, GROUP_GPIOD, HAL_GPIO_15},
+    {PORT_PWM_3, TIM3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
 };
 
 
