@@ -382,7 +382,7 @@ endif # Win32
 XZ_CMD = $(if $(wildcard $(XZ)),$(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE),$(error xz need to be installed))
 MD5_CMD = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE) -m $(IMAGE_MAGIC)
 XZ_MD5 = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE).xz -m $(IMAGE_MAGIC)
-README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
+README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(AOS_CONFIG)
 
 $(EXTRA_POST_BUILD_TARGETS): build_done
 

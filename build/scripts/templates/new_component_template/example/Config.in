@@ -7,4 +7,10 @@ config AOS_APP_@COMPONENTNAME@_APP
 
 menu "@COMPONENTNAME@_APP"
 # Add more configs here ...
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endmenu
