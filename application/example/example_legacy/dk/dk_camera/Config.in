@@ -8,4 +8,9 @@ config AOS_APP_DK_CAMERA
 
 if AOS_APP_DK_CAMERA
 # Configurations for app dk_camera
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif
