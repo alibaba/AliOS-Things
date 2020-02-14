@@ -43,4 +43,10 @@ config MQTTAPP_CONFIG_TEST_LOOP
     default y
     help
     n: run the full life cycle; y:do publish endless
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
 endif
