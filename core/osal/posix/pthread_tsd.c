@@ -106,7 +106,7 @@ int pthread_setspecific(pthread_key_t key, const void *value)
         memset(key_value_s, 0, sizeof(pthread_key_value_t));
 
         /* save the thread id and value */
-        key_value_s->key_value.value = value;
+        key_value_s->key_value.value = (uint32_t *)value;
         key_value_s->key_value.thread = krhino_cur_task_get();
         key_value_s->next = NULL;
 
@@ -119,7 +119,7 @@ int pthread_setspecific(pthread_key_t key, const void *value)
         while (key_value_s_c != NULL) {
             /* if the same thread had save the value update the value */
             if (key_value_s_c->key_value.thread == krhino_cur_task_get()) {
-                key_value_s_c->key_value.value = value;
+                key_value_s_c->key_value.value = (uint32_t *)value;
                 value_flag = 1;
 
                 break;
@@ -141,7 +141,7 @@ int pthread_setspecific(pthread_key_t key, const void *value)
 
             /* save current value to pthread_key_value_t */
             key_value_s->next = key_value_s_l->next;
-            key_value_s->key_value.value = value;
+            key_value_s->key_value.value  = (uint32_t *)value;
             key_value_s->key_value.thread = krhino_cur_task_get();
 
             /* add the value to the list */
@@ -160,7 +160,7 @@ void *pthread_getspecific(pthread_key_t key)
     pthread_key_value_t *key_value_s_o        = NULL;
     pthread_key_value_t *key_value_s_c        = NULL;
 
-    int list_flag = 0; 
+    int list_flag = 0;
 
     CPSR_ALLOC();
     RHINO_CRITICAL_ENTER();
@@ -191,7 +191,7 @@ void *pthread_getspecific(pthread_key_t key)
             return key_value_s_c->key_value.value;
         }
 
-        key_value_s_c = key_value_s_c->next;               
+        key_value_s_c = key_value_s_c->next;
     }
 
     /* if can not find the value current thread saved return NULL */
@@ -207,7 +207,7 @@ int pthread_key_delete(pthread_key_t key)
     pthread_key_value_t *key_value_s_c        = NULL;
     pthread_key_value_t *key_value_s_n        = NULL;
 
-    int list_flag = 0; 
+    int list_flag = 0;
 
     CPSR_ALLOC();
     RHINO_CRITICAL_ENTER();
