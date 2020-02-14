@@ -45,7 +45,9 @@ extern "C" {
 #define POSIX_CONFIG_ENVIRO_ENABLE 1
 #endif
 
+#ifndef PTHREAD_CONFIG_USER_INFO_POS
 #define PTHREAD_CONFIG_USER_INFO_POS 0
+#endif
 
 #ifdef __cplusplus
 }
