@@ -25,6 +25,7 @@
 #include "hal_gpio_stm32f1.h"
 #include "hal_uart_stm32f1.h"
 #include "hal_i2c_stm32f1.h"
+#include "hal_spi_stm32f1.h"
 
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -35,6 +36,12 @@ UART_MAPPING UART_MAPPING_TABLE[] =
 };
 
 i2c_mapping_t i2c_mapping[PORT_I2C_SIZE] = {{PORT_I2C_1,I2C1}};
+
+SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
+    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} },
+};
+
 
 /**
   * @general board init entry board_basic_init
