@@ -345,14 +345,8 @@ APP         :=$(notdir $(APP_FULL))
 
 PLATFORM_DIRECTORY := $(PLATFORM_FULL)
 
-# Set APP_VERSION used by OTA
-CONFIG_SYSINFO_APP_VERSION = app-1.0.0-$(CURRENT_TIME)
-$(info app_version:${CONFIG_SYSINFO_APP_VERSION})
-
 # Append PLATFORM (Board) and APP_VERSION to EXTRA_CFLAGS
-EXTRA_CFLAGS := \
-                -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) \
-                -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
+EXTRA_CFLAGS := -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) 
 
 # Append "-include/--preinclude autoconf.h" to EXTRA_CFLAGS
 ifneq ($(filter armcc iar rvct, $(COMPILER)),)

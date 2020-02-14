@@ -91,9 +91,9 @@ def gen_readme_file(bin_output_path, ota_file, xz_file, factory_file, version):
 def find_version(config_file):
     with open(config_file, "r") as f:
         config_mk_str = f.read()
-        find_str = re.search( r'DSYSINFO_APP_VERSION=.*', config_mk_str, re.M|re.I)
+        find_str = re.search( r'SYSINFO_APP_VERSION=.*', config_mk_str, re.M|re.I)
         version = find_str.group()
-        version = version.replace('DSYSINFO_APP_VERSION=', '')
+        version = version.replace('SYSINFO_APP_VERSION=', '')
         version = version.replace('\\"', '')
 
     return version
