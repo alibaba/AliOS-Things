@@ -122,7 +122,7 @@
 #define WITHOUT_OBSERVE 1
 #define WITHOUT_QUERY_FILTER 1
 
-#if !defined(WITH_LWIP) && !defined(WITH_SAL)
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP) && !defined(WITH_SAL)
 /* Define to 1 if you have the <netinet/in.h> header file. */
 /* #undef HAVE_NETINET_IN_H 0 x*/
 #define HAVE_NETINET_IN_H 1
