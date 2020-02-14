@@ -253,8 +253,8 @@ int aos_do_pollfd(int fd, int flag, poll_notify_t notify, void *fds, void *arg);
 off_t aos_lseek(int fd, off_t offset, int whence);
 
 /**
- * @brief aos_sync causes all pending modifications to filesystem metadata
- *        and cached file data to be written to the underlying filesystems.
+ * @brief aos_sync causes the pending modifications of the specified file to
+ *        be written to the underlying filesystems.
  *
  * @param[in] fd  the file descriptor of the file.
  *
@@ -263,6 +263,14 @@ off_t aos_lseek(int fd, off_t offset, int whence);
  *          of the error.
  */
 int aos_sync(int fd);
+
+/**
+ * @brief aos_allsync causes all pending modifications to filesystem metadata
+ *        and cached file data to be written to the underlying filesystems.
+ *
+ * @return  none
+ */
+void aos_allsync(void);
 
 /**
  * @brief aos_stat() return information about a file pointed to by @path
