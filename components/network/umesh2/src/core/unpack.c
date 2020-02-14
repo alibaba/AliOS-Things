@@ -97,6 +97,7 @@ static int umesh_parse_join_tlv_resp(umesh_peer_type_t peer_type, const uint8_t 
             return ret;
         }
         state->peers_state.joined = 1;
+        peer->step = UMESH_PEER_IDENTIFY_FINISH;
         umesh_mutex_unlock(state->generic_lock);
         if (state->peer_add_cb) {
             state->peer_add_cb(from, UMESH_PEER_IDENTIFY_FINISH, state);
@@ -172,6 +173,8 @@ static int umesh_parse_heart_tlv(umesh_peer_type_t peer_type, const uint8_t *fro
     umesh_mutex_unlock(state->generic_lock);
     return ret;
 buffer_error:
+    log_e("umesh_parse_heart_tlv err");
+    umesh_mutex_unlock(state->generic_lock);
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
@@ -192,6 +195,8 @@ static int umesh_parse_zero_req_tlv(const uint8_t *from, const struct buf *tlv_b
     ret = umesh_send_frame_zero_resp(state, from);
     return ret;
 buffer_error:
+    log_e("umesh_parse_zero_req_tlv err");
+    umesh_mutex_unlock(state->generic_lock);
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
@@ -212,6 +217,8 @@ static int umesh_parse_zero_finish_tlv(const uint8_t *from, const struct buf *tl
     /*todo*/
     return ret;
 buffer_error:
+    log_e("umesh_parse_zero_finish_tlv err");
+    umesh_mutex_unlock(state->generic_lock);
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
@@ -246,30 +253,32 @@ static int umesh_parse_zero_resp_tlv(const uint8_t *from, const uint8_t *to, con
         goto buffer_error;
     }
     READ_BYTES_COPY(tlv_buf, offset, ssid, ssid_len);
-    log_i("---ssid len = %d, ssid = %s", ssid_len, ssid);
+    log_i("ssid len = %d, ssid = %s", ssid_len, ssid);
     offset += ssid_len;
     READ_U8(tlv_buf, offset++, &pwd_len);
     if (pwd_len != 0) {
-        log_i("---pwd len = %d", pwd_len);
+        log_i("pwd len = %d", pwd_len);
         READ_BYTES_COPY(tlv_buf, offset, pwd, pwd_len);
         offset += pwd_len;
-        decrypt_data = umesh_malloc(pwd_len);
+        decrypt_data = umesh_malloc(pwd_len + 1);
         if (decrypt_data == NULL) {
             return UMESH_ERR_MALLOC_FAILED;
         }
+        memset(decrypt_data, 0, pwd_len + 1);
         /////////////////
         if (memcmp(to, state->self_addr, IEEE80211_MAC_ADDR_LEN) == 0) { /*ucast data to self*/
             /*decrypt the data*/
             umesh_mutex_lock(state->generic_lock);
             ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
             if (ret < 0) {
+                umesh_free(decrypt_data);
                 umesh_mutex_unlock(state->generic_lock);
                 log_w("can not find the peer");
                 return ret;
             }
 
             umesh_get_ucast_iv(from_peer->from_random, from_peer->to_random, iv_data);
-
+            umesh_mutex_unlock(state->generic_lock);
             aes = utils_aes128_init(state->aes_key, iv_data, AES_DECRYPTION);
             if (aes == NULL) {
                 umesh_free(decrypt_data);
@@ -329,6 +338,8 @@ static int umesh_parse_zero_resp_tlv(const uint8_t *from, const uint8_t *to, con
     ret = umesh_send_frame_zero_finish(state, from);
     return ret;
 buffer_error:
+    log_e("umesh_parse_zero_resp_tlv err");
+    umesh_mutex_unlock(state->generic_lock);
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
@@ -408,6 +419,7 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
         umesh_mutex_lock(state->generic_lock);
         ret = umesh_peer_get(state->peers_state.peers, from, &from_peer);
         if (ret < 0) {
+            umesh_mutex_unlock(state->generic_lock);
             log_w("can not find src peer");
             return ret;
         }
@@ -482,6 +494,8 @@ static int umesh_parse_data_tlv(umesh_peer_type_t peer_type, const uint8_t *from
     umesh_free(decrypt_data);
     return ret;
 buffer_error:
+    log_e("umesh_parse_data_tlv err");
+    umesh_mutex_unlock(state->generic_lock);
     return UMESH_ERR_OUT_OF_BOUNDS;
 }
 
@@ -514,15 +528,12 @@ static int umesh_handle_tlv(umesh_frame_type_t frame_type, umesh_peer_type_t pee
 
             break;
         case UMESH_ZERO_REQ_TLV:
-            log_d("-----recv zero req tlv-------");
             ret = umesh_parse_zero_req_tlv(from, tlv_buf, state);
             break;
         case UMESH_ZERO_RESP_TLV:
-            log_d("-----recv zero rsp tlv-------");
             ret = umesh_parse_zero_resp_tlv(from, to, tlv_buf, state);
             break;
         case UMESH_ZERO_FINISH_TLV:
-            log_d("-----recv zero finish tlv-------");
             ret = umesh_parse_zero_finish_tlv(from, tlv_buf, state);
             break;
     }
@@ -578,6 +589,8 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
             struct umesh_peer *peer = NULL;
             uint8_t rand_array[UMESH_RANDOM_LEN] = {0};
             umesh_mutex_lock(state->generic_lock);
+
+
             ret = umesh_peer_get(state->peers_state.peers, from, &peer);
             if (ret == 0 && peer != NULL) {
                 if (peer->step > UMESH_PEER_IDENTIFY_RESP) { /* no need action*/
@@ -587,6 +600,13 @@ int umesh_rx_ieee80211_payload(const struct buf *frame, const uint8_t *from, con
                 }  /*send join resp*/
                 peer->step = UMESH_PEER_IDENTIFY_REQ;
             } else {
+                /*check peer number*/
+                int num = umesh_peers_num(state->peers_state.peers);
+                if (num > UMESH_PEERS_MAX_NUM) {
+                    ret = UMESH_LIST_FULL;
+                    umesh_mutex_unlock(state->generic_lock);
+                    break;
+                }
                 umesh_produce_random(rand_array, UMESH_RANDOM_LEN);
                 peer = umesh_peer_add2(state->peers_state.peers, from, peer_type, UMESH_PEER_IDENTIFY_REQ,
                                        umesh_now_ms(), 0, NULL, rand_array);

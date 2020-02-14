@@ -12,7 +12,6 @@
 #include "hal_wifi.h"
 #include "log.h"
 #include "loop.h"
-#include "umesh.h"
 #include "pack.h"
 #include "unpack.h"
 #include "peers.h"
@@ -47,8 +46,10 @@ static void umesh_peer_identify(void *para)
 
     if (send_cnt++ > UMESH_IDENTIFY_MAX_CNT) { /*no peer resp cur chan, so go to peers discovery phase */
         send_cnt = 0;
+        log_d("joined = %d", state->peers_state.joined);
         umesh_timer_cancel(&state->timers.scan_timer, umesh_peer_identify, para);
         if (state->peers_state.joined == 0) {
+
             umesh_set_phase(state, UMESH_PHASE_SCAN);
         } else {
             umesh_set_phase(state, UMESH_PHASE_JOINED);
@@ -148,13 +149,16 @@ static int umesh_peers_keeplive(struct umesh_state *state)
     uint32_t timeout = 0;
     struct umesh_peer *peer;
     umesh_remote_peer_t *node, *next;
-
     umesh_peers_it_t it = umesh_peers_it_new(state->peers_state.peers);
     if (it == NULL) {
         return UMESH_ERR_MALLOC_FAILED;
     }
+
     umesh_mutex_lock(state->generic_lock);
+    ret = umesh_peers_num(state->peers_state.peers);
+    log_d("cur peers num = %d", ret);
     while (umesh_peers_it_next(it, &peer) == PEERS_OK) {
+        log_d("peer->step = %d", peer->step);
         if (peer->step == UMESH_PEER_IDENTIFY_FINISH) {
             left_peers ++;
             timeout = (uint32_t)umesh_time_spend(peer->last_update);
@@ -170,10 +174,10 @@ static int umesh_peers_keeplive(struct umesh_state *state)
             }
         }
     }
+
     umesh_mutex_unlock(state->generic_lock);
     umesh_peers_it_free(it);
     /* update remote peers*/
-
     umesh_mutex_lock(state->generic_lock);
     list_for_each_entry_safe(node, next, &state->peers_state.remote_peers_list, linked_list, umesh_remote_peer_t) {
         if (umesh_time_is_expired(node->last_update + UMESH_REMOTE_PEER_CLEAN_TIMEOUT)) {
@@ -183,11 +187,11 @@ static int umesh_peers_keeplive(struct umesh_state *state)
     }
 
     umesh_mutex_unlock(state->generic_lock);
-
     /*all peers lost ,need goto scan phase*/
     if (left_peers == 0) {
         ret = umesh_set_phase(state, UMESH_PHASE_SCAN);
     }
+
     return ret;
 }
 
@@ -206,44 +210,18 @@ static void umesh_heart_beat(void *context)
 
     /* if there is no ping_timer timeout, then return success */
     if (umesh_time_is_expired(state->next_heart_time)) {
-        log_d("~~~~~~~~~~~send heart beat~~~~~~~~~~~");
+        log_d("send heart beart...");
         umesh_heart_update_time(state);
         umesh_send_frame_heart_beat(state);
         /*if not get connect to wifi ,then ask ap info, beta...*/
         if (umesh_wifi_get_connect_state() == 0) {
             umesh_send_frame_zero_req(state, BCAST_ADDR);
+
         }
     }
-
     umesh_peers_keeplive(state);
     umesh_timer_start(&state->timers.heart_timer, UMESH_HEART_DURATION, umesh_heart_beat, context);
 }
-
-
-// static void umesh_send_data_to_mac(void *context)
-// {
-
-// }
-
-// static void umesh_send_data_to_ip(void *context)
-// {
-
-// }
-
-
-// int umesh_schedule_start(struct umesh_state *state)
-// {
-//     int ret = 0;
-//     ret = umesh_timer_start(&state->timers.scan_timer, UMESH_SCAN_PEER_DURATION,umesh_peer_scan , state);
-//     if(ret < 0) {
-//         goto fail;
-//     }
-
-// fail:
-//     return ret;
-// }
-
-
 
 void umesh_network_deinit(void *handle)
 {
@@ -305,7 +283,7 @@ static void umesh_main_task(void *context)
             case UMESH_PHASE_IDENTIFY:
                 break;
             case UMESH_PHASE_JOINED:
-                umesh_send_data_to_ip(state);
+                //umesh_send_data_to_ip(state);
                 break;
             default:
                 break;
@@ -340,10 +318,30 @@ static int recieve_raw_data(const uint8_t *data, uint16_t len, const uint8_t *ta
     }
 
     if (is_to_self == 1) {
+        /*
+                umesh_buf_t *ip_buf = NULL;
 
+                ip_buf = buf_new_owned(len);
+                if(ip_buf == NULL) {
+                    return UMESH_ERR_MALLOC_FAILED;
+                }
+
+                memcpy(ip_buf->data, data, len);
+        */
         if (state->data_to_ip_cb) {
             state->data_to_ip_cb(data, len);
         }
+        /*
+                umesh_mutex_lock(state->to_ip_list_lock);
+                if(list_entry_number(&ip_buf->linked_list) > IP_LIST_MAX_NUM) {
+                    buf_free(ip_buf);
+                    umesh_mutex_unlock(state->to_ip_list_lock);
+                    return UMESH_LIST_FULL;
+                }
+                list_add_tail(&ip_buf->linked_list, &state->send_to_ip_list);
+                umesh_mutex_unlock(state->to_ip_list_lock);
+        */
+
     }
     return ret;
 }
@@ -375,6 +373,7 @@ void *umesh_network_init()
 {
     int ret = 0;
     /*init state*/
+    log_d("-----umesh_network_init------");
     struct umesh_state *state = NULL;
     uint8_t mac[IEEE80211_MAC_ADDR_LEN];
     ret = umesh_wifi_get_mac(mac);
@@ -415,6 +414,7 @@ void *umesh_network_init()
 #if LWIP_IPV6
     ret = umesh_adapter_interface_init(state);
     if (ret != 0) {
+        log_e("umesh_adapter_interface_init fail, ret = %d", ret);
         goto err;
     }
 #endif
@@ -440,6 +440,7 @@ static int umesh_set_phase(struct umesh_state *state, umesh_phase_t phase)
     }
     state->self_phase = phase;
 
+    log_d("----umesh_set_phase = %d", phase);
     /*start identify schedule*/
     switch (phase) {
         case UMESH_PHASE_SCAN:
@@ -470,6 +471,7 @@ int umesh_recv_ip_data(struct umesh_state *state, const uint8_t *data, uint16_t 
 
     da = dst_addr;
 
+    log_hex("get ip", data, data_len);
     /*search if da in neighbor list */
     umesh_mutex_lock(state->generic_lock);
     ret = umesh_peer_get(state->peers_state.peers, dst_addr, &to_peer);
@@ -484,3 +486,34 @@ int umesh_recv_ip_data(struct umesh_state *state, const uint8_t *data, uint16_t 
     ret = umesh_send_frame_data(state, ra, state->self_addr, da, data, data_len);
     return ret;
 }
+
+// int umesh_recv_ip_data(struct umesh_state *state, const uint8_t *data, uint16_t data_len)
+// {
+//     int ret = UMESH_ERR_IP_ADDR;
+
+//     uint8_t ver = data[0] &0x0f;
+
+//     switch(ver) {
+//         case 4:
+//         log_d("get ipv4  data!");
+//         break;
+//         case 6: {
+//             log_d("get ipv6  data!");
+//             uint8_t dst_ip[UMESH_IPV6_ADDR_LEN] = {0};
+//             uint8_t dst_mac[IEEE80211_MAC_ADDR_LEN] = {0};
+//             memcpy(dst_ip, data + UMESH_IPV6_ADDR_OFFSET, UMESH_IPV6_ADDR_LEN);
+//             ret = umesh_resolve_mac_addr(dst_ip, dst_mac);
+//             if(ret < 0) {
+//                 return ret;
+//             }
+
+//             ret = umesh_ip_data_input(state, data, data_len, dst_mac);
+
+//         }
+//         break;
+//         default:
+//         log_d("unknow ip type");
+//         break;
+//     }
+//     return ret;
+// }
