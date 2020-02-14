@@ -26,7 +26,7 @@
 #endif
 
 #include "network/network.h"
-#ifdef WITH_LWIP_TFTP
+#ifdef TFTP_ENABLED
 #include "lwip/ip_addr.h"
 #include "lwip/apps/tftp.h"
 #endif
@@ -35,11 +35,11 @@
 #include "und/und.h"
 #endif
 
-#ifdef WITH_LWIP_IPERF
+#ifdef IPERF_ENABLED
 extern int iperf_cli_register(void);
 #endif
 
-#ifdef WITH_LWIP_PING
+#ifdef PING_ENABLED
 extern int ping_cli_register(void);
 #endif
 
@@ -102,7 +102,7 @@ static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
     }
 }
 
-#ifndef CONFIG_NO_TCPIP
+#ifndef CONFIG_NO_LWIP
 static void udp_cmd(char *buf, int len, int argc, char **argv)
 {
     struct sockaddr_in saddr;
@@ -131,7 +131,7 @@ static void udp_cmd(char *buf, int len, int argc, char **argv)
     close(sockfd);
 }
 
-#ifdef WITH_LWIP_TFTP
+#ifdef TFTP_ENABLED
 static void tftp_get_done(int error, int len)
 {
     if (error == 0) {
@@ -171,13 +171,13 @@ tftp_print_usage:
     aos_cli_printf("Usage: tftp server start/stop\r\n");
     aos_cli_printf("       tftp get path/to/file\r\n");
 }
-#endif /* WITH_LWIP_TFTP */
+#endif /* TFTP_ENABLED */
 
 struct cli_command  tcpip_cli_cmd[] = {
     /* net */
-#ifdef WITH_LWIP_TFTP
+#ifdef TFTP_ENABLED
     {"tftp",        "tftp server/client control", tftp_cmd},
-#endif /* WITH_LWIP_TFTP */
+#endif /* TFTP_ENABLED */
     {"udp",         "[ip] [port] [string data] send udp data", udp_cmd},
 };
 
@@ -224,7 +224,7 @@ static void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
-#endif /*!defined CONFIG_NO_TCPIP */
+#endif /*!defined CONFIG_NO_LWIP */
 
 void cli_service_init(kinit_t *kinit)
 {
@@ -235,15 +235,15 @@ void cli_service_init(kinit_t *kinit)
 #ifdef OSAL_RHINO
         dumpsys_cli_init();
 #endif
-#ifndef CONFIG_NO_TCPIP
+#ifndef CONFIG_NO_LWIP
         tcpip_cli_init();
         hal_wifi_cli_init();
 
-#ifdef WITH_LWIP_IPERF
+#ifdef IPERF_ENABLED
         iperf_cli_register();
 #endif
 
-#ifdef WITH_LWIP_PING
+#ifdef PING_ENABLED
         ping_cli_register();
 #endif
 
