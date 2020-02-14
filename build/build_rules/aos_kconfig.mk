@@ -7,14 +7,14 @@ CONFIG_BASEDIR := $(APPDIR)/
 export AOS_CONFIG_IN := $(APPDIR)/Config.in
 else
 CONFIG_BASEDIR :=
-export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
+export AOS_CONFIG_IN := $(SOURCE_ROOT)/build/Config.in
 endif
 
 export AOS_CONFIG := $(CONFIG_BASEDIR).config
 export AOS_DEFCONFIG ?= $(CONFIG_BASEDIR).defconfig
 export TMP_DEFCONFIG := $(CONFIG_BASEDIR).defconfig
 
-export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)build/configs
+export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)/build/configs
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 KCONFIG_TOOLPATH ?=
