@@ -105,7 +105,10 @@ int32_t vfs_open(const char *path, int32_t flags)
         return ret;
     }
 
-    return vfs_fd_get(f);
+    ret = vfs_fd_get(f);
+    vfs_fd_mark_open(ret);
+
+    return ret;
 }
 
 int32_t vfs_close(int32_t fd)
@@ -141,6 +144,7 @@ int32_t vfs_close(int32_t fd)
         return VFS_ERR_LOCK;
     }
 
+    vfs_fd_mark_close(fd);
     vfs_file_del(f);
 
     vfs_unlock(g_vfs_lock_ptr);
@@ -311,6 +315,28 @@ int32_t vfs_sync(int32_t fd)
     }
 
     return ret;
+}
+
+void vfs_allsync(void)
+{
+    int i;
+    int32_t fd;
+
+    /**
+     * prevent other threads from closing
+     * the file while syncing it
+     */
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return;
+    }
+
+    for (i = 0; i < VFS_MAX_FILE_NUM; i++) {
+        fd = VFS_FD_OFFSET + i;
+        if (vfs_fd_is_open(fd)) {
+            vfs_sync(fd);
+        }
+    }
+    vfs_unlock(g_vfs_lock_ptr);
 }
 
 int32_t vfs_stat(const char *path, vfs_stat_t *st)

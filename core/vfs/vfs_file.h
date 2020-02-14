@@ -48,6 +48,38 @@ vfs_file_t *vfs_file_new(vfs_inode_t *node);
  */
 void vfs_file_del(vfs_file_t *file);
 
+/**
+ * @brief Mark fd as opened
+ *
+ * @param[in] fd the file descriptor
+ *
+ * @return On success return 0
+ *         if the fd is invalid return -1
+ *         if the fd has already been marked return 1
+ */
+int32_t vfs_fd_mark_open(int32_t fd);
+
+/**
+ * @brief mark fd as closed
+ *
+ * @param[in] fd the file descriptor
+ *
+ * @return On success return 0
+ *         if the fd is invalid return -1
+ *         if the fd has already been marked return 1
+ */
+int32_t vfs_fd_mark_close(int32_t fd);
+
+/**
+ * @brief query wether the fd is opened
+ *
+ * @param[in] fd the file descriptor
+ *
+ * @return if the fd is opened, return 1
+ *         else return 0
+ */
+int32_t vfs_fd_is_open(int32_t fd);
+
 #ifdef __cplusplus
 }
 #endif
