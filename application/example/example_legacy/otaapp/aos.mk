@@ -11,7 +11,6 @@ $(NAME)_SOURCES := otaapp.c
 $(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
 ifeq ($(OTAAPP_CONFIG_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
 endif
 
 ifeq ($(loop),1)

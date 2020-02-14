@@ -27,7 +27,6 @@ $(NAME)_COMPONENTS += linkkit_sdk_c yloop netmgr cjson
 #AOS_CONFIG_DTC_USE_LWIP ?= y
 ifeq ($(AOS_CONFIG_DTC_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
 endif
 
 $(NAME)_INCLUDES += ./
