@@ -45,11 +45,11 @@ config WITH_MAL
         help
            WITH MAL
 
-
-config CONFIG_NO_TCPIP
-        bool "NO TCPIP"
+config WITH_NOTCP_IP
+        bool "WITH NO TCPIP"
+        select CONFIG_NO_TCPIP
         default y
         help
-           NO TCPIP
+           WITH MAL
 
 endmenu

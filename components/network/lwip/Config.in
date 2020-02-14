@@ -1,15 +1,76 @@
-menuconfig AOS_COMP_LWIP
-    bool "Lightweight TCP/IP Stack(LwIP)"
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+config CONFIG_AOS_TCPIP
+    bool
+    default n
+
+config CONFIG_VENDOR_TCPIP
+    bool
+    default n
+
+config CONFIG_LINUX_TCPIP
+    bool
+    default n
+
+config CONFIG_NO_TCPIP
+    bool
+    default n
+
+choice
+    prompt "TCP/IP Selection"
+    default CONFIG_AOS_LWIP if CONFIG_AOS_TCPIP
+    default CONFIG_VENDOR_LWIP if CONFIG_VENDOR_TCPIP
+    default CONFIG_LINUX_IPSTACK if CONFIG_LINUX_TCPIP
+    default CONFIG_NO_LWIP if CONFIG_NO_TCPIP
+    help
+        Select aos/vendor/linux/no tcpip
+
+    config CONFIG_AOS_LWIP
+        bool "ENABLE AOS TCP/IP"
+
+    config CONFIG_VENDOR_LWIP
+        bool "ENABLE VENDOR TCP/IP"
+
+    config CONFIG_LINUX_IPSTACK
+        bool "ENABLE LINUX TCP/IP"
+
+    config CONFIG_NO_LWIP
+        bool "DISABLE TCP/IP"
+endchoice
+
+if CONFIG_AOS_LWIP
+if AOS_CREATE_PROJECT
+    config AOS_COMP_LWIP
+    bool
     default n
     help
       Support LWIP protocol stack.
 
       Switch to "y" leads to support LWIP protocol stack.
       Switch to "n" leads to not support LWIP protocol stacks.
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+    config AOS_COMP_LWIP
+    bool
+    default y
+    help
+      Support LWIP protocol stack.
+
+      Switch to "y" leads to support LWIP protocol stack.
+      Switch to "n" leads to not support LWIP protocol stacks.
+endif
+
+###################################################################
+# Component configuration items
 
 if AOS_COMP_LWIP
-# Configurations for comp lwip
+menu "AOS TCP/IP: Lightweight TCP/IP Stack(LwIP)"
 
+menu "LwIP Protocol Configurations"
+# Configurations for comp lwip
 config AF_PACKET_ENABLED
     bool "AF_PACKET Support"
     default n
@@ -18,6 +79,7 @@ config AF_PACKET_ENABLED
 
       Switching to "y" leads to support AF_PACKET socket.
       Switching to "n" leads to not support AF_PACKET socket.
+endmenu
 
 menu "LwIP App Configurations"
 if 0
@@ -86,8 +148,9 @@ endif
           Switching to "n" leads to not support TFTP module
 
 if TFTP_ENABLED
-      config TFTP_FS
+      config TFTP_FS_ENABLED
         bool "TFTP_FS Support"
+        depends on AOS_COMP_VFS
         default n
         help
           Support TFTP from File System
@@ -160,4 +223,6 @@ endif
            Switching to "n" leads to not support LSFDCLI module
 
 endmenu
+endmenu
+endif
 endif
