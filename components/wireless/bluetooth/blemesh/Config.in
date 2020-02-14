@@ -1,10 +1,22 @@
-menuconfig AOS_COMP_BT_MESH
-	bool "Bluetooth Mesh Stack"
-	default n
+if AOS_CREATE_PROJECT
+config AOS_COMP_BT_MESH
+    bool "Bluetooth Mesh Stack"
+    default y
 	help
 	  AliOS Things NETWORK - Bluetooth Mesh component
+endif
 
-if AOS_COMP_BT_MESH
+if !AOS_CREATE_PROJECT
+config AOS_COMP_BT_MESH
+    bool "BLE Mesh Stack"
+    default n
+	help
+	  AliOS Things NETWORK - Bluetooth Mesh component
+endif
+
+menu "BLE mesh configuration"
+depends on AOS_COMP_BT_MESH
+
 # Configurations for comp bt_mesh
 config CONFIG_BT_MESH
     bool# "Enable BT MESH"
@@ -89,4 +101,5 @@ config CONFIG_BT_MESH_PROV
 config CONFIG_BT_MESH_RELAY
     bool
     default y
-endif
+
+endmenu
