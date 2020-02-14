@@ -4,12 +4,16 @@
 
 #include <unistd.h>
 
+#include <k_api.h>
+
+#include "aos/kernel.h"
 #include "aos/posix/pthread.h"
 #include "aos/posix/enviro.h"
 
 #if (POSIX_CONFIG_ENVIRO_ENABLE > 0)
 
-kmutex_t g_enviro_mutex;
+kmutex_t                   g_enviro_mutex;
+static _pthread_environ_t *g_penviron = NULL;
 
 static _pthread_environ_t *env_new(const char *envname, const char *envval);
 static void env_free(_pthread_environ_t *penv);
@@ -32,6 +36,7 @@ static _pthread_environ_t *env_new(const char *envname, const char *envval)
     /* malloc envname and copy the envname */
     penv->envname = krhino_mm_alloc(strlen(envname) + 1);
     if (penv->envname == NULL) {
+        krhino_mm_free(penv);
         return NULL;
     }
 
@@ -40,6 +45,8 @@ static _pthread_environ_t *env_new(const char *envname, const char *envval)
     /* malloc envval and copy the envval */
     penv->envval = krhino_mm_alloc(strlen(envval) + 1);
     if (penv->envval == NULL) {
+        krhino_mm_free(penv->envname);
+        krhino_mm_free(penv);
         return NULL;
     }
 
@@ -65,43 +72,34 @@ void env_free(_pthread_environ_t *penv)
 
 int setenv(const char *envname, const char *envval, int overwrite)
 {
-    _pthread_tcb_t     *ptcb     = NULL;
     _pthread_environ_t *penv     = NULL;
     _pthread_environ_t *penv_pre = NULL;
 
-    int ret = -1;
+    kstat_t status;
 
     if ((envname == NULL) || (envval == NULL)) {
         return -1;
     }
 
-    /* get current thread tcb */
-    ptcb = _pthread_get_tcb(krhino_cur_task_get());
-    if (ptcb == NULL) {
-        return -1;
-    }
-
-    ret = krhino_mutex_lock(&g_enviro_mutex, RHINO_WAIT_FOREVER);
-    if (ret != 0) {
+    status = krhino_mutex_lock(&g_enviro_mutex, RHINO_WAIT_FOREVER);
+    if (status != RHINO_SUCCESS) {
         return -1;
     }
 
     /* if no environ in tcb, create the first one */
-    if (ptcb->environ == NULL) {
-        penv = env_new(envname, envval);
-        if (penv == NULL) {
+    if (g_penviron == NULL) {
+        g_penviron = env_new(envname, envval);
+        if (g_penviron == NULL) {
             krhino_mutex_unlock(&g_enviro_mutex);
             return -1;
         }
-
-        ptcb->environ = penv;
 
         krhino_mutex_unlock(&g_enviro_mutex);
         return 0;
     }
 
     /* search the environ list to find the match item */
-    penv = ptcb->environ;
+    penv = g_penviron;
     while (penv != NULL) {
         if (strcmp(penv->envname, envname) == 0) {
             /* if the environment variable named by envname already exists and the value of overwrite is non-zero,
@@ -140,69 +138,66 @@ int setenv(const char *envname, const char *envval, int overwrite)
 
 char *getenv(const char *name)
 {
-    _pthread_tcb_t     *ptcb = NULL;
+    kstat_t  status;
+
     _pthread_environ_t *penv = NULL;
 
     if (name == NULL) {
         return NULL;
     }
 
-    /* get current thread tcb */
-    ptcb = _pthread_get_tcb(krhino_cur_task_get());
-    if (ptcb == NULL) {
+    if (g_penviron == NULL) {
         return NULL;
     }
 
-    penv = ptcb->environ;
-    if (penv == NULL) {
+    status = krhino_mutex_lock(&g_enviro_mutex, RHINO_WAIT_FOREVER);
+    if (status != RHINO_SUCCESS) {
         return NULL;
     }
+
+    penv = g_penviron;
 
     /* search the environ list to find the match item */
     while (penv != NULL) {
         if (strcmp(penv->envname, name) == 0) {
+            krhino_mutex_unlock(&g_enviro_mutex);
             return penv->envval;
         }
 
         penv = penv->next;
     }
 
+    krhino_mutex_unlock(&g_enviro_mutex);
     return NULL;
 }
 
 int unsetenv(const char *name)
 {
-    _pthread_tcb_t     *ptcb     = NULL;
     _pthread_environ_t *penv     = NULL;
     _pthread_environ_t *penv_pre = NULL;
 
-    int ret = -1;
+    kstat_t status;
 
     if (name == NULL) {
         return -1;
     }
 
-    /* get current thread tcb */
-    ptcb = _pthread_get_tcb(krhino_cur_task_get());
-    if (ptcb == NULL) {
+    if (g_penviron == NULL) {
         return -1;
     }
 
-    penv = ptcb->environ;
-    if (penv == NULL) {
+    status = krhino_mutex_lock(&g_enviro_mutex, RHINO_WAIT_FOREVER);
+    if (status != RHINO_SUCCESS) {
         return -1;
     }
 
-    ret = krhino_mutex_lock(&g_enviro_mutex, RHINO_WAIT_FOREVER);
-    if (ret != 0) {
-        return -1;
-    }
+    penv = g_penviron;
 
     /* search the environ list to find the match item and free it */
     while (penv != NULL) {
         if (strcmp(penv->envname, name) == 0) {
             if (penv_pre == NULL) {
-                ptcb->environ = penv->next;
+                g_penviron = penv->next;
             } else {
                 penv_pre->next = penv->next;
             }
@@ -259,8 +254,8 @@ int putenv(char *string)
 
 int uname(struct utsname *name)
 {
-    char *version = NULL;
-    char *os      = "AliOS Things";
+    const char *version = NULL;
+    const char *os      = "AliOS Things";
 
     if (name == NULL) {
         return -1;

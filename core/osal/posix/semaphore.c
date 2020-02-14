@@ -3,6 +3,7 @@
  */
 
 #include "aos/posix/semaphore.h"
+#include "aos/posix/timer.h"
 
 #if (POSIX_CONFIG_SEMAPHORE_ENABLE > 0)
 
@@ -38,10 +39,18 @@ int sem_post(sem_t *sem)
 int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout)
 {
     kstat_t stat;
-    tick_t  ticks;
+    tick_t  ticks = RHINO_WAIT_FOREVER;
 
-    ticks = abs_timeout->tv_sec * RHINO_CONFIG_TICKS_PER_SECOND +
-            (abs_timeout->tv_nsec / 1000000) / (1000 / RHINO_CONFIG_TICKS_PER_SECOND);
+    if (abs_timeout != NULL) {
+        if (timespec_abs_to_ticks(CLOCK_REALTIME, abs_timeout, &ticks) != 0) {
+            /**
+             * If you can get the semaphore immediately, you don't need to check the validity
+             * of the abs_timeout and it doesn't return a timeout. So if -1 is returned, the
+             * semaphore is also requested in a non-blocking manner.
+             */
+            ticks = 0;
+        }
+    }
 
     stat = krhino_sem_take(*sem, ticks);
     if (stat == RHINO_SUCCESS) {

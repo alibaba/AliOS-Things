@@ -11,6 +11,7 @@
 #include "vfs_file.h"
 
 static vfs_file_t g_files[VFS_MAX_FILE_NUM];
+static uint32_t   g_opened_fd_bitmap[(VFS_MAX_FILE_NUM + 31) / 32];
 
 extern void vfs_inode_ref(vfs_inode_t *node);
 extern void vfs_inode_unref(vfs_inode_t *node);
@@ -68,3 +69,69 @@ void vfs_file_del(vfs_file_t *file)
 
     file->node = NULL;
 }
+
+int32_t vfs_fd_mark_open(int32_t fd)
+{
+    int word, bit;
+
+    fd -= VFS_FD_OFFSET;
+
+    /* invalid fd */
+    if (fd < 0) {
+        return -1;
+    }
+
+    word = fd / 32;
+    bit = fd % 32;
+
+    if (g_opened_fd_bitmap[word] & (1 << bit)) {
+        /* fd has been opened */
+        return 1;
+    } else {
+        g_opened_fd_bitmap[word] |= (1 << bit);
+    }
+
+    return 0;
+}
+
+int32_t vfs_fd_mark_close(int32_t fd)
+{
+    int word, bit;
+
+    fd -= VFS_FD_OFFSET;
+
+    /* invalid fd */
+    if (fd < 0) {
+        return -1;
+    }
+
+    word = fd / 32;
+    bit = fd % 32;
+
+    if (g_opened_fd_bitmap[word] & (1 << bit)) {
+        g_opened_fd_bitmap[word] &= ~(1 << bit);
+    } else {
+        /* fd has been close */
+        return 1;
+    }
+
+    return 0;
+}
+
+int32_t vfs_fd_is_open(int32_t fd)
+{
+    int word, bit;
+
+    fd -= VFS_FD_OFFSET;
+
+    /* invalid fd */
+    if (fd < 0) {
+        return -1;
+    }
+
+    word = fd / 32;
+    bit = fd % 32;
+
+    return g_opened_fd_bitmap[word] & (1 << bit);
+}
+

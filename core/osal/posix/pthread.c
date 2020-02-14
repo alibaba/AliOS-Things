@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include "aos/errno.h"
 #include "aos/posix/pthread.h"
 #include "aos/posix/timer.h"
 
@@ -152,9 +153,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     }
 
     memset(def_task_name, 0, (strlen("task") + 1));
-    strncpy(def_task_name, "task", strlen("task"));
+    strncpy((char *)def_task_name, "task", strlen("task"));
 
-    ret = krhino_task_create(ptcb->tid, def_task_name, arg,
+    ret = krhino_task_create(ptcb->tid, (name_t *)def_task_name, arg,
                              PRI_CONVERT_PX_RH(ptcb->attr.schedparam.sched_priority), 0, stack,
                              (ptcb->attr.stacksize / sizeof(cpu_stack_t)),
                              (task_entry_t)start_routine, 0);
@@ -192,8 +193,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
 void pthread_exit(void *value_ptr)
 {
-    int ret = -1;
-
     _pthread_tcb_t *ptcb;
 
     ptcb = _pthread_get_tcb(krhino_cur_task_get());
@@ -264,48 +263,7 @@ int pthread_detach(pthread_t thread)
 
 int pthread_join(pthread_t thread, void **retval)
 {
-    kstat_t         ret = 0;
-    _pthread_tcb_t *ptcb;
-
-    if (thread == NULL) {
-        return -1;
-    }
-
-    if (thread == krhino_cur_task_get()) {
-        return -1;
-    }
-
-    ptcb = _pthread_get_tcb(thread);
-
-    if (ptcb == NULL) {
-        return -1;
-    }
-
-    if (ptcb->attr.detachstate == PTHREAD_CREATE_DETACHED) {
-        return -1;
-    }
-
-    ret = krhino_sem_take(ptcb->join_sem, RHINO_WAIT_FOREVER);
-    if (ret == RHINO_SUCCESS) {
-        if (retval != 0) {
-            *retval = ptcb->return_value;
-        }
-
-        krhino_sem_dyn_del(ptcb->join_sem);
-
-        if (ptcb->attr.detachstate == PTHREAD_CREATE_JOINABLE) {
-            if (ptcb->attr.stackaddr == 0) {
-                krhino_mm_free(ptcb->tid->task_stack_base);
-            }
-
-            krhino_mm_free(ptcb->tid);
-            krhino_mm_free(ptcb);
-        }
-    } else {
-        return -1;
-    }
-
-    return 0;
+    return pthread_timedjoin_np(thread, retval, NULL);
 }
 
 int pthread_cancel(pthread_t thread)
@@ -453,9 +411,8 @@ int pthread_setconcurrency(int new_level)
 
 int pthread_setname_np(pthread_t thread, const char *name)
 {
-    _pthread_tcb_t *ptcb;
     uint16_t name_len;
-    uint8_t *task_name = NULL;
+    name_t  *task_name = NULL;
 
     if ((thread == NULL) || (name == NULL)) {
         return -1;
@@ -467,16 +424,74 @@ int pthread_setname_np(pthread_t thread, const char *name)
         return -1;
     }
 
+    krhino_sched_disable();
     if (thread->task_name != NULL) {
-        free(thread->task_name);
+        krhino_mm_free((void *)thread->task_name);
         thread->task_name = NULL;
     }
 
     memset(task_name, 0, name_len);
-    strncpy(task_name, name, strlen(name));
-    name = task_name;
+    strncpy((char *)task_name, name, strlen(name));
 
-    thread->task_name = name;
+    thread->task_name = task_name;
+    krhino_sched_enable();
+
+    return 0;
+}
+
+int pthread_timedjoin_np(pthread_t thread, void **retval, const struct timespec *abstime)
+{
+    kstat_t         ret = 0;
+    _pthread_tcb_t *ptcb;
+    tick_t          ticks = RHINO_WAIT_FOREVER;
+
+    if (thread == NULL) {
+        return -1;
+    }
+
+    if (thread == krhino_cur_task_get()) {
+        return -1;
+    }
+
+    ptcb = _pthread_get_tcb(thread);
+
+    if (ptcb == NULL) {
+        return -1;
+    }
+
+    if (ptcb->attr.detachstate == PTHREAD_CREATE_DETACHED) {
+        return -1;
+    }
+
+    if (abstime != NULL) {
+        if (timespec_abs_to_ticks(CLOCK_REALTIME, abstime, &ticks) != 0) {
+            /* abstime has already been passed */
+            return ETIMEDOUT;
+        }
+    }
+
+    ret = krhino_sem_take(ptcb->join_sem, ticks);
+    if (ret == RHINO_SUCCESS) {
+        if (retval != 0) {
+            *retval = ptcb->return_value;
+        }
+
+        krhino_sem_dyn_del(ptcb->join_sem);
+
+        if (ptcb->attr.detachstate == PTHREAD_CREATE_JOINABLE) {
+            if (ptcb->attr.stackaddr == 0) {
+                krhino_mm_free(ptcb->tid->task_stack_base);
+            }
+
+            krhino_mm_free(ptcb->tid);
+
+            krhino_mm_free(ptcb);
+        }
+    } else if (ret == RHINO_BLK_TIMEOUT) {
+        return ETIMEDOUT;
+    } else {
+        return -1;
+    }
 
     return 0;
 }
