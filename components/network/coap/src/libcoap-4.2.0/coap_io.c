@@ -54,7 +54,7 @@
 #include "utlist.h"
 #include "resource.h"
 
-#if defined(WITH_LWIP) || defined(WITH_SAL)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP) || defined(WITH_SAL)
 # define OPTVAL_T(t)         (t)
 # define OPTVAL_GT(t)        (t)
 #define GEN_IP_PKTINFO        1  /*FIXME*/
@@ -67,7 +67,7 @@
 #elif defined(IP_RECVDSTADDR)
 #  define GEN_IP_PKTINFO IP_RECVDSTADDR
 #else
-#if !defined(WITH_LWIP) && !defined(WITH_SAL)
+#if !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_VENDOR_LWIP) && !defined(WITH_SAL)
 #  error "Need IP_PKTINFO or IP_RECVDSTADDR to request ancillary data from OS."
 #endif
 #endif /* IP_PKTINFO */
@@ -218,7 +218,7 @@ coap_socket_bind_udp(coap_socket_t *sock,
 #ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
-#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+#elif !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_LINUX_IPSTACK)
   if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
@@ -309,7 +309,7 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
 #ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
-#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+#elif !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_LINUX_IPSTACK)
   if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
@@ -453,7 +453,7 @@ coap_socket_bind_tcp(coap_socket_t *sock,
 #ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
-#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+#elif !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_LINUX_IPSTACK)
   if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
@@ -545,7 +545,7 @@ coap_socket_accept_tcp(coap_socket_t *server,
 #ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(new_client->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
-#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+#elif !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_LINUX_IPSTACK)
   if (ioctlsocket(new_client->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(new_client->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
@@ -585,7 +585,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
 #ifndef WITH_SAL
 #ifdef _WIN32
   if (ioctlsocket(sock->fd, FIONBIO, &u_on) == COAP_SOCKET_ERROR) {
-#elif defined(WITH_LWIP) && !defined(CONFIG_NET_LWIP)
+#elif !defined(CONFIG_AOS_LWIP) && !defined(CONFIG_LINUX_IPSTACK)
   if (ioctlsocket(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
 #else
   if (ioctl(sock->fd, FIONBIO, &on) == COAP_SOCKET_ERROR) {
@@ -949,7 +949,7 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
     bytes_written = datalen;
 #endif /* WITH_CONTIKI */
 #else /*SEND_RECV_MSG_SUPPORT_LIBCOAP*/
-    bytes_written = sendto(sock->fd, data, datalen, 0, (const struct sockaddr *)&session->remote_addr.addr, 
+    bytes_written = sendto(sock->fd, data, datalen, 0, (const struct sockaddr *)&session->remote_addr.addr,
                            sizeof(session->remote_addr.addr));
 #endif
   }
@@ -1157,7 +1157,7 @@ coap_network_read(coap_socket_t *sock, coap_packet_t *packet) {
 #undef UIP_IP_BUF
 #undef UIP_UDP_BUF
 #endif /* WITH_CONTIKI */
-#else 
+#else
     len = recv(sock->fd, packet->payload, COAP_RXBUFFER_SIZE, 0);
 #endif /*SEND_RECV_MSG_SUPPORT_LIBCOAP*/
 

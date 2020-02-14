@@ -120,7 +120,7 @@ static int add_coap_msg_callback(iotx_coap_t *p_context, coap_tid_t id, iotx_res
     } else {
         p_context->cb_list_size++;
     }
-    
+
     return 0;
 err:
     coap_free(p_resp_cb);
@@ -145,7 +145,7 @@ static iotx_response_callback_t obtain_coap_msg_callback(iotx_coap_t *p_context,
             } else {
                 p_prev->next = p_next->next;
             }
-            
+
             p_context->cb_list_size--;
             cb = p_next->resp_callback;
             coap_free(p_next);
@@ -306,7 +306,7 @@ int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char 
     }
 
     coap_wrapper_aes128_destroy(aes_e_h);
-    
+
     coap_log(LOG_INFO, "to encrypt src: %s, len: %d", src, len2);
     return ret == 0 ? len2 : 0;
 }
@@ -505,7 +505,7 @@ coap_session_t *get_session(coap_context_t *ctx,
                             const uint8_t *key,
                             unsigned key_len,
                             const char *root_ca_file,
-                            const char *cert_file) 
+                            const char *cert_file)
 {
     coap_session_t *session = NULL;
 
@@ -528,7 +528,7 @@ coap_session_t *get_session(coap_context_t *ctx,
           memset( &hints, 0, sizeof( struct addrinfo ) );
           hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
           hints.ai_socktype = COAP_PROTO_RELIABLE(proto) ? SOCK_STREAM : SOCK_DGRAM; /* Coap uses UDP */
-#ifdef CONFIG_NET_LWIP
+#ifdef CONFIG_AOS_LWIP
           hints.ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV | AI_ALL;
 #endif
           s = getaddrinfo( local_addr, local_port, &hints, &result );
@@ -598,7 +598,7 @@ static void message_handler(struct coap_context_t *ctx,
         coap_log(LOG_ERR, "Invalid iotx context!\n");
         return;
     }
-   
+
     /* check if this is a response to our original request */
     if (!check_token(received, sent)) {
         coap_log(LOG_ERR, "Unmatched token\n");
@@ -671,7 +671,7 @@ coap_context_t *coap_context_create(CoapInitParam *param, char *host)
         coap_log(LOG_ERR, "failed to create client session\n");
         goto err;
     }
-  
+
     ctx->scheme = coap_uri.scheme;
 
     /* TODO: check ver2 block should be used message handler per ctx or per message */
@@ -797,7 +797,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     coap_context_t   *p_coap_ctx = NULL;
     iotx_coap_t      *p_iotx_coap = NULL;
     coap_pdu_t       *pdu;
-    coap_session_t   *p_session  =  NULL;  
+    coap_session_t   *p_session  =  NULL;
     unsigned char    *p_payload  = NULL;
     unsigned char     token[8] = {0};
     char sign[IOTX_SIGN_LENGTH]   = {0};
@@ -914,13 +914,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     if (SUCCESS_RETURN != ret) {
         coap_log(LOG_ERR, "Send firmware message to server(CoAP) failed, ret = %d\n", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
-    }    
+    }
 
     return IOTX_SUCCESS;
 }
 #endif
 
-iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config) 
+iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 {
     CoapInitParam param;
     char url[128] = {0};
@@ -1008,7 +1008,7 @@ err:
         p_iotx_coap->is_authed = IOT_FALSE;
         coap_free(p_iotx_coap);
     }
-    return NULL;   
+    return NULL;
 }
 
 static int iotx_split_path_2_option(char *uri, coap_pdu_t *message)
@@ -1074,7 +1074,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     if (NULL == p_session) {
         coap_log(LOG_ERR, "Session not ready\n");
         return IOTX_ERR_INVALID_PARAM;
-    }    
+    }
 
 #if defined(WITH_FAC_JSON_FLOW)
     coap_log(LOG_INFO, "Upstream Topic: '%s'\n", p_path);
@@ -1131,7 +1131,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
         coap_add_option(pdu, COAP_OPTION_AUTH_TOKEN, strlen(p_iotx_coap->p_auth_token),
                         (unsigned char *)p_iotx_coap->p_auth_token);
-      
+
         if (add_coap_msg_callback(p_context, pdu->tid,
                                   p_message->resp_callback) != 0) {
             coap_log(LOG_ERR, "cannot add msg callback\n");
@@ -1220,7 +1220,7 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
                  p_message, pp_payload, p_len);
         return IOTX_ERR_INVALID_PARAM;
     }
-   
+
     message = (coap_pdu_t *)p_message;
 
     if (coap_get_data(message, (size_t *)p_len, pp_payload) != 1) {

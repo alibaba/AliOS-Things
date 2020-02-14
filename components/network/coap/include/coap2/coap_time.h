@@ -21,7 +21,7 @@
  * @{
  */
 
-#if defined(WITH_LWIP)
+#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
 
 #include <stdint.h>
 #include <lwip/sys.h>
