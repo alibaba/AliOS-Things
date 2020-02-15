@@ -22,7 +22,7 @@
 #include <vfs_trap.h>
 #endif
 
-#ifdef CONFIG_NO_TCPIP
+#ifdef CONFIG_NO_LWIP
 
 struct poll_arg {
     aos_sem_t sem;
