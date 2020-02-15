@@ -21,7 +21,7 @@
                ##__VA_ARGS__);                                             \
     } while (0);
 
-#ifndef CONFIG_NO_TCPIP
+#ifndef CONFIG_NO_LWIP
 
 static uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now)
 {
