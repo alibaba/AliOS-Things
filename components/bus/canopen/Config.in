@@ -1,17 +1,31 @@
-menuconfig AOS_COMP_CANOPEN
-    bool "CANopen"
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_CANOPEN
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_CANOPEN
+    bool "http"
     default n
     help
-      Support CANOPEN protocol stack.
+        AliOS Things http client
+endif
 
-      Switch to "y" leads to support CANOPEN protocol stack.
-      Switch to "n" leads to not support CANOPEN protocol stacks.
+###################################################################
+# Component configuration items
+menu "CANOPEN Configuration"
+depends on AOS_COMP_CANOPEN
 
-if AOS_COMP_CANOPEN
-
-config CANFESTIVAL_ENABLED
-    bool "canfestival"
-    default n
+config CONFIG_CANFESTIVAL_ENABLED
+    bool "use canfestival library"
+    default y
     help
       support canfestival library.
 
@@ -19,4 +33,4 @@ config CANFESTIVAL_ENABLED
       Switching to "n" leads to not support canfestival library.
 
 # Configurations for comp canopen
-endif
+endmenu
