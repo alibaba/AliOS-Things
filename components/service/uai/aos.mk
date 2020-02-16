@@ -22,9 +22,10 @@ $(NAME)_SOURCES  += function/activation/uai_relu.c               \
 					function/pool/uai_pool.c                     \
 					model/load/uai_load.c
 
+$(NAME)_COMPONENTS-$(CONFIG_UAI_USE_CMSIS_NN) += cmsis_nn
+
 ifeq ($(cmsis_nn_enable), 1)
 GLOBAL_DEFINES     += 	UAI_USE_CMSIS_NN
-$(NAME)_COMPONENTS += 	components/uai/3rdparty/cmsis_nn
 $(NAME)_INCLUDES   +=   3rdparty/cmsis_nn/Core/Include   \
 						3rdparty/cmsis_nn/DSP/Include    \
 						3rdparty/cmsis_nn/NN/Include
