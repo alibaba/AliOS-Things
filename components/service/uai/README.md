@@ -263,9 +263,6 @@ for sample code please check [uai_demo](../../../app/example/uai_demo/).
 
 ## RTOS build
 ```sh
-cd ROOT DIR;
-cd middleware/uai/3rdparty/cmsis_nn
-./get_cmsis_nn.sh
 aos make uai_demo.uai_kws_demo@board -c config;
 aos make
 ```
