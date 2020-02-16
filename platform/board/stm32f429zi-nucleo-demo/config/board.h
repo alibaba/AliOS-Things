@@ -5,6 +5,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "hal_gpio_stm32f4.h"
+#include "hal_dac_stm32f4.h"
 
 #ifdef BOOTLOADER
 #define STDIO_UART_BUADRATE 115200
@@ -83,7 +84,7 @@ typedef enum{
 #define AOS_HAL_WDG_ENABLED         0
 #define AOS_HAL_RTC_ENABLED         0
 #define AOS_HAL_ADC_ENABLED         0
-#define AOS_HAL_DAC_ENABLED         0
+#define AOS_HAL_DAC_ENABLED         1
 #define AOS_HAL_RNG_ENABLED         0
 #define AOS_HAL_I2S_ENABLED         0
 #define AOS_HAL_QSPI_ENABLED        0
@@ -195,6 +196,25 @@ typedef enum{
 
 #endif /* AOS_HAL_PWM_ENABLED > 0 */
 
+#if (AOS_HAL_DAC_ENABLED > 0)
+
+#define HAL_DAC_CHAN1_Pin GPIO_Pin_4
+#define HAL_DAC_CHAN2_Pin GPIO_Pin_5
+
+#define HAL_DAC_USE_CHAN1
+//#define HAL_DAC_USE_CHAN2
+
+#define HALAPP_DAC HAL_DAC_1
+
+#if defined (HAL_DAC_USE_CHAN1)
+#define HALAPP_DAC_CHAN DAC_CHANNEL_1
+#elif defined (HAL_DAC_USE_CHAN2)
+#define HALAPP_DAC_CHAN DAC_CHANNEL_2
+#else
+#error "HALAPP_DAC_CHAN is not defined"
+#endif
+
+#endif /* AOS_HAL_DAC_ENABLED */
 
 #endif /*__BOARD__H_*/
 
