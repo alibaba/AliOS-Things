@@ -1,5 +1,38 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+
 config AOS_COMP_UAI
     bool "uAI Support"
     default n
     help
       uAI component
+
+###################################################################
+# Component configuration items
+menu "uAI Configuration"
+depends on AOS_COMP_UAI
+
+if AOS_COMP_UAI
+choice
+    prompt "Compute libary selection"
+    default CONFIG_UAI_USE_CMSIS_NN
+    help
+      Select one type of compute libary
+
+    config CONFIG_UAI_USE_CMSIS_NN
+        bool "CMSIS NN compute libary"
+        select AOS_COMP_CMSISNN
+
+    #config CONFIG_UAI_USE_SOFTWARE_NN
+    #    bool "uAI oftware compute Libary"
+    #    select AOS_COMP_UAI_SOFTWARE_NN
+
+    #config CONFIG_UAI_USE_THIRDPARTY_NN
+    #    bool "Thirdparty compute Libary"
+    #    select AOS_COMP_UAI_THIRDPARTY_NN
+
+endchoice
+endif
+
+endmenu
