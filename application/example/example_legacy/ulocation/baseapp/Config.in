@@ -1,14 +1,9 @@
 config AOS_APP_BASEAPP
     bool "uLocation base sample app"
-    select AOS_COMP_CLI if AOS_BOARD_ESP8266
     select AOS_COMP_NETMGR
-    select AOS_COMP_OTA
     select AOS_COMP_CJSON
     select AOS_COMP_ULOCATION
     select AOS_COMP_SDK_DEVMODEL
-    select AOS_COMP_BREEZE if LINKKITAPP_CONFIG_COMBOAPP
-    select AOS_COMP_BT_BREEZE_HAL if LINKKITAPP_CONFIG_COMBOAPP
-    select AOS_COMP_BT_PROFILE if LINKKITAPP_CONFIG_COMBOAPP
     help
         ulocation base sample app
 
