@@ -1,48 +1,62 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
 config AOS_COMP_ULOCATION
-    bool "uLocation Support"
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_ULOCATION
+    bool "ulocation"
     default n
     help
-    	location service
+        AliOS Things ulocation
+endif
 
-if AOS_COMP_ULOCATION
-# Configurations for comp ulocation
+###################################################################
+# Component configuration items
+menu "uLocation Configuration"
+depends on AOS_COMP_ULOCATION
 
-config ULOCATION_GPS
-    bool "GPS"
+config CONFIG_ULOCATION_GPS
+    bool "use GPS sersor get location infomation"
     default y
     help
         Enable GPS module information to get location.
 
-if ULOCATION_GPS
-menu "High Accuracy Selection"
+if CONFIG_ULOCATION_GPS
     menu "QXSI support"
-        config QXWZ_ENABLED
+        config CONFIG_QXWZ_ENABLED
             bool "QXSI"
             default n
             help
                 Press <Y> here to add support for the QXSI high accuracy service.
     endmenu
-endmenu
 endif
 
-config ULOCATION_AGPS
-    bool "AGPS"
+config CONFIG_ULOCATION_AGPS
+    bool "use AGPS to assit fast location"
     default n
     help
         Enable AGPS module information to get location.
-if ULOCATION_AGPS
+
+if CONFIG_ULOCATION_AGPS
 menu "assist location"
-    config ULOCATION_GPRS
+    config CONFIG_ULOCATION_GPRS
         bool "GPRS"
         help
             Enable GPRS module information to get location.
 
-    config ULOCATION_WIFI
+    config CONFIG_ULOCATION_WIFI
         bool "WIFI"
         help
             Enable WIFI module information to get location.
 endmenu
 endif
 
-endif
-
+endmenu
