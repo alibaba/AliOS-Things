@@ -248,10 +248,10 @@ def main():
     # create uvoptx file
     gen_optxfile(optx_tree, optx_file, buildstring)
 
-    # copy out/config/autoconf.h to project dir
-    autoconf_h = "out/config/autoconf.h"
-    if os.path.isfile(autoconf_h):
-        shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projx_file), "autoconf.h"))
+    # copy aos_config.h to project dir
+    aos_config_h = "aos_config.h"
+    if os.path.isfile(aos_config_h):
+        shutil.copyfile(aos_config_h, os.path.join(os.path.dirname(projx_file), "aos_config.h"))
 
     print("Keil project created at %s" % (projx_file))
 
