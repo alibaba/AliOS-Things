@@ -30,10 +30,6 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 
 $(NAME)_SOURCES += drv/board_drv_led.c
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f412zx_keil.s
 $(NAME)_LINK_FILES := startup_stm32f412zx_keil.o

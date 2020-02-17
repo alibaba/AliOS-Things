@@ -12,7 +12,7 @@ ENABLE_VFP         := 0
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
 
-GLOBAL_DEFINES += GD32F350 CONFIG_NO_TCPIP
+GLOBAL_DEFINES += GD32F350
 
 $(NAME)_SOURCES += config/k_config.c \
                    drivers/gd32f3x0_it.c \
