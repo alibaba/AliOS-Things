@@ -12,7 +12,7 @@ ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
 
-GLOBAL_DEFINES += GD32F450 CONFIG_NO_TCPIP
+GLOBAL_DEFINES += GD32F450
 
 $(NAME)_SOURCES += config/k_config.c \
 				   config/partition_conf.c \

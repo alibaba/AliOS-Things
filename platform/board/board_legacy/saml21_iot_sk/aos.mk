@@ -61,10 +61,6 @@ GLOBAL_LDFLAGS  += -T platform/board/board_legacy/saml21_iot_sk/saml21j18b_flash
 
 GLOBAL_INCLUDES += config
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_SAML21_IOT_SK
 CONFIG_SYSINFO_DEVICE_NAME := saml2x_iot_sk
 

@@ -21,7 +21,7 @@ $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 $(NAME)_SOURCES := board_init.c
 
-ifeq ($(LWIP),1)
+ifeq (y, $(CONFIG_AOS_TCPIP))
 $(NAME)_SOURCES += net/ethernetif.c
 endif
 

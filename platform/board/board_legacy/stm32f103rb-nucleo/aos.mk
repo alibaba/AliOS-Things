@@ -20,10 +20,6 @@ $(NAME)_SOURCES += config/k_config.c \
                    startup/startup.c
 ywss_support ?= 0
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup/startup_stm32f103xb_keil.s
 $(NAME)_LINK_FILES := startup/startup_stm32f103xb_keil.o

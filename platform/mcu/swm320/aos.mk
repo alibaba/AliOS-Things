@@ -7,8 +7,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu swm320
 
 $(NAME)_COMPONENTS += arch_armv7m rhino
 
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-
 GLOBAL_INCLUDES += drivers/        \
                    drivers/CMSIS/CoreSupport \
                    drivers/CMSIS/DeviceSupport \

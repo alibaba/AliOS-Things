@@ -55,11 +55,6 @@ else
 GLOBAL_LDFLAGS += -T platform/board/board_legacy/msp432p4111launchpad/msp432p4111.lds
 endif
 
-# yloop needs sal or lwip, module means the Plug-in module Type
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 # It's defined by the developer
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_startup_msp432p4111launchpad
 CONFIG_SYSINFO_DEVICE_NAME   := msp432p4111launchpad
