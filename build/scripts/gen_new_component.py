@@ -4,8 +4,12 @@ import click
 import re
 from lib.code import write_file
 
-reload(sys)
-sys.setdefaultencoding('UTF8')
+from imp import reload
+try:
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
+except:
+    pass
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = "templates/new_component_template"
@@ -90,6 +94,8 @@ def cli(componentname, mfname, comptype, author):
 
     sources = get_files_and_folder(templatedir)
 
+    mfname = "manufacturername" if not mfname else mfname
+    author = "authorname" if not author else author
     for tempfile in sources:
         copy_template_file_or_folder(tempfile, templatedir, destdir, comptype, componentname, mfname, author)
 
