@@ -24,10 +24,6 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
                    Src/main.c              \
                    Src/stm32f4xx_it.c
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup_stm32f401xe_keil.s
 $(NAME)_LINK_FILES := startup_stm32f401xe_keil.o

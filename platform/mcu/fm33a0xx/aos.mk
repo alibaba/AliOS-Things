@@ -7,7 +7,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu fm33a0xx
 
 $(NAME)_COMPONENTS += arch_armv6m rhino
 
-GLOBAL_DEFINES += __DEBUG CONFIG_NO_TCPIP
+GLOBAL_DEFINES += __DEBUG
 
 GLOBAL_INCLUDES += drivers/library/include \
                    drivers/cmsis

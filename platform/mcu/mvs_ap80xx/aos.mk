@@ -7,7 +7,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu mvs_ap80xx
 
 $(NAME)_COMPONENTS += arch_armv7m rhino
 
-GLOBAL_DEFINES += RHINO_CONFIG_NEXT_INTRPT_TICKS=100u CONFIG_NO_TCPIP
+GLOBAL_DEFINES += RHINO_CONFIG_NEXT_INTRPT_TICKS=100u
 
 GLOBAL_INCLUDES += drivers/inc \
                    drivers/cmsis
