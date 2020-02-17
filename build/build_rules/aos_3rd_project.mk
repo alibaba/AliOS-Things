@@ -86,9 +86,7 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,iar_ogcmenu = "$(strip $(IAR_OGCMENU))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
-	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
-	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
+	python build/scripts/iar.py $(CLEANED_BUILD_STRING) $(APPDIR)
 	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project -----------
 endif
 
@@ -111,7 +109,6 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_defines = "$(strip $(subst -D,,$(AOS_SDK_DEFINES)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,host_arch = "$(strip $(HOST_ARCH))")
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
-	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
+	python build/scripts/keil.py $(CLEANED_BUILD_STRING) $(APPDIR)
 	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project -----------
 endif
