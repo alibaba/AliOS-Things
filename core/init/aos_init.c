@@ -31,7 +31,7 @@
 #include "lwip/apps/tftp.h"
 #endif
 
-#ifdef AOS_UND
+#ifdef AOS_COMP_UND
 #include "und/und.h"
 #endif
 
@@ -332,7 +332,7 @@ int aos_components_init(kinit_t *kinit)
     pwrmgmt_init();
 #endif
 
-#ifdef AOS_UND
+#ifdef AOS_COMP_UND
     und_init();
 #endif
 
