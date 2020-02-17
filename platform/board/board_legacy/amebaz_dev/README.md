@@ -10,15 +10,7 @@ More information about the board can be found at here:
 
 ```sh
 amebaz-dev
-├── aos.mk
-├── board.c
-├── board.h
-├── Config.in
-├── flash_partitions.c
-├── k_config.h
-├── README.md
-├── system.bin
-└── ucube.py
+
 ```
 
 ## Board Hardware Resources
