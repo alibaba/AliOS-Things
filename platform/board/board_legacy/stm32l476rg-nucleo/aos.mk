@@ -44,10 +44,6 @@ else
 GLOBAL_LDFLAGS += -T platform/board/board_legacy/stm32l476rg-nucleo/STM32L476RGTx_FLASH.ld
 endif
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 ifeq ($(COMPILER),armcc)
 $(NAME)_LINK_FILES := startup_stm32l476xx_keil.o
 endif
