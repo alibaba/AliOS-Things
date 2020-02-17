@@ -1,35 +1,52 @@
 config AOS_APP_ULOG_APP
     bool "ulog_app"
     help
+        demo for ulog, show syslog udp pop out and save in file system.
 
-if AOS_APP_ULOG_APP
 # Configurations for app ulog_app
 
-
+if AOS_APP_ULOG_APP
 config ULOGAPP_CONFIG_UDP
     bool "enable test ulog pop out via udp"
     default n
     help
         enable ulog pop out via udp
+	
+config ULOGAPP_CONFIG_LOG_FILE
+    bool "enable test ulog pop out via file system"
+    default n
+    help
+        enable ulog pop out via file system
 
-config ULOGAPP_CONFIG_SPIFFS
+if ULOGAPP_CONFIG_LOG_FILE	
+choice
+    prompt "Choose Type of File System"
+    default ULOGAPP_CONFIG_SPIFFS
+    help
+        Select the type for file system  
+
+    config ULOGAPP_CONFIG_SPIFFS
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_SPIFFS
     bool "enable test ulog pop out via file system spiffs"
-    default n
-    help
-        enable ulog pop out via file system(spiffs)
 
-config ULOGAPP_CONFIG_FATFS
-    bool "enable test ulog pop out via file system fatfs"
-    default n
-    help
-        enable ulog pop out via file system(fatfs)
+    config ULOGAPP_CONFIG_LINUXHOST
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_SPIFFS
+    bool "enable test ulog pop out via unix file system"
 
-if ULOGAPP_CONFIG_FATFS
-config ULOG_APP_CONFIG_SD_CARD
-    bool "active function that pop out log files via SD CARD"
-    default n
-    help
-        active function pop out log files via SD card
+    config ULOGAPP_CONFIG_RAW_FATFS
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_FATFS_SD
+    bool "enable test ulog pop out via raw fatfs"
+
+    config ULOGAPP_CONFIG_SD_CARD
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_FATFS_FLASH
+    bool "enable test ulog pop out via sd card"
+
+endchoice
+
 endif
 
 config SYSINFO_APP_VERSION
@@ -39,3 +56,4 @@ config SYSINFO_APP_VERSION
         application main firmware version
         
 endif
+
