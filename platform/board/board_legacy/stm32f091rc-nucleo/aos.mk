@@ -20,8 +20,6 @@ $(NAME)_SOURCES += config/k_config.c \
                    startup/startup.c
 ywss_support ?= 0
 
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup/startup_stm32f091xc_keil.s
 $(NAME)_LINK_FILES := startup/startup_stm32f091xc_keil.o

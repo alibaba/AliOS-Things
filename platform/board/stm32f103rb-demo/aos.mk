@@ -22,8 +22,6 @@ $(NAME)_SOURCES += config/k_config.c \
 
 ywss_support ?= 0
 
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-
 #depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
 AOS_NETWORK_SAL	?= n
 

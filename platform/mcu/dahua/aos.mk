@@ -49,7 +49,7 @@ ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
 $(NAME)_SOURCES += hal/wifi_port.c
 endif
 
-ifeq ($(LWIP),1)
+ifeq (y,$(CONFIG_AOS_LWIP))
 $(NAME)_SOURCES += hal/eth_port.c
 endif
 
@@ -86,7 +86,5 @@ $(NAME)_SOURCES += csi/csi/csi_driver/dahua/common/intc/dw_intc.c   \
                    csi/csi/csi_driver/dahua/dh5021a/ck_sys_freq.c   \
                    csi/csi/csi_driver/dahua/dh5021a/novic_irq_tbl.c
 
-#ifeq ($(LWIP),1)
 $(NAME)_SOURCES += csi/drivers/eth/csi_eth_enc28j60.c
-#endif
 
