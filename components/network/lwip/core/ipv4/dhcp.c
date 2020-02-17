@@ -76,7 +76,7 @@
 #include "lwip/etharp.h"
 #include "lwip/prot/dhcp.h"
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 #include "und/und.h"
 #endif
 
@@ -723,7 +723,7 @@ dhcp_start(struct netif *netif)
   /* check MTU of the netif */
   if (netif->mtu < DHCP_MAX_MSG_LEN_MIN_REQUIRED) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_start(): Cannot use this netif with DHCP: MTU is too small\n"));
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
     und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DHCP_FAIL_REASON);
 #endif
     return ERR_MEM;
@@ -735,7 +735,7 @@ dhcp_start(struct netif *netif)
     dhcp = (struct dhcp *)mem_malloc(sizeof(struct dhcp));
     if (dhcp == NULL) {
       LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_start(): could not allocate dhcp\n"));
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
       und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DHCP_FAIL_REASON);
 #endif
       return ERR_MEM;
@@ -763,7 +763,7 @@ dhcp_start(struct netif *netif)
   LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_start(): starting DHCP configuration\n"));
 
   if (dhcp_inc_pcb_refcount() != ERR_OK) { /* ensure DHCP PCB is allocated */
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
     und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DHCP_FAIL_REASON);
 #endif
     return ERR_MEM;
@@ -783,7 +783,7 @@ dhcp_start(struct netif *netif)
   result = dhcp_discover(netif);
   if (result != ERR_OK) {
     /* free resources allocated above */
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
     und_update_statis(UND_STATIS_NETWORK_FAIL_IDX, UND_STATIS_NETWORK_DHCP_FAIL_REASON);
 #endif
     dhcp_stop(netif);
