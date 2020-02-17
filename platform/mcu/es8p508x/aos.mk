@@ -7,7 +7,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu es8p508x
 
 $(NAME)_COMPONENTS += arch_armv6m rhino
 
-GLOBAL_DEFINES += __PRINTF_USE_UART2__ CONFIG_NO_TCPIP
+GLOBAL_DEFINES += __PRINTF_USE_UART2__
 
 GLOBAL_INCLUDES += drivers/        \
                    drivers/library/Include \

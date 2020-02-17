@@ -35,7 +35,7 @@ endif
 GLOBAL_INCLUDES += . \
                    config/ \
                    drivers/
-GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP
+GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_CFLAGS += -DSTM32F769xx
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_F769-nucleo
