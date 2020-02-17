@@ -273,8 +273,7 @@ def check_project_name(projectname):
         sys.exit(1)
 
     aos_comp_index = os.path.join(aos_sdk, COMP_INDEX)
-    if not os.path.isfile(aos_comp_index):
-        os.system("python %s/app_gen_comp_index.py %s %s" % (scriptdir, aos_sdk, aos_comp_index))
+    os.system("python %s/app_gen_comp_index.py %s %s" % (scriptdir, aos_sdk, aos_comp_index))
 
     comp_info = {}
     with open(aos_comp_index, "r") as f:
