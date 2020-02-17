@@ -1,17 +1,15 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
-#include <k_api.h>
 #include <assert.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include "diag.h"
-
-#include "ameba_soc.h"
-#include "build_info.h"
+//#include "diag.h"
+#include "k_api.h"
+//#include "ameba_soc.h"
+//#include "build_info.h"
 //#include "strproc.h"
-#include "system_8195a.h"
+//#include "system_8195a.h"
 
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
@@ -52,6 +50,8 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
 #else
+extern char heap_start[];
+extern char heap_len[];
 
 k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len},
                                                           {(uint8_t*)MM_ALIGN_UP(0x100014f9), MM_ALIGN_DOWN(0xb07)},
