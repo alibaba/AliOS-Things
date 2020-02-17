@@ -14,14 +14,19 @@ AOS_SDK_2NDBOOT_SUPPORT := yes
 
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
 $(NAME)_LIBSUFFIX := _2ndboot
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/board/board_legacy/amebaz_dev/ld/rlx8711B-symbol-v02-img2-2ndboot.ld
 else
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
-
-$(NAME)_SOURCES := board.c
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/board/board_legacy/amebaz_dev/ld/rlx8711B-symbol-v02-img2_xip1.ld
+$(NAME)_SOURCES := startup/board.c
+$(NAME)_SOURCES += config/k_config.c \
+                    startup/startup.c
 endif
 
-$(NAME)_SOURCES += flash_partitions.c
-GLOBAL_INCLUDES += .
+$(NAME)_SOURCES += config/partition_conf.c \
+
+GLOBAL_INCLUDES += ./config \
+
 GLOBAL_DEFINES  += STDIO_UART=0
 GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
 
