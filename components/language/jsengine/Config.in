@@ -1,23 +1,34 @@
-menuconfig AOS_COMP_JSENGINE
-    bool "JSEngine"
-    select AOS_COMP_MBEDTLS
-    select AOS_COMP_SPIFFS
-    select AOS_COMP_CLI
-    select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
-    select AOS_COMP_CJSON
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_JSENGINE
     select AOS_COMP_SDK_MQTT
-    select AOS_COMP_HTTP
-    select AOS_COMP_OTA
-    select AOS_COMP_LINKKIT_SDK_C
-    select APP_FEATURE_LINKKIT_MQTT
-    select AOS_COMP_LOG
-    select AOS_COMP_NETMGR
-    select AOS_COMP_LITTLEVGL if JSE_CORE_ADDON_GUI
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MD5
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_JSENGINE
+    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MD5
+    bool "JSEngine"
     default n
     help
+        AliOS Things JS Engine
+endif
 
-if AOS_COMP_JSENGINE
-# Configurations for comp JSEngine
+
+###################################################################
+# Component configuration items
+menu "JSEngine Configuration"
+depends on AOS_COMP_JSENGINE
 
 choice
     prompt "Choose Engine Type: "
@@ -41,5 +52,4 @@ endchoice
 source "components/language/jsengine/src/engine/Config.in"
 source "components/language/jsengine/src/services/Config.in"
 
-endif
-
+endmenu
