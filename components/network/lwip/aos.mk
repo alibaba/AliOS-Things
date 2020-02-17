@@ -16,7 +16,6 @@ $(NAME)_SOURCES += $(APIFILES)
 $(NAME)_SOURCES += $(NETIFFILES)
 
 ifeq (y,$(AF_PACKET_ENABLED))
-#define LWIP_PACKET  1
 $(NAME)_SOURCES += core/af_packet.c
 endif
 
