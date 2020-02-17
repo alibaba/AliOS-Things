@@ -30,6 +30,10 @@ extern void hal_pwm_app_staitc_out(void);
 extern void hal_pwm_app_dynamic_out(void);
 #endif
 
+#if (AOS_HAL_DAC_ENABLED > 0)
+extern void hal_dac_app_out(void);
+#endif
+
 int application_start(int argc, char *argv[])
 {
     printf("hal app test start\r\n");
@@ -52,9 +56,13 @@ int application_start(int argc, char *argv[])
     hal_pwm_app_dynamic_out();
 #endif
 
+#if (AOS_HAL_DAC_ENABLED > 0)
+    hal_dac_app_out();
+#endif
+
     printf("hal app test end!\r\n");
 
-    while(1) {
+    while (1) {
         aos_msleep(1000);
     };
 }

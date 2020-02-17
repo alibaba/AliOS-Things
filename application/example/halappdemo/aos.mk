@@ -8,6 +8,7 @@ $(NAME)_SOURCES := halappdemo.c maintask.c
 $(NAME)_SOURCES += halapp_gpio.c \
                    halapp_pwm.c  \
                    halapp_timer.c \
+                   halapp_dac.c
 
 $(NAME)_COMPONENTS += osal_aos
 
