@@ -8,12 +8,12 @@ sys.setdefaultencoding('UTF8')
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
-    "nbiot": ["templates/sal_nbiot_template", "components/peripherals/sal/nbiot"],
-    "gprs": ["templates/sal_gprs_template", "components/peripherals/sal/gprs"],
-    "wifi": ["templates/sal_wifi_template", "components/peripherals/sal/wifi"],
-    "lte": ["templates/sal_lte_template", "components/peripherals/sal/lte"],
-    "eth": ["templates/sal_eth_template", "components/peripherals/sal/eth"],
-    "other": ["templates/sal_other_template", "components/peripherals/sal/other"],
+    "nbiot": ["templates/sal_nbiot_template", "components/peripherals/module/sal/nbiot"],
+    "gprs": ["templates/sal_gprs_template", "components/peripherals/module/sal/gprs"],
+    "wifi": ["templates/sal_wifi_template", "components/peripherals/module/sal/wifi"],
+    "lte": ["templates/sal_lte_template", "components/peripherals/module/sal/lte"],
+    "eth": ["templates/sal_eth_template", "components/peripherals/module/sal/eth"],
+    "other": ["templates/sal_other_template", "components/peripherals/module/sal/other"],
 }
 
 
@@ -48,36 +48,48 @@ def copy_template(tempfile, templatedir, destdir, drivername):
             for line in contents:
                 f.write(line)
 
-        # add Config.in source
-        if tempfile == "Config.in":
-            father_config = '%s/../Config.in'  % destdir
-            destdir_relative = re.findall(r'.*(components\/peripherals\/sal.*)', destdir)
-            fatherdir_relative = re.findall(r'.*(components\/peripherals\/sal/[a-zA-Z0-9_\-]+)/.*', destdir)
+def update_config(destdir, devicetype, drivername):
+    configfile = os.path.join(destdir, "..", "..", "Config.in")
+    if os.path.isfile(configfile):
+        newf = []
+        exist = False
+        newline = "\n    config AOS_SAL_%s_%s\n" % (devicetype.upper(), drivername.upper())
+        newline2 = "        bool %s.%s\n" % (devicetype, drivername)
 
-            newf = []
-            newline = []
-            exist = False
-            if not os.path.exists(father_config):
-                grandfather_config = '%s/../../Config.in'  % destdir
-                with open(grandfather_config, 'r') as f:
-                    for l in f.readlines():
-                        newf.extend([l])
-                        if re.findall(r'.*bool \"Null\".*', l):
-                            newline = "    source \"%s/Config.in\"\n" % fatherdir_relative[0]
-                            newf.extend([newline])
-                        if fatherdir_relative[0] in l:
-                            exist = True
+        with open(configfile, 'r') as f:
+            for l in f.readlines():
+                newf.extend([l])
+                if re.findall(r'.*bool \"Null\".*', l):
+                    newf.extend([newline])
+                    newf.extend([newline2])
+                if newline.strip() in l or newline2.strip() in l:
+                    exist = True
 
-            if exist:
-                newf.remove(newline)
+        if exist:
+            newf.remove(newline)
+            newf.remove(newline2)
 
-            if newf:
-                with open(grandfather_config, 'w') as f:
-                    for l in newf:
-                        f.write(l)
+        if newf:
+            with open(configfile, 'w') as f:
+                for l in newf:
+                    f.write(l)
 
-            with open(father_config, "a") as f:
-                f.write("source \"%s/Config.in\"\n" % destdir_relative[0])
+def update_mk(destdir, devicetype, drivername):
+    mkfile = os.path.join(destdir, "..", "..", "aos.mk")
+    if os.path.isfile(mkfile):
+        newline = "$(NAME)_COMPONENTS-$(AOS_SAL_%s_%s) := device_sal_%s" % \
+                  (devicetype.upper(), drivername.upper(), drivername)
+
+        with open(mkfile, 'r') as f:
+            l = f.readline()
+            while l:
+                if newline.strip() in l:
+                    exist = True
+                    return
+                l = f.readline()
+
+        with open(mkfile, 'a') as f:
+            f.write("\n" + newline)
 
 @click.command()
 @click.argument("drivername", metavar="[DRIVERNAME]")
@@ -87,7 +99,7 @@ def copy_template(tempfile, templatedir, destdir, drivername):
 def cli(drivername, mfname, devicetype, author):
     """ Create sal driver staging from template """
     templatedir = os.path.join(scriptdir, templates[devicetype][0])
-    destdir = os.path.join(scriptdir, "../../", templates[devicetype][1], drivername)
+    destdir = os.path.join(scriptdir, "..", "..", templates[devicetype][1], drivername)
     destdir = os.path.abspath(destdir)
 
     if os.path.isdir(destdir):
@@ -103,6 +115,12 @@ def cli(drivername, mfname, devicetype, author):
     sources = os.listdir(templatedir)
     for tempfile in sources:
         copy_template(tempfile, templatedir, destdir, drivername)
+
+    # update Config.in
+    update_config(destdir, devicetype, drivername)
+
+    # update aos.mk
+    update_mk(destdir, devicetype, drivername)
 
     click.echo("[Info] Drivers Initialized at: %s" % destdir)
 
