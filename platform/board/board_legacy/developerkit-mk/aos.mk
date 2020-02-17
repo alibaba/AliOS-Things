@@ -100,10 +100,6 @@ GLOBAL_LDFLAGS += -T platform/board/board_legacy/developerkit-mk/STM32L496VGTx_F
 endif
 endif
 
-ifneq (y,$(strip $(BSP_SUPPORT_EXTERNAL_MODULE)))
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
-endif
-
 ifeq ($(COMPILER),armcc)
 $(NAME)_LINK_FILES := startup_stm32l496xx_keil.o
 $(NAME)_LINK_FILES += Src/stm32l4xx_hal_msp.o

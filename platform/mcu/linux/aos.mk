@@ -77,7 +77,7 @@ $(NAME)_SOURCES += csp/wifi/radiotap/radiotap.c
 $(NAME)_CFLAGS  += -Wno-unused-but-set-variable
 endif
 
-ifeq ($(AOS_COMP_LWIP),y)
+ifeq ($(CONFIG_AOS_LWIP),y)
 $(NAME)_SOURCES += csp/lwip/netif/delif.c   \
                    csp/lwip/netif/fifo.c    \
                    csp/lwip/netif/tapif.c   \

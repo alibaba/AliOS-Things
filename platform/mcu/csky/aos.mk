@@ -48,7 +48,7 @@ $(NAME)_SOURCES += hal/wifi_port.c
 $(NAME)_SOURCES += cli/uart_config.c
 endif
 
-ifeq ($(LWIP),1)
+ifeq (y, $(CONFIG_AOS_LWIP))
 $(NAME)_SOURCES += hal/eth_port.c
 endif
 
@@ -125,9 +125,8 @@ $(NAME)_SOURCES += csi/csi_driver/csky/common/dw_spi.c        \
                    csi/csi_driver/csky/ch2201/ck_sys_freq.c   \
                    csi/csi_driver/csky/ch2201/novic_irq_tbl.c \
                    csi/libs/libc/malloc.c
-#ifeq ($(LWIP),1)
+
 $(NAME)_SOURCES += csi/drivers/eth/csi_eth_enc28j60.c
-#endif
 endif
 
 include ./platform/mcu/csky/hal_init/hal_init.mk
