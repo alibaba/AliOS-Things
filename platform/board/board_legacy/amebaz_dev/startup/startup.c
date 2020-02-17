@@ -23,22 +23,21 @@
 #include "osdep_service.h"
 #include "rtl8710b_ota.h"
 
-#define AOS_START_STACK 2048
-
-ktask_t *g_aos_init;
+/*
+main task stask size(byte)
+*/
+#ifndef AOS_MAIN_TASK_STACK_SIZE
+#define AOS_MAIN_TASK_STACK_SIZE (2048 * 4)
+#endif
 
 static kinit_t kinit;
 
 extern int application_start(int argc, char **argv);
 extern void board_init(void);
+extern void board_basic_init();
+extern void board_tick_init();
 
 extern uint32_t SystemCoreClock;
-
-static void hal_init()
-{
-}
-
-extern void hw_start_hal(void);
 
 static void board_cli_init(void)
 {
@@ -47,6 +46,11 @@ static void board_cli_init(void)
      kinit.cli_enable = 1;
 }
 
+static void hal_init()
+{
+}
+
+extern void hw_start_hal(void);
 
 void dump_mem_info(){}
 static void hal_wlan_init()
@@ -140,8 +144,9 @@ static void board_mode_check(void)
     board_init();
 }
 
-void sys_init_func(void)
+void aos_maintask(void)
 {
+	board_tick_init();
 #if (PWRMGMT_CONFIG_CPU_LOWPOWER > 0)
     pmu_set_sysactive_time();
 #endif
@@ -172,29 +177,20 @@ extern HAL_VECTOR_FUN  NewVectorTable[];
 extern void HardFault_Handler(void);
 #endif
 
-void main(void)
+int main(void)
 {
-    hal_wdg_finalize(0);
+    /* board basic init: CLK, heap, define in board\aaboard_demo\startup\board.c */
+    board_basic_init();
 
+    /* kernel init, malloc can use after this! */
     aos_init();
 
-#ifdef AOS_COMP_DEBUG
-    /* AliOS-Things taking over the exception */
-    /* replace HardFault Vector */
-    NewVectorTable[3] = HardFault_Handler;
-    /* replace MemManage Vector */
-    NewVectorTable[4] = HardFault_Handler;
-    /* replace BusFault Vector */
-    NewVectorTable[5] = HardFault_Handler;
-    /* replace UsageFault Vector */
-    NewVectorTable[6] = HardFault_Handler;
-#endif
+    /* main task to run */
+    aos_task_new("main_task", aos_maintask, NULL ,AOS_MAIN_TASK_STACK_SIZE);
 
-    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI , 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
-
-    SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
-
+    /* kernel start schedule! */
     aos_start();
 
-    return;
+    /* never run here */
+    return 0;
 }
