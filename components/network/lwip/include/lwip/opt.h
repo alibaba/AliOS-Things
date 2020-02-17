@@ -2869,4 +2869,8 @@ extern int lwip_rto_flags;
 #define SET_LWIP_LONG_RTO  do {lwip_rto_flags = 1} while(0);
 #define SET_LWIP_SMALL_RTO do {lwip_rto_flags = 0} while(0);
 
+#ifdef AF_PACKET_ENABLED
+#define LWIP_PACKET               1
+#endif
+
 #endif /* LWIP_HDR_OPT_H */
