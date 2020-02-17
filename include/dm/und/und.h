@@ -5,7 +5,7 @@
 #ifndef UND_H
 #define UND_H
 
-#ifdef FEATURE_UND_SUPPORT
+#ifdef AOS_COMP_UND
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,6 +101,6 @@ int und_update_statis(int cap_idx, int reason_code);
 }
 #endif
 
-#endif  /* end of FEATURE_UND_SUPPORT */
+#endif  /* end of AOS_COMP_UND */
 #endif  /* end of UND_H */
 
