@@ -3,9 +3,9 @@ NAME := jsengine
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := an engine for javascript application development
-$(NAME)_COMPONENTS += ota linkkit_sdk_c cjson http mbedtls cli spiffs netmgr
+$(NAME)_COMPONENTS-y += mbedtls libiot_mqtt ota cjson cli spiffs netmgr
 
-JSE_ROOT := ${SOURCE_ROOT}components/language/jsengine/src
+JSE_ROOT := ${SOURCE_ROOT}/components/language/jsengine/src
 
 # JSEngine version, Naming rule: [mcu]-[os]-[MAJOR].[MINOR].[DATE].[JSE]
 # e.g. : esp32devkitc-aos-1.0.071215.lite
