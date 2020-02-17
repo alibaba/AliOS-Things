@@ -280,7 +280,7 @@ def from_0_1_to_y_n(from_0_1, type):
 
 def parse_block_of_configin(lines):
     """ parse a block of Config.in file to get macro name, type, value """
-    p1 = re.compile(r"(config|menuconfig)\s+(\w*)")
+    p1 = re.compile(r"(config|menuconfig)\s+(\w*)$")
     p2 = re.compile(r"(bool|int|string|hex|tristate)(\s+\"(.*)\")?")
     p3 = re.compile(r"default\s+(\w*)")
     p4 = re.compile(r"default\s+\"(.*)\"")
@@ -290,6 +290,8 @@ def parse_block_of_configin(lines):
             match = p1.match(line)
             if match:
                 new_macro["name"] = match.group(2)
+            else:
+                return new_macro
         elif line.startswith("bool") or line.startswith("int") or line.startswith("string") \
         or line.startswith("hex") or line.startswith("tristate"):
             match = p2.match(line)
