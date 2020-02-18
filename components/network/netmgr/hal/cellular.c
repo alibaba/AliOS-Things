@@ -36,13 +36,48 @@ void hal_cellular_install_event(hal_cellular_module_t *m, const hal_cellular_eve
 
 int hal_cellular_init(void)
 {
-    int          err = 0;
+    int          err = -1;
     dlist_t *t;
 
     /* do low level init */
     dlist_for_each(t, &g_cellular_module) {
         hal_cellular_module_t *m = (hal_cellular_module_t *)t;
-        m->init(m);
+        if(m && m->init) {
+            err = m->init(m);
+            if(err != 0) {
+                return err;
+            }
+        }
+    }
+
+    return err;
+}
+
+int hal_cellular_start(hal_cellular_module_t *m, hal_cellular_init_type_t *init_para)
+{
+    int err = -1;
+
+    if(m == NULL) {
+        m = hal_cellular_get_default_module();
+    }
+
+    if(m && m->start) {
+        err = m->start(m);
+    }
+
+    return err;
+}
+
+int hal_cellular_get_ip_stat(hal_cellular_module_t *m, hal_cellular_ip_stat_t *out_net_para)
+{
+    int err = -1;
+
+    if(m == NULL) {
+        m = hal_cellular_get_default_module();
+    }
+
+    if(m && m->get_ip_stat) {
+        err = m->get_ip_stat(m, out_net_para);
     }
 
     return err;
