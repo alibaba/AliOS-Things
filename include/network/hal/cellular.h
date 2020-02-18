@@ -35,6 +35,10 @@ struct hal_cellular_module_s {
     const hal_cellular_event_cb_t *ev_cb;
 
     int (*init)(hal_cellular_module_t *m);
+    int start(hal_cellular_module_t *m, hal_cellular_init_type_t *init_p
+        ara);
+    int get_ip_stat(hal_cellular_module_t *m, hal_cellular_ip_stat_t *ou
+        t_net_para);
 };
 
 /*  @addtogroup wds_qmi_enums
@@ -48,6 +52,11 @@ typedef enum {
   PDP_TYPE_NONIP  = 0x04, /* *<  PDP-NON IP */
   PDP_TYPE_MAX
 } pdp_type_t;
+
+typedef enum {
+    NOTIFY_NETWORK_UP = 1,
+    NOTIFY_NETWORK_DOWN,
+} hal_cellular_event_t;
 
 #define APN_NAME_MAX 150
 
@@ -84,7 +93,7 @@ void hal_cellular_register_module(hal_cellular_module_t *m);
 int hal_cellular_init(void);
 
 /**
- * Start the cellular instance.
+ * Start the cellular instance, connect the cellular network.
  *
  * @param[in]  m          the cellular instance, NULL if default.
  * @param[in]  init_para  the config used to start the cellular.
