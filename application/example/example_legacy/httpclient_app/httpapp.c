@@ -684,12 +684,16 @@ static void httpapp_delayed_action(void *arg)
             break;
         case HTTPAPP_GET:
             httpapp_get(httpapp_url);
+            break;
         case HTTPAPP_POST:
             httpapp_post(httpapp_url, httpapp_data);
+            break;
         case HTTPAPP_DELETE:
             httpapp_delete(httpapp_url);
+            break;
         case HTTPAPP_PUT:
             httpapp_put(httpapp_url, httpapp_data);
+            break;
         default:
             break;
     }
