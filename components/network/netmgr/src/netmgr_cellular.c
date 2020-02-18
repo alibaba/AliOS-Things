@@ -266,5 +266,6 @@ void netmgr_cellular_deinit(void)
 
 int netmgr_cellular_start(void)
 {
-    return 0;
+    hal_cellular_module_t *m = hal_cellular_get_default_module();
+    return hal_cellular_start(m);
 }
