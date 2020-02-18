@@ -1789,10 +1789,14 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
                     /* read already complete */
                     /* if call mbedtls_ssl_read again, it will return 0 (means EOF) */
                 }
-            }
-            if (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {/* read already complete(if call mbedtls_ssl_read again, it will return 0(eof)) */
-                //break;
-                ret = HTTP_ECLSD;
+
+                if (MBEDTLS_ERR_SSL_WANT_READ == ret) {
+                    continue;
+                }
+
+                if (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {/* read already complete(if call mbedtls_ssl_read again, it will return 0(eof)) */
+                    ret = HTTP_ECLSD;
+                }
             }
         }
 #endif
