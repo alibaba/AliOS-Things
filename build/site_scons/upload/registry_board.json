@@ -24,7 +24,7 @@
         "stm32_stlink.json"
     ],
     "mk3060": [
-        "mk3060.json"
+        "not support"
     ],
     "mk3165": [
         "stm32_stlink.json"
