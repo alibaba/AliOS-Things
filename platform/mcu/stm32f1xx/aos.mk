@@ -81,6 +81,7 @@ $(NAME)_SOURCES += hal/hal_uart_stm32f1.c \
                    hal/hal_flash_stm32f1.c \
                    hal/hal_i2c_stm32f1.c \
                    hal/hal_spi_stm32f1.c \
+                   hal/hal_dac_stm32f1.c \
                    hal/hal_gpio_stm32f1.c
 
 ifeq ($(COMPILER),armcc)
