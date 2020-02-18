@@ -107,6 +107,9 @@ def _upload_image(target, aos_path, registry_file, program_path=None, bin_dir=No
 
     if cmd_files:
         for cmd_file in cmd_files:
+            if "not support" in cmd_file:
+                info("This command is not supported on %s" % board)
+                return 1
             ret = _run_upload_cmd(target, aos_path, os.path.join(cmd_file_dir, cmd_file), program_path, bin_dir)
     else:
         error("The board %s is not registered in %s" % (board, registry_file))
