@@ -2197,7 +2197,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, httpcli
 }
 
 
-static HTTPC_RESULT httpclient_connect(httpclient_t *client, char *url)
+HTTPC_RESULT httpclient_connect(httpclient_t *client, char *url)
 {
     int ret = HTTP_ECONN;
     char host[HTTPCLIENT_MAX_HOST_LEN] = {0};
@@ -2248,7 +2248,7 @@ static HTTPC_RESULT httpclient_connect(httpclient_t *client, char *url)
     return (HTTPC_RESULT)ret;
 }
 
-static HTTPC_RESULT httpclient_send_request(httpclient_t *client, char *url, int method, httpclient_data_t *client_data)
+HTTPC_RESULT httpclient_send_request(httpclient_t *client, char *url, int method, httpclient_data_t *client_data)
 {
     int ret = HTTP_ECONN;
 
@@ -2269,7 +2269,7 @@ static HTTPC_RESULT httpclient_send_request(httpclient_t *client, char *url, int
     return (HTTPC_RESULT)ret;
 }
 
-static HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *client_data)
+HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *client_data)
 {
     int reclen = 0;
     int ret = HTTP_ECONN;
