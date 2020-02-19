@@ -353,7 +353,7 @@ dns_init(void)
     DNS_SERVER_ADDRESS(&dnsserver);
     dns_setserver(0, &dnsserver);
 #endif /* DNS_SERVER_ADDRESS */
-#endif /* DNS_SERVER_ADDRESS */
+#endif /* CELLULAR_SUPPORT */
 
     LWIP_ASSERT("sanity check SIZEOF_DNS_QUERY",
                 sizeof(struct dns_query) == SIZEOF_DNS_QUERY);
@@ -400,7 +400,7 @@ dns_setserver(u8_t numdns, const ip_addr_t *dnsserver)
         if (dnsserver != NULL) {
             dns_servers[numdns] = (*dnsserver);
         } else {
-            dns_servers[numdns] = *IP4_ADDR_ANY;
+          dns_servers[numdns] = *IP_ADDR_ANY;
         }
     }
 }
@@ -419,7 +419,7 @@ dns_getserver(u8_t numdns)
     if (numdns < DNS_MAX_SERVERS) {
         return &dns_servers[numdns];
     } else {
-        return IP4_ADDR_ANY;
+      return IP_ADDR_ANY;
     }
 }
 #else
@@ -462,7 +462,7 @@ dns_getserver_if(u8_t numdns, struct netif* netif)
 {
     ip_addr_t *addr;
 
-    if((netif == NULL) || 
+    if((netif == NULL) ||
        !netif_is_up(netif))
     {
        return NULL;
@@ -871,8 +871,8 @@ dns_send(u8_t idx)
     p = pbuf_alloc(PBUF_TRANSPORT, (u16_t)(SIZEOF_DNS_HDR + strlen(entry->name) + 2 +
                                            SIZEOF_DNS_QUERY), PBUF_RAM);
     if (p != NULL) {
-    const ip_addr_t *dst;
-    u16_t dst_port;
+        const ip_addr_t *dst;
+        u16_t dst_port;
         /* fill dns header */
         memset(&hdr, 0, SIZEOF_DNS_HDR);
         hdr.id = lwip_htons(entry->txid);
@@ -916,7 +916,7 @@ dns_send(u8_t idx)
         /* send dns packet */
         LWIP_DEBUGF(DNS_DEBUG, ("sending DNS request ID %d for name \"%s\"\r\n",
                                 entry->txid, entry->name));
-        err = udp_sendto_if(dns_pcbs[pcb_idx], p, &entry->netif->dns_srv[i], DNS_SERVER_PORT, entry->netif); 
+        err = udp_sendto_if(dns_pcbs[pcb_idx], p, &entry->netif->dns_srv[i], DNS_SERVER_PORT, entry->netif);
 #else
         LWIP_DEBUGF(DNS_DEBUG, ("sending DNS request ID %d for name \"%s\" to server %d\r\n",
                                 entry->txid, entry->name, entry->server_idx));
@@ -943,7 +943,7 @@ dns_send(u8_t idx)
       dst = &dns_servers[entry->server_idx];
     }
     err = udp_sendto(dns_pcbs[pcb_idx], p, dst, dst_port);
-
+#endif
         /* free pbuf */
         pbuf_free(p);
     } else {
@@ -1122,6 +1122,23 @@ again:
 }
 
 /**
+ * Check whether there are other backup DNS servers available to try
+ */
+static u8_t
+dns_backupserver_available(struct dns_table_entry *pentry)
+{
+  u8_t ret = 0;
+
+  if (pentry) {
+    if ((pentry->server_idx + 1 < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[pentry->server_idx + 1])) {
+      ret = 1;
+    }
+  }
+
+  return ret;
+}
+
+/**
  * dns_check_entry() - see if entry has not yet been queried and, if so, sends out a query.
  * Check an entry in the dns_table:
  * - send out query for new entries
@@ -1160,9 +1177,9 @@ dns_check_entry(u8_t i)
             }
             break;
         case DNS_STATE_ASKING:
-            if (--entry->tmr == 0) {
-        if (++entry->retries == DNS_MAX_RETRIES) {
-          if (dns_backupserver_available(entry)
+          if (--entry->tmr == 0) {
+            if (++entry->retries == DNS_MAX_RETRIES) {
+              if (dns_backupserver_available(entry)
 #if LWIP_DNS_SUPPORT_MDNS_QUERIES
               && !entry->is_mdns
 #endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */
@@ -1226,6 +1243,7 @@ dns_check_entry(u8_t i)
         default:
             LWIP_ASSERT("unknown dns_table entry state:", 0);
             break;
+        }
     }
 }
 
@@ -1346,7 +1364,7 @@ dns_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, 
           /* Check whether response comes from the same network address to which the
              question was sent. (RFC 5452) */
           if (!ip_addr_cmp(addr, &dns_servers[entry->server_idx])) {
-            goto ignore_packet; /* ignore this packet */
+            goto memerr; /* ignore this packet */
           }
         }
 #endif
@@ -1722,7 +1740,7 @@ dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_call
            break;
        }
     }
-    /* no netif is up, return error */ 
+    /* no netif is up, return error */
     if(netif == NULL)
     {
        return ERR_VAL;

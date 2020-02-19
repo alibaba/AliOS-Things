@@ -82,13 +82,14 @@ struct local_hostlist_entry {
 #endif
 #define LOCALHOSTLIST_ELEM_SIZE ((sizeof(struct local_hostlist_entry) + DNS_LOCAL_HOSTLIST_MAX_NAMELEN + 1))
 #endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
+#endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
 
 #if LWIP_IPV4
 extern const ip_addr_t dns_mquery_v4group;
 #endif /* LWIP_IPV4 */
 #if LWIP_IPV6
 extern const ip_addr_t dns_mquery_v6group;
-#endif /* DNS_LOCAL_HOSTLIST */
+#endif /* LWIP_IPV6 */
 
 /** Callback which is invoked when a hostname is found.
  * A function of this type must be implemented by the application using the DNS resolver.
