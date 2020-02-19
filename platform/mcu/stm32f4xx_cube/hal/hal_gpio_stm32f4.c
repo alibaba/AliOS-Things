@@ -98,7 +98,7 @@ void hal_gpio_enable_clk(GPIO_TypeDef *GPIOx)
     } else if (GPIOx == GPIOB) {
         __HAL_RCC_GPIOB_CLK_ENABLE();
     } else if (GPIOx == GPIOC) {
-        __HAL_RCC_GPIOB_CLK_ENABLE();
+        __HAL_RCC_GPIOC_CLK_ENABLE();
     }
 #if defined(GROUP_GPIOD) && defined(GPIOD)
     else if (GPIOx == GPIOD)
