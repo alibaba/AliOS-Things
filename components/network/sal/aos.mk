@@ -17,7 +17,4 @@ $(NAME)_INCLUDES += ./                  \
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/network/sal
 
-# mandatory dependencies
-$(NAME)_COMPONENTS += device_sal
-
 # optional dependencies
