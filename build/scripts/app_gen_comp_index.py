@@ -8,6 +8,7 @@ from lib.comp import find_comp_mkfile, get_comp_name, get_comp_deps
 from lib.code import get_include_file, get_configin_file
 
 INCLUDE_FOLDER = "include"
+COMPONENT_FOLDER = ["application", "test", "core", "platform", "components"]
 
 def get_comp_include_info(comp_name, mkfile, common_include_dir):
     """ Get include infos from mkfile by searching lines started with GLOBAL_INCLUDES:
@@ -125,7 +126,9 @@ def main():
 
     source_root = sys.argv[1]
     output_file = sys.argv[2]
-    mklist = find_comp_mkfile(source_root)
+    mklist = []
+    for comp_dir in COMPONENT_FOLDER:
+        mklist += find_comp_mkfile(os.path.join(source_root, comp_dir))
     common_include_dir = os.path.abspath(os.path.join(source_root, INCLUDE_FOLDER))
 
     appdir = os.environ.get("APPDIR")

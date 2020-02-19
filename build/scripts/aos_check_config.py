@@ -1,6 +1,6 @@
 import os, sys
 import re
-from aos_parse_components import find_comp_mkfile
+from lib.comp import find_comp_mkfile
 from lib.config import merge_config
 
 DOT_CONFIG_FILE = ".config"
