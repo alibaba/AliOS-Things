@@ -5,8 +5,13 @@
 /*
   * Due to FMC is used for external flash, So it's just a sample!!!
   */
+#include "stm32f4xx_hal.h"
+#include "hal_nand_stm32f4.h"
+#include "aos/hal/nand.h"
+#include "stm32f4xx_hal_nand.h"
+
 #if defined(HAL_NAND_MODULE_ENABLED)
-#if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
+#if defined(STM32F429xx) || defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
     defined(STM32L496xx) || defined(STM32L4A6xx) || \
     defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
 
@@ -72,7 +77,7 @@ int32_t hal_nand_finalize(nand_dev_t *nand)
 {
     int32_t ret = HAL_OK;
 
-    nand_initialize = 0;    
+    nand_initialize = 0;
 
     if (HAL_NAND_DeInit(&nand_handle) != HAL_OK) {
         ret = -1;
@@ -89,7 +94,7 @@ int32_t hal_nand_read_page(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, u
     nand_addr.Block = addr->block;
     nand_addr.Page = addr->page;
     nand_addr.Zone = addr->zone;
- 
+
     if (HAL_NAND_Read_Page(nand->priv, &nand_addr, data, page_count) != HAL_OK)
         return -1;
 
@@ -102,7 +107,7 @@ int32_t hal_nand_write_page(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, 
     nand_addr.Block = addr->block;
     nand_addr.Page = addr->page;
     nand_addr.Zone = addr->zone;
- 
+
     if (HAL_NAND_Write_Page(nand->priv, &nand_addr, data, page_count) != HAL_OK)
         return -1;
 
@@ -115,7 +120,7 @@ int32_t hal_nand_read_spare(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, 
     nand_addr.Block = addr->block;
     nand_addr.Page = addr->page;
     nand_addr.Zone = addr->zone;
- 
+
     if (HAL_NAND_Read_SpareArea(nand->priv, &nand_addr, data, data_len) != HAL_OK)
         return -1;
 
@@ -128,7 +133,7 @@ int32_t hal_nand_write_spare(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data,
     nand_addr.Block = addr->block;
     nand_addr.Page = addr->page;
     nand_addr.Zone = addr->zone;
- 
+
     if (HAL_NAND_Write_SpareArea(nand->priv, &nand_addr, data, data_len) != HAL_OK)
         return -1;
 
@@ -141,7 +146,7 @@ int32_t hal_nand_erase_block(nand_dev_t *nand, nand_addr_t *addr)
     nand_addr.Block = addr->block;
     nand_addr.Page = addr->page;
     nand_addr.Zone = addr->zone;
- 
+
     if (HAL_NAND_Erase_Block(nand->priv, &nand_addr) != HAL_OK)
         return -1;
 
