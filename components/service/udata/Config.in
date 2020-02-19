@@ -1,13 +1,27 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_UDATA
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_UDATA
     bool "uData Configuration"
     default n
-    depends on AOS_COMP_SENSOR
-    select AOS_COMP_OSAL_AOS
-    select AOS_COMP_CJSON if UDATA_CONFIG_CJSON_FORMAT
     help
+	    AliOS Things uData service
+endif
 
-if AOS_COMP_UDATA
-# Configurations for comp udata
+###################################################################
+# Component configuration items
+menu "uData Configuration"
+depends on AOS_COMP_UDATA
 
 config UDATA_CONFIG_CJSON_FORMAT
     bool "uData Services cJSON Configuration"
@@ -16,4 +30,18 @@ config UDATA_CONFIG_CJSON_FORMAT
         Press <Y> here to add support for uData Services cJSON Configuration.
         This depend on cJSON component.
 
-endif
+config UDATA_CONFIG_SENSOR
+    bool "uData depend on sensor"
+    default y
+    help
+        Select the sensor component
+
+config UDATA_CONFIG_DTC_ENABLE
+    bool "uData data to cloud configuration"
+    default n
+    help
+        uData data to cloud configuration
+
+endmenu
+
+
