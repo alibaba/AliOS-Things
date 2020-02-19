@@ -11,7 +11,7 @@ int32_t sensor_i2c_read(i2c_dev_t *i2c, uint16_t reg, uint8_t *data,
     if (i2c == NULL) {
         return -1;
     }
-#ifdef SENSOR_I2C_ENABLE
+#if SENSOR_CONFIG_I2C_ENABLE
     ret = hal_i2c_mem_read(i2c, i2c->config.dev_addr, reg, I2C_REG_LEN, data,
                            size, timeout);
 #endif
@@ -25,7 +25,7 @@ int32_t sensor_i2c_write(i2c_dev_t *i2c, uint16_t reg, uint8_t *data,
     if (i2c == NULL) {
         return -1;
     }
-#ifdef SENSOR_I2C_ENABLE
+#if SENSOR_CONFIG_I2C_ENABLE
     ret = hal_i2c_mem_write(i2c, i2c->config.dev_addr, reg, I2C_REG_LEN, data,
                             size, timeout);
 #endif
@@ -39,7 +39,7 @@ int32_t sensor_spi_read(spi_dev_t *spi, uint8_t *tx, uint8_t *rx, uint16_t size,
     if (spi == NULL) {
         return -1;
     }
-#ifdef SENSOR_SPI_ENABLE
+#if SENSOR_CONFIG_SPI_ENABLE
     ret = hal_spi_send_recv(spi, tx, rx, size, timeout);
 #endif
     return ret;
@@ -51,7 +51,7 @@ int32_t sensor_spi_write(spi_dev_t *spi, uint8_t *data, uint16_t size,
     if (spi == NULL) {
         return -1;
     }
-#ifdef SENSOR_SPI_ENABLE
+#if SENSOR_CONFIG_SPI_ENABLE
     ret = hal_spi_send(spi, data, size, timeout);
 #endif
     return ret;
