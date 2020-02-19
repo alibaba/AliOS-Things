@@ -115,6 +115,24 @@ PACK_STRUCT_END
 #endif
 #define SIZEOF_DNS_HDR 12
 
+
+/* Multicast DNS definitions */
+
+/** UDP port for multicast DNS queries */
+#ifndef DNS_MQUERY_PORT
+#define DNS_MQUERY_PORT             5353
+#endif
+
+/* IPv4 group for multicast DNS queries: 224.0.0.251 */
+#ifndef DNS_MQUERY_IPV4_GROUP_INIT
+#define DNS_MQUERY_IPV4_GROUP_INIT  IPADDR4_INIT_BYTES(224,0,0,251)
+#endif
+
+/* IPv6 group for multicast DNS queries: FF02::FB */
+#ifndef DNS_MQUERY_IPV6_GROUP_INIT
+#define DNS_MQUERY_IPV6_GROUP_INIT  IPADDR6_INIT_HOST(0xFF020000,0,0,0xFB)
+#endif
+
 #ifdef __cplusplus
 }
 #endif
