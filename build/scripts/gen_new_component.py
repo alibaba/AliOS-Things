@@ -74,7 +74,7 @@ def copy_template_file_or_folder(tempfile, templatedir, destdir, comptype, compn
 @click.command()
 @click.argument("componentname", metavar="[COMPONENTNAME]")
 @click.option("-m", "--mfname", help="The manufacturer of component")
-@click.option("-t", "--comptype", required=True, type=click.Choice(["peripherals", "utility", "other"]), help="The type of component")
+@click.option("-t", "--comptype", required=True, type=click.Choice(["bus", "dm", "fs", "gui", "language", "linkkit", "network", "peripherals", "security", "service", "utility", "wireless", "generals"]), help="The type of component")
 @click.option("-a", "--author", help="The author of component")
 def cli(componentname, mfname, comptype, author):
     """ Create component staging from template """

@@ -267,14 +267,6 @@ def copy_demo_app(appdir, destdir, projectname, board, boarddir, appname):
 def check_project_name(projectname):
     """ Generate comp index(dependency, aos.mk, Config.in, include, etc) 
     and check projectname """
-    aos_sdk = os.environ.get("AOS_SDK_PATH")
-    if not aos_sdk:
-        click.echo("[Error] AliOS Things SDK is not found!")
-        sys.exit(1)
-
-    aos_comp_index = os.path.join(aos_sdk, COMP_INDEX)
-    os.system("python %s/app_gen_comp_index.py %s %s" % (scriptdir, aos_sdk, aos_comp_index))
-
     comp_info = {}
     with open(aos_comp_index, "r") as f:
         comp_info = json.load(f)
@@ -294,13 +286,26 @@ def copy_board_to_project(board, dest_dir, board_dir):
 @click.command()
 @click.argument("projectname", metavar="[PROJECTNAME]")
 @click.option("-b", "--board", required=True, help="Board for creating project")
-@click.option("-d", "--projectdir", required=True, help="The project directory")
+@click.option("-d", "--projectdir", help="The project directory")
 @click.option("-t", "--templateapp", help="Template application for creating project")
 def cli(projectname, board, projectdir, templateapp):
     """ Create new project from template or builtin app """
-    comp_info = check_project_name(projectname)
 
     aos_sdk = os.environ.get("AOS_SDK_PATH")
+    if not aos_sdk:
+        click.echo("[Error] AliOS Things SDK is not found!")
+        sys.exit(1)
+
+    aos_comp_index = os.path.join(aos_sdk, COMP_INDEX)
+    os.system("python %s/app_gen_comp_index.py %s %s" % (scriptdir, aos_sdk, aos_comp_index))
+
+    comp_info = {}
+    with open(aos_comp_index, "r") as f:
+        comp_info = json.load(f)
+        if projectname in comp_info:
+            print("[INFO] The project name \"%s\" is reserved, rename to \"user_%s\"!" % (projectname, projectname))
+            projectname = "user_%s" % projectname      
+
     if templateapp:
         if templateapp in comp_info:
             templatedir = comp_info[templateapp]["location"]
@@ -314,7 +319,7 @@ def cli(projectname, board, projectdir, templateapp):
     templatedir = os.path.abspath(templatedir).replace("\\", "/")
 
     if not projectdir:
-        projectdir = os.path.join(scriptdir, "../../application")
+        projectdir = os.getcwd()
 
     destdir = os.path.join(projectdir, projectname)
     destdir = os.path.abspath(destdir)
