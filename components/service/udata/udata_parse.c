@@ -19,7 +19,7 @@
 uint32_t  g_uDataServiceNum = 0;
 uint32_t  g_uDataDtcNum = 0;
 
-#ifdef UDATA_CJSON_SUPPORTED
+#if UDATA_CONFIG_CJSON_FORMAT
 #include "cJSON.h"
 #include "config/udata_config.data"
 
@@ -169,12 +169,12 @@ int udata_service_num_get(uint32_t* pNum)
     if(pNum == NULL){
         return -1;
     }
-    
+
     if(g_config_num_flag == 1){
         *pNum = (uint32_t)g_uDataServiceNum;
         return 0;
     }
-    
+
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
         return -1;
@@ -190,7 +190,7 @@ int udata_service_num_get(uint32_t* pNum)
     }
     *pNum = (uint32_t)ret;
     g_uDataServiceNum = (uint32_t)ret;
-    
+
     g_config_num_flag = 1;
     return 0;
 }
@@ -236,11 +236,11 @@ int udata_service_config_parse(uint32_t index, udata_service_t* svc)
     }
 
     for(i = 0; i < UDATA_MAX_CNT; i++){
-        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) && 
+        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) &&
             (0 == strncmp(temp->valuestring,g_udata_service_name[i].type_name,strlen(temp->valuestring))))
         {
             svc->type = g_udata_service_name[i].type;
-            
+
             break;
         }
     }
@@ -283,7 +283,7 @@ int udata_service_config_parse(uint32_t index, udata_service_t* svc)
         }
 
         for(j = 0; j < TAG_DEV_SENSOR_NUM_MAX; j++){
-            if((strlen(temp->valuestring) == strlen(g_udata_tag_name[j].tag_name)) && 
+            if((strlen(temp->valuestring) == strlen(g_udata_tag_name[j].tag_name)) &&
                 (0 == strncmp(temp->valuestring,g_udata_tag_name[j].tag_name,strlen(temp->valuestring))))
             {
                 tag = g_udata_tag_name[j].tag;
@@ -327,12 +327,12 @@ int udata_dtc_num_get(uint32_t* pNum)
     if(pNum == NULL){
         return -1;
     }
-    
+
     if(g_config_num_flag == 1){
         *pNum = (uint32_t)g_uDataServiceNum;
         return 0;
     }
-    
+
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
         return -1;
@@ -395,7 +395,7 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     }
 
     for(i = 0; i < UDATA_MAX_CNT; i++){
-        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) && 
+        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) &&
             (0 == strncmp(temp->valuestring,g_udata_service_name[i].type_name,strlen(temp->valuestring))))
         {
             dtc->type = g_udata_service_name[i].type;
@@ -441,10 +441,10 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     if (temp == NULL) {
         return -1;
     }
-    
+
     dtc->data_type = UDATA_TYPE_MAX;
-    for(j = 0; j < UDATA_TYPE_MAX; j++){ 
-        if((strlen(temp->valuestring) == strlen(g_udata_data_type[j].type_name)) && 
+    for(j = 0; j < UDATA_TYPE_MAX; j++){
+        if((strlen(temp->valuestring) == strlen(g_udata_data_type[j].type_name)) &&
             (0 == strncmp(temp->valuestring,g_udata_data_type[j].type_name,strlen(temp->valuestring))))
         {
             dtc->data_type = g_udata_data_type[j].type;
@@ -455,7 +455,7 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     if (dtc->data_type == UDATA_TYPE_MAX){
         return -1;
     }
-    
+
     /* get dtc data coefficient */
     temp=cJSON_GetObjectItem(array,UDATA_DTC_COEFF_NAME);
     if (temp == NULL) {
@@ -489,19 +489,19 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
             return -1;
         }
     }
-    
+
     num = num==1? 1:(num+1);
     dtc->name_num = num;
     dtc->name_addr = aos_malloc(num*SERVICE_PUB_NAME_LEN);
     if(NULL == dtc->name_addr){
         return -1;
     }
-    
+
     temp=cJSON_GetObjectItem(array,UDATA_DTC_PROPERTY_NAME);
     if (temp == NULL) {
         goto error;
     }
-    
+
     len = strlen(temp->valuestring);
     if(len >= SERVICE_PUB_NAME_LEN){
         goto error;
@@ -509,7 +509,7 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
 
     memcpy(dtc->name_addr,temp->valuestring,len);
     ((char*)dtc->name_addr)[len] = '\0';
-    
+
     num = num-1;
 
     for(i = 0; i < num; i++){
@@ -518,13 +518,13 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         if (temp == NULL) {
             goto error;
         }
-        
+
         len = strlen(temp->valuestring);
         if(len >= SERVICE_PUB_NAME_LEN){
             goto error;
         }
         str = (char*)((uint32_t)dtc->name_addr + (i+1)*SERVICE_PUB_NAME_LEN);
-        
+
         memcpy((void*)str,temp->valuestring,len);
         str[len] = '\0';
     }
@@ -562,7 +562,7 @@ int udata_service_config_parse(uint32_t index, udata_service_t* svc)
     sensor_tag_e tag;
     int                idx;
     uint32_t           abs_idx;
-    
+
     if(svc == NULL){
         return -1;
     }
@@ -588,18 +588,18 @@ int udata_service_config_parse(uint32_t index, udata_service_t* svc)
             return -1;
         }
         idx = g_service_para[index].p_tag_para[i].instance;
-        
+
         ret = abs_data_get_abs_index(tag, (uint8_t)idx, &abs_idx);
         if (unlikely(ret)){
             return -1;
         }
 
         UDATA_BITMAP_SET(svc->abs_bitmap,abs_idx);
-        
+
         if(g_service_para[index].p_tag_para[i].interval <= 0){
             return -1;
         }
-        
+
         svc->interval[abs_idx] = g_service_para[index].p_tag_para[i].interval;
     }
 
@@ -624,7 +624,7 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     int len;
     char* str;
     uint32_t i;
-    
+
     if(dtc == NULL){
         return -1;
     }
@@ -652,7 +652,7 @@ int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     if((len >= SERVICE_PUB_NAME_LEN) || (len == 0)){
         return -1;
     }
-    
+
     dtc->type = g_dtc_para[index].type;
     dtc->dtcFlag =  g_dtc_para[index].dtc_flag;
     dtc->dtc_cycle =  g_dtc_para[index].dtc_cycle;
@@ -688,7 +688,7 @@ error:
         dtc->name_addr = NULL;
     }
     return -1;
-    
+
 }
 
 #endif
