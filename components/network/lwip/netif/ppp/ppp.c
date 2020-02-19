@@ -1145,12 +1145,12 @@ int cdns(ppp_pcb *pcb, u32_t ns1, u32_t ns2) {
   nsa = dns_getserver(0);
   ip_addr_set_ip4_u32(&nsb, ns1);
   if (ip_addr_cmp(nsa, &nsb)) {
-    dns_setserver(0, IP4_ADDR_ANY);
+    dns_setserver(0, IP_ADDR_ANY);
   }
   nsa = dns_getserver(1);
   ip_addr_set_ip4_u32(&nsb, ns2);
   if (ip_addr_cmp(nsa, &nsb)) {
-    dns_setserver(1, IP4_ADDR_ANY);
+    dns_setserver(1, IP_ADDR_ANY);
   }
   return 1;
 }
