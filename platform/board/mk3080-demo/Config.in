@@ -1,0 +1,84 @@
+config AOS_BOARD_MK3080_DEMO
+    bool "MK3080"
+    select AOS_MCU_RTL8710BN
+    select AOS_COMP_KERNEL_INIT
+    select CONFIG_AOS_TCPIP
+    help
+
+if AOS_BOARD_MK3080_DEMO
+# Configurations for board board_mk3080-demo
+
+config MK3080DEMO_CONFIG_SPIFFS
+    bool "Locate SPIFFS for using"
+    default n
+    help
+        Locate flash for spiffs fs, most of them comes from OTA temp room.
+
+if MK3080DEMO_CONFIG_SPIFFS
+choice
+    prompt "Choose Size of SPIFFS"
+    default MK3080DEMO_CONFIG_SPIFFS_SIZE_256KB
+    help
+        Select the size for spiffs
+
+    config MK3080DEMO_CONFIG_SPIFFS_SIZE_64KB
+        bool "64KB"
+
+    config MK3080DEMO_CONFIG_SPIFFS_SIZE_128KB
+        bool "128KB"
+
+    config MK3080DEMO_CONFIG_SPIFFS_SIZE_256KB
+        bool "256KB"
+endchoice
+
+config CONFIG_SPIFFS_PHYS_SZ
+    int
+    default 65536  if MK3080DEMO_CONFIG_SPIFFS_SIZE_64KB
+    default 131072 if MK3080DEMO_CONFIG_SPIFFS_SIZE_128KB
+    default 262144 if MK3080DEMO_CONFIG_SPIFFS_SIZE_256KB
+endif
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_WDG
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+# link security config
+config CONFIG_LS_DEBUG
+    bool
+    default n
+config CONFIG_LS_ID2_OTP
+    bool
+    default y
+config CONFIG_LS_KM_SE
+    bool
+    default n
+config CONFIG_LS_KM_TEE
+    bool
+    default n
+
+config BSP_SUPPORT_WIFI_LOWPOWER
+    bool
+    default y
+
+endif
