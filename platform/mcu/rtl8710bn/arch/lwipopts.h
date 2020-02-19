@@ -36,8 +36,14 @@
 /**
  * Loopback demo related options.
  */
+#ifdef CONFIG_AOS_MESH
+#define LWIP_NETIF_LOOPBACK             0
+#define LWIP_HAVE_LOOPIF                0
+#else
 #define LWIP_NETIF_LOOPBACK             1
 #define LWIP_HAVE_LOOPIF                1
+#endif
+
 #define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
 #define LWIP_LOOPBACK_MAX_PBUFS         8
 
@@ -240,7 +246,12 @@
  * LWIP_RAW==1: Enable application layer to hook into the IP layer itself.
  */
 #define LWIP_RAW                        1
+
+#ifdef CONFIG_AOS_MESH
+#define LWIP_IPV6                       1
+#else
 #define LWIP_IPV6                       0
+#endif
 
 /* Enable IPv4 Auto IP	*/
 #ifdef CONFIG_AUTOIP
