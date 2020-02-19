@@ -116,6 +116,8 @@ def get_comp_optional_depends_r(comp_info, comps, mandatory_comps):
     """ comps are optional dependency list from last layer """
     for comp in comps:
         # print("comp name is:", comp["comp_name"])
+        if comp["comp_name"] not in comp_info:
+            continue
         """ get mandatory dependency list for this optional component """
         for dep_info in comp_info[comp["comp_name"]]["dependencies"]:
             if dep_info not in mandatory_comps:
@@ -145,11 +147,12 @@ def get_comp_optional_depends(comp_info, comps):
     """ comps are mandatory components got by get_comp_mandatory_depends,
     here is to find all optional dependencies for comp"""
     for comp in comps:
-        for dep_info in comp_info[comp]["optional_dependencies"]:
-            """ if optional dependency(dep_info) is in mandatory components, ignore it """
-            if dep_info["comp_name"] not in comps:
-                depends.append(dep_info)
-                # print("add depend:", dep_info)
+        if comp in comp_info:
+            for dep_info in comp_info[comp]["optional_dependencies"]:
+                """ if optional dependency(dep_info) is in mandatory components, ignore it """
+                if dep_info["comp_name"] not in comps:
+                    depends.append(dep_info)
+                    # print("add depend:", dep_info)
 
     merge_depends = []
     if depends:
