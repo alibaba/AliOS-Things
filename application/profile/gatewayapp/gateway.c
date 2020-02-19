@@ -14,7 +14,7 @@
 #include "udata/udata.h"
 #include "device.h"
 
-#if defined(UDATA_CJSON_SUPPORTED) || defined(DTC_LINKKIT)
+#if UDATA_CONFIG_CJSON_FORMAT || UDATA_CONFIG_DTC_ENABLE
 #include "cJSON.h"
 #endif
 
@@ -274,7 +274,7 @@ int gateway_sample(void)
 int application_start(int argc, char **argv)
 {
     int ret;
-#if defined(UDATA_CJSON_SUPPORTED) || defined(DTC_LINKKIT)
+#if UDATA_CONFIG_CJSON_FORMAT || UDATA_CONFIG_DTC_ENABLE
     cJSON_Hooks cjson_hooks;
     cjson_hooks.malloc_fn = aos_malloc;
     cjson_hooks.free_fn = aos_free;
