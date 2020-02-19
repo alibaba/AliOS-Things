@@ -16,7 +16,4 @@ $(NAME)_INCLUDES += ./
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/network/mal
 
-# mandatory dependencies
-$(NAME)_COMPONENTS := device_mal
-
 # optional dependencies
