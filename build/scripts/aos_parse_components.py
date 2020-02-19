@@ -2,31 +2,7 @@
 
 import os, sys
 import re
-
-def find_comp_mkfile(dirname):
-    """ Find component makefiles from dirname """
-    mklist = []
-    for root, dirs, files in os.walk(dirname):
-        if 'out' in root or 'build' in root or 'publish' in root:
-            continue
-
-        if 'aos.mk' in files:
-            mklist += ["%s/aos.mk" % root]
-            continue
-
-    return mklist
-
-def get_comp_name(mkfile):
-    """ Get comp name from mkfile """
-    name = None
-    patten = re.compile(r'^NAME.*=\s*(.*)\s*')
-    with open(mkfile, 'r') as f:
-        for line in f.readlines():
-            match = patten.match(line)
-            if match:
-                 name = match.group(1)
-
-    return name
+from lib.comp import find_comp_mkfile, get_comp_name
 
 def get_comp_optname(compname, mkfile):
     """ Return config option name of comp """
@@ -82,24 +58,29 @@ def write_config_file(source_root, config_file, mklist, appdir=None):
     config_keys = []
     # comp name defined by NAME
     real_names = []
+    app_src_dir = [os.path.join(source_root, "application"), os.path.join(source_root, "test", "develop")]
+    board_src_dir = [os.path.join(source_root, "platform", "board")]
+    appdir = os.environ.get("APPDIR")
+    if appdir:
+        app_src_dir.append(appdir)
+        board_src_dir.append(os.path.join(appdir, "board"))
 
     for mkfile in mklist:
         comptype = "normal"
         aliasname = ""
         mkfile = mkfile.replace("\\", "/")
-
         name = get_comp_name(mkfile)
         if not name:
             continue
 
         real_names += [name]
 
-        if "application/" in mkfile or "test/develop/" in mkfile:
+        if any(item in mkfile for item in board_src_dir):
+            comptype = "board"
+            aliasname = get_board_name(mkfile)    
+        elif any(item in mkfile for item in app_src_dir):
             comptype = "app"
             aliasname = get_app_name(mkfile)
-        elif "board/" in mkfile:
-            comptype = "board"
-            aliasname = get_board_name(mkfile)
         else:
             pass
 
@@ -156,6 +137,8 @@ def main(argv):
 
     if ret:
         print("Failed to create %s ...\n" % config_file)
+        return 1
+    return 0
 
 if __name__ == "__main__":
     ret = main(sys.argv)
