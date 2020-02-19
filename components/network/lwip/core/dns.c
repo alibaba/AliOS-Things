@@ -31,6 +31,8 @@
  *
  * All functions must be called from TCPIP thread.
  *
+ * @see DNS_MAX_SERVERS
+ * @see LWIP_DHCP_MAX_DNS_SERVERS
  * @see @ref netconn_common for thread-safe access.
  */
 
