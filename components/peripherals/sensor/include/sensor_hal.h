@@ -20,7 +20,7 @@ typedef int (*SENSOR_INIT_FUN)(void);
 int sensor_init(void);
 int sensor_create_obj(sensor_obj_t *sensor);
 
-#ifdef UDATA_MODBUS
+#if SENSOR_CONFIG_MODBUS_ENABLE
 int modbus_init(void);
 #endif
 

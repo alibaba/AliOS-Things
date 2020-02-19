@@ -152,7 +152,7 @@
     ((reg_data & (bitname##_MSK)) >> (bitname##_POS))
 #define BME280_GET_BITS_POS_0(reg_data, bitname) (reg_data & (bitname##_MSK))
 
-#ifdef BME280_SPI_ENABLE
+#if AOS_SENSOR_BARO_BME280_SPI || AOS_SENSOR_TEMP_BME280_SPI || AOS_SENSOR_HUMI_BME280_SPI
 #define  BME280_IO_PORT SPI_PORT
 #else
 #define  BME280_IO_PORT I2C_PORT

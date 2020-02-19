@@ -104,7 +104,7 @@ static int  sensor_register_irq(int index )
     if (0 == g_sensor_obj[index]->data_len) {
         return -1;
     }
-#ifdef SENSOR_INT_ENABLE
+#if SENSOR_CONFIG_INT_ENABLE
     ret =
       hal_gpio_enable_irq(&(g_sensor_obj[index]->gpio), *(gpio_irq_trigger_t*)(g_sensor_obj[index]->gpio.priv),
                           sensor_irq_handle, (void *)index);
@@ -378,7 +378,7 @@ ssize_t sensor_hal_read(sensor_tag_e tag, uint8_t instance, void *buf, size_t le
         goto error;
     }
 
-#ifdef UDATA_MODBUS
+#if SENSOR_CONFIG_MODBUS_ENABLE
     if(g_sensor_obj[index]->io_port == MODBUS_PORT){
         int* index_data = (int *)buf;
         *index_data = g_sensor_obj[index]->drv_index;
@@ -502,7 +502,7 @@ int sensor_hal_init(void)
         }
     }
 
-#ifdef UDATA_MODBUS
+#if SENSOR_CONFIG_MODBUS_ENABLE
     modbus_init();
 #endif
     g_sensor_init_flag = true;
