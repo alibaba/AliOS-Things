@@ -14,7 +14,7 @@ except:
 def get_source_files(sourcelist, appdir):
     """ Get sources from *.c files """
     src = []
-    for item in sourcelist.split(" "):
+    for item in sourcelist:
         if item.endswith(".c"):
             item = os.path.abspath(item).replace("\\", "/")
             tmp = item.replace(appdir + "/", "")
@@ -73,10 +73,13 @@ def update_aosmk(sourcelist, aosmk):
 
 
 @click.command()
-@click.argument("sourcelist", metavar="[\"SOURCELIST\"]")
+@click.argument("sourcelist", nargs=-1, metavar="<SOURCELIST>")
 @click.option("-m", "--makefile", help="Target makefile to update")
 def cli(sourcelist, makefile):
     """ Add component sources to aos.mk """
+    if not sourcelist:
+        return
+
     aosmk = os.path.join(os.getcwd(), "aos.mk")
     if makefile:
         aosmk = makefile
@@ -87,7 +90,7 @@ def cli(sourcelist, makefile):
         click.echo("[Error] No such file: %s" % aosmk)
         return 1
 
-    for item in sourcelist.split(" "):
+    for item in sourcelist:
         if not os.path.exists(item):
             click.echo("[Error] No such file: %s" % item)
             return 1
