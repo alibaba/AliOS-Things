@@ -47,7 +47,7 @@ def get_board_name(mkfile):
     match = patten.match(mkfile)
     if match:	
         name = match.group(2).replace("/", ".")
-	name = name.replace("board_legacy.", "")
+        name = name.replace("board_legacy.", "")
     return name
 
 def write_config_file(source_root, config_file, mklist, appdir=None):
