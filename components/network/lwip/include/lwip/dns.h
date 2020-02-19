@@ -115,10 +115,15 @@ const ip_addr_t *
 dns_getserver_if(u8_t numdns, struct netif* netif);
 #endif
 
-#if DNS_LOCAL_HOSTLIST && DNS_LOCAL_HOSTLIST_IS_DYNAMIC
+#if DNS_LOCAL_HOSTLIST
+size_t         dns_local_iterate(dns_found_callback iterator_fn, void *iterator_arg);
+err_t          dns_local_lookup(const char *hostname, ip_addr_t *addr, u8_t dns_addrtype);
+#if DNS_LOCAL_HOSTLIST_IS_DYNAMIC
 int            dns_local_removehost(const char *hostname, const ip_addr_t *addr);
 err_t          dns_local_addhost(const char *hostname, const ip_addr_t *addr);
-#endif /* DNS_LOCAL_HOSTLIST && DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
+#endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
+#endif /* DNS_LOCAL_HOSTLIST */
+
 
 #ifdef __cplusplus
 }
