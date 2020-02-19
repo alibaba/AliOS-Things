@@ -1,8 +1,8 @@
 menu "BSP         Configuration"
 choice
     prompt "Board Selection"
-	
-	
+
+
 source "platform/board/stm32f103rb-demo/Config.in"
 if AOS_BOARD_STM32F103RB_DEMO
     config AOS_BUILD_BOARD
@@ -10,7 +10,7 @@ if AOS_BOARD_STM32F103RB_DEMO
 
     source "platform/mcu/stm32f1xx/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
-endif	
+endif
 
 source "platform/board/esp8266-demo/Config.in"
 if AOS_BOARD_ESP8266_DEMO
@@ -19,6 +19,15 @@ if AOS_BOARD_ESP8266_DEMO
 
     source "platform/mcu/esp8266/Config.in"
     source "platform/arch/xtensa/lx106/Config.in"
+endif
+
+source "platform/board/mk3080-demo/Config.in"
+if AOS_BOARD_MK3080_DEMO
+    config AOS_BUILD_BOARD
+        default "mk3080-demo"
+
+    source "platform/mcu/rtl8710bn/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
 endif
 
 source "platform/board/board_legacy/aaboard_demo/Config.in"
@@ -61,7 +70,7 @@ source "platform/board/board_legacy/asr6501/Config.in"
 if AOS_BOARD_ASR6501
     config AOS_BUILD_BOARD
         default "asr6501"
-    
+
     source "platform/mcu/cy8c4147/Config.in"
     source "platform/arch/arm/armv6m/Config.in"
 endif
