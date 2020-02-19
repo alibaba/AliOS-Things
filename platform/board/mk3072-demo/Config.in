@@ -1,0 +1,37 @@
+config AOS_BOARD_MK3072_DEMO
+    bool "MK3072"
+    select AOS_MCU_ASR5501MK
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NETMGR
+    select CONFIG_AOS_TCPIP
+    help
+
+if AOS_BOARD_MK3072_DEMO
+# Configurations for board mk3072
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI_LOWPOWER
+    bool
+    default y
+
+endif
