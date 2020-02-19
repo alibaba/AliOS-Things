@@ -1,12 +1,11 @@
+# component name
 NAME := udata
-
+# component information
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := Sensoring device processing framework
-GLOBAL_DEFINES += AOS_UDATA
-
-$(NAME)_COMPONENTS += osal_aos
-
+# source files and the folder of internal include files
+$(NAME)_INCLUDES += ./include
 $(NAME)_SOURCES += \
     udata_main.c \
     udata_interface.c \
@@ -18,21 +17,23 @@ $(NAME)_SOURCES += \
     udata_service_task.c \
     udata_parse.c
 
-ifeq ($(AOS_CONFIG_DTC_ENABLE),y)
-$(NAME)_SOURCES += service/service_data_to_cloud.c
-GLOBAL_DEFINES  += DATA_TO_CLOUD
-endif
+# the folder of API files
+GLOBAL_INCLUDES += ../../../include/service/udata
 
-ifeq ($(UDATA_CONFIG_CJSON_FORMAT),y)
-$(NAME)_COMPONENTS += cjson
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/components/udata/gen_cjson_data.mk
-GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
-endif
-
-$(NAME)_INCLUDES += ./include
-
+# armcc & iar without -Wall and -Werror
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
+
+ifeq ($(UDATA_CONFIG_DTC_ENABLE),y)
+$(NAME)_SOURCES += service/service_data_to_cloud.c
+endif
+
+ifeq ($(UDATA_CONFIG_CJSON_FORMAT),y)
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/components/service/udata/gen_cjson_data.mk
+endif
+
+$(NAME)_COMPONENTS-$(UDATA_CONFIG_SENSOR) += sensor osal_aos
+$(NAME)_COMPONENTS-$(UDATA_CONFIG_CJSON_FORMAT) += cjson

@@ -278,7 +278,7 @@ static int abs_data_collect_dev_list(void *buf)
         return -1;
     }
 
-#ifdef AOS_SENSOR
+#if SENSOR_CONFIG_DEPENDS_ENABLE
     fd = aos_open(sensor_node_path, O_RDWR);
     if (fd < 0) {
         return -1;
@@ -331,7 +331,7 @@ int abs_data_timer_stop(void)
     return 0;
 }
 
-#ifndef UDATA_MODBUS
+#if !SENSOR_CONFIG_MODBUS_ENABLE
 static int abs_data_timer_update(uint32_t abs_index, int interval)
 {
     int ret = 0;
@@ -541,7 +541,7 @@ static int abs_data_timer_config(uint32_t abs_index, udata_service_t *service)
         return -1;
     }
 
-#ifndef UDATA_MODBUS
+#if !SENSOR_CONFIG_MODBUS_ENABLE
     if (g_sensor_config[abs_index].mode == DEV_POLLING) {
         ret      = abs_data_timer_update(abs_index, interval);
         if (unlikely(ret)) {
@@ -606,7 +606,7 @@ static int abs_data_create_obj(uint32_t abs_index, udata_service_t *service)
         return -1;
     }
 
-#ifndef UDATA_MODBUS
+#if !SENSOR_CONFIG_MODBUS_ENABLE
     if (sensor->mode == DEV_POLLING) {
         ret      = abs_data_timer_update(abs_index, interval);
         if (unlikely(ret)) {
@@ -963,7 +963,7 @@ int abs_data_model_init(void)
         return -1;
     }
 
-#ifdef UDATA_MODBUS
+#if SENSOR_CONFIG_MODBUS_ENABLE
     abs_data_poll_start();
 #else
     ret = abs_data_timer_start();
