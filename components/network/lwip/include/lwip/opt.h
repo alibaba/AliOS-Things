@@ -1056,7 +1056,12 @@
  *  at runtime. */
 #if !defined DNS_LOCAL_HOSTLIST_IS_DYNAMIC || defined __DOXYGEN__
 #define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   0
-#endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
+
+/** Set this to 1 to enable querying ".local" names via mDNS
+ *  using a One-Shot Multicast DNS Query */
+#if !defined LWIP_DNS_SUPPORT_MDNS_QUERIES || defined __DOXYGEN__
+#define LWIP_DNS_SUPPORT_MDNS_QUERIES   0
+#endif
 /**
  * @}
  */
