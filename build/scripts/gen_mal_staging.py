@@ -77,7 +77,7 @@ def update_config(destdir, devicetype, drivername):
 def update_mk(destdir, devicetype, drivername):
     mkfile = os.path.join(destdir, "..", "..", "aos.mk")
     if os.path.isfile(mkfile):
-        newline = "$(NAME)_COMPONENTS-$(AOS_MAL_%s_%s) := device_sal_%s" % \
+        newline = "$(NAME)_COMPONENTS-$(AOS_MAL_%s_%s) := device_mal_%s" % \
                   (devicetype.upper(), drivername.upper(), drivername)
 
         with open(mkfile, 'r') as f:
