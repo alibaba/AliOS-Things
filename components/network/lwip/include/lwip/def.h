@@ -57,6 +57,12 @@ extern "C" {
 /* Get the number of entries in an array ('x' must NOT be a pointer!) */
 #define LWIP_ARRAYSIZE(x) (sizeof(x)/sizeof((x)[0]))
 
+/** Create u32_t value from bytes */
+#define LWIP_MAKEU32(a,b,c,d) (((u32_t)((a) & 0xff) << 24) | \
+                               ((u32_t)((b) & 0xff) << 16) | \
+                               ((u32_t)((c) & 0xff) << 8)  | \
+                                (u32_t)((d) & 0xff))
+
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL 0

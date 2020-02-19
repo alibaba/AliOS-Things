@@ -256,10 +256,12 @@ netconn_bind(struct netconn *conn, const ip_addr_t *addr, u16_t port)
   
   LWIP_ERROR("netconn_bind: invalid conn", (conn != NULL), return ERR_ARG;);
 
+#if LWIP_IPV4
   /* Don't propagate NULL pointer (IP_ADDR_ANY alias) to subsequent functions */
   if (addr == NULL) {
     addr = IP4_ADDR_ANY;
   }
+#endif /* LWIP_IPV4 */
 
   API_MSG_VAR_ALLOC(msg);
   API_MSG_VAR_REF(msg).conn = conn;
@@ -871,6 +873,7 @@ netconn_join_leave_group(struct netconn *conn,
 
   API_MSG_VAR_ALLOC(msg);
 
+#if LWIP_IPV4
   /* Don't propagate NULL pointer (IP_ADDR_ANY alias) to subsequent functions */
   if (multiaddr == NULL) {
     multiaddr = IP4_ADDR_ANY;
@@ -878,6 +881,7 @@ netconn_join_leave_group(struct netconn *conn,
   if (netif_addr == NULL) {
     netif_addr = IP4_ADDR_ANY;
   }
+#endif /* LWIP_IPV4 */
 
   API_MSG_VAR_REF(msg).conn = conn;
   API_MSG_VAR_REF(msg).msg.jl.multiaddr = API_MSG_VAR_REF(multiaddr);
