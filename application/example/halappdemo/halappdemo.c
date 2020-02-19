@@ -30,6 +30,10 @@ extern void hal_pwm_app_staitc_out(void);
 extern void hal_pwm_app_dynamic_out(void);
 #endif
 
+#if (AOS_HAL_ADC_ENABLED > 0)
+extern void hal_adc_app_out(void);
+#endif
+
 #if (AOS_HAL_DAC_ENABLED > 0)
 extern void hal_dac_app_out(void);
 #endif
@@ -56,6 +60,12 @@ int application_start(int argc, char *argv[])
     hal_pwm_app_dynamic_out();
 #endif
 
+    /* adc */
+#if (AOS_HAL_ADC_ENABLED > 0)
+    hal_adc_app_out();
+#endif
+
+    /* dac */
 #if (AOS_HAL_DAC_ENABLED > 0)
     hal_dac_app_out();
 #endif
