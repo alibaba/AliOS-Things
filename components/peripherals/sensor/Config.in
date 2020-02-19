@@ -1,27 +1,47 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_SENSOR
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SENSOR
     bool "Sensor Drivers Configuration"
     default n
-    select AOS_COMP_MBMASTER if AOS_SENSOR_MODBUS_ENABLE
-    select AOS_COMP_AT if AOS_SENSOR_GPS_SIMCOM_SIM868
-    select AOS_COMP_DEVICE_SAL_SIM800 if AOS_SENSOR_GPS_SIMCOM_SIM868
-    select AOS_COMP_VFS
     help
+        AliOS Things sensor
+endif
 
-if AOS_COMP_SENSOR
+
+###################################################################
+# Component configuration items
+menu "Sensor Configuration"
+depends on AOS_COMP_SENSOR
+
+config SENSOR_CONFIG_DEPENDS_ENABLE
+    bool "Enable Sensor Depends"
+    default y
+    help
+        Press <Y> here to add support for the sensor.
+
 # Configurations for comp sensor
-config AOS_SENSOR_INT_ENABLE
+config SENSOR_CONFIG_INT_ENABLE
     bool "Enable Sensor Interrupt"
     default n
     help
         Press <Y> here to add support for the sensor interrupt.
 
-config AOS_SENSOR_MODBUS_ENABLE
+config SENSOR_CONFIG_MODBUS_ENABLE
     bool "Enable Modbus Sensors"
     default n
     help
         Press <Y> here to add support for the Modbus Sensors, this depend on AOS_COMP_MBMASTER.
 
-if AOS_SENSOR_MODBUS_ENABLE
+if SENSOR_CONFIG_MODBUS_ENABLE
 menu "Modbus Sensor Selection"
     menu "Ambient Light Sensors"
         config AOS_SENSOR_ALS_KUNLUN_ZD6
@@ -77,6 +97,7 @@ menu "Modbus Sensor Selection"
                 Press <Y> here to add support for the MSCO2MB CO2 sensor.
                 This depend on modbus.
     endmenu
+
     menu "TVOC Sensors"
         config AOS_SENSOR_TVOC_HONEYWELL_HAQEAW
             bool "HAQEAW"
@@ -159,6 +180,7 @@ menu "Modbus Sensor Selection"
                 This depend on modbus.
 
     endmenu
+
     menu "Noise Sensors"
         config AOS_SENSOR_NOISE_MTM_MSN1000MB
             bool "MSN1000MB"
@@ -167,6 +189,7 @@ menu "Modbus Sensor Selection"
                 Press <Y> here to add support for the MSN1000MB noise sensor.
                 This depend on modbus.
     endmenu
+
     menu "HCHO Sensors"
         config AOS_SENSOR_HCHO_MTM_MSF1000MB
             bool "MSF1000MB"
@@ -198,6 +221,7 @@ menu "Modbus Sensor Selection"
                 Press <Y> here to add support for the HAQEAW PM2.5 sensor.
                 This depend on modbus.
     endmenu
+
     menu "PM1.0 Sensors"
         config AOS_SENSOR_PM1_MTM_MSPM25MB
             bool "MSPM25MB"
@@ -206,6 +230,7 @@ menu "Modbus Sensor Selection"
                 Press <Y> here to add support for the MSPM25MB PM1.0 sensor.
                 This depend on modbus.
     endmenu
+
     menu "PM10.0 Sensors"
         config AOS_SENSOR_PM10_MTM_MSPM25MB
             bool "MSPM25MB"
@@ -214,6 +239,7 @@ menu "Modbus Sensor Selection"
                 Press <Y> here to add support for the MSPM25MB PM10.0 sensor.
                 This depend on modbus.
     endmenu
+
     menu "PH Sensors"
         config AOS_SENSOR_PH_MTM_MSPH10
             bool "MSPH10"
@@ -308,17 +334,16 @@ menu "Modbus Sensor Selection"
     endmenu
 
 endmenu
+
 endif
 
-
-
-config AOS_SENSOR_SPI_ENABLE
+config SENSOR_CONFIG_SPI_ENABLE
     bool "Enable SPI Bus Sensors"
     default n
     help
         Press <Y> here to add support for the SPI bus Sensors.
 
-if AOS_SENSOR_SPI_ENABLE
+if SENSOR_CONFIG_SPI_ENABLE
 menu "SPI Bus Sensor Selection"
     menu "Barometric Pressure Sensors"
         config AOS_SENSOR_BARO_BME280_SPI
@@ -346,17 +371,19 @@ menu "SPI Bus Sensor Selection"
                 Press <Y> here to add support for the BME280 humidity sensor.
                 This depend on SPI Bus.
     endmenu
+
 endmenu
+
 endif
 
 
-config AOS_SENSOR_I2C_ENABLE
+config SENSOR_CONFIG_I2C_ENABLE
     bool "Enable I2C Bus Sensors"
     default y
     help
         Press <Y> here to add support for the I2C bus Sensors.
 
-if AOS_SENSOR_I2C_ENABLE
+if SENSOR_CONFIG_I2C_ENABLE
 menu "I2C Bus Sensor Selection"
     menu "Accelerometers"
         config AOS_SENSOR_ACC_ADI_ADXL372
@@ -1183,6 +1210,8 @@ menu "I2C Bus Sensor Selection"
     endmenu
 
 endmenu
-endif
 
 endif
+
+endmenu
+
