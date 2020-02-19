@@ -5,6 +5,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "hal_gpio_stm32f4.h"
+#include "hal_adc_stm32f4.h"
 #include "hal_dac_stm32f4.h"
 
 #ifdef BOOTLOADER
@@ -34,6 +35,13 @@ typedef enum{
     PORT_SPI_SIZE,
     PORT_SPI_INVALID =255,
 }PORT_SPI_TYPE;
+
+typedef enum {
+    PORT_ADC_1,
+    PORT_ADC_2,
+    PORT_ADC_SIZE,
+    PORT_ADC_INVALID =255,
+} PORT_ADC_TYPE;
 
 typedef enum{
     PORT_CAN_NORMAL,
@@ -83,7 +91,7 @@ typedef enum{
 #define AOS_HAL_PWM_ENABLED         1
 #define AOS_HAL_WDG_ENABLED         0
 #define AOS_HAL_RTC_ENABLED         0
-#define AOS_HAL_ADC_ENABLED         0
+#define AOS_HAL_ADC_ENABLED         1
 #define AOS_HAL_DAC_ENABLED         1
 #define AOS_HAL_RNG_ENABLED         0
 #define AOS_HAL_I2S_ENABLED         0
@@ -195,6 +203,11 @@ typedef enum{
 #endif
 
 #endif /* AOS_HAL_PWM_ENABLED > 0 */
+
+
+#if (AOS_HAL_ADC_ENABLED > 0)
+#define HALAPP_ADC HAL_ADC_1
+#endif /* AOS_HAL_ADC_ENABLED */
 
 #if (AOS_HAL_DAC_ENABLED > 0)
 
