@@ -30,6 +30,24 @@ if AOS_BOARD_MK3080_DEMO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "platform/board/asr5501-demo/Config.in"
+if AOS_BOARD_ASR5501_DEMO
+    config AOS_BUILD_BOARD
+        default "asr5501-demo"
+
+    source "platform/mcu/asr5501/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
+source "platform/board/mk3072-demo/Config.in"
+if AOS_BOARD_MK3072_DEMO
+    config AOS_BUILD_BOARD
+        default "mk3072-demo"
+
+    source "platform/mcu/asr5501mk/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "platform/board/board_legacy/aaboard_demo/Config.in"
 if AOS_BOARD_AABOARD_DEMO
     config AOS_BUILD_BOARD
