@@ -12,7 +12,7 @@ endif
 # Backward compatibility
 if !AOS_CREATE_PROJECT
 config AOS_COMP_RTP
-    bool "srtp"
+    bool "RTP"
     select AOS_COMP_MBEDTLS
     select MBEDTLS_CONFIG_CRYPTO_MODE_GCM if AOS_COMP_MBEDTLS
     default n

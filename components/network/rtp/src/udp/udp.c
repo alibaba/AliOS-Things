@@ -13,7 +13,7 @@
 #if !defined(WIN32)
 #define __USE_POSIX 1  /**< Use POSIX flag */
 #define __USE_XOPEN2K 1/**< Use POSIX.1:2001 code */
-#include <lwip/netdb.h>
+#include <network/network.h>
 #endif
 #include <string.h>
 #ifdef HAVE_STRINGS_H
@@ -559,8 +559,8 @@ int udpsock_sockbuf_set(struct udp_sock *us, int size)
 	if (!us)
 		return EINVAL;
 
-	err |= udp_setsockopt(us, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
-	err |= udp_setsockopt(us, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
+	err |= udpsock_setsockopt(us, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
+	err |= udpsock_setsockopt(us, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
 
 	return err;
 }

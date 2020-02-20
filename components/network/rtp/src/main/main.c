@@ -42,7 +42,7 @@
 #ifdef HAVE_PTHREAD
 #define __USE_GNU 1
 #include <stdlib.h>
-#include <posix/pthread.h>
+#include <pthread.h>
 #endif
 #include <network/network.h>
 
