@@ -5,6 +5,8 @@
  */
 #ifndef RE_COMMON_H
 #define RE_COMMON_H
+#include "stddef.h"
+#include "stdbool.h"
 #include <network/network.h>
 
 /**
