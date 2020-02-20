@@ -89,7 +89,7 @@ typedef enum{
 #define AOS_HAL_FLASH_ENABLED       0
 #define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_PWM_ENABLED         1
-#define AOS_HAL_WDG_ENABLED         0
+#define AOS_HAL_WDG_ENABLED         1
 #define AOS_HAL_RTC_ENABLED         0
 #define AOS_HAL_ADC_ENABLED         1
 #define AOS_HAL_DAC_ENABLED         1
