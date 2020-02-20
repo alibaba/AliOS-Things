@@ -43,11 +43,6 @@ static const char prfx_neg[]  = "-";
 static const char prfx_hex[]  = "0x";
 static const char str_nil[]  = "(nil)";
 
-size_t str_len(const char *s)
-{
-        return s ? strlen(s) : 0;
-}
-
 static int write_padded(const char *p, size_t sz, size_t pad, char pch,
 			bool plr, const char *prfx, re_vprintf_h *vph,
 			void *arg)
