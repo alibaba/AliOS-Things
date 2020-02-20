@@ -3,6 +3,11 @@
 #include <string.h>
 #include "iplist.h"
 
+#include "ulog/ulog.h"
+
+#define TAG "httpdns"
+#define HTTPDNS_INFO(fmt,arg...)  LOGI(TAG, fmt,##arg)
+
 void iplist_init(struct list_head * ips)
 {
     INIT_LIST_HEAD(ips);
