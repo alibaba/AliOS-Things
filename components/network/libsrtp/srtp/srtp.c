@@ -61,11 +61,7 @@
 #endif
 
 #include <limits.h>
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#elif defined(HAVE_WINSOCK2_H)
-#include <winsock2.h>
-#endif
+#include <network/network.h>
 
 /* the debug module for srtp */
 srtp_debug_module_t mod_srtp = {
