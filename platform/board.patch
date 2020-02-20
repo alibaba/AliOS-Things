@@ -1,0 +1,66 @@
+diff --git a/board/stm32f103rb-demo/startup/board.c b/board/stm32f103rb-demo/startup/board.c
+index f08a2e825..467afbf2e 100644
+--- a/board/stm32f103rb-demo/startup/board.c
++++ b/board/stm32f103rb-demo/startup/board.c
+@@ -38,7 +38,7 @@ UART_MAPPING UART_MAPPING_TABLE[] =
+ i2c_mapping_t i2c_mapping[PORT_I2C_SIZE] = {{PORT_I2C_1,I2C1}};
+ 
+ SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+-{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
++{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
+     SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} },
+ };
+ 
+diff --git a/board/stm32f429zi-nucleo-demo/config/board.h b/board/stm32f429zi-nucleo-demo/config/board.h
+index 0803e244c..c13c56cfa 100644
+--- a/board/stm32f429zi-nucleo-demo/config/board.h
++++ b/board/stm32f429zi-nucleo-demo/config/board.h
+@@ -76,8 +76,8 @@ typedef enum{
+ */
+ #define AOS_HAL_GPIO_ENABLED        1
+ #define AOS_HAL_UART_ENABLED        1
+-#define AOS_HAL_SPI_ENABLED         0
+-#define AOS_HAL_I2C_ENABLED         0
++#define AOS_HAL_SPI_ENABLED         1
++#define AOS_HAL_I2C_ENABLED         1
+ #define AOS_HAL_FLASH_ENABLED       0
+ #define AOS_HAL_TIMER_ENABLED       1
+ #define AOS_HAL_PWM_ENABLED         1
+diff --git a/board/stm32f429zi-nucleo-demo/startup/board.c b/board/stm32f429zi-nucleo-demo/startup/board.c
+index 9a9d86be3..889b7a878 100644
+--- a/board/stm32f429zi-nucleo-demo/startup/board.c
++++ b/board/stm32f429zi-nucleo-demo/startup/board.c
+@@ -109,9 +109,9 @@ UART_MAPPING UART_MAPPING_TABLE[] =
+ void* i2c_mapping_table[] = { I2C1, I2C2};
+ 
+ SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+-{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
++{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
+     SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} },
+-{PORT_SPI_2,SPI3, {SPI_DIRECTION_2LINES,SPI_DATASIZE_16BIT,SPI_POLARITY_LOW,SPI_PHASE_1EDGE,\
++{PORT_SPI_2,SPI3, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
+     SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} }
+ };
+ 
+diff --git a/mcu/stm32f4xx_cube/hal/hal_spi_stm32f4.c b/mcu/stm32f4xx_cube/hal/hal_spi_stm32f4.c
+index 14407e40f..ca963c49e 100644
+--- a/mcu/stm32f4xx_cube/hal/hal_spi_stm32f4.c
++++ b/mcu/stm32f4xx_cube/hal/hal_spi_stm32f4.c
+@@ -490,7 +490,7 @@ void DMA1_Stream4_IRQHandler(void)
+ static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)
+ {
+     uint32_t mode = 0;
+-    int32_t	ret = 0;
++    int32_t ret = 0;
+ 
+     if(mode_hal == HAL_SPI_MODE_MASTER)
+     {
+@@ -516,7 +516,7 @@ static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)
+ 
+ static int32_t spi_freq_transform(SPI_TypeDef* spiIns, uint32_t freq_hal, uint32_t *BaudRatePrescaler_stm32l4)
+ {
+-    int32_t	ret = 0;
++    int32_t ret = 0;
+     uint32_t plck=0;
+     uint32_t freq_ratio=0;
+ 
