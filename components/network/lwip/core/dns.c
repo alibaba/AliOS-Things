@@ -1178,44 +1178,47 @@ dns_check_entry(u8_t i)
             break;
         case DNS_STATE_ASKING:
           if (--entry->tmr == 0) {
-            if (++entry->retries == DNS_MAX_RETRIES) {
-              if (dns_backupserver_available(entry)
+             if (++entry->retries == DNS_MAX_RETRIES * num_dns) {
+                if (dns_backupserver_available(entry)
 #if LWIP_DNS_SUPPORT_MDNS_QUERIES
-              && !entry->is_mdns
+                  && !entry->is_mdns
 #endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */
              ) {
                     entry->tmr = 1;
                     entry->retries = 0;
-
+                } else {
                     LWIP_DEBUGF(DNS_DEBUG, ("dns_check_entry: \"%s\": timeout\n", entry->name));
+                    /* call specified callback function if provided */
                     dns_call_found(i, NULL);
+                    /* flush this entry */
                     entry->state = DNS_STATE_UNUSED;
                     break;
-                } else {
-                    entry->tmr = 1 << entry->retries;
-                    /**
-                     * entry->tmr is of uint8_t type, so we handle 8 and above
-                     * left-shift operation carefully here.
-                     **/
-                    if ((entry->tmr > DNS_MAX_RETRY_INTERVAL) || (entry->retries > 7)) {
-                        entry->tmr = DNS_MAX_RETRY_INTERVAL;
-                    }
+			    }
+             } else {
+                 entry->tmr = 1 << entry->retries;
+                 /**
+                  * entry->tmr is of uint8_t type, so we handle 8 and above
+                  * left-shift operation carefully here.
+                  **/
+                if ((entry->tmr > DNS_MAX_RETRY_INTERVAL) || (entry->retries > 7)) {
+                    entry->tmr = DNS_MAX_RETRY_INTERVAL;
                 }
+             }
 #ifndef CELLULAR_SUPPORT
-                index = (entry->server_idx + 1) % num_dns;
-                if ((index < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[index])) {
-                    entry->server_idx = index;
-                }
+             index = (entry->server_idx + 1) % num_dns;
+             if ((index < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[index])) {
+                entry->server_idx = index;
+             }
 #else
-                struct netif* netif;
-                NETIF_FOREACH(netif)
+             struct netif* netif;
+             NETIF_FOREACH(netif)
+             {
+                if(netif_is_up(netif) && (netif != entry->netif))
                 {
-                   if(netif_is_up(netif) && (netif != entry->netif))
-                   {
-                       entry->netif = netif;
-                       break;
-                   }
+                   entry->netif = netif;
+                   break;
                 }
+            }
 #endif
                 /* send DNS packet for this entry */
                 err = dns_send(i);
@@ -1243,7 +1246,6 @@ dns_check_entry(u8_t i)
         default:
             LWIP_ASSERT("unknown dns_table entry state:", 0);
             break;
-        }
     }
 }
 
