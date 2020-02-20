@@ -490,7 +490,7 @@ void DMA1_Stream4_IRQHandler(void)
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)
 {
     uint32_t mode = 0;
-    int32_t	ret = 0;
+    int32_t ret = 0;
 
     if(mode_hal == HAL_SPI_MODE_MASTER)
     {
@@ -516,7 +516,7 @@ static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)
 
 static int32_t spi_freq_transform(SPI_TypeDef* spiIns, uint32_t freq_hal, uint32_t *BaudRatePrescaler_stm32l4)
 {
-    int32_t	ret = 0;
+    int32_t ret = 0;
     uint32_t plck=0;
     uint32_t freq_ratio=0;
 

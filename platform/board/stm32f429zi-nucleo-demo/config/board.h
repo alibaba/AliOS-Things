@@ -84,8 +84,8 @@ typedef enum{
 */
 #define AOS_HAL_GPIO_ENABLED        1
 #define AOS_HAL_UART_ENABLED        1
-#define AOS_HAL_SPI_ENABLED         0
-#define AOS_HAL_I2C_ENABLED         0
+#define AOS_HAL_SPI_ENABLED         1
+#define AOS_HAL_I2C_ENABLED         1
 #define AOS_HAL_FLASH_ENABLED       0
 #define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_PWM_ENABLED         1
