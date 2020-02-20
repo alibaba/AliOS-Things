@@ -82,7 +82,8 @@ $(NAME)_SOURCES += hal/hal_uart_stm32f1.c \
                    hal/hal_i2c_stm32f1.c \
                    hal/hal_spi_stm32f1.c \
                    hal/hal_dac_stm32f1.c \
-                   hal/hal_gpio_stm32f1.c
+                   hal/hal_gpio_stm32f1.c \
+                   hal/hal_wdg_stm32f1.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M3 --apcs=/softfp -D__MICROLIB -g --split_sections
