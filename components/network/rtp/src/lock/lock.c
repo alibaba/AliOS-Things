@@ -5,7 +5,9 @@
  */
 #define _DEFAULT_SOURCE 1
 #define __USE_UNIX98 1
-#include <posix/pthread.h>
+#ifdef RTP_HAVE_PTHREAD
+#include <pthread.h>
+#endif
 #include <re_types.h>
 #include <re_mem.h>
 #include <re_lock.h>
@@ -21,20 +23,23 @@
 #endif
 
 
+#ifdef HAVE_PTHREAD
 /** Defines a lock */
 struct lock {
 	pthread_mutex_t m;
 };
-
+#endif
 
 static void lock_destructor(void *data)
 {
+#ifdef HAVE_PTHREAD
 	struct lock *l = data;
 
 	int err = pthread_mutex_destroy(&l->m);
 	if (err) {
 		DEBUG_WARNING("pthread_mutex_destroy: %m\n", err);
 	}
+#endif
 }
 
 
@@ -47,6 +52,7 @@ static void lock_destructor(void *data)
  */
 int lock_alloc(struct lock **lp)
 {
+#ifdef HAVE_PTHREAD
 	pthread_mutexattr_t attr;
 	struct lock *l;
 
@@ -70,7 +76,8 @@ int lock_alloc(struct lock **lp)
 	pthread_mutex_init(&l->m, &attr);
 
 	*lp = l;
-	return 0;
+#endif
+    return 0;
 }
 
 
@@ -81,10 +88,12 @@ int lock_alloc(struct lock **lp)
  */
 void lock_read_get(struct lock *l)
 {
+#ifdef HAVE_PTHREAD
 	const int err = pthread_mutex_lock(&l->m);
 	if (err) {
 		DEBUG_WARNING("lock_read_get: %m\n", err);
 	}
+#endif
 }
 
 
@@ -95,10 +104,12 @@ void lock_read_get(struct lock *l)
  */
 void lock_write_get(struct lock *l)
 {
+#ifdef HAVE_PTHREAD
 	const int err = pthread_mutex_lock(&l->m);
 	if (err) {
 		DEBUG_WARNING("lock_write_get: %m\n", err);
 	}
+#endif
 }
 
 
@@ -111,7 +122,9 @@ void lock_write_get(struct lock *l)
  */
 int lock_read_try(struct lock *l)
 {
+#ifdef HAVE_PTHREAD
 	return pthread_mutex_trylock(&l->m);
+#endif
 }
 
 
@@ -124,7 +137,9 @@ int lock_read_try(struct lock *l)
  */
 int lock_write_try(struct lock *l)
 {
+#ifdef HAVE_PTHREAD
 	return pthread_mutex_trylock(&l->m);
+#endif
 }
 
 
@@ -135,8 +150,10 @@ int lock_write_try(struct lock *l)
  */
 void lock_rel(struct lock *l)
 {
+#ifdef HAVE_PTHREAD
 	const int err = pthread_mutex_unlock(&l->m);
 	if (err) {
 		DEBUG_WARNING("lock_rel: %m\n", err);
 	}
+#endif
 }

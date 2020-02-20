@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef HAVE_PTHREAD
-#include <posix/pthread.h>
+#include <pthread.h>
 #endif
 #include <re_types.h>
 #include <re_list.h>

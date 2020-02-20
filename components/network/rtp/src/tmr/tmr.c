@@ -14,7 +14,7 @@
 #endif
 #ifdef HAVE_PTHREAD
 #include <stdlib.h>
-#include <posix/pthread.h>
+#include <pthread.h>
 #endif
 #include <re_types.h>
 #include <re_list.h>
