@@ -321,6 +321,19 @@ def cli(projectname, board, projectdir, templateapp):
     if not projectdir:
         projectdir = os.getcwd()
 
+    # not to use sdk dir as project dir
+    if os.path.abspath(projectdir).startswith(os.path.abspath(aos_sdk)):
+        errmsg = "It's not allowed to create project in AliOS Things "\
+                 "SDK directory!\nPlease specify another directory "\
+                 "via '-d' option."
+        try:
+            from aos.util import error
+            error(errmsg)
+        except Exception as e:
+            click.echo(errmsg)
+        finally:
+            return 1
+
     destdir = os.path.join(projectdir, projectname)
     destdir = os.path.abspath(destdir)
 
@@ -362,8 +375,6 @@ def cli(projectname, board, projectdir, templateapp):
     # run makefile and generate .config and aos_config.h
     gen_kconfig(destdir, projectname, board, True, True)
     click.echo("[Info] Project Initialized at: %s" % destdir)
-
-    
 
 if __name__ == "__main__":
     cli()
