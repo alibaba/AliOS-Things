@@ -737,7 +737,7 @@ dns_compare_name(const char *query, struct pbuf *p, u16_t start_offset)
 
     do {
         n = pbuf_try_get_at(p, response_offset);
-        if (n < 0 || response_offset == 0xFFFF) {
+    if ((n < 0) || (response_offset == 0xFFFF)) {
             /* error or overflow */
             return 0xFFFF;
         }
@@ -794,7 +794,7 @@ dns_skip_name(struct pbuf *p, u16_t query_idx)
 
     do {
         n = pbuf_try_get_at(p, offset++);
-        if (n < 0) {
+    if ((n < 0) || (offset == 0)) {
             return 0xFFFF;
         }
         /** @see RFC 1035 - 4.1.4. Message compression */
@@ -814,6 +814,9 @@ dns_skip_name(struct pbuf *p, u16_t query_idx)
         }
     } while (n != 0);
 
+  if (offset == 0xFFFF) {
+    return 0xFFFF;
+  }
     return offset + 1;
 }
 
