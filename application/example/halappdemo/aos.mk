@@ -9,7 +9,9 @@ $(NAME)_SOURCES += halapp_gpio.c  \
                    halapp_pwm.c   \
                    halapp_timer.c \
                    halapp_adc.c   \
-                   halapp_dac.c
+                   halapp_dac.c   \
+                   halapp_i2c.c   \
+                   halapp_spi.c   \
 
 $(NAME)_COMPONENTS += osal_aos
 
