@@ -9,7 +9,7 @@
 #endif
 #ifdef HAVE_PTHREAD
 #include <stdlib.h>
-#include <posix/pthread.h>
+#include <pthread.h>
 #endif
 #include <time.h>
 #include <re_types.h>

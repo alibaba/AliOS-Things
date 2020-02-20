@@ -4,7 +4,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := rtp component
 
-$(NAME)_INCLUDES += ./include
+$(NAME)_INCLUDES += ./include \
+	                ../../../include \
 $GLOBAL_INCLUDES += ../../../include/network/rtp
 
 $(NAME)_SOURCES := ./src/fb.c \
@@ -24,8 +25,11 @@ $(NAME)_SOURCES += ./src/mbuf/mbuf.c
 
 $(NAME)_SOURCES += ./src/sys/rand.c
 
-$(NAME)_SOURCES += ./src/fmt/hexdump.c \
+$(NAME)_SOURCES += ./src/fmt/ch.c \
+                   ./src/fmt/hexdump.c \
+                   ./src/fmt/pl.c \
                    ./src/fmt/print.c \
+                   ./src/fmt/str.c \
                    ./src/fmt/str_error.c
 
 $(NAME)_SOURCES += ./src/lock/lock.c
