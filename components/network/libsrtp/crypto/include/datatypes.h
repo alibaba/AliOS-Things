@@ -57,12 +57,6 @@
 
 #include <network/network.h>
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#elif defined HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -377,11 +371,7 @@ static inline uint32_t be32_to_cpu(uint32_t v)
     return v;
 }
 #else /* HAVE_X86 */
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#elif defined HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif /* HAVE_NETINET_IN_H */
+#include "network/network.h"
 #define be32_to_cpu(x) ntohl((x))
 #endif /* HAVE_X86 */
 
