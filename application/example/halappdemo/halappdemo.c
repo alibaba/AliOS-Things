@@ -70,6 +70,13 @@ int application_start(int argc, char *argv[])
     hal_dac_app_out();
 #endif
 
+#if (AOS_HAL_WDG_ENABLED > 0)
+    printf("start to test watchdog.\r\n");
+    printf("After 10 seconds the system will be restarted by"
+            "triggering the watchdog\r\n");
+    hal_watchdog_app_enable();
+#endif
+
     printf("hal app test end!\r\n");
 
     while (1) {
