@@ -35,7 +35,9 @@ static kinit_t kinit = {0, NULL, 1};
 void board_init(void)
 {
     board_tick_init();
+    board_dma_init();
     board_stduart_init();
+    board_gpio_init();
 }
 
 void aos_maintask(void* arg)
