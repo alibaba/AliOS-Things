@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := NANO130KE3BN
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr network
 
 GLOBAL_DEFINES += NUMICRO_NANO130
 GLOBAL_DEFINES += TOOLCHAIN_GCC_ARM=1

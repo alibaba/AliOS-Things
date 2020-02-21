@@ -9,7 +9,7 @@ HOST_MCU_FAMILY    := mcu_stm32f7xx
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F769I-Discovery
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 $(NAME)_SOURCES += config/k_config.c \
                     config/partition_conf.c  \
