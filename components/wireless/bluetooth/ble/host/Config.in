@@ -1,6 +1,6 @@
 if AOS_CREATE_PROJECT
 config AOS_COMP_BT_HOST
-    bool "BLE Host Stack"
+    bool
     default y
     help
 
