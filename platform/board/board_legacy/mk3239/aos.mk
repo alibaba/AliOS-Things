@@ -11,7 +11,7 @@ HOST_MCU_FAMILY    := mcu_stm32f4xx
 HOST_MCU_VARIANT   := STM32F412
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 WLAN_CHIP              := 43438
 WLAN_CHIP_REVISION     := A1

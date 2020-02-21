@@ -8,7 +8,7 @@ HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := mcu_asr5501mk
 SUPPORT_BINS         := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr network
 $(NAME)_SOURCES := config/partition_conf.c  \
                 config/k_config.c   \
                 startup/startup.c   \

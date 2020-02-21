@@ -10,7 +10,7 @@ SUPPORT_MBINS       := no
 HOST_MCU_NAME      := STM32F429ZIT6
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr network
 
 
 $(NAME)_SOURCES += config/partition_conf.c \
