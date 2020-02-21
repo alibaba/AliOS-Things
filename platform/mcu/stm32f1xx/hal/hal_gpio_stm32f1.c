@@ -26,10 +26,7 @@ static gpio_irq_slop_t gGpioSlop[GPIO_IRQ_SLOP_MAX]= {
     {.pin_num=-1},{.pin_num=-1},{.pin_num=-1},{.pin_num=-1},
 };
 static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
-int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
-uint32_t hal_gpio_pin(uint16_t pin);
 int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
-
 
 static  gpio_irq_slop_t * gpio_slop_get(int32_t pin_num)
 {
@@ -43,7 +40,6 @@ static  gpio_irq_slop_t * gpio_slop_get(int32_t pin_num)
     }
     return(NULL);
 }
-
 
 static  int8_t  gpio_slop_irq(int32_t irq_num)
 {
@@ -116,6 +112,120 @@ void EXTI15_10_IRQHandler(void)
     krhino_intrpt_exit();
 }
 
+GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin)
+{
+    GPIO_TypeDef *port = NULL;
+
+    if (hal_pin >= HAL_GPIO_CNT) {
+        return NULL;
+    }
+
+    switch (hal_pin / PINS_IN_GROUP) {
+        case GROUP_GPIOA:
+            port = GPIOA;
+            break;
+        case GROUP_GPIOB:
+            port = GPIOB;
+            break;
+        case GROUP_GPIOC:
+            port = GPIOC;
+            break;
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+        case GROUP_GPIOD:
+            port = GPIOD;
+            break;
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+        case GROUP_GPIOE:
+            port = GPIOE;
+            break;
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+        case GROUP_GPIOF:
+            port = GPIOF;
+            break;
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+        case GROUP_GPIOG:
+            port = GPIOG;
+            break;
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+        case GROUP_GPIOH:
+            port = GPIOH;
+            break;
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+        case GROUP_GPIOI:
+            port = GPIOI;
+            break;
+#endif
+        default:
+            port = NULL;
+            break;
+    }
+
+    return port;
+}
+
+uint32_t hal_gpio_pin(uint16_t hal_pin)
+{
+    uint8_t  pin_t = hal_pin % PINS_IN_GROUP;
+
+    return (uint32_t)1<<pin_t;
+}
+
+void hal_gpio_enable_clk(uint16_t hal_pin)
+{
+    GPIO_TypeDef *GPIOx;
+
+    GPIOx = hal_gpio_typedef(hal_pin);
+
+    if (GPIOx == GPIOA) {
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+    } else if (GPIOx == GPIOB) {
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+    } else if (GPIOx == GPIOC) {
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+    }
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+    else if (GPIOx == GPIOD)
+    {
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+    else if (GPIOx = GPIOE)
+    {
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+    else if (GPIOx == GPIOF)
+    {
+        __HAL_RCC_GPIOF_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+    else if (GPIOx == GPIOG)
+    {
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+    else if (GPIOx == GPIOH)
+    {
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+    }
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+    else if (GPIOx == GPIOI)
+    {
+        __HAL_RCC_GPIOI_CLK_ENABLE();
+    }
+#endif
+}
+
 int32_t hal_gpio_init(gpio_dev_t *gpio)
 {
     int32_t ret = -1;
@@ -126,46 +236,12 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio, &GPIOx);
-    if (ret){
-        return ret;
-    }
-
-    if (GPIOx == GPIOA) {
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-    } else if (GPIOx == GPIOB) {
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-    } else if (GPIOx == GPIOC) {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-#if defined(GPIOD)
-    else if (GPIOx == GPIOD) {
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-    }
-#endif
-#if defined(GPIOE)
-    else if (GPIOx == GPIOE) {
-        __HAL_RCC_GPIOE_CLK_ENABLE();
-    }
-#endif
-#if defined(GPIOF)
-    else if (GPIOx == GPIOF) {
-        __HAL_RCC_GPIOF_CLK_ENABLE();
-    }
-#endif
-#if defined(GPIOG)
-    else if (GPIOx == GPIOG) {
-        __HAL_RCC_GPIOG_CLK_ENABLE();
-    }
-#endif
-#if defined(GPIOH)
-    else if (GPIOx == GPIOH) {
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-    }
-#endif
-    else {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL == GPIOx){
         return -1;
     }
+
+    hal_gpio_enable_clk(gpio->port);
 
     ret = gpio_para_transform(gpio, &GPIO_InitStruct);
     if (ret) {
@@ -189,8 +265,8 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio, &GPIOx);
-    if (ret == 0) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (GPIOx != NULL) {
         pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_SET);
     };
@@ -208,8 +284,8 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio, &GPIOx);
-    if (ret == 0) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (GPIOx != NULL) {
         pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_RESET);
     };
@@ -227,8 +303,8 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio, &GPIOx);
-    if (ret == 0) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (GPIOx != NULL) {
         pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_TogglePin(GPIOx, pin);
     };
@@ -246,8 +322,8 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio, &GPIOx);
-    if (ret == 0) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (GPIOx != NULL) {
         pin = hal_gpio_pin(gpio->port);
         *value = HAL_GPIO_ReadPin(GPIOx, pin);
     };
@@ -403,68 +479,6 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
     return ret;
 }
 
-int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
-{
-    uint16_t group = 0;
-    int32_t ret = 0;
-
-    if (gpio == NULL) {
-        return -1;
-    }
-
-    group = gpio->port / PINS_IN_GROUP;
-
-    switch (group) {
-    case GROUP_GPIOA:
-        *GPIOx = GPIOA;
-        break;
-    case GROUP_GPIOB:
-        *GPIOx = GPIOB;
-        break;
-    case GROUP_GPIOC:
-        *GPIOx = GPIOC;
-        break;
-#if defined(GROUP_GPIOD) && defined(GPIOD)
-    case GROUP_GPIOD:
-        *GPIOx = GPIOD;
-        break;
-#endif
-#if defined(GROUP_GPIOE) && defined(GPIOE)
-    case GROUP_GPIOE:
-        *GPIOx = GPIOE;
-        break;
-#endif
-#if defined(GROUP_GPIOF) && defined(GPIOF)
-    case GROUP_GPIOF:
-        *GPIOx = GPIOF;
-        break;
-#endif
-#if defined(GROUP_GPIOG) && defined(GPIOG)
-    case GROUP_GPIOG:
-        *GPIOx = GPIOG;
-        break;
-#endif
-#if defined(GROUP_GPIOH) && defined(GPIOH)
-    case GROUP_GPIOH:
-        *GPIOx = GPIOH;
-        break;
-#endif
-    default:
-        ret = -1;
-        break;
-    }
-
-    return ret;
-}
-
-uint32_t hal_gpio_pin(uint16_t pin)
-{
-    uint32_t result = 1;
-    uint8_t pin_t = pin % PINS_IN_GROUP;
-
-    return (uint32_t)1<<pin_t;
-}
-
 static int32_t gpio_irq_mode_init(gpio_dev_t *gpio,gpio_irq_trigger_t trigger)
 {
 
@@ -482,8 +496,6 @@ static int32_t gpio_irq_mode_init(gpio_dev_t *gpio,gpio_irq_trigger_t trigger)
     }
     return ret;
 }
-
-
 
 int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_irq_handler_t handler, void *arg)
 {
