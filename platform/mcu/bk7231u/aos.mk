@@ -17,7 +17,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231u
 
 $(NAME)_COMPONENTS := arch_armv5
 $(NAME)_COMPONENTS += newlib_stub rhino yloop
-$(NAME)_COMPONENTS += lwip netmgr
+$(NAME)_COMPONENTS += lwip netmgr debug
 $(NAME)_COMPONENTS += libprov
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
