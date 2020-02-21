@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := wm_w600
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr network
 
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += KV_CONFIG_PARTITION=7

@@ -11,7 +11,7 @@ HOST_MCU_FAMILY    := mcu_sv6266
 SUPPORT_MBINS      := no
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr cjson cli
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr network cjson cli
 
 ################################################################
 # kv

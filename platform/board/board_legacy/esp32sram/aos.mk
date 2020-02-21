@@ -11,7 +11,7 @@ SUPPORT_MBINS      := no
 # todo: remove these after rhino/lwip ready
 osal               ?= rhino
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 define get-os-version
 "AOS-R"-$(CURRENT_TIME)

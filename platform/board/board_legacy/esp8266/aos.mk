@@ -11,7 +11,7 @@ SUPPORT_MBINS      := no
 # todo: remove these after rhino/lwip ready
 osal ?= rhino
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_ESP8266
 CONFIG_SYSINFO_DEVICE_NAME   := ESP8266

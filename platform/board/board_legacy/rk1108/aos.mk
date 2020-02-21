@@ -8,7 +8,7 @@ HOST_ARCH          := rockchiplinux
 HOST_MCU_FAMILY    := mcu_linuximpl
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 #GLOBAL_CFLAGS += -I$(SOURCE_ROOT)/board/armhflinux/include
 #GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/board/armhflinux/lib
