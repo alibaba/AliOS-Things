@@ -6,6 +6,11 @@ config AOS_APP_BLEMESH_TMALL
 
 if AOS_APP_BLEMESH_TMALL
 # Configurations for app blemesh_tmall
+config BLE
+    bool "BLE Enable"
+    default y
+    help
+    
 config SYSINFO_APP_VERSION
     string "Firmware Version"
     default "app-1.0.0-20200214.140831"

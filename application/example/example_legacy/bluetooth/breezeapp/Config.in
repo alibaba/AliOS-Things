@@ -9,6 +9,10 @@ config AOS_APP_BREEZEAPP
 
 if AOS_APP_BREEZEAPP
 # Configurations for app breezeapp
+config BLE
+    bool "BLE Enable"
+    default y
+    help
 
 config CONFIG_COMP_BZ_OTA
     bool "Enable OTA With Breeze Link."
