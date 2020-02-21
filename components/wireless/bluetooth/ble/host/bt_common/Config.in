@@ -8,7 +8,7 @@ endif
 
 if !AOS_CREATE_PROJECT
 config AOS_COMP_BT_COMMON
-    bool 
+    bool "bt common"
     default n
     help
       AliOS Things NETWORK - Bluetooth common utilities (queue, timer, fifo, etc.)
