@@ -1,7 +1,16 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_EXTERNAL_MODULE
-    bool
-    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    bool 
     default y 
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_EXTERNAL_MODULE
+    bool "External module enable"
+    default y if BSP_SUPPORT_EXTERNAL_MODULE
+    default n 
+endif
+
 
 choice
     prompt "External module Configurations"
