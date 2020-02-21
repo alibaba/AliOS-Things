@@ -1,44 +1,6 @@
 ###################################################################
 # Component enable/disable selection
 # in the updated build system, default is y and can not be disabled
-config CONFIG_AOS_TCPIP
-    bool
-    default n
-
-config CONFIG_VENDOR_TCPIP
-    bool
-    default n
-
-config CONFIG_LINUX_TCPIP
-    bool
-    default n
-
-config CONFIG_NO_TCPIP
-    bool
-    default n
-
-choice
-    prompt "TCP/IP Selection"
-    default CONFIG_AOS_LWIP if CONFIG_AOS_TCPIP
-    default CONFIG_VENDOR_LWIP if CONFIG_VENDOR_TCPIP
-    default CONFIG_LINUX_IPSTACK if CONFIG_LINUX_TCPIP
-    default CONFIG_NO_LWIP if CONFIG_NO_TCPIP
-    help
-        Select aos/vendor/linux/no tcpip
-
-    config CONFIG_AOS_LWIP
-        bool "ENABLE AOS TCP/IP"
-
-    config CONFIG_VENDOR_LWIP
-        bool "ENABLE VENDOR TCP/IP"
-
-    config CONFIG_LINUX_IPSTACK
-        bool "ENABLE LINUX TCP/IP"
-
-    config CONFIG_NO_LWIP
-        bool "DISABLE TCP/IP"
-endchoice
-
 if CONFIG_AOS_LWIP
 if AOS_CREATE_PROJECT
     config AOS_COMP_LWIP
