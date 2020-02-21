@@ -10,7 +10,7 @@ SUPPORT_MBINS       := no
 HOST_MCU_NAME      := aamcu1_demo
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 GLOBAL_CFLAGS  += -DSTM32F429xx -DCENTRALIZE_MAPPING
 

@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := HR8P287
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub network
 
 $(NAME)_SOURCES += config/k_config.c \
                    startup/board.c   \

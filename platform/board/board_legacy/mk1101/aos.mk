@@ -9,7 +9,7 @@ MODULE             := 1062
 HOST_ARCH          := Cortex-M3
 HOST_MCU_FAMILY    := mcu_mx1101
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 $(NAME)_SOURCES := board.c
 

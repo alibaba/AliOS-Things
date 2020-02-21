@@ -15,7 +15,7 @@ ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
 $(NAME)_SOURCES := flash_partitions.c
 $(NAME)_LIBSUFFIX := _2ndboot
 else
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 $(NAME)_SOURCES := board.c flash_partitions.c
 endif
