@@ -28,71 +28,75 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos);
 static int get_irqn_type(IRQn_Type *IRQn, uint16_t pin);
 static void enable_gpio_clk(GPIO_TypeDef *GPIOx);
 
-int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx)
+GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin)
 {
-    uint16_t group = 0;
-    int32_t ret = 0;
+    GPIO_TypeDef *port = NULL;
 
-    group = hal_pin / PINS_IN_GROUP;
-
-    switch (group) {
-    case GROUP_GPIOA:
-        *GPIOx = GPIOA;
-        break;
-    case GROUP_GPIOB:
-        *GPIOx = GPIOB;
-        break;
-    case GROUP_GPIOC:
-        *GPIOx = GPIOC;
-        break;
-#if defined(GROUP_GPIOD) && defined(GPIOD)
-    case GROUP_GPIOD:
-        *GPIOx = GPIOD;
-        break;
-#endif
-#if defined(GROUP_GPIOE) && defined(GPIOE)
-    case GROUP_GPIOE:
-        *GPIOx = GPIOE;
-        break;
-#endif
-#if defined(GROUP_GPIOF) && defined(GPIOF)
-    case GROUP_GPIOF:
-        *GPIOx = GPIOF;
-        break;
-#endif
-#if defined(GROUP_GPIOG) && defined(GPIOG)
-    case GROUP_GPIOG:
-        *GPIOx = GPIOG;
-        break;
-#endif
-#if defined(GROUP_GPIOH) && defined(GPIOH)
-    case GROUP_GPIOH:
-        *GPIOx = GPIOH;
-        break;
-#endif
-#if defined(GROUP_GPIOI) && defined(GPIOI)
-    case GROUP_GPIOI:
-        *GPIOx = GPIOI;
-        break;
-#endif
-
-    default:
-        ret = -1;
-        break;
+    if (hal_pin >= HAL_GPIO_CNT) {
+        return NULL;
     }
 
-    return ret;
+    switch (hal_pin / PINS_IN_GROUP) {
+        case GROUP_GPIOA:
+            port = GPIOA;
+            break;
+        case GROUP_GPIOB:
+            port = GPIOB;
+            break;
+        case GROUP_GPIOC:
+            port = GPIOC;
+            break;
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+        case GROUP_GPIOD:
+            port = GPIOD;
+            break;
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+        case GROUP_GPIOE:
+            port = GPIOE;
+            break;
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+        case GROUP_GPIOF:
+            port = GPIOF;
+            break;
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+        case GROUP_GPIOG:
+            port = GPIOG;
+            break;
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+        case GROUP_GPIOH:
+            port = GPIOH;
+            break;
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+        case GROUP_GPIOI:
+            port = GPIOI;
+            break;
+#endif
+        default:
+            port = NULL;
+            break;
+    }
+
+    return port;
 }
 
-uint32_t hal_gpio_pin(uint16_t hal_pin)
+uint32_t hal_gpio_pin(uint8_t hal_pin)
 {
     uint8_t  pin_t = hal_pin % PINS_IN_GROUP;
 
     return (uint32_t)1<<pin_t;
 }
 
-void hal_gpio_enable_clk(GPIO_TypeDef *GPIOx)
+void hal_gpio_enable_clk(uint8_t hal_pin)
 {
+    GPIO_TypeDef *GPIOx;
+
+    GPIOx = hal_gpio_typedef(hal_pin);
+
     if (GPIOx == GPIOA) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
     } else if (GPIOx == GPIOB) {
@@ -160,10 +164,11 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
             return ret;
         }
 
-        ret = hal_gpio_group(gpio->port, &GPIOx);
-        if (ret == -1) {
-            return ret;
+        GPIOx = hal_gpio_typedef(gpio->port);
+        if (NULL == GPIOx) {
+           return -1;
         }
+
 
         enable_gpio_clk(GPIOx);
 
@@ -195,8 +200,8 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
         return ret;
     }
 
-    ret = hal_gpio_group(gpio->port, &GPIOx);
-    if (ret != -1) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL != GPIOx) {
         GPIO_Pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_TogglePin(GPIOx, GPIO_Pin);
     }
@@ -215,8 +220,8 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
         return ret;
     }
 
-    ret = hal_gpio_group(gpio->port, &GPIOx);
-    if (ret != -1) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL != GPIOx) {
         GPIO_Pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PinState_Set);
     }
@@ -235,8 +240,8 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
         return ret;
     }
 
-    ret = hal_gpio_group(gpio->port, &GPIOx);
-    if (ret != -1) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL != GPIOx) {
         GPIO_Pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PinState_Reset);
     }
@@ -250,8 +255,8 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
     uint16_t      GPIO_Pin;
     int32_t       ret = -1;
 
-    ret = hal_gpio_group(gpio->port, &GPIOx);
-    if (ret != -1) {
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL != GPIOx) {
         GPIO_Pin = hal_gpio_pin(gpio->port);
         *value = HAL_GPIO_ReadPin(GPIOx, GPIO_Pin);
     }
@@ -288,8 +293,8 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
 
     if((0 == get_mapTable_pos(gpio->port, &CurrentPosition)) && (IRQ_MODE == gpio->config))
     {
-        ret = hal_gpio_group(gpio->port, &GPIOx);
-        if (ret == -1) {
+        GPIOx = hal_gpio_typedef(gpio->port);
+        if (NULL == GPIOx) {
             return ret;
         }
 
@@ -419,9 +424,9 @@ int32_t hal_gpio_finalize(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = hal_gpio_group(gpio->port, &GPIOx);
-    if (ret) {
-        return ret;
+    GPIOx = hal_gpio_typedef(gpio->port);
+    if (NULL == GPIOx) {
+        return -1;
     }
 
     GPIO_Pin = hal_gpio_pin(gpio->port);

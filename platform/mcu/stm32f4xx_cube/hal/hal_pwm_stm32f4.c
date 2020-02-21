@@ -21,11 +21,6 @@
      TIM_HandleTypeDef      hal_timer_handle;
 }stm32_pwm_t;
 
-uint32_t hal_gpio_pin(uint16_t hal_pin);
-int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx);
-void hal_gpio_enable_clk(GPIO_TypeDef *GPIOx);
-
-
 static stm32_pwm_t stm32_pwm[PORT_PWM_SIZE];
 
 /* Get TIMER Instanse & attribute from Logical Port */
@@ -93,9 +88,9 @@ int32_t hal_pwm_init(pwm_dev_t *tim)
         tim->priv = psttimhandle;
 
         for (i = 0; i < pwmIns->channel_cnt; i++) {
-            ret = hal_gpio_group(pwmIns->channels[i].out1.pin, &GPIOx);
-            if (ret) {
-                return ret;
+            GPIOx = hal_gpio_typedef(pwmIns->channels[i].out1.pin);
+            if (NULL == GPIOx) {
+                return -1;
             }
             uint16_t pin = hal_gpio_pin(pwmIns->channels[i].out1.pin);
             hal_gpio_enable_clk(GPIOx);
@@ -234,7 +229,7 @@ int32_t hal_pwm_finalize(pwm_dev_t *tim)
 	if (NULL == tim) {
 		return -1;
 	}
-	
+
 	if (stm32_pwm[tim->port].inited != 1) {
 		return -1;
 	}
