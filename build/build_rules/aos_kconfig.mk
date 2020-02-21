@@ -61,6 +61,8 @@ export AOS_CONFIG_IN := $(subst ./,,$(AOS_CONFIG_IN))
 export AOS_DEFCONFIG := $(subst ./,,$(AOS_DEFCONFIG))
 export TMP_DEFCONFIG := $(subst ./,,$(TMP_DEFCONFIG))
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-win32.git
+else
+$(error Not supported OS $(HOST_OS))
 endif
 
 export SYSCONFIG_H := $(SOURCE_ROOT)/build/configs/sysconfig.h

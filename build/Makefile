@@ -2,6 +2,10 @@ default: all
 
 unexport NAME # For compatibility with Windows Subsystem Linux
 
+export HOST_OS
+EXPECTED_HOST_OS := Linux64 Win32 OSX
+$(if $(filter $(EXPECTED_HOST_OS),$(HOST_OS)),,$(error Sorry your OS($(HOST_OS)) is not supported, please use one of $(subst Win32,Windows,$(EXPECTED_HOST_OS))))
+
 export SOURCE_ROOT ?= ./
 export BUILD_DIR   ?= out
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules
@@ -279,7 +283,6 @@ endef
 #   CHECK_HEADERS=1 : builds header files to test for their completeness
 ############################
 
-export HOST_OS
 export VERBOSE
 export SUB_BUILD
 
