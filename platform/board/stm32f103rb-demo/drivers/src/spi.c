@@ -67,6 +67,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     PA7     ------> SPI1_MOSI
     PA6     ------> SPI1_MISO
     */
+    /*
     GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -79,7 +80,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     //GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);*/
 
     /* DMA */
     /* SPI1 DMA Init */
@@ -148,8 +149,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     PA7     ------> SPI1_MOSI
     PA6     ------> SPI1_MISO
     */
+    /*
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7);
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6);
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6);*/
     HAL_DMA_DeInit(spiHandle->hdmatx);
     HAL_DMA_DeInit(spiHandle->hdmarx);
     HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
