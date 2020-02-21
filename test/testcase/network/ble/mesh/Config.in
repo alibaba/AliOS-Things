@@ -3,13 +3,10 @@ config AOS_COMP_BLE_MESH_TEST
     select AOS_COMP_BT_MESH
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
+    select BLE
     help
 
 if AOS_COMP_BT_MESH
-config BLE
-    int #"BLE func switch"
-    range 0 1
-    default 1
 
 config EN_BT_SMP
     int #"BLE smp switch"
