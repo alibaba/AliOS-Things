@@ -26,6 +26,8 @@
 #include "hal_uart_stm32f1.h"
 #include "hal_i2c_stm32f1.h"
 #include "hal_spi_stm32f1.h"
+#include "hal_adc_stm32f1.h"
+
 
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -42,6 +44,16 @@ SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
     SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} }, \
 {1,HAL_GPIO_5,HAL_GPIO_22,HAL_GPIO_7,HAL_GPIO_6},
 };
+
+#ifdef HAL_ADC_MODULE_ENABLED
+gpio_adc_pin_config_t adc1_conf[] = {
+    {HAL_ADC_CHANNEL_10, HAL_GPIO_32}
+};
+
+ADC_MAPPING ADC_MAPPING_TABLE[] = {
+    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+};
+#endif /* HAL_ADC_MODULE_ENABLED */
 
 
 /**
