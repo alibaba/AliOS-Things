@@ -1,13 +1,32 @@
-menuconfig AOS_COMP_LORAWAN_STACK
+if AOS_CREATE_PROJECT
+config AOS_COMP_LORAWAN_STACK
+    bool 
+    default y 
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_LORAWAN_STACK
     bool "LoRaWAN Stack"
-    default n
+    default n 
     help
 
-if AOS_COMP_LORAWAN_STACK
+endif
+
+menu "LoRaWAN Stack Configuration"
 choice
     prompt "Enable LoRaWAN Version"
+    depends on AOS_COMP_LORAWAN_STACK
+    default LORAWAN_STACK_CONFIG_4_4_2
 
-source "components/wireless/lorawan/lorawan_4_4_0/Config.in"
-source "components/wireless/lorawan/lorawan_4_4_2/Config.in"
+config LORAWAN_STACK_CONFIG_4_4_0
+        bool "v4.4.0"
+        # Backward compatibility, to be removed soon 
+        select AOS_COMP_LORAWAN_4_4_0
+
+config LORAWAN_STACK_CONFIG_4_4_2
+        bool "v4.4.2"
+        # Backward compatibility, to be removed soon 
+        select AOS_COMP_LORAWAN_4_4_2
+
 endchoice
-endif
+endmenu
