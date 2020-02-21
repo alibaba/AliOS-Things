@@ -12,6 +12,8 @@
 #include "aos/hal/spi.h"
 #include "stm32f1xx_hal_spi.h"
 
+#define INVALID_PIN_ALTERNATE   0xffff
+
 static int32_t isSPIIRQEnable(IRQn_Type IRQn);
 typedef struct {
     aos_mutex_t spi_tx_mutex;
@@ -30,6 +32,9 @@ static stm32_spi_t stm32_spi[PORT_SPI_SIZE];
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4);
 static int32_t spi_freq_transform(SPI_TypeDef* spiIns, uint32_t freq_hal, uint32_t *BaudRatePrescaler_stm32l4);
 void spi_flush_rxregister(SPI_HandleTypeDef *SPIHandle);
+int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx);
+uint32_t hal_gpio_pin(uint16_t hal_pin);
+
 
 //Get Instanse & attribute from Logical Port
 static SPI_MAPPING* GetSPIMapping(const PORT_SPI_TYPE port)
@@ -79,6 +84,111 @@ static uint32_t getSPIIRQNumber(SPI_TypeDef* spi_ins)
     return spi_irq_number;
 }
 
+uint32_t hal_spi_pins_map(uint8_t logic_spi)
+{
+    SPI_HandleTypeDef* spi_handle=NULL;
+    GPIO_TypeDef  *GPIOx;
+    uint32_t Pin;
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    SPI_MAPPING* spiIns = GetSPIMapping(logic_spi);
+    if(spiIns==NULL)
+    {
+        return -1;
+    }
+
+    if(spiIns->pinsmap.needmap == 0){
+        return -1;
+    }
+
+    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
+    (void)spi_handle;
+
+    /*CLK*/
+    hal_gpio_group(spiIns->pinsmap.clk_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.clk_pin);
+    GPIO_InitStruct.Pin = Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    //GPIO_InitStruct.Alternate = alternate;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+    /*CS*/
+    hal_gpio_group(spiIns->pinsmap.cs_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.cs_pin);
+    GPIO_InitStruct.Pin = Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    //GPIO_InitStruct.Alternate = alternate;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+    /*MOSI*/
+    hal_gpio_group(spiIns->pinsmap.mosi_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.mosi_pin);
+    GPIO_InitStruct.Pin = Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    //GPIO_InitStruct.Alternate = alternate;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+    /*MISO*/
+    hal_gpio_group(spiIns->pinsmap.miso_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.miso_pin);
+    GPIO_InitStruct.Pin = Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    //GPIO_InitStruct.Alternate = alternate;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+}
+
+uint32_t hal_spi_pins_unmap(uint8_t logic_spi)
+{
+    SPI_HandleTypeDef* spi_handle=NULL;
+    GPIO_TypeDef  *GPIOx;
+    uint32_t Pin;
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    SPI_MAPPING* spiIns = GetSPIMapping(logic_spi);
+    if(spiIns==NULL)
+    {
+        return -1;
+    }
+
+    if(spiIns->pinsmap.needmap == 0){
+        return -1;
+    }
+
+    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
+    (void)spi_handle;
+
+    /*CLK*/
+    hal_gpio_group(spiIns->pinsmap.clk_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.clk_pin);
+    HAL_GPIO_DeInit(GPIOx, Pin);
+
+    /*CS*/
+    hal_gpio_group(spiIns->pinsmap.cs_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.cs_pin);
+    HAL_GPIO_DeInit(GPIOx, Pin);
+
+    /*MOSI*/
+    hal_gpio_group(spiIns->pinsmap.mosi_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.mosi_pin);
+    HAL_GPIO_DeInit(GPIOx, Pin);
+
+    /*MISO*/
+    hal_gpio_group(spiIns->pinsmap.miso_pin,&GPIOx);
+    Pin = hal_gpio_pin(spiIns->pinsmap.miso_pin);
+    HAL_GPIO_DeInit(GPIOx, Pin);
+
+}
+
+
 int32_t hal_spi_init(spi_dev_t *spi)
 {
     int32_t ret = -1;
@@ -109,6 +219,9 @@ int32_t hal_spi_init(spi_dev_t *spi)
     spi_handle->Init.CRCCalculation=spiIns->attr.CRCCalculation;
     spi_handle->Init.CRCPolynomial = spiIns->attr.CRCPolynomial;
     spi_handle->Init.TIMode = spiIns->attr.TIMode;
+
+    /*releated pins map*/
+    hal_spi_pins_map(spi->port);
 
     if(HAL_SPI_Init(spi_handle)!=HAL_OK){
         ret=-1;
@@ -337,6 +450,8 @@ int32_t hal_spi_finalize(spi_dev_t *spi)
     if (spi == NULL) {
         return -1;
     }
+
+    hal_spi_pins_unmap(spi->port);
 
     ret=HAL_SPI_DeInit(&stm32_spi[spi->port].hal_spi_handle);
 
