@@ -4,15 +4,11 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := BLE Mesh stack.
 
-$(NAME)_COMPONENTS :=
 $(NAME)_INCLUDES := ./include/
 GLOBAL_INCLUDES += ../../../../include/wireless/bluetooth/blemesh
 
-ifeq ($(bt_mesh_standalone_deploy),y)
-$(NAME)_COMPONENTS += mesh_util
-else
-$(NAME)_COMPONENTS += bt_common
-endif
+$(NAME)_COMPONENTS-$(bt_mesh_standalone_deploy) += mesh_util
+$(NAME)_COMPONENTS-$(!bt_mesh_standalone_deploy) += bt_common
 
 $(NAME)_COMPONENTS += mesh_hal_ref_impl
 
