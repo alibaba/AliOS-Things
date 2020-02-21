@@ -5,7 +5,6 @@
 
 #include "stm32f4xx_hal.h"
 #include "hal_gpio_stm32f4.h"
-#include "hal_adc_stm32f4.h"
 #include "hal_dac_stm32f4.h"
 
 #ifdef BOOTLOADER
@@ -204,13 +203,11 @@ typedef enum{
 
 #endif /* AOS_HAL_PWM_ENABLED > 0 */
 
-
 #if (AOS_HAL_ADC_ENABLED > 0)
-#define HALAPP_ADC HAL_ADC_1
+#define HALAPP_ADC PORT_ADC_1
 #endif /* AOS_HAL_ADC_ENABLED */
 
 #if (AOS_HAL_DAC_ENABLED > 0)
-
 #define HAL_DAC_CHAN1_Pin GPIO_Pin_4
 #define HAL_DAC_CHAN2_Pin GPIO_Pin_5
 
