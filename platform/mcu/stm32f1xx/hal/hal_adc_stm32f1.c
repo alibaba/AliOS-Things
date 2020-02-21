@@ -2,132 +2,245 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "stm32f4xx_hal.h"
-#include "hal_adc_stm32f4.h"
-#include "stm32f4xx_hal_adc.h"
-#include "hal/soc/soc.h"
+#include "stm32f1xx_hal.h"
 
 #ifdef HAL_ADC_MODULE_ENABLED
 
-/* Init and deInit function for adc1 */
-static int32_t adc1_init(adc_dev_t *uart);
-static int32_t adc1_DeInit(void);
+#include <stdio.h>
+#include <stdlib.h>
+#include <k_api.h>
+#include "board.h"
+#include "aos/errno.h"
+#include "aos/hal/adc.h"
+#include "stm32f1xx_hal.h"
+#include "stm32f1xx_hal_adc.h"
+#include "hal_adc_stm32f1.h"
+#include "hal_gpio_stm32f1.h"
 
-/* function used to transform hal para to stm32l4 para */
-int32_t get_adc_Instance(adc_dev_t *adc, ADC_TypeDef **ADCx);
-uint16_t get_adc_channel(uint8_t port);
+typedef struct {
+    ADC_HandleTypeDef hadc;
+    uint8_t           inited;
+} stm32_adc_dev_t;
 
-/* handle for adc */
-ADC_HandleTypeDef adc1_handle;
-ADC_ChannelConfTypeDef adc1_sConfig;
+static stm32_adc_dev_t stm32_adc_dev[PORT_ADC_SIZE];
+
+static const uint32_t adc_channel_map[HAL_ADC_CHANNEL_CNT] = {
+    ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3,
+    ADC_CHANNEL_4, ADC_CHANNEL_5, ADC_CHANNEL_6, ADC_CHANNEL_7,
+    ADC_CHANNEL_8, ADC_CHANNEL_9, ADC_CHANNEL_10, ADC_CHANNEL_11,
+    ADC_CHANNEL_12, ADC_CHANNEL_13, ADC_CHANNEL_14, ADC_CHANNEL_15,
+    ADC_CHANNEL_16, ADC_CHANNEL_17
+};
+
+static int config_gpio(uint8_t pin)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_TypeDef    *GPIOx;
+
+    /* Only adc channle 0 ~ channel 16 are gpio mapped */
+    GPIOx = hal_gpio_typedef(pin);
+    if (NULL == GPIOx) {
+       return -1;
+    }
+
+    hal_gpio_enable_clk(pin);
+
+    memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
+
+    GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+    return 0;
+}
+
+static ADC_MAPPING *get_mapping_entry(uint8_t port)
+{
+    int i;
+
+    for (i = 0; i < PORT_ADC_SIZE; i++) {
+        if (port == ADC_MAPPING_TABLE[i].port) {
+            return &ADC_MAPPING_TABLE[i];
+        }
+    }
+
+    return NULL;
+}
 
 int32_t hal_adc_init(adc_dev_t *adc)
 {
+    ADC_HandleTypeDef       *hadc;
+    ADC_ChannelConfTypeDef   sconf;
+    stm32_adc_dev_t         *pdev;
+    ADC_MAPPING             *map_entry;
+    gpio_adc_pin_config_t   *channel_conf;
+    int                      channel, pin;
+    int                      i, entry_cnt;
+
     int32_t ret = -1;
 
     if (adc == NULL) {
-        return -1;
+        return -EINVAL;
     }
 
-    /*init adc handle*/
-    memset(&adc1_handle, 0, sizeof(adc1_handle));
-    memset(&adc1_sConfig, 0, sizeof(adc1_sConfig));
-
-    switch (adc->port) {
-        case PORT_ADC1:
-            adc->priv = &adc1_handle;
-            ret = adc1_init(adc);
-            break;
-
-    /* if ohter adc exist add init code here */
-
-        default:
-            break;
+    if (adc->port >= PORT_ADC_SIZE) {
+        return -ENODEV;
     }
 
-    return ret;
+    pdev = &stm32_adc_dev[adc->port];
+    if (pdev->inited != 0) {
+        return -EIO;
+    }
+
+    hadc = &pdev->hadc;
+    memset(hadc, 0, sizeof(ADC_HandleTypeDef));
+
+    map_entry = get_mapping_entry(adc->port);
+    entry_cnt = map_entry->channel_cnt;
+    channel_conf = map_entry->channel_conf;
+
+    switch(map_entry->hal_adc) {
+        case HAL_ADC_1: hadc->Instance = ADC1; break;
+        case HAL_ADC_2: hadc->Instance = ADC2; break;
+        default: return -EIO;
+    }
+
+    // TODO: support more than one channel, to this end, DMA must
+    //       be configured to transfer the converted data.
+    //       To be simple, here we just support one channel at once.
+    hadc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc->Init.ScanConvMode = DISABLE;
+    hadc->Init.NbrOfConversion = 1;
+    hadc->Init.ContinuousConvMode = DISABLE;
+    hadc->Init.DiscontinuousConvMode = DISABLE;
+    hadc->Init.NbrOfDiscConversion = 0;
+    hadc->Init.ExternalTrigConv = ADC_SOFTWARE_START;
+
+    if (HAL_OK != HAL_ADC_Init(hadc)) {
+        return -EIO;
+    }
+
+    for (i = 0; i < entry_cnt; i++, channel_conf++) {
+        if ((channel_conf->channel < HAL_ADC_CHANNEL_16) && (channel_conf->pin < HAL_GPIO_CNT)) {
+            config_gpio(channel_conf->pin);
+        } else {
+            return -EIO;
+        }
+    }
+
+    pdev->inited = 1;
+
+    printf("hal_init_done\r\n");
+
+    return 0;
 }
 
 int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
 {
-    int32_t ret = -1;
-    uint16_t *value = (uint16_t *)output;
+    ADC_HandleTypeDef       *hadc;
+    ADC_ChannelConfTypeDef   sconf;
+    stm32_adc_dev_t         *pdev;
+    ADC_MAPPING             *map_entry;
+    gpio_adc_pin_config_t   *channel_conf;
+    int                      i, entry_cnt;
 
-    ret = HAL_ADC_PollForConversion((ADC_HandleTypeDef*)adc->priv, timeout);
-    if (ret == 0) {
-        *value = HAL_ADC_GetValue((ADC_HandleTypeDef*)adc->priv);
+    uint32_t *value = (uint32_t*)output;
+
+    if (adc == NULL || value == NULL) {
+        return -EINVAL;
     }
 
-    return ret;
+    if (adc->port >= PORT_ADC_SIZE) {
+        return -ENODEV;
+    }
+
+    pdev = &stm32_adc_dev[adc->port];
+
+    if (pdev->inited != 1) {
+        return -EIO;
+    }
+
+    hadc = &pdev->hadc;
+
+    map_entry = get_mapping_entry(adc->port);
+    entry_cnt = map_entry->channel_cnt;
+    channel_conf = map_entry->channel_conf;
+
+    for (i = 0; i < entry_cnt; i++, channel_conf++) {
+        if (channel_conf->channel < HAL_ADC_CHANNEL_16) {
+            memset(&sconf, 0, sizeof(ADC_ChannelConfTypeDef));
+            sconf.Channel = adc_channel_map[channel_conf->channel];
+            sconf.Rank = 1;
+            sconf.SamplingTime = ADC_SAMPLETIME_28CYCLES_5;
+            if (HAL_OK != HAL_ADC_ConfigChannel(hadc, &sconf)) {
+                return -EIO;
+            }
+
+            HAL_ADC_Start(hadc);
+
+            if (HAL_OK != HAL_ADC_PollForConversion(hadc, timeout)) {
+                return -EIO;
+            }
+
+            *value++ = HAL_ADC_GetValue(hadc);
+
+        } else {
+            return -EIO;
+        }
+    }
+
+    return 0;
 }
 
 int32_t hal_adc_finalize(adc_dev_t *adc)
 {
-    int32_t ret = -1;
+    GPIO_TypeDef          *GPIOx;
+    ADC_HandleTypeDef     *hadc;
+    stm32_adc_dev_t       *pdev;
+    ADC_MAPPING           *map_entry;
+    gpio_adc_pin_config_t *channel_conf;
+    int                   channel, pin;
+    int                   i, entry_cnt;
 
     if (adc == NULL) {
-        return -1;
+        return -EINVAL;
     }
 
-    switch (adc->port) {
-        case PORT_ADC1:
-            ret = adc1_DeInit();
-            break;
-    /* if other adc exist add Deinit code here */
-
-        default:
-            break;
+    if (adc->port >= HAL_ADC_CNT) {
+        return -ENODEV;
     }
 
-    return ret;
-}
+    pdev = &stm32_adc_dev[adc->port];
 
-int32_t adc1_init(adc_dev_t *adc)
-{
-    ADC_TypeDef *adc_instance = NULL;
-    int32_t ret = 0;
-
-    ret = get_adc_Instance(adc, &adc_instance);
-    adc1_handle.Instance = adc_instance;
-
-    /* Initialize other parameters in struction ADC_InitTypeDef */
-
-    ret = HAL_ADC_Init(&adc1_handle);
-    if (ret != 0) {
-        return -1;
+    if (pdev->inited != 1) {
+        return -EIO;
     }
 
-    adc1_sConfig.Channel = get_adc_channel(adc->port);
-    /* Initialize other parameters in struction ADC_ChannelConfTypeDef */
+    /* deinit gpio */
+    map_entry = get_mapping_entry(adc->port);
+    entry_cnt = map_entry->channel_cnt;
+    channel_conf = map_entry->channel_conf;
 
-    ret = HAL_ADC_ConfigChannel(&adc1_handle, &adc1_sConfig);
+    for (i = 0; i < entry_cnt; i++, channel_conf++) {
+        if ((channel_conf->channel <= HAL_ADC_CHANNEL_16) && (channel_conf->pin < HAL_GPIO_CNT)) {
+            GPIOx = hal_gpio_typedef(channel_conf->pin);
+            if (NULL == GPIOx) {
+               return -EIO;
+            }
 
-    return ret;
-}
+            HAL_GPIO_DeInit(GPIOx, hal_gpio_pin(channel_conf->pin));
+        }
+    }
 
-int32_t adc1_DeInit(void)
-{
-    int32_t ret = -1;
+    hadc = &pdev->hadc;
+    if (HAL_OK != HAL_ADC_DeInit(hadc)) {
+        return -EIO;
+    }
+    pdev->inited = 0;
 
-    /* adc1 deinitialization */
-    ret = HAL_ADC_DeInit(&adc1_handle);
-
-    return ret;
-}
-
-int32_t get_adc_Instance(adc_dev_t *adc, ADC_TypeDef **ADCx)
-{
-    /* Get adc instance according to adc->port */
     return 0;
 }
 
-uint16_t get_adc_channel(uint8_t port)
-{
-    /* Get adc channel according to adc->port */
-    return 0;
-}
-#endif
+#endif /* HAL_ADC_MODULE_ENABLED */
 
