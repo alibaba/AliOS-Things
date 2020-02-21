@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu lpc54102impl
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr sal
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr sal osal_aos
 
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
