@@ -15,7 +15,7 @@ ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
 $(NAME)_LIBSUFFIX := _2ndboot
 GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/board/board_legacy/mk3080/ld/rlx8711B-symbol-v02-img2-2ndboot.ld
 else
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/board/board_legacy/mk3080/ld/rlx8711B-symbol-v02-img2_xip1.ld
 $(NAME)_SOURCES := startup/board.c
 $(NAME)_SOURCES += config/k_config.c \

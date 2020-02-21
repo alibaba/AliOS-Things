@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := FM33A0XX
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init network
 
 $(NAME)_SOURCES += config/k_config.c \
 				   config/partition_conf.c \
