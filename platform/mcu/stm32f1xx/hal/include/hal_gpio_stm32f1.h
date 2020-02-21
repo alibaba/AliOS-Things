@@ -10,6 +10,9 @@
 #endif
 
 #include "stm32f1xx_hal.h"
+
+#ifdef HAL_GPIO_MODULE_ENABLED
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -145,6 +148,8 @@
 #define HAL_GPIO_109               ((uint8_t)109)       /* represent GPIOG pin 13 */
 #define HAL_GPIO_110               ((uint8_t)110)       /* represent GPIOG pin 14 */
 #define HAL_GPIO_111               ((uint8_t)111)       /* represent GPIOG pin 15 */
+#define HAL_GPIO_CNT               ((uint8_t)112)
+
 
 //LED
 #define LED_0  HAL_GPIO_21 //GPIOB-PIN5
@@ -161,6 +166,12 @@
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 
 extern int32_t brd_gpio_init(void);
+
+extern GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin);
+extern uint32_t hal_gpio_pin(uint16_t hal_pin);
+extern void hal_gpio_enable_clk(uint16_t hal_pin);
+
+#endif /* #ifdef HAL_GPIO_MODULE_ENABLED */
 
 #ifdef __cplusplus
 }
