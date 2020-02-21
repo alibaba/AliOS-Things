@@ -10,6 +10,9 @@
 #endif
 
 #include "stm32f4xx_hal.h"
+
+#ifdef HAL_GPIO_MODULE_ENABLED
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -203,12 +206,20 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 #define HAL_GPIO_142               ((uint8_t)142)       /* represent GPIOI pin 14 */
 #define HAL_GPIO_143               ((uint8_t)143)       /* represent GPIOI pin 15 */
 
+#define HAL_GPIO_CNT               ((uint8_t)144)
+
 #define ON_BOARD_LED01 HAL_GPIO_16
 #define ON_BOARD_LED02 HAL_GPIO_23
 #define ON_BOARD_LED03 HAL_GPIO_30
 #define ON_BOARD_TIM4_CH4   HAL_GPIO_63
 
 #define GPIOA_SPEED    GPIO_SPEED_FREQ_VERY_HIGH
+
+GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin);
+uint32_t hal_gpio_pin(uint8_t hal_pin);
+void hal_gpio_enable_clk(uint8_t hal_pin);
+
+#endif /* HAL_GPIO_MODULE_ENABLED */
 
 #ifdef __cplusplus
 }
