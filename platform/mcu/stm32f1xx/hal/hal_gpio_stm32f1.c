@@ -26,8 +26,8 @@ static gpio_irq_slop_t gGpioSlop[GPIO_IRQ_SLOP_MAX]= {
     {.pin_num=-1},{.pin_num=-1},{.pin_num=-1},{.pin_num=-1},
 };
 static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
-static int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
-static uint32_t get_gpio_pin(uint8_t pin);
+int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
+uint32_t hal_gpio_pin(uint8_t pin);
 int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 
 
@@ -126,7 +126,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = get_gpio_group(gpio, &GPIOx);
+    ret = hal_gpio_group(gpio, &GPIOx);
     if (ret){
         return ret;
     }
@@ -172,7 +172,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         return ret;
     }
 
-    GPIO_InitStruct.Pin = get_gpio_pin(gpio->port);
+    GPIO_InitStruct.Pin = hal_gpio_pin(gpio->port);
     HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
     ret |= gpio_has_priv(gpio, &GPIO_InitStruct);
 
@@ -189,9 +189,9 @@ int32_t hal_gpio_output_high(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = get_gpio_group(gpio, &GPIOx);
+    ret = hal_gpio_group(gpio, &GPIOx);
     if (ret == 0) {
-        pin = get_gpio_pin(gpio->port);
+        pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_SET);
     };
 
@@ -208,9 +208,9 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = get_gpio_group(gpio, &GPIOx);
+    ret = hal_gpio_group(gpio, &GPIOx);
     if (ret == 0) {
-        pin = get_gpio_pin(gpio->port);
+        pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_RESET);
     };
 
@@ -227,9 +227,9 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
         return -1;
     }
 
-    ret = get_gpio_group(gpio, &GPIOx);
+    ret = hal_gpio_group(gpio, &GPIOx);
     if (ret == 0) {
-        pin = get_gpio_pin(gpio->port);
+        pin = hal_gpio_pin(gpio->port);
         HAL_GPIO_TogglePin(GPIOx, pin);
     };
 
@@ -246,9 +246,9 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
         return -1;
     }
 
-    ret = get_gpio_group(gpio, &GPIOx);
+    ret = hal_gpio_group(gpio, &GPIOx);
     if (ret == 0) {
-        pin = get_gpio_pin(gpio->port);
+        pin = hal_gpio_pin(gpio->port);
         *value = HAL_GPIO_ReadPin(GPIOx, pin);
     };
 
@@ -262,7 +262,7 @@ int32_t gpio_get_int_num(IRQn_Type *pirqn, uint8_t port)
     if (pirqn == NULL)
         return -1;
 
-    gpio_pin = get_gpio_pin(port);
+    gpio_pin = hal_gpio_pin(port);
     switch (gpio_pin) {
     case GPIO_PIN_0:
         *pirqn = EXTI0_IRQn;
@@ -403,7 +403,7 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
     return ret;
 }
 
-int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
+int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
 {
     uint16_t group = 0;
     int32_t ret = 0;
@@ -457,7 +457,7 @@ int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
     return ret;
 }
 
-uint32_t get_gpio_pin(uint8_t pin)
+uint32_t hal_gpio_pin(uint8_t pin)
 {
     uint32_t result = 1;
     uint8_t pin_t = pin % PINS_IN_GROUP;
@@ -503,7 +503,7 @@ int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,gpio_ir
         return (-1);
     }
     slop->pin_num = gpio->port;
-    slop->irq_num = get_gpio_pin(gpio->port);
+    slop->irq_num = hal_gpio_pin(gpio->port);
     slop->handler = handler;
     slop->priv = arg;
     return (0);
@@ -517,7 +517,7 @@ int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
     int32_t ret = -1;
 
     if (IRQ_MODE != gpio->config) {
-	return (-1);
+        return (-1);
     }
 
    IRQn_Type pirqn = 0;
