@@ -16,7 +16,7 @@ ifeq ($(CONFIG_COMP_BZ_OTA), y)
 ifneq ($(EN_AUTH), y)
 $(error OTA need authentication, please set "CONFIG_COMP_BZ_EN_AUTH = y")
 endif
-$(NAME)_COMPONENTS += ota
+$(NAME)_COMPONENTS-$(CONFIG_COMP_BZ_OTA) += ota
 endif
 
 $(NAME)_INCLUDES += ../
