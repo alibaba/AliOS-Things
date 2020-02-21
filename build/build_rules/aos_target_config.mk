@@ -90,13 +90,12 @@ endef
 # Macro FIND_ONE_COMPONENT search component with name
 # $(1) is the name of component
 define FIND_ONE_COMPONENT
-
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
 
-$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk)))))
+$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR) $(OUTPUT_DIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk)))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
     $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains aos.mk) \
@@ -144,9 +143,8 @@ define PROCESS_ONE_COMPONENT
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/aos.mk)))))
+$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR) $(OUTPUT_DIR),) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/aos.mk)))))
 $(eval TEMP_MAKEFILE := $(if $(filter %aos.mk,$(TEMP_MAKEFILE)),$(filter %aos.mk,$(TEMP_MAKEFILE)),$(TEMP_MAKEFILE)))
-
 # Clear all the temporary variables
 $(eval GLOBAL_INCLUDES:=)
 $(eval GLOBAL_LINK_SCRIPT:=)
