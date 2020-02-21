@@ -45,11 +45,19 @@ typedef struct{
                             //This parameter must be a number between Min_Data = 0 and Max_Data = 65535
 }spiAttribute;
 
+typedef struct{
+    uint16_t needmap;
+    uint16_t clk_pin;
+    uint16_t cs_pin;
+    uint16_t mosi_pin;
+    uint16_t miso_pin;
+}spi_pins_map_t;
 
 typedef struct{
     PORT_SPI_TYPE  spiFuncP;
     void*          spiPhyP;
     spiAttribute  attr;
+    spi_pins_map_t pinsmap;
 }SPI_MAPPING;
 
 extern SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE];
