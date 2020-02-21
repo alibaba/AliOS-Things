@@ -1,6 +1,16 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_LORAWAN_4_4_0
-    bool "v4.4.0"
-    default y
+    bool 
+    default y 
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_LORAWAN_4_4_0
+    bool "LoRaWAN Stack v4.4.0"
+    default n 
+    help
+
+endif
 
 if AOS_COMP_LORAWAN_4_4_0
 # Configurations for comp lorawan
