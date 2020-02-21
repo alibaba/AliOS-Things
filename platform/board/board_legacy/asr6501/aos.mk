@@ -10,7 +10,7 @@ HOST_ARCH          := Cortex-M0
 HOST_MCU_FAMILY    := mcu_cy8c4147
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lorawan_stack osal_aos
 
 $(NAME)_SOURCES := board.c \
 	               src/asr_board.c \
