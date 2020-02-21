@@ -78,7 +78,7 @@ TIMER_MAPPING TIMER_MAPPING_TABLE[] =
     {PORT_TIMER_5, TIM5},
 };
 
-#if (AOS_HAL_PWM_ENABLED>0)
+#ifdef HAL_TIM_MODULE_ENABLED
 struct stm32_pwmchan_s pwm3chan[] = {
     {
         .channel = TIM_CHANNEL_3,
@@ -95,13 +95,17 @@ PWM_MAPPING PWM_MAPPING_TABLE[] =
 {
     {PORT_PWM_3, TIM3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
 };
-#endif
+#endif /* HAL_PWM_MODULE_ENABLED */
 
-#if (AOS_HAL_DAC_ENABLED>0)
-ADC_MAPPINT ADC_MAPPINT_TABLE[PORT_ADC_SIZE] = {
-    [PORT_ADC_1] = {HAL_ADC_1, HAL_GPIO_32, HAL_ADC_CHANNEL_10},
+#ifdef HAL_ADC_MODULE_ENABLED
+gpio_adc_pin_config_t adc1_conf[] = {
+    {HAL_ADC_CHANNEL_10, HAL_GPIO_32}
 };
-#endif
+
+ADC_MAPPING ADC_MAPPING_TABLE[] = {
+    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+};
+#endif /* HAL_ADC_MODULE_ENABLED */
 
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
