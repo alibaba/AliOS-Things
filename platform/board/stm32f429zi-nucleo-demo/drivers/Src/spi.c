@@ -70,6 +70,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     PA7     ------> SPI1_MOSI
     PA6     ------> SPI1_MISO
     */
+    /*
     GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -82,7 +83,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);*/
 
     /* DMA */
     /* SPI1 DMA Init */
@@ -145,6 +146,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     PB5     ------> SPI1_MOSI
     PB4     ------> SPI1_MISO
     */
+    /*
     GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -157,7 +159,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI3;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);*/
 
     /* DMA */
     /* SPI3 DMA Init */
@@ -223,8 +225,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     PA7     ------> SPI1_MOSI
     PA6     ------> SPI1_MISO
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7);
-    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_14);
+    //HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7);
+    //HAL_GPIO_DeInit(GPIOD, GPIO_PIN_14);
     HAL_DMA_DeInit(spiHandle->hdmatx);
     HAL_DMA_DeInit(spiHandle->hdmarx);
     HAL_NVIC_DisableIRQ(DMA1_Stream1_IRQn);
@@ -238,8 +240,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
   {
     __HAL_RCC_SPI2_CLK_DISABLE();
 
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5);
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
+    //HAL_GPIO_DeInit(GPIOB, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5);
+    //HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
     HAL_DMA_DeInit(spiHandle->hdmatx);
     HAL_DMA_DeInit(spiHandle->hdmarx);
     HAL_NVIC_DisableIRQ(DMA1_Stream3_IRQn);
