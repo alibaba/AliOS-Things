@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := bleperipheral
 
 $(NAME)_SOURCES     := bleperipheral_app.c
 
-BLE = 1
 EN_BT_SMP = 1
 
 $(NAME)_COMPONENTS  += bt_host cli bt_profile

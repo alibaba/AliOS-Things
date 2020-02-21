@@ -52,7 +52,6 @@ $(NAME)_SOURCES += combo/combo_net.c
 $(NAME)_INCLUDES += combo
 bz_en_auth := 1
 bz_en_awss := 1
-BLE := 1
 endif
 
 

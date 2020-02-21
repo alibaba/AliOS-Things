@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := Sample code to demenstrate how to join AliGenie BLE Mesh netw
 
 $(NAME)_SOURCES-y   := ble_mesh_tmall_app.c
 
-BLE = 1
 EN_BT_SMP = 1
 bt_mesh = 1
 
