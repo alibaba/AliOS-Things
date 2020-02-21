@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu efm32gxx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += rhino
+$(NAME)_COMPONENTS += rhino osal_aos
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized

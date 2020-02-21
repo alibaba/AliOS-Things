@@ -10,7 +10,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu imx6
 
 $(NAME)_COMPONENTS += arch_armv7a
-$(NAME)_COMPONENTS += newlib_stub rhino
+$(NAME)_COMPONENTS += newlib_stub rhino osal_aos
 
 GLOBAL_INCLUDES += ./aos                                      \
                    ./imx6_platform_sdk/sdk                    \

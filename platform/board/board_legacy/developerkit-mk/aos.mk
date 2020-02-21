@@ -15,6 +15,7 @@ ENABLE_USPACE        := 1
 APP_FORMAT           := bin
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init cli
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 $(NAME)_SOURCES += aos/board.c
 $(NAME)_SOURCES += aos/flash_partitions.c
