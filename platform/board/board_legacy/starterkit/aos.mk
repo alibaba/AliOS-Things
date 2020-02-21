@@ -11,6 +11,7 @@ ENABLE_VFP         := 1
 HOST_MCU_NAME      := STM32L433CCTx
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 $(NAME)_SOURCES += aos/board.c     \
                    aos/board_cli.c \

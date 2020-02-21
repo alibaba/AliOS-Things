@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu lpc54114impl
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += rhino newlib_stub
+$(NAME)_COMPONENTS += rhino newlib_stub osal_aos
 
 GLOBAL_CFLAGS  += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS  += -DCPU_LPC54114J256BD64_cm4

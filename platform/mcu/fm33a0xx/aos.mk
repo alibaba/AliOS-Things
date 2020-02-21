@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu fm33a0xx
 
-$(NAME)_COMPONENTS += arch_armv6m rhino
+$(NAME)_COMPONENTS += arch_armv6m rhino osal_aos
 
 GLOBAL_DEFINES += __DEBUG
 

@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu m487jidae
 
-$(NAME)_COMPONENTS += arch_armv7m rhino
+$(NAME)_COMPONENTS += arch_armv7m rhino osal_aos
 
 GLOBAL_INCLUDES += drivers/lwIP/include/netif \
                    drivers/lwIP/include \

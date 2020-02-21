@@ -12,6 +12,7 @@ SUPPORT_MBINS        := no
 HOST_MCU_NAME        := ATSAME54P20A
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 $(NAME)_SOURCES += board.c
 
