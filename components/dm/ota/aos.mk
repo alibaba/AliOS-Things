@@ -4,6 +4,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := An over-the-air update is the wireless delivery of new software. 
 
+$(NAME)_COMPONENTS-$(!OTA_CONFIG_BLE) += http
+
 #default gcc
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
