@@ -48,6 +48,12 @@ config LINKKITAPP_CONFIG_PRINT_HEAP
     help
     displays heap space periodically for debug
 
+config BLE
+    bool "BLE Enable"
+    depends on AWSS_SUPPORT_BLE_PROVISION
+    default y
+    help
+
 config SYSINFO_APP_VERSION
     string "Firmware Version"
     default "app-1.0.0-20200214.140831"
