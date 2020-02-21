@@ -7,7 +7,6 @@ $(NAME)_SOURCES := ble_breeze_app.c
 
 $(NAME)_COMPONENTS := breeze cli
 
-BLE = 1
 
 GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += BUILD_AOS
