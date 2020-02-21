@@ -76,13 +76,14 @@ $(NAME)_SOURCES += drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c \
                    drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_usb.c \
                    drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.c
 
-$(NAME)_SOURCES += hal/hal_uart_stm32f1.c \
-                   hal/hw.c \
+$(NAME)_SOURCES += hal/hal_uart_stm32f1.c  \
+                   hal/hw.c                \
+                   hal/hal_gpio_stm32f1.c  \
+                   hal/hal_i2c_stm32f1.c   \
+                   hal/hal_spi_stm32f1.c   \
+                   hal/hal_dac_stm32f1.c   \
+                   hal/hal_adc_stm32f1.c   \
                    hal/hal_flash_stm32f1.c \
-                   hal/hal_i2c_stm32f1.c \
-                   hal/hal_spi_stm32f1.c \
-                   hal/hal_dac_stm32f1.c \
-                   hal/hal_gpio_stm32f1.c \
                    hal/hal_wdg_stm32f1.c
 
 ifeq ($(COMPILER),armcc)

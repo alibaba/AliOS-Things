@@ -99,6 +99,14 @@ typedef enum{
     PORT_SPI_INVALID =255,
 }PORT_SPI_TYPE;
 
+typedef enum {
+    PORT_ADC_1,
+    PORT_ADC_2,
+    PORT_ADC_SIZE,
+    PORT_ADC_INVALID =255,
+} PORT_ADC_TYPE;
+
+
 /*
     hal support list
 */
@@ -111,7 +119,7 @@ typedef enum{
 #define AOS_HAL_TIMER_ENABLED       0
 #define AOS_HAL_WDG_ENABLED         1
 #define AOS_HAL_RTC_ENABLED         0
-#define AOS_HAL_ADC_ENABLED         0
+#define AOS_HAL_ADC_ENABLED         1
 #define AOS_HAL_DAC_ENABLED         0
 #define AOS_HAL_RNG_ENABLED         0
 #define AOS_HAL_I2S_ENABLED         0
@@ -196,6 +204,11 @@ void Error_Handler(void);
 #define HALAPP_TIMER_TEST     PORT_TIMER_4
 #endif
 #endif /* AOS_HAL_TIMER_ENABLED > 0 */
+
+#if (AOS_HAL_ADC_ENABLED > 0)
+#define HALAPP_ADC PORT_ADC_1
+#endif /* AOS_HAL_ADC_ENABLED */
+
 
 #ifdef __cplusplus
 }
