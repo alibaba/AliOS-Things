@@ -9,7 +9,7 @@ HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_nrf52xxx
 HOST_MCU_NAME      := nrf52832
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 GLOBAL_INCLUDES += .
 

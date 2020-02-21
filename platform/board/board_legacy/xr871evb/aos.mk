@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := xr871
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr cli yloop fatfs
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr network cli yloop fatfs
 
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_FATFS_SUPPORT_MMC

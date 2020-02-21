@@ -14,7 +14,7 @@ ENABLE_VFP           := 1
 ENABLE_USPACE        := 1
 APP_FORMAT           := bin
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init cli
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network cli
 $(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 $(NAME)_SOURCES += aos/board.c
