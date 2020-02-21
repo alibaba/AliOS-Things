@@ -13,8 +13,8 @@ $(NAME)_SOURCES += ./mesh_hal_os.c
 $(NAME)_INCLUDES += .
 endif
 
+$(NAME)_COMPONENTS-$(!bt_mesh_standalone_deploy) += bt_host
 ifneq ($(bt_mesh_standalone_deploy),y)
-$(NAME)_COMPONENTS += bt_host
 $(NAME)_INCLUDES += ../bt_host/host/ \
                     ../bt_host/include/
 endif
