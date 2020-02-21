@@ -1,4 +1,17 @@
-menuconfig AOS_COMP_MBEDTLS
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_MBEDTLS
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_MBEDTLS
     bool "Mbed TLS 2.16.0"
     default n
     help
@@ -6,9 +19,12 @@ menuconfig AOS_COMP_MBEDTLS
         (AES, RSA, MD5/SHA1/SHA256/SHA512 etc.), X.509 certificate and
         TLS/DTLS protocol support. For details, please refer to
         https://tls.mbed.org/.
+endif
 
-if AOS_COMP_MBEDTLS
+###################################################################
 # Configurations for component mbedtls
+menu "Mbedtls Configuration"
+depends on AOS_COMP_MBEDTLS
 
 config MBEDTLS_CONFIG_USER_CONFIG
     bool "mbedtls user extra configuration"
@@ -283,4 +299,4 @@ config MBEDTLS_CONFIG_ERROR
     help
         Enable error code to error string conversion.
 
-endif # AOS_COMP_MBEDTLS
+endmenu
