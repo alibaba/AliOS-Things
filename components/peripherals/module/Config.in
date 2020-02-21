@@ -25,8 +25,3 @@ config AOS_MAL_DEVICE
 
 endchoice
 
-# Backward compatibility
-if !AOS_CREATE_PROJECT
-source "components/peripherals/module/mal/Config.in"
-source "components/peripherals/module/sal/Config.in"
-endif
