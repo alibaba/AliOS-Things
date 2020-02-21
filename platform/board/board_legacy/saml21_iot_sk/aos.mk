@@ -11,6 +11,7 @@ HOST_MCU_NAME      := saml21b
 ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 GLOBAL_DEFINES += __SAML21J18B__ MX_DEBUG
 

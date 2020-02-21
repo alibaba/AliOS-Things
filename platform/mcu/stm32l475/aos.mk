@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l475
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr osal_aos
 
 GLOBAL_INCLUDES += src/common/csp/lwip/include             \
                    src/common/csp/wifi/inc                 \

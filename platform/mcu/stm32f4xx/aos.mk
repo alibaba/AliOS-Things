@@ -11,7 +11,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr osal_aos
 
 # Global defines
 GLOBAL_DEFINES  := USE_STDPERIPH_DRIVER \

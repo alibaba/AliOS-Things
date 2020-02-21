@@ -10,7 +10,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l0xx
 
 $(NAME)_COMPONENTS += arch_armv6m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr mbedtls cjson cli
-$(NAME)_COMPONENTS += rhino
+$(NAME)_COMPONENTS += rhino osal_aos
 
 GLOBAL_DEFINES += STM32_USE_SPI_WIFI
 

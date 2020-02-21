@@ -54,6 +54,7 @@ ENABLE_VFP           := 1
 ENABLE_USPACE        := 0
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 $(NAME)_SOURCES += aos/board.c                         \
                    aos/flash_partitions.c              \
