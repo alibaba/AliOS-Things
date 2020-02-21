@@ -40,7 +40,7 @@ else
 $(NAME)_COMPONENTS += arch_armv7m
 endif
 
-$(NAME)_COMPONENTS += newlib_stub rhino
+$(NAME)_COMPONENTS += newlib_stub rhino osal_aos
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 

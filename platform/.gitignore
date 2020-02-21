@@ -18,3 +18,5 @@
 *.WK3
 
 mcu/rtl8710bn/Debug
+mcu/xr871/drivers/pack
+

@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl26z4impl
 
 $(NAME)_COMPONENTS += arch_armv6m
-$(NAME)_COMPONENTS += rhino newlib_stub
+$(NAME)_COMPONENTS += rhino newlib_stub osal_aos
 
 GLOBAL_CFLAGS += -DCPU_MKL26Z128VLH4
 GLOBAL_CFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
