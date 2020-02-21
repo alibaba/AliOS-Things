@@ -18,9 +18,8 @@ Check component's makefile aos.mk.
 """ % name
 
 SKIP_CHECK = {
-    "global_includes": ["/board/", "/platform/", "/2ndboot/", "/kernel/",
-                        "/security/", "/3rdparty/", "/utility/", "/tools/",
-                        "/test/"
+    "global_includes": ["/core_rtos/", "/platform/", "/components/dm/ota/2ndboot/", "/core/",
+                        "/components/security/", "/3rdparty/", "/tools/", "/test/"
                         ],
 }
 
