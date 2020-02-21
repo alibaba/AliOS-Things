@@ -9,7 +9,7 @@ HOST_MCU_FAMILY    := mcu_imx6
 HOST_MCU_NAME      := imx6dq
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init cli
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network cli
 
 $(NAME)_SOURCES := board.c
 

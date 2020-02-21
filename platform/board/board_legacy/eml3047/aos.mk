@@ -11,7 +11,7 @@ HOST_MCU_FAMILY    := mcu_stm32l0xx
 HOST_MCU_NAME      := stm32l071kb
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lorawan_stack
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network lorawan_stack
 
 $(NAME)_SOURCES := board.c           \
                    src/debug.c       \

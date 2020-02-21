@@ -17,7 +17,7 @@ CONFIG_LS_ID2_OTP    := y
 CONFIG_LS_KM_SE      := n
 CONFIG_LS_KM_TEE     := y
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 $(NAME)_SOURCES := board_init.c
 

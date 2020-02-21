@@ -9,7 +9,7 @@ MODULE             := xxx
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_RDA5981x
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
 
 $(NAME)_SOURCES := board.c \
                    startup_uno-91h.s

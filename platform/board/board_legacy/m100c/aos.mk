@@ -11,7 +11,7 @@ HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := mcu_efm32gxx
 SUPPORT_MBINS   := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init lorawan_stack
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network lorawan_stack
 
 LORACHIP           := sx1276
 

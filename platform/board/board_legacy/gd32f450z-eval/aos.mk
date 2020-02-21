@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := GD32F450ZKT6
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr network
 
 GLOBAL_DEFINES += GD32F450
 
