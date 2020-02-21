@@ -1,0 +1,12 @@
+config AOS_COMP_MDNS
+    bool "mdns"
+    default n
+    help
+        AliOS Things mdns for local communication
+
+choice
+prompt "poll implementation selection"
+default MDNS_USE_YLOOP
+config  MDNS_USE_YLOOP
+    bool "poll over yloop"
+endchoice
