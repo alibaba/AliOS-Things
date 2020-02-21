@@ -76,7 +76,7 @@ $(NAME)_SOURCES += Drivers/boards/boards.c \
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c
 
-ifeq ($(BLE),1)
+ifneq ($(BLE),)
 $(NAME)_SOURCES  += hal/ble_port.c
 endif
 
@@ -132,8 +132,8 @@ endif
 
 include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
 
+$(NAME)_COMPONENTS-$(!bt_mesh_standalone_deploy) += bt_host
 ifneq ($(bt_mesh_standalone_deploy),1)
-$(NAME)_COMPONENTS += bt_host
 include $($(NAME)_LOCATION)/bt_controller/bt_controller.mk
 endif
 
