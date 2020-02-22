@@ -39,6 +39,7 @@ COMP_INDEX = "aos_comp_index.json"
 CONFIG_BAK_PATH = ".important.bak"
 CONFIGIN_FILE = "Config.in"
 DOT_AOS = ".aos"
+DOT_CONFIG_FILE = ".config"
 AOS_MAKEFILE = "aos.mk"
 AOS_MAKEFILE_TEMP = "aos.mk.temp"
 APP_CONFIG_KEYWORD = "Application Configuration"
@@ -304,9 +305,6 @@ def cli(projectname, board, projectdir, templateapp):
     comp_info = {}
     with open(aos_comp_index, "r") as f:
         comp_info = json.load(f)
-        if projectname in comp_info:
-            print("[INFO] The project name \"%s\" is reserved, rename to \"user_%s\"!" % (projectname, projectname))
-            projectname = "user_%s" % projectname      
 
     if templateapp:
         if templateapp in comp_info:
@@ -345,9 +343,7 @@ def cli(projectname, board, projectdir, templateapp):
         else:
             click.echo("[Error] The project directory is existing!\n%s" % destdir)
         return 1
-    else:
-        os.makedirs(destdir)
-
+    
     if board in comp_info:
         boarddir = comp_info[board]["location"]
         boarddir = os.path.join(aos_sdk, boarddir)
@@ -355,6 +351,7 @@ def cli(projectname, board, projectdir, templateapp):
         click.echo("No such board found: \"%s\"" % board)
         return 1
 
+    os.makedirs(destdir)
     if templateapp:
         copy_demo_app(templatedir, destdir, projectname, board, boarddir, templateapp)
     else:
@@ -376,6 +373,8 @@ def cli(projectname, board, projectdir, templateapp):
 
     # run makefile and generate .config and aos_config.h
     gen_kconfig(destdir, projectname, board, True, True)
+    # backup .config 
+    copy_file(os.path.join(destdir, DOT_CONFIG_FILE), os.path.join(destdir, CONFIG_BAK_PATH, DOT_CONFIG_FILE))
     click.echo("[Info] Project Initialized at: %s" % destdir)
 
 if __name__ == "__main__":
