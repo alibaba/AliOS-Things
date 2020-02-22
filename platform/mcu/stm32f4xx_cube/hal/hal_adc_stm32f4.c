@@ -106,15 +106,17 @@ int32_t hal_adc_init(adc_dev_t *adc)
         default: return -EIO;
     }
 
-    // TODO: support more than one channel, to this end, DMA must
-    //       be configured to transfer the converted data.
-    //       To be simple, here we just support one channel at once.
+    /**
+     * Only ADC1 and ADC3(if exists) can perform DMA on completion
+     * of each channel convertion, ADC2 can deploy ADC1 DMA in dual mode,
+     * to be simple, here we configure the ADCx as single channle ADC.
+     */
     hadc->Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV4;
     hadc->Init.Resolution = ADC_RESOLUTION_12B;
     hadc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
     hadc->Init.ScanConvMode = DISABLE;
     hadc->Init.EOCSelection = DISABLE;
-    hadc->Init.NbrOfConversion = entry_cnt;
+    hadc->Init.NbrOfConversion = 1;
     hadc->Init.ContinuousConvMode = DISABLE;
     hadc->Init.DiscontinuousConvMode = DISABLE;
     hadc->Init.NbrOfDiscConversion = 0;
@@ -128,21 +130,10 @@ int32_t hal_adc_init(adc_dev_t *adc)
     for (i = 0; i < entry_cnt; i++, channel_conf++) {
         if ((channel_conf->channel < HAL_ADC_CHANNEL_16) && (channel_conf->pin < HAL_GPIO_CNT)) {
             config_gpio(channel_conf->pin);
-            memset(&sconf, 0, sizeof(ADC_ChannelConfTypeDef));
-            sconf.Channel = adc_channel_map[channel_conf->channel];
-            sconf.Rank = i + 1;
-            sconf.SamplingTime = ADC_SAMPLETIME_480CYCLES;
-            sconf.Offset = 0;
-            if (HAL_OK != HAL_ADC_ConfigChannel(hadc, &sconf)) {
-                HAL_ADC_DeInit(hadc);
-                return -EIO;
-            }
         } else {
             return -EIO;
         }
     }
-
-    // TODO: Config DMA for output data.
 
     pdev->inited = 1;
 
@@ -153,11 +144,16 @@ int32_t hal_adc_init(adc_dev_t *adc)
 
 int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
 {
-    ADC_HandleTypeDef *hadc;
-    stm32_adc_dev_t   *pdev;
-    uint16_t          *value = (uint16_t*)output;
+    ADC_HandleTypeDef       *hadc;
+    ADC_ChannelConfTypeDef   sconf;
+    stm32_adc_dev_t         *pdev;
+    ADC_MAPPING             *map_entry;
+    gpio_adc_pin_config_t   *channel_conf;
+    int                      i, entry_cnt;
 
-    if (adc == NULL) {
+    uint32_t *value = (uint32_t*)output;
+
+    if (adc == NULL || value == NULL) {
         return -EINVAL;
     }
 
@@ -173,16 +169,33 @@ int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
 
     hadc = &pdev->hadc;
 
+    map_entry = get_mapping_entry(adc->port);
+    entry_cnt = map_entry->channel_cnt;
+    channel_conf = map_entry->channel_conf;
 
-    HAL_ADC_Start(hadc);
+    for (i = 0; i < entry_cnt; i++, channel_conf++) {
+        if (channel_conf->channel < HAL_ADC_CHANNEL_16) {
+            memset(&sconf, 0, sizeof(ADC_ChannelConfTypeDef));
+            sconf.Channel = adc_channel_map[channel_conf->channel];
+            sconf.Rank = 1;
+            sconf.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+            sconf.Offset = 0;
+            if (HAL_OK != HAL_ADC_ConfigChannel(hadc, &sconf)) {
+                return -EIO;
+            }
 
-    if (HAL_OK != HAL_ADC_PollForConversion(hadc, timeout)) {
-        return -EIO;
+            HAL_ADC_Start(hadc);
+
+            if (HAL_OK != HAL_ADC_PollForConversion(hadc, timeout)) {
+                return -EIO;
+            }
+
+            *value++ = HAL_ADC_GetValue(hadc);
+
+        } else {
+            return -EIO;
+        }
     }
-
-    *value = HAL_ADC_GetValue(hadc);
-
-    // TODO: read data from DMA destination buffer into output buffer
 
     return 0;
 }
@@ -236,4 +249,5 @@ int32_t hal_adc_finalize(adc_dev_t *adc)
     return 0;
 }
 
-#endif
+#endif /* HAL_ADC_MODULE_ENABLED */
+
