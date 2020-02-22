@@ -111,7 +111,7 @@ def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
 def convert_aosconfig_config(aosconfig_h, config_file):
     """ convert components configuration porting into .config """
     if not os.path.isfile(aosconfig_h):
-        print ("[ERROR]: No such file %s" % aosconfig_h)
+        print ("[WARNING]: No such file %s" % aosconfig_h)
         return 1
 
     root_dir = os.path.dirname(aosconfig_h)
