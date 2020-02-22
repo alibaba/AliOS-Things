@@ -5,3 +5,5 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := network
 
 $(NAME)_COMPONENTS-$(CONFIG_AOS_LWIP) += lwip
+$(NAME)_COMPONENTS-$(CONFIG_AOS_TCPIP) += lwip
+
