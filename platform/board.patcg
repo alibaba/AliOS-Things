@@ -1,0 +1,69 @@
+diff --git a/mcu/stm32f1xx/hal/hal_gpio_stm32f1.c b/mcu/stm32f1xx/hal/hal_gpio_stm32f1.c
+index f096fcf0e..1dbea05bd 100644
+--- a/mcu/stm32f1xx/hal/hal_gpio_stm32f1.c
++++ b/mcu/stm32f1xx/hal/hal_gpio_stm32f1.c
+@@ -27,7 +27,7 @@ static gpio_irq_slop_t gGpioSlop[GPIO_IRQ_SLOP_MAX]= {
+ };
+ static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
+ int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
+-uint32_t hal_gpio_pin(uint8_t pin);
++uint32_t hal_gpio_pin(uint16_t pin);
+ int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
+ 
+ 
+@@ -457,7 +457,7 @@ int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
+     return ret;
+ }
+ 
+-uint32_t hal_gpio_pin(uint8_t pin)
++uint32_t hal_gpio_pin(uint16_t pin)
+ {
+     uint32_t result = 1;
+     uint8_t pin_t = pin % PINS_IN_GROUP;
+diff --git a/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.c b/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.c
+index f2c69ae85..4fa869950 100644
+--- a/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.c
++++ b/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.c
+@@ -28,7 +28,7 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos);
+ static int get_irqn_type(IRQn_Type *IRQn, uint16_t pin);
+ static void enable_gpio_clk(GPIO_TypeDef *GPIOx);
+ 
+-GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin)
++GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin)
+ {
+     GPIO_TypeDef *port = NULL;
+ 
+@@ -84,14 +84,14 @@ GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin)
+     return port;
+ }
+ 
+-uint32_t hal_gpio_pin(uint8_t hal_pin)
++uint32_t hal_gpio_pin(uint16_t hal_pin)
+ {
+     uint8_t  pin_t = hal_pin % PINS_IN_GROUP;
+ 
+     return (uint32_t)1<<pin_t;
+ }
+ 
+-void hal_gpio_enable_clk(uint8_t hal_pin)
++void hal_gpio_enable_clk(uint16_t hal_pin)
+ {
+     GPIO_TypeDef *GPIOx;
+ 
+diff --git a/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.h b/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.h
+index cf72025ab..bc1e9ef37 100644
+--- a/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.h
++++ b/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.h
+@@ -215,9 +215,9 @@ extern  const gpio_mapping_t gpio_mapping_table[];
+ 
+ #define GPIOA_SPEED    GPIO_SPEED_FREQ_VERY_HIGH
+ 
+-GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin);
+-uint32_t hal_gpio_pin(uint8_t hal_pin);
+-void hal_gpio_enable_clk(uint8_t hal_pin);
++GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin);
++uint32_t hal_gpio_pin(uint16_t hal_pin);
++void hal_gpio_enable_clk(uint16_t hal_pin);
+ 
+ #endif /* HAL_GPIO_MODULE_ENABLED */
+ 

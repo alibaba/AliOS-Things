@@ -27,7 +27,7 @@ static gpio_irq_slop_t gGpioSlop[GPIO_IRQ_SLOP_MAX]= {
 };
 static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
-uint32_t hal_gpio_pin(uint8_t pin);
+uint32_t hal_gpio_pin(uint16_t pin);
 int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 
 
@@ -457,7 +457,7 @@ int32_t hal_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
     return ret;
 }
 
-uint32_t hal_gpio_pin(uint8_t pin)
+uint32_t hal_gpio_pin(uint16_t pin)
 {
     uint32_t result = 1;
     uint8_t pin_t = pin % PINS_IN_GROUP;
