@@ -6,6 +6,8 @@ if AOS_COMP_NETWORK
 config CONFIG_AOS_TCPIP
     bool
     default n
+    #Backward compatibility, will remove soon
+    select AOS_COMP_LWIP if !AOS_CREATE_PROJECT
 
 config CONFIG_VENDOR_TCPIP
     bool
