@@ -215,9 +215,9 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 
 #define GPIOA_SPEED    GPIO_SPEED_FREQ_VERY_HIGH
 
-GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin);
-uint32_t hal_gpio_pin(uint8_t hal_pin);
-void hal_gpio_enable_clk(uint8_t hal_pin);
+GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin);
+uint32_t hal_gpio_pin(uint16_t hal_pin);
+void hal_gpio_enable_clk(uint16_t hal_pin);
 
 #endif /* HAL_GPIO_MODULE_ENABLED */
 

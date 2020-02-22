@@ -28,7 +28,7 @@ static int get_mapTable_pos(uint16_t port, uint16_t *pos);
 static int get_irqn_type(IRQn_Type *IRQn, uint16_t pin);
 static void enable_gpio_clk(GPIO_TypeDef *GPIOx);
 
-GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin)
+GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin)
 {
     GPIO_TypeDef *port = NULL;
 
@@ -84,14 +84,14 @@ GPIO_TypeDef *hal_gpio_typedef(uint8_t hal_pin)
     return port;
 }
 
-uint32_t hal_gpio_pin(uint8_t hal_pin)
+uint32_t hal_gpio_pin(uint16_t hal_pin)
 {
     uint8_t  pin_t = hal_pin % PINS_IN_GROUP;
 
     return (uint32_t)1<<pin_t;
 }
 
-void hal_gpio_enable_clk(uint8_t hal_pin)
+void hal_gpio_enable_clk(uint16_t hal_pin)
 {
     GPIO_TypeDef *GPIOx;
 
