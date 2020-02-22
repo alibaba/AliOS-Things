@@ -16,7 +16,7 @@ endif
 # Backward compatibility
 if !AOS_CREATE_PROJECT
     config AOS_COMP_LWIP
-    bool
+    bool "lwip"
     default n
     help
       Support LWIP protocol stack.
