@@ -5,7 +5,7 @@ if CONFIG_AOS_LWIP
 if AOS_CREATE_PROJECT
     config AOS_COMP_LWIP
     bool
-    default n
+    default y
     help
       Support LWIP protocol stack.
 
@@ -17,7 +17,7 @@ endif
 if !AOS_CREATE_PROJECT
     config AOS_COMP_LWIP
     bool
-    default y
+    default n
     help
       Support LWIP protocol stack.
 
