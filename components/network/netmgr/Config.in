@@ -14,6 +14,9 @@ if !AOS_CREATE_PROJECT
 config AOS_COMP_NETMGR
     bool "netmgr"
     default n
+    select AOS_COMP_KV
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_YLOOP
     help
         AliOS things NETMGR -- smart config support component
 endif
