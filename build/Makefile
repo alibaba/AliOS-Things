@@ -307,9 +307,10 @@ endif
 
 distclean: clean
 ifneq (,$(APPDIR))
-	$(QUIET)rm -f $(APPDIR)/.config $(APPDIR)/.config.retry $(APPDIR)/.config.old $(APPDIR)/.config.cmd $(APPDIR)/.defconfig $(APPDIR)/..config.tmp
+	$(QUIET)rm -f $(APPDIR)/.config $(APPDIR)/.config.retry $(APPDIR)/.config.old $(APPDIR)/.config.cmd $(APPDIR)/.defconfig $(APPDIR)/..config.tmp $(APPDIR)/aos_config.h
+	$(QUIET)$(CP) $(APPDIR)/.important.bak/.config $(APPDIR)/.config
 else
-	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig ..config.tmp
+	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig ..config.tmp aos_config.h
 endif
 
 ifneq ($(BUILD_STRING),)
