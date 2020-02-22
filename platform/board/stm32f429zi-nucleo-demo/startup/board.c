@@ -98,12 +98,13 @@ PWM_MAPPING PWM_MAPPING_TABLE[] =
 #endif /* HAL_PWM_MODULE_ENABLED */
 
 #ifdef HAL_ADC_MODULE_ENABLED
-gpio_adc_pin_config_t adc1_conf[] = {
-    {HAL_ADC_CHANNEL_10, HAL_GPIO_32}
+static gpio_adc_pin_config_t adc1_conf[] = {
+    {HAL_ADC_CHANNEL_10, HAL_GPIO_32}, /* PC0 <--> ADC1 channel 10 */
+    {HAL_ADC_CHANNEL_13, HAL_GPIO_35}  /* PC3 <--> ADC1 channel 13 */
 };
 
 ADC_MAPPING ADC_MAPPING_TABLE[] = {
-    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])},
 };
 #endif /* HAL_ADC_MODULE_ENABLED */
 
