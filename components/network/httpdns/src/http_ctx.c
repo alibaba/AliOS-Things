@@ -4,7 +4,7 @@
 
 #include "ulog/ulog.h"
 #include "httpdns_internal.h"
-#include "http.h"
+#include "httpclient.h"
 
 #define HTTPCLIENT_MAX_SCHEME_LEN  8
 #define HTTPCLIENT_MAX_HOST_LEN   64
@@ -59,7 +59,7 @@ memory_t * http_ctx_get(http_ctx_t *ctx)
 
     client_data.response_buf = ctx->response.memory;
     client_data.response_buf_len = ctx->response.size;
-    httpc_get(&client, ctx->url, &client_data);
+    httpclient_get(&client, ctx->url, &client_data);
     
     HTTPDNS_INFO("Data received: %s", client_data.response_buf);
 
