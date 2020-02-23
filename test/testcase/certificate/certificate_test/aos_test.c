@@ -914,7 +914,7 @@ CASE(test_kv, aos_2_003)
     }
 }
 
-#if (KV_CONFIG_SECURE_SUPPORT > 0) && (KV_CONFIG_SECURE_CRYPT_IMPL == 1)
+#if KV_CONFIG_SECURE_CRYPT_IMPL
 
 #include "kv_adapt.h"
 
