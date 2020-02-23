@@ -1,15 +1,32 @@
-menuconfig AOS_COMP_KV
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_KV
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_KV
     bool "Key-value Storage"
-    select AOS_COMP_MBEDTLS if KV_CONFIG_SECURE_CRYPT_IMPL = 1
-    select MBEDTLS_CONFIG_CRYPTO if KV_CONFIG_SECURE_CRYPT_IMPL = 1
-    select MBEDTLS_CONFIG_CRYPTO_AES if KV_CONFIG_SECURE_CRYPT_IMPL = 1
-    select MBEDTLS_CONFIG_CRYPTO_MODE_OFB if KV_CONFIG_SECURE_CRYPT_IMPL = 1
+    select AOS_COMP_MBEDTLS if KV_CONFIG_SECURE_CRYPT_IMPL
+    select MBEDTLS_CONFIG_CRYPTO if KV_CONFIG_SECURE_CRYPT_IMPL
+    select MBEDTLS_CONFIG_CRYPTO_AES if KV_CONFIG_SECURE_CRYPT_IMPL
+    select MBEDTLS_CONFIG_CRYPTO_MODE_OFB if KV_CONFIG_SECURE_CRYPT_IMPL
     default n
     help
-      lightweight key-value storage module
+        lightweight key-value storage module
+endif
 
-if AOS_COMP_KV
+
+
 # Configurations for component kv
+menu "Key-value Storage Configuration"
+    depends on AOS_COMP_NETMGR
 
 config KV_CONFIG_TASK_PRIORITY
     int "The garbage collection task priority"
@@ -67,15 +84,14 @@ config KV_CONFIG_SECURE_LEVEL
         the default is "1".
 
 config KV_CONFIG_SECURE_CRYPT_IMPL
-    int "Key-value Storage security Implementation"
-    range 1 2
-    default 1
+    bool "Key-value Storage security Implementation"
+    default y
     help
         This option chooses the security implementaton.
-        saying "1" here chooses the encryption implementation of mbedtls.
-        saying "2" here chooses the encryption implementation of user-defined.
-        the default is "1"
+        saying "y" here chooses the encryption implementation of mbedtls.
+        saying "n" here chooses the encryption implementation of user-defined.
+        the default is "n"
 
 endif
 
-endif
+endmenu
