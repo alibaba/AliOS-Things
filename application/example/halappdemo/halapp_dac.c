@@ -29,8 +29,8 @@ void hal_dac_app_out(void)
     val = 0;
     cnt = 500;
     while (cnt-- > 0) {
-        hal_dac_start(&dac_dev, HALAPP_DAC_CHAN);
-        hal_dac_set_value(&dac_dev, HALAPP_DAC_CHAN, val);
+        hal_dac_start(&dac_dev, HALAPP_DAC_CHANNEL);
+        hal_dac_set_value(&dac_dev, HALAPP_DAC_CHANNEL, val);
 
         val += 50;
         if (val >= 0x1000) {
