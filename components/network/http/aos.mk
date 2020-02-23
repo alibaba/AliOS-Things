@@ -7,10 +7,17 @@ $(NAME)_SUMMARY := http client component
 # source files and the folder of internal include files
 $(NAME)_INCLUDES += include
 $(NAME)_SOURCES := src/http_client.c \
-                   src/http_string.c \
-                   src/http_parser.c \
-                   src/http_upload.c \
-				   wrappers/http_aos_wrapper.c
+                   wrapper/http_aos_wrapper.c \
+                   src/http_method_api.c \
+                   src/http_formdata.c
+
+DEPRECATED_PATH := ./deprecated
+$(NAME)_INCLUDES += $(DEPRECATED_PATH)/include
+$(NAME)_SOURCES += $(DEPRECATED_PATH)/src/http_client.c \
+                   $(DEPRECATED_PATH)/src/http_parser.c \
+                   $(DEPRECATED_PATH)/src/http_string.c \
+                   $(DEPRECATED_PATH)/wrapper/http_aos_wrapper.c
+
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/network/http
 # mandatory dependencies
