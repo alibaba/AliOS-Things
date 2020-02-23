@@ -5,7 +5,6 @@
 
 #include "stm32f4xx_hal.h"
 #include "hal_gpio_stm32f4.h"
-#include "hal_dac_stm32f4.h"
 
 #ifdef BOOTLOADER
 #define STDIO_UART_BUADRATE 115200
@@ -41,6 +40,12 @@ typedef enum {
     PORT_ADC_SIZE,
     PORT_ADC_INVALID =255,
 } PORT_ADC_TYPE;
+
+typedef enum {
+    PORT_DAC_1,
+    PORT_DAC_SIZE,
+    PORT_DAC_INVALID =255,
+} PORT_DAC_TYPE;
 
 typedef enum{
     PORT_CAN_NORMAL,
@@ -208,22 +213,9 @@ typedef enum{
 #endif /* AOS_HAL_ADC_ENABLED */
 
 #if (AOS_HAL_DAC_ENABLED > 0)
-#define HAL_DAC_CHAN1_Pin GPIO_Pin_4
-#define HAL_DAC_CHAN2_Pin GPIO_Pin_5
-
-#define HAL_DAC_USE_CHAN1
-//#define HAL_DAC_USE_CHAN2
-
-#define HALAPP_DAC HAL_DAC_1
-
-#if defined (HAL_DAC_USE_CHAN1)
-#define HALAPP_DAC_CHAN DAC_CHANNEL_1
-#elif defined (HAL_DAC_USE_CHAN2)
-#define HALAPP_DAC_CHAN DAC_CHANNEL_2
-#else
-#error "HALAPP_DAC_CHAN is not defined"
-#endif
-
+#include "hal_dac_stm32f4.h"
+#define HALAPP_DAC PORT_DAC_1
+#define HALAPP_DAC_CHANNEL HAL_DAC_CHANNEL_1
 #endif /* AOS_HAL_DAC_ENABLED */
 
 #endif /*__BOARD__H_*/
