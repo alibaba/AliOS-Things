@@ -21,6 +21,8 @@
 #include "hal_pwm_stm32f4.h"
 #include "hal_spi_stm32f4.h"
 #include "hal_adc_stm32f4.h"
+#include "hal_dac_stm32f4.h"
+
 
 #ifdef AOS_CANOPEN
 #include "co_adapter.h"
@@ -107,6 +109,18 @@ ADC_MAPPING ADC_MAPPING_TABLE[] = {
     {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])},
 };
 #endif /* HAL_ADC_MODULE_ENABLED */
+
+#ifdef HAL_DAC_MODULE_ENABLED
+gpio_dac_pin_config_t dac1_conf[] = {
+    {HAL_DAC_CHANNEL_1, HAL_GPIO_4},
+    {HAL_DAC_CHANNEL_2, HAL_GPIO_5}
+};
+
+DAC_MAPPING DAC_MAPPING_TABLE[] = {
+    {PORT_DAC_1, HAL_DAC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+};
+#endif /* HAL_DAC_MODULE_ENABLED */
+
 
 UART_MAPPING UART_MAPPING_TABLE[] =
 {

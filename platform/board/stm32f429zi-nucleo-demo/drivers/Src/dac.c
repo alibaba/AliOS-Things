@@ -38,10 +38,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include <string.h>
-#include "aos/hal/dac.h"
 #include "stm32f4xx_hal.h"
-#include "aos/hal/gpio.h"
+
+#ifdef HAL_DAC_MODULE_ENABLED
 
 void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 {
@@ -51,24 +50,6 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   if(hdac->Instance==DAC)
   {
       __HAL_RCC_DAC_CLK_ENABLE();
-
-#ifdef HAL_DAC_USE_CHAN1
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
-    GPIO_InitStruct.Pin = HAL_DAC_CHAN1_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-#endif
-
-#ifdef HAL_DAC_USE_CHAN2
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
-    GPIO_InitStruct.Pin = HAL_DAC_CHAN2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-#endif
   }
 }
 
@@ -80,14 +61,8 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
     __HAL_RCC_DAC_CLK_DISABLE();
     __HAL_RCC_DAC_FORCE_RESET();
     __HAL_RCC_DAC_RELEASE_RESET();
-
-#ifdef HAL_DAC_USE_CHAN1
-    HAL_GPIO_DeInit(GPIOA, HAL_DAC_CHAN1_Pin);
-#endif
-
-#ifdef HAL_DAC_USE_CHAN2
-      HAL_GPIO_DeInit(GPIOA, HAL_DAC_CHAN2_Pin);
-#endif
   }
 }
+
+#endif /* HAL_DAC_MODULE_ENABLED */
 
