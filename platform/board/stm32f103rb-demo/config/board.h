@@ -209,7 +209,6 @@ void Error_Handler(void);
 #define HALAPP_ADC PORT_ADC_1
 #endif /* AOS_HAL_ADC_ENABLED */
 
-
 #ifdef __cplusplus
 }
 #endif

@@ -2,40 +2,81 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <aos/errno.h>
-
-#include "aos/hal/dac.h"
-
 #include "stm32f1xx_hal.h"
 
 #ifdef HAL_DAC_MODULE_ENABLED
 
 #if defined (STM32F100xB) || defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined       (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
 
-#include "hal_dac_stm32f1.h"
+#include <k_api.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "aos/errno.h"
+#include "aos/hal/dac.h"
 #include "stm32f1xx_hal_dac.h"
+#include "hal_dac_stm32f1.h"
+#include "hal_gpio_stm32f4.h"
 
 typedef struct {
-     uint8_t           inited;
-     DAC_HandleTypeDef hdac;
-}stm32_dac_t;
+    DAC_HandleTypeDef hdac;
+    uint8_t           inited;
+} stm32_dac_t;
 
-static stm32_dac_t stm32_dac[HAL_DAC_SIZE];
+static stm32_dac_t stm32_dac[PORT_DAC_SIZE];
+
+static const uint32_t dac_channel_map[HAL_DAC_CHANNEL_CNT] = {
+    DAC1_CHANNEL_1, DAC1_CHANNEL_2
+};
+
+static int config_gpio(uint8_t pin)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_TypeDef    *GPIOx;
+
+    GPIOx = hal_gpio_typedef(pin);
+    if (NULL == GPIOx) {
+       return -1;
+    }
+
+    hal_gpio_enable_clk(pin);
+
+    memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
+
+    GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+    return 0;
+}
+
+static DAC_MAPPING *get_mapping_entry(uint8_t port)
+{
+    int i;
+
+    for (i = 0; i < PORT_DAC_SIZE; i++) {
+        if (port == DAC_MAPPING_TABLE[i].port) {
+            return &DAC_MAPPING_TABLE[i];
+        }
+    }
+
+    return NULL;
+}
 
 int32_t hal_dac_init(dac_dev_t *dac)
 {
     DAC_HandleTypeDef      *hdac;
+    DAC_MAPPING            *map_entry;
+    gpio_dac_pin_config_t  *dac_conf;
     DAC_ChannelConfTypeDef  sConfig;
+    int                     i;
 
     if (NULL == dac) {
         return -EIO;
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return -EIO;
     }
 
@@ -44,14 +85,20 @@ int32_t hal_dac_init(dac_dev_t *dac)
         return 0;
     }
 
+    map_entry = get_mapping_entry(dac->port);
     hdac = &stm32_dac[dac->port].hdac;
 
-    if (dac->port == HAL_DAC_1) {
-        hdac->Instance = DAC;
+    if (map_entry->hal_dac == HAL_DAC_1) {
+        hdac->Instance = DAC1;
     } else {
         return -EIO;
     }
 
+    // init dac gpio
+    dac_conf = map_entry->channel_conf;
+    for (i = 0; i < map_entry->channel_cnt; i++, dac_conf++) {
+        config_gpio(dac_conf->pin);
+    }
 
     HAL_DAC_Init(hdac);
 
@@ -59,8 +106,10 @@ int32_t hal_dac_init(dac_dev_t *dac)
     sConfig.DAC_Trigger = DAC_TRIGGER_SOFTWARE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
-    HAL_DAC_ConfigChannel(hdac, &sConfig, DAC1_CHANNEL_1);
-    HAL_DAC_ConfigChannel(hdac, &sConfig, DAC1_CHANNEL_2);
+    dac_conf = map_entry->channel_conf;
+    for (i = 0; i < map_entry->channel_cnt; i++, dac_conf++) {
+        HAL_DAC_ConfigChannel(hdac, &sConfig, dac_channel_map[dac_conf->channel]);
+    }
 
     stm32_dac[dac->port].inited = 1;
 
@@ -76,7 +125,7 @@ int32_t hal_dac_start(dac_dev_t *dac, uint32_t channel)
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return -EIO;
     }
 
@@ -85,7 +134,7 @@ int32_t hal_dac_start(dac_dev_t *dac, uint32_t channel)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_Start(hdac, channel)) {
+    if (HAL_OK != HAL_DAC_Start(hdac, dac_channel_map[channel])) {
         return -EIO;
     }
 
@@ -101,7 +150,7 @@ int32_t hal_dac_stop(dac_dev_t *dac, uint32_t channel)
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return -EIO;
     }
 
@@ -110,7 +159,7 @@ int32_t hal_dac_stop(dac_dev_t *dac, uint32_t channel)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_Stop(hdac, channel)) {
+    if (HAL_OK != HAL_DAC_Stop(hdac, dac_channel_map[channel])) {
         return -EIO;
     }
 
@@ -126,7 +175,7 @@ int32_t hal_dac_set_value(dac_dev_t *dac, uint32_t channel, uint32_t data)
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return -EIO;
     }
 
@@ -135,7 +184,7 @@ int32_t hal_dac_set_value(dac_dev_t *dac, uint32_t channel, uint32_t data)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_SetValue(hdac, channel, DAC_ALIGN_12B_R, data)) {
+    if (HAL_OK != HAL_DAC_SetValue(hdac, dac_channel_map[channel], DAC_ALIGN_12B_R, data)) {
         return -EIO;
     }
 
@@ -151,7 +200,7 @@ int32_t hal_dac_get_value(dac_dev_t *dac, uint32_t channel)
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return 0;
     }
 
@@ -161,19 +210,22 @@ int32_t hal_dac_get_value(dac_dev_t *dac, uint32_t channel)
 
     hdac = &stm32_dac[dac->port].hdac;
 
-    return HAL_DAC_GetValue(hdac, channel);
+    return HAL_DAC_GetValue(hdac, dac_channel_map[channel]);
 }
 
 int32_t hal_dac_finalize(dac_dev_t *dac)
 {
-    DAC_HandleTypeDef *hdac;
+    DAC_HandleTypeDef      *hdac;
+    DAC_MAPPING            *map_entry;
+    gpio_dac_pin_config_t  *dac_conf;
+    int                     i;
 
     if (NULL == dac) {
         return -EIO;
     }
 
     /* Invalid port number */
-    if (dac->port >= HAL_DAC_SIZE) {
+    if (dac->port >= PORT_DAC_SIZE) {
         return -EIO;
     }
 
@@ -182,9 +234,11 @@ int32_t hal_dac_finalize(dac_dev_t *dac)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-
-    HAL_DAC_Stop(hdac, DAC1_CHANNEL_1);
-    HAL_DAC_Stop(hdac, DAC1_CHANNEL_2);
+    map_entry = get_mapping_entry(dac->port);
+    dac_conf = map_entry->channel_conf;
+    for (i = 0; i < map_entry->channel_cnt; i++, dac_conf++) {
+        HAL_DAC_Stop(hdac, dac_channel_map[dac_conf->channel]);
+    }
 
     if (HAL_OK != HAL_DAC_DeInit(hdac)) {
         return -EIO;
