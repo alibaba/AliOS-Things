@@ -82,6 +82,11 @@ typedef enum{
     PORT_I2C_INVALID = 255,
 }PORT_I2C_TYPE;
 
+typedef enum{
+    PORT_WDG_0 = 1,
+    PORT_WDG_SIZE,
+    PORT_WDG_INVALID = 255,
+}PORT_WDG_TYPE;
 
 /*
     hal support list
