@@ -25,6 +25,16 @@ static void mbuf_destructor(void *data)
 	mem_deref(mb->buf);
 }
 
+/**
+ * Free a memory buffer
+ *
+ * @param data A pointer point to a buffer
+ *
+ */
+void mbuf_free(void* data)
+{
+    mbuf_destructor(data);
+}
 
 /**
  * Allocate a new memory buffer
