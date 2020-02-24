@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <board.h>
 #include <aos/hal/wdg.h>
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_iwdg.h"
@@ -26,7 +27,7 @@ int32_t hal_wdg_init(wdg_dev_t *wdg)
     }
 
     /* only support one watchdog */
-    if (wdg->port != 0) {
+    if (wdg->port >= PORT_WDG_SIZE) {
         return -1;
     }
 
@@ -54,7 +55,7 @@ void hal_wdg_reload(wdg_dev_t *wdg)
     }
 
     /* only support one watchdog */
-    if (wdg->port != 0) {
+    if (wdg->port >= PORT_WDG_SIZE) {
         return -1;
     }
 
