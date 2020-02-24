@@ -23,6 +23,8 @@
 #include "hal_uart_stm32f1.h"
 
 #ifdef HAL_UART_MODULE_ENABLED
+extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart2_rx;
 
 /* function used to transform hal para to stm32 para */
 static int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal, uint32_t *data_width_stm32);
@@ -187,6 +189,158 @@ void UART7_IRQHandler(void)
 }
 #endif
 
+
+#if (HAL_VERSION >= 30100)
+static int uart_gpio_init(UART_MAPPING* uartIns)
+{
+    GPIO_InitTypeDef        GPIO_InitStruct = {0};
+    gpio_uart_pin_config_t *uart_pin_conf;
+    GPIO_TypeDef           *GPIOx;
+    uint8_t                 pin_count;
+    uint8_t                 i;
+    uint8_t                 pin;
+
+    if (uartIns->uartPhyP == USART2) {
+        /* Peripheral clock enable */
+        __HAL_RCC_USART2_CLK_ENABLE();
+    }
+
+    uart_pin_conf = uartIns->pin_conf;
+    if (uart_pin_conf == NULL) {
+        return -1;
+    }
+    pin_count = uartIns->pin_cnt;
+
+    for (i = 0; i < pin_count; i++) {
+        memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
+
+        pin = uart_pin_conf[i].pin;
+
+        GPIOx = hal_gpio_typedef(pin);
+        if (NULL == GPIOx) {
+           return -1;
+        }
+
+        hal_gpio_enable_clk(pin);
+
+        GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+    }
+
+    return 0;
+}
+
+static int uart_gpio_uninit(UART_MAPPING* uartIns)
+{
+    gpio_uart_pin_config_t *uart_pin_conf;
+    GPIO_TypeDef           *GPIOx;
+    uint8_t                 pin_count;
+    uint8_t                 i;
+    uint8_t                 pin;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    if (uartIns->uartPhyP == USART2) {
+        __HAL_RCC_USART2_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(USART2_IRQn);
+    }
+
+    uart_pin_conf = uartIns->pin_conf;
+    if (uart_pin_conf == NULL) {
+        return -1;
+    }
+    pin_count = uartIns->pin_cnt;
+
+    for (i = 0; i < pin_count; i++) {
+        pin = uart_pin_conf[i].pin;
+
+        GPIOx = hal_gpio_typedef(pin);
+        if (NULL == GPIOx) {
+           return -1;
+        }
+
+        HAL_GPIO_DeInit(GPIOx, pin);
+    }
+
+    return 0;
+}
+
+static int uart_dma_init(UART_MAPPING* uartIns)
+{
+    UART_HandleTypeDef *huart;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    huart = &stm32_uart[uartIns->uartFuncP].hal_uart_handle;
+
+    if (uartIns->uartPhyP == USART2) {
+        /* USART2 DMA Init */
+        /* USART2_TX Init */
+        hdma_usart2_tx.Instance = DMA1_Channel7;
+        hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+        hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+        hdma_usart2_tx.Init.MemInc = DMA_MINC_ENABLE;
+        hdma_usart2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_usart2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+        hdma_usart2_tx.Init.Mode = DMA_NORMAL;
+        hdma_usart2_tx.Init.Priority = DMA_PRIORITY_LOW;
+        if (HAL_DMA_Init(&hdma_usart2_tx) != HAL_OK)
+        {
+            Error_Handler();
+            return -1;
+        }
+
+        __HAL_LINKDMA(huart,hdmatx,hdma_usart2_tx);
+
+        /* USART2_RX Init */
+        hdma_usart2_rx.Instance = DMA1_Channel6;
+        hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+        hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+        hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+        hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+        hdma_usart2_rx.Init.Mode = DMA_NORMAL;
+        hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
+        if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+        {
+            Error_Handler();
+            return -1;
+        }
+
+        __HAL_LINKDMA(huart,hdmarx,hdma_usart2_rx);
+
+        /* USART2 interrupt Init */
+        HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USART2_IRQn);
+    }
+
+    return 0;
+}
+
+static int uart_dma_uninit(UART_MAPPING* uartIns)
+{
+    UART_HandleTypeDef *huart;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    huart = &stm32_uart[uartIns->uartFuncP].hal_uart_handle;
+
+    if (uartIns->uartPhyP == USART2) {
+        HAL_DMA_DeInit(huart->hdmatx);
+        HAL_DMA_DeInit(huart->hdmarx);
+    }
+    return 0;
+}
+#endif
+
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;
@@ -202,6 +356,16 @@ int32_t hal_uart_init(uart_dev_t *uart)
     if( NULL== uartIns ) {
         return -1;
     }
+
+#if (HAL_VERSION >= 30100)
+    if (uart_gpio_init(uartIns) != 0) {
+        return -1;
+    }
+
+    if (uart_dma_init(uartIns) != 0) {
+        return -1;
+    }
+#endif
 
     memset(&stm32_uart[uart->port],0,sizeof(stm32_uart_t));
 
@@ -585,6 +749,16 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     if( NULL== uartIns ){
         return -1;
     }
+
+#if (HAL_VERSION >= 30100)
+    if (uart_gpio_uninit(uartIns) != 0) {
+        return -1;
+    }
+
+    if (uart_dma_uninit(uartIns) != 0) {
+        return -1;
+    }
+#endif
 
     if (stm32_uart[uart->port].inited == 0) {
         return -1;
