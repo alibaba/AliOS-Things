@@ -5,8 +5,9 @@ config AOS_APP_BLEPERIPHERAL
 
 if AOS_APP_BLEPERIPHERAL
 # Configurations for app bleperipheral
-config BLE
-    bool "BLE Enable"
+config EN_BLE_HOST
+    bool
+    select CONFIG_BT_SMP
     default y
     help
     

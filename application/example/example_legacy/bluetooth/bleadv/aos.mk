@@ -5,8 +5,6 @@ $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := Ble adv example.
 $(NAME)_SOURCES     := bleadv_app.c
 
-EN_BT_SMP = 1
-
 $(NAME)_COMPONENTS  += bt_host cli
 GLOBAL_DEFINES      += AOS_NO_WIFI
 
