@@ -76,7 +76,7 @@ $(NAME)_SOURCES += Drivers/boards/boards.c \
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c
 
-ifneq ($(BLE),)
+ifneq ($(EN_BLE_HOST),)
 $(NAME)_SOURCES  += hal/ble_port.c
 endif
 
