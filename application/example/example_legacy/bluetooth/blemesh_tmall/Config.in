@@ -6,8 +6,9 @@ config AOS_APP_BLEMESH_TMALL
 
 if AOS_APP_BLEMESH_TMALL
 # Configurations for app blemesh_tmall
-config BLE
-    bool "BLE Enable"
+config EN_BLE_HOST
+    bool
+    select CONFIG_BT_SMP
     default y
     help
     
