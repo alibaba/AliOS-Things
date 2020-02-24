@@ -1,7 +1,7 @@
 config AOS_MCU_ESP32
     bool
-    select AOS_COMP_BT_HOST if BLE_CONFIG != n
-    select AOS_COMP_BT_HOST if (BLE&&!bt_mesh_standalone_deploy)
+    select AOS_COMP_BT_HOST if EN_BLE_HOST
+    select AOS_COMP_BT_HOST if (EN_BLE_HOST && !bt_mesh_standalone_deploy)
     select AOS_COMP_MBEDTLS
     select AOS_COMP_NETMGR
     select AOS_ARCH_XTENSA_LX6 if OSAL_CONFIG = rhino
@@ -21,10 +21,6 @@ config OSAL_CONFIG
 
 config MESH_CONFIG
     bool "mesh config"
-    default n
-
-config BLE_CONFIG
-    bool "ble config"
     default n
 
 endif
