@@ -9,8 +9,8 @@ config AOS_APP_BREEZEAPP
 
 if AOS_APP_BREEZEAPP
 # Configurations for app breezeapp
-config BLE
-    bool "BLE Enable"
+config EN_BLE_HOST
+    bool
     default y
     help
 
