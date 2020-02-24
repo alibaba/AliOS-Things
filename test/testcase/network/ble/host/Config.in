@@ -4,7 +4,7 @@ config AOS_COMP_BLE_TEST
     select AOS_COMP_BT_HOST
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
-    select BLE
+    select EN_BLE_HOST
     default n
     help
 
