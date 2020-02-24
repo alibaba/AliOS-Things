@@ -111,7 +111,7 @@ static int CoAPMessageList_add(CoAPContext *context, NetworkAddr *remote,
         if (ctx->sendlist.count >= ctx->sendlist.maxcount) {
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
             coap_free(node);
-            COAP_INFO("The send list is full");
+            COAP_ERR("The send list is full, maxcount %d", ctx->sendlist.maxcount);
             return COAP_ERROR_DATA_SIZE;
         } else {
             list_add_tail(&node->sendlist, &ctx->sendlist.list);
@@ -471,7 +471,7 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
         }
     }
     if (strcmp("/sys/device/info/notify", (const char *)path)) {
-        COAP_DEBUG("Request path is %s", path);
+        COAP_DEBUG("Request path is %s msgid %d", path, message->header.msgid);
     }
 
     resource = CoAPResourceByPath_get(ctx, (char *)path);
@@ -498,7 +498,7 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     return ret;
 }
 
-
+static int last_msg_id = -1;
 static void CoAPMessage_handle(CoAPContext *context,
                                NetworkAddr       *remote,
                                unsigned char     *buf,
@@ -521,6 +521,12 @@ static void CoAPMessage_handle(CoAPContext *context,
 
     COAP_FLOW("--------Receive a Message------");
     CoAPMessage_dump(remote, &message);
+
+    if (message.header.msgid == last_msg_id) {
+        COAP_FLOW("Discard duplicate Message id %d", last_msg_id);
+        return;
+    }
+    last_msg_id = message.header.msgid;
 
     if (COAPAckMsg(message.header) || CoAPResetMsg(message.header)) {
         /* TODO: implement handle client observe */
@@ -553,22 +559,21 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
 
     HAL_Wifi_Get_IP(ip_addr, NULL);
 
-    while (1) {
-        memset(&remote, 0x00, sizeof(NetworkAddr));
-        memset(ctx->recvbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
-        len = CoAPNetwork_read(ctx->p_network,
-                               &remote,
-                               ctx->recvbuf,
-                               COAP_MSG_MAX_PDU_LEN, timeout);
-        if (strncmp((const char *)ip_addr, (const char *)remote.addr, sizeof(ip_addr)) == 0) { /* drop the packet from itself*/
-            continue;
-        }
-        if (len > 0) {
-            CoAPMessage_handle(ctx, &remote, ctx->recvbuf, len);
+    memset(&remote, 0x00, sizeof(NetworkAddr));
+    memset(ctx->recvbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
+    len = CoAPNetwork_read(ctx->p_network,
+            &remote,
+            ctx->recvbuf,
+            COAP_MSG_MAX_PDU_LEN, timeout);
+    if (len > 0) {
+        if (strncmp((const char *)ip_addr, (const char *)remote.addr, sizeof(ip_addr)) == 0) {/* drop the packet from itself*/
+            COAP_DEBUG("drop the packet from itself");
         } else {
-            return len;
+            CoAPMessage_handle(ctx, &remote, ctx->recvbuf, len);
         }
     }
+
+    return len;
 }
 
 static void Check_timeout(void *context)
@@ -627,7 +632,7 @@ static void Retansmit(void *context)
         if (node->retrans_count > 0) {
             /*If has received ack message, don't resend the message*/
             if (0 == node->acked) {
-                COAP_DEBUG("Retansmit the message id %d len %d", node->header.msgid, node->msglen);
+                COAP_DEBUG("Retansmit the message id %d len %d timout %d tick %d", node->header.msgid, node->msglen, node->timeout, tick);
                 ret = CoAPNetwork_write(ctx->p_network, &node->remote, node->message, node->msglen, ctx->waittime);
                 if (ret != COAP_SUCCESS) {
                 }
@@ -640,7 +645,7 @@ static void Retansmit(void *context)
                 node->timeout = tick + node->timeout_val;
             }
 
-            COAP_FLOW("node->timeout_val = %d , node->timeout=%llu ,tick=%llu", (int)node->timeout_val, node->timeout, tick);
+            COAP_FLOW("node->timeout_val = %d , node->timeout= %d ,tick= %d", node->timeout_val, node->timeout, tick);
         }
     }
     HAL_MutexUnlock(ctx->sendlist.list_mutex);
