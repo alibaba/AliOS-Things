@@ -19,7 +19,7 @@ depends on AOS_COMP_BT_MESH
 
 # Configurations for comp bt_mesh
 config CONFIG_BT_MESH
-    bool# "Enable BT MESH"
+    bool
     default y
     help
         Enable this option for bt mesh components
