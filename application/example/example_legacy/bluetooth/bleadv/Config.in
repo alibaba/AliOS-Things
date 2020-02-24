@@ -5,8 +5,8 @@ config AOS_APP_BLEADV
 
 if AOS_APP_BLEADV
 # Configurations for app bleadv
-config BLE
-    bool "BLE Enable"
+config EN_BLE_HOST
+    bool #"BLE Enable"
     default y
     help
 
