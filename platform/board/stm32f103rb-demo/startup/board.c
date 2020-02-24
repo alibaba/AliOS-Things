@@ -32,9 +32,16 @@
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
+
+gpio_uart_pin_config_t usart2_pin_conf[] = {
+    {UART_TX, HAL_GPIO_2},
+    {UART_RX, HAL_GPIO_3}
+};
+
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
-  {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}}
+  {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}, usart2_pin_conf,
+   sizeof(usart2_pin_conf)/sizeof(usart2_pin_conf[0])}
 };
 
 i2c_mapping_t i2c_mapping[PORT_I2C_SIZE] = {{PORT_I2C_1,I2C1}};
@@ -70,6 +77,9 @@ void board_basic_init(void)
 
     /* Configure the system clock */
     SystemClock_Config();
+
+    /* Configure the Systick interrupt time */
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 }
 /**
   * @general board tick init entry board_tick_init

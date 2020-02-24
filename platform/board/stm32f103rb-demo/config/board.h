@@ -106,6 +106,11 @@ typedef enum {
     PORT_ADC_INVALID =255,
 } PORT_ADC_TYPE;
 
+typedef enum {
+    PORT_WDG_0,
+    PORT_WDG_SIZE,
+    PORT_WDG_INVALID =255,
+} PORT_WDG_TYPE;
 
 /*
     hal support list
@@ -158,10 +163,6 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 #define B1_EXTI_IRQn EXTI15_10_IRQn
-#define USART_TX_Pin GPIO_PIN_2
-#define USART_TX_GPIO_Port GPIOA
-#define USART_RX_Pin GPIO_PIN_3
-#define USART_RX_GPIO_Port GPIOA
 #define USART3_TX_Pin GPIO_PIN_10
 #define USART3_TX_GPIO_Port GPIOC
 #define USART3_RX_Pin GPIO_PIN_11
