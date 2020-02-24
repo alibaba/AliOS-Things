@@ -10,8 +10,6 @@
 
 #if (AOS_HAL_WDG_ENABLED > 0)
 
-#define WDG_PORT_NUM 0
-
 /* task parameters */
 #define TASK_FEEDWDG_NAME      "feedwdg"
 #define TASK_FEEDWDG_STACKSIZE 512
@@ -42,7 +40,7 @@ void hal_watchdog_app_enable(void)
     int ret;
 
     /* wdg port set */
-    watchdog.port = WDG_PORT_NUM;
+    watchdog.port = PORT_WDG_0;
 
     /*  set reload time to 1500ms */
     watchdog.config.timeout = 1500;
