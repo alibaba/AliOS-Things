@@ -134,8 +134,8 @@ int yts_rtp(void)
     }
 
 out:
-    mem_deref(rtp);
-    mem_deref(mb);
+    mbuf_free(rtp);
+    mbuf_free(mb);
 
     return err;
 }
@@ -316,7 +316,7 @@ int yts_rtcp_encode(void)
     while (mbuf_get_left(mb) >= 4 && !err) {
         struct rtcp_msg *msg = NULL;
         err = rtcp_decode(&msg, mb);
-        msg = mem_deref(msg);
+        mbuf_free(msg);
     }
     YUNIT_ASSERT( 0 == err );
     if (err)
@@ -326,7 +326,7 @@ int yts_rtcp_encode(void)
     TEST_EQUALS(mb->end, mb->pos);
 
 out:
-    mem_deref(mb);
+    mbuf_free(mb);
     return err;
 }
 
@@ -386,8 +386,8 @@ static int test_rtcp_decode_badmsg(void)
     }
 
 out:
-    mem_deref(msg);
-    mem_deref(mb);
+    mbuf_free(msg);
+    mbuf_free(mb);
 
     return err;
 }
@@ -411,11 +411,10 @@ int yts_rtcp_decode(void)
     YUNIT_ASSERT( 0 == err );
     while (mbuf_get_left(mb) >= 4 && !err) {
         err = rtcp_decode(&msg, mb);
-        msg = mem_deref(msg);
+        msg = mbuf_free(msg);
     }
 
-    mem_deref(msg);
-    mem_deref(mb);
+    mbuf_free(mb);
 
     YUNIT_ASSERT( 0 == err );
     if (err)
@@ -501,8 +500,8 @@ int yts_rtcp_encode_afb(void)
     TEST_EQUALS(mb->end, mb->pos);
 
 out:
-    mem_deref(mb);
-    mem_deref(msg);
+    mbuf_free(mb);
+    mbuf_free(msg);
     return err;
 }
 
@@ -584,7 +583,7 @@ static int send_rtp_packet(const struct sa *dst, uint16_t seq, uint32_t ssrc)
     struct mbuf *mb = mbuf_alloc(256);
     int err;
 
-    YUNIT_ASSERT( NULL != mb ); 
+    YUNIT_ASSERT( NULL != mb );
     if (!mb)
         return ENOMEM;
 
@@ -595,19 +594,19 @@ static int send_rtp_packet(const struct sa *dst, uint16_t seq, uint32_t ssrc)
     hdr.ssrc = ssrc;
 
     err = rtp_hdr_encode(mb, &hdr);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     if (err)
         goto out;
     mbuf_fill(mb, 160, 0x00);
     mb->pos = 0;
 
     err = udpsock_send_anon(dst, mb);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     if (err)
         goto out;
 
 out:
-    mem_deref(mb);
+    mbuf_free(mb);
     return err;
 }
 
@@ -633,17 +632,17 @@ static int fixture_init(struct fixture *f)
     memset(f, 0, sizeof(*f));
 
     err = sa_set_str(&f->rtp_addr, "127.0.0.1", 0);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     TEST_ERR(err);
 
     err = rtp_listen(&f->rtp, IPPROTO_UDP, &f->rtp_addr, 10000, 49152,
 			 true, rtp_recv, NULL, f);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     if (err)
         goto out;
 
     err = udpsock_local_get(rtp_sock(f->rtp), &f->rtp_addr);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     TEST_ERR(err);
 
 out:
@@ -652,7 +651,7 @@ out:
 
 static void fixture_close(struct fixture *f)
 {
-    mem_deref(f->rtp);
+    mbuf_free(f->rtp);
 }
 
 
@@ -682,7 +681,7 @@ static int test_loss(const uint16_t *seqv, size_t seqc,
         uint16_t seq = seqv[i];
 
         err = send_rtp_packet(&f->rtp_addr, seq, ssrc);
-        YUNIT_ASSERT( 0 == err ); 
+        YUNIT_ASSERT( 0 == err );
         if (err)
             goto out;
     }
@@ -691,7 +690,7 @@ static int test_loss(const uint16_t *seqv, size_t seqc,
     TEST_ERR(err);
 
     err = rtcp_stats(f->rtp, ssrc, &stats);
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     TEST_ERR(err);
 
     /* in OOM-test, detect if member/sender was not allocated */
@@ -730,7 +729,7 @@ int yts_rtcp_packetloss(void)
     err |= test_loss(seqv6, ARRAY_SIZE(seqv6), 1);
     err |= test_loss(seqv7, ARRAY_SIZE(seqv7), 5);
 
-    YUNIT_ASSERT( 0 == err ); 
+    YUNIT_ASSERT( 0 == err );
     return err;
 }
 
