@@ -113,6 +113,8 @@ menuconfig_only:
 menuconfig: menuconfig_only $(AOS_CONFIG_DIR)/autoconf.h
 
 update: $(AOS_CONFIG_DIR)/autoconf.h
+	$(QUIET)$(if $(APPDIR),\
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_deps_topo.py $(APPDIR) $(word 2, $(subst @, ,$(CLEANED_BUILD_STRING))),)
 
 oldconfig silentoldconfig olddefconfig:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
