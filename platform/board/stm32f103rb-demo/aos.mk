@@ -10,6 +10,8 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F103RBTx
 ENABLE_VFP         := 0
 
+GLOBAL_DEFINES += HAL_VERSION=30100
+
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos kernel_init network
 
 $(NAME)_SOURCES += config/k_config.c \
