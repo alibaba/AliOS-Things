@@ -89,7 +89,8 @@ def get_comp_deps(mkfile):
                     if line.startswith("$(NAME)_COMPONENTS-$("):
                         match = p3.match(line)
                         if match:
-                            comp_cond = (match.group(1).split())
+                            # only one condition
+                            comp_cond = [match.group(1)]
                             update_comp_optional_deps(comp_names, comp_cond, mandatory_deps, optional_deps)
                     else:
                         mandatory_deps += comp_names

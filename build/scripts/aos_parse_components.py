@@ -89,9 +89,15 @@ def write_config_file(source_root, config_file, mklist, appdir=None):
             config_keys += [name]
         else:
             if appdir:
-                # Override board component with the one from appdir
+                # Override board and app component with the one from appdir
                 if appdir in mkfile and "/board/" in mkfile:
                     conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
+                elif os.path.join(appdir, "aos.mk") == mkfile:
+                    conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
+                else:
+                    print("[WARNING]: Duplicate component found: %s" % name)
+                    print("- %s: %s" % (name, conf_dict[name]))
+                    print("- %s: %s" % (name, mkfile))
             else:
                 print("[ERROR]: Duplicate component found: %s" % name)
                 print("- %s: %s" % (name, conf_dict[name]))
