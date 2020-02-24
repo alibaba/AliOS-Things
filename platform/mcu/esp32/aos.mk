@@ -43,7 +43,7 @@ $(NAME)_SOURCES += hal/uart.c
 $(NAME)_SOURCES += hal/flash.c
 $(NAME)_SOURCES += hal/wifi_port.c
 $(NAME)_SOURCES += bsp/heap_oram.c
-ifneq ($(BLE),)
+ifneq ($(EN_BLE_HOST),)
 $(NAME)_SOURCES += hal/ble_port.c
 endif
 $(NAME)_SOURCES += hal/misc.c
@@ -121,8 +121,8 @@ $(NAME)_SOURCES          += aos/soc_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
 endif
 
-$(NAME)_COMPONENTS-$((BLE&&!bt_mesh_standalone_deploy)) += bt_host
-ifneq ($(BLE),)
+$(NAME)_COMPONENTS-$((EN_BLE_HOST&&!bt_mesh_standalone_deploy)) += bt_host
+ifneq ($(EN_BLE_HOST),)
 GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
 ifneq ($(hci_h4),1)
 $(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
