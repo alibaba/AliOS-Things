@@ -11,6 +11,7 @@ config AOS_APP_YTS
     select AOS_COMP_DDA if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
     select AOS_COMP_VFS
     select AOS_COMP_YUNIT
+    select AOS_COMP_BLE_HOST if EN_BLE_HOST
     help
       AliOS Things test suite
 
@@ -41,7 +42,7 @@ config YTS_CONFIG_NET_CONNECT
     help
         this option is must for test net related test case
 
-config BLE
+config EN_BLE_HOST
     bool "BLE Enable"
     default n
     help
