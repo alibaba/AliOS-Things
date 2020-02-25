@@ -32,13 +32,13 @@ void hal_timer_app_run(void)
 
     memset(&gpio_out, 0, sizeof(gpio_dev_t));
 
-    gpio_out.port = HALAPP_LED_TEST;
+    gpio_out.port = HALAPP_GPIO_OUT;
     gpio_out.config = OUTPUT_PUSH_PULL;
     gpio_out.priv = NULL;
     hal_gpio_init(&gpio_out);
 
     /* timer interrupts every 0.5s */
-    timer.port = HALAPP_TIMER_TEST;
+    timer.port = PORT_TIMER_DEMO;
     timer.config.period = 500*1000;
     timer.config.reload_mode = TIMER_RELOAD_AUTO;
     timer.config.cb = hal_timer_int_fun;
