@@ -73,12 +73,12 @@ CAN_MAPPING CAN_MAPPING_TABLE[] =
     { PORT_CAN_CANOPEN, NULL, NULL, NULL, NULL},
 };
 
-TIMER_MAPPING TIMER_MAPPING_TABLE[] =
+TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
 {
-    {PORT_TIMER_CANOPEN, TIM3},
-    {PORT_TIMER_3, TIM3},
-    {PORT_TIMER_4, TIM4},
-    {PORT_TIMER_5, TIM5},
+    {PORT_TIMER_CANOPEN, HAL_TIMER_3},
+    {PORT_TIMER_DEMO, HAL_TIMER_2},
+    {PORT_TIMER_4, HAL_TIMER_4},
+    {PORT_TIMER_5, HAL_TIMER_5},
 };
 
 #ifdef HAL_TIM_MODULE_ENABLED
@@ -94,7 +94,7 @@ struct stm32_pwmchan_s pwm3chan[] = {
     }
 };
 
-PWM_MAPPING PWM_MAPPING_TABLE[] =
+PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
 {
     {PORT_PWM_3, TIM3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
 };
@@ -106,18 +106,18 @@ static gpio_adc_pin_config_t adc1_conf[] = {
     {HAL_ADC_CHANNEL_13, HAL_GPIO_35}  /* PC3 <--> ADC1 channel 13 */
 };
 
-ADC_MAPPING ADC_MAPPING_TABLE[] = {
+ADC_MAPPING ADC_MAPPING_TABLE[PORT_ADC_SIZE] = {
     {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])},
 };
 #endif /* HAL_ADC_MODULE_ENABLED */
 
 #ifdef HAL_DAC_MODULE_ENABLED
-gpio_dac_pin_config_t dac1_conf[] = {
+static gpio_dac_pin_config_t dac1_conf[] = {
     {HAL_DAC_CHANNEL_1, HAL_GPIO_4},
     {HAL_DAC_CHANNEL_2, HAL_GPIO_5}
 };
 
-DAC_MAPPING DAC_MAPPING_TABLE[] = {
+DAC_MAPPING DAC_MAPPING_TABLE[PORT_DAC_SIZE] = {
     {PORT_DAC_1, HAL_DAC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
 };
 #endif /* HAL_DAC_MODULE_ENABLED */
@@ -276,7 +276,7 @@ void hal_timer_setcounter(timer_dev_t *tim, uint32_t counter)
 
 int32_t board_gpio_init(void)
 {
-    int32_t i;
+    int32_t i, num;
     int32_t ret = 0;
 
     /* GPIO Ports Clock Enable */
@@ -290,7 +290,8 @@ int32_t board_gpio_init(void)
     __HAL_RCC_GPIOG_CLK_ENABLE();
 
 
-    for (i = 0; i < TOTAL_GPIO_NUM; ++i) {
+    num = sizeof(board_gpio_table)/sizeof(board_gpio_table[0]);
+    for (i = 0; i < num; ++i) {
         ret = hal_gpio_init(&board_gpio_table[i]);
         if (ret) {
             printf("gpio %d in gpio table init fail \r\n", i);

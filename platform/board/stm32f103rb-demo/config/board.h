@@ -75,7 +75,8 @@ typedef enum {
     PORT_TIMER_4,
     PORT_TIMER_5,
     PORT_TIMER_SIZE,
-    PORT_TIMER_INVALID = 255
+    PORT_TIMER_INVALID = 255,
+    PORT_TIMER_DEMO = PORT_TIMER_3,
 };
 
 typedef enum{
@@ -104,6 +105,7 @@ typedef enum {
     PORT_ADC_2,
     PORT_ADC_SIZE,
     PORT_ADC_INVALID =255,
+    PORT_ADC_DEMO = PORT_ADC_1,
 } PORT_ADC_TYPE;
 
 typedef enum {
