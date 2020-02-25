@@ -14,6 +14,10 @@
 
 #ifdef HAL_UART_MODULE_ENABLED
 
+#if (HAL_VERSION >= 30100)
+DMA_HandleTypeDef hdma_usart6_rx;
+DMA_HandleTypeDef hdma_usart6_tx;
+#endif
 
 /* function used to transform hal para to stm32l4 para */
 static int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal, uint32_t *data_width_stm32l4);
@@ -68,7 +72,7 @@ static void UartIRQProcessor(const USART_TypeDef* ins )
         UartIdleHandler(ins);
 
     if( appPort!=PORT_UART_INVALID ) {
-        HAL_UART_IRQHandler(&stm32_uart[appPort].hal_uart_handle);  
+        HAL_UART_IRQHandler(&stm32_uart[appPort].hal_uart_handle);
     }
 
 }
@@ -150,7 +154,7 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    UartIRQProcessor(UART4); 
+    UartIRQProcessor(UART4);
     krhino_intrpt_exit();
 }
 #endif
@@ -181,20 +185,246 @@ void UART7_IRQHandler(void)
     krhino_intrpt_exit();
 }
 #endif
+
+#if (HAL_VERSION >= 30100)
+static int uart_gpio_init(UART_MAPPING* uartIns)
+{
+    GPIO_InitTypeDef        GPIO_InitStruct = {0};
+    gpio_uart_pin_config_t *uart_pin_conf;
+    GPIO_TypeDef           *GPIOx;
+    uint8_t                 pin_count;
+    uint8_t                 i;
+    uint8_t                 pin;
+
+    if (uartIns->uartPhyP == UART4) {
+        __HAL_RCC_UART4_CLK_ENABLE();
+        HAL_NVIC_SetPriority(UART4_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(UART4_IRQn);
+    } else if (uartIns->uartPhyP == UART5) {
+        __HAL_RCC_UART5_CLK_ENABLE();
+        HAL_NVIC_SetPriority(UART5_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(UART5_IRQn);
+    } else if (uartIns->uartPhyP == UART7) {
+        __HAL_RCC_UART7_CLK_ENABLE();
+        HAL_NVIC_SetPriority(UART7_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(UART7_IRQn);
+    } else if (uartIns->uartPhyP == USART3) {
+        __HAL_RCC_USART3_CLK_ENABLE();
+        HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USART3_IRQn);
+    } else if (uartIns->uartPhyP == USART6) {
+        __HAL_RCC_USART6_CLK_ENABLE();
+    }
+
+    uart_pin_conf = uartIns->pin_conf;
+    if (uart_pin_conf == NULL) {
+        return -1;
+    }
+    pin_count = uartIns->pin_cnt;
+
+    for (i = 0; i < pin_count; i++) {
+        memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
+
+        pin = uart_pin_conf[i].pin;
+
+        GPIOx = hal_gpio_typedef(pin);
+        if (NULL == GPIOx) {
+           return -1;
+        }
+
+        if (GPIOx == GPIOA) {
+            __HAL_RCC_GPIOA_CLK_ENABLE();
+        } else if (GPIOx == GPIOB) {
+            __HAL_RCC_GPIOB_CLK_ENABLE();
+        } else if (GPIOx == GPIOC) {
+            __HAL_RCC_GPIOC_CLK_ENABLE();
+#if defined(GROUP_GPIOD) && defined(GPIOD)
+        } else if (GPIOx == GPIOD) {
+            __HAL_RCC_GPIOD_CLK_ENABLE();
+#endif
+#if defined(GROUP_GPIOE) && defined(GPIOE)
+        } else if (GPIOx == GPIOE) {
+            __HAL_RCC_GPIOE_CLK_ENABLE();
+#endif
+#if defined(GROUP_GPIOF) && defined(GPIOF)
+        } else if (GPIOx == GPIOF) {
+            __HAL_RCC_GPIOF_CLK_ENABLE();
+#endif
+#if defined(GROUP_GPIOG) && defined(GPIOG)
+        } else if (GPIOx == GPIOG) {
+            __HAL_RCC_GPIOG_CLK_ENABLE();
+#endif
+#if defined(GROUP_GPIOH) && defined(GPIOH)
+        } else if (GPIOx == GPIOH) {
+            __HAL_RCC_GPIOH_CLK_ENABLE();
+#endif
+#if defined(GROUP_GPIOI) && defined(GPIOI)
+        } else if (GPIOx == GPIOI) {
+            __HAL_RCC_GPIOI_CLK_ENABLE();
+#endif
+        }
+
+        hal_gpio_enable_clk(pin);
+
+        GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = uart_pin_conf[i].alternate;
+        HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+    }
+
+    return 0;
+}
+
+static int uart_gpio_uninit(UART_MAPPING* uartIns)
+{
+    gpio_uart_pin_config_t *uart_pin_conf;
+    GPIO_TypeDef           *GPIOx;
+    uint8_t                 pin_count;
+    uint8_t                 i;
+    uint8_t                 pin;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    if (uartIns->uartPhyP == UART4) {
+        __HAL_RCC_UART4_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(UART4_IRQn);
+    } else if (uartIns->uartPhyP == UART5) {
+        __HAL_RCC_UART5_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(UART5_IRQn);
+    } else if (uartIns->uartPhyP == UART7) {
+        __HAL_RCC_UART7_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(UART7_IRQn);
+    } else if (uartIns->uartPhyP == USART3) {
+        __HAL_RCC_USART3_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(USART3_IRQn);
+    } else if (uartIns->uartPhyP == USART6) {
+       __HAL_RCC_USART6_CLK_DISABLE();
+    }
+
+    uart_pin_conf = uartIns->pin_conf;
+    if (uart_pin_conf == NULL) {
+        return -1;
+    }
+    pin_count = uartIns->pin_cnt;
+
+    for (i = 0; i < pin_count; i++) {
+        pin = uart_pin_conf[i].pin;
+
+        GPIOx = hal_gpio_typedef(pin);
+        if (NULL == GPIOx) {
+           return -1;
+        }
+
+        HAL_GPIO_DeInit(GPIOx, pin);
+    }
+
+    return 0;
+}
+
+static int uart_dma_init(UART_MAPPING* uartIns)
+{
+    UART_HandleTypeDef *uartHandle;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    uartHandle = &stm32_uart[uartIns->uartFuncP].hal_uart_handle;
+
+    if (uartIns->uartPhyP == USART6) {
+        /* USART6 DMA Init */
+        /* USART6_RX Init */
+        hdma_usart6_rx.Instance = DMA2_Stream1;
+        hdma_usart6_rx.Init.Channel = DMA_CHANNEL_5;
+        hdma_usart6_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+        hdma_usart6_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+        hdma_usart6_rx.Init.MemInc = DMA_MINC_ENABLE;
+        hdma_usart6_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_usart6_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+        hdma_usart6_rx.Init.Mode = DMA_NORMAL;
+        hdma_usart6_rx.Init.Priority = DMA_PRIORITY_LOW;
+        hdma_usart6_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+        if (HAL_DMA_Init(&hdma_usart6_rx) != HAL_OK)
+        {
+          Error_Handler(__FILE__, __LINE__);
+          return -1;
+        }
+
+        __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart6_rx);
+
+        /* USART6_TX Init */
+        hdma_usart6_tx.Instance = DMA2_Stream6;
+        hdma_usart6_tx.Init.Channel = DMA_CHANNEL_5;
+        hdma_usart6_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+        hdma_usart6_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+        hdma_usart6_tx.Init.MemInc = DMA_MINC_ENABLE;
+        hdma_usart6_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_usart6_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+        hdma_usart6_tx.Init.Mode = DMA_NORMAL;
+        hdma_usart6_tx.Init.Priority = DMA_PRIORITY_LOW;
+        hdma_usart6_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+        if (HAL_DMA_Init(&hdma_usart6_tx) != HAL_OK)
+        {
+            Error_Handler(__FILE__, __LINE__);
+            return -1;
+        }
+
+        __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart6_tx);
+
+        /* USART6 interrupt Init */
+        HAL_NVIC_SetPriority(USART6_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USART6_IRQn);
+    }
+
+    return 0;
+}
+
+static int uart_dma_uninit(UART_MAPPING* uartIns)
+{
+    UART_HandleTypeDef *uartHandle;
+
+    if (uartIns == NULL) {
+        return -1;
+    }
+
+    uartHandle = &stm32_uart[uartIns->uartFuncP].hal_uart_handle;
+
+    if (uartIns->uartPhyP == USART6) {
+        HAL_DMA_DeInit(uartHandle->hdmarx);
+        HAL_DMA_DeInit(uartHandle->hdmatx);
+    }
+    return 0;
+}
+#endif
+
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;
     UART_HandleTypeDef *pstuarthandle = NULL;
     UART_MAPPING* uartIns = NULL;
-    
+
     if (uart == NULL) {
         return -1;
     }
     //no found this port in function-physical uartIns, no need initialization
     uartIns = GetUARTMapping(uart->port);
-    if( NULL== uartIns ){ 
+    if( NULL== uartIns ){
         return -1;
     }
+
+#if (HAL_VERSION >= 30100)
+    if (uart_gpio_init(uartIns) != 0) {
+        return -1;
+    }
+
+    if (uart_dma_init(uartIns) != 0) {
+        return -1;
+    }
+#endif
     memset(&stm32_uart[uart->port],0,sizeof(stm32_uart_t));
 
     pstuarthandle = &stm32_uart[uart->port].hal_uart_handle;
@@ -208,12 +438,12 @@ int32_t hal_uart_init(uart_dev_t *uart)
         printf("invalid uart data \r\n");
         memset(pstuarthandle, 0, sizeof(*pstuarthandle));
         return -1;
-    }    
+    }
 
     if(NULL == stm32_uart[uart->port].UartRxBuf){
         stm32_uart[uart->port].UartRxBuf = aos_malloc(uartIns->attr.max_buf_bytes);
     }
-    
+
     if (NULL == stm32_uart[uart->port].UartRxBuf) {
         printf("Fail to malloc memory size %d at %s %d \r\d", uartIns->attr.max_buf_bytes, __FILE__, __LINE__);
         return -1;
@@ -224,7 +454,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     pstuarthandle->Instance = (USART_TypeDef*)uartIns->uartPhyP;
     pstuarthandle->Init.OverSampling = uartIns->attr.overSampling;
-    
+
     /* init uart */
     ret = HAL_UART_Init(pstuarthandle);
     if (ret != HAL_OK) {
@@ -299,16 +529,16 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     int32_t ret = -1;
     UART_HandleTypeDef *handle = NULL;
     UART_MAPPING* uartIns = NULL;
-    
+
     if ((uart == NULL) || (data == NULL)) {
         return -1;
-    }    
+    }
 
     uartIns = GetUARTMapping(uart->port);
-    if( NULL== uartIns ){ 
+    if( NULL== uartIns ){
         return -1;
     }
-    
+
     handle = uart_get_handle(uart->port);
     if (handle == NULL) {
         return -1;
@@ -346,7 +576,7 @@ static int32_t uart_send_it(PORT_UART_TYPE uart_port, const void *data, uint32_t
 static int32_t uart_send_dma(PORT_UART_TYPE uart_port, const void *data, uint32_t size,uint32_t timeout)
 {
     HAL_StatusTypeDef sendRlt = HAL_BUSY;
-    
+
     aos_mutex_lock(&stm32_uart[uart_port].uart_tx_mutex, AOS_WAIT_FOREVER);
 
     sendRlt = HAL_UART_Transmit_DMA(&(stm32_uart[uart_port].hal_uart_handle), (uint8_t *)data, size);
@@ -364,21 +594,21 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 {
     int32_t ret = -1;
     UART_MAPPING* uartIns = NULL;
-    
+
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
 
     uartIns = GetUARTMapping(uart->port);
-    if( NULL== uartIns ){ 
+    if( NULL== uartIns ){
         return -1;
     }
-    
+
     if (aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, timeout)) {
         printf("uart port % recv fail to get mutex \r\n", uart->port);
         return -1;
     }
-    
+
     if(stm32_uart[uart->port].hal_uart_handle.hdmarx == NULL)
         ret = uart_receive_it(uart, data, expect_size,recv_size,timeout);
     else
@@ -392,7 +622,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 static int32_t uart_receive_it(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
-    uint8_t *pdata = (uint8_t *)data;  
+    uint8_t *pdata = (uint8_t *)data;
     uint32_t rx_count = 0;
     int32_t ret = -1;
 
@@ -410,7 +640,7 @@ static int32_t uart_receive_it(uart_dev_t *uart, void *data, uint32_t expect_siz
             {
                 stm32_uart[uart->port].uart_rx_out = 0;
             }
-            
+
             if(rx_count==expect_size)
             {
                 break;
@@ -456,15 +686,15 @@ static int32_t uart_receive_it(uart_dev_t *uart, void *data, uint32_t expect_siz
     {
         ret = -1;
     }
-    
-    
+
+
     return ret;
 }
 
 static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
-    uint8_t *pdata = (uint8_t *)data;  
+    uint8_t *pdata = (uint8_t *)data;
     uint32_t rx_count = 0;
     int32_t ret = -1;
 
@@ -481,7 +711,7 @@ static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_si
             {
                 stm32_uart[uart->port].uart_rx_out = 0;
             }
-            
+
             if(rx_count==expect_size)
             {
                 break;
@@ -528,7 +758,7 @@ static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_si
             {
                 if(HAL_UART_Receive_DMA(&(stm32_uart[uart->port].hal_uart_handle),(uint8_t*)&stm32_uart[uart->port].UartRxBuf[stm32_uart[uart->port].uart_rx_in],(uartIns->attr.max_buf_bytes)/2)!= HAL_OK)
                 {
-                    Error_Handler(); 
+                    Error_Handler();
                 }
                     stm32_uart[uart->port].uart_dma_stop =0;
                     stm32_uart[uart->port].previous_dma_leftbyte = (uartIns->attr.max_buf_bytes)/2;
@@ -558,20 +788,30 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 {
     int32_t ret = -1;
     UART_MAPPING* uartIns = NULL;
-    
+
     if (uart == NULL) {
         return -1;
     }
 
     uartIns = GetUARTMapping(uart->port);
-    if( NULL== uartIns ){ 
+    if( NULL== uartIns ){
         return -1;
     }
+
+#if (HAL_VERSION >= 30100)
+    if (uart_gpio_uninit(uartIns) != 0) {
+        return -1;
+    }
+
+    if (uart_dma_uninit(uartIns) != 0) {
+        return -1;
+    }
+#endif
 
     if (stm32_uart[uart->port].inited == 0) {
         return -1;
     }
-    
+
     ret = HAL_UART_DeInit(&stm32_uart[uart->port].hal_uart_handle);
     if(NULL != stm32_uart[uart->port].UartRxBuf){
         free(stm32_uart[uart->port].UartRxBuf);
@@ -581,7 +821,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     if (aos_sem_is_valid(&stm32_uart[uart->port].uart_tx_sem)) {
         aos_sem_free(&stm32_uart[uart->port].uart_tx_sem);
     }
-    
+
     if (aos_mutex_is_valid(&stm32_uart[uart->port].uart_tx_mutex)) {
         aos_mutex_free(&stm32_uart[uart->port].uart_tx_mutex);
     }
@@ -768,9 +1008,9 @@ UART_HandleTypeDef * uart_get_handle(const uint8_t port)
 
 /**
   * @brief  Tx Transfer completed callback
-  * @param  huart: UART handle. 
-  * @note   This example shows a simple way to report end of DMA Tx transfer, and 
-  *         you can add your own implementation. 
+  * @param  huart: UART handle.
+  * @note   This example shows a simple way to report end of DMA Tx transfer, and
+  *         you can add your own implementation.
   * @retval None
   */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -870,7 +1110,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
         left_byte = READ_REG(huart->hdmarx->Instance->NDTR);
         /* if left_byte=0, means DMA transfer complete interrupt maybe has happened
          * uart_rx_in will be update in DMA TC interrupt
-         * don't do it repeatedly 
+         * don't do it repeatedly
          */
         if(left_byte < stm32_uart[appPort].previous_dma_leftbyte && left_byte!=0)
         {
@@ -882,7 +1122,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
                 stm32_uart[appPort].RxBuf_is_full =1;
         }
     }
-    aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);  
+    aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);
 
 }
 
@@ -899,7 +1139,7 @@ static void UartIdleHandler( const USART_TypeDef* ins)
     {
         //clear IDLE bit
         READ_REG(huart_handle->Instance->DR);
-              
+
         HAL_UART_IdleCallback(huart_handle);
     }
 

@@ -122,14 +122,38 @@ DAC_MAPPING DAC_MAPPING_TABLE[] = {
 };
 #endif /* HAL_DAC_MODULE_ENABLED */
 
+gpio_uart_pin_config_t usart3_pin_conf[] = {
+    {UART_TX, HAL_GPIO_56, GPIO_AF7_USART3},
+    {UART_RX, HAL_GPIO_57, GPIO_AF7_USART3}
+};
+
+gpio_uart_pin_config_t usart6_pin_conf[] = {
+    {UART_TX, HAL_GPIO_110, GPIO_AF8_USART6},
+    {UART_RX, HAL_GPIO_105, GPIO_AF8_USART6}
+};
+
+gpio_uart_pin_config_t uart7_pin_conf[] = {
+    {UART_TX, HAL_GPIO_72, GPIO_AF8_UART7},
+    {UART_RX, HAL_GPIO_71, GPIO_AF8_UART7}
+};
+
+gpio_uart_pin_config_t uart4_pin_conf[] = {
+    {UART_TX, HAL_GPIO_42, GPIO_AF8_UART4},
+    {UART_RX, HAL_GPIO_43, GPIO_AF8_UART4}
+};
+
+gpio_uart_pin_config_t uart5_pin_conf[] = {
+    {UART_TX, HAL_GPIO_44, GPIO_AF8_UART5},
+    {UART_RX, HAL_GPIO_50, GPIO_AF8_UART5}
+};
 
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
-    { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024} },
-    { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048} },
-    { PORT_UART_RS485,   UART7, { UART_OVERSAMPLING_16, 512} },
-    { PORT_UART_SCANNER, UART4,  { UART_OVERSAMPLING_16, 512} },
-    { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
+    { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024}, usart3_pin_conf,sizeof(usart3_pin_conf)/sizeof(usart3_pin_conf[0])},
+    { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048}, usart6_pin_conf, sizeof(usart6_pin_conf)/sizeof(usart6_pin_conf[0])},
+    { PORT_UART_RS485,   UART7, { UART_OVERSAMPLING_16, 512}, uart7_pin_conf, sizeof(uart7_pin_conf)/sizeof(uart7_pin_conf[0])},
+    { PORT_UART_SCANNER, UART4,  { UART_OVERSAMPLING_16, 512}, uart4_pin_conf, sizeof(uart4_pin_conf)/sizeof(uart4_pin_conf[0])},
+    { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512}, uart5_pin_conf, sizeof(uart5_pin_conf)/sizeof(uart5_pin_conf[0])},
 };
 
 I2C_MAPPING i2c_mapping_table[PORT_I2C_SIZE] = {
