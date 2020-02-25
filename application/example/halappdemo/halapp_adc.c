@@ -49,6 +49,7 @@ out:
 
 void hal_adc_app_out(void)
 {
-    adc_app_out(HALAPP_ADC);
+    adc_app_out(PORT_ADC_DEMO);
 }
+
 #endif

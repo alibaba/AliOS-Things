@@ -23,14 +23,14 @@ void hal_dac_app_out(void)
 
     printf("hal_dac_out start\r\n");
 
-    dac_dev.port = HALAPP_DAC;
+    dac_dev.port = PORT_DAC_DEMO;
     hal_dac_init(&dac_dev);
 
     val = 0;
     cnt = 500;
     while (cnt-- > 0) {
-        hal_dac_start(&dac_dev, HALAPP_DAC_CHANNEL);
-        hal_dac_set_value(&dac_dev, HALAPP_DAC_CHANNEL, val);
+        hal_dac_start(&dac_dev, 0);
+        hal_dac_set_value(&dac_dev, 0, val);
 
         val += 50;
         if (val >= 0x1000) {
