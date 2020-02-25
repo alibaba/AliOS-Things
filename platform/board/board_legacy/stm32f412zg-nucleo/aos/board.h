@@ -32,5 +32,11 @@ typedef enum{
     PORT_SPI_INVALID =255,
 }PORT_SPI_TYPE;
 
+typedef enum{
+    PORT_I2C_1 = 0,
+    PORT_I2C_SIZE,
+    PORT_I2C_INVALID = 255,
+}PORT_I2C_TYPE;
+
 #endif /*__BOARD__H_*/
 

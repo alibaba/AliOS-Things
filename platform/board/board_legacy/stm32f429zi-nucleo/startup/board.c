@@ -20,6 +20,7 @@
 #include "hal_can_stm32f4.h"
 #include "hal_timer_stm32f4.h"
 #include "hal_pwm_stm32f4.h"
+#include "hal_i2c_stm32f4.h"
 
 #ifdef AOS_CANOPEN
 #include "co_adapter.h"
@@ -90,7 +91,10 @@ UART_MAPPING UART_MAPPING_TABLE[] =
     { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
 };
 
-void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
+I2C_MAPPING i2c_mapping_table[PORT_I2C_SIZE] = {
+    {PORT_I2C_1,I2C1,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_24,HAL_GPIO_25}},
+    {PORT_I2C_2,I2C2,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_81,HAL_GPIO_80}},
+};
 
 static void stduart_init(void);
 static void I2C1_init();
@@ -191,7 +195,7 @@ static void stduart_init(void)
 static void I2C1_init()
 {
     i2c_dev_t i2c_1 = {
-        .port                 = 1,
+        .port                 = PORT_I2C_1,
         .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
         .config.freq          = I2C_BUS_BIT_RATES_100K,
         .config.mode          = I2C_MODE_MASTER,
