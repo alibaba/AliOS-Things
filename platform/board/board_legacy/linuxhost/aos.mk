@@ -27,7 +27,7 @@ GLOBAL_ASMFLAGS += -m32
 GLOBAL_CFLAGS   += -m32  -std=gnu99
 GLOBAL_LDFLAGS  += -m32
 
-GLOBAL_INCLUDES += .
+GLOBAL_INCLUDES += . ./config
 
 # Define the default component testcase set
 TEST_COMPONENTS += basic_test aos_test cjson_test
@@ -36,3 +36,10 @@ TEST_COMPONENTS += netmgr_test wifi_hal_test
 TEST_COMPONENTS += rbtree_test
 
 MESHLOWPOWER := 1
+
+ifneq ($(osal),posix)
+$(NAME)_SOURCES += config/k_config.c
+else
+endif
+
+$(NAME)_SOURCES += startup/board.c startup/startup.c

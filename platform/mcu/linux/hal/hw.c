@@ -260,25 +260,16 @@ extern hal_wifi_module_t aos_wifi_module_athost;
 #else
 extern hal_wifi_module_t sim_aos_wifi_linux;
 #endif
-uart_dev_t uart_0;
+
+extern int board_getflash_args(void);
+void flash_partition_init(void)
+{
+    per_pid_flash = board_getflash_args();
+}
 
 void linux_wifi_register(void);
-void hw_start_hal(options_t *poptions)
+void hw_start_wifi_hal(void)
 {
-    uart_0.port                = 0;
-    uart_0.config.baud_rate    = 921600;
-    uart_0.config.data_width   = DATA_WIDTH_8BIT;
-    uart_0.config.parity       = NO_PARITY;
-    uart_0.config.stop_bits    = STOP_BITS_1;
-    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
-
-    per_pid_flash = poptions->flash.per_pid;
-
-#ifdef AOS_COMP_CLI
-    if (poptions->cli.enable)
-        hal_uart_init(&uart_0);
-#endif
-
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined(DEV_SAL_ATHOST)
