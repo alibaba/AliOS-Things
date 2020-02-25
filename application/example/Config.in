@@ -336,5 +336,11 @@ if AOS_APP_DEBUG_APP
         default "debug_app"
 endif
 
+source "application/example/example_legacy/wifi_at/Config.in"
+if AOS_APP_WIFI_AT_APP
+    config AOS_BUILD_APP
+        default "wifi_at"
+endif
+
 endchoice
 endif

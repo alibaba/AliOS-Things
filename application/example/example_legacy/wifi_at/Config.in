@@ -1,0 +1,13 @@
+config AOS_APP_WIFI_AT_APP
+    bool "wifi_at_app"
+    help
+        wifi at sample
+
+if AOS_APP_WIFI_AT_APP
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
+
