@@ -71,6 +71,7 @@ void hal_watchdog_app_enable(void)
      * trigger the system reboot. */
     printf("delete the watchdog fedding task\r\n");
     aos_task_delete(TASK_FEEDWDG_NAME);
+    printf("There is no place to feed the watchdog now\r\n");
 }
 #endif
 
