@@ -42,4 +42,11 @@ CONFIG_TFS_SW             := y
 CONFIG_TFS_TEST           := n
 
 GLOBAL_CFLAGS   += -std=gnu99
-GLOBAL_INCLUDES += .
+GLOBAL_INCLUDES += . ./config
+
+ifneq ($(osal),posix)
+$(NAME)_SOURCES += config/k_config.c
+else
+endif
+
+$(NAME)_SOURCES += startup/board.c startup/startup.c
