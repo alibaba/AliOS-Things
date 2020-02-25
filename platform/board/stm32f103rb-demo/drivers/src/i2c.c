@@ -59,12 +59,13 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
         PB8     ------> I2C1_SCL
         PB9     ------> I2C1_SDA
         */
+        /*
         GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         //GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);*/
 
         /* I2C1 clock enable */
         __HAL_RCC_I2C1_CLK_ENABLE();
