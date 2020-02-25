@@ -10,14 +10,15 @@ SUPPORT_MBINS       := no
 HOST_MCU_NAME      := STM32F429ZIT6
 ENABLE_VFP         := 1
 
+GLOBAL_DEFINES += HAL_VERSION=30100
+
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr network
 
 
 $(NAME)_SOURCES += config/partition_conf.c \
                    config/k_config.c \
                    startup/board.c \
-                   startup/startup.c \
-                   drivers/mbmaster_hal/port_serial.c
+                   startup/startup.c
 
 $(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
                    drivers/Src/can.c               \
@@ -26,7 +27,6 @@ $(NAME)_SOURCES += drivers/Src/stm32f4xx_hal_msp.c \
                    drivers/Src/eth.c               \
                    drivers/Src/gpio.c              \
                    drivers/Src/pwm.c               \
-                   drivers/Src/usart.c             \
                    drivers/Src/usb_otg.c           \
                    drivers/Src/dma.c               \
                    drivers/Src/adc.c               \
