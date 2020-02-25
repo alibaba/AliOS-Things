@@ -15,6 +15,7 @@
 
 #include "hal_uart_stm32f4.h"
 #include "hal_gpio_stm32f4.h"
+#include "hal_i2c_stm32f4.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -54,7 +55,7 @@ UART_MAPPING UART_MAPPING_TABLE[] =
     { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048} }
 };
 
-void* i2c_mapping_table[] = {I2C1, I2C2, I2C3};
+I2C_MAPPING i2c_mapping_table[] = {{PORT_I2C_1,I2C1}};
 
 static void stduart_init(void);
 
@@ -91,7 +92,7 @@ static void stduart_init(void)
 static void I2C1_init()
 {
     i2c_dev_t i2c_1 = {
-        .port                 = 1,
+        .port                 = 0,
         .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
         .config.freq          = I2C_BUS_BIT_RATES_100K,
         .config.mode          = I2C_MODE_MASTER,

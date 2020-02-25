@@ -56,6 +56,12 @@ typedef enum{
     PORT_PWM_INVALID = 255,
 }PORT_PWM_TYPE;
 
+typedef enum{
+    PORT_I2C_1 = 1,
+    PORT_I2C_2,
+    PORT_I2C_SIZE,
+    PORT_I2C_INVALID = 255,
+}PORT_I2C_TYPE;
 
 #endif /*__BOARD__H_*/
 
