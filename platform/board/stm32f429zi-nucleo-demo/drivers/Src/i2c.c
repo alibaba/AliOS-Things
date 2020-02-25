@@ -71,7 +71,7 @@ void MX_I2C1_Init(void)
 void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 {
 
-    GPIO_InitTypeDef GPIO_InitStruct;
+    //GPIO_InitTypeDef GPIO_InitStruct;
     if(i2cHandle->Instance==I2C1)
     {
         /* USER CODE BEGIN I2C1_MspInit 0 */
@@ -82,12 +82,13 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
         PB8     ------> I2C1_SCL
         PB9     ------> I2C1_SDA
         */
+        /*
         GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);*/
 
         /* I2C1 clock enable */
         __HAL_RCC_I2C1_CLK_ENABLE();
@@ -106,12 +107,13 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
           PF1     ------> I2C2_SCL
           PF0     ------> I2C2_SDA
           */
+          /*
           GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
           GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
           GPIO_InitStruct.Pull = GPIO_PULLUP;
           GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
           GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
-          HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+          HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);*/
 
           /* I2C2 clock enable */
           __HAL_RCC_I2C2_CLK_ENABLE();
@@ -142,7 +144,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
     PB8     ------> I2C1_SCL
     PB9     ------> I2C1_SDA
     */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8|GPIO_PIN_9);
+    //HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8|GPIO_PIN_9);
 
   /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
@@ -161,7 +163,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
     PF1     ------> I2C2_SCL
     PF0     ------> I2C2_SDA
     */
-    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_0|GPIO_PIN_1);
+    //HAL_GPIO_DeInit(GPIOF, GPIO_PIN_0|GPIO_PIN_1);
 
   /* USER CODE BEGIN I2C2_MspDeInit 1 */
 
