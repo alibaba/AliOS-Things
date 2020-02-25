@@ -9,6 +9,7 @@ from lib.code import get_include_file, get_configin_file
 
 INCLUDE_FOLDER = "include"
 COMPONENT_FOLDER = ["application", "test", "core", "platform", "components"]
+COMPONENT_2_FOLDER = ["bus", "dm", "fs", "network", "peripherals", "service", "utility", "wireless", "generals"]
 
 def get_comp_include_info(comp_name, mkfile, common_include_dir):
     """ Get include infos from mkfile by searching lines started with GLOBAL_INCLUDES:
@@ -46,9 +47,15 @@ def get_comp_include_info(comp_name, mkfile, common_include_dir):
         dirs = list(set(dirs))
         include_info["include_dirs"] = [os.path.abspath(os.path.join(base_dir, dir)) for dir in dirs]
     
+    component_sets_dir = [common_include_dir]
+    for tmp_comp_dir in COMPONENT_2_FOLDER:
+        component_sets_dir.append(os.path.join(common_include_dir, tmp_comp_dir))
+
     ret = []
     for dir in include_info["include_dirs"]:
-        ret = get_include_file(dir) + ret
+        # do not scan include files for component-sets folder
+        if dir not in component_sets_dir:
+            ret = get_include_file(dir) + ret
 
     """ component in ./core, and its header files are in
         ./include/aos/<component_name>.h
