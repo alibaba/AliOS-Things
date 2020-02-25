@@ -15,8 +15,6 @@
 #define SOC_PACKAGE_PIN_MAX      144
 #define TOTAL_GPIO_NUM            7
 
-#define MAX_I2C_BUS_NUM          2
-
 typedef enum{
     PORT_UART_STD,
     PORT_UART_AT,
@@ -76,7 +74,7 @@ typedef enum{
 }PORT_PWM_TYPE;
 
 typedef enum{
-    PORT_I2C_1 = 1,
+    PORT_I2C_1 = 0,
     PORT_I2C_2,
     PORT_I2C_SIZE,
     PORT_I2C_INVALID = 255,
