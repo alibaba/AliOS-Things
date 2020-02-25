@@ -48,25 +48,24 @@ GLOBAL_DEFINES   += DEBUG_CONFIG_ERRDUMP=0
 $(NAME)_SOURCES :=
 
 ifneq ($(osal),posix)
-$(NAME)_SOURCES += soc/soc_impl.c
-$(NAME)_SOURCES += soc/hook_impl.c
+#$(NAME)_SOURCES += soc/soc_impl.c
+#$(NAME)_SOURCES += soc/hook_impl.c
 else
 $(NAME)_DEFINES += CONFIG_OSAL_POSIX
 endif
 
 $(NAME)_SOURCES += soc/uart.c
-
+$(NAME)_SOURCES += soc/arg_options.c
 # mcu
-$(NAME)_SOURCES += main/arg_options.c
-$(NAME)_SOURCES += main/main.c
-$(NAME)_SOURCES += main/hw.c
-$(NAME)_SOURCES += main/wifi_port.c
-$(NAME)_SOURCES += main/nand.c
-$(NAME)_SOURCES += main/vfs_trap.c
-$(NAME)_SOURCES += main/ota.c
+#$(NAME)_SOURCES += hal/main.c
+$(NAME)_SOURCES += hal/hw.c
+$(NAME)_SOURCES += hal/wifi_port.c
+$(NAME)_SOURCES += hal/nand.c
+$(NAME)_SOURCES += hal/vfs_trap.c
+$(NAME)_SOURCES += hal/ota.c
 
 ifneq (,$(filter fatfs,$(COMPONENTS)))
-$(NAME)_SOURCES += main/sdmmc.c
+$(NAME)_SOURCES += hal/sdmmc.c
 endif
 
 ifeq ($(linux80211),1)
