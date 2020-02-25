@@ -351,6 +351,17 @@ def cli(projectname, board, projectdir, templateapp):
         click.echo("No such board found: \"%s\"" % board)
         return 1
 
+    if "/example_legacy/" in templatedir:
+        if "/board_legacy/" not in boarddir:
+            click.echo('legacy app "%s" does not work on board "%s"\nit only works on legacy board' % (templateapp, board))
+            return 1 
+    else:
+        if "/board_legacy/" in boarddir:
+            if templateapp:
+                click.echo('app "%s" does not work on legacy board "%s"\nit only works on non-legacy board' % (templateapp, board))
+            else:
+                click.echo('template app does not work on legacy board "%s"\nit only works on non-legacy board' % (board))
+            return 1 
     os.makedirs(destdir)
     if templateapp:
         copy_demo_app(templatedir, destdir, projectname, board, boarddir, templateapp)
