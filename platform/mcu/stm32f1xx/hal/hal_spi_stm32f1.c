@@ -32,7 +32,7 @@ static stm32_spi_t stm32_spi[PORT_SPI_SIZE];
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4);
 static int32_t spi_freq_transform(SPI_TypeDef* spiIns, uint32_t freq_hal, uint32_t *BaudRatePrescaler_stm32l4);
 void spi_flush_rxregister(SPI_HandleTypeDef *SPIHandle);
-int32_t hal_gpio_group(uint16_t hal_pin, GPIO_TypeDef **GPIOx);
+GPIO_TypeDef *hal_gpio_typedef(uint16_t hal_pin);
 uint32_t hal_gpio_pin(uint16_t hal_pin);
 
 
@@ -89,7 +89,11 @@ uint32_t hal_spi_pins_map(uint8_t logic_spi)
     SPI_HandleTypeDef* spi_handle=NULL;
     GPIO_TypeDef  *GPIOx;
     uint32_t Pin;
+    int i;
     GPIO_InitTypeDef GPIO_InitStruct;
+
+    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
+    (void)spi_handle;
 
     SPI_MAPPING* spiIns = GetSPIMapping(logic_spi);
     if(spiIns==NULL)
@@ -97,52 +101,23 @@ uint32_t hal_spi_pins_map(uint8_t logic_spi)
         return -1;
     }
 
-    if(spiIns->pinsmap.needmap == 0){
+    if(spiIns->needmap != HAL_SPI_GPIO_NEED_MAP){
         return -1;
     }
 
-    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
-    (void)spi_handle;
-
-    /*CLK*/
-    hal_gpio_group(spiIns->pinsmap.clk_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.clk_pin);
-    GPIO_InitStruct.Pin = Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //GPIO_InitStruct.Alternate = alternate;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-
-    /*CS*/
-    hal_gpio_group(spiIns->pinsmap.cs_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.cs_pin);
-    GPIO_InitStruct.Pin = Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //GPIO_InitStruct.Alternate = alternate;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-
-    /*MOSI*/
-    hal_gpio_group(spiIns->pinsmap.mosi_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.mosi_pin);
-    GPIO_InitStruct.Pin = Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //GPIO_InitStruct.Alternate = alternate;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-
-    /*MISO*/
-    hal_gpio_group(spiIns->pinsmap.miso_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.miso_pin);
-    GPIO_InitStruct.Pin = Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //GPIO_InitStruct.Alternate = alternate;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+    /*CLK,CS,MOSI,MISO*/
+    for(i = 0; i < 4 ; i++){
+        GPIOx = hal_gpio_typedef(spiIns->gpiomaps[i]);
+        Pin = hal_gpio_pin(spiIns->gpiomaps[i]);
+        GPIO_InitStruct.Pin = Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        //GPIO_InitStruct.Alternate = alternate;
+        HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+		
+        hal_gpio_enable_clk(spiIns->gpiomaps[i]);
+    }
 
 }
 
@@ -151,7 +126,11 @@ uint32_t hal_spi_pins_unmap(uint8_t logic_spi)
     SPI_HandleTypeDef* spi_handle=NULL;
     GPIO_TypeDef  *GPIOx;
     uint32_t Pin;
+    int i;
     GPIO_InitTypeDef GPIO_InitStruct;
+
+    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
+    (void)spi_handle;
 
     SPI_MAPPING* spiIns = GetSPIMapping(logic_spi);
     if(spiIns==NULL)
@@ -159,32 +138,16 @@ uint32_t hal_spi_pins_unmap(uint8_t logic_spi)
         return -1;
     }
 
-    if(spiIns->pinsmap.needmap == 0){
+    if(spiIns->needmap != HAL_SPI_GPIO_NEED_MAP){
         return -1;
     }
 
-    spi_handle = &(stm32_spi[logic_spi].hal_spi_handle);
-    (void)spi_handle;
-
-    /*CLK*/
-    hal_gpio_group(spiIns->pinsmap.clk_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.clk_pin);
-    HAL_GPIO_DeInit(GPIOx, Pin);
-
-    /*CS*/
-    hal_gpio_group(spiIns->pinsmap.cs_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.cs_pin);
-    HAL_GPIO_DeInit(GPIOx, Pin);
-
-    /*MOSI*/
-    hal_gpio_group(spiIns->pinsmap.mosi_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.mosi_pin);
-    HAL_GPIO_DeInit(GPIOx, Pin);
-
-    /*MISO*/
-    hal_gpio_group(spiIns->pinsmap.miso_pin,&GPIOx);
-    Pin = hal_gpio_pin(spiIns->pinsmap.miso_pin);
-    HAL_GPIO_DeInit(GPIOx, Pin);
+    /*CLK,CS,MOSI,MISO*/
+    for(i = 0; i < 4; i++){
+        GPIOx = hal_gpio_typedef(spiIns->gpiomaps[i]);
+        Pin = hal_gpio_pin(spiIns->gpiomaps[i]);
+        HAL_GPIO_DeInit(GPIOx, Pin);
+    }
 
 }
 
