@@ -23,26 +23,28 @@ typedef enum{
     PORT_UART_LORA,
     PORT_UART_SIZE,
     PORT_UART_INVALID = 255,
-}PORT_UART_TYPE;
+} PORT_UART_TYPE;
 
 typedef enum{
     PORT_SPI_1,
     PORT_SPI_2,
     PORT_SPI_SIZE,
     PORT_SPI_INVALID =255,
-}PORT_SPI_TYPE;
+} PORT_SPI_TYPE;
 
 typedef enum {
     PORT_ADC_1,
     PORT_ADC_2,
     PORT_ADC_SIZE,
     PORT_ADC_INVALID =255,
+    PORT_ADC_DEMO = PORT_ADC_1,
 } PORT_ADC_TYPE;
 
 typedef enum {
     PORT_DAC_1,
     PORT_DAC_SIZE,
     PORT_DAC_INVALID =255,
+    PORT_DAC_DEMO = PORT_DAC_1,
 } PORT_DAC_TYPE;
 
 typedef enum{
@@ -50,7 +52,7 @@ typedef enum{
     PORT_CAN_CANOPEN,
     PORT_CAN_SIZE,
     PORT_CAN_INVALID = 255,
-}PORT_CAN_TYPE;
+} PORT_CAN_TYPE;
 
 typedef enum{
     PORT_TIMER_CANOPEN = 0,
@@ -62,7 +64,8 @@ typedef enum{
     PORT_TIMER_5 = 5,
     PORT_TIMER_SIZE,
     PORT_TIMER_INVALID = 255,
-}PORT_TIMER_TYPE;
+    PORT_TIMER_DEMO = PORT_TIMER_3,
+} PORT_TIMER_TYPE;
 
 typedef enum{
     PORT_PWM_1,
@@ -71,14 +74,15 @@ typedef enum{
     PORT_PWM_4,
     PORT_PWM_SIZE,
     PORT_PWM_INVALID = 255,
-}PORT_PWM_TYPE;
+    PORT_PWM_DEMO = PORT_PWM_2,
+} PORT_PWM_TYPE;
 
 typedef enum{
     PORT_I2C_1 = 0,
     PORT_I2C_2,
     PORT_I2C_SIZE,
     PORT_I2C_INVALID = 255,
-}PORT_I2C_TYPE;
+} PORT_I2C_TYPE;
 
 typedef enum{
     PORT_WDG_0 = 1,
@@ -192,17 +196,6 @@ typedef enum{
 
 #endif /* AOS_HAL_GPIO_ENABLED > 0 */
 
-#if (AOS_HAL_TIMER_ENABLED > 0)
-
-#ifndef HALAPP_LED_TEST
-#define HALAPP_LED_TEST      LED0
-#endif
-
-#ifndef HALAPP_TIMER_TEST
-#define HALAPP_TIMER_TEST     PORT_TIMER_5
-#endif
-#endif /* AOS_HAL_TIMER_ENABLED > 0 */
-
 #if (AOS_HAL_PWM_ENABLED > 0)
 
 #ifndef HALAPP_PWM_TEST
@@ -210,16 +203,6 @@ typedef enum{
 #endif
 
 #endif /* AOS_HAL_PWM_ENABLED > 0 */
-
-#if (AOS_HAL_ADC_ENABLED > 0)
-#define HALAPP_ADC PORT_ADC_1
-#endif /* AOS_HAL_ADC_ENABLED */
-
-#if (AOS_HAL_DAC_ENABLED > 0)
-#include "hal_dac_stm32f4.h"
-#define HALAPP_DAC PORT_DAC_1
-#define HALAPP_DAC_CHANNEL HAL_DAC_CHANNEL_1
-#endif /* AOS_HAL_DAC_ENABLED */
 
 #endif /*__BOARD__H_*/
 
