@@ -12,7 +12,7 @@
 #include "aos/hal/i2c.h"
 #include "aos/hal/can.h"
 #include "aos/hal/timer.h"
-
+#include "aos/init.h"
 #include "stm32f4xx_hal.h"
 #include "hal_uart_stm32f4.h"
 #include "hal_gpio_stm32f4.h"
@@ -315,6 +315,11 @@ void board_stduart_init(void)
 void board_dma_init(void)
 {
     MX_DMA_Init();
+}
+
+void board_kinit_init(kinit_t* init_args)
+{
+    return;
 }
 
 void board_wifi_init(void)
