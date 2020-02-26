@@ -288,6 +288,12 @@ if AOS_APP_ULOG_APP
         default "ulog_app"
 endif
 
+source "application/example/vfs_demo/Config.in"
+if AOS_APP_VFS_DEMO
+    config AOS_BUILD_APP
+        default "vfs_demo"
+endif
+
 source "application/example/example_legacy/sal_app/Config.in"
 if AOS_APP_SAL_APP
     config AOS_BUILD_APP
