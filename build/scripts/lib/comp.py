@@ -10,7 +10,7 @@ def find_comp_mkfile(dirname):
     exclude out, build, publish folder """
     mklist = []
     for root, dirs, files in os.walk(dirname):
-        tmp = root + '/'
+        tmp = (root + '/').replace("\\", "/")
         if '/out/' in tmp or '/build/' in tmp or '/publish/' in tmp:
             continue
 
