@@ -58,12 +58,13 @@ def write_config_file(source_root, config_file, mklist, appdir=None):
     config_keys = []
     # comp name defined by NAME
     real_names = []
-    app_src_dir = [os.path.join(source_root, "application"), os.path.join(source_root, "test", "develop")]
-    board_src_dir = [os.path.join(source_root, "platform", "board")]
+    app_src_dir = [os.path.join(source_root, "application").replace("\\", "/"), os.path.join(source_root, "test", "develop").replace("\\", "/")]
+    board_src_dir = [os.path.join(source_root, "platform", "board").replace("\\", "/")]
     appdir = os.environ.get("APPDIR")
     if appdir:
+        appdir = appdir.replace("\\", "/")
         app_src_dir.append(appdir)
-        board_src_dir.append(os.path.join(appdir, "board"))
+        board_src_dir.append(os.path.join(appdir, "board").replace("\\", "/"))
 
     for mkfile in mklist:
         comptype = "normal"
