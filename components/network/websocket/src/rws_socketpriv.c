@@ -207,7 +207,7 @@ rws_bool rws_socket_send(rws_socket s, const void * data, const size_t data_size
 
 	return rws_false;
 }
-
+    
 rws_bool rws_socket_recv(rws_socket s) {
 	int is_reading = 1, error_number = -1, len = -1;
 	char * received = NULL;
@@ -253,11 +253,9 @@ rws_bool rws_socket_recv(rws_socket s) {
 		} else if (len == 0) {
 			is_reading = 0;
 		} else {
-            is_reading = 0;
 #ifdef WEBSOCKET_SSL_ENABLE
-            if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
-                ERR("peer close -0x%04x", -len);
-                // net_status = -2; /* connection is closed */
+            if (MBEDTLS_ERR_SSL_WANT_READ == len) {
+                continue;
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == len)
                     || (MBEDTLS_ERR_SSL_CONN_EOF == len)
                     || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == len)
@@ -265,7 +263,9 @@ rws_bool rws_socket_recv(rws_socket s) {
                 /* read already complete */
                 /* if call mbedtls_ssl_read again, it will return 0 (means EOF) */
                 ssl_status = 1;
+                is_reading = 0;
             } else {
+            	is_reading = 0;
             	/* Connection error */
                 ERR("recv -0x%04x", -len);
             }
@@ -274,9 +274,18 @@ rws_bool rws_socket_recv(rws_socket s) {
 
 	}
 
-	//if (error_number < 0) return rws_true;
-	if (error_number != WSAEWOULDBLOCK && error_number != WSAEINPROGRESS
-		&& ssl_status != 1) {
+	if (s->received_len > 0) {
+		return rws_true;
+	}
+
+	if (
+#ifdef WEBSOCKET_SSL_ENABLE
+		ssl_status != 1
+#else
+		error_number != WSAEWOULDBLOCK &&
+		error_number != WSAEINPROGRESS
+#endif
+		) {
 		ERR("in close websocket %d\n", error_number);
 
 		s->error = rws_error_new_code_descr(rws_error_code_read_write_socket, "Failed read/write socket");
@@ -1176,7 +1185,6 @@ int rws_ssl_conn(rws_socket s)
         ret = -1;
         goto exit;
     }
-    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, READ_TIMEOUT_MS);
 
     // TODO: add customerization encryption algorithm
     memcpy(&ssl->profile, ssl->ssl_conf.cert_profile, sizeof(mbedtls_x509_crt_profile));
@@ -1202,9 +1210,8 @@ int rws_ssl_conn(rws_socket s)
         goto exit;
     }
 
-    mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, _rws_tls_net_send, _rws_tls_net_recv, _rws_tls_net_recv_timeout);
-    // mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
-	//mbedtls_net_set_block(&ssl->net_ctx);
+    mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, 10000);
 
     DBG("start to handshake...");
     /*
@@ -1217,7 +1224,7 @@ int rws_ssl_conn(rws_socket s)
             goto exit;
         }
     }
-    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, 5);
+    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, 100);
 
     /*
      * Verify the server certificate
