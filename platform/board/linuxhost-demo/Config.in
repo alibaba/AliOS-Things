@@ -1,0 +1,40 @@
+config AOS_BOARD_LINUXHOST_DEMO
+    bool "LinuxHost"
+    select AOS_MCU_LINUXIMPL
+    select AOS_COMP_KERNEL_INIT
+    select CONFIG_LINUX_TCPIP if !BSP_SUPPORT_EXTERNAL_MODULE
+    select CONFIG_NO_TCPIP    if BSP_SUPPORT_EXTERNAL_MODULE
+    help
+      configuration for board linuxhost-demo
+
+if AOS_BOARD_LINUXHOST_DEMO
+# Configurations for board linuxhost-demo
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool "Support external module"
+    default n
+
+config MESHLOWPOWER
+    bool
+    default y
+
+# link security config
+config CONFIG_LS_DEBUG
+    bool
+    default y
+config CONFIG_LS_ID2_OTP
+    bool
+    default y
+config CONFIG_LS_KM_SE
+    bool
+    default n
+config CONFIG_LS_KM_TEE
+    bool
+    default n
+
+endif #AOS_BOARD_LINUXHOST_DEMO

@@ -135,10 +135,20 @@ void board_stduart_init(void)
 
 }
 
-void board_network_init(void)
+void board_wifi_init(void)
 {
     aos_lwip_features_init();
     hw_start_wifi_hal();
+}
+
+void board_network_init(void)
+{
+    board_wifi_init();
+}
+
+void board_gpio_init(void)
+{
+
 }
 
 /**

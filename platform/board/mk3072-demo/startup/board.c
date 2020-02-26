@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "aos/init.h"
 #include "lega_cm4.h"
 #include "lega_common.h"
 #include "systick_delay.h"
@@ -177,6 +178,11 @@ void board_network_init(void)
 {
     tcpip_init( NULL, NULL );
     hw_start_hal();
+}
+
+void board_kinit_init(kinit_t* init_args)
+{
+    return;
 }
 
 /**
