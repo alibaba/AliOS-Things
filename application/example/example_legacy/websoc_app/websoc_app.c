@@ -17,14 +17,14 @@
 #define WEBSOCKET_DISCONNECTED             (0x02)
 #define WEBSOCKET_DATA_NOT_RECVED          (0x04)
 #define WEBSOCKET_MAX_INSTANCE_NUM         1
-#define WEBSOCKET_DISCON_PONG_TIMEOUT_MS   15000
+#define WEBSOCKET_DISCON_PONG_TIMEOUT_MS   30000
 
 typedef struct websoc_instance
 {
     int state_flags; /* the state of the websocket */
     rws_socket socket; /* socket context */
     int id; /* instance array index */
-    long long last_recv_pong_ms;
+    long long last_ping_sent_ms;
 } websoc_instance_t, *websoc_instance_ptr;
 
 /* network state flag */
@@ -83,6 +83,8 @@ static void on_socket_received_text(rws_socket socket, const char * text, const 
     websoc_instance_ptr instance = find_websoc_instance(socket);
     if (instance == NULL)
         return;
+
+    instance->last_ping_sent_ms = 0;
     
     LOGI(TAG, "instance %d recv text, len %d finished %d contenct %s \r\n", instance->id, length, finished, text);
 }
@@ -92,6 +94,8 @@ static void on_socket_received_bin(rws_socket socket, const void * data, const u
     websoc_instance_ptr instance = find_websoc_instance(socket);
     if (instance == NULL)
         return;
+
+    instance->last_ping_sent_ms = 0;
 
     LOGI(TAG, "instance %d rev bin, len %d finished %d\r\n", instance->id, length, finished);
 }
@@ -146,8 +150,9 @@ static void on_socket_received_pong(rws_socket socket)
         return;
     }
 
+    instance->last_ping_sent_ms = 0;
+
     LOGI(TAG, "instance %d socket received pong!", instance->id);
-    instance->last_recv_pong_ms = aos_now_ms();
 }
 
 static void on_socket_send_ping(rws_socket socket)
@@ -165,6 +170,8 @@ static void on_socket_send_ping(rws_socket socket)
     }
 
     LOGI(TAG, "intance %d socket ping sent!", instance->id);
+    if (instance->last_ping_sent_ms == 0)
+        instance->last_ping_sent_ms = aos_now_ms();
 }
 
 static char *text_arr[] = {"12345566778888999999999999999999999999",
@@ -285,8 +292,8 @@ reconnect:
             rws_bool ret;
 
             /* check whether pong timeout */
-            if (instance->last_recv_pong_ms != 0 &&
-                (aos_now_ms() - instance->last_recv_pong_ms) > WEBSOCKET_DISCON_PONG_TIMEOUT_MS) {
+            if (instance->last_ping_sent_ms != 0 &&
+                (aos_now_ms() - instance->last_ping_sent_ms) > WEBSOCKET_DISCON_PONG_TIMEOUT_MS) {
                 instance->state_flags &= ~WEBSOCKET_CONNECTED;
                 instance->state_flags |= WEBSOCKET_DISCONNECTED;
                 continue;
@@ -322,7 +329,7 @@ reconnect:
             rws_socket_disconnect_and_release(_socket);
             instance->socket = _socket = NULL;
             instance->state_flags = 0;
-            instance->last_recv_pong_ms = 0;
+            instance->last_ping_sent_ms = 0;
 
             goto reconnect;
         } else {
