@@ -11,6 +11,9 @@ $(NAME)_SOURCES += cpu_impl.c
 ifeq ($(PLATFORM),linuxhost)
 $(NAME)_SOURCES += swap.S
 endif
+ifeq ($(PLATFORM),linuxhost-demo)
+$(NAME)_SOURCES += swap.S
+endif
 endif
 
 $(NAME)_INCLUDES += .
