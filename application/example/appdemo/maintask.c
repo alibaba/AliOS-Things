@@ -22,6 +22,7 @@ extern void board_stduart_init(void);
 extern void board_dma_init(void);
 extern void board_gpio_init(void);
 extern void board_wifi_init(void);
+extern void board_kinit_init(kinit_t* init_args);
 
 /*  For user config
     kinit.argc = 0;
@@ -47,6 +48,7 @@ void aos_maintask(void* arg)
 {
     board_init();
     board_wifi_init();
+    board_kinit_init(&kinit);
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
