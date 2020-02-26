@@ -83,6 +83,7 @@ $(NAME)_SOURCES += hal/hal_uart_stm32f1.c  \
                    hal/hal_spi_stm32f1.c   \
                    hal/hal_dac_stm32f1.c   \
                    hal/hal_adc_stm32f1.c   \
+                   hal/hal_timer_stm32f1.c \
                    hal/hal_flash_stm32f1.c \
                    hal/hal_wdg_stm32f1.c
 
