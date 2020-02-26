@@ -1,0 +1,15 @@
+config AOS_APP_VFS_DEMO
+    bool "VFS"
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_RAMFS
+    help
+    Hello World
+
+if AOS_APP_VFS_DEMO
+# Configurations for app helloworld
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
