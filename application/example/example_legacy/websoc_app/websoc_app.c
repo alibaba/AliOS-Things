@@ -239,7 +239,7 @@ static int websoc_client_task(void)
     /* instance setup */
     instance = create_websoc_instance();
     if (!instance) {
-        LOGE(TAG, "Failed to create websocket instance.");
+        LOGE(TAG, "Failed to create new instance.");
         return -1;
     }
 
@@ -275,6 +275,7 @@ reconnect:
     /* wait until websocket connection is ready */
     while (!(instance->state_flags & WEBSOCKET_CONNECTED) &&
            !(instance->state_flags & WEBSOCKET_DISCONNECTED)) {
+        LOGI(TAG, "websocket wait connection...");
         rws_thread_sleep(1000);
     }
 
@@ -357,9 +358,9 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
     _network_ready = true;
 
     websoc_set_default_para();
-    aos_task_new("websoc_upload_1", websoc_client_task, NULL, 2 * 1024);
+    aos_task_new("websoc_app_1", websoc_client_task, NULL, 2 * 1024);
 #if (WEBSOCKET_MAX_INSTANCE_NUM > 1)
-    aos_task_new("websoc_upload_2", websoc_client_task, NULL, 2 * 1024);
+    aos_task_new("websoc_app_2", websoc_client_task, NULL, 2 * 1024);
 #endif
 }
 
@@ -377,7 +378,7 @@ int application_start(int argc, char *argv[])
 
     /* use netmgr command to setup network connection */
     netmgr_init();
-    netmgr_start(false);
+    netmgr_start(true);
 
     /* initialize instances */
     websoc_instances_init();
