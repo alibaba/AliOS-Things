@@ -10,7 +10,7 @@
 #include "aos/hal/uart.h"
 #include "board.h"
 #include "network/hal/wifi.h"
-
+#include "aos/init.h"
 #include "ameba_soc.h"
 #include "diag.h"
 #include "platform_stdlib.h"
@@ -248,6 +248,11 @@ void board_gpio_init()
 }
 
 void flash_partition_init()
+{
+    return;
+}
+
+void board_kinit_init(kinit_t* init_args)
 {
     return;
 }

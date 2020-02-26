@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "aos/init.h"
 #include "lega_cm4.h"
 #include "lega_common.h"
 #include "systick_delay.h"
@@ -215,3 +216,7 @@ void board_ota_init(void) {
 #endif
 }
 
+void board_kinit_init(kinit_t* init_args)
+{
+    return;
+}
