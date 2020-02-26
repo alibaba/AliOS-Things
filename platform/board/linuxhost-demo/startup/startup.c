@@ -26,13 +26,14 @@ extern void rl_cleanup_after_signal(void);
 extern void hw_start_hal(options_t *poptions);
 extern void netmgr_init(void);
 extern void cpu_tmr_sync(void);
+extern void aos_maintask(void* arg);
 
 #ifdef TFS_EMULATE
 extern int tfs_emulate_id2_index;
 #endif
 
 static options_t options = { 0 };
-static kinit_t kinit = { 0 };
+//static kinit_t kinit = { 0 };
 
 int csp_get_args(const char ***pargv)
 {
@@ -83,7 +84,7 @@ void flash_partition_init(void);
 void board_network_init(void);
 int board_basic_init(void);
 
-
+/*
 static void app_entry(void *arg)
 {
     board_tick_init();
@@ -94,21 +95,21 @@ static void app_entry(void *arg)
     board_kinit_init(&kinit);
     aos_components_init(&kinit);
 #ifndef AOS_BINS
-    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+    application_start(kinit.argc, kinit.argv);
 #endif
-}
+}*/
 
 static void start_app(void)
 {
 #ifndef CONFIG_OSAL_POSIX
 #if (RHINO_CONFIG_CPU_NUM > 1)
     ktask_t     *app_task;
-    krhino_task_cpu_dyn_create(&app_task, "app_task", 0, 20, 0, 2048, app_entry, 0, 1);
+    krhino_task_cpu_dyn_create(&app_task, "app_task", 0, 20, 0, 2048, aos_maintask, 0, 1);
 #else
-    aos_task_new("app", app_entry, NULL, 8192);
+    aos_task_new("app", aos_maintask, NULL, 8192);
 #endif
 #else
-    aos_task_new("app", app_entry, NULL, 8192);
+    aos_task_new("app", aos_maintask, NULL, 8192);
 #endif
 }
 

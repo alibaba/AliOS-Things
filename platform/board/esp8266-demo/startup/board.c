@@ -4,7 +4,7 @@
 
 #include "aos/hal/uart.h"
 #include "network/hal/wifi.h"
-
+#include "aos/init.h"
 #include "k_config.h"
 #include "board.h"
 
@@ -82,3 +82,7 @@ void board_network_init(void)
     board_wifi_init();
 }
 
+void board_kinit_init(kinit_t* init_args)
+{
+    return;
+}

@@ -1,0 +1,56 @@
+diff --git a/board/Config.in b/board/Config.in
+index 4ae5ffed7..31a55786d 100644
+--- a/board/Config.in
++++ b/board/Config.in
+@@ -48,6 +48,15 @@ if AOS_BOARD_MK3072_DEMO
+     source "platform/arch/arm/armv7m/Config.in"
+ endif
+ 
++source "platform/board/linuxhost-demo/Config.in"
++if AOS_BOARD_LINUXHOSTDEMO
++    config AOS_BUILD_BOARD
++        default "linuxhost-demo"
++
++    source "platform/mcu/linux/Config.in"
++    source "platform/arch/linux/Config.in"
++endif
++
+ source "platform/board/board_legacy/aaboard_demo/Config.in"
+ if AOS_BOARD_AABOARD_DEMO
+     config AOS_BUILD_BOARD
+diff --git a/board/board_legacy/linuxhost/startup/board.c b/board/board_legacy/linuxhost/startup/board.c
+index 0afafc28f..2ae01fa11 100644
+--- a/board/board_legacy/linuxhost/startup/board.c
++++ b/board/board_legacy/linuxhost/startup/board.c
+@@ -24,7 +24,7 @@
+ #define TAG "main"
+ 
+ extern void cpu_tmr_sync(void);
+-extern int board_kinit_init(kinit_t* init_args);
++extern void board_kinit_init(kinit_t* init_args);
+ extern void aos_lwip_features_init(void);
+ extern void hw_start_wifi_hal(void);
+ extern int board_getcli_args(void);
+diff --git a/board/board_legacy/linuxhost/startup/startup.c b/board/board_legacy/linuxhost/startup/startup.c
+index 8273e9d2f..2d12065b2 100644
+--- a/board/board_legacy/linuxhost/startup/startup.c
++++ b/board/board_legacy/linuxhost/startup/startup.c
+@@ -49,15 +49,15 @@ void aos_lwip_features_init(void)
+ #endif
+ }
+ 
+-int board_kinit_init(kinit_t* init_args)
++void board_kinit_init(kinit_t* init_args)
+ {
+     if(NULL == init_args){
+-        return -1;
++        return;
+     }
+     init_args->argc        = options.argc;
+     init_args->argv        = options.argv;
+     init_args->cli_enable  = options.cli.enable;
+-    return 0;
++    return;
+ }
+ 
+ int board_getcli_args(void)
