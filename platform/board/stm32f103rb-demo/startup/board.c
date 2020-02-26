@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "aos/init.h"
 #include "aos/hal/uart.h"
 
 #include "k_config.h"
@@ -244,6 +244,10 @@ void board_wifi_init(void)
 
 }
 
+void board_kinit_init(kinit_t* init_args)
+{
+    return;
+}
 
 /**
   * @brief System Clock Configuration

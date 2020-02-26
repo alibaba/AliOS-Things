@@ -48,6 +48,15 @@ if AOS_BOARD_MK3072_DEMO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "platform/board/linuxhost-demo/Config.in"
+if AOS_BOARD_LINUXHOST_DEMO
+    config AOS_BUILD_BOARD
+        default "linuxhost-demo"
+
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
+endif
+
 source "platform/board/board_legacy/aaboard_demo/Config.in"
 if AOS_BOARD_AABOARD_DEMO
     config AOS_BUILD_BOARD
