@@ -20,6 +20,7 @@ $(NAME)_SOURCES += config/k_config.c \
                    drivers/system_stm32f1xx.c \
                    drivers/src/i2c.c \
                    drivers/src/spi.c \
+                   drivers/src/timer.c \
                    startup/board.c \
                    startup/startup.c \
 

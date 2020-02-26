@@ -70,13 +70,9 @@ typedef enum{
 typedef enum {
     PORT_TIMER_0,
     PORT_TIMER_1,
-    PORT_TIMER_2,
-    PORT_TIMER_3,
-    PORT_TIMER_4,
-    PORT_TIMER_5,
     PORT_TIMER_SIZE,
     PORT_TIMER_INVALID = 255,
-    PORT_TIMER_DEMO = PORT_TIMER_3,
+    PORT_TIMER_DEMO = PORT_TIMER_1,
 };
 
 typedef enum{
@@ -123,7 +119,7 @@ typedef enum {
 #define AOS_HAL_I2C_ENABLED         1
 #define AOS_HAL_FLASH_ENABLED       1
 #define AOS_HAL_PWM_ENABLED         0
-#define AOS_HAL_TIMER_ENABLED       0
+#define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_WDG_ENABLED         1
 #define AOS_HAL_RTC_ENABLED         0
 #define AOS_HAL_ADC_ENABLED         1
