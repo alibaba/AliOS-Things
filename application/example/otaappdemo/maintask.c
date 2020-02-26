@@ -22,6 +22,7 @@ extern void board_stduart_init(void);
 extern void board_dma_init(void);
 extern void board_gpio_init(void);
 extern void board_network_init(void);
+extern int board_kinit_init(kinit_t* init_args);
 
 /*  For user config
     kinit.argc = 0;

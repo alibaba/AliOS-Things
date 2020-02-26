@@ -19,6 +19,7 @@ Set the correspondence in file platform\board\aaboard_demo\ucube.py.
 */
 extern void board_tick_init(void);
 extern void board_stduart_init(void);
+extern void board_kinit_init(kinit_t* init_args);
 
 /*  For user config
     kinit.argc = 0;
@@ -43,6 +44,7 @@ void board_init(void)
 void aos_maintask(void* arg)
 {
     board_init();
+    board_kinit_init(&kinit);
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
