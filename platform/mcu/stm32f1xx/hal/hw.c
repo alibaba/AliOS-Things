@@ -33,6 +33,7 @@ void hal_reboot(void)
     HAL_NVIC_SystemReset();
 }
 
+#if 0
 static void _timer_cb(void *timer, void *arg)
 {
     timer_dev_t *tmr = arg;
@@ -67,7 +68,7 @@ void hal_timer_stop(timer_dev_t *tmr)
     krhino_timer_dyn_del(tmr->priv);
     tmr->priv = NULL;
 }
-
+#endif
 void hw_start_hal(void)
 {
 }

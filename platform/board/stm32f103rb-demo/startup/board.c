@@ -27,7 +27,7 @@
 #include "hal_i2c_stm32f1.h"
 #include "hal_spi_stm32f1.h"
 #include "hal_adc_stm32f1.h"
-
+#include "hal_timer_stm32f1.h"
 
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -64,6 +64,13 @@ ADC_MAPPING ADC_MAPPING_TABLE[] = {
 };
 #endif /* HAL_ADC_MODULE_ENABLED */
 
+#ifdef HAL_TIM_MODULE_ENABLED
+TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
+{
+    {PORT_TIMER_DEMO, HAL_TIMER_4},
+    {PORT_TIMER_1, HAL_TIMER_2},
+};
+#endif /* HAL_TIM_MODULE_ENABLED */
 
 /**
   * @general board init entry board_basic_init
