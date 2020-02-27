@@ -28,6 +28,8 @@
 #include "hal_spi_stm32f1.h"
 #include "hal_adc_stm32f1.h"
 #include "hal_timer_stm32f1.h"
+#include "hal_pwm_stm32f1.h"
+
 
 uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -71,6 +73,25 @@ TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
     {PORT_TIMER_1, HAL_TIMER_2},
 };
 #endif /* HAL_TIM_MODULE_ENABLED */
+
+#ifdef HAL_TIM_MODULE_ENABLED
+static struct stm32_pwmchan_s pwm3chan[] = {
+    {
+        .channel = TIM_CHANNEL_3,
+        .mode = TIM_OCMODE_PWM1,
+        .out1 = {
+            .pol = TIM_OCPOLARITY_LOW,
+            .pin = LED2,
+        },
+    }
+};
+
+PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
+{
+    {PORT_PWM_3, HAL_TIMER_3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
+};
+#endif /* HAL_TIM_MODULE_ENABLED */
+
 
 /**
   * @general board init entry board_basic_init
