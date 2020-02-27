@@ -52,18 +52,12 @@ void start_monitor_delay_out();
 void stop_monitor_delay_out();
 
 
-#define UAGENT_DEBUG(...)
+#define UAGENT_DEBUG(fmt, ...) //printf("<D>UA %s[%d]: "fmt"\r\n", __func__, __LINE__, ##__VA_ARGS__)
 
-#define UAGENT_INFO(...) \
-    do{\
-        printf(__VA_ARGS__); \
-    } while (0);
 
-#define UAGENT_ERR(...) \
-    do{\
-        printf(__VA_ARGS__);\
-    }while(0);
+#define UAGENT_INFO(fmt, ...) printf("<I>UA %s[%d]: "fmt"\r\n", __func__, __LINE__, ##__VA_ARGS__)
 
+#define UAGENT_ERR(fmt, ...) printf("<E>UA %s[%d]: "fmt"\r\n", __func__, __LINE__, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }
