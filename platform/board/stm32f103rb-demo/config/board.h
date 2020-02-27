@@ -105,10 +105,16 @@ typedef enum {
 } PORT_ADC_TYPE;
 
 typedef enum {
-    PORT_WDG_0,
+    PORT_WDG_0 = 0,
     PORT_WDG_SIZE,
     PORT_WDG_INVALID =255,
 } PORT_WDG_TYPE;
+
+typedef enum {
+    PORT_RTC_0 = 0,
+    PORT_RTC_SIZE,
+    PORT_RTC_INVALID =255,
+} PORT_RTC_TYPE;
 
 /*
     hal support list
@@ -121,7 +127,7 @@ typedef enum {
 #define AOS_HAL_PWM_ENABLED         0
 #define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_WDG_ENABLED         1
-#define AOS_HAL_RTC_ENABLED         0
+#define AOS_HAL_RTC_ENABLED         1
 #define AOS_HAL_ADC_ENABLED         1
 #define AOS_HAL_DAC_ENABLED         0
 #define AOS_HAL_RNG_ENABLED         0
