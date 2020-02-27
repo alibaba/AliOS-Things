@@ -27,15 +27,15 @@ ifeq (y,$(strip $(COAP_SERVER)))
 $(NAME)_SOURCES += os/HAL_UDP_rhino.c
 endif
 
+$(NAME)_COMPONENTS-$(SUPPORT_TLS) += libiot_certs
+$(NAME)_COMPONENTS-$(USE_MBEDTLS) +=  mbedtls 
+$(NAME)_COMPONENTS-$(USE_ITLS) +=  itls id2 alicrypto
 ifeq (y,$(strip $(SUPPORT_TLS)))
     ifeq (y,$(strip $(USE_ITLS)))
-        $(NAME)_COMPONENTS +=  itls id2 alicrypto  libiot_certs 
         $(NAME)_SOURCES += os/HAL_TLS_itls.c
     else
-
         ifeq (y, $(strip $(MBEDTLS_CONFIG_TLS)))
         $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
-        $(NAME)_COMPONENTS +=  mbedtls libiot_certs
         $(NAME)_SOURCES += os/HAL_TLS_mbedtls.c 
         ifeq (y,$(strip $(HAL_TLS_DNS_ENHANCE)))
             $(NAME)_SOURCES += os/dns.c
@@ -44,11 +44,12 @@ ifeq (y,$(strip $(SUPPORT_TLS)))
     endif
 endif
 
+
+$(NAME)_COMPONENTS-$(COAP_DTLS_SUPPORT) += mbedtls libiot_certs
 ifeq (y,$(strip $(COAP_COMM_ENABLED)))
 ifeq (y,$(strip $(COAP_DTLS_SUPPORT)))
 $(info COAP_SUPPORT_DTLS = y, so compile DTLS)
 $(NAME)_SOURCES += os/HAL_DTLS_mbedtls.c
-$(NAME)_COMPONENTS += mbedtls libiot_certs
 $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
 endif
 $(NAME)_SOURCES += os/HAL_UDP_rhino.c
