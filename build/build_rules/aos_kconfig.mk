@@ -24,24 +24,8 @@ ifneq (,$(wildcard $(KCONFIG_DIR)COPYING))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
 endif
 
-ifeq (,$(KCONFIG_TOOLPATH))
-ifeq ($(HOST_OS),Win32)
-SYSTEM_KCONFIG_TOOLPATH = $(shell where kconfig-mconf.exe)
-else
-SYSTEM_KCONFIG_TOOLPATH = $(shell which kconfig-mconf)
-endif
-
-ifeq (,$(findstring kconfig-mconf,$(SYSTEM_KCONFIG_TOOLPATH)))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
 DOWNLOAD_KCONFIG = yes
-endif
-
-# Fix for which output: "no kconfig-mconf in ..."
-ifneq (,$(findstring no kconfig-mconf in,$(SYSTEM_KCONFIG_TOOLPATH)))
-KCONFIG_TOOLPATH := $(KCONFIG_DIR)
-DOWNLOAD_KCONFIG = yes
-endif
-endif
 
 KCONFIG_MCONF := $(KCONFIG_TOOLPATH)kconfig-mconf
 KCONFIG_CONF := $(KCONFIG_TOOLPATH)kconfig-conf
