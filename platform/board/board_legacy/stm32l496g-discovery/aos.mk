@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32L496G-DISCOVERY
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
-$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) += external_module
 
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
