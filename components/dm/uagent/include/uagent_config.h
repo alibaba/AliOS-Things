@@ -17,7 +17,13 @@
 #define UAGENT_PAYLOAD_CMD_SIZE         520
 #define UAGENT_PAYLOAD_CMD_STR_SIZE     512
 #define UAGENT_QUEUE_COUNT              4
+
+#ifndef UAGENT_CONFIG_INFO_PAYLOAD_SIZE
 #define UAGENT_INFO_PAYLOAD_SIZE        1200
+#else
+#define UAGENT_INFO_PAYLOAD_SIZE        UAGENT_CONFIG_INFO_PAYLOAD_SIZE
+#endif
+
 #define UAGENT_INFO_NEAR_FULL           800
 #define UAGENT_ROUTINE_TASK_STACK_DEPTH 4096
 
@@ -30,27 +36,44 @@
 
 #define UAGENT_MSG_IDX_INVALID 0xFFFFFFFF
 
-#define TOPIC_AGENT_MAN  "/%s/%s/user/device/man"
+#define TOPIC_AGENT_MAN  "/sys/%s/%s/_thing/service/invoke"
 
-#define TOPIC_AGENT_INFO "/%s/%s/user/device/info"
+#define TOPIC_AGENT_INFO "/sys/%s/%s/_thing/service/post"
 
 #define UAGENT_LOG_TAG   "AGENT"
 
 #define UAGENT_INFO_STR \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"}}"
+"{\"id\":%lu,\
+\"version\":\"1.0\",\
+\"params\":\
+{\"identifier\": \"_Devops.alios.uagent\",\
+ \"serviceParams\": \
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"},\
+\"method\": \"_thing.service.post\"\
+}}"
 
 #define UAGENT_FORMAT_PRE \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
+"{\"id\":%lu,\
+\"version\":\"1.0\",\
+\"method\": \"_thing.service.post\",\
+\"params\":\
+{\"identifier\": \"_Devops.alios.uagent\",\
+ \"serviceParams\": \
 {\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":"
 
-#define UAGENT_FORMAT_STR_SUFFIX "\"}}"
+#define UAGENT_FORMAT_STR_SUFFIX "\"}}}"
 
-#define UAGENT_FORMAT_OBJ_SUFFIX "}}"
+#define UAGENT_FORMAT_OBJ_SUFFIX "}}}"
 
 #define UAGENT_INFO_ACK_OK \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d}}"
+"{\"id\":%lu,\
+\"version\":\"1.0\",\
+\"params\":\
+{\"identifier\": \"_Devops.alios.uagent\",\
+ \"serviceParams\": \
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d},\
+\"method\": \"_thing.service.post\"\
+}}"
 
 #define UAGENT_INFO_ACK_FAIL \
 "{\"id\":%lu,\"version\":\"1.0\",\"params\":\
