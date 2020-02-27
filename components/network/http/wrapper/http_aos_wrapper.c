@@ -356,7 +356,7 @@ int http_ssl_conn_wrapper(httpclient_t *client, const char *host)
     }
 
     mbedtls_ssl_set_bio(&ssl->ssl_ctx, &ssl->net_ctx, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
-    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, HTTPCLIENT_MAX_RECV_WAIT_MS);
+    mbedtls_ssl_conf_read_timeout(&ssl->ssl_conf, 10000);
 
     /*
     * Handshake
