@@ -51,8 +51,7 @@ static char *auth_server_name = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/
 #endif
 /* @brief ota server name */
 static char *ota_url = "http://mjfile-test.smartmidea.net:80/050509031881.bin";
-/* @brief oss server name */
-static char *oss_url = "http://aliosthings.oss-cn-hangzhou.aliyuncs.com/ota4.bin";
+static char *oss_url = "";
 
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
@@ -306,14 +305,14 @@ static int32_t httpapp_ota_head(const char *url)
 }
 
 /* http up example */
-static char bin_to_up[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
+static char *bin_to_up = "hello up bin!";
 static int32_t httpapp_up(char *url)
 {
     httpclient_t client = {0};
     httpclient_data_t client_data = {0};
     int ret;
     char * customer_header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
-    char * content_type = "application/octet-stream";
+    char * content_type = "text/plain";
 
     memset(req_buf, 0, sizeof(req_buf));
     client_data.header_buf = req_buf;
@@ -326,7 +325,7 @@ static int32_t httpapp_up(char *url)
     httpclient_set_custom_header(&client, customer_header);
 
     client_data.post_buf = bin_to_up;
-    client_data.post_buf_len = sizeof(bin_to_up);
+    client_data.post_buf_len = strlen(bin_to_up);
     client_data.post_content_type = content_type;
     ret = httpclient_put(&client, url, &client_data);
     if( ret >= 0 ) {
@@ -387,7 +386,7 @@ static void httpapp_delayed_action(void *arg)
             httpapp_ota_head(ota_url);
             break;
         case HTTPAPP_DYNAMIC_UP:
-            httpapp_up(oss_url);
+            httpapp_up(httpapp_url);
             break;
         case HTTPAPP_GET:
             httpapp_get(httpapp_url);
@@ -419,7 +418,7 @@ void httpapp_help_command()
     LOGI(TAG, "http -e" );
     LOGI(TAG, "http ota_head" );
     LOGI(TAG, "http -u" );
-    LOGI(TAG, "http up" );
+    LOGI(TAG, "http up  https://postman-echo.com/put" );
     LOGI(TAG, "http -g  https://www.aliyun.com/" );
     LOGI(TAG, "http get https://www.aliyun.com/" );
     LOGI(TAG, "http -s" );
@@ -457,22 +456,29 @@ static void httpapp_cmd_handle(char *buf, int blen, int argc, char **argv)
             httpapp_running = true;
         } else if ((strncmp(type, "-u", strlen(type)) == 0) ||
             (strncmp(type, "up", strlen("up")) == 0)) {
+            if (argc > 2 && strlen(argv[2]) < sizeof(httpapp_url)) {
+                memset(httpapp_url, 0, sizeof(httpapp_url));
+                strncpy(httpapp_url, argv[2], strlen(argv[2]));
                 command = HTTPAPP_DYNAMIC_UP;
                 httpapp_running = true;
+            } else {
+                LOGW(TAG, "invalid url address");
+            }
+
         } else if ((strncmp(type, "-g", strlen(type)) == 0) ||
                    (strncmp(type, "get", strlen("get")) == 0)) {
-            if (argc > 2) {
+            if (argc > 2 && strlen(argv[2]) < sizeof(httpapp_url)) {
                 memset(httpapp_url, 0, sizeof(httpapp_url));
-                strncpy(httpapp_url, argv[2], sizeof(httpapp_url) - 1);
+                strncpy(httpapp_url, argv[2], strlen(argv[2]));
                 command = HTTPAPP_GET;
                 httpapp_running = true;
             } else {
-                LOGW(TAG, "miss url address");
+                LOGW(TAG, "invalid url address");
             }
         } else if (strncmp(type, "-h", strlen(type)) == 0) {
             httpapp_help_command();
         } else {
-            LOGE(TAG, "unknown command, please use help command: httpc -h");
+            LOGE(TAG, "unknown command, please use help command: http -h");
         }
     }
 }
