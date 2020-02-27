@@ -82,6 +82,7 @@ typedef enum{
     PORT_PWM_4,
     PORT_PWM_SIZE,
     PORT_PWM_INVALID = 255,
+    PORT_PWM_DEMO = PORT_PWM_3,
 }PORT_PWM_TYPE;
 
 typedef enum{
@@ -124,7 +125,7 @@ typedef enum {
 #define AOS_HAL_SPI_ENABLED         1
 #define AOS_HAL_I2C_ENABLED         1
 #define AOS_HAL_FLASH_ENABLED       1
-#define AOS_HAL_PWM_ENABLED         0
+#define AOS_HAL_PWM_ENABLED         1
 #define AOS_HAL_TIMER_ENABLED       1
 #define AOS_HAL_WDG_ENABLED         1
 #define AOS_HAL_RTC_ENABLED         1
@@ -195,24 +196,6 @@ void Error_Handler(void);
 #define HALAPP_GPIO_INT KEY1
 #endif
 #endif /* AOS_HAL_GPIO_ENABLED > 0 */
-
-#if (AOS_HAL_TIMER_ENABLED > 0)
-
-/* gpio app macro default value
-   need to ajust for each board
-*/
-#ifndef HALAPP_LED_TEST
-#define HALAPP_LED_TEST      LED2
-#endif
-
-#ifndef HALAPP_TIMER_TEST
-#define HALAPP_TIMER_TEST     PORT_TIMER_4
-#endif
-#endif /* AOS_HAL_TIMER_ENABLED > 0 */
-
-#if (AOS_HAL_ADC_ENABLED > 0)
-#define HALAPP_ADC PORT_ADC_1
-#endif /* AOS_HAL_ADC_ENABLED */
 
 #ifdef __cplusplus
 }
