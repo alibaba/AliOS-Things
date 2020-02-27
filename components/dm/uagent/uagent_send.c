@@ -72,6 +72,7 @@ static int delay_send(const ua_mod_t mod, const ua_func_t func,
         int msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, out_msg_index++,
             uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, out);
         if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
+            UAGENT_DEBUG("[uA]upload payload %s", msg_pub);
             rc = pub_info(msg_len, msg_pub, (policy&send_policy_trans_guarantee) ? 1 : 0);
             } else {
                 UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
@@ -159,7 +160,7 @@ int uagent_ack(const service_agent_rlt_t rlt, const unsigned long id,
     int rc = -1;
     if (UAGENT_INITED_FINISH) {
         int msg_len = 0;
-        char msg_pub_ack[128];
+        char msg_pub_ack[256];
         if (SERVICE_AGENT_OK == rlt) {
             msg_len = snprintf(msg_pub_ack, sizeof(msg_pub_ack), UAGENT_INFO_ACK_OK, id,
             uagent_service_attr.dn, uagent_service_attr.to_console, mod, func,
