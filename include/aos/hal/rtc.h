@@ -42,7 +42,7 @@ typedef struct {
     uint8_t weekday; /**< DEC format:value range from 1 to  7, BCD format:value range from 0x01 to 0x07 */
     uint8_t date;    /**< DEC format:value range from 1 to 31, BCD format:value range from 0x01 to 0x31 */
     uint8_t month;   /**< DEC format:value range from 1 to 12, BCD format:value range from 0x01 to 0x12 */
-    uint8_t year;    /**< DEC format:value range from 0 to 99, BCD format:value range from 0x00 to 0x99 */
+    uint16_t year;   /**< DEC format:value range from 0 to 9999, BCD format:value range from 0x0000 to 0x9999 */
 } rtc_time_t;
 
 /**
