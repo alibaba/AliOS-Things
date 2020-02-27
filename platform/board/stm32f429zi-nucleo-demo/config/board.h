@@ -74,7 +74,7 @@ typedef enum{
     PORT_PWM_4,
     PORT_PWM_SIZE,
     PORT_PWM_INVALID = 255,
-    PORT_PWM_DEMO = PORT_PWM_2,
+    PORT_PWM_DEMO = PORT_PWM_3,
 } PORT_PWM_TYPE;
 
 typedef enum{
