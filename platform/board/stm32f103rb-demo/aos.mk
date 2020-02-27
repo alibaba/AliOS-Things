@@ -21,6 +21,7 @@ $(NAME)_SOURCES += config/k_config.c \
                    drivers/src/i2c.c \
                    drivers/src/spi.c \
                    drivers/src/timer.c \
+                   drivers/src/pwm.c \
                    startup/board.c \
                    startup/startup.c \
 
