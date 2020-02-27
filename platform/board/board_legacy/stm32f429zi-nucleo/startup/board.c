@@ -76,9 +76,21 @@ TIMER_MAPPING TIMER_MAPPING_TABLE[] =
     {PORT_TIMER_5, HAL_TIMER_5},
 };
 
-PWM_MAPPING PWM_MAPPING_TABLE[] =
+static struct stm32_pwmchan_s pwm3chan[] = {
+    {
+        .channel = TIM_CHANNEL_3,
+        .mode = TIM_OCMODE_PWM1,
+            .out1 = {
+                .pol = TIM_OCPOLARITY_LOW,
+                .alt = GPIO_AF2_TIM3,
+                .pin = HAL_GPIO_16,
+        },
+    }
+};
+
+PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
 {
-    {PORT_PWM_4, TIM4, HAL_TIM_ACTIVE_CHANNEL_4, GROUP_GPIOD, HAL_GPIO_15},
+    {PORT_PWM_3, HAL_TIMER_3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
 };
 
 
