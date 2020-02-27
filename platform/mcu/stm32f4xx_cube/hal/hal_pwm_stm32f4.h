@@ -10,6 +10,11 @@ extern "C" {
 #endif
 
 #include "stm32f4xx_hal.h"
+
+#ifdef HAL_TIM_MODULE_ENABLED
+
+#include "hal_timer_stm32f4.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,32 +22,28 @@ extern "C" {
 #include "aos/kernel.h"
 #include "board.h"
 
-#define PORT_PWM0 0
-#define PORT_PWM1 1
-
-struct stm32_pwm_out_s
-{
+struct stm32_pwm_out_s {
     uint32_t pol;    /* Polarity. Default: positive */
     uint32_t alt;    /* alternative function */
     uint32_t pin;    /* Output pin configuration */
 };
 
-struct stm32_pwmchan_s
-{
+struct stm32_pwmchan_s {
     uint32_t                 channel;   /* Timer output channel: {1,..4} */
     uint32_t                 mode;      /* PWM channel mode (see stm32_pwm_chanmode_e) */
-    struct stm32_pwm_out_s   out1;        /* PWM output configuration */
-    //struct stm32_pwm_break_s brk;         /* PWM break configuration */
+    struct stm32_pwm_out_s   out1;      /* PWM output configuration */
 };
 
-typedef struct{
-    PORT_PWM_TYPE           logical_func;
-    void                   *physical_port;
+typedef struct {
+    PORT_PWM_TYPE           port;
+    uint32_t                hal_timer;
     struct stm32_pwmchan_s *channels;
     uint8_t                 channel_cnt;
-}PWM_MAPPING;
+} PWM_MAPPING;
 
 extern PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE];
+
+#endif /* HAL_TIM_MODULE_ENABLED */
 
 #ifdef __cplusplus
 }
