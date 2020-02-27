@@ -42,6 +42,11 @@ int application_start(int argc, char *argv[])
 {
     printf("hal app test start\r\n");
 
+#if (AOS_HAL_RTC_ENABLED > 0)
+    /* init rtc and set the time */
+    hal_rtc_app_init();
+#endif
+
     /*gpio*/
 #if (AOS_HAL_GPIO_ENABLED > 0)
     hal_gpio_app_out();
@@ -68,6 +73,11 @@ int application_start(int argc, char *argv[])
     /* dac */
 #if (AOS_HAL_DAC_ENABLED > 0)
     hal_dac_app_out();
+#endif
+
+#if (AOS_HAL_RTC_ENABLED > 0)
+    /* get time and show time */
+    hal_rtc_app_gettime();
 #endif
 
 #if (AOS_HAL_WDG_ENABLED > 0)
