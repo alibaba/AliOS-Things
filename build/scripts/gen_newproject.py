@@ -346,12 +346,12 @@ def cli(projectname, board, projectdir, templateapp):
     
     if board in comp_info:
         boarddir = comp_info[board]["location"]
-        boarddir = os.path.join(aos_sdk, boarddir)
+        boarddir = os.path.join(aos_sdk, boarddir).replace("\\", "/")
     else:
         click.echo("No such board found: \"%s\"" % board)
         return 1
 
-    if "/example_legacy/" in templatedir:
+    if "/example_legacy/" in templatedir or "/test/develop/" in templatedir:
         if "/board_legacy/" not in boarddir:
             click.echo('legacy app "%s" does not work on board "%s"\nit only works on legacy board' % (templateapp, board))
             return 1 
