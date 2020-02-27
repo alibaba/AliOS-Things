@@ -282,6 +282,7 @@ if MBEDTLS_CONFIG_TLS
 
 config MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN
         int "TLS/DTLS maximum incoming/outgoing content length"
+        default 16384 if AOS_APP_HTTPCLIENT_APP
         default 10240 if OTA_CONFIG_SECURE_DL_MODE || AOS_APP_HTTPAPP
         default 4096
         help
