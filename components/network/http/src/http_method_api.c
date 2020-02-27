@@ -84,7 +84,18 @@ HTTPC_RESULT httpclient_post(httpclient_t *client, const char *url, httpclient_d
 
 HTTPC_RESULT httpclient_put(httpclient_t *client, const char *url, httpclient_data_t *client_data)
 {
-    return httpclient_common(client, url, HTTP_PUT, client_data);
+    int ret = httpclient_common(client, url, HTTP_PUT, client_data);
+
+    while((0 == ret) && (1 == client_data->is_redirected)) {
+        ret = httpclient_common(client, client_data->redirect_url, HTTP_PUT, client_data);
+    }
+
+    if(client_data->redirect_url != NULL) {
+        free(client_data->redirect_url);
+        client_data->redirect_url = NULL;
+    }
+
+    return ret;
 }
 
 HTTPC_RESULT httpclient_delete(httpclient_t *client, const char *url, httpclient_data_t *client_data)
