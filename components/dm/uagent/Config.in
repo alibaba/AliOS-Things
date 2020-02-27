@@ -21,10 +21,12 @@ endif
 ###################################################################
 # Component configuration items
 menu "uAgent Configuration"
-config CONFIG_UAGENT
-    bool "Platform Topic and Payload Support"
-    default n
+
+config UAGENT_INFO_PAYLOAD_SIZE
+    int "Payload Length uAgent Support"
+    range 64 4096
+    default 1200
     help
-        Support device report information and get command from platform
+        Adjust this value can modify the payload size upstream.
 
 endmenu
