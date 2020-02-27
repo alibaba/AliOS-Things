@@ -10,7 +10,7 @@ HOST_MCU_FAMILY := mcu_linuximpl
 SUPPORT_MBINS   := no
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
-$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) += external_module
 
 # Link Security Config
 CONFIG_LS_DEBUG      := y
