@@ -491,65 +491,73 @@ static int uagent_on_recv_handler(const unsigned short len, const char *str)
         cJSON *msgid = cJSON_GetObjectItem(root, "id");
         /* even no id can call service, w/o ack */
         unsigned long id = UAGENT_MSG_IDX_INVALID;
-        if (NULL != msgid && cJSON_IsNumber(msgid)) {
-            id = msgid->valueint;
+        if (NULL != msgid) {
+            if(cJSON_IsNumber(msgid)) {
+                id = msgid->valueint;
+            } else if(cJSON_IsString(msgid)) {
+                id = strtoul(msgid->valuestring, NULL, 10);
+            }            
         } else {
             UAGENT_ERR("[uA]call %s no id in payload\n", __func__);
         }
         cJSON *params = cJSON_GetObjectItem(root, "params");
         if (params != NULL) {
-            cJSON *mod = cJSON_GetObjectItem(params, "mod");
-            cJSON *func = cJSON_GetObjectItem(params, "func");
+            cJSON *value_text = cJSON_GetObjectItem(params, "value");
+            if (value_text != NULL) {
+                
+                cJSON *mod = cJSON_GetObjectItem(value_text, "mod");
+                cJSON *func = cJSON_GetObjectItem(value_text, "func");
 
-            if (NULL != mod && NULL != func) {
                 if (NULL != mod && NULL != func) {
-                    cJSON *param = cJSON_GetObjectItem(params, "param");
-                    if (NULL != param) {
-                        if (cJSON_IsObject(param)) {/* param is json object */
-                            UAGENT_DEBUG("Json object\n");
-                            char* value_str = cJSON_PrintUnformatted(param);
-                            if (NULL != value_str) {
+                
+                        cJSON *param = cJSON_GetObjectItem(value_text, "param");
+                        if (NULL != param) {
+                            if (cJSON_IsObject(param)) {/* param is json object */
+                                UAGENT_INFO("Json object\n");
+                                char* value_str = cJSON_PrintUnformatted(param);
+                                if (NULL != value_str) {
+                                    rc = 0;
+                                    ext_request_service(UAGENT_MOD_CLOUD,
+                                        mod->valueint,
+                                        func->valueint,
+                                        id,
+                                        strlen(value_str),
+                                        value_str);
+                                    cJSON_free(value_str);
+                                    value_str = NULL;
+                                }
+                            } else if (cJSON_IsString(param)) {/* param is string */
+                                UAGENT_INFO("String %s\n", param->valuestring);
+
                                 rc = 0;
                                 ext_request_service(UAGENT_MOD_CLOUD,
                                     mod->valueint,
                                     func->valueint,
                                     id,
-                                    strlen(value_str),
-                                    value_str);
-                                cJSON_free(value_str);
-                                value_str = NULL;
+                                    strlen(param->valuestring),
+                                    param->valuestring);
+                            } else {
+                                UAGENT_ERR("[uA]Not support format\n");
                             }
-                        } else if (cJSON_IsString(param)) {/* param is string */
-                            UAGENT_DEBUG("String %s\n", param->valuestring);
-
-                            rc = 0;
-                            ext_request_service(UAGENT_MOD_CLOUD,
-                                mod->valueint,
-                                func->valueint,
-                                id,
-                                strlen(param->valuestring),
-                                param->valuestring);
                         } else {
-                            UAGENT_ERR("[uA]Not support format\n");
+                            UAGENT_ERR("[uA]missing param\n");
                         }
-                    } else {
-                        UAGENT_ERR("[uA]missing param\n");
-                    }
-
+         
                 } else {
-                    UAGENT_ERR("[uA]LLEGAL FORMAT\n");
+                    /* print topic name and topic message */
+                    char* json_str = cJSON_Print(value_text);
+
+                    if (NULL != json_str) {
+                        UAGENT_ERR("[uA]LLEGAL FORMAT %s\n", json_str);
+                        cJSON_free(json_str);
+                        json_str = NULL;
+                    }
                 }
             } else {
-                /* print topic name and topic message */
-                char* json_str = cJSON_Print(params);
-
-                if (NULL != json_str) {
-                    UAGENT_ERR("[uA]LLEGAL FORMAT %s\n", json_str);
-                    cJSON_free(json_str);
-                    json_str = NULL;
-                }
+                UAGENT_ERR("[uA]call %s no value in payload\n", __func__);
             }
-
+        } else {
+            UAGENT_ERR("[uA]call %s no params in payload\n", __func__);
         }
         cJSON_Delete(root);
         root = NULL;
