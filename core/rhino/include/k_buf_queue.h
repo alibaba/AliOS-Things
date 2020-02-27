@@ -88,7 +88,8 @@ kstat_t krhino_buf_queue_del(kbuf_queue_t *queue);
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 
 /**
- * Malloc and create a buf_queue.
+ * Malloc and create a variable-msg-len buf_queue.
+ * Each message consumes extra 4 bytes to save length.
  *
  * @param[out]  queue    pointer to the queue (the space is provided inside, from heap)
  * @param[in]   name     pointer to the nam
