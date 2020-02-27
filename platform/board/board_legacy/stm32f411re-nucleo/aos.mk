@@ -11,7 +11,7 @@ HOST_MCU_NAME      := STM32F411RET
 ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
-$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) += external_module
 
 ifneq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES += aos/aos.c
