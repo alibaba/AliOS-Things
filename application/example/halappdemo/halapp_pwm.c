@@ -21,7 +21,7 @@ void hal_pwm_app_static_out(void)
 
     printf(" hal_pwm_app_static_out start\r\n");
 
-    pwm.port = HALAPP_PWM_TEST;
+    pwm.port = PORT_PWM_DEMO;
     pwm.config.freq = 1000;
     pwm.config.duty_cycle = 0.5;
     pwm.priv = NULL;
@@ -51,7 +51,7 @@ void hal_pwm_app_dynamic_out(void)
 
     printf("hal_pwm_app_dynamic_out start\r\n");
 
-    pwm.port = HALAPP_PWM_TEST;
+    pwm.port = PORT_PWM_DEMO;
     pwm.config.freq = 1000;
     pwm.config.duty_cycle = 0.00;
     pwm.priv = NULL;
