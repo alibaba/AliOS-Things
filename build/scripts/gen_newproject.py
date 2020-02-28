@@ -69,9 +69,11 @@ def append_depends_config_in(board, mandatory_configs, optional_configs):
             for config in optional_configs:
                 """ one dependency: comp_name, config_file, condition [[]] """
                 if config["config_file"].startswith("core/"):
-                    kernel_config_in += get_comp_optional_depends_text(config["condition"], config["config_file"])
+                    tmp_config_in, conds_list = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                    kernel_config_in += tmp_config_in
                 elif config["config_file"].startswith("components/"):
-                    component_config_in += get_comp_optional_depends_text(config["condition"], config["config_file"])
+                    tmp_config_in, conds_list = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                    component_config_in += tmp_config_in
     board_config_in += "endmenu\n\n"
     kernel_config_in += "endmenu\n\n"
     component_config_in += "endmenu\n\n"
@@ -219,6 +221,21 @@ def get_sources(templatedir):
 
     return sources
 
+def append_comp_deps_text(mkfile):
+    contents = """
+# components added by include c header file in the source code. DO NOT EDIT!
+$(NAME)_COMPONENTS_CUSTOMIZED :=
+
+# add components name manually here if you want to import some components
+$(NAME)_COMPONENTS_CUSTOMIZED +=
+
+# tell build system to add components above. DO NOT EDIT!
+$(NAME)_COMPONENTS += $($(NAME)_COMPONENTS_CUSTOMIZED)
+
+"""
+    with open(mkfile, "a") as f:
+        f.write(contents)
+
 
 def copy_template(templatedir, destdir, projectname, board, boarddir):
     """ Copy predefined template app and board folder to destdir, update 
@@ -231,6 +248,9 @@ def copy_template(templatedir, destdir, projectname, board, boarddir):
 
     # copy board to project directory
     copy_board_to_project(board, destdir, boarddir)
+
+    # update app aos.mk
+    append_comp_deps_text(os.path.join(destdir, AOS_MAKEFILE))
 
     # update dest Config.in
     config_file = os.path.join(destdir, CONFIGIN_FILE)
@@ -260,25 +280,14 @@ def copy_demo_app(appdir, destdir, projectname, board, boarddir, appname):
     # copy board to project directory
     copy_board_to_project(board, destdir, boarddir)
 
+    # update app aos.mk
+    append_comp_deps_text(os.path.join(destdir, AOS_MAKEFILE))
+
     # update dest Config.in
     config_file = os.path.join(destdir, CONFIGIN_FILE)
     update_demo_app_config(config_file, projectname, board)
     write_depends_config(config_file, board, appname)
     copy_file(config_file, os.path.join(destdir, CONFIG_BAK_PATH, CONFIGIN_FILE))
-
-
-def check_project_name(projectname):
-    """ Generate comp index(dependency, aos.mk, Config.in, include, etc) 
-    and check projectname """
-    comp_info = {}
-    with open(aos_comp_index, "r") as f:
-        comp_info = json.load(f)
-        if projectname in comp_info:
-            click.echo("[Error] The project name \"%s\" is reserved!" % projectname)
-            sys.exit(1)
-
-    return comp_info
-
 
 def copy_board_to_project(board, dest_dir, board_dir):
     """ Copy the board to project directory """
@@ -377,7 +386,8 @@ def cli(projectname, board, projectdir, templateapp):
     depends = get_depends_from_source(comp_info, include_list)
     config_data = {
         "DEPENDENCIES": " ".join(depends),
-        "MD5SUM_HEADER": md5sum,
+        "USER_ADD_DEPS": "",
+        "MD5SUM_HEADER": md5sum
     }
     project_config = os.path.join(destdir, DOT_AOS)
     write_project_config(project_config, config_data)

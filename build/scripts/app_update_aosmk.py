@@ -5,7 +5,7 @@ import sys
 import hashlib
 import re
 import json
-from lib.code import get_md5sum, write_md5sum, compute_header_md5sum, get_depends_from_source
+from lib.code import get_md5sum, write_md5sum, compute_header_md5sum, get_depends_from_source, write_project_config
 from lib.config import get_project_config
 from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
 from lib.comp import generate_default_header_file
@@ -23,16 +23,20 @@ AOS_MAKEFILE = "aos.mk"
 KERNEL_CONFIG_KEYWORD = "Kernel      Configuration"
 COMPONENT_CONFIG_KEYWORD = "Components  Configuration"
 
-def replace_one_config_in(text_config, line, line_repl):
+def replace_one_config_in(text_config, line, line_repl, conds_line):
     """replace existed Config.in or insert into its corresponding menu"""
     p = "(if (.*)\n)?"+re.escape(line)+"(endif\n)?"
     match = re.search(p, text_config)
-    if match and not match.lastindex:
-        # found mandatory depends
-        return text_config
-        
-    text_config, cnt = re.subn(p, line_repl, text_config, 1)
-    if cnt == 0:
+    if match:
+        if not match.lastindex:
+            # found mandatory depends
+            return text_config
+        else:
+            # found optional depends
+            line_repl = "if (%s || %s)\n" % (match.group(2), conds_line) + line + "endif\n"
+            text_config = re.sub(p, line_repl, text_config, 1)
+    else:
+        # can not find the Config.in of this comp
         if "AOS_SDK_PATH/core/" in line:
             p = 'menu "%s"\n' % KERNEL_CONFIG_KEYWORD
             line_repl = p + line_repl
@@ -50,13 +54,13 @@ def update_depends_config_in(text_config, mandatory_configs, optional_configs):
         mandatory_configs = sorted(list(set(mandatory_configs)))
         for config in mandatory_configs:
             line = 'source "$AOS_SDK_PATH/%s"\n' % config
-            text_config = replace_one_config_in(text_config, line, line)
+            text_config = replace_one_config_in(text_config, line, line, "y")
         if optional_configs:
             for config in optional_configs:
                 """ one dependency: comp_name, config_file, condition [[]] """
                 line = 'source "$AOS_SDK_PATH/%s"\n' % config["config_file"]
-                line_repl = get_comp_optional_depends_text(config["condition"], config["config_file"])
-                text_config = replace_one_config_in(text_config, line, line_repl)
+                line_repl, conds_line = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                text_config = replace_one_config_in(text_config, line, line_repl, conds_line)
     return text_config
 
 def update_depends_config(dirname, comps):
@@ -111,7 +115,7 @@ def update_aosmk(dirname):
     (new_md5sum, include_list) = compute_header_md5sum(dirname)
 
     if old_md5sum == new_md5sum:
-        return False, None
+        return False, []
 
     comp_info = {}
     with open(COMP_INDEX, "r") as f:
@@ -131,18 +135,37 @@ def update_aosmk(dirname):
     content = []
     found_c_deps = False
     add_line = "$(NAME)_COMPONENTS_CUSTOMIZED := %s\n" % " ".join(depends)
+    p1 = re.compile(r'^\$\(NAME\)_COMPONENTS_CUSTOMIZED.*(:|\+)=\s*(.*)\s*')
     with open(aosmk, "r") as f:
         for line in f.readlines():
             if line.startswith("$(NAME)_COMPONENTS_CUSTOMIZED"):
-                # replace old str with new one if found $(NAME)_COMPONENTS_CUSTOMIZED
-                line = add_line
-                found_c_deps = True
-
+                match = p1.match(line)
+                if match:
+                    if match.group(1) == ":":
+                        # replace old str with new one if found $(NAME)_COMPONENTS_CUSTOMIZED :=
+                        line = add_line
+                        found_c_deps = True
+                    else:
+                        # found $(NAME)_COMPONENTS_CUSTOMIZED +=
+                        if not found_c_deps:
+                            # no $(NAME)_COMPONENTS_CUSTOMIZED := 
+                            line = add_line + line
+                            found_c_deps = True
             content.append(line)
 
     if not found_c_deps:
-        content.append(add_line)
-        content.append("$(NAME)_COMPONENTS += $($(NAME)_COMPONENTS_CUSTOMIZED)\n")
+        append_text = """
+# components added by include c header file in the source code. DO NOT EDIT!
+%s
+
+# add components name manually here if you want to import some components
+$(NAME)_COMPONENTS_CUSTOMIZED +=
+
+# tell build system to add components above. DO NOT EDIT!
+$(NAME)_COMPONENTS += $($(NAME)_COMPONENTS_CUSTOMIZED)
+
+""" % add_line
+        content.append(append_text)
 
     with open(aosmk, "w") as f:
         for line in content:
@@ -150,6 +173,31 @@ def update_aosmk(dirname):
 
     write_md5sum(config_file, new_md5sum)
     return True, depends
+
+def check_user_added_comp(dirname):
+    """ check user added comp by $(NAME)_COMPONENTS_CUSTOMIZED += whether updated """
+    aosmk = os.path.join(dirname, AOS_MAKEFILE)
+    config_file = os.path.join(dirname, DOT_AOS)
+    old_comp_str = get_project_config(config_file, "USER_ADD_DEPS")
+
+    user_added_comp = []
+    p1 = re.compile(r'^\$\(NAME\)_COMPONENTS_CUSTOMIZED.*\+=\s*(.*)\s*')
+    with open(aosmk, "r") as f:
+        for line in f.readlines():
+            if line.startswith("$(NAME)_COMPONENTS_CUSTOMIZED"):
+                match = p1.match(line)
+                if match:
+                    user_added_comp += match.group(1).split()
+
+    user_added_comp = sorted(list(set(user_added_comp)))
+    new_comp_str = " ".join(user_added_comp)
+    if new_comp_str == old_comp_str:
+        return False, []
+
+    config_data = {"USER_ADD_DEPS": new_comp_str}
+    write_project_config(config_file, config_data)
+    return True, user_added_comp
+
 
 def main():
     if len(sys.argv) < 2:
@@ -161,9 +209,13 @@ def main():
     # check components config in aos_config.h
     convert_aosconfig_config(os.path.join(app_dir, AOS_CONFIG_H_FILE), os.path.join(app_dir, DOT_CONFIG_FILE))
     # check dependencies in app source file
-    updated, depends = update_aosmk(app_dir)
-    
-    if updated:
+    src_updated, src_depends = update_aosmk(app_dir)
+    # check dependencies in app aos.mk
+    mk_updated, mk_depends = check_user_added_comp(app_dir)
+
+    if src_updated or mk_updated:
+        depends = src_depends + mk_depends
+        depends = list(set(depends))
         # update app Config.in to involve new components
         update_depends_config(app_dir, depends)
         # update components header file of default configuration
