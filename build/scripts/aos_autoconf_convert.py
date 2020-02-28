@@ -19,12 +19,6 @@ COMPONENTS_CONFIG_NOTE = "/* Put configuration defined in Config.in files of com
                         " It's better to modify the configuration by menuconfig, and the \n"    \
                         " compiler will copy it here automatically.*/\n"
 
-CONFIG_REFERENCE_KEYWORD = "KEYWORD: PART3 COMPONENTS CONFIGURATION REFERENCE"
-CONFIG_REFERENCE_NOTE = "/* Components configuration reference. DO NOT EDIT!\n" \
-                        " It's better to modify the configuraiton by menuconfig. If you really\n" \
-                        " don't like menuconfig, copy the item to be updated to PATR2 please, and\n" \
-                        " then modify it in PATR2. */\n"
-
 COMPONENT_KEYWORD = "KEYWORD: COMPONENT NAME IS "
 
 def print_usage():
@@ -42,7 +36,11 @@ def append_default_header_files(fhandle, header_files_dir):
             tempfile = "%s/%s" % (root, filename)
             tempfile = tempfile.replace("\\", "/")
             with open (tempfile, 'r') as f:
-                fhandle.write(f.read())
+                for line in f.readlines():
+                    # delete the type
+                    pos = line.find("// type:")
+                    line = line[:pos] + "\n"
+                    fhandle.write(line)
 
 
 def get_macro_type(name, header_files_dir):
@@ -66,6 +64,25 @@ def get_macro_type(name, header_files_dir):
     return macro_type
 
 
+def update_items_into_aosconfig(text_autoconf, aosconfig_h):
+    lines_autoconf = text_autoconf.split("\n")
+    with open(aosconfig_h, "r") as f:
+        text_aosconfig = f.read()
+    
+    patten = re.compile(r"#define\s+(\w*)\s+(.*)")
+    for line in lines_autoconf: 
+        if line.startswith("#define"):
+            match = patten.match(line)
+            if match:
+                macro = match.group(1)
+                p = "// #define %s .*" % macro
+                text_aosconfig, count = re.subn(p, line, text_aosconfig, 1)
+                if count == 0:
+                    text_aosconfig += line + "\n"
+    with open(aosconfig_h, "w") as f:
+        f.write(text_aosconfig)
+
+
 def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
     """ copy autoconf.h into aos_config.h, but keep user-defined marco in aos_config.h
     TODO: append components' defaut configuration for user reference """
@@ -87,19 +104,21 @@ def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
     pos = text_aosconfig.find(COMPONENTS_CONFIG_KEYWORD)
     if pos >= 0:
         # delete the old components config
-        pos = text_aosconfig.find("\n#define", pos)
+        pos = text_aosconfig.find("//================This is split line================\n", pos)
         text_aosconfig = text_aosconfig[:pos]
     else:
         # first time to generate aos_config.h
         text_aosconfig = "/* %s */\n" % USER_DEFINED_KEYWORD + USER_DEFINED_NOTE + "\n\n\n\n"
         text_aosconfig += "/* %s */\n" % COMPONENTS_CONFIG_KEYWORD + COMPONENTS_CONFIG_NOTE
-    # copy autoconf.h
-    text_aosconfig += text_autoconf + "\n\n"
-    # copy components configuration reference
-    text_aosconfig += "/* %s */\n" % CONFIG_REFERENCE_KEYWORD + CONFIG_REFERENCE_NOTE 
+
+    # copy components configuration
     with open (aosconfig_h, "w+") as f:
         f.write(text_aosconfig)
         append_default_header_files(f, os.path.join(root_dir, CONFIG_BAK_PATH))
+
+    # update item of autoconf.h into aos_config.h
+    update_items_into_aosconfig(text_autoconf, aosconfig_h)
+
     # store md5 checksum if in appdir which has .aos
     if os.path.isfile(os.path.join(root_dir, DOT_AOS)):
         define_md5sum = compute_aos_config_md5sum(aosconfig_h)
