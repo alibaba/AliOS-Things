@@ -1,11 +1,11 @@
-config AOS_APP_APPDEMO
-    bool "AppDemo"
+config AOS_APP_HAL_DEMO
+    bool "Hal_Demo"
     select AOS_COMP_OSAL_AOS
     help
-        App Demo
+        Hal Demo
 
-if AOS_APP_APPDEMO
-# Configurations for app appdemo
+if AOS_APP_HAL_DEMO
+# Configurations for app halappdemo
 config SYSINFO_APP_VERSION
     string "Firmware Version"
     default "app-1.0.0-20200214.140831"
