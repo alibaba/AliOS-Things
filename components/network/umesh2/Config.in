@@ -17,3 +17,10 @@ default UMESH_WITH_DEFAULT_MDNS
 config UMESH_WITH_DEFAULT_MDNS
     bool "use default mdns"
 endchoice
+
+choice
+prompt "api config"
+default UMESH_WITH_LOCAL_COMM
+config UMESH_WITH_LOCAL_COMM
+    bool "use default mdns"
+endchoice
