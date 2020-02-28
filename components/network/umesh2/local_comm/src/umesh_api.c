@@ -2,8 +2,8 @@
 #include "osal.h"
 #include "network/network.h"
 #include "aos/yloop.h"
-#include "list.h"
-#include "network/umesh2/local_comm/umesh_api.h"
+#include "network/umesh2/utils/list.h"
+#include "network/umesh2/umesh_api.h"
 
 #define MODE_AUTH         0xf
 #define MESH_AUTH_PORT    8791
@@ -35,10 +35,10 @@ typedef enum {
 service_state_t *g_service_state = NULL;
 
 typedef void (*sock_read_cb)(int fd, void *arg);
-static void sock_read_func(int fd, void *arg);
-static auth_check_type_t  _unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len);
+static void  umsh_sock_read_func(int fd, void *arg);
+static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len);
 
-static int _create_socket(session_t *session, int mode, sock_read_cb cb)
+static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
 {
     int fd;
     int ret;
@@ -108,8 +108,8 @@ static int _create_socket(session_t *session, int mode, sock_read_cb cb)
     return ret;
 }
 
-static int _sendto(int socket, const uint8_t *payload, uint16_t length,
-                   struct in6_addr *ip6, uint16_t port)
+static int umesh_sendto(int socket, const uint8_t *payload, uint16_t length,
+                        struct in6_addr *ip6, uint16_t port)
 {
 
     struct sockaddr_in6 sock_addr;
@@ -124,8 +124,8 @@ static int _sendto(int socket, const uint8_t *payload, uint16_t length,
                        sizeof(sock_addr));
 }
 
-static int32_t _send_data(session_t *session, struct in6_addr *ip6, uint16_t port, int mode, uint8_t *data,
-                          uint16_t len)
+static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t port, int mode, uint8_t *data,
+                            uint16_t len)
 {
     int ret;
     int fd = -1;
@@ -134,7 +134,7 @@ static int32_t _send_data(session_t *session, struct in6_addr *ip6, uint16_t por
         return UMESH_ERR_NULL_POINTER;
     }
 
-    ret = _create_socket(session, mode, sock_read_func);
+    ret = umesh_create_socket(session, mode,  umsh_sock_read_func);
     if (ret < 0) {
         return ret;
     }
@@ -153,7 +153,7 @@ static int32_t _send_data(session_t *session, struct in6_addr *ip6, uint16_t por
             break;
     }
     //send data
-    ret = _sendto(fd, data, len, ip6, port);
+    ret = umesh_sendto(fd, data, len, ip6, port);
     log_d("_sendto, len = %d ,ret = %d", len, ret);
     return ret;
 }
@@ -193,7 +193,6 @@ err:
     *state = NULL;
     return UMESH_ERR_INIT;
 }
-
 
 
 static int stop(void *cbarg)
@@ -370,6 +369,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
     }
 
     if (!find && list_entry_number(&state->found_service_list) < SERVICE_MAX_FOUND_NUM) {
+        log_d("add serivce to found list:%s-%s", service->srv_type, service->srv_name);
         list_add_tail(&service->linked_list, &state->found_service_list);
         if (state->found_cb) {
             state->found_cb(service, PEER_FOUND);
@@ -389,9 +389,8 @@ err:
 
 }
 
-static void sock_read_func(int fd, void *arg)
+static void  umsh_sock_read_func(int fd, void *arg)
 {
-
     service_t *node, *next;
     session_t *session = (session_t *)arg;
 
@@ -429,7 +428,7 @@ static void sock_read_func(int fd, void *arg)
         } else {
             hal_mutex_lock(session->lock);
 
-            list_for_each_entry_safe(node, next, &session->peers_list, linked_list, service_t) {
+            list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
                         log_d(" find node ");
@@ -443,7 +442,7 @@ static void sock_read_func(int fd, void *arg)
         }
 
         if (is_auth_data) { /* auth data?*/
-            auth_check_type_t type =  _unpack_auth_payload(session, buffer, len);
+            auth_check_type_t type =  umesh_unpack_auth_payload(session, buffer, len);
             log_d("auth type = %d", type);
             switch (type) {
                 case AUTH_CHECK_NO_MATCH: {
@@ -452,7 +451,7 @@ static void sock_read_func(int fd, void *arg)
                     tlv.id = htonl(MESH_RSP_AUTH_ID);
                     tlv.flag = 0x02;
                     log_w("AUTH_CHECK_NO_MATCH ");
-                    ret =  _send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
                 }
                 break;
                 case AUTH_CHECK_MATCH:
@@ -473,18 +472,18 @@ static void sock_read_func(int fd, void *arg)
                             log_w("user refused invite!");
                         }
                     }
-                    ret =  _send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
                 }
                 break;
                 case AUTH_CHECK_ACCEPT:
                     /*add peer to session*/
                 {
-                    int32_t data = type;
+                    int data = type;
                     hal_mutex_lock(g_service_state->lock);
 
                     list_for_each_entry_safe(node, next, &g_service_state->found_service_list, linked_list, service_t) {
                         if (!memcmp(&node->id.ip6, &addr.sin6_addr, sizeof(addr.sin6_addr))) {
-                            list_add_tail(&node->linked_list, &session->peers_list);
+                            list_add_tail(&node->linked_list2, &session->peers_list);
                             if (session->state_cb) {
                                 session->state_cb(session, node, SESSION_MEMBER_JOIN, session->state_cb_ctx);
                             }
@@ -587,7 +586,81 @@ err:
     return NULL;
 }
 
-int32_t umesh_service_add_txt(service_t *service, const char *txt)
+static int service_state_deinit(service_state_t *state)
+{
+    service_t *node, *next;
+    txt_item_t *item;
+    hal_mutex_lock(state->lock);
+    list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
+
+        item = node->txt_items;
+        while (item) {
+            item = item->next;
+            hal_free(item);
+        }
+        list_del(&node->linked_list);
+        hal_free(node);
+        break;
+    }
+    hal_mutex_unlock(state->lock);
+
+    list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
+        item = node->txt_items;
+        while (item) {
+            item = item->next;
+            hal_free(item);
+        }
+        list_del(&node->linked_list);
+        hal_free(node);
+        break;
+    }
+    hal_mutex_unlock(state->lock);
+    state->stop = 1;
+    hal_mutex_free(state->lock);
+
+    hal_free(state);
+}
+
+int umesh_service_deinit(service_t *service)
+{
+    service_t *node, *next;
+    txt_item_t *item;
+    int ret = 0;
+    if (g_service_state == NULL) {
+        return 0;
+    }
+    hal_mutex_lock(g_service_state->lock);
+    list_for_each_entry_safe(node, next, &g_service_state->self_service_list, linked_list, service_t) {
+        if (!memcmp(node->srv_name, service->srv_name, strlen(service->srv_name)) &&
+            !memcmp(node->srv_type, service->srv_type, strlen(service->srv_type))) { /*data*/
+            item = node->txt_items;
+            while (item) {
+                item = item->next;
+                hal_free(item);
+            }
+            list_del(&node->linked_list);
+            hal_free(node);
+            break;
+        }
+    }
+    hal_mutex_unlock(g_service_state->lock);
+
+    if (!list_empty(&g_service_state->self_service_list)) {
+        return 0;
+    }
+
+    mdns_deinit(g_service_state->mdns);
+    g_service_state->mdns = NULL;
+    ret =  service_state_deinit(g_service_state);
+    if (ret < 0) {
+        return ret;
+    }
+
+
+    g_service_state = NULL;
+    return ret;
+}
+int umesh_service_add_txt(service_t *service, const char *txt)
 {
     struct mdns_data_txt *ext_txt;
 
@@ -628,7 +701,7 @@ static void mdns_main_task(void *para)
 
 }
 
-int32_t umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
+int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
 {
     int ret;
     struct mdns_ctx *mdns_ctx;
@@ -650,7 +723,7 @@ int32_t umesh_start_browse_service(service_t *service, umesh_service_found_cb fo
     return ret;
 }
 
-int32_t umesh_stop_browse_service(void)
+int umesh_stop_browse_service(void)
 {
     hal_mutex_lock(g_service_state->lock);
     g_service_state->found_cb = NULL;
@@ -658,7 +731,7 @@ int32_t umesh_stop_browse_service(void)
     return 0;
 }
 
-int32_t umesh_stop_advertise_service(service_t *service)
+int umesh_stop_advertise_service(service_t *service)
 {
     if (g_service_state == NULL) {
         return UMESH_ERR_NOT_INIT;
@@ -677,7 +750,7 @@ int32_t umesh_stop_advertise_service(service_t *service)
     return 0;
 }
 
-int32_t umesh_start_advertise_service(service_t *service)
+int umesh_start_advertise_service(service_t *service)
 {
     if (g_service_state == NULL) {
         return UMESH_ERR_NOT_INIT;
@@ -725,7 +798,7 @@ int umesh_register_receiver(session_t *session, umesh_receive_cb cb, void *user_
     session->recieve_cb_ctx = user_data;
     return 0;
 }
-static int _close_socket(session_t *session)
+static int umesh_close_socket(session_t *session)
 {
 
     if (session == NULL) {
@@ -776,19 +849,19 @@ session_t *umesh_session_init(service_t *service)
         goto err;
     }
 
-    ret = _create_socket(session, MODE_AUTH, sock_read_func);
+    ret = umesh_create_socket(session, MODE_AUTH,  umsh_sock_read_func);
     if (ret < 0) {
         goto err;
     }
 
-    ret = _create_socket(session, MODE_UNRELIABLE, sock_read_func);
+    ret = umesh_create_socket(session, MODE_UNRELIABLE,  umsh_sock_read_func);
     if (ret < 0) {
         goto err;
     }
 
     return session;
 err:
-    _close_socket(session);
+    umesh_close_socket(session);
     if (session->lock) {
         hal_mutex_free(session->lock);
     }
@@ -803,7 +876,35 @@ err:
     }
     return NULL;
 }
+int umesh_session_deinit(session_t *session)
+{
+    service_t *node, *next;
 
+    if (session == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+    hal_mutex_lock(session->lock);
+    list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
+        list_del(&node->linked_list2);
+        break;
+    }
+    hal_mutex_unlock(session->lock);
+
+    umesh_close_socket(session);
+    if (session->lock) {
+        hal_mutex_free(session->lock);
+    }
+    if (session->queue_buf) {
+        hal_free(session->queue_buf);
+    }
+    if (session->queue) {
+        hal_queue_free(session->queue);
+    }
+    if (session) {
+        hal_free(session);
+    }
+    return 0;
+}
 static int _pack_auth_payload(session_t *session, service_t *dst, uint8_t *payload)
 {
     int len;
@@ -837,7 +938,7 @@ static int _pack_auth_payload(session_t *session, service_t *dst, uint8_t *paylo
     return len;
 }
 
-static auth_check_type_t  _unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len)
+static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len)
 {
     struct umesh_auth_tlv_fix  tlv;
     if (payload == NULL) {
@@ -900,7 +1001,7 @@ static auth_check_type_t  _unpack_auth_payload(session_t *session, uint8_t *payl
     return AUTH_CHECK_UNKNOW;
 }
 
-int32_t umesh_session_auth_set(session_t *session, umesh_auth_mode_t mode, uint8_t *pwd, uint16_t pwd_len)
+int umesh_session_auth_set(session_t *session, umesh_auth_mode_t mode, uint8_t *pwd, uint16_t pwd_len)
 {
     umesh_auth_data_t *auth_data = hal_malloc(sizeof(umesh_auth_data_t));
     if (auth_data == NULL) {
@@ -925,11 +1026,11 @@ int32_t umesh_session_auth_set(session_t *session, umesh_auth_mode_t mode, uint8
     return 0;
 }
 
-int32_t umesh_invite_peer(session_t *session, service_t *dst, int32_t timeout)
+int umesh_invite_peer(session_t *session, service_t *dst,  int timeout)
 {
-    int32_t ret;
+    int ret;
     int msg = 0;
-    int32_t msg_size = 4;
+    int msg_size = 4;
     uint8_t hello_payload[SERVICE_AUTH_PAYLOAD_MAX];
     if (session == NULL || dst == NULL) {
         return UMESH_ERR_NULL_POINTER;
@@ -940,7 +1041,7 @@ int32_t umesh_invite_peer(session_t *session, service_t *dst, int32_t timeout)
     }
 
     //send data
-    ret = _send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, hello_payload, ret);
+    ret = umesh_send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, hello_payload, ret);
 
     ret = hal_queue_recv(session->queue, timeout, &msg, &msg_size);
     log_d("hal_queue_recv ret = %d, msg = %d", ret, ret);
@@ -959,9 +1060,9 @@ int32_t umesh_invite_peer(session_t *session, service_t *dst, int32_t timeout)
     return ret;
 }
 
-int32_t umesh_delete_peer(session_t *session, service_t *dst)
+int umesh_delete_peer(session_t *session, service_t *dst)
 {
-    int32_t ret = 0;
+    int ret = 0;
 
     struct umesh_auth_tlv_fix tlv;
     service_t *node, *next;
@@ -972,18 +1073,18 @@ int32_t umesh_delete_peer(session_t *session, service_t *dst)
     tlv.id = htonl(MESH_DELETE_AUTH_ID);
     tlv.flag = 0x0;
     log_d("MESH_DELETE_AUTH_ID ");
-    ret =  _send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+    ret =  umesh_send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
     if (ret < 0) {
         return ret;
     }
     hal_mutex_lock(session->lock);
-    list_for_each_entry_safe(node, next, &session->peers_list, linked_list, service_t) {
+    list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
         if (!memcmp(&dst->id.ip6, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
             if (session->state_cb != NULL) {
                 log_d(" session delete peer, srv name = %s", dst->srv_name);
                 session->state_cb(session, node, SESSION_MEMBER_LEAVE, session->state_cb_ctx);
             }
-            list_del(&node->linked_list);
+            list_del(&node->linked_list2);
             break;
         }
     }
@@ -994,7 +1095,7 @@ int32_t umesh_delete_peer(session_t *session, service_t *dst)
 }
 
 
-int32_t umesh_send(session_t *session, service_t *dest, uint8_t *data, int32_t len, data_mode_t mode)
+int umesh_send(session_t *session, service_t *dest, uint8_t *data,  int len, data_mode_t mode)
 {
 
     if (session == NULL || data == NULL || len <= 0) {
@@ -1007,7 +1108,7 @@ int32_t umesh_send(session_t *session, service_t *dest, uint8_t *data, int32_t l
             return UMESH_ERR_NULL_POINTER;
         }
         memcpy(addr.s6_addr, MCAST_ADDR, sizeof(MCAST_ADDR));
-        return _send_data(session, &addr, srv->port, mode, data, len);
+        return umesh_send_data(session, &addr, srv->port, mode, data, len);
     }
-    return  _send_data(session, &dest->id.ip6, dest->port, mode, data, len);
+    return  umesh_send_data(session, &dest->id.ip6, dest->port, mode, data, len);
 }
