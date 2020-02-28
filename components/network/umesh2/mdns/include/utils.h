@@ -30,25 +30,6 @@ enum {
     MDNS_ERROR  = -4, // any runtime error that's not originating from the standard library
 };
 
-#if !defined(HAVE_STRUCT_POLLFD) && !defined(_SYS_POLL_H)
-enum {
-    POLLERR = 0x1,
-    POLLHUP = 0x2,
-    POLLNVAL = 0x4,
-    POLLWRNORM = 0x10,
-    POLLWRBAND = 0x20,
-    POLLRDNORM = 0x100,
-    POLLRDBAND = 0x200,
-    POLLPRI = 0x400,
-};
-#define POLLIN  (POLLRDNORM|POLLRDBAND)
-struct pollfd {
-    int fd;
-    unsigned events;
-    unsigned revents;
-};
-#endif
-
 static inline int ss_family(const struct sockaddr_storage *ss)
 {
     return (((const struct sockaddr *) ss)->sa_family);
