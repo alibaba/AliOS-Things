@@ -1,3 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SDK_OTA
+    bool 
+    default y
+    select INFRA_STRING
+    select INFRA_JSON_PARSER
+    select INFRA_HTTPC
+    select INFRA_MD5
+    select INFRA_SHA256
+    help
+        Establish persistent connection with AliCloud via HTTP-based protocol
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_OTA
     bool 
     default n
@@ -8,7 +22,4 @@ config AOS_COMP_SDK_OTA
     select INFRA_SHA256
     help
         Establish persistent connection with AliCloud via HTTP-based protocol
-
-
-
-
+endif

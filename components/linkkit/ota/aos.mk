@@ -6,10 +6,5 @@ $(NAME)_SUMMARY := ota service
 
 $(NAME)_SOURCES := *.c 
 
-#GLOBAL_DEFINES += 
 $(NAME)_INCLUDES += .
 $(NAME)_COMPONENTS := libiot_wrappers libiot_infra 
-
-
-
-
