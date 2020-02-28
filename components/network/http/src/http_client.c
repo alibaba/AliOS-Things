@@ -7,6 +7,60 @@
 #include "http_form_data.h"
 #include "http_opts.h"
 
+#ifndef strncasecmp
+static const unsigned char charmap[] = {
+        '\000', '\001', '\002', '\003', '\004', '\005', '\006', '\007',
+        '\010', '\011', '\012', '\013', '\014', '\015', '\016', '\017',
+        '\020', '\021', '\022', '\023', '\024', '\025', '\026', '\027',
+        '\030', '\031', '\032', '\033', '\034', '\035', '\036', '\037',
+        '\040', '\041', '\042', '\043', '\044', '\045', '\046', '\047',
+        '\050', '\051', '\052', '\053', '\054', '\055', '\056', '\057',
+        '\060', '\061', '\062', '\063', '\064', '\065', '\066', '\067',
+        '\070', '\071', '\072', '\073', '\074', '\075', '\076', '\077',
+        '\100', '\141', '\142', '\143', '\144', '\145', '\146', '\147',
+        '\150', '\151', '\152', '\153', '\154', '\155', '\156', '\157',
+        '\160', '\161', '\162', '\163', '\164', '\165', '\166', '\167',
+        '\170', '\171', '\172', '\133', '\134', '\135', '\136', '\137',
+        '\140', '\141', '\142', '\143', '\144', '\145', '\146', '\147',
+        '\150', '\151', '\152', '\153', '\154', '\155', '\156', '\157',
+        '\160', '\161', '\162', '\163', '\164', '\165', '\166', '\167',
+        '\170', '\171', '\172', '\173', '\174', '\175', '\176', '\177',
+        '\200', '\201', '\202', '\203', '\204', '\205', '\206', '\207',
+        '\210', '\211', '\212', '\213', '\214', '\215', '\216', '\217',
+        '\220', '\221', '\222', '\223', '\224', '\225', '\226', '\227',
+        '\230', '\231', '\232', '\233', '\234', '\235', '\236', '\237',
+        '\240', '\241', '\242', '\243', '\244', '\245', '\246', '\247',
+        '\250', '\251', '\252', '\253', '\254', '\255', '\256', '\257',
+        '\260', '\261', '\262', '\263', '\264', '\265', '\266', '\267',
+        '\270', '\271', '\272', '\273', '\274', '\275', '\276', '\277',
+        '\300', '\341', '\342', '\343', '\344', '\345', '\346', '\347',
+        '\350', '\351', '\352', '\353', '\354', '\355', '\356', '\357',
+        '\360', '\361', '\362', '\363', '\364', '\365', '\366', '\367',
+        '\370', '\371', '\372', '\333', '\334', '\335', '\336', '\337',
+        '\340', '\341', '\342', '\343', '\344', '\345', '\346', '\347',
+        '\350', '\351', '\352', '\353', '\354', '\355', '\356', '\357',
+        '\360', '\361', '\362', '\363', '\364', '\365', '\366', '\367',
+        '\370', '\371', '\372', '\373', '\374', '\375', '\376', '\377',
+};
+
+int
+strncasecmp(const char *s1, const char *s2, register size_t n)
+{
+    register unsigned char u1, u2;
+    for (; n != 0; --n) {
+        u1 = (unsigned char) *s1++;
+        u2 = (unsigned char) *s2++;
+        if (charmap[u1] != charmap[u2]) {
+            return charmap[u1] - charmap[u2];
+        }
+        if (u1 == '\0') {
+            return 0;
+        }
+    }
+    return 0;
+}
+#endif
+
 /* base64 encode */
 static void httpclient_base64enc(char *out, const char *in)
 {
@@ -309,7 +363,7 @@ static int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *cli
     return HTTP_SUCCESS;
 }
 
-static int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len)
+static int httpclient_recv_data(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len)
 {
 	int ret = 0;
 	int timeout_ms = 5000;
@@ -355,7 +409,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                 http_err("%s %d error max_len %d", __func__, __LINE__, max_len);
                 return HTTP_EUNKOWN;
             }
-            ret = httpclient_recv(client, data, 1, max_len, &len);
+            ret = httpclient_recv_data(client, data, 1, max_len, &len);
 
             /* Receive data */
             http_debug("data len: %d %d", len, count);
@@ -403,7 +457,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                             http_err("%s %d error max_len %d", __func__, __LINE__, max_recv - len - 1);
                             return HTTP_EUNKOWN;
                         }
-                        ret = httpclient_recv(client, data + len, 0,  max_recv - len - 1 , &new_trf_len);
+                        ret = httpclient_recv_data(client, data + len, 0,  max_recv - len - 1 , &new_trf_len);
                         len += new_trf_len;
                         if ((ret == HTTP_ECONN) || (ret == HTTP_ECLSD && new_trf_len == 0)) {
                             return ret;
@@ -475,7 +529,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                     return HTTP_EUNKOWN;
                 }
 
-                ret = httpclient_recv(client, data, 1, max_len, &len);
+                ret = httpclient_recv_data(client, data, 1, max_len, &len);
                 if (ret == HTTP_ECONN || (ret == HTTP_ECLSD && len == 0)) {
                     return ret;
                 }
@@ -492,7 +546,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                 }
 
                 /* Read missing chars to find end of chunk */
-                ret = httpclient_recv(client, data + len, 2 - len, max_recv, &new_trf_len);
+                ret = httpclient_recv_data(client, data + len, 2 - len, max_recv, &new_trf_len);
                 if ((ret == HTTP_ECONN) || (ret == HTTP_ECLSD && new_trf_len == 0)) {
                     return ret;
                 }
@@ -574,7 +628,7 @@ static int httpclient_response_parse(httpclient_t *client, char *data, int len, 
                     http_err("%s %d error max_len %d", __func__, __LINE__, HTTPCLIENT_CHUNK_SIZE - len - 1);
                     return HTTP_EUNKOWN;
                 }
-                read_result = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len);
+                read_result = httpclient_recv_data(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len);
                 len += new_trf_len;
                 data[len] = '\0';
                 http_debug("Read %d chars; In buf: [%s]", new_trf_len, data);
@@ -649,7 +703,7 @@ static int httpclient_response_parse(httpclient_t *client, char *data, int len, 
 }
 
 
-HTTPC_RESULT httpclient_connect(httpclient_t *client, const char *url)
+HTTPC_RESULT httpclient_conn(httpclient_t *client, const char *url)
 {
     int ret = HTTP_ECONN;
     char host[HTTPCLIENT_MAX_HOST_LEN] = {0};
@@ -691,11 +745,11 @@ HTTPC_RESULT httpclient_connect(httpclient_t *client, const char *url)
     }
 #endif
 
-    http_debug("httpclient_connect() result:%d, client:%p", ret, client);
+    http_debug("httpclient_conn() result:%d, client:%p", ret, client);
     return (HTTPC_RESULT)ret;
 }
 
-HTTPC_RESULT httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
+HTTPC_RESULT httpclient_send(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     int ret = HTTP_ECONN;
 
@@ -712,12 +766,12 @@ HTTPC_RESULT httpclient_send_request(httpclient_t *client, const char *url, int 
         ret = httpclient_send_userdata(client, client_data);
     }
 
-    http_debug("httpclient_send_request() result:%d, client:%p", ret, client);
+    http_debug("httpclient_send() result:%d, client:%p", ret, client);
     return (HTTPC_RESULT)ret;
 }
 
 
-HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *client_data)
+HTTPC_RESULT httpclient_recv(httpclient_t *client, httpclient_data_t *client_data)
 {
     int reclen = 0;
     int ret = HTTP_ECONN;
@@ -733,7 +787,7 @@ HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *c
         client_data->response_buf[0] = '\0';
         ret = httpclient_retrieve_content(client, buf, reclen, client_data);
     } else {
-        ret = httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen);
+        ret = httpclient_recv_data(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen);
         if (ret != HTTP_SUCCESS && ret != HTTP_ECLSD) {
             return (HTTPC_RESULT)ret;
         }
@@ -746,11 +800,11 @@ HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *c
         }
     }
 
-    http_debug("httpclient_recv_response() result:%d, client:%p", ret, client);
+    http_debug("httpclient_recv_data() result:%d, client:%p", ret, client);
     return (HTTPC_RESULT)ret;
 }
 
-void httpclient_close(httpclient_t *client)
+void httpclient_clse(httpclient_t *client)
 {
     if (client->is_http) {
         http_tcp_close_wrapper(client);
@@ -761,7 +815,7 @@ void httpclient_close(httpclient_t *client)
 #endif
 
     client->socket = -1;
-    http_debug("httpclient_close() client:%p", client);
+    http_debug("httpclient_clse() client:%p", client);
 }
 
 int httpclient_get_response_code(httpclient_t *client)
