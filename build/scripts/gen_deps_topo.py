@@ -249,16 +249,16 @@ def main(argv):
         print("[Error] AliOS Things SDK is not found!")
         return 1
 
-    comp_deps_file = os.path.join(appdir, COMP_DEPS_FILE)
+    comp_deps_file = os.path.join(appdir, "out", COMP_DEPS_FILE)
     scriptdir = os.path.join(aos_sdk, "build", "scripts")
     os.system("python %s/app_gen_comp_index.py %s %s" % (scriptdir, aos_sdk, comp_deps_file))
 
-    comp_topo_file = os.path.join(appdir, COMP_DEPS_TOPO_FILE)
+    comp_topo_file = os.path.join(appdir, "out", COMP_DEPS_TOPO_FILE)
     write_depends_topo_file(appdir, comp_deps_file, boardname, comp_topo_file)
     os.remove(comp_deps_file)
 
     try:
-        os.system("dot -Tpng %s -o %s" % (comp_topo_file, os.path.join(appdir, COMP_DEPS_TOPO_PNG)))
+        os.system("dot -Tpng %s -o %s" % (comp_topo_file, os.path.join(appdir, "out", COMP_DEPS_TOPO_PNG)))
     except:
         pass
     return 0
