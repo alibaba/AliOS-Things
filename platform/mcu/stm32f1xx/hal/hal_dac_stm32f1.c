@@ -6,8 +6,6 @@
 
 #ifdef HAL_DAC_MODULE_ENABLED
 
-#if defined (STM32F100xB) || defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined       (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
-
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +21,6 @@ typedef struct {
 } stm32_dac_t;
 
 static stm32_dac_t stm32_dac[PORT_DAC_SIZE];
-
-static const uint32_t dac_channel_map[HAL_DAC_CHANNEL_CNT] = {
-    DAC1_CHANNEL_1, DAC1_CHANNEL_2
-};
 
 static int config_gpio(uint8_t pin)
 {
@@ -88,11 +82,7 @@ int32_t hal_dac_init(dac_dev_t *dac)
     map_entry = get_mapping_entry(dac->port);
     hdac = &stm32_dac[dac->port].hdac;
 
-    if (map_entry->hal_dac == HAL_DAC_1) {
-        hdac->Instance = DAC1;
-    } else {
-        return -EIO;
-    }
+    hdac->Instance = (DAC_TypeDef*)map_entry->hal_dac;
 
     // init dac gpio
     dac_conf = map_entry->channel_conf;
@@ -108,7 +98,7 @@ int32_t hal_dac_init(dac_dev_t *dac)
 
     dac_conf = map_entry->channel_conf;
     for (i = 0; i < map_entry->channel_cnt; i++, dac_conf++) {
-        HAL_DAC_ConfigChannel(hdac, &sConfig, dac_channel_map[dac_conf->channel]);
+        HAL_DAC_ConfigChannel(hdac, &sConfig, dac_conf->channel);
     }
 
     stm32_dac[dac->port].inited = 1;
@@ -134,7 +124,7 @@ int32_t hal_dac_start(dac_dev_t *dac, uint32_t channel)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_Start(hdac, dac_channel_map[channel])) {
+    if (HAL_OK != HAL_DAC_Start(hdac, channel)) {
         return -EIO;
     }
 
@@ -159,7 +149,7 @@ int32_t hal_dac_stop(dac_dev_t *dac, uint32_t channel)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_Stop(hdac, dac_channel_map[channel])) {
+    if (HAL_OK != HAL_DAC_Stop(hdac, channel)) {
         return -EIO;
     }
 
@@ -184,7 +174,7 @@ int32_t hal_dac_set_value(dac_dev_t *dac, uint32_t channel, uint32_t data)
     }
 
     hdac = &stm32_dac[dac->port].hdac;
-    if (HAL_OK != HAL_DAC_SetValue(hdac, dac_channel_map[channel], DAC_ALIGN_12B_R, data)) {
+    if (HAL_OK != HAL_DAC_SetValue(hdac, channel, DAC_ALIGN_12B_R, data)) {
         return -EIO;
     }
 
@@ -210,7 +200,7 @@ int32_t hal_dac_get_value(dac_dev_t *dac, uint32_t channel)
 
     hdac = &stm32_dac[dac->port].hdac;
 
-    return HAL_DAC_GetValue(hdac, dac_channel_map[channel]);
+    return HAL_DAC_GetValue(hdac, channel);
 }
 
 int32_t hal_dac_finalize(dac_dev_t *dac)
@@ -237,7 +227,7 @@ int32_t hal_dac_finalize(dac_dev_t *dac)
     map_entry = get_mapping_entry(dac->port);
     dac_conf = map_entry->channel_conf;
     for (i = 0; i < map_entry->channel_cnt; i++, dac_conf++) {
-        HAL_DAC_Stop(hdac, dac_channel_map[dac_conf->channel]);
+        HAL_DAC_Stop(hdac, dac_conf->channel);
     }
 
     if (HAL_OK != HAL_DAC_DeInit(hdac)) {
@@ -249,7 +239,6 @@ int32_t hal_dac_finalize(dac_dev_t *dac)
 
     return 0;
 }
-#endif /* (STM32F100xB) || defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined       (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC) */
 
 #endif  /* HAL_DAC_MODULE_ENABLED */
 
