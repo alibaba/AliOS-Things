@@ -27,10 +27,10 @@ $(NAME)_CFLAGS += -DCFG_BATX=1 -DCFG_BARX=1  -DCFG_REORD_BUF=4  -DCFG_SPC=4  -DC
 #default a0v2 config
 ifeq ($(buildsoc),a0v1)
 $(NAME)_CFLAGS += -DLEGA_A0V1
-GLOBAL_LDS_FILES += $(SOURCE_ROOT)/platform/board/board_legacy/asr5501/gcc.ld
+GLOBAL_LDS_FILES += $(SOURCE_ROOT)/platform/board/asr5501/gcc.ld
 else
 $(NAME)_CFLAGS += -DLEGA_A0V2
-GLOBAL_LDS_FILES += $(SOURCE_ROOT)/platform/board/board_legacy/asr5501/gcc_a0v2.ld
+GLOBAL_LDS_FILES += $(SOURCE_ROOT)/platform/board/asr5501/gcc_a0v2.ld
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_LEGAWIFI
