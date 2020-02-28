@@ -1,3 +1,14 @@
+if AOS_CREATE_PROJECT
+config DYNAMIC_REGISTER
+    bool
+    default y
+    select INFRA_STRING
+    select INFRA_HTTPC
+    select INFRA_SHA256
+    select SUPPORT_TLS
+endif
+
+if !AOS_CREATE_PROJECT
 config DYNAMIC_REGISTER
     bool "FEATURE_DYNAMIC_REGISTER"
     default n
@@ -6,3 +17,5 @@ config DYNAMIC_REGISTER
     select INFRA_SHA256
     select SUPPORT_TLS
     select AOS_COMP_SDK_WRAPPERS
+
+endif
