@@ -15,13 +15,13 @@ static HTTPC_RESULT httpclient_common(httpclient_t *client, const char *url, int
     /* reset httpclient redirect flag */
     client_data->is_redirected = 0;
 
-    ret = httpclient_connect(client, url);
+    ret = httpclient_conn(client, url);
 
     if (!ret) {
-        ret = httpclient_send_request(client, url, method, client_data);
+        ret = httpclient_send(client, url, method, client_data);
 
         if (!ret) {
-            ret = httpclient_recv_response(client, client_data);
+            ret = httpclient_recv(client, client_data);
         }
     }
     /* Don't reset form data when got a redirected response */
@@ -29,7 +29,7 @@ static HTTPC_RESULT httpclient_common(httpclient_t *client, const char *url, int
         httpclient_clear_form_data(client_data);
     }
 
-    httpclient_close(client);
+    httpclient_clse(client);
 
     return ret;
 }
