@@ -1,14 +1,32 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_SDK_MQTT
-    bool "FEATURE_MQTT_COMM_ENABLED"
-    default n
+    bool
+    default y
     select MQTT_PRE_AUTH if !MQTT_DIRECT
-    select DEV_SIGN
     select INFRA_SHA256
     select INFRA_LIST
     select INFRA_TIMER
     select INFRA_REPORT
     select INFRA_COMPAT
-    select AOS_COMP_SDK_SIGN
+    select INFRA_REPORT
+
+    help
+        Establish persistent connection with AliCloud via MQTT-based protocol
+
+        Switching to "y" leads to building MQTT related implementation into SDK and AOS_COMP_SDK_MQTT included into CFLAGS
+        Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SDK_MQTT
+    bool "FEATURE_MQTT_COMM_ENABLED"
+    default n
+    select MQTT_PRE_AUTH if !MQTT_DIRECT
+    select INFRA_SHA256
+    select INFRA_LIST
+    select INFRA_TIMER
+    select INFRA_REPORT
+    select INFRA_COMPAT
     select INFRA_REPORT
     select AOS_COMP_SDK_WRAPPERS
 
@@ -17,12 +35,6 @@ config AOS_COMP_SDK_MQTT
 
         Switching to "y" leads to building MQTT related implementation into SDK and AOS_COMP_SDK_MQTT included into CFLAGS
         Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
-
-
-if AOS_COMP_SDK_MQTT
-    config MQTT_COMM_ENABLED
-    bool 
-    default y
 endif
 
 menu "MQTT Configurations"
@@ -75,5 +87,9 @@ menu "MQTT Configurations"
         default n
         depends on DYNAMIC_REGISTER
         select SUPPORT_TLS
+
+    config MQTT_COMM_ENABLED
+        bool
+        default y
 
 endmenu
