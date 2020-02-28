@@ -2,8 +2,6 @@
 #ifndef __MDNS_H__
 #define __MDNS_H__
 
-
-#include <stdbool.h>
 #include "network/umesh2/mdns/mdns_rr.h"
 
 # ifdef __cplusplus
@@ -33,6 +31,11 @@ enum mdns_hdr_flag {
     FLAG_CD = 1 <<  4, // Checking Disabled
 };
 
+enum mdns_match_type {
+    MDNS_MATCH_NAME,
+    MDNS_MATCH_ALL,
+};
+
 struct mdns_hdr {
     uint16_t id;
     uint16_t flags;
@@ -57,26 +60,23 @@ struct mdns_ip {
 typedef void (*mdns_listen_callback)(void *, int, const struct mdns_entry *);
 typedef void (*mdns_announce_callback)(void *, int, const struct mdns_ip *, const struct mdns_entry *);
 
-typedef bool (*mdns_stop_func)(void *);
+typedef int (*mdns_stop_func)(void *);
 
 int mdns_init(struct mdns_ctx **ctx, const char *addr, unsigned short port);
 
 int mdns_destroy(struct mdns_ctx *ctx);
 
-int mdns_entries_send(const struct mdns_ctx *ctx, const struct mdns_hdr *hdr, const struct mdns_entry *entries);
+int mdns_send(const struct mdns_ctx *ctx, const struct mdns_hdr *hdr, const struct mdns_entry *entries);
 
-void mdns_entries_print(const struct mdns_entry *);
-
-int mdns_listen(const struct mdns_ctx *ctx, const char *const names[],
-                unsigned int nb_names, enum mdns_type type,
-                unsigned int interval, mdns_stop_func stop,
-                mdns_listen_callback callback, void *context);
-
+void mdns_print(const struct mdns_entry *);
 
 int mdns_announce(struct mdns_ctx *ctx, const char *service, enum mdns_type type,
                   mdns_announce_callback callback, void *context);
 
-int mdns_serve(struct mdns_ctx *ctx, mdns_stop_func stop, void *context);
+int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
+               unsigned int nb_names, enum mdns_type type, unsigned int interval, enum mdns_match_type match_type,
+               mdns_stop_func stop, mdns_listen_callback callback, void *p_cookie);
+
 
 # ifdef __cplusplus
 }
