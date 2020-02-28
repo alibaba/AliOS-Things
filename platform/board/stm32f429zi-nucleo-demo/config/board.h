@@ -122,16 +122,16 @@ typedef enum {
 /* LED */
 
 /** The map of LED Pin of stm32f429zi-nucleo board
- *  LD1  <--> LED0
- *  LD2  <--> LDE1
- *  LD3  <--> LED2
+ *  LD1  <--> LED1
+ *  LD2  <--> LED2
+ *  LD3  <--> LED3
  */
-#define LED0     HAL_GPIO_16 // LD1 <--> PB0
-#define LED1     HAL_GPIO_23 // LD2 <--> PB7
-#define LED2     HAL_GPIO_30 // LD3 <--> PB14
+#define LED1     HAL_GPIO_16 // LD1 <--> PB0
+#define LED2     HAL_GPIO_23 // LD2 <--> PB7
+#define LED3     HAL_GPIO_30 // LD3 <--> PB14
 
 /* Button */
-#define KEY0     HAL_GPIO_45 // USER <--> PC13
+#define KEY1     HAL_GPIO_45 // USER <--> PC13
 
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
@@ -189,15 +189,15 @@ typedef enum {
 #if (AOS_HAL_GPIO_ENABLED > 0)
 
 #ifndef HALAPP_GPIO_OUT
-#define HALAPP_GPIO_OUT LED0
+#define HALAPP_GPIO_OUT LED1
 #endif
 
 #ifndef HALAPP_GPIO_IN
-#define HALAPP_GPIO_IN KEY0
+#define HALAPP_GPIO_IN KEY1
 #endif
 
 #ifndef HALAPP_GPIO_INT
-#define HALAPP_GPIO_INT KEY0
+#define HALAPP_GPIO_INT KEY1
 #endif
 
 #endif /* AOS_HAL_GPIO_ENABLED > 0 */
