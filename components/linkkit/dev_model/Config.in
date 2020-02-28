@@ -1,5 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SDK_DEVMODEL
+    bool
+    select INFRA_COMPAT
+    select INFRA_CJSON
+    default y
+    help
+        Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
 
+        Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+endif
 
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_DEVMODEL
 
     bool "FEATURE_DEVICE_MODEL_ENABLED"
@@ -13,15 +25,10 @@ config AOS_COMP_SDK_DEVMODEL
 
         Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
         Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
-
-if AOS_COMP_SDK_DEVMODEL
-    config DEVICE_MODEL_ENABLED
-    bool 
-    default y
 endif
 
 menu "Device Model Configurations"
-    depends on DEVICE_MODEL_ENABLED
+    depends on AOS_COMP_SDK_DEVMODEL
 
     config DEVICE_MODEL_GATEWAY
         bool "FEATURE_DEVICE_MODEL_GATEWAY"
@@ -71,8 +78,13 @@ menu "Device Model Configurations"
     config DEVICE_MODEL_SHADOW
         bool "FEATURE_DEVICE_MODEL_SHADOW"
         default n
+
     config LOG_REPORT_TO_CLOUD
         bool "FEATURE_LOG_REPORT_TO_CLOUD"
-    default n
-endmenu
+       default n
 
+    config DEVICE_MODEL_ENABLED
+        bool
+        default y
+
+endmenu
