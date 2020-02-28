@@ -1,6 +1,7 @@
 if AOS_CREATE_PROJECT
 config AOS_COMP_HTTPDNS
     bool
+    select CONFIG_NEW_HTTP_API
     default y
 endif
 
@@ -11,6 +12,7 @@ config AOS_COMP_HTTPDNS
     bool "httpdns"
     default n
     select AOS_COMP_HTTP
+    select CONFIG_NEW_HTTP_API
     select AOS_COMP_CJSON
     help
         HTTP DNS function
