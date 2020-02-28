@@ -30,19 +30,19 @@ if AOS_BOARD_MK3080_DEMO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/asr5501-demo/Config.in"
-if AOS_BOARD_ASR5501_DEMO
+source "platform/board/asr5501/Config.in"
+if AOS_BOARD_ASR5501
     config AOS_BUILD_BOARD
-        default "asr5501-demo"
+        default "asr5501"
 
     source "platform/mcu/asr5501/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/mk3072-demo/Config.in"
-if AOS_BOARD_MK3072_DEMO
+source "platform/board/mk3072/Config.in"
+if AOS_BOARD_MK3072
     config AOS_BUILD_BOARD
-        default "mk3072-demo"
+        default "mk3072"
 
     source "platform/mcu/asr5501mk/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
@@ -108,15 +108,6 @@ if AOS_BOARD_ATSAME54_XPRO
         default "atsame54-xpro"
 
     source "platform/mcu/atsamd5x_e5x/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "platform/board/board_legacy/asr5501/Config.in"
-if AOS_BOARD_ASR5501
-    config AOS_BUILD_BOARD
-        default "asr5501"
-
-    source "platform/mcu/asr5501/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
@@ -514,15 +505,6 @@ if AOS_BOARD_MK3060
 
     source "platform/mcu/moc108/Config.in"
     source "platform/arch/arm/armv5/Config.in"
-endif
-
-source "platform/board/board_legacy/mk3072/Config.in"
-if AOS_BOARD_MK3072
-    config AOS_BUILD_BOARD
-        default "mk3072"
-
-    source "platform/mcu/asr5501mk/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
 endif
 
 source "platform/board/board_legacy/mk3080/Config.in"
