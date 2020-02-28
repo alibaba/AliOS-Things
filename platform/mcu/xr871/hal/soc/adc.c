@@ -78,7 +78,7 @@ int32_t hal_adc_init(adc_dev_t *adc)
  * @return 0        : on success.
  * @return EIO      : if an error occurred with any step
  */
-int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
+int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
 	*(uint32_t*)output = HAL_ADC_GetValue(adc->port);
 	return 0;
