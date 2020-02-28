@@ -28,6 +28,30 @@ if AOS_APP_LINKKITAPPDEMO
     config AOS_BUILD_APP
         default "linkkitappdemo"
 endif
+
+source "application/example/blink_demo/Config.in"
+if AOS_APP_BLINK_DEMO
+    config AOS_BUILD_APP
+        default "blink_demo"
+endif
+
+source "application/example/mqtt_demo/Config.in"
+if AOS_APP_MQTT_DEMO
+    config AOS_BUILD_APP
+        default "mqtt_demo"
+endif
+
+source "application/example/linkkit_gateway_demo/Config.in"
+if AOS_APP_LINKKIT_GATEWAY_DEMO
+    config AOS_BUILD_APP
+        default "linkkit_gateway_demo"
+endif
+
+source "application/example/yts_demo/Config.in"
+if AOS_APP_YTS_DEMO
+    config AOS_BUILD_APP
+        default "yts_demo"
+endif
 	
 source "application/example/example_legacy/blink/Config.in"
 if AOS_APP_BLINK
