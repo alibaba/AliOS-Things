@@ -230,7 +230,7 @@ static int32_t httpapp_ota(char *url)
     client_data.response_buf = rsp_buf;
     client_data.response_buf_len = sizeof(rsp_buf);
 
-    ret = httpclient_connect(&client, url);
+    ret = httpclient_conn(&client, url);
     if(HTTP_SUCCESS != ret ) {
         LOGE(TAG, "http connect failed");
         return -1;
@@ -238,14 +238,14 @@ static int32_t httpapp_ota(char *url)
     
     httpclient_set_custom_header(&client, customer_header);
 
-    ret = httpclient_send_request(&client, url, HTTP_GET, &client_data);
+    ret = httpclient_send(&client, url, HTTP_GET, &client_data);
     if(HTTP_SUCCESS != ret) {
         LOGE(TAG, "http send request failed");
         return -1;
     }
 
     while (total_len == 0 || recv_total_len < total_len) {
-        ret = httpclient_recv_response(&client, &client_data);
+        ret = httpclient_recv(&client, &client_data);
         if (ret == HTTP_SUCCESS || ret == HTTP_EAGAIN) {
             recv_len = client_data.content_block_len;
             /*
@@ -275,7 +275,7 @@ static int32_t httpapp_ota(char *url)
 
     LOGI(TAG,"Finished. Duration %d ms\n", (int)(aos_now_ms() - start));
 
-    httpclient_close(&client);
+    httpclient_clse(&client);
     return 0;
 }
 
