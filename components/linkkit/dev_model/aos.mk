@@ -10,7 +10,6 @@ ifeq (y,$(strip $(DEPRECATED_LINKKIT)))
 $(NAME)_INCLUDES += deprecated
 endif
 
-$(NAME)_INCLUDES += .
 ifeq (y,$(strip $(ALCS_ENABLED)))
 $(NAME)_INCLUDES += server alcs
 $(NAME)_INCLUDES += ../iot_coap  ../iot_coap/server ../iot_coap/CoAPPacket 
