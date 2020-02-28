@@ -1,0 +1,12 @@
+config AOS_COMP_LOCAL_COMM
+    bool "local communication framework"
+    default n
+    help
+        
+
+choice
+prompt "mdns config"
+default UMESH_WITH_DEFAULT_MDNS
+config UMESH_WITH_DEFAULT_MDNS
+    bool "use default mdns"
+endchoice
