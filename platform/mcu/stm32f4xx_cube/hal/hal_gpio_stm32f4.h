@@ -51,7 +51,6 @@ extern  const gpio_mapping_t gpio_mapping_table[];
 #define GROUP_GPIOI    8
 
 #define PINS_IN_GROUP  16
-#define TOTAL_GPIO_NUM 144
 
 #define HAL_GPIO_0                 ((uint8_t)0)        /* represent GPIOA pin 0 */
 #define HAL_GPIO_1                 ((uint8_t)1)        /* represent GPIOA pin 1 */
