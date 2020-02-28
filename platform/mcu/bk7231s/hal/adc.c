@@ -46,7 +46,7 @@ int32_t hal_adc_init(adc_dev_t *adc)
 	return ret;
 }
 
-int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
+int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
 	uint8_t read_cnt = *(uint8_t *)adc->priv;
 	int32_t ret = -1;
