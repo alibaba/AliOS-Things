@@ -1,8 +1,8 @@
-NAME := linkkitappdemo
+NAME := linkkit_demo
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.2
-$(NAME)_SUMMARY := linkkitappdemo
+$(NAME)_SUMMARY := linkkit_demo
 
 $(NAME)_SOURCES :=   app_entry.c maintask.c
 $(NAME)_COMPONENTS += linkkit_sdk_c
@@ -18,21 +18,21 @@ $(NAME)_COMPONENTS += ota
 GLOBAL_DEFINES += ENABLE_AOS_OTA
 endif
 
-ifeq ($(LINKKITAPPDEMO_CONFIG_CASE_SOLO),y)
+ifeq ($(LINKKIT_DEMO_CONFIG_CASE_SOLO),y)
 $(NAME)_SOURCES += linkkit_example_solo.c
 endif
 
 #case cntdown
-ifeq ($(LINKKITAPPDEMO_CONFIG_CASE_CNTDOWN),y)
+ifeq ($(LINKKIT_DEMO_CONFIG_CASE_CNTDOWN),y)
 $(NAME)_SOURCES += linkkit_example_cntdown.c
 endif
 
 #case sched
-ifeq ($(LINKKITAPPDEMO_CONFIG_CASE_SCHED),y)
+ifeq ($(LINKKIT_DEMO_CONFIG_CASE_SCHED),y)
 $(NAME)_SOURCES += linkkit_example_sched.c
 endif
 
-ifeq ($(LINKKITAPP_CONFIG_PRINT_HEAP),y)
+ifeq ($(LINKKIT_DEMO_CONFIG_PRINT_HEAP),y)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
