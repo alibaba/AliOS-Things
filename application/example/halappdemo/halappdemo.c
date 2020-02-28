@@ -38,6 +38,10 @@ extern void hal_adc_app_out(void);
 extern void hal_dac_app_out(void);
 #endif
 
+#if (AOS_HAL_I2C_ENABLED > 0)
+extern void hal_i2c_app_run(void);
+#endif
+
 int application_start(int argc, char *argv[])
 {
     printf("hal app test start\r\n");
@@ -85,6 +89,10 @@ int application_start(int argc, char *argv[])
     printf("After 10 seconds the system will be restarted by"
             "triggering the watchdog\r\n");
     hal_watchdog_app_enable();
+#endif
+
+#if (AOS_HAL_I2C_ENABLED > 0)
+    hal_i2c_app_run();
 #endif
 
     printf("hal app test end!\r\n");
