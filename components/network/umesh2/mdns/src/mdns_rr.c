@@ -464,10 +464,9 @@ static const char *mdns_class_str(enum mdns_class mdns_class)
     return ("UNKNOWN");
 }
 
-void mdns_print(const struct mdns_entry *entry)
+void mdns_item_print(const struct mdns_entry *entry)
 {
     uint32_t i;
-    log_d("entry->name = %s, entry->type = %d", entry->type);
 
     log_d("{\"name\":\"%s\","
           "\"type\":\"%s\","
