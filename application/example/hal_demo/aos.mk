@@ -1,8 +1,8 @@
-NAME := halappdemo
+NAME := hal_demo
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
-$(NAME)_SUMMARY := hal app
+$(NAME)_SUMMARY := hal demo
 $(NAME)_SOURCES := halappdemo.c maintask.c
 
 $(NAME)_SOURCES += halapp_gpio.c  \

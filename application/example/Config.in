@@ -5,28 +5,28 @@ if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 	
-source "application/example/appdemo/Config.in"
-if AOS_APP_APPDEMO
+source "application/example/helloworld_demo/Config.in"
+if AOS_APP_HELLOWORLD_DEMO
     config AOS_BUILD_APP
-        default "appdemo"
+        default "helloworld_demo"
 endif	
 
-source "application/example/halappdemo/Config.in"
-if AOS_APP_HALAPPDEMO
+source "application/example/hal_demo/Config.in"
+if AOS_APP_HAL_DEMO
     config AOS_BUILD_APP
-        default "halappdemo"
+        default "hal_demo"
 endif
 
-source "application/example/otaappdemo/Config.in"
-if AOS_APP_OTAAPPDEMO
+source "application/example/ota_demo/Config.in"
+if AOS_APP_OTA_DEMO
     config AOS_BUILD_APP
-        default "otaappdemo"
+        default "ota_demo"
 endif
 
-source "application/example/linkkitappdemo/Config.in"
-if AOS_APP_LINKKITAPPDEMO
+source "application/example/linkkit_demo/Config.in"
+if AOS_APP_LINKKIT_DEMO
     config AOS_BUILD_APP
-        default "linkkitappdemo"
+        default "linkkit_demo"
 endif
 
 source "application/example/blink_demo/Config.in"
