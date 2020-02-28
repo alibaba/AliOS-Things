@@ -1,1 +1,1 @@
-linux_only_targets="appdemo halappdemo"
+linux_only_targets="helloworld_demo hal_demo"

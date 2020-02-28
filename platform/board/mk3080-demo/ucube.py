@@ -1,2 +1,2 @@
 
-linux_only_targets="linkkitappdemo"
+linux_only_targets="linkkit_demo"
