@@ -184,7 +184,7 @@ uint32_t hal_i2c_pins_map(uint8_t logic_i2c)
         GPIOx = hal_gpio_typedef(i2cIns->gpiomaps[i]);
         Pin = hal_gpio_pin(i2cIns->gpiomaps[i]);
         GPIO_InitStruct.Pin = Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
         GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = alternate;
@@ -251,14 +251,13 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
         return -1;
     }
 
-    hal_i2c_pins_map(i2c->port);
-
     /* Init the I2C */
     ret = HAL_I2C_Init(&stm32_i2c[i2c->port].hal_i2c_handle);
     if (ret) {
         printf("i2c port %d init fail ret is %d \r\n", i2c->port, ret);
         return -1;
     }
+    hal_i2c_pins_map(i2c->port);
 
     stm32_i2c[i2c->port].inited = 1;
 
