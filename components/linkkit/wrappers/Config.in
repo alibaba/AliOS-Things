@@ -1,14 +1,20 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SDK_WRAPPERS
+    bool
+    default y
+    select INFRA_AES
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_WRAPPERS
     bool "Linkkit HAL for AliOS Things"
     default n
-    select AOS_COMP_ULOG
-    select AOS_COMP_ACTIVATION
-    select AOS_COMP_CHIP_CODE
     select AOS_COMP_NETMGR
     select AOS_COMP_KV
     select INFRA_AES
     help
-      HAL for AliOS Things
+        HAL for AliOS Things
+endif
     
 menu "Linkkit HAL config"
 depends on AOS_COMP_SDK_WRAPPERS
@@ -62,5 +68,13 @@ config TLS_SAVE_TICKET
     config HAL_KV
     bool
     default y
-endmenu
 
+config FORCE_SSL_VERIFY
+   bool
+   default y
+
+config BUILD_AOS
+   bool
+   default y
+
+endmenu
