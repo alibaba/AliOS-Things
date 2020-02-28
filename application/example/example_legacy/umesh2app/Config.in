@@ -1,0 +1,10 @@
+config AOS_APP_UMESH2APP
+    bool "umesh2app"
+    select AOS_COMP_UMESH2 
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_ULOG 
+    select AOS_COMP_LWIP
+    help
+        uMesh2 sample application
+
