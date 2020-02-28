@@ -73,6 +73,10 @@ choice
 endchoice
 endif
 
+config CONFIG_NEW_HTTP_API
+    bool
+    default n
+
 config CONFIG_HTTP_ENABLE_MUTEX
     bool "Enable mutex"
     default y
@@ -84,35 +88,5 @@ config CONFIG_HTTP_DEBUG
     default n
     help 
         Enable debug function
-
-config HTTP_DELETE
-    int "HTTP delete code"
-    default 0
-    help 
-        HTTP delete code
-
-config HTTP_GET
-    int "HTTP get code"
-    default 1
-    help 
-        HTTP get code
-
-config HTTP_HEAD
-    int "HTTP head code"
-    default 2
-    help 
-        HTTP head code
-
-config HTTP_POST
-    int "HTTP post code"
-    default 3
-    help 
-        HTTP post code
-
-config HTTP_PUT
-    int "HTTP put code"
-    default 4
-    help 
-        HTTP put code
 
 endmenu
