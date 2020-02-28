@@ -141,7 +141,7 @@ exit_hal_adc_init:
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
+int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
 	struct analogin_s *obj = hal_get_analogin_s(adc);
   uint16_t *value = (uint16_t *)output;
