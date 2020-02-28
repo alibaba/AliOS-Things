@@ -58,7 +58,8 @@ SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
 
 #ifdef HAL_ADC_MODULE_ENABLED
 gpio_adc_pin_config_t adc1_conf[] = {
-    {HAL_ADC_CHANNEL_10, HAL_GPIO_32}
+    {HAL_ADC_CHANNEL_10, HAL_GPIO_32},
+    {HAL_ADC_CHANNEL_11, HAL_GPIO_33}
 };
 
 ADC_MAPPING ADC_MAPPING_TABLE[] = {
@@ -81,7 +82,7 @@ static struct stm32_pwmchan_s pwm3chan[] = {
         .mode = TIM_OCMODE_PWM1,
         .out1 = {
             .pol = TIM_OCPOLARITY_LOW,
-            .pin = LED2,
+            .pin = HAL_GPIO_16,
         },
     }
 };
