@@ -142,26 +142,13 @@ def get_comp_optional_depends_r(comp_info, comps, mandatory_comps):
         depends += get_comp_optional_depends_r(comp_info, depends, mandatory_comps)
     return depends
 
-def get_comp_optional_depends(comp_info, comps):
-    """ Get comp optional depends from comp index """
-    depends = []
-    """ comps are mandatory components got by get_comp_mandatory_depends,
-    here is to find all optional dependencies for comp"""
-    for comp in comps:
-        if comp in comp_info:
-            for dep_info in comp_info[comp]["optional_dependencies"]:
-                """ if optional dependency(dep_info) is in mandatory components, ignore it """
-                if dep_info["comp_name"] not in comps:
-                    depends.append(dep_info)
-                    # print("add depend:", dep_info)
-
+def merge_comp_optional_depends(optional_deps):
+    """ merge the condition for the dependency of same component name """
     merge_depends = []
-    if depends:
-        depends += get_comp_optional_depends_r(comp_info, depends, comps)
-        depends.sort(key=lambda x: x["comp_name"])
+    if optional_deps:
+        optional_deps.sort(key=lambda x: x["comp_name"])
         last_dep = ""
-        """ merge the condition for the dependency of same component name """
-        for dep in depends:
+        for dep in optional_deps:
             # print("optional dependency is", dep)
             if dep["comp_name"] != last_dep:
                 """ new deps """
@@ -180,6 +167,26 @@ def get_comp_optional_depends(comp_info, comps):
                         break
                 if not duplicated:
                     merge_depends[-1]["condition"].append(dep["condition"])
+    
+    return merge_depends
+
+def get_comp_optional_depends(comp_info, comps):
+    """ Get comp optional depends from comp index """
+    depends = []
+    """ comps are mandatory components got by get_comp_mandatory_depends,
+    here is to find all optional dependencies for comp"""
+    for comp in comps:
+        if comp in comp_info:
+            for dep_info in comp_info[comp]["optional_dependencies"]:
+                """ if optional dependency(dep_info) is in mandatory components, ignore it """
+                if dep_info["comp_name"] not in comps:
+                    depends.append(dep_info)
+                    # print("add depend:", dep_info)
+
+    merge_depends = []
+    if depends:
+        depends += get_comp_optional_depends_r(comp_info, depends, comps)
+        merge_depends = merge_comp_optional_depends(depends)
 
     # for dep in merge_depends:
     #     print("dep is", dep)
@@ -205,9 +212,10 @@ def get_comp_optional_depends_text(conditions_list, config_file):
                 cond_line += "%s || " % cond
         conds_line += cond_line[:-4]
         conds_line += ") || "
-    line += conds_line[:-4]
+    conds_line = conds_line[:-4]
+    line += conds_line
     line += ")\n" + 'source "$AOS_SDK_PATH/%s"\n' % config_file + "endif\n"
-    return line
+    return line, conds_line
 
 def find_config_in_file(app_config_in):
     """find Config.in files in application's Config.in """
