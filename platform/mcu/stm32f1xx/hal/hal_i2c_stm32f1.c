@@ -69,7 +69,7 @@ uint32_t hal_i2c_pins_map(uint8_t logic_i2c)
         GPIOx = hal_gpio_typedef(i2cIns->gpiomaps[i]);
         Pin = hal_gpio_pin(i2cIns->gpiomaps[i]);
         GPIO_InitStruct.Pin = Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
         GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         //GPIO_InitStruct.Alternate = alternate;
@@ -116,8 +116,6 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
             memset(&stm32_i2c[i2c->port], 0, sizeof(stm32_i2c_t));
             I2C_HandleTypeDef *psti2chandle = &stm32_i2c[i2c->port].hal_i2c_handle;
 
-            hal_i2c_pins_map(i2c->port);
-
             psti2chandle->Instance = mapping->i2c_physic_p;
             psti2chandle->Init.ClockSpeed = i2c->config.freq;
             psti2chandle->Init.DutyCycle = I2C_DUTYCYCLE_2;
@@ -134,6 +132,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
                 stm32_i2c[i2c->port].inited = 1;
                 rc = 0;
             }
+            hal_i2c_pins_map(i2c->port);
         }
 
     }
