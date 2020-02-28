@@ -132,8 +132,6 @@ int application_start(int argc, char *argv[])
     netmgr_init();
     netmgr_start(false);
 
-    http_client_initialize();
-
     /* enter AOS loop */
     aos_post_delayed_action(1000, app_delayed_action, NULL);
     aos_loop_run();
