@@ -272,6 +272,11 @@ void board_wifi_init(void)
 
 }
 
+void board_network_init(void)
+{
+
+}
+
 void board_kinit_init(kinit_t* init_args)
 {
     return;
