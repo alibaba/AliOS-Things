@@ -12,6 +12,8 @@ extern "C" {
 #define IPV4_ADDRSTRLEN 16
 #define IPV6_ADDRSTRLEN 46
 
+#define MDNS_TXT_MAX_LEN 128
+
 enum mdns_type {
     RR_A    = 0x01,
     RR_PTR  = 0x0C,
@@ -32,9 +34,9 @@ struct mdns_data_srv {
 };
 
 struct mdns_data_txt {
-    char txt[256]; // RFC 6762
-
+    char txt[MDNS_TXT_MAX_LEN];
     struct mdns_data_txt *next;
+
 };
 
 struct mdns_data_ptr {
@@ -74,7 +76,7 @@ struct mdns_entry {
 
 const uint8_t *mdns_read(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *, int8_t ans);
 uint32_t mdns_write(uint8_t *, const struct mdns_entry *, int8_t ans);
-void mdns_print(const struct mdns_entry *);
+void mdns_item_print(const struct mdns_entry *);
 void mdns_free(struct mdns_entry *);
 
 # ifdef __cplusplus
