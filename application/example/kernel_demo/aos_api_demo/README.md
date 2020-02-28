@@ -43,8 +43,8 @@ provided to the application layer.
 ### Build
 
 ```sh
-# generate basicfunction_app.aos_api_app@developerkit default config
-aos make basicfunction_app.aos_api_app@stm32f429zi-nucleo-demo -c config
+# generate default config
+aos make kernel_demo.aos_api_demo@stm32f429zi-nucleo-demo -c config
 
 # or customize config manually
 aos make menuconfig

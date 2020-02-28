@@ -33,8 +33,8 @@ is the native kernel interface to AliOS Things and is typically used by internal
 ### Build
 
 ```sh
-# generate basicfunction_app.krhino_api_app@developerkit default config
-aos make basicfunction_app.krhino_api_app@stm32f429zi-nucleo-demo -c config
+# generate default config
+aos make kernel_demo.krhino_api_demo@stm32f429zi-nucleo-demo -c config
 
 # or customize config manually
 aos make menuconfig
