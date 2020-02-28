@@ -23,14 +23,6 @@ typedef struct {
 
 static stm32_adc_dev_t stm32_adc_dev[PORT_ADC_SIZE];
 
-static const uint32_t adc_channel_map[HAL_ADC_CHANNEL_CNT] = {
-    ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3,
-    ADC_CHANNEL_4, ADC_CHANNEL_5, ADC_CHANNEL_6, ADC_CHANNEL_7,
-    ADC_CHANNEL_8, ADC_CHANNEL_9, ADC_CHANNEL_10, ADC_CHANNEL_11,
-    ADC_CHANNEL_12, ADC_CHANNEL_13, ADC_CHANNEL_14, ADC_CHANNEL_15,
-    ADC_CHANNEL_16, ADC_CHANNEL_17, ADC_CHANNEL_18
-    };
-
 static int config_gpio(uint8_t pin)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -99,12 +91,7 @@ int32_t hal_adc_init(adc_dev_t *adc)
     entry_cnt = map_entry->channel_cnt;
     channel_conf = map_entry->channel_conf;
 
-    switch(map_entry->hal_adc) {
-        case HAL_ADC_1: hadc->Instance = ADC1; break;
-        case HAL_ADC_2: hadc->Instance = ADC2; break;
-        case HAL_ADC_3: hadc->Instance = ADC3; break;
-        default: return -EIO;
-    }
+    hadc->Instance = (ADC_TypeDef*)map_entry->hal_adc;
 
     /**
      * Only ADC1 and ADC3(if exists) can perform DMA on completion
@@ -176,7 +163,7 @@ int32_t hal_adc_value_get(adc_dev_t *adc, void *output, uint32_t timeout)
     for (i = 0; i < entry_cnt; i++, channel_conf++) {
         if (channel_conf->channel < HAL_ADC_CHANNEL_16) {
             memset(&sconf, 0, sizeof(ADC_ChannelConfTypeDef));
-            sconf.Channel = adc_channel_map[channel_conf->channel];
+            sconf.Channel = channel_conf->channel;
             sconf.Rank = 1;
             sconf.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             sconf.Offset = 0;

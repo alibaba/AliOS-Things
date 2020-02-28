@@ -18,6 +18,7 @@ $(NAME)_SOURCES += config/k_config.c \
                    config/partition_conf.c \
                    drivers/stm32f1xx_hal_msp.c \
                    drivers/system_stm32f1xx.c \
+                   drivers/src/adc.c \
                    drivers/src/i2c.c \
                    drivers/src/spi.c \
                    drivers/src/timer.c \
