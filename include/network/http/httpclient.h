@@ -19,6 +19,16 @@
   * @{
   */
 
+/** @brief   http requst type */
+typedef enum {
+    HTTP_GET,
+    HTTP_POST,
+    HTTP_PUT,
+    HTTP_DELETE,
+    HTTP_HEAD
+} HTTP_REQUEST_TYPE;
+
+
 /** @brief   This structure defines the httpclient_t structure   */
 typedef struct {
     int socket;                     /**< socket ID                 */
@@ -133,7 +143,7 @@ void httpclient_reset(httpclient_data_t *client_data);
  * @param[in] url               remote URL
  * @return           Please refer to #HTTPC_RESULT.
  */
-HTTPC_RESULT httpclient_connect(httpclient_t *client, const char *url);
+HTTPC_RESULT httpclient_conn(httpclient_t *client, const char *url);
 
 /**
  * This function sends HTTP request.
@@ -143,7 +153,7 @@ HTTPC_RESULT httpclient_connect(httpclient_t *client, const char *url);
  * @param[in] client_data       a pointer to #httpclient_data_t.
  * @return    Please refer to #HTTPC_RESULT.
  */
-HTTPC_RESULT httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data);
+HTTPC_RESULT httpclient_send(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data);
 
 /**
  * This function receives response from remote
@@ -151,14 +161,14 @@ HTTPC_RESULT httpclient_send_request(httpclient_t *client, const char *url, int 
  * @param[out] client_data          a pointer to #httpclient_data_t.
  * @return     Please refer to #HTTPC_RESULT.
  */
-HTTPC_RESULT httpclient_recv_response(httpclient_t *client, httpclient_data_t *client_data);
+HTTPC_RESULT httpclient_recv(httpclient_t *client, httpclient_data_t *client_data);
 
 /**
  * This function close http connection.
  * @param[in] client               client is a pointer to the #httpclient_t.
  * @return           None.
  */
-void httpclient_close(httpclient_t *client);
+void httpclient_clse(httpclient_t *client);
 
 /**
  * This function sets a custom header.
