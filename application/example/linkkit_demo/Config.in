@@ -1,4 +1,4 @@
-config AOS_APP_LINKKITAPPDEMO
+config AOS_APP_LINKKIT_DEMO
     bool "Linkkit Application"
     select AOS_COMP_CLI if !AOS_BOARD_ESP8266 && !AOS_BOARD_ESP8266_DEMO
     select AOS_COMP_NETMGR
@@ -8,10 +8,10 @@ config AOS_APP_LINKKITAPPDEMO
     select AOS_COMP_SDK_AWSS
     select AOS_COMP_UND
     help
-        linkkitappdemo
+        linkkit demo
 
-if AOS_APP_LINKKITAPPDEMO
-# Configurations for app linkkitappdemo
+if AOS_APP_LINKKIT_DEMO
+# Configurations for app linkkit_demo
 
 config ENABLE_OTA
     bool "Enable OTA"
@@ -22,27 +22,27 @@ config ENABLE_OTA
 
 choice
     prompt "Select Case"
-    default LINKKITAPPDEMO_CONFIG_CASE_SOLO
+    default LINKKIT_DEMO_CONFIG_CASE_SOLO
     help
         select case to build
 
-    config LINKKITAPPDEMO_CONFIG_CASE_SOLO
+    config LINKKIT_DEMO_CONFIG_CASE_SOLO
         bool "SOLO"
         help
             default case, build linkkit_example_solo.c or deprecated/solo.c(when enable deprecated)
 
-    config LINKKITAPPDEMO_CONFIG_CASE_SCHED
+    config LINKKIT_DEMO_CONFIG_CASE_SCHED
         bool "Sched"
         help
             case sched, build linkkit_example_sched.c or deprecated/sched.c(when enable deprecated)
 
-    config LINKKITAPPDEMO_CONFIG_CASE_CNTDOWN
+    config LINKKIT_DEMO_CONFIG_CASE_CNTDOWN
         bool "Cntdown"
         help
             case countdown, build linkkit_example_cntdown.c or deprecated/cntdown.c(when enable deprecated)
 endchoice
 
-config LINKKITAPP_CONFIG_PRINT_HEAP
+config LINKKIT_DEMO_CONFIG_PRINT_HEAP
     bool "Show Free Heap Duration"
     default n
     help
@@ -59,5 +59,5 @@ config SYSINFO_APP_VERSION
     default "app-1.0.0-20200214.140831"
     help
         application main firmware version
-        
+
 endif

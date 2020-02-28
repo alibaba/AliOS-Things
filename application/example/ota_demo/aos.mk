@@ -1,15 +1,15 @@
-NAME := otaappdemo
+NAME := ota_demo
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.2
-$(NAME)_SUMMARY := OTA demo app for developers
+$(NAME)_SUMMARY := OTA demo for developers
 
-OTAAPP_CONFIG_TEST_LOOP ?= n
-loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
+OTA_DEMO_CONFIG_TEST_LOOP ?= n
+loop ?= $(OTA_DEMO_CONFIG_TEST_LOOP)
 
 $(NAME)_SOURCES := otaappdemo.c maintask.c
 $(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
-ifeq ($(OTAAPP_CONFIG_USE_LWIP),y)
+ifeq ($(OTA_DEMO_CONFIG_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
 endif
 
