@@ -1,9 +1,11 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_SDK_NGHTTP2
-    bool "FEATURE_HTTP_COMM_ENABLED"
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SDK_NGHTTP2
+    bool "FEATURE_NGHTTP2_ENABLED"
     default n
-    help
-       
-
-
-
-
+endif
