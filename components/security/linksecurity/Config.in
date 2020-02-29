@@ -1,0 +1,19 @@
+menu "Security    Configuration"
+
+## --- Generated Automatically ---
+source "components/security/linksecurity/ls_osa/Config.in"
+source "components/security/linksecurity/ls_hal/Config.in"
+source "components/security/linksecurity/alicrypto/Config.in"
+source "components/security/linksecurity/dpm/Config.in"
+source "components/security/linksecurity/id2/Config.in"
+source "components/security/linksecurity/irot/Config.in"
+source "components/security/linksecurity/irot/km/Config.in"
+source "components/security/linksecurity/irot/se/Config.in"
+source "components/security/linksecurity/irot/tee/Config.in"
+source "components/security/linksecurity/irot/demo/Config.in"
+source "components/security/linksecurity/isst/Config.in"
+source "components/security/linksecurity/itls/Config.in"
+source "components/security/linksecurity/prov/Config.in"
+## --- End ---
+
+endmenu
