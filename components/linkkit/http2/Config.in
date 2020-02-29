@@ -1,3 +1,19 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SDK_HTTP2
+    bool
+    default y
+    select INFRA_HTTPC
+    select INFRA_SHA1
+    select INFRA_TIMER
+    select SUPPORT_TLS
+    select ON_DAILY
+    select FS_ENABLED
+
+    help
+        Establish persistent connection with AliCloud via HTTP2-stream protocol
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_HTTP2
     bool "FEATURE_HTTP2_COMM_ENABLED"
     default n
@@ -12,11 +28,11 @@ config AOS_COMP_SDK_HTTP2
 
     help
         Establish persistent connection with AliCloud via HTTP2-stream protocol
-
+endif
 
 if AOS_COMP_SDK_HTTP2
     config HTTP2_COMM_ENABLED
-    bool 
+    bool
     default y
 endif
 
