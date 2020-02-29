@@ -1,3 +1,4 @@
+if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_AWSS
     bool "FEATURE_WIFI_PROVISION_ENABLED"
     select AOS_COMP_SDK_WRAPPERS
@@ -15,14 +16,6 @@ config AOS_COMP_SDK_AWSS
     help
         Enable providing Wifi SSID/PASSWD configration in SDK
 
-if AOS_COMP_SDK_AWSS
-    config WIFI_PROVISION_ENABLED
-    bool
-    default y
-
-    config DEV_BIND_ENABLED
-    bool
-    default y
 endif
 
 config AWSS_SUPPORT_APLIST
@@ -87,5 +80,35 @@ menu "Wifi Provision Configurations"
         default n
         help
             Switching on a wifi provision method based on device-ap, which receives the ssid/passwd from the phones connected to it
+
+    config WIFI_PROVISION_ENABLED
+        bool
+        default y
+
+    config DEV_BIND_ENABLED
+        bool
+        default y
+
+    config CONFIG_YWSS
+        bool
+        default y
+
+    config AWSS_SUPPORT_ADHA
+        bool
+        default y if AWSS_SUPPORT_ROUTER
+
+    config ESP8266_CONFIG
+        bool
+        select AWSS_DISABLE_REGISTRAR
+        default y if AOS_BOARD_ESP8266
+
+     config AWSS_SUPPORT_STATIS
+        bool
+        default y if AOS_BOARD_DH5021A_EVB
+
+    config MK3165_CONFIG
+        bool
+        select AWSS_DISABLE_REGISTRAR
+        default y if AOS_BOARD_MK3165
 
 endmenu
