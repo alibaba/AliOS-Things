@@ -91,7 +91,7 @@ source "components/dm/ota/2ndboot/Config.in"
 source "components/language/jsengine/Config.in"
 endmenu
 
-source "components/security/Config.in"
+source "components/security/linksecurity/Config.in"
 
 menu "Utility     Configuration"
 source "components/utility/cjson/Config.in"
