@@ -100,6 +100,17 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
  */
 #define aos_cli_printf(fmt, ...) printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
 
+/**
+ * @brief Set cli login password
+ *
+ * @param[in] old_passwd
+ * @param[in] new_passwd
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_chg_passwd(char *old_passwd, char *new_passwd);
+
 /** @} */
 
 #ifdef __cplusplus
