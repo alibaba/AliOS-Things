@@ -24,7 +24,13 @@ else
     TWO_STEP_BUILD=no
 fi
 echo "TWO_STEP_BUILD=${TWO_STEP_BUILD}"
-
+grep "^update:" build/build_rules/aos_kconfig.mk > /dev/null 2>&1
+if [ $? -eq 0 ];then
+    CREATE_THEN_MAKE=yes
+else
+    CREATE_THEN_MAKE=no
+fi
+echo "CREATE_THEN_MAKE=${CREATE_THEN_MAKE}"
 RET=0
 
 function do_build()
@@ -47,14 +53,30 @@ function do_build()
     rm -rf out .config* .defconfig
     if [ "${TWO_STEP_BUILD}" = "yes" ]; then
         ret=0
-        aos make $build_app@$build_board -c config > ${build_log} 2>&1
+        if [ "${CREATE_THEN_MAKE}" = "yes" ]; then
+            if [ -z "$(echo \"$build_app\" | grep \.)" ]; then
+                app=$build_app
+            else
+                app=$(echo $build_app | cut -d"." -f2)
+            fi
+            aos create project -b $build_board -d /tmp -t $app $app > ${build_log} 2>&1
+        else
+            aos make $build_app@$build_board -c config > ${build_log} 2>&1
+        fi
         ret=$(($ret+$?))
+        if [ "${CREATE_THEN_MAKE}" = "yes" ]; then
+            cd /tmp/$app
+        fi
         if [ "${build_option}" != "" ]; then
             aos make JOBS=${JNUM} ${build_option} >> ${build_log} 2>&1
         else
             aos make JOBS=${JNUM} >> ${build_log} 2>&1
         fi
         ret=$(($ret+$?))
+        if [ "${CREATE_THEN_MAKE}" = "yes" ]; then
+            cd -
+            rm -rf /tmp/$app
+        fi
     else
         if [ "${build_option}" != "" ]; then
             aos make $build_app@$build_board JOBS=${JNUM} ${build_option} > $build_log 2>&1
