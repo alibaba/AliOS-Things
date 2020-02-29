@@ -3,28 +3,28 @@ choice
     prompt "Board Selection"
 
 
-source "platform/board/stm32f103rb-demo/Config.in"
-if AOS_BOARD_STM32F103RB_DEMO
+source "platform/board/stm32f103rb-nucleo/Config.in"
+if AOS_BOARD_STM32F103RB_NUCLEO
     config AOS_BUILD_BOARD
-        default "stm32f103rb-demo"
+        default "stm32f103rb-nucleo"
 
     source "platform/mcu/stm32f1xx/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/esp8266-demo/Config.in"
-if AOS_BOARD_ESP8266_DEMO
+source "platform/board/esp8266/Config.in"
+if AOS_BOARD_ESP8266
     config AOS_BUILD_BOARD
-        default "esp8266-demo"
+        default "esp8266"
 
     source "platform/mcu/esp8266/Config.in"
     source "platform/arch/xtensa/lx106/Config.in"
 endif
 
-source "platform/board/mk3080-demo/Config.in"
-if AOS_BOARD_MK3080_DEMO
+source "platform/board/mk3080/Config.in"
+if AOS_BOARD_MK3080
     config AOS_BUILD_BOARD
-        default "mk3080-demo"
+        default "mk3080"
 
     source "platform/mcu/rtl8710bn/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
@@ -48,10 +48,10 @@ if AOS_BOARD_MK3072
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/linuxhost-demo/Config.in"
-if AOS_BOARD_LINUXHOST_DEMO
+source "platform/board/linuxhost/Config.in"
+if AOS_BOARD_LINUXHOST
     config AOS_BUILD_BOARD
-        default "linuxhost-demo"
+        default "linuxhost"
 
     source "platform/mcu/linux/Config.in"
     source "platform/arch/linux/Config.in"
@@ -226,15 +226,6 @@ if AOS_BOARD_ESP32SRAM
 
     source "platform/mcu/esp32/Config.in"
     source "platform/arch/xtensa/lx6/Config.in"
-endif
-
-source "platform/board/board_legacy/esp8266/Config.in"
-if AOS_BOARD_ESP8266
-    config AOS_BUILD_BOARD
-        default "esp8266"
-
-    source "platform/mcu/esp8266/Config.in"
-    source "platform/arch/xtensa/lx106/Config.in"
 endif
 
 source "platform/board/board_legacy/esp8285/Config.in"
@@ -417,15 +408,6 @@ if AOS_BOARD_IMX6SL
     source "platform/arch/arm/armv7a/Config.in"
 endif
 
-source "platform/board/board_legacy/linuxhost/Config.in"
-if AOS_BOARD_LINUXHOST
-    config AOS_BUILD_BOARD
-        default "linuxhost"
-
-    source "platform/mcu/linux/Config.in"
-    source "platform/arch/linux/Config.in"
-endif
-
 source "platform/board/board_legacy/lpcxpresso54018/Config.in"
 if AOS_BOARD_LPCXPRESSO54018
     config AOS_BUILD_BOARD
@@ -505,15 +487,6 @@ if AOS_BOARD_MK3060
 
     source "platform/mcu/moc108/Config.in"
     source "platform/arch/arm/armv5/Config.in"
-endif
-
-source "platform/board/board_legacy/mk3080/Config.in"
-if AOS_BOARD_MK3080
-    config AOS_BUILD_BOARD
-        default "mk3080"
-
-    source "platform/mcu/rtl8710bn/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
 endif
 
 source "platform/board/board_legacy/mk3165/Config.in"
@@ -669,16 +642,6 @@ if AOS_BOARD_STM32F091RC_NUCLEO
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
-
-source "platform/board/board_legacy/stm32f103rb-nucleo/Config.in"
-if AOS_BOARD_STM32F103RB_NUCLEO
-    config AOS_BUILD_BOARD
-        default "stm32f103rb-nucleo"
-
-    source "platform/mcu/stm32f1xx/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
 source "platform/board/board_legacy/stm32f401re-nucleo/Config.in"
 if AOS_BOARD_STM32F401RE_NUCLEO
     config AOS_BUILD_BOARD
@@ -706,19 +669,10 @@ if AOS_BOARD_STM32F412ZG_NUCLEO
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "platform/board/board_legacy/stm32f429zi-nucleo/Config.in"
+source "platform/board/stm32f429zi-nucleo/Config.in"
 if AOS_BOARD_STM32F429ZI_NUCLEO
     config AOS_BUILD_BOARD
         default "stm32f429zi-nucleo"
-
-    source "platform/mcu/stm32f4xx_cube/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "platform/board/stm32f429zi-nucleo-demo/Config.in"
-if AOS_BOARD_STM32F429ZI_NUCLEO_DEMO
-    config AOS_BUILD_BOARD
-        default "stm32f429zi-nucleo-demo"
 
     source "platform/mcu/stm32f4xx_cube/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
