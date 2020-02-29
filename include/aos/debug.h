@@ -1,9 +1,5 @@
 /**
  * @file debug.h
- *
- * @author    yx170385@alibaba-inc.com
- * @version   V1.0
- * @date      2019-12-23
  * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
@@ -108,7 +104,7 @@ void aos_debug_task_cpu_usage_stats(void);
  *
  * @param[in]  taskname  the task name which is need to be got
  *
- * @return cpuusage, the units are 1/10,000
+ * @return -1 is error, others is cpuusage, the units are 1/10,000
  */
 int32_t aos_debug_task_cpu_usage_get(char *taskname);
 
@@ -117,7 +113,7 @@ int32_t aos_debug_task_cpu_usage_get(char *taskname);
  *
  * @param[in]   cpuid   the cpu id to obtain CPU utilization
  *
- * @return -1 is error, others is cpuusage, the units are 1/10,000
+ * @return cpuusage, the units are 1/10,000
  */
 uint32_t aos_debug_total_cpu_usage_get(uint32_t cpuid);
 
