@@ -51,6 +51,10 @@ extern "C" {
 #endif /* !BUILDING_NGHTTP2 */
 #endif /* !defined(WIN32) */
 
+#ifndef ssize_t
+#define ssize_t unsigned int
+#endif
+
 /**
  * @macro
  *
