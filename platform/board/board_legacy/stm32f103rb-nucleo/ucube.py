@@ -1,1 +1,0 @@
-linux_only_targets="blink debug_app helloworld kernel_app modbus_app udata_demo.sensor_local_demo udata_demo.udata_local_demo udataapp ulog_app yts"
