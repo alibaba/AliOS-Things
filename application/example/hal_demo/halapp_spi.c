@@ -40,15 +40,18 @@
 #define W25X_SECTOR_SIZE                4096
 
 static spi_dev_t spi_w25 = {0};
-uint8_t gcmd_data = 0;
+static uint8_t gcmd_data = 0;
 
 static int32_t w25qxx_init(void)
 {
     int32_t ret;
+
     spi_w25.port = PORT_SPI_1;
     spi_w25.config.mode = HAL_SPI_MODE_MASTER;
     spi_w25.config.freq = 6000000;
+
     ret = hal_spi_init(&spi_w25);
+
     return ret;
 }
 
@@ -70,6 +73,7 @@ uint8_t w25qxx_read_sr(void)
 {
     int32_t ret;
     uint8_t byte = 0;
+
     gcmd_data = W25X_CMD_READ_STATUS;
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
@@ -86,6 +90,7 @@ uint8_t w25qxx_read_sr(void)
 void w25qxx_write_sr(uint8_t sr)
 {
     uint8_t data_send = sr;
+
     gcmd_data = W25X_CMD_WRITE_STATUS;
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
@@ -101,6 +106,7 @@ int32_t w25qxx_read(uint8_t* pbuffer,uint32_t readaddr,uint16_t num)
 {
     uint8_t data;
     int32_t ret;
+
     gcmd_data = W25X_CMD_READDATA;
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
@@ -127,7 +133,9 @@ int32_t w25qxx_read(uint8_t* pbuffer,uint32_t readaddr,uint16_t num)
 void w25qxx_write_page(uint8_t* pbuffer,uint32_t writeaddr,uint16_t num)
 {
     uint8_t data;
+
     w25qxx_write_enable();
+
     gcmd_data = W25X_CMD_PAGEPROGRAM;
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
@@ -150,7 +158,9 @@ void w25qxx_erase_sector(uint32_t sector_index)
 {
     uint8_t data;
     uint32_t eraseaddr;
+
     w25qxx_write_enable();
+
     w25qxx_wait_busy();
 
     gcmd_data = W25X_CMD_SECTORERASE;
@@ -175,11 +185,13 @@ void w25qxx_erase_sector(uint32_t sector_index)
 /* toggle gpio_out periodically in timer handler */
 void hal_spi_app_run(void)
 {
-    int32_t ret;
-    uint32_t addr = 20;
-    char *pbuffer = "hal spi test w25qxxx ok!";
-    char pbuffer_read[40] = {0};
+    int32_t   ret;
+    uint32_t  addr = 20;
+    char     *pbuffer = "hal spi test w25qxxx ok!";
+    char      pbuffer_read[40] = {0};
+
     printf("hal_i2c_app_run in\r\n");
+
     w25qxx_erase_sector(0);
 
     w25qxx_write_page(pbuffer,addr,strlen(pbuffer));
