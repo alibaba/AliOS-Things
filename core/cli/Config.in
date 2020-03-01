@@ -73,4 +73,14 @@ config CLI_CONFIG_TELNET_SUPPORT
         saying "n" is disabled.
         the default is "n"
 
+config CLI_CONFIG_PASSWD_SUPPORT
+    bool "Login Passwd Check Support"
+    select AOS_COMP_KV
+    default n
+    help
+        This option enable passwd check for CLI module
+        saying "y" here enable the feature
+        saying "n" is disabled
+        the default is "n"
+
 endif
