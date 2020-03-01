@@ -31,7 +31,7 @@
 #include <re_sa.h>
 #include <re_net.h>
 #include <re_udp.h>
-
+#include <aos/kernel.h>
 
 #define DEBUG_MODULE "udp"
 #define DEBUG_LEVEL 5
@@ -50,11 +50,86 @@
 #define SIZ_CAST
 #endif
 
-
 enum {
 	UDP_RXSZ_DEFAULT = 8192
 };
 
+#define UDPSOCK_READ_SOCK_MAX_NUM  8
+struct udpsock_read_sock{
+    bool is_fd_used;
+    bool is_fd6_used;
+    struct udp_sock* us;
+};
+
+static struct udpsock_read_sock g_read_sock[UDPSOCK_READ_SOCK_MAX_NUM] = {0};
+
+static bool g_udpsock_read_task_running = false;
+static void udpsock_read(struct udp_sock *us, int fd);
+
+void udpsock_read_task_handle(void)
+{
+    struct timeval timeselect;
+    fd_set read_sets;
+    int maxfdp = 0;
+    int err;
+
+    g_udpsock_read_task_running = true;
+
+    /* set select timeout */
+    timeselect.tv_sec  = 3;
+    timeselect.tv_usec = 0;
+    while(1) {
+        int i;
+
+        if(g_udpsock_read_task_running == false) {
+            printf("udpsock read task exit\n");
+            break;
+        }
+
+        maxfdp = 0;
+
+        FD_ZERO(&read_sets);
+        for(i = 0; i < UDPSOCK_READ_SOCK_MAX_NUM; i++) {
+            if((g_read_sock[i].is_fd_used == true) && (g_read_sock[i].us->fd != -1)) {
+                maxfdp = (maxfdp > g_read_sock[i].us->fd ? maxfdp : g_read_sock[i].us->fd);
+                FD_SET(g_read_sock[i].us->fd, &read_sets);
+            }
+
+            if((g_read_sock[i].is_fd6_used == true) && (g_read_sock[i].us->fd6 != -1)) {
+                maxfdp = (maxfdp > g_read_sock[i].us->fd6 ? maxfdp : g_read_sock[i].us->fd6);
+                FD_SET(g_read_sock[i].us->fd6, &read_sets);
+            }
+        }
+
+        if(maxfdp == 0) {
+            g_udpsock_read_task_running = false;
+            continue;
+        }
+
+        err = select(maxfdp + 1, &read_sets, NULL, NULL, &timeselect);
+        if(err > 0) {
+            for(i = 0; i < UDPSOCK_READ_SOCK_MAX_NUM; i++) {
+                if((g_read_sock[i].is_fd_used == true)
+                  && (FD_ISSET(g_read_sock[i].us->fd, &read_sets))) {
+                    udpsock_read(g_read_sock[i].us, g_read_sock[i].us->fd);
+                }
+                if((g_read_sock[i].is_fd6_used == true)
+                  && (FD_ISSET(g_read_sock[i].us->fd6, &read_sets))) {
+                    udpsock_read(g_read_sock[i].us, g_read_sock[i].us->fd6);
+                }
+            }
+        }
+        else
+        {
+            if(errno == EINTR) {
+#ifdef CONFIG_LINUX_IPSTACK
+                aos_msleep(200);
+#endif
+            }
+        }
+    }
+    aos_task_exit(0);
+}
 
 static void dummy_udp_recv_handler(const struct sa *src,
 				   struct mbuf *mb, void *arg)
@@ -92,19 +167,11 @@ static void udp_destructor(void *data)
 
 	list_flush(&us->helpers);
 
-	if (-1 != us->fd) {
-		fd_close(us->fd);
-		(void)close(us->fd);
-	}
-
-	if (-1 != us->fd6) {
-		fd_close(us->fd6);
-		(void)close(us->fd6);
-	}
+    udpsock_thread_detach(us);
 }
 
 
-static void udp_read(struct udp_sock *us, int fd)
+static void udpsock_read(struct udp_sock *us, int fd)
 {
 	struct mbuf *mb = mbuf_alloc(us->rxsz);
 	struct sa src;
@@ -152,7 +219,7 @@ static void udp_read(struct udp_sock *us, int fd)
 				us->fd6 = -1;
 			}
 
-			err = udp_listen(&us_new, &laddr, NULL, NULL);
+			err = udpsock_listen(&us_new, &laddr, NULL, NULL);
 			if (err)
 				goto out;
 
@@ -164,7 +231,7 @@ static void udp_read(struct udp_sock *us, int fd)
 
 			mem_deref(us_new);
 
-			udp_thread_attach(us);
+			udpsock_thread_attach(us);
 
 			goto out;
 		}
@@ -198,27 +265,6 @@ static void udp_read(struct udp_sock *us, int fd)
  out:
 	mem_deref(mb);
 }
-
-
-static void udp_read_handler(int flags, void *arg)
-{
-	struct udp_sock *us = arg;
-
-	(void)flags;
-
-	udp_read(us, us->fd);
-}
-
-
-static void udp_read_handler6(int flags, void *arg)
-{
-	struct udp_sock *us = arg;
-
-	(void)flags;
-
-	udp_read(us, us->fd6);
-}
-
 
 /**
  * Create and listen on a UDP Socket
@@ -350,9 +396,10 @@ int udpsock_listen(struct udp_sock **usp, const struct sa *local,
 		goto out;
 	}
 
-	err = udpsock_thread_attach(us);
-	if (err)
-		goto out;
+    err = udpsock_thread_attach(us);
+    if(err) {
+        goto out;
+    }
 
 	us->rh   = rh ? rh : dummy_udp_recv_handler;
 	us->arg  = arg;
@@ -659,28 +706,60 @@ int udpsock_sock_fd(const struct udp_sock *us, int af)
  */
 int udpsock_thread_attach(struct udp_sock *us)
 {
-	int err = 0;
+    int err = 0;
+    aos_task_t read_sock_task;
 
-	if (!us)
-		return EINVAL;
+    /* create a task to read data */
+    if(g_udpsock_read_task_running == false) {
+        /*reset read sock information */
+        memset(g_read_sock, 0, sizeof(g_read_sock));
+        if(us->fd != -1) {
+            g_read_sock[0].is_fd_used = true;
+        }
+        if(us->fd6 != -1) {
+            g_read_sock[0].is_fd6_used = true;
+        }
+        g_read_sock[0].us = us;
+        aos_task_new_ext(&read_sock_task, "rtp_udpsock_recv", udpsock_read_task_handle, NULL, 20*1024, 18);
+    }
+    else {
+        int i;
+        int found_sock = 0;
+        int empty_sock = 0;
 
-	if (-1 != us->fd) {
-		err = fd_listen(us->fd, FD_READ, udp_read_handler, us);
-		if (err)
-			goto out;
-	}
+        for(i = 0; i < UDPSOCK_READ_SOCK_MAX_NUM; i++) {
+            if((found_sock == 0)
+              && (g_read_sock[i].is_fd_used == false)
+              && (g_read_sock[i].is_fd6_used == false))
+            {
+                empty_sock = i;
+            }
+            if(g_read_sock[i].us == us)
+            {
+                found_sock = i;
+                break;
+            }
+        }
 
-	if (-1 != us->fd6) {
-		err = fd_listen(us->fd6, FD_READ, udp_read_handler6, us);
-		if (err)
-			goto out;
-	}
+        if(found_sock != 0) {
+            printf("rtp udpsock:%p is already attach\n", us);
+        }
+        else if(empty_sock != 0) {
+            if(us->fd != -1) {
+                g_read_sock[i].is_fd_used = true;
+            }
+            if(us->fd6 != -1) {
+                g_read_sock[i].is_fd6_used = true;
+            }
+            g_read_sock[i].us = us;
+        }
+        else {
+            printf("rtp udpsock read sock is full\n");
+            err = -1;
+        }
+    }
 
- out:
-	if (err)
-		udpsock_thread_detach(us);
-
-	return err;
+    return err;
 }
 
 
@@ -691,8 +770,26 @@ int udpsock_thread_attach(struct udp_sock *us)
  */
 void udpsock_thread_detach(struct udp_sock *us)
 {
+    int i;
+
 	if (!us)
 		return;
+
+    for(i = 0; i < UDPSOCK_READ_SOCK_MAX_NUM; i++) {
+        if(g_read_sock[i].us == us)
+        {
+            break;
+        }
+    }
+
+    if( i == UDPSOCK_READ_SOCK_MAX_NUM) {
+        printf("no udp sock found \n");
+        return ;
+    }
+
+    g_read_sock[i].is_fd_used = false;
+    g_read_sock[i].is_fd6_used = false;
+    g_read_sock[i].us = NULL;
 
 	if (-1 != us->fd)
 		fd_close(us->fd);

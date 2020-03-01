@@ -33,7 +33,7 @@ static void mbuf_destructor(void *data)
  */
 void mbuf_free(void* data)
 {
-    mbuf_destructor(data);
+    mem_deref(data);
 }
 
 /**
