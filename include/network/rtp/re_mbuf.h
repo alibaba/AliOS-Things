@@ -33,6 +33,14 @@ struct mbuf {
 };
 
 /**
+ * Free a memory buffer
+ *
+ * @param data A pointer point to a buffer
+ *
+ */
+void mbuf_free(void* data);
+
+/**
  * Allocate a new memory buffer
  *
  * @param[in] size Initial buffer size
