@@ -20,7 +20,7 @@ extern "C" {
  */
 
 /* Define CLI return value */
-#define CLI_OK               0
+#define CLI_OK              0
 #define CLI_ERR_NOMEM       -10000
 #define CLI_ERR_DENIED      -10001
 #define CLI_ERR_INVALID     -10002
@@ -29,15 +29,17 @@ extern "C" {
 #define CLI_ERR_CMDNOTEXIST -10005
 
 /* This struct is used to define the cli cmd format */
-struct cli_command_st {
-    const char *name;   /**< cmd name */
-    const char *help;   /**< cmd help info */
+struct cli_command_st
+{
+    const char *name; /**< cmd name */
+    const char *help; /**< cmd help info */
 
     void (*function)(char *outbuf, int32_t len, int32_t argc, char **argv); /**< cmd process function */
 };
 
 #if (RHINO_CONFIG_UCLI > 0)
-typedef struct {
+typedef struct
+{
     int    argc; /**< ucli cmd arg count */
     char **argv; /**< ucli cmd arg vector */
     void  *func; /**< ucli cmd function pointer */
@@ -160,6 +162,17 @@ int32_t cli_set_echo_status(int32_t status);
 *
 */
 void cli_main(void *data);
+
+/**
+ * @brief Set cli login password
+ *
+ * @param[in] old_passwd
+ * @param[in] new_passwd
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int32_t cli_chg_passwd(char *old_passwd, char *new_passwd);
 
 /** @} */
 
