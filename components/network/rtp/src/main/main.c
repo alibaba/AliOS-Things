@@ -595,7 +595,6 @@ int fd_listen(int fd, int flags, fd_h *fh, void *arg)
 	re->nfds = max(re->nfds, fd+1);
 
 	switch (re->method) {
-
 #ifdef HAVE_POLL
 	case METHOD_POLL:
 		err = set_poll_fds(re, fd, flags);

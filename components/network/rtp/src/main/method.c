@@ -9,7 +9,6 @@
 #include <re_main.h>
 //#include "main.h"
 
-
 static const char str_poll[]   = "poll";     /**< POSIX.1-2001 poll       */
 static const char str_select[] = "select";   /**< POSIX.1-2001 select     */
 static const char str_epoll[]  = "epoll";    /**< Linux epoll             */
