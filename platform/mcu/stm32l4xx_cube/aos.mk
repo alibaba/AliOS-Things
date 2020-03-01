@@ -46,9 +46,12 @@ GLOBAL_DEFINES += USE_HAL_DRIVER
 
 GLOBAL_INCLUDES += Drivers/STM32L4xx_HAL_Driver/Inc        \
                    Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
-                   Drivers/CMSIS/Include                   \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Include \
                    Rec/
+
+ifneq ($(cmsis_nn_enable),1)
+GLOBAL_INCLUDES += Drivers/CMSIS/Include
+endif
 
 $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c               \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c           \
