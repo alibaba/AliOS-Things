@@ -13,11 +13,18 @@
 #include "cli_conf.h"
 #include "cli_adapt.h"
 #include "k_api.h"
+#include "aos/kernel.h"
+
+#if CLI_PASSWD_SUPPORT
+#include "aos/kv.h"
+#endif
 
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
 #define PROMPT   "# "
 #define EXIT_MSG "exit"
+
+#define PASSWD_NUM 16
 
 #if (CLI_MINIMUM_MODE > 0)
 #undef CLI_INBUF_SIZE
@@ -40,7 +47,8 @@
 #include "ucli.h"
 #endif
 
-struct cli_status {
+struct cli_status
+{
     int32_t  inited;
     uint32_t num;
     int32_t  echo_disabled;
@@ -51,19 +59,30 @@ struct cli_status {
 
     const struct cli_command_st *cmds[CLI_MAX_COMMANDS];
 
+#if CLI_PASSWD_SUPPORT
+    uint8_t cli_enabled; /* 0:disable; 1:enable */
+    char    cli_passwd[PASSWD_NUM + 1];
+#endif
+
 #if (CLI_MINIMUM_MODE <= 0)
     uint32_t his_idx;
     uint32_t his_cur;
-    char    history[CLI_INBUF_SIZE];
+    char     history[CLI_INBUF_SIZE];
 #endif
 };
 
 extern int32_t cli_register_default_commands(void);
 
+#if CLI_PASSWD_SUPPORT
+static int32_t cli_passwd_verify(char *passwd);
+static int32_t cli_need_passwd_check(void);
+static void    cli_passwd_init(void);
+#endif
+
 static struct cli_status *g_cli = NULL;
 
 static char    g_cli_tag[64] = {0};
-static uint8_t g_cli_tag_len =  0;
+static uint8_t g_cli_tag_len = 0;
 
 static const struct cli_command_st *lookup_command(char *name, int len)
 {
@@ -95,7 +114,7 @@ static const struct cli_command_st *lookup_command(char *name, int len)
 
 static int32_t proc_onecmd(int argc, char *argv[])
 {
-    int32_t i = 0;
+    int32_t i   = 0;
     uint8_t tmp = 0;
 
     const char *p = NULL;
@@ -107,7 +126,7 @@ static int32_t proc_onecmd(int argc, char *argv[])
     }
 
     if (!g_cli->echo_disabled) {
-        tmp = g_cli_tag_len;
+        tmp           = g_cli_tag_len;
         g_cli_tag_len = 0;
         cli_printf("\r\n");
 
@@ -153,7 +172,7 @@ static int32_t cli_handle_input(char *inbuf)
         unsigned done : 1;
     } stat;
     static char *argvall[CLI_MAX_ONCECMD_NUM][CLI_MAX_ARG_NUM];
-    int32_t      argcall[CLI_MAX_ONCECMD_NUM] = { 0 };
+    int32_t      argcall[CLI_MAX_ONCECMD_NUM] = {0};
 
     int32_t  cmdnum = 0;
     int32_t *pargc  = &argcall[0];
@@ -240,12 +259,17 @@ static int32_t cli_handle_input(char *inbuf)
                 }
                 break;
         }
-    } while (!stat.done && ++i < CLI_INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM &&
-             (*pargc) < CLI_MAX_ARG_NUM);
+    } while (!stat.done && ++i < CLI_INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM && (*pargc) < CLI_MAX_ARG_NUM);
 
     if (stat.inQuote) {
         return 2;
     }
+
+#if CLI_PASSWD_SUPPORT
+    if (cli_passwd_verify(argvall[0][0])) {
+        return -1;
+    }
+#endif
 
     for (i = 0; i <= cmdnum && i < CLI_MAX_ONCECMD_NUM; i++) {
         ret |= proc_onecmd(argcall[i], argvall[i]);
@@ -312,9 +336,9 @@ static void cli_tab_complete(char *inbuf, unsigned int *bp)
 static void cli_history_input(void)
 {
     char    *inbuf    = g_cli->inbuf;
-    uint32_t  charnum  = strlen(g_cli->inbuf) + 1;
-    uint32_t  his_cur  = g_cli->his_cur;
-    uint32_t  left_num = CLI_INBUF_SIZE - his_cur;
+    uint32_t charnum  = strlen(g_cli->inbuf) + 1;
+    uint32_t his_cur  = g_cli->his_cur;
+    uint32_t left_num = CLI_INBUF_SIZE - his_cur;
 
     char    lastchar;
     uint32_t tmp_idx;
@@ -418,11 +442,11 @@ static void cli_down_history(char *inaddr)
  */
 static int32_t cli_get_input(char *inbuf, uint32_t *bp)
 {
-    char c;
-    int32_t esc  =  0;
-    int32_t key1 = -1;
-    int32_t key2 = -1;
-    uint8_t cli_tag_len =  0;
+    char     c;
+    int32_t  esc         =  0;
+    int32_t  key1        = -1;
+    int32_t  key2        = -1;
+    uint8_t  cli_tag_len =  0;
     ktask_t *task_to_cancel;
 
     if (inbuf == NULL) {
@@ -433,10 +457,10 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
     while (cli_getchar(&c) == 1) {
         if (c == RET_CHAR || c == END_CHAR) { /* end of input line */
             inbuf[*bp] = '\0';
-            *bp = 0;
+            *bp        = 0;
             if (cli_tag_len > 0) {
                 g_cli_tag_len = cli_tag_len;
-                cli_tag_len = 0;
+                cli_tag_len   = 0;
             }
             return 1;
         }
@@ -480,7 +504,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 if (key2 == 't') {
                     g_cli_tag[0]  = 0x1b;
                     g_cli_tag[1]  = key1;
-                    cli_tag_len = 2;
+                    cli_tag_len   = 2;
                 }
             }
 
@@ -496,7 +520,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 (*bp)++;
 
                 g_cli_tag[0]  = '\x0';
-                cli_tag_len = 0;
+                cli_tag_len   = 0;
                 esc           = 0;
 
                 if (!g_cli->echo_disabled) {
@@ -508,8 +532,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
 #if CLI_MINIMUM_MODE > 0
             if (key2 == 0x41 || key2 == 0x42) {
                 /* UP or DWOWN key */
-                cli_printf("\r\n" PROMPT
-                        "Warning! mini cli mode do not support history cmds!");
+                cli_printf("\r\n" PROMPT "Warning! mini cli mode do not support history cmds!");
             }
 #else
             if (key2 == 0x41 || key2 == 0x42) {
@@ -523,7 +546,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
 
                 *bp           = strlen(inbuf);
                 g_cli_tag[0]  = '\x0';
-                cli_tag_len = 0;
+                cli_tag_len   = 0;
                 esc           = 0;
 
                 cli_printf("\r\n" PROMPT "%s", inbuf);
@@ -627,6 +650,10 @@ void cli_main(void *data)
     char *msg = NULL;
 
     while (!cli_task_cancel_check()) {
+
+#if CLI_PASSWD_SUPPORT
+        cli_need_passwd_check();
+#endif
         if (cli_get_input(g_cli->inbuf, &g_cli->bp) != 0) {
             msg = g_cli->inbuf;
 
@@ -676,6 +703,10 @@ int32_t cli_init(void)
 
 #if (RHINO_CONFIG_UCLI)
     ucli_early_init();
+#endif
+
+#if CLI_PASSWD_SUPPORT
+    cli_passwd_init();
 #endif
 
     g_cli->inited        = 1;
@@ -774,8 +805,7 @@ int32_t cli_unregister_command(const struct cli_command_st *cmd)
 
             remaining_cmds = g_cli->num - i;
             if (remaining_cmds > 0) {
-                memmove(&g_cli->cmds[i], &g_cli->cmds[i + 1],
-                        (remaining_cmds * sizeof(struct cli_command_st *)));
+                memmove(&g_cli->cmds[i], &g_cli->cmds[i + 1], (remaining_cmds * sizeof(struct cli_command_st *)));
             }
 
             g_cli->cmds[g_cli->num] = NULL;
@@ -877,3 +907,214 @@ int32_t cli_set_echo_status(int32_t status)
 
     return CLI_OK;
 }
+
+#if CLI_PASSWD_SUPPORT
+
+#define CLI_DEFAULT_PASSWORD "aos"
+#define CLI_PASSWD_IN_KV     "cli_passwd"
+
+static aos_timer_t cli_passwd_timer;
+
+static int32_t _passwd_check(char *passwd)
+{
+    if (!passwd) {
+        return -1;
+    }
+
+    if (strlen(passwd) > PASSWD_NUM) {
+        cli_printf("\r\npasswd over length\r\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int32_t _passwd_verify(char *passwd)
+{
+    int32_t ret;
+    uint8_t len;
+
+    ret = _passwd_check(passwd);
+    if (ret == 0) {
+        len = strlen(passwd);
+        if (len != strlen(g_cli->cli_passwd)) {
+            ret = -1;
+        } else if (strncmp(g_cli->cli_passwd, passwd, len) != 0) {
+            ret = -1;
+        }
+    }
+    return ret;
+}
+
+static void _passwd_update(char *passwd)
+{
+    memset(g_cli->cli_passwd, 0, PASSWD_NUM);
+    memcpy(g_cli->cli_passwd, passwd, strlen(passwd));
+}
+
+static int32_t cli_passwd_set(char *passwd)
+{
+    int32_t ret;
+
+    ret = aos_kv_set(CLI_PASSWD_IN_KV, passwd, strlen(passwd), 1);
+    if (ret == 0) {
+        _passwd_update(passwd);
+        cli_printf("new passwd : %s\r\n", passwd);
+    } else {
+        cli_printf("passwd set fail\r\n");
+    }
+
+    return ret;
+}
+
+/* get timer status: 0 : deactive; 1: active*/
+static uint8_t cli_get_timer_status(aos_timer_t *timer)
+{
+    ktimer_t *tmp_timer = (ktimer_t *)(timer->hdl);
+    if (tmp_timer->timer_state == TIMER_DEACTIVE) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+static void cli_passwd_timer_handle(void *timer, void *para)
+{
+    aos_timer_stop(&cli_passwd_timer);
+}
+
+/* check passwd in kv is updated
+    return 0 : not updated (same as default passwd) ,else updated
+*/
+static int32_t cli_passwd_updated_check(void)
+{
+    char passwd[PASSWD_NUM]= {0};
+    int  len;
+
+#ifdef CSP_LINUXHOST
+    _passwd_update(CLI_DEFAULT_PASSWORD);
+    return 0;
+#endif
+
+    if(aos_kv_get(CLI_PASSWD_IN_KV, passwd, &len) == 0) {
+        if(strncmp(passwd, CLI_DEFAULT_PASSWORD, len) == 0) {
+            _passwd_update(CLI_DEFAULT_PASSWORD);
+            return 0;
+        } else {
+            _passwd_update(passwd);
+            return -1;
+        }
+    } else {
+        return -1;
+    }
+}
+
+/* Check need passwd : 0 is do not check passwd, otherwise need */
+static int32_t cli_need_passwd_check(void)
+{
+    if (g_cli->cli_enabled == 1)
+        return 0;
+
+    /* check passwd in kv is updated*/
+    if (cli_passwd_updated_check() == 0) {
+        /*passwd not updated, do not need passwd to login*/
+        g_cli->cli_enabled = 1;
+        return 0;
+    }
+
+    /* need passwd*/
+    g_cli->cli_enabled = 0;
+    cli_printf("\r\nPassword:");
+    /* set one-shot passwd verify time : default 5000 ms*/
+    if (0 != aos_timer_new(&cli_passwd_timer, cli_passwd_timer_handle, NULL, 5000, 0)) {
+        cli_printf("passwd timer create fail\r\n");
+    }
+    return 1;
+}
+
+static int32_t cli_passwd_verify(char *passwd)
+{
+    int32_t ret = -1;
+
+    if (g_cli->cli_enabled == 1) {
+        ret = 0;
+    } else {
+        ret = _passwd_verify(passwd);
+        if (ret == 0) {
+            /* passwd verify ok*/
+            if (cli_get_timer_status(&cli_passwd_timer) == 1) {
+                /* timer active*/
+                g_cli->cli_enabled = 1;
+            } else {
+                cli_printf("\r\nPassword Timeout\r\n");
+                ret = -1;
+            }
+        } else {
+            cli_printf("\r\n Password error\r\n");
+        }
+        aos_timer_stop(&cli_passwd_timer);
+        aos_timer_free(&cli_passwd_timer);
+    }
+
+    return ret;
+}
+
+int32_t cli_chg_passwd(char *old_passwd, char *new_passwd)
+{
+    int32_t ret = -1;
+
+    if (_passwd_check(new_passwd))
+        return ret;
+
+    if (_passwd_verify(old_passwd)) {
+        cli_printf("old passwd error\r\n");
+        return ret;
+    }
+
+    if (_passwd_verify(new_passwd) == 0) {
+        /*same passwd*/
+        cli_printf("same passwd\r\n");
+        return ret;
+    }
+
+    ret = cli_passwd_set(new_passwd);
+    if (ret == 0) {
+        g_cli->cli_enabled = 0; /* passwd changed , need verify for login*/
+    }
+
+    return ret;
+}
+
+static void handle_chg_passwd_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    char *old, *new;
+
+    if (argc == 3) {
+        old = argv[1];
+        new = argv[2];
+        cli_chg_passwd(old, new);
+    } else {
+        cli_printf("only %d para, need 3\r\n", argc);
+    }
+}
+
+static void handle_show_passwd_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    cli_printf("current passwd : %s\r\n", g_cli->cli_passwd);
+}
+
+static struct cli_command_st cli_chg_passwd_cmd[] = {{"chgpd", "cli passwd change", handle_chg_passwd_cmd},
+                                                     {"showpd", "cli passwd show", handle_show_passwd_cmd}};
+
+static void cli_passwd_init(void)
+{
+    cli_register_commands(cli_chg_passwd_cmd, sizeof(cli_chg_passwd_cmd) / sizeof(struct cli_command_st));
+}
+
+#else /* #if CLI_PASSWD_SUPPORT */
+int32_t cli_chg_passwd(char *old_passwd, char *new_passwd)
+{
+    return 0;
+}
+#endif
+

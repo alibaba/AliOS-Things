@@ -18,7 +18,7 @@ static int _cli_to_aos_res(int res)
             return -EPERM;
         case CLI_ERR_INVALID:
             return -EINVAL;
-       default:
+        default:
             return -EIO;
     }
 }
@@ -56,5 +56,10 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num)
 int aos_cli_unregister_commands(const struct cli_command *cmds, int num)
 {
     return _cli_to_aos_res(cli_unregister_commands((struct cli_command_st *)cmds, num));
+}
+
+int aos_cli_chg_passwd(char *old_passwd, char *new_passwd)
+{
+    return _cli_to_aos_res(cli_chg_passwd(old_passwd, new_passwd));
 }
 
