@@ -165,7 +165,7 @@ static void udp_recv_handler(const struct sa *src, struct mbuf *mb, void *arg)
 	struct rtp_header hdr;
 	int err;
 
-	/* Handle RTCP multiplexed on RTP-port */
+    /* Handle RTCP multiplexed on RTP-port */
 	if (rs->rtcp_mux) {
 		uint8_t pt;
 
@@ -189,8 +189,9 @@ static void udp_recv_handler(const struct sa *src, struct mbuf *mb, void *arg)
 				 hdr.ssrc, mbuf_get_left(mb), src);
 	}
 
-	if (rs->recvh)
+	if (rs->recvh) {
 		rs->recvh(src, &hdr, mb, rs->arg);
+    }
 }
 
 

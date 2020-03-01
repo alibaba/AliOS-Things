@@ -21,7 +21,7 @@
 
 
 #ifndef RELEASE
-#define RAND_DEBUG 1  /**< Enable random debugging */
+#define RAND_DEBUG 0  /**< Enable random debugging */
 #endif
 
 static const char alphanum[] =
