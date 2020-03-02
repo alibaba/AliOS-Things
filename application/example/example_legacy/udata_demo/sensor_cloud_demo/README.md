@@ -29,7 +29,7 @@ sensor_cloud_demo
 
 - drivers.sensor(necessary)
 - utility.cjson(necessary)
-- linkkit_sdk_c(necessary)
+- libiot_devmodel(necessary)
 - netmgr(necessary)
 
 ### Supported Boards

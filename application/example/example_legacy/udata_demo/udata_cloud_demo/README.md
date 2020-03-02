@@ -32,7 +32,7 @@ udata_cloud_demo
 - drivers.sensor(necessary)
 - middleware.udata(necessary)
 - utility.cjson(necessary)
-- linkkit_sdk_c(necessary)
+- libiot_devmodel(necessary)
 - netmgr(necessary)
 
 ### Supported Boards
