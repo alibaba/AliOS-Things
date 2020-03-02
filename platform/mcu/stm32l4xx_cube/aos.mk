@@ -49,7 +49,7 @@ GLOBAL_INCLUDES += Drivers/STM32L4xx_HAL_Driver/Inc        \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Include \
                    Rec/
 
-ifneq ($(cmsis_nn_enable),1)
+ifneq ($(CONFIG_UAI_USE_CMSIS_NN), y)
 GLOBAL_INCLUDES += Drivers/CMSIS/Include
 endif
 
