@@ -14,6 +14,7 @@ $(NAME)_SOURCES += halapp_gpio.c  \
                    halapp_spi.c   \
                    halapp_watchdog.c \
                    halapp_rtc.c \
+                   halapp_uart.c \
 
 $(NAME)_COMPONENTS += osal_aos
 
