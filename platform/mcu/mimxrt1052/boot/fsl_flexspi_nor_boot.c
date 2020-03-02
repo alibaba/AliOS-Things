@@ -39,9 +39,10 @@
 #elif defined(__ICCARM__)
 #pragma location=".boot_hdr.ivt"
 #endif
-/************************************* 
- *  IVT Data 
+/*************************************
+ *  IVT Data
  *************************************/
+extern uint32_t __VECTOR_TABLE[];
 const ivt image_vector_table = {
   IVT_HEADER,                         /* IVT Header */
   IMAGE_ENTRY_ADDRESS,                /* Image Entry Function */
@@ -58,8 +59,8 @@ const ivt image_vector_table = {
 #elif defined(__ICCARM__)
 #pragma location=".boot_hdr.boot_data"
 #endif
-/************************************* 
- *  Boot Data 
+/*************************************
+ *  Boot Data
  *************************************/
 const BOOT_DATA_T boot_data = {
   FLASH_BASE,                 /* boot start location */
