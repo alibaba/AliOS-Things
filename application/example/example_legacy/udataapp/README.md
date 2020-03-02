@@ -28,7 +28,8 @@ udataapp
 - drivers.sensor(necessary)
 - middleware.udata(necessary)
 - utility.cjson(optional)
-- linkkit_sdk_c(optional)
+- libiot_devmodel(optional)
+- libiot_awss(optional)
 - netmgr(optional)
 
 ### Supported Boards

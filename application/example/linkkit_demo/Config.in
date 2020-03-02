@@ -4,7 +4,6 @@ config AOS_APP_LINKKIT_DEMO
     select AOS_COMP_NETMGR
     select AOS_COMP_CJSON
     select AOS_COMP_SDK_DEVMODEL
-    select AOS_COMP_CJSON
     select AOS_COMP_SDK_AWSS
     select AOS_COMP_UND
     help
