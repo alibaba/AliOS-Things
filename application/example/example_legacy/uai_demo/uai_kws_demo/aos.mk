@@ -8,11 +8,10 @@ $(NAME)_SOURCES := uai_kws_demo.c \
 					wav_data.c    \
 					mfcc.c
 
-$(NAME)_COMPONENTS += osal_aos cli uai 
+$(NAME)_COMPONENTS += osal_aos cli uai
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
 GLOBAL_INCLUDES += ./
 
-cmsis_nn_enable ?= 1
 dnn_enable      ?= 1

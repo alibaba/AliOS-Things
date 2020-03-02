@@ -10,4 +10,7 @@ config SYSINFO_APP_VERSION
     default "app-1.0.0-20200214.140831"
     help
         application main firmware version
+
+config CONFIG_UAI_USE_CMSIS_NN
+    default y
 endif
