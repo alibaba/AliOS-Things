@@ -57,6 +57,12 @@ $(NAME)_SOURCES += hal/src/hw.c \
             hal/src/uart.c \
             hal/src/flash.c \
             hal/src/wdg.c   \
+            hal/src/spi.c   \
+            hal/src/adc.c   \
+            hal/src/i2c.c   \
+            hal/src/pwm.c   \
+            hal/src/rtc.c   \
+            hal/src/timer.c   \
             hal/src/wifi_port.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr_rtc.c \

@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "soc.h"
 #include "lega_cm4.h"
 #include "lega_rhino.h"
 #include "lega_i2c.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 
 lega_semaphore_t g_lega_i2c_sem[LEGA_I2C_NUM];
 lega_queue_t g_lega_i2c_queue[LEGA_I2C_NUM];
