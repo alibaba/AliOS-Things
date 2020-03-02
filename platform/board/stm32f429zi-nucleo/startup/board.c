@@ -118,7 +118,7 @@ static gpio_dac_pin_config_t dac1_conf[] = {
 };
 
 DAC_MAPPING DAC_MAPPING_TABLE[PORT_DAC_SIZE] = {
-    {PORT_DAC_1, HAL_DAC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+    {PORT_DAC_1, HAL_DAC_1, adc1_conf, sizeof(dac1_conf)/sizeof(dac1_conf[0])}
 };
 #endif /* HAL_DAC_MODULE_ENABLED */
 
@@ -147,7 +147,7 @@ gpio_uart_pin_config_t uart5_pin_conf[] = {
     {UART_RX, HAL_GPIO_50, GPIO_AF8_UART5}
 };
 
-UART_MAPPING UART_MAPPING_TABLE[] =
+UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE] =
 {
     { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024}, usart3_pin_conf,sizeof(usart3_pin_conf)/sizeof(usart3_pin_conf[0])},
     { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048}, usart6_pin_conf, sizeof(usart6_pin_conf)/sizeof(usart6_pin_conf[0])},
