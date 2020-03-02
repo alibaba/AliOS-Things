@@ -247,7 +247,7 @@ void board_gpio_init()
     return;
 }
 
-void flash_partition_init()
+void board_flash_init(void)
 {
     return;
 }

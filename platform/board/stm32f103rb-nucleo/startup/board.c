@@ -283,6 +283,11 @@ void board_kinit_init(kinit_t* init_args)
     return;
 }
 
+void board_flash_init(void)
+{
+    flash_partition_init();
+}
+
 /**
   * @brief System Clock Configuration
   * @retval None
