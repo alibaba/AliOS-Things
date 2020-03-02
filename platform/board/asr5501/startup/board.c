@@ -66,6 +66,11 @@ void NVIC_init()
     NVIC_SetPriority(PLF_WAKEUP_IRQn,configLIBRARY_NORMAL_INTERRUPT_PRIORITY);
 }
 
+void HCLK_SW_IRQHandler(void)
+{
+    SYS_CRM_CLR_HCLK_REC = 0x1;
+}
+
 void delay_nop(unsigned int dly)
 {
     volatile unsigned int i;
@@ -150,8 +155,12 @@ void board_stduart_init(void)
   * @param None
   * @retval None
   */
-void board_wifi_init(void)
+void board_network_init(void)
 {
+    hw_start_hal();
+
+    tcpip_init( NULL, NULL );
+
     printf("start------wifi_hal\r\n");
     hal_wifi_register_module(&sim_aos_wifi_lega);
     hal_wifi_init();
@@ -175,18 +184,15 @@ void board_gpio_init(void)
 
 }
 
-void board_network_init(void)
-{
-    tcpip_init( NULL, NULL );
-    hw_start_hal();
-}
-
 /**
   * @brief flash control Initialization Function
   * @param None
   * @retval None
   */
-void board_flash_init(void) {
+void board_flash_init(void)
+{
+    flash_partition_init();
+
 #ifdef _SPI_FLASH_ENABLE_
     lega_flash_init();
 #endif

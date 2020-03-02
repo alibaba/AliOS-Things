@@ -141,6 +141,11 @@ void board_wifi_init(void)
     hw_start_wifi_hal();
 }
 
+void board_flash_init(void)
+{
+    flash_partition_init();
+}
+
 void board_network_init(void)
 {
     board_wifi_init();

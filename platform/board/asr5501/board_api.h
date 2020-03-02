@@ -73,12 +73,12 @@ void board_gpio_init(void);
 void board_flash_init(void);
 
 /**
-  * @brief WIFI Initialization Function
+  * @brief Initializes network related peripherals, such as wifi and Ethernet
   *
   * @param None
   * @retval None
   */
-void board_wifi_init(void);
+void board_network_init(void);
 
 /**
   * @brief ota Initialization Function. Perform OTA related processing during the
