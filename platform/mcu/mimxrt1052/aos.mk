@@ -19,6 +19,7 @@ else
 GLOBAL_CFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
 GLOBAL_CFLAGS += -mcpu=cortex-m7 -mfloat-abi=hard -MMD -MP -mfpu=fpv5-d16
 GLOBAL_CFLAGS += -Wno-format -Wno-incompatible-pointer-types
+GLOBAL_DEFINES += __FPU_PRESENT=1
 
 GLOBAL_ASMFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
 GLOBAL_ASMFLAGS += -D__STARTUP_CLEAR_BSS
@@ -44,11 +45,14 @@ $(NAME)_SOURCES := drivers/fsl_clock.c  \
                    hal/hal_uart.c       \
                    hal/hal_flash.c      \
                    aos/aos.c            \
-                   aos/soc_impl.c 
+                   aos/soc_impl.c
 
 GLOBAL_INCLUDES += ./      \
-                   drivers \
-                   CMSIS/Include
+                   drivers
+
+ifneq ($(CONFIG_UAI_USE_CMSIS_NN), y)
+GLOBAL_INCLUDES += CMSIS/Include
+endif
 
 # Component related source
 $(NAME)_SOURCES += component/mini_bl/fsl_mini_bl.c
