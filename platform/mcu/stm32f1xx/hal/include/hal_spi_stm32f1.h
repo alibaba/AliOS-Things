@@ -32,34 +32,40 @@ typedef struct{
     uint32_t DataSize;  //Specifies the SPI data size,
                         //the parameter can be:SPI_DATASIZE_8BIT,SPI_DATASIZE_16BIT
     uint32_t CLKPolarity; //Specifies the serial clock steady state,
-                        //the parameter can be:SPI_POLARITY_LOW,SPI_POLARITY_HIGH
+                            //the parameter can be:SPI_POLARITY_LOW,SPI_POLARITY_HIGH
     uint32_t CLKPhase;  //Specifies the clock active edge for the bit capture
-                        //the parameter can be:SPI_PHASE_1EDGE,SPI_PHASE_2EDGE
+                            //the parameter can be:SPI_PHASE_1EDGE,SPI_PHASE_2EDGE
     uint32_t NSS;   //Specifies whether the NSS signal is managed by hardware (NSS pin) or by software using the SSI bit
-                    //the parameter can be:SPI_NSS_SOFT,SPI_NSS_HARD_INPUT,SPI_NSS_HARD_OUTPUT
+                        //the parameter can be:SPI_NSS_SOFT,SPI_NSS_HARD_INPUT,SPI_NSS_HARD_OUTPUT
     uint32_t FirstBit;  //Specifies whether data transfers start from MSB or LSB bit
-                        //SPI_FIRSTBIT_MSB,SPI_FIRSTBIT_LSB
+                            //SPI_FIRSTBIT_MSB,SPI_FIRSTBIT_LSB
     uint32_t TIMode;    //Specifies if the TI mode is enabled or not
-                        //SPI_TIMODE_DISABLE,SPI_TIMODE_ENABLE
-    uint32_t CRCCalculation;    //Specifies if the CRC calculation is enabled or not
-                                //SPI_CRCCALCULATION_DISABLE, SPI_CRCCALCULATION_ENABLE
+                            //SPI_TIMODE_DISABLE,SPI_TIMODE_ENABLE
+    uint32_t CRCCalculation;//Specifies if the CRC calculation is enabled or not
+                            //SPI_CRCCALCULATION_DISABLE, SPI_CRCCALCULATION_ENABLE
     uint32_t CRCPolynomial; //Specifies the polynomial used for the CRC calculation.
                             //This parameter must be a number between Min_Data = 0 and Max_Data = 65535
 }spiAttribute;
-/*
-typedef struct{
-    uint16_t clk_pin;
-    uint16_t cs_pin;
-    uint16_t mosi_pin;
-    uint16_t miso_pin;
-}spi_pins_map_t;*/
+
+typedef enum {
+    SPI_PIN_CS,
+    SPI_PIN_CLK,
+    SPI_PIN_MOSI,
+    SPI_PIN_MISO
+} SPI_PIN_NAME_TYPE;
+
+typedef struct {
+    uint8_t  pin_name;
+    uint16_t pin;
+} gpio_spi_pin_config_t;
 
 typedef struct{
-    PORT_SPI_TYPE  spiFuncP;
-    void*          spiPhyP;
-    spiAttribute  attr;
-    uint16_t needmap;
-    uint16_t gpiomaps[4];
+    PORT_SPI_TYPE          spiFuncP;
+    void*                  spiPhyP;
+    spiAttribute           attr;
+    uint16_t               needmap;
+    gpio_spi_pin_config_t *pin_conf;
+    uint16_t               pin_cnt;
 }SPI_MAPPING;
 
 extern SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE];
