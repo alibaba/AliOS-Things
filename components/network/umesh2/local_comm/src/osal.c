@@ -38,14 +38,11 @@ void hal_mutex_free(void *mutex)
     aos_mutex_free((aos_mutex_t *)&mutex);
 }
 
-static int lock_cnt = 0;
 int hal_mutex_lock(void *mutex)
 {
     if (NULL == mutex) {
 
     }
-    lock_cnt ++;
-    printf("######### lock cnt =%d", lock_cnt);
     return aos_mutex_lock((aos_mutex_t *)&mutex, AOS_WAIT_FOREVER);
 }
 
@@ -55,8 +52,7 @@ int hal_mutex_unlock(void *mutex)
     if (NULL == mutex) {
 
     }
-    lock_cnt --;
-    printf("######### unlock cnt =%d", lock_cnt);
+
     return aos_mutex_unlock((aos_mutex_t *)&mutex);
 }
 
