@@ -65,6 +65,7 @@ typedef enum{
     PORT_UART_BLE = 2,
     PORT_UART_SIZE,
     PORT_UART_INVALID = 255,
+    PORT_UART_DEMO = PORT_UART_INVALID,
 }PORT_UART_TYPE;
 
 typedef enum {
