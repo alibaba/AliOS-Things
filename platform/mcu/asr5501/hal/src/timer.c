@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "lega_cm4.h"
 #include "lega_timer.h"
-#include "timer.h"
+#include "aos/hal/timer.h"
 
 /**
  * init a hardware timer
