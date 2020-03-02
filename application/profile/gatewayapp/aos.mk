@@ -29,7 +29,7 @@ ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 $(NAME)_SOURCES += linkkit/app_entry.c
 $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
-$(NAME)_COMPONENTS += yloop netmgr cjson linkkit_sdk_c
+$(NAME)_COMPONENTS += yloop netmgr cjson libiot_devmodel
 
 $(NAME)_INCLUDES += ./
 GLOBAL_DEFINES += DTC_LINKKIT

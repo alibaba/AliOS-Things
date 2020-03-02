@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := linkkitapp
 
 $(NAME)_SOURCES :=   app_entry.c
-$(NAME)_COMPONENTS += linkkit_sdk_c
+$(NAME)_COMPONENTS += libiot_devmodel libiot_awss
 
 $(NAME)_COMPONENTS += netmgr cjson
 
