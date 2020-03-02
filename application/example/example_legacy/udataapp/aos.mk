@@ -21,9 +21,8 @@ ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 $(NAME)_SOURCES += linkkit/app_entry.c
 $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
-$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_LINKKIT) += linkkit_sdk_c yloop netmgr cjson
-
-
+$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_LINKKIT) += libiot_devmodel libiot_awss yloop netmgr cjson
+   
 #AOS_CONFIG_DTC_USE_LWIP ?= y
 ifeq ($(AOS_CONFIG_DTC_USE_LWIP),y)
 $(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_USE_LWIP)  += lwip
@@ -36,7 +35,7 @@ else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
 
 $(NAME)_SOURCES    += mqtt/mqtt_example.c
 
-$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_MQTT) += netmgr yloop linkkit_sdk_c
+$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_MQTT) += netmgr yloop libiot_mqtt
 GLOBAL_DEFINES     += USE_LPTHREAD
 
 GLOBAL_DEFINES     += DTC_MQTT
