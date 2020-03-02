@@ -35,7 +35,7 @@ uart_dev_t uart_0;
 DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 
-gpio_uart_pin_config_t usart2_pin_conf[] = {
+static gpio_uart_pin_config_t usart2_pin_conf[] = {
     {UART_TX, HAL_GPIO_2},
     {UART_RX, HAL_GPIO_3}
 };
@@ -50,22 +50,46 @@ i2c_mapping_t i2c_mapping[PORT_I2C_SIZE] = {
     {PORT_I2C_1,I2C1,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_22,HAL_GPIO_23}}
 };
 
-SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
-{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
-    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} }, HAL_SPI_GPIO_NEED_MAP,\
-{HAL_GPIO_5,HAL_GPIO_22,HAL_GPIO_7,HAL_GPIO_6},
-};
-
 #ifdef HAL_ADC_MODULE_ENABLED
-gpio_adc_pin_config_t adc1_conf[] = {
+static gpio_adc_pin_config_t adc1_conf[] = {
     {HAL_ADC_CHANNEL_10, HAL_GPIO_32},
     {HAL_ADC_CHANNEL_11, HAL_GPIO_33}
 };
 
-ADC_MAPPING ADC_MAPPING_TABLE[] = {
-    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])}
+ADC_MAPPING ADC_MAPPING_TABLE[PORT_ADC_SIZE] = {
+    {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])},
 };
 #endif /* HAL_ADC_MODULE_ENABLED */
+
+#ifdef HAL_SPI_MODULE_ENABLED
+static gpio_spi_pin_config_t spi1_pin_conf[] = {
+    {SPI_PIN_CS, HAL_GPIO_22},
+    {SPI_PIN_CLK, HAL_GPIO_5},
+    {SPI_PIN_MISO, HAL_GPIO_6},
+    {SPI_PIN_MOSI, HAL_GPIO_7},
+};
+
+SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+    {
+        PORT_SPI_1,
+        SPI1,
+        .attr = {
+            .Direction = SPI_DIRECTION_2LINES,
+            .DataSize = SPI_DATASIZE_8BIT,
+            .CLKPolarity = SPI_POLARITY_HIGH,
+            .CLKPhase = SPI_PHASE_2EDGE,
+            .NSS = SPI_NSS_SOFT,
+            .FirstBit = SPI_FIRSTBIT_MSB,
+            .TIMode = SPI_TIMODE_DISABLE,
+            .CRCCalculation = SPI_CRCCALCULATION_DISABLE,
+            .CRCPolynomial = 7
+        },
+        HAL_SPI_GPIO_NEED_MAP,
+        spi1_pin_conf,
+        sizeof(spi1_pin_conf)/sizeof(spi1_pin_conf[0]),
+    }
+};
+#endif /* HAL_SPI_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
 TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
