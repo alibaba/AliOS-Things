@@ -42,6 +42,19 @@ extern void hal_dac_app_out(void);
 extern void hal_i2c_app_run(void);
 #endif
 
+#if (AOS_HAL_RTC_ENABLED > 0)
+void hal_rtc_app_init(void);
+void hal_rtc_app_gettime(void);
+#endif
+
+#if (AOS_HAL_UART_ENABLED > 0)
+void hal_uart_app_run(void);
+#endif
+
+#if (AOS_HAL_WDG_ENABLED > 0)
+void hal_watchdog_app_enable(void);
+#endif
+
 int application_start(int argc, char *argv[])
 {
     printf("hal app test start\r\n");
@@ -82,6 +95,10 @@ int application_start(int argc, char *argv[])
 #if (AOS_HAL_RTC_ENABLED > 0)
     /* get time and show time */
     hal_rtc_app_gettime();
+#endif
+
+#if (AOS_HAL_UART_ENABLED > 0)
+    hal_uart_app_run();
 #endif
 
 #if (AOS_HAL_WDG_ENABLED > 0)
