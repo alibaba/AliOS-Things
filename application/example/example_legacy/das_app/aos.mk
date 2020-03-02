@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := Link Security Device Attestation example
 
 $(NAME)_SOURCES := app_entry.c
 $(NAME)_SOURCES += mqtt_das_example.c
-$(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli das
+$(NAME)_COMPONENTS := libiot_mqtt netmgr cjson cli das
 
 DAS_CLIENT_CONFIG_TEST_LOOP ?= y
 
