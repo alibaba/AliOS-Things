@@ -31,6 +31,7 @@ typedef enum{
     PORT_SPI_2,
     PORT_SPI_SIZE,
     PORT_SPI_INVALID =255,
+    PORT_SPI_DEMO = PORT_SPI_2,
 } PORT_SPI_TYPE;
 
 typedef enum {
@@ -102,7 +103,7 @@ typedef enum {
 */
 #define AOS_HAL_GPIO_ENABLED        1
 #define AOS_HAL_UART_ENABLED        1
-#define AOS_HAL_SPI_ENABLED         1
+#define AOS_HAL_SPI_ENABLED         0
 #define AOS_HAL_I2C_ENABLED         1
 #define AOS_HAL_FLASH_ENABLED       0
 #define AOS_HAL_TIMER_ENABLED       1
