@@ -1,3 +1,19 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SDK_AWSS
+    bool
+    select INFRA_AES
+    select AWSS_DISABLE_ENROLLEE if !AWSS_SUPPORT_ZEROCONFIG
+    select AWSS_DISABLE_REGISTRAR if !AWSS_SUPPORT_ZEROCONFIG
+    select AWSS_SUPPORT_APLIST
+    select INFRA_CJSON
+    select INFRA_COMPAT
+
+    default y
+    help
+        Enable providing Wifi SSID/PASSWD configration in SDK
+
+endif
+
 if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_AWSS
     bool "FEATURE_WIFI_PROVISION_ENABLED"
@@ -8,7 +24,6 @@ config AOS_COMP_SDK_AWSS
     select AWSS_SUPPORT_APLIST
     select INFRA_CJSON
     select INFRA_COMPAT
-    select AOS_COMP_SDK_BIND
     select COAP_SERVER
     select AOS_COMP_BREEZE if AWSS_SUPPORT_BLE_PROVISION
 
