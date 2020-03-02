@@ -48,3 +48,6 @@ $(NAME)_DEFINES += USE_PUBLIC_MBEDTLS
 endif
 $(NAME)_SOURCES += os/HAL_UDP_rhino.c
 endif
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := linkkit
