@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := mqtt examples
 
 $(NAME)_SOURCES := app_entry.c
-$(NAME)_COMPONENTS :=  netmgr cjson linkkit_sdk_c
+$(NAME)_COMPONENTS :=  netmgr cjson libiot_mqtt
 
 ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli

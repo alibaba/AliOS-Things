@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := linkkit gateway examples
 $(NAME)_SOURCES := app_entry.c 
 
 $(NAME)_COMPONENTS := netmgr cjson
-$(NAME)_COMPONENTS += linkkit_sdk_c
+$(NAME)_COMPONENTS += libiot_devmodel libiot_awss
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 
