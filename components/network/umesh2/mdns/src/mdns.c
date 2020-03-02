@@ -628,7 +628,6 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
             mdns_entries_free(entries);
             continue;
         }
-        mdns_print(entries);
 
         if (match_type == MDNS_MATCH_ALL) {
             callback(p_cookie, r, entries);

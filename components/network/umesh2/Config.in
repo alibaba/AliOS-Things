@@ -22,5 +22,5 @@ choice
 prompt "api config"
 default UMESH_WITH_LOCAL_COMM
 config UMESH_WITH_LOCAL_COMM
-    bool "use default mdns"
+    bool "use default api"
 endchoice
