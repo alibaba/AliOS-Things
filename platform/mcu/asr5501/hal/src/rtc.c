@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "lega_cm4.h"
 #include "lega_rtc.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 
 /**
  * This function will initialize the on board CPU real time clock
