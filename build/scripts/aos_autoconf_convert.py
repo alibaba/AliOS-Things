@@ -104,7 +104,14 @@ def merge_autoconf_aosconfig(autoconf_h, aosconfig_h):
     pos = text_aosconfig.find(COMPONENTS_CONFIG_KEYWORD)
     if pos >= 0:
         # delete the old components config
-        pos = text_aosconfig.find("//================This is split line================\n", pos)
+        pos1 = text_aosconfig.find("//================This is split line================\n", pos)
+        if pos1 > 0:
+            pos = pos1
+        else:
+            pos = text_aosconfig.find("\n#define", pos)
+            if pos > 0:
+                # skip \n
+                pos += 1
         text_aosconfig = text_aosconfig[:pos]
     else:
         # first time to generate aos_config.h
