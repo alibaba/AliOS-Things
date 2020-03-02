@@ -339,6 +339,11 @@ void board_wifi_init(void)
 
 }
 
+void board_flash_init(void)
+{
+    flash_partition_init();
+}
+
 static void I2C1_init()
 {
     i2c_dev_t i2c_1 = {
