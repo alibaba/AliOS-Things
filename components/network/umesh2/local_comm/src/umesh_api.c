@@ -649,7 +649,7 @@ int umesh_service_deinit(service_t *service)
         return 0;
     }
 
-    mdns_deinit(g_service_state->mdns);
+    mdns_destroy(g_service_state->mdns);
     g_service_state->mdns = NULL;
     ret =  service_state_deinit(g_service_state);
     if (ret < 0) {
@@ -698,7 +698,7 @@ static void mdns_main_task(void *para)
         log_e("mdns start failed!");
         return;
     }
-
+    log_i("leave mdns task!");
 }
 
 int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
