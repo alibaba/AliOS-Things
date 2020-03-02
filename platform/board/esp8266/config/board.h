@@ -21,6 +21,14 @@ typedef enum{
     PORT_PWM_INVALID = 255,
 }PORT_PWM_TYPE;
 
+typedef enum{
+    PORT_SPI_1,
+    PORT_SPI_2,
+    PORT_SPI_SIZE,
+    PORT_SPI_INVALID =255,
+}PORT_SPI_TYPE;
+
+
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
 #define AOS_MAIN_TASK_STACK_SIZE (7.5*1024)
 #elif defined(ESP8266_CHIPSET)

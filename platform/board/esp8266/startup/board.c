@@ -7,6 +7,8 @@
 #include "aos/init.h"
 #include "k_config.h"
 #include "board.h"
+#include "hal_spi.h"
+#include "spi_interface.h"
 
 uart_dev_t uart_0 = { .port = 0,};
 
@@ -17,6 +19,11 @@ extern int32_t hal_uart_init(uart_dev_t *uart);
 extern void key_gpio_init(void);
 extern int ets_printf(const char *fmt, ...);
 extern void PendSV( char req );
+
+SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+{PORT_SPI_1, SpiNum_SPI, SpiSubMode_0, SpiBitOrder_MSBFirst},
+{PORT_SPI_2, SpiNum_HSPI, SpiSubMode_0, SpiBitOrder_MSBFirst},
+};
 
 /**
   * @general board init entry board_basic_init
