@@ -1,5 +1,5 @@
 config AOS_APP_OTA_DEMO
-    bool "OTA Sample"
+    bool "OTA Demo"
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_OTA
