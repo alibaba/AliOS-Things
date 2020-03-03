@@ -30,6 +30,13 @@ typedef enum {
 void ramfs_init(void);
 
 /**
+ * @brief Deinitialize ramfs module
+ *
+ * @return None
+ */
+void ramfs_deinit(void);
+
+/**
  * @brief Give the state of the ramfs
  *
  * @return 0 if the ramfs is initialized and can be used else false
