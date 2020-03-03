@@ -4,12 +4,12 @@ config AOS_APP_EXAMPLE
 if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
-	
+
 source "application/example/helloworld_demo/Config.in"
 if AOS_APP_HELLOWORLD_DEMO
     config AOS_BUILD_APP
         default "helloworld_demo"
-endif	
+endif
 
 source "application/example/hal_demo/Config.in"
 if AOS_APP_HAL_DEMO
@@ -52,7 +52,25 @@ if AOS_APP_YTS_DEMO
     config AOS_BUILD_APP
         default "yts_demo"
 endif
-	
+
+source "application/example/kernel_demo/krhino_api_demo/Config.in"
+if AOS_APP_KRHINO_API_APP
+    config AOS_BUILD_APP
+        default "kernel_demo.krhino_api_demo"
+endif
+
+source "application/example/kernel_demo/aos_api_demo/Config.in"
+if AOS_APP_AOS_API_APP
+    config AOS_BUILD_APP
+        default "kernel_demo.aos_api_demo"
+endif
+
+source "application/example/vfs_demo/Config.in"
+if AOS_APP_VFS_DEMO
+    config AOS_BUILD_APP
+        default "vfs_demo"
+endif
+
 source "application/example/example_legacy/blink/Config.in"
 if AOS_APP_BLINK
     config AOS_BUILD_APP
@@ -131,17 +149,6 @@ if AOS_APP_HALAPP
         default "halapp"
 endif
 
-source "application/example/kernel_demo/krhino_api_demo/Config.in"
-if AOS_APP_KRHINO_API_APP
-    config AOS_BUILD_APP
-        default "kernel_demo.krhino_api_demo"
-endif
-
-source "application/example/kernel_demo/aos_api_demo/Config.in"
-if AOS_APP_AOS_API_APP
-    config AOS_BUILD_APP
-        default "kernel_demo.aos_api_demo"
-endif
 
 source "application/example/example_legacy/http2app/Config.in"
 if AOS_APP_HTTP2APP
@@ -269,7 +276,6 @@ if AOS_APP_UDATA_LOCAL_DEMO
         default "udata_demo.udata_local_demo"
 endif
 
-
 source "application/example/example_legacy/udata_demo/udata_cloud_demo/Config.in"
 if AOS_APP_UDATA_CLOUD_DEMO
     config AOS_BUILD_APP
@@ -310,12 +316,6 @@ source "application/example/example_legacy/ulog_app/Config.in"
 if AOS_APP_ULOG_APP
     config AOS_BUILD_APP
         default "ulog_app"
-endif
-
-source "application/example/vfs_demo/Config.in"
-if AOS_APP_VFS_DEMO
-    config AOS_BUILD_APP
-        default "vfs_demo"
 endif
 
 source "application/example/example_legacy/sal_app/Config.in"
