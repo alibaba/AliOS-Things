@@ -1,0 +1,10 @@
+config AOS_APP_KNXCTL
+    bool "KNX Demo"
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_KNX
+    help
+        KNX Stack Demo
+
+if AOS_APP_KNXCTL
+# Configurations for app knxctl
+endif
