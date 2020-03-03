@@ -227,7 +227,7 @@ void board_network_init(void)
 
 void board_stduart_init(void)
 {
-    uart_0.port                = MICO_UART_1;
+    uart_0.port                = PORT_UART_1;
     uart_0.config.baud_rate    = 115200;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity       = NO_PARITY;

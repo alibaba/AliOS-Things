@@ -33,6 +33,7 @@ void hal_reboot(void)
     sys_reset();
 }
 
+#if 0
 static void _timer_cb(void *timer, void *arg)
 {
     timer_dev_t *tmr = arg;
@@ -63,14 +64,15 @@ void hal_timer_stop(timer_dev_t *tmr)
     krhino_timer_dyn_del(tmr->priv);
     tmr->priv = NULL;
 }
+#endif
 
 extern hal_wifi_module_t rtl8710bn_wifi_module;
 void hw_start_hal(void)
 {
     DBG_8195A("start hal-----------\n");
     hal_wifi_register_module(&rtl8710bn_wifi_module);
-    
-    uart_0.port                = MICO_UART_1;
+
+    uart_0.port                = PORT_UART_1;
     uart_0.config.baud_rate    = 115200;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity       = NO_PARITY;
