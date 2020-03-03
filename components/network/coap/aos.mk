@@ -40,11 +40,10 @@ else
 $(NAME)_SOURCES += $(LIBCOAP_SRC_PATH)/coap_notls.c
 endif
 
-
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/network/coap
 
 # mandatory dependencies
 
 # optional dependencies
-$(NAME)_COMPONENTS-$(COAP_WITH_ALI_AUTH) += mbedtls activation chip_code libiot_infra libiot_wrappers
+$(NAME)_COMPONENTS-$(COAP_WITH_ALI_AUTH) += cjson mbedtls activation chip_code libiot_infra libiot_wrappers
