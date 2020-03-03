@@ -1,6 +1,6 @@
 /**
 ******************************************************************************
-* @file    platform.c 
+* @file    platform.c
 * @author  William Xu
 * @version V1.0.0
 * @date    05-May-2014
@@ -11,9 +11,9 @@
 *  The MIT License
 *  Copyright (c) 2014 MXCHIP Inc.
 *
-*  Permission is hereby granted, free of charge, to any person obtaining a copy 
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
-*  in the Software without restriction, including without limitation the rights 
+*  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is furnished
 *  to do so, subject to the following conditions:
@@ -21,14 +21,14 @@
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
 *
-*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-*  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
+*  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************
-*/ 
+*/
 
 //#include "stdio.h"
 //#include "string.h"
@@ -82,20 +82,20 @@ static mico_timer_t _button_EL_timer;
 platform_gpio_t platform_gpio_pins[] =
 {
   /* Common GPIOs for internal use */
- // [MICO_SYS_LED]                      = { GPIOB,  0 }, 
+ // [MICO_SYS_LED]                      = { GPIOB,  0 },
  // [MICO_RF_LED]                       = { GPIOB,  1 }, //MICO_GPIO_16
  // [BOOT_SEL]                          = { GPIOB,  1 }, //MICO_GPIO_16
 //  [MFG_SEL]                           = { GPIOB,  9 }, //MICO_GPIO_30
  // [EasyLink_BUTTON]                   = { GPIOA,  1 }, //MICO_GPIO_11
-  
+
   /* GPIOs for external use */
-  [MICO_GPIO_1]  = 
-  { 
+  [MICO_GPIO_1]  =
+  {
     .pin = PA_5,
   },
 
-  [MICO_GPIO_2]  = 
-  { 
+  [MICO_GPIO_2]  =
+  {
     .pin = PA_12,
   },
 };
@@ -107,18 +107,18 @@ platform_gpio_t platform_gpio_pins[] =
 /* TODO : These need fixing */
 platform_adc_t platform_adc_peripherals[] =
 {
-  [MICO_ADC_1]  = 
-  { 
+  [PORT_ADC_1]  =
+  {
     .pin = AD_1,
   },
-  
-  [MICO_ADC_2] =   
-  { 
+
+  [PORT_ADC_2] =
+  {
     .pin = AD_2,
   },
-  
-  [MICO_ADC_3] =   
-  { 
+
+  [PORT_ADC_3] =
+  {
     .pin = AD_3,
   },
 };
@@ -126,21 +126,21 @@ platform_adc_t platform_adc_peripherals[] =
 
 /* PWM mappings */
 platform_pwm_t platform_pwm_peripherals[] =
-{  
-  [MICO_PWM_1]  = 
-  { 
+{
+  [PORT_PWM_1]  =
+  {
     .pin = PA_23,
   },
-  [MICO_PWM_2]  = 
-  { 
+  [PORT_PWM_2]  =
+  {
     .pin = PA_22,
   },
-  [MICO_PWM_3]  = 
-  { 
+  [PORT_PWM_3]  =
+  {
     .pin = PA_0,
   },
-  [MICO_PWM_4]  = 
-  { 
+  [PORT_PWM_4]  =
+  {
     .pin = PA_12,
   },
   /* TODO: fill in the other options here ... */
@@ -148,60 +148,60 @@ platform_pwm_t platform_pwm_peripherals[] =
 
 platform_spi_t platform_spi_peripherals[] =
 {
-  [MICO_SPI_1]  =
-  { 
+  [PORT_SPI_1]  =
+  {
     .mosi = PA_4,
     .miso = PA_3,
     .sclk = PA_1,
     .ssel = PA_2,
   },
 
-  [MICO_SPI_2]  =
-  { 
+  [PORT_SPI_2]  =
+  {
     .mosi = PA_23,
     .miso = PA_22,
     .sclk = PA_18,
     .ssel = PA_19,
   },
-
-  [MICO_SPI_3]  =
-  { 
+    /**  SPI1 can choose PORT_SPI_2 or PORT_SPI_3
+  [PORT_SPI_3]  =
+  {
     .mosi = PB_3,
     .miso = PB_2,
     .sclk = PB_1,
     .ssel = PB_0,
-  },	
+  },*/
 };
 
 platform_uart_t platform_uart_peripherals[] =
 {
-  [MICO_UART_1] =
+  [PORT_UART_1] =
   {
     .tx = PA_30,
     .rx = PA_29,
   },
-  [MICO_UART_2] =
+  [PORT_UART_2] =
   {
     .tx = PA_23,
     .rx = PA_18,
   },
 };
-platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
+platform_uart_driver_t platform_uart_drivers[PORT_UART_MAX];
 
 platform_i2c_t platform_i2c_peripherals[] =
 {
-  [MICO_I2C_1] =
+  [PORT_I2C_1] =
   {
     .sda = PA_23,
     .scl = PA_18,
   },
 
-  [MICO_I2C_2] =
+  [PORT_I2C_2] =
   {
     .sda = PA_19,
     .scl = PA_22,
   },
-	
+
 };
 
 
@@ -282,32 +282,32 @@ const mico_logic_partition_t mico_partitions[] =
 #if 0
 MICO_RTOS_DEFINE_ISR( USART1_IRQHandler )
 {
-  platform_uart_irq( &platform_uart_drivers[MICO_UART_1] );
+  platform_uart_irq( &platform_uart_drivers[PORT_UART_1] );
 }
 
 MICO_RTOS_DEFINE_ISR( USART6_IRQHandler )
 {
-  platform_uart_irq( &platform_uart_drivers[MICO_UART_2] );
+  platform_uart_irq( &platform_uart_drivers[PORT_UART_2] );
 }
 
 MICO_RTOS_DEFINE_ISR( DMA2_Stream7_IRQHandler )
 {
-  platform_uart_tx_dma_irq( &platform_uart_drivers[MICO_UART_1] );
+  platform_uart_tx_dma_irq( &platform_uart_drivers[PORT_UART_1] );
 }
 
 MICO_RTOS_DEFINE_ISR( DMA2_Stream6_IRQHandler )
 {
-  platform_uart_tx_dma_irq( &platform_uart_drivers[MICO_UART_2] );
+  platform_uart_tx_dma_irq( &platform_uart_drivers[PORT_UART_2] );
 }
 
 MICO_RTOS_DEFINE_ISR( DMA2_Stream2_IRQHandler )
 {
-  platform_uart_rx_dma_irq( &platform_uart_drivers[MICO_UART_1] );
+  platform_uart_rx_dma_irq( &platform_uart_drivers[PORT_UART_1] );
 }
 
 MICO_RTOS_DEFINE_ISR( DMA2_Stream1_IRQHandler )
 {
-  platform_uart_rx_dma_irq( &platform_uart_drivers[MICO_UART_2] );
+  platform_uart_rx_dma_irq( &platform_uart_drivers[PORT_UART_2] );
 }
 #endif
 /******************************************************
@@ -318,7 +318,7 @@ static void _button_EL_irq_handler( void* arg )
 {
   (void)(arg);
   int interval = -1;
-  
+
   if ( MicoGpioInputGet( (mico_gpio_t)EasyLink_BUTTON ) == 0 ) {
     _default_start_time = mico_get_time()+1;
     mico_start_timer(&_button_EL_timer);
@@ -356,7 +356,7 @@ bool watchdog_check_last_reset( void )
     RCC->CSR |= RCC_CSR_RMVF;
     return true;
   }
-#endif  
+#endif
   return false;
 }
 
@@ -368,12 +368,12 @@ void platform_init_peripheral_irq_priorities( void )
   NVIC_SetPriority( SDIO_IRQn        ,  2 ); /* WLAN SDIO           */
   NVIC_SetPriority( DMA2_Stream3_IRQn,  3 ); /* WLAN SDIO DMA       */
   NVIC_SetPriority( DMA1_Stream3_IRQn,  3 ); /* WLAN SPI DMA        */
-  NVIC_SetPriority( USART1_IRQn      ,  6 ); /* MICO_UART_1         */
-  NVIC_SetPriority( USART6_IRQn      ,  6 ); /* MICO_UART_2         */
-  NVIC_SetPriority( DMA2_Stream7_IRQn,  7 ); /* MICO_UART_1 TX DMA  */
-  NVIC_SetPriority( DMA2_Stream2_IRQn,  7 ); /* MICO_UART_1 RX DMA  */
-  NVIC_SetPriority( DMA2_Stream6_IRQn,  7 ); /* MICO_UART_2 TX DMA  */
-  NVIC_SetPriority( DMA2_Stream1_IRQn,  7 ); /* MICO_UART_2 RX DMA  */
+  NVIC_SetPriority( USART1_IRQn      ,  6 ); /* PORT_UART_1         */
+  NVIC_SetPriority( USART6_IRQn      ,  6 ); /* PORT_UART_2         */
+  NVIC_SetPriority( DMA2_Stream7_IRQn,  7 ); /* PORT_UART_1 TX DMA  */
+  NVIC_SetPriority( DMA2_Stream2_IRQn,  7 ); /* PORT_UART_1 RX DMA  */
+  NVIC_SetPriority( DMA2_Stream6_IRQn,  7 ); /* PORT_UART_2 TX DMA  */
+  NVIC_SetPriority( DMA2_Stream1_IRQn,  7 ); /* PORT_UART_2 RX DMA  */
   NVIC_SetPriority( EXTI0_IRQn       , 14 ); /* GPIO                */
   NVIC_SetPriority( EXTI1_IRQn       , 14 ); /* GPIO                */
   NVIC_SetPriority( EXTI2_IRQn       , 14 ); /* GPIO                */
@@ -381,7 +381,7 @@ void platform_init_peripheral_irq_priorities( void )
   NVIC_SetPriority( EXTI4_IRQn       , 14 ); /* GPIO                */
   NVIC_SetPriority( EXTI9_5_IRQn     , 14 ); /* GPIO                */
   NVIC_SetPriority( EXTI15_10_IRQn   , 14 ); /* GPIO                */
-#endif  
+#endif
 }
 
 void init_platform( void )
@@ -391,12 +391,12 @@ void init_platform( void )
   MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
   MicoGpioInitialize( (mico_gpio_t)MICO_RF_LED, OUTPUT_OPEN_DRAIN_NO_PULL );
   MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
-  
+
   //  Initialise EasyLink buttons
   MicoGpioInitialize( (mico_gpio_t)EasyLink_BUTTON, INPUT_PULL_UP );
   mico_init_timer(&_button_EL_timer, RestoreDefault_TimeOut, _button_EL_Timeout_handler, NULL);
   MicoGpioEnableIRQ( (mico_gpio_t)EasyLink_BUTTON, IRQ_TRIGGER_BOTH_EDGES, _button_EL_irq_handler, NULL );
-  
+
   //  Initialise Standby/wakeup switcher
   MicoGpioInitialize( Standby_SEL, INPUT_PULL_UP );
   MicoGpioEnableIRQ( Standby_SEL , IRQ_TRIGGER_FALLING_EDGE, _button_STANDBY_irq_handler, NULL);
@@ -410,10 +410,10 @@ void init_platform_bootloader( void )
   MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
   MicoGpioInitialize( (mico_gpio_t)MICO_RF_LED, OUTPUT_OPEN_DRAIN_NO_PULL );
   MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
-  
+
   MicoGpioInitialize((mico_gpio_t)BOOT_SEL, INPUT_PULL_UP);
   MicoGpioInitialize((mico_gpio_t)MFG_SEL, INPUT_HIGH_IMPEDANCE);
-#endif  
+#endif
 }
 
 void MicoSysLed(bool onoff)
@@ -424,7 +424,7 @@ void MicoSysLed(bool onoff)
   } else {
     MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
   }
-#endif  
+#endif
 }
 
 void MicoRfLed(bool onoff)
@@ -435,7 +435,7 @@ void MicoRfLed(bool onoff)
   } else {
     MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
   }
-#endif  
+#endif
 }
 
 #if 0

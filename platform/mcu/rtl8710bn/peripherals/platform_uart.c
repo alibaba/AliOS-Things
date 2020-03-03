@@ -1,6 +1,6 @@
 /**
 ******************************************************************************
-* @file    paltform_uart.c 
+* @file    paltform_uart.c
 * @author  William Xu
 * @version V1.0.0
 * @date    05-May-2014
@@ -10,9 +10,9 @@
 *  The MIT License
 *  Copyright (c) 2014 MXCHIP Inc.
 *
-*  Permission is hereby granted, free of charge, to any person obtaining a copy 
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
-*  in the Software without restriction, including without limitation the rights 
+*  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is furnished
 *  to do so, subject to the following conditions:
@@ -20,14 +20,14 @@
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
 *
-*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-*  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
+*  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************
-*/ 
+*/
 
 #include "aos_debug.h"
 
@@ -82,7 +82,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 	SerialParity parity;
 	int stopbit;
 	FlowControl flowcontrol;
-   
+
   	platform_mcu_powersave_disable();
 
   	require_action_quiet( ( driver != NULL ) && ( peripheral != NULL ) && ( config != NULL ), exit, err = kParamErr);
@@ -97,7 +97,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
   	aos_sem_new( &driver->tx_complete, 1 );
   	aos_sem_new( &driver->rx_complete, 0 );
   	aos_sem_new( &driver->sem_wakeup,  0 );
-  	aos_mutex_new( &driver->tx_mutex );    
+  	aos_mutex_new( &driver->tx_mutex );
 #else
   	driver->tx_complete = false;
   	driver->rx_complete = false;
@@ -111,7 +111,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
     	}else{
 	      	driver->rx_buffer = NULL;
 	}
-            
+
 
         if(peripheral->tx == PA_30 && peripheral->rx == PA_29){
             DBG_8195A("platform_uart_init 22222 \r\n");
@@ -122,7 +122,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
         }
 
     	serial_init((serial_t*)&peripheral->serial_obj, peripheral->tx, peripheral->rx);
-        
+
   	switch ( config->data_width)
   	{
     		case DATA_WIDTH_7BIT  :
@@ -143,11 +143,11 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
       			break;
 
     		case EVEN_PARITY:
-      			parity = ParityEven;				
+      			parity = ParityEven;
       			break;
 
     		case ODD_PARITY:
-      			parity = ParityOdd;				
+      			parity = ParityOdd;
       			break;
     		default:
       			err = kParamErr;
@@ -165,20 +165,20 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
     		default:
       			err = kParamErr;
       			goto exit;
-  	} 
+  	}
 
   	switch ( config->flow_control )
   	{
     		case FLOW_CONTROL_DISABLED:
 			flowcontrol = FlowControlNone;
 			break;
-    		case FLOW_CONTROL_RTS:		
+    		case FLOW_CONTROL_RTS:
       			flowcontrol = FlowControlRTS;
       			break;
-    		case FLOW_CONTROL_CTS:		
+    		case FLOW_CONTROL_CTS:
       			flowcontrol = FlowControlCTS;
       			break;
-    		case FLOW_CONTROL_CTS_RTS:		
+    		case FLOW_CONTROL_CTS_RTS:
       			flowcontrol = FlowControlRTSCTS;
       			break;
     		default:
@@ -190,9 +190,9 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 	if(config->flow_control != FLOW_CONTROL_DISABLED &&  peripheral->serial_obj.uart_idx != 0)
 	{
       		err = kUnsupportedErr;
-      		goto exit;		
+      		goto exit;
 	}else if(peripheral->serial_obj.uart_idx == 0)
-		serial_set_flow_control((serial_t*)&peripheral->serial_obj, flowcontrol, peripheral->rx, peripheral->tx);	
+		serial_set_flow_control((serial_t*)&peripheral->serial_obj, flowcontrol, peripheral->rx, peripheral->tx);
 
 
     	serial_baud((serial_t*)&peripheral->serial_obj,config->baud_rate);
@@ -202,13 +202,13 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 
     	if(!optional_ring_buffer){
       		serial_recv_comp_handler((serial_t*)&peripheral->serial_obj, (void*)platform_uart_rx_dma_irq, (uint32_t) driver);
-    	}else{  
-          	serial_irq_handler((serial_t*)&peripheral->serial_obj, platform_uart_irq, (uint32_t)driver);	  
+    	}else{
+          	serial_irq_handler((serial_t*)&peripheral->serial_obj, platform_uart_irq, (uint32_t)driver);
     	}
 
     	serial_send_comp_handler((serial_t*)&peripheral->serial_obj, (void*)platform_uart_tx_dma_irq, (uint32_t) driver);
 
-		
+
 exit:
     	platform_mcu_powersave_enable();
   	return err;
@@ -224,11 +224,11 @@ OSStatus platform_uart_deinit( platform_uart_driver_t* driver )
   	require_action_quiet( ( driver != NULL ), exit, err = kParamErr);
 
         if(driver->peripheral->tx == PA_30 && driver->peripheral->rx == PA_29){
-            
+
         }else{
   	    serial_free((serial_t*)&driver->peripheral->serial_obj);
         }
-  
+
 #ifndef NO_MICO_RTOS
   	aos_sem_free( &driver->rx_complete );
   	aos_sem_free( &driver->tx_complete );
@@ -252,8 +252,8 @@ OSStatus platform_uart_transmit_bytes( platform_uart_driver_t* driver, const uin
 {
   	OSStatus err = kNoErr;
     	int32_t ret;
-		
-  	platform_mcu_powersave_disable();  
+
+  	platform_mcu_powersave_disable();
 
 #if 0
 /* Wait for transmission complete */
@@ -261,10 +261,10 @@ OSStatus platform_uart_transmit_bytes( platform_uart_driver_t* driver, const uin
   	ret = aos_sem_wait( &driver->tx_complete, AOS_WAIT_FOREVER );
         if(ret != 0)
             DBG_8195A("ret %d, sema 0x%x\r\n", ret, &driver->tx_complete);
-#else 
-  	while( driver->tx_complete == false ){ 
+#else
+  	while( driver->tx_complete == false ){
             rtw_msleep_os(2);
-        }    
+        }
   	driver->tx_complete = false;
 #endif
 #endif
@@ -285,7 +285,7 @@ OSStatus platform_uart_transmit_bytes( platform_uart_driver_t* driver, const uin
 #if 0
 Retry:
 	//ret = serial_send_stream_dma((serial_t*)&driver->peripheral->serial_obj, (char*)data_out, size);
-	ret = serial_send_stream((serial_t*)&driver->peripheral->serial_obj, (char*)data_out, size);	
+	ret = serial_send_stream((serial_t*)&driver->peripheral->serial_obj, (char*)data_out, size);
     	if(ret != 0){
                 DBG_8195A("** %d\r\n", size);
       		err = kGeneralErr;
@@ -297,7 +297,7 @@ Retry:
   	driver->tx_size = 0;
   	err = driver->last_transmit_result;
 
-exit:  
+exit:
   	platform_mcu_powersave_enable();
   	return err;
 }
@@ -315,13 +315,13 @@ OSStatus platform_uart_receive_bytes( platform_uart_driver_t* driver, uint8_t* d
     		while (expected_data_size != 0)
     		{
       			uint32_t transfer_size = MIN( driver->rx_buffer->size/2, expected_data_size );
-      
+
       			/* Check if ring buffer already contains the required amount of data. */
       			if ( transfer_size > ring_buffer_used_space( driver->rx_buffer ) )
       			{
         			/* Set rx_size and wait in rx_complete semaphore until data reaches rx_size or timeout occurs */
         			driver->rx_size = transfer_size;
-        
+
 #ifndef NO_MICO_RTOS
         			if ( aos_sem_wait( &driver->rx_complete, timeout_ms) != kNoErr )
         			{
@@ -337,19 +337,19 @@ OSStatus platform_uart_receive_bytes( platform_uart_driver_t* driver, uint8_t* d
             					return kTimeoutErr;
           				}
         			}
-#endif      
+#endif
         			/* Reset rx_size to prevent semaphore being set while nothing waits for the data */
         			driver->rx_size = 0;
       			}
-      
+
       			expected_data_size -= transfer_size;
-      
+
       			// Grab data from the buffer
       			do
       			{
         			uint8_t* available_data;
         			uint32_t bytes_available;
-        
+
         			ring_buffer_get_data( driver->rx_buffer, &available_data, &bytes_available );
         			bytes_available = MIN( bytes_available, transfer_size );
         			memcpy( data_in, available_data, bytes_available );
@@ -358,7 +358,7 @@ OSStatus platform_uart_receive_bytes( platform_uart_driver_t* driver, uint8_t* d
         			ring_buffer_consume( driver->rx_buffer, bytes_available );
       			} while ( transfer_size != 0 );
     		}
-    
+
     		if ( expected_data_size != 0 )
     		{
       			return kGeneralErr;
@@ -376,7 +376,7 @@ OSStatus platform_uart_receive_bytes( platform_uart_driver_t* driver, uint8_t* d
 		else
 			return kTimeoutErr;
 	}
-  
+
 exit:
   	platform_mcu_powersave_enable();
   	return err;
@@ -384,7 +384,7 @@ exit:
 
 
 uint32_t platform_uart_get_length_in_buffer( platform_uart_driver_t* driver )
-{  
+{
   	return ring_buffer_used_space( driver->rx_buffer );
 }
 
@@ -428,7 +428,7 @@ static void thread_wakeup(void *arg)
 {
 #if 0
   platform_uart_driver_t* driver = arg;
-  
+
   while(1){
     if( mico_rtos_get_semaphore( driver->sem_wakeup, 1000) != kNoErr )
     {
@@ -436,7 +436,7 @@ static void thread_wakeup(void *arg)
       platform_mcu_powersave_enable( );
     }
   }
-#endif  
+#endif
 }
 #endif
 
@@ -450,7 +450,7 @@ void RX_PIN_WAKEUP_handler(void *arg)
   (void)arg;
   platform_uart_driver_t* driver = arg;
   uint32_t uart_number;
-  
+
   platform_gpio_enable_clock( driver->peripheral->pin_rx );
 
   uart_number = platform_uart_get_port_number( driver->peripheral->port );
@@ -474,7 +474,7 @@ void RX_PIN_WAKEUP_handler(void *arg)
 }
 #endif
 
-extern platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
+extern platform_uart_driver_t platform_uart_drivers[PORT_UART_MAX];
 void platform_loguart_irq( void* id)
 {
     platform_uart_driver_t* driver = &platform_uart_drivers[0];
@@ -508,7 +508,7 @@ void platform_loguart_irq( void* id)
   #endif
         driver->rx_size = 0;
     }
-    
+
     DiagSetIsrEnReg(IrqEn);
 }
 
@@ -517,10 +517,10 @@ void platform_uart_irq( uint32_t id, SerialIrq event)
   	uint8_t rxData;
 	platform_uart_driver_t* driver = (platform_uart_driver_t*)id;
 	if(event == RxIrq){
-    		rxData = serial_getc((serial_t*)&driver->peripheral->serial_obj);	
+    		rxData = serial_getc((serial_t*)&driver->peripheral->serial_obj);
     		ring_buffer_write( driver->rx_buffer, &rxData,1 );
 
-    		//DBG_8195A("\r\nnuart irq\r\n");	 
+    		//DBG_8195A("\r\nnuart irq\r\n");
 
     		// Notify thread if sufficient data are available
     		if ( ( driver->rx_size > 0 ) &&
