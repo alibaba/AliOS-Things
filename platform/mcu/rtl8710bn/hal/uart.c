@@ -11,21 +11,21 @@
 
 serial_t uart_obj_t;
 #define UART_TX    PA_23       //UART0  TX
-#define UART_RX    PA_18	//UART0  RX 
+#define UART_RX    PA_18	//UART0  RX
 
 #define UART_FIFO_SIZE 1024
 
-static ring_buffer_t rx_ringbuf[MICO_UART_MAX];
+static ring_buffer_t rx_ringbuf[PORT_UART_MAX];
 
-extern platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
+extern platform_uart_driver_t platform_uart_drivers[PORT_UART_MAX];
 extern const platform_uart_t platform_uart_peripherals[];
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     uint8_t *rx_buf;
     platform_uart_config_t config;
-    
-    if (uart->port > MICO_UART_MAX)
+
+    if (uart->port > PORT_UART_MAX)
         return -1;
 
     rx_buf = (uint8_t *)aos_malloc(UART_FIFO_SIZE);
@@ -44,7 +44,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
-    if (uart->port > MICO_UART_MAX)
+    if (uart->port > PORT_UART_MAX)
         return -1;
 
     platform_uart_deinit(&platform_uart_drivers[uart->port]);
@@ -53,7 +53,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    if (uart->port >= MICO_UART_MAX)
+    if (uart->port >= PORT_UART_MAX)
         return -1;
 
     platform_uart_transmit_bytes(&platform_uart_drivers[uart->port], data, size);
@@ -62,7 +62,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
-    if (uart->port > MICO_UART_MAX)
+    if (uart->port > PORT_UART_MAX)
         return -1;
 
     int ret = platform_uart_receive_bytes(&platform_uart_drivers[uart->port], data, expect_size, timeout);

@@ -164,7 +164,14 @@ $(NAME)_SOURCES := aos/aos_osdep.c  \
                    hal/hw.c         \
                    hal/wifi_port.c  \
                    hal/gpio.c       \
-                   hal/wdg.c
+                   hal/wdg.c        \
+                   hal/adc.c        \
+                   hal/hal_spi.c    \
+                   hal/hal_timer.c  \
+                   hal/i2c.c        \
+                   hal/pwm.c        \
+                   hal/rtc.c        \
+
 
 $(NAME)_SOURCES += CheckSumUtils.c
 
