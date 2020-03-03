@@ -88,6 +88,38 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
                           uint16_t size, uint32_t timeout);
 
 /**
+ * spi send data and then recv data
+ *
+ * @param[in]  spi      the spi device
+ * @param[in]  tx_data  the data to be sent
+ * @param[in]  tx_size  data size to be sent
+ * @param[out] rx_data  spi recv data
+ * @param[in]  rx_size  data size to be recived
+ * @param[in]  timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                      if you want to wait forever
+ *
+ * @return  0, on success,  otherwise is error
+*/
+int32_t hal_spi_send_and_recv(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size, uint8_t *rx_data,
+                              uint16_t rx_size, uint32_t timeout);
+
+
+/**
+ * spi send data and then send data
+ * @param[in]  spi       the spi device
+ * @param[in]  tx1_data  the first data to be sent
+ * @param[in]  tx1_size  the first data size to be sent
+ * @param[out] tx2_data  the second data to be sent
+ * @param[in]  tx2_size  the second data size to be sent
+ * @param[in]  timeout   timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                       if you want to wait forever
+ *
+ * @return  0, on success,  otherwise is error
+ */
+ int32_t hal_spi_send_and_send(spi_dev_t *spi, uint8_t *tx1_data, uint16_t tx1_size, uint8_t *tx2_data,
+                               uint16_t tx2_size, uint32_t timeout);
+
+/**
  * De-initialises a SPI interface
  *
  *
