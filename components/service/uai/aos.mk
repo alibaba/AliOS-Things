@@ -24,7 +24,7 @@ $(NAME)_SOURCES  += function/activation/uai_relu.c               \
 
 $(NAME)_COMPONENTS-$(CONFIG_UAI_USE_CMSIS_NN) += cmsis_nn
 
-ifeq ($(cmsis_nn_enable), 1)
+ifeq ($(CONFIG_UAI_USE_CMSIS_NN), y)
 GLOBAL_DEFINES     += 	UAI_USE_CMSIS_NN
 $(NAME)_INCLUDES   +=   3rdparty/cmsis_nn/Core/Include   \
 						3rdparty/cmsis_nn/DSP/Include    \
