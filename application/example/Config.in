@@ -54,13 +54,13 @@ if AOS_APP_YTS_DEMO
 endif
 
 source "application/example/kernel_demo/krhino_api_demo/Config.in"
-if AOS_APP_KRHINO_API_APP
+if AOS_APP_KRHINO_API_DEMO
     config AOS_BUILD_APP
         default "kernel_demo.krhino_api_demo"
 endif
 
 source "application/example/kernel_demo/aos_api_demo/Config.in"
-if AOS_APP_AOS_API_APP
+if AOS_APP_AOS_API_DEMO
     config AOS_BUILD_APP
         default "kernel_demo.aos_api_demo"
 endif
