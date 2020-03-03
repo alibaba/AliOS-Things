@@ -44,7 +44,7 @@ provided to the application layer.
 
 ```sh
 # generate default config
-aos make kernel_demo.aos_api_demo@stm32f429zi-nucleo-demo -c config
+aos make kernel_demo.aos_api_demo@stm32f429zi-nucleo -c config
 
 # or customize config manually
 aos make menuconfig

@@ -19,7 +19,7 @@ krhino_api_app
 
 ## Introduction
 
-The **krhino_api_app** example shows how to use the krhino API. This set of interfaces
+The **krhino_api_demo** example shows how to use the krhino API. This set of interfaces
 is the native kernel interface to AliOS Things and is typically used by internal modules and drivers.
 
 ### Dependencies
@@ -34,7 +34,7 @@ is the native kernel interface to AliOS Things and is typically used by internal
 
 ```sh
 # generate default config
-aos make kernel_demo.krhino_api_demo@stm32f429zi-nucleo-demo -c config
+aos make kernel_demo.krhino_api_demo@stm32f429zi-nucleo -c config
 
 # or customize config manually
 aos make menuconfig

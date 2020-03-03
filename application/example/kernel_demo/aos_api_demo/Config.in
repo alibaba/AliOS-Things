@@ -1,11 +1,10 @@
-config AOS_APP_AOS_API_APP
+config AOS_APP_AOS_API_DEMO
     bool "kernel demo(AOS API)"
-    select AOS_COMP_CLI
-    select AOS_COMP_DEBUG
+    select AOS_COMP_CLI if !AOS_BOARD_ESP8266
     help
         An example to show how to use the aos kernel API
 
-if AOS_APP_AOS_API_APP
+if AOS_APP_AOS_API_DEMO
 # Configurations for app kernel
 config SYSINFO_APP_VERSION
     string "Firmware Version"
