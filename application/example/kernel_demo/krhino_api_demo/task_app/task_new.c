@@ -35,10 +35,12 @@ static ktask_t *task2_tcb = NULL;
 /* task entry */
 static void task1_entry(void *arg)
 {
+    int32_t i;
+
     /* Parameters are passed through the arg */
     int count = (int)arg;
 
-    for (int i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         LOGI(MODULE_NAME, "I'm task1");
 
         /**
