@@ -1,5 +1,5 @@
 config AOS_APP_HAL_DEMO
-    bool "Hal_Demo"
+    bool "Hal Demo"
     select AOS_COMP_OSAL_AOS
     help
         Hal Demo
