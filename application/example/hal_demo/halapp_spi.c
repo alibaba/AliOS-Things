@@ -35,6 +35,7 @@
 #define W25X_CMD_CHIPERASE              0xC7
 #define W25X_CMD_POWERDOWN              0xB9
 #define W25X_CMD_RELEASE_POWERDOWN      0xAB
+#define W25X_CMD_MANUFACTDEVICEID       0x90
 #define W25X_CMD_DEVICEID               0xAB
 
 #define W25X_SECTOR_SIZE                4096
@@ -46,11 +47,15 @@ static int32_t w25qxx_init(void)
 {
     int32_t ret;
 
-    spi_w25.port = PORT_SPI_1;
+    spi_w25.port = PORT_SPI_DEMO;
     spi_w25.config.mode = HAL_SPI_MODE_MASTER;
     spi_w25.config.freq = 6000000;
 
     ret = hal_spi_init(&spi_w25);
+    if (ret) {
+        printf("w25qxx_init fail\r\n");
+        return ret;
+    }
 
     return ret;
 }
@@ -58,12 +63,14 @@ static int32_t w25qxx_init(void)
 void w25qxx_write_enable(void)
 {
     gcmd_data = W25X_CMD_WRITE_ENABLE;
+
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 }
 
 void w25qxx_write_disable(void)
 {
     gcmd_data = W25X_CMD_WRITE_DISABLE;
+
     hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 }
 
@@ -75,10 +82,9 @@ uint8_t w25qxx_read_sr(void)
     uint8_t byte = 0;
 
     gcmd_data = W25X_CMD_READ_STATUS;
-    hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
-    ret = hal_spi_recv(&spi_w25, &byte, 1, 10);
-    if(ret){
+    ret = hal_spi_send_and_recv(&spi_w25, &gcmd_data, 1, &byte, 1, 10);
+    if (ret) {
         printf("w25qxx_readsr,hal_spi_recv fail!\r\n");
         return (uint8_t)-1;
     }
@@ -92,121 +98,158 @@ void w25qxx_write_sr(uint8_t sr)
     uint8_t data_send = sr;
 
     gcmd_data = W25X_CMD_WRITE_STATUS;
-    hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
 
-    hal_spi_send(&spi_w25, &data_send, 1, 10);
+    hal_spi_send_and_send(&spi_w25, &gcmd_data, 1, &sr, 1, 10);
 }
 
 void w25qxx_wait_busy(void)
 {
-    while((w25qxx_read_sr()&0x01)==0x01);
+    /* wait untill the device is not busy */
+    while((w25qxx_read_sr()&0x01) == 0x01);
 }
 
 int32_t w25qxx_read(uint8_t* pbuffer,uint32_t readaddr,uint16_t num)
 {
-    uint8_t data;
+    uint8_t data[4];
     int32_t ret;
 
-    gcmd_data = W25X_CMD_READDATA;
-    hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
-
-    /* send addr */
-    data = (uint8_t)(readaddr >> 16);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    data = (uint8_t)(readaddr >> 8);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    data = (uint8_t)(readaddr);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    ret = hal_spi_recv(&spi_w25, pbuffer, num, 20);
+    data[0] = W25X_CMD_READDATA;
+    data[1] = (uint8_t)(readaddr >> 16);
+    data[2] = (uint8_t)(readaddr >> 8);
+    data[3] = (uint8_t)(readaddr);
+    ret = hal_spi_send_and_recv(&spi_w25, data, 4, pbuffer, num, 10);
     if(ret){
         printf("w25qxx_read,hal_spi_recv fail!\r\n");
         return ret;
     }
     return 0;
-
 }
 
 //Totally in one page, less than 256 bytes write
 void w25qxx_write_page(uint8_t* pbuffer,uint32_t writeaddr,uint16_t num)
 {
-    uint8_t data;
+    uint8_t data[4];
+    int32_t ret;
 
     w25qxx_write_enable();
 
-    gcmd_data = W25X_CMD_PAGEPROGRAM;
-    hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
+    w25qxx_wait_busy();
 
-    /* send addr */
-    data = (uint8_t)(writeaddr >> 16);
-    hal_spi_send(&spi_w25, &data, 1, 10);
+    data[0] = W25X_CMD_PAGEPROGRAM;
+    data[1] = (uint8_t)(writeaddr >> 16);
+    data[2] = (uint8_t)(writeaddr >> 8);
+    data[3] = (uint8_t)(writeaddr);
 
-    data = (uint8_t)(writeaddr >> 8);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    data = (uint8_t)(writeaddr);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    hal_spi_send(&spi_w25,pbuffer,num,20);
+    ret = hal_spi_send_and_send(&spi_w25, data, 4, pbuffer, num, 10);
+    if (ret) {
+        printf("write page addr 0x%x failed\r\n", writeaddr);
+    }
 
     w25qxx_wait_busy();
+
+    w25qxx_write_disable();
+
 }
 
 void w25qxx_erase_sector(uint32_t sector_index)
 {
-    uint8_t data;
+    uint8_t  data[4];
     uint32_t eraseaddr;
+    int      ret;
 
     w25qxx_write_enable();
 
     w25qxx_wait_busy();
 
-    gcmd_data = W25X_CMD_SECTORERASE;
-    hal_spi_send(&spi_w25, &gcmd_data, 1, 10);
-
     eraseaddr = sector_index * W25X_SECTOR_SIZE;
 
-    /* send addr */
-    data = (uint8_t)(eraseaddr >> 16);
-    hal_spi_send(&spi_w25, &data, 1, 10);
+    data[0] = W25X_CMD_BLOCKERASE;
+    data[1] = (uint8_t)(eraseaddr >> 16);
+    data[2] = (uint8_t)(eraseaddr >> 8);
+    data[3] = (uint8_t)(eraseaddr);
 
-    data = (uint8_t)(eraseaddr >> 8);
-    hal_spi_send(&spi_w25, &data, 1, 10);
-
-    data = (uint8_t)(eraseaddr);
-    hal_spi_send(&spi_w25, &data, 1, 10);
+    ret = hal_spi_send(&spi_w25, data, 4, 10);
+    if (ret) {
+        printf("sector %d erase failed\r\n", sector_index);
+    }
 
     w25qxx_wait_busy();
+
+    w25qxx_write_disable();
 }
 
+void w25qxx_chip_erase(void)
+{
+    uint8_t data;
+    int     ret;
+
+    w25qxx_write_enable();
+
+    w25qxx_wait_busy();
+
+    data = W25X_CMD_CHIPERASE;
+
+    ret = hal_spi_send(&spi_w25, &data, 1, 10);
+    if (ret) {
+        printf("chip erase failed\r\n");
+    }
+
+    w25qxx_wait_busy();
+
+    w25qxx_write_disable();
+}
+
+uint16_t w25qxx_read_manufactureID(void)
+{
+    uint8_t  send_buf[4];
+    uint16_t manufactureID = 0;
+
+    send_buf[0] = W25X_CMD_MANUFACTDEVICEID;
+    send_buf[1] = 0xff;
+    send_buf[2] = 0xff;
+    send_buf[3] = 0x00;
+
+    hal_spi_send_and_recv(&spi_w25, send_buf, 4, &manufactureID, 2, 10);
+
+    return manufactureID;
+}
 
 /* toggle gpio_out periodically in timer handler */
 void hal_spi_app_run(void)
 {
-    int32_t   ret;
-    uint32_t  addr = 20;
-    char     *pbuffer = "hal spi test w25qxxx ok!";
-    char      pbuffer_read[40] = {0};
+    uint32_t addr = 20;
+    char     pbuffer_read[40] = {0};
+    uint16_t id;
+    int32_t  ret;
 
-    printf("hal_i2c_app_run in\r\n");
+    char *pbuffer = "hal spi test w25qxxx ok!";
+
+    printf("hal_spi_app_run in\r\n");
+
+    w25qxx_init();
+
+    id = w25qxx_read_manufactureID();
+    printf("manufacture id 0x%x\r\n", id);
 
     w25qxx_erase_sector(0);
 
-    w25qxx_write_page(pbuffer,addr,strlen(pbuffer));
+    w25qxx_write_page(pbuffer, addr, strlen(pbuffer));
 
-    ret = w25qxx_read(pbuffer_read,addr,strlen(pbuffer));
-    if(ret){
+    memset(pbuffer_read, 0, sizeof(pbuffer_read));
+    ret = w25qxx_read(pbuffer_read, addr, strlen(pbuffer));
+    if (ret) {
         printf("hal_spi_app_run:w25qxx_read fail,ret:%d\r\n",ret);
         return;
     }
-    if(strncmp(pbuffer,pbuffer_read,strlen(pbuffer))){
+
+    if (strncmp(pbuffer,pbuffer_read,strlen(pbuffer))) {
         printf("hal_spi_app_run:read data error!\r\n");
         return;
+    } else {
+        printf("read data: %s\r\n", pbuffer_read);
     }
 
-    printf("hal_i2c_app_run end\r\n");
+    printf("hal_spi_app_run end\r\n");
 }
 
 #endif
