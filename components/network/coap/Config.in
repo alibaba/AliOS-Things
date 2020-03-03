@@ -1,12 +1,7 @@
 if AOS_CREATE_PROJECT
 config AOS_COMP_LIBCOAP
     bool
-    select INFRA_CJSON
-    select INFRA_JSON_PARSER
     select INFRA_REPORT
-    select INFRA_MD5
-    select INFRA_SHA256
-    select HAL_CRYPTO
     select INFRA_AES if !USE_MBEDTLS
     default y
 endif
@@ -15,12 +10,7 @@ endif
 if !AOS_CREATE_PROJECT
 config AOS_COMP_LIBCOAP
     bool "Coap"
-    select INFRA_CJSON
-    select INFRA_JSON_PARSER
     select INFRA_REPORT
-    select INFRA_MD5
-    select INFRA_SHA256
-    select HAL_CRYPTO
     select INFRA_AES if !USE_MBEDTLS
     default n
     help
@@ -37,6 +27,7 @@ config COAP_WITH_DTLS
     default y
     # Backward compatibility, to be removed soon
     select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO_MD5
     help
         COAP WITH DTLS
 

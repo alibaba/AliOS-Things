@@ -243,20 +243,38 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
 {
     int                     p_payload_len = 0;
     unsigned char          *p_payload = NULL;
-    char                   *msg = NULL;
+    char                   *id_str = NULL;
     iotx_coap_resp_code_t   resp_code;
+    void                    *root = NULL;
+    void                    *node = NULL;
+
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &p_payload_len);
     coap_log(LOG_DEBUG, "Report response: CoAP response code = %d\n", resp_code);
     coap_log(LOG_DEBUG, "Report response: CoAP msg_len = %d\n", p_payload_len);
     if (p_payload_len > 0) {
-    coap_log(LOG_DEBUG, "Report response: CoAP payload = %s\n", p_payload);
-        msg = coap_wrapper_json_get_value((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
-        if (NULL != msg) {
-            coap_log(LOG_DEBUG, "Report response: CoAP mid_report responseID = '%s', len = %d\n", msg, p_payload_len);
-        } else {
-            coap_log(LOG_WARNING, "Report response: CoAP mid_report responseID not found in msg\n");
+        coap_log(LOG_DEBUG, "Report response: CoAP payload = %s\n", p_payload);
+        root = coap_wrapper_cjson_parse((char *)p_payload);
+        if (NULL == root) {
+            coap_log(LOG_ERR, "p_payload json parse failed\n");
+            return;
         }
+
+        node = coap_wrapper_cjson_object_item(root, "id");
+        if (NULL == node) {
+            coap_wrapper_cjson_release(root);
+            coap_log(LOG_ERR, "p_payload json parse failed\n");
+            return;
+        }
+
+        id_str = coap_wrapper_cjson_value_string(node);
+        if (NULL == id_str) {
+            coap_log(LOG_WARNING, "Report response: CoAP mid_report responseID not found in msg\n");
+        } else {
+            coap_log(LOG_DEBUG, "Report response: CoAP mid_report responseID = '%s', len = %d\n", id_str, p_payload_len);
+        }
+
+        coap_wrapper_cjson_release(root);
     } else {
         coap_log(LOG_WARNING, "Report response: CoAP response payload_len = 0\n");
     }
@@ -293,7 +311,7 @@ int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char 
     int pad = len2 - len;
     int ret = 0;
 
-    p_Aes128_t aes_e_h = coap_wrapper_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
+    void * aes_e_h = coap_wrapper_aes128_init((unsigned char *)key, (unsigned char *)iv, true);
     if (len1) {
         ret = coap_wrapper_aes128_cbc_encrypt(aes_e_h, src, len1 >> 4, out);
     }
@@ -315,11 +333,11 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
 {
     char *iv = "543yhjy97ae7fyfg";
 
-    p_Aes128_t aes_d_h;
+    void * aes_d_h;
     int ret = 0;
     int n = len >> 4;
 
-    aes_d_h  = coap_wrapper_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
+    aes_d_h  = coap_wrapper_aes128_init((uint8_t *)key, (uint8_t *)iv, false);
     if (!aes_d_h) {
         coap_log(LOG_ERR, "fail to decrypt");
         return  0;
@@ -380,9 +398,10 @@ int iotx_calc_sign_with_seq(const char *p_device_secret, const char *p_client_id
 
 static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
 {
-    int ret = -1;
-    lite_cjson_t root;
-    lite_cjson_t node;
+    int ret = IOTX_ERR_AUTH_FAILED;
+    void *root = NULL;
+    void *node = NULL;
+    char *val_str = NULL;
     unsigned char key[32] = {0};
     unsigned char buff[128] = {0};
     unsigned char random[32]   = {0};
@@ -391,44 +410,53 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    memset(&root, 0x00, sizeof(lite_cjson_t));
-    memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = coap_wrapper_cjson_parse(p_str, strlen(p_str), &root);
-    if (-1 == ret) {
+    root = coap_wrapper_cjson_parse(p_str);
+    if (NULL == root) {
         return IOTX_ERR_AUTH_FAILED;
     }
 
-    ret = coap_wrapper_cjson_object_item(&root, "token", strlen("token"), &node);
-    if (-1 == ret) {
-        return IOTX_ERR_AUTH_FAILED;
-    }
-    if (p_iotx_coap->auth_token_len - 1 < node.value_length) {
-        return IOTX_ERR_BUFF_TOO_SHORT;
-    }
-    memset(p_iotx_coap->p_auth_token, 0x00, node.value_length);
-    strncpy(p_iotx_coap->p_auth_token, node.value, node.value_length);
-
-    memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = coap_wrapper_cjson_object_item(&root, "seqOffset", strlen("seqOffset"), &node);
-    if (-1 == ret) {
-        return IOTX_ERR_AUTH_FAILED;
-    }
-    p_iotx_coap->seq = node.value_int;
-
-    memset(&node, 0x00, sizeof(lite_cjson_t));
-    ret = coap_wrapper_cjson_object_item(&root, "random", strlen("random"), &node);
-    if (-1 == ret) {
-        return IOTX_ERR_AUTH_FAILED;
+    node = coap_wrapper_cjson_object_item(root, "token");
+    if (NULL == node) {
+        goto done;
     }
 
-    if (node.value_length > sizeof(random)) {
-        coap_log(LOG_ERR, "Invalid random length %d!\n", node.value_length);
-        return IOTX_ERR_INVALID_PARAM;
+    val_str = coap_wrapper_cjson_value_string(node);
+    if (NULL == val_str) {
+        goto done;
     }
 
-    memcpy(random, node.value, node.value_length);
+    if (p_iotx_coap->auth_token_len - 1 < strlen(val_str)) {
+        ret =  IOTX_ERR_BUFF_TOO_SHORT;
+        goto done;
+    }
+    memset(p_iotx_coap->p_auth_token, 0x00, strlen(val_str));
+    strncpy(p_iotx_coap->p_auth_token, val_str, strlen(val_str));
+
+    node = coap_wrapper_cjson_object_item(root, "seqOffset");
+    if (NULL == node) {
+        goto done;
+    }
+    p_iotx_coap->seq = coap_wrapper_cjson_value_int(node);
+
+    node = coap_wrapper_cjson_object_item(root, "random");
+    if (NULL == node) {
+        goto done;
+    }
+
+    val_str = coap_wrapper_cjson_value_string(node);
+    if (NULL == val_str) {
+        goto done;
+    }
+
+    if (strlen(val_str) > sizeof(random)) {
+        coap_log(LOG_ERR, "Invalid random length %d!\n", strlen(val_str));
+        ret = IOTX_ERR_INVALID_PARAM;
+        goto done;
+    }
+
+    memcpy(random, val_str, strlen(val_str));
     snprintf((char *)buff, sizeof(buff), "%s,%s",
-                 p_iotx_coap->p_devinfo->device_secret,  random);
+                p_iotx_coap->p_devinfo->device_secret,  random);
     coap_wrapper_sha256(buff,  strlen((char *)buff), key);
     memcpy(p_iotx_coap->key, key + 8, 16);
 
@@ -436,7 +464,11 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     coap_log(LOG_INFO, "The short key:\n");
     HEXDUMP_DEBUG(p_iotx_coap->key, 16);
 
-    return IOTX_SUCCESS;
+    ret = IOTX_SUCCESS;
+
+done:
+    coap_wrapper_cjson_release(root);
+    return ret;
 }
 #endif
 
@@ -690,24 +722,43 @@ err:
 #ifndef COAP_WITH_NOAUTH
 static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
 {
+    int ret = IOTX_ERR_AUTH_FAILED;
     char *p_value = NULL;
+    void *root = NULL;
+    void *node = NULL;
+
     if (NULL == p_str || NULL == p_token) {
         coap_log(LOG_ERR,"Invalid paramter p_str %p, p_token %p", p_str, p_token);
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_value = coap_wrapper_json_value_of("token", p_str, 0x1234, "coap.cloud");
+    root = coap_wrapper_cjson_parse((char *)p_str);
+    if (NULL == root) {
+        coap_log(LOG_ERR, "p_str json parse failed\n");
+        return IOTX_ERR_AUTH_FAILED;
+    }
+
+    node = coap_wrapper_cjson_object_item(root, "token");
+    if (NULL == node) {
+        coap_log(LOG_ERR, "p_str json parse failed\n");
+        ret = IOTX_ERR_AUTH_FAILED;
+        goto done;
+    }
+
+    p_value = coap_wrapper_cjson_value_string(node);
     if (NULL != p_value) {
         if (len - 1 < strlen(p_value)) {
-            return IOTX_ERR_BUFF_TOO_SHORT;
+            ret = IOTX_ERR_BUFF_TOO_SHORT;
+            goto done;
         }
         memset(p_token, 0x00, len);
         strncpy(p_token, p_value, strlen(p_value));
-        coap_free(p_value);
-        return IOTX_SUCCESS;
+        ret = IOTX_SUCCESS;
     }
 
-    return IOTX_ERR_AUTH_FAILED;
+done:
+    coap_wrapper_cjson_release(root);
+    return ret;
 }
 
 static void iotx_device_name_auth_callback(void *user, void *p_message)
@@ -720,6 +771,7 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
         coap_log(LOG_ERR, "Invalid paramter, p_arg %p message %p\n", user, p_message);
         return;
     }
+
     p_iotx_coap = (iotx_coap_t *)user;
     message  = (coap_pdu_t *)p_message;
 
@@ -733,7 +785,8 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
                 ret_code = iotx_parse_auth_from_json((char *)message->data, p_iotx_coap);
             } else {
                 ret_code = iotx_get_token_from_json((char *)message->data, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
-          }
+            }
+
             if (IOTX_SUCCESS == ret_code) {
                 p_iotx_coap->is_authed = IOT_TRUE;
                 coap_log(LOG_INFO, "CoAP authenticate success!!!\n");
@@ -875,6 +928,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
                      p_iotx_coap->p_devinfo->device_id,
                      sign);
     }
+
     coap_add_data(pdu, strlen((char *)p_payload), p_payload);
     coap_log(LOG_ERR, "The payload is: %s\n", p_payload);
     coap_log(LOG_ERR, "Send authentication message to server\n");
@@ -884,18 +938,25 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
        coap_log(LOG_WARNING, "cannot send pdu for transaction %u\n",
                    pdu->tid);
     }
+
     int count = 0;
     while (p_session->state != COAP_SESSION_STATE_ESTABLISHED) {
         coap_run_once(p_coap_ctx, 50);
         coap_log(LOG_DEBUG, "coap_run_once %d\n", count);
         count ++;
     }
-    coap_run_once(p_coap_ctx, 0);
 
-    if (!p_iotx_coap->is_authed) {
-        coap_log(LOG_ERR, "CoAP authenticate failed\n");
-        return IOTX_ERR_AUTH_FAILED;
+    count = 0;
+    while (!p_iotx_coap->is_authed) {
+        count++;
+        coap_run_once(p_coap_ctx, 50);
+ 
+        if (count > 100) {
+            coap_log(LOG_ERR, "CoAP authenticate failed\n");
+            return IOTX_ERR_AUTH_FAILED;
+        }
     }
+
     coap_wrapper_set_report_func(coap_report_func);
     /* report module id */
     ret = coap_wrapper_report_mid(p_context);
