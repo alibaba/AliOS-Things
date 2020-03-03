@@ -4,8 +4,11 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
+
 #include "aos/kernel.h"
 #include "aos/vfs.h"
 
@@ -33,6 +36,7 @@ static const char *g_new_filepath   = "/RAMFS/testDir/newname.txt";
  */
 static void test_vfs_mount(void)
 {
+    int i;
     int ret;
     const int cnt = 100;
 
@@ -41,7 +45,7 @@ static void test_vfs_mount(void)
     ret = ramfs_unregister(NULL);
     VFS_ASSERT(ret == 0);
 
-    for (int i = 0; i < cnt; i++) {
+    for (i = 0; i < cnt; i++) {
         ret = ramfs_register(NULL);
         VFS_ASSERT(ret == 0);
 
@@ -62,6 +66,7 @@ static void test_vfs_rw(void)
     int buf_len;
     int write_len, read_len;
     int temp_size;
+    int i;
     int ret;
     const int file_size = 328 * sizeof(int);
 
@@ -74,7 +79,7 @@ static void test_vfs_rw(void)
     buf = malloc(buf_len);
     VFS_ASSERT(buf != NULL);
     memset(buf, 0, buf_len);
-    for (int i = 0; i < buf_len/sizeof(int); i++) {
+    for (i = 0; i < buf_len/sizeof(int); i++) {
         buf[i] = i;
     }
 
@@ -108,7 +113,7 @@ static void test_vfs_rw(void)
         temp_size = (remain > buf_len)? buf_len: remain;
         ret = aos_read(fd, buf, temp_size);
         VFS_ASSERT(ret  == temp_size);
-        for (int i = 0; i < temp_size/sizeof(int); i++) {
+        for (i = 0; i < temp_size/sizeof(int); i++) {
             if (buf[i] != i) {
                 ctx_err = 1;
                 break;
