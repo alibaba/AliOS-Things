@@ -11,7 +11,7 @@
 #include <lwm2m.h>
 #include "mbedconnection.h"
 
-#include "linkkit/infra/infra_md5.h"
+#include "mbedtls/md5.h"
 
 #define TAG "lwm2m_app"
 
@@ -56,6 +56,8 @@ static int g_quit = 0;
 #define OBJ_COUNT 5
 lwm2m_object_t * objArray[OBJ_COUNT];
 
+extern void coap_wrapper_sha256(const unsigned char *input, unsigned int ilen, unsigned char output[32]);
+
 /*
 * Generate PSK key using device secret, device name, product key, random
 */
@@ -76,7 +78,7 @@ int calc_sign_with_seq(const char *p_device_secret, const char *p_client_id,
                  p_client_id,
                  p_device_name,
                  p_product_key, seq);
-    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    coap_wrapper_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 
     lwm2m_free(p_msg);
     return 0;
