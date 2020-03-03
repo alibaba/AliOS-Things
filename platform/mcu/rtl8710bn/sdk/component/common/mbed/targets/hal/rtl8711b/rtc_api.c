@@ -1,7 +1,7 @@
 /** mbed Microcontroller Library
  ******************************************************************************
  * @file	rtc_api.c
- * @author 
+ * @author
  * @version V1.0.0
  * @date	2016-08-01
  * @brief	This file provides mbed API for RTC.
@@ -12,7 +12,7 @@
  * possession or use of this module requires written permission of RealTek.
  *
  * Copyright(c) 2016, Realtek Semiconductor Corporation. All rights reserved.
- ****************************************************************************** 
+ ******************************************************************************
  */
 
 #include "rtc_api.h"
@@ -24,13 +24,13 @@ static struct tm rtc_timeinfo;
 static int rtc_en = 0;
 static alarm_irq_handler rtc_alarm_handler;
 
-const static u8 dim[12] = { 
+const static u8 dim[12] = {
 	31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 /**
   * @brief  This function is used to tell a year is a leap year or not.
   * @param  year: The year need to be told.
-  * @retval value: 
+  * @retval value:
   *             - 1: This year is leap year.
   *             - 0: This year is not leap year.
   */
@@ -96,12 +96,12 @@ static void rtc_calculate_wday(int year, int mon, int mday, int* wday)
 	int c = t_year / 100;
 	int y = t_year % 100;
 	int week = (c / 4) - 2 * c + (y + y / 4) + (26 * (t_mon + 1) / 10) + mday -1;
-	
+
 	while(week < 0){
 		week += 7;
 	}
 	week %= 7;
-	
+
 	*wday = week;
 }
 
@@ -149,7 +149,7 @@ void rtc_backup_timeinfo(void)
 	value = (value & ~BIT_RTC_BACKUP) | (rtc_timeinfo.tm_year << 8);
 
 	BKUP_Write(0, value);
-	
+
 	BKUP_Set(0, BIT_RTC_RESTORE);
 }
 
@@ -162,11 +162,11 @@ void rtc_init(void)
 {
 	RTC_InitTypeDef RTC_InitStruct;
 
-	RTC_ClokSource(0);
+    RTC_ClokSource(0);
 
 	RTC_StructInit(&RTC_InitStruct);
 	RTC_InitStruct.RTC_HourFormat = RTC_HourFormat_24;
-	
+
 	RTC_Init(&RTC_InitStruct);
 
 	/* 32760 need add need add 15 cycles (256Hz) every 4 min*/
@@ -190,7 +190,7 @@ void rtc_free(void)
 /**
   * @brief  This function tells whether RTC is enabled or not.
   * @param  none
-  * @retval  status: 
+  * @retval  status:
   *              - 1: RTC is enable.
   *              - 0: RTC is disable.
   */
@@ -206,12 +206,12 @@ int rtc_isenabled(void)
   * @retval  none
   */
 void rtc_write(time_t t)
-{	
+{
 	/* Convert the time in to a tm*/
 	struct tm *timeinfo = localtime(&t);
 
 	RTC_TimeTypeDef RTC_TimeStruct;
-	
+
 	/*set time in RTC */
 	RTC_TimeStruct.RTC_H12_PMAM = RTC_H12_AM;
 	RTC_TimeStruct.RTC_Days = timeinfo->tm_yday;
@@ -227,7 +227,7 @@ void rtc_write(time_t t)
 /**
   * @brief  Get current timestamp in seconds from RTC.
   * @param  none
-  * @retval   value: The current timestamp in seconds which is calculated from 
+  * @retval   value: The current timestamp in seconds which is calculated from
   *              1970.1.1 00:00:00.
   */
 time_t rtc_read(void)
@@ -258,10 +258,10 @@ time_t rtc_read(void)
 	if(tm_temp.tm_wday >= 7){
 		tm_temp.tm_wday = tm_temp.tm_wday % 7;
 	}
-	
+
 	tm_temp.tm_yday += delta_days;
 	tm_temp.tm_mday += delta_days;
-	
+
 	while(tm_temp.tm_mday > days_in_month(tm_temp.tm_mon, tm_temp.tm_year)){
 		tm_temp.tm_mday -= days_in_month(tm_temp.tm_mon, tm_temp.tm_year);
 		tm_temp.tm_mon++;
@@ -279,7 +279,7 @@ time_t rtc_read(void)
 			_memcpy((void*)&rtc_timeinfo, (void*)&tm_temp, sizeof(struct tm));
 		}
 	}
-	
+
 	/* Convert to timestamp(seconds from 1970.1.1 00:00:00)*/
 	t = mktime(&tm_temp);
 
@@ -294,7 +294,7 @@ time_t rtc_read(void)
 void rtc_alarm_intr_handler(u32 data)
 {
 	alarm_irq_handler hdl;
-	
+
 	/*clear alarm flag*/
 	RTC_AlarmClear();
 
@@ -321,7 +321,7 @@ u32 rtc_set_alarm(alarm_t *alrm, alarm_irq_handler alarmHandler)
 	RTC_AlarmTypeDef RTC_AlarmStruct_temp;
 
 	rtc_alarm_handler = alarmHandler;
-	
+
 	/* set alarm */
 	RTC_AlarmStructInit(&RTC_AlarmStruct_temp);
 	RTC_AlarmStruct_temp.RTC_AlarmTime.RTC_H12_PMAM = RTC_H12_AM;
