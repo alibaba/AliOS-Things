@@ -1,5 +1,5 @@
 config AOS_APP_MQTT_DEMO
-    bool "MQTT Sample"
+    bool "MQTT Demo"
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_CJSON

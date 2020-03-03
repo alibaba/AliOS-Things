@@ -1,5 +1,5 @@
 config AOS_APP_AOS_API_APP
-    bool "kernel_app"
+    bool "kernel demo(AOS API)"
     select AOS_COMP_CLI
     select AOS_COMP_DEBUG
     help
