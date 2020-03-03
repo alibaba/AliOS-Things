@@ -79,47 +79,55 @@ typedef enum
 
 typedef enum
 {
-    MICO_SPI_1,
-    MICO_SPI_2,
-    MICO_SPI_3,		
-    MICO_SPI_MAX, /* Denotes the total number of SPI port aliases. Not a valid SPI alias */
-    MICO_SPI_NONE,
+    PORT_SPI_1,
+    PORT_SPI_2,
+    //PORT_SPI_3,
+    PORT_SPI_SIZE, /* Denotes the total number of SPI port aliases. Not a valid SPI alias */
+    PORT_SPI_NONE,
 } mico_spi_t;
 
 typedef enum
 {
-    MICO_I2C_1,
-    MICO_I2C_2,		
-    MICO_I2C_MAX, /* Denotes the total number of I2C port aliases. Not a valid I2C alias */
-    MICO_I2C_NONE,
+    PORT_I2C_1,
+    PORT_I2C_2,
+    PORT_I2C_SIZE, /* Denotes the total number of I2C port aliases. Not a valid I2C alias */
+    PORT_I2C_NONE,
 } mico_i2c_t;
 
 typedef enum
 {
-    MICO_PWM_1,
-    MICO_PWM_2,
-    MICO_PWM_3,
-    MICO_PWM_4,    
-    MICO_PWM_MAX, /* Denotes the total number of PWM port aliases. Not a valid PWM alias */
-    MICO_PWM_NONE,
+    PORT_PWM_1,
+    PORT_PWM_2,
+    PORT_PWM_3,
+    PORT_PWM_4,
+    PORT_PWM_MAX, /* Denotes the total number of PWM port aliases. Not a valid PWM alias */
+    PORT_PWM_NONE,
 } mico_pwm_t;
 
 typedef enum
 {
-    MICO_ADC_1,
-    MICO_ADC_2,
-    MICO_ADC_3,
-    MICO_ADC_MAX, /* Denotes the total number of ADC port aliases. Not a valid ADC alias */
-    MICO_ADC_NONE,
+    PORT_ADC_1,
+    PORT_ADC_2,
+    PORT_ADC_3,
+    PORT_ADC_MAX, /* Denotes the total number of ADC port aliases. Not a valid ADC alias */
+    PORT_ADC_NONE,
 } mico_adc_t;
 
 typedef enum
 {
-    MICO_UART_1,
-    MICO_UART_2,
-    MICO_UART_MAX, /* Denotes the total number of UART port aliases. Not a valid UART alias */
-    MICO_UART_NONE,
+    PORT_UART_1,
+    PORT_UART_2,
+    PORT_UART_MAX, /* Denotes the total number of UART port aliases. Not a valid UART alias */
+    PORT_UART_NONE,
 } mico_uart_t;
+
+typedef enum {
+    PORT_TIMER_0,
+    PORT_TIMER_1,
+    PORT_TIMER_SIZE,
+    PORT_TIMER_INVALID = 255,
+    PORT_TIMER_DEMO = PORT_TIMER_1,
+};
 
 typedef enum
 {
@@ -136,22 +144,22 @@ typedef enum
 
 
 #ifdef BOOTLOADER
-#define STDIO_UART          MICO_UART_NONE
-#define STDIO_UART_BAUDRATE (115200) 
+#define STDIO_UART          PORT_UART_NONE
+#define STDIO_UART_BAUDRATE (115200)
 #else
-#define STDIO_UART          MICO_UART_NONE
-#define STDIO_UART_BAUDRATE (115200) 
+#define STDIO_UART          PORT_UART_NONE
+#define STDIO_UART_BAUDRATE (115200)
 #endif
 
-#define UART_FOR_APP     MICO_UART_1
-#define MFG_TEST         MICO_UART_1
-#define CLI_UART         MICO_UART_1
+#define UART_FOR_APP     PORT_UART_1
+#define MFG_TEST         PORT_UART_1
+#define CLI_UART         PORT_UART_1
 
 /* Components connected to external I/Os*/
 #define Standby_SEL      (MICO_GPIO_29)
 
 /* I/O connection <-> Peripheral Connections */
-#define MICO_I2C_CP      (MICO_I2C_1)
+#define MICO_I2C_CP      (PORT_I2C_1)
 
 //#define USE_MICO_SPI_FLASH
 
