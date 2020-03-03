@@ -1,5 +1,5 @@
 config AOS_APP_KRHINO_API_APP
-    bool "krhino_api_app"
+    bool "Kernel Demo(krhino API)"
     select AOS_COMP_CLI
     select AOS_COMP_DEBUG
     help

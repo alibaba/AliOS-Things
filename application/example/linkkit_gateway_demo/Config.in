@@ -1,5 +1,5 @@
 config AOS_APP_LINKKIT_GATEWAY_DEMO
-    bool "Linkkit Gateway Application"
+    bool "Linkkit Gateway Demo"
     select AOS_COMP_CLI if !AOS_BOARD_ESP8266 && !AOS_BOARD_ESP8266_DEMO
    # select AOS_COMP_OTA
     select AOS_COMP_CJSON

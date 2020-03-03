@@ -1,5 +1,5 @@
 config AOS_APP_VFS_DEMO
-    bool "VFS"
+    bool "VFS Demo"
     select AOS_COMP_OSAL_AOS
     select AOS_COMP_RAMFS
     help
