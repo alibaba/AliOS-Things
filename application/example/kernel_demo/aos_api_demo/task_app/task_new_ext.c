@@ -31,10 +31,11 @@ aos_task_t task2_handle;
 /* task entry */
 static void task1_entry(void *arg)
 {
+    int i;
     /* Parameters are passed through the arg, used to control the number of loops */
     int count = (int)arg;
 
-    for (int i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         LOGI(MODULE_NAME, "I'm task1");
 
         /* sleep 1000 ms */
