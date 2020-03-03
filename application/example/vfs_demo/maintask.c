@@ -19,6 +19,7 @@ Set the correspondence in file platform\board\aaboard_demo\ucube.py.
 */
 extern void board_tick_init(void);
 extern void board_stduart_init(void);
+extern void board_dma_init(void);
 
 /*  For user config
     kinit.argc = 0;
