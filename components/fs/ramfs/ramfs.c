@@ -874,8 +874,8 @@ int32_t ramfs_rmdir(const char *path)
 
     /* if file existed in the dir return error ! */
     RAMFS_LL_READ(g_file_ll, entry) {
-        if ((strncmp(entry->fn, path, strlen(path)) == 0) && (entry->is_dir == 0)
-            && (entry->fn + strlen(entry->fn) != "/")) {
+        if ((strncmp(entry->fn, path, strlen(path)) == 0)
+            && (*(char*)(entry->fn + strlen(path)) == '/')) {
             flag = 1;
             break;
         } else {
