@@ -143,7 +143,6 @@ void board_wifi_init(void)
 
 void board_flash_init(void)
 {
-    flash_partition_init();
 }
 
 void board_network_init(void)

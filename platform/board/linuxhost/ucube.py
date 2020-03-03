@@ -25,4 +25,4 @@ aos_global_config.set('MESHLOWPOWER',1)
 
 build_types=""
 
-linux_only_targets="helloworld_demo linkkit_demo"
+linux_only_targets="helloworld_demo kernel_demo.krhino_api_demo kernel_demo.aos_api_demo linkkit_demo linkkit_gateway_demo mqtt_demo ota_demo yts_demo"
