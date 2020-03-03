@@ -4,6 +4,7 @@
 
 #include <fcntl.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "vfs_types.h"
 #include "vfs_api.h"
@@ -426,7 +427,7 @@ int32_t ramfs_register(const char *mount_path)
 }
 
 
-static int32_t ramfs_vfs_rmdir_r(char *path)
+static int32_t ramfs_vfs_rmdir_r(const char *path)
 {
     vfs_file_t    fp;
     vfs_dir_t    *dir;
@@ -445,8 +446,8 @@ static int32_t ramfs_vfs_rmdir_r(char *path)
             return -1;
         }
 
-        while (dirent = ramfs_vfs_readdir(&fp, dir)) {
-            if (strcmp(&dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0) {
+        while ((dirent = (ramfs_vfs_readdir(&fp, dir))) != NULL) {
+            if (strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0) {
                 continue;
             } else {
                 memset(newpath, 0, newpath_len);
