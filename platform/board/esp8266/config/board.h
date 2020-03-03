@@ -40,16 +40,16 @@ typedef enum{
 /*
 hal support list
 */
-#define AOS_HAL_GPIO_ENABLED        1
-#define AOS_HAL_UART_ENABLED        1
+#define AOS_HAL_GPIO_ENABLED        0
+#define AOS_HAL_UART_ENABLED        0
 #define AOS_HAL_SPI_ENABLED         0
-#define AOS_HAL_I2C_ENABLED         1
-#define AOS_HAL_FLASH_ENABLED       1
+#define AOS_HAL_I2C_ENABLED         0
+#define AOS_HAL_FLASH_ENABLED       0
 #define AOS_HAL_PWM_ENABLED         0
-#define AOS_HAL_TIMER_ENABLED       1
-#define AOS_HAL_WDG_ENABLED         1
+#define AOS_HAL_TIMER_ENABLED       0
+#define AOS_HAL_WDG_ENABLED         0
 #define AOS_HAL_RTC_ENABLED         0
-#define AOS_HAL_ADC_ENABLED         1
+#define AOS_HAL_ADC_ENABLED         0
 #define AOS_HAL_DAC_ENABLED         0
 #define AOS_HAL_RNG_ENABLED         0
 #define AOS_HAL_I2S_ENABLED         0
