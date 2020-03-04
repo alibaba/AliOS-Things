@@ -1,0 +1,20 @@
+config AOS_APP_HTTP_DEMO
+    bool "HTTP App "
+    select AOS_COMP_SDK_HTTP
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    help
+        HTTP client app
+
+if AOS_APP_HTTP_DEMO
+config CONFIG_HTTP_SECURE
+    bool "Support HTTP Secure"
+    default n
+    select AOS_COMP_MBEDTLS
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
