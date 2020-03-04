@@ -10,4 +10,5 @@ $(NAME)_SOURCES     :=aos_start.c mesh_example.c
 $(NAME)_COMPONENTS  += umesh2 cli netmgr ulog lwip
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG 
 
+
 $(NAME)_INCLUDES += ./
