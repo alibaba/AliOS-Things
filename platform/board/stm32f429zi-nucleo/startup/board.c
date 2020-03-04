@@ -73,33 +73,6 @@ CAN_MAPPING CAN_MAPPING_TABLE[] =
     { PORT_CAN_CANOPEN, NULL, NULL, NULL, NULL},
 };
 
-TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
-{
-    {PORT_TIMER_CANOPEN, HAL_TIMER_3},
-    {PORT_TIMER_DEMO, HAL_TIMER_2},
-    {PORT_TIMER_4, HAL_TIMER_4},
-    {PORT_TIMER_5, HAL_TIMER_5},
-};
-
-#ifdef HAL_TIM_MODULE_ENABLED
-static struct stm32_pwmchan_s pwm3chan[] = {
-    {
-        .channel = TIM_CHANNEL_3,
-        .mode = TIM_OCMODE_PWM1,
-        .out1 = {
-            .pol = TIM_OCPOLARITY_LOW,
-            .alt = GPIO_AF2_TIM3,
-            .pin = HAL_GPIO_16,
-        },
-    }
-};
-
-PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
-{
-    {PORT_PWM_3, HAL_TIMER_3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
-};
-#endif /* HAL_TIM_MODULE_ENABLED */
-
 #ifdef HAL_ADC_MODULE_ENABLED
 static gpio_adc_pin_config_t adc1_conf[] = {
     {HAL_ADC_CHANNEL_10, HAL_GPIO_32}, /* PC0 <--> ADC1 channel 10 */
@@ -121,6 +94,94 @@ DAC_MAPPING DAC_MAPPING_TABLE[PORT_DAC_SIZE] = {
     {PORT_DAC_1, HAL_DAC_1, adc1_conf, sizeof(dac1_conf)/sizeof(dac1_conf[0])}
 };
 #endif /* HAL_DAC_MODULE_ENABLED */
+
+#ifdef HAL_SPI_MODULE_ENABLED
+static gpio_spi_pin_config_t spi1_pin_conf[] = {
+    {SPI_PIN_CS, HAL_GPIO_22},
+    {SPI_PIN_CLK, HAL_GPIO_5},
+    {SPI_PIN_MISO, HAL_GPIO_6},
+    {SPI_PIN_MOSI, HAL_GPIO_7},
+};
+
+static gpio_spi_pin_config_t spi2_pin_conf[] = {
+    {SPI_PIN_CS, HAL_GPIO_52},
+    {SPI_PIN_CLK, HAL_GPIO_26},
+    {SPI_PIN_MISO, HAL_GPIO_34},
+    {SPI_PIN_MOSI, HAL_GPIO_35},
+};
+
+
+SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
+    {
+        PORT_SPI_1,
+        SPI1,
+        .attr = {
+            .Direction         = SPI_DIRECTION_2LINES,
+            .DataSize          = SPI_DATASIZE_8BIT,
+            .CLKPolarity       = SPI_POLARITY_HIGH,
+            .CLKPhase          = SPI_PHASE_2EDGE,
+            .NSS               = SPI_NSS_SOFT,
+            .BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256,
+            .FirstBit          = SPI_FIRSTBIT_MSB,
+            .TIMode            = SPI_TIMODE_DISABLE,
+            .CRCCalculation    = SPI_CRCCALCULATION_DISABLE,
+            .CRCPolynomial     = 7
+        },
+        HAL_SPI_GPIO_NEED_MAP,
+        spi1_pin_conf,
+        sizeof(spi1_pin_conf)/sizeof(spi1_pin_conf[0]),
+    },
+    {
+        PORT_SPI_2,
+        SPI2,
+        .attr = {
+            .Direction         = SPI_DIRECTION_2LINES,
+            .DataSize          = SPI_DATASIZE_8BIT,
+            .CLKPolarity       = SPI_POLARITY_HIGH,
+            .CLKPhase          = SPI_PHASE_2EDGE,
+            .NSS               = SPI_NSS_SOFT,
+            .BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256,
+            .FirstBit          = SPI_FIRSTBIT_MSB,
+            .TIMode            = SPI_TIMODE_DISABLE,
+            .CRCCalculation    = SPI_CRCCALCULATION_DISABLE,
+            .CRCPolynomial     = 7
+        },
+        HAL_SPI_GPIO_NEED_MAP,
+        spi2_pin_conf,
+        sizeof(spi2_pin_conf)/sizeof(spi2_pin_conf[0]),
+    },
+};
+#endif /* HAL_SPI_MODULE_ENABLED */
+
+#ifdef HAL_TIM_MODULE_ENABLED
+TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
+{
+    {PORT_TIMER_CANOPEN, HAL_TIMER_3},
+    {PORT_TIMER_DEMO, HAL_TIMER_2},
+    {PORT_TIMER_4, HAL_TIMER_4},
+    {PORT_TIMER_5, HAL_TIMER_5},
+};
+#endif /* HAL_TIM_MODULE_ENABLED */
+
+#ifdef HAL_TIM_MODULE_ENABLED
+static struct stm32_pwmchan_s pwm3chan[] = {
+    {
+        .channel = TIM_CHANNEL_3,
+        .mode = TIM_OCMODE_PWM1,
+        .out1 = {
+            .pol = TIM_OCPOLARITY_LOW,
+            .alt = GPIO_AF2_TIM3,
+            .pin = HAL_GPIO_16,
+        },
+    }
+};
+
+PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
+{
+    {PORT_PWM_3, HAL_TIMER_3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
+};
+#endif /* HAL_TIM_MODULE_ENABLED */
+
 
 gpio_uart_pin_config_t usart3_pin_conf[] = {
     {UART_TX, HAL_GPIO_56, GPIO_AF7_USART3},
@@ -159,17 +220,6 @@ UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE] =
 I2C_MAPPING i2c_mapping_table[PORT_I2C_SIZE] = {
     {PORT_I2C_1,I2C1,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_24,HAL_GPIO_25}},
     {PORT_I2C_2,I2C2,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_81,HAL_GPIO_80}},
-};
-
-SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
-{PORT_SPI_1,SPI1, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
-    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} , HAL_SPI_GPIO_NEED_MAP,\
-{HAL_GPIO_5,HAL_GPIO_62,HAL_GPIO_7,HAL_GPIO_6},
-},
-{PORT_SPI_2,SPI3, {SPI_DIRECTION_2LINES,SPI_DATASIZE_8BIT,SPI_POLARITY_HIGH,SPI_PHASE_2EDGE,\
-    SPI_FIRSTBIT_MSB,SPI_TIMODE_DISABLE,SPI_CRCCALCULATION_DISABLE,0} , HAL_SPI_GPIO_NEED_MAP,\
-{HAL_GPIO_19,HAL_GPIO_4,HAL_GPIO_21,HAL_GPIO_20},
-}
 };
 
 static void stduart_init(void);
