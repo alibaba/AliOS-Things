@@ -1,0 +1,23 @@
+config AOS_APP_QIANXUN_DEMO
+    bool "qianxun_demo"
+    select AOS_COMP_ULOCATION
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_NETMGR
+    help
+        uLocation qianxun service app
+
+if AOS_APP_QIANXUN_DEMO
+# Configurations for app qianxun_demo
+config CONFIG_QXWZ_ENABLED
+    bool "support QXWZ service"
+    default y
+    help
+        Press <Y> here to add support for the QXSI high accuracy service.
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

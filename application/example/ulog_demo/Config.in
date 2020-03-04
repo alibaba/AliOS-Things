@@ -1,0 +1,59 @@
+config AOS_APP_ULOG_DEMO
+    bool "ulog_demo"
+    help
+        demo for ulog, show syslog udp pop out and save in file system.
+
+# Configurations for app ulog_demo
+
+if AOS_APP_ULOG_DEMO
+config ULOGAPP_CONFIG_UDP
+    bool "enable test ulog pop out via udp"
+    default n
+    help
+        enable ulog pop out via udp
+	
+config ULOGAPP_CONFIG_LOG_FILE
+    bool "enable test ulog pop out via file system"
+    default n
+    help
+        enable ulog pop out via file system
+
+if ULOGAPP_CONFIG_LOG_FILE	
+choice
+    prompt "Choose Type of File System"
+    default ULOGDEMO_CONFIG_SPIFFS
+    help
+        Select the type for file system  
+
+    config ULOGDEMO_CONFIG_SPIFFS
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_SPIFFS
+    bool "enable test ulog pop out via file system spiffs"
+
+    config ULOGDEMO_CONFIG_LINUXHOST
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_SPIFFS
+    bool "enable test ulog pop out via unix file system"
+
+    config ULOGDEMO_CONFIG_RAW_FATFS
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_FATFS_SD
+    bool "enable test ulog pop out via raw fatfs"
+
+    config ULOGDEMO_CONFIG_SD_CARD
+    select ULOG_CONFIG_POP_FS
+    select ULOG_CONFIG_FS_FATFS_FLASH
+    bool "enable test ulog pop out via sd card"
+
+endchoice
+
+endif
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+        
+endif
+
