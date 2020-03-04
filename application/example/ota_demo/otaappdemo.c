@@ -26,11 +26,6 @@ static int ota_upgrade_cb(ota_service_t* pctx, char *ver, char *url)
 {
     int ret = -1;
     LOG("ota version:%s is coming, if OTA upgrade or not ?\n", ver);
-#if defined OTA_CONFIG_SECURE_DL_MODE
-    LOG("Secure download mode.\n");
-    ota_msleep(200);
-    ota_reboot();
-#else
     void *thread = NULL;
     if(pctx != NULL) {
         ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
@@ -38,7 +33,6 @@ static int ota_upgrade_cb(ota_service_t* pctx, char *ver, char *url)
     if (ret < 0) {
         LOG("ota thread err;%d ", ret);
     }
-#endif
     return ret;
 }
 
@@ -76,18 +70,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     if (event->code != CODE_WIFI_ON_GOT_IP) {
         return;
     }
-#if defined(OTA_CONFIG_SECURE_DL_MODE)
-    LOG("OTA secure download start ...\n");
-    memset(ctx.pk, 0, sizeof(ctx.pk));
-    memset(ctx.dn, 0, sizeof(ctx.dn));
-    memset(ctx.ds, 0, sizeof(ctx.ds));
-    memset(ctx.ps, 0, sizeof(ctx.ps));
-    HAL_GetProductKey(ctx.pk);
-    HAL_GetDeviceName(ctx.dn);
-    HAL_GetDeviceSecret(ctx.ds);
-    HAL_GetProductSecret(ctx.ps);
-    ota_service_start(&ctx);
-#endif
     netmgr_ap_config_t config;
     memset(&config, 0, sizeof(netmgr_ap_config_t));
     netmgr_get_ap_config(&config);
