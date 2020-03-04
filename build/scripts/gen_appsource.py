@@ -3,12 +3,13 @@ import os
 import sys
 import click
 
-from imp import reload
-try:
-    reload(sys)
-    sys.setdefaultencoding('UTF8')
-except:
-    pass
+if sys.version_info[0] < 3:
+    from imp import reload
+    try:
+        reload(sys)
+        sys.setdefaultencoding('UTF8')
+    except:
+        pass
 
 
 def get_source_files(sourcelist, appdir):
