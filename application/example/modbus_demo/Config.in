@@ -1,0 +1,16 @@
+config AOS_APP_MODBUS_DEMO
+    bool "MODBUS Master Sample"
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_MBMASTER
+    help
+        This example is an demo of using modbus master stack
+
+if AOS_APP_MODBUS_DEMO
+# Configurations for modbus_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

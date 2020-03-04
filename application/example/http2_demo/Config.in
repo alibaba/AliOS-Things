@@ -1,0 +1,17 @@
+config AOS_APP_HTTP2_DEMO
+    bool "HTTP2 Stream Sample"
+    select AOS_COMP_CJSON
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_SDK_HTTP2
+    help
+        http2 stream examples
+
+if AOS_APP_HTTP2_DEMO
+# Configurations for app http2_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
