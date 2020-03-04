@@ -115,7 +115,7 @@ uint32_t hal_spi_pins_map(uint8_t logic_spi)
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         //GPIO_InitStruct.Alternate = alternate;
         HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-		
+
         hal_gpio_enable_clk(spiIns->gpiomaps[i]);
     }
 
