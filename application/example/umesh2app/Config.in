@@ -8,3 +8,26 @@ config AOS_APP_UMESH2APP
     help
         uMesh2 sample application
 
+if AOS_APP_UMESH2APP
+    menu "umesh2app Configurations"
+        config ENABLE_PRINT_HEAP
+            bool "print heap size duration"
+            default y
+            help
+                enable printf heap size 
+
+        config ENABLE_LOOP_TEST
+            bool "running without deinit"
+            default y
+            help
+                repeated testing
+
+        config ENABLE_REPEAT_TEST
+            bool "full phase repeated test"
+            default n
+            depends on !ENABLE_LOOP_TEST
+            help
+                repeated testing
+
+    endmenu
+endif
