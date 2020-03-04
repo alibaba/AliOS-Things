@@ -187,6 +187,26 @@ void Error_Handler(char *file, int line)
     /* USER CODE END Error_Handler_Debug */
 }
 
+UART_HandleTypeDef huart3;
+uint32_t g_stlink_baudrate = 115200;
+void MX_USART3_UART_Init(void)
+{
+
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = g_stlink_baudrate;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -363,13 +383,14 @@ void board_network_init(void)
 {
 #ifndef WITH_SAL
         /*enable ethernet*/
-        //MX_ETH_Init();
-        //lwip_tcpip_init();
+        MX_ETH_Init();
+        lwip_tcpip_init();
 #endif
 
     hw_start_hal();
 }
 
+#if 0
 void stm32_peripheral_init(void)
 {
     /*default uart init*/
@@ -390,6 +411,7 @@ void stm32_peripheral_init(void)
     CAN_init();
     #endif
 }
+#endif
 
 /**
 * @brief This function handles System tick timer.
