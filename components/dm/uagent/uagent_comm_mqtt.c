@@ -14,9 +14,15 @@
 
 static char mqtt_topic_up[UAGENT_TOPIC_MAX_LEN];
 static char mqtt_topic_dn[UAGENT_TOPIC_MAX_LEN];
+static char mqtt_topic_up_reply[UAGENT_TOPIC_MAX_LEN];
 static on_recv_handler recv_handler = NULL;
 static char mqtt_comm_init = 0;
 static void *mqtt_client = NULL;
+
+static void uagent_up_reply_handler(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+{ 
+
+}
 
 static void uagent_handler(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -61,6 +67,7 @@ int uagent_ext_comm_init(const char pk[12], const char dn[36], on_recv_handler h
         if ((mqtt_client = IOT_MQTT_Construct(NULL)) != NULL) {
             snprintf(mqtt_topic_up, UAGENT_TOPIC_MAX_LEN, TOPIC_AGENT_INFO, pk, dn);
             snprintf(mqtt_topic_dn, UAGENT_TOPIC_MAX_LEN, TOPIC_AGENT_MAN, pk, dn);
+            snprintf(mqtt_topic_up_reply, UAGENT_TOPIC_MAX_LEN, TOPIC_AGENT_POST_REPLY, pk, dn);
 #ifdef SP_BROADCAST_TOPIC
             char broadcast_topic_dn[UAGENT_TOPIC_MAX_LEN];
             snprintf(broadcast_topic_dn, UAGENT_TOPIC_MAX_LEN, "/broadcast/%s/deviceman", pk);
@@ -71,6 +78,14 @@ int uagent_ext_comm_init(const char pk[12], const char dn[36], on_recv_handler h
             rc = IOT_MQTT_Subscribe(NULL, mqtt_topic_dn, IOTX_MQTT_QOS0, uagent_handler, NULL);
             if (rc < 0) {
                 UAGENT_ERR("[uA]IOT_MQTT_Subscribe(%s) failed, rc = %d\r\n", mqtt_topic_dn, rc);
+            } else {
+                rc = 0;
+            }
+
+            /* Subscribe the specific topic */
+            rc = IOT_MQTT_Subscribe(NULL, mqtt_topic_up_reply, IOTX_MQTT_QOS0, uagent_up_reply_handler, NULL);
+            if (rc < 0) {
+                UAGENT_ERR("[uA]IOT_MQTT_Subscribe(%s) failed, rc = %d\r\n", mqtt_topic_up_reply, rc);
             } else {
                 rc = 0;
             }
