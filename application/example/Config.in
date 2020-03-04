@@ -29,6 +29,18 @@ if AOS_APP_LINKKIT_DEMO
         default "linkkit_demo"
 endif
 
+source "application/example/coap_demo/Config.in"
+if AOS_APP_COAP_DEMO
+    config AOS_BUILD_APP
+        default "coap_demo"
+endif
+
+source "application/example/httpc_demo/Config.in"
+if AOS_APP_HTTPC_DEMO
+    config AOS_BUILD_APP
+        default "httpc_demo"
+endif
+
 source "application/example/blink_demo/Config.in"
 if AOS_APP_BLINK_DEMO
     config AOS_BUILD_APP
