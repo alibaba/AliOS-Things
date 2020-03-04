@@ -57,11 +57,6 @@ static int ota_upgrade_cb(ota_service_t* pctx, char *ver, char *url)
 {
     int ret = -1;
     LOG("ota version:%s is coming, if OTA upgrade or not ?\n", ver);
-#if defined OTA_CONFIG_SECURE_DL_MODE
-    LOG("Secure download mode.\n");
-    ota_msleep(200);
-    ota_reboot();
-#else
     void *thread = NULL;
     if(pctx != NULL) {
         ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
@@ -69,9 +64,7 @@ static int ota_upgrade_cb(ota_service_t* pctx, char *ver, char *url)
     if (ret < 0) {
         LOG("ota thread err;%d ", ret);
     }
-#endif
     return ret;
-
 }
 
 static ota_service_t *ota_get_ctx(void)
@@ -101,10 +94,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     if (event->code != CODE_WIFI_ON_GOT_IP) {
         return;
     }
-#if defined(ENABLE_AOS_OTA) && defined(OTA_CONFIG_SECURE_DL_MODE)
-    LOG("OTA secure download start ...\n");
-    ota_service_start(ota_get_ctx());
-#endif
     netmgr_ap_config_t config;
     memset(&config, 0, sizeof(netmgr_ap_config_t));
     netmgr_get_ap_config(&config);
