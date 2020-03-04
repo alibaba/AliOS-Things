@@ -3,8 +3,9 @@ import sys
 import click
 import re
 
-reload(sys)
-sys.setdefaultencoding('UTF8')
+if sys.version_info[0] < 3:
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {

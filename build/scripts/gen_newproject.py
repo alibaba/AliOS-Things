@@ -26,12 +26,13 @@ from app_gen_kconfig import gen_kconfig
 
 """
 
-from imp import reload
-try:
-    reload(sys)
-    sys.setdefaultencoding('UTF8')
-except:
-    pass
+if sys.version_info[0] < 3:
+    from imp import reload
+    try:
+        reload(sys)
+        sys.setdefaultencoding('UTF8')
+    except:
+        pass
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 template = "templates/new_project_template"
