@@ -24,7 +24,7 @@ static void task_recvdata_entry(void *arg)
 {
     int  i;
     int  ret;
-    char rev_buf[10];
+    char rev_buf[1];
     int  rev_length;
 
     while (1) {
@@ -34,7 +34,7 @@ static void task_recvdata_entry(void *arg)
             break;
         }
 
-        printf("recv data for uart:\r\n");
+        printf("recv data from uart:\r\n");
         for(i = 0; i < rev_length; i++) {
             printf("%c ", rev_buf[i]);
         }
@@ -64,6 +64,8 @@ static int uart_app_init()
         printf("init uart error\r\n");
         return -1;
     }
+
+    return ret;
 }
 
 void hal_uart_app_run(void)
