@@ -487,23 +487,23 @@ static int uagent_on_recv_handler(const unsigned short len, const char *str)
     int rc = -1;
     cJSON *root = NULL;
     root = cJSON_Parse(str);
-    if (NULL != root) {
-        cJSON *msgid = cJSON_GetObjectItem(root, "id");
-        /* even no id can call service, w/o ack */
-        unsigned long id = UAGENT_MSG_IDX_INVALID;
-        if (NULL != msgid) {
-            if(cJSON_IsNumber(msgid)) {
-                id = msgid->valueint;
-            } else if(cJSON_IsString(msgid)) {
-                id = strtoul(msgid->valuestring, NULL, 10);
-            }            
-        } else {
-            UAGENT_ERR("[uA]call %s no id in payload\n", __func__);
-        }
+    if (NULL != root) {        
         cJSON *params = cJSON_GetObjectItem(root, "params");
         if (params != NULL) {
             cJSON *value_text = cJSON_GetObjectItem(params, "value");
             if (value_text != NULL) {
+                cJSON *msgid = cJSON_GetObjectItem(value_text, "id");
+                /* even no id can call service, w/o ack */
+                unsigned long id = UAGENT_MSG_IDX_INVALID;
+                if (NULL != msgid) {
+                    if(cJSON_IsNumber(msgid)) {
+                        id = msgid->valueint;
+                    } else if(cJSON_IsString(msgid)) {
+                        id = strtoul(msgid->valuestring, NULL, 10);
+                    }            
+                } else {
+                    UAGENT_ERR("[uA]call %s no id in payload\n", __func__);
+                }
                 
                 cJSON *mod = cJSON_GetObjectItem(value_text, "mod");
                 cJSON *func = cJSON_GetObjectItem(value_text, "func");
