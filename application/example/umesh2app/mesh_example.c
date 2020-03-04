@@ -12,14 +12,30 @@
 #include <string.h>
 #include <network/umesh2/umesh_api.h>
 
-#define TEST_CNT  5
+#define TEST_CNT  20
 #define SRV_TYPE "_mesh2"
 
 void *net_handle = NULL;
 
-
-
 static const char *test_data = "===== test data from %s-%s =======";
+static const char *test_data_mcast = "=====mcast test data from %s-%s =======";
+
+#if ENABLE_PRINT_HEAP
+#include <k_api.h>
+void print_heap()
+{
+    extern k_mm_head *g_kmm_head;
+    int    free = g_kmm_head->free_size;
+    LOG("============free heap size =%d==========", free);
+}
+
+void monitor_work(void *p)
+{
+    print_heap();
+    aos_post_delayed_action(5000, monitor_work, NULL);
+}
+#endif
+
 void service_found(service_t *service, peer_state_t state)
 {
     LOG("found service, name = %s ,type = %s, state = %d", service->srv_name, service->srv_type, state);
@@ -45,7 +61,7 @@ int peer_invite(session_t *session, peer_id_t *peer_id, void *context)
 
 int  session_state_changed_func(session_t *session, service_t *dest_srv, session_state_t state, void *context)
 {
-    LOG("session changed !");
+    LOG("session changed ! dst = %s-%s, state = %d ", dest_srv->srv_type, dest_srv->srv_name, state);
 }
 
 int umesh_receive_func(session_t *session, service_t *from, uint8_t *data, int len, void *user_data)
@@ -53,6 +69,12 @@ int umesh_receive_func(session_t *session, service_t *from, uint8_t *data, int l
     LOG("recv data from %s-%s ,len = %d", from->srv_type, from->srv_name, len);
     LOG("str data= %s", data);
 }
+
+static void get_ap_info(const char *ssid, const char *pwd, const uint8_t *bssid, void *ctxt)
+{
+    LOG("++++++++++get ssid = %s, pwd = %s++++++++++++", ssid, pwd);
+}
+
 
 static void app_main_entry(void *arg)
 {
@@ -64,7 +86,20 @@ static void app_main_entry(void *arg)
 
     session_t *session = NULL;
     service_t *self_srv;
-    aos_msleep(10000);
+
+start:
+    net_handle = umesh_network_init();
+    if (net_handle == NULL) {
+        LOG("umesh init failed");
+    }
+    while (!umesh_is_connected(net_handle)) {
+        LOG("----------Waiting for networking-----------");
+        aos_msleep(1000);
+    }
+
+    /*test zero config*/
+    umesh_zero_config_set_cb(net_handle, get_ap_info, NULL);
+    umesh_zero_config_request(net_handle);
 
     hal_wifi_get_mac_addr(NULL, mac);
     snprintf(name, SERVICE_NAME_LEN_MAX - 1, "dev_%02x:%02x:%02x", mac[3], mac[4], mac[5]);
@@ -118,42 +153,61 @@ static void app_main_entry(void *arg)
             LOG("find servcie , name = %s", serv->srv_name);
             snprintf(send, 255, test_data, self_srv->srv_type, self_srv->srv_name);
             ret = umesh_send(session, serv, send, strlen(send), MODE_UNRELIABLE);
-            LOG("send data ,ret = %d", ret);
+            LOG("send data to %s-%s ,ret = %d", serv->srv_type, serv->srv_name, ret);
+            memset(send, 0, 256);
+            snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
+            ret = umesh_send(session, NULL, send, strlen(send), MODE_UNRELIABLE);
+            LOG("send public data to session ,ret = %d", ret);
         }
-    } while (cnt++ < TEST_CNT);
+#if ENABLE_LOOP_TEST
+    } while (1);
+#else
+    }
+    while (cnt++ < TEST_CNT);
+#endif
 err:
     LOG("-----------------test end--------------------");
-    if (session != NULL) {
+    if (session != NULL)
+    {
         ret = umesh_session_deinit(session);
         LOG("umesh_session_deinit,ret = %d", ret);
         session = NULL;
     }
-    if (self_srv != NULL) {
+
+    if (self_srv != NULL)
+    {
         ret = umesh_service_deinit(self_srv);
         LOG("umesh_service_deinit,ret = %d", ret);
         self_srv = NULL;
     }
 
-    if (net_handle != NULL) {
+    if (net_handle != NULL)
+    {
         ret = umesh_network_deinit(net_handle);
         LOG("umesh_network_deinit,ret = %d", ret);
         net_handle = NULL;
     }
+#if ENABLE_REPEAT_TEST
+    LOG("test again!!");
+    goto start;
+#endif
+
     return;
 }
+
 
 
 int application_start(int argc, char **argv)
 {
 
     LOG("application_start");
-    net_handle = umesh_network_init();
-    if (net_handle == NULL) {
-        LOG("umesh init failed");
-    }
+#if ENABLE_PRINT_HEAP
+    print_heap();
+    aos_post_delayed_action(5000, monitor_work, NULL);
+#endif
 
     aos_set_log_level(AOS_LL_DEBUG);
-    aos_task_new("meshappmain", app_main_entry, NULL, 8000);
+    aos_task_new("meshappmain", app_main_entry, NULL, 4096);
     aos_loop_run();
     return 0;
 }
