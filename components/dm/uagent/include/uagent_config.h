@@ -38,45 +38,48 @@
 
 #define TOPIC_AGENT_MAN  "/sys/%s/%s/_thing/service/invoke"
 
+#define TOPIC_AGENT_POST_REPLY "/sys/%s/%s/_thing/service/post_reply"
+
 #define TOPIC_AGENT_INFO "/sys/%s/%s/_thing/service/post"
 
 #define UAGENT_LOG_TAG   "AGENT"
 
 #define UAGENT_INFO_STR \
-"{\"id\":%lu,\
-\"version\":\"1.0\",\
+"{\"id\":%lu, \"version\":\"1.0\",\
 \"params\":\
 {\"identifier\": \"_Devops.alios.uagent\",\
  \"serviceParams\": \
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"},\
+{\"id\":%lu, \"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":\"%s\"},\
 \"method\": \"_thing.service.post\"\
 }}"
 
 #define UAGENT_FORMAT_PRE \
-"{\"id\":%lu,\
-\"version\":\"1.0\",\
+"{\"id\":%lu, \"version\":\"1.0\",\
 \"method\": \"_thing.service.post\",\
 \"params\":\
 {\"identifier\": \"_Devops.alios.uagent\",\
  \"serviceParams\": \
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":"
+{\"id\":%lu, \"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"param\":"
 
 #define UAGENT_FORMAT_STR_SUFFIX "\"}}}"
 
 #define UAGENT_FORMAT_OBJ_SUFFIX "}}}"
 
 #define UAGENT_INFO_ACK_OK \
-"{\"id\":%lu,\
-\"version\":\"1.0\",\
+"{\"id\":%lu, \"version\":\"1.0\",\
 \"params\":\
 {\"identifier\": \"_Devops.alios.uagent\",\
  \"serviceParams\": \
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d},\
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d, \"id\":%lu},\
 \"method\": \"_thing.service.post\"\
 }}"
 
 #define UAGENT_INFO_ACK_FAIL \
-"{\"id\":%lu,\"version\":\"1.0\",\"params\":\
-{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d,\"param\":\"%s\"}}"
+"{\"id\":%lu, \"version\":\"1.0\",\"params\":\
+{\"identifier\": \"_Devops.alios.uagent\",\
+ \"serviceParams\": \
+{\"srcdev\":\"%s\",\"show\":%d,\"mod\":%d,\"func\":%d,\"ack\":%d, \"param\":\"%s\", \"id\":%lu},\
+\"method\": \"_thing.service.post\"\
+}}"
 
 #endif /* !UAGENT_CONFIG_H */
