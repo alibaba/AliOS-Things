@@ -62,7 +62,7 @@ int32_t hal_pwm_init(pwm_dev_t *tim)
     {
         memset(&stm32_pwm[tim->port],0,sizeof(stm32_pwm_t));
         TIM_HandleTypeDef * const psttimhandle = &(stm32_pwm[tim->port].hal_timer_handle);
-		memset(psttimhandle, 0, sizeof(TIM_HandleTypeDef));
+        memset(psttimhandle, 0, sizeof(TIM_HandleTypeDef));
         psttimhandle->Instance = (TIM_TypeDef*)pwmIns->hal_timer;
         tim->priv = psttimhandle;
 
@@ -72,7 +72,7 @@ int32_t hal_pwm_init(pwm_dev_t *tim)
                 return -1;
             }
             uint16_t pin = hal_gpio_pin(pwmIns->channels[i].out1.pin);
-            hal_gpio_enable_clk(GPIOx);
+            hal_gpio_enable_clk(pwmIns->channels[i].out1.pin);
 
             GPIO_InitStruct.Pin = pin;
             GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -146,7 +146,7 @@ int32_t hal_pwm_init(pwm_dev_t *tim)
         ret = HAL_TIM_PWM_Init(psttimhandle);
         if (HAL_OK == ret) {
             stm32_pwm[tim->port].inited = 1;
-		}
+        }
     }
 
     return ret;
@@ -209,7 +209,7 @@ static int32_t timer_change(pwm_dev_t *tim, pwm_config_t *para)
 
         HAL_TIM_PWM_ConfigChannel(tim->priv, &sConfig, pwmIns->channels[i].channel);
 
-		HAL_TIM_PWM_Start(tim->priv, pwmIns->channels[i].channel);
+        HAL_TIM_PWM_Start(tim->priv, pwmIns->channels[i].channel);
     }
 
     return 0;
@@ -246,18 +246,18 @@ int32_t hal_pwm_finalize(pwm_dev_t *tim)
 {
     int32_t ret = -1;
 
-	if (NULL == tim) {
-		return -1;
-	}
+    if (NULL == tim) {
+        return -1;
+    }
 
-	if (stm32_pwm[tim->port].inited != 1) {
-		return -1;
-	}
+    if (stm32_pwm[tim->port].inited != 1) {
+        return -1;
+    }
 
     HAL_TIM_PWM_DeInit((TIM_HandleTypeDef *)tim->priv);
 
-	memset(&stm32_pwm[tim->port], 0, sizeof(stm32_pwm_t));
-	stm32_pwm[tim->port].inited = 0;
+    memset(&stm32_pwm[tim->port], 0, sizeof(stm32_pwm_t));
+    stm32_pwm[tim->port].inited = 0;
 
     return 0;
 }

@@ -100,7 +100,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi1_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi1_tx) != HAL_OK)
     {
-      _Error_Handler(__FILE__, __LINE__);
+      Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(spiHandle,hdmatx,hdma_spi1_tx);
@@ -120,7 +120,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi1_rx) != HAL_OK)
     {
-      _Error_Handler(__FILE__, __LINE__);
+      Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(spiHandle,hdmarx,hdma_spi1_rx);
@@ -176,7 +176,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi2_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK)
     {
-    _Error_Handler(__FILE__, __LINE__);
+        Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(spiHandle,hdmatx,hdma_spi2_tx);
@@ -196,7 +196,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi2_rx) != HAL_OK)
     {
-    _Error_Handler(__FILE__, __LINE__);
+        Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(spiHandle,hdmarx,hdma_spi2_rx);
