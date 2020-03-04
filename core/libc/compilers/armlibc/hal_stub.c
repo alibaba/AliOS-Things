@@ -17,7 +17,7 @@ WEAK int hal_adc_init(adc_dev_t *adc)
 	return 0;
 }
 
-WEAK int  hal_adc_value_get(adc_dev_t *adc, uint32_t *output, unsigned int timeout)
+WEAK int  hal_adc_value_get(adc_dev_t *adc, unsigned int *output, unsigned int timeout)
 {
 	return 0;
 }
