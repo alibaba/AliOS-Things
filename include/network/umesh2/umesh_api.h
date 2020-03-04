@@ -10,7 +10,7 @@
 
 #include "network/umesh2/mdns/mdns.h"
 #include "network/umesh2/utils/list.h"
-#include "umesh_api.h"
+#include "core/umesh.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ typedef enum {
     INVITE_REFUSE = 1,  /** < refuse invitation  */
 } invite_resp_t;
 
-typedef struct peer_id_s{
+typedef struct peer_id_s {
     struct in6_addr ip6;       /** < ip v6 address */
 } peer_id_t;
 
@@ -72,16 +72,16 @@ typedef struct service_s {
     struct list_head linked_list2;
 } service_t;
 
-typedef void * net_interface_t;
+typedef void *net_interface_t;
 
 #define UMESH_FOUND_LIST_ITERATOR(service)  extern service_state_t *g_service_state;\
-list_for_each_entry(service, &g_service_state->found_service_list, linked_list, service_t)
+    list_for_each_entry(service, &g_service_state->found_service_list, linked_list, service_t)
 
 #define UMESH_SESSION_LIST_ITERATOR(session,service)  list_for_each_entry(service, &session->peers_list, linked_list2, service_t)
 
 
 /**
-* Communication changed callback 
+* Communication changed callback
 * @param[in] session         pointer to the session
 * @param[in] srv             pointer to the peer service who joined or leave the session
 * @param[in] state           join or leave
@@ -196,7 +196,7 @@ int umesh_stop_advertise_service(service_t *self);
 * Start browsing service, this is a asynchronous function
 
 /**
-* Start browsing service 
+* Start browsing service
 *
 * @param[in] service pointer to the service
 *
@@ -270,7 +270,7 @@ int umesh_send(session_t *session, service_t *peer, uint8_t *data, int len, data
 int umesh_register_receiver(session_t *session, umesh_receive_cb cb, void *user_data);
 
 /**
-* Register session state callback 
+* Register session state callback
 *
 * @param[out] session    pointer to the session
 * @param[out] cb         point to callback func
