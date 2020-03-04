@@ -45,13 +45,13 @@ void board_init(void)
     board_gpio_init();
     board_flash_init();
 
+    board_network_init();
     /*FOR STM32F429 delete hal_i2c_pre_init \I2C1_init\CAN_init here*/
 }
 
 void aos_maintask(void* arg)
 {
     board_init();
-    board_network_init();
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
