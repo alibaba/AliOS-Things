@@ -383,8 +383,8 @@ void board_network_init(void)
 {
 #ifndef WITH_SAL
         /*enable ethernet*/
-        MX_ETH_Init();
-        lwip_tcpip_init();
+        //MX_ETH_Init();
+        //lwip_tcpip_init();
 #endif
 
     hw_start_hal();
