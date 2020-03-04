@@ -23,6 +23,7 @@ extern void board_dma_init(void);
 extern void board_gpio_init(void);
 extern void board_network_init(void);
 extern void board_kinit_init(kinit_t *init_args);
+extern void board_flash_init(void);
 
 /*  For user config
     kinit.argc = 0;
@@ -42,15 +43,15 @@ void board_init(void)
     board_stduart_init();
     board_dma_init();
     board_gpio_init();
-    flash_partition_init();
+    board_flash_init();
 
+    board_network_init();
     /*FOR STM32F429 delete hal_i2c_pre_init \I2C1_init\CAN_init here*/
 }
 
 void aos_maintask(void *arg)
 {
     board_init();
-    board_network_init();
     board_kinit_init(&kinit);
     aos_components_init(&kinit);
 
