@@ -46,6 +46,7 @@ int32_t hal_wdg_init(wdg_dev_t *wdg)
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
         return -1;
     }
+    return 0;
 }
 
 void hal_wdg_reload(wdg_dev_t *wdg)
@@ -56,7 +57,7 @@ void hal_wdg_reload(wdg_dev_t *wdg)
 
     /* only support one watchdog */
     if (wdg->port >= PORT_WDG_SIZE) {
-        return -1;
+        return;
     }
 
     HAL_IWDG_Refresh(&hiwdg);
