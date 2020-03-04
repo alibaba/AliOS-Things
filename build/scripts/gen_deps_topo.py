@@ -6,12 +6,13 @@ import re
 from lib.comp import find_comp_mkfile, get_comp_name
 from lib.code import get_source_file, get_include_comp_list
 
-from imp import reload
-try:
-    reload(sys)
-    sys.setdefaultencoding('UTF8')
-except:
-    pass
+if sys.version_info[0] < 3:
+    from imp import reload
+    try:
+        reload(sys)
+        sys.setdefaultencoding('UTF8')
+    except:
+        pass
 
 COMP_DEPS_FILE = "comp_deps.json"
 COMP_DEPS_TOPO_FILE = "comp_deps_topo.dot"
