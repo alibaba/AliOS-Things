@@ -16,7 +16,10 @@
 #define MESH_RSP_AUTH_ID       0xfefe0001
 #define MESH_DELETE_AUTH_ID    0xfefe0002
 
-static const MCAST_ADDR[16] = {0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xfb};
+extern int umesh_wifi_get_mac(uint8_t *mac_str);
+extern int umesh_get_ipv6(const uint8_t *mac, uint8_t *ip6_out);
+
+static const uint8_t MCAST_ADDR[16] = {0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xfb};
 
 struct umesh_auth_tlv_fix {
     uint32_t id;
@@ -42,10 +45,17 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
 {
     int fd;
     int ret;
-    service_t *self = session->self;
     struct sockaddr_in6 addr;
+    uint8_t selfmac[6] = {0};
+
+    service_t *self = session->self;
+
+
     memset(&addr, 0, sizeof(addr));
     addr.sin6_family = AF_INET6;
+    umesh_wifi_get_mac(selfmac);
+    umesh_get_ipv6(selfmac, addr.sin6_addr.s6_addr);
+
     if (mode == MODE_AUTH) {
         addr.sin6_port = htons(MESH_AUTH_PORT);
     } else {
@@ -55,7 +65,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
     switch (mode) {
         case MODE_AUTH: { /*for auth ,sys used*/
             if (session->fd_auth >= 0) {
-                log_e("fd_auth fd already create, fd = %d", session->fd_auth);
+                log_d("fd_auth fd already create, fd = %d", session->fd_auth);
                 return 0;
             }
             session->fd_auth = lwip_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
@@ -68,7 +78,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
         break;
         case MODE_RELIABLE: {
             if (session->fd_tcp >= 0) {
-                log_e("tcp fd already create, fd = %d", session->fd_tcp);
+                log_d("tcp fd already create, fd = %d", session->fd_tcp);
                 return 0;
             }
             session->fd_tcp = lwip_socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -81,7 +91,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
         break;
         case MODE_UNRELIABLE: {
             if (session->fd_udp >= 0) {
-                log_e("udp fd already create, fd = %d", session->fd_udp);
+                log_d("udp fd already create, fd = %d", session->fd_udp);
                 return 0;
             }
             session->fd_udp = lwip_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
@@ -154,7 +164,7 @@ static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t p
     }
     //send data
     ret = umesh_sendto(fd, data, len, ip6, port);
-    log_d("_sendto, len = %d ,ret = %d", len, ret);
+    log_d("umesh_sendto, len = %d ,ret = %d", len, ret);
     return ret;
 }
 
@@ -427,7 +437,6 @@ static void  umsh_sock_read_func(int fd, void *arg)
             log_d("recv auth data!");
         } else {
             hal_mutex_lock(session->lock);
-
             list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
@@ -805,13 +814,19 @@ static int umesh_close_socket(session_t *session)
         return UMESH_ERR_NULL_POINTER;
     }
     if (session->fd_udp >= 0) {
+        aos_cancel_poll_read_fd(session->fd_udp, NULL, NULL);
         lwip_close(session->fd_udp);
+        session->fd_udp = -1;
     }
     if (session->fd_tcp >= 0) {
+        aos_cancel_poll_read_fd(session->fd_tcp, NULL, NULL);
         lwip_close(session->fd_tcp);
+        session->fd_tcp = -1;
     }
     if (session->fd_auth >= 0) {
+        aos_cancel_poll_read_fd(session->fd_auth, NULL, NULL);
         lwip_close(session->fd_auth);
+        session->fd_auth = -1;
     }
     return 0;
 }
@@ -883,23 +898,30 @@ int umesh_session_deinit(session_t *session)
     if (session == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
+
+    umesh_close_socket(session);
     hal_mutex_lock(session->lock);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
         list_del(&node->linked_list2);
         break;
     }
-    hal_mutex_unlock(session->lock);
 
-    umesh_close_socket(session);
+    hal_mutex_unlock(session->lock);
     if (session->lock) {
         hal_mutex_free(session->lock);
+        session->lock = NULL;
     }
+
     if (session->queue_buf) {
         hal_free(session->queue_buf);
+        session->queue_buf = NULL;
     }
+
     if (session->queue) {
         hal_queue_free(session->queue);
+        session->queue = NULL;
     }
+
     if (session) {
         hal_free(session);
     }
@@ -1107,6 +1129,7 @@ int umesh_send(session_t *session, service_t *dest, uint8_t *data,  int len, dat
         if (srv == NULL) {
             return UMESH_ERR_NULL_POINTER;
         }
+        memset(&addr, 0, sizeof(addr));
         memcpy(addr.s6_addr, MCAST_ADDR, sizeof(MCAST_ADDR));
         return umesh_send_data(session, &addr, srv->port, mode, data, len);
     }
