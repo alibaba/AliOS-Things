@@ -186,6 +186,7 @@ static void tcpip_cli_init(void)
     aos_cli_register_commands(&tcpip_cli_cmd[0],sizeof(tcpip_cli_cmd) / sizeof(struct cli_command));
 }
 
+#if AOS_NET_WITH_WIFI
 static void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
 {
     hal_wifi_start_debug_mode(NULL);
@@ -224,8 +225,8 @@ static void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
+#endif /* AOS_NET_WITH_WIFI */
 #endif /*!defined CONFIG_NO_LWIP */
-
 void cli_service_init(kinit_t *kinit)
 {
     if (kinit->cli_enable)
@@ -237,8 +238,9 @@ void cli_service_init(kinit_t *kinit)
 #endif
 #ifndef CONFIG_NO_LWIP
         tcpip_cli_init();
+#if AOS_NET_WITH_WIFI
         hal_wifi_cli_init();
-
+#endif
 #ifdef IPERF_ENABLED
         iperf_cli_register();
 #endif
