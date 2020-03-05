@@ -910,8 +910,10 @@ int32_t cli_set_echo_status(int32_t status)
 
 #if CLI_PASSWD_SUPPORT
 
-#define CLI_DEFAULT_PASSWORD "aos"
-#define CLI_PASSWD_IN_KV     "cli_passwd"
+#define CLI_DEFAULT_PASSWORD   "aos"
+#define CLI_PASSWD_IN_KV       "cli_passwd"
+#define CLI_PASSWD_HOLD        (0)
+#define CLI_PASSWD_UPDATED     (-1)
 
 static aos_timer_t cli_passwd_timer;
 
@@ -993,20 +995,19 @@ static int32_t cli_passwd_updated_check(void)
 
 #ifdef CSP_LINUXHOST
     _passwd_update(CLI_DEFAULT_PASSWORD);
-    return 0;
+    return CLI_PASSWD_HOLD;
 #endif
 
     if(aos_kv_get(CLI_PASSWD_IN_KV, passwd, &len) == 0) {
-        if(strncmp(passwd, CLI_DEFAULT_PASSWORD, len) == 0) {
-            _passwd_update(CLI_DEFAULT_PASSWORD);
-            return 0;
-        } else {
+        if(strncmp(passwd, CLI_DEFAULT_PASSWORD, len) != 0) {
             _passwd_update(passwd);
-            return -1;
+            return CLI_PASSWD_UPDATED;
         }
-    } else {
-        return -1;
+
     }
+    /* not updated */
+    _passwd_update(CLI_DEFAULT_PASSWORD);
+    return CLI_PASSWD_HOLD;
 }
 
 /* Check need passwd : 0 is do not check passwd, otherwise need */
@@ -1016,7 +1017,7 @@ static int32_t cli_need_passwd_check(void)
         return 0;
 
     /* check passwd in kv is updated*/
-    if (cli_passwd_updated_check() == 0) {
+    if (cli_passwd_updated_check() ==  CLI_PASSWD_HOLD) {
         /*passwd not updated, do not need passwd to login*/
         g_cli->cli_enabled = 1;
         return 0;
