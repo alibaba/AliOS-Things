@@ -15,6 +15,10 @@
 #include "k_api.h"
 #include "aos/kernel.h"
 
+#if defined(AOS_COMP_UAGENT)
+#include "cli_uagent.h"
+#endif
+
 #if CLI_PASSWD_SUPPORT
 #include "aos/kv.h"
 #endif
@@ -144,14 +148,14 @@ static int32_t proc_onecmd(int argc, char *argv[])
 #if (RHINO_CONFIG_UCLI)
         return ucli_proc_cmd(argc, argv);
 #else
-        return 1;
+        return CLI_ERR_BADCMD;
 #endif
     }
 
     g_cli->outbuf = cli_malloc(CLI_OUTBUF_SIZE);
     if (NULL == g_cli->outbuf) {
         cli_printf("Error! cli alloc mem fail!\r\n");
-        return 1;
+        return CLI_ERR_NOMEM;
     }
     memset(g_cli->outbuf, 0, CLI_OUTBUF_SIZE);
 
@@ -163,7 +167,7 @@ static int32_t proc_onecmd(int argc, char *argv[])
     return 0;
 }
 
-static int32_t cli_handle_input(char *inbuf)
+int32_t cli_handle_input(char *inbuf)
 {
     struct
     {
@@ -455,6 +459,9 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
     }
 
     while (cli_getchar(&c) == 1) {
+#if defined(AOS_COMP_UAGENT)
+        g_cmd_from_cloud = 0;
+#endif
         if (c == RET_CHAR || c == END_CHAR) { /* end of input line */
             inbuf[*bp] = '\0';
             *bp        = 0;
@@ -687,7 +694,6 @@ void cli_main(void *data)
 int32_t cli_init(void)
 {
     int32_t ret;
-
     g_cli = (struct cli_status *)cli_malloc(sizeof(struct cli_status));
     if (g_cli == NULL) {
         return CLI_ERR_NOMEM;
@@ -707,6 +713,10 @@ int32_t cli_init(void)
 
 #if CLI_PASSWD_SUPPORT
     cli_passwd_init();
+#endif
+
+#if defined(AOS_COMP_UAGENT)
+    cli_uagent_init();
 #endif
 
     g_cli->inited        = 1;
@@ -843,10 +853,8 @@ int32_t cli_unregister_commands(const struct cli_command_st *cmds, int32_t num)
     return CLI_OK;
 }
 
-int32_t cli_printf(const char *buffer, ...)
+int32_t cli_va_printf(const char *fmt, va_list va)
 {
-    va_list ap;
-
     int32_t sz, len;
 
     char *pos     = NULL;
@@ -870,9 +878,7 @@ int32_t cli_printf(const char *buffer, ...)
 
     pos = message + sz;
 
-    va_start(ap, buffer);
-    len = vsnprintf(pos, CLI_OUTBUF_SIZE - sz, buffer, ap);
-    va_end(ap);
+    len = vsnprintf(pos, CLI_OUTBUF_SIZE - sz, fmt, va);
 
     if (len <= 0) {
         cli_free(message);
@@ -884,6 +890,18 @@ int32_t cli_printf(const char *buffer, ...)
     cli_free(message);
 
     return CLI_OK;
+}
+
+int32_t cli_printf(const char *fmt, ...)
+{
+    va_list params;
+    int32_t ret;
+
+    va_start(params, fmt);
+    ret = cli_va_printf(fmt, params);
+    va_end(params);
+
+    return ret;
 }
 
 int32_t cli_get_commands_num(void)
