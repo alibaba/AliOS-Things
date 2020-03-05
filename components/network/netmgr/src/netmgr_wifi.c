@@ -44,7 +44,7 @@ static net_interface_t *g_wifi_interface = NULL;
 autoconfig_plugin_t g_alink_smartconfig;
 
 #ifndef WITH_SAL
-    #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
+    #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST) || defined(AOS_NET_WITH_ETH)
         static autoconfig_plugin_t g_def_smartconfig;
     #endif
 #endif
@@ -676,7 +676,7 @@ void netmgr_wifi_get_ip(char ip[])
 }
 
 #ifndef WITH_SAL
-#if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
+#if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST) || defined(AOS_NET_WITH_ETH)
 static int def_smart_config_start(void)
 {
     netmgr_ap_config_t config;
@@ -730,7 +730,7 @@ int netmgr_wifi_init(void)
     g_wifi_interface->wifi_scan_complete_cb_finished = false;
 
 #if !defined(WITH_SAL) || defined(DEV_SAL_ATHOST)
-#if defined(CONFIG_YWSS) && (!defined(CSP_LINUXHOST) || defined(DEV_SAL_ATHOST))
+#if defined(CONFIG_YWSS) && (!defined(CSP_LINUXHOST) || !defined(AOS_NET_WITH_ETH)|| defined(DEV_SAL_ATHOST))
     add_autoconfig_plugin(&g_alink_smartconfig);
 #else
     add_autoconfig_plugin(&g_def_smartconfig);
