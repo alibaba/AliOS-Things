@@ -11,6 +11,10 @@
 #include "cli_conf.h"
 #include "cli_adapt.h"
 
+#if defined(AOS_COMP_UAGENT)
+#include "cli_uagent.h"
+#endif
+
 #ifndef STDIO_UART
 #define CLI_UART 0
 #else
@@ -69,18 +73,23 @@ int32_t cli_getchar(char *inbuf)
 int32_t cli_putstr(char *msg)
 {
     uart_dev_t uart_stdio;
-
-    memset(&uart_stdio, 0, sizeof(uart_dev_t));
-    uart_stdio.port = CLI_UART;
-
     if (msg[0] != 0) {
-
 #if (CLI_TELNET_SUPPORT > 0)
         extern void TelnetWriteString(char *string);
         TelnetWriteString(msg);
 #endif
 
-        hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
+#if defined(AOS_COMP_UAGENT)
+        if (g_cmd_from_cloud) {
+            uagent_send(UAGENT_MOD_CLI, CLI_RESPONE, strlen(msg), msg, send_policy_delay);
+        } else {
+#endif
+            memset(&uart_stdio, 0, sizeof(uart_dev_t));
+            uart_stdio.port = CLI_UART;
+            hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
+#if defined(AOS_COMP_UAGENT)
+        }
+#endif
     }
 
     return CLI_OK;
