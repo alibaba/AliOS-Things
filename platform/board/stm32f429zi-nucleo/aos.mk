@@ -13,7 +13,7 @@ ENABLE_VFP         := 1
 GLOBAL_DEFINES += HAL_VERSION=30100
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init netmgr network
-
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) += external_module
 
 $(NAME)_SOURCES += config/partition_conf.c \
                    config/k_config.c \

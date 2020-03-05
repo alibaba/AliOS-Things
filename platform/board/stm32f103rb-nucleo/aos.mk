@@ -13,6 +13,7 @@ ENABLE_VFP         := 0
 GLOBAL_DEFINES += HAL_VERSION=30100
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos kernel_init network
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) += external_module
 
 $(NAME)_SOURCES += config/k_config.c \
                    config/partition_conf.c \
