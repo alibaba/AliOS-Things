@@ -20,12 +20,11 @@
 #define MAX_BUF_LEN 256
 #define DEFAULT_TIMEOUT_MS 5000
 
-/*  on line */
-#define IOTX_PRODUCT_KEY         "b14WU6ce53n"
-#define IOTX_DEVICE_NAME         "OTA_test_device"
-#define IOTX_DEVICE_SECRET       "zH3AoSmwtV7jwR4g3Xsb1uU6xh1ruibm"
-#define IOTX_DEVICE_ID           "b14WU6ce53n.OTA_test_device"
-
+/*  online */
+#define IOTX_PRODUCT_KEY         "a1KqSriAwh0"
+#define IOTX_DEVICE_NAME         "basic_test_01"
+#define IOTX_DEVICE_SECRET       "5gme06iFl3W1g8non2ksVs5e8Qlus4Hw"
+#define IOTX_DEVICE_ID           "a1KqSriAwh0.basic_test_01"
 
 static char request_buf[MAX_BUF_LEN];
 static char response_buf[MAX_BUF_LEN];
