@@ -51,4 +51,10 @@ menu "Config Network Interface Types:"
             support net with Wi-Fi.
 endmenu
 
+config AOS_NET_WITH_ETH
+    bool
+    default n
+    help
+        support net with Ethernet.
+
 endif
