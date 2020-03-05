@@ -94,11 +94,11 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
 /**
  * @brief Print CLI message
  *
- * @param[in] buffer pointer to a char * buffer
+ * @param[in] fmt pointer to a char * buffer
  *
  * @return 0 on success, otherwise failed
  */
-#define aos_cli_printf(fmt, ...) printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
+int aos_cli_printf(const char *fmt, ...);
 
 /**
  * @brief Set cli login password
