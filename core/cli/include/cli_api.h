@@ -7,6 +7,7 @@
 #define CLI_API_H
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +90,15 @@ int32_t cli_register_command(const struct cli_command_st *cmd);
  *
  */
 int32_t cli_unregister_command(const struct cli_command_st *cmd);
+
+/**
+ * @brief Print CLI message
+ *
+ * @param[in] fmt    string storing printf format
+ * @param[in] params list storing varialbe parameters
+ *
+ */
+int32_t cli_va_printf(const char* fmt, va_list params);
 
 /**
  * @brief This function registers a batch of CLI commands
