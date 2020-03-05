@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := linkkit_demo
 
 $(NAME)_SOURCES :=   app_entry.c maintask.c
-$(NAME)_COMPONENTS += libiot_devmodel libiot_awss
+$(NAME)_COMPONENTS += libiot_devmodel libiot_awss libiot_dynreg
 
 $(NAME)_COMPONENTS += netmgr cjson
 

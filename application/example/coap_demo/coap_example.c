@@ -37,9 +37,9 @@
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
 /* demo only */
-#define IOTX_PRODUCT_KEY      "b14WU6ce53n"
-#define IOTX_DEVICE_NAME      "OTA_test_device"
-#define IOTX_DEVICE_SECRET    "zH3AoSmwtV7jwR4g3Xsb1uU6xh1ruibm"
+#define IOTX_PRODUCT_KEY      "a1X2bEnP82z"
+#define IOTX_DEVICE_NAME      "test_coap_01"
+#define IOTX_DEVICE_SECRET    "6DY0Kp6wzjEe5aU29mDifGDBJ5sxC2NL"
 
 /*
  * Callback for handling response message from CoAP Server
