@@ -11,7 +11,7 @@ typedef struct {
     bool ip_available;
     int16_t disconnected_times;
     int32_t ipv4_owned;
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
     netmgr_ap_config_t saved_conf;
     netmgr_ap_config_t ap_config;
     autoconfig_plugin_t *autoconfig_chain;
