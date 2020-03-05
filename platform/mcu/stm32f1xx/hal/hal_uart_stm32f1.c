@@ -205,6 +205,13 @@ static int uart_gpio_init(UART_MAPPING* uartIns)
         __HAL_RCC_USART2_CLK_ENABLE();
     }
 
+    if (uartIns->uartPhyP == USART1) {
+        /* Peripheral clock enable */
+        __HAL_RCC_USART1_CLK_ENABLE();
+        HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USART1_IRQn);
+    }
+
     uart_pin_conf = uartIns->pin_conf;
     if (uart_pin_conf == NULL) {
         return -1;
@@ -223,9 +230,15 @@ static int uart_gpio_init(UART_MAPPING* uartIns)
 
         hal_gpio_enable_clk(pin);
 
-        GPIO_InitStruct.Pin = hal_gpio_pin(pin);
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        if ((uartIns->uartPhyP == USART1) && (uart_pin_conf[i].pin_name == UART_RX)) {
+            GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+            GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        } else {
+            GPIO_InitStruct.Pin = hal_gpio_pin(pin);
+            GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        }
         HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
     }
 
@@ -247,6 +260,11 @@ static int uart_gpio_uninit(UART_MAPPING* uartIns)
     if (uartIns->uartPhyP == USART2) {
         __HAL_RCC_USART2_CLK_DISABLE();
         HAL_NVIC_DisableIRQ(USART2_IRQn);
+    }
+
+    if (uartIns->uartPhyP == USART1) {
+        __HAL_RCC_USART1_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(USART1_IRQn);
     }
 
     uart_pin_conf = uartIns->pin_conf;

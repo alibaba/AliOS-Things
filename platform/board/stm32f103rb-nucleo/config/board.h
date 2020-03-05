@@ -59,14 +59,13 @@ extern "C" {
 #define STDIO_UART_BUADRATE 115200
 #endif
 
-typedef enum {
-    PORT_UART_STD = 0,
-    PORT_UART_AT = 1,
-    PORT_UART_BLE = 2,
+typedef enum{
+    PORT_UART_STD  = 0,
+    PORT_UART_AT   = 1,
     PORT_UART_SIZE,
     PORT_UART_INVALID = 255,
-    PORT_UART_DEMO = PORT_UART_INVALID,
-} PORT_UART_TYPE;
+    PORT_UART_DEMO = PORT_UART_AT,
+}PORT_UART_TYPE;
 
 typedef enum {
     PORT_ADC_1,
