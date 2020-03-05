@@ -15,14 +15,14 @@ int netmgr_init(void)
 {
     int ret = -1;
 
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
     ret = netmgr_wifi_init();
     if (ret < 0) {
         return ret;
     }
 #endif
 
-#ifdef AOS_NET_WITH_CELLULAR
+#if AOS_NET_WITH_CELLULAR
     ret = netmgr_cellular_init();
     if (ret < 0) {
         return ret;
@@ -34,11 +34,11 @@ int netmgr_init(void)
 
 void netmgr_deinit(void)
 {
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
     netmgr_wifi_deinit();
 #endif
 
-#ifdef AOS_NET_WITH_CELLULAR
+#if AOS_NET_WITH_CELLULAR
     netmgr_cellular_deinit();
 #endif
 }
@@ -46,21 +46,21 @@ void netmgr_deinit(void)
 int netmgr_start(bool autoconfig)
 {
     int ret = -1;
-
-#ifdef AOS_NET_WITH_WIFI
+#if !AOS_NET_WITH_ETH
+#if AOS_NET_WITH_WIFI
     ret = netmgr_wifi_start(autoconfig);
     if (ret < 0) {
         return ret;
     }
 #endif
 
-#ifdef AOS_NET_WITH_CELLULAR
+#if AOS_NET_WITH_CELLULAR
     ret = netmgr_cellular_start();
     if (ret < 0) {
         return ret;
     }
 #endif
-
+#endif
     return ret;
 }
 
@@ -77,13 +77,13 @@ int netmgr_stats(int32_t interface, netmgr_stats_t *stats)
     memset(stats, 0, sizeof(netmgr_stats_t));
     switch (g_net_interfaces[interface].interface_type) {
         case INTERFACE_WIFI:
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
             stats->ip_available = netmgr_wifi_get_ip_state();
             netmgr_wifi_get_ip(stats->ip);
 #endif
             break;
         case INTERFACE_CELLULAR:
-#ifdef AOS_NET_WITH_CELLULAR
+#if AOS_NET_WITH_CELLULAR
             stats->ip_available = netmgr_cellular_get_ip_state();
             netmgr_cellular_get_ip(stats->ip);
 #endif
@@ -101,12 +101,12 @@ net_interface_t *netmgr_get_net_interface(uint8_t interface_type)
 
     switch (interface_type) {
         case INTERFACE_WIFI:
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
             interface = &g_net_interfaces[INTERFACE_WIFI];
 #endif
             break;
         case INTERFACE_CELLULAR:
-#ifdef AOS_NET_WITH_CELLULAR
+#if AOS_NET_WITH_CELLULAR
             interface = &g_net_interfaces[INTERFACE_CELLULAR];
 #endif
             break;
@@ -117,7 +117,7 @@ net_interface_t *netmgr_get_net_interface(uint8_t interface_type)
     return interface;
 }
 
-#ifdef AOS_NET_WITH_WIFI
+#if AOS_NET_WITH_WIFI
 int32_t netmgr_connect(const char *ssid, const uint8_t *password, uint32_t timeout)
 {
     netmgr_ap_config_t config;
