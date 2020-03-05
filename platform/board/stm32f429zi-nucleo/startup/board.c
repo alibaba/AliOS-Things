@@ -432,9 +432,9 @@ static void I2C1_init()
 void board_network_init(void)
 {
 #ifndef WITH_SAL
-        /*enable ethernet*/
-        //MX_ETH_Init();
-        //lwip_tcpip_init();
+    /*enable ethernet*/
+    MX_ETH_Init();
+    lwip_tcpip_init();
 #endif
 
     hw_start_hal();
