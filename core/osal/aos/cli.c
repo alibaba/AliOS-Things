@@ -63,3 +63,13 @@ int aos_cli_chg_passwd(char *old_passwd, char *new_passwd)
     return _cli_to_aos_res(cli_chg_passwd(old_passwd, new_passwd));
 }
 
+int aos_cli_printf(const char *fmt, ...)
+{
+    va_list params;
+    int     ret;
+
+    va_start(params, fmt);
+    ret = cli_va_printf(fmt, params);
+    va_end(params);
+    return ret;
+}
