@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "2ndboot.h"
+#include "bootloader.h"
 
 #define YMODEM_OK          0
 #define YMODEM_ERR         (-1)
@@ -143,11 +143,21 @@ err_exit:
 
 int ymodem_write_data_to_flash(unsigned char *buffer, unsigned int addr, unsigned int len)
 {
-    unsigned int write_len = len;
+    int             ret = 0;
+    uint32_t        offset = 0;
+    hal_partition_t index;
+    unsigned int    write_len = len;
+
     if(addr + len > ymodem_flash_addr + ymodem_flash_size) {
         write_len = ymodem_flash_addr + ymodem_flash_size - addr;
     }
-    return flash_write_data(addr, buffer, write_len);
+
+    ret = flash_get_partition(addr, write_len, &index, &offset);
+    if (ret != 0) {
+        return -1;
+    }
+
+    return hal_flash_write(index, &offset, (const void *)buffer, write_len);
 }
 
 int ymodem_data_parse(unsigned char data_type, unsigned int *addr)
@@ -222,14 +232,14 @@ int ymodem_recv_file(unsigned int flash_addr)
                 ret = ymodem_data_head_parse(c);
                 if (ret == YMODEM_OK) {
                     uart_send_byte(YMODEM_ACK);
-                    sys_delayms(100);
+                    boot_delay(100);
                     uart_send_byte(YMODEM_CCHAR);
                     state = YMODEM_STATE_WAIT_DATA;
                     break;
                 } else {
                     /* end */
                     uart_send_byte(YMODEM_ACK);
-                    sys_delayms(200);
+                    boot_delay(200);
                     if(end_flag == 1) {
                         ret = YMODEM_OK;
                     } else {
@@ -314,8 +324,8 @@ int ymodem_upgrade(void)
     if((addr >= app_info->partition_start_addr) && (addr <= app_info->partition_start_addr + app_info->partition_length)) {
         flag = 1;
         ymodem_max_write_size = app_info->partition_length;
-        ret = flash_erase(app_info->partition_start_addr, app_info->partition_length);
-        if(ret < 0) {
+        ret = hal_flash_erase(HAL_PARTITION_APPLICATION, 0, app_info->partition_length);
+        if(ret != 0) {
             printf("erase err.\n");
             return -1;
         }
@@ -323,8 +333,8 @@ int ymodem_upgrade(void)
     if((addr >= ota_info->partition_start_addr) && (addr <= ota_info->partition_start_addr + ota_info->partition_length)){
         flag = 1;
         ymodem_max_write_size = ota_info->partition_length;
-        ret = flash_erase(ota_info->partition_start_addr, ota_info->partition_length);
-        if(ret < 0) {
+        ret = hal_flash_erase(HAL_PARTITION_OTA_TEMP, 0, ota_info->partition_length);
+        if(ret != 0) {
             printf("erase err.\n");
             return -1;
         }

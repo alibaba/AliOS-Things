@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "libc.h"
-#include "2ndboot.h"
+#include "bootloader.h"
 
 #ifndef XZ_BUF_SIZE
 #define XZ_BUF_SIZE 2048
