@@ -288,6 +288,11 @@ $(if $(DEBUG_CONFIG), \
     $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled Only: $(ONLY_IN_CONFIGIN)),), \
 )
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
+ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
+    $(eval TEMP_PROCESSED_COMPONENTS := $(subst bootloader, , $(PROCESSED_COMPONENTS)))
+    PROCESSED_COMPONENTS := $(TEMP_PROCESSED_COMPONENTS)
+endif
+
 endef
 
 ##################################
