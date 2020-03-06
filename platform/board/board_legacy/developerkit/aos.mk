@@ -29,7 +29,6 @@ $(NAME)_SOURCES := bootloader/startup_stm32l496xx_boot.s  \
                    bootloader/Src/stm32l4xx_it.c          \
                    bootloader/Src/hal_boot_flash.c        \
                    bootloader/Src/hal_boot_process.c      \
-                   bootloader/Src/hal_boot_uart.c         \
                    bootloader/Src/hal_boot_wdg.c          \
                    bootloader/Src/hal_boot_gpio.c         \
                    bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c        \
