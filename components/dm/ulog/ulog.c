@@ -49,6 +49,11 @@ bool check_pass_pop_out(const ulog_session_type_t session, const uint8_t level)
     return (stop_filter_level[session]>level);
 }
 
+uint8_t ulog_stop_filter_level(const ulog_session_type_t session)
+{
+    return stop_filter_level[session];
+}
+
 int aos_set_log_level(aos_log_level_t log_level)
 {
     int rc = -EINVAL;
