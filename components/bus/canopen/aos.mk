@@ -37,4 +37,12 @@ $(NAME)_SOURCES     := src/dcf.c \
                        adapter/co_adapter_can.c \
                        adapter/co_adapter_timer.c \
                        wrap/canopen_wrap.c
+else
+# using AliOS Things CANopen lib
+ifeq ($(COMPILER),)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/gcc/canopen.a
+else ifeq ($(COMPILER),gcc)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/gcc/canopen.a
+else ifeq ($(COMPILER),armcc)
+GLOBAL_LDFLAGS +=           lib/$(HOST_ARCH)/armcc/libcanopen.lib
 endif
