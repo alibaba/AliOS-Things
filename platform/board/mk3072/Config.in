@@ -1,8 +1,9 @@
 config AOS_BOARD_MK3072
     bool "MK3072"
-    select AOS_MCU_ASR5501MK
-    select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_NETMGR
+    default y if AOS_CREATE_PROJECT
+    select AOS_MCU_ASR5501MK  if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT  if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR  if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
 
@@ -35,3 +36,4 @@ config BSP_SUPPORT_WIFI_LOWPOWER
     default y
 
 endif
+
