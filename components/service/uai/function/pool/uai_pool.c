@@ -37,6 +37,64 @@ arm_avepool_q7_HWC_nonsquare(q7_t * Im_in,
                    q7_t * Im_out);
 #endif
 
+#ifdef UAI_ODLA_SUPPORT
+void uai_pool_max(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front, const unsigned* paddings_back, uai_tensor_s *output)
+{
+    uint16_t padding_x   = (paddings_front[0] + paddings_back[0])/2;
+    uint16_t padding_y   = (paddings_front[1] + paddings_back[1])/2;
+
+#if defined(UAI_USE_CMSIS_NN)
+
+    if(input->dim_height == input->dim_width) {
+        arm_maxpool_q7_HWC(input->buffer, input->dim_height, input->dim_channels, weight->dim_height,
+                                 padding_x, strides[0], output->dim_height, NULL, output->buffer);
+    } else {
+        arm_maxpool_q7_HWC_nonsquare(input->buffer, input->dim_height, input->dim_width, input->dim_channels,
+                                            weight->dim_height, weight->dim_width, padding_x, padding_y,
+                                            strides[0], strides[1], output->dim_height, output->dim_width,
+                                            NULL, output->buffer);
+    }
+#else
+#endif
+    return;
+}
+
+void uai_pool_ave(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front, const unsigned* paddings_back, uai_tensor_s *output)
+{
+    int8_t *buffer_input = NULL;
+    uint16_t padding_x   = (paddings_front[0] + paddings_back[0])/2;
+    uint16_t padding_y   = (paddings_front[1] + paddings_back[1])/2;
+
+#if defined(UAI_USE_CMSIS_NN)
+    #if defined (ARM_MATH_DSP)
+    #ifdef UAI_MEM_STATIC
+    buffer_input = UAI_CONV_TEMP_MEM;
+    #else
+    buffer_input = uai_malloc(2 * input->dim_channels * weight->dim_height * weight->dim_width);
+    #endif
+    #endif
+
+    if(input->dim_height == input->dim_width) {
+        arm_avepool_q7_HWC(input->buffer, input->dim_height, input->dim_channels, weight->dim_height,
+                            padding_x, strides[0], output->dim_height, buffer_input, output->buffer);
+    } else {
+        arm_avepool_q7_HWC_nonsquare(input->buffer, input->dim_height, input->dim_width, input->dim_channels,
+                                    weight->dim_height, weight->dim_width, padding_x, padding_y,
+                                    strides[0], strides[1], output->dim_height, output->dim_width,
+                                    buffer_input, output->buffer);
+    }
+
+    #if defined (ARM_MATH_DSP)
+    #ifndef UAI_MEM_STATIC
+    uai_free(buffer_input);
+    #endif
+    #endif
+#else
+#endif
+    return;
+}
+
+#else
 void uai_pool_max(uai_input_s *input, uai_weight_s *weight, uint16_t *strides, uai_pad_type_e pad_type, uai_bias_s *bias, uai_output_s *output)
 {
     uint16_t padding_x   = 0;
@@ -73,7 +131,7 @@ void uai_pool_max(uai_input_s *input, uai_weight_s *weight, uint16_t *strides, u
 
 void uai_pool_ave(uai_input_s *input, uai_weight_s *weight, uint16_t *strides, uai_pad_type_e pad_type, uai_bias_s *bias, uai_output_s *output)
 {
-int8_t *buffer_input = NULL;
+    int8_t *buffer_input = NULL;
     uint16_t padding_x   = 0;
     uint16_t padding_y   = 0;
     int16_t  temp        = 0;
@@ -118,3 +176,5 @@ int8_t *buffer_input = NULL;
 #endif
     return;
 }
+
+#endif
