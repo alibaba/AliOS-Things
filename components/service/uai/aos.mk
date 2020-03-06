@@ -6,9 +6,7 @@ $(NAME)_SUMMARY := uAI Framework
 
 GLOBAL_LDFLAGS     += -lm
 
-GLOBAL_INCLUDES    += include
-
-$(NAME)_INCLUDES    += common function/include model/load nn/include
+GLOBAL_INCLUDES    += include function/include common model/load nn/include
 
 $(NAME)_COMPONENTS += ulog
 
@@ -20,6 +18,9 @@ $(NAME)_SOURCES  += function/activation/uai_relu.c               \
 					function/convolution/uai_conv.c              \
 					function/convolution/uai_conv_depthwise.c    \
 					function/pool/uai_pool.c                     \
+					function/basic/uai_add.c                     \
+					function/basic/uai_pad.c                     \
+					function/reshape/uai_batch_space_transform.c \
 					model/load/uai_load.c
 
 $(NAME)_COMPONENTS-$(CONFIG_UAI_USE_CMSIS_NN) += cmsis_nn
@@ -41,6 +42,13 @@ ifeq ($(cnn_enable), 1)
 GLOBAL_DEFINES     += 	UAI_CNN
 $(NAME)_SOURCES    += 	nn/cnn/uai_cnn.c
 $(NAME)_INCLUDES   += 	nn/cnn/
+endif
+
+ifeq ($(CONFIG_UAI_SUPPORT_ODLA), 1)
+GLOBAL_DEFINES    += UAI_ODLA_SUPPORT
+$(NAME)_SOURCES   += odla/src/uai_odla.c \
+					 odla/src/uai_olda_adapt.c
+GLOBAL_INCLUDES   += odla/include
 endif
 
 ifeq ($(HOST_ARCH), Cortex-M0)

@@ -52,17 +52,11 @@ def update_aosmk(cmsis_path):
             else:
                 f.write('                        ' + file + '  \\\r\n')
 
-def download_source(cmsis_path):
-    add_source = os.path.join(cmsis_path, "CMSIS_5/CMSIS/NN/Source/PoolingFunctions/arm_pool_q7_HWC_nonsquare.c")
-    if not os.path.exists(add_source):
-        shutil.copy(os.path.join(cmsis_path, "arm_pool_q7_HWC_nonsquare.c"), add_source)
-
 def main():
     cmsis_path = os.path.dirname(sys.argv[0])
     if len(sys.argv) > 1:
         cmsis_path = sys.argv[1]
 
-    download_source(cmsis_path)
     update_aosmk(cmsis_path)
 
 if __name__ == "__main__":
