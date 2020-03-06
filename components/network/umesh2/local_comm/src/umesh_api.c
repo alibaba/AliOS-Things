@@ -40,7 +40,7 @@ service_state_t *g_service_state = NULL;
 typedef void (*sock_read_cb)(int fd, void *arg);
 static void  umsh_sock_read_func(int fd, void *arg);
 static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len);
-
+static int umesh_service_free(service_t *service);
 static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
 {
     int fd;
@@ -207,10 +207,21 @@ err:
 
 static int stop(void *cbarg)
 {
+    service_t *node, *next;
     service_state_t *state = (service_state_t *)cbarg;
     if (cbarg == NULL) {
         return 1;
     }
+    /*deal srvs timeout here*/
+    hal_mutex_lock(state->lock);
+
+    list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
+        if (hal_now_ms() - node->last_update > node->ttl * SERVICE_TIMEOUT_CNT * 1000) {
+            log_w("%s-%s timeout, clean it", node->srv_type, node->srv_name);
+            umesh_service_free(node);
+        }
+    }
+    hal_mutex_unlock(state->lock);
     return (int)state->stop;
 }
 
@@ -309,7 +320,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
 
     service_t *node, *next;
     int find = 0;
-
+    uint8_t required = 0;
     if (p_cookie == NULL) {
         return;
     }
@@ -353,9 +364,11 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
             }
             break;
             case RR_AAAA:
+                required |= 0x01;
                 memcpy(&service->id.ip6, entry->data.AAAA.addr.s6_addr, sizeof(service->id.ip6));
                 break;
             case RR_SRV: {
+                required |= 0x02;
                 char *type = (char *)strtok(entry->name, ".");
                 log_d(" srv type = %s ", type);
                 strncpy(service->srv_type, type, SERVICE_TYPE_LEN_MAX);
@@ -369,10 +382,14 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
         entry = entry->next;
     };
 
+    if (required & 0x03 != 0x03) {
+        ret = UMESH_ERR_SERVICE_INCOMPLETE;
+        goto err;
+    }
     hal_mutex_lock(state->lock);
-
     list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
         if (!strcmp(node->srv_name, service->srv_name) && !strcmp(node->srv_type, service->srv_type)) {
+            node->last_update = hal_now_ms();
             find = 1;
             break;
         }
@@ -380,23 +397,22 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
 
     if (!find && list_entry_number(&state->found_service_list) < SERVICE_MAX_FOUND_NUM) {
         log_d("add serivce to found list:%s-%s", service->srv_type, service->srv_name);
+        service->last_update = hal_now_ms();
         list_add_tail(&service->linked_list, &state->found_service_list);
         if (state->found_cb) {
             state->found_cb(service, PEER_FOUND);
         }
     }  else {
-        hal_free(service);
+        ret = umesh_service_free(service);
     }
     hal_mutex_unlock(state->lock);
     return ret;
 err:
-    log_e("parse service err! ret = %d", ret);
+    log_e("service incomplete, discarded! ret = %d", ret);
     if (service != NULL) {
-
-        hal_free(service);
+        umesh_service_free(service);
     }
     return ret;
-
 }
 
 static void  umsh_sock_read_func(int fd, void *arg)
@@ -629,6 +645,25 @@ static int service_state_deinit(service_state_t *state)
 
     hal_free(state);
 }
+static int umesh_service_free(service_t *service)
+{
+    txt_item_t *item;
+    if (service == NULL) {
+        return UMESH_ERR_NULL_POINTER;
+    }
+
+    item = service->txt_items;
+    while (item) {
+        txt_item_t *temp = item;
+        item = item->next;
+        hal_free(temp);
+    }
+
+    list_del(&service->linked_list);
+    list_del(&service->linked_list2);
+    hal_free(service);
+    return 0;
+}
 
 int umesh_service_deinit(service_t *service)
 {
@@ -642,13 +677,7 @@ int umesh_service_deinit(service_t *service)
     list_for_each_entry_safe(node, next, &g_service_state->self_service_list, linked_list, service_t) {
         if (!memcmp(node->srv_name, service->srv_name, strlen(service->srv_name)) &&
             !memcmp(node->srv_type, service->srv_type, strlen(service->srv_type))) { /*data*/
-            item = node->txt_items;
-            while (item) {
-                item = item->next;
-                hal_free(item);
-            }
-            list_del(&node->linked_list);
-            hal_free(node);
+            umesh_service_free(node);
             break;
         }
     }
