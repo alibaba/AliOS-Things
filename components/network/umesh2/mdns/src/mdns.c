@@ -12,7 +12,7 @@
 #include "aos/kernel.h"
 #include "aos/yloop.h"
 
-#define MDNS_PKT_MAXSZ 2048 // read/write buffer size
+#define MDNS_PKT_MAXSZ 1024 // read/write buffer size
 
 typedef void *multicast_if;
 

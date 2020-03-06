@@ -7,17 +7,13 @@
 #include <aos/kernel.h>
 #include "osal.h"
 
-#define MESH_TASK_NAME_PREFIX  "umesh2_s_%d"
+static const char  MESH_TASK_NAME[] = "umesh2_service";
 
-#define TASK_NAME_MAX_LEN      32
 #define  PLATFORM_WAIT_INFINITE (uint32_t)-1
 int hal_task_start(task_func cb, void *arg, int stack_size, enum hal_task_prio  prio)
 {
-    aos_task_t task_handle ;
-    char name[TASK_NAME_MAX_LEN + 1] = {0};
-    static uint8_t cnt = 0;
-    snprintf(name, TASK_NAME_MAX_LEN, MESH_TASK_NAME_PREFIX, cnt++);
-    return aos_task_new_ext(&task_handle,  name, cb, arg, stack_size, prio);
+    aos_task_t task_handle;
+    return aos_task_new_ext(&task_handle, MESH_TASK_NAME, cb, arg, stack_size, prio);
 }
 
 void *hal_mutex_new(void)
@@ -143,3 +139,4 @@ int hal_queue_recv(void *queue, uint32_t ms, void *msg, unsigned int *size)
 {
     return aos_queue_recv((aos_queue_t *)queue,  ms, msg, size);
 }
+
