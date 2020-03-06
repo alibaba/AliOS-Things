@@ -17,12 +17,13 @@ extern "C" {
 #define hal_printf          printf
 
 #define SERVICE_QUERY_DURATION 5
-#define SERVICE_TTL          120
+#define SERVICE_TTL          60
+#define SERVICE_TIMEOUT_CNT  2
 #define SERVICE_PORT         8771
 
 #define SERVICE_FULL_TYPE_LEN_MAX   (SERVICE_TYPE_LEN_MAX + 11)
 #define SERVICE_TYPE_SUFFIX        "._udp.local"
-#define SERVICE_TASK_STACK_SIZE    16000
+#define SERVICE_TASK_STACK_SIZE    4098
 #define SERVICE_AUTH_PAYLOAD_MAX   256
 #define SERVICE_MAX_FOUND_NUM      36
 #define SERVICE_DATA_MAX_LEN       1024
@@ -48,12 +49,13 @@ extern "C" {
 
 #define UMESH_ERR_INIT                       (UMESH_SERVICE_ERR_BASE - 0x0008)
 #define UMESH_ERR_AUTH                       (UMESH_SERVICE_ERR_BASE - 0x0009)
-#define UMESH_ERR_AUTH_REFUSE               (UMESH_SERVICE_ERR_BASE - 0x000E)
+#define UMESH_ERR_AUTH_REFUSE                (UMESH_SERVICE_ERR_BASE - 0x000E)
 #define UMESH_ERR_NO_AUTH_DATA               (UMESH_SERVICE_ERR_BASE - 0x000A)
 #define UMESH_ERR_CREATE_SOCKET              (UMESH_SERVICE_ERR_BASE - 0x000B)
 #define UMESH_ERR_BIND                       (UMESH_SERVICE_ERR_BASE - 0x000C)
 #define UMESH_ERR_READ_DATA                  (UMESH_SERVICE_ERR_BASE - 0x000D)
-#define UMESH_ERR_AUTH_NO_MATCH               (UMESH_SERVICE_ERR_BASE - 0x000F)
+#define UMESH_ERR_AUTH_NO_MATCH              (UMESH_SERVICE_ERR_BASE - 0x000F)
+#define UMESH_ERR_SERVICE_INCOMPLETE         (UMESH_SERVICE_ERR_BASE - 0x0010)
 /** @} */
 #ifdef __cplusplus
 }
