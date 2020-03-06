@@ -199,7 +199,7 @@ endif # $(NOCONFIG)
 # prebuild support
 include $(MAKEFILES_PATH)/aos_prebuild.mk
 
-# Support for MBINS build
+# Support for MBINS build - deprecated! Not maintained any more!
 export UNDERLINE
 export RADIXPOINT
 
@@ -236,8 +236,8 @@ define USAGE_TEXT
 
 Usage: aos make <target> -c <[config|menuconfig]>
        aos make menuconfig
-       aos make [VERBOSE=1] [MBINS=app|kernel] [BUILD_TYPE=debug|inspect|release_log|release]
-                [clean|distclean] [export-keil|export-iar] ...
+       aos make [VERBOSE=1] [BUILD_TYPE=debug|inspect|release_log|release]
+                [clean|distclean|update|export-keil|export-iar] ...
 
   <target>
     One each of the following mandatory components separated by '@'
@@ -246,9 +246,6 @@ Usage: aos make <target> -c <[config|menuconfig]>
 
   [VERBOSE=1]
     Shows the commands as they are being executed
-
-  [MBINS=app/kernel]
-    Build bins: app or kernel
 
   [BUILD_TYPE=debug|inspect|release_log|release]
     Build for debug, inspect, release_log or release configurations
@@ -270,6 +267,9 @@ Usage: aos make <target> -c <[config|menuconfig]>
     Customize configs from default and build:
       $> aos make helloworld@mk3060 -c menuconfig
       $> aos make
+
+    Update the metadata for your project:
+      $> aos make update
 
     Clean output directory (without configs)
       $> aos make clean
