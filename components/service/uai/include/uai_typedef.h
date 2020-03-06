@@ -66,6 +66,41 @@ typedef enum {
     UAI_LOSS_END
 }uai_loss_type_e;
 
+#ifdef UAI_ODLA_SUPPORT
+
+#define UAI_MAX_DIMENSION 5
+typedef enum {
+    UAI_NHWC = 0, /* input and output layout: batch height width channels*/
+    UAI_SIO  = 1   /* kernel layout: height width input_CHANNELS output_channels*/
+}uai_dim_format;
+
+typedef struct {
+    uint32_t size;
+    uai_dim_format format;
+    uint32_t dims[UAI_MAX_DIMENSION];
+}uai_dims;
+
+typedef struct {
+    int8_t  *buffer;
+    uai_dims dims;
+    uint32_t size;
+    int8_t shift;
+    int8_t dtype;
+}uai_tensor_s;
+
+typedef enum {
+    UAI_KERNEL_SCALE = 0,
+    UAI_BIAS_SCALE   = 1,
+    UAI_ACT_SCALE    = 2,
+    UAI_SCALE_END
+}uai_quant_scale_type;
+
+typedef struct {
+    int32_t *scale;
+    uint32_t scale_num;
+    uint32_t shift;
+}uai_quant_scale;
+#else
 typedef struct {
     uint16_t batch;
     uint16_t height;
@@ -131,6 +166,8 @@ typedef struct {
     uint16_t result_num;
     uai_cnn_layer_config_t *layer_info;
 }uai_cnn_config_t;
+#endif
+
 #endif
 
 #ifdef __cplusplus
