@@ -783,7 +783,7 @@ void udpsock_thread_detach(struct udp_sock *us)
     }
 
     if( i == UDPSOCK_READ_SOCK_MAX_NUM) {
-        printf("no udp sock found \n");
+        printf("No udp sock matched to detach\n");
         return ;
     }
 
