@@ -14,8 +14,12 @@
 
 #define ULOG_LEVEL_CHANGE (UAGENT_FUNC_USER_BASE+1)
 #define ULOG_LOG_LIST     (UAGENT_FUNC_USER_BASE+2)
+#define ULOG_POLICY       (UAGENT_FUNC_USER_BASE+3)
 
 #define ULOG_TAG_SELF "ULOG"
+
+#define ULOG_POLICY_RQST   '?'
+#define ULOG_LEVEL_RSP     "{\"cloud log level\":%d}"
 
 /**
  * syslog management command mark
@@ -290,7 +294,7 @@ typedef enum {
     ulog_session_udp,        /* syslog via udp, port 514 is default for syslog watcher */
 #endif
     ulog_session_size
-}ulog_session_type_t;
+} ulog_session_type_t;
 
 #define REQ_BUF_SIZE (LOCAL_FILE_SIZE+512)
 
