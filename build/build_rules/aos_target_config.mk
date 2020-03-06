@@ -31,8 +31,8 @@ DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
                          application/example/example_legacy   \
-						 application/example   	\
-						 application/profile     \
+                         application/example    \
+                         application/profile     \
                          platform/board     \
                          kernel    \
                          platform  \
@@ -331,15 +331,37 @@ $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/$(comp)) ,$(comp),)))
 PLATFORM_FULL_LEGACY   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(comp)),$(comp),)))
 PLATFORM_IS_LEGACY :=
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/*/$(comp) $(SOURCE_ROOT)/application/*/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/application/example/$(comp) $(SOURCE_ROOT)/application/example/*/$(comp)),$(comp),)))
+APP_FULL_IS_EXAMPLE_LEGACY :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/application/example/example_legacy/$(comp)),$(comp),)))
+APP_FULL_LEGACY    :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/profile/$(comp) $(SOURCE_ROOT)/application/*/example_legacy/$(comp) $(SOURCE_ROOT)/application/*/example_legacy/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
 
+ifneq ($(APP_FULL),)
+ifneq ($(APP_FULL_IS_EXAMPLE_LEGACY),)
+#app is in application/example/example_legacy, set APP_FULL NULL
+APP_FULL        :=
+endif
+endif
 
 ifneq ($(PLATFORM_FULL_LEGACY),)
+ifneq ($(APP_FULL),)
+$(error board in dir board_legacy only support app in dir example_legacy:$(APP_FULL): $(PLATFORM_FULL_LEGACY) )
+endif
 ifneq ($(PLATFORM_FULL),)
-$(error mutiple board name in board_legacy:$PLATFORM_FULL: $PLATFORM_FULL_LEGACY )
+$(error mutiple board name in board_legacy:$(PLATFORM_FULL): $(PLATFORM_FULL_LEGACY) )
 else
 PLATFORM_FULL := $(PLATFORM_FULL_LEGACY)
 PLATFORM_IS_LEGACY := board_legacy/
+endif
+# legacy board use legacy app
+APP_FULL := $(APP_FULL_LEGACY)
+else
+# new board
+ifneq ($(APP_FULL),)
+
+else
+COMPONENTS += app_adapter
+# new board use legacy app
+APP_FULL := $(APP_FULL_LEGACY)
 endif
 endif
 
@@ -349,7 +371,7 @@ APP         :=$(notdir $(APP_FULL))
 PLATFORM_DIRECTORY := $(PLATFORM_FULL)
 
 # Append PLATFORM (Board) and APP_VERSION to EXTRA_CFLAGS
-EXTRA_CFLAGS := -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) 
+EXTRA_CFLAGS := -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
 
 # Append "-include/--preinclude autoconf.h" to EXTRA_CFLAGS
 ifneq ($(filter armcc iar rvct, $(COMPILER)),)
