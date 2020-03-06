@@ -58,14 +58,14 @@ aos make
 
 Set `Select Case` to `Rrpc` in menuconfig, or run this command:
 ```sh
-    aos make MQTTAPP_CONFIG_CASE_RRPC=y
+    aos make MQTTDEMO_CONFIG_CASE_RRPC=y
 ```
 
 3).mqtt_example_multithread.c:
 
 Set `Select Case` to `Multithread` in menuconfig, or run this command:
 ```sh
-    aos make MQTTAPP_CONFIG_CASE_MULTITHREAD=y
+    aos make MQTTDEMO_CONFIG_CASE_MULTITHREAD=y
 ```
 
 3).mqtt_presstest.c:
@@ -73,7 +73,7 @@ Set `Select Case` to `Multithread` in menuconfig, or run this command:
 
 Enable `Test Loop` in menuconfig, or run this command:
 ```sh
-    aos make MQTTAPP_CONFIG_CASE_PRESSTEST=y
+    aos make MQTTDEMO_CONFIG_CASE_PRESSTEST=y
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
