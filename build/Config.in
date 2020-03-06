@@ -87,7 +87,7 @@ source "components/network/netmgr/activation/Config.in"
 source "components/network/netmgr/activation/chip_code/Config.in"
 source "components/dm/ulog/Config.in"
 source "components/dm/ota/Config.in"
-source "components/dm/ota/2ndboot/Config.in"
+source "components/dm/bootloader/Config.in"
 source "components/language/jsengine/Config.in"
 endmenu
 
