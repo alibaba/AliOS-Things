@@ -155,6 +155,14 @@ static int on_ulog_handler(void *p, const unsigned short len, void *cmd)
 #if ULOG_POP_CLOUD_ENABLE
         ulog_cmd = cJSON_GetObjectItem(root, "ulog level");
         if (ulog_cmd != NULL && cJSON_IsNumber(ulog_cmd)) {
+            if(ULOG_POLICY_RQST == ulog_cmd->valueint) {
+                char buf[64];
+                snprintf(buf, sizeof(buf), ULOG_LEVEL_RSP, ulog_stop_filter_level(ulog_session_cloud));
+                rc = uagent_send(UAGENT_MOD_ULOG, ULOG_POLICY,
+                         strlen(buf), buf, send_policy_object);
+
+            }
+
             if (ulog_cmd->valueint <= LOG_NONE) {
                 on_filter_change(ulog_session_cloud, ulog_cmd->valueint);
                 rc = 0;
@@ -199,9 +207,10 @@ static int on_ulog_handler(void *p, const unsigned short len, void *cmd)
 static uagent_func_node_t ulog_uagent_funclist[] =
 {
     {ULOG_LEVEL_CHANGE, "uloglevel",  on_ulog_handler,  NULL,  &ulog_uagent_funclist[1]},
+    {ULOG_POLICY,       "ulogpolicy", NULL,             NULL,  &ulog_uagent_funclist[2]},
 #if ULOG_POP_CLOUD_ENABLE
 #if ULOG_UPLOAD_LOG_FILE
-    {ULOG_SHOW,         "ulogshow",   NULL,             NULL,  &ulog_uagent_funclist[2]},
+    {ULOG_SHOW,         "ulogshow",   NULL,             NULL,  &ulog_uagent_funclist[3]},
 #else /* !ULOG_UPLOAD_LOG_FILE */
     {ULOG_SHOW,         "ulogshow",   NULL,             NULL,  NULL},
 #endif
