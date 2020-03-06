@@ -244,16 +244,16 @@ static void hal_spi_cs_set(uint8_t logic_spi, uint8_t val)
 
     SPI_MAPPING* spiIns = GetSPIMapping(logic_spi);
     if (spiIns==NULL) {
-        return -1;
+        return;
     }
 
     if (spiIns->needmap != HAL_SPI_GPIO_NEED_MAP) {
-        return -1;
+        return;
     }
 
     spi_pin_conf = spiIns->pin_conf;
     if (NULL == spi_pin_conf) {
-        return -1;
+        return;
     }
 
     pin_cnt = spiIns->pin_cnt;
