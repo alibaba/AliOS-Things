@@ -1,0 +1,4 @@
+config AOS_APP_ADAPTER
+    bool "app adapter"
+    help
+        app adapter
