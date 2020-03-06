@@ -118,3 +118,6 @@ endif
 
 EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_image_bin.mk
 
+ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
+EXTRA_TARGET_MAKEFILES += $($(HOST_MCU_FAMILY)_LOCATION)/gen_boot_bin.mk
+endif
