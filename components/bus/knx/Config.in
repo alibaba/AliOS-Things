@@ -1,0 +1,15 @@
+config AOS_COMP_KNX
+    bool "KNX Support"
+    default n
+    help
+    	lightweight KNX stack
+
+if AOS_COMP_KNX
+# Configurations for comp KNX
+config KNX_CONFIG_NCN5120
+    bool "support chipset NCN5120"
+    default n
+    help
+        Enable link layer support for NCN5120 UART TP chipset
+
+endif
