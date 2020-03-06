@@ -15,10 +15,11 @@ limitations under the License.
 #include "uai_batch_space_transform.h"
 #include "string.h"
 
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
-static inline int dims_offset(const int16_t *dims, int i0, int i1, int i2, int i3) {
+static inline int dims_offset(const int16_t *dims, int i0, int i1, int i2, int i3)
+{
 	UAI_VALID_COND_CHECK_RET(i0 >= 0 && i0 < dims[0], 0);
 	UAI_VALID_COND_CHECK_RET(i1 >= 0 && i1 < dims[1], 0);
 	UAI_VALID_COND_CHECK_RET(i2 >= 0 && i2 < dims[2], 0);

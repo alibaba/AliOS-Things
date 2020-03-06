@@ -65,60 +65,68 @@ static inline void uai_free_dbg(void *addr, char *file, int line)
 
 #endif /* end of UAI_MEM_DBG */
 
-#define UAI_NON_ZERO_ZALLOC(ptr, size) do { \
-                                            if (size != 0) { \
-                                                ptr = uai_malloc(size); \
-                                                if(ptr != NULL) \
-                                                    memset(ptr, 0, size); \
-                                            } else {  \
-                                                ptr = NULL; \
-                                            } \
-                                        }while(0);
+#define UAI_NON_ZERO_ZALLOC(ptr, size)     \
+    do {                                   \
+        if (size != 0) {                   \
+            ptr = uai_malloc(size);        \
+            if(ptr != NULL)                \
+                memset(ptr, 0, size);      \
+        } else {                           \
+            ptr = NULL;                    \
+        }                                  \
+    } while(0);
 
-#define UAI_NON_ZERO_FREE(ptr) do { \
-                                    if (ptr != NULL) { \
-                                        uai_free(ptr); \
-                                        ptr = NULL;    \
-                                    }   \
-                                }while(0);
+#define UAI_NON_ZERO_FREE(ptr)             \
+    do {                                   \
+        if (ptr != NULL) {                 \
+            uai_free(ptr);                 \
+            ptr = NULL;                    \
+        }                                  \
+    }while(0);
 
-#define UAI_VALID_PTR_CHECK_INT(ptr, errno) do { \
-                                                if (ptr == NULL) { \
-                                                    UAI_LOGE("ptr is NULL"); \
-                                                    return errno; \
-                                                } \
-                                            }while(0);
+#define UAI_VALID_PTR_CHECK_INT(ptr, errno) \
+    do {                                    \
+        if (ptr == NULL) {                  \
+            UAI_LOGE("ptr is NULL");        \
+            return errno;                   \
+        }                                   \
+    }while(0);
 
-#define UAI_VALID_PTR_CHECK_VOID(ptr) do { \
-                                            if (ptr == NULL) { \
-                                                UAI_LOGE("ptr is NULL"); \
-                                                return; \
-                                            } \
-                                        }while(0);
+#define UAI_VALID_PTR_CHECK_VOID(ptr)       \
+    do {                                    \
+        if (ptr == NULL) {                  \
+            UAI_LOGE("ptr is NULL");        \
+            return;                         \
+        }                                   \
+    }while(0);
 
-#define UAI_VALID_COND_CHECK_RET(cond, errno) do { \
-                                                    if (!(cond)) { \
-                                                        UAI_LOGE("cond is false"); \
-                                                        return errno; \
-                                                    } \
-                                                }while(0);
+#define UAI_VALID_COND_CHECK_RET(cond, errno)   \
+    do {                                        \
+        if (!(cond)) {                          \
+            UAI_LOGE("cond is false");          \
+            return errno;                       \
+        }                                       \
+    }while(0);
 
-#define UAI_VALID_PTR_CHECK_NULL(ptr) do { \
-                                            if (ptr == NULL) { \
-                                                UAI_LOGE("ptr is NULL"); \
-                                                return NULL; \
-                                            } \
-                                        }while(0);
+#define UAI_VALID_PTR_CHECK_NULL(ptr)           \
+    do {                                        \
+        if (ptr == NULL) {                      \
+            UAI_LOGE("ptr is NULL");            \
+            return NULL;                        \
+        }                                       \
+    }while(0);
 
-#define UAI_RET_WITH_MEM_FREE(mem_ptr, ret) do {     \
-                                                uai_free(mem_ptr);   \
-                                                return ret;          \
-                                            }while(0);
+#define UAI_RET_WITH_MEM_FREE(mem_ptr, ret)     \
+    do {                                        \
+        uai_free(mem_ptr);                      \
+        return ret;                             \
+    }while(0);
 
 #ifdef UAI_ODLA_SUPPORT
 #define UAI_IS_SAME_DIMS(input1, input2) (memcmp(&((input1)->dims), &((input2)->dims), sizeof(uai_dims)))
 
-#define UAI_IS_SAME_LAST_DIM(input1, input2) (input1->dims.dims[input1->dims.size-1] == input2->dims.dims[input2->dims.size])
+#define UAI_IS_SAME_LAST_DIM(input1, input2) \
+    (input1->dims.dims[input1->dims.size-1] == input2->dims.dims[input2->dims.size])
 
 #define UAI_IS_1_DIM(input1) (input1->dims.size == 1)
 

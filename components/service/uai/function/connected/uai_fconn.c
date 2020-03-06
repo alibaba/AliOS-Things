@@ -8,21 +8,21 @@
 
 #ifdef UAI_ODLA_SUPPORT
 #ifdef UAI_USE_CMSIS_NN
-extern arm_status
-arm_fully_connected_q7_uai(const q7_t * pV,
-                       const q7_t * pM,
-                       const uint16_t dim_vec,
-                       const uint16_t num_of_rows,
-                       const int32_t *scale,
-                       q31_t * pOut, q15_t * vec_buffer);
+extern arm_status arm_fully_connected_q7_uai(const q7_t * pV,
+                                             const q7_t * pM,
+                                             const uint16_t dim_vec,
+                                             const uint16_t num_of_rows,
+                                             const int32_t *scale,
+                                             q31_t * pOut,
+                                             q15_t * vec_buffer);
 #endif
 int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel_scale, uai_tensor_s *output)
 {
-    int16_t dtype = 0;
+    int16_t  dtype = 0;
+    int32_t  ret   = 0;
     int16_t *vec_buffer;
-    int32_t ret = 0;
 
-    dtype = ((input->dtype)<<4) + output->dtype;
+    dtype = ((input->dtype) << 4) + output->dtype;
 
 #if defined(UAI_USE_CMSIS_NN)
     #if defined (ARM_MATH_DSP)
@@ -32,7 +32,7 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel
     vec_buffer = uai_malloc(sizeof(int16_t) * input->size);
     #endif
     #endif
-    switch(dtype) {
+    switch (dtype) {
         case 0x11:
             ret = arm_fully_connected_q7_uai(input->buffer, weight->buffer, input->size, weight->dims.dims[UAI_DIM_HEIGHT], kernel_scale->scale, (int32_t *)output->buffer, vec_buffer);
             break;
@@ -57,9 +57,9 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel
 #else
 int uai_fconn(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output)
 {
-    int16_t dtype = 0;
+    int16_t  dtype = 0;
+    int32_t  ret   = 0;
     int16_t *vec_buffer;
-    int32_t ret = 0;
 
     dtype = ((input->dtype)<<4) + output->dtype;
 
@@ -73,13 +73,16 @@ int uai_fconn(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_ou
     #endif
     switch(dtype) {
         case 0x11:
-            ret = arm_fully_connected_q7(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_q7(input->buffer, weight->buffer, input->size, weight->height, bias->shift,
+                                         output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         case 0x22:
-            ret = arm_fully_connected_q15(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_q15(input->buffer, weight->buffer, input->size, weight->height, bias->shift,
+                                          output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         case 0x12:
-            ret = arm_fully_connected_mat_q7_vec_q15(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_mat_q7_vec_q15(input->buffer, weight->buffer, input->size, weight->height, bias->shift,
+                                                     output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         default:
             break;
@@ -102,10 +105,10 @@ int uai_fconn(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_ou
 int uai_fconn_opt(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, uai_output_s *output)
 {
     uint16_t dtype = 0;
+    int32_t  ret   = 0;
     int16_t *vec_buffer;
-    int32_t ret = 0;
 
-    dtype = ((input->dtype)<<4) | output->dtype;
+    dtype = ((input->dtype) << 4) | output->dtype;
 
 #if defined(UAI_USE_CMSIS_NN)
     #if defined (ARM_MATH_DSP)
@@ -115,15 +118,18 @@ int uai_fconn_opt(uai_input_s *input, uai_weight_s *weight, uai_bias_s *bias, ua
     vec_buffer = uai_malloc(sizeof(int16_t) * input->size);
     #endif
     #endif
-    switch(dtype) {
+    switch (dtype) {
         case 0x11:
-            ret =  arm_fully_connected_q7_opt(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_q7_opt(input->buffer, weight->buffer, input->size, weight->height, bias->shift,
+                                             output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         case 0x22:
-            ret = arm_fully_connected_q15_opt(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_q15_opt(input->buffer, weight->buffer, input->size, weight->height, bias->shift,
+                                              output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         case 0x12:
-            ret = arm_fully_connected_mat_q7_vec_q15_opt(input->buffer, weight->buffer, input->size, weight->height, bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
+            ret = arm_fully_connected_mat_q7_vec_q15_opt(input->buffer, weight->buffer, input->size, weight->height,
+                                                         bias->shift, output->shift, bias->buffer, output->buffer, vec_buffer);
             break;
         default:
             break;

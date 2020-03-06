@@ -31,6 +31,13 @@
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
 
+extern q7_t *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
+                                                  const q15_t * pInBuffer,
+                                                  const uint16_t ch_im_out,
+                                                  const uint16_t numCol_A,
+                                                  const int32_t *scale,
+                                                  q31_t * pOut);
+
 /**
  *  @ingroup groupNN
  */
