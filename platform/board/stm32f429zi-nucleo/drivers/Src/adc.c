@@ -59,7 +59,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
         __HAL_RCC_ADC1_CLK_DISABLE();
     } else if (hadc->Instance == ADC2) {
         __HAL_RCC_ADC2_CLK_DISABLE();
-    } else if (hadc->Instance == ADC) {
+    } else if (hadc->Instance == ADC3) {
         __HAL_RCC_ADC3_CLK_DISABLE();
     }
 }
