@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
 $(NAME)_LIBSUFFIX := _2ndboot
 
-$(NAME)_COMPONENTS += ota_2ndboot
+$(NAME)_COMPONENTS += bootloader
 
 GLOBAL_INCLUDES := hal/2ndboot
 
