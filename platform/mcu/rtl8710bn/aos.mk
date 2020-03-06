@@ -18,7 +18,7 @@ $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 ifeq ($(AOS_2NDBOOT_SUPPORT), yes)
-$(NAME)_COMPONENTS += ota_2ndboot
+$(NAME)_COMPONENTS += bootloader
 $(NAME)_LIBSUFFIX  := _2ndboot
 else
 $(NAME)_COMPONENTS += arch_armv7m

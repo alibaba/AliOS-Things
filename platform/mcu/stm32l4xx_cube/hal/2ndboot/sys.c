@@ -2,12 +2,12 @@
 #include "stm32l4xx_hal.h"
 #include "hal_boot_process.h"
 
-void sys_delayms(volatile int timesMS)
+void hal_sys_delay(unsigned int ms)
 {
-     HAL_Delay(timesMS);
+     HAL_Delay(ms);
 }
 
-void sys_reboot(void)
+void hal_sys_reboot(void)
 {
     HAL_NVIC_SystemReset();
     for(;;);
