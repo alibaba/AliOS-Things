@@ -68,12 +68,15 @@ const hal_logic_partition_t hal_partitions[] =
     },
 };
 
+
+const size_t hal_partitions_amount = (sizeof(hal_partitions)/sizeof(hal_logic_partition_t));
+
 void board_init(void)
 {
 }
 
 int board_cli_init(void)
-{ 
+{
     return -1;
 }
 
