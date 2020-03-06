@@ -25,6 +25,7 @@ For new format boad, startup.c jump to API of "aos_maintask" which realized in n
 ### Standand directories layout
 ```sh
 |--board/board_legacy
+|--board/*								: new format different from board_legacy
     |--xxx
         |--config
         |   --board.h                   : board config file, define for user, such as uart port num             Y
