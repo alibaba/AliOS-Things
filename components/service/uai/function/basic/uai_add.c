@@ -9,27 +9,31 @@
 
 #ifdef UAI_ODLA_SUPPORT
 /* ODLA will broadcasting the bias to the same dimensions as input*/
-int uai_bias_add(uai_tensor_s *input, uai_tensor_s *bias, uai_quant_scale *bias_scale, uai_quant_scale *act_scale, uai_tensor_s *output)
+int uai_bias_add(uai_tensor_s *input, uai_tensor_s *bias, uai_quant_scale *bias_scale, uai_quant_scale *act_scale,
+                 uai_tensor_s *output)
 {
-    int hi          = 0;
-    int wi          = 0;
-    int ci          = 0;
+    int hi = 0;
+    int wi = 0;
+    int ci = 0;
 
-    if((input->dim_batch != 1) || (bias->dim_batch != 1)) {
+    if ((input->dim_batch != 1) || (bias->dim_batch != 1)) {
         return UAI_FAIL;
     }
 
-    if(UAI_IS_SAME_DIMS(input, bias)) {
+    if (UAI_IS_SAME_DIMS(input, bias)) {
         memcpy(&output->dims, &input->dims, sizeof(uai_dims));
         output->buffer = uai_malloc(uai_dims_size(&output->dims));
-        for(ci = 0; ci < input->dim_channels; ci++) {
-            for(wi = 0; wi < input->dim_width; wi++) {
-                for(hi = 0; hi < input->dim_height; hi++) {
-                    output->buffer[hi*wi*ci] = (int8_t) __SSAT(((((uint32_t *)input->buffer)[hi*wi*ci] + bias->buffer[hi*wi*ci]*bias_scale->scale[ci]) >> (act_scale->shift)) / act_scale->scale[ci], 8);
+        for (ci = 0; ci < input->dim_channels; ci++) {
+            for (wi = 0; wi < input->dim_width; wi++) {
+                for (hi = 0; hi < input->dim_height; hi++) {
+                    output->buffer[hi * wi * ci] =
+                        (int8_t) __SSAT(((((uint32_t *)input->buffer)[hi*wi*ci] +
+                                            bias->buffer[hi*wi*ci]*bias_scale->scale[ci]) >>
+                                            (act_scale->shift)) / act_scale->scale[ci], 8);
                 }
             }
         }
-    }  else {
+    } else {
         return UAI_FAIL;
     }
 
