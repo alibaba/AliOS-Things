@@ -1,8 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "2ndboot.h"
-#include "updater.h"
+#include "bootloader.h"
 
 int ota_patch_show_percent(int per)
 {
@@ -42,8 +41,8 @@ EXIT:
     OTA_LOG_I("ota update complete ret:%d \n", ret);
     if(ret < 0 && ota_param.boot_count <= 3) {
         ota_patch_write_param(&ota_param);
-        sys_delayms(100);
-        sys_reboot();
+        boot_delay(100);
+        boot_reset();
     } else {
         if(ota_param.upg_flag != 0) {
             ota_param.upg_flag = 0;
@@ -58,7 +57,7 @@ EXIT:
 void ota_2ndboot_error(void *errinfo)
 {
     printf(errinfo);
-    sys_reboot();
+    boot_reset();
 }
 
 void print_usage(void)
@@ -91,25 +90,26 @@ static void ota_2ndboot_cli_menu(void)
                     break;
                 case '2' :
                     printf("Reboot \r\n");
-                    sys_reboot();
+                    boot_reset();
                     break;
                 default:
                     print_usage();
                     break;
             }
             printf("\r\n2ndboot# ");
-            sys_delayms(1);
+            boot_delay(1);
         }
     }
 }
 
-int ota_2ndboot_main(void)
+int boot_main(void)
 {
     int ret = 0;
     unsigned char c = 0;
     unsigned int  i = 0;
 
     uart_init();
+
     printf("\r\nPress key \'w\' to 2ndboot cli menu in 100ms.\r\n");
     while(1) {
         if(uart_recv_byte(&c) && ('w' == c)) {
@@ -117,13 +117,21 @@ int ota_2ndboot_main(void)
             return 0;
         }
         i ++;
-        if(i >= 100)break;
-        sys_delayms(1);
+        if(i >= 100) {
+            break;
+        }
+        boot_delay(1);
     }
-    wdg_init(OTA_2NDBOOT_WDG_TIMEOUT*1000);
-    wdg_feed();
+
+    boot_wdg_init(OTA_2NDBOOT_WDG_TIMEOUT*1000);
+
+    boot_wdg_reload();
+
     /* check OTA upgrade */
     ret = ota_updater();
-    wdg_finish();
+
+    boot_wdg_finalize();
+
     return ret;
 }
+

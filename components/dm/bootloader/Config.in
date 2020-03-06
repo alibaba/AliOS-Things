@@ -1,0 +1,50 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_BOOTLOADER
+    bool 
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_UDATA
+    bool "BootLoader Support"
+    default n
+    help
+        BootLoader Support
+endif
+###################################################################
+# Component configuration items
+menu "BootLoader Configuration"
+depends on AOS_COMP_BOOTLOADER
+
+config AOS_COMP_UPDATER
+    bool "Boot Updater Support"
+    default y
+    help
+
+if AOS_COMP_UPDATER
+config OTA_2NDBOOT_WDG_TIMEOUT
+    int "OTA BootLoader Watch Dog Timeout(s)"
+    default 120
+    help
+    setup OTA BootLoader Watch Dog Timeout, default:120s.
+
+config OTA_2NDBOOT_XZ_BUF_SIZE
+    int "OTA BootLoader XZ upgrade buffer size(byte)"
+    default 2048
+    help
+    setup OTA BootLoader XZ upgrade buffer size, default:2048.
+
+endif
+
+config AOS_COMP_YMODEM
+    bool "Ymodem Support"
+    default y
+    help
+
+endmenu
