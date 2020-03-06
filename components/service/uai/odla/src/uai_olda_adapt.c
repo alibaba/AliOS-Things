@@ -35,7 +35,7 @@ uai_tensor_s *uai_odla_tensor_transofrm(const odla_value value, odla_dims dims, 
     input->dims.format = (layout == CHANNELS_LAST) ? UAI_NHWC : UAI_SIO;
     memcpy(input->dims.dims, dims->dims, dims->size * sizeof(size_t));
 
-    input->size = uai_get_total_elements(dims);
+    input->size   = uai_get_total_elements(dims);
     input->buffer = value;
     input->dtype  = type;
 
@@ -65,7 +65,7 @@ int uai_odla_add_memlist(uai_mem_list_t *memlist, void *ptr)
         memlist->tail = new_mem;
     } else {
         memlist->tail->next = new_mem;
-        memlist->tail = new_mem;
+        memlist->tail       = new_mem;
     }
 
     return 0;
