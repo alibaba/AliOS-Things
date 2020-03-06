@@ -13,26 +13,26 @@ if AOS_APP_MQTT_DEMO
 
 choice
     prompt "Select Case"
-    default MQTTAPP_CONFIG_CASE_DEFAULT
+    default MQTTDEMO_CONFIG_CASE_DEFAULT
     help
         select case to build
 
-    config MQTTAPP_CONFIG_CASE_DEFAULT
+    config MQTTDEMO_CONFIG_CASE_DEFAULT
         bool "Default"
         help
             default case, build mqtt_example.c
 
-    config MQTTAPP_CONFIG_CASE_RRPC
+    config MQTTDEMO_CONFIG_CASE_RRPC
         bool "Rrpc"
         help
             "case rrpc, build mqtt_example_rrpc.c
 
-    config MQTTAPP_CONFIG_CASE_MULTITHREAD
+    config MQTTDEMO_CONFIG_CASE_MULTITHREAD
         bool "Multithread"
         help
             case multithread, build mqtt_example_multithread.c
 
-    config MQTTAPP_CONFIG_CASE_PRESSTEST
+    config MQTTDEMO_CONFIG_CASE_PRESSTEST
         bool "Presstest"
         help
             case presstest, build mqtt_presstest.c
