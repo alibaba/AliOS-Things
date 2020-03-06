@@ -8,6 +8,7 @@
 #include "aos/init.h"
 #include "board.h"
 #include <k_api.h>
+#include <k_compiler.h>
 
 #ifndef AOS_BINS
 extern int application_start(int argc, char *argv[]);
@@ -37,7 +38,7 @@ static kinit_t kinit = {0, NULL, 1};
   * @param None
   * @retval None
   */
-void board_init(void)
+RHINO_WEAK void board_init(void)
 {
     board_tick_init();
     board_stduart_init();
@@ -49,7 +50,7 @@ void board_init(void)
     /*FOR STM32F429 delete hal_i2c_pre_init \I2C1_init\CAN_init here*/
 }
 
-void aos_maintask(void* arg)
+RHINO_WEAK void aos_maintask(void* arg)
 {
     board_init();
     board_kinit_init(&kinit);
