@@ -4,7 +4,7 @@
 #include "hal_boot_wdg.h"
 #include "hal_boot_process.h"
 
-#include "2ndboot.h"
+#include "bootloader.h"
 
 void HAL_PWR_EnableBkUpAccess(void)
 {
@@ -139,8 +139,8 @@ int main(void)
     if(ret != 0 && ota_param.boot_count <= 3) {
         printf("fail.\n");
         ota_patch_write_param(&ota_param);
-        sys_delayms(100);
-        sys_reboot();
+        boot_delay(100);
+        boot_reset();
     } else if (ota_param.upg_flag != 0) {
         ota_param.upg_flag = 0;
         ota_param.boot_count = 0;
