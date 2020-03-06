@@ -24,4 +24,4 @@ int uai_elementwise_add(uai_input_s *input1, uai_input_s *input2, uai_output_s *
 }
 #endif
 
-#endif  /* end of UAI_ADD_H */
+#endif /* end of UAI_ADD_H */
