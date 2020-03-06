@@ -268,7 +268,7 @@ static int uai_load_data_from_file(int8_t *weight, int8_t *bias, int32_t weight_
     }
 
     fd = fopen(filename, "rb");
-    if(fd == NULL) {
+    if (fd == NULL) {
         UAI_LOGE("open file fail !\n");
         return UAI_FAIL;
     }
@@ -276,7 +276,7 @@ static int uai_load_data_from_file(int8_t *weight, int8_t *bias, int32_t weight_
     fseek(fd, 0, SEEK_END);
     size = ftell(fd);
 
-    if(weight_size + bias_size > size - offset) {
+    if (weight_size + bias_size > size - offset) {
         UAI_LOGE("size error !\n");
         fclose(fd);
         return UAI_FAIL;
@@ -285,14 +285,14 @@ static int uai_load_data_from_file(int8_t *weight, int8_t *bias, int32_t weight_
     fseek(fd, offset, SEEK_SET);
 
     ret = fread(weight, 1, weight_size, fd);
-    if(ret <= 0) {
+    if (ret <= 0) {
         UAI_LOGE("read from file error, ret %d !\n", ret);
         fclose(fd);
         return UAI_FAIL;
     }
 
     ret = fread(bias, 1, bias_size, fd);
-    if(ret <= 0) {
+    if (ret <= 0) {
         UAI_LOGE("read from file error, ret %d !\n", ret);
         fclose(fd);
         return UAI_FAIL;
@@ -313,7 +313,7 @@ static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, 
     uai_model_quant_scale_t *model_quant_scale = uai_malloc(sizeof(uai_model_quant_scale_t));
     UAI_VALID_PTR_CHECK_INT(model_quant_scale, UAI_FAIL);
 
-    if(UAI_SUCCESS != uai_file_info_parse(model_data_src, &filename)) {
+    if (UAI_SUCCESS != uai_file_info_parse(model_data_src, &filename)) {
         UAI_LOGE("file info parse fail !\n");
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
     }
@@ -327,7 +327,7 @@ static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, 
     fseek(fd, 0, SEEK_END);
     size = ftell(fd);
 
-    if(sizeof(uai_model_quant_scale_t) > size) {
+    if (sizeof(uai_model_quant_scale_t) > size) {
         UAI_LOGE("size error !\n");
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
@@ -336,28 +336,28 @@ static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, 
     fseek(fd, offset, SEEK_SET);
 
     ret = fread(model_quant_scale, 1, sizeof(uai_model_quant_scale_t), fd);
-    if(ret <= 0) {
+    if (ret <= 0) {
         UAI_LOGE("read from file error, ret %d !\n", ret);
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
     }
 
-    if(layer_id >= model_quant_scale->total_layer) {
+    if (layer_id >= model_quant_scale->total_layer) {
         UAI_LOGE("layer_id error !\n");
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
     }
 
     offset += sizeof(uai_model_quant_scale_t) + model_quant_scale->scale_offset[type][layer_id];
-    size     = model_quant_scale->scale_num[type][layer_id];
+    size    = model_quant_scale->scale_num[type][layer_id];
 
     *quant_scale = (uai_quant_scale *)uai_malloc(sizeof(uai_quant_scale));
-    if(*quant_scale == NULL) {
+    if (*quant_scale == NULL) {
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
     }
     (*quant_scale)->scale = (float *)uai_malloc(sizeof(int32_t) * size);
-    if((*quant_scale)->scale == NULL) {
+    if ((*quant_scale)->scale == NULL) {
         uai_free(*quant_scale);
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
@@ -366,7 +366,7 @@ static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, 
 
     fseek(fd, offset, SEEK_SET);
     ret = fread((*quant_scale)->scale, 1, sizeof(int32_t)*size, fd);
-    if(ret <= 0) {
+    if (ret <= 0) {
         UAI_LOGE("read from file error, ret %d !\n", ret);
         fclose(fd);
         uai_free((*quant_scale)->scale);
@@ -375,7 +375,7 @@ static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, 
     }
 
     UAI_LOGD("load model data from flash success !\n");
-
+    fclose(fd);
     UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_SUCCESS);
 }
 #endif
