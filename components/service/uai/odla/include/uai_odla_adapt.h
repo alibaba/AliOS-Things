@@ -28,9 +28,7 @@ struct _odla_Computation {
     int32_t layer_id;
     uai_tensor_s *input;
     uai_tensor_s *output;
-#ifdef UAI_PRELOAD_SCALE_ONCE
-    uai_quant_scale **quant_scale;
-#endif
+    uai_model_quant_scale_data_t *model_quant_scale;
     odla_helper_func helper_func;
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_mem_list_t *mem_list;
