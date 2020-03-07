@@ -5,22 +5,21 @@
 
 #include "uai_odla.h"
 
-odla_computation odla_CreateComputation(odla_helper_func helper_func, uai_quant_scale **quant_scale) {
+odla_computation odla_CreateComputation(odla_helper_func helper_func) {
     odla_computation p = (odla_computation)malloc(sizeof(struct _odla_Computation));
     p->helper_func = helper_func;
-#ifndef UAI_ODLA_SUPPORT_FREE_MEM
-    p->mem_list    = uai_odla_init_memlist();
-#endif
-#ifdef UAI_PRELOAD_SCALE_ONCE
-    uai_modelP->quant_scale = quant_scale;
-#endif
+    p->model_quant_scale = uai_load_model_scale();
+
     return p;
 }
 
 odla_session odla_CreateSession(odla_computation comp) {
-    odla_session s = (odla_session)malloc(sizeof(struct _odla_Session));
-    s->comp = comp;
+    odla_session s    = (odla_session)malloc(sizeof(struct _odla_Session));
+    s->comp           = comp;
     s->comp->layer_id = 0;
+#ifndef UAI_ODLA_SUPPORT_FREE_MEM
+    s->comp->mem_list = uai_odla_init_memlist();
+#endif
     return s;
 }
 
@@ -72,8 +71,8 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
                     odla_dims dims_rhs)
 {
     int ret = 0;
-    uai_quant_scale *bias_scale = NULL;
-    uai_quant_scale *act_scale  = NULL;
+    uai_quant_scale bias_scale;
+    uai_quant_scale act_scale;
     uai_tensor_s *input1 = uai_odla_tensor_transofrm(lhs, dims_lhs, INT8, CHANNELS_LAST);
     uai_tensor_s *input2 = uai_odla_tensor_transofrm(rhs, dims_rhs, INT8, CHANNELS_LAST);
     uai_tensor_s *output = uai_zalloc(sizeof(uai_tensor_s));
@@ -83,14 +82,10 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
     UAI_VALID_PTR_CHECK_NULL(input2);
     UAI_VALID_PTR_CHECK_NULL(output);
 
-#ifdef UAI_PRELOAD_SCALE_ONCE
-    bias_scale = comp->quant_scale[UAI_BIAS_SCALE][comp->layer_id];
-    act_scale  = comp->quant_scale[UAI_ACT_SCALE][comp->layer_id];
-#else
-    uai_load_model_scale(comp->layer_id, UAI_BIAS_SCALE, &bias_scale);
-    uai_load_model_scale(comp->layer_id, UAI_ACT_SCALE, &act_scale);
-#endif
-    ret = uai_bias_add(input1, input2, bias_scale, act_scale, output);
+    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_BIAS_SCALE, &bias_scale);
+    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_ACT_SCALE, &act_scale);
+
+    ret = uai_bias_add(input1, input2, &bias_scale, &act_scale, output);
 
     add_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
@@ -100,13 +95,6 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
     uai_free(input1);
     uai_free(input2);
     uai_free(output);
-
-#ifndef UAI_PRELOAD_SCALE_ONCE
-    uai_free(bias_scale->scale);
-    uai_free(bias_scale);
-    uai_free(act_scale->scale);
-    uai_free(act_scale);
-#endif
 
     return add_value;
 }
@@ -175,7 +163,7 @@ odla_value odla_Convolution(odla_computation comp, odla_element_type type,
                             odla_dims output_dims)
 {
     int ret = 0;
-    uai_quant_scale *kernel_scale    = NULL;
+    uai_quant_scale kernel_scale;
     uai_tensor_s *input_conv  = uai_odla_tensor_transofrm(input, input_dims, type, input_layout);
     uai_tensor_s *kernel_conv = uai_odla_tensor_transofrm(kernel, kernel_dims, type, kernel_layout);
     uai_tensor_s *output      = uai_odla_tensor_transofrm(NULL, output_dims, type, input_layout);
@@ -186,21 +174,13 @@ odla_value odla_Convolution(odla_computation comp, odla_element_type type,
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
 
-#ifdef UAI_PRELOAD_SCALE_ONCE
-    kernel_scale = comp->quant_scale[UAI_KERNEL_SCALE][comp->layer_id];
-#else
-    uai_load_model_scale(comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
-#endif
-    ret = uai_conv(input_conv, kernel_conv, strides, paddings_front, paddings_back, kernel_scale, output);
+    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
+    ret = uai_conv(input_conv, kernel_conv, strides, paddings_front, paddings_back, &kernel_scale, output);
     conv_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
     uai_free(input_conv);
     uai_free(kernel_conv);
     uai_free(output);
-#ifndef UAI_PRELOAD_SCALE_ONCE
-    uai_free(kernel_scale->scale);
-    uai_free(kernel_scale);
-#endif
 
     comp->layer_id ++;
 
@@ -248,7 +228,7 @@ odla_value odla_Gemm(odla_computation comp, odla_element_type type,
                      odla_dims output_dims)
 {
     int ret = 0;
-    uai_quant_scale *kernel_scale    = NULL;
+    uai_quant_scale kernel_scale;
     uai_tensor_s *input  = uai_odla_tensor_transofrm(lhs, lhs_dims, type, CHANNELS_LAST);
     uai_tensor_s *weight = uai_odla_tensor_transofrm(rhs, rhs_dims, type, CHANNELS_LAST);
     uai_tensor_s *output = uai_odla_tensor_transofrm(NULL, output_dims, type, CHANNELS_LAST);
@@ -259,22 +239,13 @@ odla_value odla_Gemm(odla_computation comp, odla_element_type type,
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
 
-#ifdef UAI_PRELOAD_SCALE_ONE_TIME
-    kernel_scale = comp->quant_scale[UAI_KERNEL_SCALE][comp->layer_id];
-#else
-    uai_load_model_scale(comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
-#endif
-
-    ret = uai_fconn(input, weight, kernel_scale, output);
+    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
+    ret = uai_fconn(input, weight, &kernel_scale, output);
     fconn_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
     uai_free(input);
     uai_free(weight);
     uai_free(output);
-#ifndef UAI_PRELOAD_SCALE_ONCE
-    uai_free(kernel_scale->scale);
-    uai_free(kernel_scale);
-#endif
 
     comp->layer_id ++;
 

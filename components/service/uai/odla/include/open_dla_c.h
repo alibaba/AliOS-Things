@@ -63,7 +63,7 @@ typedef enum {
 //! \brief Create an empty computation object
 /*! \return A pointer to the computation object
  */
-odla_computation odla_CreateComputation(odla_helper_func helper_func, uai_quant_scale **quant_scale);
+odla_computation odla_CreateComputation(odla_helper_func helper_func);
 
 //! \brief Creats a session object
 /*! \param comp A pointer to a computation object
