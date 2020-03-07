@@ -84,52 +84,50 @@ static int uai_load_data_from_flash(int8_t *weight, int8_t *bias, int32_t weight
 }
 
 #ifdef UAI_ODLA_SUPPORT
-static int uai_load_scale_from_flash(int8_t layer_id, uai_quant_scale_type type, uai_quant_scale **quant_scale, char *model_data_src)
+static uai_model_quant_scale_data_t *uai_load_all_scale_from_flash(char *model_data_src)
 {
-    uint32_t ptno;
-    uint32_t off_set;
-    int      size;
-    int      ret;
-    uai_model_quant_scale_t *model_quant_scale = uai_malloc(sizeof(uai_model_quant_scale_t));
-    UAI_VALID_PTR_CHECK_INT(model_quant_scale, UAI_FAIL);
+    uint32_t    ptno = 0;
+    uint32_t off_set = 0;
+    uint32_t   total = 0;
+    int      size    = 0;
+    int      ret     = 0;
+    int            i = 0;
+    int            j = 0;
+    uai_model_quant_scale_data_t *model_quant_scale;
 
     if(UAI_SUCCESS != uai_flash_info_parse(model_data_src, &ptno, &off_set, &size)) {
         UAI_LOGE("flash info parse fail !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        return NULL;
     }
 
-    ret = hal_flash_read(ptno, &off_set, model_quant_scale, sizeof(uai_model_quant_scale_t));
+    if (sizeof(uai_model_quant_scale_data_t)  > size) {
+        UAI_LOGE("size error !\n");
+        return NULL;
+    }
+
+    model_quant_scale = (uai_model_quant_scale_data_t *)uai_malloc(size);
+    UAI_VALID_PTR_CHECK_NULL(model_quant_scale);
+
+    ret = hal_flash_read(ptno, &off_set, model_quant_scale, size);
     if(ret != 0) {
         UAI_LOGE("read from flash error !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        UAI_RET_WITH_MEM_FREE(model_quant_scale, NULL);
     }
 
-    if(layer_id >= model_quant_scale->total_layer) {
-        UAI_LOGE("layer_id error !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+    total = sizeof(uai_model_quant_scale_data_t);
+    for (i = 0; i < UAI_SCALE_END; i++) {
+        for (j = 0; j < model_quant_scale->head.total_layer; j++) {
+            total += model_quant_scale->head.scale_num[i][j] * sizeof(int32_t);
+        }
+    }
+    if(total < size) {
+        UAI_LOGE("file size error, need %u, actual %u\n", total, size);
+        UAI_RET_WITH_MEM_FREE(model_quant_scale, NULL);
     }
 
-    off_set += sizeof(uai_model_quant_scale_t) + model_quant_scale->scale_offset[type][layer_id];
-    size     = model_quant_scale->scale_num[type][layer_id];
+    UAI_LOGD("load model scale from flash success !\n");
 
-    *quant_scale = (uai_quant_scale *)uai_malloc(sizeof(uai_quant_scale));
-    if(*quant_scale == NULL) {
-
-    }
-    (*quant_scale)->scale = (float *)uai_malloc(sizeof(float) * size);
-    (*quant_scale)->scale_num = size;
-
-    ret = hal_flash_read(ptno, &off_set, (*quant_scale)->scale, sizeof(float) * size);
-    if(ret != 0) {
-        UAI_LOGE("read from flash error !\n");
-        uai_free((*quant_scale)->scale);
-        uai_free(*quant_scale);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
-    }
-
-    UAI_LOGD("load model data from flash success !\n");
-
-    UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_SUCCESS);
+    return model_quant_scale;
 }
 #endif
 
@@ -187,47 +185,41 @@ static int uai_load_data_from_mem(uint32_t *weight_addr, uint32_t *bias_addr, in
 }
 
 #ifdef UAI_ODLA_SUPPORT
-static int uai_load_scale_from_mem(int8_t layer_id, uai_quant_scale_type type, uai_quant_scale **quant_scale, char *model_data_src)
+static uai_model_quant_scale_data_t *uai_load_all_scale_from_mem(char *model_data_src)
 {
-    uint32_t addr;
-    int      size;
-    int      offset = 0;
-    uai_model_quant_scale_t *model_quant_scale = uai_malloc(sizeof(uai_model_quant_scale_t));
-    UAI_VALID_PTR_CHECK_INT(model_quant_scale, UAI_FAIL);
+    uint32_t addr = 0;
+    int      size = 0;
+    int         i = 0;
+    int         j = 0;
+    int     total = 0;
+    uai_model_quant_scale_data_t *model_quant_scale;
 
     if(UAI_SUCCESS != uai_mem_info_parse(model_data_src, &addr, &size)) {
         UAI_LOGE("flash info parse fail !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        return NULL;
     }
 
-    UAI_VALID_COND_CHECK_RET(size >= sizeof(uai_model_quant_scale_t), UAI_FAIL);
-
-    model_quant_scale = (uai_model_quant_scale_t *)addr;
-
-    if(layer_id >= model_quant_scale->total_layer) {
-        UAI_LOGE("layer_id error !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+    if (sizeof(uai_model_quant_scale_data_t)  > size) {
+        UAI_LOGE("size error !\n");
+        return NULL;
     }
 
-    offset += sizeof(uai_model_quant_scale_t) + model_quant_scale->scale_offset[type][layer_id];
-    size    = model_quant_scale->scale_num[type][layer_id];
+    model_quant_scale = (uai_model_quant_scale_data_t *)addr;
 
-    *quant_scale = (uai_quant_scale *)uai_malloc(sizeof(uai_quant_scale));
-    if(*quant_scale == NULL) {
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+    total = sizeof(uai_model_quant_scale_data_t);
+    for (i = 0; i < UAI_SCALE_END; i++) {
+        for (j = 0; j < model_quant_scale->head.total_layer; j++) {
+            total += model_quant_scale->head.scale_num[i][j] * sizeof(int32_t);
+        }
     }
-    (*quant_scale)->scale = (float *)uai_malloc(sizeof(int32_t) * size);
-    if((*quant_scale)->scale == NULL) {
-        uai_free(*quant_scale);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+    if(total < size) {
+        UAI_LOGE("file size error, need %u, actual %u\n", total, size);
+        return NULL;
     }
-    (*quant_scale)->scale_num = size;
 
-    memcpy((*quant_scale)->scale, (void *)(addr + offset), sizeof(int32_t) * size);
+    UAI_LOGD("load model data from memory success !\n");
 
-    UAI_LOGD("load model data from flash success !\n");
-
-    UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_SUCCESS);
+    return model_quant_scale;
 }
 #endif
 
@@ -303,80 +295,64 @@ static int uai_load_data_from_file(int8_t *weight, int8_t *bias, int32_t weight_
 }
 
 #ifdef UAI_ODLA_SUPPORT
-static int uai_load_scale_from_file(int8_t layer_id, uai_quant_scale_type type, uai_quant_scale **quant_scale, char *model_data_src)
+static uai_model_quant_scale_data_t *uai_load_all_scale_from_file(char *model_data_src)
 {
     char *filename = NULL;
     FILE *fd       = NULL;
-    int      size;
-    int      ret;
-    int      offset = 0;
-    uai_model_quant_scale_t *model_quant_scale = uai_malloc(sizeof(uai_model_quant_scale_t));
-    UAI_VALID_PTR_CHECK_INT(model_quant_scale, UAI_FAIL);
+    int  file_size = 0;
+    int        ret = 0;
+    int          i = 0;
+    int          j = 0;
+    int      total = 0;
+    uai_model_quant_scale_data_t *model_quant_scale;
 
     if (UAI_SUCCESS != uai_file_info_parse(model_data_src, &filename)) {
         UAI_LOGE("file info parse fail !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        return NULL;
     }
 
     fd = fopen(filename, "rb");
     if(fd == NULL) {
         UAI_LOGE("open file fail !\n");
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        return NULL;
     }
 
     fseek(fd, 0, SEEK_END);
-    size = ftell(fd);
+    file_size = ftell(fd);
 
-    if (sizeof(uai_model_quant_scale_t) > size) {
+    if (sizeof(uai_model_quant_scale_data_t)  > file_size) {
         UAI_LOGE("size error !\n");
         fclose(fd);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        return NULL;
     }
 
-    fseek(fd, offset, SEEK_SET);
+    model_quant_scale = (uai_model_quant_scale_data_t *)uai_malloc(file_size);
 
-    ret = fread(model_quant_scale, 1, sizeof(uai_model_quant_scale_t), fd);
+    fseek(fd, 0, SEEK_SET);
+
+    ret = fread(model_quant_scale, 1, file_size, fd);
     if (ret <= 0) {
         UAI_LOGE("read from file error, ret %d !\n", ret);
         fclose(fd);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        UAI_RET_WITH_MEM_FREE(model_quant_scale, NULL);
     }
 
-    if (layer_id >= model_quant_scale->total_layer) {
-        UAI_LOGE("layer_id error !\n");
-        fclose(fd);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+    total = sizeof(uai_model_quant_scale_data_t);
+    for (i = 0; i < UAI_SCALE_END; i++) {
+        for (j = 0; j < model_quant_scale->head.total_layer; j++) {
+            total += model_quant_scale->head.scale_num[i][j] * sizeof(int32_t);
+        }
     }
-
-    offset += sizeof(uai_model_quant_scale_t) + model_quant_scale->scale_offset[type][layer_id];
-    size    = model_quant_scale->scale_num[type][layer_id];
-
-    *quant_scale = (uai_quant_scale *)uai_malloc(sizeof(uai_quant_scale));
-    if (*quant_scale == NULL) {
+    if(total < file_size) {
+        UAI_LOGE("file size error, need %u, actual %u\n", total, file_size);
         fclose(fd);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
-    }
-    (*quant_scale)->scale = (float *)uai_malloc(sizeof(int32_t) * size);
-    if ((*quant_scale)->scale == NULL) {
-        uai_free(*quant_scale);
-        fclose(fd);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
-    }
-    (*quant_scale)->scale_num = size;
-
-    fseek(fd, offset, SEEK_SET);
-    ret = fread((*quant_scale)->scale, 1, sizeof(int32_t)*size, fd);
-    if (ret <= 0) {
-        UAI_LOGE("read from file error, ret %d !\n", ret);
-        fclose(fd);
-        uai_free((*quant_scale)->scale);
-        uai_free(*quant_scale);
-        UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_FAIL);
+        UAI_RET_WITH_MEM_FREE(model_quant_scale, NULL);
     }
 
     UAI_LOGD("load model data from flash success !\n");
     fclose(fd);
-    UAI_RET_WITH_MEM_FREE(model_quant_scale, UAI_SUCCESS);
+
+    return model_quant_scale;
 }
 #endif
 
@@ -432,6 +408,7 @@ int uai_load_model_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32
     return ret;
 }
 
+#ifdef UAI_ODLA_SUPPORT
 int uai_load_model_scale_config(char *model_scale_src)
 {
     int size = 0;
@@ -444,40 +421,37 @@ int uai_load_model_scale_config(char *model_scale_src)
     return 0;
 }
 
-#ifdef UAI_ODLA_SUPPORT
-int uai_load_model_scale(int layer_id, uai_quant_scale_type type, uai_quant_scale **quant_scale)
+uai_model_quant_scale_data_t *uai_load_model_scale(void)
 {
-    int ret             = UAI_SUCCESS;
-    uai_src_type_e      src_type;
+    uai_src_type_e src_type = UAI_SRC_TYPE_END;
 
-    UAI_VALID_PTR_CHECK_INT(g_uai_model_scale_src, UAI_FAIL);
-    UAI_VALID_COND_CHECK_RET(type < UAI_SCALE_END, UAI_FAIL);
+    UAI_VALID_PTR_CHECK_INT(g_uai_model_scale_src, NULL);
 
     src_type = uai_src_type_parse(g_uai_model_scale_src);
     if(src_type == UAI_SRC_TYPE_END) {
         UAI_LOGE("source type error !\n");
-        return UAI_FAIL;
+        return NULL;
     }
 
-    switch (type) {
+    switch (src_type) {
         case UAI_SRC_TYPE_FLASH:
-            ret = uai_load_scale_from_flash(layer_id, type, quant_scale, g_uai_model_scale_src);
+            return uai_load_all_scale_from_flash(g_uai_model_scale_src);
         break;
 
         case UAI_SRC_TYPE_MEM:
-            ret = uai_load_scale_from_mem(layer_id, type, quant_scale, g_uai_model_scale_src);
+            return uai_load_all_scale_from_mem(g_uai_model_scale_src);
         break;
 
         case UAI_SRC_TYPE_FILE:
-            ret = uai_load_scale_from_file(layer_id, type, quant_scale, g_uai_model_scale_src);
+            return uai_load_all_scale_from_file(g_uai_model_scale_src);
         break;
 
         default:
             UAI_LOGE("source type not support !\n");
-            return UAI_FAIL;
+            return NULL;
         break;
     }
 
-    return ret;
+    return NULL;
 }
 #endif
