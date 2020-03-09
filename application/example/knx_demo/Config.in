@@ -1,7 +1,7 @@
 config AOS_APP_KNXCTL
     bool "KNX Demo"
-    select AOS_COMP_OSAL_AOS
-    select AOS_COMP_KNX
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    select AOS_COMP_KNX      if !AOS_CREATE_PROJECT
     help
         KNX Stack Demo
 
