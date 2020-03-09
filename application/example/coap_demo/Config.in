@@ -1,9 +1,9 @@
 config AOS_APP_COAP_DEMO
     bool "COAP Sample"
 # the selection of dependencies are to be removed soon
-    select AOS_COMP_LIBCOAP
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
+    select AOS_COMP_LIBCOAP if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR  if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI     if !AOS_CREATE_PROJECT
     help
         coap client example
 
@@ -13,5 +13,4 @@ config SYSINFO_APP_VERSION
     default "app-1.0.0-20200214.140831"
     help
         application main firmware version
-        
 endif
