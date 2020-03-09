@@ -1,8 +1,16 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_CRAMFS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_CRAMFS
     bool "cramfs"
     select AOS_COMP_ZLIB
     default n
     help
+endif
 
 if AOS_COMP_CRAMFS
 # Configurations for component cramfs
