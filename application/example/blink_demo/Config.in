@@ -1,6 +1,6 @@
 config AOS_APP_BLINK_DEMO
     bool "Blink Demo"
-    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
     help
         blink Demo
 
