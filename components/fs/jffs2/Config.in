@@ -1,8 +1,17 @@
-menuconfig AOS_COMP_JFFS2
+if AOS_CREATE_PROJECT
+config AOS_COMP_JFFS2
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_JFFS2
     bool "jffs2"
     default n
     help
-
-if AOS_COMP_JFFS2
-# Configurations for component jffs2
 endif
+
+menu "jffs2 configuration"
+    depends on AOS_COMP_JFFS2
+# Configurations for component jffs2
+endmenu

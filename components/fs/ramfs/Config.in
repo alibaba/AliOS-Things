@@ -1,9 +1,18 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_RAMFS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_RAMFS
     bool "RAM File System"
     default n
     help
         a RAM file system
-
-if AOS_COMP_RAMFS
-# Configurations for component ramfs
 endif
+
+menu "ramfs configuration"
+    depends on AOS_COMP_RAMFS
+# Configurations for component ramfs
+endmenu
