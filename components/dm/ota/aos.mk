@@ -4,7 +4,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.2
 $(NAME)_SUMMARY := An over-the-air update is the wireless delivery of new software. 
 
-$(NAME)_COMPONENTS-$(!OTA_CONFIG_BLE) += http
+$(NAME)_COMPONENTS += cjson
+$(NAME)_COMPONENTS-$(!OTA_CONFIG_BLE) += http libiot_mqtt
 
 #default gcc
 ifeq ($(COMPILER),)
