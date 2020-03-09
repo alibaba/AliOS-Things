@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := AliOS Things test suite
 $(NAME)_SOURCES := main.c maintask.c
-$(NAME)_COMPONENTS := testcase ulog vfs yloop
+$(NAME)_COMPONENTS := testcase ulog vfs yloop yunit
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable
 

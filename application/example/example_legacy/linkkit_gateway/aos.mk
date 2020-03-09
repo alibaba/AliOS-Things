@@ -18,10 +18,6 @@ endif
 # LINKKIT_GATEWAY_CONFIG_DEPRECATED ?= n
 
 # LINKKIT_GATEWAY_CONFIG_PRINT_HEAP ?= n
-ifeq ($(AOS_COMP_OTA),y)
-$(NAME)_COMPONENTS += ota
-GLOBAL_DEFINES += ENABLE_AOS_OTA
-endif
 
 $(NAME)_SOURCES += linkkit_example_gateway.c
 
