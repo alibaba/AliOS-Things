@@ -1,10 +1,19 @@
-menuconfig AOS_COMP_CLI
+if AOS_CREATE_PROJECT
+config AOS_COMP_CLI
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_CLI
     bool "Command-Line Interface"
     default n
     help
       command-line interface
+endif
 
-if AOS_COMP_CLI
+menu "Command-Line Configuration"
+depends on AOS_COMP_CLI
 
 config CLI_CONFIG_MINIMUM_MODE
     bool "Minimum Working Mode Support"
@@ -75,7 +84,7 @@ config CLI_CONFIG_TELNET_SUPPORT
 
 config CLI_CONFIG_PASSWD_SUPPORT
     bool "Login Passwd Check Support"
-    select AOS_COMP_KV
+    select AOS_COMP_KV if !AOS_CREATE_PROJECT
     default n
     help
         This option enable passwd check for CLI module
@@ -83,4 +92,4 @@ config CLI_CONFIG_PASSWD_SUPPORT
         saying "n" is disabled
         the default is "n"
 
-endif
+endmenu

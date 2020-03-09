@@ -1,4 +1,13 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_OSAL_POSIX
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_OSAL_POSIX
     bool "POSIX API Support"
     default n
     help
+
+endif
