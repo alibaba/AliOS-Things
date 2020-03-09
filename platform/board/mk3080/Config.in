@@ -1,7 +1,7 @@
 config AOS_BOARD_MK3080
     bool "MK3080"
-    select AOS_MCU_RTL8710BN
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_RTL8710BN if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
 
