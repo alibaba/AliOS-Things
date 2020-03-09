@@ -195,8 +195,14 @@ def gen_projxfile(tree, target, buildstring, Projects):
         # don't add an empty group
         if len(group['src']) != 0:
             if group['name'] == 'sensor':
-                gen_sensor_cb_3rd.process(group['src'],'./projects/Keil/gen_sensor.c')
-                group['src'].append('./projects/Keil/gen_sensor.c')
+                global appdir
+                if appdir == "":
+                    filename = './projects/Keil/gen_sensor.c'
+                else:
+                    filename = os.path.join(appdir, './projects/Keil/gen_sensor.c')
+                gen_sensor_cb_3rd.process(group['src'],filename)
+                group['src'].append(filename)
+
 
             group_tree = add_group(groups, group['name'], group['src'], project_path)
 
