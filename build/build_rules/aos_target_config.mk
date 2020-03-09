@@ -55,7 +55,8 @@ COMPONENT_DIRECTORIES += $(APPDIR)
 #####################################################################################
 # Macro GET_BARE_LOCATION get relative path from $(SOURCE_ROOT) to component
 # $(1) is component name
-GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION)))
+# remove : in windows path
+GET_BARE_LOCATION = $(subst :,,$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION))))
 
 #####################################################################################
 # Macro PREPROCESS_TEST_COMPONENT get test components from command line:
