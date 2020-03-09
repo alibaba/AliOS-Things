@@ -1,8 +1,16 @@
-menuconfig AOS_COMP_FATFS
+if AOS_CREATE_PROJECT
+config AOS_COMP_FATFS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_FATFS
     bool "fatfs"
     default n
-    help
-
-if AOS_COMP_FATFS
-# Configurations for component fatfs
 endif
+
+menu "fatfs configuration"
+    depends on AOS_COMP_FATFS
+# Configurations for component fatfs
+endmenu
