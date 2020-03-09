@@ -123,21 +123,21 @@ def aos_upload(target, work_path=None, bin_dir=None):
         error("Target invalid!")
 
     if work_path:
-        aos_path = get_config_value('AOS_SDK_PATH')
+        aos_path = os.environ.get("AOS_SDK_PATH")
+        if not aos_path or not os.path.isdir(aos_path):
+            error("Looks like AOS_SDK_PATH is not correctly set." )
         program_path = os.getcwd()
     else:
-        if os.path.isdir('./kernel/rhino') or os.path.isdir('./include/aos'):
+        if os.path.isdir('./core') or os.path.isdir('./include/aos'):
             info("Currently in aos_sdk_path: '%s'\n" % os.getcwd())
             aos_path = os.getcwd()
         else:
             info("Not in aos_sdk_path, curr_path:'%s'\n" % os.getcwd())
-            aos_path = get_config_value('os_path')
-            if not aos_path:
-                error("aos_sdk is unavailable, please run 'aos new $prj_name'!")
+            aos_path = os.environ.get("AOS_SDK_PATH")
+            if not aos_path or not os.path.isdir(aos_path):
+                error("Looks like AOS_SDK_PATH is not correctly set." )
             else:
                 info("Load aos configs success, set '%s' as sdk path\n" % aos_path)
-
-    # program_path = get_config_value('program_path')
 
     registry_file = os.path.split(os.path.realpath(__file__))[0] + '/upload/registry_board.json'
     if os.path.isfile(registry_file):
