@@ -8,7 +8,7 @@ OTA_DEMO_CONFIG_TEST_LOOP ?= n
 loop ?= $(OTA_DEMO_CONFIG_TEST_LOOP)
 
 $(NAME)_SOURCES := otaappdemo.c maintask.c
-$(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
+$(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt cjson
 ifeq ($(OTA_DEMO_CONFIG_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
 endif
