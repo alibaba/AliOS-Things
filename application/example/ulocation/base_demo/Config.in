@@ -1,9 +1,9 @@
 config AOS_APP_BASE_DEMO
     bool "uLocation base sample app"
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CJSON
-    select AOS_COMP_ULOCATION
-    select AOS_COMP_SDK_DEVMODEL
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON if !AOS_CREATE_PROJECT
+    select AOS_COMP_ULOCATION if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_DEVMODEL if !AOS_CREATE_PROJECT
     help
         ulocation base sample app
 
