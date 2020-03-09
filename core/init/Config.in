@@ -1,6 +1,14 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_KERNEL_INIT
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_KERNEL_INIT
     bool "Initialize Function"
     default n
     select AOS_COMP_ULOG
     help
        AliOS Things initialize function
+endif

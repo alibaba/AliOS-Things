@@ -1,18 +1,27 @@
-menuconfig AOS_COMP_OSAL_AOS
+if AOS_CREATE_PROJECT
+config AOS_COMP_OSAL_AOS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_OSAL_AOS
     bool "AOS API Support"
     default y
     help
         AliOS Things API supported by OS.
+endif
 
-if AOS_COMP_OSAL_AOS
+menu "AOS API Configuration"
+depends on AOS_COMP_OSAL_AOS
 
 choice
     prompt "OSAL Selection"
-    default MCU_STM32F429ZI
+    default OSAL_RHINO
 
     config OSAL_RHINO
         bool "RHINO"
-        select AOS_COMP_RHINO
+        select AOS_COMP_RHINO if !AOS_CREATE_PROJECT
 
     config OSAL_FREERTOS
         bool "FREERTOS"
@@ -26,4 +35,4 @@ config OSAL_CONFIG
     default "freertos" if OSAL_FREERTOS
     help
 
-endif
+endmenu
