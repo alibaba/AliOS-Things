@@ -1,7 +1,7 @@
 config AOS_APP_VFS_DEMO
     bool "VFS Demo"
-    select AOS_COMP_OSAL_AOS
-    select AOS_COMP_RAMFS
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    select AOS_COMP_RAMFS if !AOS_CREATE_PROJECT
     help
     Hello World
 
