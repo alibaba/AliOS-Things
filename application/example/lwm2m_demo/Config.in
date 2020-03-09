@@ -1,6 +1,6 @@
 config AOS_APP_LWM2M_DEMO
     bool "lwm2m_demo"
-    select AOS_COMP_LWM2M 
+    select AOS_COMP_LWM2M if !AOS_CREATE_PROJECT
     help
         lwm2m app
 
