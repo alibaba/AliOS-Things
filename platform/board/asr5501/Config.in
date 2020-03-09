@@ -1,10 +1,11 @@
 config AOS_BOARD_ASR5501
     bool "ASR5501"
-    select AOS_MCU_ASR5501
-    select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_NETMGR
+    select AOS_MCU_ASR5501 if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
+      configuration for board asr5501
 
 if AOS_BOARD_ASR5501
 # Configurations for board asr5501
