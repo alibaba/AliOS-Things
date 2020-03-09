@@ -177,6 +177,7 @@ static void brd_peri_init(void)
 BOARD_HW_VERSION get_devloperkit_hwver(void)
 {
     static BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
+#if 0
     int ret = 0;
     
     if (board_hwver != BOARD_HW_UNKNOW) {
@@ -191,7 +192,7 @@ BOARD_HW_VERSION get_devloperkit_hwver(void)
         //HAL_SMARTCARD_DeInit(&hsmartcard2);
         board_hwver = BOARD_HW_VER12;
     }
-    
+#endif    
     return board_hwver;
 }
 
