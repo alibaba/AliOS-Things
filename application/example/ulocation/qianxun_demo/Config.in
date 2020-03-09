@@ -1,9 +1,9 @@
 config AOS_APP_QIANXUN_DEMO
     bool "qianxun_demo"
-    select AOS_COMP_ULOCATION
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
-    select AOS_COMP_NETMGR
+    select AOS_COMP_ULOCATION if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_YLOOP if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
     help
         uLocation qianxun service app
 
