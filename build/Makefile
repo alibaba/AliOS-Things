@@ -455,4 +455,4 @@ export-iar: export-project
 	$(QUIET):
 
 %.menuconfig: $(AOS_CONFIG)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_kconfig.mk menuconfig
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_kconfig.mk menuconfig_only
