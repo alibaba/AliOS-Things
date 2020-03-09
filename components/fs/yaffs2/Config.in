@@ -1,8 +1,16 @@
-menuconfig AOS_COMP_YAFFS2
+if AOS_CREATE_PROJECT
+config AOS_COMP_YAFFS2
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_YAFFS2
     bool "yaffs2"
     default n
-    help
-
-if AOS_COMP_YAFFS2
-# Configurations for component yaffs2
 endif
+
+menu "yaffs2 configuration"
+    depends on AOS_COMP_YAFFS2
+# Configurations for component yaffs2
+endmenu
