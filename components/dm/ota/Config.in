@@ -1,4 +1,14 @@
-menuconfig AOS_COMP_OTA
+if AOS_CREATE_PROJECT
+config AOS_COMP_OTA
+    bool "OTA Features"
+    select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
+    select OTA_CONFIG_BLE if AOS_COMP_BREEZE
+    select CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS if AOS_COMP_BREEZE
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_OTA
     bool "OTA Features"
     select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
     select AOS_COMP_CJSON
@@ -9,7 +19,11 @@ menuconfig AOS_COMP_OTA
     default n
     help
 
-if AOS_COMP_OTA
+endif
+
+menu "OTA Features Configuration"
+depends on AOS_COMP_OTA
+
 config OTA_CONFIG_DOWNLOAD
     bool "Download Config"
     default n
@@ -110,4 +124,4 @@ config OTA_CONFIG_UAGENT
     default n
     help
     mount ota function to uAgent
-endif
+endmenu
