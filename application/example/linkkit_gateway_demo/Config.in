@@ -1,12 +1,12 @@
 config AOS_APP_LINKKIT_GATEWAY_DEMO
     bool "Linkkit Gateway Demo"
-    select AOS_COMP_CLI if !AOS_BOARD_ESP8266
-   # select AOS_COMP_OTA
-    select AOS_COMP_CJSON
-    select AOS_COMP_NETMGR
-    select AOS_COMP_SDK_DEVMODEL
-    select AOS_COMP_SDK_AWSS
-    select AOS_COMP_UND
+    select AOS_COMP_CLI if !AOS_BOARD_ESP8266 && !AOS_CREATE_PROJECT
+   # select AOS_COMP_OTA          if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON         if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR        if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_DEVMODEL  if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_AWSS      if !AOS_CREATE_PROJECT
+    select AOS_COMP_UND           if !AOS_CREATE_PROJECT
     select DEVICE_MODEL_GATEWAY
     help
         linkkit gateway examples
