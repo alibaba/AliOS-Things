@@ -1,8 +1,8 @@
 config AOS_APP_HTTPC_DEMO
     bool "HTTP App "
-    select AOS_COMP_SDK_HTTP
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
+    select AOS_COMP_SDK_HTTP if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
     help
         HTTP client app
 
