@@ -1,12 +1,21 @@
-menuconfig AOS_COMP_DEBUG
+if AOS_CREATE_PROJECT
+config AOS_COMP_DEBUG
+    bool
+    depends on AOS_COMP_RHINO
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_DEBUG
     bool "Coredump debug Support"
     depends on AOS_COMP_RHINO
     default n
     help
         coredump and fatal err debug
+endif
 
-if AOS_COMP_DEBUG
-# Configurations for component debug
+menu "Coredump debug Configuration"
+depends on AOS_COMP_DEBUG
 
 config DEBUG_CONFIG_CPU_USAGE_PERIOD
     int "The interval(ms) for CPU usage"
@@ -15,4 +24,4 @@ config DEBUG_CONFIG_CPU_USAGE_PERIOD
             set the interval(ms) for counting cpu usage,
             default 0 indicates that the feature is diabled by default
             unless call api or open in cli
-endif
+endmenu
