@@ -1,8 +1,8 @@
 config AOS_APP_MODBUS_DEMO
     bool "MODBUS Master Sample"
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
-    select AOS_COMP_MBMASTER
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_YLOOP if !AOS_CREATE_PROJECT
+    select AOS_COMP_MBMASTER if !AOS_CREATE_PROJECT
     help
         This example is an demo of using modbus master stack
 

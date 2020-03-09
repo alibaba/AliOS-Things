@@ -1,10 +1,10 @@
 config AOS_APP_MQTT_DEMO
     bool "MQTT Demo"
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
-    select AOS_COMP_CJSON
-    select AOS_COMP_SDK_MQTT
-    select AOS_COMP_UND
+    select AOS_COMP_NETMGR   if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI      if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON    if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_MQTT if !AOS_CREATE_PROJECT
+    select AOS_COMP_UND      if !AOS_CREATE_PROJECT
     help
         mqtt examples
 

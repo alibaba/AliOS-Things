@@ -1,10 +1,10 @@
 config AOS_APP_OTA_DEMO
     bool "OTA Demo"
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
-    select AOS_COMP_OTA
-    select AOS_COMP_CJSON
-    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI    if !AOS_CREATE_PROJECT
+    select AOS_COMP_OTA    if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON  if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_MQTT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP if OTA_DEMO_CONFIG_USE_LWIP
     help
         OTA demo for developers
