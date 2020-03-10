@@ -4,6 +4,7 @@ import click
 import json
 import shutil
 import subprocess
+import io
 from lib.code import compute_header_md5sum, get_depends_from_source, copy_file, write_file, write_project_config
 from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
 from lib.comp import generate_default_header_file
@@ -128,7 +129,7 @@ def copy_template_file(tempfile, templatedir, destdir, projectname, board):
     contents = []
 
     # Replace projectname from file contents
-    with open(os.path.join(templatedir, tempfile), "r") as f:
+    with io.open(os.path.join(templatedir, tempfile), "r", encoding="utf8") as f:
         for line in f.readlines():
             if "@projectname@" in line:
                 line = line.replace("@projectname@", projectname)
@@ -190,7 +191,7 @@ def copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname):
     contents = []
     u_appname = appname.upper()
     u_projectname = projectname.upper()
-    with open(os.path.join(appdir, appfile), "r") as f:
+    with io.open(os.path.join(appdir, appfile), "r", encoding="utf8") as f:
         for line in f.readlines():
             if "AOS_APP_%s" % u_appname in line:
                 line = line.replace(u_appname, u_projectname)
