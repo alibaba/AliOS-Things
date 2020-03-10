@@ -6,3 +6,4 @@ $(NAME)_SUMMARY := mesh2 implement.
 
 $(NAME)_COMPONENTS-$(UMESH_WITH_DEFAULT_CORE) += umesh2_core
 $(NAME)_COMPONENTS-$(UMESH_WITH_LOCAL_COMM) += local_comm
+$(NAME)_COMPONENTS-$(UMESH_WITH_MDNS) += mdns
