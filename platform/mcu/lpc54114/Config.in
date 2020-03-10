@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_LPC54114IMPL
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_LPC54114IMPL
     bool
     select AOS_ARCH_ARMV7M
@@ -5,6 +12,7 @@ config AOS_MCU_LPC54114IMPL
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu lpc54114impl
+endif
 
 if AOS_MCU_LPC54114IMPL
 # Configurations for mcu lpc54114impl

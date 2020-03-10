@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_ES8P508X
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_ES8P508X
     bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu es8p508x
+endif
 
 if AOS_MCU_ES8P508X
 # Configurations for mcu es8p508x

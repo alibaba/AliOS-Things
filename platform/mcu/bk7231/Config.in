@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_BK7231
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_BK7231
     bool
     select AOS_COMP_NEWLIB_STUB
@@ -9,6 +16,7 @@ config AOS_MCU_BK7231
     select AOS_ARCH_ARMV5
     help
       driver & sdk for platform/mcu bk7231
+endif
 
 if AOS_MCU_BK7231
 # Configurations for mcu bk7231
