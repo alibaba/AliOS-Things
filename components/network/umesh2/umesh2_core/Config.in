@@ -1,14 +1,22 @@
+
+if AOS_CREATE_PROJECT
+config AOS_COMP_UMESH2_CORE
+    bool "uMesh2 core"
+    default y
+    help
+        AliOS Things uMesh network protocol
+endif
+if !AOS_CREATE_PROJECT
 config AOS_COMP_UMESH2_CORE
     bool "uMesh2 core"
     default n
     help
         AliOS Things uMesh network protocol
+endif
 
-choice
-prompt "umesh timer implementation selection"
-default UMESH_USE_YLOOP
+if AOS_CREATE_PROJECT
 config UMESH_USE_YLOOP
-    bool "umesh timer over yloop"
-config UMESH_USE_TIMER
-    bool "umesh timer over os timer"
-endchoice
+    bool 
+    default y
+endif
+
