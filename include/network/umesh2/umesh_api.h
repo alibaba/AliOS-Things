@@ -62,14 +62,16 @@ typedef struct mdns_data_txt txt_item_t;
 typedef struct session_s session_t;
 
 typedef struct service_s {
-    char srv_name[SERVICE_NAME_LEN_MAX];
-    char srv_type[SERVICE_TYPE_LEN_MAX];
+    char srv_name[SERVICE_NAME_LEN_MAX + 1];
+    char srv_type[SERVICE_TYPE_LEN_MAX + 1];
     uint16_t port;      /** < service port */
     uint16_t ttl;
+    uint64_t last_update;
     txt_item_t *txt_items;
     peer_id_t id;
     struct list_head linked_list;
     struct list_head linked_list2;
+
 } service_t;
 
 typedef void *net_interface_t;
@@ -110,7 +112,7 @@ typedef int (* umesh_peer_invite_cb)(session_t *session, peer_id_t *peer_id, voi
 *
 * return 0 is success, others are failure
 */
-typedef int (*umesh_receive_cb)(session_t *session, service_t *from, uint8_t *data, int len, void *user_data);
+typedef int (*umesh_receive_cb)(session_t *session, service_t *from, uint8_t *data, uint16_t len, void *user_data);
 
 typedef struct session_s {
     struct service_t *self;
@@ -144,6 +146,8 @@ typedef struct service_state_s {
     struct list_head self_service_list;
     struct list_head found_service_list;
     void *lock;
+    void *timer;
+    void *leave_semp;
     umesh_service_found_cb   found_cb;
     uint8_t announced;
     uint8_t stop;
@@ -250,14 +254,14 @@ int umesh_delete_peer(session_t *session, service_t *dst);
 * Send data to the peer
 *
 * @param[in] session pointer to the session
-* @param[in] peer    peer id
+* @param[in] dst     destination service
 * @param[in] data    pointer to data
 * @param[in] len     data length
 * @param[in] mode    send data reliable or unreliable delivery
 *
 * return 0 is success, others are failure
 */
-int umesh_send(session_t *session, service_t *peer, uint8_t *data, int len, data_mode_t mode);
+int umesh_send(session_t *session, service_t *dst, uint8_t *data, uint16_t len, data_mode_t mode);
 /**
 * Register data receive callback
 *
