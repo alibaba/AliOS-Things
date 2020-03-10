@@ -1,12 +1,18 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_LOCAL_COMM
+    bool "local communication framework"
+    default y
+    help
+endif
+if !AOS_CREATE_PROJECT
 config AOS_COMP_LOCAL_COMM
     bool "local communication framework"
     default n
     help
-        
+endif
 
-choice
-prompt "mdns config"
-default UMESH_WITH_DEFAULT_MDNS
+if AOS_COMP_LOCAL_COMM
 config UMESH_WITH_DEFAULT_MDNS
-    bool "use default mdns"
-endchoice
+    bool 
+    default y
+endif
