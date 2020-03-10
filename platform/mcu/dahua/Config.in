@@ -1,3 +1,11 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_DAHUA
+    bool
+    default y
+    select CONFIG_AOS_TCPIP if MCU_DAHUA_CONFIG_LWIP
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_DAHUA
     bool
     select AOS_COMP_NETMGR
@@ -6,6 +14,7 @@ config AOS_MCU_DAHUA
     select CONFIG_AOS_TCPIP if MCU_DAHUA_CONFIG_LWIP
     help
       driver & sdk for platform/mcu dahua
+endif
 
 if AOS_MCU_DAHUA
 # Configurations for mcu dahua

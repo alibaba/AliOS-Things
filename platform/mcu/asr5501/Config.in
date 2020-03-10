@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_ASR5501
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_ASR5501
     bool
     select AOS_ARCH_ARMV7M
@@ -5,6 +12,7 @@ config AOS_MCU_ASR5501
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu asr5501
+endif
 
 if AOS_MCU_ASR5501
 # Configurations for mcu asr5501

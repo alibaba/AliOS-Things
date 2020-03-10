@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_ATSAML21
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_ATSAML21
     bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu atsaml21
+endif
 
 if AOS_MCU_ATSAML21
 # Configurations for mcu atsaml21
