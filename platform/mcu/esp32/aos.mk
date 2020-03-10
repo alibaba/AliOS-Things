@@ -122,6 +122,7 @@ $(NAME)_SOURCES          += aos/heap_wrapper.c
 endif
 
 $(NAME)_COMPONENTS-$((EN_BLE_HOST&&!bt_mesh_standalone_deploy)) += bt_host
+
 ifneq ($(EN_BLE_HOST),)
 GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
 ifneq ($(hci_h4),1)

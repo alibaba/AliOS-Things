@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_GD32F30X
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_GD32F30X
     bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu gd32f30x
+endif
 
 if AOS_MCU_GD32F30X
 # Configurations for mcu gd32f30x

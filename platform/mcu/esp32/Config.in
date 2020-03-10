@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_ESP32
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_ESP32
     bool
     select AOS_COMP_BT_HOST if EN_BLE_HOST
@@ -9,6 +16,7 @@ config AOS_MCU_ESP32
     select AOS_COMP_UMESH if  MESH_CONFIG != n
     help
       driver & sdk for platform/mcu esp32
+endif
 
 if AOS_MCU_ESP32
 # Configurations for mcu esp32

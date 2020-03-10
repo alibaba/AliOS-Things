@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_CY8C6347
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_CY8C6347
     bool
     select AOS_ARCH_ARMV7M
@@ -5,6 +12,7 @@ config AOS_MCU_CY8C6347
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu cy8c6347
+endif
 
 if AOS_MCU_CY8C6347
 # Configurations for mcu cy8c6347

@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_BK7231U
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_BK7231U
     bool
     select AOS_COMP_NEWLIB_STUB
@@ -9,6 +16,7 @@ config AOS_MCU_BK7231U
     select AOS_COMP_DEBUG
     help
       driver & sdk for platform/mcu bk7231u
+endif
 
 if AOS_MCU_BK7231U
 # Configurations for mcu bk7231u
