@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_LPC54102IMPL
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_LPC54102IMPL
     bool
     select AOS_COMP_NEWLIB_STUB
@@ -6,6 +13,7 @@ config AOS_MCU_LPC54102IMPL
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu lpc54102impl
+endif
 
 if AOS_MCU_LPC54102IMPL
 # Configurations for mcu lpc54102impl

@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_HC32L136
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_HC32L136
     bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu hc32l136
+endif
 
 if AOS_MCU_HC32L136
 # Configurations for mcu hc32l136
