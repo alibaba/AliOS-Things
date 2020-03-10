@@ -1,7 +1,7 @@
 NAME := board_linuxhost
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 1.0.1
+$(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := configuration for board linuxhost
 
 MODULE          := 1062
@@ -9,7 +9,8 @@ HOST_ARCH       := linux
 HOST_MCU_FAMILY := mcu_linuximpl
 SUPPORT_MBINS   := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network
+$(NAME)_COMPONENTS-$(BSP_SUPPORT_EXTERNAL_MODULE) = external_module
 
 # Link Security Config
 CONFIG_LS_DEBUG      := y
