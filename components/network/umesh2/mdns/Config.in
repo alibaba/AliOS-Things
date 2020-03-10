@@ -1,12 +1,20 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_MDNS
+    bool "mdns"
+    default y
+    help
+        AliOS Things mdns for local communication
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_MDNS
     bool "mdns"
     default n
     help
         AliOS Things mdns for local communication
+endif
 
-choice
-prompt "poll implementation selection"
-default MDNS_USE_YLOOP
-config  MDNS_USE_YLOOP
-    bool "poll over yloop"
-endchoice
+if AOS_COMP_MDNS
+    config MDNS_USE_YLOOP
+    default y 
+endif
