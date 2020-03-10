@@ -22,6 +22,10 @@ static inline int os_wouldblock(void)
     return (errno == EWOULDBLOCK);
 }
 
+static uint64_t hal_now_ms()
+{
+    return aos_now_ms();
+}
 
 struct timeval os_deadline = {
     .tv_sec = 0,
@@ -599,7 +603,7 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
         pfd[i].fd = ctx->conns[i].sock;
         pfd[i].events = POLLIN;
     }
-    r = aos_poll(pfd, ctx->nb_conns, 1000);
+    r = aos_poll(pfd, ctx->nb_conns, MDNS_POLL_TIMEOUT);
     if (r <= 0) {
         hal_free(pfd);
         return r;
@@ -684,7 +688,7 @@ int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
         return (MDNS_ERROR);
     }
     int r;
-    time_t t1, t2;
+    uint64_t t1, t2;
     struct mdns_hdr hdr = {0};
     struct mdns_entry *qns = hal_malloc(nb_names * sizeof(struct mdns_entry));
     if (qns == NULL) {
@@ -713,9 +717,8 @@ int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
     if ((r = mdns_send(ctx, &hdr, qns)) < 0) { // send a first probe request
         callback(p_cookie, r, NULL);
     }
-
-    for (t1 = t2 = time(NULL); stop(p_cookie) == false; t2 = time(NULL)) {
-        if (difftime(t2, t1) >= (double) interval) {
+    for (t1 = t2 = hal_now_ms(); stop(p_cookie) == false; t2 = hal_now_ms()) {
+        if (t2 - t1 >= interval * 1000) {
             if ((r = mdns_send(ctx, &hdr, qns)) < 0) {
                 callback(p_cookie, r, NULL);
             }
@@ -723,6 +726,16 @@ int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
         }
         mdns_listen_probe_network(ctx, names, nb_names, match_type, callback, p_cookie);
     }
+
+    // for (t1 = t2 = time(NULL); stop(p_cookie) == false; t2 = time(NULL)) {
+    //     if (difftime(t2, t1) >= (double) interval) {
+    //         if ((r = mdns_send(ctx, &hdr, qns)) < 0) {
+    //             callback(p_cookie, r, NULL);
+    //         }
+    //         t1 = t2;
+    //     }
+    //     mdns_listen_probe_network(ctx, names, nb_names, match_type, callback, p_cookie);
+    // }
 
     hal_free(qns);
     return (0);
