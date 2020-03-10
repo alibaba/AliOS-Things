@@ -1,8 +1,16 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_RHINO
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_RHINO
     bool "Kernel Core (rhino)"
     default y
     help
         AliOS Things kernel core(rhino)
+endif
 
 #if AOS_COMP_RHINO
 if 0

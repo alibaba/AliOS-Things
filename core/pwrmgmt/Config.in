@@ -1,10 +1,20 @@
-menuconfig AOS_COMP_PWRMGMT
+if AOS_CREATE_PROJECT
+config AOS_COMP_PWRMGMT
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_PWRMGMT
     bool "Power Management"
     default n
     help
         power management. This module is used to reduce the system power consumption.
+endif
 
-if AOS_COMP_PWRMGMT
+menu "Power Management Configuration"
+    depends on AOS_COMP_PWRMGMT
+
 # Configurations for component pwrmgmt
 config PWRMGMT_CONFIG_SHOW
     bool "Exclude the functions of state show"
@@ -42,5 +52,5 @@ config WIFI_CONFIG_SUPPORT_LOWPOWER
         help
             set y to enable wifi low power. If the board support wifi low power it is enabled by default.
 
-endif
+endmenu
 
