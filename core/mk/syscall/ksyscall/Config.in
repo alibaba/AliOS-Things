@@ -89,7 +89,7 @@ config RHINO_CONFIG_VFS_SYSCALL
 
 config RHINO_CONFIG_LINKKIT_SYSCALL
     bool "LINKKIT syscall"
-    select AOS_COMP_SDK_DEVMODEL
+    select AOS_COMP_SDK_DEVMODEL if !AOS_CREATE_PROJECT
     depends on RHINO_CONFIG_ULINKKIT
     default n
     help

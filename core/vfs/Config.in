@@ -1,10 +1,20 @@
-menuconfig AOS_COMP_VFS
+if AOS_CREATE_PROJECT
+config AOS_COMP_VFS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_VFS
     bool "Virtual File System"
     default n
     help
         a unified user interface for various files. It is an abstraction layer on top of a more concrete file system.
 
-if AOS_COMP_VFS
+endif
+
+menu "Virtual File System Configuration"
+    depends on AOS_COMP_VFS
 # Configurations for component vfs
 
 config VFS_CONFIG_DEVICE_NODES
@@ -47,4 +57,4 @@ config VFS_CONFIG_CURRENT_DIRECTORY_ENABLE
         saying "y" here enables the feature, saying "n" here is disabled.
         the default is "n"
 
-endif
+endmenu

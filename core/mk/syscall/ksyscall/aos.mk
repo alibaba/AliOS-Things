@@ -77,3 +77,5 @@ $(NAME)_SOURCES += syscall_tbl.c
 $(NAME)_INCLUDES += include
 $(NAME)_INCLUDES += ../common/include
 
+$(NAME)_COMPONENTS-$(RHINO_CONFIG_LINKKIT_SYSCALL && RHINO_CONFIG_ULINKKIT) += libiot_devmodel
+
