@@ -1,7 +1,7 @@
 config AOS_BOARD_MK3239
     bool "MK3239"
-    select AOS_MCU_STM32F4XX
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_STM32F4XX if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
 
