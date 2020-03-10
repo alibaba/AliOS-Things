@@ -1,10 +1,19 @@
-menuconfig RHINO_CONFIG_USER_SPACE
+if AOS_CREATE_PROJECT
+config RHINO_CONFIG_USER_SPACE
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config RHINO_CONFIG_USER_SPACE
     bool "config micro kernel"
     default n
     help
         "enable micro kernel feature for kernel"
+endif
 
-if RHINO_CONFIG_USER_SPACE
+menu "micro kernel Configuration"
+    depends on RHINO_CONFIG_USER_SPACE
 
 config RHINO_CONFIG_URES
     bool "URES"
@@ -47,5 +56,5 @@ config RHINO_CONFIG_UTCPIP
 
 source "core/mk/syscall/ksyscall/Config.in"
 
-endif
+endmenu
 
