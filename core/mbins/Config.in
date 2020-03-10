@@ -1,8 +1,18 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_MBINS
+    bool
+    depends on MBINS_SUPPORT
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_MBINS
     bool "mbins"
     depends on MBINS_SUPPORT
     default n
     help
+
+endif
 
 if AOS_COMP_MBINS
 # Configurations for component mbins

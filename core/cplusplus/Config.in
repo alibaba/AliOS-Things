@@ -1,4 +1,13 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_CPLUSPLUS
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_CPLUSPLUS
     bool "C++ Support"
     default n
     help
+
+endif
