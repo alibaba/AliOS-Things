@@ -1,7 +1,7 @@
 config AOS_BOARD_UNO_91H
     bool "UNO_91H"
-    select AOS_MCU_RDA5981X
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_RDA5981X if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
         **Uno-91h** is hardware board base on [AliOS-Things](https://github.com/alibaba/AliOS-Things), with a variety of peripherals. The chip's mcu is RDA5981. The RDA5981A is a WiFi IoT chip specifically designed for smart home & audio application, such as smart speakers. The company explains it can be widely used in televisions, set-top boxes, smart appliances, wireless monitors, and other products.
