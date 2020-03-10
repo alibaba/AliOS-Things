@@ -21,7 +21,7 @@ extern "C" {
  */
 
 /* Define the AliOS-Things' Version */
-#define SYSINFO_KERNEL_VERSION "AOS-R-3.0.0"
+#define SYSINFO_KERNEL_VERSION "AOS-R-3.1.0"
 
 /* Defined for API with delay time */
 #define AOS_WAIT_FOREVER 0xffffffffu /**< Wait one event for ever */
