@@ -1,3 +1,11 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_CSKY
+    bool
+    default y
+    select CONFIG_VENDOR_TCPIP
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_CSKY
     bool
     select AOS_COMP_CLI
@@ -7,6 +15,7 @@ config AOS_MCU_CSKY
     select AOS_ARCH_CSKYV2_L
     help
       driver & sdk for platform/mcu csky
+endif
 
 if AOS_MCU_CSKY
 # Configurations for mcu csky

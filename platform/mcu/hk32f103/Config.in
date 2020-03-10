@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_HK32F103
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_HK32F103
     bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu hk32f103
+endif
 
 if AOS_MCU_HK32F103
 # Configurations for mcu hk32f103
