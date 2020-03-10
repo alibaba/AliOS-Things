@@ -181,6 +181,12 @@ static int service_state_init(service_state_t **state, service_t *self, void *md
     memset(service_state, 0, sizeof(service_state_t));
     service_state->mdns = mdns;
     service_state->network = network;
+    service_state->stop = 1;
+    service_state->leave_semp = hal_semaphore_new();
+    if (service_state->leave_semp == NULL) {
+        log_e("semp create failed!");
+        goto err;
+    }
     INIT_LIST_HEAD(&service_state->self_service_list);
     INIT_LIST_HEAD(&service_state->found_service_list);
     service_state->lock = hal_mutex_new();
@@ -194,6 +200,9 @@ static int service_state_init(service_state_t **state, service_t *self, void *md
     *state = service_state;
     return 0;
 err:
+    if (service_state->leave_semp) {
+        hal_semaphore_free(service_state->leave_semp);
+    }
 
     if (service_state->lock) {
         hal_mutex_free(service_state->lock);
@@ -344,8 +353,9 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
             case RR_A:
                 break;
             case RR_PTR:
-                strncpy(service->srv_name, entry->data.PTR.domain, SERVICE_NAME_LEN_MAX);
-                log_d("final srv name = %s ", service->srv_name);
+                if (entry->data.PTR.domain != NULL) {
+                    strncpy(service->srv_name, entry->data.PTR.domain, SERVICE_NAME_LEN_MAX);
+                }
                 break;
             case RR_TXT: {
                 txt_item_t *txt_next = entry->data.TXT;
@@ -615,34 +625,20 @@ static int service_state_deinit(service_state_t *state)
 {
     service_t *node, *next;
     txt_item_t *item;
+
     hal_mutex_lock(state->lock);
     list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
-
-        item = node->txt_items;
-        while (item) {
-            item = item->next;
-            hal_free(item);
-        }
-        list_del(&node->linked_list);
-        hal_free(node);
-        break;
+        umesh_service_free(node);
     }
-    hal_mutex_unlock(state->lock);
 
     list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
-        item = node->txt_items;
-        while (item) {
-            item = item->next;
-            hal_free(item);
-        }
-        list_del(&node->linked_list);
-        hal_free(node);
-        break;
+        umesh_service_free(node);
     }
-    hal_mutex_unlock(state->lock);
-    state->stop = 1;
-    hal_mutex_free(state->lock);
 
+    hal_mutex_unlock(state->lock);
+
+    hal_semaphore_free(state->leave_semp);
+    hal_mutex_free(state->lock);
     hal_free(state);
 }
 static int umesh_service_free(service_t *service)
@@ -686,14 +682,14 @@ int umesh_service_deinit(service_t *service)
     if (!list_empty(&g_service_state->self_service_list)) {
         return 0;
     }
-
+    g_service_state->stop = 1;
+    hal_semaphore_wait(g_service_state->leave_semp, (uint32_t) - 1);
     mdns_destroy(g_service_state->mdns);
     g_service_state->mdns = NULL;
     ret =  service_state_deinit(g_service_state);
     if (ret < 0) {
         return ret;
     }
-
 
     g_service_state = NULL;
     return ret;
@@ -736,6 +732,7 @@ static void mdns_main_task(void *para)
         log_e("mdns start failed!");
         return;
     }
+    hal_semaphore_post(state->leave_semp);
     log_i("leave mdns task!");
 }
 
@@ -756,7 +753,10 @@ int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
     g_service_state->found_cb = found;
     hal_mutex_unlock(g_service_state->lock);
 
-    ret = hal_task_start(mdns_main_task, g_service_state, SERVICE_TASK_STACK_SIZE, HAL_TASK_NORMAL_PRIO);
+    if (g_service_state->stop) {
+        g_service_state->stop = 0;
+        ret = hal_task_start(mdns_main_task, g_service_state, SERVICE_TASK_STACK_SIZE, HAL_TASK_NORMAL_PRIO);
+    }
 
     return ret;
 }
@@ -790,6 +790,7 @@ int umesh_stop_advertise_service(service_t *service)
 
 int umesh_start_advertise_service(service_t *service)
 {
+    int ret = 0;
     if (g_service_state == NULL) {
         return UMESH_ERR_NOT_INIT;
     }
@@ -804,7 +805,13 @@ int umesh_start_advertise_service(service_t *service)
         g_service_state->announced = 1;
     }
     hal_mutex_unlock(g_service_state->lock);
-    return 0;
+
+    if (g_service_state->stop) {
+        g_service_state->stop = 0;
+        ret = hal_task_start(mdns_main_task, g_service_state, SERVICE_TASK_STACK_SIZE, HAL_TASK_NORMAL_PRIO);
+    }
+
+    return ret;
 }
 
 int umesh_register_state(session_t *session, umesh_session_state_changed_cb cb, void *user_data)
@@ -1146,7 +1153,7 @@ int umesh_delete_peer(session_t *session, service_t *dst)
 }
 
 
-int umesh_send(session_t *session, service_t *dest, uint8_t *data,  int len, data_mode_t mode)
+int umesh_send(session_t *session, service_t *dest, uint8_t *data,  uint16_t len, data_mode_t mode)
 {
 
     if (session == NULL || data == NULL || len <= 0) {

@@ -21,7 +21,9 @@
 #define hal_malloc          aos_malloc
 #define hal_free            aos_free
 
-# define INVALID_SOCKET -1
+#define MDNS_POLL_TIMEOUT   3000
+
+# define INVALID_SOCKET     -1
 
 enum {
     MDNS_STDERR = -1, // standard error
