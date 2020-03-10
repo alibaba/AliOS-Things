@@ -1,7 +1,7 @@
 config AOS_BOARD_SSC1667
     bool "SSC1667"
-    select AOS_MCU_SSCP131
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_MCU_SSCP131 if !AOS_CREATE_PROJECT
+    select AOS_COMP_NEWLIB_STUB if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
 
