@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_ESP8266
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_ESP8266
     bool
     select AOS_COMP_NEWLIB_STUB
@@ -8,6 +15,7 @@ config AOS_MCU_ESP8266
     select AOS_ARCH_XTENSA_LX106 if OSAL_CONFIG = rhino
     help
       driver & sdk for platform/mcu esp8266
+endif
 
 if AOS_MCU_ESP8266
 # Configurations for mcu esp8266

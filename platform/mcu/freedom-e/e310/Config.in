@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_E310
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_E310
     bool
     select AOS_ARCH_RISC_V32I
@@ -5,6 +12,7 @@ config AOS_MCU_E310
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu e310
+endif
 
 if AOS_MCU_E310
 # Configurations for mcu e310
