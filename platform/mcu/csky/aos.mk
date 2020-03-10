@@ -8,6 +8,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu csky
 
 $(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino cli
+$(NAME)_COMPONENTS-$(MCU_CSKY_CONFIG_LWIP) += netmgr
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
