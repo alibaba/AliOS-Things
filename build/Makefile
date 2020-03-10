@@ -25,7 +25,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 define CHECK_UCUBE_VERSION
-$(if $(findstring 0.2,$(shell aos --version)),$(error aos-cube 0.3.x or newer is required, please update your aos-cube first! (eg. $$ aos upgrade)),)
+$(if $(findstring 0.2,$(shell aos --version)),$(error aos-cube 0.3.x or newer is required, please update your aos-cube first! (eg. $$ aos upgrade or $$ aos upgrade aos-cube, depends on the version of aos tool you are using)),)
 endef
 
 $(call CHECK_UCUBE_VERSION)
@@ -146,7 +146,7 @@ appdir = $(subst .,/,$(appname))
 appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
-    $(error App Unknown, Please make sure the "$(appname)" is existing!))
+    $(if $(filter distclean clean help, $(MAKECMDGOALS)),,$(error App Unknown, Please make sure the "$(appname)" is existing!)))
 
 # determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile/,$(appmkfile)),)
