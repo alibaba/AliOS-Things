@@ -1,7 +1,7 @@
 config AOS_BOARD_B_F769
     bool "STM32F769I-Discovery"
-    select AOS_MCU_STM32F7XX
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_STM32F7XX if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_NO_TCPIP
     help
 
