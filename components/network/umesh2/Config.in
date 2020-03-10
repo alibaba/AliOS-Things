@@ -1,26 +1,28 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_UMESH2
+    bool "uMesh2"
+    default y
+    help
+        AliOS Things uMesh network protocol
+endif
+if !AOS_CREATE_PROJECT
 config AOS_COMP_UMESH2
     bool "uMesh2"
     default n
     help
         AliOS Things uMesh network protocol
+endif
 
-choice
-prompt "mesh core config"
-default UMESH_WITH_DEFAULT_CORE
+if AOS_COMP_UMESH2
 config UMESH_WITH_DEFAULT_CORE
-    bool "use default umesh2 core"
-endchoice
+    bool
+    default y
 
-choice
-prompt "mdns config"
-default UMESH_WITH_DEFAULT_MDNS
-config UMESH_WITH_DEFAULT_MDNS
-    bool "use default mdns"
-endchoice
-
-choice
-prompt "api config"
-default UMESH_WITH_LOCAL_COMM
 config UMESH_WITH_LOCAL_COMM
-    bool "use default api"
-endchoice
+    bool
+    default y
+
+config UMESH_WITH_MDNS
+    bool
+    default y
+endif
