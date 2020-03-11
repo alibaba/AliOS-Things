@@ -5,7 +5,8 @@ $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := rtp component
 
 $(NAME)_INCLUDES += ./include \
-	                ../../../include \
+	            ../../../include
+
 $GLOBAL_INCLUDES += ../../../include/network/rtp
 
 $(NAME)_SOURCES := ./src/fb.c \
