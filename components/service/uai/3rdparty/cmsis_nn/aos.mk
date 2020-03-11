@@ -6,9 +6,10 @@ GLOBAL_INCLUDES    +=   \
                         CMSIS_5/CMSIS/DSP/Include \
                         CMSIS_5/CMSIS/NN/Include
 
+$(NAME)_SOURCES    += src/PoolingFunctions/arm_pool_q7_HWC_nonsquare.c
+
 ifeq ($(CONFIG_UAI_SUPPORT_ODLA), 1)
 $(NAME)_SOURCES    += \
-                        src/PoolingFunctions/arm_pool_q7_HWC_nonsquare.c \
                         src/ConvolutionFunctions/arm_convolve_1x1_HWC_q7_fast_nonsquare_uai.c \
                         src/ConvolutionFunctions/arm_convolve_HWC_q7_RGB_uai.c \
                         src/ConvolutionFunctions/arm_convolve_HWC_q7_fast_uai.c \
