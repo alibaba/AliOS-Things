@@ -1,7 +1,7 @@
 config AOS_BOARD_CB2201
     bool "CB2201"
-    select AOS_MCU_CSKY
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_CSKY if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
       configuration for board cb2201

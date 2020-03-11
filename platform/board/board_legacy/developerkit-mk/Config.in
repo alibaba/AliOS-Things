@@ -1,6 +1,6 @@
 config AOS_BOARD_DEVELOPERKIT_MK
     bool "developerkit-mk"
-    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_MCU_STM32L4XX_CUBE if !AOS_CREATE_PROJECT
     select RHINO_CONFIG_USER_SPACE
     select RHINO_CONFIG_URES
     select RHINO_CONFIG_UCLI
