@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_MSP432P4XX
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_MSP432P4XX
     bool
     select AOS_ARCH_ARMV7M
@@ -5,6 +12,7 @@ config AOS_MCU_MSP432P4XX
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu msp432p4xx
+endif
 
 if AOS_MCU_MSP432P4XX
 # Configurations for mcu msp432p4xx
