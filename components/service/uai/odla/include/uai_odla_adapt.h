@@ -42,7 +42,7 @@ struct _odla_Session {
 #define KERNEL_SCALE(LAYER_ID) ((const uint32_t *)&((comp->model_quant_scale->scale)[comp->model_quant_scale->head.scale_offset[UAI_KERNRL_SCALE][LAYER_ID]]))
 #define BIAS_SCALE(LAYER_ID)   ((const uint32_t *)&((comp->model_quant_scale->scale)[comp->model_quant_scale->head.scale_offset[UAI_BIAS_SCALE][LAYER_ID]]))
 #define ACT_SCALE(LAYER_ID)    (((const uint32_t)((comp->model_quant_scale->scale)[comp->model_quant_scale->head.scale_offset[UAI_ACT_SCALE][LAYER_ID]])))
-#define SCALE_SHIFT(LAYER_ID)  ((const uint32_t)((comp->model_quant_scale->scale)[comp->model_quant_scale->head.scale_shift[LAYER_ID]]))
+#define SCALE_SHIFT(LAYER_ID)  ((const uint8_t)(comp->model_quant_scale->head.scale_shift[LAYER_ID]))
 
 
 uai_mem_list_t *uai_odla_init_memlist();
