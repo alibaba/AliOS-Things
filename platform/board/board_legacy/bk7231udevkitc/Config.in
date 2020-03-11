@@ -1,7 +1,7 @@
 config AOS_BOARD_BK7231U
     bool "BK7231U"
-    select AOS_MCU_BK7231U
-    select AOS_COMP_KERNEL_INIT
+    select AOS_MCU_BK7231U if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
       configuration for board bk7231u
