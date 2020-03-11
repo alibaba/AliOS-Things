@@ -10,10 +10,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef CONFIG_AOS_MESH
-#include <umesh.h>
-#endif
-
 #ifdef MBEDTLS_IN_KERNEL
 #include <ali_crypto.h>
 #endif
