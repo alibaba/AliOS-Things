@@ -1,0 +1,13 @@
+"--endian=little" 
+
+"--cpu=Cortex-M4" 
+
+"--fpu=VFPv4_SP" 
+
+"--semihosting=none" 
+
+"--multicore_nr_of_cores=1" 
+
+
+
+

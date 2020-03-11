@@ -1,0 +1,51 @@
+config AOS_BOARD_XMC4800_RELAX
+    bool "xmc4800-relax"
+    select AOS_MCU_XMC      if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT    if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if BSP_SUPPORT_EXTERNAL_MODULE && !AOS_CREATE_PROJECT
+    select CONFIG_AOS_TCPIP if !BSP_SUPPORT_EXTERNAL_MODULE
+    select CONFIG_NO_TCPIP  if BSP_SUPPORT_EXTERNAL_MODULE
+    help
+        **xmc4800-relax**
+
+if AOS_BOARD_XMC4800_RELAX
+# Configurations for board xmc4800-relax
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_SPI
+    bool
+    default y
+
+config BSP_SUPPORT_RTC
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool "Support external module"
+    default y
+
+endif
