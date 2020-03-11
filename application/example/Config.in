@@ -35,10 +35,10 @@ if AOS_APP_COAP_DEMO
         default "coap_demo"
 endif
 
-source "application/example/httpc_demo/Config.in"
-if AOS_APP_HTTPC_DEMO
+source "application/example/http_demo/Config.in"
+if AOS_APP_HTTP_DEMO
     config AOS_BUILD_APP
-        default "httpc_demo"
+        default "http_demo"
 endif
 
 source "application/example/blink_demo/Config.in"
@@ -87,12 +87,6 @@ source "application/example/http2_demo/Config.in"
 if AOS_APP_HTTP2_DEMO
     config AOS_BUILD_APP
         default "http2_demo"
-endif
-
-source "application/example/http_demo/Config.in"
-if AOS_APP_HTTP_DEMO
-    config AOS_BUILD_APP
-        default "http_demo"
 endif
 
 source "application/example/lwm2m_demo/Config.in"
@@ -420,10 +414,10 @@ if AOS_APP_MAL_APP
         default "mal_app"
 endif
 
-source "application/example/example_legacy/wifi_at/Config.in"
+source "application/example/example_legacy/wifi_at_app/Config.in"
 if AOS_APP_WIFI_AT_APP
     config AOS_BUILD_APP
-        default "wifi_at"
+        default "wifi_at_app"
 endif
 
 source "application/example/umesh2app/Config.in"
