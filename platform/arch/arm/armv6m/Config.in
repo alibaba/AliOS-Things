@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_ARMV6M
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_ARMV6M
     bool
     help
       arch for armv6m
+endif
 
 if AOS_ARCH_ARMV6M
 # Configurations for arch armv6m
