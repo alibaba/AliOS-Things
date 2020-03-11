@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ */
+
 #ifndef __SDS_H
 #define __SDS_H
 
