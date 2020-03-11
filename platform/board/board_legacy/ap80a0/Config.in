@@ -1,7 +1,7 @@
 config AOS_BOARD_AP80A0
     bool "AP80A0"
-    select AOS_MCU_MVS_AP80XX
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_MCU_MVS_AP80XX if !AOS_CREATE_PROJECT
+    select AOS_COMP_NEWLIB_STUB if !AOS_CREATE_PROJECT
     select CONFIG_AOS_TCPIP
     help
 
