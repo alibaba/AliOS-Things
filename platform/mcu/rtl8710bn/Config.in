@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_RTL8710BN
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_RTL8710BN
     bool
     select AOS_COMP_NETMGR
@@ -7,6 +14,7 @@ config AOS_MCU_RTL8710BN
     select AOS_COMP_DEBUG
     help
       driver & sdk for platform/mcu rtl8710bn
+endif
 
 if AOS_MCU_RTL8710BN
 # Configurations for mcu rtl8710bn

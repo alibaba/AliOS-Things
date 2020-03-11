@@ -1,9 +1,18 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_M487JIDAE
+    bool
+    default y
+endif
+
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_M487JIDAE
     bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu m487jidae
+endif
 
 if AOS_MCU_M487JIDAE
 # Configurations for mcu m487jidae

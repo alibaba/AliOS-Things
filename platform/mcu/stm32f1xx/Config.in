@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_STM32F1XX
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_STM32F1XX
     bool
     select AOS_COMP_NEWLIB_STUB
@@ -5,6 +12,7 @@ config AOS_MCU_STM32F1XX
     select AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu stm32f1xx
+endif
 
 if AOS_MCU_STM32F1XX
 # Configurations for mcu stm32f1xx
