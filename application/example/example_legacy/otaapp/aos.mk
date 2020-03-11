@@ -9,9 +9,7 @@ loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
 
 $(NAME)_SOURCES := otaapp.c
 $(NAME)_COMPONENTS := netmgr cli ota libiot_mqtt
-ifeq ($(OTAAPP_CONFIG_USE_LWIP),y)
-$(NAME)_COMPONENTS  += lwip
-endif
+$(NAME)_COMPONENTS-$(OTAAPP_CONFIG_USE_LWIP) += lwip
 
 ifeq ($(loop),1)
 $(NAME)_DEFINES     += TEST_LOOP
