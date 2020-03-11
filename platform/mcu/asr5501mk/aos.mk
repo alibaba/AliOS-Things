@@ -53,10 +53,12 @@ $(NAME)_SOURCES += drivers/platform/system/systick_delay.c \
 
 #hal
 $(NAME)_SOURCES += hal/src/hw.c \
+            hal/src/adc.c \
             hal/src/gpio.c \
             hal/src/uart.c \
             hal/src/flash.c \
             hal/src/wdg.c   \
+            hal/src/pwm.c   \
             hal/src/wifi_port.c \
             hal/src/ota.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr.c \
@@ -69,8 +71,10 @@ $(NAME)_SOURCES += drivers/driver/src/lega_flash_alg.c \
             drivers/driver/src/lega_board.c \
             drivers/driver/src/lega_flash.c \
             drivers/driver/src/lega_gpio.c \
+            drivers/driver/src/lega_adc.c \
             drivers/driver/src/lega_uart.c \
             drivers/driver/src/lega_wdg.c \
+            drivers/driver/src/lega_pwm.c
 
 $(NAME)_PREBUILT_LIBRARY := drivers/libs/$(HOST_ARCH)/libasr_wifi.a
 

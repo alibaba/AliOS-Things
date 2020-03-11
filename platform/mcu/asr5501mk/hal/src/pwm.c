@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "lega_cm4.h"
 #include "lega_pwm.h"
-#include "pwm.h"
+#include "aos/hal/pwm.h"
 
 /**
  * Initialises a PWM pin
