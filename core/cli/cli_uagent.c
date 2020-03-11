@@ -47,8 +47,8 @@ static int on_cli_handler(void* p, const unsigned short len, void* cmd)
                 cli_printf("CLI Setting Delay Parameter %s OK\n", (char*)cmd);
                 rc = 0;
             }
-            g_cmd_from_cloud = 0;
         }
+        g_cmd_from_cloud = 0;
         return rc;
     }
 
@@ -81,7 +81,7 @@ static mod_func_t cli_uagent_func =
 
 void cli_uagent_init(void)
 {
-    const char cmd[] = "cli cloud timeout=50";
+    const char cmd[] = "cli cloud timeout=20";
     uagent_func_node_t * p = cli_uagent_func.header;
     while (NULL != p) {
         if (0 != uagent_register(UAGENT_MOD_CLI, "CLI", MOD_VER, p->func,
