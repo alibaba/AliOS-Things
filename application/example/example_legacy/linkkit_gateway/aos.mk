@@ -6,14 +6,10 @@ $(NAME)_SUMMARY := linkkit gateway examples
 
 $(NAME)_SOURCES := app_entry.c 
 
-$(NAME)_COMPONENTS := netmgr cjson
+$(NAME)_COMPONENTS := netmgr cjson und
 $(NAME)_COMPONENTS += libiot_devmodel libiot_awss
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
-
-ifeq ($(AOS_COMP_UND),y)
-$(NAME)_COMPONENTS += und
-endif
 
 # LINKKIT_GATEWAY_CONFIG_DEPRECATED ?= n
 
