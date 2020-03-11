@@ -1,8 +1,16 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_LIB_RBTREE
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_COMP_LIB_RBTREE
     bool "rbtree code"
     default y
     help
         red-black tree
+endif
 
 if AOS_COMP_LIB_RBTREE
 
