@@ -1,0 +1,11 @@
+This ARM Cortex-M33 Security Test example project shows how the ARMv8-M
+architecture reacts to potential security attacks. It uses CMSIS-Core and
+CMSIS-RTOS2 (Keil RTX5).
+
+To execute a test case, enter in the uVision Debugger command window
+>TestCase=<n>
+where <n> is a test case number (0..4).
+
+After a test case has been executed, the security attack gets recorded in
+the IncidentLog and the application is reset. The struct IncidentLogCopy
+can be viewed in a watch window and shows the past four recorded incidents.
