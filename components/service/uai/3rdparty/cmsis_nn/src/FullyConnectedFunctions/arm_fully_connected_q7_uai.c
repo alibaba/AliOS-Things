@@ -69,7 +69,11 @@ arm_fully_connected_q7_uai(const q7_t * pV,
                        const q7_t * pM,
                        const uint16_t dim_vec,
                        const uint16_t num_of_rows,
-                       const int32_t *scale,
+                       const q7_t * bias,
+                       const uint32_t *kernel_scale,
+                       const uint32_t *bias_scale,
+                       const uint32_t act_scale,
+                       const int8_t shift,
                        q31_t * pOut, q15_t * vec_buffer)
 {
 
@@ -81,15 +85,18 @@ arm_fully_connected_q7_uai(const q7_t * pV,
     q31_t     *pO = pOut;
     q15_t    *pA;
     uint16_t  rowCnt = num_of_rows >> 1;
+    uint16_t  i_ch_out  = 0;
 
     /* expand the vector into the buffer */
     arm_q7_to_q15_reordered_no_shift(pV, vec_buffer, dim_vec);
 
     while (rowCnt)
     {
-        q31_t     sum =  0;
-        q31_t     sum2 = 0;
-        uint16_t  colCnt = dim_vec >> 2;
+        q31_t     sum       =  0;
+        q31_t     sum2      = 0;
+        q63_t     sum_temp  = 0;
+
+        uint16_t  colCnt    = dim_vec >> 2;
 
         pA = vec_buffer;
         pB2 = pB + dim_vec;
@@ -122,13 +129,18 @@ arm_fully_connected_q7_uai(const q7_t * pV,
             sum += inV * inM;
             sum2 += inV * inM2;
             colCnt--;
-        }                       /* while over colCnt */
-        *pO++ = sum * scale[rowCnt];
-        *pO++ = sum2 * scale[rowCnt];
+        }
+        /* while over colCnt */
+        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
+        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+
+        sum_temp = sum2 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
+        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);;
 
         /* adjust the pointers and counters */
         pB += dim_vec;
         rowCnt--;
+        i_ch_out += 2;
     }
 
     /* left-over part of the rows */
@@ -137,7 +149,8 @@ arm_fully_connected_q7_uai(const q7_t * pV,
     while (rowCnt)
     {
         uint16_t  colCnt = dim_vec >> 2;
-        q31_t     sum = 0;
+        q31_t      sum = 0;
+        q63_t sum_temp = 0;
 
         pA = vec_buffer;
 
@@ -165,14 +178,16 @@ arm_fully_connected_q7_uai(const q7_t * pV,
             sum += inV * inM;
             colCnt--;
         }
+        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
+        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
 
-        *pO++ = sum * scale[rowCnt];
-
+        i_ch_out++;
         rowCnt--;
     }
 
 #else
-    int       i, j;
+    int      i, j;
+    int64_t  ip_temp;
 
     /* Run the following code as reference implementation for Cortex-M0 and Cortex-M3 */
     for (i = 0; i < num_of_rows; i++)
@@ -182,7 +197,8 @@ arm_fully_connected_q7_uai(const q7_t * pV,
         {
             ip_out += pV[j] * pM[i * dim_vec + j];
         }
-        pOut[i] = ip_out * scale[i];
+        ip_temp = ip_out * kernel_scale[i] + bias[i] * bias_scale[i];
+        pOut[i] = (q7_t)__SSAT((ip_temp >> shift) / act_scale, 8);
     }
 
 #endif                          /* ARM_MATH_DSP */

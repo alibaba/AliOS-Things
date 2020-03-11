@@ -80,8 +80,12 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
                                                          const uint16_t padding_y,
                                                          const uint16_t stride_x,
                                                          const uint16_t stride_y,
-                                                         const int32_t *scale,
-                                                         q31_t * Im_out,
+                                                         const q7_t * bias,
+                                                         const uint32_t *kernel_scale,
+                                                         const uint32_t *bias_scale,
+                                                         const uint32_t act_scale,
+                                                         const int8_t shift,
+                                                         q7_t * Im_out,
                                                          const uint16_t dim_im_out_x,
                                                          const uint16_t dim_im_out_y,
                                                          q15_t * bufferA,
@@ -107,6 +111,7 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
     q31_t     *pOut = Im_out;
     uint16_t  rowCnt;
     uint16_t  row_shift;
+    uint16_t  i_ch_out  = 0;
 
     /* do some checking here, basically ch_im_in == ch_im_out */
     if (ch_im_in != ch_im_out)
@@ -148,6 +153,7 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
                 q31_t     sum2 = 0;
                 q31_t     sum3 = 0;
                 q31_t     sum4 = 0;
+                q63_t sum_temp = 0;
 
                 uint16_t  colCnt = (dim_kernel_x * dim_kernel_y) >> 1;
                 q7_t     *pB = colBuffer + row_shift;
@@ -316,10 +322,19 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
                     colCnt--;
                 }
 
-                *pOut++ = sum * scale[rowCnt];
-                *pOut++ = sum2 * scale[rowCnt];
-                *pOut++ = sum3 * scale[rowCnt];
-                *pOut++ = sum4 * scale[rowCnt];
+                sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
+                *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+
+                sum_temp = sum2 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
+                *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+
+                sum_temp = sum3 * kernel_scale[i_ch_out + 2] + bias[i_ch_out + 2] * bias_scale[i_ch_out + 2];
+                *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+
+                sum_temp = sum4 * kernel_scale[i_ch_out + 3] + bias[i_ch_out + 3] * bias_scale[i_ch_out + 3];
+                *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+
+                i_ch_out += 4;
 
                 rowCnt--;
             }
@@ -330,6 +345,7 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
                 q7_t     *pB = colBuffer + row_shift;
                 const q7_t *pA = wt + row_shift;
                 q31_t     sum = 0;
+                q63_t sum_temp = 0;
                 uint16_t  colCnt = (dim_kernel_x * dim_kernel_y);
 
                 row_shift += 1;
@@ -344,8 +360,10 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
 
                     colCnt--;
                 }
-                *pOut++ = sum * scale[rowCnt];
-                rowCnt--;
+                sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
+                *pOut++  = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+                i_ch_out ++;
+                rowCnt --;
             }
 
             // clear counter and pointers
@@ -372,6 +390,7 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
             {
                 // for each output
                 int       conv_out = 0;
+                int64_t   conv_temp;
                 for (i_ker_y = 0; i_ker_y < dim_kernel_y; i_ker_y++)
                 {
                     for (i_ker_x = 0; i_ker_x < dim_kernel_x; i_ker_x++)
@@ -385,7 +404,8 @@ arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t * Im_in,
                         }
                     }
                 }
-                Im_out[(i_out_y * dim_im_out_x + i_out_x) * ch_im_out + i_ch_out] = conv_out * scale[i_ch_out];
+                conv_temp = (conv_out * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out]);
+                Im_out[(i_out_y * dim_im_out_x + i_out_x) * ch_im_out + i_ch_out] = __SSAT((conv_temp >> shift) / act_scale, 8);
             }
         }
     }

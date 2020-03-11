@@ -24,13 +24,6 @@ choice
         bool "CMSIS NN compute libary"
         select AOS_COMP_CMSISNN
 
-    #config CONFIG_UAI_USE_SOFTWARE_NN
-    #    bool "uAI oftware compute Libary"
-    #    select AOS_COMP_UAI_SOFTWARE_NN
-
-    #config CONFIG_UAI_USE_THIRDPARTY_NN
-    #    bool "Thirdparty compute Libary"
-    #    select AOS_COMP_UAI_THIRDPARTY_NN
 
 endchoice
 endif
