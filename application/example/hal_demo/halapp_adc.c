@@ -30,7 +30,7 @@ static void adc_app_out(uint8_t port)
     cnt = 20;
     while (cnt-- > 0) {
         memset(val, 0, sizeof(val));
-        ret = hal_adc_value_get(&adc_dev, &val, 1000);
+        ret = hal_adc_value_get(&adc_dev, val, 1000);
         if (ret) {
             printf("%s: get value error, ret %d\r\n", __func__, ret);
             goto out;
