@@ -34,7 +34,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
 
 else
 
-ifeq ($(RHINO_CONFIG_USER_SPACE),y)
+ifeq ($(ENABLE_USPACE),1)
 $(NAME)_COMPONENTS += arch_armv7m-mk
 else
 $(NAME)_COMPONENTS += arch_armv7m
