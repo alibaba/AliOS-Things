@@ -1,8 +1,16 @@
-menuconfig AOS_COMP_MICROPYTHON
+if AOS_CREATE_PROJECT
+config AOS_COMP_MICROPYTHON
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_MICROPYTHON
     bool "micropython"
     default n
     help
       micropython support
+endif
 
 if AOS_COMP_MICROPYTHON
 # Configurations for component micropython
