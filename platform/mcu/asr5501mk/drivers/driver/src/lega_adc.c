@@ -162,7 +162,6 @@ int32_t lega_adc_get(lega_adc_dev_t *adc_config)
 
     REG_PL_WR(SYS_REG_BASE_AUXADC, REG_PL_RD(SYS_REG_BASE_AUXADC) | ((uint32_t)(BIT(9))));
     vol_value = (spi_mst_read(0xA4) & 0xFFF0) >> 4;
-    printf("value is %ld\r\n",vol_value);
 
     //vol_val = 1.6 * (float)vol_value/4095;
 
