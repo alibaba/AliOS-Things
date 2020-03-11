@@ -302,6 +302,10 @@ def parse_block_of_configin(lines):
             match = p1.match(line)
             if match:
                 new_macro["name"] = match.group(2)
+                # add default data type
+                new_macro["type"] = "bool"
+                new_macro["hint"] = ""
+                new_macro["value"] = ""
             else:
                 return new_macro
         elif line.startswith("bool") or line.startswith("int") or line.startswith("string") \
