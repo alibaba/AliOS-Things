@@ -1,8 +1,8 @@
 config AOS_APP_ID2_APP
     bool "ID2 Client Sample"
-    select AOS_COMP_IROT
-    select AOS_COMP_ID2
-    select AOS_COMP_ALICRYPTO
+    select AOS_COMP_IROT if !AOS_CREATE_PROJECT
+    select AOS_COMP_ID2 if !AOS_CREATE_PROJECT
+    select AOS_COMP_ALICRYPTO if !AOS_CREATE_PROJECT
     help
         ID2 Sample and Local Test.
 
