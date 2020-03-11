@@ -487,7 +487,7 @@ static int uagent_on_recv_handler(const unsigned short len, const char *str)
     int rc = -1;
     cJSON *root = NULL;
     root = cJSON_Parse(str);
-    if (NULL != root) {        
+    if (NULL != root) {
         cJSON *params = cJSON_GetObjectItem(root, "params");
         if (params != NULL) {
             cJSON *value_text = cJSON_GetObjectItem(params, "value");
@@ -500,16 +500,16 @@ static int uagent_on_recv_handler(const unsigned short len, const char *str)
                         id = msgid->valueint;
                     } else if(cJSON_IsString(msgid)) {
                         id = strtoul(msgid->valuestring, NULL, 10);
-                    }            
+                    }
                 } else {
                     UAGENT_ERR("[uA]call %s no id in payload\n", __func__);
                 }
-                
+
                 cJSON *mod = cJSON_GetObjectItem(value_text, "mod");
                 cJSON *func = cJSON_GetObjectItem(value_text, "func");
 
                 if (NULL != mod && NULL != func) {
-                
+
                         cJSON *param = cJSON_GetObjectItem(value_text, "param");
                         if (NULL != param) {
                             if (cJSON_IsObject(param)) {/* param is json object */
@@ -542,7 +542,7 @@ static int uagent_on_recv_handler(const unsigned short len, const char *str)
                         } else {
                             UAGENT_ERR("[uA]missing param\n");
                         }
-         
+
                 } else {
                     /* print topic name and topic message */
                     char* json_str = cJSON_Print(value_text);
@@ -642,7 +642,7 @@ static void service_update_delay_send_param(const unsigned short len, void *str)
         if (NULL != (str_value = strstr(str, "cli cloud timeout="))) {
             UAGENT_DEBUG("call %s str value %s\n", __func__, str_value);
             const int timeout = strtoul(&str_value[strlen("cli cloud timeout=")], NULL, 10);
-            if (timeout >= 50 && timeout <= 5000) {
+            if (timeout >= 20 && timeout <= 5000) {
                 UAGENT_DEBUG("call %s delay timeout %d\n", __func__, timeout);
                 aos_timer_change(&timer_monitor_output_queue, timeout);
             }
