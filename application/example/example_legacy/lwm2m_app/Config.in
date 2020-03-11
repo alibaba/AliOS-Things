@@ -1,6 +1,6 @@
 config AOS_APP_LWM2M_APP
     bool "lwm2mapp"
-    select AOS_COMP_LWM2M 
+    select AOS_COMP_LWM2M if !AOS_CREATE_PROJECT
     help
         lwm2m app
 

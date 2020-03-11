@@ -21,12 +21,9 @@ ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 $(NAME)_SOURCES += linkkit/app_entry.c
 $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
-$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_LINKKIT) += libiot_devmodel libiot_awss yloop netmgr cjson
-   
-#AOS_CONFIG_DTC_USE_LWIP ?= y
-ifeq ($(AOS_CONFIG_DTC_USE_LWIP),y)
-$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_USE_LWIP)  += lwip
-endif
+$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_LINKKIT) += libiot_devmodel libiot_awss cjson
+$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_MQTT||AOS_CONFIG_DTC_LINKKIT) += netmgr yloop
+$(NAME)_COMPONENTS-$(AOS_CONFIG_DTC_LINKKIT&&AOS_CONFIG_DTC_USE_LWIP) += lwip
 
 $(NAME)_INCLUDES += ./
 GLOBAL_DEFINES += DTC_LINKKIT
