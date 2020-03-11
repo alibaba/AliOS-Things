@@ -138,10 +138,10 @@ void cpu_signal(uint8_t cpu_num)
 void *cpu_entry(void *arg)
 {
     cpu_set_t mask;
-    struct sigevent sevp;
+    /* struct sigevent sevp;
     timer_t timerid;
     struct itimerspec ts;
-    int     ret  = 0;
+    int     ret  = 0;*/
 
     CPU_ZERO(&mask);
     CPU_SET((int)arg, &mask);
@@ -151,7 +151,7 @@ void *cpu_entry(void *arg)
     }
 
     printf("cpu num is %d\n", (int)arg);
-
+/*
     memset(&sevp, 0, sizeof(sevp));
     sevp.sigev_notify = SIGEV_SIGNAL | SIGEV_THREAD_ID;
     sevp.sigev_signo = SIGRTMIN + (int)arg;
@@ -165,7 +165,7 @@ void *cpu_entry(void *arg)
     ts.it_value.tv_nsec = 0;
 
     ret = timer_settime(timerid, CLOCK_REALTIME, &ts, NULL);
-    assert(ret == 0);
+    assert(ret == 0);*/
 
     ktask_t    *tcb     = g_preferred_ready_task[(int)arg];
     task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
@@ -675,6 +675,7 @@ void cpu_init_hook(void)
 
     sigaddset(&cpu_sig_set, SIGRTMIN + 1);
     cpu_assert_action.sa_mask   = cpu_sig_set;
+	cpu_local_timer_action.sa_mask   = cpu_sig_set;
 #endif
 
     event_sig_action.sa_mask    = cpu_sig_set;
@@ -686,7 +687,8 @@ void cpu_init_hook(void)
     ret |= sigaction(SIGIO, &event_io_action, NULL);
 #if (RHINO_CONFIG_CPU_NUM > 1)
     ret |= sigaction(SIGRTMIN, &cpu_assert_action, NULL);
-    ret |= sigaction(SIGRTMIN + 1, &cpu_local_timer_action, NULL);
+    (void)cpu_local_timer_action;
+    //ret |= sigaction(SIGRTMIN + 1, &cpu_local_timer_action, NULL);
 #endif
 
     assert(ret == 0);
