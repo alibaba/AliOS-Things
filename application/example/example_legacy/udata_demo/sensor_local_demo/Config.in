@@ -1,7 +1,7 @@
 config AOS_APP_SENSOR_LOCAL_DEMO
     bool "Sensor Local Demo"
-    select AOS_COMP_CLI
-    select AOS_COMP_SENSOR
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_SENSOR if !AOS_CREATE_PROJECT
     help
         sensor local demo
 
