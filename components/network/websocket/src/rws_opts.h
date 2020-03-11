@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ */
+
 #ifndef _WEBSOC_OPT_H_
 #define _WEBSOC_OPT_H_
 
