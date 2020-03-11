@@ -1,0 +1,11 @@
+config AOS_MCU_XMC
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu xmc
+
+if AOS_MCU_XMC
+# Configurations for mcu xmc
+endif

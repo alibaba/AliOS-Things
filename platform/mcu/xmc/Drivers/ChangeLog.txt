@@ -1,0 +1,100 @@
+CHANGELOG.txt XMC_Peripheral_Library_v2.1.18
+--------------------------------------------
+FATFS updated to v0.13a
+LWIP updated to v2.0.3
+FREERTOS updated to v10.0.1 
+
+CMSIS v5.2.0
++ Updated to CMSIS v5.2.0
++ startup_xmc1400.S:
+   Added option to select wait time before ASC BSL channel selection (WAIT_ASCBSL_ENTRY_SSW)
+
++ system_xmc4xxx.c:
+   Added code to handle the situation where the FPU is not enabled by compiler/linker settings
+
+XMCLib v2.1.18:
++ CAN:
+  - xmc_can.h:
+    Added XMC_CAN_InitEx() and XMC_CAN_NODE_NominalBitTimeConfigureEx()
+    Make XMC_CAN_GetBaudrateClockSource(), XMC_CAN_SetBaudrateClockSource() and XMC_CAN_GetBaudrateClockFrequency() available to all devices
+
+  - xmc_can_map.h: 
+    Added support for XMC4700
+
+  - xmc_can.c:
+	Added XMC_CAN_InitEx() and XMC_CAN_NODE_NominalBitTimeConfigureEx()
+	Make XMC_CAN_GetBaudrateClockSource(), XMC_CAN_SetBaudrateClockSource() and XMC_CAN_GetBaudrateClockFrequency() available to all devices
+	Changed refactoring XMC_CAN_MO_Config() to configure MOCTR depending on transmit or receive message type
+
++ CCU4
+  - xmc_ccu4.h:
+    Fix XMC_CCU4_SLICE_SetShadowTransferMode()
+
++ CCU8
+  - xmc_ccu8.h:
+    Fix XMC_CCU8_SLICE_SetShadowTransferMode()
+    Added parity checking functionality
+
++ COMMON
+  - xmc_common.h:
+    Added support for ARM compiler v6
+
++ DMA
+  - xmc_dma.h:
+    Improved documentation and added XMC_DMA_CH_EnableFifo() and XMC_DMA_CH_DisableFifo()
+
++ ETH
+  - xmc_eth_mac.h/c:
+    Added XMC_ETH_MAC_InitEx()
+    XMC_ETH_MAC_SetAddressEx(), XMC_ETH_MAC_GetAddressEx() and XMC_ETH_MAC_SetAddressPerfectFilterEx() which receive a byte array with the MAC address instead of uint64_t
+
++ I2C
+  - xmc_i2c.h:
+    Added XMC_I2C_CH_EnableMasterClock() and XMC_I2C_CH_DisableMasterClock()
+
++ UART
+  - xmc_uart.h:
+    Added XMC_UART_CH_EnableMasterClock() and XMC_UART_CH_DisableMasterClock()
+
++ USIC
+  - xmc_usic.h:
+    Fixed value of macro XMC_USIC_CH_SHIFT_DIRECTION_MSB_FIRST used in XMC_USIC_CH_SetShiftDirection()
+
++ VADC
+  - xmc_vadc.h:
+    Added XMC_VADC_GLOBAL_DETAILED_RESULT_t
+    You can cast the return of XMC_VADC_GLOBAL_GetDetailedResult() to a varible of type XMC_VADC_GLOBAL_DETAILED_RESULT_t to easily access the register bit fields
+    Fixed XMC_VADC_GLOBAL_SHS_SetAnalogReference() to update AREF bitfield correctly
+ 
++ SCU
+  - xmc1_scu.h:
+    Added XMC_SCU_GetBMI()
+    Make XMC_SCU_CLOCK_EnableFlashPowerDown() and XMC_SCU_CLOCK_DisableFlashPowerDown() available to all XMC1 families
+    Added XMC_SCU_BMI_HWCFG_PINDIS for XMC1400
+  - xmc1_scu.c:
+    Move the following functions to xmc1_scu.h as STATCI_INLINE and make them available for XMC1 families
+      XMC_SCU_CLOCK_EnableDCO1OscillatorWatchdog(), 
+      XMC_SCU_CLOCK_DisableDCO1OscillatorWatchdog(), 
+      XMC_SCU_CLOCK_ClearDCO1OscillatorWatchdogStatus(), 
+      XMC_SCU_CLOCK_IsDCO1ClockFrequencyUsable()
+    Changed XMC_SCU_SetBMI() for XMC11/XMC12/XMC13 to set to 1 the bits [7:6] of BMI
+
++ FCE
+  - xmc_fce.c
+    XMC_FCE_CalculateCRC8()
+    Ensure 32bit access to IR register
+    XMC_FCE_CalculateCRC16()
+    Ensure 32bit access to IR register
+    Remove restriction on data source allignment
+    XMC_FCE_CalculateCRC32()
+    Ensure 32bit access to IR register
+    Remove restriction on data source allignment
+
++ MATH
+  - xmc_math.c
+    Fixed reentrancy problems when using __aeabi_* functions (division ‘/’ and modulo ‘%’ C operators) which are active by default as long as XMC_MATH_DISABLE_DIV_ABI is not defined
+
++ GPIO
+  - xmc1_gpio.c/xmc4_gpio.c
+    Fix side effects on output level when programming a pin as input after the same pin in another port has been configured as output
+
