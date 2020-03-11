@@ -1,0 +1,26 @@
+The RTX_Blinky project is a simple RTX Kernel based example
+for a simulated Cortex-M3 device
+
+Example functionality:
+ - Clock Settings:
+   - XTAL    =  12 MHz
+   - Core    =  12 MHz
+
+The simple RTX Kernel based example simulates the step-motor 
+driver. Four LEDs are blinking simulating the activation of 
+the four output driver stages
+The simulation does not provide LEDs, so the state changes
+are output on the Debug printf window:
+
+- phase A
+- phase B
+- phase C
+- phase D
+
+This example simulates Half step driver mode and
+CW rotation direction.
+
+
+The BLINKY example program is available for one target:
+
+  Simulation:          configured for a simulated on-chip Flash
