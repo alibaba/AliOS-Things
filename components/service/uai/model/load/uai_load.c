@@ -343,7 +343,7 @@ static uai_model_quant_scale_data_t *uai_load_all_scale_from_file(char *model_da
             total += model_quant_scale->head.scale_num[i][j] * sizeof(int32_t);
         }
     }
-    if(total < file_size) {
+    if(total > file_size) {
         UAI_LOGE("file size error, need %u, actual %u\n", total, file_size);
         fclose(fd);
         UAI_RET_WITH_MEM_FREE(model_quant_scale, NULL);

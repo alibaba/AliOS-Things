@@ -212,14 +212,14 @@ odla_value odla_Pad(odla_computation comp, odla_element_type type,
   \param paddings_back paddings applied to end of each spatial dim
   \return the result value
 */
-odla_value odla_Convolution(odla_computation comp, odla_element_type type,
+odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type type,
                             odla_dims input_dims, odla_layout input_layout,
                             odla_value input, odla_dims kernel_dims,
                             odla_layout kernel_layout, odla_value kernel,
                             const unsigned* strides, const unsigned* dilations,
-                            const unsigned* paddings_front,
-                            const unsigned* paddings_back,
-                            odla_dims output_dims);
+                            const unsigned* paddings_front, const unsigned* paddings_back,
+                            odla_value bias_input, odla_dims bias_dims,
+                            odla_layout bias_layout, odla_dims output_dims);
 
 //! \brief Batch Normalization
 /*!
@@ -310,10 +310,11 @@ odla_value odla_ReduceMean(odla_computation comp, odla_element_type type,
   \param output_dims the output shape
   \return the result value
 */
-odla_value odla_Gemm(odla_computation comp, odla_element_type type,
+odla_value odla_Gemm_BiasAdd(odla_computation comp, odla_element_type type,
                      odla_dims lhs_dims, odla_value lhs, bool lhs_transpose,
                      odla_dims rhs_dims, odla_value rhs, bool rhs_transpose,
-                     odla_dims output_dims);
+                     odla_value bias_input, odla_dims bias_dims,
+                     odla_layout bias_layout, odla_dims output_dims);
 #ifdef __cplusplus
 } // C extern
 #endif
