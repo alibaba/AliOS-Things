@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_ARMV7A
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_ARMV7A
     bool
     help
       arch for armv7a
+endif
 
 if AOS_ARCH_ARMV7A
 # Configurations for arch armv7a
