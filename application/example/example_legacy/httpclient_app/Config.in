@@ -1,10 +1,10 @@
 config AOS_APP_HTTPCLIENT_APP
     bool "HTTP Client App"
 # the selection of dependencies are to be removed soon
-    select AOS_COMP_HTTP
+    select AOS_COMP_HTTP if !AOS_CREATE_PROJECT
     select CONFIG_NEW_HTTP_API
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
     help
         HTTP client app
 
