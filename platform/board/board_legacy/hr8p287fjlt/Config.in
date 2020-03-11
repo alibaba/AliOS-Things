@@ -1,7 +1,7 @@
 config AOS_BOARD_HR8P287FJLT
     bool "HR8P287FJLT"
-    select AOS_MCU_HR8P2XX
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_MCU_HR8P2XX if !AOS_CREATE_PROJECT
+    select AOS_COMP_NEWLIB_STUB if !AOS_CREATE_PROJECT
     select CONFIG_NO_TCPIP
     help
         **Hr8p287fjlt** is a highly integrated, general-purpose MCU chip with an integrated 32-bit ARM Cortex-M0 CPU core.
