@@ -1,8 +1,8 @@
 config AOS_APP_MAL_APP
     bool "mal app"
 # the selection of dependencies are to be removed soon
-    select AOS_COMP_MAL
-    select AOS_COMP_SDK_SIGN
+    select AOS_COMP_MAL if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_SIGN if !AOS_CREATE_PROJECT
     help
         MQTT Adapter layer app
 
