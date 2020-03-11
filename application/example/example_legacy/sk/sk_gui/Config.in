@@ -1,8 +1,8 @@
 config AOS_APP_SK_GUI
     bool "StartKit GUI Sample"
-    select AOS_COMP_LITTLEVGL
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
+    select AOS_COMP_LITTLEVGL if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_YLOOP if !AOS_CREATE_PROJECT
     help
         Starter Kit GUI demo
 
