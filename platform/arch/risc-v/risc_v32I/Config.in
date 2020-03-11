@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_RISC_V32I
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_RISC_V32I
     bool
     help
       arch for risc_v32I
+endif
 
 if AOS_ARCH_RISC_V32I
 # Configurations for arch risc_v32I

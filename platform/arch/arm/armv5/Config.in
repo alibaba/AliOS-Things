@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_ARMV5
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_ARMV5
     bool
     help
       arch for armv5
+endif
 
 if AOS_ARCH_ARMV5
 # Configurations for arch armv5
