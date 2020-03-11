@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_RDA5981X
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_RDA5981X
     bool
     select AOS_COMP_CLI
@@ -7,6 +14,7 @@ config AOS_MCU_RDA5981X
     select AOS_COMP_NEWLIB_STUB
     help
       driver & sdk for platform/mcu RDA5981x
+endif
 
 if AOS_MCU_RDA5981X
 # Configurations for mcu RDA5981x

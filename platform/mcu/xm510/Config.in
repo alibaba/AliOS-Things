@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_XM510
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_XM510
     bool
     select AOS_ARCH_ARMV7A
@@ -12,6 +19,7 @@ config AOS_MCU_XM510
     select AOS_COMP_VFS
     help
       driver & sdk for platform/mcu xm510
+endif
 
 if AOS_MCU_XM510
 # Configurations for mcu xm510
