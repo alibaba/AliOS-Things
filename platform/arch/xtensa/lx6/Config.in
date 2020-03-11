@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_XTENSA_LX6
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_XTENSA_LX6
     bool
     help
       arch for xtensa lx6
+endif
 
 if AOS_ARCH_XTENSA_LX6
 # Configurations for arch xtensa-lx6
