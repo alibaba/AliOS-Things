@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
 config AOS_ARCH_ARMV7A_MK
-    bool "armv7a-mk"
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_ARCH_ARMV7A_MK
+    bool
     help
       arch for armv7a-mk
+endif
 
 if AOS_ARCH_ARMV7A_MK
 # Configurations for arch armv7a-mk

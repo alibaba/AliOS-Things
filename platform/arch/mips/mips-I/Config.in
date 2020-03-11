@@ -1,7 +1,15 @@
+if AOS_CREATE_PROJECT
+config AOS_ARCH_MIPS_I
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_ARCH_MIPS_I
     bool
     help
       arch for mips-I
+endif
 
 if AOS_ARCH_MIPS_I
 # Configurations for arch mips-I
