@@ -53,7 +53,7 @@ static void debug_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 		} else if (strcmp(argv[1], "6") == 0) {
 			aos_debug_backtrace_now();
 		} else if (strcmp(argv[1], "7") == 0) {
-			aos_debug_backtrace_task("aos-init");
+			aos_debug_backtrace_task("main_task");
 		} else if (strcmp(argv[1], "8") == 0) {
 			reason = aos_debug_reboot_reason_get();
             switch (reason) {

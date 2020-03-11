@@ -125,6 +125,12 @@ if AOS_APP_ULOG_DEMO
         default "ulog_demo"
 endif
 
+source "application/example/debug_demo/Config.in"
+if AOS_APP_DEBUG_DEMO
+    config AOS_BUILD_APP
+        default "debug_demo"
+endif
+
 source "application/example/example_legacy/blink/Config.in"
 if AOS_APP_BLINK
     config AOS_BUILD_APP
@@ -412,12 +418,6 @@ source "application/example/example_legacy/mal_app/Config.in"
 if AOS_APP_MAL_APP
     config AOS_BUILD_APP
         default "mal_app"
-endif
-
-source "application/example/example_legacy/debug_app/Config.in"
-if AOS_APP_DEBUG_APP
-    config AOS_BUILD_APP
-        default "debug_app"
 endif
 
 source "application/example/example_legacy/wifi_at/Config.in"
