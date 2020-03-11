@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ */
+
 #ifndef HTTPDNS_INTERNAL_H
 #define HTTPDNS_INTERNAL_H
 
