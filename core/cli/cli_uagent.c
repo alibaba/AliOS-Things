@@ -22,17 +22,16 @@ static int on_cli_handler(void* p, const unsigned short len, void* cmd)
     if (cmd == NULL) {
         return rc;
     }
-    g_cmd_from_cloud = 1;
-    if (0 == g_cloud_cmd_enable) {
+
+    if (NULL != strstr(cmd, "cli cloud ")) {
+        g_cmd_from_cloud = 1;
         if (0 == strncmp("cli cloud start", cmd, len)) {
             cli_printf("ready for your command!\n");
             g_cloud_cmd_enable = 1;
             g_cmd_from_cloud = 0;
             cli_printf("CLI: switch on cloud control\n");
             rc = 0;
-        }
-    } else {
-        if (len != 0 && 0 == strncmp("cli cloud stop", cmd, len)) {
+        } else if (0 == strncmp("cli cloud stop", cmd, len)) {
             cli_printf("byebye!\n");
             g_cloud_cmd_enable = 0;
             g_cmd_from_cloud = 0;
@@ -46,20 +45,23 @@ static int on_cli_handler(void* p, const unsigned short len, void* cmd)
                 cli_printf("CLI Setting Delay Parameter %s Fail\n", (char*)cmd);
             } else {
                 cli_printf("CLI Setting Delay Parameter %s OK\n", (char*)cmd);
-
                 rc = 0;
             }
             g_cmd_from_cloud = 0;
-        } else {
-            cli_printf("\n# %s", (char*)cmd);
-            rc = cli_handle_input(cmd);
-            if (rc == CLI_ERR_BADCMD) {
-                if (cmd != NULL) {
-                    cli_printf("command '%s' not found\r\n", cmd);
-                }
-            } else if (rc == CLI_ERR_SYNTAX) {
-                cli_printf("syntax error\r\n");
+        }
+        return rc;
+    }
+
+    if (1 == g_cloud_cmd_enable) {
+        g_cmd_from_cloud = 1;
+        cli_printf("\n# %s", (char*)cmd);
+        rc = cli_handle_input(cmd);
+        if (rc == CLI_ERR_BADCMD) {
+            if (cmd != NULL) {
+                cli_printf("command '%s' not found\r\n", cmd);
             }
+        } else if (rc == CLI_ERR_SYNTAX) {
+            cli_printf("syntax error\r\n");
         }
     }
     return rc;
