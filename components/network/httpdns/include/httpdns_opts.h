@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ */
+
 #ifndef _HTTP_DNS_OPT_H_
 #define _HTTP_DNS_OPT_H_
 
