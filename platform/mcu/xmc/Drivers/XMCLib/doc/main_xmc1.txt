@@ -1,0 +1,405 @@
+/**
+ * @mainpage XMC Peripheral Library
+ *
+ * @tableofcontents
+ * @image html "xmc.png"
+ * @image latex "xmc.png"
+ *
+ * The XMC Peripheral Library (XMC Lib) consists of low-level drivers for the XMC product family peripherals. <br> 
+ * Built on top the Cortex Microcontroller Software Interface Standard (CMSIS) and MISRA-C 2004 compliant, it provides access to all peripheral features. <br>
+ *
+ * @section support Supported devices and toolchains
+ * The following 32-Bit Industrial Microcontrollers based on ARM Cortex-M0 are supported:
+ * - XMC1400 series
+ * - XMC1300 series
+ * - XMC1200 series
+ * - XMC1100 series
+ *
+ * The following tool chains are supported:
+ * - GNU GCC for ARM (gcc) found in Atollic TrueSTUDIO, DAVE and Rowley CrossWorks.
+ * - Keil MDK-ARM Microcontroller Development Kit v5.x (armcc)
+ * - IAR Embedded Workbench for ARM v7.x(iccarm)
+ * - TASKING VX-toolset for ARM v5.(carm)
+ *
+ * @section overview Overview
+ * XMC Lib consists of routines and data structures which covers all peripheral functions.
+ *
+ * It provides a peripheral register abstraction by a set of stateless APIs. It is possible to write a full application without a single peripheral register access.
+ *
+ * It is built on top of Cortex Microcontroller Software Interface Standard (CMSIS).
+ * @image html architecture.png
+ * @image latex "architecture.png"
+ *
+ * @section coding Coding Rules and Conventions
+ * This section describes the set of coding rules and conventions applied to the XMC Peripheral Library:
+ * - Strict C99 usage, in addtion unions and bitfields are used for more compact code and data section.
+ * - Use only standard data types
+ * - Use enumerations in favor of defines
+ * - Naming convention: 
+ *   - Variables use only lower case,underscore separated words.
+ *   - Functions use CamelCase convention.
+ * - Non blocking APIs for better integration in event driven applications. Polling is supported aswell by API.
+ * - Runtime error checking can be enabled by user
+ * - XMC_ASSERT() used to check input parameters of functions, result of calculations, ... . @note Only enabled if XMC_ASSERT_ENABLE macro is defined
+ * - XMC_DEBUG() used to monitor status of application. @note Only enabled if XMC_DEBUG_ENABLE macro is defined
+ * - Each driver defines its own namespace: every function and type definition is prefixed by a unique identifier, i.e. XMC_VADC
+ *
+ * XMC Peripheral Library follows an object oriented approach, where a instances of peripherals is treated as objects = attributes + functions.<br>
+ * Attributes are the peripheral data structures defined in device header file. These gets configured using configuration data structures using initialization functions.<br>
+ * Peripheral functions take a pointer to the peripheral data struct as the first argument.<br>
+ * XMC Peripheral Library uses naming conventions to bind the data struct and the functions that operate on i, i.e. XMC_PERI_DoSomething(XMC_PERI_t const *peri, ...);
+ *
+ * Typically a driver contains the following functionality:
+ * 1. Initialization function
+ * @code
+ * XMC_PERI_STATUS_t XMC_PERI_Init(XMC_PERI_t *const peri, const XMC_PERI_CONFIG_t const *config);
+ * @endcode
+ *
+ * 2. Enable/disable peripheral functions
+ * @code
+ * void XMC_PERI_Enable(XMC_PERI_t *const peri);
+ * void XMC_PERI_Disable(XMC_PERI_t *const peri);
+ * @endcode
+ *
+ * 3. Connectivity functions
+ * @code
+ * void XMC_PERI_SetInputSource(XMC_PERI_t *const peri, ...);
+ * @endcode
+ *
+ * 4. Event handling functions
+ * @code
+ * void XMC_PERI_Enable(XMC_PERI_t const *peri);
+ * void XMC_PERI_Disable(XMC_PERI_t const *peri);
+ * void XMC_PERI_EnableEvent(XMC_PERI_t const *peri);
+ * void XMC_PERI_DisableEvent(XMC_PERI_t const *peri);
+ * void XMC_PERI_TriggerEvent(XMC_PERI_t const *peri);
+ * uint32_t XMC_PERI_GetEventStatus(XMC_PERI_t const *peri);
+ * void XMC_PERI_SetInterruptNode(XMC_PERI_t const *peri);
+ * @endcode
+ *
+ * 5. Control functions
+ * @code
+ * void XMC_PERI_Start(XMC_PERI_t const *peri);
+ * void XMC_PERI_Stop(XMC_PERI_t const *peri);
+ * void XMC_PERI_Suspend(XMC_PERI_t const *peri);
+ * void XMC_PERI_Resume(XMC_PERI_t const *peri);
+ * @endcode
+ *
+ * 6. Get/setters functions, run time API to obtain or modify state of peripheral
+ * @code
+ * void XMC_PERI_SetSomething(XMC_PERI_t const *peri, ...);
+ * uint32_t XMC_PERI_GetSomething(XMC_PERI_t const *peri);
+ * @endcode
+ *
+ * 7. IRQ Handlers are provided which can be used optionally by the user to make easier the coding
+ * @code
+ * void XMC_PERI_IRQHandler(uint32_t sr_num);
+ * @endcode
+ *
+ * A peripheral driver is structured as:
+ * - Common API valid for all the supported devices, i.e. xmc_gpio.h and xmc_gpio.c
+ * - Familiy specific extension API, i.e. xmc1_gpio.h and xmc1_gpio.c
+ * - Maps files to help user to configure connectivity, i.e. xmc1_gpio_map.h already has defined all the pins available depending on the target device selected.
+ *
+ * If needed the family extension API implementation file, i.e. xmc1_gpio.c, can also overload common functionality to adapt it to target device.
+ * The peripheral driver abstracts the target device, helping the user in code proting to another family or device.
+ * 
+ * @image html include_xmc1.png
+ * @image latex "include.png"
+ *
+ * @section usage How to use the XMC Peripheral Library
+ * The following steps are required:
+ * 1. Include header file of required peripheral. No need to include device specific peripheral header files, 
+      this is done automatically using the information of the selected target device.
+ * 2. Peripheral configuration and initialization.
+ * 3. Connectivity configuration.
+ * 4. Event/interrupt configuration.
+ * 5. Start operation.
+ * 6. IO configuration.
+ * 7. Manage peripheral.
+ * 
+ * @code
+ * /* Include files */
+ * #include <xmc_gpio.h>
+ * #include <xmc_i2c.h>
+ * ...
+ * int main(void)
+ * {
+ *   /* Peripheral configuration and initialization. */
+ *   XMC_I2C_CH_CONFIG_t i2c_cfg;
+ *   i2c_cfg.baudrate = 400000U;
+ *   XMC_I2C_CH_Init(XMC_I2C0_CH0, &i2c_cfg);
+ *   
+ *   /* Connectivity configuration. */
+ *   XMC_I2C_CH_SetInputSource(XMC_I2C0_CH0, XMC_I2C_CH_INPUT_SDA, USIC1_C0_DX0_P2_14);
+ *   XMC_I2C_CH_SetInputSource(XMC_I2C0_CH0, XMC_I2C_CH_INPUT_SCL, USIC1_C0_DX1_P5_8);
+ *
+ *   /* Event/interrupt configuration. */
+ *   XMC_I2C_CH_EnableEvent(XMC_I2C0_CH0, XMC_I2C_CH_EVENT_ARBITRATION_LOST);
+ *   NVIC_SetPriority(USIC0_0_IRQn, NVIC_GetPriorityGrouping(), 63, 0);
+ *   NVIC_EnableIRQ(USIC0_0_IRQn);
+ *
+ *   /* Start operation. */
+ *   XMC_I2C_CH_Start(XMC_I2C0_CH0);
+ *
+ *   /* IO configuration. */
+ *   XMC_GPIO_SetMode(P1_5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN | P1_5_AF_U0C0_DOUT0);
+ *   XMC_GPIO_SetMode(P1_1, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN | P1_1_AF_U0C0_SCLKOUT);
+ *   ...
+ *   /* Manage peripheral */
+ *   XMC_I2C_CH_MasterStart(XMC_I2C1_CH0, IO_EXPANDER_ADDRESS, XMC_I2C_CH_CMD_WRITE);
+ *   while((XMC_I2C_CH_GetStatusFlag(XMC_I2C1_CH0) & XMC_I2C_CH_STATUS_FLAG_ACK_RECEIVED) == 0U)
+ *   {
+ *   /* wait for ACK */
+ *   }
+ *   XMC_I2C_CH_ClearStatusFlag(XMC_I2C1_CH0, XMC_I2C_CH_STATUS_FLAG_ACK_RECEIVED);
+ *   ...
+ *   
+ * @endcode
+ * @subsection devices Device Names
+ * The selection of the target device is done through preprocessor macro, i.e. -DXMC1404_F064x0200 (refer to devices names below)
+ *
+ * XMC1400 Series device names:
+ * - XMC1401_Q048x0064
+ * - XMC1401_Q048x0128
+ * - XMC1401_F064x0064
+ * - XMC1401_F064x0128
+ * - XMC1402_T038x0032
+ * - XMC1402_T038x0064
+ * - XMC1402_T038x0128
+ * - XMC1402_T038x0200
+ * - XMC1402_Q040x0032
+ * - XMC1402_Q040x0064
+ * - XMC1402_Q040x0128
+ * - XMC1402_Q040x0200
+ * - XMC1402_Q048x0032 
+ * - XMC1402_Q048x0064 
+ * - XMC1402_Q048x0128 
+ * - XMC1402_Q048x0200
+ * - XMC1402_Q064x0064 
+ * - XMC1402_Q064x0128 
+ * - XMC1402_Q064x0200 
+ * - XMC1402_F064x0064 
+ * - XMC1402_F064x0128 
+ * - XMC1402_F064x0200 
+ * - XMC1403_Q040x0064
+ * - XMC1403_Q040x0128
+ * - XMC1403_Q040x0200
+ * - XMC1403_Q048x0064 
+ * - XMC1403_Q048x0128 
+ * - XMC1403_Q048x0200 
+ * - XMC1403_Q064x0064 
+ * - XMC1403_Q064x0128 
+ * - XMC1403_Q064x0200 
+ * - XMC1404_Q048x0064 
+ * - XMC1404_Q048x0128 
+ * - XMC1404_Q048x0200 
+ * - XMC1404_Q064x0064 
+ * - XMC1404_Q064x0128 
+ * - XMC1404_Q064x0200 
+ * - XMC1404_F064x0064 
+ * - XMC1404_F064x0128 
+ * - XMC1404_F064x0200 
+ *
+ * XMC1300 Series device names:
+ * - XMC1302_T038x0200
+ * - XMC1302_T038x0128
+ * - XMC1302_T038x0064
+ * - XMC1302_T038x0032
+ * - XMC1302_T038x0016
+ * - XMC1302_T028x0016
+ * - XMC1302_T016x0032
+ * - XMC1302_T016x0016
+ * - XMC1302_T016x0008
+ * - XMC1302_Q040x0200
+ * - XMC1302_Q040x0128
+ * - XMC1302_Q040x0064
+ * - XMC1302_Q040x0032
+ * - XMC1302_Q040x0016
+ * - XMC1302_Q024x0064
+ * - XMC1302_Q024x0032
+ * - XMC1302_Q024x0016
+ * - XMC1301_T038x0032
+ * - XMC1301_T038x0016
+ * - XMC1301_T038x0008
+ * - XMC1301_T016x0032
+ * - XMC1301_T016x0016
+ * - XMC1301_T016x0008
+ * - XMC1301_Q040x0032
+ * - XMC1301_Q040x0016
+ * - XMC1301_Q040x0008
+ * - XMC1301_Q024x0016
+ * - XMC1301_Q024x0008
+ *
+ * XMC1200 Series device names:
+ * - XMC1202_T028x0032
+ * - XMC1202_T028x0016
+ * - XMC1202_T016x0064
+ * - XMC1202_T016x0032
+ * - XMC1202_T016x0016
+ * - XMC1202_Q040x0032
+ * - XMC1202_Q040x0016
+ * - XMC1202_Q024x0032
+ * - XMC1202_Q024x0016
+ * - XMC1201_T038x0200
+ * - XMC1201_T038x0128
+ * - XMC1201_T038x0064
+ * - XMC1201_T038x0032
+ * - XMC1201_T038x0016
+ * - XMC1201_Q040x0200
+ * - XMC1201_Q040x0128
+ * - XMC1201_Q040x0064
+ * - XMC1201_Q040x0032
+ * - XMC1201_Q040x0016
+ * - XMC1201_T028x0016
+ * - XMC1201_T028x0032
+ * - XMC1200_T038x0200
+ *
+ * XMC1100 Series device names:
+ * - XMC1100_T038x0064
+ * - XMC1100_T038x0032
+ * - XMC1100_T038x0016
+ * - XMC1100_T016x0064
+ * - XMC1100_T016x0032
+ * - XMC1100_T016x0016
+ * - XMC1100_T016x0008
+ * - XMC1100_Q040x0064
+ * - XMC1100_Q040x0032
+ * - XMC1100_Q040x0016
+ * - XMC1100_Q024x0064
+ * - XMC1100_Q024x0032
+ * - XMC1100_Q024x0016
+ * - XMC1100_Q024x0008
+ *
+ * @section files Directories and Files
+ * The following diagram shows the most important directories and files provided in the distribution.
+ *
+ * @verbatim 
+ * XMC_Peripheral_Library_vX.Y.Z\   - XMClib root directory
+ * |
+ * +-CMSIS\                         - The Cortex Microcontroller Software Interface Standard abstraction layer
+ * | +-index.html                   - Link to documentation 
+ * | +-Include\                     - Hardware Abstraction Layer (HAL) for Cortex-M processor registers
+ * | +-Infineon\                    - Includes System View Description files (SVD), device header files, system and startup files
+ * | +-Lib\                         - Precompiled CMSIS DSP libraries for XMC4 (ARM Cortex M4F) and XMC1 (ARM Cortex M0) families
+ * |
+ * +-XMClib\                        - XMC Peripheral Library
+ * | +-XMC1_Peripheral_Library.chm  - XMC Peripheral Library documentation with XMC1 specific information
+ * | +-XMC4_Peripheral_Library.chm  - XMC Peripheral Library documentation with XMC4 specific information
+ * | |
+ * | +-doc\                         - XMC Peripheral Library documentation generated with Doxygen
+ * | | +-html\                      - Doxygen output folder
+ * | | +-xmc4lib.dox                - Doxygen configuration file to generate XMC4 Peripheral Library documentation
+ * | | +-xmc1lib.dox                - Doxygen configuration file to generate XMC1 Peripheral Library documentation
+ * | | +- . . .
+ * |
+ * | +-examples\                    - XMC Peripheral Library example
+ * | | +-XMC1200_series\            - Examples for XMC1200 series
+ * | | +-XMC1300_series\            - Examples for XMC1300 series
+ * | | +-XMC4400_series\            - Examples for XMC4400 series
+ * | | +-XMC4500_series\            - Examples for XMC4500 series
+ * | | | +-VADC\                    - Examples for VADC peripheral
+ * | | | | +-VADC_MEASUREMENT\      - VADC peripheral project 
+ * | | | | | +-ARM\                 - Project file for Keil MDK-ARM V5.x
+ * | | | | | +-IAR\                 - Project file for IAR Embedded Workbench for ARM v7.x
+ * | | | | | +-main.c               - Application code
+ * | | | | | +-Readme.txt           - Readme file describing project
+ * | | | +- . . .
+ * |
+ * | +-inc\                         - XMC Peripheral Library API interface files
+ * | | +-xmc_vadc.h                 - VADC API description
+ * | | +- . . .
+ * |
+ * | +-src\                         - XMC Peripheral Library API implementation files
+ * | | +-xmc_vadc.c                 - VADC API implementation
+ * | | +- . . .
+ * @endverbatim  
+ *
+ * @section examples XMC Lib examples
+ * The XMC Peripheral Library comes with set of examples covering the main features of each peripheral.
+ * All the examples are toolchain agnostic
+ *
+ * @subsection keil Keil MDK-ARM
+ * Keil MDK-ARM project files are included in the examples folder. 
+ * The latest version of XMC1000 / XMC4000 CMSIS Pack have to be installed, since the project references to the XMC Peripheral Library distributed with the device pack.
+ *
+ * @subsection iar IAR Embedded Workbench for ARM
+ * IAR Embedded Workbench for ARM project files are included in the examples folder.
+ * The IAR projects reference to the XMC library files in the library folder of this zip file package.  
+ * The projects will only compile if the relative path information is not changed.
+ * 
+ * @subsection dave DAVE
+ * Projects for DAVE (version 3 and version 4) are provided via the DAVE example library:
+ * Help > Install DAVE APPs / Examples
+ *
+ * @section misrac MISRA-C 2004 Compliance Exceptions 
+ * CMSIS-CORE violates the following MISRA-C:2004 rules:
+ * - Required Rule 1.1, All code shall conform to ISO 9899:1990
+ *   Compiler extensions are beyond IFX control
+ * - Required Rule 1.4, The compiler/linker shall be checked to ensure that 31 character significance and case sensitivity are supported for external identifiers. and 5.1 : Variables can be named greater than 31 characters
+ *   Long parameters names are defined for code readability. 
+ * - Required Rule 5.1, Identifiers (internal and external) shall not rely on the significance of more than 31 characters.
+ *   Long parameters names are defined for code readability. 
+ * - Advisory Rule 5.7, No identifier name should be reused. 
+ *   This rule is untenable.
+ * - Advisory Rule 6.3, typedefs that indicate size and signedness should be used in place of the basic types
+ *   Float data type used for signed-ness
+ * - Required Rule 8.5, object/function definition in header file.
+ *   Violated since function definitions in header files are used for function inlining'.
+ * - Required Rule 11.2, Conversions shall not be performed between a pointer to object and any type other than an integral type, another pointer to object type, or a pointer to void
+ *   It may be sometimes necessary to cast a pointer to an integer and sometimes casting amongst pointers is unavoidable.
+ * - Advisory Rule 11.3, A cast should not be performed between a pointer type and an integral type.
+ *   It may be sometimes necessary to cast a pointer to an integer and sometimes casting amongst pointers is unavoidable.
+ * - Advisory Rule 16.7, A pointer parameter in a function prototype should be declared as pointer to const if the pointer is not used to modify the addressed object 
+ *   It is not mandatory to qualify all pointer arguments that are not going to be modified by callee function with a const attribute.
+ * - Required Rule 18.4, declaration of union type or object of union type: '{...}'.
+ *   Violated since unions are used for effective representation of core registers.
+ * - Advisory Rule 19.4, Disallowed definition for macro.
+ *   Violated since macros are used for assembler keywords.
+ * - Advisory Rule 19.7, Function-like macro defined.
+ *   Violated since function-like macros are used to generate more efficient code.
+ * - Advisory Rule 20.2, Re-use of C90 identifier pattern.
+ *   Violated since CMSIS macros begin with '__'. Since CMSIS is developed and verified with various compilers this approach is acceptable and avoids conflicts with user symbols.
+ * - Advisory Rule 19.1, Declaration before \#include.
+ *   Violated since Interrupt Number Definition Type (IRQn_Type) must be defined before including the core header file. 
+ *
+ * @section test Test conditions
+ *	- Libraries for the XMC1100 series are verified on all supported derivatives; fully functional test is applied with XMC1100-T038F0064.
+ *	- Libraries for the XMC1200 series are verified on all supported derivatives; fully functional test is applied with XMC1200-T038F0200.
+ *	- Libraries for the XMC1300 series are verified on all supported derivatives; fully functional test is applied with XMC1302-T038F0200.
+ *	- Libraries for the XMC1400 series are verified on all supported derivatives; fully functional test is applied with XMC1404-Q064-0x0200.
+ *	
+ *  Compilers used : 
+ *  - KEIL V5.10.0.2
+ *  - IAR V6.50.6.4958
+ *  - TASKING V5.1r1 patch
+ *  - GCC compiler version ARM-GCC-49
+
+ *
+ * @section licensing XMC Peripheral Library Licensing
+ * 
+ * <b> License Terms and Copyright Information </b>
+ *   
+ * Copyright (c) 2015-2017, Infineon Technologies AG All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation 
+ *   and/or other materials provided with the distribution. 
+ * - Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived from this software 
+ *   without specific prior written permission. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with Infineon Technologies AG (support@infineon.com).  
+ *
+ * <b>Legal Disclaimer</b> The information given in this document shall in no event be regarded as a guarantee of conditions or characteristics. With respect to any examples or hints given herein, any typical values stated herein and/or any information regarding the application of the device, Infineon Technologies hereby disclaims any and all warranties and liabilities of any kind, including without limitation, warranties of non-infringement of intellectual property rights of any third party. 
+ *
+ * <b>Information</b> For further information on technology, delivery terms and conditions and prices, please contact the nearest Infineon Technologies Office (www.infineon.com). 
+ *
+ * <b>Warnings</b> Due to technical requirements, components may contain dangerous substances. For information on the types in question, please contact the nearest Infineon Technologies Office. Infineon Technologies components may be used in life-support devices or systems only with the express written approval of Infineon Technologies, if a failure of such components can reasonably be expected to cause the failure of that life-support device or system or to affect the safety or effectiveness of that device or system. Life support devices or systems are intended to be implanted in the human body or to support and/or maintain and sustain and/or protect human life. If they fail, it is reasonable to assume that the health of the user or other persons may be endangered.
+ */

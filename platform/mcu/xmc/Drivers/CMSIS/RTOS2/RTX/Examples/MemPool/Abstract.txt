@@ -1,0 +1,14 @@
+The MemPool project is a simple RTX Kernel based example
+for a simulated Cortex-M3 device
+
+Example functionality:
+ - Clock Settings:
+   - XTAL    =  12 MHz
+   - Core    =  12 MHz
+
+The simple RTX Kernel based example shows how to use a 
+memory pool for dynamic object allocation.
+
+The MemPool example program is available for one target:
+
+  Fixed Virtual Platform:          configured for a simulated on-chip Flash
