@@ -190,8 +190,8 @@ export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
 endif
 
-export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(real_boardname))))
-export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst app_,,$(real_appname))))
+export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(patsubst board_%,%,$(real_boardname))))
+export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(patsubst app_%,%,$(real_appname))))
 
 endif # $(BUILD_STRING)
 endif # $(NOCONFIG)
