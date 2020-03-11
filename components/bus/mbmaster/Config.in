@@ -1,10 +1,19 @@
-menuconfig AOS_COMP_MBMASTER
+if AOS_CREATE_PROJECT
+config AOS_COMP_MBMASTER
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_MBMASTER
     bool "Modbus Master Support"
     default n
     help
         modbus master stack. This module is used to communicate with modbus slave devices.
+endif
 
-if AOS_COMP_MBMASTER
+menu "Modbus Master Configuration"
+    depends on AOS_COMP_MBMASTER
 
 config MBMASTER_CONFIG_RTU_ENABLED
     bool "Enable the rtu transmission mode"
@@ -22,4 +31,4 @@ config MBMASTER_CONFIG_HANDLER_MAX
             must call mb_alloc_handler to alloc a handler.
             default 1
 
-endif
+endmenu
