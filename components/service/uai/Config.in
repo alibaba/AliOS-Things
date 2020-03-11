@@ -1,12 +1,19 @@
 ###################################################################
 # Component enable/disable selection
 # in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_UAI
+    bool
+    default y
+endif
 
+if !AOS_CREATE_PROJECT
 config AOS_COMP_UAI
     bool "uAI Support"
     default n
     help
       uAI component
+endif
 
 ###################################################################
 # Component configuration items
@@ -21,10 +28,8 @@ choice
       Select one type of compute libary
 
     config CONFIG_UAI_USE_CMSIS_NN
-        bool "CMSIS NN compute libary"
-        select AOS_COMP_CMSISNN
-
-
+      bool "CMSIS NN compute libary"
+      select AOS_COMP_CMSISNN if !AOS_CREATE_PROJECT
 endchoice
 endif
 
