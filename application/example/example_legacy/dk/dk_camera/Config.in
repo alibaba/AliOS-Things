@@ -1,8 +1,8 @@
 config AOS_APP_DK_CAMERA
     bool "DeveloperKit Camera Sample"
-    select AOS_COMP_FATFS
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
+    select AOS_COMP_FATFS if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_YLOOP if !AOS_CREATE_PROJECT
     help
         developer kit camera sample
 

@@ -7,16 +7,9 @@ $(NAME)_SUMMARY := linkkitapp
 $(NAME)_SOURCES :=   app_entry.c
 $(NAME)_COMPONENTS += libiot_devmodel libiot_awss
 
-$(NAME)_COMPONENTS += netmgr cjson
+$(NAME)_COMPONENTS += netmgr cjson und
 
-ifeq ($(AOS_COMP_UND),y)
-$(NAME)_COMPONENTS += und
-endif
-
-ifeq ($(AOS_COMP_OTA),y)
-$(NAME)_COMPONENTS += ota
-GLOBAL_DEFINES += ENABLE_AOS_OTA
-endif
+$(NAME)_COMPONENTS-$(ENABLE_OTA) += ota
 
 ifeq ($(LINKKITAPP_CONFIG_CASE_SOLO),y)
 $(NAME)_SOURCES += linkkit_example_solo.c
