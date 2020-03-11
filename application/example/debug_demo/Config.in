@@ -1,0 +1,17 @@
+config AOS_APP_DEBUG_DEMO
+    bool "debug demo"
+    select AOS_COMP_DEBUG if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    select AOS_COMP_KV if !AOS_CREATE_PROJECT
+    help
+        demo for debug api
+
+if AOS_APP_DEBUG_DEMO
+# Configurations for app debug
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

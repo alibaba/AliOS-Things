@@ -1,10 +1,10 @@
 config AOS_APP_DAS_APP
     bool "DAS Client Sample"
-    select AOS_COMP_DAS
-    select AOS_COMP_NETMGR
-    select AOS_COMP_CLI
-    select AOS_COMP_CJSON
-    select AOS_COMP_SDK_MQTT
+    select AOS_COMP_DAS if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_MQTT if !AOS_CREATE_PROJECT
 
     help
         das(Device Attestation) example
