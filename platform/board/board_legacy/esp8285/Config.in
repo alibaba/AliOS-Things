@@ -1,8 +1,8 @@
 config AOS_BOARD_ESP8285
     bool "ESP8285"
-    select AOS_MCU_ESP8285
-    select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_NETMGR
+    select AOS_MCU_ESP8285 if !AOS_CREATE_PROJECT
+    select AOS_COMP_KERNEL_INIT if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
     select CONFIG_VENDOR_TCPIP
     help
         The ESP8285 integrates a Tensilica L106 32-bit RISC processor, which achieves extralow power consumption and reaches a maximum clock speed of 160 MHz. The Real-Time Operating System (RTOS) and Wi-Fi stack allow 80% of the processing power to be available for user application programming and development.
