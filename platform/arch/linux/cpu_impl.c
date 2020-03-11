@@ -675,7 +675,7 @@ void cpu_init_hook(void)
 
     sigaddset(&cpu_sig_set, SIGRTMIN + 1);
     cpu_assert_action.sa_mask   = cpu_sig_set;
-	cpu_local_timer_action.sa_mask   = cpu_sig_set;
+    cpu_local_timer_action.sa_mask   = cpu_sig_set;
 #endif
 
     event_sig_action.sa_mask    = cpu_sig_set;
