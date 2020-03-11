@@ -32,6 +32,17 @@
 #include "arm_nnfunctions.h"
 #include "uai_typedef.h"
 
+extern q7_t *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
+                                                        const q15_t * pInBuffer,
+                                                        const uint16_t ch_im_out,
+                                                        const uint16_t numCol_A,
+                                                        const q7_t * bias,
+                                                        const int32_t *kernel_scale,
+                                                        const int32_t *bias_scale,
+                                                        const int32_t act_scale,
+                                                        const int8_t shift,
+                                                        q7_t * pOut);
+
 /**
  *  @ingroup groupNN
  */
@@ -88,8 +99,12 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
                                                   const uint16_t padding_y,
                                                   const uint16_t stride_x,
                                                   const uint16_t stride_y,
-                                                  const int32_t *scale,
-                                                  q31_t * Im_out,
+                                                  const q7_t *bias,
+                                                  const uint32_t *kernel_scale,
+                                                  const uint32_t *bias_scale,
+                                                  const uint32_t act_scale,
+                                                  const int8_t shift,
+                                                  q7_t * Im_out,
                                                   const uint16_t dim_im_out_x,
                                                   const uint16_t dim_im_out_y,
                                                   q15_t * bufferA,
@@ -107,7 +122,7 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
      */
 
     q15_t    *pBuffer = bufferA;
-    q31_t     *pOut = Im_out;
+    q7_t     *pOut    = Im_out;
 
     if (ch_im_in % 4 != 0 || ch_im_out % 2 != 0 || dim_kernel_x != 1 || dim_kernel_y != 1
         || padding_x != 0 || padding_y != 0 || stride_x != 1 || stride_y != 1)
@@ -128,7 +143,7 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
             if (pBuffer == bufferA + 2 * ch_im_in * dim_kernel_x * dim_kernel_y)
             {
                 pOut =
-                    arm_nn_mat_mult_kernel_q7_q15_reordered_uai(wt, bufferA, ch_im_out, ch_im_in, scale, pOut);
+                    arm_nn_mat_mult_kernel_q7_q15_reordered_uai(wt, bufferA, ch_im_out, ch_im_in, bias, kernel_scale, bias_scale, act_scale, shift, pOut);
                 /* counter reset */
                 pBuffer = bufferA;
             }
@@ -141,14 +156,14 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
         const q7_t *pA = wt;
         for (i_ch_out = 0; i_ch_out < ch_im_out; i_ch_out++)
         {
-            q31_t     sum = 0;
-            q15_t    *pB = bufferA;
+            q31_t      sum = 0;
+            q15_t      *pB = bufferA;
+            q63_t sum_temp = 0;
             /* basically each time it process 4 entries */
             uint16_t  colCnt = ch_im_in * dim_kernel_x * dim_kernel_y >> 2;
 
             while (colCnt)
             {
-
                 q31_t     inA1, inA2;
                 q31_t     inB1, inB2;
 
@@ -169,11 +184,9 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
                 sum += inA1 * inB1;
                 colCnt--;
             }
-            *pOut = sum * scale[i_ch_out];
-            pOut++;
-
+            sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
+            *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
         }
-
     }
 
 #else
@@ -182,6 +195,7 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
     int       i, j, k, l, m, n;
     int       conv_out;
     int       in_row, in_col;
+    int64_t   conv_temp;
 
     if (ch_im_in % 4 != 0 || ch_im_out % 2 != 0 || dim_kernel_x != 1 || dim_kernel_y != 1
         || padding_x != 0 || padding_y != 0 || stride_x != 1 || stride_y != 1)
@@ -209,12 +223,13 @@ arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
                             for (l = 0; l < ch_im_in; l++)
                             {
                                 conv_out += Im_in[(in_row * dim_im_in_x + in_col) * ch_im_in + l] *
-                                    wt[i * ch_im_in * dim_kernel_y * dim_kernel_x + (m * dim_kernel_y + n) * ch_im_in + l] * scale[i];
+                                    wt[i * ch_im_in * dim_kernel_y * dim_kernel_x + (m * dim_kernel_y + n) * ch_im_in + l];
                             }
                         }
                     }
                 }
-                Im_out[i + (j * dim_im_out_x + k) * ch_im_out] = conv_out;
+                conv_temp = conv_out * kernel_scale[i] + bias[i] * bias_scale[i];
+                Im_out[i + (j * dim_im_out_x + k) * ch_im_out] = (q7_t)__SSAT((conv_temp >> shift) / act_scale, 8);
             }
         }
     }
