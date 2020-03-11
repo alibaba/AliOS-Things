@@ -15,6 +15,11 @@
                                 weight->dim_height,   \
                                 padding_x,            \
                                 strides[0],           \
+                                bias->buffer,         \
+                                kernel_scale,         \
+                                bias_scale,           \
+                                act_scale,            \
+                                shift,                \
                                 output->buffer,       \
                                 output->dim_height,   \
                                 buffer_input,         \
@@ -32,6 +37,11 @@
                                 padding_y,            \
                                 strides[0],           \
                                 strides[1],           \
+                                bias->buffer,         \
+                                kernel_scale,         \
+                                bias_scale,           \
+                                act_scale,            \
+                                shift,                \
                                 output->buffer,       \
                                 output->dim_height,   \
                                 output->dim_width,    \
@@ -46,7 +56,12 @@ extern arm_status arm_depthwise_separable_conv_HWC_q7_uai(const q7_t * Im_in,
                                                           const uint16_t dim_kernel,
                                                           const uint16_t padding,
                                                           const uint16_t stride,
-                                                          q31_t * Im_out,
+                                                          const q7_t *bias,
+                                                          const uint32_t *kernel_scale,
+                                                          const uint32_t *bias_scale,
+                                                          const uint32_t act_scale,
+                                                          const int8_t shift,
+                                                          q7_t * Im_out,
                                                           const uint16_t dim_im_out,
                                                           q15_t * bufferA,
                                                           q7_t * bufferB);
@@ -63,14 +78,20 @@ extern arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t *
                                                                     const uint16_t padding_y,
                                                                     const uint16_t stride_x,
                                                                     const uint16_t stride_y,
-                                                                    q31_t * Im_out,
+                                                                    const q7_t *bias,
+                                                                    const uint32_t *kernel_scale,
+                                                                    const uint32_t *bias_scale,
+                                                                    const uint32_t act_scale,
+                                                                    const int8_t shift,
+                                                                    q7_t * Im_out,
                                                                     const uint16_t dim_im_out_x,
                                                                     const uint16_t dim_im_out_y,
                                                                     q15_t * bufferA,
                                                                     q7_t * bufferB);
 
 int uai_conv_depthwise_sp_2d(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
-                             const unsigned* paddings_back, uai_tensor_s *output)
+                             const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
+                             const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {
     int8_t  *buffer_input = NULL;
     uint16_t padding_x    = (paddings_front[0] + paddings_back[0])/2;
@@ -101,10 +122,13 @@ int uai_conv_depthwise_sp_2d(uai_tensor_s *input, uai_tensor_s *weight, uint16_t
     return ret;
 }
 
-int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front, const unsigned* paddings_back, uai_tensor_s *output)
+int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
+                             const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
+                             const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {
     if((input->dim_height != 0) && (input->dim_width != 0)){
-        return uai_conv_depthwise_sp_2d(input, weight, strides, paddings_front, paddings_back, output);
+        return uai_conv_depthwise_sp_2d(input, weight, strides, paddings_front, paddings_back, bias, kernel_scale,
+                                        bias_scale, act_scale, shift, output);
     }
 
     return -1;
