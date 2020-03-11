@@ -1,3 +1,10 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_MKL27Z644IMPL
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_MKL27Z644IMPL
     bool
     select AOS_ARCH_ARMV6M
@@ -5,6 +12,7 @@ config AOS_MCU_MKL27Z644IMPL
     select AOS_COMP_NEWLIB_STUB
     help
       driver & sdk for platform/mcu mkl27z644impl
+endif
 
 if AOS_MCU_MKL27Z644IMPL
 # Configurations for mcu mkl27z644impl

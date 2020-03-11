@@ -1,3 +1,11 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_MIMXRT1021IMPL
+    bool
+    default y
+    select CONFIG_NO_TCPIP
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_MIMXRT1021IMPL
     bool
     select AOS_ARCH_ARMV7M
@@ -6,6 +14,7 @@ config AOS_MCU_MIMXRT1021IMPL
     select CONFIG_NO_TCPIP
     help
       driver & sdk for platform/mcu mimxrt1021impl
+endif
 
 if AOS_MCU_MIMXRT1021IMPL
 # Configurations for mcu mimxrt1021impl

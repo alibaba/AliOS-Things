@@ -1,8 +1,16 @@
+if AOS_CREATE_PROJECT
+config AOS_MCU_SV6266
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
 config AOS_MCU_SV6266
     bool
     select  AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu sv6266
+endif
 
 if AOS_MCU_SV6266
 # Configurations for mcu sv6266
