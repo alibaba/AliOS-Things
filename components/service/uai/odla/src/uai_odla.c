@@ -71,8 +71,6 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
                     odla_dims dims_rhs)
 {
     int ret = 0;
-    uai_quant_scale bias_scale;
-    uai_quant_scale act_scale;
     uai_tensor_s *input1 = uai_odla_tensor_transofrm(lhs, dims_lhs, INT8, CHANNELS_LAST);
     uai_tensor_s *input2 = uai_odla_tensor_transofrm(rhs, dims_rhs, INT8, CHANNELS_LAST);
     uai_tensor_s *output = uai_zalloc(sizeof(uai_tensor_s));
@@ -82,10 +80,7 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
     UAI_VALID_PTR_CHECK_NULL(input2);
     UAI_VALID_PTR_CHECK_NULL(output);
 
-    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_BIAS_SCALE, &bias_scale);
-    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_ACT_SCALE, &act_scale);
-
-    ret = uai_bias_add(input1, input2, &bias_scale, &act_scale, output);
+    ret = uai_add(input1, input2, output);
 
     add_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
@@ -153,29 +148,33 @@ odla_value odla_BatchNormalization(odla_computation comp,
     return NULL;
 }
 
-odla_value odla_Convolution(odla_computation comp, odla_element_type type,
+odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type type,
                             odla_dims input_dims, odla_layout input_layout,
                             odla_value input, odla_dims kernel_dims,
                             odla_layout kernel_layout, odla_value kernel,
                             const unsigned* strides, const unsigned* dilations,
                             const unsigned* paddings_front,
                             const unsigned* paddings_back,
+                            odla_value bias_input,
+                            odla_dims bias_dims,
+                            odla_layout bias_layout,
                             odla_dims output_dims)
 {
     int ret = 0;
-    uai_quant_scale kernel_scale;
     uai_tensor_s *input_conv  = uai_odla_tensor_transofrm(input, input_dims, type, input_layout);
     uai_tensor_s *kernel_conv = uai_odla_tensor_transofrm(kernel, kernel_dims, type, kernel_layout);
     uai_tensor_s *output      = uai_odla_tensor_transofrm(NULL, output_dims, type, input_layout);
+    uai_tensor_s *bias        = uai_odla_tensor_transofrm(bias_input, bias_dims, type, bias_layout);
     odla_value conv_value     = NULL;
 
-    output->buffer = (odla_value)uai_malloc(output->size * sizeof(int32_t));
+    output->buffer = (odla_value)uai_malloc(output->size * sizeof(int8_t));
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
 
-    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
-    ret = uai_conv(input_conv, kernel_conv, strides, paddings_front, paddings_back, &kernel_scale, output);
+    ret = uai_conv(input_conv, kernel_conv, strides, paddings_front, paddings_back, bias,
+                   KERNEL_SCALE(comp->layer_id), BIAS_SCALE(comp->layer_id), ACT_SCALE(comp->layer_id), SCALE_SHIFT(comp->layer_id),
+                   output);
     conv_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
     uai_free(input_conv);
@@ -222,15 +221,16 @@ odla_value odla_MaxPooling(odla_computation comp, odla_element_type type,
     return pool_value;
 }
 
-odla_value odla_Gemm(odla_computation comp, odla_element_type type,
+odla_value odla_Gemm_BiasAdd(odla_computation comp, odla_element_type type,
                      odla_dims lhs_dims, odla_value lhs, bool transpose_lhs,
                      odla_dims rhs_dims, odla_value rhs, bool transpose_rhs,
+                     odla_value bias_input, odla_dims bias_dims, odla_layout bias_layout,
                      odla_dims output_dims)
 {
     int ret = 0;
-    uai_quant_scale kernel_scale;
     uai_tensor_s *input  = uai_odla_tensor_transofrm(lhs, lhs_dims, type, CHANNELS_LAST);
     uai_tensor_s *weight = uai_odla_tensor_transofrm(rhs, rhs_dims, type, CHANNELS_LAST);
+    uai_tensor_s *bias   = uai_odla_tensor_transofrm(bias_input, bias_dims, type, bias_layout);
     uai_tensor_s *output = uai_odla_tensor_transofrm(NULL, output_dims, type, CHANNELS_LAST);
     odla_value fconn_value = NULL;
 
@@ -239,8 +239,10 @@ odla_value odla_Gemm(odla_computation comp, odla_element_type type,
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
 
-    uai_get_model_scale(comp->model_quant_scale, comp->layer_id, UAI_KERNEL_SCALE, &kernel_scale);
-    ret = uai_fconn(input, weight, &kernel_scale, output);
+    ret = uai_fconn(input, weight, bias,
+                    KERNEL_SCALE(comp->layer_id), BIAS_SCALE(comp->layer_id),
+                    ACT_SCALE(comp->layer_id), SCALE_SHIFT(comp->layer_id),
+                    output);
     fconn_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
     uai_free(input);

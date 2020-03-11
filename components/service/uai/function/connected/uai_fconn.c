@@ -12,11 +12,16 @@ extern arm_status arm_fully_connected_q7_uai(const q7_t * pV,
                                              const q7_t * pM,
                                              const uint16_t dim_vec,
                                              const uint16_t num_of_rows,
-                                             const int32_t *scale,
-                                             q31_t * pOut,
+                                             const q7_t * bias,
+                                             const uint32_t *kernel_scale,
+                                             const uint32_t *bias_scale,
+                                             const uint32_t act_scale,
+                                             const int8_t shift,
+                                             q7_t * pOut,
                                              q15_t * vec_buffer);
 #endif
-int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel_scale, uai_tensor_s *output)
+int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_tensor_s *bias, const uint32_t *kernel_scale,
+              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {
     int16_t  dtype = 0;
     int32_t  ret   = 0;
@@ -34,7 +39,8 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel
     #endif
     switch (dtype) {
         case 0x11:
-            ret = arm_fully_connected_q7_uai(input->buffer, weight->buffer, input->size, weight->dims.dims[UAI_DIM_HEIGHT], kernel_scale->scale, (int32_t *)output->buffer, vec_buffer);
+            ret = arm_fully_connected_q7_uai(input->buffer, weight->buffer, input->size, weight->dim_height, bias->buffer,
+                                             kernel_scale, bias_scale, act_scale, shift, (int32_t *)output->buffer, vec_buffer);
             break;
 
         default:
@@ -48,10 +54,12 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_quant_scale *kernel
     #endif
     return ret;
 #elif defined(UAI_USE_HARDWARE_NN)
-    return uai_fully_connected_hal(input, weight, output);
+    return uai_fully_connected_hal(input->buffer, weight->buffer, input->size, weight->dim_height, bias->input,
+                                   kernel_scale, bias_scale, act_scale, shift, (int32_t *)output->buffer, vec_buffer);
 #else
     /* TODO: This version does not support */
-    return uai_fully_connected_software(input, weight, output);
+    return uai_fully_connected_software(input->buffer, weight->buffer, input->size, weight->dim_height, bias->input,
+                                        kernel_scale, bias_scale, act_scale, shift, (int32_t *)output->buffer, vec_buffer);
 #endif
 }
 #else

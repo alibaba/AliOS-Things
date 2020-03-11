@@ -89,17 +89,11 @@ typedef struct {
 }uai_tensor_s;
 
 typedef enum {
-    UAI_KERNEL_SCALE = 0,
+    UAI_KERNRL_SCALE = 0,  /* weight_scale*input_scale */
     UAI_BIAS_SCALE   = 1,
     UAI_ACT_SCALE    = 2,
     UAI_SCALE_END
 }uai_quant_scale_type;
-
-typedef struct {
-    int32_t *scale;
-    uint32_t scale_num;
-    uint32_t shift;
-}uai_quant_scale;
 #else
 typedef struct {
     uint16_t batch;
