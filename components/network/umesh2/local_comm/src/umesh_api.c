@@ -8,8 +8,7 @@
 #define MODE_AUTH         0xf
 #define MESH_AUTH_PORT    8791
 #define MDNS_PORT         5353
-#define MDNS_ADDR_IPV4    "224.0.0.251"
-#define MDNS_ADDR_IPV6    "FF02::fb"
+
 #define MESH_REQUEST_TYPE  "_mesh2_request._udp.local"
 
 #define MESH_ASK_AUTH_ID       0xfefe0000
@@ -43,13 +42,12 @@ static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t 
 static int umesh_service_free(service_t *service);
 static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
 {
-    int fd;
+    int fd = -1;
     int ret;
     struct sockaddr_in6 addr;
     uint8_t selfmac[6] = {0};
 
     service_t *self = session->self;
-
 
     memset(&addr, 0, sizeof(addr));
     addr.sin6_family = AF_INET6;
@@ -59,7 +57,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
     if (mode == MODE_AUTH) {
         addr.sin6_port = htons(MESH_AUTH_PORT);
     } else {
-        addr.sin6_port = htons(self->port);
+        addr.sin6_port = htons(self->id.port);
     }
 
     switch (mode) {
@@ -103,8 +101,10 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
         }
         break;
     }
-
-    ret = lwip_bind(fd, (const struct sockaddr_in6 *)&addr, sizeof(addr));
+    if (fd < 0) {
+        return UMESH_ERR_CREATE_SOCKET;
+    }
+    ret = lwip_bind(fd, (const struct sockaddr *)&addr, sizeof(addr));
     if (ret < 0) {
         lwip_close(fd);
         log_e("socket(%d) bind failed", fd);
@@ -134,10 +134,10 @@ static int umesh_sendto(int socket, const uint8_t *payload, uint16_t length,
                        sizeof(sock_addr));
 }
 
-static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t port, int mode, uint8_t *data,
+static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t port, int mode, const uint8_t *data,
                             uint16_t len)
 {
-    int ret;
+    int ret = 0;
     int fd = -1;
     service_t *self = session->self;
     if (self == NULL) {
@@ -234,7 +234,7 @@ static int stop(void *cbarg)
                 hal_mutex_lock(node->session->lock);
                 /*session changed*/
                 if (node->session->state_cb) {
-                    node->session->state_cb(node->session, node, PEER_LOST, node->session->state_cb_ctx);
+                    node->session->state_cb(node->session, &node->id, PEER_LOST, node->session->state_cb_ctx);
                 }
                 list_del(&node->linked_list2);
                 hal_mutex_unlock(node->session->lock);
@@ -253,7 +253,6 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
                      uint16_t ttl)
 {
     struct in6_addr addr;
-    uint8_t self_addr[16] = {0};
     uint8_t selfmac[6] = {0};
 
     struct mdns_ctx *ctx = (struct mdns_ctx *) handle;
@@ -281,24 +280,22 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
         }
     }
 
-    char service_type[] = MESH_REQUEST_TYPE;
-
     answers[0].type     = RR_PTR;
-    answers[0].name     = srv_name;
-    answers[0].data.PTR.domain = domain;
+    answers[0].name     = (char *)srv_name;
+    answers[0].data.PTR.domain = (char *)domain;
 
     answers[1].type     = RR_TXT;
-    answers[1].name     = srv_name;
+    answers[1].name     = (char *)srv_name;
     answers[1].data.TXT  = txt;
 
     answers[2].type     = RR_SRV;
-    answers[2].name     = srv_name;
+    answers[2].name     = (char *)srv_name;
     answers[2].data.SRV.port = port;
     answers[2].data.SRV.priority = 0;
     answers[2].data.SRV.weight = 0;
-    answers[2].data.SRV.target = domain;
+    answers[2].data.SRV.target = (char *)domain;
 
-    answers[3].name     = srv_name;
+    answers[3].name     = (char *)srv_name;
 
     answers[3].type     = RR_AAAA;
     memcpy(&answers[3].data.AAAA.addr, &addr,
@@ -328,7 +325,7 @@ static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, con
         offset += strlen(node->srv_type);
         strncpy(mdns_name + offset, SERVICE_TYPE_SUFFIX, SERVICE_FULL_TYPE_LEN_MAX - offset);
         send_mdns(state->mdns, mdns_name, node->srv_name, (struct mdns_data_txt *)node->txt_items,
-                  node->port, node->ttl);
+                  node->id.port, node->ttl);
     }
     hal_mutex_unlock(state->lock);
 
@@ -340,7 +337,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
     int ret = 0;
     struct mdns_entry *entry = NULL;
     service_state_t *state = NULL;
-    service_t *service = NULL, *service_temp;
+    service_t *service = NULL;
 
     service_t *node, *next;
     int find = 0;
@@ -358,9 +355,9 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
     memset(service, 0, sizeof(service_t));
 
     if (service == NULL) {
-        return UMESH_ERR_MALLOC_FAILED;
+        return ;
     }
-    entry = entries;
+    entry = (struct mdns_entry *)entries;
     while (entry != NULL) {
 
 
@@ -406,7 +403,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
                 if (service->ttl == 0) {
                     service->ttl = SERVICE_TTL;
                 }
-                service->port = entry->data.SRV.port;
+                service->id.port = entry->data.SRV.port;
             }
             break;
         }
@@ -439,13 +436,13 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
         ret = umesh_service_free(service);
     }
     hal_mutex_unlock(state->lock);
-    return ret;
+    return;
 err:
     log_e("service incomplete, discarded! ret = %d", ret);
     if (service != NULL) {
         umesh_service_free(service);
     }
-    return ret;
+    return;
 }
 
 static void  uemsh_sock_read_func(int fd, void *arg)
@@ -478,7 +475,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
     len = recvfrom(fd, buffer, SERVICE_DATA_MAX_LEN, 0, (struct sockaddr *)&addr, (socklen_t *)&addr_len);
     addr.sin6_port = ntohs(addr.sin6_port);
     if (len > 0) {
-        int find = 0;
+
         log_d("recv data, len = %d , port = %d", len, addr.sin6_port);
 
         if (fd == session->fd_auth && addr.sin6_port == MESH_AUTH_PORT) {
@@ -489,10 +486,9 @@ static void  uemsh_sock_read_func(int fd, void *arg)
             list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
-                        session->recieve_cb(session, node, buffer, len, session->recieve_cb_ctx);
+                        session->recieve_cb(session, &node->id, buffer, len, session->recieve_cb_ctx);
                         break;
                     }
-                    find = 1;
                 }
             }
             hal_mutex_unlock(session->lock);
@@ -508,7 +504,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
                     tlv.id = htonl(MESH_RSP_AUTH_ID);
                     tlv.flag = 0x02;
                     log_w("AUTH_CHECK_NO_MATCH ");
-                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, (const uint8_t *)&tlv, sizeof(tlv));
                 }
                 break;
                 case AUTH_CHECK_MATCH:
@@ -529,7 +525,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
                             log_w("user refused invite!");
                         }
                     }
-                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+                    ret =  umesh_send_data(session, &addr.sin6_addr, MESH_AUTH_PORT, MODE_AUTH, (const uint8_t *)&tlv, sizeof(tlv));
                 }
                 break;
                 case AUTH_CHECK_ACCEPT:
@@ -545,7 +541,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
                             node->session = session;
                             hal_mutex_unlock(session->lock);
                             if (session->state_cb) {
-                                session->state_cb(session, node, SESSION_MEMBER_JOIN, session->state_cb_ctx);
+                                session->state_cb(session, &node->id, SESSION_MEMBER_JOIN, session->state_cb_ctx);
                             }
                             ret = hal_queue_send(session->queue, &data, sizeof(data));
                             log_d("found peer in service list");
@@ -608,7 +604,7 @@ service_t *umesh_service_init(net_interface_t interface, const char *srv_name, c
     strncpy(self_srv->srv_type, srv_type, SERVICE_TYPE_LEN_MAX);
     strncpy(self_srv->srv_name, srv_name, SERVICE_NAME_LEN_MAX);
     self_srv->ttl = SERVICE_TTL;
-    self_srv->port = port;
+    self_srv->id.port = port;
 
     if (g_service_state != NULL) {
         if (g_service_state->mdns != NULL) {
@@ -649,7 +645,6 @@ err:
 static int service_state_deinit(service_state_t *state)
 {
     service_t *node, *next;
-    txt_item_t *item;
 
     hal_mutex_lock(state->lock);
     list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
@@ -665,6 +660,7 @@ static int service_state_deinit(service_state_t *state)
     hal_semaphore_free(state->leave_semp);
     hal_mutex_free(state->lock);
     hal_free(state);
+    return 0;
 }
 static int umesh_service_free(service_t *service)
 {
@@ -689,7 +685,6 @@ static int umesh_service_free(service_t *service)
 int umesh_service_deinit(service_t *service)
 {
     service_t *node, *next;
-    txt_item_t *item;
     int ret = 0;
     if (g_service_state == NULL) {
         return 0;
@@ -742,7 +737,7 @@ static void mdns_main_task(void *para)
 {
     int ret = 0;
     const char *default_name = MESH_REQUEST_TYPE;
-    char **names = &default_name;
+    const char **names = &default_name;
 
     service_state_t *state = (service_state_t *) para;
     if (state == NULL) {
@@ -763,8 +758,7 @@ static void mdns_main_task(void *para)
 
 int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
 {
-    int ret;
-    struct mdns_ctx *mdns_ctx;
+    int ret = 0;
 
     if (g_service_state == NULL) {
         return UMESH_ERR_NOT_INIT;
@@ -995,9 +989,9 @@ int umesh_session_deinit(session_t *session)
     }
     return 0;
 }
-static int _pack_auth_payload(session_t *session, service_t *dst, uint8_t *payload)
+static int _pack_auth_payload(session_t *session, peer_id_t *dst, uint8_t *payload)
 {
-    int len;
+    int len = 0;
     struct umesh_auth_tlv_fix tlv_head;
     memset(&tlv_head, 0, sizeof(tlv_head));
     tlv_head.id = htonl(MESH_ASK_AUTH_ID);
@@ -1041,7 +1035,7 @@ static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t 
     tlv.id = ntohl(tlv.id);
     switch (tlv.id) {
         case MESH_ASK_AUTH_ID: {
-            if (tlv.flag & 0x01 == 0) { //no pwd
+            if ((tlv.flag & 0x01) == 0) { //no pwd
                 if (session->auth_type  != MODE_AUTH_NONE) {
                     return AUTH_CHECK_NO_MATCH;
                 } else {
@@ -1116,11 +1110,11 @@ int umesh_session_auth_set(session_t *session, umesh_auth_mode_t mode, uint8_t *
     return 0;
 }
 
-int umesh_invite_peer(session_t *session, service_t *dst,  int timeout)
+int umesh_invite_peer(session_t *session, peer_id_t *dst,  int timeout)
 {
-    int ret;
+    int ret = 0;
     int msg = 0;
-    int msg_size = 4;
+    uint32_t msg_size = 4;
     uint8_t hello_payload[SERVICE_AUTH_PAYLOAD_MAX];
     if (session == NULL || dst == NULL) {
         return UMESH_ERR_NULL_POINTER;
@@ -1131,9 +1125,9 @@ int umesh_invite_peer(session_t *session, service_t *dst,  int timeout)
     }
 
     //send data
-    ret = umesh_send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, hello_payload, ret);
+    ret = umesh_send_data(session, &dst->ip6, MESH_AUTH_PORT, MODE_AUTH, hello_payload, ret);
 
-    ret = hal_queue_recv(session->queue, timeout, &msg, &msg_size);
+    ret = hal_queue_recv(session->queue, timeout, (void *)&msg, &msg_size);
     log_d("hal_queue_recv ret = %d, msg = %d", ret, ret);
     if (ret == 0) {
         if (msg == AUTH_CHECK_ACCEPT) {
@@ -1150,7 +1144,7 @@ int umesh_invite_peer(session_t *session, service_t *dst,  int timeout)
     return ret;
 }
 
-int umesh_delete_peer(session_t *session, service_t *dst)
+int umesh_delete_peer(session_t *session, peer_id_t *dst)
 {
     int ret = 0;
 
@@ -1163,16 +1157,15 @@ int umesh_delete_peer(session_t *session, service_t *dst)
     tlv.id = htonl(MESH_DELETE_AUTH_ID);
     tlv.flag = 0x0;
     log_d("MESH_DELETE_AUTH_ID ");
-    ret =  umesh_send_data(session, &dst->id.ip6, MESH_AUTH_PORT, MODE_AUTH, &tlv, sizeof(tlv));
+    ret =  umesh_send_data(session, &dst->ip6, MESH_AUTH_PORT, MODE_AUTH, (uint8_t *)&tlv, (uint16_t)sizeof(tlv));
     if (ret < 0) {
         return ret;
     }
     hal_mutex_lock(session->lock);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
-        if (!memcmp(&dst->id.ip6, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
+        if (!memcmp(&dst->ip6, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
             if (session->state_cb != NULL) {
-                log_d(" session delete peer, srv name = %s", dst->srv_name);
-                session->state_cb(session, node, SESSION_MEMBER_LEAVE, session->state_cb_ctx);
+                session->state_cb(session, &node->id, SESSION_MEMBER_LEAVE, session->state_cb_ctx);
             }
             list_del(&node->linked_list2);
             break;
@@ -1184,10 +1177,8 @@ int umesh_delete_peer(session_t *session, service_t *dst)
     return ret;
 }
 
-
-int umesh_send(session_t *session, service_t *dest, uint8_t *data,  uint16_t len, data_mode_t mode)
+int umesh_send(session_t *session, peer_id_t *dest, const uint8_t *data,  uint16_t len, data_mode_t mode)
 {
-
     if (session == NULL || data == NULL || len <= 0) {
         return UMESH_ERR_NULL_POINTER;
     }
@@ -1199,7 +1190,7 @@ int umesh_send(session_t *session, service_t *dest, uint8_t *data,  uint16_t len
         }
         memset(&addr, 0, sizeof(addr));
         memcpy(addr.s6_addr, MCAST_ADDR, sizeof(MCAST_ADDR));
-        return umesh_send_data(session, &addr, srv->port, mode, data, len);
+        return umesh_send_data(session, &addr, srv->id.port, mode, data, len);
     }
-    return  umesh_send_data(session, &dest->id.ip6, dest->port, mode, data, len);
+    return  umesh_send_data(session, &dest->ip6, dest->port, mode, data, len);
 }
