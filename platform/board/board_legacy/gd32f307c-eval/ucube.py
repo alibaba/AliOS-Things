@@ -1,1 +1,1 @@
-linux_only_targets="helloworld modbus_app udata_demo.sensor_local_demo udata_demo.udata_local_demo udataapp yts"
+linux_only_targets="helloworld modbus_app uai_demo.uai_cifar10_demo udata_demo.sensor_local_demo udata_demo.udata_local_demo udataapp wifi_at_app yts"
