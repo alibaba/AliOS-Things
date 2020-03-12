@@ -9,7 +9,6 @@ HOST_MCU_FAMILY    := mcu_stm32f4xx_cube
 SUPPORT_MBINS       := yes
 HOST_MCU_NAME      := STM32F429ZIT6
 ENABLE_VFP         := 1
-ENABLE_USPACE      := 1
 APP_FORMAT         := bin
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init cli ulog

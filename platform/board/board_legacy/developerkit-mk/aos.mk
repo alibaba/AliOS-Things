@@ -11,7 +11,6 @@ HOST_MCU_NAME        := STM32L496VGTx
 SUPPORT_MBINS        := yes
 MODULE               := 1062
 ENABLE_VFP           := 1
-ENABLE_USPACE        := 1
 APP_FORMAT           := bin
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init network cli
