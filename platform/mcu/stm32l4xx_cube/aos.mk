@@ -34,11 +34,8 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
 
 else
 
-ifeq ($(ENABLE_USPACE),1)
-$(NAME)_COMPONENTS += arch_armv7m-mk
-else
-$(NAME)_COMPONENTS += arch_armv7m
-endif
+$(NAME)_COMPONENTS-$(ENABLE_USPACE) += arch_armv7m-mk
+$(NAME)_COMPONENTS-$(!ENABLE_USPACE) += arch_armv7m
 
 $(NAME)_COMPONENTS += newlib_stub rhino osal_aos
 
