@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
-typedef int (*umesh_ap_info_cb)(const char *ssid, const  char *pwd, const uint8_t *bssid, void *context);
+typedef void (*umesh_ap_info_cb)(const char *ssid, const char *pwd, const uint8_t *bssid, void *context);
 
 void *umesh_network_init();
 int umesh_is_connected(void *hanlde);
