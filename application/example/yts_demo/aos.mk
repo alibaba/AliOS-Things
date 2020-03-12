@@ -12,6 +12,7 @@ ifneq (,$(findstring linux, $(BUILD_STRING)))
 $(NAME)_COMPONENTS-$(AOS_BOARD_LINUXHOST) += lwip netmgr fatfs
 $(NAME)_COMPONENTS-$(AOS_BOARD_LINUXHOST_DEMO) += lwip netmgr fatfs
 $(NAME)_COMPONENTS-$(AOS_BOARD_ARMHFLINUX) += lwip netmgr fatfs
+$(NAME)_COMPONENTS-$(EN_UAGENT_TEST) += uagent_test
 
 GLOBAL_LDFLAGS += -lreadline -lncurses -lrt
 GLOBAL_DEFINES += CONFIG_AOS_MESHYTS DEBUG YTS_LINUX
