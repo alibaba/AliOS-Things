@@ -44,6 +44,7 @@ endif
 $(NAME)_SOURCES += hal/ota_hal_plat.c \
                    hal/ota_hal_os.c \
                    hal/ota_hal_trans.c \
+                   hal/ota_hal_digest.c
 
 $(NAME)_INCLUDES += include hal
 
