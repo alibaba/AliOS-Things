@@ -59,4 +59,3 @@ void aos_maintask(void *arg)
     application_start(kinit.argc, kinit.argv);  /* jump to app entry */
 #endif
 }
-
