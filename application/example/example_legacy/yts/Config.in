@@ -47,6 +47,11 @@ config EN_BLE_HOST
     default n
     help
 
+config EN_UAGENT_TEST
+    bool "uagent Enable"
+    default n
+    help
+
 config SYSINFO_APP_VERSION
     string "Firmware Version"
     default "app-1.0.0-20200214.140831"

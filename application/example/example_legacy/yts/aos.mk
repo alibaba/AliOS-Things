@@ -8,6 +8,7 @@ $(NAME)_SOURCES := main.c
 $(NAME)_COMPONENTS := testcase ulog vfs yloop
 $(NAME)_COMPONENTS-$(AOS_BOARD_LINUXHOST||AOS_BOARD_ARMHFLINUX) += lwip netmgr fatfs
 $(NAME)_COMPONENTS-$(!AOS_BOARD_LINUXHOST&&!AOS_BOARD_ARMHFLINUX) += cli
+$(NAME)_COMPONENTS-$(EN_UAGENT_TEST) += uagent_test
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable
 
