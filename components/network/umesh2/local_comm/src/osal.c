@@ -112,7 +112,6 @@ void hal_msleep(uint32_t ms)
     aos_msleep(ms);
 }
 
-
 void *hal_queue_new(void *buf, uint32_t size, int max_msg)
 {
     static aos_queue_t queue;
@@ -135,7 +134,7 @@ int hal_queue_send(void *queue, void *msg, uint32_t size)
     return  aos_queue_send((aos_queue_t *)queue, msg, size);
 }
 
-int hal_queue_recv(void *queue, uint32_t ms, void *msg, unsigned int *size)
+int hal_queue_recv(void *queue, uint32_t ms, void *msg, uint32_t *size)
 {
     return aos_queue_recv((aos_queue_t *)queue,  ms, msg, size);
 }
