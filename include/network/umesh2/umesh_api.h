@@ -20,9 +20,11 @@ extern "C" {
 #define SERVICE_TYPE_LEN_MAX 24
 #define AUTH_DATA_MAX_LEN    128
 
+#define UMESH_SEND_BROADCAST NULL
+
 typedef enum {
     NETWORK_UMESH = 0,       /** < umesh LAN */
-    NETWORK_ROUTER = 1,        /** < Router LAN */
+    NETWORK_ROUTER = 1,      /** < Router LAN */
 } network_type_t;
 typedef enum {
     PEER_FOUND = 0,       /** < a peer is found */
@@ -31,7 +33,7 @@ typedef enum {
 
 typedef enum {
     SESSION_MEMBER_JOIN = 0,       /** < session start */
-    SESSION_MEMBER_LEAVE = 1,           /** < session end */
+    SESSION_MEMBER_LEAVE = 1,      /** < session end */
 } session_state_t;
 
 typedef enum {
@@ -46,11 +48,12 @@ typedef enum {
 
 typedef enum {
     INVITE_ACCEPT = 0,    /** < accept invitation */
-    INVITE_REFUSE = 1,  /** < refuse invitation  */
+    INVITE_REFUSE = 1,    /** < refuse invitation  */
 } invite_resp_t;
 
 typedef struct peer_id_s {
     struct in6_addr ip6;       /** < ip v6 address */
+    uint16_t port;             /** < service port */
 } peer_id_t;
 
 typedef struct umesh_auth_data_s {
@@ -64,14 +67,13 @@ typedef struct session_s session_t;
 typedef struct service_s {
     char srv_name[SERVICE_NAME_LEN_MAX + 1];
     char srv_type[SERVICE_TYPE_LEN_MAX + 1];
-    uint16_t port;      /** < service port */
+    session_t *session;
     uint16_t ttl;
     uint64_t last_update;
     txt_item_t *txt_items;
     peer_id_t id;
     struct list_head linked_list;
     struct list_head linked_list2;
-
 } service_t;
 
 typedef void *net_interface_t;
@@ -85,19 +87,19 @@ typedef void *net_interface_t;
 /**
 * Communication changed callback
 * @param[in] session         pointer to the session
-* @param[in] srv             pointer to the peer service who joined or leave the session
+* @param[in] peer             pointer to the peer  who joined or leave the session
 * @param[in] state           join or leave
 *
-* return 0 is success, others are failure
+* return void
 */
-typedef int (* umesh_session_state_changed_cb)(session_t *session, service_t *srv, session_state_t state,
+typedef void (* umesh_session_state_changed_cb)(session_t *session, peer_id_t *peer, session_state_t state,
         void *context);
 
 /**
 * Recieve a invitation from a peer
 *
-* @param[out] service
-* @param[out] id
+* @param[out] session pointer to the session
+* @param[out] peer_id  pointer to the inviter
 * return 0 to accept the invitation, others to refuse the invitation
 */
 typedef int (* umesh_peer_invite_cb)(session_t *session, peer_id_t *peer_id, void *context);
@@ -105,17 +107,17 @@ typedef int (* umesh_peer_invite_cb)(session_t *session, peer_id_t *peer_id, voi
 * Data receive callback
 *
 * @param[out] session pointer to the session
-* @param[in] from       source service
+* @param[in] from       source peer
 * @param[in] data       pointer to the data
 * @param[in] len        data length
 * @param[in] user_data  context
 *
-* return 0 is success, others are failure
+* return void
 */
-typedef int (*umesh_receive_cb)(session_t *session, service_t *from, uint8_t *data, uint16_t len, void *user_data);
+typedef void (*umesh_receive_cb)(session_t *session, peer_id_t *from, uint8_t *data, uint16_t len, void *user_data);
 
 typedef struct session_s {
-    struct service_t *self;
+    service_t *self;
     umesh_session_state_changed_cb state_cb;
     umesh_receive_cb  recieve_cb;
     umesh_peer_invite_cb    invite_cb;
@@ -196,11 +198,9 @@ int umesh_start_advertise_service(service_t *service);
 * @return 0 is success, others are failure
 */
 int umesh_stop_advertise_service(service_t *self);
-/**
-* Start browsing service, this is a asynchronous function
 
 /**
-* Start browsing service
+* Start browsing service, this is a asynchronous function
 *
 * @param[in] service pointer to the service
 *
@@ -234,13 +234,13 @@ int umesh_session_deinit(session_t *session);
 /**
 * Invite peers to join a session with a specified service
 * @param[in] session         pointer to the session
-* @param[in] dst             pointer to the peer service
+* @param[in] dst             pointer to the peerid
 * @param[in] timeout         timeout for establishing the session with the peer
 *
 * return 0 is success, others are failure
 */
-int umesh_invite_peer(session_t *session, service_t *dst, int timeout);
-//int umesh_invite_peer(session_t *session, service_t *dst, session_state_changed_cb session_changed, int timeout);
+int umesh_invite_peer(session_t *session, peer_id_t *dst, int timeout);
+
 /**
 * Delete a peer from a specified session
 * @param[in] session         pointer to the session
@@ -248,7 +248,7 @@ int umesh_invite_peer(session_t *session, service_t *dst, int timeout);
 *
 * return 0 is success, others are failure
 */
-int umesh_delete_peer(session_t *session, service_t *dst);
+int umesh_delete_peer(session_t *session, peer_id_t *dst);
 
 /**
 * Send data to the peer
@@ -261,7 +261,7 @@ int umesh_delete_peer(session_t *session, service_t *dst);
 *
 * return 0 is success, others are failure
 */
-int umesh_send(session_t *session, service_t *dst, uint8_t *data, uint16_t len, data_mode_t mode);
+int umesh_send(session_t *session, peer_id_t *dest, const uint8_t *data,  uint16_t len, data_mode_t mode);
 /**
 * Register data receive callback
 *
