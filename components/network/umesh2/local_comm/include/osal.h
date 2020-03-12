@@ -32,5 +32,5 @@ uint64_t hal_now_ms();
 void *hal_queue_new(void *buf, uint32_t size, int max_msg);
 void hal_queue_free(void *queue);
 int hal_queue_send(void *queue, void *msg, uint32_t size);
-int hal_queue_recv(void *queue, uint32_t ms, void *msg, unsigned int *size);
+int hal_queue_recv(void *queue, uint32_t ms, void *msg, uint32_t *size);
 #endif /* __HAL_OSAL_H__ */
