@@ -350,9 +350,6 @@ static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short p
 
 int mdns_init(struct mdns_ctx **p_ctx, const char *addr, unsigned short port)
 {
-    const uint32_t on_off = 1;
-    const uint32_t ttl = 255;
-    const uint8_t loop = 1;
     int res;
 
     struct mdns_ctx *ctx;
@@ -726,16 +723,6 @@ int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
         }
         mdns_listen_probe_network(ctx, names, nb_names, match_type, callback, p_cookie);
     }
-
-    // for (t1 = t2 = time(NULL); stop(p_cookie) == false; t2 = time(NULL)) {
-    //     if (difftime(t2, t1) >= (double) interval) {
-    //         if ((r = mdns_send(ctx, &hdr, qns)) < 0) {
-    //             callback(p_cookie, r, NULL);
-    //         }
-    //         t1 = t2;
-    //     }
-    //     mdns_listen_probe_network(ctx, names, nb_names, match_type, callback, p_cookie);
-    // }
 
     hal_free(qns);
     return (0);
