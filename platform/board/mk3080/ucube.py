@@ -1,1 +1,1 @@
-linux_only_targets="blink_demo hal_demo helloworld_demo kernel_demo.krhino_api_demo kernel_demo.aos_api_demo linkkit_demo linkkit_gateway_demo mqtt_demo ota_demo vfs_demo yts_demo"
+linux_only_targets="blink_demo coap_demo debug_demo hal_demo helloworld_demo http2_demo http_demo kernel_demo.aos_api_demo kernel_demo.krhino_api_demo linkkit_demo linkkit_gateway_demo lwm2m_demo modbus_demo mqtt_demo ota_demo ulocation.base_demo ulog_demo vfs_demo yts_demo"
