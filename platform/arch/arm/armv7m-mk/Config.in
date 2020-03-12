@@ -1,7 +1,7 @@
 if AOS_CREATE_PROJECT
 config AOS_ARCH_ARMV7M_MK
     bool
-    default n
+    default y
 endif
 
 if !AOS_CREATE_PROJECT

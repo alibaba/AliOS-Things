@@ -5,11 +5,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.2
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx_cube
 
-ifeq ($(ENABLE_USPACE),1)
-$(NAME)_COMPONENTS += arch_armv7m-mk
-else
-$(NAME)_COMPONENTS += arch_armv7m
-endif
+$(NAME)_COMPONENTS-$(ENABLE_USPACE) += arch_armv7m-mk
+$(NAME)_COMPONENTS-$(!ENABLE_USPACE) += arch_armv7m
 
 $(NAME)_COMPONENTS += newlib_stub rhino osal_aos
 
