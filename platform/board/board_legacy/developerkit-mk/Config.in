@@ -30,6 +30,10 @@ if AOS_BOARD_DEVELOPERKIT_MK
 # Configurations for board stm32f429zi-mk
 
 # "BSP SUPPORT FEATURE"
+config ENABLE_USPACE
+    bool
+    default y
+
 config BSP_SUPPORT_UART
     bool
     default y
