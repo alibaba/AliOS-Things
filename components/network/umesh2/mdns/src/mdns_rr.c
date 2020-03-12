@@ -107,8 +107,8 @@ static const uint8_t *mdns_read_PTR(const uint8_t *ptr, uint32_t *n, const uint8
 {
     union mdns_data *data = &entry->data;
 
-    if (*n == NULL) {
-        log_e("*n == NULL");
+    if (n == NULL) {
+        log_e("n == NULL");
         return (NULL);
     }
 
