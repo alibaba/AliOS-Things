@@ -10,15 +10,49 @@
 #include "string.h"
 #include <stdio.h>
 #include <string.h>
+#include <aos/yloop.h>
+#include <network/netmgr/netmgr.h>
 #include <network/umesh2/umesh_api.h>
+/*for get mac addr*/
+#include "hal/wifi.h"
 
 #define TEST_CNT  20
 #define SRV_TYPE "_mesh2"
 
 void *net_handle = NULL;
+typedef struct peer_list {
+    peer_id_t id;
+    uint8_t joined;
+    struct peer_list *next;
+} peer_list_t;
+
+static peer_list_t *found_peer_list = NULL;
 
 static const char *test_data = "===== test data from %s-%s =======";
 static const char *test_data_mcast = "=====mcast test data from %s-%s =======";
+
+extern int hal_wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac);
+
+static int get_id_to_str(peer_id_t *id, char *buff)
+{
+
+    if (id == NULL || buff == NULL) {
+        return -1;
+    }
+    snprintf(buff, 9, "%02x:%02x:%02x", id->ip6.s6_addr[13], id->ip6.s6_addr[14], id->ip6.s6_addr[15]);
+    return 0;
+}
+
+static int clean_peer_list() {
+    peer_list_t *cur = found_peer_list;
+    peer_list_t *next; 
+    while(cur != NULL) {
+        next = cur->next;
+        aos_free(cur);
+        cur = next;
+    }
+    found_peer_list = NULL;
+}
 
 #if ENABLE_PRINT_HEAP
 #include <k_api.h>
@@ -36,37 +70,77 @@ void monitor_work(void *p)
 }
 #endif
 
+
 void service_found(service_t *service, peer_state_t state)
 {
-    LOG("found service, name = %s ,type = %s, state = %d", service->srv_name, service->srv_type, state);
+    LOG("service: %s-%s, %s", service->srv_type, service->srv_name,  state == PEER_FOUND ? "found" : "lost");
+    peer_list_t *peer = NULL;
+    peer_list_t *cur = found_peer_list;
+    if (state == PEER_FOUND) {
+        txt_item_t *txt =  service->txt_items;
+        while (txt != NULL) {
+            LOG("get txt:%s", txt->txt);
+            txt = txt->next;
+        }
+        while (cur != NULL) {
+            if (!memcmp(&cur->id, &service->id, sizeof(peer_id_t))) {
+                LOG("found peer already in peer list!");
+                return;
+            }
+            cur = cur->next;
+        }
+        peer = aos_malloc(sizeof(struct peer_list));
+        if (peer == NULL) {
+            LOG("malloc peer fail");
+            return;
+        }
+        memset(peer, 0, sizeof(struct peer_list));
 
-    txt_item_t *txt =  service->txt_items;
-    while (txt != NULL) {
-        LOG("get txt:%s", txt->txt);
-        txt = txt->next;
+        peer->next = found_peer_list;
+        found_peer_list = peer;
+        memcpy(&peer->id, &service->id, sizeof(peer_id_t));
+    } else {
+        peer_list_t *pre = cur;
+        while (cur != NULL) {
+            if (!memcmp(&cur->id, &service->id, sizeof(peer_id_t))) {
+                LOG("remove peer from user peerlist");
+                pre->next = cur->next;
+                if (cur == found_peer_list) {
+                    found_peer_list = found_peer_list->next;
+                }
+                aos_free(cur);
+                break;
+            }
+            pre = cur;
+            cur = cur->next;
+
+        }
     }
 
 }
 
-int peer_invite(session_t *session, peer_id_t *peer_id, void *context)
+static int peer_invite(session_t *session, peer_id_t *peer_id, void *context)
 {
-    int i;
-    LOG("recv invite form ip:");
-    for (i = 0; i < 16; i ++) {
-        printf("%02x ", peer_id->ip6.s6_addr[i]);
-    }
-    printf("\r\n");
+    char ip_str[64] = {0};
+    get_id_to_str(peer_id, ip_str);
+    LOG("recieve invitation from %s ", ip_str);
     return 0;
 }
 
-int  session_state_changed_func(session_t *session, service_t *dest_srv, session_state_t state, void *context)
+static void  session_state_changed_func(session_t *session, peer_id_t *peer_id, session_state_t state, void *context)
 {
-    LOG("session changed ! dst = %s-%s, state = %d ", dest_srv->srv_type, dest_srv->srv_name, state);
+    char ip_str[64] = {0};
+    get_id_to_str(peer_id, ip_str);
+    LOG("session changed ! peer = %s, state = %d ", ip_str, state);
 }
 
-int umesh_receive_func(session_t *session, service_t *from, uint8_t *data, int len, void *user_data)
+static void umesh_receive_func(session_t *session, peer_id_t *from, uint8_t *data, uint16_t len, void *user_data)
 {
-    LOG("recv data from %s-%s ,len = %d", from->srv_type, from->srv_name, len);
+    char ip_str[64] = {0};
+    get_id_to_str(from, ip_str);
+    printf("\r\n");
+
+    LOG("recv data from %s ,len = %d", ip_str, len);
     LOG("str data= %s", data);
 }
 
@@ -79,15 +153,19 @@ static void get_ap_info(const char *ssid, const char *pwd, const uint8_t *bssid,
 static void app_main_entry(void *arg)
 {
     int ret;
+#if !ENABLE_LOOP_TEST
     int cnt = 0;
+#endif
     char name[SERVICE_NAME_LEN_MAX] = {0};
     char mac_str_txt[33] = {0};
     uint8_t mac[6] = {0};
 
     session_t *session = NULL;
     service_t *self_srv;
-
+#if ENABLE_REPEAT_TEST
 start:
+#endif
+
     net_handle = umesh_network_init();
     if (net_handle == NULL) {
         LOG("umesh init failed");
@@ -104,6 +182,8 @@ start:
     hal_wifi_get_mac_addr(NULL, mac);
     snprintf(name, SERVICE_NAME_LEN_MAX - 1, "dev_%02x:%02x:%02x", mac[3], mac[4], mac[5]);
     snprintf(mac_str_txt, 32, "mac=%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+
 
     self_srv = umesh_service_init(net_handle, name, SRV_TYPE, 8080);
     LOG("service init ret = %d", ret);
@@ -130,35 +210,36 @@ start:
     aos_msleep(20000);
 
     do {
-        service_t *serv;
+
+        peer_list_t *cur = found_peer_list;
+
         aos_msleep(5000);
+        if (!umesh_is_connected(net_handle)) {
+            continue;
+        }
 
-        UMESH_FOUND_LIST_ITERATOR(serv) {
-            int find = 0;
-            service_t *serv2;
-            UMESH_SESSION_LIST_ITERATOR(session, serv2) {
-                if (!strcmp(serv->srv_name, serv2->srv_name) && !strcmp(serv->srv_type, serv2->srv_type)) {
-                    find = 1;
-                    break;
+        while (cur != NULL) {
+            char ip_str[64] = {0};
+            get_id_to_str(&cur->id, ip_str);
+            if (cur->joined == 0) {
+                ret = umesh_invite_peer(session, &cur->id, 5000);
+                LOG("found peer:%s not in session ,invite he, ret = %d", ip_str, ret);
+                if (ret == 0) {
+                    cur->joined = 1;
                 }
+            } else {
+                char send[256] = {0};
+                snprintf(send, 255, test_data, self_srv->srv_type, self_srv->srv_name);
+                ret = umesh_send(session, &cur->id, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
+                LOG("send data to %s ,ret = %d", ip_str, ret);
+                memset(send, 0, 256);
+                snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
+                ret = umesh_send(session, UMESH_SEND_BROADCAST, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
+                LOG("send public data to session ,ret = %d", ret);
             }
-            if (find == 0) {
-                ret = umesh_invite_peer(session, serv, 5000);
-                LOG("found servcie not in session ,invite he, name = %s, ret = %d", serv->srv_name, ret);
-            }
+            cur = cur->next;
         }
 
-        UMESH_SESSION_LIST_ITERATOR(session, serv) {
-            char send[256] = {0};
-            LOG("find servcie , name = %s", serv->srv_name);
-            snprintf(send, 255, test_data, self_srv->srv_type, self_srv->srv_name);
-            ret = umesh_send(session, serv, send, strlen(send), MODE_UNRELIABLE);
-            LOG("send data to %s-%s ,ret = %d", serv->srv_type, serv->srv_name, ret);
-            memset(send, 0, 256);
-            snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
-            ret = umesh_send(session, NULL, send, strlen(send), MODE_UNRELIABLE);
-            LOG("send public data to session ,ret = %d", ret);
-        }
 #if ENABLE_LOOP_TEST
     } while (1);
 #else
@@ -187,6 +268,7 @@ err:
         LOG("umesh_network_deinit,ret = %d", ret);
         net_handle = NULL;
     }
+    clean_peer_list();
 #if ENABLE_REPEAT_TEST
     LOG("test again!!");
     goto start;
@@ -205,6 +287,8 @@ int application_start(int argc, char **argv)
     print_heap();
     aos_post_delayed_action(5000, monitor_work, NULL);
 #endif
+    netmgr_init();
+    netmgr_start(false);
 
     aos_set_log_level(AOS_LL_DEBUG);
     aos_task_new("meshappmain", app_main_entry, NULL, 4096);
