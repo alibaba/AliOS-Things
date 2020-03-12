@@ -1,5 +1,8 @@
 NAME := cmsis_nn
+
 $(NAME)_TYPE := third_party
+
+$(NAME)_VERSION := 1.0.1
 
 GLOBAL_INCLUDES    +=   \
                         CMSIS_5/CMSIS/Core/Include \
