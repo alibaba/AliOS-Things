@@ -38,7 +38,7 @@ typedef enum {
 service_state_t *g_service_state = NULL;
 
 typedef void (*sock_read_cb)(int fd, void *arg);
-static void  umsh_sock_read_func(int fd, void *arg);
+static void  uemsh_sock_read_func(int fd, void *arg);
 static auth_check_type_t  umesh_unpack_auth_payload(session_t *session, uint8_t *payload, uint16_t len);
 static int umesh_service_free(service_t *service);
 static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
@@ -144,7 +144,7 @@ static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t p
         return UMESH_ERR_NULL_POINTER;
     }
 
-    ret = umesh_create_socket(session, mode,  umsh_sock_read_func);
+    ret = umesh_create_socket(session, mode,  uemsh_sock_read_func);
     if (ret < 0) {
         return ret;
     }
@@ -189,6 +189,7 @@ static int service_state_init(service_state_t **state, service_t *self, void *md
     }
     INIT_LIST_HEAD(&service_state->self_service_list);
     INIT_LIST_HEAD(&service_state->found_service_list);
+
     service_state->lock = hal_mutex_new();
     if (service_state->lock == NULL) {
         goto err;
@@ -226,7 +227,21 @@ static int stop(void *cbarg)
 
     list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
         if (hal_now_ms() - node->last_update > node->ttl * SERVICE_TIMEOUT_CNT * 1000) {
-            log_w("%s-%s timeout, clean it", node->srv_type, node->srv_name);
+            log_w("%s-%s timeout,now = %ld, last = %ld, ttl = %d, clean it", node->srv_type, node->srv_name, hal_now_ms(),
+                  node->last_update, node->ttl);
+
+            if (node->session != NULL) {
+                hal_mutex_lock(node->session->lock);
+                /*session changed*/
+                if (node->session->state_cb) {
+                    node->session->state_cb(node->session, node, PEER_LOST, node->session->state_cb_ctx);
+                }
+                list_del(&node->linked_list2);
+                hal_mutex_unlock(node->session->lock);
+            }
+            if (state->found_cb) {
+                state->found_cb(node, PEER_LOST);
+            }
             umesh_service_free(node);
         }
     }
@@ -378,12 +393,19 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
                 memcpy(&service->id.ip6, entry->data.AAAA.addr.s6_addr, sizeof(service->id.ip6));
                 break;
             case RR_SRV: {
-                required |= 0x02;
+
                 char *type = (char *)strtok(entry->name, ".");
-                log_d(" srv type = %s ", type);
+                if (type == NULL || strlen(type) == 0) {
+                    break;
+                }
+                required |= 0x02;
+
                 strncpy(service->srv_type, type, SERVICE_TYPE_LEN_MAX);
-                log_d("final srv type = %s ", service->srv_type);
                 service->ttl = entry->ttl;
+                log_d(" srv type = %s,TTL = %d", type, service->ttl);
+                if (service->ttl == 0) {
+                    service->ttl = SERVICE_TTL;
+                }
                 service->port = entry->data.SRV.port;
             }
             break;
@@ -392,7 +414,8 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
         entry = entry->next;
     };
 
-    if (required & 0x03 != 0x03) {
+    if ((required & 0x03) != 0x03) {
+        log_e("service not complete");
         ret = UMESH_ERR_SERVICE_INCOMPLETE;
         goto err;
     }
@@ -425,7 +448,7 @@ err:
     return ret;
 }
 
-static void  umsh_sock_read_func(int fd, void *arg)
+static void  uemsh_sock_read_func(int fd, void *arg)
 {
     service_t *node, *next;
     session_t *session = (session_t *)arg;
@@ -466,7 +489,6 @@ static void  umsh_sock_read_func(int fd, void *arg)
             list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
-                        log_d(" find node ");
                         session->recieve_cb(session, node, buffer, len, session->recieve_cb_ctx);
                         break;
                     }
@@ -518,7 +540,10 @@ static void  umsh_sock_read_func(int fd, void *arg)
 
                     list_for_each_entry_safe(node, next, &g_service_state->found_service_list, linked_list, service_t) {
                         if (!memcmp(&node->id.ip6, &addr.sin6_addr, sizeof(addr.sin6_addr))) {
+                            hal_mutex_lock(session->lock);
                             list_add_tail(&node->linked_list2, &session->peers_list);
+                            node->session = session;
+                            hal_mutex_unlock(session->lock);
                             if (session->state_cb) {
                                 session->state_cb(session, node, SESSION_MEMBER_JOIN, session->state_cb_ctx);
                             }
@@ -883,6 +908,7 @@ session_t *umesh_session_init(service_t *service)
     session->fd_tcp = -1;
     session->fd_auth = -1;
     session->self = service;
+
     INIT_LIST_HEAD(&session->peers_list);
     // session->state_cb = session_changed_cb;
     // session->invite_cb = invite_cb;
@@ -900,16 +926,17 @@ session_t *umesh_session_init(service_t *service)
         goto err;
     }
 
-    ret = umesh_create_socket(session, MODE_AUTH,  umsh_sock_read_func);
+    ret = umesh_create_socket(session, MODE_AUTH,  uemsh_sock_read_func);
     if (ret < 0) {
         goto err;
     }
 
-    ret = umesh_create_socket(session, MODE_UNRELIABLE,  umsh_sock_read_func);
+    ret = umesh_create_socket(session, MODE_UNRELIABLE,  uemsh_sock_read_func);
     if (ret < 0) {
         goto err;
     }
 
+    service->session = session;
     return session;
 err:
     umesh_close_socket(session);
@@ -934,15 +961,20 @@ int umesh_session_deinit(session_t *session)
     if (session == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
-
+    if (g_service_state == NULL) {
+        return UMESH_ERR_NOT_INIT;
+    }
     umesh_close_socket(session);
     hal_mutex_lock(session->lock);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
+        hal_mutex_lock(g_service_state->lock);
         list_del(&node->linked_list2);
+        node->session = NULL;
+        hal_mutex_unlock(g_service_state->lock);
         break;
     }
-
     hal_mutex_unlock(session->lock);
+
     if (session->lock) {
         hal_mutex_free(session->lock);
         session->lock = NULL;
