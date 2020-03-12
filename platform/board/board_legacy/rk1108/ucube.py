@@ -1,1 +1,1 @@
-linux_only_targets="coapapp debug_app helloworld http2app httpapp httpclient_app kernel_app linkkit_gateway linkkitapp lwm2m_app meshapp mqttapp otaapp udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo ulocation.baseapp ulog_app websoc_app yloop_app yts"
+linux_only_targets="coapapp helloworld http2app httpapp httpclient_app httpdns_app linkkit_gateway linkkitapp lwm2m_app modbus_app mqttapp otaapp uai_demo.uai_cifar10_demo uai_demo.uai_kws_demo udata_demo.sensor_cloud_demo udata_demo.sensor_local_demo ulocation.baseapp ulog_app websoc_app wifi_at_app yloop_app yts"
