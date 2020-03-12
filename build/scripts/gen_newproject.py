@@ -65,17 +65,19 @@ def append_depends_config_in(board, mandatory_configs, optional_configs):
                 board_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
             elif config.startswith("core/"):
                 kernel_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
-            elif config.startswith("components/"):
+            else:
                 component_config_in += 'source "$AOS_SDK_PATH/%s"\n' % config
         if optional_configs:
             for config in optional_configs:
                 """ one dependency: comp_name, config_file, condition [[]] """
+                tmp_config_in, conds_list = get_comp_optional_depends_text(config["condition"], config["config_file"])
                 if config["config_file"].startswith("core/"):
-                    tmp_config_in, conds_list = get_comp_optional_depends_text(config["condition"], config["config_file"])
                     kernel_config_in += tmp_config_in
-                elif config["config_file"].startswith("components/"):
-                    tmp_config_in, conds_list = get_comp_optional_depends_text(config["condition"], config["config_file"])
+                elif config["config_file"].startswith("platform/"):
+                    board_config_in += tmp_config_in
+                else:
                     component_config_in += tmp_config_in
+
     board_config_in += "endmenu\n\n"
     kernel_config_in += "endmenu\n\n"
     component_config_in += "endmenu\n\n"
@@ -111,8 +113,8 @@ def write_depends_config(config_file, board, app=None):
             if comp["comp_name"] in comp_info:
                 config = comp
                 config["config_file"] = comp_info[comp["comp_name"]]["config_file"]
-                # print("config is", config)
-                optional_configs.append(config)
+                if config["config_file"]:
+                    optional_configs.append(config)
 
     text_config = 'menu "%s"\n' % APP_CONFIG_KEYWORD
     with open (config_file, "r") as f:
