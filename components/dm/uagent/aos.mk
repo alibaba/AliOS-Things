@@ -20,3 +20,5 @@ endif
 
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/dm/uagent
+
+$(NAME)_COMPONENTS += libiot_mqtt cjson
