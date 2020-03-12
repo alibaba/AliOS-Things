@@ -12,6 +12,10 @@ if AOS_BOARD_DEVELOPERKIT
 # Configurations for board developerkit
 
 # "BSP SUPPORT FEATURE"
+config ENABLE_USPACE
+    bool
+    default n
+
 config BSP_SUPPORT_UART
     bool
     default y
