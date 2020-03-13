@@ -811,6 +811,8 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
+extern hal_wifi_module_t aos_wifi_module_bk7231;
+
 static int bk7231_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
@@ -848,6 +850,9 @@ static int bk7231_sal_add_dev(void* data)
         LOGE(TAG, "AT parser device add failed!\n");
         return -1;
     }
+
+    /* register wifi hal module */
+    hal_wifi_register_module(&aos_wifi_module_bk7231);
 
     return 0;
 }
