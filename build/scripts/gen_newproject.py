@@ -101,13 +101,14 @@ def write_depends_config(config_file, board, app=None):
     if comp_info:
         mandatory_deps = get_comp_mandatory_depends(comp_info, comps)
         mandatory_deps.append(board)
-        if app:
-            mandatory_deps.append(app)
         for comp in mandatory_deps:
             if comp in comp_info:
                 config = comp_info[comp]["config_file"]
                 if config:
                     mandatory_configs.append(config)
+        # do not add app config_file to mandatory_configs
+        if app:
+            mandatory_deps.append(app)
         optional_deps = get_comp_optional_depends(comp_info, mandatory_deps)
         for comp in optional_deps:
             if comp["comp_name"] in comp_info:
