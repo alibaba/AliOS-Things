@@ -37,6 +37,8 @@
  */
 /* #include "at/at.h" */
 
+#include <hal/wifi.h>
+
 #include "mal/mal.h"
 #include "mal/hal_mal.h"
 
@@ -105,11 +107,18 @@ static int HAL_AT_MQTT_Deinit()
     return 0;
 }
 
+/* HAL WiFi module */
+extern hal_wifi_module_t aos_wifi_module_@drivername@;
+
 /* To implement the driver configuration */
 static int @drivername@_mal_add_dev(void* data)
 {
     /* add your code here */
-   return 0;
+
+    /* register HAL WiFi module */
+    hal_wifi_register_module(&aos_wifi_module_@drivername@);
+
+    return 0;
 }
 
 /* Don't modify */

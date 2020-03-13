@@ -37,6 +37,7 @@
  */
 /* #include "at/at.h" */
 
+#include <hal/wifi.h>
 
 #include "sal/hal_sal.h"
 
@@ -97,10 +98,17 @@ static int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
     return 0;
 }
 
+ /* HAL WiFi module */
+extern hal_wifi_module_t aos_wifi_module_@drivername@;
+
 /* To implement the driver configuration */
 static int @drivername@_sal_add_dev(void* data)
 {
     /* add your code here */
+
+    /* register HAL WiFi module */
+    hal_wifi_register_module(&aos_wifi_module_@drivername@);
+
     return 0;
 }
 
