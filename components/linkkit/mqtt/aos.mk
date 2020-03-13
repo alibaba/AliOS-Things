@@ -7,6 +7,7 @@ $(NAME)_SUMMARY := Implementation of MQTT protocol
 $(NAME)_SOURCES := mqtt_api.c 
 
 $(NAME)_COMPONENTS := libiot_wrappers libiot_infra libiot_sign
+$(NAME)_COMPONENTS-$(ENABLE_DYNAMIC_REGISTER) += libiot_dynreg
 
 $(NAME)_SOURCES := mqtt_api.c 
 $(NAME)_INCLUDES += .
