@@ -6,7 +6,8 @@ $(NAME)_SUMMARY := mal hal implementation for @drivername@
 
 GLOBAL_CFLAGS += -D__MAL_DEV_NAME=@drivername@
 
-$(NAME)_SOURCES += @drivername@.c
+$(NAME)_SOURCES += @drivername@.c  \
+                   wifi_atcmd_@drivername@.c
 
 GLOBAL_INCLUDES += ./
 
