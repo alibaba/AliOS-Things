@@ -967,6 +967,8 @@ static int mk3060_client_status_notify(netconn_client_status_notify_t cb)
 }
 #endif
 
+extern hal_wifi_module_t aos_wifi_module_mk3060;
+
 int mk3060_sal_add_dev(void* data)
 {
     at_config_t at_config = { 0 };
@@ -1004,6 +1006,9 @@ int mk3060_sal_add_dev(void* data)
         LOGE(TAG, "AT parser device add failed!\n");
         return -1;
     }
+
+    /* register wifi hal module */
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
 
     return 0;
 }
