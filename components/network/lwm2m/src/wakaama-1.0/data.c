@@ -517,15 +517,15 @@ void lwm2m_data_encode_instances(lwm2m_data_t * subDataP,
     dataP->type = LWM2M_TYPE_MULTIPLE_RESOURCE;
 }
 
-void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, lwm2m_data_t* dataP)
+void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, size_t var, lwm2m_data_t* dataP)
 {
     switch(type)
     {
         case LWM2M_CODEC_TYPE_OBJECT_INSTANCE:
         {
             lwm2m_data_t * subDataP = (lwm2m_data_t*)valueP;
-            size_t* count = (size_t*)(subDataP + 1);
-            lwm2m_data_encode_instances(subDataP, *count, dataP);
+            size_t count = var;
+            lwm2m_data_encode_instances(subDataP, count, dataP);
             break;
         }
         case LWM2M_CODEC_TYPE_STRING:
@@ -537,15 +537,15 @@ void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, lwm2m_d
         case LWM2M_CODEC_TYPE_NSTRING:
         {
             const char* string = (const char*) valueP;
-            size_t* length = (size_t*)(string + 1);
-            lwm2m_data_encode_nstring(string, *length, dataP);
+            size_t length = var;
+            lwm2m_data_encode_nstring(string, length, dataP);
             break;
         }
         case LWM2M_CODEC_TYPE_OPAQUE:
         {
             uint8_t* buffer = (uint8_t *) valueP;
-            size_t* length = (size_t*) (buffer + 1);
-            lwm2m_data_encode_opaque(buffer, *length, dataP);
+            size_t length = var;
+            lwm2m_data_encode_opaque(buffer, length, dataP);
             break;
         }
         case LWM2M_CODEC_TYPE_INTEGER:
@@ -569,8 +569,8 @@ void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, lwm2m_d
         case LWM2M_CODEC_TYPE_OBJECT_LINK:
         {
             uint16_t* objectId = (uint16_t *)valueP;
-            uint16_t* objectInstanceId = (uint16_t *)(objectId + 1);
-            lwm2m_data_encode_objlink(*objectId, *objectInstanceId, dataP);
+            uint16_t objectInstanceID = var;
+            lwm2m_data_encode_objlink(*objectId, objectInstanceID, dataP);
             break;
         }
         default:
