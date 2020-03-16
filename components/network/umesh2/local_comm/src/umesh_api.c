@@ -232,12 +232,13 @@ static int stop(void *cbarg)
 
             if (node->session != NULL) {
                 hal_mutex_lock(node->session->lock);
+                list_del(&node->linked_list2);
+                hal_mutex_unlock(node->session->lock);
                 /*session changed*/
                 if (node->session->state_cb) {
                     node->session->state_cb(node->session, &node->id, PEER_LOST, node->session->state_cb_ctx);
                 }
-                list_del(&node->linked_list2);
-                hal_mutex_unlock(node->session->lock);
+
             }
             if (state->found_cb) {
                 state->found_cb(node, PEER_LOST);
@@ -482,16 +483,22 @@ static void  uemsh_sock_read_func(int fd, void *arg)
             is_auth_data = 1;
             log_d("recv auth data!");
         } else {
+            umesh_receive_cb recieve_cb = NULL;
+            void *recieve_cb_ctx = NULL;
             hal_mutex_lock(session->lock);
             list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
-                        session->recieve_cb(session, &node->id, buffer, len, session->recieve_cb_ctx);
+                        recieve_cb = session->recieve_cb;
+                        recieve_cb_ctx = session->recieve_cb_ctx;
                         break;
                     }
                 }
             }
             hal_mutex_unlock(session->lock);
+            if (recieve_cb != NULL) {
+                recieve_cb(session, &node->id, buffer, len, recieve_cb_ctx);
+            }
         }
 
         if (is_auth_data) { /* auth data?*/
@@ -868,6 +875,11 @@ static int umesh_close_socket(session_t *session)
     if (session == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
+
+    session->state_cb = NULL;
+    session->recieve_cb = NULL;
+    session->invite_cb = NULL;
+
     if (session->fd_udp >= 0) {
         aos_cancel_poll_read_fd(session->fd_udp, NULL, NULL);
         lwip_close(session->fd_udp);
@@ -958,13 +970,13 @@ int umesh_session_deinit(session_t *session)
     if (g_service_state == NULL) {
         return UMESH_ERR_NOT_INIT;
     }
-    umesh_close_socket(session);
+    hal_mutex_lock(g_service_state->lock);
     hal_mutex_lock(session->lock);
+    umesh_close_socket(session);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
-        hal_mutex_lock(g_service_state->lock);
+
         list_del(&node->linked_list2);
         node->session = NULL;
-        hal_mutex_unlock(g_service_state->lock);
         break;
     }
     hal_mutex_unlock(session->lock);
@@ -987,6 +999,7 @@ int umesh_session_deinit(session_t *session)
     if (session) {
         hal_free(session);
     }
+    hal_mutex_unlock(g_service_state->lock);
     return 0;
 }
 static int _pack_auth_payload(session_t *session, peer_id_t *dst, uint8_t *payload)
@@ -1147,9 +1160,11 @@ int umesh_invite_peer(session_t *session, peer_id_t *dst,  int timeout)
 int umesh_delete_peer(session_t *session, peer_id_t *dst)
 {
     int ret = 0;
-
+    umesh_session_state_changed_cb state_cb = NULL;
+    void *state_cb_ctx = NULL;
     struct umesh_auth_tlv_fix tlv;
     service_t *node, *next;
+    peer_id_t temp_id;
     if (session == NULL || dst == NULL) {
         return UMESH_ERR_NULL_POINTER;
     }
@@ -1165,14 +1180,18 @@ int umesh_delete_peer(session_t *session, peer_id_t *dst)
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
         if (!memcmp(&dst->ip6, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
             if (session->state_cb != NULL) {
-                session->state_cb(session, &node->id, SESSION_MEMBER_LEAVE, session->state_cb_ctx);
+                state_cb = session->state_cb;
+                state_cb_ctx = session->state_cb_ctx;
+                memcpy(&temp_id, &node->id, sizeof(temp_id));
             }
             list_del(&node->linked_list2);
             break;
         }
     }
     hal_mutex_unlock(session->lock);
-
+    if (state_cb) {
+        state_cb(session, &temp_id, SESSION_MEMBER_LEAVE, state_cb_ctx);
+    }
 
     return ret;
 }
