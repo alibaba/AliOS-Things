@@ -47,7 +47,7 @@ config LWM2M_LITTLE_ENDIAN
        LwM2M little endian
 
 config LWM2M_CLIENT_MODE
-    bool "LwM2M client mode"
+    bool
     default y
     help
        LwM2M client mode
