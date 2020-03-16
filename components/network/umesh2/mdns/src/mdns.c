@@ -504,13 +504,13 @@ static int mdns_recv(const struct mdns_conn *conn, struct mdns_hdr *hdr, struct 
     uint32_t length;
     struct mdns_entry *entry;
 
+    *entries = NULL;
     buf = hal_malloc(MDNS_PKT_MAXSZ);
     if (buf == NULL) {
         return MDNS_STDERR;
     }
     memset(buf, 0, MDNS_PKT_MAXSZ);
 
-    *entries = NULL;
     if ((length = lwip_recv(conn->sock, (char *) buf, MDNS_PKT_MAXSZ, 0)) < 0) {
         hal_free(buf);
         return (MDNS_NETERR);
@@ -644,7 +644,6 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
                 }
             }
         }
-
 
         mdns_entries_free(entries);
     }

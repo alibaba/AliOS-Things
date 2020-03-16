@@ -90,7 +90,7 @@ static uint32_t mdns_write_SRV(uint8_t *ptr, const struct mdns_entry *entry)
     p = write_u16(p, entry->data.SRV.weight);
     p = write_u16(p, entry->data.SRV.port);
     p = write_raw(p, target);
-    free(target);
+    hal_free(target);
     return (p - ptr);
 }
 
@@ -126,7 +126,7 @@ static uint32_t mdns_write_PTR(uint8_t *ptr, const struct mdns_entry *entry)
         return (0);
     }
     p = write_raw(p, domain);
-    free(domain);
+    hal_free(domain);
     return (p - ptr);
 }
 
@@ -153,7 +153,7 @@ static const uint8_t *mdns_read_TXT(const uint8_t *ptr, uint32_t *n, const uint8
         if (*n < l) {
             return (NULL);
         }
-        text = malloc(sizeof(struct mdns_data_txt));
+        text = hal_malloc(sizeof(struct mdns_data_txt));
         if (!text) {
             return (NULL);
         }
@@ -262,7 +262,7 @@ static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t
 {
     char *s;
 
-    s = *ss = malloc(MDNS_DN_MAXSZ);
+    s = *ss = hal_malloc(MDNS_DN_MAXSZ);
     if (!s) {
         return (NULL);
     }
@@ -299,12 +299,12 @@ static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t
             m = ptr - p + *n;
             mdns_decode(p, &m, root, &buf);
             if (free_space <= strlen(buf)) {
-                free(buf);
+                hal_free(buf);
                 log_e("free_space <= strlen(buf)");
                 goto err;
             }
             (void) strcpy(s, buf);
-            free(buf);
+            hal_free(buf);
             return (ptr);
         }
         if (*n <= len || free_space <= len) {
@@ -319,7 +319,8 @@ static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t
     advance(1);
     return (ptr);
 err:
-    free(*ss);
+    hal_free(*ss);
+    *ss = NULL;
     return (NULL);
 }
 
@@ -332,7 +333,7 @@ static uint8_t *mdns_encode(char *s)
     uint8_t *buf, *b, l = 0;
     char *p = s;
 
-    buf = malloc(strlen(s) + 2);
+    buf = hal_malloc(strlen(s) + 2);
     if (!buf) {
         return (NULL);
     }
@@ -389,7 +390,7 @@ static uint32_t mdns_write_RR(uint8_t *ptr, const struct mdns_entry *entry, int8
         p = write_u32(p, entry->ttl);
         p = write_u16(p, entry->data_len);
     }
-    free(name);
+    hal_free(name);
     return (p - ptr);
 }
 
@@ -496,12 +497,12 @@ void mdns_free(struct mdns_entry *entry)
     switch (entry->type) {
         case RR_SRV:
             if (entry->data.SRV.target) {
-                free(entry->data.SRV.target);
+                hal_free(entry->data.SRV.target);
             }
             break;
         case RR_PTR:
             if (entry->data.PTR.domain) {
-                free(entry->data.PTR.domain);
+                hal_free(entry->data.PTR.domain);
             }
             break;
         case RR_TXT: {
@@ -511,12 +512,12 @@ void mdns_free(struct mdns_entry *entry)
             while ((text = TXT)) {
                 TXT = TXT->next;
                 if (text) {
-                    free(text);
+                    hal_free(text);
                 }
             }
         }
     }
     if (entry->name) {
-        free(entry->name);
+        hal_free(entry->name);
     }
 }
