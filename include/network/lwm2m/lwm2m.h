@@ -62,11 +62,16 @@ void lwm2m_data_free(int size, lwm2m_data_t *dataP);
  *
  * @param[in]   type    lwm2m data type.
  * @param[in]   valueP  the address of the value
+ * @param[in]   var     parameter depend on type:
+ *                      instance count for LWM2M_CODEC_TYPE_OBJECT_INSTANCE,
+ *                      length for LWM2M_CODEC_TYPE_OPAQUE and LWM2M_CODEC_TYPE_NSTRING,
+ *                      objectInstanceID for  LWM2M_CODEC_TYPE_OBJECT_LINK,
+ *                      neglect for other types.
  * @param[in]   dataP   the address of lwm2m data
  *
  * @return none
  */
-void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void *valueP, lwm2m_data_t *dataP);
+void lwm2m_data_encode(lwm2m_data_codec_type_t type, const void* valueP, size_t var, lwm2m_data_t* dataP);
 
 /**
  * Fill lwm2m data with value according to data type
