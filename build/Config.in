@@ -98,7 +98,7 @@ menu "Utility     Configuration"
 source "components/utility/cjson/Config.in"
 source "components/security/mbedtls/Config.in"
 source "components/utility/zlib/Config.in"
-source "components/utility/rbtree/Config.in"
+source "core/rbtree/Config.in"
 endmenu
 
 source "test/Config.in"
