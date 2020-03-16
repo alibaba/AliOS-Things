@@ -213,9 +213,6 @@ void board_network_init(void)
 
     DBG_8195A("start hal-----------\n");
     hal_wifi_register_module(&rtl8710bn_wifi_module);
-#ifdef CONFIG_AOS_MESH
-    hal_umesh_register_wifi(&rtl8710bn_wifi_module);
-#endif
 
     hal_wlan_init();
 
