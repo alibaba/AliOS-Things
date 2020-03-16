@@ -78,12 +78,6 @@ typedef struct service_s {
 
 typedef void *net_interface_t;
 
-#define UMESH_FOUND_LIST_ITERATOR(service)  extern service_state_t *g_service_state;\
-    list_for_each_entry(service, &g_service_state->found_service_list, linked_list, service_t)
-
-#define UMESH_SESSION_LIST_ITERATOR(session,service)  list_for_each_entry(service, &session->peers_list, linked_list2, service_t)
-
-
 /**
 * Communication changed callback
 * @param[in] session         pointer to the session
