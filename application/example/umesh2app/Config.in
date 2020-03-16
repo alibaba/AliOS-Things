@@ -30,4 +30,11 @@ if AOS_APP_UMESH2APP
                 repeated testing
 
     endmenu
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200316.000000"
+    help
+        application main firmware version
+
 endif
