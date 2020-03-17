@@ -1,4 +1,4 @@
-NAME := umesh2app
+NAME := umesh2_demo
 
 no_with_lwip := 0
 $(NAME)_MBINS_TYPE := app
