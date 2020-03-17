@@ -611,7 +611,7 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
     if (strcmp(rtype, "clear") == 0) {
         netmgr_clear_ap_config();
     } else if (strcmp(rtype, "connect") == 0) {
-        if (argc != 4) {
+        if ((argc != 3) && (argc != 4)) {
             return;
         }
 #ifdef WIFI_PROVISION_ENABLED
@@ -621,7 +621,10 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
         netmgr_ap_config_t config;
 
         strncpy(config.ssid, argv[2], sizeof(config.ssid) - 1);
-        strncpy(config.pwd, argv[3], sizeof(config.pwd) - 1);
+        /* support open wifi */
+        config.pwd[0] = '\0';
+        if(argc == 4)
+            strncpy(config.pwd, argv[3], sizeof(config.pwd) - 1);
         netmgr_set_ap_config(&config);
         netmgr_start(false);
     } else if (strcmp(rtype, "stats") == 0) {
