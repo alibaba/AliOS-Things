@@ -241,7 +241,7 @@ static int stop(void *cbarg)
 
             }
             if (state->found_cb) {
-                state->found_cb(node, PEER_LOST);
+                state->found_cb(node, PEER_LOST, state->found_cb_ctx);
             }
             umesh_service_free(node);
         }
@@ -431,7 +431,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
         service->last_update = hal_now_ms();
         list_add_tail(&service->linked_list, &state->found_service_list);
         if (state->found_cb) {
-            state->found_cb(service, PEER_FOUND);
+            state->found_cb(service, PEER_FOUND, state->found_cb_ctx);
         }
     }  else {
         ret = umesh_service_free(service);
@@ -763,7 +763,7 @@ static void mdns_main_task(void *para)
     log_i("leave mdns task!");
 }
 
-int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
+int umesh_start_browse_service(service_t *service, umesh_service_found_cb found, void *user_data)
 {
     int ret = 0;
 
@@ -777,6 +777,7 @@ int umesh_start_browse_service(service_t *service, umesh_service_found_cb found)
 
     hal_mutex_lock(g_service_state->lock);
     g_service_state->found_cb = found;
+    g_service_state->found_cb_ctx = user_data;
     hal_mutex_unlock(g_service_state->lock);
 
     if (g_service_state->stop) {
@@ -791,6 +792,7 @@ int umesh_stop_browse_service(void)
 {
     hal_mutex_lock(g_service_state->lock);
     g_service_state->found_cb = NULL;
+    g_service_state->found_cb_ctx = NULL;
     hal_mutex_unlock(g_service_state->lock);
     return 0;
 }
