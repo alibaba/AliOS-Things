@@ -503,10 +503,6 @@ int application_start(int argc, char **argv)
     sal_init();
 #endif
 
-#ifdef MDAL_MAL_ICA_TEST
-    HAL_MDAL_MAL_Init();
-#endif
-
     aos_set_log_level(AOS_LL_DEBUG);
     set_iotx_info();
     netmgr_init();

@@ -23,6 +23,10 @@
 #include "ulog/ulog.h"
 #include "netmgr.h"
 
+#ifdef WITH_SAL
+#include <atcmd_config_module.h>
+#endif
+
 #define TAG "HTTPAPP"
 
 #define CONFIG_HTTP_CONTINUE_TEST 0
@@ -506,6 +510,22 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
+
+#ifdef WITH_SAL
+    sal_device_config_t data = {0};
+
+    data.uart_dev.port = 1;
+    data.uart_dev.config.baud_rate = 115200;
+    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
+    data.uart_dev.config.parity = NO_PARITY;
+    data.uart_dev.config.stop_bits  = STOP_BITS_1;
+    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    data.uart_dev.config.mode = MODE_TX_RX;
+
+    sal_add_dev(NULL, &data);
+    sal_init();
+#endif
+
     netmgr_init();
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_cli_register_command(&httpapp_cmd);
