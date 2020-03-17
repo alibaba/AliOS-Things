@@ -1,5 +1,5 @@
-config AOS_APP_UMESH2APP
-    bool "umesh2app"
+config AOS_APP_UMESH2_DEMO
+    bool "umesh2_demo"
     select AOS_COMP_UMESH2  if !AOS_CREATE_PROJECT
     select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
     select AOS_COMP_CLI if !AOS_CREATE_PROJECT
@@ -8,7 +8,7 @@ config AOS_APP_UMESH2APP
     help
         uMesh2 sample application
 
-if AOS_APP_UMESH2APP
+if AOS_APP_UMESH2_DEMO
     menu "umesh2app Configurations"
         config ENABLE_PRINT_HEAP
             bool "print heap size duration"
