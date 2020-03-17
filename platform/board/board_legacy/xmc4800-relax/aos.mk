@@ -20,7 +20,7 @@ $(NAME)_SOURCES += config/partition_conf.c \
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_XMC4800_armcc.S
-$(NAME)_LINK_FILES := startup_XMC4800_armcc.o
+$(NAME)_LINK_FILES := startup/startup_XMC4800_armcc.o
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES    += startup/startup_XMC4800_icc.S
 else
