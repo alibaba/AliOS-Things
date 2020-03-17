@@ -420,10 +420,10 @@ if AOS_APP_WIFI_AT_APP
         default "wifi_at_app"
 endif
 
-source "application/example/umesh2app/Config.in"
-if AOS_APP_UMESH2APP
+source "application/example/umesh2_demo/Config.in"
+if AOS_APP_UMESH2_DEMO
     config AOS_BUILD_APP
-        default "umesh2app"
+        default "umesh2_demo"
 endif
 
 source "application/example/knx_demo/Config.in"
