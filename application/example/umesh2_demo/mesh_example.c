@@ -3,16 +3,16 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <ulog/ulog.h>
 #include <aos/kernel.h>
 #include <stdint.h>
 #include <network/network.h>
-#include "string.h"
-#include <stdio.h>
-#include <string.h>
 #include <aos/yloop.h>
-#include <network/netmgr/netmgr.h>
-#include <network/umesh2/umesh_api.h>
+#include <netmgr/netmgr.h>
+#include <umesh2/core/umesh.h>
+#include <umesh2/umesh_api.h>
+
 /*for get mac addr*/
 #include "hal/wifi.h"
 
@@ -29,7 +29,7 @@ typedef struct peer_list {
 static peer_list_t *found_peer_list = NULL;
 
 static const char *test_data = "===== test data from %s-%s =======";
-static const char *test_data_mcast = "=====mcast test data from %s-%s =======";
+static const char *test_data_mcast = "=====cast test data from %s-%s =======";
 
 extern int hal_wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac);
 
@@ -71,7 +71,7 @@ void monitor_work(void *p)
 #endif
 
 
-void service_found(service_t *service, peer_state_t state)
+static void service_found(service_t *service, peer_state_t state, void *context)
 {
     LOG("service: %s-%s, %s", service->srv_type, service->srv_name,  state == PEER_FOUND ? "found" : "lost");
     peer_list_t *peer = NULL;
@@ -116,7 +116,6 @@ void service_found(service_t *service, peer_state_t state)
 
         }
     }
-
 }
 
 static int peer_invite(session_t *session, peer_id_t *peer_id, void *context)
@@ -169,6 +168,7 @@ start:
     net_handle = umesh_network_init();
     if (net_handle == NULL) {
         LOG("umesh init failed");
+        return;
     }
     while (!umesh_is_connected(net_handle)) {
         LOG("----------Waiting for networking-----------");
@@ -190,7 +190,7 @@ start:
     umesh_service_add_txt(self_srv, mac_str_txt);
     umesh_service_add_txt(self_srv, "ext_info=mesh network");
 
-    ret = umesh_start_browse_service(self_srv, service_found);
+    ret = umesh_start_browse_service(self_srv, service_found, NULL);
     LOG("browse_service ret = %d", ret);
     ret = umesh_start_advertise_service(self_srv);
     LOG("advertise_service ret = %d", ret);
@@ -210,7 +210,7 @@ start:
     aos_msleep(20000);
 
     do {
-
+        uint8_t has_member = 0;
         peer_list_t *cur = found_peer_list;
 
         aos_msleep(5000);
@@ -229,15 +229,20 @@ start:
                 }
             } else {
                 char send[256] = {0};
+                has_member = 1;
+                /*send data to the specified member*/
                 snprintf(send, 255, test_data, self_srv->srv_type, self_srv->srv_name);
                 ret = umesh_send(session, &cur->id, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
-                LOG("send data to %s ,ret = %d", ip_str, ret);
-                memset(send, 0, 256);
-                snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
-                ret = umesh_send(session, UMESH_SEND_BROADCAST, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
-                LOG("send public data to session ,ret = %d", ret);
+                LOG("send ucast data to %s ,ret = %d", ip_str, ret);
             }
             cur = cur->next;
+        }
+        /*send data to all members in session*/
+        if(has_member) {
+            char send[256] = {0};
+            snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
+            ret = umesh_send(session, UMESH_SEND_BROADCAST, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
+            LOG("send mcast data to session ,ret = %d", ret);
         }
 
 #if ENABLE_LOOP_TEST
@@ -248,6 +253,9 @@ start:
 #endif
 err:
     LOG("-----------------test end--------------------");
+    umesh_stop_advertise_service(self_srv);
+    umesh_stop_browse_service();
+    
     if (session != NULL)
     {
         ret = umesh_session_deinit(session);
