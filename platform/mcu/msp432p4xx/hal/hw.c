@@ -59,21 +59,8 @@ void hal_timer_stop(timer_dev_t *tmr)
     tmr->priv = NULL;
 }
 
-#if defined(DEV_SAL_MK3060)
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#endif
 
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
-#if defined(DEV_SAL_MK3060)
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-#elif defined DEV_SAL_BK7231
-    extern hal_wifi_module_t aos_wifi_module_bk7231;
-    hal_wifi_register_module(&aos_wifi_module_bk7231);
-#endif
-
-
-    //hal_ota_register_module(&stm32l475_ota_module);
-    hal_wifi_init();
 }

@@ -37,10 +37,6 @@ static kinit_t kinit;
 
 static void sys_init(void);
 
-#if defined(DEV_SAL_MK3060)
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#endif
-
 extern struct hal_ota_module_s aos_ota_module_atsamd5x_e5x;
 
 static void sys_init(void)
@@ -52,10 +48,6 @@ static void sys_init(void)
     atmel_start_init();
     board_init();
 
-#if defined(DEV_SAL_MK3060)
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-    hal_wifi_init();
-#endif
     aos_components_init(&kinit);
 
 #ifndef AOS_BINS
