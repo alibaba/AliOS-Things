@@ -298,6 +298,7 @@ def parse_block_of_configin(lines):
     p3 = re.compile(r"default\s+(\w*)")
     p4 = re.compile(r"default\s+\"(.*)\"")
     new_macro = {}
+    depends_on = ""
     for line in lines:
         if line.startswith("config") or line.startswith("menuconfig"):
             match = p1.match(line)
@@ -321,7 +322,7 @@ def parse_block_of_configin(lines):
                 if match.group(3):
                     new_macro["hint"] = match.group(3)
                 else:
-                    new_macro["hint"] = ""
+                    new_macro["hint"] = "CAN NOT BE MODIFIED"
         elif line.startswith("default"):
             if new_macro["type"] == "string":
                 match = p4.match(line)
@@ -332,8 +333,18 @@ def parse_block_of_configin(lines):
                 if match:
                     val = from_y_n_to_0_1(match.group(1), new_macro["type"])
                     new_macro["value"] = val
-
+        elif line.startswith("depends on"):
+            depends_on = ", " + line
+    if depends_on:
+        new_macro["hint"] += depends_on
     return new_macro
+
+def append_a_block_to_header(fn, lines):
+    macro = parse_block_of_configin(lines)
+    if macro:
+        fn.write("// description:%s\n" % macro["hint"])
+        fn.write("// #define %s %s // type: %s\n\n" % (macro["name"],
+            macro["value"], macro["type"]))
 
 def convert_configin_to_header(config_in_file, comp_name, destdir):
     """ read Config.in file, and convert to C header file """
@@ -344,36 +355,63 @@ def convert_configin_to_header(config_in_file, comp_name, destdir):
     if not comp_name:
         return False
     macro_list = []
+    filename = os.path.join(destdir, "comp_%s.h" % comp_name)
+    fn = open (filename, 'w+')
+    fn.write("//================This is split line================\n")
+    fn.write("// %s %s\n\n" % (COMPONENT_KEYWORD, comp_name))
     with open (config_in_file, 'r') as f:
         lines = []
         new_block = False
+        p1 = re.compile(r"if (.*)=\s*(y|n)")
         for line in f.readlines():
             line = line.strip()
             if line:
-                if line.startswith("config ") or line.startswith("menuconfig "):
+                if line.startswith("if "):
                     if new_block:
-                        macro = parse_block_of_configin(lines)
-                        if macro:
-                            macro_list.append(macro)
+                        append_a_block_to_header(fn, lines)
+                    new_block = False
+                    lines = []
+                    match = p1.match(line)
+                    if match:
+                        if match.group(2) == "y":
+                            fn.write("// #if " + match.group(1) + "= 1\n\n")
+                        else:
+                            fn.write("// #if " + match.group(1) + "= 0\n\n")
+                    else:
+                        fn.write("// #" + line + "\n\n")
+                elif line.startswith("endif"):
+                    if new_block:
+                        append_a_block_to_header(fn, lines)
+                    new_block = False
+                    lines = []
+                    fn.write("// #" + line + "\n\n")
+                elif line.startswith("config ") or line.startswith("menuconfig "):
+                    if new_block:
+                        append_a_block_to_header(fn, lines)
                     new_block = True
                     lines = []
                 if new_block:
                     lines.append(line)
         # last block
         if new_block:
-            macro = parse_block_of_configin(lines)
-            if macro:
-                macro_list.append(macro)
-    if macro_list:
-        filename = os.path.join(destdir, "comp_%s.h" % comp_name)
-        with open (filename, 'w+') as f:
-            f.write("//================This is split line================\n")
-            f.write("// %s %s\n\n" % (COMPONENT_KEYWORD, comp_name))
-            for macro in macro_list:
-                f.write("// description:%s\n" % macro["hint"])
-                f.write("// #define %s %s // type: %s\n\n" % (macro["name"],
-                    macro["value"], macro["type"]))
+            append_a_block_to_header(fn, lines)
 
+    fn.close()
+
+def remove_default_header_files(header_files_dir):
+    """append header files in backup folder into aos_config.h """
+    header_files = []
+    for root, dirs, files in os.walk(header_files_dir):
+        for filename in files:
+            if not filename.startswith("comp_"):
+                continue
+            if not filename.endswith(".h"):
+                continue
+            tempfile = "%s/%s" % (root, filename)
+            tempfile = tempfile.replace("\\", "/")
+            header_files.append(tempfile)
+    for filename in header_files:
+        os.remove(filename)
         
 def generate_default_header_file(config_in_file):
     """ read application Config.in file, and get all components' Config.in file.
@@ -383,6 +421,7 @@ def generate_default_header_file(config_in_file):
     
     dirname = os.path.dirname(config_in_file)
     destdir = os.path.join(dirname, CONFIG_BAK_PATH)
+    remove_default_header_files(destdir)
     config_in_list = find_config_in_file(config_in_file)
     comp_list = get_comp_name_from_configin(config_in_list)
     for comp in comp_list:
