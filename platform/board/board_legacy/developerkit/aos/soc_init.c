@@ -46,7 +46,7 @@ extern void SystemClock_Config(void);
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
-#ifdef DEV_SAL_M02H
+#ifdef AOS_SAL_LTE_M02H
     { PORT_UART_AT,      UART4,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
 #else
     { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
@@ -201,7 +201,7 @@ int get_devloperkit_atuart(void)
     BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
     int ret = -1;
     
-#ifdef DEV_SAL_BK7231
+#ifdef AOS_SAL_WIFI_BK7231
     ret = 3;
 #else
     board_hwver = get_devloperkit_hwver();
