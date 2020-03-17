@@ -11,6 +11,10 @@
 
 #include "netmgr.h"
 
+#ifdef WITH_SAL
+#include <atcmd_config_module.h>
+#endif
+
 #define ULOCATION_QXWZ_APPKEY          "770302"
 #define ULOCATION_QXWZ_APPSECRET       "99094b805092d2e7e08f63bcde97a2a7a70bded81a1e0b0f6728dede7fc01902"
 #define ULOCATION_QXWZ_DEVICE_ID       "AliOS-Things2.1.2"
@@ -61,7 +65,17 @@ int application_start(int argc, char *argv[])
     printf("ulocation qianxun app!\n");
 
 #ifdef WITH_SAL
-    sal_add_dev(NULL, NULL);
+    sal_device_config_t data = {0};
+
+    data.uart_dev.port = 1;
+    data.uart_dev.config.baud_rate = 115200;
+    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
+    data.uart_dev.config.parity = NO_PARITY;
+    data.uart_dev.config.stop_bits  = STOP_BITS_1;
+    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    data.uart_dev.config.mode = MODE_TX_RX;
+
+    sal_add_dev(NULL, &data);
     sal_init();
 #endif
 

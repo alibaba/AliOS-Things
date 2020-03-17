@@ -13,6 +13,10 @@
 #include "linkkit/mqtt_api.h"
 #include "netmgr.h"
 
+#ifdef WITH_SAL
+#include <atcmd_config_module.h>
+#endif
+
 #include "ota/ota_agent.h"
 
 #ifdef CSP_LINUXHOST
@@ -222,13 +226,22 @@ int application_start(int argc, char *argv[])
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
+
 #ifdef WITH_SAL
-    sal_add_dev(NULL, NULL);
+    sal_device_config_t data = {0};
+
+    data.uart_dev.port = 1;
+    data.uart_dev.config.baud_rate = 115200;
+    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
+    data.uart_dev.config.parity = NO_PARITY;
+    data.uart_dev.config.stop_bits  = STOP_BITS_1;
+    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    data.uart_dev.config.mode = MODE_TX_RX;
+
+    sal_add_dev(NULL, &data);
     sal_init();
 #endif
-#ifdef MDAL_MAL_ICA_TEST
-    HAL_MDAL_MAL_Init();
-#endif
+
     aos_set_log_level(AOS_LL_DEBUG);
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
