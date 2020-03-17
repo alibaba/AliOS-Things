@@ -57,21 +57,16 @@ void hal_timer_stop(timer_dev_t *tmr)
     tmr->priv = NULL;
 }
 
-#if defined(DEV_SAL_MK3060)
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#else
+#if !defined(AOS_COMP_SAL) && !defined(AOS_COMP_MAL)
 extern hal_wifi_module_t sim_aos_wifi_stm32l475;
 #endif
 
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
-#if defined(DEV_SAL_MK3060)
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-#elif defined(DEV_SAL_SIM800)
-    /*nothing to do*/
-#else
+
+#if !defined(AOS_COMP_SAL) && !defined(AOS_COMP_MAL)
     hal_wifi_register_module(&sim_aos_wifi_stm32l475);
-#endif
     hal_wifi_init();
+#endif
 }

@@ -124,12 +124,6 @@ static void sys_init(void)
 
     board_cli_init();
 
-#if defined(DEV_SAL_MK3060)
-    extern hal_wifi_module_t aos_wifi_module_mk3060;
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-    hal_wifi_init();
-#endif
-
 #if defined(WITH_SAL) || defined(CONFIG_AOS_LWIP)
 //    hal_ota_register_module(&numicro_ota_module);
 #endif

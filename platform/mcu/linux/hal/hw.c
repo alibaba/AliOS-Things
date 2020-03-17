@@ -253,11 +253,7 @@ int csp_printf(const char *fmt, ...)
 }
 #endif
 
-#if defined(DEV_SAL_MK3060)
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#elif defined(DEV_SAL_ATHOST)
-extern hal_wifi_module_t aos_wifi_module_athost;
-#else
+#if !defined(AOS_COMP_SAL) && !defined(AOS_COMP_MAL)
 extern hal_wifi_module_t sim_aos_wifi_linux;
 #endif
 
@@ -270,11 +266,7 @@ void flash_partition_init(void)
 void linux_wifi_register(void);
 void hw_start_wifi_hal(void)
 {
-#if defined(DEV_SAL_MK3060)
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-#elif defined(DEV_SAL_ATHOST)
-    hal_wifi_register_module(&aos_wifi_module_athost);
-#else
+#if !defined(AOS_COMP_SAL) && !defined(AOS_COMP_MAL)
     hal_wifi_register_module(&sim_aos_wifi_linux);
 #endif
 }
