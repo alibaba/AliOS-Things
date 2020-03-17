@@ -9,12 +9,12 @@ if sys.version_info[0] < 3:
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
-    "nbiot": ["templates/mal_nbiot_template", "components/peripherals/module/mal/nbiot"],
-    "gprs": ["templates/mal_gprs_template", "components/peripherals/module/mal/gprs"],
-    "wifi": ["templates/mal_wifi_template", "components/peripherals/module/mal/wifi"],
-    "lte": ["templates/mal_lte_template", "components/peripherals/module/mal/lte"],
-    "eth": ["templates/mal_eth_template", "components/peripherals/module/mal/eth"],
-    "other": ["templates/mal_other_template", "components/peripherals/module/mal/other"],
+    "nbiot": ["templates/mal_nbiot_template", "components/peripherals/iot_comm_module/mal/nbiot"],
+    "gprs": ["templates/mal_gprs_template", "components/peripherals/iot_comm_module/mal/gprs"],
+    "wifi": ["templates/mal_wifi_template", "components/peripherals/iot_comm_module/mal/wifi"],
+    "lte": ["templates/mal_lte_template", "components/peripherals/iot_comm_module/mal/lte"],
+    "eth": ["templates/mal_eth_template", "components/peripherals/iot_comm_module/mal/eth"],
+    "other": ["templates/mal_other_template", "components/peripherals/iot_comm_module/mal/other"],
 }
 
 
