@@ -134,7 +134,7 @@ typedef struct session_s {
 * @param[out] service pointer to the service
 * @param[out] service found or lost service
 */
-typedef void (* umesh_service_found_cb)(service_t *service, peer_state_t state);
+typedef void (* umesh_service_found_cb)(service_t *service, peer_state_t state, void *context);
 
 typedef struct service_state_s {
     void *network;
@@ -145,6 +145,7 @@ typedef struct service_state_s {
     void *timer;
     void *leave_semp;
     umesh_service_found_cb   found_cb;
+    void *found_cb_ctx;
     uint8_t announced;
     uint8_t stop;
 } service_state_t;
@@ -197,10 +198,11 @@ int umesh_stop_advertise_service(service_t *self);
 * Start browsing service, this is a asynchronous function
 *
 * @param[in] service pointer to the service
+* @param[out] user_data  context to cb
 *
 * @return 0 is success, others are failure
 */
-int umesh_start_browse_service(service_t *self, umesh_service_found_cb found);
+int umesh_start_browse_service(service_t *self, umesh_service_found_cb found, void *user_data);
 /**
 * Stop browsing service
 *
