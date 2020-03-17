@@ -49,12 +49,13 @@ menu "Config Network Interface Types:"
         default y
         help
             support net with Wi-Fi.
-endmenu
 
-config AOS_NET_WITH_ETH
-    bool
-    default n
-    help
+    config AOS_NET_WITH_ETH
+        bool "Enable Netmgr with Ethernet"
+        default n
+        help
         support net with Ethernet.
+
+endmenu
 
 endif
