@@ -33,10 +33,6 @@ extern int application_start(int argc, char **argv);
 
 extern hal_wifi_module_t qca_4002_wmi;
 
-#ifdef DEV_SAL_MK3060
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#endif
-
 static void var_init()
 {
     kinit.argc = 0;
@@ -47,15 +43,12 @@ static void var_init()
 static int init_wifi()
 {
    int ret;
-#ifdef DEV_SAL_MK3060
-   PRINTF("Register WMI Wifi mk3060");
-   hal_wifi_register_module(&aos_wifi_module_mk3060);
-#else
+#if  !defined(AOS_COMP_SAL) && !defined(AOS_COMP_MAL)
    PRINTF("Register WMI Wifi 0x%x", &qca_4002_wmi);
    hal_wifi_register_module(&qca_4002_wmi);
-#endif
    ret = hal_wifi_init();
    PRINTF("hal_wifi_init return %d", ret);
+#endif
 }
 
 

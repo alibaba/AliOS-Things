@@ -62,13 +62,5 @@ void hal_timer_stop(timer_dev_t *tmr)
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
-
-#ifdef AOS_ATCMD
-#if defined(DEV_SAL_MK3060)
-    extern hal_wifi_module_t aos_wifi_module_mk3060;
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
-    hal_wifi_init();    
-#endif
-#endif
 }
 
