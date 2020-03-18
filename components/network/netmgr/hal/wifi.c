@@ -81,10 +81,11 @@ int hal_wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
         m = hal_wifi_get_default_module();
     }
 
-    if (m == NULL)
-        return -1;
+    if (m && m->start) {
+        return  m->start(m, init_para);
+    }
 
-    return m->start(m, init_para);
+    return -1;
 }
 
 int  hal_wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
@@ -93,7 +94,11 @@ int  hal_wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_par
         m = hal_wifi_get_default_module();
     }
 
-    return m->start_adv(m, init_para_adv);
+    if (m && m->start_adv) {
+        return  m->start_adv(m, init_para_adv);
+    }
+
+    return -1;
 }
 
 int  hal_wifi_get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
@@ -102,7 +107,11 @@ int  hal_wifi_get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para
         m = hal_wifi_get_default_module();
     }
 
-    return m->get_ip_stat(m, out_net_para, wifi_type);
+    if (m && m->get_ip_stat) {
+        return m->get_ip_stat(m, out_net_para, wifi_type);
+    }
+
+    return -1;
 }
 
 int  hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
@@ -111,7 +120,11 @@ int  hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat
         m = hal_wifi_get_default_module();
     }
 
-    return m->get_link_stat(m, out_stat);
+    if (m && m->get_link_stat) {
+        return m->get_link_stat(m, out_stat);
+    }
+
+    return -1;
 }
 
 int hal_wifi_scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num)
@@ -120,7 +133,11 @@ int hal_wifi_scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, 
         m = hal_wifi_get_default_module();
     }
 
-    return m->scan_ap_list(m, out_stat, ap_num);
+    if (m && m->scan_ap_list) {
+        return m->scan_ap_list(m, out_stat, ap_num);
+    }
+
+    return -1;
 }
 
 void hal_wifi_start_scan(hal_wifi_module_t *m)
@@ -129,7 +146,9 @@ void hal_wifi_start_scan(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    m->start_scan(m);
+    if (m && m->start_scan) {
+        m->start_scan(m);
+    }
 }
 
 void hal_wifi_start_scan_adv(hal_wifi_module_t *m)
@@ -138,7 +157,9 @@ void hal_wifi_start_scan_adv(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    m->start_scan_adv(m);
+    if (m && m->start_scan_adv) {
+        m->start_scan_adv(m);
+    }
 }
 
 int hal_wifi_power_off(hal_wifi_module_t *m)
@@ -147,7 +168,11 @@ int hal_wifi_power_off(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->power_off(m);
+    if (m && m->power_off) {
+        return m->power_off(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_power_on(hal_wifi_module_t *m)
@@ -156,7 +181,11 @@ int hal_wifi_power_on(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->power_on(m);
+    if (m && m->power_on) {
+        return m->power_on(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_suspend(hal_wifi_module_t *m)
@@ -165,7 +194,11 @@ int hal_wifi_suspend(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->suspend(m);
+    if (m && m->suspend) {
+        return m->suspend(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_suspend_station(hal_wifi_module_t *m)
@@ -174,7 +207,11 @@ int hal_wifi_suspend_station(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->suspend_station(m);
+    if (m && m->suspend_station) {
+        return m->suspend_station(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_suspend_soft_ap(hal_wifi_module_t *m)
@@ -183,7 +220,11 @@ int hal_wifi_suspend_soft_ap(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->suspend_soft_ap(m);
+    if (m && m->suspend_soft_ap) {
+        return m->suspend_soft_ap(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_set_channel(hal_wifi_module_t *m, int ch)
@@ -192,7 +233,11 @@ int hal_wifi_set_channel(hal_wifi_module_t *m, int ch)
         m = hal_wifi_get_default_module();
     }
 
-    return m->set_channel(m, ch);
+    if (m && m->set_channel) {
+        return m->set_channel(m, ch);
+    }
+
+    return -1;
 }
 
 int hal_wifi_get_channel(hal_wifi_module_t *m)
@@ -201,7 +246,11 @@ int hal_wifi_get_channel(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    return m->get_channel(m);
+    if (m && m->get_channel) {
+        return m->get_channel(m);
+    }
+
+    return -1;
 }
 
 int hal_wifi_get_channel_list(hal_wifi_module_t *m, const uint8_t **chnlist)
@@ -210,7 +259,11 @@ int hal_wifi_get_channel_list(hal_wifi_module_t *m, const uint8_t **chnlist)
         m = hal_wifi_get_default_module();
     }
 
-    return m->get_channel_list(m, chnlist);
+    if (m && m->get_channel_list) {
+        return m->get_channel_list(m, chnlist);
+    }
+
+    return -1;
 }
 
 void hal_wifi_start_wifi_monitor(hal_wifi_module_t *m)
@@ -219,7 +272,9 @@ void hal_wifi_start_wifi_monitor(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    m->start_monitor(m);
+    if (m && m->start_monitor) {
+        m->start_monitor(m);
+    }
 }
 
 void hal_wifi_stop_wifi_monitor(hal_wifi_module_t *m)
@@ -228,7 +283,9 @@ void hal_wifi_stop_wifi_monitor(hal_wifi_module_t *m)
         m = hal_wifi_get_default_module();
     }
 
-    m->stop_monitor(m);
+    if (m && m->stop_monitor) {
+        m->stop_monitor(m);
+    }
 }
 
 void hal_wifi_register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
@@ -237,7 +294,9 @@ void hal_wifi_register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
         m = hal_wifi_get_default_module();
     }
 
-    m->register_monitor_cb(m, fn);
+    if (m && m->register_monitor_cb) {
+        m->register_monitor_cb(m, fn);
+    }
 }
 
 void hal_wifi_install_event(hal_wifi_module_t *m, const hal_wifi_event_cb_t *cb)
@@ -253,7 +312,9 @@ void hal_wlan_register_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t f
         m = hal_wifi_get_default_module();
     }
 
-    m->register_wlan_mgnt_monitor_cb(m, fn);
+    if (m && m->register_wlan_mgnt_monitor_cb) {
+        m->register_wlan_mgnt_monitor_cb(m, fn);
+    }
 }
 
 int hal_wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
@@ -262,7 +323,11 @@ int hal_wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
         m = hal_wifi_get_default_module();
     }
 
-    return m->wlan_send_80211_raw_frame(m, buf, len);
+    if (m && m->wlan_send_80211_raw_frame) {
+        return m->wlan_send_80211_raw_frame(m, buf, len);
+    }
+
+    return -1;
 }
 
 int hal_get_wireless_info(hal_wifi_module_t *m, void *info)
