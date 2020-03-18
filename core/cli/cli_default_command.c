@@ -29,7 +29,6 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void reboot_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void uptime_cmd(char *buf, int32_t len, int32_t argc, char **argv);
-static void ota_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 
 #if (CLI_MINIMUM_MODE <= 0)
 
@@ -68,7 +67,6 @@ static const struct cli_command_st built_ins[] = {
 
     /*aos_rhino*/
     { "time", "system time", uptime_cmd },
-    { "ota", "system ota", ota_cmd },
 #ifdef AOS_COMP_DEBUG
 #if (RHINO_CONFIG_SYS_STATS > 0)
     { "cpuusage", "show cpu usage", cpuusage_cmd },
@@ -137,11 +135,6 @@ static void uptime_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 void tftp_ota_thread(void *arg)
 {
     cli_task_exit();
-}
-
-static void ota_cmd(char *buf, int32_t len, int32_t argc, char **argv)
-{
-    cli_task_create("LOCAL OTA", tftp_ota_thread, 0, 4096, OTA_THREAD_PRIORITY);
 }
 
 #if (CLI_MINIMUM_MODE <= 0)
