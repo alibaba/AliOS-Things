@@ -483,21 +483,25 @@ static void  uemsh_sock_read_func(int fd, void *arg)
             is_auth_data = 1;
             log_d("recv auth data!");
         } else {
+            peer_id_t id;
             umesh_receive_cb recieve_cb = NULL;
             void *recieve_cb_ctx = NULL;
+            hal_mutex_lock(g_service_state->lock);
             hal_mutex_lock(session->lock);
             list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
                 if (!memcmp(&addr.sin6_addr, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
                     if (session->recieve_cb != NULL) {
                         recieve_cb = session->recieve_cb;
                         recieve_cb_ctx = session->recieve_cb_ctx;
+                        memcpy(&id, &node->id, sizeof(peer_id_t));
                         break;
                     }
                 }
             }
             hal_mutex_unlock(session->lock);
+            hal_mutex_unlock(g_service_state->lock);
             if (recieve_cb != NULL) {
-                recieve_cb(session, &node->id, buffer, len, recieve_cb_ctx);
+                recieve_cb(session, &id, buffer, len, recieve_cb_ctx);
             }
         }
 
@@ -976,12 +980,12 @@ int umesh_session_deinit(session_t *session)
     hal_mutex_lock(session->lock);
     umesh_close_socket(session);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
-
         list_del(&node->linked_list2);
         node->session = NULL;
-        break;
     }
     hal_mutex_unlock(session->lock);
+    hal_mutex_unlock(g_service_state->lock);
+    hal_msleep(2000);
 
     if (session->lock) {
         hal_mutex_free(session->lock);
@@ -1001,7 +1005,7 @@ int umesh_session_deinit(session_t *session)
     if (session) {
         hal_free(session);
     }
-    hal_mutex_unlock(g_service_state->lock);
+
     return 0;
 }
 static int _pack_auth_payload(session_t *session, peer_id_t *dst, uint8_t *payload)
@@ -1178,6 +1182,7 @@ int umesh_delete_peer(session_t *session, peer_id_t *dst)
     if (ret < 0) {
         return ret;
     }
+    hal_mutex_lock(g_service_state->lock);
     hal_mutex_lock(session->lock);
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
         if (!memcmp(&dst->ip6, &node->id.ip6, sizeof(node->id.ip6))) { /*data*/
@@ -1191,6 +1196,7 @@ int umesh_delete_peer(session_t *session, peer_id_t *dst)
         }
     }
     hal_mutex_unlock(session->lock);
+    hal_mutex_unlock(g_service_state->lock);
     if (state_cb) {
         state_cb(session, &temp_id, SESSION_MEMBER_LEAVE, state_cb_ctx);
     }
