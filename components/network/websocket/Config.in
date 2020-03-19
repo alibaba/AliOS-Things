@@ -29,7 +29,7 @@ config WEBSOC_WITH_TLS
 
 if WEBSOC_WITH_TLS
 config WEBSOCKET_SSL_ENABLE
-    bool "SSL enable"
+    bool
     default y
     help
        SSL enable
