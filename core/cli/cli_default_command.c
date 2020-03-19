@@ -132,11 +132,6 @@ static void uptime_cmd(char *buf, int32_t len, int32_t argc, char **argv)
     cli_printf("UP time %ld ms\r\n", (long)krhino_sys_time_get());
 }
 
-void tftp_ota_thread(void *arg)
-{
-    cli_task_exit();
-}
-
 #if (CLI_MINIMUM_MODE <= 0)
 
 static void echo_cmd(char *buf, int32_t len, int32_t argc, char **argv)
