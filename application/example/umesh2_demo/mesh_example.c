@@ -26,10 +26,46 @@ typedef struct peer_list {
     struct peer_list *next;
 } peer_list_t;
 
-static peer_list_t *found_peer_list = NULL;
+typedef struct peer_list_state {
+    peer_list_t *found_peer_list;
+    aos_mutex_t mutex;
+} peer_list_state_t;
+
+static peer_list_state_t user_peer_state;
+
+static int user_peer_state_init(peer_list_state_t *state)
+{
+    if (state == NULL) {
+        return -1;
+    }
+    memset(state, 0, sizeof(peer_list_state_t));
+    if (0 != aos_mutex_new(&state->mutex)) {
+        return -1;
+    }
+    return 0;
+}
+
+static int user_peer_state_deinit(peer_list_state_t *state)
+{
+    if (state == NULL) {
+        return -1;
+    }
+    aos_mutex_lock(&state->mutex, AOS_WAIT_FOREVER);
+    peer_list_t *cur = state->found_peer_list;
+    peer_list_t *next;
+    while (cur != NULL) {
+        next = cur->next;
+        aos_free(cur);
+        cur = next;
+    }
+    state->found_peer_list = NULL;
+    aos_mutex_unlock(&state->mutex);
+    aos_mutex_free(&state->mutex);
+    return 0;
+}
 
 static const char *test_data = "===== test data from %s-%s =======";
-static const char *test_data_mcast = "=====cast test data from %s-%s =======";
+static const char *test_data_mcast = "=====mcast test data from %s-%s =======";
 
 extern int hal_wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac);
 
@@ -43,16 +79,7 @@ static int get_id_to_str(peer_id_t *id, char *buff)
     return 0;
 }
 
-static int clean_peer_list() {
-    peer_list_t *cur = found_peer_list;
-    peer_list_t *next; 
-    while(cur != NULL) {
-        next = cur->next;
-        aos_free(cur);
-        cur = next;
-    }
-    found_peer_list = NULL;
-}
+
 
 #if ENABLE_PRINT_HEAP
 #include <k_api.h>
@@ -75,16 +102,21 @@ static void service_found(service_t *service, peer_state_t state, void *context)
 {
     LOG("service: %s-%s, %s", service->srv_type, service->srv_name,  state == PEER_FOUND ? "found" : "lost");
     peer_list_t *peer = NULL;
-    peer_list_t *cur = found_peer_list;
+    peer_list_t *cur;
+
+    aos_mutex_lock(&user_peer_state.mutex, AOS_WAIT_FOREVER);
+    cur = user_peer_state.found_peer_list;
     if (state == PEER_FOUND) {
         txt_item_t *txt =  service->txt_items;
         while (txt != NULL) {
             LOG("get txt:%s", txt->txt);
             txt = txt->next;
         }
+
         while (cur != NULL) {
             if (!memcmp(&cur->id, &service->id, sizeof(peer_id_t))) {
                 LOG("found peer already in peer list!");
+                aos_mutex_unlock(&user_peer_state.mutex);
                 return;
             }
             cur = cur->next;
@@ -92,12 +124,13 @@ static void service_found(service_t *service, peer_state_t state, void *context)
         peer = aos_malloc(sizeof(struct peer_list));
         if (peer == NULL) {
             LOG("malloc peer fail");
+            aos_mutex_unlock(&user_peer_state.mutex);
             return;
         }
         memset(peer, 0, sizeof(struct peer_list));
 
-        peer->next = found_peer_list;
-        found_peer_list = peer;
+        peer->next = user_peer_state.found_peer_list;
+        user_peer_state.found_peer_list = peer;
         memcpy(&peer->id, &service->id, sizeof(peer_id_t));
     } else {
         peer_list_t *pre = cur;
@@ -105,8 +138,8 @@ static void service_found(service_t *service, peer_state_t state, void *context)
             if (!memcmp(&cur->id, &service->id, sizeof(peer_id_t))) {
                 LOG("remove peer from user peerlist");
                 pre->next = cur->next;
-                if (cur == found_peer_list) {
-                    found_peer_list = found_peer_list->next;
+                if (cur == user_peer_state.found_peer_list) {
+                    user_peer_state.found_peer_list = user_peer_state.found_peer_list->next;
                 }
                 aos_free(cur);
                 break;
@@ -116,6 +149,7 @@ static void service_found(service_t *service, peer_state_t state, void *context)
 
         }
     }
+    aos_mutex_unlock(&user_peer_state.mutex);
 }
 
 static int peer_invite(session_t *session, peer_id_t *peer_id, void *context)
@@ -137,7 +171,6 @@ static void umesh_receive_func(session_t *session, peer_id_t *from, uint8_t *dat
 {
     char ip_str[64] = {0};
     get_id_to_str(from, ip_str);
-    printf("\r\n");
 
     LOG("recv data from %s ,len = %d", ip_str, len);
     LOG("str data= %s", data);
@@ -164,6 +197,11 @@ static void app_main_entry(void *arg)
 #if ENABLE_REPEAT_TEST
 start:
 #endif
+    ret = user_peer_state_init(&user_peer_state);
+    if (ret < 0) {
+        LOG("init user peer list failed");
+        return;
+    }
 
     net_handle = umesh_network_init();
     if (net_handle == NULL) {
@@ -211,13 +249,15 @@ start:
 
     do {
         uint8_t has_member = 0;
-        peer_list_t *cur = found_peer_list;
+        peer_list_t *cur;
 
         aos_msleep(5000);
         if (!umesh_is_connected(net_handle)) {
             continue;
         }
 
+        aos_mutex_lock(&user_peer_state.mutex, AOS_WAIT_FOREVER);
+        cur = user_peer_state.found_peer_list;
         while (cur != NULL) {
             char ip_str[64] = {0};
             get_id_to_str(&cur->id, ip_str);
@@ -238,24 +278,25 @@ start:
             cur = cur->next;
         }
         /*send data to all members in session*/
-        if(has_member) {
+        if (has_member) {
             char send[256] = {0};
             snprintf(send, 255, test_data_mcast, self_srv->srv_type, self_srv->srv_name);
             ret = umesh_send(session, UMESH_SEND_BROADCAST, (const uint8_t *)send, strlen(send), MODE_UNRELIABLE);
             LOG("send mcast data to session ,ret = %d", ret);
         }
-
+        aos_mutex_unlock(&user_peer_state.mutex);
 #if ENABLE_LOOP_TEST
     } while (1);
 #else
     }
     while (cnt++ < TEST_CNT);
+    cnt = 0;
 #endif
 err:
     LOG("-----------------test end--------------------");
     umesh_stop_advertise_service(self_srv);
     umesh_stop_browse_service();
-    
+
     if (session != NULL)
     {
         ret = umesh_session_deinit(session);
@@ -276,7 +317,8 @@ err:
         LOG("umesh_network_deinit,ret = %d", ret);
         net_handle = NULL;
     }
-    clean_peer_list();
+
+    user_peer_state_deinit(&user_peer_state);
 #if ENABLE_REPEAT_TEST
     LOG("test again!!");
     goto start;
