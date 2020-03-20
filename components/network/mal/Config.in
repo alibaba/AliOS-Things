@@ -16,7 +16,7 @@ endif
 
 ###################################################################
 # Component configuration items
-menu "COAP Configuration"
+menu "MAL Configuration"
 depends on AOS_COMP_MAL
 
 config MAL_CONFIG_MAX_TOPIC_LEN
