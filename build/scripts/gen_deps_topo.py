@@ -88,13 +88,18 @@ def write_comp_mandatory_depends(comp_info, comps, ftopo):
                 ftopo.append("%s->%s\n" % (comp.replace("-","_"), dep.replace("-","_")))
 
     if depends:
+        depends = list(set(depends))
         depends += write_comp_mandatory_depends(comp_info, depends, ftopo)
 
     return list(set(depends))
 
-def write_comp_optional_depends_r(comp_info, comps, ftopo):
+def write_comp_optional_depends_r(comp_info, comps, mandatory_comps, ftopo, count):
     """ Get comp optional depends recursively from comp index """
     depends = []
+    count += 1
+    if count > 128:
+        print("[Warning] There might be infinite loop, force to break!")
+
     """ comps are optional dependency list from last layer """
     for comp in comps:
         if comp in comp_info:
@@ -112,9 +117,11 @@ def write_comp_optional_depends_r(comp_info, comps, ftopo):
                     ftopo.append('aaaaaaaa %s[label="%s", shape="box"]\n' % (dep_info["comp_name"].replace("-","_"), dep_info["comp_name"]))
                     ftopo.append('%s->%s[label="%s"]\n' % (comp.replace("-","_"), dep_info["comp_name"].replace("-","_"), cond))
 
-    if depends:
-        depends += write_comp_optional_depends_r(comp_info, depends, ftopo)
-    return depends
+    if count <= 128 and depends:
+        depends = list(set(depends).difference(set(mandatory_comps)))
+        count = write_comp_optional_depends_r(comp_info, depends, mandatory_comps, ftopo, count)
+
+    return count
 
 def write_comp_optional_depends(comp_info, comps, ftopo):
     """ Get comp optional depends from comp index """
@@ -131,7 +138,9 @@ def write_comp_optional_depends(comp_info, comps, ftopo):
                     ftopo.append('%s->%s[label="%s"]\n' % (comp.replace("-","_"), dep_info["comp_name"].replace("-","_"), cond))
 
     if depends:
-        depends += write_comp_optional_depends_r(comp_info, depends, ftopo)
+        depends = list(set(depends).difference(set(comps)))
+        count_r = 0
+        count_r = write_comp_optional_depends_r(comp_info, depends, comps, ftopo, count_r)
 
 def get_include_files(appdir):
     """ get include files for app source code"""
