@@ -176,12 +176,6 @@ static void umesh_receive_func(session_t *session, peer_id_t *from, uint8_t *dat
     LOG("str data= %s", data);
 }
 
-static void get_ap_info(const char *ssid, const char *pwd, const uint8_t *bssid, void *ctxt)
-{
-    LOG("++++++++++get ssid = %s, pwd = %s++++++++++++", ssid, pwd);
-}
-
-
 static void app_main_entry(void *arg)
 {
     int ret;
@@ -212,10 +206,6 @@ start:
         LOG("----------Waiting for networking-----------");
         aos_msleep(1000);
     }
-
-    /*test zero config*/
-    umesh_zero_config_set_cb(net_handle, get_ap_info, NULL);
-    umesh_zero_config_request(net_handle);
 
     hal_wifi_get_mac_addr(NULL, mac);
     snprintf(name, SERVICE_NAME_LEN_MAX - 1, "dev_%02x:%02x:%02x", mac[3], mac[4], mac[5]);

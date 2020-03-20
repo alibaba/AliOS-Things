@@ -29,6 +29,23 @@ if AOS_APP_UMESH2_DEMO
             help
                 repeated testing
 
+    choice
+        prompt "Select Case"
+        default UMESH2_SERVICE
+        help
+            select case to build
+
+        config UMESH2_SERVICE
+            bool "local comm service"
+            help
+                default case, local communication framework example
+
+        config UMESH2_ZERO_CONFIG
+            bool "zero config"
+            help
+                wifi zero config example
+    endchoice
+
     endmenu
 
 config SYSINFO_APP_VERSION
