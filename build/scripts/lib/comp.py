@@ -105,6 +105,7 @@ def get_comp_mandatory_depends(comp_info, comps):
     for comp in comps:
         if comp in comp_info:
             depends += comp_info[comp]["dependencies"]
+            # print("add mandatory depend:", comp_info[comp]["dependencies"], "for", comp)
 
     if depends:
         depends += get_comp_mandatory_depends(comp_info, depends)
@@ -127,7 +128,7 @@ def get_comp_optional_depends_r(comp_info, comps, mandatory_comps):
                 tmp["comp_name"] = dep_info
                 tmp["condition"] = comp["condition"]
                 depends.append(tmp)
-                # print("add mandatory depend r:", tmp)
+                # print("add mandatory depend r:", tmp, "for", comp["comp_name"])
         """ get optional dependency list for this optional component """
         for dep_info in comp_info[comp["comp_name"]]["optional_dependencies"]:
             if dep_info["comp_name"] not in mandatory_comps:
@@ -136,7 +137,7 @@ def get_comp_optional_depends_r(comp_info, comps, mandatory_comps):
                 tmp["comp_name"] = dep_info["comp_name"]
                 tmp["condition"] = comp["condition"] + ["and"] + dep_info["condition"]
                 depends.append(tmp)
-                # print("add optional depend r:", tmp)
+                # print("add optional depend r:", tmp, "for", comp["comp_name"])
 
     if depends:
         depends += get_comp_optional_depends_r(comp_info, depends, mandatory_comps)
@@ -181,7 +182,7 @@ def get_comp_optional_depends(comp_info, comps):
                 """ if optional dependency(dep_info) is in mandatory components, ignore it """
                 if dep_info["comp_name"] not in comps:
                     depends.append(dep_info)
-                    # print("add depend:", dep_info)
+                    # print("add depend:", dep_info, "for", comp)
 
     merge_depends = []
     if depends:
