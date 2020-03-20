@@ -22,6 +22,26 @@ extern "C" {
 
 #define UMESH_SEND_BROADCAST NULL
 
+/* User Input: 0x0100 ~ 0x01FF */
+#define UMESH_SERVICE_ERR_BASE                       (-0x2000)
+
+#define UMESH_SRV_ERR_NULL_POINTER               (UMESH_SERVICE_ERR_BASE - 0x0001)
+#define UMESH_SRV_ERR_MALLOC_FAILED              (UMESH_SERVICE_ERR_BASE - 0x0002)
+#define UMESH_SRV_ERR_OUT_OF_BOUNDS              (UMESH_SERVICE_ERR_BASE - 0x0003)
+#define UMESH_SRV_NO_ACTION_REQUIRED             (UMESH_SERVICE_ERR_BASE - 0x0004)
+#define UMESH_SRV_ERR_NOT_INIT                   (UMESH_SERVICE_ERR_BASE - 0x0005)
+#define UMESH_SRV_ERR_MDNS                       (UMESH_SERVICE_ERR_BASE - 0x0006)
+#define UMESH_SRV_ERR_MDNS_FORMAT                (UMESH_SERVICE_ERR_BASE - 0x0007)
+#define UMESH_SRV_ERR_INIT                       (UMESH_SERVICE_ERR_BASE - 0x0008)
+#define UMESH_SRV_ERR_AUTH                       (UMESH_SERVICE_ERR_BASE - 0x0009)
+#define UMESH_SRV_ERR_AUTH_REFUSE                (UMESH_SERVICE_ERR_BASE - 0x000E)
+#define UMESH_SRV_ERR_NO_AUTH_DATA               (UMESH_SERVICE_ERR_BASE - 0x000A)
+#define UMESH_SRV_ERR_CREATE_SOCKET              (UMESH_SERVICE_ERR_BASE - 0x000B)
+#define UMESH_SRV_ERR_BIND                       (UMESH_SERVICE_ERR_BASE - 0x000C)
+#define UMESH_SRV_ERR_READ_DATA                  (UMESH_SERVICE_ERR_BASE - 0x000D)
+#define UMESH_SRV_ERR_AUTH_NO_MATCH              (UMESH_SERVICE_ERR_BASE - 0x000F)
+#define UMESH_SRV_ERR_SERVICE_INCOMPLETE         (UMESH_SERVICE_ERR_BASE - 0x0010)
+
 typedef enum {
     NETWORK_UMESH = 0,       /** < umesh LAN */
     NETWORK_ROUTER = 1,      /** < Router LAN */
