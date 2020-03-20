@@ -69,7 +69,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
             session->fd_auth = lwip_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
             if (session->fd_auth < 0) {
                 log_e("auth fd create failed,ret = %d", session->fd_auth);
-                return UMESH_ERR_CREATE_SOCKET;
+                return UMESH_SRV_ERR_CREATE_SOCKET;
             }
             fd = session->fd_auth;
         }
@@ -82,7 +82,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
             session->fd_tcp = lwip_socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
             if (session->fd_udp < 0) {
                 log_e("tcp fd create failed,ret = %d", session->fd_tcp);
-                return UMESH_ERR_CREATE_SOCKET;
+                return UMESH_SRV_ERR_CREATE_SOCKET;
             }
             fd = session->fd_tcp;
         }
@@ -95,20 +95,20 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
             session->fd_udp = lwip_socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
             if (session->fd_udp < 0) {
                 log_e("udp fd create failed,ret = %d", session->fd_tcp);
-                return UMESH_ERR_CREATE_SOCKET;
+                return UMESH_SRV_ERR_CREATE_SOCKET;
             }
             fd = session->fd_udp;
         }
         break;
     }
     if (fd < 0) {
-        return UMESH_ERR_CREATE_SOCKET;
+        return UMESH_SRV_ERR_CREATE_SOCKET;
     }
     ret = lwip_bind(fd, (const struct sockaddr *)&addr, sizeof(addr));
     if (ret < 0) {
         lwip_close(fd);
         log_e("socket(%d) bind failed", fd);
-        return UMESH_ERR_BIND;
+        return UMESH_SRV_ERR_BIND;
     }
     log_d("socket create success");
     if (cb) {
@@ -141,7 +141,7 @@ static  int umesh_send_data(session_t *session, struct in6_addr *ip6, uint16_t p
     int fd = -1;
     service_t *self = session->self;
     if (self == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
 
     ret = umesh_create_socket(session, mode,  uemsh_sock_read_func);
@@ -172,11 +172,11 @@ static int service_state_init(service_state_t **state, service_t *self, void *md
 {
     service_state_t *service_state = NULL;
     if (state == NULL || self == NULL || mdns == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     service_state = hal_malloc(sizeof(service_state_t));
     if (service_state == NULL) {
-        return UMESH_ERR_MALLOC_FAILED;
+        return UMESH_SRV_ERR_MALLOC_FAILED;
     }
     memset(service_state, 0, sizeof(service_state_t));
     service_state->mdns = mdns;
@@ -211,7 +211,7 @@ err:
 
     hal_free(service_state);
     *state = NULL;
-    return UMESH_ERR_INIT;
+    return UMESH_SRV_ERR_INIT;
 }
 
 
@@ -414,7 +414,7 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
 
     if ((required & 0x03) != 0x03) {
         log_e("service not complete");
-        ret = UMESH_ERR_SERVICE_INCOMPLETE;
+        ret = UMESH_SRV_ERR_SERVICE_INCOMPLETE;
         goto err;
     }
     hal_mutex_lock(state->lock);
@@ -591,6 +591,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
     } else {
         LOG("no data get");
     }
+    log_d("-----uemsh_sock_read_func out------");
     aos_free(buffer);
 
 }
@@ -677,7 +678,7 @@ static int umesh_service_free(service_t *service)
 {
     txt_item_t *item;
     if (service == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
 
     item = service->txt_items;
@@ -730,12 +731,12 @@ int umesh_service_add_txt(service_t *service, const char *txt)
     struct mdns_data_txt *ext_txt;
 
     if (service == NULL || txt == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
 
     ext_txt = hal_malloc(sizeof(struct mdns_data_txt));
     if (ext_txt == NULL) {
-        return UMESH_ERR_MALLOC_FAILED;
+        return UMESH_SRV_ERR_MALLOC_FAILED;
     }
     strncpy(ext_txt->txt, txt, MDNS_TXT_MAX_LEN);
 
@@ -772,11 +773,11 @@ int umesh_start_browse_service(service_t *service, umesh_service_found_cb found,
     int ret = 0;
 
     if (g_service_state == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
 
     if (g_service_state->mdns == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
 
     hal_mutex_lock(g_service_state->lock);
@@ -804,10 +805,10 @@ int umesh_stop_browse_service(void)
 int umesh_stop_advertise_service(service_t *service)
 {
     if (g_service_state == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
     if (g_service_state->mdns == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
 
     /*check type in callback_send*/
@@ -824,10 +825,10 @@ int umesh_start_advertise_service(service_t *service)
 {
     int ret = 0;
     if (g_service_state == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
     if (g_service_state->mdns == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
 
     /*check type in callback_send*/
@@ -849,7 +850,7 @@ int umesh_start_advertise_service(service_t *service)
 int umesh_register_state(session_t *session, umesh_session_state_changed_cb cb, void *user_data)
 {
     if (session == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     session->state_cb = cb;
     session->state_cb_ctx = user_data;
@@ -859,7 +860,7 @@ int umesh_register_state(session_t *session, umesh_session_state_changed_cb cb, 
 int umesh_register_inviter(session_t *session, umesh_peer_invite_cb cb, void *user_data)
 {
     if (session == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     session->invite_cb = cb;
     session->invite_cb_ctx = user_data;
@@ -869,7 +870,7 @@ int umesh_register_inviter(session_t *session, umesh_peer_invite_cb cb, void *us
 int umesh_register_receiver(session_t *session, umesh_receive_cb cb, void *user_data)
 {
     if (session == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     session->recieve_cb = cb;
     session->recieve_cb_ctx = user_data;
@@ -879,7 +880,7 @@ static int umesh_close_socket(session_t *session)
 {
 
     if (session == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
 
     session->state_cb = NULL;
@@ -971,10 +972,10 @@ int umesh_session_deinit(session_t *session)
     service_t *node, *next;
 
     if (session == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     if (g_service_state == NULL) {
-        return UMESH_ERR_NOT_INIT;
+        return UMESH_SRV_ERR_NOT_INIT;
     }
     hal_mutex_lock(g_service_state->lock);
     hal_mutex_lock(session->lock);
@@ -1025,7 +1026,7 @@ static int _pack_auth_payload(session_t *session, peer_id_t *dst, uint8_t *paylo
             int offset;
             tlv_head.flag = 1;
             if (session->auth_data == NULL) {
-                return UMESH_ERR_NO_AUTH_DATA;
+                return UMESH_SRV_ERR_NO_AUTH_DATA;
             }
             tlv_head.len = session->auth_data->real_len;
             memcpy(payload, &tlv_head, sizeof(tlv_head));
@@ -1108,10 +1109,10 @@ int umesh_session_auth_set(session_t *session, umesh_auth_mode_t mode, uint8_t *
 {
     umesh_auth_data_t *auth_data = hal_malloc(sizeof(umesh_auth_data_t));
     if (auth_data == NULL) {
-        return UMESH_ERR_MALLOC_FAILED;
+        return UMESH_SRV_ERR_MALLOC_FAILED;
     }
     if (pwd_len > AUTH_DATA_MAX_LEN) {
-        return UMESH_ERR_OUT_OF_BOUNDS;
+        return UMESH_SRV_ERR_OUT_OF_BOUNDS;
     }
     switch (mode) {
         case    MODE_AUTH_NONE :
@@ -1136,11 +1137,11 @@ int umesh_invite_peer(session_t *session, peer_id_t *dst,  int timeout)
     uint32_t msg_size = 4;
     uint8_t hello_payload[SERVICE_AUTH_PAYLOAD_MAX];
     if (session == NULL || dst == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     ret = _pack_auth_payload(session, dst, hello_payload);
     if (ret <= 0) {
-        return UMESH_ERR_AUTH;
+        return UMESH_SRV_ERR_AUTH;
     }
 
     //send data
@@ -1155,10 +1156,10 @@ int umesh_invite_peer(session_t *session, peer_id_t *dst,  int timeout)
             ret = 0;
         } else {
             log_e("get auth ack err, msg = %d ", msg);
-            ret = UMESH_ERR_AUTH_REFUSE;
+            ret = UMESH_SRV_ERR_AUTH_REFUSE;
         }
     } else {
-        ret = UMESH_ERR_AUTH;
+        ret = UMESH_SRV_ERR_AUTH;
     }
     return ret;
 }
@@ -1172,7 +1173,7 @@ int umesh_delete_peer(session_t *session, peer_id_t *dst)
     service_t *node, *next;
     peer_id_t temp_id;
     if (session == NULL || dst == NULL) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     memset(&tlv, 0, sizeof(tlv));
     tlv.id = htonl(MESH_DELETE_AUTH_ID);
@@ -1207,13 +1208,13 @@ int umesh_delete_peer(session_t *session, peer_id_t *dst)
 int umesh_send(session_t *session, peer_id_t *dest, const uint8_t *data,  uint16_t len, data_mode_t mode)
 {
     if (session == NULL || data == NULL || len <= 0) {
-        return UMESH_ERR_NULL_POINTER;
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     if (dest == NULL) {
         struct in6_addr addr;
         service_t *srv = session->self;
         if (srv == NULL) {
-            return UMESH_ERR_NULL_POINTER;
+            return UMESH_SRV_ERR_NULL_POINTER;
         }
         memset(&addr, 0, sizeof(addr));
         memcpy(addr.s6_addr, MCAST_ADDR, sizeof(MCAST_ADDR));
