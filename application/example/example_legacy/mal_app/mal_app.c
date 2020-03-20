@@ -300,7 +300,11 @@ int application_start(int argc, char *argv[])
     data.uart_dev.config.stop_bits  = STOP_BITS_1;
     data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
     data.uart_dev.config.mode = MODE_TX_RX;
-    mal_add_dev("sim800", &data);
+
+    if (mal_add_dev(NULL, &data) !=0 ) {
+        LOG("add mal device failed!");
+        return -1;
+    }
 
     mal_init();
 
