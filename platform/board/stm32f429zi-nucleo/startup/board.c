@@ -428,14 +428,37 @@ static void I2C1_init()
     }
 }
 
+#if AOS_NET_WITH_ETH
+int board_eth_init(void *paras)
+{
+    while(true) {
+        if(MX_ETH_Init() != HAL_OK) {
+            printf("Eth initialize failed! Retry later.\n");
+            aos_msleep(1000);
+        }
+        else {
+            lwip_tcpip_init();
+            break;
+        }
+    }
+    aos_task_exit(0);
+}
+#endif
 
 void board_network_init(void)
 {
 #ifndef WITH_SAL
 #if AOS_NET_WITH_ETH
     /*enable ethernet*/
-    MX_ETH_Init();
-    lwip_tcpip_init();
+    printf("Ethernet initialize...\n");
+    if(MX_ETH_Init() != HAL_OK) {
+        printf("Eth initialize failed! Retry later.\n");
+        aos_task_new("eth_init", (void (*)(void *))board_eth_init, NULL, 1024 * 8);
+    }
+    else {
+        lwip_tcpip_init();
+    }
+    
 #endif
 #endif
 
