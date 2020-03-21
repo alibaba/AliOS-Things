@@ -49,7 +49,7 @@
 ETH_HandleTypeDef heth;
 
 /* ETH init function */
-void MX_ETH_Init(void)
+HAL_StatusTypeDef MX_ETH_Init(void)
 {
    uint8_t MACAddr[6] ;
 
@@ -71,10 +71,7 @@ void MX_ETH_Init(void)
     
   /* USER CODE END MACADDRESS */
 
-  if (HAL_ETH_Init(&heth) != HAL_OK)
-  {
-    Error_Handler(__FILE__, __LINE__);
-  }
+  return (HAL_ETH_Init(&heth));
 
 }
 
