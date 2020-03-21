@@ -59,7 +59,7 @@ extern ETH_HandleTypeDef heth;
 
 extern void Error_Handler(char *, int);
 
-void MX_ETH_Init(void);
+HAL_StatusTypeDef MX_ETH_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
