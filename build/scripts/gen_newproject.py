@@ -5,7 +5,7 @@ import json
 import shutil
 import subprocess
 import io
-from lib.code import compute_header_md5sum, get_depends_from_source, copy_file, write_file, write_project_config
+from lib.code import compute_header_md5sum, get_depends_from_source, copy_file, write_file, write_project_config, check_copy_non_utf8_file
 from lib.comp import get_comp_mandatory_depends, get_comp_optional_depends, get_comp_optional_depends_text
 from lib.comp import generate_default_header_file
 from app_gen_kconfig import gen_kconfig
@@ -129,10 +129,16 @@ def write_depends_config(config_file, board, app=None):
 def copy_template_file(tempfile, templatedir, destdir, projectname, board):
     """ Copy template file to destdir and replace projectname, PROJECTNAME,
     boardname with it's actual name """
+    srcfile = os.path.join(templatedir, tempfile)
+    destfile = os.path.join(destdir, tempfile)
+    non_utf8_file = check_copy_non_utf8_file(srcfile, destfile)
+    if non_utf8_file:
+        return
+
     contents = []
 
     # Replace projectname from file contents
-    with io.open(os.path.join(templatedir, tempfile), "r", encoding="utf8") as f:
+    with io.open(srcfile, "r", encoding="utf8") as f:
         for line in f.readlines():
             if "@projectname@" in line:
                 line = line.replace("@projectname@", projectname)
@@ -191,10 +197,16 @@ config USER_APP_PATH
 
 def copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname):
     """ Copy demo app source file to destdir and replace NAME with it actual name """
+    srcfile = os.path.join(appdir, appfile)
+    destfile = os.path.join(destdir, appfile)
+    non_utf8_file = check_copy_non_utf8_file(srcfile, destfile)
+    if non_utf8_file:
+        return
+
     contents = []
     u_appname = appname.upper()
     u_projectname = projectname.upper()
-    with io.open(os.path.join(appdir, appfile), "r", encoding="utf8") as f:
+    with io.open(srcfile, "r", encoding="utf8") as f:
         for line in f.readlines():
             if "AOS_APP_%s" % u_appname in line:
                 line = line.replace(u_appname, u_projectname)
@@ -206,7 +218,6 @@ def copy_demo_app_file(appfile, appdir, destdir, projectname, board, appname):
             contents += [line]
 
     if contents:
-        destfile = os.path.join(destdir, appfile)
         write_file(contents, destfile)
 
 
