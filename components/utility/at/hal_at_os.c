@@ -123,4 +123,9 @@ int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
     return aos_task_new_ext((aos_task_t *)&task, name, fn, arg, stack_size,
                             prio);
 }
+
+void atpsr_sleep_ms(const unsigned int millisec)
+{
+    aos_msleep(millisec);
+}
 #endif

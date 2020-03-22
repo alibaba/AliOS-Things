@@ -117,6 +117,7 @@ void atpsr_sem_signal(void *sem);
 int atpsr_sem_wait(void *sem, uint32_t timeout_ms);
 int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
                        void *arg, int stack_size, int prio);
+void atpsr_sleep_ms(const unsigned int millisec);
 
 typedef struct {
    at_dev_type_t type;
