@@ -490,7 +490,7 @@ static void at_worker(void *arg)
     atpsr_debug("at_work_%d started", para->fd);
     while (dev->_inited) {
         if (dev->_worker_halt) {
-            aos_msleep(10);
+            atpsr_sleep_ms(10);
             continue;
         }
 
@@ -1147,7 +1147,7 @@ int at_send_wait_reply(int fd, const char *cmd, int cmdlen, bool delimiter,
                     atpsr_err("prompt wait timeout");
                 }
             } else {
-                aos_msleep(dev->_prompt_timeout_ms);
+                atpsr_sleep_ms(dev->_prompt_timeout_ms);
             }
         }
 
