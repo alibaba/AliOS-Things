@@ -2,7 +2,7 @@ import os
 import sys
 import click
 import re
-from lib.code import write_file
+from lib.code import write_file, check_copy_non_utf8_file
 
 if sys.version_info[0] < 3:
     from imp import reload
@@ -38,15 +38,21 @@ def get_files_and_folder(templatedir):
 
 def copy_template_file_or_folder(tempfile, templatedir, destdir, comptype, compname, mfname, author):
     """ Copy template file or empty folder to destdir and replace componentname with it's actual name """
+    srcfile = os.path.join(templatedir, tempfile)
     contents = []
 
-    if os.path.isdir(os.path.join(templatedir, tempfile)):
+    if os.path.isdir(srcfile):
         if "componentname" in tempfile:
             tempfile = tempfile.replace("componentname", compname)
         os.makedirs(os.path.join(destdir, tempfile))
         return
+
+    non_utf8_file = check_copy_non_utf8_file(srcfile, os.path.join(destdir, tempfile))
+    if non_utf8_file:
+        return
+
     # Replace componentname from file contents
-    with open(os.path.join(templatedir, tempfile), "r") as f:
+    with open(srcfile, "r") as f:
         for line in f.readlines():
             if "@componentname@" in line:
                 line = line.replace("@componentname@", compname)
