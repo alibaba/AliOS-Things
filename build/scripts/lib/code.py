@@ -2,6 +2,7 @@ import os
 import hashlib
 import re
 import shutil
+import chardet
 
 COMPONENTS_CONFIG_KEYWORD = "KEYWORD: PART2 COMPONENTS CONFIGURATION"
 
@@ -160,6 +161,17 @@ def copy_file(srcfile, destfile):
         os.makedirs(subdir)
 
     shutil.copyfile(srcfile, destfile)
+
+def check_copy_non_utf8_file(srcfile, destfile):
+    """ Copy non-utf8 srcfile to destfile, create destdir if not existed """
+    non_utf8_file = False
+    with open(srcfile, 'rb') as f:  
+        encode = chardet.detect(f.read()) 
+        if encode["encoding"] != "utf-8" and encode["encoding"] != "ascii":
+            copy_file(srcfile, destfile)
+            non_utf8_file = True
+
+    return non_utf8_file
 
 def write_file(contents, destfile):
     """ Write contents to destfile line by line """
