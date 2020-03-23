@@ -1,0 +1,54 @@
+config AOS_BOARD_AIOTKIT
+    bool "AIoTKIT"
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select AOS_COMP_NETMGR if AOS_NETWORK_SAL
+    help
+
+if AOS_BOARD_AIOTKIT
+# Configurations for board AIoTKIT
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_SPI
+    bool
+    default y
+
+config BSP_SUPPORT_RTC
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.mk3060"
+
+endif
