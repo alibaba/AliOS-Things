@@ -20,6 +20,15 @@ if AOS_BOARD_AMEBAZ_DEV
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "board/AIoTKIT/Config.in"
+if AOS_BOARD_AIOTKIT
+    config AOS_BUILD_BOARD
+        default "AIoTKIT"
+
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "board/ap80a0/Config.in"
 if AOS_BOARD_AP80A0
     config AOS_BUILD_BOARD
