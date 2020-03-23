@@ -48,6 +48,7 @@ extern void hw_start_hal(void);
 
 static void sys_init(void)
 {
+    stm32_soc_init();
     stm32_soc_peripheral_init();
 #ifdef BOOTLOADER
     main();
@@ -72,8 +73,6 @@ static void sys_init(void)
 static void sys_start(void)
 {
     aos_heap_set();
-    
-    stm32_soc_init();
     
     aos_init();
     
