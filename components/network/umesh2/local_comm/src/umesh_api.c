@@ -231,18 +231,21 @@ static int stop(void *cbarg)
                   node->last_update, node->ttl);
 
             if (node->session != NULL) {
-                hal_mutex_lock(node->session->lock);
+                session_t *session = node->session;
+                hal_mutex_lock(session->lock);
                 list_del(&node->linked_list2);
-                hal_mutex_unlock(node->session->lock);
+                node->session = NULL;
+                hal_mutex_unlock(session->lock);
                 /*session changed*/
-                if (node->session->state_cb) {
-                    node->session->state_cb(node->session, &node->id, PEER_LOST, node->session->state_cb_ctx);
+                if (session->state_cb) {
+                    session->state_cb(session, &node->id, SESSION_MEMBER_LEAVE, session->state_cb_ctx);
                 }
 
             }
             if (state->found_cb) {
                 state->found_cb(node, PEER_LOST, state->found_cb_ctx);
             }
+
             umesh_service_free(node);
         }
     }
@@ -321,6 +324,11 @@ static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, con
         return;
     }
     hal_mutex_lock(state->lock);
+    if (state->announced == 0) {
+        hal_mutex_unlock(state->lock);
+        log_w("advertising is canceled, do nothing");
+        return;
+    }
     list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
         strncpy(mdns_name, node->srv_type, SERVICE_FULL_TYPE_LEN_MAX);
         offset += strlen(node->srv_type);
@@ -467,7 +475,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
     addr.sin6_port = 0;
     addr.sin6_addr = in6addr_any;
 
-    buffer = aos_malloc(SERVICE_DATA_MAX_LEN);
+    buffer =  hal_malloc(SERVICE_DATA_MAX_LEN);
     if (!buffer) {
         return;
     }
@@ -547,7 +555,21 @@ static void  uemsh_sock_read_func(int fd, void *arg)
 
                     list_for_each_entry_safe(node, next, &g_service_state->found_service_list, linked_list, service_t) {
                         if (!memcmp(&node->id.ip6, &addr.sin6_addr, sizeof(addr.sin6_addr))) {
+                            service_t *node_ss, *next_ss;
+                            int find = 0;
                             hal_mutex_lock(session->lock);
+
+                            list_for_each_entry_safe(node_ss, next_ss, &session->peers_list, linked_list2, service_t) {
+                                if (!memcmp(&node_ss->id.ip6, &addr.sin6_addr, sizeof(addr.sin6_addr))) {
+                                    log_w("service %s already in session! ignore it", node_ss->srv_name);
+                                    find = 1;
+                                    break;
+                                }
+                            }
+                            if(find == 1) {
+                                hal_mutex_unlock(session->lock);
+                                break;
+                            }
                             list_add_tail(&node->linked_list2, &session->peers_list);
                             node->session = session;
                             hal_mutex_unlock(session->lock);
@@ -591,9 +613,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
     } else {
         LOG("no data get");
     }
-    log_d("-----uemsh_sock_read_func out------");
-    aos_free(buffer);
-
+    hal_free(buffer);
 }
 
 //////////////
@@ -657,7 +677,7 @@ err:
 static int service_state_deinit(service_state_t *state)
 {
     service_t *node, *next;
-
+    log_d("service state deinit");
     hal_mutex_lock(state->lock);
     list_for_each_entry_safe(node, next, &state->found_service_list, linked_list, service_t) {
         umesh_service_free(node);
@@ -814,7 +834,6 @@ int umesh_stop_advertise_service(service_t *service)
     /*check type in callback_send*/
     hal_mutex_lock(g_service_state->lock);
     if (g_service_state->announced) {
-        mdns_announce(g_service_state->mdns, MESH_REQUEST_TYPE, RR_PTR, NULL, g_service_state);
         g_service_state->announced = 0;
     }
     hal_mutex_unlock(g_service_state->lock);
@@ -834,8 +853,8 @@ int umesh_start_advertise_service(service_t *service)
     /*check type in callback_send*/
     hal_mutex_lock(g_service_state->lock);
     if (!g_service_state->announced) {
-        mdns_announce(g_service_state->mdns, MESH_REQUEST_TYPE, RR_PTR, callback_send, g_service_state);
         g_service_state->announced = 1;
+        mdns_announce(g_service_state->mdns, MESH_REQUEST_TYPE, RR_PTR, callback_send, g_service_state);
     }
     hal_mutex_unlock(g_service_state->lock);
 
@@ -983,6 +1002,7 @@ int umesh_session_deinit(session_t *session)
     list_for_each_entry_safe(node, next, &session->peers_list, linked_list2, service_t) {
         list_del(&node->linked_list2);
         node->session = NULL;
+        log_d("delete node...");
     }
     hal_mutex_unlock(session->lock);
     hal_mutex_unlock(g_service_state->lock);
