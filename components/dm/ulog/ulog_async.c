@@ -73,7 +73,6 @@ static void ulog_handler(void* para, void* log_text, const uint16_t log_len)
 #if ULOG_POP_CLOUD_ENABLE
             if ((FACILITY_NORMAL_LOG_NO_POP_CLOUD != (pri & 0xF8))
                 && check_pass_pop_out(ulog_session_cloud, severity)) {
-                replace_char(text_info, '"', '\'');
                 uagent_send(UAGENT_MOD_ULOG, ULOG_SHOW, strlen(text_info+1), text_info + 1, 0);
             }
 #endif
