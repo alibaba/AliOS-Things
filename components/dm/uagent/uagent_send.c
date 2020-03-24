@@ -81,8 +81,9 @@ static int delay_send(const ua_mod_t mod, const ua_func_t func,
             int msg_len = 0;
 #ifdef UAGENT_CONFIG_SUPPORT_BASE64
             size_t actual_len = 0;
+            memset(msg_pub_base64, 0, UAGENT_INFO_PAYLOAD_BASE64_SIZE);
             if(0==mbedtls_base64_encode(msg_pub_base64, UAGENT_INFO_PAYLOAD_BASE64_SIZE, &actual_len,
-                (unsigned char *)out, strlen(out)+1)&& actual_len<=UAGENT_INFO_PAYLOAD_BASE64_SIZE){
+                (unsigned char *)out, strlen(out)) && actual_len<=UAGENT_INFO_PAYLOAD_BASE64_SIZE){
                 msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, uganet_send_id++,
                    out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, msg_pub_base64);
             } else {
@@ -158,19 +159,21 @@ int uagent_send(const ua_mod_t mod, const ua_func_t func,
                             } else {
                                 msg_pub[msg_len++] = '"';
                                 empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_STR_SUFFIX)-1;
-
-#ifdef UAGENT_CONFIG_SUPPORT_BASE64
                                 size_t actual_len = 0;
+#ifdef UAGENT_CONFIG_SUPPORT_BASE64
+                                memset(msg_pub_base64, 0, UAGENT_INFO_PAYLOAD_BASE64_SIZE);
                                 if(0==mbedtls_base64_encode(msg_pub_base64, UAGENT_INFO_PAYLOAD_BASE64_SIZE, &actual_len,
                                     data, len)){
-                                    strncpy(&msg_pub[msg_len], (char *)msg_pub_base64, actual_len<empty_room_for_data?actual_len:empty_room_for_data);
+                                    strncpy(&msg_pub[msg_len], (char *)msg_pub_base64, empty_room_for_data);
                                 } else {
-                                    strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+                                    actual_len = len;
+                                    strncpy(&msg_pub[msg_len], data, empty_room_for_data);
                                 }
 #else
-                                strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+                                actual_len = len;
+                                strncpy(&msg_pub[msg_len], data, empty_room_for_data);
 #endif
-                                msg_len += (len<empty_room_for_data?len:empty_room_for_data);
+                                msg_len += (actual_len<empty_room_for_data?actual_len:empty_room_for_data);
                                 strncpy(&msg_pub[msg_len], UAGENT_FORMAT_STR_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
                                 msg_len += strlen(UAGENT_FORMAT_STR_SUFFIX);
 
