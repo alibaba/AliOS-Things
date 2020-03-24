@@ -2,6 +2,8 @@
 #define __UMESH_H__
 #include <string.h>
 #include <stdint.h>
+
+#define UMESH_RSSI_THRESHOLD                (-80)
 /* User Input: 0x0100 ~ 0x01FF */
 #define UMESH_ERR_BASE                       (-0x1000)
 
@@ -16,8 +18,6 @@
 /*peer err */
 #define UMESH_ERR_PEER_MISSING               (UMESH_ERR_BASE - 0x0101)
 #define UMESH_PEER_ADD_FAILED                (UMESH_ERR_BASE - 0x0102)
-#define UMESH_PEER_ADD_INPROGRESS            (UMESH_ERR_BASE - 0x010d)
-
 #define UMESH_RX_CRC_FAILED                  (UMESH_ERR_BASE - 0x0103)
 #define UMESH_RX_IGNORE_FROM_SELF            (UMESH_ERR_BASE - 0x0104)
 #define UMESH_RX_IGNORE_TO_OTHER             (UMESH_ERR_BASE - 0x0105)
@@ -28,8 +28,10 @@
 #define UMESH_PACK_FAILED                    (UMESH_ERR_BASE - 0x010a)
 #define UMESH_PARSE_TLV_FAILED               (UMESH_ERR_BASE - 0x010b)
 #define UMESH_LIST_FULL                      (UMESH_ERR_BASE - 0x010c)
+#define UMESH_PEER_ADD_INPROGRESS            (UMESH_ERR_BASE - 0x010d)
 #define UMESH_ERR_CHANNEL                    (UMESH_ERR_BASE - 0x010e)
 #define UMESH_ERR_SESSION_NO_MATCH           (UMESH_ERR_BASE - 0x010f)
+#define UMESH_RX_RSSI_IGNORE                 (UMESH_ERR_BASE - 0x0110)
 /*hal err */
 #define UMESH_WIFI_RAW_SEND_FAILED           (UMESH_ERR_BASE - 0x0201)
 #define UMESH_WIFI_SET_CHAN_FAILED           (UMESH_ERR_BASE - 0x0202)
@@ -43,6 +45,7 @@
 
 #define UMESH_ERR_IPSTACK_INIT               (UMESH_ERR_BASE - 0x0401)
 #define UMESH_ERR_IP_ADDR                    (UMESH_ERR_BASE - 0x0402)
+
 
 typedef enum {
     WIFI_CONFIG_FAILED = -1,
