@@ -25,7 +25,7 @@
 #endif
 #define UAGENT_INFO_PAYLOAD_BASE64_SIZE 1000
 
-#define UAGENT_INFO_NEAR_FULL           800
+#define UAGENT_INFO_NEAR_FULL           600
 #define UAGENT_ROUTINE_TASK_STACK_DEPTH 4096
 
 #define UAGENT_INITED     (char)1
