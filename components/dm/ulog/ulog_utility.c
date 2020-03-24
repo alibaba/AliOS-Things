@@ -36,18 +36,6 @@ void log_release_mutex()
     aos_mutex_unlock(&log_mutex);
 }
 
-char* replace_char(char *str, char find, char replace)
-{
-    if (NULL != str) {
-        char *current_pos = strchr(str, find);
-        while (NULL != current_pos) {
-            *current_pos = replace;
-            current_pos = strchr(current_pos, find);
-        }
-    }
-    return str;
-}
-
 /* result like 99.356 ,i.e. s.ms */
 /* Result is like "Nov 28 15:19:20.122" */
 char *ulog_format_time(char *buffer, const int len)
