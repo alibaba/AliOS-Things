@@ -44,8 +44,6 @@ void update_net_cli(const char cmd, const char* param);
 
 void fs_control_cli(const char cmd, const char* param);
 
-char* replace_char(char *str, char find, char replace);
-
 void on_update_syslog_watcher_addr(const uint32_t ip_nl, const uint32_t port);
 void on_tcpip_service_on(const uint32_t on, const uint32_t off);
 void on_fs_record_pause(const uint32_t on, const uint32_t off);
