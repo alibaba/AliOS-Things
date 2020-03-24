@@ -8,9 +8,16 @@
 #include "aos/kernel.h"
 #include "aos/errno.h"
 #include "k_config.h"
+#include "uagent_config.h"
+#define UAGENT_CONFIG_SUPPORT_BASE64 1
 static int pub_info(const unsigned short len, void *str, const bool trans_guarantee);
 
 static char           msg_pub[UAGENT_INFO_PAYLOAD_SIZE];
+#ifdef UAGENT_CONFIG_SUPPORT_BASE64
+#include "mbedtls/base64.h"
+static unsigned char  msg_pub_base64[UAGENT_INFO_PAYLOAD_BASE64_SIZE];
+#endif
+
 static char          *msg_delay_pub = NULL;
 static unsigned short msg_delay_pub_len = 0;
 static unsigned long  out_msg_index = 0;
@@ -71,11 +78,25 @@ static int delay_send(const ua_mod_t mod, const ua_func_t func,
             stop_monitor_delay_out();
         }
         if (uagent_get_mutex()) {
-        int msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, uganet_send_id++, 
-            out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, out);
-        if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
-            UAGENT_DEBUG("[uA]upload payload %s", msg_pub);
-            rc = pub_info(msg_len, msg_pub, (policy&send_policy_trans_guarantee) ? 1 : 0);
+            int msg_len = 0;
+#ifdef UAGENT_CONFIG_SUPPORT_BASE64
+            size_t actual_len = 0;
+            if(0==mbedtls_base64_encode(msg_pub_base64, UAGENT_INFO_PAYLOAD_BASE64_SIZE, &actual_len,
+                (unsigned char *)out, strlen(out)+1)&& actual_len<=UAGENT_INFO_PAYLOAD_BASE64_SIZE){
+                msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, uganet_send_id++,
+                   out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, msg_pub_base64);
+            } else {
+                msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, uganet_send_id++,
+                    out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, out);
+            }
+#else
+            msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_INFO_STR, uganet_send_id++,
+                out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func, out);
+#endif
+
+            if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
+                UAGENT_DEBUG("[uA]upload payload %s", msg_pub);
+                rc = pub_info(msg_len, msg_pub, (policy&send_policy_trans_guarantee) ? 1 : 0);
             } else {
                 UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
             }
@@ -118,7 +139,7 @@ int uagent_send(const ua_mod_t mod, const ua_func_t func,
                         rc = delay_send(mod, func, len, data, policy);
 
                     }else{
-                        short msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_FORMAT_PRE, uganet_send_id++, 
+                        short msg_len = snprintf(msg_pub, sizeof(msg_pub), UAGENT_FORMAT_PRE, uganet_send_id++,
                                                out_msg_index++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func);
 
                         if(msg_len>0){
@@ -129,21 +150,39 @@ int uagent_send(const ua_mod_t mod, const ua_func_t func,
                                 msg_len += (len<empty_room_for_data?len:empty_room_for_data);
                                 strncpy(&msg_pub[msg_len], UAGENT_FORMAT_OBJ_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
                                 msg_len += strlen(UAGENT_FORMAT_OBJ_SUFFIX);
+                                if (msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
+                                    rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
+                                } else {
+                                    UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
+                                }
                             } else {
                                 msg_pub[msg_len++] = '"';
                                 empty_room_for_data = UAGENT_INFO_PAYLOAD_SIZE-msg_len-strlen(UAGENT_FORMAT_STR_SUFFIX)-1;
+
+#ifdef UAGENT_CONFIG_SUPPORT_BASE64
+                                size_t actual_len = 0;
+                                if(0==mbedtls_base64_encode(msg_pub_base64, UAGENT_INFO_PAYLOAD_BASE64_SIZE, &actual_len,
+                                    data, len)){
+                                    strncpy(&msg_pub[msg_len], (char *)msg_pub_base64, actual_len<empty_room_for_data?actual_len:empty_room_for_data);
+                                } else {
+                                    strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+                                }
+#else
                                 strncpy(&msg_pub[msg_len], data, len<empty_room_for_data?len:empty_room_for_data);
+#endif
                                 msg_len += (len<empty_room_for_data?len:empty_room_for_data);
                                 strncpy(&msg_pub[msg_len], UAGENT_FORMAT_STR_SUFFIX, UAGENT_INFO_PAYLOAD_SIZE-msg_len-1);
                                 msg_len += strlen(UAGENT_FORMAT_STR_SUFFIX);
+
+                                if (msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
+                                    rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
+                                } else {
+                                    UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
+                                }
                             }
                         }
 
-                        if (msg_len > 0 && msg_len < UAGENT_INFO_PAYLOAD_SIZE) {
-                            rc = pub_info(msg_len, msg_pub, POLICY_SET(policy,send_policy_trans_guarantee));
-                        } else {
-                            UAGENT_ERR("[uA]miss pub as payload over flow %d\n", msg_len);
-                        }
+
                     }
 
                     uagent_release_mutex();
@@ -168,7 +207,7 @@ int uagent_ack(const service_agent_rlt_t rlt, const unsigned long id,
             uganet_send_id++, uagent_service_attr.dn, uagent_service_attr.to_console, mod, func,
                 SERVICE_AGENT_OK, id);
         } else {
-            msg_len = snprintf(msg_pub_ack, sizeof(msg_pub_ack), UAGENT_INFO_ACK_FAIL, uganet_send_id++, 
+            msg_len = snprintf(msg_pub_ack, sizeof(msg_pub_ack), UAGENT_INFO_ACK_FAIL, uganet_send_id++,
             uagent_service_attr.dn, uagent_service_attr.to_console, mod, func,
                 SERVICE_AGENT_FAIL,
                 (NULL == data) ? "unknown reason" : (char*)data, id);
