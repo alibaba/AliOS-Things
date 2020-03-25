@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "define.h"
 #include "osal.h"
 #include "network/network.h"
@@ -253,12 +254,10 @@ static int stop(void *cbarg)
     return (int)state->stop;
 }
 
-static int send_mdns(void *handle, const char *srv_name, const char *domain, struct mdns_data_txt *txt, int port,
+static int send_mdns(void *handle, const char *srv_name, const char *domain, struct mdns_data_txt *txt,
+                     struct in6_addr *addr, int port,
                      uint16_t ttl)
 {
-    struct in6_addr addr;
-    uint8_t selfmac[6] = {0};
-
     struct mdns_ctx *ctx = (struct mdns_ctx *) handle;
     struct mdns_hdr hdr = {0};
     struct mdns_entry answers[4] = {{0}}; // A/AAAA, SRV, TXT, PTR
@@ -266,14 +265,12 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
     hdr.flags |= FLAG_AA;
     hdr.num_ans_rr = sizeof(answers) / sizeof(answers[0]);
     hdr.num_qn = 0;
+    char *only_type = (char *)strstr(srv_name, ".");
 
-    if (handle == NULL || srv_name == NULL || domain == NULL) {
+    if (handle == NULL || srv_name == NULL || domain == NULL || addr == NULL || only_type == NULL) {
         return -1;
     }
-    umesh_wifi_get_mac(selfmac);
-
-    umesh_get_ipv6(selfmac, addr.s6_addr);
-
+    only_type += 1; /*skip '.'*/
     for (int i = 0; i < hdr.num_ans_rr; i++) {
 
         answers[i].class = RR_IN;
@@ -285,8 +282,8 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
     }
 
     answers[0].type     = RR_PTR;
-    answers[0].name     = (char *)srv_name;
-    answers[0].data.PTR.domain = (char *)domain;
+    answers[0].name     = only_type;
+    answers[0].data.PTR.domain = (char *)srv_name;
 
     answers[1].type     = RR_TXT;
     answers[1].name     = (char *)srv_name;
@@ -299,11 +296,11 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
     answers[2].data.SRV.weight = 0;
     answers[2].data.SRV.target = (char *)domain;
 
-    answers[3].name     = (char *)srv_name;
+    answers[3].name     = (char *)domain;
 
     answers[3].type     = RR_AAAA;
-    memcpy(&answers[3].data.AAAA.addr, &addr,
-           sizeof(addr));
+    memcpy(&answers[3].data.AAAA.addr, addr,
+           sizeof(struct in6_addr));
 
     return mdns_send(ctx, &hdr, answers);
 
@@ -311,7 +308,6 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
 
 static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, const struct mdns_entry *entry)
 {
-    int offset = 0;
     service_t *node, *next;
     char mdns_name[SERVICE_FULL_TYPE_LEN_MAX] = {0};
     service_state_t *state = (service_state_t *)cbarg;
@@ -330,17 +326,33 @@ static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, con
         return;
     }
     list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
-        strncpy(mdns_name, node->srv_type, SERVICE_FULL_TYPE_LEN_MAX);
-        offset += strlen(node->srv_type);
-        strncpy(mdns_name + offset, SERVICE_TYPE_SUFFIX, SERVICE_FULL_TYPE_LEN_MAX - offset);
-        send_mdns(state->mdns, mdns_name, node->srv_name, (struct mdns_data_txt *)node->txt_items,
-                  node->id.port, node->ttl);
+        char domain[32] = {0};
+        snprintf(domain, 31, "umesh2_%02x:%02x:%02x", node->id.ip6.s6_addr[13], node->id.ip6.s6_addr[14],
+                 node->id.ip6.s6_addr[15]);
+        snprintf(mdns_name, SERVICE_FULL_TYPE_LEN_MAX, "%s.%s.%s", node->srv_name, node->srv_type, SERVICE_TYPE_SUFFIX);
+
+        send_mdns(state->mdns, mdns_name, domain, (struct mdns_data_txt *)node->txt_items,
+                  &node->id.ip6, node->id.port, node->ttl);
     }
     hal_mutex_unlock(state->lock);
 
 }
 
-
+static int get_char_num(const char *str, char a)
+{
+    int num = 0;
+    if (str == NULL) {
+        return 0;
+    }
+    char *p = (char *)str;
+    while (*p != 0) {
+        if (*p == a) {
+            num ++;
+        }
+        p++;
+    }
+    return num;
+}
 static void callback_recv(void *p_cookie, int status, const struct mdns_entry *entries)
 {
     int ret = 0;
@@ -374,9 +386,11 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
             case RR_A:
                 break;
             case RR_PTR:
-                if (entry->data.PTR.domain != NULL) {
-                    strncpy(service->srv_name, entry->data.PTR.domain, SERVICE_NAME_LEN_MAX);
-                }
+                /*
+                                if (entry->data.PTR.domain != NULL) {
+                                    strncpy(service->srv_name, entry->data.PTR.domain, SERVICE_NAME_LEN_MAX);
+                                }
+                */
                 break;
             case RR_TXT: {
                 txt_item_t *txt_next = entry->data.TXT;
@@ -399,13 +413,32 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
                 memcpy(&service->id.ip6, entry->data.AAAA.addr.s6_addr, sizeof(service->id.ip6));
                 break;
             case RR_SRV: {
-
-                char *type = (char *)strtok(entry->name, ".");
-                if (type == NULL || strlen(type) == 0) {
+                char *name = NULL;
+                char *type = NULL;
+                int num = get_char_num(entry->name, '.');
+                if (num == 2) {
+                    name = UMESH_SRV_DEFAULT_NANE;
+                    char *type = (char *)strtok(entry->name, ".");
+                    if (type == NULL || strlen(type) == 0) {
+                        break;
+                    }
+                } else if (num == 3) {
+                    name = (char *)strtok(entry->name, ".");
+                    type = (char *)strtok(NULL, ".");
+                    if (name == NULL || strlen(name) == 0) {
+                        break;
+                    }
+                    if (type == NULL || strlen(type) == 0) {
+                        break;
+                    }
+                } else {
+                    log_w("mdns srv: unknow format!");
                     break;
                 }
+
                 required |= 0x02;
 
+                strncpy(service->srv_name, name, SERVICE_NAME_LEN_MAX);
                 strncpy(service->srv_type, type, SERVICE_TYPE_LEN_MAX);
                 service->ttl = entry->ttl;
                 log_d(" srv type = %s,TTL = %d", type, service->ttl);
@@ -566,7 +599,7 @@ static void  uemsh_sock_read_func(int fd, void *arg)
                                     break;
                                 }
                             }
-                            if(find == 1) {
+                            if (find == 1) {
                                 hal_mutex_unlock(session->lock);
                                 break;
                             }
@@ -623,6 +656,7 @@ service_t *umesh_service_init(net_interface_t interface, const char *srv_name, c
 {
     service_t *self_srv = NULL;
     struct mdns_ctx *mdns_ctx = NULL;
+    uint8_t selfmac[6];
     int ret = 0;
     //service_state_t *service_state = NULL;
 
@@ -637,6 +671,9 @@ service_t *umesh_service_init(net_interface_t interface, const char *srv_name, c
     strncpy(self_srv->srv_name, srv_name, SERVICE_NAME_LEN_MAX);
     self_srv->ttl = SERVICE_TTL;
     self_srv->id.port = port;
+
+    umesh_wifi_get_mac(selfmac);
+    umesh_get_ipv6(selfmac, self_srv->id.ip6.s6_addr);
 
     if (g_service_state != NULL) {
         if (g_service_state->mdns != NULL) {
