@@ -28,7 +28,7 @@ void hal_free(void *ptr);
 void hal_srand(uint32_t seed);
 uint32_t hal_rand();
 uint64_t hal_now_ms();
-
+void hal_msleep(uint32_t ms);
 void *hal_queue_new(void *buf, uint32_t size, int max_msg);
 void hal_queue_free(void *queue);
 int hal_queue_send(void *queue, void *msg, uint32_t size);
