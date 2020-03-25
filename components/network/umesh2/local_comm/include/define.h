@@ -21,14 +21,15 @@ extern "C" {
 #define SERVICE_TIMEOUT_CNT  2
 #define SERVICE_PORT         8771
 
-#define SERVICE_FULL_TYPE_LEN_MAX   (SERVICE_TYPE_LEN_MAX + 11)
-#define SERVICE_TYPE_SUFFIX        "._udp.local"
+#define SERVICE_FULL_TYPE_LEN_MAX   (SERVICE_NAME_LEN_MAX + SERVICE_TYPE_LEN_MAX + 11 +3)
+#define SERVICE_TYPE_SUFFIX        "_udp.local"
 #define SERVICE_TASK_STACK_SIZE    4098
 #define SERVICE_AUTH_PAYLOAD_MAX   256
 #define SERVICE_MAX_FOUND_NUM      36
 #define SERVICE_DATA_MAX_LEN       1024
 #define SERVICE_QUEUE_MSG_MAX_NUM  4
 #define SERVICE_QUEUE_MSG_SIZE     8
+#define UMESH_SRV_DEFAULT_NANE     "NO_NAME"
 
 /** @} */
 #ifdef __cplusplus
