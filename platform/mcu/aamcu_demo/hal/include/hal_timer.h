@@ -15,6 +15,13 @@
 #include <stdbool.h>
 #include "board.h"
 
+typedef struct{
+    uint8_t   port;
+    uint32_t  hal_timer;
+} TIMER_MAPPING;
+
+extern TIMER_MAPPING TIMER_MAPPING_TABLE[];
+
 #ifdef __cplusplus
 }
 #endif

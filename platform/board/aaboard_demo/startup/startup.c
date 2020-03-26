@@ -1,17 +1,16 @@
 /*
- * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <aos/kernel.h>
 #include "aos/init.h"
 #include "board.h"
 #include <k_api.h>
 
 extern void board_basic_init(void);
 extern void aos_maintask(void* arg);
-
 /*
 main task stask size(cpu_stack_t)
 */
@@ -27,7 +26,11 @@ static ktask_t *g_main_task;
 
 int main(void)
 {
-    /* board basic init: CLK, heap, define in board\aaboard_demo\startup\board.c */
+    /*irq initialized is approved here.But irq triggering is forbidden, which will enter CPU scheduling.
+    Put them in sys_init which will be called after aos_start.
+    Irq for task schedule should be enabled here, such as PendSV for cortex-M4.
+    */
+    /* board basic init: Base CLK, heap, define in board\aaboard_demo\startup\board.c */
     board_basic_init();
 
     /* kernel init, malloc can use after this! */
@@ -43,4 +46,3 @@ int main(void)
     /* never run here */
     return 0;
 }
-
