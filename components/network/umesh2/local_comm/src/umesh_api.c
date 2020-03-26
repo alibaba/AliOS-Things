@@ -727,7 +727,9 @@ static int service_state_deinit(service_state_t *state)
     hal_mutex_unlock(state->lock);
 
     hal_semaphore_free(state->leave_semp);
+    state->leave_semp = NULL;
     hal_mutex_free(state->lock);
+    state->lock = NULL;
     hal_free(state);
     return 0;
 }
