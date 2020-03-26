@@ -16,10 +16,10 @@ extern "C" {
 
 #define hal_printf          printf
 
-#define SERVICE_QUERY_DURATION 5
-#define SERVICE_TTL          60
-#define SERVICE_TIMEOUT_CNT  2
-#define SERVICE_PORT         8771
+#define SERVICE_QUERY_DURATION 6
+#define SERVICE_TTL            60
+#define SERVICE_TIMEOUT_CNT    2
+#define SERVICE_PORT           8771
 
 #define SERVICE_FULL_TYPE_LEN_MAX   (SERVICE_NAME_LEN_MAX + SERVICE_TYPE_LEN_MAX + 11 +3)
 #define SERVICE_TYPE_SUFFIX        "_udp.local"
