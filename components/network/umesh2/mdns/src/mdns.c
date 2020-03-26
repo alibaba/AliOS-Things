@@ -241,13 +241,15 @@ int mdns_send(const struct mdns_ctx *ctx, const struct mdns_hdr *hdr, const stru
     for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
         r = lwip_sendto(ctx->conns[i].sock, (const char *) buf, n, 0,
                         (const struct sockaddr *) &ctx->addr, ss_len(&ctx->addr));
-        hal_free(buf);
+
         // r = sendto(ctx->conns[i].sock, (const char *) buf, n, 0,
         //        (const struct sockaddr *) &ctx->addr, ss_len(&ctx->addr));
         if (r < 0) {
+            hal_free(buf);
             return (MDNS_NETERR);
         }
     }
+    hal_free(buf);
     return (0);
 }
 
@@ -396,16 +398,8 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
             mdns_entries_free(entries);
             continue;
         }
-        if (ahdr.num_qn > 0) {
-            for (svc = ctx->services; svc; svc = svc->next) {
-                if (!strrcmp(entries->name, svc->name) && entries->type == svc->type) {
-                    svc->announce_callback(svc->p_cookie, r, &ctx->conns[i].mdns_ip, entries);
-                    continue;
-                }
-            }
-        }
-        if (ahdr.num_ans_rr + ahdr.num_add_rr == 0) {
 
+        if (ahdr.num_ans_rr + ahdr.num_add_rr == 0) {
             mdns_entries_free(entries);
             continue;
         }
@@ -465,44 +459,29 @@ int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
     }
     int r;
     uint64_t t1, t2;
-    struct mdns_hdr hdr = {0};
-    struct mdns_entry *qns = hal_malloc(nb_names * sizeof(struct mdns_entry));
-    if (qns == NULL) {
-        return (MDNS_ERROR);
-    }
-    memset(qns, 0, nb_names * sizeof(struct mdns_entry));
 
-    hdr.num_qn = nb_names;
-    for (unsigned int i = 0; i < nb_names; ++i) {
-        qns[i].name     = (char *)names[i];
-        qns[i].type     = type;
-        qns[i].class = RR_IN;
-        if (i + 1 < nb_names) {
-            qns[i].next = &qns[i + 1];
-        }
-    }
+    struct mdns_svc *svc = NULL;
 
     for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
         if (setsockopt(ctx->conns[i].sock, SOL_SOCKET, SO_SNDTIMEO, (const void *) &os_deadline, sizeof(os_deadline)) < 0) {
-            hal_free(qns);
             log_e("setsockopt err");
             return (MDNS_NETERR);
         }
     }
 
-    if ((r = mdns_send(ctx, &hdr, qns)) < 0) { // send a first probe request
-        callback(p_cookie, r, NULL);
+    for (svc = ctx->services; svc; svc = svc->next) {
+        svc->announce_callback(svc->name, svc->p_cookie);
     }
     for (t1 = t2 = hal_now_ms(); stop(p_cookie) == false; t2 = hal_now_ms()) {
         if (t2 - t1 >= interval * 1000) {
-            if ((r = mdns_send(ctx, &hdr, qns)) < 0) {
-                callback(p_cookie, r, NULL);
+            log_d("send self srv");
+            for (svc = ctx->services; svc; svc = svc->next) {
+                svc->announce_callback(svc->name, svc->p_cookie);
             }
             t1 = t2;
         }
         mdns_listen_probe_network(ctx, names, nb_names, match_type, callback, p_cookie);
     }
 
-    hal_free(qns);
     return (0);
 }
