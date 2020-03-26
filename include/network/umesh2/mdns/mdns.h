@@ -58,7 +58,7 @@ struct mdns_ip {
 };
 
 typedef void (*mdns_listen_callback)(void *, int, const struct mdns_entry *);
-typedef void (*mdns_announce_callback)(void *, int, const struct mdns_ip *, const struct mdns_entry *);
+typedef void (*mdns_announce_callback)(const char *name, void *context);
 
 typedef int (*mdns_stop_func)(void *);
 
