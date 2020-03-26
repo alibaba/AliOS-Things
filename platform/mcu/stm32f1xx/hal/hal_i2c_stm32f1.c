@@ -21,10 +21,10 @@ typedef struct {
 
 static stm32_i2c_t stm32_i2c[PORT_I2C_SIZE];
 
-static i2c_mapping_t* get_i2c_mapping(const PORT_I2C_TYPE port)
+static I2C_MAPPING* get_i2c_mapping(const PORT_I2C_TYPE port)
 {
     int8_t i = 0;
-    i2c_mapping_t* rc = NULL;
+    I2C_MAPPING* rc = NULL;
     for (i = 0; i < PORT_I2C_SIZE; i++)
     {
         if (i2c_mapping[i].i2c_func_p == port) {
@@ -54,7 +54,7 @@ uint32_t hal_i2c_pins_map(uint8_t logic_i2c)
     int i;
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    i2c_mapping_t* i2cIns = get_i2c_mapping(logic_i2c);
+    I2C_MAPPING* i2cIns = get_i2c_mapping(logic_i2c);
     if(i2cIns==NULL)
     {
         return -1;
@@ -87,7 +87,7 @@ uint32_t hal_i2c_pins_unmap(uint8_t logic_i2c)
     int i;
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    i2c_mapping_t* i2cIns = get_i2c_mapping(logic_i2c);
+    I2C_MAPPING* i2cIns = get_i2c_mapping(logic_i2c);
     if(i2cIns==NULL)
     {
         return -1;
@@ -110,7 +110,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 {
     int32_t rc = -1;
     if (NULL != i2c) {
-        i2c_mapping_t* mapping = get_i2c_mapping(i2c->port);
+        I2C_MAPPING* mapping = get_i2c_mapping(i2c->port);
 
         if (mapping != NULL) {
             memset(&stm32_i2c[i2c->port], 0, sizeof(stm32_i2c_t));
@@ -257,7 +257,7 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
 {
     int32_t rc = -1;
     if (NULL != i2c) {
-        i2c_mapping_t* mapping = get_i2c_mapping(i2c->port);
+        I2C_MAPPING* mapping = get_i2c_mapping(i2c->port);
 
         if (mapping != NULL) {
             I2C_HandleTypeDef *psti2chandle = &stm32_i2c[i2c->port].hal_i2c_handle;

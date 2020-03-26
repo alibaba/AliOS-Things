@@ -30,11 +30,11 @@ typedef enum{
 
 
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
-#define AOS_MAIN_TASK_STACK_SIZE (7.5*1024)
+#define AOS_MAIN_TASK_STACK_SIZE (7.5*1024/4)
 #elif defined(ESP8266_CHIPSET)
-#define AOS_MAIN_TASK_STACK_SIZE (2*1024)
+#define AOS_MAIN_TASK_STACK_SIZE (2*1024/4)
 #else
-#define AOS_MAIN_TASK_STACK_SIZE (6*1024)
+#define AOS_MAIN_TASK_STACK_SIZE (6*1024/4)
 #endif
 
 /*
