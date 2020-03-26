@@ -10,8 +10,6 @@
 #define MESH_AUTH_PORT    8791
 #define MDNS_PORT         5353
 
-#define MESH_REQUEST_TYPE  "_mesh2_request._udp.local"
-
 #define MESH_ASK_AUTH_ID       0xfefe0000
 #define MESH_RSP_AUTH_ID       0xfefe0001
 #define MESH_DELETE_AUTH_ID    0xfefe0002
@@ -306,19 +304,16 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
 
 }
 
-static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, const struct mdns_entry *entry)
+static void umesh_mdns_announce(const char *name, void *context)
+
 {
     service_t *node, *next;
     char mdns_name[SERVICE_FULL_TYPE_LEN_MAX] = {0};
-    service_state_t *state = (service_state_t *)cbarg;
+    service_state_t *state = (service_state_t *)context;
     if (state == NULL) {
         return;
     }
 
-    if (entry->type != RR_PTR) {
-        log_e("Unsupported request type: %d\n", entry->type);
-        return;
-    }
     hal_mutex_lock(state->lock);
     if (state->announced == 0) {
         hal_mutex_unlock(state->lock);
@@ -326,13 +321,15 @@ static void callback_send(void *cbarg, int r, const struct mdns_ip *mdns_ip, con
         return;
     }
     list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
-        char domain[32] = {0};
-        snprintf(domain, 31, "umesh2_%02x:%02x:%02x", node->id.ip6.s6_addr[13], node->id.ip6.s6_addr[14],
-                 node->id.ip6.s6_addr[15]);
-        snprintf(mdns_name, SERVICE_FULL_TYPE_LEN_MAX, "%s.%s.%s", node->srv_name, node->srv_type, SERVICE_TYPE_SUFFIX);
+        if (strcmp(name, node->srv_type) == 0) {
+            char domain[32] = {0};
+            snprintf(domain, 31, "umesh2_%02x:%02x:%02x", node->id.ip6.s6_addr[13], node->id.ip6.s6_addr[14],
+                     node->id.ip6.s6_addr[15]);
+            snprintf(mdns_name, SERVICE_FULL_TYPE_LEN_MAX, "%s.%s.%s", node->srv_name, node->srv_type, SERVICE_TYPE_SUFFIX);
 
-        send_mdns(state->mdns, mdns_name, domain, (struct mdns_data_txt *)node->txt_items,
-                  &node->id.ip6, node->id.port, node->ttl);
+            send_mdns(state->mdns, mdns_name, domain, (struct mdns_data_txt *)node->txt_items,
+                      &node->id.ip6, node->id.port, node->ttl);
+        }
     }
     hal_mutex_unlock(state->lock);
 
@@ -807,8 +804,6 @@ int umesh_service_add_txt(service_t *service, const char *txt)
 static void mdns_main_task(void *para)
 {
     int ret = 0;
-    const char *default_name = MESH_REQUEST_TYPE;
-    const char **names = &default_name;
 
     service_state_t *state = (service_state_t *) para;
     if (state == NULL) {
@@ -816,7 +811,7 @@ static void mdns_main_task(void *para)
     }
 
     log_d("mdns task start !");
-    ret = mdns_start(state->mdns, names, 1, RR_PTR,
+    ret = mdns_start(state->mdns, NULL, 0, RR_PTR,
                      SERVICE_QUERY_DURATION, MDNS_MATCH_ALL,
                      stop, callback_recv, para);
     if (ret < 0) {
@@ -870,7 +865,7 @@ int umesh_stop_advertise_service(service_t *service)
         return UMESH_SRV_ERR_NOT_INIT;
     }
 
-    /*check type in callback_send*/
+    /*check type in umesh_mdns_announce*/
     hal_mutex_lock(g_service_state->lock);
     if (g_service_state->announced) {
         g_service_state->announced = 0;
@@ -889,12 +884,12 @@ int umesh_start_advertise_service(service_t *service)
         return UMESH_SRV_ERR_NOT_INIT;
     }
 
-    /*check type in callback_send*/
+    /*check type in umesh_mdns_announce*/
     hal_mutex_lock(g_service_state->lock);
     if (!g_service_state->announced) {
         g_service_state->announced = 1;
-        mdns_announce(g_service_state->mdns, MESH_REQUEST_TYPE, RR_PTR, callback_send, g_service_state);
     }
+    mdns_announce(g_service_state->mdns, service->srv_type, RR_PTR, umesh_mdns_announce, g_service_state);
     hal_mutex_unlock(g_service_state->lock);
 
     if (g_service_state->stop) {
