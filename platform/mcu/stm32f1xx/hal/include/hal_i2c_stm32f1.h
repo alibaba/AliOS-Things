@@ -24,9 +24,9 @@ typedef struct {
 
     uint16_t needmap;
     uint16_t gpiomaps[2];
-}i2c_mapping_t;
+}I2C_MAPPING;
 
-extern i2c_mapping_t i2c_mapping[PORT_I2C_SIZE];
+extern I2C_MAPPING i2c_mapping[PORT_I2C_SIZE];
 
 #ifdef __cplusplus
 }

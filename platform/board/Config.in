@@ -3,6 +3,15 @@ choice
     prompt "Board Selection"
 
 
+source "platform/board/aaboard_demo/Config.in"
+if AOS_BOARD_AABOARD_DEMO
+    config AOS_BUILD_BOARD
+        default "aaboard_demo"
+
+    source "platform/mcu/aamcu_demo/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "platform/board/stm32f103rb-nucleo/Config.in"
 if AOS_BOARD_STM32F103RB_NUCLEO
     config AOS_BUILD_BOARD
@@ -63,15 +72,6 @@ if AOS_BOARD_XMC4800_RELAX
         default "xmc4800-relax"
 
     source "platform/mcu/xmc/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "platform/board/board_legacy/aaboard_demo/Config.in"
-if AOS_BOARD_AABOARD_DEMO
-    config AOS_BUILD_BOARD
-        default "aaboard_demo"
-
-    source "platform/mcu/aamcu_demo/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
