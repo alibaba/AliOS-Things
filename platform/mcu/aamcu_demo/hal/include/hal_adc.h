@@ -15,6 +15,20 @@
 #include <stdbool.h>
 #include "board.h"
 
+typedef struct {
+    uint32_t channel;
+    uint8_t  pin;
+} gpio_adc_pin_config_t;
+
+typedef struct {
+    uint8_t                port;
+    uint32_t               hal_adc;
+    gpio_adc_pin_config_t *channel_conf;
+    uint8_t                channel_cnt;
+} ADC_MAPPING;
+
+extern ADC_MAPPING ADC_MAPPING_TABLE[];
+
 #ifdef __cplusplus
 }
 #endif

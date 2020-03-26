@@ -11,11 +11,18 @@
 
 extern void aos_maintask(void* arg);
 /*
-main task stask size(byte)
+main task stask size(cpu_stack_t)
 */
 #ifndef AOS_MAIN_TASK_STACK_SIZE
-#define AOS_MAIN_TASK_STACK_SIZE (1536 * 4)
+#define AOS_MAIN_TASK_STACK_SIZE (6*1024/4)
 #endif
+
+/*
+main task pri
+*/
+#define AOS_MAIN_TASK_PRI 32
+
+static ktask_t *g_main_task;
 
 /*
 aos_init\aos_start has been called in boot.
@@ -27,7 +34,8 @@ int user_init(void)
     //board_wifi_init();
 
     /* main task to run */
-    aos_task_new("main_task", aos_maintask, NULL ,AOS_MAIN_TASK_STACK_SIZE);
+    krhino_task_dyn_create(&g_main_task, "main_task", 0, AOS_MAIN_TASK_PRI, 0,
+                            AOS_MAIN_TASK_STACK_SIZE, (task_entry_t)aos_maintask, 1);
 
     return 0;
 }
