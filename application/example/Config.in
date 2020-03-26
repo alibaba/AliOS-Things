@@ -47,6 +47,12 @@ if AOS_APP_BLINK_DEMO
         default "blink_demo"
 endif
 
+source "application/example/yloop_demo/Config.in"
+if AOS_APP_YLOOP_DEMO
+    config AOS_BUILD_APP
+        default "yloop_demo"
+endif
+
 source "application/example/mqtt_demo/Config.in"
 if AOS_APP_MQTT_DEMO
     config AOS_BUILD_APP
