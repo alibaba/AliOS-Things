@@ -3,31 +3,36 @@
 ## Contents
 
 ```sh
-blink_demo
-├── blink_demo.c    # blink source code
-├── maintask.c      # main task source code
-├── Config.in       # kconfig file
-├── aos.mk          # aos build system file
-└── k_app_config.h  # aos app config file
+yloop
+├── yloop_demo.c         # blink source code
+├── maintask.c           # main task source code
+├── Config.in            # kconfig file
+├── aos.mk               # aos build system file
+└── k_app_config.h       # aos app config file
 ```
 
 ## Introduction
 
-The **blink_demo** example shows how to drive LEDs on the [supported boards](../../../board) in AliOS-Things, the example will work like this:
+The **yloop_demo** example shows how to drive LEDs and use of GPIO input with interrupts on the [supported boards](../../../board) in AliOS-Things, the example will work like this:
 * LED0 blink every 1s.
 * push button will turn LED1 on/off.
 
 ### Requirements
 
-in `blink_demo.c` need to redefine the following macro:
+in `yloop_demo.c` need to redefine the following macro:
+* `GPIO_TRIGGER_IO`(LED0)
 * `GPIO_LED_IO`(LED1)
+* `GPIO_INPUT_IO`(Button)
 
 ### Features
 
 * LED0 blink every 1s.
+* push button will turn LED1 on/off.
 
 ### Dependencies
 
+* yloop
+* cli
 
 ### Supported Boards
 
@@ -36,8 +41,8 @@ in `blink_demo.c` need to redefine the following macro:
 ### Build
 
 ```sh
-# generate blink_demo@developerkit default config
-aos make blink_demo@developerkit -c config
+# generate yloop_demo@developerkit default config
+aos make yloop_demo@developerkit -c config
 
 # or customize config manually
 aos make menuconfig
@@ -51,7 +56,7 @@ aos make
 ### Install
 
 ```sh
-aos upload blink_demo@yourboard
+aos upload yloop_demo@yourboard
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
