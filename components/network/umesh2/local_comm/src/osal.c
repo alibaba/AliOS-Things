@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <aos/kernel.h>
 #include "osal.h"
+#include "network/umesh2/umesh_api.h"
 
 static const char  MESH_TASK_NAME[] = "umesh2_service";
 
@@ -139,3 +140,64 @@ int hal_queue_recv(void *queue, uint32_t ms, void *msg, uint32_t *size)
     return aos_queue_recv((aos_queue_t *)queue,  ms, msg, size);
 }
 
+typedef struct {
+    int fd;
+    umesh_fd_read_fn fn;
+    void *arg;
+} hal_fd_read_t;
+
+static void umesh_register_read(void *arg)
+{
+    hal_fd_read_t *read = (hal_fd_read_t *)arg;
+    if (read == NULL) {
+        return;
+    }
+    aos_poll_read_fd(read->fd, read->fn, read->arg);
+    hal_free(read);
+}
+
+static void umesh_unregister_read(void *arg)
+{
+    hal_fd_read_t *read = (hal_fd_read_t *)arg;
+    if (read == NULL) {
+        return;
+    }
+    aos_cancel_poll_read_fd(read->fd, read->fn, read->arg);
+    hal_free(read);
+}
+
+int hal_register_socket_read(int fd, umesh_fd_read_fn fn, void *ctx)
+{
+    int ret = 0;
+    hal_fd_read_t *read = hal_malloc(sizeof(hal_fd_read_t));
+    if (read == NULL) {
+        return UMESH_SRV_ERR_MALLOC_FAILED;
+    }
+    memset(read, 0, sizeof(hal_fd_read_t));
+    read->fd = fd;
+    read->fn = fn;
+    read->arg = ctx;
+    ret = aos_schedule_call(umesh_register_read, (void *)read);
+    if (ret < 0) {
+        hal_free(read);
+    }
+    return ret;
+}
+
+int hal_unregister_socket_read(int fd, umesh_fd_read_fn fn, void *ctx)
+{
+    int ret = 0;
+    hal_fd_read_t *read = hal_malloc(sizeof(hal_fd_read_t));
+    if (read == NULL) {
+        return UMESH_SRV_ERR_MALLOC_FAILED;
+    }
+    memset(read, 0, sizeof(hal_fd_read_t));
+    read->fd = fd;
+    read->fn = fn;
+    read->arg = ctx;
+    ret = aos_schedule_call(umesh_unregister_read, (void *)read);
+    if (ret < 0) {
+        hal_free(read);
+    }
+    return ret;
+}
