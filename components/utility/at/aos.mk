@@ -14,3 +14,6 @@ $(NAME)_INCLUDES += ./
 
 # the folder of API files
 GLOBAL_INCLUDES += ../../../include/utility/at
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := utility/at
