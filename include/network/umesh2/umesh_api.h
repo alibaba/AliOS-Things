@@ -41,6 +41,7 @@ extern "C" {
 #define UMESH_SRV_ERR_READ_DATA                  (UMESH_SERVICE_ERR_BASE - 0x000D)
 #define UMESH_SRV_ERR_AUTH_NO_MATCH              (UMESH_SERVICE_ERR_BASE - 0x000F)
 #define UMESH_SRV_ERR_SERVICE_INCOMPLETE         (UMESH_SERVICE_ERR_BASE - 0x0010)
+#define UMESH_SRV_ERR_PORT_OCCUPIED              (UMESH_SERVICE_ERR_BASE - 0x0011)
 
 typedef enum {
     NETWORK_UMESH = 0,       /** < umesh LAN */
