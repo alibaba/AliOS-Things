@@ -21,3 +21,6 @@ GLOBAL_INCLUDES += ../../../include/network/httpdns
 
 # mandatory dependencies
 $(NAME)_COMPONENTS += http cjson
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/httpdns
