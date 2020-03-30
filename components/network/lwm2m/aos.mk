@@ -45,3 +45,5 @@ GLOBAL_INCLUDES += ../../../include/network/lwm2m \
 # mandatory dependencies
 $(NAME)_COMPONENTS += libcoap
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/lwm2m
