@@ -34,7 +34,7 @@ typedef struct{
 }uartAttribute;
 
 typedef struct{
-    PORT_UART_TYPE uartFuncP;
+    PORT_UART_TYPE uartFuncP;      //defined in board.h
     void*          uartPhyP;
     uartAttribute  attr;
 #if (HAL_VERSION >= 30100)
