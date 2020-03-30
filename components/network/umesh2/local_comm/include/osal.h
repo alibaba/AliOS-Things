@@ -10,7 +10,9 @@ enum hal_task_prio {
     HAL_TASK_NORMAL_PRIO = 32,
     HAL_TASK_LOW_PRIO = 33,
 };
+
 typedef void (*task_func)(void *);
+typedef void (*umesh_fd_read_fn)(int fd, void *arg);
 
 int hal_task_start(task_func cb, void *arg, int stack_size, enum hal_task_prio  prio);
 void *hal_mutex_new(void);
@@ -33,4 +35,6 @@ void *hal_queue_new(void *buf, uint32_t size, int max_msg);
 void hal_queue_free(void *queue);
 int hal_queue_send(void *queue, void *msg, uint32_t size);
 int hal_queue_recv(void *queue, uint32_t ms, void *msg, uint32_t *size);
+int hal_register_socket_read(int fd, umesh_fd_read_fn fn, void *ctx);
+int hal_unregister_socket_read(int fd, umesh_fd_read_fn fn, void *ctx);
 #endif /* __HAL_OSAL_H__ */
