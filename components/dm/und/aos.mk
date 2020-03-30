@@ -23,3 +23,6 @@ endif
 
 $(NAME)_INCLUDES += include
 GLOBAL_INCLUDES += ../../../include/dm/
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := dm/und
