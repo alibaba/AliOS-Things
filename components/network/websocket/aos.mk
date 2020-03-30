@@ -24,3 +24,6 @@ GLOBAL_INCLUDES += ../../../include/network/websoc
 
 # optional dependencies
 $(NAME)_COMPONENTS-$(WEBSOC_WITH_TLS) += mbedtls
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/websoc

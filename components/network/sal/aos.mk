@@ -18,3 +18,6 @@ $(NAME)_INCLUDES += ./                  \
 GLOBAL_INCLUDES += ../../../include/network/sal
 
 # optional dependencies
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/sal
