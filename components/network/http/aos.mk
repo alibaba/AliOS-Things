@@ -36,3 +36,5 @@ $(NAME)_COMPONENTS-$(CONFIG_HTTP_SECURE_ITLS) += itls
 # 2. do NOT define macro in this file. put it into Config.in
 # GLOBAL_DEFINES += CONFIG_HTTP_DEBUG
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/http
