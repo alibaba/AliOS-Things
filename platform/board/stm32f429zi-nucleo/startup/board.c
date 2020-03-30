@@ -222,9 +222,6 @@ I2C_MAPPING i2c_mapping_table[PORT_I2C_SIZE] = {
     {PORT_I2C_2,I2C2,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_81,HAL_GPIO_80}},
 };
 
-static void stduart_init(void);
-static void I2C1_init();
-
 void Error_Handler(char *file, int line)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
@@ -414,20 +411,6 @@ void board_flash_init(void)
     flash_partition_init();
 }
 
-static void I2C1_init()
-{
-    i2c_dev_t i2c_1 = {
-        .port                 = PORT_I2C_1,
-        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
-        .config.freq          = I2C_BUS_BIT_RATES_100K,
-        .config.mode          = I2C_MODE_MASTER,
-    };
-
-    if (hal_i2c_init(&i2c_1)) {
-        printf("i2c bus 1 init fail \r\n");
-    }
-}
-
 #if AOS_NET_WITH_ETH
 int board_eth_init(void *paras)
 {
@@ -458,7 +441,7 @@ void board_network_init(void)
     else {
         lwip_tcpip_init();
     }
-    
+
 #endif
 #endif
 
