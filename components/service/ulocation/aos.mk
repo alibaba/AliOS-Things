@@ -38,3 +38,6 @@ endif
 # optional dependencies
 $(NAME)_COMPONENTS-$(CONFIG_ULOCATION_GPS) += sensor cjson
 $(NAME)_COMPONENTS-$(CONFIG_ULOCATION_AGPS) += cjson
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := service/ulocation
