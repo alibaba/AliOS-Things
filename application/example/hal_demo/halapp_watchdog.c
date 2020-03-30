@@ -20,6 +20,8 @@ aos_task_t task_feedwdg;
 
 static wdg_dev_t watchdog;
 
+static int32_t g_testtime = 5; //S
+
 /* task entry */
 static void task_feedwdg_entry(void *arg)
 {
@@ -28,7 +30,9 @@ static void task_feedwdg_entry(void *arg)
      * watchdog timeout, otherwise it will trigger by mistake.
      */
     while (1) {
-        printf("feed the watchdog!\r\n");
+        if((g_testtime--) > 0){
+            printf("feed the watchdog!\r\n");
+        }
         hal_wdg_reload(&watchdog);
 
         aos_msleep(1000);
@@ -64,14 +68,14 @@ void hal_watchdog_app_enable(void)
         return;
     }
 
-    aos_msleep(10000);
-
     /* warning: This is just to show the effect of not feeding the dog.
      * When the watchdog feeding task is deleted, the watchdog timeout will
      * trigger the system reboot. */
+    /*
+    aos_msleep(10000);
     printf("delete the watchdog fedding task\r\n");
     aos_task_delete(TASK_FEEDWDG_NAME);
-    printf("There is no place to feed the watchdog now\r\n");
+    printf("There is no place to feed the watchdog now\r\n");*/
 }
 #endif
 
