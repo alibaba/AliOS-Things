@@ -35,6 +35,11 @@ static gpio_uart_pin_config_t usart1_pin_conf[] = {
     {UART_RX, HAL_GPIO_10}
 };
 
+/*
+UART logic port maps to phy dev;
+UART_MAPPING is defined in hal uart head file for mcu;
+PORT_UART_STD is defined in board.h
+*/
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
   {PORT_UART_STD, USART2, {UART_OVERSAMPLING_16, 64}, usart2_pin_conf,
@@ -43,8 +48,13 @@ UART_MAPPING UART_MAPPING_TABLE[] =
    sizeof(usart1_pin_conf)/sizeof(usart1_pin_conf[0])}
 };
 
+/*
+I2C logic port maps to phy dev;
+I2C_MAPPING is defined in hal i2c head file for mcu;
+PORT_I2C_1 is defined in board.h
+*/
 I2C_MAPPING i2c_mapping[PORT_I2C_SIZE] = {
-    {PORT_I2C_1,I2C1,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_22,HAL_GPIO_23}}
+    {PORT_I2C_1,I2C1,HAL_I2C_GPIO_NEED_MAP,{HAL_GPIO_24,HAL_GPIO_25}}
 };
 
 #ifdef HAL_ADC_MODULE_ENABLED
@@ -53,6 +63,11 @@ static gpio_adc_pin_config_t adc1_conf[] = {
     {HAL_ADC_CHANNEL_11, HAL_GPIO_33}
 };
 
+/*
+ADC logic port maps to phy dev;
+ADC_MAPPING is defined in hal adc head file for mcu;
+PORT_ADC_1 is defined in board.h
+*/
 ADC_MAPPING ADC_MAPPING_TABLE[PORT_ADC_SIZE] = {
     {PORT_ADC_1, HAL_ADC_1, adc1_conf, sizeof(adc1_conf)/sizeof(adc1_conf[0])},
 };
@@ -66,6 +81,11 @@ static gpio_spi_pin_config_t spi1_pin_conf[] = {
     {SPI_PIN_MOSI, HAL_GPIO_7},
 };
 
+/*
+SPI logic port maps to phy dev;
+SPI_MAPPING is defined in hal spi head file for mcu;
+PORT_SPI_1 is defined in board.h
+*/
 SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
     {
         PORT_SPI_1,
@@ -89,6 +109,11 @@ SPI_MAPPING SPI_MAPPING_TABLE[PORT_SPI_SIZE] = {
 #endif /* HAL_SPI_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
+/*
+TIMER logic port maps to phy dev;
+TIMER_MAPPING is defined in hal timer head file for mcu;
+PORT_TIMER_1 is defined in board.h
+*/
 TIMER_MAPPING TIMER_MAPPING_TABLE[PORT_TIMER_SIZE] =
 {
     {PORT_TIMER_DEMO, HAL_TIMER_4},
@@ -108,6 +133,11 @@ static struct stm32_pwmchan_s pwm3chan[] = {
     }
 };
 
+/*
+PWM logic port maps to phy dev;
+PWM_MAPPING is defined in hal pwm head file for mcu;
+PORT_PWM_3 is defined in board.h
+*/
 PWM_MAPPING PWM_MAPPING_TABLE[PORT_PWM_SIZE] =
 {
     {PORT_PWM_3, HAL_TIMER_3, pwm3chan, sizeof(pwm3chan)/sizeof(pwm3chan[0])},
