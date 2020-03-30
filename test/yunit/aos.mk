@@ -8,3 +8,5 @@ $(NAME)_SOURCES += yts_main.c yunit.c
 
 $(NAME)_CFLAGS += -Wall -Werror
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := yunit
