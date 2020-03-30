@@ -74,3 +74,5 @@ endif
 endif
 endif
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := dm/ota
