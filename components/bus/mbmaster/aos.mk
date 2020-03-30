@@ -31,3 +31,5 @@ GLOBAL_INCLUDES     += include ./
 GLOBAL_DEFINES      += AOS_COMP_MBMASTER
 AOS_COMP_MBMASTER   := y
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := bus/modbus
