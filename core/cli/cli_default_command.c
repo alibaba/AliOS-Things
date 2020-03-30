@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 #include "k_api.h"
+#include "aos/kernel.h"
 
 #include "cli_api.h"
-
 #include "cli_conf.h"
 #include "cli_adapt.h"
 
@@ -114,10 +114,8 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 
 static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 {
-#ifdef OSAL_RHINO
-    cli_printf("kernel version :%d\r\n", (int32_t)krhino_version_get());
-#else
-    cli_printf("kernel version :posix\r\n");
+#ifdef SYSINFO_KERNEL_VERSION
+    cli_printf("kernel version :%s\r\n",SYSINFO_KERNEL_VERSION);
 #endif
 }
 
