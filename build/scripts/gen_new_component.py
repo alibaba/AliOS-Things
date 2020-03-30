@@ -13,6 +13,12 @@ if sys.version_info[0] < 3:
         pass
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
+try:
+    from aos.util import locale_to_unicode
+    scriptdir = locale_to_unicode(scriptdir)
+except:
+    pass
+
 TEMPLATE_DIR = "templates/new_component_template"
 COMPONENTS_FOLDER = "components"
 AOS_MAKEFILE = "aos.mk"
