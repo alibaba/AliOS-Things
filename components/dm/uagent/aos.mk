@@ -22,3 +22,6 @@ endif
 GLOBAL_INCLUDES += ../../../include/dm/uagent
 
 $(NAME)_COMPONENTS += libiot_mqtt cjson
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := dm/uagent
