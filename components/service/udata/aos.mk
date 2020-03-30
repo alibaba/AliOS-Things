@@ -37,3 +37,6 @@ endif
 
 $(NAME)_COMPONENTS-$(UDATA_CONFIG_SENSOR) += sensor osal_aos
 $(NAME)_COMPONENTS-$(UDATA_CONFIG_CJSON_FORMAT) += cjson
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := service/udata
