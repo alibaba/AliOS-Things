@@ -48,3 +48,6 @@ $(NAME)_CFLAGS += -Wall -Werror
 endif
 
 GLOBAL_DEFINES += AOS_COMP_USB
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := bus/usb
