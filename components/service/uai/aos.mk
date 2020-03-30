@@ -60,3 +60,6 @@ GLOBAL_DEFINES += ARM_MATH_CM4
 else ifeq ($(HOST_ARCH), Cortex-M7)
 GLOBAL_DEFINES += ARM_MATH_CM7
 endif
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := service/uai
