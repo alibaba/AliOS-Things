@@ -34,3 +34,6 @@ endif
 ifeq ($(osal), rhino)
 $(NAME)_SOURCES += hal/loop_hal_alios.c
 endif
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := utility/yloop
