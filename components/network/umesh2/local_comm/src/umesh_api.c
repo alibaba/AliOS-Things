@@ -111,7 +111,7 @@ static int umesh_create_socket(session_t *session, int mode, sock_read_cb cb)
     }
     log_d("socket create success");
     if (cb) {
-        aos_poll_read_fd(fd, cb, session);
+        hal_register_socket_read(fd, cb, session);
     }
 
     return ret;
@@ -257,18 +257,27 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
                      uint16_t ttl)
 {
     struct mdns_ctx *ctx = (struct mdns_ctx *) handle;
-    struct mdns_hdr hdr = {0};
-    struct mdns_entry answers[4] = {{0}}; // A/AAAA, SRV, TXT, PTR
+    struct mdns_hdr hdr;
+    struct mdns_entry answers[4]; // A/AAAA, SRV, TXT, PTR
+    char *only_type = NULL;
+
+    memset(&hdr, 0, sizeof(hdr));
     hdr.flags |= FLAG_QR;
     hdr.flags |= FLAG_AA;
     hdr.num_ans_rr = sizeof(answers) / sizeof(answers[0]);
     hdr.num_qn = 0;
-    char *only_type = (char *)strstr(srv_name, ".");
 
-    if (handle == NULL || srv_name == NULL || domain == NULL || addr == NULL || only_type == NULL) {
-        return -1;
+
+    if (handle == NULL || srv_name == NULL || domain == NULL || addr == NULL) {
+        return UMESH_SRV_ERR_NULL_POINTER;
+    }
+    only_type = (char *)strstr(srv_name, ".");
+    if (only_type == NULL) {
+        return UMESH_SRV_ERR_NULL_POINTER;
     }
     only_type += 1; /*skip '.'*/
+    memset(&answers[0], 0, sizeof(struct mdns_entry) * 4);
+
     for (int i = 0; i < hdr.num_ans_rr; i++) {
 
         answers[i].class = RR_IN;
@@ -299,7 +308,7 @@ static int send_mdns(void *handle, const char *srv_name, const char *domain, str
     answers[3].type     = RR_AAAA;
     memcpy(&answers[3].data.AAAA.addr, addr,
            sizeof(struct in6_addr));
-
+    answers[3].next = NULL;
     return mdns_send(ctx, &hdr, answers);
 
 }
@@ -308,7 +317,7 @@ static void umesh_mdns_announce(const char *name, void *context)
 
 {
     service_t *node, *next;
-    char mdns_name[SERVICE_FULL_TYPE_LEN_MAX] = {0};
+
     service_state_t *state = (service_state_t *)context;
     if (state == NULL) {
         return;
@@ -322,6 +331,7 @@ static void umesh_mdns_announce(const char *name, void *context)
     }
     list_for_each_entry_safe(node, next, &state->self_service_list, linked_list, service_t) {
         if (strcmp(name, node->srv_type) == 0) {
+            char mdns_name[SERVICE_FULL_TYPE_LEN_MAX] = {0};
             char domain[32] = {0};
             snprintf(domain, 31, "umesh2_%02x:%02x:%02x", node->id.ip6.s6_addr[13], node->id.ip6.s6_addr[14],
                      node->id.ip6.s6_addr[15]);
@@ -377,8 +387,6 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
     }
     entry = (struct mdns_entry *)entries;
     while (entry != NULL) {
-
-
         switch (entry->type) {
             case RR_A:
                 break;
@@ -445,6 +453,8 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
                 service->id.port = entry->data.SRV.port;
             }
             break;
+            default:
+                break;
         }
 
         entry = entry->next;
@@ -655,8 +665,10 @@ service_t *umesh_service_init(net_interface_t interface, const char *srv_name, c
     struct mdns_ctx *mdns_ctx = NULL;
     uint8_t selfmac[6];
     int ret = 0;
-    //service_state_t *service_state = NULL;
 
+    if (port == MESH_AUTH_PORT) {
+        UMESH_SRV_ERR_PORT_OCCUPIED;
+    }
     self_srv = hal_malloc(sizeof(service_t));
 
     if (self_srv == NULL) {
@@ -941,17 +953,17 @@ static int umesh_close_socket(session_t *session)
     session->invite_cb = NULL;
 
     if (session->fd_udp >= 0) {
-        aos_cancel_poll_read_fd(session->fd_udp, NULL, NULL);
+        hal_unregister_socket_read(session->fd_udp, NULL, NULL);
         lwip_close(session->fd_udp);
         session->fd_udp = -1;
     }
     if (session->fd_tcp >= 0) {
-        aos_cancel_poll_read_fd(session->fd_tcp, NULL, NULL);
+        hal_unregister_socket_read(session->fd_tcp, NULL, NULL);
         lwip_close(session->fd_tcp);
         session->fd_tcp = -1;
     }
     if (session->fd_auth >= 0) {
-        aos_cancel_poll_read_fd(session->fd_auth, NULL, NULL);
+        hal_unregister_socket_read(session->fd_auth, NULL, NULL);
         lwip_close(session->fd_auth);
         session->fd_auth = -1;
     }
