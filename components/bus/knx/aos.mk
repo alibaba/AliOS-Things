@@ -13,4 +13,5 @@ GLOBAL_INCLUDES  += . include
 
 GLOBAL_DEFINES  += AOS_KNX
 
-
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := bus/knx
