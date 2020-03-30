@@ -214,6 +214,10 @@ static int uart_gpio_init(UART_MAPPING* uartIns)
         HAL_NVIC_EnableIRQ(USART3_IRQn);
     } else if (uartIns->uartPhyP == USART6) {
         __HAL_RCC_USART6_CLK_ENABLE();
+    } else if (uartIns->uartPhyP == USART1) {
+        __HAL_RCC_USART1_CLK_ENABLE();
+        HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USART1_IRQn);
     }
 
     uart_pin_conf = uartIns->pin_conf;
