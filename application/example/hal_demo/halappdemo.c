@@ -63,6 +63,14 @@ int application_start(int argc, char *argv[])
 {
     printf("hal app test start\r\n");
 
+#if (AOS_HAL_WDG_ENABLED > 0)
+    printf("start to test watchdog.\r\n");
+    /*
+    printf("After 10 seconds the system will be restarted by"
+            "triggering the watchdog\r\n");*/
+    hal_watchdog_app_enable();
+#endif
+
 #if (AOS_HAL_RTC_ENABLED > 0)
     /* init rtc and set the time */
     hal_rtc_app_init();
@@ -103,13 +111,6 @@ int application_start(int argc, char *argv[])
 
 #if (AOS_HAL_UART_ENABLED > 0)
     hal_uart_app_run();
-#endif
-
-#if (AOS_HAL_WDG_ENABLED > 0)
-    printf("start to test watchdog.\r\n");
-    printf("After 10 seconds the system will be restarted by"
-            "triggering the watchdog\r\n");
-    hal_watchdog_app_enable();
 #endif
 
 #if (AOS_HAL_I2C_ENABLED > 0)
