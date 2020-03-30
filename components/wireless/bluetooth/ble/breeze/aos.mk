@@ -30,3 +30,5 @@ endif
 $(NAME)_SOURCES-y += api/breeze_awss_export.c
 endif
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := wireless/bluetooth/breeze
