@@ -46,3 +46,6 @@ $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/gcc/canopen.a
 else ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS +=           lib/$(HOST_ARCH)/armcc/libcanopen.lib
 endif
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := bus/canopen
