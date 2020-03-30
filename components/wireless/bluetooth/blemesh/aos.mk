@@ -44,3 +44,6 @@ $(NAME)_SOURCES-$(CONFIG_BT_MESH_SHELL) += ./src/shell.c
 #   8 - 4.2
 #   9 - 5.0
 GLOBAL_CFLAGS-y += -DBT_HCI_VERSION=8
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := wireless/bluetooth/blemesh

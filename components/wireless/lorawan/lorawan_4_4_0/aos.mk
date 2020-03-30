@@ -39,3 +39,5 @@ $(NAME)_INCLUDES += linkwan/include \
 
 $(NAME)_SOURCES-$(CONFIG_LINKWAN_AT) += linkwan/linkwan_ica_at.c
 
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := wireless/lorawan/lorawan_4_4_2
