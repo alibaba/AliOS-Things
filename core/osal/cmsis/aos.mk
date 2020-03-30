@@ -9,3 +9,6 @@ RPM_INCLUDE_DIR    := cmsis
 $(NAME)_SOURCES := cmsis_os.c
 
 GLOBAL_DEFINES  += AOS_COMP_OSAL_CMSIS
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := cmsis
