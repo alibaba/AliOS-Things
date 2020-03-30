@@ -47,3 +47,6 @@ GLOBAL_INCLUDES += ../../../include/network/coap
 
 # optional dependencies
 $(NAME)_COMPONENTS-$(COAP_WITH_ALI_AUTH) += cjson mbedtls activation chip_code libiot_infra libiot_wrappers
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/coap
