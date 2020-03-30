@@ -54,3 +54,6 @@ $(NAME)_SOURCES += ./src/sa/ntop.c \
                    ./src/sa/sa.c
 
 $(NAME)_SOURCES += ./src/udp/udp.c
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/rtp

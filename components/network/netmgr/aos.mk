@@ -30,3 +30,6 @@ $(NAME)_INCLUDES += src
 GLOBAL_INCLUDES += ../../../include/network/netmgr
 GLOBAL_INCLUDES += ../../../include/network
 GLOBAL_INCLUDES += ../../../include
+
+# DO NOT DELETE, for RPM package
+RPM_INCLUDE_DIR := network/netmgr
