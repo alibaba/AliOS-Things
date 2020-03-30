@@ -13,6 +13,12 @@
  */
 #ifdef LED1
 #define GPIO_LED_IO         LED1
+#elif LED2
+#define GPIO_LED_IO         LED2
+#elif LED3
+#define GPIO_LED_IO         LED3
+#elif LED4
+#define GPIO_LED_IO         LED4
 #else
 #define GPIO_LED_IO         0xffff
 #endif
