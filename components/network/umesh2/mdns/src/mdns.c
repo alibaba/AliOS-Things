@@ -363,7 +363,6 @@ static int strrcmp(const char *s1, const char *s2)
     return (strncmp(s1 + m - n, s2, n));
 }
 
-
 static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *const names[],
                                      unsigned int nb_names, enum mdns_match_type match_type, mdns_listen_callback callback,
                                      void *p_cookie)
@@ -371,27 +370,35 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
     struct mdns_hdr ahdr = {0};
     struct mdns_entry *entries;
     struct mdns_svc *svc;
-    struct pollfd *pfd = hal_malloc(sizeof(*pfd) * ctx->nb_conns);
-    if (pfd == NULL) {
-        return -1;
-    }
-
+    fd_set working_set;
+    struct timeval timeout;
+    int max_fd = 0;
     int r;
 
     for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
-        pfd[i].fd = ctx->conns[i].sock;
-        pfd[i].events = POLLIN;
+        if (max_fd < ctx->conns[i].sock) {
+            max_fd = ctx->conns[i].sock;
+        }
+
     }
-    r = aos_poll(pfd, ctx->nb_conns, MDNS_POLL_TIMEOUT);
+
+    FD_ZERO(&working_set);
+
+    FD_SET(max_fd, &working_set);
+    timeout.tv_sec = MDNS_POLL_TIMEOUT_S;
+    timeout.tv_usec = 0;
+
+
+    r = select(max_fd + 1, &working_set, NULL, NULL, &timeout);
     if (r <= 0) {
-        hal_free(pfd);
         return r;
     }
 
     for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
-        if ((pfd[i].revents & POLLIN) == 0) {
+        if (FD_ISSET(ctx->conns[i].sock, &working_set) == 0) {
             continue;
         }
+
         r = mdns_recv(&ctx->conns[i], &ahdr, &entries);
         if (r == MDNS_NETERR && os_wouldblock()) {
             log_e("---MDNS_NETERR -----");
@@ -422,8 +429,6 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
         mdns_entries_free(entries);
     }
 
-
-    hal_free(pfd);
     return 0;
 }
 

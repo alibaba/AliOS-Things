@@ -21,7 +21,7 @@
 #define hal_malloc          aos_malloc
 #define hal_free            aos_free
 
-#define MDNS_POLL_TIMEOUT   3000
+#define MDNS_POLL_TIMEOUT_S   1
 
 # define INVALID_SOCKET     -1
 
