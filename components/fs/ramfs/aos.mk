@@ -19,4 +19,6 @@ endif
 
 $(NAME)_INCLUDES += include
 GLOBAL_DEFINES  += AOS_COMP_RAMFS
+
+# DO NOT DELETE, for RPM package
 RPM_INCLUDE_DIR := fs
