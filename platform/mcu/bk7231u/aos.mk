@@ -71,8 +71,11 @@ $(NAME)_SOURCES += hal/gpio.c        \
                    hal/wifi_port.c   \
                    hal/beken_rhino.c \
                    hal/pwm.c \
-                   hal_init/hal_init.c \
-                   hal/ota.c
+                   hal_init/hal_init.c
+
+ifeq ($(AOS_COMP_OTA),1)
+$(NAME)_SOURCES += hal/ota.c
+endif
 
 $(NAME)_SOURCES += hal/pwrmgmt_hal/board_cpu_pwr.c \
                    hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
@@ -80,7 +83,7 @@ $(NAME)_SOURCES += hal/pwrmgmt_hal/board_cpu_pwr.c \
 
 #Beken ip
 #$(NAME)_PREBUILT_LIBRARY += beken/ip/ip.a
-$(NAME)_COMPONENTS += beken_ip
+$(NAME)_COMPONENTS += mcu_bk7231u_beken_ip
 
 #Beken BLE
 btstack := vendor
@@ -92,7 +95,7 @@ $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_sec.c
 $(NAME)_COMPONENTS += ble_lib
 
 #Beken entry
-$(NAME)_COMPONENTS += beken_entry
+$(NAME)_COMPONENTS += mcu_bk7231u_beken_entry
 
 include ./platform/mcu/bk7231u/beken/beken.mk
 
