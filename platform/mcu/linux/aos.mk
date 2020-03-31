@@ -62,7 +62,10 @@ $(NAME)_SOURCES += hal/hw.c
 $(NAME)_SOURCES += hal/wifi_port.c
 $(NAME)_SOURCES += hal/nand.c
 $(NAME)_SOURCES += hal/vfs_trap.c
+
+ifeq ($(AOS_COMP_OTA),1)
 $(NAME)_SOURCES += hal/ota.c
+endif
 
 ifneq (,$(filter fatfs,$(COMPONENTS)))
 $(NAME)_SOURCES += hal/sdmmc.c
