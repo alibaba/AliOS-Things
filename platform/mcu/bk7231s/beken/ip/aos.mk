@@ -1,4 +1,4 @@
-NAME := ip
+NAME := mcu_bk7231s_beken_ip
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
