@@ -7,11 +7,11 @@
 
 
 typedef const uint8_t *(*mdns_reader)(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *);
-typedef uint32_t (*mdns_writer)(uint8_t *, const struct mdns_entry *);
+typedef int32_t (*mdns_writer)(uint8_t *, uint16_t *, const struct mdns_entry *);
 typedef void (*mdns_printer)(const union mdns_data *);
 
-static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t *root, char **ss);
-static uint8_t *mdns_encode(char *s);
+static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t *root, char **ss, uint8_t nb_times);
+static uint8_t *mdns_encode(const char *s);
 
 const uint8_t *mdns_read(const uint8_t *ptr, uint32_t *n, const uint8_t *root, struct mdns_entry *entry, int8_t ans);
 static const uint8_t *mdns_read_SRV(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *);
@@ -20,12 +20,11 @@ static const uint8_t *mdns_read_TXT(const uint8_t *, uint32_t *, const uint8_t *
 static const uint8_t *mdns_read_AAAA(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *);
 static const uint8_t *mdns_read_A(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *);
 
-uint32_t mdns_write(uint8_t *ptr, const struct mdns_entry *entry, int8_t ans);
-static uint32_t mdns_write_SRV(uint8_t *, const struct mdns_entry *);
-static uint32_t mdns_write_PTR(uint8_t *, const struct mdns_entry *);
-static uint32_t mdns_write_TXT(uint8_t *, const struct mdns_entry *);
-static uint32_t mdns_write_AAAA(uint8_t *, const struct mdns_entry *);
-static uint32_t mdns_write_A(uint8_t *, const struct mdns_entry *);
+static int32_t mdns_write_SRV(uint8_t *, uint16_t *, const struct mdns_entry *);
+static int32_t mdns_write_PTR(uint8_t *, uint16_t *, const struct mdns_entry *);
+static int32_t mdns_write_TXT(uint8_t *, uint16_t *, const struct mdns_entry *);
+static int32_t mdns_write_AAAA(uint8_t *, uint16_t *, const struct mdns_entry *);
+static int32_t mdns_write_A(uint8_t *, uint16_t *, const struct mdns_entry *);
 
 void mdns_print(const struct mdns_entry *entry);
 static void mdns_print_SRV(const union mdns_data *);
@@ -72,24 +71,40 @@ static const uint8_t *mdns_read_SRV(const uint8_t *ptr, uint32_t *n, const uint8
     ptr = read_u16(ptr, n, &data->SRV.priority);
     ptr = read_u16(ptr, n, &data->SRV.weight);
     ptr = read_u16(ptr, n, &data->SRV.port);
-    if ((ptr = mdns_decode(ptr, n, root, &data->SRV.target)) == NULL) {
+    if ((ptr = mdns_decode(ptr, n, root, &data->SRV.target, 0)) == NULL) {
         return (NULL);
     }
     return (ptr);
 }
 
-static uint32_t mdns_write_SRV(uint8_t *ptr, const struct mdns_entry *entry)
+static int32_t mdns_write_SRV(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry)
 {
     uint8_t *target, *p = ptr;
 
     if ((target = mdns_encode(entry->data.SRV.target)) == NULL) {
-        return (0);
+        return (MDNS_ERROR);
     }
 
-    p = write_u16(p, entry->data.SRV.priority);
-    p = write_u16(p, entry->data.SRV.weight);
-    p = write_u16(p, entry->data.SRV.port);
-    p = write_raw(p, target);
+    p = write_u16(p, left, entry->data.SRV.priority);
+    if (p == NULL) {
+        hal_free(target);
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, entry->data.SRV.weight);
+    if (p == NULL) {
+        hal_free(target);
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, entry->data.SRV.port);
+    if (p == NULL) {
+        hal_free(target);
+        return (MDNS_ERROR);
+    }
+    p = write_raw(p, left, target);
+    if (p == NULL) {
+        hal_free(target);
+        return (MDNS_ERROR);
+    }
     hal_free(target);
     return (p - ptr);
 }
@@ -112,20 +127,24 @@ static const uint8_t *mdns_read_PTR(const uint8_t *ptr, uint32_t *n, const uint8
         return (NULL);
     }
 
-    if ((ptr = mdns_decode(ptr, n, root, &data->PTR.domain)) == NULL) {
+    if ((ptr = mdns_decode(ptr, n, root, &data->PTR.domain, 0)) == NULL) {
         log_e("mdns_decode failed");
         return (NULL);
     }
     return (ptr);
 }
 
-static uint32_t mdns_write_PTR(uint8_t *ptr, const struct mdns_entry *entry)
+static int32_t mdns_write_PTR(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry)
 {
     uint8_t *domain, *p = ptr;
     if ((domain = mdns_encode(entry->data.PTR.domain)) == NULL) {
-        return (0);
+        return (MDNS_ERROR);
     }
-    p = write_raw(p, domain);
+    p = write_raw(p, left, domain);
+    if (p == NULL) {
+        hal_free(domain);
+        return (MDNS_ERROR);
+    }
     hal_free(domain);
     return (p - ptr);
 }
@@ -168,17 +187,21 @@ static const uint8_t *mdns_read_TXT(const uint8_t *ptr, uint32_t *n, const uint8
     return (ptr);
 }
 
-static uint32_t mdns_write_TXT(uint8_t *ptr, const struct mdns_entry *entry)
+static int32_t mdns_write_TXT(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry)
 {
     uint8_t *p = ptr;
-    uint8_t l;
+    uint16_t l;
 
     struct mdns_data_txt *text = entry->data.TXT;
     while (text) {
         l = strlen(text->txt);
+        if (*left < l + 1) {
+            return MDNS_ERROR;
+        }
         memcpy(p, &l, 1);
         memcpy(p + 1, text->txt, l);
         p += l + 1;
+        *left -= l + 1;
         text = text->next;
     }
     return (p - ptr);
@@ -213,9 +236,13 @@ static const uint8_t *mdns_read_AAAA(const uint8_t *ptr, uint32_t *n, const uint
     return (ptr);
 }
 
-static uint32_t mdns_write_AAAA(uint8_t *ptr, const struct mdns_entry *entry)
+static int32_t mdns_write_AAAA(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry)
 {
     uint32_t len = sizeof(entry->data.AAAA.addr);
+    if (*left < len) {
+        return MDNS_ERROR;
+    }
+    *left -= len;
     memcpy(ptr, &entry->data.AAAA.addr, len);
     return len;
 }
@@ -242,9 +269,13 @@ static const uint8_t *mdns_read_A(const uint8_t *ptr, uint32_t *n, const uint8_t
     return (ptr);
 }
 
-static uint32_t mdns_write_A(uint8_t *ptr, const struct mdns_entry *entry)
+static int32_t mdns_write_A(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry)
 {
     uint32_t len = sizeof(entry->data.A.addr);
+    if (*left < len) {
+        return MDNS_ERROR;
+    }
+    *left -= len;
     memcpy(ptr, &entry->data.A.addr, sizeof(entry->data.A.addr));
     return len;
 }
@@ -258,10 +289,16 @@ static void mdns_print_A(const union mdns_data *data)
  * Decodes a DN compressed format (RFC 1035)
  * e.g "\x03foo\x03bar\x00" gives "foo.bar"
  */
-static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t *root, char **ss)
+static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t *root, char **ss, uint8_t nb_times)
 {
-    char *s;
-
+    char *s = NULL;
+    const uint8_t *orig_ptr = ptr;
+    if (*n == 0) {
+        return (NULL);
+    }
+    if (nb_times > 16) {
+        return (NULL);
+    }
     s = *ss = hal_malloc(MDNS_DN_MAXSZ);
     if (!s) {
         return (NULL);
@@ -284,7 +321,7 @@ static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t
         /* resolve the offset of the pointer (RFC 1035-4.1.4) */
         if ((len & 0xC0) == 0xC0) {
             const uint8_t *p;
-            char *buf;
+            char *buf = NULL;
             uint32_t m;
 
             if (*n < sizeof(len)) {
@@ -296,8 +333,19 @@ static const uint8_t *mdns_decode(const uint8_t *ptr, uint32_t *n, const uint8_t
             advance(1);
 
             p = root + len;
+            if (p > (ptr - 2)) {
+                log_e("mdns_decode err, buf too short");
+                goto err;
+            }
             m = ptr - p + *n;
-            mdns_decode(p, &m, root, &buf);
+            /* avoid recursing on the same element */
+            if (p == orig_ptr) {
+                goto err;
+            }
+            if (mdns_decode(p, &m, root, &buf, nb_times + 1) == NULL) {
+                log_e("mdns_decode err");
+                goto err;
+            }
             if (free_space <= strlen(buf)) {
                 hal_free(buf);
                 log_e("free_space <= strlen(buf)");
@@ -328,11 +376,13 @@ err:
  * Encode a DN into its compressed format (RFC 1035)
  * e.g "foo.bar" gives "\x03foo\x03bar\x00"
  */
-static uint8_t *mdns_encode(char *s)
+static uint8_t *mdns_encode(const char *s)
 {
     uint8_t *buf, *b, l = 0;
     char *p = s;
-
+    if (s == NULL) {
+        return NULL;
+    }
     buf = hal_malloc(strlen(s) + 2);
     if (!buf) {
         return (NULL);
@@ -353,7 +403,7 @@ static const uint8_t *mdns_read_RR(const uint8_t *ptr, uint32_t *n, const uint8_
 {
     uint16_t tmp;
 
-    ptr = mdns_decode(ptr, n, root, &entry->name);
+    ptr = mdns_decode(ptr, n, root, &entry->name, 0);
     if (!ptr || *n < 4) {
         return (NULL);
     }
@@ -374,21 +424,40 @@ static const uint8_t *mdns_read_RR(const uint8_t *ptr, uint32_t *n, const uint8_
     return ptr;
 }
 
-static uint32_t mdns_write_RR(uint8_t *ptr, const struct mdns_entry *entry, int8_t ans)
+static int32_t mdns_write_RR(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry, int8_t ans)
 {
     uint8_t *name, *p = ptr;
 
     if ((name = mdns_encode(entry->name)) == NULL) {
-        return (0);
+        return MDNS_ERROR;
     }
 
-    p = write_raw(p, name);
-    p = write_u16(p, entry->type);
-    p = write_u16(p, (entry->class & ~0x8000) | (entry->msbit << 15));
-
+    p = write_raw(p, left, name);
+    if (p == NULL) {
+        hal_free(name);
+        return MDNS_ERROR;
+    }
+    p = write_u16(p, left,  entry->type);
+    if (p == NULL) {
+        hal_free(name);
+        return MDNS_ERROR;
+    }
+    p = write_u16(p, left, (entry->class & ~0x8000) | (entry->msbit << 15));
+    if (p == NULL) {
+        hal_free(name);
+        return MDNS_ERROR;
+    }
     if (ans) {
-        p = write_u32(p, entry->ttl);
-        p = write_u16(p, entry->data_len);
+        p = write_u32(p, left, entry->ttl);
+        if (p == NULL) {
+            hal_free(name);
+            return MDNS_ERROR;
+        }
+        p = write_u16(p, left, entry->data_len);
+        if (p == NULL) {
+            hal_free(name);
+            return MDNS_ERROR;
+        }
     }
     hal_free(name);
     return (p - ptr);
@@ -402,6 +471,9 @@ const uint8_t *mdns_read(const uint8_t *ptr, uint32_t *n, const uint8_t *root, s
     p = ptr = mdns_read_RR(ptr, n, root, entry, ans);
     if (ans == 0) {
         return ptr;
+    }
+    if (ptr == NULL) {
+        return NULL;
     }
 
     for (uint32_t i = 0; i < mdns_num; ++i) {
@@ -423,13 +495,16 @@ const uint8_t *mdns_read(const uint8_t *ptr, uint32_t *n, const uint8_t *root, s
     return (ptr);
 }
 
-uint32_t mdns_write(uint8_t *ptr, const struct mdns_entry *entry, int8_t ans)
+int32_t mdns_write(uint8_t *ptr, uint16_t *left, const struct mdns_entry *entry, int8_t ans)
 {
     uint8_t *p = ptr;
     uint32_t n = 0;
-    uint16_t l = 0;
+    int32_t l = 0;
 
-    l = mdns_write_RR(p, entry, ans);
+    l = mdns_write_RR(p, left, entry, ans);
+    if (l < 0) {
+        MDNS_ERROR;
+    }
     n += l;
 
     if (ans == 0) {
@@ -438,9 +513,15 @@ uint32_t mdns_write(uint8_t *ptr, const struct mdns_entry *entry, int8_t ans)
 
     for (uint32_t i = 0; i < mdns_num; ++i) {
         if (rrs[i].type == entry->type) {
-            l = (*rrs[i].write)(p + n, entry);
+            l = (*rrs[i].write)(p + n, left, entry);
+            if (l < 0) {
+                MDNS_ERROR;
+            }
+            if (l == 0) {
+                continue;
+            }
             // fill in data length after its computed
-            write_u16(p + n - 2, l);
+            write_u16(p + n - 2, NULL, l);
             n += l;
         }
     }
