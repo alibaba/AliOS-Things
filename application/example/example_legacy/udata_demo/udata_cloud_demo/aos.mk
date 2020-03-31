@@ -11,4 +11,6 @@ $(NAME)_COMPONENTS := cli udata libiot_devmodel yloop netmgr cjson
 
 $(NAME)_INCLUDES += ./ ./linkkit
 
-
+ifeq ($(HOST_MCU_FAMILY),mcu_wm_w600)
+	GLOBAL_DEFINES += UDATA_CLOUD_DEMO_NOT_SUPPORT
+endif
