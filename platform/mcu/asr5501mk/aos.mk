@@ -60,10 +60,13 @@ $(NAME)_SOURCES += hal/src/hw.c \
             hal/src/wdg.c   \
             hal/src/pwm.c   \
             hal/src/wifi_port.c \
-            hal/src/ota.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr_rtc.c \
             hal/src/pwrmgmt_hal/board_cpu_pwr_systick.c
+
+ifeq ($(AOS_COMP_OTA),1)
+$(NAME)_SOURCES += hal/src/ota.c
+endif
 
 #driver
 $(NAME)_SOURCES += drivers/driver/src/lega_flash_alg.c \
