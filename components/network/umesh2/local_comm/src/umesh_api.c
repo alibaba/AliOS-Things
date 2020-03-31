@@ -420,16 +420,17 @@ static void callback_recv(void *p_cookie, int status, const struct mdns_entry *e
             case RR_SRV: {
                 char *name = NULL;
                 char *type = NULL;
+                char *last = NULL;
                 int num = get_char_num(entry->name, '.');
                 if (num == 2) {
                     name = UMESH_SRV_DEFAULT_NANE;
-                    char *type = (char *)strtok(entry->name, ".");
+                    char *type = (char *)strtok_r(entry->name, ".", &last);
                     if (type == NULL || strlen(type) == 0) {
                         break;
                     }
                 } else if (num == 3) {
-                    name = (char *)strtok(entry->name, ".");
-                    type = (char *)strtok(NULL, ".");
+                    name = (char *)strtok_r(entry->name, ".", &last);
+                    type = (char *)strtok_r(NULL, ".", &last);
                     if (name == NULL || strlen(name) == 0) {
                         break;
                     }
