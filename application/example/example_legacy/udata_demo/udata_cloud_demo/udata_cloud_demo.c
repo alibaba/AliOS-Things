@@ -19,6 +19,8 @@
 #include "udata/udata.h"
 #include "ulog/ulog.h"
 
+#ifndef UDATA_CLOUD_DEMO_NOT_SUPPORT
+
 #ifdef WITH_SAL
 #include <atcmd_config_module.h>
 #endif
@@ -228,6 +230,16 @@ void udata_cloud_test(void* arg)
     }
 }
 
+
+static void start_netmgr(void *p)
+{
+    LOG("%s\n", __func__);
+    aos_msleep(2000);
+    netmgr_start(true);
+    aos_task_exit(0);
+}
+
+
 int application_start(int argc, char **argv)
 {
     int ret;
@@ -260,13 +272,16 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     /* Creat task for uData cloud test */
-    ret = aos_task_new("udata_cloud_test", udata_cloud_test, NULL, 8192);
+    ret = aos_task_new("udata_cloud_test", udata_cloud_test, NULL, 5120);
     if (ret != 0){
         return -1;
     }
 
     /* Connect wifi with saved ssid and passwd */
-    netmgr_start(true);
+    ret = aos_task_new("netmgr_start", start_netmgr, NULL, 2048);
+    if (ret != 0) {
+        return -1;
+    }
 
     /* Enter yloop */
     aos_loop_run();
@@ -274,4 +289,17 @@ int application_start(int argc, char **argv)
     return 0;
 }
 
+#else
+
+int application_start(int argc, char **argv)
+{
+    printf("udata cloud demo not support\n");
+
+    /*  Enter yloop */
+    aos_loop_run();
+
+    return 0;
+}
+
+#endif
 
