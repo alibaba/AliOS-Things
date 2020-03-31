@@ -76,6 +76,14 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 }
 
+static void start_netmgr(void *p)
+{
+    LOG("%s\n", __func__);
+    aos_msleep(2000);
+    netmgr_start(true);
+    aos_task_exit(0);
+}
+
 /* sensor cloud test, include the following functions */
 /* 1. wait wifi conect                                */
 /* 2. link aliyun server                              */
@@ -231,13 +239,16 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     /* Creat task for sensor cloud test */
-    ret = aos_task_new("sensor_cloud_test", sensor_cloud_test, NULL, 8192);
+    ret = aos_task_new("sensor_cloud_test", sensor_cloud_test, NULL, 5120);
     if (ret != 0) {
         return -1;
     }
 
     /* Connect wifi with old ssid and passwd */
-    netmgr_start(true);
+    ret = aos_task_new("netmgr_start", start_netmgr, NULL, 2048);
+    if (ret != 0) {
+        return -1;
+    }
 
     /* Enter yloop */
     aos_loop_run();
