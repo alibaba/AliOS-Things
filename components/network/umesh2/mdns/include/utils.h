@@ -48,15 +48,27 @@ static inline socklen_t ss_len(const struct sockaddr_storage *ss)
             : sizeof(struct sockaddr_in6));
 }
 
-static inline uint8_t *write_u16(uint8_t *p, const uint16_t v)
+static inline uint8_t *write_u16(uint8_t *p, uint16_t *left_len, const uint16_t v)
 {
+    if (left_len != NULL) {
+        if (*left_len < 2) {
+            return NULL;
+        }
+        left_len -= 2;
+    }
     *p++ = (v >> 8) & 0xFF;
     *p++ = (v >> 0) & 0xFF;
     return (p);
 }
 
-static inline uint8_t *write_u32(uint8_t *p, const uint32_t v)
+static inline uint8_t *write_u32(uint8_t *p, uint16_t *left_len, const uint32_t v)
 {
+    if (left_len != NULL) {
+        if (*left_len < 4) {
+            return NULL;
+        }
+        left_len -= 4;
+    }
     *p++ = (v >> 24) & 0xFF;
     *p++ = (v >> 16) & 0xFF;
     *p++ = (v >>  8) & 0xFF;
@@ -64,11 +76,17 @@ static inline uint8_t *write_u32(uint8_t *p, const uint32_t v)
     return (p);
 }
 
-static inline uint8_t *write_raw(uint8_t *p, const uint8_t *v)
+static inline uint8_t *write_raw(uint8_t *p, uint16_t *left_len, const uint8_t *v)
 {
     uint32_t len;
 
     len = strlen((const char *) v) + 1;
+    if (left_len != NULL) {
+        if (*left_len < len) {
+            return NULL;
+        }
+        left_len -= len;
+    }
     memcpy(p, v, len);
     p += len;
     return (p);
@@ -76,20 +94,26 @@ static inline uint8_t *write_raw(uint8_t *p, const uint8_t *v)
 
 static inline const uint8_t *read_u16(const uint8_t *p, uint32_t *s, uint16_t *v)
 {
+    if (*s < 2 || p == NULL) {
+        return NULL;
+    }
     *v = 0;
-    *v |= *p++ << 8;
-    *v |= *p++ << 0;
+    *v |= (uint16_t) * p++ << 8;
+    *v |= (uint16_t) * p++ << 0;
     *s -= 2;
     return (p);
 }
 
 static inline const uint8_t *read_u32(const uint8_t *p, uint32_t *s, uint32_t *v)
 {
+    if (*s < 4 || p == NULL) {
+        return NULL;
+    }
     *v = 0;
-    *v |= *p++ << 24;
-    *v |= *p++ << 16;
-    *v |= *p++ << 8;
-    *v |= *p++ << 0;
+    *v |= (uint32_t) * p++ << 24;
+    *v |= (uint32_t) * p++ << 16;
+    *v |= (uint32_t) * p++ << 8;
+    *v |= (uint32_t) * p++ << 0;
     *s -= 4;
     return (p);
 }

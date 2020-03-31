@@ -16,12 +16,6 @@
 
 typedef void *multicast_if;
 
-
-static inline int os_wouldblock(void)
-{
-    return (errno == EWOULDBLOCK);
-}
-
 static uint64_t hal_now_ms()
 {
     return aos_now_ms();
@@ -55,9 +49,9 @@ struct mdns_ctx {
     struct mdns_svc *services;
 };
 
-static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short port);
-static uint32_t mdns_write_hdr(uint8_t *, const struct mdns_hdr *);
-static int strrcmp(const char *, const char *);
+static int32_t mdns_resolve(struct mdns_ctx *ctx, const char *addr,  uint16_t  port);
+static int32_t mdns_write_hdr(uint8_t *buf, uint16_t *left, const struct mdns_hdr *hdr);
+static int32_t strrcmp(const char *, const char *);
 
 static uint32_t mdns_list_interfaces(multicast_if **pp_intfs, struct mdns_ip **pp_mdns_ips, uint32_t *p_nb_intf,
                                      int ai_family)
@@ -71,7 +65,8 @@ static uint32_t mdns_list_interfaces(multicast_if **pp_intfs, struct mdns_ip **p
     memset(intfs, 0, sizeof(*intfs));
     *pp_mdns_ips = mdns_ips = hal_malloc(sizeof(*mdns_ips));
     if (mdns_ips == NULL) {
-        hal_free(mdns_ips);
+        hal_free(intfs);
+        *pp_intfs = NULL;
         return (MDNS_ERROR);
     }
     memset(mdns_ips, 0, sizeof(*mdns_ips));
@@ -79,9 +74,10 @@ static uint32_t mdns_list_interfaces(multicast_if **pp_intfs, struct mdns_ip **p
     return (0);
 }
 
-static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short port)
+static int32_t mdns_resolve(struct mdns_ctx *ctx, const char *addr,  uint16_t  port)
 {
     char buf[6];
+    int ret;
     struct addrinfo hints, *res = NULL;
     multicast_if *ifaddrs = NULL;
     struct mdns_ip *mdns_ips = NULL;
@@ -93,8 +89,8 @@ static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short p
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
-    errno = getaddrinfo(addr, buf, &hints, &res);
-    if (errno != 0) {
+    ret = getaddrinfo(addr, buf, &hints, &res);
+    if (ret != 0) {
         return (MDNS_LKPERR);
     }
 
@@ -112,6 +108,7 @@ static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short p
     ctx->conns = hal_malloc(ctx->nb_conns * sizeof(*ctx->conns));
     if (ctx->conns == NULL) {
         hal_free(ifaddrs);
+        hal_free(mdns_ips);
         freeaddrinfo(res);
         return (MDNS_ERROR);
     }
@@ -128,7 +125,7 @@ static int mdns_resolve(struct mdns_ctx *ctx, const char *addr, unsigned short p
 }
 
 
-int mdns_init(struct mdns_ctx **p_ctx, const char *addr, unsigned short port)
+int mdns_init(struct mdns_ctx **p_ctx, const char *addr, uint16_t  port)
 {
     int res;
 
@@ -200,43 +197,73 @@ int mdns_destroy(struct mdns_ctx *ctx)
     return (0);
 }
 
-static uint32_t mdns_write_hdr(uint8_t *ptr, const struct mdns_hdr *hdr)
+static int32_t mdns_write_hdr(uint8_t *ptr, uint16_t *left, const struct mdns_hdr *hdr)
 {
     uint8_t *p = ptr;
 
-    p = write_u16(p, hdr->id);
-    p = write_u16(p, hdr->flags);
-    p = write_u16(p, hdr->num_qn);
-    p = write_u16(p, hdr->num_ans_rr);
-    p = write_u16(p, hdr->num_auth_rr);
-    p = write_u16(p, hdr->num_add_rr);
+    p = write_u16(p, left, hdr->id);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, hdr->flags);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, hdr->num_qn);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, hdr->num_ans_rr);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, hdr->num_auth_rr);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
+    p = write_u16(p, left, hdr->num_add_rr);
+    if (p == NULL) {
+        return (MDNS_ERROR);
+    }
     return (p - ptr);
 }
 
 
 int mdns_send(const struct mdns_ctx *ctx, const struct mdns_hdr *hdr, const struct mdns_entry *entries)
 {
-    //uint8_t buf[MDNS_PKT_MAXSZ] = {0};
     const struct mdns_entry *entry = entries;
     uint32_t n = 0, l, r;
     uint8_t *buf;
+    uint16_t buf_len = MDNS_PKT_MAXSZ;
     if (!entries) {
         return (MDNS_ERROR);
     }
-    buf = hal_malloc(MDNS_PKT_MAXSZ);
+
+    buf = hal_malloc(buf_len);
     if (buf == NULL) {
         return MDNS_STDERR;
     }
-    memset(buf, 0, MDNS_PKT_MAXSZ);
-    l = mdns_write_hdr(buf, hdr);
+    memset(buf, 0, buf_len);
+    l = mdns_write_hdr(buf, &buf_len, hdr);
+    if (l < 0) {
+        hal_free(buf);
+        return (MDNS_ERROR);
+    }
+
     n += l;
     for (entry = entries; entry; entry = entry->next) {
-        l = mdns_write(buf + n, entry, (hdr->flags & FLAG_QR) > 0);
+        l = mdns_write(buf + n, &buf_len, entry, (hdr->flags & FLAG_QR) > 0);
         if (l < 0) {
             hal_free(buf);
             return (MDNS_STDERR);
         }
+
         n += l;
+        if (n > MDNS_PKT_MAXSZ) {
+            log_e("mdns packet too large!give up");
+            hal_free(buf);
+            return (MDNS_STDERR);
+        }
     }
     for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
         r = lwip_sendto(ctx->conns[i].sock, (const char *) buf, n, 0,
@@ -264,22 +291,22 @@ static void mdns_entries_free(struct mdns_entry *entries)
     }
 }
 
-static const uint8_t *mdns_read_header(const uint8_t *ptr, uint32_t n, struct mdns_hdr *hdr)
+static const uint8_t *mdns_read_header(const uint8_t *ptr, uint32_t *n, struct mdns_hdr *hdr)
 {
     if (n <= sizeof(struct mdns_hdr)) {
-        errno = ENOSPC;
+        //errno = ENOSPC;
         return NULL;
     }
-    ptr = read_u16(ptr, &n, &hdr->id);
-    ptr = read_u16(ptr, &n, &hdr->flags);
-    ptr = read_u16(ptr, &n, &hdr->num_qn);
-    ptr = read_u16(ptr, &n, &hdr->num_ans_rr);
-    ptr = read_u16(ptr, &n, &hdr->num_auth_rr);
-    ptr = read_u16(ptr, &n, &hdr->num_add_rr);
+    ptr = read_u16(ptr, n, &hdr->id);
+    ptr = read_u16(ptr, n, &hdr->flags);
+    ptr = read_u16(ptr, n, &hdr->num_qn);
+    ptr = read_u16(ptr, n, &hdr->num_ans_rr);
+    ptr = read_u16(ptr, n, &hdr->num_auth_rr);
+    ptr = read_u16(ptr, n, &hdr->num_add_rr);
     return ptr;
 }
 
-static int mdns_recv(const struct mdns_conn *conn, struct mdns_hdr *hdr, struct mdns_entry **entries)
+static int32_t mdns_recv(const struct mdns_conn *conn, struct mdns_hdr *hdr, struct mdns_entry **entries)
 {
     uint8_t *buf;
     uint32_t num_entry, n;
@@ -297,8 +324,13 @@ static int mdns_recv(const struct mdns_conn *conn, struct mdns_hdr *hdr, struct 
         hal_free(buf);
         return (MDNS_NETERR);
     }
-    const uint8_t *ptr = mdns_read_header(buf, length, hdr);
-    n = length;
+    n = (uint32_t)length;
+    const uint8_t *ptr = mdns_read_header(buf, &n, hdr);
+    if (ptr == NULL) {
+        hal_free(buf);
+        return (MDNS_NETERR);
+    }
+
 
     num_entry = hdr->num_qn + hdr->num_ans_rr + hdr->num_add_rr;
     for (uint32_t i = 0; i < num_entry; ++i) {
@@ -306,12 +338,13 @@ static int mdns_recv(const struct mdns_conn *conn, struct mdns_hdr *hdr, struct 
         if (!entry) {
             goto err;
         }
-        memset(entry, 0, sizeof(struct mdns_svc));
+        memset(entry, 0, sizeof(struct mdns_entry));
 
         ptr = mdns_read(ptr, &n, buf, entry, i >= hdr->num_qn);
         if (!ptr) {
+            log_e("mdns_read err");
+            mdns_free(entry);
             hal_free(entry);
-            errno = ENOSPC;
             goto err;
         }
 
@@ -348,7 +381,7 @@ void mdns_print(const struct mdns_entry *entry)
 }
 
 
-static int strrcmp(const char *s1, const char *s2)
+static int32_t strrcmp(const char *s1, const char *s2)
 {
     uint32_t m, n;
 
@@ -363,19 +396,19 @@ static int strrcmp(const char *s1, const char *s2)
     return (strncmp(s1 + m - n, s2, n));
 }
 
-static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *const names[],
-                                     unsigned int nb_names, enum mdns_match_type match_type, mdns_listen_callback callback,
-                                     void *p_cookie)
+static int32_t mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *const names[],
+        uint32_t nb_names, enum mdns_match_type match_type, mdns_listen_callback callback,
+        void *p_cookie)
 {
     struct mdns_hdr ahdr = {0};
     struct mdns_entry *entries;
     struct mdns_svc *svc;
     fd_set working_set;
     struct timeval timeout;
-    int max_fd = 0;
-    int r;
-
-    for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
+    int32_t max_fd = 0;
+    int32_t r;
+    int i;
+    for (i = 0; i < ctx->nb_conns; ++i) {
         if (max_fd < ctx->conns[i].sock) {
             max_fd = ctx->conns[i].sock;
         }
@@ -394,13 +427,13 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
         return r;
     }
 
-    for (uint32_t i = 0; i < ctx->nb_conns; ++i) {
+    for (i = 0; i < ctx->nb_conns; ++i) {
         if (FD_ISSET(ctx->conns[i].sock, &working_set) == 0) {
             continue;
         }
 
         r = mdns_recv(&ctx->conns[i], &ahdr, &entries);
-        if (r == MDNS_NETERR && os_wouldblock()) {
+        if (r < 0) {
             log_e("---MDNS_NETERR -----");
             mdns_entries_free(entries);
             continue;
@@ -414,7 +447,7 @@ static int mdns_listen_probe_network(const struct mdns_ctx *ctx, const char *con
         if (match_type == MDNS_MATCH_ALL) {
             callback(p_cookie, r, entries);
         } else {
-            for (unsigned int i = 0; i < nb_names; ++i) {
+            for (i = 0; i < nb_names; ++i) {
                 for (struct mdns_entry *entry = entries; entry; entry = entry->next) {
                     if (!strrcmp(entry->name, names[i])) {
                         callback(p_cookie, r, entries);
@@ -456,7 +489,7 @@ int mdns_announce(struct mdns_ctx *ctx, const char *service, enum mdns_type type
 }
 
 int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
-               unsigned int nb_names, enum mdns_type type, unsigned int interval, enum mdns_match_type match_type,
+                uint32_t  nb_names, enum mdns_type type,  uint32_t  interval, enum mdns_match_type match_type,
                mdns_stop_func stop, mdns_listen_callback callback, void *p_cookie)
 {
     if (ctx->nb_conns == 0) {
