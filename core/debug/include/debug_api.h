@@ -1,7 +1,6 @@
 /**
  * @file debug_api.h
  *
- * @author    yx170385@alibaba-inc.com
  * @version   V1.0
  * @date      2019-12-23
  * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
