@@ -105,11 +105,11 @@ $(NAME)_SOURCES += hal/pwrmgmt_hal/board_cpu_pwr.c \
                    hal/pwrmgmt_hal/board_cpu_pwr_timer.c
 
 #Beken ip
-$(NAME)_PREBUILT_LIBRARY += beken/ip.a
+$(NAME)_PREBUILT_LIBRARY += beken/ip/ip.a
 #$(NAME)_COMPONENTS += mcu_bk7231s_beken_ip
 
 #Beken entry
-$(NAME)_COMPONENTS += entry
+$(NAME)_COMPONENTS += mcu_bk7231s_beken_entry
 
 include ./platform/mcu/bk7231s/beken/beken.mk
 
