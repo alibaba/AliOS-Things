@@ -322,7 +322,7 @@ int aos_components_init(kinit_t *kinit)
     ota_service_init();
 #endif
 
-#ifdef AOS_SENSOR
+#ifdef AOS_COMP_SENSOR
     sensor_init();
 #endif
 
