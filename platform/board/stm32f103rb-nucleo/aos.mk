@@ -1,4 +1,4 @@
-NAME := board_stm32f103rb-necleo
+NAME := board_stm32f103rb-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
