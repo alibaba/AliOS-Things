@@ -1,4 +1,4 @@
-NAME := entry
+NAME := mcu_bk7231s_beken_entry
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
