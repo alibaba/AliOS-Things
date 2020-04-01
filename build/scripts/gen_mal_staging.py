@@ -2,6 +2,7 @@ import os
 import sys
 import click
 import re
+import codecs
 
 if sys.version_info[0] < 3:
     reload(sys)
@@ -24,7 +25,7 @@ def copy_template(tempfile, templatedir, destdir, drivername):
     contents = []
     # Replace drivername from file contents
 
-    with open(os.path.join(templatedir, tempfile), "r") as f:
+    with codecs.open(os.path.join(templatedir, tempfile), "r", encoding="UTF-8") as f:
         for line in f.readlines():
             if "@drivername@" in line:
                 line = line.replace("@drivername@", drivername)
@@ -45,7 +46,7 @@ def copy_template(tempfile, templatedir, destdir, drivername):
 
     # Write to destfile
     if contents:
-        with open(os.path.join(destdir, destfile), "w") as f:
+        with codecs.open(os.path.join(destdir, destfile), "w", encoding='utf-8') as f:
             for line in contents:
                 f.write(line)
 
@@ -57,7 +58,7 @@ def update_config(destdir, devicetype, drivername):
         newline = "\n    config AOS_MAL_%s_%s\n" % (devicetype.upper(), drivername.upper())
         newline2 = "        bool %s.%s\n" % (devicetype, drivername)
 
-        with open(configfile, 'r') as f:
+        with codecs.open(configfile, 'r', encoding='utf-8') as f:
             for l in f.readlines():
                 newf.extend([l])
                 if re.findall(r'.*bool\s+\"Null\".*', l):
@@ -71,7 +72,7 @@ def update_config(destdir, devicetype, drivername):
             newf.remove(newline2)
 
         if newf:
-            with open(configfile, 'w') as f:
+            with codecs.open(configfile, 'w', encoding='utf-8') as f:
                 for l in newf:
                     f.write(l)
 
@@ -81,7 +82,7 @@ def update_mk(destdir, devicetype, drivername):
         newline = "$(NAME)_COMPONENTS-$(AOS_MAL_%s_%s) := device_mal_%s" % \
                   (devicetype.upper(), drivername.upper(), drivername)
 
-        with open(mkfile, 'r') as f:
+        with codecs.open(mkfile, 'r', encoding='utf-8') as f:
             l = f.readline()
             while l:
                 if newline.strip() in l:
@@ -89,7 +90,7 @@ def update_mk(destdir, devicetype, drivername):
                     return
                 l = f.readline()
 
-        with open(mkfile, 'a') as f:
+        with codecs.open(mkfile, 'a', encoding='utf-8') as f:
             f.write("\n" + newline)
 
 @click.command()
