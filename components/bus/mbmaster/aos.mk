@@ -27,7 +27,7 @@ else ifeq ($(COMPILER),armcc)
 GLOBAL_DEFINES += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES     += include ./
+GLOBAL_INCLUDES     += include ./ ../../../include/bus/modbus
 GLOBAL_DEFINES      += AOS_COMP_MBMASTER
 AOS_COMP_MBMASTER   := y
 
