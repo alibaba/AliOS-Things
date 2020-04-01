@@ -317,12 +317,79 @@ err:
     return;
 }
 
+#if (ENABLE_WATCH_DOG)
+#include "aos/hal/wdg.h"
+#define WDG_PORT_NUM 0
+
+/* task parameters */
+#define TASK_FEEDWDG_NAME      "feedwdg"
+#define TASK_FEEDWDG_STACKSIZE 2048
+#define TASK_FEEDWDG_PRI       32
+
+#define TAG "umesh2 demo"
+/* task handle */
+aos_task_t task_feedwdg;
+
+static wdg_dev_t watchdog;
+
+/* task entry */
+static void task_feedwdg_entry(void *arg)
+{
+    unsigned int n = 0;
+    /**
+     * The task fed the watchdog every 1000ms. The feeding interval must be less than the
+     * watchdog timeout, otherwise it will trigger by mistake.
+     */
+    while (1) {
+        n++;
+        if (n % 5 == 0) {
+            LOG("feed the watchdog!\n");
+        }
+
+        hal_wdg_reload(&watchdog);
+
+        aos_msleep(1500);
+    }
+}
+
+void hal_watchdog_app_enable(void)
+{
+    int ret;
+    /* wdg port set */
+    watchdog.port = WDG_PORT_NUM;
+
+    /*  set reload time to 1500ms */
+    watchdog.config.timeout = 8000;
+
+    /* init watchdog with the given settings */
+    ret = hal_wdg_init(&watchdog);
+    if (ret != 0) {
+        LOGE(TAG, "watchdog init error !\n");
+        return -1;
+    }
+
+    /* Create the task to feed the watchdog */
+    ret = aos_task_new_ext(&task_feedwdg, TASK_FEEDWDG_NAME, task_feedwdg_entry, NULL,
+                           TASK_FEEDWDG_STACKSIZE, TASK_FEEDWDG_PRI);
+    if (ret != 0) {
+        LOGE(TAG, "create watchdog task error\r\n");
+        ret = hal_wdg_finalize(&watchdog);
+        if (ret != 0) {
+            LOGE(TAG, "delete watchdog error!\r\n");
+        }
+        return;
+    }
+}
+#endif
 
 
 int application_start(int argc, char **argv)
 {
 
     LOG("application_start");
+#if ENABLE_WATCH_DOG
+    hal_watchdog_app_enable();
+#endif
 #if ENABLE_PRINT_HEAP
     print_heap();
     aos_post_delayed_action(5000, monitor_work, NULL);
