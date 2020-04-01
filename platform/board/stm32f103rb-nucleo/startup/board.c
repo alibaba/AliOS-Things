@@ -133,15 +133,6 @@ void board_basic_init(void)
 {
     /*mm heap set*/
     aos_heap_set();
-
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-    //HAL_Init();
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* Configure the Systick interrupt time */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 }
 /**
   * @general board tick init entry board_tick_init
@@ -150,14 +141,12 @@ void board_basic_init(void)
 void board_tick_init(void)
 {
     /* Configure the Systick interrupt time ,use RHINO_CONFIG_TICKS_PER_SECOND to init tick clock*/
-  /**Configure the Systick interrupt time
-    */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* PendSV_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0x0);
-  /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+    /* SysTick_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 /**
