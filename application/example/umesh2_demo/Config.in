@@ -15,6 +15,12 @@ if AOS_APP_UMESH2_DEMO
             default y
             help
                 enable printf heap size 
+                
+        config ENABLE_WATCH_DOG
+            bool "enable hardware watchdog"
+            default y
+            help
+                hardware watchdog
 
         config ENABLE_LOOP_TEST
             bool "running without deinit"
