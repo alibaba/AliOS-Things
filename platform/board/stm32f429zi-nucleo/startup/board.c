@@ -319,11 +319,6 @@ void board_basic_init(void)
 {
     /*mm heap set*/
     aos_heap_set();
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    HAL_Init();
 }
 
 void board_tick_init(void)
@@ -331,7 +326,13 @@ void board_tick_init(void)
     /**
      * Configure the Systick interrupt time
      */
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    HAL_Init();
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 uint32_t hal_timer_getcounter(timer_dev_t *tim)
