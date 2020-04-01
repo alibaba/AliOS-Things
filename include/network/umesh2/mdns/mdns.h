@@ -46,7 +46,7 @@ struct mdns_hdr {
 };
 
 struct mdns_ip {
-    unsigned int family;
+    uint32_t  family;
     union {
         struct {
             struct in_addr addr;
@@ -62,7 +62,7 @@ typedef void (*mdns_announce_callback)(const char *name, void *context);
 
 typedef int (*mdns_stop_func)(void *);
 
-int mdns_init(struct mdns_ctx **ctx, const char *addr, unsigned short port);
+int mdns_init(struct mdns_ctx **ctx, const char *addr,  uint16_t  port);
 
 int mdns_destroy(struct mdns_ctx *ctx);
 
@@ -74,7 +74,7 @@ int mdns_announce(struct mdns_ctx *ctx, const char *service, enum mdns_type type
                   mdns_announce_callback callback, void *context);
 
 int mdns_start(const struct mdns_ctx *ctx, const char *const names[],
-               unsigned int nb_names, enum mdns_type type, unsigned int interval, enum mdns_match_type match_type,
+               uint32_t  nb_names, enum mdns_type type,  uint32_t  interval, enum mdns_match_type match_type,
                mdns_stop_func stop, mdns_listen_callback callback, void *p_cookie);
 
 

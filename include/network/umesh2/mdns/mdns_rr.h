@@ -75,7 +75,7 @@ struct mdns_entry {
 };
 
 const uint8_t *mdns_read(const uint8_t *, uint32_t *, const uint8_t *, struct mdns_entry *, int8_t ans);
-uint32_t mdns_write(uint8_t *, const struct mdns_entry *, int8_t ans);
+int32_t mdns_write(uint8_t *, uint16_t *left, const struct mdns_entry *, int8_t ans);
 void mdns_item_print(const struct mdns_entry *);
 void mdns_free(struct mdns_entry *);
 
