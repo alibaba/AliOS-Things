@@ -49,7 +49,7 @@ before_script:
 - echo ${TRAVIS_JOB_NUMBER}
 script:
 - echo -e "stm32f103rb-nucleo\nstm32f429zi-nucleo\nmk3080\nesp32devkitc\nesp8266\npca10040" > boards.txt
-- bash ./build/scripts/autobuild.sh boards.txt
+- python ./build/scripts/autobuild.py boards.txt
 after_success:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then DIRNAME=push MARK=push; else DIRNAME=pr
   MARK=${TRAVIS_PULL_REQUEST}; fi
