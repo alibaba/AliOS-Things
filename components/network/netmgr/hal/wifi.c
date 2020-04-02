@@ -21,8 +21,42 @@ hal_wifi_module_t *hal_wifi_get_default_module(void)
     return m;
 }
 
+int hal_wifi_set_module_base(hal_wifi_module_t *module, char *os, char *partner,
+                                 char* app_net, char* type, char *project, char* cloud)
+{
+    dlist_t *t;
+    int found = 0;
+
+    dlist_for_each(t, &g_wifi_module) {
+        if(module ==  (hal_wifi_module_t *)t) {
+            found = 1;
+            break;
+        }
+    }
+
+    if(found == 1) {
+        module->base.os = os;
+        module->base.partner = partner;
+        module->base.app_net = app_net;
+        module->base.type = type;
+        module->base.project = project;
+        module->base.cloud = cloud;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 void hal_wifi_register_module(hal_wifi_module_t *module)
 {
+    /* reset module base information */
+    module->base.os = NULL;
+    module->base.partner = NULL;
+    module->base.app_net = NULL;
+    module->base.type = NULL;
+    module->base.project = NULL;
+    module->base.cloud = NULL;
+
     dlist_add_tail(&module->base.list, &g_wifi_module);
 
 }
