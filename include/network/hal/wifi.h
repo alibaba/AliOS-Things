@@ -228,7 +228,25 @@ struct hal_wifi_module_s {
  *
  * @return  Instance pointer, or NULL if no instance registered.
  */
+
 hal_wifi_module_t *hal_wifi_get_default_module(void);
+
+/**
+ * Set module base information.
+ * @param[in]   m       the wifi instance, NULL if default.
+ * @param[in]   os      the os name string, eg "linux", "rtos".
+ * @param[in]   partner the name string of partner, eg: "tmall_genie".
+ * @param[in]   app_net the app protocol string, eg: "mqtt", "websocket", "http","http+mqtt".
+ * @param[in]   type    the device type string, eg: "solo","sub","gw"
+ * @param[in]   project the project name string, eg: "at_wifi", "tmall_genie", "gateway"
+ * @param[in]   cloud   the cloud name string, eg: "aliyun"
+ *
+ * @return      0 on success, otherwise failure for no module found.
+ */
+
+int hal_wifi_set_module_base(hal_wifi_module_t *m, char *os,
+                              char *partner,char* app_net, char* type,
+                              char *project, char* cloud);
 
 /**
  * Regster a wifi instance to the HAL framework.
