@@ -1,0 +1,17 @@
+[
+    {
+        "board": "eml3047", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "m100c", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "m400", 
+        "os": "linux", 
+        "params": ""
+    }
+]
