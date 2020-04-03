@@ -322,11 +322,17 @@ static int user_master_dev_available(void)
 
 void set_iotx_info()
 {
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    HAL_GetDeviceName(_device_name);
-    if (strlen(_device_name) == 0 || strncmp(_device_name, " ", 1) == 0) {
+
+    HAL_GetProductKey(_product_key);
+    if (strlen(_product_key) == 0) {
         HAL_SetProductKey(PRODUCT_KEY);
         HAL_SetProductSecret(PRODUCT_SECRET);
+    }
+
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
         HAL_SetDeviceName(DEVICE_NAME);
         HAL_SetDeviceSecret(DEVICE_SECRET);
     }
@@ -365,7 +371,7 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info, unsigned 
         return res;
     }
     EXAMPLE_TRACE("subdev connect success: devid = %d\n", devid);
-#if defined(ENABLE_AOS_OTA) 
+#if defined(ENABLE_AOS_OTA)
     if(index >= EXAMPLE_SUBDEV_MAX_NUM) {
         EXAMPLE_TRACE("subdev numb out range\n");
         return FAIL_RETURN;

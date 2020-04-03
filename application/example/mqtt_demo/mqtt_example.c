@@ -119,10 +119,16 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 void set_iotx_info()
 {
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+
+    HAL_GetProductKey(_product_key);
+    if (strlen(_product_key) == 0) {
+        HAL_SetProductKey(PRODUCT_KEY);
+    }
+
     HAL_GetDeviceName(_device_name);
     if (strlen(_device_name) == 0) {
-        HAL_SetProductKey(PRODUCT_KEY);
         HAL_SetDeviceName(DEVICE_NAME);
         HAL_SetDeviceSecret(DEVICE_SECRET);
     }
