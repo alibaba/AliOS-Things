@@ -1,0 +1,12 @@
+[
+    {
+        "board": "stm32f412zg-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xmc4800-relax", 
+        "os": "linux", 
+        "params": ""
+    }
+]
