@@ -1,0 +1,27 @@
+[
+    {
+        "board": "esp32devkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp32sram", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "pca10040", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "pca10040e", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "pca10056", 
+        "os": "linux", 
+        "params": ""
+    }
+]

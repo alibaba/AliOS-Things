@@ -1,0 +1,12 @@
+[
+    {
+        "board": "mk3060", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "uno-91h", 
+        "os": "linux", 
+        "params": ""
+    }
+]
