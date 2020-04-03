@@ -266,11 +266,17 @@ static int user_cloud_error_handler(const int code, const char *data, const char
 
 void set_iotx_info()
 {
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    HAL_GetDeviceName(_device_name);
-    if (strlen(_device_name) == 0) {
+
+    HAL_GetProductKey(_product_key);
+    if (strlen(_product_key) == 0) {
         HAL_SetProductKey(PRODUCT_KEY);
         HAL_SetProductSecret(PRODUCT_SECRET);
+    }
+
+    HAL_GetDeviceName(_device_name);
+    if (strlen(_device_name) == 0) {
         HAL_SetDeviceName(DEVICE_NAME);
         HAL_SetDeviceSecret(DEVICE_SECRET);
     }
@@ -346,7 +352,7 @@ int linkkit_main(void *paras)
         IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)url);
         IOT_Ioctl(IOTX_IOCTL_SET_CUSTOMIZE_INFO, (void *)"authtype=id2");
         IOT_Ioctl(IOTX_IOCTL_SET_MQTT_PORT, &port);
-    } 
+    }
 #endif
     /* Create Master Device Resources */
     do {
