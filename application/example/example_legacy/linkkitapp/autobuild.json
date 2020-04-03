@@ -1,0 +1,202 @@
+[
+    {
+        "board": "AIoTKIT", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "AIoTKIT", 
+        "os": "windows", 
+        "params": "COMPILER=armcc"
+    }, 
+    {
+        "board": "amebaz_dev", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "armhflinux", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "atsame54-xpro", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "b_l475e", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "bk7231devkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "bk7231sdevkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "bk7231udevkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "cy8ckit-062", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "developerkit", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "developerkit", 
+        "os": "windows", 
+        "params": "COMPILER=armcc"
+    }, 
+    {
+        "board": "dh5021a_evb", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp32devkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp32sram", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp8285", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "lpcxpresso54102", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "lpcxpresso54608", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3060", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3165", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3166", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3239", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "msp432p4111launchpad", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mt7682s", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "numaker-iot-m487", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "numaker-iot-m487", 
+        "os": "windows", 
+        "params": "COMPILER=armcc"
+    }, 
+    {
+        "board": "numaker-pfm-m487", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "rk1108", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32f401re-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32f411re-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32f412zg-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32l476rg-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32l476rg-nucleo", 
+        "os": "windows", 
+        "params": "COMPILER=armcc"
+    }, 
+    {
+        "board": "stm32l496g-discovery", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "sv6266_evb", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "uno-91h", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "wm_w600_kit", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xmc4800-relax", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr809", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr871evb", 
+        "os": "linux", 
+        "params": ""
+    }
+]
