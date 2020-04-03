@@ -14,7 +14,7 @@
 #define DEVINFO_DS  "hal_devinfo_ds"
 #define DEVINFO_PK  "hal_devinfo_pk"
 #define DEVINFO_PS  "hal_devinfo_ps"
-#define LOG_TAG     "HAL"   
+#define LOG_TAG     "HAL"
 static const char *demo_iv = "f165u329c054k637";
 
 
@@ -36,17 +36,11 @@ int HAL_SetProductKey(char *product_key)
     len = strlen(product_key);
     if (len > IOTX_PRODUCT_KEY_LEN) {
         return -1;
-    } else if (len == 0) {
-        aos_kv_del(DEVINFO_PK);
-        return 0;
     }
 
     strncpy(_product_key, product_key, len);
-    aos_kv_set(DEVINFO_PK, product_key, len, 1);
-
     return len;
 }
-
 
 int HAL_SetDeviceName(char *device_name)
 {
@@ -60,14 +54,9 @@ int HAL_SetDeviceName(char *device_name)
     len = strlen(device_name);
     if (len > IOTX_DEVICE_NAME_LEN) {
         return -1;
-    } else if (len == 0) {
-        aos_kv_del(DEVINFO_DN);
-        return 0;
     }
 
     strncpy(_device_name, device_name, len);
-    aos_kv_set(DEVINFO_DN, device_name, len, 1);
-
     return len;
 }
 
@@ -84,38 +73,15 @@ int HAL_SetProductSecret(char *product_secret)
     len = strlen(product_secret);
     if (len > IOTX_PRODUCT_SECRET_LEN) {
         return -1;
-    } else if (len == 0) {
-        aos_kv_del(DEVINFO_PS);
-        return 0;
     }
 
     strncpy(_product_secret, product_secret, len);
-
-    do {
-        char dec_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
-        if(strlen(_product_key) == 0) {
-                HAL_GetProductKey(_product_key);
-        }
-        p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
-        if(aes_e_h == NULL ) {
-            LOGE(LOG_TAG, "aes init failed");
-            break;
-        }
-        res = infra_aes128_cfb_encrypt(aes_e_h, _product_secret, len, dec_secret);
-        infra_aes128_destroy(aes_e_h);
-        if(res < 0) {
-            LOGE(LOG_TAG, "encrypt ps failed");
-            break;
-        }
-        aos_kv_set(DEVINFO_PS, dec_secret, len, 1);
-    } while(0);
-
     return len;
 }
 
 int HAL_SetDeviceSecret(char *device_secret)
 {
-    int res, len;
+    int len;
     if(device_secret == NULL) {
         return -1;
     }
@@ -124,33 +90,9 @@ int HAL_SetDeviceSecret(char *device_secret)
     len = strlen(device_secret);
     if (len > IOTX_DEVICE_SECRET_LEN) {
         return -1;
-    } else if (len == 0) {
-        aos_kv_del(DEVINFO_DS);
-        return 0;
     }
 
     strncpy(_device_secret, device_secret, len);
-
-    do {
-        char dec_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-        if(strlen(_product_key) == 0) {
-                HAL_GetProductKey(_product_key);
-        }
-        p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
-        if(aes_e_h == NULL ) {
-            LOGE(LOG_TAG, "aes init failed");
-            break;
-        }
-        res = infra_aes128_cfb_encrypt(aes_e_h, _device_secret, len, dec_secret);
-        infra_aes128_destroy(aes_e_h);
-        if(res < 0) {
-            LOGE(LOG_TAG, "encrypt ds failed");
-            break;
-        }
-        aos_kv_set(DEVINFO_DS, dec_secret, len, 1);
-    
-    } while(0);
-
     return len;
 }
 
@@ -195,7 +137,7 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
             if(res < 0) {
                 LOGE(LOG_TAG, "encrypt ds failed");
                 break;
-            }        
+            }
         } while(0);
     }
 
@@ -244,13 +186,83 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
             if(res < 0) {
                 LOGE(LOG_TAG, "encrypt ds failed");
                 break;
-            }        
+            }
         } while(0);
     }
 
     strncpy(device_secret, _device_secret, len);
 
     return len;
+}
+
+int HAL_SaveDeviceIdentity(char *pk, char *ps, char *dn, char *ds)
+{
+    int res, len;
+
+    if (HAL_SetProductKey(pk) > 0) {
+        len = strlen(pk);
+        aos_kv_set(DEVINFO_PK, pk, len, 1);
+    }
+
+    if (HAL_SetProductSecret(ps) > 0) {
+        do {
+            char dec_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+            if(strlen(_product_key) == 0) {
+               HAL_GetProductKey(_product_key);
+            }
+            p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
+            if(aes_e_h == NULL ) {
+                LOGE(LOG_TAG, "aes init failed");
+                break;
+            }
+            len = strlen(ps);
+            res = infra_aes128_cfb_encrypt(aes_e_h, _product_secret, len, dec_secret);
+            infra_aes128_destroy(aes_e_h);
+            if(res < 0) {
+                LOGE(LOG_TAG, "encrypt ps failed");
+                break;
+            }
+            aos_kv_set(DEVINFO_PS, dec_secret, len, 1);
+        } while(0);
+    }
+
+    if (HAL_SetDeviceName(dn) > 0) {
+        len = strlen(dn);
+        aos_kv_set(DEVINFO_DN, dn, len, 1);
+    }
+
+    if (HAL_SetDeviceSecret(ds) > 0) {
+        do {
+            char dec_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+            if(strlen(_product_key) == 0) {
+                    HAL_GetProductKey(_product_key);
+            }
+            p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)_product_key, (unsigned char *)demo_iv, AES_ENCRYPTION);
+            if(aes_e_h == NULL ) {
+                LOGE(LOG_TAG, "aes init failed");
+                break;
+            }
+            len = strlen(ds);
+            res = infra_aes128_cfb_encrypt(aes_e_h, ds, len, dec_secret);
+            infra_aes128_destroy(aes_e_h);
+            if(res < 0) {
+                LOGE(LOG_TAG, "encrypt ds failed");
+                break;
+            }
+            aos_kv_set(DEVINFO_DS, dec_secret, len, 1);
+        } while(0);
+    }
+
+    return 0;
+}
+
+int HAL_ClearDeviceIdentity()
+{
+    aos_kv_del(DEVINFO_PK);
+    aos_kv_del(DEVINFO_PS);
+    aos_kv_del(DEVINFO_DN);
+    aos_kv_del(DEVINFO_DS);
+    return 0;
 }
 
 int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VERSION_LEN])
