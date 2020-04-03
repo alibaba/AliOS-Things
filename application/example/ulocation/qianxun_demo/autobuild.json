@@ -1,0 +1,7 @@
+[
+    {
+        "board": "stm32f429zi-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }
+]
