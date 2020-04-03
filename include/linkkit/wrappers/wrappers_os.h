@@ -72,6 +72,10 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 
+int HAL_SaveDeviceIdentity(char* pk, char *ps, char *dn, char *ds);
+
+int HAL_ClearDeviceIdentity(void);
+
 int HAL_GetFirmwareVersion(char *version);
 
 void HAL_Firmware_Persistence_Start(void);
