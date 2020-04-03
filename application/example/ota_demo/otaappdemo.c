@@ -87,7 +87,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 }
 #ifdef AOS_COMP_CLI
-static void get_devinfo()
+static void get_identity()
 {
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = {0};
     char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = {0};
@@ -95,45 +95,30 @@ static void get_devinfo()
     HAL_GetProductKey(_product_key);
     HAL_GetDeviceName(_device_name);
     HAL_GetDeviceSecret(_device_secret);
-    LOG("pk:%s, dn:%s ds:%s \n", _product_key, _device_name, _device_secret);
+    aos_cli_printf("ProductKey:%s, DeviceName:%s DeviceSecret:%s \n", _product_key, _device_name, _device_secret);
 }
 
-static void set_devinfo(char *pk, char *ps, char *dn, char *ds)
-{
-    if (dn != NULL) {
-        HAL_SetDeviceName(dn);
-    }
-    if (ds != NULL) {
-        HAL_SetDeviceSecret(ds);
-    }
-    if (pk != NULL) {
-        HAL_SetProductKey(pk);
-    }
-    if (ps != NULL) {
-        HAL_SetProductSecret(ps);
-    }
-}
-
-static void cmd_devinfo(char *pwbuf, int blen, int argc, char **argv)
+static void cmd_identity(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
     if (strcmp(rtype, "get") == 0) {
-        get_devinfo();
+        get_identity();
     } else if (strcmp(rtype, "set") == 0) {
         if (argc == 4) {
-            set_devinfo(NULL, NULL, argv[2], argv[3]);
+            HAL_SaveDeviceIdentity(NULL, NULL, argv[2], argv[3]);
         } else if (argc == 5) {
-            set_devinfo(argv[2], argv[3], argv[4], "");
+            HAL_SaveDeviceIdentity(argv[2], argv[3], argv[4], "");
         } else if (argc == 6) {
-            set_devinfo(argv[2], argv[3], argv[4], argv[5]);
+            HAL_SaveDeviceIdentity(argv[2], argv[3], argv[4], argv[5]);
         } else {
-            LOG("arg number err!");
+            aos_cli_printf("arg number err! usage:\n");
+            aos_cli_printf("identity set {pk} {ps} {dn} [ds] | identity set {dn} {ds}\n");
         }
-    } else if (strcmp(rtype, "clean") == 0) {
-        set_devinfo("", "", "", "");
+    } else if (strcmp(rtype, "clear") == 0) {
+        HAL_ClearDeviceIdentity();
     } else {
-        LOG("usage:");
-        LOG("devinfo [set pk ps dn ds | set dn ds | get | clean]");
+        aos_cli_printf("usage:\n");
+        aos_cli_printf("identity [set pk ps dn ds | set dn ds | get | clear]\n");
     }
 }
 
@@ -183,24 +168,24 @@ static void cmd_mcu_ota(char *pwbuf, int blen, int argc, char **argv)
 
 static struct cli_command ota_cmd[5] = {
     {
-    .name = "ota_download",
-    .help = "ota_download [url]",
-    .function = cmd_download
+        .name = "ota_download",
+        .help = "ota_download [url]",
+        .function = cmd_download
     },
     {
-    .name = "ota_diff",
-    .help = "ota diff",
-    .function = cmd_diff_ota
+        .name = "ota_diff",
+        .help = "ota diff",
+        .function = cmd_diff_ota
     },
     {
-    .name = "ota_mcu",
-    .help = "ota mcu",
-    .function = cmd_mcu_ota
+        .name = "ota_mcu",
+        .help = "ota mcu",
+        .function = cmd_mcu_ota
     },
     {
-    .name = "devinfo",
-    .help = "devinfo [set pk ps dn ds | set dn ds | get | clean ]",
-    .function = cmd_devinfo
+        .name = "identity",
+        .help = "identity [set pk ps dn ds | set dn ds | get | clear]",
+        .function = cmd_identity
     }
 };
 #endif
@@ -248,7 +233,7 @@ int application_start(int argc, char *argv[])
     netmgr_init();
 #ifdef AOS_COMP_CLI
     int i = 0;
-    for(i=0; i<sizeof(ota_cmd); i++) { 
+    for(i=0; i<sizeof(ota_cmd); i++) {
         aos_cli_register_command(&ota_cmd[i]);
     }
 #endif

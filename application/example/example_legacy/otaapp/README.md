@@ -62,7 +62,7 @@ aos make
 ```
 netmgr connect ssid passwd
 ```
-2. set devinfo(pk ps dn ds), burn and run ota demo
+2. set identity(pk ps dn ds), burn and run ota demo
 
 ```
 ## Reference
