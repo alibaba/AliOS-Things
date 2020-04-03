@@ -1,0 +1,32 @@
+[
+    {
+        "board": "asr5501", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp8266", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "linuxhost", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3072", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "mk3080", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "stm32f429zi-nucleo", 
+        "os": "linux", 
+        "params": ""
+    }
+]
