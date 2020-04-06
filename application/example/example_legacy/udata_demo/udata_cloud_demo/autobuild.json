@@ -10,6 +10,11 @@
         "params": ""
     }, 
     {
+        "board": "armhflinux", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
         "board": "atsame54-xpro", 
         "os": "linux", 
         "params": ""
@@ -41,6 +46,26 @@
     }, 
     {
         "board": "developerkit", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "dh5021a_evb", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp32devkitc", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "esp32sram", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "lpcxpresso54102", 
         "os": "linux", 
         "params": ""
     }, 
@@ -146,6 +171,16 @@
     }, 
     {
         "board": "xmc4800-relax", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr809", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr871evb", 
         "os": "linux", 
         "params": ""
     }
