@@ -1,5 +1,10 @@
 [
     {
+        "board": "AIoTKIT", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
         "board": "atsame54-xpro", 
         "os": "linux", 
         "params": ""

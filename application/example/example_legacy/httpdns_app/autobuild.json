@@ -98,5 +98,15 @@
         "board": "wm_w600_kit", 
         "os": "linux", 
         "params": ""
+    }, 
+    {
+        "board": "xr809", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr871evb", 
+        "os": "linux", 
+        "params": ""
     }
 ]
