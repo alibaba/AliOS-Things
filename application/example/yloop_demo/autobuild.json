@@ -15,6 +15,11 @@
         "params": ""
     }, 
     {
+        "board": "mk3080", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
         "board": "stm32f103rb-nucleo", 
         "os": "linux", 
         "params": ""
