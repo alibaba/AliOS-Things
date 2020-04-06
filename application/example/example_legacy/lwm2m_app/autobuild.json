@@ -1,5 +1,10 @@
 [
     {
+        "board": "AIoTKIT", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
         "board": "amebaz_dev", 
         "os": "linux", 
         "params": ""
@@ -171,6 +176,16 @@
     }, 
     {
         "board": "xmc4800-relax", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr809", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr871evb", 
         "os": "linux", 
         "params": ""
     }

@@ -153,5 +153,15 @@
         "board": "uno-91h", 
         "os": "linux", 
         "params": ""
+    }, 
+    {
+        "board": "xr809", 
+        "os": "linux", 
+        "params": ""
+    }, 
+    {
+        "board": "xr871evb", 
+        "os": "linux", 
+        "params": ""
     }
 ]
