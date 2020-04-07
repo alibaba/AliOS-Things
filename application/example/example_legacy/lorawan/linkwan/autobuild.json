@@ -1,10 +1,5 @@
 [
     {
-        "board": "asr6501", 
-        "os": "linux", 
-        "params": ""
-    }, 
-    {
         "board": "eml3047", 
         "os": "linux", 
         "params": ""
