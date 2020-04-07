@@ -54,7 +54,7 @@
 #include "aos/hal/gpio.h"
 #include "k_api.h"
 #include "aos/init.h"
-#include "cli/cli_api.h"
+#include "cli_api.h"
 
 /* USER CODE BEGIN Includes */
 
