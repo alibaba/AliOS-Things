@@ -11,9 +11,9 @@
 
 static net_interface_t g_net_interfaces[INTERFACE_INDEX_MAX];
 
-int netmgr_init(void)
+int32_t netmgr_init(void)
 {
-    int ret = -1;
+    int32_t ret = -1;
 
 #if AOS_NET_WITH_WIFI
     ret = netmgr_wifi_init();
@@ -43,9 +43,9 @@ void netmgr_deinit(void)
 #endif
 }
 
-int netmgr_start(bool autoconfig)
+int32_t netmgr_start(bool autoconfig)
 {
-    int ret = -1;
+    int32_t ret = -1;
 #if !AOS_NET_WITH_ETH
 #if AOS_NET_WITH_WIFI
     ret = netmgr_wifi_start(autoconfig);
@@ -64,7 +64,7 @@ int netmgr_start(bool autoconfig)
     return ret;
 }
 
-int netmgr_stats(int32_t interface, netmgr_stats_t *stats)
+int32_t netmgr_stats(int32_t interface, netmgr_stats_t *stats)
 {
     if (stats == NULL) {
         return -1;
