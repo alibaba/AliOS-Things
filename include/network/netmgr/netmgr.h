@@ -58,7 +58,7 @@ typedef struct netmgr_stats_s {
  *
  * @return 0 on success, negative on failure
  */
-int netmgr_init(void);
+int32_t netmgr_init(void);
 
 /**
  *
@@ -77,7 +77,7 @@ void netmgr_deinit(void);
  * @return 0 on success, negative on failure
  *
  */
-int netmgr_start(bool autoconfig);
+int32_t netmgr_start(bool autoconfig);
 
 /**
  *
@@ -89,7 +89,7 @@ int netmgr_start(bool autoconfig);
  * @return 0 on success, negative on failure
  *
  */
-int netmgr_stats(int32_t interface, netmgr_stats_t *stats);
+int32_t netmgr_stats(int32_t interface, netmgr_stats_t *stats);
 
 #ifdef AOS_NET_WITH_WIFI
 /**
