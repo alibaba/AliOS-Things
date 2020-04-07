@@ -5,7 +5,7 @@
 
 #if defined(WITH_SAL)
 
-#include <atparser.h>
+#include <at/at.h>
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"
