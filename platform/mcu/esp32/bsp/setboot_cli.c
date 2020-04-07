@@ -4,7 +4,7 @@
 
 #ifdef AOS_COMP_CLI
 
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 
 #include "esp_ota_ops.h"
