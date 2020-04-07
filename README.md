@@ -33,25 +33,21 @@ All modules have been organized as Components, Configuring via menuconfig, which
 
 ## Documentation
 
-- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
-- AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
+### Quick Start
 
-### How to contribute
+Please refer to [Quick Start](https://help.aliyun.com/document_detail/161037.html)
+
+### Docs
+
+AliOS Things Docs: [Documentation](https://help.aliyun.com/document_detail/161023.html)
+
+### Contributing
 
 Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
 
-### Quick Start by Command Line using Ubuntu Machine
+### Connecting to IoT Platform
 
-Please refer to [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start).
-
-### Quick Start by AliOS Studio
-
-AliOS Things uses [vscode](https://code.visualstudio.com/) as IDE, supporting Windows/MAC/Linux.
-Please refer to [AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
-
-### IoT Platform
-
-AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](https://iot.console.aliyun.com/quick_start) more quickly.
+AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](https://iot.console.aliyun.com/quick_start) quickly.
 
 ## Community
 
@@ -60,6 +56,7 @@ AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](h
 
 ## License
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -135,3 +132,6 @@ AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联�
 =======
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
 >>>>>>> 2c8f3f7e5 (BugID: 17966605: update mainly README.md & README-zh.md)
+=======
+  AliOS Things is released under the [Apache 2.0 license](LICENSE)
+>>>>>>> 38e754a96 (update README.md and README-zh.md)

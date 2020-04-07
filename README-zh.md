@@ -33,21 +33,16 @@ AliOS Things适配了分层架构和组件架构。包括以下部分：
 
 ## 文档
 
-- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
-- AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
+### 快速上手
+
+请参考: [快速开始](https://help.aliyun.com/document_detail/161037.html)。
+
+### 文档中心
+请到AliOS Things [文档中心](https://help.aliyun.com/document_detail/161023.html)查看。
 
 ### 贡献代码
 
-请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
-
-### 命令行快速上手
-
-使用ubuntu系统，参考 [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start) 可以快速上手AliOS Things
-
-### IDE 快速上手
-
-AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Windows/MAC/Linux。
-具体使用步骤请参考：[AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
+请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing)。
 
 ### 物联网平台
 
