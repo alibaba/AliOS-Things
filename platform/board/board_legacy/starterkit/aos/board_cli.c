@@ -2,11 +2,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include <atparser.h>
+#include <at/at.h>
 
 #include "aos/yloop.h"
 
