@@ -7,8 +7,12 @@
 #include <aos/kernel.h>
 #include <aos/init.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <cli.h>
+=======
+#include <aos/cli.h>
+>>>>>>> 81a13a181 (sychronize updates for 3.1.0 release)
 
 #include "ate_app.h"
 #include "cmd_evm.h"

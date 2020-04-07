@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sys/fcntl.h>
 
-#include "fs/vfs.h"
+#include "aos/vfs.h"
 
 #include "fs/fatfs.h"
 

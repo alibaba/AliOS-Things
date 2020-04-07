@@ -2,12 +2,12 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cli.h"
+#include "aos/cli.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
-#include <atparser.h>
+#include <at/at.h>
 
 #ifndef AT_RECV_FAIL_POSTFIX
 #define AT_RECV_FAIL_POSTFIX "ERROR\r\n"
