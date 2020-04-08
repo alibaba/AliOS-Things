@@ -731,12 +731,13 @@ int netmgr_wifi_init(void)
     g_wifi_interface->hal_mod = (hal_net_module_t *)module;
     g_wifi_interface->wifi_scan_complete_cb_finished = false;
 
-#if defined(WITH_SAL) || defined(CONFIG_YWSS) && !defined(CSP_LINUXHOST) && !defined(AOS_NET_WTIH_ETH)
+#ifndef WITH_SAL
+#if defined(CONFIG_YWSS) && !defined(CSP_LINUXHOST) && !defined(AOS_NET_WTIH_ETH)
     add_autoconfig_plugin(&g_alink_smartconfig);
 #else
     add_autoconfig_plugin(&g_def_smartconfig);
 #endif
-
+#endif
     hal_wifi_install_event((hal_wifi_module_t *)(g_wifi_interface->hal_mod), &g_wifi_hal_event);
     read_persistent_conf();
 
