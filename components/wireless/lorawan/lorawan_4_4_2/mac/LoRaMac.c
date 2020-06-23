@@ -941,6 +941,14 @@ static void ProcessRadioRxDone( void )
     switch( macHdr.Bits.MType )
     {
         case FRAME_TYPE_JOIN_ACCEPT:
+            // Check if the received frame size is valid
+            if( size < LORAMAC_JOIN_ACCEPT_FRAME_MIN_SIZE || size > LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE )
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                PrepareRxDoneAbort( );
+                return;
+            }
+
             macMsgJoinAccept.Buffer = payload;
             macMsgJoinAccept.BufSize = size;
 
@@ -1016,7 +1024,7 @@ static void ProcessRadioRxDone( void )
                 getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
             }
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-            if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+            if( ( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > (int16_t) phyParam.Value ) || ( size < LORAMAC_FRAME_PAYLOAD_MIN_SIZE ) )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
