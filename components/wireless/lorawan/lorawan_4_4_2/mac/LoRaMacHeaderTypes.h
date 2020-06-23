@@ -51,9 +51,56 @@
 /*! FHDR Frame control field size */
 #define LORAMAC_FHDR_F_CNT_FIELD_SIZE           2
 
-/*! FOpts maximum field size */
-#define LORAMAC_FHDR_F_OPTS_MAX_FIELD_SIZE          15
+/*! Device address field size */
+#define LORAMAC_DEV_ADDR_FIELD_SIZE             4
 
+/*! DLSettings field size */
+#define LORAMAC_DL_SETTINGS_FIELD_SIZE          1
+
+/*! RxDelay field size */
+#define LORAMAC_RX_DELAY_FIELD_SIZE             1
+
+/*! CFList field size */
+#define LORAMAC_CF_LIST_FIELD_SIZE              16
+
+/*! FHDR Device address field size */
+#define LORAMAC_FHDR_DEV_ADDR_FIELD_SIZE        LORAMAC_DEV_ADDR_FIELD_SIZE
+
+
+/*! FOpts maximum field size */
+#define LORAMAC_FHDR_F_OPTS_MAX_FIELD_SIZE      15
+
+/*! MIC field size */
+#define LORAMAC_MIC_FIELD_SIZE                  4
+
+/*!
+ * JoinAccept frame minimum size
+ *
+ * MHDR(1) + AppNonce(3) + NetID(3) + DevAddr(4) + DLSettings(1) + RxDelay(1) + MIC(4)
+ */
+#define LORAMAC_JOIN_ACCEPT_FRAME_MIN_SIZE  ( LORAMAC_MHDR_FIELD_SIZE + LORAMAC_JOIN_NONCE_FIELD_SIZE + \
+                                              LORAMAC_NET_ID_FIELD_SIZE + LORAMAC_DEV_ADDR_FIELD_SIZE + \
+                                              LORAMAC_DL_SETTINGS_FIELD_SIZE + LORAMAC_RX_DELAY_FIELD_SIZE + \
+                                              LORAMAC_MIC_FIELD_SIZE )
+
+/*!
+ * JoinAccept frame maximum size
+ *
+ * MHDR(1) + AppNonce(3) + NetID(3) + DevAddr(4) + DLSettings(1) + RxDelay(1) + CFList(16) + MIC(4)
+ */
+#define LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE  ( LORAMAC_MHDR_FIELD_SIZE + LORAMAC_JOIN_NONCE_FIELD_SIZE + \
+                                              LORAMAC_NET_ID_FIELD_SIZE + LORAMAC_DEV_ADDR_FIELD_SIZE + \
+                                              LORAMAC_DL_SETTINGS_FIELD_SIZE + LORAMAC_RX_DELAY_FIELD_SIZE + \
+                                              LORAMAC_CF_LIST_FIELD_SIZE + LORAMAC_MIC_FIELD_SIZE )
+
+/*!
+ * FRMPayload minimum size
+ *
+ * MHDR(1) + FHDR(7) + MIC(4)
+ */
+#define LORAMAC_FRAME_PAYLOAD_MIN_SIZE      ( LORAMAC_MHDR_FIELD_SIZE + ( LORAMAC_FHDR_DEV_ADDR_FIELD_SIZE + \
+                                              LORAMAC_FHDR_F_CTRL_FIELD_SIZE + LORAMAC_FHDR_F_CNT_FIELD_SIZE ) + \
+                                              LORAMAC_MIC_FIELD_SIZE )
 
 /*!
  * LoRaMAC field definition of DLSettings
