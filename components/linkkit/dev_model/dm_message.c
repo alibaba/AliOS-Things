@@ -1263,7 +1263,7 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1332,6 +1332,13 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
         }
         /* dm_log_debug("Current Device Secret: %.*s", lite_item_ds.value_length, lite_item_ds.value); */
 
+        if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+            lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1 ||
+            lite_item_ds.value_length >= IOTX_DEVICE_SECRET_LEN + 1) {
+            res = FAIL_RETURN;
+            continue;
+        }
+
         /* Get Device ID */
         memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
         memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
@@ -1353,7 +1360,8 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
         }
 
         /* Send Message To User */
-        memcpy(temp_id, response->id.value, response->id.value_length);
+        memcpy(temp_id, response->id.value,
+               (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length);
         message_len = strlen(DM_MSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
@@ -1785,7 +1793,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     lite_cjson_t lite, lite_item_pk, lite_item_dn;
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -1826,7 +1834,8 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    memcpy(temp_id, response->id.value, response->id.value_length);
+    memcpy(temp_id, response->id.value,
+           (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length);
 
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -1858,7 +1867,7 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     lite_cjson_t lite, lite_item_pk, lite_item_dn;
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1899,7 +1908,8 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    memcpy(temp_id, response->id.value, response->id.value_length);
+    memcpy(temp_id, response->id.value,
+           (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length);
 
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
