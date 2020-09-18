@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_NFTL
+    bool "NAND Flash Translation Layer"
+    default n
+    help
+      NAND Flash Translation Layer module
+
+if AOS_COMP_NFTL
+# Configurations for component nftl
+endif

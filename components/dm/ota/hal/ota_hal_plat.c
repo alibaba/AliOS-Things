@@ -262,6 +262,16 @@ OTA_WEAK int ota_hal_reboot_bank(void)
     return 0;
 }
 
+OTA_WEAK void ota_hal_image_crc16(unsigned short *outResult )
+{
+    ota_crc16_final(&ctx, outResult);
+}
+
+OTA_WEAK unsigned char ota_hal_boot_type()
+{
+    return 0;
+}
+
 OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
 {
     int ret = OTA_UPGRADE_WRITE_FAIL;
@@ -274,11 +284,15 @@ OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
     hal_flash_info_get(boot_part, p_ota_info);
     hal_flash_info_get(HAL_PARTITION_APPLICATION, p_app_info);
     if(param != NULL) {
-        ota_crc16_final(&ctx, &param->crc);
+        if(param->crc == 0 || param->crc == 0xffff) {
+            OTA_LOG_I("calculate image crc");
+            ota_hal_image_crc16(&param->crc);
+        }
         param->src_adr = p_ota_info->partition_start_addr;
         param->len = (param->len < p_ota_info->partition_length)?param->len:p_ota_info->partition_length;
         param->dst_adr = p_app_info->partition_start_addr;
         param->old_size = p_app_info->partition_length;
+        param->boot_type = ota_hal_boot_type();
         ret = ota_update_parameter(param);
         if(ret < 0) {
             return OTA_UPGRADE_WRITE_FAIL;
@@ -313,7 +327,7 @@ OTA_WEAK int ota_hal_read(unsigned int *off, char *out_buf, unsigned int out_buf
 OTA_WEAK const char *ota_hal_version(unsigned char dev_type, char* dn)
 {
     if(dev_type > 0) {
-        return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
+        return "subdev-1.0.0";
     }
     else {
         return SYSINFO_APP_VERSION;

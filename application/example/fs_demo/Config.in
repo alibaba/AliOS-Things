@@ -1,0 +1,14 @@
+config AOS_APP_FS_DEMO
+    bool "fs Demo"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    help
+        filesystem demo
+
+if AOS_APP_FS_DEMO
+# Configurations for app fs_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

@@ -43,8 +43,7 @@ extern struct rbt_node *rbt_last(const struct rbt_root *);
 extern struct rbt_node *rbt_first_postorder(const struct rbt_root *);
 extern struct rbt_node *rbt_next_postorder(const struct rbt_node *);
 
-extern void rbt_replace_node(struct rbt_node *victim, struct rbt_node *new,
-                struct rbt_root *root);
+extern void rbt_replace_node(struct rbt_node *victim, struct rbt_node *new_node, struct rbt_root *root);
 
 static inline void rbt_link_node(struct rbt_node * node, struct rbt_node * parent,
                 struct rbt_node ** rbt_link)

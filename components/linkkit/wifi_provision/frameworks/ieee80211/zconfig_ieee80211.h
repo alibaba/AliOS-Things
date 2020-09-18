@@ -260,7 +260,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix);
 int zconfig_add_active_channel(int channel);
 uint8_t zconfig_get_press_status();
 
-int ieee80211_hdrlen(uint16_t fc);
+int ieee80211_hdrlen_2(uint16_t fc);
 int ieee80211_has_a4(uint16_t fc);
 int ieee80211_is_ctl(uint16_t fc);
 int ieee80211_is_mgmt(uint16_t fc);
@@ -278,7 +278,7 @@ int ieee80211_is_data_exact(uint16_t fc);
 int ieee80211_has_protected(uint16_t fc);
 int ieee80211_is_data_present(uint16_t fc);
 int ieee80211_get_radiotap_len(uint8_t *data);
-int ieee80211_get_bssid(uint8_t *in, uint8_t *mac);
+int ieee80211_get_bssid_2(uint8_t *in, uint8_t *mac);
 int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid);
 int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_res *res, signed char rssi);
 int cfg80211_get_bss_channel(uint8_t *beacon_frame, uint16_t frame_len);

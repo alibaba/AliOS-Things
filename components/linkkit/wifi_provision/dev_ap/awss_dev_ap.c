@@ -59,7 +59,7 @@ static int awss_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE l
         return -1;
     }
 
-    ret = ieee80211_get_bssid((uint8_t *)hdr, bssid);
+    ret = ieee80211_get_bssid_2((uint8_t *)hdr, bssid);
     if (ret < 0) {
         return -1;
     }

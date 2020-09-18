@@ -18,7 +18,6 @@ extern "C" {
  */
 
 #if defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32)
-
 #include <errno.h>
 
 #else

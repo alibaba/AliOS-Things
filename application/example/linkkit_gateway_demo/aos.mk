@@ -9,6 +9,11 @@ $(NAME)_SOURCES := app_entry.c maintask.c
 $(NAME)_COMPONENTS := netmgr cjson
 $(NAME)_COMPONENTS += libiot_devmodel libiot_awss
 
+ifneq (,$(filter mcu_haas1000, $(HOST_MCU_FAMILY)))
+$(NAME)_COMPONENTS += littlefs
+GLOBAL_DEFINES += ENABLE_SUBDEV_FS_OTA
+endif
+
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 
 ifeq ($(AOS_COMP_UND),y)

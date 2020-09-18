@@ -124,7 +124,8 @@ typedef struct  {
     unsigned int   new_off;      /*Diff upgrade: patch new data offset*/
     unsigned int   new_size;     /*Diff upgrade: patch new data size*/
     unsigned int   upg_magic;    /*OTA upgrade image magic*/
-    unsigned char  reserved[14]; /*OTA Reserved*/
+    unsigned char  boot_type;    /*OS boot type:Single boot(0x00), dual boot(0x01)*/
+    unsigned char  reserved[13]; /*OTA Reserved*/
     unsigned short param_crc;    /*OTA Parameter crc*/
 } ota_boot_param_t;
 
@@ -203,6 +204,18 @@ int ota_service_init(ota_service_t *ctx);
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
 int ota_service_start(ota_service_t *ctx);
+
+/**
+ * ota_service_subdev_start  ota service subdev start.
+ *
+ * @param[in] ota_service_t *ctx   ota service context
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_service_subdev_start(ota_service_t *ctx);
 
 /**
  * ota_service_deinit  ota service deinit.

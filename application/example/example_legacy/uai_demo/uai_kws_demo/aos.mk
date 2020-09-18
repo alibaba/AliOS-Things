@@ -15,3 +15,5 @@ GLOBAL_DEFINES += AOS_NO_WIFI
 GLOBAL_INCLUDES += ./
 
 dnn_enable      ?= 1
+
+FEATURE ?= feature.mk

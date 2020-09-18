@@ -14,6 +14,8 @@ $(NAME)_COMPONENTS += und
 endif
 
 $(NAME)_COMPONENTS-$(ENABLE_AOS_OTA) += ota
+$(NAME)_COMPONENTS-$(AOS_COMP_SDK_AWSS) += libiot_awss
+
 
 ifeq ($(LINKKIT_DEMO_CONFIG_CASE_SOLO),y)
 $(NAME)_SOURCES += linkkit_example_solo.c

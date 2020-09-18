@@ -2,6 +2,7 @@
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
 #include <string.h>
+#include <stdbool.h>
 #include "lwip/debug.h"
 #include "lwip/err.h"
 #include <aos/cli.h>

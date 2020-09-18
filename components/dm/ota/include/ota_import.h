@@ -73,6 +73,11 @@
 #define OTA_BIN_MAGIC_MCU     0xefcdefcd
 #define OTA_MSG_LEN  256 /*OTA topic message max len*/
 
+#define L_EXTRACT_U16(d) ((*((unsigned char *)(d)) << 8) | *((unsigned char *)(d) + 1))
+#define L_EXTRACT_U32(d)                                              \
+    ((*((unsigned char *)(d)) << 24) | (*((unsigned char *)(d) + 1) << 16) | \
+    (*((unsigned char *)(d) + 2) << 8) | *((unsigned char *)(d) + 3))
+
 #define EXTRACT_U16(d) (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8))
 #define EXTRACT_U32(d)                                              \
     (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8) | \
@@ -91,6 +96,14 @@
     *((unsigned char *)(d) + 2) = ((val) >> 16) & 0xFF; \
     *((unsigned char *)(d) + 3) = ((val) >> 24) & 0xFF; \
 }
+
+#define OTA_RECVD_LOCAL_MASTER_IMAGE      (0xA0)
+#define OTA_RECVD_LOCAL_SLAVER_IMAGE      (0xA1)
+#define OTA_RECVD_BLE_SLAVER_IMAGE        (0xA2)
+#define OTA_RECVD_PINFACE                 (0xA3)
+#define OTA_RECVD_SOURCE_FILE             (0xA4)
+#define OTA_RECVD_SOURCE_PIC_FILE         (0xA5)
+#define OTA_RCVD_XZ_PINFACE               (0xA6)
 
 enum {
     OTA_PROCESS_NORMAL = 0,
@@ -151,12 +164,21 @@ int ota_is_download_mode(void);
 int ota_int(ota_boot_param_t *param);
 int ota_clear(ota_boot_param_t *param);
 int ota_verify(ota_boot_param_t *param);
+int ota_verify_fsfile(ota_boot_param_t *param);
 int ota_write(unsigned int *off, char *in_buf, unsigned int in_buf_len);
 int ota_read(unsigned int *off, char *out_buf, unsigned int out_buf_len);
+
+int ota_fclose(void *stream);
+int ota_get_storefile_name(char *filename);
+void *ota_fopen(const char *filename, const char *mode);
+int ota_fwrite(const void *ptr, unsigned int size, unsigned int nmemb, void *stream);
+int ota_fread(const void *ptr, unsigned int size, unsigned int nmemb, void *stream);
 
 int ota_check_hash(unsigned char type, char *src, char *dst);  /* ota compare hash value. */
 unsigned short ota_get_upgrade_flag(void);                     /* ota get upgrade flag. */
 int ota_update_upg_flag(unsigned short flag);                  /* ota update upgrade flag. */
 int ota_update_process(const char *err, const int step);
 int ota_mcu_upgrade_start(unsigned int size, char* ver, char* md5);
+unsigned int ota_parse_ota_type(unsigned char *buf, unsigned int len); /* parse ota type:diff xz or normal*/
+int ota_subdev_upgrade_start(void *dev_info, unsigned int size, char *ver);
 #endif /*__OTA_API_H__*/

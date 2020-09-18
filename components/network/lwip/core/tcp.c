@@ -85,9 +85,6 @@
 #define INITIAL_MSS TCP_MSS
 #endif
 
-/*  lwip_rto_flags: 0 means small rto 1 means large rto */
-int lwip_rto_flags = 0;
-
 static const char * const tcp_state_str[] = {
   "CLOSED",
   "LISTEN",
@@ -112,6 +109,9 @@ static const u8_t tcp_backoff[13] =
  /* Times per slowtmr hits */
 static const u8_t tcp_persist_backoff[7] = { 3, 6, 12, 24, 48, 96, 120 };
 
+/* lwip rto/wnd flags */
+int lwip_rto_flags = RTO_FLAGS_LARGE;
+int lwip_rcv_wnd_flags = WND_FLAGS_LARGE;
 /* The TCP PCB lists. */
 
 /** List of all TCP PCBs bound but not yet (connected || listening) */
@@ -728,7 +728,14 @@ tcp_update_rcv_ann_wnd(struct tcp_pcb *pcb)
   u32_t new_right_edge = pcb->rcv_nxt + pcb->rcv_wnd;
   tcpwnd_size_t tcp_wnd = TCP_WND;
 
-  if(pcb->usr_rcv_wnd != 0) {
+  if(pcb->usr_rcv_wnd == 0) {
+      if(pcb->rcv_wnd_flags == WND_FLAGS_SMALL) {
+          tcp_wnd = TCP_SMALL_WND;
+      } else if(pcb->rcv_wnd_flags == WND_FLAGS_LARGE) {
+          tcp_wnd = TCP_LARGE_WND;
+      }
+  }
+  else {
       tcp_wnd = pcb->usr_rcv_wnd;
   }
 
@@ -794,8 +801,18 @@ tcp_recved(struct tcp_pcb *pcb, u16_t len)
    * events (or more window to be available later) */
   int tcp_wnd_update_threshold = TCP_WND_UPDATE_THRESHOLD;
 
-  if(pcb->usr_rcv_wnd != 0) {
-      tcp_wnd_update_threshold = LWIP_MIN((pcb->usr_rcv_wnd / 4), (TCP_MSS * 4));
+  if(pcb->usr_rcv_wnd == 0) {
+      tcpwnd_size_t tcp_wnd = TCP_WND;
+
+      if(pcb->rcv_wnd_flags == WND_FLAGS_SMALL) {
+          tcp_wnd = TCP_SMALL_WND;
+      } else if(pcb->rcv_wnd_flags == WND_FLAGS_LARGE) {
+          tcp_wnd = TCP_LARGE_WND;
+  }
+  else {
+      tcp_wnd = pcb->usr_rcv_wnd;
+  }
+  tcp_wnd_update_threshold = LWIP_MIN((tcp_wnd / 4), (TCP_MSS * 4));
   }
 
   if (wnd_inflation >= tcp_wnd_update_threshold) {
@@ -921,15 +938,18 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
   /* Start with a window that does not need scaling. When window scaling is
      enabled and used, the window is enlarged when both sides agree on scaling. */
   if(pcb->usr_rcv_wnd == 0) {
-      pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);
+      tcpwnd_size_t tcp_wnd = TCP_WND;
+      if(pcb->rcv_wnd_flags == WND_FLAGS_SMALL) {
+          tcp_wnd = TCP_SMALL_WND;
+      } else if(pcb->rcv_wnd_flags == WND_FLAGS_LARGE) {
+          tcp_wnd = TCP_LARGE_WND;
+  }
+  pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(tcp_wnd);
+  } else {
+      pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(pcb->usr_rcv_wnd);
+  }
       pcb->snd_wnd = TCP_WND;
       pcb->ssthresh = TCP_WND;
-  }
-  else {
-      pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(pcb->usr_rcv_wnd);
-      pcb->snd_wnd = pcb->usr_rcv_wnd;
-      pcb->ssthresh = pcb->usr_rcv_wnd;
-  }
   pcb->rcv_ann_right_edge = pcb->rcv_nxt;
   /* As initial send MSS, we use TCP_MSS but limit it to 536.
      The send MSS is updated when an MSS option is received. */
@@ -1045,15 +1065,15 @@ tcp_slowtmr_start:
           if (pcb->state != SYN_SENT) {
             if(lwip_rto_flags != pcb->adjrto) {
               pcb->adjrto = lwip_rto_flags;
-              if(pcb->adjrto == 0) {
-                LWIP_DEBUGF(TCP_RTO_DEBUG, ("change to RTO:500\n"));
-                pcb->rto = 500 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 500. */
-                pcb->sv = 500 / TCP_SLOW_INTERVAL;
+                  if(lwip_rto_flags == RTO_FLAGS_LARGE) {
+                     LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:2s\n", __func__));
+                     pcb->rto = TCP_LARGE_RTO / TCP_SLOW_INTERVAL; /*  lwip's default rto is 3000. */
+                     pcb->sv = TCP_LARGE_RTO / TCP_SLOW_INTERVAL;
               }
               else {
-                LWIP_DEBUGF(TCP_RTO_DEBUG, ("change to RTO:1000\n"));
-                pcb->rto = 1000 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 1000.*/
-                pcb->sv = 1000 / TCP_SLOW_INTERVAL;
+                     LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:1s\n", __func__));
+                     pcb->rto = TCP_SMALL_RTO / TCP_SLOW_INTERVAL; /*  lwip's default is 3000. */
+                     pcb->sv = TCP_SMALL_RTO / TCP_SLOW_INTERVAL;
               }
             }
             pcb->rto = ((pcb->sa >> 3) + pcb->sv) << tcp_backoff[pcb->nrtx];
@@ -1606,22 +1626,24 @@ tcp_alloc(u8_t prio)
     /* Start with a window that does not need scaling. When window scaling is
        enabled and used, the window is enlarged when both sides agree on scaling. */
     pcb->usr_rcv_wnd = 0;
-    pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);
+    /* use dynamic wndow setting */
+    pcb->rcv_wnd_flags = WND_FLAGS_LARGE;
+        pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_LARGE_WND);
     pcb->ttl = TCP_TTL;
     /* As initial send MSS, we use TCP_MSS but limit it to 536.
        The send MSS is updated when an MSS option is received. */
     pcb->mss = INITIAL_MSS;
-    pcb->adjrto = lwip_rto_flags;
-    if(pcb->adjrto == 0) {
-      LWIP_DEBUGF(TCP_RTO_DEBUG, ("RTO:500\n"));
-      pcb->rto = 500 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 500. */
-      pcb->sv = 500 / TCP_SLOW_INTERVAL;
+    if(lwip_rto_flags == RTO_FLAGS_LARGE) {
+        LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:%ds\n", __func__, TCP_LARGE_RTO/TCP_SLOW_INTERVAL));
+        pcb->rto = TCP_LARGE_RTO / TCP_SLOW_INTERVAL; /* lwip's default is 3000. */
+        pcb->sv = TCP_LARGE_RTO / TCP_SLOW_INTERVAL;
     }
     else {
-      LWIP_DEBUGF(TCP_RTO_DEBUG, ("RTO:1000\n"));
-      pcb->rto = 1000 / TCP_SLOW_INTERVAL; /*  lwip's default is 3000, changed to 1000. */
-      pcb->sv = 1000 / TCP_SLOW_INTERVAL;
+        LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:%ds\n", __func__, TCP_SMALL_RTO/TCP_SLOW_INTERVAL));
+        pcb->rto = TCP_SMALL_RTO / TCP_SLOW_INTERVAL; /* lwip's default is 3000. */
+        pcb->sv = TCP_SMALL_RTO / TCP_SLOW_INTERVAL;
     }
+    pcb->adjrto = lwip_rto_flags;
     pcb->rtime = -1;
     pcb->cwnd = 1;
     iss = tcp_next_iss();
@@ -1716,7 +1738,8 @@ tcp_setrcvwnd(struct tcp_pcb *pcb, u32_t rcvwnd)
 {
   /* This function is allowed to set rcv wnd */
   if ((pcb != NULL) && (rcvwnd != 0)) {
-    pcb->usr_rcv_wnd = (tcpwnd_size_t)rcvwnd;
+    pcb->usr_rcv_wnd = (tcpwnd_size_t)TCPWND_MIN16(rcvwnd);
+    pcb->rcv_wnd_flags = WND_FLAGS_DEFAULT;
   }
 }
 

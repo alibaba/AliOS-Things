@@ -9,12 +9,12 @@
 
 struct rbt_augment_callbacks {
     void (*propagate)(struct rbt_node *node, struct rbt_node *stop);
-    void (*copy)(struct rbt_node *old, struct rbt_node *new);
-    void (*rotate)(struct rbt_node *old, struct rbt_node *new);
+    void (*copy)(struct rbt_node *old, struct rbt_node *new_node);
+    void (*rotate)(struct rbt_node *old, struct rbt_node *new_node);
 };
 
 extern void __rbt_insert_augmented(struct rbt_node *node, struct rbt_root *root,
-                void (*augment_rotate)(struct rbt_node *old, struct rbt_node *new));
+                void (*augment_rotate)(struct rbt_node *old, struct rbt_node *new_node));
 
 static inline void rbt_insert_augmented(struct rbt_node *node, struct rbt_root *root,
             const struct rbt_augment_callbacks *augment)
@@ -79,20 +79,20 @@ static inline void rbt_set_parent_color(struct rbt_node *rbt,
     rbt->__rbt_parent_color = (unsigned long)p | color;
 }
 
-static inline void __rbt_change_child(struct rbt_node *old, struct rbt_node *new,
+static inline void __rbt_change_child(struct rbt_node *old, struct rbt_node *new_node,
           struct rbt_node *parent, struct rbt_root *root)
 {
     if (parent) {
         if (parent->rbt_left == old)
-            parent->rbt_left = new;
+            parent->rbt_left = new_node;
         else
-            parent->rbt_right = new;
+            parent->rbt_right = new_node;
     } else
-        root->rbt_node = new;
+        root->rbt_node = new_node;
 }
 
 extern void __rbt_erase_color(struct rbt_node *parent, struct rbt_root *root,
-    void (*augment_rotate)(struct rbt_node *old, struct rbt_node *new));
+    void (*augment_rotate)(struct rbt_node *old, struct rbt_node *new_node));
 
 static inline struct rbt_node *__rbt_erase_augmented(struct rbt_node *node, struct rbt_root *root,
              const struct rbt_augment_callbacks *augment)

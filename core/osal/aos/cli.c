@@ -4,6 +4,7 @@
 
 #include "aos/cli.h"
 #include "aos/errno.h"
+#include "stdarg.h"
 
 #include "cli_api.h"
 

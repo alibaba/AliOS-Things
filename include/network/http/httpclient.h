@@ -21,11 +21,11 @@
 
 /** @brief   http requst type */
 typedef enum {
-    HTTP_GET,
-    HTTP_POST,
-    HTTP_PUT,
     HTTP_DELETE,
-    HTTP_HEAD
+    HTTP_GET,
+    HTTP_HEAD,
+    HTTP_POST,
+    HTTP_PUT
 } HTTP_REQUEST_TYPE;
 
 

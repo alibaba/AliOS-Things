@@ -166,7 +166,7 @@ static void cmd_mcu_ota(char *pwbuf, int blen, int argc, char **argv)
 #endif
 }
 
-static struct cli_command ota_cmd[5] = {
+static struct cli_command ota_cmd[4] = {
     {
         .name = "ota_download",
         .help = "ota_download [url]",
@@ -233,7 +233,7 @@ int application_start(int argc, char *argv[])
     netmgr_init();
 #ifdef AOS_COMP_CLI
     int i = 0;
-    for(i=0; i<sizeof(ota_cmd); i++) {
+    for(i = 0; i < sizeof(ota_cmd) / sizeof(struct cli_command); i++) {
         aos_cli_register_command(&ota_cmd[i]);
     }
 #endif

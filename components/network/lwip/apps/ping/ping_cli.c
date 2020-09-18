@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdbool.h>
 #include "lwip/debug.h"
 #include "lwip/err.h"
 #include "aos/cli.h"
@@ -63,7 +64,7 @@ void _cli_ping_help_command( int argc, char **argv )
     LWIP_DEBUGF( PING_DEBUG, ("ping -c 3 -i 100 -s 1300 -w 1000 www.aliyun.com" ));
 }
 
-static bool      m_got_ip = false;
+static bool m_got_ip = false;
 
 void ping_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
 {

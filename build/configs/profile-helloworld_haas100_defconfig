@@ -1,0 +1,404 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# AliOS Things Configuration
+#
+AOS_BUILD=y
+AOS_BUILD_BOARD="haas100"
+AOS_BUILD_APP="helloworld_demo"
+
+#
+# Application Configuration
+#
+# AOS_APP_NULL is not set
+AOS_APP_EXAMPLE=y
+AOS_APP_HELLOWORLD_DEMO=y
+SYSINFO_APP_VERSION="app-1.0.0-20200214.140831"
+# AOS_APP_HAL_DEMO is not set
+# AOS_APP_OTA_DEMO is not set
+# AOS_APP_LINKKIT_DEMO is not set
+# AOS_APP_COAP_DEMO is not set
+# AOS_APP_HTTP_DEMO is not set
+# AOS_APP_BLINK_DEMO is not set
+# AOS_APP_YLOOP_DEMO is not set
+# AOS_APP_MQTT_DEMO is not set
+# AOS_APP_LINKKIT_GATEWAY_DEMO is not set
+# AOS_APP_YTS_DEMO is not set
+# AOS_APP_KRHINO_API_DEMO is not set
+# AOS_APP_AOS_API_DEMO is not set
+# AOS_APP_VFS_DEMO is not set
+# AOS_APP_HTTP2_DEMO is not set
+# AOS_APP_LWM2M_DEMO is not set
+# AOS_APP_MODBUS_DEMO is not set
+# AOS_APP_BASE_DEMO is not set
+# AOS_APP_QIANXUN_DEMO is not set
+# AOS_APP_ULOG_DEMO is not set
+# AOS_APP_DEBUG_DEMO is not set
+# AOS_APP_BLINK is not set
+# AOS_APP_BLEADV is not set
+# AOS_APP_BLEMESH_TMALL is not set
+# AOS_APP_BLEPERIPHERAL is not set
+# AOS_APP_BREEZEAPP is not set
+# AOS_APP_COAPAPP is not set
+# AOS_APP_DAS_APP is not set
+# AOS_APP_DK_AUDIO is not set
+# AOS_APP_DK_CAMERA is not set
+# AOS_APP_DK_GUI is not set
+# AOS_APP_DK_QR is not set
+# AOS_APP_HELLOWORLD is not set
+# AOS_APP_HALAPP is not set
+# AOS_APP_HTTP2APP is not set
+# AOS_APP_ID2_APP is not set
+# AOS_APP_ITLS_APP is not set
+# AOS_APP_LINKKIT_GATEWAY is not set
+# AOS_APP_LINKKITAPP is not set
+# AOS_APP_LINKWAN is not set
+# AOS_APP_MODBUS_APP is not set
+# AOS_APP_MQTTAPP is not set
+# AOS_APP_OTAAPP is not set
+# AOS_APP_PROV_APP is not set
+# AOS_APP_SK_GUI is not set
+# AOS_APP_UART is not set
+# AOS_APP_UDATAAPP is not set
+# AOS_APP_BASEAPP is not set
+# AOS_APP_QIANXUNAPP is not set
+# AOS_APP_YTS is not set
+# AOS_APP_HTTPAPP is not set
+# AOS_APP_HTTPCLIENT_APP is not set
+# AOS_APP_SENSOR_LOCAL_DEMO is not set
+# AOS_APP_SENSOR_CLOUD_DEMO is not set
+# AOS_APP_UDATA_LOCAL_DEMO is not set
+# AOS_APP_UDATA_CLOUD_DEMO is not set
+# AOS_APP_JSENGINE_APP is not set
+# AOS_APP_UAI_KWS_DEMO is not set
+# AOS_APP_UAI_CIFAR10_DEMO is not set
+# AOS_APP_UAPP1 is not set
+# AOS_APP_UAPP2 is not set
+# AOS_APP_ULOG_APP is not set
+# AOS_APP_SAL_APP is not set
+# AOS_APP_YLOOP_APP is not set
+# AOS_APP_WEBSOC_APP is not set
+# AOS_APP_HTTPDNS_APP is not set
+# AOS_APP_AT_APP is not set
+# AOS_APP_LWM2M_APP is not set
+# AOS_APP_MAL_APP is not set
+# AOS_APP_WIFI_AT_APP is not set
+# AOS_APP_UMESH2_DEMO is not set
+# AOS_APP_KNXCTL is not set
+# AOS_APP_PROFILE is not set
+# AOS_APP_LOCALAPP is not set
+
+#
+# BSP         Configuration
+#
+AOS_BOARD_HAAS100=y
+AOS_MCU_HAAS1000=y
+TGDB_CLI=y
+# CLI_CONFIG_RELEASE_ENTRY_CONTROL is not set
+# CLI_CONFIG_MINIMUM_MODE is not set
+CLI_CONFIG_INBUF_SIZE=256
+CLI_CONFIG_OUTBUF_SIZE=512
+CLI_CONFIG_MAX_COMMANDS=256
+CLI_CONFIG_MAX_ARG_NUM=32
+CLI_CONFIG_MAX_ONCECMD_NUM=4
+CLI_CONFIG_TASK_PRIORITY=50
+# CLI_CONFIG_TELNET_SUPPORT is not set
+CLI_CONFIG_MULTI_CONSOLE=2
+AOS_ARCH_ARMV7M=y
+BES_PLATFORM_C=y
+
+#
+# Kernel      Configuration
+#
+AOS_COMP_RHINO=y
+AOS_COMP_KERNEL_INIT=y
+AOS_COMP_DEBUG=y
+DEBUG_CONFIG_PANIC=y
+DEBUG_CONFIG_BACKTRACE=y
+DEBUG_CONFIG_CPU_USAGE_PERIOD=0
+# DEBUG_CONFIG_DWT_FOR_STACK_OVF_CHK is not set
+# AOS_COMP_PWRMGMT is not set
+AOS_COMP_CPLUSPLUS=y
+AOS_COMP_KV=y
+KV_CONFIG_TASK_PRIORITY=32
+KV_CONFIG_TASK_STACK_SIZE=1024
+KV_CONFIG_MAX_KEY_LEN=128
+KV_CONFIG_MAX_VAL_LEN=512
+# KV_CONFIG_SECURE_SUPPORT is not set
+AOS_COMP_VFS=y
+VFS_CONFIG_DEVICE_NODES=50
+VFS_CONFIG_FD_OFFSET=512
+VFS_CONFIG_PATH_MAX=256
+VFS_CONFIG_MAX_FILE_NUM=50
+# VFS_CONFIG_CURRENT_DIRECTORY_ENABLE is not set
+# AOS_COMP_CLI=y is not set
+# AOS_COMP_OSAL_OS_API is not set
+AOS_COMP_OSAL_AOS=y
+
+#
+# AOS API Configuration
+#
+OSAL_RHINO=y
+OSAL_CONFIG="rhino"
+AOS_COMP_OSAL_POSIX=y
+# AOS_COMP_OSAL_CMSIS is not set
+
+#
+# Drivers     Configuration
+#
+# AOS_COMP_EXTERNAL_MODULE is not set
+# AOS_COMP_SENSOR is not set
+
+#
+# Network     Configuration
+#
+AOS_COMP_NETWORK=y
+# CONFIG_AOS_TCPIP is not set
+# CONFIG_VENDOR_TCPIP is not set
+# CONFIG_LINUX_TCPIP is not set
+# CONFIG_NO_TCPIP is not set
+CONFIG_AOS_LWIP=y
+# CONFIG_VENDOR_LWIP is not set
+# CONFIG_LINUX_IPSTACK is not set
+# CONFIG_NO_LWIP is not set
+# AOS_COMP_BREEZE is not set
+# AOS_COMP_BREEZE_HAL is not set
+# AOS_COMP_BT_HOST is not set
+# AOS_COMP_BT_COMMON is not set
+# AOS_COMP_BT_PROFILE is not set
+# AOS_COMP_BT_MESH is not set
+# AOS_COMP_LIBCOAP is not set
+# AOS_COMP_SRTP is not set
+# AOS_COMP_LORAWAN_STACK is not set
+
+#
+# LoRaWAN Stack Configuration
+#
+# AOS_COMP_LORAWAN_4_4_0 is not set
+# AOS_COMP_LORAWAN_4_4_2 is not set
+AOS_COMP_LWIP=y
+
+#
+# AOS TCP/IP: Lightweight TCP/IP Stack(LwIP)
+#
+
+#
+# LwIP Protocol Configurations
+#
+# AF_PACKET_ENABLED is not set
+
+#
+# LwIP App Configurations
+#
+# IPERF_ENABLED is not set
+# TFTP_ENABLED is not set
+# TELNETD_ENABLED is not set
+# DHCPD_ENABLED is not set
+PING_ENABLED=y
+SENDFILE_ENABLED=y
+DNSCLI_ENABLED=y
+ARPCLI_ENABLED=y
+LSFDCLI_ENABLED=y
+# AOS_COMP_LWM2M is not set
+# AOS_COMP_SAL is not set
+# AOS_COMP_AT is not set
+AOS_COMP_NETMGR=y
+AOS_ACTIVATION_REPORT=y
+# CONFIG_CLASSIC_NETMGR is not set
+CONFIG_MODERN_NETMGR=y
+AOS_OPTIMIZE_NETWORK=y
+AOS_NETMGR_WITH_MODERN=y
+# AOS_NETMGR_WITH_CLASSIC is not set
+# AOS_NET_WITH_CELLULAR is not set
+AOS_NET_WITH_WIFI=y
+# AOS_NET_WITH_BLANK is not set
+# AOS_COMP_RTP is not set
+# AOS_COMP_YLOOP is not set
+# AOS_COMP_UMESH2 is not set
+# AOS_COMP_HTTP is not set
+# AOS_COMP_UND is not set
+# AOS_COMP_WEBSOC is not set
+# AOS_COMP_HTTPDNS is not set
+# AOS_COMP_MAL is not set
+
+#
+# Middleware  Configuration
+#
+SRCPATH="components/linkkit"
+
+#
+# Link Kit Configurations
+#
+# AOS_COMP_SDK_MQTT is not set
+# AOS_COMP_SDK_DEVMODEL is not set
+# AOS_COMP_SDK_AWSS is not set
+# AWSS_SUPPORT_APLIST is not set
+# AWSS_DISABLE_ENROLLEE is not set
+# AWSS_DISABLE_REGISTRAR is not set
+# AWSS_SUPPORT_SMARTCONFIG_WPS is not set
+# AWSS_SUPPORT_DISCOVER is not set
+# AOS_COMP_SDK_HTTP2 is not set
+# FS_ENABLED is not set
+# AOS_COMP_SDK_HTTP is not set
+# COAP_COMM_ENABLED is not set
+# COAP_SERVER is not set
+# AOS_COMP_SDK_SIGN is not set
+# AOS_COMP_SDK_RESET is not set
+# DYNAMIC_REGISTER is not set
+PLATFORM_HAS_STDINT=y
+PLATFORM_HAS_DYNMEM=y
+# INFRA_STRING is not set
+# INFRA_NET is not set
+# INFRA_LIST is not set
+# INFRA_LOG_NETWORK_PAYLOAD is not set
+INFRA_LOG=y
+
+#
+# Log Configurations
+#
+# INFRA_LOG_ALL_MUTED is not set
+INFRA_LOG_MUTE_FLW=y
+INFRA_LOG_MUTE_DBG=y
+# INFRA_LOG_MUTE_INF is not set
+# INFRA_LOG_MUTE_WRN is not set
+# INFRA_LOG_MUTE_ERR is not set
+# INFRA_LOG_MUTE_CRT is not set
+# INFRA_MEM_STATS is not set
+# INFRA_TIMER is not set
+# INFRA_JSON_PARSER is not set
+# INFRA_CJSON is not set
+# INFRA_MD5 is not set
+# INFRA_SHA1 is not set
+# INFRA_SHA256 is not set
+# INFRA_REPORT is not set
+# INFRA_HTTPC is not set
+# INFRA_COMPAT is not set
+# INFRA_PREAUTH is not set
+# INFRA_AES_BUILDIN is not set
+# INFRA_AES_ROM_TABLES is not set
+# INFRA_AES is not set
+# AOS_COMP_SDK_WRAPPERS is not set
+# AOS_COMP_SDK_CERT is not set
+# AOS_COMP_UAGENT is not set
+
+#
+# uAgent Configuration
+#
+UAGENT_INFO_PAYLOAD_SIZE=1200
+# AOS_COMP_UDATA is not set
+# AOS_COMP_ULOCATION is not set
+# AOS_COMP_UAI is not set
+# AOS_COMP_RAMFS is not set
+# AOS_COMP_MBMASTER is not set
+# AOS_COMP_USB is not set
+# AOS_COMP_CANOPEN is not set
+# AOS_COMP_KNX is not set
+# AOS_COMP_CHIP_CODE is not set
+AOS_COMP_ULOG=y
+
+#
+# uLog Configuration
+#
+ULOG_CONFIG_STOP_FILTER_DEFAULT=6
+ULOG_CONFIG_LOG_SIZE=2048
+ULOG_CONFIG_SYSLOG_TIME_FORMAT=y
+# ULOG_CONFIG_SYNC_LOG_DETAILS is not set
+# ULOG_CONFIG_POP_CLOUD is not set
+# ULOG_CONFIG_POP_FS is not set
+# ULOG_CONFIG_FS_SPIFFS is not set
+# ULOG_CONFIG_FS_FATFS_SD is not set
+# ULOG_CONFIG_FS_FATFS_FLASH is not set
+# ULOG_CONFIG_FS_LITTLEFS is not set
+# ULOG_CONFIG_POP_UDP is not set
+ULOG_CONFIG_DEFAULT_DIR_ASYNC=y
+ULOG_CONFIG_ASYNC=y
+ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH=4096
+ULOG_CONFIG_ASYNC_BUF_SIZE=65536
+# AOS_COMP_OTA is not set
+# AOS_COMP_JSENGINE is not set
+
+#
+# Security    Configuration
+#
+# AOS_COMP_LS_OSA is not set
+# AOS_COMP_LS_HAL is not set
+# AOS_COMP_ALICRYPTO is not set
+# AOS_COMP_DPM is not set
+# AOS_COMP_ID2 is not set
+# AOS_COMP_IROT is not set
+# AOS_COMP_LIBKM is not set
+# AOS_COMP_LIBKM_SE is not set
+# AOS_COMP_LIBKM_TEE is not set
+# AOS_COMP_LIBKM_DEMO is not set
+# AOS_COMP_LIBSST is not set
+# AOS_COMP_ITLS is not set
+# AOS_COMP_LIBPROV is not set
+
+#
+# Utility     Configuration
+#
+# AOS_COMP_CJSON is not set
+# AOS_COMP_MBEDTLS is not set
+# AOS_COMP_ZLIB is not set
+# AOS_COMP_LIB_RBTREE is not set
+
+#
+# Test        Configuration
+#
+
+#
+# Testcase Configuration
+#
+
+#
+# Kernel Testcase Configuration
+#
+# AOS_COMP_RHINO_TEST is not set
+# AOS_COMP_KV_TEST is not set
+# AOS_COMP_RAMFS_TEST is not set
+# AOS_COMP_VFS_TEST is not set
+# AOS_COMP_BASIC_TEST is not set
+# AOS_COMP_RBTREE_TEST is not set
+
+#
+# uagent Testcase Configuration
+#
+# AOS_COMP_UAGENT_TEST is not set
+
+#
+# Utility Testcase Configuration
+#
+# AOS_COMP_CJSON_TEST is not set
+
+#
+# OSAL Testcase Configuration
+#
+# AOS_COMP_OSAL_AOS_TEST is not set
+# AOS_COMP_OSAL_POSIX_TEST is not set
+# AOS_COMP_OSAL_CMSIS_TEST is not set
+
+#
+# 3rdparty Testcase Configuration
+#
+# AOS_COMP_SPIFFS_TEST is not set
+# AOS_COMP_FATFS_TEST is not set
+
+#
+# Certificate Testcase Configuration
+#
+# AOS_COMP_CERTIFICATE_TEST is not set
+
+#
+# Network Testcase Configuration
+#
+# AOS_COMP_LWIP_TEST is not set
+# AOS_COMP_BLE_TEST is not set
+# AOS_COMP_BLE_MESH_TEST is not set
+# AOS_COMP_HTTP_YTS_TEST is not set
+# AOS_COMP_SRTP_YTS_TEST is not set
+# AOS_COMP_WEBSOC_YTS_TEST is not set
+# AOS_COMP_NETMGR_YTS_TEST is not set
+# AOS_COMP_RTP_YTS_TEST is not set
+# AOS_COMP_YLOOP_YTS_TEST is not set
+# AOS_COMP_LWM2M_YTS_TEST is not set
+# AOS_COMP_COAP_YTS_TEST is not set
+# AOS_COMP_YUNIT is not set

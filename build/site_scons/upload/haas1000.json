@@ -1,0 +1,11 @@
+{
+    "cmd": [
+        {
+            "Win32": "@AOSROOT@/build/cmd/win32/aos_upload_tool.exe"
+        },
+        "@PORT@",
+        "1500000",
+        "@AOSROOT@/platform/mcu/haas1000/release/write_flash_gui/ota_bin/ota_rtos.bin",
+        "0"
+    ]
+}

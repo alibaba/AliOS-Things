@@ -2,9 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stdio.h>
 #ifdef AOS_COMP_DEBUG
 
-#include <stdio.h>
 #include "debug_api.h"
 
 #define REG_NAME_WIDTH 7
@@ -125,4 +125,33 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
         print_func(s_panic_regs);
     }
 }
+
+#if (RHINO_CONFIG_CLI_AS_NMI > 0)
+void panicNmiInputFilter(uint8_t ch)
+{
+    static int  check_cnt = 0; /* for '$#@!' */
+
+    if ( ch == '$' && check_cnt == 0) {
+        check_cnt++;
+    }
+    else if ( ch == '#' && check_cnt == 1) {
+        check_cnt++;
+    }
+    else if ( ch == '@' && check_cnt == 2) {
+        check_cnt++;
+    }
+    else if ( ch == '!' && check_cnt == 3) {
+        panicNmiFlagSet();
+        __asm__ __volatile__("udf":::"memory");
+    }
+    else {
+        check_cnt = 0;
+    }
+}
+#else
+void panicNmiInputFilter(uint8_t ch){}
 #endif
+#else
+void panicNmiInputFilter(uint8_t ch){}
+#endif
+

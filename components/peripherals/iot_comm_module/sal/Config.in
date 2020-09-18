@@ -32,6 +32,9 @@ choice
     config AOS_SAL_NBIOT_M5310A
         bool "nbiot.M5310A"
 
+    config AOS_SAL_ETH_CH395
+        bool "eth.ch395"
+
     config AOS_SAL_WIFI_BK7231
         bool "wifi.bk7231"
         select AOS_COMP_NETMGR

@@ -3,8 +3,8 @@
  */
 
 #include "aos/errno.h"
-#include "aos/posix/pthread.h"
-#include "aos/posix/timer.h"
+#include "posix/pthread.h"
+#include "posix/timer.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 

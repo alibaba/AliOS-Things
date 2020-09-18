@@ -19,6 +19,13 @@ $(NAME)_SOURCES += hal/ota_hal_plat.c \
                    hal/ota_hal_trans.c \
                    hal/ota_hal_digest.c
 
+ifneq (,$(filter mcu_haas1000, $(HOST_MCU_FAMILY)))
+$(NAME)_SOURCES += hal/subdev/ota_hal_subdev_plat.c   \
+                   hal/subdev/ota_hal_subdev_fsctrl.c \
+                   hal/ota_hal_param.c                \
+                   hal/ota_hal_ctrl.c
+endif
+
 $(NAME)_INCLUDES += include hal
 
 ifeq ($(USE_ITLS),y)
@@ -66,7 +73,17 @@ else
 ifneq (,$(filter mcu_stm32l4xx_cube mcu_stm32f4xx_cube mcu_mtk7682 mcu_m487jidae mcu_msp432p4xx mcu_xmc, $(HOST_MCU_FAMILY)))
 $(NAME)_PREBUILT_LIBRARY := lib/gcc/$(HOST_ARCH)/ota_agent_softabi.a #mt7682s
 else
+ifneq (,$(filter mcu_haas1000, $(HOST_MCU_FAMILY)))
+ifeq ($(OTA_DOWNLOAD_CONFIG_TLS),y)
+$(info hello1)
+$(NAME)_PREBUILT_LIBRARY := lib/gcc/$(HOST_ARCH)/ota_agent_haas_tls.a
+else
+$(info hello2)
+$(NAME)_PREBUILT_LIBRARY := lib/gcc/$(HOST_ARCH)/ota_agent_haas.a
+endif
+else
 $(NAME)_PREBUILT_LIBRARY := lib/gcc/$(HOST_ARCH)/ota_agent.a #mk3080
+endif
 endif
 endif
 endif

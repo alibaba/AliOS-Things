@@ -12,3 +12,5 @@ GLOBAL_DEFINES += AOS_NO_WIFI
 GLOBAL_INCLUDES += ./
 
 cnn_enable      ?= 1
+
+FEATURE ?= feature.mk

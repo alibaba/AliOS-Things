@@ -5,6 +5,12 @@ if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 
+source "application/example/amp_demo/Config.in"
+if AOS_APP_AMP
+    config AOS_BUILD_APP
+        default "amp_demo"
+endif
+
 source "application/example/helloworld_demo/Config.in"
 if AOS_APP_HELLOWORLD_DEMO
     config AOS_BUILD_APP
@@ -65,12 +71,6 @@ if AOS_APP_LINKKIT_GATEWAY_DEMO
         default "linkkit_gateway_demo"
 endif
 
-source "application/example/yts_demo/Config.in"
-if AOS_APP_YTS_DEMO
-    config AOS_BUILD_APP
-        default "yts_demo"
-endif
-
 source "application/example/kernel_demo/krhino_api_demo/Config.in"
 if AOS_APP_KRHINO_API_DEMO
     config AOS_BUILD_APP
@@ -95,12 +95,6 @@ if AOS_APP_HTTP2_DEMO
         default "http2_demo"
 endif
 
-source "application/example/lwm2m_demo/Config.in"
-if AOS_APP_LWM2M_DEMO
-    config AOS_BUILD_APP
-        default "lwm2m_demo"
-endif
-
 source "application/example/modbus_demo/Config.in"
 if AOS_APP_MODBUS_DEMO
     config AOS_BUILD_APP
@@ -113,16 +107,16 @@ if AOS_APP_BASE_DEMO
         default "ulocation.base_demo"
 endif
 
-source "application/example/ulocation/qianxun_demo/Config.in"
-if AOS_APP_QIANXUN_DEMO
-    config AOS_BUILD_APP
-        default "ulocation.qianxun_demo"
-endif
-
 source "application/example/ulog_demo/Config.in"
 if AOS_APP_ULOG_DEMO
     config AOS_BUILD_APP
         default "ulog_demo"
+endif
+
+source "application/example/example_legacy/yts/Config.in"
+if AOS_APP_YTS
+    config AOS_BUILD_APP
+        default "yts"
 endif
 
 source "application/example/debug_demo/Config.in"
@@ -300,12 +294,6 @@ if AOS_APP_QIANXUNAPP
         default "ulocation.qianxunapp"
 endif
 
-source "application/example/example_legacy/yts/Config.in"
-if AOS_APP_YTS
-    config AOS_BUILD_APP
-        default "yts"
-endif
-
 source "application/example/example_legacy/httpapp/Config.in"
 if AOS_APP_HTTPAPP
     config AOS_BUILD_APP
@@ -426,16 +414,10 @@ if AOS_APP_WIFI_AT_APP
         default "wifi_at_app"
 endif
 
-source "application/example/umesh2_demo/Config.in"
-if AOS_APP_UMESH2_DEMO
+source "application/example/fs_demo/Config.in"
+if AOS_APP_FS_DEMO
     config AOS_BUILD_APP
-        default "umesh2_demo"
-endif
-
-source "application/example/knx_demo/Config.in"
-if AOS_APP_KNXCTL
-    config AOS_BUILD_APP
-        default "knx_demo"
+        default "fs_demo"
 endif
 
 endchoice

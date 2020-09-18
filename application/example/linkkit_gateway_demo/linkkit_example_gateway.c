@@ -345,7 +345,11 @@ static int ota_subdev_upgrade_cb(ota_service_t *pctx, char *ver, char *url)
     LOG("ota version:%s is coming, if OTA upgrade or not ?\n", ver);
     void *thread = NULL;
     if(pctx != NULL) {
+#if defined(ENABLE_SUBDEV_FS_OTA)
+        ret = ota_thread_create(&thread, (void *)ota_service_subdev_start, (void *)pctx, NULL, 1024 * 8);
+#else
         ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 4);
+#endif
     }
     if (ret < 0) {
         LOG("ota thread err;%d ", ret);

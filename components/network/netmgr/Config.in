@@ -23,20 +23,42 @@ endif
 
 ###################################################################
 # Component configuration items
-menu "NETMGR Configuration"
+menu "netmgr Configuration"
 depends on AOS_COMP_NETMGR
 
-if pvtest
-config PREVALIDATE_TEST
-    bool "Enable prevalidate test"
-    default y
-    help
-        Enable prevalidate test
-endif
-endmenu
+config CONFIG_CLASSIC_NETMGR
+    bool
+    default n
 
-if AOS_COMP_NETMGR
-# Configurations for comp netmgr
+config CONFIG_MODERN_NETMGR
+    bool
+    default n
+
+config AOS_OPTIMIZE_NETWORK
+    bool "optimize network support"
+    default y if CONFIG_MODERN_NETMGR
+    default n if CONFIG_CLASSIC_NETMGR
+    help
+    support optimize network.
+
+choice
+    prompt "Config Network Version:"
+    default AOS_NETMGR_WITH_CLASSIC if CONFIG_CLASSIC_NETMGR
+    default AOS_NETMGR_WITH_MODERN if CONFIG_MODERN_NETMGR
+    default AOS_NETMGR_WITH_CLASSIC
+    help
+      Choose classic netmgr or modern netmgr
+
+    config AOS_NETMGR_WITH_MODERN
+        bool "Modern netmgr"
+        help
+        support Modern netmgr.
+
+    config AOS_NETMGR_WITH_CLASSIC
+        bool "Classic netmgr"
+        help
+        support classic netmgr.
+endchoice
 menu "Config Network Interface Types:"
     config AOS_NET_WITH_CELLULAR
         bool "Enable Netmgr with Cellular"
@@ -58,4 +80,4 @@ menu "Config Network Interface Types:"
 
 endmenu
 
-endif
+endmenu
