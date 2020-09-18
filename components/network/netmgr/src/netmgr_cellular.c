@@ -191,7 +191,7 @@ static void netmgr_disconnected_event(hal_cellular_module_t *m, void *arg)
         g_cellular_interface->disconnected_times++;
     }
 
-    aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_DISCONNECT, 0);
+    aos_post_event(EV_CELLULAR, CODE_CELLULAR_ON_DISCONNECT, NULL);
 }
 
 static const hal_cellular_event_cb_t g_cellular_hal_event = {

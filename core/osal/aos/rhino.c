@@ -17,6 +17,7 @@ extern const char* sysinfo_kernel_version;
 #define MS2TICK(ms) krhino_ms_to_ticks(ms)
 
 static unsigned int used_bitmap;
+static long long start_time_ms = 0;
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
@@ -547,6 +548,42 @@ int aos_timer_change(aos_timer_t *timer, int ms)
 
     return ret;
 }
+int aos_timer_change_once(aos_timer_t *timer, int ms)
+{
+    int ret;
+
+    if (timer == NULL) {
+        return -EINVAL;
+    }
+
+    ret = krhino_timer_change(timer->hdl, MS2TICK(ms), 0);
+
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    return ret;
+}
+
+int aos_timer_is_valid(aos_timer_t *timer)
+{
+    ktimer_t *k_timer;
+
+    if (timer == NULL) {
+        return 0;
+    }
+
+    k_timer = timer->hdl;
+    if (k_timer == NULL) {
+          return 0;
+    }
+
+    if (k_timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
+        return 0;
+    }
+
+    return 1;
+}
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
@@ -774,6 +811,24 @@ void aos_free(void *mem)
     }
 
     krhino_mm_free(mem);
+}
+
+void aos_calendar_time_set(long long now_ms)
+{
+    start_time_ms = now_ms - krhino_sys_time_get();
+}
+
+long long aos_calendar_time_get(void)
+{
+    return krhino_sys_time_get() + start_time_ms;
+}
+
+long long aos_calendar_localtime_get(void)
+{
+    if ((aos_calendar_time_get() - 8 * 3600 * 1000) < 0) {
+        return aos_calendar_time_get();
+    }
+    return aos_calendar_time_get() + 8 * 3600 * 1000;
 }
 
 long long aos_now(void)

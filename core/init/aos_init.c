@@ -21,6 +21,10 @@
 #include "fs/spiffs.h"
 #endif
 
+#ifdef AOS_COMP_LITTLEFS
+#include "fs/littlefs.h"
+#endif
+
 #ifdef AOS_COMP_FATFS
 #include "fs/fatfs.h"
 #endif
@@ -289,8 +293,16 @@ int aos_components_init(kinit_t *kinit)
     cli_service_init(kinit);
 #endif
 
+#ifdef AOS_COMP_NFTL
+    nftl_init();
+#endif
+
 #ifdef AOS_COMP_SPIFFS
     spiffs_register();
+#endif
+
+#ifdef AOS_COMP_LITTLEFS
+    littlefs_register();
 #endif
 
 #ifdef AOS_COMP_FATFS

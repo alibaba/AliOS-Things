@@ -252,7 +252,7 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
     /*
      * payload len = frame.len - (radio_header + wlan_hdr)
      */
-    hdrlen = ieee80211_hdrlen(fc);
+    hdrlen = ieee80211_hdrlen_2(fc);
     if (hdrlen > len) {
         return ALINK_INVALID;
     }

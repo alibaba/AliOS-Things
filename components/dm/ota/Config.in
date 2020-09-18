@@ -82,6 +82,13 @@ choice
 endchoice
 endif
 
+config OTA_DOWNLOAD_CONFIG_TLS
+     bool "Https Download Support"
+     default n
+     help
+        default support http download
+        select it to support https Download
+
 config OTA_FLASH_WRITE_CACHE_SIZE
      int "write flash cache size(bytes)"
      default 1024

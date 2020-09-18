@@ -7,7 +7,7 @@ endif
 if !AOS_CREATE_PROJECT
 config AOS_COMP_LIB_RBTREE
     bool "rbtree code"
-    default y
+    default n
     help
         red-black tree
 endif

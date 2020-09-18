@@ -1,0 +1,34 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_I2C
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_I2C
+    bool "I2C Device Drivers Configuration"
+    default n
+    help
+        AliOS Things I2C
+endif
+
+
+###################################################################
+# Component configuration items
+menu "I2C Device Configuration"
+depends on AOS_COMP_I2C
+
+config SENSOR_CONFIG_I2C_MUX_ENABLE
+    bool "Enable I2C MUX Enable"
+    default y
+    help
+        Press <Y> here to add support for the muxer.
+
+
+
+endmenu
+

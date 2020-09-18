@@ -332,7 +332,7 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
         return ALINK_INVALID;
     }
 
-    ret = ieee80211_get_bssid(mgmt_header, bssid);
+    ret = ieee80211_get_bssid_2(mgmt_header, bssid);
     if (ret < 0) {
         return ALINK_INVALID;
     }

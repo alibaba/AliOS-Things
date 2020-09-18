@@ -1,0 +1,13 @@
+menuconfig AOS_COMP_LITTLEFS
+    bool "littlefs"
+    default n
+    help
+
+if AOS_COMP_LITTLEFS
+# Configurations for component littlefs
+
+    config CONFIG_FLASH_PAGE_SIZE
+        int "The flash page size (in bytes)"
+        default 4096
+
+endif

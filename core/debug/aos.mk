@@ -16,7 +16,8 @@ $(NAME)_SOURCES := debug_cpuusage.c  \
                    debug_overview.c  \
                    debug_panic.c     \
                    debug_backtrace.c \
-                   debug_infoget.c
+                   debug_infoget.c   \
+                   debug_print.c
 
 GLOBAL_DEFINES += AOS_COMP_DEBUG
 GLOBAL_ASMFLAGS += -DAOS_COMP_DEBUG

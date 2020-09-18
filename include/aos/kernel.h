@@ -530,6 +530,29 @@ void aos_alloc_trace(void *addr, size_t allocator);
 void aos_free(void *mem);
 
 /**
+ * Set calender time
+ *
+ * @param[in]  now_ms    
+ *
+ * @return  none.
+ */
+void aos_calendar_time_set(long long now_ms);
+
+/**
+ * Get calender time   
+ *
+ * @return   type long long      get calender time in millisecond.
+ */
+long long aos_calendar_time_get(void);
+
+/**
+ * Get calender local time   
+ *
+ * @return   type long long      get calender local in millisecond（UTC/GMT+08:00）.
+ */
+long long aos_calendar_localtime_get(void);
+
+/**
  * Get current time in nano seconds.
  *
  * @return  type long long      elapsed time in nano seconds from system starting.

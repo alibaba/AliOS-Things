@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
+#include <signal.h>
 #include <string.h>
 #include "ota_log.h"
 #include "ota_hal_os.h"
@@ -183,6 +184,7 @@ static void task_wrapper(void *arg)
 #define OTA_THREAD_NAME "OTA_Thread"
 #define OTA_THREAD_SIZE 4096
 #define OTA_THREAD_PRI 30
+static task_context_t *ota_task = NULL;
 /*Thread create*/
 int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int stack_size)
 {
@@ -192,16 +194,20 @@ int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void 
     if(stack_size <= 0) {
         stack_size = OTA_THREAD_SIZE;
     }
-    task_context_t *task = aos_malloc(sizeof(task_context_t));
-    if (!task) {
+    if(ota_task != NULL) {
+        aos_free(ota_task);
+        ota_task = NULL;
+    }
+    ota_task = aos_malloc(sizeof(task_context_t));
+    if (!ota_task) {
         return -1;
     }
-    memset(task, 0, sizeof(task_context_t));
-    task->arg      = arg;
-    task->routine  = work_routine;
+    memset(ota_task, 0, sizeof(task_context_t));
+    ota_task->arg      = arg;
+    ota_task->routine  = work_routine;
 
-    ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, stack_size, OTA_THREAD_PRI);
-    *thread_handle = (void *)task;
+    ret = aos_task_new_ext(&ota_task->task, tname, task_wrapper, ota_task, stack_size, OTA_THREAD_PRI);
+    *thread_handle = (void *)ota_task;
 #else
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
 #endif

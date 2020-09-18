@@ -15,7 +15,7 @@
 
 typedef struct hal_wifi_module_s hal_wifi_module_t;
 
-enum wlan_sec_type_e {
+typedef enum wlan_sec_type_e {
     SECURITY_TYPE_NONE,       /* Open system. */
     SECURITY_TYPE_WEP,        /* Wired Equivalent Privacy. WEP security. */
     SECURITY_TYPE_WPA_TKIP,   /* WPA /w TKIP */
@@ -24,11 +24,14 @@ enum wlan_sec_type_e {
     SECURITY_TYPE_WPA2_AES,   /* WPA2 /w AES */
     SECURITY_TYPE_WPA2_MIXED, /* WPA2 /w AES or TKIP */
     SECURITY_TYPE_AUTO,       /* It is used when calling @ref micoWlanStartAdv, MICO read security type from scan result. */
-};
+} hal_wifi_sec_type;
 
 typedef struct {
-    char ssid[32 + 1];
-    char ap_power;
+    char    ssid[32 + 1];         /* The SSID of an access point. */
+    char    ap_power;             /* Received Signal Strength Indication, min: -110, max: 0 */
+    char    bssid[6];             /* The BSSID of an access point. */
+    char    channel;              /* The RF frequency, 1-13 */
+    hal_wifi_sec_type sec_type;   /* Security type, @ref wlan_sec_type_t */
 } ap_list_t;
 
 /*
@@ -41,11 +44,11 @@ typedef struct {
 } hal_wifi_scan_result_t;
 
 typedef struct {
-    char    ssid[32 + 1]; /* The SSID of an access point. */
-    char    ap_power;     /* Signal strength, min:0, max:100 */
-    char    bssid[6];     /* The BSSID of an access point. */
-    char    channel;      /* The RF frequency, 1-13 */
-    uint8_t security;     /* Security type, @ref wlan_sec_type_t */
+    char    ssid[32 + 1];         /* The SSID of an access point. */
+    char    ap_power;             /* Received Signal Strength Indication, min: -110, max: 0 */
+    char    bssid[6];             /* The BSSID of an access point. */
+    char    channel;              /* The RF frequency, 1-13 */
+    hal_wifi_sec_type security;   /* Security type, @ref wlan_sec_type_t */
 } ap_list_adv_t;
 
 typedef struct {
@@ -55,11 +58,60 @@ typedef struct {
 } hal_wifi_scan_result_adv_t;
 
 typedef enum {
-    NOTIFY_STATION_UP = 1,
-    NOTIFY_STATION_DOWN,
+    RET_WIFI_OK                  = 0,
+    RET_WIFI_COMMON_FAIL         = -1,
+    RET_WIFI_INVALID_ARG         = -2,  //invalid argument
+    RET_WIFI_INVALID_PASSWORD    = -3,  //invalid password
+    RET_WIFI_MEMORY_ERROR        = -4,  //no memory to allocate resource
+    RET_WIFI_INIT_FAIL           = -5,  //init wifi fail
+    RET_WIFI_NOT_INITED          = -6,  //wifi is not initialized
+    RET_WIFI_STATUS_ERROR        = -7,  //request in error STATUS
+    RET_WIFI_SCAN_REQ_FAIL       = -8,  //scan fail to start
+    RET_WIFI_SCAN_NO_AP_FOUND    = -9,  //scan result is NULL (didn't find any SSID)
+    RET_WIFI_NO_SUITABLE_NETWORK = -10,  //no suitable network to connect
+    RET_WIFI_CONN_REQ_FAIL       = -11, //connect fail to start
+    RET_WIFI_CONN_FAIL           = -12, //connect procedure result in fail
+    RET_WIFI_CONN_NO_SSID_CONFIG = -13, //no saved SSID config to connect
+    RET_WIFI_DISC_FAIL           = -14, //disconnect procedure result in fail
+    RET_WIFI_WPS_NOT_FOUND       = -15, //couldn't find WPS AP
+    RET_WIFI_WPS_REQ_FAIL        = -16, //WPS fail to start
+}hal_wifi_result_t;
 
-    NOTIFY_AP_UP,
-    NOTIFY_AP_DOWN,
+typedef enum {
+#define  NOTIFY_STATION_UP      NOTIFY_WIFI_CONNECTED     // STATION up
+#define  NOTIFY_STATION_DOWN    NOTIFY_WIFI_DISCONNECTED  // STATION down
+    NOTIFY_WIFI_DISCONNECTED = 1,     // Connection start
+    NOTIFY_WIFI_SCAN_STARTED,         // Scan start
+    NOTIFY_WIFI_SCAN_FAILED,          // Scan failed
+    NOTIFY_WIFI_NETWORK_NOT_FOUND,    // no AP found
+    NOTIFY_WIFI_AUTHENTICATING,       // Authentication start
+    NOTIFY_WIFI_AUTH_REJECT,          // Authentication rejected by AP
+    NOTIFY_WIFI_AUTH_TIMEOUT,         // Authentication timeout with AP
+    NOTIFY_WIFI_ASSOCIATING,          // Association starts
+    NOTIFY_WIFI_ASSOC_REJECT,         // Association rejected by AP
+    NOTIFY_WIFI_ASSOC_TIMEOUT,        // Association timeout with AP
+    NOTIFY_WIFI_ASSOCIATED,           // Authentication succeed
+    NOTIFY_WIFI_4WAY_HANDSHAKE,       // 4way-handshark start
+    NOTIFY_WIFI_HANDSHAKE_FAILED,     // 4way-handshake fails
+    NOTIFY_WIFI_4WAY_HANDSHAKE_DONE,  // 4way-handshark done
+    NOTIFY_WIFI_GROUP_HANDSHAKE,      // group-handshark start
+    NOTIFY_WIFI_GROUP_HANDSHAKE_DONE, // group-handshark done = completed
+    NOTIFY_WIFI_CONNECTED,            // Connection to AP done
+    NOTIFY_WIFI_CONN_TIMEOUT,         // Connection timeout
+    NOTIFY_WIFI_DEAUTH,               // Deauth received from AP
+
+    NOTIFY_DHCP_START_FAILED,         // DHCP start fails
+    NOTIFY_DHCP_TIMEOUT,              // DHCP timeout
+    NOTIFY_DHCP_SUCCESS,              // DHCP success
+
+    NOTIFY_SNTP_SUCCESS,              // SNTP success
+    NOTIFY_SNTP_FAILED,               // SNTP failure
+
+    NOTIFY_AP_UP,                     // AP up
+    NOTIFY_AP_DOWN,                   // AP down
+
+    NOTIFY_MAX,                       // Notify max
+
 } hal_wifi_event_t;
 
 
@@ -74,6 +126,7 @@ typedef struct {
 typedef struct {
     char wifi_mode;              /* DHCP mode: @ref wlanInterfaceTypedef. */
     char wifi_ssid[32 + 1];      /* SSID of the wlan needs to be connected. */
+    char wifi_bssid[6];          /* SSID of the wlan needs to be connected. */
     char wifi_key[64 + 1];       /* Security key of the wlan needs to be connected, ignored in an open system. */
     char local_ip_addr[16];      /* Static IP configuration, Local IP address. */
     char net_mask[16];           /* Static IP configuration, Netmask. */
@@ -83,6 +136,7 @@ typedef struct {
     char reserved[32];
     int  wifi_retry_interval;    /* Retry interval if an error is occured when connecting an access point,
                                     time unit is millisecond. */
+    hal_wifi_sec_type sec_type;  /* Security type */
 #ifdef STM32L475xx
     WIFI_Ecn_t access_sec;
 #endif
@@ -127,10 +181,11 @@ enum {
 
 typedef struct {
     int     is_connected;  /* The link to wlan is established or not, 0: disconnected, 1: connected. */
-    int     wifi_strength; /* Signal strength of the current connected AP */
+    int     wifi_strength; /* Signal strength of the current connected AP,  min:0, max:100 */
     uint8_t ssid[32 + 1];  /* SSID of the current connected wlan */
     uint8_t bssid[6];      /* BSSID of the current connected wlan */
     int     channel;       /* Channel of the current connected wlan */
+    int     rssi;          /* Received Signal Strength Indication, min: -110, max: 0 */
 } hal_wifi_link_stat_t;
 
 typedef struct {
@@ -172,23 +227,32 @@ struct hal_wifi_module_s {
     int  (*init)(hal_wifi_module_t *m);
     void (*get_mac_addr)(hal_wifi_module_t *m, uint8_t *mac);
     void (*set_mac_addr)(hal_wifi_module_t *m, const uint8_t *mac);
+    int  (*connect)(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para);
     int  (*start)(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para);
     int  (*start_adv)(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv);
+    int  (*set_ip_stat)(hal_wifi_module_t *m, hal_wifi_ip_stat_t *in_net_para, hal_wifi_type_t wifi_type);
     int  (*get_ip_stat)(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type);
     int  (*get_link_stat)(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat);
-    void (*start_scan)(hal_wifi_module_t *m);
-    void (*start_scan_adv)(hal_wifi_module_t *m);
+    int  (*start_scan)(hal_wifi_module_t *m);
+    int  (*start_specified_scan)(hal_wifi_module_t *m, ap_list_t *ap_list , int ap_num);
+    int  (*start_scan_adv)(hal_wifi_module_t *m);
     int  (*power_off)(hal_wifi_module_t *m);
     int  (*power_on)(hal_wifi_module_t *m);
+    int  (*disconnect)(hal_wifi_module_t *m);
     int  (*suspend)(hal_wifi_module_t *m);
     int  (*suspend_station)(hal_wifi_module_t *m);
     int  (*suspend_soft_ap)(hal_wifi_module_t *m);
+    int  (*cancel)(hal_wifi_module_t *m);
     int  (*set_channel)(hal_wifi_module_t *m, int ch);
     int  (*get_channel)(hal_wifi_module_t *m);
     int  (*get_channel_list)(hal_wifi_module_t *m, const uint8_t **chnlist);
+
     void (*start_monitor)(hal_wifi_module_t *m);
     void (*stop_monitor)(hal_wifi_module_t *m);
     void (*register_monitor_cb)(hal_wifi_module_t *m, monitor_data_cb_t fn);
+
+    void (*start_mgnt_monitor)(hal_wifi_module_t *m);
+    void (*stop_mgnt_monitor)(hal_wifi_module_t *m);
     void (*register_wlan_mgnt_monitor_cb)(hal_wifi_module_t *m, monitor_data_cb_t fn);
     int  (*wlan_send_80211_raw_frame)(hal_wifi_module_t *m, uint8_t *buf, int len);
 
@@ -219,6 +283,9 @@ struct hal_wifi_module_s {
     int (*enter_powersave)(hal_wifi_module_t *m, uint8_t recvDTIMs);
     int (*exit_powersave)(hal_wifi_module_t *m);
 #endif
+
+    /* get STA/AP mode interface */
+    struct netif* (*get_netif)(hal_wifi_module_t *m, hal_wifi_type_t mode);
 };
 
 /**
@@ -286,7 +353,17 @@ int hal_wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac);
 int hal_wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac);
 
 /**
- * Start the wifi instance, connect the wifi.
+ * Connect the wifi instance.
+ *
+ * @param[in]  m          the wifi instance, NULL if default.
+ * @param[in]  init_para  the config used to start the wifi.
+ *
+ * @return      0 on success, otherwise failure.
+ */
+int hal_wifi_connect(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para);
+
+/**
+ * Start the wifi instance.
  *
  * @param[in]  m          the wifi instance, NULL if default.
  * @param[in]  init_para  the config used to start the wifi.
@@ -304,6 +381,18 @@ int hal_wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para);
  * @return      0 on success, otherwise failure.
  */
 int hal_wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv);
+
+/**
+ * Set the status of the specified wifi instance, e.g. the IP, mask, dhcp mode, etc, when got ip successfully.
+ *
+ * @param[in]   m             the wifi instance, NULL if default.
+ * @param[in]   in_net_para   the place to hold the results.
+ * @param[in]   wifi_type     SOFT_AP or STATION.
+ *
+ * @return      0 on success, otherwise failure.
+ */
+int hal_wifi_set_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para,
+                         hal_wifi_type_t wifi_type);
 
 /**
  * Get the status of the specified wifi instance, e.g. the IP, mask, dhcp mode, etc.
@@ -338,18 +427,27 @@ int hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 int hal_wifi_scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num);
 
 /**
- * Start the scanning of the specified wifi instance.
+ * Start the full scanning of the specified wifi instance.
  *
  * @param[in]  m  the wifi instance, NULL if default.
  */
-void hal_wifi_start_scan(hal_wifi_module_t *m);
+int hal_wifi_start_scan(hal_wifi_module_t *m);
 
 /**
- * Start the scanning of the specified wifi instance in advanced way.
+ * Start the specified scanning of the specified wifi instance.
+ *
+ * @param[in]  m        the wifi instance, NULL if default.
+ * @param[in]  ap_list  the list of ap info.
+ * @param[in]  ap_num   the number of the ap info.
+ */
+int hal_wifi_start_specified_scan(hal_wifi_module_t *m, ap_list_t *ap_list, int ap_num);
+
+/**
+ * Start the full scanning of the specified wifi instance in advanced way.
  *
  * @param[in]  m  the wifi instance, NULL if default.
  */
-void hal_wifi_start_scan_adv(hal_wifi_module_t *m);
+int hal_wifi_start_scan_adv(hal_wifi_module_t *m);
 
 /**
  * Power off the wifi instance.
@@ -370,7 +468,16 @@ int hal_wifi_power_off(hal_wifi_module_t *m);
 int hal_wifi_power_on(hal_wifi_module_t *m);
 
 /**
- * Suspend the wifi instance, disconnect the wifi.
+ * Disconnect the wifi instance.
+ *
+ * @param[in]  m  the wifi instance, NULL if default.
+ *
+ * @return     0 on success, otherwise failure.
+ */
+int hal_wifi_disconnect(hal_wifi_module_t *m);
+
+/**
+ * Suspend the wifi instance.
  *
  * @param[in]  m  the wifi instance, NULL if default.
  *
@@ -395,6 +502,15 @@ int hal_wifi_suspend_station(hal_wifi_module_t *m);
  * @return     0 on success, otherwise failure.
  */
 int hal_wifi_suspend_soft_ap(hal_wifi_module_t *m);
+
+/**
+ * Cancel the connecting wifi instance.
+ *
+ * @param[in]  m  the wifi instance, NULL if default.
+ *
+ * @return     0 on success, otherwise failure.
+ */
+int hal_wifi_cancel(hal_wifi_module_t *m);
 
 /**
  * Set the channel of the wifi instance.
@@ -447,15 +563,26 @@ void hal_wifi_stop_wifi_monitor(hal_wifi_module_t *m);
 void hal_wifi_register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn);
 
 /**
+ * Start the management frame monitor mode of the wifi instance.
+ *
+ * @param[in]  m  the wifi instance, NULL if default.
+ */
+void hal_wlan_start_mgnt_monitor(hal_wifi_module_t *m);
+
+/**
+ * Stop the management frame monitor mode of the wifi instance.
+ *
+ * @param[in]  m  the wifi instance, NULL if default.
+ */
+void hal_wlan_stop_mgnt_monitor(hal_wifi_module_t *m);
+
+/**
  * Register management frame montior callback on the wifi instance.
  *
  * @param[in]  m   the wifi instance, NULL if default.
  * @param[in]  fn  the callback function.
- * @note if param fn is not NULL, means start monitor,
- *       if param fn is NULL, means stop monitor.
  */
 void hal_wlan_register_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn);
-
 
 /**
  * Send 802.11 raw frame
@@ -497,6 +624,16 @@ void hal_wifi_install_event(hal_wifi_module_t *m, const hal_wifi_event_cb_t *cb)
  * @param[in]  m  the wifi instance.
  */
 void hal_umesh_register_wifi(hal_wifi_module_t *m);
+
+/**
+ * Get the interface of the specified wifi instance.
+ *
+ * @param[in]   m    the wifi instance, NULL if default.
+ * @param[out]  mode wifi type.
+ *
+ * @return  NULL on failure, otherwise success.
+ */
+struct netif* hal_wifi_get_netif(hal_wifi_module_t *m, hal_wifi_type_t mode);
 
 #if (WIFI_CONFIG_SUPPORT_LOWPOWER > 0)
 /**

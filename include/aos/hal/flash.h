@@ -44,15 +44,35 @@ typedef enum {
     HAL_PARTITION_PARAMETER_4,  /**< Used by security */
     HAL_PARTITION_BT_FIRMWARE,  /**< For bt firmware */
     HAL_PARTITION_SPIFFS,       /**< For spiffs file system */
+    HAL_PARTITION_LITTLEFS,
+    HAL_PARTITION_LITTLEFS2,
+    HAL_PARTITION_LITTLEFS3,
     HAL_PARTITION_CUSTOM_1,     /**< For User defined */
     HAL_PARTITION_CUSTOM_2,     /**< For User defined */
     HAL_PARTITION_2ND_BOOT,     /**< For 2nd boot */
     HAL_PARTITION_MBINS_APP,    /**< For app bin when muti bins */
     HAL_PARTITION_MBINS_KERNEL, /**< For kernel bin when muti bins */
     HAL_PARTITION_OTA_SUB,      /**< For Sub device OTA */
+    HAL_PARTITION_GPT,
+    HAL_PARTITION_ENV,
+    HAL_PARTITION_ENV_REDUND,
+    HAL_PARTITION_RTOSA,
+    HAL_PARTITION_RTOSB,
+    HAL_PARTITION_BOOT1,
+    HAL_PARTITION_BOOT1_REDUND,
     HAL_PARTITION_MAX,
     HAL_PARTITION_NONE,
 } hal_partition_t;
+
+typedef enum {
+    HAL_FLASH_ERR_OK,           /* operation success */
+    HAL_FLASH_ERR_NAND_BAD,     /* Bad block */
+    HAL_FLASH_ERR_NAND_READ,    /* Read fail, can't correct */
+    HAL_FLASH_ERR_NAND_WRITE,   /* Write fail */
+    HAL_FLASH_ERR_NAND_ERASE,   /* Erase fail */
+    HAL_FLASH_ERR_NAND_FLIPS,   /* Too many bitflips, uncorrected */
+    /* add more hereafter */
+} hal_flash_err_t;
 
 /* Define for partition owner */
 typedef enum {

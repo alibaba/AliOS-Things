@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include "aos/posix/dirent.h"
+#include "posix/dirent.h"
 
 #if (POSIX_CONFIG_DIRENT_ENABLE > 0)
 

@@ -31,6 +31,10 @@ $Recycle.Bin
 .sconsign.dblite
 cb2201*.map
 projects/autogen/*
+aos_config.h
+..config.tmp
+.config.old
+
 # source sight project files
 *.IAB
 *.IAD

@@ -54,6 +54,28 @@
 extern "C" {
 #endif
 
+#define TCP_SMALL_RTO    (1000)
+#define TCP_LARGE_RTO    (2000)
+/*  0:weak signal use large rto
+ *  1:strong singal use small rto */
+#define RTO_FLAGS_LARGE    0
+#define RTO_FLAGS_SMALL    1
+#define RTO_FLAGS_DEFAULT  2
+/*  0:small rto 1:large rto */
+extern int lwip_rto_flags;
+
+/*  1:strong signal use large rcv wnd
+ *  0:weak signal use small rcv wnd
+ *  2:default rcv wnd */
+#define WND_FLAGS_LARGE     0
+#define WND_FLAGS_SMALL     1
+#define WND_FLAGS_DEFAULT   2
+
+#define TCP_SMALL_WND    (4*TCP_MSS)
+#define TCP_LARGE_WND    (10*TCP_MSS)
+/*  0:small rcv wnd 1:large rcv wnd */
+extern int lwip_rcv_wnd_flags;
+
 struct tcp_pcb;
 
 /** Function prototype for tcp accept callback functions. Called when a new
@@ -131,19 +153,25 @@ typedef void  (*tcp_err_fn)(void *arg, err_t err);
  */
 typedef err_t (*tcp_connected_fn)(void *arg, struct tcp_pcb *tpcb, err_t err);
 
+#define TCP_DYNA_WND_MAX(pcb) \
+      (pcb->rcv_wnd_flags == WND_FLAGS_SMALL) ? TCP_SMALL_WND : \
+      ((pcb->rcv_wnd_flags == WND_FLAGS_LARGE) ? TCP_LARGE_WND : TCP_WND)
+
 #if LWIP_WND_SCALE
 #define RCV_WND_SCALE(pcb, wnd) (((wnd) >> (pcb)->rcv_scale))
 #define SND_WND_SCALE(pcb, wnd) (((wnd) << (pcb)->snd_scale))
 #define TCPWND16(x)             ((u16_t)LWIP_MIN((x), 0xFFFF))
 #define TCP_WND_MAX(pcb)        (pcb->usr_rcv_wnd == 0) ? \
-                                ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? TCP_WND : TCPWND16(TCP_WND))) \
+                                ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? TCP_DYNA_WND_MAX(pcb) : TCPWND16(TCP_DYNA_WND_MAX(pcb)))) \
                                 : ((tcpwnd_size_t)(((pcb)->flags & TF_WND_SCALE) ? pcb->usr_rcv_wnd : TCPWND16(pcb->rcv_wnd)))
+
 typedef u32_t tcpwnd_size_t;
 #else
 #define RCV_WND_SCALE(pcb, wnd) (wnd)
 #define SND_WND_SCALE(pcb, wnd) (wnd)
 #define TCPWND16(x)             (x)
-#define TCP_WND_MAX(pcb)        (pcb->usr_rcv_wnd == 0) ? TCP_WND : pcb->usr_rcv_wnd
+
+#define TCP_WND_MAX(pcb)        (pcb->usr_rcv_wnd == 0) ? TCP_DYNA_WND_MAX(pcb) : pcb->usr_rcv_wnd
 
 typedef u16_t tcpwnd_size_t;
 #endif
@@ -189,7 +217,9 @@ struct tcp_sack_range {
   /* ports are in host byte order */ \
   u16_t local_port; \
   /* user use setsockopt to set tcp rcv wnd */ \
-  tcpwnd_size_t usr_rcv_wnd
+  tcpwnd_size_t usr_rcv_wnd; \
+  /* rcv windows flags */ \
+  u8_t rcv_wnd_flags
 
 /** the TCP protocol control block for listening pcbs */
 struct tcp_pcb_listen {
@@ -375,6 +405,7 @@ struct tcp_pcb * tcp_new_ip_type (u8_t type);
 
 void             tcp_arg     (struct tcp_pcb *pcb, void *arg);
 void             tcp_setrcvwnd  (struct tcp_pcb *pcb, u32_t newwnd);
+void             tcp_setsndbuf  (struct tcp_pcb *pcb, u32_t sndbuf);
 #if LWIP_CALLBACK_API
 void             tcp_recv    (struct tcp_pcb *pcb, tcp_recv_fn recv);
 void             tcp_sent    (struct tcp_pcb *pcb, tcp_sent_fn sent);

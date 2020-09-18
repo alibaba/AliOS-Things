@@ -1,0 +1,6 @@
+config AOS_COMP_SNTP
+    bool "sntp"
+    default n
+    select AOS_COMP_LWIP
+    help
+        AliOS Things sntp

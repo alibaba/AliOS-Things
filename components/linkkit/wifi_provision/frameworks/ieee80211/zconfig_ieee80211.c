@@ -224,7 +224,7 @@ uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr)
     }
 }
 
-int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
+int ieee80211_get_bssid_2(uint8_t *in, uint8_t *mac)
 {
     uint8_t *bssid = ieee80211_get_BSSID((struct ieee80211_hdr *)in);
 
@@ -245,7 +245,7 @@ int ieee80211_has_frags(uint16_t fc)
 
 /* DATA:        24B */
 /* QOS-DATA:    26B */
-int ieee80211_hdrlen(uint16_t fc)
+int ieee80211_hdrlen_2(uint16_t fc)
 {
     uint32_t hdrlen = 24;
 

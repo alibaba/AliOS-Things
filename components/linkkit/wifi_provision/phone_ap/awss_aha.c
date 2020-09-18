@@ -78,7 +78,7 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
 
     if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc))
         return ALINK_INVALID;
-    ret = ieee80211_get_bssid(mgmt_header, bssid);
+    ret = ieee80211_get_bssid_2(mgmt_header, bssid);
     if (ret < 0)
         return ALINK_INVALID;
 

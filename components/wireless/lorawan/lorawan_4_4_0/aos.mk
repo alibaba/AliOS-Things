@@ -29,7 +29,7 @@ $(NAME)_INCLUDES +=  .             \
                     mac/region    \
                     system
 
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
+GLOBAL_DEFINES += CONFIG_NO_LWIP
 
 $(NAME)_SOURCES += linkwan/region/RegionCN470A.c \
                    linkwan/linkwan.c

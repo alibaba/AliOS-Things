@@ -6,7 +6,7 @@
 
 #include "fs/ramfs.h"
 
-#include "aos/posix/posix_init.h"
+#include "posix/posix_init.h"
 
 extern int pthread_lock_init(void);
 extern int timer_lock_init(void);

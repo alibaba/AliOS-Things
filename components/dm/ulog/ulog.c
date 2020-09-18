@@ -66,6 +66,20 @@ int aos_set_log_level(aos_log_level_t log_level)
     return rc;
 }
 
+int aos_set_log_level_fs(aos_log_level_t log_level)
+{
+    int rc = -1;
+#if ULOG_POP_FS_ENABLE
+    if(log_init){
+        if (log_level <= AOS_LL_DEBUG) {
+            on_filter_level_changes(ulog_session_file, log_level + 1);
+            rc = 0;
+        }
+    }
+#endif /* ULOG_POP_FS_ENABLE */
+    return rc;
+}
+
 char* get_sync_stop_level()
 {
 #ifdef CONFIG_LOGMACRO_SILENT

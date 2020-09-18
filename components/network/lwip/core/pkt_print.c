@@ -136,7 +136,6 @@ typedef struct
     u16_t   seq;
     u8_t    padding[2];
 } DBG_ICMP_T;
-
 /* IGMP packet info struct */
 
 typedef struct
@@ -213,6 +212,7 @@ static int pktprint_debug_level = 0;
 static int filter_flag = 0;
 static int filter_port = 0;
 
+#if 0
 void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
 {
     int  len = 0;
@@ -312,7 +312,7 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                 case TCPF_RST:          dbg_pkt_info.subtrans = STL_TCP_RST;          break;
                 case TCPF_ACK:          dbg_pkt_info.subtrans = STL_TCP_ACK;
                                         if(pktprint_debug_level == 1) {
-                                            if((tcp_ptr->port_src != filter_port) 
+                                            if((tcp_ptr->port_src != filter_port)
                                               && (tcp_ptr->port_dst != filter_port)) {
                                                 filter_flag = 1;
                                             }
@@ -321,9 +321,9 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                 case TCPF_FINACK:       dbg_pkt_info.subtrans = STL_TCP_FINACK;       break;
                 case TCPF_SYNACK:       dbg_pkt_info.subtrans = STL_TCP_SYNACK;       break;
                 case TCPF_RSTACK:       dbg_pkt_info.subtrans = STL_TCP_RSTACK;       break;
-                case TCPF_PSHACK:       dbg_pkt_info.subtrans = STL_TCP_PSHACK; 
+                case TCPF_PSHACK:       dbg_pkt_info.subtrans = STL_TCP_PSHACK;
                                         if(pktprint_debug_level == 1) {
-                                            if((tcp_ptr->port_src != filter_port) 
+                                            if((tcp_ptr->port_src != filter_port)
                                               && (tcp_ptr->port_dst != filter_port)) {
                                                 filter_flag = 1;
                                             }
@@ -447,7 +447,7 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
       }
    }
 }
-
+#endif
 void _cli_pktprint_help_command(void)
 {
     LWIP_DEBUGF(PKTPRINT_DEBUG, ("Usage: pktprint  [debug_level]\n"));

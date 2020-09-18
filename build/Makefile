@@ -171,7 +171,7 @@ endif
 $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
-	
+
 $(if $(boardmkfile_legacy),\
     $(eval include $(boardmkfile_legacy)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))

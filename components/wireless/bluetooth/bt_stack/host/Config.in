@@ -1,0 +1,16 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_BTHOST
+    bool "Bluedroid Host stack"
+    default n
+    help
+
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_BTHOST
+    bool "Bluedroid Host stack"
+    default n
+    help
+
+endif
+

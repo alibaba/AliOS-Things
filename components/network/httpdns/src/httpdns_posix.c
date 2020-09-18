@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "aos/posix/pthread.h"
-#include "aos/posix/timer.h"
+#include "posix/pthread.h"
+#include "posix/timer.h"
 
 #include "httpdns_opts.h"
 #include "httpdns_internal.h"
