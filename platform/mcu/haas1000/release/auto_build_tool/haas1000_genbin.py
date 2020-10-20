@@ -58,6 +58,7 @@ while True:
         arry_parm = line.split(':', 1 )
         is_list = False
 
+
     para_key = ''
     para_val = ''
     if len(arry_parm) == 2:
@@ -70,7 +71,7 @@ while True:
     if para_key[0:1].isspace() == False:
         num_of_first_items = num_of_first_items + 1
         if para_val != '\r\n' and para_val != '\n':
-            print "format wrong"
+            print("format wrong")
             break
 
         dict1_name_list.append(para_key);
@@ -114,7 +115,7 @@ while True:
                 #print cfg_dict
                 continue
 
-        if string.find(para_key,'SWITCH') != -1:
+        if para_key.find('SWITCH') != -1:
             cfg_tmp[para_key[2:]] = para_val.strip()
             continue
 
@@ -172,7 +173,7 @@ if chmod_swich == 'ON' and (osstr =="Linux"):
     cmd_list.append('chmod')
     cmd_list.append('777')
     cur_dir = os.getcwd()
-    print cur_dir
+    print(cur_dir)
     cmd_list.append(cur_dir + '/' + sign_dir)
     if log_swich == "ON":
         print(cmd_list)
@@ -217,7 +218,7 @@ if extract_switch == 'ON':
     cmd_list = []
     cmd_list = extract_cmd
     cur_dir = os.getcwd()
-    print cur_dir
+    print(cur_dir)
     if osstr == "Windows":
         cmd_list = []
         cmd_list.append(cur_dir + '/' + sign_dir + '/' + 'bes_sign.bat')
@@ -377,7 +378,7 @@ if True:
 if sign_file_switch == "ON":
     #./ best_sign  key/pri.pem before_sign/noapp_test.bin
     dict_sign_file = cfg_dict['SIGN_FILE_LIST']
-    print dict_sign_file
+    print(dict_sign_file)
     list_items_file = dict_sign_file
     file_itme_len = len(list_items_file)
     #print "file_itme_len %d " % file_itme_len
@@ -421,14 +422,13 @@ if True:
     cmd_str = 'cp -f ' + res_file_path + '  ' + des_file_path
     if log_swich == "ON":
         print(cmd_str)
-    shutil.copy(res_file_path, des_path)
+    shutil.copy(res_file_path, des_file_path)
     #os.system(cmd_str)
-    res_file_path = download_tools_dir + '/' + 'programmer2001.bin'
     des_file_path = gui_tools_dir + '/'
     cmd_str = 'cp -f ' + res_file_path + '  ' + des_file_path
     if log_swich == "ON":
         print(cmd_str)
-    shutil.copy(res_file_path, des_path)
+    shutil.copy(res_file_path, des_file_path)
     #os.system(cmd_str)
 
 # cp release_bin/*.bin ota_bin
@@ -436,19 +436,20 @@ if True:
     path = release_file_dir
     file_list = os.listdir(path)
     for i in range(len(file_list)):
-        res_file_path = release_file_dir + '/' + file_list[i]
-        des_path = ota_bin_dir + '/'
-        cmd_str = 'cp -f ' + res_file_path + ' ' + des_path
-        if log_swich == "ON":
-            print(cmd_str)
-        shutil.copy(res_file_path, des_path)
-        #os.system(cmd_str)
+        if file_list[i] != 'programmer2001.bin':
+            res_file_path = release_file_dir + '/' + file_list[i]
+            des_path = ota_bin_dir + '/'
+            cmd_str = 'cp -f ' + res_file_path + ' ' + des_path
+            if log_swich == "ON":
+                print(cmd_str)
+            shutil.copy(res_file_path, des_path)
+
         des_path = gui_bin_dir + '/'
         cmd_str = 'cp -f ' + res_file_path + ' ' + des_path
         if log_swich == "ON":
             print(cmd_str)
         shutil.copy(res_file_path, des_path)
-        #os.system(cmd_str)
+
 print('all files done.')
 
 if pack_switch == 'ON':
