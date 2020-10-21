@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include "esp_system.h"
-
 #include "k_api.h"
 #include "upgrade.h"
 #include "lwip/ip4_addr.h"
@@ -37,6 +36,7 @@ void hal_reboot(void)
     }
 }
 
+
 int hal_reboot_bank(void)
 {
     printf("reboot to banker\n");
@@ -51,4 +51,9 @@ int hal_reboot_bank(void)
     }
     system_upgrade_reboot();
     return 0;
+}
+
+int ota_hal_reboot_bank(void)
+{
+    return hal_reboot_bank();
 }
