@@ -318,7 +318,8 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     /*means it have already opened*/
     if (uart_id == trace_port) {
-        ret = hal_uart_reopen(uart_id, &uart_cfg);
+        hal_uart_close(uart_id);
+        ret = hal_uart_open(uart_id, &uart_cfg);
     } else {
         ret = hal_uart_open(uart_id, &uart_cfg);
     }
