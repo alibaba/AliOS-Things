@@ -5,10 +5,10 @@ if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 
-source "application/example/amp_demo/Config.in"
+source "application/example/amp_app/Config.in"
 if AOS_APP_AMP
     config AOS_BUILD_APP
-        default "amp_demo"
+        default "amp_app"
 endif
 
 source "application/example/helloworld_demo/Config.in"

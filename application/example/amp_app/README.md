@@ -1,12 +1,15 @@
 ## Contents
 
 ```sh
-amp
-├── amp.c           # amp source code
-├── Config.in       # kconfig file
-├── aos.mk          # aos build system file(for make)
-├── k_app_config.h  # aos app config file
-└── ucube.py        # aos build system file(for scons)
+amp_app
+├── amp_app.c
+├── aos.mk
+├── autobuild.json
+├── Config.in
+├── k_app_config.h
+├── maintask.c
+├── README.md
+└── ucube.py
 ```
 
 ## Introduction
@@ -15,19 +18,21 @@ The **amp** example will start `AliOS Things mini program framwork` service.
 
 ### Dependencies
 
-* yloop
+* osal_aos
+* kv
+* littlefs
 * cli
-* amp_sdk_c
+* amp
 
 ### Supported Boards
 
-- esp32
+- haas100
 
 ### Build
 
 ```sh
-# generate helloworld@developerkit default config
-aos make amp@esp32devkitc -c config
+# generate amp_app@haas100 default config
+aos make amp_app@haas100 -c config
 
 # or customize config manually
 aos make menuconfig

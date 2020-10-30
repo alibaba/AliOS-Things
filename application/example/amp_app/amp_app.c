@@ -9,14 +9,9 @@
 
 #include "netmgr.h"
 
-#define AMP_TASK_STACK_SIZE 4096
-#define AMP_TASK_PRIO (AOS_DEFAULT_APP_PRI - 4)
-
-aos_task_t g_amp_task;
-
 extern int amp_main();
 
-static int32_t amp_service_start()
+static int32_t amp_service_entry()
 {
     amp_main();
 }
@@ -33,9 +28,10 @@ int application_start(int argc, char *argv[])
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
+
     netmgr_start(0);
 
-    amp_service_start();
+    amp_service_entry();
 
     aos_loop_run();
     return 0;
