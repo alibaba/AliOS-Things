@@ -76,22 +76,22 @@ void debug_total_cpu_usage_show(void)
     task_cpuusage_info *taskinfo;
     task_cpuusage_info *taskinfoeach;
 
-    printf("-----------------------\n");
+    printf("-----------------------\r\n");
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
         total_cpu_usage[i] = debug_total_cpu_usage_get(i);
-        printf("CPU%d usage :%3d.%02d%%  \n", i, (int)total_cpu_usage[i]/100,
+        printf("CPU%d usage :%3d.%02d%%  \r\n", i, (int)total_cpu_usage[i]/100,
                (int)total_cpu_usage[i]%100);
     }
 #else
     total_cpu_usage[0] = debug_total_cpu_usage_get(0);
-    printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage[0] / 100,
+    printf("CPU usage :%3d.%02d%%  \r\n", (int)total_cpu_usage[0] / 100,
            (int)total_cpu_usage[0] % 100);
 #endif
 
-    printf("-----------------------\n");
-    printf("Name               %%CPU\n");
-    printf("-----------------------\n");
+    printf("-----------------------\r\n");
+    printf("Name               %%CPU\r\n");
+    printf("-----------------------\r\n");
 
     krhino_sched_disable();
     for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
@@ -124,13 +124,13 @@ void debug_total_cpu_usage_show(void)
         task_name      = taskinfoeach->task_name;
         task_cpu_usage = taskinfoeach->task_cpu_usage;
 
-        printf("%-19s%3d.%02d\n", task_name, (int)task_cpu_usage / 100,
+        printf("%-19s%3d.%02d\r\n", task_name, (int)task_cpu_usage / 100,
                (int)task_cpu_usage % 100);
     }
 
     krhino_mm_free(taskinfo);
 
-    printf("-----------------------\n");
+    printf("-----------------------\r\n");
 }
 
 /* one in ten thousand */
