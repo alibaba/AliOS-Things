@@ -32,6 +32,7 @@ flag = sys.argv[1]
 f_cfg = open('haas_genbin_config.yaml')
 
 output_dir = sys.argv[2]
+aos_root_dir = sys.argv[3]
 cfg_dict = {}
 
 dict1_name_list = []
@@ -332,9 +333,9 @@ if True:
 
 #  cp out/helloworld_demo@haas1000/binary/helloworld_demo@haas1000.bin release_bin
 if True:
-    res_file_path = binary_dir + '/' + rtos_res_file_name
-    if not glob.glob(res_file_path):
-        res_file_path = os.path.join(output_dir, "binary", rtos_res_file_name)
+    if not os.path.isabs(output_dir):
+        output_dir = os.path.join(aos_root_dir, output_dir)
+    res_file_path = os.path.join(output_dir, "binary", rtos_res_file_name)
     des_path = release_file_dir + '/' + rtos_file_name
     cmd_str = 'cp ' + res_file_path + ' ' + des_path
     if log_swich == "ON":

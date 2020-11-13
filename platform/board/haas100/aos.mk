@@ -75,14 +75,6 @@ GLOBAL_LDFLAGS += -T platform/mcu/haas1000/drivers/_haas1000_alios_sec_b.lds
 
 GLOBAL_INCLUDES += ./config ./drivers
 
-#CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
-#define get-os-version
-#"AOS-R"-$(CURRENT_TIME)
-#endef
-
-ifeq ($(shell uname -o), Msys)
-CURRENT_TIME = $(shell ${DATE} +%Y%m%d.%H%M)
-endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_HAAS100
 CONFIG_SYSINFO_DEVICE_NAME := HAAS100
