@@ -49,7 +49,7 @@ extern "C" {
 #endif
 
 #ifndef AT_WORKER_DEFAULT_STACK_SIZE
-#define AT_WORKER_DEFAULT_STACK_SIZE        1024
+#define AT_WORKER_DEFAULT_STACK_SIZE        4096
 #endif
 
 #ifndef AT_WORKER_DEFAULT_PRIORITY

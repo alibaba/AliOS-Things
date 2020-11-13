@@ -29,6 +29,7 @@ static app_main_paras_t entry_paras;
 
 typedef void (*task_fun)(void *);
 
+#ifdef AOS_COMP_NETMGR
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -53,6 +54,8 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         linkkit_started = 1;
     }
 }
+#endif
+
 #ifdef AOS_COMP_CLI
 
 static void print_identity()
@@ -126,18 +129,7 @@ int application_start(int argc, char **argv)
     entry_paras.argc = argc;
     entry_paras.argv = argv;
 
-#ifdef WITH_SAL
-    sal_device_config_t data = {0};
-    data.uart_dev.port = 1;
-    data.uart_dev.config.baud_rate = 115200;
-    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
-    data.uart_dev.config.parity = NO_PARITY;
-    data.uart_dev.config.stop_bits  = STOP_BITS_1;
-    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
-    data.uart_dev.config.mode = MODE_TX_RX;
-    sal_add_dev("mk3060", &data);
-    sal_init();
-#endif
+    aos_set_log_level(AOS_LL_DEBUG);
 
 #ifdef MDAL_MAL_ICA_TEST
     HAL_MDAL_MAL_Init();
@@ -145,16 +137,37 @@ int application_start(int argc, char **argv)
 #ifdef AOS_COMP_CLI
     aos_cli_register_command(&identity_cmd);
 #endif
-    aos_set_log_level(AOS_LL_DEBUG);
-
+    
+#ifdef AOS_COMP_NETMGR
     netmgr_init();
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     netmgr_start(false);
+#endif
+
+#ifdef WITH_SAL
+    sal_device_config_t data = {0};
+    data.uart_dev.port = 2;
+    data.uart_dev.config.baud_rate = 115200;
+    data.uart_dev.config.data_width = DATA_WIDTH_8BIT;
+    data.uart_dev.config.parity = NO_PARITY;
+    data.uart_dev.config.stop_bits  = STOP_BITS_1;
+    data.uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    data.uart_dev.config.mode = MODE_TX_RX;
+
+    sal_add_dev(NULL, &data);
+    sal_init();
+    
+    if (!linkkit_started) {
+        aos_task_new("iotx_example", (task_fun)linkkit_main, (void *)&entry_paras, 1024 * 6);
+        linkkit_started = 1;
+    }
+#endif
 #if defined (CSP_LINUXHOST) && !defined (WITH_SAL)
     aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0);
 #endif
+
     aos_loop_run();
 
     return 0;

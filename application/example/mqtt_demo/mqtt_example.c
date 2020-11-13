@@ -12,9 +12,11 @@
 #include "linkkit/wrappers/wrappers.h"
 #include "linkkit/infra/infra_compat.h"
 
-#define PRODUCT_KEY             "a1MZxOdcBnO"
-#define DEVICE_NAME             "test_01"
-#define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+// for demo only
+#define PRODUCT_KEY      "a1FxISeKbq9"
+#define PRODUCT_SECRET   "ThNbP5iNUQ1lQe2Q"
+#define DEVICE_NAME      "alen-activate-test"
+#define DEVICE_SECRET    "jcumDL5AJRgU7zRNcCcnHRiQmtii0vDn"
 
 char DEMO_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
 char DEMO_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};

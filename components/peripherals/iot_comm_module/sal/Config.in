@@ -29,6 +29,9 @@ choice
     config AOS_SAL_LTE_M02H
         bool "lte.m02h"
 
+    config AOS_SAL_LTE_EC20
+        bool "lte.ec20"
+    
     config AOS_SAL_NBIOT_M5310A
         bool "nbiot.M5310A"
 

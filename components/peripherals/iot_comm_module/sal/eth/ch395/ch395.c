@@ -787,7 +787,7 @@ static int32_t ch395_socket_open(uint8_t sock)
         status = 0;
         /*need to wait data free interrupt*/
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 &&(status == CMD_ERR_SUCCESS)) {
+        if (ret == 0 &&(status != CH395_ERR_BUSY)) {
             break;
         }
         aos_msleep(2);
@@ -827,7 +827,7 @@ static int32_t ch395_socket_close(uint8_t sock)
         status = 0;
         /*need to wait data free interrupt*/
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 && (status == CMD_ERR_SUCCESS)) {
+        if (ret == 0 && (status != CH395_ERR_BUSY)) {
             break;
         }
         aos_msleep(2);
@@ -867,7 +867,7 @@ static int32_t ch395_socket_tcp_connect(uint8_t sock)
         status = 0;
         /*need to wait data free interrupt*/
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 && (status == CMD_ERR_SUCCESS)) {
+        if (ret == 0 && (status != CMD_ERR_SUCCESS)) {
             break;
         }
         aos_msleep(2);
@@ -920,7 +920,7 @@ static int32_t ch395_socket_tcp_disconnect(uint8_t sock)
         status = 0;
         /*need to wait data free interrupt*/
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 && (status == CMD_ERR_SUCCESS)) {
+        if (ret == 0 && (status != CH395_ERR_BUSY)) {
             break;
         }
         aos_msleep(2);
@@ -1093,7 +1093,7 @@ int32_t ch395_dhcp_enable(uint8_t enable)
     /*check cmd status*/
     while(1) {
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 && (status == CMD_ERR_SUCCESS)) {
+        if (ret == 0 && (status != CH395_ERR_BUSY)) {
             break;
         }
         if(i++ > 200) {
@@ -1576,7 +1576,7 @@ int32_t ch395_dev_init(void)
     /*check cmd excute status*/
     while(1) {
         ret = ch395_get_cmd_status(&status);
-        if (ret == 0 && status == CMD_ERR_SUCCESS) {
+        if (ret == 0 && status != CH395_ERR_BUSY) {
             break;
         }
         if(i++ > 200) {

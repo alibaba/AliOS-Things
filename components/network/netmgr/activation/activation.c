@@ -11,6 +11,7 @@
 #include "linkkit/wrappers/wrappers_os.h"
 #include "ulog/ulog.h"
 #include "aos/kernel.h"
+#include "aos/compiler.h"
 #include "hal/wifi.h"
 
 #ifdef AOS_COMP_KV
@@ -56,17 +57,38 @@ static        char g_report_http_data[ACTIVATION_MSG_MAX_LEN + 170];
 static        char g_response_data[400];
 #endif /* HTTP_ACTIVATION_REPORT */
 
+WEAK int hal_wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
+{
+    return 0;
+}
+
+WEAK hal_wifi_module_t *hal_wifi_get_default_module(void)
+{
+    return NULL;
+}
+
 int activation_get_report_msg(char* report_msg, int len)
 {
-    uint8_t mac[16];
+    uint8_t mac[6] = {0};
     char mac_format[18];
-    hal_wifi_module_t* module = hal_wifi_get_default_module();
-    const char *partner = module->base.partner;
-    const char *project = module->base.project;
-    const char *app_net = module->base.app_net;
-    const char *cloud   = module->base.cloud;
-    const char *os      = module->base.os;
-    const char *type    = module->base.type;
+    const char *partner = NULL;
+    const char *project = NULL;
+    const char *app_net = NULL;
+    const char *cloud = NULL;
+    const char *os = NULL;
+    const char *type = NULL;
+    hal_wifi_module_t* module = NULL;
+
+    module = hal_wifi_get_default_module();
+    if (NULL != module) {
+        partner = module->base.partner;
+        project = module->base.project;
+        app_net = module->base.app_net;
+        cloud   = module->base.cloud;
+        os      = module->base.os;
+        type = module->base.type;
+    }
+    
 
     memset(report_msg, 0, len);
 #ifdef SYSINFO_KERNEL_VERSION

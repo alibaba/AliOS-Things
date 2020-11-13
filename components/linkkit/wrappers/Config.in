@@ -9,7 +9,7 @@ if !AOS_CREATE_PROJECT
 config AOS_COMP_SDK_WRAPPERS
     bool "Linkkit HAL for AliOS Things"
     default n
-    select AOS_COMP_NETMGR
+    select AOS_COMP_NETMGR if AOS_COMP_SDK_AWSS
     select AOS_COMP_KV
     select INFRA_AES
     help
