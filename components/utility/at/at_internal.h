@@ -119,14 +119,4 @@ int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
                        void *arg, int stack_size, int prio);
 void atpsr_sleep_ms(const unsigned int millisec);
 
-typedef struct {
-   at_dev_type_t type;
-   int (*init)(void *dev);
-   int (*recv)(void *dev, void *data, uint32_t expect_size,
-               uint32_t *recv_size, uint32_t timeout);
-   int (*send)(void *dev, void *data, uint32_t size,
-               uint32_t timeout);
-   int (*deinit)(void *dev);
-} at_dev_ops_t;
-
 #endif

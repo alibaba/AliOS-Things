@@ -15,22 +15,33 @@
 #define atpsr_err(format, ...)    LOGE(TAG, format, ##__VA_ARGS__)
 
 static uint8_t    inited = 0;
+static uint8_t    reg_ops_num = 0;
 static at_dev_t at_dev[ATPSR_DEV_MAX_NUM] = { 0 };
 static at_dev_ops_t *at_dev_ops[AT_DEV_TYPE_MAX] = { 0 };
 
 #define RECV_BUFFER_SIZE 512
-static int register_at_dev_ops(void)
-{
-    extern at_dev_ops_t at_uart_ops;
-    at_dev_ops[AT_DEV_UART] = &at_uart_ops;
 
-    /* Register more dev opt here */
+int register_at_dev_ops(at_dev_ops_t *at_ops)
+{
+    if (!at_ops || at_ops->type < 0 ||
+         at_ops->type >= AT_DEV_TYPE_MAX) {
+        return -1;
+    }
+
+    if (at_dev_ops[at_ops->type] != NULL) {
+        return -1;
+    }
+
+    at_dev_ops[at_ops->type] = at_ops;
+    reg_ops_num++;
+
     return 0;
 }
 
 static void unregister_at_dev_ops(void)
 {
     memset(at_dev_ops, 0, AT_DEV_TYPE_MAX * sizeof(at_dev_ops_t *));
+    reg_ops_num = 0;
     return;
 }
 
@@ -694,19 +705,19 @@ static int init_dev(int fd, at_config_t *config)
         return -1;
     }
 
-    if (!check_type_valid(config->type) || !at_dev_ops[config->type]) {
+    if (!check_type_valid(config->type) || 
+        (op = obtain_op_by_type(config->type)) == NULL) {
         atpsr_err("init_dev invalid type or at_dev_ops\n");
         return -1;
     }
-
-    dev = obtain_dev_by_fd(fd);
-    op = obtain_op_by_type(dev->_type);
-    memset(dev, 0, sizeof(at_dev_t));
 
     if (op->init(config->dev_cfg) != 0) {
         atpsr_err("at dev init failed\n");
         return -1;
     }
+
+    dev = obtain_dev_by_fd(fd);
+    memset(dev, 0, sizeof(at_dev_t));
 
     dev->_port = config->port;
     dev->_type = config->type;
@@ -848,11 +859,14 @@ int at_init(void)
     }
 
     memset(at_dev, 0, ATPSR_DEV_MAX_NUM * sizeof(at_dev_t));
-    memset(at_dev_ops, 0, AT_DEV_TYPE_MAX * sizeof(at_dev_ops_t *));
 
-    if (register_at_dev_ops() != 0) {
-        atpsr_err("AT device register failed\n");
-        return -1;
+    if (0 == reg_ops_num) {
+        extern at_dev_ops_t at_uart_ops; 
+        if (register_at_dev_ops(&at_uart_ops) != 0) {
+            atpsr_err("AT device register default ops failed\n");
+            return -1;
+        }
+        reg_ops_num++;
     }
 
     inited = 1;
@@ -894,7 +908,7 @@ int at_add_dev(at_config_t *config)
     }
 
     if (init_dev(fd, config) != 0) {
-        atpsr_err("assign dev fd fail\n");
+        atpsr_err("init dev fd fail\n");
         return -1;
     }
 

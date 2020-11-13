@@ -19,9 +19,10 @@ $(NAME)_SOURCES-$(DEV_BIND_ENABLED) += os/HAL_AWSS_rhino.c
 $(NAME)_SOURCES-$(COAP_SERVER) +=  os/HAL_UDP_rhino.c
 
 # mandatory dependencies
-$(NAME)_COMPONENTS += libiot_infra ulog activation chip_code netmgr
+$(NAME)_COMPONENTS += libiot_infra ulog activation chip_code
 
 # optional dependencies
+$(NAME)_COMPONENTS-$(AOS_COMP_NETMGR) += netmgr
 $(NAME)_COMPONENTS-$(SUPPORT_TLS) += libiot_certs
 $(NAME)_COMPONENTS-$(USE_MBEDTLS) +=  mbedtls 
 $(NAME)_COMPONENTS-$(USE_ITLS) +=  itls id2 alicrypto

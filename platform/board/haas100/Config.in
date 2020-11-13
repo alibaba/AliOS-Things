@@ -16,16 +16,24 @@ config CONFIG_WORK_WITH_ETH
     select AOS_COMP_SAL if CONFIG_WORK_WITH_ETH
     select CONFIG_NO_TCPIP if CONFIG_WORK_WITH_ETH
 
+config CONFIG_WORK_WITH_LTE
+    bool
+    select AOS_COMP_SAL if CONFIG_WORK_WITH_LTE
+    select CONFIG_NO_TCPIP if CONFIG_WORK_WITH_LTE
+
 choice
     prompt "physical network selection"
     help
-        Select WiFi or ethernet 
+        Select WiFi or ethernet
 
     config CONFIG_WORK_WITH_WIFI
         bool "ENABLE Soc WiFi"
 
     config CONFIG_WORK_WITH_ETH
         bool "ENABLE Ethernet"
+    
+    config CONFIG_WORK_WITH_LTE
+        bool "Enable LTE Module(default EC20)"
 
 endchoice
 

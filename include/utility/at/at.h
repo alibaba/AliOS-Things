@@ -21,9 +21,23 @@
  */
 typedef enum {
     AT_DEV_UART = 0,
+    AT_DEV_USB = 1,
     /* add more types here when necessary */
     AT_DEV_TYPE_MAX
 } at_dev_type_t;
+
+/*
+* AT dev ops type
+*/
+typedef struct {
+   at_dev_type_t type;
+   int (*init)(void *dev);
+   int (*recv)(void *dev, void *data, uint32_t expect_size,
+               uint32_t *recv_size, uint32_t timeout);
+   int (*send)(void *dev, void *data, uint32_t size,
+               uint32_t timeout);
+   int (*deinit)(void *dev);
+} at_dev_ops_t;
 
 /**
  * The reply format of the AT commands.
