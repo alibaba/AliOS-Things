@@ -98,6 +98,10 @@ $(NAME)_SOURCES += 	aos/aos.c \
 					aos/soc_init.c \
 					aos/ota_port.c
 
+ifeq ($(A7_DSP_ENABLE),1)
+$(NAME)_SOURCES += 	aos/dsp/dsp.S
+endif
+
 $(NAME)_SOURCES += drivers/utils/boot_struct/boot_struct.c \
 				drivers/utils/build_info/build_info.c
 

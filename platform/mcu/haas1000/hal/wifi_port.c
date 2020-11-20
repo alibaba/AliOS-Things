@@ -252,7 +252,8 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 
 static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
 {
-    printf("WiFi HAL %s not implemeted yet!\n", __func__);
+    if (!mac) {printf("%s: invalid argument!\n", __func__); return;}
+    factory_section_set_wifi_address(mac);
 };
 
 static void wifi_connect_task(void *arg)
@@ -437,7 +438,8 @@ static int wifi_scan(hal_wifi_module_t *m, scan_type_t t)
     } else {
         ret = bwifi_scan();
     }
-    if (ret < 0) {
+
+    if (ret <= 0) {
         printf("wifi scan fail\n");
         return -1;
     }
