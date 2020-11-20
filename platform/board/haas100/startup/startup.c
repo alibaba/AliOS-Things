@@ -135,7 +135,6 @@ static void sys_init(void)
 #ifdef AOS_COMP_YUNIT
     char *parm[4] = {"yts", "kv", "ramfs", "vfs"};
 #endif
-    printf("%s go\n", __FUNCTION__);
 
     /* user code start */
     if (app_enter_factory_wifi_test() == false) {

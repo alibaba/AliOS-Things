@@ -22,11 +22,13 @@
 #include "hal_uart.h"
 #include "hal_trace.h"
 
+#include "aos/cli.h"
+
 uart_dev_t uart_0;
 
 #define WRAP_P_BUF_LEN 2048
-uint8_t _wrap_p_buf[WRAP_P_BUF_LEN];
-int max_p_size = 0;
+static uint8_t _wrap_p_buf[WRAP_P_BUF_LEN];
+static int max_p_size = 0;
 
 int __wrap_printf(const char *fmt, ...)
 {
@@ -167,7 +169,7 @@ void hal_reset_cpu(void)
 
 extern hal_wifi_module_t aos_wifi_haas1000;
 
-void hal_init(void)
+void aos_uart_init(void)
 {
     uart_0.port = 0;
     uart_0.config.baud_rate = 1500000;
@@ -178,7 +180,10 @@ void hal_init(void)
     uart_0.config.stop_bits = STOP_BITS_1;
 
     hal_uart_init(&uart_0);
+}
 
+void aos_wifi_init(void)
+{
 #if AOS_NET_WITH_WIFI
     hal_wifi_register_module(&aos_wifi_haas1000);
     if(0 != hal_wifi_set_module_base(&aos_wifi_haas1000, "rtos", "AOS+TG", "websoc+http+srtp", NULL,
@@ -194,8 +199,11 @@ void hal_init(void)
 void soc_peripheral_init(int wifi_init)
 {
     app_sysfreq_req(APP_SYSFREQ_USER_APP_15, APP_SYSFREQ_390M);
+    aos_uart_init();
     printf("sys freq calc : %d, wifi init %d \n", hal_sys_timer_calc_cpu_freq(5, 0), wifi_init);
-    hal_init();
+    if(wifi_init) {
+        aos_wifi_init();
+    }
 }
 
 void aos_trace_notify(enum HAL_TRACE_STATE_T state)
@@ -204,7 +212,95 @@ void aos_trace_notify(enum HAL_TRACE_STATE_T state)
         abort();
 }
 
-extern void heartbeat_init(void);
+#ifdef AOS_COMP_CLI
+static uint8_t char2data(const char ch)
+{
+    if ((ch >= '0') && (ch <= '9')) {
+        return (uint8_t)(ch - '0');
+    }
+    if ((ch >= 'a') && (ch <= 'f')) {
+        return (uint8_t)(ch - 'a' + 10);
+    }
+    if ((ch >= 'A') && (ch <= 'F')) {
+        return (uint8_t)(ch - 'A' + 10);
+    }
+
+    return 0;
+}
+static void str2mac(const char * sz_mac, uint8_t * pmac)
+{
+    const char * ptemp = sz_mac;
+    for (int i = 0; i < 6; ++i)
+    {
+        pmac[i] = char2data(*ptemp++) * 16;
+        pmac[i] += char2data(*ptemp++);
+        ptemp++;
+    }
+}
+extern int factory_section_set_wifi_address(uint8_t *wifi_addr);
+extern uint8_t* factory_section_get_wifi_address(void);
+extern int factory_section_set_bt_address(uint8_t *bt_addr);
+extern uint8_t* factory_section_get_bt_address(void);
+
+static void handle_aos_mac_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    int ret = 0;
+    const char *rtype = argc > 1 ? argv[1] : "";
+    const char *mac   = argc > 2 ? argv[2] : NULL;
+    uint8_t pmac[6];
+
+    if(mac != NULL) {
+        str2mac(mac, pmac);
+        printf("will set mac %02x:%02x:%02x:%02x:%02x:%02x\n",
+                pmac[0], pmac[1], pmac[2], pmac[3], pmac[4], pmac[5]);
+    }
+
+    if (strcmp(rtype, "WIFI") == 0) {
+        if(mac != NULL) {
+            ret = factory_section_set_wifi_address(pmac);
+            if(ret == 0) {
+                printf("set WIFI mac success!\n");
+            } else {
+                printf("set WIFI mac fail!\n");
+            }
+        } else {
+            uint8_t *_mac = factory_section_get_wifi_address();
+            if(_mac == NULL) {
+                printf("get WIFI mac fail\n");
+            } else {
+                printf("WIFI mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
+                        _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
+            }
+        }
+    } else if (strcmp(rtype, "BT") == 0) {
+        if(mac != NULL) {
+            ret = factory_section_set_bt_address(pmac);
+            if(ret == 0) {
+                printf("set BT mac success!\n");
+            } else {
+                printf("set BT mac fail!\n");
+            }
+        } else {
+            uint8_t *_mac = factory_section_get_bt_address();
+            if(_mac == NULL) {
+                printf("get BT mac fail\n");
+            } else {
+                printf("BT mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
+                        _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
+            }
+        }
+    } else {
+        printf("Usage: aos_mac [WIFI/BT] [XX:XX:XX:XX:XX:XX]");
+    }
+}
+
+static struct cli_command aos_mac_cmd = {
+    .name     = "aos_mac",
+    .help     = "aos_mac [WIFI/BT] [mac]",
+    .function = handle_aos_mac_cmd
+};
+#endif
+
 void aos_init_done_hook(void)
 {
 #ifdef SWD_ENABLE_AS_DEFAULT
@@ -215,6 +311,10 @@ void aos_init_done_hook(void)
 
     hal_trace_register_hook(aos_printf_hook);
     hal_trace_app_register(aos_trace_notify, NULL);
+
+#ifdef AOS_COMP_CLI
+    aos_cli_register_command(&aos_mac_cmd);
+#endif
 }
 
 int uart_puts(const char *str)

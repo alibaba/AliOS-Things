@@ -1203,6 +1203,13 @@ SECTIONS
   . = ALIGN(4);
   _syscall_table_end = .;
  } > FLASH
+  .UsrCmdSymTab (.) :
+ {
+  _usrcmd_table_begin = .;
+  KEEP(*(UsrCmdSymTab))
+  . = ALIGN(4);
+  _usrcmd_table_end = .;
+ } > FLASH
  /* To copy multiple FLASH to RAM sections,
 	 * uncomment .copy.table section and,
 	 * define __STARTUP_COPY_MULTIPLE in startup_ARMCMx.S */

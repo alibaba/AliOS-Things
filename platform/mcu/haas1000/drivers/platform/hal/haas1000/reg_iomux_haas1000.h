@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
-#ifndef __REG_IOMUX_BEST2001_H_
-#define __REG_IOMUX_BEST2001_H_
+#ifndef __REG_IOMUX_HAAS1000_H_
+#define __REG_IOMUX_HAAS1000_H_
 
 #include "plat_types.h"
 

@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-#include <signal.h>
 #include <string.h>
 #include "ota_log.h"
 #include "ota_hal_os.h"
 
 #ifdef OTA_LINUX
+#include <signal.h>
 #include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>

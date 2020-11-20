@@ -87,6 +87,35 @@ typedef struct
     unsigned char band; //0:2.4 1:5 2:dual band
     unsigned char country[3];
     unsigned int bt_tx_power[4];
+
+    /*
+        5G power calibration 0-12 save the 5G calib power,13-15 reserve
+        5G power calibration 0-12 save the 5G calib power,13-15 reserve
+        11g
+        0   36~40£»1    44~48£»2    52~56£»3    60~64;
+        4   100~104£»5    108~112£»6    116~120;
+        7   124~128£»8    132~136£»9    140~144
+        11    149~153; 12   157~161£»13   165~169
+
+        11n
+        0   36~40£»1    44~48£»2    52~56£»3    60~64;
+        4   100~104£»5    108~112£»6    116~120;
+        7   124~128£»8    132~136£»9    140~144
+        11    149~153; 12   157~161£»13   165~169
+
+    */
+        unsigned short tx_power_ch_5G[32];
+    /*
+        0- it means that power not calib
+        1- it means that power have clibrated
+    */
+        unsigned short tx_power_flags_5G;
+    /*
+        The temperature after 5G clibrating.
+    */
+        unsigned short temperature_5G;
+
+
 } factory_section_wifi_data_t;
 
 /* offset 2k */
@@ -125,6 +154,9 @@ int  factory_section_set_bt_tx_power(uint8_t index, uint32_t div_value, uint32_t
 int  factory_section_set_wifi_tx_power_all_ch(int power,int index);
 
 int  factory_section_set_wifi_power_type(unsigned short powerType);
+
+int factory_section_wifi_band_status(int bandType);
+
 
 #ifdef __cplusplus
 }
