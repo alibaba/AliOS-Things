@@ -1,0 +1,280 @@
+{
+  "schema": "https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json",
+  "profile": {
+    "productKey": "<- productKey ->"
+  },
+  "properties": [
+    {
+      "identifier": "front",
+      "name": "向前",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关",
+          "1": "开"
+        }
+      }
+    },
+    {
+      "identifier": "left",
+      "name": "向左",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关",
+          "1": "开"
+        }
+      }
+    },
+    {
+      "identifier": "right",
+      "name": "向右",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关",
+          "1": "开"
+        }
+      }
+    },
+    {
+      "identifier": "back",
+      "name": "向后",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关",
+          "1": "开"
+        }
+      }
+    },
+    {
+      "identifier": "stop",
+      "name": "停止",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关",
+          "1": "开"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "identifier": "post",
+      "name": "post",
+      "type": "info",
+      "required": true,
+      "desc": "属性上报",
+      "method": "thing.event.property.post",
+      "outputData": [
+        {
+          "identifier": "front",
+          "name": "向前",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "left",
+          "name": "向左",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "right",
+          "name": "向右",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "back",
+          "name": "向后",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "stop",
+          "name": "停止",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "identifier": "set",
+      "name": "set",
+      "required": true,
+      "callType": "async",
+      "desc": "属性设置",
+      "method": "thing.service.property.set",
+      "inputData": [
+        {
+          "identifier": "front",
+          "name": "向前",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "left",
+          "name": "向左",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "right",
+          "name": "向右",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "back",
+          "name": "向后",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "stop",
+          "name": "停止",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        }
+      ],
+      "outputData": []
+    },
+    {
+      "identifier": "get",
+      "name": "get",
+      "required": true,
+      "callType": "async",
+      "desc": "属性获取",
+      "method": "thing.service.property.get",
+      "inputData": [
+        "front",
+        "left",
+        "right",
+        "back",
+        "stop"
+      ],
+      "outputData": [
+        {
+          "identifier": "front",
+          "name": "向前",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "left",
+          "name": "向左",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "right",
+          "name": "向右",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "back",
+          "name": "向后",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        },
+        {
+          "identifier": "stop",
+          "name": "停止",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关",
+              "1": "开"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
