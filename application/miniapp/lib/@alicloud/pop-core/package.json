@@ -1,0 +1,81 @@
+{
+  "_from": "@alicloud/pop-core@^1.7.10",
+  "_id": "@alicloud/pop-core@1.7.10",
+  "_inBundle": false,
+  "_integrity": "sha1-0OIhA227DM3kU90Jsc+r2DQbemk=",
+  "_location": "/@alicloud/pop-core",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@alicloud/pop-core@^1.7.10",
+    "name": "@alicloud/pop-core",
+    "escapedName": "@alicloud%2fpop-core",
+    "scope": "@alicloud",
+    "rawSpec": "^1.7.10",
+    "saveSpec": null,
+    "fetchSpec": "^1.7.10"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://r.cnpmjs.org/@alicloud/pop-core/download/@alicloud/pop-core-1.7.10.tgz",
+  "_shasum": "d0e221036dbb0ccde453dd09b1cfabd8341b7a69",
+  "_spec": "@alicloud/pop-core@^1.7.10",
+  "_where": "/Users/elliott/MiniProjects/HaasExample",
+  "author": {
+    "name": "Jackson Tian"
+  },
+  "bugs": {
+    "url": "https://github.com/aliyun/openapi-core-nodejs-sdk/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "debug": "^3.1.0",
+    "kitx": "^1.2.1"
+  },
+  "deprecated": false,
+  "description": "AliCloud POP SDK core",
+  "devDependencies": {
+    "codecov": "^3.0.4",
+    "eslint": "^6.6.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^4",
+    "muk": "^0.5.3",
+    "nyc": "^12.0.2",
+    "rewire": "^4.0.1"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "files": [
+    "lib",
+    "index.js"
+  ],
+  "homepage": "https://github.com/aliyun/openapi-core-nodejs-sdk#readme",
+  "keywords": [
+    "Aliyun",
+    "AliCloud",
+    "OpenAPI",
+    "POP",
+    "SDK",
+    "Core"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "@alicloud/pop-core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aliyun/openapi-core-nodejs-sdk.git"
+  },
+  "scripts": {
+    "ci": "npm run lint && npm run test-cov && codecov",
+    "lint": "eslint --fix lib test",
+    "test": "mocha -R spec test/*.test.js",
+    "test-cov": "nyc -r=html -r=text -r=lcov mocha -t 3000 -R spec test/*.test.js",
+    "test-integration": "mocha -R spec test/*.integration.js"
+  },
+  "types": "lib/rpc.d.ts",
+  "version": "1.7.10"
+}

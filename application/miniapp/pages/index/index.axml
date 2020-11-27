@@ -1,0 +1,6 @@
+<navigator url="/pages/HaasCar/HaasCar">
+  <view class="list-item">HaaS小小蛮驴</view>
+</navigator>
+<navigator url="/pages/HaasFlower/HaasFlower">
+  <view class="list-item">HaaS养花</view>
+</navigator>
