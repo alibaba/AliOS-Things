@@ -1,9 +1,9 @@
 # component name
-NAME := i2c
+NAME := i2c_muxer
 # component information
 $(NAME)_MBINS_TYPE  := kernel
 $(NAME)_VERSION     := 1.0.2
-$(NAME)_SUMMARY     := i2c device
+$(NAME)_SUMMARY     := i2c muxer
 # source files and the folder of internal include files
 GLOBAL_INCLUDES     += wrap adapter include
 # armcc & iar without -Wall and -Werror
@@ -20,8 +20,9 @@ $(NAME)_DEFINES     += IO_NEED_TRAP
 endif
 
 GLOBAL_INCLUDES += ../../../include/aos/hal/
+GLOBAL_INCLUDES += ./
 
-$(NAME)_SOURCES     := pca9544.c 
+$(NAME)_SOURCES     := pca9544.c
 
 # DO NOT DELETE, for RPM package
-RPM_INCLUDE_DIR := peripheral/i2c
+RPM_INCLUDE_DIR := peripheral/i2c_muxer
