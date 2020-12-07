@@ -41,6 +41,24 @@ if AOS_APP_COAP_DEMO
         default "coap_demo"
 endif
 
+source "application/example/flower_demo/Config.in"
+if AOS_APP_FLOWER_DEMO
+    config AOS_BUILD_APP
+        default "flower_demo"
+endif
+
+source "application/example/auto_demo/Config.in"
+if AOS_APP_AUTO_DEMO
+    config AOS_BUILD_APP
+        default "auto_demo"
+endif
+
+source "application/example/oled_display_demo/Config.in"
+if AOS_APP_OLED_DISPLAY_DEMO
+    config AOS_BUILD_APP
+        default "oled_display_demo"
+endif
+
 source "application/example/http_demo/Config.in"
 if AOS_APP_HTTP_DEMO
     config AOS_BUILD_APP
