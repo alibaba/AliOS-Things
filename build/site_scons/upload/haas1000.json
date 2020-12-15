@@ -1,7 +1,10 @@
 {
     "cmd": [
         {
-            "Win32": "@AOSROOT@/build/cmd/win32/aos_upload_tool.exe"
+            "Win32": "@AOSROOT@/build/scripts/flash_program_ll.py",
+            "Linux64": "@AOSROOT@/build/scripts/flash_program_ll.py",
+            "Linux32": "@AOSROOT@/build/scripts/flash_program_ll.py",
+            "OSX": "@AOSROOT@/build/scripts/flash_program_ll.py"
         },
         "@PORT@",
         "1500000",
