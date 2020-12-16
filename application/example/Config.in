@@ -47,6 +47,12 @@ if AOS_APP_FLOWER_DEMO
         default "flower_demo"
 endif
 
+source "application/example/rfid_demo/Config.in"
+if AOS_APP_RFID_DEMO
+    config AOS_BUILD_APP
+        default "rfid_demo"
+endif
+
 source "application/example/auto_demo/Config.in"
 if AOS_APP_AUTO_DEMO
     config AOS_BUILD_APP
