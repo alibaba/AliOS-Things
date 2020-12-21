@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_ROMFS
+    bool "romfs"
+    default n
+    select AOS_COMP_VFS
+    select VFS_CONFIG_ROOTFS
+    help
+
+if AOS_COMP_ROMFS
+# Configurations for component romfs
+endif

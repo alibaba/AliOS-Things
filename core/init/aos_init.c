@@ -21,6 +21,10 @@
 #include "fs/spiffs.h"
 #endif
 
+#ifdef AOS_COMP_ROMFS
+#include "fs/romfs.h"
+#endif
+
 #ifdef AOS_COMP_LITTLEFS
 #include "fs/littlefs.h"
 #endif
@@ -303,6 +307,10 @@ int aos_components_init(kinit_t *kinit)
 
 #ifdef AOS_COMP_LITTLEFS
     littlefs_register();
+#endif
+
+#ifdef AOS_COMP_ROMFS
+    romfs_register();
 #endif
 
 #ifdef AOS_COMP_FATFS

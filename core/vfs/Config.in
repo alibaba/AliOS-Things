@@ -17,6 +17,11 @@ menu "Virtual File System Configuration"
     depends on AOS_COMP_VFS
 # Configurations for component vfs
 
+config VFS_CONFIG_ROOTFS
+    bool "rootfs"
+    default n
+    help
+
 config VFS_CONFIG_DEVICE_NODES
     int "The maximum number of VFS device nodes"
     default 25
