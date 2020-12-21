@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "vfs_types.h"
 #include "vfs_api.h"
@@ -14,6 +15,9 @@
 #include "vfs_adapt.h"
 
 static vfs_inode_t g_vfs_nodes[VFS_DEVICE_NODES];
+#ifdef VFS_CONFIG_ROOTFS
+static vfs_inode_t *g_rootfs_node;
+#endif
 
 static int32_t vfs_inode_set_name(const char *path, vfs_inode_t **p_node)
 {
@@ -78,6 +82,7 @@ vfs_inode_t *vfs_inode_open(const char *path)
 {
     int32_t      idx;
     vfs_inode_t *node;
+    bool         fs_match = false;
 
     for (idx = 0; idx < VFS_DEVICE_NODES; idx++) {
         node = &g_vfs_nodes[idx];
@@ -87,9 +92,11 @@ vfs_inode_t *vfs_inode_open(const char *path)
         }
 
         if (INODE_IS_TYPE(node, VFS_TYPE_FS_DEV)) {
-            if ((strncmp(node->i_name, path, strlen(node->i_name)) == 0) && 
-                (*(path + strlen(node->i_name)) == '/')) {
-                return node;
+            if (strncmp(node->i_name, path, strlen(node->i_name)) == 0) {
+                fs_match = true;
+                if (*(path + strlen(node->i_name)) == '/') {
+                    return node;
+                }
             }
         }
 
@@ -97,6 +104,12 @@ vfs_inode_t *vfs_inode_open(const char *path)
             return node;
         }
     }
+
+#ifdef VFS_CONFIG_ROOTFS
+    if (fs_match) {
+        return g_rootfs_node;
+    }
+#endif
 
     return NULL;
 }
@@ -179,6 +192,11 @@ int32_t vfs_inode_reserve(const char *path, vfs_inode_t **p_node)
     }
 
     *p_node = node;
+
+#ifdef VFS_CONFIG_ROOTFS
+    /* for rootfs use */
+    if (strcmp(path, "/") == 0) g_rootfs_node = node;
+#endif
 
     return VFS_OK;
 }
