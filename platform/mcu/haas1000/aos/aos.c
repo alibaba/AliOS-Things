@@ -64,8 +64,11 @@ int pwrmgmt_init();
 
 int alios_debug_print(const char *buf, int size)
 {
-    hal_trace_output_block((const unsigned char *)buf, size);
-    return size;
+    uint32_t i;
+
+    for (i = 0; i < size; i++) {
+        hal_uart_blocked_putc(0, buf[i]);
+    }
 }
 
 /*  check pc available  0:available  other:not available */

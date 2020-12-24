@@ -27,33 +27,7 @@ typedef struct {
     unsigned int update_reason;
 } debug_reason_t;
 
-
-/* ARMCC and ICCARM do not use heap when printf a string, but gcc dose*/
-#if defined(__CC_ARM)
-#define print_str printf
-#elif defined(__ICCARM__)
-#define print_str printf
-#elif defined(__GNUC__)
-__attribute__((weak)) int print_str(const char *fmt, ...)
-{
-    int ret;
-
-    va_list args;
-
-    va_start(args, fmt);
-    ret = vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-    return ret;
-}
-
-/* on some platform, the libc printf use the heap, while the heap maybe corrupt
-   when panic.
-   Redefining a new print_str without using heap is advised on these platform.
- */
-#endif
-
+#define print_str printk
 
 extern void hal_reboot(void);
 /* functions followed should defined by arch\...\panic_c.c */
@@ -181,6 +155,9 @@ void panicHandler(void *context)
 #endif
 
     CPSR_ALLOC();
+
+    /* for HaaS100 */
+    hal_panic_uart_open();
 
     /* g_crash_steps++ before panicHandler */
     if (g_crash_steps > 1 && g_crash_steps < DEBUG_PANIC_STEP_MAX) {
@@ -315,14 +292,6 @@ void panicHandler(void *context)
         return; /* return to panic_gcc.S for process_exit */
     }
 #endif
-
-    RHINO_CPU_INTRPT_DISABLE();
-#if defined (DEBUG)
-    while (1);
-#else
-    hal_reboot();  /*release version*/
-#endif
-    RHINO_CPU_INTRPT_ENABLE();
 }
 
 void debug_fatal_error(kstat_t err, char *file, int line)
@@ -335,8 +304,11 @@ void debug_fatal_error(kstat_t err, char *file, int line)
 
     krhino_sched_disable();
 
-    printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
-    printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
+    /* for HaaS100 */
+    hal_panic_uart_open();
+
+    print_str("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
+    print_str("errno:%d , file:%s, line:%d\r\n", err, file, line);
 
     if ( SP != NULL )
     {
@@ -365,13 +337,7 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_reboot_reason_update(DEBUG_REBOOT_REASON_FATAL_ERR);
 #endif
 
-    /*panic_goto_cli();*/
-
-    RHINO_CPU_INTRPT_DISABLE();
-    while (1) {
-        /* aos_reboot(); */
-    }
-    RHINO_CPU_INTRPT_ENABLE();
+    panic_goto_cli();
 }
 
 static debug_reason_t debug_reason;
