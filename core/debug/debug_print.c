@@ -627,15 +627,10 @@ int printk(const char *fmt, ...)
 {
     int ret;
     va_list ap;
-    CPSR_ALLOC();
-
-    RHINO_CPU_INTRPT_DISABLE();
 
     va_start(ap, fmt);
     ret = _vfprintf(fmt, ap);
     va_end(ap);
-
-    RHINO_CPU_INTRPT_ENABLE();
 
     return ret;
 }
