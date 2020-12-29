@@ -1,0 +1,210 @@
+
+## 第一部分： 基础信息
+name: ble_host                                            # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master #v7.4-dev                                    # <必选项> 组件版本号
+description: ble_host stack                          # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - ble host bt
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+    #    - csi: master #v7.4-dev
+    - rhino: master #v7.4-dev
+# - aos: master #v7.4-dev
+    - osal_aos: master
+    - drivers: master #v7.4-dev
+    - haas1000: master
+    - include: master
+
+## 第三部分：板级信息
+# hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
+#   cpu_id: cpu0
+#   cpu_name: CK804EF
+#   vendor_name: t-head
+#   chip_name: chip_pangu                  # <可选项> 指定芯片组件名,未设置时，使用depends中 chip 第一个组件
+#   board_name: pangu_cpu0                 # <可选项> 指定开发板组件名，未设置时，使用depends中 board 第一个组件
+#   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <可选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+
+## solution component
+# hw_info:
+#   cpu_id: cpu0
+#   board_name: pangu_cpu0
+#   cpu_name: CK805EF
+#   vendor_name: csky
+#   chip_name: 'chip_pangu'
+#   ld_script: configs/gcc_eflash.ld.S
+
+## board component
+# hw_info:
+#   chip_name: chip_pangu
+#   ld_script: configs/gcc_eflash.ld
+
+## chip component (单处理器)
+# hw_info:
+#   cpu_name: CK804EF
+#   ld_script: configs/gcc_eflash.ld
+#   flash_program: bin/flash_program.elf
+
+## chip component(多处理器)
+# hw_info:
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  internal_include:
+    - bt_shell/bt_host
+    - bt_shell/bt_host/test
+    - bt_host/port/aos/include
+    - bt_host/port/include
+    - ble_profiles/include
+    - bt_host/port/core/settings/include
+    - include
+    - bt_host/include
+      #    - bt_host/hci_driver
+  include:
+    - include
+    - bt_host
+    - bt_host/include
+    - bt_host/port/include
+    - ble_profiles/include
+    - bt_crypto/tinycrypt/include
+    - bt_crypto/include
+      #    - bt_host/hci_driver
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - bt_crypto/bt_crypto.c
+  - bt_crypto/tinycrypt/source/hmac_prng.c
+  - bt_crypto/tinycrypt/source/ccm_mode.c
+  - bt_crypto/tinycrypt/source/utils.c
+  - bt_crypto/tinycrypt/source/cmac_mode.c
+  - bt_crypto/tinycrypt/source/ecc_dsa.c
+  - bt_crypto/tinycrypt/source/ecc_platform_specific.c
+  - bt_crypto/tinycrypt/source/ctr_mode.c
+  - bt_crypto/tinycrypt/source/ctr_prng.c
+  - bt_crypto/tinycrypt/source/cbc_mode.c
+  - bt_crypto/tinycrypt/source/aes_decrypt.c
+  - bt_crypto/tinycrypt/source/sha256.c
+  - bt_crypto/tinycrypt/source/aes_encrypt.c
+  - bt_crypto/tinycrypt/source/ecc_dh.c
+  - bt_crypto/tinycrypt/source/ecc.c
+  - bt_crypto/tinycrypt/source/hmac.c
+  - bt_host/host/uuid.c
+  - bt_host/host/hci_core.c
+  #- bt_host/host/avdtp.c
+  - bt_host/host/keys.c
+  - bt_host/host/monitor.c
+  - bt_host/host/smp_null.c
+  #- bt_host/host/a2dp.c
+  - bt_host/host/crypto.c
+  #- bt_host/host/hci_raw.c
+  - bt_host/host/conn.c
+  #- bt_host/host/keys_br.c
+  - bt_host/host/hci_ecc.c
+  - bt_host/host/settings.c
+  - bt_host/host/smp.c
+  - bt_host/host/l2cap.c
+  #- bt_host/host/hfp_hf.c
+  #- bt_host/host/sdp.c
+  - bt_host/host/hci_api.c
+  #- bt_host/host/l2cap_br.c
+  - bt_host/host/att.c
+  #- bt_host/host/at.c
+  - bt_host/host/gatt.c
+  - bt_host/hci_driver/h4_driver.c
+  - bt_host/hci_driver/h5_driver.c
+  - bt_host/hci_driver/h5.c
+  - bt_host/hci_driver/bt_list.c
+  - bt_host/hci_driver/bt_skbuff.c
+  - bt_host/aos/ble.c
+  - bt_host/port/core/settings/src/settings_init.c
+  - bt_host/port/core/settings/src/settings_line.c
+  - bt_host/port/core/settings/src/settings_kv.c
+  - bt_host/port/core/settings/src/settings.c
+  - bt_host/port/core/settings/src/settings_store.c
+  - bt_host/port/core/buf.c
+    #  - bt_host/port/core/atomic_c.c  #yulong remove
+  - bt_host/port/aos/work.c
+  - bt_host/port/aos/poll.c
+  - bt_host/port/aos/aos_port.c
+  - bt_host/port/aos/event_scheduler.c
+  - bt_host/common/log.c
+  - bt_host/common/dummy.c
+  - bt_host/common/hex.c
+  - bt_host/common/dec.c
+  - bt_host/common/rpa.c
+  - bt_shell/bt_host/bt.c
+  - bt_shell/bt_host/gatt.c
+  - ble_profiles/bas.c
+  - ble_profiles/dis.c
+  - ble_profiles/hids.c
+  - ble_profiles/hrs.c
+  - ble_profiles/ibeacons.c
+    #- ble_profiles/ota_server.c
+  - ble_profiles/uart_client.c
+  - ble_profiles/uart_server.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+    CONFIG_BT: 1
+    CONFIG_BT_SMP: 1
+    CONFIG_BT_WHITELIST: 1
+    CONFIG_BT_HCI_TX_PRIO: 30
+    CONFIG_BT_RX_PRIO: 31
+    CONFIG_BT_HCI_TX_STACK_SIZE: 4096
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+
+## 第七部分：导出部分

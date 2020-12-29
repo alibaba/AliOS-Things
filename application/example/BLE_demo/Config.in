@@ -1,0 +1,14 @@
+config AOS_APP_BLE_DEMO
+    bool "BLE Demo"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    help
+        BLE demo
+
+if AOS_APP_BLE_DEMO
+# Configurations for app BLE_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
