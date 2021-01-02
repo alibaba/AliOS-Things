@@ -25,7 +25,7 @@
 #endif
 
 #ifdef WITH_SAL
-#include <sal_config_module.h>
+#include <atcmd_config_module.h>
 #endif
 
 #include <k_api.h>
@@ -483,6 +483,13 @@ int application_start(int argc, char **argv)
 #ifdef WITH_SAL
     sal_device_config_t data = {0};
 
+#ifdef AOS_COMP_USB
+    extern int usb_wwan_init(void);
+    usb_wwan_init();
+
+    data.usb_dev.class_name = "wwan";
+    data.usb_dev.interface_id =  4; // ec20: 2  ec200S: 4
+#else
     data.spi_dev.port = 0;
     data.spi_dev.config.data_size = SPI_DATA_SIZE_8BIT;
     data.spi_dev.config.mode = SPI_WORK_MODE_3;
@@ -491,6 +498,7 @@ int application_start(int argc, char **argv)
     data.spi_dev.config.role = SPI_ROLE_MASTER;
     data.spi_dev.config.firstbit = SPI_FIRSTBIT_MSB;
     data.spi_dev.config.t_mode = SPI_TRANSFER_NORMAL;
+#endif
 
     sal_add_dev(NULL, &data);
     sal_init();
@@ -527,6 +535,14 @@ int application_start(int argc, char **argv)
     aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
 #endif
 #endif
+
+#ifdef AOS_COMP_USB
+    /* DElETE later. only for usb test */
+    aos_msleep(5000);
+    aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 8);
+    linkkit_started = 1;
+#endif
+
     aos_loop_run();
 
     return 0;

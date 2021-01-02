@@ -7,6 +7,7 @@
 #include <string.h>
 #include <network/network.h>
 #include <lwip/apps/sendfile.h>
+#include <lwip/opt.h>
 
 #define DATALEN 1024
 #define MAXSIZE 32

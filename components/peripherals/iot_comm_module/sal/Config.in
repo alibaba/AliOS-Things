@@ -32,6 +32,10 @@ choice
     config AOS_SAL_LTE_EC20
         bool "lte.ec20"
     
+    config AOS_SAL_LTE_EC20_USB
+        bool "lte.ec20.usb"
+        select AOS_COMP_USB
+
     config AOS_SAL_NBIOT_M5310A
         bool "nbiot.M5310A"
 
