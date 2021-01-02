@@ -133,6 +133,10 @@ static int httpclient_parse_url(const char *url, char *scheme, size_t max_scheme
         *port = 0;
     }
     path_ptr = strchr(host_ptr, '/');
+    if (path_ptr == NULL) {
+        http_err("URL fail to find slash, eg. http://localhost:8080");
+        return HTTP_EPARSE;
+    }
     if ( host_len == 0 ) {
         host_len = path_ptr - host_ptr;
     }
@@ -277,7 +281,7 @@ static int httpclient_send_header(httpclient_t *client, const char *url, int met
 
     	memset(buf, 0, sizeof(buf));
    		snprintf(buf, sizeof(buf), "Accept: */*\r\n");
-    
+
    		httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
 	    if (client_data->post_content_type != NULL)  {
@@ -374,7 +378,7 @@ static int httpclient_recv_data(httpclient_t *client, char *buf, int min_len, in
 
     if (client->is_http) {
     	ret = http_tcp_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
-    } 
+    }
 #if CONFIG_HTTP_SECURE
     else {
     	ret = http_ssl_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
@@ -390,7 +394,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
     int count = 0;
     int templen = 0;
     int crlf_pos;
- 
+
     client_data->is_more = true;
 
     if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
@@ -906,7 +910,7 @@ void httpclient_reset(httpclient_data_t *client_data)
     char *header_buf = client_data->header_buf;
     int response_buf_len = client_data->response_buf_len;
     int header_buf_len = client_data->header_buf_len;
-   
+
     memset(client_data, 0, sizeof(httpclient_data_t));
 
     client_data->response_buf = response_buf;
