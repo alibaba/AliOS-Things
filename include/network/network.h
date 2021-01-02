@@ -18,15 +18,15 @@ extern "C" {
 #include <fcntl.h>
 
 /* network */
-#if defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
-#include <lwip/def.h>
-#include <lwip/netdb.h>
-#include <lwip/sockets.h>
-#elif defined(CONFIG_NO_LWIP) && defined(WITH_SAL)
+#if defined(WITH_SAL)
 #include <sal/sal_arch.h>
 #include <sal/sal_def.h>
 #include <sal/sal_ipaddr.h>
 #include <sal/sal_sockets.h>
+#elif defined(CONFIG_AOS_LWIP) || defined(CONFIG_VENDOR_LWIP)
+#include <lwip/def.h>
+#include <lwip/netdb.h>
+#include <lwip/sockets.h>
 #elif !defined(CONFIG_NO_LWIP)
 #if defined(_WIN32)
 #include "unistd.h"

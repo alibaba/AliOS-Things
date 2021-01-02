@@ -79,6 +79,7 @@ GLOBAL_INCLUDES += drivers/services/multimedia/audio/codec/libopusenc/src
 GLOBAL_INCLUDES += drivers/services/multimedia/audio/codec/opus/include
 GLOBAL_INCLUDES += drivers/apps/cmd
 GLOBAL_INCLUDES += drivers/apps/main
+GLOBAL_INCLUDES += drivers/platform/drivers/usb/usb_host/inc
 
 $(NAME)_SOURCES += hal/adc.c \
                    hal/flash.c \
