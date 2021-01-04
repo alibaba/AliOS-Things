@@ -59,6 +59,26 @@ def _get_host_pc_os():
         print("Communicated with host pc is failed. Please start flash programmer in host pc.")
     return host_pc_os
 
+def _check_serial_port(serialport, is_in_docker):
+    has_comm = False
+    if not is_in_docker:
+        for n, (port, desc, hwid) in enumerate(sorted(comports()), 1):
+            if serialport == port:
+                has_comm = True
+                break
+    else:
+        serial_port_list = _communicate_with_host_pc("get_serialport", 5).split('\n')
+        pattern = re.compile(r"---  \d{1,2}: (\S*)")
+        if serial_port_list:
+            for line in serial_port_list:
+                line = line.strip()
+                match = pattern.search(line)
+                if match and match.group(1):
+                    if serialport == match.group(1):
+                        has_comm = True
+                        break
+    return has_comm
+
 def _get_serial_port():
     serial_port = ""
     serial_port_list = _communicate_with_host_pc("get_serialport", 60).split('\n')
@@ -139,6 +159,8 @@ def _run_upload_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None)
     info("Check whether in docker: %s" % is_in_docker)
     if is_in_docker:
         host_os = _get_host_pc_os()
+        if not host_os:
+            error("Unsupported Operating System of Host PC!")
 
     configs = read_json(cmd_file)
 
@@ -154,6 +176,9 @@ def _run_upload_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None)
     myconfig = {}
     if not PORT and '@PORT@' in configs['cmd']:
         myconfig = get_config(program_path if program_path else aos_path)
+        if myconfig["serialport"]:
+            if not _check_serial_port(myconfig["serialport"], is_in_docker):
+                myconfig["serialport"] = ""
         if not myconfig["serialport"]:
             if not is_in_docker:
                 PORT = miniterm.ask_for_port()
