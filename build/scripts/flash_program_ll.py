@@ -37,7 +37,11 @@ def burn_bin_file(serialport, filename, address):
 
         # get flash address
         bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'Please input flash addr:', 2)
-        print(buff)
+        try:
+            buff_str = buff.decode('UTF-8',errors='ignore')
+            print(buff_str)
+        except IOError:
+            pass
         if bmatched:
             break
     if address == "0":
@@ -60,7 +64,11 @@ def burn_bin_file(serialport, filename, address):
     serialport.write(b'\r\n')
     time.sleep(0.1)
     bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'CCCCC', 5)
-    print(buff)
+    try:
+        buff_str = buff.decode('UTF-8',errors='ignore')
+        print(buff_str)
+    except IOError:
+        pass
     if not bmatched:
         print("can not enter into ymodem mode")
         return False
@@ -98,7 +106,12 @@ def burn_bin_files(portnum, baudrate, bin_files):
         serialport.write(b'\nreboot\n\n')
         time.sleep(0.1)
         bmatched, buff = send_cmd_check_recv_data(serialport, b'w', b'aos boot#', 2)
-        print(buff)
+        try:
+            buff_str = buff.decode('UTF-8',errors='ignore')
+            print(buff_str)
+        except IOError:
+            pass
+
         if bmatched:
             break
         if i > 3:
@@ -126,7 +139,11 @@ def burn_bin_files(portnum, baudrate, bin_files):
     serialport.write(b'2')
     time.sleep(0.1)
     bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'2ndboot cli menu in [1-9]00ms', 2)
-    print(buff)
+    try:
+        buff_str = buff.decode('UTF-8',errors='ignore')
+        print(buff_str)
+    except IOError:
+        pass
     if bmatched:
         print("Burn \"%s\" success." % bin_files)
 

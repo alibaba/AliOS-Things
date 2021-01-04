@@ -205,6 +205,7 @@ class YModem(object):
         # [<<< ACK]
         error_count = 0
         sequence = 1
+        sequence_int = 1
         while True:
             data = data_stream.read(packet_size)
 
@@ -226,7 +227,7 @@ class YModem(object):
             while True:
                 self.putc(data_for_send)
                 self.st.inc_sent_packets()
-                print("Packet " + str(sequence) + " >>>")
+                print("Packet " + str(sequence_int) + " >>>")
 
                 c = self.getc(1)
                 if c == ACK:
@@ -246,6 +247,7 @@ class YModem(object):
                         return -2
 
             sequence = (sequence + 1) % 0x100
+            sequence_int = sequence_int + 1
 
         # [EOT >>>]
         # [<<< NAK]
@@ -333,12 +335,14 @@ class YModem(object):
         WAIT_FOR_EOT = False
         WAIT_FOR_END_PACKET = False
         sequence = 0
+        sequence_int = 0
         while True:
             if WAIT_FOR_EOT:
                 self.wait_for_eot()
                 WAIT_FOR_EOT = False
                 WAIT_FOR_END_PACKET = True
                 sequence = 0
+                sequence_int = 0
             else:
                 if IS_FIRST_PACKET:
                     IS_FIRST_PACKET = False
@@ -386,13 +390,14 @@ class YModem(object):
                             file_stream = open(os.path.join(root_path, file_name), 'wb+')
                             FIRST_PACKET_RECEIVED = True
                             sequence = (sequence + 1) % 0x100
+                            sequence_int = sequence_int + 1
 
                         # data packet
                         # [data packet >>>]
                         # [<<< ACK]
                         elif not WAIT_FOR_END_PACKET:
                             self.rt.inc_valid_received_packets()
-                            print("Packet " + str(sequence) + " >>>")
+                            print("Packet " + str(sequence_int) + " >>>")
                             valid_data = data[:-2]
                             # last data packet
                             if self.rt.get_valid_received_packets() == self.rt.get_task_packets():
@@ -404,6 +409,7 @@ class YModem(object):
                             print("<<< ACK")
 
                             sequence = (sequence + 1) % 0x100
+                            sequence_int = sequence_int + 1
 
                         # final packet
                         # [<<< ACK]
