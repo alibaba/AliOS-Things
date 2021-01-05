@@ -10,7 +10,6 @@ ifeq ($(AOS_COMP_BTHOST), y)
 GLOBAL_INCLUDES     += aos/include/ include
 GLOBAL_INCLUDES     += ${BTHOST}/bluedroid/hal
 GLOBAL_INCLUDES     += ${BTHOST}/bluedroid/include
-GLOBAL_INCLUDES     += ${BTHOST}/bluedroid/tg_adapter
 GLOBAL_INCLUDES     += ${BTHOST}/bluedroid/api/include/api/
 
 $(NAME)_INCLUDES += ${BTHOST}/bluedroid/include
@@ -182,11 +181,6 @@ $(NAME)_SOURCES += ${BTHOST}/bluedroid/hci/hci_packet_factory.c
 $(NAME)_SOURCES += ${BTHOST}/bluedroid/hci/hci_packet_parser.c
 $(NAME)_SOURCES += ${BTHOST}/bluedroid/hci/packet_fragmenter.c
 $(NAME)_SOURCES += ${BTHOST}/bluedroid/hci/btsnoop.c
-
-$(NAME)_SOURCES += ${BTHOST}/bluedroid/tg_adapter/tg_bluetooth.c
-$(NAME)_SOURCES += ${BTHOST}/bluedroid/tg_adapter/tg_bt_mesh.c
-#$(NAME)_SOURCES += ${BTHOST}/bluedroid/tg_adapter/tg_bt_bqb.c
-$(NAME)_SOURCES += ${BTHOST}/bluedroid/tg_adapter/tg_btsnoop.c
 
 $(NAME)_SOURCES += ${BTHOST}/bluedroid/main/bte_init.c
 $(NAME)_SOURCES += ${BTHOST}/bluedroid/main/bte_main.c
