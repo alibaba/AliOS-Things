@@ -1,0 +1,16 @@
+config AOS_APP_TCP_DEMO
+    bool "tcp Demo"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI
+    select AOS_COMP_NETMGR
+    help
+        tcp demo
+
+if AOS_APP_TCP_DEMO
+# Configurations for app helloworld_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
