@@ -17,6 +17,12 @@ if AOS_APP_HELLOWORLD_DEMO
         default "helloworld_demo"
 endif
 
+source "application/example/tcp_demo/Config.in"
+if AOS_APP_TCP_DEMO
+    config AOS_BUILD_APP
+        default "tcp_demo"
+endif
+
 source "application/example/BLE_demo/Config.in"
 if AOS_APP_BLE_DEMO
     config AOS_BUILD_APP
