@@ -1,0 +1,14 @@
+config AOS_APP_LORA_DEMO
+    bool "Lora Demo"
+    select AOS_COMP_OSAL_AOS  if !AOS_CREATE_PROJECT
+    help
+        Lora Demo
+
+if AOS_APP_LORA_DEMO
+# Configurations for app lora_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
