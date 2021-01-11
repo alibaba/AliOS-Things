@@ -11,7 +11,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu haas1000
 ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
 
 $(NAME)_COMPONENTS += arch_armv7m rhino network
-$(NAME)_COMPONENTS += newlib_stub
+$(NAME)_COMPONENTS += newlib_stub debug osal_posix
 
 ifeq ($(HW_MODULE), 1)
 $(NAME)_COMPONENTS += input
@@ -86,7 +86,6 @@ $(NAME)_SOURCES += hal/adc.c \
                    hal/gpio.c \
                    hal/i2c.c \
                    hal/pwm.c \
-                   hal/rtc.c \
                    hal/sd.c \
                    hal/timer.c \
                    hal/uart.c \
@@ -99,19 +98,21 @@ $(NAME)_SOURCES += 	aos/aos.c \
 					aos/soc_init.c \
 					aos/ota_port.c
 
-ifeq ($(A7_DSP_ENABLE),1)
 $(NAME)_SOURCES += 	aos/dsp/dsp.S
-endif
 
 $(NAME)_SOURCES += drivers/utils/boot_struct/boot_struct.c \
 				drivers/utils/build_info/build_info.c
+
+ifeq ($(A7_DSP_ENABLE), 1)
+$(NAME)_SOURCES += hal/audio.c
+endif
 
 HW_MODULE ?= 0
 ifeq ($(HW_MODULE), 1)
 GLOBAL_DEFINES += CFG_HW_ALI_MODULE
 endif
 
-GLOBAL_DEFINES += SWD_ENABLE_AS_DEFAULT
+GLOBAL_DEFINES += SWD_ENABLE_AS_DEFAULT CLI_CONFIG_MAX_COMMANDS=256 CUSTOM_CLI_ENABLED SUPPORT_24G_SPECIFIED_SCAN
 
 BATTERY_VER ?= 0
 ifeq ($(BATTERY_VER), 1)
@@ -130,8 +131,13 @@ ifeq ($(CONFIG_WORK_WITH_WIFI),y)
 $(NAME)_PREBUILT_LIBRARY := drivers/libhaas1000.a
 endif
 
-CPU_FLAGS := -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CPU_FLAGS := -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -DCORTEX_DEBUG_V8M
 #-mno-unaligned-access
+
+ifeq ($(CONFIG_UAI_USE_CMSIS_NN), y)
+CPU_FLAGS += -D__FPU_PRESENT=1
+CMSIS_DSP_LIB := 1
+endif
 
 COM_FLAGS := -g -O2 -Wall -Werror -w
 

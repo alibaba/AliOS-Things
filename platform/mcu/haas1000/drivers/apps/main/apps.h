@@ -13,9 +13,16 @@
 extern "C" {
 #endif
 
+enum {
+    BES_SDK,
+    BES_WIFI_ONLY,
+    BES_WIFI_BT,
+    BES_WIFI_BT_MINI, // cut off nouse tasks
+};
+
 #include "plat_types.h"
 
-int app_init(int only_init);
+int app_init(int boot_type);
 
 int app_deinit(int deinit_case);
 

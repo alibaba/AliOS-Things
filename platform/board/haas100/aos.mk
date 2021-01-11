@@ -16,7 +16,7 @@ export SECURE_OTA_BOOT    := yes
 
 ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init yloop
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init yloop debug i2c_muxer rtc_ext
 
 GLOBAL_DEFINES += STDIO_UART=0 CLI_CONFIG_STACK_SIZE=8192
 #GLOBAL_DEFINES += CONFIG_AOS_FATFS_SUPPORT_MMC
@@ -24,7 +24,6 @@ GLOBAL_DEFINES += STDIO_UART=0 CLI_CONFIG_STACK_SIZE=8192
 #GLOBAL_DEFINES += LITTLEFS_FORMAT
 GLOBAL_DEFINES += RHINO_CONFIG_TICKS_PER_SECOND=1000
 
-GLOBAL_DEFINES += DEBUG_CONFIG_ERRDUMP=0
 ifeq ($(CONFIG_WORK_WITH_WIFI),y)
 GLOBAL_DEFINES += WITH_LWIP
 $(NAME)_COMPONENTS-$(CONFIG_WORK_WITH_WIFI) += lwip netmgr
@@ -45,7 +44,10 @@ $(NAME)_SOURCES += config/k_config.c \
 				   drivers/led.c \
 				   drivers/key.c \
 				   drivers/watchdog.c \
-                   drivers/ch395_spi.c
+                   drivers/ch395_spi.c \
+                   drivers/rs485.c \
+                   drivers/mux_i2c.c \
+                   drivers/rtc.c
 
 MACROS := -DCHIP_HAAS1000 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1 \
 			-DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000
@@ -66,7 +68,7 @@ endif
 GLOBAL_CFLAGS += -DLASTWORD_RAM_ADDR=$(LASTWORD_RAM_ADDR)
 GLOBAL_ASMFLAGS += -DLASTWORD_RAM_ADDR=$(LASTWORD_RAM_ADDR)
 
-export A7_DSP_ENABLE ?= 1
+export A7_DSP_ENABLE ?= 0
 ifeq ($(A7_DSP_ENABLE),1)
 GLOBAL_CFLAGS += -D__A7_DSP_ENABLE__
 endif

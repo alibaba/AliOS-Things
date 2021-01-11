@@ -233,24 +233,41 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                           uint32_t timeout)
 {
 	int32_t ret;
-	uint8_t txbuf[2];
 	uint8_t i2c_port;
 	int32_t lock_ret = -1;
 
-	txbuf[0] = (uint8_t)mem_addr;
-	txbuf[1] = *data;
+	uint8_t *txbuf;
+    uint16_t txlen;
+
 	i2c_port = i2c->port;
 
+    if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
+    {
+		TRACE("i2c input para err");
+		return -1;
+    }
+    txlen = size + mem_addr_size;
+    txbuf = (uint8_t *)malloc(txlen);
+	if (txbuf  == NULL)
+	{
+		TRACE("%s malloc size %d error\r", __FUNCTION__, txlen);
+		return -1;
+	}
+    memset(txbuf, 0, txlen);
+    txbuf[0] = (uint8_t)mem_addr;
+    memcpy(&txbuf[1], data, size);
 	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
 	if (lock_ret != 0) {
 		TRACE("hal_i2c_mem_write, get i2c_mutex lock fail");
+        free(txbuf);
 		return lock_ret;
 	}
-	ret = hal_i2c_task_send(i2c_port, dev_addr, txbuf, size+1, 0, NULL);
+    ret = hal_i2c_task_send(i2c_port, dev_addr, txbuf, txlen, 0, NULL);
 	if(ret) {
 		TRACEME("%s:%d,i2c send failed,dev_addr = 0x%x,ret = %d\n", __func__,__LINE__,dev_addr,ret);
 	}
 	aos_mutex_unlock(&i2c_mutex);
+    free(txbuf);
 
 	return ret;
 }
@@ -275,27 +292,41 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 {
 	int32_t ret;
 	uint8_t i2c_port;
-	uint8_t rxbuf[2];
 	int32_t lock_ret = -1;
+    uint8_t *txrxbuf;
+    uint16_t txrxlen;
 
 	i2c_port = i2c->port;
-	rxbuf[0] = (uint8_t)mem_addr;;
-	rxbuf[1] = 0;
+    if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
+    {
+		TRACE("i2c input para err");
+		return -1;
+    }
+    txrxlen = size + mem_addr_size;
+    txrxbuf = (uint8_t *)malloc(txrxlen);
+	if (txrxbuf  == NULL)
+	{
+		TRACE("%s malloc size %d error\r", __FUNCTION__, txrxlen);
+		return -1;
+	}
+	memset(txrxbuf, 0, txrxlen);
+    txrxbuf[0] = (uint8_t)mem_addr;
 
 	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
 	if (lock_ret != 0) {
 		TRACE("hal_i2c_mem_read, get i2c_mutex lock fail");
+        free(txrxbuf);
 		return lock_ret;
 	}
 
-	ret = hal_i2c_recv(i2c_port, dev_addr, rxbuf, 1, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
-	ret = hal_i2c_recv(i2c_port, dev_addr, rxbuf, 0, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
+	ret = hal_i2c_recv(i2c_port, dev_addr, txrxbuf, mem_addr_size, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
 	if (ret) {
 		TRACEME("%s:i2c recv failed,dev_addr = 0x%x,ret = %d\n", __func__, dev_addr, ret);
 	} else {
-		*data = rxbuf[1];
+        memcpy(data, &txrxbuf[1], size);
 	}
 	aos_mutex_unlock(&i2c_mutex);
+    free(txrxbuf);
 
 	return ret;
 }
@@ -312,86 +343,4 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
 	return 0;
 }
 
-void _hal_i2c_test()
-{
-	TRACE("%s", __func__);
-    uint32_t ret;
 
-	char data[7] = {0x01, 1, 1, 1, 1, 1, 1};
-	uint16_t size = 7;
-	u8 reg = 0x04;
-	u8 reg_rtn;
-	i2c_dev_t i2c;
-	i2c.port = 1;
-	i2c.config.address_width = 8;
-	i2c.config.freq = I2C_BUS_BIT_RATES_100K;
-	i2c.config.dev_addr = 0x70;
-	TRACE("hal_i2c_init begin");
-	hal_i2c_init(&i2c);
-	TRACE("hal_i2c_init end");
-
-    for(uint32_t i = 0; i < 1000; i++)
-    {
-        /* chan select */
-        reg = 0x05;
-        hal_i2c_master_send(&i2c, i2c.config.dev_addr, &reg, 1, 1000);
-        osDelay(2);
-        hal_i2c_master_recv(&i2c, i2c.config.dev_addr, &reg_rtn, 1, 1000);
-        osDelay(2);
-
-        //hal_i2c_mem_read(&i2c, 0x32, 0x1d, 1, data, 1, 1000);
-        /* write rtc */
-        hal_i2c_mem_write(&i2c, 0x32, 0x10, 1, data, 1, 1000);
-        hal_i2c_mem_write(&i2c, 0x32, 0x11, 1, data, 1, 1000);
-        hal_i2c_mem_write(&i2c, 0x32, 0x12, 1, data, 1, 1000);
-        hal_i2c_mem_write(&i2c, 0x32, 0x13, 1, data, 1, 1000);
-        hal_i2c_mem_write(&i2c, 0x32, 0x14, 1, data, 1, 1000);
-        hal_i2c_mem_write(&i2c, 0x32, 0x15, 1, data, 1, 1000);
-        /* read rtc */
-        hal_i2c_mem_read(&i2c, 0x32, 0x10, 1, data, 1, 1000);
-        hal_i2c_mem_read(&i2c, 0x32, 0x11, 1, data, 1, 1000);
-        hal_i2c_mem_read(&i2c, 0x32, 0x12, 1, data, 1, 1000);
-        hal_i2c_mem_read(&i2c, 0x32, 0x13, 1, data, 1, 1000);
-        TRACE("%s---%d,%d,%d\r",__func__, data[0], data[1], data[2]);
-        osDelay(20);
-
-    }
-
-	if (ret != 0) {
-		TRACE("i2c receive err\n");
-		return;
-	}
-    else
-    {
-        TRACE("%s---%d\r",__func__, data[0]);
-    }
-
-
-    osDelay(200);
-
-    hal_i2c_finalize(&i2c);
-}
-
-void _hal_i2c_test_arg(int port, int bd, int cmd)
-{
-	TRACE("%s", __func__);
-
-	char data[7];
-	uint16_t size = 7;
-	u8 reg = 0xff;
-	i2c_dev_t i2c;
-	i2c.port = port;
-	i2c.config.address_width = 8;
-	i2c.config.freq = I2C_BUS_BIT_RATES_100K;
-	i2c.config.dev_addr = 0xE0;
-	TRACE("hal_i2c_init begin");
-	hal_i2c_init(&i2c);
-	TRACE("hal_i2c_init end");
-
-    hal_i2c_master_recv(&i2c, i2c.config.dev_addr, data, 1, 1000);
-
-
-    osDelay(200);
-
-    hal_i2c_finalize(&i2c);
-}

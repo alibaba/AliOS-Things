@@ -554,6 +554,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         return 0;
     }
     
+    hal_uart_close(uart->port);
     aos_free(uart_ctx[uart_id].rx_ringbuf);
     krhino_sem_del(&uart_ctx[uart_id].rx_sem);
     krhino_sem_del(&uart_ctx[uart_id].tx_sem);

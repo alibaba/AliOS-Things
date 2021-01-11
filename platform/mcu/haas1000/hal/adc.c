@@ -47,6 +47,8 @@ int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
 	HAL_GPADC_MV_T volt = HAL_GPADC_BAD_VALUE;
 
+    hal_gpadc_open(__hal_adc_port2chan(adc->port), HAL_GPADC_ATP_ONESHOT, NULL);
+    osDelay(1);
 	if (output && hal_gpadc_get_volt(__hal_adc_port2chan(adc->port), &volt)) {
 		*output = volt;
         /*printf("%s port=%d, sampling_cycle=%d, priv=%p => output=%d\r\n", __FUNCTION__, adc->port, adc->config.sampling_cycle, adc->priv, *output);*/
@@ -66,16 +68,4 @@ int32_t hal_adc_finalize(adc_dev_t *adc)
 	//printf("%s port=%d, sampling_cycle=%d, priv=%p\n", __FUNCTION__, adc->port, adc->config.sampling_cycle, adc->priv);
 	hal_gpadc_close(__hal_adc_port2chan(adc->port));
 	return 0;
-}
-
-void _hal_adc_test(void)
-{
-	adc_dev_t adc = {2, 1000, 0x12345678};
-	hal_adc_init(&adc);
-	uint32_t output = 0;
-	while(1) {
-		hal_adc_value_get(&adc, &output, 1000);
-		osDelay(20);
-	}
-	hal_adc_finalize(&adc);
 }

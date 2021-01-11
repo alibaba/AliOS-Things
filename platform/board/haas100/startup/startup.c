@@ -130,7 +130,7 @@ static void a7_dsp_init(void)
 
 uint8_t mesh_open_enalbe = 1;
 #include "ulog/ulog.h"
-static void sys_init(void)
+static void aos_main_task_entry(void)
 {
 #ifdef AOS_COMP_YUNIT
     char *parm[4] = {"yts", "kv", "ramfs", "vfs"};
@@ -167,7 +167,7 @@ static void sys_init(void)
     aos_set_log_level(LOG_DEBUG);
     aos_set_log_level_fs(AOS_LL_NONE);
     aos_init_done_hook();
-    LOGI("ULOG-test", "%s aos_components_init done\n", __FUNCTION__);
+
 
 #ifdef AOS_COMP_YUNIT
     yts_run(sizeof(parm) / sizeof(parm[0]), &parm[0]);
@@ -206,7 +206,7 @@ int main(void)
     //krhino_init();
 
     /*main task to run */
-    krhino_task_dyn_create(&g_main_task, "main_task", 0, OS_MAIN_TASK_PRI, 0, OS_MAIN_TASK_STACK, (task_entry_t)sys_init, 1);
+    krhino_task_dyn_create(&g_main_task, "main_task", 0, OS_MAIN_TASK_PRI, 0, OS_MAIN_TASK_STACK, (task_entry_t)aos_main_task_entry, 1);
 
     /*kernel start schedule!*/
     //krhino_start();
