@@ -1092,7 +1092,9 @@ SECTIONS
  .psramuhs_text (((__psramuhs_text_data_start__) - 0x3C000000 + 0x1C000000)) : AT (__psramuhs_text_data_start_flash__)
  {
   __psramux_text_start__ = .;
-  *(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .text*)
+/*
+		*(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .text*)
+*/
   *(.psramuhs_text*)
   . = ALIGN(4);
   __psramux_text_end__ = .;
@@ -1137,6 +1139,7 @@ SECTIONS
   *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
   *(SORT(.dtors.*))
   *(.dtors)
+  *(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .text*)
  } > FLASHX
  .ARM.extab (.) : AT (((ADDR(.ARM.extab)) - 0x0C000000 + 0x2C000000))
  {

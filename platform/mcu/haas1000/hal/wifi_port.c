@@ -520,6 +520,7 @@ static int start_scan_adv(hal_wifi_module_t *m)
 
 static int start_specified_scan(hal_wifi_module_t *m, ap_list_t *ap_list, int ap_num)
 {
+#if defined(SUPPORT_24G_SPECIFIED_SCAN) || defined(SUPPORT_5G_SPECIFIED_SCAN)
     int i = 0;
 
     if (ap_num > 3)
@@ -531,6 +532,9 @@ static int start_specified_scan(hal_wifi_module_t *m, ap_list_t *ap_list, int ap
     }
 
     return wifi_scan(m, SCAN_SPECIFIED);
+#else
+    return wifi_scan(m, SCAN_NORMAL);
+#endif
 }
 
 static int power_off(hal_wifi_module_t *m)

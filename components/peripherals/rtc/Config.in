@@ -1,0 +1,33 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_RTC
+    bool
+    default y
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_RTC
+    bool "RTC Drivers Configuration"
+    default n
+    help
+        AliOS Things RTC
+endif
+
+
+###################################################################
+# Component configuration items
+menu "RTC Configuration"
+depends on AOS_COMP_RTC
+
+config RTC_CONFIG_RX8310CE_ENABLE
+    bool "Enable RX8310CE Enable"
+    default y
+    help
+        Press <Y> here to add support for rtc.
+
+
+endmenu
+

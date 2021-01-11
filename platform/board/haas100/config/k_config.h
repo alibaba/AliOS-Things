@@ -26,7 +26,7 @@
 #define RHINO_CONFIG_BUF_QUEUE               1
 #endif
 #ifndef RHINO_CONFIG_MM_BLK
-#define RHINO_CONFIG_MM_BLK                  0
+#define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
@@ -45,10 +45,6 @@
 
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         0x100000
-#endif
-
-#ifndef RHINO_CONFIG_ERR_DUMP
-#define RHINO_CONFIG_ERR_DUMP                1
 #endif
 
 /* kernel task conf */
@@ -171,7 +167,21 @@
 
 /* cli panic dump */
 #ifndef DEBUG_CONFIG_LAST_WORD
-#define DEBUG_CONFIG_LAST_WORD            1
+#define DEBUG_CONFIG_LAST_WORD            0
+#endif
+
+#ifndef DEBUG_CONFIG_LOG_FILE_NAME
+#define DEBUG_CONFIG_LOG_DIR_NAME       "/data/crash_reports"
+#define DEBUG_CONFIG_LOG_FILE_NAME      "/data/crash_reports/crash_report"
+#define DEBUG_CONFIG_LOG_FILE_INDEX     "/data/crash_reports/log_file_index"
+#endif
+
+#ifndef DEBUG_CONFIG_LOG_FILE_NUM
+#define DEBUG_CONFIG_LOG_FILE_NUM        10
+#endif
+
+#ifndef DEBUG_CONFIG_LASTWORD_RAM
+#define DEBUG_CONFIG_LASTWORD_RAM        1
 #endif
 
 #ifndef DEBUG_CONFIG_LASTWORD_RAM_ADDR
@@ -196,7 +206,7 @@
 
 #if (RHINO_CONFIG_CLI_AS_NMI > 0)
 #ifndef RHINO_CONFIG_NMI_OFFSET
-#define RHINO_CONFIG_NMI_OFFSET              48
+#define RHINO_CONFIG_NMI_OFFSET              40
 #endif
 #endif
 

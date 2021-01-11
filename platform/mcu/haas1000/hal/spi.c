@@ -113,6 +113,10 @@ int32_t hal_spi_init(spi_dev_t *spi)
 	pinmux_spi[2].function = spi_ctx[spi->port].spi_fun_CS0;
 	pinmux_spi[3].function = spi_ctx[spi->port].spi_fun_DIO;
 
+	if (cfg_spi.freq > 26000000){
+		hal_iomux_set_io_driver(pinmux_spi[1].pin,3);
+		hal_iomux_set_io_driver(pinmux_spi[3].pin,3);
+	}
 	hal_iomux_init(pinmux_spi, ARRAY_SIZE(pinmux_spi));
 	struct HAL_SPI_CFG_T spi_cfg;
 	switch (cfg_spi.mode)
@@ -149,8 +153,8 @@ int32_t hal_spi_init(spi_dev_t *spi)
 		spi_cfg.dma_tx = false;
 	}
 	spi_cfg.rate = cfg_spi.freq;
-	if (spi_cfg.rate > 26000000)
-		spi_cfg.rate = 26000000;
+	//if (spi_cfg.rate > 26000000)
+		//spi_cfg.rate = 26000000;
 	spi_cfg.cs = 0;
 	spi_cfg.rx_bits = cfg_spi.data_size;
 	spi_cfg.tx_bits = cfg_spi.data_size;
@@ -591,141 +595,3 @@ int32_t hal_spi_finalize(spi_dev_t *spi)
 	return 0;
 }
 
-void _hal_spi_test(void)
-{
-	TRACE("%s", __func__);
-	int ret;
-	char *data;
-	char temp_data[10];
-	uint16_t size = 7;
-	u8 command[] = {0x01, 0};
-	u8 command1[] = {0x06, 0x5A};
-	u8 reg = 0xff;
-	uint8_t manufacturer_id = 0;
-	uint8_t device_id = 0;
-	spi_dev_t spi;
-	spi.port = 1;
-	spi.config.data_size = SPI_DATA_SIZE_8BIT;
-	spi.config.mode = SPI_WORK_MODE_3;
-	spi.config.cs = 0;
-	spi.config.freq = 26000000;
-	spi.config.role = SPI_ROLE_SLAVE;
-	spi.config.firstbit = SPI_FIRSTBIT_MSB;
-
-    uint8_t cmd_get_ic_ver = 0x01;
-    uint8_t cmd_get_phy_status = 0x26;
-    uint8_t cmd_check_exist = 0x06;
-
-	TRACE("hal_spi_init begin");
-	hal_spi_init(&spi);
-	TRACE("hal_spi_init end");
-	data = rt_malloc(10);//sram buff
-	if (data==NULL)
-	{
-		TRACE("DATA rt_malloc error\r");
-	}
-
-    hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 1);
-
-	for (size_t i = 0; i < 100; i++)
-	{
-		//spi.priv = command;
-		//hal_gpio_pin_set_dir(spi_ctx[spi.port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 0);
-		//ret = hal_spi_send_recv(&spi,command,data,4,1000);
-		//hal_gpio_pin_set_dir(spi_ctx[spi.port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 1);
-		//TRACE("%s--ret-%d;%x,%x,%x,%x,%x,%x\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);
-		//osDelay(10);
-		//memset(data,0,10);
-        /*ret = hal_spi_send_and_recv(&spi,command,1,data,1,1000);*/
-        /*TRACE("%s--ret-%d;%x,%x,%x,%x,%d,%d\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);*/
-		/*osDelay(500);*/
-		/*ret = hal_spi_send_and_recv(&spi, &cmd_get_ic_ver, 1, data, 1, 1000);*/
-		/*TRACE("%s--ret-%d;%x\r",__func__,ret,data[0]);*/
-		/*osDelay(50);*/
-		/*ret = hal_spi_send_and_recv(&spi, &cmd_get_phy_status ,1,data,1,1000);*/
-		/*TRACE("%s--ret-%d;%x\r",__func__,ret,data[0]);*/
-		/*osDelay(50);*/
-		/*ret = hal_spi_send_and_recv(&spi, command1,2,data,2,1000);*/
-		/*TRACE("%s--ret-%d;%x, %x\r",__func__,ret, data[0], data[1]);*/
-		/*osDelay(500);*/
-
-        hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 0);
-
-        hal_spi_send(&spi,command1,2,1000);
-        /*hal_spi_recv(&spi,data,1,1000);*/
-        hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 1);
-        TRACE("%s--ret-%d;%x,%x,%x,%x,%x,%x\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);
-        osDelay(5);
-
-	}
-	rt_free(data);
-	//lcd_power_on();
-
-}
-
-void _hal_spi_test_arg(int port, int bd, int cmd)
-{
-	TRACE("%s", __func__);
-	int ret;
-	/*char data[7];*/
-	char *data;
-	uint16_t size = 7;
-	u8 command = (u8)cmd;
-	u8 reg = 0xff;
-	spi_dev_t spi;
-	spi.port = 1;
-	spi.config.data_size = SPI_DATA_SIZE_8BIT;
-	spi.config.mode = SPI_WORK_MODE_3;
-	spi.config.cs = 0;
-	spi.config.freq = 26000000;
-	spi.config.role = SPI_ROLE_SLAVE;
-	spi.config.firstbit = SPI_FIRSTBIT_MSB;
-
-    uint8_t cmd_get_ic_ver = 0x01;
-    uint8_t cmd_get_phy_status = 0x26;
-    uint8_t cmd_check_exist = 0x06;
-
-	TRACE("hal_spi_init begin");
-	hal_spi_init(&spi);
-	TRACE("hal_spi_init end");
-	data = rt_malloc(10); //sram buff
-	if (data == NULL)
-	{
-		TRACE("DATA rt_malloc error\r");
-	}
-
-    hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 1);
-
-	for (size_t i = 0; i < 100; i++)
-	{
-		//spi.priv = command;
-		//hal_gpio_pin_set_dir(spi_ctx[spi.port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 0);
-		//ret = hal_spi_send_recv(&spi,command,data,4,1000);
-		//hal_gpio_pin_set_dir(spi_ctx[spi.port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 1);
-		//TRACE("%s--ret-%d;%x,%x,%x,%x,%x,%x\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);
-		//osDelay(10);
-		//memset(data,0,10);
-        /*ret = hal_spi_send_and_recv(&spi,command,1,data,1,1000);*/
-        /*TRACE("%s--ret-%d;%x,%x,%x,%x,%d,%d\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);*/
-		/*osDelay(500);*/
-		/*ret = hal_spi_send_and_recv(&spi, &cmd_get_ic_ver, 1, data, 1, 1000);*/
-		/*TRACE("%s--ret-%d;%x\r",__func__,ret,data[0]);*/
-		/*osDelay(50);*/
-		/*ret = hal_spi_send_and_recv(&spi, &cmd_get_phy_status ,1,data,1,1000);*/
-		/*TRACE("%s--ret-%d;%x\r",__func__,ret,data[0]);*/
-		/*osDelay(50);*/
-		/*ret = hal_spi_send_and_recv(&spi, command1,2,data,2,1000);*/
-		/*TRACE("%s--ret-%d;%x, %x\r",__func__,ret, data[0], data[1]);*/
-		/*osDelay(500);*/
-
-        hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 0);
-
-        hal_spi_send(&spi,command,2,1000);
-        /*hal_spi_recv(&spi,data,1,1000);*/
-        hal_gpio_pin_set_dir(HAL_IOMUX_PIN_P3_3, HAL_GPIO_DIR_OUT, 1);
-        TRACE("%s--ret-%d;%x,%x,%x,%x,%x,%x\r",__func__,ret,data[0],data[1],data[2],data[3],data[4],data[5]);
-        osDelay(5);
-
-	}
-	rt_free(data);
-}

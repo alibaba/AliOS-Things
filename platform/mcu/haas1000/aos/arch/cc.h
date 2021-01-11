@@ -33,6 +33,7 @@
 #define __CC_H__
 
 #include <stdio.h>
+#include <stdint.h>
 #include "ulog/ulog.h"
 //#include "cpu.h"
 //#include "typedef.h"
@@ -102,7 +103,7 @@
 #define BYTE_ORDER          LITTLE_ENDIAN
 #endif
 
-#define LWIP_RAND() ((u32_t)rand())
+#define LWIP_RAND() ((uint32_t)rand())
 
 #if 0
 
@@ -110,20 +111,11 @@
 #define LWIP_TIMEVAL_PRIVATE 0
 #define LWIP_NO_INTTYPES_H  1
 
-#define LWIP_RAND() ((u32_t)rand())
+#define LWIP_RAND() ((uint32_t)rand())
 
 #define LWIP_PLATFORM_DIAG(x)	do {printf x;} while(0)
 
-#if 0
-typedef unsigned   char    u8_t;
-typedef signed     char    s8_t;
-typedef unsigned   short   u16_t;
-typedef signed     short   s16_t;
-typedef unsigned   int    u32_t;
-typedef signed     long    s32_t;
-typedef u32_t mem_ptr_t;
-typedef int sys_prot_t;
-#endif
+
 
 #define U16_F "d"
 #define S16_F "d"

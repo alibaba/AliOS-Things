@@ -5,5 +5,6 @@ source "components/peripherals/iot_comm_module/mal/Config.in"
 source "components/peripherals/iot_comm_module/sal/Config.in"
 source "components/peripherals/sensor/Config.in"
 source "components/peripherals/i2c_muxer/Config.in"
+source "components/peripherals/rtc/Config.in"
 
 endmenu
