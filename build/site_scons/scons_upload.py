@@ -34,6 +34,9 @@ def _communicate_with_host_pc(req, timeout):
     timeout *= 5
     if os.path.exists("/docker_share/.docker_burn_response"):
         os.remove("/docker_share/.docker_burn_response")
+    for i in range(5):
+        if os.path.exists("/docker_share/.docker_burn_request"):
+            time.sleep(0.1)
     with open("/docker_share/.docker_burn_request", "w+") as f:
         f.write(req)
     while True:
