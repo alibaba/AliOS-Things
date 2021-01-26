@@ -1,0 +1,17 @@
+NAME := SDL
+
+# component information
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 1.0.1
+$(NAME)_SUMMARY := SDL
+
+# extra makefile
+$(NAME)_SELF_BUIlD_COMP_targets := ./libSDL.a
+$(NAME)_SELF_BUIlD_COMP_scripts := SDL_make.sh
+
+
+$(NAME)_INCLUDES += ./
+GLOBAL_INCLUDES += ./include
+
+$(NAME)_DEFINES += __clang_analyzer__
+$(NAME)_DEFINES += __native_client__

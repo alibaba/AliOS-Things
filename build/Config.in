@@ -100,6 +100,7 @@ menu "Utility     Configuration"
 source "components/utility/cjson/Config.in"
 source "components/security/mbedtls/Config.in"
 source "components/utility/zlib/Config.in"
+source "components/utility/SDL2/Config.in"
 source "core/rbtree/Config.in"
 endmenu
 

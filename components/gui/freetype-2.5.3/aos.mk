@@ -28,6 +28,8 @@ $(NAME)_SOURCES     +=./src/base/ftinit.c
 $(NAME)_SOURCES     +=./src/base/ftlcdfil.c
 #$(NAME)_SOURCES     +=./src/base/ftfntfmt.c
 $(NAME)_SOURCES     +=./src/base/ftbitmap.c
+$(NAME)_SOURCES     +=./src/base/ftstroke.c
+$(NAME)_SOURCES     +=./src/base/ftglyph.c
 
 $(NAME)_SOURCES     +=./src/bdf/bdf.c
 $(NAME)_SOURCES     +=./src/bzip2/ftbzip2.c

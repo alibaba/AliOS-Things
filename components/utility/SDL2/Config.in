@@ -1,0 +1,9 @@
+config AOS_COMP_SDL2
+    bool "SDL2"
+    default n
+    help
+      enable SDL2 lib
+
+if AOS_COMP_SDL2
+# Configurations for SDL2
+endif
