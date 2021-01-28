@@ -10,7 +10,7 @@ CPU架构相关的功能实现。此目录为armv8m的实现。
 - debug维测
 
 # 目录
-
+```sh
 ├── aos.mk
 ├── common
 │   ├── include
@@ -30,6 +30,7 @@ CPU架构相关的功能实现。此目录为armv8m的实现。
 ├── include
 └── README.md
 
+```
 # 依赖
 无
 

@@ -7,6 +7,7 @@
 - 用户应用程序可在其他进程通过rpc机制间接的访问网络服务进程中的系统网络资源
 
 # 目录
+```sh
 ulwip_service
 ├── README.md           #要点介绍
 ├── src                 #功能源码，提供网络服务进程的应用入口。
@@ -14,6 +15,7 @@ ulwip_service
 ├── Config.in           #网络服务进程的构建配置
 └── aos.mk              #网络服务进程的构建脚本
 
+```
 # 依赖
 - lwip
 - netmgr

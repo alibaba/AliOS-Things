@@ -10,6 +10,7 @@
 - 设备或文件系统路径管理服务
 
 # 目录
+```sh
 ├── aos.mk
 ├── autobuild.json
 ├── Config.in
@@ -31,7 +32,7 @@
         ├── process_map.c               # PM的进程管理
         ├── process_service.c           # PM的RPC实现
         └── process_service.h
-
+```
 # 依赖
 - uspace_lib
 - usyscall
