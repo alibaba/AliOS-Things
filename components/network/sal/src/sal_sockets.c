@@ -585,6 +585,12 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
         return ERR_ARG;
     }
 
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
+    {
+        SAL_ERROR("No sal module registered or sal module add fail\n");
+        return -1;
+    }
+
     statconn.fd = conn->socket;
     statconn.r_port = port;
     statconn.l_port = -1;
@@ -1140,6 +1146,12 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         return -ERR_ARG;
     }
 
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
+    {
+        SAL_ERROR("No sal module registered or sal module add fail\n");
+        return -1;
+    }
+
     pstsalsock = get_socket(s);
     if (NULL == pstsalsock) {
         SAL_ERROR("sal_sendto fail to get sal socket by fd %d \n", s);
@@ -1507,7 +1519,8 @@ static void *sal_packet_output(void *arg)
     while (1) {
         for (fd = 0; fd < MEMP_NUM_NETCONN; fd++) {
             pstsalsock = get_socket(fd);
-            if (NULL == pstsalsock || NULL == pstsalsock->conn || !sal_mbox_valid(&pstsalsock->conn->sendmbox)) {
+            if (NULL == pstsalsock || NULL == pstsalsock->conn || !sal_mbox_valid(&pstsalsock->conn->sendmbox)
+                || NULL == g_sal_module) {
                 sal_msleep(SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET);
                 continue;
             }
@@ -1549,9 +1562,9 @@ int sal_init(void)
         return 0;
     }
 
-    if(g_sal_module_list == NULL)
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
     {
-        SAL_ERROR("No sal module registered \n");
+        SAL_ERROR("No sal module registered or sal module add fail\n");
         return -1;
     }
 
@@ -1806,6 +1819,12 @@ int sal_close(int s)
 
     SAL_DEBUG("sal_close(%d)\r\n", s);
 
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
+    {
+        SAL_ERROR("No sal module registered or sal module add fail\n");
+        return -1;
+    }
+
     event = tryget_event(s);
     if (event) {
         event->used = 0;
@@ -1869,6 +1888,12 @@ struct hostent *sal_gethostbyname(const char *name)
     if (!name) {
         SAL_ERROR("%s failed, invalid argument.", __func__);
         return NULL;
+    }
+
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
+    {
+        SAL_ERROR("No sal module registered or sal module add fail\n");
+        return -1;
     }
 
     if (g_sal_module->domain_to_ip((char *)name, ip_str) != 0) {
@@ -2068,6 +2093,12 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
     *res = NULL;
     if ((nodename == NULL) && (servname == NULL)) {
         return EAI_NONAME;
+    }
+
+    if(g_sal_module_list == NULL || g_sal_module == NULL)
+    {
+        SAL_ERROR("No sal module registered or sal module add fail\n");
+        return -1;
     }
 
     if (hints != NULL) {

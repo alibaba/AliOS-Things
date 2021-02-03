@@ -91,6 +91,10 @@ int32_t hal_ch395_spi_init(spi_dev_t *spi)
 	int ret = -1;
 	spi_config_t cfg_spi = spi->config;
 
+	if (spi->port >= (sizeof(spi_ctx) / sizeof(spi_ctx_obj_t))) {
+		return -1;
+	}
+
 	static struct HAL_IOMUX_PIN_FUNCTION_MAP pinmux_spi[] = {
 		{0, 0, HAL_IOMUX_PIN_VOLTAGE_VIO, HAL_IOMUX_PIN_NOPULL},
 		{0, 0, HAL_IOMUX_PIN_VOLTAGE_VIO, HAL_IOMUX_PIN_NOPULL},
@@ -155,14 +159,13 @@ int32_t hal_ch395_spi_init(spi_dev_t *spi)
 		TRACE("spi %d open error", spi->port);
 		return ret;
 	}
-	else
-	{
-		/*if cs use as gpio ,pull up at first*/
-		if (spi_ctx[spi->port].spi_fun_CS0 == HAL_IOMUX_FUNC_AS_GPIO) {
-			hal_gpio_pin_set_dir(spi_ctx[spi->port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 1);
-		}
-		TRACE("spi %d open succ", spi->port);
+
+	TRACE("spi %d open succ", spi->port);
+	/*if cs use as gpio ,pull up at first*/
+	if (spi_ctx[spi->port].spi_fun_CS0 == HAL_IOMUX_FUNC_AS_GPIO) {
+		hal_gpio_pin_set_dir(spi_ctx[spi->port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 1);
 	}
+	
 	if (!spi_ctx[spi->port].spi_dma_semaphore)
 	{
 		spi_ctx[spi->port].spi_dma_semaphore = osSemaphoreCreate(osSemaphore(ch395_spi1_dma_semaphore), 0);
@@ -190,7 +193,7 @@ int32_t hal_ch395_spi_init(spi_dev_t *spi)
 
 static void spi1_dma_irq(uint32_t error)
 {
-	if (osOK != osSemaphoreRelease(spi_ctx[1].spi_dma_semaphore))
+	if (osOK != osSemaphoreRelease(spi_ctx[0].spi_dma_semaphore))
 	{
 		TRACE("spi0dmairq osSemaphoreRelease failed!");
 	}
