@@ -1,0 +1,13 @@
+config AOS_APP_LED_DEMO
+    bool " led Demo"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    help
+        n repl demo
+
+if AOS_APP_LED_DEMO
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif
