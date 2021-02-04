@@ -1,0 +1,27 @@
+config AOS_APP_BLENETCONFIG_DEMO
+    bool "BLE NetConfig Demo"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    help
+        BLE NetConfig demo
+
+if AOS_APP_BLENETCONFIG_DEMO
+	# Configurations for app BLENetConfig_demo
+	config SYSINFO_APP_VERSION
+		string "Firmware Version"
+		default "app-1.0.0-20200214.140831"
+		help
+			application main firmware version
+		
+	config AOS_NETMGR_WITH_CLASSIC
+        bool "NETMGR_WITH_CLASSIC"
+		default y
+        help
+            default case
+	
+	config AOS_NET_WITH_WIFI
+			bool "NETMGR_WITH_WIFI"
+			default y
+			help
+				default case	
+	
+endif
