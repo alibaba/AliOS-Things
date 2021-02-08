@@ -1375,6 +1375,7 @@ static void wifi_status_change(netmgr_conn_t *conn, hal_wifi_event_t event, uint
     }
     else if(event == NOTIFY_SNTP_SUCCESS) {
         WIFI_SERVICE_LOGD("%s:%d SNTP success\n", __func__, __LINE__);
+        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_SNTP, 0);
     }
     else if(event == NOTIFY_SNTP_FAILED) {
         WIFI_SERVICE_LOGI("%s:%d SNTP FAILED\n", __func__, __LINE__);

@@ -1,0 +1,351 @@
+libsdl2-image (2.0.5) UNRELEASED; urgency=low
+
+  * Updated to version 2.0.5
+
+ -- Sam Lantinga <slouken@libsdl.org>  Wed, 19 Jun 2019 08:28:56 -0800
+
+libsdl2-image (2.0.4) UNRELEASED; urgency=low
+
+  * Updated to version 2.0.4
+
+ -- Sam Lantinga <slouken@libsdl.org>  Fri, 26 Oct 2018 10:01:54 -0800
+
+libsdl2-image (2.0.3) UNRELEASED; urgency=low
+
+  * Updated to version 2.0.3
+
+ -- Sam Lantinga <slouken@libsdl.org>  Sun, 28 Jan 2018 21:31:07 -0800
+
+libsdl2-image (2.0.2) UNRELEASED; urgency=low
+
+  * Updated to version 2.0.2
+
+ -- Sam Lantinga <slouken@libsdl.org>  Sun, 22 Oct 2017 13:38:34 -0800
+
+libsdl2-image (2.0.1) UNRELEASED; urgency=low
+
+  * Updated to version 2.0.1
+
+ -- Sam Lantinga <slouken@libsdl.org>  Thu, 07 Jan 2016 12:02:13 -0800
+
+libsdl2-image (2.0.0) unstable; urgency=low
+
+  * Updated library version to 2.0 for consistency with SDL 2.0
+
+ -- Sam Lantinga <slouken@libsdl.org>  Tue, 26 Feb 2013 15:48:41 -0800
+
+libsdl2-image (1.2.12) unstable; urgency=low
+
+  * sdl-image for SDL2. Initial release.
+
+ -- Sam Lantinga <slouken@libsdl.org>  Fri, 15 Feb 2013 13:09:44 -0800
+
+sdl-image1.2 (1.2.10-3) unstable; urgency=low
+
+  [ Felix Geyer ]
+  * Drop ancient Conflicts.
+  * Wrap (Build-)Depends in debian/control.
+  * Switch to dh(1) debian/rules.
+  * Enable parallel building.
+  * Drop .la file.
+  * Drop local dpkg-shlibdeps overrides.
+  * Remove all patches since they were disabled anyway.
+  * Switch to source format 3.0 (quilt).
+  * Update to Standards-Version 3.9.2, no further changes necessary.
+  * Switch to debhelper compat level v9.
+    - Exports build flags.
+    - Build for multiarch. (Closes: #651006)
+  * Override lintian warning package-name-doesnt-match-sonames.
+  * Fix building with libpng 1.5. (Closes: #636007)
+    - Add libpng15.diff.
+    - (Build-)Depend on libpng-dev instead of libpng12-dev.
+  * Add myself as uploader.
+  * Update Vcs control fields to the new git repository.
+  * Improve copyright file.
+
+  [ Dominique Dumont ]
+  * control: allowed DM uploads. Set dev pkg to multi-arch: same
+  * copyright: converted to DEP-5 debian/copyright
+  * source: override package-needs-versioned-debhelper-build-depends
+    warning
+
+ -- Felix Geyer <debfx-pkg@fobos.de>  Thu, 01 Dec 2011 13:11:22 +0100
+
+sdl-image1.2 (1.2.10-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Empty dependency_libs (Closes: #619536).
+  * Fix configure flags (Closes: #591190).
+
+ -- Luk Claes <luk@debian.org>  Sun, 26 Jun 2011 17:58:00 +0200
+
+sdl-image1.2 (1.2.10-2) unstable; urgency=low
+
+  [ Aurelien Jarno ]
+  * Add myself to uploaders.
+  * Bump shlibs (Closes: #563452).
+  * (Build-)Depends on libjpeg-dev instead of libjpeg62-dev
+    (Closes: #569241).
+
+ -- Aurelien Jarno <aurel32@debian.org>  Thu, 11 Feb 2010 15:12:43 +0100
+
+sdl-image1.2 (1.2.10-1) unstable; urgency=low
+
+  [ Barry deFreese ]
+  * Have SDL Team take over maintenance.
+    + With permission from Michael Koch.
+    + Thanks to Michael for all of his previous work.
+  * Add myself to uploaders.
+  * Add VCS tags.
+  * New upstream release.
+
+ -- Barry deFreese <bdefreese@debian.org>  Mon, 16 Nov 2009 14:30:11 -0500
+
+sdl-image1.2 (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+    - adds pkg-config support (Closes: #515123)
+
+ -- Michael Koch <konqueror@gmx.de>  Thu, 22 Oct 2009 23:09:13 +0200
+
+sdl-image1.2 (1.2.7-2) unstable; urgency=low
+
+  * debian/control:
+    - Added ${misc:Depends} to all Depends.
+    - Updated Standards-Version to 3.8.3.
+
+ -- Michael Koch <konqueror@gmx.de>  Mon, 31 Aug 2009 08:17:06 +0200
+
+sdl-image1.2 (1.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: Build-Depends on debhelper (>= 5).
+  * debian/control: Updated Standards-Version to 3.8.2.
+  * debian/control: Add Homepage field.
+  * debian/watch: Updated watch file for easier upstream updates.
+
+ -- Michael Koch <konqueror@gmx.de>  Tue, 21 Jul 2009 21:08:48 +0200
+
+sdl-image1.2 (1.2.6-3) unstable; urgency=low
+
+  * CVE-2008-0544: Fix heap based buffer overflow.
+  * Force library to link libjpeg and libtif and not dlopen them during
+    runtime.
+
+ -- Michael Koch <konqueror@gmx.de>  Tue, 05 Feb 2008 23:10:31 +0100
+
+sdl-image1.2 (1.2.6-2) unstable; urgency=high
+
+  * Fixed buffer overflow when reading GIFs. CVE pending.
+  * Updated Standards-Version to 3.7.3.
+
+ -- Michael Koch <konqueror@gmx.de>  Sun, 27 Jan 2008 23:44:23 +0100
+
+sdl-image1.2 (1.2.6-1) unstable; urgency=low
+
+  * New upstream release. Closes: #437005.
+  * Replaced obsolete ${Source-Version}.
+  * Handle errors better in clean target.
+
+ -- Michael Koch <konqueror@gmx.de>  Sat, 11 Aug 2007 16:42:46 +0200
+
+sdl-image1.2 (1.2.5-3) unstable; urgency=low
+
+  * Updated config.guess and config.sub (Closes: #401526).
+
+ -- Michael Koch <konqueror@gmx.de>  Tue, 16 Jan 2007 08:38:19 +0100
+
+sdl-image1.2 (1.2.5-2) unstable; urgency=low
+
+  * Added patch to make SDL_image 1.2 less segfault. Thanks to Margarita
+    Manterola for the patch (Closes: #378173).
+
+ -- Michael Koch <konqueror@gmx.de>  Sat, 22 Jul 2006 04:30:39 +0000
+
+sdl-image1.2 (1.2.5-1) unstable; urgency=low
+
+  * New upstream release
+  * Updated Build-Depends and Depends to SDL 1.2.10
+  * Updated minimum shlibs version to 1.2.5
+  * Updated Standards-Version to 3.7.2
+  * Simplified watch file
+  * Fixed address of FSF in debian/copyright
+
+ -- Michael Koch <konqueror@gmx.de>  Fri,  9 Jun 2006 07:21:47 +0000
+
+sdl-image1.2 (1.2.4-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/copyright: Fixed header for license text (Closes: #290199)
+  * Updated config.guess and config.sub (Closes: #267493)
+  * debian/rules: Use dh_installman instead of dh_installmanpages
+
+ -- Michael Koch <konqueror@gmx.de>  Wed, 23 Feb 2005 10:44:58 +0000
+
+sdl-image1.2 (1.2.3-6) unstable; urgency=low
+
+  * Fixed download URL in debian/copyright
+  * Added debian/watch
+  * Add -ltiff before -ljpeg. Added debian/patches/bug267169.diff for this
+    (Closes: #267169)
+
+ -- Michael Koch <konqueror@gmx.de>  Tue, 16 Nov 2004 18:24:14 +0000
+
+sdl-image1.2 (1.2.3-5) unstable; urgency=low
+
+  * libsdl-image1.2-dev: Updated Depends to use libtiff4-dev (Closes: #262160)
+    Thanks to Jochen Friedrich.
+
+ -- Michael Koch <konqueror@gmx.de>  Fri, 30 Jul 2004 20:27:09 +0200
+
+sdl-image1.2 (1.2.3-4) unstable; urgency=low
+
+  * Build-Depend on libtiff4-dev.
+  * debian/copyright: Updated download URL, author mail address
+    and copyrigth notice.
+  * libsdl-image1.2-dev: Updated section to libdevel.
+
+ -- Michael Koch <konqueror@gmx.de>  Sun, 25 Jul 2004 20:44:14 +0200
+
+sdl-image1.2 (1.2.3-3) unstable; urgency=low
+
+  * Added patch from Ivo Danihelka <ivo.danihelka@rdc.cz>
+    (Closes: 256660).
+  * Updated Standards-Version to 3.6.1.
+  * Build depend on debhelper (>= 4.0.0).
+  * Use debian/compat instead of DH_COMPAT.
+  * Raised debhelper compat level to 4.
+  * Use dh_install instead of dh_movefiles.
+
+ -- Michael Koch <konqueror@gmx.de>  Thu,  8 Jul 2004 11:39:58 +0200
+
+sdl-image1.2 (1.2.3-2) unstable; urgency=low
+
+  * Build-Depends on libpng12-dev not libpng3-dev.
+  * libsdl-image1.2-dev: Depends on libpng12-dev instead of libpng3-dev.
+  * Bumped Standards-Version to 3.5.10.
+
+ -- Michael Koch <konqueror@gmx.de>  Mon, 23 Jun 2003 05:38:52 +0000
+
+sdl-image1.2 (1.2.3-1) unstable; urgency=low
+
+  * New upstream version.
+  * Conflicts with packages explicitely linking libpng2 (Closes: #178802).
+  * Bumped Standards-Version to 3.5.9.
+  * Fixed "noopt" handling in debian/rules.
+  * Changed debian/shlibs.local to fix libsdl1.2debian dependency. 
+
+ -- Michael Koch <konqueror@gmx.de>  Thu, 20 Mar 2003 12:48:26 +0100
+
+sdl-image1.2 (1.2.2-5) unstable; urgency=low
+
+  * Bumped Standards-Version to 3.5.8. 
+
+ -- Michael Koch <konqueror@gmx.de>  Thu, 12 Dec 2002 19:48:39 +0100
+
+sdl-image1.2 (1.2.2-4) unstable; urgency=low
+
+  * Support "noopt" option and dropped "debug".
+  * Enabled TIFF and XCF support.
+  * Cleaned up debian rules.
+
+ -- Michael Koch <konqueror@gmx.de>  Wed, 23 Oct 2002 17:07:37 +0200
+
+sdl-image1.2 (1.2.2-3) unstable; urgency=low
+
+  * Updated Standard-Version to 3.5.7. 
+
+ -- Michael Koch <konqueror@gmx.de>  Thu,  5 Sep 2002 16:59:08 +0200
+
+sdl-image1.2 (1.2.2-2) unstable; urgency=low
+
+  * New maintainer (Closes: #158940).
+  * Build-Depend on libpng3-dev (Closes: #153871, #156033).
+  * libsdl-image1.2-dev depend on libpng3-dev.
+  * added AM_MAINTAINER_MODE to configure.in to get rid of conflicts to
+    aclocal, autoconf, automake (Closes: #153851).
+  * use debhelper compat mode 3 (Build-Depend on debhelper >> 3.0).
+  * add support for DEB_HOST_GNU_TYPE, DEB_BUILD_GNU_TYPE and
+    DEB_BUILD_OPTIONS.
+  * removed postinst script. debhelper does all automatically.
+  * reworked debian/rules
+
+ -- Michael Koch <konqueror@gmx.de>  Wed,  4 Sep 2002 09:29:11 +0200
+
+sdl-image1.2 (1.2.2-1) unstable; urgency=low
+
+  * new upstream version (closes: #150670)
+  * build-depend on new SDL 1.2.4
+  * patch acinclude.m4, configure.in
+  * re-run libtoolize --force --copy; aclocal; patch aclocal.m4 to include
+    SDL_LIBS_FOR_LIBS, then run automake --foreign; autoconf
+  * depend on libpng-dev, not on (older) libpng2-dev (closes: #152302)
+
+ -- Christian T. Steigies <cts@debian.org>  Mon,  8 Jul 2002 23:03:25 -0400
+
+sdl-image1.2 (1.2.1-2) unstable; urgency=low
+
+  * libsdl-image1.2-dev should depend on -dev packages, thanks Junichi
+  * Ok, I've had enough. To make it build on slower arches as well we now
+    build-conflict with aclocal, autoconf, automake 
+  * "missing" has to be executable
+
+ -- Christian T. Steigies <cts@debian.org>  Sat, 13 Apr 2002 22:15:49 -0400
+
+sdl-image1.2 (1.2.1-1.1) unstable; urgency=low
+
+  * NMU
+  * built against libsdl1.2 1.2.2-3.3
+  * acinclude.m4: removed copy of sdl.m4
+  * configure.in: IMG_LIBS should use SDL_LIBS_FOR_LIBS, not SDL_LIBS
+  * re-ran libtoolize --force --copy; aclocal; automake --foreign; autoconf
+  * debian/control:
+    - updated Build-Depends and Depends on libsdl1.2 to 1.2.2-3.3
+    - tweaked package descriptions
+
+ -- Branden Robinson <branden@debian.org>  Tue, 25 Dec 2001 05:45:38 -0500
+
+sdl-image1.2 (1.2.1-1) unstable; urgency=low
+
+  * new upstream version
+  * tried to add Branden's fixes again in Makefile.am, aclocal.m4 and
+    configure.in
+  * re-ran libtoolize --force --copy; aclocal; automake --foreign; autoconf
+
+ -- Christian T. Steigies <cts@debian.org>  Tue, 18 Dec 2001 21:21:39 -0500
+
+sdl-image1.2 (1.2.0-2) unstable; urgency=low
+
+  * fix section in control file, libsdl-image1.2 goes in libs, -dev in devel
+
+ -- Christian T. Steigies <cts@debian.org>  Mon, 12 Nov 2001 21:15:11 -0500
+
+sdl-image1.2 (1.2.0-1.1) unstable; urgency=low
+
+  * NMU to fix the Big SDL and X Extension Library Problem (Closes: #115051)
+  * built against libsdl1.2 1.2.2-3.1
+  * Thanks to Eric Gillespie, Jr. for help preparing this solution.
+  * Makefile.am: use @SDL_LIBS_FOR_LIBS@ for the SDL image library itself,
+    and @SDL_LIBS@ for the sample program
+  * acinclude.m4: removed copy of sdl.m4
+  * configure.in: don't define LIBS here
+  * re-ran libtoolize --force --copy; aclocal; automake --foreign; autoconf
+  * debian/control:
+    - bumped Standards-Version
+    - add Build-Depends on zlib1g-dev
+    - add versioning of (>= 1.2.2-3.1) to Build-Dep on libsdl1.2-dev
+      (it contains the logic for @SDL_LIBS_FOR_LIBS@)
+    - add versioning of (>= 1.2.2-3.1) to libsdl-image1.2-dev's dependency on
+      libsdl1.2-dev
+  * debian/postinst: only run ldconfig if $1 = "configure"
+  * debian/rules:
+    - remove some crack-smoking file deletion from the build rule (it always
+      fails, and is taken care of in the install rule)
+
+ -- Branden Robinson <branden@debian.org>  Wed, 10 Oct 2001 12:33:40 -0500
+
+sdl-image1.2 (1.2.0-1) unstable; urgency=low
+
+  * sdl-image for SDL1.2. Initial Release. (closes: #94452)
+
+ -- Christian T. Steigies <cts@debian.org>  Fri, 20 Apr 2001 15:19:03 -0400

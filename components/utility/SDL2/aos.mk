@@ -1,6 +1,6 @@
 NAME := SDL2
 
-$(NAME)_MBINS_TYPE := share
+$(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.1
 $(NAME)_SUMMARY := SDL2
 
@@ -138,6 +138,132 @@ $(NAME)_SOURCES += ./src/ttf/SDL_ttf.c
 					./src/gfx/SDL_framerate.c \
 					./src/gfx/SDL_imageFilter.c
 
+EANBLE_SDL_IMAGE ?= 1
+ifeq ($(EANBLE_SDL_IMAGE), 1)
+#SDL image
+$(NAME)_SOURCES += ./src/image/IMG_xcf.c \
+					./src/image/IMG_png.c \
+					./src/image/IMG_svg.c \
+					./src/image/IMG_pcx.c \
+					./src/image/IMG_pnm.c \
+					./src/image/IMG_jpg.c \
+					./src/image/IMG.c \
+					./src/image/IMG_lbm.c \
+					./src/image/IMG_xxx.c \
+					./src/image/IMG_bmp.c \
+					./src/image/IMG_xv.c \
+					./src/image/IMG_gif.c \
+					./src/image/IMG_webp.c \
+					./src/image/IMG_xpm.c \
+					./src/image/IMG_tga.c \
+					./src/image/IMG_WIC.c \
+					./src/image/IMG_tif.c
+#image external
+$(NAME)_SOURCES += ./src/image/external/jpeg-9b/jdmaster.c \
+					./src/image/external/jpeg-9b/jcdctmgr.c \
+					./src/image/external/jpeg-9b/wrppm.c \
+					./src/image/external/jpeg-9b/jchuff.c \
+					./src/image/external/jpeg-9b/jdapimin.c \
+					./src/image/external/jpeg-9b/jcapimin.c \
+					./src/image/external/jpeg-9b/rdtarga.c \
+					./src/image/external/jpeg-9b/cdjpeg.c \
+					./src/image/external/jpeg-9b/jfdctflt.c \
+					./src/image/external/jpeg-9b/wrbmp.c \
+					./src/image/external/jpeg-9b/rdswitch.c \
+					./src/image/external/jpeg-9b/jcomapi.c \
+					./src/image/external/jpeg-9b/jdsample.c \
+					./src/image/external/jpeg-9b/jdmainct.c \
+					./src/image/external/jpeg-9b/jcapistd.c \
+					./src/image/external/jpeg-9b/jcparam.c \
+					./src/image/external/jpeg-9b/wrgif.c \
+					./src/image/external/jpeg-9b/rdrle.c \
+					./src/image/external/jpeg-9b/jcinit.c \
+					./src/image/external/jpeg-9b/jdcoefct.c \
+					./src/image/external/jpeg-9b/example.c \
+					./src/image/external/jpeg-9b/rdppm.c \
+					./src/image/external/jpeg-9b/jdatadst.c \
+					./src/image/external/jpeg-9b/jerror.c \
+					./src/image/external/jpeg-9b/rdcolmap.c \
+					./src/image/external/jpeg-9b/rdbmp.c \
+					./src/image/external/jpeg-9b/jidctfst.c \
+					./src/image/external/jpeg-9b/jdarith.c \
+					./src/image/external/jpeg-9b/jaricom.c \
+					./src/image/external/jpeg-9b/wrtarga.c \
+					./src/image/external/jpeg-9b/jdmerge.c \
+					./src/image/external/jpeg-9b/jccoefct.c \
+					./src/image/external/jpeg-9b/jcmarker.c \
+					./src/image/external/jpeg-9b/wrrle.c \
+					./src/image/external/jpeg-9b/jfdctint.c \
+					./src/image/external/jpeg-9b/jidctflt.c \
+					./src/image/external/jpeg-9b/jcsample.c \
+					./src/image/external/jpeg-9b/jdmarker.c \
+					./src/image/external/jpeg-9b/transupp.c \
+					./src/image/external/jpeg-9b/jcprepct.c \
+					./src/image/external/jpeg-9b/jctrans.c \
+					./src/image/external/jpeg-9b/jcarith.c \
+					./src/image/external/jpeg-9b/jdpostct.c \
+					./src/image/external/jpeg-9b/jquant1.c \
+					./src/image/external/jpeg-9b/jdhuff.c \
+					./src/image/external/jpeg-9b/jddctmgr.c \
+					./src/image/external/jpeg-9b/jccolor.c \
+					./src/image/external/jpeg-9b/rdgif.c \
+					./src/image/external/jpeg-9b/jutils.c \
+					./src/image/external/jpeg-9b/jquant2.c \
+					./src/image/external/jpeg-9b/jidctint.c \
+					./src/image/external/jpeg-9b/jdtrans.c \
+					./src/image/external/jpeg-9b/jdcolor.c \
+					./src/image/external/jpeg-9b/jcmainct.c \
+					./src/image/external/jpeg-9b/jmemmgr.c \
+					./src/image/external/jpeg-9b/jdinput.c \
+					./src/image/external/jpeg-9b/jdatasrc.c \
+					./src/image/external/jpeg-9b/jcmaster.c \
+					./src/image/external/jpeg-9b/jdapistd.c \
+					./src/image/external/jpeg-9b/jmemnobs.c \
+					./src/image/external/jpeg-9b/jfdctfst.c \
+					./src/image/external/libpng-1.6.37/pngwio.c \
+					./src/image/external/libpng-1.6.37/pngwutil.c \
+					./src/image/external/libpng-1.6.37/pngpread.c \
+					./src/image/external/libpng-1.6.37/png.c \
+					./src/image/external/libpng-1.6.37/example.c \
+					./src/image/external/libpng-1.6.37/pngerror.c \
+					./src/image/external/libpng-1.6.37/pngtrans.c \
+					./src/image/external/libpng-1.6.37/pngrio.c \
+					./src/image/external/libpng-1.6.37/pngread.c \
+					./src/image/external/libpng-1.6.37/pngmem.c \
+					./src/image/external/libpng-1.6.37/pngrutil.c \
+					./src/image/external/libpng-1.6.37/pngwtran.c \
+					./src/image/external/libpng-1.6.37/pngset.c \
+					./src/image/external/libpng-1.6.37/pngget.c \
+					./src/image/external/libpng-1.6.37/pngrtran.c \
+					./src/image/external/libpng-1.6.37/pngwrite.c \
+
+#for zlib
+$(NAME)_SOURCES += 	./src/image/external/zlib-1.2.11/gzlib.c \
+					./src/image/external/zlib-1.2.11/inflate.c \
+					./src/image/external/zlib-1.2.11/infback.c \
+					./src/image/external/zlib-1.2.11/inffast.c \
+					./src/image/external/zlib-1.2.11/compress.c \
+					./src/image/external/zlib-1.2.11/uncompr.c \
+					./src/image/external/zlib-1.2.11/trees.c \
+					./src/image/external/zlib-1.2.11/gzclose.c \
+					./src/image/external/zlib-1.2.11/zutil.c \
+					./src/image/external/zlib-1.2.11/inftrees.c \
+					./src/image/external/zlib-1.2.11/gzread.c \
+					./src/image/external/zlib-1.2.11/adler32.c \
+					./src/image/external/zlib-1.2.11/gzwrite.c \
+					./src/image/external/zlib-1.2.11/deflate.c
+
+ifneq ($(AOS_BOARD_HAAS100), y)
+$(NAME)_SOURCES += 	./src/image/external/zlib-1.2.11/crc32.c
+endif
+
+GLOBAL_INCLUDES += ./src/image/ \
+					./src/image/external/zlib-1.2.11/ \
+					./src/image/external/jpeg-9b/ \
+					./src/image/external/libpng-1.6.37/
+GLOBAL_DEFINES += LOAD_JPG LOAD_BMP LOAD_PNG
+endif
+
 $(NAME)_INCLUDES += ./include/ \
 					./src/ \
 					./src/video/ \
@@ -147,7 +273,7 @@ $(NAME)_INCLUDES += ./include/ \
 
 $(NAME)_DEFINES += __clang_analyzer__
 $(NAME)_DEFINES += __native_client__
-$(NAME)_DEFINES += __ALIOS__
+GLOBAL_DEFINES += __ALIOS__
 
 ifeq ($(EANBLE_SDL_TEST), 1)
 GLOBAL_DEFINES += CONFIG_ENABLE_CURSOR

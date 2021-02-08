@@ -4,8 +4,13 @@
 #include "hal_lcd.h"
 
 // user define area
+#ifdef AOS_APP_GAME_DEMO
+#define ILI9341_HEIGHT 320
+#define ILI9341_WIDTH 240
+#else
 #define ILI9341_HEIGHT 240
 #define ILI9341_WIDTH 320
+#endif
 #define ILI9341_DC_PIN 1
 #define ILI9341_RESET_PIN 0
 
@@ -407,8 +412,9 @@ static void ili9341_line_draw(uint16_t x, uint16_t y, uint16_t length, uint8_t d
     }
 }
 
-static void ili9341_area_draw(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t *frame, uint32_t areaSize)
+static void ili9341_area_draw(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t *frame, uint32_t areaSize)
 {
+    uint16_t *rgb565_frame = (uint16_t *)frame;
     if (width * height != areaSize)
     {
         printf("error parm width * height != areaSize \n");
@@ -418,19 +424,20 @@ static void ili9341_area_draw(uint16_t x, uint16_t y, uint16_t width, uint16_t h
     set_addr_window(x, y, x + width - 1, y + height - 1);
     uint32_t bufferSize = width * height;
     hal_gpio_output_high(&gpio_ili9341_dc);
-    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+    uint8_t *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
     for (uint32_t i = 0; i < bufferSize; i++)
     {
-        burst_buffer[2 * i] = frame[i] >> 8;
-        burst_buffer[2 * i + 1] = frame[i];
+        burst_buffer[2 * i] = (rgb565_frame[i] >> 8);
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
     }
     spi_write(burst_buffer, bufferSize * 2);
     free(burst_buffer);
 }
 
-static void ili9341_frame_draw(uint32_t *frame)
+static void ili9341_frame_draw(uint8_t *frame)
 {
-    set_addr_window(0, 0, ILI9341_HEIGHT - 1, ILI9341_WIDTH - 1);
+    uint16_t *rgb565_frame = (uint16_t *)frame;
+    set_addr_window(0, 0, ILI9341_WIDTH - 1, ILI9341_HEIGHT - 1);
 
     uint32_t bufferSize = ILI9341_HEIGHT * ILI9341_WIDTH;
 
@@ -442,8 +449,8 @@ static void ili9341_frame_draw(uint32_t *frame)
 
     for (uint32_t i = 0; i < bufferSize; i++)
     {
-        burst_buffer[2 * i] = frame[i] >> 8;
-        burst_buffer[2 * i + 1] = frame[i];
+        burst_buffer[2 * i] = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
     }
 
     //printf("fill burst_buffer\n");

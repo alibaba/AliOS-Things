@@ -501,7 +501,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
 
         do {
             int ret;
-            http_debug("readLen %d, len:%d", readLen, len);
+            //ttp_debug("readLen %d, len:%d", readLen, len);
             templen = MIN(len, readLen);
             if (count + templen < client_data->response_buf_len - 1) {
                 memcpy(client_data->response_buf + count, data, templen);

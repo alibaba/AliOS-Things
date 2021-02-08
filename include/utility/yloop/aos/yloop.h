@@ -72,6 +72,7 @@ struct pollfd {
 #define  CODE_WIFI_ON_DISCONNECT  3
 #define  CODE_WIFI_ON_PRE_GOT_IP  4
 #define  CODE_WIFI_ON_GOT_IP      5
+#define  CODE_WIFI_ON_GOT_SNTP    6
 
 /* cellular event */
 #define  EV_CELLULAR                  0x0005

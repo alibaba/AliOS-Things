@@ -18,7 +18,7 @@
 #endif
 
 #ifndef HTTPCLIENT_MAX_HOST_LEN
-#define HTTPCLIENT_MAX_HOST_LEN   64
+#define HTTPCLIENT_MAX_HOST_LEN   128 //64
 #endif
 
 #ifndef HTTPCLIENT_MAX_URL_LEN

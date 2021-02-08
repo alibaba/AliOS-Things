@@ -1,0 +1,518 @@
+#
+# Copyright 2009-2017 Alibaba Cloud All rights reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+set(public_header_dir ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
+set(cloudapi_public_header 
+	include/alibabacloud/cloudapi/CloudAPIClient.h
+	include/alibabacloud/cloudapi/CloudAPIExport.h )
+
+set(cloudapi_public_header_model 
+	include/alibabacloud/cloudapi/model/AbolishApiRequest.h
+	include/alibabacloud/cloudapi/model/AbolishApiResult.h
+	include/alibabacloud/cloudapi/model/AddIpControlPolicyItemRequest.h
+	include/alibabacloud/cloudapi/model/AddIpControlPolicyItemResult.h
+	include/alibabacloud/cloudapi/model/AddTrafficSpecialControlRequest.h
+	include/alibabacloud/cloudapi/model/AddTrafficSpecialControlResult.h
+	include/alibabacloud/cloudapi/model/CreateApiRequest.h
+	include/alibabacloud/cloudapi/model/CreateApiResult.h
+	include/alibabacloud/cloudapi/model/CreateApiGroupRequest.h
+	include/alibabacloud/cloudapi/model/CreateApiGroupResult.h
+	include/alibabacloud/cloudapi/model/CreateApiStageVariableRequest.h
+	include/alibabacloud/cloudapi/model/CreateApiStageVariableResult.h
+	include/alibabacloud/cloudapi/model/CreateAppRequest.h
+	include/alibabacloud/cloudapi/model/CreateAppResult.h
+	include/alibabacloud/cloudapi/model/CreateInstanceRequest.h
+	include/alibabacloud/cloudapi/model/CreateInstanceResult.h
+	include/alibabacloud/cloudapi/model/CreateIntranetDomainRequest.h
+	include/alibabacloud/cloudapi/model/CreateIntranetDomainResult.h
+	include/alibabacloud/cloudapi/model/CreateIpControlRequest.h
+	include/alibabacloud/cloudapi/model/CreateIpControlResult.h
+	include/alibabacloud/cloudapi/model/CreateLogConfigRequest.h
+	include/alibabacloud/cloudapi/model/CreateLogConfigResult.h
+	include/alibabacloud/cloudapi/model/CreateSignatureRequest.h
+	include/alibabacloud/cloudapi/model/CreateSignatureResult.h
+	include/alibabacloud/cloudapi/model/CreateTrafficControlRequest.h
+	include/alibabacloud/cloudapi/model/CreateTrafficControlResult.h
+	include/alibabacloud/cloudapi/model/DeleteAllTrafficSpecialControlRequest.h
+	include/alibabacloud/cloudapi/model/DeleteAllTrafficSpecialControlResult.h
+	include/alibabacloud/cloudapi/model/DeleteApiRequest.h
+	include/alibabacloud/cloudapi/model/DeleteApiResult.h
+	include/alibabacloud/cloudapi/model/DeleteApiGroupRequest.h
+	include/alibabacloud/cloudapi/model/DeleteApiGroupResult.h
+	include/alibabacloud/cloudapi/model/DeleteApiStageVariableRequest.h
+	include/alibabacloud/cloudapi/model/DeleteApiStageVariableResult.h
+	include/alibabacloud/cloudapi/model/DeleteAppRequest.h
+	include/alibabacloud/cloudapi/model/DeleteAppResult.h
+	include/alibabacloud/cloudapi/model/DeleteDomainRequest.h
+	include/alibabacloud/cloudapi/model/DeleteDomainResult.h
+	include/alibabacloud/cloudapi/model/DeleteDomainCertificateRequest.h
+	include/alibabacloud/cloudapi/model/DeleteDomainCertificateResult.h
+	include/alibabacloud/cloudapi/model/DeleteInstanceRequest.h
+	include/alibabacloud/cloudapi/model/DeleteInstanceResult.h
+	include/alibabacloud/cloudapi/model/DeleteIpControlRequest.h
+	include/alibabacloud/cloudapi/model/DeleteIpControlResult.h
+	include/alibabacloud/cloudapi/model/DeleteLogConfigRequest.h
+	include/alibabacloud/cloudapi/model/DeleteLogConfigResult.h
+	include/alibabacloud/cloudapi/model/DeleteSignatureRequest.h
+	include/alibabacloud/cloudapi/model/DeleteSignatureResult.h
+	include/alibabacloud/cloudapi/model/DeleteTrafficControlRequest.h
+	include/alibabacloud/cloudapi/model/DeleteTrafficControlResult.h
+	include/alibabacloud/cloudapi/model/DeleteTrafficSpecialControlRequest.h
+	include/alibabacloud/cloudapi/model/DeleteTrafficSpecialControlResult.h
+	include/alibabacloud/cloudapi/model/DeployApiRequest.h
+	include/alibabacloud/cloudapi/model/DeployApiResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiDocRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiDocResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiErrorDataRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiErrorDataResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupVpcWhitelistRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupVpcWhitelistResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiGroupsResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiHistoriesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiHistoriesResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiHistoryRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiHistoryResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiIpControlsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiIpControlsResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiLatencyDataRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiLatencyDataResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiMarketAttributesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiMarketAttributesResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiQpsDataRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiQpsDataResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiSignaturesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiSignaturesResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiStageRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiStageResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiTrafficControlsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiTrafficControlsResult.h
+	include/alibabacloud/cloudapi/model/DescribeApiTrafficDataRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApiTrafficDataResult.h
+	include/alibabacloud/cloudapi/model/DescribeApisRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApisResult.h
+	include/alibabacloud/cloudapi/model/DescribeApisByAppRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApisByAppResult.h
+	include/alibabacloud/cloudapi/model/DescribeApisByIpControlRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApisByIpControlResult.h
+	include/alibabacloud/cloudapi/model/DescribeApisBySignatureRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApisBySignatureResult.h
+	include/alibabacloud/cloudapi/model/DescribeApisByTrafficControlRequest.h
+	include/alibabacloud/cloudapi/model/DescribeApisByTrafficControlResult.h
+	include/alibabacloud/cloudapi/model/DescribeAppRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAppResult.h
+	include/alibabacloud/cloudapi/model/DescribeAppAttributesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAppAttributesResult.h
+	include/alibabacloud/cloudapi/model/DescribeAppSecurityRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAppSecurityResult.h
+	include/alibabacloud/cloudapi/model/DescribeAppsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAppsResult.h
+	include/alibabacloud/cloudapi/model/DescribeAuthorizedApisRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAuthorizedApisResult.h
+	include/alibabacloud/cloudapi/model/DescribeAuthorizedAppsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeAuthorizedAppsResult.h
+	include/alibabacloud/cloudapi/model/DescribeDeployedApiRequest.h
+	include/alibabacloud/cloudapi/model/DescribeDeployedApiResult.h
+	include/alibabacloud/cloudapi/model/DescribeDeployedApisRequest.h
+	include/alibabacloud/cloudapi/model/DescribeDeployedApisResult.h
+	include/alibabacloud/cloudapi/model/DescribeDomainRequest.h
+	include/alibabacloud/cloudapi/model/DescribeDomainResult.h
+	include/alibabacloud/cloudapi/model/DescribeDomainsResolutionRequest.h
+	include/alibabacloud/cloudapi/model/DescribeDomainsResolutionResult.h
+	include/alibabacloud/cloudapi/model/DescribeHistoryApisRequest.h
+	include/alibabacloud/cloudapi/model/DescribeHistoryApisResult.h
+	include/alibabacloud/cloudapi/model/DescribeIpControlPolicyItemsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeIpControlPolicyItemsResult.h
+	include/alibabacloud/cloudapi/model/DescribeIpControlsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeIpControlsResult.h
+	include/alibabacloud/cloudapi/model/DescribeLogConfigRequest.h
+	include/alibabacloud/cloudapi/model/DescribeLogConfigResult.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApiGroupRequest.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApiGroupResult.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApiGroupsRequest.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApiGroupsResult.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApisRequest.h
+	include/alibabacloud/cloudapi/model/DescribePurchasedApisResult.h
+	include/alibabacloud/cloudapi/model/DescribeRegionsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeRegionsResult.h
+	include/alibabacloud/cloudapi/model/DescribeSignaturesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeSignaturesResult.h
+	include/alibabacloud/cloudapi/model/DescribeSignaturesByApiRequest.h
+	include/alibabacloud/cloudapi/model/DescribeSignaturesByApiResult.h
+	include/alibabacloud/cloudapi/model/DescribeSystemParametersRequest.h
+	include/alibabacloud/cloudapi/model/DescribeSystemParametersResult.h
+	include/alibabacloud/cloudapi/model/DescribeTrafficControlsRequest.h
+	include/alibabacloud/cloudapi/model/DescribeTrafficControlsResult.h
+	include/alibabacloud/cloudapi/model/DescribeTrafficControlsByApiRequest.h
+	include/alibabacloud/cloudapi/model/DescribeTrafficControlsByApiResult.h
+	include/alibabacloud/cloudapi/model/DescribeVpcAccessesRequest.h
+	include/alibabacloud/cloudapi/model/DescribeVpcAccessesResult.h
+	include/alibabacloud/cloudapi/model/ImportSwaggerRequest.h
+	include/alibabacloud/cloudapi/model/ImportSwaggerResult.h
+	include/alibabacloud/cloudapi/model/ListTagResourcesRequest.h
+	include/alibabacloud/cloudapi/model/ListTagResourcesResult.h
+	include/alibabacloud/cloudapi/model/ModifyApiRequest.h
+	include/alibabacloud/cloudapi/model/ModifyApiResult.h
+	include/alibabacloud/cloudapi/model/ModifyApiGroupRequest.h
+	include/alibabacloud/cloudapi/model/ModifyApiGroupResult.h
+	include/alibabacloud/cloudapi/model/ModifyApiGroupVpcWhitelistRequest.h
+	include/alibabacloud/cloudapi/model/ModifyApiGroupVpcWhitelistResult.h
+	include/alibabacloud/cloudapi/model/ModifyApiMarketAttributesRequest.h
+	include/alibabacloud/cloudapi/model/ModifyApiMarketAttributesResult.h
+	include/alibabacloud/cloudapi/model/ModifyAppRequest.h
+	include/alibabacloud/cloudapi/model/ModifyAppResult.h
+	include/alibabacloud/cloudapi/model/ModifyIpControlRequest.h
+	include/alibabacloud/cloudapi/model/ModifyIpControlResult.h
+	include/alibabacloud/cloudapi/model/ModifyIpControlPolicyItemRequest.h
+	include/alibabacloud/cloudapi/model/ModifyIpControlPolicyItemResult.h
+	include/alibabacloud/cloudapi/model/ModifyLogConfigRequest.h
+	include/alibabacloud/cloudapi/model/ModifyLogConfigResult.h
+	include/alibabacloud/cloudapi/model/ModifySignatureRequest.h
+	include/alibabacloud/cloudapi/model/ModifySignatureResult.h
+	include/alibabacloud/cloudapi/model/ModifyTrafficControlRequest.h
+	include/alibabacloud/cloudapi/model/ModifyTrafficControlResult.h
+	include/alibabacloud/cloudapi/model/ReactivateDomainRequest.h
+	include/alibabacloud/cloudapi/model/ReactivateDomainResult.h
+	include/alibabacloud/cloudapi/model/RemoveApisAuthoritiesRequest.h
+	include/alibabacloud/cloudapi/model/RemoveApisAuthoritiesResult.h
+	include/alibabacloud/cloudapi/model/RemoveAppsAuthoritiesRequest.h
+	include/alibabacloud/cloudapi/model/RemoveAppsAuthoritiesResult.h
+	include/alibabacloud/cloudapi/model/RemoveIpControlApisRequest.h
+	include/alibabacloud/cloudapi/model/RemoveIpControlApisResult.h
+	include/alibabacloud/cloudapi/model/RemoveIpControlPolicyItemRequest.h
+	include/alibabacloud/cloudapi/model/RemoveIpControlPolicyItemResult.h
+	include/alibabacloud/cloudapi/model/RemoveSignatureApisRequest.h
+	include/alibabacloud/cloudapi/model/RemoveSignatureApisResult.h
+	include/alibabacloud/cloudapi/model/RemoveTrafficControlApisRequest.h
+	include/alibabacloud/cloudapi/model/RemoveTrafficControlApisResult.h
+	include/alibabacloud/cloudapi/model/RemoveVpcAccessRequest.h
+	include/alibabacloud/cloudapi/model/RemoveVpcAccessResult.h
+	include/alibabacloud/cloudapi/model/ResetAppCodeRequest.h
+	include/alibabacloud/cloudapi/model/ResetAppCodeResult.h
+	include/alibabacloud/cloudapi/model/ResetAppSecretRequest.h
+	include/alibabacloud/cloudapi/model/ResetAppSecretResult.h
+	include/alibabacloud/cloudapi/model/SdkGenerateByAppRequest.h
+	include/alibabacloud/cloudapi/model/SdkGenerateByAppResult.h
+	include/alibabacloud/cloudapi/model/SdkGenerateByGroupRequest.h
+	include/alibabacloud/cloudapi/model/SdkGenerateByGroupResult.h
+	include/alibabacloud/cloudapi/model/SetApisAuthoritiesRequest.h
+	include/alibabacloud/cloudapi/model/SetApisAuthoritiesResult.h
+	include/alibabacloud/cloudapi/model/SetAppsAuthoritiesRequest.h
+	include/alibabacloud/cloudapi/model/SetAppsAuthoritiesResult.h
+	include/alibabacloud/cloudapi/model/SetDomainRequest.h
+	include/alibabacloud/cloudapi/model/SetDomainResult.h
+	include/alibabacloud/cloudapi/model/SetDomainCertificateRequest.h
+	include/alibabacloud/cloudapi/model/SetDomainCertificateResult.h
+	include/alibabacloud/cloudapi/model/SetDomainWebSocketStatusRequest.h
+	include/alibabacloud/cloudapi/model/SetDomainWebSocketStatusResult.h
+	include/alibabacloud/cloudapi/model/SetIpControlApisRequest.h
+	include/alibabacloud/cloudapi/model/SetIpControlApisResult.h
+	include/alibabacloud/cloudapi/model/SetSignatureApisRequest.h
+	include/alibabacloud/cloudapi/model/SetSignatureApisResult.h
+	include/alibabacloud/cloudapi/model/SetTrafficControlApisRequest.h
+	include/alibabacloud/cloudapi/model/SetTrafficControlApisResult.h
+	include/alibabacloud/cloudapi/model/SetVpcAccessRequest.h
+	include/alibabacloud/cloudapi/model/SetVpcAccessResult.h
+	include/alibabacloud/cloudapi/model/SetWildcardDomainPatternsRequest.h
+	include/alibabacloud/cloudapi/model/SetWildcardDomainPatternsResult.h
+	include/alibabacloud/cloudapi/model/SwitchApiRequest.h
+	include/alibabacloud/cloudapi/model/SwitchApiResult.h
+	include/alibabacloud/cloudapi/model/TagResourcesRequest.h
+	include/alibabacloud/cloudapi/model/TagResourcesResult.h
+	include/alibabacloud/cloudapi/model/UntagResourcesRequest.h
+	include/alibabacloud/cloudapi/model/UntagResourcesResult.h )
+
+set(cloudapi_src 
+	src/CloudAPIClient.cc
+	src/model/AbolishApiRequest.cc
+	src/model/AbolishApiResult.cc
+	src/model/AddIpControlPolicyItemRequest.cc
+	src/model/AddIpControlPolicyItemResult.cc
+	src/model/AddTrafficSpecialControlRequest.cc
+	src/model/AddTrafficSpecialControlResult.cc
+	src/model/CreateApiRequest.cc
+	src/model/CreateApiResult.cc
+	src/model/CreateApiGroupRequest.cc
+	src/model/CreateApiGroupResult.cc
+	src/model/CreateApiStageVariableRequest.cc
+	src/model/CreateApiStageVariableResult.cc
+	src/model/CreateAppRequest.cc
+	src/model/CreateAppResult.cc
+	src/model/CreateInstanceRequest.cc
+	src/model/CreateInstanceResult.cc
+	src/model/CreateIntranetDomainRequest.cc
+	src/model/CreateIntranetDomainResult.cc
+	src/model/CreateIpControlRequest.cc
+	src/model/CreateIpControlResult.cc
+	src/model/CreateLogConfigRequest.cc
+	src/model/CreateLogConfigResult.cc
+	src/model/CreateSignatureRequest.cc
+	src/model/CreateSignatureResult.cc
+	src/model/CreateTrafficControlRequest.cc
+	src/model/CreateTrafficControlResult.cc
+	src/model/DeleteAllTrafficSpecialControlRequest.cc
+	src/model/DeleteAllTrafficSpecialControlResult.cc
+	src/model/DeleteApiRequest.cc
+	src/model/DeleteApiResult.cc
+	src/model/DeleteApiGroupRequest.cc
+	src/model/DeleteApiGroupResult.cc
+	src/model/DeleteApiStageVariableRequest.cc
+	src/model/DeleteApiStageVariableResult.cc
+	src/model/DeleteAppRequest.cc
+	src/model/DeleteAppResult.cc
+	src/model/DeleteDomainRequest.cc
+	src/model/DeleteDomainResult.cc
+	src/model/DeleteDomainCertificateRequest.cc
+	src/model/DeleteDomainCertificateResult.cc
+	src/model/DeleteInstanceRequest.cc
+	src/model/DeleteInstanceResult.cc
+	src/model/DeleteIpControlRequest.cc
+	src/model/DeleteIpControlResult.cc
+	src/model/DeleteLogConfigRequest.cc
+	src/model/DeleteLogConfigResult.cc
+	src/model/DeleteSignatureRequest.cc
+	src/model/DeleteSignatureResult.cc
+	src/model/DeleteTrafficControlRequest.cc
+	src/model/DeleteTrafficControlResult.cc
+	src/model/DeleteTrafficSpecialControlRequest.cc
+	src/model/DeleteTrafficSpecialControlResult.cc
+	src/model/DeployApiRequest.cc
+	src/model/DeployApiResult.cc
+	src/model/DescribeApiRequest.cc
+	src/model/DescribeApiResult.cc
+	src/model/DescribeApiDocRequest.cc
+	src/model/DescribeApiDocResult.cc
+	src/model/DescribeApiErrorDataRequest.cc
+	src/model/DescribeApiErrorDataResult.cc
+	src/model/DescribeApiGroupRequest.cc
+	src/model/DescribeApiGroupResult.cc
+	src/model/DescribeApiGroupVpcWhitelistRequest.cc
+	src/model/DescribeApiGroupVpcWhitelistResult.cc
+	src/model/DescribeApiGroupsRequest.cc
+	src/model/DescribeApiGroupsResult.cc
+	src/model/DescribeApiHistoriesRequest.cc
+	src/model/DescribeApiHistoriesResult.cc
+	src/model/DescribeApiHistoryRequest.cc
+	src/model/DescribeApiHistoryResult.cc
+	src/model/DescribeApiIpControlsRequest.cc
+	src/model/DescribeApiIpControlsResult.cc
+	src/model/DescribeApiLatencyDataRequest.cc
+	src/model/DescribeApiLatencyDataResult.cc
+	src/model/DescribeApiMarketAttributesRequest.cc
+	src/model/DescribeApiMarketAttributesResult.cc
+	src/model/DescribeApiQpsDataRequest.cc
+	src/model/DescribeApiQpsDataResult.cc
+	src/model/DescribeApiSignaturesRequest.cc
+	src/model/DescribeApiSignaturesResult.cc
+	src/model/DescribeApiStageRequest.cc
+	src/model/DescribeApiStageResult.cc
+	src/model/DescribeApiTrafficControlsRequest.cc
+	src/model/DescribeApiTrafficControlsResult.cc
+	src/model/DescribeApiTrafficDataRequest.cc
+	src/model/DescribeApiTrafficDataResult.cc
+	src/model/DescribeApisRequest.cc
+	src/model/DescribeApisResult.cc
+	src/model/DescribeApisByAppRequest.cc
+	src/model/DescribeApisByAppResult.cc
+	src/model/DescribeApisByIpControlRequest.cc
+	src/model/DescribeApisByIpControlResult.cc
+	src/model/DescribeApisBySignatureRequest.cc
+	src/model/DescribeApisBySignatureResult.cc
+	src/model/DescribeApisByTrafficControlRequest.cc
+	src/model/DescribeApisByTrafficControlResult.cc
+	src/model/DescribeAppRequest.cc
+	src/model/DescribeAppResult.cc
+	src/model/DescribeAppAttributesRequest.cc
+	src/model/DescribeAppAttributesResult.cc
+	src/model/DescribeAppSecurityRequest.cc
+	src/model/DescribeAppSecurityResult.cc
+	src/model/DescribeAppsRequest.cc
+	src/model/DescribeAppsResult.cc
+	src/model/DescribeAuthorizedApisRequest.cc
+	src/model/DescribeAuthorizedApisResult.cc
+	src/model/DescribeAuthorizedAppsRequest.cc
+	src/model/DescribeAuthorizedAppsResult.cc
+	src/model/DescribeDeployedApiRequest.cc
+	src/model/DescribeDeployedApiResult.cc
+	src/model/DescribeDeployedApisRequest.cc
+	src/model/DescribeDeployedApisResult.cc
+	src/model/DescribeDomainRequest.cc
+	src/model/DescribeDomainResult.cc
+	src/model/DescribeDomainsResolutionRequest.cc
+	src/model/DescribeDomainsResolutionResult.cc
+	src/model/DescribeHistoryApisRequest.cc
+	src/model/DescribeHistoryApisResult.cc
+	src/model/DescribeIpControlPolicyItemsRequest.cc
+	src/model/DescribeIpControlPolicyItemsResult.cc
+	src/model/DescribeIpControlsRequest.cc
+	src/model/DescribeIpControlsResult.cc
+	src/model/DescribeLogConfigRequest.cc
+	src/model/DescribeLogConfigResult.cc
+	src/model/DescribePurchasedApiGroupRequest.cc
+	src/model/DescribePurchasedApiGroupResult.cc
+	src/model/DescribePurchasedApiGroupsRequest.cc
+	src/model/DescribePurchasedApiGroupsResult.cc
+	src/model/DescribePurchasedApisRequest.cc
+	src/model/DescribePurchasedApisResult.cc
+	src/model/DescribeRegionsRequest.cc
+	src/model/DescribeRegionsResult.cc
+	src/model/DescribeSignaturesRequest.cc
+	src/model/DescribeSignaturesResult.cc
+	src/model/DescribeSignaturesByApiRequest.cc
+	src/model/DescribeSignaturesByApiResult.cc
+	src/model/DescribeSystemParametersRequest.cc
+	src/model/DescribeSystemParametersResult.cc
+	src/model/DescribeTrafficControlsRequest.cc
+	src/model/DescribeTrafficControlsResult.cc
+	src/model/DescribeTrafficControlsByApiRequest.cc
+	src/model/DescribeTrafficControlsByApiResult.cc
+	src/model/DescribeVpcAccessesRequest.cc
+	src/model/DescribeVpcAccessesResult.cc
+	src/model/ImportSwaggerRequest.cc
+	src/model/ImportSwaggerResult.cc
+	src/model/ListTagResourcesRequest.cc
+	src/model/ListTagResourcesResult.cc
+	src/model/ModifyApiRequest.cc
+	src/model/ModifyApiResult.cc
+	src/model/ModifyApiGroupRequest.cc
+	src/model/ModifyApiGroupResult.cc
+	src/model/ModifyApiGroupVpcWhitelistRequest.cc
+	src/model/ModifyApiGroupVpcWhitelistResult.cc
+	src/model/ModifyApiMarketAttributesRequest.cc
+	src/model/ModifyApiMarketAttributesResult.cc
+	src/model/ModifyAppRequest.cc
+	src/model/ModifyAppResult.cc
+	src/model/ModifyIpControlRequest.cc
+	src/model/ModifyIpControlResult.cc
+	src/model/ModifyIpControlPolicyItemRequest.cc
+	src/model/ModifyIpControlPolicyItemResult.cc
+	src/model/ModifyLogConfigRequest.cc
+	src/model/ModifyLogConfigResult.cc
+	src/model/ModifySignatureRequest.cc
+	src/model/ModifySignatureResult.cc
+	src/model/ModifyTrafficControlRequest.cc
+	src/model/ModifyTrafficControlResult.cc
+	src/model/ReactivateDomainRequest.cc
+	src/model/ReactivateDomainResult.cc
+	src/model/RemoveApisAuthoritiesRequest.cc
+	src/model/RemoveApisAuthoritiesResult.cc
+	src/model/RemoveAppsAuthoritiesRequest.cc
+	src/model/RemoveAppsAuthoritiesResult.cc
+	src/model/RemoveIpControlApisRequest.cc
+	src/model/RemoveIpControlApisResult.cc
+	src/model/RemoveIpControlPolicyItemRequest.cc
+	src/model/RemoveIpControlPolicyItemResult.cc
+	src/model/RemoveSignatureApisRequest.cc
+	src/model/RemoveSignatureApisResult.cc
+	src/model/RemoveTrafficControlApisRequest.cc
+	src/model/RemoveTrafficControlApisResult.cc
+	src/model/RemoveVpcAccessRequest.cc
+	src/model/RemoveVpcAccessResult.cc
+	src/model/ResetAppCodeRequest.cc
+	src/model/ResetAppCodeResult.cc
+	src/model/ResetAppSecretRequest.cc
+	src/model/ResetAppSecretResult.cc
+	src/model/SdkGenerateByAppRequest.cc
+	src/model/SdkGenerateByAppResult.cc
+	src/model/SdkGenerateByGroupRequest.cc
+	src/model/SdkGenerateByGroupResult.cc
+	src/model/SetApisAuthoritiesRequest.cc
+	src/model/SetApisAuthoritiesResult.cc
+	src/model/SetAppsAuthoritiesRequest.cc
+	src/model/SetAppsAuthoritiesResult.cc
+	src/model/SetDomainRequest.cc
+	src/model/SetDomainResult.cc
+	src/model/SetDomainCertificateRequest.cc
+	src/model/SetDomainCertificateResult.cc
+	src/model/SetDomainWebSocketStatusRequest.cc
+	src/model/SetDomainWebSocketStatusResult.cc
+	src/model/SetIpControlApisRequest.cc
+	src/model/SetIpControlApisResult.cc
+	src/model/SetSignatureApisRequest.cc
+	src/model/SetSignatureApisResult.cc
+	src/model/SetTrafficControlApisRequest.cc
+	src/model/SetTrafficControlApisResult.cc
+	src/model/SetVpcAccessRequest.cc
+	src/model/SetVpcAccessResult.cc
+	src/model/SetWildcardDomainPatternsRequest.cc
+	src/model/SetWildcardDomainPatternsResult.cc
+	src/model/SwitchApiRequest.cc
+	src/model/SwitchApiResult.cc
+	src/model/TagResourcesRequest.cc
+	src/model/TagResourcesResult.cc
+	src/model/UntagResourcesRequest.cc
+	src/model/UntagResourcesResult.cc )
+
+add_library(cloudapi ${LIB_TYPE}
+	${cloudapi_public_header}
+	${cloudapi_public_header_model}
+	${cloudapi_src})
+
+set_target_properties(cloudapi
+	PROPERTIES
+	LINKER_LANGUAGE CXX
+	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+	OUTPUT_NAME ${TARGET_OUTPUT_NAME_PREFIX}cloudapi
+	)
+
+if(${LIB_TYPE} STREQUAL "SHARED")
+	set_target_properties(cloudapi
+		PROPERTIES
+		DEFINE_SYMBOL ALIBABACLOUD_CLOUDAPI_LIBRARY)
+endif()
+
+target_include_directories(cloudapi
+	PRIVATE include
+		${CMAKE_SOURCE_DIR}/core/include
+	)
+target_link_libraries(cloudapi
+	core)
+
+if(CMAKE_HOST_WIN32)
+	ExternalProject_Get_Property(jsoncpp INSTALL_DIR)
+	set(jsoncpp_install_dir ${INSTALL_DIR})
+	add_dependencies(cloudapi
+		jsoncpp)
+	target_include_directories(cloudapi
+		PRIVATE	${jsoncpp_install_dir}/include)
+	target_link_libraries(cloudapi
+		${jsoncpp_install_dir}/lib/jsoncpp.lib)
+	set_target_properties(cloudapi
+    	PROPERTIES
+    		COMPILE_OPTIONS "/bigobj")
+else()
+	target_include_directories(cloudapi
+		PRIVATE /usr/include/jsoncpp)
+	target_link_libraries(cloudapi
+		jsoncpp)
+endif()
+
+install(FILES ${cloudapi_public_header}
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/alibabacloud/cloudapi)
+install(FILES ${cloudapi_public_header_model}
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/alibabacloud/cloudapi/model)
+install(TARGETS cloudapi
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)

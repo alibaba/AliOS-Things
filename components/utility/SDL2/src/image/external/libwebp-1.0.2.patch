@@ -1,0 +1,12 @@
+diff -ruN libwebp-1.0.2.orig/Android.mk libwebp-1.0.2/Android.mk
+--- libwebp-1.0.2.orig/Android.mk	2018-04-20 20:04:55.000000000 -0700
++++ libwebp-1.0.2/Android.mk	2018-10-26 14:17:28.000000000 -0700
+@@ -273,7 +273,7 @@
+ 
+ WEBP_SRC_PATH := $(LOCAL_PATH)
+ include $(WEBP_SRC_PATH)/imageio/Android.mk
+-include $(WEBP_SRC_PATH)/examples/Android.mk
++#include $(WEBP_SRC_PATH)/examples/Android.mk
+ 
+ ifeq ($(USE_CPUFEATURES),yes)
+   $(call import-module,android/cpufeatures)

@@ -23,14 +23,13 @@
 #define SDL_alios_framebuffer_c_h_
 
 #include "../../SDL_internal.h"
-#ifdef AOS_APP_GAME_DEMO
+#ifdef AOS_COMP_LCD
 #include "hal_lcd.h"
 #endif
-
 extern int SDL_AliOS_CreateWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
 extern int SDL_AliOS_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect * rects, int numrects);
 extern void SDL_AliOS_DestroyWindowFramebuffer(_THIS, SDL_Window * window);
-#ifdef AOS_APP_GAME_DEMO
+#ifdef AOS_COMP_LCD
 extern hal_lcd_t *get_hal_lcd(void);
 #endif
 #endif /* SDL_alios_framebuffer_c_h_ */

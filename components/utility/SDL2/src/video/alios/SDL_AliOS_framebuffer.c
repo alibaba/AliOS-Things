@@ -35,7 +35,7 @@
 int SDL_AliOS_CreateWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format, void ** pixels, int *pitch)
 {
     SDL_Surface *surface;
-    const Uint32 surface_format = SDL_PIXELFORMAT_BGR888;
+    const Uint32 surface_format = SDL_PIXELFORMAT_RGB565;
     int w, h;
     int bpp;
     Uint32 Rmask, Gmask, Bmask, Amask;
@@ -69,7 +69,7 @@ int SDL_AliOS_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect
     if (!surface) {
         return SDL_SetError("Couldn't find alios surface for window");
     }
-#ifdef AOS_APP_GAME_DEMO
+#ifdef AOS_COMP_LCD
     hal_lcd_t *hal_lcd = get_hal_lcd();
     hal_lcd->lcd_frame_draw(surface->pixels);
 #endif

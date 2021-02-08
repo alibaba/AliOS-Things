@@ -1,0 +1,3920 @@
+2020-12-17 Version: patch
+- Update DeleteScdnDomain.
+
+2020-12-17 Version: patch
+- Generated 2014-05-26 for `Ecs`.
+
+2020-12-17 Version: patch
+- Update DeleteDcdnDomain.
+
+2020-12-17 Version: patch
+- Update DeleteCdnDomain.
+
+2020-12-17 Version: patch
+- Generated 2020-01-11 for `servicemesh`.
+
+2020-12-17 Version: patch
+- Update api.
+
+2020-12-16 Version: patch
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-12-16 Version: patch
+- Support show pipeline history.
+- Support show log details.
+
+2020-12-16 Version: patch
+- Add Face Attributes.
+
+2020-12-15 Version: patch
+- Update Open API.
+
+2020-12-15 Version: patch
+- CDRS First edition.
+
+2020-12-15 Version: patch
+- CDRS First edition.
+
+2020-12-14 Version: patch
+- Add update task api.
+
+2020-12-14 Version: patch
+- Add update task api.
+
+2020-12-14 Version: patch
+- CDRS First edition.
+
+2020-12-14 Version: patch
+- Add update task api.
+
+2020-12-11 Version: patch
+- Add Emon route-API support.
+
+2020-12-09 Version: patch
+- Update SegmentCommodity.
+
+2020-12-07 Version: patch
+- Remove DescribeSubscriptionObjectModifyStatus.
+
+2020-12-04 Version: patch
+- Supported broker demand.
+
+2020-12-04 Version: patch
+- Support manual scan interface.
+
+2020-12-04 Version: patch
+- ReportInstancesStatus OpenAPI supports IssueCategory parameter.
+
+2020-12-03 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-12-03 Version: patch
+- Update ModifyDcdnService.
+
+2020-12-03 Version: patch
+- Update DescribeDomainMax95BpsData.
+
+2020-12-03 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-12-03 Version: patch
+- Update DescribeDomainMax95BpsData.
+
+2020-12-03 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-12-03 Version: patch
+- Update DescribeDomainMax95BpsData.
+
+2020-12-03 Version: patch
+- Update ModifyDcdnService.
+
+2020-12-03 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-12-03 Version: patch
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-12-03 Version: patch
+- Add new api.
+
+2020-12-03 Version: patch
+- Supported all language sdk.
+- Fixed some bugs for polardbx.
+
+2020-12-03 Version: patch
+- Update DetectLungNodule.
+
+2020-12-02 Version: patch
+- Support CreateDBLink for polardb oracle.
+- Support DeleteDBLink for polardb oracle.
+- Support DescribeDBLinks for polardb oracle.
+
+2020-12-02 Version: patch
+- Update version.
+
+2020-12-02 Version: patch
+- Update version.
+
+2020-12-02 Version: patch
+- Support TemplateContent.
+
+2020-12-02 Version: patch
+- Supported OpenAPI for SDK.
+
+2020-12-02 Version: patch
+- Release ColorizeImage.
+
+2020-12-02 Version: patch
+- Release MergeVideoFace EnhanceVideoQuality.
+
+2020-12-02 Version: patch
+- Update SegmentHead.
+
+2020-12-01 Version: patch
+- Add task api.
+
+2020-12-01 Version: patch
+- Add task api.
+
+2020-12-01 Version: patch
+- Fixed bugs for CCC.
+
+2020-12-01 Version: patch
+- Supported Open Api.
+
+2020-11-30 Version: patch
+- Update SetVideoSeekConfig.
+
+2020-11-30 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-11-30 Version: patch
+- Update SetVideoSeekConfig.
+
+2020-11-30 Version: patch
+- Add OpenARMS api.
+
+2020-11-30 Version: patch
+- Support autoPtovisioning whth DiskConfigs.
+
+2020-11-30 Version: patch
+- Update OpenDcdnService.
+
+2020-11-30 Version: patch
+- Add SourceType for severless instance.
+
+2020-11-30 Version: patch
+- Video Content analytics template introduced to this SDK.
+
+2020-11-30 Version: patch
+- Supported all language sdk.
+- Fixed some bugs for polardbx.
+
+2020-11-30 Version: patch
+- Update OpenDcdnService.
+
+2020-11-29 Version: patch
+- Support CPP and Go and PHP.
+
+2020-11-28 Version: patch
+- Public.
+
+2020-11-27 Version: patch
+- Supported all language sdk.
+- Fixed some bugs for polardbx.
+
+2020-11-27 Version: patch
+- Supported all language sdk.
+- Fixed some bugs for polardbx.
+
+2020-11-27 Version: patch
+- Generated 2018-01-11 for `rtc`.
+
+2020-11-27 Version: patch
+- Add Certificate Manager Api.
+
+2020-11-27 Version: patch
+- Support taskList.
+
+2020-11-26 Version: patch
+- ContrastFaceVerify Support Video.
+
+2020-11-26 Version: patch
+- Generated 2020-07-06, 2017-12-04 for `Actiontrail`.
+
+2020-11-26 Version: patch
+- Generated 2020-07-06 for `Actiontrail`.
+
+2020-11-26 Version: patch
+- Add tags api, include GetRepositoryTag, ListRepositoryTags, DeleteRepositoryTag.
+
+2020-11-25 Version: patch
+- Update DescribeScdnDomainCertificateInfo.
+
+2020-11-25 Version: patch
+- Update SetVideoSeekConfig.
+
+2020-11-25 Version: patch
+- Support DescribeDBClusterVersion.
+
+2020-11-25 Version: patch
+- Add extension field for image translation.
+
+2020-11-25 Version: patch
+- Supported Primary NetworkInterface IP for API DescribeInstances.
+
+2020-11-24 Version: patch
+- Create TSDB Open api.
+
+2020-11-24 Version: patch
+- Create TSDB Open api.
+
+2020-11-24 Version: patch
+- Create lindorm Open api.
+
+2020-11-24 Version: patch
+- Create lindorm Open api.
+
+2020-11-24 Version: patch
+- Update SearchFace.
+
+2020-11-24 Version: patch
+- Generated 2020-01-01 for `ddoscoo`.
+
+2020-11-23 Version: patch
+- Supported multiple Language.
+
+2020-11-23 Version: patch
+- Add LivenessDetect API.
+
+2020-11-22 Version: patch
+- DescribeClusterConnection.
+
+2020-11-20 Version: patch
+- Support ListExecutions with filter functionality.
+
+2020-11-20 Version: patch
+- Public beta version.
+- Add Api Overseas.
+
+2020-11-20 Version: patch
+- Update DetectFace.
+- Update RecognizeFace.
+
+2020-11-20 Version: patch
+- Add a new interface for asynchronous image translation.
+
+2020-11-20 Version: patch
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-11-19 Version: patch
+- Update DescribeDedicatedClusterInstanceList return data.
+
+2020-11-19 Version: patch
+- Update data API.
+
+2020-11-19 Version: patch
+- Update data API.
+
+2020-11-19 Version: patch
+- Update GenerateHumanAnimeStyle.
+
+2020-11-19 Version: patch
+- Update SegmentBody.
+
+2020-11-19 Version: patch
+- Supported backend interface for ICBU.
+
+2020-11-18 Version: patch
+- DescribeInstance support coldStorageSize.
+
+2020-11-18 Version: patch
+- Update DescribeDedicatedClusterInstanceList InstanceStatus type.
+
+2020-11-18 Version: patch
+- Generated 2018-01-11 for `rtc`.
+
+2020-11-18 Version: patch
+- Supported webpage scan.
+
+2020-11-17 Version: patch
+- Support event type in timeline of resource properties.
+- Support resourceOwnerId in evaluation result.
+- Support resource directory in config rule scene.
+- Fix terraform related bugs.
+
+2020-11-17 Version: patch
+- Support ModifyDBClusterPrimaryZone.
+- Support DescribeGlobalDatabaseNetworks.
+
+2020-11-17 Version: patch
+- Supported International-26888 Sites Region Endpoints.
+
+2020-11-17 Version: patch
+- Supported International-26888 Sites Region Endpoints.
+
+2020-11-16 Version: patch
+- Nat public IP supports the ISP attribute.
+
+2020-11-16 Version: patch
+- Add a new interface for asynchronous image translation.
+
+2020-11-16 Version: patch
+- Update videoenhan.
+
+2020-11-16 Version: patch
+- Update videoseg.
+
+2020-11-16 Version: patch
+- Update videorecog.
+
+2020-11-16 Version: patch
+- Update objectdet.
+
+2020-11-16 Version: patch
+- Update imgsearch.
+
+2020-11-16 Version: patch
+- Update imagerecog.
+
+2020-11-16 Version: patch
+- Update goodstech.
+
+2020-11-13 Version: patch
+- Update Imageaudit.
+
+2020-11-13 Version: patch
+- Add DeccribeEngineVersion DescribeTasks DescribeInstanceConfig and more APIs.
+
+2020-11-13 Version: patch
+- Fix GetBranchInfo and DeleteBranch API 404 error.
+- Add ListRepositoryBranches and GetGroupDetail API.
+
+2020-11-13 Version: patch
+- Release ErasePerson.
+
+2020-11-13 Version: patch
+- Release DetectCardScreenshot RecognizePoiName.
+
+2020-11-13 Version: patch
+- Release GenerateHumanAnimeStyle CountCrowd.
+
+2020-11-13 Version: patch
+- Release SegmentHDSky SegmentHDCommonImage.
+
+2020-11-12 Version: patch
+- Support drm.
+
+2020-11-12 Version: patch
+- Generated 2019-06-01 for `smc`.
+
+2020-11-12 Version: patch
+- Update new version.
+
+2020-11-12 Version: patch
+- Support DescribeDBClusterTDE.
+- Support ModifyDBClusterTDE.
+
+2020-11-12 Version: patch
+- Supported Open Api.
+
+2020-11-12 Version: patch
+- Support OpenAPI.
+
+2020-11-12 Version: patch
+- Update DescribeTrails Response.
+
+2020-11-05 Version: patch
+- Support modifyInstnaceType.
+
+2020-11-04 Version: patch
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-11-04 Version: patch
+- Support modifyInstnaceType.
+
+2020-11-04 Version: patch
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-11-04 Version: patch
+- Support modifyInstnaceType.
+
+2020-11-03 Version: patch
+- Minor update for r-kvstore.
+
+2020-11-03 Version: patch
+- Update data API.
+
+2020-11-02 Version: patch
+- Support create serverless by day price type.
+
+2020-11-01 Version: patch
+- Supported All Console APIs.
+
+2020-10-28 Version: patch
+- Support GetParameters, GetParametersByPath, GetSecretParameters, GetSecretParametersByPath.
+
+2020-10-28 Version: patch
+- Supported all language sdk.
+- Fixed some bugs for polardbx.
+
+2020-10-28 Version: patch
+- Supported golang sdk.
+- Fixed some bugs for drds.
+
+2020-10-27 Version: patch
+- Support DescribePendingMaintenanceAction.
+- Support ModifyPendingMaintenanceAction.
+- Support DescribePendingMaintenanceActions.
+
+2020-10-27 Version: patch
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-10-27 Version: patch
+- Support Sampling for jaeger.
+
+2020-10-27 Version: patch
+- Fix bug.
+
+2020-10-27 Version: patch
+- Add role authority management.
+
+2020-10-26 Version: patch
+- Generated 2014-05-26 for `Ecs`.
+
+2020-10-26 Version: patch
+- Generated 2016-11-01 for `live`.
+
+2020-10-26 Version: patch
+- Supported PaymentType for DescribeDnsProductInstance.
+
+2020-10-26 Version: patch
+- Update ScalingConfig parameters.
+
+2020-10-23 Version: patch
+- Change Configuration.
+
+2020-10-23 Version: patch
+- Update DetectLungNodule.
+
+2020-10-23 Version: patch
+- Support feedback.
+
+2020-10-22 Version: patch
+- Add Pipeline Member api.
+
+2020-10-22 Version: patch
+- Update data API.
+
+2020-10-22 Version: patch
+- Update cert API.
+
+2020-10-22 Version: patch
+- Update data API.
+
+2020-10-21 Version: patch
+- DescribeAvailableResource support AcceptLanguage.
+
+2020-10-21 Version: patch
+- Change Documentation configuration.
+
+2020-10-21 Version: patch
+- Cloud Storage Gateway openapi sdk is released.
+
+2020-10-21 Version: patch
+- Release latest features.
+
+2020-10-21 Version: patch
+- Change Documentation configuration.
+
+2020-10-21 Version: patch
+- Change Documentation configuration.
+
+2020-10-21 Version: patch
+- Update cert API.
+
+2020-10-21 Version: patch
+- Add PHP sdk.
+
+2020-10-21 Version: patch
+- Update Scdn API.
+
+2020-10-20 Version: patch
+- Support modifyInstnaceType.
+
+2020-10-20 Version: patch
+- Add LivenessFaceVerify API.
+
+2020-10-20 Version: patch
+- Update Configuration.
+
+2020-10-20 Version: patch
+- Add isv interface.
+
+2020-10-20 Version: patch
+- Generated 2016-11-01 for `live`.
+
+2020-10-19 Version: patch
+- Add a new interface for asynchronous image translation.
+
+2020-10-19 Version: patch
+- Metering 1019.
+
+2020-10-19 Version: patch
+- Metering 1019.
+
+2020-10-19 Version: patch
+- Metering 1019.
+
+2020-10-17 Version: patch
+- Metering.
+
+2020-10-17 Version: patch
+- Metering.
+
+2020-10-16 Version: patch
+- Metering.
+
+2020-10-16 Version: patch
+- Metering.
+
+2020-10-16 Version: patch
+- Metering.
+
+2020-10-16 Version: patch
+- Metering.
+
+2020-10-16 Version: patch
+- Supported AndroidNotificationNotifyId for Push and MassPush.
+- Supported iOSNotificationCollapseId for Push and MassPush.
+
+2020-10-16 Version: patch
+- Support create for serverlesshbase.
+
+2020-10-16 Version: patch
+- Update cert API.
+
+2020-10-16 Version: patch
+- Update cert API.
+
+2020-10-15 Version: patch
+- Supported TAG APIs.
+
+2020-10-15 Version: patch
+- Add SaveTraceAppConfig api.
+
+2020-10-15 Version: patch
+- Generated 2018-06-01 for `dataworks-public`.
+
+2020-10-15 Version: patch
+- Generated 2018-06-01 for `dataworks-public`.
+
+2020-10-14 Version: patch
+- Generated 2014-05-26 for `Ecs`.
+
+2020-10-13 Version: patch
+- ListActionData add parameters.
+- PullActionData add parameters.
+
+2020-10-13 Version: patch
+- Generated 2018-01-11 for `rtc`.
+
+2020-10-13 Version: patch
+- Release DetectSkinDisease RunMedQA.
+
+2020-10-13 Version: patch
+- Generated 2016-11-01 for `live`.
+
+2020-10-13 Version: patch
+- Generated 2018-01-11 for `rtc`.
+
+2020-10-13 Version: patch
+- Generated 2018-12-12 for `vs`.
+
+2020-10-13 Version: patch
+- Release PedestrianDetectAttribute.
+
+2020-10-13 Version: patch
+- Release GenerateDynamicImage.
+
+2020-10-13 Version: patch
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-10-13 Version: patch
+- Release SegmentSkin.
+
+2020-10-12 Version: patch
+- Support add webhook, get repository info via id or path.
+
+2020-10-12 Version: patch
+- Public beta version.
+- Add Api Overseas.
+
+2020-10-12 Version: patch
+- Public beta version.
+- Add Api Overseas.
+
+2020-10-12 Version: patch
+- Supported ApproveOrder to add comment message.
+
+2020-10-12 Version: patch
+- Add list Organizations.
+
+2020-10-12 Version: patch
+- Init.
+
+2020-10-12 Version: patch
+- ChatApp third version.
+- Add contack check api.
+
+2020-10-09 Version: patch
+- Update Scdn API.
+
+2020-10-09 Version: patch
+- Update DescribeCdnUserBillHistory API.
+
+2020-10-09 Version: patch
+- Update SetVideoSeekConfig API.
+
+2020-09-29 Version: patch
+- Add API OpenOnsService which can active ons service.
+
+2020-09-29 Version: patch
+- Add API OpenOnsService which can active ons service.
+
+2020-09-29 Version: patch
+- Update CalcCACS.
+
+2020-09-29 Version: patch
+- Add API OpenOnsService which can active ons service.
+
+2020-09-29 Version: patch
+- Add API OpenOnsService which can active ons service.
+
+2020-09-29 Version: patch
+- Supported regional API.
+
+2020-09-28 Version: patch
+- Update Scdn API.
+
+2020-09-28 Version: patch
+- Support for resize hbaseue multi-zone cluster.
+
+2020-09-28 Version: patch
+- Support filtering keys and secrets.
+- Support opening KMS service and describing service status by API.
+- Add a prefix limitation for SecretName.
+
+2020-09-27 Version: patch
+- Update domain API.
+
+2020-09-27 Version: patch
+- Update domain API.
+
+2020-09-27 Version: patch
+- Support Open Service API.
+
+2020-09-27 Version: patch
+- DescribeAvailableResource support list available resource for modify instance.
+
+2020-09-25 Version: patch
+- Public beta version.
+- Add Api Overseas.
+
+2020-09-25 Version: patch
+- Public beta version.
+- Add Api Overseas.
+
+2020-09-24 Version: patch
+- Support create for serverlesshbase.
+
+2020-09-24 Version: patch
+- ContrastFaceVerify API Add Model Parameter.
+
+2020-09-24 Version: patch
+- Add a new api named SubmitAIImageAuditJob to submit image ai detection job.
+- Add a new api named CreateDNADB to create a DNA analysis library.
+- Add a new api named ListDNADB to query the list of DNA analysis libraries.
+- Add a new api named GetDNADB to query specified DNA analysis library.
+- Add a new field DNADBId to the request parameter Config structure for SubmitAIJob api.
+
+2020-09-23 Version: patch
+- Add spotDuration support.
+
+2020-09-23 Version: patch
+- Some new parameters are supported.
+
+2020-09-23 Version: patch
+- Update domain API.
+
+2020-09-23 Version: patch
+- Update Scdn API.
+
+2020-09-23 Version: patch
+- Sync cdn APIs.
+
+2020-09-22 Version: patch
+- DescribePrice update amount type to string.
+
+2020-09-22 Version: patch
+- Generated 2019-03-08 for `ivision`.
+
+2020-09-22 Version: patch
+- Generated 2018-01-11 for `rtc`.
+
+2020-09-22 Version: patch
+- Generated 2018-12-12 for `vs`.
+
+2020-09-22 Version: patch
+- Generated 2016-11-01 for `live`.
+
+2020-09-21 Version: patch
+- Interface add column wordCount.
+
+2020-09-21 Version: patch
+- Add search object.
+
+2020-09-20 Version: patch
+- Add describe devices to return device status.
+
+2020-09-20 Version: patch
+- Add describe devices to return device status.
+
+2020-09-19 Version: patch
+- Support query user tenant list and current active tenant.
+- Support query table meta information via table GUID.
+
+2020-09-18 Version: patch
+- Update DetectLungNodule, DetectSpineMRI, DetectKneeXRay, DetectCovid19Cad.
+
+2020-09-17 Version: patch
+- Add Api DetectIPCPedestrianOptimized.
+
+2020-09-17 Version: patch
+- Add Api DetectIPCPedestrianOptimized.
+
+2020-09-17 Version: patch
+- GetTitleIntelligence add interface.
+
+2020-09-17 Version: patch
+- Fix endpoint.
+
+2020-09-16 Version: patch
+- Add Content.
+
+2020-09-15 Version: patch
+- Add describe devices to return device status.
+
+2020-09-14 Version: patch
+- Support corp name search.
+
+2020-09-14 Version: patch
+- Support corp name search.
+
+2020-09-11 Version: patch
+- Support execute database script via open api.
+
+2020-09-10 Version: patch
+- Add DisableBackupLog.
+- Add EnableBackupLog.
+- Add ReleaseBackupPlan.
+- Add ModifyStorageStrategy.
+- Modify ModifyBackupStrategy.
+- Modify ModifyBackupSetDownloadRules.
+
+2020-09-10 Version: patch
+- Update HasRenewChangeOrder type to Boolean in DescribeInstances.
+
+2020-09-09 Version: patch
+- Add support cn-beijing service region.
+- Add ai video cover interface,include submit and query.
+- Add dynamic image query interface.
+- Update SubmitMediaAuditJob support MediaAuditConfiguration to set ResourceType.
+
+2020-09-09 Version: patch
+- Release ChangeSky.
+
+2020-09-09 Version: patch
+- Release DetectChefCap.
+
+2020-09-09 Version: patch
+- Release DetectKneeKeypointXRay, DetectHipKeypointXRay, CalcCACS, RunCTRegistration, ClassifyFNF.
+
+2020-09-08 Version: patch
+- Supported backend interface for ICBU.
+
+2020-09-08 Version: patch
+- Add DescribeActiveOperationTask.
+- Add DescribeActiveOperationTaskCount.
+- Add DescribeActiveOperationTaskRegion.
+- Add DescribeActiveOperationTaskType.
+- Add ModifyActiveOperationTask.
+
+2020-09-08 Version: patch
+- Modify CreateAsyncPredict add new parameters.
+
+2020-09-07 Version: patch
+- Support parameter APIs.
+
+2020-09-07 Version: patch
+- Add describes devices API.
+
+2020-09-07 Version: patch
+- Add describes devices API.
+
+2020-09-07 Version: patch
+- Add describes devices API.
+
+2020-09-07 Version: patch
+- Add describes devices API.
+
+2020-09-07 Version: patch
+- Add describes devices API.
+
+2020-09-05 Version: patch
+- Add describes devices API.
+
+2020-09-04 Version: patch
+- Sync cdn APIs.
+
+2020-09-04 Version: patch
+- Update Scdn API.
+
+2020-09-04 Version: patch
+- Update domain API.
+
+2020-09-04 Version: patch
+- Add GetImageQuality API.
+- Add more info as parameters to Images related APIs.
+
+2020-09-03 Version: 1.36.632
+- DescribeCameraStatistics add parameters.
+
+2020-09-02 Version: 1.36.631
+- Support sg for ml region.
+
+2020-09-02 Version: 1.36.630
+- ChatApp second version.
+- Support new message fomat.
+
+2020-09-02 Version: 1.36.629
+- Supported AndroidNotificationHuaweiChannel for Push and MassPush.
+
+2020-09-02 Version: 1.36.628
+- Supported AndroidNotificationHuaweiChannel for Push and MassPush.
+
+2020-09-01 Version: 1.36.627
+- Add Smart Verify API.
+
+2020-09-01 Version: 1.36.626
+- Support region route.
+
+2020-09-01 Version: 1.36.625
+- Support region route.
+
+2020-09-01 Version: 1.36.624
+- Update Parameter.
+
+2020-08-31 Version: 1.36.623
+- Support PersonList.
+
+2020-08-31 Version: 1.36.622
+- GetPersonList Support LastShotTime.
+
+2020-08-31 Version: 1.36.621
+- Support config resource recorder deliverychannel rule.
+
+2020-08-31 Version: 1.36.620
+- Supported AAA for BBB.
+- Fixed bugs for CCC.
+
+2020-08-31 Version: 1.36.619
+- Support config resource recorder deliverychannel rule.
+
+2020-08-31 Version: 1.36.618
+- Supported AAA for BBB.
+- Fixed bugs for CCC.
+
+2020-08-31 Version: 1.36.617
+- Supported AAA for BBB.
+- Fixed bugs for CCC.
+
+2020-08-31 Version: 1.36.616
+- Add list person visit count API.
+
+2020-08-28 Version: 1.36.615
+- Add name.
+
+2020-08-28 Version: 1.36.614
+- Support multiple security group for one ehpc cluster.
+- Update GWS apis.
+
+2020-08-28 Version: 1.36.613
+- Supported Add GetAlgorithmHistoryResult.
+
+2020-08-27 Version: 1.36.612
+- Update parameter.
+
+2020-08-25 Version: 1.36.611
+- Release ExtractPedestrianFeatureAttribute and BlurFace.
+
+2020-08-25 Version: 1.36.610
+- Add list person visit count API.
+
+2020-08-25 Version: 1.36.609
+- Video Content analytics template introduced to this SDK.
+
+2020-08-25 Version: 1.36.608
+- Change DeviceSerialNumber to DeviceSn in API RegisterDevice.
+
+2020-08-24 Version: 1.36.607
+- Change DeviceSerialNumber to DeviceSn in API RegisterDevice.
+
+2020-08-24 Version: 1.36.606
+- Add project api.
+
+2020-08-24 Version: 1.36.605
+- Edit QueryMetricByPage api.
+
+2020-08-21 Version: 1.36.604
+- Add QueryMetricByPage api.
+- Add GetAppApiByPage api.
+
+2020-08-20 Version: 1.36.603
+- PullActionData add parameters.
+- DescribeCursor add parameter.
+
+2020-08-20 Version: 1.36.602
+- Add list person visit count API.
+
+2020-08-20 Version: 1.36.601
+- Added Global Distribute Cache OpenAPIs.
+- Added direct connection OpenAPIs.
+
+2020-08-19 Version: 1.36.600
+- Add DescribeLiveDomainCertificateInfo.
+
+2020-08-19 Version: 1.36.599
+- Generated 2020-08-01 for `SmartHosting`.
+
+2020-08-18 Version: 1.36.598
+- Support for describe hbaseue multi-zone model.
+
+2020-08-18 Version: 1.36.597
+- Support session query operations.
+
+2020-08-18 Version: 1.36.596
+- Public beta version.
+- Add Api Overseas.
+
+2020-08-17 Version: 1.36.595
+- Add list event algorithm details.
+
+2020-08-17 Version: 1.36.594
+- Add list event algorithm details.
+
+2020-08-17 Version: 1.36.593
+- Add GetTrace api.
+- Edit Aler api.
+
+2020-08-17 Version: 1.36.592
+- Add pipeline status api.
+
+2020-08-17 Version: 1.36.591
+- Add list event algorithm details.
+
+2020-08-17 Version: 1.36.590
+- Add list event algorithm details.
+
+2020-08-17 Version: 1.36.589
+- Fix create project task.
+
+2020-08-17 Version: 1.36.588
+- Public beta version.
+- Add Api Overseas.
+
+2020-08-17 Version: 1.36.587
+- Add new tags for corp group.
+
+2020-08-17 Version: 1.36.586
+- Add new tags for corp group.
+
+2020-08-16 Version: 1.36.585
+- Add new tags for corp group.
+
+2020-08-14 Version: 1.36.584
+- Add sdk.
+
+2020-08-14 Version: 1.36.583
+- Supported Api DetectIPCPedestrian.
+
+2020-08-14 Version: 1.36.582
+- Supported CheckCloudResourceAuthorized API.
+
+2020-08-14 Version: 1.36.581
+- Add project Api.
+
+2020-08-13 Version: 1.36.580
+- Add PipCode and CommodityCode for QueryInstanceBill, QueryBillOverview, QueryBill, QuerySettleBill, QueryAccountBill, QuerySplitItemBill.
+- Support BillOwnerId filter for QueryInstanceBill, QueryBillOverview, QueryBill, QuerySettleBill, QueryAccountBill, QuerySplitItemBill.
+
+2020-08-13 Version: 1.36.579
+- Release DetectKneeXRay DetectSpineMRI TranslateMed.
+
+2020-08-13 Version: 1.36.578
+- Release DetectKneeXRay DetectSpineMRI TranslateMed.
+
+2020-08-13 Version: 1.36.577
+- Release DetectKneeXRay DetectSpineMRI TranslateMed.
+
+2020-08-13 Version: 1.36.576
+- GetImageTranslate add column orc.
+
+2020-08-13 Version: 1.36.575
+- DescribePrice update amount parameters type, float to string.
+- Add ResourceGroupId parameter to support resource group.
+
+2020-08-13 Version: 1.36.574
+- Release SegmentHalfBody.
+
+2020-08-13 Version: 1.36.573
+- Release SegmentHalfBody.
+
+2020-08-12 Version: 1.36.572
+- Support corp group api.
+
+2020-08-12 Version: 1.36.571
+- Add pipeline status api.
+
+2020-08-12 Version: 1.36.570
+- Generated 2015-01-01 for `R-kvstore`.
+- SyncDtsStatus API add TaskId parameter.
+
+2020-08-11 Version: 1.36.569
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-08-11 Version: 1.36.568
+- Update DescribeRefreshTask.
+
+2020-08-11 Version: 1.36.567
+- Add ResourceGroup in resource snapshot.
+
+2020-08-10 Version: 1.36.566
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-08-10 Version: 1.36.565
+- Add source id for list face detail.
+
+2020-08-10 Version: 1.36.564
+- Add extend value for list event detail.
+
+2020-08-09 Version: 1.36.563
+- Add extend value for list event detail.
+
+2020-08-08 Version: 1.36.562
+- Update SearchImage.
+
+2020-08-07 Version: 1.36.561
+- GetTitleDiagnose GetTitleGenerate GetImageTranslate supported.
+
+2020-08-07 Version: 1.36.560
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-08-07 Version: 1.36.559
+- GetTitleDiagnose GetTitleGenerate GetImageTranslate supported.
+
+2020-08-07 Version: 1.36.558
+- Add FindServiceList and GetService qps.
+
+2020-08-06 Version: 1.36.557
+- Add Smart Cloudauth API.
+
+2020-08-04 Version: 1.36.556
+- Update RecognizeTable.
+
+2020-08-04 Version: 1.36.555
+- Add Image Url parameter for invoke motor algorithm.
+
+2020-08-04 Version: 1.36.554
+- Add source picture url for Monitor.
+
+2020-08-03 Version: 1.36.553
+- Add source picture url for Monitor.
+
+2020-08-03 Version: 1.36.552
+- Fix Some API Response Define.
+
+2020-08-03 Version: 1.36.551
+- Add source picture url for Monitor.
+
+2020-08-03 Version: 1.36.550
+- Add Voice Synchronous Scan API.
+
+2020-08-03 Version: 1.36.549
+- Add ExtractPedestrianFeatureAttribute.
+
+2020-07-31 Version: 1.36.548
+- Update DetectCelebrity.
+
+2020-07-31 Version: 1.36.547
+- Edit GetStack api.
+
+2020-07-30 Version: 1.36.546
+- Add Smart Cloudauth API.
+
+2020-07-30 Version: 1.36.545
+- Supported ChatApp for SDK.
+
+2020-07-30 Version: 1.36.544
+- Generated 2020-06-29 for `alinlp`.
+
+2020-07-29 Version: 1.36.543
+- Add CreateGetDBListFromAgentTask.
+- Add GetDBListFromAgent.
+
+2020-07-29 Version: 1.36.542
+- API GetTaskStatus return task detail.
+
+2020-07-29 Version: 1.36.541
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-07-27 Version: 1.36.540
+- Supported CheckCloudResourceAuthorized API.
+
+2020-07-27 Version: 1.36.539
+- Add HSF apis.
+
+2020-07-24 Version: 1.36.538
+- Edit ListTraceApp api with add tags.
+- Edit SearchTraceAppByName api with add tags.
+- Edut SearchTraceAppByPage api with add tags.
+
+2020-07-24 Version: 1.36.537
+- Add DescribeBackupTasks.
+
+2020-07-24 Version: 1.36.536
+- Support GetImageCroppingSuggestions API.
+- Add Remarks to face group related APIs.
+- Add Model parameter to blind watermark related APIs.
+
+2020-07-24 Version: 1.36.535
+- First build.
+
+2020-07-23 Version: 1.36.534
+- Supported CloudGame.
+
+2020-07-23 Version: 1.36.533
+- Supported AAA for BBB.
+- Fixed bugs for CCC.
+
+2020-07-23 Version: 1.36.532
+- Add AddSecretBlacklist and DeleteSecretBlacklist.
+- Suppoort ASR.
+
+2020-07-23 Version: 1.36.531
+- Add GenerateAndExportDataKey, ExportDataKey, ReEncrypt api.
+
+2020-07-23 Version: 1.36.530
+- Add GenerateAndExportDataKey, ExportDataKey, ReEncrypt api.
+
+2020-07-22 Version: 1.36.529
+- Generated 2015-01-01 for `R-kvstore`.
+- Add SyncDtsStatus API.
+
+2020-07-22 Version: 1.36.528
+- Add snapshot settings.
+- Add ElasticTask.
+
+2020-07-22 Version: 1.36.527
+- Add SourceId for SearchFace.
+
+2020-07-22 Version: 1.36.526
+- Add source id for file uploader.
+
+2020-07-22 Version: 1.36.525
+- Add source id for file uploader.
+
+2020-07-21 Version: 1.36.524
+- Support Tag API.
+
+2020-07-21 Version: 1.36.523
+- Add algorithm type for ListPerson.
+
+2020-07-17 Version: 1.36.522
+- Add DescribeRegions.
+- Modify DescribeFullBackupList.
+- Modify DescribeBackupPlanList.
+- Modify DescribeRestoreRangeInfo.
+
+2020-07-17 Version: 1.36.521
+- Add DescribeDBClusterAuditLogCollector.
+- Add DescribeBackupPolicy.
+- Support polardb for pgsql and oracle customize endpoints.
+
+2020-07-17 Version: 1.36.520
+- Public beta version.
+- Add Api Overseas.
+
+2020-07-15 Version: 1.36.519
+- Edit ListTraceApp api.
+- Edit SearchTraceAppByName api.
+- Edut SearchTraceAppByPage api.
+
+2020-07-15 Version: 1.36.518
+- Modify ConfigureBackupPlan.
+- Modify DescribeFullBackupList.
+- Modify DescribeBackupPlanList.
+- Modify DescribeRestoreRangeInfo.
+
+2020-07-15 Version: 1.36.517
+- Support ModifyImageAttribute by LaunchPermission.
+- Support ImageFamily.
+
+2020-07-14 Version: 1.36.516
+- Add ListEventAlgorithmResult API.
+
+2020-07-14 Version: 1.36.515
+- Add ListEventAlgorithmResult API.
+
+2020-07-14 Version: 1.36.514
+- Add ListBodyAlgorithmResult API.
+
+2020-07-14 Version: 1.36.513
+- Add ListBodyAlgorithmResult API.
+
+2020-07-14 Version: 1.36.512
+- Add ListBodyAlgorithmResult API.
+
+2020-07-10 Version: 1.36.511
+- Add ListBodyAlgorithmResult API.
+
+2020-07-10 Version: 1.36.510
+- Add ListBodyAlgorithmResult API.
+
+2020-07-08 Version: 1.36.509
+- Remove GetFootwearPosition PullTakeShoesEvent PullTryOnShoesEvent.
+- Add GetFootwearEvent.
+- Please ignore the pd s pot.
+
+2020-07-08 Version: 1.36.508
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-07-08 Version: 1.36.507
+- Add video compose api.
+
+2020-07-08 Version: 1.36.506
+- Add video summarization related API.
+
+2020-07-07 Version: 1.36.505
+- Add video summarization related API.
+
+2020-07-07 Version: 1.36.504
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-07-03 Version: 1.36.503
+- Supported UpdateUserBucketConfig.
+
+2020-07-03 Version: 1.36.502
+- Generated 2017-05-25 for `Dypnsapi`.
+
+2020-07-03 Version: 1.36.501
+- Generated 2017-05-25 for `Dypnsapi`.
+
+2020-07-03 Version: 1.36.500
+- Generated 2018-10-12 for `Airec`.
+
+2020-07-03 Version: 1.36.499
+- Add ListResourceExecutionStatus API.
+- ListExecutions API supports filtering by resource id.
+- TriggerExecution API supports TimerTrigger.
+
+2020-07-03 Version: 1.36.498
+- Supports tag management APIs.
+
+2020-07-03 Version: 1.36.497
+- Add PicUrl parameter for picture related API.
+
+2020-07-03 Version: 1.36.496
+- Add PicUrl parameter for picture related API.
+
+2020-07-02 Version: 1.36.495
+- Generated 2020-05-18 for `dataworks-public`.
+
+2020-07-02 Version: 1.36.494
+- Add GetFootwearPosition.
+- Add PullTakeShoesEvent.
+- Add PullTryOnShoesEvent.
+
+2020-07-02 Version: 1.36.493
+- Add GetFootwearPosition.
+- Add PullTakeShoesEvent.
+- Add PullTryOnShoesEvent.
+
+2020-07-02 Version: 1.36.492
+- Update endpoint.
+
+2020-07-02 Version: 1.36.491
+- CreateShardingDBInstance add ProtocolType, to support DynamoDB.
+- DescribeDBInstances add return ResourceGroupId.
+
+2020-07-01 Version: 1.36.490
+- Add ListFace-MotorAlgorithmResults API.
+
+2020-07-01 Version: 1.36.489
+- Add API for GetMetadataAmount.
+
+2020-07-01 Version: 1.36.488
+- Support Saf For ExecuteExtendService.
+
+2020-06-30 Version: 1.36.487
+- Add ListMetrics API.
+
+2020-06-29 Version: 1.36.486
+- Supported Rotate.
+
+2020-06-29 Version: 1.36.485
+- Supported Rotate.
+
+2020-06-29 Version: 1.36.484
+- Add Model Parameter For InitFaceVerify API.
+
+2020-06-26 Version: 1.36.483
+- Supported Api EraseLogoInVideo.
+
+2020-06-24 Version: 1.36.482
+- Add DescribeBackupPlanBilling.
+- Modify ConfigureBackupPlan.
+- Modify CreateBackupPlan.
+- Modify CreateRestoreTask.
+- Modify DescribeRestoreTaskList.
+- Modify DescribeBackupPlanList.
+- Modify ModifyBackupSourceEndpoint.
+- Modify ModifyBackupStrategy.
+
+2020-06-23 Version: 1.36.481
+- Add face quality detection API.
+
+2020-06-23 Version: 1.36.480
+- Add face quality detection API.
+
+2020-06-23 Version: 1.36.479
+- Add face quality detection API.
+
+2020-06-23 Version: 1.36.478
+- Add face quality detection API.
+
+2020-06-23 Version: 1.36.477
+- Generated 2015-12-15 for `CS`.
+
+2020-06-23 Version: 1.36.476
+- Support SubmitOperationAuditInfo for Support self-service submission of approval information.
+- Support SubmitOperationCredentials for self-service submission of certificate information.
+- Support CancelOperationAudit for cancel audit.
+- Support GetOperationOssUploadPolic for get oss policy.
+- Support QueryOperationAuditInfoLis for query audit list.
+- Support QueryOperationAuditInfoDetail for query audit details.
+
+2020-06-23 Version: 1.36.475
+- Generated 2018-08-28 for `Tag`.
+
+2020-06-23 Version: 1.36.474
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-23 Version: 1.36.473
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-23 Version: 1.36.472
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-22 Version: 1.36.471
+- Add support cn-shenzhen region.
+
+2020-06-22 Version: 1.36.470
+- Add GetMultipleTrace api.
+- Add SearchTracesByPage api.
+- Add GetStack api.
+
+2020-06-21 Version: 1.36.469
+- Add persons API.
+
+2020-06-18 Version: 1.36.468
+- Supported TransformDBInstancePayType API.
+
+2020-06-18 Version: 1.36.467
+- Add GetAuthToken OpenAPI.
+
+2020-06-18 Version: 1.36.466
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-17 Version: 1.36.465
+- Supported sync create eni and assign private ip.
+
+2020-06-17 Version: 1.36.464
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-16 Version: 1.36.463
+- Support TargetImageId in ApplyNodes Interface.
+
+2020-06-16 Version: 1.36.462
+- Update monitor related API.
+
+2020-06-15 Version: 1.36.461
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-06-15 Version: 1.36.460
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-06-12 Version: 1.36.459
+- Add CreateProduct API ProductSecret in Response.
+- Add AMQP APIs, including CreateSubscribeRelation, CreateConsumerGroup, etc.
+- Add LinkIoTEdge CreateSceneRule API.
+- Add LinkIoTEdge DeleteSceneRule API.
+- Add LinkIoTEdge UpdateSceneRule API.
+- Add LinkIoTEdge GetSceneRule API.
+- Add LinkIoTEdge QuerySceneRule API.
+- Add LinkIoTEdge EnableSceneRule API.
+- Add LinkIoTEdge DisableSceneRule API.
+- Add LinkIoTEdge TriggerSceneRule API.
+- Add LinkIoTEdge QuerySummarySceneRuleLog API.
+- Add LinkIoTEdge QueryDetailSceneRuleLog API.
+- Add LinkIoTEdge BindSceneRuleToEdgeInstance API.
+- Add LinkIoTEdge UnbindSceneRuleFromEdgeInstance API.
+- Add LinkIoTEdge QueryEdgeInstanceSceneRule API.
+
+2020-06-12 Version: 1.36.458
+- Update monitor related API.
+
+2020-06-12 Version: 1.36.457
+- Add support for enable hbaseue extra module like lindorm-search or lindorm-sql.
+
+2020-06-11 Version: 1.36.456
+- Support ServicePeriodUnit in QueryInstanceBill.
+
+2020-06-10 Version: 1.36.455
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-10 Version: 1.36.454
+- Public beta version.
+- Add Api Overseas.
+
+2020-06-08 Version: 1.36.453
+- Generate dbfs sdk.
+
+2020-06-08 Version: 1.36.452
+- Support offline instance.
+
+2020-06-04 Version: 1.36.451
+- Support for addrp.
+
+2020-06-04 Version: 1.36.450
+- Supported Eni Trunking.
+
+2020-06-04 Version: 1.36.449
+- Update monitor related API.
+
+2020-06-04 Version: 1.36.448
+- Add SubmitMediaDNADeleteJob and ListMediaDNADeleteJob.
+- Modify GetMediaAuditResult interface, support ad logo and live result.
+- Modify GetMediaAuditResultTimeline interface, support ad logo and live result.
+
+2020-06-04 Version: 1.36.447
+- Update monitor related API.
+
+2020-06-04 Version: 1.36.446
+- Update monitor related API.
+
+2020-06-03 Version: 1.36.445
+- Describe describeAvailableResource.
+
+2020-06-03 Version: 1.36.444
+- Describe describeAvailableResource.
+
+2020-06-03 Version: 1.36.443
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-06-03 Version: 1.36.442
+- DescribeCameraStatistics add filed.
+
+2020-06-02 Version: 1.36.441
+- Edit SearchTraces api.
+
+2020-05-28 Version: 1.36.440
+- Supported AndroidNotificationXiaomiChannel for Push and MassPush.
+
+2020-05-27 Version: 1.36.439
+- Added cn-heyuan endpoint url.
+- Added cn-wulanchabu endpoint url.
+
+2020-05-27 Version: 1.36.438
+- Add support for create hbaseue multizone instance.
+
+2020-05-26 Version: 1.36.437
+- Support DescribeAllEntity API.
+
+2020-05-26 Version: 1.36.436
+- Add smartcall service api.
+
+2020-05-26 Version: 1.36.435
+- Add smartcall service api.
+
+2020-05-26 Version: 1.36.434
+- Add monitor related API.
+
+2020-05-26 Version: 1.36.433
+- Add monitor related.
+
+2020-05-26 Version: 1.36.432
+- Add monitor related.
+
+2020-05-25 Version: 1.36.431
+- Add monitor related.
+
+2020-05-25 Version: 1.36.430
+- Add monitor related.
+
+2020-05-23 Version: 1.36.429
+- Generated 2015-01-01 for `R-kvstore`.
+- Add ModifyResourceGroup API.
+- DescribeInstanceAttribute return ResourceGroupId.
+
+2020-05-22 Version: 1.36.428
+- Add schedule crud api.
+
+2020-05-21 Version: 1.36.427
+- Support more error Codes.
+
+2020-05-20 Version: 1.36.426
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-05-20 Version: 1.36.425
+- Edit GetTrace and SearchTraces api.
+
+2020-05-20 Version: 1.36.424
+- Public beta version.
+- Add Api Overseas.
+
+2020-05-19 Version: 1.36.423
+- Public beta version.
+- Add Api Overseas.
+
+2020-05-19 Version: 1.36.422
+- Initial version.
+
+2020-05-18 Version: 1.36.421
+- Support sequence for listNodes.
+- Support StrictSatisfiedTargetCapacity for applyNodes.
+
+
+2020-05-18 Version: 1.36.420
+- Fix DescribeIpcLiveAddress , add in params.
+
+2020-05-18 Version: 1.36.419
+- Fix DescribeIpcLiveAddress , add in params.
+
+2020-05-17 Version: 1.36.418
+- Open API publish.
+
+2020-05-17 Version: 1.36.417
+- Open API publish.
+
+2020-05-17 Version: 1.36.416
+- Open API publish.
+
+2020-05-17 Version: 1.36.415
+- Open API publish.
+
+2020-05-17 Version: 1.36.414
+- Open API publish.
+
+2020-05-14 Version: 1.36.413
+- Generated 2015-01-01 for `R-kvstore`.
+- Fix DescribeCacheAnalysisReport return empty BigKeys because of wrong type defination.
+
+2020-05-14 Version: 1.36.412
+- Supported Grant Permission.
+- Supported Revoke Permission.
+
+2020-05-14 Version: 1.36.411
+- Add demo edition auth.
+
+2020-05-13 Version: 1.36.410
+- Add ListDevicesImages DescribeIpcLiveAddress.
+- Modify DescribeDevices.
+
+2020-05-13 Version: 1.36.409
+- Add ExportTas apis.
+
+2020-05-13 Version: 1.36.408
+- Generated 2019-09-10 for `waf-openapi`.
+
+2020-05-13 Version: 1.36.407
+- Supported AAA for BBB.
+- Fixed bugs for CCC.
+
+2020-05-13 Version: 1.36.406
+- Add ExportTas apis.
+
+2020-05-13 Version: 1.36.405
+- About 2019-03-07 and 2018-09-16 Version.
+
+2020-05-12 Version: 1.36.404
+- Supported DRM.
+
+2020-05-11 Version: 1.36.403
+- Add new openapi ApplyNodes.
+
+2020-05-11 Version: 1.36.402
+- Support CreationCategory for CreateDBCluster.
+
+2020-05-09 Version: 1.36.401
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-05-09 Version: 1.36.400
+- VideoSearch deploy SDK.
+
+2020-05-08 Version: 1.36.399
+- Support sg for region.
+
+2020-05-06 Version: 1.36.398
+- Describe describeAvailableResource.
+
+2020-04-30 Version: 1.36.397
+- Add prometheus ListDashboards api.
+
+2020-04-29 Version: 1.36.396
+- Add prometheus ListDashboards api.
+
+2020-04-29 Version: 1.36.395
+- Add prometheus ListDashboards api.
+
+2020-04-29 Version: 1.36.394
+- Supported VideoProduce.
+
+2020-04-29 Version: 1.36.393
+- Supported VideoProduce.
+
+2020-04-29 Version: 1.36.392
+- Supported VideoProduce.
+
+2020-04-29 Version: 1.36.391
+- Add ListTemplateVersions API.
+- GenerateExecutionPolicy supports TemplateVersion.
+- CreateTemplate and UpdateTemplate support VersionName.
+
+
+2020-04-29 Version: 1.36.390
+- Support groupId operations.
+
+2020-04-29 Version: 1.36.389
+- Add ExportTas apis.
+
+2020-04-29 Version: 1.36.388
+- Support Document Translation.
+- Support Lanuage Detection.
+
+2020-04-29 Version: 1.36.387
+- Sync cdn APIs.
+
+2020-04-29 Version: 1.36.386
+- Add Scdn APIS.
+- Sync cdn APIS.
+
+2020-04-28 Version: 1.36.385
+- Generated 2019-03-15 for `fnf`.
+
+2020-04-28 Version: 1.36.384
+- Add CompareFaceVerify API.
+
+2020-04-27 Version: 1.36.383
+- Support watermark.
+
+2020-04-27 Version: 1.36.382
+- Describe describeAvailableResource.
+
+2020-04-27 Version: 1.36.381
+- ContrastFaceVerify Return SubCode.
+
+2020-04-27 Version: 1.36.380
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-04-26 Version: 1.36.379
+- New api publish.
+
+2020-04-25 Version: 1.36.378
+- Generated 2015-01-01 for `R-kvstore`.
+- Add RestoreTime for CreateInstance API.
+
+2020-04-24 Version: 1.36.377
+- Publish apis for ledger instances.
+- Publish apis for members.
+- Publish apis for time anchors.
+- Publish apis for endpoints.
+
+2020-04-24 Version: 1.36.376
+- Publish apis for ledger instances.
+- Publish apis for members.
+- Publish apis for time anchors.
+- Publish apis for endpoints.
+
+2020-04-23 Version: 1.36.375
+- GetUser API return user execute query count information.
+
+2020-04-23 Version: 1.36.374
+- Fixed bugs for MassPush API.
+
+2020-04-23 Version: 1.36.373
+- Add location info.
+
+2020-04-23 Version: 1.36.372
+- Support groupId operations.
+
+2020-04-22 Version: 1.36.371
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-04-21 Version: 1.36.370
+- Supported API for DescribeTags.
+- Supported API for ListTagResources.
+- Supported API for TagResources.
+- Supported API for UntagResources.
+
+2020-04-21 Version: 1.36.369
+- Supported PackageDesign Apis.
+- Supported Api ListPackageDesignModelTypes.
+- Supported Api PreviewModelForPackageDesign.
+- Supported Api RenderImageForPackageDesign.
+- Supported Api GetRenderResult.
+
+2020-04-21 Version: 1.36.368
+- Add Statistics API.
+
+2020-04-20 Version: 1.36.367
+- Add TemplateId.
+
+2020-04-20 Version: 1.36.366
+- Fix FaceContrastPicture.
+
+2020-04-20 Version: 1.36.365
+- Add kibana network white Ips.
+
+2020-04-19 Version: 1.36.364
+- Multimedia poc modified.
+
+2020-04-17 Version: 1.36.363
+- DescribeInstanceTypes support TotalEniQueueQuantity.
+
+2020-04-16 Version: 1.36.362
+- Modify `SubmitSmarttagJob`.
+
+2020-04-16 Version: 1.36.361
+- Add ModifyWhiteIps.
+
+2020-04-16 Version: 1.36.360
+- Add BatchOptimization param in Stop and Start Instances.
+- Add RemoveSymbols in GetInstanceConsoleOutput.
+- Add ImageFamily in ModifyImageAttribute.
+- Customize InstanceType on DedicatedHosts is supported.
+- Add StorageCapacityUnit interfaces.
+- Add param Tag in CreateAutoSnapshotPolicy.
+
+2020-04-16 Version: 1.36.359
+- Add features for open api.
+
+2020-04-15 Version: 1.36.358
+- Add pre train service api.
+
+2020-04-15 Version: 1.36.357
+- CreateNode API add return NodeId.
+
+2020-04-15 Version: 1.36.356
+- Vision-poc response modified.
+
+2020-04-14 Version: 1.36.355
+- Support ListSensitiveColumns, ListSensitiveColumnsDetail API.
+- ListUsers API return user execute query count information.
+- Fix ListWorkFlowTemplates to return create user information.
+- UpdateUser API support to update user max execute query count.
+
+2020-04-14 Version: 1.36.354
+- Supported CreateSegmentBodyJob.
+
+2020-04-13 Version: 1.36.353
+- Fix ListTaskExecutions SDK error.
+
+2020-04-10 Version: 1.36.352
+- Generated 2017-05-25 for `Dypnsapi`.
+
+2020-04-10 Version: 1.36.351
+- Support GetOfficeEditURL.
+- Support RefreshOfficeEditToken.
+
+2020-04-10 Version: 1.36.350
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-04-10 Version: 1.36.349
+- Support DescribeIpv4Location.
+
+2020-04-09 Version: 1.36.348
+- Add prometheus api AddGrafana and AddIntegration.
+
+2020-04-09 Version: 1.36.347
+- Generated 2018-03-13 for `retailcloud`.
+
+2020-04-09 Version: 1.36.346
+- Add DescribePrice API.
+
+2020-04-09 Version: 1.36.345
+- WAF OpenApi SDK Release.
+
+2020-04-09 Version: 1.36.344
+- Add DescribeDBClusterAvailableResources.
+
+2020-04-09 Version: 1.36.343
+- Generated 2015-01-01 for `R-kvstore`.
+- Add DescribePrice API.
+
+2020-04-08 Version: 1.36.342
+- Add SubCode for DescribeFaceVerify.
+
+2020-04-08 Version: 1.36.341
+- Generated 2019-01-01 for `Cassandra`.
+
+2020-04-03 Version: 1.36.340
+- Add trace api.
+- Add prometheus api.
+
+2020-04-03 Version: 1.36.339
+- Support shelf type for planogram position.
+
+2020-04-03 Version: 1.36.338
+- Support namespaces.
+
+2020-04-02 Version: 1.36.337
+- Add API ContrastFaceVerify.
+
+2020-04-02 Version: 1.36.336
+- Support for WaitTimeSeconds for DescribeExecution.
+
+2020-04-01 Version: 1.36.335
+- DescribeVerifyToken API Add Parameters-UserIp and UserPhoneNumber and UserRegistTime.
+
+2020-04-01 Version: 1.36.334
+- Parameters is string in StartExecution Response.
+
+2020-04-01 Version: 1.36.333
+- Counters and Parameters are changed to Map in ListExections and StartExecution.
+
+2020-03-24 Version: 1.36.332
+- DescribeInstanceTypes Supports EniIpv6AddressQuantity.
+
+2020-03-24 Version: 1.36.331
+- DescribeInstanceTypes Supports EniIpv6AddressQuantity.
+
+2020-03-23 Version: 1.36.330
+- Generated 2015-01-01 for `R-kvstore`.
+- Add DescribeSecurityGroupConfiguration API.
+- Add ModifySecurityGroupConfiguration API.
+
+2020-03-23 Version: 1.36.329
+- Generated 2014-08-15 for `Rds`.
+
+2020-03-20 Version: 1.36.328
+- Generated 2018-04-12 for `EHPC`.
+
+2020-03-20 Version: 1.36.327
+- Add GetNetworkInterface interface.
+
+2020-03-20 Version: 1.36.326
+- Generated 2018-04-12 for `EHPC`.
+
+2020-03-18 Version: 1.36.325
+- Supported API for DescribeInstanceDomains.
+
+2020-03-18 Version: 1.36.324
+- ACM POP SDK.
+
+2020-03-18 Version: 1.36.323
+- Support product addrp.
+
+2020-03-18 Version: 1.36.322
+- Generated 2018-08-28 for `Tag`.
+
+2020-03-16 Version: 1.36.321
+- DescribeFaceVerify API Return DeviceToken Field.
+
+2020-03-16 Version: 1.36.320
+- Release.
+- Add virtual host modification API.
+- Add exchange modification API.
+- Add queue modification API.
+- Add binding modification API.
+
+2020-03-16 Version: 1.36.319
+- Add ImageFamily paramters and apis, in Instance creation apis and Image query apis, and add DescribeImageFromFamily.
+- Add Instance batch operation apis RebootInstances StartInstances and StopInstances.
+- Add EncryptAlgorithm paramter in instance creati
+
+2020-03-13 Version: 1.36.318
+- ACM POP SDK.
+
+2020-03-12 Version: 1.36.317
+- Add new Api SegmentBody.
+
+2020-03-11 Version: 1.36.316
+- Update structure for DescribeAvailableResource without compatible.
+
+2020-03-11 Version: 1.36.315
+- Add new Api SegmentBody.
+
+2020-03-11 Version: 1.36.314
+- Support certificate translate.
+
+2020-03-10 Version: 1.36.313
+- Add ExportTas apis.
+
+2020-03-10 Version: 1.36.312
+- Add ExportTas apis.
+
+2020-03-09 Version: 1.36.311
+- Add EmotionConfidence to GetImage.
+
+2020-03-09 Version: 1.36.310
+- Add BackupStorageType.
+
+2020-03-09 Version: 1.36.309
+- Add EmotionConfidence to GetImage.
+
+2020-03-09 Version: 1.36.308
+- Add EmotionConfidence to GetImage.
+
+2020-03-09 Version: 1.36.307
+- NlpAutoml update contract api.
+
+2020-03-09 Version: 1.36.306
+- NlpAutoml update contract api.
+
+2020-03-06 Version: 1.36.305
+- Supported Saf for cn.
+
+2020-03-06 Version: 1.36.304
+- Supported Saf for cn.
+
+2020-03-06 Version: 1.36.303
+- Supported Saf for oversea.
+
+2020-03-06 Version: 1.36.302
+- Add request parameter groupType for OnsGroupCreate.
+- Add request parameter groupType for OnsGroupList.
+
+2020-03-05 Version: 1.36.301
+- Add param InstanceType for ListImages and ListCustomImages.
+- Fix error codes for SubmitJobs and so on.
+
+2020-03-04 Version: 1.36.300
+- Update.
+
+2020-03-03 Version: 1.36.299
+- Supported secretmanager stable version for kms.
+
+2020-03-03 Version: 1.36.298
+- Supported secretmanager stable version for kms.
+
+2020-03-03 Version: 1.36.297
+- GeoIP Databases SDK initial release.
+
+2020-03-03 Version: 1.36.296
+- Supported secretmanager for kms.
+
+2020-02-28 Version: 1.36.295
+- Add QueryPhoneNoAByTrackNo  and AddAxnTrackNo.
+
+2020-02-28 Version: 1.36.294
+- Supported secretmanager for kms.
+
+2020-02-27 Version: 1.36.293
+- Add translate api.
+
+2020-02-27 Version: 1.36.292
+- Release Ft SDK.
+
+2020-02-26 Version: 1.36.291
+- Fix tag upper case parameters.
+- Fix patch.
+
+2020-02-26 Version: 1.36.290
+- Generated 2015-01-01 for `R-kvstore`.
+- Add VpcCloudInstanceId for DescribeInstanceAttribute.
+
+2020-02-26 Version: 1.36.289
+- Add InitFaceVerify and DescribeFaceVerify API.
+
+2020-02-25 Version: 1.36.288
+- Fix ListWorkFlowTemplates, ListWorkFlowNodes API Go SDK build error.
+
+2020-02-25 Version: 1.36.287
+- Update backupsetDownloadset fun.
+
+2020-02-24 Version: 1.36.286
+- ImmediateDelete.
+- DescribeInstance CreateTimeUTC ExpireTimeUTC.
+- DescribeInstances CreateTimeUTC ExpireTimeUTC.
+- DescribeIpWhitelist Groups GroupName.
+- CreateCluster.
+
+2020-02-24 Version: 1.36.285
+- Release Ft SDK.
+
+2020-02-24 Version: 1.36.284
+- Release Ft SDK.
+
+2020-02-24 Version 1.36.283
+- Add tag of list instance parameters.
+
+2020-02-24 Version 1.36.282
+- Generated 2018-06-12 for `VoiceNavigator`.
+
+2020-02-24 Version 1.36.281
+- Generated 2019-12-26 for `OutboundBot`.
+
+2020-02-24 Version 1.36.280
+- Generated 2019-12-26 for `OutboundBot`.
+
+2020-02-24 Version 1.36.279
+- Generated 2019-12-26 for `OutboundBot`.
+
+2020-02-21 Version 1.36.278
+- Support TAG API.
+
+2020-02-20 Version 1.36.277
+- Generated 2019-09-28 for `reid`.
+
+2020-02-20 Version 1.36.276
+- Add new interface ListMaskDetectionResults to support to pull mask detection results.
+
+2020-02-15 Version 1.36.275
+- Add DescribeDBClusterSSL.
+- Add ModifyDBClusterSSL.
+
+2020-02-14 Version 1.36.274
+- Update default endpoints.
+
+2020-02-14 Version 1.36.273
+- Add callback params to StartExecution API.
+- Support ListExecutions with Status API.
+
+2020-02-14 Version 1.36.272
+- Update default endpoints.
+
+2020-02-13 Version 1.36.271
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.270
+- Add Staging apis.
+
+2020-02-13 Version 1.36.269
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.268
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.267
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.266
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.265
+- ModifyNetworkInterfaceAttribute support modify QueueNumber.
+- DescribeNetworkInterfaces support QueueNumber.
+
+2020-02-13 Version 1.36.264
+- Add Staging apis.
+
+2020-02-13 Version 1.36.263
+- Add Staging apis.
+
+2020-02-13 Version 1.36.262
+- Add Staging apis.
+
+2020-02-13 Version 1.36.261
+- Add Staging apis.
+
+2020-02-13 Version 1.36.260
+- Add Staging apis.
+
+2020-02-13 Version 1.36.259
+- Init MQTT SDK .
+
+2020-02-12 Version 1.36.258
+- Support to create, describe and expire demo access token.
+
+2020-02-12 Version 1.36.257
+- Update Full showStorageTyp.
+
+2020-02-12 Version 1.36.256
+- Add Full showStorageTyp.
+
+2020-02-12 Version 1.36.255
+- Support mau.
+
+2020-02-11 Version 1.36.254
+- Return `VpcInstanceId ` for DescribeDBClusterEndpoints.
+- Add DescribeBackupLogs.
+
+2020-02-11 Version 1.36.253
+- Support ModifyInstanceAttributes for SecurityGroupIds.
+
+2020-02-11 Version 1.36.252
+- Update default endpoints.
+
+2020-02-10 Version 1.36.251
+- Supported address for GetMediaMeta.
+
+2020-02-07 Version 1.36.250
+- Fix bug for DescribeZoneInfo, delete return result of reionId.
+- Fix bug for DeleteZone, parameter zoneId change to compulsory.
+- Fix bug for SetProxyPattern, parameter zoneId change to compulsory.
+
+2020-02-05 Version 1.36.249
+- Supported GetOfficePreviewURL.
+- Supported RefreshOfficePreviewToken.
+
+2020-02-04 Version 1.36.248
+- Update default endpoints.
+
+2020-01-20 Version 1.36.247
+- Release on full language support.
+
+2020-01-17 Version 1.36.246
+- Supported Add the history event signature function.
+
+2020-01-16 Version 1.36.245
+- Fix the result value of DeleteSiteMonitors.
+
+2020-01-16 Version 1.36.244
+- Generated 2015-01-01 for `R-kvstore`.
+- Update DescribeAvailableResource.
+
+2020-01-16 Version 1.36.243
+- Add fields faceComparisonScore for DescribeVerifyResult and VerifyMaterials interface.
+
+2020-01-15 Version 1.36.242
+- Fix parameter issues for label synchronization group.
+
+2020-01-15 Version 1.36.241
+- Fix parameter issues for label synchronization group.
+
+2020-01-13 Version 1.36.240
+- New API DescribeAvailableResource.
+
+2020-01-13 Version 1.36.239
+- Add Dynamic Tag API.
+
+2020-01-13 Version 1.36.238
+- Supported InstanceMaintenanceAtrributes for maintening the attributes of instances.
+- Deleted MaintenanceProperty.
+- Supported RedeployDedicatedHost for redeploying dedicated host in under-assessment status.
+
+2020-01-10 Version 1.36.237
+- Return `ConsistentTime` for DescribeBackups.
+- Return `DBNodeIds` for CreateDBNodes.
+
+2020-01-09 Version 1.36.236
+- Support DAILY report in QueryInstanBill.
+
+2020-01-08 Version 1.36.235
+- Add TagLevel to ListSetTags.
+
+2020-01-07 Version 1.36.234
+- Modify desribeInstance return dict item.
+
+2020-01-07 Version 1.36.233
+- Generated 2014-05-26 for `Ecs`.
+
+2020-01-03 Version 1.36.232
+- Add GWS serie apis.
+- Add QueryReport.
+- Fix ListJobs.
+- Etc.
+
+2020-01-03 Version 1.36.231
+- New API DescribeAvailableResource.
+
+2020-01-03 Version 1.36.230
+- ImmediateDelete.
+- DescribeInstance CreateTimeUTC ExpireTimeUTC.
+- DescribeInstances CreateTimeUTC ExpireTimeUTC.
+- DescribeIpWhitelist Groups GroupName.
+
+2019-12-31 Version 1.36.229
+- Supported SQL SERVER support delete backup set according to time range.
+
+2019-12-31 Version 1.36.228
+- Support asymmetric keys.
+
+2019-12-31 Version 1.36.227
+- Add request parameter groupType for OnsGroupCreate.
+
+2019-12-31 Version 1.36.226
+- Supported image for process.
+
+2019-12-31 Version 1.36.225
+- Generated 2019-09-28 for `reid`.
+
+2019-12-31 Version 1.36.224
+- Support DeleteDBCluster.
+- Support ModifyDBCluster.
+- Support DescribeAvailableResource.
+
+2019-12-27 Version 1.36.223
+- Update DescribeTrails Response.
+
+2019-12-26 Version 1.36.222
+- NlpAutoml add async api.
+
+2019-12-26 Version 1.36.221
+- Modify CreateRestoreTask.
+
+2019-12-20 Version 1.36.220
+- Supported Search stream predict task list use modelId for IVISION.
+
+2019-12-20 Version 1.36.219
+- Add result value for OnsConsumerStatus.
+
+2019-12-19 Version 1.36.218
+- Add DescribeSlowLogRecords,DescribeSlowLogs for SlowLog.
+
+2019-12-19 Version 1.36.217
+- Generated 2019-09-28 for `reid`.
+
+2019-12-19 Version 1.36.216
+- DescribeNetworkInterfaces Supports NextToken.
+
+2019-12-16 Version 1.36.215
+- DescribeTransferDomains add query param, TargetUserId, FromUserId, DomainName.
+
+2019-12-14 Version 1.36.214
+- Generated 2015-01-01 for `R-kvstore`.
+
+2019-12-14 Version 1.36.213
+- Update DescribeAvailableResource.
+
+2019-12-14 Version 1.36.212
+- Update DescribeAvailableResource.
+
+2019-12-12 Version 1.36.211
+- Generated 2019-06-10 for `et-industry-openapi`.
+
+2019-12-11 Version 1.36.210
+- Supported Sync predict for Image.
+- Supported Set Frame Frequency for Stream Predict.
+- Fixed Errore Code For APIs.
+
+2019-12-11 Version 1.36.209
+- Add tag API.
+- Add group process monitoring API.
+- Add API for batch setting alarm rules.
+
+2019-12-05 Version 1.36.208
+- Add api QueryMetric.
+
+2019-12-04 Version 1.36.207
+- Generated 2019-01-01 for `HBase`.
+
+2019-12-04 Version 1.36.206
+- Supported ModifyDBInstanceSpec for Direction param.
+
+2019-12-02 Version 1.36.205
+- Remove QuerySmsProdStatus OpenAPI.
+
+2019-11-29 Version 1.36.204
+- Add RenewInstance.
+- Add RenewLogstash.
+- Add UpdateInstanceChargeType.
+- Add UpdateLogstashChargeType.
+
+2019-11-28 Version 1.36.203
+- Supported API GetTxtRecordForVerify.
+- Supported API RetrieveDomain.
+
+2019-11-28 Version 1.36.202
+- Supported dash for compress.
+
+2019-11-28 Version 1.36.201
+- Eni Supports Multi-SecurityGroup.
+
+2019-11-27 Version 1.36.200
+- CreateReplicationJob API supports the specified instance type.
+
+2019-11-26 Version 1.36.199
+- Modify QueryBill, add SubOrderId in item of response.
+
+2019-11-26 Version 1.36.198
+- Supported API BindInstanceDomains.
+- Supported API UnbindInstanceDomains.
+- Supported API AddCustomLine.
+- Supported API UpdateCustomLine.
+- Supported API DeleteCustomLines.
+- Supported API DescribeCustomLine.
+- Supported API DescribeCustomLines.
+
+2019-11-25 Version 1.36.197
+- Generated 2019-10-30 for `aliyuncvc`.
+
+2019-11-25 Version 1.36.196
+- One or more people can be subscribed when creating tasks.
+
+2019-11-21 Version 1.36.195
+- Add ConvertPayType.
+- Add ConvertLogstashPayType.
+
+2019-11-21 Version 1.36.194
+- Generated 2017-10-11 for `Chatbot`.
+
+2019-11-21 Version 1.36.193
+- Generated 2017-10-11 for `Chatbot`.
+
+2019-11-21 Version 1.36.192
+- Generated 2019-10-30 for `aliyuncvc`.
+
+2019-11-20 Version 1.36.191
+- Update Nlp Automl SDK.
+
+2019-11-20 Version 1.36.190
+- Add new OpenAPI.
+
+2019-11-20 Version 1.36.189
+- Add new pop api.
+
+2019-11-20 Version 1.36.188
+- Generated 2014-05-26 for `Ecs`.
+
+2019-11-20 Version 1.36.187
+- Generated 2018-04-12 for `EHPC`.
+
+2019-11-20 Version 1.36.186
+- Supported ecsDemand CreateDemand, ModifyDemand, DeleteDemand API.
+- Modify ecsDemand DescribesDemands API.
+
+2019-11-20 Version 1.36.185
+- Generated 2019-01-01 for `HBase`.
+
+2019-11-20 Version 1.36.184
+- Add API ReportVoipProblems.
+- Add API QueryVoipNumberBindINfos.
+
+2019-11-15 Version 1.36.183
+- Nlp Automl SDK.
+
+2019-11-15 Version 1.36.182
+- Sync cdn APIs.
+
+2019-11-15 Version 1.36.181
+- Fixed bugs.
+
+2019-11-15 Version 1.36.180
+- Add Scdn APIS.
+- Sync cdn APIS.
+
+2019-11-15 Version 1.36.179
+- Modify QueryAccountBill, support group by product.
+
+2019-11-15 Version 1.36.178
+- Modify DescribeRestoreRangeInfo.
+
+2019-11-15 Version 1.36.177
+- Add DescribeRestoreRangeInfo.
+
+2019-11-14 Version 1.36.176
+- Released dysms OpenAPI.
+
+2019-11-14 Version 1.36.175
+- Support Tag OpenAPI.
+- Fix endpoint problem.
+
+2019-11-14 Version 1.36.174
+- Initial construction.
+- Public beta version.
+- Supported AliyunController for Interface.
+- Supported ConsoleController for Interface.
+- Supported AccountController for Interface.
+
+2019-11-13 Version 1.36.173
+- Supported Stream analyse.
+
+2019-11-13 Version 1.36.172
+- Fix ResourceId type from Long to String on QueryCostUnitResource.
+
+2019-11-13 Version 1.36.171
+- Fix ResourceId type from Long to String on QueryCostUnitResource.
+
+2019-11-13 Version 1.36.170
+- Add new API QueryBillToOSSSubscription.
+
+2019-11-13 Version 1.36.169
+- Supported API UpdateDomainRemark for Update Domain Remark.
+- Supported API UpdateDomainRecordRemark for Update Record Remark.
+- Unsupported API CheckDomainRecord.
+
+2019-11-13 Version 1.36.168
+- Support Go SDK.
+- Support C SDK.
+- Support PHP SDK.
+
+2019-11-08 Version 1.36.167
+- Add DescribeJobErrorCode.
+
+2019-11-05 Version 1.36.166
+- Add OperateBlackNo.
+
+2019-11-02 Version 1.36.165
+- Generated 2017-05-25 for `Dyvmsapi`.
+
+2019-10-31 Version 1.36.164
+- Initial construction.
+- Public beta version.
+- Supported AliyunController for Interface.
+- Supported ConsoleController for Interface.
+- Supported AccountController for Interface.
+
+2019-10-31 Version 1.36.163
+- Initial construction.
+- Public beta version.
+- Supported AliyunController for Interface.
+- Supported ConsoleController for Interface.
+- Supported AccountController for Interface.
+
+2019-10-29 Version 1.36.162
+- Add a new Alibaba Cloud Bill API named QueryAccountBill.
+
+2019-10-25 Version 1.36.161
+- Initial construction.
+- Public beta version.
+- Supported AliyunController for Interface.
+- Supported ConsoleController for Interface.
+- Supported AccountController for Interface.
+
+2019-10-25 Version 1.36.160
+- Supported query push records.
+
+2019-10-25 Version 1.36.159
+- Add DescribeDBClusterPerformance, DescribeDBNodePerformance for performance.
+
+2019-10-24 Version 1.36.158
+- Generated 2017-12-14 for `BssOpenApi`.
+
+2019-10-23 Version 1.36.157
+- Add a new api named SubmitDynamicImageJob capture a certain part of the video as a dynamic image.
+- Add a new api named SubmitWorkflowJob to initiate the VoD workflow processing for audio and video.
+- Add a new field AuditStatus in the structure ImageInfo to GetImageInfo api response, which is used to identify the audit status of the image.
+- Modify the data type of return field StorageLocation to String.
+- Add a new field named MediaType to SubmitAIMediaAuditJob api request.
+
+2019-10-23 Version 1.36.156
+- Add a new api named SubmitDynamicImageJob capture a certain part of the video as a dynamic image.
+- Add a new api named SubmitWorkflowJob to initiate the VoD workflow processing for audio and video.
+- Add a new field AuditStatus in the structure ImageInfo to GetImageInfo api response, which is used to identify the audit status of the image.
+- Modify the data type of return field StorageLocation to String.
+- Add a new field named MediaType to SubmitAIMediaAuditJob api request.
+
+2019-10-23 Version 1.36.155
+- Add a new api named SubmitDynamicImageJob capture a certain part of the video as a dynamic image.
+- Add a new api named SubmitWorkflowJob to initiate the VoD workflow processing for audio and video.
+- Add a new field AuditStatus in the structure ImageInfo to GetImageInfo api response, which is used to identify the audit status of the image.
+- Modify the data type of return field StorageLocation to String.
+- Add a new field named MediaType to SubmitAIMediaAuditJob api request.
+
+2019-10-22 Version 1.36.154
+- RunInstances support AutoSnapshotPolicyId.
+
+2019-10-22 Version 1.36.153
+- Supported ExternalId IMM.
+
+2019-10-21 Version 1.36.152
+- Release first version.
+
+2019-10-18 Version 1.36.151
+- Generated 2019-09-10 for `DnsKnocker`.
+
+2019-10-16 Version 1.36.150
+- Add ListTagResources OpenApi.
+- Add TagResources OpenApi.
+- Add UntagResources OpenApi.
+- Add ModifyDBInstanceAutoUpgradeMinorVersion OpenApi.
+
+2019-10-14 Version 1.36.149
+- Support continuous pushing.
+
+2019-10-09 Version 1.36.148
+- Add VideoCancelScan Api.
+
+2019-10-09 Version 1.36.147
+- Support API RecognizeImageColor.
+- Support API DetectImageElements.
+- Support API RecolorImage.
+- Support API SegmentImage.
+- Support API ChangeImageSize.
+- Support API ExtendImageStyle.
+- Support API RecognizeImageStyle.
+- Support API MakeSuperResolution.
+
+2019-10-08 Version 1.36.146
+- Supported Grab Frame IMM.
+
+2019-10-08 Version 1.36.145
+- Supported API MassPush for Push Message or Notice.
+
+2019-10-08 Version 1.36.144
+- Generated 2016-01-20 for `Kms`.
+
+2019-09-26 Version 1.36.143
+- Supported RingConfig for BindAxb,BindAxn,BindAxg,BindAxnExtension.
+- Add QuerySubsId.
+
+2019-09-23 Version 1.36.142
+- Add param, DescribePrice supprot ReservedInstance.
+
+2019-09-19 Version 1.36.141
+- Supported Video Abstract for IMM.
+
+2019-09-19 Version 1.36.140
+- Generated 2018-01-20 for `Iot`.
+
+2019-09-19 Version 1.36.139
+- Supported Video Abstract for IMM.
+
+2019-09-19 Version 1.36.138
+- Add bizSubCode and so on.
+
+2019-09-18 Version 1.36.137
+- Supported Video Abstract for IMM.
+
+2019-09-17 Version 1.36.136
+- Generated 2018-04-12 for `EHPC`.
+
+2019-09-16 Version 1.36.135
+- Generated 2018-04-12 for `EHPC`.
+
+2019-09-16 Version 1.36.134
+- Generated 2018-04-12 for `EHPC`.
+
+2019-09-16 Version 1.36.133
+- Generated 2016-11-11 for `aegis`.
+
+2019-09-15 Version 1.36.132
+- Generated 2018-04-12 for `EHPC`.
+
+2019-09-14 Version 1.36.131
+- Generated 2019-08-08 for `ARMS`.
+
+2019-09-12 Version 1.36.130
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.129
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.128
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.127
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.126
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.125
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.124
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.123
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.122
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.121
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.120
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.119
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.118
+- Fixed CMakeLists file.
+
+2019-09-12 Version 1.36.117
+- Fixed CMakeLists file.
+
+2019-09-09 Version 1.36.116
+- CreateInstance add toen.
+- UpdateInstance add toen.
+
+2019-09-06 Version 1.36.115
+- Update endpoint data.
+
+2019-09-06 Version 1.36.114
+- Generated 2016-04-28 for `Vpc`.
+
+2019-09-05 Version 1.36.113
+- Supported for setEndpoint method.
+
+2019-09-05 Version 1.36.112
+- Generated 2014-05-15 for `Slb`.
+
+2019-09-05 Version 1.36.111
+- Generated 2017-07-05 for `CCC`.
+
+2019-09-05 Version 1.36.110
+- Generated 2018-11-11 for `foas`.
+
+2019-09-05 Version 1.36.109
+- Generated 2019-05-24 for `cusanalytic_sc_online`.
+
+2019-09-05 Version 1.36.108
+- Generated 2015-11-01 for `Market`.
+
+2019-09-05 Version 1.36.107
+- Generated 2016-07-14 for `CloudAPI`.
+
+2019-09-05 Version 1.36.106
+- Generated 2017-08-01 for `polardb`.
+
+2019-09-05 Version 1.36.105
+- Generated 2017-12-14 for `BssOpenApi`.
+
+2019-09-03 Version 1.36.104
+- Generated 2014-08-15 for `Rds`.
+
+2019-08-30 Version 1.36.103
+- Revert to 2015-09-01.
+
+2019-08-30 Version 1.36.102
+- Release Apis of Version 2019-09-10.
+
+2019-08-30 Version 1.36.101
+- Supported Meida complex for IMM.
+
+2019-08-30 Version 1.36.100
+- Add api for getTrace and searchTracelist.
+
+2019-08-29 Version 1.36.99
+- Move StopExecution params to body.
+
+2019-08-29 Version 1.36.98
+- For publish.
+
+2019-08-28 Version 1.36.97
+- Add DBS API UpgradeBackupPlan.
+- Add DBS API DescribePreCheckProgressList.
+
+2019-08-26 Version 1.36.96
+- QueryInstanceBillResponse change ownerId type from Long to String.
+- QueryInstanceBillResponse change usage type from float to String.
+- QueryInstanceBillResponse change listPrice type from float to String.
+- QueryInstanceBillResponse change deductedByResourcePackage type from float to String.
+
+2019-08-22 Version 1.36.95
+- Support API RecognizeImageColor.
+- Support API DetectImageElements.
+- Support API RecolorImage.
+- Support API SegmentImage.
+- Support API ChangeImageSize.
+- Support API ExtendImageStyle.
+- Support API RecognizeImageStyle.
+- Support API MakeSuperResolutionImage.
+
+2019-08-22 Version 1.36.94
+- Api release 2019-08-08 public sdk 2-5-2 sdk release 20190822 shichun-fsc.
+
+2019-08-21 Version 1.36.93
+- Move StartExecution params to body.
+
+2019-08-21 Version 1.36.92
+- Return backup job id when create backup.
+- Return backup set size when describe backups.
+
+2019-08-20 Version 1.36.91
+- API TaobaoFilmGetSchedules retrun col add hallId.
+
+2019-08-15 Version 1.36.90
+- FnF public version.
+- Add Report task api.
+
+2019-08-15 Version 1.36.89
+- Add API BatchStartCdnDomain, BatchStopCdnDomain, DescribeTagResources, DescribeUserTags, TagResources, UntagResources.
+
+2019-08-15 Version 1.36.88
+- QueryInstanceBillResponse add ServicePeriod.
+
+2019-08-14 Version 1.36.87
+- Generated 2018-01-20 for `Iot`.
+
+2019-08-13 Version 1.36.86
+- Optimize return code.
+- Edit QueryDataset.
+
+2019-08-13 Version 1.36.85
+- Supported for openapi new version.
+
+2019-08-12 Version 1.36.84
+- Support Defect Face API.
+
+2019-08-08 Version 1.36.83
+- Add CreateStorageSet api to support storageSet.
+- Add DeleteStorageSet api to support storageSet.
+- Add ModifyStorageSetAttribute api to support storageSet.
+- Add DescribeStorageSets api to support storageSet.
+- Add DescribeStorageSetDetails api to support storageSet.
+- Add parameter StorageSetId,StorageSetPartitionNumber to api CreateDisk,RunInstances,CreateInstance support storageSet.
+- Add StorageSetId,StorageSetPartitionNumber with response of api DescribeDisks.
+- Add DescribeNetworkInterfaces to support filter by PrivateIpAddress.
+
+2019-08-08 Version 1.36.82
+- Group, Plugin support tag authentication.
+
+2019-08-06 Version 1.36.81
+- Supported GetMediaMeta for IMM.
+
+2019-08-06 Version 1.36.80
+- Supported GetMediaMeta for IMM.
+
+2019-08-06 Version 1.36.79
+- Supported GetMediaMeta for IMM.
+
+2019-08-06 Version 1.36.78
+- Supported GetMediaMeta for IMM.
+
+2019-08-06 Version 1.36.77
+- Supported GetMediaMeta for IMM.
+
+2019-08-05 Version 1.36.76
+- GetOrderDetail add originalConfig param.
+
+2019-08-05 Version 1.36.75
+- GetOrderDetail add originalConfig param.
+
+2019-08-05 Version 1.36.74
+- Modify DBS API DescribeFullBackupList.
+
+2019-08-02 Version 1.36.73
+- SubscribeBillToOSSRequest add multAccountRelSubscribe, bucketOwnerId.
+- UnsubscribeBillToOSSRequest add multAccountRelSubscribe.
+
+2019-07-31 Version 1.36.72
+- Endpoint auto route.
+
+2019-07-26 Version 1.36.71
+- Generated 2019-05-24 for `cusanalytic_sc_online`.
+
+2019-07-26 Version 1.36.70
+- Generated 2019-05-24 for `cusanalytic_sc_online`.
+
+2019-07-25 Version 1.36.69
+- App-related actions support tag authentication.
+
+2019-07-23 Version 1.36.68
+- Supported CreationOption of CreateDBCluster with `CloneFromPolarDB `,`CloneFromRDS`,`MigrationFromRDS`.
+
+2019-07-19 Version 1.36.67
+- QueryMonthlyBillResponse add roundDownDiscount.
+- QueryBillResponse add roundDownDiscount.
+- QueryInstanceBillResponse add item.
+
+2019-07-18 Version 1.36.66
+- Add a new field named Input to SubmitAIJob api request to set the input file of AI job.
+- Change the field MediaId of SubmitAIJob api to non-mandatory.
+
+2019-07-14 Version 1.36.65
+- Modify DBS API DescribeBackupPlanList.
+
+2019-07-14 Version 1.36.64
+- Modify DBS API DescribeBackupPlanList.
+
+2019-07-12 Version 1.36.63
+- Public api AddLivePullStreamInfoConfig.
+
+2019-07-11 Version 1.36.62
+- Modify CreateBackupPlan.
+- Modify ConfigureBackupPlan.
+- Modify DescribeFullBackupList.
+- Modify DescribeRestoreTaskList.
+- Add ModifyBackupSourceEndpoint.
+- Add ModifyBackupStrategy.
+- Add ModifyBackupPlanName.
+
+2019-07-05 Version 1.36.61
+- Supported library managment for simillarity scene.
+- Remove the local file uploader code which can be downloaded from yundun content security document.
+
+2019-07-05 Version 1.36.60
+- Add TaskCancelStatus for QueryTaskList api.
+
+2019-07-04 Version 1.36.59
+- Supported API DescribeRecordStatisticsy for Query Volume.
+- Supported API DescribeDomainStatistics for Query Volume.
+
+2019-07-03 Version 1.36.58
+- Supported API DescribeRecordStatisticsSummary for Query Volume.
+- Supported API DescribeDomainStatisticsSummary for Query Volume.
+- Supported API DescribeRecordStatisticsHistory for Query Volume.
+- Supported API DescribeDomainDnsStatistics for Query Volume.
+
+2019-07-02 Version 1.36.57
+- FnF public version.
+
+2019-07-02 Version 1.36.56
+- Fix Double to double.
+
+2019-07-01 Version 1.36.55
+- Support cloud_essd disk category for API CreateDisk, CreateInstance and RunInstances, and support configurating PerformanceLevel when choose cloud_essd.
+- Add ModifyDiskSpec API to support cloud_essd PerformanceLevel modification.
+- Add AutoProvisioningGroup interfaces, provide AutoProvisioningGroup function.
+- Add RetentionDays to snapshot creating.
+
+2019-06-27 Version 1.36.54
+- Added setting of crop_mode parameter.
+
+2019-06-24 Version 1.36.53
+- Add some new apis to manage VoD domain, such as AddVodDomain, UpdateVodDomain, DeleteVodDomain, BatchStartVodDomain, BatchStopVodDomain, DescribeVodUserDomains, DescribeVodDomainDetail.
+- Add some new apis to manage VoD domain config, such as BatchSetVodDomainConfigs, DescribeVodDomainConfigs, DeleteVodSpecificConfig, SetVodDomainCertificate, DescribeVodCertificateList, DescribeVodDomainCertificateInfo.
+- Add a new field named AppId to some apis supporting the VoD App feature, such as AddWorkFlow, GetWorkFlow, ListWorkFlow, AddVodTemplate, GetVodTemplate, ListVodTemplate, AddTranscodeTemplateGroup, GetTranscodeTemplateGroup, ListTranscodeTemplateGroup, AddWatermark, GetWatermark, ListWatermark, UploadMediaByURL.
+- Add a new field named UserData to SubmitTranscodeJobs api request to support user-defined extension fields, which can be used for transparent return when callbacks.
+
+2019-06-24 Version 1.36.52
+- Add some new apis to manage VoD domain, such as AddVodDomain, UpdateVodDomain, DeleteVodDomain, BatchStartVodDomain, BatchStopVodDomain, DescribeVodUserDomains, DescribeVodDomainDetail.
+- Add some new apis to manage VoD domain config, such as BatchSetVodDomainConfigs, DescribeVodDomainConfigs, DeleteVodSpecificConfig, SetVodDomainCertificate, DescribeVodCertificateList, DescribeVodDomainCertificateInfo.
+- Add a new field named AppId to some apis supporting the VoD App feature, such as AddWorkFlow, GetWorkFlow, ListWorkFlow, AddVodTemplate, GetVodTemplate, ListVodTemplate, AddTranscodeTemplateGroup, GetTranscodeTemplateGroup, ListTranscodeTemplateGroup, AddWatermark, GetWatermark, ListWatermark, UploadMediaByURL.
+- Add a new field named UserData to SubmitTranscodeJobs api request to support user-defined extension fields, which can be used for transparent return when callbacks.
+
+2019-06-18 Version 1.36.51
+1. Supported the related recommend.
+2. Supported exposure time controll and exposure filter by scene.
+
+2019-06-17 Version 1.36.50
+companyreg release
+
+2019-06-13 Version 1.36.49
+1, fixed DescribeAvailableResource OpenApi AvailableZones value problem.
+
+2019-06-13 Version 1.36.48
+- Generated 2015-01-01 for `R-kvstore`
+
+2019-06-13 Version 1.36.47
+Add Network Assistant openapi sdk
+
+2019-06-12 Version 1.36.46
+1, Add RenewBackupPlan DBS interface.
+
+2019-06-12 Version 1.36.45
+1.Fix bug
+
+2019-06-12 Version 1.36.44
+1, Add InvokeDataAPIService interface, support invoke service of data api to get sql query result.
+2, Add GetDataAPIServiceDetail interface, support get data api's detail information.
+3, Add CreateDataAPIService interface, support create data api with sql statement.
+
+2019-06-05 Version: 1.36.43
+1, Update DescribeDataLimitDetail interface, add password for response
+
+2019-06-04 Version: 1.36.42
+1, Add new API: UpdateLivePullStreamInfoConfig
+
+2019-06-03 Version: 1.36.41
+1, Add openapi of ACL.
+
+2019-05-31 Version: 1.36.40
+1, add api 'search traces count' 
+2, add page index for api 'searchTraces'
+
+2019-05-31 Version: 1.36.39
+1, Add authority in GetMaterials API.
+
+2019-05-29 Version 1.36.38
+update  Smartag
+
+2019-05-29 Version 1.36.37
+update product
+
+2019-05-29 Version: 1.36.36
+1, Fix ServiceCode typo in request
+
+2019-05-28 Version: 1.36.35
+1, CreateDBInstance now support autoRenew
+
+2019-05-27 Version: 1.36.34
+1, Support video transcode.
+
+2019-05-27 Version: 1.36.33
+1, Initial release of api, including data management api, rule configuration api and system configuration api.
+
+2019-05-22 Version: 1.36.32
+1, Add EndTime parameter to api ModifyPrepayInstanceSpec
+2, Add RebootTime parameter to api ModifyPrepayInstanceSpec
+
+2019-05-20 Version: 1.36.31
+1, Add both api, ListNotaryInfos
+
+2019-05-20 Version: 1.36.30
+1, Initial release of api, including data management api, rule configuration api and system configuration api.
+
+2019-05-16 Version: 1.36.29
+1, Add some new apis to fetch the usage data from VoD, such as DescribeVodDomainUsageData, DescribeVodStorageData, DescribeVodTranscodeData, DescribeVodAIData.
+2, Add a new api named GetUploadDetails to describe the upload detail, such as uploading time and uploading source.
+3, Add a new api named GetAIVideoTagResult to describe the result of AI tag.
+4, Add new field Icon and OnlineStatus to some apis to manage short video materials, such as SearchMedia, GetAttachedMediaInfo, CreateUploadAttachedMedia.
+5, Add a new field RegionId to the response of GetAttachedMediaInfo and GetImageInfo.
+6, Add the field named UserData to SubmitSnapshotJob api request.
+
+2019-05-15 Version: 1.36.28
+1, Add InstanceId parameter to api CreateDisk
+2, Add parameter Affinity and Tenancy in ECS instance DedicatedHost related apis.
+3, Add SecurityGroupIds parameter to Instance creation apis.
+
+2019-05-14 Version: 1.36.27
+1, support body detect
+
+2019-05-14 Version: 1.36.26
+1, Support body detect.
+
+2019-05-14 Version: 1.36.25
+1, Support body detect.
+
+2019-05-14 Version: 1.36.24
+1, Support body detect.
+
+2019-05-13 Version: 1.36.23
+1, Support for creating instances and joining multiple security groups at the same time.
+
+2019-04-26 Version: 1.36.22
+1, add new openapi.
+
+2019-04-23 Version: 1.36.21
+1, Support mounting multiple volumes using different protocol
+2, Support scaling out cross AZ
+
+2019-04-22 Version: 1.36.20
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2019-04-18 Version: 1.36.19
+1, Add CreateAccount
+
+2019-04-18 Version: 1.36.18
+1, CreateCacheAnalysisTask prop modify
+
+2019-04-18 Version: 1.36.17
+1, add ReservedInstance API.
+
+2019-04-17 Version: 1.36.16
+1, Add DescribeRestoreTaskList DBS interface.
+2, Add DescribeNodeCidrList DBS interface.
+
+2019-04-16 Version: 1.36.15
+1, Fixed DescribeAccounts response type error.
+
+2019-04-16 Version: 1.36.14
+1, Add api about pushing security check commands
+
+2019-04-16 Version: 1.36.13
+1, Fixed describeAccounts response type error
+
+2019-04-16 Version: 1.36.12
+1, Mark CreateDiagnosticReport as public api.
+2, ModifySecurityIps support modifyMode parameter.
+
+2019-04-16 Version: 1.36.11
+1, Add group api.
+
+2019-04-16 Version: 1.36.10
+1, Add group api.
+
+2019-04-16 Version: 1.36.9
+1, Add group api.
+
+2019-04-16 Version: 1.36.8
+1, Add group api.
+
+2019-04-15 Version: 1.36.7
+1, Add CreateRestoreTask DBS interface.
+2, Add StartRestoreTask DBS interface.
+
+2019-04-15 Version: 1.36.6
+1, add arns parameter to CreateDisk/CreateInstance API in order to support disk encryption by performing a sts role play.
+
+2019-04-15 Version: 1.36.5
+1, Add apis, DescribeScreenHostStatistics、DescribeScreenSummaryInfo、DescribeScreenAttackAnalysisData、DescribeScreenAttackAnalysisData、DescribeScreenAttackAnalysisData
+
+2019-04-15 Version: 1.36.4
+1, Add Group Api.
+
+
+2019-04-11 Version: 1.36.3
+1, The ‘CreateProject’ interface adds the ‘ModelId’ parameter
+
+2019-04-11 Version: 1.36.2
+1, Add some new apis to manage VoD's App, such as CreateAppInfo, GetAppInfos, ListAppInfos, UpdateAppInfo, DeleteAppInfo, AttachAppPolicyToIdentity, DetachAppPolicyFromIdentity, ListAppPoliciesForIdentity and MoveAppResource.
+2, Add new apis SetMessageCallback, GetMessageCallback and DeleteMessageCallback to manage message callback configuration.
+3, Add new apis GetAttachedMedia, UpdateAttachedMediaInfos and DeleteAttachedMedia to manage attached media information.
+4, Add a new api named DeleteMultipartUpload to clean up the fragmented files generated during the upload process.
+5, Add a new field named AppId to some apis supporting the VoD App feature, such as CreateUploadVideo, SearchMedia, GetVideoInfo, GetVideoInfos; Add new fields named NonExistVideoIds and ForbiddenVideoIds to DeleteVideo api response; Add a new field named ForbiddenVideoIds to UpdateVideoInfos api response.
+6, The Editing supports multi-region and multi-materials. Add new fields named StorageLocation and RegionId in Project struct to GetEditingProject api response; Add new fields named StorageLocation, RegionId and Duration in ProjectList struct to SearchEditingProject api response; Add a new field named MaterialType to GetEditingProjectMaterials api request.
+7, Add new fields named TranscodeFileRegular, Clip and Rotate to GetTranscodeTemplateGroup api response to support the custom file path feature.
+8, Add a new field named AttachedMedia to api response to support the attached media feature.
+9, Add a new field named SubTotal to GetCategories response to show the number of sub category.
+10, Add a new field named AdditionType to GetVideoInfo and GetVideoInfos api request to fetch the custom media info and the corresponding field is CustomMediaInfo.
+
+2019-04-10 Version: 1.36.1
+1, Modify DescribeBackupGatewayList DBS interface.
+
+2019-04-10 Version: 1.36.0
+1, New APIs for visual service (VNC).
+2, New APIs for software management.
+3, New APIs for CPFS filesystem.
+
+2019-04-09 Version: 1.35.9
+1, support service account management networkInterface function.
+
+2019-04-09 Version: 1.35.8
+1, Add Apis for offline VerifySDK.
+
+2019-04-08 Version: 1.35.7
+1, Modify DescribeBackupPlanList DBS interface.
+2, Modify DescribeFullBackupList DBS interface.
+3, Modify DescribeIncrementBackupList DBS interface.
+4, Modify DescribeBackupGatewayList DBS interface.
+
+2019-04-08 Version: 1.35.6
+1, Add StopBackupPlan DBS interface.
+2, Add DescribeBackupPlanList DBS interface.
+3, Add DescribeFullBackupList DBS interface.
+4, Add DescribeIncrementBackupList DBS interface.
+5, Add DescribeBackupGatewayList DBS interface.
+
+2019-04-04 Version: 1.35.5
+1, ScalingConf systemDisk add DiskName and Description  parameters.
+2, ScalingConf dataDisk add DiskName & Description & Encrypted & KMSKeyId  parameters.
+
+2019-04-03 Version: 1.35.4
+1, Add interfaces related to vulnerability whitelist
+2, Add interfaces related to vulnerability auto-del configuration
+3, Add interfaces related to vulnerability fix advise
+4, Add interfaces searching and operating vulnerability
+
+2019-03-29 Version: 1.35.3
+1, Add DLQ message openAPI.
+2, Add Query the subscription relational openAPI.
+3, Remove white list restrictions.
+
+2019-03-28 Version: 1.35.2
+1, release bssopenapi
+
+2019-03-28 Version: 1.35.1
+1, Add multiple language support in DescribeZones
+2, Add gray parameter in CreateDisk
+
+2019-03-28 Version: 1.35.0
+1, Add logo detect.
+
+2019-03-27 Version: 1.34.66
+1, Add Project interface.
+2, Add Tag interface.
+3, Add TrainData interface.
+4, Add Train interface.
+5, Add Iteration interface.
+6, Add Predict interface.
+7, Add PredictData interface.
+
+2019-03-27 Version: 1.34.65
+1, Add Project interface.
+2, Add Tag interface.
+3, Add TrainData interface.
+4, Add Train interface.
+5, Add Iteration interface.
+6, Add Predict interface.
+7, Add PredictData interface.
+
+2019-03-27 Version: 1.34.64
+1, Add DLQ message openAPI.
+2, Add Query the subscription relational openAPI.
+3, Remove white list restrictions.
+
+2019-03-27 Version: 1.34.63
+1, Add DLQ message openAPI.
+2, Add Query the subscription relational openAPI.
+3, Remove white list restrictions.
+
+2019-03-27 Version: 1.34.62
+1, release dysmsapi
+
+2019-03-25 Version: 1.34.61
+1, cms fix duplicated struct definition
+
+2019-03-25 Version: 1.34.60
+1, mts fix duplication struct definition
+
+2019-03-25 Version: 1.34.59
+1, jarvis-pulic fix product code with dash
+
+2019-03-25 Version: 1.34.58
+1, sas-api, fix product code with dash
+
+2019-03-21 Version: 1.34.57
+1, Update Dependency
+
+2019-03-21 Version: 1.34.56
+1,  Update Dependency
+
+2019-03-20 Version: 1.34.55
+1, Update the Dependency
+
+2019-03-20 Version: 1.34.54
+1, Update the Dependency
+
+2019-03-20 Version: 1.34.53
+1, cloudwf: update bool type parameter
+
+2019-03-20 Version: 1.34.52
+1, Update Dependency
+
+2019-03-19 Version: 1.34.51
+1, Support ' fc ' Source DomainName
+
+2019-03-19 Version: 1.34.50
+1, move fields: tag, associate_person, cid
+
+2019-03-19 Version: 1.34.49
+1, format fields: tags, associatePerson
+
+2019-03-19 Version: 1.34.48
+1, add query user oms data api
+
+2019-03-19 Version: 1.34.47
+1, Update Dependency
+
+2019-03-19 Version: 1.34.46
+1, Update Dependency
+
+2019-03-19 Version: 1.34.45
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2019-03-18 Version: 1.34.44
+1, rds: deliver string true/false to server for bool type parameter, not previous 1/0
+
+2019-03-18 Version: 1.34.43
+1, deliver string true/false to server for bool type parameter, not previous 1/0
+
+2019-03-18 Version: 1.34.42
+1, Signature Document SDK.
+2, First version publish.
+3, Beta Version SDK
+
+2019-03-18 Version: 1.34.41
+1, Update Dependency
+
+2019-03-18 Version: 1.34.40
+1, move AssociatePerson\Tag field
+2, Optimize RealName field
+
+2019-03-18 Version: 1.34.39
+1, Update Dependency
+
+2019-03-18 Version: 1.34.38
+1, Update Dependency
+
+2019-03-18 Version: 1.34.37
+1, Update Dependency
+
+2019-03-18 Version: 1.34.36
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.35
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.34
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.33
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.32
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.31
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.30
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.29
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.28
+1, Update Dependency
+
+2019-03-15 Version: 1.34.27
+1,  Update Dependency
+
+2019-03-15 Version: 1.34.26
+1, Update Dependency
+
+2019-03-15 Version: 1.34.25
+1, Update Dependency
+
+2019-03-14 Version: 1.34.24
+1, Update Dependency
+
+2019-03-14 Version: 1.34.23
+1, Update Dependency
+
+2019-03-14 Version: 1.34.22
+1, Update Dependency
+
+2019-03-14 Version: 1.34.21
+1, Update Dependency
+
+2019-03-14 Version: 1.34.20
+1,  Update Dependency
+
+2019-03-14 Version: 1.34.19
+1, Update Dependency
+
+2019-03-14 Version: 1.34.18
+1, Update Dependency
+
+2019-03-14 Version: 1.34.17
+1, Update Dependency
+
+2019-03-14 Version: 1.34.16
+1, Update Dependency
+
+2019-03-13 Version: 1.34.15
+1, Update Dependency
+
+2019-03-13 Version: 1.34.14
+1, Update Dependency
+
+2019-03-13 Version: 1.34.13
+1, Update Dependency
+
+2019-03-13 Version: 1.34.12
+1, Distinguish between system and service parameters
+
+2019-03-13 Version: 1.34.11
+1, add DescribeDemands interface
+
+2019-03-13 Version: 1.34.10
+1, Distinguish between system and service parameters
+
+2019-03-12 Version: 1.34.9
+1,  add agency infomation
+2,  update sdk core resources
+
+2018-12-20 Version: 1.34.8
+1, Sync CDN API.
+
+2018-12-11 Version: 1.34.7
+1, Sync CDN API.
+
+2018-12-06 Version: 1.34.6
+1, Add DescribeLiveDomainRealTimeBpsData, DescribeLiveDomainRealTimeHttpCodeData,DescribeLiveDomainRealTimeTrafficData.
+2, Update DescirbeCasterChannels and DescribeCasterStreamUrl.
+
+
+2018-12-03 Version: 1.34.5
+1, Sync CDN API.
+
+2018-12-03 Version: 1.34.4
+1, Sync CDN API.
+
+2018-12-03 Version: 1.34.3
+1, Update 2014-11-11 API.
+
+2018-12-03 Version: 1.34.2
+1,  Add a parameter to RemoveInstances.
+
+2018-11-30 Version: 1.34.1
+1, Add new apis called AddVodTemplate, UpdateVodTemplate, DeleteVodTemplate, ListVodTemplate, GetVodTemplate and SetDefaultVodTemplate which support vodtemplate feature.
+2, Add a new api called CreateUploadAttachedMedia to get upload auth for attached media
+3, Add new apis called AddWorkFlow, UpdateWorkFlow, DeleteWorkFlow, ListWorkFlow, GetWorkFlow  which support workflow feature.
+
+2018-11-28 Version: 1.34.0
+1, Add RedeployInstance interface, and support to migrate ecs instance with specified maintenance events actively
+
+2018-11-28 Version: 1.33.6
+1, Add APIs InvokeThingsService, SetDevicesProperty and QueryDeviceByTags .
+
+2018-11-27 Version: 1.33.5
+1, Add APIs InvokeThingsService, SetDevicesProperty and QueryDeviceByTags .
+
+2018-11-22 Version: 1.33.4
+1, Increase the scene field
+
+2018-11-22 Version: 1.33.3
+1, Add parameter DeletionProtection when creating instance and modifying instance attribute
+
+
+2018-11-21 Version: 1.33.2
+1, Add new apis called AddWatermark, UpdateWatermark, DeleteWatermark, ListWatermarks, GetWatermark and SetDefaultWatermark which support watermark feature.
+2, Add a new api called RegisterMedia which supports registration of audio and video media files that already exist in the OSS bucket.
+3, Add the field named OverrideParams to SubmitTranscodeJobs api request.
+
+2018-11-16 Version: 1.33.1
+1, update version
+
+2018-11-15 Version: 1.33.0
+1, ECS support ipv6Address
+
+2018-11-14 Version: 1.32.0
+1, Better support for hybrid cluster.
+
+2018-11-13 Version: 1.31.0
+1, Add FuzzyMatchDomainSensitiveWord interface，Support fuzzy matching sensitive words.
+2, Add BatchFuzzyMatchDomainSensitiveWord interface，Support batch fuzzy matching sensitive words.
+3, Add DynamicCheck properties for results of CheckDomain interface.
+
+2018-11-10 Version: 1.30.5
+1, Update SetWaitingRoomConfig.
+
+2018-11-08 Version: 1.30.4
+1, Fix the http response receive bug
+
+2018-11-08 Version: 1.30.3
+1, Update Version.
+
+
+2018-11-07 Version: 1.30.2
+1, Add API CreateTemplate,DeleteTemplate,GetAllTemplate,GetTemplateInfo.
+2, Add API  GetTaskStatus,StartTask,StopTask.
+3, Add API GetTaskParam,UpdateTaskParam.
+
+
+2018-11-02 Version: 1.30.1
+1, deviceName and productKey can be used instead of iotId.
+2, New productKey fields for queryauthentication output parameter.
+3, New deviceName fields for queryauthentication output parameter.
+
+2018-11-02 Version: 1.30.0
+1, first version
+
+2018-10-31 Version: 1.29.5
+1, Update SetWaitingRoomConfig.
+
+2018-10-31 Version: 1.29.4
+1, Add SetWaitingRoomConfig.
+
+2018-10-31 Version: 1.29.3
+1, Add SetWaitingRoomConfig.
+
+2018-10-30 Version: 1.29.2
+1, Add API DescribeLiveDomainBpsData,DescribeLiveDomainTrafficData.
+
+
+2018-10-26 Version: 1.29.1
+1, Return AuditConclusions in SubmitMaterials API.
+
+2018-10-25 Version: 1.29.0
+1, Add apis for trademark domains.
+2, Add QueryDomainAdminDivision api.
+
+2018-10-16 Version: 1.28.3
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-10-16 Version: 1.28.2
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-10-16 Version: 1.28.1
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-10-16 Version: 1.28.0
+1, Delete deprecated and unusable apis : AddIpRange, UnbindIpRange, BindIpRange, DescribeIntranetAttributeKb, DescribeIpRanges, ModifyIntranetBandwidthKb, DescribeEventDetail, CheckAutoSnapshotPolicy, CheckDiskEnableAutoSnapshotValidation, DescribeAutoSnapshotPolicy
+2, Add instance topology api DescribeInstanceTopology
+3, Add mount point in DescribeDisksFullStatus
+
+
+2018-10-16 Version: 1.27.11
+1, remove set group tags API.
+
+2018-10-13 Version: 1.27.10
+1, Add device group related APIs.
+
+2018-10-13 Version: 1.27.9
+1, Add device group related APIs.
+
+2018-10-13 Version: 1.27.8
+1, Add device group related APIs.
+
+2018-10-11 Version: 1.27.7
+1, Add a new api called DeleteMezzanines to clear mezzanine infos and storages.
+2, Add the field called PlayConfig to GetVideoPlayAuth and GetPlayInfo api request.
+3, Add a new api called UpdateImageInfos to update image information.
+
+2018-10-09 Version: 1.27.6
+1, v1.0.0-->v1.0.1
+2, provider new region:beijing/shenzhen/zhangjiakou
+3, provider service for VPC user;
+
+2018-09-30 Version: 1.27.5
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-09-29 Version: 1.27.4
+1, Sync cdn api.
+
+2018-09-29 Version: 1.27.3
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-09-29 Version: 1.27.2
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-09-28 Version: 1.27.1
+1, Add one api, QueryAppDeviceList.
+
+2018-09-27 Version: 1.27.0
+1, Add new API ListQueues, modify API SetAutoScaleConfig to support queue related features.
+
+2018-09-27 Version: 1.26.4
+1, modify getFaces Api
+
+2018-09-27 Version: 1.26.3
+1, modify getFaces Api
+
+2018-09-25 Version: 1.26.2
+1, Add GetHotlineRecord and QueryHotlineRecord interface, version 1.0.0
+
+2018-09-17 Version: 1.26.1
+1, Add field for AddCasterVideoResource, DescribeCasterVideoResources, ModifyCasterVideoResource.
+
+
+2018-09-14 Version: 1.26.0
+1, Add DedicatedHost Feature
+
+2018-09-13 Version: 1.25.3
+1, Add CreateChannelToken.
+
+
+2018-09-06 Version: 1.25.2
+1, AutoScaling support launchTemplate.
+
+2018-09-06 Version: 1.25.1
+1, Add API deleteProduct.
+2, Move all API to version 20180120.
+
+2018-09-05 Version: 1.25.0
+1, Add new APIs with control policy for querying price
+
+2018-09-03 Version: 1.24.2
+1, voice identify interface
+2, client upload credentials interface
+
+2018-09-03 Version: 1.24.1
+1, Add new service API：FindServiceStatisticalData, which can support query service statistical data.
+
+2018-08-28 Version: 1.24.0
+1, Add new APIs for profiling application performance: GetCloudMetricProfiling, etc.
+2, Add new APIs to support Shifter container applications: AddContainerApp, etc.
+
+2018-08-28 Version: 1.23.4
+1, Add param for DescribeRegions,support AcceptLanguage,RegionEndpoint.
+
+2018-08-27 Version: 1.23.3
+1, add Ess alarm task api, CreateAlarm, DeleteAlarm, DescribeAlarms, DeleteAlarm, EnableAlarm, DisableAlarm
+
+
+2018-08-27 Version: 1.23.2
+1, Add api GetGatewayBySubDevice.
+2, Modified the time related response parameters.
+3, Add messageId in response with InvokeThingService，SetDeviceProperty and NotifyAddThingTopo.
+
+2018-08-23 Version: 1.23.1
+1, RunInstance add privateIpAddress.
+
+2018-08-22 Version: 1.23.0
+1, Add api CreateSimulatedSystemEvents, support creating one or more simulated system events.
+2, Add api CancelSimulatedSystemEvents, support cancelling one or more simulated system events.
+
+2018-08-21 Version: 1.22.9
+1, Repair describeLaunchTemplateVersions securityEnhancementStrategy type
+
+2018-08-21 Version: 1.22.8
+1, Add api: MoPenQueryCanvas, MoPenDoRecognize, MoPenSendMqttMessage, MoPenFindGroup
+
+2018-08-17 Version: 1.22.7
+1, Add a new api called DeleteImage to clear the image resource.
+2, Add the field called AdditionType and OutputType to GetMezzanineInfo api request.
+3, Add the field called OutputType to GetMezzanineInfo api response.
+4, Add the field called CreationTime and ModificationTime to GetPlayInfo api response.
+
+2018-08-17 Version: 1.22.6
+1, New apkpubkey fields for queryauthentication output parameter.
+2, New packagename fields for queryauthentication output parameter.
+3, New clientId fields for queryauthentication output parameter.
+
+2018-08-16 Version: 1.22.5
+1, ModifyScalingConfiguration add imageName.
+2, CreateScalingConfiguration add imageName.
+
+2018-08-15 Version: 1.22.4
+1, Fix bug in GetMaterials API.
+2, GetVerifyToken added a new param VerifyConfigs
+
+2018-08-15 Version: 1.22.3
+1, Add domain operation api AddLiveDomain,DeleteLiveDomain,DescribeLiveDomainDetail,StartLiveDomain,StopLiveDomain.
+2, Add certificate operation api DescribeLiveCertificateDetail,DescribeLiveCertificateList,SetLiveDomainCertificate.
+3, Add domain config api BatchSetLiveDomainConfigs,BatchDeleteLiveDomainConfigs,DeleteLiveSpecificConfig,DescribeLiveDomainConfigs.
+
+2018-08-15 Version: 1.22.2
+1, Update ecs tag to 20 maximum
+
+
+2018-08-14 Version: 1.22.1
+1, Change parameter name of Dialogue
+
+2018-08-13 Version: 1.22.0
+1, New userinfo fields for registerface input parameter.
+2, New userinfo fields for updateface input parameter.
+3, New userinfo fields for queryface output parameter.
+
+2018-08-13 Version: 1.21.6
+1, Add cross domain support.
+2, Add parameter SerialNumber to interface RebootSmartAccessGateway.
+
+2018-08-08 Version: 1.21.5
+1, The official release 4.0.0
+
+2018-08-08 Version: 1.21.4
+1, Update FC apis.
+
+2018-08-08 Version: 1.21.3
+1, First release.
+
+2018-08-07 Version: 1.21.2
+1, Add api GetGatewayBySubDevice.
+2, Modified the time related response parameters.
+3, Add messageId in response with InvokeThingService，SetDeviceProperty and NotifyAddThingTopo.
+
+2018-08-05 Version: 1.21.1
+1, Add Interface SubmitSubtitleJob
+2, Support convert ttml、stl subtitle to vtt
+
+2018-08-03 Version: 1.21.0
+1, Add new API AddLocalNodes, for adding local machine to a hybrid cluster
+
+2018-08-01 Version: 1.20.5
+1, Add new API GetConversationDetailByContactId
+
+2018-08-01 Version: 1.20.4
+1, Add api: MoPenQueryCanvas, MoPenDoRecognize, MoPenSendMqttMessage, MoPenFindGroup
+
+2018-07-31 Version: 1.20.3
+1, Support describePrice for market image, add return detailInfo in interface describePrice
+
+2018-07-26 Version: 1.20.2
+1, Add BatchGetJobMetricInfo API.
+2, Add BatchGetPluginConfigInfo API.
+3, Add GetJobTopology API.
+
+2018-07-25 Version: 1.20.1
+1, Add RemoveTerminals API.
+
+
+2018-07-13 Version: 1.20.0
+1, New APIs for batch executing commands in cluster: InvokeShellCommand, ListCommands, etc.
+2, New APIs for HybridCluster (link E-HPC with cluster in local IDC): CreateHybridCluster, etc.
+3, New APIs for Container applications: AddContainerApp, etc.
+
+2018-07-11 Version: 1.19.3
+1, new function: Attach and Detach Rds instance of scalingGroup.
+
+
+2018-07-11 Version: 1.19.2
+1, Add DetectFaceAttributesService.
+2, Add cloudauthPageUrl to GetVerifyTokenResponse.
+
+2018-07-05 Version: 1.19.1
+1, new function, attach/detach load balancer of scalingGroup
+
+2018-07-05 Version: 1.19.0
+1, A new optional parameter 'Perspectives' is introduced to the 'Chat' API. By filling this parameter when calling 'Chat', you'll get the knowledge base content within the specified perspectives.
+
+2018-06-28 Version: 1.18.1
+1, ScalingConfiguration support hostName and passwordInherit
+2, ScalingConfiguration support modify
+
+2018-06-27 Version: 1.18.0
+1, Modify QueryDomainRealNameVerificationInfo Api, add a return value IdentityCredentialUrl, which is domain real name verification image, you can download it via a HTTP get request,It has validity for 30 seconds.
+2, Modify QueryRegistrantProfileRealNameVerificationInfo Api, add a return value IdentityCredentialUrl, which is domain real name verification image, you can download it via a HTTP get request,It has validity for 30 seconds
+
+
+2018-06-27 Version: 1.17.10
+1, DescribeNetworkInterfaces support query with vpcId
+
+2018-06-22 Version: 1.17.9
+1, rtc openapi
+
+
+2018-06-21 Version: 1.17.8
+1, This is add InstanceList.
+
+2018-06-20 Version: 1.17.7
+1, Add InstanceList in product security information query.
+
+2018-06-20 Version: 1.17.6
+1, Add InstanceList in product security information query.
+
+2018-06-14 Version: 1.17.5
+1, Add passwordInherit.
+
+2018-06-13 Version: 1.17.4
+1, Add API AddCasterEpisodeGroupContent,CreateCaster.
+2, Add Parameter fillMode for AddCasterLayout,ModifyCasterLayout.
+3, Add return value fillMode DescribeCasterLayouts.
+4, Update ErrorCode for StartCaster,StartCasterScene,DescribeCasters,CopyCaster.
+5, Update ErrorCode for ModifyCasterLayout,DeleteCasterLayout,DeleteLiveAppRecordConfig.
+6, Update ForbidLiveStream,DescribeLiveStreamsPublishList,DescribeLiveStreamsOnlineList.
+
+2018-06-13 Version: 1.17.3
+1, Add lifecycleHook.
+
+2018-06-08 Version: 1.17.2
+1, Add scdn interface，support scdn.
+
+2018-06-06 Version: 1.17.1
+1, Change the type of srcUid to int.
+
+2018-06-06 Version: 1.17.0
+1, Add interface DescribePhoneInfo, DescribeDdosDefenseInfo, DescribeRiskListDetail, DescribePunishList.
+
+2018-05-29 Version: 1.16.0
+1, Add new interface DescribePhoneInfo to SDK.
+
+2018-05-28 Version: 1.15.0
+1, Add face 1-N,1-1 scan interface.
+
+2018-05-28 Version: 1.14.0
+1, ValidateSecurityGroup API
+
+2018-05-28 Version: 1.13.0
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-05-23 Version: 1.12.0
+1, Add CreateDrdsAccount API, to support creating account for all databases of a DRDS instance.
+
+2018-05-23 Version: 1.11.0
+1, Update API version to 2018-04-12. 
+2, New APIs in this new version: StartCluster, StopCluster, RecoverCluster, StartNodes, StopNodes, ListCustomImages. Support stopping a post-paid cluster or partial nodes of a cluster to save cost.
+3, New parameters for CreateCluster API: EcsChargeType. Support creating a pre-paid cluster.
+4, New parameters for CreateCluster API: DeploymentMode. Support creating a cluster with fewer manager nodes.
+
+2018-05-23 Version: 1.10.3
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-05-22 Version: 1.10.2
+1, add DescribeMigrateTasks,DescribeOssDownloads,CheckRecoveryConditions.
+2, modify DescribeDBInstanceAttribute.
+
+2018-05-17 Version: 1.10.1
+1, Supporting ethnicGroup and idCardStartDate fields in GetMaterials api
+
+2018-05-17 Version: 1.10.0
+1, the first version of private dns SDK
+
+2018-05-11 Version: 1.9.1
+1, Add Function Compute interface,support Function Compute.
+
+2018-05-09 Version: 1.9.0
+1, Add apis for domain broker.
+
+2018-05-08 Version: 1.8.2
+1, Add instance params.
+
+2018-05-08 Version: 1.8.1
+1, Remove DescribeAccountAttributes.
+
+2018-05-02 Version: 1.8.0
+1, Add new interface InstallCloudAssistant, support Cloud Assistant client installation.
+2, Add new interface DescribeCloudAssistantStatus, support Cloud Assistant client status detection.
+
+2018-04-28 Version: 1.7.3
+1, Add dcdn domain interface，Support add、modify、delete、query dcdn domain.
+2, Add dcdn config interface，Support set、delete、query domain config.
+
+2018-04-28 Version: 1.7.2
+1, Add dcdn domain interface，Support add、modify、delete、query dcdn domain.
+2, Add dcdn config interface，Support set、delete、query domain config.
+
+2018-04-27 Version: 1.7.1
+1, release hsm open api
+2, hsm open api includes DescribeRegions, DescribeInstances, ModityInstance, ConfigNetwork, ConfigWhiteList
+
+2018-04-26 Version: 1.7.0
+1, Add apis for domain group.
+3, Add fields for QueryDomainList.
+
+2018-04-24 Version: 1.6.5
+1, add interface FetchPhotos
+2, add xflush log param unixTimestamp
+
+2018-04-23 Version: 1.6.4
+1, DescribeInstanceHistoryEvents adds parameter instanceEventTypes and instanceEventCycleStatuss.
+2, InstanceId parameter is not necessary for DescribeInstanceHistoryEvents now.
+3, DescribeInstancesFullStatus adds parameter instanceEventTypes.
+
+2018-04-23 Version: 1.6.3
+1, Add notificationConfiguration.
+2, Add standby status.
+
+2018-04-17 Version: 1.6.2
+1, EditPhotos add input param TakenAt
+2, add FetchMomentPhotos
+3, ListAlbums add return param Remark
+
+2018-04-11 Version: 1.6.1
+1, GetLibrary/FetchLibraries add return ctime
+2, Editphotos add input param takenAt
+
+2018-04-10 Version: 1.6.0
+1, Add three interfaces CreateNetworkInterfacePermission DeleteNetworkInterfacePermission DescribeNetworkInterfacePermissions.
+
+2018-04-10 Version: 1.5.1
+1, publish Project API.
+2, publish Service API.
+3, publish Service order API.
+4, publish Credential API.
+5, publish CAS API.
+
+2018-04-08 Version: 1.5.0
+1, Add voice asynchronous scan interface.
+
+2018-04-03 Version: 1.4.0
+1, Add APIs for domain transfer in and transfer out.
+2, Add APIs for poll and acknowledge domain task.
+3, Add API for query domain group list.
+
+2018-03-30 Version: 1.3.8
+1, API QueryCustomerSaleInfo arguments update.
+
+2018-03-29 Version: 1.3.7
+1, edit FetchLibraries return param format
+
+2018-03-27 Version: 1.3.6
+1, Rename QueryCustomerSaleInfo to RegionName.
+
+2018-03-27 Version: 1.3.5
+1, publish Project API.
+2, publish Service API.
+3, publish Service order API.
+4, publish Credential API.
+5, publish CAS API.
+
+2018-03-27 Version: 1.3.4
+1, add interface FetchLibraries
+
+2018-03-23 Version: 1.3.3
+1, interface DescribeInstanceTypes output InstancePpsRx InstancePpsTx
+
+2018-03-23 Version: 1.3.2
+1, interface DescribeInstanceTypes output InstancePpsRx InstancePpsTx
+
+2018-03-23 Version: 1.3.1
+1, ModifyPrepayInstanceSpec support migrateAcrossZone.
+
+2018-03-23 Version: 1.3.0
+1, Add 'QueryDevicesByAccount' and 'QueryDevicesByAlias'  Api.
+2, Remove 'QueryPushDetail' Api.
+
+2018-03-20 Version: 1.2.16
+1, add FetchAlbumTagPhotos
+2, CreatePhoto add optional param TakenAt
+
+2018-03-16 Version: 1.2.15
+1, Synchronize to the latest api list
+
+2018-03-15 Version: 1.2.14
+1, Synchronize to the latest api list
+
+2018-03-15 Version: 1.2.13
+1, Synchronize to the latest api list
+
+2018-03-15 Version: 1.2.12
+1, Synchronize to the latest api list
+
+2018-03-15 Version: 1.2.11
+1, Synchronize to the latest api list
+
+2018-03-15 Version: 1.2.10
+1, Add QueryCustomerSaleInfo API.
+
+2018-03-14 Version: 1.2.9
+1, Support predefine endpoints parse
+
+2018-03-13 Version: 1.2.8
+1, API GetQuotaHistoryInfo fix field error.
+
+2018-03-07 Version: 1.2.7
+1, add GetAlbumsByNames
+2, add ListEvent/CreateEvent/EditEvent/DeleteEvent/GetEvent
+3, add return IdStr for string
+
+2018-03-06 Version: 1.2.6
+1, add GetAlbumsByNames
+2, add ListEvent/CreateEvent/EditEvent/DeleteEvent/GetEvent
+3, add return IdStr for string
+
+
+2018-03-06 Version: 1.2.5
+1, add GetAlbumsByNames
+2, add ListEvent/CreateEvent/EditEvent/DeleteEvent/GetEvent
+3, add return IdStr for string
+
+2018-02-28 Version: 1.2.4
+1, Add query resource inventory API.
+2, Add query topology API.
+
+2018-02-27 Version: 1.2.3
+1, Add query topology API.
+
+2018-02-27 Version: 1.2.2
+1, Add new API: ListRecordingsByContactId.
+
+
+2018-02-27 Version: 1.2.1
+1, Add Action API.
+
+2018-02-27 Version: 1.2.0
+1, add new api DescribeClusters,DescribeClusterLogs,DescribeClusterNodes,UpgradeClusterComponents
+
+2018-02-09 Version: 1.1.0
+1, Aliyun E-HPC service SDK, initial version.
+2, Include APIs of E-HPC clusters, nodes, users, jobs, job templates etc.
+
+2018-02-07 Version: 1.0.12
+1, add the access interface of logs such as vulnerabilities, baselines, exceptions, etc.
+
+2018-02-06 Version: 1.0.11
+1, ModifyInstanceChargeType add instanceChargeType param, support prepay instance to postpay instance.
+2, ModifyPrepayInstanceSpec add operatorType param, support downgrade prepay ecs.
+
+2018-02-02 Version: 1.0.10
+1, this version is new of captcha management and nvc analyze
+
+2018-01-26 Version: 1.0.9
+1, Update  InstanceProfileCredentialsProvider
+2, Update common api
+
+2018-01-24 Version: 1.0.8
+1,  Fixed a problem that the ActiveAlert interface name is not standard
+2,  Update ActiveAlert interface : ListProductOfActiveAlert / DisableActiveAlert / EnableActiveAlert
+
+2018-01-24 Version: 1.0.7
+1, Add ActiveAlert API : ListActiveAlertRuleRequest/ListProductOfActiceAlertRequest/EnableActiceAlertRequest/DisableActiceAlertRequest
+
+2018-01-23 Version: 1.0.6
+1, Tesla Dam API release.
+2, Add ActionDiskCheck, ActionDiskMask, ActionDiskRma, HostGets.
+
+2018-01-12 Version: 1.0.5
+1, First commit ess module
+
+2018-01-11 Version: 1.0.4
+1, replace photo tag 2000 upgrade to 5000
+2, add TrashQuota
+
+2018-01-10 Version: 1.0.3
+1, First release vpc for c++
+
+2018-01-10 Version: 1.0.2
+1, First release slb for C++
+
+2018-01-10 Version: 1.0.1
+1, First release ecs for C++
+
+2017-12-27 Version: 1.0.0
+1, Fix build failed on linux
+

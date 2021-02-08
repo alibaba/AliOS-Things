@@ -116,15 +116,22 @@ AliOS_VideoInit(_THIS)
     SDL_DisplayMode mode;
 
     /* Use a fake 32-bpp desktop mode */
+#ifdef AOS_COMP_LCD
 #ifdef AOS_APP_GAME_DEMO
     hal_lcd_t *hal_lcd = get_hal_lcd();
+    uint8_t *frame;
     mode.format = SDL_PIXELFORMAT_RGB565;
     mode.w = 240;
     mode.h = 320;
+    frame = malloc(mode.w*mode.h*2);
 #else
-    mode.format = SDL_PIXELFORMAT_RGB888;
-    mode.w = 800;
-    mode.h = 480;
+    hal_lcd_t *hal_lcd = get_hal_lcd();
+    uint8_t *frame;
+    mode.format = SDL_PIXELFORMAT_RGB565;
+    mode.w = 320;
+    mode.h = 240;
+    frame = malloc(mode.w*mode.h*2);
+#endif
 #endif
     mode.refresh_rate = 0;
     mode.driverdata = NULL;
@@ -139,9 +146,20 @@ AliOS_VideoInit(_THIS)
     SDL_EVDEV_Init();
 #endif
 
+#ifdef AOS_COMP_LCD
 #ifdef AOS_APP_GAME_DEMO
     hal_lcd->lcd_init();
     hal_lcd->lcd_rotation_set(HAL_LCD_ROTATE_0);
+    memset(frame, 0xffff, mode.w*mode.h*2);
+    hal_lcd->lcd_frame_draw(frame);
+    free(frame);
+#else
+    hal_lcd->lcd_init();
+    hal_lcd->lcd_rotation_set(HAL_LCD_ROTATE_90);
+    memset(frame, 0xffff, mode.w*mode.h*2);
+    hal_lcd->lcd_frame_draw(frame);
+    free(frame);
+#endif
 #endif
     //AliOS_InitMouse(_this);
 

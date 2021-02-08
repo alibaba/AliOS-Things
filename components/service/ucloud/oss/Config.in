@@ -1,0 +1,23 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_OSS
+    bool "oss"
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO
+    select MBEDTLS_CONFIG_CRYPTO_MD5
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_OSS
+    bool "OSS Configuration"
+    select AOS_COMP_MBEDTLS
+    select MBEDTLS_CONFIG_CRYPTO
+    select MBEDTLS_CONFIG_CRYPTO_MD5
+    default n
+    help
+	    AliOS Things oss
+endif
+

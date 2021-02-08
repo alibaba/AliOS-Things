@@ -1,0 +1,178 @@
+2.0.5:
+Sam Lantinga - Wed Jun 19 07:30:51 PDT 2019
+ * Updated external libraries libpng-1.6.32, libwebp-1.0.2
+Sam Lantinga - Tue Jun 11 00:17:01 PDT 2019
+ * Fixed a number of security issues:
+   TALOS-2019-0820
+   TALOS-2019-0821
+   TALOS-2019-0841
+   TALOS-2019-0842
+   TALOS-2019-0843
+   TALOS-2019-0844
+Sathyanarayanan Gunasekaran, Brian Palmer, Charlie Birks, Amadeus - Mon Jun 10 16:48:20 PDT 2019
+ * Ported SDL_image to emscripten
+
+2.0.4:
+Michał Janiszewski - Fri Sept 28 22:00:26 PST 2018
+ * Fixed memory issues in the XCF loader
+Ryan Gordon - Wed Sept 26 14:58:31 PST 2018
+ * Fixed a number of security issues, including TALOS-2018-0645
+
+2.0.3:
+Ryan Gordon - Sun Jan 28 21:28:16 PST 2018
+ * Fixed a number of security issues:
+   TALOS-2017-0488
+   TALOS-2017-0489
+   TALOS-2017-0490
+   TALOS-2017-0491
+   TALOS-2017-0497
+   TALOS-2017-0498
+   TALOS-2017-0499
+Sam Lantinga - Sun Jan 28 21:24:10 PST 2018
+ * Added a dependency on SDL 2.0.8
+
+2.0.2:
+Sam Lantinga - Sat Oct 21 23:42:28 PDT 2017
+ * Added simple SVG image support based on Nano SVG
+Sam Lantinga - Sat Oct 21 22:14:34 PDT 2017
+ * Updated external libraries jpeg-9b, libpng-1.6.32, libwebp-0.6.0, tiff-4.0.8 and zlib-1.2.11
+Yves Younan - Fri, Oct  6, 2017  3:38:38 PM
+ * Fixed security vulnerability in XCF image loader
+Alexey - Tue Sep 12 00:41:53 PDT 2017
+ * Added optional support for loading images using Windows Imaging Component
+Fabian Greffrath - Tue Sep 12 00:15:56 PDT 2017
+ * Added libpng save support for much smaller 8-bit images
+Alexey - Mon Sep 11 23:50:31 PDT 2017
+ * Added JPG save support when built with jpeglib
+	IMG_SaveJPG() and IMG_SaveJPG_RW()
+
+2.0.1:
+Jeffrey Carpenter - Sat Nov 29 12:06:05 2014
+ * Fixed image colorspace issue on iOS and Mac OS X
+Sam Lantinga - Sun Jun 15 17:33:46 2014
+ * Fixed support for transparency in XPM files
+Davide Coppola - Thu Apr 17 17:30:12 2014
+ * Fixed building JPEG support on Android
+David Ludwig - Tue Apr 01 19:40:35 2014
+ * Added support for building for Windows RT and Windows Phone
+Timur - Wed Dec 11 21:24:36 2013
+ * Fixed memory leak in webp image loading
+Patrice Mandin - Thu Nov 07 19:15:28 2013
+ * Fixed loading BMP files with large BITMAPINFOHEADER structures
+Sam Lantinga - Fri Oct 11 21:54:20 2013
+ * Fixed building with libpng 1.4
+
+2.0.0:
+Sam Lantinga - Sun Jun  2 22:25:31 PDT 2013
+ * Added PNG save support based on miniz.c by Rich Geldreich
+       IMG_SavePNG(), IMG_SavePNG_RW()
+Sam Lantinga - Sat Jun  1 19:11:26 PDT 2013
+ * Updated for SDL 2.0 release
+Sam Lantinga - Sat Mar 23 13:36:51 PDT 2013
+ * Fixed bug setting colorkey for indexed PNG images
+Torsten Stremlau - Sun Mar 10 10:19:25 PDT 2013
+ * Added support for alpha and lossless WEBP images
+
+1.2.12:
+mscott - 2012-02-06 19:40:23 PST
+ * Fixed image corruption when using ImageIO framework
+Sylvain - Thu Nov 22 13:09:59 PST 2012
+ * Added extended XPM color table (disabled by default in IMG_xpm.c)
+Sam Lantinga - Thu Jan 19 23:18:09 EST 2012
+ * Fixed regression in 1.2.11 loading 8-bit PNG images with libpng
+
+1.2.11:
+Sam Lantinga - Sat Jan 14 17:54:38 EST 2012
+ * Fixed loading 8-bit PNG images on Mac OS X
+Sam Lantinga - Sat Dec 31 09:35:40 EST 2011
+ * SDL_image is now under the zlib license
+Michael Bonfils - Mon Nov 28 21:46:00 EST 2011
+ * Added WEBP image support
+Thomas Klausner - Wed Jan 19 19:31:25 PST 2011
+ * Fixed compiling with libpng 1.4
+Sam Lantinga - Mon Jan 10 12:09:57 2011 -0800
+ * Added Android.mk to build on the Android platform
+Sam Lantinga - Mon May 10 22:42:53 PDT 2010
+ * Fixed loading HAM6 images with stencil mask
+Mark Tucker - Fri, 27 Nov 2009 12:38:21 -0500
+ * Fixed bug loading 15 and 16 bit BMP images
+
+1.2.10:
+Sam Lantinga - Sat Nov 14 11:22:14 PST 2009
+ * Fixed bug loading multiple images
+
+1.2.9:
+Sam Lantinga - Tue Nov 10 00:29:20 PST 2009
+ * Fixed alpha premultiplication on Mac OS X and iPhone OS
+Sam Lantinga - Sun Nov  8 07:52:11 PST 2009
+ * Fixed checking for IMG_Init() return value in image loaders
+
+1.2.8:
+Sam Lantinga - Sun Oct  4 13:12:54 PDT 2009
+ * Added support for uncompressed PCX files
+Mason Wheeler - 2009-06-10 06:29:45 PDT 
+ * Added IMG_Init()/IMG_Quit() to prevent constantly loading and unloading DLLs
+Couriersud - Mon, 12 Jan 2009 17:21:13 -0800
+ * Added support for ICO and CUR image files
+Eric Wing - Fri, 2 Jan 2009 02:01:16 -0800
+ * Added ImageIO loading infrastructure for Mac OS X
+ * Added UIImage loading infrastructure for iPhone / iPod Touch
+
+1.2.7:
+Sam Lantinga - Sun Nov  2 15:08:27 PST 2008
+ * Fixed buffer overflow in BMP loading code, discovered by j00ru//vx
+Sam Lantinga - Fri Dec 28 08:34:54 PST 2007
+ * Fixed buffer overflow in GIF loading code, discovered by Michael Skladnikiewicz
+
+1.2.6:
+Sam lantinga - Wed Jul 18 00:30:32 PDT 2007
+ * Improved detection of libjpeg, libpng, and libtiff at configure time
+ * PNG and TIFF images are correctly identified even if dynamic libraries
+   to load them aren't available.
+ * Fixed loading of TIFF images using libtiff 3.6
+Sam Lantinga - Thu Jul 5 07:52:35 2007
+ * Fixed static linking with libjpeg
+Michael Koch - Tue Feb 13 10:09:17 2007
+ * Fixed crash in IMG_ReadXPMFromArray()
+
+1.2.5:
+Maurizio Monge - Sun May 14 13:57:32 PDT 2006
+ * Fixed loading BMP palettes at unusual offsets
+Sam Lantinga - Thu May 11 21:51:19 PDT 2006
+ * Added support for dynamically loading libjpeg, libpng, and libtiff.
+Sam Lantinga - Sun Apr 30 01:48:40 PDT 2006
+ * Added gcc-fat.sh for generating Universal binaries on Mac OS X
+ * Updated libtool support to version 1.5.22
+Sam Lantinga - Sat Feb  4 15:17:44 PST 2006
+ * Added support for XV thumbnail images
+Gautier Portet - Fri, 19 Mar 2004 17:35:12 +0100
+ * Added support for 32-bit BMP files with alpha
+
+1.2.4:
+Pierre G. Richard - Fri, 30 Jul 2004 11:13:11 +0000 (UTC)
+ * Added support for RLE encoded BMP files
+Marc Le Douarain - Fri, 26 Dec 2003 18:23:42 +0100
+ * Added EHB and HAM mode support to the ILBM loader
+Sam Lantinga - Wed Nov 19 00:23:44 PST 2003
+ * Updated libtool support for new mingw32 DLL build process
+Holger Schemel - Mon, 04 Aug 2003 21:50:52 +0200
+ * Fixed crash loading certain PCX images
+Kyle Davenport - Sat, 19 Apr 2003 17:13:31 -0500
+ * Added .la files to the development RPM, fixing RPM build on RedHat 8
+
+1.2.3:
+Ryan C. Gordon - Sat, 8 Feb 2003 09:36:33 -0500
+ * Fixed memory leak with non-seekable SDL_RWops
+Marc Le Douarain - Sun, 22 Dec 2002 22:59:51 +0100
+ * Added 24-bit support to the ILBM format loader
+Sam Lantinga - Sun Oct 20 20:55:46 PDT 2002
+ * Added shared library support for MacOS X
+Pete Shinners - Thu Jun 20 10:05:54 PDT 2002
+ * The JPEG loader can now load EXIF format JPEG images
+Dag-Erling Smorgrav - Thu May  2 19:09:48 PDT 2002
+ * The XCF loader now ignores invisible layers and channels
+
+1.2.2:
+Sam Lantinga - Sat Apr 13 07:49:47 PDT 2002
+ * Updated autogen.sh for new versions of automake
+ * Specify the SDL API calling convention (C by default)

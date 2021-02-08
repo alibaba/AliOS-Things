@@ -23,6 +23,18 @@ if AOS_APP_GAME_DEMO
         default "game_demo"
 endif
 
+source "application/example/wificamera_demo/Config.in"
+if AOS_APP_WIFICAMERA_DEMO
+    config AOS_BUILD_APP
+        default "wificamera_demo"
+endif
+
+source "application/example/ucloud_ai_demo/Config.in"
+if AOS_APP_UCLOUD_AI_DEMO
+    config AOS_BUILD_APP
+        default "ucloud_ai_demo"
+endif
+
 source "application/example/micropython_repl_demo/Config.in"
 if AOS_APP_REPL_DEMO
     config AOS_BUILD_APP

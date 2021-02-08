@@ -606,6 +606,8 @@ SDL_RWFromFile(const char *file, const char *mode)
             SDL_SetError("Couldn't open %s", file);
         } else {
             rwops = SDL_RWFromFP(fp, SDL_TRUE);
+            if (!rwops)
+                printf("rwops is null xxx\n");
         }
     }
 #else

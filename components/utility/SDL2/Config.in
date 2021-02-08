@@ -1,9 +1,17 @@
+if AOS_CREATE_PROJECT
 config AOS_COMP_SDL2
-    bool "SDL2"
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SDL2
+    bool "SDL Configuration"
     default n
     help
-      enable SDL2 lib
-
-if AOS_COMP_SDL2
-# Configurations for SDL2
+	    AliOS Things SDL
 endif
+

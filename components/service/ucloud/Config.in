@@ -1,0 +1,26 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_UCLOUD
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_UCLOUD
+    bool "ucloud Configuration"
+    default n
+    help
+	    AliOS Things ucloud
+endif
+
+menu "ucloud Configuration"
+source "components/service/ucloud/oss/Config.in"
+source "components/service/ucloud/facebody/Config.in"
+source "components/service/ucloud/objectdet/Config.in"
+source "components/service/ucloud/ocr/Config.in"
+endmenu

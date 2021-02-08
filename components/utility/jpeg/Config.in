@@ -1,0 +1,13 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_JPEG
+    bool
+    default y
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_JPEG
+    bool "JPEG Support"
+    default n
+    help
+        jpeg decoder and encoder library support
+endif

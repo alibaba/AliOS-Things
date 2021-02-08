@@ -361,6 +361,7 @@ int   pthread_key_create(pthread_key_t *key, void (*destructor)(void*));
 int   pthread_setspecific(pthread_key_t key, const void *value);
 void *pthread_getspecific(pthread_key_t key);
 int   pthread_key_delete(pthread_key_t key);
+int   pthread_once(pthread_once_t *once_control, void (*init_routine)(void));
 
 #ifdef __cplusplus
 }

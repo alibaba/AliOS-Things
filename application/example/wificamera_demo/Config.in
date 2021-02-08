@@ -1,0 +1,18 @@
+config AOS_APP_WIFICAMERA_DEMO
+    bool "HTTP App "
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    # the selection of dependencies are to be removed soon
+    select AOS_COMP_HTTP if !AOS_CREATE_PROJECT
+    select CONFIG_NEW_HTTP_API
+    select AOS_COMP_CLI if !AOS_CREATE_PROJECT
+    select AOS_COMP_CPLUSPLUS if !AOS_CREATE_PROJECT
+    help
+        wifi camera app
+
+if AOS_APP_WIFICAMERA_DEMO
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

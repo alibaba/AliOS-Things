@@ -45,6 +45,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+typedef uint32_t ret_code_t;
+
 /** @file
  *
  * @defgroup hal_lcd LCD Library
@@ -146,8 +148,8 @@ typedef struct
      */
     void (*lcd_display_invert)(bool invert);
 
-    void (*lcd_frame_draw)(uint32_t *frame);
-    void (*lcd_area_draw)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t *frame, uint32_t areaSize);
+    void (*lcd_frame_draw)(uint8_t *frame);
+    void (*lcd_area_draw)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t *frame, uint32_t areaSize);
     void (*lcd_line_draw)(uint16_t x, uint16_t y, uint16_t length, uint8_t dir, uint32_t color);
     /**
      * @brief Pointer to the LCD instance control block.
