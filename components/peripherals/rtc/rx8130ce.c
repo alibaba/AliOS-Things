@@ -111,7 +111,7 @@ int rx8130ce_set_time(const void *buf, uint8_t len)
         if(ret)
         {
             printf("RX8310CE set time fail\r\n");
-            ret = -1;
+            return -1;
         }
     }
 
@@ -153,7 +153,7 @@ int rx8130ce_get_time(void *buf, uint8_t len)
         if(ret)
         {
             printf("RX8310CE read time fail\r\n");
-            ret = -1;
+             return -1;
         }
     }
 

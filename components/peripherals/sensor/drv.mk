@@ -113,6 +113,9 @@ endif
 ifeq ($(AOS_SENSOR_ACC_ST_N2DM),y)
 $(NAME)_SOURCES += drv/drv_acc_st_n2dm.c
 endif
+ifeq ($(AOS_SENSOR_ACC_INV_MPU6050),y)
+$(NAME)_SOURCES += drv/drv_acc_gyro_inv_mpu6050.c
+endif
 ifeq ($(AOS_SENSOR_GYRO_BOSCH_BMI055),y)
 $(NAME)_SOURCES += drv/drv_acc_gyro_bosch_bmi055.c
 endif
@@ -164,6 +167,9 @@ endif
 ifeq ($(AOS_SENSOR_GYRO_ST_L3GD20H),y)
 $(NAME)_SOURCES += drv/drv_gyro_st_l3gd20h.c
 endif
+ifeq ($(AOS_SENSOR_GYRO_INV_MPU6050),y)
+$(NAME)_SOURCES += drv/drv_acc_gyro_inv_mpu6050.c
+endif
 
 ifeq ($(AOS_SENSOR_MAG_BOSCH_BMM150),y)
 $(NAME)_SOURCES += drv/drv_mag_bosch_bmm150.c
@@ -198,6 +204,10 @@ endif
 ifeq ($(AOS_SENSOR_MAG_MEMSIC_MMC3680KJ),y)
 $(NAME)_SOURCES += drv/drv_mag_temp_memsic_mmc3680kj.c
 endif
+ifeq ($(AOS_SENSOR_MAG_HONEYWELL_QMC5883L),y)
+$(NAME)_SOURCES += drv/drv_mag_honeywell_qmc5883l.c
+endif
+
 ifeq ($(AOS_SENSOR_ALS_AMS_TCS3400),y)
 $(NAME)_SOURCES += drv/drv_als_ams_tcs3400.c
 endif
@@ -218,6 +228,9 @@ $(NAME)_SOURCES += drv/drv_als_ps_liteon_ltr553.c
 endif
 ifeq ($(AOS_SENSOR_ALS_LITEON_LTR559),y)
 $(NAME)_SOURCES += drv/drv_als_ps_liteon_ltr559.c
+endif
+ifeq ($(AOS_SENSOR_ALS_LITEON_AP3216C),y)
+$(NAME)_SOURCES += drv/drv_als_ps_ir_liteon_ap3216c.c
 endif
 ifeq ($(AOS_SENSOR_ALS_ROHM_BH1730),y)
 $(NAME)_SOURCES += drv/drv_als_rohm_bh1730.c
@@ -243,7 +256,9 @@ endif
 ifeq ($(AOS_SENSOR_PS_LITEON_LTR706),y)
 $(NAME)_SOURCES += drv/drv_ps_liteon_ltr706.c
 endif
-
+ifeq ($(AOS_SENSOR_PS_LITEON_AP3216C),y)
+$(NAME)_SOURCES += drv/drv_als_ps_ir_liteon_ap3216c.c
+endif
 ifeq ($(AOS_SENSOR_BARO_IFX_DSP310),y)
 $(NAME)_SOURCES += drv/drv_baro_ifx_dps310.c
 endif
@@ -268,11 +283,17 @@ endif
 ifeq ($(AOS_SENSOR_BARO_BOSCH_BME280),y)
 $(NAME)_SOURCES += drv/drv_temp_humi_baro_bosch_bme280.c
 endif
+ifeq ($(AOS_SENSOR_BARO_GOERTEK_SPL06),y)
+$(NAME)_SOURCES += drv/drv_baro_goertek_spl06.c
+endif
 ifeq ($(AOS_SENSOR_GESTURE_PIXART_PAJ7620),y)
 $(NAME)_SOURCES += drv/drv_gs_pixart_paj7620.c
 endif
 ifeq ($(AOS_SENSOR_IR_AKM_AK9754),y)
 $(NAME)_SOURCES += drv/drv_ir_akm_ak9754.c
+endif
+ifeq ($(AOS_SENSOR_IR_LITEON_AP3216C),y)
+$(NAME)_SOURCES += drv/drv_als_ps_ir_liteon_ap3216c.c
 endif
 ifeq ($(AOS_SENSOR_RGB_LITEON_LTR381),y)
 $(NAME)_SOURCES += drv/drv_rgb_liteon_ltr381.c
@@ -305,6 +326,9 @@ endif
 ifeq ($(AOS_SENSOR_TEMP_ST_HTS221),y)
 $(NAME)_SOURCES += drv/drv_temp_humi_st_hts221.c
 endif
+ifeq ($(AOS_SENSOR_TEMP_SI7006),y)
+$(NAME)_SOURCES += drv/drv_temp_humi_si_si7006.c
+endif
 
 ifeq ($(AOS_SENSOR_HUMI_AMS_ENS210),y)
 $(NAME)_SOURCES += drv/drv_temp_humi_ams_ens210.c
@@ -323,6 +347,9 @@ $(NAME)_SOURCES += drv/drv_temp_humi_sensirion_shtc1.c
 endif
 ifeq ($(AOS_SENSOR_HUMI_ST_HTS221),y)
 $(NAME)_SOURCES += drv/drv_temp_humi_st_hts221.c
+endif
+ifeq ($(AOS_SENSOR_HUMI_SI7006),y)
+$(NAME)_SOURCES += drv/drv_temp_humi_si_si7006.c
 endif
 
 ifeq ($(AOS_SENSOR_CO2_SENSIRION_SCD30),y)

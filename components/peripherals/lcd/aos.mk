@@ -15,6 +15,10 @@ ifeq ($(AOS_LCD_ILI9341),y)
 $(NAME)_SOURCES += drv/ili9341.c
 endif
 
+ifeq ($(AOS_LCD_ST7789v),y)
+$(NAME)_SOURCES += drv/st7789v.c
+endif
+
 GLOBAL_DEFINES += AOS_COMP_LCD
 
 

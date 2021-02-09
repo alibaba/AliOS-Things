@@ -24,7 +24,7 @@ typedef struct {
 	struct HAL_PWM_CFG_T pwm_cfg;
 } _HAL_PWM_PRIV_T;
 
-static int inited = 0;
+static int inited[_HAL_PWM_MAX_NUM] = {0};
 
 static enum HAL_PWM_ID_T __hal_pwm_port2chan(uint8_t port)
 {
@@ -53,18 +53,17 @@ int32_t hal_pwm_init(pwm_dev_t *pwm)
 		printf("%s priv=%p, SHOULD be NULL!\n", __FUNCTION__, pwm->priv);
 		return -1;
 	}
-	if (inited == 0) {
-		hal_iomux_init(&pinmux_pwm, sizeof(pinmux_pwm)/sizeof(struct HAL_IOMUX_PIN_FUNCTION_MAP));
-		for (int i=0; i<_HAL_PWM_MAX_NUM; i++) {
-			hal_gpio_pin_set_dir(pinmux_pwm[i].pin, HAL_GPIO_DIR_OUT, 1);
-		}
+	if (inited[pwm->port] == 0) {
+		hal_iomux_init(&pinmux_pwm[pwm->port], 1);
+		hal_gpio_pin_set_dir(pinmux_pwm[pwm->port].pin, HAL_GPIO_DIR_OUT, 1);
+		// }
 		//init pmu pwm
 		//pmu_write(0x2b, 0xce89);
 		//pmu_write(0x30, 0x560c);
 		//pmu_write(0x2f, 0x0000);
 
 		hal_pwm_set_ratio_max(1000);
-		inited = 1;
+		inited[pwm->port] = 1;
 	}
 	_HAL_PWM_PRIV_T *_cfg = malloc(sizeof(_HAL_PWM_PRIV_T));
 	_cfg->chan = __hal_pwm_port2chan(pwm->port);

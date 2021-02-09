@@ -161,4 +161,5 @@ boards = {
     'wm_w600_kit':[toolchains['arm-none-eabi']],
     'xm510_evb':[toolchains['arm-none-eabi']],
     'haas100':[toolchains['arm-none-eabi']],
+    'haaseduk1':[toolchains['arm-none-eabi']],
 }

@@ -653,6 +653,13 @@ menu "I2C Bus Sensor Selection"
                 Press <Y> here to add support for the N2DM accelerometer
                 This depend on I2C Bus.
 
+        config AOS_SENSOR_ACC_INV_MPU6050
+            bool "MPU6050"
+            default n
+            help
+                Press <Y> here to add support for the MPU6050 accelerometer
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Gyroscope Sensors"
@@ -775,6 +782,13 @@ menu "I2C Bus Sensor Selection"
                 Press <Y> here to add support for the L3GD20H gyroscope sensor.
                 This depend on I2C Bus.
 
+        config AOS_SENSOR_GYRO_INV_MPU6050
+            bool "MPU6050"
+            default n
+            help
+                Press <Y> here to add support for the MPU6050 gyroscope sensor.
+                This depend on I2C Bus.
+
     endmenu
 
 
@@ -855,6 +869,14 @@ menu "I2C Bus Sensor Selection"
             help
                 Press <Y> here to add support for the MMC3680KJ magnetic sensor.
                 This depend on I2C Bus.
+
+        config AOS_SENSOR_MAG_HONEYWELL_QMC5883L
+            bool "QMC5883L"
+            default n
+            help
+                Press <Y> here to add support for the QMC5883L magnetic sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Ambient Light Sensors"
@@ -914,6 +936,12 @@ menu "I2C Bus Sensor Selection"
                 Press <Y> here to add support for the BH1730 ambient light sensor.
                 This depend on I2C Bus.
 
+        config AOS_SENSOR_ALS_LITEON_AP3216C
+            bool "AP3216C"
+            default n
+            help
+                Press <Y> here to add support for the AP3216C ambient light sensor.
+                This depend on I2C Bus.
 
     endmenu
 
@@ -966,6 +994,14 @@ menu "I2C Bus Sensor Selection"
             help
                 Press <Y> here to add support for the LTR706 ambient light sensor.
                 This depend on I2C Bus.
+
+        config AOS_SENSOR_PS_LITEON_AP3216C
+            bool "AP3216C"
+            default n
+            help
+                Press <Y> here to add support for the AP3216C ambient light sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Barometric Pressure Sensors"
@@ -1024,6 +1060,14 @@ menu "I2C Bus Sensor Selection"
             help
                 Press <Y> here to add support for the BME280 barometric pressure sensor.
                 This depend on I2C Bus.
+
+        config AOS_SENSOR_BARO_GOERTEK_SPL06
+            bool "SPL06"
+            default n
+            help
+                Press <Y> here to add support for the SPL06 barometric pressure sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Gesture Sensors"
@@ -1042,6 +1086,14 @@ menu "I2C Bus Sensor Selection"
             help
                 Press <Y> here to add support for the AK9754 infrared sensor.
                 This depend on I2C Bus.
+
+        config AOS_SENSOR_IR_LITEON_AP3216C
+            bool "AP3216C"
+            default n
+            help
+                Press <Y> here to add support for the AP3216C infrared sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Color Sensors"
@@ -1112,6 +1164,13 @@ menu "I2C Bus Sensor Selection"
                 Press <Y> here to add support for the HTS221 temperature sensor.
                 This depend on I2C Bus.
 
+        config AOS_SENSOR_TEMP_SI7006
+            bool "SI7006"
+            default n
+            help
+                Press <Y> here to add support for the SI7006 temperature sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "Humidity Sensors"
@@ -1156,6 +1215,14 @@ menu "I2C Bus Sensor Selection"
             help
                 Press <Y> here to add support for the HTS221 humidity sensor.
                 This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_SI7006
+            bool "SI7006"
+            default n
+            help
+                Press <Y> here to add support for the SI7006 humidity sensor.
+                This depend on I2C Bus.
+
     endmenu
 
     menu "CO2 Sensors"

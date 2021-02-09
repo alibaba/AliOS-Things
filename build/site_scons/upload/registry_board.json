@@ -47,5 +47,8 @@
     ],
     "haas100": [
         "haas1000.json"
+    ],
+    "haaseduk1": [
+        "haas1000.json"
     ]
 }

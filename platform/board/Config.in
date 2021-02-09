@@ -11,6 +11,15 @@ if AOS_BOARD_HAAS100
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "platform/board/haaseduk1/Config.in"
+if AOS_BOARD_HAASEDUK1
+    config AOS_BUILD_BOARD
+        default "haaseduk1"
+
+    source "platform/mcu/haas1000/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 endchoice
 
 endmenu

@@ -121,13 +121,14 @@ endif
 
 ifeq ($(CONFIG_WORK_WITH_ETH),y)
 $(NAME)_PREBUILT_LIBRARY := drivers/libhaas1000_nolwip.a
-endif
 
-ifeq ($(CONFIG_WORK_WITH_LTE),y)
+else ifeq ($(CONFIG_WORK_WITH_LTE),y)
 $(NAME)_PREBUILT_LIBRARY := drivers/libhaas1000_nolwip.a
-endif
 
-ifeq ($(CONFIG_WORK_WITH_WIFI),y)
+else ifeq ($(CONFIG_WORK_WITH_WIFI),y)
+$(NAME)_PREBUILT_LIBRARY := drivers/libhaas1000.a
+
+else
 $(NAME)_PREBUILT_LIBRARY := drivers/libhaas1000.a
 endif
 

@@ -1,0 +1,54 @@
+config AOS_APP_EDU_DEMO
+    bool "EDU Demo"
+    select AOS_COMP_CLI if !AOS_BOARD_ESP8266 && !AOS_CREATE_PROJECT
+    select AOS_NET_WITH_WIFI if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON if !AOS_CREATE_PROJECT
+    select AOS_COMP_OLED if !AOS_CREATE_PROJECT
+    select AOS_COMP_SENSOR if !AOS_CREATE_PROJECT
+    select AOS_SENSOR_ACC_INV_MPU6050 if !AOS_CREATE_PROJECT
+    select AOS_SENSOR_MAG_HONEYWELL_QMC5883L if !AOS_CREATE_PROJECT
+    select AOS_SENSOR_ALS_LITEON_AP3216C if !AOS_CREATE_PROJECT
+    select AOS_SENSOR_BARO_GOERTEK_SPL06 if !AOS_CREATE_PROJECT
+    select AOS_SENSOR_TEMP_SI7006 if !AOS_CREATE_PROJECT
+    help
+        edu demo
+
+if AOS_APP_EDU_DEMO
+# Configurations for app edu_demo
+
+config EDU_DEMO_CONFIG_LINKKIT
+    bool "Enable linkkit"
+    default n
+    select AOS_COMP_UND if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_DEVMODEL if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_AWSS if !AOS_CREATE_PROJECT
+    help
+        enable edu demo linkkit config.
+
+config ENABLE_AOS_OTA
+    bool "Enable OTA"
+    default n
+    select AOS_COMP_OTA if !AOS_CREATE_PROJECT
+    help
+        enable feature OTA.
+
+config EDU_DEMO_CONFIG_PRINT_HEAP
+    bool "Show Free Heap Duration"
+    default n
+    help
+        displays heap space periodically for debug
+
+config EDK_DEMO_FACTORY_TEST_ENABLIE
+    bool "enable factory test function"
+    default n
+    help
+        enable factory test in edk demo
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20210203.140831"
+    help
+        application main firmware version
+
+endif

@@ -1,0 +1,21 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_TOUCH
+    bool
+    default y
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_TOUCH
+    bool "TOUCH Configuration"
+    default n
+    help
+	    AliOS Things TOUCH
+endif
+
+

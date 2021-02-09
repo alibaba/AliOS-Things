@@ -12,30 +12,54 @@
 
 static int _vfs_to_aos_res(int res)
 {
+    int ret;
+
     switch (res) {
         case VFS_OK:
-            return 0;
+            ret = 0;
+            break;
         case VFS_ERR_NOMEM:
-            return -ENOMEM;
+            ret = -ENOMEM;
+            break;
         case VFS_ERR_INVAL:
-            return -EINVAL;
+            ret = -EINVAL;
+            break;
         case VFS_ERR_NOENT:
-            return -ENOENT;
+            ret = -ENOENT;
+            break;
         case VFS_ERR_NAMETOOLONG:
-            return -ENAMETOOLONG;
+            ret = -ENAMETOOLONG;
+            break;
         case VFS_ERR_NOSYS:
-            return -ENOSYS;
+            ret = -ENOSYS;
+            break;
         case VFS_ERR_ENFILE:
-            return -ENFILE;
+            ret = -ENFILE;
+            break;
         case VFS_ERR_NODEV:
-            return -ENODEV;
+            ret = -ENODEV;
+            break;
         case VFS_ERR_LOCK:
-            return -EIO;
+            ret = -EIO;
+            break;
         case VFS_ERR_BUSY:
-            return -EBUSY;
+            ret = -EBUSY;
+            break;
         default:
-            return res;
+            ret = res;
+            break;
     }
+
+    /* on fail return -1, and set error code to errno */
+    if (ret < 0) {
+//#ifdef CONFIG_VFS_USE_ERRNO
+        /* errno is positive value */
+        errno = -ret;
+//#endif
+        ret = -1;
+    }
+
+    return ret;
 }
 
 int aos_vfs_init(void)
