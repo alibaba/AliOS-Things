@@ -1,0 +1,8 @@
+platform_external_opencore
+platform_external_opencore/*
+include
+src
+include/*
+src/*
+patent_disclaimer.txt
+

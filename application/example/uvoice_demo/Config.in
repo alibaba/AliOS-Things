@@ -1,0 +1,18 @@
+config AOS_APP_UVOICE_DEMO
+    bool "uVoice Sample Application"
+    select AOS_COMP_UVOICE
+    select AOS_COMP_CLI
+    select AOS_COMP_NETMGR
+    select AOS_COMP_MBEDTLS    
+    help
+        uVoice Sample
+
+
+if AOS_APP_UVOICE_DEMO
+# Configurations for app uvoice_demo
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20201117.105500"
+    help
+        application main firmware version
+endif

@@ -17,6 +17,12 @@ if AOS_APP_HELLOWORLD_DEMO
         default "helloworld_demo"
 endif
 
+source "application/example/uvoice_demo/Config.in"
+if AOS_APP_UVOICE_DEMO
+    config AOS_BUILD_APP
+        default "uvoice_demo"
+endif
+
 source "application/example/game_demo/Config.in"
 if AOS_APP_GAME_DEMO
     config AOS_BUILD_APP
