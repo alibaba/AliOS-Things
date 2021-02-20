@@ -27,6 +27,12 @@ extern "C" {
 #define AOS_WAIT_FOREVER 0xffffffffu /**< Wait one event for ever */
 #define AOS_NO_WAIT      0x0         /**< return immediately if no event */
 
+/* Define aos event opt */
+#define AOS_EVENT_AND              0x02u
+#define AOS_EVENT_AND_CLEAR        0x03u
+#define AOS_EVENT_OR               0x00u
+#define AOS_EVENT_OR_CLEAR         0x01u
+
 /* Define default aos task priority*/
 #ifndef AOS_DEFAULT_APP_PRI
 #define AOS_DEFAULT_APP_PRI 32       /**< Default task priority */
@@ -49,6 +55,8 @@ typedef aos_hdl_t aos_queue_t;
 typedef aos_hdl_t aos_timer_t;
 /* Define the main handle for work module */
 typedef aos_hdl_t aos_work_t;
+/* Define the main handle for event module */
+typedef aos_hdl_t aos_event_t;
 /* Define the main handle for workqueue module */
 typedef struct {
     void *hdl;     /**< internel rhino handle */
@@ -344,6 +352,63 @@ int aos_queue_is_valid(aos_queue_t *queue);
 void *aos_queue_buf_ptr(aos_queue_t *queue);
 
 /**
+ * Alloc a event.
+ *
+ * @param[out]  event  pointer of event object, event object must be
+ *                     alloced, hdl pointer in aos_event_t will refer a kernel obj internally.
+ * @param[in]   value  initial event value.
+ *
+ * @return  0:success.
+ */
+int aos_event_new(aos_event_t *event, unsigned int value);
+
+/**
+ * Destroy a event.
+ *
+ * @param[in]  event  pointer of event object, mem refered by hdl pointer
+ *                    in aos_event_t will be freed internally.
+ */
+void aos_event_free(aos_event_t *event);
+
+/**
+ * This function will check if event is valid.
+ *
+ * @param[out]  event  pointer of event object, event object must be
+ *                     alloced, hdl pointer in aos_event_t will refer a kernel obj internally.
+ *
+ * @return  0:success.
+ */
+int aos_event_is_valid(aos_event_t *event);
+
+/**
+ * Get a event.
+ *
+ * @param[in] event  event object.
+ * @param[in] value  Expect value.
+ * @param[in] opt    Mode of operation, one of AND/AND_CLEAR/OR/OR_CLEAR
+ * @param[OUT] actl_value  Actual acquired value
+ * @param[in] timeout waiting until timeout in milliseconds.
+ *
+ *  * @return  0:success.
+ */
+int aos_event_get(aos_event_t *event, unsigned int value, unsigned char opt, unsigned int *actl_value, unsigned int timeout);
+
+/**
+ * Set a event.
+ *
+ * @param[in] event  event object.
+ *
+ * @param[in] value  The value to set.
+ *
+ * @param[in] opt    Mode of operation, one of AND/AND_CLEAR/OR/OR_CLEAR
+ *
+ * @param[in] timeout waiting until timeout in milliseconds.
+ *
+ * @return  0:success.
+ */
+int aos_event_set(aos_event_t *event, unsigned int value, unsigned char opt);
+
+/**
  * This function will create a timer and run auto.
  *
  * @param[in]  timer   pointer to the timer.
@@ -532,21 +597,21 @@ void aos_free(void *mem);
 /**
  * Set calender time
  *
- * @param[in]  now_ms    
+ * @param[in]  now_ms
  *
  * @return  none.
  */
 void aos_calendar_time_set(long long now_ms);
 
 /**
- * Get calender time   
+ * Get calender time
  *
  * @return   type long long      get calender time in millisecond.
  */
 long long aos_calendar_time_get(void);
 
 /**
- * Get calender local time   
+ * Get calender local time
  *
  * @return   type long long      get calender local in millisecond（UTC/GMT+08:00）.
  */

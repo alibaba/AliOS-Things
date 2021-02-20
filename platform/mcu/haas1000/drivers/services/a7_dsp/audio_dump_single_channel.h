@@ -5,9 +5,9 @@
 extern "C" {
 #endif
 
-void audio_dump_a7_cb_register(mcu_audio_cb_t cbf, void *param);
+void audio_dump_a7_cb_register(aud_dump_cb_t cbf, void *param);
 
-void audio_dump_a7_cb_unregister(mcu_audio_cb_t cbf, void *param);
+void audio_dump_a7_cb_unregister(aud_dump_cb_t cbf, void *param);
 
 #ifdef __cplusplus
 }

@@ -23,18 +23,18 @@ extern "C" {
 #define _AUDIO_DUMP_SRC_INTER_ALG_ "inter-alg"
 #define _AUDIO_DUMP_SRC_AFTER_ALG_ "after-alg"
 
-typedef void (*mcu_audio_cb_t)(unsigned char *data, unsigned int len, void *param);
+typedef void (*aud_dump_cb_t)(unsigned char *data, unsigned int len, void *param);
 
 typedef struct
 {
     int handle;
-    mcu_audio_cb_t func;
+    aud_dump_cb_t func;
     void *param;
 } multi_audio_dump_t;
 
 void ai_record(unsigned int dump_src, unsigned char *data, unsigned int len);
-void aud_dump_cb_register(mcu_audio_cb_t cbf, void *param);
-void aud_dump_cb_unregister(mcu_audio_cb_t cbf, void *param);
+void aud_dump_cb_register(aud_dump_cb_t cbf, void *param);
+void aud_dump_cb_unregister(aud_dump_cb_t cbf, void *param);
 int aud_dump_set(AUD_DUMP_SRC_T dump_src, int onoff);
 int aud_dump_set_channel(AUD_DUMP_SRC_T dump_src, int ch_map);
 int aud_dump_send(void);
@@ -43,6 +43,7 @@ uint32_t mic_resample_48_to_16(uint8_t *src, uint8_t *dst, uint32_t len);
 void mic_set_samplerate(int mic_samplerate);
 int mic_get_samplerate();
 int mic_get_handshake_done();
+void mic_reset_handshake();
 void mic_set_period(int mic_period_ms);
 int mic_get_period();
 

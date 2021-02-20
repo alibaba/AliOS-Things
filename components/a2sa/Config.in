@@ -1,0 +1,9 @@
+config AOS_COMP_A2SA
+    bool "sound"
+    default n
+    help
+      enable sound lib
+
+if AOS_COMP_A2SA
+# Configurations for sound
+endif

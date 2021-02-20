@@ -83,7 +83,11 @@ extern void a7_heartbeat_reboot_enable(int enable);
 extern uint32_t __aos_lastword_start[];
 static void board_init(void)
 {
+#ifdef __A7_DSP_ENABLE__
+    int init = BES_WIFI_BT;
+#else
     int init = BES_WIFI_BT_MINI;
+#endif
 	int release_version = 1;
     int ret = 0;
 
@@ -93,7 +97,9 @@ static void board_init(void)
 
     platform_init_step0(release_version);
     printf("%s platform_init_step0 done\n", __FUNCTION__);
-
+#ifdef __A7_DSP_ENABLE__
+    analog_aud_codec_set_dev(1); // haas use spk-L
+#endif
     platform_init_step1(init);
     printf("%s platform_init_step1 done\n", __FUNCTION__);
 

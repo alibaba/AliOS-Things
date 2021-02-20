@@ -1,0 +1,51 @@
+config AOS_APP_AUDIO_DEMO
+    bool "Audio Demo"
+    select AOS_COMP_CLI if !AOS_BOARD_ESP8266 && !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_DEVMODEL if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_AWSS if !AOS_CREATE_PROJECT
+    help
+        audio demo
+
+if AOS_APP_AUDIO_DEMO
+# Configurations for app linkkit_demo
+
+config ENABLE_AOS_OTA
+    bool "Enable OTA"
+    default y
+    select AOS_COMP_OTA
+    help
+        enable feature OTA.
+
+choice
+    prompt "Select Case"
+    default AUDIO_DEMO_CONFIG_CASE_SOLO
+    help
+        select case to build
+
+    config AUDIO_DEMO_CONFIG_CASE_SOLO
+        bool "SOLO"
+        help
+            default case, build linkkit_example_solo.c or deprecated/solo.c(when enable deprecated)
+endchoice
+
+config AUDIO_DEMO_CONFIG_PRINT_HEAP
+    bool "Show Free Heap Duration"
+    default n
+    help
+    displays heap space periodically for debug
+
+config BLE
+    bool "BLE Enable"
+    depends on AWSS_SUPPORT_BLE_PROVISION
+    default y
+    help
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+
+endif

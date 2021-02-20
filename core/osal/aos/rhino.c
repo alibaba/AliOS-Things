@@ -586,6 +586,90 @@ int aos_timer_is_valid(aos_timer_t *timer)
 }
 #endif
 
+#if (RHINO_CONFIG_EVENT_FLAG > 0)
+int aos_event_new(aos_event_t *event, unsigned int flags)
+{
+    int ret;
+
+    if (event == NULL) {
+        return -EINVAL;
+    }
+
+    ret = (int)krhino_event_dyn_create((kevent_t **)(&(event->hdl)), "AOS", flags);
+
+    return ret;
+}
+
+void aos_event_free(aos_event_t *event)
+{
+    if (event == NULL) {
+        return;
+    }
+
+    (void)krhino_event_dyn_del(event->hdl);
+
+    event->hdl = NULL;
+}
+
+int aos_event_get
+(
+    aos_event_t *event,
+    unsigned int flags,
+    unsigned char opt,
+    unsigned int *actl_flags,
+    unsigned int timeout
+)
+{
+    kstat_t ret;
+
+    if (event == NULL || actl_flags == NULL) {
+        return -EINVAL;
+    }
+
+    if (timeout == AOS_WAIT_FOREVER) {
+        ret = krhino_event_get(event->hdl, flags, opt, actl_flags, RHINO_WAIT_FOREVER);
+    } else {
+        ret = krhino_event_get(event->hdl, flags, opt, actl_flags, MS2TICK(timeout));
+    }
+
+    return ret;
+}
+
+int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
+{
+    kstat_t ret;
+
+    if (event == NULL) {
+        return -EINVAL;
+    }
+
+    ret = krhino_event_set(event->hdl, flags, opt);
+
+    return ret;
+}
+
+int aos_event_is_valid(aos_event_t *event)
+{
+    kevent_t *k_event;
+
+    if (event == NULL) {
+        return 0;
+    }
+
+    k_event = event->hdl;
+
+    if (k_event == NULL) {
+        return 0;
+    }
+
+    if (k_event->blk_obj.obj_type != RHINO_EVENT_OBJ_TYPE) {
+        return 0;
+    }
+
+    return 1;
+}
+#endif
+
 #if (RHINO_CONFIG_WORKQUEUE > 0)
 int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
 {

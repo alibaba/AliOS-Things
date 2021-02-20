@@ -188,7 +188,7 @@
 
 /* Module configuration options */
 #if defined(MBEDTLS_CONFIG_TLS)
-#define MBEDTLS_SSL_MAX_CONTENT_LEN          MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN
+#define MBEDTLS_SSL_MAX_CONTENT_LEN          16384
 #define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_KEY_EXCHANGE
 #endif
 

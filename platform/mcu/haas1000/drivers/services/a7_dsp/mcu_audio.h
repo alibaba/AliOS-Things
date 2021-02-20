@@ -58,23 +58,24 @@ extern "C" {
 #endif
 
 #ifdef __ARM_ARCH_ISA_ARM
+#ifdef RTOS
 #define A7_RECORD_DIRECT_CB // mic irq to cb directly
+#endif
 #endif
 
 extern unsigned char *_a7_dsp_heap_alloc(char *func, int line, int size);
-#define a7_dsp_heap_alloc(size) _a7_dsp_heap_alloc(__FUNCTION__, __LINE__, size)
+#define a7_dsp_heap_alloc(size) _a7_dsp_heap_alloc((char *)__FUNCTION__, __LINE__, size)
 
-void mcu_audio_cb_register(mcu_audio_cb_t cbf, void *param);
-void mcu_audio_cb_unregister(mcu_audio_cb_t cbf, void *param);
+void aud_record_subscribe(aud_dump_cb_t cbf, void *param);
+void aud_record_unsubscribe(aud_dump_cb_t cbf, void *param);
+
 void mcu_cmd_send(A7_CMD_T *cmd);
 
-typedef void (*mcu_audiodump_cb_t)(mcu_audio_cb_t cbf, void *param);
+typedef void (*mcu_audiodump_cb_t)(aud_dump_cb_t cbf, void *param);
 void mcu_audiodump_register(char *pattern, mcu_audiodump_cb_t register_cb, mcu_audiodump_cb_t unregister_cb, int channels, int buf_KB, int timeout);
 void mcu_audiodump_unregister(char *pattern);
 
 void mcu_audio_task_init(void);
-
-void mcu_first_handshake(void);
 
 void mic_set_samplerate(int mic_samplerate);
 int mic_get_samplerate();
@@ -85,8 +86,15 @@ int mic_get_period();
 #define CAPTURE_SIZE NON_EXP_ALIGN(((MIC_BITRATE/1000) * 2 * CHAN_NUM_CAPTURE) * CAPTURE_PERIOD_MS, RX_BUFF_ALIGN)
 #define RECORD_CHAN_SIZE (CAPTURE_SIZE>>1)
 
-void audio_dump_a7_cb_register(mcu_audio_cb_t cbf, void *param);
-void audio_dump_a7_cb_unregister(mcu_audio_cb_t cbf, void *param);
+void audio_dump_a7_cb_register(aud_dump_cb_t cbf, void *param);
+void audio_dump_a7_cb_unregister(aud_dump_cb_t cbf, void *param);
+
+typedef void (*mcu_record_pre_handler)(uint8_t *buf, uint32_t len);
+void mcu_record_pre_handler_set(mcu_record_pre_handler handler);
+
+void a7_to_m33_aud_subscribe(aud_dump_cb_t cbf, void *param);
+void a7_to_m33_aud_unsubscribe(aud_dump_cb_t cbf, void *param);
+
 #ifdef __cplusplus
 }
 #endif

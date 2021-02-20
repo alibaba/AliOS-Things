@@ -1,0 +1,9 @@
+config AOS_COMP_SOUND
+    bool "sound"
+    default n
+    help
+      enable sound lib
+
+if AOS_COMP_SOUND
+# Configurations for sound
+endif
