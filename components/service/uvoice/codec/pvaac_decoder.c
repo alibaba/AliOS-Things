@@ -422,36 +422,35 @@ static int m4aac_get_audio_config(m4a_decoder_t *m4adec, const uint8_t *buffer, 
     int i = 0;
     int flag = 0;
     int offset = 0;
-    uint32_t esds_size = 0;
+    int esds_size = 0;
     int boxtype_offset = 0;
     int next_offset = 0;
     int asc_size = 0;
 
     offset = find_box_head("esds", buffer, buff_size);
     if ((offset < 0) || (offset >= buff_size)) {
-        m4adec->unproc_size = buff_size - BOX_TYPE_LEN + 1;
+        m4adec->unproc_size = BOX_TYPE_LEN - 1;
         return -1;
     }
 
     boxtype_offset = offset;
 
     if (buff_size - offset < 10) {
-        return boxtype_offset;
+        goto config_exit;
     }
 
     offset += 4;
     if (*(buffer + offset) != MP4_ES_DESC_TAG) {
-
-        return boxtype_offset;
+        goto config_exit;
     }
     offset += 1;
-    esds_size = *(uint32_t *)(buffer + offset);
+    esds_size = *(buffer + offset);
     if (esds_size == 0x80) {
         offset += 3;
         esds_size = *(buffer + offset);
     }
     if (buff_size - offset < esds_size) {
-        return boxtype_offset;
+        goto config_exit;
     }
     offset += 1;
     for (i = 0; i < esds_size; i++) {
@@ -475,9 +474,9 @@ static int m4aac_get_audio_config(m4a_decoder_t *m4adec, const uint8_t *buffer, 
             return 0;
         }
     }
-
+config_exit:
     m4adec->unproc_size = buff_size - boxtype_offset;
-    return 0;
+    return -1;
 }
 
 /* esds stsz mdat  */
@@ -548,7 +547,7 @@ static int m4a_decode_buffer(m4a_decoder_t *m4adec, const uint8_t *buffer, uint3
 
         ret = aac_decoder_config(m4adec->audio_spec_config_info, m4adec->audio_spec_config_len, &m4adec->sample_rate, &m4adec->channels, &m4adec->frame_length);
         if (ret != 0) {
-            printf("aac_decoder_config fail, ret %d\n", ret);
+            M_LOGE("aac_decoder_config fail, ret %d\n", ret);
             return MP4_DECODE_STOP;
         }
 

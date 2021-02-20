@@ -133,13 +133,6 @@ $(NAME)_SOURCES    += \
 $(NAME)_COMPONENTS += components/service/uvoice/audio/process/opensource/webrtc
 endif
 
-ifeq ($(uvoice_eq_enable),1)
-GLOBAL_DEFINES     += UVOICE_EQ_ENABLE
-$(NAME)_SOURCES    += \
-                   audio/process/proc_equalizer.c
-$(NAME)_COMPONENTS += components/service/uvoice/audio/process/opensource/libsox
-endif
-
 ifeq ($(uvoice_resample_enable),1)
 GLOBAL_DEFINES     += UVOICE_RESAMPLE_ENABLE
 $(NAME)_SOURCES    += audio/process/proc_resample.c
@@ -175,12 +168,6 @@ $(NAME)_SOURCES    += audio/hal/haas100/uvoice_pcm.c
 GLOBAL_DEFINES     += AUDIO_CACHE_ENABLE
 endif
 
-
-ifeq ($(dec_mad_enable),1)
-$(NAME)_SOURCES    += codec/mad_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/mad
-endif
-
 ifeq ($(dec_pvmp3_enable),1)
 $(NAME)_SOURCES    += codec/pvmp3_decoder.c
 $(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/pvmp3
@@ -189,36 +176,6 @@ endif
 ifeq ($(dec_pvaac_enable),1)
 $(NAME)_SOURCES    += codec/pvaac_decoder.c
 $(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/pvaac
-endif
-
-ifeq ($(dec_faad2m4a_enable),1)
-$(NAME)_SOURCES    += codec/faad2m4a_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/faad2
-endif
-
-ifeq ($(dec_faad2aac_enable),1)
-$(NAME)_SOURCES    += codec/faad2aac_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/faad2
-endif
-
-ifeq ($(dec_helixmp3_enable),1)
-$(NAME)_SOURCES    += codec/helixmp3_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/helixmp3
-endif
-
-ifeq ($(dec_helixaac_enable),1)
-$(NAME)_SOURCES    += codec/helixaac_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/helixaac
-endif
-
-ifeq ($(dec_helixm4a_enable),1)
-$(NAME)_SOURCES    += codec/helixm4a_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/helixaac
-endif
-
-ifeq ($(enc_lame_enable),1)
-$(NAME)_SOURCES    += codec/lame_encoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/lame
 endif
 
 ifeq ($(enc_speex_enable),1)
@@ -261,30 +218,10 @@ $(NAME)_SOURCES    += codec/amrwb_decoder.c
 $(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/amrwb
 endif
 
-ifeq ($(dec_faac_enable),1)
-$(NAME)_SOURCES    += codec/faac_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/faac
-endif
-
 ifeq ($(dec_ogg_enable),1)
 $(NAME)_SOURCES    += codec/ogg_decoder.c
 $(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/libogg
 $(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/libvorbis
-endif
-
-ifeq ($(dec_flac_enable),1)
-$(NAME)_SOURCES    += codec/flac_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/flac
-endif
-
-ifeq ($(dec_wma_enable),1)
-$(NAME)_SOURCES    += codec/wma_decoder.c
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/wma
-endif
-
-
-ifeq ($(uvoice_nopoll_enable),1)
-$(NAME)_COMPONENTS += components/service/uvoice/3rdparty/nopoll
 endif
 
 ifeq ($(uvoice_mbedtls_enable),1)
@@ -329,24 +266,6 @@ ifeq ($(uvoice_kwd_enable),1)
 $(NAME)_COMPONENTS += components/service/uvoice/application/kwd
 endif
 
-ifeq ($(uvoice_wetalk_enable),1)
-GLOBAL_DEFINES     += UVOICE_WETALK_ENABLE
-GLOBAL_INCLUDES    += application/wetalk/include
-$(NAME)_SOURCES    += application/wetalk/wetalk.c
-$(NAME)_SOURCES    += test/test_wetalk.c
-endif
-
-ifeq ($(uvoice_migu_enable),1)
-$(NAME)_COMPONENTS += components/service/uvoice/application/musicplayer/musicsdk/migu/prebuilt
-GLOBAL_DEFINES     += UVOICE_MIGU_MUSIC_ENABLE
-GLOBAL_DEFINES     += UVOICE_DEEP_COMPLETE
-$(NAME)_SOURCES    += application/musicplayer/musicsdk/migu/migu_api.c
-
-else ifeq ($(uvoice_netease_enable),1)
-GLOBAL_DEFINES     += UVOICE_NETEASE_MUSIC_ENABLE
-$(NAME)_SOURCES    += application/musicplayer/musicsdk/netease/netease_api.c
-endif
-
 ifeq ($(uvoice_musicplayer_enable),1)
 GLOBAL_DEFINES     += UVOICE_MUSICPLAYER_ENABLE
 GLOBAL_INCLUDES    += application/musicplayer/include
@@ -361,27 +280,3 @@ $(NAME)_SOURCES    += \
                    common/base64.c \
                    application/iotnlp/iotnlp.c
 endif
-
-# Build Aligenie SDK
-
-ifeq ($(aligenie_enable),1)
-GLOBAL_DEFINES     += ALIGENIE_ENABLE
-GLOBAL_INCLUDES    += application/aligenie/include
-$(NAME)_COMPONENTS += components/service/uvoice/application/aligenie/prebuilt
-$(NAME)_COMPONENTS += components/service/uvoice/codec/opensource/speex
-$(NAME)_SOURCES    += \
-                   application/aligenie/aligenie_init.c \
-                   application/aligenie/adapt/agic.c \
-                   application/aligenie/adapt/aligenie_os.c \
-                   application/aligenie/adapt/aligenie_notify.c \
-                   application/aligenie/adapt/aligenie_audio.c \
-                   application/aligenie/adapt/aligenie_ws.c
-endif
-
-ifeq ($(mit_nui_enable),1)
-GLOBAL_DEFINES     += MIT_NUI_ENABLE
-GLOBAL_INCLUDES    += application/mitnui/include
-$(NAME)_COMPONENTS += components/service/uvoice/application/mitnui/prebuilt
-$(NAME)_SOURCES    += test/test_mitnui.c
-endif
-
