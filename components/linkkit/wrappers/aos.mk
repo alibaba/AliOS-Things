@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := HAL for AliOS Things
 $(NAME)_DEFINES +=  USE_YLOOP
 
 ifeq (y,$(strip $(TLS_SAVE_TICKET)))
-$(NAME)_DEFINES += os/TLS_SAVE_TICKET
+$(NAME)_DEFINES += TLS_SAVE_TICKET
 endif
 
 $(NAME)_SOURCES := os/HAL_OS_rhino.c \
