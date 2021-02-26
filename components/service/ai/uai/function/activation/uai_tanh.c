@@ -3,6 +3,7 @@
  */
 #include "uai_activation.h"
 #ifdef UAI_USE_CMSIS_NN
+#include "arm_math.h"
 #include "arm_nnfunctions.h"
 #endif
 

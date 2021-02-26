@@ -38,7 +38,7 @@ arm_avepool_q7_HWC_nonsquare(q7_t * Im_in,
 #endif
 
 #ifdef UAI_ODLA_SUPPORT
-void uai_pool_max(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
+void uai_pool_max(uai_tensor_s *input, uai_tensor_s *weight, uint32_t *strides, const unsigned* paddings_front,
                   const unsigned* paddings_back, uai_tensor_s *output)
 {
     uint16_t padding_x = (paddings_front[0] + paddings_back[0]) / 2;
@@ -48,11 +48,11 @@ void uai_pool_max(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, 
 
     if (input->dim_height == input->dim_width) {
         arm_maxpool_q7_HWC(input->buffer, input->dim_height, input->dim_channels, weight->dim_height,
-                                 padding_x, strides[0], output->dim_height, NULL, output->buffer);
+                                 padding_x, (uint16_t)strides[0], output->dim_height, NULL, output->buffer);
     } else {
-        arm_maxpool_q7_HWC_nonsquare(input->buffer, input->dim_height, input->dim_width, input->dim_channels,
-                                            weight->dim_height, weight->dim_width, padding_x, padding_y,
-                                            strides[0], strides[1], output->dim_height, output->dim_width,
+        arm_maxpool_q7_HWC_nonsquare(input->buffer, input->dim_width, input->dim_height, input->dim_channels,
+                                            weight->dim_width, weight->dim_height, padding_x, padding_y,
+                                            (uint16_t)strides[0], (uint16_t)strides[1], output->dim_width, output->dim_height,
                                             NULL, output->buffer);
     }
 #else
@@ -60,7 +60,7 @@ void uai_pool_max(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, 
     return;
 }
 
-void uai_pool_ave(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
+void uai_pool_ave(uai_tensor_s *input, uai_tensor_s *weight, uint32_t *strides, const unsigned* paddings_front,
                   const unsigned* paddings_back, uai_tensor_s *output)
 {
     int8_t *buffer_input = NULL;
@@ -78,11 +78,11 @@ void uai_pool_ave(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, 
 
     if (input->dim_height == input->dim_width) {
         arm_avepool_q7_HWC(input->buffer, input->dim_height, input->dim_channels, weight->dim_height,
-                           padding_x, strides[0], output->dim_height, buffer_input, output->buffer);
+                           padding_x, (uint16_t)strides[0], output->dim_height, buffer_input, output->buffer);
     } else {
-        arm_avepool_q7_HWC_nonsquare(input->buffer, input->dim_height, input->dim_width, input->dim_channels,
-                                     weight->dim_height, weight->dim_width, padding_x, padding_y,
-                                     strides[0], strides[1], output->dim_height, output->dim_width,
+        arm_avepool_q7_HWC_nonsquare(input->buffer, input->dim_width, input->dim_height, input->dim_channels,
+                                     weight->dim_width, weight->dim_height, padding_x, padding_y,
+                                     (uint16_t)strides[0], (uint16_t)strides[1], output->dim_width, output->dim_height,
                                      buffer_input, output->buffer);
     }
 

@@ -29,6 +29,7 @@
 
 #include "arm_nnfunctions.h"
 #include "arm_math.h"
+#include "uai_quant.h"
 
   /**
    * @brief Matrix-multiplication function for convolution with reordered columns
@@ -52,16 +53,16 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
                                                   const uint16_t ch_im_out,
                                                   const uint16_t numCol_A,
                                                   const q7_t * bias,
-                                                  const int32_t *kernel_scale,
-                                                  const int32_t *bias_scale,
-                                                  const int32_t act_scale,
+                                                  const uint32_t *kernel_scale,
+                                                  const uint32_t *bias_scale,
+                                                  const uint32_t act_scale,
                                                   const int8_t shift,
                                                   q7_t * pOut)
 {
 
 #if defined (ARM_MATH_DSP)
     /* set up the second output pointers */
-    q31_t     *pOut2 = pOut + ch_im_out;
+    q7_t     *pOut2 = pOut + ch_im_out;
     int       i;
 
     /* this loop over rows in A */
@@ -79,7 +80,6 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
         q31_t     sum2 = 0;
         q31_t     sum3 = 0;
         q31_t     sum4 = 0;
-        q63_t sum_temp = 0;
 
         uint16_t  colCnt = numCol_A >> 2;
         /* accumulate over the vector */
@@ -121,17 +121,13 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
             sum4 += inA2 * inB2;
             colCnt--;
         }                       /* while over colCnt */
-        sum_temp = sum * kernel_scale[i] + bias[i] * bias_scale[i];
-        *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
 
-        sum_temp = sum3 * kernel_scale[i] + bias[i] * bias_scale[i];
-        *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut++  = uai_quant_int8(sum, kernel_scale[i], bias[i], bias_scale[i], act_scale, shift);
+        *pOut++  = uai_quant_int8(sum3, kernel_scale[i], bias[i], bias_scale[i], act_scale, shift);
 
-        sum_temp = sum2 * kernel_scale[i+1] + bias[i+1] * bias_scale[i+1];
-        *pOut2++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut2++ = uai_quant_int8(sum2, kernel_scale[i+1], bias[i+1], bias_scale[i+1], act_scale, shift);
 
-        sum_temp = sum4 * kernel_scale[i+1] + bias[i+1] * bias_scale[i+1];
-        *pOut2++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut2++ = uai_quant_int8(sum4, kernel_scale[i+1], bias[i+1], bias_scale[i+1], act_scale, shift);
 
         /* skip the row computed with A2 */
         pA += numCol_A;

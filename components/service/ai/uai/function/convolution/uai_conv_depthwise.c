@@ -14,7 +14,7 @@
                                 output->dim_channels, \
                                 weight->dim_height,   \
                                 padding_x,            \
-                                strides[0],           \
+                                (uint16_t)strides[0], \
                                 bias->buffer,         \
                                 kernel_scale,         \
                                 bias_scale,           \
@@ -35,8 +35,8 @@
                                 weight->dim_width,    \
                                 padding_x,            \
                                 padding_y,            \
-                                strides[0],           \
-                                strides[1],           \
+                                (uint16_t)strides[0], \
+                                (uint16_t)strides[1], \
                                 bias->buffer,         \
                                 kernel_scale,         \
                                 bias_scale,           \
@@ -89,7 +89,7 @@ extern arm_status arm_depthwise_separable_conv_HWC_q7_nonsquare_uai(const q7_t *
                                                                     q15_t * bufferA,
                                                                     q7_t * bufferB);
 
-int uai_conv_depthwise_sp_2d(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv_depthwise_sp_2d(uai_tensor_s *input, uai_tensor_s *weight, const unsigned *strides, const unsigned* paddings_front,
                              const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
                              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {
@@ -122,7 +122,7 @@ int uai_conv_depthwise_sp_2d(uai_tensor_s *input, uai_tensor_s *weight, uint16_t
     return ret;
 }
 
-int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *weight, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *weight, const unsigned *strides, const unsigned* paddings_front,
                              const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
                              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {

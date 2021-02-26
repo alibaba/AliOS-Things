@@ -87,7 +87,7 @@ static inline void uai_free_dbg(void *addr, char *file, int line)
 #define UAI_VALID_PTR_CHECK_INT(ptr, errno) \
     do {                                    \
         if (ptr == NULL) {                  \
-            UAI_LOGE("ptr is NULL");        \
+            UAI_LOGE("ptr is NULL, %s %d\n", __FILE__, __LINE__);   \
             return errno;                   \
         }                                   \
     }while(0);
@@ -95,7 +95,7 @@ static inline void uai_free_dbg(void *addr, char *file, int line)
 #define UAI_VALID_PTR_CHECK_VOID(ptr)       \
     do {                                    \
         if (ptr == NULL) {                  \
-            UAI_LOGE("ptr is NULL");        \
+            UAI_LOGE("ptr is NULL, %s %d\n", __FILE__, __LINE__);    \
             return;                         \
         }                                   \
     }while(0);
@@ -142,6 +142,18 @@ static inline uint32_t uai_dims_size(uai_dims *dims)
     return size;
 }
 
+static inline void uai_tensor_dbg_show(uai_tensor_s *tensor)
+{
+    int32_t i    = 0;
+    return;
+    printf("---------------------------------------\n");
+    printf("buffer 0x%x, size %u, dtype %d\n", tensor->buffer, tensor->size, tensor->dtype);
+    for (i = 0; i < tensor->dims.size; i++) {
+        printf("dim[%d] = %u\n", i, tensor->dims.dims[i]);
+    }
+    printf("---------------------------------------\n");
+    return;
+}
 #endif
 
 

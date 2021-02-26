@@ -22,6 +22,8 @@ extern void board_stduart_init(void);
 extern void board_dma_init(void);
 extern void board_gpio_init(void);
 extern void board_kinit_init(kinit_t* init_args);
+extern void board_network_init(void);
+
 
 /*  For user config
     kinit.argc = 0;
@@ -41,6 +43,7 @@ void board_init(void)
     board_stduart_init();
     board_dma_init();
     board_gpio_init();
+    board_network_init();
 }
 
 void aos_maintask(void* arg)

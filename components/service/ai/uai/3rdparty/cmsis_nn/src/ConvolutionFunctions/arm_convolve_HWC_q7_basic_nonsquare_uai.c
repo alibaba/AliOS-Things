@@ -29,15 +29,26 @@
  * -------------------------------------------------------------------- */
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
 extern q7_t *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
                                                         const q15_t * pInBuffer,
                                                         const uint16_t ch_im_out,
                                                         const uint16_t numCol_A,
                                                         const q7_t * bias,
-                                                        const int32_t *kernel_scale,
-                                                        const int32_t *bias_scale,
-                                                        const int32_t act_scale,
+                                                        const uint32_t *kernel_scale,
+                                                        const uint32_t *bias_scale,
+                                                        const uint32_t act_scale,
+                                                        const int8_t shift,
+                                                        q7_t * pOut);
+extern q7_t *arm_nn_mat_mult_kernel_q7_q15_uai(const q7_t * pA,
+                                                const q15_t * pInBuffer,
+                                                const uint16_t ch_im_out,
+                                                const uint16_t numCol_A,
+                                                const q7_t * bias,
+                                                const uint32_t *kernel_scale,
+                                                const uint32_t *bias_scale,
+                                                const uint32_t act_scale,
                                                         const int8_t shift,
                                                         q7_t * pOut);
 
@@ -136,10 +147,8 @@ arm_status arm_convolve_HWC_q7_basic_nonsquare_uai(const q7_t * Im_in,
             if (pBuffer == bufferA + 2 * ch_im_in * dim_kernel_y * dim_kernel_x)
             {
                 pOut =
-                    arm_nn_mat_mult_kernel_q7_q15_uai(wt, bufferA,
-                                                  ch_im_out,
-                                                  ch_im_in *
-                                                  dim_kernel_y * dim_kernel_x, bias, kernel_scale, bias_scale, act_scale, pOut);
+                    arm_nn_mat_mult_kernel_q7_q15_uai(wt, bufferA, ch_im_out, ch_im_in * dim_kernel_y * dim_kernel_x,
+                                                      bias, kernel_scale, bias_scale, act_scale, shift, pOut);
 
                 /* counter reset */
                 pBuffer = bufferA;
@@ -196,7 +205,7 @@ arm_status arm_convolve_HWC_q7_basic_nonsquare_uai(const q7_t * Im_in,
     uint16_t  i, j, k, l, m, n;
     int       conv_out;
     signed char in_row, in_col;
-    int64_t conv_temp;
+
 
     for (i = 0; i < ch_im_out; i++)
     {
@@ -224,8 +233,7 @@ arm_status arm_convolve_HWC_q7_basic_nonsquare_uai(const q7_t * Im_in,
                         }
                     }
                 }
-                conv_temp = (conv_out * kernel_scale[i] + bias[i] * bias_scale[i]);
-                Im_out[i + (j * dim_im_out_x + k) * ch_im_out] = __SSAT((conv_temp >> shift) / act_scale, 8);
+                Im_out[i + (j * dim_im_out_x + k) * ch_im_out] = uai_quant_int8(conv_out, kernel_scale[i], bias[i], bias_scale[i], act_scale, shift);
             }
         }
     }

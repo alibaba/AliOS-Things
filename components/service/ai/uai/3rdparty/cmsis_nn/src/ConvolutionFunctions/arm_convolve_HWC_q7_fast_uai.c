@@ -30,6 +30,7 @@
 
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
 /**
  *  @ingroup groupNN
@@ -109,9 +110,9 @@ arm_convolve_HWC_q7_fast_uai(const q7_t * Im_in,
                          const uint16_t padding,
                          const uint16_t stride,
                          const q7_t * bias,
-                         const int32_t *kernel_scale,
-                         const int32_t *bias_scale,
-                         const int32_t act_scale,
+                         const uint32_t *kernel_scale,
+                         const uint32_t *bias_scale,
+                         const uint32_t act_scale,
                          const int8_t shift,
                          q7_t * Im_out,
                          const uint16_t dim_im_out,

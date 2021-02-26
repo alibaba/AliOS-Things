@@ -30,6 +30,7 @@
 
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
 /**
  *  @ingroup groupNN
@@ -85,9 +86,9 @@ arm_status arm_depthwise_separable_conv_HWC_q7_uai(const q7_t * Im_in,
                                                const uint16_t padding,
                                                const uint16_t stride,
                                                const q7_t * bias,
-                                               const int32_t *kernel_scale,
-                                               const int32_t *bias_scale,
-                                               const int32_t act_scale,
+                                               const uint32_t *kernel_scale,
+                                               const uint32_t *bias_scale,
+                                               const uint32_t act_scale,
                                                const int8_t shift,
                                                q7_t * Im_out,
                                                const uint16_t dim_im_out,
@@ -379,6 +380,7 @@ arm_status arm_depthwise_separable_conv_HWC_q7_uai(const q7_t * Im_in,
     /* Run the following code as reference implementation for Cortex-M0 and Cortex-M3 */
     int       i_out_y, i_out_x, i_ch_out, i_ker_x, i_ker_y;
     int       conv_out;
+    int64_t   conv_temp;
 
     /* do some checking here, basically ch_im_in == ch_im_out */
     if (ch_im_in != ch_im_out)
@@ -411,8 +413,9 @@ arm_status arm_depthwise_separable_conv_HWC_q7_uai(const q7_t * Im_in,
                         }
                     }
                 }
+                conv_temp = (conv_out * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out]);
                 Im_out[(i_out_y * dim_im_out +
-                        i_out_x) * ch_im_out + i_ch_out] = conv_out * scale[i_ch_out];
+                        i_out_x) * ch_im_out + i_ch_out] = __SSAT((conv_temp >> shift) / act_scale, 8);
             }
         }
     }

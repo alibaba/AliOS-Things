@@ -18,9 +18,8 @@ int32_t uai_get_total_elements(const odla_dims dims)
 }
 
 /* NHWC*/
-uai_tensor_s *uai_odla_tensor_transofrm(const odla_value value, odla_dims dims, odla_element_type type, odla_layout layout)
+uai_tensor_s *uai_odla_tensor_transofrm(uai_tensor_s *input, const odla_value value, odla_dims dims, odla_element_type type, odla_layout layout)
 {
-    uai_tensor_s *input = NULL;
     if(dims->size > UAI_MAX_DIMENSION) {
         return NULL;
     }
@@ -28,12 +27,34 @@ uai_tensor_s *uai_odla_tensor_transofrm(const odla_value value, odla_dims dims, 
         return NULL;
     }
 
-    input = uai_zalloc(sizeof(uai_tensor_s));
-    UAI_VALID_PTR_CHECK_NULL(input);
+    if (layout == CHANNELS_LAST) {
+        if (dims->size == 1) {
+            input->dims.size = 4;
+            input->dims.dims[0] = 1;
+            input->dims.dims[1] = 1;
+            input->dims.dims[2] = dims->dims[0];
+            input->dims.dims[3] = 1;
+        } else if (dims->size == 2) {
+            input->dims.size = 4;
+            input->dims.dims[0] = 1;
+            input->dims.dims[1] = dims->dims[0];
+            input->dims.dims[2] = dims->dims[1];
+            input->dims.dims[3] = 1;
+        } else if (dims->size == 3) {
+            input->dims.size = 4;
+            input->dims.dims[0] = 1;
+            input->dims.dims[1] = dims->dims[0];
+            input->dims.dims[2] = dims->dims[1];
+            input->dims.dims[3] = dims->dims[2];
+        }
+        input->dims.format = UAI_NHWC;
+    }
 
-    input->dims.size   = dims->size;
-    input->dims.format = (layout == CHANNELS_LAST) ? UAI_NHWC : UAI_SIO;
-    memcpy(input->dims.dims, dims->dims, dims->size * sizeof(size_t));
+    if ((dims->size > 3) || (layout != CHANNELS_LAST)) {
+        input->dims.size   = dims->size;
+        input->dims.format = (layout == CHANNELS_LAST) ? UAI_NHWC : UAI_SIO;
+        memcpy(input->dims.dims, dims->dims, dims->size * sizeof(size_t));
+    }
 
     input->size   = uai_get_total_elements(dims);
     input->buffer = value;
@@ -47,8 +68,9 @@ uai_mem_list_t *uai_odla_init_memlist()
     uai_mem_list_t *mem_head = (uai_mem_list_t *)uai_zalloc(sizeof(uai_mem_list_t));
     UAI_VALID_PTR_CHECK_NULL(mem_head);
 
-    mem_head->next = NULL;
-    mem_head->tail = NULL;
+    mem_head->next    = NULL;
+    mem_head->tail    = NULL;
+    mem_head->mem_ptr = NULL;
 
     return mem_head;
 }
@@ -78,16 +100,16 @@ void uai_odla_free_from_memlist(uai_mem_list_t *memlist, odla_value value)
     while(node) {
         if(node->mem_ptr == value) {
             uai_free(node->mem_ptr);
+            node->mem_ptr = NULL;
             break;
         }
         node = node->next;
-
     }
 }
 
 void uai_odla_free_memlist(uai_mem_list_t *memlist)
 {
-    uai_mem_list_t *node = memlist;
+    uai_mem_list_t *node = memlist->next;
     uai_mem_list_t *next = NULL;
 
     while(node) {
@@ -98,5 +120,6 @@ void uai_odla_free_memlist(uai_mem_list_t *memlist)
         uai_free(node);
         node = next;
     }
+    memlist->next = NULL;
 }
 

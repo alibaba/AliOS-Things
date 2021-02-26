@@ -15,6 +15,9 @@
 
 #include "http.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /** @defgroup aos_httpclient_api http
   * @{
   */
@@ -217,4 +220,7 @@ int httpclient_formdata_addtext(httpclient_data_t* client_data, char* content_di
  */
 int httpclient_formdata_addfile(httpclient_data_t* client_data, char* content_disposition, char* name, char* content_type, char* file_path);
 
+#ifdef __cplusplus
+};
+#endif
 #endif /* HTTPCLIENT_H */

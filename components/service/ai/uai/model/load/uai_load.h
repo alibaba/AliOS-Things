@@ -30,7 +30,9 @@ typedef enum {
 #ifdef UAI_ODLA_SUPPORT
 typedef struct {
     uint32_t magic_num;
-    uint32_t total_layer;
+    uint16_t total_layer;
+    uint16_t input_shift;
+    uint32_t input_scale;
     uint8_t scale_shift[UAI_MAX_LAYERS];
     uint16_t scale_num[UAI_SCALE_END][UAI_MAX_LAYERS];
     uint32_t scale_offset[UAI_SCALE_END][UAI_MAX_LAYERS];
@@ -47,6 +49,7 @@ uai_src_type_e uai_src_type_parse(char *source);
 
 int uai_load_model_data(int8_t *weight, int8_t *bias, int32_t weight_size, int32_t bias_size, int32_t offset, char *model_data_src);
 #ifdef UAI_ODLA_SUPPORT
+int uai_load_model_scale_config(char *model_scale_src);
 uai_model_quant_scale_data_t *uai_load_model_scale(void);
 #endif
 

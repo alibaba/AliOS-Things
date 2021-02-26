@@ -36,11 +36,10 @@ def update_aosmk(cmsis_path):
 
     with open(aosmk, "w") as f:
         f.write('\r\n')
+        f.write('ifneq ($(CMSIS_NN_LIB), 1)\r\n')
         f.write('$(NAME)_SOURCES    += \\\r\n')
 
-    code_list = code_list + get_source_file(cmsis_path, 'CMSIS_5/CMSIS/NN/Source')
-    code_list = code_list + get_source_file(cmsis_path, 'CMSIS_5/CMSIS/DSP/Source')
-
+    code_list = get_source_file(cmsis_path, 'CMSIS_5/CMSIS/NN/Source')
     sorted(code_list)
 
     with open(aosmk, "a") as f:
@@ -51,6 +50,21 @@ def update_aosmk(cmsis_path):
                 f.write('                        ' + file + '  \r\n')
             else:
                 f.write('                        ' + file + '  \\\r\n')
+        f.write('endif\r\n')
+        f.write('ifneq ($(CMSIS_DSP_LIB), 1)\r\n')
+        f.write('$(NAME)_SOURCES    += \\\r\n')
+
+    code_list = get_source_file(cmsis_path, 'CMSIS_5/CMSIS/DSP/Source')
+    sorted(code_list)
+    with open(aosmk, "a") as f:
+        num = 0
+        for file in code_list:
+            num = num + 1
+            if num == len(code_list):
+                f.write('                        ' + file + '  \r\n')
+            else:
+                f.write('                        ' + file + '  \\\r\n')
+        f.write('endif\r\n')
 
 def main():
     cmsis_path = os.path.dirname(sys.argv[0])

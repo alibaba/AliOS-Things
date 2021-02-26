@@ -36,14 +36,15 @@ odla_value odla_AddConstant(odla_computation comp, odla_element_type type,
 
 void odla_SetOutput(odla_computation comp, const char* name,
                     const odla_value val) {
-
+    memcpy(comp->output->buffer, val, comp->output->size);
 }
 
 /* only support INT8 now */
 void odla_BindArgument(odla_session session, const char* name,
                        odla_element_type type, odla_dims dims,
                        const void* ptr) {
-    session->comp->input = uai_odla_tensor_transofrm((const odla_value)ptr, dims, type, CHANNELS_LAST);
+    session->comp->input = uai_malloc(sizeof(uai_tensor_s));
+    session->comp->input = uai_odla_tensor_transofrm(session->comp->input, (const odla_value)ptr, dims, type, CHANNELS_LAST);
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_add_memlist(session->comp->mem_list, session->comp->input);
 #endif
@@ -51,7 +52,8 @@ void odla_BindArgument(odla_session session, const char* name,
 
 void odla_BindOutput(odla_session session, const char* name,
                      odla_element_type type, odla_dims dims, void* ptr) {
-    session->comp->output = uai_odla_tensor_transofrm(ptr, dims, type, CHANNELS_LAST);
+    session->comp->output = uai_malloc(sizeof(uai_tensor_s));
+    session->comp->output = uai_odla_tensor_transofrm(session->comp->output, ptr, dims, type, CHANNELS_LAST);
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_add_memlist(session->comp->mem_list, session->comp->output);
 #endif
@@ -62,7 +64,6 @@ odla_status odla_Execute(odla_session session) {
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_free_memlist(session->comp->mem_list);
 #endif
-    session->comp->mem_list = NULL;
     return 0;
 }
 
@@ -71,10 +72,19 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
                     odla_dims dims_rhs)
 {
     int ret = 0;
-    uai_tensor_s *input1 = uai_odla_tensor_transofrm(lhs, dims_lhs, INT8, CHANNELS_LAST);
-    uai_tensor_s *input2 = uai_odla_tensor_transofrm(rhs, dims_rhs, INT8, CHANNELS_LAST);
-    uai_tensor_s *output = uai_zalloc(sizeof(uai_tensor_s));
+
+    UAI_TENSOR_PREFIX uai_tensor_s *input1 = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *input2 = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *output = NULL;
+
     odla_value add_value = NULL;
+
+    if(!input1) input1 = uai_malloc(sizeof(uai_tensor_s));
+    if(!input2) input2 = uai_malloc(sizeof(uai_tensor_s));
+    if(!output) output = uai_malloc(sizeof(uai_tensor_s));
+
+    input1 = uai_odla_tensor_transofrm(input1, lhs, dims_lhs, INT8, CHANNELS_LAST);
+    input2 = uai_odla_tensor_transofrm(input2, rhs, dims_rhs, INT8, CHANNELS_LAST);
 
     UAI_VALID_PTR_CHECK_NULL(input1);
     UAI_VALID_PTR_CHECK_NULL(input2);
@@ -87,9 +97,11 @@ odla_value odla_Add(odla_computation comp, const odla_value lhs,
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
 
+#ifndef UAI_TENSOR_STATIC_MEM
     uai_free(input1);
     uai_free(input2);
     uai_free(output);
+#endif
 
     return add_value;
 }
@@ -99,6 +111,7 @@ odla_value odla_Pad(odla_computation comp, odla_element_type type,
                     const int* padding_front, const int* padding_back,
                     odla_dims output_dims)
 {
+    #if 0
     int ret = 0;
     uai_tensor_s *input_pad = uai_odla_tensor_transofrm(input, input_dims, INT8, type);
     uai_tensor_s *output    = uai_odla_tensor_transofrm(NULL, output_dims, INT8, type);
@@ -114,13 +127,18 @@ odla_value odla_Pad(odla_computation comp, odla_element_type type,
 
     uai_free(input_pad);
     uai_free(output);
-
     return pad_value;
+    #endif
 }
 
 odla_value odla_Relu(odla_computation comp, odla_element_type type,
                      odla_dims dims, odla_value input) {
     uai_relu(input, uai_get_total_elements(dims), 0);
+    return input;
+}
+
+odla_value odla_Reshape(odla_computation comp, odla_element_type type,
+                        odla_dims input_dims, odla_value input, odla_dims output_dims) {
     return input;
 }
 
@@ -148,7 +166,7 @@ odla_value odla_BatchNormalization(odla_computation comp,
     return NULL;
 }
 
-odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type type,
+odla_value odla_Convolution(odla_computation comp, odla_element_type type,
                             odla_dims input_dims, odla_layout input_layout,
                             odla_value input, odla_dims kernel_dims,
                             odla_layout kernel_layout, odla_value kernel,
@@ -161,13 +179,24 @@ odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type typ
                             odla_dims output_dims)
 {
     int ret = 0;
-    uai_tensor_s *input_conv  = uai_odla_tensor_transofrm(input, input_dims, type, input_layout);
-    uai_tensor_s *kernel_conv = uai_odla_tensor_transofrm(kernel, kernel_dims, type, kernel_layout);
-    uai_tensor_s *output      = uai_odla_tensor_transofrm(NULL, output_dims, type, input_layout);
-    uai_tensor_s *bias        = uai_odla_tensor_transofrm(bias_input, bias_dims, type, bias_layout);
+    UAI_TENSOR_PREFIX uai_tensor_s *input_conv  = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *kernel_conv = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *output      = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *bias        = NULL;
     odla_value conv_value     = NULL;
 
-    output->buffer = (odla_value)uai_malloc(output->size * sizeof(int8_t));
+    UAI_ALLOC_TENSOR(input_conv);
+    UAI_ALLOC_TENSOR(kernel_conv);
+    UAI_ALLOC_TENSOR(output);
+    UAI_ALLOC_TENSOR(bias);
+
+    input_conv = uai_odla_tensor_transofrm(input_conv, input, input_dims, type, input_layout);
+    kernel_conv =  uai_odla_tensor_transofrm(kernel_conv, kernel, kernel_dims, type, kernel_layout);
+    output =  uai_odla_tensor_transofrm(output, NULL, output_dims, type, input_layout);
+    bias =  uai_odla_tensor_transofrm(bias, bias_input, bias_dims, type, bias_layout);
+
+    output->buffer = (odla_value)uai_malloc(output->size);
+
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
@@ -177,9 +206,12 @@ odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type typ
                    output);
     conv_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
+#ifndef UAI_TENSOR_STATIC_MEM
     uai_free(input_conv);
     uai_free(kernel_conv);
     uai_free(output);
+    uai_free(bias);
+#endif
 
     comp->layer_id ++;
 
@@ -195,17 +227,24 @@ odla_value odla_MaxPooling(odla_computation comp, odla_element_type type,
                            odla_dims output_dims)
 {
     _odla_dims dims;
-    uai_tensor_s *input1 = uai_odla_tensor_transofrm(input, input_dims, type, layout);
-    uai_tensor_s *weight = NULL;
-    uai_tensor_s *output = uai_odla_tensor_transofrm(NULL, output_dims, type, CHANNELS_LAST);
+    UAI_TENSOR_PREFIX uai_tensor_s *input1 = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *weight = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *output = NULL;
     odla_value pool_value = NULL;
+
+    UAI_ALLOC_TENSOR(input1);
+    UAI_ALLOC_TENSOR(weight);
+    UAI_ALLOC_TENSOR(output);
+
+    input1 = uai_odla_tensor_transofrm(input1, input, input_dims, type, layout);
+    output = uai_odla_tensor_transofrm(output, NULL, output_dims, type, CHANNELS_LAST);
 
     dims.size = 4;
     dims.dims[0] = 1;
     dims.dims[1] = window_dims[0];
     dims.dims[2] = window_dims[1];
     dims.dims[3] = 1;
-    weight = uai_odla_tensor_transofrm(NULL, &dims, type, CHANNELS_LAST);
+    weight = uai_odla_tensor_transofrm(weight, NULL, &dims, type, CHANNELS_LAST);
 
     output->buffer = (odla_value)uai_malloc(output->size);
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
@@ -216,25 +255,40 @@ odla_value odla_MaxPooling(odla_computation comp, odla_element_type type,
 
     pool_value = output->buffer;
 
-    comp->layer_id ++;
+#ifndef UAI_TENSOR_STATIC_MEM
+    uai_free(input1);
+    uai_free(weight);
+    uai_free(output);
+#endif
 
     return pool_value;
 }
 
-odla_value odla_Gemm_BiasAdd(odla_computation comp, odla_element_type type,
+odla_value odla_Gemm(odla_computation comp, odla_element_type type,
                      odla_dims lhs_dims, odla_value lhs, bool transpose_lhs,
                      odla_dims rhs_dims, odla_value rhs, bool transpose_rhs,
                      odla_value bias_input, odla_dims bias_dims, odla_layout bias_layout,
                      odla_dims output_dims)
 {
     int ret = 0;
-    uai_tensor_s *input  = uai_odla_tensor_transofrm(lhs, lhs_dims, type, CHANNELS_LAST);
-    uai_tensor_s *weight = uai_odla_tensor_transofrm(rhs, rhs_dims, type, CHANNELS_LAST);
-    uai_tensor_s *bias   = uai_odla_tensor_transofrm(bias_input, bias_dims, type, bias_layout);
-    uai_tensor_s *output = uai_odla_tensor_transofrm(NULL, output_dims, type, CHANNELS_LAST);
+    UAI_TENSOR_PREFIX uai_tensor_s *input  = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *weight = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *bias   = NULL;
+    UAI_TENSOR_PREFIX uai_tensor_s *output = NULL;
     odla_value fconn_value = NULL;
 
+    UAI_ALLOC_TENSOR(input);
+    UAI_ALLOC_TENSOR(weight);
+    UAI_ALLOC_TENSOR(bias);
+    UAI_ALLOC_TENSOR(output);
+
+    input  = uai_odla_tensor_transofrm(input, lhs, lhs_dims, type, CHANNELS_LAST);
+    weight = uai_odla_tensor_transofrm(weight, rhs, rhs_dims, type, CHANNELS_LAST);
+    bias   = uai_odla_tensor_transofrm(bias, bias_input, bias_dims, type, bias_layout);
+    output = uai_odla_tensor_transofrm(output, NULL, output_dims, type, CHANNELS_LAST);
+
     output->buffer = (odla_value)uai_malloc(output->size);
+
 #ifndef UAI_ODLA_SUPPORT_FREE_MEM
     uai_odla_add_memlist(comp->mem_list, output->buffer);
 #endif
@@ -245,16 +299,18 @@ odla_value odla_Gemm_BiasAdd(odla_computation comp, odla_element_type type,
                     output);
     fconn_value = (ret == UAI_SUCCESS) ? output->buffer : NULL;
 
+#ifndef UAI_TENSOR_STATIC_MEM
     uai_free(input);
     uai_free(weight);
+    uai_free(bias);
     uai_free(output);
-
+#endif
     comp->layer_id ++;
 
     return fconn_value;
 }
 
-void odla_Free(odla_computation comp, odla_value value) {
+void odla_ResetValue(odla_computation comp, odla_value value) {
     uai_free(value);
 }
 

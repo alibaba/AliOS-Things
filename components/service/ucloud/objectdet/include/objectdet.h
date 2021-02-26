@@ -16,6 +16,7 @@ typedef struct _object_rect_t {
 
 typedef int (*objectdet_detect_object_cb_t)(char *type, float score, object_rect_t *rect);
 int objectdet_detect_object_ai(char *in_url, objectdet_detect_object_cb_t cb);
+int objectdet_config_and_detect_object_ai(char *key, char *secret, char *region_id, char *endpoint, char *in_url, objectdet_detect_object_cb_t cb);
 #ifdef __cplusplus
 }
 #endif

@@ -28,13 +28,13 @@
                                 NULL
 
 #define CONV_NON_SQUARE_PARM    input->buffer,              \
+                                input->dim_width,          \
                                 input->dim_height,          \
-                                input->dim_width,           \
                                 input->dim_channels,        \
                                 kernel->buffer,             \
                                 kernel->dim_kel_out_ch,     \
-                                kernel->dim_height,         \
-                                kernel->dim_width,          \
+                                kernel->dim_kel_width,     \
+                                kernel->dim_kel_height,      \
                                 padding_x,                  \
                                 padding_y,                  \
                                 strides[0],                 \
@@ -45,8 +45,8 @@
                                 act_scale,                  \
                                 shift,                \
                                 (int32_t *)output->buffer,  \
+                                output->dim_width,         \
                                 output->dim_height,         \
-                                output->dim_width,          \
                                 buffer_input,               \
                                 NULL
 extern arm_status arm_convolve_HWC_q7_basic_uai(const q7_t * Im_in,
@@ -168,13 +168,13 @@ extern arm_status arm_convolve_1x1_HWC_q7_fast_nonsquare_uai(const q7_t * Im_in,
                                                   q15_t * bufferA,
                                                   q7_t * bufferB);
 #endif
-int uai_conv_2d(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv_2d(uai_tensor_s *input, uai_tensor_s *kernel, const unsigned *strides, const unsigned *paddings_front,
              const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {
     int8_t *buffer_input = NULL;
-    uint16_t padding_x   = (paddings_front[0] + paddings_back[0])/2;
-    uint16_t padding_y   = (paddings_front[1] + paddings_back[1])/2;
+    uint16_t padding_x   = paddings_front[0];
+    uint16_t padding_y   = paddings_front[1];
     int32_t  ret         = -1;
 
 #if defined(UAI_USE_CMSIS_NN)
@@ -187,7 +187,7 @@ int uai_conv_2d(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, co
     #ifdef UAI_MEM_STATIC
     buffer_input = UAI_CONV_TEMP_MEM;
     #else
-    buffer_input = uai_malloc(sizeof(uint16_t) * input->size);
+    buffer_input = uai_malloc(sizeof(uint16_t) * input->size * 2);
     #endif
     #endif
 
@@ -225,7 +225,7 @@ int uai_conv_2d(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, co
     return ret;
 }
 
-int uai_conv(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv(uai_tensor_s *input, uai_tensor_s *kernel, const unsigned *strides, const unsigned *paddings_front,
              const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output)
 {

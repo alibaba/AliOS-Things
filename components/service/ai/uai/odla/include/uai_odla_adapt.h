@@ -3,8 +3,8 @@
  *
  */
 
-#ifndef _UAI_ODLA_C_H_
-#define _UAI_ODLA_C_H_
+#ifndef _UAI_ODLA_ADAPT_H_
+#define _UAI_ODLA_ADAPT_H_
 
 #include "uai_function.h"
 #include "uai_load.h"
@@ -12,6 +12,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef UAI_TENSOR_STATIC_MEM
+#define UAI_TENSOR_PREFIX static
+#else
+#define UAI_TENSOR_PREFIX
+#endif
+
+#define UAI_ALLOC_TENSOR(tensor)                       \
+    do {                                               \
+        if (tensor == NULL) {                          \
+            tensor = uai_malloc(sizeof(uai_tensor_s)); \
+            if(tensor == NULL) {                       \
+                UAI_LOGE("alloc tensor failed\n");     \
+                return;                                \
+            }                                          \
+        }                                              \
+    } while (0);
 
 typedef int8_t _odla_Value;
 typedef void (*odla_helper_func)(void *comp);

@@ -56,6 +56,7 @@ $(NAME)_INCLUDES += core/src
 
 GLOBAL_INCLUDES += core/include
 GLOBAL_INCLUDES += core/src
+GLOBAL_INCLUDES += ../ai/ai_agent/include
 
 $(NAME)_COMPONENTS += mbedtls jsoncpp osal_posix
 

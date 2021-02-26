@@ -30,6 +30,7 @@
 
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
 /**
  *  @ingroup groupNN
@@ -74,7 +75,7 @@ arm_fully_connected_q7_uai(const q7_t * pV,
                        const uint32_t *bias_scale,
                        const uint32_t act_scale,
                        const int8_t shift,
-                       q31_t * pOut, q15_t * vec_buffer)
+                       q7_t * pOut, q15_t * vec_buffer)
 {
 
 #if defined (ARM_MATH_DSP)
@@ -82,7 +83,7 @@ arm_fully_connected_q7_uai(const q7_t * pV,
 
     const q7_t *pB = pM;
     const q7_t *pB2;
-    q31_t     *pO = pOut;
+    q7_t     *pO = pOut;
     q15_t    *pA;
     uint16_t  rowCnt = num_of_rows >> 1;
     uint16_t  i_ch_out  = 0;
@@ -94,7 +95,6 @@ arm_fully_connected_q7_uai(const q7_t * pV,
     {
         q31_t     sum       =  0;
         q31_t     sum2      = 0;
-        q63_t     sum_temp  = 0;
 
         uint16_t  colCnt    = dim_vec >> 2;
 
@@ -131,11 +131,9 @@ arm_fully_connected_q7_uai(const q7_t * pV,
             colCnt--;
         }
         /* while over colCnt */
-        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
-        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pO++ = uai_quant_int8(sum, kernel_scale[i_ch_out], bias[i_ch_out], bias_scale[i_ch_out], act_scale, shift);
 
-        sum_temp = sum2 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
-        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);;
+        *pO++ = uai_quant_int8(sum2, kernel_scale[i_ch_out + 1], bias[i_ch_out + 1], bias_scale[i_ch_out + 1], act_scale, shift);
 
         /* adjust the pointers and counters */
         pB += dim_vec;
@@ -150,7 +148,6 @@ arm_fully_connected_q7_uai(const q7_t * pV,
     {
         uint16_t  colCnt = dim_vec >> 2;
         q31_t      sum = 0;
-        q63_t sum_temp = 0;
 
         pA = vec_buffer;
 
@@ -178,8 +175,7 @@ arm_fully_connected_q7_uai(const q7_t * pV,
             sum += inV * inM;
             colCnt--;
         }
-        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
-        *pO++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pO++ = uai_quant_int8(sum, kernel_scale[i_ch_out], bias[i_ch_out], bias_scale[i_ch_out], act_scale, shift);
 
         i_ch_out++;
         rowCnt--;
@@ -187,7 +183,6 @@ arm_fully_connected_q7_uai(const q7_t * pV,
 
 #else
     int      i, j;
-    int64_t  ip_temp;
 
     /* Run the following code as reference implementation for Cortex-M0 and Cortex-M3 */
     for (i = 0; i < num_of_rows; i++)
@@ -197,8 +192,7 @@ arm_fully_connected_q7_uai(const q7_t * pV,
         {
             ip_out += pV[j] * pM[i * dim_vec + j];
         }
-        ip_temp = ip_out * kernel_scale[i] + bias[i] * bias_scale[i];
-        pOut[i] = (q7_t)__SSAT((ip_temp >> shift) / act_scale, 8);
+        pOut[i] = uai_quant_int8(ip_out, kernel_scale[i], bias[i], bias_scale[i], act_scale, shift);
     }
 
 #endif                          /* ARM_MATH_DSP */

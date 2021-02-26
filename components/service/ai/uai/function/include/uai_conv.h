@@ -13,11 +13,11 @@ extern "C" {
 #endif
 
 #ifdef UAI_ODLA_SUPPORT
-int uai_conv(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv(uai_tensor_s *input, uai_tensor_s *kernel, const unsigned *strides, const unsigned* paddings_front,
              const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale,
              const uint32_t *bias_scale, const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output);
 
-int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *kernel, uint16_t *strides, const unsigned* paddings_front,
+int uai_conv_depthwise_sp(uai_tensor_s *input, uai_tensor_s *kernel, const unsigned *strides, const unsigned* paddings_front,
                           const unsigned* paddings_back, uai_tensor_s *bias, const uint32_t *kernel_scale, const uint32_t *bias_scale,
                           const uint32_t act_scale, const uint32_t shift, uai_tensor_s *output);
 #else

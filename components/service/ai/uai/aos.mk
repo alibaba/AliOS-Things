@@ -21,7 +21,8 @@ $(NAME)_SOURCES  += function/activation/uai_relu.c               \
 					function/basic/uai_add.c                     \
 					function/basic/uai_pad.c                     \
 					function/reshape/uai_batch_space_transform.c \
-					model/load/uai_load.c
+					model/load/uai_load.c                        \
+					model/quant/uai_quant.c
 
 $(NAME)_COMPONENTS-$(CONFIG_UAI_USE_CMSIS_NN) += cmsis_nn
 
@@ -49,6 +50,15 @@ GLOBAL_DEFINES    += UAI_ODLA_SUPPORT
 $(NAME)_SOURCES   += odla/src/uai_odla.c \
 					 odla/src/uai_olda_adapt.c
 GLOBAL_INCLUDES   += odla/include
+endif
+
+ifeq ($(CONFIG_UAI_SUPPORT_IMG_PREPROC), 1)
+$(NAME)_SOURCES   += preproc_arithmetic/image/uai_image_convert.c \
+					 preproc_arithmetic/image/uai_image_gray.c    \
+					 preproc_arithmetic/image/uai_image_resize.c  \
+					 preproc_arithmetic/image/uai_image_split.c
+
+GLOBAL_INCLUDES   += preproc_arithmetic/include
 endif
 
 ifeq ($(HOST_ARCH), Cortex-M0)

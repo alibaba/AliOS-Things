@@ -41,6 +41,42 @@ if AOS_APP_UCLOUD_AI_DEMO
         default "ucloud_ai_demo"
 endif
 
+source "application/example/mpy_odla_ocr_demo/Config.in"
+if AOS_APP_MPY_ODLA_OCR_DEMO
+    config AOS_BUILD_APP
+        default "mpy_odla_ocr_demo"
+endif
+
+source "application/example/mpy_ucloud_objectdet_demo/Config.in"
+if AOS_APP_MPY_UCLOUD_OBJECTDET_DEMO
+    config AOS_BUILD_APP
+        default "mpy_ucloud_objectdet_demo"
+endif
+
+source "application/example/mpy_ucloud_anime_style_demo/Config.in"
+if AOS_APP_MPY_UCLOUD_ANIME_STYLE_DEMO
+    config AOS_BUILD_APP
+        default "mpy_ucloud_anime_style_demo"
+endif
+
+source "application/example/mpy_ucloud_facebody_comparing_demo/Config.in"
+if AOS_APP_MPY_UCLOUD_FACEBODY_COMPARING_DEMO
+    config AOS_BUILD_APP
+        default "mpy_ucloud_facebody_comparing_demo"
+endif
+
+source "application/example/mpy_ucloud_recognize_expression_demo/Config.in"
+if AOS_APP_MPY_UCLOUD_RECOGNIZE_EXPRESSION_DEMO
+    config AOS_BUILD_APP
+        default "mpy_ucloud_recognize_expression_demo"
+endif
+
+source "application/example/mpy_cli_demo/Config.in"
+if AOS_APP_MPY_CLI_DEMO
+    config AOS_BUILD_APP
+        default "mpy_cli_demo"
+endif
+
 source "application/example/micropython_repl_demo/Config.in"
 if AOS_APP_REPL_DEMO
     config AOS_BUILD_APP

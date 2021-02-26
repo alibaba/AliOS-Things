@@ -29,15 +29,16 @@
  * -------------------------------------------------------------------- */
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
 extern q7_t *arm_nn_mat_mult_kernel_q7_q15_reordered_uai(const q7_t * pA,
                                                         const q15_t * pInBuffer,
                                                         const uint16_t ch_im_out,
                                                         const uint16_t numCol_A,
                                                         const q7_t * bias,
-                                                        const int32_t *kernel_scale,
-                                                        const int32_t *bias_scale,
-                                                        const int32_t act_scale,
+                                                        const uint32_t *kernel_scale,
+                                                        const uint32_t *bias_scale,
+                                                        const uint32_t act_scale,
                                                         const int8_t shift,
                                                         q7_t * pOut);
 
@@ -145,7 +146,7 @@ arm_convolve_HWC_q7_basic_uai(const q7_t * Im_in,
                                                   ch_im_out,
                                                   ch_im_in *
                                                   dim_kernel * dim_kernel,
-                                                  bias, kernel_scale, bias_scale, act_scale,
+                                                  bias, kernel_scale, bias_scale, act_scale, shift,
                                                   pOut);
 
                 /* counter reset */

@@ -212,7 +212,7 @@ static uai_model_quant_scale_data_t *uai_load_all_scale_from_mem(char *model_dat
             total += model_quant_scale->head.scale_num[i][j] * sizeof(int32_t);
         }
     }
-    if(total < size) {
+    if(total > size) {
         UAI_LOGE("file size error, need %u, actual %u\n", total, size);
         return NULL;
     }
@@ -413,10 +413,11 @@ int uai_load_model_scale_config(char *model_scale_src)
 {
     int size = 0;
     UAI_VALID_PTR_CHECK_INT(model_scale_src, UAI_FAIL);
-    size = strlen(model_scale_src) > UAI_MAX_SRC_NAME_LEN ? UAI_MAX_SRC_NAME_LEN : strlen(model_scale_src);
+    size = strlen(model_scale_src) + 1 > UAI_MAX_SRC_NAME_LEN ? UAI_MAX_SRC_NAME_LEN : strlen(model_scale_src);
 
-    g_uai_model_scale_src = uai_malloc(size);
+    g_uai_model_scale_src = uai_malloc(size + 1);
     UAI_VALID_PTR_CHECK_INT(g_uai_model_scale_src, UAI_FAIL);
+    memset(g_uai_model_scale_src, 0, size + 1);
     strncpy(g_uai_model_scale_src, model_scale_src, size);
     return 0;
 }

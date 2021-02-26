@@ -23,7 +23,7 @@ typedef struct _odla_Computation* odla_computation;
 typedef struct _odla_Session* odla_session;
 
 //! \brief A wrapper for computation input / output.
-typedef struct _odla_Value* odla_value;
+typedef _odla_Value* odla_value;
 
 //! \brief Status code
 typedef int odla_status;
@@ -212,7 +212,7 @@ odla_value odla_Pad(odla_computation comp, odla_element_type type,
   \param paddings_back paddings applied to end of each spatial dim
   \return the result value
 */
-odla_value odla_Convolution_BiasAdd(odla_computation comp, odla_element_type type,
+odla_value odla_Convolution(odla_computation comp, odla_element_type type,
                             odla_dims input_dims, odla_layout input_layout,
                             odla_value input, odla_dims kernel_dims,
                             odla_layout kernel_layout, odla_value kernel,
@@ -310,7 +310,7 @@ odla_value odla_ReduceMean(odla_computation comp, odla_element_type type,
   \param output_dims the output shape
   \return the result value
 */
-odla_value odla_Gemm_BiasAdd(odla_computation comp, odla_element_type type,
+odla_value odla_Gemm(odla_computation comp, odla_element_type type,
                      odla_dims lhs_dims, odla_value lhs, bool lhs_transpose,
                      odla_dims rhs_dims, odla_value rhs, bool rhs_transpose,
                      odla_value bias_input, odla_dims bias_dims,

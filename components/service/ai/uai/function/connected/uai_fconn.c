@@ -25,9 +25,9 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_tensor_s *bias, con
 {
     int16_t  dtype = 0;
     int32_t  ret   = 0;
-    int16_t *vec_buffer;
+    int16_t *vec_buffer = NULL;
 
-    dtype = ((input->dtype) << 4) + output->dtype;
+    dtype = 0x11;
 
 #if defined(UAI_USE_CMSIS_NN)
     #if defined (ARM_MATH_DSP)
@@ -39,7 +39,7 @@ int uai_fconn(uai_tensor_s *input, uai_tensor_s *weight, uai_tensor_s *bias, con
     #endif
     switch (dtype) {
         case 0x11:
-            ret = arm_fully_connected_q7_uai(input->buffer, weight->buffer, input->size, weight->dim_height, bias->buffer,
+            ret = arm_fully_connected_q7_uai(input->buffer, weight->buffer, input->size, weight->dim_width, bias->buffer,
                                              kernel_scale, bias_scale, act_scale, shift, (int32_t *)output->buffer, vec_buffer);
             break;
 

@@ -29,6 +29,7 @@
 
 #include "arm_math.h"
 #include "arm_nnfunctions.h"
+#include "uai_quant.h"
 
   /**
    * @brief Matrix-multiplication function for convolution
@@ -50,15 +51,17 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_uai(const q7_t * pA,
                                             const uint16_t ch_im_out,
                                             const uint16_t numCol_A,
                                             const q7_t * bias,
-                                            const int32_t *kernel_scale,
-                                            const int32_t *bias_scale,
-                                            const int32_t act_scale,
+                                            const uint32_t *kernel_scale,
+                                            const uint32_t *bias_scale,
+                                            const uint32_t act_scale,
                                             const int8_t shift,
                                             q7_t * pOut)
 {
 #if defined (ARM_MATH_DSP)
     /* set up the second output pointers */
-    q31_t     *pOut2 = pOut + ch_im_out;
+    q7_t     *pOut2 = pOut + ch_im_out;
+    int num = 0;
+    int n = 0;
 
     uint16_t  rowCnt = ch_im_out >> 1;
     uint16_t i_ch_out = 0;
@@ -78,7 +81,6 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_uai(const q7_t * pA,
         q31_t     sum2 = 0;
         q31_t     sum3 = 0;
         q31_t     sum4 = 0;
-        q63_t sum_temp = 0;
 
         uint16_t  colCnt = numCol_A >> 2;
         /* accumulate over the vector */
@@ -120,24 +122,20 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_uai(const q7_t * pA,
             sum4 += inA2 * inB2;
             colCnt--;
         }                       /* while over colCnt */
-        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
-        *pOut++  = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
 
-        sum_temp = sum3 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
-        *pOut++  = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut++  = uai_quant_int8(sum, kernel_scale[i_ch_out], bias[i_ch_out], bias_scale[i_ch_out], act_scale, shift);
+        *pOut++  = uai_quant_int8(sum3, kernel_scale[i_ch_out+1], bias[i_ch_out+1], bias_scale[i_ch_out+1], act_scale, shift);
 
-        sum_temp = sum2 * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
-        *pOut2++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut2++ = uai_quant_int8(sum2, kernel_scale[i_ch_out], bias[i_ch_out], bias_scale[i_ch_out], act_scale, shift);
 
-        sum_temp = sum4 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
-        *pOut2++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut2++ = uai_quant_int8(sum4, kernel_scale[i_ch_out + 1], bias[i_ch_out + 1], bias_scale[i_ch_out + 1], act_scale, shift);
 
         i_ch_out += 2;
         /* skip the row computed with A2 */
         pA += numCol_A;
         rowCnt--;
     }                           /* for over ch_im_out */
-
+    num = 0;
     /* compute left-over row if any */
     if (ch_im_out & 0x1)
     {
@@ -180,10 +178,8 @@ q7_t     *arm_nn_mat_mult_kernel_q7_q15_uai(const q7_t * pA,
             sum2 += inA1 * inB2;
             colCnt--;
         }
-        sum_temp = sum * kernel_scale[i_ch_out] + bias[i_ch_out] * bias_scale[i_ch_out];
-        *pOut++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
-        sum_temp = sum2 * kernel_scale[i_ch_out + 1] + bias[i_ch_out + 1] * bias_scale[i_ch_out + 1];
-        *pOut2++ = (q7_t)__SSAT((sum_temp >> shift) / act_scale, 8);
+        *pOut++  = uai_quant_int8(sum, kernel_scale[i_ch_out], bias[i_ch_out], bias_scale[i_ch_out], act_scale, shift);
+        *pOut2++ = uai_quant_int8(sum2, kernel_scale[i_ch_out + 1], bias[i_ch_out + 1], bias_scale[i_ch_out + 1], act_scale, shift);
     }
 
     pOut += ch_im_out;
