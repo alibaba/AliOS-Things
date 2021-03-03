@@ -1,0 +1,38 @@
+config AOS_APP_MQTT_UART
+    bool "MQTT Demo"
+    select AOS_COMP_NETMGR   if !AOS_CREATE_PROJECT
+    select AOS_COMP_CLI      if !AOS_CREATE_PROJECT
+    select AOS_COMP_CJSON    if !AOS_CREATE_PROJECT
+    select AOS_COMP_SDK_MQTT if !AOS_CREATE_PROJECT
+    select AOS_COMP_UND      if !AOS_CREATE_PROJECT
+    help
+        mqtt examples
+
+if AOS_APP_MQTT_UART
+# Configurations for app mqtt_demo
+
+choice
+    prompt "Select Case"
+    default MQTTDEMO_CONFIG_CASE_DEFAULT
+    help
+        select case to build
+
+    config MQTTDEMO_CONFIG_CASE_DEFAULT
+        bool "Default"
+        help
+            default case, build mqtt_uart.c
+
+endchoice
+
+config MQTTAPP_CONFIG_TEST_LOOP
+    bool "Test Loop"
+    default y
+    help
+    n: run the full life cycle; y:do publish endless
+
+config SYSINFO_APP_VERSION
+    string "Firmware Version"
+    default "app-1.0.0-20200214.140831"
+    help
+        application main firmware version
+endif

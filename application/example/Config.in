@@ -161,6 +161,12 @@ if AOS_APP_RFID_DEMO
         default "rfid_demo"
 endif
 
+source "application/example/mqtt_uart/Config.in"
+if AOS_APP_MQTT_UART
+    config AOS_BUILD_APP
+        default "mqtt_uart"
+endif
+
 source "application/example/auto_demo/Config.in"
 if AOS_APP_AUTO_DEMO
     config AOS_BUILD_APP
