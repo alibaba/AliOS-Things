@@ -16,7 +16,7 @@ ifeq ($(AOS_COMP_UND),y)
 $(NAME)_COMPONENTS += und
 endif
 
-ifeq ($(MQTTDEMO_CONFIG_CASE_DEFAULT),y)
+ifeq ($(MQTTUART_CONFIG_CASE_DEFAULT),y)
 $(NAME)_SOURCES += mqtt_uart.c
 endif
 
