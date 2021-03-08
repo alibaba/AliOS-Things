@@ -12,8 +12,6 @@
 #include "iotx_log.h"
 #include "utils_md5.h"
 
-#ifndef BUILD_AOS
-
 #define MD5_DIGEST_SIZE 16
 
 
@@ -296,8 +294,6 @@ void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]
     utils_md5_finish(&ctx, output);
     utils_md5_free(&ctx);
 }
-
-#endif
 
 int8_t utils_hb2hex(uint8_t hb)
 {

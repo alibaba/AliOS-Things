@@ -9,8 +9,6 @@
 #include "iotx_log.h"
 #include "utils_sha1.h"
 
-#ifndef BUILD_AOS
-
 /* Implementation that should never be optimized out by the compiler */
 static void utils_sha1_zeroize(void *v, size_t n)
 {
@@ -326,4 +324,3 @@ void utils_sha1(const unsigned char *input, size_t ilen, unsigned char output[20
     utils_sha1_free(&ctx);
 }
 
-#endif

@@ -7,26 +7,9 @@
 
 #include "iot_import.h"
 
-#ifdef BUILD_AOS
-
-#include "mbedtls/md5.h"
-
-#define iot_md5_context       mbedtls_md5_context
-
-#define utils_md5_init        mbedtls_md5_init
-#define utils_md5_free        mbedtls_md5_free
-#define utils_md5_clone       mbedtls_md5_clone
-#define utils_md5_starts      mbedtls_md5_starts
-#define utils_md5_update      mbedtls_md5_update
-#define utils_md5_finish      mbedtls_md5_finish
-#define utils_md5_process     mbedtls_md5_process
-#define utils_md5             mbedtls_md5
-
 int8_t utils_hb2hex(uint8_t hb);
 
 void utils_md5_hexstr(unsigned char input[16],unsigned char output[32]);
-
-#else
 
 typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
@@ -97,7 +80,5 @@ void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]
 int8_t utils_hb2hex(uint8_t hb);
 
 void utils_md5_hexstr(unsigned char input[16], unsigned char output[32]);
-
-#endif
 
 #endif
