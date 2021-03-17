@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "io": {
+    "SPI0": {
+      "type": "SPI",
+      "port": 0,
+      "mode": "master",
+      "freq": 3250000
+    }
+  },
+  "debugLevel": "DEBUG"
+}

@@ -170,7 +170,7 @@ static void tftp_cmd(char *buf, int len, int argc, char **argv)
         goto tftp_print_usage;
     } else if (strncmp(argv[1], "get", 3) == 0) {
         ip_addr_t dst_addr;
-        ipaddr_aton(argc == 4 ? argv[2] : "10.0.0.2", &dst_addr);
+        ipaddr_aton(argc == 4 ? "10.0.0.2": argv[2], &dst_addr);
         tftp_client_get(&dst_addr, argv[argc - 1], &client_ctx, tftp_get_done);
         return;
     }

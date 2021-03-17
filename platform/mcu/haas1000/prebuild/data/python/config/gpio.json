@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "D13": {
+            "type": "GPIO",
+            "port": 33,
+            "dir": "output",
+            "pull": "pulldown"
+        }
+    },
+    "debugLevel": "DEBUG"
+}

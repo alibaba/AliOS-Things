@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "io": {
+      "bmp280": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 118
+      }
+    },
+    "debugLevel": "DEBUG"
+  }

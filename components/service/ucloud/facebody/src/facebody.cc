@@ -232,6 +232,8 @@ int facebody_config_and_comparing_ai(char *key, char *secret, char *region_id,
     cout << "EndPoint: " << sEndPoint.c_str() << endl;
     configuration.setRegionId(sRegionId);
     configuration.setEndpoint(sEndPoint);
+    configuration.setConnectTimeout(6000);
+    configuration.setReadTimeout(6000);
     FacebodyClient client(sKey, sSecret, configuration);
     Model::CompareFaceRequest request;
     string tmpImageURLA, tmpImageURLB;
@@ -246,6 +248,8 @@ int facebody_config_and_comparing_ai(char *key, char *secret, char *region_id,
     request.setMethod(HttpRequest::Method::Post);
     request.setImageURLA(tmpImageURLA);
     request.setImageURLB(tmpImageURLB);
+    request.setConnectTimeout(6000);
+    request.setReadTimeout(6000);
 
     auto outcome =  client.compareFace(request);
     //cout << endl << "facebody describeInstances returned:" << endl;

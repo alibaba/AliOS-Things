@@ -1,0 +1,26 @@
+{
+    "version": "0.0.1",
+    "io": {
+      "serial1":{
+        "type":"UART",
+        "port":1,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      },
+      "serial2":{
+        "type":"UART",
+        "port":2,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      }
+    },
+    "debugLevel": "DEBUG",
+    "repl":"disable"
+  }
+  

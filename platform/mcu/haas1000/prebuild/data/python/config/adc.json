@@ -1,0 +1,11 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "ADC0": {
+            "type": "ADC",
+            "port": 0,
+            "sampling": 12000000
+        }
+    },
+    "debugLevel": "DEBUG"
+}

@@ -7,6 +7,7 @@ $(NAME)_SUMMARY := add aliyun ocr ai open api.
 # source files and the folder of internal include files
 
 $(NAME)_SOURCES += src/OcrClient.cc \
+                src/ocr.cc \
                 src/model/DetectCardScreenshotRequest.cc \
                 src/model/DetectCardScreenshotResult.cc \
                 src/model/GetAsyncJobResultRequest.cc \

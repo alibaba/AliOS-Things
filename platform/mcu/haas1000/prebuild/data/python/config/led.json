@@ -1,0 +1,36 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "led1": {
+            "type": "GPIO",
+            "port": 34,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led2": {
+            "type": "GPIO",
+            "port": 35,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led3": {
+            "type": "GPIO",
+            "port": 36,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led4": {
+            "type": "GPIO",
+            "port": 40,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led5": {
+            "type": "GPIO",
+            "port": 41,
+            "dir": "output",
+            "pull": "pullup"
+        }
+    },
+    "debugLevel": "DEBUG"
+}

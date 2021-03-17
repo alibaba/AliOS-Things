@@ -40,7 +40,7 @@ void RecognizeCharacterResult::parse(const std::string &payload)
 	reader.parse(payload, value);
 	setRequestId(value["RequestId"].asString());
 	auto dataNode = value["Data"];
-	auto allResultsNode = dataNode["Results"]["Result"];
+	auto allResultsNode = dataNode["Results"];
 	for (auto dataNodeResultsResult : allResultsNode)
 	{
 		Data::Result resultObject;
@@ -48,7 +48,7 @@ void RecognizeCharacterResult::parse(const std::string &payload)
 			resultObject.probability = std::stof(dataNodeResultsResult["Probability"].asString());
 		if(!dataNodeResultsResult["Text"].isNull())
 			resultObject.text = dataNodeResultsResult["Text"].asString();
-		auto textRectanglesNode = value["TextRectangles"];
+		auto textRectanglesNode = dataNodeResultsResult["TextRectangles"];
 		if(!textRectanglesNode["Angle"].isNull())
 			resultObject.textRectangles.angle = std::stoi(textRectanglesNode["Angle"].asString());
 		if(!textRectanglesNode["Left"].isNull())

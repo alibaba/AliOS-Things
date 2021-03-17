@@ -56,6 +56,7 @@ $(NAME)_INCLUDES += core/src
 
 GLOBAL_INCLUDES += core/include
 GLOBAL_INCLUDES += core/src
+GLOBAL_INCLUDES += ocr/include
 GLOBAL_INCLUDES += ../ai/ai_agent/include
 
 $(NAME)_COMPONENTS += mbedtls jsoncpp osal_posix
@@ -69,8 +70,8 @@ ifeq ($(UCLOUD_AI_OBJECTDET_ENABLE),y)
 $(NAME)_COMPONENTS += objectdet
 endif
 
-#ifeq ($(UCLOUD_CONFIG_AI_OCR_ENABLE),y)
-#$(NAME)_COMPONENTS += ocr
-#endif
+ifeq ($(UCLOUD_CONFIG_AI_OCR_ENABLE),y)
+$(NAME)_COMPONENTS += ocr
+endif
 
 GLOBAL_DEFINES += USE_CRYPTO_MBEDTLS USE_AOS_TIME_POSIX_API

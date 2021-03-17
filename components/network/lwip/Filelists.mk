@@ -169,8 +169,7 @@ NETBIOSNSFILES=apps/netbiosns/netbiosns.c
 # TFTPFILES: TFTP server files
 TFTPFILES=apps/tftp/tftp_server.c \
     apps/tftp/tftp_common.c \
-    apps/tftp/tftp_client.c \
-    apps/tftp/tftp_ota.c
+    apps/tftp/tftp_client.c
 
 # TELNETDFILES: telnet server files
 TELNETDFILES=apps/telnetd/telnetserver.c \
