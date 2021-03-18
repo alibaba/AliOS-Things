@@ -218,6 +218,7 @@ static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
         pend_task_wakeup(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
+    TRACE_SEM_GIVE(sem, opt_wake_all);
     RHINO_CRITICAL_EXIT_SCHED();
 
     return RHINO_SUCCESS;

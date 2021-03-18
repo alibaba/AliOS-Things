@@ -1,0 +1,20 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_TRACE
+    bool
+    default n
+endif
+
+if !AOS_CREATE_PROJECT
+config AOS_COMP_TRACE
+    bool "trace tool"
+    default n
+    help
+        interface for systemview trace tool.
+
+endif
+
+menu "trace tool Configuration"
+    depends on AOS_COMP_TRACE
+# Configurations for component trace
+
+endmenu

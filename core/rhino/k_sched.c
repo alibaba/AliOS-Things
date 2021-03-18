@@ -384,12 +384,15 @@ void ready_list_add_tail(runqueue_t *rq, ktask_t *task)
 void ready_list_add(runqueue_t *rq, ktask_t *task)
 {
     ready_list_add_tail(rq, task);
+    TRACE_TASK_START_READY(task);
 }
 
 void ready_list_rm(runqueue_t *rq, ktask_t *task)
 {
     int32_t  i;
     uint8_t  pri = task->prio;
+
+    TRACE_TASK_STOP_READY(task);
 
 #if (RHINO_CONFIG_SCHED_CFS > 0)
     if (task->sched_policy == KSCHED_CFS) {

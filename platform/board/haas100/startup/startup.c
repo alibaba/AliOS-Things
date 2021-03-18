@@ -216,7 +216,7 @@ int main(void)
 
     /*kernel start schedule!*/
     //krhino_start();
-
+    TRACE_INIT();
     while (1) {
         krhino_task_sleep(100);
 

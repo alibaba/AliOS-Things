@@ -7,6 +7,7 @@ $(NAME)_SUMMARY    := rhino core code
 GLOBAL_INCLUDES += include ./
 
 $(NAME)_COMPONENTS += lib_rbtree
+$(NAME)_COMPONENTS += trace
 
 #default gcc
 ifeq ($(COMPILER),)

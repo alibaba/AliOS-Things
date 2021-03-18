@@ -134,6 +134,8 @@ kstat_t krhino_intrpt_enter(void)
 {
     CPSR_ALLOC();
 
+    TRACE_INTRPT_ENTETR();
+
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
     krhino_intrpt_stack_ovf_check();
 #endif
@@ -157,6 +159,8 @@ void krhino_intrpt_exit(void)
 #if (RHINO_CONFIG_SCHED_CFS > 0)
     lr_timer_t cur_task_exec_time;
 #endif
+
+    TRACE_INTRPT_EXIT();
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
     krhino_intrpt_stack_ovf_check();
