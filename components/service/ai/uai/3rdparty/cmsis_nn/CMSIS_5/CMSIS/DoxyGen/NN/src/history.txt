@@ -1,0 +1,44 @@
+/**
+\page ChangeLog_pg  Revision History of CMSIS-NN
+
+<table class="cmtable" summary="Revision History">
+  <tr>
+    <th>Version</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>V1.2.0</td>
+    <td>
+      Added depthwise convolution function with asymmetric quantization.<br>
+      <ul>
+        <li>arm_depthwise_conv_u8_basic_ver1</li>
+      </ul>
+      Added support functions for requantization.<br>
+      <ul>
+        <li>arm_nn_sat_doubling_high_mult</li>
+        <li>arm_nn_divide_by_power_of_two</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>V1.1.0</td>
+    <td>
+      Added new math functions:<br>
+      <ul>
+        <li>arm_convolve_HWC_q7_basic_nonsquare</li>
+        <li>arm_convolve_HWC_q15_fast_nonsquare</li>
+        <li>arm_nn_mult_q7</li>
+        <li>arm_nn_mult_q15</li>
+      </ul>
+      Fixed minor issues.
+    </td>
+  </tr>
+  <tr>
+    <td>V1.0.0</td>
+    <td>
+      Initial version
+    </td>
+  </tr>
+</table>
+
+*/

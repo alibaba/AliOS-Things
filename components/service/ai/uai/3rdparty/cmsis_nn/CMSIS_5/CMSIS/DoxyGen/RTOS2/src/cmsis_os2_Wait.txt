@@ -1,0 +1,85 @@
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+//  ==== Generic Wait Functions ====
+/** 
+\addtogroup CMSIS_RTOS_Wait Generic Wait Functions
+\ingroup CMSIS_RTOS
+\brief Wait for a certain period of time.
+\details 
+The generic wait functions provide means for a time delay.
+
+\note Generic wait functions cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+@{
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn osStatus_t osDelay (uint32_t ticks)
+\details
+The function \b osDelay waits for a time period specified in kernel \a ticks. For a value of \token{1} the system waits
+until the next timer tick occurs. The actual time delay may be up to one timer tick less than specified, i.e. calling 
+\c osDelay(1) right before the next system tick occurs the thread is rescheduled immediately.
+
+The delayed thread is put into the \ref ThreadStates "BLOCKED" state and a context switch occurs immediately. The thread
+is automatically put back to the \ref ThreadStates "READY" state after the given amount of ticks has elapsed. If the thread
+will have the highest priority in \ref ThreadStates "READY" state it will being scheduled immediately.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the time delay is executed.
+ - \em osErrorISR: \ref osDelay cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+void Thread_1 (void *arg) {             // Thread function
+  osStatus_t status;                    // capture the return status
+  uint32_t   delayTime;                 // delay time in milliseconds
+ 
+  delayTime = 1000U;                    // delay 1 second
+  status = osDelay(delayTime);          // suspend thread execution
+}
+\endcode
+*/ 
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn osStatus_t osDelayUntil (uint32_t ticks)
+\details
+The function \b osDelayUntil waits until an absolute time (specified in kernel \a ticks) is reached.
+
+The corner case when the kernel tick counter overflows is handled by \b osDelayUntil. Thus it is absolutely legal
+to provide a value which is lower than the current tick value, i.e. returned by \ref osKernelGetTickCount. Typically
+as a user you do not have to take care about the overflow. The only limitation you have to have in mind is that the
+maximum delay is limited to (2<sup>31</sup>)-1 ticks.
+
+The delayed thread is put into the \ref ThreadStates "BLOCKED" state and a context switch occurs immediately. The thread
+is automatically put back to the \ref ThreadStates "READY" state when the given time is reached. If the thread will
+have the highest priority in \ref ThreadStates "READY" state it will being scheduled immediately.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the time delay is executed.
+ - \em osParameter: the time cannot be handled (out of bounds).
+ - \em osErrorISR: \ref osDelayUntil cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+void Thread_1 (void *arg) {             // Thread function
+  uint32_t tick;
+ 
+  tick = osKernelGetTickCount();        // retrieve the number of system ticks
+  for (;;) {
+    tick += 1000U;                      // delay 1000 ticks periodically
+    osDelayUntil(tick);
+    // ...
+  }
+}
+\endcode
+*/
+/// @}

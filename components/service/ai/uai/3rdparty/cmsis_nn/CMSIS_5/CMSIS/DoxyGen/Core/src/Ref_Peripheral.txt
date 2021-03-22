@@ -1,0 +1,231 @@
+/**************************************************************************************************/
+/**
+    \defgroup   peripheral_gr    Peripheral Access
+    \brief      Naming conventions and optional features for accessing peripherals.
+    \details
+	
+The section below describes the naming conventions, requirements, and optional features for accessing device specific peripherals.
+Most of the rules also apply to the core peripherals.  The \ref device_h_pg contains typically these definition and also includes
+the core specific header files.
+
+\ifnot FuSaRTS
+The definitions for \ref peripheral_gr can be generated using the <a href="../../SVD/html/index.html"><b>CMSIS-SVD</b></a> System View Description for Peripherals.
+Refer to <a href="../../SVD/html/svd_SVDConv_pg.html"><b>SVDConv.exe</b></a> for more information.
+\endif
+	
+Each peripheral provides a data type definition with a name that is composed of:
+  - an optional prefix <b>&lt;<i>device abbreviation&gt;</i>_</b>
+  - <b>&lt;<i>peripheral name</i>&gt;</b>
+  - postfix \b _Type or \b _TypeDef to identify a type definition.
+
+Examples:
+  - \b UART_TypeDef for the peripheral \b UART.
+  - \b LPC_UART_TypeDef for the device family \b LPC and the peripheral \b UART.
+
+The data type definition uses standard C data types defined by the ANSI C header file <stdint.h>.
+ 
+ - IO Type Qualifiers are used to specify the access to peripheral variables.
+   IO Type Qualifier  | Type            | Description
+   :------------------|:----------------|:------------
+   \b __IM            | Struct member   | Defines 'read only' permissions
+   \b __OM            | Struct member   | Defines 'write only' permissions
+   \b __IOM           | Struct member   | Defines 'read / write' permissions
+   \b __I             | Scalar variable | Defines 'read only' permissions
+   \b __O             | Scalar variable | Defines 'write only' permissions
+   \b __IO            | Scalar variable | Defines 'read / write' permissions
+   
+\note 
+\b __IM, \b __OM, \b __IOM are added in CMSIS-Core V4.20 to enhance support for C++. Prior version used \b __I, \b __O, \b __IO also for struct member definitions.
+
+The typedef <b>\<<i>device abbreviation</i>\>_UART_TypeDef</b> shown below defines the generic register layout for all UART channels in a device.
+
+\code
+typedef struct
+{
+  union {
+  __IM  uint8_t  RBR;                 /* Offset: 0x000 (R/ )  Receiver Buffer Register            */
+  __OM  uint8_t  THR;                 /* Offset: 0x000 ( /W)  Transmit Holding Register           */
+  __IOM uint8_t  DLL;                 /* Offset: 0x000 (R/W)  Divisor Latch LSB                   */
+        uint32_t RESERVED0;
+  };
+  union {
+  __IOM uint8_t  DLM;                 /* Offset: 0x004 (R/W)  Divisor Latch MSB                   */
+  __IOM uint32_t IER;                 /* Offset: 0x004 (R/W)  Interrupt Enable Register           */
+  };
+  union {
+  __IM  uint32_t IIR;                 /* Offset: 0x008 (R/ )  Interrupt ID Register               */
+  __OM  uint8_t  FCR;                 /* Offset: 0x008 ( /W)  FIFO Control Register               */
+  };
+  __IOM uint8_t  LCR;                 /* Offset: 0x00C (R/W)  Line Control Register               */
+        uint8_t  RESERVED1[7];
+  __IM  uint8_t  LSR;                 /* Offset: 0x014 (R/ )  Line Status Register                */
+        uint8_t  RESERVED2[7];
+  __IOM uint8_t  SCR;                 /* Offset: 0x01C (R/W)  Scratch Pad Register                */
+        uint8_t  RESERVED3[3];
+  __IOM uint32_t ACR;                 /* Offset: 0x020 (R/W)  Autobaud Control Register           */
+  __IOM uint8_t  ICR;                 /* Offset: 0x024 (R/W)  IrDA Control Register               */
+        uint8_t  RESERVED4[3];
+  __IOM uint8_t  FDR;                 /* Offset: 0x028 (R/W)  Fractional Divider Register         */
+        uint8_t  RESERVED5[7];
+  __IOM uint8_t  TER;                 /* Offset: 0x030 (R/W)  Transmit Enable Register            */
+        uint8_t  RESERVED6[39];
+  __IM  uint8_t  FIFOLVL;             /* Offset: 0x058 (R/ )  FIFO Level Register                 */
+} LPC_UART_TypeDef;
+\endcode
+
+To access the registers of the UART defined above, pointers to this register structure are defined.
+If more instances of a peripheral exist, the variables have a postfix (digit or letter) that identifies the peripheral.
+
+\b Example:
+In this example \b LPC_UART2 and \b LPC_UART3 are two pointers to UARTs defined with above register structure.
+\n
+\code
+#define LPC_UART2             ((LPC_UART_TypeDef      *) LPC_UART2_BASE    )
+#define LPC_UART3             ((LPC_UART_TypeDef      *) LPC_UART3_BASE    )
+\endcode
+
+\note 
+ - The prefix <b>LPC</b> is optional.
+ 
+The registers in the various UARTs can now be referred in the user code as shown below:\n
+\code
+ val = LPC_UART2->DR   // is the data register of UART1.
+\endcode
+
+<hr>
+
+\section core_cmsis_pal_min_reqs Minimal Requirements
+\details
+ To access the peripheral registers and related function in a device, the files <b><i>device.h</i></b> and <b>core_cm<i>#</i>.h</b> define as a minimum:
+\n\n
+- The <b>Register Layout Typedef</b> for each peripheral that defines all register names.
+  RESERVED is used to introduce space into the structure for adjusting the addresses of
+  the peripheral registers.
+\n\n
+<b>Example:</b>
+\code
+typedef struct
+{
+  __IOM uint32_t CTRL;                /* Offset: 0x000 (R/W)  SysTick Control and Status Register */
+  __IOM uint32_t LOAD;                /* Offset: 0x004 (R/W)  SysTick Reload Value Register       */
+  __IOM uint32_t VAL;                 /* Offset: 0x008 (R/W)  SysTick Current Value Register      */
+  __IM  uint32_t CALIB;               /* Offset: 0x00C (R/ )  SysTick Calibration Register        */
+} SysTick_Type;
+    \endcode
+
+
+- <b>Base Address</b> for each peripheral (in case of multiple peripherals
+    that use the same <b>register layout typedef</b> multiple base addresses are defined).
+    \n\n
+<b>Example:</b>
+\code
+#define SysTick_BASE (SCS_BASE + 0x0010)            /* SysTick Base Address     */
+\endcode
+
+
+- <b>Access Definitions</b> for each peripheral. In case of multiple peripherals that are using the same
+    <b>register layout typdef</b>, multiple access definitions exist (LPC_UART0, LPC_UART2).
+    \n\n
+<b>Example:</b>
+\code
+#define SysTick ((SysTick_Type *) Systick_BASE)    /* SysTick access definition */
+\endcode
+
+
+These definitions allow accessing peripheral registers with simple assignments.
+
+- <b>Example:</b>
+  \n
+\code
+SysTick->CTRL = 0;
+\endcode
+
+<hr>
+
+\section core_cmsis_pal_opts Optional Features
+\details
+Optionally, the file <b><i>device</i>.h</b> may define:
+
+-  \ref core_cmsis_pal_bitfields and \#define constants that simplify access to peripheral registers.
+	These constants may define bit-positions or other specific patterns that are required for
+    programming peripheral registers. The identifiers should start with
+    <b>&lt;<i>device abbreviation</i>&gt;_</b> and <b>&lt;<i>peripheral name</i>&gt;_</b>.
+    It is recommended to use CAPITAL letters for \#define constants.
+
+-   More complex functions (i.e. status query before
+    a sending register is accessed). Again, these functions start with
+    <b>&lt;<i>device abbreviation</i>&gt;_</b> and <b>&lt;<i>peripheral name</i>&gt;_</b>.
+
+<hr>
+
+\section core_cmsis_pal_bitfields Register Bit Fields
+\details
+
+For Core Register, macros define the position and the mask value for a bit field. It is recommended to create such definitions also
+for other peripheral registers.
+
+<b>Example:</b>
+
+Bit field definitions for register CPUID in SCB (System Control Block).
+
+
+\code
+/* SCB CPUID Register Definitions */
+#define SCB_CPUID_IMPLEMENTER_Pos      24U                                       /*!< SCB CPUID: IMPLEMENTER Position */
+#define SCB_CPUID_IMPLEMENTER_Msk      (0xFFUL << SCB_CPUID_IMPLEMENTER_Pos)     /*!< SCB CPUID: IMPLEMENTER Mask */
+                                                                                 
+#define SCB_CPUID_VARIANT_Pos          20U                                       /*!< SCB CPUID: VARIANT Position */
+#define SCB_CPUID_VARIANT_Msk          (0xFUL << SCB_CPUID_VARIANT_Pos)          /*!< SCB CPUID: VARIANT Mask */
+                                                                                 
+#define SCB_CPUID_ARCHITECTURE_Pos     16U                                       /*!< SCB CPUID: ARCHITECTURE Position */
+#define SCB_CPUID_ARCHITECTURE_Msk     (0xFUL << SCB_CPUID_ARCHITECTURE_Pos)     /*!< SCB CPUID: ARCHITECTURE Mask */
+                                                                                 
+#define SCB_CPUID_PARTNO_Pos            4U                                       /*!< SCB CPUID: PARTNO Position */
+#define SCB_CPUID_PARTNO_Msk           (0xFFFUL << SCB_CPUID_PARTNO_Pos)         /*!< SCB CPUID: PARTNO Mask */
+                                                                                 
+#define SCB_CPUID_REVISION_Pos          0U                                       /*!< SCB CPUID: REVISION Position */
+#define SCB_CPUID_REVISION_Msk         (0xFUL /*<< SCB_CPUID_REVISION_Pos*/)     /*!< SCB CPUID: REVISION Mask */
+\endcode
+
+The macros <b>_VAL2FLD(field, value)</b> and <b>_FLD2VAL(field, value)</b> enable access to bit fields.
+@{
+*/
+
+/**
+\def _VAL2FLD(field, value)
+\param         field        name of bit field.
+\param         value        value for the bit field. This parameter is interpreted as an uint32_t type.
+\brief Mask and shift a bit field value for assigning the result to a peripheral register.
+\details
+The macro \ref _VAL2FLD uses the \#define's <i>_Pos</i> and <i>_Msk</i> of the related bit field to shift bit-field values for
+assigning to a register.
+ 
+<b>Example:</b>
+\code
+  SCB->CPUID = _VAL2FLD(SCB_CPUID_REVISION, 0x3) | _VAL2FLD(SCB_CPUID_VARIANT, 0x3);
+\endcode
+
+*/
+#define _VAL2FLD(field, value)
+
+/**
+ 
+\def _FLD2VAL(field, value)
+\param         field        name of bit field.
+\param         value        value of the register. This parameter is interpreted as an uint32_t type.
+\brief Extract from a peripheral register value the a bit field value.
+\details
+The macro \ref _FLD2VAL uses the \#define's <i>_Pos</i> and <i>_Msk</i> of the related bit field to extract the value of a bit field from a register.
+ 
+<b>Example:</b>
+\code
+  id = _FLD2VAL(SCB_CPUID_REVISION, SCB->CPUID);
+\endcode
+
+*/
+#define _FLD2VAL(field, value)
+
+/**
+@} 
+
+*/

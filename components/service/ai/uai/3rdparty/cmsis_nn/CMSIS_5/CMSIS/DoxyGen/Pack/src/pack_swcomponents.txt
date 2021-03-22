@@ -1,0 +1,574 @@
+﻿/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page cp_SWComponents Pack with Software Components
+This section is a tutorial that explains how to create a Software Pack. Initially, a Software Pack with a simple PDSC file
+is created that contains only one software component. This Software Pack is then extended to show the various features for
+describing software components.
+
+<b>Preparations</b>
+-# Create a working directory on you PC, for example <b>C:\\temp\\working</b>.
+-# Go to the directory <b>\\CMSIS\\Pack\\Tutorials</b> available in the \b ARM::CMSIS Pack installation. Please
+   consult your development tool's documentation for more information on the Pack installation directory structure. In a
+   standard µVision installation, you will find it below <b>C:\\Keil_v5\\ARM\\Pack\\ARM\\CMSIS\\<i>version</i></b>.
+-# Open the file \b Pack_with_Software_Components.zip.
+-# Copy the <i>content</i> of the ZIP file's \b 01_Create_PDSC directory into your working directory.
+-# Make sure that files/directories are not write protected (remove read-only flag).
+-# Copy from the directory <b>\\CMSIS\\Utilities</b> available in the \b ARM::CMSIS Pack installation the following files
+   into your working directory:
+   - PackChk.exe
+   - PACK.xsd
+
+
+\section cp_CreatePDSC Create PDSC File
+
+<ol>
+<li>
+Open the file <b>vendor.pack_name.pdsc</b> in an editor and change it like this:
+\code{.xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<package schemaVersion="1.4" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+  <vendor>MyVendor</vendor>
+  <name>MyPack</name>
+  <description>Internal Software Pack</description>
+  <url></url>
+  <supportContact></supportContact>
+  <license>Docs/license.txt</license>
+\endcode
+
+\note All code examples in this and the following sections can be found in the \c snippets.xml file in the <b>01_Create_PDSC</b>
+      directory.
+
+A PDSC file starts with information on the XML version and the encoding. The \ref pdsc_package_pg "<package>" element
+declares the version of the schema file and the XSD file that is used to validate the PDSC file (hence the copy of the
+PACK.xsd file into the working directory):
+- \ref element_package "<name>" specifies the name of the Pack and \em must \em not contain spaces. \b Example: \c MyPack and
+  \c My_Pack are ok, \c My \c Pack is not ok.
+- \ref element_package "<description>" describes the Pack in a few words
+- \ref element_package "<vendor>" states the name of the Pack's vendor and \em must \em not contain spaces. \b Example:
+  \c ACMECorp and \c ACME_Corp are OK, \c ACME \c Corporation is not OK.
+- \ref element_package "<url>" defines the download URL of the Pack (may be left empty)
+  \note
+    - In this tutorial, the URL is not specified. This means that the Pack will be marked in Pack Installer as \b Offline and
+      needs to be updated manually. To resolve this issue, it is possible to specify the file "download" location using a
+      <a href="https://en.wikipedia.org/wiki/File_URI_scheme" target="_blank">file URI</a>. For Windows users, this would
+      look like the following:
+      \verbatim
+      <url>file:///c:/temp/working</url>
+      \endverbatim
+    - It is important to understand how the \<url\> element works. If you specify a URL, for example
+      <a href="http://www.keil.com/pack/" target="_blank">http://www.keil.com/pack</a>,
+      then you have to make the PDSC file and the corresponding Pack file(s) available for download at that exact location.
+      The naming of the files follow the standard naming rules. For example, the ARM::CMSIS PDSC and Pack files are available
+      here:\n
+      <a href="http://www.keil.com/pack/ARM.CMSIS.pdsc" target="_blank">http://www.keil.com/pack/ARM.CMSIS.pdsc</a> and \n
+      <a href="http://www.keil.com/pack/ARM.CMSIS.4.3.0.pack" target="_blank">http://www.keil.com/pack/ARM.CMSIS.4.3.0.pack</a> and \n
+      <a href="http://www.keil.com/pack/ARM.CMSIS.4.2.0.pack" target="_blank">http://www.keil.com/pack/ARM.CMSIS.4.2.0.pack</a> and ... \n
+      At the specified location, you need to have one (unversioned) PDSC file and can have multiple versioned Pack files,
+      but at least the latest one.
+- \ref element_package "<supportContact>" may provide an email address or web page URL for Pack specific questions/problems
+- \ref element_package "<license>" links to an optional license file that will be shown during the installation of the Pack.
+  The installation in development tools will abort if the license agreement is not accepted.
+</li>
+<li>
+Add release information and keywords:
+\code
+  <releases>
+    <release version="1.0.0" date="2015-03-09">
+      Initial version
+    </release>
+  </releases>
+      
+  <keywords>
+    <keyword>MyVendor</keyword>
+    <keyword>My Software Component</keyword>
+  </keywords>
+\endcode
+The information from the \ref element_releases "<releases>" section will be used for:
+- Determining the Pack version (required for the file name of the Pack file)
+- Display of release information
+
+\ref element_keywords "<keywords>" may be used for better visibility for search engines.
+</li>
+<li>
+Add a \ref pdsc_components_pg "<components>" section with the following:
+\code
+  <components>
+      <component Cclass="MyClass" Cgroup="MyGroup" Csub="MySubGroup" Cversion="1.0.0">
+        <description>MySWComp</description>
+        <files>
+          <file category="doc"    name="Docs/MySWComp.htm"/>
+          <file category="header" name="MySWComp/header_mylib.h"/>
+          <file category="header" name="MySWComp/config/config_mylib.h" attr="config" version="1.0.0"/>
+          <file category="source" name="MySWComp/mylib_one.c"/>
+          <file category="source" name="MySWComp/mylib_two.c"/>
+        </files>
+      </component>
+  </components>
+\endcode
+\note 
+If you are using a header file with the attribute <span class="XML-Token">config</span>, save it in a separate directory from
+all other header files as in this example. Configuration files are copied into the project folder and are adopted
+specifically for that project but chances are that due to the include path search order of the compiler, the unmodified
+header file in the pack repository is found first and used by the compiler (creating unexpected results).
+
+More information on <b>\<components\></b> will be given in section \ref cp_Components. Save the file and close your editor.
+In the next section, the generation of a Pack will be explained in detail.
+</li>
+</ol>
+
+
+\section cp_GeneratePack Generate a Pack
+<ol>
+<li>
+Rename the file <b>vendor.pack_name.pdsc</b> to <b>MyVendor.MyPack.pdsc</b>.
+</li>
+<li>
+Open the batch file <b>gen_pack.bat</b> from your working directory in a text editor. Check if the following line of code
+reflects your setup:
+\code
+"C:\Program Files\7-Zip\7z.exe" a %PackName% Files -tzip
+\endcode
+If you do not have <a href="http://www.7-zip.org/" target="_blank">7-Zip</a> installed on your PC, you can specify any other
+ZIP tool that supports command line calls. In that case you have to adapt the command line arguments accordingly.
+</li>
+<li>
+Having saved <b>gen_pack.bat</b>, you can execute it either by double-clicking or by using the command line which is
+recommended to see the output of PackChk.exe (open a command window at the location of the files and enter \c gen_pack.bat).
+The batch file will:
+- Check the availability of the PDSC file
+- Copy the PDSC file to the <b>Files</b> directory
+- Run PackChk.exe on the <b>Files</b> directory\n
+- Create a Pack file in the working directory. It will be called <b>MyVendor.MyPack.1.0.0.pack</b>.
+</li>
+<li>
+Install the Pack by double-clicking it. Depending on the development software that is used, the display of the Pack contents
+may differ:
+
+\image html simplepack_rte.png "MyClass:MyGroup:MySubGroup shown in development tool"
+</li>
+</ol>
+
+
+\section cp_Components Software Components
+
+A component lists the files that belong to it and that are relevant for a project. The component itself or each individual
+file may refer to a \ref element_condition "condition" that must resolve to true; if it is false, the component or file is
+not applicable in the given context.
+
+Each software components must have the following attributes that are used to identify the component:
+  - Component Class (\c Cclass): examples are \b CMSIS, \b Device, \b File \b System
+  - Component Group (\c Cgroup): examples are \b CMSIS:RTOS, \b Device:Startup, \b File \b System:CORE
+  - Component Version (\c Cversion): the version number of the software component.
+
+Optionally, a software component may have additional attributes:
+  - Component Sub-Group (\c Csub): examples are \b CMSIS:RTOS:MyRTOS, \b Device:Driver \b USBD:Full-speed
+  - Component Variant (\c Cvariant): a variant of the software component.
+  - Component Vendor (\c Cvendor): the supplier of the software component.
+
+The \c Cclass, \c Cgroup, \c Csub, \c Cvariant and \c Cversion attributes are used together with the vendor specified by the
+Pack to identify a component. A component vendor must ensure that the combination \c Cclass, \c Cgroup, \c Csub and
+\c Cversion is unique and not used by multiple components within the same Pack.
+
+For a list of established Cclasses, refer to \ref pack_Cclass.
+
+In case multiple interdependent components (belonging to the same \c Cclass) form part of a solution, these can be grouped
+in a so called \ref cp_Bundles "bundle". 
+
+Use the following syntax to reference to software components and APIs:\n
+<b>\<Vendor\>::\<Cclass\>:\<Cgroup\>:\<Csub\></b>
+  
+\b Examples:
+  - <b>\::CMSIS:RTOS (API)</b> - the CMSIS-RTOS API.
+  - <b>ARM::CMSIS:DSP</b> - the CMSIS-DSP Library.
+  - <b>\::File System:Drive:NOR</b> - the NOR Flash Drive of a file system.
+
+Here is an example for the display of software components in a development tool:
+
+\image html ComponentDisplay.png "Display of a software component in development tools"
+
+Software Component Files
+------------------------
+Each software component consists of a certain number of files. Each file has at least the following attributes:
+- \c name: File path, file name, and file extension in the format path/name.extension. The file path is relative to the root
+  directory of the Pack. 
+- \c category: Defines the purpose of the file. Select the predefined value as listed in the table
+  \ref FileCategoryEnum "File Categories".
+
+Optionally, every file may have the following attributes:
+- \c attr: Defines the special use and handling of a file. Select a predefined value as defined in the table
+  \ref FileAttributeEnum "File Attributes".
+- \c condition: Enter the identifier (attribute \em <b>id</b>) of a \ref element_condition "condition". The element is used
+  if the condition resolves to \token{true}.
+- \c select: Brief description and purpose of the file. The \b <em>select</em> attribute is \b required when \b <em>attr</em>
+  is set to \token{template} or \token{interface}. When multiple template files of a component have the same
+  \b <em>select</em> string, they are treated as a single selectable template. This way, multiple template or interface files
+  can be bundled.
+- \c src: Path information. The path is specified relative to the Pack Description File (PDSC).
+- \c version: File-specific version information. This is used particularly for files copied into the project workspace.
+  Before a file gets copied, a version check avoids unnecessary copy actions. If a file does not have a version, then the
+  component version is used.
+
+
+\section cp_Conditions Conditions
+
+A condition describes dependencies on:
+- a specific device
+- a certain processor
+- tool attributes
+- the presence of other components
+
+Conditions are used to define <b>AND/OR</b> rules that make components conditional and therefore only available under
+certain circumstances, for example for specific devices or processors. Conditions are also used to express dependencies
+between software components.
+
+Each condition has an <b>id</b> that is unique within the scope of a the PDSC file. An id can be referenced in the
+\c condition attribute of components, APIs, examples, files and other conditions.
+All attributes set in a <b>accept</b>, <b>require</b>, or <b>deny</b> element must resolve to true for the element to become
+true. A condition becomes true when:
+- At least one <b>accept</b> element is true, \a AND
+- all <b>require</b> elements are true, \a AND
+- no <b>deny</b> element is true.
+
+If a condition resolves to false during processing, the respective element will be ignored.
+
+Let's modify the example from the \ref cp_CreatePDSC section by adding the requirement for a CMSIS-RTOS and libraries that
+are specific to a certain Cortex-M class core:
+- \c mylib_cm0.lib for use with a Cortex-M0 and Cortex-M0+ processor
+- \c mylib_cm3.lib for use with a Cortex-M3 processor
+- \c mylib_cm4.lib for use with a Cortex-M4 or Cortex-M7 processor
+
+Copy the \e content of the <b>02_Conditions</b> directory of the \b Pack_with_Software_Components.zip file to the <b>Files</b>
+directory in your working environment:
+<ol>
+<li>
+Add a \ref pdsc_conditions_pg "<conditions>" section with the following:
+\code
+  <conditions> 
+    <condition id="ARM Compiler">
+      <require Tcompiler="ARMCC"/>
+    </condition>
+    <condition id="CM0">
+      <description>Cortex-M0 based device</description>
+      <require condition="ARM Compiler"/>
+      <accept  Dcore="Cortex-M0"/>
+      <accept  Dcore="Cortex-M0+"/>
+    </condition>
+    <condition id="CM3">
+      <description>Cortex-M3 based device</description>
+      <require condition="ARM Compiler"/>
+      <accept  Dcore="Cortex-M3"/>
+    </condition>
+    <condition id="CM4_CM7">
+      <description>Cortex-M4 based device</description>
+      <require condition="ARM Compiler"/>
+      <accept  Dcore="Cortex-M4"/>
+      <accept  Dcore="Cortex-M7"/>
+    </condition>
+    <condition id="CMSIS Core with RTOS">
+      <description>CMSIS Core with RTOS for Cortex-M processor</description>
+      <accept  condition="CM0"/>
+      <accept  condition="CM3"/>
+      <accept  condition="CM4_CM7"/>
+      <require Cclass="CMSIS" Cgroup="Core"/>
+      <require Cclass="CMSIS" Cgroup="RTOS"/>
+    </condition>
+  </conditions>
+  \endcode
+</li>
+<li>
+Change the first line of the already existing <b>component</b> by adding the condition and increasing the version number of
+the component:
+\code{.xml}
+      <component Cclass="MyClass" Cgroup="MyGroup" Csub="MySubGroup" Cversion="1.0.1" condition="CMSIS Core with RTOS">
+\endcode
+</li>
+<li>
+Add the following code to the already existing <b>component</b>:
+\code
+          <file category="library" condition="CM0"     name="MySWComp/Lib/mylib_cm0.lib"/>
+          <file category="library" condition="CM3"     name="MySWComp/Lib/mylib_cm3.lib"/>
+          <file category="library" condition="CM4_CM7" name="MySWComp/Lib/mylib_cm4.lib"/>
+\endcode
+Note that library files should always have a condition with regards to a specific C/C++ compiler. To accomplish this, each
+processor condition has the additional requirement for the Arm C/C++ compiler.
+</li>
+<li>
+Add a new version number to the header of the PDSC file so that a Pack with a new version number will be created:
+\code{.xml}
+    <release version="1.0.1">
+      Conditions added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.0.
+
+\image html ConditionsDisplay.png "Display of conditionally added files for a Cortex-M3 device in development tools"
+</li>
+</ol>
+
+\note PackChk.exe will will now display an \b M362 warning:
+\code
+*** WARNING M362: (Line 80)
+  Not all Component Dependencies for 'Cclass=MyClass, Cgroup=MyGroup, Csub=MySubGroup, Cversion=1.0.1, Capiversion=' can be resolved.
+M502: RTE Model reports: #error 511:  MyVendor::MyClass:MyGroup:MySubGroup : Additional software components required
+M504: RTE Model reports: MISSING:     -- require CMSIS:CORE
+M504: RTE Model reports: MISSING:     -- require CMSIS:RTOS
+\endcode
+This is because it cannot resolve and check dependencies on components that are not part of this Pack (in this case the CMSIS
+components CORE and RTOS). You can either safely ignore these warnings or include the ARM.CMSIS.pdsc in the checking process, so that the correctness of the references to the CMSIS pack can be validated.
+\code
+PackChk.exe <InFile.pdsc> -i <path to installed CMSIS pack>\ARM.CMSIS.pdsc
+\endcode
+
+\section cp_Variants Variants
+
+Software components may have <b>variants</b>, for example: 
+- Debug version with or release version without diagnostic output
+- Long/short file names
+- Fast/slow modes
+
+Variants are mutually exclusive (only one variant can be chosen at a time). \c Cvariant is an optional part of the component
+ID. The variant specifier is a brief string (e.g. \c release, \c debug).
+
+\note Version management relies on variants to <b>remain unchanged between versions</b>. 
+
+The following example introduces a new component to the Pack in two variants: \c debug and \c release. Copy the \e content of
+the <b>03_Variants</b> directory of the \b Pack_with_Software_Components.zip file to the <b>Files</b> directory in your
+working environment.
+<ol>
+<li>
+Add the following lines to the <b>components</b> section in your PDSC file:
+\code
+<component Cclass="MyVariant" Cgroup="MyGroup" Cvariant="Release" Cversion="1.0.2" condition="CMSIS Core with RTOS">
+  <description>Release version of MyVariant</description>
+  <RTE_Components_h>
+    <!-- the following content goes into file 'RTE_Components.h' -->
+    #define RTE_MyVariant_Release               /* MyVariant Release Version */
+  </RTE_Components_h>
+  <files>
+    <file category="doc" name="Docs/MySWComp.htm"/>
+    <file category="header" name="MySWComp/header_mylib.h"/>
+    <file category="header" name="MySWComp/config/config_mylib.h" attr="config" version="1.0.0"/>
+    <file category="source" name="MySWComp/mylib_one.c"/>
+    <file category="source" name="MySWComp/mylib_two.c"/>
+    <file category="library" condition="CM0" name="MySWComp/Lib/mylib_cm0.lib"/>
+    <file category="library" condition="CM3" name="MySWComp/Lib/mylib_cm3.lib"/>
+    <file category="library" condition="CM4_CM7" name="MySWComp/Lib/mylib_cm4.lib"/>
+  </files>
+</component>
+<component Cclass="MyVariant" Cgroup="MyGroup" Cvariant="Debug" Cversion="1.0.2" condition="CMSIS Core with RTOS">
+  <description>Debug version of MyVariant</description>
+  <RTE_Components_h>
+    <!-- the following content goes into file 'RTE_Components.h' -->
+    #define RTE_MyVariant_Debug               /* MyVariant Debug Version */
+  </RTE_Components_h>
+  <files>
+    <file category="doc" name="Docs/MySWComp.htm"/>
+    <file category="header" name="MySWComp/header_mylib.h"/>
+    <file category="header" name="MySWComp/config/debug_config_mylib.h" attr="config" version="1.0.0"/>
+    <file category="source" name="MySWComp/debug_mylib_one.c"/>
+    <file category="source" name="MySWComp/debug_mylib_two.c"/>
+    <file category="library" condition="CM0" name="MySWComp/Lib/debug_mylib_cm0.lib"/>
+    <file category="library" condition="CM3" name="MySWComp/Lib/debug_mylib_cm3.lib"/>
+    <file category="library" condition="CM4_CM7" name="MySWComp/Lib/debug_mylib_cm4.lib"/>
+  </files>
+</component>
+\endcode
+</li>
+<li>
+Add a new revision to reflect the changes in a newly generated Pack:
+\code{.xml}
+    <release version="1.0.2">
+      Variants introduced
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.1.
+
+\image html VariantDisplay.png "Display of MyVariant in development tools"
+</li>
+</ol>
+
+\section cp_RTEComponents_h RTE_Components.h
+Sometimes, software components need to know of other components. Depending on the availability or configuration of another
+component, certain settings may be required. A distinct header file is available to make components aware of each other:
+<b>RTE_Components.h</b>. To add a line of C code to this header file, simply add this to your component:
+
+\verbatim
+<RTE_Components_h>
+  #define RTE_MyVariant_Debug               /* MyVariant Debug Version */
+</RTE_Components_h>
+\endverbatim
+The \c \#define can be checked by other components in a project.
+
+\note The RTE_components.h file needs to be included somewhere in your source files.  Refer to \ref RTE_Components_h for more information.
+
+
+\section cp_Bundles Bundles
+A bundle is basically a variant on the \c Cclass level. It specifies the attributes \c Cclass, \c Cversion and optionally
+\c Cgroup and \c Cvendor for a collection of interdependent components. Components within a bundle inherit the attributes
+set by the bundle and must not set these attributes again. Bundles ensure consistency of attributes across multiple
+interworking components and restrict the mix and match of components within a \c Cclass from different solutions.
+In addition to components, a bundle has the mandatory elements \c description and \c doc (for documentation).
+
+An example of a <b>bundle</b> is shown in the \ref cp_BundleExample section where the bundle is used to deliver board
+support files for a certain development platform.
+
+
+\section cp_Instances Instances
+
+Some \ref pdsc_components_pg "software components" allow several instances. This is useful if more than one peripheral can
+be connected.
+
+<ol>
+<li>
+Adding the information about a maximum number of instances is easy. Change the first component (\::MyClass:MyGroup:MySub) as
+follows:
+\code{.xml}
+      <component Cclass="MyClass" Cgroup="MyGroup" Csub="MySubGroup" Cversion="1.0.3" condition="CMSIS Core with RTOS" maxInstances="3">
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.3">
+      Maximum number of instances specified
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.2. When
+selecting a certain number of instances of the component, causes the development tool to copy the required configuration
+files multiple times into the project. This ensures that each component instance can be configured separately.
+
+\image html maxInstancesDisplay.png  "Display of component instances in development tools"
+</li>
+</ol>
+
+
+\section cp_API API Interface
+
+An \ref pdsc_apis_pg "API" is a special form of a software component that only defines a C/C++ Application Programming
+Interface (API). An API does not contain the actual implementation (usually provided by source code or library files) and
+cannot be selected in a development tool. One example is the CMSIS-RTOS API, which is specified as part of CMSIS. However,
+the actual RTOS implementation is provided by different vendors. An API consists of a name, a brief description as well as
+one or more header files, and a document containing a detailed specification of the API.
+
+Copy the \e content of the <b>05_APIs</b> directory of the \b Pack_with_Software_Components.zip file to the <b>Files</b>
+directory in your working environment:
+<ol>
+<li>
+Add a \ref pdsc_apis_pg "<apis>" section with the following:
+\code{.xml}
+    <api Cclass="Device" Cgroup="MyAPI" exclusive="0">
+	  <description>API for MyAPI</description>
+	  <files>
+	    <file category="doc"    name="Docs/API/MyAPI.htm"/>
+	    <file category="header" name="API/Include/MyAPI.h"/>
+	  </files>
+	</api>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.4">
+      MyAPI added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.3. Most
+likely, you will see none as APIs are not selectable and are thus not displayed in the tools.
+</li>
+</ol>
+
+
+\section cp_CodeTemplates User Code Templates
+User code templates provide a quick start for implementing an application. To add user code templates, add source files with
+the attribute <code>attr=“template”</code> in a \c \<component\>. The \c select attribute is used to identify template files.
+Template files with the same \c select attribute will be added to a project simultaneously.
+
+Copy the \e content of the <b>06_User_Code_Templates</b> directory of the \b Pack_with_Software_Components.zip file to the
+<b>Files</b> directory in your working environment:
+<ol>
+<li>
+Add the following code to both variants (\c debug and \c release) of the \::MyVariant:MyGroup component:
+\code{.xml}
+          <file category="source" name="MySWComp/Templates/mylib_template1.c" attr="template" select="Easy Template"/>
+          <file category="source" name="MySWComp/Templates/mylib_template2.c" attr="template" select="Complex Template"/>
+          <file category="source" name="MySWComp/Templates/mylib_template3.c" attr="template" select="Complex Template"/>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.5">
+      User Code Templates added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.4.
+
+\image html UserCodeTemplatesDisplay.png  "Display of user code templates in development tools"
+</li>
+</ol>
+
+
+\section cp_Examples Example Projects 
+Example projects help to understand a certain MCU or development board better. An example and each individual file of it may
+refer to a condition that must resolve to true; if it is false, the example or file will be ignored. The board element is
+used to reference to one or more board descriptions using the board vendor and name an example is targeted for. Each example
+can specify attributes listing related components using \c Cclass, \c Cgroup, \c Csub and \c Cversion. The \elem{project}
+element contains the names of the supported development tools and the project files to be loaded.
+
+Copy the \e content of the <b>07_Example_Projects</b> directory of the \b Pack_with_Software_Components.zip file to the
+<b>Files</b> directory in your working environment:
+<ol>
+<li>
+Add an \ref pdsc_examples_pg "<examples>" section with the following:
+\code{.xml}
+  <examples>
+    <example name="MyDevBoard Example" doc="Abstract.txt" folder="MyPackExample">
+      <description>CMSIS-RTOS based example</description>
+      <board name="MyDevBoard" vendor="MyVendor"/>
+      <project>
+        <environment name="uv" load="MyPackExample.uvprojx"/>
+      </project>
+      <attributes>
+        <component Cclass="CMSIS"     Cgroup="Core"/>
+        <component Cclass="Device"    Cgroup="Startup"/>
+        <component Cclass="CMSIS"     Cgroup="RTOS"/>
+        <component Cclass="MyVariant" Cgroup="MyGroup"/>
+      </attributes>
+    </example>
+  </examples>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.6">
+      Example project added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool and observe the differences to version 1.0.5.
+
+\image html ExampleDisplay.png  "Display of example projects in development tools"
+</li>
+</ol>
+Example projects rely on a development board to be present (as the code needs to run on real hardware). In the code above
+you will notice that a development board called "MyDevBoard" was specified. \ref createPackBoard explains how to integrate
+boards into a Pack.
+*/

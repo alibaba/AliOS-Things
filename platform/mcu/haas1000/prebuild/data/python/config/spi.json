@@ -5,7 +5,7 @@
       "type": "SPI",
       "port": 0,
       "mode": "master",
-      "freq": 3250000
+      "freq": 2000000
     }
   },
   "debugLevel": "DEBUG"

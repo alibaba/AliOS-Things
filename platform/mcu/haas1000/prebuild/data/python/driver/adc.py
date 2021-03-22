@@ -1,10 +1,10 @@
 
-import driver
+from driver import ADC
 
-print("-------------------adc test--------------------")
-adcobj = driver.adc()
-adcobj.open("/data/python/config/adc.json", "ADC0");
-value = adcobj.read();
-print(value);
-adcobj.close();
-print("-------------------adc test--------------------")
+print("-------------------start adc test--------------------")
+adc = ADC()
+adc.open("ADC0")
+value = adc.read()
+print(value)
+adc.close()
+print("-------------------end adc test--------------------")

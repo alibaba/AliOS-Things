@@ -1,0 +1,211 @@
+/* ##########################  Generic Physical Timer functions  ############################ */
+/**
+\defgroup PL1_timer_functions Generic Physical Timer Functions
+\ingroup CMSIS_Core_FunctionInterface
+\brief Generic Physical Timer Functions allow to control privilege level 1 physical timer registers on Generic Timer for Cortex-A7 class devices.\n
+Reference: <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0464f/index.html">Cortex-A7 MPCore Technical Reference Manual</a>.
+*/
+/** @{ */
+
+/** \brief Physical Timer Control register */
+typedef union
+{
+  struct
+  {
+    uint32_t ENABLE:1;      /*!< \brief bit: 0      Enables the timer. */
+    uint32_t IMASK:1;       /*!< \brief bit: 1      Timer output signal mask bit. */
+    uint32_t ISTATUS:1;     /*!< \brief bit: 2      The status of the timer. */
+    uint32_t _reserved0:29; /*!< \brief bit: 3..31  Reserved */
+  } b;                      /*!< \brief Structure used for bit  access */
+  uint32_t w;               /*!< \brief Type      used for word access */
+} CNTP_CTL_Type;
+
+/** Configures the frequency the timer shall run at.
+* \param value The timer frequency in Hz.
+*/
+__STATIC_INLINE void PL1_SetCounterFrequency(uint32_t value);
+
+/** Sets the reset value of the timer.
+* \param value The value the timer is loaded with.
+*/
+__STATIC_INLINE void PL1_SetLoadValue(uint32_t value);
+
+/** Get the current counter value.
+* \return Current counter value.
+*/
+__STATIC_INLINE uint32_t PL1_GetCurrentValue();
+
+/** \brief Get the current physical counter value.
+* \return Current physical counter value.
+*/
+__STATIC_INLINE uint64_t PL1_GetCurrentPhysicalValue(void);
+
+/** \brief Set the physical compare value.
+* \param [in] value New physical timer compare value.
+*/
+__STATIC_INLINE void PL1_SetPhysicalCompareValue(uint64_t value);
+
+/** \brief Get the physical compare value.
+* \return Physical compare value.
+*/
+__STATIC_INLINE uint64_t PL1_GetPhysicalCompareValue(void);
+
+/** Configure the timer by setting the control value.
+* \param value New \ref CNTP_CTL_Type "timer control value".
+*/
+__STATIC_INLINE void PL1_SetControl(uint32_t value);
+
+/** Get the timer control value.
+* \return \ref CNTP_CTL_Type Timer control value.
+*/
+__STATIC_INLINE uint32_t PL1_GetControl();
+
+/** @} */
+
+/* ##########################  Private Timer functions  ############################ */
+/**
+\defgroup PTM_timer_functions Private Timer Functions
+\ingroup CMSIS_Core_FunctionInterface
+\brief Private Timer Functions controls private timer registers present on Cortex-A5 and A9 class devices.\n
+References: <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0434c/index.html">Cortex-A5 MPCore Technical Reference Manual</a>,
+<a href="http://infocenter.arm.com/help/topic/com.arm.doc.100486_0401_10_en/index.html">Cortex-A9 MPCore Technical Reference Manual</a>.
+
+@{
+\struct Timer_Type
+\def PTIM
+\fn __STATIC_INLINE void PTIM_SetLoadValue(uint32_t value)
+\fn __STATIC_INLINE uint32_t PTIM_GetLoadValue()
+\fn __STATIC_INLINE uint32_t PTIM_GetCurrentValue()
+\fn __STATIC_INLINE void PTIM_SetControl(uint32_t value)
+\fn __STATIC_INLINE uint32_t PTIM_GetControl(void)
+\fn __STATIC_INLINE void PTIM_ClearEventFlag(void)
+@}
+*/
+
+/* ########################## Timer_Type Members ########################## */
+/**
+\var __IOM uint32_t Timer_Type::LOAD
+\details Private Timer Load Register
+The Timer Load Register contains the value copied to the Timer Counter Register when
+it decrements down to zero with auto reload mode enabled. Writing to the Timer Load
+Register means that you also write to the Timer Counter Register.
+
+\var __IOM uint32_t Timer_Type::COUNTER
+\details Private Timer Counter Register
+The Timer Counter Register is a decrementing counter.
+
+The Timer Counter Register decrements if the timer is enabled using the timer enable bit in the Timer Control Register.
+
+When the Timer Counter Register reaches zero and auto reload mode is enabled, it
+reloads the value in the Timer Load Register and then decrements from that value. If
+auto reload mode is not enabled, the Timer Counter Register decrements down to zero
+and stops.
+
+When the Timer Counter Register reaches zero, the timer interrupt status event flag is
+set and the interrupt ID 29 is set as pending in the Interrupt Distributor, if interrupt
+generation is enabled in the Timer Control Register.
+
+Writing to the Timer Counter Register or Timer Load Register forces the Timer Counter
+Register to decrement from the newly written value.
+
+\var __IOM uint32_t Timer_Type::CONTROL
+\details Private Timer Control Register
+
+| Bits    | Name          | Function                                                       |
+| :------ | :------------ | :------------------------------------------------------------- |
+| [31:16] | -             | Reserved.                                                      |
+| [15:8]  | Prescaler     | The prescaler modifies the clock period for the decrementing event for the Counter Register. |
+| [7:3]   | -             | Reserved.                                                      |
+| [2]     | IRQ Enable    | If set, the interrupt is set as pending in the Interrupt Distributor when the event flag is set in the Timer Status Register. |
+| [1]     | Auto Reload   | If set, each time the Counter Register reaches zero, it is reloaded with the value contained in the Timer Load Register. |
+| [0]     | Time Enabled  | If set, Timer is enabled and the counter decrements normally. |
+
+\var __IM uint32_t Timer_Type::ISR
+\details Private Timer Interrupt Status Register
+
+The event flag is a sticky bit that is automatically set when the Counter Register reaches
+zero. If the timer interrupt is enabled, Interrupt ID 29 is set as pending in the Interrupt
+Distributor after the event flag is set. The event flag is cleared when written to 1.
+
+\var __IOM uint32_t Timer_Type::WLOAD
+\details Watchdog Load Register
+
+The Watchdog Load Register contains the value copied to the Watchdog Counter
+Register when it decrements down to zero with auto reload mode enabled, in Timer
+mode. Writing to the Watchdog Load Register means that you also write to the
+Watchdog Counter Register.
+
+\var __IOM uint32_t Timer_Type::WCOUNTER
+\details Watchdog Counter Register
+
+The Watchdog Counter Register is a down counter.
+
+The behavior of the watchdog when the Watchdog Counter Register reaches zero
+depends on its current mode:
+ - Timer mode: The watchdog interrupt status event flag is set and the interrupt
+   is set as pending in the Interrupt Distributor.
+ - Watchdog mode: Tthe Watchdog reset status flag is set and the associated WDRESETREQ
+   reset request output pin is asserted.
+
+\var __IOM uint32_t Timer_Type::WCONTROL
+\details Watchdog Control Register
+
+| Bits    | Name            | Function                                                       |
+| :------ | :-------------- | :------------------------------------------------------------- |
+| [31:16] | -               | Reserved.                                                      |
+| [15:8]  | Prescaler       | The prescaler modifies the clock period for the decrementing event for the Counter Register. |
+| [7:4]   | -               | Reserved.                                                      |
+| [3]     | Watchdog Mode   | 0 - Timer mode (default), 1 - Watchdog mode                    |
+| [2]     | IT Enable       | Interrupt enable for timer mode.                               |
+| [1]     | Auto Reload     | 0 - Single shot mode, 1 - Continuous timer mode                |
+| [0]     | Watchdog Enable | 0 - Watchdog counter disabled, 1 - Watchdog timer enabled      |
+
+\var __IOM uint32_t Timer_Type::WISR
+\details Watchdog Interrupt Status Register
+
+| Bits    | Name            | Function                                                       |
+| :------ | :-------------- | :------------------------------------------------------------- |
+| [31:1]  | -               | Reserved.                                                      |
+| [0]     | Event Flag      | The event flag is a sticky bit that is automatically set when the Counter Register reaches zero in timer mode. |
+
+\var __IOM uint32_t Timer_Type::WRESET
+\details Watchdog Reset Status Register
+
+| Bits    | Name            | Function                                                       |
+| :------ | :-------------- | :------------------------------------------------------------- |
+| [31:1]  | -               | Reserved.                                                      |
+| [0]     | Reset Flag      | The reset flag is a sticky bit that is automatically set when the Counter Register reaches zero and a reset request is sent accordingly. (In watchdog mode) | 
+
+\var __IM uint32_t Timer_Type::WDISABLE
+\details Watchdog Disable Register
+
+Use the Watchdog Disable Register to switch from watchdog to timer mode. The
+software must write 0x12345678 then 0x87654321 successively to the Watchdog Disable
+Register so that the watchdog mode bit in the Watchdog Control Register is set to zero.
+*/
+
+/* ########################## Private Timer Member ########################## */
+/**
+
+\var uint32_t CNTP_CTL_Type::ENABLE
+\details Enables the timer.
+
+Permitted values are:
+ - 0 - Timer disabled.
+ - 1 - Timer enabled.
+
+\var uint32_t CNTP_CTL_Type::IMASK
+\details Timer output signal mask bit. 
+
+Permitted values are:
+ - 0 - Timer output signal is not masked.
+ - 1 - Timer output signal is masked.
+
+
+\var uint32_t CNTP_CTL_Type::ISTATUS
+\details The status of the timer.
+
+This bit indicates whether the timer condition is asserted:
+ - 0 - Timer condition is not asserted.
+ - 1 - Timer condition is asserted.
+*/

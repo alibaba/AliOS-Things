@@ -1,0 +1,507 @@
+/**
+\mainpage Overview
+
+The CMSIS-Driver specification is a software API that describes peripheral driver interfaces for middleware stacks and user
+applications. The CMSIS-Driver API is designed to be generic and independent of a specific RTOS making it reusable across a
+wide range of supported microcontroller devices. The CMSIS-Driver API covers a wide range of use cases for the supported
+peripheral types, but can not take every potential use-case into account. Over time, it is indented to extend the
+CMSIS-Driver API with further groups to cover new use-cases.
+
+The CMSIS Software Pack publishes the API Interface under the Component Class \b CMSIS \b Driver with header files and a
+documentation. These header files are the reference for the implementation of the standardized peripheral driver interfaces. 
+These implementations are published typically in the Device Family Pack of a related microcontroller family under the
+Component Class \b CMSIS \b Driver. A Device Family Pack may contain additional interfaces in the Component Class \b Device
+to extend the standard Peripheral Drivers covered by this CMSIS-Driver specification with additional device specific
+interfaces for example for Memory BUS, GPIO, or DMA.
+
+The standard peripheral driver interfaces connect microcontroller peripherals for example with middleware that implements
+communication stacks, file systems, or graphic user interfaces. Each peripheral driver interface may provide multiple
+instances reflecting the multiple physical interfaces of the same type in a device. For example the two physical SPI
+interfaces are reflected with a separate \ref AccessStruct for SPI1 and SPI2. The \ref AccessStruct is the interface of a
+driver to the middleware component or the user application.
+
+\image html Driver.png  "Peripheral Driver Interfaces and Middleware"
+
+The following CMSIS-Driver API groups are defined:
+  - \ref can_interface_gr "CAN": Interface to CAN bus peripheral.
+  - \ref eth_interface_gr "Ethernet": Interface to Ethernet MAC and PHY peripheral.
+  - \ref i2c_interface_gr "I2C": Multi-master Serial Single-Ended Bus interface driver.
+  - \ref mci_interface_gr "MCI": Memory Card Interface for SD/MMC memory.
+  - \ref nand_interface_gr "NAND": NAND Flash Memory interface driver.
+  - \ref flash_interface_gr "Flash": Flash Memory interface driver.
+  - \ref sai_interface_gr "SAI": Serial audio interface driver (I2s, PCM, AC'97, TDM, MSB/LSB Justified).
+  - \ref spi_interface_gr "SPI": Serial Peripheral Interface Bus driver.
+  - \ref storage_interface_gr "Storage": Storage device interface driver.
+  - \ref usart_interface_gr "USART": Universal Synchronous and Asynchronous Receiver/Transmitter interface driver.
+  - \ref usb_interface_gr "USB": Interface driver for USB Host and USB Device communication.
+  - \ref wifi_interface_gr "WiFi": Interface driver for wireless communication.
+
+<hr>
+
+CMSIS-Driver in ARM::CMSIS Pack
+-------------------------------
+
+The following files relevant to CMSIS-Driver are present in the <b>ARM::CMSIS</b> Pack directories:
+| Directory                      | Content                                                                |
+|--------------------------------|------------------------------------------------------------------------|
+|\b CMSIS/Documentation/Driver   | This documentation                                                     |
+|\b CMSIS/Driver/Include         | Driver header files (Driver_<i>interface</i>.h, Driver_Common.h)       |
+|\b CMSIS/Driver/DriverTemplates | Driver implementation template files (Driver_<i>interface</i>.c)       |
+
+<hr>
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page driver_revisionHistory Revision History of CMSIS-Driver
+
+
+<table class="cmtable" summary="Revision History">
+    <tr>
+      <th>Version</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>2.7.1</td>
+      <td>Modifications compared to Version 2.7.0:
+        - Finalized WiFi Interface API 1.0.0.
+      </td>
+    </tr>
+    <tr>
+      <td>2.7.0</td>
+      <td>Modifications compared to Version 2.6.0:
+        - Added WiFi Interface API 1.0.0-beta.
+        - Added custom driver selection to simplify implementation of new CMSIS-Driver.
+      </td>
+    </tr>
+    <tr>
+      <td>2.6.0</td>
+      <td>Modifications compared to Version 2.05:
+- Enhanced CAN-Driver API with explicit BUSOFF state.
+- Enhanced NAND-Driver API for ECC handling.
+      </td>
+    </tr>
+    <tr>
+      <td>2.05</td>
+      <td>Modifications compared to Version 2.04:
+ - Changed: All typedefs related to status have been made volatile. 
+      </td>
+    </tr>
+    <tr>
+      <td>2.04</td>
+      <td>Modifications compared to Version 2.03:
+ - Added: template files for CAN interface driver.
+      </td>
+    </tr>
+    <tr>
+      <td>2.03</td>
+      <td>Modifications compared to Version 2.02:
+ - Added: CAN API for an interface to CAN peripherals
+ - Added: Overview of the \ref driverValidation "CMSIS-Driver Validation" Software Pack.
+ - Enhanced: documentation and clarified behavior of the \ref CallSequence.
+      </td>
+    </tr>
+    <tr>
+      <td>2.02</td>
+      <td>Modifications compared to Version 2.00:
+ - Minor API changes, for exact details refer to the header file of each driver.
+ - Added: Flash Interface, NAND interface.
+      </td>
+    </tr>
+    <tr>
+      <td>2.00</td>
+      <td>API with non-blocking data transfer, independent of CMSIS-RTOS.</td>
+    </tr>
+    <tr>
+      <td>1.10</td>
+      <td>Initial release</td>
+    </tr>
+</table>
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page theoryOperation Theory of Operation
+
+[TOC]
+
+This section gives an overview of the general operation of CMSIS-Drivers. It explains the \ref DriverFunctions that are
+common in all CMSIS-Drivers along with the \ref CallSequence. The topic \ref Data_Xfer_Functions describes how data
+read/write operations to the peripheral are implemented.
+
+Each CMSIS-Driver defines an \ref AccessStruct for calling the various driver functions and each peripheral (that is accessed
+via a CMSIS-Driver) has one \ref DriverInstances "Driver Instance".
+
+
+\section DriverFunctions Common Driver Functions
+
+Each CMSIS-Driver contains these functions:
+
+ - \b GetVersion: can be called at any time to obtain version information of the driver interface.
+ 
+ - \b GetCapabilities: can be called at any time to obtain capabilities of the driver interface.
+ 
+ - \b Initialize: must be called before powering the peripheral using \b PowerControl. This function performs the following:
+     - allocate I/O resources.
+	 - register an optional \b SignalEvent callback function.
+
+ - \b SignalEvent: is an optional callback function that is registered with the \b Initialize function. This callback
+   function is initiated from interrupt service routines and indicates hardware events or the completion of a data block
+   transfer operation.
+
+ - \b PowerControl: Controls the power profile of the peripheral and needs to be called after \b Initialize. Typically, three
+   power options are available:
+     - \c ARM_POWER_FULL: Peripheral is turned on and fully operational. The driver initializes the peripheral registers, interrupts, and (optionally) DMA.
+     - \c ARM_POWER_LOW: (optional) Peripheral is in low power mode and partially operational; usually, it can detect
+       external events and wake-up.
+     - \c ARM_POWER_OFF: Peripheral is turned off and not operational (pending operations are terminated). This is the state
+       after device reset.
+ 
+ - \b Uninitialize: Complementary function to Initialize. Releases the I/O pin resources used by the interface.
+
+ - \b Control: Several drivers provide a control function to configure communication parameters or execute miscellaneous
+   control functions.
+
+The section \ref CallSequence contains more information on the operation of each function. Additional functions are specific
+to each driver interface and are described in the individual sections of each driver.
+
+\subsection ProcessorMode Cortex-M Processor Mode
+
+The CMSIS-Driver functions access peripherals and interrupts and are designed to execute in \b Privileged mode.
+When calling CMSIS-Driver functions from RTOS threads, it should be ensure that these threads execute in \b Privileged mode.
+
+
+\section CallSequence Function Call Sequence
+
+For normal operation of the driver, the API functions \b GetVersion, \b GetCapabilities, \b Initialize, \b PowerControl, \b Uninitialize are 
+called in the following order:
+
+\msc
+ a [label="", textcolor="indigo", linecolor="indigo", arclinecolor="indigo"],
+ b [label="", textcolor="blue", linecolor="blue", arclinecolor="blue"];
+
+ a rbox a [label="Middleware", linecolor="indigo"],
+ b rbox b [label="Driver", linecolor="blue"];
+ --- [label="Verify API version"];
+ a=>b [label="GetVersion ()", textcolor="gray", linecolor="gray"];
+ --- [label="Obtain driver features"];
+ a=>b [label="GetCapabilities (...)", textcolor="gray", linecolor="gray"];
+ ---  [label="Setup software resources"];
+ a=>b [label="Initialize (...)", textcolor="red", linecolor="red"];
+ --- [label="Setup the peripheral"];
+ a=>b  [label="PowerControl (ARM_POWER_FULL)", textcolor="red", linecolor="red"];
+ --- [label="Operate with the peripheral"];
+ a=>b [label="Data Transfer Functions"];
+ a<=b  [label="SignalEvent (...)"];
+ --- [label="Wait for external hardware events"];
+ a=>b  [label="PowerControl (ARM_POWER_LOW)"];
+ a<=b  [label="SignalEvent (...)"];
+ --- [label="Stop working with peripheral"];
+ a=>b [label="PowerControl (ARM_POWER_OFF)", textcolor="red", linecolor="red"];
+ a=>b [label="Uninitialize (...)", textcolor="red", linecolor="red"];
+\endmsc
+
+The functions \b GetVersion and \b GetCapabilities can be called any time to obtain the required information from the driver.
+These functions return always the same information.
+
+
+\subsection CS_start Start Sequence
+
+To start working with a peripheral the functions \b Initialize and \b PowerControl need to be called in this order:
+\code
+  drv->Initialize (...);                 // Allocate I/O pins
+  drv->PowerControl (ARM_POWER_FULL);    // Power up peripheral, setup IRQ/DMA
+\endcode
+
+- \b Initialize typically allocates the I/O resources (pins) for the peripheral. The function can be called multiple times;
+  if the I/O resources are already initialized it performs no operation and just returns with \ref ARM_DRIVER_OK.
+- \b PowerControl (\c ARM_POWER_FULL) sets the peripheral registers including interrupt (NVIC) and optionally DMA.
+  The function can be called multiple times; if the registers are already set it performs no operation and just returns with \ref ARM_DRIVER_OK.
+  
+\subsection CS_stop Stop Sequence
+
+To stop working with a peripheral the functions \b PowerControl and \b Uninitialize need to be called in this order:
+\code
+  drv->PowerControl (ARM_POWER_OFF);     // Terminate any pending transfers, reset IRQ/DMA, power off peripheral
+  drv->Uninitialize (...);               // Release I/O pins
+\endcode
+The functions \b PowerControl and \b Uninitialize always execute and can be used to put the peripheral into a <b>Safe State</b>,
+for example after any data transmission errors.  To restart the peripheral in a error condition, you should first execute
+the \ref CS_stop and then the \ref CS_start.
+
+- \b PowerControl (\c ARM_POWER_OFF) terminates any pending data transfers with the peripheral, disables the peripheral and 
+  leaves it in a defined mode (typically the reset state).
+    - when DMA is used it is disabled (including the interrupts)
+    - peripheral interrupts are disabled on NVIC level
+    - the peripheral is reset using a dedicated reset mechanism (if available) or by clearing the peripheral registers
+    - pending peripheral interrupts are cleared on NVIC level
+    - driver variables are cleared
+- \b Uninitialize always releases I/O pin resources.
+
+\section Share_IO Shared I/O Pins
+
+All CMSIS-Driver provide a \ref CS_start and \ref CS_stop. Therefore two different drivers can share the same I/O pins, 
+for example UART1 and SPI1 can have overlapping I/O pins. In this case the communication channels can be used as shown below:
+
+\code 
+  SPI1drv->Initialize (...);                // Start SPI1
+  SPI1drv->PowerControl (ARM_POWER_FULL);
+   ...                                      // Do operations with SPI1
+  SPI1drv->PowerControl (ARM_POWER_OFF);    // Stop SPI1
+  SPI1drv->Uninitialize ();
+   ...
+  USART1drv->Initialize (...);              // Start USART1
+  USART1drv->PowerControl (ARM_POWER_FULL);
+   ...                                      // Do operations with USART1
+  USART1drv->PowerControl (ARM_POWER_OFF);  // Stop USART1
+  USART1drv->Uninitialize ();
+\endcode
+ 
+\section Data_Xfer_Functions Data Transfer Functions
+
+A CMSIS-Driver implements non-blocking functions to transfer data to a peripheral. This means that the driver configures the
+read or write access to the peripheral and instantly returns to the calling application.  The function names for data
+transfer end with:
+ - \b Send to write data to a peripheral.
+ - \b Receive to read data from a peripheral.
+ - \b Transfer to indicate combined read/write operations to a peripheral.
+
+During a data transfer, the application can query the number of transferred data items using functions named
+<b>Get<i>xxx</i>Count</b>. On completion of a data transfer, the driver calls a callback function with a specific event code.
+
+During the data exchange with the peripheral, the application can decide to:
+ - Wait (using an RTOS scheduler) for the callback completion event. The RTOS is controlled by the application code which
+   makes the driver itself RTOS independent.
+ - Use polling functions that return the number of transferred data items to show progress information or partly read or fill
+   data transfer buffers.
+ - Prepare another data transfer buffer for the next data transfer.
+ 
+The following diagram shows the basic communication flow when using the \b _Send function in an application.
+
+\image html Non_blocking_transmit_small.png  "Non-blocking Send Function"
+
+\section AccessStruct Access Struct
+
+A CMSIS-Driver publishes an \ref AccessStruct with the data type name ARM_DRIVER_xxxx that gives to access the driver
+functions.
+
+\b Code \b Example: \b Function \b Access \b of \b the \b SPI \b driver
+\code
+typedef struct _ARM_DRIVER_SPI {
+  ARM_DRIVER_VERSION   (*GetVersion)      (void);
+  ARM_SPI_CAPABILITIES (*GetCapabilities) (void);
+  int32_t              (*Initialize)      (ARM_SPI_SignalEvent_t cb_event);
+  int32_t              (*Uninitialize)    (void);
+  int32_t              (*PowerControl)    (ARM_POWER_STATE state);
+  int32_t              (*Send)            (const void *data, uint32_t num);
+  int32_t              (*Receive)         (      void *data, uint32_t num);
+  int32_t              (*Transfer)        (const void *data_out, void *data_in, uint32_t num);
+  uint32_t             (*GetDataCount)    (void);
+  int32_t              (*Control)         (uint32_t control, uint32_t arg);
+  ARM_SPI_STATUS       (*GetStatus)       (void);
+} const ARM_DRIVER_SPI;
+\endcode
+
+\subsection DriverInstances Driver Instances
+
+A device may offer several peripherals of the same type. For such devices, the CMSIS-Driver publishes multiple instances
+of the \ref AccessStruct. The name of each driver instance reflects the names of the peripheral available in the device.
+
+\b Code \b Example: \ref AccessStruct \b for \b three \b SPIs \b in \b a \b microcontroller \b device.
+\code
+ARM_DRIVER_SPI Driver_SPI1;     // access functions for SPI1 interface
+ARM_DRIVER_SPI Driver_SPI2;     // access functions for SPI2 interface
+ARM_DRIVER_SPI Driver_SPI3;     // access functions for SPI3 interface
+\endcode
+
+The access functions can be passed to middleware to specify the driver instance that the middleware should use for communication.
+
+\b Example:
+\code
+void init_middleware (ARM_DRIVER_SPI *Drv_spi) ...
+\\ inside the middleware the SPI driver functions are called with:
+\\   Drv_spi->function (...);
+\endcode
+ 
+\code
+\\ setup middleware
+init_middleware (&Driver_SPI1);      // connect middleware to SPI1 interface
+  :
+init_middleware (&Driver_SPI2);      // connect middleware to SPI2 interface
+\endcode
+
+
+\section DriverConfiguration Driver Configuration
+
+For a device family, the drivers may be configurable. The \ref referenceImplementation stores configuration options in a
+central file with the name \b RTE_Device.h. However, the configuration of the drivers itself is not part of the CMSIS-Driver
+specification.
+
+\section CodeExample Code Example
+
+The following example code shows the usage of the SPI interface.
+
+\include SPI_Demo.c
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page referenceImplementation Reference Implementation
+
+The API of the CMSIS-Drivers is published in the \ref DriverHeaderFiles.
+
+To simplify the development of a CMSIS-Driver both \ref DriverTemplates and \ref DriverExamples are provided.
+
+ARM offers also a Software Pack for CMSIS-Driver Validation as described in \ref driverValidation.
+
+\section DriverHeaderFiles Driver Header Files
+
+The API of each CMSIS-Driver is published in a header file. It is recommended to include the header file that is part of the
+CMSIS specification in the implementation file of the CMSIS-Driver. 
+
+The following header files are available in the directory <b>.\\CMSIS\\Driver\\Include</b>.
+
+| Header File          | Description
+|----------------------|-------------------------
+| %Driver_Common.h     | \ref common_drv_gr
+| %Driver_CAN.h        | \ref can_interface_gr
+| %Driver_ETH.h        | \ref eth_interface_gr
+| %Driver_ETH_MAC.h    | \ref eth_mac_interface_gr
+| %Driver_ETH_PHY.h    | \ref eth_phy_interface_gr
+| %Driver_Flash.h      | \ref flash_interface_gr
+| %Driver_I2C.h        | \ref i2c_interface_gr
+| %Driver_MCI.h        | \ref mci_interface_gr
+| %Driver_NAND.h       | \ref nand_interface_gr
+| %Driver_SPI.h        | \ref spi_interface_gr
+| %Driver_Storage.h    | \ref storage_interface_gr
+| %Driver_SAI.h        | \ref sai_interface_gr
+| %Driver_USART.h      | \ref usart_interface_gr
+| %Driver_USB.h        | \ref usb_interface_gr
+| %Driver_USBD.h       | \ref usbd_interface_gr
+| %Driver_USBH.h       | \ref usbh_interface_gr
+| %Driver_WiFi.h       | \ref wifi_interface_gr
+
+
+\section DriverTemplates Driver Template Files
+
+Driver template files are code skeletons that provide the structure of a CMSIS-Driver.  The following templates are 
+available in the directory <b>.\\CMSIS\\Driver\\DriverTemplates</b>.
+
+| Source File       | Description
+|-------------------|------------------------------------
+| %Driver_CAN.c     | \ref can_interface_gr
+| %Driver_ETH_MAC.c | \ref eth_mac_interface_gr
+| %Driver_ETH_PHY.c | \ref eth_mac_interface_gr
+| %Driver_Flash.c   | \ref flash_interface_gr
+| %Driver_I2C.c     | \ref i2c_interface_gr
+| %Driver_MCI.c     | \ref mci_interface_gr
+| %Driver_SAI.c     | \ref sai_interface_gr
+| %Driver_SPI.c     | \ref spi_interface_gr
+| %Driver_Storage.c | \ref storage_interface_gr
+| %Driver_USART.c   | \ref usart_interface_gr
+| %Driver_USBD.c    | \ref usbd_interface_gr
+| %Driver_USBH.c    | \ref usbh_interface_gr
+
+
+\section DriverExamples Driver Examples
+
+The driver examples are full working CMSIS-Drivers that may be adapted to a different hardware. Examples are currently
+available for the NXP LPC1800 series and provide the implementation of a complete CMSIS-Driver. The following examples are 
+available in the directory <b>.\\CMSIS\\Pack\\Example\\CMSIS_Driver</b>.
+
+| Source File       | Header File       | Description
+|-------------------|-------------------|-------------------------------
+| %EMAC_LPC18xx.c   | %EMAC_LPC18xx.h   | \ref eth_mac_interface_gr
+| %SSP_LPC18xx.c    | %SSP_LPC18xx.h    | \ref spi_interface_gr
+| %I2C_LPC18xx.c    | %I2C_LPC18xx.h    | \ref i2c_interface_gr
+| %I2S_LPC18xx.c    | %I2S_LPC18xx.h    | \ref sai_interface_gr
+| %MCI_LPC18xx.c    | %MCI_LPC18xx.h    | \ref mci_interface_gr
+| %USART_LPC18xx.c  | %USART_LPC18xx.h  | \ref usart_interface_gr
+| %USBn_LPC18xx.c   | %USB_LPC18xx.h    | common files for \ref usbd_interface_gr and \ref usbh_interface_gr
+| %USBDn_LPC18xx.c  | <i>none</i>       | \ref usbd_interface_gr
+| %USBHn_LPC18xx.c  | <i>none</i>       | \ref usbh_interface_gr
+
+
+These CMSIS-Drivers use additional modules for GPIO and DMA control:
+
+| Source File       | Header File      | Description
+|-------------------|------------------|---------------------------------------
+| %GPIO_LPC18xx.c   | %GPIO_LPC18xx.h  | GPIO Interface for LPC1800 series
+| %GPDMA_LPC18xx.c  | <i>none</i>      | DMA Interface for LPC1800 series
+| %SCU_LPC18xx.c    | %SCU_LPC18xx.h   | SCU Interface for LPC1800 series
+
+The CMSIS-Drivers for the LPC1800 device have also many configuration options that are controls using \#define statements in
+the file <b>.\\CMSIS\\Pack\\Example\\CMSIS_Driver\\Config\\RTE_Device.h</b>. Using this file, the I/O pin and DMA assignment
+can be set among other parameters such as USB speed and PHY interfaces. 
+
+Further driver reference implementations are available in Device Family Packs (DFP) labeled with version 2.0.0 or higher. 
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page driverValidation Driver Validation
+
+The <a href="http://www.keil.com/pack/" target=_blank>Software Pack</a> named <b>ARM::CMSIS-Driver_Validation</b> contains the following:
+
+ - Source code of a CMSIS-Driver Validation Suite along with configuration file.
+ - Documentation of the CMSIS-Driver Validation Suite.
+ - Examples that shows the usage of the CMSIS-Driver Validation Suite on various target platforms.
+
+The CMSIS-Driver Validation Suite performs the following tests:
+ - Generic Validation of API function calls
+ - Validation of Configuration Parameters
+ - Validation of Communication with loopback tests
+ - Validation of Communication Parameters such as baudrate
+ - Validation of Event functions
+
+The following CMSIS-Drivers can be tested with the current release:
+ - \ref can_interface_gr : with loop back test of communication.
+ - \ref eth_interface_gr : MAC and PHY with loop back test of communication.
+ - \ref i2c_interface_gr : only API and setup; does not test data transfer.
+ - \ref mci_interface_gr : only API and setup; does not test data transfer.
+ - \ref spi_interface_gr : with loop back test of communication.
+ - \ref usart_interface_gr : with loop back test of communication.
+ - \ref usbd_interface_gr : only API and setup; does not test data transfer.
+ - \ref usbh_interface_gr : only API and setup; does not test data transfer.
+ 
+The Driver Validation output can printed to a console, output via ITM printf, or output to a memory buffer.
+ 
+\section test_output Sample Test Output
+\verbatim
+CMSIS-Driver Test      Aug 24 2015 15:15:14
+
+TEST 01: SPI_GetCapabilities          PASSED
+TEST 02: SPI_Initialization
+  DV_SPI.c(142) - Failed
+TEST 03: SPI_PowerControl             NOT EXECUTED
+  :
+  :
+TEST 23: USART_Send 
+  DV_USART.c(335) - Fail to send 1024 bytes 
+  DV_USART.c(335) - Fail to send 2048 bytes 
+  DV_USART.c(341) - Fail to send without callback 2048 bytes 
+  :
+  :
+Test Summary: 52 Tests: 42 Executed, 22 Failed.
+  653 Test Cases: 56 Errors(s), 12 Warning(s).
+\endverbatim
+
+\section loop_back_setup Setup for Loop Back Communication
+
+To perform loop back communication tests it is required to connect the input and the output of the peripherals as shown in this table:
+
+Peripheral       | Loop Back Configuration
+:----------------|:----------------------------
+Ethernet         | Connect TX+ (Pin 1) with RX+ (Pin 3), TX- (Pin 2) with RX- (Pin 6)
+SPI              | Connect MISO to MOSI
+USART            | Connect TX with RX
+
+The following picture shows the necessary external loop back connections for the Keil MCBSTM32F400 evaluation board:
+ - SPI: PB14 (SPI2_MISO) and PB15 (SPI2_MOSI)
+ - USART: PB6 (USART1_TX) and PB7 (USART1_RX)
+ - Ethernet: Pin 1 (TX+) and Pin 3 (RX+), Pin 2 (TX-) and Pin 6 (RX-) 
+
+\image html image006.png  "Connections for Loop Back Communication Tests on Keil MCBSTM32F400"
+
+
+*/

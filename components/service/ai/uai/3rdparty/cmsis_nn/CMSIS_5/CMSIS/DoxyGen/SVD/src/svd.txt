@@ -1,0 +1,434 @@
+/**
+\mainpage System View Description
+
+Introduction
+------------
+The CMSIS System View Description format(CMSIS-SVD) formalizes the description of the system
+contained in Arm Cortex-M processor-based microcontrollers, in particular, the memory mapped
+registers of peripherals.
+The detail contained in system view descriptions is comparable to the data in device 
+reference manuals. The information ranges from high level functional 
+descriptions of a peripheral all the way down to the definition and purpose of an individual bit
+field in a memory mapped register. 
+
+CMSIS-SVD files are developed and maintained by silicon vendors.
+Silicon vendors distribute their descriptions as part of CMSIS Device Family Packs.
+Tool vendors use CMSIS-SVD files for providing device-specific debug views of peripherals in 
+their debugger. Last but not least, CMSIS-compliant device header files are generated from CMSIS-SVD
+files.
+
+CMSIS-SVD Benefits
+------------------
+- For Software Developers:
+  - Consistency between device header file and what is being displayed by the debugger.
+  - Detailed information about peripherals, registers, fields, and bit values as well as named 
+    interrupts from within the debugger, without the need to reference device documentation.
+  - Convenient access to new and updated descriptions as part of the silicon vendor's CMSIS Device
+    Family Packs as the packs are made availabl by silicon vendors.
+  - Improved software development efficiency.
+
+- For Silicon Vendors:
+  - A tool vendor independent file format enables early device support by a wide range of toolchains
+    with limited effort.
+  - The XML-based format helps ease the integration into in-house design flows.
+  - Automated generation of CMSIS compliant device header files.
+  - Full control throughout the life cycle of the CMSIS-SVD files from creation to maintenance.
+
+- For Tool Vendors:
+  - Unified file format across silicon vendors helps the efficiency of supporting a wide range of 
+    devices in a timely manner.
+  - Silicon vendors can provide early review access to the device support via restricted access to
+    CMSIS Device Family Packs.
+  - Updated descriptions are available over the web simplifying the maintenance of device support.
+
+Language Specification and Conventions
+---------------------------------------
+- \ref svd_Format_pg
+
+
+CMSIS-SVD in ARM::CMSIS Pack
+----------------------------
+
+The following files relevant to CMSIS-SVD are present in the <b>ARM::CMSIS</b> Pack directories:
+
+|File/Folder                   |Content                                                                
+|------------------------------|-----------------------------------------------------------------------
+|\b CMSIS\\Documentation\\SVD  | This documentation                                                    
+|\b CMSIS\\Utilities           | Exemplary SVD file (\ref svd_Example_pg "ARM_Example.svd") and generated header file (ARM_Example.h).
+<p>&nbsp;</p>
+<hr>
+*/
+
+/* ************************************************************************************************ */
+/**
+\page svd_revisionHistory Revision History
+
+From a schema perspective, CMSIS-SVD Version 1.1, 1.2 and 1.3 are fully backward compatible to
+version 1.0. 
+
+<table class="cmtable" summary="Revision History table">
+<tr>
+  <th>Version</th>
+  <th>Description</th>
+</tr>
+<tr>
+  <td>V1.3.3</td>
+  <td> 
+       - Updated file header to Apache 2.0 License.
+       - Added \em dimableIdentifierType, as a copy of previous \em identifierType adding "%s".
+       - Updated \em identifierType to only allow names without "%s" included.
+       - Removed \em enumerationNameType.
+       - Added \tagem{headerEnumName} to \refelem{enumeratedValues} and to \refelem{dimArrayIndex} for \refelem{peripheral} 
+         arrays, overwriting hierarchically generated names.
+       - Added \tagem{dimName} to \ref dimElementGroup_gr "dimElementGroup". Only valid in \refelem{cluster} context, ignored otherwise.</td>
+</tr>
+<tr>
+  <td>V1.3.2</td>
+  <td> 
+       - Extended command line of SVDConv.exe for partition.h file generation.
+       - added \refelem{dimArrayIndex} to \refelem{peripheral}, \refelem{cluster}, and \refelem{register} 
+         to describe enumeration of array indices.</td>
+</tr>
+<tr>
+  <td>V1.3.1</td>
+  <td> 
+       - Added \refelem{protection} element; extended with protection option \token{p=privileged}.
+       - Added \refelem{protection} element to \refelem{addressBlock}.
+       - Fixed \refelem{peripheral} name type to \em identifierType to support "%s" for peripheral arrays.
+       - Added Cortex-A class enumeration to \refelem{cpu}.
+       - added \refelem{dimArrayIndex} to \refelem{peripheral}, \refelem{cluster}, and \refelem{register} to describe enumeration of array indices.</td>
+</tr>
+<tr>
+  <td>V1.3</td>
+  <td> 
+       - Extended \refelem{peripheral} with \tagem{dim} to support arrays. 
+       - Added nesting of \refelem{cluster} to support hierarchical register structures.
+       - Extended \refelem{cpu} with description of the \refelem{sauRegionsConfig} (Secure Attribution Unit).
+       - Extended \ref registerPropertiesGroup_gr "register properties" with  \refelem{protection} to reflect security aspects.</td>
+</tr>
+<tr>
+  <td>V1.2</td>
+  <td>Added optional elements for Cortex-M7 in \ref elem_cpu "CPU": 
+        - \tagem{fpuDP}
+        - \tagem{icachePresent}
+        - \tagem{dcachePresent}
+        - \tagem{itcmPresent}
+        - \tagem{dtcmPresent}</td>
+</tr>
+<tr>
+  <td>V1.1</td>
+  <td>Many of the features added in version 1.1 are required for generating CMSIS-Core device header files from a CMSIS SVD description. 
+      It is expected that all CMSIS-SVD descriptions will comply with version 1.1 by now.</td>
+</tr>
+<tr>
+  <td>V1.0</td>
+  <td>Initial version.</td>
+</tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+*/
+
+
+/* ************************************************************************************************ */
+/**
+\page svd_validate_file_pg SVD File Validation and Usage
+
+The description quality is key to success of the CMSIS-SVD format. Aspects of
+quality are:
+  - Syntactical and structural compliance with the specified CMSIS-SVD format.
+  - Consistency and correctness.
+  - Completeness.
+  - Level of detail.
+
+<div class="title">Validation</div>
+Automated validations are done on two levels:
+
+-# <b>The CMSIS-SVD Schema File</b>: 
+XML tools use the schema file for checking the syntactical and structural correctness of an XML file that
+claims compliance with a certain format. The schema file <em>CMSIS-SVD.xsd</em> is located in 
+the folder <b>.\\CMSIS\\Utilities</b> of the \b ARM::CMSIS Pack. 
+\n\n
+-# <b>SVD Conversion Utility:</b> The conversion utility \ref svd_SVDConv_pg checks the semantics and consistency of the data contained in a CMSIS-SVD file. 
+\b SVDConv.exe is included in the CMSIS distribution. 
+
+<div class="title">Usage</div>
+CMSIS-SVD files can be used to generate:
+ -# CMSIS-compliant device header files from a CMSIS-SVD description. Refer to the conversion tool \ref svd_SVDConv_pg for details.
+  CMSIS device header files are developed and maintained by the silicon vendors. Therefore, the expectation is that this conversion is only of interest to
+  these parties.
+ -# Debug dialogs that communicate with a debugger. See below.
+ 
+<b>System Views</b>
+\n\n A number of tool vendors support the CMSIS-SVD format with their products.
+  Refer to the tools documentation to find out how to use CMSIS-SVD descriptions with the debugger of your choice.
+  Please regularly check for updates to the CMSIS Device Family Packs from the silicon vendor to
+  to use the latest versions of the CMSIS-SVD files.
+  \n \n
+  <b>Generated Debug Dialog:</b>
+  \image html "SystemViewer_Generated.png" "uVision Debug Window generated from ARM_Example.svd"
+\n 
+
+*/
+
+/* ************************************************************************************************ */
+/**
+\page svd_Example_pg SVD File Example
+\verbinclude "ARM_Example.svd"
+*/
+
+/* ************************************************************************************************ */
+/**
+\page svd_SVDConv_pg SVDConv.exe
+
+\b SVDConv.exe is a command-line utility to validate CMSIS-SVD files and to generate CMSIS-compliant device header files.
+\b SVDConv.exe is distributed with the \b ARM::CMSIS Pack (in the CMSIS\\Utilities directory) together with the CMSIS-SVD schema file. 
+
+\b SVDConv.exe performs the following operations:
+  - Checks the syntactical and structural compliance with the specified CMSIS-SVD format.
+  - Checks the consistency, correctness, and completeness of the CMSIS-SVD file against the CMSIS-SVD schema file.
+  - Generates CMSIS-compliant device header files, which can be used for software development.
+  
+\note Consider using \-\-strict option to receive all pedantic warnings. Some rules are skipped by default due to
+  backward compatibility reasons. All newly developed/updated SVD files should rather respect all rules.
+
+
+Operation
+---------
+\b SVDConv.exe is invoked form the command line. The general command format is:
+\code
+SVDConv.exe <SVD_file> <options>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="SVDConv Args">
+  <tr>
+    <th>\<options></th>
+    <th>Short Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td> <i>none</i> </td>
+    <td>Validation</td>
+    <td>Perform a validation check of the SVD file. Errors and warnings are printed on screen.
+  </td>
+  </tr>
+  <tr>
+    <td> -b </td>
+    <td>Log File</td>
+    <td>Specify the log file name for writing messages. Default: screen.
+    </td>
+  </tr>
+  <tr>
+    <td> -o </td>
+    <td>Output Path</td>
+    <td>Specify an output path for the generated device header file or log file. Default: current directory.
+    </td>
+  </tr>
+  <tr>
+    <td> \-\-generate=header </td>
+    <td>Generate Device Header File</td>
+    <td>Generates the device header file. The name of the generated file is derived from the value of the tag \<device\<name> in the CMSIS-SVD file. 
+    Refer to \refelem{device}.
+    </td>
+  </tr>
+  <tr>
+    <td> \-\-generate=partition </td>
+    <td>Generate Partition file for Cortex-M Security Extensions (Armv8-M)</td>
+    <td>Generates the device partition file. The name of the generated file is composed of <em>partition_</em> and the value of the device <em>\<name></em>
+    (for example, <em>partition_CMSDK_ARMv8MBL.h</em>).
+    Refer to \ref elem_device. The content of the file uses Configuration Wizard annotations and is derived 
+    from the SAU-specific information of the \ref elem_sauRegionsConfig and the interrupts specified in the \ref elem_peripherals.</td>
+  </tr>
+  <tr>
+    <td> \-\-fields=enum </td>
+    <td>Bit-field Enums</td>
+    <td>Generates enum lists for each field value description contained in the CMSIS-SVD input file. 
+        Must be used in combination with <i>\-\-generate=header</i>.</td>
+  </tr>
+  <tr>
+    <td> \-\-fields=macro </td>
+    <td>Bit-field Macros</td>
+    <td>Generates position and mask C-Macros for each field description contained in the CMSIS-SVD input file. 
+    Must be used in combination with <i>\-\-generate=header</i>.</td>
+  </tr>
+  <tr>
+    <td> \-\-fields=struct </td>
+    <td>Bit-field Structs</td>
+    <td>Generates bit fields for each field description contained in the CMSIS-SVD input file. 
+        Must be used in combination with <i>\-\-generate=header</i>.</td>
+  </tr>
+  <tr>
+    <td> \-\-fields=struct-ansic </td>
+    <td>ANSI Bit-field Structs</td>
+    <td>Generates MISRA-compliant structures for each bitfield. The generated code <b>is not CMSIS-compliant</b>!
+    Must be used in combination with <i>\-\-generate=header</i>.</td>
+  </tr>
+  <tr>
+    <td> \-\-strict</td>
+    <td>Strict error checking</td>
+    <td>\b RECOMMENDED! Applies strict error checking and generates a lot more messages.</td>
+  </tr>
+</table>
+
+Return Codes
+-------------
+
+\b SVDConv.exe returns the following codes:
+\n
+Code | Description             | Action
+:---:|:------------------------|:--------------------
+  0  | OK                      | No action required. Validation and conversion performed without errors.
+  1  | WARNINGS                | Warnings should be checked an possibly removed. The header file is created and could be used.
+  2  | ERRORS                  | Errors in the SVD description file. Important elements are missing and must be corrected.
+  3  | Error in command line   | Check and correct the command line arguments.
+
+<b>Examples</b> \n
+-# Retrieve help information on screen.
+   \code 
+     SVDConv.exe 
+   \endcode
+   \n
+-# Perform a consistency check by passing only the SVD file name. Errors and warnings are printed on screen. 
+   \code 
+     SVDConv.exe ARM_Example.svd 
+   \endcode
+   \n
+   The result is printed on screen:
+   \verbatim
+   MVCM3110.svd(1688) : info
+   <description> missing for value '2 : MODE2'
+   MVCM3110.svd(1692) : info
+   <description> missing for value '3 : MODE3'
+   MVCM3110.svd(1696) : info
+   <description> missing for value '4 : MODE4'
+   Area of improvements:
+   * Description contains 267 <fields> defined without associated <enumeratedValues>
+   Found 0 Errors and 1 Warnings
+   Return Code: 1 (WARNINGS)
+   \endverbatim
+   \n
+-# Generate the header file. Performs a consistency check. Errors and warnings are printed on screen. 
+   \code 
+     SVDConv.exe ARM_Example.svd --generate=header
+   \endcode
+   \n
+   Code snippet from the generated header file showing the structure for \b TIMER0.
+   \n
+   \include "ARM_ExampleT0.h"
+   \n
+-# Generate the header file containing bit fields. Performs a consistency check. Errors and warnings are printed on screen. 
+   \code 
+     SVDConv.exe ARM_Example.svd --generate=header --fields=struct
+   \endcode
+   \n
+   Code snippet from the generated header file showing the structure for \b TIMER0.
+   \n Compare to the code snippet above.
+   \include "ARM_ExampleT0Struct.h"
+
+*/
+
+
+/* ************************************************************************************************ */
+/**
+\page svd_Format_pg SVD Description (*.svd) Format
+
+The CMSIS-SVD format is based on XML and was influenced by IP-XACT.
+Due to the much wider scope and complexity of IP-XACT, it was decided to specify a separate 
+format focused and tailored towards the description of the programmer's view of a device.
+
+<strong>CMSIS-SVD XML Hierarchy</strong>
+
+   \image html CMSIS_SVD_Schema_Gen.png "CMSIS-SVD Hierarchy Levels"
+
+One CMSIS-SVD file contains the description of a single device. A device consists of a processor and at least
+one peripheral. Each peripheral contains at least one register. A register may consist of one or more fields.
+The range of values for a field may be further described with enumerated values.
+
+- \subpage svd_xml_conventions_gr "File Conventions:"
+Outlines the main conventions for writing an SVD description file.
+\n\n
+- \subpage svd_Example_pg 
+Provides an example outlining the SVD XML structure.
+\n\n
+- \subpage elem_device "Device Level:"
+The top level of a System View Description is the device. On this level, information is captured that 
+is specific to the device as a whole. For example, the device name, description, or version. The minimal 
+addressable unit as well as the bit-width of the data bus are required by the debugger to perform the
+correct target accesses. \n
+Default values for register attributes like register size, reset value, and access permissions can be set for the 
+whole device on this level and are implicitly inherited by the lower levels of the description. If however specified
+on a lower level, the default setting from a higher level will get overruled.
+\n\n
+- \subpage elem_cpu "CPU Level:"
+The CPU section describes the processor included in the microcontroller device.
+This section is mandatory if the SVD file is used to generate the device header file.
+\n\n
+- \subpage elem_peripherals "Peripherals Level:"
+A peripheral is a named collection of registers. A peripheral is mapped to a defined <em>base address</em> within the 
+device's address space. A peripheral allocates one or more exclusive address blocks relative to its base address, 
+such that all described registers fit into the allocated address blocks. Allocated addresses without an associated
+register description are automatically considered reserved. The peripheral can be assigned to a group of
+peripherals and may be associated with one or more interrupts.
+\n\n
+- \subpage elem_registers "Registers Level:"
+A register is a named, programmable resource that belongs to a peripheral. Registers are mapped to a defined address in
+the address space of the device. An address is specified relative to the peripheral base address. 
+The description of a register documents the purpose and function of the resource. A debugger requires information
+about the permitted access to a resource as well as side effects triggered by read and write accesses respectively.
+\n\n
+- \subpage elem_fields "Fields Level:"
+Registers may be partitioned into chunks of bits of distinct functionality. A chunk
+is referred to as <em>field</em>. The field names within a single register must be unique.
+Only architecturally defined fields shall be described. Any bits not being explicitly described are treated as reserved.
+They are not displayed in the System Viewer and are padded in the bit fields of the device header file.
+The case-insensitive field named <b>&quot;reserved&quot;</b> is treated as a keyword and each field with this name
+is ignored.
+\n\n
+- \subpage elem_enumeratedValues "Enumerated Values Level:"
+An enumeration maps an unsigned integer constant to a descriptive identifier and, optionally, to a description string.
+Enumerations are used in C to enhance the readability of source code. Similarly, it can be used by debuggers to
+provide more instructive information to the programmer, avoiding a lookup in the device documentation.
+\n\n
+- \subpage elem_special "Special Elements:"
+Specific elements that occur in various other elements are described in this section.
+\n\n 
+- <b>Vendor Extensions:</b>
+The CMSIS-SVD format includes a section named \tagem{vendorExtensions} positioned after the closing tag \tagem{/peripherals}.
+This allows silicon vendors and tool partners to extend the description beyond the current specification.
+
+
+<b>Multiple Instantiation</b>
+
+CMSIS-SVD supports the reuse of whole sections of the description. The attribute \em derivedFrom for
+\refelem{peripheral}, \refelem{register}, and \refelem{field} specifies the source of the section to be copied from.
+Individual tags can be used to redefine specific elements within a copied section. 
+
+<b>Array of Elements</b>
+
+A powerfull construct in data structures of the C programming language is the array. An 
+array is a series of data elements of the same type selected via an index. CMSIS-SVD supports arrays
+for \refelem{peripheral}, \refelem{cluster}, and \refelem{register}.
+
+<b>Peripheral Grouping</b>
+
+Peripherals that provide similar functionality (Simple Timer, Complex Timer) can be grouped with the element \tagem{groupName}. 
+Peripheral groups help structuring the list of peripherals in the debugger.
+All peripherals associated with the same group name are collectively listed under this group 
+in the order they were specified in the SVD file. 
+
+<b>Descriptions</b>
+
+On each level, the tag \tagem{description} provides verbose information about the respective element. 
+The description field plays an important part in improving software development productivity as it gives 
+instant access to information that otherwise would need to be looked up in the device documentation.
+
+All multiple whitespace characters (space, tab, linefeed, carriage return) may be removed from the description
+by any tool for further processing (i.e. SVDConv does). In order to preserve explicit linebreaks one has to
+use the linefeed escape sequence (i.e. \\n).
+
+&nbsp;
+*/
+

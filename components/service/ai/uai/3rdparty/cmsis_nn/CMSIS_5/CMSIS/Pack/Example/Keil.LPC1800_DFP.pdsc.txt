@@ -1,0 +1,1288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <package schemaVersion="1.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+    <vendor>Keil</vendor>
+    <url>http://www.keil.com/pack/</url>
+    <name>LPC1800_DFP</name>
+    <description>NXP LPC1800 Series Device Support, Drivers and Examples</description>
+
+    <releases>
+      <release version="2.7.0-rel">
+        CMSIS device:
+        - corrected doxy comments is system file
+        CMSIS driver:
+        - Updated SSP:
+        -- corrected PIN Configuration and Unconfiguration
+        - Updated CAN:
+        -- corrected receive overrun clearing and signaling
+        -- corrected interrupt routine (status interrupt could case lockup)
+        -- corrected functionality when NULL pointer is provided for one or both
+        signal callbacks in Initialize function call
+        -- corrected CAN1 IRQ routine
+        -- corrected MessageSend function to return busy if transmission is in progress
+      </release>
+      <release version="2.6.0" date="2016-02-01">
+        Updated GPDMA driver to transfer data larger than 4k.
+        CMSIS driver:
+        - added CAN: driver and configuration options in RTE_Device.h
+        - updated all: corrected PowerControl function for conditional Power full state (driver must be initialized)
+        - updated USART, I2S, SSP: interwork with new GPDMA driver
+        - updated I2C: pending IRQ flag cleared after aborted transfer
+        - updated USB Device: removed unnecessary __packed specifier for GCC compliance
+        - updated EMAC: corrected return value of the ReadFrame function
+        Board examples for Keil MCB1800:
+        - added CAN Data and CAN RTR MDK projects
+      </release>
+      <release version="2.5.0" date="2015-06-19">
+        Updated CMSIS drivers:
+        - I2C, MCI, EMAC, I2S, SPI, USART, USB Device, USB Host: Updated initialization, uninitialization and power procedures
+        - I2S, SPI, USART, USB Device, USB Host: Corrected status bit-field race conditions
+        - MCI:
+        -- Interrupt processing optimized
+        -- Data timeout handling corrected
+        Updated example for USB device VirtualCOM
+      </release>
+      <release version="2.4.0" date="2015-04-24">
+        Device support:
+        - added LPC18Sxx series devices
+        - updated device features
+        Updated CMSIS Driver:
+        - I2S: improved fs divider calculation
+        - MCI: avoid DMA buffer alignment issues
+        - USART:
+        -- corrected disabling of receive DMA channel when aborting Receive or Transfer
+        -- moved fract_div_lookup_table from header file to driver .c file
+        Updated Example for USB Device Mass Storage
+      </release>
+      <release version="2.3.0" date="2015-03-20">
+        Required PACKs: ARM.CMSIS.4.3.0.pack, Keil.MDK-Middleware.6.3.0.pack, Keil.ARM_Compiler.1.0.0.pack
+        Updated device support files:
+         - LPC18xx.h (added  FLASHCFGA, FLASHCFGB register)
+        Updated drivers:
+         - RTE_Device.h (driver configuration):
+         -- corrected RTE_USB1_IND0_PIN_EN into RTE_USB1_IND1_PIN_EN
+         -- removed RTE_USB_USB0_DEV_EP and RTE_USB_USB1_DEV_EP
+         - EMAC: corrected return value of PHY_Read and PHY_Write functions
+         - MCI: enabled High speed capability and added block size handling
+         - SSP: corrected pin handling, ssp->info->mode handling
+         - USART: improved baudrate calculation
+         - USB Device:
+         -- corrected isochronous endpoint configuration
+         -- corrected transfer procedure
+         -- corrected CLK_M4_USB1_CFG into CLK_M4_USB0_CFG in USBD_PowerControl function
+        Added:
+         - I2S driver
+         - USB Device Audio example
+         - Audio Board interface for MCB1800 Evaluation Board
+        Updated examples:
+         - Compiler I/O software component is now used for I/O retargeting
+      </release>
+      <release version="2.2.0" date="2014-12-11">
+        Updated for use with MDK-Middleware Version 6.2:
+        - File_Demo and USB Host MassStorage examples due to new fdelete() API in File System 6.2
+        - emWin GUIDemo example (corrected JOYSTICK orientation)
+        Corrected:
+        - USBD0 driver corrected PORTSC1_D_PFSC into USB_PORTSC1_D_PFSC
+        - SCU driver SCU_SFSCLKx(clk_pin) and SCU_ENAIOx(n) macros
+        - USART driver modem lines handling
+        - SPI0/1 driver avoid stack corruption
+        - GPDMA driver initialization and uninitialization is done from drivers
+        - ETH driver implemented GetMacAddress function
+        Updated SVD file.
+      </release>
+      <release version="2.1.0" date="2014-07-15">
+        Corrected Touch calibration in GUIDemo example (for use with Keil.MDK-Middleware.6.1.0)
+        Corrected conditions for SPI drivers and ARM Compiler toolchain dependency
+        Updated USB Device drivers
+        Updated Flash Programming Algorithm
+      </release>
+      <release version="2.0.0" date="2014-06-12">
+        CMSIS Driver V2 compliant drivers (requires ARM.CMSIS.4.1.0)
+        - I2C, MCI, SSP, USART, USB Host and Device, Ethernet MAC
+        Examples for MCB1800 Evaluation Board (requires Keil.MDK-Middleware.6.0.0)
+        - USB, Network, Graphics and Filesystem
+        Board Support Interface drivers
+        - ADC, Buttons, Joystick, Graphic LCD, Touchscreen, EEPROM, Thermometer
+      </release>
+      <release version="1.0.6">
+        Renamed subFamilies to 185x for example.
+      </release>
+      <release version="1.0.5">
+        Updated device description with features, added MCB1800 Board description
+      </release>
+      <release version="1.0.4">
+        Updated I2C driver
+        USB Device drivers re-implemented
+      </release>
+      <release version="1.0.3">
+        Updated devices list
+      </release>
+      <release version="1.0.2">
+        Updated drivers (namespace prefix ARM_ added)
+      </release>
+      <release version="1.0.1">
+        Synchronized Middleware examples to Keil Middleware version 5.0.1
+      </release>
+      <release version="1.0.0">
+        Beta version of LPC1800 Device Family Pack.
+      </release>
+    </releases>
+
+    <keywords>
+      <!-- keywords for indexing -->
+      <keyword>NXP</keyword>
+      <keyword>Device Support</keyword>
+      <keyword>Device Family Package NXP</keyword>
+      <keyword>LPC1800</keyword>
+      <keyword>LPC18xx</keyword>
+    </keywords>
+
+  <devices>
+    <family Dfamily="LPC1800 Series" Dvendor="NXP:11">
+      <processor Dcore="Cortex-M3" DcoreVersion="r2p1" Dfpu="0" Dmpu="1" Dendian="Little-endian" Dclock="180000000"/>
+      
+      <debug svd="SVD/LPC18xx.svd">
+        <!-- Make ETB always visible in ROM Table (otherwise only visible after clearing ETBCFG register) -->
+        <datapatch address="0xE00FF018" value="0xFFF43003" info="ROM Table Entry: ETB"/>
+      </debug>
+      
+      <debugvars configfile="Debug/LPC18xx.dbgconf">
+        __var VecResetWithPeriph    = 1; // Reset peripherals on Vector Reset
+
+        // TPIU Pin Routing (TRACECLK fixed on PF_4)
+        // - Bit 0: TRACEDATA[0]: 0 - PF_5, 1 - P7_4
+        // - Bit 1: TRACEDATA[1]: 0 - PF_6, 1 - P7_5
+        // - Bit 2: TRACEDATA[2]: 0 - PF_7, 1 - P7_6
+        // - Bit 3: TRACEDATA[3]: 0 - PF_8, 1 - P7_7
+        __var RoutingTPIU = 0x00000000;  // Default selection (MCB1800)
+      </debugvars>
+
+      <sequences>
+
+        <!-- Pre-defined Debug Access Sequences -->
+
+        <!-- Begin: Pre-defined ResetProcessor Sequence -->
+        <sequence name="ResetSystem">
+          <!-- Default implementation -->
+          <block>
+            // Execute VECTRESET via AIRCR
+            Write32(0xE000ED0C, 0x05FA0001);
+          </block>
+
+          <control if="VecResetWithPeriph">
+            <block>
+              // Reset peripherals
+              Write32(0x40053100, 0xFFDF0030); // RESET_CTRL0
+              Write32(0x40053104, 0xFFFFFFFF); // RESET_CTRL1
+            </block>
+          </control>
+        </sequence>
+        <!-- End: Pre-defined ResetProcessor Sequence -->
+
+        <!-- Begin: Pre-defined ResetCatchSet Sequence -->
+        <sequence name="ResetCatchSet">
+          <block>
+            __var chipID = 0;
+            
+            // Read chip ID
+            chipID = Read32(0x40043200);
+          </block>
+          
+          <control if="chipID == 0x4284E02B">
+            <!-- LPC1857/53 (parts with on-chip flash) -->
+            <block>
+              __var resetVecBankA = 0;
+              __var resetVecBankB = 0;
+
+              // Clear Reset Vector Catch
+              Write32(0xE000EDFC, Read32(0xE000EDFC) &amp; (~0x00000001));
+
+              // Read reset vector from bank A
+              resetVecBankA = Read32(0x1A000004);
+              // Read reset vector from bank B
+              resetVecBankB = Read32(0x1B000004);
+            </block>
+
+            <control if="resetVecBankA &lt; 0x20000000">
+              <!-- Reset Vector of bank A in HW Breakpoint range-->
+              <control if="(resetVecBankA &amp; 0x2) == 0">
+                <block>
+                  // Even Address
+                  Write32(0xE0002008, (resetVecBankA &amp; 0x1FFFFFFC) | 0x40000001); // Write address to FPB Comparator 0
+                </block>
+              </control>
+              <control if="resetVecBankA &amp; 0x2">
+                <block>
+                  // Odd Address
+                  Write32(0xE0002008, (resetVecBankA &amp; 0x1FFFFFFC) | 0x80000001); // Write address to FPB Comparator 0
+                </block>
+              </control>
+            </control>
+
+            <control if="resetVecBankB &lt; 0x20000000">
+              <!-- Reset Vector of bank B in HW Breakpoint range-->
+              <control if="(resetVecBankB &amp; 0x2) == 0">
+                <block>
+                  // Even Address
+                  Write32(0xE000200C, (resetVecBankB &amp; 0x1FFFFFFC) | 0x40000001); // Write address to FPB Comparator 1
+                </block>
+              </control>
+              <control if="resetVecBankA &amp; 0x2">
+                <block>
+                  // Odd Address
+                  Write32(0xE000200C, (resetVecBankB &amp; 0x1FFFFFFC) | 0x80000001); // Write address to FPB Comparator 1
+                </block>
+              </control>
+            </control>
+
+            <block>
+              // Enable FPB
+              Write32(0xE0002000, 0x00000003);
+            </block>
+          </control>          
+        </sequence>
+        <!-- End: Pre-defined ResetCatchSet Sequence -->
+
+        <!-- Begin: Pre-defined ResetCatchClear Sequence -->
+        <sequence name="ResetCatchClear">
+          <block>
+            // Clear FPB Comparators 0 and 1
+            Write32(0xE0002008, 0x00000000);
+            Write32(0xE000200C, 0x00000000);
+
+            // Disable FPB
+            Write32(0xE0002000, 0x00000002);
+          </block>
+        </sequence>
+        <!-- End: Pre-defined ResetCatchClear Sequence -->
+
+        <!-- Begin: Pre-defined TraceStart Sequence -->
+        <sequence name="TraceStart">
+          <block>
+            // Nothing required for SWO Trace
+            __var traceTPIU   = (__traceout &amp; 0x2) != 0;
+            __var traceBuffer = (__traceout &amp; 0x4) != 0;
+          </block>
+
+          <control if="traceTPIU">
+            <block>
+              Sequence("EnableTraceTPIU");
+            </block>
+          </control>
+
+          <control if="traceBuffer">
+            <block>
+              Sequence("EnableTraceBuffer");
+            </block>
+          </control>
+        </sequence>
+        <!-- End: Pre-defined TraceStart Sequence -->
+
+        <!-- Begin: Pre-defined TraceStop Sequence -->
+        <sequence name="TraceStop">
+          <block>
+            // Nothing required for SWO Trace
+            __var traceTPIU   = (__traceout &amp; 0x2) != 0;
+            __var traceBuffer = (__traceout &amp; 0x4) != 0;
+          </block>
+
+          <control if="traceTPIU">
+            <block>
+              Sequence("DisableTraceTPIU");
+            </block>
+          </control>
+
+          <control if="traceBuffer">
+            <block>
+              Sequence("DisableTraceBuffer");
+            </block>
+          </control>
+        </sequence>
+        <!-- End: Pre-defined TraceStop Sequence -->
+
+        <!-- User-defined Debug Access Sequences -->
+
+        <!-- Begin: User-defined EnableTraceTPIU Sequence -->
+        <sequence name="EnableTraceTPIU">
+          <block>
+            __var tracePortWidth = (__traceout &amp; 0x003F0000) &gt;&gt; 16;
+
+            // Setup fixed TRACECLK pin
+            Write32(0x40086790, 0x000000B2); // LPC_SCU->SFSPF_4 : Func 2, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+          </block>
+
+          <!-- TRACEDATA[0]-->
+          <control if="(RoutingTPIU &amp; 0x1) == 0">
+            <!-- TRACEDATA[0]: PF_5 -->
+            <block>
+              Write32(0x40086794, 0x000000B3); // LPC_SCU->SFSPF_5 : Func 3, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+            </block>
+          </control>
+          <control if="(RoutingTPIU &amp; 0x1)">
+            <!-- TRACEDATA[0]: P7_4 -->
+            <block>
+              Write32(0x40086390, 0x000000B5); // LPC_SCU->SFSP7_4 : Func 5, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+            </block>
+          </control>
+
+
+          <control if="tracePortWidth &gt;= 2">
+            <!-- TRACEDATA[1]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[1]: PF_6 -->
+              <block>
+                Write32(0x40086798, 0x000000B3); // LPC_SCU->SFSPF_6 : Func 3, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[1]: P7_5 -->
+              <block>
+                Write32(0x40086394, 0x000000B5); // LPC_SCU->SFSP7_5 : Func 5, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+          </control>
+
+          <control if="tracePortWidth &gt;= 4">
+            <!-- TRACEDATA[2]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[2]: PF_7 -->
+              <block>
+                Write32(0x4008679C, 0x000000B3); // LPC_SCU->SFSPF_7 : Func 3, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[2]: P7_6 -->
+              <block>
+                Write32(0x40086398, 0x000000B5); // LPC_SCU->SFSP7_6 : Func 5, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+
+            <!-- TRACEDATA[3]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[3]: PF_8 -->
+              <block>
+                Write32(0x400867A0, 0x000000B3); // LPC_SCU->SFSPF_8 : Func 3, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[3]: P7_7 -->
+              <block>
+                Write32(0x4008639C, 0x000000B5); // LPC_SCU->SFSP7_7 : Func 5, EPD 0, EPUN 1, EHS 1, EZI 0, ZIF 1
+              </block>
+            </control>
+          </control>
+        </sequence>
+        <!-- End: User-defined EnableTraceTPIU Sequence -->
+
+        <!-- Begin: User-defined EnableTraceBuffer Sequence -->
+        <sequence name="EnableTraceBuffer">
+          <block>
+            // ETB accesses SRAM at 0x2000C000 - 0x2000FFFF
+            // This memory region is not available to application when using ETB
+            Write32(0x40043128, 0x00000000); // ETBCFG: ETB bit
+          </block>
+        </sequence>
+        <!-- End: User-defined EnableTraceBuffer Sequence -->
+
+        <!-- Begin: User-defined DisableTraceTPIU Sequence -->
+        <sequence name="DisableTraceTPIU">
+          <block>
+            __var tracePortWidth = (__traceout &amp; 0x003F0000) &gt;&gt; 16;
+
+            // Setup fixed TRACECLK pin
+            Write32(0x40086790, 0x00000000); // LPC_SCU->SFSPF_4 : Reset Value 0x00000000
+          </block>
+
+          <!-- TRACEDATA[0]-->
+          <control if="(RoutingTPIU &amp; 0x1) == 0">
+            <!-- TRACEDATA[0]: PF_5 -->
+            <block>
+              Write32(0x40086794, 0x00000000); // LPC_SCU->SFSPF_5 : Reset Value 0x00000000
+            </block>
+          </control>
+          <control if="(RoutingTPIU &amp; 0x1)">
+            <!-- TRACEDATA[0]: P7_4 -->
+            <block>
+              Write32(0x40086390, 0x00000000); // LPC_SCU->SFSP7_4 : Reset Value 0x00000000
+            </block>
+          </control>
+
+          <control if="tracePortWidth &gt;= 2">
+            <!-- TRACEDATA[1]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[1]: PF_6 -->
+              <block>
+                Write32(0x40086798, 0x00000000); // LPC_SCU->SFSPF_6 : Reset Value 0x00000000
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[1]: P7_5 -->
+              <block>
+                Write32(0x40086394, 0x00000000); // LPC_SCU->SFSP7_5 : Reset Value 0x00000000
+              </block>
+            </control>
+          </control>
+
+          <control if="tracePortWidth &gt;= 4">
+            <!-- TRACEDATA[2]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[2]: PF_7 -->
+              <block>
+                Write32(0x4008679C, 0x00000000); // LPC_SCU->SFSPF_7 : Reset Value 0x00000000
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[2]: P7_6 -->
+              <block>
+                Write32(0x40086398, 0x00000000); // LPC_SCU->SFSP7_6 : Reset Value 0x00000000
+              </block>
+            </control>
+
+            <!-- TRACEDATA[3]-->
+            <control if="(RoutingTPIU &amp; 0x1) == 0">
+              <!-- TRACEDATA[3]: PF_8 -->
+              <block>
+                Write32(0x400867A0, 0x00000000); // LPC_SCU->SFSPF_8 : Reset Value 0x00000000
+              </block>
+            </control>
+            <control if="(RoutingTPIU &amp; 0x1)">
+              <!-- TRACEDATA[3]: P7_7 -->
+              <block>
+                Write32(0x4008639C, 0x00000000); // LPC_SCU->SFSP7_7 : Reset Value 0x00000000
+              </block>
+            </control>
+          </control>
+
+        </sequence>
+        <!-- End: User-defined DisableTraceTPIU Sequence -->
+
+        <!-- Begin: User-defined DisableTraceBuffer Sequence -->
+        <sequence name="DisableTraceBuffer">
+          <block>
+            // AHB accesses SRAM at 0x2000C000 - 0x2000FFFF
+            Write32(0x40043128, 0x00000001); // ETBCFG: ETB bit
+          </block>
+        </sequence>
+        <!-- End: User-defined DisableTraceBuffer Sequence -->        
+
+      </sequences>
+
+      <book    name="Documents/dui0552a_cortex_m3_dgug.pdf"           title="Cortex-M3 Generic User Guide"/>
+      <description>
+NXP LPC1800 devices are high-speed and offer extensive communication peripherals.
+Typical applications include Industrial, RFID readers, Consumer, e-Metering and White goods.
+
+        - Three PLLs
+        - Quad SPI Flash interface (SPIFI)
+        - State Configurable Timer (SCT)
+        - LCD Controller (1024x768) for STN and TFT
+        - Motor control PWM for three-phase motor
+        - Unique ID for each device
+      </description>
+
+      <feature type="USART"         n="4"/>
+      <feature type="I2C"           n="2"/>
+      <feature type="SPI"           n="2"/>
+      <feature type="Timer"         n="4"       m="32"/>
+      <feature type="ADC"           n="8"       m="10"/>
+      <feature type="CAN"           n="2"/>
+
+      <!-- ************************  Subfamily 'LPC181x'  **************************** -->
+      <subFamily DsubFamily="LPC181x">
+      
+        <!-- *************************  Device 'LPC1810'  ***************************** -->
+        <device Dname="LPC1810">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x10000"    init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <feature type="PWM"           n="6"/>
+        </device>
+      
+        <!-- *************************  Device 'LPC1812'  ***************************** -->
+        <device Dname="LPC1812">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <feature type="PWM"           n="6"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1813'  ***************************** -->
+        <device Dname="LPC1813">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x40000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x40000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BA.FLM" start="0x1A000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BB.FLM" start="0x1B000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <feature type="PWM"           n="6"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1815'  ***************************** -->
+        <device Dname="LPC1815">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x60000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x60000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_384_BA.FLM" start="0x1A000000" size="0x60000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_384_BB.FLM" start="0x1B000000" size="0x60000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <feature type="PWM"           n="6"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1817'  ***************************** -->
+        <device Dname="LPC1817">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x80000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        </subFamily>
+  
+        <!-- ************************  Subfamily 'LPC182x'  **************************** -->
+        <subFamily DsubFamily="LPC182x">
+          <feature type="PWM"           n="6"/>
+          <feature type="USBD"          n="1"/>
+        
+        <!-- *************************  Device 'LPC1820'  ***************************** -->
+        <device Dname="LPC1820">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x18000"    init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+        </device>
+  
+        <!-- *************************  Device 'LPC1822'  ***************************** -->
+        <device Dname="LPC1822">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1823'  ***************************** -->
+        <device Dname="LPC1823">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x40000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x40000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x4000"     init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BA.FLM" start="0x1A000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BB.FLM" start="0x1B000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1825'  ***************************** -->
+        <device Dname="LPC1825">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x60000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x60000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_384_BA.FLM" start="0x1A000000" size="0x60000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_384_BB.FLM" start="0x1B000000" size="0x60000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1827'  ***************************** -->
+        <device Dname="LPC1827">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x80000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        </subFamily>
+  
+        <!-- ************************  Subfamily 'LPC183x'  **************************** -->
+        <subFamily DsubFamily="LPC183x">
+          <feature type="PWM"           n="6"/>
+          <feature type="ETH"           n="1"       m="100000000"/>
+          <feature type="USBD"          n="2"/>
+        
+        <!-- *************************  Device 'LPC1830'  ***************************** -->
+        <device Dname="LPC1830">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x18000"    init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+        </device>
+        
+        <!-- *************************  Device 'LPC1833'  ***************************** -->
+        <device Dname="LPC1833">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x40000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x40000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BA.FLM" start="0x1A000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BB.FLM" start="0x1B000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1837'  ***************************** -->
+        <device Dname="LPC1837">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x80000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        </subFamily>
+  
+        <!-- ************************  Subfamily 'LPC185x'  **************************** -->
+        <subFamily DsubFamily="LPC185x">
+          <feature type="PWM"           n="6"/>
+          <feature type="ETH"           n="1"       m="100000000"/>
+          <feature type="USBD"          n="2"/>
+          <feature type="LCD"           n="1"/>
+        
+        <!-- *************************  Device 'LPC1850'  ***************************** -->
+        <device Dname="LPC1850">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x18000"    init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <book       name="Documents/mcb1800.chm"                          title="MCB1800 User's Guide"/>
+        </device>
+        
+        <!-- *************************  Device 'LPC1853'  ***************************** -->
+        <device Dname="LPC1853">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x40000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x40000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BA.FLM" start="0x1A000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_256_BB.FLM" start="0x1B000000" size="0x40000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+        
+        <!-- *************************  Device 'LPC1857'  ***************************** -->
+        <device Dname="LPC1857">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug      svd="SVD/LPC18xx.svd"/>
+          <memory     id="IROM1"                      start="0x1A000000"  size="0x80000"    startup="1"   default="1"/>
+          <memory     id="IROM2"                      start="0x1B000000"  size="0x80000"    startup="0"   default="0"/>
+          <memory     id="IRAM1"                      start="0x10000000"  size="0x8000"     init   ="0"   default="1"/>
+          <memory     id="IRAM2"                      start="0x20000000"  size="0x10000"    init   ="0"   default="0"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm  name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <book       name="Documents/UM10430.pdf"                          title="LPC1800 Series Reference Manual"/>
+          <book       name="Documents/LPC1850_30_20_10.pdf"                 title="LPC1800 Series Datasheet"/>
+          <book       name="Documents/ES_LPC18X0.pdf"                       title="LPC1800 Series Erratasheet"/>
+          <book       name="Documents/mcb1800.chm"                          title="MCB1800 User's Guide"/>
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+      </subFamily>
+
+      <!-- ************************  Subfamily 'LPC18S1x'  **************************** -->
+      <subFamily DsubFamily="LPC18S1x">
+        <feature type="Crypto"        n="128"                      name="AES engine for encryption and decryption"/>
+
+        <!-- *************************  Device 'LPC18S10'  ***************************** -->
+        <device Dname="LPC18S10">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug svd="SVD/LPC18xx.svd"/>
+          <memory id="IRAM1"                             start="0x10000000" size="0x10000"    init   ="0"   default="1"/>
+          <memory id="IRAM2"                             start="0x20000000" size="0x4000"     init   ="0"   default="0"/>
+
+          <book name="Documents/UM10430.pdf"        title="LPC18xx Reference Manual"/>
+          <book name="Documents/LPC18S50_30_10.pdf" title="LPC18S50/S30/S10 Datasheet"/>
+
+          <feature type="PWM"           n="6"/>
+        </device>
+      </subFamily>
+
+      <!-- ************************  Subfamily 'LPC18S3x'  **************************** -->
+      <subFamily DsubFamily="LPC18S3x">
+        <feature type="PWM"           n="6"/>
+        <feature type="ETH"      n="1"       m="100000000"/>
+        <feature type="USBD"          n="2"/>
+        <feature type="Crypto"        n="128"                      name="AES engine for encryption and decryption"/>
+
+        <!-- *************************  Device 'LPC18S30'  ***************************** -->
+        <device Dname="LPC18S30">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug svd="SVD/LPC18xx.svd"/>
+          <memory id="IRAM1"                             start="0x10000000" size="0x18000"    init   ="0"   default="1"/>
+          <memory id="IRAM2"                             start="0x20000000" size="0x10000"    init   ="0"   default="0"/>
+
+          <book name="Documents/UM10430.pdf"        title="LPC18xx Reference Manual"/>
+          <book name="Documents/LPC18S50_30_10.pdf" title="LPC18S50/S30/S10 Datasheet"/>
+        </device>
+  
+        <!-- *************************  Device 'LPC18S37'  ***************************** -->
+        <device Dname="LPC18S37">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug svd="SVD/LPC18xx.svd"/>
+          <memory id="IROM1"                             start="0x1A000000" size="0x80000"    startup="1"   default="1"/>
+          <memory id="IROM2"                             start="0x1B000000" size="0x80000"    startup="0"   default="0"/>
+          <memory id="IRAM1"                             start="0x10000000" size="0x8000"     init   ="0"   default="1"/>
+          <memory id="IRAM2"                             start="0x20000000" size="0x10000"    init   ="0"   default="0"/>
+          <algorithm name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+
+          <book name="Documents/UM10430.pdf"        title="LPC18xx Reference Manual"/>
+          <book name="Documents/LPC18S5X_S3X.pdf"   title="LPC18S5x/S3x Series Datasheet"/>
+
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+      </subFamily>
+
+      <!-- ************************  Subfamily 'LPC18S5x'  **************************** -->
+      <subFamily DsubFamily="LPC18S5x">
+        <feature type="PWM"           n="6"/>
+        <feature type="ETH"      n="1"       m="100000000"/>
+        <feature type="USBD"          n="2"/>
+        <feature type="LCD"           n="1"/>
+        <feature type="Crypto"        n="128"                      name="AES engine for encryption and decryption"/>
+
+        <!-- *************************  Device 'LPC18S50'  ***************************** -->
+        <device Dname="LPC18S50">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug svd="SVD/LPC18xx.svd"/>
+          <memory id="IRAM1"                             start="0x10000000" size="0x18000"    init   ="0"   default="1"/>
+          <memory id="IRAM2"                             start="0x20000000" size="0x10000"    init   ="0"   default="0"/>
+
+          <book name="Documents/UM10430.pdf"        title="LPC18xx Reference Manual"/>
+          <book name="Documents/LPC18S50_30_10.pdf" title="LPC18S50/S30/S10 Datasheet"/>
+        </device>
+  
+        <!-- *************************  Device 'LPC18S57'  ***************************** -->
+        <device Dname="LPC18S57">
+          <compile header="Device/Include/LPC18xx.h"  define="LPC18xx"/>
+          <debug svd="SVD/LPC18xx.svd"/>
+          <memory id="IROM1"                             start="0x1A000000" size="0x80000"    startup="1"   default="1"/>
+          <memory id="IROM2"                             start="0x1B000000" size="0x80000"    startup="0"   default="0"/>
+          <memory id="IRAM1"                             start="0x10000000" size="0x8000"     init   ="0"   default="1"/>
+          <memory id="IRAM2"                             start="0x20000000" size="0x10000"    init   ="0"   default="0"/>
+          <algorithm name="Flash/LPC18xx43xx_512_BA.FLM" start="0x1A000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+          <algorithm name="Flash/LPC18xx43xx_512_BB.FLM" start="0x1B000000" size="0x80000"  RAMstart="0x10000000"  RAMsize="0x0FE0"  default="1"/>
+
+          <book name="Documents/UM10430.pdf"        title="LPC18xx Reference Manual"/>
+          <book name="Documents/LPC18S5X_S3X.pdf"   title="LPC18S5x/S3x Series Datasheet"/>
+
+          <environment name="uv">
+            <postBuild1>$K/ARM/BIN/ElfDwT.exe !L BASEADDRESS(0x1A000000)</postBuild1>
+            <postRun1> 1 </postRun1>
+          </environment>
+        </device>
+      </subFamily>
+
+    </family>
+  </devices>
+
+  <boards>
+    <board vendor="Keil" name="MCB1800" revision="Ver 1.3" salesContact="sales.intl@keil.com" orderForm="http://www.keil.com/product/prices.asp?MCB1800=ON">
+      <description>Keil MCB1800 Development Board</description>
+      <image small="Images/mcb1800_small.jpg" large="Images/mcb1800_large.jpg"/>
+      <book category="overview"  name="http://www.keil.com/mcb1800/" title="MCB1800 Evaluation Board Web Page"/>
+      <book category="setup"     name="Documents/MCB1800_QSG.pdf" title="Quick Start Guide"/>
+      <book category="schematic" name="Documents/MCB1800v1-3-schematics.pdf" title="MCB1800 Schematics"/>
+      <book category="manual"    name="Documents/mcb1800.chm" title="User Manual"/>
+      <mountedDevice    deviceIndex="0" Dvendor="NXP:11" Dname="LPC1850"/>
+      <mountedDevice    deviceIndex="0" Dvendor="NXP:11" Dname="LPC1857"/>
+      <compatibleDevice deviceIndex="0" Dvendor="NXP:11" DsubFamily="LPC185x"/>
+      <feature type="XTAL"            n="12000000"/>
+      <feature type="PWR"             n="5"              name="USB Powered"/>
+      <feature type="PWR"             n="8" m="12"       name="External Power Supply"/>
+      <feature type="RAM"             n="1"              name="16 MB SDRAM"/>
+      <feature type="ROM"             n="1"              name="16 MB NOR Flash"/>
+      <feature type="ROM"             n="1"              name="4 MB Quad-SPI Flash"/>
+      <feature type="MemCard"         n="1"              name="microSD Card Holder"/>
+      <feature type="Proto"           n="2"              name="Prototyping areas connected to I/Os"/>
+      <feature type="USB"             n="1"              name="USB 2.0 High-speed Host/Device/OTG interface (USB host + Micro USB Device/OTG connectors)"/>
+      <feature type="USB"             n="1"              name="USB 2.0 Full-speed Host/Device interface (USB host + micro USB Device connectors)"/>
+      <feature type="CAN"             n="1"/>
+      <feature type="RS232"           n="1"/>
+      <feature type="ETH"             n="1"              name="10/100 Ethernet Port"/>
+      <feature type="GLCD"            n="1"  m="240.320" name="2.4 inch Color QVGA TFT LCD with resistive touchscreen"/>
+      <feature type="Poti"            n="1"              name="Potentiometer for ADC Input"/>
+      <feature type="LineIn"          n="2"              name="Audio CODEC with Line-In/Out and Speaker/Microphone"/>
+      <feature type="LineOut"         n="2"              name="Audio CODEC with Line-In/Out and Speaker/Microphone"/>
+      <feature type="Button"          n="6"              name="Push-Buttons: 3 x GPIO, Reset, ISP, WAKEUP"/>
+      <feature type="LED"             n="8"              name="I/O Port LEDs"/>
+      <feature type="CustomFF"        n="124" m="170"/>
+      <debugInterface adapter="JTAG/SW" connector="20 pin JTAG (0.1 inch connector)"/>
+      <debugInterface adapter="JTAG/SW" connector="10 pin Cortex debug (0.05 inch connector)"/>
+      <debugInterface adapter="JTAG/SW" connector="20-pin Cortex debug + ETM Trace (0.05 inch connector)"/>
+    </board>
+  </boards>
+
+  <conditions>
+    <!-- conditions are dependency rules that can apply to a component or an individual file -->
+
+    <condition id="LPC1800">
+      <!-- conditions selecting Devices -->
+      <description>NXP LPC1800 Series devices</description>
+      <accept Dvendor="NXP:11" Dname="LPC18??"/>
+      <accept Dvendor="NXP:11" Dname="LPC18S??"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS">
+      <description>NXP LPC1800 Series devices and CMSIS-CORE and ARMCC compiler</description>
+      <require condition="LPC1800"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+    </condition>
+
+    <condition id="ARM Compiler">
+      <require Tcompiler="ARMCC"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU">
+      <description>NXP LPC1800 with CMSIS and SCU</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass ="Device" Cgroup="SCU" />
+    </condition>
+
+    <condition id="LPC1800 CMSIS RTOS SCU">
+      <description>NXP LPC1800 with CMSIS, RTOS and SCU</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="CMSIS" Cgroup="RTOS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPIO">
+      <description>NXP LPC1800 with CMSIS, SCU and GPIO</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+      <require Cclass="Device" Cgroup="GPIO"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPDMA">
+      <description>NXP LPC1800 with CMSIS, SCU and GPDMA</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+      <require Cclass="Device" Cgroup="GPDMA"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPIO GPDMA">
+      <description>NXP LPC1800 with CMSIS, SCU, GPIO and GPDMA</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+      <require Cclass="Device" Cgroup="GPIO"/>
+      <require Cclass="Device" Cgroup="GPDMA"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPIO SPI">
+      <description>NXP LPC1800 with CMSIS, SCU, GPIO and SPI</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+      <require Cclass="Device" Cgroup="GPIO"/>
+      <require Cclass="CMSIS Driver" Cgroup="SPI" Capiversion="2.01"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPIO SPI Display">
+      <description>NXP LPC1800 with CMSIS, SCU, GPIO, SPI and Display</description>
+      <require condition="LPC1800 CMSIS SCU GPIO SPI"/>
+      <require Cclass="Graphics" Cgroup="Display" Csub="MCBQVGA_LG" Cvariant="RGB IF"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS I2C Driver">
+      <description>NXP LPC1800 with CMSIS and I2C Driver</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="CMSIS Driver" Cgroup="I2C" Capiversion="2.02"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS RTOS and I2C Driver">
+      <description>NXP LPC1800 with CMSIS, RTOS and I2C Driver</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="CMSIS" Cgroup="RTOS"/>
+      <require Cclass="CMSIS Driver" Cgroup="I2C" Capiversion="2.02"/>
+    </condition>
+
+    <condition id="LPC1800 CMSIS SCU GPIO SAI/I2C Driver">
+      <description>NXP LPC1800 with CMSIS, SCU, GPIO and SAI/I2C Driver</description>
+      <require condition="LPC1800 CMSIS"/>
+      <require Cclass="Device" Cgroup="SCU"/>
+      <require Cclass="Device" Cgroup="GPIO"/>
+      <require Cclass="CMSIS Driver" Cgroup="SAI" Capiversion="1.00"/>
+      <require Cclass="CMSIS Driver" Cgroup="I2C" Capiversion="2.02"/>
+    </condition>
+  </conditions>
+
+  <examples>
+    <!-- MCB1800 Development Board -->
+    <example name="Blinky" doc="Abstract.txt" folder="Boards/Keil/MCB1800/Blinky">
+      <description>Blinky example</description>
+      <board name="MCB1800" vendor="Keil"/>
+      <project>
+        <environment name="uv" load="Blinky.uvprojx"/>
+      </project>
+      <attributes>
+        <component Cclass="CMSIS" Cgroup="CORE"/>
+        <component Cclass="Device" Cgroup="Startup"/>
+        <category>Getting Started</category>
+      </attributes>
+    </example>
+
+    <example name="Blinky ULp" doc="Abstract.txt" folder="Boards/Keil/MCB1800/Blinky_ULp">
+      <description>Blinky ULINKpro example</description>
+      <board name="MCB1800" vendor="Keil"/>
+      <project>
+        <environment name="uv" load="Blinky.uvprojx"/>
+      </project>
+      <attributes>
+        <component Cclass="CMSIS" Cgroup="CORE"/>
+        <component Cclass="Device" Cgroup="Startup"/>
+        <category>Getting Started</category>
+      </attributes>
+    </example>
+
+    <example name="CMSIS-RTOS Blinky" doc="Abstract.txt" folder="Boards/Keil/MCB1800/RTX_Blinky">
+      <description>CMSIS-RTOS based Blinky example</description>
+      <board name="MCB1800" vendor="Keil"/>
+      <project>
+        <environment name="uv" load="Blinky.uvprojx"/>
+      </project>
+      <attributes>
+        <component Cclass="CMSIS" Cgroup="CORE"/>
+        <component Cclass="Device" Cgroup="Startup"/>
+        <component Cclass="CMSIS" Cgroup="RTOS"/>
+        <category>Getting Started</category>
+        <category>CMSIS-RTX</category>
+      </attributes>
+    </example>
+
+  </examples>
+
+  <components>
+    <component Cclass="Device" Cgroup="Startup" Cversion="1.0.0" condition="LPC1800 CMSIS">
+      <description>System Startup for NXP LPC1800 Series</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_DEVICE_STARTUP_LPC18XX      /* Device Startup for NXP18XX */
+      </RTE_Components_h>
+
+      <files>
+        <file category="include" name="Device/Include/"/>
+        <file category="source"  name="Device/Source/ARM/startup_LPC18xx.s" attr="config" version="1.0.0" condition="ARM Compiler"/>
+        <file category="source"  name="Device/Source/system_LPC18xx.c"      attr="config" version="1.0.1"/>
+        <!-- device configuration required by drivers at the moment -->
+        <file category="header"  name="CMSIS_Driver/Config/RTE_Device.h"      attr="config" version="2.00"/>
+      </files>
+    </component>
+
+    <component Cclass="Device" Cgroup="SCU" Cversion="1.1" condition="LPC1800 CMSIS">
+      <description>SCU driver used by RTE Drivers for LPC1800 Series</description>
+      <files>
+        <file category="header" name="CMSIS_Driver/SCU_LPC18xx.h"/>
+        <file category="source" name="CMSIS_Driver/SCU_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="Device" Cgroup="GPIO" Cversion="1.0" condition="LPC1800 CMSIS">
+      <description>GPIO driver used by RTE Drivers for LPC1800 Series</description>
+      <files>
+        <file category="header" name="CMSIS_Driver/GPIO_LPC18xx.h"/>
+        <file category="source" name="CMSIS_Driver/GPIO_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="Device" Cgroup="GPDMA" Cversion="1.3" condition="LPC1800 CMSIS">
+      <description>GPDMA driver used by RTE Drivers for LPC1800 Series</description>
+      <files>
+        <file category="header" name="CMSIS_Driver/GPDMA_LPC18xx.h"/>
+        <file category="source" name="CMSIS_Driver/GPDMA_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="CAN" Capiversion="1.0" Cversion="1.4" condition="LPC1800 CMSIS SCU">
+      <description>CAN Driver for LPC1800 series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_CAN0                /* Driver CAN0 */
+        #define RTE_Drivers_CAN1                /* Driver CAN1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/CAN_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USB Device" Csub="USB0" Capiversion="2.1" Cversion="2.9" condition="LPC1800 CMSIS SCU">
+      <description>USB0 Device Driver for the LPC1800 series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USBD0               /* Driver USBD0 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/USBD0_LPC18xx.c"/>
+        <file category="source" name="CMSIS_Driver/USB0_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USB Device" Csub="USB1" Capiversion="2.1" Cversion="2.7" condition="LPC1800 CMSIS SCU">
+      <description>USB1 Device Driver for the LPC1800 series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USBD1               /* Driver USBD1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/USBD1_LPC18xx.c"/>
+        <file category="source" name="CMSIS_Driver/USB1_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USB Host" Csub="USB0" Capiversion="2.0" Cversion="2.4" condition="LPC1800 CMSIS SCU">
+      <description>USB0 EHCI Host Driver for the LPC1800 series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USBH0               /* Driver USBH0 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/USBH0_LPC18xx.c"/>
+        <file category="source" name="CMSIS_Driver/USB0_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USB Host" Csub="USB1" Capiversion="2.0" Cversion="2.4" condition="LPC1800 CMSIS SCU">
+      <description>USB1 EHCI Host Driver for the LPC1800 series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USBH1               /* Driver USBH1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/USBH1_LPC18xx.c"/>
+        <file category="source" name="CMSIS_Driver/USB1_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="Ethernet MAC" Capiversion="2.1" Cversion="2.6" condition="LPC1800 CMSIS RTOS SCU">
+      <description>Ethernet MAC Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_ETH_MAC0            /* Driver ETH_MAC0 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/EMAC_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="MCI" Capiversion="2.2" Cversion="2.5" condition="LPC1800 CMSIS SCU">
+      <description>MCI Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_MCI0                /* Driver MCI0 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/MCI_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="I2C" Capiversion="2.2" Cversion="2.4" condition="LPC1800 CMSIS SCU">
+      <description>I2C Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_I2C0                /* Driver I2C0 */
+        #define RTE_Drivers_I2C1                /* Driver I2C1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/I2C_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="SPI" Csub="SSP" Capiversion="2.1" Cversion="2.8" condition="LPC1800 CMSIS SCU GPIO GPDMA">
+      <description>SPI (SSP) Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_SPI0                /* Driver SPI0 */
+        #define RTE_Drivers_SPI1                /* Driver SPI1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/SSP_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USART" Capiversion="2.1" Cversion="2.9" condition="LPC1800 CMSIS SCU GPDMA">
+      <description>USART Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USART0              /* Driver USART0 */
+        #define RTE_Drivers_USART1              /* Driver USART1 */
+        #define RTE_Drivers_USART2              /* Driver USART2 */
+        #define RTE_Drivers_USART3              /* Driver USART3 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/USART_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="SAI" Csub="I2S" Capiversion="1.0" Cversion="1.4" condition="LPC1800 CMSIS SCU GPDMA">
+      <description>SAI (I2S) Driver for LPC1800 Series</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_SAI0                /* Driver SAI0 */
+        #define RTE_Drivers_SAI1                /* Driver SAI1 */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="CMSIS_Driver/I2S_LPC18xx.c"/>
+      </files>
+    </component>
+
+    <!-- MCB1800 Development Board -->
+    <bundle Cbundle="MCB1800" Cclass="Board Support" Cversion="1.0.0">
+      <description>Keil Development Board MCB1800</description>
+      <doc>Documents/mcb1800.chm</doc>
+      <component Cgroup="A/D Converter" Capiversion="1.00" condition="LPC1800 CMSIS SCU">
+        <description>A/D Converter interface for Keil MCB1800 Development Board</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/ADC_MCB1800.c"/>
+        </files>
+      </component>
+      <component Cgroup="LED" Capiversion="1.00" condition="LPC1800 CMSIS SCU GPIO">
+        <description>LED interface for Keil MCB1800 Development Board</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/LED_MCB1800.c"/>
+        </files>
+      </component>
+      <component Cgroup="Buttons" Capiversion="1.00" condition="LPC1800 CMSIS SCU GPIO">
+        <description>Buttons interface for Keil MCB1800 Development Board</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/Buttons_MCB1800.c"/>
+        </files>
+      </component>
+      <component Cgroup="Joystick" Capiversion="1.00" condition="LPC1800 CMSIS SCU GPIO">
+        <description>Joystick interface for Keil MCB1800 Development Board</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/Joystick_MCB1800.c"/>
+        </files>
+      </component>
+      <component Cgroup="Graphic LCD" Capiversion="1.00" condition="LPC1800 CMSIS SCU GPIO SPI">
+        <description>Graphic LCD interface for Keil MCB1800 Development Board</description>
+        <files>
+          <file category="header" name="Boards/Keil/MCB1800/Common/GLCD_Config.h"/>
+          <file category="source" name="Boards/Keil/MCB1800/Common/GLCD_Fonts.c"/>
+          <file category="source" name="Boards/Keil/MCB1800/Common/GLCD_MCB1800.c"/>
+        </files>
+      </component>
+      <component Cgroup="Touchscreen" Capiversion="1.00" Csub="STMPE811" condition="LPC1800 CMSIS RTOS and I2C Driver">
+        <description>Touchscreen interface for STMPE811</description>
+        <files>
+          <file category="header" name="Boards/Keil/MCB1800/Common/STMPE811.h"/>
+          <file category="source" name="Boards/Keil/MCB1800/Common/Touch_STMPE811.c"/>
+        </files>
+      </component>
+      <component Cgroup="Thermometer" Capiversion="1.00" Csub="LM75" condition="LPC1800 CMSIS I2C Driver">
+        <description>Thermometer interface for LM75</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/Thermometer_LM75.c"/>
+        </files>
+      </component>
+      <component Cgroup="EEPROM" Capiversion="1.00" Csub="24LC128" condition="LPC1800 CMSIS I2C Driver">
+        <description>EEPROM interface for 24LC128</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/EEPROM_24LC128.c"/>
+        </files>
+      </component>
+      <component Cgroup="Audio" Capiversion="1.01" condition="LPC1800 CMSIS SCU GPIO SAI/I2C Driver">
+        <description>Audio interface for UDA1380</description>
+        <files>
+          <file category="source" name="Boards/Keil/MCB1800/Common/Audio_UDA1380.c"/>
+        </files>
+      </component>
+    </bundle>
+  </components>
+</package>

@@ -1,0 +1,4 @@
+CMSIS-DAP V1 USB HID Firmware for NXP LPC-Link-II board.
+
+CMSIS-DAP with V1 configuration uses USB HID interface to host PC and is 
+therefore compatible with previous versions of CMSIS-DAP.

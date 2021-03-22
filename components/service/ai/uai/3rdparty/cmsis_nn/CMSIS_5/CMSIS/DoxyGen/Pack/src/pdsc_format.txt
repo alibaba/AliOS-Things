@@ -1,0 +1,1247 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page packFormat Pack Description (*.pdsc) Format 
+
+[TOC]
+
+The <b>Pack Description (*.pdsc) Format</b>  uses standard XML annotations and is defined in the schema file <b>PACK.xsd</b>.
+Software components are distributed through <b>Software Packs</b>.
+A \ref cp_SWComponents "Software Pack" is a zip file containing a single <b>Pack Description</b> file that describes
+dependencies to devices, processors, tool chains, or other software components.
+
+A descriptive text of the \ref cp_SWComponents "Software Pack"along the text information for devices, components, and examples is part of each
+a <b>Pack Description</b> (*.pdsc) file. In addition, information is provided which facilitates downloading, updating, and versioning of
+of a \ref cp_SWComponents "Software Pack". The *.pdsc file contains also the complete version history of the \ref cp_SWComponents "Software Pack"
+with a brief list of the most significant changes.
+
+\section Filenames Filename Conventions
+
+A \ref cp_SWComponents "Software Pack" must have a unique filename which uses the following format:
+<b>\<vendor\>.\<name\>.\<version\>.pack</b>.
+
+\b Where:
+ - <b>\<vendor\></b>: name of the supplier or vendor of the \ref cp_SWComponents "Software Pack".
+ - <b>\<name\></b>: name of the \ref cp_SWComponents "Software Pack". It is the vendor's responsibility to ensure unique
+   package names.
+ - <b>\<release version="X.Y.Z"\></b>: \ref VersionType "version number" of the \ref cp_SWComponents "Software Pack".
+ - <b>.pack</b>: file extension identifying a \ref cp_SWComponents "Software Pack".
+ 
+\note \<vendor\> and \<name\> \em must \em not contain spaces.
+
+\n
+The <b>Pack Description</b> (*.pdsc) file belonging to such a \ref cp_SWComponents "Software Pack" file (\<vendor\>.\<name\>.\<version\>.pack)
+is version independent and has the format:
+<b>\<vendor\>.\<name\>.pdsc</b>. 
+
+\b Where:
+ - <b>\<vendor\></b>: name of the supplier or vendor of the \ref cp_SWComponents "Software Pack".
+ - <b>\<name\></b>: name of the \ref cp_SWComponents "Software Pack" that is described by this *.pdsc file.
+ - <b>.pack</b>: file extension identifying a \ref cp_SWComponents "Software Pack".
+
+\note \<vendor\> and \<name\> \em must \em not contain spaces.
+
+Example filenames for software packs:
+
+Software Pack for CMSIS Version 4.0 released by Arm.
+ - <b>ARM.CMSIS.4.0.0.pack</b>: filename of the \ref cp_SWComponents "Software Pack".
+ - <b>ARM.CMSIS.pdsc</b>: filename of the <b>Pack Description</b> (*.pdsc) file.
+ 
+Device Family Pack for STM32F4 Version 1.0.0 released by ST Microelectronics.
+ - <b>ST.STM32F4xx_DFP.1.0.0.pack</b>: filename of the \ref cp_SWComponents "Software Pack".
+ - <b>ST.STM32F4xx.pdsc</b>: filename of the <b>Pack Description</b> (*.pdsc) file.
+
+\note All elements are case sensitive and must be consistently spelled in all places, i.e. the definition in the PDSC
+file must match the filenames of the *.pdsc and *.pack files. The file extensions (*.pdsc and *.pack) must be lower case.
+
+\section PackSchema Pack Schema 
+
+The XML schema file <b>PACK.xsd</b> defines the sections used in a <b>*.pdsc</b> file. The current <b>PACK.xsd</b> can be
+found in the ARM.CMSIS pack in the directory .\\CMSIS\\Utilities.
+
+The \ref packFormat is structured using grouping elements and contains the following top level elements:
+ - \subpage pdsc_package_pg "<package>": describes package related information like vendor, package name, description, version. Is the root element. 
+ - \subpage element_keywords "<keywords>": lists keywords to search for packages. Can be used for search engines. 
+ - \subpage element_repository "<repository>": specifies the URL and repository type of a public repository where the pack originates from.
+ - \subpage element_dominate "<dominate>": the pack contains one or more device, API, or component that overrules other packs with identical items.
+ - \subpage element_releases "<releases>": lists release versions with descriptions.
+ - \subpage element_requirements_pg "<requirements>": lists required packs, compiler, programming language standards and their version or version range.
+ - \subpage element_taxonomy "<taxonomy>": lists description elements that define component classes and component group names. 
+ - \subpage pdsc_apis_pg "<apis>": describes Application Programming Interfaces (API) Specifications contained in the \ref cp_SWComponents "Software Pack".
+ - \subpage pdsc_generators_pg "<generators>": specifies the tools that have been used to generate the PDSC file.
+ - \subpage pdsc_devices_pg "<devices>": lists the devices supported by this \ref cp_SWComponents "Software Pack". It specifies the device attributes and
+   files like flash programming algorithms, CMSIS device header files, CMSIS System View Descriptions, etc.
+ - \subpage pdsc_boards_pg "<boards>": lists the development boards supported by the \ref cp_SWComponents "Software Pack".
+ - \subpage pdsc_conditions_pg "<conditions>": defines dependencies to devices, processors, components, and tools that are used within the \ref cp_SWComponents "Software Pack".
+   It allows making components and files conditional.
+ - \subpage pdsc_components_pg "<components>": lists the software components contained in the \ref cp_SWComponents "Software Pack".
+ - \subpage pdsc_examples_pg "<examples>": specifies example projects contained in the PACK.
+
+\section PDSC_Example Example of a *.pdsc File
+
+This example of a *.pdsc File explains the sections, particularly how dependencies are used to identify individual files of \ref cp_Components.
+
+\image html PDSC_Example_top.png
+\image html PDSC_Example_bottom.png  "Example of a *.pdsc File"
+
+*/
+
+
+/**************************************************************************************************/
+/**
+\page pdsc_package_pg /package element
+The basic package information captures the package vendor, the package name, a brief description of the package, and the schema version.
+Additional elements support the logistics of handling packages. The url specifies the origin of the description. It may be left empty if
+the pack will not be uploaded onto a web server. A license file might point to license agreements. A list of keywords
+assists searching for packages.
+
+\b Example:
+\code
+<package schemaVersion="1.4" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+  <vendor>ExampleVendor</vendor>
+  <name>STM32F2xx_DFP</name>                                                       <!-- name of package -->
+  <description>Device Family Package for STMicroelectronics STM32F2 Family of Arm Cortex-M3 based Microcontroller</description>
+  <url></url>
+  <supportContact>http://www.arm.com/support</supportContact>
+  <license>./END_USER_LICENCE_AGREEMENT.rtf</license>
+  <releases>
+    <release version="1.0.0" date="2014-12-14">
+      First Release version of STM32F2 Device Family Pack.
+    </release>
+    <release version="0.9.0">
+      Beta version of STM32F2 Device Family Pack.
+    </release>
+  </releases>
+	
+  <keywords>                                                                  <!-- keywords for indexing -->
+    <keyword>ST</keyword>
+    <keyword>Device Support</keyword>
+    <keyword>Device Family Package ST</keyword>
+    <keyword>STM32F2</keyword>
+    <keyword>STM32F2xx</keyword>
+  </keywords>
+	
+  <taxonomy>                                                                  <!-- class and group descriptions -->
+    <description Cclass="Board Support">
+      Generic Interfaces and Templates for Evaluation and Development Boards
+    </description>
+  </taxonomy>
+  ...
+</package>
+\endcode
+<p>&nbsp;</p>
+
+\section element_package /package
+
+<table class="cmtable" summary="Root Element: Package">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>root</td>
+    <td colspan=3>Document root</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>schemaVersion</td>
+    <td>CMSIS-PDSC schema version used for describing the \ref cp_SWComponents "Software Pack" (for example, \token{"1.2"}). The version format is described in \ref VersionType "Version Type".</td>
+    <td>VersionType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>xmlns:xs</td>
+    <td>Is set to: \token{"http://www.w3.org/2001/XMLSchema-instance"} to indicate compliance to the XML format.</td>
+    <td>xs:decimal</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>xs:noNamespaceSchemaLocation</td>
+    <td>Path and file name of the PACK.xsd Schema. For example, \token{"PACK.xsd"}.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Dcore</td>
+    <td>Pack only used for a specific processor core.  Use predefined values as listed in the table \ref DcoreEnum "Device Cores". Note: do not apply for packs that define a device</td>
+    <td>DcoreEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dvendor</td>
+    <td>Pack only used for a specific silicon vendor of the device. Use predefined values as listed in the table \ref DeviceVendorEnum "Device Vendor".  Note: do not apply for packs that define a device</td>
+    <td>DeviceVendorEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dname<b>*</b></td>
+    <td>Pack only used for a specific name of the device. Note: do not apply for packs that define a device</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Tcompiler</td>
+    <td>Pack only used for a specific compiler toolchain (ARMCC, GCC, IAR, Tasking, ...). Use predefined values as listed in table \ref CompilerEnumType "Compiler Types".</td>
+    <td>CompilerEnumType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Name of the \ref cp_SWComponents "Software Pack". Could be displayed by an installer.</td>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>vendor</td>
+    <td>Name of the supplier or vendor of the \ref cp_SWComponents "Software Pack".</td>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Brief description of the \ref cp_SWComponents "Software Pack".</td>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>url</td>
+    <td><a href="https://en.wikipedia.org/wiki/Uniform_resource_locator" target="_blank">HTTP URL</a> 
+        or <a href="https://en.wikipedia.org/wiki/File_URI_scheme" target="_blank">file URI</a> location 
+        of the \ref cp_SWComponents "Software Pack". The URL can be used by installers for downloading, 
+        updating, or checking versions. If left empty, the Pack cannot be updated automatically from a server location.</td>
+    <td>xs:anyURI </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>supportContact</td>
+    <td>HTTP URL or e-mail address for users to get support for the content of the Pack</td>
+    <td>xs:string</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>license</td>
+    <td>Path to a license document.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_dominate "dominate"</td>
+    <td>dominate</td>
+    <td>A pack that has \ref element_dominate "dominate" attribute overrules other packs that provide devices, APIs, or software components with the same name.</td>
+    <td>\em empty</td>
+  </tr>
+  <tr>
+    <td>\ref element_requirements "requirements"</td>
+    <td>Specifies other CMSIS-Packs, programming languages and compiler as well as their respective version
+        or version range required by the components in this pack.
+    </td>
+    <td>RequirementsType</td>
+    <td>0..1 </td>
+  </td>
+  <tr>
+    <td>create</td>
+    <td>Use only when creating CMSIS software projects. Refer to \ref cpdsc_pg for details.</td>
+    <td>CreateType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_repository "repository"</td>
+    <td>URL of a public repository the pack originates from.</td>
+    <td>xs:anyURI</td>
+    <td>0..1 </td>
+  </tr>
+
+  <tr>
+    <td>\ref element_releases "releases"</td>
+    <td>Version release history with brief information about a \ref cp_SWComponents "Software Pack".</td>
+    <td>ReleasesGroup</td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_keywords "keywords"</td>
+    <td>Defines keywords that might be used to find a \ref cp_SWComponents "Software Pack". Keywords may be also exported to web page to provide information for search engines, such as Google.</td>
+    <td>group</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_generators "generators"</td>
+    <td>Specifies generator tools that have been used to create the \ref cp_SWComponents "Software Pack".</td>
+    <td>GeneratorsType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_devices "devices"</td>
+    <td>Defines the device family, the devices, and optionally variants (such as boards).</td>
+    <td>group</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_boards "boards"</td>
+    <td>Defines the development board support package.</td>
+    <td>BoardsType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_taxonomy "taxonomy" </td>
+    <td>Contains the description for a component class or for the combination between a component class and component group.
+    </td>
+    <td>TaxonomyType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_apis "apis"</td>
+    <td>Defines the API (Application Programming Interfaces) specifications contained in the \ref cp_SWComponents "Software Pack".</td>
+    <td>ApisType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_conditions "conditions"</td>
+    <td>Is a group that contains dependency definitions used within the Pack.
+    These rules can describe dependencies on various levels: device attributes, components, or tools. 
+    Conditions are referenced by components and files.</td>
+    <td>ConditionsType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_examples "examples"</td>
+    <td>Lists the examples that are included in the Pack.</td>
+    <td>group</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\ref element_components "components"</td>
+    <td>Lists the software components that are included in the Pack.</td>
+    <td>group</td>
+    <td>0..1 </td>
+  </tr>
+</table>
+
+<b>*)</b> Wild-cards can be used to match names with the following definitions:
+       - '*'  matches any substring
+       - '?'  matches any single character
+       - [abc] matches any character in the set (a,b,c)
+
+<p>&nbsp;</p>
+
+\anchor VersionType <b>Version Type</b>
+
+CMSIS-Pack version specification is inspired by the <a href="http://semver.org" target="_blank">Semantic Versioning 2.0.0</a>.
+Under this scheme, version numbers and the way they are incremented convey a meaning about the underlying content quality and the significance
+of changes from one version to the next. A version consists of 3 mandatory and 2 optional sections: 
+
+\code
+MAJOR.MINOR.PATCH[-Pre Release][+Build Metadata]
+\endcode
+
+1. <b>MAJOR:</b> increment MAJOR for backwards incompatible changes
+  - non-negative integer
+  - 0 indicates initial development, unstable and anything may change at any time
+  \code
+  ARM.CMSIS.0.9.0.pack  <  ARM.CMSIS.1.0.0.pack
+  \endcode
+2. <b>MINOR:</b> increment MINOR for backwards compatible additions and changes
+  - non-negative integer
+  - accepted:
+    -- trailing zeros are accepted but effectively ignored for version comparison
+    \code
+    ARM.CMSIS.1.02.0.pack  equal to  ARM.CMSIS.1.2.0.pack
+    \endcode
+3. <b>PATCH:</b> increment PATCH for bug fixes not affecting compatibility
+  - non-negative integer
+  - accepted:
+    - trailing zeros are accepted but effectively ignored for version comparison
+    - a version ending after MINOR without specifying PATCH. In this case PATCH == 0 is assumed.
+    \code
+    ARM.CMSIS.1.1.pack equal to ARM.CMSIS.1.1.0.pack
+    \endcode
+4. <em>pre release:</em> the optional pre-release string must start with a hyphen ('-') immediately after the <em>PATCH</em> and consists of a series 
+   of dot separated ASCII alphanumerics and hyphen ([0-9A-Za-z-]).
+  - accepted: the pre-release string immediately following the PATCH without a hyphen if the first item is a character.
+  \code
+  ARM.CMSIS.4.3.0-alpha.1
+  \endcode
+5. <em>build metadata:</em> the optional build metadata must be denoted by appending a plus sign ('+') and a series of dot separated identifiers.
+   Identifiers comprise only ASCII alphanumerics and hyphen [0-9A-Za-z-]+. Two versions that differ only in the build metadata, have the same precedence.
+   \code
+   ARM.CMSIS.4.3.0-alpha.1+build.102   
+   \endcode
+
+The above is extending the recommendation that was given in previous version of this specification.:
+
+Version types are used in:
+- \ref element_package (attribute: \em schemaVersion)
+- \ref element_release (attribute: \em version)
+- \ref element_api     (attribute: \em Capiversion)
+- \ref element_accept  (attributes: \em Capiversion and \em Cversion)
+- \ref element_bundle  (attribute: \em Cversion)
+- \ref element_component (attributes: \em Capiversion and \em Cversion)
+- \ref element_example (attribute: \em version)
+- \ref element_example_attribute_component (attribute: \em Cversion)
+
+\b Example:
+this example applies to \ref element_release.
+\code
+  <release version="1.4.2-RC2" ...>
+\endcode
+
+<p>&nbsp;</p>
+<hr>
+*/
+
+/**************************************************************************************************/
+/**
+\page element_keywords /package/keywords element
+
+Is the group element for wrapping keywords, which can be used to find a Pack.
+Keywords can be exported to web pages to provide information for search engines, such as Google.
+
+\b Example:
+\code
+<package>
+  ...
+  <keywords>
+    <keyword>ARM</keyword>     
+    <keyword>Cortex-M</keyword>     
+    <keyword>TCP/IP Stack</keyword>     
+  </keywords>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Root Element: Package">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan=3>\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>keyword</td>
+    <td>Element that encloses one keyword. Enter a keyword between the opening and closing tag of this element.</td>
+    <td>xs:string</td>
+    <td>1..1</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+*/
+
+/**************************************************************************************************/
+/**
+\page element_repository /package/repository element
+The element specifies the URL of the public repository the pack originates from. The attribute 'type' specifies the repository technology
+and therefore the tools required to be used with this repository.
+
+
+\b Example:
+\code
+<package>
+  ...
+  <repository type="git">https://github.com/ARM-software/CMSIS-Driver.git</repository>
+    ...
+  </releases>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: repository">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan=3>\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>Repository management technology used by the specified public repository (e.g. git, svn).</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+</table>
+
+\b Example:
+
+Contributing to a software pack hosted on GitHub:
+
+- Open the URL specified by the \c \<repository> element in a browser.
+- Create a fork of the repository.
+- Clone the fork on your machine (you may want to checkout the \c tag specified in the \ref element_releases "\<release>" element).
+- Create a branch for your modifications.
+- Develop and test the modifications of your branch and push the branch to GitHub.
+- Create a pull request of your branch into the upstream repository.
+
+<hr>
+*/
+
+
+/**************************************************************************************************/
+/**
+\page element_dominate /package/dominate element
+The \ref element_dominate specifies that the Pack contains one or more \ref element_devices "device", \ref element_apis "API", or \ref element_components "component" that overrules 
+other packs that contain identical named \ref element_devices "device", \ref element_apis "API", or \ref element_components "component".
+
+This attribute is useful for framing packs that:
+  - Contain \em certified software components which should overrule software components with identical name of other packs.
+  - Contain new device definitions of devices that were previously defined in different packs.
+
+
+
+\b Example:
+\code
+<package>
+  ...
+  <dominate info="CMSIS-Core, RTOS2, RTX5, Event Recorder, C Library certified for Cortex-M3"/>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: dominate">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan=3>\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>info</td>
+    <td>Descriptive text that explains the reason for the overwrite using dominate.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<hr>
+*/
+
+/**************************************************************************************************/
+/**
+\page element_releases /package/releases element
+
+Contains the release history of the Pack. This element is mandatory. No more than one such group can exist in a Pack. 
+It contains the full release history of the Pack. 
+
+\b Example:
+\code
+<package>
+  ...
+  <releases>
+    ...
+  </releases>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: Releases">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan=3>\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Child Element</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_release "release"</td>
+    <td>Contains the version number of the release with some brief information about the main changes in that specific release.</td>
+    <td>xs:string </td>
+    <td>1..* </td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_release /package/releases/release
+
+Contains brief information of the main changes in each release version of a Pack. The content is a string written between the opening and closing \em release tags.
+The latest release version is always listed on top.
+
+\b Example:
+\code
+<releases>
+  <release version="1.1.1">Fixed a problem with the feature xyz.
+  </release>     
+  <release version="1.1.0">Introduces a new feature xyz.
+  </release>     
+  <release version="1.0.0">First published version.
+  </release>     
+</releases>
+\endcode
+
+\b Example for a public repository:
+\code
+<package>
+  ...
+  <repository type="git">https://github.com/ARM-software/CMSIS-Driver.git</repository
+  <releases>
+    <release version="2.1.0" tag="2.1.0" url="https://github.com/ARM-software/CMSIS-Driver/archive/2.1.0.zip">
+      Added LAN9220 Ethernet MAC+PHY driver.
+    </release>     
+    <release version="2.0.0" tag="2.0.0" url="https://github.com/ARM-software/CMSIS-Driver/archive/2.0.0.zip">
+      First published version.
+    </release>     
+  </releases>
+  ...
+</package> 
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: Release">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_releases "releases"</td>
+    <td colspan=3>\ref element_releases</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>Version number of the release.  The version format is described in \ref VersionType "Version Type".</td>
+    <td>VersionType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>date</td>
+    <td>Release date (specified as YYYY-MM-DD, for example 2014-12-14 (14th December 2014).</td>
+    <td>xs:date</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>tag</td>
+    <td>In case the repository element is specified, the tag attribute is used to specify the repository tag that corresponds to this release of the pack.</td>
+    <td>xs:string</td>
+    <td>optional</td>    
+  </tr>
+  <tr>
+    <td>url</td>
+    <td>URL specifying the location of the pack of the specified version. This can be used to override the default location being \c \<url>/\<vendor>.\<name>.\<version>.pack</td>
+    <td>xs:anyURI</td>
+    <td>optional</td>    
+  </tr>
+  <tr>
+    <td>deprecated</td>
+    <td>Pack is no longer officially supported after the set date. It will be excluded from checks for update. 
+        Deprecated packs may remain available for download from the server. Tools will continue to work but may provide indicators
+        highlighting end of support for the pack and its content. Not recommended for use with new projects.
+        Note this attribute is only relevant when set for the latest release located on top of the releases section.
+    </td>
+    <td>xs:date</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>replacement</td>
+    <td>Specifies the vendor and name of the Pack that shall be used instead.
+        Use in conjunction with the deprecated attribute.
+        E.g. the maintainer of the Pack A.X_DFP changes from vendor \em A to vendor \em B. In this case the attribute deprecated
+        gets set in the A.X_DFP.pdsc and the replacement attribute set to B.X_DFP. Tools use this information to
+        redirect users to a supported pack.
+    </td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+*/
+
+/** 
+\page element_requirements_pg /package/requirements
+\anchor element_requirements
+
+There are three different requirement types:
+ - The \c \<packages\> section lists CMSIS Packs that have been used to configure the project. This includes the specification
+   of a \c version range to ensure compatibility. If no version is provided, the latest installed version is used. If not yet
+   installed, the latest available version will be installed before resolving the configuration.
+ - The \c \<compilers\> section specifies the toolchains that are supported by this example. The required compiler version is
+   specified using the \c version element. If no compiler is specified, it is assumed that any toolchain will work.
+ - The \c \<languages\> section allows to specify requirements regarding the programming language, for example C99 standard.
+   If no language requirements are set, ANSI C is assumed.
+
+\b Example requirements section:
+\code
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PACK.xsd"/>
+  ...
+  <requirements>
+    <packages>
+      <package name="STM32F4xx_DFP" vendor="Keil" version="2.8.0:2.8.0"/>
+    </packages>
+    <compilers>
+      <compiler name="ARMCC" version="5.0.0:5.99.0"/>
+    </compilers>
+    <languages>
+      <language name="C" version="99"/>
+    </languages>
+  </requirements>
+  ...
+</package>
+\endcode
+
+\b /requirements
+<table class="cmtable" summary="Element: package">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan="3">\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_packages "packages"</td>
+    <td>List of software packs required for the project to build.</td>
+    <td>\ref element_packages "PackagesType"</td>
+    <td><0..1></td>
+  </tr>
+  <tr>
+    <td>\ref element_compilers "compilers"</td>
+    <td>List of compilers required for the project to build. Support for all compilers is assumed when not specified.</td>
+    <td>\ref element_compilers "CompilersType"</td>
+    <td><0..1></td>
+  </tr>
+  <tr>
+    <td>\ref element_languages "languages"</td>
+    <td>List of language standards required for the project to build. Assuming ANSI C if not set.</td>
+    <td>\ref element_languages "LanguagesType"</td>
+    <td><0..1></td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_packages /package/requirements/packages
+
+\b Example packages section:
+\code
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PACK.xsd"/>
+  ...
+  <requirements>
+    <packages>
+      <package name="STM32F4xx_DFP" vendor="Keil" version="2.8.0:2.8.0"/>
+    </packages>
+  </requirements>
+  ...
+</package>
+\endcode
+
+\b /package
+<table class="cmtable" summary="Element: package">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_packages "packages"</td>
+    <td colspan="3">\ref element_packages</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>vendor</td>
+    <td>specify vendor of the package (e.g. "ARM")</td>
+    <td>RestrictedString</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Name of the pack</td>
+    <td>RestrictedString</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>\ref VersionType "Version" of the required software pack which can be:
+       - Minimum version (higher versions are accepted).
+       - Version range specified with <em>min_version</em><b>:</b><em>max_version</em>. <em>min_version</em> must be lower or
+         equal than <em>max_version</em>. If <em>min_version</em> and <em>max_version</em> are equal, the version must match.
+       - If no version is specified, the latest available version is assumed.
+    </td>	 
+   <td>\ref VersionType</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_compilers /package/requirements/compilers
+
+\b Example compilers section:
+\code
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PACK.xsd"/>
+  ...
+  <requirements>
+    <compilers>
+      <compiler name="ARMCC" version="5.0.0:5.99.0"/>
+    </compilers>
+  </requirements>
+  ...
+</package>
+\endcode
+
+\b /compiler
+<table class="cmtable" summary="Element: compiler">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_requirements "requirements"</td>
+    <td colspan="3">\ref element_requirements</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Name of the required \ref CompilerEnumType "compiler" (i.e. "ARMCC", "IAR")</td>
+    <td>\ref CompilerEnumType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>\ref VersionType "Version" of the required compiler which can be:
+       - Minimum version (higher versions are accepted).
+       - Version range specified with <em>min_version</em><b>:</b><em>max_version</em>. <em>min_version</em> must be lower or
+         equal than <em>max_version</em>. If <em>min_version</em> and <em>max_version</em> are equal, the version must match.
+         <br>
+    </td>	 
+    <td>\ref VersionType</td>
+    <td>required</td>
+  </tr>
+</table>
+
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_languages /package/requirements/languages
+
+\b Example languages section:
+\code
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PACK.xsd"/>
+  ...
+  <requirements>
+    <languages>
+      <language name="C" version="99"/>
+    <languages>
+  </requirements>
+  ...
+</package>
+\endcode
+
+\b /language
+<table class="cmtable" summary="Element: language">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_requirements "requirements"</td>
+    <td colspan="3">\ref element_requirements</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Name of the programming language (i.e. "C", "C++")</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>Version of the language standard (i.e. 90, 99, etc.). The setting will be reflected in the compiler commandline.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+*/
+
+/**************************************************************************************************/
+/**
+\page element_taxonomy /package/taxonomy element
+
+Group to list description elements that define component classes and component group names used within a package description.
+This element is optional. 
+
+\b Example:
+\code
+<package>
+  ...
+  <taxonomy>
+    ...
+  </taxonomy>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: Taxonomy">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_package "package"</td>
+    <td colspan=3>\ref element_package</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_taxonomyDescription "description"</td>
+    <td>Describes or defines a component class or class-group combination.</td>
+    <td>TaxonomyDescriptionType</td>
+    <td>1..* </td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_taxonomyDescription /package/taxonomy/description
+
+This element describes a component class or the combination between a component class and a component group.
+Components are categorized by \em Cclass and \em Cgroup. The creator of a package can define names for \em Cclass and
+\em Cgroup. Thus, configuration tools can display the set of available components. A document can be referenced using the
+attribute \em doc. The attribute \em generator can be used to reference to a generator tool. The \em id of the generator
+needs to be the same as specified in the element \ref element_generator. The description itself is a string entered between
+the opening and closing tags of the element \b description.
+
+It is recommended to use an already agreed taxonomy for interchangeable components. For example, the combination of class \token{CMSIS}
+and group \token{Startup} is defined for the device-specific CMSIS-Core (Cortex-M) files.
+
+<p>&nbsp;</p>
+
+\b Example:
+\code
+  <taxonomy>
+    <description Cclass="Board Support">Generic Interfaces for Evaluation and Development Boards</description>
+    <description Cclass="CMSIS" doc="CMSIS/Documentation/General/html/index.html">Cortex Microcontroller Software Interface Components</description>
+    <description Cclass="Device" doc="CMSIS/Documentation/Core/html/index.html">Startup, System Setup</description>
+    <description Cclass="CMSIS Driver" doc="CMSIS/Documentation/Driver/html/index.html">Unified Device Drivers compliant to CMSIS-Driver Specifications</description>
+    <description Cclass="File System">File Drive Support and File System</description>
+    <description Cclass="Graphics">Graphical User Interface</description>
+    <description Cclass="Network">Network Stack using Internet Protocols</description>
+    <description Cclass="USB">Universal Serial Bus Stack</description>
+    <description Cclass="RTOS">Realtime Operating System</description>
+  </taxonomy>
+\endcode
+
+\note You \b must \b not use Windows or Linux
+<a href="http://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words" target="_blank">reserved characters</a> for
+\em Cclass, \em Cgrouop, and \em Csub names! Some development tools use these names to create a directory structure for the
+software components in projects. Reserved characters are:
+\verbatim
+< (less than)
+> (greater than)
+: (colon)
+" (double quote)
+/ (forward slash)
+\ (backslash)
+| (vertical bar or pipe)
+? (question mark)
+* (asterisk)
+\endverbatim
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: Taxonomy">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan=3>Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_taxonomy "taxonomy"</td>
+    <td colspan=3>\ref element_taxonomy</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>Cclass</td>
+    <td>Component Class Name. Can be defined by the creator of the package. Predefined values can be used as listed in the table \ref CclassType "Component Classes".</td>
+    <td>Cclass</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Cgroup</td>
+    <td>Component Group Name.  Can be defined by the creator of the package.  Predefined values can be used as listed in the table \ref CgroupType "Component Groups".</td>
+    <td>CgroupType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>doc</td>
+    <td>Reference to documentation.</td>
+    <td>xs:string </td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>generator</td>
+    <td>Reference to a generator. Enter the \b id value of the element \ref element_generator.</td>
+    <td>xs:string </td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>public</td>
+    <td>Set publishing permissions for the documentation. If \tagem{public} is \token{true}, then the vendor gives permission 
+        to extract the documentation from the pack and publish it on a web-page. Links to web pages are assumed to be public.
+        The default value is \token{false}.</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+
+\anchor CclassType <b>Table: Component Classes</b>
+
+Component Class names are strings with a minimum length of 3 characters and a maximum length of 32 characters.
+Component class names are specified in the section \ref element_taxonomyDescription.
+
+These values can be used in the elements:
+- \ref element_accept
+- \ref element_require
+- \ref element_deny
+- \ref element_example_attribute_component
+- \ref element_component
+- \ref element_bundle
+- \ref element_api
+- \ref element_taxonomyDescription
+- \ref element_project_component
+
+\b Example:
+\code
+  <... Cclass="CMSIS" ...>
+\endcode
+<p>&nbsp;</p>
+	
+The table lists predefined Component Classes.
+<table class="cmtable" summary="Predefined Cclass names">
+  <tr>
+    <th>Cclass=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">Audio</td>
+	<td>Software components for audio processing</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Board Support</td>
+	<td>Components providing interfaces for Evaluation and Development Boards</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Board Part</td>
+    <td>Drivers that support an external component available on an evaluation board</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Compiler</td>
+    <td>Components implementing compiler specific interfaces (e.g. Retargeting)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">CMSIS</td>
+    <td>Components defined by Cortex Microcontroller Software Interface Standard (e.g. <a class=el href="../../Core/html/index.html">CMSIS-Core(M)</a>, <a class=el href="../../Core_A/html/index.html">CMSIS-Core(A)</a>, <a class=el href="../../DSP/html/index.html">CMSIS-DSP</a> and <a class=el href="../../RTOS/html/index.html">CMSIS-RTOS</a>)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">CMSIS Driver</td>
+    <td>Components implementing unified device drivers compliant to <a class=el href="../../Driver/html/index.html">CMSIS-Driver</a> (e.g. UART, SPI, USB, etc.) </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Device</td>
+    <td>Components containing device specific implementations of non-standard APIs (e.g. HAL drivers, CMSIS Startup files)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Data Exchange</td>
+    <td>Components implementing some kind of data exchange or data formatter</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Extension Board</td>
+    <td>Drivers that support an extension board or shield</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">File System</td>
+    <td>Components implementing some kind of File Systems (e.g. Flash or RAM based file systems)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Graphics</td>
+    <td>Components implementing some kind of Display and Graphics Software</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">IoT Client</td>
+    <td>Components implementing some kind of IoT cloud client connector</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">IoT Utility</td>
+    <td>IoT specific software utility</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Network</td>
+    <td>Components implementing some kind of network communications (e.g. TCP/IP Stack)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RTOS</td>
+    <td>Components implementing some kind of real-time operating system (e.g. FreeRTOS, Micrium Real Time Kernel)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Security</td>
+    <td>Components implementing some kind of encryption for secure communication or storage</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">USB</td>
+    <td>Components implementing some kind of USB interfaces (e.g. Host and Device interfaces)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Utility</td>
+    <td>Generic software utility components</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+\anchor CgroupType <b>Table: Component Groups</b>
+
+Component Group names are specified by the element <b>Cgroup</b> and create categories within a Component Class specified by the element <b>Cclass</b>. 
+The creator of the Pack can define the names in the element \ref element_taxonomyDescription. 
+A Component Group name is string with a length between 3 and 32 characters. 
+
+\b Example:
+\code
+  <... Cgroup="RTOS" Cclass="CMSIS"...>
+\endcode
+<p>&nbsp;</p>
+
+Component Groups can be used in the elements:
+- \ref element_accept
+- \ref element_require
+- \ref element_deny
+- \ref element_example_attribute_component
+- \ref element_component
+- \ref element_api
+- \ref element_taxonomyDescription
+- \ref element_project_component
+
+The table lists predefined values for the Component Class <b>Cclass="CMSIS"</b>.
+No other Component Groups have been defined so far.
+<table class="cmtable" summary="Predefined Cgroup names for Component Class CMSIS">
+  <tr>
+    <th>Cgroup=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">CORE</td>
+	<td>A component containing device support in accordance to the <a class=el href="../../Core/html/index.html">CMSIS-Core(M)</a>
+  or <a class=el href="../../Core_A/html/index.html">CMSIS-Core(A)</a> specifications (startup, system and device files)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">DSP</td>
+	<td>A component implementing the <a class=el href="../../DSP/html/index.html">CMSIS-DSP</a> API specification.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">NN Lib</td>
+	<td>A component implementing the <a class=el href="../../NN/html/index.html">CMSIS-NN</a> API specification.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RTOS</td>
+	<td>A component implementing the <a class=el href="../../RTOS/html/index.html">CMSIS-RTOS</a> API specification.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RTOS2</td>
+	<td>A component implementing the <a class=el href="../../RTOS2/html/index.html">CMSIS-RTOS v2</a> API specification.</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+*/

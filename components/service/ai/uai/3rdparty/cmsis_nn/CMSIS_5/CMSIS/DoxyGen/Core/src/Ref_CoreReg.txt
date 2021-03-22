@@ -1,0 +1,740 @@
+/**************************************************************************************************/
+/** \defgroup Core_Register_gr Core Register Access
+\brief Functions to access the Cortex-M core registers.
+\details
+  The following functions provide access to Cortex-M core registers. 
+
+  @{ 
+*/
+
+
+/**************************************************************************************************/
+/** \brief  Read the CONTROL register
+    \details
+    The function reads the CONTROL register value using the instruction \b MRS. 
+    \n\n
+    The CONTROL register controls the stack used and the privilege level for software execution
+    when the processor is in thread mode and, if implemented, indicates whether the FPU state is
+    active. This register uses the following bits:
+    \n
+    - \b CONTROL[2] [only Cortex-M4 and Cortex-M7]
+        - =0 FPU not active
+        - =1 FPU active
+        \n\n
+    - \b CONTROL[1] 
+        - =0 In handler mode - MSP is selected. No alternate stack possible for handler mode.
+        - =0 In thread mode - Default stack pointer MSP is used.
+        - =1 In thread mode - Alternate stack pointer PSP is used.
+        \n\n
+    - \b CONTROL[0] [not Cortex-M0]
+        - =0 In thread mode and privileged state.
+        - =1 In thread mode and user state.
+     
+    \returns    CONTROL register value
+    
+    \remarks    
+            - The processor can be in user state or privileged state when running in thread mode.
+            - Exception handlers always run in privileged state.
+            - On reset, the processor is in thread mode with privileged access  rights.
+    
+    \sa     
+            - \ref __set_CONTROL; CONTROL_Type 
+            - \ref ref_man_sec
+ */
+uint32_t __get_CONTROL(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the CONTROL Register
+    \details 
+    The function sets the CONTROL register value using the instruction \b MSR. 
+    \n\n
+    The CONTROL register controls the stack used and the privilege level for software execution
+    when the processor is in thread mode and, if implemented, indicates whether the FPU state is
+    active. This register uses the following bits:
+    \n
+    - \b CONTROL[2] [only Cortex-M4 and Cortex-M7]
+        - =0 FPU not active
+        - =1 FPU active
+        \n\n
+    - \b CONTROL[1] 
+        - Writeable only when the processor is in thread mode and privileged state (CONTROL[0]=0).
+        - =0 In handler mode - MSP is selected. No alternate stack pointer possible for handler mode.
+        - =0 In thread mode - Default stack pointer MSP is used.
+        - =1 In thread mode - Alternate stack pointer PSP is used.
+        \n\n
+    - \b CONTROL[0] [not writeable for Cortex-M0]
+        - Writeable only when the processor is in privileged state.
+        - Can be used to switch the processor to user state (thread mode).
+        - Once in user state, trigger an interrupt and change the state to privileged in the 
+        exception handler (the only way).
+        - =0 In thread mode and privileged state.
+        - =1 In thread mode and user state.
+
+     
+    \param [in] control  CONTROL register value to set    
+    
+    \remarks    
+            - The processor can be in user state or privileged state when running in thread mode.
+            - Exception handlers always run in privileged state.
+            - On reset, the processor is in thread mode with privileged access  rights.
+
+    \sa     
+            - \ref __get_CONTROL; __set_PSP; __set_MSP; CONTROL_Type 
+            - \ref ref_man_sec
+*/
+void __set_CONTROL(uint32_t control);
+
+
+/**************************************************************************************************/
+/** \brief  Read the IPSR register
+    \details 
+    The function reads the Interrupt Program Status Register (IPSR) using the instruction \b MRS. 
+    \n\n
+    The ISPR contains the exception type number of the current Interrupt Service Routine (ISR). 
+    Each exception has an assocciated unique IRQn number. The following bits are used:
+    
+    - \b ISR_NUMBER (IPSR[8:0])
+        - =0 Thread mode
+        - =1 Reserved
+        - =2 NMI
+        - =3 HardFault
+        - =4 MemManage
+        - =5 BusFault
+        - =6 UsageFault
+        - =7-10  Reserved
+        - =11 SVCall
+        - =12 Reserved for Debug
+        - =13 Reserved
+        - =14 PendSV
+        - =15 SysTick
+        - =16 IRQ0
+        - ...
+        - =n+15 IRQ(n-1)
+
+    \returns    ISPR register value
+
+    \remarks    
+            - This register is read-only.
+
+    \sa     
+            - \ref __get_xPSR; IPSR_Type
+            - \ref NVIC_gr
+            - \ref ref_man_sec
+*/
+uint32_t __get_IPSR(void);
+
+
+/**************************************************************************************************/
+/** \brief  Read the APSR register
+    \details
+    The function reads the Application Program Status Register (APSR) using the instruction \b MRS.
+    \n\n
+    The APSR contains the current state of the condition flags from instructions executed previously.
+    The APSR is essential for controlling conditional branches. The following flags are used:
+    
+    - \b N (APSR[31]) (Negative flag)
+        - =1 The instruction result has a negative value (when interpreted as signed integer).
+        - =0 The instruction result has a positive value or equal zero.
+    \n\n
+    - \b Z (APSR[30]) (Zero flag)
+        - =1 The instruction result is zero. Or, after a compare instruction, when the two values
+            are the same.
+    \n\n
+    - \b C (APSR[29]) (Carry or borrow flag)
+        - =1 For unsigned additions, if an unsigned overflow occurred.
+        - =<i>inverse of borrow output status</i> For unsigned subtract operations.
+    \n\n
+    - \b V (APSR[28]) (Overflow flag)
+        - =1 A signed overflow occurred (for signed additions or subtractions).
+    \n\n
+    - \b Q (APSR[27]) (DSP overflow or saturation flag) [not Cortex-M0]
+        - This flag is a \em sticky flag. Saturating and certain mutliplying instructions can set the
+        flag, but cannot clear it. 
+        - =1 When saturation or an overflow occurred.
+    \n\n
+    - \b GE (APSR[19:16]) (Greater than or Equal flags) [not Cortex-M0]
+        - Can be set by the parallel add and subtract instructions.
+        - Are used by the <kbd>SEL</kbd> instruction to perform byte-based selection from two registers.
+    
+    
+    \returns    APSR register value
+
+    \remarks    
+            - Some instructions update all flags; some instructions update a subset of the flags. 
+            - If a flag is not updated, the original value is preserved. 
+            - Conditional instructions that are not executed have no effect on the flags.
+            - The CMSIS does not provide a function to update this register.
+
+    \sa     
+            - \ref __get_xPSR; APSR_Type 
+            - \ref ref_man_sec
+
+ */
+uint32_t __get_APSR(void);
+
+
+/**************************************************************************************************/
+/** \brief  Read the xPSR register 
+    \details 
+    The function reads the combined Program Status Register (xPSR) using the instruction \b MRS. 
+    \n\n
+    xPSR provides information about program execution and the APSR flags. It consists of the 
+    following PSRs:
+    \li Application Program Status Register (APSR)
+    \li Interrupt Program Status Register (IPSR)
+    \li Execution Program Status Register (EPSR)
+    
+    In addition to the flags described in \ref __get_APSR and \ref __get_IPSR, the register provides 
+    the following flags:
+    - \b IT (xPSR[26:25]) (If-Then condition instruction)
+        - Contains up to four instructions following an IT instruction. 
+        - Each instruction in the block is conditional. 
+        - The conditions for the instructions are either all the same, or some can be the inverse 
+        of others.
+    \n\n
+    - \b T (xPSR[24]) (Thumb bit) 
+        - =1 Indicates that that the processor is in Thumb state. 
+        - =0 Attempting to execute instructions when the T bit is 0 results in a fault or lockup. 
+        - The conditions for the instructions are either all the same, or some can be the inverse 
+        of others.
+    
+    \returns    xPSR register value 
+    
+    \remarks
+        - The CMSIS does not provide functions that access EPSR.
+
+    \sa     
+            - \ref __get_APSR; __get_IPSR; xPSR_Type
+            - \ref ref_man_sec
+    
+ */
+uint32_t __get_xPSR(void);
+
+
+/**************************************************************************************************/
+/** \brief  Read the PSP register
+    \details 
+    The function reads the Program Status Pointer (PSP) value using the instruction \b MRS.
+    \n\n
+    Physically two different stack pointers (SP) exist: 
+    - The Main Stack Pointer (MSP) is the default stack pointer after reset. It is also used when 
+    running exception handlers (handler mode).
+    - The Process Stack Pointer (PSP), which can be used only in thread mode. 
+    
+    Register R13 banks the SP. The SP selection is determined by the bit[1] of the CONTROL register: 
+    - =0 MSP is the current stack pointer. This is also the default SP. The initial value is loaded 
+    from the first 32-bit word of the vector table from the program memory.
+    - =1 PSP is the current stack pointer. The initial value is undefined. 
+  
+    \returns    PSP register value
+        
+    \remarks
+        - Only one of the two SPs is visible at a time.
+        - For many applications, the system can completely rely on the MSP.
+        - The PSP is normally used in designs with an OS where the stack memory for OS Kernel must 
+        be separated from the application code.  
+
+    \sa 
+        - \ref __set_PSP; __get_MSP; __get_CONTROL
+        - \ref ref_man_sec
+
+    
+ */
+uint32_t __get_PSP(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the PSP register
+    \details
+    The function sets the Program Status Pointer (PSP) value using the instruction \b MSR.
+    \n\n
+    Physically two different stack pointers (SP) exist: 
+    - The Main Stack Pointer (MSP) is the default stack pointer after reset. It is also used when 
+    running exception handlers (handler mode).
+    - The Process Stack Pointer (PSP), which can be used only in thread mode. 
+    
+    Register R13 banks the SP. The SP selection is determined by the bit[1] of the CONTROL register: 
+    - =0 MSP is the current stack pointer. This is also the default SP. The initial value is loaded 
+    from the first 32-bit word of the vector table from the program memory.
+    - =1 PSP is the current stack pointer. The initial value is undefined. 
+    
+    \param [in]    topOfProcStack  PSP value to set
+        
+    \remarks
+        - Only one of the two SPs is visible at a time.
+        - For many applications, the system can completely rely on the MSP.
+        - The PSP is normally used in designs with an OS where the stack memory for OS Kernel must 
+        be separated from the application code.  
+        
+    \sa 
+        - \ref __get_PSP; __set_MSP; __set_CONTROL
+        - \ref ref_man_sec
+ */
+void __set_PSP(uint32_t topOfProcStack);
+
+
+/**************************************************************************************************/
+/** \brief  Read the MSP register
+    \details 
+    The function reads the Main Status Pointer (MSP) value using the instruction \b MRS.
+    \n\n
+    Physically two different stack pointers (SP) exist: 
+    - The Main Stack Pointer (MSP) is the default stack pointer after reset. It is also used when 
+    running exception handlers (handler mode).
+    - The Process Stack Pointer (PSP), which can be used only in thread mode. 
+    
+    Register R13 banks the SP. The SP selection is determined by the bit[1] of the CONTROL register: 
+    - =0 MSP is the current stack pointer. This is also the default SP. The initial value is loaded 
+    from the first 32-bit word of the vector table from the program memory.
+    - =1 PSP is the current stack pointer. The initial value is undefined. 
+    
+    \returns    MSP Register value 
+
+    \remarks
+        - Only one of the two SPs is visible at a time.
+        - For many applications, the system can completely rely on the MSP.
+        - The PSP is normally used in designs with an OS where the stack memory for OS Kernel must 
+        be separated from the application code.  
+        
+    \sa 
+        - \ref __set_MSP; __get_PSP; __get_CONTROL
+        - \ref ref_man_sec
+
+ */
+uint32_t __get_MSP(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the MSP register
+    \details 
+    The function sets the Main Status Pointer (MSP) value using the instruction \b MSR.
+    \n\n
+    Physically two different stack pointers (SP) exist: 
+    - The Main Stack Pointer (MSP) is the default stack pointer after reset. It is also used when 
+    running exception handlers (handler mode).
+    - The Process Stack Pointer (PSP), which can be used only in thread mode. 
+    
+    Register R13 banks the SP. The SP selection is determined by the bit[1] of the CONTROL register: 
+    - =0 MSP is the current stack pointer. This is also the default SP. The initial value is loaded 
+    from the first 32-bit word of the vector table from the program memory.
+    - =1 PSP is the current stack pointer. The initial value is undefined. 
+    
+    \param [in]    topOfMainStack  MSP value to set
+
+    \remarks
+        - Only one of the two SPs is visible at a time.
+        - For many applications, the system can completely rely on the MSP.
+        - The PSP is normally used in designs with an OS where the stack memory for OS Kernel must 
+        be separated from the application code.  
+        
+    \sa 
+        - \ref __get_MSP; __set_PSP; __set_CONTROL
+        - \ref ref_man_sec
+
+ */
+void __set_MSP(uint32_t topOfMainStack);
+
+
+/**************************************************************************************************/
+/** \brief  Read the PRIMASK register bit 
+    \details 
+    The function reads the Priority Mask register (PRIMASK) value using the instruction \b MRS. 
+    \n\n
+    PRIMASK is a 1-bit-wide interrupt mask register. When set,
+    it blocks all interrupts apart from the non-maskable interrupt (NMI) and the hard fault exception.
+    The PRIMASK prevents activation of all exceptions with configurable priority.
+
+    \returns    PRIMASK register value
+                - =0 no effect
+                - =1 prevents the activation of all exceptions with configurable priority
+           
+    \sa 
+        - \ref __set_PRIMASK; __get_BASEPRI; __get_FAULTMASK
+        - \ref ref_man_sec                    
+                    
+ */
+uint32_t __get_PRIMASK(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the Priority Mask bit
+    \details 
+    The function sets the Priority Mask register (PRIMASK) value using the instruction \b MSR. 
+    \n\n
+    PRIMASK is a 1-bit-wide interrupt mask register. When set,
+    it blocks all interrupts apart from the non-maskable interrupt (NMI) and the hard fault exception.
+    The PRIMASK prevents activation of all exceptions with configurable priority.
+
+    \param [in]    priMask  Priority Mask
+                    - =0 no effect
+                    - =1 prevents the activation of all exceptions with configurable priority
+
+    \remarks
+        - When set, PRIMASK effectively changes the current priority level to 0. 
+        This is the highest programmable level.
+        - When set and a fault occurs, the hard fault handler will be executed.
+        - Useful for temprorarily disabling all interrupts for timing critical tasks. 
+        - Does not have the ability to mask BusFault or bypass MPU.
+
+    \sa 
+        - \ref __get_PRIMASK; __set_BASEPRI; __set_FAULTMASK
+        - \ref ref_man_sec                    
+
+ */
+void __set_PRIMASK(uint32_t priMask);
+ 
+
+/**************************************************************************************************/
+/** \brief  Read the BASEPRI register [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function returns the Base Priority Mask register (BASEPRI) using the instruction \b MRS. 
+    \n\n
+    BASEPRI defines the minimum priority for exception processing. When BASEPRI is set to a non-zero 
+    value, it prevents the activation of all exceptions with the same or lower priority level as 
+    the BASEPRI value.
+    
+    \returns    BASEPRI register value
+
+    \remarks    
+        - Not for Cortex-M0, Cortex-M0+, or SC000.
+                    
+    \sa 
+        - \ref __set_BASEPRI;  __set_BASEPRI_MAX; __get_FAULTMASK; __get_PRIMASK
+        - \ref ref_man_sec
+
+    */
+uint32_t __get_BASEPRI(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the BASEPRI register [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function sets the Base Priority Mask register (BASEPRI) value using the instruction \b MSR.
+    \n\n
+    BASEPRI defines the minimum priority for exception processing. 
+    When BASEPRI is set to a non-zero value, it prevents the activation of all exceptions with the 
+    same or lower priority level as the BASEPRI value.
+    
+    \param [in]    basePri  BASEPRI value to set
+
+    \remarks    
+        - Not for Cortex-M0, Cortex-M0+, or SC000.
+        - Cannot be set in user state.
+        - Useful for changing the masking level or disabling the masking.
+
+    \sa 
+        - \ref __get_BASEPRI;  __set_BASEPRI_MAX; __set_FAULTMASK; __set_PRIMASK
+        - \ref ref_man_sec
+    
+ */
+void __set_BASEPRI(uint32_t basePri); 
+ 
+ 
+/**************************************************************************************************/
+/** \brief  Increase the BASEPRI register [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function only increases the Base Priority Mask register (BASEPRI) value using the instruction \b MSR.
+	The value is set only if BASEPRI masking is disabled, or the new value increases the BASEPRI priority level.
+    \n\n
+    BASEPRI defines the minimum priority for exception processing. 
+        
+    \param [in]    basePri  BASEPRI value to set
+
+    \remarks    
+        - Not for Cortex-M0, Cortex-M0+, or SC000.
+        - Cannot be set in user state.
+        - Useful for increasing the masking level.
+        - Has no effect when \em basePri is lower than the current value of BASEPRI.
+        - Use \ref __set_BASEPRI to lower the Base Priority Mask register.
+
+    \sa 
+        - \ref __set_BASEPRI; __get_BASEPRI; __set_FAULTMASK; __set_PRIMASK
+        - \ref ref_man_sec
+    
+ */
+void __set_BASEPRI_MAX(uint32_t basePri); 
+
+
+/**************************************************************************************************/
+/** \brief  Read the FAULTMASK register [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function reads the Fault Mask register (FAULTMASK) value using the instruction \b MRS. 
+    \n\n
+    FAULTMASK prevents activation of all exceptions except for the Non-Maskable Interrupt (NMI).
+
+    \returns    FAULTMASK register value
+
+    \remarks    
+        - not for Cortex-M0, Cortex-M0+, or SC000.
+        - Is cleared automatically upon exiting the exception handler, except when returning 
+        from the NMI handler.
+
+    \sa 
+        - \ref __set_FAULTMASK; __get_BASEPRI; __get_PRIMASK 
+        - \ref ref_man_sec
+ */
+uint32_t __get_FAULTMASK(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the FAULTMASK register [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function sets the Fault Mask register (FAULTMASK) value using the instruction \b MSR.
+    \n\n
+    FAULTMASK prevents activation of all exceptions except for Non-Maskable Interrupt (NMI).
+    FAULTMASK can be used to escalate a configurable fault handler (BusFault, usage fault, or 
+    memory management fault) to hard fault level without invoking a hard fault. This allows the 
+    fault handler to pretend to be the hard fault handler, whith the ability to:
+    -# <b>Mask BusFault</b> by setting the BFHFNMIGN in the Configuration Control register.
+    It can be used to test the bus system without causing a lockup. 
+    -# <b>Bypass the MPU</b>, allowing accessing the MPU protected memory location without 
+    reprogramming the MPU to just carry out a few transfers for fixing faults.
+
+    \param [in]    faultMask  FAULTMASK register value to set 
+
+    \remarks    
+        - not for Cortex-M0, Cortex-M0+, or SC000.
+        - Is cleared automatically upon exiting the exception handler, except when returning 
+        from the NMI handler.
+        - When set, it changes the effective current priority level to -1, so that even the hard
+        fault handler is blocked.
+        - Can be used by fault handlers to change their priority to -1 to have access to some 
+        features for hard fault exceptions (see above).
+        - When set, lockups can still be caused by incorrect or undefined instructions, or by using
+        SVC in the wrong priority level.
+
+    \sa 
+        - \ref __get_FAULTMASK; __set_BASEPRI; __set_PRIMASK 
+        - \ref ref_man_sec
+ */
+void __set_FAULTMASK(uint32_t faultMask);
+
+
+/**************************************************************************************************/
+/** \brief  Read the FPSCR register [only Cortex-M4 and Cortex-M7]
+    \details 
+    The function reads the Floating-Point Status Control Register (FPSCR) value. 
+    \n\n
+    FPSCR provides all necessary User level controls of the floating-point system. 
+        
+    \returns    
+            - FPSCR register value, when __FPU_PRESENT=1
+            - =0, when __FPU_PRESENT=0
+
+    \remarks
+            - Only for Cortex-M4 and Cortex-M7.
+                
+    \sa 
+            - \ref __set_FPSCR
+            - \ref ref_man_sec
+                    
+ */
+uint32_t __get_FPSCR(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set the FPSC register [only for Cortex-M4 and Cortex-M7]
+    \details 
+    The function sets the Floating-Point Status Control Register (FPSCR) value. 
+    \n\n
+    FPSCR provides all necessary User level control of the floating-point system. 
+    \n
+    - \b N (FPSC[31]) (Negative flag)
+        - =1 The instruction result has a negative value (when interpreted as signed integer).
+        - =0 The instruction result has a positive value or equal zero.
+    \n\n
+    - \b Z (FPSC[30]) (Zero flag)
+        - =1 The instruction result is zero. Or, after a compare instruction, when the two values
+            are the same.
+    \n\n
+    - \b C (FPSC[29]) (Carry or borrow flag)
+        - =1 For unsigned additions, if an unsigned overflow occurred.
+        - =<i>inverse of borrow output status</i> For unsigned subtract operations.
+    \n\n
+    - \b V (FPSC[28]) (Overflow flag)
+        - =1 A signed overflow occurred (for signed additions or subtractions).
+    \n\n
+    - \b AHP (FPSC[26]) (Alternative half-precision flag)
+        - =1 Alternative half-precision format selected.
+        - =0 IEEE half-precision format selected.
+    \n\n
+    - \b DN (FPSC[25]) (Default NaN mode control flag)
+        - =1 Any operation involving one or more NaNs returns the Default NaN.
+        - =0 NaN operands propagate through to the output of a floating-point operation.
+    \n\n
+    - \b FZ (FPSC[24]) (Flush-to-zero mode control flag)
+        - =1 Flush-to-zero mode enabled.
+        - =0 Flush-to-zero mode disabled. Behavior of the floating-point system is fully 
+        compliant with the IEEE 754 standard.
+    \n\n
+    - \b RMode (FPSC[23:22]) (Rounding Mode control flags)
+        - =0b00 Round to Nearest (RN) mode.
+        - =0b01 Round towards Plus Infinity (RP) mode.
+        - =0b10 Round towards Minus Infinity (RM) mode.
+        - =0b11 Round towards Zero (RZ) mode.
+        - The specified rounding mode is used by almost all floating-point instructions.
+    \n\n
+    - \b IDC (FPSC[7]) (Input Denormal cumulative exception flags)
+        - See Cumulative exception bits (FPSC[4:0]).
+    \n\n
+    - \b IXC (FPSC[4]) (Inexact cumulative exception flag)
+        - =1 Exception occurred. 
+        - =0 Value has to be set explicitly. 
+        - Flag is not cleared automatically.
+    \n\n
+    - \b UFC (FPSC[3]) (Underflow cumulative exception flag)
+        - =1 Exception occurred. 
+        - =0 Value has to be set explicitly. 
+        - Flag is not cleared automatically.
+    \n\n
+    - \b OFC (FPSC[2]) (Overflow cumulative exception flag)
+        - =1 Exception occurred. 
+        - =0 Value has to be set explicitly. 
+        - Flag is not cleared automatically.
+    \n\n
+    - \b DZC (FPSC[1]) (Division by Zero cumulative exception flag)
+        - =1 Exception occurred. 
+        - =0 Value has to be set explicitly. 
+        - Flag is not cleared automatically.
+    \n\n
+    - \b IOC (FPSC[0]) (Invalid Operation cumulative exception flag)
+        - =1 Exception occurred. 
+        - =0 Value has to be set explicitly. 
+        - Flag is not cleared automatically.
+        
+    \param [in]    fpscr  FPSCR value to set
+
+    \remarks
+            - Only for Cortex-M4 and Cortex-M7.
+            - The variable \b __FPU_PRESENT has to be set to 1.
+    
+    \sa 
+            - \ref __get_FPSCR
+            - \ref ref_man_sec
+ */
+void __set_FPSCR(uint32_t fpscr);
+
+
+/**************************************************************************************************/
+/** \brief  Globally enables interrupts and configurable fault handlers
+    \details
+    The function enables interrupts and all configurable fault handlers by clearing PRIMASK.
+    The function uses the instruction <b>CPSIE i</b>.
+
+    \remarks
+            - Can be executed in privileged mode only. 
+            
+    \sa 
+        - \ref __disable_irq; __set_BASEPRI; __set_CONTROL; __set_PRIMASK
+ */
+void __enable_irq(void);
+
+
+/**************************************************************************************************/
+/** \brief  Globally disables interrupts and configurable fault handlers
+    \details 
+    The function disables interrupts and all configurable fault handlers by setting PRIMASK. 
+    The function uses the instruction <b>CPSID i</b>.
+
+    \remarks
+        - Can be executed in privileged mode only. 
+        - An interrupt can enter pending state even if it is disabled. Disabling an interrupt 
+        only prevents the processor from taking that interrupt.
+
+    \sa 
+        - \ref __enable_irq;  __set_BASEPRI; __set_CONTROL; __set_PRIMASK
+ */
+void __disable_irq(void);
+
+
+/**************************************************************************************************/
+/** \brief  Enables interrupts and all fault handlers [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function enables interrupts and all fault handlers by clearing FAULTMASK.
+    The function uses the instruction <b>CPSIE f</b>.
+
+    \remarks
+            - not for Cortex-M0, Cortex-M0+, or SC000.
+            - Can be executed in privileged mode only. 
+    
+    \sa 
+        - \ref __disable_fault_irq; __set_BASEPRI; __set_CONTROL; __set_FAULTMASK
+ */
+ void __enable_fault_irq(void);
+
+
+/**************************************************************************************************/
+/** \brief  Disables interrupts and all fault handlers [not for Cortex-M0, Cortex-M0+, or SC000]
+    \details 
+    The function disables interrupts and all fault handlers by setting FAULTMASK.
+    The function uses the instruction <b>CPSID f</b>.
+
+    \remarks
+        - not for Cortex-M0, Cortex-M0+, or SC000.
+        - Can be executed in privileged mode only. 
+        - An interrupt can enter pending state even if it is disabled. Disabling an interrupt 
+        only prevents the processor from taking that interrupt.
+
+    \sa 
+        - \ref __enable_fault_irq; __set_BASEPRI; __set_CONTROL; __set_FAULTMASK
+ */
+void __disable_fault_irq(void);
+
+/**
+\cond (ARMv8M)
+*/
+
+/**
+  \brief   Get Process Stack Pointer Limit
+  Devices without Armv8-M Main Extensions (i.e. Cortex-M23) lack the non-secure
+  Stack Pointer Limit register hence zero is returned always in non-secure
+  mode.
+
+  \details Returns the current value of the Process Stack Pointer Limit (PSPLIM).
+  \return               PSPLIM Register value
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __get_PSPLIM(void);
+
+/**
+  \brief   Set Process Stack Pointer Limit
+  Devices without Armv8-M Main Extensions (i.e. Cortex-M23) lack the non-secure
+  Stack Pointer Limit register hence the write is silently ignored in non-secure
+  mode.
+
+  \details Assigns the given value to the Process Stack Pointer Limit (PSPLIM).
+  \param [in]    ProcStackPtrLimit  Process Stack Pointer Limit value to set
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+void __set_PSPLIM(uint32_t ProcStackPtrLimit);
+
+/**
+  \brief   Get Main Stack Pointer Limit
+  Devices without Armv8-M Main Extensions (i.e. Cortex-M23) lack the non-secure
+  Stack Pointer Limit register hence zero is returned always in non-secure
+  mode.
+
+  \details Returns the current value of the Main Stack Pointer Limit (MSPLIM).
+  \return               MSPLIM Register value
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __get_MSPLIM(void);
+
+/**
+  \brief   Set Main Stack Pointer Limit
+  Devices without Armv8-M Main Extensions (i.e. Cortex-M23) lack the non-secure
+  Stack Pointer Limit register hence the write is silently ignored in non-secure
+  mode.
+
+  \details Assigns the given value to the Main Stack Pointer Limit (MSPLIM).
+  \param [in]    MainStackPtrLimit  Main Stack Pointer Limit value to set
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+__set_MSPLIM(uint32_t MainStackPtrLimit);
+
+/**
+\endcond
+*/
+
+/** @} */ /** end of Core_Register_gr **/

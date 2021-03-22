@@ -1,0 +1,281 @@
+Rules for CMSIS API Function documentation
+===========================================
+
+This document describes how to generate Doxygen-style documentation for middleware "Components".
+It explains how the Doxygen documentation under "Reference" is provided in header (*.h), 
+text (*.txt), template (*.c), and config files.
+
+Folder structure:
+  .\MW\component\Include      *.h files
+  .\MW\component\Template     *.c user code templates
+  .\MW\component\Config       *.c or *.h config files
+  .\MW\Doc\component          *.txt files
+  .\MW\Doc\component\images   graphic files used by *.txt files
+  
+Files: Middleware components have the following files that are used to generate the API documentation:
+
+  - *.h files: one or more header files which expose data types and functions (the API). Doxygen uses the *.h files 
+    that are in .\MW\component\include folder.
+
+  - *.txt files: documentation files that group functions and explain overall the API. Each *.h file should have a *.txt
+    file with the same name, i.e. rl_usb.h => rl_usb.txt; a exception is permitted when a template is used to explain 
+  API functions.
+ 
+  - *.c templates: show the usage of some middleware functionality and may be included in the Doxygen documentation.
+    *.c templates with '%Instance%' are copied to .\MW\Doc\component and '%Instance%' is replaced with 'n', otherwise
+  Doxygen uses the *.c templates in folder .\MW\component\Template. If a template is used in documentation 
+  the related *.txt file has the same name as the template, i.e. USBD_User_HID.c => USBD_User_HID.txt.
+  
+  - *.c or *.h config files should be self-explaining using <i> tags. config files will not be replicated
+    in Doxygen *.txt files, but the high-level usage will be explained. The impact of parameters to middleware
+  needs therefore be part of the config files.
+
+Source files (*.c and *.h) should NOT use <TAB> character. Instead of <TAB> <space> characters are used.
+
+
+API Documentation in .\Include\*.h files
+----------------------------------------
+
+Example:
+
+The following snippet shows a sample documentation (correct).  In general functions are grouped and
+a short descriptive line is added before a group of functions.  In case that functions are only 
+relevant for the documentation (i.e. available in multiple instances), they are included in 
+#ifdef __DOXYGEN__  /  #endif sections.
+
+{code}
+/// \brief Called during \ref USBD_Initialize to initialize the USB Device class.
+/// \return     none
+extern void USBD_HIDn_Initialize (void);
+
+//  ==== USB Host Human Interface Device Functions ====
+
+/// \brief Get status of the Human Interface Device.
+/// \param[in]     index         instance index of HID.
+/// \return        true          device is configured and initialized.
+/// \return        false         device not ready.
+extern bool USBH_HID_GetStatus (uint8_t index);
+
+/// \brief Read data received from Human Interface Device.
+/// \param[in]     index         instance index of HID.
+/// \param[out]    ptr_data      data to be read.
+/// \return        value >= 0    number of bytes read.
+/// \return        value -1      communication error.
+extern int USBH_HID_Read (uint8_t index, uint8_t *ptr_data);
+
+/// \brief Write data to Human Interface Device.
+/// \param[in]     index         instance index of HID.
+/// \param[in]     ptr_data      data to be written.
+/// \param[in]     data_len      number of data bytes to be written.
+/// \return        number of bytes written.
+extern int USBH_HID_Write (uint8_t index, uint8_t *ptr_data, uint16_t data_len);
+
+/// \brief Get last error that happened on the Human Interface Device.
+/// \param[in]     index         instance index of HID.
+/// \return        error code.
+extern uint32_t USBH_HID_GetLastError (uint8_t index);
+
+/// \brief Retrieve state change since last call of HID Mouse.
+/// \param[in]     index         instance index of HID.
+/// \param[out]    button        pointer to variable that receives button state.
+/// \param[out]    x             pointer to variable that receives x position change.
+/// \param[out]    y             pointer to variable that receives y position change.
+/// \param[out]    wheel         pointer to variable that receives wheel change.
+/// \return        true          state change since last call.
+/// \return        false         no state change since last call.
+extern bool USBH_HID_GetMouseData (uint8_t index, uint8_t *button, int8_t *x, int8_t *y, int8_t *wheel);
+
+//  ==== USB Device Human Interface Device Functions ====
+
+#ifdef __DOXYGEN__
+// following functions are available for each instance of a HID class.
+// generic prefix USBD_HIDn is USBD_HID0 for HID class instance 0.
+
+/// \brief Prepare HID report data to be sent.
+/// \param[in]   rtype  Report type
+///                - HID_REPORT_INPUT   = Input report requested.
+///                - HID_REPORT_FEATURE = Feature report requested.
+/// \param[in]   rid  Report ID (0 if only one report exists)
+/// \param[out]  buf  Buffer for report data to be sent.
+/// \param[in]   req  Request type
+///                - USBD_HID_REQ_EP_CTRL       = Control endpoint request.
+///                - USBD_HID_REQ_PERIOD_UPDATE = Idle period expiration request.
+///                - USBD_HID_REQ_EP_INT        = Previously sent report on interrupt endpoint request.
+/// \return      value >= 0  number of data bytes prepared
+/// \return      value < 0   error code
+int32_t USBD_HIDn_GetReport (uint8_t rtype, uint8_t rid, uint8_t *buf, uint8_t req);
+
+{code}
+
+This section contains things that should be NOT DONE:
+
+/// \brief Prepares HID report data to be sent
+*** NO '.' to terminate brief documentation.
+
+
+/// \brief Prepares HID report data to be sent.
+*** NO 's' after a verb in brief documentation.
+
+
+/// \brief Retrieve a state change since last call of the HID Mouse.
+*** NO 'a' or 'the' in brief text.
+
+
+/// \return        true  when state change since last call, false otherwise.
+*** Confusing return statement, separate into two lines (looks also better):
+/// \return        
+///              - true  = when state change since last call
+///              - false = otherwise.
+
+
+/// \return        0        no communication error.
+/// \return        - 1      communication error.
+*** Confusing, may generate a bullet point, use instead "value" in front of plain numbers, correct is:
+/// \return        value 0    no communication error.
+/// \return        value -1   communication error.
+
+
+/// \param[in]   req  Request type:
+///                USBD_HID_REQ_EP_CTRL       = Control endpoint request.
+///                USBD_HID_REQ_PERIOD_UPDATE = Idle period expiration request.
+///                USBD_HID_REQ_EP_INT        = Previously sent report on interrupt endpoint request.
+*** Missing '-' in front of parameter details => hard to read in documentation.
+
+
+/// \param[in]     stat     error status and line states
+///                          - bit 6 - bOverRun
+///                          - bit 5 - bParity
+*** Missing ':' after states and bit numbers, correct is:
+/// \param[in]     stat     error status and line states:
+///                          - bit 6: bOverRun
+///                          - bit 5: bParity
+
+
+/// \param[in]    ptr_data   pointer to data buffer where information is written.
+*** Wrong, should be param[out].
+*** Redundant:  a data buffer is always a pointer, better is:
+/// \param[out]    ptr_data   data buffer that receives information.
+
+
+/// \fn bool USBH_HID_GetStatus (uint8_t index);
+/// \brief Get status of the Human Interface Device.
+/// \param[in]     index         instance index of HID.
+/// \return        true          device is configured and initialized.
+/// \return        false         device not ready.
+extern bool USBH_HID_GetStatus (uint8_t index);
+Wrong: \fn not needed
+
+
+/* USB Host Speed constants                                                   */
+enum { 
+  USBH_LS  = 0,                         /* Low speed                          */
+  USBH_FS,                              /* Full speed                         */
+  USBH_HS                               /* High speed                         */
+};
+Wrong, should be Doxygen style. Correct is:
+/// USB Host Speed constants
+enum { 
+  USBH_LS  = 0,                         ///< Low speed
+  USBH_FS,                              ///< Full speed
+  USBH_HS                               ///< High speed
+};
+
+
+typedef struct {                        ///< Hw Endpoint settings structure
+  osThreadId   thread_id;               ///< Thread ID of thread that uses URB
+  USBH_URB     urb;                     ///< URB used for endpoint communication} USBH_EP;
+Wrong: '/// comment' before 'struct {'
+Bad:  repeat of Thread ID and URB does not add value; avoid abbreviations like 'Hw' 
+
+Better is:
+/// Hardware Endpoint Settings for communication functions
+typedef struct {                        
+  osThreadId   thread_id;               ///< thread using USB Request Block (urb)
+  USBH_URB     urb;                     ///< USB Request Block for endpoint communication
+
+
+
+API Documentation in *.txt files
+--------------------------------
+
+A *.txt file that relates to a *.h contains:
+ - Functional group assignments using \defgroup along with \brief description
+ - Under \details an overview description for each functional group (should contain a useful code example)
+ - For each function in the header file a detailed description
+
+
+IMPORTANT: 
+Text *.txt files that document the user API of a component are located in .\MW\Doc\component.
+Only for *.h files that provide user API, there is exactly one text file with the same name.
+Defines/Functions that are internally used by a Component have no *.txt file.
+
+Example:
+  .\MW\component\Include\rl_usb.h    =>   .\MW\Doc\component\rl_usb.txt
+
+The file documents each function that is exposed in *.h header file (and only those functions).
+In case that functions are described in other files (i.e. USB Class Templates) there is a reference.
+
+Functional Group assignments uses this syntax:
+---------------------------
+/**
+\defgroup           a group definition 
+[\ingroup]          optionally within a group
+\brief              brief description of the group
+\details
+description
+*/
+
+/**
+\addtogroup  a group definition
+@{
+*/
+
+Below \addtogroup the documentation for related functions is provided. This section
+ends with @}
+
+Function documentation uses this syntax:
+--------
+/**
+\fn        functionName( args )
+\details
+[\note]
+[<b>Code Example</b>
+\code | \snippet]
+*/
+
+See rl_usb.txt for examples
+No ';' at the end of the function declaration. Otherwise function description gets ignored.
+
+
+
+Comments in doxygen code blocks should be marked with //   and not /* ... */, which leads to errors.
+-------------------------------------------------------
+Example:   Wrong:
+\code
+void ftp_server_notify (uint8_t event) {
+  /* Notify the user application about events in FTP server.*/
+  ...
+}
+\endcode
+
+Example:   correct:
+\code
+void ftp_server_notify (uint8_t event) {
+  // Notify the user application about events in FTP server.
+  ...
+}
+\endcode
+
+
+
+Cross references (between components)
+-------------------------------------
+
+Within a single component (same .dxy configuration) one can easily created cross references.
+Known symbol names are automatically assumed as a reference by Doxygen. Pages, sections and
+subsections can be referenced using "\ref" notation.
+
+Cross references do not work between different components, though. Doxygen offers the possibility
+to import so called tags (symbol and section names) from an another external documentation.
+Unfortunately this creates output that crashes the MDK DoxyIndex importer. Hence cross references
+needs to be placed manually using <a href="[url]">...</a> notation, for the time being.

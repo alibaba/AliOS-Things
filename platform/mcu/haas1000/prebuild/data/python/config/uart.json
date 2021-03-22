@@ -3,7 +3,7 @@
     "io": {
       "serial1":{
         "type":"UART",
-        "port":1,
+        "port":0,
         "dataWidth":8,
         "baudRate":115200,
         "stopBits":1,

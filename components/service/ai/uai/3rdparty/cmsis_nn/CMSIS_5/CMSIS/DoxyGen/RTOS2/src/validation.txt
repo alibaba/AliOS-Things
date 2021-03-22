@@ -1,0 +1,52 @@
+/**
+\page rtosValidation RTOS Validation
+
+Arm offers a <a class=el href="http://www.keil.com/pack" target="_blank">Software Pack</a> for the CMSIS-RTOS Validation.
+The <b>ARM::CMSIS-RTOS_Validation</b> Pack contains the following:
+
+ - Source code of a CMSIS-RTOS Validation Suite along with configuration file.
+ - Documentation of the CMSIS-RTOS Validation Suite.
+ - Example that shows the usage of the CMSIS-RTOS Validation Suite using simulation.
+
+\note
+Currently, a public version of the test suite is available only for CMSIS-RTOS v1 API.
+
+The CMSIS-RTOS Validation Suite performs generic validation of various RTOS features. The test cases verify the 
+functional behavior, test invalid parameters and call management functions from ISR.
+
+The following CMSIS-RTOS features can be tested with the current release:
+ - Thread : Create multiple threads, terminate, restart, yield, change priority 
+ - Timer : Create periodic and one-shot timers
+ - GenWait : Call generic wait functions (osDelay and osWait)
+ - WaitFunc : Measure wait ticks (delay, mail, message, mutex, semaphore, signal)
+ 
+Moreover the following inter-thread communication functions can be tested: 
+ - Signal : Verify signal events
+ - Memory Pool : Verify memory allocation
+ - Message Queue : Exchange messages between threads
+ - Mail Queue : Exchange data between threads
+ - Mutex : Synchronize resource access 
+ - Semaphore : Access shared resources 
+ 
+The RTOS Validation output can be printed to a console, output via ITM printf, or output to a memory buffer.
+ 
+\section test_output Sample Test Output
+\verbatim
+CMSIS-RTOS Test Suite   Oct 21 2015   16:39:16 
+
+TEST 01: TC_ThreadCreate                  PASSED
+TEST 02: TC_ThreadMultiInstance           PASSED
+TEST 03: TC_ThreadTerminate               PASSED
+  :
+  :
+TEST 08: TC_ThreadChainedCreate           PASSED
+TEST 09: TC_ThreadYield                   NOT EXECUTED
+TEST 10: TC_ThreadParam                   PASSED
+  :
+  :
+TEST 60: TC_MailFromISRToThread           PASSED
+
+Test Summary: 60 Tests, 59 Executed, 59 Passed, 0 Failed, 0 Warnings.
+Test Result: PASSED
+\endverbatim
+*/

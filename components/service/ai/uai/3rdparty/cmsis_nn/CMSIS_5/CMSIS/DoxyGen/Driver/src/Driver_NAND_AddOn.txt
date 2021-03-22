@@ -1,0 +1,73 @@
+/*
+Purpose:    The text might be of interrest in another place.
+            We have to decide whether we want to use it.
+            
+            Until a decision is made, do not delete the file.
+
+Usage:      Storage of text. Not used in doxygen.
+
+Created:    March 21, 2014
+Author :    Bruno
+Changed:
+*/
+
+
+
+/**
+\struct     ARM_NAND_DEVICE 
+\details
+Stores the characteristics of a NAND Flash device. This includes the page layout configuration, NAND type, 
+device number (chip select), number of blocks, pages, sectors, and error correction code.
+
+<b>Parameter for:</b>
+  - \ref ARM_NAND_Initialize
+
+*******************************************************************************************************************/
+
+/**
+\struct     ARM_NAND_ECC_INFO_x
+\details 
+Stores the default NAND page layout definition (with \ref spare_size and \ref spare_offset),
+which contains a \b Spare area after each sector. The struct \b ARM_NAND_ECC_INFO defines the \b Spare area.
+
+The page size is defined as the sum of \b User area plus \b Spare area. 
+Each page has a small number of associated "spare" bytes (typically 1/32 of the data size) to store the Error Correction Algorithms (ECC). 
+
+The following standard page sizes are available:
+
+Page Size| User + Spare Area
+---------|-------------------
+528      |  512 +  16 bytes
+2112     | 2048 +  64 bytes
+4224     | 4096 + 128 bytes
+8448     | 8192 + 256 bytes
+
+
+\image html NAND_PageLayout.png "Default Page Layout"
+
+<p>&nbsp;</p>
+\image html NAND_SpareArea.png "Organization of the default 16-byte Spare area"
+
+NAND devices require bad block management by the driver software or by a separate controller chip. 
+For example, SD cards have mechanisms that execute wear leveling and  bad block management.
+The memory capacity shrinks as more blocks are marked bad.
+The block size is a value specified as amount of flash pages. 
+
+The following block sizes are available:
+
+Block Size| Pages
+----------|-------------------
+  8       |   8
+ 16       |  16
+ 32       |  32
+ 64       |  64
+128       | 128
+256       | 256
+
+\note
+NAND chip manufacturers document the order in which pages can be written. 
+Typically, single pages of an erase block must be written in sequential order starting from the first. Random-order writes are prohibited or unspecified.
+
+<b>Parameter for:</b>
+  - \ref ARM_NAND_DEVICE structure
+*******************************************************************************************************************/

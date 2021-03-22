@@ -1,0 +1,281 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+//  ==== Memory Pool Management ====
+/** 
+\addtogroup CMSIS_RTOS_PoolMgmt Memory Pool
+\ingroup CMSIS_RTOS
+\brief Manage thread-safe fixed-size blocks of dynamic memory.
+\details
+\b Memory \b Pools are fixed-size blocks of memory that are thread-safe. They operate much faster than the dynamically
+allocated heap and do not suffer from fragmentation. Being thread-safe, they can be accessed from threads and ISRs alike.
+
+A Memory Pool can be seen as a linked list of available (unused) memory blocks of fixed and equal size. Allocating memory
+from a pool (using \ref osMemoryPoolAlloc) simply unchains a block from the list and hands over control to the user. Freeing
+memory to the pool (using \ref osMemoryPoolFree) simply rechains the block into the list.
+
+\image html "mempool.png" "CMSIS-RTOS Memory Pools"
+
+\note One must not write to freed block. It is up to the implementation to reuse the memory of unused blocks for internal
+control data, i.e. linked list pointers.
+
+\b Shared \b memory is one of the basic models to exchange information between threads. Using memory pools for exchanging
+data, you can share more complex objects between threads if compared to a \ref CMSIS_RTOS_Message. Memory pool management
+functions are used to define and manage such fixed-sized memory pools.
+
+\note The functions \ref osMemoryPoolAlloc, \ref osMemoryPoolFree, \ref osMemoryPoolGetCapacity,
+\ref osMemoryPoolGetBlockSize, \ref osMemoryPoolGetCount, \ref osMemoryPoolGetSpace can be called from
+\ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+\note Refer to \ref memPoolConfig for RTX5 configuration options.
+
+@{
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\typedef osMemoryPoolId_t
+\details 
+Returned by:
+- \ref osMemoryPoolNew
+*/
+
+/** 
+\struct osMemoryPoolAttr_t
+\details
+Attributes to configure a memory pool.
+
+Refer to \ref CMSIS_RTOS_MemoryMgmt for details about usage of
+ - osMemoryPoolAttr_t::cb_mem
+ - osMemoryPoolAttr_t::cb_size
+ - osMemoryPoolAttr_t::mp_mem
+ - osMemoryPoolAttr_t::mp_size
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr)
+\details
+The function \b osMemoryPoolNew creates and initializes a memory pool object and returns the pointer to the memory pool
+object identifier or \token{NULL} in case of an error. It can be safely called before the RTOS is
+started (call to \ref osKernelStart), but not before it is initialized (call to \ref osKernelInitialize).
+
+The total amount of memory needed is at least <code>block_count * block_size</code>. Memory from the pool can only be
+allocated/freed in fixed portions of \c block_size.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+\b Code \b Example
+\code
+#include "cmsis_os2.h"                          // CMSIS RTOS header file
+ 
+/*----------------------------------------------------------------------------
+ *      Memory Pool creation & usage
+ *---------------------------------------------------------------------------*/
+ 
+#define MEMPOOL_OBJECTS 16                      // number of Memory Pool Objects
+ 
+typedef struct {                                // object data type
+  uint8_t Buf[32];
+  uint8_t Idx;
+} MEM_BLOCK_t;
+ 
+osMemoryPoolId_t mpid_MemPool;                  // memory pool id
+ 
+osThreadId_t tid_Thread_MemPool;                // thread id
+ 
+void Thread_MemPool (void *argument);           // thread function
+ 
+int Init_MemPool (void) {
+ 
+  mpid_MemPool = osMemoryPoolNew(MEMPOOL_OBJECTS, sizeof(MEM_BLOCK_t), NULL);
+  if (mpid_MemPool == NULL) {
+    ; // MemPool object not created, handle failure
+  }
+ 
+  tid_Thread_MemPool = osThreadNew(Thread_MemPool, NULL, NULL);
+  if (tid_Thread_MemPool == NULL) {
+    return(-1);
+  }
+ 
+  return(0);
+}
+ 
+void Thread_MemPool (void *argument) {
+  MEM_BLOCK_t *pMem;
+  osStatus_t status;
+ 
+  while (1) {
+    ; // Insert thread code here...
+ 
+    pMem = (MEM_BLOCK_t *)osMemoryPoolAlloc(mpid_MemPool, 0U);  // get Mem Block
+    if (pMem != NULL) {                                         // Mem Block was available
+      pMem->Buf[0] = 0x55U;                                     // do some work...
+      pMem->Idx    = 0U;
+ 
+      status = osMemoryPoolFree(mpid_MemPool, pMem);            // free mem block
+      switch (status)  {
+        case osOK:
+          break;
+        case osErrorParameter:
+          break;
+        case osErrorNoMemory:
+          break;
+        default:
+          break;
+      }
+    }
+ 
+    osThreadYield();                                            // suspend thread
+  }
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolGetName returns the pointer to the name string of the memory pool identified by parameter \a
+mp_id or \token{NULL} in case of an error.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn void *osMemoryPoolAlloc (osMemoryPoolId_t mp_id, uint32_t timeout)
+\details
+The blocking function \b osMemoryPoolAlloc allocates the memory pool parameter \a mp_id and returns a pointer to the address
+of the allocated memory or \token{0} in case of an error.
+
+The parameter \a timeout specifies how long the system waits to allocate the memory. While the system waits, the thread
+that is calling this function is put into the \ref ThreadStates "BLOCKED" state. The thread will become \ref ThreadStates "READY"
+as soon as at least one block of memory gets available.
+
+The parameter \ref CMSIS_RTOS_TimeOutValue "timeout" can have the following values:
+ - when \a timeout is \token{0}, the function returns instantly (i.e. try semantics).
+ - when \a timeout is set to \b osWaitForever the function will wait for an infinite time until the memory is allocated (i.e. wait semantics).
+ - all other values specify a time in kernel ticks for a timeout (i.e. timed-wait semantics).
+
+The result is the pointer to the memory block allocated, or NULL if no memory is available.
+
+\note It is in the responsibility of the user to respect the block size, i.e. not access memory beyond the blocks limit.
+ 
+\note May be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines" if the parameter \a timeout is set to
+\token{0}.
+
+\b Code \b Example
+
+Refer to \ref osMemoryPoolNew.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn osStatus_t osMemoryPoolFree (osMemoryPoolId_t mp_id, void *block)
+\details
+The function \b osMemoryPoolFree frees the memory pool block specified by the parameter \a block in the memory pool object
+specified by the parameter \a mp_id. The memory block is put back to the list of available blocks.
+
+If another thread is waiting for memory to become available the thread is put to \ref ThreadStates "READY" state.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the memory has been freed.
+ - \em osErrorParameter: parameter \a mp_id is \token{NULL} or invalid, \a block points to invalid memory.
+ - \em osErrorResource: the memory pool is in an invalid state.
+
+\note \b osMemoryPoolFree may perform certain checks on the \a block pointer given. But using \b osMemoryPoolFree 
+with a pointer other than one received from \ref osMemoryPoolAlloc has \b UNPREDICTED behaviour.
+
+\note This function may be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+\b Code \b Example
+
+Refer to \ref osMemoryPoolNew.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn uint32_t osMemoryPoolGetCapacity (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolGetCapacity returns the maximum number of memory blocks in the memory pool object specified by
+parameter \a mp_id or \token{0} in case of an error.
+
+\note This function may be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn uint32_t osMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolGetBlockSize returns the memory block size in bytes in the memory pool object specified by
+parameter \a mp_id or \token{0} in case of an error.
+
+\note This function may be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn uint32_t osMemoryPoolGetCount (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolGetCount returns the number of memory blocks used in the memory pool object specified by
+parameter \a mp_id or \token{0} in case of an error.
+
+\note This function may be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn uint32_t osMemoryPoolGetSpace (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolGetSpace returns the number of memory blocks available in the memory pool object specified by
+parameter \a mp_id or \token{0} in case of an error.
+
+\note This function may be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn osStatus_t osMemoryPoolDelete (osMemoryPoolId_t mp_id)
+\details
+The function \b osMemoryPoolDelete deletes a memory pool object specified by parameter \a mp_id. It releases internal
+memory obtained for memory pool handling. After this call, the \a mp_id is no longer valid and cannot be used. The
+memory pool may be created again using the function \ref osMemoryPoolNew.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the memory pool object has been deleted.
+ - \em osErrorParameter: parameter \a mp_id is \token{NULL} or invalid.
+ - \em osErrorResource: the memory pool is in an invalid state.
+ - \em osErrorISR: \b osMemoryPoolDelete cannot be called from interrupt service routines.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+/// @}
+
+// these struct members must stay outside the group to avoid double entries in documentation
+/**
+\var osMemoryPoolAttr_t::attr_bits
+\details
+Reserved for future use (set to '0').\n
+Default: \token{0}.
+
+\var osMemoryPoolAttr_t::cb_mem
+\details
+Pointer to a memory location for the memory pool control block object. This can optionally be used for custom memory management systems.\n
+Default: \token{NULL} (uses kernel memory management).
+
+\var osMemoryPoolAttr_t::cb_size
+\details
+The size of the memory block passed with \ref cb_mem. Must be the size of a memory pool control block object or larger.
+
+\var osMemoryPoolAttr_t::name
+\details
+Pointer to a string with a human readable name of the memory pool object.\n
+Default: \token{NULL}.
+
+\var osMemoryPoolAttr_t::mp_mem
+\details
+Pointer to a memory location for the data of the memory pool object.\n
+Default: \token{NULL}.
+
+\var osMemoryPoolAttr_t::mp_size
+\details
+The size of the memory passed with \ref mp_mem.
+*/

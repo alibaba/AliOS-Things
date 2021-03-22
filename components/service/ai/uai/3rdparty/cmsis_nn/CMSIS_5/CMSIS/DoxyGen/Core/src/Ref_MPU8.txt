@@ -1,0 +1,232 @@
+/**
+\defgroup mpu8_functions  MPU Functions for Armv8-M
+\brief Functions that relate to the Memory Protection Unit.
+\details
+The following functions support the optional Memory Protection Unit (MPU) that is available on the Cortex-M23, M33, M35P processor.
+
+The MPU is used to prevent from illegal memory accesses that are typically caused by errors in an application software.
+
+<b>Example:</b>
+\code
+void main() 
+{
+  // Set Region 0 using Attr 0
+  ARM_MPU_SetMemAttr(0UL, ARM_MPU_ATTR(       /* Normal memory */
+    ARM_MPU_ATTR_MEMORY_(0UL, 1UL, 1UL, 1UL), /* Outer Write-Back transient with read and write allocate */
+    ARM_MPU_ATTR_MEMORY_(0UL, 0UL, 1UL, 1UL)  /* Inner Write-Through transient with read and write allocate */
+  ));
+  
+  ARM_MPU_SetRegion(0UL,
+    ARM_MPU_RBAR(0x08000000UL, ARM_MPU_SH_NON, 0UL, 1UL, 1UL),  /* Non-shareable, read/write, non-privileged, execute-never */
+    ARM_MPU_RLAR(0x080FFFFFUL, 0UL)                             /* 1MB memory block using Attr 0 */
+  );
+  
+  ARM_MPU_Enable(0);
+  
+  // Execute application code that is access protected by the MPU
+  
+  ARM_MPU_Disable();
+}
+\endcode
+
+@{
+*/
+
+/** \brief Attribute for device memory (outer only) */
+#define ARM_MPU_ATTR_DEVICE                           ( 0U )
+
+/** \brief Attribute for non-cacheable, normal memory */
+#define ARM_MPU_ATTR_NON_CACHEABLE                    ( 4U )
+
+/** \brief Attribute for normal memory (outer and inner)
+* \param NT Non-Transient: Set to 1 for non-transient data.
+* \param WB Write-Back: Set to 1 to use write-back update policy.
+* \param RA Read Allocation: Set to 1 to use cache allocation on read miss.
+* \param WA Write Allocation: Set to 1 to use cache allocation on write miss.
+*/
+#define ARM_MPU_ATTR_MEMORY_(NT, WB, RA, WA)
+
+/** \brief Device memory type non Gathering, non Re-ordering, non Early Write Acknowledgement */
+#define ARM_MPU_ATTR_DEVICE_nGnRnE 
+
+/** \brief Device memory type non Gathering, non Re-ordering, Early Write Acknowledgement */
+#define ARM_MPU_ATTR_DEVICE_nGnRE
+
+/** \brief Device memory type non Gathering, Re-ordering, Early Write Acknowledgement */
+#define ARM_MPU_ATTR_DEVICE_nGRE
+
+/** \brief Device memory type Gathering, Re-ordering, Early Write Acknowledgement */
+#define ARM_MPU_ATTR_DEVICE_GRE
+
+/** \brief Memory Attribute
+* \param O Outer memory attributes
+* \param I O == ARM_MPU_ATTR_DEVICE: Device memory attributes, else: Inner memory attributes
+*/
+#define ARM_MPU_ATTR(O, I)
+
+/** \brief Normal memory non-shareable  */
+#define ARM_MPU_SH_NON
+
+/** \brief Normal memory outer shareable  */
+#define ARM_MPU_SH_OUTER
+
+/** \brief Normal memory inner shareable  */
+#define ARM_MPU_SH_INNER
+
+/** \brief Memory access permissions
+* \param RO Read-Only: Set to 1 for read-only memory.
+* \param NP Non-Privileged: Set to 1 for non-privileged memory.
+*/
+#define ARM_MPU_AP_(RO, NP)
+
+/** \brief Region Base Address Register value
+* \param BASE The base address bits [31:5] of a memory region. The value is zero extended. Effective address gets 32 byte aligned.
+* \param SH Defines the Shareability domain for this memory region.
+* \param RO Read-Only: Set to 1 for a read-only memory region.
+* \param NP Non-Privileged: Set to 1 for a non-privileged memory region.
+* \param XN eXecute Never: Set to 1 for a non-executable memory region.
+*/
+#define ARM_MPU_RBAR(BASE, SH, RO, NP, XN) \
+  ((BASE & MPU_RBAR_BASE_Msk) | \
+  ((SH << MPU_RBAR_SH_Pos) & MPU_RBAR_SH_Msk) | \
+  ((ARM_MPU_AP_(RO, NP) << MPU_RBAR_AP_Pos) & MPU_RBAR_AP_Msk) | \
+  ((XN << MPU_RBAR_XN_Pos) & MPU_RBAR_XN_Msk))
+
+/** \brief Region Limit Address Register value
+* \param LIMIT The limit address bits [31:5] for this memory region. The value is one extended.
+* \param IDX The attribute index to be associated with this memory region.
+*/
+#define ARM_MPU_RLAR(LIMIT, IDX)
+
+/**
+* Struct for a single MPU Region
+*/
+typedef struct {
+  uint32_t RBAR;                   /*!< Region Base Address Register value */
+  uint32_t RLAR;                   /*!< Region Limit Address Register value */
+} ARM_MPU_Region_t;
+    
+/** Enable the MPU.
+* \param MPU_Control Default access permissions for unconfigured regions.
+*/
+__STATIC_INLINE void ARM_MPU_Enable(uint32_t MPU_Control);
+
+/** Disable the MPU.
+*/
+__STATIC_INLINE void ARM_MPU_Disable(void);
+
+/** Enable the Non-secure MPU.
+* \param MPU_Control Default access permissions for unconfigured regions.
+*/
+__STATIC_INLINE ARM_MPU_Enable_NS(uint32_t MPU_Control);
+
+/** Disable the Non-secure MPU.
+*/
+__STATIC_INLINE void ARM_MPU_Disable_NS(void);
+
+/** Set the memory attribute encoding to the given MPU.
+* \param mpu Pointer to the MPU to be configured.
+* \param idx The attribute index to be set [0-7]
+* \param attr The attribute value to be set.
+*/
+__STATIC_INLINE void ARM_MPU_SetMemAttrEx(MPU_Type* mpu, uint8_t idx, uint8_t attr);
+
+/** Set the memory attribute encoding.
+* \param idx The attribute index to be set [0-7]
+* \param attr The attribute value to be set.
+*/
+__STATIC_INLINE void ARM_MPU_SetMemAttr(uint8_t idx, uint8_t attr);
+
+/** Set the memory attribute encoding to the Non-secure MPU.
+* \param idx The attribute index to be set [0-7]
+* \param attr The attribute value to be set.
+*/
+__STATIC_INLINE void ARM_MPU_SetMemAttr_NS(uint8_t idx, uint8_t attr);
+
+/** Clear and disable the given MPU region of the given MPU.
+* \param mpu Pointer to MPU to be used.
+* \param rnr Region number to be cleared.
+*/
+__STATIC_INLINE void ARM_MPU_ClrRegionEx(MPU_Type* mpu, uint32_t rnr);
+
+/** Clear and disable the given MPU region.
+* \param rnr Region number to be cleared.
+*/
+__STATIC_INLINE void ARM_MPU_ClrRegion(uint32_t rnr);
+
+/** Clear and disable the given Non-secure MPU region.
+* \param rnr Region number to be cleared.
+*/
+__STATIC_INLINE void ARM_MPU_ClrRegion_NS(uint32_t rnr);
+
+/** Configure the given MPU region of the given MPU.
+* \param mpu Pointer to MPU to be used.
+* \param rnr Region number to be configured.
+* \param rbar Value for RBAR register.
+* \param rlar Value for RLAR register.
+*/   
+__STATIC_INLINE void ARM_MPU_SetRegionEx(MPU_Type* mpu, uint32_t rnr, uint32_t rbar, uint32_t rlar);
+
+/** Configure the given MPU region.
+* \param rnr Region number to be configured.
+* \param rbar Value for RBAR register.
+* \param rlar Value for RLAR register.
+*/   
+__STATIC_INLINE void ARM_MPU_SetRegion(uint32_t rnr, uint32_t rbar, uint32_t rlar);
+
+/** Configure the given Non-secure MPU region.
+* \param rnr Region number to be configured.
+* \param rbar Value for RBAR register.
+* \param rlar Value for RLAR register.
+*/   
+__STATIC_INLINE void ARM_MPU_SetRegion_NS(uint32_t rnr, uint32_t rbar, uint32_t rlar);
+
+/** Memcopy with strictly ordered memory access, e.g. for register targets.
+* \param dst Destination data is copied to.
+* \param src Source data is copied from.
+* \param len Amount of data words to be copied.
+*/
+__STATIC_INLINE void ARM_MPU_OrderedMemcpy(volatile uint32_t* dst, const uint32_t* __RESTRICT src, uint32_t len);
+
+/** Load the given number of MPU regions from a table to the given MPU.
+* \param mpu Pointer to the MPU registers to be used.
+* \param rnr First region number to be configured.
+* \param table Pointer to the MPU configuration table.
+* \param cnt Amount of regions to be configured.
+*/
+__STATIC_INLINE void ARM_MPU_LoadEx(MPU_Type* mpu, uint32_t rnr, ARM_MPU_Region_t const* table, uint32_t cnt);
+
+/** Load the given number of MPU regions from a table.
+* \param rnr First region number to be configured.
+* \param table Pointer to the MPU configuration table.
+* \param cnt Amount of regions to be configured.
+*
+* <b>Example:</b>
+* \code
+* const ARM_MPU_Region_t mpuTable[1][4] = {
+*   {
+*     //                     BASE          SH              RO   NP   XN                         LIMIT         ATTR 
+*     { .RBAR = ARM_MPU_RBAR(0x08000000UL, ARM_MPU_SH_NON, 0UL, 1UL, 0UL), .RLAR = ARM_MPU_RLAR(0x080FFFFFUL, 0UL) },
+*     { .RBAR = ARM_MPU_RBAR(0x20000000UL, ARM_MPU_SH_NON, 0UL, 1UL, 1UL), .RLAR = ARM_MPU_RLAR(0x20007FFFUL, 0UL) },
+*     { .RBAR = ARM_MPU_RBAR(0x40020000UL, ARM_MPU_SH_NON, 0UL, 1UL, 1UL), .RLAR = ARM_MPU_RLAR(0x40021FFFUL, 1UL) },
+*     { .RBAR = ARM_MPU_RBAR(0x40022000UL, ARM_MPU_SH_NON, 0UL, 1UL, 1UL), .RLAR = ARM_MPU_RLAR(0x40022FFFUL, 1UL) }
+*   }
+* };
+*  
+* void UpdateMpu(uint32_t idx)
+* {
+*    ARM_MPU_Load(0, mpuTable[idx], 4);
+* }
+* \endcode
+*/
+__STATIC_INLINE void ARM_MPU_Load(uint32_t rnr, ARM_MPU_Region_t const* table, uint32_t cnt);
+
+/** Load the given number of MPU regions from a table to the Non-secure MPU.
+* \param rnr First region number to be configured.
+* \param table Pointer to the MPU configuration table.
+* \param cnt Amount of regions to be configured.
+*/
+__STATIC_INLINE void ARM_MPU_Load_NS(uint32_t rnr, ARM_MPU_Region_t const* table, uint32_t cnt);
+
+/** @} */
+

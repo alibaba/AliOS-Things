@@ -1,0 +1,373 @@
+/**
+\defgroup mpu_functions  MPU Functions for Armv6-M/v7-M
+\brief Functions that relate to the Memory Protection Unit.
+\details
+The following functions support the optional Memory Protection Unit (MPU) that is available on the Cortex-M0+, M3, M4 and M7 processor.
+
+The MPU is used to prevent from illegal memory accesses that are typically caused by errors in an application software.
+
+<b>Example:</b>
+\code
+void main() 
+{
+  // Set Region 0
+  ARM_MPU_SetRegionEx(0UL, 0x08000000UL, MPU_RASR(0UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_1MB));
+  
+  ARM_MPU_Enable(0);
+  
+  // Execute application code that is access protected by the MPU
+  
+  ARM_MPU_Disable();
+}
+\endcode
+
+@{
+*/
+
+/**
+*/
+typedef struct {} MPU_Type;
+
+
+/** \def ARM_MPU_RBAR
+* \brief MPU Region Base Address Register Value
+*
+* This preprocessor function can be used to construct a valid \ref MPU_Type::RBAR "RBAR" value.
+* The VALID bit is implicitly set to 1.
+*
+* \param Region The region to be configured, number 0 to 15.
+* \param BaseAddress The base address for the region.
+*/
+#define ARM_MPU_RBAR(Region, BaseAddress)
+
+/**
+* \def ARM_MPU_RASR
+* \brief MPU Region Attribute and Size Register Value
+*
+* This macro is used to construct a valid \ref MPU_Type::RASR "RASR" value.
+* The ENABLE bit of the RASR value is implicitly set to 1.
+*
+* \param DisableExec       Instruction access disable bit. 1 = disable instruction fetches. 
+* \param AccessPermission  Data access permission configures read/write access for User and Privileged mode. Possible values see \ref ARM_MPU_AP_xxx.
+* \param TypeExtField      Type extension field, allows you to configure memory access type, for example strongly ordered, peripheral.
+* \param IsShareable       1 = region is shareable between multiple bus masters.
+* \param IsCacheable       1 = region is cacheable (values may be kept in cache).
+* \param IsBufferable      1 = region is bufferable (when using write-back caching). Cacheable but non-bufferable regions use write-through policy.
+* \param SubRegionDisable  Sub-region disable field (8 bits).
+* \param Size              Region size with values defined under \ref ARM_MPU_REGION_SIZE_xxx.
+*/                         
+#define ARM_MPU_RASR(DisableExec, AccessPermission, TypeExtField, IsShareable, IsCacheable, IsBufferable, SubRegionDisable, Size)
+
+
+/**
+* \def ARM_MPU_RASR_EX
+* \brief MPU Region Attribute and Size Register Value
+*
+* This macro is used to construct a valid \ref MPU_Type::RASR "RASR" value.
+* The ENABLE bit of the RASR value is implicitly set to 1.
+*
+* \param DisableExec       Instruction access disable bit, 1= disable instruction fetches.
+* \param AccessPermission  Data access permission configures read/write access for User and Privileged mode. Possible values see \ref ARM_MPU_AP_xxx.
+* \param AccessAttributes  Memory access attribution, see \ref ARM_MPU_ACCESS_xxx.
+* \param SubRegionDisable  Sub-region disable field (8 bits).
+* \param Size              Region size with values defined under \ref ARM_MPU_REGION_SIZE_xxx.
+*/
+#define ARM_MPU_RASR_EX(DisableExec, AccessPermission, AccessAttributes, SubRegionDisable, Size)
+
+/**
+* \brief Setup information of a single MPU Region
+* \details The typedef \ref ARM_MPU_Region_t allows to define a MPU table (array of MPU regions) with pre-compiled register values.
+* Such tables enable efficient MPU setup using the function \ref ARM_MPU_Load.
+* 
+* <b>Example:</b>  See \ref ARM_MPU_Load
+*/
+typedef struct {
+    uint32_t RBAR; //!< The region base address register value (\ref MPU_Type::RBAR "RBAR")
+    uint32_t RASR; //!< The region attribute and size register value (\ref MPU_Type::RASR "RASR"), see \ref ARM_MPU_RASR.
+} ARM_MPU_Region_t;
+
+/** 
+\brief Enable the memory protection unit (MPU) and 
+\param MPU_CTRL Additional control settings that configure MPU behaviour
+\details
+The function \ref ARM_MPU_Enable writes to the register \ref MPU_Type::CTRL "MPU->CTRL" and sets bit ENABLE. The parameter \em MPU_CTRL provides additional bit values 
+(see table below) that configure the MPU behaviour.  For processors that implement an <b>MPU Fault Handler</b> the \ref NVIC_gr "MemoryManagement_IRQn" exception is enabled by setting the bit MEMFAULTACT in register SBC->SHCSR.
+
+The following table contains possible values for the parameter \em MPU_CTRL that set specific bits in register MPU->CTRL.
+| Bit | MPU_CTRL value           | When applied                                                            | When not applied
+|:----|:-------------------------|:------------------------------------------------------------------------|:---------------------------------------
+| 1   | MPU_CTRL_HFNMIENA_Msk    | Enable MPU during hard fault, NMI, and FAULTMASK handlers execution     | Disable MPU during hard fault, NMI, and FAULTMASK handler execution
+| 2   | MPU_CTRL_PRIVDEFENA_Msk  | Enable default memory map as a background region for privileged access  | Use only MPU region settings
+
+<b>Example:</b>
+
+\code 
+// enable MPU with all region definitions. Exceptions are not protected by MPU.
+  MPU_Enable (0);
+  
+// enable MPU with all region definitions and background regions for privileged access. Exceptions are protected by MPU.
+  MPU_Enable (MPU_CTRL_PRIVDEFENA_Msk | MPU_CTRL_HFNMIENA_Msk);
+\endcode  
+
+
+*/
+__STATIC_INLINE void ARM_MPU_Enable(uint32_t MPU_CTRL);
+
+/** Disable the MPU.
+*/
+__STATIC_INLINE void ARM_MPU_Disable();
+
+/** Clear and disable the given MPU region.
+* \param rnr Region number to be cleared.
+*/
+__STATIC_INLINE void ARM_MPU_ClrRegion(uint32_t rnr);
+
+/** Configure an MPU region.
+*
+* The region number should be contained in the rbar value.
+*
+* \param rbar Value for \ref MPU_Type::RBAR "RBAR" register.
+* \param rasr Value for \ref MPU_Type::RASR "RASR" register.
+*/ 
+__STATIC_INLINE void ARM_MPU_SetRegion(uint32_t rbar, uint32_t rasr);
+
+/** Configure the given MPU region.
+* \param rnr Region number to be configured.
+* \param rbar Value for \ref MPU_Type::RBAR "RBAR" register.
+* \param rasr Value for \ref MPU_Type::RASR "RASR" register.
+*/
+__STATIC_INLINE void ARM_MPU_SetRegionEx(uint32_t rnr, uint32_t rbar, uint32_t rasr);
+
+/** Memcopy with strictly ordered memory access, e.g. for register targets.
+* \param dst Destination data is copied to.
+* \param src Source data is copied from.
+* \param len Amount of data words to be copied.
+*/
+__STATIC_INLINE void ARM_MPU_OrderedMemcpy(volatile uint32_t* dst, const uint32_t* __RESTRICT src, uint32_t len);
+
+/** Load the given number of MPU regions from a table.
+* \param table Pointer to the MPU configuration table.
+* \param cnt Number of regions to be configured.
+*
+* \note only up to 16 regions can be handled as the function \ref ARM_MPU_Load uses the REGION field in \ref MPU_Type::RBAR "MPU->RBAR".
+*
+* <b>Example:</b>
+* \code
+* const ARM_MPU_Region_t mpuTable[3][4] = {
+*   {
+*     { .RBAR = ARM_MPU_RBAR(0UL, 0x08000000UL), .RASR = ARM_MPU_RASR(0UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_1MB)  },
+*     { .RBAR = ARM_MPU_RBAR(1UL, 0x20000000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_32KB) },
+*     { .RBAR = ARM_MPU_RBAR(2UL, 0x40020000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0x00UL, ARM_MPU_REGION_SIZE_8KB)  }, 
+*     { .RBAR = ARM_MPU_RBAR(3UL, 0x40022000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0xC0UL, ARM_MPU_REGION_SIZE_4KB)  }
+*   },
+*   {
+*     { .RBAR = ARM_MPU_RBAR(4UL, 0x08000000UL), .RASR = ARM_MPU_RASR(0UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_1MB)  },
+*     { .RBAR = ARM_MPU_RBAR(5UL, 0x20000000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_32KB) },
+*     { .RBAR = ARM_MPU_RBAR(6UL, 0x40020000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0x00UL, ARM_MPU_REGION_SIZE_8KB)  }, 
+*     { .RBAR = ARM_MPU_RBAR(7UL, 0x40022000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0xC0UL, ARM_MPU_REGION_SIZE_4KB)  }
+*   },
+*   {
+*     { .RBAR = ARM_MPU_RBAR(4UL, 0x18000000UL), .RASR = ARM_MPU_RASR(0UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_1MB)  },
+*     { .RBAR = ARM_MPU_RBAR(5UL, 0x30000000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 0UL, 0UL, 1UL, 1UL, 0x00UL, ARM_MPU_REGION_SIZE_32KB) },
+*     { .RBAR = ARM_MPU_RBAR(6UL, 0x50020000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0x00UL, ARM_MPU_REGION_SIZE_8KB)  }, 
+*     { .RBAR = ARM_MPU_RBAR(7UL, 0x50022000UL), .RASR = ARM_MPU_RASR(1UL, ARM_MPU_AP_FULL, 2UL, 0UL, 0UL, 0UL, 0xC0UL, ARM_MPU_REGION_SIZE_4KB)  }
+*   }
+* };
+*  
+* void UpdateMpu(uint32_t idx)
+* {
+*    ARM_MPU_Load(mpuTable[idx], 4);
+* }
+* \endcode
+*
+*/
+__STATIC_INLINE void ARM_MPU_Load(MPU_Region_t const* table, uint32_t cnt);
+
+
+/**
+ @}  
+ 
+\defgroup mpu_defines Define values
+\ingroup mpu_functions
+\brief Define values for MPU region setup.
+\details
+The following define values are used with \ref ARM_MPU_RASR to setup the \ref MPU_Type::RASR "RASR" value field in the MPU region.
+
+\see 
+ARM_MPU_Region_t, ARM_MPU_SetRegion, ARM_MPU_SetRegionEx.
+@{
+*/
+
+/** \def ARM_MPU_REGION_SIZE_xxx
+\brief Size values of a MPU region (in RASR field)
+\details
+The following define values are used to compose the size information for an MPU region:
+
+|\#define                  | Value            | Description                                              |
+|:-------------------------|:-----------------|:---------------------------------------------------------|
+|ARM_MPU_REGION_SIZE_32B   | 0x04U            | Region size 32 Bytes
+|ARM_MPU_REGION_SIZE_64B   | 0x05U            | Region size 64 Bytes
+|ARM_MPU_REGION_SIZE_128B  | 0x06U            | Region size 128 Bytes
+|ARM_MPU_REGION_SIZE_256B  | 0x07U            | Region size 256 Bytes
+|ARM_MPU_REGION_SIZE_512B  | 0x08U            | Region size 512 Bytes
+|ARM_MPU_REGION_SIZE_1KB   | 0x09U            | Region size 1 KByte
+|ARM_MPU_REGION_SIZE_2KB   | 0x0AU            | Region size 2 KBytes
+|ARM_MPU_REGION_SIZE_4KB   | 0x0BU            | Region size 4 KBytes
+|ARM_MPU_REGION_SIZE_8KB   | 0x0CU            | Region size 8 KBytes
+|ARM_MPU_REGION_SIZE_16KB  | 0x0DU            | Region size 16 KBytes
+|ARM_MPU_REGION_SIZE_32KB  | 0x0EU            | Region size 32 KBytes
+|ARM_MPU_REGION_SIZE_64KB  | 0x0FU            | Region size 64 KBytes
+|ARM_MPU_REGION_SIZE_128KB | 0x10U            | Region size 128 KBytes
+|ARM_MPU_REGION_SIZE_256KB | 0x11U            | Region size 256 KBytes
+|ARM_MPU_REGION_SIZE_512KB | 0x12U            | Region size 512 KBytes
+|ARM_MPU_REGION_SIZE_1MB   | 0x13U            | Region size 1 MByte
+|ARM_MPU_REGION_SIZE_2MB   | 0x14U            | Region size 2 MBytes
+|ARM_MPU_REGION_SIZE_4MB   | 0x15U            | Region size 4 MBytes
+|ARM_MPU_REGION_SIZE_8MB   | 0x16U            | Region size 8 MBytes
+|ARM_MPU_REGION_SIZE_16MB  | 0x17U            | Region size 16 MBytes
+|ARM_MPU_REGION_SIZE_32MB  | 0x18U            | Region size 32 MBytes
+|ARM_MPU_REGION_SIZE_64MB  | 0x19U            | Region size 64 MBytes
+|ARM_MPU_REGION_SIZE_128MB | 0x1AU            | Region size 128 MBytes
+|ARM_MPU_REGION_SIZE_256MB | 0x1BU            | Region size 256 MBytes
+|ARM_MPU_REGION_SIZE_512MB | 0x1CU            | Region size 512 MBytes
+|ARM_MPU_REGION_SIZE_1GB   | 0x1DU            | Region size 1 GByte
+|ARM_MPU_REGION_SIZE_2GB   | 0x1EU            | Region size 2 GBytes
+|ARM_MPU_REGION_SIZE_4GB   | 0x1FU            | Region size 4 GBytes
+*/
+#define ARM_MPU_REGION_SIZE_xxx
+
+/** \def ARM_MPU_AP_xxx
+\brief Values for MPU region access permissions (in RASR field)
+\details
+The following define values are used to compose the access permission for an MPU region:
+|\#define                  | Value            | Access permissions               |
+|:-------------------------|:-----------------|:---------------------------------------------------------|
+|ARM_MPU_AP_NONE           | 0x0U             | None: any access generates a permission fault.
+|ARM_MPU_AP_PRIV           | 0x1U             | Privileged Read/Write: privileged access only; any unprivileged access generates a permission fault.
+|ARM_MPU_AP_URO            | 0x2U             | Privileged Read/Write; Unprivileged Read-only: any unprivileged write generates a permission fault.
+|ARM_MPU_AP_FULL           | 0x3U             | Privileged Read/Write. Unprivileged Read/Write: full access, permission faults are never generated.
+|ARM_MPU_AP_PRO            | 0x5U             | Privileged Read-only: any unprivileged access or privileged write generates a permission fault.
+|ARM_MPU_AP_RO             | 0x6U             | Privileged and Unprivileged Read-only: any write generates a permission fault.
+*/
+#define ARM_MPU_AP_xxx
+
+/** \def ARM_MPU_ACCESS_xxx
+\brief Values for MPU region access attributes (in RASR field)
+\details
+The following define values are used to compose the access attributes for an MPU region:
+|\#define                      | TEX  | Shareable | Cacheable | Bufferable | Description             |
+|:-----------------------------|:-----|:----------|:----------|:-----------|:------------------------|
+| ARM_MPU_ACCESS_ORDERED       | 000b | 1         | 0         | 0          | Strongly ordered memory |
+| ARM_MPU_ACCESS_DEVICE(S)     | 0s0b | S         | 0         | S          | Memory mapped peripheral device, shared (S=1) or non-shared (S=0) |
+| ARM_MPU_ACCESS_NORMAL(O,I,S) | 1BBb | S         | A         | A          | Normal memory, with outer/inner cache policy (O/I=\ref ARM_MPU_CACHEP_xxx, shared (S=1) or non-share (S=0) |
+*/
+#define ARM_MPU_ACCESS_xxx
+ 
+/** \def ARM_MPU_CACHEP_xxx
+\brief Cache policy values for MPU region access attributes (in RASR field)
+\details
+The following define values are used to compose the cacheability flags within the
+access attributes for an MPU region:
+|\#define                      | Value | Cacheability policy     |
+|:-----------------------------|:------|:------------------------|
+| ARM_MPU_CACHEP_NOCACHE       | 00b   | Non-cacheable           |
+| ARM_MPU_CACHEP_WB_WRA        | 01b   | Write-back, write and read allocate |
+| ARM_MPU_CACHEP_WT_NWA        | 10b   | Write-through, no write allocate    |
+| ARM_MPU_CACHEP_WB_NWA        | 11b   | Write-back, no write allocate       |
+*/
+#define ARM_MPU_CACHEP_xxx
+ 
+/** @} */
+
+/** 
+
+\var ARM_MPU_Region_t::RBAR
+This value specifies the start address of the MPU protected memory region. The address must be a multiple of the region size (size aligned).
+
+See \ref MPU_Type::RBAR for details about field bit format.
+
+\var ARM_MPU_Region_t::RASR
+This value specifies region attributes and size. Use the \ref ARM_MPU_RASR macro to compose this value.
+
+\var MPU_Type::TYPE
+The MPU Type Register indicates how many regions the MPU support. Software can use it
+to determine if the processor implements an MPU.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:24] | -             | Reserved.                                                     |
+| [23:16] | IREGION       | Instruction region. RAZ. Armv7-M only supports a unified MPU. |
+| [15:8]  | DREGION       | Number of regions supported by the MPU. If this field reads-as-zero the processor does not implement an MPU. |
+| [7:1]   | -             | Reserved.                                                     |
+| [0]     | SEPARATE      | Indicates support for separate instruction and data address maps. RAZ. Armv7-M only supports a unified MPU. |
+
+\var MPU_Type::CTRL
+Enables the MPU, and when the MPU is enabled, controls whether the default memory map
+is enabled as a background region for privileged accesses, and whether the MPU is enabled
+for HardFaults, NMIs, and exception handlers when FAULTMASK is set to 1.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:3]  | -             | Reserved.                                                     |
+| [2]     | PRIVDEFENA    | 0 - Disables the default memory map. 1 - Enables the default memory map as a background region for privileged access. |
+| [1]     | HFNMIENA      | 0 - Disables the MPU for exception handlers. 1 - Use the MPU for memory accesses by exception handlers. |
+| [0]     | ENABLE        | 0 - The MPU is disabled. 1 - The MPU is enabled.              |
+
+\var MPU_Type::RNR    
+Selects the region currently accessed by \ref MPU_Type::RBAR and \ref MPU_Type::RASR.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:8]  | -             | Reserved.                                                     |
+| [7:0]   | REGION        | Indicates the memory region accessed.                         |
+
+\var MPU_Type::RBAR  
+Holds the base address of the region identified by MPU_RNR. On a write, can also be used
+to update the base address of a specified region, in the range 0 to 15, updating MPU_RNR
+with the new region number.
+ 
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:5]  | ADDR          | Base address of the region.                                   |
+| [4]     | VALID         | 1 - Update \ref MPU_Type::RNR to the value obtained by zero extending the REGION value specified in this write, and apply the base address update to this region. |
+| [3:0]   | REGION        | On writes, can specify the number of the region to update, see VALID field description. |
+
+\var MPU_Type::RASR
+Defines the size and access behavior of the region identified by MPU_RNR, and enables
+that region.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:29] | -             | Reserved.                                                     |
+| [28]    | XN            | Execute Never.                                                |
+| [27]    | -             | Reserved.                                                     |
+| [26:24] | AP            | Access Permissions, see \ref ARM_MPU_AP_xxx.                  |
+| [23:22] | -             | Reserved.                                                     |
+| [21:19] | TEX           | Type Extension.                                               |
+| [18]    | S             | Shareable.                                                    |
+| [17]    | C             | Cacheable.                                                    |
+| [16]    | B             | Bufferable.                                                   |
+| [15:8]  | SRD           | Subregion Disable. For regions of 256 bytes or larger, each bit of this field controls whether one of the eight equal subregions is enabled (0) or disabled (1). 
+| [7:6]   | -             | Reserved.                                                     |
+| [5:1]   | SIZE          | Indicates the region size. The region size, in bytes, is 2(SIZE+1). SIZE field values less than 4 are reserved, because the smallest supported region size is 32 bytes. |
+| [0]     | ENABLE        | 0 - This region is disabled. 1 - This region is enabled.      |
+
+\var MPU_Type::RBAR_A1
+Alias for \ref MPU_Type::RBAR.
+
+\var MPU_Type::RASR_A1
+Alias for \ref MPU_Type::RASR.
+
+\var MPU_Type::RBAR_A2
+Alias for \ref MPU_Type::RBAR.
+
+\var MPU_Type::RASR_A2
+Alias for \ref MPU_Type::RASR.
+
+\var MPU_Type::RBAR_A3
+Alias for \ref MPU_Type::RBAR.
+
+\var MPU_Type::RASR_A3
+Alias for \ref MPU_Type::RASR.
+
+*/

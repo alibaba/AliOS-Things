@@ -1,0 +1,36 @@
+options:
+  optimize : [ O1, O2, O3, Ofast, Os ]
+import:
+ - bootloader.rtebuild
+targets:
+  arm:
+    toolchain: GCC
+    csettings   : [ -mlittle-endian, -gdwarf-3, "-%{optimize}", -fmessage-length=0, -fsigned-char, -ffunction-sections, -fdata-sections ]
+    cwarnings   : [ -Wall, -Wextra, -Wshadow, -Wundef, -Wstrict-prototypes ]
+  armcm:
+    cflags      : [ -xc, -std=gnu99, -c, "-march=${arch}", "-mtune=${cpu}", "-mfloat-abi=${float}", "${csettings}", "${cwarnings}" ]
+    asmflags    : [ -c, "-march=${arch}", "-mtune=${cpu}", "-mfloat-abi=${float}", "${csettings}", "${cwarnings}" ]
+    linkflags   : [ "-march=${arch}", "-mtune=${cpu}", "-mfloat-abi=${float}", "${csettings}", "${cwarnings}", "-Xlinker -Map=${builddir}/${targetName}.map", --specs=nano.specs, --specs=rdimon.specs ]
+    linkscript  : "config/core_m/rtebuild.ld"
+  armcm23ns:
+    arch     : armv8-m.base
+    cpu      : cortex-m23
+    fpu      : none
+    float    : soft
+    cflags   : [ -mcmse ]
+  armcm33ns:
+    arch     : armv8-m.main
+    cpu      : cortex-m33
+    fpu      : fpv5-sp-d16
+    float    : hard
+    cflags   : [ "-mfpu=${fpu}", -mcmse ]
+    asmflags : [ "-mfpu=${fpu}" ]
+    linkflags: [ "-mfpu=${fpu}" ]
+  armcm35pns:
+    arch     : armv8-m.main
+    cpu      : cortex-m33
+    fpu      : fpv5-sp-d16
+    float    : hard
+    cflags   : [ "-mfpu=${fpu}", -mcmse ]
+    asmflags : [ "-mfpu=${fpu}" ]
+    linkflags: [ "-mfpu=${fpu}" ]

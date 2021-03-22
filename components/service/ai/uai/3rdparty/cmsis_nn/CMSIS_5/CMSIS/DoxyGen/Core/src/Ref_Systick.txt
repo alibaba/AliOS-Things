@@ -1,0 +1,60 @@
+/* ##################################    SysTick function  ###################################### */
+/** 
+\defgroup    SysTick_gr Systick Timer (SYSTICK)
+\brief       Initialize and start the SysTick timer.
+\details
+    The System Tick Time (SysTick) generates interrupt requests on a regular basis.
+    This allows an OS to carry out context switching to support multiple tasking. For applications
+    that do not require an OS, the SysTick can be used for time keeping, time measurement, or as an 
+    interrupt source for tasks that need to be executed regularly.
+    
+
+\section SysTick_code_ex_sec Code Example     
+    The code below shows the usage of the function SysTick_Config() with an LPC1700.
+    
+\code
+#include "LPC17xx.h"
+  
+volatile uint32_t msTicks = 0;                              /* Variable to store millisecond ticks */
+  
+void SysTick_Handler(void)  {                               /* SysTick interrupt Handler. */
+  msTicks++;                                                /* See startup file startup_LPC17xx.s for SysTick vector */ 
+}
+  
+int main (void)  {
+  uint32_t returnCode;
+  
+  returnCode = SysTick_Config(SystemCoreClock / 1000);      /* Configure SysTick to generate an interrupt every millisecond */
+  
+  if (returnCode != 0)  {                                   /* Check return code for errors */
+    // Error Handling 
+  }
+  
+  while(1);
+}
+\endcode    
+    
+@{
+*/
+
+
+/**************************************************************************************************/
+/** \brief  System Tick Timer Configuration
+    \details
+    Initialises and starts the System Tick Timer and its interrupt.
+    After this call, the SysTick timer creates interrupts with the specified time interval. 
+    Counter is in free running mode to generate periodical interrupts.   
+
+    \param [in]  ticks  Number of ticks between two interrupts
+
+    \returns          0  - success
+    \returns          1  - failure
+    
+    \note
+    When <b>\#define __Vendor_SysTickConfig</b> is set to 1, the standard function <b>SysTick_Config</b>
+    is excluded. In this case, the file <b><i>device</i>.h</b> must contain a 
+    vendor specific implementation of this function. 
+*/
+uint32_t SysTick_Config(uint32_t ticks);
+
+/** @} */

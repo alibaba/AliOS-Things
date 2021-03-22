@@ -1,0 +1,4 @@
+CMSIS-DAP V2 USB WinUSB Firmware for NXP LPC-Link-II board.
+
+CMSIS-DAP with default V2 configuration uses WinUSB interface to host PC and is therefore faster. 
+Optionally support for streaming SWO trace is provided via an additional USB endpoint.

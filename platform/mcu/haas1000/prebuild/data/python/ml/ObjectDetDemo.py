@@ -1,21 +1,22 @@
 
-import ml
+from minicv import ML
 print("-------------------Welcome HaasAI MicroPython--------------------")
 
 print("-----ml ucloud ObjectDet demo start-----")
-OSS_ACCESS_KEY = "xxx"
-OSS_ACCESS_SECRET = "xxx"
-OSS_ENDPOINT = "xxx"
-OSS_BUCKET = "xxx"
+OSS_ACCESS_KEY = "xxxx"
+OSS_ACCESS_SECRET = "xxxx"
+OSS_ENDPOINT = "xxxx"
+OSS_BUCKET = "xxxx"
 
-mlobj = ml.open(ml.ML_ENGINE_CLOUD);
-ml.config(mlobj, OSS_ACCESS_KEY, OSS_ACCESS_SECRET, OSS_ENDPOINT, OSS_BUCKET, "NULL");
-ml.setInputData(mlobj, "/data/python/resource/capture.jpg");
-ml.loadNet(mlobj, "ObjectDet");
-ml.predict(mlobj);
+ml = ML()
+ml.open(ml.ML_ENGINE_CLOUD)
+ml.config(OSS_ACCESS_KEY, OSS_ACCESS_SECRET, OSS_ENDPOINT, OSS_BUCKET, "NULL")
+ml.setInputData("/data/python/resource/capture.jpg")
+ml.loadNet("ObjectDet")
+ml.predict()
 responses_value = bytearray(10)
-ml.getPredictResponses(mlobj, responses_value);
-print(responses_value);
-ml.unLoadNet(mlobj);
-ml.close(mlobj);
+ml.getPredictResponses(responses_value)
+print(responses_value)
+ml.unLoadNet()
+ml.close()
 print("-----ml ucloud ObjectDet demo end-----")

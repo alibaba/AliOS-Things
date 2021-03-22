@@ -1,0 +1,96 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page pack_Example Pack Example
+
+The <b>ARM::CMSIS</b> Pack contains an example of a Software Pack that contains device support, board support and software
+components. This Pack can be used as a reference for user generated Software Packs. It is available in the directory
+\\CMSIS\\Pack\\Example. It contains a \ref PE_PDSC "PDSC example file" and all sub-directories containing the files referenced
+in the PDSC.
+\n The example is a \ref createPack_DFP "DFP" for NXP's LPC1800 series of microcontrollers. It also contains
+\ref createPackBoard "BSP" information and software components, mainly peripheral drivers. Some of the drivers adhere to the
+<a class=el href="../../Driver/html/index.html" target="_blank">CMSIS-Driver</a> standard. This is the layout of the
+sub-directories:
+|Directory                          |Content                                                                                    |Section in PDSC                     |
+|-----------------------------------|-------------------------------------------------------------------------------------------|------------------------------------|
+|\b Boards                          |CMSIS-RTOS Blinky uVision project running on the MCB1800 development board                 |\ref pdsc_examples_pg "<examples>"  |
+|\ref PE_CMSIS_Driver "CMSIS_Driver"|<a href="../../Driver/html/index.html"><b>CMSIS-Driver</b></a> compliant peripheral drivers|\ref element_component "<component>"|
+|\ref PE_Device "Device"            |<a href="../../Core/html/index.html"><b>CMSIS-Core (Cortex-M)</b></a> files for LPC1800 series        |\ref element_device "<device>"      |
+|\ref PE_Documents "Documents"      |Documentation for devices and boards                                                       |\ref element_book "<book>"          |
+|\b Flash                           |\ref flashAlgorithm and a sub-directory called \b LPC18xx43xx_IAP containing a uVision project for IAP (In-Application Programming) support|\ref element_algorithm "<algorithm>"|
+|\b Images                          |Images of the MCB1800 development board                                                    |\ref pdsc_boards_pg "<board>"       |
+|\b SVD                             |<a href="../../SVD/html/index.html"><b>SVD</b></a> file for LPC1800 series                 |\ref element_debug "<debug>"        |
+
+
+\anchor PE_PDSC
+PDSC Example File
+-----------------
+
+The PDSC file that is included in the example Pack is called \b Keil.LPC1800_DFP.pdsc.txt. The extension \c txt has been
+added to hide the file from development tools as it is not intended for installation. The file contains the following top
+level elements:
+| XML Element                           |Purpose                                                                                           |
+|---------------------------------------|--------------------------------------------------------------------------------------------------|
+|\ref pdsc_package_pg "<package>"       | Publish Pack information like vendor, name, version, etc.                                        |
+|\ref pdsc_devices_pg "<devices>"       | Define four sub-families with 16 devices in total.                                               |
+|\ref pdsc_boards_pg "<boards>"         | Show MCB1800 development board information.                                                      |
+|\ref pdsc_conditions_pg "<conditions>" | Declare required conditions for software components.                                             |
+|\ref pdsc_components_pg "<components>" | Include startup/system files, HAL drivers, and CMSIS-Driver 2.0 compliant peripheral drivers.    |
+|\ref pdsc_examples_pg "<examples>"     | Contain a CMSIS-RTOS Blinky example project for uVision running on the MCB1800 development board.|
+
+ 
+\anchor PE_CMSIS_Driver
+Directory CMSIS_Driver
+------------
+
+The <b>CMSIS_Driver</b> directory contains the following
+<a class=el href="../../Driver/html/index.html" target="_blank">CMSIS-Driver</a> compliant peripheral drivers. These drivers
+are supporting the NXP LPC1800 series:
+|Driver                                                                                              |File            |Software Component                      |
+|----------------------------------------------------------------------------------------------------|----------------|----------------------------------------|
+|<a class=el href="../../Driver/html/group__eth__interface__gr.html" target="_blank">Ethernet</a>    |EMAC_LPC18xx.c  |<b>\::CMSIS-Driver:Ethernet MAC</b>     |
+|<a class=el href="../../Driver/html/group__spi__interface__gr.html" target="_blank">SPI</a>         |SSP_LPC18xx.c   |<b>\::CMSIS-Driver:SPI</b>              |
+|<a class=el href="../../Driver/html/group__i2c__interface__gr.html" target="_blank">I2C</a>         |I2C_LPC18xx.c   |<b>\::CMSIS-Driver:I2C</b>              |
+|<a class=el href="../../Driver/html/group__mci__interface__gr.html" target="_blank">MCI</a>         |MCI_LPC18xx.c   |<b>\::CMSIS-Driver:MCI</b>              |
+|<a class=el href="../../Driver/html/group__usart__interface__gr.html" target="_blank">USART</a>     |USART_LPC18xx.c |<b>\::CMSIS-Driver:USART</b>            |
+|<a class=el href="../../Driver/html/group__usbd__interface__gr.html" target="_blank">USB Device</a> |USBD_LPC18xx.c  |<b>\::CMSIS-Driver:USB Device:USB0/1</b>|
+|<a class=el href="../../Driver/html/group__usbh__interface__gr.html" target="_blank">USB Host</a>   |USBH_LPC18xx.c  |<b>\::CMSIS-Driver:USB Host:USB0/1</b>  |
+
+The following HAL drivers are required for the implementation of the \b CMSIS-Driver compliant peripheral drivers:
+|Driver                     |File            |Software Component                 |
+|---------------------------|----------------|-----------------------------------|
+|General purpose DMA driver |GPDMA_LPC18xx.c |<b>\::Device:GPDMA</b>             |
+|General purpose IO driver  |GPIO_LPC18xx.c  |<b>\::Device:GPIO</b>              |
+|System control unit driver |SCU_LPC18xx.c   |<b>\::Device:SCU</b>               |
+	
+
+\anchor PE_Device
+Directory Device
+------
+
+The <b>Device</b> directory has two sub-directories: <b>Include</b> and <b>Source</b>.
+|File                           |Purpose                                        |Software Component     |
+|-------------------------------|-----------------------------------------------|-----------------------|
+|Include\\LPC18xx.h             |LPC1800 series header file                     |<b>\::CMSIS:CORE</b>   |
+|Include\\system_LPC18xx.h      |LPC1800 series system header file              |<b>\::CMSIS:Startup</b>|
+|Source\\system_LPC18xx.c       |LPC1800 series system source file              |<b>\::CMSIS:Startup</b>|
+|Source\\ARM\\startup_LPC18xx.s |LPC1800 series startup assembler file for ARMCC|<b>\::CMSIS:Startup</b>|
+|Source\\GCC\\startup_LPC18xx.S |LPC1800 series startup assembler file for GCC  |<b>\::CMSIS:Startup</b>|
+|Source\\IAR\\startup_LPC18xx.s |LPC1800 series startup assembler file for IAR  |<b>\::CMSIS:Startup</b>|
+
+
+\anchor PE_Documents
+Directory Documents
+---------
+
+This directory incorporates the following documents:
+|File                           |Purpose                     |Section in PDSC                                                                        |
+|-------------------------------|----------------------------|---------------------------------------------------------------------------------------|
+|\b dui0552a_cortex_m3_dgug.pdf |Cortex-M3 Generic User Guide|\ref element_book "<book>" element of the device \ref element_family "<family>" element|
+|\b ES_LPC18X0.pdf              |LPC1800 Errata sheet        |\ref element_book "<book>" element of the \ref element_device "<device>" section       |
+|\b LPC1850_30_20_10.pdf        |LPC1800 Data sheet          |\ref element_book "<book>" element of the \ref element_device "<device>" section       |
+|\b mcb1800.chm                 |MCB1800/4300 User's Guide   |\ref element_board_book "<book>" element of the \ref pdsc_boards_pg "<boards>" section |
+|\b MCB1800v1-3-schematics.chm  |MCB1800 schematics          |\ref element_board_book "<book>" element of the \ref pdsc_boards_pg "<boards>" section |
+|\b UM10430.pdf                 |User manual for LPC1800     |\ref element_book "<book>" element of the \ref element_device "<device>" section       |
+	
+\note Some of these documents are only placeholders for copyright reasons.
+*/

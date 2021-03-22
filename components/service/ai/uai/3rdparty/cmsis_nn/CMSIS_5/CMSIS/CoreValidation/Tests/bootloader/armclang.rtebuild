@@ -1,0 +1,30 @@
+options:
+  optimize : [ O1, O2, Oz, Ofast, Os ]
+import:
+ - bootloader.rtebuild
+targets:
+  arm:
+    csettings   : [ -fno-rtti, -funsigned-char, -fshort-enums, -fshort-wchar, -mlittle-endian, -gdwarf-3, "-%{optimize}", -ffunction-sections ]
+    cwarnings   : [ -Weverything, -Wno-undef, -Wno-packed, -Wno-reserved-id-macro, -Wno-unused-macros, -Wno-documentation-unknown-command, -Wno-documentation, -Wno-license-management, -Wno-parentheses-equality ]
+  armcm:
+    features    : ""
+    cflags      : [ -xc, -std=gnu99, --target=arm-arm-none-eabi, "-mcpu=${cpu}${features}", "-mfpu=${fpu}", "-mfloat-abi=${float}", -c, "${csettings}", "${cwarnings}" ]
+    asmflags    : [ "--cpu ${cpu}", --li, -g ]
+    info        : [ --info summarysizes, --map, --load_addr_map_info, --xref, --callgraph, --symbols, --info sizes, --info totals, --info unused, --info veneers, "--list ${builddir}/${targetName}.map" ]
+    linkflags   : [ "--cpu ${cpu}", --strict, --no_remove, --entry Reset_Handler, --diag_suppress=L6314, --diag_suppress=L6092w, "${info}" ]
+    linkscript  : "./config/core_m/rtebuild.sct"
+  armcm23ns:
+    cpu    : cortex-m23
+    fpu    : none
+    float  : soft
+    cflags : [ -mcmse ]
+  armcm33ns:
+    cpu    : cortex-m33
+    fpu    : fpv5-sp-d16
+    float  : hard
+    cflags : [ -mcmse ]
+  armcm35pns:
+    cpu    : cortex-m35p
+    fpu    : fpv5-sp-d16
+    float  : hard
+    cflags : [ -mcmse ]

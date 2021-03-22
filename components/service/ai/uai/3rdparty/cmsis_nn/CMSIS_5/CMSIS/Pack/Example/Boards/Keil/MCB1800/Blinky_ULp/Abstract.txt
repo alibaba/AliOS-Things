@@ -1,0 +1,48 @@
+The 'Blinky' project is a simple program for the LPC1857
+microcontroller using Keil 'MCB1800' Evaluation Board, compliant
+to Cortex Microcontroller Software Interface Standard (CMSIS v2.0).
+
+It demonstrates the use of ULINKpro Debugger.
+
+Example functionality:                                                   
+ - Clock Settings:
+   - XTAL    =           12.00 MHz
+   - CPU     =          120.00 MHz
+
+ - Sys Timer is used in interrupt mode
+ - LED blink with speed depending on potentiometer position
+ - AD settings: 12 bit resolution
+ - AD value is output onto ITM debug port #0
+
+
+The Blinky program is available in different targets:
+
+  SWO Trace:              configured for on-chip Flash
+                          shows use of LogicAnalyzer, ITM output, Exception Trace
+                          use connector "Cortex Debug + ETM" or "Cortex Debug" or "JTAG"
+
+  TracePort Trace:        configured for on-chip Flash
+                          shows use of LogicAnalyzer, ITM output, Exception Trace
+                          use connector "Cortex Debug + ETM"
+
+  Instruction Trace:      configured for on-chip Flash
+                          shows use of Instruction Trace
+                          use connector "Cortex Debug + ETM"
+
+  Embedded Trace Buffer:  configured for on-chip Flash
+                          shows use of Instruction Trace from the ETB
+                          use connector "Cortex Debug + ETM" or "Cortex Debug" or "JTAG"
+
+
+ULINKpro notes
+--------------
+LPC18xx_TP.ini enables synchronous 4bit Trace Interface
+ETM Trace pins:  TRACECK         PF_4
+                 TRACED0..3      PF_5..PF_8  (4 bit trace data)
+                 do not use these pins in your application!
+
+LPC18xx_TP.ini is not required for using the Embedded Trace Buffer.
+
+Instruction trace is very time and resource consuming
+therefore if you want to use instruction trace use
+nothing else (no LA, no exceptions, no ITM, no ...).

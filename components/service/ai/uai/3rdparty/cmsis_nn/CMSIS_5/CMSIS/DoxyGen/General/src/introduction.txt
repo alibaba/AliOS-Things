@@ -1,0 +1,449 @@
+
+/** 
+\mainpage Introduction
+
+The <b>CMSIS</b> is a vendor-independent hardware abstraction layer for microcontrollers that are based on Arm&reg;
+Cortex&reg; processors. The CMSIS defines generic tool interfaces and enables consistent device support. It provides simple
+software interfaces to the processor and the peripherals, simplifying software re-use, reducing the learning curve for
+microcontroller developers, and reducing the time to market for new devices.
+
+The CMSIS is defined in close cooperation with various silicon and software vendors and provides a common approach to
+interface to peripherals, real-time operating systems, and middleware components. The CMSIS is intended to enable the
+combination of software components from multiple middleware vendors.
+
+\section CM_Components CMSIS Components
+
+| CMSIS-... | Target Processors   | Description  |
+|:----------|:--------------------|:-------------|
+|<a href="../../Core/html/index.html"><b>Core(M)</b></a>|   All Cortex-M, SecurCore | Standardized API for the Cortex-M processor core and peripherals. Includes intrinsic functions for Cortex-M4/M7/M33/M35P SIMD instructions.|
+|<a href="../../Core_A/html/index.html"><b>Core(A)</b></a>| Cortex-A5/A7/A9 | Standardized API and basic run-time system for the Cortex-A5/A7/A9 processor core and peripherals.|
+|<a href="../../Driver/html/index.html"><b>Driver</b></a>|  All Cortex | Generic peripheral driver interfaces for middleware. Connects microcontroller peripherals with middleware that implements for example communication stacks, file systems, or graphic user interfaces.|
+|<a href="../../DSP/html/index.html"><b>DSP</b></a>|        All Cortex-M | DSP library collection with over 60 Functions for various data types: fixed-point (fractional q7, q15, q31) and single precision floating-point (32-bit). Implementations optimized for the SIMD instruction set are available for Cortex-M4/M7/M33/M35P.|
+|<a href="../../NN/html/index.html"><b>NN</b></a>|          All Cortex-M | Collection of efficient neural network kernels developed to maximize the performance and minimize the memory footprint on Cortex-M processor cores.|
+|<a href="../../RTOS/html/index.html"><b>RTOS v1</b></a>|   Cortex-M0/M0+/M3/M4/M7 | Common API for real-time operating systems along with a reference implementation based on RTX. It enables software components that can work across multiple RTOS systems.|
+|<a href="../../RTOS2/html/index.html"><b>RTOS v2</b></a>|  All Cortex-M, Cortex-A5/A7/A9 | Extends CMSIS-RTOS v1 with Armv8-M support, dynamic object creation, provisions for multi-core systems, binary compatible interface. |
+|<a href="../../Pack/html/index.html"><b>Pack</b></a>|      All Cortex-M, SecurCore, Cortex-A5/A7/A9 | Describes a delivery mechanism for software components, device parameters, and evaluation board support. It simplifies software re-use and product life-cycle management (PLM). |
+|<a href="../../SVD/html/index.html"><b>SVD</b></a>|        All Cortex-M, SecurCore | Peripheral description of a device that can be used to create peripheral awareness in debuggers or CMSIS-Core header files.|
+|<a href="../../DAP/html/index.html"><b>DAP</b></a>|        All Cortex | Firmware for a debug unit that interfaces to the CoreSight Debug Access Port. |
+|<a href="../../Zone/html/index.html"><b>Zone</b></a>|      All Cortex | Defines methods to describe system resources and to partition these resources into multiple projects and execution areas. |
+    
+        
+\section Motivation Motivation
+
+CMSIS has been created to help the industry in standardization. It enables consistent software layers and device support across a wide range of development tools and microcontrollers.
+CMSIS is not a huge software layer that introduces overhead and does not define standard peripherals. The silicon industry can
+therefore support the wide variations of Cortex-M processor-based devices with this common standard.
+
+\image html Overview.png "CMSIS Structure"
+
+The benefits of the CMSIS are:
+
+ - CMSIS reduces the learning curve, development costs, and time-to-market. Developers can write software quicker through a variety of easy-to-use, standardized software interfaces.
+ - Consistent software interfaces improve the software portability and re-usability. Generic software libraries and interfaces provide consistent software framework.
+ - It provides interfaces for debug connectivity, debug peripheral views, software delivery, and device support to reduce time-to-market for new microcontroller deployment.
+ - Being a compiler independent layer, it allows to use the compiler of your choice. Thus, it is supported by mainstream compilers.
+ - It enhances program debugging with peripheral information for debuggers and ITM channels for printf-style output.
+ - CMSIS is delivered in CMSIS-Pack format which enables fast software delivery, simplifies updates, and enables consistent integration into development tools.
+ - CMSIS-Zone will simplify system resource and partitioning as it manages the configuration of multiple processors, memory areas, and peripherals.
+
+
+\section CodingRules Coding Rules
+
+The CMSIS uses the following essential coding rules and conventions:
+ - Compliant with ANSI C (C99) and C++ (C++03).
+ - Uses ANSI C standard data types defined in \b <stdint.h>.
+ - Variables and parameters have a complete data type.
+ - Expressions for \em \#define constants are enclosed in parenthesis.
+ - Conforms to MISRA 2012 (but does not claim MISRA compliance). MISRA rule violations are documented.
+          
+In addition, the CMSIS recommends the following conventions for identifiers:
+ - \b CAPITAL names to identify Core Registers, Peripheral Registers, and CPU Instructions.
+ - \b CamelCase names to identify function names and interrupt functions.
+ - \b Namespace_ prefixes avoid clashes with user identifiers and provide functional groups (i.e. for peripherals, RTOS, or DSP Library).
+
+The CMSIS is documented within the source files with:
+ \li Comments that use the C or C++ style. 
+ \li <a href="http://www.doxygen.nl/" target="_blank">Doxygen</a> compliant <b>function comments</b> that provide:
+    - brief function overview.
+    - detailed description of the function.
+    - detailed parameter explanation.
+    - detailed information about return values.
+
+Doxygen	comment example:
+\verbatim
+/** 
+ * @brief  Enable Interrupt in NVIC Interrupt Controller
+ * @param  IRQn  interrupt number that specifies the interrupt
+ * @return none.
+ * Enable the specified interrupt in the NVIC Interrupt Controller.
+ * Other settings of the interrupt such as priority are not affected.
+ */
+\endverbatim
+
+
+\section Validation Validation
+
+The various components of CMSIS Version 5 are validated using mainstream compilers.  To get a diverse coverage,
+Arm uses the Arm Compiler v5 (based on EDG front-end), the Arm Compiler v6 (based on LLVM front-end), and the
+GCC Compiler in the various tests. For each component, the section \b "Validation" describes the scope of the 
+various verifications. 
+
+CMSIS components are compatible with a range of C and C++ language standards. The CMSIS components comply with 
+the <a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ihi0036b/index.html">Application Binary 
+Interface (ABI) for the Arm Architecture</a> (exception CMSIS-RTOS v1). This ensures C API interfaces that support 
+inter-operation between various toolchains.
+
+As CMSIS defines API interfaces and functions that scale to a wide range of processors and devices, the scope of 
+the run-time test coverage is limited. However, several components are validated using dedicated test suites.
+
+The CMSIS source code is checked for MISRA C:2012 conformance using PC-Lint. MISRA deviations are documented with
+reasonable effort, however Arm does not claim MISRA compliance as there is today for example no guideline enforcement 
+plan. The CMSIS source code is not checked for MISRA C++:2008 conformance as there is a risk that it is incompatible 
+with C language standards, specifically warnings that may be generated by the various C compilers.
+
+
+\section License License
+
+The CMSIS is provided free of charge by Arm under the <a href="LICENSE.txt">Apache 2.0 License</a>.
+
+
+\section CM_Pack_Content CMSIS Software Pack
+
+The CMSIS software components are delivered in CMSIS-Pack format.  The <b>ARM::CMSIS</b> Pack contains the following:
+
+File/Directory    |Content                                                                           
+:-----------------|:---------------------------------------------------------------------------------
+\b ARM.CMSIS.pdsc |Package description file in CMSIS-Pack format.                                                         
+\b LICENSE.txt    |CMSIS License Agreement (Apache 2.0)
+\b CMSIS          |\ref CM_Components "CMSIS components" (see also table below)
+\b Device         |CMSIS reference implementations of Arm Cortex-M processor based devices                                 
+
+CMSIS Directory
+---------------
+
+Directory                 |Content                                                                                                                                  
+:-------------------------|:----------------------------------------------------------------------------------------------------------------------------------------
+\b Documentation          |This documentation                                                                                                                       
+\b Core                   |User code templates for <a href="../../Core/html/index.html"><b>CMSIS-Core (Cortex-M)</b></a> related files, referenced in ARM.CMSIS.pdsc
+\b Core_A                 |User code templates for <a href="../../Core_A/html/index.html"><b>CMSIS-Core (Cortex-A)</b></a> related files, referenced in ARM.CMSIS.pdsc
+\b DAP                    |<a href="../../DAP/html/index.html"><b>CMSIS-DAP</b></a> Debug Access Port source code and reference implementations                     
+\b Driver                 |Header files for the <a href="../../Driver/html/index.html"><b>CMSIS-Driver</b></a> peripheral interface API                             
+\b DSP_Lib                |<a href="../../DSP/html/index.html"><b>CMSIS-DSP</b></a> software library source code                                                    
+\b NN                     |<a href="../../NN/html/index.html"><b>CMSIS-NN</b></a> software library source code                                                    
+\b Include                |Include files for <a href="../../Core/html/index.html"><b>CMSIS-Core (Cortex-M)</b></a> and <a href="../../DSP/html/index.html"><b>CMSIS-DSP</b></a>
+\b Lib                    |<a href="../../DSP/html/index.html"><b>CMSIS-DSP</b></a> generated libraries for ARMCC and GCC                                           
+\b Pack                   |<a href="../../Pack/html/pack_Example.html"><b>CMSIS-Pack</b></a> example                                                              
+\b RTOS                   |<a href="../../RTOS/html/index.html"><b>CMSIS-RTOS Version 1</b></a> along with RTX4 reference implementation
+\b RTOS2                  |<a href="../../RTOS/html/index.html"><b>CMSIS-RTOS Version 2</b></a> along with RTX5 reference implementation
+\b SVD                    |<a href="../../SVD/html/index.html"><b>CMSIS-SVD</b></a> example                                                                         
+\b Utilities              |PACK.xsd (<a href="../../Pack/html/pack_Example.html"><b>CMSIS-Pack</b></a> schema file), PackChk.exe (checking tool for software packs), \n CMSIS-SVD.xsd (<a href="../../SVD/html/index.html"><b>CMSIS-SVD</b></a> schema file), SVDConv.exe (conversion tool for SVD files)
+
+<hr>
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page cm_revisionHistory Revision History 
+
+
+The following table shows the overall high-level history of the various CMSIS releases.
+In addition, each CMSIS component has its own release history:
+
+- <a href="../../Core/html/core_revisionHistory.html"><b>CMSIS-Core (Cortex-M) Revision History</b></a>
+- <a href="../../Core_A/html/rev_histCoreA.html"><b>CMSIS-Core (Cortex-A) Revision History</b></a>
+- <a href="../../Driver/html/driver_revisionHistory.html"><b>Driver Revision History</b></a>
+- <a href="../../DSP/html/ChangeLog_pg.html"><b>DSP Revision History (Change Log)</b></a>
+- <a href="../../NN/html/ChangeLog_pg.html"><b>NN Revision History (Change Log)</b></a>
+- <a href="../../RTOS/html/rtos_revisionHistory.html"><b>RTOS v1 Revision History</b></a>
+- <a href="../../RTOS2/html/rtos_revisionHistory.html"><b>RTOS v2 Revision History</b></a>
+- <a href="../../Pack/html/pack_revisionHistory.html"><b>Pack Revision History</b></a>
+- <a href="../../SVD/html/svd_revisionHistory.html"><b>SVD Revision History</b></a>
+- <a href="../../DAP/html/dap_revisionHistory.html"><b>DAP Revision History</b></a>
+- <a href="../../Zone/html/zone_revisionHistory.html"><b>Zone Revision History</b></a>
+
+<table class="cmtable" summary="Revision History">
+    <tr>
+      <th>Version</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>5.6.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.3.0
+          - Added provisions for compiler-independent C startup code.
+        - CMSIS-Core (Cortex-A) 1.1.4
+          - Fixed __FPU_Enable.
+        - CMSIS-Driver 2.7.1
+          - Finalized WiFi Interface API 1.0.0
+        - CMSIS-DSP 1.7.0 (see revision history for details)
+          - New Neon versions of f32 functions
+          - Compilation flags for FFTs
+        - CMSIS-NN 1.2.0 (unchanged)
+        - CMSIS-RTOS 1.03 (unchanged)
+          - RTX 4.82.0 (see revision history for details)
+        - CMSIS-RTOS 2.1.3 (unchanged)
+          - RTX 5.5.1 (see revision history for details)
+        - CMSIS-Pack 1.6.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 2.0.0 (unchanged)
+        - CMSIS-Zone 0.12.0 (preview)
+          - Completely reworked
+        - Devices
+          - Generalized C startup code for all Cortex-M family devices.
+          - Updated Cortex-A memory regions and system configuration files.
+        - Utilities
+          - SVDConv 3.3.27
+          - PackChk 1.3.82 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.5.1</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.2.1
+          - Fixed compilation issue in cmsis_armclang_ltm.h
+        - CMSIS-Core (Cortex-A) 1.1.3 (unchanged)
+        - CMSIS-Driver 2.7.0 (unchanged)
+        - CMSIS-DSP 1.6.0 (unchanged)
+        - CMSIS-NN 1.1.0 (unchanged)
+        - CMSIS-RTOS 2.1.3 (unchanged)
+          - RTX 5.5.0 (unchanged)
+        - CMSIS-Pack 1.6.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 2.0.0 (unchanged)
+        - CMSIS-Zone 0.9.0 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.5.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.2.0
+          - Reworked Stack/Heap configuration for ARM startup files.
+          - Added Cortex-M35P device support.
+          - Added generic Armv8.1-M Mainline device support.
+        - CMSIS-Core (Cortex-A) 1.1.3 Minor fixes.
+        - CMSIS-DSP 1.6.0
+          - reworked DSP library source files
+            - added macro ARM_MATH_LOOPUNROLL
+            - removed macro UNALIGNED_SUPPORT_DISABLE
+            - added const-correctness
+            - replaced SIMD pointer construct with memcopy solution
+            - replaced macro combination "CMSIS_INLINE __STATIC_INLINE with "__STATIC_FORCEINLINE"
+          - reworked DSP library documentation
+          - Changed DSP folder structure
+            - moved DSP libraries to ./DSP/Lib
+          - moved DSP libraries to folder ./DSP/Lib
+          - ARM DSP Libraries are built with ARMCLANG
+          - Added DSP Libraries Source variant
+        - CMSIS-NN 1.1.0 (unchanged)
+        - CMSIS-Driver 2.7.0
+          - Added WiFi Interface API 1.0.0-beta
+          - Added custom driver selection to simplify implementation of new CMSIS-Driver
+        - CMSIS-RTOS 2.1.3
+          - RTX 5.5.0 (see revision history)
+        - CMSIS-Pack 1.6.0
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 2.0.0 (unchanged)
+        - CMSIS-Zone 0.9.0 (Preview)
+        - Devices
+          - Added Cortex-M35P and ARMv81MML device templates.
+          - Fixed C-Startup Code for GCC (aligned with other compilers)
+            - Moved call to SystemInit before memory initialization.
+        - Utilities
+          - SVDConv 3.3.25
+          - PackChk 1.3.82
+      </td>
+    </tr>
+    <tr>
+      <td>5.4.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.1.2 Minor fixes and slight enhancements, e.g. beta for Cortex-M1.
+        - CMSIS-Core (Cortex-A) 1.1.2 Minor fixes.
+        - CMSIS-Driver 2.6.0 (unchanged)
+        - CMSIS-DSP 1.5.2 (unchanged)
+        - CMSIS-NN 1.1.0 Added new math function (see revision history)
+        - CMSIS-RTOS 2.1.3 Relaxed interrupt usage.
+          - RTX 5.4.0 (see revision history)
+        - CMSIS-Pack 1.5.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 2.0.0 (unchanged)
+        - CMSIS-Zone 0.0.1 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.3.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.1.1 
+        - CMSIS-Core (Cortex-A) 1.1.1 
+        - CMSIS-Driver 2.6.0 (unchanged)
+        - CMSIS-DSP 1.5.2 (unchanged)
+        - CMSIS-NN 1.0.0 Initial contribution of Neural Network Library.
+        - CMSIS-RTOS 2.1.2 (unchanged)
+        - CMSIS-Pack 1.5.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 2.0.0 Communication via WinUSB to achieve high-speed transfer rates.
+        - CMSIS-Zone 0.0.1 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.2.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.1.0 MPU functions for ARMv8-M, cmsis_iccarm.h replacing cmsis_iar.h
+        - CMSIS-Core (Cortex-A) 1.1.0 cmsis_iccarm.h, additional physical timer access functions
+        - CMSIS-Driver 2.6.0 Enhanced CAN and NAND driver interface.
+        - CMSIS-DSP 1.5.2 Fixed diagnostics and moved SSAT/USST intrinsics to CMSIS-Core.
+        - CMSIS-RTOS 2.1.2 Relaxed some ISR-callable restrictions.
+        - CMSIS-Pack 1.5.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 1.2.0 (unchanged)
+        - CMSIS-Zone 0.0.1 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.1.1</td>
+      <td>
+        - CMSIS-Core (Cortex-M) (unchanged)
+        - CMSIS-Core (Cortex-A) (unchanged)
+        - CMSIS-Driver 2.05 (unchanged)
+        - CMSIS-DSP 1.5.2 (unchanged)
+        - CMSIS-RTOS 2.1.1 Fixed RTX5 pre-built libraries for Cortex-M.
+        - CMSIS-Pack 1.5.0 (unchanged)
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 1.1.0 (unchanged)
+        - CMSIS-Zone 0.0.1 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>5.1.0</td>
+      <td>
+        - CMSIS-Core (Cortex-M) 5.0.2 several minor corrections and enhancements
+        - CMSIS-Core (Cortex-A) 1.0.0 implements a basic run-time system for Cortex-A5/A7/A9
+        - CMSIS-Driver 2.05 status typedef made volatile
+        - CMSIS-DSP 1.5.2 fixed GNU Compiler specific diagnostics
+        - CMSIS-RTOS 2.1.1 added support for Cortex-A5/A7/A9 to RTX5
+        - CMSIS-Pack 1.5.0 added SDF format specification
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 1.1.0 (unchanged)
+        - CMSIS-Zone 0.0.1 (Preview) format to describe system resources and tool for partitioning of resources
+      </td>
+    </tr>
+    <tr>
+      <td>5.0.1</td>
+      <td>
+        - CMSIS-Core 5.0.1 added __PACKED_STRUCT macro and uVisor support
+        - CMSIS-Driver 2.05 updated all typedefs related to status now being volatile.
+        - CMSIS-DSP 1.5.1 added ARMv8M DSP libraries
+        - CMSIS-RTOS 2.1.0 added support for critical and uncritical sections
+        - CMSIS-Pack 1.4.8 add Pack Index File specification
+        - CMSIS-SVD 1.3.3 (unchanged)
+        - CMSIS-DAP 1.1.0 (unchanged)     
+      </td>
+    </tr>
+	<tr>
+      <td>5.0.0</td>
+      <td>
+        Added support for: <a href="http://www.arm.com/products/processors/instruction-set-architectures/armv8-m-architecture.php" target="_blank"><b>ARMv8-M architecture</b></a> including TrustZone for ARMv8-M and Cortex-M23, Cortex-M33 processors
+        - CMSIS-Core (Cortex-M) 5.0.0 added support for ARMv8-M and Cortex-M23, Cortex-M33 processors
+        - CMSIS-Driver 2.04.0 (unchanged)
+        - CMSIS-DSP 1.4.9 minor corrections and performance improvements
+        - CMSIS-RTOS 2.0.0 new API with RTX 5.0.0 reference implementation and corrections in RTX 4.8.2
+        - CMSIS-Pack 1.4.4 introducing CPDSC project description
+        - CMSIS-SVD 1.3.3 several enhancements and rework of documentation
+        - CMSIS-DAP 1.1.0 (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>4.5.0</td>
+      <td>
+        Maintenance release that is fixing defects. See component's revision history for more details.
+        See component's revision history for more details.
+        - CMSIS-Core (Cortex-M) 4.30.0
+        - CMSIS-DAP 1.1.0 (unchanged)
+        - CMSIS-Driver 2.04.0
+        - CMSIS-DSP 1.4.7
+        - CMSIS-Pack 1.4.1
+        - CMSIS-RTOS RTX 4.80.0
+        - CMSIS-SVD 1.3.1 
+      </td>
+    </tr>
+    <tr>
+      <td>4.4.0</td>
+      <td>
+        Feature release adding CMSIS-DAP (see extended End User Licence Agreement) and CMSIS-Driver for CAN.
+        See component's revision history for more details.
+        - CMSIS-Core (Cortex-M) 4.20.0
+        - CMSIS-DAP 1.1.0
+        - CMSIS-Driver 2.03.0
+        - CMSIS-DSP 1.4.5  (unchanged)
+        - CMSIS-RTOS RTX 4.79.0
+        - CMSIS-Pack 1.4.0
+        - CMSIS-SVD 1.3.0
+      </td>
+    </tr>
+    <tr>
+      <td>4.3.0</td>
+      <td>
+        Maintenance release adding SAI CMSIS-Driver and fixing defects. See component's revision history for more details.
+        - CMSIS-Core (Cortex-M) 4.10.0
+        - CMSIS-Driver 2.02.0
+        - CMSIS-DSP 1.4.5
+        - CMSIS-RTOS RTX 4.78.0
+        - CMSIS-Pack 1.3.3
+        - CMSIS-SVD (unchanged)
+      </td>
+    </tr>
+    <tr>
+      <td>4.2</td>
+      <td>Introducing processor support for Cortex-M7.
+      </td>
+    </tr>
+    <tr>
+      <td>4.1</td>
+      <td>Enhancements in CMSIS-Pack and CMSIS-Driver.\n
+      Added: PackChk validation utility\n
+      Removed support for GNU: Sourcery G++ Lite Edition for ARM</td>
+    </tr>
+    <tr>
+      <td>4.0</td>
+      <td>First release in CMSIS-Pack format.\n Added specifications for CMSIS-Pack, CMSIS-Driver</td>
+    </tr>
+    <tr>
+      <td>3.30</td>
+      <td>Maintenance release with enhancements in each component</td>
+    </tr>
+    <tr>
+      <td>3.20</td>
+      <td>Maintenance release with enhancements in each component</td>
+    </tr>
+    <tr>
+      <td>3.01</td>
+      <td>Added support for Cortex-M0+ processors</td>
+    </tr>
+    <tr>
+      <td>3.00</td>
+      <td>Added support for SC000 and SC300 processors\n
+      Added support for GNU GCC Compiler\n
+      Added CMSIS-RTOS API</td>
+    </tr>
+    <tr>
+      <td>2.10</td>
+      <td>Added CMSIS-DSP Library</td>
+    </tr>
+    <tr>
+      <td>2.0</td>
+      <td>Added support for Cortex-M4 processor</td>
+    </tr>
+    <tr>
+      <td>1.30</td>
+      <td>Reworked CMSIS startup concept</td>
+    </tr>
+    <tr>
+      <td>1.01</td>
+      <td>Added support for Cortex-M0 processor</td>
+    </tr>
+    <tr>
+      <td>1.00</td>
+      <td>Initial release of CMSIS-Core (Cortex-M) for Cortex-M3 processor</td>
+    </tr>
+</table>
+
+*/

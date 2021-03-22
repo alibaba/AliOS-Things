@@ -1,0 +1,7 @@
+import:
+ - armclang.rtebuild
+targets:
+  armcm:
+    toolchain: ARMCC6_LTM_MDK
+  armca:
+    toolchain: ARMCC6_LTM

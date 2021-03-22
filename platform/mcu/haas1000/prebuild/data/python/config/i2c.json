@@ -1,13 +1,13 @@
 {
     "version": "1.0.0",
     "io": {
-      "bmp280": {
+      "pca9544": {
         "type": "I2C",
-        "port": 0,
-        "addrWidth": 7,
+        "port": 1,
+        "addrWidth": 8,
         "freq": 100000,
         "mode": "master",
-        "devAddr": 118
+        "devAddr": 112
       }
     },
     "debugLevel": "DEBUG"

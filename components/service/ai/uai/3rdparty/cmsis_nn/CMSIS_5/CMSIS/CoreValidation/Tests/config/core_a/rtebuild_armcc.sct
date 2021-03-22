@@ -1,0 +1,77 @@
+#! armcc -E
+;**************************************************
+; Copyright (c) 2017 ARM Ltd.  All rights reserved.
+;**************************************************
+
+; Scatter-file for RTX Example on Versatile Express
+
+; This scatter-file places application code, data, stack and heap at suitable addresses in the memory map.
+
+; This platform has 2GB SDRAM starting at 0x80000000.
+
+#include "mem.h"
+
+SDRAM __ROM_BASE __ROM_SIZE       ; load region size_region
+{
+  VECTORS __ROM_BASE __ROM_SIZE ; load address = execution address
+  {
+      * (RESET, +FIRST)         ; Vector table and other startup code
+      * (InRoot$$Sections)      ; All (library) code that must be in a root region
+      * (+RO-CODE)              ; Application RO code (.text)
+      * (+RO-DATA)              ; Application RO data (.constdata)
+  }
+  
+  RW_DATA __RAM_BASE __RW_DATA_SIZE
+  { * (+RW) }                   ; Application RW data (.data)
+  
+  ZI_DATA (__RAM_BASE+
+           __RW_DATA_SIZE) __ZI_DATA_SIZE
+  { * (+ZI) }                   ; Application ZI data (.bss)
+  
+  ARM_LIB_HEAP  (__RAM_BASE
+                +__RW_DATA_SIZE
+                +__ZI_DATA_SIZE)    EMPTY __HEAP_SIZE        ; Heap region growing up
+  { }
+    
+  ARM_LIB_STACK (__RAM_BASE
+                +__RAM_SIZE       
+                -__FIQ_STACK_SIZE
+                -__IRQ_STACK_SIZE
+                -__SVC_STACK_SIZE
+                -__ABT_STACK_SIZE
+                -__UND_STACK_SIZE) EMPTY -__STACK_SIZE      ; Stack region growing down
+  { }              
+                
+  UND_STACK     (__RAM_BASE
+                +__RAM_SIZE
+                -__FIQ_STACK_SIZE
+                -__IRQ_STACK_SIZE
+                -__SVC_STACK_SIZE
+                -__ABT_STACK_SIZE) EMPTY -__UND_STACK_SIZE  ; UND mode stack
+  { }
+  
+  ABT_STACK     (__RAM_BASE
+                +__RAM_SIZE
+                -__FIQ_STACK_SIZE
+                -__IRQ_STACK_SIZE
+                -__SVC_STACK_SIZE) EMPTY -__ABT_STACK_SIZE  ; ABT mode stack
+  { }
+  
+  SVC_STACK     (__RAM_BASE
+                +__RAM_SIZE
+                -__FIQ_STACK_SIZE
+                -__IRQ_STACK_SIZE) EMPTY -__SVC_STACK_SIZE  ; SVC mode stack
+  { }  
+  
+  IRQ_STACK     (__RAM_BASE
+                +__RAM_SIZE
+                -__FIQ_STACK_SIZE) EMPTY -__IRQ_STACK_SIZE  ; IRQ mode stack
+  { }  
+  
+  FIQ_STACK     (__RAM_BASE
+                +__RAM_SIZE)       EMPTY -__FIQ_STACK_SIZE  ; FIQ mode stack
+  { }
+  
+  TTB            __TTB_BASE        EMPTY __TTB_SIZE         ; Level-1 Translation Table for MMU
+  { }                                        
+}

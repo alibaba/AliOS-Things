@@ -1,0 +1,1370 @@
+﻿/**************************************************************************************************/
+/**
+\defgroup DAP_Commands_gr CMSIS-DAP Commands
+
+Commands between Debug Unit and host computer.
+
+This section explains each command that is exchanged between the Debug Unit and the host computer.
+Every Command starts with a Command-ID and optional data.
+Depending on the Command, the CMSIS-DAP firmware replies with a Response that repeats the Command-ID and
+delivers additional data. 
+
+Command and Response data have a package size limitation that is defined with \ref DAP_PACKET_SIZE.
+This configuration setting can be obtained with the command \ref DAP_Info and is used to
+optimize the performance for Full-Speed or High-Speed USB. The debugger must ensure that each 
+data package fits within the limitations of the configured \ref DAP_PACKET_SIZE.
+
+\note
+Commands that are not implemented reply with 0xFF instead of repeating the command byte.
+
+Conventions and Command Structure
+---------------------------------
+
+The following conventions describe the command semantic used in the following documentation:
+
+ Symbol   | Description
+--------- | ------------------------------------------------------------------------------------
+ \>       | Prefix indicating the direction: Command from host to Debug Unit.
+ \<       | Prefix indicating the direction: Response from Debug Unit to host.
+ BYTE     | 8-bit value.
+ SHORT    | 16-bit value (low byte first).
+ WORD     | 32-bit value (low byte first).
+ LWORD    | 64-bit value (low byte first).
+ FLOAT    | 32-bit single precision floating point value (LSB first).
+ 0x01     | Fixed HEX value in C notation. Used for example to identify a command.
+ Reserved | The field above is reserved for future extension.
+ \*\*\*\* | The field above has exactly one occurrence.
+ \+\+\+\+ | The field above has a variable length.
+ //////// | The field above is repeated and may appear 0..n times.
+
+
+The commands are described in a structure consisting of three lines. 
+  - The first line indicates the field type. 
+  - The second line indicates the communication direction and the command structure.
+  - The third line indicates the occurrence of the field.
+  
+\b Examples:
+\code
+ | BYTE | SHORT *| WORD ***|
+ > 0x99 | RecLen | Data    |
+ |******|********|+++++++++| 
+\endcode
+
+The Command with the Command-ID <em>0x99</em> is sent from the host computer to the Debug Unit.
+The value of <em>RecLen</em> indicates the number of WORDS that follow with <em>Data</em>.
+<em>Data</em> is repeated several times depending on the value of <em>RecLen</em>.
+
+Depending on the Command the Debug Unit may send a <b>Response</b>.
+\code
+ | BYTE ***| WORD***********|
+ < 0       | Register Value |
+ |*Reserved|****************|
+\endcode
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_genCommands_gr General Commands
+\ingroup DAP_Commands_gr
+Information and Control commands for the CMSIS-DAP Debug Unit.
+
+The General Commands allow to:
+ - Connect, disconnect, and identify the Debug Unit. 
+ - Control the Status LEDs of the Debug Unit.
+ - Issue and hardware reset to the connected Device.
+ - Terminate previous CMSIS-DAP Commands.
+ - Wait for a specified time.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_swj_gr Common SWD/JTAG Commands
+\ingroup DAP_Commands_gr
+\brief Set SWD/JTAG clock and control/monitor SWD/JTAG I/O pins.
+
+The Common SWD/JTAG Commands allow to:
+ - Read and Write the SWD/JTAG I/O pins including nRESET.
+ - Configure the SWD/JTAG clock speed.
+ - Generate a sequence on the SWD/JTAG I/O pins for SWD<->JTAG mode switch.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_swd_gr SWD Commands
+\ingroup DAP_Commands_gr
+\brief Configure the parameters for SWD mode.
+
+The SWD Commands allow you to configure the parameters for the Serial Wire Debug (SWD) communication mode.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_swo_gr SWO Commands
+\ingroup DAP_Commands_gr
+\brief Configure the parameters for SWO mode.
+
+CMSIS-DAP SWO (Serial Wire Output)
+----------------------------------
+
+CMSIS-DAP (CoreSight Debug Access Port) specifies debug protocol and interface for devices with CoreSight Debug and Trace.
+
+\note
+The \ref DAP_swo_gr are only available when \ref DAP_Info with ID=0xF0 (Capabilities) returns in \b Info - Bit 2: <b>1 = SWO UART</b> or Bit 3: <b>1 = SWO Manchester</b>.
+
+The following extension adds support for trace over SWO (Serial Wire Output).
+
+SWO add-on is a compatible extension of the existing CMSIS-DAP specification.
+Existing debugger implementations on PC do not require any modifications for debugging. They only need to be extended in order to support trace.
+
+The following new commands are added:
+ - \ref DAP_SWO_Transport
+ - \ref DAP_SWO_Mode
+ - \ref DAP_SWO_Baudrate
+ - \ref DAP_SWO_Control
+ - \ref DAP_SWO_Status
+ - \ref DAP_SWO_ExtendedStatus
+ - \ref DAP_SWO_Data
+
+Format of the new commands is specified below using CMSIS-DAP documentation style.
+Note: 16-bit values (SHORT) and 32-bit values (WORD) are encoded as little-endian.
+ 
+The following existing commands are extended:
+ - \ref DAP_Info
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_jtag_gr JTAG Commands
+\ingroup DAP_Commands_gr
+\brief Detect and configure the JTAG device chain.
+
+The JTAG Commands allow to:
+ - Detect the devices connect to the JTAG chain.
+ - Configure the IR register length of each device on the JTAG chain.
+ - Read the JTAG IDCODE value of each device on the JTAG chain.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_transfer_gr Transfer Commands
+\ingroup DAP_Commands_gr
+\brief Read and Writes to CoreSight registers.
+
+The Transfer Commands allow to:
+ - Configure the parameters for information exchange with CoreSight registers.
+ - Transfer (read or write) a single data word or a data block with CoreSight registers.
+ - Terminate an active data transfer.
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_atomic_gr Atomic Commands
+\ingroup DAP_Commands_gr
+\brief Execute atomic commands.
+
+CMSIS-DAP command set is extended with two top level commands that allow the execution of multiple DAP commands further USB communication.
+Executing multiple CMSIS-DAP commands is typically a requirement at the reset time of some devices. The sequence after reset can be time
+critical and any USB communication would violate the available time window.
+ - \ref DAP_ExecuteCommands_gr : execute multiple DAP commands from a single command request
+ - \ref DAP_QueueCommands_gr : queue of multiple DAP commands before execution
+ 
+These two DAP commands are used to collect several other DAP commands before execution.
+Packet Size and Packet Count limitation (as reported via \ref DAP_Info) must be respected by the debugger.
+
+\note
+The \ref DAP_atomic_gr are only available when \ref DAP_Info with ID=0xF0 (Capabilities) returns in \b Info - Bit 4: <b>1 = Atomic Commands</b>.
+
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Response_Status Response Status
+\ingroup DAP_Commands_gr
+\brief Status Information in Response Data
+\details
+
+The Response data of a command frequently include a Status that indicates correct execution or
+command failures.  Currently the following Status codes are returned:
+- 0x00 = DAP_OK: Command has been successfully executed
+- 0xFF = DAP_ERROR: Command did not execute due to communication failure with the device.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Info DAP_Info
+\ingroup DAP_genCommands_gr
+\brief Get Information about CMSIS-DAP Debug Unit.
+\details
+The <b>DAP_Info Command</b> provides configuration information about the Debug Unit itself and the capabilities.
+  
+<b>DAP_Info Command:</b>
+\code
+| BYTE | BYTE |
+> 0x00 | ID   |
+|******|******| 
+\endcode
+
+- \b ID: Request Identifier to obtain information in the Response:
+  - \b 0x01 = Get the <b>Vendor ID</b> (string).
+  - \b 0x02 = Get the <b>Product ID</b> (string).
+  - \b 0x03 = Get the <b>Serial Number</b> (string).
+  - \b 0x04 = Get the <b>CMSIS-DAP Firmware Version</b> (string).
+  - \b 0x05 = Get the <b>Target Device Vendor</b> (string).
+  - \b 0x06 = Get the <b>Target Device Name</b> (string).
+  - \b 0xF0 = Get information about the <b>Capabilities</b> (BYTE) of the Debug Unit (see below for details).
+  - \b 0xF1 = Get the <b>Test Domain Timer</b> parameter information (see below for details).
+  - \b 0xFD = Get the <b>SWO Trace Buffer Size</b> (WORD).
+  - \b 0xFE = Get the maximum <b>Packet Count</b> (BYTE).
+  - \b 0xFF = Get the maximum <b>Packet Size</b> (SHORT).
+
+<b>DAP_Info Response:</b>
+\code
+| BYTE | BYTE | BYTE |
+< 0x00 | Len  | Info |
+|******|******|++++++|
+\endcode
+
+- \b Len:  Info length in bytes.
+- \b Info: 
+  - a \b string encoded in US ASCII. Len is the string length including the \\x00 terminator. Len = 0 indicates no information.
+  - a \b BYTE value (indicated with Len = 1).
+  - a \b SHORT value (indicated with Len = 2).
+  - a \b WORD value (indicated with Len = 4).
+
+\note
+The ID for <b>Vendor ID</b>, <b>Product ID</b>, and <b>Serial Number</b> may return no string (indicated by Len = 0). 
+In this case the USB Device Information is used to obtain Vendor, Product, and Serial Number.
+
+\note
+<b>Target Device Vendor</b> and <b>Target Device Name</b> are only available on Debug Units with known
+Target Device. Refer to \ref TARGET_DEVICE_FIXED for more information. If the Target Device is not known
+no string is returned (indicated by Len = 0).
+
+<hr>
+  
+<b>DAP_Info Response (for ID=0xF0):</b>
+
+The ID=0xF0 <b>Capabilities</b> obtains information about the available interface to the Device. 
+The reply consists of one or two \b Info bytes with bits that indicate the features of the <b>Debug Unit</b>.
+The features indicate the command scope of the CMSIS-DAP firmware. If certain features are not available, the debugger should not call the related commands as the may not be implemented. Commands that are not implemented reply with 0xFF instead of repeating the command byte.
+
+
+\code
+| BYTE | BYTE | BYTE *| BYTE  |
+< 0x00 | Len  | Info0 | Info1 |
+|******|******|*******|*******|
+\endcode
+
+- \b Len:  <b>1 = Info0</b> present, <b>2 = Info0, Info1</b> present.
+
+Available transfer protocols to target:
+ - Info0 - Bit 0: <b>1 = SWD</b> Serial Wire Debug communication is implemented (0 = \ref DAP_swd_gr not implemented).  
+ - Info0 - Bit 1: <b>1 = JTAG</b> communication is implemented (0 = \ref DAP_jtag_gr not implemented).
+ 
+Serial Wire Trace (SWO) support: 
+ - Info0 - Bit 2: <b>1 = SWO UART</b> - UART Serial Wire Output is implemented (0 = not implemented).
+ - Info0 - Bit 3: <b>1 = SWO Manchester</b> - Manchester Serial Wire Output is implemented (0 = not implemented).
+ 
+Command extensions for transfer protocol: 
+ - Info0 - Bit 4: <b>1 = Atomic Commands</b> - \ref DAP_atomic_gr support is implemented (0 = \ref DAP_atomic_gr not implemented).
+ 
+Time synchronisation via Test Domain Timer:
+ - Info0 - Bit 5: <b>1 = Test Domain Timer</b> - debug unit support for Test Domain Timer is implemented (0 = not implemented).
+ 
+SWO Streaming Trace support:
+ - Info0 - Bit 6: <b>1 = SWO Streaming Trace</b> is implemented (0 = not implemented).
+ 
+ 
+<hr>
+ 
+<b>DAP_Info Response (for ID=0xF1):</b>
+
+The ID=0xF1 <b>Test Domain Timer</b> obtains the parameter information about an optional 32-bit Test Domain Timer that may be used for various time measurements.
+
+\code
+| BYTE | BYTE | WORD *****|
+< 0x00 | 0x08 | Frequency |
+|******|******|***********|
+\endcode
+
+- \b Frequency:  Input frequency of the Test Domain Timer which indicates the resolution of the 32-bit TD_TimeStamp values.
+
+
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_HostStatus DAP_HostStatus
+\ingroup DAP_genCommands_gr
+Sent status information of the debugger to Debug Unit.
+
+The <b>DAP_HostStatus Command</b> is used to sent the status information about the debugger to the Debug Unit.
+This status information may be displayed on the Debug Unit. Therefore a Debug Unit may provide optional Status LEDs: 
+ - Connect LED: is active when the DAP hardware is connected to a debugger.
+ - Running LED: is active when the debugger has put the target device into running state.
+  
+<b>DAP_HostStatus Command:</b>
+\code
+| BYTE | BYTE **| BYTE **|
+> 0x01 | Type   | Status | 
+|******|********|********|
+\endcode
+- \b Type: specifies the type of the information that is sent in \b Status: 
+  - \b 0 = Connect: Status indicates that the debugger is connected to the Debug Unit.
+  - \b 1 = Running: Status indicates that the target hardware is executing application code.
+- \b Status: contains the actual status information:
+  - \b 0 = False: may be used to turn off a status LED (Connect or Running) on the Debug Unit.
+  - \b 1 = True: may be used to turn on a status LED (Connect or Running) on the Debug Unit.
+
+<b>DAP_HostStatus Response:</b>
+\code
+| BYTE | BYTE **|
+< 0x01 | 0x00   |
+|******|********|
+\endcode
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Connect DAP_Connect 
+\ingroup DAP_genCommands_gr
+\brief Connect to Device and selected DAP mode.
+\details
+The <b>DAP_Connect Command</b> initializes the DAP I/O pins for the specified DAP mode (JTAG or
+SWD). This command calls the function \ref PORT_SWD_SETUP or \ref PORT_JTAG_SETUP which prepares the 
+connection to the Target Device.
+ 
+<b>DAP_Connect Command:</b>
+\code
+| BYTE | BYTE |
+> 0x02 | Port |
+|******|******| 
+\endcode
+
+- \b Port: Selects the DAP port mode and configures the DAP I/O pins. The possible values are:
+  - 0 = Default mode: configuration of the DAP port mode is derived from \ref DAP_DEFAULT_PORT (zero configuration).
+  - 1 = SWD mode: connect with Serial Wire Debug mode.
+  - 2 = JTAG mode: connect with 4/5-pin JTAG mode.
+
+
+<b>DAP_Connect Response:</b>
+\code
+| BYTE | BYTE |
+< 0x02 | Port |
+|******|******|
+\endcode
+
+- \b Port: DAP port mode initialized. The possible values are:
+  - 0 = initialization failed; no mode pre-configured.
+  - 1 = initialization for SWD mode.
+  - 2 = initialization for JTAG mode.
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Disconnect DAP_Disconnect 
+\ingroup DAP_genCommands_gr
+\brief Disconnect from active Debug Port
+\details
+The <b>DAP_Disconnect Command</b> de-initializes the DAP I/O pins by calling the function \ref PORT_OFF.
+
+<b>DAP_Disconnect Command</b>:
+\code
+| BYTE |
+> 0x03 |
+|******| 
+\endcode
+
+<b>DAP_Disconnect Response</b>:
+\code
+| BYTE | BYTE   |
+< 0x03 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_WriteABORT DAP_WriteABORT
+\ingroup DAP_genCommands_gr
+\brief Write ABORT Register
+\details
+The <b>DAP_WriteABORT Command</b> writes an abort request to the CoreSight ABORT register of 
+the Target Device.
+
+<b>DAP_WriteABORT Command</b>:
+\code
+| BYTE | BYTE *****| WORD *|
+> 0x08 | DAP Index | Abort |
+|******|***********|*******|
+\endcode
+
+- <b>DAP Index</b>: Zero based device index of the selected JTAG device. For SWD mode the value is ignored.
+- <b>Abort</b>:  32-bit value to write into the CoreSight ABORT register.
+
+<b>DAP_WriteABORT Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x08 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Delay DAP_Delay
+\ingroup  DAP_genCommands_gr
+\brief    Wait for specified delay 
+\details
+The <b>DAP_Delay< Command</b> waits for a time period specified in micro-seconds.
+  
+<b>DAP_Delay Command</b>:
+\code
+| BYTE | SHORT |
+> 0x09 | Delay |
+|******|*******| 
+\endcode
+
+- \b Delay: wait time in µs.
+
+<b>DAP_Delay Response</b>:
+\code
+| BYTE | BYTE   |
+< 0x09 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_ResetTarget DAP_ResetTarget
+\ingroup  DAP_genCommands_gr
+\brief    Reset Target with Device specific sequence.
+\details
+The <b>DAP_ResetTarget Command</b> requests a target reset with a device specific command sequence.
+This command calls the user configurable function \ref RESET_TARGET.
+
+<b>DAP_ResetTarget Command</b>:
+\code
+| BYTE |
+> 0x0A |
+|******| 
+\endcode
+
+<b>DAP_ResetTarget Response</b>:
+\code
+| BYTE | BYTE   | BYTE    |
+< 0x0A | Status | Execute |
+|******|********|*********|
+\endcode
+
+- \b Execute: indicates whether a device specific reset sequence was executed.
+  - no device specific reset sequence is implemented.
+  - 1 = a device specific reset sequence is implemented.
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWJ_Pins DAP_SWJ_Pins
+\ingroup DAP_swj_gr
+\brief Control and monitor SWD/JTAG Pins 
+\details
+
+The <b>DAP_SWJ_Pins Command</b> is used to monitor and control the I/O Pins including the nRESET Device reset line.
+
+The <b>Pin Wait</b> time is useful in systems where the nRESET pin is implemented as open-drain output.
+After nRESET is de-asserted by the debugger, external circuit may still hold the target Device 
+under reset for a time. Using the <b>Pin Wait</b> time, the debugger may monitor 
+selected I/O Pins and wait until they the expected value appears or a timeout expires. 
+
+<b>I/O Pin Mapping</b> for the fields <b>Pin Output</b>, <b>Pin Select</b>, and <b>Pin Input</b>:
+  - Bit 0: SWCLK/TCK
+  - Bit 1: SWDIO/TMS
+  - Bit 2: TDI
+  - Bit 3: TDO
+  - Bit 5: nTRST
+  - Bit 7: nRESET
+
+  
+<b>DAP_SWJ_Pins Command</b>:
+\code
+| BYTE | BYTE ******| BYTE ******| Word ****|
+> 0x10 | Pin Output | Pin Select | Pin Wait |
+|******|************|************|**********|
+\endcode
+
+- <b>Pin Output</b>: Value for selected output pins
+- <b>Pin Select</b>: Selects which output pins will be modified
+- <b>Pin Wait</b>: Wait timeout for the selected output to stabilize
+  - 0 = no wait
+  - 1 .. 3000000 = time in µs (max 3s)
+
+<b>DAP_SWJ_Pins Response:</b>
+\code
+| BYTE | BYTE *****|
+< 0x10 | Pin Input |
+|******|***********|
+\endcode
+- <b>Pin Input</b>: Pin state read from target Device.
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWJ_Clock DAP_SWJ_Clock
+\ingroup DAP_swj_gr
+\brief Select SWD/JTAG Clock 
+\details
+The <b>DAP_SWJ_Clock Command</b> sets the clock frequency for JTAG and SWD communication mode.
+
+<b>DAP_SWJ_Clock Command</b>:
+\code
+| BYTE | WORD *|
+> 0x11 | Clock |
+|******|*******|
+\endcode
+
+- \b Clock: Selects maximum SWD/JTAG Clock (SWCLK/TCK) value in Hz
+
+<b>DAP_SWJ_Clock Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x11 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWJ_Sequence DAP_SWJ_Sequence
+\ingroup DAP_swj_gr
+\brief Generate SWJ sequence SWDIO/TMS \@SWCLK/TCK 
+\details
+
+The <b>DAP_SWJ_Sequence Command</b> can be used to generate required SWJ sequences for 
+SWD/JTAG Reset, SWD<->JTAG switch and Dormant operation.
+
+<b>DAP_SWJ_Sequence Command</b>
+\code
+| BYTE | BYTE **************| BYTE *************|
+> 0x12 | Sequence Bit Count | Sequence Bit Data |
+|******|********************|+++++++++++++++++++|
+\endcode
+
+- <b>Sequence Bit Count</b>: Number of bits in sequence: 1..256 (256 encoded as 0)
+- <b>Sequence Bit Data</b>:  Sequence generated on SWDIO/TMS (with clock \@SWCLK/TCK) LSB is transmitted  first
+
+
+<b>DAP_SWJ_Sequence Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x12 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWD_Configure DAP_SWD_Configure
+\ingroup DAP_swd_gr
+\brief Configure SWD Protocol
+\details
+The <b>DAP_SWD_Configure Command</b> sets the SWD protocol configuration. For more information about 
+the SWD protocol refer to the <b>Arm Debug Interface v5 - Interface Specification.</b>
+
+<b>DAP_SWD_Configure Command</b>:
+\code
+| BYTE | BYTE *********|
+> 0x13 | Configuration |
+|******|***************|
+\endcode
+
+- \b Configuration: Contains information about SWD specific features \n
+  - Bit 1 .. 0: Turnaround clock period of the SWD device (should be identical with the WCR [Write Control Register] value of the target):
+    0 = 1 clock cycle (default), 1 = 2 clock cycles, 2 = 3  clock cycles, 3 = 4 clock cycles.
+
+  - Bit 2: DataPhase: 0 = Do not generate Data Phase on WAIT/FAULT (default), 1 = Always generate Data Phase (also on WAIT/FAULT; Required for Sticky Overrun behavior).
+
+<b>DAP_SWD_Configure Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x13 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWD_Sequence DAP_SWD_Sequence
+\ingroup DAP_swd_gr
+\brief Generate SWD sequence and output on SWDIO or capture input from SWDIO data.
+\details
+\note
+The \ref DAP_SWD_Sequence is available for CMSIS-DAP version 1.2 and higher.  Refer to \ref DAP_Info for more information on how to query the CMSIS-DAP version.
+
+
+The <b>DAP_SWD_Sequence Command</b> is used to generate special sequences in SWD mode on the pins SWCLK and SWDIO.
+For example, for SWD multi-drop target selection (see picture) it is required to put the SWDIO pin to input mode (where it is not driven).
+
+\image html "SWD_Sequence.png" "SWD sequence for multi-drop target selection"
+
+ - For mode=0 (output: SWDIO is driven), the data for the SWDIO pin are part of the <b>DAP_SWD_Sequence Command</b>.
+ - For mode=1 (input: SWDIO is not driven), the data from the SWDIO pin are captured and returned as part of the <b>DAP_SWD_Sequence Response</b>. 
+
+<b>DAP_SWD_Sequence Command</b>:
+\code
+| BYTE | BYTE **********| BYTE *********| BYTE ******|
+> 0x1D | Sequence Count | Sequence Info | SWDIO Data |
+|******|****************|///////////////|++++++++++++|
+\endcode
+
+- <b>Sequence Count</b>: Number of Sequences
+- <b>Sequence Info</b>: Contains number of SWCLK cycles and SWDIO mode
+  - Bit 5 .. 0: Number of TCK cycles: 1 .. 64 (64 encoded as 0)
+  - Bit 6: reserved
+  - Bit 7: mode: 0=output (SWDIO Data in command), 1=input (SWDIO Data in response)
+- <b>SWDIO Data</b> (only for output mode):  Data generated on SWDIO
+  - One bit for each TCK cycle
+  - LSB transmitted first, padded to BYTE boundary
+
+<b>DAP_SWD_Sequence Response</b>:
+\code
+| BYTE | BYTE **| BYTE ******|
+< 0x1D | Status | SWDIO Data |
+|******|********|++++++++++++|
+\endcode
+
+- <b>SWDIO Data</b> (only for input mode):  Data captured from SWDIO
+  - One bit for each SWCLK cycle for input mode
+  - LSB received first, padded to BYTE boundary
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Transport DAP_SWO_Transport
+\ingroup DAP_swo_gr
+\brief Set SWO transport mode
+\details
+
+DAP_SWO_Transport (0x17):
+-------------------------
+
+Sets the SWO transport mode for reading trace data.
+
+<b>DAP_SWO_Transport Request:</b>
+\code
+ | BYTE | BYTE      |
+ > 0x17 | Transport |
+ |******|***********|
+\endcode  
+
+  - \b Transport:
+    - 0 - None (default)
+    - 1 - Read trace data via DAP_SWO_Data command   
+    - 2 - Send trace data via separate \ref WinUSB "WinUSB" endpoint (requires CMSIS-DAP v2 configuration)
+    - ... - reserved
+
+<b>DAP_SWO_Transport Response:</b>
+\code
+ | BYTE | BYTE   |
+ < 0x17 | Status |
+ |******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+
+\note Currently the trace data can only be read via the existing DAP command request/response channel by using DAP_SWO_Data.
+        Future extension might provide separate channels for reading trace data.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Mode DAP_SWO_Mode
+\ingroup DAP_swo_gr
+\brief Set SWO capture mode
+\details
+
+DAP_SWO_Mode (0x18):
+--------------------
+
+Sets the SWO trace capture mode.
+
+<b>DAP_SWO_Mode Request:</b>
+\code
+ | BYTE | BYTE |
+ > 0x18 | Mode |
+ |******|******|
+\endcode  
+
+- \b Mode:
+  - 0 - Off (default)
+  - 1 - UART    
+  - 2 - Manchester
+
+<b>DAP_SWO_Mode Response:</b>
+\code
+ | BYTE | BYTE   |
+ < 0x18 | Status |
+ |******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Baudrate DAP_SWO_Baudrate
+\ingroup DAP_swo_gr
+\brief Set SWO baudrate
+\details
+
+DAP_SWO_Baudrate (0x19):
+------------------------
+
+Sets the baudrate for capturing SWO trace data. Can be called iteratively to determine supported baudrates.
+
+<b>DAP_SWO_Baudrate Request:</b>
+\code
+ | BYTE | WORD     |
+ > 0x19 | Baudrate |
+ |******|**********|
+\endcode  
+  - \b Baudrate: Requested baudrate
+
+<b>DAP_SWO_Baudrate Response:</b>
+\code
+ | BYTE | WORD     |
+ < 0x19 | Baudrate |
+ |******|**********|
+\endcode
+
+  - \b Baudrate: Actual baudrate or 0 (baudrate not configured)
+    When requested baudrate is not achievable the closest configured baudrate can be returned or 0
+    which indicates that baudrate was not configured.
+
+\note   When Manchester Mode is used and if decoder is implemented with clock recovery then baudrate
+        is not required since clock is automatically decoded. However such decoders are harder to implement
+        (especially for high frequencies) and the clock recovery might not be implemented.
+        Therefore the baudrate should be provided also for Manchester mode.
+
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Control DAP_SWO_Control
+\ingroup DAP_swo_gr
+\brief Control SWO trace data capture
+\details
+
+DAP_SWO_Control (0x1A):
+--------------------
+
+Controls the SWO trace data capture.
+
+<b>DAP_SWO_Control Request:</b>
+\code
+ | BYTE | BYTE    |
+ > 0x1A | Control |
+ |******|*********|
+\endcode  
+  - \b Control:
+    - 0 - Stop
+    - 1 - Start
+
+<b>DAP_SWO_Control Response:</b>
+\code
+ | BYTE | BYTE   |
+ < 0x1A | Status |
+ |******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+
+\note Starting capture automatically flushes any existing trace data in buffers which has not yet been read
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Status DAP_SWO_Status
+\ingroup DAP_swo_gr
+\brief Read SWO trace status
+\details
+
+DAP_SWO_Status (0x1B):
+--------------------
+
+Reads the SWO trace status.
+
+<b>DAP_SWO_Status Request:</b>
+\code
+ | BYTE |
+ > 0x1B |
+ |******|
+\endcode  
+
+<b>DAP_SWO_Status Response:</b>
+\code
+ | BYTE | BYTE         | WORD        |
+ < 0x1B | Trace Status | Trace Count |
+ |******|**************|*************|
+\endcode
+
+  - <b>Trace Status</b>:
+    - Bit 0: Trace Capture (1 - active, 0 - inactive)
+    - Bit 6: Trace Stream Error
+    - Bit 7: Trace Buffer Overrun
+  - <b>Trace Count</b>: Number of bytes in Trace Buffer (not yet read)
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_ExtendedStatus DAP_SWO_ExtendedStatus
+\ingroup DAP_swo_gr
+\brief Read SWO trace extended status
+\details
+
+DAP_SWO_ExtendedStatus (0x1E):
+-----------------------------
+
+Reads extended information about the SWO trace status.
+
+<b>DAP_SWO_ExtendedStatus Request:</b>
+\code
+ | BYTE | BYTE    |
+ > 0x1E | Control |
+ |******|*********|
+\endcode  
+
+  - <b>Control</b>:
+    - Bit 0: Trace Status (1 - request, 0 - inactive)
+    - Bit 1: Trace Count (1 - request, 0 - inactive)
+    - Bit 2: Index/Timestamp (1 - request, 0 - inactive)
+
+<b>DAP_SWO_ExtendStatus Response:</b>
+\code
+ | BYTE | BYTE         | WORD        | WORD  | WORD         |
+ < 0x1E | Trace Status | Trace Count | Index | TD_TimeStamp |
+ |******|++++++++++++++|+++++++++++++|+++++++|++++++++++++++|
+\endcode
+
+  - <b>Trace Status</b>:
+    - Bit 0: Trace Capture (1 - active, 0 - inactive)
+    - Bit 6: Trace Stream Error
+    - Bit 7: Trace Buffer Overrun
+
+  - <b>Trace Count</b>: Number of bytes in Trace Buffer (not yet read)
+
+  - <b>Index</b>: Sequence number of next trace information
+  - <b>TD_TimeStamp</b>: Test Domain Timer value for trace sequence.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_SWO_Data DAP_SWO_Data
+\ingroup DAP_swo_gr
+\brief Read SWO trace data
+\details
+  
+DAP_SWO_Data (0x1C):
+--------------------
+
+Reads the captured SWO trace data from Trace Buffer.
+
+<b>DAP_SWO_Data Request:</b>
+\code
+ | BYTE | SHORT       |
+ > 0x1C | Trace Count |
+ |******|*************|
+\endcode  
+  - <b>Trace Count</b>: Maxim number of Trace Data bytes to read
+
+<b>DAP_SWO_Data Response:</b>
+\code
+ | BYTE | BYTE         | SHORT       | BYTE       |
+ < 0x1C | Trace Status | Trace Count | Trace Data |
+ |******|**************|*************|////////////|
+\endcode
+
+  - <b>Trace Status</b>:
+    - Bit 0: Trace Capture (1 - active, 0 - inactive)
+    - Bit 6: Trace Stream Error
+    - Bit 7: Trace Buffer Overrun
+  - <b>Trace Count</b>: Number of Trace Data bytes read
+  - <b>Trace Data</b>:  Trace Data bytes read
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_JTAG_Sequence DAP_JTAG_Sequence
+\ingroup DAP_jtag_gr
+\brief Generate JTAG sequence TMS, TDI and capture TDO 
+\details
+The <b>DAP_JTAG_Sequence Command</b> may be used to auto-detect devices on the JTAG chain.
+The result of this command can be used to calculate on the host computer the number of JTAG 
+devices and the JTAG IR register length. This information is the input for \ref DAP_JTAG_Configure.
+
+<b>DAP_JTAG_Sequence Command</b>:
+\code
+| BYTE | BYTE **********| BYTE *********| BYTE ****|
+> 0x14 | Sequence Count | Sequence Info | TDI Data |
+|******|****************|///////////////|//////////|
+\endcode
+
+- <b>Sequence Count</b>: Number of Sequences
+- <b>Sequence Info</b>: Contains number of TDI bits and fixed TMS value
+  - Bit 5 .. 0: Number of TCK cycles: 1 .. 64 (64 encoded as 0)
+  - Bit 6: TMS value
+  - Bit 7: TDO Capture
+- <b>TDI Data</b>:  Data generated on TDI
+  - One bit for each TCK cycle
+  - LSB transmitted first, padded to BYTE boundary
+
+<b>DAP_JTAG_Sequence Response</b>:
+\code
+| BYTE | BYTE **| BYTE ****|
+< 0x14 | Status | TDO Data |
+|******|********|++++++++++|
+\endcode
+
+- <b>TDO Data</b>:  Data captured from TDO
+  - One bit for each TCK cycle when TDO Capture is enabled
+  - LSB received first, padded to BYTE boundary
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_JTAG_Configure DAP_JTAG_Configure
+\ingroup DAP_jtag_gr
+\brief Configure JTAG Chain
+\details
+The <b>DAP_JTAG_Configure Command</b> sets the JTAG device chain information for communication with \ref
+DAP_transfer_gr. The JTAG device chain needs to be iterated with \ref DAP_JTAG_Sequence or manually
+configured by the debugger on the host computer.
+
+<b>DAP_JTAG_Configure Command</b>:
+\code
+| BYTE | BYTE *| BYTE *****|
+> 0x15 | Count | IR Length | 
+|******|*******|+++++++++++|
+\endcode
+
+- \b Count: Number of devices in chain
+- <b>IR Length</b>: JTAG IR register length (in bits) for each device.
+
+<b>DAP_JTAG_Configure Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x15 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_jtag_idcode DAP_JTAG_IDCODE
+\ingroup DAP_jtag_gr
+\brief Read JTAG IDCODE
+\details
+The <b>DAP_JTAG_IDCODE Command</b> request the JTAG IDCODE for the selected device on the JTAG chain.
+
+<b>DAP_JTAG_IDCODE Command</b>:
+\code
+| BYTE | BYTE ******|
+> 0x16 | JTAG Index |
+|******|************|
+\endcode
+
+- <b>JTAG Index</b>: Zero based JTAG index of selected device.
+
+<b>DAP_JTAG_IDCODE Response</b>:
+\code
+| BYTE | BYTE **| WORD ***|
+< 0x16 | Status | ID Code |
+|******|********|*********|
+\endcode
+
+- <b>ID Code</b>: 32-bit JTAG ID Code of the device.
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_TransferConfigure DAP_TransferConfigure
+\ingroup DAP_transfer_gr
+\brief Configure Transfers
+\details
+The <b>DAP_TransferConfigure Command</b> sets parameters for \ref DAP_Transfer and \ref DAP_TransferBlock.
+
+<b>DAP_TransferConfigure Command:</b>
+\code
+| BYTE | BYTE ******** SHORT *****| SHORT ******|
+> 0x04 | Idle Cycles | WAIT Retry | Match Retry |
+|******|*************|************|*************|
+\endcode
+
+- <b>Idle Cycles</b>: Number of extra idle cycles after each transfer.
+- <b>WAIT Retry</b>: Number of transfer retries after WAIT response.
+- <b>Match Retry</b>: Number of retries on reads with Value Match in \ref DAP_Transfer. On value mismatch the 
+    Register is read again until its value matches or the <b>Match Retry</b> count exceeds.\n
+\code
+  retry = Match_Retry;
+  do {
+    if ((Register_Value & Match_Mask) == Match_Value) break;
+  } while (retry--);
+\endcode
+
+<b>DAP_TransferConfigure Response</b>:
+\code
+| BYTE | BYTE **|
+< 0x04 | Status |
+|******|********|
+\endcode
+
+- \b Status: \ref DAP_Response_Status
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_Transfer DAP_Transfer
+\ingroup DAP_transfer_gr
+\brief Read/write single and multiple registers.
+\details
+
+The <b>DAP_Transfer Command</b> reads or writes data to CoreSight registers.
+Each CoreSight register is accessed with a single 32-bit read or write.
+The CoreSight registers are addressed with DPBANKSEL/APBANKSEL and address lines A2, A3 (A0 = 0 and A1 = 0).
+This command executes several read/write operations on the selected DP/AP registers.
+The Transfer Data in the Response are in the order of the Transfer Request in the Command but might be shorter in case of communication failures.
+The data transfer is aborted on a communication error: 
+  - Protocol Error
+  - Target FAULT response
+  - Target WAIT responses exceed configured value
+  - Value Mismatch (Read Register with Value Match)
+
+<b>DAP_Transfer Command:</b>
+\code
+| BYTE | BYTE *****| BYTE **********| BYTE *************| WORD *********|
+> 0x05 | DAP Index | Transfer Count | Transfer Request  | Transfer Data |
+|******|***********|****************|+++++++++++++++++++++++++++++++++++|
+\endcode
+
+- <b>DAP Index</b>: Zero based device index of the selected JTAG device. For SWD mode the value is ignored.
+
+- <b>Transfer Count</b>: Number of transfers: 1 .. 255. For each transfer a Transfer Request BYTE is sent. Depending on the request an additional Transfer Data WORD is sent.
+
+- <b>Transfer Request</b>: Contains information about requested access from host debugger.
+  - Bit 0: APnDP: 0 = Debug Port (DP), 1 = Access Port (AP).
+  - Bit 1: RnW: 0 = Write Register, 1 = Read Register.
+  - Bit 2: A2 Register Address bit 2.
+  - Bit 3: A3 Register Address bit 3.
+  - Bit 4: Value Match (only valid for Read Register): 0 = Normal Read Register, 1 = Read Register with Value Match.
+  - Bit 5: Match Mask (only valid for Write Register): 0 = Normal Write Register, 1 = Write Match Mask (instead of Register).
+  - Bit 7: TD_TimeStamp request: 0 = No time stamp, 1 = Include time stamp value from Test Domain Timer before every Transfer Data word (restrictions see note).
+
+- <b>Transfer Data</b>: register value or match value
+  - for Write Register transfer request: the register value for the CoreSight register.
+  - for Match Mask transfer request: the match mask for the CoreSight register.
+  - for Value Match transfer request: the match value of the CoreSight register.
+  - no data is sent for other operations.
+
+\note
+<b>Transfer Request</b> - Bit 7 (Time Stamp) cannot be combined with Bit 4 (Value Match) or Bit 5 (Match Mask).
+  
+  
+  
+<b>DAP_Transfer Response:</b>
+\code
+| BYTE | BYTE **********| BYTE *************| WORD ********| WORD *********|
+< 0x05 | Transfer Count | Transfer Response | TD_TimeStamp | Transfer Data |
+|******|****************|*******************|//////////////|+++++++++++++++|
+\endcode
+
+- <b>Transfer Count</b>: Number of transfers: 1 .. 255 that are executed.
+
+- <b>Transfer Response</b>: Contains information about last response from target Device.
+  - Bit 2..0: ACK (Acknowledge) value:
+      - 1 = OK (for SWD protocol), OK or FAULT (for JTAG protocol),
+      - 2 = WAIT
+      - 4 = FAULT 
+      - 7 = NO_ACK (no response from target)
+  - Bit 3: 1 = Protocol Error (SWD)
+  - Bit 4: 1 = Value Mismatch (Read Register with Value Match)
+
+- <b>TD_TimeStamp</b>: current Test Domain Timer value is added before each Transfer Data word when Transfer Request - bit 7: TD_TimeStamp request is set.
+
+- <b>Transfer Data</b>: register value or match value in the order of the <b>Transfer Request</b>.
+  - for Read Register transfer request: the register value of the CoreSight register.
+  - no data is sent for other operations.
+*/
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_TransferBlock DAP_TransferBlock
+\ingroup DAP_transfer_gr
+\brief Read/Write a block of data from/to a single register.
+\details
+
+The <b>DAP_TransferBlock Command</b> read or write a data block to the same CoreSight register.
+A data block are multiple 32-bit values which are read or written from/to the same CoreSight register.
+The CoreSight register is addressed with DPBANKSEL/APBANKSEL and address lines A2, A3 (A0 = 0 and A1 = 0).
+The command can execute several read/write operations to a single DP/AP register.
+
+The data transfer is aborted on a communication error: 
+  - Protocol Error
+  - Target FAULT response
+  - Target WAIT responses exceed configured value
+
+<b>DAP_TransferBlock Command</b>:
+\code
+| BYTE | BYTE *****| SHORT**********| BYTE *************| WORD *********|
+> 0x06 | DAP Index | Transfer Count | Transfer Request  | Transfer Data |
+|******|***********|****************|*******************|+++++++++++++++|
+\endcode
+
+- <b>DAP Index</b>: Zero based device index of the selected JTAG device. For SWD mode the value is ignored.
+
+- <b>Transfer Count</b>: Number of transfers: 1 .. 65535.
+
+- <b>Transfer Request</b>: Contains information about requested access from host
+  - Bit 0: APnDP: 0 = DP (Debug Port), 1 = AP (Access Port)
+  - Bit 1: RnW: 0 = Write Register, 1 = Read Register
+  - Bit 2: A2 := Register Address bit 2
+  - Bit 3: A3 := Register Address bit 3
+
+- <b>Transfer Data</b>: register values  
+  - for Write Register transfer request: the register values written to the CoreSight register.
+  - no data is sent for Read Register operations.
+
+<b>DAP_TransferBlock Response</b>:
+\code
+| BYTE | SHORT *********| BYTE *************| WORD *********|
+< 0x06 | Transfer Count | Transfer Response | Transfer Data |
+|******|****************|*******************|+++++++++++++++|
+\endcode
+
+- <b>DAP Index</b>: Zero based device index of the selected JTAG device. For SWD mode the value is ignored.
+
+- <b>Transfer Count</b>: Number of transfers (1 .. 65535) that are executed.
+
+- <b>Transfer Response</b>: Contains information about last response from target
+  - Bit 2..0: ACK (Acknowledge) value:
+      - 1 = OK (for SWD protocol), OK or FAULT (for JTAG protocol),
+      - 2 = WAIT
+      - 4 = FAULT 
+      - 7 = NO_ACK (no response from target)
+  - Bit 3: Protocol Error (SWD)
+
+- <b>Transfer Data</b>: register values  
+  - no data is receive for Write Register operations.
+  - for Read Register transfer request: the register values read from CoreSight register.
+*/
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_TransferAbort DAP_TransferAbort
+\ingroup DAP_transfer_gr
+\brief Abort current Transfer
+\details
+The <b>DAP_TransferAbort Command</b> aborts the current transfer. The command can be executed while \ref DAP_Transfer or \ref DAP_TransferBlock command
+is still in progress. The command is ignored if there is no transfer in progress. The command itself has no response, however the 
+aborted \ref DAP_Transfer or \ref DAP_TransferBlock command will respond with information about the actually transferred data.
+
+<b>DAP_TransferAbort Command</b>:
+\code
+| BYTE |
+> 0x07 |
+|******|
+\endcode
+*/
+
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_ExecuteCommands_gr DAP_ExecuteCommands
+\ingroup DAP_atomic_gr
+\brief Execute multiple DAP commands from a single packet.
+
+Executes multiple DAP commands that are provided in a single packet. Packet size limitation for requests and responses needs to respected.
+
+<b>DAP_ExecuteCommands Request:</b>
+\code
+ | BYTE | BYTE **|+++++++++++++++++++|
+ > 0x7F | NumCmd | Command Requests  |
+ |******|********|+++++++++++++++++++|
+\endcode
+
+  - \b NumCmd: Number of commands to execute
+  - <b>Commands Requests</b>: Concatenated command requests 
+  
+<b>DAP_ExecuteCommands Response:</b>
+\code
+ | BYTE | BYTE **|+++++++++++++++++++|
+ < 0x7F | NumCmd | Command Responses |
+ |******|********|+++++++++++++++++++|
+\endcode
+
+  - \b NumCmd: Number of commands executed
+  - <b>Commands Responses</b>: Concatenated command responses
+  
+<b>Example</b>:
+
+Execute two \ref DAP_SWJ_Pins commands with \ref DAP_Delay in between.
+
+<b>Request:</b>
+\code
+ | BYTE | BYTE | BYTE | BYTE ******| BYTE ******| WORD ****| BYTE | SHORT | BYTE | BYTE ******| BYTE ******| WORD ****|
+ > 0x7F | 0x03 | 0x10 | Pin Output | Pin Select | Pin Wait | 0x09 | Delay | 0x10 | Pin Output | Pin Select | Pin Wait |
+ |******|******|******|************|************|**********|******|*******|******|************|************|**********|
+        |NumCmd| DAP_SWJ_Pins                              | DAP_Delay    | DAP_SWJ_Pins                              |
+\endcode
+
+<b>Response:</b>
+\code
+ | BYTE | BYTE | BYTE | BYTE *****| BYTE | BYTE **| BYTE | BYTE *****|
+ < 0x7F | 0x03 | 0x10 | Pin Input | 0x09 | Status | 0x10 | Pin Input |
+ |******|******|******|***********|******|********|******|***********|
+        |NumCmd| DAP_SWJ_Pins     | DAP_Delay     | DAP_SWJ_Pins     |
+\endcode
+*/
+
+
+
+
+/**************************************************************************************************/
+/** 
+\defgroup DAP_QueueCommands_gr DAP_QueueCommands
+\ingroup DAP_atomic_gr
+\brief Queue multiple DAP commands provided in a multiple packets.
+
+Queues multiple DAP commands provided in multiple packets.
+Queuing starts with the first packet that includes \b DAP_QueueCommands command and continues with all subsequent packets that also include this command.
+Queued commands execute when a packet without \b DAP_QueueCommands command is received.
+Packet size and count limitation for requests and responses needs to respected.
+
+The command is similar to \ref DAP_ExecuteCommands_gr on a packet level but queues multiple packets before processing them.
+
+<b>DAP_QueueCommands Request:</b>
+\code
+ | BYTE | BYTE **|+++++++++++++++++++|
+ > 0x7E | NumCmd | Command Requests  |   First queued packet
+ |******|********|+++++++++++++++++++|
+  .
+  .
+  .
+ | BYTE | BYTE **|+++++++++++++++++++|
+ > 0x7E | NumCmd | Command Requests  |   Last queued packet
+ |******|********|+++++++++++++++++++|
+\endcode
+
+ - \b > Command Request (any command except \b DAP_QueueCommands)  \n
+        Queued commands are executed before this command
+ - \b NumCmd: Number of commands to queue (single packet)
+ - <b>Commands Requests</b>: Concatenated command requests (single packet)
+ 
+<b>DAP_QueueCommands Response:</b> 
+\code
+ | BYTE | BYTE **|+++++++++++++++++++|
+ < 0x7F | NumCmd | Command Responses |
+ |******|********|+++++++++++++++++++|
+  .
+  .
+  .
+ | BYTE | BYTE **|+++++++++++++++++++|
+ < 0x7F | NumCmd | Command Responses |
+ |******|********|+++++++++++++++++++|
+\endcode
+
+ - \b < Command Response (first non \b DAP_QueueCommands command)
+ - \b NumCmd: Number of commands executed (single packet)
+ - <b>Commands Responses</b>: Concatenated command responses (single packet)
+ 
+\b Example:
+
+Queue \ref DAP_SWJ_Pins and \ref DAP_Delay in first packet. \n
+Queue \ref DAP_SWJ_Pins in second packet. \n
+Queue \ref DAP_Delay in third packet. \n
+Send \ref DAP_SWJ_Pins in fourth packet which executes queued commands and command in the last packet.
+
+\b Request:
+
+\code
+ | BYTE | BYTE | BYTE | BYTE ******| BYTE ******| WORD ****| BYTE | SHORT |
+ > 0x7E | 0x02 | 0x10 | Pin Output | Pin Select | Pin Wait | 0x09 | Delay |
+ |******|******|******|************|************|**********|******|*******|
+   Queue|NumCmd| DAP_SWJ_Pins                              | DAP_Delay    |
+    
+ | BYTE | BYTE | BYTE | BYTE ******| BYTE ******| WORD ****|
+ > 0x7E | 0x01 | 0x10 | Pin Output | Pin Select | Pin Wait |
+ |******|******|******|************|************|**********|
+   Queue|NumCmd| DAP_SWJ_Pins                              |
+    
+ | BYTE | BYTE | BYTE | SHORT |
+ > 0x7E | 0x01 | 0x09 | Delay |
+ |******|******|******|*******|
+   Queue|NumCmd| DAP_Delay    |
+    
+ | BYTE | BYTE ******| BYTE ******| WORD ****|
+ > 0x10 | Pin Output | Pin Select | Pin Wait |
+ |******|************|************|**********|
+   DAP_SWJ_Pins                              |
+\endcode
+
+\b Response:
+
+\code
+ | BYTE | BYTE | BYTE | BYTE *****| BYTE | BYTE **|
+ < 0x7F | 0x02 | 0x10 | Pin Input | 0x09 | Status |
+ |******|******|******|***********|******|********|
+        |NumCmd| DAP_SWJ_Pins     | DAP_Delay     |
+  
+ | BYTE | BYTE | BYTE | BYTE *****|
+ < 0x7F | 0x01 | 0x10 | Pin Input |
+ |******|******|******|***********|
+        |NumCmd| DAP_SWJ_Pins     |
+   
+ | BYTE | BYTE | BYTE | BYTE **|
+ < 0x7F | 0x01 | 0x09 | Status |
+ |******|******|******|********|
+        |NumCmd| DAP_Delay     |
+   
+ | BYTE | BYTE *****|
+ < 0x10 | Pin Input |
+ |******|***********|
+   DAP_SWJ_Pins     |
+\endcode   
+*/

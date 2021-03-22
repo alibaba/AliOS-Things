@@ -1,0 +1,350 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page cp_Packs Overview
+
+The <b>CMSIS-Pack</b> format is used to deliver a software package and is aimed to be scalable for future requirements.
+It provides a management process and supports a tool independent distribution for:
+
+ - \ref createPack_DFP "Device Support" for tool chains and software applications to target a specific device:
+  - Information about the processor and it's features.
+  - C and assembly files for the device startup and access to the memory mapped peripheral registers.
+  - Parameters, technical information, and data sheets about the device family and the specific devices.
+  - Device description and available peripherals.
+  - Memory layout of internal and external RAM and ROM address ranges.
+  - \ref flashAlgorithm "Flash algorithms" for programming the device.
+  - Debug and trace configurations as well as System View Description files for device specific display of the memory mapped
+    peripheral registers.
+
+ - \ref createPackBoard "Board Support" for rapid development in the prototyping stage:
+  - Information about the development board and it's features.
+  - Parameters, technical information, and data sheets about the board, the mounted microcontroller and peripheral devices.
+  - Drivers for on-board peripheral devices
+
+ - \ref cp_SWComponents "Software Components" simplify the re-use of software and the management of 3rd party software. They contain:
+  - A collection of source modules, header and \ref configWizard "configuration files" as well as libraries.
+  - Documentation of the software, including features and APIs.
+  
+ - \ref cp_API "Application Programming Interfaces" specify one or more APIs for \ref cp_Components "software components" that are
+   part of another \ref cp_SWComponents "Software Pack".
+
+ - \ref cp_Examples can be used as a reference and starting point for similar applications. They contain:
+  - Fully defined application projects that work out of the box in the specified build and debug environments.
+  - Documentation about the purpose of the example, how to build, configure and execute the application.
+  
+ - \ref cp_CodeTemplates help to understand the basic concepts of a software component better and to give the user a
+   good starting point for implementing his application. 
+
+
+\section cp_Components Software Components
+
+A software component encapsulates a set of related functions. Software components can contain C/C++ source files, object code,
+assembler files, header files, or libraries. The interfaces of software components should be defined with \ref cp_API "API
+headers" to make them substitutable by other compatible components at design time. In addition, CMSIS software components
+should contain documentation for the software component. They may provide user code templates that give a starting point for
+the application developer, and can have optional debug view descriptions for debuggers. 
+
+CMSIS software components can also refer to multiple interfaces of other software components. This could be also a hardware
+abstraction layer for a device peripheral. 
+
+Configuration files contain application specific parameters for a software component. These files are typically copied to the
+user project workspace; all other files are not modified by the user and can remain in a separate location which avoids that
+a project workspace is polluted by many source files that should be considered as “black-box” elements by the application
+programmer.
+
+\image html software_component.png
+
+\anchor cp_CompDetails
+Technical Details
+-----------------
+
+A component lists the files that belong to it and that are relevant for a project. The component itself or each individual
+file may refer to a \ref element_condition "condition" that must resolve to true; if it is false, the component or file is
+not applicable in the given context.
+
+Each software component must have the following attributes that are used to identify the component:
+  - Component Class (\c Cclass): A component class which is a top-level component name, for example \b CMSIS, \b Device,
+    \b File \b System
+  - Component Group (\c Cgroup): A component group name, for example \b CMSIS:RTOS, \b Device:Startup, \b File \b System:CORE
+  - Component Version (\c Cversion): the version number of the software component.
+
+Optionally, a software component may have additional attributes:
+  - Component Sub-Group (\c Csub): A component sub-group that is used when multiple compatible implementations of a component
+    are be available. For example \b CMSIS:RTOS:MyRTOS, \b Device:Driver \b USBD:Full-speed
+  - Component Variant (\c Cvariant): A variant of the software component is typically used when the same implementation has
+    multiple top-level configurations, like debug and release.
+  - Component Vendor (\c Cvendor): the supplier of the software component.
+  - Cbundle: allows to combine multiple software components into a software bundle. For example if a network stack is used,
+    all interfaces must match to that component.
+  - Instances: allow to deploy multiple instances of a software component. Each instance can have a separate configuration
+    file.
+
+
+The \c Cclass, \c Cgroup, \c Csub, \c Cvariant and \c Cversion attributes are used together with the vendor specified by the
+pack to identify a component. A component vendor must ensure that the combination \c Cclass, \c Cgroup, \c Csub and
+\c Cversion is unique and not used by multiple components within the same Pack. Advertise a set of attributes to be used by
+other software components using the \ref element_taxonomy.
+
+For a list of established Cclasses, refer to \ref pack_Cclass.
+
+In case multiple interdependent components (belonging to the same \c Cclass) form part of a solution, these can be grouped
+in a so called \ref cp_Bundles "bundle". 
+
+Use the following syntax to reference to software components and APIs:\n
+<b>\<Vendor\>::\<Cclass\>:\<Cgroup\>:\<Csub\></b>
+  
+\b Examples:
+  - <b>\::CMSIS:RTOS (API)</b> - the CMSIS-RTOS API.
+  - <b>ARM::CMSIS:DSP</b> - the CMSIS-DSP Library.
+  - <b>\::File System:Drive:NOR</b> - the NOR Flash Drive of a file system.
+
+Here is an example for the display of software components in a development tool:
+
+\image html ComponentDisplay.png "Display of a software component in development tools"
+
+Software Component Files
+------------------------
+Each software component consists of a certain number of files. Each file has at least the following attributes:
+- \c name: File path, file name, and file extension in the format path/name.extension. The file path is relative to the root
+  directory of the Pack. 
+- \c category: Defines the purpose of the file. Select the predefined value as listed in the table
+  \ref FileCategoryEnum "File Categories".
+
+Optionally, every file may have the following attributes:
+- \c attr: Defines the special use and handling of a file. Select a predefined value as defined in the table
+  \ref FileAttributeEnum "File Attributes".
+- \c condition: Enter the identifier (attribute \em <b>id</b>) of a \ref element_condition "condition". The element is used
+  if the condition resolves to \token{true}.
+- \c select: Brief description and purpose of the file. The \b <em>select</em> attribute is \b required when \b <em>attr</em>
+  is set to \token{template} or \token{interface}. When multiple template files of a component have the same
+  \b <em>select</em> string, they are treated as a single selectable template. This way, multiple template or interface files
+  can be bundled.
+- \c src: Path information. The path is specified relative to the Pack Description File (PDSC).
+- \c version: File-specific version information. This is used particularly for files copied into the project workspace.
+  Before a file gets copied, a version check avoids unnecessary copy actions. If a file does not have a version, then the
+  component version is used.
+
+
+\section cp_Cond References to other software components
+
+Software components can reference other software components (either within the same pack or in other packs) using conditions:
+
+\image html conditions.png
+
+A condition describes dependencies on:
+- a specific device
+- a certain processor
+- tool attributes
+- the presence of other components (pcak internal or external)
+
+Conditions can be used to ensure that specific software components are either present in the system or can prevent that
+illegal combinations of software components are chosen by the user.
+
+Conditions are used to define <b>AND/OR</b> rules that make components conditional and therefore only available under
+certain circumstances, for example for specific devices or processors. Conditions are also used to express dependencies
+between software components.
+
+Each condition has an <b>id</b> that is unique within the scope of a the PDSC file. An id can be referenced in the
+\c condition attribute of components, APIs, examples, files and other conditions.
+All attributes set in a <b>accept</b>, <b>require</b>, or <b>deny</b> element must resolve to true for the element to become
+true. A condition becomes true when:
+- At least one <b>accept</b> element is true, \a AND
+- all <b>require</b> elements are true, \a AND
+- no <b>deny</b> element is true.
+
+If a condition resolves to false during processing, the respective element will be ignored.
+
+
+\section cp_Requirements Requirements
+
+Packs can require other packs to be available (and can even ask for a specific version of a pack):
+
+\image html requirements.png
+
+There are three different requirement types:
+- The \c packages section lists CMSIS Packs that have been used to configure the project. This includes the specification of
+  a version range to ensure compatibility. If no version is provided, the latest installed version is used. If not yet
+  installed, the latest available version will be installed before resolving the configuration.
+- The \c compilers section specifies the toolchains that are supported by this example. The required compiler version is
+  specified using the version element. If no compiler is specified, it is assumed that any toolchain will work.
+- The \c languages section allows to specify requirements regarding the programming language, for example C99 standard. If no
+  language requirements are set, ANSI C is assumed.
+
+
+\section cp_APIDef Central API definition
+
+The CMSIS-Pack system allows a central API definition that shares header file information and documentation of an
+\ref element_api "API interface".
+
+\image html api.png
+
+This single API interface definition ensures consistency when it is used across multiple implementations that consume the
+interface. The API interface definition can be distributed separately or as part of the software component that consumes this
+interface. 
+
+An example is the \b CMSIS-Driver pack that contains various hardware interface drivers that all compatible with the
+CMSIS-Driver APIs (that are published in the CMSIS Pack).
+
+
+\section cp_RTECompH Inventory header file: RTE_Components.h
+
+Frequently, the behavior or features of a software component depend on the presence of other software components in the
+application. For example, a network stack can interface to Ethernet or serial PPP (UART). Depending on the presence of
+interface components, the implementation may behave differently.
+
+To simplify application configuration, the file \b RTE_Components.h is generated before the project build step. It contains
+the inventory of all selected components. For each selected software component, it contains \#define statements that are
+specified by the component meta data. The following example shows an RTE_Components.h file:
+
+\code
+/* 
+   Auto generated Run-Time-Environment Component Configuration File 
+        *** Do not modify ! *** 
+ */ 
+
+#ifndef RTE_COMPONENTS_H 
+#define RTE_COMPONENTS_H 
+
+/* 
+   Define the Device Header File: 
+ */ 
+
+#define CMSIS_device_header "stm32f10x.h" 
+
+#define RTE_Network_Interface_ETH_0     /* Network Interface ETH 0 */ 
+#define RTE_Network_Socket_BSD          /* Network Socket BSD */ 
+#define RTE_Network_Socket_TCP          /* Network Socket TCP */ 
+#define RTE_Network_Socket_UDP          /* Network Socket UDP */ 
+
+#endif /* RTE_COMPONENTS_H */
+\endcode
+
+Use this information in other header files to control features that depend on the inclusion to other software components. For
+example:
+
+\code
+#include "RTE_Components.h" 
+#ifdef  RTE_Network_Interface_ETH_0  // if component is included 
+#include "Net_Config_ETH_0.h"        // add related configuration file 
+#endif
+\endcode
+
+
+\section cp_Combine Combining software components
+
+When using software components, you can use the conditions to automatically resolve dependencies on other components. Use
+this to combine components for a project in a certain way, while combining them differently for another project. In the
+following example, a network stack transfers data via Ethernet. The network stack requires a MAC and PHY to do this. The
+selected device from silicon vendor A that contains an on-chip MAC, thus only requiring a PHY to be selected:
+
+\image html internal_mac_example.png "Example with internal MAC"
+
+You can copy the project, select a different device from silicon vendor B for example and let the run-time environment
+manager do the exchange of the components. As the new devices do not have an on-chip MAC, you need to select a different
+component to fulfill the requirement for the network stack:
+
+\image html external_mac_example.png "Example with external MAC and PHY"
+
+This reduces the development time drastically, as the developer does not need to care for the correct dependency between
+software components, but can concentrate on the implementation of his own application code.
+
+
+\section cp_PackSteps Steps to Create a Pack
+
+The following image shows the basic steps that are required to create a Software Pack:
+
+\image html PackCreateSteps.png
+
+-# <b>Produce input:</b> Create the files that will be delivered with the Pack.
+-# <b>Organize files:</b> Use directories to separate the content of the Pack.
+-# <b>Create PDSC file:</b> The XML based PDSC file can be created using any text editor. Editors that can
+   validate XML code against a schema file help to find bugs early in the Pack development stage.
+-# <b>Generate Pack:</b> Any compression tool supporting the ZIP format can be used to create a Pack file. \ref packChk is
+   helpful for the validation of the contents of a Pack.
+
+The following pages will show how to create a Software Pack from scratch. The page \ref cp_SWComponents will start with a simple
+Pack containing only the PDSC file and a single software component and will then explain further elements of a Pack in more detail.
+The page \ref createPack_DFP adds information on the additional requirements that a DFP has, while \ref createPackBoard will
+elaborate on the content specific to a BSP.
+
+
+\section PackTutorials Pack Tutorial
+
+The <b>ARM::CMSIS</b> Pack contains tutorials that are explained on the following pages. In the \b \\CMSIS\\Pack\\Tutorials
+directory the following three ZIP files are available:
+|ZIP File                           |Documentation        
+|-----------------------------------|---------------------
+|Pack_with_Software_Components.zip  | \ref cp_SWComponents
+|Pack_with_Device_Support.zip       | \ref createPack_DFP
+|Pack_with_Board_Support.zip        | \ref createPackBoard
+
+
+\section PackFilenames Pack Conventions
+
+A \ref cp_SWComponents "Software Pack" is a collection of files located in directories that are archived in a file with the extension *.pack using the standard
+<a href="http://en.wikipedia.org/wiki/Zip_%28file_format%29" target="_blank">ZIP file format</a>.
+The Pack Description file (PDSC) with the file extension *.pdsc contains the \ref packFormat "meta information", describing the content of a pack based on 
+<a href="https://en.wikipedia.org/wiki/XML" target="_blank">XML</a>. The PDSC file must be:
+- included in the \ref cp_SWComponents "Software Pack"
+- located in the base folder of the archive
+- compliant with the \ref cp_SWComponents "Software Pack" file \ref pack_filename "naming convention"
+
+\note
+- The <em>base folder</em> is defined to be the root folder './' of a zip archive and it is imperative that the whole
+  \ref cp_SWComponents "Software Pack" only contains a single PDSC file.
+- Future tools shall support this case: if the PDSC file is located in an immediate subdirectory, then the subdirectory
+  becomes the base folder. The \ref cp_SWComponents "Software Pack" is installed as if the subdirectory does not exist. All
+  files and directories located in the root folder are ignored and do not get installed.
+
+\subsection pack_filename Pack File Name
+
+A \ref cp_SWComponents "Software Pack" must have a unique filename. Therefore it is constructed from vendor, packname and version and the file extension *.pack.
+
+<b>\<vendor\>.\<name\>.\<version\>.pack</b>.
+
+Where:
+ - <b>\<vendor\></b> is the name of the supplier or vendor of the \ref cp_SWComponents "Software Pack".
+ - <b>\<name\></b> is the name of the \ref cp_SWComponents "Software Pack". All packs that are published by a vendor must have a unique pack name.
+ - <b>\<release version="X.Y.Z"\></b>specifies the \ref VersionType "version number" of the release for the \ref cp_SWComponents "Software Pack".
+ - <b>.pack</b> is the file extension identifying a \ref cp_SWComponents "Software Pack".
+
+\note
+- The XML elements \elem{vendor}, \elem{name}, and the version attribute of the \elem{release} are specified in the \ref Filenames "PDSC" file. 
+  PDSC, Pack filenames are case sensitive and need to match exactly.
+- \elem{vendor} and \elem{name} \em must \em not contain spaces.
+- The PDSC file needs to reside in the base folder of the Pack. All file references are relative to the location of the PDSC file.
+
+\subsection pack_Cclass Software Component Cclasses
+
+If you add a software component in the PDSC file, you have to specify a component class (CClass), component group (Cgroup),
+and the component's version number (Cversion). For more information refer to \ref cp_Components.
+
+If applicable, try to map the \b Cclass of your software component to one of the following predefined or already well
+established classes listed below.  These \b Cclass names are pre-defined in the CMSIS pack using the \ref element_taxonomy "taxonomy" element.
+
+Cclass            | Description
+:-----------------|:------------------------------------------------------------------
+Audio             | Software components for audio processing
+Board Support     | Generic interfaces for evaluation and development boards
+Board Part *      | Drivers that support an external component available on an evaluation board
+CMSIS             | <i>Cortex Microcontroller Software Interface Standard</i> components
+CMSIS Driver      | Unified device drivers compliant to the CMSIS-Driver specification
+Compiler          | Arm Compiler software extensions
+Data Exchange     | Data exchange components or data formatter, for example JSON
+Device            | Startup and system setup components
+Extension Board * | Drivers that support an extension boards or shield
+File System*      | File drive support and file system
+Graphics*         | Graphical libraries for user interfaces
+IoT Client *      | IoT cloud client connectors
+IoT Utility *     | IoT specific utilities, i.e. a socket interface
+Network*          | Network stack using Internet protocols
+RTOS*             | Real-time operating systems
+Security*         | Encryption for secure communication or storage
+USB*              | Universal Serial Bus stack
+Utility           | Generic software utility components
+
+Classes with a * should always be used together with a \ref Component_Bundle "bundle" to avoid conflicts with other software
+components.
+
+If you wish to standardize a new Cclass, please send an inquiry to cmsis@arm.com or raise an issue on the public 
+<a href="https://github.com/ARM-software/CMSIS_5/issues">CMSIS GitHub development repository</a>.
+*/

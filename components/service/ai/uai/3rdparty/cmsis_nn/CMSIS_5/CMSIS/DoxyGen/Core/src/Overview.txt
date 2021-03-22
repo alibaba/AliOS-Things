@@ -1,0 +1,343 @@
+/** \mainpage Overview
+
+CMSIS-Core (Cortex-M) implements the basic run-time system for a Cortex-M device and gives the user access to the processor core and the device peripherals.
+In detail it defines:
+ - <b>Hardware Abstraction Layer (HAL)</b> for Cortex-M processor registers with standardized  definitions for the SysTick, NVIC, System Control Block registers, MPU registers, FPU registers, and core access functions.
+ - <b>System exception names</b> to interface to system exceptions without having compatibility issues.
+ - <b>Methods to organize header files</b> that makes it easy to learn new Cortex-M microcontroller products and improve software portability. This includes naming conventions for device-specific interrupts.
+ - <b>Methods for system initialization</b> to be used by each MCU vendor. For example, the standardized SystemInit() function is essential for configuring the clock system of the device.
+ - <b>Intrinsic functions</b> used to generate CPU instructions that are not supported by standard C functions.
+ - A variable to determine the <b>system clock frequency</b> which simplifies the setup the SysTick timer.
+
+
+The following sections provide details about the CMSIS-Core (Cortex-M):
+ - \ref using_pg describes the project setup and shows a simple program example.
+\if ARMv8M
+ - \ref using_TrustZone_pg "Using TrustZone&reg; for Armv8-M" describes how to use the security extensions available in the Armv8-M architecture.
+\endif 
+ - \ref templates_pg describes the files of the CMSIS-Core (Cortex-M) in detail and explains how to adapt template files provided by Arm to silicon vendor devices.
+ - \ref coreMISRA_Exceptions_pg describes the violations to the MISRA standard.
+ - <a href="Modules.html">\b Reference </a> describe the features and functions of the \ref device_h_pg in detail.
+ - <a href="Annotated.html">\b Data \b Structures </a> describe the data structures of the \ref device_h_pg in detail.
+
+<hr>
+
+CMSIS-Core (Cortex-M) in ARM::CMSIS Pack
+-----------------------------
+
+Files relevant to CMSIS-Core (Cortex-M) are present in the following <b>ARM::CMSIS</b> directories:
+|File/Folder                   |Content                                                                 |
+|------------------------------|------------------------------------------------------------------------|
+|\b CMSIS\\Documentation\\Core | This documentation                                                     |
+|\b CMSIS\\Core\\Include       | CMSIS-Core (Cortex-M) header files (for example core_cm3.h, core_cmInstr.h, etc.) |
+|\b Device                     | \ref using_ARM_pg "Arm reference implementations" of Cortex-M devices  |
+|\b Device\\\_Template_Vendor  | \ref templates_pg for extension by silicon vendors                     |
+
+<hr>
+
+\section ref_v6-v8M Processor Support
+
+CMSIS supports the complete range of <a href="https://developer.arm.com/products/processors/cortex-m" target="_blank"><b>Cortex-M processors</b></a> and 
+the <a href="http://www.arm.com/products/processors/instruction-set-architectures/armv8-m-architecture.php" target="_blank"><b>Armv8-M/v8.1-M architecture</b></a> including security extensions.
+
+\subsection ref_man_sec Cortex-M Reference Manuals
+
+The Cortex-M Device Generic User Guides contain the programmers model and detailed information about the core peripherals and are available for:
+
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0497a/DUI0497A_cortex_m0_r0p0_generic_ug.pdf" target="_blank"><b>Cortex-M0 Devices Generic User Guide</b></a> (Armv6-M architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0662b/DUI0662B_cortex_m0p_r0p1_dgug.pdf" target="_blank"><b>Cortex-M0+ Devices Generic User Guide</b></a> (Armv6-M architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0552a/DUI0552A_cortex_m3_dgug.pdf" target="_blank"><b>Cortex-M3 Devices Generic User Guide</b></a> (Armv7-M architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/DUI0553A_cortex_m4_dgug.pdf" target="_blank"><b>Cortex-M4 Devices Generic User Guide</b></a> (ARMv7-M architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0646a/DUI0646A_cortex_m7_dgug.pdf" target="_blank"><b>Cortex-M7 Devices Generic User Guide</b></a> (Armv7-M architecture)
+
+\if ARMv8M
+The \b Cortex-M23 and \b Cortex-M33 are described with Technical Reference Manuals that are available here:
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0550c/cortex_m23_r1p0_technical_reference_manual_DDI0550C_en.pdf" target="_blank"><b>Cortex-M23 Technical Reference Manual</b></a> (Armv8-M baseline architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.100230_0002_00_en/cortex_m33_trm_100230_0002_00_en.pdf" target="_blank"><b>Cortex-M33 Technical Reference Manual</b></a> (Armv8-M mainline architecture)
+
+CMSIS also supports the following Cortex-M processor variants:
+- <a href="https://developer.arm.com/products/processors/cortex-m/cortex-m1" target="_blank"><b>Cortex-M1</b></a> is a processor designed specifically for implementation in FPGAs (Armv6-M architecture).
+- <a href="https://developer.arm.com/products/processors/cortex-m/sc000-processor" target="_blank"><b>SecurCore SC000</b></a> is designed specifically for smartcard and security applications (Armv6-M architecture).
+- <a href="https://developer.arm.com/products/processors/cortex-m/sc300-processor" target="_blank"><b>SecurCore SC300</b></a> is designed specifically for smartcard and security applications (Armv7-M architecture).
+- <a href="https://developer.arm.com/products/processors/cortex-m/sc300-processor" target="_blank"><b>Cortex-M35P</b></a> is a temper resistant Cortex-M processor with optional software isolation using TrustZone for Armv8-M.  
+
+\subsection ARMv8M Armv8-M and Armv8.1-M Architecture
+
+Armv8-M introduces two profiles \b baseline (for power and area constrained applications) and \b mainline (full-featured with optional SIMD, floating-point, and co-processor extensions).
+Both Armv8-M profiles and Armv8.1M are supported by CMSIS.
+
+The Armv8-M Architecture is described in the <a href="http://developer.arm.com/products/architecture/m-profile/docs/ddi0553/latest/armv8-m-architecture-reference-manual" target="_blank"><b>Armv8-M Architecture Reference Manual</b></a>.
+
+The Armv8.1-M Architecture further extends Armv8-M with Helium, an Microcontroller Vector Extension (MVE) and further instruction set and debug extensions. 
+More information about Armv8.1-M Architecture is available under <a href="https://developer.arm.com/technologies/helium" target="_blank"><b>Arm Helium technology</b></a>.
+
+\endif
+
+<hr>
+
+\section tested_tools_sec Tested and Verified Toolchains
+
+The \ref templates_pg supplied by Arm have been tested and verified with the following toolchains:
+ - Arm: Arm Compiler 5.06 update 6 (not for Cortex-M23/33/35P, Armv8-M, Armv8.1-M)
+ - Arm: Arm Compiler 6.12
+ - Arm: Arm Compiler 6.6.2 (not for Cortex-M0/23/33/35P, Armv8-M, Armv8.1-M)
+ - GNU: GNU Tools for Arm Embedded 8.2.1 2018q4
+ - IAR: IAR ANSI C/C++ Compiler for Arm 8.20.1.14183
+
+<hr>
+*/
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+
+\page core_revisionHistory Revision History of CMSIS-Core (Cortex-M)
+
+<table class="cmtable" summary="Revision History">
+    <tr>
+      <th>Version</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>V5.3.0</td>
+      <td>
+        Added: Provisions for compiler-independent C startup code.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.2.1</td>
+      <td>
+        Fixed: Compilation issue in cmsis_armclang_ltm.h introduced in 5.2.0
+      </td>
+    </tr>
+    <tr>
+      <td>V5.2.0</td>
+      <td>
+        Added: Cortex-M35P support.\n
+        Added: Cortex-M1 support.\n
+        Added: Armv8.1 architecture support.\n
+        Added: \ref __RESTRICT and \ref __STATIC_FORCEINLINE compiler control macros.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.1.2</td>
+      <td>
+        Removed using get/set built-ins FPSCR in GCC >= 7.2 due to shortcomings.\n
+        Added __NO_RETURN to __NVIC_SystemReset() to silence compiler warnings.\n
+        Added support for Cortex-M1 (beta). \n
+        Removed usage of register keyword. \n
+        Added defines for EXC_RETURN, FNC_RETURN and integrity signature values. \n
+        Enhanced MPUv7 API with defines for memory access attributes.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.1.1</td>
+      <td>
+        Aligned MSPLIM and PSPLIM access functions along supported compilers.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.1.0</td>
+      <td>
+        Added MPU Functions for ARMv8-M for Cortex-M23/M33.\n
+        Moved __SSAT and __USAT intrinsics to CMSIS-Core.\n
+        Aligned __REV, __REV16 and __REVSH intrinsics along supported compilers.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.0.2</td>
+      <td>
+        Added macros  \ref \__UNALIGNED_UINT16_READ,  \ref \__UNALIGNED_UINT16_WRITE.\n
+        Added macros  \ref \__UNALIGNED_UINT32_READ,  \ref \__UNALIGNED_UINT32_WRITE.\n
+        Deprecated macro  \ref \__UNALIGNED_UINT32.\n
+        Changed \ref version_control_gr macros to be core agnostic. \n
+        Added \ref mpu_functions for Cortex-M0+/M3/M4/M7.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.0.1</td>
+      <td>
+        Added: macro \ref \__PACKED_STRUCT. \n
+        Added: uVisor support. \n
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00</td>
+      <td>
+        Added: Cortex-M23, Cortex-M33 support.\n
+        Added: macro __SAU_PRESENT with __SAU_REGION_PRESENT. \n
+        Replaced: macro __SAU_PRESENT with __SAU_REGION_PRESENT. \n
+        Reworked: SAU register and functions. \n
+        Added: macro \ref \__ALIGNED. \n
+        Updated: function \ref SCB_EnableICache. \n
+        Added: cmsis_compiler.h with compiler specific CMSIS macros, functions, instructions. \n
+        Added: macro \ref \__PACKED. \n
+        Updated: compiler specific include files. \n
+        Updated: core dependant include files. \n
+        Removed: deprecated files core_cmfunc.h, core_cminstr.h, core_cmsimd.h.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00<br>Beta 6</td>
+      <td>
+        Added: SCB_CFSR register bit definitions. \n
+        Added: function \ref NVIC_GetEnableIRQ. \n
+        Updated: core instruction macros \ref \__NOP, \ref \__WFI, \ref \__WFE, \ref \__SEV for toolchain GCC.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00<br>Beta 5</td>
+      <td>
+        Moved: DSP libraries from CMSIS/DSP/Lib to CMSIS/Lib. \n
+        Added: DSP libraries build projects to CMSIS pack.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00<br>Beta 4</td>
+      <td>
+        Updated: ARMv8M device files. \n
+        Corrected: ARMv8MBL interrupts. \n
+        Reworked: NVIC functions.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00<br>Beta 2</td>
+      <td>
+        Changed: ARMv8M SAU regions to 8. \n
+        Changed: moved function \ref TZ_SAU_Setup to file partition_&lt;device&gt;.h. \n
+        Changed: license under Apache-2.0. \n
+        Added: check if macro is defined before use. \n
+        Corrected: function \ref SCB_DisableDCache. \n
+        Corrected: macros \ref \_VAL2FLD, \ref \_FLD2VAL. \n
+        Added: NVIC function virtualization with macros \ref CMSIS_NVIC_VIRTUAL and \ref CMSIS_VECTAB_VIRTUAL.
+      </td>
+    </tr>
+    <tr>
+      <td>V5.00<br>Beta 1</td>
+      <td>
+        Renamed: cmsis_armcc_V6.h to cmsis_armclang.h.\n
+        Renamed: core\_*.h to lower case.\n
+        Added: function \ref SCB_GetFPUType to all CMSIS cores.\n
+        Added: ARMv8-M support.
+      </td>
+    </tr>
+    <tr>
+      <td>V4.30</td>
+      <td>
+        Corrected: DoxyGen function parameter comments.\n
+        Corrected: IAR toolchain: removed for \ref NVIC_SystemReset the attribute(noreturn).\n
+        Corrected: GCC toolchain: suppressed irrelevant compiler warnings.\n
+        Added: Support files for Arm Compiler v6 (cmsis_armcc_v6.h).
+      </td>
+    </tr>
+    <tr>
+      <td>V4.20</td>
+      <td>
+        Corrected: MISRA-C:2004 violations. \n
+        Corrected: predefined macro for TI CCS Compiler. \n
+        Corrected: function \ref __SHADD16 in arm_math.h. \n
+        Updated: cache functions for Cortex-M7. \n
+        Added: macros \ref _VAL2FLD, \ref _FLD2VAL to core\_*.h. \n
+        Updated: functions \ref __QASX, \ref __QSAX, \ref __SHASX, \ref __SHSAX. \n
+     Corrected: potential bug in function \ref __SHADD16.
+    </td>
+    </tr>
+    <tr>
+      <td>V4.10</td>
+      <td>
+        Corrected: MISRA-C:2004 violations. \n
+        Corrected: intrinsic functions \ref __DSB, \ref __DMB, \ref __ISB. \n
+        Corrected: register definitions for ITCMCR register. \n
+        Corrected: register definitions for \ref CONTROL_Type register. \n
+        Added: functions \ref SCB_GetFPUType, \ref SCB_InvalidateDCache_by_Addr to core_cm7.h. \n
+        Added: register definitions for \ref APSR_Type, \ref IPSR_Type, \ref xPSR_Type register. \n
+        Added: \ref __set_BASEPRI_MAX function to core_cmFunc.h. \n
+        Added: intrinsic functions \ref __RBIT, \ref __CLZ  for Cortex-M0/CortexM0+. \n
+      </td>
+    </tr>
+    <tr>
+      <td>V4.00</td>
+      <td>
+        Added: Cortex-M7 support.\n
+        Added: intrinsic functions for \ref __RRX, \ref __LDRBT, \ref __LDRHT, \ref __LDRT, \ref __STRBT, \ref __STRHT, and \ref __STRT  \n
+      </td>
+    </tr>
+    <tr>
+      <td>V3.40</td>
+      <td>Corrected: C++ include guard settings.\n</td>
+    </tr>
+    <tr>
+      <td>V3.30</td>
+      <td>
+        Added: COSMIC tool chain support.\n
+        Corrected: GCC __SMLALDX instruction intrinsic for Cortex-M4.\n
+        Corrected: GCC __SMLALD instruction intrinsic for Cortex-M4.\n
+        Corrected: GCC/CLang warnings.\n
+      </td>
+    </tr>
+    <tr>
+      <td>V3.20</td>
+      <td>
+        Added: \ref __BKPT instruction intrinsic.\n
+        Added: \ref __SMMLA instruction intrinsic for Cortex-M4.\n
+        Corrected: \ref ITM_SendChar.\n
+        Corrected: \ref __enable_irq, \ref __disable_irq and inline assembly for GCC Compiler.\n
+        Corrected: \ref NVIC_GetPriority and VTOR_TBLOFF for Cortex-M0/M0+, SC000. \n
+        Corrected: rework of in-line assembly functions to remove potential compiler warnings.\n
+      </td>
+    </tr>
+    <tr>
+      <td>V3.01</td>
+      <td>Added support for Cortex-M0+ processor.\n</td>
+    </tr>
+    <tr>
+      <td>V3.00</td>
+      <td>
+        Added support for GNU GCC ARM Embedded Compiler. \n
+        Added function \ref __ROR.\n
+        Added \ref regMap_pg for TPIU, DWT. \n
+        Added support for \ref core_config_sect "SC000 and SC300 processors".\n
+        Corrected \ref ITM_SendChar function. \n
+        Corrected the functions \ref __STREXB, \ref __STREXH, \ref __STREXW for the GNU GCC compiler section. \n
+        Documentation restructured.
+      </td>
+    </tr>
+    <tr>
+      <td>V2.10</td>
+      <td>
+        Updated documentation.\n
+        Updated CMSIS core include files.\n
+        Changed CMSIS/Device folder structure.\n
+        Added support for Cortex-M0, Cortex-M4 w/o FPU to CMSIS DSP library.\n
+        Reworked CMSIS DSP library examples.
+      </td>
+    </tr>
+    <tr>
+      <td>V2.00</td>
+      <td>Added support for Cortex-M4 processor.</td>
+    </tr>
+    <tr>
+      <td>V1.30</td>
+      <td>
+        Reworked Startup Concept.\n
+        Added additional Debug Functionality.\n
+        Changed folder structure.\n
+        Added doxygen comments.\n
+        Added definitions for bit.
+      </td>
+    </tr>
+    <tr>
+      <td>V1.01</td>
+      <td>Added support for Cortex-M0 processor.</td>
+    </tr>
+    <tr>
+      <td>V1.01</td>
+      <td>Added intrinsic functions for \ref __LDREXB, \ref __LDREXH, \ref __LDREXW, \ref __STREXB, \ref __STREXH, \ref __STREXW, and \ref __CLREX</td>
+    </tr>
+    <tr>
+      <td>V1.00</td>
+      <td>Initial Release for Cortex-M3 processor.</td>
+    </tr>
+</table>
+
+*/
+
+

@@ -1,0 +1,1913 @@
+/**************************************************************************************************/
+/**
+\page coresight_setup  Debug Setup with CMSIS-Pack
+
+CMSIS-Pack offers two ways to simplify the debug setup:
+- A \subpage debug_description declares a set of standardized debug and trace methods are automatically executed by the
+  debugger. Implementation-specific steps can be described using an XML syntax. This concept is easy to implement for basic
+  chip configurations that mostly rely on a standard implementation of the CoreSight architecture. Most single-core devices
+  should be able to be specified completely with debug descriptions.  
+- For more complex topologies and multi-core devices, a \ref sdf_pg "System Description File" helps debuggers to connect to
+  the target and access all available cores via trace. An SDF file is more complex (although also specified in XML), but is
+  also more flexible with regards to the underlying debug architecture.
+*/
+
+
+/******************************************************************************************************************/
+/**
+\page debug_description Debug Description
+
+Debug descriptions allow silicon vendors to create tool-agnostic debug and trace configurations so that the development
+environment settings can be reduced to simple checkboxes for selecting for example either standard run/stop debugging or
+complex instruction tracing.
+
+
+\section das_concept Concept
+
+A set of standardized debug and trace methods are automatically executed by the debugger:
+ - Setting breakpoints and watchpoints
+ - Reading memory and registers
+ - Starting and stopping trace
+
+Implementation-specific steps can be described using an XML syntax:
+ - Special hardware reset
+ - Trace buffer setup
+ - Patch silicon issues
+
+ 
+\section das_elements Debug description elements
+
+A complete debug description for a device consists of the following elements:
+ - \refelem{debug} with the child element \refelem{dbg_datapatch} contains settings for the debug connection and for
+   fixing silicon issues in software.
+ - \refelem{debugconfig} provides the default debugger configuration for a target connection.
+ - \refelem{debugvars} specifies global debug access variables. They can be used in addition to predefined variables in
+   order to query settings from a debug access sequences.
+ - \refelem{debugport} with the child elements \refelem{dp_jtag}, \refelem{dp_swd}, and \refelem{dp_cjtag} describes the
+   debug port in detail.
+ - \refelem{sequences} with the child elements \refelem{sequence}, \refelem{seq_control}, and \refelem{seq_block} creates a
+   configuration for debug access sequences.
+ - \refelem{trace} with the child elements \refelem{trace_serialwire}, \refelem{trace_traceport}, and
+   \refelem{trace_tracebuffer} sets up the trace connection.
+
+   
+\section pdsc_SequenceNameEnum_pg Debug access sequences
+
+Debug access sequences define the activities of development tools to connect to a device using the debug channel for
+debugging, tracing, or flash programming. Several debug access sequences are predefined and executed in specific context. 
+Refer to \refelem{sequences} for details.
+
+Software development tools should implement \ref default_sequences. These default sequences can be overwritten by device
+specific sequences using the \refelem{sequence} element in the \refelem{sequences} section of the PDSC file. Additionally,
+a PDSC file can contain user-defined sequences, for example to reuse access sequence fragments:
+ - \ref usage_of_sequences explains how the sequences are used from a development tool point of view.
+ - \ref default_sequences lists all debug access sequences that are predefined by the CMSIS-Pack standard and shows the
+   details of the default debug access sequences.
+ - \ref writing_sequences explains how to write custom debug access sequences. These can be used to either override default
+   sequences or to define device specific sequences.
+
+
+\section usage_of_sequences Usage of debug access sequences
+
+Predefined Debug Access Sequences are used in the following context:
+ - <b>Connect Debugger to Device</b> is executed when debugging or flash programming with the target starts.
+ - <b>Reset Device</b> is executed to reset the target.
+ - <b>Verify Code</b> is executed to verify the content after flash programming.
+ - <b>Disconnect Debugger</b> is executed when debugging or flash programming with the target stops.
+
+The following diagrams show how the Debug Access Sequences are executed by a development tool.
+
+<b>Connect Debugger to Device</b> is executed when debugging or flash programming with the target starts.
+
+\image html DebugConnect.png 
+
+<b>Reset Device</b> is executed to reset the target.
+
+\image html Reset.png 
+
+<b>Verify Code</b> is executed to verify the content after flash programming.
+
+\image html CodeVerify.png 
+
+<b>Disconnect Debugger</b> is executed when debugging or flash programming with the target stops.
+
+\image html DebugDisconnect.png 
+
+
+\section default_sequences Default debug access sequences
+
+Debug access sequences get defined in the \ref element_sequence "sequence" element. The following table lists the available
+predefined debug access sequences. \ref default_sequences are executed if they are not overwritten using a
+\refelem{sequence} element. Refer to \ref usage_of_sequences for more information about the execution of these sequences.
+
+For debug access sequences marked in \token{ItalicRed}, no default sequence exists. The usage in a debug description requires
+a related \refelem{sequence} element to be present. The other sequences should be implemented in a development tool. They are
+executed when no sequence definition exists in the PDSC file.
+
+\note Default debug access sequences read the System Control Space (SCS) of the processor and assume that the SCS offset is
+implemented as defined in the Armv6-M/Armv7-M/Armv8-M architecture reference manual.
+
+<table class="cmtable" summary="Enumeration: SequenceNameEnum">
+  <tr>
+    <th>name=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref debugPortSetup</td>
+    <td>Prepare the target debug port for connection; is executed before acquiring access to the debug port.<br>
+	May include for example an SWJ-DP switch sequence as defined in the Arm Debug Interface (ADI) Architecture Specification.<br>
+    <b>This sequence must not contain debug port/access port register and target memory accesses other than:</b>
+    - <b>Reading the \em DPIDR debug port register to release an SWD connection from its line reset.</b>
+    - <b>Writing the \em TARGETSEL debug port register (SWD protocol v2).</b>
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref debugPortStart</td>
+    <td>Connect to the target debug port and power it up; is executed after DebugPortSetup.<br>
+	The parent <b>debugport</b> is default debug port for this sequence.<br>
+    <b>This sequence must not contain access port register and target memory accesses.</b></td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref debugPortStop</td>
+    <td>Power down and disconnect from target debug port.<br>
+    Executed as last step during target disconnect unless another debugger connection to this port is active. The parent
+    <b>debugport</b> is default debug port for this sequence.<br>
+    <b>This sequence must not contain access port register and target memory accesses.</b></td>
+  </tr>
+  <tr>
+    <td class="XML-Token">DebugDeviceUnlock</td>
+    <td>Check if the device is in a locked state and unlock it. Use <b>query</b> command elements
+    for user confirmation.<br>
+    Executed after having powered up the debug port.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref debugCoreStart</td>
+    <td>Initialize core debug system.<br>
+    Executed after having connected and powered up the default debug port for the connection.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref debugCoreStop</td>
+    <td>Uninitialized core debug system.<br>
+    Executed as last step during disconnect before powering down any debug ports no longer required for
+    concurrent connections.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">DebugCodeMemRemap</td>
+    <td>Remap memory to execution location.<br>
+    Executed before verifying memory content after flash programming. This is required to replicate a memory remap of a device bootloader (that is not executed during debug connection).
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetSystem</td>
+    <td>Execute a system-wide reset via software mechanisms.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetProcessor</td>
+    <td>Execute a processor reset via software mechanisms.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetHardware</td>
+    <td>Execute a system-wide reset via the dedicated debugger reset line, e.g. nRST.
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetHardwareAssert</td>
+    <td>Assert a system-wide reset via the dedicated debugger reset line, e.g. nRST.
+  </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetHardwareDeassert</td>
+    <td>De-assert a system-wide reset via the dedicated debugger reset line, e.g. nRST.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetCatchSet</td>
+    <td>Executed before a target reset to configure the vector catch to stop code execution after the reset.<br>
+    The implementation of <b>ResetCatchSet</b> requires an implementation of <b>ResetCatchClear</b>
+    to free any hardware resources used for stopping the core.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">\ref resetCatchClear</td>
+    <td>Executed after a target reset to free hardware resources allocated by <b>ResetCatchSet</b>.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashInit</td>
+    <td>
+    Executed before starting a flash operation.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashUninit</td>
+    <td>
+    Executed after a flash operation finished.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashEraseSector</td>
+    <td>
+    Executed to erase a flash memory sector.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashEraseChip</td>
+    <td>
+    Executed to erase all on-chip flash memory with target device specific erase technology. If this sequence is not implemented then a debugger can use <b>FlashEraseSector</b> to erase all flash memory.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashEraseDone</td>
+    <td>
+    Executed after all flash memory erase operations are finished.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashProgramPage</td>
+    <td>
+    Executed to program a single flash page.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">FlashProgramDone</td>
+    <td>
+    Executed after all flash programming operations are finished.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">TraceStart</td>
+    <td>Enable target trace capture.<br>
+    Executed before the debugger powers up and configures standard CoreSight trace components, e.g. after the initial target connection
+    as well as after a system-wide reset.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">TraceStop</td>
+    <td>Disable target trace capture.<br>
+    Executed after the debugger disabled and powered down standard CoreSight trace components.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RecoverySupportStart</td>
+    <td>Executed before step or run command to support recovery from a lost target connection, e.g. after a low power mode.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RecoverySupportStop</td>
+    <td>Executed after step or run command in context of the <b>RecoverySupportStart</b> sequence.
+    </td>
+  </tr>
+  <tr>
+    <td class="XML-Token">RecoveryAcknowledge</td>
+    <td>Debugger acknowledge after recovering from a lost target connection. Can be executed independently
+    from a <b>RecoverySupportStart</b> sequence.
+    </td>
+  </tr>
+</table>
+
+
+Predefined default debug access sequences
+-----------------------------------------
+The following sections the show the details of the predefined default debug access sequences.
+
+\subsection debugPortSetup DebugPortSetup
+
+Prepare the target debug port for connection.
+
+\code  
+  <sequence name="DebugPortSetup">
+    <block>
+      __var isSWJ    = ((__protocol &amp; 0x00010000) != 0);
+      __var protType = __protocol &amp; 0x0000FFFF;
+    </block>
+  
+    <!-- JTAG Protocol -->
+    <control if="protType == 1">
+    
+      <control if="isSWJ">
+      
+        <block atomic="1">
+          // Ensure current debug interface is in reset state
+          DAP_SWJ_Sequence(51, 0x0007FFFFFFFFFFFF);
+          
+          // Execute SWJ-DP Switch Sequence SWD to JTAG (0xE73C)
+          // Change if SWJ-DP uses deprecated switch code (0xAEAE)
+          DAP_SWJ_Sequence(16, 0xE73C);
+          
+          // Ensure JTAG interface is reset
+          DAP_SWJ_Sequence(6, 0x3F);
+        </block>
+        
+      </control>
+    
+      <block atomic="1">
+        // JTAG "Soft" Reset
+        DAP_JTAG_Sequence(6, 1, 0x3F);
+        DAP_JTAG_Sequence(1, 0, 0x01);
+      </block>
+
+    </control>
+    
+    <!-- SWD Protocol -->
+    <control if="protType == 2">
+    
+      <control if="isSWJ">
+        
+        <block atomic="1">
+          // Ensure current debug interface is in reset state
+          DAP_SWJ_Sequence(51, 0x0007FFFFFFFFFFFF);
+          
+          // Execute SWJ-DP Switch Sequence JTAG to SWD (0xE79E)
+          // Change if SWJ-DP uses deprecated switch code (0xEDB6)
+          DAP_SWJ_Sequence(16, 0xE79E);
+          
+          // Enter SWD Line Reset State
+          DAP_SWJ_Sequence(51, 0x0007FFFFFFFFFFFF);  // &gt; 50 cycles SWDIO/TMS High
+          DAP_SWJ_Sequence(3,  0x00);                // At least 2 idle cycles (SWDIO/TMS Low)
+        </block>
+      
+      </control>
+    
+      <control if="!isSWJ">
+      
+        <block atomic="1">
+          // Enter SWD Line Reset State
+          DAP_SWJ_Sequence(51, 0x0007FFFFFFFFFFFF);  // &gt; 50 cycles SWDIO/TMS High
+          DAP_SWJ_Sequence(3,  0x00);                // At least 2 idle cycles (SWDIO/TMS Low)
+        </block>
+        
+      </control>
+      
+      <block>
+        // Read DPIDR to enable SWD interface (SW-DPv1 and SW-DPv2)
+        ReadDP(0x0);
+      </block>
+
+    </control>
+    
+  </sequence>
+\endcode
+
+
+\subsection debugPortStart DebugPortStart
+
+Connect to the target debug port and power it up.
+
+\code
+  <sequence name="DebugPortStart">
+    
+    <block>
+      __var SW_DP_ABORT  = 0x0;
+      __var DP_CTRL_STAT = 0x4;
+      __var DP_SELECT    = 0x8;
+      __var powered_down = 0;
+
+      // Switch to DP Register Bank 0
+      WriteDP(DP_SELECT, 0x00000000);
+    
+      // Read DP CTRL/STAT Register and check if CSYSPWRUPACK and CDBGPWRUPACK bits are set
+      powered_down = ((ReadDP(DP_CTRL_STAT) &amp; 0xA0000000) != 0xA0000000);
+    </block>
+    
+    <control if="powered_down">
+    
+      <block>
+        // Request Debug/System Power-Up
+        WriteDP(DP_CTRL_STAT, 0x50000000);
+      </block>
+      
+      <!-- Wait for Power-Up Request to be acknowledged -->
+      <control while="(ReadDP(DP_CTRL_STAT) &amp; 0xA0000000) != 0xA0000000" timeout="1000000"/>
+      
+      <!-- JTAG Specific Part of sequence -->
+      <control if="(__protocol &amp; 0xFFFF) == 1">
+      
+        <block>
+          // Init AP Transfer Mode, Transaction Counter, and Lane Mask (Normal Transfer Mode, Include all Byte Lanes)
+          // Additionally clear STICKYORUN, STICKYCMP, and STICKYERR bits by writing '1'
+          WriteDP(DP_CTRL_STAT, 0x50000F32);
+        </block>
+        
+      </control>
+      
+      <!-- SWD Specific Part of sequence -->
+      <control if="(__protocol &amp; 0xFFFF) == 2">
+      
+        <block>
+          // Init AP Transfer Mode, Transaction Counter, and Lane Mask (Normal Transfer Mode, Include all Byte Lanes)
+          WriteDP(DP_CTRL_STAT, 0x50000F00);
+          
+          // Clear WDATAERR, STICKYORUN, STICKYCMP, and STICKYERR bits of CTRL/STAT Register by write to ABORT register
+          WriteDP(SW_DP_ABORT, 0x0000001E);
+        </block>
+
+      </control>
+      
+    </control>
+    
+  </sequence>
+\endcode
+
+\subsection debugPortStop DebugPortStop
+
+Power down and disconnect from target debug port.
+
+\code  
+  <sequence name="DebugPortStop">
+  
+    <block>
+      __var DP_CTRL_STAT = 0x4;
+      __var DP_SELECT    = 0x8;
+      
+      // Switch to DP Register Bank 0
+      WriteDP(DP_SELECT, 0x00000000);
+      
+      // Power Down Debug port
+      WriteDP(DP_CTRL_STAT, 0x00000000);
+    </block>
+  
+  </sequence>
+\endcode
+
+
+\subsection debugCoreStart DebugCoreStart
+
+Initialize core debug system.
+
+\code
+  <sequence name="DebugCoreStart">
+  
+    <block>
+      // System Control Space (SCS) offset as defined in Armv6-M/Armv7-M.
+    
+      __var SCS_Addr   = 0xE000E000;
+      __var DHCSR_Addr = SCS_Addr + 0xDF0;
+
+      // Enable Core Debug via DHCSR
+      Write32(DHCSR_Addr, 0xA05F0001);
+    </block>
+    
+  </sequence>
+\endcode
+
+
+\subsection debugCoreStop DebugCoreStop
+
+Un-initialize core debug system.
+
+\code
+  <sequence name="DebugCoreStop">
+  
+    <block>
+      // System Control Space (SCS) offset as defined in Armv6-M/Armv7-M.
+      
+      __var SCS_Addr   = 0xE000E000;
+      __var DHCSR_Addr = SCS_Addr + 0xDF0;
+      __var DEMCR_Addr = SCS_Addr + 0xDFC;
+      
+      // Disable Core Debug via DHCSR
+      Write32(DHCSR_Addr, 0xA05F0000);
+      
+      // Disable DWT and ITM blocks, DebugMonitor handler,
+      // halting debug traps, and Reset Vector Catch.
+      Write32(DEMCR_Addr, 0x00000000);
+    </block>
+    
+  </sequence>
+\endcode
+
+
+\subsection resetSystem ResetSystem
+
+Execute a system-wide reset via software mechanisms.
+
+\code
+  <sequence name="ResetSystem">
+  
+    <block>
+      // System Control Space (SCS) offset as defined in Armv6-M/Armv7-M.
+
+      __var SCS_Addr   = 0xE000E000;
+      __var AIRCR_Addr = SCS_Addr + 0xD0C;
+      __var DHCSR_Addr = SCS_Addr + 0xDF0;
+    
+      // Execute SYSRESETREQ via AIRCR
+      Write32(AIRCR_Addr, 0x05FA0004);
+    </block>
+
+    <!-- Reset Recovery: Wait for DHCSR.S_RESET_ST bit to clear on read -->
+    <control while="(Read32(DHCSR_Addr) &amp; 0x02000000)" timeout="500000"/>
+    
+  </sequence>
+\endcode
+
+
+\subsection resetProcessor ResetProcessor
+
+Execute a processor reset via software mechanisms.
+
+\note This Default Debug Access Sequence is empty for Armv6-M and Armv8-M based processors.
+
+\code
+  <sequence name="ResetProcessor">
+  
+    <block>
+      // System Control Space (SCS) offset as defined in Armv7-M.
+
+      __var SCS_Addr   = 0xE000E000;
+      __var AIRCR_Addr = SCS_Addr + 0xD0C;
+      __var DHCSR_Addr = SCS_Addr + 0xDF0;
+    
+      // Execute VECTRESET via AIRCR
+      Write32(AIRCR_Addr, 0x05FA0001);
+    </block>
+    
+    <!-- Reset Recovery: Wait for DHCSR.S_RESET_ST bit to clear on read -->
+    <control while="(Read32(DHCSR_Addr) &amp; 0x02000000)" timeout="500000"/>
+
+  </sequence>
+\endcode
+
+
+
+\subsection resetHardware ResetHardware
+
+Execute a system-wide reset via the dedicated debugger reset line nRST.
+
+\code
+  <sequence name="ResetHardware">
+    
+    <block>
+      __var nReset      = 0x80;
+      __var canReadPins = 0;
+    
+      // De-assert nRESET line
+      canReadPins = (DAP_SWJ_Pins(0x00, nReset, 0) != 0xFFFFFFFF);
+    </block>
+    
+    <!-- Keep reset active for 50 ms -->
+    <control while="1" timeout="50000"/>
+
+    <control if="canReadPins">
+    
+      <!-- Assert nRESET line and wait max. 1s for recovery -->
+      <control while="(DAP_SWJ_Pins(nReset, nReset, 0) &amp; nReset) == 0" timeout="1000000"/>
+      
+    </control>
+    
+    <control if="!canReadPins">
+    
+      <block>
+        // Assert nRESET line
+        DAP_SWJ_Pins(nReset, nReset, 0);
+      </block>
+      
+      <!-- Wait 100ms for recovery if nRESET not readable -->
+      <control while="1" timeout="100000"/>
+      
+    </control>
+    
+  </sequence>
+\endcode
+
+
+\subsection resetHardwareAssert ResetHardwareAssert
+
+Assert a system-wide reset line nRST.
+
+\code
+  <sequence name="ResetHardwareAssert">
+
+    <block>
+        __var nReset = 0x80;
+      
+        // De-assert nRESET line to activate the hardware reset
+        DAP_SWJ_Pins(0, nReset, 0);
+    </block>
+    
+  </sequence>
+\endcode
+
+
+\subsection resetHardwareDeassert ResetHardwareDeassert
+
+De-Assert a system-wide reset line nRST.
+
+\code
+  <sequence name="ResetHardwareDeassert">
+
+    <block>
+      __var nReset      = 0x80;
+      __var canReadPins = 0;
+      
+      // Assert nRESET line and check if nRESET is readable
+      canReadPins = (DAP_SWJ_Pins(nReset, nReset, 0) != 0xFFFFFFFF);
+    </block>
+
+    <!-- Wait max. 1s for nRESET to recover from reset if readable-->
+    <control if="canReadPins" while="(DAP_SWJ_Pins(nReset, nReset, 0) &amp; nReset) == 0" timeout="1000000"/>
+    
+    <!-- Wait 100ms for recovery if nRESET not readable -->
+    <control if="!canReadPins" while="1" timeout="100000"/>
+  
+  </sequence>
+        
+\endcode
+
+
+\subsection resetCatchSet ResetCatchSet
+
+Configure the target to stop code execution after a reset.
+
+\code
+  <sequence name="ResetCatchSet">
+  
+    <block>
+      // System Control Space (SCS) offset as defined
+      // in Armv6-M/Armv7-M. Reimplement this sequence
+      // if the SCS is located at a different offset.
+
+      __var SCS_Addr   = 0xE000E000;
+      __var DHCSR_Addr = SCS_Addr + 0xDF0;
+      __var DEMCR_Addr = SCS_Addr + 0xDFC;
+      __var value      = 0;
+    
+      // Enable Reset Vector Catch in DEMCR
+      value = Read32(DEMCR_Addr);
+      Write32(DEMCR_Addr, (value | 0x00000001));
+
+      // Read DHCSR to clear potentially set DHCSR.S_RESET_ST bit
+      Read32(DHCSR_Addr);
+    </block>
+  
+  </sequence>
+\endcode
+
+
+\subsection resetCatchClear ResetCatchClear
+
+Free hardware resources allocated by ResetCatchSet.
+
+\code  
+  <sequence name="ResetCatchClear">
+  
+    <block>
+      // System Control Space (SCS) offset as defined
+      // in Armv6-M/Armv7-M. Reimplement this sequence
+      // if the SCS is located at a different offset.
+      
+      __var SCS_Addr   = 0xE000E000;
+      __var DEMCR_Addr = SCS_Addr + 0xDFC;
+      __var value      = 0;
+      
+      // Disable Reset Vector Catch in DEMCR
+      value = Read32(DEMCR_Addr);
+      Write32(DEMCR_Addr, (value &amp; (~0x00000001)));
+    </block>
+    
+  </sequence>
+\endcode
+
+
+\section nonstdExamples Examples of non-standard debug access sequences
+
+
+\subsection traceStart TraceStart
+
+\code
+<sequence name="TraceStart">
+  <block>
+    __var value      = 0;
+  
+    //Enable SWO
+    value = Read8(0x40004D2A);
+    Write8(0x40004D2A, (value | 0x20));         // Set the register
+    value = Read8(0x40004D2C);
+    Write8(0x40004D2C, (value &amp; (~0x20)));  // Clear the register
+  </block>
+</sequence>
+\endcode
+
+
+\subsection debugDeviceUnlock DebugDeviceUnlock
+
+\code
+<sequence name="DebugDeviceUnlock">
+  <block>
+    __var DAuthUserInput   = 0;
+    __var DAUTHSTATUS_Val  = 0;
+    __var DHCSR_Val        = 0;
+    __var SecureDebugEna   = 0;
+    __var SecureDebugAvail = 0;
+    __var DAuthVal         = 0;
+    __var Status           = 0;  // AP Status value
+ 
+    DAUTHSTATUS_Val  = Read32(0xE000EFB8);
+    DHCSR_Val        = Read32(0xE000EDF0);
+    DAP_Delay(100000);
+    SecureDebugAvail = (DAUTHSTATUS_Val &amp; 0x00000020) ? 1 : 0;  // SID: Secure Invasive Debug Implemented
+    Status = ReadAP(0x0);                                           // Read Status register
+  </block>
+ 
+  <control if="SecureDebugAvail" info="Configure Debug Authentication if Security Extensions available">
+    <block>
+      SecureDebugEna = ((DHCSR_Val &amp; 0x00100000) || ((DAUTHSTATUS_Val &amp; 0x00000030) == 0x00000030)) ? 1 : 0;
+    </block>
+ 
+    <control if="DAuthFixed">
+      <block>
+        // Debug Authentication as per Debug Configuration File
+        DAuthVal = DAuthConfig;
+      </block>
+    </control>
+    <control if="DAuthFixed == 0">
+      <block>
+        DAuthUserInput = Query(1, "Enable Secure Debug?", 3);
+      </block>
+      <control if="DAuthUserInput == 3">
+        <block>
+          // Enable Secure Debug
+          DAuthVal = 0xF;
+        </block>
+      </control>
+      <control if="DAuthUserInput != 3">
+        <block>
+          // Disable Secure Debug
+          DAuthVal = 0x3;
+        </block>
+      </control>
+    </control>
+ 
+    <control if="SecureDebugEna">
+      <block>
+        // Setup Secure Debug
+        Write32(0x50007000, DAuthVal);
+      </block>
+    </control>
+    <control if="SecureDebugEna == 0">
+      <control if="DAuthVal &amp; 0x4">
+        <block>
+          Query(0, "Cannot configure Debug Authentication, secure debug disabled! Please reboot FPGA!", 1);
+        </block>
+      </control>
+    </control>
+  </control>
+</sequence>
+\endcode
+
+
+\subsection hwReset User-defined hardware reset sequence
+
+\code
+<sequence name="HWReset">
+  <block>
+    __var protType = __protocol &amp; 0x0000FFFF;
+  </block>
+ 
+  <!-- JTAG variant-->
+  <control if="protType == 1">
+    <block atomic="true">
+      // HW Reset Pulse
+      DAP_SWJ_Pins(0x00, 0x80, 0);
+      DAP_Delay(50000);
+      DAP_SWJ_Pins(0x80, 0x80, 0);
+ 
+      // Wait at least 200us
+      DAP_Delay(200);
+ 
+      // Register to SSW (Start-up Software) within 2ms
+ 
+      // JTAG Reset
+      DAP_JTAG_Sequence(6, 1, 0x7F);
+      DAP_JTAG_Sequence(1, 0, 0x01);
+ 
+      // Request Debug and System Power-Up
+      WriteDP(0x4, 0x50000F00);
+ 
+      // Init DP SELECT register
+      WriteDP(0x8, 0x00000000);
+ 
+      // Init AP CSW register
+      WriteAP(0x00, 0x23000052);
+ 
+      // Set TAR register to DHCSR address
+      WriteAP(0x4, 0xE000EDF0);
+ 
+      // Enable core debug (finishes tool register process)
+      WriteAP(0xC, 0xA05F0001);
+ 
+      // SSW will configure a HW BP0 at User Code start
+    </block>
+  </control>
+  
+  ...
+  
+</sequence>
+\endcode
+
+
+\subsection sequenceExample Calling sequences in a control block
+
+\code
+...
+<control if="siliconRevision &gt;= 3" >
+  <block>                                                 
+    Sequence("SecurityUnlock");                           // Execute TAP Sequence according to SiliconRevision
+    Sequence("Set_JTAG_CTL");
+    Sequence("WaitIdleState");
+    Sequence("SetIDCODES");
+  </block>
+</control>
+...
+\endcode
+
+
+\section writing_sequences Writing debug access sequences
+
+To override a default sequence or to create a custom (default) sequence, you need to write \refelem{sequence} elements. The
+following sections show how to use the built-in debug access syntax, expressions, and debug access functions to create
+custom sequences.
+
+
+\subsection DebugSyntaxRules Debug access syntax rules
+
+Debug accesses are described in <b>block</b> elements (within a debug access <b>sequence</b> or <b>control</b> element).
+The following syntax is used for this purpose:
+- One or more statements have to be encapsulated in a <b>block</b> element.
+- Each statement must begin in a new line and is terminated by a \token{;} character.
+- A typical statement consists of variable, followed by a \token{=} character and an expression, where the
+\token{=} character is an assignment of the \ref ExpressionType "expression" result to the variable:
+\code
+variable = expression;
+\endcode
+- Alternatively, a statement can be a sole \ref ExpressionType "expression" without storing its result
+to a variable.
+\code
+expression;
+\endcode
+- Comments begin with two slashes (\token{//}) and end with a line break:
+\code
+// Whole line is a comment
+variable = expression;  // Comment appended to statement
+\endcode
+- Variables must be defined using the keyword \token{__var}. The definition must include an initialization
+  of the variable:
+\code
+__var variable = 0;
+\endcode
+- Variables can be defined only once within a scope. Scopes begin with entering a debug access
+  sequence or a <b>control</b> element. They are extended to child <b>control</b> elements.
+  Variables of a parent scope can be modified. Leaving a scope destroys all variables defined in it.<br>
+  <b>\em block elements do not begin a new scope.</b>
+\code
+<sequence name="MySequence">
+  
+  <block info="Block 1">
+    __var condvar = 1;
+    __var myvar1  = 5;
+    __var myvar2  = 0;
+  </block>
+  
+  <control if="condvar">
+    <block>
+      // __var myvar1 = 2;      // Redefinition, not allowed!
+      __var myvar3 = 2;
+      myvar2 = myvar1 + myvar3; // Assign value (5+2) = 7
+    </block>
+  </control>
+  
+  <block info="Block 2">
+    myvar1 = myvar2 + 1;  // Variable myvar1 holds the value '8' after this statement
+    // myvar2 = myvar3;   // myvar3 does not exist in this scope, not allowed!
+  </block>
+  
+</sequence>
+\endcode
+- The debug access variables <b>__dp</b>, <b>__ap</b>, and <b>__errorcontrol</b> can be modified
+  within a debug access sequence. An assigned value is held until leaving the sequence. Calling
+  another sequence by the <b>Sequence</b> debug access function will push their values on a
+  sequence execution stack. The values are restored when returning from such a call.
+- The debug access variable <b>__Result</b> can be modified within a debug access sequence.
+  Its value is held until the debug access sequence returns to the debugger. Hence its value is
+  <b>not</b> pushed on a sequence execution stack when calling into another sequence by the <b>Sequence</b>
+  debug access function.
+
+
+\subsection ExpressionType Expression rules
+
+Expressions are used in various places to describe one of the following:
+- A value as assigned in a \ref DebugSyntaxRules "debug access statement".
+- A condition to use in the <b>if</b> attribute of a <b>control</b> element.
+- A condition to use in the <b>while</b> attribute of a <b>control</b> element.
+- A parameter to a debug access function as described below.
+
+An expression may consist of the following:
+- Constant numbers in decimal and hexadecimal representation (prefix \token{0x}).
+- Arithmetic operators such as \token{+}, \token{-}, \token{*}, \token{/}, and \token{%}.
+- Bit-arithmetic operators such as \token{&}, \token{|}, \token{~}, \token{^}, \token{>>}, and \token{<<}.
+- Comparison-operators such as \token{==}, \token{!=}, \token{<}, \token{>}, \token{<=}, and \token{>=}.
+- Logic operators such as \token{!}, \token{&&}, \token{||}, and \token{==}.
+- Conditional expression operations like: \code (x < y) ? a : b \endcode
+- Precedence of sub-expressions is indicated by brackets (\token{(}, \token{)}). C-like precedence applies 
+  if brackets are omitted.
+- References to \ref DebugVars "debug access variables" for evaluating debug settings.
+- Calls to \ref DebugFunctions "debug access functions".
+
+\note
+- All values used in expressions resolve to 64-bit unsigned integer values.
+- All logic-operations and comparisons resolve to the value \token{1} if true, to \token{0} otherwise.
+- XML prohibits the use of the characters \token{&}, \token{<}, and \token{>}. Use the corresponding
+  XML entity names instead: \token{&amp;amp;}, \token{&amp;lt;}, and \token{&amp;gt;}.
+
+<p>&nbsp;</p>
+
+\subsection DebugFunctions Debug access functions
+
+Debug access functions can be called in expressions in order to interact with the target device
+and the user. Parameters to functions can again be expressions.<br>
+By default, a debugger must abort the execution of a debug access sequence if a function call fails.
+However, this behavior can be controlled from a sequence by the <b>__errorcontrol</b> 
+\ref DebugVars "debug access variable".<br>
+<br>
+The following table describes the existing debug access functions, their parameters and the
+debug access variables which are evaluated for the function call.
+
+<table class="cmtable" summary="ExpressionType: debug access functions">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Sequence("name")</pre></td>
+    <td>
+      Execute a debug access sequence.
+      Calling a sequence by this function causes the modifiable debug access variables <b>__dp</b>,
+      <b>__ap</b>, and <b>__errorcontrol</b> to be pushed on a sequence execution stack. Returning
+      from such a call will restore the state of these variables.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - name: Name of the sequence to execute. It must be enclosed by quotes.
+      
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+	  Refer to \ref sequenceExample
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Read8(addr)</pre></td>
+    <td>
+      Read an 8-bit value from target memory.
+      <b>A device must support native 8-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to read from.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+      
+      <b>Return Value:</b><br>
+      The 8-bit value as read from target memory.
+
+      <b>Code Example:</b><br>
+	  Refer to \ref traceStart
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Read16(addr)</pre></td>
+    <td>
+      Read an 16-bit value from target memory.
+      <b>A device must support native 16-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to read from.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      The 16-bit value as read from target memory.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Read32(addr)</pre></td>
+    <td>
+      Read an 32-bit value from target memory.
+      <b>A device must support native 32-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to read from.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      The 32-bit value as read from target memory.
+
+      <b>Code Example:</b><br>
+      Refer to \ref resetSystem
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Read64(addr)</pre></td>
+    <td>
+      Read an 64-bit value from target memory.
+      <b>A device must support native 64-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to read from.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+      
+      <b>Return Value:</b><br>
+      The 64-bit value as read from target memory.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>ReadAP(addr)</pre></td>
+    <td>
+      Read a 32-bit value from an access port register.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: AP register address to read from. Addresses larger than \token{0xF} automatically cause
+      an AP register bank switch. 
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+      
+      <b>Return Value:</b><br>
+      The 32-bit value as read from the AP register.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugDeviceUnlock
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>ReadDP(addr)</pre></td>
+    <td>
+      Read a 32-bit value from a debug port register.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: DP register address to read from.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      The 32-bit value as read from the DP register.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugPortSetup
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Write8(addr, val)</pre></td>
+    <td>
+      Write an 8-bit value to target memory.
+      <b>A device must support native 8-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+	  Refer to \ref traceStart
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Write16(addr, val)</pre></td>
+    <td>
+      Write a 16-bit value to target memory.
+      <b>A device must support native 16-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Write32(addr, val)</pre></td>
+    <td>
+      Write a 32-bit value to target memory.
+      <b>A device must support native 32-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugCoreStart
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Write64(addr, val)</pre></td>
+    <td>
+      Write a 64-bit value to target memory.
+      <b>A device must support native 64-bit memory accesses for this function to succeed.</b><br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>WriteAP(addr, val)</pre></td>
+    <td>
+      Write a 32-bit value to an access port register.
+      Addresses larger than 0xF automatically cause an AP register bank switch.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref hwReset
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>WriteDP(addr, val)</pre></td>
+    <td>
+      Write a 32-bit value to a debug port register.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Memory address to write to.
+      - val: Value to write.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugPortStart
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>FlashBufferWrite(addr, offs, len, mode)</pre></td>
+    <td>
+      Write flash buffer contents into target memory.
+      A debugger fills the flash buffer before it executes a flash programming sequence.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - addr: Target memory buffer or register interface address to write the flash buffer contents. Must be a multiple of
+	    the number of bytes as specified by access size in parameter \b mode.
+      - offs: Offset into the flash buffer to start writing from. Must be a multiple of the number of bytes as specified by
+	    access size in parameter \b mode.
+      - len : Number of bytes to write to the target. If <b>offs</b> + <b>len</b> exceeds the flash buffer length set in
+	    variable <b>__FlashLen</b>, then the remaining bytes are filled with the pattern as specified by attribute
+		<b>filler</b> of the \ref element_flashblock "block" element. Must be a multiple of the number of bytes as specified
+		by access size in parameter \b mode.
+      - mode: Target access mode. The following bit map applies:
+        - Bit 0..8: Debug access size. One of \token{8}, \token{16}, \token{32} and \token{64}. The specified debug access
+		  size must be supported by the target debug access port.
+        - Bit 0: Additionally, set this Bit to \token{1} to increment the target address after each debug write access of the
+		  specified size.
+        - Bit 9..63: Reserved
+
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+      - __ap: The access port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_Delay(delay)</pre></td>
+    <td>
+      Debug probe command to wait for a specific delay.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - delay: Wait time in microseconds.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugDeviceUnlock
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_WriteABORT(value)</pre></td>
+    <td>
+      Debug probe command to write an abort request to the CoreSight
+      ABORT register of the target debug port.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - value: 32-bit value to write into the CoreSight ABORT register.
+      
+      <b>Debug Access Variables:</b><br>
+      - __dp: The debug port to use for this memory access.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_SWJ_Pins(pinout, pinselect, pinwait)</pre></td>
+    <td>
+      Debug probe command to monitor and control the I/O Pins including the nRESET
+      device reset line.<br>
+      <b>I/O Pin Mapping</b> for <b>pinout</b>, <b>pinselect</b>, and <b>pinwait</b>:
+        - Bit 0: SWCLK/TCK
+        - Bit 1: SWDIO/TMS
+        - Bit 2: TDI
+        - Bit 3: TDO
+        - Bit 5: nTRST
+        - Bit 7: nRESET
+      
+      <br>
+      The <b>pinwait</b> time is useful in systems where the nRESET pin is implemented as open-drain
+      output. After nRESET is de-asserted by the debugger, external circuit may still hold the
+      target Device under reset for a time. Using the <b>pinwait</b> time, the debugger may monitor
+      selected I/O Pins and wait until they the expected value appears or a timeout expires.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - pinout: Value for selected output pins.
+      - pinselect: Selects which output pins will be modified.
+      - pinwait: Wait timeout for the selected output to stabilize. A debugger must extend this timeout
+        to the closest possible time granularity.
+        - 0 = no wait
+        - 1 .. 3000000 = time in microseconds (max 3s)
+
+      <b>Return Value:</b><br>
+      The state of the I/O Pins at the end of this operation. If a debugger is not
+      capable of monitoring the I/O Pins, it must return a value of \token{0xFFFFFFFF}.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_SWJ_Clock(val)</pre></td>
+    <td>
+      Debug probe command to set the clock frequency for JTAG and SWD communication mode.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - val: Maximum SWD/JTAG Clock (SWCLK/TCK) value in Hz.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref resetHardware
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_SWJ_Sequence(cnt, val)</pre></td>
+    <td>
+      Debug probe command to generate required SWJ sequences, e.g. for SWD/JTAG Reset, SWD<->JTAG
+      switch and Dormant operation.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - cnt: Number of bits in sequence: 1..64. Larger sequences need to be implemented by multiple
+        subsequent <b>DAP_SWJ_Sequence</b> calls. Such a sequence of <b>DAP_SWJ_Sequence</b> commands
+        must be encapsulated in an atomic <b>block</b> to ensure correct execution.
+      - val: Sequence generated on SWDIO/TMS (with clock \@SWCLK/TCK), LSB transmitted first.
+      
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugPortSetup
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>DAP_JTAG_Sequence(cnt, tms, tdi)</pre></td>
+    <td>
+      Debug probe command to generate a JTAG sequence with fixed TMS value and capture TDO.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - cnt: Length of the JTAG sequence (number of TCK cycles and TDI bits): 1..64
+      - tms: Fixed TMS value: 0..1
+      - tdi: Data generated on TDI with one bit per TCK cycle, LSB transmitted first.
+      
+      <b>Return Value:</b><br>
+      Data captured from TDO with one bit per TCK cycle, LSB captured first and padded with \token{0}s.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Query(type, "message", default)</pre></td>
+    <td>
+      Query user input. The sequence execution stalls depending on the used <b>type</b>. If the
+      debugger runs in a batch mode, this function returns the value <b>default</b>.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - type: Query type. Can be one of:
+        - \token{0} : <b>Query_Ok</b>, displays an informative message which has to be confirmed by the user. This
+          type allows the result <b>OK</b>.
+        - \token{1} : <b>Query_YesNo</b>, displays a query with the allowed results <b>Yes</b> and <b>No</b>.
+        - \token{2} : <b>Query_YesNoCancel</b>, displays a query with the allowed results <b>Yes</b>, <b>No</b>,
+          and <b>Cancel</b>.
+        - \token{3} : <b>Query_OkCancel</b>, displays a query with the allowed results <b>OK</b> and <b>Cancel</b>.
+      - message: A constant string with the query message to display. It must not be an expression and it must be
+        enclosed by quotes.
+      - default: The default value to return if the debugger runs in batch mode. See <b>Return Values</b>
+        for a list of allowed values.
+      
+      <b>Return Value:</b><br>
+      The result of the query. The user input maps to the following numbers:
+      - Error  : \token{0}
+      - OK     : \token{1}
+      - Cancel : \token{2}
+      - Yes    : \token{3}
+      - No     : \token{4}
+
+      <b>Code Example:</b><br>
+      Refer to \ref debugPortSetup
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>QueryValue("message", default)</pre></td>
+    <td>
+      Query input value from user. The sequence execution stalls until the user has entered a value or canceled the query.
+      This function returns the <b>default</b> value if the user canceled the query or if the debugger runs in a batch mode.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - message: A constant string with the query message to display. It must not be an expression and it must be
+        enclosed by quotes.
+      - default: The default value to return if the user cancels the query or if the debugger runs in batch mode.
+
+      <b>Return Value:</b><br>
+      The queried value.
+
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>Message(type, "format", ...)</pre></td>
+    <td>
+      Outputs a message to a log window.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - type: Message type. Can be one of:
+        - \token{0} : <b>Info</b>, outputs an informative message.
+        - \token{1} : <b>Warning</b>, outputs a warning.
+        - \token{2} : <b>Error</b>, outputs an error. Sequence execution aborts.
+      - format: A constant string with the message format. It must not be an expression and it must be
+                 enclosed by quotes. The string has the following format:<br>
+                 \code
+                 %[flags][width][.precision]specifier
+                 \endcode
+        - Specifiers:
+          - \token{\%u}: 32-bit unsigned decimal integer.
+          - \token{\%llu}: 64-bit unsigned decimal integer.
+          - \token{\%x}: 32-bit unsigned hexadecimal integer, lower case letters.
+          - \token{\%llx}: 64-bit unsigned hexadecimal integer, lower case letters.
+          - \token{\%X}: 32-bit unsigned hexadecimal integer, upper case letters.
+          - \token{\%llX}: 64-bit unsigned hexadecimal integer, upper case letters.
+          - \token{\%o}: 32-bit unsigned octal integer.
+          - \token{\%llo}: 64-bit unsigned octal integer.
+          - \token{\%b}: 32-bit unsigned binary integer.
+          - \token{\%llb}: 64-bit unsigned binary integer.
+          - \token{\%f}: Single-precision (32-bit) floating point value.
+          - \token{\%Lf}: Double-precision (64-bit) floating point value.
+          - \token{\%s}: Constant character string. Must not be an expression.
+          - \token{\%\%}: Print \token{\%} character.
+        - Flags:
+          - \token{0}: Pad the displayed value with zeros instead of spaces if padding is required by
+                       the \token{width} option.
+        - Width: Minimum number of displayed characters. If \token{width} is less than the number of characters
+                         of the value, then the value is padded with spaces to the left.
+        - .Precision:
+          - <b>Integer</b>: Minimum number of displayed digits. Padded with zeros to the left if the
+                             value has less digits than specified with \token{.precision}.
+          - <b>Floating Point</b>: Number of displayed digits after decimal point. Defaults to \token{6}
+                                    if not specified.
+          - <b>Constant String</b>: Maximum number of displayed characters.
+      - ... : Additional function parameters to replace format string specifiers. Each parameter can be
+             a constant string, or an expression that resolves to an unsigned 64-bit integer. A parameter
+             type must match the corresponding specifier type.
+
+      <b>Return Value:</b><br>
+      Always returns \token{0}.
+
+      \note
+      For 32-bit specifiers the <b>Message</b> command must print the lower 32 Bit of a 64 Bit debug access variable.
+
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>LoadDebugInfo("file")</pre></td>
+    <td>
+      Loads DWARF debug information from an application executable.<br>
+      <br>
+      <b>Parameters:</b><br>
+      - file: A constant string with the path to the executable. The path must be relative to the root folder of the pack and
+	    use the format <b>path/name.extension</b>. It must not be an expression and it must be enclosed by quotes.
+              
+      <b>Return Value:</b><br>
+      Returns \token{0} after successful debug information load.<br>
+      Returns \token{1} if debug information load failed.
+
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Functions for communicating with external tools</b></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferSet (buffID, buffOffset, count, size, value)</pre></td>
+    <td>
+        Fill a buffer with a specific value pattern. A new buffer of required size is created if it does not exist. An
+		existing buffer is extended if it is too small.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number.
+        - buffOffset: First byte in the buffer to start writing the specified \b value pattern. Must be a multiple of \b size.
+        - count: Number of \b size items to write with the specified \b value pattern.
+        - size: Size of a single item to set. Must be in the range of 1 - 8.
+        - value: Value pattern to set. The \b size least significant bytes of \b value are used as value pattern for writing
+		  the buffer.
+        
+        <b>Return Value:</b><br>
+        Number of written bytes (written bytes * access size).
+        
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferGet (buffID, buffOffset, size)</pre></td>
+    <td>
+        Get a data item from the buffer.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number. Function fails if buffer does not exist.
+        - buffOffset: Buffer offset in bytes to get the data item from. Must be a multiple of \b size.
+        - size: Size of a single item to get. Must be in the range of 1 - 8.
+
+        <b>Return Value:</b><br>
+        Date value of specified size at buffer offset.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferSize (buffID)</pre></td>
+    <td>
+        Get the current size of a data buffer.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number.
+        
+        <b>Return Value:</b><br>
+        Current buffer size in bytes. Return value is \token{0} if a buffer does not exist.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferRead (buffID, buffOffset, addr, length, mode)</pre></td>
+    <td>
+        Read data from target and store in buffer. A new buffer of required size is created if it does not exist. An existing
+		buffer is extended if it is too small.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number.
+        - buffOffset: First byte in the buffer to store the read data. Must be a multiple of the number of bytes as specified
+		  by access size in \b mode.
+        - addr: Target address to start reading from. Must be a multiple of the number of bytes as specified by access size
+		  in \b mode.
+        - length: Number of bytes to read from target. Must be a multiple of the number of bytes as specified by access size
+		  in \b mode.
+        - mode: The target access mode.
+          - Bit 0..8: Debug access size. One of 8, 16, 32 and 64. Specified debug access size must be supported by the target
+		    hardware. For example a DP register access must always be 32-Bit.
+          - Bit 0: Additionally set this Bit to 1 to increment the target address after each debug read access of the
+		    specified size.
+          - Bit 9..63: Reserved
+                
+        <b>Return Value:</b><br>
+        Always \token{0}. Function causes fatal error if not successful.
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferWrite(buffID, buffOffset, addr, length, mode)</pre></td>
+    <td>
+        Write data from buffer into target.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number. Function fails if buffer does not exist.
+        - buffOffset: First byte in the buffer to transfer into target. Must be a multiple of the number of bytes as
+		  specified by access size in \b mode.
+        - addr: Target address to start writing to. Must be a multiple of the number of bytes as specified by access size in
+		  \b mode.
+        - length: Number of bytes to write to the target. Must be a multiple of the number of bytes as specified by access
+		  size in \b mode. If size of valid buffer data is less than (\b buffOffset + \b length) then the function ends early
+		  and returns the number of actually written bytes.
+        - mode: The target access mode.
+          - Bit 0..8: Debug access size. One of 8, 16, 32 and 64. Specified debug access size must be supported by the target
+		    hardware. For example a DP register access must always be 32-Bit.
+          - Bit 0: Additionally set this Bit to \token{1} to increment the target address after each debug write access of
+		    the specified size.
+          - Bit 9..63: Reserved
+                
+        <b>Return Value:</b><br>
+        Always \token{0}. Function causes fatal error if not successful.
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferStreamIn (buffID, buffOffset, length, path, mode, timeout)</pre></td>
+    <td>
+        Stream data from an external source, e.g. a file, into a buffer. A new buffer of required size is created if it does
+		not exist. An existing buffer is extended if it is too small.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number.
+        - buffOffset: First byte in the buffer to store the received data.
+        - length: Maximum number of bytes to stream in. Use value 0xFFFFFFFFFFFFFFFF to for example read a complete file of
+		  unknown size.
+        - path: Constant string value representing the source from which to stream data in. Refer to
+		  \ref charactersequence "character sequences" for path/file name place holders.
+        - mode: Specifies how to treat the data source in the specified mode.
+          - Bit 0..3: Format of the data source:<br>
+		    \token{0} - Binary File<br>
+			Others - Reserved<br>
+          - Bit 4..7: Communication options for data source:<br>
+		    Reserved
+        - timeout: Timeout in microseconds. If \token{0}, then synchronously wait for the operation to finish.
+        
+        <b>Return Value:</b><br>
+        Number of bytes streamed into buffer. Can be less than \b length if the data source signals its end.
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>BufferStreamOut (buffID, buffOffset, length, destPath, destMode, timeout)</pre></td>
+    <td>
+        Stream data from a buffer to an external data sink, e.g. a file.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - buffID: Numeric buffer ID. Must be a constant number. Function fails if buffer does not exist.
+        - buffOffset: First byte in the buffer to transfer to the external data sink.
+        - length: Maximum number of bytes to stream out.
+        - path: Constant string value representing the destination to which to stream data to. Refer to
+		  \ref charactersequence "character sequences" for path/file name place holders.
+        - mode: Specifies how to treat the data source in the specified mode.
+          - Bit 0..3: Format of the data source:<br>
+		    \token{0} - Binary File<br>
+			Others - Reserved<br>
+          - Bit 4..7: Communication options for data sink:<br>
+		    \token{0} - Overwrite<br>
+			\token{1} - Append<br>
+			Others - Reserved<br>
+        - timeout: Timeout in microseconds. If \token{0}, then synchronously wait for the operation to finish.
+        
+        <b>Return Value:</b><br>
+        Number of bytes streamed to data sink.
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>RunApplication (appPath, arguments, workDirectory, timeout)</pre></td>
+    <td>
+        Run an external application.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - appPath: Constant string representing the application path. Refer to \ref charactersequence "character sequences"
+		  for path/file name place holders.
+        - arguments: Constant string with arguments to pass to the command line. Same placeholder
+		  \ref charactersequence "character sequences" apply as for \b appPath.
+        - workDirectory: A constant string with the work directory for the command line tool. An empty string means that the
+		  work directory is the current project folder. Same placeholder \ref charactersequence "character sequences" apply
+		  as for \b appPath.
+        - timeout: Timeout in microseconds
+        
+        <b>Return Value:</b><br>
+        Application specific exit code.
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>FilePathExists(path, timeout)</pre></td>
+    <td>
+        Check if a path exists. If timeout is other than \token{0} then check the path until it becomes valid or until the
+		timeout has elapsed.<br>
+        <br>
+        <b>Parameters:</b><br>
+        - path: Constant string with the path to check. Refer to \ref charactersequence "character sequences" for path/file
+		  name place holders.
+        - timeout: Timeout in microseconds:<br>
+          If \token{0}, then the path is checked and the function immediately returns.<br>
+		  If other than \token{0}, check the path until it is valid or until the function times out. If \b timeout is hit
+		  while executing a check and that check ends successfully, then the function returns success.<br>
+        
+        <b>Return Value:</b><br>
+        \token{0} - Path exists<br>
+		\token{1} - Path not found<br>
+		Others - Reserved<br>
+
+        <b>Code Example:</b><br>
+        Refer to \ref exttoolexample "Calculating a hash sum"
+    </td>
+  </tr>
+</table>
+
+\note
+- Target memory access functions must perform a debug access of the size indicated by their name. The target system must
+  support debug accesses of this size.
+- Results of all functions are casted to 64-bit unsigned integer values.
+- Some target access functions determine the used debug and access port by the current values of the <b>__dp</b> and
+  <b>__ap</b> debug access variables. If a target access requires a different debug or access port than the default ones, it
+  must change these values. This change is held until finishing the sequence the change has occurred in.
+  
+\subsection DebugVars Debug access variables
+
+Debug access variables hold 64-bit unsigned integer values and are used in debug access sequences to query debugger settings
+and states. They are <b>read-only</b> within a sequence except from a limited set of the
+\ref PredefinedDebugVars "pre-defined debug access variables". Use the <b>debugvars</b> element to specify additional
+user-defined debug access variables.
+
+
+\anchor PredefinedDebugVars <b>Table: Pre-defined Debug Access Variables</b><br>
+A debugger needs to support a set of pre-defined debug access variables. These are described in the following table.
+
+<table class="cmtable" summary="ExpressionType: Pre-defined Debug Access Variables">
+  <tr>
+    <th>Variable</th>
+    <th>Access</th>
+    <th>Description</th>
+    <th>Value=</th>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__protocol</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Debug protocol selection and parameters for target connection.
+    </td>
+    <td>
+      The following bit map applies:<br>
+      - Bit 0..15: Type
+        - \token{0}: Error<br>
+        - \token{1}: JTAG<br>
+        - \token{2}: Serial Wire Debug (SWD)<br>
+        - \token{3}: CJTAG<br>
+      - Bit 16: SWJ-DP
+      - Bit 17..63: Reserved
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__connection</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Target connection configuration.
+    </td>
+    <td>
+      The following bit map applies:<br>
+      - Bit 0..7: Connection type
+        - \token{0}: Error or target is disconnected.
+        - \token{1}: Connection for target debug.
+        - \token{2}: Connection for downloading application to flash.
+      - Bit 8..15: Reset type
+        - \token{0}: Error.
+        - \token{1}: Hardware Reset (debugger reset line).
+        - \token{2}: System Reset Request.
+        - \token{3}: Processor Reset Request ("Vector Reset").
+      - Bit 16: Connection under Hardware Reset (debugger reset line)
+      - Bit 17: Hardware Reset is executed as a pre-connection reset (only used for debugger calls to \c ResetHardware)
+      - Bit 18..63: Reserved
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__dp</pre></td>
+    <td>Read/Write</td>
+    <td>
+      Debug Port selected for target accesses.<br>
+      This variable is initialized when entering a pre-defined debug access
+      sequence on a debug event. The initialization value
+      is the <b>__dp</b> as defined for the used <b>debug</b> element.
+    </td>
+    <td>
+      Debug port ID as specified in a <b>debugport</b> element or
+      \token{0} if no <b>debugport</b> element exists.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__ap</pre></td>
+    <td>Read/Write</td>
+    <td>
+      Access Port selected for target accesses.<br>
+      This variable is initialized when entering a pre-defined debug access
+      sequence on a debug event. The initialization value
+      is the <b>__ap</b> as defined for the used <b>debug</b> element.
+    </td>
+    <td>
+      Access Port index.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__traceout</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Activated trace outputs (sinks). Additionally holds information on the selected port width if
+      a parallel trace port is enabled.
+    </td>
+    <td style="white-space: nowrap">
+      The following bit map applies:<br>
+      - Bit 0: Serial Wire Output (SWO) Trace enabled.
+      - Bit 1: Parallel Trace Port enabled.
+      - Bit 2: Trace Buffer enabled.
+      - Bit 3..15: Reserved.
+      - Bit 16..21: Selected Parallel Trace Port size.
+      - Bit 22..63: Reserved.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__errorcontrol</pre></td>
+    <td>Read/Write</td>
+    <td>
+      Control variable for debug access error handling. All of its bit
+      fields are intialized to \token{0} when entering a pre-defined
+      debug access sequence because of a debug event.
+    </td>
+    <td>
+      The following bit map applies:<br>
+      - Bit 0: Skip errors if set to \token{1}. A debugger must
+               continue the sequence execution.
+      - Bit 1..63: Reserved
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__Result</pre></td>
+    <td>Read/Write</td>
+    <td>
+      Sequence result. A debugger sets this variable to \token{0} before it calls a sequence.
+      The sequence implementation sets it to its result.
+    </td>
+    <td>
+      The following values apply:<br>
+      - 0: Success
+      - (-1): Error
+	  - Other - reserved.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__FlashOp</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Type of the currently executed Flash operation. A debugger sets this value to \token{0}
+      if the executed sequence is not part of a Flash operation.
+    </td>
+    <td>
+      The following values apply:<br>
+      - 0: No flash operation
+      - 1: Erase full chip
+      - 2: Erase flash sector
+      - 3: Program flash
+      - Other - reserved.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__FlashAddr</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Start address for the current Flash operation. A debugger sets this value to \token{0}
+      if the executed sequence is not part of a Flash operation.
+    </td>
+    <td>
+      Memory-mapped target address the currently programmed \ref element_flashblock "block" is visible at.
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__FlashLen</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Flash buffer length for the current flash operation. A debugger sets this value to \token{0}
+      if the executed sequence is not part of a flash operation.
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap"><pre>__FlashArg</pre></td>
+    <td>Read-Only</td>
+    <td>
+      Argument for the flash operation as specified in \ref element_flashblock "block". A debugger sets this value to \token{0}
+      if the executed sequence is not part of a flash operation.
+    </td>
+    <td>
+      The argument encoding is specific to the debug description for the target device.
+    </td>
+  </tr>
+</table>
+
+\subsection externalTools Using external tools
+
+Some functionality cannot be implemented by debug sequences, for example checksum/hash calculations or debug authentication.
+It is supposed to be provided or implemented by external tools or applications. To communicate with external tools, debug
+sequences currently provide input/output files. To create these files, buffers are used (see below). To run an external
+application, use the \c RunApplication function. To check the availability of an external resource (for example a file), use
+the \c FilePathExists function.
+
+\b Buffer \b handling
+
+Buffers are hidden inside the sequence engine. They can be accessed only via the following functions:
+- For direct buffer access (for example for initialization or "memset" operations): \c BufferSet, \c BufferGet, and
+  \c BufferSize.
+- For interaction with the target's memory: \c BufferRead and \c BufferWrite.
+- For external interaction via file stream: \c BufferStreamIn and \c BufferStreamOut.
+- Buffer sizes are adjusted as per operations. They cannot get smaller during a sequence execution, only larger.
+- Buffers can internally have a size of '0', causing an error if calling BufferWrite/BufferStreamOut without having
+  previously filled the buffer.
+- Newly allocated buffer space is filled with 0's, e.g. for an initial call to BufferRead with a buffer offset.
+- Buffers are only valid within the sequence creating them. When calling for example a "ChildSequence", it does not see
+  buffers from the caller (even when using the same buffer ID). All buffer operations are only valid for buffers of the
+  "ChildSequence".  
+	
+\anchor charactersequence \b Character \b sequences
+
+For communication with external tools, you sometimes need to specify file names and paths to the files that contain the data
+to be exchanged. The following character sequences can be used as placeholders:
+
+- \c $P: Software project path including trailing slash
+- \c \#P: Software project path + project name, e.g. /project_path/project_name
+- \c $L: Folder path of the main output file of a software project including trailing slash
+- \c \%L: Full path to the main output file of a software project including file ending
+- \c $S: Path to the device support pack including trailing slash
+- \c $D: Name of the selected device
+
+\note
+Characters '$', '#', and '\%' must be duplicated to escape them, i.e. if a path contains the '$' character it must be written
+as '$$'.
+
+\anchor exttoolexample <b>Code Example: Calculating a hash sum</b>
+
+The following code example shows how to call an external tool to calculate a hash for an image file.
+
+\code
+<block>
+  __var length     = 0;
+  __var exitCode   = 0;
+  __var fileExists = 0;
+  
+  BufferRead     (0, 0, 0x0080C000, 0xE0, (32|1));   // Implicit allocation of buffer 0
+  BufferStreamOut(0, 0, 0xE0, "$P/SAML11_SHA256_BOCOR_input.bin", 0, 0);
+  exitCode   = RunApplication ("$S/Tools/CalcSHA256.exe", "$P/SAML11_SHA256_BOCOR_input.bin --some-SHA256-parameters --out $P/SAML11_SHA256_BOCOR_output.bin", "$P", 10000000);  // Timeout is 10 seconds
+</block>
+
+<control if="exitCode == 0" info="0 means OK">
+  <block>
+    fileExists = (FilePathExists("$P/SAML11_SHA256_BOCOR_output.bin", 5000000) == 0);
+  </block>
+  <control if="fileExists">
+    <block>
+      BufferStreamIn(0, 0xE0, 0x20, "$P/SAML11_SHA256_BOCOR_output.bin", 0, 10000000);  // Append to buffer, timeout 10s
+      BufferWrite   (0, 0, 0x0080C000, 0x100, (32|1));
+    </block>
+  </control>
+</control>
+
+<control if="(exitCode != 0) || (fileExists == 0)">
+  <block>
+    Message(2, "Error while creating hashsum. Aborting sequence.");
+  </block>
+</control>
+
+\endcode
+*/

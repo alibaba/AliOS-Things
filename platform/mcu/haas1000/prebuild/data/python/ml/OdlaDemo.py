@@ -1,5 +1,5 @@
 
-import ml
+from minicv import ML
 print("-------------------Welcome HaasAI MicroPython--------------------")
 
 print("-----ml odla demo start-----")
@@ -14,13 +14,14 @@ print("-----ml odla demo start-----")
 #"/data/python/resource/odla/test7.png"
 #"/data/python/resource/odla/test8.png"
 #"/data/python/resource/odla/test9.png"
-mlobj = ml.open(ml.ML_ENGINE_ODLA);
-ml.setInputData(mlobj, "/data/python/resource/odla/test4.png");
-ml.loadNet(mlobj, "default");
-ml.predict(mlobj);
+ml = ML()
+ml.open(ml.ML_ENGINE_ODLA)
+ml.setInputData("/data/python/resource/odla/test4.png")
+ml.loadNet("default")
+ml.predict()
 responses_value = bytearray(10)
-ml.getPredictResponses(mlobj, responses_value);
-print(responses_value);
-ml.unLoadNet(mlobj);
-ml.close(mlobj);
+ml.getPredictResponses(responses_value)
+print(responses_value)
+ml.unLoadNet()
+ml.close()
 print("-----ml odla demo end-----")

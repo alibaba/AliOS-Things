@@ -1,0 +1,30 @@
+import:
+ - ${home}/.rtebuild/toolchain.rtebuild
+targets:
+  arm:
+    defines     : [ "${device}${dsuffix}=1" ]
+  armcm:
+    extends     : arm
+    include:
+      - ./config/core_m
+      - ../../../Core/Include
+    source:
+      - ../../../../Device/ARM/${device}/Source/startup_${device}.c
+      - ../../../../Device/ARM/${device}/Source/system_${device}.c
+  armcm23ns:
+    extends: armcm
+    device : ARMCM23
+    dsuffix: "_TZ"
+  armcm33ns:
+    extends: armcm
+    device : ARMCM33
+    dsuffix: "_DSP_FP_TZ"
+  armcm35pns:
+    extends: armcm
+    device : ARMCM35P
+    dsuffix: "_DSP_FP_TZ"
+include: 
+  - ./
+  - ../../../../Device/ARM/${device}/Include
+source:
+  - ./bootloader.c

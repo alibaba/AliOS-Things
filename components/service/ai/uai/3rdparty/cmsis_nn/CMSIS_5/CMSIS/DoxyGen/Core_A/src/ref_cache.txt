@@ -1,0 +1,187 @@
+/* ##########################  L1 Cache functions  ################################# */
+
+/** 
+\defgroup L1_cache_functions L1 Cache Functions 
+\ingroup CMSIS_Core_FunctionInterface
+\brief L1 Cache Functions give support to enable, clean and invalidate level 1 instruction and data caches, as well as to enable branch target address cache.
+@{
+\fn __STATIC_INLINE void L1C_EnableCaches(void) 
+\fn __STATIC_INLINE void L1C_DisableCaches(void) 
+\fn __STATIC_INLINE void L1C_EnableBTAC(void) 
+\fn __STATIC_INLINE void L1C_DisableBTAC(void) 
+\fn __STATIC_INLINE void L1C_InvalidateBTAC(void) 
+\fn __STATIC_INLINE void L1C_InvalidateICacheAll(void)
+\fn __STATIC_INLINE void L1C_CleanDCacheMVA(void *va) 
+\fn __STATIC_INLINE void L1C_InvalidateDCacheMVA(void *va) 
+\fn __STATIC_INLINE void L1C_CleanInvalidateDCacheMVA(void *va) 
+
+\fn __STATIC_INLINE void L1C_CleanInvalidateCache(uint32_t op) 
+\details
+Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
+
+\fn __STATIC_INLINE void L1C_InvalidateDCacheAll(void) 
+\fn __STATIC_INLINE void L1C_CleanDCacheAll(void) 
+\fn __STATIC_INLINE void L1C_CleanInvalidateDCacheAll(void) 
+\fn __STATIC_INLINE __ASM void __L1C_CleanInvalidateCache(uint32_t op)
+\details
+Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
+
+The parameter \b op defines which cleaning/invalidation strategy should be used:
+ - 0 - Cache is invalidated using DCISW register.
+ - 1 - Cache is cleaned using DCCSW register.
+ - other - Cache is invalidated and cleaned using DCCISW register.
+@}
+*/
+
+/* ##########################  L2 Cache functions  ################################# */
+
+/**
+\defgroup L2_cache_functions L2C-310 Cache Controller Functions 
+\ingroup CMSIS_Core_FunctionInterface
+\brief L2C-310 Cache Controller gives access to functions for level 2 cache maintenance.\n
+Reference: <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0246h/index.html">Level 2 Cache Controller L2C-310 Technical Reference Manual</a>.
+*/
+/** @{ */
+
+/**
+\struct L2C_310_TypeDef
+\def L2C_310
+\fn __STATIC_INLINE void L2C_Sync(void) 
+\fn __STATIC_INLINE int L2C_GetID (void) 
+\fn __STATIC_INLINE int L2C_GetType (void) 
+\fn __STATIC_INLINE void L2C_InvAllByWay (void) 
+\fn __STATIC_INLINE void L2C_CleanInvAllByWay (void) 
+\fn __STATIC_INLINE void L2C_Enable(void) 
+\fn __STATIC_INLINE void L2C_Disable(void) 
+\fn __STATIC_INLINE void L2C_InvPa (void *pa) 
+\fn __STATIC_INLINE void L2C_CleanPa (void *pa) 
+\fn __STATIC_INLINE void L2C_CleanInvPa (void *pa) 
+*/
+
+/** @} */
+
+/* ########################## L2C_310_TypeDef Member ########################## */
+/**
+\var L2C_310_TypeDef::ADDRESS_FILTER_END
+\brief 
+
+\var __IOM uint32_t L2C_310_TypeDef::ADDRESS_FILTER_START
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::AUX_CNT
+\brief
+
+\var __IM  uint32_t L2C_310_TypeDef::CACHE_ID
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CACHE_SYNC
+\brief
+
+\var __IM  uint32_t L2C_310_TypeDef::CACHE_TYPE
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_INV_LINE_INDEX_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_INV_LINE_PA
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_INV_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_LINE_INDEX_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_LINE_PA
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CLEAN_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::CONTROL
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_0_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_1_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_2_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_3_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_4_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_5_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_6_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DATA_LOCK_7_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::DEBUG_CONTROL
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::EVENT_CONTROL
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::EVENT_COUNTER0_CONF
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::EVENT_COUNTER1_CONF
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_0_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_1_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_2_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_3_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_4_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_5_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_6_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INST_LOCK_7_WAY
+\brief
+
+\var __OM  uint32_t L2C_310_TypeDef::INTERRUPT_CLEAR
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INTERRUPT_MASK
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INV_LINE_PA
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::INV_WAY
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::LOCK_LINE_EN
+\brief
+
+\var __IM  uint32_t L2C_310_TypeDef::MASKED_INT_STATUS
+\brief
+
+\var __IM  uint32_t L2C_310_TypeDef::RAW_INT_STATUS
+\brief
+
+\var __IOM uint32_t L2C_310_TypeDef::UNLOCK_ALL_BY_WAY
+\brief
+*/

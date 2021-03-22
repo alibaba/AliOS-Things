@@ -1,0 +1,407 @@
+/**
+\page pdsc_conditions_pg /package/conditions element
+
+The grouping element \ref element_conditions contains all conditions defined for the \ref cp_SWComponents "Software Pack". 
+
+A condition describes dependencies on device, processor, and tool attributes as well as the presence of other components.
+The <b>conditions</b> are used to define AND and OR rules used to make components conditional and therefore only available under certain circumstances,
+e.g. for specific devices or processors. The conditions are also used to express dependencies between components.
+
+Each condition has an <b>id</b> that is unique within the scope of a the description. An <b>id</b> can be referenced in the condition attribute of components, apis, 
+examples, files and other conditions to become conditional. If a condition resolves to false during the processing of the description, the respective element will
+be ignored.
+
+\b Example:
+\code
+  <conditions>
+    <condition id="CM4">                           <!-- defines the condition with the ID "CM4" -->
+      <description>True if the active device has a Cortex-M4 processor</description>
+      <require Dcore="Cortex-M4"/>                 <!-- device has a Cortex-M4 processor -->
+    </condition>
+
+    <condition id="Cortex-M">                      <!-- defines the condition with the ID "Cortex-M" -->
+      <description>True if the active device has a Cortex-M0 or Cortex-M0+ or Cortex-M3 or Cortex-M4 or SC000 or SC3000 processor </description>
+      <accept Dcore="Cortex-M0"/>                  <!-- any of the following cores will make the condition resolve to true -->
+      <accept Dcore="Cortex-M0+"/>
+      <accept Dcore="Cortex-M23"/>
+      <accept Dcore="Cortex-M3"/>
+      <accept Dcore="Cortex-M33"/>
+      <accept Dcore="Cortex-M4"/>
+      <accept Dcore="SC000"/>
+      <accept Dcore="SC300"/>
+    </condition>
+
+    <condition id="CMSIS-Core">                     <!-- defines the condition with the ID "CMSIS-Core" -->
+      <description>True if the component Device Startup is selected and the device has a Cortex-M processor</description>
+      <require Cclass="Device" Cgroup="Startup"/>   <!-- needs a software component Device Startup AND ... -->
+      <require condition="Cortex-M"/>               <!-- ... needs that condition with ID=Cortex-M to be true. -->
+    </condition>
+
+    <condition id="CMSIS-DSP">                      <!-- defines the condition with the ID "CMSIS-DSP" -->
+      <description>True if CMSIS-Core == TRUE and either GCC or ARMCC and device running in little-endian byte ordering</description>
+      <require condition="CMSIS-Core"/>             <!-- needs a software component Device Startup AND ... -->
+      <accept Tcompiler="GCC"/>                     <!-- ... works either with the GCC compiler OR ... -->
+      <accept Tcompiler="ARMCC"/>                   <!-- ... the ARMCC compiler AND ... -->
+      <require Dendian="Little-endian"/>            <!-- ... requires a device running in little-endian byte ordering -->
+    </condition>
+
+    <condition id="No STM32">                       <!-- defines the condition with ID "No STM32" -->
+      <description>False if the device is from ST and the device name starts with "STM32"</description>
+      <deny Dvendor="STMicroelectronics:13" Dname="STM32*"/>  <!-- device name must not start with STM32 and be from vendor ST-->
+    </condition>
+  </conditions>
+\endcode
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_conditions /package/conditions
+
+This element groups all conditions used in the \ref cp_SWComponents "Software Pack".
+
+<table class="cmtable" summary="Element: Conditions">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref pdsc_package_pg "package"</td>
+    <td colspan="3">\ref pdsc_package_pg "/package"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_condition "condition"</td>
+    <td>Define the individual dependency condition.</td>
+    <td>xs:string</td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_condition /package/conditions/condition
+
+Conditions are dependency rules that can apply to elements such as a \ref element_component "component" or \ref element_file "file".
+Other elements can refer to a rule using their attribute \b condition, which links to the attribute \b id of a condition.
+If a condition resolves to \token{false}, then the component or file description is ignored.
+
+<table class="cmtable" summary="Element: Condition">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_conditions "conditions"</td>
+    <td colspan="3">\ref element_conditions "/package/conditions"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>Condition identifier which is unique within a \ref cp_SWComponents "Software Pack". The condition identifier is referenced by other elements with the attribute \b condition.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <th>Child&nbsp;Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Descriptive (comment) text that explains the condition in an human readable way.</td>
+    <td>xs:string</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="choice">
+    <td>\ref element_accept "accept"<sup>1</sup></td>
+    <td>At least one \ref element_accept "accept" must be true to signal a true for the complete condition (\b OR-Rule)</td>
+    <td>FilterType</td>
+    <td>0..*</td>
+  </tr>
+  <tr class="choice">
+    <td>\ref element_require "require"<sup>1</sup></td>
+    <td>All \ref element_require "require" must be true to signal a true for the complete condition (\b AND-Rule).</td>
+    <td>FilterType</td>
+    <td>0..*</td>
+  </tr>
+  <tr class="choice">
+    <td>\ref element_deny "deny"<sup>1</sup></td>
+    <td>If one \ref element_deny "deny" is true the complete condition becomes false. This element overrules \ref element_require "require" and \ref element_accept "accept" (\b AND-NOT-Rule).</td>
+    <td>FilterType</td>
+    <td>0..*</td>
+  </tr>
+</table>
+\note
+\b 1: At least one of these elements must be present in any condition.		
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_accept  /package/conditions/condition/accept
+\section element_require  /package/conditions/condition/require
+\section element_deny  /package/conditions/condition/deny
+
+All attributes set in an \ref element_accept "accept", \ref element_require "require", or \ref element_deny "deny" must resolve to true for the element to become true.
+A \ref element_condition "condition" becomes \token{true} when:
+  - At least one \ref element_accept "accept" element is true, AND
+  - all \ref element_require "require" elements are true, AND
+  - no \ref element_deny "deny" element is true.
+
+<table class="cmtable" summary="Type: FilterType">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_condition "accept" 
+    <td colspan="3">\ref element_condition "/package/conditions/condition/accept"</td>
+  </tr>
+  <tr>
+    <td>\ref element_condition "require" 
+    <td colspan="3">\ref element_condition "/package/conditions/condition/require"</td>
+  </tr>
+  <tr>
+    <td>\ref element_condition "deny" 
+    <td colspan="3">\ref element_condition "/package/conditions/condition/deny"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>Dvendor</td>
+    <td>Specifies the silicon vendor of the device. Use predefined values as listed in the table \ref DeviceVendorEnum "Device Vendor".</td>
+    <td>DeviceVendorEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dfamily<b>*</b></td>
+    <td><b>DEPRECATED**</b> Specifies the device family name (for example: STM32F2 Series).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>DsubFamily<b>*</b></td>
+    <td><b>DEPRECATED**</b>Specifies the device sub-family name (for example: STM32F205 Series).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dname<b>*</b></td>
+    <td>Specifies the name of the device. 
+   </td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dvariant<b>*</b></td>
+    <td><b>DEPRECATED**</b>Specifies the variant name of a device (for example: Step A).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Pname</td>
+    <td>Specifies the processor instance in case of multi processor devices. This allows to describe distinct conditions for a specific processor.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dcore</td>
+    <td>Specifies a processor core.  Use predefined values as listed in the table \ref DcoreEnum "Device Cores".</td>
+    <td>DcoreEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dfpu</td>
+    <td>Specifies whether a Floating Point Unit (FPU) must be present or not. Predefined values can be used as listed in the table \ref DfpuEnum "Device FPU".</td>
+    <td>DfpuEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dmpu</td>
+    <td>Specifies whether a Memory Protection Unit (MPU) must be present or not. Predefined values can be used as listed in the table \ref DmpuEnum "Device MPU".</td>
+    <td>DmpuEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dtz</td>
+    <td>Specifies whether TrustZone (TZ) must be supported by the device or not. Predefined values can be used as listed in the table \ref DtzEnum "Device TrustZone".</td>
+    <td>DtzEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dsecure</td>
+    <td>Specifies whether the application is configured to run in secure or non-secure mode. Predefined values can be used as listed in the table \ref DsecureEnum "Software Model Secure".</td>
+    <td>DsecureEnum</td>
+    <td>optional</td>
+  </tr> 
+  <tr>
+    <td>Ddsp</td>
+    <td>Specifies whether Digital Signal Processing (DSP) instruction set must be supported by the device or not. Predefined values can be uses as listed in the table \ref DdspEnum "Device DSP".</td>
+    <td>DdspEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dendian</td>
+    <td>Specifies the endianess of a device. Use predefined values as listed in the table \ref DendianEnum "Endianess".</td>
+    <td>DendianEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cvendor<b>*</b></td>
+    <td>Specifies a component vendor name.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cbundle<b>*</b></td>
+    <td>Specifies a component class bundle name.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cclass<b>*</b></td>
+    <td>Specifies a component class name. Predefined values can be used as listed in the table \ref CclassType "Component Classes".</td>
+    <td>CclassType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cgroup<b>*</b></td>
+    <td>Specifies a software Component Group. Predefined values can be used as listed in the table \ref CgroupType "Component Groups".</td>
+    <td>CgroupType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Csub<b>*</b></td>
+    <td>Specifies a software component subgroup. The type is described in \ref CsubType "Component Subgroups".</td>
+    <td>CsubType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cvariant<b>*</b></td>
+    <td>Specifies a software component variant.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cversion</td>
+    <td>Specifies a software component version.
+       - <b>require Cversion:</b>condition is true if version of component is equal or higher than requested.
+       - <b>deny Cversion:</b> condition is true if version of component is lower than requested.
+       - Version ranges are specified with <em>min_version</em><b>:</b><em>max_version</em>. The condition is true if the version of the component is equal or higher than
+         <em>min_version</em> and lower or equal than <em>max_version</em>. If <em>min_version</em> and <em>max_version</em> are equal the version must match.
+         For more information refer to \ref VersionType "Version Type".</td>
+    <td>\ref VersionType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Capiversion</td>
+    <td>Specifies an API version.
+       - <b>require Capiversion:</b>condition is true if version of API is equal or higher than requested.
+       - <b>deny Capiversion:</b> condition is true if version of API is lower than requested.
+       - Version ranges are specified with <em>min_version</em><b>:</b><em>max_version</em>. The condition is true if the version of the API is equal or higher than
+         <em>min_version</em> and lower or equal than <em>max_version</em>. If <em>min_version</em> and <em>max_version</em> are equal the version must match.
+         For more information refer to \ref VersionType "Version Type".</td>
+    <td>\ref VersionType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Tcompiler</td>
+    <td>Specifies a compiler toolchain (ARMCC, GCC, IAR, Tasking, ...). Use predefined values as listed in table \ref CompilerEnumType "Compiler Types".</td>
+    <td>CompilerEnumType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Toptions</td>
+    <td>Specifies compiler specific options being active. For <em>Tcompiler="ARMCC"</em> available Toptions are:
+        - <b>AC5</b>: Arm Compiler Version 5 is in used
+        - <b>AC6</b>: Arm Compiler Version 6 (armclang) is in use
+        - <b>AC6LTO</b>: Arm Compiler Version 6 with Link Time Optimization (LTO) is in use
+        
+        This attribute can be used to select compatible libraries for the selected compiler version or optimization mode.
+    </td>
+    <td>CompilerEnumType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>condition</td>
+    <td>Refers to another condition identified through the attribute \em \b id.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<b>*)</b> Wild-cards can be used to match names with the following definitions:
+       - '*'  matches any substring
+       - '?'  matches any single character
+       - [abc] matches any character in the set (a,b,c)
+   
+<b>**)</b> These attributes must not be used in conditions because
+           - 'Dfamily' and 'DsubFamily' turn out to be volatile.
+           - conditions shall only filter for selectable devices. 'Dvariant'effectively is just an alias for 'Dname'. 
+             Once a \<variant> tag exists, the \<device> tag no longer represents a selectable device.
+   
+<p>&nbsp;</p>
+
+\anchor CompilerEnumType <b>Table: Compiler Types</b>
+
+The tale list values representing a C/C++ compiler toolchains from a specific tool vendor.
+The tokens can be used in the elements:
+- \ref element_accept
+- \ref element_require
+- \ref element_deny
+
+<table class="cmtable" summary="Enumeration: CompilerEnumType">
+  <tr>
+    <th>Tcompiler=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">GCC</td>
+    <td>GNU Tools for Arm Embedded Processors. 
+    Refer to <a href="https://launchpad.net/gcc-arm-embedded/4.7" target="_blank">Arm GCC</a>.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">G++</td>
+    <td>Code Sourcery GCC compiler for C and C++ (is now Mentor Graphics CodeBench).</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">ARMCC</td>
+    <td>Arm Compiler for C and C++. 
+    Refer to <a href="http://infocenter.arm.com/help/topic/com.arm.doc.subset.swdev.coretools/index.html" target="_blank">
+    Arm Compiler</a>.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">IAR</td>
+    <td>IAR compiler for C and C++.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">Tasking</td>
+    <td>TASKING compiler for C and C++.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">GHS</td>
+    <td>Green Hills Software compiler for C, C++, and EC++.</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+*/
+
+

@@ -1,0 +1,302 @@
+/** 
+\page using_pg  Using CMSIS in Embedded Applications
+
+\details
+
+To use the CMSIS-Core (Cortex-M) the following files are added to the embedded application:
+ - \ref startup_c_pg (formerly \ref startup_s_pg) with reset handler and exception vectors.
+ - \ref system_c_pg with general device configuration (i.e. for clock and BUS setup).
+ - \ref device_h_pg gives access to processor core and all peripherals.
+
+\note The files \ref startup_c_pg (or \ref startup_s_pg) and \ref system_c_pg may require application specific adaptations and therefore should be copied 
+  into the application project folder prior configuration. The \ref device_h_pg is included in all source files that need device access 
+  and can be stored on a central include folder that is generic for all projects.
+
+The \ref startup_c_pg (or \ref startup_s_pg) is executed after reset and calls \ref SystemInit. After the system initialization control is transferred to the C/C++ run-time
+library which performs initialization and calls the \b main function in the user code. In addition the \ref startup_c_pg (or \ref startup_s_pg) contains all exception and
+interrupt vectors and implements a default function for every interrupt. It may also contain stack and heap configurations for the user application.
+
+The \ref system_c_pg performs the setup for the processor clock. The variable \ref SystemCoreClock indicates the CPU clock speed.
+\ref system_init_gr describes the minimum feature set. In addition the file may contain functions for the memory BUS setup and clock re-configuration. 
+
+The \ref device_h_pg is the central include file that the application programmer is using in the C source code.  It provides the following features:
+ - \ref peripheral_gr provides a standardized register layout for all peripherals. Optionally functions for device-specific peripherals may be available.
+ - \ref NVIC_gr can be accessed with standardized symbols and functions for the Nested Interrupt Vector Controller (NVIC) are provided.
+ - \ref intrinsic_CPU_gr allow to access special instructions, for example for activating sleep mode or the NOP instruction.
+ - \ref intrinsic_SIMD_gr provide access to the DSP-oriented instructions.
+ - \ref SysTick_gr function to configure and start a periodic timer interrupt.
+ - \ref ITM_Debug_gr are functions that allow printf-style I/O via the CoreSight Debug Unit and ITM communication.
+
+CMSIS-Pack provides the <b>\#define CMSIS_header_file</b> in <a href="../../Pack/html/pdsc_components_pg.html#RTE_Components_h"><b>RTE_Components.h</b></a> which gives you access to this <b><i>device</i>.h</b> file.
+
+\image html "CMSIS_CORE_Files_user.png" "CMSIS-Core (Cortex-M) User Files"
+
+The CMSIS-Core (Cortex-M) system files are device specific. In addition, the deprecated \ref startup_s_pg is also compiler vendor specific.
+The versions provided by CMSIS are only generic templates. The adopted versions for a concrete device are typically provided by the device
+vendor through the according device familiy pack (DFP).
+
+For example, the following files are provided by the STM32F10x device family pack:
+
+<table class="cmtable">
+    <tr>
+      <th>File</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>".\Device\Source\ARM\startup_stm32f10x_cl.s"</td>
+      <td>\ref startup_s_pg for the STM32F10x Connectivity Line device variants.</td>
+    </tr>
+    <tr>
+      <td>".\Device\Source\system_stmf10x.c"</td>
+      <td>\ref system_c_pg for the STM32F10x device families.</td>
+    </tr>
+    <tr>
+      <td>".\Device\Include\stm32f10x.h"</td>
+      <td>\ref device_h_pg for the STM32F10x device families.</td>
+    </tr>
+    <tr>
+      <td>".\Device\Include\system_stm32f10x.h"</td>
+      <td>\ref system_Device_h_sec for the STM32F10x device families.</td>
+    </tr>
+</table>
+
+
+\note The silicon vendors create these device-specific CMSIS-Core (Cortex-M) files based on \ref templates_pg provide by Arm.
+
+Thereafter, the functions described under <a href="Modules.html">\b Reference </a> can be used in the application.
+
+\b Examples
+ - \subpage using_CMSIS is a simple example that shows the usage of the CMSIS layer.
+ - \subpage using_VTOR_pg shows how to remap the interrupt vector table.
+ - \subpage using_ARM_pg explains how to use CMSIS-Core (Cortex-M) for Arm processors.
+
+
+\page using_CMSIS Basic CMSIS Example
+
+A typical example for using the CMSIS layer is provided below. The example is based on a STM32F10x Device. 
+    
+\code
+#include <stm32f10x.h>                           // File name depends on device used
+ 
+uint32_t volatile msTicks;                       // Counter for millisecond Interval
+ 
+void SysTick_Handler (void) {                    // SysTick Interrupt Handler
+  msTicks++;                                     // Increment Counter
+}
+ 
+void WaitForTick (void)  {
+  uint32_t curTicks;
+ 
+  curTicks = msTicks;                            // Save Current SysTick Value
+  while (msTicks == curTicks)  {                 // Wait for next SysTick Interrupt
+    __WFE ();                                    // Power-Down until next Event/Interrupt
+  }
+}
+ 
+void TIM1_UP_IRQHandler (void) {                 // Timer Interrupt Handler
+  ;                                              // Add user code here
+}
+ 
+void timer1_init(int frequency) {                // Set up Timer (device specific)
+  NVIC_SetPriority (TIM1_UP_IRQn, 1);            // Set Timer priority
+  NVIC_EnableIRQ (TIM1_UP_IRQn);                 // Enable Timer Interrupt
+}
+ 
+ 
+void Device_Initialization (void)  {             // Configure & Initialize MCU
+  if (SysTick_Config (SystemCoreClock / 1000)) { // SysTick 1mSec
+       : // Handle Error 
+  }
+  timer1_init ();                                // setup device-specific timer
+}
+ 
+ 
+// The processor clock is initialized by CMSIS startup + system file
+void main (void) {                               // user application starts here
+  Device_Initialization ();                      // Configure & Initialize MCU
+  while (1)  {                                   // Endless Loop (the Super-Loop)
+    __disable_irq ();                            // Disable all interrupts
+    Get_InputValues ();                          // Read Values
+    __enable_irq ();                             // Enable all interrupts 
+    Calculation_Response ();                     // Calculate Results
+    Output_Response ();                          // Output Results
+    WaitForTick ();                              // Synchronize to SysTick Timer
+  }
+}
+\endcode
+
+CMSIS-Pack provides the <b>\#define CMSIS_header_file</b> in <a href="../../Pack/html/pdsc_components_pg.html#RTE_Components_h"><b>RTE_Components.h</b></a> which gives you access to the <b><i>device</i>.h</b> file 
+of a project. This allows you to generate generic software components that use the device selected in a project.
+
+\code
+#include "RTE_Components.h"                      // include information about project configuration
+#include CMSIS_device_header                     // include <device>.h file
+\endcode
+
+\page using_VTOR_pg Using Interrupt Vector Remap
+
+Most Cortex-M processors provide VTOR register for remapping interrupt vectors. The following example shows
+a typical use case where the interrupt vectors are copied to RAM and the SysTick_Handler is replaced.
+
+\code
+#include "ARMCM3.h"                     // Device header
+ 
+/* externals from startup_ARMCM3.s */
+extern uint32_t __Vectors[];              /* vector table ROM  */
+ 
+#define VECTORTABLE_SIZE        (256)     /* size Cortex-M3 vector table      */
+#define VECTORTABLE_ALIGNMENT   (0x100ul) /* 16 Cortex + 32 ARMCM3 = 48 words */
+                                          /* next power of 2 = 256            */
+ 
+/* new vector table in RAM */
+uint32_t vectorTable_RAM[VECTORTABLE_SIZE] __attribute__(( aligned (VECTORTABLE_ALIGNMENT) ));
+ 
+/*----------------------------------------------------------------------------
+  SysTick_Handler
+ *----------------------------------------------------------------------------*/
+volatile uint32_t msTicks = 0;                        /* counts 1ms timeTicks */
+void SysTick_Handler(void) {
+  msTicks++;                                          /* increment counter */
+}
+ 
+/*----------------------------------------------------------------------------
+  SysTick_Handler (RAM)
+ *----------------------------------------------------------------------------*/
+volatile uint32_t msTicks_RAM = 0;                    /* counts 1ms timeTicks */
+void SysTick_Handler_RAM(void) {
+  msTicks_RAM++;                                      /* increment counter */
+}
+ 
+/*----------------------------------------------------------------------------
+  MAIN function
+ *----------------------------------------------------------------------------*/
+int main (void) {
+  uint32_t i;
+   
+  for (i = 0; i < VECTORTABLE_SIZE; i++) {
+    vectorTable_RAM[i] = __Vectors[i];            /* copy vector table to RAM */
+  }
+                                                   /* replace SysTick Handler */
+  vectorTable_RAM[SysTick_IRQn + 16] = (uint32_t)SysTick_Handler_RAM;
+  
+  /* relocate vector table */ 
+  __disable_irq();
+    SCB->VTOR = (uint32_t)&vectorTable_RAM;
+  __DSB();
+  __enable_irq();
+ 
+  SystemCoreClockUpdate();                        /* Get Core Clock Frequency */
+  SysTick_Config(SystemCoreClock / 1000ul); /* Setup SysTick Timer for 1 msec */
+   
+  while(1);
+}
+\endcode
+
+    
+\page using_ARM_pg Using CMSIS with generic Arm Processors
+
+Arm provides CMSIS-Core (Cortex-M) files for the supported Arm Processors and for various compiler vendors. 
+These files can be used when standard Arm processors should be used in a project.
+The table below lists the folder and device names of the Arm processors.
+  
+<table class="cmtable">
+    <tr>
+      <th>Folder</th>
+      <th>Processor</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMCM0"</td>
+      <td>Cortex-M0</td>
+      <td>Contains \b Include and \b Source template files configured for the Cortex-M0 processor.
+        The device name is ARMCM0 and the name of the \ref device_h_pg is <ARMCM0.h>.
+    </td>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMCM0plus"</td>
+      <td>Cortex-M0+</td>
+      <td>Contains \b Include and \b Source template files configured for the Cortex-M0+ processor.
+        The device name is ARMCM0plus and the name of the \ref device_h_pg is <ARMCM0plus.h>.
+    </td>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMCM3"</td>
+      <td>Cortex-M3</td>
+      <td>Contains \b Include and \b Source template files configured for the Cortex-M3 processor.
+        The device name is ARMCM3 and the name of the \ref device_h_pg is <ARMCM3.h>.
+    </td>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMCM4"</td>
+      <td>Cortex-M4</td>
+      <td>Contains \b Include and \b Source template files configured for the Cortex-M4 processor.
+        The device name is ARMCM4 and the name of the \ref device_h_pg is <ARMCM4.h>.
+    </td>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMCM7"</td>
+      <td>Cortex-M7</td>
+      <td>Contains \b Include and \b Source template files configured for the Cortex-M7 processor.
+        The device name is ARMCM7 and the name of the \ref device_h_pg is <ARMCM7.h>.
+    </td>
+    </tr>
+\if ARMSC 
+    <tr>
+      <td>".\Device\ARM\ARMSC000"</td>
+      <td>SecurCore SC000</td>
+      <td>Contains \b Include and \b Source template files configured for the SecurCore SC000 processor.
+        The device name is ARMSC000 and the name of the \ref device_h_pg is <ARMSC000.h>.
+    </td>
+    </tr>
+    <tr>
+      <td>".\Device\ARM\ARMSC300"</td>
+      <td>SecurCore SC300</td>
+      <td>Contains \b Include and \b Source template files configured for the SecurCore SC300 processor.
+        The device name is ARMSC300 and the name of the \ref device_h_pg is <ARMSC300.h>.
+    </td>
+    </tr>
+\endif  
+</table>
+
+\note
+CMSIS-Pack provides the <b>\#define CMSIS_header_file</b> in <a href="../../Pack/html/pdsc_components_pg.html#RTE_Components_h"><b>RTE_Components.h</b></a> which gives you access to the <b><i>device</i>.h</b> file 
+of a project. This allows you to generate generic software components that adjust to the device settings.
+
+
+\section using_ARM_Lib_sec Create generic Libraries with CMSIS
+
+The CMSIS Processor and Core Peripheral files allow also to create generic libraries. 
+The <a href="../../DSP/html/index.html">\b CMSIS-DSP </a> Libraries are an example for such a generic library.
+
+To build a generic Library set the define \b __CMSIS_GENERIC and include the relevant <b>core_<cpu>.h</b> CMSIS CPU & Core Access header file for the processor.
+The define <b>__CMSIS_GENERIC</b> disables device-dependent features such as the <b>SysTick</b> timer and the <b>Interrupt System</b>.
+Refer to \ref core_config_sect for a list of the available <b>core_<cpu>.h</b> header files. 
+
+\b Example:
+
+The following code section shows the usage of the <b>core_&lt;cpu&gt;.h</b> header files to build a generic library for Cortex-M0, Cortex-M3, Cortex-M4, or Cortex-M7. To
+select the processor, the source code uses the define \b CORTEX_M7, \b CORTEX_M4, \b CORTEX_M3, \b CORTEX_M0, or \b CORTEX_M0PLUS. One of these defines needs to be provided
+on the compiler command line. By using this header file, the source code can access the functions for \ref Core_Register_gr, \ref intrinsic_CPU_gr, \ref intrinsic_SIMD_gr,
+and \ref ITM_Debug_gr.
+
+\code
+#define __CMSIS_GENERIC              /* disable NVIC and Systick functions */
+
+#if defined (CORTEX_M7)
+  #include "core_cm7.h"
+#elif defined (CORTEX_M4)
+  #include "core_cm4.h"
+#elif defined (CORTEX_M3)
+  #include "core_cm3.h"
+#elif defined (CORTEX_M0)
+  #include "core_cm0.h"
+#elif defined (CORTEX_M0PLUS)
+  #include "core_cm0plus.h"
+#else
+  #error "Processor not specified or unsupported."
+#endif
+
+\endcode
+
+
+*/

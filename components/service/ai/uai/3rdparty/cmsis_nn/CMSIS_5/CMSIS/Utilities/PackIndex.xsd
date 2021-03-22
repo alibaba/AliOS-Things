@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ 
+  Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ 
+  SPDX-License-Identifier: Apache-2.0
+ 
+  Licensed under the Apache License, Version 2.0 (the License); you may
+  not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ 
+  $Date:        23. Januar 2017
+  $Revision:    1.1.0
+
+  $Project: Schema File for Package Index File Format Specification
+
+  Package Index file naming convention <vendor>.pidx
+  Vendor  Index file naming convention <vendor>.vidx
+  SchemaVersion=1.1.0
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="qualified" version="1.1.0">
+
+  <!-- semantic versioning (semver.org) <major>.<minor>.<patch>-<quality> --> 
+  <xs:simpleType name="SemanticVersionType">
+    <xs:restriction  base="xs:string">
+      <!--               <major>         . <minor>        . <patch>        - <quality>                                                                                       + <build meta info>               -->
+      <xs:pattern value="(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- some strings are used to construct filenames (e.g. package name). Such names can contain only subset of characters and must not contain neither spaces nor dots. -->
+  <xs:simpleType name="RestrictedString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[\-_A-Za-z0-9]+"/>
+      <xs:pattern value="\S(.*\S)?"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Vendor index file Description Type -->
+  <xs:complexType name="VidxType">
+    <xs:attribute name="url"             type="xs:anyURI"           use="required"/>
+    <xs:attribute name="vendor"          type="RestrictedString"    use="required"/>
+    <xs:attribute name="date"            type="xs:date"             use="optional"/>
+  </xs:complexType>
+
+  <!-- Package Description Type -->
+  <xs:complexType name="PdscType">
+    <xs:attribute name="url"             type="xs:anyURI"           use="required"/>
+    <xs:attribute name="vendor"          type="RestrictedString"    use="required"/>
+    <xs:attribute name="name"            type="RestrictedString"    use="required"/>
+    <xs:attribute name="version"         type="SemanticVersionType" use="required"/>
+    <xs:attribute name="date"            type="xs:date"             use="optional"/>
+    <xs:attribute name="deprecated"      type="xs:date"             use="optional"/>
+    <xs:attribute name="replacement"     type="RestrictedString"    use="optional"/>
+    <xs:attribute name="size"            type="xs:unsignedInt"      use="optional"/>
+  </xs:complexType>
+
+  <!-- Package Description file Type -->
+  <xs:complexType name="PindexType">
+    <xs:sequence>
+      <xs:element name="pdsc"            type="PdscType"            maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Vendor vendor's package index file tag -->
+  <xs:complexType name="VindexType">
+    <xs:sequence>
+      <xs:element name="pidx"            type="VidxType"            maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Index description root point (Vendor Index file, Package Index file -->
+  <xs:element name="index" nillable="true">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="vendor"        type="RestrictedString"/>
+        <xs:element name="url"           type="xs:anyURI"/>
+        <xs:element name="timestamp"     type="xs:dateTime"         minOccurs="0"/>
+        <xs:choice minOccurs="1" maxOccurs="2">
+          <!-- index/list of packs -->
+          <xs:element name="pindex"      type="PindexType"/>
+          <!-- index/list of vendor index files -->
+          <xs:element name="vindex"      type="VindexType"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="schemaVersion" type="SemanticVersionType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

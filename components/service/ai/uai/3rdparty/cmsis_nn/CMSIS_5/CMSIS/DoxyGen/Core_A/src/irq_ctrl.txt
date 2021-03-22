@@ -1,0 +1,676 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+//  ==== IRQ Controller API ====
+/** 
+\defgroup irq_ctrl_gr Interrupts and Exceptions
+\brief Generic functions to access the Interrupt Controller.
+
+\details This section describes the device agnostic interrupt API viable for a wide range of specific interrupt controllers.
+The IRQ Controller API allows interrupt dependend applications to be easily portable across a wide range of controllers.
+
+\note The default implementation for \ref GIC_functions "Arm GIC (Generic Interrupt Controller)" can be found in \ref irq_ctrl_gic.c.
+It uses \c weak functions thus it can easily be overwritten by an alternative user implementation if needed.
+
+The Armv7-A architecture defines a common set of first level exceptions, see table below.
+
+| Exception                     | CMSIS Handler | Offset | Description                                                                 |
+|-------------------------------|---------------|--------|-----------------------------------------------------------------------------|
+| Reset                         | Reset_Handler | 0x0000 | First instruction executed after reset.                                     |
+| Undefined Instruction (Undef) | Undef_Handler | 0x0004 | Signals usage of an illegal instructions.                                   |
+| Supervisor Call (SVC)         | SVC_Handler   | 0x0008 | Issued by software using SVC instruction.                                   |
+| Prefetch Abort (PAbt)         | PAbt_Handler  | 0x000C | Signals a memory abort on istruction fetch.                                 |
+| Data Abort (DAbt)             | DAbt_Handler  | 0x0010 | Signals a memory abort on data read or write.                               |
+| Hyp Trap                      | (NOP)         | 0x0014 | Hypervisor instruction trap, only available with Virtualization Extensions. |
+| IRQ interrupt                 | IRQ_Handler   | 0x0018 | Interrupt Request (typically from Interrupt Controller)                     |
+| FIQ interrupt                 | FIQ_Handler   | 0x001C | Fast Interrupt Request (typically from Interrupt Controller)                |
+
+By default those handlers are defined as weak empty functions by the \ref startup_c_sec "device specific startup code".
+Software and peripheral interrupts are all handled by one of the both central interrupt handlers (IRQ and FIQ). These needs to
+be implemented application specific. If an RTOS is used the interrupt handlers are typically provided by the RTOS, e.g. when using 
+<a href="../../RTOS2/html/rtx5_impl.html">RTX5</a>.
+
+The interrupts available depends on the actual device in use. According to CMSIS specification the interrupts are defined
+as \ref IRQn_Type in \ref device_h_pg. Using the generic IRQ API one can easily enable and disable interrupts, set up priorities, modes 
+and preemption rules, and register interrupt callbacks.
+
+\b Example:
+
+\code
+void SGI0_Handler() {
+  /* 
+   * Handle Interrupt 
+   */
+  
+  IRQ_ClearPending((IRQn_ID_t)SGI0_IRQn);
+}
+ 
+void main() {
+  /* Initialize the Interrupt Controller */
+  IRQ_Initialize();
+  
+  /* Register the user defined handler function */
+  IRQ_SetHandler((IRQn_ID_t)SGI0_IRQn, SGI0_Handler);  
+  
+  /* Set the priority considering the priority grouping */
+  const uint32_t subprio = IRQ_GetPriorityGroupBits();
+  IRQ_SetPriority((IRQn_ID_t)SGI0_IRQn, 1u << subprio);
+  
+  /* Set interrupt mode to falling edge */
+  IRQ_SetMode((IRQn_ID_t)SGI0_IRQn, IRQ_MODE_TYPE_IRQ | IRQ_MODE_CPU_0 | IRQ_MODE_TRIG_EDGE | IRQ_MODE_TRIG_EDGE_FALLING);
+  
+  IRQ_Enable((IRQn_ID_t)SGI0_IRQn);
+  
+  /* Trigger interrupt */
+  IRQ_SetPending((IRQn_ID_t)SGI0_IRQn);
+  
+  IRQ_Disable((IRQn_ID_t)SGI0_IRQn);
+}
+\endcode
+
+@{
+*/
+
+/**
+\defgroup irq_mode_defs IRQ Mode Bit-Masks
+\brief Configure interrupt line mode
+\details
+@{
+The following codes are used as values for the parameter \em mode of the function \ref IRQ_SetMode to configure interrupt line mode.
+They are also returned by the function \ref IRQ_GetMode when retrieving interrupt line mode.
+
+The values of \b IRQ_MODE_TRIG_x definitions specify
+The values of \b IRQ_MODE_TYPE_x definitions specify
+The values of \b IRQ_MODE_DOMAIN_x definitions specify
+The values of \b IRQ_MODE_CPU_x definitions specify
+
+// Interrupt mode bit-masks
+\def IRQ_MODE_TRIG_LEVEL
+\def IRQ_MODE_TRIG_LEVEL_LOW
+\def IRQ_MODE_TRIG_LEVEL_HIGH
+\def IRQ_MODE_TRIG_EDGE
+\def IRQ_MODE_TRIG_EDGE_RISING
+\def IRQ_MODE_TRIG_EDGE_FALLING
+\def IRQ_MODE_TRIG_EDGE_BOTH
+
+\def IRQ_MODE_TYPE_IRQ
+\def IRQ_MODE_TYPE_FIQ
+
+\def IRQ_MODE_DOMAIN_NONSECURE
+\def IRQ_MODE_DOMAIN_SECURE
+
+\def IRQ_MODE_CPU_ALL
+\def IRQ_MODE_CPU_0
+\def IRQ_MODE_CPU_1
+\def IRQ_MODE_CPU_2
+\def IRQ_MODE_CPU_3
+\def IRQ_MODE_CPU_4
+\def IRQ_MODE_CPU_5
+\def IRQ_MODE_CPU_6
+\def IRQ_MODE_CPU_7
+
+\def IRQ_MODE_ERROR
+@}
+*/
+
+/**
+\defgroup irq_priority_defs IRQ Priority Bit-Masks
+\brief Definitions used by interrupt priority functions.
+\details
+@{
+The following values are used by the interrupt priority functions.
+
+The value of \b IRQ_PRIORITY_Msk specifies maximum interrupt priority value and can be used as parameter for the functions
+\ref IRQ_GetPriority and \ref IRQ_SetPriorityGroupBits to retrieve implementation specific priority values.
+
+The value of \b IRQ_PRIORITY_ERROR is used by functions \ref IRQ_GetPriority, IRQ_GetPriorityMask and \ref IRQ_GetPriorityGroupBits
+to signal function execution error.
+
+\def IRQ_PRIORITY_Msk
+\def IRQ_PRIORITY_ERROR
+@}
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_Initialize (void) 
+\details This function initializes interrupt controller.
+
+It disables all interrupt sources, clears all pending interrupts, sets interrupt priorities to highest priority and
+configures priority mask to lowest priority. IRQ and FIQ signal lines should be enabled and all interrupt handlers should
+be set to NULL.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+/// Number of implemented interrupt lines
+#ifndef IRQ_GIC_LINE_COUNT
+#define IRQ_GIC_LINE_COUNT      (1020U)
+#endif
+ 
+static IRQHandler IRQTable[IRQ_GIC_LINE_COUNT] = { 0U };
+ 
+int32_t IRQ_Initialize (void) {
+  uint32_t i;
+ 
+  for (i = 0U; i < IRQ_GIC_LINE_COUNT; i++) {
+    IRQTable[i] = (IRQHandler)NULL;
+  }
+  GIC_Enable();
+  return (0);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetHandler (IRQn_ID_t irqn, IRQHandler_t handler) 
+\details This function registers address of the interrupt handler callback function corresponding to the specified interrupt
+ID number.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_SetHandler (IRQn_ID_t irqn, IRQHandler_t handler) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    IRQTable[irqn] = handler;
+    status =  0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn IRQHandler_t IRQ_GetHandler (IRQn_ID_t irqn) 
+\details This function retrieves address of the interrupt handler callback function corresponding to the specified interrupt
+ID number.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+IRQHandler_t IRQ_GetHandler (IRQn_ID_t irqn) {
+  IRQHandler h;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    h = IRQTable[irqn];
+  } else {
+    h = (IRQHandler_t)0;
+  }
+ 
+  return (h);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_Enable (IRQn_ID_t irqn)
+\details This function enables forwarding of the corresponding interrupt to the CPU.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_Enable (IRQn_ID_t irqn) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_EnableIRQ ((IRQn_Type)irqn);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_Disable (IRQn_ID_t irqn)
+\details This function disables forwarding of the corresponding interrupt to the CPU. 
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_Disable (IRQn_ID_t irqn) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_DisableIRQ ((IRQn_Type)irqn);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetEnableState (IRQn_ID_t irqn) 
+\details This function retrieves the interrupt enable status of the interrupt identified by the irqn parameter.
+
+Interrupt enable status can be either disabled (0) or enabled (1). Disabled status is returned for interrupts
+which cannot be identified by irqn. 
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetEnableState (IRQn_ID_t irqn) {
+  uint32_t enable;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    enable = GIC_GetEnableIRQ((IRQn_Type)irqn);
+  } else {
+    enable = 0U;
+  }
+ 
+  return (enable);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode)
+
+\details This function configures the interrupt triggering mode, type, secure access and target CPUs of the interrupt
+(see \ref irq_mode_defs) identified by the irqn parameter.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
+  int32_t status;
+  uint32_t val;
+  uint8_t cfg;
+  uint8_t secure;
+  uint8_t cpu;
+ 
+  status = 0;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    // Check triggering mode
+    val = (mode & IRQ_MODE_TRIG_Msk);
+
+    if (val == IRQ_MODE_TRIG_LEVEL) {
+      cfg = 0x00U;
+    } else if (val == IRQ_MODE_TRIG_EDGE) {
+      cfg = 0x02U;
+    } else {
+      status = -1;
+    }
+ 
+    // Check interrupt type
+    val = mode & IRQ_MODE_TYPE_Msk;
+ 
+    if (val != IRQ_MODE_TYPE_IRQ) {
+      status = -1;
+    }
+ 
+    // Check interrupt domain
+    val = mode & IRQ_MODE_DOMAIN_Msk;
+ 
+    if (val == IRQ_MODE_DOMAIN_NONSECURE) {
+      secure = 0;
+    } else {
+      // Check security extensions support
+      val = GIC_DistributorInfo() & (1UL << 10U);
+ 
+      if (val != 0U) {
+        // Security extensions are supported
+        secure = 1;
+      } else {
+        status = -1;
+      }
+    }
+ 
+    // Check interrupt CPU targets
+    val = mode & IRQ_MODE_CPU_Msk;
+ 
+    if (val == IRQ_MODE_CPU_ALL) {
+      cpu = 0xFF;
+    } else {
+      cpu = val >> IRQ_MODE_CPU_Pos;
+    }
+ 
+    // Apply configuration if no mode error
+    if (status == 0) {
+      GIC_SetConfiguration((IRQn_Type)irqn, cfg);
+      GIC_SetTarget       ((IRQn_Type)irqn, cpu);
+ 
+      if (secure != 0U) {
+        GIC_SetGroup ((IRQn_Type)irqn, secure);
+      }
+    }
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetMode (IRQn_ID_t irqn)
+\details This function retrieves interrupt mode configuration of the interrupt identified by the irqn parameter.
+\ref IRQ_MODE_ERROR is returned for interrupts which cannot be identified by irqn.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetMode (IRQn_ID_t irqn) {
+  uint32_t mode;
+  uint32_t val;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    mode = IRQ_MODE_TYPE_IRQ;
+ 
+    // Get trigger mode
+    val = GIC_GetConfiguration((IRQn_Type)irqn);
+ 
+    if ((val & 2U) != 0U) {
+      // Corresponding interrupt is edge triggered
+      mode |= IRQ_MODE_TRIG_EDGE;
+    } else {
+      // Corresponding interrupt is level triggered
+      mode |= IRQ_MODE_TRIG_LEVEL;
+    }
+ 
+    // Get interrupt CPU targets
+    mode |= GIC_GetTarget ((IRQn_Type)irqn) << IRQ_MODE_CPU_Pos;
+ 
+  } else {
+    mode = IRQ_MODE_ERROR;
+  }
+ 
+  return (mode);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn IRQn_ID_t IRQ_GetActiveIRQ (void)
+\details This function retrieves the interrupt ID number of current IRQ source and acknowledges the interrupt. 
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+IRQn_ID_t IRQ_GetActiveIRQ (void) {
+  IRQn_ID_t irqn;
+ 
+  irqn = (IRQn_ID_t)GIC_AcknowledgePending();
+ 
+  return (irqn);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn IRQn_ID_t IRQ_GetActiveFIQ (void)
+\details This function retrieves the interrupt ID number of current FIQ source and acknowledges the interrupt.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+IRQn_ID_t IRQ_GetActiveFIQ (void) {
+  // FIQ is not supported, return invalid ID
+  return ((IRQn_ID_t)-1);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_EndOfInterrupt (IRQn_ID_t irqn)
+\details This function informs the interrupt controller that the interrupt service routine processing of the currently
+active interrupt request is completed.
+
+The parameter irqn should specify the value previously returned by the \ref IRQ_GetActiveIRQ or \ref IRQ_GetActiveFIQ functions.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_EndOfInterrupt (IRQn_ID_t irqn) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_EndInterrupt ((IRQn_Type)irqn);
+ 
+    if (irqn == 0) {
+      IRQ_ID0 = 0U;
+    }
+ 
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetPending (IRQn_ID_t irqn) 
+\details This function sets the pending status of the interrupt identified by the irqn parameter.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_SetPending (IRQn_ID_t irqn) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_SetPendingIRQ ((IRQn_Type)irqn);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetPending (IRQn_ID_t irqn)
+\details This function retrieves the pending status of the interrupt identified by the irqn parameter.
+
+Interrupt pending status can be either not pending (0) or pending (1). Not pending status is returned for interrupts which
+cannot be identified by irqn.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetPending (IRQn_ID_t irqn) {
+  uint32_t pending;
+ 
+  if ((irqn >= 16) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    pending = GIC_GetPendingIRQ ((IRQn_Type)irqn);
+  } else {
+    pending = 0U;
+  }
+ 
+  return (pending & 1U);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_ClearPending (IRQn_ID_t irqn) 
+\details This function clears the pending status of the interrupt identified by the irqn parameter.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_ClearPending (IRQn_ID_t irqn) {
+  int32_t status;
+ 
+  if ((irqn >= 16) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_ClearPendingIRQ ((IRQn_Type)irqn);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetPriority (IRQn_ID_t irqn, uint32_t priority)
+\details This function sets the priority of the interrupt identified by the irqn parameter.
+
+Higher priority numbers have lower priority. The highest interrupt priority has priority value 0, while the lowest value
+depends on the number of implemented priority levels.
+
+The number of implemented priority bits can be determined by setting value \ref IRQ_PRIORITY_Msk to arbitrary irqn and by
+retrieving the actual stored value with IRQ_GetPriority function.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_SetPriority (IRQn_ID_t irqn, uint32_t priority) {
+  int32_t status;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    GIC_SetPriority ((IRQn_Type)irqn, priority);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetPriority (IRQn_ID_t irqn) 
+\details This function retrieves the priority of the interrupt identified by the irqn parameter.
+
+The valid priority value can be from zero (0) to the value of \ref IRQ_PRIORITY_Msk. \ref IRQ_PRIORITY_ERROR bit is set in
+returned value for interrupts which cannot be identified by irqn.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetPriority (IRQn_ID_t irqn) {
+  uint32_t priority;
+ 
+  if ((irqn >= 0) && (irqn < IRQ_GIC_LINE_COUNT)) {
+    priority = GIC_GetPriority ((IRQn_Type)irqn);
+  } else {
+    priority = IRQ_PRIORITY_ERROR;
+  }
+ 
+  return (priority);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetPriorityMask (uint32_t priority) 
+\details This function sets the priority masking threshold for the current processor.
+
+It ensures that only interrupts with a higher priority than priority threshold value are signaled to the target processor.
+Function returns error status -1 if priority masking is not supported.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+IRQ_SetPriorityMask (uint32_t priority) {
+  GIC_SetInterfacePriorityMask (priority);
+  return (0);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetPriorityMask (void)
+\details This function retrieves the priority masking threshold for the current processor.
+
+\ref IRQ_PRIORITY_ERROR value is returned if priority masking is not supported.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetPriorityMask (void) {
+  return GIC_GetInterfacePriorityMask();
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn int32_t IRQ_SetPriorityGroupBits (uint32_t bits)
+\details This function sets the number of MSB priority bits used to determine whether a pending interrupt has sufficient
+priority to preempt a currently active interrupt.
+
+The number of implemented group priority bits can be determined by setting value \ref IRQ_PRIORITY_Msk and by retrieving the
+actual stored value with \ref IRQ_GetPriorityGroupBits function.
+Function returns error status -1 if priority grouping is not supported.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+int32_t IRQ_SetPriorityGroupBits (uint32_t bits) {
+  int32_t status;
+ 
+  if (bits == IRQ_PRIORITY_Msk) {
+    bits = 7U;
+  }
+ 
+  if (bits < 8U) {
+    GIC_SetBinaryPoint (7U - bits);
+    status = 0;
+  } else {
+    status = -1;
+  }
+ 
+  return (status);
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn uint32_t IRQ_GetPriorityGroupBits (void) 
+\details This function retrieves the number of MSB bits used to determine whether a pending interrupt has sufficient
+priority to preempt a currently active interrupt.
+
+\ref IRQ_PRIORITY_ERROR value is returned when priority grouping is not supported.
+
+For Arm GIC the default implementation looks like the following example:
+
+\code
+uint32_t IRQ_GetPriorityGroupBits (void) {
+  uint32_t bp;
+ 
+  bp = GIC_GetBinaryPoint() & 0x07U;
+ 
+  return (7U - bp);
+}
+\endcode
+*/
+
+/** @} */ /* group irq_ctrl_gr */

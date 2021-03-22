@@ -1,0 +1,1169 @@
+/* ###########################  Core Function Access  ########################### */
+/** 
+\defgroup CMSIS_core_register Core Register Access
+\brief Functions to access the Cortex-A core registers
+\details
+
+*/
+/* end group CMSIS_core_register */
+
+/* CP15 Register ACTLR */
+/**
+\defgroup CMSIS_ACTLR Auxiliary Control Register (ACTLR)
+\ingroup CMSIS_core_register
+\brief The ACTLR provides IMPLEMENTATION DEFINED configuration and control options.
+\details
+The ACTLR characteristics are differs between various Armv7-A implementations.
+
+<b>Cortex-A5</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:29] | -             | Reserved.                                                     |
+| [28]    | DBDI          | Disable Branch Dual Issue                                     |
+| [27:19] | -             | Reserved.                                                     |
+| [18]    | BTDIS         | Disable indirect Branch Target Address Cache (BTAC).          |
+| [17]    | RSDIS         | Disable return stack operation.                               |
+| [16:15] | BP            | Branch prediction policy.                                     |
+| [14:13] | L1PCTL        | L1 Data prefetch control.                                     |
+| [12]    | RADIS         | Disable Data Cache read-allocate mode.                        |
+| [11]    | DWBST         | Disable AXI data write bursts to Normal memory.               |
+| [10]    | DODMBS        | Disable optimized data memory barrier behavior.               |
+| [9:8]   | -             | Reserved.                                                     |
+| [7]     | EXCL          | Exclusive L1/L2 cache control.                                |
+| [6]     | SMP           | Enables coherent requests to the processor.                   |
+| [5:1]   | -             | Reserved.                                                     |
+| [0]     | FW            | Cache and TLB maintenance broadcast.                          |
+
+<b>Cortex-A7</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:29] | -             | Reserved.                                                     |
+| [28]    | DDI           | Disable Dual Issue                                            |
+| [27:16] | -             | Reserved.                                                     |
+| [15]    | DDVM          | Disable Distributed Virtual Memory transactions.              |
+| [14:13] | L1PCTL        | L1 Data prefetch control.                                     |
+| [12]    | L1RADIS       | L1 Data Cache read-allocate mode disable.                     |
+| [11]    | L2RADIS       | L2 Data Cache read-allocate mode disable.                     |
+| [10]    | DODMBS        | Disable optimized data memory barrier behavior.               |
+| [9:7]   | -             | Reserved.                                                     |
+| [6]     | SMP           | Enables coherent requests to the processor.                   |
+| [5:0]   | -             | Reserved.                                                     |
+
+<b>Cortex-A9</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:10] | -             | Reserved.                                                     |
+| [9]     | PARITY        | Support for parity checking, if implemented.                  |
+| [8]     | AOW           | Enable allocation in one cache way only.                      |
+| [7]     | EXCL          | Exclusive L1/L2 cache control.                                |
+| [6]     | SMP           | Enables coherent requests to the processor.                   |
+| [5:4]   | -             | Reserved.                                                     |
+| [3]     | WFLZM         | Enable write full line of zeros modea.                        |
+| [2]     | L1PE          | Dside prefetch.                                               |
+| [1]     | -             | Reserved.                                                     |
+| [0]     | FW            | Cache and TLB maintenance broadcast.                          |
+
+Consider using \ref __get_ACTLR and \ref __set_ACTRL to access ACTRL register.
+
+@{
+*/
+
+/**
+\fn __STATIC_INLINE void __set_ACTRL(uint32_t actrl)
+\details
+  This function assigns the given value to the \ref CMSIS_ACTLR.
+
+\fn __STATIC_INLINE uint32_t __get_ACTLR(void)
+\details
+  This function returns the value of the \ref CMSIS_ACTLR.
+
+\struct ACTLR_Type
+\brief Bit field declaration for ACTLR layout.
+
+\defgroup CMSIS_ACTLR_BITS ACTLR Bits
+\brief Bit position and mask macros
+@{
+\def ACTLR_DDI_Pos
+\def ACTLR_DDI_Msk
+\def ACTLR_DBDI_Pos
+\def ACTLR_DBDI_Msk
+\def ACTLR_BTDIS_Pos
+\def ACTLR_BTDIS_Msk
+\def ACTLR_RSDIS_Pos
+\def ACTLR_RSDIS_Msk
+\def ACTLR_BP_Pos
+\def ACTLR_BP_Msk
+\def ACTLR_DDVM_Pos
+\def ACTLR_DDVM_Msk
+\def ACTLR_L1PCTL_Pos
+\def ACTLR_L1PCTL_Msk
+\def ACTLR_RADIS_Pos
+\def ACTLR_RADIS_Msk
+\def ACTLR_L1RADIS_Pos
+\def ACTLR_L1RADIS_Msk
+\def ACTLR_DWBST_Pos
+\def ACTLR_DWBST_Msk
+\def ACTLR_L2RADIS_Pos
+\def ACTLR_L2RADIS_Msk
+\def ACTLR_DODMBS_Pos
+\def ACTLR_DODMBS_Msk
+\def ACTLR_PARITY_Pos
+\def ACTLR_PARITY_Msk
+\def ACTLR_AOW_Pos
+\def ACTLR_AOW_Msk
+\def ACTLR_EXCL_Pos
+\def ACTLR_EXCL_Msk
+\def ACTLR_SMP_Pos
+\def ACTLR_SMP_Msk
+\def ACTLR_WFLZM_Pos
+\def ACTLR_WFLZM_Msk
+\def ACTLR_L1PE_Pos
+\def ACTLR_L1PE_Msk
+\def ACTLR_FW_Pos
+\def ACTLR_FW_Msk
+@}
+*/
+
+/** @} */
+
+/* end group CMSIS_ACTLR */
+
+/* Cache and branch predictor maintenance operations */
+/**
+\defgroup CMSIS_CBPM Cache and branch predictor maintenance operations
+\ingroup CMSIS_core_register
+\brief This section describes the cache and branch predictor maintenance operations.
+\details
+Cache maintenance operations are defined to act on particular memory locations.
+In addition, for instruction caches and branch predictors, there are operations that invalidate all entries.
+
+Consider using \ref L1_cache_functions and \ref L2_cache_functions for cache maintenance instead of
+raw register usage.
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_BPIALL(uint32_t value)   
+\details
+  This function writes the provided value to the Branch Predictor Invalidate All (BPIALL) register.
+
+\fn __STATIC_INLINE void __set_DCCIMVAC(uint32_t value) 
+\details
+  This function cleans and invalidates data or unified cache line by MVA to PoC.
+
+  \fn __STATIC_INLINE void __set_DCCMVAC(uint32_t value) 
+\details
+  This function cleans data or unified cache line by MVA to PoC.
+
+\fn __STATIC_INLINE void __set_DCIMVAC(uint32_t value) 
+\details
+  This function invalidates data or unified cache line by MVA to PoC.
+
+\fn __STATIC_INLINE void __set_ICIALLU(uint32_t value) 
+\details
+  This function invalidates all instruction cache.
+*/
+
+/** @} */
+/* end group CMSIS_CBPM */
+
+/* CBAR Register */
+/**
+\defgroup CMSIS_CBAR Configuration Base Address Register (CBAR)
+\ingroup CMSIS_core_register
+\brief Takes the physical base address value of the memory-mapped SCU peripherals at reset from the external signal PERIPHBASE[31:13].
+\details
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:13] | PERIPHBASE    | Peripheral base address.                                      |
+| [12:0]  | -             | Read as zero.                                                 |
+
+Consider \ref __get_CBAR to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_CBAR()
+\details
+  This function returns the value of the Configuration Base Address register.
+
+\defgroup CMSIS_CBAR_BITS CBAR Bits
+\brief Bit position and mask macros
+@{
+
+@}          
+*/
+
+/** @} */
+/* end group CMSIS_CBAR */
+
+/* CP15 Register CPACR */
+/**
+\defgroup CMSIS_CPACR Coprocessor Access Control Register (CPACR)
+\ingroup CMSIS_core_register
+\brief The CPACR controls access to coprocessors CP0 to CP13.
+\details
+The CPACR characteristics are:
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31]    | ASEDIS        | Disable Advanced SIMD functionality.                          |
+| [30]    | D32DIS        | Disable use of D16-D31 of the Floating-point Extension register file. |
+| [29]    | -             | Reserved.                                                     |
+| [28]    | TRCDIS        | Disable CP14 access to trace registers.                       |
+| [27:26] | CP13          | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 13.       |
+| [25:24] | CP12          | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 12.       |
+| [23:22] | CP11          | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 11.       |
+| [21:20] | CP10          | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 10.       |
+| [19:18] | CP9           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 9.        |
+| [17:16] | CP8           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 8.        |
+| [15:14] | CP7           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 7.        |
+| [13:12] | CP6           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 6.        |
+| [11:10] | CP5           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 5.        |
+| [9:8]   | CP4           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 4.        |
+| [7:6]   | CP3           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 3.        |
+| [5:4]   | CP2           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 2.        |
+| [3:2]   | CP1           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 1.        |
+| [1:0]   | CP0           | \ref CMSIS_CPACR_CP "Access rights" for coprocessor 0.        |
+
+Consider \ref __get_CPACR and \ref __set_CPACR to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_CPACR(void)
+\details
+  This function returns the current value of the \ref CMSIS_CPACR.
+
+\fn __STATIC_INLINE void __set_CPACR(uint32_t cpacr)
+\details
+  This function assigns the given value to the \ref CMSIS_CPACR.
+
+\struct CPACR_Type
+\brief Bit field declaration for CPACR layout.
+
+\defgroup CMSIS_CPACR_BITS CPACR Bits
+\brief Bit position and mask macros
+@{
+\def CPACR_ASEDIS_Pos         
+\def CPACR_ASEDIS_Msk
+\def CPACR_D32DIS_Pos         
+\def CPACR_D32DIS_Msk
+\def CPACR_TRCDIS_Pos
+\def CPACR_TRCDIS_Msk
+\def CPACR_CP_Pos_(n)
+\def CPACR_CP_Msk_(n)
+@}       
+
+\defgroup CMSIS_CPACR_CP CPACR CP field values
+\brief Valid values for CPACR CP field.
+\details Defines the access rights for a coprocessor.
+@{
+\def CPACR_CP_NA 
+Any attempt to access the coprocessor generates an Undefined
+Instruction exception.
+
+\def CPACR_CP_PL1
+Any attempt to access the coprocessor from unprivileged
+software generates an Undefined Instruction exception.
+
+\def CPACR_CP_FA 
+The meaning of full access is defined by the appropriate coprocessor.
+@}
+*/
+/** @} */
+/* end group CMSIS_CPACR */
+
+/* Core Register CPSR */
+/**
+\defgroup CMSIS_CPSR Current Program Status Register (CPSR)
+\ingroup CMSIS_core_register
+\brief The Current Program Status Register (CPSR) holds processor status and control information.
+
+The individual register bits have the following meaning:
+
+| Bits    | Name       | Function                                                      |
+| :------ | :--------- | :------------------------------------------------------------ |
+| [31]    | N          | Negative condition code flag                                  |
+| [30]    | Z          | Zero condition code flag                                      |
+| [29]    | C          | Carry condition code flag                                     |
+| [28]    | V          | Overflow condition code flag                                  |
+| [27]    | Q          | Cumulative saturation bit                                     |
+| [26:25] | IT[1:0]    | If-Then execution state bits for the Thumb IT (If-Then) instruction |
+| [24]    | J          | Jazelle bit                                                   |
+| [19:16] | GE         | Greater than or Equal flags                                   |
+| [15:10] | IT[7:2]    | If-Then execution state bits for the Thumb IT (If-Then) instruction |
+| [9]     | E          | Endianness execution state bit: 0 - Little-endian, 1 - Big-endian |
+| [8]     | A          | Asynchronous abort mask bit                                   |
+| [7]     | I          | IRQ mask bit                                                  |
+| [6]     | F          | FIRQ mask bit                                                 |
+| [5]     | T          | Thumb execution state bit                                     |
+| [4:0]   | M          | \ref CMSIS_CPSR_M "Mode field"                                |
+
+Consider using \ref __get_CPSR and \ref __set_CPSR for accessing this register.
+
+@{
+*/
+
+/**
+\fn __STATIC_INLINE uint32_t __get_CPSR(void)
+\details
+	This function returns the content of the \ref CMSIS_CPSR.
+  
+\fn __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
+\details
+	This function assigns the given value to the \ref CMSIS_CPSR.
+
+\struct CPSR_Type
+\brief Bit field declaration for CPSR layout.
+
+\defgroup CMSIS_CPSR_BITS CPSR Bits
+\brief Bit position and mask macros
+@{
+\def CPSR_N_Pos                  
+\def CPSR_N_Msk
+\def CPSR_Z_Pos                  
+\def CPSR_Z_Msk                  
+\def CPSR_C_Pos                  
+\def CPSR_C_Msk
+\def CPSR_V_Pos                  
+\def CPSR_V_Msk
+\def CPSR_Q_Pos                  
+\def CPSR_Q_Msk
+\def CPSR_IT0_Pos                
+\def CPSR_IT0_Msk
+\def CPSR_J_Pos                  
+\def CPSR_J_Msk
+\def CPSR_GE_Pos                 
+\def CPSR_GE_Msk
+\def CPSR_IT1_Pos                
+\def CPSR_IT1_Msk
+\def CPSR_E_Pos                  
+\def CPSR_E_Msk
+\def CPSR_A_Pos                  
+\def CPSR_A_Msk
+\def CPSR_I_Pos                  
+\def CPSR_I_Msk
+\def CPSR_F_Pos                  
+\def CPSR_F_Msk
+\def CPSR_T_Pos                  
+\def CPSR_T_Msk
+\def CPSR_M_Pos                  
+\def CPSR_M_Msk
+@}
+
+\defgroup CMSIS_CPSR_M CPSR M field values
+\brief Valid values for CPSR M field.
+\details The M field can contain one of these values which indicates the current processor mode.
+@{
+\def CPSR_M_USR
+An operating system runs applications in User mode to restrict the use of system resources. Software
+executing in User mode executes at PL0. Execution in User mode is sometimes described as
+unprivileged execution.
+
+\def CPSR_M_FIQ
+FIQ mode is the default mode to which an FIQ interrupt is taken.
+
+\def CPSR_M_IRQ
+IRQ mode is the default mode to which an IRQ interrupt is taken.
+
+\def CPSR_M_SVC
+Supervisor mode is the default mode to which a Supervisor Call exception is taken.
+
+\def CPSR_M_MON
+Monitor mode is the mode to which a Secure Monitor Call exception is taken.
+
+\def CPSR_M_ABT
+Abort mode is the default mode to which a Data Abort exception or Prefetch Abort exception is
+taken.
+
+\def CPSR_M_HYP
+Hyp mode is the Non-secure PL2 mode, implemented as part of the Virtualization Extensions. Hyp
+mode is entered on taking an exception from Non-secure state that must be taken to PL2.
+
+\def CPSR_M_UND
+Undefined mode is the default mode to which an instruction-related exception, including any
+attempt to execute an UNDEFINED instruction, is taken.
+
+\def CPSR_M_SYS
+Software executing in System mode executes at PL1. System mode has the same registers available
+as User mode, and is not entered by any exception.
+
+@}
+*/
+
+/** @} */
+
+
+/* end group CMSIS_CPSR */
+
+
+/* CP15 Register DFSR */
+/**
+\defgroup CMSIS_DFSR Data Fault Status Register (DFSR)
+\ingroup CMSIS_core_register
+\brief The DFSR holds status information about the last data fault.
+\details
+
+<b>DFSR format when using the Short-descriptor translation table format</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:14] | -             | Reserved.                                                     |
+| [13]    | CM            | Cache maintenance fault.                                      |
+| [12]    | ExT           | External abort type.                                          |
+| [11]    | WnR           | Write not Read bit.                                           |
+| [10]    | FS[4]         | Fault status bits.                                            |
+| [9]     | LPAE          | Large Physical Address Extension.                             |
+| [8]     | -             | Reserved.                                                     |
+| [7:4]   | Domain        | The domain of the fault address.                              |
+| [3:0]   | FS[3:0]       | Fault status bits.                                            |
+
+<b>DFSR format when using the Long-descriptor translation table format</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:14] | -             | Reserved.                                                     |
+| [13]    | CM            | Cache maintenance fault.                                      |
+| [12]    | ExT           | External abort type.                                          |
+| [11]    | WnR           | Write not Read bit.                                           |
+| [10]    | -             | Reserved.                                                     |
+| [9]     | LPAE          | Large Physical Address Extension.                             |
+| [8:6]   | -             | Reserved.                                                     |
+| [5:0]   | STATUS        | Fault status bits.                                            |
+
+Consider \ref __get_DFSR and \ref __set_DFSR to access this register.
+
+@{
+*/
+/**
+\struct DFSR_Type
+\brief Bit field declaration for DFSR layout.
+
+\fn __STATIC_INLINE uint32_t __get_DFSR(void)
+\details
+  This function returns the current value of the \ref CMSIS_DFSR.
+
+\fn __STATIC_INLINE void __set_DFSR(uint32_t dfsr)
+\details
+  This function assigns the given value to the \ref CMSIS_DFSR.
+  
+\defgroup CMSIS_DFSR_BITS ACTLR Bits
+\brief Bit position and mask macros
+@{
+\def DFSR_CM_Pos             
+\def DFSR_CM_Msk
+\def DFSR_Ext_Pos            
+\def DFSR_Ext_Msk
+\def DFSR_WnR_Pos            
+\def DFSR_WnR_Msk
+\def DFSR_LPAE_Pos
+\def DFSR_LPAE_Msk
+\def DFSR_FS1_Pos            
+\def DFSR_FS1_Msk
+\def DFSR_Domain_Pos         
+\def DFSR_Domain_Msk
+\def DFSR_FS0_Pos
+\def DFSR_FS0_Msk
+\def DFSR_STATUS_Pos
+\def DFSR_STATUS_Msk
+@}    
+
+*/
+/** @} */
+/* end group CMSIS_DFSR */
+
+/* DACR Register */
+/**
+\defgroup CMSIS_DACR Domain Access Control Register (DACR)
+\ingroup CMSIS_core_register
+\brief DACR defines the access permission for each of the sixteen memory domains.
+\details
+
+| Bits    | Name | Function                                           |
+| :------ | :--- | :------------------------------------------------- |
+| [31:30] | D15  | Domain 15 \ref CMSIS_DACR_Dn "access permission".  |
+| [29:28] | D14  | Domain 14 \ref CMSIS_DACR_Dn "access permission".  |
+| [27:26] | D13  | Domain 13 \ref CMSIS_DACR_Dn "access permission".  |
+| [25:24] | D12  | Domain 12 \ref CMSIS_DACR_Dn "access permission".  |
+| [23:22] | D11  | Domain 11 \ref CMSIS_DACR_Dn "access permission".  |
+| [21:20] | D10  | Domain 10 \ref CMSIS_DACR_Dn "access permission".  |
+| [19:18] | D9   | Domain 9 \ref CMSIS_DACR_Dn "access permission".   |
+| [17:16] | D8   | Domain 8 \ref CMSIS_DACR_Dn "access permission".   |
+| [15:14] | D7   | Domain 7 \ref CMSIS_DACR_Dn "access permission".   |
+| [13:12] | D6   | Domain 6 \ref CMSIS_DACR_Dn "access permission".   |
+| [11:10] | D5   | Domain 5 \ref CMSIS_DACR_Dn "access permission".   |
+| [9:8]   | D4   | Domain 4 \ref CMSIS_DACR_Dn "access permission".   |
+| [7:6]   | D3   | Domain 3 \ref CMSIS_DACR_Dn "access permission".   |
+| [5:4]   | D2   | Domain 2 \ref CMSIS_DACR_Dn "access permission".   |
+| [3:2]   | D1   | Domain 1 \ref CMSIS_DACR_Dn "access permission".   |
+| [1:0]   | D0   | Domain 0 \ref CMSIS_DACR_Dn "access permission".   |
+
+Consider \ref __get_DACR and \ref __set_DACR to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_DACR() 
+\details
+  This function returns the value of the \ref CMSIS_DACR.
+
+\fn __STATIC_INLINE void __set_DACR(uint32_t dacr) 
+\details
+  This function assigns the given value to the \ref CMSIS_DACR.
+
+\defgroup CMSIS_DACR_BITS DACR Bits
+\brief Bit position and mask macros
+@{
+\def DACR_D_Pos_(n) 
+\details Get the bit position for domain n access permission.
+
+\b Example:
+\code
+// retrieve access permission for domain 5
+uint32_t domain5 = (__get_DACR() & DACR_D_Msk_(5)) >> DACR_D_Pos_(5);
+\endcode
+
+\def DACR_D_Msk_(n)  
+\details Get the bit mask for domain n access permission.
+
+\b Example:
+\code
+// clear access permission for domain 7
+__set_DACR(__get_DACR() & ~DACR_D_Msk_(7));
+\endcode
+@}
+
+\defgroup CMSIS_DACR_Dn DACR Dn field values
+\brief Valid values for DACR Dn field.
+\details The Dn field can contain one of these values which indicates the domain n access permission.
+@{
+\def DACR_Dn_NOACCESS
+\details Any access to the domain generates a Domain fault.
+
+\def DACR_Dn_CLIENT  
+\details Accesses are checked against the permission bits in the translation tables.
+
+\def DACR_Dn_MANAGER 
+\details Accesses are not checked against the permission bits in the translation tables.
+@}
+*/
+
+/** @} */
+/* end group CMSIS_DACR */
+
+/* FPEXC Register */
+/**
+\defgroup CMSIS_FPEXC Floating-Point Exception Control register (FPEXC)
+\ingroup CMSIS_core_register
+\brief Provides a global enable for the Advanced SIMD and Floating-point (VFP) Extensions, and
+indicates how the state of these extensions is recorded.
+\details
+| Bits    | Name | Function                                           |
+| :------ | :--- | :------------------------------------------------- |
+| [31]    | EX   | Exception bit.                                     |
+| [30]    | EN   | Enable bit.                                        |
+| [29:0]  | -    | SUBARCHITECTURE DEFINED.                           |
+
+Consider \ref __get_FPEXC and \ref __set_FPEXC to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_FPEXC(void)
+\details
+  This function returns the current value of the \ref CMSIS_FPEXC.
+
+\fn __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
+\details
+  This function assigns the given value to the \ref CMSIS_FPEXC.
+*/
+
+/** @} */
+/* end group CMSIS_FPEXC */
+
+/* FPSCR Register */
+/**
+\defgroup CMSIS_FPSCR Floating-point Status and Control Register (FPSCR)
+\ingroup CMSIS_core_register
+\brief Provides floating-point system status information and control.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31]    | N             | Negative condition flag.                                      |
+| [30]    | Z             | Zero condition flag.                                          |
+| [29]    | C             | Carry condition flag.                                         |
+| [28]    | V             | Overflow condition flag.                                      |
+| [27]    | QC            | External abort pending bit.                                   |
+| [26]    | AHP           | External abort pending bit.                                   |
+| [25]    | DN            | External abort pending bit.                                   |
+| [24]    | FZ            | External abort pending bit.                                   |
+| [23:22] | RMode         | External abort pending bit.                                   |
+| [21:20] | Stride        | External abort pending bit.                                   |
+| [19]    | -             | Reserved.                                                     |
+| [18:16] | Len           | External abort pending bit.                                   |
+| [15]    | IDE           | IRQ pending bit.                                              |
+| [14:13] | -             | Reserved.                                                     |
+| [12]    | IXE           | IRQ pending bit.                                              |
+| [11]    | UFE           | IRQ pending bit.                                              |
+| [10]    | OFE           | IRQ pending bit.                                              |
+| [9]     | DZE           | IRQ pending bit.                                              |
+| [8]     | IOE           | IRQ pending bit.                                              |
+| [7]     | IDC           | IRQ pending bit.                                              |
+| [6:5]   | -             | Reserved.                                                     |
+| [4]     | IXC           | FIQ pending bit.                                              |
+| [3]     | UFC           | FIQ pending bit.                                              |
+| [2]     | OFC           | FIQ pending bit.                                              |
+| [1]     | DZC           | FIQ pending bit.                                              |
+| [0]     | IOC           | FIQ pending bit.                                              |
+
+Consider \ref __get_FPSCR and \ref __set_FPSCR to access this register.
+
+@{
+*/
+/**
+\struct FPSCR_Type
+\brief Bit field declaration for FPSCR layout.
+
+\fn __STATIC_INLINE uint32_t __get_FPSCR(void)
+\details 
+  This function returns the current value of the \ref CMSIS_FPSCR.
+
+\fn __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
+\details 
+  Assigns the given value to the \ref CMSIS_FPSCR.
+
+\defgroup CMSIS_FPSCR_BITS FPSCR Bits
+\brief Bit position and mask macros
+@{
+
+@}          
+*/
+
+/** @} */
+/* end group CMSIS_FPSCR */
+
+/* CP15 Register IFSR */
+/**
+\defgroup CMSIS_IFSR Instruction Fault Status Register (IFSR)
+\ingroup CMSIS_core_register
+\brief The IFSR holds status information about the last instruction fault.
+\details
+
+<b>DFSR format when using the Short-descriptor translation table format</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:13] | -             | Reserved.                                                     |
+| [12]    | ExT           | External abort type.                                          |
+| [11]    | -             | Reserved.                                                     |
+| [10]    | FS[4]         | Fault status bits.                                            |
+| [9]     | LPAE          | Large Physical Address Extension.                             |
+| [8:4]   | -             | Reserved.                                                     |
+| [3:0]   | FS[3:0]       | Fault status bits.                                            |
+
+<b>DFSR format when using the Long-descriptor translation table format</b>
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:13] | -             | Reserved.                                                     |
+| [12]    | ExT           | External abort type.                                          |
+| [11:10] | -             | Reserved.                                                     |
+| [9]     | LPAE          | Large Physical Address Extension.                             |
+| [8:6]   | -             | Reserved.                                                     |
+| [5:0]   | STATUS        | Fault status bits.                                            |
+
+Consider \ref __get_IFSR and \ref __set_IFSR to access this register.
+@{
+*/
+/**
+\struct IFSR_Type
+\brief Bit field declaration for IFSR layout.
+
+\fn __STATIC_INLINE uint32_t __get_IFSR(void)
+\details
+  This function returns the current value of the \ref CMSIS_IFSR.
+
+\fn __STATIC_INLINE void __set_IFSR(uint32_t ifsr)
+\details
+  This function assigns the given value to the \ref CMSIS_IFSR.
+
+\defgroup CMSIS_IFSR_BITS IFSR Bits
+\brief Bit position and mask macros
+@{
+\def IFSR_ExT_Pos           
+\def IFSR_ExT_Msk
+\def IFSR_LPAE_Pos
+\def IFSR_LPAE_Msk
+\def IFSR_FS1_Pos           
+\def IFSR_FS1_Msk
+\def IFSR_FS0_Pos           
+\def IFSR_FS0_Msk
+\def IFSR_STATUS_Pos           
+\def IFSR_STATUS_Msk
+@}
+*/
+/** @} */
+/* end group CMSIS_IFSR */
+
+/* CP15 Register ISR */
+/**
+\defgroup CMSIS_ISR Interrupt Status Register (ISR)
+\ingroup CMSIS_core_register
+\brief The ISR shows whether an IRQ, FIQ, or external abort is pending.
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:9]  | -             | Reserved.                                                     |
+| [8]     | A             | External abort pending bit.                                   |
+| [7]     | I             | IRQ pending bit.                                              |
+| [6]     | F             | FIQ pending bit.                                              |
+| [5:0]   | -             | Reserved.                                                     |
+
+Consider \ref __get_IFSR to access this register.
+
+@{
+*/
+/**
+\struct ISR_Type
+\brief Bit field declaration for ISR layout.
+
+\fn __STATIC_INLINE uint32_t __get_ISR(void)
+\details
+  This function returns the current value of the \ref CMSIS_ISR.
+
+\defgroup CMSIS_ISR_BITS ISR Bits
+\brief Bit position and mask macros
+@{
+\def ISR_A_Pos             
+\def ISR_A_Msk
+\def ISR_I_Pos             
+\def ISR_I_Msk
+\def ISR_F_Pos   
+\def ISR_F_Msk
+@}          
+*/
+
+/** @} */
+/* end group CMSIS_ISR */
+
+/* MPIDR Register */
+/**
+\defgroup CMSIS_MPIDR Multiprocessor Affinity Register (MPIDR)
+\ingroup CMSIS_core_register
+\brief In a multiprocessor system, the MPIDR provides an additional processor identification
+mechanism for scheduling purposes, and indicates whether the implementation includes the
+Multiprocessing Extensions.
+
+\details
+| Bits    | Name | Function                                           |
+| :------ | :--- | :------------------------------------------------- |
+| [31]    | MPEA | Multiprocessing Extensions Available               |
+| [30]    | U    | Indicates a Uniprocessor system                    |
+| [29:25] | -    | Reserved.                                          |
+| [24]    | MT   | Indicates whether the lowest level of affinity consists of logical processors that are implemented using a multi-threading type approach. |
+| [23:16] | Aff2 | Affinity level 2.                                  |
+| [15:8]  | Aff1 | Affinity level 1.                                  |
+| [7:0]   | Aff0 | Affinity level 0.                                  |
+
+Consider \ref __get_MPIDR to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_MPIDR(void)
+\details
+  This function returns the value of the \ref CMSIS_MPIDR.
+*/
+
+/** @} */
+/* end group CMSIS_MPIDR */
+
+/* CNTFRQ Register */
+/**
+\defgroup CMSIS_CNTFRQ Counter Frequency register (CNTFRQ)
+\ingroup CMSIS_core_register
+\brief Indicates the clock frequency of the system counter.
+\details
+Consider \ref __get_CNTFRQ and \ref __set_CNTFRQ to access this register.
+
+Consider using \ref PL1_timer_functions for controlling the PL1 Timer instead.
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_CNTFRQ(uint32_t value) 
+\details
+  This function assigns the given value to \ref CMSIS_CNTFRQ.
+
+\fn __STATIC_INLINE uint32_t __get_CNTFRQ() 
+\details
+  This function returns the value of the \ref CMSIS_CNTFRQ.
+*/
+
+/** @} */
+/* end group CMSIS_CNTFRQ */
+
+/* CNTP_CTL Register */
+/**
+\defgroup CMSIS_CNTP_CTL PL1 Physical Timer Control register (CNTP_CTL)
+\ingroup CMSIS_core_register
+\brief The control register for the physical timer.
+\details
+| Bits    | Name    | Function                                           |
+| :------ | :------ | :------------------------------------------------- |
+| [31:3]  | -       | Reserved.                                          |
+| [2]     | ISTATUS | The status of the timer.                           |
+| [1]     | IMASK   | Timer output signal mask bit.                      |
+| [0]     | ENABLE  | Enables the timer.                                 |
+
+Consider \ref __get_CNTP_CTL and \ref __set_CNTP_CTL to access this register.
+
+Consider using \ref PL1_timer_functions for controlling the PL1 Timer instead.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_CNTP_CTL(uint32_t value) 
+\details
+  This function assigns the given value to PL1 Physical Timer Control Register (CNTP_CTL).
+  
+\fn __STATIC_INLINE uint32_t __get_CNTP_CTL() 
+\details
+  This function returns the value of the PL1 Physical Timer Control Register. (CNTP_CTL).
+*/
+
+/** @} */
+/* end group CMSIS_CNTP_CTL */
+
+/* CNTP_CVAL Register */
+/**
+\defgroup CMSIS_CNTP_CVAL PL1 Physical Timer Compare Value register (CNTP_CVAL)
+\ingroup CMSIS_core_register
+\brief Holds the 64-bit compare value for the PL1 physical timer.
+\details
+Consider \ref __get_CNTP_CVAL and \ref __set_CNTP_CVAL to access this register.
+
+Consider using \ref PL1_timer_functions for controlling the PL1 Timer instead.
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_CNTP_CVAL(uint32_t value) 
+\details
+  This function assigns the given value to \ref CMSIS_CNTP_CVAL.
+
+\fn __STATIC_INLINE uint32_t __get_CNTP_CVAL() 
+\details
+  This function returns the value of the \ref CMSIS_CNTP_CVAL.
+*/
+
+/** @} */
+/* end group CMSIS_CNTP_CVAL */
+
+/* CNTP_TVAL Register */
+/**
+\defgroup CMSIS_CNTP_TVAL PL1 Physical Timer Value register (CNTP_TVAL)
+\ingroup CMSIS_core_register
+\brief Holds the timer value for the PL1 physical timer.
+\details
+Consider \ref __get_CNTP_TVAL and \ref __set_CNTP_TVAL to access this register.
+
+Consider using \ref PL1_timer_functions for controlling the PL1 Timer instead.
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_CNTP_TVAL(uint32_t value) 
+\details
+  This function assigns the given value to \ref CMSIS_CNTP_TVAL.
+
+\fn __STATIC_INLINE uint32_t __get_CNTP_TVAL() 
+\details
+  This function returns the value of the \ref CMSIS_CNTP_TVAL.
+*/
+
+/** @} */
+/* end group CMSIS_CNTP_TVAL */
+
+/* CNTPCT Register */
+/**
+\defgroup CMSIS_CNTPCT PL1 Physical Count register (CNTPCT)
+\ingroup CMSIS_core_register
+\brief Holds the 64-bit physical count value.
+\details
+Consider \ref __get_CNTPCT to access this register.
+
+Consider using \ref PL1_timer_functions for controlling the PL1 Timer instead.
+@{
+*/
+/**
+\fn __STATIC_INLINE uint64_t __get_CNTPCT() 
+\details
+  This function returns the value of the \ref CMSIS_CNTPCT.
+*/
+
+/** @} */
+/* end group CMSIS_CNTPCT */
+
+/* Stack Pointer */
+/**
+\defgroup CMSIS_SP Stack Pointer (SP/R13)
+\ingroup CMSIS_core_register
+\brief The processor uses SP as a pointer to the active stack.
+\details 
+The Stack Pointer is banked per processor mode. Accessing the 
+active stack pointer actually returns/modifies the stack pointer
+of the current processor execution mode.
+
+| Mode        | Actual SP |
+| :---------- | :-------- |
+| User/System | SP_usr    |
+| Hypervisor  | SP_hyp    |
+| Supervisor  | SP_svc    |
+| Abort       | SP_abt    |
+| Undefined   | SP_und    |
+| Monitor     | SP_mon    |
+| IRQ         | SP_irq    |
+| FIQ         | SP_fiq    |
+
+Consider \ref __set_SP and \ref __set_SP_usr to access this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE __ASM void __set_SP(uint32_t stack)
+\details
+  This function assigns the given value to the current stack pointer.
+
+\fn __STATIC_INLINE __ASM void __set_SP_usr(uint32_t topOfProcStack)
+\details
+  This function assigns the given value to the User/System Stack Pointer (SP_usr).
+*/
+
+/** @} */
+/* end group CMSIS_SP */
+
+
+/* CP15 Register SCTLR */
+/**
+\defgroup CMSIS_SCTLR System Control Register (SCTLR)
+\ingroup CMSIS_core_register
+\brief The SCTLR provides the top level control of the system, including its memory system.
+\details 
+In a VMSAv7 implementation, the SCTLR bit assignments are:
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31]    | -             | Reserved.                                                     |
+| [30]    | TE            | Thumb Exception enable.                                       |
+| [29]    | AFE           | Access flag enable bit.                                       |
+| [28]    | TRE           | TEX remap enable bit.                                         |
+| [27:26] | -             | Reserved.                                                     |
+| [25]    | EE            | Exception Endianness bit.                                     |
+| [24:21] | -             | Reserved.                                                     |
+| [20]    | UWXN          | Unprivileged write permission implies PL1 Execute Never (XN). |
+| [19]    | WXN           | Write permission implies Execute Never (XN).                  |
+| [18:14] | -             | Reserved.                                                     |
+| [13]    | V             | Vectors bit.                                                  |
+| [12]    | I             | Instruction cache enable bit.                                 |
+| [11]    | Z             | Branch prediction enable bit.                                 |
+| [10]    | SW            | SWP and SWPB enable bit.                                      |
+| [9:3]   | -             | Reserved.                                                     |
+| [2]     | C             | Cache enable bit.                                             |
+| [1]     | A             | Alignment bit.                                                |
+| [0]     | M             | Address translation enable bit.                               |
+
+Consider using \ref __get_SCTLR and \ref __set_SCTLR for accessing this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_SCTLR(uint32_t sctlr)
+\details
+  This function assigns the given value to the \ref CMSIS_SCTLR.
+
+\fn __STATIC_INLINE uint32_t __get_SCTLR() 
+\details
+  This function returns the value of the \ref CMSIS_SCTLR.
+
+\struct SCTLR_Type
+\brief Bit field declaration for SCTLR layout.
+
+\defgroup CMSIS_SCTLR_BITS SCTLR Bits
+\brief Bit position and mask macros
+@{
+\def SCTLR_TE_Pos                  
+\def SCTLR_TE_Msk
+\def SCTLR_AFE_Pos                 
+\def SCTLR_AFE_Msk
+\def SCTLR_TRE_Pos                 
+\def SCTLR_TRE_Msk
+\def SCTLR_NMFI_Pos                
+\def SCTLR_NMFI_Msk
+\def SCTLR_EE_Pos                  
+\def SCTLR_EE_Msk
+\def SCTLR_VE_Pos                  
+\def SCTLR_VE_Msk
+\def SCTLR_U_Pos                   
+\def SCTLR_U_Msk
+\def SCTLR_FI_Pos                  
+\def SCTLR_FI_Msk
+\def SCTLR_UWXN_Pos                
+\def SCTLR_UWXN_Msk
+\def SCTLR_WXN_Pos                 
+\def SCTLR_WXN_Msk
+\def SCTLR_HA_Pos                  
+\def SCTLR_HA_Msk
+\def SCTLR_RR_Pos                  
+\def SCTLR_RR_Msk
+\def SCTLR_V_Pos                   
+\def SCTLR_V_Msk
+\def SCTLR_I_Pos                   
+\def SCTLR_I_Msk
+\def SCTLR_Z_Pos                   
+\def SCTLR_Z_Msk
+\def SCTLR_SW_Pos                  
+\def SCTLR_SW_Msk
+\def SCTLR_B_Pos                   
+\def SCTLR_B_Msk
+\def SCTLR_CP15BEN_Pos             
+\def SCTLR_CP15BEN_Msk
+\def SCTLR_C_Pos                   
+\def SCTLR_C_Msk
+\def SCTLR_A_Pos                   
+\def SCTLR_A_Msk
+\def SCTLR_M_Pos                   
+\def SCTLR_M_Msk
+@}
+*/
+/** @} */
+/* end group CMSIS_SCTLR */
+
+/* TLB maintenance operations */
+/**
+\defgroup CMSIS_TLB TLB maintenance operations
+\ingroup CMSIS_core_register
+\brief This section describes the TLB operations that are implemented on all Armv7-A implementations.
+\details 
+TLB maintenance operations provide a mechanism to invalidate entries from a TLB.
+
+Consider using \ref MMU_functions instead of raw register usage.
+@{
+*/
+/**
+\fn __STATIC_INLINE void __set_TLBIALL(uint32_t value) 
+\details
+  This function invalidates entire unified TLB.
+*/
+/** @} */
+/* end group CMSIS_TLB */
+
+/* CP15 Register TTBR0/TTBR1 */
+/**
+\defgroup CMSIS_TTBR Translation Table Base Registers (TTBR0/TTBR1)
+\ingroup CMSIS_core_register
+\brief TTBRn holds the base address of translation table n, and information about the memory it occupies.
+\details 
+<b>32-bit TTBR format</b>
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:x]  | BADDR         | Translation table base address, bits[31:x].                   |
+| [x-1:7] | -             | Reserved.                                                     |
+| [6]     | IRGN[0]       | Inner region bit 0.                                           |
+| [5]     | NOS           | Not Outer Shareable bit.                                      |
+| [4:3]   | RGN           | Region bits.                                                  |
+| [2]     | -             | Reserved.                                                     |
+| [1]     | S             | Shareable bit.                                                |
+| [0]     | C/IRGN[1]     | Cacheable bit. / Inner region bit 1.                          |
+
+\note The width of TTBR0 BADDR field depends on the setting in TTBCR N field, giving `x=14-N`.
+\note The width of TTBR1 BADDR field is fixed at `x=14`.
+
+<b>64-bit TTBR format</b>
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [63:56] | -             | Reserved.                                                     |
+| [55:48] | ASID          | An ASID for the translation table base address.               |
+| [47:40] | -             | Reserved.                                                     |
+| [39:x]  | BADDR         | Translation table base address, bits[39:x].                   |
+| [x-1:0] | -             | Reserved.                                                     |
+
+\note The width of TBBR0/TBBR1 BADDR fields depends on the settings in TTBCR T0SZ/T1SZ fields respectively, giving `x=14-TnSZ`.
+
+Consider using \ref __get_TTBR0 and \ref __set_TTBR0 for accessing TTBR0 register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_TTBR0() 
+\details
+  This function returns the value of the Translation Table Base Register 0.
+
+\fn __STATIC_INLINE void __set_TTBR0(uint32_t ttbr0) 
+\details
+  This function assigns the given value to the Translation Table Base Register 0.
+*/
+/** @} */
+/* end group CMSIS_TTBR */
+
+/* CP15 Register VBAR */
+/**
+\defgroup CMSIS_VBAR Vector Base Address Register (VBAR)
+\ingroup CMSIS_core_register
+\brief When high exception vectors are not selected, the VBAR holds the exception base address
+for exceptions that are not taken to Monitor mode or to Hyp mode.
+\details 
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:5]  | VBA           | Bits[31:5] of the base address of the low exception vectors.  |
+| [4:0]   | -             | Reserved.                                                     |
+
+Consider using \ref __get_VBAR and \ref __set_VBAR for accessing this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_VBAR(void)
+\details
+  This function returns the value of the \ref CMSIS_VBAR.
+
+\fn __STATIC_INLINE void __set_VBAR(uint32_t vbar)
+\details
+  This function assigns the given value to the \ref CMSIS_VBAR.
+*/
+/** @} */
+/* end group CMSIS_VBAR */
+
+/* CP15 Register MVBAR */
+/**
+\defgroup CMSIS_MVBAR Monitor Vector Base Address Register (MVBAR)
+\ingroup CMSIS_core_register
+\brief The MVBAR holds the exception base address for all exceptions that are taken to Monitor
+mode.
+\details 
+
+| Bits    | Name          | Function                                                      |
+| :------ | :------------ | :------------------------------------------------------------ |
+| [31:5]  | MVBA          | Bits[31:5] of the base address of the exception vectors for exceptions that are taken to Monitor mode. |
+| [4:0]   | -             | Reserved.                                                     |
+
+Consider using \ref __get_MVBAR and \ref __set_MVBAR for accessing this register.
+
+@{
+*/
+/**
+\fn __STATIC_INLINE uint32_t __get_MVBAR(void)
+\details
+  This function returns the value of the \ref CMSIS_MVBAR.
+
+\fn __STATIC_INLINE void __set_MVBAR(uint32_t mvbar)
+\details
+  This function assigns the given value to the \ref CMSIS_MVBAR.
+*/
+/** @} */
+/* end group CMSIS_MVBAR */
+
+/** @} */ 
+/* end of group CMSIS_core_register */

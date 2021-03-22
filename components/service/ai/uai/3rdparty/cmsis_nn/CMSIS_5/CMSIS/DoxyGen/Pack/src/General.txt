@@ -1,0 +1,263 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\mainpage
+
+<b>CMSIS-Pack</b> describes a delivery mechanism for software components, device parameters, and evaluation board
+support. The XML-based package description (PDSC) file describes the content of a \ref cp_SWComponents "Software Pack"
+(file collection) that includes:
+ -  Source code, header files, and software libraries
+ -  Documentation and source code templates
+ -  Device parameters along with startup code and programming algorithms
+ -  Example projects
+
+The complete file collection along with the PDSC file is shipped in ZIP-format (renamed to *.pack). The PDSC file is designed
+for software development environments and describes the user and device relevant context for the files supplied within such
+a pack file.
+
+The CMSIS-Pack system solves several problems: 
+
+- It provides meta-data of files that relate to a software component. All files that belong to a software component can be
+  identified and information about the original provider is preserved. 
+- It enables consistent software component upgrade and identifies incompatible configuration files that may be part of the
+  user application. 
+- Software component providers can specify the interfaces and relationship to other software components.
+- The meta-data of a software component can include dependency information for toolchains, devices, and processors which
+  simplifies the integration into application programs.
+
+After installing a \ref cp_SWComponents "Software Pack", all included software components are available to the development
+tools. \ref cp_Components "Software components" are a collection of source modules, header and configuration files as well as
+libraries. Packs containing software components can also include \ref cp_Examples and \ref cp_CodeTemplates.
+
+The \subpage pack_revisionHistory lists the main changes between versions.
+
+
+\section SWPackVariants Software Pack Use Cases
+
+A pack can be used for multiple purposes:
+ 
+\image html SPVariants_small.png  "Software Pack Use Cases"
+
+The figure above shows the following use cases for Software Packs:
+  - <b>Device Family Pack (DFP):</b> contains CMSIS system/startup files, drivers, and flash algorithms for a microcontroller
+    device family.
+  - <b>CMSIS Software Pack:</b> contains the generic CMSIS components (CORE, DSP Library, and RTOS implementation) supplied by Arm.
+  - <b>Middleware Pack:</b> contains software components belonging to a middleware (such as source code or libraries).
+  - <b>Board Support Pack (BSP):</b> contains documentation, schematics, and drivers for a certain development board.
+  - <b>In-house Software Packs:</b> usually contain software components that can be distributed within a
+    company or engineering group.
+  
+\note A Software Pack can address multiple use cases at the same time!
+
+The following sections provide more information:
+
+ - In the \ref cp_Packs, learn the basics and the required steps for creating a pack.
+ - \ref cp_SWComponents shows how to start a pack from scratch.
+ - \ref createPack_DFP describes how to enable device support in a DFP.
+ - \ref createPackBoard covers the creation of Board Support Packs (BSPs).
+ - \ref pack_Example explains the available example pack in more detail.
+ - Learn how to \ref createPackPublish.
+ - \ref createPackUtil are available that are useful during the creation of a pack.
+ - \ref packFormat describes all XML elements that can be used in a PDSC file.
+ - \ref configWizard can be used to create GUI-like elements in development tools for configuration files.
+ - \ref flashAlgorithm algorithms are used to erase or download applications to Flash devices.
+ - \ref coresight_setup allows to create tool-agnostic debug and trace configurations
+ - \ref cpdsc_pg is a environment/tool independent definition of a software project. This helps to create only one set of
+   example projects that can be used by many different tool vendors.
+ - \ref packIndexFile are used to generate a catalog of available packs.
+
+<hr>
+
+CMSIS-Pack in ARM::CMSIS Pack
+-----------------------------
+Files relevant to CMSIS-Pack are present in the following \b ARM::CMSIS directories:
+|Folder          |Content                                       | 
+|----------------|----------------------------------------------|
+|Utilities       | \ref createPackUtil                          |
+|Pack\\Example   | \ref pack_Example "Reference Software Pack"  |
+|Pack\\Tutorials | Tutorials for \ref cp_Packs "Creating Packs" |
+<hr>
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page pack_revisionHistory Revision History of CMSIS-Pack 
+
+<table class="cmtable" summary="Revision History">
+  <tr>
+    <th>Version</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>1.6.0</td>
+    <td>Modifications compared to Version 1.5.0
+- added Armv8.1-M MVE processor feature attribute 'Dmve'.
+- added local and global pre-include section \ref Pre_Include_Local_h, \ref Pre_Include_Global_h.
+- added file categories 'preIncludeLocal' and 'preIncludeGlobal' to the \ref FileCategoryEnum.
+- added file attribute 'path' for file category 'header' to add support for relative include paths.
+- added to \ref element_package "package" element the possibility to restrict the usage of the with attributes Dcore, Dname, Dvendor, and Tcompiler.
+- added \ref element_dominate "dominate" element to overwrites identical \ref element_devices "devices", \ref element_apis "APIs", or \ref element_components "components".
+- added attribute 'condition' to the \ref element_api "api" element so that an API can be excluded based on a condition.
+- added new \ref pack_Cclass : "Audio", "Board Part", "Data Exchange", "Extension Board", "IoT Client", "IoT Utility", "Security", "Utility".
+    </td>
+  </tr>
+  <tr>
+    <td>1.5.0</td>
+    <td>Modifications compared to Version 1.4.9
+- added \ref sdf_pg
+- updates to \ref DeviceVendorEnum "Device Vendor"
+- removed usage of DP CTRL/STAT CDBGRSTREQ from \ref debugPortStart default sequence
+- added \ref element_flashinfo "flashinfo" with children \<block\> and \<gap\> to describe flash devices for sequence-based flash download
+- new \ref DebugFunctions "debug access functions" and \ref DebugVars "global debug variables" for sequence-based flash download
+- added \ref element_repository "repository" element for specifying origin of public repositories
+- added attributes to \ref element_release "release" element specifying repository tag and url for downloading repository content
+- added new processor Cortex-M35P
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.9</td>
+    <td>Modifications compared to Version 1.4.8
+- added Toptions attribute for use in conditions
+- updated documentation for generator section to reflect new exe, web, and eclipse sections
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.8</td>
+    <td>Modifications compared to Version 1.4.7
+- added support for semantic versioning quality information in ConditionVersionType
+- updated Pack schema file making some elements optional
+- added Pack Index File Specification and schema file
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.7</td>
+    <td>Modifications compared to Version 1.4.6
+- added multiple version types to tighten the schema checking depending on context
+- added new generator sections for exe, web and eclipse based generators in &lt;generator&gt;
+- added new processor attributes Dtz = Trustzone and Ddsp = DSP instructions for Armv8-M
+- added new attributes Dtz, Ddsp, Dsecure to conditions &lt;require&gt;, &lt;deny&gt;, &lt;accept&gt;
+- added new processors Cortex-M23 and Cortex-M33 and other in DcoreEnum
+- added new attribute public to books and images to indicate public use of documents and board images
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.6</td>
+    <td>Modifications compared to Version 1.4.5
+- refined Dname string pattern restriction (RestrictedStringDname)
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.5</td>
+    <td>Modifications compared to Version 1.4.4
+- added: Punits to ProcessorType
+- added: Punit to DebugType
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.4</td>
+    <td>Modifications compared to Version 1.4.3
+- added: attribute defaultResetSequence to DebugType.
+- added: &lt;requirements&gt; section:
+    - &lt;packages&gt; defining dependencies between packs
+    - &lt;languages&gt; defining required language support e.g. C99
+    - &lt;compiler&gt; defining required toolchains
+- added: &lt;create&gt; section used for tool independent project description
+    - attributes: name, documentation, condition
+    - &lt;target&gt; specifies the board and device targeted by the project 
+    - &lt;options&gt; 
+    - &lt;files&gt; specifies the grouped files 
+- updated: &lt;algorith&gt; element
+    - added attributes: style, parameter and endian
+- updated: &lt;memory&gt; element
+    - added attributes: name, access and alias
+    - deprecating attribute: id (replaced by name + access)
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.3</td>
+    <td>Modifications compared to Version 1.4.1
+- Adding attribute "sdf" to debugconfig element within section &lt;devices&gt;
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.1</td>
+    <td>Modifications compared to Version 1.4.0
+- pName, Dname, Dvariant type changed from xs:string to RestrictedString 
+    </td>
+  </tr>
+  <tr>
+    <td>1.4.0</td>
+    <td>Modifications compared to Version 1.3.3:
+- device section <em>memory</em> specification redefined, deprecating <em>id</em> attribute
+- device section <em>algorithm</em> support multiple flash programming algorithm styles
+- device section <em>debug</em> adding CJTAG debug port type
+    </td>
+  </tr>
+  <tr>
+    <td>1.3.3</td>
+    <td>Modifications compared to Version 1.3.1:
+- Schema Version remains unchanged, since no incompatible update
+- <em>Added</em> generator section can specify a target GPDSC file that it will generate
+- <em>Added</em> A component can be linked to a generator and the generator's GPDSC file will be
+  automatically included in the project as part of the component.
+- <em>Added</em> A generator command is optionally extended by a separate description of arguments
+- <em>Updated</em> Vendor list
+- <em>Updated</em> Utility packChk.exe to Version 1.3.0.0:
+  - detect redefinitions of boards
+  - check presence of board image files
+  - check for duplicate device features
+  - check for duplicate device definitions
+  - check for 
+  - minor bug fixes
+    </td>
+  </tr> 
+  <tr>
+    <td>1.3.1</td>
+    <td>Modifications compared to Version 1.3:
+- Schema Version remains unchanged, since no incompatible update
+- <em>Added</em> Cortex-M7 to the predefined list of processors
+- <em>Updated</em> Vendor list
+- <em>Added</em> File version attribute to debugvars element of device description
+- <em>Updated</em> XML file header encoding tag set to capital "UTF8"
+- <em>Deprecated</em> init attribute of &lt;memory&gt; element in &lt;devices&gt; section deprecated
+    </td>
+  </tr> 
+  <tr>
+    <td>1.3</td>
+    <td>Modifications compared to Version 1.2:
+ - <em>Added</em> attributes to release tag for managing deprecation and changing Pack IDs
+ - <em>Removed</em> external RAMn and ROMn memory IDs in memory tag
+ - <em>Added</em> FileCategoryTypes in &lt;file&gt; element for C, C++, Assembler, Linker
+ - <em>Extended</em> specification of &lt;require&gt;, &lt;accept&gt; and &lt;deny&gt; with Cversion and Capiversion ranges
+ - <em>Added</em> \ref createPackUtil and \ref packChk for Pack validation
+ - <em>Added</em> documentation for the Example Pack based on LPC1800 Device Family
+ - <em>Refined</em> &lt;debug&gt; element description
+ - Many clarifications in the documentation along with examples
+    </td>
+  </tr>
+  <tr>
+    <td>1.2</td>
+    <td>Clarifications for release.</td>
+  </tr>
+  <tr>
+    <td>1.1 - Preliminary</td>
+    <td>Update release for review:
+ - <em>new</em> Boards description
+ - <em>new</em> Debug description
+ - <em>revised</em> Device Feature capture
+ - <em>new</em> Generator description
+ - <em>new</em> Flash Algorithm Specification 
+ - <em>new</em> Configuration Wizard Annotation Specification</td>
+  </tr>
+  <tr>
+    <td>1.0 - Preliminary</td>
+    <td>Preliminary release for review</td>
+  </tr>
+  <tr>
+    <td>0.10</td>
+    <td>Release for beta review</td>
+  </tr>
+</table>
+*/
+
+
+

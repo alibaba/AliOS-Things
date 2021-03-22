@@ -1,0 +1,620 @@
+/**************************************************************************************************/
+/** 
+\page pdsc_boards_pg  /package/boards element
+
+The level \b \<boards\> describes a development board that is the subject of a Board Support Pack (BSP).
+It contains information about the board vendor and name, a brief description, images to be displayed on web pages, and
+different types of documentation. The microcontroller devices that are mounted on the board or that are compatible with the
+ones mounted are also specified. A list of features concludes the \<boards\> section.
+
+A development board is described by the following properties:
+- description: a brief description of the development board
+- \ref element_board_book "book": documentation about the board (user manuals, schematics, etc.)
+- \ref element_board_mountedDevice "mountedDevice": the microcontroller device mounted on the development board.
+- \ref element_board_compatibleDevice "compatibleDevice": compatible microcontroller devices. 
+- \ref element_board_image "image": pictures of the board to be displayed on web pages. 
+- \ref element_board_feature "feature": categorized list of the development board's features and peripherals. 
+- \ref element_board_debugInterface "debugInterface": describing the debug capabilities. 
+
+\b Example
+\code
+  <boards>
+    <board vendor="STMicroelectronics" name="32F429IDISCOVERY" revision="Rev.1" salesContact="http://www.st.com/stonline/contactus/contacts/index.php" orderForm="https://my.st.com/esample/app?page=basket&amp;pn=STM32F429I-DISCO">
+	 
+      <description>STMicroelectronics STM32F429I Discovery Board Support and Examples</description>
+	   
+      <image small="Images/stm32f429i-disco_small.png" large="Images/stm32f429i-disco.png"/>
+	   
+      <book category="overview"  name="http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1199/PF259090" title="32F429IDISCOVERY Web Page"/>
+      <book category="setup"     name="Documents/UM1662.pdf" title="Getting Started"/>
+      <book category="schematic" name="Documents/UM1670.pdf" title="Schematics"/>
+      <book category="manual"    name="Documents/UM1670.pdf" title="User Manual"/>
+	   
+      <mountedDevice    deviceIndex="0" Dvendor="STMicroelectronics:13" Dname="STM32F429ZI"/>
+	   
+      <compatibleDevice deviceIndex="0" Dvendor="STMicroelectronics:13" Dfamily="STM32F4 Series" DsubFamily="STM32F429 Line"/>
+	   
+      <feature type="ODbg"      n="1"              name="On-board ST-LINK/V2 with selection mode switch to use the kit as a standalone"/>
+      <feature type="XTAL"      n="80000000"/>
+      <feature type="PWR"       n="5"              name="USB Powered"/>
+      <feature type="PWR"       n="3"  m="5"       name="External Supply"/>
+      <feature type="RAM"       n="1"              name="64 MBit SDRAM"/>
+      <feature type="DIO"       n="4"  m="32"      name="Extension header for LQFP144 with 2.54 mm Pitch"/>
+      <feature type="USB"       n="1"              name="High-Speed USB OTG with micro-AB Connector"/>
+      <feature type="ConnOther" n="1"              name="JP3 (Idd) for current measurement"/>
+      <feature type="Button"    n="2"              name="Push-buttons: User and Reset"/>
+      <feature type="Gyro"      n="1"              name="L3GD20, ST MEMS motion sensor, 3-axis digital output gyroscope"/>
+      <feature type="LED"       n="6"              name="Com, 3.3 V Power, Two user, Two USB OTG LEDs"/>
+      <feature type="CustomFF"  n="66" m="119.3"   name="Discovery Board Formfactor"/>
+      <feature type="GLCD"      n="1"  m="240.320" name="2.4 inch QVGA TFT LCD"/>
+	   
+      <debugInterface adapter="ST-Link" connector="Mini-USB"/>
+	   
+    </board>
+  </boards>
+\endcode
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_boards /package/boards
+
+Grouping element for boards. No more than one such group can exist in a Pack. None is required.
+
+<table class="cmtable" summary="Element: Boards">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref pdsc_package_pg "package"</td>
+    <td colspan="3">\ref pdsc_package_pg "/package"</td>
+  </tr>	
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td>Description of the board</td>
+    <td>BoardType</td>
+    <td>1..*</td>
+  </tr>
+ </table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_board /package/boards/board
+
+This element provides information to specify the \ref createPackBoard "Board Support Package (BSP)". At least one board must be defined.
+
+<table class="cmtable" summary="Element: Board">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_boards "boards"</td>
+    <td colspan="3">\ref element_boards</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>vendor</td>
+    <td>name of the board vendor</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>name of the development board</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>revision</td>
+    <td>Revision of the board that is suited to be used with the \ref createPackBoard "BSP".</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>salesContact</td>
+    <td>Either an email address or web page to contact the sales department.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>orderForm</td>
+    <td>Link to a web page for ordering the development board.</td>
+    <td>xs:anyURI</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Brief summary of the board</td>
+    <td>xs:string</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td>\ref element_board_feature "feature"</td>
+	<td>Describes the features of the development board.</td>
+	<td>BoardsFeatureType</td>
+	<td>1..* </td>
+  </tr>
+  <tr>
+    <td>\ref element_board_mountedDevice "mountedDevice"</td>
+	<td>Specifies the microcontroller device mounted on the development board.</td>
+	<td>BoardsDeviceType</td>
+	<td>1..* </td>
+  </tr>
+  <tr>
+    <td>\ref element_board_compatibleDevice "compatibleDevice"</td>
+	<td>Specifies compatible microcontroller devices.</td>
+	<td>CompatibleDeviceType</td>
+	<td>1..* </td>
+  </tr>
+  <tr>
+    <td>\ref element_board_image "image"</td>
+    <td>Carries pictures of the boards to be displayed on web pages. Directory and file names are case-sensitive.</td>
+    <td>ComplexType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>\ref element_board_debugInterface "debugInterface"</td>
+	<td>Describes the debug interface of the development board.</td>
+	<td>DebugInterfaceType</td>
+	<td>1..* </td>
+  </tr>
+  <tr>
+    <td>\ref element_board_book "book"</td>
+	<td>Describes the documentation files (user manuals, schematics, etc.). Directory and file names are case-sensitive.</td>
+	<td>BoardsBookType</td>
+	<td>1..* </td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_board_feature /package/boards/board/feature
+This element contains information about the features and capabilities of a board. 
+A list of pre-defined features exists.
+
+\b Example
+\code
+<feature type="PWR" n="3" m="5" name="Element: Board feature"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="BoardFeature">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>Defines board features. Select predefined values from the table \ref BoardFeatureTypeEnum "Board Features".</td>
+    <td>BoardFeatureTypeEnum</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>n</td>
+    <td>Depends on attribute \em \b type. Check table \ref BoardFeatureTypeEnum "Board Features" for details.</td>
+    <td>xs:decimal</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>m</td>
+	<td>Depends on attribute \em \b type. Check table \ref BoardFeatureTypeEnum "Board Features" for details.</td>
+	<td>xs:decimal</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>name</td>
+	<td>Descriptive name of the feature. If omitted, a <b>Default Name</b> is used (refer to table
+	    \ref BoardFeatureTypeEnum "Board Feature Types"). <b>Do not repeat</b> the \token{n} or \token{m} values in the name. This will lead to
+		duplicate entries on web sites (they show \token{n} x \token{name}).</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+
+\anchor BoardFeatureTypeEnum <b>Table: Board Features</b>
+
+The table below lists predefined board features.
+
+\note
+- The attribute \a name of the element \ref element_board_feature is a descriptive text for a feature. If \a name is omitted, the <b>Default Name</b> (listed below) is used.
+- <b>Do not repeat</b> the \a n or \a m values in the \a name. Display on websites follows the rule to show \a n x \a name.
+
+|type=|n=|m=|Default Name|Example|Example shown as|
+|-----|--|--|------------|-------|----------------|
+|ODbg|Number of Debug Adapters|N/A|Integrated Debug Adapter|\<feature type="ODbg" n="1" name="Integrated ST-Link on USB Connector J13"/\>|1 x Integrated ST-Link on USB Connector J13|
+|XTAL|Oscillator Frequency|N/A|Crystal Oscillator|\<feature type="XTAL" n="8000000"/\>|8 MHz Crystal Oscillator|
+|PWR|Minimum Input Voltage|Maximum Input Voltage|Power Supply|\<feature type="PWR" n="8" m="12"/\>|8 V - 12 V Power Supply|
+|PWRSock|Number of Power Sockets|N/A|Power Socket|\<feature type="PWRSock" n="1" name="Coaxial Power Receptacle"/\>|1 x Coaxial Power Receptacle|
+|Batt|Number of Batteries|N/A|Battery|\<feature type="Batt" n="1" name="CR2032 Battery for RTC"/\>|1 x CR2032 Battery for RTC|
+|Curr|Typical Current|Maximum Current|Current|\<feature type="Curr" n="0.320" m="0.375"/\>|320 mA (typ), 375 mA (max) Current|
+|CoreOther|Number of Features|N/A|Other Core Feature|\<feature type="CoreOther" n=1 name="My Other Core Feature"/\>|1 x My Other Core Feature|
+|RAM|Number of RAMs|N/A|RAM|\<feature type="RAM" n="1" name="512 kB Static RAM"/\>|1 x 512 kB Static RAM|
+|ROM|Number of ROMs|N/A|Flash|\<feature type="ROM" n="1" name="4 MB NAND-Flash"/\>|1 x 4 MB NAND-Flash|
+|Memory|Number of Additional Memory|N/A|Memory|\<feature type="Memory" n="128" name="EEPROM"/\>|128 byte EEPROM|
+|MemCard|Number of Card Holders|N/A|SD/microSD/MMC Card Holder|\<feature type="MemCard" n="2" name="SD Card Holder"/\>|2 x SD Card Holder|
+|MemoryOther|Number of Other Memory|N/A|Other Memory Type|\<feature type="MemoryOther" n="1" name="1 kB MRAM"/\>|1 x 1 kB MRAM|
+|DIO|Number of Digital I/Os|N/A|Digital I/Os|\<feature type="DIO" n="26" name="Digital IOs on 2 x 13 pin header (1.27 mm pitch)"/\>|26 x Digital IOs on 2 x 13 pin header (1.27 mm pitch)|
+|AIO|Number of Analog I/Os|N/A|Analog I/Os|\<feature type="AIO" n="4" name="Analog Inputs on 4 pin header (1.27 mm pitch)"/\>|4 x Analog Inputs on 4 pin header (1.27 mm pitch)|
+|Proto|n Rows|m Columns|Prototyping Area|\<feature type="Proto" n="4" m="7" name="Prototyping Area with 1.00 mm pitch"/\>|4 x 7 Prototyping Area with 1.00 mm pitch|
+|USB|Number of USB Connectors|N/A|USB|\<feature type="USB"  n="2" name="Full-Speed USB Device, Micro-B receptacle"/\>|2 x Full-Speed USB Device, Micro-B receptacle|
+|ETH|Number of Ethernet Connectors|Data Rate in Bit/s|Ethernet|\<feature type="ETH"  n="1" m="10000000" name="RJ45 Receptacle"/\>|1 x 10 Mbit/s RJ45 Receptacle|
+|SPI|Number of SPI Connectors|N/A|SPI|\<feature type="SPI"  n="1" name="4-Pin Header, 1.27 mm Pitch"/\>|1 x 4-Pin Header, 1.27 mm Pitch|
+|I2C|Number of I2C Connectors|N/A|I2C|\<feature type="I2C"  n="1" name="2-Pin Header, 1.27 mm Pitch"/\>|1 x 2-Pin Header, 1.27 mm Pitch|
+|RS232|Number of RS232 Connectors|N/A|RS232|\<feature type="RS232"  n="1" name="DB9 Male Connector"/\>|1 x DB9 Male Connector|
+|RS422|Number of RS422 Connectors|N/A|RS422|\<feature type="RS422"  n="1" name="4-Pin Header, 1.27 mm Pitch"/\>|1 x 4-Pin Header, 1.27 mm Pitch|
+|RS485|Number of RS485 Connectors|N/A|RS485|\<feature type="RS485"  n="1" name="DB9 Male Connector"/\>|1 x DB9 Male Connector|
+|CAN|Number of CAN Connectors|N/A|CAN|\<feature type="CAN"  n="1" name="DB9 Male Connector"/\>|1 x DB9 Male Connector|
+|IrDA|Number of IrDA Diodes|N/A|Diode|\<feature type="IrDA"  n="1" name="Diode Transceiver"/\>|1 x Diode Transceiver|
+|LineIn|Number of Line In Jacks|N/A|Line In|\<feature type="LineIn"  n="1" name="TRS Audio Jack"/\>|1 x TRS Audio Jack|
+|LineOut|Number of Line Out Jacks|N/A|Line Out|\<feature type="LineOut"  n="1" name="TRS Audio Jack"/\>|1 x TRS Audio Jack|
+|MIC|Number of Microphone Jacks|N/A|Microphone|\<feature type="MIC"  n="1" name="TS Audio Jack (Mono)"/\>|1 x TS Audio Jack (Mono)|
+|Edge|n Rows|m Columns|Edge|\<feature type="Edge"  n="2" m="24"/\>|2 x 24 Pin Edge|
+|ConnOther|Number of Other Connectors|N/A|Other Connector Type|\<feature type="ConnOther"  n="1" name="My Other Connector"/\>|1 x My Other Connector|
+|Button|Number of Push-Buttons|N/A|Push-buttons|\<feature type="Button"  n="3" name="Push-buttons: Reset, Wake Up, User"/\>|3 Push-buttons: Reset, Wake Up, User|
+|Poti|Number of Potentiometer|N/A|Potentiometer|\<feature type="Poti"  n="1"/\>|1 x Potentiometer|
+|Joystick|Number of Joysticks|N/A|Joystick|\<feature type="Joystick"  n="1" name="5-position Joystick"/\>|1 x 5-position Joystick|
+|Touch|Number of Touch Keys|N/A|Touch Keys/Area|\<feature type="Touch"  n="1"/\>|1 x Touch Keys/Area|
+|ContOther|Number of Other Controls|N/A|Other Control|\<feature type="ContOther" n=1 name="My Other Control Feature"/\>|1 x My Other Control Feature|
+|Accelerometer|Number of Accelerometer|N/A|Accelerometer|\<feature type="Accelerometer"  n="1" name="3-axis digital Accelerometer"/\>|1 x 3-axis digital Accelerometer|
+|Gyro|Number of Gyroscopes|N/A|Gyroscope|\<feature type="Gyro"  n="1" name="3-axis digital Gyroscope"/\>|1 x 3-axis digital Gyroscope|
+|Compass|Number of Compass|N/A|Digital Compass|\<feature type="Compass"  n="1" name="High-Precision Digital Compass"/\>|1 x High-Precision Digital Compass|
+|TempSens|Number of Temperature Sensors|N/A|Temperature Sensor|\<feature type="TempSens"  n="1"/\>|1 x Temperature Sensor|
+|PressSens|Number of Pressure Sensors|N/A|Pressure Sensor|\<feature type="PressSens"  n="1"/\>|1 x Pressure Sensor|
+|LightSens|Number of Light Sensors|N/A|Ambient Light Sensor|\<feature type="LightSens"  n="1"/\>|1 x Ambient Light Sensor|
+|SensOther|Number of Other Sensors|N/A|Other Sensor|\<feature type="SensOther" n=1 name="My Other Sensor Feature"/\>|1 x My Other Sensor Feature|
+|CustomFF|x [mm]|y [mm]|Custom Formfactor|\<feature type="CustomFF" n="54" m="26" name="40-Pin DIP with 0.1-inch Pitch"/\>|54 mm x 26 mm, 40-Pin DIP with 0.1-inch Pitch|
+|ArduinoFF|1|N/A|Arduino Formfactor|\<feature type="ArduinoFF"  n="1"/\>|Arduino Formfactor|
+|FreedomFF|1|N/A|Freedom Formfactor|\<feature type="FreedomFF"  n="1"/\>|Freedom Formfactor|
+|TowerFF|1|N/A|Tower Formfactor|\<feature type="TowerFF"  n="1"/\>|Tower Formfactor|
+|LED|Number of LEDs|N/A|LEDs|\<feature type="LED"  n="3" name="Multicolor LEDs"/\>|3 x Multicolor LEDs|
+|Camera|Number of Camera Interfaces|N/A|Camera|\<feature type="Camera"  n="1" name="Digital VGA Camera"/\>|1 x Digital VGA Camera|
+|LCD|Number of Segment LCD Controller|Com.Seg as a decimal number (see example)|LCD|\<feature type="LCD"  n="1" m="16.40" name="Segment LCD Controller"/\>|1 x 16 x 40  Segment LCD Controller|
+|GLCD|Number of Graphic LCD Controller|Maximum Resolution as a decimal number (see example)|GLCD|\<feature type="GLCD"  n="1" m="320.240" name="2.4 inch Color TFT LCD with resistive touchscreen"/\>|320 x 240 Pixel 2.4 inch Color TFT LCD with resistive touchscreen|
+|Speaker|Number of Speakers|N/A|Speaker|\<feature type="Speaker"  n="1"/\>|1 x Speaker|
+|Other|Number of Other Features|N/A|Other Feature|\<feature type="Other" n=1 name="My Other Feature"/\>|1 x My Other Feature|
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_board_mountedDevice /package/boards/board/mountedDevice
+The element specifies the devices mounted on the board. At least one device must be specified.
+
+\b Example
+\code
+<mountedDevice deviceIndex="0" Dvendor="STMicroelectronics:13" Dname="STM32F429ZI"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: Boards mountedDevice">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>deviceIndex</td>
+    <td>Index number of the device (in case more than one device is present on the board).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dvendor</td>
+    <td>Is the name of vendor of the device specified by \token{Dname}.  Use predefined values as listed in the table \ref DeviceVendorEnum "Device Vendor".</td>
+    <td>DeviceVendorEnum</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Dfamily</td>
+	<td>Is the name of the target device family used on the board.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>DsubFamily</td>
+	<td>Is the name of the target device sub family used on the board.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>Dname</td>
+	<td>Is the name of the target device used on the board.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_board_compatibleDevice /package/boards/board/compatibleDevice
+
+This element contains information about devices that are compatible to the device used on the board. Compatible
+means that the user is able to generate code for compatible devices and test it on the development board. At least one compatible device must be specified.
+
+\b Example
+\code
+<compatibleDevice deviceIndex="0" Dvendor="STMicroelectronics:13" Dfamily="STM32F4 Series" DsubFamily="STM32F429 Line"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: Board compatibleDevice">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>deviceIndex</td>
+    <td>Index number of the device (in case more than one device is present on the board).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dvendor</td>
+    <td>Vendor name of the target device specified by \b Dname.  Use predefined values as listed in the table \ref DeviceVendorEnum "Device Vendor".
+	This element is required if at least one of the following attributs is defined: \b Dname, \b DsubFamily, \b Dfamily.</td>
+    <td>DeviceVendorEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Dfamily</td>
+	<td>Name of the target device family used on the board. Requires \b Dvendor to be specified.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>DsubFamily</td>
+	<td>Name of the target device sub-family used on the board. Requires \b Dvendor to be specified.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>Dname</td>
+	<td>Name of the target device used on the board. Requires \b Dvendor to be specified.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_board_image /package/boards/board/image
+
+This element specifies the picture of a development board. Maximum one image element can be specified. None must be specified.
+Two different picture types (\token{small} and \token{large}) can be specified for the same image element at the same time.
+
+\b Example:
+\code
+<image small="Images\board_image_small.png" large="Images\board_image.png"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: Board Image">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>small</td>
+    <td>Specifies the path to a small image. The path is relative to the Pack base directory.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>large</td>
+    <td>Specifies the path to a large image. The path is relative to the Pack base directory.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>public</td>
+    <td>Set publishing permissions for the documentation. If \tagem{public} is \token{true}, then the vendor gives permission 
+        to extract the documentation from the Pack and publish it on a web-page. Links to web pages are assumed to be public.
+        The default value is \token{false}.</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_board_debugInterface /package/boards/board/debugInterface
+This element describes the debug interface of a board. At least debug interface must be specified.
+
+\b Example
+\code
+<debugInterface adapter="JTAG/SW" connector="20-pin Arm Standard JTAG Connector (0.1 inch connector)"/>
+<debugInterface adapter="JTAG/SW" connector="10-pin Cortex Debug Connector (0.05 inch connector)"/>
+<debugInterface adapter="JTAG/SW" connector="20-pin Cortex Debug + ETM Connector (0.05 inch connector)"/>
+<debugInterface adapter="ST-Link" connector="Mini-USB"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: BoardDebugInterface">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>adapter</td>
+    <td>String describing the debug adapter. Common adapters are: \token{JTAG/SW} (for all adapters supporting JTAG and Serial-Wire Debug), 
+	\token{CMSIS-DAP}, \token{OpenSDA}, \token{J-Link}, \token{ST-Link}, \token{Nu-Link}.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>connector</td>
+    <td>String describing the debug connector. Usually one of these: \token{10-pin Cortex Debug Connector}, \token{20-pin Arm Standard JTAG Connector}, 
+	\token{20-pin Cortex Debug + ETM Connector}, \token{Mini-USB}, \token{Micro-USB}.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_board_book /package/boards/board/book
+
+The element provides information about documentation parts related to a development board. At least one book must be defined.
+
+\b Example
+\code
+<book category="setup" name="Documents/UM1662.pdf" title="Getting Started"/>
+\endcode
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: Books">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_board "board"</td>
+    <td colspan="3">\ref element_board</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>category</td>
+    <td>Describes the type of documentation. Use predefined values as defined in the table \ref BoardBookCategoryEnum "Board Book Categories".</td>
+    <td>BoardBookCategoryEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>name</td>
+	<td>Is the name of the document (including the path within the Pack).</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>title</td>
+	<td>Is the title of the document to be displayed in the <b>Books</b> window of uVision.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>public</td>
+    <td>Set publishing permissions for the documentation. If \tagem{public} is \token{true}, then the vendor gives permission 
+        to extract the documentation from the pack and publish it on a web-page. Links to web pages are assumed to be public.
+        The default value is \token{false}.</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+\anchor BoardBookCategoryEnum <b>Table: Board Book Categories</b>
+
+The table lists values to identify a specific type of documentation for development boards. 
+<table class="cmtable" summary="Type: BoardBookCategoryEnum">
+  <tr>
+    <th>category=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">setup</td>
+    <td>Documentation about how to setup the development board.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">schematic</td>
+    <td>Schematics of the development board.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">overview</td>
+    <td>Overview/data sheet of the development board.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">manual</td>
+    <td>User manual of the development board</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">layout</td>
+    <td>PCB layout file of the board (e.g. in Gerber format)</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">other</td>
+    <td>All other documentation.</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+*/

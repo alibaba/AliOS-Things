@@ -1,0 +1,28 @@
+/**
+\defgroup fpu_functions  FPU Functions
+\brief Functions that relate to the Floating-Point Arithmetic Unit.
+\details
+Some Cortex-M processors include optional floating-point arithmetic functionality, with support
+for single and double-precision arithmetic.
+The Cortex-M processor with FPU is an implementation of the single-precision and
+double-precision variant of the Armv7-M Architecture with Floating-Point Extension (FPv5).
+
+@{
+*/
+
+/**
+  \brief       Get the FPU type.
+  \returns
+   - \b  0: No FPU
+   - \b  1: Single precision FPU
+   - \b  2: Double + Single precision FPU
+   
+   The function returns the implemented FPU type. 
+*/
+__STATIC_INLINE uint32_t SCB_GetFPUType(void);
+
+/**
+ @}  
+*/
+
+ 

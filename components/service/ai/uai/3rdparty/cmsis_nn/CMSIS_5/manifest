@@ -1,0 +1,50 @@
+pdsc: ARM.CMSIS.pdsc
+preproc:
+ - clean: CMSIS/Documentation/(Core,Core_A,DAP,Driver,DSP,NN,General,Pack,RTOS,RTOS2,SVD,Zone)
+ - doxygen: CMSIS/DoxyGen/Core/core.dxy
+ - doxygen: CMSIS/DoxyGen/Core_A/core_A.dxy
+ - doxygen: CMSIS/DoxyGen/DAP/dap.dxy
+ - doxygen: CMSIS/DoxyGen/Driver/Driver.dxy
+ - doxygen: CMSIS/DoxyGen/DSP/dsp.dxy
+ - doxygen: CMSIS/DoxyGen/General/general.dxy
+ - doxygen: CMSIS/DoxyGen/NN/nn.dxy
+ - doxygen: CMSIS/DoxyGen/Pack/Pack.dxy
+ - doxygen: CMSIS/DoxyGen/RTOS/rtos.dxy
+ - doxygen: CMSIS/DoxyGen/RTOS2/rtos.dxy
+ - doxygen: CMSIS/DoxyGen/SVD/svd.dxy
+ - doxygen: CMSIS/DoxyGen/Zone/zone.dxy
+glob:
+ - LICENSE.txt
+ - Device/**/*
+ - CMSIS/Core/Include/**/*
+ - CMSIS/Core/Include/**/*: CMSIS/Include/
+ - CMSIS/Core/Template/**/*
+ - CMSIS/Core_A/**/*
+ - CMSIS/DAP/**/*
+ - CMSIS/Driver/**/*
+ - CMSIS/DSP/Include/**/*
+ - CMSIS/DSP/Source/**/*
+ - CMSIS/DSP/Projects/**/*
+ - CMSIS/DSP/Examples/**/*
+ - CMSIS/DSP/Include/**/*: CMSIS/Include/
+ - CMSIS/DSP/Lib/**/*
+ - CMSIS/NN/**/*
+ - CMSIS/Pack/**/*
+ - CMSIS/RTOS/**/*
+ - CMSIS/RTOS2/**/*
+ - CMSIS/Utilities/ARM_Example.*: CMSIS/SVD/ARM_Example.
+ - CMSIS/Utilities/CMSIS-SVD.xsd
+ - CMSIS/Utilities/PACK.xsd
+ - CMSIS/Utilities/PackIndex.xsd
+ - CMSIS/Utilities/Win32/**/*
+ - CMSIS/Utilities/Linux-gcc-4.4.4/**/*
+ - CMSIS/Utilities/Linux-gcc-4.8.3/**/*
+ - CMSIS/Documentation/**/*
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/Core/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/Core_A/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/Driver/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/Pack/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/DSP/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/DAP/html/search/search.css
+ - CMSIS/DoxyGen/Doxygen_Templates/search.css: CMSIS/Documentation/NN/html/search/search.css
+ - CMSIS/DoxyGen/Zone/genmodel/**/*: CMSIS/Documentation/Zone/genmodel/

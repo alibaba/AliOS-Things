@@ -1,0 +1,679 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page GenDataModel Generator Data Model 
+
+The <b>Generator Data Model</b> defines the resource and partition data structure for code generators.
+This data structure is connected to a FreeMarker template engine and file templates allow to generate
+various files that can be used to configure development tools or hardware components.
+
+\image html generator.png "FreeMarker Template Engine"
+
+\section fp_toplevel FreeMarker top-level format
+
+\subpage fm_system provides memory layout and TrustZone configuration of the complete system. 
+\subpage fm_zone setup information of a zone (or system partition) along with related peripherals.
+
+\section fm_basics FreeMarker basics
+
+The variable types relevant for CMSIS-Zone are:
+
+\b scalar: variable that stores a single value of a scalar type
+scalar-types:
+- string
+- int
+- bool
+
+\b hash: variable that that stores one or more variables with a unique lookup name
+
+\b sequence: variable that stores sub-variables without names but instead are selected via index (myVariable[index])
+
+A variable is accessed using the dollar character followed by a variable or expression in brackets:
+\code
+${...}
+\endcode
+Output the name of the zone:
+\code
+${zone.name}
+\endcode
+
+A sequence gets iterated:
+\code
+<#list zone.memory as mem>
+   Memory region name $mem.name
+</#list
+
+Printing a sorted list of all available memory entries by start address
+\code
+<#list zone.memory?sort_by("start") as mem>
+  ${mem.start} ${mem.name}
+</#list>
+\endcode
+
+
+
+\page fm_system system element
+
+The \ref fm_system provides the memory layout and the TrustZone configuration of the complete system. 
+This information can be used for example, to create a linker script that defines the memory setup of the SoC system.
+
+<table class="cmtable" summary="Element: system">
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>\subpage fm_processor ".processor"</td>
+    <td>A sequence of all processor elements available in the system resource file.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_memory ".memory"</td>
+    <td>A sequence of all memory regions available in the system resource file.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_peripheral ".peripheral"</td>
+    <td>A sequence of all peripherals available in the system resource file.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_sau ".sau"</td>
+    <td>A sequence of all SAU regions for initialization.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_interrupt ".interrupt"</td>
+    <td>A sequence of all interrupt sources available.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_mpc_setup ".mpc_setup"</td>
+    <td>Contains the device specific configuration registers for the setup of the Memory Protection Controller (MPC).</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_reg_setup ".reg_setup"</td>
+    <td>Contains the device specific configuration registers for the setup of the peripherals.</td>
+    <td>sequence</td>
+  </tr>
+</table>
+  
+\page fm_zone zone element
+
+The \ref fm_zone provides the setup information of a zone (or system partition) along with related peripherals.
+This information can be used for example, to create the MPU setup that is required for various execution zones along with
+the related linker setup.
+
+<table class="cmtable" summary="Element: zone">
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.name</td>
+    <td>The name of the zone (or system partition).</td>
+    <td>string</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_memory ".memory"</td>
+    <td>A sequence of all memory regions that are accessible in the zone (or system partition).</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_peripheral ".peripheral"</td>
+    <td>A sequence of all peripherals that are accessible in the zone (or system partition).</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>\subpage fm_mpu_setup ".mpu_setup"</td>
+    <td>A sequence of configuration information for the Memory Protection Unit (MPU).</td>
+    <td>sequence</td>
+  </tr>
+</table>
+
+
+*/
+
+
+/**************************************************************************************************/
+/**
+\page fm_processor processor[n] sequence element
+
+The \ref fm_processor provides a sequence of processor elements that are in the system.
+
+<table class="cmtable" summary="Element: processor[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.processor[<i>n</i>].Pname</td>
+    <td>Name of the processor core.</td>
+    <td>RestrictedString</td>
+  </tr>
+  <tr>
+    <td>.processor[<i>n</i>].DnumInterrupts</td>
+    <td>Number of NVIC interrupts sources available to the processor core (excludes exception vectors).</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.processor[<i>n</i>].DnumSauRegions</td>
+    <td>Number of regions in the Security Attribution Unit (SAU) of the processor core.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+</table>
+*/
+
+
+/**************************************************************************************************/
+/**
+\page fm_memory ../memory[n] sequence element
+
+The \ref fm_memory provides a sequence of memory information.
+
+<table class="cmtable" summary="Element: memory[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>
+  <tr>
+    <td>\ref fm_zone "zone"</td>
+    <td colspan=3>\ref fm_zone</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>]</td>
+    <td>Sequence of memory region information.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].name</td>
+    <td>The name of this memory region.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].type</td>
+    <td>The type of memory in this region ("RAM" or "ROM").</td>
+    <td>MemoryTypeEnum</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].start</td>
+    <td>The logical start address of the memory region in the address map.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].size</td>
+    <td>The size (in bytes) of the memory region.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].security</td>
+    <td>The \ref security "security" setting for this memory region.</td>
+    <td>SecurityType</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].security.c</td>
+    <td>Memory has non-secure callable attribute set.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].security.s</td>
+    <td>Memory is access from \em "secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].security.n</td>
+    <td>Memory is access from \em "non-secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].access</td>
+    <td>The \ref access "access" permissions for this memory region in the following separate fields.</td>
+    <td>AccessType</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].access.r</td>
+    <td>The \em read \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].access.w</td>
+    <td>The \em write \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].access.x</td>
+    <td>The \em execution \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].access.p</td>
+    <td>The \em peripheral \ref access "access" information.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].privilege</td>
+    <td>The \ref privilege "privilege type" settings for this memory region in the following separate fields.</td>
+    <td>PrivilegeType</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].privilege.p</td>
+    <td>The \em privileged \em level setting of \ref privilege "privilege type".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].privilege.u</td>
+    <td>The \em unprivileged \em level setting of \ref privilege "privilege type".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].startup</td>
+    <td>"1" specifies that this region is used for the startup code of the application. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].uninit</td>
+    <td>"1" specifies that this region is not zero initialized during startup. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].shared</td>
+    <td>"1" specifies that this region is used by multiple zones. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].dma</td>
+    <td>"1" specifies that this region is accessed by a DMA controller. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.memory[<i>n</i>].info</td>
+    <td>Brief description of the memory region.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+/**************************************************************************************************/
+/**
+\page fm_sau sau[n] sequence element
+
+The \ref fm_sau lists all SAU regions for initialization in this system.
+
+It lists all SAU regions that require either non-secure access or non-secure callable attribute.
+The SAU region list is generated from:
+  - setup information from \ref xml_si_region
+  - memory regions that are assigned to zones with non-secure domain.
+  - memory regions that are configured as secure, non-secure callable.
+
+<table class="cmtable" summary="Element: sau[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.sau[<i>n</i>].start</td>
+    <td>The logical start address for the region.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.sau[<i>n</i>].end</td>
+    <td>The logical end address for the region.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.sau[<i>n</i>].nsc</td>
+    <td>If set to 1 the region is secure, non-secure callable.</td>
+    <td>SecurityTypeEnum/xs:string</td>
+  </tr>
+  <tr>
+    <td>.sau[<i>n</i>].info</td>
+    <td>List of memory regions or info from \ref xml_si_region.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+
+/**************************************************************************************************/
+/**
+\page fm_interrupt interrupt[n] sequence element
+
+The \ref fm_interrupt lists all interrupt sources available in the system.
+
+<table class="cmtable" summary="Element: interrupt[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>s
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].name</td>
+    <td>The name of this interrupt.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].irqn</td>
+    <td>The interrupt number.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].security</td>
+    <td>The \ref security "security" setting for this interrupt.</td>
+    <td>SecurityTypeEnum/xs:string</td>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].security.s</td>
+    <td>Peripheral with related interrupt is assigned to \em "secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].security.n</td>
+    <td>Peripheral with related interrupt is assigned to \em "non-secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.interrupt[<i>n</i>].info</td>
+    <td>Brief description of the interrupt source.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+/**************************************************************************************************/
+/**
+\page fm_mpc_setup mpc_setup[n] element
+
+The \ref fm_mpc_setup contains a sequence of device specific configuration for the setup of the Memory Protection Controller (MPC).
+
+<table class="cmtable" summary="Element: mpc_setup[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].name</td>
+    <td>The name of the base register that controls the MPC.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].memory</td>
+    <td>The name of the physical memory region that is connected via the MPC.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].blk_size</td>
+    <td>The block size information that CMSIS-Zone used for LUT generation.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].S_bit[<i>m</i>]</td>
+    <td>A list of bit values for Secure attribute that are used to compose the LUT.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].P_bit[<i>m</i>]</td>
+    <td>A list of bit values for Privileged attribute that are used to compose the LUT.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.mpc_setup[<i>n</i>].bits_comment[<i>m</i>]</td>
+    <td>The memory region information for source code comments that relate to S_bits or P_bits.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+/**************************************************************************************************/
+/**
+\page fm_reg_setup reg_setup[n] element
+
+The \ref fm_reg_setup contains a sequence of device specific configuration for the setup of the interrupts.
+
+<table class="cmtable" summary="Element: reg_setup[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=3>\ref fm_system</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.reg_setup[<i>n</i>].name</td>
+    <td>The name of the register or array that holds the configuration information.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.reg_setup[<i>n</i>].index</td>
+    <td>The index value for the register array.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.reg_setup[<i>n</i>].value[<i>m</i>]</td>
+    <td>An array with register setup values (corresponds to .peripheral[<i>m</i>] below.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.reg_setup[<i>n</i>].peripheral[<i>m</i>]</td>
+    <td>An array with the peripheral names that setup belongs too.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+
+/**************************************************************************************************/
+/**
+\page fm_peripheral ../peripheral[n] element
+
+The \ref fm_peripheral contains a sequence of all peripherals that are accessible in the zone (or system partition).
+
+<table class="cmtable" summary="Element: peripheral[n]">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "system"</td>
+    <td colspan=2>\ref fm_system</td>
+  </tr>
+  <tr>
+    <td>\ref fm_zone "zone"</td>
+    <td colspan=2>\ref fm_zone</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].name</td>
+    <td>The name of the peripheral.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].group</td>
+    <td>The name of the peripheral group that this peripheral belongs too.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].start</td>
+    <td>The logical start address of the peripheral in the address map.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].size</td>
+    <td>The size (in bytes) of the peripheral.</td>
+    <td>NonNegativeInteger</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].security</td>
+    <td>The \ref security "security" setting for this peripheral.</td>
+    <td>SecurityType</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].security.s</td>
+    <td>Peripheral is assigned to \em "secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].security.n</td>
+    <td>Peripheral is assigned to \em "non-secure" state.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].access</td>
+    <td>The \ref access "access" permissions for this peripheral in the following separate fields.</td>
+    <td>AccessType</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].access.r</td>
+    <td>The \em read \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].access.w</td>
+    <td>The \em write \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].access.x</td>
+    <td>The \em execution \ref access "access" permission.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].access.p</td>
+    <td>The \em peripheral \ref access "access" information.</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].privilege</td>
+    <td>The \ref privilege "privilege type" settings for this peripheral in the following separate fields.</td>
+    <td>PrivilegeType</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].privilege.p</td>
+    <td>The \em privileged \em level setting of \ref privilege "privilege type".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].privilege.u</td>
+    <td>The \em unprivileged \em level setting of \ref privilege "privilege type".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].shared</td>
+    <td>"1" specifies that this peripheral is used by multiple zones. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].dma</td>
+    <td>"1" specifies that this peripheral is accessed by a DMA controller. Default value is "0".</td>
+    <td>xs:boolean</td>
+  </tr>
+  <tr>
+    <td>.peripheral[<i>n</i>].info</td>
+    <td>Brief description of the peripheral region.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/
+
+/**************************************************************************************************/
+/**
+\page fm_mpu_setup mpu_setup element
+
+The \ref fm_mpu_setup contains the configuration information for the Memory Protection Unit (MPU).
+
+<table class="cmtable" summary="Element: mpu_setup">
+  <tr>
+    <th>Parent Element</th>
+    <th colspan="2">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref fm_system "zone"</td>
+    <td colspan=3>\ref fm_zone</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+  </tr>
+  <tr>
+    <td>mpu_setup.type</td>
+    <td>Implementation of the MPU ("v7M" or "v8M").</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>mpu_setup.region[<i>n</i>]</td>
+    <td>Sequence of MPU region settings.</td>
+    <td>sequence</td>
+  </tr>
+  <tr>
+    <td>mpu_setup.region[<i>n</i>].no</td>
+    <td>Number of the region.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>mpu_setup.region[<i>n</i>].BaseAddress</td>
+    <td>The base address of the region.</td>
+    <td>xs:string</td>
+  </tr>
+  <tr>
+    <td>mpu_setup.region[<i>n</i>].RASR</td>
+    <td>The MPU region attribute and size register value.</td>
+    <td>xs:string</td>
+  </tr>
+</table>
+*/

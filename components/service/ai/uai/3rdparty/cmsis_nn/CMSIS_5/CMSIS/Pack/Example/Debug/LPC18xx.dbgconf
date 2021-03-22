@@ -1,0 +1,31 @@
+// <<< Use Configuration Wizard in Context Menu >>>
+
+// <h> Debug Setup
+
+// <o> Vector Reset
+//   <0=> Processor Only
+//   <1=> Processor and Peripherals
+// <i> Select if to additionally reset peripherals after a Vector Reset
+VecResetWithPeriph = 1;
+
+// </h>
+
+// <h> TPIU Pin Routing (TRACECLK fixed on PF_4)
+// <i> Configure the TPIU pin routing as used on your target platform.
+// <o.1> TRACEDATA0
+//   <0=> Pin PF_5
+//   <1=> Pin P7_4
+// <o.2> TRACEDATA1
+//   <0=> Pin PF_6
+//   <1=> Pin P7_5
+// <o.3> TRACEDATA2
+//   <0=> Pin PF_7
+//   <1=> Pin P7_6
+// <o.4> TRACEDATA3
+//   <0=> Pin PF_8
+//   <1=> Pin P7_7
+RoutingTPIU = 0x00000000;
+
+// </h>
+
+// <<< end of configuration section >>>

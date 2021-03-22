@@ -1,0 +1,354 @@
+/**************************************************************************//**
+ * @file     core_ca.txt
+ * @brief    CMSIS Cortex-A Core Peripheral Access Layer Header File
+ ******************************************************************************/
+
+/* IO definitions (access restrictions to peripheral registers) */
+/**
+\defgroup   peripheral_gr    Peripheral Access
+\brief      Naming conventions and optional features for accessing peripherals.
+\details
+The section below describes the naming conventions, requirements, and optional features for accessing device specific peripherals.
+Most of the rules also apply to the core peripherals.  The \ref device_h_pg "Device Header File \<device.h>" contains typically these definition and also includes
+the core specific header files.
+
+The definitions for \ref peripheral_gr can be generated using the <a href="../../SVD/html/index.html"><b>CMSIS-SVD</b></a> System View Description for Peripherals.
+Refer to <a href="../../SVD/html/svd_SVDConv_pg.html"><b>SVDConv.exe</b></a> for more information.
+	
+Each peripheral provides a data type definition with a name that is composed of:
+  - an optional prefix <b>&lt;<i>device abbreviation&gt;</i>_</b>
+  - <b>&lt;<i>peripheral name</i>&gt;</b>
+  - postfix \b _Type or \b _TypeDef to identify a type definition.
+
+Examples:
+  - \b UART_TypeDef for the peripheral \b UART.
+  - \b IMX_UART_TypeDef for the device family \b IMX and the peripheral \b UART.
+
+The data type definition uses standard C data types defined by the ANSI C header file <stdint.h>.
+ 
+ - IO Type Qualifiers are used to specify the access to peripheral variables.
+   IO Type Qualifier  | Type            | Description
+   :------------------|:----------------|:------------
+   \b __IM            | Struct member   | Defines 'read only' permissions
+   \b __OM            | Struct member   | Defines 'write only' permissions
+   \b __IOM           | Struct member   | Defines 'read / write' permissions
+   \b __I             | Scalar variable | Defines 'read only' permissions
+   \b __O             | Scalar variable | Defines 'write only' permissions
+   \b __IO            | Scalar variable | Defines 'read / write' permissions
+   
+The typedef <b>\<<i>device abbreviation</i>\>_UART_TypeDef</b> shown below defines the generic register layout for all UART channels in a device.
+
+\code
+typedef struct {
+	__O  uint32_t UART_CR;            // Offset: 0x0000 ( /W) Control Register 
+	__IO uint32_t UART_MR;            // Offset: 0x0004 (R/W) Mode Register 
+	__O  uint32_t UART_IER;           // Offset: 0x0008 ( /W) Interrupt Enable Register 
+	__O  uint32_t UART_IDR;           // Offset: 0x000C ( /W) Interrupt Disable Register 
+	__I  uint32_t UART_IMR;           // Offset: 0x0010 (R/ ) Interrupt Mask Register 
+	__I  uint32_t UART_SR;            // Offset: 0x0014 (R/ ) Status Register 
+	__I  uint32_t UART_RHR;           // Offset: 0x0018 (R/ ) Receive Holding Register 
+	__O  uint32_t UART_THR;           // Offset: 0x001C ( /W) Transmit Holding Register 
+	__IO uint32_t UART_BRGR;          // Offset: 0x0020 (R/W) Baud Rate Generator Register 
+	__IO uint32_t UART_CMPR;          // Offset: 0x0024 (R/W) Comparison Register 
+	__IO uint32_t UART_RTOR;          // Offset: 0x0028 (R/W) Receiver Time-out Register 
+	__I  uint32_t RESERVED[46];       // Offset: 0x002C (R/ ) Reserved                     
+	__IO uint32_t UART_WPMR;          // Offset: 0x00E4 (R/W) Write Protection Mode Register 
+} IMX_UART_TypeDef;
+\endcode
+
+To access the registers of the UART defined above, pointers to this register structure are defined.
+If more instances of a peripheral exist, the variables have a postfix (digit or letter) that identifies the peripheral.
+
+\b Example:
+In this example, \b IMX_UART2 and \b IMX_UART3 are two pointers to UARTs defined with above register structure.
+\n
+\code
+#define IMX_UART2   ((IMX_UART_TypeDef *) IMX_UART2_BASE)
+#define IMX_UART3   ((IMX_UART_TypeDef *) IMX_UART3_BASE)
+\endcode
+
+\note 
+ - The prefix <b>IMX</b> is optional.
+ 
+The registers in the various UARTs can now be referred in the user code as shown below:\n
+\code
+ val = IMX_UART2->SR   // is the Status Register of UART2.
+\endcode
+
+<hr>
+
+\section core_cmsis_pal_min_reqs Minimal Requirements
+\details
+ To access the peripheral registers and related function in a device, the files <b><i>device.h</i></b> and <b>core_ca.h</b> define as a minimum:
+\n\n
+- The <b>Register Layout Typedef</b> for each peripheral that defines all register names.
+  RESERVED is used to introduce space into the structure for adjusting the addresses of
+  the peripheral registers.
+\n\n
+<b>Example:</b>
+\code
+typedef struct
+{
+  __IOM uint32_t C_CTLR;              // Offset: 0x0000 (R/W) CPU Interface Control Register 
+  __IOM uint32_t C_PMR;               // Offset: 0x0004 (R/W) Interrupt Priority Mask Register 
+  __IOM uint32_t C_BPR;               // Offset: 0x0008 (R/W) Binary Point Register 
+  __IM  uint32_t C_IAR;               // Offset: 0x000C (R/ ) Interrupt Acknowledge Register 
+  __OM  uint32_t C_EOIR;              // Offset: 0x0010 ( /W) End Of Interrupt Register 
+  __IM  uint32_t C_RPR;               // Offset: 0x0014 (R/ ) Running Priority Register 
+  __IM  uint32_t C_HPPIR;             // Offset: 0x0018 (R/ ) Highest Priority Pending Interrupt Register 
+  __IOM uint32_t C_ABPR;              // Offset: 0x001C (R/W) Aliased Binary Point Register 
+  __IM  uint32_t C_AIAR;              // Offset: 0x0020 (R/ ) Aliased Interrupt Acknowledge Register 
+  __OM  uint32_t C_AEOIR;             // Offset: 0x0024 ( /W) Aliased End Of Interrupt Register 
+  __IM  uint32_t C_AHPPIR;            // Offset: 0x0028 (R/ ) Aliased Highest Priority Pending Interrupt Register 
+  __IOM uint32_t C_STATUSR;           // Offset: 0x002C (R/W) Error Reporting Status Register, optional 
+  __I   uint32_t RESERVED1[40];       // Offset: 0x0030 (R/ ) Reserved
+  __IOM uint32_t C_APR[4];            // Offset: 0x00D0 (R/W) Active Priority Register 
+  __IOM uint32_t C_NSAPR[4];          // Offset: 0x00E0 (R/W) Non-secure Active Priority Register 
+  __I   uint32_t RESERVED2[3];        // Offset: 0x00F6 (R/ ) Reserved
+  __IM  uint32_t C_IIDR;              // Offset: 0x00FC (R/ ) CPU Interface Identification Register 
+  __I   uint32_t RESERVED3[960];      // Offset: 0x0100 (R/ ) Reserved
+  __OM  uint32_t C_DIR;               // Offset: 0x1000 ( /W) Deactivate Interrupt Register 
+}  GICInterface_Type;
+\endcode
+
+
+- <b>Base Address</b> for each peripheral (in case of multiple peripherals
+    that use the same <b>register layout typedef</b> multiple base addresses are defined).
+    \n\n
+<b>Example:</b>
+\code
+#define GIC_INTERFACE_BASE (0xe8202000UL)   // GIC Interface Base Address     
+\endcode
+
+
+- <b>Access Definitions</b> for each peripheral. In case of multiple peripherals that are using the same
+    <b>register layout typedef</b>, multiple access definitions exist.
+    \n\n
+<b>Example:</b>
+\code
+#define GICInterface   ((GICInterface_Type *) GIC_INTERFACE_BASE)   // GIC Interface Access Definition 
+\endcode
+
+
+These definitions allow accessing peripheral registers with simple assignments.
+
+- <b>Example:</b>
+  \n
+\code
+GICInterface->C_CTLR |= 1;   // Enable Interface
+\endcode
+
+<hr>
+
+\section core_cmsis_pal_opts Optional Features
+\details
+Optionally, the file <b><i>device</i>.h</b> may define:
+
+-  \ref core_cmsis_pal_bitfields and \#define constants that simplify access to peripheral registers.
+	These constants may define bit-positions or other specific patterns that are required for
+    programming peripheral registers. The identifiers should start with
+    <b>&lt;<i>device abbreviation</i>&gt;_</b> and <b>&lt;<i>peripheral name</i>&gt;_</b>.
+    It is recommended to use CAPITAL letters for \#define constants.
+
+-   More complex functions (i.e. status query before
+    a sending register is accessed). Again, these functions start with
+    <b>&lt;<i>device abbreviation</i>&gt;_</b> and <b>&lt;<i>peripheral name</i>&gt;_</b>.
+
+<hr>
+
+\section core_cmsis_pal_bitfields Register Bit Fields
+\details
+
+For Core Register, macros define the position and the mask value for a bit field.
+
+<b>Example:</b>
+
+Bit field definitions for register ACTLR in CP15.
+
+
+\code
+// CP15 Register ACTLR
+#define ACTLR_DDI_Pos                  28U                       
+#define ACTLR_DDI_Msk                  (1UL << ACTLR_DDI_Pos)    
+                                       
+#define ACTLR_DDVM_Pos                 15U                       
+#define ACTLR_DDVM_Msk                 (1UL << ACTLR_DDVM_Pos)   
+                                       
+#define ACTLR_L1PCTL_Pos               13U                       
+#define ACTLR_L1PCTL_Msk               (3UL << ACTLR_L1PCTL_Pos) 
+                                       
+#define ACTLR_L1RADIS_Pos              12U                       
+#define ACTLR_L1RADIS_Msk              (1UL << ACTLR_L1RADIS_Pos)
+                                       
+#define ACTLR_L2RADIS_Pos              11U                       
+#define ACTLR_L2RADIS_Msk              (1UL << ACTLR_L2RADIS_Pos)
+                                       
+#define ACTLR_DODMBS_Pos               10U                       
+#define ACTLR_DODMBS_Msk               (1UL << ACTLR_DODMBS_Pos) 
+                                       
+#define ACTLR_SMP_Pos                  6U                        
+#define ACTLR_SMP_Msk                  (1UL << ACTLR_SMP_Pos)     
+\endcode
+
+The macros <b>_VAL2FLD(field, value)</b> and <b>_FLD2VAL(field, value)</b> enable access to bit fields.
+@{
+*/
+
+/**
+\def _VAL2FLD(field, value)
+\param         field        name of bit field.
+\param         value        value for the bit field. This parameter is interpreted as an uint32_t type.
+\brief Mask and shift a bit field value for assigning the result to a peripheral register.
+\details
+The macro \ref _VAL2FLD uses the \#define's <i>_Pos</i> and <i>_Msk</i> of the related bit field to shift bit-field values for
+assigning to a register.
+ 
+<b>Example:</b>
+\code
+  ACTLR = _VAL2FLD(ACTLR_SMP, 0x1)
+\endcode
+
+*/
+#define _VAL2FLD(field, value)
+
+/**
+ 
+\def _FLD2VAL(field, value)
+\param         field        name of bit field.
+\param         value        value of the register. This parameter is interpreted as an uint32_t type.
+\brief Extract from a peripheral register value the a bit field value.
+\details
+The macro \ref _FLD2VAL uses the \#define's <i>_Pos</i> and <i>_Msk</i> of the related bit field to extract the value of a bit field from a register.
+ 
+<b>Example:</b>
+\code
+  i = _FLD2VAL(ACTLR_SMP, ACTLR);
+\endcode
+
+*/
+#define _FLD2VAL(field, value)
+
+/** @} */ 
+/*end of group peripheral_gr */
+
+
+/*******************************************************************************
+ *                 CMSIS definitions
+ ******************************************************************************/
+/**
+\defgroup version_ctrl Version Control
+\brief Version symbols for CMSIS release specific C/C++ source code. 
+ 
+@{
+*/
+
+/*  CMSIS CA definitions */
+/**
+\def __CA_CMSIS_VERSION_MAIN  
+\details
+Use this define to query the major version of CMSIS-Core(A) component. 
+
+\b Example:
+\code
+#if __CA_CMSIS_VERSION_MAIN < 5
+#error This code needs at least CMSIS-Core(A) version 5!
+#endif
+\endcode
+
+\def __CA_CMSIS_VERSION_SUB   
+\details
+Use this define to query the minor version of CMSIS-Core(A) component. 
+
+\b Example:
+\code
+#if __CA_CMSIS_VERSION_MAIN < 5
+#error This code needs at least CMSIS-Core(A) version 5!
+#else
+#if __CA_CMSIS_VERSION_SUB < 1
+#warning Using CMSIS-Core(A) version 5.0 compatibility functions.
+#endif
+#endif
+\endcode
+
+\def __CA_CMSIS_VERSION       
+\details
+Use this define to query the full version of CMSIS-Core(A) component. 
+
+| Bits    | Name          | Function                |
+| :------ | :------------ | :-----------------------|
+| [31:16] | MAIN          | __CA_CMSIS_VERSION_MAIN |
+| [15:0]  | SUB           | __CA_CMSIS_VERSION_SUB  |
+
+
+\b Example:
+\code
+#if __CA_CMSIS_VERSION < 0x00050001
+#error This code needs at least CMSIS-Core(A) version 5.1!
+#endif
+\endcode
+
+\def __CA_REV
+\brief Contains the core revision for a Cortex-A class device.
+\details
+Use this define to query the core design revision number implemented in the selected device.
+
+| Bits    | Name          | Function        |
+| :------ | :------------ | :---------------|
+| [15:8]  | REV           | Revision number |
+| [7:0]   | PATCH         | Patch number    |
+
+\b Example:
+\code
+#if __CA_REV < 0x0201
+#error This code needs at least a core revision r2p1.
+#endif
+\endcode
+
+\def __CORTEX_A
+\brief Contains the core family for a Cortex-A class device.
+\details
+Use this define to query the actual Cortex-A class device number implemented in the selected device.
+
+\b Example:
+\code
+#if __CORTEX_A == 5
+#warning Running on Cortex-A5.
+#elif __CORTEX_A == 7
+#warning Running on Cortex-A7.
+#elif __CORTEX_A == 9
+#warning Running on Cortex-A9.
+#endif
+\endcode
+
+*/
+/** @} */ 
+/*end of group version_ctrl */
+
+/**
+\defgroup CMSIS_Core_FunctionInterface Core Peripherals
+\brief 
+\details
+Hardware Abstraction Layer.
+   The Core-A function interface contains:
+   - \ref FPU_functions
+   - \ref GIC_functions
+   - \ref L1_cache_functions 
+   - \ref L2_cache_functions 
+   - \ref MMU_functions
+   - \ref PL1_timer_functions
+   - \ref PTM_timer_functions
+
+*/
+
+/* ##########################  FPU functions  ############################ */
+/**
+\defgroup FPU_functions Floating Point Unit Functions
+\ingroup CMSIS_Core_FunctionInterface
+\brief FPU Functions enable the use of Floating Point instructions and extensions.\n
+Reference: <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0406c/index.html">Architecture Reference Manual Reference Manual - Armv7-A and Armv7-R edition</a>.
+@{
+\fn __STATIC_INLINE __ASM void __FPU_Enable(void) 
+@}
+*/
+
+

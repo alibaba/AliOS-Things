@@ -1,0 +1,547 @@
+﻿/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page createPack_DFP Pack with Device Support
+
+A \ref cp_SWComponents "Software Pack" that contains a \ref pdsc_devices_pg "<devices>" element is called Device Family Pack
+(DFP). A DFP may contain additional <b>Software Components</b> or <b>Example Projects</b> or any combination of those. The
+typical content of a DFP is:
+  - \ref cp_DeviceProperties explaining the capabilities of a device or a device family in more detail.
+  - \ref cp_Components "Software Components" that configure the device and basic device drivers, in particular:
+    - CMSIS-compliant \ref cp_System_Startp required to setup the C run-time library, device clock, and memory interface.
+    - Peripheral Driver Interfaces that provide software routines for physical device peripherals used by middleware stacks.
+      Drivers may adhere to the <a class=el href="http://www.keil.com/cmsis/driver" target="_blank">CMSIS-Driver</a> standard.
+  - One or more \ref cp_SVD "System View Description Files" describing the programmer's view of the device's
+    peripherals.
+  - \ref cp_FlashProgrammingAlgorithm for erasing and downloading code into on-chip Flash.
+  - \ref cp_debugdescription enable tool-agnostic debug and trace configurations.
+  - \ref cp_Examples "Example Projects" that show the usage of the device and its peripherals.
+  - \ref cp_CodeTemplates "User Code Templates" that can be used as a starting point for application development.
+
+This section explains how to create a DFP. Initially, the PDSC file in the DFP only describes devices. This DFP is then
+extended to contain also SVD files, Flash algorithms, and device related software components such as system and HAL files.
+Example projects and code templates may be added as described in the section \ref cp_SWComponents.
+
+DFP Use Cases
+-------------
+A \ref pdsc_devices_pg "Device Family Pack (DFP)" may be provided by a Silicon Vendor and is used to extend development
+tools with support for new devices. In general, the DFP enables Silicon Vendors to distribute tool independent device
+support for their device families.\n
+DFPs can also be used to provide information for the display on <b>web sites</b>. One example is the new device database on
+<a class=el href="http://www.keil.com/dd2/" target="_blank">www.keil.com/dd2/</a>:
+
+\anchor DevWebSite
+\image html DeviceDatabase2.png "Device information on a web site extracted from a DFP"
+
+Steps to Create a DFP
+---------------------
+
+\image html DFPFlow.png
+
+\section cp_BasicDFP Basic Device Family Pack
+
+In the following sections, a DFP will be created for a fictional device family called <b>MVCM3</b> from the device vendor
+<b>MyVendor</b>. The device family consists of four member that are separated into two sub-families. The specification of
+the MVCM3 family is as follows:
+
+\image html MVCM3SpecTable.png "MVCM3 Device Family Specification"
+
+<b>Preparations</b>
+-# Create a working directory on you PC, for example <b>C:\\temp\\working_dfp</b>.
+-# Go to the directory <b>\\CMSIS\\Pack\\Tutorials</b> available in the \b ARM::CMSIS Pack installation. Please
+   consult your development tool's documentation for more information on the Pack installation directory structure. In a
+   standard µVision installation, you will find it below <b>C:\\Keil_v5\\ARM\\Pack\\ARM\\CMSIS\\<i>version</i></b>.
+-# Open the file \b Pack_with_Device_Support.zip.
+-# Copy the \e content of the ZIP file's \b 01_Basic_Pack directory into your working directory.
+-# Make sure that files/directories are not write protected (remove read-only flag).
+-# Copy from the directory <b>\\CMSIS\\Utilities</b> available in the \b ARM::CMSIS Pack installation the following files
+   into your working directory:
+   - packChk.exe
+   - PACK.xsd
+   - SVDConv.exe
+-# Open the \b MyVendor.MVCM3.pdsc file in an editor.
+
+<b>Code Example</b>
+<ol>
+<li>
+Add a \ref element_device "<devices>" section in the PDSC file with the following:
+\code{.xml}
+  <devices>
+    <family Dfamily="MVCM3 Series" Dvendor="Generic:5">
+      <processor Dcore="Cortex-M3" DcoreVersion="r2p1" Dfpu="0" Dmpu="0" Dendian="Little-endian"/>
+      <description>
+        The MVCM3 device family contains an ARM Cortex-M3 processor, running up to 100 MHz with a versatile set of on-chip peripherals.
+      </description>
+      <!-- ************************  Sub-family 'MVCM3100'  **************************** -->
+      <subFamily DsubFamily="MVCM3100">
+        <processor  Dclock="50000000"/>
+        <!-- *************************  Device 'MVCM3110'  ***************************** -->
+        <device Dname="MVCM3110">
+          <memory     name="IROM1"  access="rx"       start="0x00000000"  size="0x4000"     startup="1"   default="1"/>
+          <memory     name="IRAM1"  access="rw"       start="0x20000000"  size="0x0800"     init   ="0"   default="1"/>
+        </device>
+        <!-- *************************  Device 'MVCM3120'  ***************************** -->
+        <device Dname="MVCM3120">
+          <memory     name="IROM1"  access="rx"        start="0x00000000"  size="0x8000"     startup="1"   default="1"/>
+          <memory     name="IRAM1"  access="rx"        start="0x20000000"  size="0x1000"     init   ="0"   default="1"/>
+        </device>
+      </subFamily>
+      <!-- ************************  Sub Family 'MVCM3200'  **************************** -->
+      <subFamily DsubFamily="MVCM3200">
+        <processor  Dclock="100000000"/>
+        <!-- *************************  Device 'MVCM3250'  ***************************** -->
+        <device Dname="MVCM3250">
+          <memory     name="IROM1"  access="rx"         start="0x00000000"  size="0x4000"     startup="1"   default="1"/>
+          <memory     name="IRAM1"  access="rw"         start="0x20000000"  size="0x0800"     init   ="0"   default="1"/>
+        </device>
+        <!-- *************************  Device 'MVCM3260'  ***************************** -->
+        <device Dname="MVCM3260">
+          <memory     name="IROM1"  access="rx"         start="0x00000000"  size="0x8000"     startup="1"   default="1"/>
+          <memory     name="IRAM1"  access="rw"         start="0x20000000"  size="0x1000"     init   ="0"   default="1"/>
+        </device>
+      </subFamily>
+    </family>
+  </devices>
+\endcode
+\note
+- \c Dvendor IDs are not freely selectable. The current set of IDs can be found in the PACK.xsd file (available in the
+  \b ARM::CMSIS Pack in the <b>CMSIS\\Pack\\Utilities</b> directory).
+- All code examples in this and the following sections can be found in the \c snippets.xml file in the
+  <b>01_Basic_Pack</b> directory.
+
+</li>
+<li>
+Save the PDSC file and generate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool.
+
+\image html BasicDFPDisplay.png  "Display of microcontroller devices in development tools"
+</li>
+</ol>
+
+\note packChk.exe will display \b M350 informations:
+\verbatim
+*** INFO M350:
+  No 'Startup' found for [Generic:5] 'MVCM3110' ()
+\endverbatim
+We will address this problem in the next section.
+
+\section cp_System_Startp System and Startup Files
+<a href="../../Core/html/index.html">CMSIS-Core (Cortex-M)</a> defines the following files to be used by
+an embedded application:
+- \c startup_<device>.s with reset handler and exception vectors. It is executed after reset and calls \c SystemInit and may
+  contain stack and heap configurations for the user application.
+- \c system_<device>.c and \c system_<device>.h with general system configuration information (i.e. for clock and BUS setup).
+- \c <device.h> gives access to processor core and all peripherals. This file should be generated out of the
+  \ref cp_SVD "SVD" file using <a href="../../SVD/html/svd_SVDConv_pg.html"><b>SVDConv.exe</b></a> to ensure consistency
+  between the header file and what is being displayed by the debugger.
+
+\image html SystemStartupFiles.png  "System and startup files in relation to user code"
+
+\note <a href="../../Core/html/templates_pg.html">CMSIS-Core (Cortex-M)</a>
+    explains the structure of the system and startup files and how to create them.
+
+Copy the \e content of the <b>02_System_and_Startup</b> directory of the \b Pack_with_Device_Support.zip file to the
+<b>Files</b> directory in your working environment:
+<ol>
+<li>
+Add a \c \<conditions\> section in your PDSC with the following (the \ref cp_Conditions "conditions" section
+provides more information on this step):
+\code{.xml}
+    <condition id="MVCM3 CMSIS-Core">
+      <!-- conditions selecting Devices -->
+      <description>MyVendor MVCM3 Series devices and CMSIS-Core (Cortex-M)</description>
+      <require Cclass="CMSIS" Cgroup="Core"/>
+      <require Dvendor="Generic:5" Dname="MVCM3*"/>
+    </condition>
+    <condition id="Startup ARM">
+      <description>Startup assembler file for ARMCC</description>
+      <require Tcompiler="ARMCC"/>
+    </condition>
+    <condition id="Startup GCC">
+      <description>Startup assembler file for GCC</description>
+      <require Tcompiler="GCC"/>
+    </condition>
+    <condition id="Startup IAR">
+      <description>Startup assembler file for IAR</description>
+      <require Tcompiler="IAR"/>
+    </condition>
+\endcode
+\note The assembler based \c startup_<device>.s file is tool dependent. Therefore, separate conditions for the various tool
+      vendors are required.
+</li>
+<li>
+Add a \c \<components\> section in your PDSC with the following (the \ref cp_Components "components" section
+provides more information on this step):
+\code
+    <component Cclass="Device" Cgroup="Startup" Cversion="1.0.0" condition="MVCM3 CMSIS-Core">
+      <description>System Startup for MyVendor MVCM3 Series</description>
+      <files>
+        <!--  include folder -->
+        <file category="include" name="Device/Include/"/>
+ 
+        <file category="source"  name="Device/Source/ARM/startup_MVCM3xxx.s" attr="config" condition="Startup ARM" version="1.0.0"/>
+        <file category="source"  name="Device/Source/GCC/startup_MVCM3xxx.S" attr="config" condition="Startup GCC" version="1.0.0"/>
+        <file category="source"  name="Device/Source/IAR/startup_MVCM3xxx.s" attr="config" condition="Startup IAR" version="1.0.0"/>
+ 
+        <file category="source"  name="Device/Source/system_MVCM3xxx.c"  attr="config" version="1.0.0"/>
+      </files>
+    </component>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.1">
+      Startup files included
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the \ref cp_GeneratePack "gen_pack.bat" script. Afterwards,
+install the Pack in your development tool and create a new project. Select the software components <b>\::CMSIS:CORE</b>
+and <b>\::Device:Startup</b> for the project:
+
+\image html StartupSystemFilesAdded.png "Startup and system files added to a project"
+</li>
+</ol>
+
+\note packChk.exe will display \b M350 informations:
+\verbatim
+*** INFO M353: .\Files\MyVendor.MVCM3.pdsc (Line 98)
+  No 'Device Headerfile' File found for Component 'Startup' (MyVendor::Device.Startup:1.0.0) for '[Generic:5] MVCM3110' (ARMCC)
+\endverbatim
+We will address this problem in the next section.
+
+
+\section cp_SVD System View Description File
+
+<a class=el href="http://www.keil.com/cmsis/svd" target="_blank">CMSIS-SVD</a>
+formalizes the description of the programmer's view for the system contained in ARM Cortex-M processor-based
+microcontrollers, in particular the memory mapped registers of the peripherals. The level of detail contained in system view
+descriptions is comparable to what is found in device reference manuals published by silicon vendors. The information ranges
+from a high level functional description of a peripheral all the way down to the definition and purpose of an individual bit
+field in a memory mapped register. CMSIS-SVD files are developed and maintained by the silicon vendors. 
+The XML based SVD file is the input for <a href="../../SVD/html/svd_SVDConv_pg.html"><b>SVDConv.exe</b></a> that
+generates the tool dependent debug view and the device header file.
+
+\image html SVDFlow.png "SVD file conversion flow"
+
+Copy the \e content of the <b>03_SVD_File</b> directory of the \b Pack_with_Device_Support.zip file to the <b>Files</b>
+directory in your working environment:
+<ol>
+<li>
+Open the file MVCM3xxx.svd in the <b>Files\\SVD</b> directory in an editor and change the following:
+\code{.xml}
+<device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
+  <vendor>MyVendor</vendor>              <!-- device vendor name -->
+  <vendorID>Generic</vendorID>           <!-- device vendor short name -->
+  <name>MVCM3xxx</name>                  <!-- name of part-->
+  <series>MVCM3xxx</series>              <!-- device series the device belongs to -->
+  <version>1.2</version>                 <!-- version of this description, adding CMSIS-SVD 1.1 tags -->
+  <description>Arm 32-bit Cortex-M3 Microcontroller based device, CPU clock up to 100 MHz.</description>
+\endcode
+</li>
+<li>
+Open a command window in your working directory and enter:
+\verbatim
+C:\temp\working_dfp>SVDConv.exe Files\SVD\MVCM3xxx.svd --generate=header –-fields=macro
+\endverbatim
+</li>
+<li>
+You should see some output of SVDConv similar to this:
+\verbatim
+CMSIS-SVD SVD Consistency Checker / Header File Generator V2.86g
+Copyright (C) 2010 - 2014 Arm Ltd and Arm Germany GmbH. All rights reserved.
+Options: "Files\SVD\MVCM3xxx.svd" --generate=header --fields=macro
+Reading file: "Files\SVD\MVCM3xxx.svd"
+ 
+Decoding using XML SVD Schema V1.1
+ 
+Found 0 Errors and 0 Warnings
+ 
+Return Code: 0 (OK)
+\endverbatim
+Move the generated header file <b>MVCM3xxx.h</b> to the <b>Device\\Include</b> directory.
+</li>
+<li>
+Add the following two lines at the family level in the PDSC file:
+\code{.xml}
+<compile    header="Device/Include/MVCM3xxx.h"/>
+<debug      svd="SVD/MVCM3xxx.svd"/>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.2">
+      SVD and header file included
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the \ref cp_GeneratePack "gen_pack.bat" script. Afterwards,
+install the Pack in your development tool and create a new project. Depending on your development environment, you will be
+able to see the SVD file included in your project:
+
+\image html SVDIncluded.png "Project with SVD file"
+
+\note For more information on CMSIS-SVD, please visit
+<a class=el href="http://www.keil.com/cmsis/svd" target="_blank">www.keil.com/cmsis/svd</a>
+</li>
+</ol>
+
+
+\section cp_FlashProgrammingAlgorithm Flash Programming Algorithms
+\ref flashAlgorithm are used to erase or download applications to Flash devices. A DFP usually contains
+predefined Flash algorithms for programming its supported devices. The page \ref algorithmFunc explains the mechanisms in
+more detail.
+
+For the MVCM3 device family, two flash algorithms have to be created. MVCM3110/250 have 16 kB of Flash, whereas MVCM3120/260
+have 32 kB of Flash memory.
+
+Copy the \e content of the <b>04_Flash_Programming</b> directory of the \b Pack_with_Device_Support.zip file to the
+<b>working</b> directory:
+<ol>
+<li>
+Rename the project file \b NewDevice.uvproj (in the \b _Template_Flash directory) to represent the new Flash ROM device
+name, for example MVCM3XXX_16.uvproj.
+</li>
+<li>
+Open the project with uVision. The selected target (Cortex-M) is fine for the device.
+
+\note Creating a Flash programming algorithm with
+      <a class=el href="http://www.keil.com/arm/selector.asp" target="_blank">MDK-Lite</a> is not supported.
+</li>
+<li>
+Open the dialog <b>Project - Options for Target - Output</b> and change the content of the field <b>Name of Executable</b>
+to represent the device, here MCVM3XXX_16.
+
+\image html FPATargetOptions.png "Options for Target 'Cortex-M'"
+</li>
+<li>
+In the real world, you would now start to adapt the programming algorithms in the file \b FlashPrg.c. For now, only change
+the device parameters (Device Name, Device Size, and Sector Size) in the \b FlashDev.c file:
+\code
+struct FlashDevice const FlashDevice  =  {
+   FLASH_DRV_VERS,             // Driver Version, do not modify!
+   "MVCM3110/250 Flash",       // Device Name 
+   ONCHIP,                     // Device Type
+   0x00000000,                 // Device Start Address
+   0x00004000,                 // Device Size in Bytes (16kB)
+   1024,                       // Programming Page Size
+   0,                          // Reserved, must be 0
+   0xFF,                       // Initial Content of Erased Memory
+   100,                        // Program Page Timeout 100 mSec
+   3000,                       // Erase Sector Timeout 3000 mSec
+
+// Specify Size and Address of Sectors
+   0x002000, 0x000000,         // Sector Size  8kB (2 Sectors)
+   SECTOR_END
+};
+\endcode
+</li>
+<li>
+Use <b>Project - Build Target</b> to generate the new Flash programming algorithm. The algorithm will be created in the
+parent directory of the <b>_Template_Flash</b> directory.
+</li>
+<li>
+Copy the output file <b>..\\MVCM3XXX_16.FLM</b> to a new subdirectory called <b>Files\\Flash</b>. Add these lines to the
+MVCM3110/250 device sections:
+\code{.xml}
+algorithm name="Flash/MVCM3XXX_16.FLM" start="0x00000000" size="0x4000" default="1"/>
+\endcode
+</li>
+<li>
+Create a \b MVCM3XXX_32.flm for the MVCM3120/260 devices.
+</li>
+<li>
+Add these lines to the MVCM3120/260 device sections:
+\code{.xml}
+algorithm name="Flash/MVCM3XXX_32.FLM" start="0x00000000" size="0x8000" default="1"/>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.3">
+      Flash Programming Algorithms added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the \ref cp_GeneratePack "gen_pack.bat" script. Afterwards,
+install the Pack in your development tool. Depending on your development environment, you will be able to see the Flash
+Programming Algorithms included in your project (either for a new project or by adding it manually to an existing project):
+
+\image html FPADisplay.png "Display of Flash Programming Algorithm"
+
+\note The page \ref flashAlgorithm gives more information on the subject.
+</li>
+</ol>
+
+
+\section cp_debugdescription Debug Descriptions
+
+
+\section cp_DeviceProperties Device Properties
+
+To limit redundancy, devices can be organized in two hierarchy groups:
+- \ref element_family "family": the attributes of a device family which includes also the processor.
+- \ref element_subFamily "subFamily": attributes of an optional sub-family; this adds or modifies features of a family.
+
+Parameters of each single device are defined in:
+- \ref element_device "device": attributes of a specific silicon device
+- \ref element_variant "variant": attributes of a device variant (for example, with different package or temperature
+  range) or an OEM device or board that integrates the device.
+       
+A device is described by the following properties:
+ - \ref element_description "description": textual device description
+ - \ref element_feature "feature": categorized list of device peripherals and features. This list is used on
+   \ref DevWebSite "web sites" for the display of device features.
+ - \ref element_book "book": documentation about the device and its processor(s)
+ - \ref element_processor "processor": processor and processor features embedded in the device
+ - \ref element_compile "compile": device specific general settings for the build tools
+ - \ref element_debugconfig "debugconfig": default settings for a debug connection
+ - \ref element_debugport "debugport": debug port description of the device for the debugger to configure a debug
+   connection.
+ - \ref element_debug "debug": device specific information for the debugger to configure a debug connection including
+   System View Description files.
+ - \ref element_trace "trace": device specific information for the debugger to configure trace.
+ - \ref element_memory "memory": memory layout of the device for internal and external RAM and ROM regions
+ - \ref element_algorithm "algorithm": device specific Flash programming algorithms
+
+A device inherits all specifications from both the family and sub-family levels. Some properties are required to be unique.
+For example, the name of the SVD file attribute of the \elem{debug} property. Therefore, the SVD file specified on the family
+level can be redefined by the attribute on the sub-family or device level. Other information like the \<description\> and
+\<feature\> entries are adding up, starting with the information from the family and sub-family level and finalizing with the
+information on the device level.
+
+The following shows how to specify the device properties for the MVCM3110 device (refer to the specification shown in
+\ref cp_BasicDFP). The other members of the family are specified accordingly.
+
+Copy the \e content of the <b>05_Device_Properties</b> directory of the \b Pack_with_Device_Support.zip file to the
+<b>Files</b> directory of your working environment:
+<ol>
+<li>
+The <b>MVCM3 Series</b> family properties \ref element_processor "processor", \ref element_compile "compile",
+\ref element_description "description", and \ref element_debug "debug" are already specified. There are additional common
+properties that can be specified on the family level: \ref element_book "book" and \ref element_feature "feature".
+Add the following lines to the PDSC file in the \elem{family} section:
+\code{.xml}
+      <book      name="Docs/dui0552a_cortex_m3_dgug.pdf"   title="Cortex-M3 Generic User Guide"/>
+      <book      name="Docs/MVCM3XXX_Datasheet.pdf"        title="MVCM3 Series Datasheet"/>
+      <book      name="Docs/MVCM3XXX_Product_Brief.pdf"    title="MVCM3 Product Brief"/>
+      <feature type="ExtInt"        n="16"/>
+      <feature type="Temp"          n="-40"     m="105"   name="Extended Temperature Range"/>
+      <feature type="VCC"           n="2.5"     m="3.6"/>
+      <feature type="RTC"           n="32768"/>
+      <feature type="WDT"           n="1"/>
+\endcode
+</li>
+<li>
+The \b MVCM31xx sub-family has some features that are common for the two member devices. Please add the following code to the
+MVCM31100 \elem{subFamily} section:
+\code{.xml}
+<feature type="IOs"           n="26"/>
+<feature type="I2C"           n="1"/>
+<feature type="UART"          n="4"/>
+<feature type="Timer"         n="6"       m="32"/>
+<feature type="QFP"           n="32"/>
+\endcode
+</li>
+<li>
+The \b MVCM3110 device has some features that are unique to that device. Please add the following code to the MVCM3110
+\elem{device} section:
+\code{.xml}
+          <feature    type="PWM"           n="2" m="16"/>
+\endcode
+</li>
+</ol>
+
+
+\subsection cp_DeviceSWComp Device Specific Software Components
+
+Finally, \ref cp_Components "software components" and \ref cp_Examples "example projects" need to be added to the DFP.
+<ol>
+<li>
+Add the following lines to the PDSC file in the \elem{components} section:
+\code
+<component Cclass="Device" Cgroup="HAL" Csub="GPIO" Cversion="1.0.0" condition="MVCM3 CMSIS-Core">
+  <description>GPIO HAL for MyVendor MVCM3 Series</description>
+  <files>
+    <file category="header" name="Device/Include/GPIO.h"/>
+    <file category="source" name="Device/Source/GPIO.c"/>
+  </files>
+</component>
+
+<component Cclass="Device" Cgroup="HAL" Csub="ADC" Cversion="1.0.0" condition="MVCM3 CMSIS-Core">
+  <description>ADC HAL for MyVendor MVCM3 Series</description>
+  <files>
+    <file category="header" name="Device/Include/ADC.h"/>
+    <file category="source" name="Device/Source/ADC.c"/>
+  </files>
+</component>
+
+<component Cclass="CMSIS Driver" Cgroup="I2C" Cversion="1.0.0" condition="MVCM3 CMSIS-Core" maxInstances="3">
+  <description>I2C Driver for MVCM3 Series</description>
+  <RTE_Components_h>
+    #define RTE_Drivers_I2C0                /* Driver I2C0 */
+    #define RTE_Drivers_I2C1                /* Driver I2C1 */
+    #define RTE_Drivers_I2C2                /* Driver I2C2 */
+  </RTE_Components_h>
+  <files>
+    <file category="source" name="Drivers/I2C/I2C_MVCM3.c"/>
+    <file category="header" name="Drivers/I2C/I2C_MVCM3.h"/>
+  </files>
+</component>
+
+<component Cclass="CMSIS Driver" Cgroup="UART" Cversion="1.0.0" condition="MVCM3 CMSIS-Core" maxInstances="5">
+  <description>UART Driver for MVCM3 Series</description>
+  <RTE_Components_h>
+    #define RTE_Drivers_UART0               /* Driver UART0 */
+    #define RTE_Drivers_UART1               /* Driver UART1 */
+    #define RTE_Drivers_UART2               /* Driver UART2 */
+    #define RTE_Drivers_UART3               /* Driver UART3 */
+    #define RTE_Drivers_UART4               /* Driver UART4 */
+  </RTE_Components_h>
+  <files>
+    <file category="source" name="Drivers/UART/UART_MVCM3.c"/>
+    <file category="header" name="Drivers/UART/UART_MVCM3.h"/>
+  </files>
+</component>
+\endcode
+\note The first two software components are added to <b>Device\::HAL</b> because they are specific to the device family and
+are not using a published API. The drivers for I2C and UART are adhering to the
+<a class=el href="http://www.keil.com/cmsis/driver" target="_blank">CMSIS-Driver</a> specification. Thus, they are added to
+the Cclass <b>CMSIS Driver</b>.
+</li>
+<li>
+An example project has also been created. Add an \b \<examples\> section with the following:
+\code{.xml}
+  <examples>
+    <example name="Dummy" doc="Abstract.txt" folder="Examples/dummy">
+      <description>Dummy project</description>
+      <board name="MVCM3 Starter Kit" vendor="MyVendor"/>
+      <project>
+        <environment name="uv" load="dummy.uvprojx"/>
+      </project>
+      <attributes>
+        <category>Getting Started</category>
+      </attributes>
+    </example>
+  </examples>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.4">
+      DFP finalized
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the \ref cp_GeneratePack "gen_pack.bat" script. Afterwards,
+install the Pack in your development tool.
+</li>
+</ol>
+*/

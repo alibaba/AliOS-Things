@@ -1,0 +1,487 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page packChk packChk.exe
+
+\b packChk.exe is a utility for validation of a Software Pack. It operates on the unzipped content of the Software Pack and
+is located in the directory <b>.\\CMSIS\\Utilities</b> of the <b>ARM::CMSIS</b> Pack.
+
+\b packChk.exe performs the following operations:
+ - Reads the content of the specified *.pdsc file. The path to this *.pdsc file is considered as root directory of the Software Pack.
+ - Verifies the existence of all files in the Software Pack that are referenced in the *.pdsc file.
+ - Checks for presence and correctness of mandatory elements such as \<vendor>, \<version>, etc.
+ - Optionally, reads other PDSC files to resolve dependencies on \<apis>, \<boards>, and \<conditions>.
+ - Optionally, checks all System View Description files (*.SVD) referenced in the *.pdsc file using SVDConv.exe. Refer to <a href="../../SVD/html/svd_validate_file_pg.html">SVD File Validation</a> for details.
+ - Optionally, verifies the element \<url>.
+ - Optionally, creates the standardized name of the Software Pack file for further processing in scripts.
+ - Sets the exit status reflecting the validation result to: \n
+     0 : no errors detected \n
+     1 : errors during validation detected
+
+
+Operation
+---------
+
+\b packChk.exe is invoked from the command line:\n
+\code
+ packChk.exe <pdsc_file> <options>
+\endcode
+
+\n
+<table class="cmtable" summary="packChk Args">
+  <tr>
+    <th>\<options></th>
+    <th>Short Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>-i \<file></td>
+    <td nowrap>Check component dependencies</td>	
+    <td>Reference PDSC file(s) used to resolve component dependencies in conditions.</td>
+  </tr>
+  <tr>
+    <td>-n \<file></td>
+    <td >Write Pack file name</td>	
+    <td>Write a standardized name for the Software Pack to the specified ASCII file.</td>
+  </tr>
+  <tr>
+    <td>-s</td>
+    <td nowrap>Verify SVD files</td>	
+    <td>Each SVD file referenced in the *.pdsc file is <a href="../../SVD/html/svd_validate_file_pg.html"><b>validated</b></a> with \b SVDConv.exe.
+	With this option set, \b SVDConv.exe is invoked from the same directory as \b packChk.exe.
+	</td>
+  </tr>
+  <tr>
+    <td>-u \<url></td>
+    <td >Pack Server URL</td>	
+    <td>Verifies that the specified URL matches the \<url> element in the *.pdsc file.</td>
+  </tr>
+  <tr>
+    <td>-v</td>
+    <td nowrap>Verbose</td>	
+    <td>Prints extra process information.</td>
+  </tr>
+  <tr>
+    <td>-x&nbsp;\<msg-list></td>
+    <td nowrap>Suppress</td>	
+    <td>Suppress all listed validation messages. You can separate the values with blanks to create a list or repeat the option.
+	Ranges are not allowed. Suppressing validation messages does not affect error and warning counters.
+	For a list of messages refer to <a href="#packchk_valid_msgs"><b>Validation Messages</b></a>. 
+	</td>
+  </tr>
+  <tr>
+    <td>-h/-?</td>
+    <td>Help</td>	
+    <td>Show help.</td>
+  </tr>
+</table>
+
+
+<b>Examples</b>
+
+Run \b packChk.exe on the package description file called <b>MyVendor.MyPack.pdsc</b>. \b packChk.exe verifies the file against the Software Pack that is located in the same directory.
+\verbatim
+packChk.exe MyVendor.MyPack.pdsc
+\endverbatim
+
+Run \b packChk.exe on the package description file called <b>MyVendor.MyPack.pdsc</b> in the current directory and try to resolve conditions using the ARM.CMSIS.pdsc file based in another directory.
+\verbatim
+packChk.exe MyVendor.MyPack.pdsc -i ..\..\PACK\ARM\CMSIS\ARM.CMSIS.pdsc
+\endverbatim
+
+Run \b packChk.exe on the  package description file called <b>MyVendor.MVCM3.pdsc</b>, verify SVD files, verify the URL to the Pack Server, and generate a ASCII text file with the standardized name of the Software Pack.
+\verbatim
+packChk.exe "MyVendor.MVCM3.pdsc" -s -u "http://www.myvendor.com/pack" -n packname.txt
+\endverbatim
+
+Run \b packChk.exe on the  package description file called <b>MyVendor.MVCM3.pdsc</b>. Suppress validation messages M304 and M331.
+\verbatim
+packChk.exe MyVendor.MVCM3.pdsc -x M304 M331           // messages as a list
+packChk.exe MyVendor.MVCM3.pdsc -x M304 -x M331        // option repeated
+\endverbatim
+
+\section packChkMessages Error and Warning Messages
+
+[SVDConv.exe]: ../../SVD/html/svd_SVDConv_pg.html
+
+The following table shows the errors and warnings issued by packChk.
+
+Internal Errors
+---------------
+If you encounter one of the following errors, please send a problem report via email to cmsis@arm.com.
+
+<table class="cmtable" summary="packChk Internal Msgs">
+  <tr>
+    <th>Message Number</th>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Action</th>
+  </tr>
+<tr><td>M100</td> 
+	<td>ERROR</td> <td>GetModuleHandle failed</td>
+	<td>Call support.</td>
+</tr>
+<tr><td>M101</td> 
+	<td>ERROR</td> <td>Unknown error!</td>
+	<td>Call support.
+</td>
+</tr>
+<tr><td>M102</td> 
+	<td>ERROR</td> <td>MFC initialization failed</td>
+	<td>Call support.</td>
+</tr>
+<tr><td>M103</td> 
+	<td>ERROR</td> <td>Internal Error: \em 'REF'</td>
+	<td>Call support and submit the error message.</td>
+</tr>
+<tr><td>M104 - M107</td>
+	<td>N.A.</td> <td><i>not in use</i></td>
+	<td>---</td>
+</tr>
+<tr><td>M108</td> 
+	<td>ERROR</td> <td>Reading PDSC File failed!</td>
+	<td>Verify file and folder permissions. Verify whether the file is corrupt or in another folder. 
+	Repeat the process. If this error persists, call support.</td>
+</tr>
+<tr><td>M109</td> 
+	<td>ERROR</td> <td>Constructing Model failed!</td>
+	<td>Building Model based on the PDSC information failed. Repeat the process. If this error persists, call support.</td>
+</tr>
+<tr><td>M110</td> 
+	<td>ERROR</td> <td>Verifying Model failed</td>
+	<td>Model based verification of the PDCS information failed. Repeat the process. If this error persists, call support.</td>
+</tr>
+</table>
+
+
+Invocation Errors
+-----------------
+
+<table class="cmtable" summary="packChk Invocation Msgs">
+  <tr>
+    <th>Message Number</th>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Action</th>
+  </tr>
+<tr><td>M200</td> <td>ERROR</td> <td>Invalid arguments!</td>
+  <td>At least one argument is wrong. Correct the argument.</td>
+</tr>
+<tr><td>M201</td> <td>ERROR</td> <td>Too many arguments!</td>
+  <td>The list of arguments is too long. Verify if you have used one argument twice.</td>
+</tr>
+<tr><td>M202</td> <td>ERROR</td> <td>No PDSC input file specified</td>
+  <td>Correct the command line. \b packChk.exe expects a *.pdsc file name as input.</td>
+</tr>
+<tr><td>M203</td> <td>ERROR</td> <td>Error reading PDSC file  \em 'PATH/FILENAME'!</td>
+  <td>Verify the PDSC file for consistency. 
+  </td>
+</tr>
+<tr><td>M204</td> <td>ERROR</td> <td>File not found: \em 'PATH'</td>
+  <td>The specified PDSC file could not be found in the \em PATH displayed in the message. Correct the path or the filename.</td>
+</tr>
+<tr><td>M205</td> <td>ERROR</td> <td>Cannot create Pack Name file \em 'PATH'</td>
+  <td>Check the disk space or your permissions. Correct the path name.</td>
+</tr>
+<tr><td>M206</td> <td>ERROR</td> <td>Multiple PDSC files found in package:  \em 'FILES'</td>
+  <td>Only one PDSC file is allowed in a package. Remove unnecessary PDSC files. The message lists all *.pdsc files found.</td>
+</tr>
+<tr><td>M207</td> <td>ERROR</td> <td>PDSC file name mismatch! \n
+                                                  Expected:  \em 'PDSC1.pdsc' \n
+                                                  Actual  :  \em 'PDSC2.pdsc'</td>
+  <td>The PDSC file expected has not been found. Rename or exchange the PDSC file.</td>
+</tr>
+<tr><td>M208</td> <td>ERROR</td> <td>Error calling SVDConv.exe:  \em 'PATH'</td>
+  <td>SVDConv.exe was not found. Copy the executable into the directory of packChk.exe or enter the path where SVDConv.exe is located. Default is \token{CMSIS\\Utilities}.</td>
+</tr>
+<tr><td>M209</td> <td>ERROR</td> <td>Unknown Option: \em 'OPT'</td>
+  <td>The command line option entered is not known or invalid.</td>
+</tr>
+<tr><td>M210</td> <td>ERROR</td> <td>Only one input file to be checked is allowed.</td>
+  <td>You can only check one PDSC file at a time.</td>
+</tr>
+</table>
+
+\anchor packchk_valid_msgs
+Validation Messages
+--------------------
+
+<table class="cmtable" summary="packChk Validation Msgs">
+  <tr>
+    <th>Message Number</th>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Action</th>
+  </tr>
+<tr><td>M300</td> <td>ERROR</td> <td>The following files are listed in PDSC but not part of the package: \n
+                                                   \em 'PATH': \n
+                                                   \em 'FILES'</td>
+  <td>The files listed should be part of the package. However, these files could not be added to the package. Verify whether the files exist. Verify the file permissions.</td>
+</tr>
+<tr><td>M301</td> <td>ERROR</td> <td>Checking Pack URL of PDSC file failed: \n
+                                                  Expected URL :  \em 'URL1'   \n
+                                                  Package  URL :  \em 'URL2'</td>
+  <td>The URL entered in the package does not match the value entered for comparison. Change the URL in the package. Check for possible misspellings of \em URL1.</td>
+</tr>
+<tr><td>M302</td> <td>ERROR</td><td>No vendor tag found in the PDSC file! Add the \<vendor> tag and provide the vendor name. For example: <code>\<vendor>Keil\</vendor></code>.</td>
+  <td>No vendor entered in the PDSC file. Enter the tag \token{\<vendor>} and add the vendor name.  Refer to \ref element_package.</td>
+</tr>
+<tr><td>M303</td> <td>ERROR</td><td>No package name found in the PDSC file! Add the \<name> tag and provide the package name. For example: <code>\<name>MCU-Name_DFP\</name></code>.</td>
+  <td>No package name found in the PDSC file. Enter the tag \token{\<name>} and add the package name. For example \token{\<name>MCU-Name_DFP\</name>}. The package name is mandatory to create the package.  Refer to \ref element_package.</td>
+</tr>
+<tr><td>M304</td> <td>ERROR</td> <td>No package URL (\<url>-tag and/or value) found in PDSC file!</td>
+  <td>Add the tag \token{\<url>} and enter a URL in the PDSC file. The URL points to the web page from which users can download the package.  Refer to \ref element_package.</td>
+</tr>
+<tr><td>M305</td> <td>ERROR</td><td>No package version (\"version\"-attribute in a \<release>-tag) found in PDSC file!</td>
+  <td>No version or release information found in the PDSC file. Add the attribute \token{version} to the tag \token{\<release>} and enter the version number. Refer to \ref element_release.</td>
+</tr>
+<tr><td>M306</td> <td>ERROR</td><td>No package description found in the PDSC file. Add the \<description>-tag and provide a descriptive text.</td>
+  <td>No package description was found in the PDSC file. Enter the tag \token{\<description>} and briefly describe the package content. Refer to \ref element_package.</td>
+</tr>
+<tr><td>M307</td> <td>ERROR</td> <td>Checking SVD file  \em 'PATH' failed!</td>
+  <td>Verify the consistency of the *.SVD file. Refer to <a href="../../SVD/html/svd_validate_file_pg.html">SVD File Validation</a>.</td>
+</tr>
+<tr><td>M308</td> <td>ERROR</td> <td>SVD file \em 'PATH' not found. Add the SVD file or correct the PDSC entry.</td>
+  <td>The *.SVD file was not found in the path specified in the message. Add the SVD file or correct the entry in the *.pdsc file.</td>
+</tr>
+<tr><td>M309</td> <td>ERROR</td> <td>Cannot read file information: \em 'PATH'.</td>
+  <td>Access to the file specified failed. Verify permissions and spelling.</td>
+</tr>
+<tr><td>M310</td> <td>ERROR</td> <td>Filename mismatch (case sensitive):\n
+                     PDSC name : \em 'PDSC_FILENAME' \n
+                     Filename  : \em 'SYSTEM'   </td>
+  <td>Filenames are case sensitive. Correct spelling.</td>
+</tr>
+<tr><td>M323</td> <td>ERROR</td> <td>File/Path not found: \em 'PATH' </td>
+  <td>The file or path entered in the PDSC file could not be found. Verify the path information.</td>
+</tr>
+<tr><td>M324</td> <td>ERROR</td> <td>Board referenced in Example \em 'EXAMPLE' is undefined: \em 'VENDOR' : \em 'BOARD' </td>
+  <td>The board referenced in the example application could not be found. Define the board (\ref element_board) or correct the reference information (\ref element_example_board).</td>
+</tr>
+<tr><td>M325</td> <td>ERROR</td> <td>Board \em 'NAME' redefined, already defined in Line \em 'LINE': \em 'PATH'</td>
+  <td>This board has been defined already in the line \em 'LINE' of the file \em 'PATH'.  Verify and remove one of the board definitions.</td>
+</tr>
+<tr><td>M326</td> <td>ERROR</td> <td>Path is not conformant: \em 'PATH':  Absolute Paths or Drive references are not allowed, use Paths relative to PDSC file.</td>
+  <td>The path needs to be relative to the PDSC file so that a dependency of a certain file system does not occur.</td>
+</tr>
+<tr><td>M327</td> <td>ERROR</td> <td>Path is not conformant: \em 'PATH':  Backslashes are not recommended, use forward slashes.</td>
+  <td>Paths to files should adhere to the POSIX standard using forward slashes (/).</td>
+</tr>
+<tr><td>M328</td> <td>ERROR</td> <td>Version not set for Release Information \em 'DESCR'</td>
+  <td>The release defined through the description \em 'DESCR' requires the attribute \token{\<version>}. Refer to \ref element_release.</td>
+</tr>
+<tr><td>M329</td> <td>ERROR</td> <td>Description not set for Release Information \em 'VER'</td>
+  <td>The release defined through the version \em 'VER' needs a description. Refer to \ref element_release.</td>
+</tr>
+<tr><td>M330</td> <td>ERROR</td> <td>Condition redefined: \em 'COND', already defined in Line \em 'LINE'</td>
+  <td>The condition has been defined already in a previous line. Correct the condition name, or remove the duplicate.</td>
+</tr>
+<tr><td>M331</td> <td>WARNING</td> <td>Condition unused: \em 'COND'</td>
+  <td>The condition has been defined but not used further. Remove the condition or add condition rules. Refer to \ref element_condition.</td>
+</tr>
+<tr><td>M332</td> <td>ERROR</td> <td>Condition undefined: \em 'COND'</td>
+  <td>A condition has been used but not defined. Correct the name of the condition or define the missing condition. Refer to \ref element_condition.</td>
+</tr>
+<tr><td>M333</td> <td>WARNING</td> <td>Component has no condition: Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', \em Csub='CSUB', \em Cversion= 'CVER'</td>
+  <td>The component defined has no condition. If the component has restrictions, then add a condition to the component definition. Refer to \ref element_component.</td>
+</tr>
+<tr><td>M334</td> <td>WARNING</td> <td>Config File has no version: \em 'PATH'</td>
+  <td>Add version information to the configuration file.</td>
+</tr>
+<tr><td>M335</td> <td>WARNING</td> <td>Component declared as 'Board Support' has no ref to a device: Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', Cversion= \em 'CVER'</td>
+  <td>A component defined as 'board support' needs a reference to a device. Add a device or correct the component definition. Refer to attribute \em Cclass of \ref element_component and \ref element_board_mountedDevice.</td>
+</tr>
+<tr><td>M336</td> <td>WARNING</td> <td>No reference to a device or device not found: Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', Cversion= \em 'CVER'</td>
+  <td>Define the device \ref element_device or correct the information about the device in the reference.</td>
+</tr>
+<tr><td>M337</td> <td>WARNING</td> <td>File with category \em 'CAT' has wrong extension \em 'EXT': \em 'PATH'</td>
+  <td>The extension of the file does not match the file category. Verify the extension to match the category. Refer to \ref element_file.</td>
+</tr>
+<tr><td>M338</td> <td>WARNING</td> <td>No releases found.</td>
+  <td>The PDSC file is missing release information. Add \token{\<release>} information to the file. Refer to \ref element_releases.</td>
+</tr>
+<tr><td>M339</td> <td>WARNING</td> <td>Include Path \em 'PATH' must not be a file!</td>
+  <td>The path specified contains a filename. Correct the path infomation and remove the filename.</td>
+</tr>
+<tr><td>M340</td> <td>WARNING</td> <td>Include Path \em 'PATH' must end with '/' or '\\'</td>
+  <td>Include paths must end with a slash or backslash. Verify and correct the path name.</td>
+</tr>
+<tr><td>M341</td> <td>WARNING</td> <td>File with \em 'COMP' dependency must have extension \em 'EXT' : \em 'PATH'</td>
+  <td>A file defining component dependencies must have the extension mentioned in the message. Verify the settings and correct the file extension.</td>
+</tr>
+<tr><td>M342</td> <td>WARNING</td> <td>File with attribute \em 'ATTR' must not have category \em 'CAT':  \em 'PATH'</td>
+  <td>A file with the attribute mentioned in the message must not have the category specified. Correct the attribute or the category.Refer to \ref element_file.</td>
+</tr>
+<tr><td>M343</td> <td>WARNING</td> <td>File with attribute \em 'ATTR' requires \em 'ATTR2' attribute: \em 'PATH'</td>
+  <td>A file with the attribute \em 'ATTR' requires another attribute \em 'ATTR2'. Add the required attribute or correct attribute \em 'ATTR'. Refer to \ref element_file.</td>
+</tr>
+<tr><td>M344</td> <td>WARNING</td> <td>File shall have condition containing \em 'COND': \em 'PATH'</td>
+  <td>The file should have a condition. Define a condition in the file specified in the message.</td>
+</tr>
+<tr><td>M345</td> <td>WARNING</td> <td>URL not found : \em 'URL' </td>
+  <td>The specified URL could not be found. Correct the URL. Refer to \ref element_package.</td>
+</tr>
+<tr><td>M346</td> <td>WARNING</td> <td>Referenced device(s) in \em 'BOARD' not found: \em 'DEVICE'</td>
+  <td>The device or devices specified for the board could not be found. Verify and correct the device name or the board name. Refer to \ref element_board_mountedDevice and \ref element_board_compatibleDevice.</td>
+</tr>
+<tr><td>M347</td> <td>WARNING</td> <td>Generator ID in Component Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', Cversion= \em 'CVER' is undefined: \em 'GENID'</td>
+  <td>The generator ID used in the component could not be found. Verify and correct the generator ID (\ref element_component), or define the generator ID (ref \ref element_generator).</td>
+</tr>
+<tr><td>M348</td> <td>WARNING</td> <td>Feature redefined for \em 'MCU', see Line \em 'REF_LINE': \em 'FEATURE'</td>
+  <td>This feature \em 'FEATURE' has been defined already on the same level in line \em 'REF_LINE'. The feature characteristics defined on line \em 'LINE' overwrite those from \em 'REF_LINE'.  Correct the feature (\ref element_feature).</td>
+</tr>
+<tr><td>M349</td> <td>WARNING</td> <td>Examples found, but no board description(s) found</td>
+  <td>Example projects have been found for a board that was not defined. Correct the entry for the examples (\ref element_example_board) or define the board (\ref element_board).</td>
+</tr>
+<tr><td>M350</td> <td>WARNING</td> <td>No \em 'COMP' found for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>The package (\ref element_package) defines a Vendor-MCU combination for which no component was defined. Define a component (\ref element_component) or verify the \em 'VENDOR' - \em 'MCU' settings.</td>
+</tr>
+<tr><td>M351</td> <td>WARNING</td> <td>Component \em 'COMP' (\em 'COMPID') error for \em 'VENDOR': \em 'MCU' ( \em 'COMPILER'): \em 'MSG'</td>
+  <td>An unspecified error was found for the component. The message might give detailed information about the error.</td>
+</tr>
+<tr><td>M352</td> <td>WARNING</td> <td>No Directories/Files found for \em 'COMP' (\em 'COMPID') for \em 'VENDOR': \em 'MCU' (\em 'COMPILER')</td>
+  <td>No files or directories could be found for the defined component. Add the missing information. Refer to \ref element_files.</td>
+</tr>
+<tr><td>M353</td> <td>WARNING</td> <td>No \em 'FILECAT' File found for Component \em 'COMP' (\em 'COMPID') for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>No file with the mentioned file category was found for the component. Verify whether the file exists or correct the information. Refer to attribute \em category in \ref element_file.</td>
+</tr>
+<tr><td>M354</td> <td>WARNING</td> <td>Multiple \em 'FILECAT' Files found for Component \em 'COMP' (\em 'COMPID') for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>Multiple files with the mentioned file category were found for the specified component. Verify and rename the files, or correct the component settings (\ref element_file).</td>
+</tr>
+<tr><td>M355</td> <td>WARNING</td> <td>No \em 'FILECAT' Directory found for Component \em 'COMP' (\em 'COMPID') for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>The directory specified for the file category was not found. Correct the information in the component settings (\ref element_component).
+</tr>
+<tr><td>M356</td> <td>WARNING</td> <td>Multiple \em 'FILECAT' Directories found for Component \em 'COMP' (\em 'COMPID') for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>Multiple directories were found for the same file category in the specified component. Remove obsolete information or correct the component settings.</td>
+</tr>
+<tr><td>M358</td> <td>WARNING</td> <td>Header File \em 'HFILE' for \em 'CFILE' missing for Component \em 'COMP' (\em 'COMPID') for \em 'VENDOR' : \em 'MCU' (\em 'COMPILER')</td>
+  <td>The header file defined for the component could not be found. Verify the header file settings (\ref element_file) or whether the file exists.</td>
+</tr>
+<tr><td>M359</td> <td>WARNING</td> <td>Family has no Device(s) or Subfamilies: \em 'FAMILY'</td>
+  <td>The device family has no devices or subfamilies. Add the missing information (\ref element_family).</td>
+</tr>
+<tr><td>M360</td> <td>WARNING</td> <td>Subfamily has no Device(s): \em 'SUBFAMILY'</td>
+  <td>Add the missing information. Refer to \ref element_subFamily.</td>
+</tr>
+<tr><td>M361</td> <td>WARNING</td> <td>Generator ID in Taxonomy Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP' is undefined: \em 'GENID'</td>
+  <td>The generator ID used in the taxonomy is not defined. Define or correct the generator ID (\ref element_taxonomy).</td>
+</tr>
+<tr><td>M362</td> <td>WARNING</td> <td>Not all Component Dependencies for Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', Csub= \em 'CSUB', Cversion= \em 'CVER', Capiversion= \em 'APIVER' can be resolved. \n RTE Model reports: \em 'MSG'</td>
+  <td>Some of the component dependencies could not be resolved. The message might contain additional information. Verify and correct component definition and dependency information. Refer to \ref element_component attribute \em condition.</td>
+</tr>
+<tr><td>M363</td> <td>WARNING</td> <td>No API defined for Component Cclass= \em 'CCLASS', Cgroup= \em 'CGROUP', Csub= \em 'CSUB', Cversion= \em 'CVER', Capiversion= \em 'APIVER'</td>
+  <td>The package is missing the API information for the specified component. Refer to \ref element_apis. </td>
+</tr>
+<tr><td>M364</td> <td>WARNING</td> <td>No Devices for Condition \em 'COND' available.</td>
+  <td>The specified condition refers to a device that does not exist. Define the device (\ref element_device) or correct the information for the condition (\ref element_condition).</td>
+</tr>
+<tr><td>M365</td> <td>ERROR</td> <td>Redefined DEVTYPE \em 'MCU' found, see Line \em LINE</td>
+  <td>Remove duplicate device/variant entries.</td>
+</tr>
+<tr><td>M366</td> <td>ERROR</td> <td>Redefined DEVTYPEEXIST as DEVTYPE \em 'MCU' found, see Line \em LINE</td>
+  <td>Device has been redefined as variant or vice versa. Remove duplicate device/variant entries.</td>
+</tr>
+<tr><td>M368</td> <td>INFO</td> <td>Redefined TYPEEXISTING as TYPE \em 'NAME' found, see Line \em LINE</td>
+  <td>Family/subfamily/device/variant has been redefined as different type.</td>
+</tr>
+<tr><td>M369</td> <td>INFO</td> <td>Feature is already defined for \em 'DEVICE' and will be added, see Line \em 'LINE': \em 'FEATURE'.</td>
+  <td>This feature \em 'FEATURE' has been defined already on a higher level and as such it gets added to this \em 'DEVICE'. This is usually done when some devices have a higher number of basic features. Correct the feature (\ref element_feature) if this is a typo.</td>
+</tr>
+<tr><td>M370</td> <td>WARNING</td> <td>URL is not conformant: \em 'URL':\n  Backslashes are not allowed in URL, use forward slashes.</td>
+  <td>Use standard URL notation using forward slashes (/).</td>
+</tr>
+<tr><td>M371</td> <td>ERROR</td> <td> \em 'SECTION' Feature for \em 'MCU': \em 'FEATURE' unknown.</td>
+  <td>This feature \em 'FEATURE' is unknwon to the specified \em 'MCU'. Correct the feature (\ref element_feature) if this is a typo.</td>
+</tr>
+<tr><td>M372</td> <td>ERROR</td> <td> \em 'SECTION' Feature for \em 'MCU': \em 'FEATURE' misspelled, did you mean \em 'KNOWNFEATURE' (\em 'DESCR').</td>
+  <td>This feature \em 'FEATURE' resembles the feature \em 'KNOWNFEATURE'. Correct the feature (\ref element_feature) if this is a typo.</td>
+</tr>
+<tr><td>M373</td> <td>ERROR</td> <td>Unsupported Schema Version: \em 'VER'.</td>
+  <td>The schema version is not supported. Verify the attribute \token{schemaVersion} of the element \ref element_package.</td>
+</tr>
+<tr><td>M374</td> <td>ERROR</td> <td>While checking Feature for \em 'MCU': Pname \em 'CPU' not found.</td>
+  <td>The processor could not be found for the specified device. Refer to \ref element_device and \ref element_processor.</td>
+</tr>
+<tr><td>M375</td> <td>ERROR</td> <td>\em 'path/pdsc_file': No &lt;mountedDevice&gt; for board \em 'BOARD' found.</td>
+  <td>If a board element does not contain a \<mountedDevice\> element, then the examples for this board are not shown and example projects may not appear in the development tools. Refer to \ref element_board_mountedDevice of \ref element_boards.</td>
+</tr>
+<tr><td>M376</td> <td>ERROR</td> <td>Schema Version not set!</td>
+  <td>Set a valid schema version in the PDSC file.</td>
+</tr>
+<tr><td>M377</td> <td>INFO</td> <td>File \em 'NAME' \em TYPE must have \em 'attr="config"'</td>
+  <td>This file has to be configurable. Add the required attribute to achieve this.</td>
+</tr>
+</table>
+
+XML Reader Errors
+---------------
+
+<table class="cmtable" summary="packChk XML Reader Msgs">
+  <tr>
+    <th>Message Number</th>
+    <th>Type</th>  <th>Description</th>
+    <th>Action</th>
+  </tr>
+<tr><td>M401</td> <td>INFO</td> <td>Did you mean \em 'TAG'?</td>
+  <td>Specify the tag to be used.</td>
+</tr>
+<tr><td>M410</td> <td>WARNING</td> <td>Lost xml file stream.</td>
+  <td>File corrupted.</td>
+</tr>
+<tr><td>M411</td> <td>WARNING</td> <td>Preamble for \em 'UTF' should not be used, specify via '<?xml'   </td>
+  <td>Specify encoding as UTF-8 only, without BOM.</td>
+</tr>
+<tr><td>M412</td> <td>WARNING</td> <td>Unsupported format or extra characters found before '<?xml': \em 'TEXT'  </td>
+  <td>Correct the XML file.</td>
+</tr>
+<tr><td>M413</td> <td>WARNING</td> <td>UTF Format not supported: \em 'UTF'  </td>
+  <td>Select another UTF format.</td>
+</tr>
+<tr><td>M414</td> <td>ERROR</td> <td>Cannot decode XML special character: \em 'SPECIALCHAR'. </td>
+  <td>Correct the XML file.</td>
+</tr>
+<tr><td>M415</td> <td>ERROR</td> <td>'<--' found, should this be a comment '\<!--' ?</td>
+  <td>Looks like a misspelled comment.</td>
+</tr>
+<tr><td>M416</td> <td>ERROR</td> <td>Begin Tag seems to end with a Single Tag. Is this a typo?</td>
+  <td>Correct the XML file.</td>
+</tr>
+<tr><td>M417</td> <td>ERROR</td> <td>Inconsistent XML Structure </td>
+  <td>Correct the XML file.</td>
+</tr>
+<tr><td>M418</td> <td>ERROR</td> <td>XML Stack deeper than 30 Items! Giving up.</td>
+  <td>Reduce the nested nodes.</td>
+</tr>
+<tr><td>M419</td> <td>ERROR</td> <td>Begin Tag follows Text. Missing End Tag?</td>
+  <td>Correct the XML file.</td>
+</tr>
+<tr><td>M420</td> <td>ERROR</td> <td>Missing quotes (\") in Attributes: \em 'ATTRLINE'</td>
+  <td>Correct the XML file. Enclose values in \token{\" \"}.</td>
+</tr>
+<tr><td>M421</td> <td>ERROR</td> <td>XML Hierarchy Error: Missing End Tags.</td>
+  <td>Correct the XML file. Verify for enclosing or nested tags.</td>
+</tr>
+<tr><td>M422</td> <td>ERROR</td> <td>Error reading file \em 'NAME'</td>
+  <td>File could not be read.</td>
+</tr>
+</table>
+
+Model Errors
+---------------
+
+<table class="cmtable" summary="packChk Model Msgs">
+  <tr>
+    <th>Message Number</th>
+    <th>Type</th>  <th>Description</th>
+    <th>Action</th>
+  </tr>
+<tr><td>M500</td> <td>TEXT</td> <td>RTE Model reports: \em MSG</td>
+  <td>Error while preparing data. See massage for more details.</td>
+</tr>
+<tr><td>M502</td> <td>TEXT</td> <td>RTE Model reports: \#error \em NUM: \em NAME : \em MSG</td>
+  <td>Additional software components required.</td>
+</tr>
+<tr><td>M504</td> <td>TEXT</td> <td>RTE Model reports: MISSING: -- \em SPACE \em NAME</td>
+  <td>Add the missing component.</td>
+</tr>
+</table>
+*/

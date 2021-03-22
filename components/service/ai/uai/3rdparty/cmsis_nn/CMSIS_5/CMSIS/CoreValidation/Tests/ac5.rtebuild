@@ -1,0 +1,69 @@
+options:
+  optimize : [ O0, O1, O2, Otime, O3 ]
+import:
+ - tests.rtebuild
+targets:
+  arm:
+    toolchain   : ARMCC5
+  armcm:
+    cflags      : [ --c99, -c, "--cpu ${cpu}", "--fpu=${fpu}", --li, -g, "-%{optimize}", --apcs=interwork, --split_sections, --asm, --interleave ]
+    asmflags    : [ "--cpu ${cpu}", "--fpu=${fpu}", --li, -g, --apcs=interwork ]
+    info        : [ --info summarysizes, --map, --load_addr_map_info, --xref, --callgraph, --symbols, --info sizes, --info totals, --info unused, --info veneers, "--list ${builddir}/${targetName}.map" ]
+    linkflags   : [ "--cpu ${cpu}", "--fpu=${fpu}", --strict, --no_remove, --entry Reset_Handler, --diag_suppress=L6314, --diag_suppress=L6092w, "${info}" ]
+    linkscript  : "config/core_m/rtebuild.sct"
+  armcm0:
+    cpu    : Cortex-M0
+    fpu    : none 
+  armcm0plus:
+    cpu    : Cortex-M0plus
+    fpu    : none 
+  armcm3:
+    cpu    : Cortex-M3
+    fpu    : none 
+  armcm4:
+    cpu    : Cortex-M4
+    fpu    : none 
+  armcm4fp:
+    cpu    : Cortex-M4.fp.sp
+    fpu    : FPv4-SP
+  armcm7:
+    cpu    : Cortex-M7
+    fpu    : none 
+  armcm7sp:
+    cpu    : Cortex-M7.fp.sp
+    fpu    : FPv5-SP
+  armcm7dp:
+    cpu    : Cortex-M7.fp.dp
+    fpu    : FPv5_D16
+  armca:
+    toolchain  : ARMCC5
+    cflags      : [ "--cpu=${cpu}", "--apcs=/${float}", --li, --arm, --c99, "-%{optimize}", -g, -c ]
+    asmflags    : [ "--cpu=${cpu}", "--apcs=/${float}", --li, --arm, -g ]
+    linkflags   : [ "--cpu=${cpu}", "--entry=Vectors" ]
+    linkscript : "./config/core_a/rtebuild_armcc.sct"
+    source:
+      - ../../../Device/ARM/${device}/Source/AC5/startup_${device}.c
+  armca5:
+    cpu    : Cortex-A5.vfp
+    fpu    : vfpv3-d16-fp16
+    float  : hardfp
+  armca5neon:
+    cpu    : Cortex-A5.neon
+    fpu    : neon-fp16
+    float  : hardfp
+  armca7:
+    cpu    : Cortex-A7.no_neon
+    fpu    : vfpv4-d16
+    float  : hardfp
+  armca7neon:
+    cpu    : Cortex-A7
+    fpu    : neon-vfpv4
+    float  : hardfp
+  armca9:
+    cpu    : Cortex-A9.no_neon
+    fpu    : vfpv3-d16-fp16
+    float  : hardfp
+  armca9neon:
+    cpu    : Cortex-A9
+    fpu    : neon-fp16
+    float  : hardfp

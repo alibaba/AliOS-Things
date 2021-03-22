@@ -1,0 +1,94 @@
+/* ################################  System and Clock Configuration   ########################### */
+/**************************************************************************************************/
+/**
+\defgroup   system_init_gr   System and Clock Configuration
+\brief Functions for system and clock setup available in system_<i>device</i>.c.
+\details
+Arm provides a template file <b>system_<i>device</i>.c</b> that must be adapted by 
+the silicon vendor to match their actual device. As a <b>minimum requirement</b>, 
+this file must provide:
+ -  A device-specific system configuration function, \ref SystemInit().
+ -  A global variable that contains the system frequency, \ref SystemCoreClock. 
+
+The file configures the device and, typically, initializes the oscillator (PLL) that is part 
+of the microcontroller device. This file might export other functions or variables that provide 
+a more flexible configuration of the microcontroller system.
+
+\note Please pay special attention to the static variable \c SystemCoreClock. This variable might be
+used throughout the whole system initialization and runtime to calculate frequency/time related values.
+Thus one must assure that the variable always reflects the actual system clock speed. Be aware that
+a value stored to \c SystemCoreClock during low level initialization (i.e. \c SystemInit()) might get
+overwritten by C library startup code. Thus its highly recommended to call \ref SystemCoreClockUpdate
+at the beginning of the user \c main() routine.
+
+\section system_init_code_ex_sec Code Example
+The code below shows the usage of the variable \ref SystemCoreClock and the functions 
+SystemInit() and SystemCoreClockUpdate() with an arbitrary Arm Cortex-A9.
+    
+\code
+#include "ARMCA9.h"
+
+uint32_t coreClock_1 = 0;                       /* Variables to store core clock values */
+uint32_t coreClock_2 = 0;
+
+
+int main (void)  {
+
+  coreClock_1 = SystemCoreClock;                /* Store value of predefined SystemCoreClock */
+
+  SystemCoreClockUpdate();                      /* Update SystemCoreClock according to register settings */
+
+  coreClock_2 = SystemCoreClock;                /* Store value of calculated SystemCoreClock */
+
+  if (coreClock_2 != coreClock_1)  {            /* Without changing the clock setting both core clock values should be the same */ 
+    // Error Handling
+  }
+
+  while(1);
+}
+\endcode    
+    
+@{
+*/
+
+
+/**************************************************************************************************/
+/** 
+    \brief      Variable to hold the system core clock value
+    \details
+    Holds the system core clock, which is the system clock	frequency supplied to the SysTick 
+    timer and the processor core clock. This variable can be used by debuggers to query the 
+    frequency of the debug timer or to configure the trace clock speed.
+                     
+    \attention  Compilers must be configured to avoid removing this variable in case the application 
+                program is not using it. Debugging systems require the variable to be physically 
+                present in memory so that it can be examined to configure the debugger.
+*/
+uint32_t SystemCoreClock;
+
+
+/**************************************************************************************************/
+/** 
+    \brief      Function to Initialize the system.
+    \details    
+    Initializes the microcontroller system. Typically, this function configures the 
+                     oscillator (PLL) that is part of the microcontroller device. For systems 
+                     with a variable clock speed, it updates the variable \ref SystemCoreClock.
+                     SystemInit is called from the file <b>startup<i>_device</i></b>.
+*/
+void SystemInit (void);
+
+
+/**************************************************************************************************/
+/** 
+    \brief      Function to update the variable \ref SystemCoreClock
+    \details    
+    Updates the variable \ref SystemCoreClock and must be called whenever the core clock is changed 
+    during program execution. The function evaluates the clock register settings and calculates 
+    the current core clock.
+*/
+void SystemCoreClockUpdate (void);
+
+
+/** @} */  /* end group system_init_gr */
+

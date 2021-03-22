@@ -1,0 +1,94 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page packIndexFile CMSIS-Pack Index Files
+
+CMSIS-Pack is designed as a web-based distribution network. Each provider of a CMSIS-Pack (also referred to as \a vendor) is
+responsible for hosting, maintaining and publishing unique versions of a CMSIS-Pack.
+
+A CMSIS-Pack is uniquely identified by \<vendor\>.\<pack name\>.\<version\>.pack. All published versions of a pack and the
+PDSC file need to be available in the same web folder specified by \<url\>. Multiple different packs may be located in the
+same web folder.
+
+
+\section pidxFile Package Index File (pidx)
+
+The package index file lists all CMSIS-Packs hosted and maintained by a vendor. The file is hosted by the vendor and has the
+name \<vendor\>.pidx. The \<vendor\> tag needs to match the file name. The file also contains the \<url\> to it's origin, as
+well as a \<timestamp\> of it's last update.
+
+It is the vendor's obligation to update this file whenever:
+- a new pack is added.
+- a new version of a pack is added.
+- a pack is deprecated.
+- a replacement for a pack becomes available.
+
+\b Example MyVendor.pidx:
+\code
+
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<index schemaVersion="1.0.0" xs:noNamespaceSchemaLocation="PackIndex.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance">
+  <vendor>MyVendor</vendor>
+  <url>http://www.MyVendor.com/pack/</url>
+  <timestamp>2017-01-25T15:00:10.7300074+00:00</timestamp>
+  <pindex>
+    <pdsc url="http://www.MyVendor.com/pack/mypack/" vendor="MyVendor" name="MyPack" version="1.1.0"/>
+    ...
+  </pindex>
+</index>
+\endcode
+
+Each individual pack is referenced by the attributes:
+- \c url = web folder where the PDSC and packs reside.
+- \c vendor = vendor of the pack.
+- \c name = the name of the pack.
+- \c version = the version number of the latest available release for the pack.
+
+The package index file for the CMSIS-Pack compliant packs, hosted on www.keil.com can be found here:
+<a href="http://www.keil.com/pack/Keil.pidx">www.keil.com/pack/Keil.pidx</a>
+
+The benefit of a single package index file is, that this file only needs to be exchanged once and can be polled for updates
+and additions of packs by a vendor. To add a vendor's packs to the public list maintained on www.keil.com, send an email to
+<a href="mailto:CMSIS@arm.com">CMSIS@arm.com</a> attaching a version of the \<vendor\>.pidx file.
+
+
+\section vidxFile Vendor Index File (vidx)
+A vendor index file lists package index files from different vendors. This information can be used to compile a list of known
+packs.
+
+\b Example MyVendor.vidx:
+\code
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<index schemaVersion="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PackIndex.xsd">
+  <vendor>MyVendor</vendor>
+  <url>www.MyVendor.com/pack</url>
+  <timestamp>2017-01-08T10:30:00</timestamp>
+  <vindex>
+    <pidx url="http://www.othervendor.com/MyPacks/" vendor="OtherVendor" />
+    ...
+  </vindex>
+  <!-- the section below is only intended for the transition until all vendors use the <vendor>.pidx file
+  <pindex>
+    <pdsc url="http://www.othervendor2.com/packs/" vendor="OtherVendor2" name="MyPack" version="2.3.0"/>
+    ...
+    </pindex>
+</index>
+\endcode
+
+The latest index file of CMSIS-Packs belonging to vendor="ARM" and vendor="Keil" that are hosted on www.keil.com/pack 
+is maintained here: <a href="http://www.keil.com/pack/Keil.pidx">www.keil.com/pack/Keil.pidx</a>
+
+ARM also maintains a flat list of all CMSIS-Pack compliant packs reported to ARM here:
+<a href="http://www.keil.com/pack/index.pidx">www.keil.com/pack/index.pidx</a>
+
+The vendor index file containing references to the package index files (or optionally PDSC files) used for compiling this
+summary index file are listed in the Keil.vidx file and can be downloaded from here:
+<a href="http://www.keil.com/pack/Keil.vidx">www.keil.com/pack/Keil.vidx</a>
+
+Based on these publicly available index files, everyone is equally positioned to create an index of available packs and their
+latest versions.
+
+\section packIndexSchema CMSIS-Pack Index Schema File
+\verbinclude "PackIndex.xsd"
+*/

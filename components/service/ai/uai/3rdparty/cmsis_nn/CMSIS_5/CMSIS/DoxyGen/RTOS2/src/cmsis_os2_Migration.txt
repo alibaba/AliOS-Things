@@ -1,0 +1,844 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page os2Migration Migration from API v1 to API v2
+
+To use the API version 2 functions follow the steps described in:
+ - \subpage os2MigrationGuide - Steps to migrate from API version 1 to API version 2
+ - \subpage os2MigrationFunctions - List of function differences
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+       Functions 
+\endif
+\page os2MigrationFunctions Detailed API Function Differences 
+
+This section lists the CMSIS-RTOS API v1 and API v2 functions along with the differences in functionality.
+The list is sorted alphabetically by API v2 function names and is structured the following way:
+
+  - RTOS API v2 function prototype
+  - RTOS API v1 function prototype that is equivalent or provides similar functionality
+  - Brief description of the RTOS v2 function.
+  - Description of the difference.
+
+The background color indicates:
+  - <div class="new">Green: New functions in API v2 that are not available in API v1 </div>
+  
+  - <div class="mod">Amber: Functions that are modified or replaced in API v2 compared to API v1 </div>
+  
+  - <div class="del">Red: Functions in API v1 that are deprecated in API v2 </div>
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+       Kernel Information and Control  
+\endif
+
+\section mig_kernel Kernel Information and Control
+
+\div{new}
+\func{osStatus_t #osKernelGetInfo (osVersion_t* version, char* id_buf, uint32_t id_size)}
+\none
+\copybrief{osKernelGetInfo}
+New function #osKernelGetInfo.
+\enddiv
+
+\div{mod} 
+\func{osKernelState_t #osKernelGetState (void)}
+\func{int32_t &nbsp; &nbsp; &nbsp; &nbsp; osKernelRunning (void)}
+\copybrief{osKernelGetState}
+ - The function \b osKernelGetState replaces the RTOS v1 function \b osKernelRunning.
+ - Return type changed to \ref osKernelState_t.
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osKernelGetTickCount (void)}
+\none
+\copybrief{osKernelGetTickCount}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osKernelGetTickFreq (void)}
+\none
+\copybrief{osKernelGetTickFreq}
+ - The function \b osKernelGetTickFreq replaces the RTOS v1 macro \b osKernelTickMicroSec.
+
+\enddiv
+
+\div{mod}
+\func{uint32_t #osKernelGetSysTimerCount (void)}
+\func{uint32_t osKernelSysTick (void)}
+\copybrief{osKernelGetSysTimerCount}
+ - The function \b osKernelGetSysTimerCount replaces the RTOS v1 function \b osKernelSysTick.
+
+\enddiv
+
+\div{new}
+\func{uint64_t #osKernelGetSysTimerFreq (void)}
+\none
+\copybrief{osKernelGetSysTimerFreq}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osKernelInitialize (void)}
+\func{osStatus &nbsp; osKernelInitialize (void)}
+\copybrief{osKernelInitialize}
+ - Return type changed to \ref osStatus_t.
+
+\enddiv
+
+\div{new}
+\func{int32_t #osKernelLock (void)}
+\none
+\copybrief{osKernelLock}
+New function.
+\enddiv
+
+\div{new}
+\func{int32_t #osKernelUnlock (void)}
+\none
+\copybrief{osKernelUnlock}
+New function.
+\enddiv
+
+\div{new}
+\func{void #osKernelRestoreLock (void)}
+\none
+\copybrief{osKernelRestoreLock}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osKernelStart (void)}
+\func{osStatus &nbsp; osKernelStart (void)}
+\copybrief{osKernelStart}
+ - Return type changed to \ref osStatus_t.
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osKernelSuspend (void)}
+\none
+\copybrief{osKernelSuspend}
+New function.
+\enddiv
+
+\div{new}
+\func{void #osKernelResume (uint32_t sleep_time)}
+\none
+\copybrief{osKernelResume}
+New function.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Thread Management  =======
+\endif 
+
+\section mig_threadMgmt Thread Management
+
+\div{new}
+\func{osStatus_t #osThreadDetach (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadDetach}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadEnumerate (osThreadId_t *thread_array, uint32_t array_items)}
+\none
+\copybrief{osThreadEnumerate}
+New function.
+\enddiv
+
+\div{new}
+\func{__NO_RETURN void #osThreadExit (void)}
+\none
+\copybrief{osThreadExit}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadGetCount (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadGetCount}
+New function.
+\enddiv
+
+\div{new}
+\func{const char *#osThreadGetName (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadGetName}
+New function.
+\enddiv
+
+\div{mod}
+\func{osThreadId_t #osThreadGetId (void)}
+\func{osThreadId &nbsp; osThreadGetId (void)}
+\copybrief{osThreadGetId}
+ - Return type changed to #osThreadId_t.
+
+\enddiv
+
+\div{mod}
+\func{osPriority_t #osThreadGetPriority (osThreadId_t thread_id)}
+\func{osPriority &nbsp; osThreadGetPriority (osThreadId thread_id)}
+\copybrief{osThreadGetPriority}
+ - Return type changed to #osPriority_t. 
+ - Parameter type changed to #osThreadId_t.
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadGetStackSize (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadGetStackSize}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadGetStackSpace (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadGetStackSpace}
+New function.
+\enddiv
+
+\div{new}
+\func{osThreadState_t #osThreadGetState (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadGetState}
+New function.
+\enddiv
+
+\div{new}
+\func{osStatus_t #osThreadJoin (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadJoin}
+New function.
+\enddiv
+
+\div{mod}
+\func{osThreadId_t #osThreadNew (osThreadFunc_t function, void *argument, const osThreadAttr_t *attr)}
+\func{osThreadId &nbsp; osThreadCreate (const osThreadDef_t *thread_def, void *argument)} 
+\copybrief{osThreadNew}
+ - The function \b osThreadNew replaces the RTOS v1 function \b osThreadCreate.
+ - Options are now passed using a \ref osThreadAttr_t struct, replacing the \b osThreadDef macro. 
+ - New function prototype is <kbd>void func (void *arg)</kbd>, before: <kbd>void func (const void *arg)</kbd>.
+
+\enddiv
+
+\div{new}
+\func{osStatus_t #osThreadResume (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadResume}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osThreadSetPriority (osThreadId_t thread_id, osPriority_t priority)}
+\func{osStatus &nbsp; osThreadSetPriority (osThreadId thread_id, osPriority priority)}
+\copybrief{osThreadSetPriority}
+ - Return type changed to #osStatus_t. 
+ - Parameter types changed to #osThreadId_t and #osPriority_t.
+
+\enddiv
+
+\div{new}
+\func{osStatus_t #osThreadSuspend (osThreadId_t thread_id)}
+\none
+\copybrief{osThreadSuspend}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osThreadTerminate (osThreadId_t thread_id)}
+\func{osStatus &nbsp; osThreadTerminate (osThreadId thread_id)}
+\copybrief{osThreadTerminate}
+ - Return type changed to #osStatus_t. 
+ - Parameter type changed to #osThreadId_t.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osThreadYield (void)}
+\func{osStatus &nbsp; osThreadYield (void)}
+\copybrief{osThreadYield}
+ - Return type changed to #osStatus_t.
+
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Thread Flags  =======
+\endif 
+
+\section mig_threadFlags Thread Flags
+\details
+New section to synchronize threads using flags. Thread flags and the more flexible \ref mig_eventFlags are replacing the RTOS v1 <b>Signal Events</b>. Refer to \ref mig_signalEvents for a list of deprecated functions.
+Refer to \ref CMSIS_RTOS_ThreadFlagsMgmt for details.
+
+\div{new}
+\func{uint32_t #osThreadFlagsSet (osThreadId_t thread_id, uint32_t flags)}
+\none
+\copybrief{osThreadFlagsSet}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadFlagsClear (uint32_t flags)}
+\none
+\copybrief{osThreadFlagsClear}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadFlagsGet (void)}
+\none
+\copybrief{osThreadFlagsGet}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osThreadFlagsWait (uint32_t flags, uint32_t options, uint32_t timeout)}
+\none
+\copybrief{osThreadFlagsWait}
+New function.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Event Flags  =======
+\endif 
+
+\section mig_eventFlags Event Flags
+\details
+New section to synchronize events using flags. Event flags and thread flags are replacing the RTOS v1 <b>Signal Events</b>.
+All functions listed in the RTOS v1 <b>Signal Events</b> have been deprecated.
+Refer to \ref mig_signalEvents for a list of deprecated functions.
+Refer to \ref CMSIS_RTOS_EventFlags for details about the new function.
+
+\div{new}
+\func{uint32_t #osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)}
+\none
+\copybrief{osEventFlagsClear}
+New function.
+\enddiv
+
+\div{new}
+\func{const char *#osEventFlagsGetName (osEventFlagsId_t ef_id)}
+\none
+\copybrief{osEventFlagsGetName}
+New function.
+\enddiv
+
+\div{new}
+\func{osStatus_t #osEventFlagsDelete (osEventFlagsId_t ef_id)}
+\none
+\copybrief{osEventFlagsDelete}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osEventFlagsGet (osEventFlagsId_t ef_id)}
+\none
+\copybrief{osEventFlagsGet}
+New function.
+\enddiv
+
+\div{new}
+\func{osEventFlagsId_t #osEventFlagsNew (const osEventFlagsAttr_t *attr)}
+\none
+\copybrief{osEventFlagsNew}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)}
+\none
+\copybrief{osEventFlagsSet}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout)}
+\none
+\copybrief{osEventFlagsWait}
+New function.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Generic Wait Functions  =======
+\endif
+
+\section mig_wait Generic Wait Functions
+\details
+Refer to \ref CMSIS_RTOS_Wait for details.
+
+\div{mod}
+\func{osStatus_t #osDelay (uint32_t ticks)}
+\func{osStatus &nbsp; osDelay (uint32_t timeout)}
+\copybrief{osDelay}
+ - The return type changed to #osStatus_t. 
+ 
+\enddiv
+
+\div{new}
+\func{osStatus_t #osDelayUntil (uint32_t ticks)}
+\none
+\copybrief{osDelayUntil}
+New function.
+\enddiv
+
+\div{del}
+\none
+\func{osEvent osWait (uint32_t millisec)}
+\n
+Deprecated.
+\enddiv
+
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Timer Management  =======
+\endif
+
+\section mig_timer Timer Management
+\details
+Refer to \ref CMSIS_RTOS_TimerMgmt for details.
+
+\div{mod}
+\func{osStatus_t #osTimerDelete (osTimerId_t timer_id)}
+\func{osStatus &nbsp; osTimerDelete (osTimerId timer_id)}
+\copybrief{osTimerDelete}
+ - The return type changed to #osStatus_t. 
+ - The parameter type has changed to #osTimerId_t.
+
+\enddiv
+
+\div{new}
+\func{const char *#osTimerGetName (osTimerId_t timer_id)}
+\none
+\copybrief{osTimerGetName}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osTimerIsRunning (osTimerId_t timer_id)}
+\none
+\copybrief{osTimerIsRunning}
+New function.
+\enddiv
+
+\div{mod}
+\func{osTimerId_t #osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)}
+\func{osTimerId &nbsp; osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument)}
+\copybrief{osTimerNew}
+ - The function \b osTimerNew replaces the RTOS v1 function \b osTimerCreate.
+ - The return type changed to #osTimerId_t. 
+ - The parameter list and types have changed.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osTimerStart (osTimerId_t timer_id, uint32_t ticks)}
+\func{osStatus &nbsp; osTimerStart (osTimerId timer_id, uint32_t timeout)}
+\copybrief{osTimerStart}
+ - The return type changed to #osStatus_t. 
+ - The first parameter type has changed to #osTimerId_t.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osTimerStop (osTimerId_t timer_id)}
+\func{osStatus &nbsp; osTimerStop (osTimerId timer_id)}
+\copybrief{osTimerStop}
+ - The return type changed to #osStatus_t. 
+ - The parameter type has changed to #osTimerId_t.
+
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Mutexes  =======
+\endif
+
+\section mig_mutex Mutexes
+Refer to \ref CMSIS_RTOS_MutexMgmt for details.
+
+\div{mod}
+\func{osStatus_t #osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)}
+\func{osStatus &nbsp; osMutexWait (osMutexId mutex_id, uint32_t timeout)}
+\copybrief{osMutexAcquire}
+ - The function \b osMutexAcquire replaces the RTOS v1 function \b osMutexWait.
+ - Return type changed to \ref osStatus_t. 
+ - First parameter type changed to \ref osMutexId_t.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osMutexDelete (osMutexId_t mutex_id)}
+\func{osStatus &nbsp; osMutexDelete (osMutexId mutex_id)}
+\copybrief{osMutexDelete}
+ - The return type changed to \ref osStatus_t. 
+ - The parameter type changed to \ref osMutexId_t.
+
+\enddiv
+
+\div{new}
+\func{const char *#osMutexGetName (osMutexId_t mutex_id)}
+\none
+\copybrief{osMutexGetName}
+New function.
+\enddiv
+
+\div{new}
+\func{osThreadId_t #osMutexGetOwner (osMutexId_t mutex_id)}
+\none
+\copybrief{osMutexGetOwner}
+New function.
+\enddiv
+
+\div{mod}
+\func{osMutexId_t #osMutexNew (const osMutexAttr_t *attr)}
+\func{osMutexId &nbsp; osMutexCreate (const osMutexDef_t *mutex_def)}
+\copybrief{osMutexNew}
+ - The function \b osMutexNew replaces the RTOS v1 function \b osMutexCreate.
+ - The return type changed to \ref osMutexId_t. 
+ - The parameter type changed to \ref osMutexAttr_t.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osMutexRelease (osMutexId_t mutex_id)}
+\func{osStatus &nbsp; osMutexRelease (osMutexId mutex_id)}
+\copybrief{osMutexRelease}
+ - The return type changed to \ref osStatus_t. 
+ - The parameter type changed to \ref osMutexId_t.
+
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  SEMAPHORES  =======
+\endif
+
+\section mig_sem Semaphores
+Refer to \ref CMSIS_RTOS_SemaphoreMgmt for details.
+
+\div{new}
+\func{osStatus_t #osSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout)}
+\none
+\copybrief{osSemaphoreAcquire}
+New function. Replaces \c osSemaphoreWait.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osSemaphoreDelete (osSemaphoreId_t semaphore_id)}
+\func{osStatus &nbsp; osSemaphoreDelete (osSemaphoreId semaphore_id)}
+\copybrief{osSemaphoreDelete}
+ - The return type changed to #osStatus_t. 
+ - The parameter type has changed to #osSemaphoreId_t.
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osSemaphoreGetCount (osSemaphoreId_t semaphore_id)}
+\none
+\copybrief{osSemaphoreGetCount}
+New function.
+\enddiv
+
+\div{new}
+\func{const char *#osSemaphoreGetName (osSemaphoreId_t semaphore_id)}
+\none
+\copybrief{osSemaphoreGetName}
+New function.
+\enddiv
+
+\div{mod}
+\func{osSemaphoreId_t #osSemaphoreNew (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)}
+\func{osSemaphoreId &nbsp; osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t count)}
+\copybrief{osSemaphoreNew}
+ - The function \b osSemaphoreNew replaces the RTOS v1 function \b osSemaphoreCreate.
+ - The return type changed to #osSemaphoreId_t. 
+ - The parameter list and types have changed.
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osSemaphoreRelease (osSemaphoreId_t semaphore_id)}
+\func{osStatus &nbsp; osSemaphoreRelease (osSemaphoreId semaphore_id)}
+\copybrief{osSemaphoreRelease}
+ - The return type changed to #osStatus_t. 
+ - The parameter type has changed to #osSemaphoreId_t.
+
+\enddiv
+
+\div{del}
+\none
+\func{int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t timeout)}
+\n
+Deprecated. Replaced by #osSemaphoreAcquire.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Memory Pool  =======
+\endif
+
+\section mig_memPool Memory Pool
+
+\div{mod}
+\func{void * #osMemoryPoolAlloc (osMemoryPoolId_t mp_id, uint32_t timeout)}
+\func{void * osPoolAlloc &nbsp;(osPoolId pool_id)} 
+\copybrief{osMemoryPoolAlloc}
+ - The function \b osMemoryPoolAlloc replaces both RTOS v1 functions \b osPoolAlloc.
+ - The parameter list and types changed.
+
+\enddiv
+
+\div{new}
+\func{osStatus_t #osMemoryPoolDelete (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolDelete}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osMemoryPoolFree (osMemoryPoolId_t mp_id, void * block)}
+\func{osStatus &nbsp; osPoolFree (osPoolId pool_id, void * block)} 
+\copybrief{osMemoryPoolFree}
+ - The function \b osMemoryPoolFree replaces the RTOS v1 function \b osPoolFree.
+ - The first parameter type \b osMemoryPoolId_t replaces the ROTS v1 type \b osPoolId.
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolGetBlockSize}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMemoryPoolGetCapacity (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolGetCapacity}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMemoryPoolGetCount (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolGetCount}
+New function.
+\enddiv
+
+\div{new}
+\func{const char *#osMemoryPoolGetName (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolGetName}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMemoryPoolGetSpace (osMemoryPoolId_t mp_id)}
+\none
+\copybrief{osMemoryPoolGetSpace}
+New function.
+\enddiv
+
+\div{mod}
+\func{osMemoryPoolId_t #osMemoryPoolNew (uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr)}
+\func{osPoolId &nbsp; &nbsp; &nbsp; &nbsp; osPoolCreate (const osPoolDef_t * pool_def)}
+\copybrief{osMemoryPoolGetSpace}
+ - The function \b osMemoryPoolNew replaces the RTOS v1 function \b osPoolCreate. 
+ - The return type changed to #osMemoryPoolId_t.
+ - Parameter list and parameter types have changed.
+
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Message Queue  =======
+\endif
+
+\section mig_msgQueue Message Queue
+In general, messages are now using fixed size memory instead of being 32-bit values. Refer to \ref CMSIS_RTOS_Message for
+details. 
+
+\div{new}
+\func{osStatus_t #osMessageQueueDelete (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueDelete}
+New function.
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout)}
+\func{osEvent &nbsp;&nbsp; osMessageGet (osMessageQId queue_id, uint32_t timeout)}
+\copybrief{osMessageQueueGet}
+ - The function \b osMessageQueueGet replaces the RTOS v1 function \b osMessageGet.
+ - The return type changed to #osStatus_t. 
+ - The parameter list and parameter types have changed. 
+
+\enddiv
+
+\div{new}
+\func{uint32_t #osMessageQueueGetCapacity (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueGetCapacity}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMessageQueueGetCount (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueGetCount}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMessageQueueGetMsgSize (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueGetMsgSize}
+New function.
+\enddiv
+
+\div{new}
+\func{const char *#osMessageQueueGetName (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueGetName}
+New function.
+\enddiv
+
+\div{new}
+\func{uint32_t #osMessageQueueGetSpace (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueGetSpace}
+New function.
+\enddiv
+
+\div{mod}
+\func{osMessageQueueId_t #osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr)}
+\func{osMessageQId &nbsp; &nbsp; &nbsp; osMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id)}
+\copybrief{osMessageQueueNew}
+ - The function \b osMessageQueueNew replaces the RTOS v1 function \b osMessageCreate.
+ - The return type changed to #osMessageQueueId_t. 
+ - The parameter list and parameter types have changed. 
+
+\enddiv
+
+\div{mod}
+\func{osStatus_t #osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout)}
+\func{osStatus &nbsp; osMessagePut (osMessageQId queue_id, uint32_t info, uint32_t timeout)}
+\copybrief{osMessageQueuePut}
+ - The function \b osMessageQueuePut replaces the RTOS v1 function \b osMessagePut.
+ - The return type changed to #osStatus_t. 
+ - The parameter list and parameter types have changed. 
+
+\enddiv
+
+\div{new}
+\func{osStatus_t #osMessageQueueReset (osMessageQueueId_t mq_id)}
+\none
+\copybrief{osMessageQueueReset}
+New function.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Mail Queue  =======
+\endif
+
+\section mig_mailQueue Mail Queue
+The <b>Mail Queue</b> RTOS v1 functions have been deprecated.
+Use the functionality of the \ref CMSIS_RTOS_Message instead. 
+Differences are listed under \ref mig_msgQueue.
+
+\div{del}
+\none
+\func{void * osMailAlloc (osMailQId queue_id, uint32_t timeout)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{void * osMailCAlloc (osMailQId queue_id, uint32_t timeout)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{osStatus osMailFree (osMailQId queue_id, void *mail)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{osEvent osMailGet (osMailQId queue_id, uint32_t timeout)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{osStatus osMailPut (osMailQId queue_id, void *mail)}
+\n
+Deprecated.
+\enddiv
+
+
+\if NEVER_ENABLE
+=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====
+======  Signal Events  =======
+\endif
+
+\section mig_signalEvents Signal Events
+\details
+The section RTOS v1 <b>Signal Events</b> has been deprecated. Use the functions listed under \ref mig_threadFlags instead.
+
+\div{del}
+\none
+\func{int32_t osSignalClear (osThreadId thread_id, int32_t signals)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{int32_t osSignalSet (osThreadId thread_id, int32_t signals)}
+\n
+Deprecated.
+\enddiv
+
+\div{del}
+\none
+\func{osEvent osSignalWait (int32_t signals, uint32_t timeout)}
+\n
+Deprecated.
+\enddiv
+*/

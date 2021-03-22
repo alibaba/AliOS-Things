@@ -1,0 +1,479 @@
+/**
+\defgroup intrinsic_CPU_gr Intrinsic Functions for CPU Instructions
+@{
+\brief Functions that generate specific Cortex-M CPU Instructions.
+\details
+The following functions generate specific Cortex-M instructions that cannot be directly accessed by the C/C++ Compiler.
+Refer to the \ref ref_man_sec for detailed information about these Cortex-M instructions.
+
+\note
+When using the <b>Arm Compiler Version 5 Toolchain</b> the following \ref intrinsic_CPU_gr are implemented using the Embedded Assembler. 
+As the Embedded Assembler may cause side effects (Refer to <b>Arm Compiler v5.xx User Guide - Using the Inline and Embedded Assemblers of the Arm Compiler</b> for more information)
+it is possible to disable the following intrinsic functions and therefore the usage of the Embedded Assembler with the <b><i>define __NO_EMBEDDED_ASM</i></b>: 
+ - \ref __REV16
+ - \ref __REVSH
+ - \ref __RRX
+
+
+*/
+/**************************************************************************************************/
+/** \brief  No Operation
+
+    This function does nothing. This instruction can be used for code alignment purposes.
+ */
+void __NOP(void);
+
+
+/**************************************************************************************************/
+/** \brief  Wait For Interrupt
+
+    WFI is a hint instruction that suspends execution until one of the following events occurs:
+    - A non-masked interrupt occurs and is taken.
+    - An interrupt masked by PRIMASK becomes pending.
+    - A Debug Entry request.
+ */
+void __WFI(void);
+
+
+/**************************************************************************************************/
+/** \brief  Wait For Event
+
+    Wait For Event is a hint instruction that permits the processor to enter
+    a low-power state until an events occurs:
+    \li If the <b>event register is 0</b>, then WFE suspends execution until one of the following events occurs:
+    - An exception, unless masked by the exception mask registers or the current priority level.
+    - An exception enters the Pending state, if SEVONPEND in the System Control Register is set.
+    - A Debug Entry request, if Debug is enabled.
+    - An event signaled by a peripheral or another processor in a multiprocessor system using
+    the SEV instruction.
+    
+    \li If the <b>event register is 1</b>, then WFE clears it to 0 and returns immediately.
+    
+ */
+void __WFE(void);
+
+
+/**************************************************************************************************/
+/** \brief  Send Event
+
+    Send Event is a hint instruction. It causes an event to be signaled to the CPU.
+ */
+void __SEV(void);
+
+
+/**************************************************************************************************/
+/** \brief  Set Breakpoint
+
+This function causes the processor to enter Debug state.
+Debug tools can use this to investigate system state when the instruction at a particular address is reached.
+
+\param [in]    value  is ignored by the processor. If required, a debugger can use it to obtain additional information about the breakpoint.
+*/
+void __BKPT(uint8_t value);
+
+
+/**************************************************************************************************/
+/** \brief  Instruction Synchronization Barrier
+
+    Instruction Synchronization Barrier flushes the pipeline in the processor, 
+    so that all instructions following the ISB are fetched from cache or 
+    memory, after the instruction has been completed.
+ */
+void __ISB(void);
+
+
+/**************************************************************************************************/
+/** \brief  Data Synchronization Barrier
+
+\details
+This function acts as a special kind of Data Memory Barrier. 
+It completes when all explicit memory accesses before this instruction complete.
+ */
+void __DSB(void);
+
+
+/**************************************************************************************************/
+/** \brief  Data Memory Barrier
+
+\details
+This function ensures the apparent order of the explicit memory operations before 
+and after the instruction, without ensuring their completion.
+ */
+void __DMB(void);
+
+
+/**************************************************************************************************/
+/**
+  \brief   Reverse byte order (32 bit)
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
+  \param [in]    value  Value to reverse
+  \return               Reversed value
+ */
+uint32_t __REV(uint32_t value);
+
+
+/**************************************************************************************************/
+/**
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
+  \param [in]    value  Value to reverse
+  \return               Reversed value
+ */
+uint32_t __REV16(uint32_t value);
+
+
+/**************************************************************************************************/
+/**
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
+  \param [in]    value  Value to reverse
+  \return               Reversed value
+ */
+int16_t __REVSH(int16_t value);
+
+
+/**************************************************************************************************/
+/**
+  \brief   Reverse bit order of value
+  \param [in]    value  Value to reverse
+  \return               Reversed value
+ */
+uint32_t __RBIT(uint32_t value);
+
+
+/**************************************************************************************************/
+/** \brief  Rotate a value right by a number of bits
+
+    This function rotates a value right by a specified number of bits.
+
+    \param [in]    value  Value to be shifted right
+    \param [in]    shift  Number of bits in the range [1..31]
+    \return               Rotated value
+	
+ */
+uint32_t __ROR(uint32_t value, uint32_t shift);
+
+
+/**************************************************************************************************/
+/** \brief  LDR Exclusive (8 bit) [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive LDR command for 8 bit value [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]    *addr  Pointer to data
+    \return             value of type uint8_t at (*addr)
+ */
+uint8_t __LDREXB(volatile uint8_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  LDR Exclusive (16 bit) [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive LDR command for 16 bit values [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]    *addr  Pointer to data
+    \return        value of type uint16_t at (*addr)
+ */
+uint16_t __LDREXH(volatile uint16_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  LDR Exclusive (32 bit) [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive LDR command for 32 bit values [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]    *addr  Pointer to data
+    \return        value of type uint32_t at (*addr)
+ */
+uint32_t __LDREXW(volatile uint32_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  STR Exclusive (8 bit) [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive STR command for 8 bit values [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]  value  Value to store
+    \param [in]  *addr  Pointer to location
+    \return          0  Function succeeded
+    \return          1  Function failed
+ */
+uint32_t __STREXB(uint8_t value, volatile uint8_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  STR Exclusive (16 bit) [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive STR command for 16 bit values [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]  value  Value to store
+    \param [in]  *addr  Pointer to location
+    \return          0  Function succeeded
+    \return          1  Function failed
+ */
+uint32_t __STREXH(uint16_t value, volatile uint16_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  STR Exclusive (32 bit)  [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function executed an exclusive STR command for 32 bit values [not for Cortex-M0, Cortex-M0+, or SC000].
+
+    \param [in]  value  Value to store
+    \param [in]  *addr  Pointer to location
+    \return          0  Function succeeded
+    \return          1  Function failed
+ */
+uint32_t __STREXW(uint32_t value, volatile uint32_t *addr);
+
+
+/**************************************************************************************************/
+/** \brief  Remove the exclusive lock [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function removes the exclusive lock which is created by LDREX [not for Cortex-M0, Cortex-M0+, or SC000].
+
+ */
+void __CLREX(void);
+
+
+/**************************************************************************************************/
+/** \brief  Signed Saturate [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function saturates a signed value [not for Cortex-M0, Cortex-M0+, or SC000].
+    The Q bit is set if saturation occurs.
+
+    \param [in]  value  Value to be saturated
+    \param [in]    sat  Bit position to saturate to [1..32]
+    \return             Saturated value
+ */
+int32_t __SSAT(int32_t value, uint32_t sat);
+
+
+/**************************************************************************************************/
+/** \brief  Unsigned Saturate [not for Cortex-M0, Cortex-M0+, or SC000]
+
+    This function saturates an unsigned value [not for Cortex-M0, Cortex-M0+, or SC000].
+    The Q bit is set if saturation occurs.
+
+    \param [in]  value  Value to be saturated
+    \param [in]    sat  Bit position to saturate to [0..31]
+    \return             Saturated value
+ */
+uint32_t __USAT(uint32_t value, uint32_t sat);
+
+
+/**************************************************************************************************/
+/** \brief  Count leading zeros
+
+    This function counts the number of leading zeros of a data value.
+    
+    On Armv6-M (Cortex-M0, Cortex-M0+, and SC000) this function is not available as a core instruction
+    instruction and thus __CLZ is implemented in software.
+
+    \param [in]  value  Value to count the leading zeros
+    \return             number of leading zeros in value
+ */
+uint8_t __CLZ(uint32_t value);
+
+
+/**************************************************************************************************/
+/** \brief  Rotate Right with Extend (32 bit)
+
+    This function moves each bit of a bitstring right by one bit. The carry input is shifted in at the left end of the bitstring.
+
+    \param [in]    value  Value to rotate
+    \return               Rotated value
+ */
+uint32_t __RRX(uint32_t value);
+
+
+/**************************************************************************************************/
+/** \brief  LDRT Unprivileged (8 bit)
+
+    This function executed an Unprivileged LDRT command for 8 bit value.
+
+    \param [in]    ptr  Pointer to data
+    \return             value of type uint8_t at (*ptr)
+ */
+uint8_t  __LDRBT(uint8_t ptr);
+
+
+/**************************************************************************************************/
+/** \brief  LDRT Unprivileged (16 bit)
+
+    This function executed an Unprivileged LDRT command for 16 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint16_t at (*ptr)
+ */
+uint16_t  __LDRHT(uint16_t ptr);
+
+
+/**************************************************************************************************/
+/** \brief  LDRT Unprivileged (32 bit)
+
+    This function executed an Unprivileged LDRT command for 32 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint32_t at (*ptr)
+ */
+uint32_t  __LDRT(uint32_t ptr);
+
+
+/**************************************************************************************************/
+/** \brief  STRT Unprivileged (8 bit)
+
+    This function executed an Unprivileged STRT command for 8 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+void __STRBT(uint8_t value, uint8_t ptr);
+
+
+/**************************************************************************************************/
+/** \brief  STRT Unprivileged (16 bit)
+
+    This function executed an Unprivileged STRT command for 16 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+void __STRHT(uint16_t value, uint16_t ptr);
+
+
+/**************************************************************************************************/
+/** \brief  STRT Unprivileged (32 bit)
+
+    This function executed an Unprivileged STRT command for 32 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+void __STRT(uint32_t value, uint32_t ptr);
+
+
+/**
+\cond (ARMv8M)
+*/
+
+/**
+  \brief   Load-Acquire (8 bit)
+  \details Executes a LDAB instruction for 8 bit value.
+  \param [in]    ptr  Pointer to data
+  \return             value of type uint8_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint8_t __LDAB(volatile uint8_t *ptr);
+
+/**
+  \brief   Load-Acquire (16 bit)
+  \details Executes a LDAH instruction for 16 bit values.
+  \param [in]    ptr  Pointer to data
+  \return        value of type uint16_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint16_t __LDAH(volatile uint16_t *ptr);
+
+/**
+  \brief   Load-Acquire (32 bit)
+  \details Executes a LDA instruction for 32 bit values.
+  \param [in]    ptr  Pointer to data
+  \return        value of type uint32_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __LDA(volatile uint32_t *ptr);
+
+/**
+  \brief   Store-Release (8 bit)
+  \details Executes a STLB instruction for 8 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+void __STLB(uint8_t value, volatile uint8_t *ptr);
+
+/**
+  \brief   Store-Release (16 bit)
+  \details Executes a STLH instruction for 16 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+void __STLH(uint16_t value, volatile uint16_t *ptr);
+
+/**
+  \brief   Store-Release (32 bit)
+  \details Executes a STL instruction for 32 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+void __STL(uint32_t value, volatile uint32_t *ptr);
+
+/**
+  \brief   Load-Acquire Exclusive (8 bit)
+  \details Executes a LDAB exclusive instruction for 8 bit value.
+  \param [in]    ptr  Pointer to data
+  \return             value of type uint8_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint8_t __LDAEXB(volatile uint32_t *ptr);
+
+/**
+  \brief   Load-Acquire Exclusive (16 bit)
+  \details Executes a LDAH exclusive instruction for 16 bit values.
+  \param [in]    ptr  Pointer to data
+  \return        value of type uint16_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint16_t __LDAEXH(volatile uint32_t *ptr);
+
+/**
+  \brief   Load-Acquire Exclusive (32 bit)
+  \details Executes a LDA exclusive instruction for 32 bit values.
+  \param [in]    ptr  Pointer to data
+  \return        value of type uint32_t at (*ptr)
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __LDAEX(volatile uint32_t *ptr);
+
+/**
+  \brief   Store-Release Exclusive (8 bit)
+  \details Executes a STLB exclusive instruction for 8 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \return          0  Function succeeded
+  \return          1  Function failed
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __STLEXB(uint8_t value, volatile uint8_t *ptr);
+
+/**
+  \brief   Store-Release Exclusive (16 bit)
+  \details Executes a STLH exclusive instruction for 16 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \return          0  Function succeeded
+  \return          1  Function failed
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __STLEXH(uint16_t value, volatile uint16_t *ptr);
+
+/**
+  \brief   Store-Release Exclusive (32 bit)
+  \details Executes a STL exclusive instruction for 32 bit values.
+  \param [in]  value  Value to store
+  \param [in]    ptr  Pointer to location
+  \return          0  Function succeeded
+  \return          1  Function failed
+  \note    Only availabe for Armv8-M Architecture. 
+ */
+uint32_t __STLEX(uint32_t value, volatile uint32_t *ptr);
+
+/**
+\endcond
+*/
+
+/*@}*/ /* end of group Intrisic_CPU */
+
+

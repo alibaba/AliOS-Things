@@ -1,0 +1,163 @@
+/**
+\page pdsc_apis_pg /package/apis element
+
+Application Programming Interfaces (apis) are C/C++ interface specifications that allow software to be divided into largely independent modules. 
+Such modules can then be developed, tested, and maintained independently, and reused by different projects. One example is the use of device drivers.
+If device drivers are developed for different devices implementing the same API, the application software itself can be written independent from the
+device it is build for.
+
+The <b>apis</b> allow to distribute the Application Programming Interface Specifications decoupled from actual implementation. One example is the CMSIS-RTOS API,
+which is specified as part of CMSIS, however, the actual RTOS implementation is provided by different vendors.
+
+Unlike a software component, an API is not selectable. An API consists of a name, a brief description as well as one or more header files, and a document containing
+a detailed specification of the API.
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_apis /package/apis
+
+This element is a grouping element for all application programming interfaces included in the \ref cp_SWComponents "Software Pack".
+The element itself is optional. Only one such section can exist in a package.
+
+\b Example:
+\code
+<package>
+  <apis>
+    ...
+  </apis>
+</package>  
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: APIs">
+  <tr>
+    <th>Parents </th>
+    <th>Element Chain</th>
+    <th>&nbsp;</th>
+    <th>&nbsp;</th>
+  </tr>
+  <tr>
+    <td>\ref pdsc_package_pg "package"</td>
+    <td>\ref pdsc_package_pg "/package"</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <th>Child&nbsp;Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_api "api"</td>
+    <td>Named specification of an API containing a brief description, C/C++ header files and documentation</td>
+    <td>ApiType</td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_api /package/apis/api
+
+Application Programming Interfaces (apis) are C/C++ interface specifications that allow components to interwork 
+by either implementing or using a set of functions, data types, and definitions. This element is mandatory and can exist multiple times.
+
+\b Example:
+\code
+<apis>
+  <api Cclass="Device" Cgroup="Driver UART" exclusive="0">
+    <description>UART Driver API for the Cortex-M processor based devices</description>
+    <files>
+      <file category="doc" name="Driver/Doc/UART/html/index.html"/>
+      <file category="header" name="Driver/Include/Driver_UART.h"/>
+    </files>
+  </api>
+  <api Cclass="Device" Cgroup="Driver SPI" exclusive="0">
+    <description>SPI Driver API for the Cortex-M processor based devices</description>
+    <files>
+      <file category="doc" name="Driver/Doc/SPI/html/index.html"/>
+      <file category="header" name="Driver/Include/Driver_SPI.h"/>
+    </files>
+  </api>
+  ...
+</apis>
+\endcode
+
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: api">
+  <tr>
+    <th>Parent&nbsp;Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_apis "apis"</td>
+    <td colspan="3">\ref element_apis "/package/apis"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>Cclass</td>
+    <td>Defines the component class to which this component belongs. This is a mandatory part of the component ID.  
+	Predefined values can be used as listed in the table \ref CclassType "Component Classes".</td>
+    <td>CclassType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Cgroup</td>
+    <td>Defines the component group to which this component belongs. This is a mandatory part of the component ID. 
+	Predefined values can be used as listed in the table \ref CgroupType "Component Groups".</td>
+    <td>CgroupType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>exclusive</td>
+    <td>Makes the selection of a component implementing the API exclusive. If set to \token{0}, then multiple components implementing the API can be selected. Default is \token{1}.</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>condition</td>
+    <td>Enter the identifier (attribute \em <b>id</b>) of a \ref element_condition "condition". The element is used if the condition resolves to \token{true}. 
+	If the condition resolves to \token{false}, then the element will be ignored. 
+	For example, an API might be specific for a certain toolchain or processor instruction set.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Capiversion</td>
+    <td>Version of this component. Is a mandatory part of the component ID.  The version format is described in \ref VersionType "Version Type".
+	</td>
+    <td>VersionType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <th>Child&nbsp;Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Brief summary about the purpose and scope of an API.</td>
+    <td>xs:string</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td>Grouping element for all file descriptions that are part of this component.</td>.
+    <td>group</td>
+    <td>0..1</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+*/

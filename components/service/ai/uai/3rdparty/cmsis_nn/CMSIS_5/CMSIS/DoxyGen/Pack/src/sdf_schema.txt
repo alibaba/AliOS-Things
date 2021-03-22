@@ -1,0 +1,1238 @@
+/**
+\page sdf_pg System Description File (*.SDF) Format
+
+An SDF file enables the silicon provider to describe more complex debug topologies than with a \ref debug_description in a
+tool agnostic way. Multiple debug and access ports and the setup of the different debug/trace components can be described
+consistently. Also, mandatory settings for a debugger can be described, such as trace signal delay settings,
+availability/usability of certain reset methods or timings, etc. This information is used by the debugger to access the right
+components that are requested by the user or application. The SDF format provides the XML elements for defining the debug
+system view of a device. These are "expert" settings that cannot be specified in a PDSC file.
+
+\note SDF files are referenced in a PDSC file via the \c \<debugconfig\> element.
+
+<b>Example CMSIS System Description File (*.SDF)</b>
+\code
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<system_description version="2.0">
+    <debug_and_trace_config>
+      <!-- Not filled at the moment -->
+      <!-- Means using defaults in this area -->
+    </debug_and_trace_config>
+    <platform>
+        <!-- Description of the scanchain -->
+        <scanchain>
+        
+            <!-- ARM Cortex-M0APP -->
+            <dap name="ARMCS-DP_CM0APP" type="ARMCS-DP" irLength="4" protocol="JTAG">
+                <!-- CoreSight DAP Info -->
+                <device_info_items>
+                    <device_info_item name="JTAG_IDCODE">0x0BA01477</device_info_item>
+                </device_info_items>
+                
+                <!-- Access Ports -->
+                <device name="CM0APP_AHB-AP" type="CSMEMAP"> <!-- Cortex-M0APP AHB-AP -->
+                    <config_items>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                    <device_info_items>
+                        <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                        <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+                    </device_info_items>
+                </device>
+                
+                <!-- Cortex-M0APP AHB-AP Components -->
+                <device name="CM0APP_CPU" type="Cortex-M0">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE000E000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM0APP_DWT" type="CSDWT">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0001000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM0APP_FPB" type="CSFPB">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0002000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+            </dap>
+            
+            <!-- ARM Cortex-M4 -->
+            <dap name="ARMCS-DP_CM4" type="ARMCS-DP" irLength="4" protocol="SWD:JTAG">
+                <!-- CoreSight DAP Info -->
+                <device_info_items>
+                    <device_info_item name="JTAG_IDCODE">0x4BA00477</device_info_item>
+                </device_info_items>
+                
+                <!-- Access Ports -->
+                <device name="CM4_AHB-AP" type="CSMEMAP"> <!-- Cortex-M4 AHB-AP -->
+                    <config_items>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                    <device_info_items>
+                        <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                        <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+                    </device_info_items>
+                </device>
+                
+                <!-- Cortex-M4 AHB-AP Components -->
+                <device name="CM4_CPU" type="Cortex-M4">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE000E000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_DWT" type="CSDWT">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0001000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_FPB" type="CSFPB">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0002000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_ITM" type="CSITM">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0000000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_TPIU" type="CSTPIU">
+                    <device_info_items>
+                      <device_info_item name="ARCHITECTURE"             >V7-M</device_info_item>
+                      <device_info_item name="SUPPORTED_FORMATTER_MODES">CONTINUOUS</device_info_item>
+                      <device_info_item name="SUPPORTED_PORT_SIZES"     >1;2;4</device_info_item>
+                    </device_info_items>
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0040000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_ETM" type="CSETM">
+                    <device_info_items>
+                        <device_info_item name="VERSION">3.5</device_info_item>
+                        <device_info_item name="SUPPORTS_CYCLE_ACCURATE">true</device_info_item>
+                    </device_info_items>
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0041000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM4_ETB" type="CSETB">
+                    <device_info_items>
+                        <device_info_item name="MEM_WIDTH"     >32</device_info_item>
+                        <device_info_item name="RAM_SIZE_BYTES">0x4000</device_info_item>
+                    </device_info_items>
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0042000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+            </dap>
+            
+        </scanchain>
+    
+        <topology>
+            <!-- Trace Links -->
+            <!-- Core Trace - Cortex-M4 -->
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_DWT"/>
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_ITM"/>
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_ETM"/>
+            <topology_link type="ATB" master="CM4_ETM"       slave="CM4_TPIU" slave_interface="0"/>
+            <topology_link type="ATB" master="CM4_ITM"       slave="CM4_TPIU" slave_interface="1"/>
+            <!-- Trace - Cortex-M4 ETB (Direct Connection ETM -> ETB) -->
+            <topology_link type="ATB" master="CM4_ETM"       slave="CM4_ETB"/>
+        </topology>
+    </platform>
+</system_description>
+\endcode
+
+
+\section sdf_structure SDF top level structure
+
+The XML schema file <b>sdf_schema.xsd</b> defines the sections used in a <b>*.SDF</b> file. The current <b>sdf_schema.xsd</b>
+can be found under the ARM.CMSIS.*.Pack in the .\\CMSIS\\Utilities-directory.
+
+\section sdf_element_system_description /system_description
+<table class="cmtable" summary="Element: CPDSC package">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>root</td>
+    <td colspan="3">description root point for SDF</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>schemaVersion</td>
+    <td>Version of sdf_schema.xsd the description is compatible with</td>
+    <td>xs:decimal</td>
+    <td>required</td>  
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_debug_and_trace_config</td>
+    <td>Description how to configure debug and trace.</td>
+    <td>complexType</td>
+    <td>1..1</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_platform</td>
+    <td>Overall platform description.</td>
+    <td>complexType</td>
+    <td>1..1</td>
+  </tr>
+</table>
+
+\delim 
+
+\section sdf_element_debug_and_trace_config /system_description/debug_and_trace_config
+
+Describes the recommended debug and trace configuration for the device.
+
+<table class="cmtable" summary="Element: debug_and_trace_config">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_system_description "system_description"</td>
+    <td colspan="3">\ref sdf_element_system_description "/system_description"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_debug</td>
+    <td>Describes the debug connection configuration</td>
+    <td>complexType</td>
+    <td>0..1</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_trace</td>
+    <td>Describes the trace configuration</td>
+    <td>complexType</td>
+    <td>0..1</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_debug /system_description/debug_and_trace_config/debug
+
+Describes the recommended debug configuration for the device.
+
+<table class="cmtable" summary="Element: debug">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_debug_and_trace_config "debug_and_trace_config"</td>
+    <td colspan="3">\ref sdf_element_debug_and_trace_config "/system_description/debug_and_trace_config"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_item</td>
+    <td>Describes a configuration item attribute/value pair</td>
+    <td>xs:string</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+For a list of applicable configuration items, refer to \ref sdf_element_config_item "config_item".
+\delim
+
+\section sdf_element_config_item /system_description/.../config_item
+
+A <b>config_item</b> can appear in various SDF elements. This group contains individual configuration items.
+
+<table class="cmtable" summary="Element: config_item">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_debug "debug"</td>
+    <td colspan="3">\ref sdf_element_debug "/system_description/debug_and_trace_config/debug"</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_trace_capture "trace_capture"</td>
+    <td colspan="3">\ref sdf_element_trace_capture "/system_description/debug_and_trace_config/trace/trace_capture"</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_items "config_items"</td>
+    <td colspan="3">\ref sdf_element_config_items "/system_description/platform/scanchain/../config_items"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Name of the configuration item.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+</table>
+
+Debug element
+-------------
+
+The \b config_items applicable to the \ref sdf_element_debug "debug" element are the following:
+
+| Item                   | Description | 
+|------------------------|-------------|
+| TRSTOnConnect          | Debugger should perform TAP reset on connect (True/False) - Default Value:True |
+| SRSTOnConnect          | Debugger should perform a System reset on connect (True/False) - Default Value:False |
+| AllowTRST              | Allow the Debugger to perform TAP reset (True/False) - Default Value:True |
+| DoSoftTRST             | Debugger should perform a Soft Reset (True/False) - Default Value:True |
+| TRSTHoldTime           | TAP reset hold time in milliseconds - Default Value:10 |
+| TRSTPostResetTime      | Delay after TAP reset before next operation - Default Value:10 |
+| ResetHoldTime          | Time in milliseconds that the target is held in a hardware reset state - Default Value:100 |
+| PostResetDelay         | Time in milliseconds that the target will wait after reset is released before attempting any other debugging operations - Default Value:10 |
+| Linked_SRST_TRST       | Target hardware has System Reset and TAP reset physically linked (True/False) - Default Value:False|
+
+Device element
+--------------
+
+The \b config_items applicable to the \ref sdf_element_device "device" element are the following (only applicable for devices
+that are child elements of another device or DAP):
+
+| Item                   | Description | Use |
+|------------------------|-------------|-----|
+| CORESIGHT_BASE_ADDRESS | the 4K aligned base address of a CoreSight device | Required |
+| CORESIGHT_AP_INDEX     | the access port index of the device | Required |
+
+Trace element
+-----------
+
+The \b config_items applicable to the \ref sdf_element_trace "trace" element are the following:
+-# Parallel trace capture device configuration items ("type" = "parallel"). These "config_items" enable you to configure
+   delays on the trace lines by a specified amount of time relative to the trace capture device defaults. These delays are
+   used to allow for variations in target hardware. These configuration items have default values if not present.
+   | Item                   | Description | Default |
+   |------------------------|-------------|----------|
+   | CLOCK_EDGE             | Set to 0 or 1 to specify the clock edge on which to capture data | 1 |
+   | DELAY_TRACE_CLOCK      | Adjust the sampling point for the trace clock by the specified number of picoseconds | 0 |
+   | DELAY_TRACE_SIGNAL_1 to DELAY_TRACE_SIGNAL_n | Adjust the sampling point for parallel trace signal 'n' by the specified number of picoseconds | 0 |
+   
+-# High-speed serial trace configuration items ("type"="HSSTP"). These configuration items do not have any default values. If
+   they are not present in the SDF file then HSSTP trace is not supported by the target.
+   | Item                   | Description | 
+   |------------------------|-------------|
+   | HSSTP_LANES            | The number of lanes (1-6) |
+   | HSSTP_SPEED            | The HSSTP link speed (HSSTP_2_5Gbps, , HSSTP_3_0Gbps, HSSTP_3_125Gbps, HSSTP_4_25Gbps, HSSTP_5_0Gbps, HSSTP_6_0Gbps, HSSTP_6_25Gbps, HSSTP_8_0Gbps, HSSTP_10_0Gbps, HSSTP_10_3125Gbps, HSSTP_12_0Gbps, HSSTP_12_5Gbps, HSSTP_SETM_1_5Gbps, HSSTP_SETM_3_0Gbps, HSSTP_SETM_6_0Gbps)
+   | HSSTP_PROTOCOL         | The HSSTP protocol (HSSTP_PROTOCOL_ARM_HSSTP, HSSTP_PROTOCOL_8_BIT_SETM, HSSTP_PROTOCOL_16_BIT_SETM, HSSTP_PROTOCOL_32_BIT_SETM)
+   | HSSTP_NDALT            | Reverse byte bit-ordering (HSSTP_NDALT_Disabled/HSSTP_NDALT_Enabled) |
+   | HSSTP_CONNECTOR        | The physical connector type (HSSTP_CONNECTOR_HSSTP/HSSTP_CONNECTOR_SMA) |
+   | HSSTP_RX_EQUALIZATION  | The RX equalization type (RX_EQUALIZATION_DFE/RX_EQUALIZATION_LPM) |
+   | HSSTP_CRC              | The type of CRC to use (HSSTP_CRC_Enabled, HSSTP_CRC_Disabled, HSSTP_CRC_Reversed, HSSTP_CRC_Ignored) |
+
+\b Example
+
+\code
+...
+<device name="CM4_ETM" type="CSETM">
+    <device_info_items>
+        <device_info_item name="VERSION">3.5</device_info_item>
+        <device_info_item name="SUPPORTS_CYCLE_ACCURATE">true</device_info_item>
+    </device_info_items>
+    <config_items>
+        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0041000</config_item>
+        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+    </config_items>
+</device>
+...
+\endcode   
+\delim
+
+\section sdf_element_trace /system_description/debug_and_trace_config/trace
+
+Describes the recommended trace configuration for the device.
+
+<table class="cmtable" summary="Element: trace">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_debug_and_trace_config "debug_and_trace_config"</td>
+    <td colspan="3">\ref sdf_element_debug_and_trace_config "/system_description/debug_and_trace_config"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_trace_capture</td>
+    <td>Describes the trace capture device</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_trace_capture /system_description/debug_and_trace_config/trace/trace_capture
+
+Describes settings for the trace capture device.
+
+<table class="cmtable" summary="Element: trace_capture">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_trace "trace"</td>
+    <td colspan="3">\ref sdf_element_trace "/system_description/debug_and_trace_config/trace"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_item</td>
+    <td>Describes a configuration item attribute/value pair</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>Trace capture type: for example parallel or HSSTP.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_platform /system_description/platform
+
+Describes the platform configuration (scanchain, topology and cluster arrangement).
+
+<table class="cmtable" summary="Element: platform">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_system_description "system_description"</td>
+    <td colspan="3">\ref sdf_element_system_description "/system_description"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_scanchain</td>
+    <td>Lists all DAPs/Devices in the order that they appear on the scanchain (Note - order is reverse to DAP references in PDSC files). The first device in the scanchain is one closest to target's TDI pin.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_topology</td>
+    <td>Describes the system topology</td>
+    <td>complexType</td>
+    <td>0..1</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_clusters</td>
+    <td>Describes the cluster arrangement</td>
+    <td>complexType</td>
+    <td>0..1</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_scanchain /system_description/platform/scanchain
+
+Lists all DAPs/devices in the order that they appear on the scanchain.
+
+\note The order is reverse to the DAP references in PDSC files. The first device in the scanchain is the one closest to the
+target's TDI pin.
+
+<table class="cmtable" summary="Element: scanchain">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_platform "platform"</td>
+    <td colspan="3">\ref sdf_element_platform "/system_description/platform"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_dap</td>
+    <td>Describes a DAP and a list of devices associated with that DAP.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device</td>
+    <td>Describes a single device on the scan chain.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\b Example:
+\code
+...
+<!-- Description of the scanchain -->
+<scanchain>
+
+    <!-- ARM Cortex-M0APP -->
+    <dap name="ARMCS-DP_CM0APP" type="ARMCS-DP" irLength="4" protocol="JTAG">
+        <!-- CoreSight DAP Info -->
+        <device_info_items>
+            <device_info_item name="JTAG_IDCODE">0x0BA01477</device_info_item>
+        </device_info_items>
+        
+        <!-- Access Ports -->
+        <device name="CM0APP_AHB-AP" type="CSMEMAP"> <!-- Cortex-M0APP AHB-AP -->
+            <config_items>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+            <device_info_items>
+                <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+            </device_info_items>
+        </device>
+        
+        <!-- Cortex-M0APP AHB-AP Components -->
+        <device name="CM0APP_CPU" type="Cortex-M0">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE000E000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM0APP_DWT" type="CSDWT">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0001000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM0APP_FPB" type="CSFPB">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0002000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+    </dap>
+    
+    <!-- ARM Cortex-M4 -->
+    <dap name="ARMCS-DP_CM4" type="ARMCS-DP" irLength="4" protocol="SWD:JTAG">
+        <!-- CoreSight DAP Info -->
+        <device_info_items>
+            <device_info_item name="JTAG_IDCODE">0x4BA00477</device_info_item>
+        </device_info_items>
+        
+        <!-- Access Ports -->
+        <device name="CM4_AHB-AP" type="CSMEMAP"> <!-- Cortex-M4 AHB-AP -->
+            <config_items>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+            <device_info_items>
+                <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+            </device_info_items>
+        </device>
+        
+        <!-- Cortex-M4 AHB-AP Components -->
+        <device name="CM4_CPU" type="Cortex-M4">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE000E000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_DWT" type="CSDWT">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0001000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_FPB" type="CSFPB">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0002000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_ITM" type="CSITM">
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0000000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_TPIU" type="CSTPIU">
+            <device_info_items>
+              <device_info_item name="ARCHITECTURE"             >V7-M</device_info_item>
+              <device_info_item name="SUPPORTED_FORMATTER_MODES">CONTINUOUS</device_info_item>
+              <device_info_item name="SUPPORTED_PORT_SIZES"     >1;2;4</device_info_item>
+            </device_info_items>
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0040000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_ETM" type="CSETM">
+            <device_info_items>
+                <device_info_item name="VERSION">3.5</device_info_item>
+                <device_info_item name="SUPPORTS_CYCLE_ACCURATE">true</device_info_item>
+            </device_info_items>
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0041000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+        <device name="CM4_ETB" type="CSETB">
+            <device_info_items>
+                <device_info_item name="MEM_WIDTH"     >32</device_info_item>
+                <device_info_item name="RAM_SIZE_BYTES">0x4000</device_info_item>
+            </device_info_items>
+            <config_items>
+                <config_item name="CORESIGHT_BASE_ADDRESS">0xE0042000</config_item>
+                <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+            </config_items>
+        </device>
+    </dap>
+    
+</scanchain>
+...
+\endcode
+\delim
+
+\section sdf_element_dap /system_description/platform/scanchain/dap
+
+Describes a DAP and a list of devices associated with that DAP.
+
+<table class="cmtable" summary="Element: dap">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_scanchain "scanchain"</td>
+    <td colspan="3">\ref sdf_element_scanchain "/system_description/platform/scanchain"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device</td>
+    <td>List of devices associated with this DAP.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device_info_items</td>
+    <td>Contains implementation details for the DAP. Applicable items for a DAP are "JTAG_IDCODE" (the JTAG ID code for the
+	    DAP) or "DPIDR" (the Debug Port Identification Register contents).</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_items</td>
+    <td>Configuration items specific to a DAP type.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Unique name of the DAP.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>type</td>
+    <td>Specifies the type of the DAP (e.g. ARMCS-DP).</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>irLength</td>
+    <td>Specifies the IR length of the DAP (default value: 4).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+  <tr>
+    <td>protocol</td>
+    <td>Colon delimited list of protocols via which the DAP can be use. Possible values are SWD, JTAG, and cJTAG.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+  <tr>
+    <td>targetsel</td>
+    <td>Specifies the SW-DPv2 TARGETSEL register value that selects this DAP in a serial-wire debug multi-drop system.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+</table>
+
+\b Example:
+
+\code
+<system_description version="2.0">
+    <debug_and_trace_config>
+      <!-- Not filled at the moment -->
+      <!-- Means using defaults in this area -->
+    </debug_and_trace_config>
+    <platform>
+        <!-- Description of the scanchain -->
+        <scanchain>
+        
+            <!-- ARM Cortex-M0APP -->
+            <dap name="ARMCS-DP_CM0APP" type="ARMCS-DP" irLength="4" protocol="JTAG">
+                <!-- CoreSight DAP Info -->
+                <device_info_items>
+                    <device_info_item name="JTAG_IDCODE">0x0BA01477</device_info_item>
+                </device_info_items>
+                
+                <!-- Access Ports -->
+                <device name="CM0APP_AHB-AP" type="CSMEMAP"> <!-- Cortex-M0APP AHB-AP -->
+                    <config_items>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                    <device_info_items>
+                        <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                        <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+                    </device_info_items>
+                </device>
+                
+                <!-- Cortex-M0APP AHB-AP Components -->
+                <device name="CM0APP_CPU" type="Cortex-M0">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE000E000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM0APP_DWT" type="CSDWT">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0001000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+                <device name="CM0APP_FPB" type="CSFPB">
+                    <config_items>
+                        <config_item name="CORESIGHT_BASE_ADDRESS">0xE0002000</config_item>
+                        <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                    </config_items>
+                </device>
+            </dap>
+    ...
+</system_description>
+\endcode
+
+\delim
+
+\section sdf_element_device /system_description/platform/scanchain/device
+
+<table class="cmtable" summary="Element: device">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_scanchain "scanchain"</td>
+    <td colspan="3">\ref sdf_element_scanchain "/system_description/platform/scanchain"</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_dap "dap"</td>
+    <td colspan="3">\ref sdf_element_dap "/system_description/platform/scanchain/dap"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device</td>
+    <td>Describes a single nested device associated with this device.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device_info_items</td>
+    <td>Describes a sequence of device information items.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_items</td>
+    <td>Configuration items specific to this device.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Unique name of the device.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>type</td>
+    <td>Specifies the device type (see below).</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>irLength</td>
+    <td>Specifies the IR length of the device (default value: 4).</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+</table>
+
+Depending on the context, a device type can be one of the following types:
+
+-# A core device, where the type is usually specified as "Cortex-xx" (such as Cortex-A72,Cortex-M0+, Cortex-R5). It can also
+   be a vendor-specific core type, or an older JTAG ARM core. Current cores are: \n
+   "Cortex-A5", "Cortex-A7", "Cortex-A8", "Cortex-A9", "Cortex-A12", "Cortex-A15", "Cortex-A17", "Cortex-A32", "Cortex-A35",
+   "Cortex-A53", "Cortex-A57", "Cortex-A72", "Cortex-A73", "Cortex-M0", "Cortex-M0+", "Cortex-M0+_JTAG-AP", "Cortex-M1",
+   "Cortex-M23", "Cortex-M3", "Cortex-M33", "Cortex-M35P", "Cortex-M3_JTAG-AP", "Cortex-M4", "Cortex-M7", "Cortex-R4", "Cortex-R5",
+   "Cortex-R7", "Cortex-R8", "Cortex-R52", "SC000", "SC100D", "SC200D", "SC300", "ThunderX", "ThunderX-r2", "ARMV8MBL",
+   "ARMV8MML", "88FR101", "88FR111", "88FR331", "88SV581x-v7_PJ4", "88SV581x-v7_PJ4_TZ", "ARM1136JF-S",
+   "ARM1136JF-S_JTAG-AP", "ARM1156T2F-S", "ARM1156T2F-S_JTAG-AP", "ARM1176JZF-S", "ARM1176JZF-S_JTAG-AP", "ARM11MPCore",
+   "ARM11MPCore_JTAG-AP", "ARM710T", "ARM720T", "ARM720T_r4", "ARM740T", "ARM7EJ-S", "ARM7EJ-S_JTAG-AP", "ARM7TDMI",
+   "ARM7TDMI_JTAG-AP", "ARM7TDMI_r4", "ARM7TDMI_r4_JTAG-AP", "ARM920T", "ARM922T", "ARM925T", "ARM926EJ-S",
+   "ARM926EJ-S_JTAG-AP", "ARM940T", "ARM946E-S", "ARM946E-S_JTAG-AP", "ARM966E-S", "ARM966E-S_JTAG-AP", "ARM968E-S",
+   "ARM968E-S_JTAG-AP", "ARM968E-Srd", "ARM996HS", "ARM9E-S", "ARM9EJ-S", "ARM9EJ-S_JTAG-AP", "ARM9TDMI", "V7A-Generic",
+   "V8-Generic", "V8M-Generic", "V8R-Generic", "V8_1-Generic", "V8_2-Generic".
+-# An Access Port (AP) type such as "CSAUTHAP", "CSJTAGAP" or "CSMEMAP".
+-# A CoreSight device type that can be one of "CSCTI", "CSETM", "CSITM", "CSMTB", "CSPMU", "CSPTM", "CSTFunnel", "CSTMC",
+   "CSTPIU","CSSTM", "CSSWO", "CSELA", "CSATBReplicator", "CSGPR", "CSETB", "CSDWT", "CSETB", "CSTSGEN", "CSHTM", "CSFPB"
+-# A JTAG device, which is directly on the scanchain (e.g. ARM11).
+
+\b Example:
+
+\code
+<system_description version="2.0">
+    <debug_and_trace_config>
+      <!-- Not filled at the moment -->
+      <!-- Means using defaults in this area -->
+    </debug_and_trace_config>
+    <platform>
+        <!-- Description of the scanchain -->
+        <scanchain>
+            <device name="My Custom TAP" type="Other" irLength="5">
+                <!-- JTAG-TAP Info -->
+                <device_info_items>
+                    <device_info_item name="JTAG_IDCODE">0x04560014</device_info_item>
+                </device_info_items>
+            </device>
+	...
+</system_description>
+\endcode
+
+\delim
+
+\section sdf_element_config_items /system_description/platform/scanchain/../../config_items
+
+The configuration items are specific to the device type or DAP. Refer to \ref sdf_element_config_item for a list of applicable
+device information items and a code example.
+
+<table class="cmtable" summary="Element: config_items">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device "device"</td>
+    <td colspan="3">\ref sdf_element_device "/system_description/platform/../device"</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_dap "dap"</td>
+    <td colspan="3">\ref sdf_element_dap "/system_description/platform/scanchain/dap"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_config_item</td>
+    <td>Describes a configuration item.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_device_info_items /system_description/platform/scanchain/../../device_info_items
+
+The device information items are specific to the type of device or DAP and describe implementation specific details. Refer to
+\ref sdf_element_device_info_item for a list of applicable device information items and a code example.
+
+<table class="cmtable" summary="Element: device_info_items">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device "device"</td>
+    <td colspan="3">\ref sdf_element_device "/system_description/platform/../device"</td>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device "dap"</td>
+    <td colspan="3">\ref sdf_element_dap "/system_description/platform/scanchain/dap"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device_info_item</td>
+    <td>Describes a sequence of device information items.</td>
+    <td>xs:string</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_device_info_item /system_description/platform/scanchain/../../device_info_items/device_info_item
+
+Describes implementation specific details of the specified device or DAP.
+
+<table class="cmtable" summary="Element: device_info_item">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_device_info_items "device_info_items"</td>
+    <td colspan="3">\ref sdf_element_device_info_items "/system_description/platform/../../device_info_items"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Unique name for the device information item.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+</table>
+
+The following device information items are applicable for each type of "device":
+
+| Device     | Device Information Item           | Description |
+|------------|-----------------------------------|-------------|
+| \b CSMEMAP | AP_TYPE                           | Access port type is one of AHB-AP, APB-AP-M, APB-AP and AXI-AP |
+|            | ROM_TABLE_BASE_ADDRESS            | The ROM table base address (in hex) |
+| \b CSETM   | VERSION                           | The ETM Version (e.g. 4.0 - required) |
+|            | SUPPORTS_CONTEXT_IDS              | Supports Context ID Tracing (True/False - Default Value:False) |
+|            | SUPPORTS_VIRTUAL_CONTEXT_IDS      | Supports Virtual Context ID Tracing (True/False - Default Value:False) |
+|            | SUPPORTS_CYCLE_ACCURATE           | Supports Cycle Accurate Trace (True/False - Default Value:False) |
+|            | SUPPORTS_DATA_VALUE_TRACE         | Supports Data Value Trace (True/False - Default Value:False) |
+|            | SUPPORTS_DATA_ADDRESS_TRACE       | Supports Data Address Trace (True/False - Default Value:False) |
+|            | SUPPORTS_DATA_ONLY_MODE           | Supports Data Only Trace Mode (True/False - Default Value:False) |
+|            | SUPPORTS_TIMESTAMPS               | Supports Timestamps(True/False - Default Value:False) |
+|            | SUPPORTS_TRACE_RANGES             | Supports Trace Ranges (True/False - Default Value:False) |
+|            | SUPPORTS_BRANCH_BROADCAST         | Supports Branch Broadcasting (True/False - Default Value:False) |
+|            | SUPPORTS_CONDITIONAL_INSTRUCTIONS | Supports tracing conditional non-branch instruction (True/False - Default Value:False) |
+|            | SUPPORTS_Q_ELEMENTS               | Supports Q Elements (True/False - Default Value:False) |
+| \b CSMTB   | RAM_SIZE_BYTES                    | MTB SRAM buffer size in bytes |
+|            | SUPPORTS_USER_PRIV                | User/Privileged support present |
+| \b CSTPM   | VERSION                           | The PTM Version (eg 1.1) - Required |
+|            | SUPPORTS_VMID                     | VMID Tracing support (True/False - Default Value:False) |
+|            | SUPPORTS_CONTEXT_IDS              | Context ID Tracing support (True/False - Default Value:False) |
+|            | SUPPORTS_RETURN_STACK             | Return stack support (True/False - Default Value:False) |
+|            | SUPPORTS_CYCLE_ACCURATE           | Cycle Accurate trace support (True/False - Default Value:False) |
+|            | SUPPORTS_BRANCH_BROADCAST         | Supports Branch Broadcasting (True/False - Default Value:False) |
+|            | SUPPORTS_TIMESTAMPS               | Supports Timestamping (True/False - Default Value:False) |
+|            | SUPPORTS_FIFOFULL                 | Supports FIFOFULL (True/False - Default Value:False) |
+| \b CSTMC   | CONFIG_TYPE                       | The TMC device configuration can be one of (ETR, ETF or ETB) - required |
+|            | RAM_SIZE_BYTES                    | The SRAM memory size used in ETF and ETR configurations (512 Bytes to 4 GiB) - Default: 512 Bytes |
+| \b CSTPIU  | SUPPORTED_PORT_SIZES              | Semicolon separated list of supported port sizes (in bits) - required |
+|            | ARCHITECTURE                      | The TPIU variant is one of (Coresight, TPIU-Lite, V7-M or V8-M) - Required |
+
+\b Example:
+
+\code
+<system_description version="2.0">
+  ...
+  <platform>
+    <!-- Description of the scanchain -->
+    <scanchain>
+        <!-- ARM Cortex-M0APP -->
+        <dap name="ARMCS-DP_CM0APP" type="ARMCS-DP" irLength="4" protocol="JTAG">
+            <!-- CoreSight DAP Info -->
+            <device_info_items>
+                <device_info_item name="JTAG_IDCODE">0x00000000</device_info_item>
+            </device_info_items>
+            <!-- Access Ports -->
+            <device name="CM0APP_AHB-AP" type="CSMEMAP"> <!-- Cortex-M0APP AHB-AP -->
+                <config_items>
+                    <config_item name="CORESIGHT_AP_INDEX">0</config_item>
+                </config_items>
+                <device_info_items>
+                    <device_info_item name="AP_TYPE">AHB-AP</device_info_item>
+                    <device_info_item name="ROM_TABLE_BASE_ADDRESS">0xE00FF000</device_info_item>
+                </device_info_items>
+            </device>
+  ...
+\endcode
+
+\delim
+
+\section sdf_element_topology /system_description/platform/topology
+
+Describes the system topology.
+
+<table class="cmtable" summary="Element: topology">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_platform "platform"</td>
+    <td colspan="3">\ref sdf_element_platform "/system_description/platform"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_topology_link</td>
+    <td>Describes how CoreSight devices and cores are connected.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\b Example:
+\code
+<system_description version="2.0">
+    <debug_and_trace_config>
+    </debug_and_trace_config>
+    <platform>
+	    ...
+        <topology>
+            <!-- Trace Links -->
+            <!-- Core Trace - Cortex-M4 -->
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_DWT"/>
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_ITM"/>
+            <topology_link type="CoreTrace" master="CM4_CPU" slave="CM4_ETM"/>
+            <topology_link type="ATB" master="CM4_ETM"       slave="CM4_TPIU" slave_interface="0"/>
+            <topology_link type="ATB" master="CM4_ITM"       slave="CM4_TPIU" slave_interface="1"/>
+            <!-- Trace - Cortex-M4 ETB (Direct Connection ETM -> ETB) -->
+            <topology_link type="ATB" master="CM4_ETM"       slave="CM4_ETB"/>
+        </topology>
+    </platform>
+</system_description>
+\endcode
+\delim
+
+\section sdf_element_topology_link /system_description/platform/topology/topology_link
+
+Describes how CoreSight devices and cores are connected.
+
+<table class="cmtable" summary="Element: topology_link">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_platform "topology"</td>
+    <td colspan="3">\ref sdf_element_topology "/system_description/platform/topology"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Unique name for the link.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+  <tr>
+    <td>type</td>
+    <td>Specifies the link type. Can be on of the following: ATB, CoreTrace, or CTITrigger.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>master</td>
+    <td>Unique name of the master device in the link.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>slave</td>
+    <td>Unique name of the slave device in the link.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>mater_interface</td>
+    <td>Specifies the mater interface number.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+  <tr>
+    <td>slave_interface</td>
+    <td>Specifies the slave interface number.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+  <tr>
+    <td>trigger</td>
+    <td>Specifies the trigger number.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>  
+</table>
+
+\b Example:
+
+A complete set of links for a Cortex-A7 implementation with ETM and TPIU might look like this:
+\code
+master="Cortex-A7_0" slave="CSCTI_6"     trigger="7"         type="CTITrigger"
+master="CSETM_0"     slave="CSCTI_6"     trigger="6"         type="CTITrigger"
+master="Cortex-A7_0" slave="CSETM_0"                         type="CoreTrace"
+master="CSETM_0"     slave="CSTFunnel_2" slave_interface="0" type="ATB"
+master="CSTFunnel_2" slave="CSTFunnel_0" slave_interface="1" type="ATB"
+master="CSTFunnel_0" slave="CSTMC_0"                         type="ATB"
+master="CSTMC_0"     slave="CSTPIU"                          type="ATB"
+\endcode
+\delim
+
+\section sdf_element_clusters /system_description/platform/clusters
+
+Describes the cluster arrangement.
+
+<table class="cmtable" summary="Element: clusters">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_platform "platform"</td>
+    <td colspan="3">\ref sdf_element_platform "/system_description/platform"</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_cluster</td>
+    <td>Lists the devices that make up the cluster and a unique name for the cluster.</td>
+    <td>complexType</td>
+    <td>0..*</td>  
+  </tr>
+</table>
+
+\delim
+
+\section sdf_element_cluster /system_description/platform/clusters/cluster
+
+Lists the devices that make up the cluster.
+
+<table class="cmtable" summary="Element: cluster">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref sdf_element_clusters "clusters"</td>
+    <td colspan="3">\ref sdf_element_clusters "/system_description/platform/clusters"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Unique name for the cluster (for example Cortex-A15_SMP_0).</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+  <tr>
+    <td>devices</td>
+    <td>Colon separated list of named devices in the cluster, for example "Cortex-A15_0:Cortex-A15_1:Cortex-A15_2:Cortex-A15_3".</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>  
+</table>
+
+\delim
+*/

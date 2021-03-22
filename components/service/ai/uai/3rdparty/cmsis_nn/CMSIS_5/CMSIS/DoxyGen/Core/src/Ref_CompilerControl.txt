@@ -1,0 +1,510 @@
+/**************************************************************************************************/
+/**
+\defgroup   compiler_conntrol_gr    Compiler Control
+\brief      Compiler agnostic \#define symbols for generic C/C++ source code
+\details
+The CMSIS-Core provides the header file <b>cmsis_compiler.h</b> with consistent \#define symbols for generate C or C++ source files that should be compiler agnostic.
+Each CMSIS compliant compiler should support the functionality described in this section.
+
+The header file <b>cmsis_compiler.h</b> is also included by each \ref device_h_pg so that these definitions are available. 
+@{
+*/
+
+/**
+\def __ARM_ARCH_6M__
+\brief Set to 1 when generating code for Armv6-M (Cortex-M0, Cortex-M1)
+\details
+The <b>\#define __ARM_ARCH_6M__</b> is set to 1 when generating code for the Armv6-M architecture. This architecture is for example used by the Cortex-M0, Cortex-M0+, and Cortex-M1 processor.
+*/
+#define __ARM_ARCH_6M__
+
+/**
+\def __ARM_ARCH_7M__
+\brief Set to 1 when generating code for Armv7-M (Cortex-M3)
+\details
+The <b>\#define __ARM_ARCH_7M__</b> is set to 1 when generating code for the Armv7-M architecture. This architecture is for example used by the Cortex-M3 processor.
+*/
+#define __ARM_ARCH_7M__
+
+/**
+\def __ARM_ARCH_7EM__
+\brief Set to 1 when generating code for Armv7-M (Cortex-M4) with FPU
+\details
+The <b>\#define __ARM_ARCH_7EM__</b> is set to 1 when generating code for the Armv7-M architecture with floating point extension. This architecture is for example used by the Cortex-M4 processor with FPU
+*/
+#define __ARM_ARCH_7EM__
+
+/**
+\cond (ARMv8M)
+*/
+
+/**
+\def __ARM_ARCH_8M_BASE__
+\brief Set to 1 when generating code for Armv8-M Baseline
+\details
+The <b>\#define __ARM_ARCH_8M_BASE__</b> is set to 1 when generating code for the Armv8-M architecture baseline variant.
+*/
+#define __ARM_ARCH_8M_BASE__
+
+/**
+\def __ARM_ARCH_8M_MAIN__
+\brief Set to 1 when generating code for Armv8-M Mainline
+\details
+The <b>\#define __ARM_ARCH_8M_MAIN__</b> is set to 1 when generating code for the Armv8-M architecture mainline variant.
+*/
+#define __ARM_ARCH_8M_MAIN__
+
+/**
+\endcond
+*/
+
+
+/**************************************************************************************************/
+/**
+\def __ASM
+\brief Pass information from the compiler to the assembler.
+\details
+The \b __ASM keyword can declare or define an embedded assembly function or incorporate inline assembly into a function
+(shown in the code example below).
+ 
+<b>Code Example:</b>
+\code
+// Reverse bit order of value
+ 
+__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __RBIT(uint32_t value)
+{
+  uint32_t result;
+ 
+   __ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
+   return(result);
+}
+\endcode
+
+*/
+#define __ASM
+
+/**************************************************************************************************/
+/**
+\def __INLINE
+\brief Recommend that function should be inlined by the compiler.
+\details
+Inline functions offer a trade-off between code size and performance. By default, the compiler decides during optimization whether to
+inline code or not. The \b __INLINE attribute gives the compiler an hint to inline this function. Still, the compiler may decide not to inline
+the function.  As the function is global an callable function is also generated. 
+
+<b>Code Example:</b>
+\code
+const uint32_t led_mask[] = {1U << 4, 1U << 5, 1U << 6, 1U << 7};
+ 
+/*------------------------------------------------------------------------------
+  Switch on LEDs
+ *------------------------------------------------------------------------------*/
+__INLINE static void LED_On (uint32_t led) {
+ 
+  PTD->PCOR   = led_mask[led];
+}
+\endcode
+
+*/
+#define __INLINE
+
+/**************************************************************************************************/
+/**
+\def __STATIC_INLINE
+\brief Define a static function that may be inlined by the compiler.
+\details
+Defines a static function that may be inlined by the compiler. If the compiler generates inline code for 
+all calls to this functions, no additional function implementation is generated which may further optimize space.
+
+<b>Code Example:</b>
+\code
+\\ Get Interrupt Vector
+__STATIC_INLINE uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+}
+\endcode
+
+*/
+#define __STATIC_INLINE
+
+/**************************************************************************************************/
+/**
+\def __STATIC_FORCEINLINE
+\brief Define a static function that should be always inlined by the compiler.
+\details
+Defines a static function that should be always inlined by the compiler. 
+
+\note
+For compilers that do not allow to force function inlining, the macro maps to \ref __STATIC_INLINE.
+
+<b>Code Example:</b>
+\code
+\\ Get Interrupt Vector
+__STATIC_FORCEINLINE uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
+}
+\endcode
+
+*/
+#define __STATIC_FORCEINLINE
+
+/**************************************************************************************************/
+/**
+\def __NO_RETURN
+\brief Inform the compiler that a function does not return.
+\details
+Informs the compiler that the function does not return. The compiler can then perform optimizations by
+removing code that is never reached.
+ 
+<b>Code Example:</b>
+\code
+// OS idle demon (running when no other thread is ready to run).
+ 
+__NO_RETURN void os_idle_demon (void);
+\endcode
+
+*/
+#define __NO_RETURN
+
+/**************************************************************************************************/
+/**
+\def __RESTRICT
+\brief restrict pointer qualifier to enable additional optimizations.
+\details
+The __RESTRICT keyword corresponds to the \b restrict pointer qualifier that has been introduced in C99.
+__RESTRICT is a hint to the compiler that enables additional optimizations. It specifies that for the lifetime 
+of the pointer, only the pointer itself or a value directly derived from it (such as pointer + 1) is used to access
+the object. The compiler may therefore ignore potential pointer aliasing effects and perform additional optimizations. 
+
+\note
+For compilers that do not support the restrict keyword, __RESTRICT is defined as an empty macro and a warning is issued.
+ 
+<b>Code Example:</b>
+\code
+__STATIC_INLINE void ARM_MPU_OrderedMemcpy (volatile uint32_t* dst, const uint32_t* __RESTRICT src, uint32_t len)
+{
+  uint32_t i;
+  for (i = 0U; i < len; ++i) 
+  {
+    dst[i] = src[i];   // Since src is restrict, the compiler can assume that dst and src are not overlapping may load multiple values at a time
+  }
+}
+\endcode
+
+*/
+#define __RESTRICT
+
+/**************************************************************************************************/
+/**
+\def __USED
+\brief Inform that a variable shall be retained in executable image.
+\details
+Definitions tagged with \b __USED in the source code should be not removed by the linker when detected as unused.
+ 
+<b>Code Example:</b>
+\code
+/* Export following variables for debugging */
+__USED uint32_t const CMSIS_RTOS_API_Version = osCMSIS;
+__USED uint32_t const CMSIS_RTOS_RTX_Version = osCMSIS_RTX;
+__USED uint32_t const os_clockrate = OS_TICK;
+__USED uint32_t const os_timernum  = 0;
+\endcode
+
+*/
+#define __USED
+
+/**************************************************************************************************/
+/**
+\def __WEAK
+\brief Export a function or variable weakly to allow overwrites.
+\details
+Functions defined with \b __WEAK export their symbols weakly. A weakly defined function behaves like a normally defined
+function unless a non-weakly defined function of the same name is linked into the same image. If both a non-weakly defined
+function and a weakly defined function exist in the same image then all calls to the function resolve to call the non-weak
+function.
+
+Functions declared with \b __WEAK and then defined without \b __WEAK behave as non-weak functions.
+ 
+<b>Code Example:</b>
+\code
+__WEAK void SystemInit(void)
+{
+  SystemCoreSetup();
+  SystemCoreClockSetup(); 
+}
+\endcode
+
+*/
+#define __WEAK
+
+/**************************************************************************************************/
+/**
+\def __PACKED
+\brief Request smallest possible alignment.
+\details
+Specifies that a type must have the smallest possible alignment.
+ 
+<b>Code Example:</b>
+\code
+struct foo {
+  uint8_t  u8;
+  uint32_t u32[2] __PACKED;
+};
+\endcode
+
+*/
+#define __PACKED
+
+/**************************************************************************************************/
+/**
+\def __PACKED_STRUCT
+\brief Request smallest possible alignment for a structure.
+\details
+Specifies that a structure must have the smallest possible alignment.
+ 
+<b>Code Example:</b>
+\code
+__PACKED_STRUCT foo {
+  uint8_t   u8;
+  uint32_t  u32;
+  uint16_t  u16;
+};
+\endcode
+
+*/
+#define __PACKED_STRUCT
+
+/**************************************************************************************************/
+/**
+\def __UNALIGNED_UINT32
+\brief Pointer for unaligned access of a uint32_t variable.
+\deprecated
+Do not use this macro.
+It has been superseded by \ref __UNALIGNED_UINT32_READ, \ref __UNALIGNED_UINT32_WRITE and will be removed in the future.
+\details
+Defines a pointer to a uint32_t from an address that does not need to be aligned. This can then be used in read/write
+operations. The compiler will generate the appropriate access (aligned or non-aligned) depending on the underlying Arm
+processor core and compiler settings.
+ 
+<b>Code Example:</b>
+\code
+uint32_t val32;
+ 
+void test (uint8_t *ptr) {
+  __UNALIGNED_UINT32(ptr) = val32;
+}
+\endcode
+
+*/
+#define __UNALIGNED_UINT32
+
+/**************************************************************************************************/
+/**
+\def __UNALIGNED_UINT16_READ
+\brief Pointer for unaligned read of a uint16_t variable.
+\details
+Defines a pointer to a uint16_t from an address that does not need to be aligned. This can then be used in read
+operations. The compiler will generate the appropriate access (aligned or non-aligned) depending on the underlying Arm
+processor core and compiler settings.
+ 
+<b>Code Example:</b>
+\code
+uint16_t val16;
+ 
+void test (uint8_t *ptr) {
+   val16 = __UNALIGNED_UINT16_READ(ptr);
+}
+\endcode
+
+*/
+#define __UNALIGNED_UINT16_READ
+
+/**************************************************************************************************/
+/**
+\def __UNALIGNED_UINT16_WRITE
+\brief Pointer for unaligned write of a uint16_t variable.
+\details
+Defines a pointer to a uint16_t from an address that does not need to be aligned. This can then be used in write
+operations. The compiler will generate the appropriate access (aligned or non-aligned) depending on the underlying Arm
+processor core and compiler settings.
+ 
+<b>Code Example:</b>
+\code
+uint16_t val16 = 0U;
+ 
+void test (uint8_t *ptr) {
+   __UNALIGNED_UINT16_WRITE(ptr, val16);
+}
+\endcode
+
+*/
+#define __UNALIGNED_UINT16_WRITE
+
+/**************************************************************************************************/
+/**
+\def __UNALIGNED_UINT32_READ
+\brief Pointer for unaligned read of a uint32_t variable.
+\details
+Defines a pointer to a uint32_t from an address that does not need to be aligned. This can then be used in read
+operations. The compiler will generate the appropriate access (aligned or non-aligned) depending on the underlying Arm
+processor core and compiler settings.
+ 
+<b>Code Example:</b>
+\code
+uint32_t val32;
+ 
+void test (uint8_t *ptr) {
+   val32 = __UNALIGNED_UINT32_READ(ptr);
+}
+\endcode
+
+*/
+#define __UNALIGNED_UINT32_READ
+
+/**************************************************************************************************/
+/**
+\def __UNALIGNED_UINT32_WRITE
+\brief Pointer for unaligned write of a uint32_t variable.
+\details
+Defines a pointer to a uint32_t from an address that does not need to be aligned. This can then be used in write
+operations. The compiler will generate the appropriate access (aligned or non-aligned) depending on the underlying Arm
+processor core and compiler settings.
+ 
+<b>Code Example:</b>
+\code
+uint32_t val32 = 0U;
+ 
+void test (uint8_t *ptr) {
+   __UNALIGNED_UINT32_WRITE(ptr, val32);
+}
+\endcode
+
+*/
+#define __UNALIGNED_UINT32_WRITE
+
+/**************************************************************************************************/
+/**
+\def __ALIGNED
+\brief Minimum alignment for a variable.
+\details
+Specifies a minimum alignment for a variable or structure field, measured in bytes.
+ 
+<b>Code Example:</b>
+\code
+uint32_t stack_space[0x100] __ALIGNED(8);   // 8-byte alignment required
+\endcode
+
+*/
+#define __ALIGNED
+
+/**************************************************************************************************/
+/**
+\def __COMPILER_BARRIER
+\brief Barrier to prevent compiler from reordering instructions.
+\details
+This barrier limits the compilers reordering optimizations. It prevents the compiler from swapping
+instructions resulting from code before and after the barrier.
+ 
+<b>Code Example:</b>
+The assignments in the example are independent. Hence the compiler could choose a different order of
+execution, e.g. for a better pipeline utilization. Using the barrier in between prevents this type
+of reordering.
+
+\code
+void test (uint8_t *ptr) {
+  var1 = 1;
+  __COMPILE_BARRIER();
+  var2 = var3 + 1;
+}
+\endcode
+
+*/
+#define __COMPILER_BARRIER
+
+/**************************************************************************************************/
+/**
+\def __PROGRAM_START
+\brief Entry function into the user application or library startup.
+\details
+Gives the function to be jumped into right after low level initialization, i.e. SystemInit. This
+is compiler and library specific. CMSIS specifies common default for supported compilers. 
+
+\note This define is only intended to be used by the \ref startup_c_pg.
+
+<b>Code Example:</b>
+\code
+void Reset_Handler(void)
+{
+  SystemInit();                             /* CMSIS System Initialization */
+  __PROGRAM_START();                        /* Enter PreMain (C library entry point) */
+}
+\endcode
+*/
+#define __PROGRAM_START
+
+/**************************************************************************************************/
+/**
+\def __INITIAL_SP
+\brief Compiler/linker symbol specifiying the location of the main stack (MSP).
+\details
+The address of the specified symbol is used to initialize the main stack pointer (MSP) during low
+level init. This is compiler/linker specific. CMSIS specifies common default for supported compilers. 
+
+\note This define is only intended to be used by the \ref startup_c_pg.
+*/
+#define __INITIAL_SP
+
+/**************************************************************************************************/
+/**
+\def __STACK_LIMIT
+\brief Compiler/linker symbol specifiying the limit of the main stack (MSP).
+\details
+The address of the specified symbol is used to initialize the main stack pointer limit (MSPLIM on Armv8-M)
+during low level init. This is compiler/linker specific. CMSIS specifies common default for supported
+compilers. 
+
+\note This define is only intended to be used by the \ref startup_c_pg.
+
+<b>Code Example:</b>
+\code
+void Reset_Handler(void)
+{
+  __set_MSPLIM((uint32_t)(&__STACK_LIMIT));
+  // :
+  // :
+}
+\endcode
+*/
+#define __STACK_LIMIT
+
+/**************************************************************************************************/
+/**
+\def __VECTOR_TABLE
+\brief Symbol name used for the (static) interrupt vector table.
+\details
+The given name is used for defining the static (compiler time) interrupt vector table. The name
+must comply with any compiler/linker conventions, e.g. if used for vector table relocation or debugger
+awareness. CMSIS specifies common default for supported compilers. 
+
+\note This define is only intended to be used by the \ref startup_c_pg.
+*/
+#define __VECTOR_TABLE
+
+/**************************************************************************************************/
+/**
+\def __VECTOR_TABLE_ATTRIBUTE
+\brief Additional decl specs to be used when defining the (static) interrupt vector table.
+\details
+The given decl specs are used for defining the static (compiler time) interrupt vector table, e.g.
+to mark the table as used and force it into a specific linker section. CMSIS specifies common default
+for supported compilers. 
+
+\note This define is only intended to be used by the \ref startup_c_pg.
+*/
+#define __VECTOR_TABLE_ATTRIBUTE
+
+/** @} */ /** end of compiler_conntrol_gr **/

@@ -75,7 +75,7 @@ static void hal_uart_rx_start(uint32_t uart_id)
     mask.OE = 0;
     mask.PE = 0;
     mask.RT = 1;
-    
+
     hal_uart_dma_recv_mask(uart_id, uart_ctx[uart_id].uart_buffer, UART_DMA_RING_BUFFER_SIZE, &dma_desc_rx, &desc_cnt, &mask);
 
 }
@@ -101,7 +101,7 @@ static int32_t _get_uart_ringbuf_freesize(uint32_t uart_id)
     return size;
 }
 
-static int32_t _get_uart_ringbuf_available_read_size(uint32_t uart_id) 
+static int32_t _get_uart_ringbuf_available_read_size(uint32_t uart_id)
 {
     uint32_t size = 0;
 
@@ -144,7 +144,7 @@ static int32_t _uart_ringbuffer_push(uint32_t uart_id, uint8_t *buf, int32_t len
         }
         uart_ctx[uart_id].rxbuf_in = (uart_ctx[uart_id].rxbuf_in + write_size) % uart_ctx[uart_id].rxring_size;
     }
-    
+
     return write_size;
 }
 
@@ -204,7 +204,7 @@ static void _uart1_dma_rx_handler(uint32_t xfer_size, int dma_error, union HAL_U
 {
     uint32_t len = 0;
     uint32_t uartid = 1;
-    
+
     len = _uart_ringbuffer_push(uartid, uart_ctx[uartid].uart_buffer, xfer_size);
     if (len < xfer_size) {
         printf("%s ringbuf is full have %d need %d\r", __FUNCTION__, len, xfer_size);
@@ -292,17 +292,17 @@ int32_t hal_uart_init(uart_dev_t *uart)
     if (uart_id == 0) {
         uart_ctx[uart_id].uart_dma_rx_handler = _uart_dma_rx_handler;
         uart_ctx[uart_id].uart_buffer = _hal_uart_buf;
-    }  
+    }
     if (uart_id == HAL_UART_ID_1) {
         uart_ctx[uart_id].uart_dma_rx_handler = _uart1_dma_rx_handler;
         uart_ctx[uart_id].uart_dma_tx_handler = _uart1_dma_tx_handler;
         uart_ctx[uart_id].uart_buffer = _hal_uart1_buf;
-    } 
+    }
     if (uart_id == HAL_UART_ID_2) {
         uart_ctx[uart_id].uart_dma_rx_handler = _uart2_dma_rx_handler;
         uart_ctx[uart_id].uart_dma_tx_handler = _uart2_dma_tx_handler;
         uart_ctx[uart_id].uart_buffer = _hal_uart2_buf;
-    } 
+    }
     memset(uart_ctx[uart_id].uart_buffer, 0, UART_DMA_RING_BUFFER_SIZE);
 
     uart_cfg.baud = uart->config.baud_rate;
@@ -339,7 +339,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     uart_ctx[uart_id].rxbuf_in = 0;
     uart_ctx[uart_id].rxbuf_out = 0;
     memset(uart_ctx[uart_id].rx_ringbuf, 0, UART_FIFO_MAX_BUFFER);
-    
+
     ret = krhino_sem_create(&uart_ctx[uart_id].rx_sem, "aos", 0);
     if (ret != RHINO_SUCCESS) {
         aos_free(uart_ctx[uart_id].rx_ringbuf);
@@ -352,10 +352,10 @@ int32_t hal_uart_init(uart_dev_t *uart)
         krhino_sem_del(&uart_ctx[uart_id].rx_sem);
         return EIO;
     }
-    
+
     uart_ctx[uart_id].init_flag = 1;
 
-    hal_uart_irq_set_dma_handler(uart_id, uart_ctx[uart_id].uart_dma_rx_handler, 
+    hal_uart_irq_set_dma_handler(uart_id, uart_ctx[uart_id].uart_dma_rx_handler,
                     uart_ctx[uart_id].uart_dma_tx_handler, NULL);
 
     hal_uart_rx_start(uart_id);
@@ -493,8 +493,8 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
         if (recved_len >= expect_size) {
             break;
-        } 
-        
+        }
+
         /*if reaches here, it means need to wait for more data come*/
         krhino_sem_take(&uart_ctx[uart_id].rx_sem, krhino_ms_to_ticks(timeout));
         /*time out break*/
@@ -502,7 +502,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         if((uint32_t)(now_time - begin_time) >= timeout){
             break;
         }
-        
+
     } while (1);
 
     /*haven't get any data from fifo */
@@ -547,18 +547,18 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     if (uart_ctx[uart_id].init_flag == 0) {
         return 0;
     }
-    
+
     if (uart_id == hal_trace_get_id()) {
         //hal_uart_close(uart->port);
         printf("do nothings since we need uart!\n");
         return 0;
     }
-    
+
     hal_uart_close(uart->port);
     aos_free(uart_ctx[uart_id].rx_ringbuf);
     krhino_sem_del(&uart_ctx[uart_id].rx_sem);
     krhino_sem_del(&uart_ctx[uart_id].tx_sem);
     memset(&uart_ctx[uart_id], 0, sizeof(uart_ctx_obj_t));
 
-    return ret;
+    return 0;
 }

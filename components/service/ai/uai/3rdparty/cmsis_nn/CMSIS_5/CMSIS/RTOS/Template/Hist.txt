@@ -1,0 +1,39 @@
+This file describes the changes of the CMSIS-RTOS API interface for internal use
+================================================================================
+
+changes V1.0 -> V1.01
+=====================
+
+Preparation for C++ class interface
+===================================
+---> const attribute moved to macros (to support C++ interface).
+const attribute removed from typedef's (to allow C++ class interface).
+osThreadDef_t, osTimerDef_t, osMutexDef_t, osSemaphoreDef_t, osPoolDef_t, osMessageQDef_t, osMailQDef_t.
+
+const added to the osXxxxDef macros:
+osThreadDef, osTimerDef, osMutexDef, osSemaphoreDef, osPoolDef, osMessageQDef, osMailQDef
+
+Allow to remove Timer/Mutex/Semaphore objects
+=============================================
+Added: osTimerDelete, osMutexDelete, osSemaphoreDelete
+
+
+Added function that initializes (but does not start) the osKernel
+=================================================================
+Added: osKernelInitialize
+osKernelStart changed to osKernelStart (void)
+
+====================================================================
+
+Version 1.02
+  Control functions for short timeouts in microsecond resolution:
+  Added: osKernelSysTick, osKernelSysTickFrequency, osKernelSysTick_uSec
+  Removed: osSignalGet 
+
+Still open for discussion
+=========================
+Adding Low Power extensions
+We have added Low Power extensions to RTX a while ago.
+http://www.keil.com/support/man/docs/rlarm/rlarm_ar_low_power.htm
+
+We should look into this solution (os_suspend/os_resume) and add this functionality to CMSIS RTOS by extending the API. Probably  we can use the same two functions (renamed to fit CMSIS RTOS) but we need to check if this fits (for example  os_resume parameter is in system ticks – same as in os_time_get)

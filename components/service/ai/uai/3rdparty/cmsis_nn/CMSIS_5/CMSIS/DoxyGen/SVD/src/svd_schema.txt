@@ -1,0 +1,2440 @@
+/* ************************************************************************************************ */
+/**
+\page svd_xml_conventions_gr File Conventions
+
+The section outlines the main conventions for writing the SVD description file.
+
+    \section Names
+    All <b>name</b> tags must comp
+ly with the ANSI C identifier naming restrictions. In particular, they
+    must not contain any spaces or special characters. This is necessary to support the generation of device header files
+    thus providing consistency between the names being shown by the debugger and the symbols being used in the CMSIS
+    compliant target software.
+
+    \section Constants
+    Number constants shall be entered in hexadecimal, decimal, or binary format.
+        \li The Hexadecimal format is indicated by a leading <b>\token{0x}</b>. 
+        \li The Binary format is indicated by a leading <b>\token{#}</b>.
+        \li All other formats are interpreted as decimal numbers.
+        \li	The element \tagem{enumeratedValue}.\tagem{value} can be used to define constants.
+        
+    \section Comments 
+    Comments have the standard XML format. 
+        \li Start a comment with <b>\token{\<!\-\-}</b>.
+        \li End a comment with <b>\token{\-\-\>}</b>.
+
+    \section _ Empty Tags
+      - Single tags are not supported (for example, \tagem{name\\}).
+      - The tag content must not consist of an empty string. Omit optional tags instead.
+
+    \remarks
+        The latest \ref schema_1_2_gr is provided alongside this document.
+
+*/
+
+
+/* ************************************************************************************************ */
+/** 
+\page elem_device /device element
+
+The element \tagem{device} provides the outermost frame of the description. 
+    - Only one \tagem{device} section is allowed per file. All other elements are described within this scope. 
+    - A \tagem{device} contains one or more peripherals, but one \tagem{cpu} description.
+    - Optional elements such as \tagem{size}, \tagem{access}, or \tagem{resetValue} defined on this level 
+      represent default values for registers and can be refined at lower levels.
+
+<b>Example</b>
+\code
+<device schemaVersion="1.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd">
+  <vendor>ARM Ltd.</vendor>
+  <vendorID>ARM</vendorID>
+  <name>ARM_Cortex_M4</name>
+  <series>ARMCM4</series>
+  <version>0.1</version>
+  <description>Arm Cortex-M4 based Microcontroller demonstration device</description>
+  <licenseText>
+    Arm Limited (Arm) is supplying this software for use with Cortex-M \n
+    processor based microcontrollers.  This file can be freely distributed \n
+    within development tools that are supporting such Arm based processors. \n
+    \n
+    THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED \n
+    OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF \n
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. \n
+    ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR \n
+    CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+  </licenseText>
+  ...
+  <headerSystemFilename>system_ARMCM4</headeSystemFilename>
+  <headerDefinitionsPrefix>ARM_</headerDefinitionsPrefix>
+  <addressUnitBits>8</addressUnitBits>
+  <width>32</width>
+  <size>32</size>
+  <access>read-write</access>
+  <resetValue>0</resetValue>
+  <resetMask>0xffffffff</resetMask>
+  <peripherals>
+    ...
+  </peripherals>
+</device>
+\endcode
+
+This example describes a device from the vendor \token{ARM Ltd.} using \token{ARM} as short name. 
+The device belongs to the device family \token{ARMCM4}. The device description is at version \token{0.1} and uniquely identifies the device by the name \token{ARM_Cortex_M4}. The legal disclaimer in the header files generated from
+this description is captured and formatted in accordance to the standard Arm CMSIS disclaimer. The CMSIS system file included by the
+generated device header file is named \token{system_ARMCM4.h} and all type definitions will be prepended with \token{ARM_}.
+
+The peripherals are memory mapped in a byte-addressable address space with a bus width of \token{32} bits. 
+The default size of the registers contained in the peripherals is set to \token{32} bits. 
+Unless redefined for specific peripherals, all registers or fields are \token{read-write} accessible. 
+A reset value of \token{0}, valid for all \token{32} bits as specified by the reset mask, 
+is set for all registers unless redefined at a lower level.
+
+\anchor elem_device_sc
+\b /device 
+<table class="cmtable" summary="Device Level Schema">
+  <tr>
+    <th>Parent Level</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>root</td>
+    <td colspan="3">None; Document root</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>xmlns:xs</td>
+    <td>Specify the underlying XML schema to which the CMSIS-SVD schema is compliant. 
+    Has to be set to: \token{"http://www.w3.org/2001/XMLSchema-instance"}.</td>
+    <td>xs:decimal</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>xmlns:xs</td>
+    <td>Specify the file path and file name of the CMSIS-SVD Schema. For example, \token{CMSIS-SVD.xsd}.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>schemaVersion</td>
+    <td>Specify the compliant CMSIS-SVD schema version (for example, \token{1.1}).</td>
+    <td>xs:decimal</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>vendor</td>
+    <td>Specify the vendor of the device using the full name. </td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>vendorID</td>
+    <td>Specify the vendor abbreviation without spaces or special characters. This information is used 
+        to define the directory. </td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>The string identifies the device or device series. Device names are required to be unique.</td>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>series</td>
+    <td>Specify the name of the device series. </td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>Define the version of the SVD file. Silicon vendors maintain the description 
+    throughout the life-cycle of the device and ensure that all updated and released copies 
+    have a unique version string. Higher numbers indicate a more recent version. </td>
+  </tr>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  <tr>
+    <td>description </td>
+    <td>Describe the main features of the device (for example CPU, clock frequency, peripheral overview).</td>
+    <td>xs:string </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>licenseText </td>
+    <td>The text will be copied into the header section of the generated device header file and shall contain the legal disclaimer. 
+        New lines can be inserted by using \token{\\n}. This section is mandatory if the SVD file is used for generating the device header file.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{cpu} </td>
+    <td>Describe the processor included in the device.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>headerSystemFilename </td>
+    <td>Specify the file name (without extension) of the device-specific system include file (<kbd>system_<device>.h</kbd>; See CMSIS-Core description). 
+        The header file generator customizes the include statement referencing the CMSIS system file within the CMSIS device header file. 
+        By default, the filename is <kbd>system_<i>device-name</i>.h</kbd>. In cases where a device series shares a single system header file, 
+        the name of the series shall be used instead of the individual device name. </td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>headerDefinitionsPrefix </td>
+    <td>This string is prepended to all type definition names generated in the CMSIS-Core device header file. 
+        This is used if the vendor's software requires vendor-specific types in order to avoid name clashes with other definied types.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>addressUnitBits </td>
+    <td>Define the number of data bits uniquely selected by each address. 
+    The value for Cortex-M-based devices is  \token{8} (byte-addressable).
+    </td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>width </td>
+    <td>Define the number of data bit-width of the maximum single data transfer supported 
+    by the bus infrastructure. This information is relevant for debuggers when accessing 
+    registers, because it might be required to issue multiple accesses for resources of a bigger size. 
+    The expected value for Cortex-M-based devices is \token{32}.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group2">
+     <td>&nbsp;</td>
+     <td colspan="3" style="white-space:pre-wrap;">Refer to \ref registerPropertiesGroup_gr for details about the colored elements listed below.</td>
+  </tr>
+  <tr class="group2">
+    <td>size</td>
+    <td>Default bit-width of any register contained in the device.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="group2">
+    <td>access</td>
+    <td>Default access rights for all registers.</td>
+    <td>accessType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>protection</td>
+    <td>Default access protection for all registers.</td>
+    <td>protectionStringType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetValue </td>
+    <td>Default value for all registers at RESET.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetMask</td>
+    <td>Define which register bits have a defined reset value.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>\refelem{peripherals}</td>
+    <td>Group to define peripherals. </td>
+    <td>&nbsp;</td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>vendorExtensions </td>
+    <td>The content and format of this section is unspecified. 
+    Silicon vendors may choose to provide additional information. By default, this section 
+    is ignored when constructing CMSIS files. It is up to the silicon vendor to specify 
+    a schema for this section.
+    </td>
+    <td>xs:anyType (restriction) </td>
+    <td>0..1 </td>
+  </tr>
+</table>
+*/
+
+/* ************************************************************************************************ */
+/**
+\page elem_cpu /device/cpu element
+
+The CPU section describes the processor included in the microcontroller device.
+This section is mandatory if the SVD file is used to generate the device header file.
+
+<b>Example</b>
+\code
+<device>
+  ...
+  <cpu>
+    <name>CM7</name> 
+    <revision>r0p0</revision>
+    <endian>little</endian>
+    <mpuPresent>true</mpuPresent>
+    <!-- has double precision FPU -->
+    <fpuPresent>true</fpuPresent>
+    <fpuDP>true</fpuDP>
+    <!-- has instruction and data cache -->
+    <icachePresent>true</icachePresent>
+    <dcachePresent>true</dcachePresent>
+    <!-- has no instruction nor data tighly coupled memory -->
+    <itcmPresent>false</itcmPresent>
+    <dtcmPresent>false</dtcmPresent>
+    <nvicPrioBits>4</nvicPrioBits>
+    <vendorSystickConfig>false</vendorSystickConfig> 
+  </cpu>
+  ...
+<device>
+\endcode
+
+This example describes a device based on a \token{Cortex-M7} core of HW revision \token{r0p0}, 
+with fixed \token{little} endian memory scheme, including \token{Memory Protection Unit} and 
+\token{double precision hardware Floating Point Unit}. It has a \token{data cache} and no \token{instruction} nor
+a tightly coupled memory. The Nested Vectored Interrupt Controller uses \token{4} bits 
+to configure the priority of an interrupt. It is equipped with the standard System Tick Timer as defined by Arm.
+
+\anchor elem_cpu_sc
+\b  /device/cpu
+<table class="cmtable" summary="CPU Section Elements">
+    <tr>
+        <th style="white-space:nowrap">Parent Element</th>
+        <th colspan="3">Element Chain</th>
+    </tr>
+    <tr>
+        <td>\ref elem_device "device"</td>
+        <td colspan="3">\ref elem_device "/device"</td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Child Elements</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Occurrence</th>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>The predefined tokens are:
+        - \token{CM0}: Arm Cortex-M0 
+        - \token{CM0PLUS}: Arm Cortex-M0+
+        - \token{CM0+}: Arm Cortex-M0+
+        - \token{CM1}: Arm Cortex-M1 
+        - \token{SC000}: Arm Secure Core SC000
+        - \token{CM23}: Arm Cortex-M23
+        - \token{CM3}: Arm Cortex-M3
+        - \token{CM33}: Arm Cortex-M33
+        - \token{CM35P}: Arm Cortex-M35P
+        - \token{SC300}: Arm Secure Core SC300
+        - \token{CM4}: Arm Cortex-M4
+        - \token{CM7}: Arm Cortex-M7
+        - \token{CA5}: Arm Cortex-A5
+        - \token{CA7}: Arm Cortex-A7
+        - \token{CA8}: Arm Cortex-A8
+        - \token{CA9}: Arm Cortex-A9
+        - \token{CA15}: Arm Cortex-A15
+        - \token{CA17}: Arm Cortex-A17
+        - \token{CA53}: Arm Cortex-A53
+        - \token{CA57}: Arm Cortex-A57
+        - \token{CA72}: Arm Cortex-A72
+        - \token{other}: other processor architectures
+        </td>
+        <td>cpuNameType </td>
+        <td>1..1 </td>
+    </tr> 
+    <tr>
+        <td>revision</td>
+        <td>Define the HW revision of the processor. The version format is \token{r<em>N</em>p<em>M</em>} (N,M = [0 - 99]). </td>
+        <td>revisionType</td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>endian </td>
+        <td>Define the endianness of the processor being one of:
+         - \token{little}: little endian memory (least significant byte gets allocated at the lowest address).
+         - \token{big}: byte invariant big endian data organization (most significant byte gets allocated at the lowest address).
+         - \token{selectable}: little and big endian are configurable for the device and become active after the next reset.
+         - \token{other}: the endianness is neither little nor big endian.
+        </td>
+        <td>endianType </td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>mpuPresent </td>
+        <td>Indicate whether the processor is equipped with a memory protection unit (MPU). This tag is either set to \token{true} or \token{false}, \token{1} or \token{0}.</td>
+        <td>boolean </td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>fpuPresent </td>
+        <td>Indicate whether the processor is equipped with a hardware floating point unit (FPU). Cortex-M4, Cortex-M7, Cortex-M33 and Cortex-M35P are the only available Cortex-M processor with an optional FPU. This tag is either set to \token{true} or \token{false}, \token{1} or \token{0}.</td>
+        <td>boolean </td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>fpuDP </td>
+        <td>Indicate whether the processor is equipped with a double precision floating point unit. This element is valid only when \tagem{fpuPresent} is set to \token{true}. Currently, only Cortex-M7 processors can have a double precision floating point unit.</td>
+        <td>boolean</td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>dspPresent </td>
+        <td>Indicates whether the processor implements the optional SIMD DSP extensions (DSP). Cortex-M33 and Cortex-M35P are the only available Cortex-M processor with an optional DSP extension. For ARMv7M SIMD DSP extensions are
+        a mandatory part of Cortex-M4 and Cortex-M7. This tag is either set to \token{true} or \token{false}, \token{1} or \token{0}.</td>. This element is mandatory for Cortex-M33, Cortex-M35P and future processors with optional
+        SIMD DSP instruction set.
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>icachePresent</td>
+        <td>Indicate whether the processor has an instruction cache. Note: only for Cortex-M7-based devices. </td>
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>dcachePresent</td>
+        <td>Indicate whether the processor has a data cache. Note: only for Cortex-M7-based devices. </td>
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>itcmPresent</td>
+        <td>Indicate whether the processor has an instruction tightly coupled memory. 
+            Note: only an option for Cortex-M7-based devices. </td>
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>dtcmPresent</td>
+        <td>Indicate whether the processor has a data tightly coupled memory. Note: only for Cortex-M7-based devices. </td>
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>vtorPresent </td>
+        <td>Indicate whether the Vector Table Offset Register (VTOR) is implemented in Cortex-M0+ based devices. 
+            This tag is either set to \token{true} or \token{false}, \token{1} or \token{0}. 
+            If not specified, then VTOR is assumed to be present.</td>
+        <td>boolean </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>nvicPrioBits </td>
+        <td>Define the number of bits available in the Nested Vectored Interrupt Controller (NVIC) for configuring priority.</td>
+        <td>scaledNonNegativeInteger </td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>vendorSystickConfig</td>
+        <td>Indicate whether the processor implements a vendor-specific System Tick Timer. If \token{false}, then the Arm-defined System Tick Timer is available. If \token{true}, then a vendor-specific System Tick Timer must be implemented. This tag is either set to \token{true} or \token{false}, \token{1} or \token{0}.</td>
+        <td>boolean </td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>deviceNumInterrupts</td>
+        <td>Add \token{1} to the highest interrupt number and specify this number in here. You can start to enumerate interrupts from \token{0}.
+            Gaps might exist between interrupts. For example, you have defined interrupts with the numbers \token{1}, \token{2}, and \token{8}. 
+            Add \token{9 :(8+1)} into this field.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>0..1 </td>
+   </tr>        
+    <tr>
+        <td>sauNumRegions</td>
+        <td>Indicate the amount of regions in the Security Attribution Unit (SAU).
+            If the value is greater than zero, then the device has a SAU and the 
+            number indicates the maximum amount of available address regions.
+        </td>
+        <td>scaledNonNegativeInteger </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>\refelem{sauRegionsConfig}</td>
+        <td>If the Secure Attribution Unit is preconfigured by HW or Firmware, then the settings are described here.</td>
+        <td>SauRegionsConfigType</td>
+        <td>0..1 </td>
+    </tr>        
+</table>
+
+\delim_sec
+
+\section elem_sauRegionsConfig /device/cpu/sauRegionsConfig element
+
+Set the configuration for the Secure Attribution Unit (SAU) when they are preconfigured by HW or Firmware.
+
+<b>Example</b>
+\code
+<device>
+  ...
+  <sauRegionsConfig protectionWhenDisabled="n">
+    <region>
+      ...
+    </region>
+    ...
+    <region>
+      ...
+    </region>
+  </sauRegionsConfig>
+  ...
+</device>
+\endcode
+
+The example defines two Secure Attribution Units, which are enabled by default. When 
+the SAU regions are disabled, the protection level is non-secure (\token{n}).
+
+\anchor elem_sauRegionsConfig_sc
+\b /device/cpu/sauRegionsConfig
+<table class="cmtable" summary="sauRegionsConfig tab elements">
+    <tr>
+        <th style="white-space:nowrap">Parent Element</th>
+        <th colspan="3">Element Chain</th>
+    </tr>
+    <tr>
+        <td>\refelem{cpu}</td>
+        <td colspan="3">\ref elem_cpu</td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Attributes</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Use</th>
+    </tr>
+    <tr>
+        <td>enabled</td>
+        <td>Specify whether the Secure Attribution Units are enabled. The following values can be used:
+            \token{true},\token{false},\token{1}, and \token{0}.
+        </td>
+        <td>xs:boolean</td>
+        <td>optional</td>
+    </tr>
+    <tr>
+        <td>\ref elem_protection "protectionWhenDisabled"</td>
+        <td>Set the protection mode for disabled regions. 
+           When the complete SAU is disabled, the whole memory is treated either \token{"s"}=secure or \token{"n"}=non-secure.
+           This value is inherited by the \tagem{region} element. Refer to element \refelem{protection} for details and predefined values.
+        </td>
+        <td>xs:string</td>
+        <td>optional</td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Child Elements</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Occurrence</th>
+    </tr>
+    <tr>
+        <td>\refelem{region}</td>
+        <td>Group to configure SAU regions.</td>
+        <td>xs:string</td>
+        <td>0..*</td>
+    </tr>
+</table>
+
+\delim_sec
+ 
+\section elem_region /device/cpu/sauRegionsConfig/region element
+
+Define the regions of the Secure Attribution Unit (SAU). The protection level is inherited from the attribute 
+\tagem{protectionWhenDisabled} of the enclosing element \refelem{sauRegionsConfig}.
+
+\b Example:
+\code
+<sauRegionsConfig>
+  <region name="SAU1">
+    <base>0x10001000</base>
+    <limit>0x10005000</limit>
+    <access>n</access>
+  </region>
+  <region enabled="false" name="SAU2">
+    <base>0x10006000</base>
+    <limit>0x10008000</limit>
+    <access>c</access>
+  </region>
+</sauRegionsConfig>
+\endcode
+
+The example defines two secure regions with the names \em SAU1 and \em SAU2.
+SAU1 has the address boundries \token{0x10001000} and \token{0x10005000}. The region has non-secure access rights.
+SAU2 has the address boundries \token{0x10006000} and \token{0x10008000}. The region has secure callable access rights.
+
+\anchor elem_region_sc 
+\b /device/cpu/sauRegionsConfig/region
+<table class="cmtable" summary="region tab elements">
+    <tr>
+        <th style="white-space:nowrap">Parent Element</th>
+        <th colspan="3">Element Chain</th>
+    </tr>
+    <tr>
+        <td>\ref elem_sauRegionsConfig "sauRegionsConfig"</td>
+        <td colspan="3">\ref elem_sauRegionsConfig </td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Attributes</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Use</th>
+    </tr>
+    <tr>
+        <td>enabled</td>
+        <td>Specify whether the Secure Attribution Units are enabled. The following values can be used:
+            \token{true} and \token{false}, or \token{1} and \token{0}. Default value is \token{true}.</td>
+        <td>xs:boolean</td>
+        <td>optional</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>Identifiy the region with a name. </td>
+        <td>xs:string</td>
+        <td>optional</td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Child Elements</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Occurrence</th>
+    </tr>
+    <tr>
+        <td>base</td>
+        <td>Base address of the region.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>1..1</td>
+    </tr>
+    <tr>
+        <td>limit</td>
+        <td>Limit address of the region.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>1..1</td>
+    </tr>
+    <tr>
+        <td>access</td>
+        <td>Use one of the following predefined values to define the acces type of a region:
+            \n - \token{n} : non-secure
+            \n - \token{c} : secure callable</td>
+        <td>xs:string</td>
+        <td>1..1</td>
+    </tr>
+</table>
+*/
+
+
+
+/* ************************************************************************************************ */
+/**
+\page elem_peripherals /device/peripherals element 
+
+All peripherals of a device are enclosed within the tag \tagem{peripherals}. 
+
+
+\b Example:
+\code
+<device>
+  ...
+  <peripherals>
+     ...
+  </peripherals>
+<device>
+\endcode
+
+\anchor elem_peripherals_sc 
+\b /device/peripherals
+<table class="cmtable" summary="Peripherals Level">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_device "device"</td>
+    <td colspan="3">\ref elem_device</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\subpage elem_peripheral "peripheral"</td>
+    <td>Define the sequence of peripherals.</td>
+    <td>peripheralType</td>
+    <td>1..*</td>
+    </tr>
+</table>
+
+\delim_sec
+
+\section elem_peripheral /device/peripherals/peripheral element
+
+At least one peripheral has to be defined. 
+- Each peripheral describes all registers belonging to that peripheral. 
+- The address range allocated by a peripheral is defined through one or more address blocks. 
+- An address block and register addresses are specified relative to the base address of a peripheral. 
+The address block information can be used for constructing a memory map for the device peripherals.
+
+Starting version 1.3 of the SVD specification, arrays of peripherals can be specified. 
+The single peripheral description gets duplicated automatically into an array. 
+The number of array elements is specified by the \tagem{dim} element. To define arrays, the \tagem{name} needs 
+the format <em>myPeripheral[%%s]</em>. The tag \tagem{dimIncrement} specifies the address offset between two 
+peripherals. To create copies of a peripheral using different names, you must use the \em derivedFrom attribute.
+
+\remarks  The memory map does not contain any information about physical memory. The memory of a
+device is described as part of the CMSIS-Pack device description.
+
+\b Example:
+\code
+<peripherals>
+  <peripheral>
+    <name>Timer1</name>
+    <version>1.0</version>
+    <description>Timer 1 is a standard timer ... </description>
+    <baseAddress>0x40002000</baseAddress>
+    <addressBlock>
+      <offset>0x0</offset>
+      <size>0x400</size>
+      <usage>registers</usage>
+      <protection>s</protection>
+    </addressBlock>
+    <interrupt><name>TIM0_INT</name><value>34</value></interrupt>
+    <registers>
+      ...
+    </registers>
+  </peripheral>
+
+  <peripheral>
+    <name>Timer1_Alt</name>
+    <version>1.0</version>
+    <description>Alternate Timer 1 is a special timer execution mode ... </description>
+    <baseAddress>0x40002000</baseAddress>
+    <alternatePeripheral>Timer1</alternatePeripheral>
+    ...
+  </peripheral>
+</peripherals>
+\endcode
+
+Two timer peripheral descriptions are specified for the same memory block. No redefined addresses will be reported for both peripherals.
+
+\anchor elem_peripheral_sc
+\b /device/peripherals/peripheral
+<table class="cmtable" summary="Peripheral Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_peripherals "peripherals"</td>
+    <td colspan="3">\ref elem_peripherals</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>derivedFrom</td>
+    <td>Specify the peripheral name from which to inherit data.
+        Elements specified subsequently override inherited values. </td>
+    <td>dimableIdentifierType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="group1">
+    <td>&nbsp;</td>
+    <td colspan="3">Refer to \ref dimElementGroup_gr for details about the colored elements.</td>
+  </tr>
+  <tr class="group1">
+    <td>dim</td>
+    <td>Define the number of elements in an array.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIncrement</td>
+    <td>Specify the address increment, in \token{Bytes}, between two neighboring array members in the address map.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIndex</td>
+    <td>Do not define on peripheral level. By default, \tagem{dimIndex} is an integer value starting at \token{0}.</td>
+    <td>dimIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimName</td>
+    <td>Specify the name of the C-type structure. If not defined, then the entry of the \tagem{name} element is used.</td>
+    <td>idnetifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>\refelem{dimArrayIndex}</td>
+    <td>Grouping element to create enumerations in the header file.</td>
+    <td>dimArrayIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>name </td>
+    <td>The string identifies the peripheral. Peripheral names are required to be unique for a device. 
+        The name needs to be an ANSI C identifier to generate the header file. 
+        You can use the placeholder <em>[%%s]</em> to create arrays.</td>
+    <td>dimableIdentifierType</td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>version </td>
+    <td>The string specifies the version of this peripheral description. </td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>description </td>
+    <td>The string provides an overview of the purpose and functionality of the peripheral.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>alternatePeripheral</td>
+    <td>All address blocks in the memory space of a device are assigned to a unique peripheral by default. If multiple
+		peripherals describe the same address blocks, then this needs to be specified explicitly. A peripheral redefining an address block needs to
+		specify the name of the peripheral that is listed first in the description.</td>
+    <td>dimaleIdentifierType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>groupName </td>
+    <td>Define a name under which the System Viewer is showing this peripheral.</td>
+    <td>xs:Name </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>prependToName </td>
+    <td>Define a string as prefix. All register names of this peripheral get this prefix.</td>
+    <td>identifierType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>appendToName </td>
+    <td>Define a string as suffix. All register names of this peripheral get this suffix.</td>
+    <td>identifierType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>headerStructName</td>
+    <td>Specify the base name of C structures. The headerfile generator uses the name of a peripheral as the base name for the C structure type. 
+        If \tagem{headerStructName} element is specfied, then this string is used instead of the peripheral name; useful when multiple peripherals get derived and a generic type name should be used.</td>
+    <td>dimableIdentifierType </td>
+    <td>0..1 </td>
+  </tr>	
+  <tr>
+    <td>disableCondition </td>
+    <td>Define a C-language compliant logical expression returning a TRUE or FALSE result. 
+        If TRUE, refreshing the display for this peripheral is disabled and related accesses by the debugger are suppressed. 
+        \n \n Only constants and references to other registers contained in the description are allowed:  
+        \tagem{peripheral}->\tagem{register}->\tagem{field}, for example, (System->ClockControl->apbEnable == 0). 
+        The following operators are allowed in the expression [&&,||, ==, !=, >>, <<, &, |].
+        \attention
+        Use this feature only in cases where accesses from the debugger to registers of 
+        un-clocked peripherals result in severe debugging failures. SVD is intended to provide 
+        static information and does not include any run-time computation or functions. 
+        Such capabilities can be added by the tools, and is beyond the scope of this 
+        description language.</td>
+    <td>stringType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>baseAddress </td>
+    <td>Lowest address reserved or used by the peripheral.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>&nbsp;</td>
+    <td colspan="3" style="white-space:pre-wrap;">Refer to \ref registerPropertiesGroup_gr for details about the colored elements.</td>
+  </tr>
+  <tr class="group2">
+    <td>size</td>
+    <td>Define the default bit-width of any register contained in the device (implicit inheritance).</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="group2">
+    <td>access</td>
+    <td>Define default access rights for all registers.</td>
+    <td>accessType</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="group2">
+    <td>protection</td>
+    <td>Define default protection rights for all registers.</td>
+    <td>protectionStringType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetValue </td>
+    <td>Define the default value for all registers at RESET.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetMask</td>
+    <td>Identify which register bits have a defined reset value.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>\refelem{addressBlock}</td>
+    <td>Specify an address range uniquely mapped to this peripheral. A peripheral must 
+        have at least one address block, but can allocate multiple distinct address ranges. 
+        If a peripheral is derived from another peripheral, the addressBlock is not mandatory.</td>
+    <td>addressBlockType</td>
+    <td>0/1..*</td>
+  </tr>
+  <tr>
+    <td>\refelem{interrupt}</td>
+    <td>A peripheral can have multiple associated interrupts. This entry allows the debugger 
+        to show interrupt names instead of interrupt numbers.</td>
+    <td>interruptType </td>
+    <td>0..* </td>
+  </tr>
+  <tr>
+    <td>\refelem{registers} </td>
+    <td>Group to enclose register definitions.</td>
+    <td>registersType</td>
+    <td>0..1 </td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_addressBlock /device/peripherals/peripheral/addressBlock element
+
+Specify an address range uniquely mapped to this peripheral. A peripheral must 
+have at least one address block. If a peripheral is derived form another peripheral, the \tagem{addressBlock} is not mandatory.
+
+\b /device/peripherals/peripheral/addressBlock 
+<table class="cmtable" summary="addressBlock Type Table">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_peripheral "peripheral"</td>
+    <td colspan="3">\ref elem_peripheral</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>offset </td>
+    <td>Specifies the start address of an address block relative to the peripheral \em baseAddress.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1</td>
+  </tr>
+  <tr>
+    <td>size</td>
+    <td>Specifies the number of addressUnitBits being covered by this address block. 
+        The end address of an address block results from the sum of baseAddress, offset, and (size - 1).</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1</td>
+  </tr>
+  <tr>
+    <td>usage</td>
+    <td>The following predefined values can be used: 
+         - \token{registers}
+         - \token{buffer}
+         - \token{reserved}.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1</td>
+  </tr>
+  <tr>
+    <td>\ref elem_protection "protection"</td>
+    <td>Set the protection level for an address block.</td>
+    <td>protectionStringType </td>
+    <td>0..1</td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_interrupt /device/peripherals/peripheral/interrupt element
+
+A peripheral can have multiple interrupts. This entry allows the debugger to show interrupt names instead of interrupt numbers.
+
+\anchor elem_interrupt_sc
+\b /device/peripherals/peripheral/interrupt
+<table class="cmtable" summary="interrupt Type Table">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_peripheral "peripheral"</td>
+    <td colspan="3">\ref elem_peripheral</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>name </td>
+    <td>The string represents the interrupt name.</td>
+    <td>stringType </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>The string describes the interrupt.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>value </td>
+    <td>Represents the enumeration index value associated to the interrupt.</td>
+    <td>xs:integer </td>
+    <td>1..1 </td> 
+  </tr>
+</table>
+*/
+
+/**
+\page elem_registers /device/peripherals/peripheral/registers element
+
+All registers of a peripheral are enclosed between the \tagem{registers} opening and closing tags.
+Clusters define a set of registers. You can either use the \tagem{cluster} or the \tagem{register} element.
+
+\b Example:
+\code
+...
+<peripheral>
+  <registers>
+    ...
+  </registers>
+</peripheral>
+...
+\endcode
+
+\anchor elem_registers_sc 
+\b /device/peripherals/peripheral/registers
+<table class="cmtable" summary="Registers Type Table">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_peripheral "peripheral"</td>
+    <td colspan="3">\ref elem_peripheral</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="choice">
+    <td>\ref elem_cluster "cluster"</td>
+    <td>Define the sequence of register clusters.</td>
+    <td>clusterType </td>
+    <td>0..*</td>
+  </tr>
+  <tr class="choice">
+    <td>\ref elem_register "register"</td>
+    <td>Define the sequence of registers.</td>
+    <td>registerType </td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_cluster /device/pripherals/peripheral/registers/.../cluster element
+
+<b>Cluster</b> describes a sequence of neighboring registers within a peripheral. A \tagem{cluster} specifies
+the <i>addressOffset</i> relative to the <i>baseAddress</i> of the grouping element. All \tagem{register}
+elements within a \tagem{cluster} specify their <i>addressOffset</i> relative to the cluster base address
+(\tagem{peripheral.baseAddress} + \tagem{cluster.addressOffset}).
+
+Multiple \tagem{register} and \tagem{cluster} sections may occur in any order.
+Since version 1.3 of the specification, the nesting of \tagem{cluster} elements is supported. 
+Nested clusters express hierarchical structures of registers. It is predominantely targeted
+at the generation of device header files to create a C-data structure within the
+peripheral structure instead of a flat list of registers.
+Note, you can also specify an array of a cluster using the \tagem{dim} element.
+
+\anchor elem_cluster_sc
+<b>/device/pripherals/peripheral/registers/.../cluster</b>
+<table class="cmtable" summary="Cluster Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref elem_registers "registers"</td>
+    <td colspan="3">\ref elem_registers</td>
+  </tr>
+  <tr>
+    <td>\ref elem_cluster "cluster"</td>
+    <td colspan="3">\ref elem_cluster</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>derivedFrom</td>
+
+    <td>Specify the cluster name from which to inherit data.
+        Elements specified subsequently override inherited values. 
+        <br><b>Usage:</b>
+        - Always use the full qualifying path, which must start with the peripheral \tagem{name}, when deriving from another scope. 
+          (for example, in periperhal \token{B}, derive from \token{peripheralA.clusterX}). 
+        - You can use the cluster \tagem{name} when both clusters are in the same scope.
+        - No relative paths will work.
+        <br><b>Remarks:</b> When deriving a cluster, it is mandatory to specify at least 
+        the \tagem{name}, the \tagem{description}, and the \tagem{addressOffset}.</td>
+    <td>registerType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="group1">
+    <td>&nbsp;</td>
+    <td colspan="3">Refer to \ref dimElementGroup_gr for details.</td>
+  </tr>
+  <tr class="group1">
+    <td>dim</td>
+    <td>Define the number of elements in an array of clusters. </td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIncrement</td>
+    <td>Specify the address increment, in \token{Bytes}, between two neighboring clusters of the cluster array.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIndex</td>
+    <td>Specify the strings that substitute the placeholder <em>[%%s]</em> within the cluster \tagem{name}. 
+        Use the placeholder <em>%%s</em> in \tagem{name} when \tagem{dimIndex} is specified.</td>
+    <td>dimIndexType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimName</td>
+    <td>Specify the name of the C-type structure.  If not defined, then the entry of the \tagem{name} element is used.</td>
+    <td>identifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>\refelem{dimArrayIndex}</td>
+    <td>Grouping element to create enumerations in the header file.</td>
+    <td>dimArrayIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>String to identify the cluster. Cluster names are required to be unique 
+        within the scope of a peripheral. A list of cluster names can be build using the placeholder <em>%%s</em>.
+        Use the placeholder <em>[%%s]</em> at the end of the identifier to generate arrays in the header file.
+        The placeholder <em>[%%s]</em> cannot be used together with \tagem{dimIndex}.</td>
+    <td>dimableIdentifierType</a> </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>String describing the details of the register cluster.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>alternateCluster </td>
+    <td>Specify the name of the original cluster if this cluster provides an alternative description.</td>
+    <td>dimableIdentifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>headerStructName</td>
+    <td>Specify the struct type name created in the device header file. If not specified, then the name of the cluster is used.</td>
+    <td>identifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>addressOffset</td>
+    <td>Cluster address relative to the \tagem{baseAddress} of the peripheral.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>&nbsp;</td>
+    <td colspan="3">Refer to \ref registerPropertiesGroup_gr for details.</td>
+  </tr>
+  <tr class="group2">
+    <td>size</td>
+    <td>Define the default bit-width of any device register (implicit inheritance).</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>0..1 </td>
+  </tr> 
+  <tr class="group2">
+    <td>access</td>
+    <td>Define access rights.</td>
+    <td>accessType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>protection</td>
+    <td>Specify the security privilege to access an address region.</td>
+    <td>protectionStringType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetValue </td>
+    <td>Define the default value for all registers at RESET.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetMask</td>
+    <td>Identify register bits that have a defined reset value.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{register}</td>
+    <td>Define a sequence of register within a cluster.</td>
+    <td>registerType</td>
+    <td>0..* </td>
+  </tr>
+  <tr>
+    <td>\refelem{cluster}</td>
+    <td>Element to nest cluster definitions.</td>
+    <td>clusterType</td>
+    <td>0..* </td>
+  </tr>
+</table>
+
+
+\delim_sec
+
+\section elem_register /device/peripherals/peripheral/registers/.../register element
+
+The description of registers is the most essential part of SVD. If the elements \tagem{size}, \tagem{access}, \tagem{resetValue}, and \tagem{resetMask}
+have not been specified on a higher level, then these elements are mandatory on register level. 
+
+A register can represent a single value or can be subdivided into individual bit-fields of specific functionality and semantics.
+From a schema perspective, the element \tagem{fields} is optional, however, from a specification perspective, 
+\tagem{fields} are mandatory when they are described in the device documentation.
+
+You can define register arrays where the single description gets duplicated automatically. 
+The size of the array is specified by the \tagem{dim} element. Register names get composed by the element \tagem{name} and
+the index-specific string defined in \tagem{dimIndex}. The element \tagem{dimIncrement} specifies the address offset between two registers.
+
+\b Example:
+\code
+...
+<register>
+  <name>TimerCtrl0</name>
+  <description>Timer Control Register</description>
+  <addressOffset>0x0</addressOffset>
+  <access>read-write</access>
+  <resetValue>0x00008001</resetValue>
+  <resetMask>0x0000ffff</resetMask>
+  <size>32</size>
+</register>
+
+<register derivedFrom="TimerCtrl0">
+  <name>TimerCtrl1</name>
+  <description>Derived Timer</description>
+  <addressOffset>0x4</addressOffset>
+</register>
+...
+\endcode
+
+This example describes two registers, \b TimerCtrl0 and \b TimerCtrl1. The values defined for \b TimerCtrl0 are inherited by the derived register 
+\b TimerCtrl1, except for the value in \tagem{addressOffset}.
+
+\b Example:
+\code
+...
+<register>
+    <name>TIM_MODEA</name>
+    <description>In mode A this register acts as a reload value</description>
+    <addressOffset>0xC</addressOffset>
+</register>
+<register>
+    <name>TIM_MODEB</name>
+    <description>In mode B this register acts as the compare value</description>
+    <alternateRegister>TIM_MODEA</alternateRegister>
+    <addressOffset>0xC</addressOffset>
+</register>
+<register>
+    <name>DMA_DATA</name>
+    <description>This register contains the address of the data being transferred</description>
+    <dataType>uint32_t *</dataType>
+    <addressOffset>0xf0</addressOffset>
+</register>
+...
+\endcode
+
+This example describes two registers, \b TIM_MODEA and \b TIM_MODEB. Both have the same address offset. Based on the configured operation
+model being A or B, the register acts as reload or compare value. The register DMA_DATA is specified as a pointer to unsigned word data. 
+The code generated for the device header file is:
+
+\code
+typedef struct {
+  union {
+    __IO   uint32_t TIM_MODEA;
+    __IO   uint32_t TIM_MODEB;
+    };
+  __IO uint32_t * DMA_DATA; 
+  ...
+} <peripheral:name>_Type;
+
+\endcode
+
+
+\anchor elem_register_sc 
+<b>/device/peripherals/peripheral/registers/.../register</b>
+<table class="cmtable" summary="Register Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{cluster}</td>
+    <td colspan="3">\ref elem_cluster</td>
+  </tr>
+  <tr>
+    <td>\refelem{registers}</td>
+    <td colspan="3">\ref elem_registers</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>derivedFrom</td>
+
+    <td>Specify the register name from which to inherit data.
+        Elements specified subsequently override inherited values. 
+        <br><b>Usage:</b>
+        - Always use the full qualifying path, which must start with the peripheral \tagem{name}, when deriving from another scope. 
+          (for example, in periperhal \token{B}, derive from \token{peripheralA.registerX}. 
+        - You can use the register \tagem{name} only when both registers are in the same scope.
+        - No relative paths will work.
+        <br><b>Remarks:</b> When deriving, it is mandatory to specify at least 
+        the \tagem{name}, the \tagem{description}, and the \tagem{addressOffset}.</td>
+    <td>xs:Name</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="group1">
+    <td>&nbsp;</td>
+    <td colspan="3">Refer to \ref dimElementGroup_gr for details.</td>
+  </tr>
+  <tr class="group1">
+    <td>dim</td>
+    <td>Define the number of elements in an array of registers. If \tagem{dimIncrement} is specified, this element becomes mandatory.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIncrement</td>
+    <td>Specify the address increment, in \token{Bytes}, between two neighboring registers.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIndex</td>
+    <td>Specify the substrings that replaces the <em>%%s</em> placeholder within \em name and \em displayName.
+        By default, the index is a decimal value starting with 0 for the first register. 
+        \em dimIndex should not be used together with the placeholder <em>[%%s]</em>, but rather with <em>%%s</em>.</td>
+    <td>dimIndexType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimName</td>
+    <td>Specify the name of the C-type structure.  If not defined, then the entry of the \tagem{name} element is used.</td>
+    <td>identifyerType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>\refelem{dimArrayIndex}</td>
+    <td>Grouping element to create enumerations in the header file.</td>
+    <td>dimArrayIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>String to identify the register. Register names are required to be unique 
+        within the scope of a peripheral. You can use the placeholder <em>%%s</em>, which is replaced by the \em dimIndex substring.
+        Use the placeholder <em>[%%s]</em> only at the end of the identifier to generate arrays in the header file.
+        The placeholder <em>[%%s]</em> cannot be used together with \em dimIndex.</td>
+    <td>registerNameType</a> </td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>displayName</td>
+    <td>When specified, then this string can be used by a graphical frontend to visualize the register. 
+        Otherwise the \em name element is displayed. \em displayName may contain special characters and white spaces. 
+        You can use the placeholder <em>%%s</em>, which is replaced by the \em dimIndex substring. 
+        Use the placeholder <em>[%%s]</em> only at the end of the identifier.
+        The placeholder <em>[%%s]</em> cannot be used together with \em dimIndex.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>String describing the details of the register.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>alternateGroup </td>
+    <td>Specifies a group name associated with all alternate register that have the same name. 
+        At the same time, it indicates that there is a register definition allocating the same absolute address in the address space.</td>
+    <td>xs:Name </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>alternateRegister</td>
+    <td>This tag can reference a register that has been defined above to current location in the description and that  describes 
+        the memory location already. This tells the SVDConv's address checker that the redefinition of this particular register is
+        intentional. The register name needs to be unique within the scope of the current peripheral. 
+        A register description is defined either for a unique address location or could be a redefinition of an already described address. 
+        In the latter case, the register can be either marked <em>alternateRegister</em>
+        and needs to have a unique name, or it can have the same register name but is assigned to a register subgroup through 
+        the tag <em>alternateGroup</em> (specified in version 1.0).</td>
+    <td>identifierType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>addressOffset</td>
+    <td>Define the address offset relative to the enclosing element.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>&nbsp;</td>
+    <td colspan="3" style="white-space:pre-wrap;">Refer to \ref registerPropertiesGroup_gr for details about the colored elements.</td>
+  </tr>
+  <tr class="group2">
+    <td>size</td>
+    <td>Defines the default bit-width of any register contained in the device (implicit inheritance).</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="group2">
+    <td>access</td>
+    <td>Defines the default access rights for all registers.</td>
+    <td>accessType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>protection</td>
+    <td>Defines the protection rights for all registers.</td>
+    <td>protectionStringType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetValue </td>
+    <td>Defines the default value for all registers at RESET.</td>
+    <td>scaledNonNegativeInteger </td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group2">
+    <td>resetMask</td>
+    <td>Identifies which register bits have a defined reset value.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>dataType</td>
+    <td>It can be useful to assign a specific native C datatype to a register. This helps avoiding
+        type casts. For example, if a 32 bit register shall act as a pointer to a 32 bit unsigned data item, then <i>dataType</i> can be set to "uint32_t *".
+        The following simple data types are predefined:
+        - \token{uint8_t}: unsigned byte
+        - \token{uint16_t}: unsigned half word
+        - \token{uint32_t}: unsigned word
+        - \token{uint64_t}: unsigned double word
+        - \token{int8_t}: signed byte
+        - \token{int16_t}: signed half word
+        - \token{int32_t}: signed world
+        - \token{int64_t}: signed double word
+        - \token{uint8_t *}: pointer to unsigned byte
+        - \token{uint16_t *}: pointer to unsigned half word
+        - \token{uint32_t *}: pointer to unsigned word
+        - \token{uint64_t *}: pointer to unsigned double word
+        - \token{int8_t *}: pointer to signed byte
+        - \token{int16_t *}: pointer to signed half word
+        - \token{int32_t *}: pointer to signed world
+        - \token{int64_t *}: pointer to signed double word
+    <td>dataTypeType </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>modifiedWriteValues</td>
+    <td>Element to describe the manipulation of data written to a register. If not specified,
+            the value written to the field is the value stored in the field. The other options define bitwise operations:
+            \li \token{oneToClear}: write data bits of one shall clear (set to zero) 
+            the corresponding bit in the register.
+            \li \token{oneToSet}: write data bits of one shall set (set to one) 
+            the corresponding bit in the register.
+            \li \token{oneToToggle}: write data bits of one shall toggle (invert) 
+            the corresponding bit in the register.
+            \li \token{zeroToClear}: write data bits of zero shall clear (set to zero)
+            the corresponding bit in the register.
+            \li \token{zeroToSet}: write data bits of zero shall set (set to one) 
+            the corresponding bit in the register.
+            \li \token{zeroToToggle}: write data bits of zero shall toggle (invert) 
+            the corresponding bit in the register.
+            \li \token{clear}: after a write operation all bits in the field are cleared (set to zero).
+            \li \token{set}: after a write operation all bits in the field are set (set to one).
+            \li \token{modify}: after a write operation all bit in the field may be modified (default). </td>
+    <td>modifiedWriteValuesType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{writeConstraint}</td>
+    <td>Three mutually exclusive options exist to set write-constraints.</td>
+    <td>writeConstraintType</td>
+    <td>0..1</td>
+  </tr>    
+  <tr>
+    <td>readAction </td>
+    <td>If set, it specifies the side effect following a read operation. If not set, the register is not modified. The defined side effects are:
+        \li \token{clear}: The register is cleared (set to zero) following a read operation.
+        \li \token{set}: The register is set (set to ones) following a read operation.
+        \li \token{modify}: The register is modified in some way after a read operation.
+        \li \token{modifyExternal}: One or more dependent resources other than the current register 
+             are immediately affected by a read operation (it is recommended that the register description specifies these dependencies).
+
+        Debuggers are not expected to read this register location unless explicitly instructed by the user.</td>
+    <td>readActionType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{fields}</td>
+    <td>In case a register is subdivided into bit fields, it should be reflected in the SVD description file to create 
+        bit-access macros and bit-field structures in the header file.</td>
+    <td>fieldsType</td>
+    <td>0..1 </td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_writeConstraint /device/peripherals/peripheral/registers/.../register/.../writeConstraint element
+
+Define constraints for writing values to a field. You can choose between three options, which are mutualy exclusive.
+
+\b Example:
+\code
+<register>
+  ...
+  <writeConstraint>
+    <useEnumeratedValues>true</useEnumeratedValues>
+  </writeConstraint>
+  ...
+  <field>
+    <name>F_ONE</name>
+    ...
+    <writeConstraint>
+      <range>
+        <minimum>2</minimum>
+        <maximum>4</maximum>
+      </range>
+    </writeConstraint>
+    ...
+  <field>
+  <field>
+    <name>F_TWO</name>
+    ...
+    <writeConstraint>
+      <writeAsRead>true</writeAsRead>
+    </writeConstraint>
+    ...
+  <field>
+  <field>
+    <name>F_N</name>
+    ...
+  <field>
+  ... 
+<register>  
+\endcode
+
+The example shows write constraints defined on different levels. The write constrains on \tagem{register} level are propagated as default
+to all subsequent fields, especially to field \b F_N. Field \b F_ONE overwrites the default and sets the write range between \token{2..4}.
+Other values cannot be written to this field. Field \b F_TWO overwrites the default and allows to write only the last read value.
+
+\anchor elem_writeConstraint_sc
+<b>/device/peripherals/peripheral/registers/.../register/.../writeConstraint</b>
+<table class="cmtable" summary="Write Constraints table">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{register}</td>
+    <td colspan="3">\ref elem_register</td>
+  </tr>
+  <tr>
+    <td>\refelem{field}</td>
+    <td colspan="3">\ref elem_field</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="choice">
+    <td>writeAsRead</td>
+    <td>If \token{true}, only the last read value can be written.</td>
+    <td>xs:boolean</td>
+    <td>0..1</td>
+  </tr>    
+  <tr class="choice">
+    <td>useEnumeratedValues</td>
+    <td>If \token{true}, only the values listed in the \refelem{enumeratedValues} list can be written.
+    <td>xs:boolean</td>
+    <td>0..1</td>
+  </tr>    
+  <tr class="choice">
+    <td>range</td>
+    <td>Contains the following two elements:</td>
+    <td>&nbsp;</td>
+    <td>0..1</td>
+  </tr>    
+  <tr class="choice">
+    <td align="right">minimum</td>
+    <td>Specify the smallest number to be written to the field.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1</td>
+  </tr>    
+  <tr class="choice">
+    <td align="right">maximum</td>
+    <td>Specify the largest number to be written to the field.</td>
+    <td>scaledNonNegativeInteger</td>
+     <td>1..1</td>
+  </tr>    
+</table>
+
+\delim_sec
+
+\section elem_fields /device/peripherals/peripheral/registers/.../register/fields element
+
+Grouping element to define bit-field properties of a register.
+
+\b Example:
+\code
+...
+<fields>
+  ...
+  <field>
+    <name>TimerCtrl0_IntSel</name>
+    <description>Select interrupt line that is triggered by timer overflow.</description>
+    <bitOffset>1</bitOffset>
+    <bitWidth>3</bitWidth>
+    <access>read-write</access>
+    <modifiedWriteValues>oneToSet</modifiedWriteValues>
+    <writeConstraint>
+      <range>
+        <minimum>0</minimum>
+        <maximum>5</maximum>
+      </range>
+    </writeConstraint>
+    <readAction>clear</readAction>
+  <field>
+  ...
+  <field>
+    <name>BIT1</name> 
+    <description>test</description>
+    <bitRange>[7:0]</bitRange> 
+    <access>read-write</access>
+  </field>
+  ... 
+</fields>
+...
+\endcode
+
+The example creates two bit-files \b TimerCtrl0_IntSel and \b BIT1. The bit-field \b TimerCtrl0_IntSel has an bit offset of \token{1} and a depth
+of \token{3} bits, with unrestricted read and write access, a reset value of \token{0} and a write constraint of \token{oneToSet}, which means that only the written bit is changed. The value allowed to be written to the field range between \token{0-5}. After a read operation, all bits are set to \token{zero}.
+
+The bit-field \b BIT1, described as a test field, has the size of \token{8} bits and can be unlimited read and written.
+
+\anchor elem_fields_sc 
+<b>/device/peripherals/peripheral/registers/.../register/fields</b>
+<table class="cmtable" summary="Fields Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{register}</td>
+    <td colspan="3">\ref elem_register</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\refelem{field}</td>
+    <td>Define the bit-field properties of a register.</td>
+    <td>fieldType </td>
+    <td>1..* </td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_field /device/peripherals/peripheral/registers/.../fields/field element
+
+All fields of a register are enclosed between the \tagem{fields} opening and closing tags.
+	
+A bit-field has a name that is unique within the register. The 
+position and size within the register can be decsribed in two ways: 
+ - by the combination of the least significant bit's position (lsb) and the most significant bit's position (msb), or 
+ - the lsb and the bit-width of the field. 
+
+A field may define an \em enumeratedValue in order to make the display more intuitive to read. 
+
+
+\anchor elem_field_sc 
+<b>/device/peripherals/peripheral/registers/.../fields/field</b>
+<table class="cmtable" summary="Field Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{fields}</td>
+    <td colspan="3">\ref elem_fields</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>derivedFrom</td>
+    <td>Specify the field name from which to inherit data.
+        Elements specified subsequently override inherited values. 
+        <br><b>Usage:</b>
+        - Always use the full qualifying path, which must start with the peripheral \tagem{name}, when deriving from another scope. 
+          (for example, in periperhal \token{A} and \token{registerX}, derive from \token{peripheralA.registerYY.fieldYY}. 
+        - You can use the field \tagem{name} only when both fields are in the same scope.
+        - No relative paths will work.
+        <br><b>Remarks:</b> When deriving, it is mandatory to specify at least 
+        the \tagem{name} and \tagem{description}.</td>
+    <td>xs:Name</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr class="group1">
+    <td>&nbsp;</td>
+    <td colspan="3">Refer to \ref dimElementGroup_gr for details.</td>
+  </tr>
+  <tr class="group1">
+    <td>dim</td>
+    <td>Defines the number of elements in a list.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIncrement</td>
+    <td>Specify the address increment, in \token{bits}, between two neighboring list members in the address map.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimIndex</td>
+    <td>Specify the strings that substitue the placeholder <em>%%s</em> within  \tagem{name} and \tagem{displayName}.</td>
+    <td>dimIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>dimName</td>
+    <td>Specify the name of the C-type structure. If not defined, then the entry in the \tagem{name} element is used.</td>
+    <td>identifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr class="group1">
+    <td>\refelem{dimArrayIndex}</td>
+    <td>Grouping element to create enumerations in the header file.</td>
+    <td>dimArrayIndexType</td>
+    <td>0..1 </td>
+  </tr>
+    <tr>
+        <td>name</td>
+        <td>Name string used to identify the field. Field names must be unique within a register.</td>
+        <td>dimableIdentifierType</td>
+        <td>1..1 </td>
+    </tr>
+    <tr>
+        <td>description</td>
+        <td>String describing the details of the register.</td>
+        <td>stringType</td>
+        <td>0..1 </td>
+    </tr>
+    <tr  class="choice">
+        <td><em>Choice of</em></td>
+        <td colspan="2">Three mutually exclusive options exist to describe the bit-range:</td>
+        <td>1..1</td>
+    </tr>
+    <tr  class="choice">
+        <td colspan="4"><em>1. bitRangeLsbMsbStyle</em> </td>
+    </tr>
+    <tr  class="choice">
+        <td align="right">bitOffset</td>
+        <td>Value defining the position of the least significant bit of the field within the register.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>1..1 </td>
+    </tr>
+    <tr  class="choice">
+        <td align="right">bitWidth </td>
+        <td>Value defining the bit-width of the bitfield within the register. </td>
+        <td>scaledNonNegativeInteger</td>
+        <td>0..1 </td>
+    </tr>
+    <tr  class="choice">
+        <td colspan="4"><em>2. bitRangeOffsetWidthStyle</em></td>
+    </tr>
+    <tr  class="choice">
+        <td align="right">lsb </td>
+        <td>Value defining the bit position of the least significant bit within the register.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>1..1 </td>
+    </tr>
+    <tr  class="choice">
+        <td align="right">msb </td>
+        <td>Value defining the bit position of the most significant bit within the register. </td>
+        <td>scaledNonNegativeInteger</td>
+        <td>1..1</td>
+    </tr>
+    <tr class="choice" >
+        <td colspan="4"><em>3. bitRangePattern</em></td>
+    </tr>
+    <tr  class="choice">
+        <td align="right">bitRange </td>
+        <td>A string in the format: "[<msb>:<lsb>]"</td>
+        <td>bitRangeType </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>\ref elem_access "access"</td>
+        <td>Predefined strings set the access type. The element can be omitted if access rights get inherited from parent elements.</td>
+        <td>accessType</td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>modifiedWriteValues</td>
+        <td>Describe the manipulation of data written to a field. If not specified, the value 
+        written to the field is the value stored in the field. The other options are bitwise operations:
+  \li \token{oneToClear}: write data bit of one shall clear (set to zero) the corresponding bit in the field.
+  \li \token{oneToSet}: write data bit of one shall set (set to one) the corresponding bit in the field.
+  \li \token{oneToToggle}: write data bit of one shall toggle (invert) the corresponding bit in the field.
+  \li \token{zeroToClear}: write data bit of zero shall clear (set to zero) the corresponding bit in the field.
+  \li \token{zeroToSet}: write data bit of zero shall set (set to one) the corresponding bit in the field.
+  \li \token{zeroToToggle}: write data bit of zero shall toggle (invert) the corresponding bit in the field.
+  \li \token{clear}: after a write operation all bits in the field are cleared (set to zero).
+  \li \token{set}: after a write operation all bits in the field are set (set to one).
+  \li \token{modify}: after a write operation all bit in the field may be modified (default). </td>
+        <td>modifiedWriteValuesType</td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>\refelem{writeConstraint}</td>
+        <td>Three mutually exclusive options exist to set write-constraints.</td>
+        <td>writeConstraintType</td>
+        <td>0..1</td>
+    </tr>    
+    <tr>
+        <td>readAction</td>
+        <td>If set, it specifies the side effect following a read operation. If not set, the field 
+        is not modified after a read. The defined side effects are:
+  \li \token{clear}: The field is cleared (set to zero) following a read operation.
+  \li \token{set}: The field is set (set to ones) following a read operation.
+  \li \token{modify}: The field is modified in some way after a read operation.
+  \li \token{modifyExternal}: One or more dependent resources 
+  other than the current field are immediately affected by a read operation (it is recommended that the field 
+  description specifies these dependencies). 
+
+  Debuggers are not expected to read this field location unless explicitly instructed by the user.</td>
+        <td>readActionType</td>
+        <td>0..1 </td>register
+    </tr>
+    <tr>
+        <td>\refelem{enumeratedValues}</td>
+        <td>Next lower level of description.</td>
+        <td>enumerationType</td>
+    <td>0..2</td>
+    </tr>
+</table>
+
+\delim_sec
+
+\section elem_enumeratedValues /device/peripherals/peripheral/registers/.../field/enumeratedValues element
+
+The concept of enumerated values creates a map between unsigned integers and an identifier string.
+In addition, a description string can be associated with each entry in the map.
+
+<pre>
+  0 <-> disabled -> "The clock source clk0 is turned off."
+  1 <-> enabled  -> "The clock source clk1 is running."
+  2 <-> reserved -> "Reserved values. Do not use."
+  3 <-> reserved -> "Reserved values. Do not use."
+</pre>
+
+This information generates an <em>enum</em> in the device header file. The debugger may use 
+this information to display the identifier string as well as the description. Just like symbolic constants
+making source code more readable, the system view in the debugger becomes more instructive. The detailed description 
+can provide reference manual level details within the debugger.
+
+\b Example:
+
+\code
+<enumeratedValues>
+
+    <name>TimerIntSelect</name>
+    <usage>read-write</usage>
+
+    <enumeratedValue>
+        <name>disabled</name>
+        <description>The clock source clk0 is turned off.</description>
+        <value>0</value>
+    </enumeratedValue>
+
+    <enumeratedValue>
+        <name>enabled</name>
+        <description>The clock source clk1 is running.</description>
+        <value>1</value>
+    </enumeratedValue>
+
+    <enumeratedValue>
+        <name>reserved</name>
+        <description>Reserved values. Do not use.</description>
+        <isDefault>true</isDefault>
+    </enumeratedValue>
+
+</enumeratedValues>
+\endcode
+
+
+\anchor elem_enumeratedValues_sc
+<b>/device/peripherals/peripheral/registers/.../field/enumeratedValues</b>
+<table class="cmtable" summary="Enumerated Values Level Schema">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{field}</td>
+    <td colspan="3">\ref elem_field</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>derivedFrom</td>
+    <td>Makes a copy from a previously defined \em enumeratedValues section. 
+        No modifications are allowed. An \em enumeratedValues entry is referenced by its name. 
+        If the name is not unique throughout the description, it needs to be further qualified 
+        by specifying the associated field, register, and peripheral as required. For example:
+<pre>
+    field:                           clk.dis_en_enum
+    register + field:                ctrl.clk.dis_en_enum
+    peripheral + register + field:   timer0.ctrl.clk.dis_en_enum
+</pre>
+    </td>
+    <td>xs:Name</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>Identifier for the whole enumeration section.</td>
+    <td>xs:Name</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>headerEnumName</td>
+    <td>Identifier for the enumeration section. Overwrites the hierarchical enumeration type in the device header file. 
+        User is responsible for uniqueness across description.</td>
+    <td>identifierType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>usage</td>
+    <td>Possible values are \token{read<em>,</em> write<em>, or</em> read-write}. 
+        This allows specifying two different enumerated values depending whether it is to be used 
+        for a read or a write access. If not specified, the default value \token{read-write} is used.</td>
+    <td>enumUsageType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>\refelem{enumeratedValue}</td>
+    <td>Describes a single entry in the enumeration. The number of required items depends on the 
+        bit-width of the associated field.</td>
+    <td>enumeratedValueType</td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+\delim_sec
+
+\section elem_enumeratedValue /device/peripherals/peripheral/registers/.../enumeratedValue element
+
+An \em enumeratedValue defines a map between an unsigned integer and a string.
+
+\anchor elem_enumeratedValue_sc
+<b>/device/peripherals/peripheral/registers/.../enumeratedValue</b>
+<table class="cmtable" summary="Enumerated Value">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{enumeratedValues}</td>
+    <td colspan="3">\ref elem_enumeratedValues</td>
+  </tr>
+  <tr>
+    <td>\refelem{dimArrayIndex}</td>
+    <td colspan="3">\ref elem_dimArrayIndex</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>String describing the semantics of the value. Can be displayed instead of the value.</td>
+    <td>identifierType</td>
+    <td>0..1</td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Extended string describing the value.</td>
+    <td>xs:string</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="choice">
+    <td colspan="3"><em>choice of</em></td>
+     <td>1..1</td>
+  </tr>
+  <tr class="choice">
+    <td align="right">value</td>
+    <td>Defines the constant for the bit-field as decimal, hexadecimal (0x...) or binary (0b... or #...) number. E.g.:
+<pre>
+      \<value>15\</value>
+      \<value>0xf\</value>
+      \<value>0b1111\</value>
+      \<value>#1111\</value>
+</pre>
+    In addition the binary format supports <em>'do not care'</em> bits represented by <b>\token{x}</b>.
+    E.g. specifying value 14 and 15 as:
+    <pre>
+      \<value>0b111x\</value>
+      \<value>#111x\</value>
+    </pre>  
+    </td>
+    <td style="white-space:nowrap">scaledNonNegativeInteger</td>
+    <td>0..1</td>
+  </tr>
+  <tr class="choice">
+    <td align="right">isDefault</td>
+    <td>Defines the name and description for all other values that are not listed explicitly.</td>
+    <td>xs:boolean</td>
+    <td>0..1</td>
+  </tr>
+</table>
+*/
+
+/**
+\page elem_special Special Elements
+
+This section describes elements that occur on various levels and specifies the general rules.
+Specific requirements are mentioned in the place where these elements occur.
+
+ - \ref dimElementGroup_gr "dimElementGroup"  - Elements that can be used to define arrays and lists in the code.
+ - \ref registerPropertiesGroup_gr "registerPropertiesGroup" - Register properties. Higher level definitions use as default values for lower level descriptions.
+
+\delim_sec
+
+\section dimElementGroup_gr dimElementGroup
+
+The elements below appear on various levels and can be used to define arrays and lists in the code. 
+Single descriptions get duplicated automatically into an array or a list. 
+The subsequent is true for all elements of type \em dimableIdentifierType.
+
+ - To create arrays, use the placeholder <em>[%%s]</em> at the end of a \tagem{name} and \tagem{displayName}.
+   <span style="color:red">Do not define \tagem{dimIndex} in this case!</span>
+ - To create lists, use the placeholder <em>%%s</em> anywhere within or at the end of a \tagem{name} and \tagem{displayName}.
+
+\note
+Some of the \tagem{name} and \tagem{displayName} elements can use both placeholders (<em>[%%s]</em>, <em>%%s</em>), others just one. 
+Refer to \refelem{peripheral}, \refelem{register}, \refelem{cluster}, and \refelem{field} for details.
+
+
+<table class="cmtable" summary="dimElementGroup Description">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{peripheral}</td>
+    <td colspan="3">\ref elem_peripheral </td>
+  </tr>
+  <tr>
+    <td>\refelem{register}</td>
+    <td colspan="3">\ref elem_register </td>
+  </tr>
+  <tr>
+    <td>\refelem{cluster}</td>
+    <td colspan="3">\ref elem_cluster </td>
+  </tr>
+  <tr>
+    <td>\refelem{field}</td>
+    <td colspan="3">\ref elem_field</td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Grouped Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>dim</td>
+    <td>Defines the number of elements in an array or list.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>dimIncrement</td>
+    <td>Specify the address increment between two neighboring array or list members in the address map.</td>
+    <td>scaledNonNegativeInteger</td>
+    <td>1..1 </td>
+  </tr>
+  <tr>
+    <td>dimIndex</td>
+    <td>Specify the strings that substitue the placeholder <em>%%s</em> within  \tagem{name} and \tagem{displayName}.
+        By default, \tagem{dimIndex} is a value starting with \token{0}.
+        \n\b Remark: Do not define \tagem{dimIndex} when using the placeholder <em>[%%s]</em> in \tagem{name} or \tagem{displayName}.</td>
+    <td>dimIndexType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>dimName</td>
+    <td>Specify the name of the C-type structure. If not defined, then the entry in the \tagem{name} element is used.</td>
+    <td>identifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{dimArrayIndex}</td>
+    <td>Grouping element to create enumerations in the header file.</td>
+    <td>dimArrayIndexType</td>
+    <td>0..1 </td>
+  </tr>
+</table>
+  
+\b Example:
+The examples creates definitions for registers.
+
+\code{.xml}
+...
+<register>
+    <dim>6</dim> 
+    <dimIncrement>4</dimIncrement> 
+    <dimIndex>A,B,C,D,E,Z</dimIndex> 
+    <name>GPIO_%s_CTRL</name> 
+...
+</register>
+\endcode
+
+The code above generates the list:
+=> GPIO_A_CTRL, GPIO_B_CTRL, GPIO_C_CTRL, GPIO_D_CTRL, GPIO_E_CTRL, GPIO_Z_CTRL
+
+
+\code{.xml}
+...
+<register>
+    <dim>4</dim> 
+    <dimIncrement>4</dimIncrement> 
+    <dimIndex>3-6</dimIndex> 
+    <name>IRQ%s</name> 
+...
+</register>
+\endcode
+
+The example above generates the list: => IRQ3, IRQ4, IRQ5, IRQ6
+
+
+\code{.xml}
+...
+<register>
+    <dim>4</dim> 
+    <dimIncrement>4</dimIncrement> 
+    <name>MyArr[%s]</name> 
+...
+</register>
+\endcode
+
+The example above generates the array: => MyArr[4]
+
+\delim_sec
+
+\subsection elem_dimArrayIndex /device/peripherals/peripheral/.../dimArrayIndex element
+
+This information is used for generating an <em>enum</em> in the device header file. The debugger may use 
+this information to display the identifier string as well as the description. Just like symbolic constants
+making source code more readable, the system view in the debugger becomes more instructive.
+
+\b Example:
+\code
+...
+<dimArrayIndex>
+  <headerEnumName>FSMC_EnumArray</headerEnumName>
+  <enumeratedValue>
+    <name>UART0</name>
+    <description>UART0 Peripheral</description>
+    <value>0</value>
+  </enumeratedValue>
+  <enumeratedValue>
+    <name>TIMER0</name>
+    <description>TIMER0 Peripheral</description>
+    <value>1</value>
+  </enumeratedValue>
+</dimArrayIndex>
+...
+\endcode
+
+\anchor elem_dimArrayIndex_sc
+<b>/device/peripherals/peripheral/.../dimArrayIndex</b>
+<table class="cmtable" summary="dimArrayIndex Table">
+  <tr>
+    <th style="white-space:nowrap">Parent Element</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\refelem{peripheral}</td>
+    <td colspan="3">\ref elem_peripheral </td>
+  </tr>
+  <tr>
+    <td>\refelem{register}</td>
+    <td colspan="3">\ref elem_register </td>
+  </tr>
+  <tr>
+    <td>\refelem{cluster}</td>
+    <td colspan="3">\ref elem_cluster </td>
+  </tr>
+  <tr>
+    <th style="white-space:nowrap">Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>headerEnumName</td>
+    <td>Specify the base name of enumerations.  Overwrites the hierarchical enumeration type in the device header file. 
+        User is responsible for uniqueness across description.
+        The headerfile generator uses the name of a peripheral or cluster as the base name for enumeration types. 
+        If \tagem{headerEnumName} element is specfied, then this string is used.
+
+</td>
+    <td>identifierType</td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>\refelem{enumeratedValue}</td>
+    <td>Specify the values contained in the enumeration.</td>
+    <td>enumeratedValueType</td>
+    <td>1..* </td>
+  </tr>
+</table>
+
+\delim_sec 
+
+\section registerPropertiesGroup_gr registerPropertiesGroup
+
+The following elements are available on various levels. 
+Element values defined on a lower level overwrite element values defined on a more general level.
+For example, \tagem{register}.\tagem{size} overwrites \tagem{peripheral}.\tagem{size}.
+Elements not defined on a more general level, must be defined at \tagem{register} level at the latest.
+
+Special requirements are described on the level where the element occurs. Click on the parent element in the table below for details.
+
+\b Example:
+\code
+<device schemaVersion="1.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd">
+  <name>ARM_Cortex_M3</name>
+  <version>0.1</version>
+  <description>Arm Cortex-M3 based Microcontroller demonstration device</description>
+  <addressUnitBits>8</addressUnitBits>
+  <width>32</width>
+  <size>32</size>
+  <access>read-write</access>
+  <protection>s</protection>
+  ...
+  <peripherals>
+    ...
+  </peripherals>
+</device>
+\endcode
+
+Default settings have been defined for \tagem{width}, \tagem{size}, \tagem{access}, and \tagem{protection} on device level. 
+These settings can be refined on subsequent levels.
+
+\anchor elem_register_sc
+<b>Register Properties</b>
+<table class="cmtable" summary="Register Properties Group Elements">
+    <tr>
+        <th style="white-space:nowrap">Parent Element</th>
+        <th colspan="3">Element Chain</th>
+    </tr>
+    <tr>
+        <td>\refelem{device}</td>
+        <td colspan="3">\ref elem_device </td>
+    </tr>
+    <tr>
+        <td>\refelem{peripheral}</td>
+        <td colspan="3">\ref elem_peripheral </td>
+    </tr>
+    <tr>
+        <td>\refelem{register}</td>
+        <td colspan="3">\ref elem_register </td>
+    </tr>
+    <tr>
+        <td>\refelem{cluster}</td>
+        <td colspan="3">\ref elem_cluster </td>
+    </tr>
+    <tr>
+        <th>&nbsp;</th>
+        <th colspan="3">\token{Below: Parent elements that have a reference to a single element of this block}</th>
+    </tr>
+    <tr>
+        <td>\refelem{field}</td>
+        <td colspan="3">\ref elem_field  (only for element \tagem{access})</td>
+    </tr>
+    <tr>
+        <td>\refelem{sauRegionsConfig}</td>
+        <td colspan="3">\ref elem_sauRegionsConfig (element \tagem{protection} for attribute \tagem{protectionWhenDisabled})</td>
+    </tr>
+    <tr>
+        <td>\refelem{addressBlock}</td>
+        <td colspan="3">\ref elem_addressBlock  (only for element \tagem{protection})</td>
+    </tr>
+    <tr>
+        <th style="white-space:nowrap">Elements</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Occurrence</th>
+    </tr>
+    <tr>
+        <td>size</td>
+        <td>Define the default bit-width of any device register (implicit inheritance). 
+        The value can be redefined on any lower level using the \tagem{size} element there.
+        </td>
+        <td>scaledNonNegativeInteger </td>
+        <td>0..1 </td>
+    </tr> 
+    <tr>
+        <td>\anchor elem_access access</td>
+        <td>Define access rights. Access rights can be redefined at any lower level. Use one of the following predefined values:
+        - \token{read-only}:  Read access is permitted. Write operations have an undefined result.
+        - \token{write-only}: Read operations have an undefined result. Write access is permitted. 
+        - \token{read-write}: Read and write accesses are permitted. Writes affect the state of the register 
+                              and reads return the register value.
+        - \token{writeOnce}:  Read operations have an undefined results. Only the first write after reset has an effect. 
+        - \token{read-writeOnce}: Read access is always permitted. Only the first write access after a reset 
+                                  will have an effect on the content. Other write operations have an undefined result.
+        </td>
+        <td>accessType</td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+      <td>\anchor elem_protection protection</td>
+      <td>Specify the security privilege to access an address region. This information is relevant for the
+            programmer as well as the debugger when no universal access permissions have been granted.
+            If no specific information is provided, an address region is accessible in any mode.  
+            The following values can be used to protect accesses by the programmer or debugger:
+           - \token{"s"} - secure permission required for access
+           - \token{"n"} - non-secure or secure permission required for access
+           - \token{"p"} - privileged permission required for access</td>
+      </td>
+      <td>protectionStringType</td>
+      <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>resetValue </td>
+        <td>Define the default value for all registers at RESET.
+            The value can be redefined on any lower level using the \tagem{resetValue}
+            element there. The actual reset value is calculated from the \tagem{resetValue} and the 
+            \tagem{resetMask}. The mask is used to specify bits with an undefined reset value.</td>
+        <td>scaledNonNegativeInteger </td>
+        <td>0..1 </td>
+    </tr>
+    <tr>
+        <td>resetMask</td>
+        <td>Identify register bits that have a defined reset value. These bit positions are set to \token{1}.
+            Bit positions with an undefined reset value are set to \token{0}.</td>
+        <td>scaledNonNegativeInteger</td>
+        <td>0..1 </td>
+    </tr>
+</table>
+*/
+
+/* ************************************************************************************************ */
+/**
+\page schema_1_2_gr CMSIS-SVD Schema File
+\verbinclude "CMSIS-SVD.xsd"
+
+*/

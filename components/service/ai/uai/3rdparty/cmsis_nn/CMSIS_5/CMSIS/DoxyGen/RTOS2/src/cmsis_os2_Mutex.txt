@@ -1,0 +1,409 @@
+// 
+// close group struct osMutexAttr_t
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+//  ==== Mutex Management ====
+/** 
+\addtogroup CMSIS_RTOS_MutexMgmt Mutex Management
+\ingroup CMSIS_RTOS
+\brief Synchronize resource access using Mutual Exclusion (Mutex).
+\details 
+<b>Mutual exclusion</b> (widely known as \b Mutex) is used in various operating systems for resource management. Many
+resources in a microcontroller device can be used repeatedly, but only by one thread at a time (for example communication
+channels, memory, and files). Mutexes are used to protect access to a shared resource. A mutex is created and then passed
+between the threads (they can acquire and release the mutex).
+
+\image html "Mutex.png" "CMSIS-RTOS Mutex"
+
+A mutex is a special version of a \ref CMSIS_RTOS_SemaphoreMgmt "semaphore". Like the semaphore, it is a container for
+tokens. But instead of being able to have multiple tokens, a mutex can only carry one (representing the resource). Thus, a
+mutex token is binary and bounded, i.e. it is either \em available, or \em blocked by a owning thread. The advantage of a
+mutex is that it introduces thread ownership. When a thread acquires a mutex and becomes its owner, subsequent mutex acquires
+from that thread will succeed immediately without any latency (if \ref osMutexRecursive is specified). Thus, mutex acquires/releases
+can be nested.
+
+\image html "mutex_states.png" "CMSIS-RTOS Mutex States"
+
+\note Mutex management functions cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines" (ISR), unlike a
+binary semaphore that can be released from an ISR.
+\note Refer to \ref mutexConfig for RTX5 configuration options.  
+  
+@{
+*/
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osMutexRecursive
+\details
+Recursive flag in osMutexAttr_t.
+
+The same thread can consume a mutex multiple times without locking itself.
+Each time the owning thread acquires the mutex the lock count is incremented. The mutex must
+be released multiple times as well until the lock count reaches zero. At reaching zero the
+mutex is actually released and can be acquired by other threads.
+
+\note The maximum amount of recursive locks possible is implementation specific, i.e. the type size used for the lock count.
+If the maximum amount of recursive locks is depleted mutex acquire might fail.
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id; 
+ 
+const osMutexAttr_t Thread_Mutex_attr = {
+  "myThreadMutex",     // human readable mutex name
+  osMutexRecursive,    // attr_bits
+  NULL,                // memory for control block   
+  0U                   // size for control block
+};
+ 
+// must be called from a thread context
+void UseMutexRecursively(int count) {
+  osStatus_t result = osMutexAcquire(mutex_id, osWaitForever);  // lock count is incremented, might fail when lock count is depleted
+  if (result == osOK) {
+    if (count < 10) {
+      UseMutexRecursively(count + 1);
+    }
+    osMutexRelease(mutex_id); // lock count is decremented, actually releases the mutex on lock count zero
+  }
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osMutexPrioInherit
+\details
+Priority inheritance flag in osMutexAttr_t.
+
+A mutex using priority inheritance protocol transfers a waiting threads priority to the
+current mutex owner if the owners thread priority is lower. This assures that a low priority
+thread does not block a high priority thread.
+
+Otherwise a low priority thread might hold a mutex but is not granted execution time due to
+another mid priority thread. Without priority inheritance the high priority thread waiting
+for the mutex would be blocked by the mid priority thread, called priority inversion.
+
+<b>Code Example</b>
+
+This example reveals a blocked high priority thread if \ref osMutexPrioInherit is removed.
+
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id;  
+ 
+const osMutexAttr_t Thread_Mutex_attr = {
+  "myThreadMutex",     // human readable mutex name
+  osMutexPrioInherit,  // attr_bits
+  NULL,                // memory for control block   
+  0U                   // size for control block
+};
+ 
+void HighPrioThread(void *argument) {
+  osDelay(1000U); // wait 1s until start actual work
+  while(1) {
+    osMutexAcquire(mutex_id, osWaitForever); // try to acquire mutex
+    // do stuff
+    osMutexRelease(mutex_id);
+  }
+}
+ 
+void MidPrioThread(void *argument) {
+  osDelay(1000U); // wait 1s until start actual work
+  while(1) {
+    // do non blocking stuff
+  }
+}
+ 
+void LowPrioThread(void *argument) {
+  while(1) {
+    osMutexAcquire(mutex_id, osWaitForever);
+    osDelay(5000U); // block mutex for 5s
+    osMutexRelease(mutex_id);
+    osDelay(5000U); // sleep for 5s
+  }
+}
+\endcode
+
+During the first second the high and mid priority threads are delayed. Thus the low priority
+thread can start its work, acquires the mutex and delays while holding it.
+
+After the first second the high and mid priority threads become ready. Thus the high priority
+thread gets precedence and tries to acquire the mutex. Because the mutex is already owned by
+the low priority thread the high priority thread gets blocked.
+
+Finally the mid priority thread gets executed and start doing a lot of non-blocking stuff,
+i.e. it does not call any blocking RTOS functionality.
+
+Without \ref osMutexPrioInherit we would stuck here forever. Even if the low priority thread
+gets ready after 5s. Due to its low priority the mid priority thread always gets precedence.
+The effect called priority inversion leads to the mid priority thread blocking the high
+priority thread indirectly.
+
+Using \ref osMutexPrioInherit as shown in the example code we get rid of this situation. Due
+to the priority inheritance protocol the low priority thread inherits the high priority
+while holding the mutex. Thus the low priority thread gets precedence over the mid priority
+thread until it release the mutex. On osMutexRelease the high priority thread get ready and
+is scheduled immediately.
+
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osMutexRobust
+\details
+Robust flag in osMutexAttr_t.
+
+Robust mutexes are automatically released if the owning thread is terminated (either by
+\ref osThreadExit or \ref osThreadTerminate). Non-robust mutexes are not released and the user must
+assure mutex release manually.
+
+<b>Code Example</b>
+
+This example reveals a blocked mutex if osMutexRobust is removed.
+
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id;
+ 
+const osMutexAttr_t Thread_Mutex_attr = {
+  "myThreadMutex",     // human readable mutex name
+  osMutexRobust,       // attr_bits
+  NULL,                // memory for control block   
+  0U                   // size for control block
+};
+ 
+void Thread(void *argument) {
+  osMutexAcquire(mutex_id, osWaitForever);
+  osThreadExit();
+}
+\endcode
+
+Due to \ref osMutexRobust the mutex gets released automatically. A non-robust mutex would stay locked and cannot be released anymore.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\typedef osMutexId_t
+\details
+Returned by:
+- \ref osMutexNew
+*/ 
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\struct osMutexAttr_t
+\details
+Specifies the following attributes for the \ref osMutexNew function.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn osMutexId_t osMutexNew (const osMutexAttr_t *attr)
+\details
+The function \b osMutexNew creates and initializes a new mutex object and returns the pointer to the mutex object identifier
+or \token{NULL} in case of an error. It can be safely called before the RTOS is
+started (call to \ref osKernelStart), but not before it is initialized (call to \ref osKernelInitialize).
+
+The parameter \a attr sets the mutex object attributes (refer to \ref osMutexAttr_t). Default attributes will be used if set
+to \token{NULL}.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id;  
+ 
+const osMutexAttr_t Thread_Mutex_attr = {
+  "myThreadMutex",                          // human readable mutex name
+  osMutexRecursive | osMutexPrioInherit,    // attr_bits
+  NULL,                                     // memory for control block   
+  0U                                        // size for control block
+};
+ 
+void CreateMutex (void)  {
+  mutex_id = osMutexNew(&Thread_Mutex_attr);
+  if (mutex_id != NULL)  {
+    // Mutex object created
+  }
+}
+\endcode
+*/
+
+*/
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn const char *osMutexGetName (osMutexId_t mutex_id)
+\details
+The function \b osMutexGetName returns the pointer to the name string of the mutex identified by parameter \a mutex_id or
+\token{NULL} in case of an error.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)
+\details
+The blocking function \b osMutexAcquire waits until a mutex object specified by parameter \a mutex_id becomes available. If
+no other thread has obtained the mutex, the function instantly returns and blocks the mutex object. 
+
+The parameter \a timeout specifies how long the system waits to acquire the mutex. While the system waits, the thread that is
+calling this function is put into the \ref ThreadStates "BLOCKED" state. The parameter \ref CMSIS_RTOS_TimeOutValue "timeout"
+can have the following values:
+ - when \a timeout is \token{0}, the function returns instantly (i.e. try semantics).
+ - when \a timeout is set to \b osWaitForever the function will wait for an infinite time until the mutex becomes available (i.e. wait semantics).
+ - all other values specify a time in kernel ticks for a timeout (i.e. timed-wait semantics).
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the mutex has been obtained.
+ - \em osErrorTimeout: the mutex could not be obtained in the given time.
+ - \em osErrorResource: the mutex could not be obtained when no \a timeout was specified.
+ - \em osErrorParameter: parameter \em mutex_id is \token{NULL} or invalid.
+ - \em osErrorISR: cannot be called from interrupt service routines.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+void WaitMutex (void) {
+  osMutexId_t mutex_id;
+  osStatus_t  status;
+ 
+  mutex_id = osMutexNew(NULL);
+  if (mutex_id != NULL) {
+    status = osMutexAcquire(mutex_id, 0U);
+    if (status != osOK)  {
+      // handle failure code
+    }
+  }
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn osStatus_t osMutexRelease (osMutexId_t mutex_id)
+\details
+The function \b osMutexRelease releases a mutex specified by parameter \a mutex_id. Other threads that currently wait for
+this mutex will be put into the \ref ThreadStates "READY" state.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the mutex has been correctly released.
+ - \em osErrorResource: the mutex could not be released (mutex was not acquired or running thread is not the owner).
+ - \em osErrorParameter: parameter \em mutex_id is \token{NULL} or invalid.
+ - \em osErrorISR: \b osMutexRelease cannot be called from interrupt service routines.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id;                                        // Mutex id populated by the function osMutexNew()
+ 
+void ReleaseMutex (osMutexId_t mutex_id) {
+  osStatus_t status;
+ 
+  if (mutex_id != NULL)  {
+    status = osMutexRelease(mutex_id);
+    if (status != osOK)  {
+      // handle failure code
+    }
+  }
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn osThreadId_t osMutexGetOwner (osMutexId_t mutex_id)
+\details
+The function \b osMutexGetOwner returns the thread ID of the thread that acquired a mutex specified by parameter \a
+mutex_id. In case of an error or if the mutex is not blocked by any thread, it returns \token{NULL}.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\fn osStatus_t osMutexDelete (osMutexId_t mutex_id)
+\details
+The function \b osMutexDelete deletes a mutex object specified by parameter \a mutex_id. It releases internal memory obtained
+for mutex handling. After this call, the \a mutex_id is no longer valid and cannot be used. The mutex may be created again
+using the function \ref osMutexNew.
+
+Possible \ref osStatus_t return values:
+ - \em osOK: the mutex object has been deleted.
+ - \em osErrorParameter: parameter \em mutex_id is \token{NULL} or invalid.
+ - \em osErrorResource: the mutex is in an invalid state.
+ - \em osErrorISR: \b osMutexDelete cannot be called from interrupt service routines.
+
+\note This function \b cannot be called from \ref CMSIS_RTOS_ISR_Calls "Interrupt Service Routines".
+
+<b>Code Example</b>
+\code
+#include "cmsis_os2.h"
+ 
+osMutexId_t mutex_id;                           // Mutex id populated by the function osMutexNew()
+ 
+void DeleteMutex (osMutexId_t mutex_id)  {
+  osStatus_t status;
+ 
+  if (mutex_id != NULL)  {
+    status = osMutexDelete(mutex_id);
+    if (status != osOK)  {
+      // handle failure code
+    }
+  }
+}
+\endcode
+*/
+/// @}
+
+// these struct members must stay outside the group to avoid double entries in documentation
+/**
+\var osMutexAttr_t::attr_bits
+\details
+The following bit masks can be used to set options:
+ - \ref osMutexRecursive : a thread can consume the mutex multiple times without locking itself.
+ - \ref osMutexPrioInherit : priority of a waiting thread is raised (when lower) to priority of mutex owner thread.
+ - \ref osMutexRobust : the mutex is automatically released when owner thread is terminated.
+
+Use logical \em 'OR' operation to select multiple options, for example:
+\code
+osMutexRecursive | osMutexPrioInherit;
+\endcode
+
+Default: \token{0} which specifies:
+ - <i>non recursive mutex</i> : a thread cannot consume the mutex multiple times.
+ - <i>non priority raising</i> : the priority of a waiting thread is not changed.
+ - <i>mutex is not automatically release</i> : the mutex object must be always is automatically released when owner thread is terminated.
+
+*/
+/**
+\var osMutexAttr_t::cb_mem
+\details
+Pointer to a memory for the mutex control block object. Refer to \ref StaticObjectMemory for more information.
+
+Default: \token{NULL} to use \ref CMSIS_RTOS_MemoryMgmt_Automatic for the mutex control block.
+*/
+/**
+\var osMutexAttr_t::cb_size
+\details
+The size (in bytes) of memory block passed with \ref cb_mem. For RTX, the minimum value is defined with \ref osRtxMutexCbSize (higher values are permitted).
+
+Default: \token{0} as the default is no memory provided with \ref cb_mem.
+*/
+/**
+\var osMutexAttr_t::name
+\details
+Pointer to a constant string with a human readable name (displayed during debugging) of the mutex object.
+
+Default: \token{NULL} no name specified.
+*/

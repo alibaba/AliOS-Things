@@ -1,0 +1,174 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page createPackBoard Pack with Board Support
+
+A \ref cp_SWComponents "Software Pack" that contains a \ref pdsc_boards_pg "<board>" element is called Board Support Pack (BSP).
+A BSP may contain additional <b>Software Components</b>, <b>Example Projects</b>, as well as <b>Code Templates</b>. The typical
+content of a BSP is:
+- Source code, libraries, header/configuration files for the underlying hardware and documentation
+  (for example user manuals, getting started guides, and schematics).
+- \ref cp_Examples "Example Projects" that show the usage of the development board and its peripherals.
+- \ref cp_CodeTemplates "User Code Templates" that can be used as a starting point for using the development board or the
+  mounted device.
+
+This section is a tutorial that explains how to create a BSP. 
+Initially the PDSC file in the BSP only describes an evaluation board.
+This BSP is then extended to contain also software components that interface with the hardware of the board.
+Example projects and code templates may be added as described in the section \ref cp_SWComponents.
+  
+  
+BSP Use Cases
+-------------
+A BSP is typically provided by a Board Vendor and is used to
+<b>extend development tools</b> with support for development boards. In general, the BSP enables Board Vendors to
+distribute tool independent board support for their development platforms.\n
+BSPs can also be used to provide information for the display on <b>web sites</b>. One example is the new boards page on
+<a class=el href="http://www.keil.com/boards2/" target="_blank">www.keil.com/boards2/</a>:
+
+\image html BoardsSectionMCB1500.png "Board information on a web site extracted from a BSP"
+
+
+\section cp_SpecDevBoard Specify a Development Board
+
+<b>Preparations</b>
+-# Install the Software Pack
+   <a class=el href="http://www.keil.com/dd2/arm/armcm3/" target="_blank">Keil::ARMCortex_DFP</a> as this
+   will be required for the BSP to function properly.
+-# Create a working directory on your PC, for example <b>C:\\temp\\working_bsp</b>.
+-# Go to the directory <b>\\CMSIS\\Pack\\Tutorials</b> available in the \b ARM::CMSIS Pack installation. Please
+   consult your development tool's documentation for more information on the Pack installation directory structure. In a
+   standard µVision installation, you will find it below <b>C:\\Keil_v5\\ARM\\Pack\\ARM\\CMSIS\\<i>version</i></b>.
+-# Open the file \b Pack_with_Board_Support.zip.
+-# Copy the \e content of the ZIP file's \b 01_Specify_Dev_Board directory into your working directory.
+-# Make sure that files/directories are not write protected (remove read-only flag).
+-# Copy from the directory <b>\\CMSIS\\Utilities</b> available in the \b ARM::CMSIS Pack installation the following files
+   into your working directory:
+   - packChk.exe
+   - PACK.xsd
+-# Open the \b MyVendor.MyBSP.pdsc file in an editor.
+
+<b>Code Example</b>
+<ol>
+<li>
+Add a \ref element_boards "<boards>" section in the PDSC file with the following:
+\code{.xml}
+<boards>
+  <board vendor="MyVendor" name="MyDevBoard" revision="V1" salesContact="sales@keil.com" orderForm="http://www.keil.com">
+    <description>MyVendor MyDevBoard Board Description</description>
+    <image small="Images/MyDevBoard_small.png" large="Images/MyDevBoard_large.png"/>
+    <book category="setup"     name="Docs/MyDevBoard/MyDevBoard_setup.pdf"      title="Getting Started"/>
+    <book category="schematic" name="Docs/MyDevBoard/MyDevBoard_schematics.pdf" title="Schematics"/>
+    <book category="manual"    name="Docs/MyDevBoard/MyDevBoard_um.pdf"         title="User Manual"/>
+    <mountedDevice             deviceIndex="0" Dvendor="ARM:82" Dname="ARMCM3"/>
+    <compatibleDevice          deviceIndex="0" Dvendor="ARM:82" Dfamily="ARM Cortex M3"/>
+    <feature type="ODbg"       n="1"           name="On-board J-LINK Lite"/>
+    <feature type="PWR"        n="5"           name="USB Powered"/>
+    <feature type="DIO"        n="8"/>
+    <feature type="SPI"        n="1"/>
+    <feature type="LED"        n="6"           name="User LEDs"/>
+    <feature type="ArduinoFF"  n="1"/>
+    <debugInterface adapter="J-Link Lite"      connector="Mini-USB"/>
+  </board>
+</boards>
+\endcode
+\note All code examples in this and the following sections can be found in the \c snippets.xml file in the
+      <b>01_Specify_Dev_Board</b> directory.
+</li>
+<li>
+Finally, save the PDSC file and generate the Pack file using the <b>gen_pack.bat</b> script. See \ref cp_GeneratePack for
+further details. Afterwards, install the Pack in your development tool.
+
+\image html DevBoardDisplay.png  "Display of development boards in development tools"
+</li>
+</ol>
+
+\note packChk.exe will display \b M346 informations:
+\verbatim
+*** WARNING M346: .\Files\MyVendor.MyBSP.pdsc (Line 29)
+  Referenced device(s) in 'MyDevBoard' not found: 'ARMCM3'
+
+*** WARNING M346: .\Files\MyVendor.MyBSP.pdsc (Line 29)
+  Referenced device(s) in 'MyDevBoard' not found: 'ARM Cortex M3'
+\endverbatim
+This is because this BSP does not contain a device section with the mentioned devices. To work aroung this problem, you might
+add the ARM:CMSIS PDSC file to the checking process.
+
+
+\section cp_BundleExample Create a BSP Bundle
+
+A bundle is basically a variant on the \c Cclass level. It specifies the attributes \c Cclass, \c Cversion and optionally
+\c Cgroup and \c Cvendor for a collection of interdependent components. Components within a bundle inherit the attributes
+set by the bundle and must not set these attributes again. Bundles ensure consistency of attributes across multiple
+interworking components and restrict the mix and match of components within a \c Cclass from different solutions.
+In addition to components, a bundle has the mandatory elements \c description and \c doc (for documentation).
+
+Copy the \e content of the <b>02_BSP_Bundle</b> directory of the \b Pack_with_Board_Support.zip file to the <b>Files</b>
+directory in your working environment:
+<ol>
+<li>
+Add a \c \<conditions\> section in your PDSC with the following (the \ref cp_Conditions "conditions" section
+provides more information on this step):
+\code{.xml}
+    <condition id="ARM Cortex M3 Series">
+      <description>ARM Cortex M3 device required</description>
+      <require Dfamily="ARM Cortex M3" Dvendor="ARM:82"/>
+    </condition>
+    <condition id="MyDevBoard Board Setup">
+      <description>Board Setup Code required</description>
+      <require condition="ARM Cortex M3 Series"/>
+      <require Cclass="Board Support" Cgroup="Board Setup"/>
+    </condition>
+\endcode
+</li>
+<li>
+Add a \c \<components\> section in your PDSC with the following (the \ref cp_Components "components" section
+provides more information on this step):
+\code{.xml}
+    <bundle Cbundle="MyDevBoardSupport" Cclass="Board Support" Cversion="1.0.1">
+      <description>MyDevBoard custom board support package</description>
+      <doc>Docs/BSP/MyBSP.htm</doc>
+      <component Cgroup="Board Setup" condition="ARM Cortex M3 Series">
+        <description>Custom board setup code</description>
+        <files>
+          <file category="doc" name="Docs/BSP/Setup.htm"/>
+          <file category="header" name="MySWComp/Include/setup.h"/>
+          <file category="source" name="MySWComp/Source/setup.c"/>
+        </files>
+      </component>
+      <component Cgroup="I/O" Csub="LED" condition="MyDevBoard Board Setup">
+        <description>LED code for custom board</description>
+        <files>
+          <file category="doc" name="Docs/BSP/LED.htm"/>
+          <file category="header" name="MySWComp/Include/led.h"/>
+          <file category="header" name="MySWComp/Include/config_led.h" attr="config" version="1.0.0"/>
+          <file category="source" name="MySWComp/Source/led.c"/>
+        </files>
+      </component>
+      <component Cgroup="I/O" Csub="GPIO" condition="MyDevBoard Board Setup">
+        <description>GPIO code for custom board</description>
+        <files>
+          <file category="doc" name="Docs/BSP/GPIO.htm"/>
+          <file category="header" name="MySWComp/Include/gpio.h"/>
+          <file category="header" name="MySWComp/Include/config_gpio.h" attr="config" version="1.0.0"/>
+          <file category="source" name="MySWComp/Source/gpio.c"/>
+        </files>
+      </component>
+    </bundle>
+\endcode
+</li>
+<li>
+Add a new version number:
+\code{.xml}
+    <release version="1.0.1">
+      Board support bundle added
+    </release>
+\endcode
+</li>
+<li>
+Finally, save the PDSC file and regenerate the Pack file using the \ref cp_GeneratePack "gen_pack.bat" script. Afterwards,
+install the Pack in your development tool and observe the differences to version 1.0.0.
+
+\image html BSPBundleDisplay.png "BSP bundle display in development tools"
+</li>
+</ol>
+*/

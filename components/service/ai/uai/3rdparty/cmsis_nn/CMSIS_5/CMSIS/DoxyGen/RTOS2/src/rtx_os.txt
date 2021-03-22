@@ -1,0 +1,340 @@
+
+/** 
+\addtogroup rtx5_specific RTX v5 Specific API
+\brief RTX v5 implementation specific definitions and functions defined in <b>%rtx_os.h</b>.
+\details
+
+The RTX5 kernel can be customized for different application requirements:
+
+- The function \ref osRtxIdleThread implements the idle thread and allows set the system into sleep modes for \ref lowPower or
+  \ref TickLess for ultra-low power operation.
+  
+- The function \ref osRtxErrorNotify may be extended to handle system runtime errors.
+
+RTX5 interfaces to the <a href="http://www.keil.com/pack/doc/compiler/EventRecorder/html/index.html" target="_blank"><b>Event Recorder</b></a> 
+and provides event information that helps to analyze the operation. Refer to \ref rtx_evr for more information.
+
+
+@{
+*/
+
+/**
+\defgroup rtx5_specific_defines Macros
+\brief RTX5 macros
+\details
+@{
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxThreadCbSize
+\brief Thread Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Thread Control Block,
+see osThreadAttr_t::cb_mem and \ref osThreadAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for thread control block
+static uint32_t thread_cb[osRtxThreadCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxTimerCbSize
+\brief Timer Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Timer Control Block,
+see osTimerAttr_t::cb_mem and \ref osTimerAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for timer control block
+static uint32_t timer_cb[osRtxTimerCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxEventFlagsCbSize
+\brief Event Flags Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Event Flags Control Block,
+see osEventFlagsAttr_t::cb_mem and \ref osEventFlagsAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for event flags control block
+static uint32_t evflags_cb[osRtxEventFlagsCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxMutexCbSize
+\brief Mutex Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Mutex Control Block,
+see osMutexAttr_t::cb_mem and \ref osMutexAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for mutex control block
+static uint32_t mutex_cb[osRtxMutexCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxSemaphoreCbSize
+\brief Semaphore Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Semaphore Control Block,
+see osSemaphoreAttr_t::cb_mem and osSemaphoreAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for semaphore control block
+static uint32_t sema_cb[osRtxSemaphoreCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxMemoryPoolCbSize
+\brief Memory Pool Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Memory Pool Control Block,
+see osMemoryPoolAttr_t::cb_mem and osMemoryPoolAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for memory pool control block
+static uint32_t mempool_cb[osRtxMemoryPoolCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxMessageQueueCbSize
+\brief Message Queue Control Block size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Message Queue Control Block,
+see osMessageQueueAttr_t::cb_mem and osMessageQueueAttr_t::cb_size.
+
+Example:
+\code
+// Used-defined memory for message queue control block
+static uint32_t msgqueue_cb[osRtxMessageQueueCbSize/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxMemoryPoolMemSize
+\brief Memory Pool Memory size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Memory Pool Memory,
+see osMemoryPoolAttr_t::mp_mem and osMemoryPoolAttr_t::mp_size.
+
+Example:
+\code
+// Maximum number of objects
+#define OBJ_COUNT 8U
+ 
+// Object type
+typedef struct {
+   uint32_t value1;
+   uint8_t  value2;
+} object_t;
+ 
+// Used-defined memory for memory pool memory
+static uint32_t mempool_mem[osRtxMemoryPoolMemSize(OBJ_COUNT, sizeof(object_t))/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxMessageQueueMemSize
+\brief Message Queue Memory size
+\details
+This macro exposes the minimum amount of memory needed for an RTX5 Message Queue Memory,
+see osMessageQueueAttr_t::mq_mem and osMessageQueueAttr_t::mq_size.
+
+Example:
+\code
+// Maximum number of messages
+#define MSG_COUNT 16U
+ 
+// Message data type
+typedef struct {
+   uint32_t value1;
+   uint8_t  value2;
+} msg_item_t;
+ 
+// Used-defined memory for message queue
+static uint32_t mq_mem[osRtxMessageQueueMemSize(MSG_COUNT, sizeof(msg_item_t))/4U];
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxErrorStackUnderflow
+\brief Stack overflow, i.e. stack pointer below its lower memory limit for descending stacks.
+\details
+This error identifier is used with \ref osRtxErrorNotify when RTX5 detects a thread stack overflow.
+The object_id announced along this error can be used to identify the affected thread.
+
+\ref threadConfig_watermark used together with larger stack sizes can help to figure out actual
+memory requirements for threads.
+
+\attention Whenever this error identifier is signaled memory corruption has already happened. 
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxErrorISRQueueOverflow
+\brief ISR Queue overflow detected when inserting object.
+\details
+This error identifier is used with \ref osRtxErrorNotify when RTX5 detects an overflow of the
+interrupt post processing message queue. The object_id can be used to identify the affected
+object.
+
+\attention Whenever this error identifier is signaled the system state is already inconsistent.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxErrorTimerQueueOverflow
+\brief User Timer Callback Queue overflow detected for timer.
+\details
+This error identifier is used with \ref osRtxErrorNotify when RTX5 detects an overflow of the
+timer callback queue. The object_id can be used to identify the affected timer.
+
+\attention Whenever this error identifier is signaled a timer callback is already lost.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxErrorClibSpace
+\brief Standard C/C++ library libspace not available.
+\details
+This error identifier is used with \ref osRtxErrorNotify when RTX5 detects usage of libspace
+but not enough memory was reserved using \c OS_THREAD_LIBSPACE_NUM.
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\def osRtxErrorClibMutex
+\brief Standard C/C++ library mutex initialization failed.
+\details
+This error identifier is used with \ref osRtxErrorNotify when RTX5 fails to create mutexes needed
+to lock global C/C++ library resources.
+*/
+
+/**
+@}
+*/
+
+/**
+\defgroup rtx5_specific_functions Functions
+\brief RTX5 functions 
+\details
+@{
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn uint32_t osRtxErrorNotify (uint32_t code, void *object_id);
+\param[in] code The code to identify the error condition.
+\param[in] object_id A reference to any RTX object to identify the object that caused the issue, can be \token{NULL}.
+\details
+Some system error conditions can be detected during runtime. If the RTX kernel detects a runtime error, it calls the runtime
+error function \b osRtxErrorNotify for an object specified by parameter \a object_id.
+
+The parameter \a code passes the actual error code to this function:
+| Error Code                        | Description                                                                       |
+|-----------------------------------|-----------------------------------------------------------------------------------|
+| \ref osRtxErrorStackUnderflow     | Stack overflow detected for thread (thread_id=object_id)                          |
+| \ref osRtxErrorISRQueueOverflow   | ISR Queue overflow detected when inserting object (object_id)                     |
+| \ref osRtxErrorTimerQueueOverflow | User Timer Callback Queue overflow detected for timer (timer_id=object_id)        |
+| \ref osRtxErrorClibSpace          | Standard C/C++ library libspace not available: increase \c OS_THREAD_LIBSPACE_NUM |
+| \ref osRtxErrorClibMutex          | Standard C/C++ library mutex initialization failed                                |
+
+The function \b osRtxErrorNotify must contain an infinite loop to prevent further program execution. You can use an emulator
+to step over the infinite loop and trace into the code introducing a runtime error. For the overflow errors this means you
+need to increase the size of the object causing an overflow.
+
+<b>Code Example</b>
+\code
+#include "rtx_os.h"
+ 
+uint32_t osRtxErrorNotify (uint32_t code, void *object_id) {
+  (void)object_id;
+ 
+  switch (code) {
+    case osRtxErrorStackUnderflow:
+      // Stack overflow detected for thread (thread_id=object_id)
+      break;
+    case osRtxErrorISRQueueOverflow:
+      // ISR Queue overflow detected when inserting object (object_id)
+      break;
+    case osRtxErrorTimerQueueOverflow:
+      // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
+      break;
+    case osRtxErrorClibSpace:
+      // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
+      break;
+    case osRtxErrorClibMutex:
+      // Standard C/C++ library mutex initialization failed
+      break;
+    default:
+      break;
+  }
+  for (;;) {}
+//return 0U;
+}
+\endcode
+*/
+
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/** 
+\fn void osRtxIdleThread (void *argument);
+\param[in] argument Unused parameter, always set to \token{NULL}.
+\details
+The function \b osRtxIdleThread is executed by the RTX kernel when no other threads are ready to run.
+
+By default, this thread is an empty end-less loop that does nothing. It only waits until another task
+becomes ready to run. You may change the code of the \b osRtxIdleThread function to put the CPU into
+a power-saving or idle mode, see \ref TickLess.
+
+The default stack size for this thread is defined in the file RTX_Config.h. Refer to \ref threadConfig.
+
+\attention
+The idle thread should never be blocked nor terminated!
+<b>Do not</b> call
+<ul>
+  <li>blocking functions,</li>
+  <li>\ref osThreadTerminate, or </li>
+  <li>\ref osThreadExit</li>
+</ul>
+and <b>do not</b> return from this function when providing a user defined implementation.
+
+<b>Code Example</b>
+\code
+#include "rtx_os.h"
+ 
+__NO_RETURN void osRtxIdleThread (void *argument) {
+  (void)argument;
+
+  for (;;) {}
+}
+\endcode
+*/ 
+
+/**
+@}
+*/
+
+/// @}

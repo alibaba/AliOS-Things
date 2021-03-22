@@ -1,0 +1,179 @@
+/* ##########################  MMU functions  ###################################### */
+/**
+\defgroup MMU_functions Memory Management Unit Functions
+\ingroup CMSIS_Core_FunctionInterface
+\brief MMU Functions provide control of the Memory Management Unit using translation tables and attributes of different regions of the physical memory map.\n
+Reference: <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0406c/index.html">Architecture Reference Manual Reference Manual - Armv7-A and Armv7-R edition</a>.
+*/
+
+/** @{ */
+
+/**
+\fn __STATIC_INLINE int MMU_XNSection(uint32_t *descriptor_l1, mmu_execute_Type xn)
+\details 
+  The function sets section execution-never attribute
+
+\fn __STATIC_INLINE int MMU_DomainSection(uint32_t *descriptor_l1, uint8_t domain)
+\details 
+The function sets section domain.
+
+\fn __STATIC_INLINE int MMU_PSection(uint32_t *descriptor_l1, mmu_ecc_check_Type p_bit)
+\details
+  The function sets section parity check
+
+\fn __STATIC_INLINE int MMU_APSection(uint32_t *descriptor_l1, mmu_access_Type user, mmu_access_Type priv, uint32_t afe)
+\details 
+The function sets section access privileges
+
+\fn __STATIC_INLINE int MMU_SharedSection(uint32_t *descriptor_l1, mmu_shared_Type s_bit)
+\details
+  The function sets section shareability
+
+\fn __STATIC_INLINE int MMU_GlobalSection(uint32_t *descriptor_l1, mmu_global_Type g_bit)
+\details
+  The function sets section Global attribute
+
+\fn __STATIC_INLINE int MMU_SecureSection(uint32_t *descriptor_l1, mmu_secure_Type s_bit)
+\details
+  The function sets section Global attribute
+
+\fn __STATIC_INLINE int MMU_XNPage(uint32_t *descriptor_l2, mmu_execute_Type xn, mmu_region_size_Type page)
+\details
+  The function sets 4k/64k page execution-never attribute
+
+\fn __STATIC_INLINE int MMU_DomainPage(uint32_t *descriptor_l1, uint8_t domain)
+\details
+  The function sets 4k/64k page domain
+
+\fn __STATIC_INLINE int MMU_PPage(uint32_t *descriptor_l1, mmu_ecc_check_Type p_bit)
+\details
+  The function sets 4k/64k page parity check
+
+\fn __STATIC_INLINE int MMU_APPage(uint32_t *descriptor_l2, mmu_access_Type user, mmu_access_Type priv, uint32_t afe)
+\details
+  The function sets 4k/64k page access privileges
+\fn __STATIC_INLINE int MMU_SharedPage(uint32_t *descriptor_l2, mmu_shared_Type s_bit)
+\details
+  The function sets 4k/64k page shareability
+
+\fn __STATIC_INLINE int MMU_GlobalPage(uint32_t *descriptor_l2, mmu_global_Type g_bit)
+\details
+  The function sets 4k/64k page Global attribute
+
+\fn __STATIC_INLINE int MMU_SecurePage(uint32_t *descriptor_l1, mmu_secure_Type s_bit)
+\details
+  The function sets 4k/64k page Global attribute
+
+\fn __STATIC_INLINE int MMU_MemorySection(uint32_t *descriptor_l1, mmu_memory_Type mem, mmu_cacheability_Type outer, mmu_cacheability_Type inner)
+\details
+  The function sets section memory attributes
+
+\fn __STATIC_INLINE int MMU_MemoryPage(uint32_t *descriptor_l2, mmu_memory_Type mem, mmu_cacheability_Type outer, mmu_cacheability_Type inner, mmu_region_size_Type page)
+\details
+  The function sets 4k/64k page memory attributes
+
+\fn __STATIC_INLINE int MMU_GetSectionDescriptor(uint32_t *descriptor, mmu_region_attributes_Type reg)
+\details
+  The function creates a section descriptor.
+
+\fn __STATIC_INLINE int MMU_GetPageDescriptor(uint32_t *descriptor, uint32_t *descriptor2, mmu_region_attributes_Type reg)
+\details
+  The function creates a 4k/64k page descriptor.
+  Assumptions:
+  - TEX remap disabled, so memory type and attributes are described directly by bits in the descriptor
+  - Functions always return 0
+
+\fn __STATIC_INLINE void MMU_TTSection(uint32_t *ttb, uint32_t base_address, uint32_t count, uint32_t descriptor_l1)
+\fn __STATIC_INLINE void MMU_TTPage4k(uint32_t *ttb, uint32_t base_address, uint32_t count, uint32_t descriptor_l1, uint32_t *ttb_l2, uint32_t descriptor_l2 )
+\fn __STATIC_INLINE void MMU_TTPage64k(uint32_t *ttb, uint32_t base_address, uint32_t count, uint32_t descriptor_l1, uint32_t *ttb_l2, uint32_t descriptor_l2 )
+\fn __STATIC_INLINE void MMU_Enable(void) 
+\details 
+   Set M bit 0 to enable the MMU
+   Set AFE bit to enable simplified access permissions model
+   Clear TRE bit to disable TEX remap and A bit to disable strict alignment fault checking
+
+\fn __STATIC_INLINE void MMU_Disable(void)
+
+\fn __STATIC_INLINE void MMU_InvalidateTLB(void) 
+*/
+
+/** @} */
+/* end of MMU_functions */
+
+/**
+\defgroup MMU_defs_gr MMU Defines and Structs
+\ingroup MMU_functions
+\brief Defines and structures that relate to the Memory Management Unit
+*/
+
+/** @{ */
+
+/**
+\def SECTION_DESCRIPTOR
+\def SECTION_B_SHIFT
+\def SECTION_C_SHIFT
+\def SECTION_TEX0_SHIFT      
+\def SECTION_TEX1_SHIFT      
+\def SECTION_TEX2_SHIFT      
+\def SECTION_XN_SHIFT        
+\def SECTION_DOMAIN_SHIFT    
+\def SECTION_P_SHIFT         
+\def SECTION_AP_SHIFT        
+\def SECTION_AP2_SHIFT       
+\def SECTION_S_SHIFT         
+\def SECTION_NG_SHIFT        
+\def SECTION_NS_SHIFT        
+\def PAGE_L1_DESCRIPTOR      
+\def PAGE_L2_4K_DESC         
+\def PAGE_L2_64K_DESC        
+\def PAGE_4K_B_SHIFT         
+\def PAGE_4K_C_SHIFT         
+\def PAGE_4K_TEX0_SHIFT      
+\def PAGE_4K_TEX1_SHIFT      
+\def PAGE_4K_TEX2_SHIFT      
+\def PAGE_64K_B_SHIFT        
+\def PAGE_64K_C_SHIFT        
+\def PAGE_64K_TEX0_SHIFT     
+\def PAGE_64K_TEX1_SHIFT     
+\def PAGE_64K_TEX2_SHIFT     
+\def PAGE_B_SHIFT            
+\def PAGE_C_SHIFT            
+\def PAGE_TEX_SHIFT          
+\def PAGE_XN_4K_SHIFT        
+\def PAGE_XN_64K_SHIFT       
+\def PAGE_DOMAIN_SHIFT       
+\def PAGE_P_SHIFT            
+\def PAGE_AP_SHIFT           
+\def PAGE_AP2_SHIFT          
+\def PAGE_S_SHIFT            
+\def PAGE_NG_SHIFT           
+\def PAGE_NS_SHIFT           
+\def OFFSET_1M               
+\def OFFSET_64K              
+\def OFFSET_4K               
+\def DESCRIPTOR_FAULT             
+
+\enum mmu_region_size_Type
+\enum mmu_memory_Type
+\enum mmu_cacheability_Type
+\enum mmu_ecc_check_Type
+\enum mmu_execute_Type
+\enum mmu_global_Type
+\enum mmu_shared_Type
+\enum mmu_secure_Type
+\enum mmu_access_Type
+
+\struct  mmu_region_attributes_Type
+
+\def section_normal(descriptor_l1, region) 
+\def section_normal_cod(descriptor_l1, region)
+\def section_normal_ro(descriptor_l1, region)
+\def section_normal_rw(descriptor_l1, region)
+\def section_so(descriptor_l1, region)
+\def section_device_ro(descriptor_l1, region)
+\def section_device_rw(descriptor_l1, region)
+\def page4k_device_rw(descriptor_l1, descriptor_l2, region)
+\def page64k_device_rw(descriptor_l1, descriptor_l2, region) 
+*/
+/** @} */ 
+/* end group MMU_defs_gr */

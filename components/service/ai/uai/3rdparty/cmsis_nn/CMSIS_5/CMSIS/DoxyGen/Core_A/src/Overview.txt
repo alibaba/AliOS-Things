@@ -1,0 +1,139 @@
+/** \mainpage Overview
+
+CMSIS-Core (Cortex-A) implements the basic run-time system for a Cortex-A device and gives the user access to the processor core and the device peripherals.
+In detail it defines:
+ - <b>Hardware Abstraction Layer (HAL)</b> for Cortex-A processor registers with standardized  definitions for the GIC, FPU, MMU, Cache, and core access functions.
+ - <b>System exception names</b> to interface to system exceptions without having compatibility issues.
+ - <b>Methods to organize header files</b> that makes it easy to learn new Cortex-A microcontroller products and improve software portability. This includes naming conventions for device-specific interrupts.
+ - <b>Methods for system initialization</b> to be used by each MCU vendor. For example, the standardized SystemInit() function is essential for configuring the clock system of the device.
+ - <b>Intrinsic functions</b> used to generate CPU instructions that are not supported by standard C functions.
+ - A variable to determine the <b>system clock frequency</b> which simplifies the setup of the system timers.
+
+
+The following sections provide details about the CMSIS-Core (Cortex-A):
+ - \ref using_pg describes the project setup and shows a simple program example.
+ - \ref templates_pg describes the files of the CMSIS-Core (Cortex-A) in detail and explains how to adapt template files provided by Arm to silicon vendor devices.
+ - \ref coreMISRA_Exceptions_pg describes the violations to the MISRA standard.
+ - <a href="Modules.html">\b Reference </a> describe the features and functions of the \ref device_h_pg in detail.
+ - <a href="Annotated.html">\b Data \b Structures </a> describe the data structures of the \ref device_h_pg in detail.
+    
+<hr>
+
+CMSIS-Core (Cortex-A) in ARM::CMSIS Pack
+-----------------------------
+
+Files relevant to CMSIS-Core (Cortex-A) are present in the following <b>ARM::CMSIS</b> directories:
+|File/Folder                     |Content                                                                 |
+|--------------------------------|------------------------------------------------------------------------|
+|\b CMSIS\\Documentation\\Core_A | This documentation                                                     |
+|\b CMSIS\\Core_A\\Include       | CMSIS-Core (Cortex-A) header files (for example core_ca.h, etc.)                |
+|\b Device                       | \ref using_ARM_pg "Arm reference implementations" of Cortex-A devices  |
+|\b Device\\\_Template_Vendor    | \ref templates_pg for extension by silicon vendors                     |
+
+<hr>
+
+\section ref_v7A Processor Support
+
+CMSIS supports a selected subset of <a href="http://www.arm.com/products/processors/cortex-a/index.php" target="_blank"><b>Cortex-A processors</b></a>.
+
+\subsection ref_man_ca_sec Cortex-A Technical Reference Manuals
+
+The following Technical Reference Manuals describe the various Arm Cortex-A processors:
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0433c/DDI0433C_cortex_a5_trm.pdf" target="_blank"><b>Cortex-A5</b></a> (Armv7-A architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.ddi0464f/DDI0464F_cortex_a7_mpcore_r0p5_trm.pdf" target="_blank"><b>Cortex-A7</b></a> (Armv7-A architecture)
+- <a href="http://infocenter.arm.com/help/topic/com.arm.doc.100511_0401_10_en/arm_cortexa9_trm_100511_0401_10_en.pdf" target="_blank"><b>Cortex-A9</b></a> (Armv7-A architecture)
+ 
+<hr>
+
+\section tested_tools_sec Tested and Verified Toolchains
+
+The \ref templates_pg supplied by Arm have been tested and verified with the following toolchains:
+ - Arm: Arm Compiler 5.06 update 6
+ - Arm: Arm Compiler 6.12
+ - Arm: Arm Compiler 6.6.2
+ - GNU: GNU Tools for Arm Embedded 8.2.1 2018q4
+ - IAR: IAR ANSI C/C++ Compiler for Arm 8.20.1.14183
+ 
+<hr>
+*/
+
+
+/**
+\page rev_histCoreA Revision History of CMSIS-Core (Cortex-A)
+
+<table class="cmtable" summary="Revision History">
+    <tr>
+      <th>Version</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>V1.1.4</td>
+      <td>
+        <ul>
+          <li>Fixed __FPU_Enable().</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>V1.1.3</td>
+      <td>
+        <ul>
+          <li>Fixed __get_SP_usr()/__set_SP_usr() for ArmClang.</li>
+          <li>Fixed zero argument handling in __CLZ() .</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>V1.1.2</td>
+      <td>
+        <ul>
+          <li>Removed using get/set built-ins FPSCR in GCC >= 7.2 due to shortcomings.</li>
+          <li>Fixed co-processor register access macros for Arm Compiler 5.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>V1.1.1</td>
+      <td>
+        <ul>
+          <li>Refactored L1 cache maintenance to be compiler agnostic.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>V1.1.0</td>
+      <td>
+        <ul>
+          <li>Added compiler_iccarm.h for IAR compiler.</li>
+          <li>Added missing core access functions for Arm Compiler 5.</li>
+          <li>Aligned access function to coprocessor 15.</li>
+          <li>Additional generic Timer functions.</li>
+          <li>Bug fixes and minor enhancements.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>V1.0.0</td>
+      <td>Initial Release for Cortex-A5/A7/A9 processors.</td>
+    </tr>
+</table>	
+	
+*/
+
+
+/**
+\page device_h_pg Device Header File \<device.h>
+
+The \ref device_h_pg contains the following sections that are device specific:
+ - \ref irqn_defs provides interrupt numbers (IRQn) for all exceptions and interrupts of the device.
+ - \ref config_perifs reflect the features of the device.
+ - \ref access_perifs definitions for the \ref peripheral_gr to all device peripherals. It contains all data structures and the address mapping for device-specific peripherals.
+ - <b>Access Functions for Peripherals (optioal)</b> provide additional helper functions for peripherals that are useful for programming of these peripherals. Access Functions may be provided as inline functions or can be extern references to a device-specific library provided by the silicon vendor.
+
+\section irqn_defs Interrupt Number Definition
+
+\section config_perifs Configuration of the Processor and Core Peripherals
+
+\section access_perifs Device Peripheral Access Layer
+
+*/

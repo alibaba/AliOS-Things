@@ -1,0 +1,32 @@
+Creating a new Algorithm
+------------------------
+
+Flash programming algorithms are defined with functions to erase and program
+the Flash device. Special compiler and linker settings are required. Follow
+these steps to create and configure a new Flash programming algorithm:
+- From the toolbar, use the drop-down Select Target to define the processor
+  architecture. Cortex-M fits for all Arm Cortex-M0/M0+/M3/M4/M7 devices.
+  The configuration assumes a little-endian microcontroller. In case of a
+  big-endian microcontroller, select the correct processor core with
+  Project - Options for Target - Device.
+- Open the dialog Project - Options for Target - Output and change the content
+  of the field Name of Executable to represent the device, for example
+  MyDevice.
+- Adapt the programming algorithms in the file FlashPrg.c
+- Adapt the device parameters in the file FlashDev.c
+- Use Project - Build Target to generate the new Flash programming algorithm.
+  The output file (for example MyDevice.FLM) has to be added to the DFP.
+
+Note
+----
+- Creating a Flash programming algorithm with MDK-Lite is not supported.
+- Flash programming algorithms use Read-Only Position Independent and
+  Read-Write Position Independent program code. These options are set in the
+  dialogs Project - Options for Target - C/C++ and
+  Project - Options for Target - Asm.
+- The dialog Project - Options for Target - Linker defines the linker scatter
+  file Target.lin. The error L6305 is disabled with –diag_suppress L6305.
+  
+For more information, refer to the documentation available at
+http://arm-software.github.io/CMSIS_5/Pack/html/flashAlgorithm.html
+

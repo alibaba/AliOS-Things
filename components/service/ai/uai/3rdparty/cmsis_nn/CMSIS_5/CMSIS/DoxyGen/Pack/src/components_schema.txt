@@ -1,0 +1,885 @@
+/**************************************************************************************************/
+/** 
+\page pdsc_components_pg  /package/components element
+
+The element \ref element_components describes software components contained in the Pack.
+A component lists the files that belong to a component and that are relevant for a project. The component itself or each individual file may
+refer to a \ref element_condition "condition" that must resolve to true; if it is false the component or file is not applicable in the given context.
+
+Each component must have a Class (Cclass=), a Group (Cgroup=), and a Version (Cversion=) which is used to identify the component. Optionally a component
+may have a Sub-Group (Csub=) and Variant (Cvariant=) to add further categories.  The Class, Group, Sub-Group, Variant and Version is used together with the
+vendor specified by the Pack, to identify a component. A component vendor must ensure that the combination Class, Group, Sub-Group and Version is unique and
+not used by multiple components.
+
+\b Example
+\code
+<package>
+  ...
+  <components>
+    <!-- component has dependency described by "CMSIS Core" condition -->
+    <component Cclass="CMSIS" Cgroup="Core" Cversion="3.1.0" condition="CMSIS Core">
+      <description>CMSIS-Core (Cortex-M) for Cortex-M, SC000, and SC300 processor.</description>
+      <files>
+        <!-- CPU independent -->
+        <file category="doc"    name="CMSIS/Documentation/Core/html/index.html"/>
+        <file category="header" name="CMSIS/Include/core_cmFunc.h"/>
+        <file category="header" name="CMSIS/Include/core_cmInstr.h"/>
+        <!-- CPU dependent -->
+        <file category="header" condition="CM0"   name="CMSIS/Include/core_cm0.h"/>
+        <file category="header" condition="CM0+"  name="CMSIS/Include/core_cm0plus.h"/>
+        <file category="header" condition="CM3"   name="CMSIS/Include/core_cm3.h"/>
+        <file category="header" condition="CM4"   name="CMSIS/Include/core_cm4.h"/>
+        <file category="header" condition="CM4"   name="CMSIS/Include/core_cm4_simd.h"/>
+        <file category="header" condition="SC000" name="CMSIS/Include/core_sc000.h"/>
+        <file category="header" condition="SC300" name="CMSIS/Include/core_sc300.h"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS" Cgroup="DSP" Cversion="1.1.0" condition="CMSIS DSP">
+      <description>CMSIS-DSP Library for Cortex-M0, Cortex-M3 and Cortex-M4 as well as SC000 and SC300 processor based devices</description>
+
+      <files>
+        <!-- CPU independent -->
+        <file category="doc" name="CMSIS/Documentation/DSP/html/index.html"/>
+        <file category="header" name="CMSIS/Include/arm_math.h"/>
+        <!-- CPU and Compiler dependent -->
+        <!-- ARMCC -->
+        <file category="library" condition="CM0_LE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM0l_math.lib"/>
+        <file category="library" condition="CM0_BE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM0b_math.lib"/>
+        <file category="library" condition="CM3_LE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM3l_math.lib"/>
+        <file category="library" condition="CM3_BE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM3b_math.lib"/>
+        <file category="library" condition="CM4_LE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM4l_math.lib"/>
+        <file category="library" condition="CM4_BE_ARMCC"  name="CMSIS/Lib/ARM/arm_cortexM4b_math.lib"/>
+        <file category="library" condition="CM4F_LE_ARMCC" name="CMSIS/Lib/ARM/arm_cortexM4lf_math.lib"/>
+        <file category="library" condition="CM4F_BE_ARMCC" name="CMSIS/Lib/ARM/arm_cortexM4bf_math.lib"/>
+        <!-- GCC -->
+        <file category="library" condition="CM0_LE_GCC"    name="CMSIS/Lib/GCC/libarm_cortexM0l_math.a"/>
+        <file category="library" condition="CM3_LE_GCC"    name="CMSIS/Lib/GCC/libarm_cortexM3l_math.a"/>
+        <file category="library" condition="CM4_LE_GCC"    name="CMSIS/Lib/GCC/libarm_cortexM4l_math.a"/>
+        <file category="library" condition="CM4F_LE_GCC"   name="CMSIS/Lib/GCC/libarm_cortexM4lf_math.a"/>
+        <!-- G++ -->
+        <file category="library" condition="CM0_LE_G++"    name="CMSIS/Lib/G++/libarm_cortexM0l_math.a"/>
+        <file category="library" condition="CM3_LE_G++"    name="CMSIS/Lib/G++/libarm_cortexM3l_math.a"/>
+        <file category="library" condition="CM4_LE_G++"    name="CMSIS/Lib/G++/libarm_cortexM4l_math.a"/>
+        <file category="library" condition="CM4F_LE_G++"   name="CMSIS/Lib/G++/libarm_cortexM4lf_math.a"/>
+      </files>
+    </component>
+
+    <component condition="ARM_CM0" Cclass="Device" Cgroup="Startup" Cversion="3.1.1">
+      <description>System Startup for generic Arm Cortex-M0 device</description>
+      <files>
+        <file category="header" name="Device/ARM/ARMCM0/Include/ARMCM0.h"/>
+        <file category="header" name="Device/ARM/ARMCM0/Include/system_ARMCM0.h"/>
+        <file category="source" condition="Compiler_ARM" name="Device/ARM/ARMCM0/Source/ARM/startup_ARMCM0.s"/>
+        <file category="source" condition="Compiler_GCC" name="Device/ARM/ARMCM0/Source/GCC/startup_ARMCM0.S"/>
+        <file category="source" condition="Compiler_G++" name="Device/ARM/ARMCM0/Source/G++/startup_ARMCM0.S"/>
+        <file category="source" condition="Compiler_IAR" name="Device/ARM/ARMCM0/Source/IAR/startup_ARMCM0.s"/>
+        <file category="source" name="Device/ARM/ARMCM0/Source/system_ARMCM0.c" attr="template"/>
+      </files>
+    </component>
+  </components>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>		
+
+\section Component_Bundle Component Bundle
+
+In case multiple inter-dependent components that belong to the same \b Cclass form part of a solution, these can be grouped
+into a <em>bundle</em>. A <em>bundle</em> specifies identical attributes \b Cclass, \b Cversion and optionally \b Cgroup and
+\b Cvendor for several components. Components within a bundle inherit these attributes set by the bundle and cannot alter
+these attributes. Bundles ensure consistency of attributes across multiple interworking components and restrict the mix and
+match of components within a Cclass from different Software Packs.
+
+An example of a <b>bundle</b> is shown in the \ref cp_BundleExample section where the bundle is used to deliver board
+support files for a certain development platform.
+
+\section Component_Files Component Files
+
+The files of a Software Component will be used in development tool-chains to build an application. Depending on the
+attributes, the files are handled differently:
+  - Libraries, source, and header files without an attribute cannot be modified. These files are stored in the folders of
+    the Software Component and get directly included  from this location into the project.
+  - Source and header files that have the attribute \c "config" are copied to the project so that they can be edited by the
+    user and tailored to the needs of the application. If a Software Component allows multiple instances of files, they
+	can be copied multiple times to a project and will get a suffix \e _\%Instance% (see \ref Component_Instances). Please
+    note that header files that are used with the attribute \c "config" need to be stored separately from other header files
+    (for example in an extra directory) to avoid that due to the include path search order of the compiler, the unmodified
+    header file in the pack repository is found first and used by the compiler (creating unexpected results).
+  - Source and header files that have the attribute \c "template" are part of \ref cp_CodeTemplates and can be added to a
+    project manually by the user.
+	
+The following image shows the dependency between the attribute and the display in a development environment:
+
+\image html component_files.png  "Display of files of a Software Component in development tools"
+	
+\section Component_Instances Component Instances
+
+Modern microcontrollers often have multiple instances of the same peripheral interface (for example UART, SPI, USB, etc.).
+To be able to have separate configuration files for each of these instances, Software Components can have multiple instances
+as well. The attribute \b maxInstances declares the maximum number of instances that can be used in a project for a certain 
+Software Component. 
+
+If the user selects for example two instances of the same component, all files with the attribute \c "config" will be copied
+twice to the project. The name of the component (for example \c config_mylib.h) will be expanded with an \c _\%Instance%
+number:
+  -# Instance: config_mylib<i>_0</i>.h
+  -# Instance: config_mylib<i>_1</i>.h
+
+The availability of instances in a project can be made public in the \c RTE_Components.h file. This can be used to check for
+the availability of a certain instance in the user application code:
+
+\code
+        <RTE_Components_h>
+          <!-- the following content goes into file 'RTE_Components.h' -->
+          #define RTE_FileSystem_Drive_NOR_%Instance%      /* File System NOR Flash Drive %Instance% */
+        </RTE_Components_h>
+\endcode
+\n
+\image html Component_Instances.png  "Component instances in PDSC file and in development tools"
+
+\section RTE_Components_h RTE_Components.h
+
+The build environment should generate a C/C++ include file with the name <b>RTE_Components.h</b> that contains:
+  - The statements of the related \<RTE_Components_h\> element for all selected software components. 
+  - The header file name specified in the \<compile\> element of the \ref pdsc_devices_pg.
+
+\b Example
+
+The following example shows a sample content of a file <b>RTE_Components.h</b>. 
+It contains the statements that are specified with the element \b RTE_Components_h of four software components.
+
+\code
+/*
+ * Auto generated Run-Time-Environment Component Configuration File
+ *      *** Do not modify ! ***
+ */
+ 
+#ifndef RTE_COMPONENTS_H
+#define RTE_COMPONENTS_H
+
+/*
+ * Define the Device Header File: 
+ */
+#define CMSIS_device_header "stm32f10x.h"
+ 
+#define RTE_Network_Interface_ETH_0     /* Network Interface ETH 0 */
+#define RTE_Network_Socket_BSD          /* Network Socket BSD */
+#define RTE_Network_Socket_TCP          /* Network Socket TCP */
+#define RTE_Network_Socket_UDP          /* Network Socket UDP */
+ 
+#endif /* RTE_COMPONENTS_H */
+\endcode
+
+The <b>RTE_Components.h</b> file allows to create software that works with any supported device as it gives access to the
+\b CMSIS_device_header.  The \b CMSIS_device_header reflects the current selected device and gives you for example access  
+to the processor configuration.  Refer to <b>"Device Header File <device.h>"</b> in <a href="../../Core/html/device_h_pg.html"><b>CMSIS-Core(M)</b></a> 
+or <a href="../../Core_A/html/device_h_pg.html"><b>CMSIS-Core(A)</b></a> for more information.
+
+\code
+#include CMSIS_device_header            /* header file of the selected device in the project */
+
+#if (defined (__MPU_PRESENT)) && (__MPU_PRESENT == 1)
+  // device has MPU, start the related code
+#else
+  #error "Software Component requires a device with MPU"
+#endif
+\endcode
+
+Another typical usage of the <b>RTE_Components.h</b> file is in header files to control for example the inclusion of files
+that are related to other components for the same Software Pack.
+
+\code
+#include "RTE_Components.h"
+ 
+#ifdef  RTE_Network_Interface_ETH_0    // generated when software component Network Interface ETH 0 is included
+#include "Net_Config_ETH_0.h"          // add the related configuration file for these component 
+#endif
+\endcode
+
+
+<p>&nbsp;</p>
+<hr>
+
+\section Pre_Include_Global_h
+The build environment shall generate a C/C++ header file with the name <b>Pre_Include_Global.h</b> from all selected components and add this file 
+to the command line as a pre-include file for the build of all modules in the project.
+Note: the file shall be generated into the RTE/\<target> subdirectory.
+
+\code
+<component Cclass="Other" Cgroup="Alpha" ...>
+  <Pre_Include_Global_h>
+    // enabling global pre include
+    #define GLOBAL_Component_Alpha 0x4
+  </Pre_Include_Global_h>
+</component>
+
+<component Cclass="Other" Cgroup="Beta" ...>
+  <Pre_Include_Global_h>
+    // enabling global pre include
+    #define GLOBAL_Component_Beta 0x8
+  </Pre_Include_Global_h>
+</component>
+\endcode
+
+results in .../RTE/target_1/Pre_Include_Global.h:
+\code
+    // enabling global pre include
+    #define GLOBAL_Component_Alpha 0x4
+    // enabling global pre include
+    #define GLOBAL_Component_Beta 0x8
+\endcode
+
+No need to explicitly include this file as it is automatically added as pre-include into the build for all modules.
+
+<p>&nbsp;</p>
+<hr>
+
+\section Pre_Include_Local_h
+The build environment shall generate a C/C++ header file with the name <b>Pre_Include_\<Cclass>_\<component>.h</b> 
+from the selected component and add this file to the command line as a pre-include file for the build of all modules of this component.
+The same is done for each component containing a "Pre_Include_Local_h" element.
+Note: files shall be generated into the RTE/\<target> subdirectory.
+
+\code
+<component Cclass="Other" Cgroup="Alpha" ...>
+  <Pre_Include_Local_h>
+    // enabling local pre include
+    #define Local_Component_Alpha 1
+  </Pre_Include_Local_h>
+</component>
+
+\endcode
+
+results in .../RTE/target_1/Pre_Include_Other_Alpha.h:
+\code
+    // enabling local pre include
+    #define Local_Component_Alpha 1
+\endcode
+
+No need to explicitly include this file as it is automatically added as pre-include into the build for all modules of component Other:Alpha.
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_components /package/components
+
+Grouping element containing a choice of at least one bundle or component. No more than one element <em>components</em> can exist in a Pack.
+
+<table class="cmtable" summary="Element: Components">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref pdsc_package_pg "package"</td>
+    <td colspan="3">\ref pdsc_package_pg "/package"</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>generator</td>
+    <td>Specifies the generator ID of the generator that has been used to generate all components within this section.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_bundle "bundle"</td>
+    <td>Grouping element for a collection of inter-operable components belonging to the same Cclass</td>
+    <td>ComponentType</td>
+    <td>1..*</td>
+  </tr>
+  <tr>
+    <td>\ref element_component "component"</td>
+    <td>Grouping element for components</td>
+    <td>ComponentType</td>
+    <td>1..*</td>
+  </tr>
+ </table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_bundle /package/components/bundle
+
+A bundle describes a named collection of inter-operable components of the identical \em Cvendor, \em Cclass and \em Cversion.
+Components enclosed in a bundle must not specify any of the following attributes \em Cvendor, \em Cclass and \em Cversion. 
+
+<table class="cmtable" summary="Element: Bundle">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_components "components"</td>
+    <td colspan="3">\ref element_components</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>Cbundle</td>
+    <td>Defines the name of the bundle. It becomes a mandatory part of the component ID.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Cvendor</td>
+    <td>Defines the component vendor all components of this bundle belong to. If not explicitly set the component vendor is
+	derived from the package vendor. The component vendor is a mandatory part of the component ID.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cclass</td>
+    <td>Defines the component class to which all components in the bundle belong. Is a mandatory part of the component ID.
+	Predefined values can be used as listed in the table \ref CclassType "Component Classes".
+	</td>
+    <td>CclassType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Cversion</td>
+    <td>Defines the version of all components contained in the bundle. The component version is a mandatory part of the component ID. 
+	The version format is described in \ref VersionType "Version Type".
+	</td>
+    <td>VersionType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <th>Child&nbsp;Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>description</td>
+	<td>Brief description of the bundle</td>
+	<td>xs:string</td>
+	<td>1..1</td>
+  </tr>
+  <tr>
+    <td>doc</td>
+	<td>Documentation for the bundle: File path, file name, and file extension in the format \b path/name.extension. 
+	    The file path is relative to the root directory of the Pack.
+	<td>xs:string</td>
+	<td>1..1</td>
+  </tr>
+  
+  <tr>
+    <td>\ref element_component "component"</td>
+    <td>Grouping element for components.</td>
+    <td>ComponentType</td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_component /package/components/.../component
+
+A component describes a collection of files (source, header, configuration, library) that can be versioned and categorized.
+
+<table class="cmtable" summary="Element: Component">
+  <tr>
+    <th>Parent</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_components "components"</td>
+    <td colspan="3">\ref element_components</td>
+  </tr>	
+  <tr>
+    <td>\ref element_components "components"</td>
+    <td colspan="3">\ref element_bundle</td>
+  </tr>	
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>Cvendor</td>
+    <td>Defines the component vendor this component is shipped by. It is a mandatory part of the component ID and will be inherited from
+	    the package vendor if not specified. 
+		\n \token{Must not be specified for a component within a bundle.}</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cclass</td>
+    <td>Defines the component class to which the component belongs. This is a mandatory part of the component ID. 
+	Predefined values can be used as listed in the table \ref CclassType "Component Classes".
+	\n \token{Must not be specified for a component within a bundle.}</td>
+    <td>CclassType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Cgroup</td>
+    <td>Defines the component group to whoch the component belongs. Is a mandatory part of the component ID.
+	Predefined values can be used as listed in the table \ref CgroupType "Component Groups".</td>
+    <td>CgroupType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Csub</td>
+    <td>Defines the component subgroup. Is an optional part of the component ID. The type is described in \ref CsubType "Component Subgroups".</td>
+    <td>CsubType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cvariant</td>
+    <td>Defines a variant of a component. Is an optional part of the component ID. The variant specifier is a brief string (for example: \token{release}, \token{debug}).
+	</td>
+    <td>xs:string [3..32]</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>Cversion</td>
+    <td>Defines the version of this component. Is a mandatory part of the component ID. 
+	 The version format is described in \ref VersionType "Version Type".
+	 \n \token{Must not be specified for a component within a bundle.}</td>
+    <td>VersionType</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>Capiversion</td>
+    <td>For components that are based on an API, it defines the version of the API used by this component.
+        It ensures that the API header file with this or any higher version is acceptable for using that component.
+        The version format is described in \ref VersionType "Version Type".		
+	</td>
+    <td>VersionType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>condition</td>
+    <td>Enter the \b id of a \ref element_conditions "condition". The component is available and can be selected when the condition is true.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>maxInstances</td>
+    <td>Maximum allowed instances of a component in a project. Default is \token{1} for one instance. The range is [\token{1..10}].</td>
+    <td>xs:integer</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>isDefaultVariant</td>
+    <td>Identifies this component variant to be the preferred variant for tool driven selection [Version 1.4.0]</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  <tr>
+    <td>generator</td>
+    <td>This links the component with a generator description located in the same file. If this component is selected by the run time configuration,
+        the tool will test whether the configured \ref pdsc_generators_pg "gpdsc file" does already exist or not. If the file is not present, then the
+        command specified by the referenced generator section, will be invoked. If the gpdsc file already exists it will be included into the project</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <th>Child Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>deprecated</td>
+    <td>When set to \token{true}, then the component is deprecated and no longer maintained. Default is \token{false} to indicate an actively maintained component.</td>
+    <td>xs:boolean </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>Brief description of the component.</td>
+    <td>xs:string </td>
+    <td>1..1</td>
+  </tr>
+  <tr>
+    <td>RTE_Components_h</td>
+    <td>Source code that is copied into the file \ref RTE_Components_h when the component is selected by the run time environment configuration.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>Pre_Include_Global_h</td>
+    <td>Source code that is copied into the file \ref Pre_Include_Global_h when the component is selected by the run time environment configuration.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  <tr>
+    <td>Pre_Include_Local_Component_h</td>
+    <td>Source code that is copied into the file \ref Pre_Include_Local_h \<Cclass>_\<Component_name>.h when the component is selected by the run time environment configuration.</td>
+    <td>xs:string </td>
+    <td>0..1 </td>
+  </tr>
+  
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td>Grouping element for all files that are part of this component.</td>
+    <td>group</td>
+    <td>1</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+
+\anchor CsubType <b>Component Subgroups</b>
+
+Component Subgroups are specified by the element \em \b Csub, and
+create subcategories within Component Classes (\em \b Cclass) and Component Groups (\em \b Cgroup). 
+A \em \b Csub name is of type \em xs:string with a length between 3 and 32 characters.
+No \b \em Csub names have been predefined.
+
+Subgroups exists in the elements:
+- \ref element_accept
+- \ref element_require
+- \ref element_deny
+- \ref element_component
+- \ref element_example_attribute_component
+ 
+\b Example:
+\code
+  <... Csub="MyRTOS" Cgroup="RTOS" Cclass="CMSIS"...>
+\endcode
+
+<p>&nbsp;</p>
+<hr>
+
+\section element_files /package/.../files
+
+The group <b>files</b> can appear in various Pack elements. This group is the frame for defining individual file properties.
+
+\b Example:
+\code
+<package>
+  ...
+  <apis>
+    <api Cclass="Device" Cgroup="Driver UART" exclusive="0">
+      <files>
+        ...
+      </files>
+    </api>
+  </apis>
+  ...
+  <components>
+    <component Cclass="Device" Cgroup="Startup" Cversion="3.1.1" >  
+      <files>
+        ...
+      </files>
+    </component>
+  </components>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>
+
+<table class="cmtable" summary="Element: Files">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_api "api"</td>
+    <td colspan="3">\ref element_api "/package/apis/api"</td>
+  </tr>
+  <tr>
+    <td>\ref element_component "component"</td>
+    <td colspan="3">\ref element_component "/package/components/component"</td>
+  </tr>
+  <tr>
+    <td>\ref element_component "component"</td>
+    <td colspan="3">\ref element_component "/package/components/bundle/component"</td>
+  </tr>
+  <tr>
+    <th>Child&nbsp;Elements</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Occurrence</th>
+  </tr>
+  <tr>
+    <td>\ref element_file "file"</td>
+    <td>Frame for the individual \ref element_file "file" of a component.
+    <td>group</td>
+    <td>1..*</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>		
+<hr>
+
+\section element_file /package/.../files/file
+
+The element <b>file</b> is the mechanism to attach files to the software.
+The file purpose is defined through the <b>category</b> attribute. The <b>name</b> attribute identifies the file.
+
+
+\b Example:
+\code
+<package>
+  ...
+  <apis>
+    <api Cclass="Device" Cgroup="Driver UART" exclusive="0">
+      <files>
+        <file category="doc" name="Driver/Doc/UART/html/index.html"/>
+        <file category="header" name="Driver/Include/Driver_UART.h"/>
+      </files>
+    </api>
+  </apis>
+  ...
+  <components>
+    <component Cclass="Device" Cgroup="Startup" Cversion="3.1.1" >  
+      <files>
+        <file category="header" name="Device/Include/system_stm32f2xx.h"/>
+        <file category="source" name="Device/Source/ARM/startup_stm32f2xx.s" attr="template"/>
+        <file category="source" name="Device/Source/system_stm32f2xx.c" attr="template"/>
+      </files>
+    </component>
+  </components>
+  ...
+</package>
+\endcode
+
+<p>&nbsp;</p>		
+
+<table class="cmtable" summary="Element: File">
+  <tr>
+    <th>Parents</th>
+    <th colspan="3">Element Chain</th>
+  </tr>
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td colspan="3">\ref element_files "/package/apis/api/files"</td>
+  </tr>
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td colspan="3">\ref element_files "/package/components/component/files"</td>
+  </tr>
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td colspan="3">\ref element_files "/package/components/bundle/component/files"</td>
+  </tr>
+  <tr>
+    <td>\ref element_files "files"</td>
+    <td colspan="3">\ref element_gen_project_files "/package/generators/generator/project_files"</td>
+  </tr>
+  <tr>
+    <th>Attributes</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Use</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>File path, file name, and file extension in the format <b>path/name.extension</b>. The file path is relative to the root directory of the Pack.</td>
+    <td>xs:string</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>path</td>
+    <td>for <b>category="header"</b> the path attribute explicitly can be used to specify the include path to be added to the commandline of the build tools, 
+        specifying an imcomplete path. This way the include file requires the specification of the subdirectory (e.g. \#include "sub_dir/includeFile.h") which can act as 
+        acting as namespace for header files which otherwise have the same name.</td>
+    <td>xs:string</td>
+    <td>optional</td>    
+  </tr>
+  <tr>
+    <td>category</td>
+    <td>Defines the purpose of the file. Select the predefined value as listed in the table \ref FileCategoryEnum "File Categories".</td>
+    <td>\ref FileCategoryEnum</td>
+    <td>required</td>
+  </tr>
+  <tr>
+    <td>attr</td>
+    <td>Defines the special use and handling of a file. Select a predefined value as defined in the table \ref FileAttributeEnum "File Attributes". 	
+	</td>
+    <td>\ref FileAttributeEnum</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>condition</td>
+    <td>Enter the identifier (attribute \em <b>id</b>) of a \ref element_condition "condition". The element is used if the condition resolves to \token{true}. 
+	If the condition resolves to \token{false}, then the element will be ignored. 
+	For example, a library might be specific for a certain toolchain or processor instruction set.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>select</td>
+	<td>Brief description and purpose of the file. The \b <em>select</em> attribute is \b required when \b <em>attr</em> is set to \token{template} or \token{interface}.
+	When multiple template files of a component have the same \b <em>select</em> string, they are treated as a single selectable template. This way, multiple template
+	or interface files can be bundled.</td>
+	<td>xs:string</td>
+	<td>optional</td>
+  </tr>
+  <tr>
+    <td>src</td>
+    <td>Path information. The path is specified relative to the Pack Description File. If \em \b category is set to \token{library}, 
+	then the \em \b src string can contain a list of directory paths separated by semicolons. A debugger will search those paths 
+	for locating the source files of the modules archived in the library supporting the debugging of library code.</td>
+    <td>xs:string</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>version</td>
+    <td>File-specific version information. This is used particularly for files copied into the project workspace. 
+	Before a file gets copied, a version check avoids unnecessary copy actions. If a file does not have a version, then the component version is used.
+	 The version format is described in \ref VersionType "Version Type".</td>
+    <td>VersionType</td>
+    <td>optional</td>
+  </tr>
+  <tr>
+    <td>public</td>
+    <td>Set publishing permissions for the documentation. If \tagem{public} is \token{true}, then the vendor gives permission 
+        to extract the documentation from the pack and publish it on a web-page. Links to web pages are assumed to be public.
+        The default value is \token{false}.</td>
+    <td>xs:boolean</td>
+    <td>optional</td>
+  </tr>
+</table>	  
+
+<p>&nbsp;</p>		
+
+
+\anchor FileAttributeEnum <b>Table: File Attributes</b>
+
+The file attribute defines the special handling in the project when being used as configuration, template, or interface file.
+The table lists the values available as a file attribute.
+<table class="cmtable" summary="Type: FileAttributeEnum">
+  <tr>
+    <th>attr=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">config</td>
+    <td>The file is a configuration file of the component. It is expected that only configuration options are modified.
+	The file is managed as part of the component, as a project-specific file typically copied into the component section of the project.s</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">template</td>
+    <td>The file is used as a source code template file. It is expected to be edited and extended by the software developer.
+	The file can be copied into a user section of the project.</td>
+  </tr>
+<!---
+  <tr>
+    <td class="XML-Token">interface</td>
+    <td>The file contains the source code of an interface that connects two software components. It is a working reference implementation that may need customization. 
+	The file can be copied to a user section of the project.</td>
+  </tr>
+--->
+</table>
+
+\note 
+Header files with the attribute \token{config} must be located in a directory within the pack that is
+not otherwise specified as an "include folder" of this or any other component's files of the category "header" or "include".
+For example:
+\verbatim
+<file category="header"  name="src/config/user_config.h" attr="config" version="1.0.0" />
+\endverbatim
+Config files are copied into the project folder and are adopted specifically for that project. Due to the include path search order of the compiler, 
+chances exist that the unmodified header file in the pack repository is found first and used by the
+compiler (creating unexpected results).
+
+<p>&nbsp;</p>		
+
+\anchor FileCategoryEnum <b>Table: File Categories</b>
+
+File category types define the use of component files within the application. Typically, these files are added to 
+the project and processed by the build tools.
+
+File categories are used in the following elements:
+- \ref element_file
+- \ref element_gen_file
+- \ref element_component_file
+
+The table lists the predefined values for a file category. 
+<table class="cmtable" summary="Type: FileCategoryEnum">
+  <tr>
+    <th>category=</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="XML-Token">doc</td>
+    <td>Documentation</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">header</td>
+    <td>Header file used in the component. Sets an include file path and adds the file name attribute to the list of files to be added
+    to a module using the <b>\#include</b> statement. Note: specify only those files as header files that form part of the API of the component, required to use the component</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">include</td>
+    <td>Sets an include file path. Note: ensure that the name attribute specifies a directory and ends with a '/'.</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">library</td>
+    <td>Library file</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">object</td>
+    <td>Object file that can be added to the application</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">source</td>
+    <td>Startup-, system-, and other C/C++, assembler, etc. source files</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">sourceC</td>
+    <td>C source file</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">sourceCpp</td>
+    <td>C++ source file</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">sourceAsm</td>
+    <td>Assembly source file</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">linkerScript</td>
+    <td>linker script file that can be selected by tool-chains</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">utility</td>
+    <td>a command line tool that can be configured for pre- or post-processing during the build process</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">image</td>
+    <td>Files of image type are marked for special processing into a File System Image embedded into the application.
+        This category requires the <em>attr</em> being set to <em>template</em><!--- or <em>interface</em> --->.
+	</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">preIncludeGlobal</td>
+    <td>The specified file is added as a pre-include file to the compiler command line for all modules of the whole <b>project</b> (globally).</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">preIncludeLocal</td>
+    <td>The specified file is added as a pre-include file to the compiler command line for all modules of the <b>component</b> (locally).</td>
+  </tr>
+  <tr>
+    <td class="XML-Token">other</td>
+    <td>Other file types not covered in the list above</td>
+  </tr>
+</table>
+
+	  
+<p>&nbsp;</p>		
+<hr>
+*/

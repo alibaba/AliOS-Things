@@ -1,0 +1,13 @@
+# Parameters:
+# instance.parameter=value       #(type, mode) default = 'def value' : description : [min..max]
+#----------------------------------------------------------------------------------------------
+fvp_mps2.mps2_visualisation.disable-visualisation=1   # (bool  , init-time) default = '0'      : Enable/disable visualisation
+armcortexm3ct.semihosting-enable=1                    # (bool  , init-time) default = '1'      : Enable semihosting SVC traps. Applications that do not use semihosting must set this parameter to false.
+armcortexm3ct.semihosting-Thumb_SVC=0xAB              # (int   , init-time) default = '0xAB'   : T32 SVC number for semihosting : [0x0..0xFF]
+armcortexm3ct.semihosting-cmd_line=""                 # (string, init-time) default = ''       : Command line available to semihosting SVC calls
+armcortexm3ct.semihosting-heap_base=0x0               # (int   , init-time) default = '0x0'    : Virtual address of heap base : [0x0..0xFFFFFFFF]
+armcortexm3ct.semihosting-heap_limit=0x0              # (int   , init-time) default = '0x10700000' : Virtual address of top of heap : [0x0..0xFFFFFFFF]
+armcortexm3ct.semihosting-stack_base=0x0              # (int   , init-time) default = '0x10700000' : Virtual address of base of descending stack : [0x0..0xFFFFFFFF]
+armcortexm3ct.semihosting-stack_limit=0x0             # (int   , init-time) default = '0x10800000' : Virtual address of stack limit : [0x0..0xFFFFFFFF]
+armcortexm3ct.semihosting-cwd=""                      # (string, init-time) default = ''       : Base directory for semihosting file access.
+#----------------------------------------------------------------------------------------------

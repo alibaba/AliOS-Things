@@ -1,0 +1,165 @@
+/**
+\defgroup cache_functions_m7 Cache Functions  (only Cortex-M7)
+\brief Functions for Instruction and Data Cache.
+\details 
+Cortex-M7 processors include a memory system, which includes an optional MPU and Harvard data and instruction
+cache with ECC.  The optional CPU cache has an instruction and data cache with sizes of \token{[0;4;8;16;32;64]KB}.
+Both instruction and data cache RAM can be configured at implementation time to have Error
+Correcting Code (ECC) to protect the data stored in the memory from errors.
+
+All cache maintenance operations are executed by writing to registers in the memory mapped
+System Control Space (SCS) region of the internal PPB memory space. 
+
+\note 
+After reset, you must invalidate each cache before enabling it. 
+ 
+The functions are grouped for:
+ - \ref Icache_functions_m7
+ - \ref Dcache_functions_m7
+
+@{
+*/
+
+/**
+  \defgroup Icache_functions_m7 I-Cache Functions
+  \brief Functions for the instruction cache.
+  @{
+*/
+ 
+
+
+/**
+  \brief Enable I-Cache.
+  
+  The function turns on the instruction cache.
+\note
+Before enabling the instruction cache, you must invalidate (\ref SCB_InvalidateICache) the entire instruction cache if
+external memory might have changed since the cache was disabled.
+\note 
+After reset, you must invalidate (\ref SCB_InvalidateICache) each cache before enabling it. 
+*/
+__STATIC_INLINE void SCB_EnableICache (void);
+
+
+/**
+  \brief Disable I-Cache.
+  
+  The function turns off the instruction cache.
+
+*/
+__STATIC_INLINE void SCB_DisableICache (void);
+
+
+/**
+  \brief Invalidate I-Cache.
+  
+  The function invalidates the instruction cache.
+  The instruction cache is never dirty so cache RAM errors are always recoverable by invalidating the cache and retrying the instruction.
+\note 
+After reset, you must invalidate each cache before enabling (\ref SCB_EnableICache) it. 
+
+*/
+__STATIC_INLINE void SCB_InvalidateICache (void);
+
+
+/**
+  @}  // close ICache functions
+*/
+ 
+/**
+  \defgroup Dcache_functions_m7 D-Cache Functions  
+  \brief Functions for the data cache.
+
+  @{
+*/
+
+/**
+  \brief Enable D-Cache.
+  
+  The function turns on the entire data cache.
+\note 
+Before enabling the data cache, you must invalidate the entire data cache (\ref SCB_InvalidateDCache), because external
+memory might have changed from when the cache was disabled.
+
+\note 
+After reset, you must invalidate (\ref SCB_InvalidateDCache) each cache before enabling it. 
+*/
+__STATIC_INLINE void SCB_EnableDCache (void);
+
+
+/** 
+  \brief Disable D-Cache.
+  
+  The function turns off the entire data cache.
+  
+\note
+When disabling the data cache, you must clean (\ref SCB_CleanDCache) the entire cache to ensure that any dirty data is
+flushed to external memory.
+
+*/
+__STATIC_INLINE void SCB_DisableDCache (void);
+
+
+/**
+  \brief Invalidate D-Cache.
+
+  The function invalidates the entire data cache.
+
+\note
+After reset, you must invalidate each cache before enabling (\ref SCB_EnableDCache) it. 
+
+*/
+__STATIC_INLINE void SCB_InvalidateDCache (void);
+
+
+/** 
+  \brief Clean D-Cache.
+
+  The function cleans the entire data cache.
+*/
+__STATIC_INLINE void SCB_CleanDCache (void);
+
+
+/** 
+  \brief Clean & Invalidate D-Cache.
+ 
+  The function cleans and invalidates the entire data cache.
+*/
+__STATIC_INLINE void SCB_CleanInvalidateDCache (void);
+
+
+/**
+  \brief       D-Cache Invalidate by address
+  \param[in]   addr    address (aligned to 32-byte boundary)
+  \param[in]   dsize   size of memory block (in number of bytes)
+  
+  The function invalidates a memory block of size \em dsize [bytes] starting at address \em address. The address is aligned to 32-byte boundry.
+*/
+__STATIC_INLINE void SCB_InvalidateDCache_by_Addr (uint32_t *addr, int32_t dsize);
+
+
+/**
+  \brief       D-Cache Clean by address
+  \param[in]   addr    address (aligned to 32-byte boundary)
+  \param[in]   dsize   size of memory block (in number of bytes)
+  
+  The function cleans a memory block of size \em dsize [bytes] starting at address \em address. The address is aligned to 32-byte boundry.
+
+
+*/
+__STATIC_INLINE void SCB_CleanDCache_by_Addr (uint32_t *addr, int32_t dsize);
+
+
+/**
+  \brief       D-Cache Clean and Invalidate by address
+  \param[in]   addr    address (aligned to 32-byte boundary)
+  \param[in]   dsize   size of memory block (in number of bytes)
+  
+  The function invalidates and cleans a memory block of size \em dsize [bytes] starting at address \em address. The address is aligned to 32-byte boundry.
+*/
+__STATIC_INLINE void SCB_CleanInvalidateDCache_by_Addr (uint32_t *addr, int32_t dsize);
+
+/**
+@}  // close D-Cache Functions
+@}
+*/

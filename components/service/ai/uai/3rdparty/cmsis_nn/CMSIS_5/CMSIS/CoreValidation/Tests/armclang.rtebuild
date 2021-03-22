@@ -1,0 +1,156 @@
+options:
+  optimize : [ O1, O2, Oz, Ofast, Os ]
+import:
+ - tests.rtebuild
+targets:
+  arm:
+    csettings   : [ -fno-rtti, -funsigned-char, -fshort-enums, -fshort-wchar, -mlittle-endian, -gdwarf-3, "-%{optimize}", -ffunction-sections ]
+    cwarnings   : [ -Weverything, -Wno-covered-switch-default, -Wno-packed, -Wno-reserved-id-macro, -Wno-unused-macros, -Wno-documentation-unknown-command, -Wno-documentation, -Wno-license-management ]
+  armcm:
+    features    : ""
+    cflags      : [ -xc, -std=gnu99, --target=arm-arm-none-eabi, "-mcpu=${mcpu}${features}", "-mfpu=${mfpu}", "-mfloat-abi=${float}", -c, "${csettings}", "${cwarnings}" ]
+    asmflags    : [ "--cpu ${cpu}", "--fpu=${fpu}", --li, -g ]
+    info        : [ --info summarysizes, --map, --load_addr_map_info, --xref, --callgraph, --symbols, --info sizes, --info totals, --info unused, --info veneers, "--list ${builddir}/${targetName}.map" ]
+    linkflags   : [ "--cpu ${cpu}", "--fpu=${fpu}",--strict, --no_remove, --entry Reset_Handler, --diag_suppress=L6314, --diag_suppress=L6092w, "${info}" ]
+    linkscript  : "config/core_m/rtebuild.sct"
+  armcm0:
+    mcpu    : cortex-m0
+    cpu     : cortex-m0
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm0plus:
+    mcpu    : cortex-m0plus
+    cpu     : cortex-m0plus
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm3:
+    mcpu    : cortex-m3
+    cpu     : cortex-m3
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm4:
+    mcpu    : cortex-m4
+    cpu     : cortex-m4
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm4fp:
+    mcpu    : cortex-m4
+    cpu     : cortex-m4.fp
+    mfpu    : fpv4-sp-d16
+    fpu     : FPv4-SP
+    float   : hard
+  armcm7:
+    mcpu    : cortex-m7
+    cpu     : cortex-m7
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm7sp:
+    mcpu    : cortex-m7
+    cpu     : cortex-m7.fp.sp
+    mfpu    : fpv5-sp-d16
+    fpu     : FPv5-SP
+    float   : hard
+  armcm7dp:
+    mcpu    : cortex-m7
+    cpu     : cortex-m7.fp.dp
+    mfpu    : fpv5-d16
+    fpu     : FPv5_D16
+    float   : hard
+  armcm23:
+    mcpu    : cortex-m23
+    cpu     : cortex-m23
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm23s:
+    mcpu    : cortex-m23
+    cpu     : cortex-m23
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+    cflags  : [ -mcmse ]
+  armcm23ns:
+    mcpu    : cortex-m23
+    cpu     : cortex-m23
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+    linkscript: "config/core_m/rtebuild_ns.sct"
+  armcm33:
+    mcpu    : cortex-m33
+    cpu     : cortex-m33.no_dsp
+    features: "+nodsp"
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft
+  armcm33s:
+    mcpu    : cortex-m33
+    cpu     : cortex-m33
+    mfpu    : fpv5-sp-d16
+    fpu     : FPv5-SP
+    float   : hard
+    cflags  : [ -mcmse ]
+  armcm33ns:
+    mcpu    : cortex-m33
+    cpu     : cortex-m33
+    mfpu    : fpv5-sp-d16
+    fpu     : FPv5-SP
+    float   : hard
+    linkscript: "config/core_m/rtebuild_ns.sct"
+  armcm35p:
+    mcpu    : cortex-m35p
+    cpu     : cortex-m35p.no_dsp
+    features: "+nodsp"
+    mfpu    : none
+    fpu     : SoftVFP
+    float   : soft  
+  armcm35ps:
+    mcpu    : cortex-m35p
+    cpu     : cortex-m35p
+    mfpu    : fpv5-sp-d16
+    fpu     : FPv5-SP
+    float   : hard
+    cflags  : [ -mcmse ]
+  armcm35pns:
+    mcpu    : cortex-m35p
+    cpu     : cortex-m35p
+    mfpu    : fpv5-sp-d16
+    fpu     : FPv5-SP
+    float   : hard
+    linkscript: "config/core_m/rtebuild_ns.sct"
+  armca:
+    cflags     : [ -xc, -std=c99, -c, --target=arm-arm-none-eabi, "-mcpu=${cpu}", "-mfpu=${fpu}", "-mfloat-abi=${float}", -marm, "${csettings}", "${cwarnings}" ]
+    asmflags   : [ -c, --target=arm-arm-none-eabi, "-mcpu=${cpu}", "-mfpu=${fpu}", "-mfloat-abi=${float}", -marm, "${csettings}", "${cwarnings}" ]
+    linkflags  : [ -v, --target=arm-arm-none-eabi, "-Wl,--entry=Vectors" ]
+    linkscript : "./config/core_a/rtebuild_armclang.sct"
+    source:
+      - ../../../Device/ARM/${device}/Source/AC6/startup_${device}.c
+  armca5:
+    cpu    : cortex-a5
+    fpu    : vfpv3-d16-fp16
+    float  : hard
+  armca5neon:
+    cpu    : cortex-a5
+    fpu    : neon-fp16
+    float  : hard
+  armca7:
+    cpu    : cortex-a7
+    fpu    : vfpv4-d16
+    float  : hard
+  armca7neon:
+    cpu    : cortex-a7
+    fpu    : neon-vfpv4
+    float  : hard
+  armca9:
+    cpu    : cortex-a9
+    fpu    : vfpv3-d16-fp16
+    float  : hard
+  armca9neon:
+    cpu    : cortex-a9
+    fpu    : neon-fp16
+    float  : hard
