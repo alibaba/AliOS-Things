@@ -1,5 +1,0 @@
-import:
- - armclang.rtebuild
-targets:
-  armcm:
-    toolchain: ARMCC6_MDK

@@ -16,3 +16,5 @@
 *.PS
 *.SearchResults
 *.WK3
+3rdparty/cmsis_nn/CMSIS_5
+3rdparty/cmsis_nn/source.mk

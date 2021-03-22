@@ -1,7 +1,6 @@
 config AOS_APP_PY_ENGINE_DEMO
     bool " PY_ENGINE_demo"
     select TFTP_ENABLED
-    select AOS_COMP_UAI
     select AOS_COMP_OSS
     select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
     select AOS_COMP_HTTP if !AOS_CREATE_PROJECT
