@@ -82,5 +82,5 @@ class NetWorkClient(object):
           - ``False`` 未连接
 
         """
-        return nm.getStatus
+        return nm.getStatus()
 
