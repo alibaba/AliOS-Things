@@ -2,7 +2,7 @@
 
 extern aiot_state_logcb_t g_logcb_handler;
 
-static core_log_t g_core_log = { .time_start = 0, .time_interval = 0, .timestamp = 0 };
+static core_log_t g_core_log = { .time_start = 0, .time_interval = 0, .timestamp = 0, .log_stamp = 1, .log_date = 0};
 
 static void _core_log_append_code(int32_t code, char *buffer)
 {
@@ -20,18 +20,22 @@ static void _core_log_append_code(int32_t code, char *buffer)
 
 static uint64_t _core_log_get_timestamp(aiot_sysdep_portfile_t *sysdep)
 {
-    uint64_t timenow = 0;
+    uint64_t timenow = sysdep->core_sysdep_time();
 
-    timenow = sysdep->core_sysdep_time();
-    if (timenow >= g_core_log.time_start) {
-        g_core_log.time_interval += timenow - g_core_log.time_start;
-    }else{
-        /* loss (max_time - g_core_log.time_start) ms */
-        g_core_log.time_interval += timenow;
+    /*NTP同步过时间，判断系统时间是否已更新，没更新进入if分支使用网络时间log*/
+    if (g_core_log.timestamp != 0 && g_core_log.timestamp > timenow)
+    {
+        if (timenow >= g_core_log.time_start) {
+            g_core_log.time_interval += timenow - g_core_log.time_start;
+        }else{
+            /* loss (max_time - g_core_log.time_start) ms */
+            g_core_log.time_interval += timenow;
+        }
+        g_core_log.time_start = timenow;
+        timenow = g_core_log.timestamp + g_core_log.time_interval;
     }
-    g_core_log.time_start = timenow;
 
-    return (g_core_log.timestamp + g_core_log.time_interval);
+    return timenow;
 }
 
 void _core_log_append_date(aiot_sysdep_portfile_t *sysdep, uint64_t timestamp, char *buffer)
@@ -64,21 +68,25 @@ void _core_log_append_date(aiot_sysdep_portfile_t *sysdep, uint64_t timestamp, c
 
 static void _core_log_append_prefix(aiot_sysdep_portfile_t *sysdep, int32_t code, char *buffer)
 {
+    uint64_t timenow = 0;
     if (sysdep == NULL) {
         return;
     }
 
+    timenow = _core_log_get_timestamp(sysdep);
 
-    if (g_core_log.timestamp != 0) {
+
+    if (1 == g_core_log.log_date) {
         memcpy(buffer + strlen(buffer), "[", strlen("["));
-        _core_log_append_date(sysdep, _core_log_get_timestamp(sysdep), buffer);
+        _core_log_append_date(sysdep, timenow, buffer);
         memcpy(buffer + strlen(buffer), "]", strlen("]"));
-    } else
-    {
+    }
+
+    if(1 == g_core_log.log_stamp){
         char timestamp_str[24] = {0};
         uint8_t timestamp_len = 0;
 
-        core_uint642str(sysdep->core_sysdep_time(), timestamp_str, &timestamp_len);
+        core_uint642str(timenow, timestamp_str, &timestamp_len);
         if (timestamp_len > 3) {
             memcpy(&timestamp_str[timestamp_len - 2], &timestamp_str[timestamp_len - 3], 3);
             timestamp_str[timestamp_len - 3] = '.';

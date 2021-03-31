@@ -8,7 +8,7 @@
 #define BES_HAL_DEBUG 0
 #include "aos/kernel.h"
 #include "k_api.h"
-#include "bes_hal.h"
+#include "app_hal.h"
 #include "aos/errno.h"
 #include "aos/hal/uart.h"
 #include "ulog/ulog.h"

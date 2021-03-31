@@ -100,9 +100,17 @@ typedef enum {
     AIOT_LOGPOSTOPT_USERDATA,
 
     /**
+     * @brief 系统日志的开关.
+     *
+     * @detail 设置为1表示要上报系统日志, 设置为0表示不上报系统日志. 这里的系统日志是指建连耗时和网络延时
+     */
+    AIOT_LOGPOSTOPT_SYS_LOG,
+
+    /**
      * @brief 配置选项数量最大值, 不可用作配置参数
      */
     AIOT_LOGPOSTOPT_MAX,
+
 } aiot_logpost_option_t;
 
 

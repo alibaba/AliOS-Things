@@ -17,7 +17,7 @@ license: FTL - a BSD style license                       # <可选项> 源代码
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  # - aos: master
+  # - aos: dev_aos
   - vfs: dev_aos
 
 ## 第四部分：编译连接信息

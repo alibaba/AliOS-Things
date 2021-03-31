@@ -6,6 +6,10 @@
 #define _UCLOUD_AI_FACEBODY_H_
 #include "ucloud_ai_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @defgroup ucloud_ai_aos_api
  * @{
  */
@@ -41,5 +45,9 @@ void ucloud_ai_facebody_generate_human_anime_style(char *path, ucloud_ai_cb_t cb
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _UCLOUD_AI_FACEBODY_H_

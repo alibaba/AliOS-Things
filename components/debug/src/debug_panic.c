@@ -23,11 +23,6 @@
 
 #define SYS_REBOOT_REASON "reboot reason"
 
-typedef struct {
-    unsigned int return_reason;
-    unsigned int update_reason;
-} debug_reason_t;
-
 #define panic_print printk
 #define panic_print_direct printk_direct
 
@@ -108,7 +103,10 @@ static void panic_goto_cli(void)
     g_cli_direct_read = 1;
 
     alios_cli_panic_hook();
+#if AOS_COMP_CLI
+    extern void cli_main_panic(void);
     cli_main_panic();
+#endif
     while (1);
 }
 

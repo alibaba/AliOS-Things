@@ -16,8 +16,8 @@ extern "C" {
 
 int32_t core_auth_tls_psk(aiot_sysdep_portfile_t *sysdep, char **psk_id, char psk[65], char *product_key, char *device_name, char *device_secret, char *module_name);
 int32_t core_auth_mqtt_username(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *module_name);
-int32_t core_auth_mqtt_password(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, char *module_name);
-int32_t core_auth_mqtt_clientid(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *secure_mode, char *extend_clientid, char *module_name);
+int32_t core_auth_mqtt_password(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, uint8_t assigned_clientid, char *module_name);
+int32_t core_auth_mqtt_clientid(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *secure_mode, char *extend_clientid, uint8_t assigned_clientid, char *module_name);
 int32_t core_auth_http_body(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, char *module_name);
 
 #if defined(__cplusplus)

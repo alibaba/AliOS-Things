@@ -38,10 +38,10 @@ static void _logpost_config_data_handler(void *handle, const aiot_mqtt_recv_t *m
     memset(&event, 0, sizeof(aiot_logpost_event_t));
     event.type = AIOT_LOGPOSTEVT_CONFIG_DATA;
 
-    core_log(logpost_handle->sysdep, STATE_LOGPOST_LOG_RECV, "LOGPOST log config arrived\r\n");
+    core_log(logpost_handle->sysdep, STATE_LOGPOST_LOG_RECV, "LOGPOST user log config arrived\r\n");
 
     if ((res = core_json_value((char *)msg->data.pub.payload, msg->data.pub.payload_len,
-                            LOGPOST_JSON_KEY_MODE, strlen(LOGPOST_JSON_KEY_MODE), &value, &value_len)) < 0 ||
+                               LOGPOST_JSON_KEY_MODE, strlen(LOGPOST_JSON_KEY_MODE), &value, &value_len)) < 0 ||
         (res = core_str2uint(value, value_len, &log_switch)) < 0) {
 
         core_log(logpost_handle->sysdep, SATAE_LOGPOST_LOG_PARSE_MSG_FAILED, "LOGPOST parse log config failed\r\n");
@@ -49,7 +49,7 @@ static void _logpost_config_data_handler(void *handle, const aiot_mqtt_recv_t *m
     }
 
     /* update log config */
-    logpost_handle->on_off = log_switch;
+    logpost_handle->user_log_switch = log_switch;
 
     /* invoke user callback */
     if (logpost_handle->event_handler != NULL) {
@@ -129,7 +129,7 @@ int32_t _logpost_send_nwkstats_rtt(logpost_handle_t *handle)
     memset(&msg, 0, sizeof(aiot_logpost_msg_t));
     msg.timestamp = 0;                          /* 单位为ms的时间戳, 填写0则SDK将使用当前的时间戳 */
     msg.loglevel = AIOT_LOGPOST_LEVEL_INFO;     /* 日志级别 */
-    msg.module_name = "net_rt";                 /* 日志对应的模块 */
+    msg.module_name = NWKSTAT_NET_RT;           /* 日志对应的模块 */
     msg.code = 200;                             /* 状态码 */
     msg.msg_id = 0;
     msg.content = content;                      /* 日志内容 */
@@ -182,7 +182,7 @@ int32_t _logpost_send_nwkstats_conn(logpost_handle_t *handle)
     memset(&msg, 0, sizeof(aiot_logpost_msg_t));
     msg.timestamp = 0;                          /* 单位为ms的时间戳, 填写0则SDK将使用当前的时间戳 */
     msg.loglevel = AIOT_LOGPOST_LEVEL_INFO;     /* 日志级别 */
-    msg.module_name = "net_conn";               /* 日志对应的模块 */
+    msg.module_name = NWKSTAT_NET_CONN;         /* 日志对应的模块 */
     msg.code = 200;                             /* 状态码 */
     msg.msg_id = 0;
     msg.content = content;                      /* 日志内容 */
@@ -191,6 +191,22 @@ int32_t _logpost_send_nwkstats_conn(logpost_handle_t *handle)
     handle->sysdep->core_sysdep_free(content);
 
     return res;
+}
+
+int32_t _should_report_sys_log(logpost_handle_t *logpost_handle, char *module_name)
+{
+    int result = 0;
+    if (0 == logpost_handle->sys_log_switch) {
+        return result;
+    }
+    if (0 == memcmp(NWKSTAT_NET_CONN, module_name, strlen(NWKSTAT_NET_CONN)) ||
+        0 == memcmp(NWKSTAT_NET_RT, module_name, strlen(NWKSTAT_NET_RT))) {
+        result = 1;
+        core_log(logpost_handle->sysdep, STATE_LOGPOST_LOG_RECV,
+                 "sys log config is on, toggle it using AIOT_LOGPOSTOPT_SYS_LOG.\r\n");
+    }
+
+    return result;
 }
 
 void _logpost_process_handler(void *context, aiot_mqtt_event_t *event, core_mqtt_event_t *core_event)
@@ -212,14 +228,13 @@ void _logpost_process_handler(void *context, aiot_mqtt_event_t *event, core_mqtt
     }
 
     if (NULL == context || NULL == event) {
-        if (logpost_handle->on_off == 0) {
+        if (logpost_handle->sys_log_switch == 0) {
             return;
         }
-
         _logpost_send_nwkstats_conn(logpost_handle);
 
         if ((logpost_handle->sysdep->core_sysdep_time() - logpost_handle->last_post_time) \
-                                                        > LOGPOST_NWKSTATS_POST_INTERVAL) {
+            > LOGPOST_NWKSTATS_POST_INTERVAL) {
             logpost_handle->last_post_time = logpost_handle->sysdep->core_sysdep_time();
 
             _logpost_send_nwkstats_rtt(logpost_handle);
@@ -249,7 +264,8 @@ void *aiot_logpost_init(void)
 
     memset(logpost_handle, 0, sizeof(logpost_handle_t));
     logpost_handle->sysdep = sysdep;
-    logpost_handle->on_off = LOGPOST_DEFAULT_LOG_ONOFF;
+    logpost_handle->user_log_switch = LOGPOST_DEFAULT_LOG_ONOFF;
+    logpost_handle->sys_log_switch = LOGPOST_DEFAULT_LOG_ONOFF;
 
     core_global_init(sysdep);
     return logpost_handle;
@@ -306,6 +322,10 @@ int32_t aiot_logpost_setopt(void *handle, aiot_logpost_option_t option, void *da
             logpost_handle->userdata = data;
         }
         break;
+        case AIOT_LOGPOSTOPT_SYS_LOG: {
+            logpost_handle->sys_log_switch = *(uint8_t *)data;
+        }
+        break;
         default:
             break;
     }
@@ -353,7 +373,7 @@ int32_t aiot_logpost_send(void *handle, aiot_logpost_msg_t *msg)
     if (NULL == (dn = core_mqtt_get_device_name(logpost_handle->mqtt_handle))) {
         return STATE_USER_INPUT_MISSING_DEVICE_NAME;
     }
-    if (logpost_handle->on_off == 0) {
+    if (1 != _should_report_sys_log(logpost_handle, msg->module_name) && logpost_handle->user_log_switch == 0) {
         return STATE_LOGPOST_POST_TURN_OFF;
     }
 
@@ -380,8 +400,7 @@ int32_t aiot_logpost_send(void *handle, aiot_logpost_msg_t *msg)
 
         if (msg->timestamp == 0) {
             _core_log_append_date(logpost_handle->sysdep, core_log_get_timestamp(logpost_handle->sysdep), utc);
-        }
-        else {
+        } else {
             _core_log_append_date(logpost_handle->sysdep, msg->timestamp, utc);
         }
         core_int2str(msg->code, code, NULL);

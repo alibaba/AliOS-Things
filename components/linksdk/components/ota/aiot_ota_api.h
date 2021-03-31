@@ -131,6 +131,12 @@ typedef struct {
      * @brief  *固件升级过程中需用往云端上报消息时需要用到的mqtt句柄
      */
     void       *mqtt_handle;
+
+    /**
+     * @brief 当前下载信息中的扩展内容
+     *
+     */
+    char       *extra_data;
 } aiot_download_task_desc_t;
 
 /**

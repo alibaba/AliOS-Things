@@ -430,7 +430,7 @@ static void aiagent_comp_example(int argc, char **argv)
 
     if (!strncmp(argv[3], "-m", 2)) {
         model_index = atoi(argv[3]);
-        if (model_index < 0 || model_index > 14) {
+        if (model_index < 0 && model_index > 14) {
             LOGE(TAG, "range of model value is 0 ~ 14, please try again\n");
             return;
         }

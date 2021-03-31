@@ -123,10 +123,24 @@ int event_service_init(utask_t *task)
 
     eventlist_init(&ev_service.event);
     dlist_init(&ev_service.timeouts);
-    aos_sem_new(&ev_service.select_sem, 0);
+    if (aos_sem_new(&ev_service.select_sem, 0) < 0) {
+        utask_destroy(task);
+        return -1;
+    }
+    if (aos_event_new(&ev_service.wait_event, 0) < 0) {
+        utask_destroy(task);
+        aos_sem_free(&ev_service.select_sem);
+        return -1;
+    }
 
     ev_service.svr = uservice_new("event_svr", process_rpc, NULL);
-    aos_event_new(&ev_service.wait_event, 0);
+    if (ev_service.svr == NULL) {
+        utask_destroy(task);
+        aos_sem_free(&ev_service.select_sem);
+        aos_event_free(&ev_service.select_sem);
+        return -1;
+    }
+
     aos_task_new_ext(&ev_service.select_task, "select", select_task_entry, NULL,
                      1024, AOS_DEFAULT_APP_PRI);
     utask_add(task, ev_service.svr);

@@ -101,18 +101,18 @@ static int recognize_expression_callback(ai_result_t *result)
         return -1;
     }
 
-    ugraphics_draw_image("/data/sadness.jpg", 20, 20);
-    ugraphics_draw_image("/data/happiness.jpg", 80, 20);
-    ugraphics_draw_image("/data/surprise.jpg", 140, 20);
+    ugraphics_draw_image("/data/ai_demo_image/sadness.jpg", 20, 20);
+    ugraphics_draw_image("/data/ai_demo_image/happiness.jpg", 80, 20);
+    ugraphics_draw_image("/data/ai_demo_image/surprise.jpg", 140, 20);
 
     /*draw image to lcd screen*/
     LOG("p_expression: %s\n", p_expression);
     if (!strcmp(p_expression, "sadness")) {
-        ugraphics_draw_image("/data/right.jpg", 20, 70);
+        ugraphics_draw_image("/data/ai_demo_image/right.jpg", 20, 70);
     } else if (!strcmp(p_expression, "happiness")) {
-        ugraphics_draw_image("/data/right.jpg", 80, 70);
+        ugraphics_draw_image("/data/ai_demo_image/right.jpg", 80, 70);
     } else if (!strcmp(p_expression, "surprise")) {
-        ugraphics_draw_image("/data/right.jpg", 140, 70);
+        ugraphics_draw_image("/data/ai_demo_image/right.jpg", 140, 70);
     } else {
         /*do nothing*/
     }
@@ -579,7 +579,6 @@ static int imageenhan_extend_image_style_callback(ai_result_t *result)
 int ucloud_ai_demo_main(void *p)
 {
     int ret = 0;
-    char *url = WIFICAMERA_URL;
     char *upload_url = NULL;
     char *image1 = CAPTURED_IMAGE;
     char *image2 = NULL;
@@ -599,6 +598,7 @@ int ucloud_ai_demo_main(void *p)
         LOGE(TAG, "aiagent_service_init failed");
         return -1;
     }
+
     while (1) {
         frame_buffer_t *frame = ucamera_service_get_frame();
         if (!frame) {

@@ -6,6 +6,10 @@
 #define _UCLOUD_AI_OBJECTDET_H_
 #include "ucloud_ai_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @defgroup ucloud_ai_aos_api
  * @{
  */
@@ -17,7 +21,7 @@
  * @param[in]  cb                  callback function to deal with result.
  *
  */
-void ucloud_ai_objectdet_object_detect(char *path, ucloud_ai_cb_t cb);
+void ucloud_ai_objectdet_detect_object(char *path, ucloud_ai_cb_t cb);
 
 /**
  * Ucloud ai detecting main body api.
@@ -31,5 +35,9 @@ void ucloud_ai_objectdet_detect_main_body(char *path, ucloud_ai_cb_t cb);
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _UCLOUD_AI_OBJECTDET_H_

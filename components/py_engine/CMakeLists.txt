@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-PROJECT(py_engine)
+PROJECT(pyEngine)
 
 #告知当前使用的是交叉编译方式，必须配置
 SET(CMAKE_SYSTEM_NAME Generic)
@@ -31,14 +31,13 @@ set(EXAMPLEDIR ${CMAKE_SOURCE_DIR}/example)
 #Global src
 file(GLOB SOURCEFILE "")
 
-include(${DRIVERDIR}/platforms/aos-haas100/env.mk)
 #include(${EXAMPLEDIR}/aos.mk)
 include(${MINICVDIR}/aos.mk)
 include(${DRIVERDIR}/aos.mk)
 include(${MICROPYTHONDIR}/aos.mk)
 
 ADD_LIBRARY (py_engine_static STATIC ${SOURCEFILE})
-SET_TARGET_PROPERTIES (py_engine_static PROPERTIES OUTPUT_NAME "py_engine")
+SET_TARGET_PROPERTIES (py_engine_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
 GET_TARGET_PROPERTY (OUTPUT_VALUE py_engine_static OUTPUT_NAME)
 

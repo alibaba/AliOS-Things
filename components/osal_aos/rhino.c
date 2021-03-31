@@ -1139,3 +1139,30 @@ aos_status_t aos_task_time_slice_get(aos_task_t *task, uint32_t *slice)
 
     return 0;
 }
+
+void aos_spin_lock_init(aos_spinlock_t *spinlock)
+{
+    krhino_spin_lock_init((kspinlock_t *)spinlock);
+}
+
+void aos_spin_lock(aos_spinlock_t *spinlock)
+{
+    krhino_spin_lock((kspinlock_t *)spinlock);
+}
+
+void aos_spin_unlock(aos_spinlock_t *spinlock)
+{
+    krhino_spin_unlock((kspinlock_t *)spinlock);
+}
+
+aos_irqsave_t aos_spin_lock_irqsave(aos_spinlock_t *spinlock)
+{
+    aos_irqsave_t flag;
+    krhino_spin_lock_irq_save((kspinlock_t *)spinlock, flag);
+    return flag;
+}
+
+void aos_spin_unlock_irqrestore(aos_spinlock_t *spinlock, aos_irqsave_t flag)
+{
+    krhino_spin_unlock_irq_restore((kspinlock_t *)spinlock, flag);
+}

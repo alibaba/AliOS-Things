@@ -10,11 +10,6 @@
 
 #define TAG "uclud_ai_example"
 
-#define OSS_ACCESS_KEY "LTAI5tLXQ7Yuu113mf231YNg"
-#define OSS_ACCESS_SECRET "ACUHFx92D2KO0x7jabmVGliuYtrlJx"
-#define OSS_ENDPOINT "oss-cn-shanghai.aliyuncs.com"
-#define OSS_BUCKET "cloud-ai-dev2"
-
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
 static int facebody_compare_callback(ucloud_ai_result_t *result)
 {
@@ -432,7 +427,7 @@ static void ucloud_ai_comp_example(int argc, char **argv)
     }
 
     if (strncmp(argv[1], "-m", 2) == 0) {
-        if (argv[2] < 0 || argv[2] > 14) {
+        if (argv[2] < 0 && argv[2] > 14) {
             LOG("range of model value is 0 ~ 14, please try again\n");
             return;
         }
@@ -451,73 +446,73 @@ static void ucloud_ai_comp_example(int argc, char **argv)
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
         case UCLOUD_AI_MODEL_COMPARING_FACEBODY:
             printf("Comparing facebody:\n");
-            ucloud_ai_facebody_comparing_face("/data/image/face1.png", "/data/image/face2.png", facebody_compare_callback);
+            ucloud_ai_facebody_comparing_face(FACE1_IMAGE, FACE2_IMAGE, facebody_compare_callback);
             break;
         case UCLOUD_AI_MODEL_GENERATE_HUMAN_ANIME_STYLE:
             printf("Generate human anime style:\n");
-            ucloud_ai_facebody_generate_human_anime_style("/data/image/anime.png", generate_human_anime_styple_callback);
+            ucloud_ai_facebody_generate_human_anime_style(ANIME_IMAGE, generate_human_anime_styple_callback);
             break;
         case UCLOUD_AI_MODEL_RECOGNIZE_EXPRESSION:
             printf("Recognize expression:\n");
-            ucloud_ai_facebody_recognize_expression("/data/image/expression.jpg", recognize_expression_callback);
+            ucloud_ai_facebody_recognize_expression(EXPRESSION_IMAGE, recognize_expression_callback);
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_OBJECTDET_ENABLE
         case UCLOUD_AI_MODEL_DETECT_OBJECT:
             printf("Detect object:\n");
-            ucloud_ai_objectdet_detect_object("/data/image/object.jpg", detect_object_callback);
+            ucloud_ai_objectdet_detect_object(OBJECT_IMAGE, detect_object_callback);
             break;
         case UCLOUD_AI_MODEL_DETECT_MAIN_BODY:
             printf("Detect main body:\n");
-            ucloud_ai_objectdet_detect_main_body("/data/image/mainbody.jpg", detect_main_body_callback);
+            ucloud_ai_objectdet_detect_main_body(MAINBODY_IMAGE, detect_main_body_callback);
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGESEG_ENABLE
         case UCLOUD_AI_MODEL_SEGMENT_COMMON_IMAGE:
             printf("Segment common image:\n");
-            ucloud_ai_imageseg_segment_common_image("/data/image/face1.png", segment_common_image_callback);
+            ucloud_ai_imageseg_segment_common_image(FACE1_IMAGE, segment_common_image_callback);
             break;
         case UCLOUD_AI_MODEL_SEGMENT_FACE:
             printf("Segment face:\n");
-            ucloud_ai_imageseg_segment_face("/data/image/mainbody.jpg", segment_face_callback);
+            ucloud_ai_imageseg_segment_face(MAINBODY_IMAGE, segment_face_callback);
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_OCR_ENABLE
         case UCLOUD_AI_MODEL_RECOGNIZE_IDENTITY_CARD_FACE_SIDE:
             printf("Recognize identity card face side:\n");
-            ucloud_ai_ocr_recognize_identity_card_face_side("/data/image/card_face.jpg", recognize_identity_card_face_side_callback);
+            ucloud_ai_ocr_recognize_identity_card_face_side(CARD_FACE_IMAGE, recognize_identity_card_face_side_callback);
             break;
         case UCLOUD_AI_MODEL_RECOGNIZE_IDENTITY_CARD_BACK_SIDE:
             printf("Recognize identity card back side:\n");
-            ucloud_ai_ocr_recognize_identity_card_back_side("/data/image/card_back.jpg", recognize_identity_card_back_side_callback);
+            ucloud_ai_ocr_recognize_identity_card_back_side(CARD_BACK_IMAGE, recognize_identity_card_back_side_callback);
             break;
         case UCLOUD_AI_MODEL_RECOGNIZE_BANK_CARD:
             printf("Recognize bank card:\n");
-            ucloud_ai_ocr_recognize_bank_card("/data/image/bank_card.jpg", recognize_bank_card_callback);
+            ucloud_ai_ocr_recognize_bank_card(BANK_CARD_IMAGE, recognize_bank_card_callback);
             break;
         case UCLOUD_AI_MODEL_RECOGNIZE_CHARACTER:
             printf("Recognize character:\n");
-            ucloud_ai_ocr_recognize_character("/data/image/character.jpg", recognize_character_callback);
+            ucloud_ai_ocr_recognize_character(CHARACTER_IMAGE, recognize_character_callback);
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGERECOG_ENABLE
         case UCLOUD_AI_MODEL_CLASSIFYING_RUBBISH:
             printf("Classifying rubbish:\n");
-            ucloud_ai_imagerecog_classifying_rubbish("/data/image/rubbish.jpg", imagerecog_classifying_rubbish_callback);
+            ucloud_ai_imagerecog_classifying_rubbish(RUBBISH_IMAGE, imagerecog_classifying_rubbish_callback);
             break;
         case UCLOUD_AI_MODEL_DETECT_FRUITS:
             printf("Detect fruits:\n");
-            ucloud_ai_imagerecog_detect_fruits("/data/image/fruits.jpg", imagerecog_detect_fruits_callback);
+            ucloud_ai_imagerecog_detect_fruits(FRUITS_IMAGE, imagerecog_detect_fruits_callback);
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGEENHAN_ENABLE
         case UCLOUD_AI_MODEL_ERASE_PERSON:
             printf("Erase person:\n");
-            ucloud_ai_imageenhan_erase_person("/data/image/person_org.jpg", IMAGEENHAN_ERASE_PERSON_USERMASK_URL, imageenhan_erase_person_callback);
+            ucloud_ai_imageenhan_erase_person(PERSON_ORG_IMAGE, IMAGEENHAN_ERASE_PERSON_USERMASK_URL, imageenhan_erase_person_callback);
             break;
         case UCLOUD_AI_MODEL_EXTEND_IMAGE_STYLE:
             printf("Extend image style:\n");
-            ucloud_ai_imageenhan_extend_image_style("/data/image/extend_style.jpg", IMAGEENHAN_EXTEND_IMAGE_STYLE_URL, imageenhan_extend_image_style_callback);
+            ucloud_ai_imageenhan_extend_image_style(STYLE_IMAGE, IMAGEENHAN_EXTEND_IMAGE_STYLE_URL, imageenhan_extend_image_style_callback);
             break;
 #endif
         default:

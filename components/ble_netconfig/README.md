@@ -1,4 +1,4 @@
-@ ble_netconfig ble_netconfig
+@page ble_netconfig ble_netconfig
 
 
 # 组件概述

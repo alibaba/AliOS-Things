@@ -1,14 +1,17 @@
+@page auto_demo auto_demo
 # 1. 案例简介
 阿里在云栖大会上发布第一款机器人“小蛮驴”，瞬间激起千层浪。
 无人车，智能物流，机器人等一些概念又火热了一把。
 借“小蛮驴”的东风以及火热的HaaS，我们推出了更加亲民的“小小蛮驴”，丰富HaaS的场景打造，吸引更多的开发者和企业来加入HaaS的生态建设。
 ![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106133/1616395304747-a2cfc5fe-b74f-43d6-b66a-5d65f76f8784.png#align=left&display=inline&height=292&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1264&originWidth=2248&size=7069041&status=done&style=none&width=519)
 # 2. 基础知识
-## 2.1  **HaaS100开发板**
-**HaaS100**是一款物联网场景中的标准开发板，并配套嵌入到硬件中的软件驱动及功能模块，为用户提供物联网设备高效开发服务。
+## 2.1  HaaS100开发板
+**HaaS100** 是一款物联网场景中的标准开发板，并配套嵌入到硬件中的软件驱动及功能模块，为用户提供物联网设备高效开发服务。
 ![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607656919362-55ec2c19-a0dd-4d1d-ac95-2052ffeedd7f.png#align=left&display=inline&height=295&margin=%5Bobject%20Object%5D&name=image.png&originHeight=443&originWidth=443&size=130743&status=done&style=none&width=295)
 HaaS100核心板有着丰富的外设接口，如下所示：
-**![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1607655121564-f799e873-94f0-485d-8d1c-95ba5cafaf5f.png#align=left&display=inline&height=352&margin=%5Bobject%20Object%5D&name=image.png&originHeight=886&originWidth=586&size=232115&status=done&style=none&width=233)**
+
+![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1607655121564-f799e873-94f0-485d-8d1c-95ba5cafaf5f.png#align=left&display=inline&height=352&margin=%5Bobject%20Object%5D&name=image.png&originHeight=886&originWidth=586&size=232115&status=done&style=none&width=233)
+
 详细的资料参考[HaaS 100 硬件规格](https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.645.718015814zDYZt)。
 ## 2.2 驱动电机
 驱动电机芯片是小车最重要的模块之一，2A的强大输出电流为小车提供满满的动力。

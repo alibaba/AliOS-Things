@@ -16,6 +16,8 @@ void ucloud_ai_facebody_comparing_face(char *path, char *myface, ucloud_ai_cb_t 
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
 
     /*my face picture*/
     p_myface_url = myface;
@@ -33,6 +35,8 @@ void ucloud_ai_facebody_recognize_expression(char *path, ucloud_ai_cb_t cb)
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
 
     recognizeExpression(p_upload_url, cb);
     free(p_upload_url);
@@ -46,6 +50,8 @@ void ucloud_ai_facebody_generate_human_anime_style(char *path, ucloud_ai_cb_t cb
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
 
     /*do generating human anime style, and get image url*/
     generateHumanAnimeStyle(p_upload_url, cb);

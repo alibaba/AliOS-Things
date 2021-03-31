@@ -14,7 +14,6 @@
 /*Tested this program with esp32 eye*/
 
 #define TAG "WIFI_CAMERA"
-#define WIFICAMERA_URL "http://192.168.3.84:80/capture"
 
 #define HEAD_SIZE 2048
 #define BODY_SZIE (1024 * 128 + 1)

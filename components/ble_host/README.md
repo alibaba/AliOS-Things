@@ -1,4 +1,4 @@
-[@page ](/page ) ble_host ble_host <br />
+@page ble_host ble_host
 
 # 组件概述
 AliOS Things 3.3提供支持符合蓝牙4.0/4.2/5.0核心协议规范的BLE Host软件协议栈组件，方便用户使用蓝牙BLE功能。<br />ble_host组件功能框图如下图红色部分:<br />![image.png](https://img.alicdn.com/imgextra/i1/O1CN018Gd9qR2ALhGFNkTT9_!!6000000008187-2-tps-830-730.png#align=left&display=inline&height=461&margin=%5Bobject%20Object%5D&name=image.png&originHeight=922&originWidth=1932&size=259937&status=done&style=none&width=966#align=left&display=inline&height=537&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=611#align=left&display=inline&height=730&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=830)<br />

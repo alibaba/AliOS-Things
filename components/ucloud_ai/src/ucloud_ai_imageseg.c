@@ -15,6 +15,8 @@ void ucloud_ai_imageseg_segment_face(char *path, ucloud_ai_cb_t cb)
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
 
     /*do face segment*/
     segmentCommonImage(p_upload_url, cb);
@@ -29,6 +31,8 @@ void ucloud_ai_imageseg_segment_common_image(char *path, ucloud_ai_cb_t cb)
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
 
     /*do common image segement*/
     segmentFace(p_upload_url, cb);

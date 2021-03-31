@@ -7,8 +7,28 @@
 #include "model/common.h"
 #include "oss_app.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef AIModelCBFunc ucloud_ai_cb_t;
 typedef AIModelResultStruct ucloud_ai_result_t;
+
+
+#define FACE1_IMAGE "/data/ucloud_ai_image/face1.png"
+#define FACE2_IMAGE "/data/ucloud_ai_image/face2.png"
+#define ANIME_IMAGE "/data/ucloud_ai_image/anime.png"
+#define EXPRESSION_IMAGE "/data/ucloud_ai_image/expression.jpg"
+#define OBJECT_IMAGE "/data/ucloud_ai_image/object.jpg"
+#define MAINBODY_IMAGE "/data/ucloud_ai_image/mainbody.jpg"
+#define CARD_FACE_IMAGE "/data/ucloud_ai_image/card_face.jpg"
+#define CARD_BACK_IMAGE "/data/ucloud_ai_image/card_back.jpg"
+#define BANK_CARD_IMAGE "/data/ucloud_ai_image/bank_card.jpg"
+#define CHARACTER_IMAGE "/data/ucloud_ai_image/character.jpg"
+#define RUBBISH_IMAGE "/data/ucloud_ai_image/rubbish.jpg"
+#define FRUITS_IMAGE "/data/ucloud_ai_image/fruits.jpg"
+#define PERSON_ORG_IMAGE "/data/ucloud_ai_image/person_org.jpg"
+#define STYLE_IMAGE "/data/ucloud_ai_image/extend_style.jpg"
 
 // imageenhan style url
 #define IMAGEENHAN_ERASE_PERSON_USERMASK_URL "http://public-vigen-video.oss-cn-shanghai.aliyuncs.com/xianhui.lxh/tmp/remove_person/inpainting_test_images/img19_mask.png"
@@ -75,4 +95,7 @@ uint8_t *ucloud_ai_upload_file(char *path);
  * @}
  */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // _UCLOUD_AI_COMMON_H_

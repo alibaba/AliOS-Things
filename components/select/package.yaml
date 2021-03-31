@@ -55,7 +55,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-  FD_SETSIZE: 1024
+  FD_SETSIZE: 64
 
 
 ## 第六部分：安装信息

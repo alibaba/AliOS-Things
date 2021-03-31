@@ -149,7 +149,7 @@ int recognizeBankCard(char *url, AIModelCBFunc cb)
     return ret;
 }
 
-int recognizeIdentityCard(char *url, AIModelCBFunc cb)
+int recognizeCharacter(char *url, AIModelCBFunc cb)
 {
     InitializeSdk();
     string key = getAccessKey();

@@ -25,13 +25,16 @@ depends:
   - ucamera: dev_aos
   - uservice: dev_aos
   - ucloud_ai: dev_aos
+  - debug: dev_aos
+  - ili9341: dev_aos
 
 # build_config:
 #   include:
 
 
 ## 第四部分：编译连接信息
-# build_config:                            # <可选项> 编译配置项
+build_config:                            # <可选项> 编译配置项
+  prebuild_script: cp_resources.py
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
 #     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
@@ -67,6 +70,23 @@ def_config:                              # 组件的可配置项
   CONFIG_ALICLOUD_OCR_ENABLE: 1
   CONFIG_ALICLOUD_OSS_ENABLE: 1
 
+  # OSS 配置信息, 用户在这里替换自己的OSS信息
+  OSS_ACCESS_KEY: "Your-Access-Key"
+  OSS_ACCESS_SECRET: "Your-Access-Secret"
+  OSS_ENDPOINT: "Your-OSS-Endpoint"
+  OSS_BUCKET: "Your-OSS-Bucket"
+
+  # linkkit sdk三元组信息
+  PRODUCT_KEY: "Your-Product-Key"
+  RODUCT_SECRET: "Your-Product-Secret"
+  DEVICE_NAME: "Your-Device-Name"
+  DEVICE_SECRET: "Your-Device-Secret"
+
+  # wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替换
+  WIFICAMERA_URL: "http://192.168.43.166:80/capture"
+
+  # 配置你要对比的人脸
+  MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
 
 ## 第六部分：安装信息
 # install:

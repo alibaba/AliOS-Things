@@ -240,6 +240,7 @@ SECTIONS
   *:ftp_client.o(.text*)
   *:port_s.o(.text*)
   *:k_*.o(.text*)
+  *:flash.o(.text*)
 /*
 		*:k_buf_queue.o(.text*)
 		*:k_dyn_mem_proc.o(.text*)

@@ -575,6 +575,9 @@ int32_t _download_deep_free_task_desc(aiot_sysdep_portfile_t *sysdep, void *data
     if (NULL != task_desc->module) {
         sysdep->core_sysdep_free(task_desc->module);
     }
+    if (NULL != task_desc->extra_data) {
+        sysdep->core_sysdep_free(task_desc->extra_data);
+    }
     return res;
 }
 
@@ -727,6 +730,7 @@ void _ota_mqtt_process(void *handle, const aiot_mqtt_recv_t *const packet, void 
 
     /* module字段, 并非必选(用户可能没有在云端设置过, 因此如果没有解析出来, 也不能算解析失败 */
     _ota_parse_json(sysdep, data, data_len, "module", &(task_desc.module));
+    _ota_parse_json(sysdep, data, data_len, "extData", &(task_desc.extra_data));
 
     aiot_ota_recv_t msg = {
         /* 对于用户, 需要屏蔽config/push和config/get的区别, 都归并为AIOT_OTARECV_COTA */
@@ -824,7 +828,6 @@ int32_t aiot_download_send_request(void *handle)
 
         /* 对于按照range下载的情况, 如果中间出现了断点续传的情况, 则需要从range_start后面的续传位置开始 */
         uint32_t renewal_start = range_start + download_handle->range_size_fetched;
-        download_handle->range_start = renewal_start;
         core_int2str(renewal_start, range_start_string, &range_start_string_len);
 
         /* 对于按照range下载的情况, 即range_end不为0的情况, 需要将其翻译成字符串 */

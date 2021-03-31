@@ -30,7 +30,7 @@ extern "C" {
 #define DATA_MODEL_MODULE_NAME          "dm"
 
 /* ALINK请求的JSON格式 */
-#define ALINK_REQUEST_FMT               "{\"id\":\"%s\",\"version\":\"1.0\",\"params\":%s}"
+#define ALINK_REQUEST_FMT               "{\"id\":\"%s\",\"version\":\"1.0\",\"params\":%s,\"sys\":{\"ack\":%s}}"
 /* ALINK应答的JSON格式 */
 #define ALINK_RESPONSE_FMT              "{\"id\":\"%s\",\"code\":%s,\"data\":%s}"
 #define ALINK_JSON_KEY_ID               "id"
@@ -52,6 +52,7 @@ typedef struct {
 
     aiot_dm_recv_handler_t recv_handler;
     void *userdata;
+    uint8_t post_reply;
 } dm_handle_t;
 
 /* data-model内部发送函数原型定义 */

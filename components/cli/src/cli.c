@@ -60,7 +60,7 @@ struct cli_status {
 
 static struct cli_status *g_cli = NULL;
 extern cli_console cli_uart_console;
-static void help_cmd(char *buf, int len, int argc, char **argv);
+extern void hal_reboot(void);
 int32_t cli_va_printf(const char *fmt, va_list va);
 int32_t cli_printf(const char *fmt, ...);
 
@@ -876,9 +876,15 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
     cli_printf("================ AliOS Things Command end ===============\r\n\r\n");
 }
 
+static void reboot_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    hal_reboot();
+}
+
 static const struct cli_command built_ins[] = {
     /*cli self*/
     {"help", "print this", help_cmd},
+    {"reboot", "reboot system", reboot_cmd},
 };
 
 static int32_t cli_register_default_commands(void)

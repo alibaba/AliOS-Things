@@ -32,6 +32,12 @@ static uint8_t g_mqtt_process_thread_running = 0;
 static uint8_t g_mqtt_recv_thread_running = 0;
 static void *g_dm_handle = NULL;
 
+/*开发者需要在此更换你的三元组信息：产品key、secret、设备名称、设备密钥*/
+#define PRODUCT_KEY "<Your-Product-Key>"
+#define PRODUCT_SECRET "<Your-Product-Secret>"
+#define DEVICE_NAME "<Your-Device-Name>"
+#define DEVICE_SECRET "<Your-Device-Secret>"
+
 /* TODO: 如果要关闭日志, 就把这个函数实现为空, 如果要减少日志, 可根据code选择不打印
  *
  * 例如: [1577589489.033][LK-0317] mqtt_basic_linkkit&a13FN5TplKq

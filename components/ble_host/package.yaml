@@ -19,7 +19,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
     #    - csi: dev_aos #v7.4-dev
     - rhino: dev_aos #v7.4-dev
-# - aos: master #v7.4-dev
+# - aos: dev_aos #v7.4-dev
     - osal_aos: dev_aos
     - haas1000: dev_aos
 
