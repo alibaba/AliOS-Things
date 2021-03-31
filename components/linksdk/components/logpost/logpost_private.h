@@ -24,7 +24,8 @@ extern "C" {
 typedef struct {
     aiot_sysdep_portfile_t *sysdep;
     void *mqtt_handle;
-    uint8_t on_off;
+    uint8_t user_log_switch;
+    uint8_t sys_log_switch;
 
     aiot_logpost_event_handler_t event_handler;
     void *userdata;
@@ -53,6 +54,8 @@ typedef struct {
 #define NWKSTAT_CONN_INFO_FMT       "time=%s^conn_type=%s^conn_cost=%s^conn_ret=0"
 #define NWKSTAT_CONN_INFO_FMT2      "time=%s^conn_type=%s^conn_cost=%s^conn_ret=0,time=%s^conn_type=%s^conn_cost=0^conn_ret=%s"
 
+#define NWKSTAT_NET_RT              "net_rt"
+#define NWKSTAT_NET_CONN            "net_conn"
 
 #if defined(__cplusplus)
 }

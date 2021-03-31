@@ -6,6 +6,10 @@
 #define _UCLOUD_AI_IMAGERECOG_H_
 #include "ucloud_ai_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @defgroup ucloud_ai_aos_api
  * @{
  */
@@ -31,5 +35,9 @@ void ucloud_ai_imagerecog_detect_fruits(char *path, ucloud_ai_cb_t cb);
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _UCLOUD_AI_IMAGERECOG_H_

@@ -20,7 +20,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
   - osal_aos: dev_aos
   - cplusplus: dev_aos
-  # - debug: master
+  # - debug: dev_aos
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

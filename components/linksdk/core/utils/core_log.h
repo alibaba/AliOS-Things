@@ -17,6 +17,8 @@ typedef struct {
     uint64_t time_start;
     uint64_t time_interval;
     uint64_t timestamp;
+    uint8_t  log_stamp;
+    uint8_t  log_date;
 } core_log_t;
 
 void core_log_set_timestamp(aiot_sysdep_portfile_t *sysdep, uint64_t timestamp);

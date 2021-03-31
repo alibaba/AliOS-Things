@@ -20,7 +20,7 @@ int ffs32_msb(uint32_t bitmap)
         return 0;
     }
 
-    return 32 - krhino_find_first_bit(&bitmap);
+    return 32 - krhino_ctz32(&bitmap);
 }
 
 
@@ -36,7 +36,7 @@ int ffs32_lsb(uint32_t bitmap)
     }
 
     x = bitmap & -bitmap;
-    lsbit = krhino_find_first_bit((uint32_t *)(&x));
+    lsbit = krhino_ctz32((uint32_t *)(&x));
 
     return 32 - lsbit;
 }

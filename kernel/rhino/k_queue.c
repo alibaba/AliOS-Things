@@ -111,7 +111,7 @@ kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name,
 {
     kstat_t   stat;
     kqueue_t *queue_obj;
-    void     *msg_start;
+    void     **msg_start;
 
     NULL_PARA_CHK(queue);
 

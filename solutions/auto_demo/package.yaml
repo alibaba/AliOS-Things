@@ -16,10 +16,10 @@ solution:
   # ld_script: gcc_eflash.ld
 
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: master
-  - haas100: master
-  - mbedtls: master
-  - netmgr: master
+  - linksdk: dev_aos
+  - haas100: dev_aos
+  - mbedtls: dev_aos
+  - netmgr: dev_aos
   - base: dev_aos
   - adc: dev_aos
   - i2c: dev_aos

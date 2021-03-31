@@ -350,21 +350,75 @@ int32_t aiot_state_set_logcb(aiot_state_logcb_t handler);
 
 /**
  * @brief 接收到非法的MQTT PINRESP报文
- * 
+ *
  */
 #define STATE_MQTT_RECV_INVALID_PINRESP_PACKET                      (-0x031E)
 
 /**
  * @brief 接收到非法的MQTT PUBLISH报文
- * 
+ *
  */
 #define STATE_MQTT_RECV_INVALID_PUBLISH_PACKET                      (-0x031F)
 
 /**
  * @brief 接收到非法的MQTT PUBACK报文
- * 
+ *
  */
 #define STATE_MQTT_RECV_INVALID_PUBACK_PACKET                       (-0x0320)
+
+/**
+ * @brief mqtt 5.0属性未解析成功
+ *
+ */
+#define STATE_MQTT_UNKNOWN_PROPERTY_OPTION                          (-0x0321)
+
+/**
+ * @brief mqtt协议版本号未设置正确. 在使用5.0协议的接口(_with_prop结尾)时, 如果没有通过AIOT_MQTTOPT_VERSION将版本号设置为AIOT_MQTT_VERSION_5_0就会报这个错误
+ *
+ */
+#define STATE_MQTT_INVALID_PROTOCOL_VERSION                         (-0x0322)
+
+/**
+ * @brief 云端下行的server disconnect报文格式不对
+ *
+ */
+#define STATE_MQTT_RECV_INVALID_SERVER_DISCONNECT_PACKET            (-0x0323)
+
+/**
+ * @brief 在用户输入的用户属性的len值>0的情况下, 用户输入的user property的value为空指针
+ *
+ */
+#define STATE_MQTT_INVALID_USER_PERPERTY_DATA                       (-0x0324)
+
+/**
+ * @brief 用户属性的长度值超出范围(当前是0-128个字节)
+ *
+ */
+#define STATE_MQTT_INVALID_USER_PERPERTY_LEN                        (-0x0325)
+
+/**
+ * @brief 用户上行报文的大小超过平台限制(默认是256KB)
+ *
+ */
+#define STATE_MQTT_INVALID_TX_PACK_SIZE                             (-0x0326)
+
+/**
+ * @brief 设备上行的qos 1报文超过流控限制
+ *
+ */
+#define STATE_MQTT_RECEIVE_MAX_EXCEEDED                             (-0x0327)
+
+/**
+ * @brief 用户输入的subscription identifier值超过限制(0-0xFFFFFFF)
+ *
+ */
+#define STATE_MQTT_INVALID_SUBSCRIPTION_IDENTIFIER                  (-0x0328)
+
+/**
+ * @brief 属性的长度为非法值, 比如大于MQTT的remainLen长度值
+ *
+ */
+#define STATE_MQTT_INVALID_PROPERTY_LEN                             (-0x0329)
 
 /**
  * @brief -0x0400~-0x04FF表达SDK在HTTP模块内的状态码
@@ -719,6 +773,7 @@ int32_t aiot_state_set_logcb(aiot_state_logcb_t handler);
  *
  */
 #define STATE_PORT_DTLS_HANDSHAKE_IN_PROGRESS                       (-0x0F27)
+
 
 
 #if defined(__cplusplus)

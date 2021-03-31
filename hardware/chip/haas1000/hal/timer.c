@@ -6,7 +6,7 @@
 #define IGNORE_HAL_TIMER_RAW_API_CHECK
 #include "hal_timer_raw.h"
 #define BES_HAL_DEBUG 0
-#include "bes_hal.h"
+#include "app_hal.h"
 #undef hal_timer_start
 #undef hal_timer_stop
 #include "hal_trace.h"

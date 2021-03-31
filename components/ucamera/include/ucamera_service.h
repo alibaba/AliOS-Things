@@ -36,15 +36,17 @@ extern ucamera_context_t wifi_camera;
 
 /**
  * Init the ucamera module.
-* @param[in]  dev_name    device name.
-
+ *
+ * @param[in]  dev_name    device name.
+ * @param[in]  dev_name    device name.
+ *
  * @return  0 on success, negative error on failure.
  */
 int32_t ucamera_service_init(const char *dev_name);
 
 /**
  * Uninit the ucamera module.
-
+ *
  * @return  0 on success, negative error on failure.
  */
 int32_t ucamera_service_uninit(void);

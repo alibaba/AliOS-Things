@@ -96,12 +96,12 @@ source_file:
 1. 创建Bucket时地域选择“上海”
 2. 读写权限选择“公共读”
 ```
-## ucloud_ai_example.c中配置OSS信息
+## ucloud_ai/package.yaml中配置OSS信息
 ```sh
-OSS_ACCESS_KEY "<Your-Access-Key>"
-OSS_ACCESS_SECRET "<Your-Access-Secret>"
-OSS_ENDPOINT "oss-cn-shanghai.aliyuncs.com"
-OSS_BUCKET "Your-OSS-Bucket"
+OSS_ACCESS_KEY: "Your-Access-Key"
+OSS_ACCESS_SECRET: "Your-Access-Secret"
+OSS_ENDPOINT: "Your-OSS-Endpoint"
+OSS_BUCKET: "Your-OSS-Bucket"
 
 KEY以及SECRET获取链接: https://usercenter.console.aliyun.com/#/accesskey
 ENDPOINT使用默认即可，BUCKET请使用你创建好的Bucket名称
@@ -124,7 +124,7 @@ cd solutions/helloworld_demo && aos make
 ## 烧录固件
 > 参考具体板子的快速开始文档。
 
-    本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需额外使用如下命令烧录littlefs文件系统:
+    本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data/image目录，除烧录helloworld demo image外，需额外使用如下命令烧录littlefs文件系统:
 ```sh
 aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
 ```
@@ -285,5 +285,7 @@ TODO
 NA
 
 # FAQ
-NA
+如果遇到：
+error code: InvalidAction.NotFound
+请确认是否在vision.aliyun.com开通相应功能
 

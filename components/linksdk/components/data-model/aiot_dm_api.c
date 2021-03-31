@@ -19,6 +19,7 @@ static int32_t _dm_send_raw_data(dm_handle_t *handle, const char *topic, const a
 static int32_t _dm_send_raw_service_reply(dm_handle_t *handle, const char *topic, const aiot_dm_msg_t *msg);
 static int32_t _dm_send_desired_get(dm_handle_t *handle, const char *topic, const aiot_dm_msg_t *msg);
 static int32_t _dm_send_desired_delete(dm_handle_t *handle, const char *topic, const aiot_dm_msg_t *msg);
+static int32_t _dm_send_property_batch_post(dm_handle_t *handle, const char *topic, const aiot_dm_msg_t *msg);
 
 static void _dm_recv_generic_reply_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
 static void _dm_recv_property_set_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
@@ -26,7 +27,7 @@ static void _dm_recv_async_service_invoke_handler(void *handle, const aiot_mqtt_
 static void _dm_recv_sync_service_invoke_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
 static void _dm_recv_raw_data_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
 static void _dm_recv_raw_sync_service_invoke_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
-
+static void _dm_recv_up_raw_reply_data_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata);
 
 static const dm_send_topic_map_t g_dm_send_topic_mapping[AIOT_DMMSG_MAX] = {
     {
@@ -64,7 +65,11 @@ static const dm_send_topic_map_t g_dm_send_topic_mapping[AIOT_DMMSG_MAX] = {
     {
         "/sys/%s/%s/thing/property/desired/delete",
         _dm_send_desired_delete
-    }
+    },
+    {
+        "/sys/%s/%s/thing/event/property/batch/post",
+        _dm_send_property_batch_post
+    },
 };
 
 static const dm_recv_topic_map_t g_dm_recv_topic_mapping[] = {
@@ -90,7 +95,7 @@ static const dm_recv_topic_map_t g_dm_recv_topic_mapping[] = {
     },
     {
         "/sys/+/+/thing/model/up_raw_reply",
-        _dm_recv_raw_data_handler,
+        _dm_recv_up_raw_reply_data_handler,
     },
     {
         "/ext/rrpc/+/sys/+/+/thing/model/down_raw",
@@ -102,6 +107,10 @@ static const dm_recv_topic_map_t g_dm_recv_topic_mapping[] = {
     },
     {
         "/sys/+/+/thing/property/desired/delete_reply",
+        _dm_recv_generic_reply_handler,
+    },
+    {
+        "/sys/+/+/thing/event/property/batch/post_reply",
         _dm_recv_generic_reply_handler,
     },
 };
@@ -156,6 +165,7 @@ static int32_t _dm_prepare_send_topic(dm_handle_t *dm_handle, const aiot_dm_msg_
 
     switch (msg->type) {
         case AIOT_DMMSG_PROPERTY_POST:
+        case AIOT_DMMSG_PROPERTY_BATCH_POST:
         case AIOT_DMMSG_PROPERTY_SET_REPLY:
         case AIOT_DMMSG_GET_DESIRED:
         case AIOT_DMMSG_DELETE_DESIRED:
@@ -223,7 +233,7 @@ static int32_t _dm_send_alink_req(dm_handle_t *handle, const char *topic, char *
     char *payload = NULL;
     int32_t id = 0;
     char id_string[11] = { 0 };
-    char *src[2] = { NULL };
+    char *src[3] = { NULL };
     int32_t res = STATE_SUCCESS;
 
     if (NULL == params) {
@@ -237,6 +247,7 @@ static int32_t _dm_send_alink_req(dm_handle_t *handle, const char *topic, char *
 
     src[0] = id_string;
     src[1] = params;
+    src[2] = (0 == handle->post_reply) ? "0" : "1";
 
     res = core_sprintf(handle->sysdep, &payload, ALINK_REQUEST_FMT, src, sizeof(src) / sizeof(char *),
                        DATA_MODEL_MODULE_NAME);
@@ -337,11 +348,16 @@ static int32_t _dm_send_desired_delete(dm_handle_t *handle, const char *topic, c
 {
     return _dm_send_alink_req(handle, topic, msg->data.delete_desired.params);
 }
+
+static int32_t _dm_send_property_batch_post(dm_handle_t *handle, const char *topic, const aiot_dm_msg_t *msg)
+{
+    return _dm_send_alink_req(handle, topic, msg->data.property_post.params);
+}
 /*** dm send function end ***/
 
 /*** dm recv handler functions start ***/
 static int32_t _dm_get_topic_level(aiot_sysdep_portfile_t *sysdep, char *topic, uint32_t topic_len, uint8_t level,
-                            char **level_name)
+                                   char **level_name)
 {
     uint32_t i = 0;
     uint16_t level_curr = 0;
@@ -383,7 +399,7 @@ static int32_t _dm_get_topic_level(aiot_sysdep_portfile_t *sysdep, char *topic, 
 }
 
 static int32_t _dm_parse_alink_request(const char *payload, uint32_t payload_len, uint64_t *msg_id, char **params,
-                                uint32_t *params_len)
+                                       uint32_t *params_len)
 {
     char *value = NULL;
     uint32_t value_len = 0;
@@ -438,7 +454,7 @@ static void _dm_recv_generic_reply_handler(void *handle, const aiot_mqtt_recv_t 
             (res = core_json_value((char *)msg->data.pub.payload, msg->data.pub.payload_len,
                                    ALINK_JSON_KEY_DATA, strlen(ALINK_JSON_KEY_DATA),
                                    &recv.data.generic_reply.data,
-                                   &recv.data.generic_reply.data_len)) < 0 ) {
+                                   &recv.data.generic_reply.data_len)) < 0) {
 
             core_log(dm_handle->sysdep, SATAE_DM_LOG_PARSE_RECV_MSG_FAILED, "DM parse generic reply failed\r\n");
             break;
@@ -604,6 +620,35 @@ static void _dm_recv_raw_data_handler(void *handle, const aiot_mqtt_recv_t *msg,
     DM_FREE(recv.device_name);
 }
 
+static void _dm_recv_up_raw_reply_data_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata)
+{
+    dm_handle_t *dm_handle = (dm_handle_t *)userdata;
+    aiot_dm_recv_t recv;
+
+    if (NULL == dm_handle->recv_handler) {
+        return;
+    }
+
+    memset(&recv, 0, sizeof(aiot_dm_recv_t));
+    recv.type = AIOT_DMRECV_RAW_DATA_REPLY;
+
+    core_log(dm_handle->sysdep, STATE_DM_LOG_RECV, "DM recv raw data\r\n");
+
+    do {
+        if (_dm_get_topic_level(dm_handle->sysdep, msg->data.pub.topic, msg->data.pub.topic_len, 2, &recv.product_key) < 0 ||
+            _dm_get_topic_level(dm_handle->sysdep, msg->data.pub.topic, msg->data.pub.topic_len, 3, &recv.device_name) < 0) {
+            break;
+        }
+        recv.data.raw_data.data = msg->data.pub.payload;
+        recv.data.raw_data.data_len = msg->data.pub.payload_len;
+
+        dm_handle->recv_handler(dm_handle, &recv, dm_handle->userdata);
+    } while (0);
+
+    DM_FREE(recv.product_key);
+    DM_FREE(recv.device_name);
+}
+
 static void _dm_recv_raw_sync_service_invoke_handler(void *handle, const aiot_mqtt_recv_t *msg, void *userdata)
 {
     dm_handle_t *dm_handle = (dm_handle_t *)userdata;
@@ -682,6 +727,7 @@ void *aiot_dm_init(void)
 
     memset(dm_handle, 0, sizeof(dm_handle_t));
     dm_handle->sysdep = sysdep;
+    dm_handle->post_reply = 1;
 
     core_global_init(sysdep);
     return dm_handle;
@@ -719,6 +765,10 @@ int32_t aiot_dm_setopt(void *handle, aiot_dm_option_t option, void *data)
             dm_handle->userdata = data;
         }
         break;
+        case AIOT_DMOPT_POST_REPLY: {
+            dm_handle->post_reply = *(uint8_t *)data;
+        }
+        break;
         default:
             break;
     }
@@ -735,6 +785,7 @@ int32_t aiot_dm_send(void *handle, const aiot_dm_msg_t *msg)
     if (NULL == handle || NULL == msg) {
         return STATE_USER_INPUT_NULL_POINTER;
     }
+
     if (msg->type >= AIOT_DMMSG_MAX) {
         return STATE_USER_INPUT_OUT_RANGE;
     }

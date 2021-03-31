@@ -12,7 +12,7 @@
 #endif
 
 #ifndef VFS_CONFIG_FD_OFFSET
-#define VFS_FD_OFFSET 512
+#define VFS_FD_OFFSET 48
 #else
 #define VFS_FD_OFFSET VFS_CONFIG_FD_OFFSET
 #endif

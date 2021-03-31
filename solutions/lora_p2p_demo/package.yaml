@@ -1,5 +1,5 @@
 name: lora_p2p_demo
-version: master
+version: dev_aos
 description: demostrate the p2p-comunication over lora radio
 type: solution
 

@@ -26,7 +26,9 @@ extern "C" {
 
 #ifdef CALIB_SLOW_TIMER
 
+#ifndef CONFIG_SYSTICK_HZ
 #define CONFIG_SYSTICK_HZ           hal_sys_timer_systick_hz()
+#endif
 
 #define __MS_TO_TICKS(ms)           hal_sys_timer_ms_to_ticks(ms)
 
@@ -38,7 +40,9 @@ extern "C" {
 
 #else
 
+#ifndef CONFIG_SYSTICK_HZ
 #define CONFIG_SYSTICK_HZ           CONFIG_SYSTICK_HZ_NOMINAL
+#endif
 
 #define __MS_TO_TICKS(ms)           ((ms) * ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
 

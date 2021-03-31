@@ -6,6 +6,10 @@
 #define _UCLOUD_AI_IMAGEENHAN_H_
 #include "ucloud_ai_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @defgroup ucloud_ai_aos_api
  * @{
  */
@@ -33,5 +37,9 @@ void ucloud_ai_imageenhan_extend_image_style(char *major_path, char *style_path,
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _UCLOUD_AI_IMAGEENHAN_H_

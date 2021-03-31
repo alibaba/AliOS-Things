@@ -42,6 +42,7 @@ depends:
 build_config:
   include:
     - include
+  prebuild_script: cp_resources.py
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -70,6 +71,15 @@ def_config:                              # 组件的可配置项
   CONFIG_ALICLOUD_OBJECTDET_ENABLE: 1
   CONFIG_ALICLOUD_IMAGESEG_ENABLE: 1
   CONFIG_ALICLOUD_OCR_ENABLE: 1
+
+  # OSS 配置信息, 用户在这里替换自己的OSS信息
+  OSS_ACCESS_KEY: "Your-Access-Key"
+  OSS_ACCESS_SECRET: "Your-Access-Secret"
+  OSS_ENDPOINT: "Your-OSS-Endpoint"
+  OSS_BUCKET: "Your-OSS-Bucket"
+
+  # 配置你要对比的人脸
+  MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
 
 ## 第六部分：安装信息
 # install:

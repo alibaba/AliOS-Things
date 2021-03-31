@@ -2,8 +2,6 @@
 #include "HaasMLCloud.h"
 #include "HaasLog.h"
 #include "HaasErrno.h"
-#include "oss_app.h"
-
 #include <string>
 using namespace std;
 
@@ -11,45 +9,28 @@ HaasMLCloud::HaasMLCloud()
 {
     LOG_D("entern\n");
 	int32_t ret;
-	char * customer_header = "Accept: */*\r\n";
-
-    ai_client = { 0 };
-    ai_client_data = {0};
-
-	ret = httpclient_prepare(&ai_client_data, HEAD_SIZE, BODY_SZIE);
-	if (ret != HTTP_SUCCESS)
-		return;
-
-	ai_client.is_http = true;
-	httpclient_set_custom_header(&ai_client, customer_header);
 }
 
 HaasMLCloud::~HaasMLCloud()
 {
     LOG_D("entern\n");
     int32_t ret;
-    ret = httpclient_unprepare(&ai_client_data);
 }
 
-int HaasMLCloud::Config(char *key, char *secret, char *region_id,
-        char *endpoint, char *url)
+int HaasMLCloud::Config(char *key, char *secret, char *endpoint,
+        char *bucket, char *url)
 {
     LOG_D("entern\n");
     LOG_D("key = %s;\n", key);
     LOG_D("secret = %s;\n", secret);
-    LOG_D("region_id = %s;\n", region_id);
     LOG_D("endpoint = %s;\n", endpoint);
+    LOG_D("bucket = %s;\n", bucket);
     LOG_D("url = %s;\n", url);
-    mOssAccessKey = key;
-    mOssAccessSecret = secret;
-    mOssEndPoint = region_id;
-    mBucket = endpoint;
     mFacePath = url;
-    LOG_D("mOssAccessKey = %s;\n", mOssAccessKey.c_str());
-    LOG_D("mOssAccessSecret = %s;\n", mOssAccessSecret.c_str());
-    LOG_D("mOssEndPoint = %s;\n", mOssEndPoint.c_str());
-    LOG_D("mBucket = %s;\n", mBucket.c_str());
     LOG_D("mFacePath = %s;\n", mFacePath.c_str());
+    ucloud_ai_set_key_secret(key, secret);
+    ucloud_ai_set_oss_endpoint(endpoint);
+    ucloud_ai_set_oss_bucket(bucket);
 
     return STATUS_OK;
 }
@@ -129,39 +110,31 @@ int HaasMLCloud::UnLoadNet()
 int HaasMLCloud::PredictObjectDet()
 {
     LOG_D("entern\n");
-	int ret;
-	int len;
-	char *tmp_upload_url, p_upload_url[128];
-
-	/*update capture.jpg to oss*/
-	tmp_upload_url = upload_local_file(mDataPath, mOssAccessKey.c_str(), \
-			mOssAccessSecret.c_str(), NULL , mOssEndPoint.c_str(), mBucket.c_str());
-	if (!tmp_upload_url) {
-		LOGE(TAG, "url is null\n");
-		return -1;
-	}
-	len = strlen(tmp_upload_url);
-	memcpy(p_upload_url, tmp_upload_url, len);
-	p_upload_url[len] = '\0';
-
-	//ret = objectdet_detect_object_ai(p_upload_url, object_detect_callback);
-	ret = objectdet_config_and_detect_object_ai(mOssAccessKey.c_str(),
-            mOssAccessSecret.c_str(), ML_CLOUD_AI_REGION_ID,
-            ML_CLOUD_AI_OBJECTDET_ENDPOINT, p_upload_url, ObjectDetectCallback);
-	if (ret < 0)
-		return -1;
-
+    ucloud_ai_objectdet_detect_object(mDataPath, ObjectDetectCallback);
     return STATUS_OK;
 }
 
-int HaasMLCloud::ObjectDetectCallback(char *type, float score, object_rect_t *rect)
+int HaasMLCloud::ObjectDetectCallback(ucloud_ai_result_t *result)
 {
-    LOG_D("entern object_detect_callback\n");
     int len = 0;
     char *p_type = NULL;
+    int x, y, w, h;
+    char *type = NULL;
+    float score;
 
-    if (!type || !rect) {
-        LOG_E("type or rect is null\n");
+    LOG_D("entern ObjectDetectCallback:\n");
+    if (!result)
+        return -1;
+
+    type = result->objectdet.object.type;
+    score = result->objectdet.object.score;
+    x = result->objectdet.object.box.x;
+    y = result->objectdet.object.box.y;
+    w = result->objectdet.object.box.w;
+    h = result->objectdet.object.box.h;
+
+    if (!type) {
+        LOG_E("type is null\n");
         return -1;
     }
     p_type = strdup(type);
@@ -169,214 +142,133 @@ int HaasMLCloud::ObjectDetectCallback(char *type, float score, object_rect_t *re
         LOG_E("p_type strdup fail\n");
         return -1;
     }
-    if (p_type) {
-        LOG_E("Object Detect type: %s\n", p_type);
-        free(p_type);
-        p_type = NULL;
-    }
-    LOG_D("out object_detect_callback\n");
+
+    LOG_D("Detect object result:\n");
+    LOG_E("type: %s, Score: %.1f, x: %d, y: %d, w: %d, h: %d\n", p_type, score, x, y, w, h);
+    free(p_type);
+    p_type = NULL;
+
     return 0;
 }
 
 int HaasMLCloud::PredictFacebodyComparing()
 {
     LOG_D("entern\n");
-	int ret;
-	int len;
-	char *tmp_upload_url, p_upload_url[128];
-
-	/*update capture.jpg to oss*/
-	tmp_upload_url = upload_local_file(mDataPath, mOssAccessKey.c_str(), \
-			mOssAccessSecret.c_str(), NULL , mOssEndPoint.c_str(), mBucket.c_str());
-	if (!tmp_upload_url) {
-		LOGE(TAG, "url is null\n");
-		return -1;
-	}
-	len = strlen(tmp_upload_url);
-	memcpy(p_upload_url, tmp_upload_url, len);
-	p_upload_url[len] = '\0';
-
-	ret = facebody_config_and_comparing_ai(mOssAccessKey.c_str(),
-            mOssAccessSecret.c_str(), ML_CLOUD_AI_REGION_ID,
-            ML_CLOUD_AI_FACEBODY_ENDPOINT, p_upload_url, mFacePath.c_str(),
-            FacebodyComparingCallback);
-	if (ret < 0)
-		return -1;
-
+    ucloud_ai_facebody_comparing_face(mDataPath, mFacePath.c_str(), FacebodyComparingCallback);
     return STATUS_OK;
 }
 
-int HaasMLCloud::FacebodyComparingCallback(float confidence, face_rect_t *face_rect)
+int HaasMLCloud::FacebodyComparingCallback(ucloud_ai_result_t *result)
 {
-    LOG_D("FaceBody Comparing confidence = %f;\n", confidence);
-    if (face_rect != NULL)
-    {
-        LOG_E("AI RECOGNIZE rect is %d,%d,%d,%d;\n",
-                (int)face_rect->x, (int)face_rect->y, (int)face_rect->w, (int)face_rect->h);
-    }
+    LOG_D("entern\n");
+    float confidence;
+
+    if (!result)
+        return -1;
+
+    LOG_D("Facebody comparing result:\n");
+    confidence = result->facebody.face.confidence;
+    float x = result->facebody.face.location.x;
+    float y = result->facebody.face.location.y;
+    float w = result->facebody.face.location.w;
+    float h = result->facebody.face.location.h;
+    LOG_E("confidence: %.1f\n", confidence);
+    LOG_E("x: %.1f\n", x);
+    LOG_E("y: %.1f\n", y);
+    LOG_E("w: %.1f\n", w);
+    LOG_E("h: %.1f\n", h);
     return STATUS_OK;
 }
 
-int HaasMLCloud::AnimeStyleCallback(char *url, void* data)
+int HaasMLCloud::AnimeStyleCallback(ucloud_ai_result_t *result)
 {
-    LOG_E("AnimeStyle url:%s;\n", url);
-    int32_t ret;
+    LOG_D("entern\n");
+    int ret;
+    char *url = NULL;
 
-    HaasMLCloud * mHaasMLCloud = (HaasMLCloud *)data;
-    httpclient_t* client = mHaasMLCloud->GetAiClient();
-    httpclient_data_t* clientData = mHaasMLCloud->GetAiClientData();
-    ret = httpclient_conn(client, (const char *)url);
-    if(HTTP_SUCCESS != ret) {
-        LOG_E("http connect failed\n");
+    if (!result)
         return -1;
-    }
 
-    int recv_len = 0;
-
-    httpclient_reset(clientData);
-    ret = httpclient_send(client, (const char *)url, HTTP_GET, clientData);
-    if(HTTP_SUCCESS != ret) {
-        LOG_E("http send request failed\n");
-        return -1;
-    }
-    do {
-        ret = httpclient_recv(client, clientData);
-        if (ret < 0)
-            break;
-        recv_len = clientData->response_content_len;
-    } while (ret == HTTP_EAGAIN);
-    LOG_D("recv_len = %d;\n", recv_len);
-
-    httpclient_clse(client);
-
-    FILE *jpeg_file;
-
-    if ((jpeg_file = fopen("/sdcard/humananime.png", "wb")) == NULL) {
-        LOG_E("opening output file fail\n");
-        return -1;
-    }
-
-    if (fwrite(clientData->response_buf, clientData->response_content_len, 1, jpeg_file) < 1) {
-        LOG_E("write buf fail\n");
-        fclose(jpeg_file);
-        return -1;
-    }
-    fclose(jpeg_file);
-    LOG_D("write ximage success recv_len = %d;\n", recv_len);
+    url = result->facebody.anime.url;
+    LOG_D("Generate human anime style result:\n");
+    LOG_E("url: %s\n", url);
     return STATUS_OK;
 }
 
 int HaasMLCloud::PredictAnimeStyle()
 {
     LOG_D("entern\n");
-	int ret;
-	int len;
-	char *tmp_upload_url, p_upload_url[128];
-
-	/*update capture.jpg to oss*/
-	tmp_upload_url = upload_local_file(mDataPath, mOssAccessKey.c_str(), \
-			mOssAccessSecret.c_str(), NULL , mOssEndPoint.c_str(), mBucket.c_str());
-	if (!tmp_upload_url) {
-		LOGE(TAG, "url is null\n");
-		return -1;
-	}
-	len = strlen(tmp_upload_url);
-	memcpy(p_upload_url, tmp_upload_url, len);
-	p_upload_url[len] = '\0';
-
-	ret = facebody_config_and_generate_human_anime_style_ai(mOssAccessKey.c_str(),
-            mOssAccessSecret.c_str(), ML_CLOUD_AI_REGION_ID,
-            ML_CLOUD_AI_FACEBODY_ENDPOINT, p_upload_url, AnimeStyleCallback, (void*)this);
-	if (ret < 0)
-		return -1;
-
+    ucloud_ai_facebody_generate_human_anime_style(mDataPath, AnimeStyleCallback);
     return STATUS_OK;
 }
-
-#if 0
-int HaasMLCloud::AnimeStyleCallback(char *out_url)
-{
-    LOG_D("entern %s;\n", out_url);
-    return STATUS_OK;
-}
-#endif
 
 int HaasMLCloud::PredictRecognizeExpression()
 {
     LOG_D("entern\n");
-	int ret;
-	int len;
-	char *tmp_upload_url, p_upload_url[128];
-
-	/*update capture.jpg to oss*/
-	tmp_upload_url = upload_local_file(mDataPath, mOssAccessKey.c_str(), \
-			mOssAccessSecret.c_str(), NULL , mOssEndPoint.c_str(), mBucket.c_str());
-	if (!tmp_upload_url) {
-		LOGE(TAG, "url is null\n");
-		return -1;
-	}
-	len = strlen(tmp_upload_url);
-	memcpy(p_upload_url, tmp_upload_url, len);
-	p_upload_url[len] = '\0';
-
-	ret = facebody_config_and_recognize_expression_ai(mOssAccessKey.c_str(),
-            mOssAccessSecret.c_str(), ML_CLOUD_AI_REGION_ID,
-            ML_CLOUD_AI_FACEBODY_ENDPOINT, p_upload_url, RecognizeExpressionCallback);
-	if (ret < 0)
-		return -1;
-
+    ucloud_ai_facebody_recognize_expression(mDataPath, RecognizeExpressionCallback);
     return STATUS_OK;
 }
 
-int HaasMLCloud::RecognizeExpressionCallback(char *expression, float face_probability,
-        face_rect_t *face_rect)
+int HaasMLCloud::RecognizeExpressionCallback(ucloud_ai_result_t *result)
 {
 
-    LOG_E("Expression : %s;\n", expression);
-    return STATUS_OK;
-}
+    LOG_D("entern\n");
+    int len;
+    char *expression, *p_expression;
+    float face_probability;
 
-int HaasMLCloud::RecognizeCharacterCallback(OCRResult *result)
-{
-    if (result == NULL)
-    {
-        LOG_E("result is null : %s;\n");
+    if (!result)
+        return -1;
+
+    expression = result->facebody.expression.expression;
+    face_probability = result->facebody.expression.probability;
+
+    if (!expression)
+        return -1;
+
+    p_expression = strdup(expression);
+    if (!p_expression) {
+        LOG_E("p_expression strdup fail\n");
         return -1;
     }
-    LOG_E("probability:%f\n", result->probability);
-    LOG_E("text:%s\n", result->text);
-    LOG_E("left:%d\n", result->left);
-    LOG_E("angle:%d\n", result->angle);
-    LOG_E("top:%d\n", result->top);
-    LOG_E("height:%d\n", result->height);
-    LOG_E("width:%d\n", result->width);
 
+    LOG_E("Recognize expression result:\n");
+    LOG_E("type: %s, probability: %.1f\n", p_expression, face_probability);
+    free(p_expression);
+    p_expression = NULL;
+    return STATUS_OK;
+}
+
+int HaasMLCloud::RecognizeCharacterCallback(ucloud_ai_result_t *result)
+{
+
+    LOG_D("entern\n");
+    float probability;
+    char *text = NULL;
+    int left, top;
+    int width, height;
+
+    if (!result)
+        return -1;
+
+    LOG_D("Recognize character result:\n");
+    text = result->ocr.character.text;
+    left = result->ocr.character.left;
+    top = result->ocr.character.top;
+    width = result->ocr.character.width;
+    height = result->ocr.character.height;
+    probability = result->ocr.character.probability;
+    if (text) {
+        LOG_E("text: %s\n", text);
+        LOG_E("probability: %.1f\n", probability);
+        LOG_E("text area: left: %d, top: %d, weight: %d, height: %d\n", top, left, width, height);
+    }
     return STATUS_OK;
 }
 
 int HaasMLCloud::PredictRecognizeCharacter()
 {
     LOG_D("entern\n");
-	int ret;
-	int len;
-	char *tmp_upload_url, p_upload_url[128];
-
-	/*update capture.jpg to oss*/
-	tmp_upload_url = upload_local_file(mDataPath, mOssAccessKey.c_str(), \
-			mOssAccessSecret.c_str(), NULL , mOssEndPoint.c_str(), mBucket.c_str());
-	if (!tmp_upload_url) {
-		LOGE(TAG, "url is null\n");
-		return -1;
-	}
-	len = strlen(tmp_upload_url);
-	memcpy(p_upload_url, tmp_upload_url, len);
-	p_upload_url[len] = '\0';
-
-	ret = recognizeCharacter_config_ai(mOssAccessKey.c_str(),
-            mOssAccessSecret.c_str(), ML_CLOUD_AI_REGION_ID,
-            ML_CLOUD_AI_OCR_ENDPOINT, p_upload_url, RecognizeCharacterCallback);
-	if (ret < 0)
-		return -1;
-
+    ucloud_ai_ocr_recognize_character(mDataPath, RecognizeCharacterCallback);
     return STATUS_OK;
 }

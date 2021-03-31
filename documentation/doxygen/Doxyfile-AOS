@@ -869,7 +869,7 @@ INPUT                  = ../manual/component.md \
                          ../manual/solution.md \
                          ../../components/a2sa/README.md \
                          ../../components/ai_agent/README.md \
-                         ../../components/alicloud/README.md \
+                         ../../components/alicloud/README-CN.md \
                          ../../components/amp/README.md \
                          ../../components/aostools/README.md \
                          ../../components/ble_host/README.md \
@@ -889,7 +889,6 @@ INPUT                  = ../manual/component.md \
                          ../../components/littlefs/README.md \
                          ../../components/lwip/README.md \
                          ../../components/mbedtls/README.md \
-                         ../../components/modbus/README.md \
                          ../../components/netmgr/README.md \
                          ../../components/ota/README.md \
                          ../../components/posix/README.md \
@@ -904,7 +903,6 @@ INPUT                  = ../manual/component.md \
                          ../../components/uagent/README.md \
                          ../../components/ucamera/README.md \
                          ../../components/ucloud_ai/README.md \
-                         ../../components/udata/README.md \
                          ../../components/udisplay/README.md \
                          ../../components/ugraphics/README.md \
                          ../../components/ulog/README.md \
@@ -914,6 +912,16 @@ INPUT                  = ../manual/component.md \
                          ../../solutions/audio_demo/README.md \
                          ../../solutions/auto_demo/README.md \
                          ../../solutions/eduk1_demo/README.md \
+                         ../../solutions/eduk1_demo/k1_apps/aircraftBattle/aircraftBattle.md \
+                         ../../solutions/eduk1_demo/k1_apps/barometer/barometer.md \
+                         ../../solutions/eduk1_demo/k1_apps/compass/compass.md \
+                         ../../solutions/eduk1_demo/k1_apps/greedySnake/greedySnake.md \
+                         ../../solutions/eduk1_demo/k1_apps/gyroscope/gyroscope.md \
+                         ../../solutions/eduk1_demo/k1_apps/homepage/homepage.md \
+                         ../../solutions/eduk1_demo/k1_apps/humiture/humiture.md \
+                         ../../solutions/eduk1_demo/k1_apps/lightmeter/lightmeter.md \
+                         ../../solutions/eduk1_demo/k1_apps/musicbox/musicbox.md \
+                         ../../solutions/eduk1_demo/k1_apps/shakeshake/shakeshake.md \
                          ../../solutions/flower_demo/README.md \
                          ../../solutions/helloworld_demo/README.md \
                          ../../solutions/linksdk_demo/README.md \
@@ -923,18 +931,44 @@ INPUT                  = ../manual/component.md \
                          ../../solutions/rfid_demo/README.md \
                          ../../components/a2sa/include/sound_mixer.h \
                          ../../components/a2sa/include/sound_pcm.h \
+                         ../../components/ai_agent/include/aiagent_service.h \
                          ../../components/cli/include/aos/cli.h \
-                         ../../components/cplusplus/include/*.h \
+                         ../../components/cplusplus/include/cpp_mem.h \
+                         ../../components/cplusplus/include/cpp_mutex.h \
+                         ../../components/cplusplus/include/cpp_queue.h \
+                         ../../components/cplusplus/include/cpp_semaphore.h \
+                         ../../components/cplusplus/include/cpp_thread.h \
+                         ../../components/cplusplus/include/cpp_timer.h \
+                         ../../components/cplusplus/include/cpp_workQueue.h \
+                         ../../components/debug/include/aos/debug.h \
                          ../../components/http/include/httpclient.h \
                          ../../components/init/include/aos/init.h \
                          ../../components/kv/include/aos/kv.h \
+                         ../../components/mbmaster/include/mbmaster.h \
                          ../../components/netmgr/include/netmgr.h \
                          ../../components/sntp/include/sntp/sntp.h \
                          ../../components/osal_aos/include/aos/kernel.h \
+                         ../../components/ramfs/include/ramfs.h \
+                         ../../components/select/include/select.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_common.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_facebody.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_imageenhan.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_imagerecog.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_imageseg.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_objectdet.h \
+                         ../../components/ucloud_ai/include/ucloud_ai_ocr.h \
+                         ../../components/ucamera/include/ucamera_service.h \
+                         ../../components/ucamera/include/ucamera_service.h \
+                         ../../components/udisplay/include/udisplay_cli.h \
+                         ../../components/udisplay/include/udisplay.h \
+                         ../../components/ulog/include/ulog/ulog.h \
                          ../HaaS_EDU_K1_Quick_Start.md \
                          ../HaaS100_Quick_Start.md \
                          ../quick_start_cloud.md \
-                         ../README.md
+                         ../../components/mbmaster/README.md \
+                         ../../components/kv/README.md \
+                         ../manual/driver \
+                         ../../components/uvoice/include
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1012,14 +1046,46 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = ../../components/kv/example
+EXAMPLE_PATH           = ../../components/a2sa/example \
+                         ../../components/amp/example/native \
+                         ../../components/amp/example/script \
+                         ../../components/cjson/example \
+                         ../../components/cplusplus/example \
+                         ../../components/debug/example \
+                         ../../components/epoll/example \
+                         ../../components/fatfs/example \
+                         ../../components/http/example \
+                         ../../components/jsoncpp/example \
+                         ../../components/libc_stub/example \
+                         ../../components/littlefs/example \
+                         ../../components/lwip/example \
+                         ../../components/mbedtls/example \
+                         ../../components/mbmaster/example \
+                         ../../components/netmgr/example \
+                         ../../components/osal_aos/example \
+                         ../../components/oss/example \
+                         ../../components/posix/example \
+                         ../../components/py_engine/example \
+                         ../../components/posix/example \
+                         ../../components/ramfs/example \
+                         ../../components/select/example \
+                         ../../components/sensor/example \
+                         ../../components/sntp/example \
+                         ../../components/uagent/example \
+                         ../../components/udata/example \
+                         ../../components/udisplay/example \
+                         ../../components/ulog/example \
+                         ../../components/uvoice/example \
+                         ../../components/vfs/example \
+                         ../../components/kv/example
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
 # *.h) to filter out the source-files in the directories. If left blank all
 # files are included.
 
-EXAMPLE_PATTERNS       = *.c
+EXAMPLE_PATTERNS       = *.c \
+                         *.md
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude commands
@@ -1275,7 +1341,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = style/header.html
+HTML_HEADER            =
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1285,7 +1351,7 @@ HTML_HEADER            = style/header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = style/footer.html
+HTML_FOOTER            =
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1310,7 +1376,7 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = style/doxygenextra.css
+HTML_EXTRA_STYLESHEET  =
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note

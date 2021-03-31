@@ -244,8 +244,8 @@ static void task_bt(char *buf, int32_t len, int32_t argc, char **argv)
 
     if (((ktask_t *)task)->task_name) {
         aos_cli_printf("task name : %s\r\n", ((ktask_t *)task)->task_name);
+        debug_backtrace_task(((ktask_t *)task)->task_name, aos_cli_printf);
     }
-    debug_backtrace_task(task, aos_cli_printf);
 }
 
 
@@ -279,11 +279,6 @@ static void mem_leak(char *buf, int32_t len, int32_t argc, char **argv)
 
     dumpsys_mm_leakcheck(call_cnt, query_index);
 }
-
-static void mem_check(char *buf, int32_t len, int32_t argc, char **argv)
-{
-    dumpsys_mm_header_check();
-}
 #endif
 
 static const struct cli_command dumpsys_cli_cmd[] = {
@@ -293,7 +288,6 @@ static const struct cli_command dumpsys_cli_cmd[] = {
     { "taskbtn", "list thread backtrace by name", task_btn },
 #if (RHINO_CONFIG_MM_DEBUG > 0)
     { "mmlk", "memory leak info", mem_leak },
-    { "mmc", "memory info check", mem_check },
 #endif
 };
 

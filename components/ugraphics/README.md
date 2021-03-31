@@ -86,12 +86,22 @@ ugraphics draw rectangle ok!
 
 ### CLI命令行输入：
 ```sh
-ugraphics draw image # 绘制图片
+ugraphics draw jpg # 绘制图片
 ```
 
 > CLI关键日志：
 ```sh
-ugraphics draw image ok!
+ugraphics draw jpg image ok!
+```
+
+### CLI命令行输入：
+```sh
+ugraphics draw png # 绘制图片
+```
+
+> CLI关键日志：
+```sh
+ugraphics draw png image ok!
 ```
 
 ### CLI命令行输入：

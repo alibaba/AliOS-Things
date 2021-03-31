@@ -509,7 +509,7 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 	}
 	else
 	{
-		ret = spi_ctx[spi->port].spi_send(tx_data, 1);
+		spi_ctx[spi->port].spi_send(tx_data, 1);
 	}
 	do
 	{

@@ -93,7 +93,7 @@ fi
 
 make
 
-libraries="./libpy_engine.a"
+libraries="./libpyEngine.a"
 
 # copy library to AliOS-Things library folder
 lib_path=$(dirname $lib)
@@ -108,4 +108,7 @@ fi
 # =======================================================
 
 # result
+echo "start copy python-apps to hardware/chip/haas1000/prebuild/data"
+cd ..
+cp -r python-apps ../../hardware/chip/haas1000/prebuild/data
 echo "run external script success"

@@ -37,13 +37,17 @@ static void ugraphics_comp_example(int argc, char **argv)
             /*Draw line*/
             ugraphics_draw_line(0, WIDTH / 4, WIDTH, HEIGHT / 4);
             printf("ugraphics draw line ok!\n");
-        } else if (!strncmp(argv[2], "image", 3)) {
+        } else if (!strncmp(argv[2], "jpg", 3)) {
             /*Draw image*/
-            ugraphics_draw_image("/data/capture.jpg", 0, 0);
-            printf("ugraphics draw image ok!\n");
+            ugraphics_draw_image("/data/ugraphics_image/object.jpg", 0, 0);
+            printf("ugraphics draw jpg ok!\n");
+        } else if (!strncmp(argv[2], "png", 3)) {
+            /*Draw image*/
+            ugraphics_draw_image("/data/ugraphics_image/anime.png", 0, 0);
+            printf("ugraphics draw png ok!\n");
         } else if (!strncmp(argv[2], "string", 6)) {
             /*Load default ttf font*/
-            ret = ugraphics_load_font("/data/font/simfang.ttf", 18);
+            ret = ugraphics_load_font("/data/ugraphics_image/font/simfang.ttf", 18);
             if (ret < 0) {
                 printf("ugraphics load font fail, ret: %d\n", ret);
                 return;

@@ -45,8 +45,8 @@ public:
 		* @brief        config http info(for ucloud AI)
 		* @param[in]	key : OSS Access Key
 		* @param[in]	secret : OSS Access secret
-		* @param[in]	region_id : The region id
-		* @param[in]	endpoint : OSS endpoint
+		* @param[in]	endpoint : The region id
+		* @param[in]	bucket : OSS endpoint
 		* @param[in]	url : for facebody compare AI model
 		* @note.
 		* @return
@@ -60,8 +60,8 @@ public:
 		*   res = mIHaasML->Config(NULL,NULL,NULL,NULL,NULL);
 		* @endcode
 		*/
-	virtual int Config(char *key, char *secret, char *region_id,
-            char *endpoint, char *url) {}
+	virtual int Config(char *key, char *secret, char *endpoint,
+            char *bucket, char *url) {}
 	/**
 		* @brief		set input data(come frome HaasDataInput)
 		* @param[in]	dataPath : The path of DataSource

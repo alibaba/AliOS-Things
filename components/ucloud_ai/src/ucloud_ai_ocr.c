@@ -17,6 +17,9 @@ void ucloud_ai_ocr_recognize_identity_card_face_side(char *path, ucloud_ai_cb_t 
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
+
     recognizeIdentityCardFaceSide(p_upload_url, cb);
     free(p_upload_url);
 }
@@ -29,6 +32,9 @@ void ucloud_ai_ocr_recognize_identity_card_back_side(char *path, ucloud_ai_cb_t 
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
+
     recognizeIdentityCardBackSide(p_upload_url, cb);
     free(p_upload_url);
 }
@@ -41,6 +47,9 @@ void ucloud_ai_ocr_recognize_bank_card(char *path, ucloud_ai_cb_t cb)
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
+
     recognizeBankCard(p_upload_url, cb);
     free(p_upload_url);
 }
@@ -53,6 +62,9 @@ void ucloud_ai_ocr_recognize_character(char *path, ucloud_ai_cb_t cb)
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
-//    recognizeCharacter(p_upload_url, cb);
+    if (!p_upload_url)
+        return;
+
+    recognizeCharacter(p_upload_url, cb);
     free(p_upload_url);
 }

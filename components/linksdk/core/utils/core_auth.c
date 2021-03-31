@@ -39,14 +39,20 @@ int32_t core_auth_mqtt_username(aiot_sysdep_portfile_t *sysdep, char **dest, cha
     return core_sprintf(sysdep, dest, "%s&%s", src, sizeof(src)/sizeof(char *), module_name);
 }
 
-int32_t core_auth_mqtt_password(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, char *module_name)
+int32_t core_auth_mqtt_password(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, uint8_t assigned_clientid, char *module_name)
 {
     int32_t res = 0;
-    char *src[] = { product_key, device_name, device_name, product_key, CORE_AUTH_TIMESTAMP };
     char *plain_text = NULL;
     uint8_t sign[32] = {0};
 
-    res = core_sprintf(sysdep, &plain_text, "clientId%s.%sdeviceName%sproductKey%stimestamp%s", src, sizeof(src)/sizeof(char *), module_name);
+    if(1 == assigned_clientid) {
+        char *src[] = { device_name, product_key, CORE_AUTH_TIMESTAMP };
+        res = core_sprintf(sysdep, &plain_text, "clientIddeviceName%sproductKey%stimestamp%s", src, sizeof(src)/sizeof(char *), module_name);
+    } else {
+        char *src[] = { product_key, device_name, device_name, product_key, CORE_AUTH_TIMESTAMP };
+        res = core_sprintf(sysdep, &plain_text, "clientId%s.%sdeviceName%sproductKey%stimestamp%s", src, sizeof(src)/sizeof(char *), module_name);
+    }
+
     if (res < STATE_SUCCESS) {
         return res;
     }
@@ -66,12 +72,18 @@ int32_t core_auth_mqtt_password(aiot_sysdep_portfile_t *sysdep, char **dest, cha
     return 0;
 }
 
-int32_t core_auth_mqtt_clientid(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *secure_mode, char *extend_clientid, char *module_name)
+int32_t core_auth_mqtt_clientid(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *secure_mode, char *extend_clientid, uint8_t assigned_clientid, char *module_name)
 {
-    char *src[] = { product_key, device_name, CORE_AUTH_TIMESTAMP, CORE_AUTH_SDK_VERSION, secure_mode, extend_clientid};
-
-    return core_sprintf(sysdep, dest, "%s.%s|timestamp=%s,_ss=1,_v=%s,securemode=%s,signmethod=hmacsha256,ext=3,%s|", src, sizeof(src)/sizeof(char *), module_name);    /* ext bitmap: bit0-rrpc, bit1-ext_notify */
+    if(1 == assigned_clientid) {
+        char *src[] = { CORE_AUTH_TIMESTAMP, CORE_AUTH_SDK_VERSION, secure_mode, extend_clientid};
+        return core_sprintf(sysdep, dest, "|timestamp=%s,_ss=1,_v=%s,securemode=%s,signmethod=hmacsha256,ext=3,%s|", src, sizeof(src)/sizeof(char *), module_name);    /* ext bitmap: bit0-rrpc, bit1-ext_notify */
+    } else {
+       char *src[] = { product_key, device_name, CORE_AUTH_TIMESTAMP, CORE_AUTH_SDK_VERSION, secure_mode, extend_clientid};
+       return core_sprintf(sysdep, dest, "%s.%s|timestamp=%s,_ss=1,_v=%s,securemode=%s,signmethod=hmacsha256,ext=3,%s|", src, sizeof(src)/sizeof(char *), module_name);    /* ext bitmap: bit0-rrpc, bit1-ext_notify */
+    }
 }
+
+
 
 int32_t core_auth_http_body(aiot_sysdep_portfile_t *sysdep, char **dest, char *product_key, char *device_name, char *device_secret, char *module_name)
 {

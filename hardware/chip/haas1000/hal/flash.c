@@ -9,7 +9,7 @@
 #include "hal_trace.h"
 #include "hal_norflash.h"
 #define BES_HAL_DEBUG 0
-#include "bes_hal.h"
+#include "app_hal.h"
 #include "ota_port.h"
 
 #define FLASH_PAGE_SIZE_IN_BYTES 256

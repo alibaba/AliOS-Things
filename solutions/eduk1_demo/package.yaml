@@ -20,9 +20,9 @@ depends:
   - mbedtls: dev_aos
   - netmgr: dev_aos
   - uservice:  dev_aos
-  - rhino: master
+  - rhino: dev_aos
   - osal_aos: dev_aos
-#  - a2sa: master
+#  - a2sa: dev_aos
 
 # build_config:
 #   include:

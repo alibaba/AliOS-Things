@@ -17,6 +17,8 @@ void ucloud_ai_imageenhan_erase_person(char *image_path, char *user_mask_path, u
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(image_path);
+    if (!p_upload_url)
+        return;
 
     /*do erasing person*/
     erasePerson(p_upload_url, user_mask_path, cb);
@@ -31,6 +33,8 @@ void ucloud_ai_imageenhan_extend_image_style(char *major_path, char *style_path,
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(major_path);
+    if (!p_upload_url)
+        return;
 
     /*do extending image style*/
     extendImageStyle(p_upload_url, style_path, cb);

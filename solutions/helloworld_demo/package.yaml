@@ -20,7 +20,7 @@ depends:
   - cli: dev_aos
   - osal_aos: dev_aos
   - haas100: dev_aos
-  - vexpress_a9: dev_aos
+  # - vexpress_a9: dev_aos
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段

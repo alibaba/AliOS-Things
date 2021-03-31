@@ -261,6 +261,8 @@ int vfs_inode_get_names(const char *path, char names[][64], uint32_t* size)
 {
     uint32_t idx;
     uint32_t index = 0;
+    uint32_t len = 0;
+
     if (path == NULL)
         return VFS_ERR_INVAL;
 
@@ -268,8 +270,14 @@ int vfs_inode_get_names(const char *path, char names[][64], uint32_t* size)
         if (g_vfs_nodes[idx].type == VFS_TYPE_FS_DEV &&
             strncmp(path, g_vfs_nodes[idx].i_name, strlen(path)) == 0) {
             memset(names[index], 0, 64);
-            strncpy(names[index++],
-                g_vfs_nodes[idx].i_name, strlen(g_vfs_nodes[idx].i_name));
+            len = strlen(g_vfs_nodes[idx].i_name) + 1;
+            if (len > 64) {
+                strncpy(names[index], g_vfs_nodes[idx].i_name, 63);
+                names[index][63] = '\0';
+                index++;
+            } else {
+                strncpy(names[index++], g_vfs_nodes[idx].i_name, len);
+            }
         }
     }
     *size = index;

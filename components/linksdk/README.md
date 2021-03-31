@@ -18,7 +18,6 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 - 设备引导服务
 - 子设备管理
 - 设备诊断
-- 设备取证
 - OTA(在AliOS THings场景建议使用OS自带OTA)
 
 更多详情，请参考阿里云Link SDK[说明文档](https://help.aliyun.com/document_detail/163755.html?spm=a2c4g.11186623.6.558.38557748p9kUy6) 。
@@ -32,7 +31,6 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 ├── ChangeLog.md           #变更日志
 ├── components
 │   ├── bootstrap          #设备引导服务
-│   ├── das                #设备取证
 │   ├── data-model         #物模型
 │   ├── devinfo            #设备信息
 │   ├── diag               #设备诊断

@@ -51,13 +51,15 @@ build_config:
     - components/bootstrap
     - components/data-model
     - components/devinfo
+    - components/diag
     - components/dynreg
     - components/dynreg-mqtt
     - components/logpost
     - components/ntp
     - components/ota
     - components/shadow
-    - components/subdev  
+    - components/subdev
+    - components/task
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
@@ -68,6 +70,7 @@ source_file:
   - "components/bootstrap/*.c"
   - "components/data-model/*.c"
   - "components/devinfo/*.c"
+  - "components/diag/*.c"
   - "components/dynreg/*.c"
   - "components/dynreg-mqtt/*.c"
   - "components/logpost/*.c"
@@ -75,6 +78,7 @@ source_file:
   - "components/ota/*.c"
   - "components/shadow/*.c"
   - "components/subdev/*.c"
+  - "components/task/*.c"
   - "external/*.c"
   - "portfiles/aiot_port/aos_port.c"
 

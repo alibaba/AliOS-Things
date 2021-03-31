@@ -13,7 +13,6 @@
 
 #define TAG "AIAGENT_SERVICE"
 
-
 /*
  * Initialize the ai agent service
  */

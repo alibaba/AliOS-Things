@@ -4,7 +4,7 @@
 
 #include "aos/hal/i2c.h"
 #include "hal_i2c.h"
-#include "bes_hal.h"
+#include "app_hal.h"
 #include "aos/kernel.h"
 #include "hal_trace.h"
 aos_mutex_t i2c_mutex;

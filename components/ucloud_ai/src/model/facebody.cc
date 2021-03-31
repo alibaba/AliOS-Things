@@ -90,6 +90,7 @@ int recognizeExpression(char *url, AIModelCBFunc cb)
     if (cb) {
         expression = outcome.result().getData().elements[0].expression;
         if (!expression.empty()) {
+            result.expression.expression = expression.c_str();
             result.expression.probability = outcome.result().getData().elements[0].faceProbability;
             result.expression.location.x = 20; // outcome.result().getData().elements[0].faceRectangle.left;
             result.expression.location.y = 20; // outcome.result().getData().elements[0].faceRectangle.top;

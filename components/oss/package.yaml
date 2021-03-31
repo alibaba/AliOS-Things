@@ -76,7 +76,7 @@ def_config:                              # 组件的可配置项
   USE_CRYPTO_MBEDTLS: 1
   USE_AOS_TIME_POSIX_API: 1
   OSS_DEBUG: 1
-  USE_SD_FOR_OSS: 1
+#  USE_SD_FOR_OSS: 1
   READ_SD_SIZE_MAX: 1024*15
 
 ## 第六部分：安装信息

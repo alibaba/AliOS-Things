@@ -120,6 +120,17 @@ typedef enum {
     AIOT_DMOPT_USERDATA,
 
     /**
+     * @brief 用户是否希望接收post消息后的reply
+     *
+     * @details
+     *
+     * 是否要接收云端的reply消息. 1表示要接收, 0表示不要.
+     *
+     * 数据类型: (uint8_t) *)
+     */
+    AIOT_DMOPT_POST_REPLY,
+
+    /**
      * @brief 配置选项数量最大值, 不可用作配置参数
      */
     AIOT_DMOPT_MAX,
@@ -183,6 +194,12 @@ typedef enum {
      * 成功发送此消息后, 将会收到@ref AIOT_DMRECV_GENERIC_REPLY 类型的应答消息
      */
     AIOT_DMMSG_DELETE_DESIRED,
+
+    /**
+     * @brief 清除指定的期望值, 消息结构体请参考@ref aiot_dm_msg_delete_desired_t \n
+     * 成功发送此消息后, 将会收到@ref AIOT_DMRECV_GENERIC_REPLY 类型的应答消息
+     */
+    AIOT_DMMSG_PROPERTY_BATCH_POST,
 
     /**
      * @brief 消息数量最大值, 不可用作消息类型
@@ -333,6 +350,19 @@ typedef struct {
     char *params;
 } aiot_dm_msg_delete_desired_t;
 
+
+/**
+ * @brief <b>物模型属性上报</b>消息结构体
+ */
+typedef struct {
+    /**
+     * @brief 字符串形式的JSON结构体, <b>必须以结束符'\0'结尾</b>. 包含用户要批量上报的属性和事件数据, 如 {"properties":{"Power": [ { "value": "on", "time": 1524448722000 },
+     *  { "value": "off", "time": 1524448722001 } ], "WF": [ { "value": 3, "time": 1524448722000 }]}, "events": {"alarmEvent": [{ "value": { "Power": "on", "WF": "2"},
+     *  "time": 1524448722000}]}}
+     */
+    char *params;
+} aiot_dm_msg_property_batch_post_t;
+
 /**
  * @brief data-model模块发送消息的消息结构体
  */
@@ -397,6 +427,11 @@ typedef enum {
      * @brief 服务器下发的同步服务调用消息, 消息数据结构体参考@ref aiot_dm_recv_sync_service_invoke_t
      */
     AIOT_DMRECV_SYNC_SERVICE_INVOKE,
+
+    /**
+     * @brief 服务器对设备上报的二进制数据应答, 消息数据结构体参考@ref aiot_dm_recv_raw_data_t
+     */
+    AIOT_DMRECV_RAW_DATA_REPLY,
 
     /**
      * @brief 服务器下发的物模型二进制数据, 消息数据结构体参考@ref aiot_dm_recv_raw_data_t

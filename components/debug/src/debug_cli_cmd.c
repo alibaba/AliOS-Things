@@ -24,10 +24,7 @@
 #endif
 
 
-extern void hal_reboot(void);
-
 static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv);
-static void reboot_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void uptime_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void debug_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 static void msleep_cmd(char *buf, int32_t len, int32_t argc, char **argv);
@@ -42,10 +39,8 @@ static const struct cli_command built_ins[] = {
     { "debug", "show debug info", debug_cmd },
     /*aos_rhino*/
     { "sysver", "system version", version_cmd },
-    { "reboot", "reboot system", reboot_cmd },
     { "time", "system time", uptime_cmd },
     { "msleep", "sleep miliseconds", msleep_cmd },
-
     { "p", "print memory", pmem_cmd },
     { "m", "modify memory", mmem_cmd },
     { "f", "run a function", func_cmd },
@@ -65,14 +60,6 @@ static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 #else
     aos_cli_printf("kernel version :posix\r\n");
 #endif
-}
-
-static void reboot_cmd(char *buf, int32_t len, int32_t argc, char **argv)
-{
-#if DEBUG_LAST_WORD_ENABLE
-    debug_reboot_reason_update(DEBUG_REBOOT_CMD_REASON);
-#endif
-    hal_reboot();
 }
 
 static void uptime_cmd(char *buf, int32_t len, int32_t argc, char **argv)
