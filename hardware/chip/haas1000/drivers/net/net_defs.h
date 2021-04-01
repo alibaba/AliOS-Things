@@ -197,7 +197,6 @@ typedef enum {
 
 #define barrier
 #define EXPORT_SYMBOL(x)
-#define EXPORT_SYMBOL_GPL(x)
 
 #define smp_mb(x)
 
