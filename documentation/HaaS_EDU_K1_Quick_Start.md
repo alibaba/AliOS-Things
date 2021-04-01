@@ -1,9 +1,11 @@
 @page HaaS_EDU_K1_Quick_Start HaaS EDU K1快速开始
 
 具体操作分为三步：
+
 - 搭建开发环境
 - 创建工程
 - 开发及调试
+
 # 1. 搭建开发环境
 ## Visual Studio Code
 Visual Studio Code(下称VS Code) 是一款广泛使用的IDE工具。AliOS-Things 3.3的开发环境是主要基于VS Code搭建的。
@@ -41,7 +43,9 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
     <img src="https://img.alicdn.com/imgextra/i2/O1CN01fisFa91USpZAVS5Bw_!!6000000002517-2-tps-785-321.png" style="zoom:50%;" />
 </div>
 
-等待几分钟后，aos-tools安装完毕。窗口右下角会显示“成功安装aos-tools”字样。已安装(INSTALLED)插件列表中会显示"alios-studio"和"C/C++"两个插件：
+等待几分钟后，aos-tools安装完毕。窗口右下角会显示“成功安装aos-tools”字样。
+**如果没有弹出安装aos-tools的提示请重启VS Code。**
+已安装(INSTALLED)插件列表中会显示"alios-studio"和"C/C++"两个插件：
 
 <div align=left>
     <img src="https://img.alicdn.com/imgextra/i3/O1CN01dGWaNq2A0d2c9vRxt_!!6000000008141-2-tps-1707-1015.png" style="zoom:50%;" />
@@ -53,16 +57,8 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 创建工程会自动拉取AliOS-Things的核心组件代码，并配置好相关编译选项。
 ## 2.1 开始创建
 点击左下角的"+"图标开始创建工程
-
 <div align=left>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01xmJW0b25z1BVejS40_!!6000000007596-2-tps-796-275.png" style="zoom:50%;" />
-</div>
-
-
-点击左下角的"+"图标开始创建工程
-
-<div align=left>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01QIJaDh1Qj59taTq8f_!!6000000002011-2-tps-2774-2044.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01R4EtQc22seq5Re3AK_!!6000000007176-0-tps-1584-548.jpg" style="zoom:50%;" />
 </div>
 
 
@@ -81,7 +77,7 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 选择解决方案，之后用鼠标选择开发板（本文以 Haaseduk1为例）
 
 <div align=left>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01ILyVQd1ERQUv5PF9f_!!6000000000348-2-tps-2604-382.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01sdxB6p1x2NY6rgrsd_!!6000000006385-0-tps-3216-1158.jpg" style="zoom:50%;" />
 </div>
 
 
@@ -90,7 +86,7 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 输入项目名称
 
 <div align=left>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN017mitRH1d8WY8wiNGo_!!6000000003691-2-tps-1067-188.png"" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01x5uEE01uz3RWI7i0U_!!6000000006107-0-tps-1586-384.jpg" style="zoom:50%;" />
 </div>
 
 工作区路径即为源码路径(此目录名称必须为连续的英文字符)
@@ -109,12 +105,16 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 
 # 3. 开发及调试
 ## 3.1 编译工程
-点击状态栏的编译图标，稍等片刻（由于需要安装编译器，第一次编译耗时稍久）就能看到编译成功的提示。
+点击状态栏的编译图标。
 
 <div align=left>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01g2HtG71ag0euXCTEd_!!6000000003358-2-tps-2814-882.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01E8SQ7j1tNfUwboVIO_!!6000000005890-0-tps-3278-1694.jpg" style="zoom:50%;" />
 </div>
 
+稍等片刻（由于需要安装编译器，第一次编译耗时稍久）就能看到编译成功的提示。
+<div align=left>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01MMVCEz1q1HHv8ULME_!!6000000005435-0-tps-2280-1158.jpg" style="zoom:50%;" />
+</div>
 
 ## 3.2 烧录镜像
 - 如下图，用数据线把HaaS开发板和电脑连起来。
@@ -139,7 +139,7 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 
 
 ## 3.3 查看日志
--  使用开发环境中查看串口信息工具, 选择对应串口号
+- 点击VS Code的Serial Monitor按钮, 选择对应串口号。
 
 <div align=left>
     <img src="https://img.alicdn.com/imgextra/i3/O1CN01aG5qNC1GvJZsy5419_!!6000000000684-2-tps-2376-1948.png" style="zoom:50%;" />

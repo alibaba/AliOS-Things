@@ -238,6 +238,9 @@ int activation_parse_data(char *response_data)
         && ((result_end = strstr(result_start, ACTIVATION_RESPONSE_RESULT_END)) != NULL)) {
             result_start += strlen(ACTIVATION_RESPONSE_RESULT_START);
             len = result_end - result_start;
+            if (len >= sizeof(response_result)) {
+                return -1;
+            }
             strncpy(response_result, result_start, len);
             response_result[len] = '\0';
             ACTIVATION_DEBUG("response result: %s\n", response_result);
@@ -250,6 +253,9 @@ int activation_parse_data(char *response_data)
         && ((result_end = strstr(result_start, ACTIVATION_RESPONSE_MESSAGE_END)) != NULL)) {
             result_start += strlen(ACTIVATION_RESPONSE_MESSAGE_START);
             len = result_end - result_start;
+            if (len >= sizeof(response_msg)) {
+                return -1;
+            }
             strncpy(response_msg, result_start, len);
             response_msg[len] = '\0';
             ACTIVATION_DEBUG("response_msg: %s\n", response_msg);
