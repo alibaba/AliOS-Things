@@ -169,13 +169,6 @@ typedef int32_t aos_status_t; /**< AOS返回值状态类型 */
 /** @} */
 
 /**
- * @defgroup aos_kernel_task 任务管理
- * 提供AliOS Things系统内核任务管理功能的基础API.
- *
- * @{
- */
-
-/**
  * @addtogroup aos_kernel_spinlock
  * 提供AliOS Things系统内核自旋锁功能的基础API.
  *
@@ -189,6 +182,13 @@ typedef struct {
 /* Define the data type for spinlock irq save value */
 typedef long  aos_irqsave_t;
 /** @} */
+
+/**
+ * @defgroup aos_kernel_task 任务管理
+ * 提供AliOS Things系统内核任务管理功能的基础API.
+ *
+ * @{
+ */
 
 /**
  * 创建任务，该接口为创建任务分配TCB（任务控制块）并且根据指定的执行体、任务名称、栈大小来初始化对应成员.
@@ -715,6 +715,13 @@ aos_status_t aos_timer_change_once(aos_timer_t *timer, uint32_t ms);
 /** @} */
 
 /**
+ * @defgroup aos_kernel_spinlock 自旋锁
+ * 提供AliOS Things系统内核自旋锁功能的基础API.
+ *
+ * @{
+ */
+
+/**
  * Init a spinlock.
  *
  * @param[in]  spinlock  pointer of spinlock object,spinlock object must be
@@ -753,6 +760,8 @@ aos_irqsave_t aos_spin_lock_irqsave(aos_spinlock_t *spinlock);
  *
  */
 void aos_spin_unlock_irqrestore(aos_spinlock_t *spinlock, aos_irqsave_t flag);
+
+/** @} */
 
 /**
  * @defgroup aos_kernel_memory 内存管理

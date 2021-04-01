@@ -22,6 +22,8 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 
 `├── link_sdk_gateway_demo`
 
+`├── lora_p2p_demo`
+
 `├── ota_demo`
 
 `├── py_engine_demo`
@@ -56,3 +58,4 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 @subpage ota_demo
 @subpage py_engine_demo
 @subpage rfid_demo
+@subpage lora_p2p_demo

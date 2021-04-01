@@ -24,6 +24,7 @@ static aos_status_t rhino2stderrno(int ret)
     switch (ret) {
     case RHINO_SUCCESS:
     case RHINO_MUTEX_OWNER_NESTED:
+    case RHINO_STOPPED:
         return 0;
     case RHINO_SYS_SP_ERR:
     case RHINO_NULL_PTR:
@@ -129,19 +130,44 @@ aos_status_t aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(voi
 }
 
 aos_status_t aos_task_create(aos_task_t *task, const char *name, void (*fn)(void *),
-                     void *arg,void *stack, size_t stack_size, int32_t prio, uint32_t options)
+                     void *arg, void *stack, size_t stack_size, int32_t prio, uint32_t options)
 {
-    int ret;
+    int       ret;
+    cpu_stack_t  *task_stack = NULL;
+    ktask_t      *task_obj;
+
     if(task == NULL) {
         return -EINVAL;
     }
+
+    if (stack == NULL) {
+        task_stack = aos_malloc(stack_size * sizeof(cpu_stack_t));
+        if (task_stack == NULL) {
+            return -ENOMEM;
+        }
+        stack = task_stack;
+    }
+
+    task_obj = aos_malloc(sizeof(ktask_t));
+    if (task_obj == NULL) {
+        aos_free(task_stack);
+        return -ENOMEM;
+    }
+
+    *task = task_obj;
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-    ret = (int)krhino_cfs_task_dyn_create((ktask_t **)task, name, arg, AOS_DEFAULT_APP_PRI,
-                                          stack_size / sizeof(cpu_stack_t), fn, options & 0x01);
+    ret = (int)krhino_cfs_task_create(task_obj, name, arg, prio, (cpu_stack_t *)stack,
+                                      stack_size / sizeof(cpu_stack_t), fn, options & AOS_TASK_AUTORUN);
 #else
-    ret = (int)krhino_task_dyn_create((ktask_t **)task, name, arg, prio,
-                                      0, stack_size / sizeof(cpu_stack_t), fn, options & 0x01);
+    ret = (int)krhino_task_create(task_obj, name, arg, prio, 0, (cpu_stack_t *)stack,
+                                  stack_size / sizeof(cpu_stack_t), fn, options & AOS_TASK_AUTORUN);
 #endif
+    if ((ret != RHINO_SUCCESS) && (ret != RHINO_STOPPED)) {
+        aos_free(task_stack);
+        aos_free(task_obj);
+        *task = NULL;
+    }
+
     return rhino2stderrno(ret);
 }
 
