@@ -143,8 +143,8 @@ Tcomp（°C）=c0*0.5+c1*Traw_sc
 ### 软件设计
 #### 应用代码部分
 文件路径如下：
-application/example/edu_demo/k1_apps/barometer/barometer.c
-application/example/edu_demo/k1_apps/barometer/barometer.h
+solutions/eduk1_demo/k1_apps/barometer/barometer.c
+solutions/eduk1_demo/k1_apps/barometer/barometer.h
 
 
 周期性读取大气压以及温度，并打印到OLED屏幕上。
@@ -179,15 +179,11 @@ application/example/edu_demo/k1_apps/barometer/barometer.h
         OLED_Refresh_GRAM();
 ```
 #### 驱动部分
-文件路径如下：
-components/peripherals/sensor/drv/drv_baro_goertek_spl06.c
 驱动代码整体分为三部分；
 
 - 初始化部分
 - 温度值读取
 - 大气压校准以及高度估算。
-
-
 
 初始化包含：
 

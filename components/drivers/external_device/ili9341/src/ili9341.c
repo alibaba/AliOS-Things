@@ -301,12 +301,15 @@ void ili9341_draw_frame(ili9341_dev_t ili9341_dev, uint8_t *frame)
 {
     uint16_t *rgb565_frame = (uint16_t *)frame;
     uint32_t  bufferSize   = ILI9341_HEIGHT * ILI9341_WIDTH * sizeof(uint16_t);
-    set_addr_window(ili9341_dev, 0, 0, ILI9341_WIDTH - 1, ILI9341_HEIGHT - 1);
     unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize);
-    for (uint32_t i = 0; i < bufferSize; i++) {
-        burst_buffer[i] =
-            (bufferSize % 2) ? rgb565_frame[i] : rgb565_frame[i] >> 8;
+
+    set_addr_window(ili9341_dev, 0, 0, ILI9341_WIDTH - 1, ILI9341_HEIGHT - 1);
+
+    for (uint32_t i = 0; i < bufferSize / 2; i++) {
+        burst_buffer[2 * i] = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
     }
+
     ili9341_dc_write_bytes(ili9341_dev, DAT, burst_buffer, bufferSize);
     free(burst_buffer);
 }

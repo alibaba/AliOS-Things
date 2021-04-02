@@ -16,11 +16,12 @@ int erasePerson(char *imageUrl, char *userMaskUrl, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGEENHAN_ENDPOINT);
     ImageenhanClient client(key, secret, configuration);
     Model::ErasePersonRequest request;
     string imageURL, userMaskURL;
     ImageEnhanResultStruct result;
+    string url;
     int ret = 0;
 
     imageURL = imageUrl;
@@ -36,12 +37,16 @@ int erasePerson(char *imageUrl, char *userMaskUrl, AIModelCBFunc cb)
     cout << "requestId: " << outcome.result().requestId() << endl << endl;
     cout << "imageUrl: " << outcome.result().getData().imageUrl << endl;
 
-    result.person.url = outcome.result().getData().imageUrl.c_str();
-    result.person.imageLen = getResponseBodyByUrl(result.person.url, &result.person.image);
-    if (!result.person.image && cb) {
-        ret = cb((void *)&result);
-    }
+    url = outcome.result().getData().imageUrl;
 
+    if (url.size() > 0) {
+        result.person.url = url.c_str();
+        result.person.imageLen = getResponseBodyByUrl(result.person.url, &result.person.image);
+
+        if (result.person.image && cb) {
+            ret = cb((void *)&result);
+        }
+    }
     ShutdownSdk();
     return ret;
 }
@@ -53,7 +58,7 @@ int extendImageStyle(char *majorUrl, char *styleUrl, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGEENHAN_ENDPOINT);
     ImageenhanClient client(key, secret, configuration);
     Model::ExtendImageStyleRequest request;
     string inMajorURL, outMajorURL;
@@ -83,6 +88,7 @@ int extendImageStyle(char *majorUrl, char *styleUrl, AIModelCBFunc cb)
         result.style.majorImageLen = getResponseBodyByUrl(outMajorURL.c_str(), &result.style.majorImage);
         ret = cb((void *)&result);
     } else if (outImageURL.size() > 0 && cb) {
+        result.style.majorUrl = NULL;
         result.style.outImageUrl = (char *)outImageURL.c_str();
         result.style.outImageLen = getResponseBodyByUrl(outImageURL.c_str(), &result.style.outImage);
         ret = cb((void *)&result);

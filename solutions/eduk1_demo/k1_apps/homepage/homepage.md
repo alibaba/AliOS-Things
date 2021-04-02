@@ -75,7 +75,7 @@ uint8_t sh1106_init(void)
 }
 ```
 #### 显示部分
-代码位于application/example/edu_demo/k1_apps/homepage/homepage.c
+代码位于solutions/eduk1_demo/k1_apps/homepage/homepage.c
 以显示版本信息为例：
 ```basic
 OLED_Clear(); // 清屏函数       

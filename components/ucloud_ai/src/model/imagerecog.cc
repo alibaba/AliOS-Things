@@ -16,11 +16,12 @@ int classifyingRubbish(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGERECOG_ENDPOINT);
     ImagerecogClient client(key, secret, configuration);
     Model::ClassifyingRubbishRequest request;
     string imageURL;
     ImageRecogResultStruct result;
+    string rubbish, category;
     int ret = 0, i;
 
     imageURL = url;
@@ -39,8 +40,10 @@ int classifyingRubbish(char *url, AIModelCBFunc cb)
         cout << i << "category: " << outcome.result().getData().elements[i].category << endl;
         cout << i << "categoryScore: " << outcome.result().getData().elements[i].categoryScore << endl;
         cout << i << "rubbishScore: " << outcome.result().getData().elements[i].rubbishScore << endl;
-        result.rubbish.rubbish = outcome.result().getData().elements[i].rubbish.c_str();
-        result.rubbish.category = outcome.result().getData().elements[i].category.c_str();
+        rubbish = outcome.result().getData().elements[i].rubbish;
+        category = outcome.result().getData().elements[i].category;
+        result.rubbish.rubbish = rubbish.c_str();
+        result.rubbish.category = category.c_str();
         result.rubbish.categoryScore = outcome.result().getData().elements[i].categoryScore;
         result.rubbish.rubbishScore = outcome.result().getData().elements[i].rubbishScore;
 
@@ -60,11 +63,12 @@ int detectFruits(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGERECOG_ENDPOINT);
     ImagerecogClient client(key, secret, configuration);
     Model::DetectFruitsRequest request;
     ImageRecogResultStruct result;
     string imageURL;
+    string name;
     int ret = 0, i;
 
     imageURL = url;
@@ -81,7 +85,8 @@ int detectFruits(char *url, AIModelCBFunc cb)
         cout << i << "score: " << outcome.result().getData().elements[i].score << endl;
         cout << i << "name: " << outcome.result().getData().elements[i].name << endl;
         result.fruits.score = outcome.result().getData().elements[i].score;
-        result.fruits.name = outcome.result().getData().elements[i].name.c_str();
+        name = outcome.result().getData().elements[i].name;
+        result.fruits.name = name.c_str();
 
         cout << "box.xmin: " << outcome.result().getData().elements[i].box[0] << endl;
         cout << "box.ymin: " << outcome.result().getData().elements[i].box[1] << endl;

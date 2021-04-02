@@ -16,11 +16,12 @@ int segmentCommonImage(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGESEG_ENDPOINT);
     ImagesegClient client(key, secret, configuration);
     Model::SegmentCommonImageRequest request;
     string inImageURL;
     ImageSegResultStruct result;
+    string outImageUrl;
     int ret = 0;
 
     inImageURL = url;
@@ -35,10 +36,13 @@ int segmentCommonImage(char *url, AIModelCBFunc cb)
     cout << "requestId: " << outcome.result().requestId() << endl << endl;
     cout << "image url: " << outcome.result().getData().imageURL << endl;
 
-    result.common.url = (char *)outcome.result().getData().imageURL.c_str();
-    result.common.imageLen = getResponseBodyByUrl(outcome.result().getData().imageURL.c_str(), &result.common.image);
-    if (!result.common.image && cb) {
-        ret = cb((void *)&result);
+    outImageUrl = outcome.result().getData().imageURL;
+    if (outImageUrl.size() > 0) {
+        result.common.url = (char *)outImageUrl.c_str();
+        result.common.imageLen = getResponseBodyByUrl(outcome.result().getData().imageURL.c_str(), &result.common.image);
+        if (result.common.image && cb) {
+            ret = cb((void *)&result);
+        }
     }
     ShutdownSdk();
     return ret;
@@ -51,11 +55,12 @@ int segmentFace(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_IMAGESEG_ENDPOINT);
     ImagesegClient client(key, secret, configuration);
     Model::SegmentFaceRequest request;
     string inImageURL;
     ImageSegResultStruct result;
+    string outImageUrl;
     int ret = 0, i = 0;
 
     inImageURL = url;
@@ -78,14 +83,17 @@ int segmentFace(char *url, AIModelCBFunc cb)
         cout << i << "x: " << outcome.result().getData().elements[i].x << endl;
         cout << i << "y: " << outcome.result().getData().elements[i].y << endl;
 
-        result.face.url = outcome.result().getData().elements[i].imageURL .c_str();
-        result.face.imageLen = getResponseBodyByUrl(result.face.url, &result.face.image);
-        if (!result.face.image && cb) {
-            result.face.location.x = outcome.result().getData().elements[i].x;
-            result.face.location.y = outcome.result().getData().elements[i].y;
-            result.face.location.w = outcome.result().getData().elements[i].width;
-            result.face.location.h = outcome.result().getData().elements[i].height;
-            ret = cb((void *)&result);
+        outImageUrl = outcome.result().getData().elements[i].imageURL;
+        if (outImageUrl.size() > 0) {
+            result.face.url = outImageUrl.c_str();
+            result.face.imageLen = getResponseBodyByUrl(result.face.url, &result.face.image);
+            if (result.face.image && cb) {
+                result.face.location.x = outcome.result().getData().elements[i].x;
+                result.face.location.y = outcome.result().getData().elements[i].y;
+                result.face.location.w = outcome.result().getData().elements[i].width;
+                result.face.location.h = outcome.result().getData().elements[i].height;
+                ret = cb((void *)&result);
+            }
         }
     }
     ShutdownSdk();

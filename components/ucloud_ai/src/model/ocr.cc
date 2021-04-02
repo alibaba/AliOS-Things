@@ -16,11 +16,12 @@ int recognizeIdentityCardFaceSide(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OCR_ENDPOINT);
     OcrClient client(key, secret, configuration);
     Model::RecognizeIdentityCardRequest request;
     string imageURL;
     OcrResultStruct result;
+    string address, birthDate, gender, nationality, iDNumber;
     int ret = 0, i;
 
     imageURL = url;
@@ -59,11 +60,16 @@ int recognizeIdentityCardFaceSide(char *url, AIModelCBFunc cb)
         result.identity.face.faceX[i] = outcome.result().getData().frontResult.faceRectVertices[i].x;
         result.identity.face.faceY[i] = outcome.result().getData().frontResult.faceRectVertices[i].y;
     }
-    result.identity.face.address = outcome.result().getData().frontResult.address.c_str();
-    result.identity.face.birthDate = outcome.result().getData().frontResult.birthDate.c_str();
-    result.identity.face.gender = outcome.result().getData().frontResult.gender.c_str();
-    result.identity.face.nationality = outcome.result().getData().frontResult.nationality.c_str();
-    result.identity.face.iDNumber = outcome.result().getData().frontResult.iDNumber.c_str();
+    address = outcome.result().getData().frontResult.address;
+    birthDate = outcome.result().getData().frontResult.birthDate;
+    gender = outcome.result().getData().frontResult.gender;
+    nationality = outcome.result().getData().frontResult.nationality;
+    iDNumber = outcome.result().getData().frontResult.iDNumber;
+    result.identity.face.address = address.c_str();
+    result.identity.face.birthDate = birthDate.c_str();
+    result.identity.face.gender = gender.c_str();
+    result.identity.face.nationality = nationality.c_str();
+    result.identity.face.iDNumber = iDNumber.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -80,10 +86,11 @@ int recognizeIdentityCardBackSide(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OCR_ENDPOINT);
     OcrClient client(key, secret, configuration);
     Model::RecognizeIdentityCardRequest request;
     OcrResultStruct result;
+    string startDate, issue, endDate;
     string imageURL;
     int ret = 0;
 
@@ -100,9 +107,12 @@ int recognizeIdentityCardBackSide(char *url, AIModelCBFunc cb)
     cout << "startDate: " << outcome.result().getData().backResult.startDate << endl;
     cout << "issue: " << outcome.result().getData().backResult.issue << endl;
     cout << "endDate: " << outcome.result().getData().backResult.endDate << endl;
-    result.identity.back.startDate = outcome.result().getData().backResult.startDate.c_str();
-    result.identity.back.issue = outcome.result().getData().backResult.issue.c_str();
-    result.identity.back.endDate = outcome.result().getData().backResult.endDate.c_str();
+    startDate = outcome.result().getData().backResult.startDate;
+    issue = outcome.result().getData().backResult.issue;
+    endDate = outcome.result().getData().backResult.endDate;
+    result.identity.back.startDate = startDate.c_str();
+    result.identity.back.issue = issue.c_str();
+    result.identity.back.endDate = endDate.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -118,10 +128,11 @@ int recognizeBankCard(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OCR_ENDPOINT);
     OcrClient client(key, secret, configuration);
     Model::RecognizeBankCardRequest request;
     OcrResultStruct result;
+    string bankName, cardNumber, validDate;
     string imageURL;
     int ret = 0;
 
@@ -138,9 +149,12 @@ int recognizeBankCard(char *url, AIModelCBFunc cb)
     cout << "cardNumber: " << outcome.result().getData().cardNumber << endl;
     cout << "validDate: " << outcome.result().getData().validDate << endl;
 
-    result.bank.bankName = outcome.result().getData().bankName.c_str();
-    result.bank.cardNumber = outcome.result().getData().cardNumber.c_str();
-    result.bank.validDate = outcome.result().getData().validDate.c_str();
+    bankName = outcome.result().getData().bankName;
+    cardNumber = outcome.result().getData().cardNumber;
+    validDate = outcome.result().getData().validDate;
+    result.bank.bankName = bankName.c_str();
+    result.bank.cardNumber = cardNumber.c_str();
+    result.bank.validDate = validDate.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -156,10 +170,11 @@ int recognizeCharacter(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OCR_ENDPOINT);
     OcrClient client(key, secret, configuration);
     Model::RecognizeCharacterRequest request;
     OcrResultStruct result;
+    string text;
     string imageURL;
     int ret = 0, i;
 
@@ -184,7 +199,8 @@ int recognizeCharacter(char *url, AIModelCBFunc cb)
         cout << i << "text top: " << outcome.result().getData().results[i].textRectangles.top << endl;
         cout << i << "text height: " << outcome.result().getData().results[i].textRectangles.height << endl;
         cout << i << "text: width:" << outcome.result().getData().results[i].textRectangles.width << endl;
-        result.character.text = outcome.result().getData().results[i].text.c_str();
+        text = outcome.result().getData().results[i].text;
+        result.character.text = text.c_str();
         result.character.probability = outcome.result().getData().results[i].probability;
         result.character.left = outcome.result().getData().results[i].textRectangles.left;
         result.character.angle = outcome.result().getData().results[i].textRectangles.angle;

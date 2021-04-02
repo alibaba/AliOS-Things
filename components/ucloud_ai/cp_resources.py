@@ -5,12 +5,16 @@ import sys
 import getpass
 import shutil
 
+comp_path = sys.path[0]
+print("comp_path:")
+print(comp_path)
+
 # original folder
-comp_path="../../../../components/ucloud_ai/src/example/image"
-data_path="../../../../hardware/chip/haas1000/prebuild/data"
+org_image_path = comp_path + "/src/example/image"
 
 # new folder
-image_path=data_path+"/ucloud_ai_image"
+data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data"
+image_path = data_path + "/ucloud_ai_image"
 
 # delete prebuild/data resources
 if os.path.exists(image_path):
@@ -18,7 +22,7 @@ if os.path.exists(image_path):
     shutil.rmtree(image_path)
 
 # copy resources
-shutil.copytree(comp_path, image_path)
+shutil.copytree(org_image_path, image_path)
 
 # result
 print("run external script success")

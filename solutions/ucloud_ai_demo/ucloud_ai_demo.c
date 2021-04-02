@@ -37,22 +37,29 @@ extern void user_post_event(char type_t);
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
 static int facebody_compare_callback(ai_result_t *result)
 {
+    int ret;
     float confidence;
+    int x, y, w, h;
     if (!result)
         return -1;
 
     confidence = result->facebody.face.confidence;
-   /*judge if boss is coming*/
+    x = result->facebody.face.location.x;
+    y = result->facebody.face.location.y;
+    w = result->facebody.face.location.w;
+    h = result->facebody.face.location.h;
+
+    /*judge if boss is coming*/
     if (confidence > 60) {
         LOG("==============================================\n");
         LOG("=================boss is coming===============\n");
         LOG("==============================================\n");
         /*post event to Iot platform*/
-        user_post_event(1);
+        // user_post_event(1);
 
         LOG("draw string\n");
-        ugraphics_draw_string("Warning!!!", 120, 100);
-        ugraphics_draw_string("boss is coming!!!", 100, 120);
+        ret = ugraphics_draw_string("Warning!!!", 120, 100);
+        ret = ugraphics_draw_string("boss is coming!!!", 100, 120);
 
         /*show string on OLED for HaaS EDK*/
 #ifdef AOS_OLED_SH1106
@@ -77,13 +84,14 @@ static int facebody_compare_callback(ai_result_t *result)
         beeper_stop();
 #endif
     }
+
     return 0;
 }
 
 static int recognize_expression_callback(ai_result_t *result)
 {
     int len;
-    char *expression;
+    char *expression = NULL;
     float face_probability;
 
     if (!result)
@@ -95,29 +103,21 @@ static int recognize_expression_callback(ai_result_t *result)
     if (!expression)
         return -1;
 
-    p_expression = strdup(expression);
-    if (!p_expression) {
-        LOGE(TAG, "p_expression strdup fail\n");
-        return -1;
-    }
-
     ugraphics_draw_image("/data/ai_demo_image/sadness.jpg", 20, 20);
     ugraphics_draw_image("/data/ai_demo_image/happiness.jpg", 80, 20);
     ugraphics_draw_image("/data/ai_demo_image/surprise.jpg", 140, 20);
 
+    LOG("expression: %s\n", expression);
     /*draw image to lcd screen*/
-    LOG("p_expression: %s\n", p_expression);
-    if (!strcmp(p_expression, "sadness")) {
+    if (!strcmp(expression, "sadness")) {
         ugraphics_draw_image("/data/ai_demo_image/right.jpg", 20, 70);
-    } else if (!strcmp(p_expression, "happiness")) {
+    } else if (!strcmp(expression, "happiness")) {
         ugraphics_draw_image("/data/ai_demo_image/right.jpg", 80, 70);
-    } else if (!strcmp(p_expression, "surprise")) {
+    } else if (!strcmp(expression, "surprise")) {
         ugraphics_draw_image("/data/ai_demo_image/right.jpg", 140, 70);
     } else {
         /*do nothing*/
     }
-    free(p_expression);
-    p_expression = NULL;
 
     return 0;
 }
@@ -175,20 +175,13 @@ static int detect_object_callback(ai_result_t *result)
         LOGE(TAG, "type is null\n");
         return -1;
     }
-    p_type = strdup(type);
-    if (!p_type) {
-        LOGE(TAG, "p_type strdup fail\n");
-        return -1;
-    }
 
     /*draw image to lcd screen*/
-    LOG("type: %s\n", p_type);
-    ugraphics_draw_string(p_type, x, y);
+    LOG("type: %s\n", type);
+    ugraphics_draw_string(type, x, y);
     ugraphics_draw_rect(x, y, w, h);
     ugraphics_draw_rect(x + 1, y + 1, w - 2, h - 2);
     ugraphics_draw_rect(x + 2, y + 2, w - 4, h - 4);
-    free(p_type);
-    p_type = NULL;
 
     return 0;
 }
@@ -258,12 +251,10 @@ static int segment_face_callback(ai_result_t *result)
     /*clear capture background*/
     ugraphics_clear();
 
-    index = result->imageseg.face.index;
-    snprintf(path, 32, "/data/%s%d%s", "segment_face", index, ".png");
     /*save image*/
     image = result->imageseg.face.image;
     image_len = result->imageseg.face.imageLen;
-    ret = ugraphics_save_image(image, image_len, path);
+    ret = ugraphics_save_image(image, image_len, "/data/segment_face.png");
     if (ret < 0) {
         LOGE(TAG, "save_captured_image fail\n");
         return -1;
@@ -272,7 +263,7 @@ static int segment_face_callback(ai_result_t *result)
     /*draw image to lcd screen*/
     x = result->imageseg.face.location.x;
     y = result->imageseg.face.location.y;
-    ugraphics_draw_image(path, x, y);
+    ugraphics_draw_image("/data/segment_face.png", x, y);
     return 0;
 }
 #endif
@@ -612,14 +603,20 @@ int ucloud_ai_demo_main(void *p)
             continue;
         }
 
+        /*draw camera frame*/
+        ugraphics_draw_image(image1, 0, 0);
+
         /*get callback function based on current model*/
         switch (aiagent_service_get_cur_model()) {
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
             case AI_MODEL_COMPARING_FACEBODY:
                 cb = facebody_compare_callback;
-                image2 = MYFACE_PATH;
+                image2 = NULL;
                 break;
             case AI_MODEL_GENERATE_HUMAN_ANIME_STYLE:
+                cb = generate_human_anime_styple_callback;
+                break;
+            case AI_MODEL_RECOGNIZE_EXPRESSION:
                 cb = recognize_expression_callback;
                 break;
 #endif
@@ -678,9 +675,6 @@ int ucloud_ai_demo_main(void *p)
         /*do ai model inference*/
         if (cb)
             aiagent_service_model_infer(image1, image2, (ai_engine_cb_t)cb);
-
-        /*draw camera frame*/
-        ugraphics_draw_image(image1, 0, 0);
 
         /*flip image to lcd screen*/
         ugraphics_flip();

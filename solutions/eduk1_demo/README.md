@@ -13,10 +13,6 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 
 首先，来看一下 HaaS EDU K1的菜单操作。
 
-<!-- !\[.*\]\( -->
-<!-- <div align=center>
-    <img src=" -->
-
 <div align=center>
     <img src="https://img.alicdn.com/imgextra/i1/O1CN01sBXp3g1pDM7IQjmpj_!!6000000005326-2-tps-2020-1320.png" style="zoom:50%;" />
 </div>

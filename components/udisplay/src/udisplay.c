@@ -215,24 +215,15 @@ int32_t udisplay_init(void)
         close(fd);
         return -1;
     }
-#else
-    /* malloc framebuffer and set to drivers */
-    fbaddr = (uint8_t *)malloc(fb_size);
-    if (fbaddr == NULL) {
-        close(fd);
-        LOGE("udisplay", "[%s]fbadd is NULL\r\n", __func__);
-        return -1;
-    }
-    udisplay_set_prefb_addr(fbaddr);
+    LOGE("udisplay", "[%s]mmap addr : %p\r\n", __func__, fbaddr);
+    ctx->framebuffer = fbaddr;
+    ctx->framebuffer_size = fb_size;
 #endif
 
-    LOGE("udisplay", "[%s]mmap addr : %p\r\n", __func__, fbaddr);
     ctx->swap = ((fb_var.xres_virtual * fb_var.yres_virtual) /
                 (fb_var.xres * fb_var.yres) == 2) ?
                 true : false;
     ctx->fb_id = 0;
-    ctx->framebuffer = fbaddr;
-    ctx->framebuffer_size = fb_size;
 
     memcpy(&ctx->var, &fb_var, sizeof(fb_var_screeninfo_t));
 
@@ -309,6 +300,7 @@ int32_t udisplay_show_rect(uint8_t *buf, uint32_t x, uint32_t y, uint32_t w, \
             return -1;
         }
     } else {
+#ifdef ENABLE_MICRO_KERNEL
         if ((x == 0) && (y == 0)) {
             memcpy(get_display_buffer_addr(ctx->fb_id), buf, \
                     ctx->var.xres * \
@@ -317,6 +309,14 @@ int32_t udisplay_show_rect(uint8_t *buf, uint32_t x, uint32_t y, uint32_t w, \
         } else {
             display_draw_rect(x, y, w, h, buf);
         }
+#else
+        ret = udisplay_set_prefb_addr(buf);
+        if (ret < 0) {
+            LOGE("udisplay", "[%s]set prefb addr fail\n", __func__);
+            aos_mutex_unlock(&ctx->mutex);
+            return -1;
+        }
+#endif
     }
 
     ret = udisplay_pan_display(ctx->fb_id);
