@@ -5,14 +5,18 @@ import sys
 import getpass
 import shutil
 
+comp_path = sys.path[0]
+print("comp_path:")
+print(comp_path)
+
 # original folder
-org_image_path="../../../../components/ugraphics/src/example/image"
-org_font_path="../../../../components/ugraphics/src/resources/font"
-data_path="../../../../hardware/chip/haas1000/prebuild/data"
+org_image_path = comp_path + "/src/example/image"
+org_font_path = comp_path + "/src/resources/font"
 
 # new folder
-image_path=data_path+"/ugraphics_image"
-font_path=data_path+"/font"
+data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data"
+image_path = data_path + "/ugraphics_image"
+font_path = data_path + "/font"
 
 # delete prebuild/data resources
 if os.path.exists(image_path):

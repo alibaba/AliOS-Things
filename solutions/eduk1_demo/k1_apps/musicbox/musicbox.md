@@ -32,7 +32,7 @@ USB2TypeC 数据线一根
 在本实验中，我们实现了tone和noTone两个方法。其中，tone方法用于驱动蜂鸣器发出特定频率的声音，也就是“音调”。noTone方法用于关闭蜂鸣器。
 值得注意的是，在tone方法中，pwm的占空比固定设置为0.5，这代表在一个震动周期内，蜂鸣器的振膜总是一半时间在上，一半时间在下。在这里改变占空比并不会改变蜂鸣器的功率，所以音量大小不会改变。
 ```c
-// application/example/edu_demo/k1_apps/musicbox/musicbox.c
+// solutions/eduk1_demo/k1_apps/musicbox/musicbox.c
 
 void tone(uint16_t port, uint16_t frequency, uint16_t duration)
 {
@@ -76,7 +76,7 @@ void noTone(uint16_t port)
 
 这样就得到了频率与音调的关系，我们将它记录在头文件中。
 ```c
-// application/example/edu_demo/k1_apps/musicbox/pitches.h
+// solutions/eduk1_demo/k1_apps/musicbox/pitches.h
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -179,7 +179,7 @@ static int liang_zhi_lao_hu_NoteDurations[] = {
 ### 结构体定义
 接下来，我们将得到的乐谱信息填入结构体当中。
 ```c
-// application/example/edu_demo/k1_apps/musicbox/musicbox.c
+// solutions/eduk1_demo/k1_apps/musicbox/musicbox.c
 
 typedef struct
 {

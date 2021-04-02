@@ -30,7 +30,7 @@ typedef struct _aiagent_engine_t {
     void (*ai_engine_uninit) (struct _aiagent_engine_t *eng);
 
     /*run ai engine model*/
-    void (*ai_engine_model_infer) (struct _aiagent_engine_t *eng);
+    int (*ai_engine_model_infer) (struct _aiagent_engine_t *eng);
 
     /*free ai engine*/
     void (*ai_engine_free) (struct _aiagent_engine_t *eng);

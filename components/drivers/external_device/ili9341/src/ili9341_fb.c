@@ -86,10 +86,10 @@ static int ili9341_blank(int blank, fb_info_t *info)
 
 static int ili9341_pan_display(fb_var_screeninfo_t *var, fb_info_t *info)
 {
-    int ret = 0;
-    printf("ili9341 pan display function:0x%x\n", *(info->screen_buffer));
+    printf("ili9341 pan display function:0xp\n", info->screen_buffer);
 
     ili9341_draw_frame(dev_ili9341, info->screen_buffer);
+    printf("ili9341_draw_frame done\n");
 
     return 0;
 }
@@ -113,8 +113,9 @@ static ili9341_ioctl(fb_info_t *info, unsigned int cmd, unsigned long arg)
             break;
         case FBIOPUT_PREFB_ADDR:
             printf("fbioput buffer setting\n");
-            info->screen_base = (uint8_t *)arg;
-            if (info->screen_base == NULL)
+            info->screen_buffer = (uint8_t *)arg;
+            printf("ili9341 ili9341_ioctl function:0xp\n", info->screen_buffer);
+            if (info->screen_buffer == NULL)
                 return -ENOMEM;
 
             break;

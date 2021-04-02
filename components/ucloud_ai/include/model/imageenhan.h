@@ -26,11 +26,9 @@ typedef struct _ExtendImageStyleStruct {
     int outImageLen;
 } ExtendImageStyleStruct;
 
-typedef struct _ImageEnhanResultStruct {
-    union {
-        ErasePersonStruct person;
-        ExtendImageStyleStruct style;
-    };
+typedef union _ImageEnhanResultStruct {
+    ErasePersonStruct person;
+    ExtendImageStyleStruct style;
 } ImageEnhanResultStruct;
 
 int erasePerson(char *imageUrl, char *userMaskUrl, AIModelCBFunc cb);

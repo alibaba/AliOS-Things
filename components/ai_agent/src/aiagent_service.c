@@ -48,6 +48,7 @@ int32_t aiagent_service_uninit(void)
  */
 int32_t aiagent_service_model_infer(char *src1, char *src2, ai_engine_cb_t cb)
 {
+    int32_t ret;
     aiagent_engine_t *eng = aiagent_get_engine();
     if (!eng) {
         LOGE(TAG, "aiagent get engine name fail\n");
@@ -57,10 +58,10 @@ int32_t aiagent_service_model_infer(char *src1, char *src2, ai_engine_cb_t cb)
     eng->callback = cb;
     eng->src1 = src1;
     eng->src2 = src2;
-    eng->ai_engine_model_infer(eng);
+    ret = eng->ai_engine_model_infer(eng);
 
     LOG("aiagent_service_model_infer done\n");
-    return 0;
+    return ret;
 }
 
 /*
