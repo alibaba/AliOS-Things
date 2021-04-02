@@ -19,15 +19,13 @@
 extern "C" {
 #endif
 
-typedef struct _AIModelResultStruct {
-    union {
-        FacebodyResultStruct facebody;
-        ImageSegResultStruct imageseg;
-        ImageEnhanResultStruct imageenhan;
-        ImageRecogResultStruct imagerecog;
-        ObjectDetResultStruct objectdet;
-        OcrResultStruct ocr;
-    };
+typedef union _AIModelResultStruct {
+    FacebodyResultStruct facebody;
+    ImageSegResultStruct imageseg;
+    ImageEnhanResultStruct imageenhan;
+    ImageRecogResultStruct imagerecog;
+    ObjectDetResultStruct objectdet;
+    OcrResultStruct ocr;
 } AIModelResultStruct;
 
 

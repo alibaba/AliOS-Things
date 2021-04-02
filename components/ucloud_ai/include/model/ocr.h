@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 
-typedef struct _RecogIdentityCardStruct {
-    union {
+typedef union _RecogIdentityCardStruct {
+    struct {
         char *address;
         char *birthDate;
         char *gender;
@@ -24,7 +24,7 @@ typedef struct _RecogIdentityCardStruct {
         float faceY[4];
         RectStruct location;
     } face;
-    union {
+    struct {
         char *startDate;
         char *issue;
         char *endDate;

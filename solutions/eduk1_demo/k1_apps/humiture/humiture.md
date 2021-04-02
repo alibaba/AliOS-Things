@@ -91,8 +91,8 @@ EDU SI7006部分原理图
 ### 软件设计
 #### 应用代码部分
 文件路径如下：
-application/example/edu_demo/k1_apps/humiture/humiture.c
-application/example/edu_demo/k1_apps/humiture/humiture.h
+solutions/eduk1_demo/k1_apps/humiture/humiture.c
+solutions/eduk1_demo/k1_apps/humiture/humiture.h
 ```basic
         si7006_getTempHumidity(&hump, &temp);
         sprintf(temp_str, "T:%5.1fC", temp);

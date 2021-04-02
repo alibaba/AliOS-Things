@@ -21,15 +21,12 @@ typedef struct _SegmentFaceStruct {
     char *url;
     char *image;
     int imageLen;
-    int index;
     RectStruct location;
 } SegmentFaceStruct;
 
-typedef struct _ImageSegResultStruct {
-    union {
-        SegmentCommonStruct common;
-        SegmentFaceStruct face;
-    };
+typedef union _ImageSegResultStruct {
+    SegmentCommonStruct common;
+    SegmentFaceStruct face;
 } ImageSegResultStruct;
 
 int segmentCommonImage(char *url, AIModelCBFunc cb);

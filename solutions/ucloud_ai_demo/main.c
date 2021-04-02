@@ -45,14 +45,16 @@ extern void do_recognize_expression_async(void);
 
 static void wifi_service_event(uint32_t event_id, const void *param, void *context)
 {
+    int ai_model = AI_MODEL;
+
     if (event_id != EVENT_NETMGR_SNTP_SUCCESS) {
         return;
     }
 
     if (!linkkit_started) {
         printf("start to do ucloud_ai_demo\n");
-        aos_task_new("ucloud_ai_demo_main", ucloud_ai_demo_main, NULL, 1024 * 40);
-        if (aiagent_service_get_cur_model() == AI_MODEL_COMPARING_FACEBODY)
+        aos_task_new("ucloud_ai_demo_main", ucloud_ai_demo_main, NULL, 1024 * 20);
+        if (ai_model == AI_MODEL_COMPARING_FACEBODY)
             aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 10);
         linkkit_started = 1;
     }
@@ -69,7 +71,7 @@ int application_start(int argc, char **argv)
     ugraphics_set_color(COLOR_RED);
 
     /*Load default font*/
-    ugraphics_load_font("/data/font/simfang.ttf", 18);
+    ugraphics_load_font("/data/font/Alibaba-PuHuiTi-Heavy.ttf", 18);
 
     /*Set default font style*/
     ugraphics_set_font_style(UGRAPHICS_FONT_STYLE);

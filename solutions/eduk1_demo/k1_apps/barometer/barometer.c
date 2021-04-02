@@ -37,7 +37,7 @@ void barometer_task()
         OLED_Clear();
 
         OLED_Icon_Draw(14, 4, &icon_atmp_16_16, 0);
-        sprintf(pressure_str, " %-12.2lfPa", spl06_data.pressure);
+        sprintf(pressure_str, " %-10.3lfkPa", spl06_data.pressure / 10);
         printf("%s\n", pressure_str);
         OLED_Show_String(32, 6, pressure_str, 12, 1);
 
@@ -77,9 +77,10 @@ int barometer_uninit(void)
         aos_msleep(50);
     }
 
-    spl06_deinit();
-
     aos_task_delete(&barometer_task_handle);
     printf("aos_task_delete barometer_task\n");
+
+    spl06_deinit();
+
     return 0;
 }

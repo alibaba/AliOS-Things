@@ -41,19 +41,24 @@ ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄�
 @ref ucamera_aos_api
 
 # 使用示例
-示例代码参考example/ucamera_example.c，以运行ucloud_ai_demo为例，具体步骤如下：
+示例代码参考example/ucamera_example.c，以运行helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
 > ucamera组件的package.yaml中添加
 ```C
 source_file:
-  - "src/*.c"
-  - "src/device/wifi/*.c"
   - src/example/ucamera_example.c # add ucamera_example.c
 ```
 
+> helloworld_demo组件的application_start中添加代码
+```sh
+    /*init network service*/
+    event_service_init(NULL);
+    netmgr_service_init(NULL);
+```
+
 ## app中添加ucamera组件
-> ucloud_ai_demo组件的package.yaml中添加
+> helloworld_demo组件的package.yaml中添加
 ```C
 depends:
   - ucamera: dev_aos # ucloud_ai_demo中引入ucamera组件
@@ -61,11 +66,16 @@ depends:
 
 ## 编译
 ```sh
-cd solutions/ucloud_ai_demo && aos make
+cd solutions/helloworld_demo && aos make
 ```
 
 ## 烧录固件
 > 参考具体板子的快速开始文档。
+
+> helloworld_demo bin烧录：
+```sh
+aos burn
+```
 
 ## ucamera示例测试
 > 开发板网络连接命令(XXXX为网络SSID，设置不加密)：

@@ -38,9 +38,9 @@ ugraphics组件是基于SDL2封装的接口，支持JPEG/PNG图像解码绘制�
 # 常用配置
 ```sh
 def_config:                              # 组件的可配置项
-  AOS_COMP_JPEG: 1
-  CONFIG_UGRAPHICS_FORMAT: 1
-  CONFIG_UGRAPHICS_ROTATE: 1
+  AOS_COMP_JPEG: 0
+  CONFIG_UGRAPHICS_FORMAT: 0
+  CONFIG_UGRAPHICS_ROTATE: 0
 ```
 > 配置是否支持JPEG解码、图像格式转换、图像旋转，默认是关闭的
 
@@ -54,7 +54,13 @@ def_config:                              # 组件的可配置项
 > ugraphics组件的package.yaml中添加example
 ```sh
 source_file:
-  - "example/ugraphics_example.c" # add ugraphics_example.c
+  - "src/example/ugraphics_example.c" # add ugraphics_example.c
+```
+
+> ugraphics组件的package.yaml中添加编译配置:
+```sh
+build_config:
+ prebuild_script: cp_resources.py
 ```
 
 ## 添加ugraphics组件
@@ -68,11 +74,35 @@ depends:
 ```sh
 cd solutions/helloworld_demo && aos make
 ```
+## 资源文件打包
+> 编译时ugraphics组件中cp_resources.py会对资源文件进行拷贝，系统自动打包到littlefs文件系统中。编译完成后请确认目录hardware/chip/haas1000/prebuild/data/下有ugraphics_image目录。
+
+>hardware/chip/haas1000/prebuild/data/目录下如有其他不使用的文件，建议删除后再进行编译，避免littlefs不够用导致无法访问的问题。
 
 ## 烧录固件
 > 参考具体板子的快速开始文档。
 
+> helloworld_demo bin烧录：
+```sh
+aos burn
+```
+
+> littlefs文件系统烧录：
+```sh
+aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
+```
+
 ## ugraphics示例测试
+
+### CLI命令行输入：
+```sh
+ugraphics init # 资源初始化
+```
+
+> CLI关键日志：
+```sh
+ugraphics init ok!
+```
 
 ### CLI命令行输入：
 ```sh
@@ -86,7 +116,7 @@ ugraphics draw rectangle ok!
 
 ### CLI命令行输入：
 ```sh
-ugraphics draw jpg # 绘制图片
+ugraphics draw jpg # 绘制jpeg图片
 ```
 
 > CLI关键日志：
@@ -96,7 +126,7 @@ ugraphics draw jpg image ok!
 
 ### CLI命令行输入：
 ```sh
-ugraphics draw png # 绘制图片
+ugraphics draw png # 绘制png图片
 ```
 
 > CLI关键日志：
@@ -126,7 +156,7 @@ ugraphics draw string ok!
 
 ### CLI命令行输入：
 ```sh
-ugraphics fill rect # 绘制字符串
+ugraphics fill rect # 填充矩形框
 ```
 
 > CLI关键日志：
@@ -136,7 +166,7 @@ ugraphics fill rectangle ok!
 
 ### CLI命令行输入：
 ```sh
-ugraphics clear # 绘制字符串
+ugraphics clear # 清屏
 ```
 
 > CLI关键日志：
@@ -144,8 +174,18 @@ ugraphics clear # 绘制字符串
 ugraphics clear screen ok!
 ```
 
+### CLI命令行输入：
+```sh
+ugraphics quit # 释放资源
+```
+
+> CLI关键日志：
+```sh
+ugraphics quit ok!
+```
+
 # 注意事项
-在使用绘制字符串或图片时，因为需要加载字体或图片，字库simfang.ttf或图片默认存放在/data/font/目录，因此需要在depends中确保littlefs组件已经加入。烧录程序时除烧录demo image外，还需要通过以下命令烧录文件系统。
+在使用绘制字符串或图片时，因为需要加载字体或图片，字库Alibaba-PuHuiTi-Heavy.ttf或图片默认存放在/data/font/目录，因此需要在depends中确保littlefs组件已经加入。烧录程序时除烧录demo image外，还需要通过以下命令烧录文件系统。
 ```sh
 aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
 ```

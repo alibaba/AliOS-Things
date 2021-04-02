@@ -11,16 +11,14 @@
 extern "C" {
 #endif
 
-typedef AIModelCBFunc ucloud_ai_cb_t;
-typedef AIModelResultStruct ucloud_ai_result_t;
 
 
 #define FACE1_IMAGE "/data/ucloud_ai_image/face1.png"
 #define FACE2_IMAGE "/data/ucloud_ai_image/face2.png"
-#define ANIME_IMAGE "/data/ucloud_ai_image/anime.png"
+#define ANIME_IMAGE "/data/ucloud_ai_image/expression.jpg"
 #define EXPRESSION_IMAGE "/data/ucloud_ai_image/expression.jpg"
 #define OBJECT_IMAGE "/data/ucloud_ai_image/object.jpg"
-#define MAINBODY_IMAGE "/data/ucloud_ai_image/mainbody.jpg"
+#define MAINBODY_IMAGE "/data/ucloud_ai_image/face1.png"
 #define CARD_FACE_IMAGE "/data/ucloud_ai_image/card_face.jpg"
 #define CARD_BACK_IMAGE "/data/ucloud_ai_image/card_back.jpg"
 #define BANK_CARD_IMAGE "/data/ucloud_ai_image/bank_card.jpg"
@@ -28,11 +26,14 @@ typedef AIModelResultStruct ucloud_ai_result_t;
 #define RUBBISH_IMAGE "/data/ucloud_ai_image/rubbish.jpg"
 #define FRUITS_IMAGE "/data/ucloud_ai_image/fruits.jpg"
 #define PERSON_ORG_IMAGE "/data/ucloud_ai_image/person_org.jpg"
-#define STYLE_IMAGE "/data/ucloud_ai_image/extend_style.jpg"
+#define STYLE_IMAGE "/data/ucloud_ai_image/person_org.jpg"
 
 // imageenhan style url
-#define IMAGEENHAN_ERASE_PERSON_USERMASK_URL "http://public-vigen-video.oss-cn-shanghai.aliyuncs.com/xianhui.lxh/tmp/remove_person/inpainting_test_images/img19_mask.png"
+#define IMAGEENHAN_ERASE_PERSON_USERMASK_URL "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/imageenhan/ErasePerson/ErasePerson6.jpg"
 #define IMAGEENHAN_EXTEND_IMAGE_STYLE_URL "http://ivpd-demo.oss-cn-shanghai.aliyuncs.com/ivpd-demo/images/ExtendImageStyle/styleUrl.jpeg"
+
+typedef AIModelCBFunc ucloud_ai_cb_t;
+typedef AIModelResultStruct ucloud_ai_result_t;
 
 typedef enum _ucloud_ai_model_t {
     UCLOUD_AI_MODEL_COMPARING_FACEBODY, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.59.bc2e797dbbIyZQ&tagName=facebody&children=CompareFace
@@ -85,12 +86,46 @@ void ucloud_ai_set_oss_endpoint(char *endpoint);
 /**
  * Upload file to oss bucket.
  *
- * @param[in]  endpoint    oss endpoint.
+ * @param[in]  path    local file path.
  *
-* @return oss url result.
+ * @return oss url result.
  */
 uint8_t *ucloud_ai_upload_file(char *path);
 
+/**
+ * Initialize ucloud ai.
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int32_t ucloud_ai_init(void);
+
+/**
+ * Uninitialize ucloud ai.
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int32_t ucloud_ai_uninit(void);
+
+/**
+ * Connect to url server.
+ *
+ * @param[in]  url  url address.
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int32_t ucloud_ai_connect(char *url);
+
+/**
+ * Disconnect to url server.
+ *
+ */
+void ucloud_ai_disconnect(void);
+
+/**
+ * Get stream by url address.
+ *
+ */
+int32_t ucloud_ai_get_stream(char *url, char **stream);
 /**
  * @}
  */

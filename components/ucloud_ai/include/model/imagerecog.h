@@ -24,11 +24,9 @@ typedef struct _DetectFruitsStruct {
     RectStruct box;
 } DetectFruitsStruct;
 
-typedef struct _ImageRecogResultStruct {
-    union {
-        ClassifyingRubbishStruct rubbish;
-        DetectFruitsStruct fruits;
-    };
+typedef union _ImageRecogResultStruct {
+    ClassifyingRubbishStruct rubbish;
+    DetectFruitsStruct fruits;
 } ImageRecogResultStruct;
 
 int classifyingRubbish(char *url, AIModelCBFunc cb);

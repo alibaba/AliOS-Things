@@ -267,7 +267,6 @@ static int menu_task_start(MENU_TYP *pMenu)
 
 static int menu_task_exit(MENU_TYP *pMenu)
 {
-    printf("menu_task_exit %d", (int)pMenu);
     if (pMenu == NULL) {
         printf("pMenu null in %s:%d\n", __func__, __LINE__);
         return -1;

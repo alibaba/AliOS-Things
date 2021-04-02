@@ -10,17 +10,24 @@
 #endif
 
 #define TAG "aiagent_example"
+#define LOG printf
 
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
 static int facebody_compare_callback(ai_result_t *result)
 {
     float confidence;
-
+    int x, y, w, h;
     if (!result)
         return -1;
 
+    confidence = result->facebody.face.confidence;
+    x = result->facebody.face.location.x;
+    y = result->facebody.face.location.y;
+    w = result->facebody.face.location.w;
+    h = result->facebody.face.location.h;
     LOG("Facebody comparing result:\n");
     LOG("confidence: %.1f\n", confidence);
+    LOG("location at x: %d, y: %d, w: %d, h: %d\n", x, y, w, h);
 
     return 0;
 }
@@ -28,7 +35,7 @@ static int facebody_compare_callback(ai_result_t *result)
 static int recognize_expression_callback(ai_result_t *result)
 {
     int len;
-    char *expression, *p_expression;
+    char *expression = NULL;
     float face_probability;
 
     if (!result)
@@ -37,19 +44,11 @@ static int recognize_expression_callback(ai_result_t *result)
     expression = result->facebody.expression.expression;
     face_probability = result->facebody.expression.probability;
 
-    if (!expression)
+    if (!expression && strlen(expression) > 0)
         return -1;
-
-    p_expression = strdup(expression);
-    if (!p_expression) {
-        LOGE(TAG, "p_expression strdup fail\n");
-        return -1;
-    }
 
     LOG("Recognize expression result:\n");
-    LOG("type: %s, probability: %.1f\n", p_expression, face_probability);
-    free(p_expression);
-    p_expression = NULL;
+    LOG("type: %s, probability: %.1f\n", expression, face_probability);
 
     return 0;
 }
@@ -62,10 +61,12 @@ static int generate_human_anime_styple_callback(ai_result_t *result)
     if (!result)
         return -1;
 
-    url = result->facebody.anime.url;
     LOG("Generate human anime style result:\n");
-    LOG("url: %s\n", url);
+    url = result->facebody.anime.url;
+    if (!url && strlen(url) > 0)
+        return -1;
 
+    LOG("url: %s\n", url);
     return ret;
 }
 #endif
@@ -74,7 +75,6 @@ static int generate_human_anime_styple_callback(ai_result_t *result)
 static int detect_object_callback(ai_result_t *result)
 {
     int len = 0;
-    char *p_type = NULL;
     int x, y, w, h;
     char *type = NULL;
     float score;
@@ -82,6 +82,7 @@ static int detect_object_callback(ai_result_t *result)
     if (!result)
         return -1;
 
+    LOG("Detect object result:\n");
     type = result->objectdet.object.type;
     score = result->objectdet.object.score;
     x = result->objectdet.object.box.x;
@@ -93,16 +94,8 @@ static int detect_object_callback(ai_result_t *result)
         LOGE(TAG, "type is null\n");
         return -1;
     }
-    p_type = strdup(type);
-    if (!p_type) {
-        LOGE(TAG, "p_type strdup fail\n");
-        return -1;
-    }
 
-    LOG("Detect object result:\n");
-    LOG("type: %s, Score: %.1f, x: %d, y: %d, w: %d, h: %d\n", p_type, score, x, y, w, h);
-    free(p_type);
-    p_type = NULL;
+    LOG("type: %s, Score: %.1f, x: %d, y: %d, w: %d, h: %d\n", type, score, x, y, w, h);
 
     return 0;
 }
@@ -130,12 +123,17 @@ static int detect_main_body_callback(ai_result_t *result)
 static int segment_common_image_callback(ai_result_t *result)
 {
     int ret;
-
+    char *url = NULL;
+    int x, y, w, h;
     if (!result)
         return -1;
 
     LOG("Segment common image result:\n");
-    LOG("url: %s\n", result->imageseg.common.url);
+    url = result->imageseg.common.url;
+    if (!url && strlen(url) > 0)
+        return -1;
+
+    LOG("url: %s\n", url);
 
     return 0;
 }
@@ -145,22 +143,23 @@ static int segment_face_callback(ai_result_t *result)
     int ret;
     int image_len = 0;
     int x, y, w, h;
-    int index;
     char *url = NULL;
     char path[32] = {0};
 
     if (!result)
         return -1;
 
-    index = result->imageseg.face.index;
+    LOG("Segment face result:\n");
     url = result->imageseg.face.url;
     x = result->imageseg.face.location.x;
     y = result->imageseg.face.location.y;
     w = result->imageseg.face.location.w;
     h = result->imageseg.face.location.h;
 
-    LOG("Segment face result:\n");
-    LOG("face %d image url: %s locating at  x: %d, y: %d, w: %d, h: %d\n", index, url, x, y, w, h);
+    if (!url && strlen(url) > 0)
+        return -1;
+    LOG("image url: %s\n", url);
+    LOG("location at x: %d, y: %d, w: %d, h: %d\n", x, y, w, h);
 
     return 0;
 }
@@ -339,6 +338,8 @@ static int imagerecog_classifying_rubbish_callback(ai_result_t *result)
         LOG("category: %s\n", category);
         LOG("category score: %.1f\n", category_score);
     }
+
+    return 0;
 }
 
 static int imagerecog_detect_fruits_callback(ai_result_t *result)
@@ -364,6 +365,8 @@ static int imagerecog_detect_fruits_callback(ai_result_t *result)
         LOG("fruit score: %.1f\n", score);
         LOG("fruit location: x: %d, y: %d, w: %d, h: %d\n", x, y, w, h);
     }
+
+    return 0;
 }
 #endif
 
@@ -376,7 +379,7 @@ static int imageenhan_erase_person_callback(ai_result_t *result)
     if (!result)
         return -1;
 
-    LOG("Recognize fruits result:\n");
+    LOG("Erase person result:\n");
     url = result->imageenhan.person.url;
     LOG("url: %s\n", url);
 
@@ -390,15 +393,22 @@ static int imageenhan_extend_image_style_callback(ai_result_t *result)
     int out_image_len = 0;
     char *major_url = NULL;
     char *out_image_url = NULL;
+    char *p_major_url = NULL;
+    char *p_out_image_url = NULL;
 
     if (!result)
         return -1;
 
-    LOG("Extend image style result:\n");
     major_url = result->imageenhan.style.majorUrl;
     out_image_url = result->imageenhan.style.outImageUrl;
-    LOG("major url: %s\n", major_url);
-    LOG("out image url: %s\n", out_image_url);
+
+    LOG("Extend image style result:\n");
+    if (major_url && strlen(major_url) > 0) {
+        LOG("major url: %s\n", major_url);
+    }
+    if (out_image_url && strlen(out_image_url) > 0) {
+        LOG("out image url: %s\n", out_image_url);
+    }
 
     return 0;
 }
@@ -413,7 +423,7 @@ static void aiagent_comp_example(int argc, char **argv)
     char *image2 = NULL;
     ai_engine_cb_t cb;
 
-    if (argc < 3) {
+    if (argc < 4) {
         LOG("Please test with command: aiagent_example -m [0~14]\n");
         return;
     }
@@ -429,7 +439,7 @@ static void aiagent_comp_example(int argc, char **argv)
     }
 
     if (!strncmp(argv[3], "-m", 2)) {
-        model_index = atoi(argv[3]);
+        model_index = atoi(argv[4]);
         if (model_index < 0 && model_index > 14) {
             LOGE(TAG, "range of model value is 0 ~ 14, please try again\n");
             return;
@@ -450,82 +460,88 @@ static void aiagent_comp_example(int argc, char **argv)
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
         case AI_MODEL_COMPARING_FACEBODY:
             cb = facebody_compare_callback;
-            image1 = "/data/image/face1.png";
-            image2 = "/data/image/face2.png";
+            image1 = FACE1_IMAGE;
+            image2 = FACE2_IMAGE;
             break;
         case AI_MODEL_GENERATE_HUMAN_ANIME_STYLE:
-            cb = recognize_expression_callback;
-            image1 = "/data/image/expression.jpg";
+            cb = generate_human_anime_styple_callback;
+            image1 = ANIME_IMAGE;
             image2 = NULL;
+            break;
+        case AI_MODEL_RECOGNIZE_EXPRESSION:
+            cb = recognize_expression_callback;
+            image1 = EXPRESSION_IMAGE;
+            image2 = NULL;
+            break;
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_OBJECTDET_ENABLE
         case AI_MODEL_DETECT_OBJECT:
             cb = detect_object_callback;
-            image1 = "/data/image/object.jpg";
+            image1 = OBJECT_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_DETECT_MAIN_BODY:
             cb = detect_main_body_callback;
-            image1 = "/data/image/mainbody.jpg";
+            image1 = MAINBODY_IMAGE;
             image2 = NULL;
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGESEG_ENABLE
         case AI_MODEL_SEGMENT_COMMON_IMAGE:
             cb = segment_common_image_callback;
-            image1 = "/data/image/mainbody.jpg";
+            image1 = MAINBODY_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_SEGMENT_FACE:
             cb = segment_face_callback;
-            image1 = "/data/image/face1.jpg";
+            image1 = FACE1_IMAGE;
             image2 = NULL;
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_OCR_ENABLE
         case AI_MODEL_RECOGNIZE_IDENTITY_CARD_FACE_SIDE:
             cb = recognize_identity_card_face_side_callback;
-            image1 = "/data/image/card_face.jpg";
+            image1 = CARD_FACE_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_RECOGNIZE_IDENTITY_CARD_BACK_SIDE:
             cb = recognize_identity_card_back_side_callback;
-            image1 = "/data/image/card_back.jpg";
+            image1 = CARD_BACK_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_RECOGNIZE_BANK_CARD:
             cb = recognize_bank_card_callback;
-            image1 = "/data/image/bank_card.jpg";
+            image1 = BANK_CARD_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_RECOGNIZE_CHARACTER:
             cb = recognize_character_callback;
-            image1 = "/data/image/character.jpg";
+            image1 = CHARACTER_IMAGE;
             image2 = NULL;
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGERECOG_ENABLE
         case AI_MODEL_CLASSIFYING_RUBBISH:
             cb = imagerecog_classifying_rubbish_callback;
-            image1 = "/data/image/rubbish.jpg";
+            image1 = RUBBISH_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_DETECT_FRUITS:
             cb = imagerecog_detect_fruits_callback;
-            image1 = "/data/image/fruits.jpg";
+            image1 = FRUITS_IMAGE;
             image2 = NULL;
             break;
 #endif
 #ifdef CONFIG_ALICLOUD_IMAGEENHAN_ENABLE
         case AI_MODEL_ERASE_PERSON:
             cb = imageenhan_erase_person_callback;
-            image1 = "/data/image/person_org.jpg";
+            image1 = PERSON_ORG_IMAGE;
             image2 = NULL;
             break;
         case AI_MODEL_EXTEND_IMAGE_STYLE:
             cb = imageenhan_extend_image_style_callback;
-            image1 = "/data/image/extend_style.jpg";
+            image1 = STYLE_IMAGE;
             image2 = NULL;
             break;
 #endif

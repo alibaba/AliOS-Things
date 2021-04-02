@@ -19,8 +19,14 @@ void ucloud_ai_facebody_comparing_face(char *path, char *myface, ucloud_ai_cb_t 
     if (!p_upload_url)
         return;
 
-    /*my face picture*/
-    p_myface_url = myface;
+    if (myface) {
+        /*my face picture*/
+        p_myface_url = ucloud_ai_upload_file(myface);
+        if (!p_myface_url)
+            return;
+    } else {
+        p_myface_url = MYFACE_PATH;
+    }
 
     /*do facebody detection*/
     compareFace(p_upload_url, p_myface_url, cb);
