@@ -29,12 +29,10 @@ typedef struct _GenerateHumanAnimeStyleStruct {
 } GenerateHumanAnimeStyleStruct;
 
 
-typedef struct _FacebodyResultStruct {
-    union {
-        ComparingFaceStruct face;
-        RecognizeExpressionStruct expression;
-        GenerateHumanAnimeStyleStruct anime;
-    };
+typedef union _FacebodyResultStruct {
+    ComparingFaceStruct face;
+    RecognizeExpressionStruct expression;
+    GenerateHumanAnimeStyleStruct anime;
 } FacebodyResultStruct;
 
 int compareFace(char *urlA, char *urlB, AIModelCBFunc cb);

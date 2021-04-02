@@ -55,7 +55,7 @@
  *
  * @return  0 on success, negative error on failure.
  */
-int ugraphics_init(int width, int height);
+int32_t ugraphics_init(int32_t width, int32_t height);
 
 /**
  * load ttf font file.
@@ -65,7 +65,7 @@ int ugraphics_init(int width, int height);
  *
  * @return  0 on success, negative error on failure.
  */
-int ugraphics_load_font(const char *filename, int size);
+int32_t ugraphics_load_font(const char *filename, int32_t size);
 
 /**
  * load ttf font file.
@@ -74,7 +74,7 @@ int ugraphics_load_font(const char *filename, int size);
  *                    Refer to SDL_ttf.h: TTF_STYLE_NORMAL/TTF_STYLE_BOLD...
  *
  */
-void ugraphics_set_font_style(int style);
+void ugraphics_set_font_style(int32_t style);
 
 /**
  * Release graphics all resources.
@@ -92,15 +92,16 @@ void ugraphics_flip(void);
  * Clear graphics on window.
  *
  */
-void ugraphics_clear(void);
+int32_t ugraphics_clear(void);
 
 /**
  * Set graphics default color.
  *
  * @param[in]  color  grapchic color.
  *
+* @return  0 on success, negative error on failure.
  */
-void ugraphics_set_color(unsigned int color);
+int32_t ugraphics_set_color(uint32_t color);
 
 /**
  * Draw empty rectangle to the window.
@@ -109,8 +110,10 @@ void ugraphics_set_color(unsigned int color);
  * @param[in]  y  grapchic y location on window.
  * @param[in]  w  grapchic width on window.
  * @param[in]  h  grapchic height on window.
+ *
+ * @return  0 on success, negative error on failure.
  */
-void ugraphics_draw_rect(int x, int y, int w, int h);
+int32_t ugraphics_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h);
 
 /**
  * Fill full rectangle to the window.
@@ -119,8 +122,10 @@ void ugraphics_draw_rect(int x, int y, int w, int h);
  * @param[in]  y  grapchic y location on window.
  * @param[in]  w  grapchic width on window.
  * @param[in]  h  grapchic height on window.
+ *
+ * @return  0 on success, negative error on failure.
  */
-void ugraphics_fill_rect(int x, int y, int w, int h);
+int32_t ugraphics_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h);
 
 /**
  * Draw line on window.
@@ -129,8 +134,10 @@ void ugraphics_fill_rect(int x, int y, int w, int h);
  * @param[in]  y1  line y1 start position.
  * @param[in]  x2  line x2 end position.
  * @param[in]  y2  line y2 end position.
+ *
+ * @return  0 on success, negative error on failure.
  */
-void ugraphics_draw_line(int x1, int y1, int x2, int y2);
+int32_t ugraphics_draw_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 /**
  * Draw string on window.
@@ -141,7 +148,7 @@ void ugraphics_draw_line(int x1, int y1, int x2, int y2);
  *
  * @return  0 on success, negative error on failure.
  */
-void ugraphics_draw_string(char *string, int x, int y);
+int32_t ugraphics_draw_string(char *string, int32_t x, int32_t y);
 
 /**
  * Count string width.
@@ -150,7 +157,7 @@ void ugraphics_draw_string(char *string, int x, int y);
  *
  * @return  0 on success, negative error on failure.
  */
-int ugraphics_string_width(char *string);
+int32_t ugraphics_string_width(char *string);
 
 /**
  * Save image graphic buffer to a image file.
@@ -160,7 +167,7 @@ int ugraphics_string_width(char *string);
  *
  * @return  0 on success, negative error on failure.
  */
-int ugraphics_save_image(char *buffer, int32_t len, const char *path);
+int32_t ugraphics_save_image(char *buffer, int32_t len, const char *path);
 
 /**
  * Release graphics all resources.
@@ -171,7 +178,7 @@ int ugraphics_save_image(char *buffer, int32_t len, const char *path);
  *
  * @return  0 on success, negative error on failure.
  */
-int ugraphics_draw_image(const char *file, int x, int y);
+int32_t ugraphics_draw_image(const char *file, int32_t x, int32_t y);
 
 /**
  * @}

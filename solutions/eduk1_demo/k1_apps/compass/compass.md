@@ -55,8 +55,6 @@ I2C设备的读地址 = (I2C设备地址 << 1) + 1 = 0x1B
 这也符合在 (DataSheet P14 I2C R/W Operation) 中给出的结论。
 如果我们需要为了QMC5883L初始化I2C接口，那么对应的代码为：
 ```c
-// components\peripherals\sensor\drv\drv_mag_honeywell_qmc5883l.c
-
 static i2c_dev_t i2c_dev;
 
 i2c_dev.port                 = 1;								// HaaS EDK 默认使用I2C 1

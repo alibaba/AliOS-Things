@@ -51,6 +51,7 @@ source_file:
 > helloworld_demo组件的application_start中添加代码
 ```sh
     /*init network service*/
+    event_service_init(NULL);
     netmgr_service_init(NULL);
 ```
 
@@ -70,12 +71,12 @@ source_file:
 1. 创建Bucket时地域选择“上海”
 2. 读写权限选择“公共读”
 ```
-## aiconfig.h中配置OSS信息
+## ucloud_ai/package.yaml中配置OSS信息
 ```sh
-OSS_ACCESS_KEY "<Your-Access-Key>"
-OSS_ACCESS_SECRET "<Your-Access-Secret>"
-OSS_ENDPOINT "oss-cn-shanghai.aliyuncs.com"
-OSS_BUCKET "Your-OSS-Bucket"
+OSS_ACCESS_KEY: "Your-Access-Key"
+OSS_ACCESS_SECRET: "Your-Access-Secret"
+OSS_ENDPOINT: "Your-OSS-Endpoint"
+OSS_BUCKET: "Your-OSS-Bucket"
 
 KEY以及SECRET获取链接: https://usercenter.console.aliyun.com/#/accesskey
 ENDPOINT使用默认即可，BUCKET请使用你创建好的Bucket名称
@@ -85,8 +86,9 @@ ENDPOINT使用默认即可，BUCKET请使用你创建好的Bucket名称
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - ai_agent: dev_aos # helloworld_demo中引入ai_agent组件
-  - netmgr: dev_aos # helloworld_demo中引入netmgr组件
+  - ai_agent: dev_aos   # helloworld_demo中引入ai_agent组件
+  - netmgr: dev_aos     # helloworld_demo中引入netmgr组件
+  - littlefs: dev_aos   # helloworld_demo中引入littlefs组件
 ```
 
 ## 编译
@@ -106,152 +108,241 @@ aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 0  # 人脸比对
+aiagent -e ucloud-ai -m 0  # 人脸比对
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Facebody comparing result:
+confidence: 84.6
+location at x: 159, y: 76, w: 143, h: 194
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 1  # 人物动漫化
+aiagent -e ucloud-ai -m 1  # 人物动漫化
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Generate human anime style result:
+url: http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/4F10FBB8-19DC-476B-A51D-458CD180A24F_07f2_20210331-142711.jpg?Expires=1617202631&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=YCLva1stK27Cn657nMeYhgFt7h4%3D
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 2  # 表情识别
+aiagent -e ucloud-ai -m 2  # 表情识别
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize expression result:
+type: anger, probability: 1.0
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 3  # 目标检测
+aiagent -e ucloud-ai -m 3  # 目标检测
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Detect object result:
+type: potted plant, Score: 0.4, x: 35, y: 274, w: 185, h: 443
+Detect object result:
+type: potted plant, Score: 0.5, x: 663, y: 121, w: 847, h: 457
+Detect object result:
+type: monitor, Score: 0.6, x: 250, y: 43, w: 670, h: 439
+Detect object result:
+type: keyboard, Score: 0.5, x: 239, y: 435, w: 489, h: 485
+Detect object result:
+type: keyboard, Score: 0.3, x: 241, y: 428, w: 639, h: 506
+Detect object result:
+type: mouse, Score: 0.2, x: 660, y: 479, w: 750, h: 528
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 4  # 主体检测
+aiagent -e ucloud-ai -m 4  # 主体检测
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Detect main body result:
+main body location x: 1, y: 31, w: 461, h: 528
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 5  # 通用分割
+aiagent -e ucloud-ai -m 5  # 通用分割
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Segment common image result:
+url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016172056326493133388_avpTpm.jpg?Expires=1617207432&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=WREOAoBUIvpLSyygGxKPfi82HfI%3D
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 6  # 面部分割
+aiagent -e ucloud-ai -m 6  # 面部分割
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Segment face result:
+image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_HeadSegmenter/2021-3-31/invi_HeadSegmenter_016172056422754285967296_yRhj6C.png?Expires=1617207442&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=wR7GUxqrrwRF9u3mCJ%2BNDhAPCzk%3D
+location at x: 153, y: 66, w: 160, h: 209
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 7  # 身份证证明识别
+aiagent -e ucloud-ai -m 7  # 身份证证明识别
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize identity card face side result:
+address: 江苏省南京市浦口区天天小区1栋11号
+nationality: 汉
+card location: x0: 1126563840, y0: 1126563840
+card location: x1: 0, y1: 0
+card location: x2: 0, y2: 0
+card location: x3: 0, y3: 0
+face location: x0: 1126563840, y0: 1126563840
+face location: x1: 0, y1: 0
+face location: x2: 0, y2: 0
+face location: x3: 0, y3: 0
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 8  # 身份证反面识别
+aiagent -e ucloud-ai -m 8  # 身份证反面识别
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize identity card back side result:
+start date: 20131010
+issue: 杭州市公安局余杭分局
+end date: 20231010
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 9  # 银行卡识别
+aiagent -e ucloud-ai -m 9  # 银行卡识别
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+bankName: 中国工商银行
+cardNumber: 6212262315007683105
+validDate: 07/26
+Recognize bank card result:
+bank name: 中国工商银行
+card number: 6212262315007683105
+valid date: 07/26
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 10  # 文本识别
+aiagent -e ucloud-ai -m 10  # 文本识别
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize character result:
+text: 《爆炸新闻》
+probability: 1.0
+text area: left: 141, top: 442, weight: 89, height: 20
+Recognize character result:
+text: 19
+probability: 1.0
+text area: left: 115, top: 173, weight: 100, height: 109
+Recognize character result:
+text: 豆瓣评分7.1
+probability: 0.9
+text area: left: 168, top: 447, weight: 98, height: 18
+Recognize character result:
+text: 2019||美国|加拿大|剧情|传记
+probability: 0.5
+text area: left: 181, top: 450, weight: 241, height: 17
+Recognize character result:
+text: 杰伊·罗奇 导演
+probability: 0.9
+text area: left: 216, top: 454, weight: 112, height: 18
+Recognize character result:
+text: 2021年2月星期五
+probability: 1.0
+text area: left: 231, top: 187, weight: 150, height: 18
+Recognize character result:
+text: 农历正月初八
+probability: 1.0
+text area: left: 261, top: 193, weight: 104, height: 18
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 11  # 垃圾分类
+aiagent -e ucloud-ai -m 11  # 垃圾分类
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize rubbish result:
+rubbish: 塑料饮料瓶
+rubbish score: 1.0
+category: 可回收垃圾
+category score: 1.0
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 12  # 水果检测
+aiagent -e ucloud-ai -m 12  # 水果检测
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Recognize fruits result:
+fruit name: 橙子
+fruit score: 0.8
+fruit location: x: 214, y: 44, w: 509, h: 438
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 13  # 图像人体擦除
+aiagent -e ucloud-ai -m 13  # 图像人体擦除
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Erase person result:
+url: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_15%3A34%3A17.959810_person_org.jpg?Expires=1617206658&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=jFwwnSYOw2fXev1%2Fm5az4JBa%2B5Q%3D
+aiagent comp test success!
 ```
 
 ### CLI命令行输入：
 ```sh
-aiagent -m 14  # 风格迁移
+aiagent -e ucloud-ai -m 14  # 风格迁移
 ```
 
 > CLI关键日志：
 ```sh
-TODO
+Extend image style result:
+out image url: http://viapi-cn-shanghai-dha-filter.oss-cn-shanghai.aliyuncs.com/upload/result_/2021-3-31/invi__016172056608421021961_1mdK2W.jpg?Expires=1617207460&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=3t8Q%2BwTAo6Lib9utaoMrWUJX6Iw%3D
+aiagent comp test success!
 ```
 
 # 注意事项
@@ -260,3 +351,18 @@ NA
 # FAQ
 NA
 
+如果遇到：
+> error code: InvalidAction.NotFound
+请确认Endpoint是否设置正确
+
+> error code: InvalidApi.NotPurchase
+
+请确认是否在vision.aliyun.com开通相应功能
+
+> tlefs_vfs.c:677:error: lfs_vfs_open /data/ucloud_ai_image/object.jpg failed, ret - -2
+
+请确认是否有拷贝图片到hardware/chip/haas1000/prebuild/data/ucloud_ai_image目录。
+如果有，可能是文件系统存储空间不够，此时请执行：
+1. 在ucloud_ai/package.yaml中屏蔽prebuild_script: cp_resources.py；
+2. 删除ucloud_ai_image中其他文件，仅保留测试case使用的图片文件；
+3. 再重新编译烧录。

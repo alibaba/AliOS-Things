@@ -52,6 +52,7 @@ int compareFace(char *urlA, char *urlB, AIModelCBFunc cb)
         ret = cb((void *)&result);
     }
     ShutdownSdk();
+    cout << "facebody comparing done" << endl << endl;
     return ret;
 }
 
@@ -80,7 +81,7 @@ int recognizeExpression(char *url, AIModelCBFunc cb)
     cout << "error code: " << outcome.error().errorCode() << endl;
     cout << "requestId: " << outcome.result().requestId() << endl << endl;
 
-    // cout << "expression:" << outcome.result().getData().elements[0].expression << endl;
+    cout << "expression:" << outcome.result().getData().elements[0].expression << endl;
     cout << "face probablility:" << outcome.result().getData().elements[0].faceProbability << endl;
     cout << "x:" << outcome.result().getData().elements[0].faceRectangle.left << endl;
     cout << "y:" << outcome.result().getData().elements[0].faceRectangle.top << endl;
@@ -91,6 +92,7 @@ int recognizeExpression(char *url, AIModelCBFunc cb)
         expression = outcome.result().getData().elements[0].expression;
         if (!expression.empty()) {
             result.expression.expression = expression.c_str();
+            cout << "expression:" << outcome.result().getData().elements[0].expression << endl;
             result.expression.probability = outcome.result().getData().elements[0].faceProbability;
             result.expression.location.x = 20; // outcome.result().getData().elements[0].faceRectangle.left;
             result.expression.location.y = 20; // outcome.result().getData().elements[0].faceRectangle.top;
@@ -115,6 +117,8 @@ int generateHumanAnimeStyle(char *url, AIModelCBFunc cb)
     Model::GenerateHumanAnimeStyleRequest request;
     string tmpImageURL;
     FacebodyResultStruct result;
+    string outImageUrl;
+    int len;
     int ret = 0;
 
     tmpImageURL = url;
@@ -128,9 +132,13 @@ int generateHumanAnimeStyle(char *url, AIModelCBFunc cb)
     cout << "requestId: " << outcome.result().requestId() << endl << endl;
     cout << "image url:" << outcome.result().getData().imageURL << endl;
 
-    result.anime.url = outcome.result().getData().imageURL.c_str();
-    result.anime.imageLen = getResponseBodyByUrl(result.anime.url, &result.anime.image);
-    if (!result.anime.image && cb) {
+    outImageUrl = outcome.result().getData().imageURL;
+
+    if (outImageUrl.size() > 0) {
+        result.anime.url = outImageUrl.c_str();
+        result.anime.imageLen = getResponseBodyByUrl(result.anime.url, &result.anime.image);
+    }
+    if (result.anime.image && cb) {
         ret = cb((void *)&result);
     }
     ShutdownSdk();

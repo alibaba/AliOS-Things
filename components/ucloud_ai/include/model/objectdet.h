@@ -21,11 +21,9 @@ typedef struct _DetectMainBodyStruct {
     RectStruct location;
 } DetectMainBodyStruct;
 
-typedef struct _ObjectDetResultStruct {
-    union {
-        DetectObjectStruct object;
-        DetectMainBodyStruct mainbody;
-    };
+typedef union _ObjectDetResultStruct {
+    DetectObjectStruct object;
+    DetectMainBodyStruct mainbody;
 } ObjectDetResultStruct;
 
 int detectObject(char *url, AIModelCBFunc cb);

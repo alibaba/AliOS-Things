@@ -245,7 +245,7 @@ I2C采用多主从结构，I2C主设备基于地址对I2C从设备进行寻址�
 # 软件介绍
 HaaS EDU K1的edk_demo 应用程序中包含多个应用案例，所有的案例软件设计都遵循HaaS EDK应用架构的设计思想。其设计思想可以参考“HaaS EDK主系统框架”中的“添加新应用”小节的说明。 
 简单来说，所有的子应用页面都需要实现MENU_TYP结构体。
-光照信息屏应用代码位于:appliciation/example/edu_demo/k1_apps/light_meter/light_meter.c中。
+光照信息屏应用代码位于:solutions/eduk1_demo/k1_apps/lightmeter/lightmeter.c中。
 ```
 MENU_TYP lightmeter = {
     "lightmeter",
@@ -270,7 +270,7 @@ MENU_TYP lightmeter = {
 
 ## 代码实现
 ### 光照信息屏页面
-代码位置：appliciation/example/edu_demo/k1_apps/light_meter/light_meter.c
+代码位置：solutions/eduk1_demo/k1_apps/lightmeter/lightmeter.c
 详细代码及注释如下：
 ```
 #include <stdio.h>

@@ -16,11 +16,12 @@ int detectObject(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OBJECTDET_ENDPOINT);
     ObjectdetClient client(key, secret, configuration);
     Model::DetectObjectRequest request;
     string tmpImageURL;
     ObjectDetResultStruct result;
+    string type;
     int ret = 0;
     int objectNum, i;
 
@@ -46,8 +47,9 @@ int detectObject(char *url, AIModelCBFunc cb)
         cout << "object boxes.w:" << outcome.result().getData().elements[i].boxes[2] << endl;
         cout << "object boxes.h:" << outcome.result().getData().elements[i].boxes[3] << endl;
 
+        type = outcome.result().getData().elements[i].type;
+        result.object.type = type.c_str();
         result.object.score = outcome.result().getData().elements[i].score;
-        result.object.type = outcome.result().getData().elements[i].type.c_str();
         result.object.box.x = outcome.result().getData().elements[i].boxes[0];
         result.object.box.y = outcome.result().getData().elements[i].boxes[1];
         result.object.box.w = outcome.result().getData().elements[i].boxes[2];
@@ -67,7 +69,7 @@ int detectMainBody(char *url, AIModelCBFunc cb)
     string secret = getAccessSecret();
     ClientConfiguration configuration;
     configuration.setRegionId(CLOUD_AI_REGION_ID);
-    configuration.setEndpoint(CLOUD_AI_FACEBODY_ENDPOINT);
+    configuration.setEndpoint(CLOUD_AI_OBJECTDET_ENDPOINT);
     ObjectdetClient client(key, secret, configuration);
     Model::DetectMainBodyRequest request;
     string tmpImageURL;

@@ -176,8 +176,23 @@ ENDPOINT使用默认即可，BUCKET请使用你创建好的Bucket名称
 cd solutions/ucloud_ai_demo && aos make
 ```
 
-## 4.4 烧录固件
-参考具体板子的快速开始文档。
+## 资源文件打包
+> 编译完成后请确认目录hardware/chip/haas1000/prebuild/data/下有ai_demo_image、font两个目录。这些资源文件Demo在使用时会用到。
+
+>hardware/chip/haas1000/prebuild/data/目录下如有其他不使用的文件，建议删除后再进行编译，避免littlefs不够用导致无法访问的问题。
+
+## 烧录固件
+> 参考具体板子的快速开始文档。
+
+> ucloud_ai_demo bin烧录：
+```sh
+aos burn
+```
+
+> littlefs文件系统烧录：
+```sh
+aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
+```
 
 ## 4.5 网络连接
 因为HaaS开发板需要连接到云端，因此需要连接到一个可以上外网的路由器，WiFi摄像头(ESP32-EYE)也只能使用Station模式连接到同一台路由器。

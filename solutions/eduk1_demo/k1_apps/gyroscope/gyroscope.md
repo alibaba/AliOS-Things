@@ -132,7 +132,6 @@ uint8_t MPU_Init(void)
 #### void MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 读取三轴陀螺仪数据。由Register Map得知，只需要从GYRO_XOUTH向后依次读出6个寄存器内容即可。
 ```c
-// components/peripherals/sensor/drv/drv_acc_gyro_inv_mpu6050.c
 
 void MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 {

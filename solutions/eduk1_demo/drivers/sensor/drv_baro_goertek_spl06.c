@@ -24,13 +24,17 @@ static uint8_t i2c_eeprom_read_uint8_t(uint8_t deviceaddress, uint8_t eeaddress)
 
     sensor_i2c_master_send(SPL06_I2C_PORT, EEPROM_CHIP_ADDRESS, &eeaddress, 1, 1000);
     aos_msleep(2);
-    sensor_i2c_master_send(SPL06_I2C_PORT, EEPROM_CHIP_ADDRESS, &data, 1, 1000);
+    sensor_i2c_master_recv(SPL06_I2C_PORT, EEPROM_CHIP_ADDRESS, &data, 1, 1000);
 
     return data;
 }
 
 static double get_altitude(double pressure, double seaLevelhPa)
 {
+    if (seaLevelhPa == 0) {
+        return -1;
+    }
+
     double altitude;
 
     pressure /= 100;
@@ -51,35 +55,35 @@ static double get_temperature_scale_factor()
 
     switch (tmp_Byte) {
         case 0B000:
-            k = 524288.0d;
+            k = 524288.0;
             break;
 
         case 0B001:
-            k = 1572864.0d;
+            k = 1572864.0;
             break;
 
         case 0B010:
-            k = 3670016.0d;
+            k = 3670016.0;
             break;
 
         case 0B011:
-            k = 7864320.0d;
+            k = 7864320.0;
             break;
 
         case 0B100:
-            k = 253952.0d;
+            k = 253952.0;
             break;
 
         case 0B101:
-            k = 516096.0d;
+            k = 516096.0;
             break;
 
         case 0B110:
-            k = 1040384.0d;
+            k = 1040384.0;
             break;
 
         case 0B111:
-            k = 2088960.0d;
+            k = 2088960.0;
             break;
     }
     return k;
@@ -98,35 +102,35 @@ static double get_pressure_scale_factor()
     // oversampling rate
     switch (tmp_Byte) {
         case 0B000:
-            k = 524288.0d;
+            k = 524288.0;
             break;
 
         case 0B001:
-            k = 1572864.0d;
+            k = 1572864.0;
             break;
 
         case 0B010:
-            k = 3670016.0d;
+            k = 3670016.0;
             break;
 
         case 0B011:
-            k = 7864320.0d;
+            k = 7864320.0;
             break;
 
         case 0B100:
-            k = 253952.0d;
+            k = 253952.0;
             break;
 
         case 0B101:
-            k = 516096.0d;
+            k = 516096.0;
             break;
 
         case 0B110:
-            k = 1040384.0d;
+            k = 1040384.0;
             break;
 
         case 0B111:
-            k = 2088960.0d;
+            k = 2088960.0;
             break;
     }
     return k;
@@ -321,7 +325,7 @@ void spl06_init(void)
         printf("sensor i2c open failed, ret:%d\n", ret);
         return;
     }
-    aos_msleep(1000);
+    aos_msleep(500);
 
     // printf("\nDevice Reset\n");
     // i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X0C, 0b1001);

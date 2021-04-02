@@ -42,7 +42,7 @@ depends:
 build_config:
   include:
     - include
-  prebuild_script: cp_resources.py
+#  prebuild_script: cp_resources.py
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -61,7 +61,7 @@ source_file:
   - src/model/ocr.cc ? <CONFIG_ALICLOUD_OCR_ENABLE>
   - src/ucloud_ai_common.c
   - src/model/common.cc
-  - src/example/ucloud_ai_example.c
+#  - src/example/ucloud_ai_example.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

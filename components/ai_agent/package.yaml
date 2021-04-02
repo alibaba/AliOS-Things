@@ -47,7 +47,7 @@ build_config:
 source_file:
   - src/*.c
   - src/engine/*.c
-  - src/example/aiagent_example.c
+#  - src/example/aiagent_example.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

@@ -94,8 +94,11 @@ frame_buffer_t *wifi_camera_get_frame(ucamera_device_t *dev)
 
     do {
         ret = httpclient_recv(&wifi_camera_client, &wifi_camera_client_data);
-        if (ret < 0)
+        if (ret < 0) {
+            dev->stream_buf = NULL;
+            dev->stream_len = 0;
             break;
+        }
         dev->stream_buf = wifi_camera_client_data.response_buf;
         dev->stream_len = wifi_camera_client_data.response_content_len;
     } while (ret == HTTP_EAGAIN);

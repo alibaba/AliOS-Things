@@ -19,7 +19,7 @@ void ucloud_ai_imageseg_segment_face(char *path, ucloud_ai_cb_t cb)
         return;
 
     /*do face segment*/
-    segmentCommonImage(p_upload_url, cb);
+    segmentFace(p_upload_url, cb);
     free(p_upload_url);
 }
 
@@ -35,6 +35,6 @@ void ucloud_ai_imageseg_segment_common_image(char *path, ucloud_ai_cb_t cb)
         return;
 
     /*do common image segement*/
-    segmentFace(p_upload_url, cb);
+    segmentCommonImage(p_upload_url, cb);
     free(p_upload_url);
 }
