@@ -77,52 +77,20 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 
 # 使用示例
 solutions中提供了以下demo供用户选择使用：
-- link_sdk_demo 物模型单品用例
-- link_sdk_gateway_demo 物模型网关代理子设备上云用例
+- [link_sdk_demo 物模型单品用例](../../solutions/linksdk_demo/README.md)
+- [link_sdk_gateway_demo 物模型网关代理子设备上云用例](../../solutions/linksdk_demo/README.md)
 
-本文以link_solo_demo为例讲解快速接入。
 
-## 调试设备创建
-在https://iot.console.aliyun.com/创建自己的产品及设备。
-详细参考[本文](https://help.aliyun.com/document_detail/163756.html?spm=a2c4g.11186623.6.559.af29557f0aLXPC#title-hod-eo1-u22)。
-
-## 修改设备端三元组
-将上一步骤中创建的设备三元组信息填写到solutions/link_solo_demo/data_model_basic_demo.c的313-316行处：
+## 添加Link SDK功能模块
+默认仅使能能物模型及网关子设备功能。如需编译其他功能，请在package.yaml中包含对应的头文件路径及源码编译路径。如需使能动态注册：
 ```sh
-    /* TODO: 替换为自己设备的三元组 */
-    char *product_key       = "a18wPzZJzNG";
-    char *device_name       = "data_model_basic_demo";
-    char *device_secret     = "uwMTmVAMnGGHaAkqmeDY6cHxxBMTP3TD";
-```
-## 编译
-```sh
-cd solutions/link_solo_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make link_solo_demo@haas100 -c config
-```
+source_file:
+  - "components/dynreg/*.c"
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+include:
+  - components/dynreg
 
-## 示例测试
-> CLI命令行输入联网命令：
-```sh
-netmgr -t wifi -c ssid password
 ```
-注意：ssid和password需要替换成自己的路由的ssid及密码
-
-连上路由器后会自动连接到阿里云物联网平台。
-
-## 关键日志
-> CLI日志：
-```sh
-success to establish mbedtls connection, fd = 3(cost 0 bytes in total, max used 0 bytes)
-[104.526][LK-0313] MQTT connect success in 1908 ms
-AIOT_MQTTEVT_CONNECT
-```
-
 # FAQ
 
 常见问题可参考阿里云官网设备接入[常见问题](https://help.aliyun.com/document_detail/96598.html?spm=a2c4g.11186623.6.554.2042557fWpe2Ps)。

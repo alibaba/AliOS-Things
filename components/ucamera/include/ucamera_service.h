@@ -30,7 +30,7 @@ typedef struct _ucamera_context_t {
 extern ucamera_context_t wifi_camera;
 
 
-/** @defgroup ucamera_aos_api
+/** @defgroup ucamera_aos_api ucamera
  * @{
  */
 

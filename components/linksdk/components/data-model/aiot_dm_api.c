@@ -460,11 +460,15 @@ static void _dm_recv_generic_reply_handler(void *handle, const aiot_mqtt_recv_t 
             break;
         }
 
-        core_json_value((char *)msg->data.pub.payload, msg->data.pub.payload_len,
+        res = core_json_value((char *)msg->data.pub.payload, msg->data.pub.payload_len,
                         ALINK_JSON_KEY_MESSAGE, strlen(ALINK_JSON_KEY_MESSAGE),
                         &recv.data.generic_reply.message,
                         &recv.data.generic_reply.message_len);
 
+        if (res < 0) {
+            core_log(dm_handle->sysdep, SATAE_DM_LOG_PARSE_RECV_MSG_FAILED, "DM parse generic reply failed\r\n");
+            break;
+        }
         _append_diag_data(handle, DM_DIAG_MSG_TYPE_RSP, recv.data.generic_reply.msg_id);
         dm_handle->recv_handler(dm_handle, &recv, dm_handle->userdata);
     } while (0);

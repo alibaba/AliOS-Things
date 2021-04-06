@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/** @defgroup cli_aos_api
+/** @defgroup cli_aos_api cli
  * @{
  */
 

@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 
-/** @defgroup init_aos_api
+/** @defgroup init_aos_api init
  * @{
  */
 

@@ -5,7 +5,8 @@
 #ifndef __UVOICE_TEST_H__
 #define __UVOICE_TEST_H__
 
-/** @defgroup uvoice_test_api
+/** @defgroup uvoice_test_api uvoice_test
+ *  @ingroup uvoice_aos_api
  * @{
  */
 

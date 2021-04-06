@@ -30,7 +30,7 @@ mbedtls提供加解密算法（AES, RSA, MD5/SHA1/SHA256/SHA512 etc.），X.509�
 * osal_aos
 
 # 常用配置
-系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
+系统中相关配置已有默认值，如需修改配置，统一在platform/include/config_aos_base.h中修改，具体如下：
 > 使能加解密: 默认使能, 可修改yaml配置如：
 ```sh
 def_config:

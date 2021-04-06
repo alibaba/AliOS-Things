@@ -75,6 +75,8 @@ def_config:
 # 使用示例 -- Sensor hal 本地演示
 基于 Sensor Hal 接口获取传感器数据，并在本地进行打印，参考 example/sensor_local_demo.c
 
+> 注意: sensor 组件需配合传感器进行使用，haaseduk1 开发板有自带传感器，本示例基于 haaseduk1 自带的温湿度传感器 SI7006 进行演示。haas100 用户可自行外接传感器参考本示例进行验证。
+
 以运行 helloworld_demo 为例，具体步骤如下：
 
 ## 1. 选择要使用的开发板
@@ -127,6 +129,8 @@ Humidity value :
 
 # 使用示例 -- Sensor hal 连云演示
 基于 Sensor Hal 接口获取传感器数据，并通过 linkkit 上传到云端，参考 example/sensor_cloud_demo.c
+
+> 注意: sensor 组件需配合传感器进行使用，haaseduk1 开发板有自带传感器，本示例基于 haaseduk1 自带的温湿度传感器 SI7006 进行演示。haas100 用户可自行外接传感器参考本示例进行验证。
 
 以运行 linksdk_demo 为例，具体步骤如下：
 

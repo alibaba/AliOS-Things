@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/** @defgroup debug_aos_api
+/** @defgroup debug_aos_api debug
  * @{
  */
 

@@ -5,7 +5,8 @@
 #ifndef __UVOICE_EVENT_H__
 #define __UVOICE_EVENT_H__
 
-/** @defgroup uvoice_event_api
+/** @defgroup uvoice_event_api uvoice_event
+ *  @ingroup uvoice_aos_api
  * @{
  */
 

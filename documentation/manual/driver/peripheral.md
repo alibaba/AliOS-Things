@@ -2,13 +2,13 @@
 
 - 简介
 
-@subpage adc
-@subpage flash
-@subpage gpio
-@subpage i2c
-@subpage pwm
-@subpage pspi
-@subpage spi
-@subpage timer
-@subpage uart
-@subpage watchdog
+@subpage adc \n
+@subpage flash \n
+@subpage gpio \n
+@subpage i2c \n
+@subpage pwm \n
+@subpage pspi \n
+@subpage spi \n
+@subpage timer \n
+@subpage uart \n
+@subpage watchdog \n

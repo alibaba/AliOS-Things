@@ -42,9 +42,10 @@ int32_t core_global_alink_id_next(aiot_sysdep_portfile_t *sysdep, int32_t *alink
 
 int32_t core_global_set_mqtt_backup_ip(aiot_sysdep_portfile_t *sysdep, char ip[16])
 {
+    int cpy_len = strlen(ip) > 15 ? 15 : strlen(ip);
     sysdep->core_sysdep_mutex_lock(g_core_global.mutex);
     memset(g_core_global.mqtt_backup_ip, 0, 16);
-    memcpy(g_core_global.mqtt_backup_ip, ip, strlen(ip));
+    memcpy(g_core_global.mqtt_backup_ip, ip, cpy_len);
     sysdep->core_sysdep_mutex_unlock(g_core_global.mutex);
 
     return STATE_SUCCESS;
