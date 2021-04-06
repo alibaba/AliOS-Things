@@ -1,5 +1,5 @@
 @page eduk1_demo eduk1_demo
-## HaaS EDU场景式应用整体介绍
+### HaaS EDU场景式应用整体介绍
 
 HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于一身的嵌入式教育开发板，是学习物联网相关技术的最好载体。
 
@@ -7,14 +7,14 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 
 同时，为了帮助大家能更快地上手物联网相关场景的应用开发，HaaS EDU研发团队为大家精心打造了10大场景式应用打造案例，每一个都是不同的知识点，帮助大家来快速上手常见物联网开发技术的学习。
 
-### 1 HaaS EDU K1示例操作
+#### 1 HaaS EDU K1示例操作
 
 在开始代码编写之前，先学习官方提供固件中的示例操作是个不错的注意，可以先将案例体验一遍。
 
 首先，来看一下 HaaS EDU K1的菜单操作。
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01sBXp3g1pDM7IQjmpj_!!6000000005326-2-tps-2020-1320.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01sBXp3g1pDM7IQjmpj_!!6000000005326-2-tps-2020-1320.png" style="max-width:90%;" />
 </div>
 
 如上图所示，HaaS EDU K1 提供了：
@@ -30,12 +30,12 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 * K1+K2: 返回上一级菜单（如果存在）
 
 
-### 2 HaaS EDU K1 场景式案例介绍
+#### 2 HaaS EDU K1 场景式案例介绍
 
 基于HaaS EDU K1 硬件本体，在无须外接任何外设的情况下，官方提供了10个精心打造的场景式案例，每一个都是不同的知识点，先来一个10个案例的总览：
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN016xnKR61uj1a2Je2rT_!!6000000006072-2-tps-3678-1170.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN016xnKR61uj1a2Je2rT_!!6000000006072-2-tps-3678-1170.png" style="max-width:90%;" />
 </div>
 
 10大场景中包含了常见的物联网传感器、相应的操作案例、开源代码。寓教于乐，在边玩的过程中就能将知识点学习了。场景式案例包括：
@@ -54,7 +54,7 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 在每个案例对应的文件夹中有详细打造过程，同时，案例还在不断扩充当中。
 
 
-#### 2.1 首页系统信息屏
+##### 2.1 首页系统信息屏
 
 这是系统启动后的默认屏幕，包含了许多的知识点：
 
@@ -67,17 +67,17 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 电池电量获取
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01MhNElU1M8fCNezy7v_!!6000000001390-2-tps-1200-800.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01MhNElU1M8fCNezy7v_!!6000000001390-2-tps-1200-800.png" style="max-width:90%;" />
 </div>
 
 <!-- <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01MhNElU1M8fCNezy7v_!!6000000001390-2-tps-1200-800.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01MhNElU1M8fCNezy7v_!!6000000001390-2-tps-1200-800.png" style="max-width:90%;" />
 </div> -->
 
 通过本案例的学习，能完整学习到AliOS Things操作系统如何进行Wi-Fi连接，SNTP获取网络时间，电池电量是如何统计的 ，OLED显示操作等。通过完成本案例，开发者对于AliOS Things操作系统将能有比较全面的了解。
 
 
-#### 2.2 温湿度计
+##### 2.2 温湿度计
 
 在物联网场景中，温湿度监测是非常常见的场景，无论是在智能家居、智慧城市，还是智慧农业、智慧工业场景中，都有大量的采用。本案例中包含以下主要知识点：
 
@@ -86,13 +86,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - OLED绘图
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01qZ6L7Z1SxrAPcv9WY_!!6000000002314-2-tps-1200-800.png" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01qZ6L7Z1SxrAPcv9WY_!!6000000002314-2-tps-1200-800.png" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到AliOS Things中I2C通信、传感器数据读取OLED绘图显示等等操作。同时，还能扩展到Linkkit远程温湿度监控的案例打造，可以打造出属于你的家庭温湿度监控仪，蔬菜大棚，花卉养殖等温湿度远程监控仪，将技术应用到身边的实际场景中。
 
 
-#### 2.3 陀螺仪小球
+##### 2.3 陀螺仪小球
 
 说起陀螺仪，大家可能觉得陌生，但是说起每天走了多少步，运动模式监测，还有体感游戏等等，大家可能就比较熟悉了。是的，他们内部的技术都用到了陀螺仪小球。作为智能手机的标配，在HaaS EDU K1上也提供了陀螺仪传感器。本案例中包括以下主要知识点：
 
@@ -101,13 +101,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 基础算法实现小球随手摆动
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN019hMi8z1duc8ShPnTo_!!6000000003796-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN019hMi8z1duc8ShPnTo_!!6000000003796-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到陀螺仪的工作原理，AliOS Things中陀螺仪数据读取，基础算法调教等等操作。同时，您还可以基于陀螺仪的数据扩展出更多的算法，比如，用它来开发各种运动监测算法，打造出专属于你的运动监测器等等，将技术应用到身边的实际场景中。
 
 
-#### 2.4 分歧争端机
+##### 2.4 分歧争端机
 
 还记得风靡全国的“摇一摇”吗？摇红包，摇奖券。那么，摇一摇是怎么实现的呢？什么情况下才能判定是在“摇”呢？水平摇、垂直摇 还是 快摇、慢摇？别着急，HaaS EDU K1中提供的陀螺仪以及加速度计就可以完全地展示这个算法是如何打造出来的。本案例中包括以下主要知识点：
 
@@ -116,13 +116,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 抖动滤除算法
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN019OP4kF22I19ZudgVF_!!6000000007096-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN019OP4kF22I19ZudgVF_!!6000000007096-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到三轴加速度传感器的原理和使用，AliOS Things中加速度传感器的数据读取，算法开发等等操作。同时，您还可以基于加速度传感器和陀螺仪打造出更多有意思的场景，比如，用它来开发体感游戏手柄等等，将技术应用到身边的实际场景中。
 
 
-#### 2.5 电子罗盘
+##### 2.5 电子罗盘
 
 作为古代4大发明之一的指南针，在现代智能手机中表现为电子罗盘。为什么电子罗盘就能找得到北呢？它的工作原理是什么？HaaS EDU K1中自带了地磁传感器，可以手把手打造一个你专属的电子罗盘了。本案例中包括以下主要知识点：
 
@@ -131,13 +131,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - OLED绘图与动态刷新
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01yRJYEH1qpCSZuKNk3_!!6000000005544-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01yRJYEH1qpCSZuKNk3_!!6000000005544-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到地磁传感器的原理和使用，AliOS Things中地磁传感器的数据读取，算法开发，OLED动态绘图刷新等等操作。在户外实际场景中，您也可以完全了解电子罗盘的工作原理，寻路以及地图导航开发等也都可以用到。
 
 
-#### 2.6 光照信息屏
+##### 2.6 光照信息屏
 
 又是一个大家每天都会用到的功能，大家的手机屏幕是否也会在强光下自动调亮，在暗光下自动调暗。这个又是怎么实现的呢？周围光强是如何监测到，数值是怎么计算的呢？HaaS EDU K1中就自带了光照传感器，可以完全地进行光照强度的读取与显示。同时，它还带了一个接近传感器，当有物体比如手指靠近它的时候，不仅光强会变化，它还能读取到物体和它的距离哦。本案例中包括以下主要知识点：
 
@@ -146,13 +146,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 光强与接近简单算法
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01g7IwSJ1yinqwEItqK_!!6000000006613-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01g7IwSJ1yinqwEItqK_!!6000000006613-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到光照与接近传感器的原理和使用，AliOS Things中光照传感器的数据读取，算法开发，接近距离简单算法等等操作。同时，如果您的产品中也需要判断光照强度，比如太阳升起窗帘自动打开，就可以应用到本案例所讲的传感器与算法了。
 
 
-#### 2.7 大气压海拔仪
+##### 2.7 大气压海拔仪
 
 作为喜欢户外运动尤其是登山的同学，常备的运动手表中就能提供大气压海拔的信息。而当大气压变化剧烈，通常代表强对流天气来临的，比如夏天的暴雨等，来临前大家都会感觉到闷闷的。那么如何准确地测量大气压以及海拔呢？HaaS EDU K1中就包含了一个数字气压传感器，本案例中包括以下主要知识点：
 
@@ -162,13 +162,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - OLED绘图
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN016aH1g11EdnC4Gu5Og_!!6000000000375-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN016aH1g11EdnC4Gu5Og_!!6000000000375-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到大气压传感器的原理和使用，AliOS Things中气压传感器的数据读取，海拔算法开发，I2C操作与OLED绘图等等。基于本案例的技术，您可以打造出测量你所在地的海拔，在许多户外场景与产品中，您可以打造出你专属的设备了。
 
 
-#### 2.8 复古八音盒
+##### 2.8 复古八音盒
 
 八音盒是不少80，90后的童年回忆，送一张卡片给心仪的同学，打开的时候就能播放一个简单的旋律，感动了好多好多人。作为技术小哥，也想打造一个送给心仪的朋友，要学哪些技术呢？HaaS EDU K1中就包含了一个 蜂鸣器，可以完整的打造出一个八音盒。本案例中包括以下主要知识点：
 
@@ -177,13 +177,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 播放器开发
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01B8CEvh1kaBmdtwajB_!!6000000004699-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01B8CEvh1kaBmdtwajB_!!6000000004699-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到蜂鸣器的原理和使用，乐谱编码与开发，同时，也可以开发出你设备独特的提示铃音哦。可以打造出专属于你的创意设备了。
 
 
-#### 2.9 贪吃蛇
+##### 2.9 贪吃蛇
 
 开发累了，来了好玩的打发时间。经典的贪吃蛇游戏来了，作为功能机时代的标配游戏，承载了许多人的记忆。HaaS EDU K1 设计的这么好看，也提供了一个完整的贪吃蛇游戏的开发全过程。本案例中包括以下主要知识点：
 
@@ -192,13 +192,13 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 记分系统
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01pMnXKQ1eoUSHcZoof_!!6000000003918-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01pMnXKQ1eoUSHcZoof_!!6000000003918-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到小游戏的开发原理，实际游戏模式设计与开发，同时，您也可以在开发之余，玩玩自己亲手打造的小游戏，别有一番韵味哦。
 
 
-#### 2.10 飞机大战
+##### 2.10 飞机大战
 
 作为更为激烈一点的经典小游戏，飞机大战也是许多人的记忆。竖屏玩更好玩，那么自己要开发一个怎么做呢？自然可以，HaaS EDU K1的4个可编程按键是对称设计的，可以竖屏开发和把玩哦，是不是又解锁了一个新的玩法。本案例中包括以下主要知识点：
 
@@ -207,7 +207,7 @@ HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于�
 - 记分系统
 
 <div align=center>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01PuExAK1BsV3zJrGs5_!!6000000000001-1-tps-1200-800.gif" style="zoom:50%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01PuExAK1BsV3zJrGs5_!!6000000000001-1-tps-1200-800.gif" style="max-width:90%;" />
 </div>
 
 通过本案例的学习，能完整的学习到小游戏的开发原理，实际游戏模式设计与开发，横竖屏按键的适配，同时，您也可以在开发之余，玩玩自己亲手打造的小游戏，别有一番韵味哦。

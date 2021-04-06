@@ -84,7 +84,7 @@ aos make helloworld_demo@haas100 -c config
 
 > 参考具体板子的快速开始文档。
 
-## sntp示例测试
+## netmgr示例测试
 
 @include netmgr_example.c
 

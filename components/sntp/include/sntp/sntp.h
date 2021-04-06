@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-/** @defgroup sntp_api
+/** @defgroup sntp_api sntp
  * @{
  */
 

@@ -2,5 +2,5 @@
 
 - 简介
 
-@subpage external_device
-@subpage peripheral
+@subpage external_device \n
+@subpage peripheral \n

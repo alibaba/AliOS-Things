@@ -49,7 +49,9 @@ AliOS Things操作系统内核特性如下：
 ### 任务状态
 任务状态是反映当前系统中任务所处的状况，操作系统内核需要维护所有任务的当前状态。AliOS Things为了充分描述任务在系统中所处的状态以及引发状态迁移的条件差异，将任务状态分为就绪状态、挂起状态、休眠状态、阻塞状态、运行状态和删除状态。当任务通过aos_task_create()创建时，任务处于挂起状态，当任务通过aos_task_del()删除时，任务处于删除状态，具体的转化过程如下图：
 
-![任务状态迁移-AliOSThings.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616554722217-d2c5eac4-c5f6-4224-9fc9-e5eadcd01369.png#height=395&id=4O0qt&margin=%5Bobject%20Object%5D&name=%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81%E8%BF%81%E7%A7%BB-AliOSThings.png&originHeight=451&originWidth=684&originalType=binary&size=299647&status=done&style=none&width=599)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01LHAt211Dqmoi53SlY_!!6000000000268-2-tps-684-451.png" style="max-width:90%;"/>
+</div>
 
 （1）阻塞状态是指因等待资源而处于等待状态，如调用aos_mutex_lock()获取互斥量时互斥量已经被锁定、调用aos_queue_recv()获取队列数据时队列为空、调用aos_sem_wait()等待信号量时信号量计数为0、调用aos_evnet_get()获取事件时，事件还未发生；
 （2）挂起状态是因任务被其他或自身调用挂起函数aos_task_suspend()后，将无条件地停止运行，被挂起的任务只能通过其他任务调用恢复函数aos_task_resume()使其恢复到就绪状态；
@@ -142,7 +144,7 @@ def_config:
   RHINO_CONFIG_SCHED_CFS: 1
 ```
 ## API说明
-[@ref ](/ref ) aos_api_task
+参见：@ref aos_kernel_task
 ## 使用示例
 示例代码参考example/task_example.c，该示例使用任务管理函数来控制任务的执行状态，具体场景为任务2因等待某个信号量进入阻塞状态，而此时被任务1将其挂起，则任务2仍然是处于阻塞状态，如果在此过程中等到信号量，则任务2会解除阻塞进入挂起状态；如果未等到信号量，则任务2恢复状态后仍然处于阻塞状态。
 示例说明如下：
@@ -153,7 +155,9 @@ def_config:
 1. Task2在t3时刻因延迟到期得到运行，并调用aos_task_resume()将task2恢复，此时task2的状态为阻塞状态。之后task1通过调用aos_msleep()进入休眠状态。
 1. Task1在t4时刻因延迟到期得到运行，并调用aos_sem_signal()释放信号量，这时task2因等到信号量而进入就绪状态。待到task1再次进入休眠转改后task2得到运行，进入运行状态。
 
-![](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616744632080-c92e6681-5b82-467b-9474-230107e171ea.png#from=ui&height=230&id=cB4BF&margin=%5Bobject%20Object%5D&originHeight=291&originWidth=859&originalType=binary&size=279786&status=done&style=none&taskId=u78eadfcf-f0ba-48d3-8bce-f4ee949724d&width=678)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01WaKfUM1fXNGrOho4q_!!6000000004016-2-tps-859-291.png" style="max-width:90%;"/>
+</div>
 
 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -286,7 +290,7 @@ def_config:
   RHINO_CONFIG_TIME_SLICE_DEFAULT: 100
 ```
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_timer
+参见：@ref aos_kernel_timer
 ## 使用示例
 
 - 示例代码参考example/timer_example.c，该示例使用定时器管理函数来控制定时器的执行，具体场景为创建一个周期性定时器，定时调用回调函数执行，停止定时器该变定时器的时间参数，则定时器按照修改后的时间间隔定时调用回调函数执行。
@@ -296,7 +300,9 @@ def_config:
 1. tn时刻，测试任务休眠到期，调用aos_timer_stop()停止定时器。然后调用aos_timer_change()接口修改周期间隔为2秒。
 1. tn+1时刻，相对tn过去2秒，定时器到期，回调函数timer1_func被执行。该过程重复5次。
 
-![内核readme-定时器.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616588910140-4bbbef73-9403-4594-a4ab-0d030787178c.png#height=192&id=MsMCs&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E5%AE%9A%E6%97%B6%E5%99%A8.png&originHeight=192&originWidth=689&originalType=binary&size=34537&status=done&style=none&width=689)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01eCw5Hz1JIKiZdxYMI_!!6000000001005-2-tps-689-192.png"  style="max-width:90%;" />
+</div>
 
 - 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -368,7 +374,9 @@ AliOS Things内存管理采用类buddy伙伴算法，以及blk快速小内存申
 
 - buddy算法：
 
-![](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/72291/1616644539239-28cc3c84-0b5f-4306-a459-414b623bd7e3.png#from=paste&height=197&id=u92e93236&margin=%5Bobject%20Object%5D&originHeight=393&originWidth=841&originalType=binary&size=22481&status=done&style=none&taskId=u4e9b2b20-7bce-4d41-a7be-bfa3a197dae&width=420.5)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01N1qqmG1md3UkY5gRB_!!6000000004976-2-tps-841-393.png"  style="max-width:90%;" />
+</div>
 
 Buddy算法申请的内存最小为8字节对齐
 可申请的最大长度除了受堆空间总大小限制外还可通过编译宏配置
@@ -388,7 +396,9 @@ Buddy算法申请的内存最小为8字节对齐
 
 - blk小内存快速申请：
 
-![](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/72291/1616652512057-be2111fc-8018-4882-b994-c025dfb030c9.png#from=paste&height=239&id=uf6218865&margin=%5Bobject%20Object%5D&originHeight=477&originWidth=835&originalType=binary&size=32715&status=done&style=none&taskId=u226814a9-04eb-47e8-977c-3017591b1b9&width=417.5)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01mHjJZ11viOeeBd76S_!!6000000006206-2-tps-835-477.png"  style="max-width:90%;" />
+</div>
 
 blk小内存算法申请的内存最小为4字节对齐
 小于RHINO_CONFIG_MM_BLK_SIZE大小的内存块会优先从blk算法中申请不够的再从通过buddy申请
@@ -455,7 +465,7 @@ def_config:
 
 注: blk目前最大支持1K以下的小内存块如果需要调整可修改内部配置 MM_BLK_SLICE_BIT一般无需修改
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_memory
+参见：@ref aos_kernel_memory
 ## 使用示例
 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -541,7 +551,7 @@ def_config:
 
 
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_sem
+参见：@ref aos_kernel_sem
 ## 使用示例
 
 - 示例代码参考example/sem_example.c，该示例使用信号量实现多任务同步，具体场景为创建一个高优先级任务A，一个低优先级任务B，任务A和任务B同时等待同一信号量，此时测试任务T调用aos_sem_signal()释放信号量，任务A首先获得信号量，任务A操作完成后释放一次信号量，此时任务B获取信号量得到运行。
@@ -550,7 +560,9 @@ def_config:
 1. t1时刻，任务T调用aos_sem_signal()释放信号量，任务A获得信号量。
 1. t2时刻，任务A调用aos_sem_signal()释放信号量，任务B获得信号量。
 
-![信号量.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616566491274-051d66db-f7e1-4656-a5f9-89e34762e680.png#height=261&id=RHFAE&margin=%5Bobject%20Object%5D&name=%E4%BF%A1%E5%8F%B7%E9%87%8F.png&originHeight=261&originWidth=516&originalType=binary&size=31897&status=done&style=none&width=516)
+<div align=left display=flex>
+    <img src="hhttps://img.alicdn.com/imgextra/i3/O1CN01NW351a1hXUbVEKizH_!!6000000004287-2-tps-516-261.png"  style="max-width:90%;" />
+</div>
 
 - 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -621,13 +633,17 @@ sem_example
 ### 优先级反转
 优先级反转是一种不希望发生的任务调度状态，该状态下，一个高优先级任务间接的被一个低优先级任务所抢占，使得两个任务的相对优先级反转了。当高、中、低三个优先级任务同时访问使用信号量互斥资源时，可能会引起优先级反转。当高优先级的任务需要的信号量被低优先级任务占用时，处理器资源会调度给低优先级任务。此时如果低优先级需要获取的另一个信号量被中优先级的pend任务所占用，那么低优先级的任务则需要等待中优先级的任务事件到来，并释放信号量，则就出现了 高、中优先级的任务并不是等待一个信号量，但是中优先级任务先运行的现象。如下图：
 
-![内核readme-第 3 页.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616569160251-4853ecf9-466b-4efb-a839-4462d78b8390.png#height=240&id=IKGiL&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E7%AC%AC%203%20%E9%A1%B5.png&originHeight=240&originWidth=410&originalType=binary&size=34479&status=done&style=none&width=410)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01zD7nbO1kzNZGRDjRR_!!6000000004754-2-tps-410-240.png"  style="max-width:90%;" />
+</div>
 
 任务H具有高优先级，任务M具有中等优先级，任务L具有低优先级，在t0时刻任务H还未运行，任务M因等待信号量2而阻塞，低优先级任务L得到调度占用信号量1；t1时刻，任务H运行并抢占任务L，任务L占用信号量还未释放；t2时刻，任务H阻塞于信号量1，任务L得以继续运行；t3时刻，任务L等待信号量2而阻塞，t4时刻，信号量2被释放，任务M得到运行，此时任务H虽然具有高优先级，但需先等待任务M释放信号量2让任务L运行，并且任务L释放信号量1后才能运行，这种情况即出现了优先级反转。
 ### 优先级继承
 互斥量可以解决优先级反转问题，高优先级的任务获取互斥量时，如果该互斥量被某低优先级的任务占用， 会动态提升该低优先级任务的优先级等于高优先级，并且将该优先级值依次传递给该低优先级任务依赖的互斥量关联的任务，以此递归下去。当某任务释放互斥量时，会查找该任务的基础优先级，以及获取到的互斥量所阻塞的最高优先级的任务的优先级，取两者中高的优先级来重新设定此任务的优先级。总的原则就是，高优先级任务被互斥量阻塞时，会将占用该互斥量的低优先级任务临时提高；互斥量释放时，相应任务的优先级需要恢复。如下图：
 
-![内核readme-第 4 页.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616570670169-fb285380-21ac-4647-8581-1e0ff8421d6a.png#height=250&id=XImTj&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E7%AC%AC%204%20%E9%A1%B5.png&originHeight=250&originWidth=481&originalType=binary&size=38285&status=done&style=none&width=481)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN0131uJpc1veH5gWvL3g_!!6000000006197-2-tps-481-250.png"  style="max-width:90%;" />
+</div>
 
 任务H具有高优先级，任务M具有中等优先级，任务L具有低优先级，在t0时刻任务H还未运行，任务M获取互斥量2而阻塞，低优先级任务L得到调度获得互斥量1；t1时刻taskH抢占taskL，但因无法获得互斥量1而阻塞，此时taskL的优先级被提升至与taskH一样高，并继续运行；t2时刻taskL因无法获得互斥量2而阻塞，t3时刻互斥量2被释放，taskL因比taskM优先级高获得互斥量2得到运行；在t4时刻，taskL释放互斥量1，并将优先级恢复到之前状态，taskH因获得互斥量1得到运行，该机制消除了优先级反转的发生。
 ### 超时时间
@@ -652,7 +668,7 @@ def_config:
 
 
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_mutex
+参见：@ref aos_kernel_mutex
 ## 使用示例
 
 - 示例代码参考example/mutex_example.c，该示例使用互斥量实现共享资源的互斥访问，具体场景为创建任务A和认为B，以及一互斥量。任务A和任务B使用互斥量同时访问共享数据区，访问共享数据区时使用互斥量做保护。
@@ -662,7 +678,9 @@ def_config:
 1. t2时刻，任务B因无法获得互斥量，进入阻塞状态，任务A得到运行。
 1. t3时刻，任务A对数据区record_status的操作完成，释放互斥量，任务B获得互斥量开始对数据区record_status进行读写操作。
 
-![内核readme-互斥量示例.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616572799825-55d525d0-064f-4a64-b277-2155869762bb.png#height=251&id=BGqZ1&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E4%BA%92%E6%96%A5%E9%87%8F%E7%A4%BA%E4%BE%8B.png&originHeight=251&originWidth=409&originalType=binary&size=39453&status=done&style=none&width=409)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01UKTCDa1kGx9OVO9Yi_!!6000000004657-2-tps-409-251.png"  style="max-width:90%;"/>
+</div>
 
 - 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -752,7 +770,7 @@ def_config:
 
 
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_event
+参见：@ref aos_kernel_event
 ## 使用示例
 
 - 示例代码参考example/event_example.c，该示例使用事件机制实现任务间同步，具体场景为创建任务A和认为B，以及一事件。任务A以“与”的方式等待事件1和事件2；任务B以“或”的方式等待事件1和事件2。测试任务T设置事件1，则任务B因获取事件得到运行，之后测试任务T设置事件2，则任务A因等到全部事件而得到运行。
@@ -761,7 +779,9 @@ def_config:
 1. t1时刻，任务T调用aos_event_get()设置事件1，任务B因等到事件1得到运行。
 1. t2时刻，任务T调用aos_event_get()设置事件2，任务A因等到了所有事件1和2而得到运行。
 
-![内核readme-第 7 页.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616577591544-706c0ac3-9691-439a-96f4-21f6bbb81ecb.png#height=250&id=CkkFS&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E7%AC%AC%207%20%E9%A1%B5.png&originHeight=250&originWidth=430&originalType=binary&size=36706&status=done&style=none&width=430)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01F9Ij8h1vWwkllyh25_!!6000000006181-2-tps-430-250.png"  style="max-width:90%;" />
+</div>
 
 - 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例
@@ -837,7 +857,7 @@ def_config:
 
 
 ## API说明
-[@ref ](https://yuque.antfin-inc.com/ref) aos_api_queue
+参见：@ref aos_kernel_queue
 ## 使用示例
 
 - 示例代码参考example/queue_example.c，该示例使用消息队列实现任务间数据同步，具体场景为创建任务A和认为B，以及一消息队列。任务A作为生产者循环向消息队列发送消息，任务B作为消费者循环从消息队列接收消息，一般情况下，消费者处理数据是要花费很长时间，所以会导致消息产生的速度大于消息处理的速度，使得消息队列溢出。所以可以通过调整任务B优先级大于任务A来避免这种情况，或者使用信号量来控制数据收发同步。
@@ -847,7 +867,9 @@ def_config:
 1. t2时刻，任务A向消息队列发送消息。
 1. t3时刻，重复t1时刻的操作。
 
-![内核readme-消息队列示例.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/240152/1616575304233-e6c3ede4-c396-4bc3-8e2d-83b03a7dc556.png#height=190&id=uAOqk&margin=%5Bobject%20Object%5D&name=%E5%86%85%E6%A0%B8readme-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%A4%BA%E4%BE%8B.png&originHeight=190&originWidth=438&originalType=binary&size=37419&status=done&style=none&width=438)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01VjMeUN1XLuQimsUEW_!!6000000002908-2-tps-438-190.png"  style="max-width:90%;" />
+</div>
 
 - 该示例可配置到helloworld_demo中运行，具体步骤如下：
 ### 添加示例

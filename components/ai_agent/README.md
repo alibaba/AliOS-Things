@@ -56,7 +56,7 @@ source_file:
 ```
 
 ## 云端功能开通
-> 登陆https://vision.aliyun.com开通如下功能：
+> 登陆https://vision.aliyun.com免费开通如下功能：
 ```sh
 人脸人体: https://vision.aliyun.com/facebody
 文字识别: https://vision.aliyun.com/ocr
@@ -97,12 +97,16 @@ cd solutions/ucloud_ai_demo && aos make
 ```
 
 ## 烧录固件
-> 参考具体板子的快速开始文档。
+> helloworld_demo bin烧录：
+```sh
+aos burn
+```
 
-    此外，本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需额外使用如下命令烧录littlefs文件系统:
+> littlefs文件系统烧录：
 ```sh
 aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
 ```
+本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需烧录littlefs文件系统。
 
 ## ucloud_ai示例测试
 

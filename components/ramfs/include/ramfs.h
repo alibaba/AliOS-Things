@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /**
- * @defgroup ramfs_aos_api
+ * @defgroup ramfs_aos_api ramfs
  * ramfs API.
  * Used for projects' inside components. Use aos api for APP.
  * @{
