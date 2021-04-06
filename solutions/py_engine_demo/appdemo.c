@@ -33,7 +33,8 @@ static mpy_thread_args *alloc_mpy_thread_args(int argc, char **argv)
     temp_args->argc = argc;
     temp_args->argv = (char **)malloc(sizeof(char *) * argc);
     if (temp_args->argv == NULL) {
-        printf("%s:temp_args->argv alloc memory failed\n");
+        printf("%s:temp_args->argv alloc memory failed\n", __func__);
+        free(temp_args);
         return NULL;
     }
 
@@ -47,7 +48,7 @@ static mpy_thread_args *alloc_mpy_thread_args(int argc, char **argv)
 static int free_mpy_thread_args(mpy_thread_args *args)
 {
     if (args == NULL) {
-        printf("%s:args is illegal\n");
+        printf("args is illegal\n");
         return -1;
     }
 

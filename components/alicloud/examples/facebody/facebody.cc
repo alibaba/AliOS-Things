@@ -10,8 +10,8 @@ using namespace AlibabaCloud::Facebody;
 
 int main() {
     utUtils utils;
-    string key = "LTAI4FgSvwCahCwnCNWafarX";
-    string secret = "3lZM5WOomV82HfEO3UsBZ2z64RFacJ";
+    string key = "Your-Access-Key";
+    string secret = "Your-Access-Secret";
     InitializeSdk();
     ClientConfiguration configuration("cn-shanghai");
 

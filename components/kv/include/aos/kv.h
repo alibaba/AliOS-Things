@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-/** @defgroup kv_aos_api
+/** @defgroup kv_aos_api kv
  * @{
  */
 

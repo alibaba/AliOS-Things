@@ -5,7 +5,8 @@
 #ifndef UDISPLAY_CLI_API_H
 #define UDISPLAY_CLI_API_H
 
-/** @defgroup udisplay_cli_aos_api
+/** @defgroup udisplay_cli_aos_api udisplay_cli
+ *  @ingroup udisplay_aos_api
  * @{
  */
 

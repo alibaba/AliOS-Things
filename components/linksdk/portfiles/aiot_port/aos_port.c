@@ -784,7 +784,7 @@ static int32_t _core_sysdep_network_udp_recv(core_network_handle_t *network_hand
     if (res >= 0) {
         if (NULL != addr) {
             addr->port = ntohs(cliaddr.sin_port);
-            strcpy((char *)addr->addr, inet_ntoa(cliaddr.sin_addr));
+            strncpy((char *)addr->addr, inet_ntoa(cliaddr.sin_addr), sizeof(addr->addr));
         }
 
         return res;
@@ -1187,7 +1187,7 @@ void core_sysdep_rand(uint8_t *output, uint32_t output_len)
     memset(&time, 0, sizeof(struct timeval));
     gettimeofday(&time, NULL);
 
-    srand((unsigned int)(time.tv_sec * 1000 + time.tv_usec / 1000) + rand());
+    aos_srand((unsigned int)(time.tv_sec * 1000 + time.tv_usec / 1000) + aos_rand());
 
     for (idx = 0; idx < output_len;) {
         if (output_len - idx < 4) {
@@ -1195,7 +1195,7 @@ void core_sysdep_rand(uint8_t *output, uint32_t output_len)
         } else {
             bytes = 4;
         }
-        rand_num = rand();
+        rand_num = aos_rand();
         while (bytes-- > 0) {
             output[idx++] = (uint8_t)(rand_num >> bytes * 8);
         }

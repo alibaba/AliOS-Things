@@ -5,6 +5,41 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
+/* Platform config */
+#define    MBEDTLS_CONFIG_CRYPTO                   1
+#define    MBEDTLS_CONFIG_CRYPTO_MD5               1
+#define    MBEDTLS_CONFIG_CRYPTO_SHA1              1
+#define    MBEDTLS_CONFIG_CRYPTO_SHA256            1
+#define    MBEDTLS_CONFIG_CRYPTO_SHA512            0
+#define    MBEDTLS_CONFIG_CRYPTO_RIPEMD160         0
+#define    MBEDTLS_CONFIG_CRYPTO_ARIA              0
+#define    MBEDTLS_CONFIG_CRYPTO_DES               0
+#define    MBEDTLS_CONFIG_CRYPTO_AES               1
+#define    MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES    0
+#define    MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES  0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_CBC          1
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_CFB          0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_CTR          0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_OFB          0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_XTS          0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_GCM          0
+#define    MBEDTLS_CONFIG_CRYPTO_MODE_CCM          0
+#define    MBEDTLS_CONFIG_CRYPTO_ARC4              0
+#define    MBEDTLS_CONFIG_CRYPTO_BLOWFISH          0
+#define    MBEDTLS_CONFIG_CRYPTO_CAMELLIA          0
+#define    MBEDTLS_CONFIG_CRYPTO_XTEA              0
+#define    MBEDTLS_CONFIG_CRYPTO_CHACHA20          0
+#define    MBEDTLS_CONFIG_CRYPTO_POLY1305          0
+#define    MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY        0
+#define    MBEDTLS_CONFIG_X509                     1
+#define    MBEDTLS_CONFIG_TLS                      1
+#define    MBEDTLS_CONFIG_TLS1_2                   1
+#define    MBEDTLS_CONFIG_DTLS                     1
+#define    MBEDTLS_CONFIG_TLS_DEBUG                0
+#define    MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN      4096
+#define    MBEDTLS_CONFIG_SELFTEST                 0
+#define    MBEDTLS_CONFIG_ERROR                    0
+
 /* System support */
 #define MBEDTLS_HAVE_ASM
 #define MBEDTLS_NO_UDBL_DIVISION

@@ -15,12 +15,16 @@ helloworld_demo是我们提供的最简化的运行实例，该app从字面上�
 
 # 2. 基础知识
 ## 2.1 基础目录结构
+
+```sh
+.
 ├── helloworld.c   # 该solution核心打印输出代码，入口**application_start**
 ├── k_app_config.h # 内核组件的配置开关，优先级低于**k_config.h**
 ├── maintask.c     # 系统主任务入口处理，入口**aos_maintask**
 ├── Makefile       # aos make编译时入口
 ├── package.yaml   # 编译系统配置文件
 └── SConstruct     # Makefile => Scon => aostools
+```
 
 ## 2.2 基本规范
 solution统一以**aos_maintask**作为入口函数,从具体单板的C入口main函数开始，通过创建一个主任务来执行，即aos_maintask是系统主任务的入口函数：
@@ -88,7 +92,9 @@ application_start是实际solution的实现，即app的统一入口。
 
 ## 2.3 基本运行流程
 
-![运行流程.png](https://img.alicdn.com/imgextra/i3/O1CN01hHWuKH1gO2oeDXMtR_!!6000000004131-2-tps-399-302.png)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hHWuKH1gO2oeDXMtR_!!6000000004131-2-tps-399-302.png" style="max-width:90%;" />
+</div>
 
 # 3. 物料清单
 
@@ -96,13 +102,18 @@ application_start是实际solution的实现，即app的统一入口。
 
 [HaaS100 硬件简介](https://help.aliyun.com/document_detail/184426.html)
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="zoom:80%;" />
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:90%;" />
+</div>
 
 # 4. 案例实现
 
 ## 4.1 硬件连接
 该案例只需要连接电源线以及串口线，如下图所示：
-![硬件连接.png](https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg" style="max-width:90%;" />
+</div>
 
 ## 4.2 软件实现
 application_start实际app入口内实现较简单，主要包括：
@@ -171,7 +182,9 @@ depends:
 - 在helloworld_demo的app入口helloworld.c中添加ramfs头文件引用以及初始化函数调用，
 如下图，先注册一个根目录为**/test**的ramfs：
 
-![ramfs组件添加.png](https://img.alicdn.com/imgextra/i3/O1CN01yyLyVL1mbgIjh55DK_!!6000000004973-2-tps-660-404.png)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01yyLyVL1mbgIjh55DK_!!6000000004973-2-tps-660-404.png" style="max-width:90%;" />
+</div>
 
 - 添加功能调用
 示例：

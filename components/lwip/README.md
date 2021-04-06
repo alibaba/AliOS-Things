@@ -302,7 +302,7 @@ source_file:
   - example/*.c
 ```
 
-## 添加kv组件
+## 添加lwip组件
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:

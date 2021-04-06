@@ -14,7 +14,7 @@ A2SA是Advanced AliOS Things Sound Architucture的缩写，是AliOS Things音频
 
 ## 目录结构
 ```sh
-├── src
+.
 │   ├── driver               # 音频驱动框架
 │   │   ├── core             # 音频驱动框架Core
 │   │   └── platform         # 不同平台音频驱动硬件抽象层

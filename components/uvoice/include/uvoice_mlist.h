@@ -6,7 +6,8 @@
 #ifndef __UVOICE_MLIST_H__
 #define __UVOICE_MLIST_H__
 
-/** @defgroup uvoice_mlist_api
+/** @defgroup uvoice_mlist_api uvoice_mlist
+ *  @ingroup uvoice_aos_api
  * @{
  */
 
