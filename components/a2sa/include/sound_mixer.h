@@ -23,7 +23,17 @@
 extern "C" {
 #endif
 
-/** @defgroup a2sa_mixer_api
+/** @defgroup a2sa_api a2sa
+ *  @ingroup aos_components
+ * @{
+ */
+
+/**
+ * @}
+ */
+
+/** @defgroup a2sa_mixer_api mixer
+ *  @ingroup a2sa_api
  * @{
  */
 

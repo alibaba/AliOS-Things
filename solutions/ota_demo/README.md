@@ -1,16 +1,24 @@
 @page ota_demo ota_demo
 # 1. 案例简介
+
 OTA升级是很多嵌入式产品必备的一个功能。HaaS提供了完备的OTA解决方案。本案例就是一个端云一体的例子。
 本文将分几个部分介绍，具体包括：
 设备端代码的修改、编译、烧录。
 云端服务器的配置、新增、OTA升级包上传、OTA升级。
 本文的设备连接情况如下：
-![image.jpg](https://img.alicdn.com/imgextra/i3/O1CN01U7iUQh1k4aSEzSpK4_!!6000000004630-0-tps-4032-3024.jpg)
-本文的主要目标是，通过修改设备端代码和配置云端，完成对设备端版本的升级，如下图所示：
-![image.jpg](https://img.alicdn.com/imgextra/i1/O1CN01ScRC9M1GS0EMBJG76_!!6000000000620-0-tps-1448-984.jpg)
 
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01U7iUQh1k4aSEzSpK4_!!6000000004630-0-tps-4032-3024.jpg"  style="max-width:90%;" />
+</div>
+
+本文的主要目标是，通过修改设备端代码和配置云端，完成对设备端版本的升级，如下图所示：
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01ScRC9M1GS0EMBJG76_!!6000000000620-0-tps-1448-984.jpg"  style="max-width:90%;" />
+</div>
 
 # 2. 基础知识
+
 OTA：（over the air)已成为物联网设备的刚需功能, AliIOS Things OTA有完备的升级方案，对各种升级场景都有很好的支持。
 升级模式：整包升级、压缩升级、差分升级、安全升级。
 支持的升级通道：http、https、BLE、3G/4G，NB等；
@@ -18,17 +26,24 @@ OTA：（over the air)已成为物联网设备的刚需功能, AliIOS Things OTA
 OTA工具：差分工具、本地签名工具、ymodem辅助升级工具，多固件打包工具等；
 
 HaaS100进行升级流程，如下图所示，当用户开启阿里云IOT物联网平台的安全升级功能，对应的产品就启动了针对这个产品的安全升级功能，云端会对这个产品的升级固件做秘钥、公钥管理并对这个产品的固件做数字签名；对应的设备端，在OTA的过程中，会用从云端获取的公钥对升级的固件做数字签名的验证；整个流程，用户不需要管理公私钥，使用起来也非常方便，下图为HaaS100 安全升级使用流程图：
-![image.jpg](https://img.alicdn.com/imgextra/i1/O1CN01Az1bpN1yg3TWgq2qC_!!6000000006607-0-tps-1818-1178.jpg)
 
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01Az1bpN1yg3TWgq2qC_!!6000000006607-0-tps-1818-1178.jpg"  style="max-width:90%;" />
+</div>
 
 # 3. 物料清单
+
 本实验不依赖于其他外围设备，主要是HaaS100开发板
 |名称|数量|
 |:-:|:-:|
 |HaaS100 开发板|1|
-![image.jpg](https://img.alicdn.com/imgextra/i3/O1CN01bQf9611vvg8cQED0M_!!6000000006235-2-tps-3000-2000.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01bQf9611vvg8cQED0M_!!6000000006235-2-tps-3000-2000.png"  style="max-width:90%;" />
+</div>
 
 # 4. 案例实现
+
 本案例依赖如下几个组件，具体定义放到了solutions/ota_demo/package.yaml的文件中。
 |依赖组件|作用|
 |:-:|:-:|
@@ -43,10 +58,11 @@ HaaS100进行升级流程，如下图所示，当用户开启阿里云IOT物联�
 **1.打开云端安全升级功能并获取公钥**
 
 <div style="text-align:center">
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01cXHMmB1dPvabuoJzv_!!6000000003729-2-tps-1837-867.png" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01cXHMmB1dPvabuoJzv_!!6000000003729-2-tps-1837-867.png"  style="max-width:90%;" />
 </div>
 
 **2.将公钥内嵌到代码中**
+
 如步骤1图示，通过复制按钮获取的公钥内嵌到 ```
 AliOS-Things/components/dm/ota/hal/ota_hal_digest.c ```文件中，覆盖如下的两个数组：
 ```
@@ -55,56 +71,66 @@ static const unsigned char ota_pubn_buf[256];
 static const unsigned char ota_pube_buf[3];
 ```
 **3.编译烧录到HaaS100的基础固件**
-* 选择app和board
-HaaS 100 搭载的是AliOS Things物联网操作系统，编译环境支持windows、linux和mac,下面以linux环境为主介绍使用过程，以ota_demo为例，介绍HaaS 100的固件验签如何使用；
-输入命令：
 
-```bash
-# 清除之前配置
-$ aos make distclean
-# 配置app为ota_demo，board为haas100
-$ aos make ota_demo@haas100 -c config
-```
+* 开发环境搭建
+
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程;
+
+* 用例和开发板选择
+
+参考 @ref HaaS100_Quick_Start (选择解决方案和开发板章节)，其中解决方案选择：**ota_demo**; 开发板：**HaaS 100**
+
 * 配置固件版本号
+
 根据需求修改版本号,如app-1.0.0等
 修改位置：solutions/ota_demo/otaappdemo.c中的，MY_APP_VER宏定义。
+
 * 配置四元祖
+
 修改位置：solutions/ota_demo/otaappdemo.c中的，mqtt_main函数中的char *product_key, char *device_name, char *device_secret;填入自己的pk,dn,ds;
 
-* 选择OTA组件及功能
-由于AliOS Things 端侧默认支持对固件验签的功能，此处不需要配置，使用OTA的默认配置就可以了；
 * 开始编译固件并烧录
-编译命令：aos make 编译完成后，生成的固件在`hardware/chip/haas1000/release/write_flash_gui/ota_bin`目录下；根据前面的烧录文档，先将固件烧录到HaaS 100板子上，重启板子，打开串口终端，配置串口波特率为：**1500000**，连接终端；
+
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
 * 配网连云
+
 输入wifi账号和密码配网：在终端输入：
 `netmgr -t wifi -c wifi_ssid wifi_password`
 注意修改其中的wifi_ssid和wifi_password为需要连接的wifi名字和wifi密码。
 连网成功后，登录[物联网平台](http://iot.console.aliyun.com/)可以看到对应的设备在线:
 
 <div style="text-align:center">
-<img src="https://img.alicdn.com/tfs/TB18SN737T2gK0jSZFkXXcIQFXa-592-45.png" />
+    <img src="https://img.alicdn.com/tfs/TB18SN737T2gK0jSZFkXXcIQFXa-592-45.png"  style="max-width:90%;" />
 </div>
 
 **4.编译上云固件及云端操作**
+
 本地烧录完成后，需要做一个高版本固件上传到云端，通过云端操作完成固件的升级，所以需要按照步骤3中修改版本号的方法，修改固件版本号，其他不用修改，再编译生成一个高版本的固件，然后登录[物联网平台](http://iot.console.aliyun.com/)平台，按如下图顺序操作:
-![上传固件.png](https://img.alicdn.com/tfs/TB1NM2iU7T2gK0jSZFkXXcIQFXa-1110-861.png) 
+
+<div style="text-align:center">
+    <img src="https://img.alicdn.com/tfs/TB1NM2iU7T2gK0jSZFkXXcIQFXa-1110-861.png" style="max-width:90%;"/>
+</div>
 
 点击**添加固件**后，如下图将`platform/mcu/haas1000/release/write_flash_gui/ota_bin/ota_bin/ota_rtos_ota.bin`上传到云端:
 
 <div style="text-align:center">
-<img src="https://img.alicdn.com/tfs/TB19BoDhmslXu8jSZFuXXXg7FXa-719-1196.png" />
+    <img src="https://img.alicdn.com/tfs/TB19BoDhmslXu8jSZFuXXXg7FXa-719-1196.png" style="max-width:90%;"/>
 </div>
 
 点击确定后，选择验证固件即可开始固件升级；
+
 **5.升级结果验证**
+
 按照上面的操作步骤完成后，可以完成固件的数字签名验签进而实现固件升级，端侧的log如下图：
 <div style="text-align:center">
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01nCJgW423op8DkE8Vg_!!6000000007303-2-tps-1170-385.png" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01nCJgW423op8DkE8Vg_!!6000000007303-2-tps-1170-385.png" style="max-width:90%;"/>
 </div>
 
 如果开启了安全升级，但HaaS100没有内嵌公钥，触发升级会怎么样呢？答案是HaaS100会数字签名验证失败，禁止固件升级，端侧的log会如下图所示：
 <div style="text-align:center">
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01g5P8gy1t33fTWNqur_!!6000000005845-2-tps-1297-490.png" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01g5P8gy1t33fTWNqur_!!6000000005845-2-tps-1297-490.png" style="max-width:90%;"/>
 </div>
 
 云端升级结果可以通过点击“查看”获取详情；

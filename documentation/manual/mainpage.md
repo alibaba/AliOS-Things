@@ -1,4 +1,4 @@
-@mainpage
+@mainpage AliOS Things 概述
 
 <br/>
 <div align="center">
@@ -12,9 +12,9 @@
 </div>
 <br/>
 
-**AliOS Things**发布于[2017年杭州云栖大会](https://yunqi.aliyun.com)， 是 AliOS 家族旗下的、面向IoT领域的、高可伸缩的物联网操作系统，于2017年10月20号宣布在[github](https://github.com/alibaba/AliOS-Things)上开源，当前最新的版本是 **AliOS Things  3.3**。
+**AliOS Things** 发布于[2017年杭州云栖大会](https://yunqi.aliyun.com)， 是 AliOS 家族旗下的、面向IoT领域的、高可伸缩的物联网操作系统，于2017年10月20号宣布在[github](https://github.com/alibaba/AliOS-Things)上开源，当前最新的版本是 **AliOS Things  3.3** 。
 
-## 架构总览
+# 架构总览
 
 **AliOS Things** 支持多种CPU架构，包括：ARM，C-Sky，MIPS，RISCV，rl78，rx600，xtensa等。
 
@@ -32,7 +32,7 @@
 
 所有的模块都作为组件的形式存在，通过yaml进行配置，应用程序可以很方便的选择需要的组件。
 
-## AliOS Things 3.3新功能介绍
+# AliOS Things 3.3新功能介绍
 - 统一的VFS接入方式，更标准的应用开发模式
 - 更小的系统，yaml构建方式更直观
 - 更全面的JavaScript轻应用接口支持
@@ -40,45 +40,37 @@
 - 升级了LinkSDK，新增设备引导服务、设备诊断、日志上报功能；移除CoAP、Http2、Wi-Fi配网及设备绑定的支持
 - 新增蓝牙配网、Wi-Fi Camera、OLED等组件，解决方案能直接调用
 
-## AliOS Things 3.3支持硬件
-**AliOS Things 3.3**版本支持官方已适配如下硬件
+# AliOS Things 3.3支持硬件
+**AliOS Things 3.3** 版本支持官方已适配如下硬件
 
 - HaaS100
 - HaaS EDU K1
 
 
-## 文档
+# 文档
 
-### 快速上手
+**快速上手**
 
+- @ref HaaS100_Quick_Start
 
-[HaaS100 快速开始](./HaaS100_Quick_Start.md)
+- @ref HaaS_EDU_K1_Quick_Start
 
-[HaaS EDU K1 快速开始](./HaaS_EDU_K1_Quick_Start.md)
+**文档中心**
+- 请到HaaS官方网站 [文档中心](https://haas.iot.aliyun.com/)查看。
 
-### 文档中心
-请到HaaS官方网站 [文档中心](https://haas.iot.aliyun.com/)查看。
+**贡献代码**
 
-### 贡献代码
+- 请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing)。
 
-请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing)。
+**物联网平台**
 
-### 物联网平台
+- AliOS Things 能帮助你更加快速地接入[阿里云物联网平台](https://iot.console.aliyun.com/quick_start)。
 
-AliOS Things 能帮助你更加快速地接入[阿里云物联网平台](https://iot.console.aliyun.com/quick_start)。
-
-## 社区
+# 社区
 
 * [技术交流群(钉钉)](https://img.alicdn.com/imgextra/i3/O1CN017fYxQq1qXL0gLsnGg_!!6000000005505-2-tps-1658-682.png)
 * [HaaS技术社区](https://blog.csdn.net/HaaSTech)
 
-## License
+# License
 
   AliOS Things 开源源码遵循 [Apache 2.0 license](LICENSE) 开源协议。
-
-@subpage HaaS100_Quick_Start
-@subpage HaaS_EDU_K1_Quick_Start
-@subpage quick_start_cloud
-@subpage aos_kernel
-@subpage component
-@subpage solution

@@ -3,14 +3,24 @@
 阿里在云栖大会上发布第一款机器人“小蛮驴”，瞬间激起千层浪。
 无人车，智能物流，机器人等一些概念又火热了一把。
 借“小蛮驴”的东风以及火热的HaaS，我们推出了更加亲民的“小小蛮驴”，丰富HaaS的场景打造，吸引更多的开发者和企业来加入HaaS的生态建设。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106133/1616395304747-a2cfc5fe-b74f-43d6-b66a-5d65f76f8784.png#align=left&display=inline&height=292&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1264&originWidth=2248&size=7069041&status=done&style=none&width=519)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN015lnEkx1YPrSlCgbt1_!!6000000003052-2-tps-1494-836.png" style="max-width:90%;" />
+</div>
+
 # 2. 基础知识
 ## 2.1  HaaS100开发板
 **HaaS100** 是一款物联网场景中的标准开发板，并配套嵌入到硬件中的软件驱动及功能模块，为用户提供物联网设备高效开发服务。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607656919362-55ec2c19-a0dd-4d1d-ac95-2052ffeedd7f.png#align=left&display=inline&height=295&margin=%5Bobject%20Object%5D&name=image.png&originHeight=443&originWidth=443&size=130743&status=done&style=none&width=295)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN014x98oj1VvVzSI77gV_!!6000000002715-2-tps-443-443.png" style="max-width:90%;" />
+</div>
+
 HaaS100核心板有着丰富的外设接口，如下所示：
 
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1607655121564-f799e873-94f0-485d-8d1c-95ba5cafaf5f.png#align=left&display=inline&height=352&margin=%5Bobject%20Object%5D&name=image.png&originHeight=886&originWidth=586&size=232115&status=done&style=none&width=233)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01AkNnOF1Xjj1eTBpQC_!!6000000002960-2-tps-586-886.png" style="max-width:90%;" />
+</div>
 
 详细的资料参考[HaaS 100 硬件规格](https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.645.718015814zDYZt)。
 ## 2.2 驱动电机
@@ -23,24 +33,44 @@ IN1低电平，IN2高电平，左电机反传；
 IN3高电平，IN4低电平，右电机正传；
 IN3低电平，IN4高电平，右电机反传。
 ## 2.3 超声波测距模块
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1604469941791-97eb9651-b1fe-4983-88ce-785f0e1e24cc.png#align=left&display=inline&height=195&margin=%5Bobject%20Object%5D&name=image.png&originHeight=224&originWidth=306&size=121415&status=done&style=none&width=266)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01AtDCHG1RGyT25beU1_!!6000000002085-2-tps-306-224.png" style="max-width:90%;" />
+</div>
+
 超声波测距一般有4个管脚：
 GND：接公共地
 VCC：供5V电源
 Trigger：触发控制，信号输入引脚
 Echo：回响信号输出引脚
 超声波测距原理是当发送的超声波遇到物体被发射回来，被接收端接收，然后通过发送信号到接收到回响的信号时间间隔可以测算出距离。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1604471428556-e1c9fadf-3e93-4715-9b15-80dd5f33dc32.png#align=left&display=inline&height=231&margin=%5Bobject%20Object%5D&name=image.png&originHeight=301&originWidth=529&size=74124&status=done&style=none&width=406)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01HlxSHP1uPmwqZNECA_!!6000000006030-2-tps-529-301.png" style="max-width:90%;" />
+</div>
+
 测距过程如下：HaaS100给Trigger引脚至少10uS的脉冲触发信号，这时候超声波模块发射8个40KHz的方波，然后模块自动检测是否有信号返回。若检测到回响信号，会通过Echo引脚输出一个高电平脉冲，脉冲的宽度就是超声波从发射到返回的时间t。假设小车距离障碍物距离L，2L=vt，L=vt/2，其中v声音的传播速度340m/s。
 ## 2.4 红外避障模块
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1604472600417-ceadf30e-19b0-477c-b308-572b940d4199.png#align=left&display=inline&height=144&margin=%5Bobject%20Object%5D&name=image.png&originHeight=287&originWidth=357&size=152067&status=done&style=none&width=178.5)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01mnq7sM1VcHM2MvPg1_!!6000000002673-2-tps-357-287.png" style="max-width:90%;" />
+</div>
+
 红外避障原理就是当障碍物靠近的时候，红外接收到的发射光强度越来越大，所以增大了输出的模拟信号，模拟信号接入比较器，经过比较器处理，输出数字信号。读取数字信号电平，就可以判断前方是否有障碍物。
 ## 2.5 测速模块
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1604473859445-25af0aaf-e883-4024-b681-69506e128181.png#align=left&display=inline&height=190&margin=%5Bobject%20Object%5D&name=image.png&originHeight=190&originWidth=211&size=74467&status=done&style=none&width=211)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hD5RKK23hUnn3dVj7_!!6000000007287-2-tps-211-190.png" style="max-width:90%;" />
+</div>
+
 测速模块主要原理是由码盘结合光电传感器，传感器一端为发射光，另一端接收光，通过测量单位时间内脉冲个数得出小车的速度，本模块采用施密特触发器输出的信号非常稳定( 去抖)。
 
 # 3. 物料清单
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1604460555294-d7a45285-1ce1-4e86-9703-6995da520091.png#align=left&display=inline&height=262&margin=%5Bobject%20Object%5D&name=image.png&originHeight=660&originWidth=1432&size=1060798&status=done&style=none&width=568)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01GKC2T91ypfnRGftsi_!!6000000006628-2-tps-1432-660.png" style="max-width:90%;" />
+</div>
+
 **智能车底板电路**
 
 - 红外接收头子，实现红外遥控小车
@@ -80,7 +110,11 @@ Echo：回响信号输出引脚
 ### 4.2.1 云端创建产品
 参考[《一步步打造能手机远程管理的HaaS花卉养植系统》](https://blog.csdn.net/HaaSTech/article/details/110505659)等系列文章，一步步在物联网平台创建产品、对应的物模型以及设备。也可以通过载入[TSL文件](https://github.com/alibaba/AliOS-Things/blob/dev_3.1.0_haas/application/miniapp/pages/HaasCar/HaasCar.TSL.json)，一键生成物模型。
 创建了HaaS电动车的产品名称，然后定义了前进、后退、暂停、左转、右转等物模型属性。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1607526392432-d1239385-56fd-4039-8187-37cd8489eb56.png#align=left&display=inline&height=365&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1624&originWidth=2620&size=629143&status=done&style=none&width=589)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01tNoBdP1mKjeNiQT66_!!6000000004936-2-tps-2620-1624.png" style="max-width:90%;" />
+</div>
+
 按照一步步操作，云端创建产品、物模型以及设备以后，我们可以获取对应的三元组信息。
 ### 4.2.2 设备端代码
 1、 配置初始化
@@ -223,7 +257,9 @@ git clone -b dev_3.1.0_haas https://github.com/alibaba/AliOS-Things.git
 ```
 SDK相关代码及操作readme在application/miniapp/目录下。
 2、 SDK目录结构
-/ 
+
+```sh
+.
 ├─ lib (存放依赖库的文件夹，用户无需关心)
 │    ├─ @alicloud/pop-core     （[https://github.com/aliyun/openapi-core-nodejs-sdk](https://github.com/aliyun/openapi-core-nodejs-sdk)）
 │    ├─ kitx
@@ -245,11 +281,14 @@ SDK相关代码及操作readme在application/miniapp/目录下。
 ├─ app.acss                         （小程序全局样式）
 ├─ app.json                         （小程序全局配置，可以在这里设置小程序打开的默认页面）
 └─ others
-
+```
 
 3、 SDK使用
 使用小程序开发工具打开miniapp这个工程。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607309104502-3aa9a406-93a3-4b6e-84e4-4d2fa8a13894.png#align=left&display=inline&height=618&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1236&originWidth=2144&size=1065527&status=done&style=none&width=1072)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01NUP1qt1IDvHvjuES2_!!6000000000860-2-tps-2144-1236.png" style="max-width:90%;" />
+</div>
 
 - step1 在app.js填写 AccessKeyID 以及 AccessKeySecret ， 获取云端API调用权限
 - step2 填写目标设备 DeviceName 以及 ProductKey，这里是待控制的设备
@@ -275,17 +314,31 @@ let device = {
 
 云账号AccessKey是用户访问阿里云API的密钥。（[https://usercenter.console.aliyun.com/#/manage/ak](https://usercenter.console.aliyun.com/#/manage/ak)）
 安全起见，我们可以采取创建[RAM子账号](https://ram.console.aliyun.com/users)的形式，来对权限进行分离。
-![截屏2020-10-29 下午1.01.39.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1603947703740-e6e2b231-57af-4968-94ed-377b10f65ff3.png#align=left&display=inline&height=732&margin=%5Bobject%20Object%5D&name=%E6%88%AA%E5%B1%8F2020-10-29%20%E4%B8%8B%E5%8D%881.01.39.png&originHeight=732&originWidth=3584&size=210321&status=done&style=none&width=3584)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01hm2IH61lWoTqkAotr_!!6000000004827-2-tps-3584-732.png" style="max-width:90%;" />
+</div>
+
 创建完成后，需要手动分配权限，点击右侧，添加权限。我这里直接选择了 **AdministratorAccess。 **添加完成后如下。
-![截屏2020-10-29 下午1.03.13.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1603947799141-4f21e9a1-ca11-46bb-be60-95075cadb597.png#align=left&display=inline&height=1920&margin=%5Bobject%20Object%5D&name=%E6%88%AA%E5%B1%8F2020-10-29%20%E4%B8%8B%E5%8D%881.03.13.png&originHeight=1920&originWidth=3584&size=578859&status=done&style=none&width=3584)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01CdYh1g1WuQfLoiQ6r_!!6000000002848-2-tps-3584-1920.png" style="max-width:90%;" />
+</div>
 
 - DeviceName ProducKey
 
 这两个参数在[创建设备](#jSkOe)时生成。
 4、 编译验证
 点击小程序IDE右上角“真机调试”按钮，等待二维码生成后，使用钉钉APP扫码，即可发起小程序。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1605585495799-64ecf7b0-ae07-44db-8d2a-d2219316295b.png#align=left&display=inline&height=98&margin=%5Bobject%20Object%5D&name=image.png&originHeight=156&originWidth=948&size=18271&status=done&style=none&width=594)
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607657559548-26507376-e4f9-4f1b-b425-6ead23fcde4b.png#align=left&display=inline&height=339&margin=%5Bobject%20Object%5D&name=image.png&originHeight=678&originWidth=338&size=403202&status=done&style=none&width=169)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01PebvC71ZoQJrKF3yG_!!6000000003241-2-tps-948-156.png" style="max-width:90%;" />
+</div>
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01kBLGwa1HGqBzof2CS_!!6000000000731-2-tps-338-678.png" style="max-width:90%;" />
+</div>
+
 ## 4.3 编译，烧入，运行
 编译命令
 ```
@@ -305,7 +358,11 @@ password:88888888
 netmgr -t wifi -c HaaS-test 88888888
 ```
 运行打印信息
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106133/1616137413179-c03526f3-268b-430c-ae5e-671b6a6e0b24.png#align=left&display=inline&height=403&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1224&originWidth=1836&size=616976&status=done&style=none&width=604)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN013jSfJZ1ZvkeoMIXXa_!!6000000003257-2-tps-1836-1224.png" style="max-width:90%;" />
+</div>
+
 # 5. 总结
 这么丰富详细的操作步骤，开发者朋友是不是也用了1小时就打造出自己的小小蛮驴电动小车了呢^_^
 

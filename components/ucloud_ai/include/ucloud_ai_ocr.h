@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 
-/** @defgroup ucloud_ai_aos_api
+/** @addtogroup ucloud_ai_aos_api
  * @{
  */
 

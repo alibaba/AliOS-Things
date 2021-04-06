@@ -41,13 +41,14 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 
 [HaaS100 硬件简介](https://help.aliyun.com/document_detail/184426.html)
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="zoom:80%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:90%;" />
 
 # 4. 案例实现
 
 ## 4.1 硬件连接
 该案例只需要连接电源线以及串口线，如下图所示：
-![硬件连接.png](https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg)
+
+<img src="https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg" style="max-width:90%;" />
 
 ## 4.2 软件实现
 

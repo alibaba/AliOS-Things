@@ -8,12 +8,12 @@
 
 本文描述的组件主要是./components下面的系统组件部分。
 
-## 组件之间的关系
+### 组件之间的关系
 原则上组件功能应该相对独立，可以单独对外提供接口和服务。但是在某些场景中，组件之间需要互相配合来一起完成一项复杂的功能。整理来看组件之间的关系可以分为必须组件和可选组件两种。
    - 必选依赖：是指组件A在完成某个功能时，必须引入组件B，一起配合。例如：HTTP组件，完成访问HTTP服务器的功能，必须引入TCP/IP组件。
    - 可选依赖：是指组件A在完成某个功能时，可以引入组件C，也可以引入组件D。例如：HTTP组件，要访问HTTPS服务器，可以引入mbedtls组件，也可以引入openssl组件，来完成访问服务器中加解密的功能。
 
-## 组件的构成
+### 组件的构成
 为了使OS能被灵活地配置，适应多种硬件平台，AliOS Things的组件主要包含以下几个部分。
    - include: 指的是该组件对外暴露的API接口定义。
    - internal: 指的是该组件内部使用的API接口定义。
@@ -23,46 +23,44 @@
    - package.yaml: AliOS Things 3.3版本采用的编译脚本。详细的.yaml语法信息可以参考《yaml语法说明》文章。
 
 
-@subpage a2sa
-@subpage ai_agent
-@subpage alicloud
-@subpage amp
-@subpage aostools
-@subpage ble_host
-@subpage ble_netconfig
-@subpage cjson
-@subpage cli
-@subpage cplusplus
-@subpage debug
-@subpage driver
-@subpage epoll
-@subpage fatfs
-@subpage freetype
-@subpage http
-@subpage init
-@subpage jsoncpp
-@subpage kv
-@subpage libc_stub
-@subpage linksdk
-@subpage littlefs
-@subpage lwip
-@subpage mbedtls
-@subpage modbus
-@subpage netmgr
-@subpage ota
-@subpage posix
-@subpage py_engine
-@subpage ramfs
-@subpage SDL2
-@subpage select
-@subpage sensor
-@subpage sntp
-@subpage trace
-@subpage uagent
-@subpage ucamera
-@subpage ucloud_ai
-@subpage udisplay
-@subpage ugraphics
-@subpage ulog
-@subpage uvoice
-@subpage vfs
+@subpage a2sa \n
+@subpage ai_agent \n
+@subpage alicloud \n
+@subpage ble_host \n
+@subpage ble_netconfig \n
+@subpage cjson \n
+@subpage cli \n
+@subpage cplusplus \n
+@subpage debug \n
+@subpage driver \n
+@subpage epoll \n
+@subpage fatfs \n
+@subpage freetype \n
+@subpage http \n
+@subpage init \n
+@subpage jsoncpp \n
+@subpage kv \n
+@subpage libc_stub \n
+@subpage linksdk \n
+@subpage littlefs \n
+@subpage lwip \n
+@subpage mbedtls \n
+@subpage modbus \n
+@subpage netmgr \n
+@subpage ota \n
+@subpage posix \n
+@subpage py_engine \n
+@subpage ramfs \n
+@subpage SDL2 \n
+@subpage select \n
+@subpage sensor \n
+@subpage sntp \n
+@subpage trace \n
+@subpage uagent \n
+@subpage ucamera \n
+@subpage ucloud_ai \n
+@subpage udisplay \n
+@subpage ugraphics \n
+@subpage ulog \n
+@subpage uvoice \n
+@subpage vfs \n

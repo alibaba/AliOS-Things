@@ -5,7 +5,17 @@
 #ifndef __UVOICE_TYPES_H__
 #define __UVOICE_TYPES_H__
 
-/** @defgroup uvoice_types_api
+/** @defgroup uvoice_aos_api uvoice
+ * @{
+ */
+
+/**
+ * @}
+ */
+
+/** @defgroup uvoice_types_api uvoice_types
+ *  @ingroup uvoice_aos_api
+ *  @ingroup uvoice_aos_api
  * @{
  */
 

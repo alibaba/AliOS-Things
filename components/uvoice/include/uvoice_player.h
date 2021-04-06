@@ -6,7 +6,8 @@
 #ifndef __UVOICE_PLAYER_H__
 #define __UVOICE_PLAYER_H__
 
-/** @defgroup uvoice_player_api
+/** @defgroup uvoice_player_api uvoice_player
+ *  @ingroup uvoice_aos_api
  * @{
  */
 

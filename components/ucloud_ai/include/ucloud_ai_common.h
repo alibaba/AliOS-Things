@@ -54,7 +54,7 @@ typedef enum _ucloud_ai_model_t {
     UCLOUD_AI_MODEL_MAX
 } ucloud_ai_model_t;
 
-/** @defgroup ucloud_ai_aos_api
+/** @defgroup ucloud_ai_aos_api ucloud_ai
  * @{
  */
 

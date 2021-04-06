@@ -27,7 +27,7 @@ typedef struct _udisplay_context_t {
                                         __func__, __LINE__);
 
 
-/** @defgroup udisplay_aos_api
+/** @defgroup udisplay_aos_api udisplay
  * @{
  */
 

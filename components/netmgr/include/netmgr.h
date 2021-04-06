@@ -18,7 +18,7 @@ extern "C" {
 #include <uservice/uservice.h>
 
 /**
- * @defgroup netmgr_api
+ * @defgroup netmgr_api netmgr
  * @{
  */
 

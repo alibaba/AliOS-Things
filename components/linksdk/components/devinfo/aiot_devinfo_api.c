@@ -143,6 +143,10 @@ static int32_t _devinfo_operate_topic_map(devinfo_handle_t *devinfo_handle, aiot
     int32_t res = STATE_SUCCESS;
     aiot_mqtt_topic_map_t map;
 
+    if (option == AIOT_MQTTOPT_NETWORK_CRED) {
+        return STATE_USER_INPUT_OUT_RANGE;
+    }
+
     memset(&map, 0, sizeof(aiot_mqtt_topic_map_t));
     map.topic = DEVINFO_UPDATE_REPLY_TOPIC;
     map.handler = _devinfo_mqtt_recv_handler;

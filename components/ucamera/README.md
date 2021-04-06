@@ -33,7 +33,6 @@ ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄�
 # 依赖组件
 
 * http
-* netmgr
 
 # 常用配置
 
@@ -61,7 +60,8 @@ source_file:
 > helloworld_demo组件的package.yaml中添加
 ```C
 depends:
-  - ucamera: dev_aos # ucloud_ai_demo中引入ucamera组件
+  - ucamera: dev_aos # helloworld_demo中引入ucamera组件
+  - netmgr: dev_aos  # helloworld_demo中引入netmgr组件
 ```
 
 ## 编译
@@ -78,15 +78,99 @@ aos burn
 ```
 
 ## ucamera示例测试
-> 开发板网络连接命令(XXXX为网络SSID，设置不加密)：
-```sh
-netmgr -t wifi -c XXXX
+> ucamera测试依赖WiFi摄像头，本案例测试使用ESP32-EYE进行测试。
+
+### ESP32-EYE开发配置
+
+#### 代码下载
+```bash
+$git clone --recursive https://github.com/espressif/esp-who.git
 ```
+#### Python环境创建
+
+这一个步骤不是必须的，不过如果你有多个python环境的需求，也安装过conda可以使用该步骤为esp32的开发创建一个独立的python开发环境，避免不同开发环境的相互影响，这里也可以参考[《**VSCode中搭建Python虚拟环境SOP**》]https://blog.csdn.net/HaaSTech/article/details/113512377)。
+```bash
+$conda create -n esp32 python=3.8
+```
+#### ESP-IDF安装
+不同的操作系统安装的步骤也有所差异，请参考官网文档进行安装：
+[https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html#get-started-set-up-env](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html#get-started-set-up-env)
+
+#### 环境变量设置
+这里以Macbook为例进行环境变量设置：
+```bash
+$cd ~/esp/esp-idf
+$./install.sh
+¥. ./export.sh
+```
+注意：
+每次重启终端后都需要执行该步骤，否则找不到idf.py命令，或者可以加入到根目录.bashrc中不用每次再输入该命令。
+
+#### ESP32 EYE网络设置
+> SoftAP模式
+
+默认启动后ESP32 EYE已经开启了SSID为ESP32-Camera的AP，可以使用电脑连接该AP。
+![image.png](https://img-blog.csdnimg.cn/img_convert/d0078a4e4bfb521beb04291497d94970.png)
+也可以通过修改sdkconfig来改变ssid/password、station连接数量、AP信道、服务器IP等，然后重新进行编译：
+#### ![image.png](https://img-blog.csdnimg.cn/img_convert/bea6f1ff0946804d77c5a01e3d59271c.png)
+
+#### 分辨率配置
+> 因为本案例中使用的LCD是320x240的，摄像头采集的画面也相应的设置为QVGA(320x240)减少传输带宽占用，esp-who/examples/single_chip/camera_web_server/main/app_httpd.c中添加代码：
+```bash
+
+static esp_err_t capture_handler(httpd_req_t *req)
+{
+    camera_fb_t *fb = NULL;
+    esp_err_t res = ESP_OK;
+    int64_t fr_start = esp_timer_get_time();
+
+    /*set resolution*/
+    sensor_t *sensor = esp_camera_sensor_get();
+    sensor->set_framesize(sensor, (framesize_t)5);/*QVGA: 3220 x 240*/
+    if (res == 0) {
+        app_mdns_update_framesize(5);/*QVGA*/
+    }
+    ......
+}
+```
+
+#### 代码编译
+> ESP32-EYE的代码中提供了多个Demo，使用camera_web_server来建立一个web服务器，该Demo中摄像头采集的数据以jpeg格式提供，并且提供了以http请求的方式获取jpeg图像数据。编译需要进入到Demo的目录中：
+```bash
+$cd examples/single_chip/camera_web_server/
+$idf.py build
+```
+#### 代码烧录
+```bash
+$idf.py -p [port] flash
+```
+例如：
+idf.py -p /dev/cu.SLAB_USBtoUART flash
+#### Log监视器
+查看串口log，进入到camera_web_server所在目录执行。
+```bash
+$idf.py -p [port] monitor
+```
+例如：
+idf.py -p /dev/cu.SLAB_USBtoUART monitor
+![image.png](https://img-blog.csdnimg.cn/img_convert/cb573d5a42e695269a675ebc5be96c0d.png)
+所以camera wifi的IP就是192.168.3.135。
+
+#### 3.2.1.9 检查摄像头画面采集
+> 为了确认ESP32-EYE摄像头是否正常，电脑连接ESP32-EYE的WiFi网络ESP32-Camera，先通过电脑方式查看web界面http://192.168.4.1:80/capture：
+抓取当前画面http://192.168.4.1:80/capture：
+![Pasted Graphic.tiff](https://img-blog.csdnimg.cn/20210127165159696.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hhYVNUZWNo,size_16,color_FFFFFF,t_70)
+
+> 验证OK后，使用HaaS100开发板直接连接ESP32-EYE的SoftAP：
+```sh
+netmgr -t wifi -c ESP32-Camera
+```
+
 > CLI命令行输入：
 ```sh
 ucamera -t wifi
 ```
->测试结果正常确认(说明从wifi摄像头获取到图像数据)：
+> 测试结果正常确认(说明从wifi摄像头获取到图像数据)：
 ```sh
 ucamera get frame OK
 ```

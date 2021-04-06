@@ -2,6 +2,8 @@
 
 - 简介
 
-@subpage ili9341
-@subpage oled
-@subpage st7789
+@subpage ili9341  \n
+@subpage pca9544  \n
+@subpage rx8130ce  \n
+@subpage oled  \n
+@subpage st7789  \n

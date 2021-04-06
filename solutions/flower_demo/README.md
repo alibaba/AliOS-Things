@@ -3,25 +3,48 @@
 过去，很多人一听嵌入式～～智能硬件～～就有点头大，甚至会感到一丝丝的恐惧。
 其实不然，HaaS积木真的就能让智能硬件简单～好玩～普惠。
 接下来，就以HaaS打造的花卉养植盒子系统为例，指引开发者如何自己一步步简单快速搭建起属于自己的好玩智能硬件。
-![图片.gif](https://intranetproxy.alipay.com/skylark/lark/0/2021/gif/106133/1616385299899-68c544e2-d6a6-4aeb-b0e5-926df78ced9f.gif#align=left&display=inline&height=330&margin=%5Bobject%20Object%5D&name=%E5%9B%BE%E7%89%87.gif&originHeight=1080&originWidth=1440&size=1255665&status=done&style=none&width=440)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01uTFPGy1WVEslbcHQ6_!!6000000002793-1-tps-1440-1080.gif" style="max-width:90%;" />
+</div>
+
 # 2. 基础知识
 本案例主要依赖的硬件环境有：HaaS100、温湿度传感器。
 ## 2.1  **HaaS100开发板**
 **HaaS100**是一款物联网场景中的标准开发板，并配套嵌入到硬件中的软件驱动及功能模块，为用户提供物联网设备高效开发服务。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607656919362-55ec2c19-a0dd-4d1d-ac95-2052ffeedd7f.png#align=left&display=inline&height=295&margin=%5Bobject%20Object%5D&name=image.png&originHeight=443&originWidth=443&size=130743&status=done&style=none&width=295)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN011t59YF25YubwEfz98_!!6000000007539-2-tps-443-443.png" style="max-width:90%;" />
+</div>
 HaaS100核心板有着丰富的外设接口，如下所示：
-**![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1607655121564-f799e873-94f0-485d-8d1c-95ba5cafaf5f.png#align=left&display=inline&height=352&margin=%5Bobject%20Object%5D&name=image.png&originHeight=886&originWidth=586&size=232115&status=done&style=none&width=233)**
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN015hi7UZ1WC0FTTOZBs_!!6000000002751-2-tps-586-886.png" style="max-width:90%;" />
+</div>
+
 详细的资料参考[HaaS 100 硬件规格](https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.645.718015814zDYZt)。
 ## 2.2  温湿度传感器
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1602668227884-a0540759-321e-42c9-9aec-90c2267c378c.png#align=left&display=inline&height=176&margin=%5Bobject%20Object%5D&name=image.png&originHeight=872&originWidth=1604&size=1688048&status=done&style=none&width=324)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01G4JbCl1qcplUe5ynk_!!6000000005517-2-tps-1604-872.png" style="max-width:90%;" />
+</div>
+
 DHT11温湿度传感器的工作原理
 ### 2.2.1 工作时序
 主机发开始信号-》DHT11响应输出-》DHT11数据信号。（平时默认为高电平，起始信号为低电平）
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1602666711277-0c4ce043-f504-4d27-9f57-b6520c1922ce.png#align=left&display=inline&height=145&margin=%5Bobject%20Object%5D&name=image.png&originHeight=352&originWidth=1398&size=408102&status=done&style=none&width=574)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN017lZ9eZ1cIlnMoyjU3_!!6000000003578-2-tps-1398-352.png" style="max-width:90%;" />
+</div>
+
 ### 2.2.2 起始信号和响应信号的规则
 主机发开始信号：低电平大于18ms，高电平20-40us；
 DHT11的响应信号：低电平80us，高电平80us；
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1602667431782-a4549dcb-a5fc-469f-9618-12a3913ae2d9.png#align=left&display=inline&height=180&margin=%5Bobject%20Object%5D&name=image.png&originHeight=508&originWidth=1592&size=583957&status=done&style=none&width=565)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01etKzgU1UNKoYVqtxo_!!6000000002505-2-tps-1592-508.png" style="max-width:90%;" />
+</div>
+
 ### 2.2.3数字信号的规则
 ```
 一次完整的数据传输为40bit,高位先出。
@@ -30,9 +53,16 @@ DHT11的响应信号：低电平80us，高电平80us；
 ```
 DHT11传感器如果没有接收到主机发送开始信号,不会主动进行温湿度采集。
 数字‘0’信号：低电平50us，高电平26-28us
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1602667907635-819f1ad4-ed9e-489b-9a1d-973cff036156.png#align=left&display=inline&height=194&margin=%5Bobject%20Object%5D&name=image.png&originHeight=850&originWidth=1564&size=985414&status=done&style=none&width=357)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01BVYeO41aQtaXWn8Di_!!6000000003325-2-tps-1564-850.png" style="max-width:90%;" />
+</div>
+
 数字‘1’信号：低电平50us，高电平70us
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1602668007947-084bf9ad-ff1c-45da-b111-7e045fb15e03.png#align=left&display=inline&height=166&margin=%5Bobject%20Object%5D&name=image.png&originHeight=730&originWidth=1574&size=760932&status=done&style=none&width=357)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01jH1ELf1Z8Hspm5NNC_!!6000000003149-2-tps-1574-730.png" style="max-width:90%;" />
+</div>
 # 3 物料清单
 | **物料** | **规格** | **购买链接** |
 | :---: | :---: | :---: |
@@ -42,7 +72,10 @@ DHT11传感器如果没有接收到主机发送开始信号,不会主动进行�
 TELESKY [天猫链接](https://detail.tmall.com/item.htm?id=41248630584&ali_refid=a3_430582_1006:1109983619:N:77RKeLgkEXuYPsQPL/pGPA==:31c58e63c712d4a9ee33af685ecb1c61&ali_trackid=1_31c58e63c712d4a9ee33af685ecb1c61&spm=a230r.1.14.6)
 优信电子 [淘宝链接](https://item.taobao.com/item.htm?spm=a230r.1.14.15.77176c121VUnMs&id=522553143872&ns=1&abbucket=12#detail) |
 
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106133/1616384880211-5d026ce6-2540-47ea-8a49-c0420a3dd2a9.png#align=left&display=inline&height=585&margin=%5Bobject%20Object%5D&name=image.png&originHeight=4032&originWidth=3024&size=11665408&status=done&style=none&width=439)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01OkWDVc1Y6AQtrBbaQ_!!6000000003009-2-tps-1488-1234.png" style="max-width:90%;" />
+</div>
+
 # 4. 案例实现
 ## 4.1 硬件连接
 HaaS100与温湿度传感器和土壤湿度传感器的接口说明。
@@ -58,19 +91,43 @@ HaaS100与温湿度传感器和土壤湿度传感器的接口说明。
 请先点击登陆[物联网平台](https://www.aliyun.com/product/iot/iot_instc_public_cn)（未注册阿里云账户的用户，请先完成账户注册），按下面步骤一步步去打造
 1、创建项目
 注册登入后，如下图所示，前往管理控制台。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606826963138-9cca56da-824c-4ae5-9a32-ad027e7ca4b3.png#align=left&display=inline&height=170&margin=%5Bobject%20Object%5D&name=image.png&originHeight=490&originWidth=1308&size=276942&status=done&style=none&width=453)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01u0AGpn1uEnRRq2WAu_!!6000000006006-2-tps-1308-490.png" style="max-width:90%;" />
+</div>
+
 点击公共实例，进行产品创建
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606827081165-bc920f5f-01d3-425f-9662-5066d8f2e956.png#align=left&display=inline&height=302&margin=%5Bobject%20Object%5D&name=image.png&originHeight=792&originWidth=1328&size=142752&status=done&style=none&width=506)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01kDopR91FsHL3jRQOT_!!6000000000542-2-tps-1328-792.png" style="max-width:90%;" />
+</div>
+
 2、创建HaaS养花的产品
 点击创建产品，见下图所示，这里创建了一个名称“HaaS养花”产品。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606827234913-22f3e20f-b7d0-4f5e-9983-7c72c969f1b8.png#align=left&display=inline&height=239&margin=%5Bobject%20Object%5D&name=image.png&originHeight=600&originWidth=1490&size=211557&status=done&style=none&width=594)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01PtUXOV1K3VVdbJc2v_!!6000000001108-2-tps-1490-600.png" style="max-width:90%;" />
+</div>
+
 在产品详情中增加产品的功能，比如：温度、湿度等。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606827812867-70ddac4b-b9a1-4f00-9f4f-7b5f7d355b2d.png#align=left&display=inline&height=207&margin=%5Bobject%20Object%5D&name=image.png&originHeight=900&originWidth=2538&size=426175&status=done&style=none&width=584)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01eb1RVm1XpDmMr8cqi_!!6000000002972-2-tps-2538-900.png" style="max-width:90%;" />
+</div>
+
 3、设备管理
 在设备列表中增加对应产品的设备。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606827539100-7af21569-9224-4ad7-aca5-480d84ff50d1.png#align=left&display=inline&height=247&margin=%5Bobject%20Object%5D&name=image.png&originHeight=874&originWidth=1910&size=364503&status=done&style=none&width=540)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN015JH11p1cgaO8xzhJ9_!!6000000003630-2-tps-1910-874.png" style="max-width:90%;" />
+</div>
+
 查看设备信息
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/106133/1606828516473-c35480c2-143e-47a0-a0a1-3ac979b6a4c4.png#align=left&display=inline&height=214&margin=%5Bobject%20Object%5D&name=image.png&originHeight=994&originWidth=2734&size=486092&status=done&style=none&width=588)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN012ZcVF71EK6ADdOaxW_!!6000000000332-2-tps-2734-994.png" style="max-width:90%;" />
+</div>
+
 创建后的设备三元组信息需要同步到设备端的开发代码段中，在3.1章节会介绍。待设备端开发结束，就可以在物联网平台中参看设备在线状态。
 ### 4.2.2 设备端代码
 传感器GPIO初始化接口，参考文档路径：solutions/flower_demo/flower_app.c
@@ -155,7 +212,9 @@ git clone -b dev_3.1.0_haas https://github.com/alibaba/AliOS-Things.git
 ```
 SDK相关代码及操作readme在application/miniapp/目录下。
 2、 SDK目录结构
-/ 
+
+```sh
+.
 ├─ lib (存放依赖库的文件夹，用户无需关心)
 │    ├─ @alicloud/pop-core     （[https://github.com/aliyun/openapi-core-nodejs-sdk](https://github.com/aliyun/openapi-core-nodejs-sdk)）
 │    ├─ kitx
@@ -177,11 +236,14 @@ SDK相关代码及操作readme在application/miniapp/目录下。
 ├─ app.acss                         （小程序全局样式）
 ├─ app.json                         （小程序全局配置，可以在这里设置小程序打开的默认页面）
 └─ others
-
+```
 
 3、 SDK使用
 使用小程序开发工具打开miniapp这个工程。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/113837/1607309104502-3aa9a406-93a3-4b6e-84e4-4d2fa8a13894.png#align=left&display=inline&height=618&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1236&originWidth=2144&size=1065527&status=done&style=none&width=1072)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN011gxxpV21LOSUrBJC9_!!6000000006968-2-tps-2144-1236.png" style="max-width:90%;" />
+</div>
 
 - step1 在app.js填写 AccessKeyID 以及 AccessKeySecret ， 获取云端API调用权限
 - step2 填写目标设备 DeviceName 以及 ProductKey，这里是待控制的设备
@@ -207,17 +269,31 @@ let device = {
 
 云账号AccessKey是用户访问阿里云API的密钥。（[https://usercenter.console.aliyun.com/#/manage/ak](https://usercenter.console.aliyun.com/#/manage/ak)）
 安全起见，我们可以采取创建[RAM子账号](https://ram.console.aliyun.com/users)的形式，来对权限进行分离。
-![截屏2020-10-29 下午1.01.39.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1603947703740-e6e2b231-57af-4968-94ed-377b10f65ff3.png#align=left&display=inline&height=732&margin=%5Bobject%20Object%5D&name=%E6%88%AA%E5%B1%8F2020-10-29%20%E4%B8%8B%E5%8D%881.01.39.png&originHeight=732&originWidth=3584&size=210321&status=done&style=none&width=3584)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01WSv9th1Rm7OvqTbo9_!!6000000002153-2-tps-3584-732.png" style="max-width:90%;" />
+</div>
+
 创建完成后，需要手动分配权限，点击右侧，添加权限。我这里直接选择了 **AdministratorAccess。 **添加完成后如下。
-![截屏2020-10-29 下午1.03.13.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1603947799141-4f21e9a1-ca11-46bb-be60-95075cadb597.png#align=left&display=inline&height=1920&margin=%5Bobject%20Object%5D&name=%E6%88%AA%E5%B1%8F2020-10-29%20%E4%B8%8B%E5%8D%881.03.13.png&originHeight=1920&originWidth=3584&size=578859&status=done&style=none&width=3584)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01fFjDqn1OaihJrsA4o_!!6000000001722-2-tps-3584-1920.png" style="max-width:90%;" />
+</div>
 
 - DeviceName ProducKey
 
 这两个参数在[创建设备](#jSkOe)时生成。
 4、 编译验证
 点击小程序IDE右上角“真机调试”按钮，等待二维码生成后，使用钉钉APP扫码，即可发起小程序。
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/256836/1605585495799-64ecf7b0-ae07-44db-8d2a-d2219316295b.png#align=left&display=inline&height=98&margin=%5Bobject%20Object%5D&name=image.png&originHeight=156&originWidth=948&size=18271&status=done&style=none&width=594)
-![图片1.gif](https://intranetproxy.alipay.com/skylark/lark/0/2021/gif/106133/1616397018098-69979d7a-4abf-4cfb-b1f3-5f218c29512c.gif#align=left&display=inline&height=442&margin=%5Bobject%20Object%5D&name=%E5%9B%BE%E7%89%871.gif&originHeight=1330&originWidth=746&size=506092&status=done&style=none&width=248)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01nYZ1R01FVpveL7bv9_!!6000000000493-2-tps-948-156.png" style="max-width:90%;" />
+</div>
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01ixflz91HMKwrURJ2i_!!6000000000743-1-tps-746-1330.gif" style="max-width:90%;" />
+</div>
+
 ## 4.3 编译，烧入，运行
 编译命令
 ```
@@ -237,7 +313,11 @@ password:88888888
 netmgr -t wifi -c HaaS-test 88888888
 ```
 打印信息
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106133/1616134364462-49c6de19-4bdc-411a-9d0c-5d2fa856161b.png#align=left&display=inline&height=365&margin=%5Bobject%20Object%5D&name=image.png&originHeight=900&originWidth=958&size=280445&status=done&style=none&width=388)
+
+<div align=left display=flex>
+    <img src="hhttps://img.alicdn.com/imgextra/i3/O1CN01hpPVq91TUpgUAFEqS_!!6000000002386-2-tps-958-900.png" style="max-width:90%;" />
+</div>
+
 # 5. 总结
 至此，一个简单的能手机远程管理的HaaS花卉养植系统就做好了。是不是很简单？
 

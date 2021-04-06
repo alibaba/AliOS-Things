@@ -48,14 +48,15 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 * eduk1\_demo : HaaS EDU平台的应用模版，含陀螺仪、红外、海拔等多款典型场景下的传感器应用。如果您不清楚如何开始HaaS EDU平台的开发,建议您从此模版入手。
 
 
-@subpage audio_demo
-@subpage auto_demo
-@subpage eduk1_demo
-@subpage flower_demo
-@subpage helloworld_demo
-@subpage linksdk_demo
-@subpage linksdk_gateway_demo
-@subpage ota_demo
-@subpage py_engine_demo
-@subpage rfid_demo
-@subpage lora_p2p_demo
+@subpage audio_demo \n
+@subpage auto_demo \n
+@subpage eduk1_demo \n
+@subpage flower_demo \n
+@subpage helloworld_demo \n
+@subpage linksdk_demo \n
+@subpage linksdk_gateway_demo \n
+@subpage ota_demo \n
+@subpage py_engine_demo \n
+@subpage rfid_demo \n
+@subpage lora_p2p_demo \n
+@subpage ucloud_ai_demo \n

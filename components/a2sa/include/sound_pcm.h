@@ -23,7 +23,8 @@
 extern "C" {
 #endif
 
-/** @defgroup a2sa_pcm_api
+/** @defgroup a2sa_pcm_api pcm
+ *  @ingroup a2sa_api
  * @{
  */
 

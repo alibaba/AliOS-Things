@@ -16,7 +16,7 @@ typedef struct _aiagent_context_t {
 } aiagent_context_t;
 
 
-/** @defgroup aiagent_aos_api
+/** @defgroup aiagent_aos_api aiagent
  * @{
  */
 
