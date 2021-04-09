@@ -14,10 +14,10 @@ https://github.com/open-source-parsers/jsoncpp
 - json字符串编码
 - json字符串解码
 
-# 版权信息
+## 版权信息
 > MIT license
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── cmake
@@ -34,7 +34,7 @@ https://github.com/open-source-parsers/jsoncpp
 └── test                          # jsoncpp 测试相关文件
 ```
 
-# 依赖组件
+## 依赖组件
 
 * osal_aos
 * cplusplus

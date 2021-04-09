@@ -248,7 +248,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
                 return -EIO;
             }
             d = (io_i2c_data_t *)arg;
-            ddkc_info("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
+            ddkc_dbg("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
                       d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
             ret = hal_i2c_mem_read(i2c_dev, d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
             if (ret) {
@@ -263,7 +263,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
             }
 
             d = (io_i2c_data_t *)arg;
-            ddkc_info("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
+            ddkc_dbg("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
                       d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
             ret = hal_i2c_mem_write(i2c_dev, d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
             if (ret) {

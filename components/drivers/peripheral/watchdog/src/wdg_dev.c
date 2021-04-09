@@ -87,7 +87,7 @@ int wdg_device_close (file_t *f) {
     }
     vt->ref_cnt--;
     if (!vt->ref_cnt) {
-        ddkc_err("ignore wdg finialize, ref_cnt:%d\r\n", vt->started, vt->ref_cnt);
+        ddkc_err("ignore wdg finialize, started:%d, ref_cnt:%d\r\n", vt->started, vt->ref_cnt);
         return 0;
     }
 

@@ -463,7 +463,7 @@ static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan
     } else {
         ret = bwifi_scan();
     }
-    if (ret < 0) {
+    if (ret <= 0) {
         printf("wifi scan fail\n");
         return -1;
     }

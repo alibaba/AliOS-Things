@@ -42,7 +42,7 @@ static void timer1_func(void *timer, void *arg)
     timer_count++;
 }
 
-static void aos_timer_example(int argc, char **argv)
+static void aos_timer_example_task(void *data)
 {
     aos_status_t status;
 
@@ -78,6 +78,17 @@ static void aos_timer_example(int argc, char **argv)
 
     printf("[%s]timer expires %d times\n", MODULE_NAME, timer_count);
 
+}
+
+static void aos_timer_example(int argc, char **argv)
+{
+    aos_status_t status;
+    aos_task_t task_handle;
+    status = aos_task_create(&task_handle, "task_timer_test", aos_timer_example_task, NULL, NULL, 1024, 50, AOS_TASK_AUTORUN);
+    if (status != 0) {
+        printf("[%s]create %s error\n", MODULE_NAME, "task_timer_test");
+        return;
+    }
 }
 
 #ifdef AOS_COMP_CLI

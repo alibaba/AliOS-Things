@@ -7,7 +7,6 @@ sensor 组件是 udata 组件的 Sensor Driver 部分，可单独提供 sensor h
 ## 组件支持以下功能：
 - 传感器的硬件抽象层；
 - 统一的I2C和SPI总线驱动程序；
-- 支持modbus和CANbus传感器；
 - 已集成100多个传感器驱动；
 
 ## 版权信息
@@ -88,7 +87,7 @@ solution:
 ```
 
 ## 2. 添加示例代码
-> solutions/helloworld_demo/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并在本地进行打印：
+> components/sensor/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并在本地进行打印：
 ```sh
 def_config:
   AOS_SENSOR_LOCAL_DEMO_ENABLE: 1
@@ -143,7 +142,7 @@ solution:
 ```
 
 ## 2. 添加示例代码
-> 2.1 solutions/linksdk_demo/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并通过 linkkit 上传到云端：
+> 2.1 components/sensor/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并通过 linkkit 上传到云端：
 ```sh
 def_config:
   AOS_SENSOR_CLOUD_DEMO_ENABLE: 1

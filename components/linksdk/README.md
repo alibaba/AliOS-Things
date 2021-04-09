@@ -22,10 +22,10 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 
 更多详情，请参考阿里云Link SDK[说明文档](https://help.aliyun.com/document_detail/163755.html?spm=a2c4g.11186623.6.558.38557748p9kUy6) 。
 
-# 版权信息
+## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── ChangeLog.md           #变更日志
@@ -62,7 +62,7 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 └── README.md
 ```
 
-# 依赖组件
+## 依赖组件
 
 * osal_aos
 * cjson

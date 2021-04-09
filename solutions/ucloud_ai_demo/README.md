@@ -207,31 +207,38 @@ ENDPOINT使用默认即可，BUCKET请使用你创建好的Bucket名称
 MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
 ```
 
-## 4.5 编译
+## 4.5 WiFi摄像头IP配置
+wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替换：
+在components/ucamera/package.yaml中配置：
 ```sh
-cd solutions/ucloud_ai_demo && aos make
+  WIFICAMERA_URL: "http://192.168.43.166:80/capture"
+```
+> 192.168.43.166替换为3.2.1.7中从log获取的WiFi摄像头IP。
+
+
+## 4.6 AliOS Things开发环境搭建
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+## 4.7 智能语音播放器代码下载
+云端AI识别的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中：
+> 选择解决方案: “云端AI案例”或者“ucloud_ai_demo”
+> 选择开发板: HaaS100
+
+## 4.8 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+### 4.8.1 文件件系统烧录
+本组件例子中使用到到图片及字体分别存放在代码中hardware/chip/haas1000/prebuild/data/目录下ai_demo_image及font目录，除烧录ucloud_ai_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
+
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-## 4.6 资源文件打包
-编译完成后请确认目录hardware/chip/haas1000/prebuild/data/下有ai_demo_image、font两个目录。这些资源文件Demo在使用时会用到。
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
-hardware/chip/haas1000/prebuild/data/目录下如有其他不使用的文件，建议删除后再进行编译，避免littlefs不够用导致无法访问的问题。
-
-## 4.7 烧录固件
-> 参考具体板子的快速开始文档。
-
-> ucloud_ai_demo bin烧录：
-```sh
-aos burn
-```
-
-> littlefs文件系统烧录：
-```sh
-aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
-```
-本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需烧录littlefs文件系统。
-
-## 4.5 网络连接
+## 4.9 网络连接
 因为HaaS100开发板需要连接到云端，因此需要连接到一个可以上外网的路由器，WiFi摄像头(ESP32-EYE)也只能使用Station模式连接到同一台路由器。
 
 ```sh
@@ -240,16 +247,13 @@ netmgr -t wifi -c {ssid} {password}
 ```
 请将ssid修改为您路由器的WiFi名称，paasword填入路由器的WiFi密码。
 
-## 4.6 识别结果响应
+## 4.10 识别结果响应
 识别到后输出置信度的值，人脸位置以及“boss is coming”字样：
 
 <div align=left display=flex>
     <img src="https://img-blog.csdnimg.cn/img_convert/06a60d5c4ac2ef19bc06a0ac62c76fda.png" style="max-width:90%;" />
 </div>
 
-### 4.6.1 字幕提醒
-在HaaS 100的扩展屏上显示:
-
-<div align=left display=flex>
-    <img src="https://img-blog.csdnimg.cn/img_convert/f62c4a0057d7c30069d51436e6dbf3cd.gif" style="max-width:90%;" />
-</div>
+### 4.10.1 字幕提醒
+在HaaS 100的扩展屏上显示：
+![HaaS 100 LCD 1.gif](https://img-blog.csdnimg.cn/img_convert/f62c4a0057d7c30069d51436e6dbf3cd.gif)

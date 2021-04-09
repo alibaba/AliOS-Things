@@ -100,7 +100,7 @@ sntp_example
 sntp test
 21-3-19: week: 5, 17:59:20
 ```
-# Notice
+# 注意事项
 
 使用sntp服务，需要先连接网络
 

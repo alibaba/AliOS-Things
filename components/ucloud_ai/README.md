@@ -65,26 +65,20 @@ def_config:                              # 组件的可配置项
 @ref ucloud_ai_aos_api
 
 # 使用示例
-示例代码参考example/ucloud_ai_example.c，以运行ucloud_ai_demo为例，具体步骤如下：
+示例代码参考example/ucloud_ai_example.c，以运行helloworld_demo为例，具体步骤如下:
 
 ## 添加示例代码
-> ucloud_ai组件的package.yaml中添加example
+> ucloud_ai组件的package.yaml中添加example：
 ```sh
 source_file:
   - "example/ucloud_ai_example.c" # add ucloud_ai_example.c
 ```
 
-> ugraphics组件的package.yaml中添加编译配置:
+> ucloud_ai组件的package.yaml中添加编译配置：
+> >编译时ucloud_ai组件中cp_resources.py会对资源文件进行拷贝，系统自动打包到littlefs文件系统中。
 ```sh
 build_config:
  prebuild_script: cp_resources.py
-```
-
-> helloworld_demo组件的application_start中添加代码
-```sh
-    /*init network service*/
-    event_service_init(NULL);
-    netmgr_service_init(NULL);
 ```
 
 ## 云端功能开通
@@ -125,37 +119,38 @@ depends:
   - littlefs: dev_aos   # helloworld_demo中引入littlefs组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-## 资源文件打包
-> 编译时ucloud_ai组件中cp_resources.py会对资源文件进行拷贝，系统自动打包到littlefs文件系统中。编译完成后请确认目录hardware/chip/haas1000/prebuild/data/下有ucloud_ai_image目录。
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
 
->hardware/chip/haas1000/prebuild/data/目录下如有其他不使用的文件，建议删除后再进行编译，避免littlefs不够用导致无法访问的问题。
+### 文件件系统烧录
+本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data/目录下ucloud_ai_image目录，除烧录helloworld_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
 
-> 在cli/package.yaml中设置打开CLI_IOBOX_ENABLE，便可在板子上通过ls命令查看资源文件是否成功烧录：
-```sh
-def_config:
-  CLI_IOBOX_ENABLE: 1
-```
-```sh
-ls /data/ucloud_ai_image
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-## 烧录固件
-> helloworld_demo bin烧录：
-```sh
-aos burn
-```
-
-> littlefs文件系统烧录：
-```sh
-aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
-```
-本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需烧录littlefs文件系统。
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## ucloud_ai示例测试
+
+测试步骤：
+```sh
+$ ucloud_ai init # 初始化ucloud_ai
+$ netmgr -t wifi -c {ssid} {password}  # 请将ssid修改为您路由器的WiFi名称，paasword填入路由器的WiFi密码
+$ ucloud_ai -m {0 ~ 14} # 测试AI用例
+```
+
+### CLI命令行输入：
+```sh
+ucloud_ai init # 在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可
+```
+
+> CLI关键日志：
+```sh
+ucloud_ai comp init successfully!
+```
 
 ### CLI命令行输入：
 ```sh

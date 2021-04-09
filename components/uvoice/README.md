@@ -273,7 +273,7 @@ play "https:xxxxxxxxs/test.mp3"      # 这里文件名替换成实际https链接
 record 16000 1 16 1024 0 fs:/data/recording.wav
 ```
 
-# 关键日志
+## 关键日志
 > CLI日志：
 ```sh
 uvoice example initialization succeeded !
@@ -293,7 +293,3 @@ uvoice example initialization succeeded !
 ```sh
 要支持https播放功能，需要将mbedtls的MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN配置为16k
 ```
-
-
-
-
