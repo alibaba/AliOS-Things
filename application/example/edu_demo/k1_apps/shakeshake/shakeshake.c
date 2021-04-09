@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "shakeshake.h"
@@ -27,6 +23,7 @@ short ax = 0, ay, az;
 short ay_pre = 0, az_pre = 0;
 short y_change = 0, z_change = 0;
 short rand_value = 0;
+static int running = 1;
 
 int shakeshake_init(void)
 {
@@ -44,16 +41,9 @@ int shakeshake_init(void)
     return 0;
 }
 
-int shakeshake_uninit(void)
-{
-    aos_task_delete("shakeshake_task");
-    printf("aos_task_delete shakeshake_task \n");
-    return 0;
-}
-
 void shakeshake_task()
 {
-    while (1)
+    while (running)
     {
         MPU_Get_Accelerometer(&ax, &ay, &az);
 
@@ -77,4 +67,19 @@ void shakeshake_task()
         ay_pre = ay;
         aos_msleep(50);
     }
+
+    running = 1;
+}
+
+int shakeshake_uninit(void)
+{
+    running = 0;
+
+    while (!running)
+    {
+        aos_msleep(50);
+    }
+    aos_task_delete("shakeshake_task");
+    printf("aos_task_delete shakeshake_task \n");
+    return 0;
 }

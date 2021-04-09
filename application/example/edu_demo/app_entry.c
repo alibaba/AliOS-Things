@@ -19,6 +19,7 @@
 #include "build_version.h"
 
 extern int board_test(void);
+extern void vendor_cli_register_init(void);
 
 int wifi_connected = 0;
 int bt_connected = 0;
@@ -74,17 +75,34 @@ static void start_netmgr(void *p)
 int application_start(int argc, char **argv)
 {
     uint8_t value = 0;
+    uint8_t re_value = 0;
     int len = 1;
 #ifdef ENABLE_FACTORY_TEST
-    if( 0 == aos_kv_get("factory_test", &value, &len) ) {
+    if( 0 != aos_kv_get("factory_test", &value, &len) ) {
+        if( 0 == aos_kv_get("reboot_times", &re_value, &len) ){
+            if( re_value++ < 5 ){
+                aos_kv_set("reboot_times", &re_value, len, 1);
+                printf("reboot_times is avild, add it %d!\r\n",re_value);
+            }else{
+                printf("reboot_times is 5+, skip factory_test %d!\r\n",re_value);
+                goto normal_mode;
+            }
+        }else{
+            re_value++;
+            printf("reboot_times is not avild, create it %d!\r\n",re_value);
+            aos_kv_set("reboot_times", &re_value, len, 1);
+        }
+    }
+factorytest_mode:
         printf("factory test entry here!\r\n");
+        vendor_cli_register_init();
         board_test();
         while(1) {
             aos_msleep(1000);
         }
-    } else
+
+normal_mode:
 #endif
-    {
 #ifdef CONFIG_PRINT_HEAP
         print_heap();
         aos_post_delayed_action(5000, duration_work, NULL);
@@ -92,7 +110,7 @@ int application_start(int argc, char **argv)
 #ifdef CSP_LINUXHOST
         signal(SIGPIPE, SIG_IGN);
 #endif
-        //aos_set_log_level(AOS_LL_DEBUG);
+        aos_set_log_level(AOS_LL_DEBUG);
 #if defined(ENABLE_AOS_OTA)
         //ota_register_cb(&ctx, OTA_CB_ID_UPGRADE, (void*)ota_upgrade_cb);
 #endif
@@ -111,5 +129,4 @@ int application_start(int argc, char **argv)
         aos_loop_run();
 
         return 0;
-    }
 }

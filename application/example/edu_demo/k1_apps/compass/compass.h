@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #ifndef __COMPASS_H__
 #define __COMPASS_H__
 

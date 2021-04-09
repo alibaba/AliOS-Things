@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal_oled.h"
@@ -13,6 +9,8 @@ static char altitude_str[16] = " ";
 static char Ctemp_str[7] = " ";
 static char Ftemp_str[7] = " ";
 static spl06_data_t spl06_data = {0};
+
+static int running = 1;
 
 MENU_COVER_TYP barometer_cover = {MENU_COVER_NONE};
 MENU_TASK_TYP barometer_tasks = {
@@ -38,21 +36,14 @@ int barometer_init(void)
     return 0;
 }
 
-int barometer_uninit(void)
-{
-    aos_task_delete("barometer_task");
-    printf("aos_task_delete barometer_task \n");
-    return 0;
-}
-
 void barometer_task()
 {
-    while (1)
+    while (running)
     {
         OLED_Clear();
 
         OLED_Icon_Draw(14, 4, &icon_atmp_16_16, 0);
-        sprintf(pressure_str, " %-12.2lfPa", spl06_data.pressure);
+        sprintf(pressure_str, " %-10.3lfkPa", spl06_data.pressure / 10);
         printf("%s\n", pressure_str);
         OLED_Show_String(32, 6, pressure_str, 12, 1);
 
@@ -80,4 +71,20 @@ void barometer_task()
 
         aos_msleep(500);
     }
+
+    running = 1;
+}
+
+int barometer_uninit(void)
+{
+    running = 0;
+
+    while (!running)
+    {
+        aos_msleep(50);
+    }
+
+    aos_task_delete("barometer_task");
+    printf("aos_task_delete barometer_task \n");
+    return 0;
 }

@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #ifndef __HUMITURE_H__
 #define __HUMITURE_H__
 

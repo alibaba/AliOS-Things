@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #define NOTE_B0  31
 #define NOTE_C1  33
 #define NOTE_CS1 35

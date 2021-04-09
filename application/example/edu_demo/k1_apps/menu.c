@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -52,7 +48,7 @@ void menu_list_fix(MENU_LIST_TYP *menuChildList, MENU_TYP *menuParent)
     {
         if (menuParent != NULL)
         {
-            menuParent->pChild = menuChildList->pMenuList[0];  // 父节点只会指向第一个 懒得做判断了
+            menuParent->pChild = menuChildList->pMenuList[0];  // 父节点只会指向第一个
             menuChildList->pMenuList[i]->pParent = menuParent; // 子节点都连到父节点上
             // menuChildList->pMenuList[i]->MenuID = i | ((menuParent->MenuID) * 10); // 子级目录 id向前推8个bit  elliott
         }
@@ -220,9 +216,6 @@ static void public_key_event_handle(key_code_t key_code)
         app_key_code_cb = menu_key_event_handle; // 还给默认按键处理函数
         if (pCurMenu != NULL)
         {
-            // 几种情况 有封面的 如果这个时候没在执行 应该退回上一个封面 也就是 pCurMenu = pCurMenu->pParent;
-            // 有封面的 如果这个时候在执行 应该退回到自己的封面 也就是 resume menu_show_cover_task
-            // 没封面的 既然在这肯定在执行了 那就直接exit掉 然后该回的回 是父级就不用响应了
             if (pCurMenu->MenuCover->MenuCoverMode != MENU_COVER_NONE)
             {
                 if (pCurMenu->pMenuTask->menu_task_state != MENU_TASK_RUNNING)
@@ -261,11 +254,6 @@ static void public_key_event_handle(key_code_t key_code)
             printf("app_key_code_cb is null \n");
         }
     }
-}
-
-void switch_menu(MENU_TYP *pCurMenu, MENU_TYP *pTargetMenu)
-{
-    //  如果封面也能够统一成 task 那么所有的操作都是task的切换
 }
 
 int menu_task_start(MENU_TYP *pMenu)
@@ -411,7 +399,10 @@ static void menu_key_event_handle(key_code_t key_code)
         break;
     case KEY_CODE_DOWN:
         if (pCurMenu->pChild != NULL) // 有下级菜单 先进去
+        {
             pCurMenu = pCurMenu->pChild;
+        }
+
         else // 没下级菜单了 应该是执行自己了 有child不应该有task
         {
             if (pCurMenu->MenuCover->MenuCoverMode != MENU_COVER_NONE) // 只有有cover的类型才会在这里响应
@@ -428,13 +419,12 @@ static void menu_key_event_handle(key_code_t key_code)
     {
     case KEY_CODE_RIGHT:
     case KEY_CODE_LEFT:
-    case KEY_CODE_DOWN:
         if (pCurMenu == NULL) // 这里是 已经转换过的 pCurMenu
         {
             printf("pCurMenu null in %s:%d\n", __func__, __LINE__);
             return;
         }
-        if (pCurMenu->MenuCover->MenuCoverMode == MENU_COVER_NONE) // （对于无cover的app） 进来直接执行 对于有Cover的 只有Down有反应 在上面处理过了
+        if (pCurMenu->MenuCover->MenuCoverMode == MENU_COVER_NONE) // （对于无cover的app） 进来直接执行 对于有Cover的 只有Down才执行反应 在上面处理过了
         {
             menu_task_start(pCurMenu);
         }

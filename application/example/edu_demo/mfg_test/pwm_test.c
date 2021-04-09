@@ -62,9 +62,6 @@ static int pwm_autotest()
     printf("***************************************************************\r\n");
     printf("*************************** PWM Test **************************\r\n");
     printf("***************************************************************\r\n");
-    printf("** Note: use PWM pin as GPIO pin in Haas101:                 **\r\n");
-    printf("** Test pin is (pwm0(gpio0_26), pwm1(gpio0_27))              **\r\n");
-    printf("**   (qpwm2(gpio0_24), pwm3(gpio0_25)) in double-pins        **\r\n");
     printf("***************************************************************\r\n");
     printf("=====pwm test : Start=====\r\n");
 

@@ -199,7 +199,7 @@ class RPCClient {
       })
     }
     // 支付宝小程序运行环境 不完全可靠
-    if (typeof my !== 'undefined' && (my.navigateToMiniProgram || my.navigateBackMiniProgram)) {
+    else if (typeof my !== 'undefined' && (my.navigateToMiniProgram || my.navigateBackMiniProgram)) {
       commonRequest = new Promise((resolve, reject) => {
         my.request({
           url: url + '?' + opts.data,
@@ -211,7 +211,7 @@ class RPCClient {
       })
     }
     // 微信小程序判断 不完全可靠
-    if (typeof wx !== 'undefined' && (wx.navigateToMiniProgram || wx.navigateBackMiniProgram)) {
+    else if (typeof wx !== 'undefined' && (wx.navigateToMiniProgram || wx.navigateBackMiniProgram)) {
       commonRequest = new Promise((resolve, reject) => {
         wx.request({
           url: url + '?' + opts.data,

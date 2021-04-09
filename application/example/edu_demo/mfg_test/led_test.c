@@ -16,21 +16,6 @@
 
 extern uint32_t led_test_flag;
 
-void led_test_process(void)
-{
-    unsigned int led_id = 1;
-
-    printf("\r\n\r\n");
-    printf("***************************************************************\r\n");
-    printf("************************* LED Test ****************************\r\n");
-    printf("***************************************************************\r\n");
-    printf("*How to test: If the light flashes normally, press the function key *\r\n");
-    printf("***************************************************************\r\n");
-    printf("===== LED test : Start=====\r\n");
-
-    led_blink();
-
-}
 
 void led_blink(void)
 {
@@ -49,6 +34,19 @@ void led_blink(void)
         aos_msleep(500);
         led_id ++;
     }
+}
+
+void led_test_process(void)
+{
+    printf("\r\n\r\n");
+    printf("***************************************************************\r\n");
+    printf("************************* LED Test ****************************\r\n");
+    printf("***************************************************************\r\n");
+    printf("*How to test: If the light flashes normally, press the function key *\r\n");
+    printf("***************************************************************\r\n");
+    printf("===== LED test : Start=====\r\n");
+
+    aos_task_new("led_blink", led_blink, NULL, 4096);
 }
 
 static void handle_led_cmd(char *pwbuf, int blen, int argc, char **argv)

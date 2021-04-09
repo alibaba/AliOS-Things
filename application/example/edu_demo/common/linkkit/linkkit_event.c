@@ -112,7 +112,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
 {
     int res = 0;
 
-    EXAMPLE_TRACE("Property Set Received, Request: %s", request);
+    EXAMPLE_TRACE("Property Set Received, Request: %s", request); 
     res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
@@ -223,17 +223,17 @@ void user_post_property(char type_t,uint8_t value)
 
     char property_payload[30] = {0};
     switch(type_t){
-        case 0:
-            cnt++;
-            if(cnt>=100)    cnt = 1;
+        case 0:    
+            cnt++; 
+            if(cnt>=100)    cnt = 1;    
             HAL_Snprintf(property_payload, sizeof(property_payload), "{\"humidity\": %d}", value);
             res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY,
                                     (unsigned char *)property_payload, strlen(property_payload));
         break;
 
         case 1:
-            temp++;
-            if(temp>=70)    temp = 1;
+            temp++; 
+            if(temp>=70)    temp = 1;  
             HAL_Snprintf(property_payload, sizeof(property_payload), "{\"temperature\": %d}", value);
             res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY,
                                     (unsigned char *)property_payload, strlen(property_payload));
@@ -242,7 +242,7 @@ void user_post_property(char type_t,uint8_t value)
         default:
         break;
     }
-
+    
 
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
@@ -410,11 +410,11 @@ int linkkit_main(void *paras)
             EXAMPLE_TRACE("==\n");
             if(dis_flag == 1){
                 dis_flag = 0;
-            }
+            }  
             else if(dis_flag == 0)
             {
                 dis_flag = 1;
-            }
+            }               
         }
 
         cnt++;

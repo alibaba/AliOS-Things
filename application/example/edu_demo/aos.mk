@@ -68,19 +68,42 @@ $(NAME)_INCLUDES += ./
 
 ifeq ($(EDK_DEMO_FACTORY_TEST_ENABLIE), y)
 GLOBAL_DEFINES += ENABLE_FACTORY_TEST
-$(NAME)_COMPONENTS += osal_aos cli kv iobox
-
+$(NAME)_COMPONENTS += osal_aos cli kv aos_vendor_cli ble_host_comp
+GLOBAL_DEFINES += CONFIG_BT CONFIG_BT_OBSERVER
 $(NAME)_SOURCES +=  mfg_test/adc_test.c \
 					mfg_test/oled_test.c \
 					mfg_test/sensors_test.c \
 					mfg_test/board_test.c \
+					mfg_test/i2c_test.c \
 					mfg_test/key_test.c \
 					mfg_test/led_test.c \
 					mfg_test/pwm_test.c \
 					mfg_test/sd_test.c \
 					mfg_test/uart_test.c \
-					mfg_test/watchdog_test.c
+					mfg_test/audio_test.c \
+					mfg_test/watchdog_test.c \
+					mfg_test/usb_test.c \
+					mfg_test/ble_test.c
 
 $(NAME)_INCLUDES += ./mfg_test
-$(NAME)_COMPONENTS += osal_aos fatfs littlefs cli
+$(NAME)_COMPONENTS += osal_aos fatfs littlefs cli uvoice
+
+uvoice_project_build ?= 1
+uvoice_build_type ?= release
+uvoice_tts_enable ?= 0
+uvoice_player_enable ?= 1
+uvoice_recorder_enable ?= 1
+uvoice_file_enable ?= 1
+uvoice_mlist_enable ?= 0
+uvoice_http_enable ?= 0
+uvoice_https_enable ?= 0
+uvoice_event_enable ?= 1
+dec_pvmp3_enable ?= 1
+dec_faad2aac_enable ?= 0
+dec_faad2m4a_enable ?= 0
+
+A7_DSP_ENABLE := 1
+
+GLOBAL_DEFINES += HAAS_AUDIO_DEMO
 endif
+#endif

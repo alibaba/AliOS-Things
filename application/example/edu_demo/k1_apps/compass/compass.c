@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal_oled.h"
@@ -17,6 +13,8 @@ static char number_str[4] = " "; // 329
 static int heading = 0;
 static uint8_t arror_len = 16;
 
+static int running = 1;
+
 MENU_COVER_TYP compass_cover = {MENU_COVER_NONE};
 MENU_TASK_TYP compass_tasks = {
     compass_init,
@@ -27,8 +25,6 @@ MENU_TYP compass = {
     &compass_tasks,
     NULL,
     NULL};
-
-// 74637/compass_t | i2c_master_send, get i2c_mutex lock fail
 
 int compass_init(void)
 {
@@ -42,26 +38,17 @@ int compass_init(void)
     return 0;
 }
 
-int compass_uninit(void)
-{
-    aos_task_delete("compass_task");
-    printf("aos_task_delete compass_task \n");
-    return 0;
-}
-
 void compass_task()
 {
-    while (1)
+    while (running)
     {
         heading = qmc5883l_readHeading();
-        // heading = (heading + 180) % 360;
-        // printf("heading %d\n", heading);
 
         OLED_Clear();
         OLED_Icon_Draw(COMPASS_CENTER_X - 27, COMPASS_CENTER_Y - 27, &icon_compass_55_55, 0);
         OLED_Icon_Draw(72, 4, &icon_compass_arror_24_24, 0);
         format_compass_str(number_str, code_str, (-heading), &arror_len);
-        OLED_DrawLine_ByAngle(COMPASS_CENTER_X, COMPASS_CENTER_Y, (-heading-90), arror_len, 1);
+        OLED_DrawLine_ByAngle(COMPASS_CENTER_X, COMPASS_CENTER_Y, (-heading - 90), arror_len, 1);
         OLED_Show_String(96, 4, code_str, 24, 1);
         OLED_Show_String(78, 36, number_str, 24, 1);
         OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
@@ -70,6 +57,22 @@ void compass_task()
 
         aos_msleep(30);
     }
+
+    running = 1;
+}
+
+int compass_uninit(void)
+{
+    running = 0;
+
+    while (!running)
+    {
+        aos_msleep(50);
+    }
+
+    aos_task_delete("compass_task");
+    printf("aos_task_delete compass_task \n");
+    return 0;
 }
 
 void format_compass_str(char *number_str, char *code_str, int heading, uint8_t *arror_len)

@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "homepage.h"
@@ -35,13 +31,12 @@ int homepage_init(void)
 {
     OLED_Clear();
     OLED_Refresh_GRAM();
-    get_battery(&battery_level);
     aos_task_new("homepage_task", homepage_task, NULL, 1000);
     printf("aos_task_new homepage_task \n");
     return 0;
 }
 
-int get_battery(int *level)
+static int get_battery(int *level, uint32_t *volage)
 {
     int32_t ret = 0;
     uint32_t output = 0;
@@ -74,31 +69,33 @@ int get_battery(int *level)
         {
             test_max = output;
         }
-        osDelay(10);
+        osDelay(1);
     }
 
     hal_adc_finalize(&adc);
 
     test_avrg = (test_sum - test_min - test_max) >> 3;
-    test_avrg *= 3;
     //printf("\r\n=====adc test : the samping volage is:%dmv===\r\n", test_avrg);
-    if (test_avrg > 4000)
+    test_avrg *= 3.208;
+    *volage = test_avrg;
+
+    if (test_avrg > 4100)
     {
         *level = 4;
     }
-    else if ((test_avrg > 3600) && (test_avrg < 3800))
+    else if ((test_avrg > 3980) && (test_avrg < 4100))
     {
         *level = 3;
     }
-    else if ((test_avrg > 3400) && (test_avrg < 3800))
+    else if ((test_avrg > 3850) && (test_avrg < 3980))
     {
         *level = 2;
     }
-    else if ((test_avrg > 3200) && (test_avrg < 3400))
+    else if ((test_avrg > 3700) && (test_avrg < 3850))
     {
         *level = 1;
     }
-    else if (test_avrg < 3200)
+    else if (test_avrg < 3700)
     {
         *level = 0;
     }
@@ -109,22 +106,20 @@ void homepage_task(void)
 {
     unsigned char c = 0;
     struct tm *info;
-    /* 获取 GMT 时间 */
     struct timespec tv;
-    clock_gettime(CLOCK_MONOTONIC, &tv);
-    //printf("\r\n=====timespec is:%d===\r\n", tv);
-    info = gmtime(&tv);
-
     uint8_t image_version[22];
     uint8_t tmp[22];
     netmgr_stats_t stats;
-
+    uint32_t volage;
     while (1)
     {
         OLED_Clear();
+        /* 获取 GMT 时间 */
+        clock_gettime(CLOCK_REALTIME, &tv);
+        info = gmtime(&tv);
 
-        snprintf(tmp, 21, "%2d:%02d", (info->tm_hour) % 24, info->tm_min);
-        OLED_Show_String(0, 12 * 0, tmp, 12, 1);
+        snprintf(tmp, 21, "%2d:%02d", (info->tm_hour + 8) % 24, info->tm_min);
+        OLED_Show_String(2, 12 * 0, tmp, 12, 1);
         if (wifi_connected)
         {
             OLED_Icon_Draw(86, 0, &icon_wifi_on_12_12, 0);
@@ -133,7 +128,6 @@ void homepage_task(void)
         if (get_ipaddr)
         {
             netmgr_stats(0, &stats);
-            //snprintf(image_version, 20, "%d.%d.%d.%d", ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3]);
             if (stats.ip_available)
             {
                 snprintf(image_version, 20, "IP: %s", stats.ip);
@@ -157,9 +151,9 @@ void homepage_task(void)
         OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
         OLED_Icon_Draw(122, 24, &icon_skip_right, 0);
 
-        if (0 == get_battery(&battery_level))
+        if (0 == get_battery(&battery_level, &volage))
         {
-            //printf("get_battery success %d\n", battery_level);
+            //printf("get_battery success %d:%d\n", volage, battery_level);
             OLED_Icon_Draw(110, 0, &icon_battery_20_12[battery_level], 0);
         }
         else

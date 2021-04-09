@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "lightmeter.h"
@@ -19,6 +15,8 @@ MENU_TYP lightmeter = {
     &lightmeter_tasks,
     NULL,
     &lightmeter_child_list};
+
+static int running = 1;
 
 int lightmeter_init(void)
 {
@@ -40,7 +38,7 @@ void lightmeter_task(void)
     uint8_t ps[20];
     uint8_t ir[20];
 
-    while (1)
+    while (running)
     {
         tmp[0] = ap3216c_read_ambient_light();
         tmp[1] = ap3216c_read_ir_data();
@@ -62,12 +60,22 @@ void lightmeter_task(void)
         OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
         OLED_Icon_Draw(122, 24, &icon_skip_right, 0);
         OLED_Refresh_GRAM();
-        aos_msleep(100);
+        /* wait for 112.5ms at least according to ap3216c's datasheet */
+        aos_msleep(150);
     }
+
+    running = 1;
 }
 
 int lightmeter_uninit(void)
 {
+    running = 0;
+
+    while (!running)
+    {
+        aos_msleep(50);
+    }
+
     aos_task_delete("lightmeter_task");
     printf("aos_task_delete lightmeter_task \n");
     return 0;

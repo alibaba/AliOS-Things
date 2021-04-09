@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #ifndef __AIRCRAFTBATTLE_H__
 #define __AIRCRAFTBATTLE_H__
 
@@ -13,6 +9,7 @@ int aircraftBattle_init(void);
 int aircraftBattle_uninit(void);
 void aircraftBattle_task(void);
 void aircraftBattle_key_handel(key_code_t key_code);
+void aircraftBattle_cover_draw(int *draw_index);
 
 /*
     -> x
@@ -32,14 +29,21 @@ typedef struct
 
 typedef struct
 {
-    map_t **maplist;      // 贴图指针数组
-    uint8_t const_length; // 用于数组
-    uint8_t const_delay;  // 延迟几个周期换
-    uint8_t isDestory;
-    void (*reset_func)(void *);
-    uint8_t act_index; // 用于遍历
-    uint8_t timer;     // 计数用的
-} act_seq_t;           // 动作序列 每个对象可以有多个
+    map_t **act_seq_maps;     		// 贴图指针数组 该动作序列的所有贴图（例如爆炸动作包含3帧）
+    uint8_t act_seq_len;      		// 贴图指针数组长度
+    uint8_t act_seq_index;        	// 用于索引帧
+    
+    uint8_t act_seq_interval; 		// 帧间延迟
+    uint8_t act_seq_interval_cnt; 	// 用于延迟计数
+    
+    uint8_t act_is_destory;			// 用于标记该动作序列是否是爆炸动作
+} act_seq_t;
+
+typedef struct
+{
+    int offset_x;
+    int offset_y;
+} arms_t;
 
 typedef enum
 {
@@ -49,59 +53,42 @@ typedef enum
     DOWN
 } my_craft_dir_e_t;
 
-typedef struct
+typedef enum
 {
-    int pos_x;
-    int pos_y;
-    act_seq_t **act_seq_list;
-    uint8_t act_list_len; // 用于改变飞机状态的
-    uint8_t act_type;     // 用于改变飞机状态的
-    uint8_t speed;
-    uint8_t harm;
-    uint8_t full_life;
-    uint8_t cur_life;
-    // 只保留运行时需要的成员
-
-} plane_t; // base obj 每种机型单独一个结构体吧 没法继承 会更麻烦
+    Achilles, // 阿克琉斯级
+    Venture,  // 冲锋者级
+    Ares,     // 阿瑞斯级 战神级
+    TiTan,    // 泰坦级
+    Bullet,
+} dfo_model_e_t;
 
 typedef struct
 {
-    int start_x;
+    dfo_model_e_t model;
+    // 运动相关
+    int start_x; // 相对固定
     int start_y;
-    act_seq_t **act_seq_list;
-    uint8_t act_list_len;
-    uint8_t act_type; // 用于改变飞机状态的
-    uint8_t speed;
-    uint8_t harm;
-    uint8_t full_life;
-    uint8_t cur_life;
-    unsigned int range;
-    int pos_x;
-    int pos_y;
-    int active;
-    // 只保留运行时需要的成员
-} bullet_t;
 
-//
-void move_MyCraft(plane_t *my_craft, my_craft_dir_e_t dir);
-void shut_MyCraft(plane_t *my_craft);
-void reset_MyCraft(plane_t *craft);
+    int cur_x; // 运动
+    int cur_y;
 
-//
-void move_Scraft(plane_t *s_craft);
+    uint8_t speed;      // 绝对固定
+    unsigned int range; // 绝对固定
 
-//
-void move_Mcraft(plane_t *m_craft);
+    // 显示相关
+    act_seq_t **act_seq_list; // 动作序列数组
+    uint8_t act_seq_list_len; // 动作序列数组长度
+    uint8_t act_seq_type;
 
-//
-void move_Lcraft(plane_t *l_craft);
-void reset_Lcraft(plane_t *craft);
-void shut_layzer_Lcraft(plane_t *l_craft); // ready + shut index++ 激光是跟着机身的 所以作为一体
+    // 判定相关
+    uint8_t damage;    // 撞击伤害
+    uint8_t full_life; // 满血生命值
+    int8_t cur_life;   // 当前生命值
 
-//
-void move_bullet(bullet_t *bullet);
-
-void aircraftBattle_cover_draw(int *draw_index);
+    // 攻击相关
+    arms_t **arms_list;    // 武器装备数组
+    uint8_t arms_list_len; // 武器数组长度
+} dfo_t;                   // Dentified Flying Object
 
 // Lcraft
 //      nomal
@@ -132,6 +119,12 @@ static uint8_t icon_data_Mcraft_12_12[] = {0x01, 0x03, 0x6F, 0xFE, 0x9C, 0xFC, 0
 static uint8_t icon_mask_Mcraft_12_12[] = {0x01, 0x03, 0x6F, 0xFE, 0xFC, 0xFC, 0xF8, 0x98, 0x98, 0x98, 0x90, 0x90, 0x08, 0x0C, 0x0F, 0x07, 0x03, 0x03, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00};
 static icon_t icon_Mcraft_12_12 = {icon_data_Mcraft_12_12, 12, 12, icon_mask_Mcraft_12_12};
 //      destory
+static uint8_t icon_data_Mcraft_destory0_12_12[] = {0x01, 0x0E, 0xBC, 0xDD, 0x1A, 0x4C, 0x68, 0x7B, 0xDC, 0x34, 0x68, 0x83, 0x02, 0x01, 0x08, 0x07, 0x06, 0x01, 0x01, 0x0F, 0x03, 0x04, 0x09, 0x02};
+static icon_t icon_Mcraft_destory0_12_12 = {icon_data_Mcraft_destory0_12_12, 12, 12};
+static uint8_t icon_data_Mcraft_destory1_12_12[] = {0x01, 0x06, 0x9C, 0xD1, 0x22, 0x4C, 0x78, 0x6B, 0x94, 0x3C, 0x68, 0x83, 0x04, 0x03, 0x00, 0x01, 0x06, 0x05, 0x01, 0x04, 0x02, 0x03, 0x09, 0x02};
+static icon_t icon_Mcraft_destory1_12_12 = {icon_data_Mcraft_destory1_12_12, 12, 12};
+static uint8_t icon_data_Mcraft_destory2_12_12[] = {0x01, 0x02, 0x9C, 0x51, 0x22, 0x4C, 0x60, 0x09, 0x90, 0x04, 0x68, 0x83, 0x00, 0x02, 0x00, 0x01, 0x04, 0x04, 0x00, 0x04, 0x00, 0x01, 0x09, 0x02};
+static icon_t icon_Mcraft_destory2_12_12 = {icon_data_Mcraft_destory2_12_12, 12, 12};
 
 // Mycraft
 //      nomal
@@ -159,6 +152,13 @@ static icon_t icon_Mycraft_destory2_16_16 = {icon_data_Mycraft_destory2_16_16, 1
 static uint8_t icon_data_Scraft_7_8[] = {0x24, 0x18, 0x3C, 0xC3, 0x66, 0x3C, 0x18};
 static uint8_t icon_mask_Scraft_7_8[] = {0x3C, 0x18, 0x3C, 0xFF, 0x7E, 0x3C, 0x18};
 static icon_t icon_Scraft_7_8 = {icon_data_Scraft_7_8, 7, 8, icon_data_Scraft_7_8};
+
+static uint8_t icon_data_Scraft_destory0_9_8[] = {0x09, 0xEE, 0x14, 0x2F, 0x3D, 0x6F, 0x36, 0x50, 0x88};
+static icon_t icon_Scraft_destory0_9_8 = {icon_data_Scraft_destory0_9_8, 9, 8, NULL};
+static uint8_t icon_data_Scraft_destory1_9_8[] = {0x89, 0x66, 0x58, 0xAB, 0x2D, 0x52, 0x32, 0x50, 0x89};
+static icon_t icon_Scraft_destory1_9_8 = {icon_data_Scraft_destory1_9_8, 9, 8, NULL};
+static uint8_t icon_data_Scraft_destory2_7_6[] = {0x0C, 0x06, 0x31, 0x24, 0x0E, 0x11, 0x04};
+static icon_t icon_Scraft_destory2_7_6 = {icon_data_Scraft_destory2_7_6, 7, 6, NULL};
 
 // bullet
 static uint8_t icon_data_bullet_2_1[] = {0x01, 0x01};

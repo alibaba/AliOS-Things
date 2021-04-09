@@ -16,6 +16,10 @@
 #include "hal_iomux_haas1000.h"
 
 extern uint32_t led_test_flag;
+extern uint32_t oled_test_flag;
+extern uint32_t extraio_test_flag;
+extern uint32_t audio_test_flag;
+extern uint32_t keytest_successed;
 extern uint32_t auto_test_flag;
 
 static void key_event_handle(key_code_t key_code)
@@ -25,21 +29,25 @@ static void key_event_handle(key_code_t key_code)
         case EDK_KEY_1:
             printf("key 1 press\n");
             led_test_flag = 0;
+            keytest_successed |= 1 << 0;
             break;
         case EDK_KEY_2:
             printf("key 2 press\n");
-            led_test_flag = 0;
+            oled_test_flag = 0;
+            keytest_successed |= 1 << 1;
             break;
         case EDK_KEY_3:
             printf("key 3 press\n");
-            led_test_flag = 0;
+            extraio_test_flag = 0;
+            keytest_successed |= 1 << 2;
             break;
         case EDK_KEY_4:
             printf("key 4 press\n");
-            led_test_flag = 0;
+            audio_test_flag = 0;
+            keytest_successed |= 1 << 3;
             break;
         case EDK_KEY_1 | EDK_KEY_2:
-            printf("Enter auto_factory_test mode\n");
+            printf("Enter auto_test mode\n");
             auto_test_flag = 1;
         break;
      }

@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal_oled.h"
@@ -152,6 +148,8 @@ void tone(uint16_t port, uint16_t frequency, uint16_t duration)
 void noTone(uint16_t port)
 {
     pwm_dev_t pwm = {port, {0.8, 1}, NULL};
+    hal_pwm_init(&pwm);
+    hal_pwm_start(&pwm);
     hal_pwm_stop(&pwm);
     hal_pwm_finalize(&pwm);
 }

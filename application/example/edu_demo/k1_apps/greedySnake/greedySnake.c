@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal_oled.h"
@@ -26,7 +22,6 @@ MENU_TYP greedySnake = {
 
 typedef struct
 {
-    uint8_t size;
     uint8_t length;
     int16_t *XPos;
     int16_t *YPos;
@@ -49,14 +44,19 @@ typedef struct
     int16_t border_right;
     int16_t border_botton;
     int16_t border_left;
+    int16_t block_size;
+} Map;
+typedef struct
+{
     int16_t score;
     int16_t pos_x_max;
     int16_t pos_y_max;
 } snake_game_t;
 
 Food food = {-1, -1, 1};
-Snake snake = {4, MIN_LENGTH, NULL, NULL, SNAKE_RIGHT, 1};
-snake_game_t snake_game = {2, 128, 62, 12, 0};
+Snake snake = {MIN_LENGTH, NULL, NULL, SNAKE_RIGHT, 1};
+Map map = {2, 128, 62, 12, 4};
+snake_game_t snake_game = {0, 0, 0};
 
 void greedySnake_cover_draw(int *draw_index)
 {
@@ -127,11 +127,8 @@ void greedySnake_cover_draw(int *draw_index)
 
 int greedySnake_init(void)
 {
-    uint8_t i;
-
-    snake_game.pos_x_max = (snake_game.border_right - snake_game.border_left) / snake.size;
-    snake_game.pos_y_max = (snake_game.border_botton - snake_game.border_top) / snake.size;
-    snake.size = 4;
+    snake_game.pos_x_max = (map.border_right - map.border_left) / map.block_size;
+    snake_game.pos_y_max = (map.border_botton - map.border_top) / map.block_size;
     snake.XPos = (int16_t *)malloc(snake_game.pos_x_max * snake_game.pos_y_max * sizeof(int16_t));
     snake.YPos = (int16_t *)malloc(snake_game.pos_x_max * snake_game.pos_y_max * sizeof(int16_t));
     snake.length = MIN_LENGTH;
@@ -142,7 +139,7 @@ int greedySnake_init(void)
 
     food.eaten = 1;
 
-    for (i = 0; i < snake.length; i++)
+    for (uint8_t i = 0; i < snake.length; i++)
     {
         snake.XPos[i] = snake_game.pos_x_max / 2 + i;
         snake.YPos[i] = snake_game.pos_y_max / 2;
@@ -162,12 +159,12 @@ int greedySnake_init(void)
 void draw_snake()
 {
     uint16_t i = 0;
-    OLED_Icon_Draw(snake_game.border_left + snake.XPos[i] * snake.size, snake_game.border_top + snake.YPos[i] * snake.size, &icon_snake0_4_4, 0);
+    OLED_Icon_Draw(map.border_left + snake.XPos[i] * map.block_size, map.border_top + snake.YPos[i] * map.block_size, &icon_snake0_4_4, 0);
     for (; i < snake.length - 2; i++)
     {
-        OLED_Icon_Draw(snake_game.border_left + snake.XPos[i] * snake.size, snake_game.border_top + snake.YPos[i] * snake.size, ((i % 2) ? &icon_snake1_4_4 : &icon_snake0_4_4), 0);
+        OLED_Icon_Draw(map.border_left + snake.XPos[i] * map.block_size, map.border_top + snake.YPos[i] * map.block_size, ((i % 2) ? &icon_snake1_4_4 : &icon_snake0_4_4), 0);
     }
-    OLED_Icon_Draw(snake_game.border_left + snake.XPos[i] * snake.size, snake_game.border_top + snake.YPos[i] * snake.size, &icon_snake1_4_4, 0);
+    OLED_Icon_Draw(map.border_left + snake.XPos[i] * map.block_size, map.border_top + snake.YPos[i] * map.block_size, &icon_snake1_4_4, 0);
 }
 
 void gen_food()
@@ -177,8 +174,8 @@ void gen_food()
     {
         while (1)
         {
-            food.x = rand() % snake_game.pos_x_max;
-            food.y = rand() % snake_game.pos_y_max;
+            food.x = rand() % (snake_game.pos_x_max - 6) + 3;
+            food.y = rand() % (snake_game.pos_y_max - 6) + 3;
 
             for (i = 0; i < snake.length; i++)
             {
@@ -198,7 +195,7 @@ void draw_food()
 {
     if (food.eaten == 0)
     {
-        OLED_Icon_Draw(snake_game.border_left + food.x * snake.size, snake_game.border_top + food.y * snake.size, &icon_food_4_4, 0);
+        OLED_Icon_Draw(map.border_left + food.x * map.block_size, map.border_top + food.y * map.block_size, &icon_food_4_4, 0);
     }
 }
 
@@ -221,7 +218,8 @@ void greedySnake_task(void)
         else
         {
             OLED_Clear();
-            OLED_Show_String(30, 24, "GAME OVER", 16, 1);
+            OLED_Show_String(30, 12, "GAME OVER", 16, 1);
+            OLED_Show_String(10, 40, "press K1&K2 to quit", 12, 1);
             OLED_Refresh_GRAM();
             aos_msleep(500);
         }
@@ -244,13 +242,20 @@ void greedySnake_key_handel(key_code_t key_code)
 
 void check_snake_alive()
 {
-    uint8_t i;
     if (snake.XPos[snake.length - 1] < 0 ||
         snake.XPos[snake.length - 1] >= snake_game.pos_x_max ||
         snake.YPos[snake.length - 1] < 0 ||
         snake.YPos[snake.length - 1] >= snake_game.pos_y_max)
     {
         snake.alive = 0;
+    }
+    for (int i = 0; i < snake.length - 1; i++)
+    {
+        if (snake.XPos[snake.length - 1] == snake.XPos[i] && snake.YPos[snake.length - 1] == snake.YPos[i])
+        {
+            snake.alive = 0;
+            break;
+        }
     }
 }
 

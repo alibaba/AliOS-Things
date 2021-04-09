@@ -41,12 +41,12 @@ void oled_blink(void)
         } else {
             OLED_test(0);
         }
-        aos_msleep(1000);
+        aos_msleep(500);
         oled_id ++;
     }
 }
 
-void ekd_oled_show(char *buf, int len)
+void edu_oled_show(char *buf, int len)
 {
     OLED_Clear();
     OLED_Show_String(12, 12, buf, 12, 1);

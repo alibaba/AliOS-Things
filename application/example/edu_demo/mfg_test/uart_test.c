@@ -33,7 +33,7 @@ static int32_t uart_test_common(uint8_t port, uint32_t baud)
     if (port >= 3) {
         printf("\r\n ======= Invalid uart part %d =====\r\n", port);
     }
-
+    
     if (init_flag[port] == 0) {
         ret = hal_uart_init(&uart_ttl);
         hal_uart_finalize(&uart_ttl);

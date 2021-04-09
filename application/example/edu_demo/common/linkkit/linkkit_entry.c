@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -461,8 +457,8 @@ void linkit_app_start()
 #ifdef AWSS_SUPPORT_DEV_AP
         aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
-        aos_task_new("netmgr_start", start_netmgr, NULL, 5120);
+        aos_task_new("netmgr_start", start_netmgr, NULL, 5120);    
 #endif
-#endif
+#endif 
 
 }

@@ -151,7 +151,7 @@ static int qmc5883l_test(uint8_t turn)
     printf("\r\n ===QMC5883L test start====\r\n");
     LOGI("QMC5883L_TEST", "test start, turn %d\n",turn);
     while(turn --){
-        if(qmc5883l_readHeading() <= 0)
+        if(qmc5883l_readHeading() == 0)
         {
             printf("===Result : QMC5883L test FAILs !!! ===\r\n");
             return -1;

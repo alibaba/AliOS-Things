@@ -92,10 +92,10 @@ default
 * yloop
 * cli
 * linkkit
-* netmgr
-* cjson
-* oled
-* lcd
+* netmgr 
+* cjson 
+* oled 
+* lcd 
 * sensor
 
 
@@ -120,7 +120,7 @@ aos make
 ```sh
     git submodule init
     git submodule update
- ```
+ ```   
 Set `Select Case` to `enable factory test function` in menuconfig, or run this command:
 Run this command:
 ```sh

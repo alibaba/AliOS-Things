@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #ifndef __MENU_H__
 #define __MENU_H__
 
@@ -21,11 +17,9 @@ typedef enum
 
 typedef struct
 {
-    int (*pMenuTaskInit)(void); //指向菜单任务初始化函数的指针 返回值0 成功 需要整个err_code啥的
+    int (*pMenuTaskInit)(void); //指向菜单任务初始化函数的指针 返回值0 成功
     int (*pMenuTaskEnd)(void);  //指向菜单任务结束函数的指针 返回值0 成功
-
     // user don't need to care
-    uint8_t MenuTaskIsRunning; //标注task是否在执行 不同MENU_COVER_TYP有不同行为
     MENU_TASK_STATE_ENU menu_task_state;
 } MENU_TASK_TYP;
 
@@ -39,7 +33,7 @@ typedef enum
 
 typedef struct
 {
-    MENU_COVER_MODE_ENU MenuCoverMode; // 0 none 直接显示应用 1text 2img 3gif
+    MENU_COVER_MODE_ENU MenuCoverMode;
     char *text;
     icon_t *img;
     void (*draw_func)(int *);
@@ -67,11 +61,6 @@ typedef struct MenuTyp
     struct MenuTyp *pRight;  //指向右菜单的指针
     struct MenuTyp *pLeft;   //指向左菜单的指针
 } MENU_TYP;
-
-// elliott 0126 21:39
-// 简单点 其实可以用MenuID来索引层级 来避免复杂的指针操作
-// 比如一级目录 0x00~0xff 二级目录 0x00 00 ~ 0xff 00 依次向前引
-// 对于静态目录而言 可能更好一些 先这么写吧 注意首尾的处理
 
 void menu_init(void);
 static void public_key_event_handle(key_code_t key_code);

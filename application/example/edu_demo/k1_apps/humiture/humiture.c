@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
-
 #include "../menu.h"
 #include "humiture.h"
 #include "si7006.h"
@@ -16,6 +12,8 @@ MENU_TYP humiture = {
     &humiture_tasks,
     NULL,
     NULL};
+
+static int running = 1;
 
 int humiture_init(void)
 {
@@ -32,11 +30,11 @@ int humiture_init(void)
 void humiture_task(void)
 {
     float temp, hump;
-    uint8_t temp_str[10];
-    uint8_t hump_str[10];
+    char temp_str[10];
+    char hump_str[10];
     unsigned char c = 0;
 
-    while (1)
+    while (running)
     {
         si7006_getTempHumidity(&hump, &temp);
         sprintf(temp_str, "T:%5.1fC", temp);
@@ -54,10 +52,19 @@ void humiture_task(void)
         OLED_Refresh_GRAM();
         aos_msleep(500);
     }
+
+    running = 1;
 }
 
 int humiture_uninit(void)
 {
+    running = 0;
+
+    while (!running)
+    {
+        aos_msleep(50);
+    }
+
     aos_task_delete("humiture_task");
     printf("aos_task_delete humiture_task \n");
     return 0;
