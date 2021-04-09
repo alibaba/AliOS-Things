@@ -3,7 +3,9 @@
  */
 #include <stdlib.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include "select.h"
+#include "aos/vfs.h"
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
@@ -48,7 +50,11 @@ static void select_example()
     if (FD_ISSET(test_fd, &readset)) {
         int data = 0;
         int len = aos_read(test_fd, &data, sizeof(data));
-        printf(" read fd =%d,data = %d \r\n", test_fd, data);
+        if(len > 0) {
+            printf(" read fd =%d,data = %d\r\n", test_fd, data);
+        } else {
+            printf("err: read no data\r\n");
+        }
     }
     aos_close(test_fd);
 }
@@ -70,18 +76,22 @@ static void poll_example()
     poll_array[0].fd = test_fd;
 
 
-    ret = aos_poll(&poll_array, 2, 1000);
+    ret = aos_poll(poll_array, 2, 1000);
 
     printf("aos_poll timeout, ret = %d \r\n", ret);
 
     /* test write event1 */
     ret = aos_write(test_fd, &write_val, sizeof(write_val));
-    ret = aos_poll(&poll_array, 2, 1000);
+    ret = aos_poll(poll_array, 2, 1000);
     printf("aos_poll ret = %d \r\n", ret);
     if (poll_array[0].revents & POLLIN) {
         int data = 0;
         int len = aos_read(test_fd, &data, sizeof(data));
-        printf(" read fd =%d,data = %d \r\n", test_fd, data);
+        if(len > 0) {
+            printf(" read fd =%d,data = %d\r\n", test_fd, data);
+        } else {
+            printf("err: read no data\r\n");
+        }
     }
     aos_close(test_fd);
 }

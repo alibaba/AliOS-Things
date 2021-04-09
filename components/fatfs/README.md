@@ -1,6 +1,6 @@
 @page fatfs
 
-## 概述
+# 概述
 **fatfs** is a generic FAT/exFAT filesystem module for small embedded system. The fatfs module is written in compliance with ANSI C (C89). It attempts to provide AOS-compatible filesystem behaviour.
 组件支持以下功能
 - DOS/Windows compatible FAT/exFAT filesystem
@@ -17,7 +17,7 @@
 ## 版权信息
 > Apache license v2.0
 
-### 目录结构
+## 目录结构
 ```sh
 fatfs
 ├── src
@@ -50,7 +50,7 @@ fatfs
 * minilibc: v7.2.0
 * aos: >=v7.2.0
 
-## 配置信息
+# 常用配置
 def_config:
   CONFIG_AOS_FATFS_SUPPORT_MMC: 1
   AOS_COMP_VFS: 1

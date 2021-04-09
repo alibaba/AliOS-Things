@@ -126,7 +126,7 @@ static int generate_human_anime_styple_callback(ai_result_t *result)
 {
     int ret;
     int image_len;
-    char *image;
+    char *image = NULL;
 
     if (!result)
         return -1;

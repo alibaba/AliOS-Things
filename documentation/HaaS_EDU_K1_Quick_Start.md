@@ -13,6 +13,8 @@ Visual Studio Code(下称VS Code) 是一款广泛使用的IDE工具。AliOS-Thin
 安装VS Code:
 下载链接: [https://code.visualstudio.com/docs/?dv=osx](https://code.visualstudio.com/docs/?dv=osx)
 
+注意点: Windows 系统下请以管理员身份 运行VS Code，避免因为python权限问题导致创建失败
+
 
 ## AliOS-Studio
 AliOS-Studio是开发AliOS Things所需的核心插件, 安装插件流程如下:
@@ -55,20 +57,11 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 ## 2.1 开始创建
 点击左下角的"+"图标开始创建工程
 
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01R4EtQc22seq5Re3AK_!!6000000007176-0-tps-1584-548.jpg"  style="max-width:90%;" />
-</div>
-
 ## 2.2 选择解决方案和开发板
-
-随后VS Code会依次提示“请选择解决方案”和“请选择开发板”:
-- 选择解决方案，即选择什么功能的示例程序，如eduk1_demo, hal demo等
-- 选择开发板，即选择在哪块开发板上运行这套示例程序，如HaaS EDU等
-
-选择意向的解决方案（本文以 eduk1_demo为例）
+选择意向的解决方案（本文以 “基于教育开发板的示例” 为例）
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01QIJaDh1Qj59taTq8f_!!6000000002011-2-tps-2774-2044.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01mocrXV26x14RyUR90_!!6000000007727-2-tps-1802-1135.png" style="max-width:90%;" />
 </div>
 
 选择解决方案，之后用鼠标选择开发板（本文以 Haaseduk1为例）
@@ -136,10 +129,10 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 
 
 ## 3.3 查看日志
-- 点击VS Code的Serial Monitor按钮, 选择对应串口号。
+- 点击VS Code的Serial Monitor按钮, 选择对应串口号,下图是windows系统的示例, 如果是MacOS系统的话，串口一般为/dev/cu.SLAB_USBtoUART。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01aG5qNC1GvJZsy5419_!!6000000000684-2-tps-2376-1948.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN010WZPcO1GczjjpWVp5_!!6000000000644-2-tps-2144-1508.png" style="max-width:90%;" />
 </div>
 
 - 设置波特率为1500000

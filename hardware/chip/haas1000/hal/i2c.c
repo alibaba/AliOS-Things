@@ -236,40 +236,40 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 	uint8_t i2c_port;
 	int32_t lock_ret = -1;
 	uint8_t *txbuf;
-    uint16_t txlen;
+	uint16_t txlen;
+
+	if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
+	{
+		TRACE("i2c input para err");
+		return -1;
+	}
 
 	i2c_port = i2c->port;
 
-    if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
-    {
-		TRACE("i2c input para err");
-		return -1;
-    }
-
-    txlen = size + mem_addr_size;
-    txbuf = (uint8_t *)malloc(txlen);
+	txlen = size + mem_addr_size;
+	txbuf = (uint8_t *)malloc(txlen);
 	if (txbuf  == NULL)
 	{
 		TRACE("%s malloc size %d error\r", __FUNCTION__, txlen);
 		return -1;
 	}
 
-    memset(txbuf, 0, txlen);
-    txbuf[0] = (uint8_t)mem_addr;
-    memcpy(&txbuf[1], data, size);
+	memset(txbuf, 0, txlen);
+	txbuf[0] = (uint8_t)mem_addr;
+	memcpy(&txbuf[1], data, size);
 
-    lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
-    if (lock_ret != 0) {
-        TRACE("hal_i2c_mem_write, get i2c_mutex lock fail");
-        free(txbuf);
-        return lock_ret;
-    }
-    ret = hal_i2c_task_send(i2c_port, dev_addr, txbuf, txlen, 0, NULL);
-    if(ret) {
-        TRACEME("%s:%d,i2c send failed,dev_addr = 0x%x,ret = %d\n", __func__,__LINE__,dev_addr,ret);
-    }
-    aos_mutex_unlock(&i2c_mutex);
-    free(txbuf);
+	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
+	if (lock_ret != 0) {
+		TRACE("hal_i2c_mem_write, get i2c_mutex lock fail");
+		free(txbuf);
+		return lock_ret;
+	}
+	ret = hal_i2c_task_send(i2c_port, dev_addr, txbuf, txlen, 0, NULL);
+	if(ret) {
+		TRACEME("%s:%d,i2c send failed,dev_addr = 0x%x,ret = %d\n", __func__,__LINE__,dev_addr,ret);
+	}
+	aos_mutex_unlock(&i2c_mutex);
+	free(txbuf);
 
 	return ret;
 }
@@ -295,19 +295,19 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 	int32_t ret;
 	uint8_t i2c_port;
 	int32_t lock_ret = -1;
-    uint8_t *txrxbuf;
-    uint16_t txrxlen;
+	uint8_t *txrxbuf;
+	uint16_t txrxlen;
+
+	if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
+	{
+		TRACE("i2c input para err");
+		return -1;
+	}
 
 	i2c_port = i2c->port;
 
-    if((NULL == i2c) || (NULL == data) || (0 == mem_addr_size) || (0 == size))
-    {
-		TRACE("i2c input para err");
-		return -1;
-    }
-
-    txrxlen = size + mem_addr_size;
-    txrxbuf = (uint8_t *)malloc(txrxlen);
+	txrxlen = size + mem_addr_size;
+	txrxbuf = (uint8_t *)malloc(txrxlen);
 	if (txrxbuf  == NULL)
 	{
 		TRACE("%s malloc size %d error\r", __FUNCTION__, txrxlen);
@@ -315,12 +315,12 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 	}
 
 	memset(txrxbuf, 0, txrxlen);
-    txrxbuf[0] = (uint8_t)mem_addr;
+	txrxbuf[0] = (uint8_t)mem_addr;
 
 	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
 	if (lock_ret != 0) {
 		TRACE("hal_i2c_mem_read, get i2c_mutex lock fail");
-        free(txrxbuf);
+		free(txrxbuf);
 		return lock_ret;
 	}
 
@@ -328,12 +328,12 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 	if (ret) {
 		TRACEME("%s:i2c recv failed,dev_addr = 0x%x,ret = %d\n", __func__, dev_addr, ret);
 	} else {
-        memcpy(data, &txrxbuf[1], size);
+		memcpy(data, &txrxbuf[1], size);
 	}
 
 	aos_mutex_unlock(&i2c_mutex);
 
-    free(txrxbuf);
+	free(txrxbuf);
 
     return ret;
 }

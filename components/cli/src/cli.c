@@ -876,7 +876,7 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
     cli_printf("================ AliOS Things Command end ===============\r\n\r\n");
 }
 
-static void reboot_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+static void reboot_cmd(char *buf, int len, int argc, char **argv)
 {
     hal_reboot();
 }
@@ -1054,13 +1054,17 @@ int32_t cli_va_printf(const char *fmt, va_list va)
     char   *message = NULL, *child_message = NULL;
 
 #if AOS_COMP_DEBUG
+    int ret;
     extern uint32_t debug_cpu_in_crash(void);
     if (debug_cpu_in_crash()) {
 #if CLI_SEPRATED_CONSOLE
         /* for smartTrace tool */
         char temp[1] = {0x1F};
         extern int alios_debug_print(const char *buf, int size);
-        alios_debug_print(temp, 1);
+        ret = alios_debug_print(temp, 1);
+        if (ret != 1) {
+            return 0;
+        }
 #endif
         extern int print_driver(const char *fmt, va_list ap, unsigned int buf[]);
         print_driver(fmt, va, NULL);
@@ -1076,6 +1080,7 @@ int32_t cli_va_printf(const char *fmt, va_list va)
 
     child_message = (char *)cli_malloc(CLI_OUTBUF_SIZE);
     if (child_message == NULL) {
+        cli_free(message);
         return CLI_ERR_NOMEM;
     }
     memset(child_message, 0, CLI_OUTBUF_SIZE);

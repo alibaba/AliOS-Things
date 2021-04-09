@@ -15,6 +15,28 @@
 - SI7006光照与接近传感器原理
 - OLED绘图
 
+
+# 开发环境准备
+## 硬件
+    开发用电脑一台
+    HAAS EDU K1 开发板一块
+    USB2TypeC 数据线一根
+
+## 软件
+### AliOS Things开发环境搭建
+    开发环境的搭建请参考 @ref HaaS_EDU_K1_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+### HaaS EDU K1 DEMO 代码下载
+    HaaS EDU K1 DEMO 的代码下载请参考 @ref HaaS_EDU_K1_Quick_Start (创建工程章节)，其中，
+    选择解决方案: 基于教育开发板的示例
+    选择开发板: haaseduk1 board configure
+
+### 代码编译、烧录
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
+
+
 ### I2C通信原理
 IIC总线是一种最早由PHILIPS公司开发的两线式串行总线，用于连接微控制器及其外围设备。它是由数据线SDA和时钟SCL构成的串行总线，可发送和接收数据。在CPU与被控IC之间、IC与IC之间进行双向传送，高速IIC总线一般可达400kbps以上。
 I2C总线在传送数据过程中共有三种类型信号， 它们分别是：开始信号、结束信号和应答信号。 

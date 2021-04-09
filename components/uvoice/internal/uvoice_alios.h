@@ -21,10 +21,6 @@
 #include <aos/hal/flash.h>
 #endif
 
-#ifdef UVOICE_FILE_ENABLE
-#include "../../../components/fatfs/include/ff.h"
-#endif
-
 #include "ulog/ulog.h"
 
 typedef aos_dir_t		os_dir_t;

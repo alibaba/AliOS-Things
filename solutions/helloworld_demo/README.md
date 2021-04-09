@@ -136,21 +136,17 @@ int application_start(int argc, char *argv[])
 其中系统能够正常打印代表uart功能正常；能够循环1S打印代表tick中断以及任务切换功能正常。
 
 ## 4.3 编译下载
-### 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
-```
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-### 烧录镜像命令：
-```sh
-aos burn
-```
+helloworld_demo的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
 
-烧写步骤可以参考 [HaaS100快速开始](https://help.aliyun.com/document_detail/184184.html?spm=a2c4g.11186623.6.642.717c6489icKeP3)
+*> 选择解决方案: “helloworld简单示例”*
+
+*> 选择开发板: Haas100 board configure*
+
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## 4.4 串口输出效果
 ```sh

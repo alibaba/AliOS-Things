@@ -202,21 +202,25 @@ send_property_post(params);
 
 ## 4.4 端云联调
 ### 4.4.1 下载软件版本
-将在阿里云IOT平台获取的设备信息填写到文件solutions//rfid_demo/rfid_demo.c中。
+
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+RFID的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
+
+*> 选择解决方案: “rfid使用示例”或者“rfid demo”*
+
+*> 选择开发板: Haas100 board configure*
+
+源码下载完成后将在阿里云IOT平台获取的设备信息填写到文件solutions//rfid_demo/rfid_demo.c中。
 
 
     char *product_key       = "";
     char *device_name       = "";
     char *device_secret     = "";
 
-在编译环境下，执行编译命令：
-cd solutions/rfid_demo && aos make
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
 
-编译通过后，执行烧录镜像命令：
-
-aos burn
-
-烧录步骤可以参考 [HaaS100快速开始](https://help.aliyun.com/document_detail/184184.html?spm=a2c4g.11186623.6.642.717c6489icKeP3)
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ### 4.4.2 设备配网
 HaaS启动后通过串口命令行配网，输入如下指令可完成配网：

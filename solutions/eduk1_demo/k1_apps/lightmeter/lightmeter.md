@@ -9,11 +9,27 @@ HaaS EDU K1搭载了丰富实用的传感器，开发者可以使用这些传感
 * AP3216C光照与接近传感器原理
 * OLED绘图
 
-#  实验准备工作
+
+# 开发环境准备
 ## 硬件
-开发用电脑一台
-HaaS EDU K1开发板一个 （开发板内置AP3216C传感器）
-USB2TypeC 数据线一根
+    开发用电脑一台
+    HAAS EDU K1 开发板一块
+    USB2TypeC 数据线一根
+
+## 软件
+### AliOS Things开发环境搭建
+    开发环境的搭建请参考 @ref HaaS_EDU_K1_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+### HaaS EDU K1 DEMO 代码下载
+    HaaS EDU K1 DEMO 的代码下载请参考 @ref HaaS_EDU_K1_Quick_Start (创建工程章节)，其中，
+    选择解决方案: 基于教育开发板的示例
+    选择开发板: haaseduk1 board configure
+
+### 代码编译、烧录
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
+
 
 ## 上手把玩
 实验运行结果如下：

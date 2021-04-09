@@ -93,7 +93,7 @@ def_config:
 def_config:
   CLI_TELNET_SUPPORT: 0
 ```
-> cli输出增加不可见字符，用于SmartTrace工具中，此功能默认打开，可修改yaml配置如：
+> cli输出增加不可见字符，用于SmartTrace工具中，此功能默认关闭，可修改yaml配置如：
 ```sh
 def_config:
   CLI_SEPRATED_CONSOLE: 0
@@ -176,24 +176,17 @@ void test_cmd3(int32_t argc, char **argv)
 ALIOS_CLI_CMD_REGISTER(test_cmd3, test3, show test3 info)
 ```
 
-## 添加cli组件
-> helloworld_demo组件的pacxkage.yaml中添加
+> 开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+## app中添加cli组件
+> 以运行helloworld_demo为例，具体步骤如下：
+> 在helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - cli: master # helloworld_demo中引入cli组件
+  - cli: dev_aos # helloworld_demo中引入cli组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
-```
-
-## 烧录固件
-> 参考具体板子的快速开始文档。
+## 编译烧录
+>参考 @ref HaaS100_Quick_Start
 
 ## CLI示例测试
 > 命令行输入：
@@ -211,5 +204,23 @@ help
 ```
 
 # FAQ
-无
+Q1： 如何打开文件系统操作命令集？
+```sh
+答：
+cli组件支持文件系统操作命令，默认关闭，打开方式为：
+以运行helloworld_demo为例，在其package.yaml中添加
+
+def_config:
+    CLI_IOBOX_ENABLE: 1
+
+然后重新编译烧录，上电后输入help，即可看到
+ls
+ll
+mkdir
+cat
+df
+touch
+...
+等文件系统命令
+```
 

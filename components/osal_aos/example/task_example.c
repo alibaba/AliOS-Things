@@ -44,7 +44,7 @@ void task1_entry()
 
     if (0 != status)
     {
-        printf("[%s]task1 resume task2 failed(%d)!\n", MODULE_NAME, status);
+        printf("[%s]task1 resume task2 failed(%ld)!\n", MODULE_NAME, status);
     }
     printf("[%s]task1 start to sleep and release CPU!\n", MODULE_NAME);
     aos_msleep(10000);
@@ -62,7 +62,7 @@ void task1_entry()
 
     if (0 != status)
     {
-        printf("[%s]task1 resume task2 failed(%d)!\n", MODULE_NAME, status);
+        printf("[%s]task1 resume task2 failed(%ld)!\n", MODULE_NAME, status);
     }
 
     printf("[%s]task1 start to sleep and release CPU!\n", MODULE_NAME);
@@ -95,7 +95,7 @@ static void aos_task_example(int argc, char **argv)
     status = aos_sem_new(&g_testsync_sem, 0);
     if (status != 0)
     {
-        printf("[%s]sem new failed, err=%d\n", MODULE_NAME, status);
+        printf("[%s]sem new failed, err=%ld\n", MODULE_NAME, status);
         return;
     }
 
