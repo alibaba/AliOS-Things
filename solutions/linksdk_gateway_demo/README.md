@@ -2,6 +2,7 @@
 
 # 1. 案例简介
 linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
+
 其完成的主要功能包括：
 - 系统板级初始化
 - 内核基础组件初始化
@@ -55,14 +56,15 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 注意：由于本案例需要使用Wi-Fi联网，需将标有2.4G/5.8G的天线连接到HaaS100 靠近USB口的天线端子上，如上图所示。
 ## 4.2 软件实现
 ### 4.2.1 云端创建产品
-请先点击登陆[物联网平台](https://www.aliyun.com/product/iot/iot_instc_public_cn)（未注册阿里云账户的用户，请先完成账户注册），按下面步骤一步步去打造
+请先点击登陆[物联网平台](https://www.aliyun.com/product/iot/iot_instc_public_cn)（未注册阿里云账户的用户，请先完成账户注册），按下面步骤一步步去打造。
+
 1、创建项目
 
 注册登入后，如下图所示，前往管理控制台。
 
 <img src="https://img.alicdn.com/imgextra/i4/O1CN01BN7DMd1IibotD78f6_!!6000000000927-2-tps-1308-490.png" style="max-width:90%;" />
 
-点击公共实例，进行产品创建
+点击公共实例，进行产品创建。
 
 <img src="https://img.alicdn.com/imgextra/i2/O1CN01AjRz9z294Sk2dsMXe_!!6000000008014-2-tps-1328-792.png" style="max-width:90%;" />
 
@@ -103,7 +105,7 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 ### 4.2.4 设备端代码修改
 
 演示用例路径为solutions/{your_project}/data_model_basic_demo.c 此演示用例演示Link SDK物模型单品上云的功能。
-注意：{your_project} 为studio中创建的工程名（基于linksdk_gateway_demo模板）
+注意：{your_project} 为studio中创建的工程名（基于linksdk_gateway_demo模板）。
 
 1.修改网关三元组，使用4.2.1章节得到的三元组填入代码如下区域：
 ```sh
@@ -148,7 +150,7 @@ CLI命令行输入联网命令：
 ```sh
 netmgr -t wifi -c ssid password
 ```
-注意：ssid和password需要替换成自己的路由的ssid及密码
+注意：ssid和password需要替换成自己的路由的ssid及密码。
 
 连上路由器后会自动连接到阿里云物联网平台。
 

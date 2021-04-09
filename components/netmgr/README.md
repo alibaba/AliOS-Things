@@ -106,7 +106,7 @@ netmgr test
 Got IP
 ```
 
-# Notice
+# 注意事项
 
 - netmgr对系统的event service有依赖，需要在调用netmgr_service_init前，先调用event_service_init函数。
 

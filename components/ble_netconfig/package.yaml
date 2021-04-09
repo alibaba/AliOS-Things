@@ -20,7 +20,6 @@ depends:
     - ble_host: dev_aos #v7.4-dev
     - osal_aos: dev_aos
     - netmgr: dev_aos
-    - include: dev_aos
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段

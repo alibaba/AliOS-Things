@@ -3,10 +3,10 @@
 # 概述
 ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄像头数据接入，目前已接入wifi摄像头，在使用该组件时，需要使用netmgr网络组件连接网络。
 
-# 版权信息
+## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── include
@@ -30,7 +30,7 @@ ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄�
                     └── dechunk.c         # http数据解析代码实现
 ```
 
-# 依赖组件
+## 依赖组件
 
 * http
 
@@ -49,13 +49,6 @@ source_file:
   - src/example/ucamera_example.c # add ucamera_example.c
 ```
 
-> helloworld_demo组件的application_start中添加代码
-```sh
-    /*init network service*/
-    event_service_init(NULL);
-    netmgr_service_init(NULL);
-```
-
 ## app中添加ucamera组件
 > helloworld_demo组件的package.yaml中添加
 ```C
@@ -64,18 +57,20 @@ depends:
   - netmgr: dev_aos  # helloworld_demo中引入netmgr组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+### 文件件系统烧录
+本组件例子中使用到文件系统存储图片，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
+
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
-> helloworld_demo bin烧录：
-```sh
-aos burn
-```
 
 ## ucamera示例测试
 > ucamera测试依赖WiFi摄像头，本案例测试使用ESP32-EYE进行测试。
@@ -153,26 +148,39 @@ $idf.py -p [port] monitor
 ```
 例如：
 idf.py -p /dev/cu.SLAB_USBtoUART monitor
-![image.png](https://img-blog.csdnimg.cn/img_convert/cb573d5a42e695269a675ebc5be96c0d.png)
-所以camera wifi的IP就是192.168.3.135。
 
-#### 3.2.1.9 检查摄像头画面采集
+#### 检查摄像头画面采集
 > 为了确认ESP32-EYE摄像头是否正常，电脑连接ESP32-EYE的WiFi网络ESP32-Camera，先通过电脑方式查看web界面http://192.168.4.1:80/capture：
 抓取当前画面http://192.168.4.1:80/capture：
 ![Pasted Graphic.tiff](https://img-blog.csdnimg.cn/20210127165159696.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hhYVNUZWNo,size_16,color_FFFFFF,t_70)
 
-> 验证OK后，使用HaaS100开发板直接连接ESP32-EYE的SoftAP：
+## ai_agent示例测试
+
+测试步骤：
 ```sh
-netmgr -t wifi -c ESP32-Camera
+$ ucamera init # 初始化ucamera
+$ netmgr -t wifi -c ESP32-Camera  #  连接WiFi摄像头
+$ ucamera -t wifi # 获取一帧画面
 ```
 
-> CLI命令行输入：
+### CLI命令行输入：
+```sh
+ucamera init #在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可。
+```
+
+> CLI关键日志：
+```sh
+ucamera service init ok!
+```
+
+### CLI命令行输入：
 ```sh
 ucamera -t wifi
 ```
-> 测试结果正常确认(说明从wifi摄像头获取到图像数据)：
+
+> CLI关键日志：
 ```sh
-ucamera get frame OK
+ucamera get frame OK!  #测试结果正常确认(说明从wifi摄像头获取到图像数据)
 ```
 
 # FAQ

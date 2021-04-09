@@ -8,9 +8,9 @@ SDL正式支持Windows，Mac OS X，Linux，iOS和Android。在源代码中可�
 SDL用C编写，可与C ++一起使用，并且有绑定可用于其他几种语言，包括C＃和Python。
 
 # 版权信息
-> zlib
+> zlib license
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── acinclude
@@ -214,7 +214,7 @@ SDL用C编写，可与C ++一起使用，并且有绑定可用于其他几种语
 ```
 >具体可参考http://wiki.libsdl.org/ 了解SDL的具体内容
 
-# 依赖组件
+## 依赖组件
 * udisplay
 
 # 常用配置
@@ -227,7 +227,7 @@ def_config:                              # 组件的可配置项
   __native_client__: 1
   AOS_COMP_SDL2: 1
   AOS_COMP_UDISPLAY: 1
-
+```
 > 默认打开支持jpg/bmp/png图像绘制，以及使用udisplay组件进行framebuffer显示
 
 # API说明
@@ -236,32 +236,20 @@ http://wiki.libsdl.org/CategoryAPI
 
 # 使用示例
 
-## 添加示例代码
-> ugraphics组件的package.yaml中添加example
-```sh
-source_file:
-  - "example/ugraphics_example.c" # add ugraphics_example.c
-```
-
-## 添加ugraphics组件
+## 添加SDL2组件
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
   - SDL2: dev_aos            # helloworld_demo组件中引入SDL2组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
-## ugraphics示例测试
-在AliOS Things中ugraphics组件对其中部分图像、字体相关接口进行了封装，请参考ugraphics组件的ugraphics_example.c中的示例。
+## SDL2示例测试
+在AliOS Things中ugraphics组件对其中部分图像、字体相关接口进行了封装，请参考@ref ugraphics 组件的示例测试。
 
 # FAQ
 NA
-
-

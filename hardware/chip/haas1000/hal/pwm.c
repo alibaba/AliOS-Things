@@ -53,6 +53,11 @@ int32_t hal_pwm_init(pwm_dev_t *pwm)
 		printf("%s priv=%p, SHOULD be NULL!\n", __FUNCTION__, pwm->priv);
 		return -1;
 	}
+	_HAL_PWM_PRIV_T *_cfg = malloc(sizeof(_HAL_PWM_PRIV_T));
+	if (!_cfg) {
+		printf("%s malloc for _HAL_PWM_PRIV_T failed\n", __FUNCTION__);
+		return -1;
+	}
 	if (inited[pwm->port] == 0) {
 		hal_iomux_init(&pinmux_pwm[pwm->port], 1);
 		// for (int i=0; i<_HAL_PWM_MAX_NUM; i++) {
@@ -66,7 +71,6 @@ int32_t hal_pwm_init(pwm_dev_t *pwm)
 		hal_pwm_set_ratio_max(1000);
 		inited[pwm->port] = 1;
 	}
-	_HAL_PWM_PRIV_T *_cfg = malloc(sizeof(_HAL_PWM_PRIV_T));
 	_cfg->chan = __hal_pwm_port2chan(pwm->port);
 	_cfg->start = 0;
 	__hal_pwm_pram2cfg(&_cfg->pwm_cfg, &pwm->config);

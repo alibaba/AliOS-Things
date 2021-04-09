@@ -54,9 +54,9 @@ static struct record {
 /* task entry */
 static void taskA_entry(void *arg)
 {
-    uint32_t i = 0;
-    int      status;
-    uint32_t actl_flags;
+    uint32_t      i = 0;
+    aos_status_t  status;
+    uint32_t      actl_flags;
 
     /**
         * In order to ensure the consistency of the critical resource,
@@ -66,7 +66,7 @@ static void taskA_entry(void *arg)
     status = aos_event_get(&event_handle, USER_EVENT_1 | USER_EVENT_2, AOS_EVENT_OR, &actl_flags, AOS_WAIT_FOREVER);
 
     if (status != 0) {
-        printf("[%s][0x%x]sem wait error\n", MODULE_NAME, (uint32_t)aos_task_self());
+        printf("[%s] %p sem wait error\n", MODULE_NAME, (void *)aos_task_self());
         return;
     }
 
@@ -74,7 +74,7 @@ static void taskA_entry(void *arg)
         * read critical resource.
         * If the four fields are not equal, the critical resource is destroyed.
         */
-    printf("[%s][%s]field1=%d, field2=%d, field3=%d, field4=%d\n", MODULE_NAME, TASKA_NAME, record_status.field1,
+    printf("[%s][%s]field1=%ld, field2=%ld, field3=%ld, field4=%ld\n", MODULE_NAME, TASKA_NAME, record_status.field1,
             record_status.field2, record_status.field3, record_status.field4);
 
     /* modify critical resources */
@@ -90,9 +90,9 @@ static void taskA_entry(void *arg)
 /* task entry */
 static void taskB_entry(void *arg)
 {
-    uint32_t i = 0;
-    int      status;
-    uint32_t actl_flags;
+    uint32_t       i = 0;
+    aos_status_t   status;
+    uint32_t       actl_flags;
 
     /**
         * In order to ensure the consistency of the critical resource,
@@ -100,7 +100,7 @@ static void taskB_entry(void *arg)
         */
     status = aos_event_get(&event_handle, USER_EVENT_1 | USER_EVENT_2, AOS_EVENT_AND, &actl_flags, AOS_WAIT_FOREVER);
     if (status != 0) {
-        printf("[%s][0x%x]sem wait error\n", MODULE_NAME, (uint32_t)aos_task_self());
+        printf("[%s]%p sem wait error\n", MODULE_NAME, (void *)aos_task_self());
         return;
     }
 
@@ -108,7 +108,7 @@ static void taskB_entry(void *arg)
         * read critical resource.
         * If the four fields are not equal, the critical resource is destroyed.
         */
-    printf("[%s][%s]field1=%d, field2=%d, field3=%d, field4=%d\n", MODULE_NAME, TASKB_NAME, record_status.field1,
+    printf("[%s][%s]field1=%ld, field2=%ld, field3=%ld, field4=%ld\n", MODULE_NAME, TASKB_NAME, record_status.field1,
             record_status.field2, record_status.field3, record_status.field4);
 
     /* modify critical resources */
@@ -123,9 +123,9 @@ static void taskB_entry(void *arg)
 
 static void aos_event_example(int argc, char **argv)
 {
-    aos_status_t status;
-    aos_task_t taskA_handle;
-    aos_task_t taskB_handle;
+    aos_status_t  status;
+    aos_task_t    taskA_handle;
+    aos_task_t    taskB_handle;
 
     /**
      * create event. In this case, the event is used to access the critical resource,

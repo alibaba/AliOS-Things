@@ -2,11 +2,10 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
+#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-
 #include "aos/vfs.h"
-#include "aos/cli.h"
 
 #include <vfsdev/timer_dev.h>
 #include <drivers/char/u_device.h>
@@ -92,5 +91,5 @@ static void vfs_timer_cli_cmd(int argc, char **argv)
 
 #ifdef AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
-ALIOS_CLI_CMD_REGISTER(vfs_timer_cli_cmd, timer_example, timer vfs example)
+ALIOS_CLI_CMD_REGISTER(vfs_timer_cli_cmd, hal_timer_example, timer vfs example)
 #endif

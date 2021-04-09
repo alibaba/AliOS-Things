@@ -1,7 +1,7 @@
 @page ble_netconfig ble_netconfig
 
 
-# 组件概述
+# 概述
 AliOS Things 3.3提供ble_netconfig组件，用内置的BLE功能给WI-FI配网。
 
 
@@ -41,7 +41,7 @@ ble_netconfig组件主要支持如下功能：
 无
 
 
-# API介绍
+# API说明
 ## API列表
 |  BLE_NetCfg_init | BLE配网初始化 |
 | :--- | :--- |

@@ -1,9 +1,9 @@
 @page alicloud alicloud
 
 # 概述
-alicloud组件是基于Alibaba Cloud SDK for C++提供的阿里云服务组件，alicloud对SDK进行了裁剪移植，目前主要支持阿里云视觉智能开放平台AI调用服务。后续如有其他阿里云相关云服务，可放于此目录。
+alicloud组件是基于Alibaba Cloud SDK for C++提供的阿里云服务组件，alicloud对SDK进行了裁剪移植，目前主要支持阿里云视觉智能开放平台OpenAPI基础接口。后续如有其他阿里云相关云服务，也可放于此目录进行统一管理。
 
-在AliOS Things中，ucloud_ai对此组件进行了封装，因此开发者不需要直接使用该组件，而使用ucloud_ai组件中的接口即可。
+在AliOS Things中，ucloud_ai对此组件中OpenAPI进行了封装，因此开发者不需要直接使用该组件，而使用ucloud_ai组件中的接口即可。
 
 # 版权信息
 > Apache license v2.0
@@ -62,7 +62,6 @@ alicloud组件是基于Alibaba Cloud SDK for C++提供的阿里云服务组件�
 │   ├── function_test
 │   └── httpserver
 ├── unit_test
-```
 
 # 依赖组件
 * mbedtls
@@ -73,12 +72,13 @@ alicloud组件是基于Alibaba Cloud SDK for C++提供的阿里云服务组件�
 def_config:                              # 组件的可选项
   USE_CRYPTO_MBEDTLS: 1
 ```
+
 # API说明
 NA
 
 # 使用示例
 
-## 不建议开发者直接使用该组件，AI能力请使用ucloud_ai组件。
+## AI能力请参考使用@ref ucloud_ai 组件。
 
 ## 添加alicloud组件
 > helloworld_demo组件的package.yaml中添加
@@ -86,18 +86,13 @@ NA
 depends:
   - alicloud: dev_aos            # helloworld_demo组件中引入alicloud组件
 ```
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-
-## 烧录固件
-> 参考具体板子的快速开始文档。
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## alicloud示例测试
-请参考 @ref ucloud_ai 组件的测试用例，位于ucloud_ai/src/ucloud_ai_example.c中。
+请参考@ref ucloud_ai 组件的测试用例，位于ucloud_ai/src/ucloud_ai_example.c中。
 
 # FAQ
 NA
-

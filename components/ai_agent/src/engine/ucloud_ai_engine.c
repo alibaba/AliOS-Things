@@ -36,7 +36,7 @@ int32_t ucloud_ai_engine_init(aiagent_engine_t *eng)
 
     ret = ucloud_ai_init();
     if (ret < 0) {
-        LOGE(TAG, "ucloud_ai_connect failed, ret: %d\n", ret);
+        LOGE(TAG, "ucloud_ai_init failed, ret: %d\n", ret);
         return -1;
     }
 

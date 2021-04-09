@@ -6,16 +6,10 @@
 #define _SPINLOCK_H_
 
 #include <stdio.h>
-#include <pthread.h>
-
 #include <drivers/u_mode.h>
 
-#define pthread_spin_init(x, y) 0
-#define pthread_spin_lock(x)
-#define pthread_spin_unlock(x)
-#define pthread_spin_destroy(x)
-typedef int pthread_spinlock_t;
-
+#ifdef CONFIG_PTHREAD_SPINLOCK_SUPPORT
+#include <pthread.h>
 
 typedef struct spinlock {
 	unsigned int flag;
@@ -76,6 +70,64 @@ do { \
 #define spin_lock_destroy(lock) do { \
 	pthread_spin_destroy(&((lock)->ps)); \
 } while(0)
+#else
+#include <aos/kernel.h>
+
+typedef struct spinlock {
+	unsigned int flag;
+	aos_spinlock_t as;
+} spinlock_t;
+
+#define __SPIN_LOCK_UNLOCKED(lock) { .flag = 0 }
+
+#define DEFINE_SPINLOCK(lock) struct spinlock lock = { \
+	.flag = 0 \
+}
+
+#define spin_lock_init(lock) do { \
+	int ret = -1; \
+	if ((lock)->flag == 1) \
+		break; \
+	aos_spin_lock_init(&((lock)->as)); \
+	(lock)->flag = 1; \
+} while (0)
+
+#define spin_lock_irqsave(lock, flags) do { \
+	if (!(lock)->flag) { \
+		aos_spin_lock_init(&((lock)->as)); \
+		(lock)->flag = 1; \
+	} \
+	flags = aos_spin_lock_irqsave(&(lock)->as); \
+} while (0)
+
+#define spin_unlock_irqrestore(lock, flags) do { \
+	(void)flags; \
+	aos_spin_unlock_irqrestore(&(lock)->as, flags); \
+} while (0)
+
+
+#define spin_lock(lock) do { \
+	aos_spin_lock(&((lock)->as)); \
+} while (0)
+
+#define spin_unlock(lock) do { \
+	aos_spin_unlock(&((lock)->as)); \
+} while (0)
+
+#define spin_lock_irq(lock) \
+unsigned long flags; \
+do { \
+	aos_spin_lock(&((lock)->as)); \
+} while(0)
+
+#define spin_unlock_irq(lock) do { \
+	aos_spin_unlock(&((lock)->as)); \
+} while(0)
+
+#define spin_lock_destroy(lock) do { \
+	(lock)->flag = 0; \
+} while(0)
+#endif
 
 typedef spinlock_t raw_spinlock_t;
 

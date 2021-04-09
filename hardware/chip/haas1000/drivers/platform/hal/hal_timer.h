@@ -26,9 +26,7 @@ extern "C" {
 
 #ifdef CALIB_SLOW_TIMER
 
-#ifndef CONFIG_SYSTICK_HZ
-#define CONFIG_SYSTICK_HZ           hal_sys_timer_systick_hz()
-#endif
+#define CONFIG_SLOW_SYSTICK_HZ      hal_sys_timer_systick_hz()
 
 #define __MS_TO_TICKS(ms)           hal_sys_timer_ms_to_ticks(ms)
 
@@ -40,17 +38,15 @@ extern "C" {
 
 #else
 
-#ifndef CONFIG_SYSTICK_HZ
-#define CONFIG_SYSTICK_HZ           CONFIG_SYSTICK_HZ_NOMINAL
-#endif
+#define CONFIG_SLOW_SYSTICK_HZ      CONFIG_SYSTICK_HZ_NOMINAL
 
-#define __MS_TO_TICKS(ms)           ((ms) * ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __MS_TO_TICKS(ms)           ((ms) * ((uint32_t)CONFIG_SLOW_SYSTICK_HZ / 1000))
 
-#define __US_TO_TICKS(us)           (((us) * ((uint32_t)CONFIG_SYSTICK_HZ / 1000) + 1000 - 1) / 1000 + 1)
+#define __US_TO_TICKS(us)           (((us) * ((uint32_t)CONFIG_SLOW_SYSTICK_HZ / 1000) + 1000 - 1) / 1000 + 1)
 
-#define __TICKS_TO_MS(tick)         ((tick) / ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __TICKS_TO_MS(tick)         ((tick) / ((uint32_t)CONFIG_SLOW_SYSTICK_HZ / 1000))
 
-#define __TICKS_TO_US(tick)         ((tick) * 1000 / ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __TICKS_TO_US(tick)         ((tick) * 1000 / ((uint32_t)CONFIG_SLOW_SYSTICK_HZ / 1000))
 
 #endif
 

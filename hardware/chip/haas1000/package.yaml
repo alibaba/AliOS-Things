@@ -110,9 +110,7 @@ build_config:
     - drivers/services/wifi_app/sniffer/
     - drivers/services/a7_dsp/
     - drivers/services/nvrecord/
-    - drivers/apps/alios/genie/hal/include/
     - drivers/platform/drivers/ana/
-    - drivers/apps/alios/genie/include/
   libs:
     - mcuhaas1000
   libpath:

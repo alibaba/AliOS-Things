@@ -202,7 +202,7 @@ int qspi_device_ioctl (file_t *f, int cmd, unsigned long arg) {
     qspi_dev_t *qspi = (qspi_dev_t *)f->node->i_arg;
 
     if (!qspi) {
-        ddkc_dbg("qspi is NULL,invalid and ignore\r\n", qspi);
+        ddkc_err("qspi is NULL,invalid and ignore\r\n");
         return -EINVAL;
     }
 
@@ -294,7 +294,7 @@ int qspi_device_open (inode_t *node, file_t *f) {
 
     ddkc_dbg("%s - node:%p, i_name:%s, qspi:%p\r\n", __func__, node, node->i_name, qspi);
     if (!qspi) {
-        ddkc_dbg("qspi is NULL,invalid and ignore\r\n", qspi);
+        ddkc_err("qspi is NULL, invalid and ignore\r\n");
         return -EINVAL;
     }
 
@@ -309,8 +309,7 @@ int qspi_device_close (file_t *f) {
 
     //TODO: check whether it is for console, special operation needed for console
     if (!qspi) {
-        ddkc_dbg("qspi:%p is NULL, invalid and ignore\r\n",
-                 qspi, f->node, f->node->i_arg);
+        ddkc_err("qspi is NULL, invalid and ignore\r\n");
         return -EINVAL;
     }
 
@@ -340,19 +339,19 @@ subsys_file_ops_t qspi_device_fops = {
     .lseek = NULL,
 };
 
-int qspi_device_init (struct platform_device *pdev) {
+int qspi_device_init (struct u_platform_device *pdev) {
     // make sure 0 is returned if init operation success
     // or aos_dev_reg procedure will break and no device node will be registered
     ddkc_dbg("%s\r\n", __func__);
     return 0;
 }
 
-int qspi_device_deinit (struct platform_device *pdev) {
+int qspi_device_deinit (struct u_platform_device *pdev) {
     ddkc_dbg("%s\r\n", __func__);
     return 0;
 }
 
-int qspi_device_pm (struct platform_device *pdev, u_pm_ops_t state) {
+int qspi_device_pm (struct u_platform_device *pdev, u_pm_ops_t state) {
     ddkc_dbg("%s\r\n", __func__);
     return 0;
 }
