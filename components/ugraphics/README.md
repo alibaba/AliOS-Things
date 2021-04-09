@@ -3,10 +3,10 @@
 # 概述
 ugraphics组件是基于SDL2封装的接口，支持JPEG/PNG图像解码绘制、点/线/框图像等绘制、图像旋转、RGB格式转换、中英文字符绘制等功能，方便用户进行基础的图像应用开发。
 
-# 版权信息
+## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── include
@@ -28,7 +28,7 @@ ugraphics组件是基于SDL2封装的接口，支持JPEG/PNG图像解码绘制�
          └── rotate.c               # 图像旋转函数代码
 ```
 
-# 依赖组件
+## 依赖组件
 
 * SDL2
 * fatfs
@@ -70,29 +70,26 @@ depends:
   - ugraphics: dev_aos            # helloworld_demo组件中引入ugraphics组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-## 资源文件打包
-> 编译时ugraphics组件中cp_resources.py会对资源文件进行拷贝，系统自动打包到littlefs文件系统中。编译完成后请确认目录hardware/chip/haas1000/prebuild/data/下有ugraphics_image目录。
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
 
->hardware/chip/haas1000/prebuild/data/目录下如有其他不使用的文件，建议删除后再进行编译，避免littlefs不够用导致无法访问的问题。
+### 文件件系统烧录
+本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data/目录下ugraphics_image目录，除烧录helloworld_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
-
-> helloworld_demo bin烧录：
-```sh
-aos burn
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-> littlefs文件系统烧录：
-```sh
-aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
-```
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## ugraphics示例测试
+
+测试步骤：
+```sh
+$ ugraphics init # 初始化ugraphics
+$ ugraphics draw {rect|jpg|png|line|string...} # 绘制图像
 
 ### CLI命令行输入：
 ```sh

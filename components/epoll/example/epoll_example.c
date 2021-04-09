@@ -3,13 +3,15 @@
  */
 #include <stdlib.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include "aos/vfs.h"
 #include "epoll.h"
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
-extern int vfs_test_device_init(void);
-extern int vfs_test_device_deinit(void);
+extern int epoll_vfs_test_device_init(void);
+extern int epoll_vfs_test_device_deinit(void);
 
 static void epoll_example()
 {
@@ -60,11 +62,11 @@ err:
 static void epoll_comp_example(int argc, char **argv)
 {
     /* init a test vfs device for poll and select */
-    vfs_test_device_init();
+    epoll_vfs_test_device_init();
 
     epoll_example();
 
-    vfs_test_device_deinit();
+    epoll_vfs_test_device_deinit();
     return;
 }
 

@@ -1,6 +1,6 @@
 @page solution 案例
 
-## 概述
+**概述**
 
 AliOS Things Solution是指一系列典型应用场景下的示例程序。Solutions既能快速满足场景基本需求，同时也为开发者提供软件设计思路。
 
@@ -30,11 +30,11 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 
 `└── rfid_demo`
 
-## 版权信息
+**版权信息**
 
 所有Solution程序都遵循Apache license v2.0许可
 
-## 详情
+**详情**
 
 * helloworld\_demo : 该示例在终端循环打印“Hello World!”字符串。其提供了应用程序运行的必要软件配置，如果您不清楚如何开始AliOS Things的开发，建议您从此示例入手。
 * link\_sdk\_demo : 演示AliOS Things应用程序如何快速连接到阿里云IoT平台

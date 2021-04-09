@@ -198,12 +198,12 @@ static file_ops_t event_fops = {
     .ioctl = event_ioctl,
 };
 
-int vfs_test_device_init(void)
+int epoll_vfs_test_device_init(void)
 {
     return aos_register_driver("/dev/test", &event_fops, NULL);
 }
 
-int vfs_test_device_deinit(void)
+int epoll_vfs_test_device_deinit(void)
 {
     return aos_unregister_driver("/dev/test");
 }

@@ -1,6 +1,6 @@
 @page littlefs
 
-## 概述
+# 概述
 littlefs是一个高度完整的嵌入式文件系统，可以用在自身不带坏块处理、磨损平衡等功能的内存芯片上，如裸的NAND Flash芯片；同时littlefs也充分考虑了异常掉电情况下的数据保护。
 组件支持以下功能
 - 掉电安全
@@ -11,7 +11,7 @@ littlefs是一个高度完整的嵌入式文件系统，可以用在自身不带
 ## 版权信息
 > Apache license v2.0
 
-### 目录结构
+## 目录结构
 ```sh
 littlefs
 ├── src
@@ -26,10 +26,11 @@ littlefs
 ├── package.yaml                # 编译配置文件
 └─── README.md                  #中文版README
 ```
-# 依赖
+## 依赖组件
 - rhino nftl
 
-## 配置信息
+# 常用配置
+
 def_config:
   AOS_COMP_LITTLEFS: 1
   LFS_STATIC_OBJECT: 1

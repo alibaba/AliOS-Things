@@ -61,7 +61,6 @@ def_config:
   VFS_CONFIG_MAX_FILE_NUM: 50
 ```
 # API说明
-# 接口定义
 
 ## 初始化虚拟文件系统
 

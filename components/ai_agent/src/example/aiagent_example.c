@@ -438,7 +438,18 @@ static void aiagent_comp_example(int argc, char **argv)
         return;
     }
 
-    if (!strncmp(argv[3], "-m", 2)) {
+    if (!strncmp(argv[3], "init", 4)) {
+        /*init network*/
+        event_service_init(NULL);
+        netmgr_service_init(NULL);
+
+        ret = aiagent_service_init(argv[2], model_index);
+        if (ret < 0) {
+            LOGE(TAG, "aiagent service init fail, ret:%d\r\n", ret);
+            return;
+        }
+        LOG("aiagent ucloud-ai init successfully!\n");
+    } else if (!strncmp(argv[3], "-m", 2)) {
         model_index = atoi(argv[4]);
         if (model_index < 0 && model_index > 14) {
             LOGE(TAG, "range of model value is 0 ~ 14, please try again\n");
@@ -446,12 +457,6 @@ static void aiagent_comp_example(int argc, char **argv)
         }
     } else {
         LOG("unkown command\n");
-        return;
-    }
-
-    ret = aiagent_service_init(argv[2], model_index);
-    if (ret < 0) {
-        LOGE(TAG, "aiagent service init fail, ret:%d\r\n", ret);
         return;
     }
 

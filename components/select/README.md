@@ -97,7 +97,7 @@ aos_poll timeout, ret = 0
 aos_poll ret = 1
  read fd =513,data = 1
 ```
-# 注意
+# 注意事项
 无
 
 # FAQ

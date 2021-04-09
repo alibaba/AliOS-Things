@@ -46,8 +46,8 @@ static char        queue_buffer[MESSAGE_MAX_LENGTH * 10]; /* for the internal bu
 /* task entry for taskA*/
 static void taskA_entry(void *arg)
 {
-    uint32_t i;
-    int      status;
+    uint32_t      i;
+    aos_status_t  status;
 
     char     message_buf[MESSAGE_MAX_LENGTH]; /* buffer used to send message */
     uint8_t  message_id = 0;
@@ -78,11 +78,11 @@ static void taskA_entry(void *arg)
 /* task entry for taskB*/
 static void taskB_entry(void *arg)
 {
-    uint32_t i;
-    int      status;
+    uint32_t      i;
+    aos_status_t  status;
     /* The buffer must be greater than or equal to the maximum message length */
-    char     message_buf[MESSAGE_MAX_LENGTH];
-    size_t rev_size = 0;
+    char          message_buf[MESSAGE_MAX_LENGTH];
+    size_t        rev_size = 0;
 
     while (1) {
         /**
@@ -105,9 +105,9 @@ static void taskB_entry(void *arg)
 
 static void aos_queue_example(int argc, char **argv)
 {
-    aos_status_t status;
-    aos_task_t taskA_handle;
-    aos_task_t taskB_handle;
+    aos_status_t  status;
+    aos_task_t    taskA_handle;
+    aos_task_t    taskB_handle;
 
     /**
      * create a queue.

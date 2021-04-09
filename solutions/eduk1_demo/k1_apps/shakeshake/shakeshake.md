@@ -8,12 +8,34 @@
 <div align=center>
     <img src="https://img.alicdn.com/imgextra/i2/O1CN019OP4kF22I19ZudgVF_!!6000000007096-1-tps-1200-800.gif" style="zoom:50%;" />
 </div>
-**
+
 # 涉及知识点
 
 - 三轴加速度传感器的原理和使用
 - 随机数生成的方法
 - OLED绘图
+
+
+# 开发环境准备
+## 硬件
+    开发用电脑一台
+    HAAS EDU K1 开发板一块
+    USB2TypeC 数据线一根
+
+## 软件
+### AliOS Things开发环境搭建
+    开发环境的搭建请参考 @ref HaaS_EDU_K1_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+### HaaS EDU K1 DEMO 代码下载
+    HaaS EDU K1 DEMO 的代码下载请参考 @ref HaaS_EDU_K1_Quick_Start (创建工程章节)，其中，
+    选择解决方案: 基于教育开发板的示例
+    选择开发板: haaseduk1 board configure
+
+### 代码编译、烧录
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+    参考 @ref HaaS_EDU_K1_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
+
 
 
 # 硬件介绍 - MPU-6050
@@ -61,10 +83,3 @@ void shakeshake_task()
     }
 }
 ```
-
-
-### 
-
-
-
-

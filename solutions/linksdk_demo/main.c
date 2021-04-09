@@ -11,7 +11,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <aos/kernel.h>
-#include "ulog/ulog.h"
 #include "netmgr.h"
 #include <uservice/uservice.h>
 #include <uservice/eventid.h>
@@ -26,6 +25,8 @@ static void entry_func(void *data)
 }
 static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
 {
+    aos_task_t task;
+    aos_status_t ret;
     if (event_id != EVENT_NETMGR_DHCP_SUCCESS)
         return;
 
@@ -33,7 +34,11 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
         return;
 
     _ip_got_finished = 1;
-    aos_task_new("link_dmeo", entry_func, NULL, 6 << 10);
+    ret = aos_task_create(&task, "linksdk_demo", entry_func,
+                          NULL, NULL, 6048, AOS_DEFAULT_APP_PRI, AOS_TASK_AUTORUN);
+    if (ret < 0) {
+        printf("create linksdk demo task failed, ret = %ld \r\n", ret);
+    }
 }
 
 int application_start(int argc, char *argv[])

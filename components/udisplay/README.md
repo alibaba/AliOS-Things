@@ -9,10 +9,10 @@ udisplay是一套图形接口组件，AliOS Things图形组件包含该部分，
 - udisplay init
 - udisplay draw
 
-# 版权信息
+## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```sh
 .
 ├── include
@@ -25,7 +25,7 @@ udisplay是一套图形接口组件，AliOS Things图形组件包含该部分，
     └── udisplay_example.c    # udisplay测试用例代码
 ```
 
-# 依赖组件
+## 依赖组件
 
 * osal_aos
 * drivers
@@ -57,13 +57,11 @@ depends:
   - ili9341: master   # helloworld_demo 中引入 ili9341 屏幕驱动
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## udisplay示例测试
 > udisplay 初始化命令：

@@ -143,10 +143,10 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
 
 ## 3.3 查看日志
 
-- 点击VS Code的Serial Monitor按钮, 选择对应串口号。
+- 点击VS Code的Serial Monitor按钮, 选择对应串口号, 下图是windows系统的示例，如果是MacOS系统的话，串口一般为/dev/cu.SLAB_USBtoUART。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01aG5qNC1GvJZsy5419_!!6000000000684-2-tps-2376-1948.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN010WZPcO1GczjjpWVp5_!!6000000000644-2-tps-2144-1508.png" style="max-width:90%;" />
 </div>
 
 - 设置波特率为1500000

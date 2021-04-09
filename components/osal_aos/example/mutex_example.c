@@ -52,8 +52,8 @@ static struct record {
 /* task entry */
 static void task_entry(void *arg)
 {
-    uint32_t i = 0;
-    int      status;
+    uint32_t     i = 0;
+    aos_status_t status;
 
     while (1) {
         /**
@@ -62,7 +62,7 @@ static void task_entry(void *arg)
          */
         status = aos_mutex_lock(&mutex_handle, AOS_WAIT_FOREVER);
         if (status != 0) {
-            printf("[%s][0x%x]mutex lock error\n", MODULE_NAME, (uint32_t)aos_task_self());
+            printf("[%s] %p mutex lock error\n", MODULE_NAME, (void *)aos_task_self());
             continue;
         }
 
@@ -70,7 +70,7 @@ static void task_entry(void *arg)
          * read critical resource.
          * If the four fields are not equal, the critical resource is destroyed.
          */
-        printf("[%s][0x%x]field1=%d, field2=%d, field3=%d, field4=%d\n", MODULE_NAME, (uint32_t)aos_task_self(), record_status.field1,
+        printf("[%s] %p field1=%ld, field2=%ld, field3=%ld, field4=%ld\n", MODULE_NAME, (void *)aos_task_self(), record_status.field1,
              record_status.field2, record_status.field3, record_status.field4);
 
         /* modify critical resources */
@@ -82,7 +82,7 @@ static void task_entry(void *arg)
 
         status = aos_mutex_unlock(&mutex_handle);
         if (status != 0) {
-            printf("[%s][0x%x]mutex unlock error\n", MODULE_NAME, (uint32_t)aos_task_self());
+            printf("[%s]%p mutex unlock error\n", MODULE_NAME, (void *)aos_task_self());
             return;
         }
 

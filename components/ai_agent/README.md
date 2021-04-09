@@ -26,7 +26,7 @@ AI Agent作为AI的代理引擎框架，支持不同推理引擎的注册，对�
 ```
 
 ## 依赖组件
-* ai_agent
+* ucloud_ai
 
 # 常用配置
 ```sh
@@ -39,7 +39,7 @@ def_config:                      # 组件的可配置项
 @ref aiagent_aos_api
 
 # 使用示例
-示例代码参考example/aiagent_example.c，以运行ucloud_ai_demo为例，具体步骤如下：
+示例代码参考example/aiagent_example.c，以运行helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
 > ai_agent组件的package.yaml中添加example
@@ -48,11 +48,11 @@ source_file:
   - "example/aiagent_example.c" # add aiagent_example.c
 ```
 
-> helloworld_demo组件的application_start中添加代码
+> ucloud_ai组件的package.yaml中添加编译配置:
+> * 编译时ucloud_ai组件中cp_resources.py会对资源文件进行拷贝，系统自动打包到littlefs文件系统中。
 ```sh
-    /*init network service*/
-    event_service_init(NULL);
-    netmgr_service_init(NULL);
+build_config:
+ prebuild_script: cp_resources.py
 ```
 
 ## 云端功能开通
@@ -91,24 +91,38 @@ depends:
   - littlefs: dev_aos   # helloworld_demo中引入littlefs组件
 ```
 
-## 编译
-```sh
-cd solutions/ucloud_ai_demo && aos make
+## 代码编译、烧录
+参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+### 文件件系统烧录
+本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data/目录下ucloud_ai_image目录，除烧录helloworld_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
+
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-## 烧录固件
-> helloworld_demo bin烧录：
+参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
+## ai_agent示例测试
+
+测试步骤：
 ```sh
-aos burn
+$ aiagent -e ucloud-ai init # 初始化aiagent
+$ netmgr -t wifi -c {ssid} {password}  # 请将ssid修改为您路由器的WiFi名称，paasword填入路由器的WiFi密码
+$ ucloud_ai -m {0~14} # 测试AI用例
 ```
 
-> littlefs文件系统烧录：
+### CLI命令行输入：
 ```sh
-aos burn -f hardware/chip/haas1000/release/write_flash_tool/ota_bin/littlefs.bin#0xB32000
+aiagent -e ucloud-ai init  # 初始化ucloud-ai引擎，在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可
 ```
-本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data目录，除烧录helloworld demo image外，需烧录littlefs文件系统。
 
-## ucloud_ai示例测试
+> CLI关键日志：
+```sh
+aiagent ucloud-ai init successfully!
+```
 
 ### CLI命令行输入：
 ```sh

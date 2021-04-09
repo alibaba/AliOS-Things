@@ -339,24 +339,23 @@ let device = {
     <img src="https://img.alicdn.com/imgextra/i2/O1CN01kBLGwa1HGqBzof2CS_!!6000000000731-2-tps-338-678.png" style="max-width:90%;" />
 </div>
 
-## 4.3 编译，烧入，运行
-编译命令
-```
-...进入到目录/solution/auto_demo
-aos make
-```
-代码烧写命令
-```
-aos burn
-```
-串口输入配网指令
-```
-netmgr -t wifi -c {ssid} {password}
-例如 
-ssid:HaaS-test
-password:88888888
-netmgr -t wifi -c HaaS-test 88888888
-```
+## 4.3 开发环境搭建、编译、烧入、运行
+### 4.3.1 AliOS Things开发环境搭建
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+### 4.3.2 电动小车代码下载
+智能语音播放器的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中，
+> 选择解决方案: “电动小车案例”
+> 选择开发板: HaaS100
+
+### 4.3.3 代码编译、烧录
+编译auto_demo的过程如下：
+
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+
+### 4.3.4 运行
 运行打印信息
 
 <div align=left display=flex>

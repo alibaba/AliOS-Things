@@ -52,15 +52,42 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 
 ## 4.2 软件实现
 
-### 4.2.1 编译固件
-```sh
-# cd ../../solutions/py_engine_demo
-# aos make
+
+
+* AliOS Things开发环境搭建
+
+    开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+
+
+* py_engine代码下载
+    py_engine代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中，
+    > 选择解决方案: "micropython示例"
+
+    > 选择开发板: HaaS100
+
+
+*  编译
+
+    参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+
+* 烧录
+
+    由于该demo的资源文件位于/data，分区，因此烧录的时候需要烧录littlefs.bin,方法如下：
+
+    将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开
+
+```yaml
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 
-### 4.2.2 验证Python功能
+    参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
-烧录固件，连接窗口，进入shell，通过python命令进入python rpel模式
+## 4.3 验证Python功能
+
+连接串口，通过python命令进入python repl模式
 ```sh
 # python
 # python on HaaS100 by 2021-03-17， press ctrl+d to exit！
