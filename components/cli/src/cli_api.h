@@ -141,6 +141,14 @@ int32_t cli_set_echo_status(int32_t status);
 */
 void cli_main(void *arg);
 
+#if CLI_UAGENT_ENABLE
+/**
+* @brief CLI Uagent init
+*
+*/
+void cli_uagent_init(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

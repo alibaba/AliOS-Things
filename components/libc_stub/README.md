@@ -1,14 +1,14 @@
 @page libc_stub libc_stub
 
 # 概述
-libc_stub模块是对C库的重定向的实现，支持gcc(newlibc)、icc、armcc三种类型编译器的主要库函数的重定向。
-完成的重定向对接功能包括：
+libc_stub组件是对C库桩函数（stubs）的实现，用于AliOS Things与C库的对接。支持gcc(newlibc)、icc、armcc三种类型编译器的C库。
+对接的功能包括：
 - 内存申请释放：malloc/free/realloc/calloc
 - 错误码errno记录、异常abort
 - 文件系统相关open/read/write/close等
 - 输出printf
 
-该模块只对接内核启动相关必要的接口，其他posix标准接口请参考posix组件；文件系统相关请参考vfs组件。
+该组件只对接C库相关接口，posix标准接口请参考posix组件；文件系统相关请参考vfs组件。
 
 ## 版权信息
 > Apache license v2.0
@@ -49,25 +49,27 @@ source_file:
 由于libc_stub_example.c中要测试open文件系统相关接口，因此需要依赖文件系统，本示例以通用的ramfs为例，增加ramfs组件
 ```sh
 depends:
-  - ramfs：dev_aos
+  - ramfs：master
 ```
 
 ## 添加libc_stub组件
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - libc_stub: dev_aos # helloworld_demo中引入libc_stub组件
+  - libc_stub: master # helloworld_demo中引入libc_stub组件
 ```
+## 编译与下载
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-## 编译
-```sh
-aos make helloworld_demo@haas100 -c config
-aos make
-```
-其他单板修改haas100即可。
+helloworld_demo与libc_stub组件的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+*> 选择解决方案: “helloworld简单示例”*
+
+*> 选择开发板: Haas100 board configure*
+
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## libc_stub示例测试
 > CLI命令行输入：

@@ -43,7 +43,7 @@ uagent/
 
 
 # 使用示例
-示例代码参考example/uagent_example.c，以运行linkit_mqtt_demo为例，具体步骤如下：
+示例代码参考example/uagent_example.c，以运行linkitsdk_demo为例，具体步骤如下：
 
 ## 添加示例代码
 > uagent组件的package.yaml中添加example示例代码
@@ -55,9 +55,27 @@ source_file:
   - "src/uagent_utility.c"
   - "example/uagent_example.c"
 ```
->在mqtt_basic_demo.c中添加uagent初始化,并修改对应的三元组信息
+> linkitsdk_dmeo solutions的package.yaml中添加依赖组件uagent组件
+```sh
+depends:                                       # 该组件依赖其他的组件
+  - linksdk: dev_aos
+  - haas100: dev_aos
+  - mbedtls: dev_aos
+  - netmgr: dev_aos
+  - uagent: dev_aos   #添加uagent组件
+```
+>在data_model_basic_demo.c中修改三元组信息为阿里云物联网平台创建的设备信息
 ```c
-    test_uagent_init(mqtt_handle,product_key,device_name); //mqtt连接成功后调用
+    /* TODO: 替换为自己设备的三元组 */
+    char *product_key       = "a1jMbw3BI9t";
+    char *device_name       = "HAAS100SDFASDFAS";
+    char *device_secret     = "61eda487b3ffcfa7d08eae012e40ba28";
+```
+
+>在data_model_basic_demo.c中添加uagent设置mqtthandle，在连接上阿里云物联网平台(MQTT)后添加
+```c
+    uagent_mqtt_client_set(mqtt_handle); //设置uagent用于连接mqtt的handle，必须在linksdk连接上云后设置
+    uagent_ext_comm_start(product_key, device_name);  //设置uagent的PK与DN，与linksdk中的pk，dn一致
     /* 主循环进入休眠 */
     while (1) {
         aos_msleep(1000);
@@ -66,7 +84,7 @@ source_file:
 
 ## 编译
 ```sh
-cd solutions/link_mqtt_demo && aos make
+cd solutions/linksdk_demo && aos make
 ```
 ## 烧录固件
 > 参考具体板子的快速开始文档。

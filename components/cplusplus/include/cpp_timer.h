@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_timer
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
 #define Timer_WAIT_FOREVER 0xFFFFFFFFU
 

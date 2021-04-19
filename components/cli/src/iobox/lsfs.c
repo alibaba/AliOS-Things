@@ -9,6 +9,8 @@
 #include <vfs_types.h>
 #include <vfs_api.h>
 
+extern int32_t vfs_list(vfs_list_type_t t);
+
 static void lsfs_show_help(void)
 {
     aos_cli_printf("Usage: lsfs\n");

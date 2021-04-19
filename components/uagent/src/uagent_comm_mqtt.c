@@ -39,7 +39,7 @@ static void uagent_handler(void *handle, const aiot_mqtt_recv_t *packet, void *u
                 packet->data.pub.payload,
                 packet->data.pub.payload_len);
                 if (NULL != packet->data.pub.payload) {
-                    recv_handler(packet->data.pub.payload, packet->data.pub.payload_len);
+                    recv_handler(packet->data.pub.payload_len , packet->data.pub.payload);
                 }
         }
         break;

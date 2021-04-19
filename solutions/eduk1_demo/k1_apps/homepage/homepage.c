@@ -4,17 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-// #include "posix/timer.h"
+#include "posix/timer.h"
 #include "../../build_version.h"
 #include "aos/hal/adc.h"
-// #include "netmgr.h"
+#include "netmgr.h"
 
 static int battery_level = 0;
-extern int wifi_connected;
 extern int bt_connected;
-extern int get_ipaddr;
-
-uint8_t ipv4_addr[4] = {192, 168, 0, 10};
+extern int ip_got_finished;
+extern char eduk1_ip_addr[IPADDR_STR_LEN];
 
 MENU_COVER_TYP homepage_cover = {MENU_COVER_NONE};
 MENU_TASK_TYP  homepage_tasks = {homepage_init, homepage_uninit};
@@ -66,8 +64,7 @@ static int get_battery(int *level, uint32_t *volage)
     hal_adc_finalize(&adc);
 
     test_avrg = (test_sum - test_min - test_max) >> 3;
-    // printf("\r\n=====adc test : the samping volage is:%dmv===\r\n",
-    // test_avrg);
+    // printf("\r\n=====adc test : the samping volage is:%dmv===\r\n", test_avrg);
     test_avrg *= 3.208;
     *volage = test_avrg;
 
@@ -92,39 +89,34 @@ void homepage_task(void)
     struct timespec tv;
     uint8_t         image_version[22];
     uint8_t         tmp[22];
-    // netmgr_stats_t stats;
+    netmgr_ifconfig_info_t ifconfig;
+    netmgr_hdl_t hdl;
     uint32_t volage;
+    int ret = 0;
+
     while (1) {
         OLED_Clear();
         /* 获取 GMT 时间 */
         clock_gettime(CLOCK_REALTIME, &tv);
         info = gmtime(&tv);
 
-        snprintf(tmp, 21, "%2d:%02d", (info->tm_hour + 8) % 24, info->tm_min);
-        OLED_Show_String(0, 12 * 0, tmp, 12, 1);
-        // if (wifi_connected)
-        // {
-        //     OLED_Icon_Draw(86, 0, &icon_wifi_on_12_12, 0);
-        // }
+        snprintf(tmp, 20, "%2d:%02d", (info->tm_hour + 8) % 24, info->tm_min);
+        OLED_Show_String(2, 12 * 0, tmp, 12, 1);
+        if (ip_got_finished)
+        {
+            OLED_Icon_Draw(86, 0, &icon_wifi_on_12_12, 0);
+            snprintf(image_version, 20, "IP: %s", eduk1_ip_addr);
+            OLED_Show_String(20, (12 + 4) * 3, image_version, 12, 1);
+        }else
+        {
+            //snprintf(image_version, 20, "IP: ?.?.?.?", ifconfig.ip_addr);
+            //OLED_Show_String(20, (12 + 4) * 3, image_version, 12, 1);
+        }
 
-        // if (get_ipaddr)
-        // {
-        //     netmgr_stats(0, &stats);
-        //     if (stats.ip_available)
-        //     {
-        //         snprintf(image_version, 20, "IP: %s", stats.ip);
-        //         OLED_Show_String(20, (12 + 4) * 3, image_version, 12, 1);
-        //     }
-        // }else
-        // {
-        //     //snprintf(image_version, 20, "IP: ?.?.?.?", stats.ip);
-        //     //OLED_Show_String(20, (12 + 4) * 3, image_version, 12, 1);
-        // }
-
-        // if (bt_connected)
-        // {
-        //     OLED_Icon_Draw(97, 0, &icon_bt_on_12_12, 0);
-        // }
+        if (bt_connected)
+        {
+            OLED_Icon_Draw(97, 0, &icon_bt_on_12_12, 0);
+        }
 
         OLED_Show_String(40, (12 + 4) * 1, "HaaS EDU", 12, 1);
         snprintf(image_version, 21, "VER: %s", BUILD_VERSION);

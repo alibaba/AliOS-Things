@@ -306,8 +306,8 @@ source_file:
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - netmgr     # 添加netmgr依赖，使用netmgr连接wifi
-  - lwip       # helloworld_demo中引入lwip组件
+  - netmgr:dev_aos     # 添加netmgr依赖，使用netmgr连接wifi
+  - lwip:dev_aos       # helloworld_demo中引入lwip组件
 ```
 
 ## 编译

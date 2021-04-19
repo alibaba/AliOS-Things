@@ -4,7 +4,7 @@
 
 #include "cpp_semaphore.h"
 
-using namespace AliOS;
+using namespace AOS;
 
 /**
  * This function will create a semaphore

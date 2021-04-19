@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_thread
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
 #define Thread_WAIT_FOREVER 0xFFFFFFFFU
 

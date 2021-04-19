@@ -228,7 +228,7 @@ class YModem(object):
             while True:
                 self.putc(data_for_send)
                 self.st.inc_sent_packets()
-                print("\rPacket " + str(sequence_int) + " >>>  ", end='')
+                print("\rPacket " + str(sequence_int) + " / " + str(self.st._task_packets) + " >>>  ", end='')
 
                 c = self.getc(1)
                 if c == ACK:

@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_mutex
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
 #define Mutex_WAIT_FOREVER 0xFFFFFFFFU
 

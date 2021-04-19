@@ -118,7 +118,7 @@ application_start是实际solution的实现，即app的统一入口。
 ## 4.2 软件实现
 application_start实际app入口内实现较简单，主要包括：
 - 基本的串口打印
-- while循环睡眠1S打印计数
+- while循环睡眠10S打印计数
 代码如下：
 ```c
 int application_start(int argc, char *argv[])
@@ -129,7 +129,7 @@ int application_start(int argc, char *argv[])
 
     while(1) {
         printf("hello world! count %d \r\n", count++);
-        aos_msleep(1000);
+        aos_msleep(10000);
     };
 }
 ```

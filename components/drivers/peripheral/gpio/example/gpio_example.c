@@ -41,12 +41,6 @@ int vfs_gpio_test(int id)
         ret = ioctl(fd, IOC_GPIO_SET, (unsigned long)&config);
         ddkc_info("gpio toggle return %d\r\n", ret);
 
-        ret = write(fd, "test", sizeof("test"));
-        ddkc_info("write to gpio return %d\r\n", ret);
-
-        ret = read(fd, buffer, sizeof(buffer));
-        ddkc_info("read from gpio return %d\r\n", ret);
-
         close(fd);
     }
     return 0;

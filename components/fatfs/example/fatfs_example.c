@@ -14,7 +14,7 @@
 
 static void fatfs_comp_example(int argc, char **argv)
 {
-    int buff[512] = {0};
+    char buff[512] = {0};
     int ret=0;
     printf("fatfs component example start !\r\n");
 
@@ -55,7 +55,7 @@ static void fatfs_comp_example(int argc, char **argv)
         return;
     }
 
-    ret = aos_read(fd2, buff, 512);
+    ret = aos_read(fd2, buff, sizeof(buff) - 1);
     if (ret > 0) {
         printf("aos_read: %s\n", buff);
     }else{
