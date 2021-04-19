@@ -1,52 +1,51 @@
 @page cplusplus cplusplus
 
 # 概述
-AliOS Things支持C++ 11相关特性，并且将内核基本模块功能抽象出了namespace AliOS，供用户使用。
-组件支持标准的C++ 11特性：
-- 基本类的特性，继承等；
+## AliOS Things C++组件支持C++11、C++库及STL，支持主要特性如下:
+- 基本类特性，包括继承、模板、多态等；
 - exception catch；
-- tuple数据结构
+- tuple
 - 时钟延时等操作
 - 线程创建操作等
 - singleton单例模式
 - 智能指针
 - 右值引用
-- RTTI运行阶段类型识别
+- RTTI运行时类型识别
 - lambda匿名函数
 - cond条件变量
 
-组件自定义的namespace AliOS类：
-- thread类
-- Timer类
-- Semaphore类
-- Mutex类
-- Queue类
-- WorkQueue类
+## AliOS Things C++组件对内核接口进行了封装，提供了一组自定义的类(原生类)。使用自定义类的优势是资源消耗少。这些原生类在自定义的命名空间AOS中。自定义类包括：
+- thread线程类
+- Timer软件定时器类
+- Semaphore信号量类
+- Mutex互斥信号量类
+- Queue队列类
+- WorkQueue工作队列类
 
 ## 版权信息
 > Apache license v2.0
 
 ## 目录结构
 ```sh
-├── mutex.cpp           # AliOS: Mutex类
-├── queue.cpp           # AliOS: Queue类
-├── semaphore.cpp       # AliOS: Semaphore类
-├── thread.cpp          # AliOS: thread类
-├── timer.cpp           # AliOS: Timer类
-├── workQueue.cpp       # AliOS: WorkQueue类
+├── mutex.cpp           # AOS: Mutex类
+├── queue.cpp           # AOS: Queue类
+├── semaphore.cpp       # AOS: Semaphore类
+├── thread.cpp          # AOS: thread类
+├── timer.cpp           # AOS: Timer类
+├── workQueue.cpp       # AOS: WorkQueue类
 ├── cpp_mem.cpp         # C++ new/delete适配
-├── cpp_init.c          # C++ ctor基础功能初始化
+├── cpp_init.c          # C++ C++初始化,将执行静态对象构造
 ├── example             # C++ 功能示例
 ├── package.yaml        # 编译配置文件
-├── include             # 对外统一引用**alios_cpp.h**即可
+├── include             # 对外统一引用**aos_cpp.h**即可
 │   ├── cpp_mem.h
 │   ├── cpp_mutex.h
 │   ├── cpp_queue.h
-│   ├── cpp_semaphore.h  
+│   ├── cpp_semaphore.h
 │   ├── cpp_thread.h
 │   ├── cpp_timer.h
 │   └── cpp_workQueue.h
-└── alios_cpp.h         # 对外统一头文件
+└── aos_cpp.h           # 对外统一头文件
 ```
 
 ## 依赖组件
@@ -56,9 +55,11 @@ AliOS Things支持C++ 11相关特性，并且将内核基本模块功能抽象�
 无
 
 # API说明
-其中C++ 11标准使用参考相关C++标准；
-AliOS Things自定义的内核相关功能类参考：
-@ref cpp_aos_init
+## C++ 11标准使用参考相关C++标准
+## AliOS Things自定义类使用说明如下
+- 使用AliOS Things自定义类需要先声明AOS命令空间
+> using namespace AOS;
+- 各自定义类相关说明参见如下链接:
 @ref cpp_aos_workqueue
 @ref cpp_aos_timer
 @ref cpp_aos_thread
@@ -68,10 +69,10 @@ AliOS Things自定义的内核相关功能类参考：
 
 # 使用示例
 如果需要使用cplusplus的功能，需要注意下面内容：
-- 需要首先调用cpp_init初始化cpp基础功能，一般aos_component_init中已经调用
+- 需要首先调用cpp_init初始化cpp基础功能，添加对cplusplus组件的依赖后aos_component_init中自动会调用
 - 需要关注相应的c++ 编译选项
 
-标准C++功能使用示例参考**example/cpp_standard**，AliOS命令空间的内核类使用参考**example/cpp_aos**。
+标准C++使用示例参考**example/cpp_standard**，AliOS自定义类使用参考**example/cpp_aos**。
 
 以运行helloworld_demo为例，添加运行组件的具体步骤如下：
 
@@ -94,20 +95,21 @@ build_config:
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - cplusplus: dev_aos # helloworld_demo中引入cplusplus组件
+  - cplusplus: master # helloworld_demo中引入cplusplus组件
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
-```
+## 编译与下载
+开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+helloworld_demo与cplusplus的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
+
+*> 选择解决方案: “helloworld简单示例”*
+
+*> 选择开发板: Haas100 board configure*
+
+-- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+
+-- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
 
 ## cpp示例测试
 ### 运行标准C++示例
@@ -142,6 +144,8 @@ cpp_aos
 ```sh
 hello world C!
 hello world C++!
+Total area: 35
+Total paint cost: $2450
 ******（有省略）
 demo_task1 count  9
 demo_task1 lock
@@ -159,5 +163,7 @@ demo_task2 count  4
 在正常使用时，按照自身需求，可以增加编译选项**-fno-rtti**，或去除编译选项**-fexceptions**来达到降低版本大小的目的。
 
 # FAQ
-
+Q1： 在编译时出现错误提示要加选项:error: exception handling disabled, use -fexceptions to enable
+     或者编译带try-catch的代码时提示变量未定义:error: 'msg' was not declared in this scope
+> 答：这是因为默认关闭了-fexceptions选项引起的，可在package.yaml中搜索语句#cxxflag: '-fexceptions', 把前面的#号去掉，使能该选项。注：使能该选项后将导致镜像变大。
 

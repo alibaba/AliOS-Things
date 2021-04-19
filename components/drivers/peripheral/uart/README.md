@@ -38,7 +38,10 @@ int open(const char *pathname, int flags);
 |:-----                                  |:----|
 |pathname                                |UART设备VFS路径|
 |flags                                   |目前固定为0值|
-兼容POSIX标准的open接口。其中参数*pathname*为*/dev/ttyUART*加UART序号，例如*/dev/ttyUART0*。
+兼容POSIX标准的open接口。其中参数*pathname*为*/dev/ttyUART*加UART序号,例如:
+```c
+fd = open("/dev/ttyUART0", 0);
+```
 
 ## 关闭
 ```c
@@ -116,19 +119,45 @@ aos make helloworld_demo@haas100 -c config
 ## 示例测试
 UART接收测试，CLI命令行输入：
 ```
-uartr
+uartr <UART ID> <测试持续时间（ms）>
 ```
 UART发送测试，CLI命令行输入：
 ```
-uartw
+uartw <UART ID> <待发送字符串>
 ```
 UART回显测试，CLI命令行输入：
 ```
-uarte
+uarte <UART ID> <测试持续时间（ms）>
 ```
 
 ## 关键日志
-以UART实际收发数据为准。
+UART接收测试日志显示：
+```
+opening device:/dev/ttyUART<UART ID>
+set baudrate to 1500000
+set baudrate done
+<显示接收到的字符串>
+closing /dev/ttyUART<UART ID>
+/dev/ttyUART<UART ID> closed
+```
+UART发送测试日志显示：
+```
+opening device:/dev/ttyUART<UART ID>
+set baudrate to 1500000
+set baudrate done
+writing <待发送字符串>
+write return <write接口返回值>
+closing /dev/ttyUART<UART ID>
+/dev/ttyUART<UART ID> closed
+```
+UART回显测试（发送已接收到的数据）日志显示：
+```
+opening device:/dev/ttyUART<UART ID>
+set baudrate to 1500000
+set baudrate done
+closing /dev/ttyUART<UART ID>
+/dev/ttyUART<UART ID> closed
+```
 
 # 注意事项
 无

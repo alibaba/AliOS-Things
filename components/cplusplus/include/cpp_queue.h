@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_queue
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
 #define Queue_WAIT_FOREVER 0xFFFFFFFFU
 

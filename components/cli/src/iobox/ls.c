@@ -8,6 +8,11 @@
 #include <aos/cli.h>
 #include <stdbool.h>
 #include <path_helper.h>
+#include <vfs_types.h>
+#include <vfs_api.h>
+
+#define DEVICE_PATH_PREFIX "/dev"
+#define DEVICE_PATH_PREFIX_SLASH_TAILED "/dev/"
 
 #define LONGLIST    (1 << 0)
 #define SZ_KB       (1 << 1)
@@ -21,6 +26,7 @@
 
 static int get_cwd_dir(char *dir, size_t len);
 extern int32_t vfs_get_node_name(const char *path, char names[][64], uint32_t* size);
+extern int32_t vfs_list(vfs_list_type_t t);
 
 static void show_help(void)
 {
@@ -110,13 +116,6 @@ static int up_one_level(char *abspath)
     return 0;
 }
 
-#if LIST_DEVICE
-#include <vfs_types.h>
-#include <vfs_api.h>
-#define DEVICE_PATH_PREFIX "/dev"
-#define DEVICE_PATH_PREFIX_SLASH_TAILED "/dev/"
-#endif
-
 static int ls_do(int argc, char **argv, int flags)
 {
     int index;
@@ -146,12 +145,11 @@ static int ls_do(int argc, char **argv, int flags)
             return -1;
         }
 
-#if LIST_DEVICE
         if ((strcmp(dir, DEVICE_PATH_PREFIX_SLASH_TAILED) == 0) ||
             (strcmp(dir, DEVICE_PATH_PREFIX) == 0)) {
             vfs_list(VFS_LIST_TYPE_DEVICE); // 0: fs, 1: device
+            continue;
         }
-#endif
 
         if (dir[0] != '/') {
             if (!curdir_available) {

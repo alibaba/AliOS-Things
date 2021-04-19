@@ -23,6 +23,7 @@ static char show_log_list_buffer[512];
 void ulog_example_test(int argc, char **argv)
 {
     int i = 0;
+    aos_set_log_level(AOS_LL_DEBUG);
     while (1) {
         LOGI(ULOG_MOD, "%d-%s", i, TEST_STR);
         i++;

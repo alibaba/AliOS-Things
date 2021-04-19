@@ -549,7 +549,7 @@ static lfs_lock_t native_lfs_lock[CONFIG_LITTLEFS_CNT];
 
 static int32_t _lfs_init(const char *partition_name, int i)
 {
-    if (i > (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
+    if (i >= (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
         LFS_ERROR("%s failed, Max lfs partition limit hit!", __func__);
         return -1;
     }
@@ -1218,7 +1218,7 @@ int lfs_vfs_mount(int i)
 {
     int ret;
 
-    if (i > (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
+    if (i >= (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
         LFS_ERROR("%s failed, Max lfs partition limit hit!", __func__);
         return -1;
     }
@@ -1265,7 +1265,7 @@ int lfs_vfs_unmount(int i)
 {
     int ret;
 
-    if (i > (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
+    if (i >= (sizeof(g_lfs_manager) / sizeof(g_lfs_manager[0]))) {
         LFS_ERROR("%s failed, Max lfs partition limit hit!", __func__);
         return -1;
     }
@@ -1345,7 +1345,7 @@ int32_t littlefs_unregister(const char *mnt_path)
         i++;
     }
 
-    return (i >= CONFIG_LITTLEFS_CNT) ? -1 : 0;
+    return 0;
 }
 
 int littlefs_format(const char *partition)

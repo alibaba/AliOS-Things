@@ -563,10 +563,10 @@ int32_t ramfs_rename(const char *old, const char *new)
     }
 
     entry->fn = ramfs_mm_realloc(entry->fn, strlen(new));
-    strcpy(entry->fn, new);
     if (entry->fn == NULL) {
         return RAMFS_ERR_MALLOC;
     }
+    strcpy(entry->fn, new);
 
     return RAMFS_OK;
 }

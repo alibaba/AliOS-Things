@@ -21,7 +21,7 @@ static int cat_main(int argc, char **argv)
     for (index = 1; index < argc; index++) {
         char *file = argv[index];
         struct stat s;
-        int ret, fd;
+        int ret, fd, fsize, total = 0;
         char buf[128];
 
         memset(abspath, 0 , sizeof(abspath));
@@ -36,6 +36,8 @@ static int cat_main(int argc, char **argv)
             aos_cli_printf("stat %s failed - %s\n", file, strerror(errno));
             continue;
         }
+
+        fsize = s.st_size;
 
         fd = open(file, O_RDONLY);
         if (fd < 0) {
@@ -55,6 +57,11 @@ static int cat_main(int argc, char **argv)
             if (wlen != ret) {
                 aos_cli_printf("write %s failed - %s\n", file, strerror(errno));
                 goto close;
+            }
+
+            total += ret;
+            if (total >= fsize) {
+                break;
             }
         }
         write(STDOUT_FILENO, "\r\n", 2);

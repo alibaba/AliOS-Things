@@ -16,10 +16,17 @@ typedef struct {
 
 /*digital input gpio dev list , the default value is high*/
 static gpio_dev_ouput_t gpio_dev_output[DO_PORT_SIZE] = {
-    {0, {HAL_IOMUX_PIN_P2_7, OUTPUT_PUSH_PULL, NULL} },
-    {0, {HAL_IOMUX_PIN_P2_6, OUTPUT_PUSH_PULL, NULL} },
-    {0, {HAL_IOMUX_PIN_P4_0, OUTPUT_PUSH_PULL, NULL} },
-    {0, {HAL_IOMUX_PIN_P4_1, OUTPUT_PUSH_PULL, NULL} },
+    {0, {HAL_IOMUX_PIN_P2_2, OUTPUT_PUSH_PULL, NULL}},  //UART2_RXD
+    {0, {HAL_IOMUX_PIN_P2_3, OUTPUT_PUSH_PULL, NULL}},  //UART2_TXD
+
+    {0, {HAL_IOMUX_PIN_P0_4, OUTPUT_PUSH_PULL, NULL}}, //GPIO_P04
+    {0, {HAL_IOMUX_PIN_P0_5, OUTPUT_PUSH_PULL, NULL}}, //GPIO_P05
+    {0, {HAL_IOMUX_PIN_P0_6, OUTPUT_PUSH_PULL, NULL}}, //GPIO_P06
+    {0, {HAL_IOMUX_PIN_P0_7, OUTPUT_PUSH_PULL, NULL}}, //GPIO_P07
+
+    {0, {HAL_IOMUX_PIN_P0_0, OUTPUT_PUSH_PULL, NULL}}, //SWCLK
+    {0, {HAL_IOMUX_PIN_P0_1, OUTPUT_PUSH_PULL, NULL}}, //SWDIO
+
 };
 
 int32_t expansion_board_do_init(void)
@@ -65,7 +72,7 @@ int32_t expansion_board_do_high(uint8_t port)
     }
 
     /*do output high ,gpio should pull down */
-    ret = hal_gpio_output_low(&gpio_dev_output[port].gpio_dev);
+    ret = hal_gpio_output_high(&gpio_dev_output[port].gpio_dev);
     if (ret) {
         LOGE(TAG, "%s %d port %d set high fail , ret %d", __func__,
              __LINE__, port, ret);
@@ -91,7 +98,7 @@ int32_t expansion_board_do_low(uint8_t port)
     }
 
     /*do output high ,gpio should pull up */
-    ret = hal_gpio_output_high(&gpio_dev_output[port].gpio_dev);
+    ret = hal_gpio_output_low(&gpio_dev_output[port].gpio_dev);
     if (ret) {
         LOGE(TAG, "%s %d port %d set low fail , ret %d", __func__, __LINE__,
              port, ret);
