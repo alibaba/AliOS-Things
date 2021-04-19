@@ -90,12 +90,12 @@ char *get_realpath(const char *path, char *resolved_path, unsigned int len)
                     }
                 }
             } else {
-                if ((*p != '/') && (*p != '\0')) {
-                    printf("Invalid path %s\r\n", path);
-                    return NULL;
-                } else {
-                    // '.' case
+                if (*p == '/' || *p == '\0') {
                     p++;
+                } else {
+                    // '.xxx' might be hidden file or dir
+                    p--;
+                    goto copy_valid;
                 }
             }
         }
@@ -109,6 +109,7 @@ char *get_realpath(const char *path, char *resolved_path, unsigned int len)
         if (*p == '.')
             continue;
 
+copy_valid:
         // path string may be found now, save to r
         while ((*p != '/') && (*p != '\0'))
             *r++ = *p++;
@@ -118,6 +119,12 @@ char *get_realpath(const char *path, char *resolved_path, unsigned int len)
             *r++ = '/';
         }
     }
+
+    /**
+     * considering "cd ../config" for tab key case,
+     * we need set string EOF avoid out of control.
+     */
+    *r = '\0';
 
     // exclude the tailing '/', just in case it is a file
     if ((resolved_path[strlen(resolved_path) - 1] == '/') &&

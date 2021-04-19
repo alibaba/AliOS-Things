@@ -94,3 +94,64 @@ tftp_send_ack(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port, u16_t blkn
   udp_sendto(pcb, p, addr, port);
   pbuf_free(p);
 }
+
+static void tftp_get_done(int error, int len)
+{
+    if (error == 0) {
+        cli_printf("tftp received len:%d done.\r\n", len);
+    } else {
+        cli_printf("tftp received failed.\r\n");
+    }
+    char _buf[PATH_MAX] = {0};
+    cli_printf("(%s:%s)#", cli_task_get_console_name(), aos_getcwd(_buf, sizeof(_buf)));
+}
+
+extern tftp_context_t client_ctx;
+static int tftp_cmd(int argc, char **argv)
+{
+    if (argc < 3) {
+        goto tftp_print_usage;
+    }
+
+    if (strncmp(argv[1], "server", 6) == 0) {
+        if (strncmp(argv[2], "start", 5) == 0) {
+            err_t err = tftp_server_start();
+            cli_printf("tftp start server %s\r\n", err == ERR_OK ? "done" : "failed");
+            return 0;
+        } else if (strncmp(argv[2], "stop", 4) == 0) {
+            tftp_server_stop();
+            cli_printf("tftp stop server done\r\n");
+            return 0;
+        }
+        goto tftp_print_usage;
+    } else if (strncmp(argv[1], "get", 3) == 0) {
+        ip_addr_t dst_addr;
+        uint16_t port;
+
+        ipaddr_aton(argc == 6 ? argv[2] : "10.0.0.2", &dst_addr);
+        port = (uint16_t)atoi(argv[3]);
+        tftp_client_set_server_port(port);
+        tftp_client_get(&dst_addr, argv[argc - 2], argv[argc - 1], &client_ctx, tftp_get_done);
+        return 0;
+    }
+
+tftp_print_usage:
+    cli_printf("usage:\r\n"
+               "  tftp server <start|stop>\r\n"
+               "  tftp get $server_ip server_src_path device_dest_path\r\n"
+               "eg:\r\n"
+               "  1. get file from server:\r\n"
+               "     tftp get 192.168.0.100 test.txt /tmp/test.txt\r\n");
+    return 0;
+}
+
+
+#ifdef AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
+
+#ifdef AOS_COMP_CLI
+/* reg args: fun, cmd, description*/
+ALIOS_CLI_CMD_REGISTER(tftp_cmd, tftp, TFTP command)
+#endif
+

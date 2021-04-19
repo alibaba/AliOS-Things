@@ -3,7 +3,7 @@
  */
 #include "cpp_thread.h"
 
-using namespace AliOS;
+using namespace AOS;
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 

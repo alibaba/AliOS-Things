@@ -13,16 +13,12 @@ static void task0_entry(void)
     bool                 islock;
     chrono::milliseconds waittime(2000);
 
-    auto start = std::chrono::steady_clock::now();
-    // this_thread::sleep_for(waittime);
-    auto end = std::chrono::steady_clock::now();
-    chrono::duration<double, ratio<1, 1000>> diff = end - start;
-    cout << "thread0 wait time: " << diff.count() << " ms" << endl;
-
-    start  = chrono::steady_clock::now();
+    auto start  = chrono::steady_clock::now();
     islock = mutex_test.try_lock_for(waittime);
-    end    = std::chrono::steady_clock::now();
-    diff   = end - start;
+    auto end    = std::chrono::steady_clock::now();
+
+    chrono::duration<double, ratio<1, 1000>> diff = end - start;
+
     cout << "thread0 trylock result:" << islock << " time to try lock "
          << diff.count() << " ms" << endl;
 }
@@ -33,7 +29,7 @@ static void task1_entry(void)
     chrono::milliseconds waittime(1000);
     auto                 start = chrono::steady_clock::now();
     islock                     = mutex_test.try_lock_for(waittime);
-    auto                                    end  = chrono::steady_clock::now();
+    auto                 end   = chrono::steady_clock::now();
     chrono::duration<float, ratio<1, 1000>> diff = end - start;
     cout << "thread1 trylock result:" << islock << " time to try lock "
          << diff.count() << " ms" << endl;

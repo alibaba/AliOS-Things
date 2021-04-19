@@ -100,8 +100,6 @@ static void haas_board_init(void)
     led_switch(1, LED_ON);
     led_switch(2, LED_ON);
     led_switch(3, LED_ON);
-    led_switch(4, LED_ON);
-    led_switch(5, LED_ON);
 
 #if CONFIG_A7_DSP_ENABLE
 #ifndef CONFIG_GENIE_DEBUG
@@ -221,9 +219,7 @@ int main(void)
             led_switch(1, LED_OFF);
             led_switch(2, LED_OFF);
             led_switch(3, LED_OFF);
-            led_switch(4, LED_OFF);
-            led_switch(5, LED_OFF);
-            times++;
+            times ++;
         } else {
             if (times < 11) {
                 times++;

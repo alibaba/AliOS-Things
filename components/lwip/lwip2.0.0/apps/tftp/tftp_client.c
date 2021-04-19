@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define PRINT_BASE_SIZE 102400
+
 typedef struct tftp_state_s {
     const tftp_context_t *ctx;
     struct udp_pcb *upcb;
@@ -30,6 +32,7 @@ typedef struct tftp_state_s {
 } tftp_state_t;
 
 static tftp_state_t tftp_state;
+static uint16_t     tftp_port = TFTP_PORT;
 
 static void tftp_tmr(void* arg);
 void tftp_send_error(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port,
@@ -47,7 +50,7 @@ close_handle(int err)
         pstate->ctx->close(pstate->handle);
         pstate->handle = NULL;
     }
-    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: closing\n"));
+    //LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: closing\n"));
 
     if (pstate->cb != NULL)
         pstate->cb(err, err == 0 ? pstate->flen : -1);
@@ -104,8 +107,8 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
             blknum = PP_NTOHS(sbuf[1]);
             blklen = p->tot_len - TFTP_HEADER_LENGTH;
             if (blknum < pstate->seq_expect) {
-                LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
-                        ("received repeated block '%d', len='%u'\n", blknum, blklen));
+             //   LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
+             //           ("received repeated block '%d', len='%u'\n", blknum, blklen));
                 tftp_send_ack(pstate->upcb, &pstate->addr, port, blknum);
                 pstate->seq_last = blknum;
                 break;
@@ -120,8 +123,11 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
                 break;
             }
 
-            LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
-                    ("received new block '%d', len='%u'\n", blknum, blklen));
+            /*print download process based on 100KB.*/
+            if(pstate->flen/PRINT_BASE_SIZE > 0 && pstate->flen%PRINT_BASE_SIZE == 0)
+                LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
+                        ("received total length='%uKB'\n", pstate->flen/1024));
+
             pbuf_header(p, -TFTP_HEADER_LENGTH);
             wlen = pstate->ctx->write(pstate->handle, p);
             if (wlen != blklen) {
@@ -139,7 +145,7 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
             if (blklen < 512) {
                 pstate->time = aos_now_ms() - pstate->time;
                 LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
-                        ("get succeed: received %u bytes in %u mS\n", pstate->flen, pstate->time));
+                        ("Total received: receive %u bytes in %u mS\n", pstate->flen, pstate->time));
                 close_handle(0);
                 break;
             }
@@ -184,8 +190,7 @@ static int tftp_fwrite(void* handle, struct pbuf* p)
     char buff[512];
     size_t writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
-    /* writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle); */
-    writebytes = p->tot_len;
+    writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);
     return (int)writebytes;
 }
 
@@ -196,16 +201,16 @@ const tftp_context_t client_ctx = {
     .write = tftp_fwrite
 };
 
-int tftp_client_get(const ip_addr_t *paddr, const char *fname,
+int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfname,
                     tftp_context_t *ctx, tftp_done_cb cb)
 {
     err_t ret;
     tftp_state_t *pstate = &tftp_state;
 
     pstate->time = aos_now_ms();
-    pstate->handle = ctx->open(fname, "netascii", 1);
+    pstate->handle = ctx->open(lfname, "netascii", 1);
     if (pstate->handle == NULL) {
-        LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: open file '%s' failed\n", fname));
+        LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: open file '%s' failed\n", lfname));
         return -1;
     }
 
@@ -237,7 +242,7 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname,
     payload[1] = TFTP_RRQ;
     memcpy(&payload[2], fname, strlen(fname));
     memcpy(&payload[3 + strlen(fname)], "netascii", strlen("netascii"));
-    pstate->port = TFTP_PORT;
+    pstate->port = tftp_port;
     ret = udp_sendto(pcb, p, paddr, pstate->port);
     if (ret != ERR_OK) {
         LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: send RRQ to server failed\n"));
@@ -259,3 +264,9 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname,
     pbuf_free(p);
     return 0;
 }
+
+void tftp_client_set_server_port(uint16_t port)
+{
+    tftp_port = port;
+}
+

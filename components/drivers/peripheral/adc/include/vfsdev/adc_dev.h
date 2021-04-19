@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-/** @defgroup adc_device_api
+/** @defgroup adc_device_api adc_device
  * @{
  */
 

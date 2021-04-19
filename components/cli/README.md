@@ -6,6 +6,7 @@
 - cli commands register
 - cli commands unregister
 - cli commands show
+- fs cmds support
 ## 版权信息
 > Apache license v2.0
 
@@ -24,8 +25,9 @@
     ├── cli.c            # cli核心管理
     ├── cli_console.c    # cli console管理
     ├── cli_console.h
-    ├── telnet_console.c # cli使用telnet输入输出（可选方式）
-    ├── uart_console.c   # cli使用Uart输入输出（默认方式）
+    ├── uart_console.c   # cli使用Uart串口输入输出（默认方式）
+    ├── telnet_console.c # cli使用telnet局域网输入输出（可选方式）
+    ├── cli_uagent.c     # cli使用远程调试终端输入输出（可选方式）
     ├── iobox            # 文件系统操作命令集
     │   ├── cat.c
     │   ├── cd.c
@@ -52,54 +54,60 @@
 
 
 # 常用配置
-系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
-> cli 输入缓冲区大小: 默认256 bytes，即cli单次可接收的输入最大字节数，可修改yaml配置如：
+系统中相关配置已有默认值，如需修改配置，在相应app下的package.yaml中**def_config**节点修改。例如：若运行的app为helloworld_demo，则在helloworld_demo下的package.yaml中修改：
+> cli 输入缓冲区大小: 默认256 bytes，即cli单次可接收的输入最大字节数
 ```sh
 def_config:
   CLI_INBUF_SIZE: 256
 ```
-> cli 输出缓冲区大小: 默认512 bytes，即cli命令中单个printf输出的最大字节数，可修改yaml配置如：
+> cli 输出缓冲区大小: 默认512 bytes，即cli命令中单个printf输出的最大字节数
 ```sh
 def_config:
   CLI_OUTBUF_SIZE: 512
 ```
-> 可注册的cli命令最大值，默认128个命令（通过help命令查看），可修改yaml配置如：
+> 可注册的cli命令最大值，默认最多可注册128个命令（通过help命令查看）
 ```sh
 def_config:
   CLI_MAX_COMMANDS: 128
 ```
-> 单个cli命令可带参数的最大值，默认16个参数，可修改yaml配置如：
+> 单个cli命令可带参数的最大值，默认最多可带16个参数
 ```sh
 def_config:
   CLI_MAX_ARG_NUM: 16
 ```
-> 可连续执行的cli命令数量（命令中间用分号；间隔），默认4个，可修改yaml配置如：
+> 可连续执行的cli命令数量（命令中间用分号；间隔），默认为4个
 ```sh
 def_config:
   CLI_MAX_ONCECMD_NUM: 4
 ```
-> cli后台任务的优先级，默认为60，可修改yaml配置如：
+> cli后台任务的优先级，默认为60
 ```sh
 def_config:
   CLI_TASK_PRIORITY: 60
 ```
-> cli后台任务的栈大小，默认为2KB（2048Bytes），可修改yaml配置如：
+> cli后台任务的栈大小，默认为2KB(2048Bytes)
 ```sh
 def_config:
   CLI_CONFIG_STACK_SIZE: 2048
 ```
-> cli使用telnet接管输入输出，此功能默认不开，可修改yaml配置如：
+> cli使用telnet接管输入输出，此功能默认不开
 ```sh
 def_config:
-  CLI_TELNET_SUPPORT: 0
+  CLI_TELNET_ENABLE: 0
 ```
-> cli输出增加不可见字符，用于SmartTrace工具中，此功能默认关闭，可修改yaml配置如：
+> cli使用uagent接管输入输出，即cli日志输入输出在远程诊断终端上，此功能默认不开
+```sh
+def_config:
+  CLI_UAGENT_ENABLE: 0
+```
+
+> cli输出增加不可见字符，用于SmartTrace工具中，此功能默认关闭
 ```sh
 def_config:
   CLI_SEPRATED_CONSOLE: 0
 ```
 
-> cli使能文件系统操作命令，此功能默认不开，可修改yaml配置如：
+> cli使能文件系统操作命令，此功能默认不开
 ```sh
 def_config:
   CLI_IOBOX_ENABLE: 0
@@ -222,5 +230,57 @@ df
 touch
 ...
 等文件系统命令
+```
+
+Q2：文件系统命令如何使用？
+```sh
+答：
+cli组件支持文件系统操作命令，使用方法类似Linux常见shell命令，简单举例如下：
+
+lsfs - 列出当前系统注册的文件系统节点
+命令显示：
+/data
+表示当前文件系统(littlefs)注册的节点为/data
+
+df - 显示文件系统当前使用情况
+命名显示：
+     Total      Used      Free   Use%    Mount
+      4792      2416      2376    50%    /data
+可以查看/data下文件的使用情况
+
+mkdir - 创建文件夹
+mkdir /data/123
+ll /data （或者 ls -l /data）
+命令显示：
+drwxrwxrwx root root 0B .
+drwxrwxrwx root root 0B ..
+drwxrwxrwx root root 0B aaa
+-rwxrwxrwx root root 21B demo
+drwxrwxrwx root root 0B font
+drwxrwxrwx root root 0B lib
+(注意：当前尚不支持可读/可写/可执行等权限设置)
+
+touch - 创建单个文件
+cd /data/aaa
+touch 123.txt
+ll
+命令显示：
+drwxrwxrwx root root 0B .
+drwxrwxrwx root root 0B ..
+-rwxrwxrwx root root 0B 123.txt
+
+pwd - 显示当前路径
+命令显示：
+/data/aaa
+
+echo
+1. 显示普通字符串:
+echo "hello,world!"
+
+2. 显示结果定向至文件
+echo "alibaba" > /data/aaa/123.txt
+cat /data/aaa/123.txt
+命令显示：
+alibaba
 ```
 

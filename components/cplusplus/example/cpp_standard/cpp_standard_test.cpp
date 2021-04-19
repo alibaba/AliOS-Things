@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 #include "aos/kernel.h"
-#include <alios_cpp.h>
+#include <aos_cpp.h>
 #include <stdio.h>
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"

@@ -2,27 +2,18 @@
 #include "aos/hal/gpio.h"
 #include "hal_iomux_haas1000.h"
 
-void led_switch(int id, led_e onoff)
+void led_switch(led_num_e id, led_e onoff)
 {
     int        ret = 0;
     gpio_dev_t led;
 
     /* gpio port config */
     switch (id) {
-        case 1:
-            led.port = HAL_IOMUX_PIN_LED1;
+        case 1: led.port = HAL_IOMUX_PIN_P4_4;
             break;
-        case 2:
-            led.port = HAL_IOMUX_PIN_LED2;
+        case 2: led.port = HAL_IOMUX_PIN_P4_3;
             break;
-        case 3:
-            led.port = HAL_IOMUX_PIN_P4_4;
-            break;
-        case 4:
-            led.port = HAL_IOMUX_PIN_P4_3;
-            break;
-        case 5:
-            led.port = HAL_IOMUX_PIN_P4_2;
+        case 3: led.port = HAL_IOMUX_PIN_P4_2;
             break;
         default:
             return;
@@ -37,7 +28,7 @@ void led_switch(int id, led_e onoff)
         return;
     }
 
-    if (onoff == LED_OFF) {
+    if(onoff == LED_ON) {
         ret = hal_gpio_output_high(&led);
     } else {
         ret = hal_gpio_output_low(&led);

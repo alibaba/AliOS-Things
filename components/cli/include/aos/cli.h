@@ -111,6 +111,22 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
 int aos_cli_printf(const char *fmt, ...);
 
 /**
+ * @brief Suspend cli task
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_suspend(void);
+
+/**
+ * @brief Resume cli task
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_resume(void);
+
+/**
  * @}
  */
 

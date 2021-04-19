@@ -3,7 +3,7 @@
 # 概述
 py_engine (Python轻应用引擎) 以MicroPython为基础打造而成.可以快速实现IoT场景连云、控端、AI等最常见功能。快速上手文档和编程接口请参考[Python轻应用编程参考](https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html)
 组件支持以下功能：
-- 连云：支持基于linkit连接阿里云物联网平台
+- 连云：支持基于linkSDK连接阿里云物联网平台
 - 控端：支持PWD、UART、SPI、I2C、ADC、DAC、GPIO等基本硬件接口控制
 - AI：支持端上AI和云端AI能力，覆盖人脸、人体、视频、文字等150+场景
 
@@ -60,33 +60,30 @@ def_config:
 示例代码参考example/py_engine_example.c，以运行helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
-> py_engine组件的package.yaml中添加example
+> py_engine组件的CMakeLists.txt 文件 file(GLOB SOURCEFILE "") 语句后面添加example配置:
 ```sh
-source_file:
-  - "src/*.c"
-    - "example/py_engine_example.c" # add py_engine_example.c
+include(${EXAMPLEDIR}/aos.mk)
     ```
 
-## 添加kv组件
+## 添加py_engine组件
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - py_engine: master # helloworld_demo中引入py_engine组件
+  - py_engine: dev_aos # helloworld_demo中引入py_engine组件
   ```
 
 ## 编译
 ```sh
-cd solutions/helloworld_demo && aos make
+cd solutions/helloworld_demo && aos make clean && aos make V=1
 ```
-其中具体单板还需要先配置环境：
 ```sh
-aos make helloworld_demo@haas100 -c config
+aos --version
 ```
 
 ## 烧录固件
 > 参考具体板子的快速开始文档。
 
-## KV示例测试
+## pyEngine示例测试
 > CLI命令行输入：
 ```sh
 python

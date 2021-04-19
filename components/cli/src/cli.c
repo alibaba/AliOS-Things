@@ -2,29 +2,37 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "cli_adapt.h"
+#include "cli_api.h"
+#include "cli_console.h"
 #include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "aos/cli.h"
-#include "cli_adapt.h"
-#include "cli_console.h"
-#include "cli_api.h"
-#include "aos/kernel.h"
+#if CLI_IOBOX_ENABLE
+#include "path_helper.h"
+#include <dirent.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#if AOS_COMP_DEBUG
+#include "aos/debug.h"
+#endif
 
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
 #define PROMPT   "# "
 #define EXIT_MSG "exit"
 
-#if AOS_COMP_DEBUG
-#include "aos/debug.h"
-#endif
-
-typedef struct
-{
+typedef struct {
     int32_t argc;
     char *argv[CLI_MAX_ARG_NUM];
 } _cmd_arg_t;
@@ -40,17 +48,17 @@ typedef enum {
 } cli_input_stat;
 
 struct cli_status {
-    int32_t  inited;
+    int32_t inited;
     uint32_t num;
-    int32_t  echo_disabled;
+    int32_t echo_disabled;
 
-    char  inbuf[CLI_INBUF_SIZE];
+    char inbuf[CLI_INBUF_SIZE];
 
     const struct cli_command *cmds[CLI_MAX_COMMANDS];
 
     uint32_t his_idx;
     uint32_t his_cur;
-    char     history[CLI_INBUF_SIZE];
+    char history[CLI_INBUF_SIZE];
 
     uint32_t cmd_cur_pos;
     uint32_t cmd_end_pos;
@@ -61,8 +69,22 @@ struct cli_status {
 static struct cli_status *g_cli = NULL;
 extern cli_console cli_uart_console;
 extern void hal_reboot(void);
+#if CLI_IOBOX_ENABLE
+extern uint32_t vfs_get_match_dev_node(const char *name, char *match_name);
+#endif
 int32_t cli_va_printf(const char *fmt, va_list va);
 int32_t cli_printf(const char *fmt, ...);
+
+static inline void cli_prefix_print(void)
+{
+#if CLI_IOBOX_ENABLE
+    char _buf[PATH_MAX] = {0};
+    cli_printf("(%s:%s)"PROMPT, cli_task_get_console_name(),
+               getcwd(_buf, sizeof(_buf)));
+#else
+    cli_printf("(%s)"PROMPT, cli_task_get_console_name());
+#endif
+}
 
 static const struct cli_command *lookup_command(char *name, int32_t len)
 {
@@ -94,15 +116,15 @@ static const struct cli_command *lookup_command(char *name, int32_t len)
 
 int32_t proc_onecmd(int32_t argc, char *argv[])
 {
-    int32_t i     = 0;
-    int32_t ret   = 0;
-    uint8_t tmp   = 0;
+    int32_t i = 0;
+    int32_t ret = 0;
+    uint8_t tmp = 0;
     const char *p = NULL;
 
     const struct cli_command *command = NULL;
 
     if (argc < 1) {
-        ret = 1;
+        ret = CLI_ERR_INVALID;
         goto cmd_err;
     }
 
@@ -122,7 +144,7 @@ int32_t proc_onecmd(int32_t argc, char *argv[])
 
     command = lookup_command(argv[0], i);
     if (command == NULL) {
-        ret =  1;
+        ret = CLI_ERR_CMDNOTEXIST;
         goto cmd_err;
     }
 
@@ -137,9 +159,9 @@ cmd_err:
 int32_t cli_handle_input(char *inbuf)
 {
     struct {
-        unsigned inArg : 1;
-        unsigned inQuote : 1;
-        unsigned done : 1;
+        unsigned inArg:1;
+        unsigned inQuote:1;
+        unsigned done:1;
     } stat;
 
     cmd_arg_t *cmd_arg_all = (cmd_arg_t *)aos_zalloc(sizeof(cmd_arg_t));
@@ -148,10 +170,10 @@ int32_t cli_handle_input(char *inbuf)
         return -1;
     }
 
-    int32_t  cmdnum = 0;
-    int32_t *pargc  = &(cmd_arg_all->arg[0].argc);
-    int32_t  i      = 0;
-    int32_t  ret    = 0;
+    int32_t cmdnum = 0;
+    int32_t *pargc = &(cmd_arg_all->arg[0].argc);
+    int32_t i = 0;
+    int32_t ret = 0;
 
     memset(&stat, 0, sizeof(stat));
 
@@ -167,7 +189,8 @@ int32_t cli_handle_input(char *inbuf)
 
             case '"':
                 if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
-                    memcpy(&inbuf[i - 1], &inbuf[i], strlen(&inbuf[i]) + 1);
+                    memcpy(&inbuf[i - 1], &inbuf[i],
+                           strlen((const char *)(&inbuf[i]) + 1));
                     --i;
                     break;
                 }
@@ -180,32 +203,35 @@ int32_t cli_handle_input(char *inbuf)
                 }
 
                 if (!stat.inQuote && !stat.inArg) {
-                    stat.inArg   = 1;
+                    stat.inArg = 1;
                     stat.inQuote = 1;
                     (*pargc)++;
-                    (cmd_arg_all->arg[cmdnum]).argv[(*pargc) - 1] = &inbuf[i + 1];
+                    (cmd_arg_all->arg[cmdnum]).argv[(*pargc) - 1] =
+                        &inbuf[i + 1];
                 } else if (stat.inQuote && stat.inArg) {
-                    stat.inArg   = 0;
+                    stat.inArg = 0;
                     stat.inQuote = 0;
-                    inbuf[i]     = '\0';
+                    inbuf[i] = '\0';
                 }
                 break;
 
             case ' ':
                 if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
-                    memcpy(&inbuf[i - 1], &inbuf[i], strlen(&inbuf[i]) + 1);
+                    memcpy(&inbuf[i - 1], &inbuf[i],
+                           strlen((const char *)(&inbuf[i]) + 1));
                     --i;
                     break;
                 }
                 if (!stat.inQuote && stat.inArg) {
                     stat.inArg = 0;
-                    inbuf[i]   = '\0';
+                    inbuf[i] = '\0';
                 }
                 break;
 
             case ';':
                 if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
-                    memcpy(&inbuf[i - 1], &inbuf[i], strlen(&inbuf[i]) + 1);
+                    memcpy(&inbuf[i - 1], &inbuf[i],
+                           strlen((const char *)(&inbuf[i]) + 1));
                     --i;
                     break;
                 }
@@ -215,7 +241,7 @@ int32_t cli_handle_input(char *inbuf)
                 }
                 if (!stat.inQuote && stat.inArg) {
                     stat.inArg = 0;
-                    inbuf[i]   = '\0';
+                    inbuf[i] = '\0';
 
                     if (*pargc) {
                         if (++cmdnum < CLI_MAX_ONCECMD_NUM) {
@@ -234,8 +260,8 @@ int32_t cli_handle_input(char *inbuf)
                 }
                 break;
         }
-    } while (!stat.done && ++i < CLI_INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM &&
-             (*pargc) < CLI_MAX_ARG_NUM);
+    } while (!stat.done && ++i < CLI_INBUF_SIZE &&
+             cmdnum < CLI_MAX_ONCECMD_NUM && (*pargc) < CLI_MAX_ARG_NUM);
 
     if (stat.inQuote) {
         ret = CLI_ERR_SYNTAX;
@@ -243,7 +269,8 @@ int32_t cli_handle_input(char *inbuf)
     }
 
     for (i = 0; i <= cmdnum && i < CLI_MAX_ONCECMD_NUM; i++) {
-        ret |= proc_onecmd((cmd_arg_all->arg[i]).argc, (cmd_arg_all->arg[i]).argv);
+        ret |=
+            proc_onecmd((cmd_arg_all->arg[i]).argc, (cmd_arg_all->arg[i]).argv);
     }
 
 exit:
@@ -270,8 +297,6 @@ static void cli_tab_complete(char *inbuf, uint32_t *idx)
 
     i = n = m = 0;
 
-    cli_printf("\r\n");
-
     /* show matching commands */
     for (i = 0; i < CLI_MAX_COMMANDS && n < g_cli->num; i++) {
         if (g_cli->cmds[i]->name != NULL) {
@@ -280,9 +305,11 @@ static void cli_tab_complete(char *inbuf, uint32_t *idx)
                 if (m == 1) {
                     fm = g_cli->cmds[i]->name;
                 } else if (m == 2) {
-                    cli_printf("%s %s ", fm, g_cli->cmds[i]->name);
+                    cli_printf("\r\n%-24s    %-24s", fm, g_cli->cmds[i]->name);
+                } else if (m > 2 && m % 4 == 1) {
+                    cli_printf("\r\n%-24s", g_cli->cmds[i]->name);
                 } else {
-                    cli_printf("%s ", g_cli->cmds[i]->name);
+                    cli_printf("    %-24s", g_cli->cmds[i]->name);
                 }
             }
             n++;
@@ -291,44 +318,298 @@ static void cli_tab_complete(char *inbuf, uint32_t *idx)
 
     /* there's only one match, so complete the line */
     if (m == 1 && fm) {
-        n = strlen(fm) - *idx;
+        n = strlen((const char *)fm) - *idx;
         if (*idx + n < CLI_INBUF_SIZE) {
             memcpy(inbuf + *idx, fm + *idx, n);
             *idx += n;
-            inbuf[(*idx)++] = ' ';
-            inbuf[*idx]     = '\0';
+            inbuf[*idx] = '\0';
         }
     }
     if (m >= 2) {
         cli_printf("\r\n");
+        cli_prefix_print();
     }
 
     /* just redraw input line */
-    cli_printf("(%s)", cli_task_get_console_name());
-    cli_printf("%s%s", PROMPT, inbuf);
+    cli_printf("%s", inbuf);
 }
+
+#if CLI_IOBOX_ENABLE
+static char *find_last(char *inbuf, uint32_t *idx)
+{
+    char *ret = inbuf + (--(*idx));
+
+    if (*ret == ' ')
+        return NULL;
+
+    while ((*ret != ' ') && (*idx > 0)) {
+        ret--;
+        (*idx)--;
+    }
+
+    if (*ret == ' ') {
+        ret++;
+        (*idx)++;
+    } else {
+        ret = NULL;
+    }
+
+    return ret;
+}
+
+static void refine_dir(char *dir, char **last_name)
+{
+    int slash_cnt = 0;
+    char *p = dir, *last_slash = dir;
+
+    while (*p != '\0') {
+        if (*p == '/') {
+            last_slash = p;
+            slash_cnt++;
+        }
+
+        p++;
+    }
+
+    *last_name = last_slash + 1;
+    if (slash_cnt < 2) {
+        (*last_name)[strlen((const char *)(*last_name)) + 1] = '\0';
+        memmove((*last_name) + 1, *last_name, strlen(*last_name));
+        **last_name = '\0';
+        (*last_name)++;
+    } else {
+        *last_slash = '\0';
+    }
+}
+
+#define CLI_AUTO_PATH_DEBUG(...) /* cli_printf(__VA_ARGS__) */
+
+static void cli_tab_complete_path(char *inbuf, uint32_t *idx)
+{
+    int32_t n, m;
+    bool match_all = false;
+    struct stat s;
+    uint32_t last_idx = *idx;
+    char *last_str = NULL, *last_name = NULL;
+    char *dir = NULL, abspath[256] = {0};
+    DIR *pdir = NULL;
+    struct dirent *entry = NULL;
+    char fpath[256], fm[256] = {0};
+    int len, fm_type = 0;
+    char tmpdir[256] = {0};
+
+    CLI_AUTO_PATH_DEBUG("%s %d, inbuf: %s, idx: %d\r\n", __func__, __LINE__,
+                        inbuf, *idx);
+    last_str = find_last(inbuf, &last_idx);
+    CLI_AUTO_PATH_DEBUG("%s %d, last: %s, last_idx: %d\r\n", __func__, __LINE__,
+                        last_str, last_idx);
+
+    if (!last_str) {
+        // tab after string, match all entries
+        match_all = true;
+        dir = getcwd(abspath, sizeof(abspath));
+        CLI_AUTO_PATH_DEBUG("%s %d, dir: %s\r\n", __func__, __LINE__, dir);
+    } else {
+        // tab after string
+        // get realp path
+        if (last_str[strlen((const char *)last_str) - 1] == '/')
+            match_all = true;
+
+        CLI_AUTO_PATH_DEBUG("%s %d, match_all: %d\r\n", __func__, __LINE__,
+                            match_all);
+        // get real path, without tailing '/' for dir!
+        dir = get_realpath(last_str, abspath, sizeof(abspath));
+        if (!dir) {
+            cli_printf("Failed to get real path!\r\n");
+            return;
+        }
+
+        strcpy(tmpdir, dir);
+        CLI_AUTO_PATH_DEBUG(
+            "%s %d, inbuf: %s, idx: %d, last_str:%s, tmpdir:%s, dir:%s\r\n",
+            __func__, __LINE__, inbuf, *idx, last_str, tmpdir, dir);
+
+        if (!match_all) {
+            // get base name and last name, dir string will be reformed!
+            refine_dir(dir, &last_name);
+            CLI_AUTO_PATH_DEBUG("%s %d, dir: %s, last_name: %s\r\n", __func__,
+                                __LINE__, dir, last_name);
+        }
+
+        // update inbuf with only base name
+        *idx -= strlen((const char *)tmpdir) - strlen((const char *)dir);
+        // strcpy(last_str, dir);
+
+        if (inbuf[*idx] == ' ')
+            /*skip to replace white space.*/
+            (*idx)++;
+        inbuf[*idx] = '\0';
+        // *idx = strlen(inbuf);
+        CLI_AUTO_PATH_DEBUG("%s %d, inbuf: %s, idx: %d\r\n", __func__, __LINE__,
+                            inbuf, *idx);
+    }
+
+    n = m = 0;
+
+    if (stat(dir, &s)) {
+        cli_printf("%s not existed\r\n", dir);
+        return;
+    }
+
+    if (!S_ISDIR(s.st_mode)) {
+        cli_printf("%s is not a valid dir\r\n", dir);
+        return;
+    }
+
+    pdir = opendir(dir);
+    if (!pdir) {
+        cli_printf("Failed to open dir %s\r\n", dir);
+        return;
+    }
+
+    /*  device fs process */
+    if (!strncmp(dir, "/dev", strlen("/dev"))) {
+        m = vfs_get_match_dev_node(last_name, fm);
+    } else {
+        uint32_t match_count = 0;
+        while ((entry = readdir(pdir))) {
+            /*skip "./" and "../" directory.*/
+            if ((!strncmp(entry->d_name, ".", 1)) ||
+                (!strncmp(entry->d_name, "..", 2)))
+                continue;
+
+            memset(&s, 0, sizeof(s));
+            memset(fpath, 0, 128);
+            snprintf(fpath, 128, "%s%s%s", dir,
+                     dir[strlen((const char *)dir) - 1] == '/' ? "" : "/",
+                     entry->d_name);
+            CLI_AUTO_PATH_DEBUG("%s %d, fpath: %s, m: %d, n: %d\r\n", __func__,
+                                __LINE__, fpath, m, n);
+
+            if (stat(fpath, &s)) {
+                cli_printf("stat %s failed - %s\n", fpath, strerror(errno));
+                continue;
+            }
+
+            char dname[256] = {0};
+            if (S_ISDIR(s.st_mode))
+                snprintf(dname, 256, "%s%s", entry->d_name, "/");
+            else
+                snprintf(dname, 256, "%s", entry->d_name);
+
+            if (match_all) {
+                match_count++;
+                /*print all file or directory under current dir.*/
+                if (match_count % 4 == 1) {
+                    cli_printf("\r\n%-24s", dname);
+                } else {
+                    cli_printf("    %-24s", dname);
+                }
+                continue;
+            } else {
+                CLI_AUTO_PATH_DEBUG("%s %d, last_name: %s, entryname: %s\r\n",
+                                    __func__, __LINE__, last_name,
+                                    entry->d_name);
+                if (!strncmp(last_name, entry->d_name,
+                             strlen((const char *)last_name))) {
+                    m++;
+
+                    if (m == 1) {
+                        // fm = entry->d_name;
+                        snprintf(fm, sizeof(fm), "%s", entry->d_name);
+                        fm_type = S_ISDIR(s.st_mode) ? 1 : 0;
+                        CLI_AUTO_PATH_DEBUG("%s %d, fm: %s, fm_type: %d\r\n",
+                                            __func__, __LINE__, fm, fm_type);
+                    } else if (m == 2) {
+                        cli_printf("\r\n%-24s    %-24s", fm, dname);
+                    } else if (m > 2 && m % 4 == 1) {
+                        cli_printf("\r\n%-24s", dname);
+                    } else {
+                        cli_printf("    %-24s", dname);
+                    }
+                }
+                n++;
+            }
+        }
+    }
+
+    closedir(pdir);
+
+    // if match all case, work done here.
+    if (match_all) {
+        cli_printf("\r\n");
+        goto redraw;
+    }
+
+    CLI_AUTO_PATH_DEBUG("%s %d, inbuf: %s, idx: %d, m: %d, n: %d\r\n", __func__,
+                        __LINE__, inbuf, *idx, m, n);
+    /* there's only one match, so complete the line */
+    if (m == 1 && fm[0] != 0) {
+        n = strlen((const char *)fm) + ((fm_type == 1) ? 2 : 1);
+        if ((*idx + n + 1) < CLI_INBUF_SIZE) {
+            // memcpy(inbuf + *idx, fm + *idx, n);
+            snprintf(inbuf + *idx, CLI_INBUF_SIZE - *idx, "%s%s%s",
+                     (inbuf[(*idx) - 1] == '/' || inbuf[(*idx) - 1] == ' ') ?
+                         "" :
+                         "/",
+                     fm, fm_type == 1 ? "/" : "");
+            *idx += n;
+            inbuf[*idx] = '\0';
+        }
+    }
+
+    if (m >= 2 || m < 1) {
+        if (m >= 2) {
+            cli_printf("\r\n");
+        }
+        // strncpy(inbuf + *idx, last_name, CLI_INBUF_SIZE - *idx);
+        snprintf(inbuf + *idx, CLI_INBUF_SIZE - *idx, "%s%s",
+                 (inbuf[(*idx) - 1] == '/' || inbuf[(*idx) - 1] == ' ') ? "" :
+                                                                          "/",
+                 last_name);
+        *idx = strlen((const char *)inbuf);
+    }
+
+    CLI_AUTO_PATH_DEBUG("%s %d, inbuf: %s, idx: %d\r\n", __func__, __LINE__,
+                        inbuf, *idx);
+
+redraw:
+    /* just redraw input line */
+    if (match_all) {
+        len = strlen(inbuf);
+        if (inbuf[len - 1] != '/')
+            inbuf[len++] = '/';
+        inbuf[len] = '\0';
+    }
+
+    if (m >= 2 || match_all) {
+        cli_prefix_print();
+    }
+    cli_printf("%s", inbuf);
+}
+#endif
 
 static void cli_history_input(char *cli_console_inbuf)
 {
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
-    char    *inbuf    = cli_console_inbuf;
-    int32_t  charnum  = strlen(cli_console_inbuf) + 1;
-    int32_t  his_cur  = g_cli->his_cur;
-    int32_t  left_num = CLI_INBUF_SIZE - his_cur;
+    char *inbuf = cli_console_inbuf;
+    int32_t charnum = strlen((const char *)cli_console_inbuf) + 1;
+    int32_t his_cur = g_cli->his_cur;
+    int32_t left_num = CLI_INBUF_SIZE - his_cur;
 
-    char    lastchar;
+    char lastchar;
     int32_t tmp_idx;
 
     g_cli->his_idx = his_cur;
 
     if (left_num >= charnum) {
-        tmp_idx  = his_cur + charnum - 1;
+        tmp_idx = his_cur + charnum - 1;
         lastchar = g_cli->history[tmp_idx];
         strncpy(&(g_cli->history[his_cur]), inbuf, charnum);
 
     } else {
-        tmp_idx  = (his_cur + charnum - 1) % CLI_INBUF_SIZE;
+        tmp_idx = (his_cur + charnum - 1) % CLI_INBUF_SIZE;
         lastchar = g_cli->history[tmp_idx];
 
         strncpy(&(g_cli->history[his_cur]), inbuf, left_num);
@@ -340,7 +621,6 @@ static void cli_history_input(char *cli_console_inbuf)
 
     /*overwrite*/
     if ('\0' != lastchar) {
-
         while (g_cli->history[tmp_idx] != '\0') {
             g_cli->history[tmp_idx] = '\0';
 
@@ -352,19 +632,24 @@ static void cli_history_input(char *cli_console_inbuf)
 
 static void cli_up_history(char *inaddr)
 {
-    int32_t index;
-    int32_t lastindex = 0;
+    uint32_t index, detectindex, lastindex;
 
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
-    lastindex = g_cli->his_idx;
-    index     = (g_cli->his_idx - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
 
-    while ((g_cli->history[index] == '\0') && (index != g_cli->his_idx)) {
+    lastindex = g_cli->his_idx;
+    index = (g_cli->his_idx - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
+    detectindex = (index - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
+
+    while ((g_cli->history[index] == '\0') &&
+           g_cli->history[detectindex] != '\0' &&
+           (g_cli->his_idx != g_cli->his_cur ||
+            g_cli->history[g_cli->his_idx] == '\0') &&
+           (index != g_cli->his_idx)) {
         index = (index - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
     }
     if (index != g_cli->his_idx) {
-        while (g_cli->history[index] != '\0') {
+        while (g_cli->history[index] != '\0' && index != g_cli->his_cur) {
             index = (index - 1 + CLI_INBUF_SIZE) % CLI_INBUF_SIZE;
         }
         index = (index + 1) % CLI_INBUF_SIZE;
@@ -372,7 +657,6 @@ static void cli_up_history(char *inaddr)
     g_cli->his_idx = index;
 
     while (g_cli->history[lastindex] != '\0') {
-
         *inaddr++ = g_cli->history[lastindex];
         lastindex = (lastindex + 1) % CLI_INBUF_SIZE;
     }
@@ -384,19 +668,18 @@ static void cli_up_history(char *inaddr)
 
 static void cli_down_history(char *inaddr)
 {
-    int32_t index;
-    int32_t lastindex = 0;
+    uint32_t index, lastindex;
 
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
     lastindex = g_cli->his_idx;
-    index     = g_cli->his_idx;
+    index = g_cli->his_idx;
 
     while ((g_cli->history[index] != '\0')) {
         index = (index + 1) % CLI_INBUF_SIZE;
     }
     if (index != g_cli->his_idx) {
-        while (g_cli->history[index] == '\0') {
+        while (g_cli->history[index] == '\0' && index != g_cli->his_cur) {
             index = (index + 1) % CLI_INBUF_SIZE;
         }
     }
@@ -445,8 +728,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
     while (cli_getchar(&c) == 1) {
         if (g_cli->cmd_end_pos >= size) {
             cli_printf("\r\nError: input buffer overflow\r\n");
-            cli_printf("(%s)", cli_task_get_console_name());
-            cli_printf(PROMPT);
+            cli_prefix_print();
             return 0;
         }
         /* received null or error */
@@ -489,13 +771,13 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
                 } else {
                     cli_down_history(g_cli->inbuf);
                 }
-                g_cli->cmd_cur_pos = strlen(g_cli->inbuf);
+                g_cli->cmd_cur_pos = strlen((const char *)g_cli->inbuf);
                 g_cli->cmd_end_pos = g_cli->cmd_cur_pos;
 
                 /* clear the whole line */
                 cli_printf("\33[2K\r");
-                cli_printf("(%s)", cli_task_get_console_name());
-                cli_printf(PROMPT "%s", g_cli->inbuf);
+                cli_prefix_print();
+                cli_printf("%s", g_cli->inbuf);
                 continue;
             } else if (c == 0x44) {
                 /* left key */
@@ -521,8 +803,16 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
             }
 
             g_cli->inbuf[g_cli->cmd_end_pos] = '\0';
-            cli_tab_complete(g_cli->inbuf, &g_cli->cmd_end_pos);
-            g_cli->cmd_cur_pos = strlen(g_cli->inbuf);
+#if CLI_IOBOX_ENABLE
+            if (strstr((const char *)g_cli->inbuf, " ")) {
+                cli_tab_complete_path(g_cli->inbuf, &g_cli->cmd_end_pos);
+            } else {
+#endif
+                cli_tab_complete(g_cli->inbuf, &g_cli->cmd_end_pos);
+#if CLI_IOBOX_ENABLE
+            }
+#endif
+            g_cli->cmd_cur_pos = strlen((const char *)g_cli->inbuf);
             g_cli->cmd_end_pos = g_cli->cmd_cur_pos;
             continue;
         }
@@ -576,8 +866,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
         if (c == 0x15) {
             /* Delete the entire line */
             cli_printf("\33[2K\r");
-            cli_printf("(%s)", cli_task_get_console_name());
-            cli_printf(PROMPT);
+            cli_prefix_print();
             g_cli->cmd_cur_pos = 0;
             g_cli->cmd_end_pos = 0;
             continue;
@@ -619,7 +908,8 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
         /* handle Ctrl D */
         if (c == 0x04) {
             /* Delete a single character at the cursor position */
-            if ((g_cli->cmd_end_pos == 0) || (g_cli->cmd_cur_pos == g_cli->cmd_end_pos)) {
+            if ((g_cli->cmd_end_pos == 0) ||
+                (g_cli->cmd_cur_pos == g_cli->cmd_end_pos)) {
                 continue;
             }
             g_cli->cmd_end_pos--;
@@ -702,7 +992,6 @@ static void cli_print_bad_command(char *cmd_string)
     }
 }
 
-
 /**
  * @brief Main CLI processing loop
  *
@@ -720,7 +1009,7 @@ void cli_main(void *data)
 {
     int32_t ret;
 
-    char *msg                 = NULL;
+    char *msg = NULL;
     cli_console *cur_console = NULL;
 
     cli_task_set_console(krhino_cur_task_get(), (cli_console *)data);
@@ -738,10 +1027,18 @@ void cli_main(void *data)
     }
     RHINO_CPU_INTRPT_ENABLE();
     if (get_clitask_console() != get_default_console()) {
-        cli_printf("\r\n%s\r\n", "             Welcome to AliOS Things          ");
+        cli_printf("\r\n%s\r\n",
+                   "             Welcome to AliOS Things          ");
     }
-    cli_printf("(%s)", cli_task_get_console_name());
-    cli_printf(PROMPT);
+
+#if CLI_IOBOX_ENABLE
+    ret = aos_chdir(CONFIG_LFS_MOUNTPOINT);
+    if (ret != 0) {
+        cli_printf("Failed to change to %s, errno: %d\r\n",
+                   CONFIG_LFS_MOUNTPOINT, ret);
+    }
+#endif
+    cli_prefix_print();
 
 #if CLI_SEPRATED_CONSOLE
     char ch = 0x1F;
@@ -753,7 +1050,8 @@ void cli_main(void *data)
         if (cur_console == NULL) {
             break;
         }
-        if (cli_get_input(cur_console->cli_console_inbuf, CLI_INBUF_SIZE) != 0) {
+        if (cli_get_input(cur_console->cli_console_inbuf, CLI_INBUF_SIZE) !=
+            0) {
             msg = cur_console->cli_console_inbuf;
             if (!msg) {
                 goto out;
@@ -765,21 +1063,26 @@ void cli_main(void *data)
                 cli_history_input(cur_console->cli_console_inbuf);
             }
             ret = cli_handle_input(msg);
-            if (ret == CLI_ERR_BADCMD) {
-                cli_print_bad_command(msg);
-            } else if (ret == CLI_ERR_SYNTAX) {
-                cli_printf("syntax error\r\n");
+            switch (ret) {
+                case CLI_ERR_SYNTAX:
+                    cli_printf("syntax error\r\n");
+                    break;
+                case CLI_ERR_CMDNOTEXIST:
+                    cli_printf("cmd not found\r\n");
+                    break;
+                case CLI_ERR_BADCMD:
+                    cli_print_bad_command(msg);
+                    break;
+                default:
+                    break;
             }
 
             if (cur_console->finsh_callback) {
                 cur_console->finsh_callback(cur_console->private_data);
             }
-out:
+        out:
             cli_printf("\r\n");
-            //cli_console_set_tag('\x0', 0, NULL);
-            //cli_console_set_tag_len(0, NULL);
-            cli_printf("(%s)", cli_task_get_console_name());
-            cli_printf(PROMPT);
+            cli_prefix_print();
         }
     }
     cli_printf("CLI exited\r\n");
@@ -801,21 +1104,26 @@ void cli_main_panic(void)
         if (cli_get_input(cli_console_inbuf, CLI_INBUF_SIZE) != 0) {
             msg = cli_console_inbuf;
 
-            if (strlen(cli_console_inbuf) > 0) {
+            if (strlen((const char *)cli_console_inbuf) > 0) {
                 cli_history_input(cli_console_inbuf);
             }
 
             ret = cli_handle_input(msg);
-            if (ret == CLI_ERR_BADCMD) {
-                cli_print_bad_command(msg);
-            } else if (ret == CLI_ERR_SYNTAX) {
-                cli_printf("syntax error\r\n");
+            switch (ret) {
+                case CLI_ERR_SYNTAX:
+                    cli_printf("syntax error\r\n");
+                    break;
+                case CLI_ERR_CMDNOTEXIST:
+                    cli_printf("cmd not found\r\n");
+                    break;
+                case CLI_ERR_BADCMD:
+                    cli_print_bad_command(msg);
+                    break;
+                default:
+                    break;
             }
 
             cli_printf("\r\n");
-            cli_console_set_tag('\x0', 0, NULL);
-            cli_console_set_tag_len(0, NULL);
-
             cli_printf("(panic)#");
         }
     }
@@ -827,12 +1135,12 @@ void usr_cli_register_init(void)
 {
     int32_t ret;
     int32_t addr;
-    struct  cli_region  *index;
-    struct  cli_command *cmd;
+    struct cli_region *index;
+    struct cli_command *cmd;
 
     for (addr = (int)&_cli_region_begin; addr < (int)&_cli_region_end;) {
         index = (struct cli_region *)addr;
-        addr  += sizeof(struct cli_region);
+        addr += sizeof(struct cli_region);
 
         cmd = (struct cli_command *)cli_malloc(sizeof(struct cli_command));
         if (cmd == NULL) {
@@ -840,8 +1148,8 @@ void usr_cli_register_init(void)
             return;
         }
 
-        cmd->name     = index->name;
-        cmd->help     = index->desc;
+        cmd->name = index->name;
+        cmd->help = index->desc;
         cmd->function = (cmd_fun_t)(index->func);
 
         ret = cli_register_command(cmd);
@@ -872,8 +1180,10 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
             n++;
         }
     }
-    cli_printf("****************** Commands Num : %d *******************\r\n\r\n", n);
-    cli_printf("================ AliOS Things Command end ===============\r\n\r\n");
+    cli_printf(
+        "****************** Commands Num : %d *******************\r\n\r\n", n);
+    cli_printf(
+        "================ AliOS Things Command end ===============\r\n\r\n");
 }
 
 static void reboot_cmd(char *buf, int len, int argc, char **argv)
@@ -891,7 +1201,8 @@ static int32_t cli_register_default_commands(void)
 {
     int32_t ret;
 
-    ret = cli_register_commands(built_ins, sizeof(built_ins)/sizeof(struct cli_command));
+    ret = cli_register_commands(built_ins,
+                                sizeof(built_ins) / sizeof(struct cli_command));
     if (ret != CLI_OK) {
         return ret;
     }
@@ -916,7 +1227,7 @@ int32_t cli_init(void)
         goto init_err;
     }
 
-    g_cli->inited        = 1;
+    g_cli->inited = 1;
     g_cli->echo_disabled = 0;
 
     ret = cli_register_default_commands();
@@ -927,6 +1238,10 @@ int32_t cli_init(void)
 
     /* register cli cmd for ALIOS_CLI_CMD_REGISTER */
     usr_cli_register_init();
+
+#if CLI_UAGENT_ENABLE
+    cli_uagent_init();
+#endif
 
     return CLI_OK;
 
@@ -946,10 +1261,7 @@ int32_t cli_stop(void)
     return CLI_OK;
 }
 
-char *cli_tag_get(void)
-{
-    return cli_console_get_all_tag(NULL);
-}
+char *cli_tag_get(void) { return cli_console_get_all_tag(NULL); }
 
 int32_t cli_register_command(const struct cli_command *cmd)
 {
@@ -1050,8 +1362,8 @@ static int32_t cli_do_output(char *msg)
 int32_t cli_va_printf(const char *fmt, va_list va)
 {
     int32_t sz = 0, len;
-    char   *pos     = NULL;
-    char   *message = NULL, *child_message = NULL;
+    char *pos = NULL;
+    char *message = NULL, *child_message = NULL;
 
 #if AOS_COMP_DEBUG
     int ret;
@@ -1066,7 +1378,8 @@ int32_t cli_va_printf(const char *fmt, va_list va)
             return 0;
         }
 #endif
-        extern int print_driver(const char *fmt, va_list ap, unsigned int buf[]);
+        extern int print_driver(const char *fmt, va_list ap,
+                                unsigned int buf[]);
         print_driver(fmt, va, NULL);
         return 0;
     }
@@ -1100,12 +1413,12 @@ int32_t cli_va_printf(const char *fmt, va_list va)
     while (i != -1) {
         i = ((p = strchr(p2, '\n')) == NULL) ? -1 : (p - p2);
         if (i == -1) {
-            //cli_printf("%s", p2);
+            // cli_printf("%s", p2);
             if (*p2) {
                 cli_do_output(p2);
             }
         } else {
-            //cli_printf("%.*s\n", i + 1, p2);    // strlen = pos + 1
+            // cli_printf("%.*s\n", i + 1, p2);    // strlen = pos + 1
             memset(child_message, 0, CLI_OUTBUF_SIZE);
             strncpy(child_message, p2, i + 1);
             cli_do_output(child_message);
@@ -1130,20 +1443,14 @@ int32_t cli_printf(const char *fmt, ...)
     return ret;
 }
 
-int32_t cli_get_commands_num(void)
-{
-    return g_cli->num;
-}
+int32_t cli_get_commands_num(void) { return g_cli->num; }
 
 struct cli_command *cli_get_command(int32_t index)
 {
     return (struct cli_command *)(g_cli->cmds[index]);
 }
 
-int32_t cli_get_echo_status(void)
-{
-    return g_cli->echo_disabled;
-}
+int32_t cli_get_echo_status(void) { return g_cli->echo_disabled; }
 
 int32_t cli_set_echo_status(int32_t status)
 {
@@ -1151,5 +1458,3 @@ int32_t cli_set_echo_status(int32_t status)
 
     return CLI_OK;
 }
-
-

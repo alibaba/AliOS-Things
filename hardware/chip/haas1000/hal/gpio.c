@@ -121,6 +121,18 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 	return ret;
 }
 
+int32_t hal_gpio_get(gpio_dev_t *gpio, uint32_t *value)
+{
+    int32_t ret = -1;
+
+    if(NULL != gpio && NULL != value) {
+        *value = hal_gpio_pin_get_val(gpio->port);
+        ret = 0;
+    }
+
+	return ret;
+}
+
 void bes_gpio_irq_hdl(enum HAL_GPIO_PIN_T pin)
 {
     struct gpio_irq_handler *hdl_pointer = NULL;

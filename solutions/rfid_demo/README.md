@@ -229,8 +229,6 @@ netmgr -t wifi -c {ssid} {password}
 ```
 ssid, password 替换成你自己的网络热点信息。
 
-需要注意的是这里我们要用2.4G的wifi 热点。
-
 ### 4.4.3 演示效果图片
 当有RFID卡片靠近读卡器时，我们会在串口log里看到RFID卡片数据信息：
 

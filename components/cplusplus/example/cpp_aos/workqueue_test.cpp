@@ -2,12 +2,12 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "alios_cpp.h"
+#include "aos_cpp.h"
 #include "aos/kernel.h"
 #include "k_api.h"
 #include <stdio.h>
 
-using namespace AliOS;
+using namespace AOS;
 
 #define STACK_BUF_BYTES 2048
 char stack_buf1[STACK_BUF_BYTES];

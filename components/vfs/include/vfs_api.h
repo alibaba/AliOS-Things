@@ -410,7 +410,6 @@ int32_t vfs_unregister_fs(const char *path);
  */
 void vfs_dump_open();
 
-#ifdef LIST_DEVICE
 /**
  * @brief vfs list
  *
@@ -420,7 +419,6 @@ void vfs_dump_open();
  *
  */
 int32_t vfs_list(vfs_list_type_t t);
-#endif
 
 /**
  * @brief get fs node name for current path.

@@ -36,7 +36,7 @@ int open(const char *pathname, int flags);
 ```
 |args                                    |description|
 |:-----                                  |:----|
-|pathname                                |固定为*/dev/gpio*|
+|pathname                                |固定为`"/dev/gpio"`|
 |flags                                   |目前固定为0值|
 兼容POSIX标准的open接口。
 
@@ -56,7 +56,7 @@ typedef struct gpio_io_config {
 
 int ioctl(int fd, IOC_GPIO_GET, gpio_io_config_t *config);
 ```
-参数config中的id成员变量表示GPIO pin编号。
+参数config中的id成员变量表示GPIO pin ID。
 参数config中的config成员变量表示输入属性：
 |符号                               |含义|
 |:-----                             |:----|
@@ -66,11 +66,11 @@ int ioctl(int fd, IOC_GPIO_GET, gpio_io_config_t *config);
 参数config中的data成员变量无意义。
 返回值等于0表示输入为低电平，大于0表示输入为高电平，小于0表示出错。
 
-## 配置输出属性并获取输出电平
+## 配置输出属性并设置输出电平
 ```c
 int ioctl(int fd, IOC_GPIO_SET, gpio_io_config_t *config);
 ```
-参数config中的id成员变量表示GPIO pin编号。
+参数config中的id成员变量表示GPIO pin ID。
 参数config中的config成员变量表示输出属性：
 |符号                                   |含义|
 |:-----                                 |:----|
@@ -94,7 +94,7 @@ typedef struct gpio_irq_config {
 
 int ioctl(int fd, IOC_GPIO_SET_IRQ, gpio_irq_config_t *config);
 ```
-参数config中的id成员变量表示GPIO pin编号。
+参数config中的id成员变量表示GPIO pin ID。
 参数config中的config成员变量表示中断属性：
 |符号                                       |含义|
 |:-----                                     |:----|
@@ -102,6 +102,8 @@ int ioctl(int fd, IOC_GPIO_SET_IRQ, gpio_irq_config_t *config);
 |GPIO_IRQ_ENABLE \| GPIO_IRQ_EDGE_FALLING   |使能下降沿触发中断|
 |GPIO_IRQ_ENABLE \| GPIO_IRQ_EDGE_BOTH      |使能上升下降沿触发中断|
 |GPIO_IRQ_DISABLE                           |禁用中断|
+参数config中的cb成员变量表示中断回调函数。
+参数config中的arg成员变量表示传递给中断回调函数的参数。
 返回值等于0表示成功，小于0表示出错。
 
 # 使用示例
@@ -133,14 +135,21 @@ aos make helloworld_demo@haas100 -c config
 ## 示例测试
 CLI命令行输入：
 ```
-gpiot
+gpiot <pin ID>
 ```
 
 ## 关键日志
-以GPIO实际输入、输出数据为准。
+示例测试日志显示：
+```
+open gpio success, fd:<fd>
+gpio read <pin ID> return <ioctl IOC_GPIO_GET返回值>
+gpio write <pin ID> return <ioctl IOC_GPIO_SET（配置输出）返回值>
+gpio toggle <pin ID> return <ioctl IOC_GPIO_SET（翻转输出）返回值>
+```
 
 # 注意事项
 无
 
 # FAQ
-无
+1. API中的pin ID如何填写？
+> 一般来说GPIO是分组的。以HaaS100为例，它的GPIO pin是8个一组。如果某GPIO pin名称为GPIO_2_6，则pin ID应为2 \* 8 + 6 = 22。其它pin ID的计算方法依此类推。

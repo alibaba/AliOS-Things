@@ -102,7 +102,7 @@ close_handle(void)
   if (tftp_state.handle) {
     tftp_state.ctx->close(tftp_state.handle);
     tftp_state.handle = NULL;
-    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: closing\n"));
+    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp server: closing\n"));
   }
 }
 

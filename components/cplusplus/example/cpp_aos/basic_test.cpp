@@ -3,7 +3,7 @@
  */
 
 #include "aos/kernel.h"
-#include <alios_cpp.h>
+#include <aos_cpp.h>
 #include <iostream>
 #include <stdio.h>
 

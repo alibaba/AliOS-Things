@@ -18,6 +18,6 @@ int application_start(int argc, char *argv[])
 
     while (1) {
         printf("hello world! count %d \r\n", count++);
-        aos_msleep(1000);
+        aos_msleep(10000);
     };
 }

@@ -51,7 +51,7 @@ static int pthread_example(int argc, char **argv)
     count++;
     pthread_mutex_unlock(&count_lock);
 
-    ret = pthread_join(new_thread, &retval);
+    ret = pthread_join(new_thread, (void **)&retval);
     if (ret != 0) {
         printf("pthread_join return :%d\n", ret);
     }

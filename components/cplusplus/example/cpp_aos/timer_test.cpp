@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "alios_cpp.h"
+#include "aos_cpp.h"
 #include <stdio.h>
 
-using namespace AliOS;
+using namespace AOS;
 
 Timer *pTimer_1;
 

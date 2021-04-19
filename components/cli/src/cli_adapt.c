@@ -3,7 +3,9 @@
  */
 
 #include <string.h>
+#include <stdint.h>
 #include "aos/kernel.h"
+#include "aos/cli.h"
 #include "cli_adapt.h"
 #include "cli_console.h"
 
@@ -44,4 +46,14 @@ void *cli_malloc(uint32_t size)
 void cli_free(void *ptr)
 {
     aos_free(ptr);
+}
+
+int aos_cli_suspend(void)
+{
+    return (int)aos_task_suspend(&cli_task);
+}
+
+int aos_cli_resume(void)
+{
+    return (int)aos_task_resume(&cli_task);
 }

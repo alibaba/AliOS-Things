@@ -4,7 +4,7 @@
 
 #include "cpp_workQueue.h"
 
-using namespace AliOS;
+using namespace AOS;
 
 /**
  * This function will creat a workqueue
