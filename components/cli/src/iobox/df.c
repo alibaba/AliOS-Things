@@ -85,4 +85,4 @@ static int df_main(int argc, char **argv)
         df_do_dir(argv[i]);
     return 0;
 }
-ALIOS_CLI_CMD_REGISTER(df_main, df, copy file);
+ALIOS_CLI_CMD_REGISTER(df_main, df, show fs usage info);

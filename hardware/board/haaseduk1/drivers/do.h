@@ -13,6 +13,10 @@ enum en_do_port {
     DO_PORT_1,
     DO_PORT_2,
     DO_PORT_3,
+    DO_PORT_4,
+    DO_PORT_5,
+    DO_PORT_6,
+    DO_PORT_7,
     DO_PORT_SIZE
 };
 

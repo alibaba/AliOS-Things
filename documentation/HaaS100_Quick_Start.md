@@ -161,3 +161,11 @@ aos-tools主要于编译AliOS-Things代码和镜像烧录。alios-studio安装�
     <img src="https://img.alicdn.com/imgextra/i4/O1CN01QGiV5M1pSTBde0A23_!!6000000005359-2-tps-2728-1038.png" style="max-width:90%;" />
 </div>
 
+# 4. 打开已有工程
+
+第2章节中创建的工程关闭后，可以通过VS Code再次打开已有工程。
+点击VS Code的欢迎页中的“最近”或英文版的“Recent”，选择相应的工程即可。
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01vtJ6OM1cbY29cOTyV_!!6000000003619-2-tps-1234-1028.png" style="max-width:90%;" />
+</div>
+

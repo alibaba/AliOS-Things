@@ -3,7 +3,7 @@
  */
 
 #include "aos/kernel.h"
-#include <alios_cpp.h>
+#include <aos_cpp.h>
 #include <iostream>
 #include <stdio.h>
 
@@ -34,7 +34,7 @@ static void cpp_aos_example(int argc, char **argv)
     test_mutex();
     test_workqueue();
 
-    return 0;
+    return;
 }
 
 #ifdef AOS_COMP_CLI

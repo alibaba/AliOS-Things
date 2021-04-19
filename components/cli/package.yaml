@@ -12,6 +12,7 @@ depends:
     - vfs: dev_aos ? <CLI_IOBOX_ENABLE>
     - littlefs: dev_aos ? <CLI_IOBOX_ENABLE>
     - posix: dev_aos ? <CLI_IOBOX_ENABLE>
+    - uagent: dev_aos ? <CLI_UAGENT_ENABLE>
 
 build_config:
   include:
@@ -19,8 +20,6 @@ build_config:
   internal_include:
     - src/
     - src/iobox/
-  define:
-    LIST_DEVICE: 0
 
 source_file:
   - src/cli.c
@@ -28,7 +27,8 @@ source_file:
   - src/cli_adapt.c
   - src/cli_aos.c
   - src/uart_console.c
-  - src/telnet_console.c ? <CLI_TELNET_SUPPORT>
+  - src/telnet_console.c ? <CLI_TELNET_ENABLE>
+  - src/cli_uagent.c ? <CLI_UAGENT_ENABLE>
   #iobox-fs cli cmds
   - src/iobox/cat.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/cat.c ? <CLI_IOBOX_ENABLE>
@@ -55,7 +55,8 @@ def_config:
   CLI_MAX_ONCECMD_NUM: 4
   CLI_TASK_PRIORITY: 60
   CLI_CONFIG_STACK_SIZE : 2048
-  CLI_TELNET_SUPPORT : 0
+  CLI_TELNET_ENABLE : 0
+  CLI_UAGENT_ENABLE : 0
   CLI_SEPRATED_CONSOLE : 0
   CLI_IOBOX_ENABLE : 0
 

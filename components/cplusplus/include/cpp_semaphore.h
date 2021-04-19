@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_sem
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
 #define Semaphore_WAIT_FOREVER 0xFFFFFFFFU
 

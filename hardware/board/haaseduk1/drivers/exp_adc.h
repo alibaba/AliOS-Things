@@ -8,10 +8,11 @@
 #include "aos/hal/adc.h"
 #include "stdint.h"
 
-enum en_exp_adc_port { ADC_PORT_0 = 0, ADC_PORT_1, ADC_PORT_SIZE };
+enum en_exp_adc_port { ADC_PORT_0 = 0, ADC_PORT_1, ADC_PORT_2, ADC_PORT_SIZE };
 
 int32_t expansion_board_adc_init(void);
 
-int32_t expansion_board_do_high(uint8_t port);
+int32_t expansion_board_adc_get_value(uint32_t port, uint32_t *adc_value);
 
+int32_t board_get_voltage(uint32_t port, uint32_t *output);
 #endif

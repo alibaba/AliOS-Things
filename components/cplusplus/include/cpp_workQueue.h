@@ -8,7 +8,7 @@
 /** @defgroup cpp_aos_workqueue
  * @{
  */
-namespace AliOS {
+namespace AOS {
 
     class WorkQueue
     {

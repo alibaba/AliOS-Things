@@ -92,7 +92,7 @@ int uart_console_deinit(void *private_data)
 
 cli_console cli_uart_console = {
     .i_list = {0},
-    .name = "cli-uart",
+    .name = "ash",
     .dev_console = &uart_console,
     .init_flag = 0,
     .exit_flag = 0,

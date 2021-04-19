@@ -57,10 +57,9 @@ POSIX (Portable Operating System Interface) 是IEEE组织为了维护应用在�
 无
 
 # API说明
-本组件实现POSIX标准的API，API的使用方式遵循POSIX.1-2017标准的定义，与Unix/Linux上POSIX API使用方式一致，具体使用方法可使用搜索引擎搜索，或者参考官方文档[POSIX.1-2017标准](https://pubs.opengroup.org/onlinepubs/9699919799/idx/functions.html)。
+本组件实现POSIX标准的API，API的使用方式遵循POSIX.1-2017标准的定义，与Unix/Linux上POSIX API使用方式一致。具体使用方法可以参考POSIX标准的官方文档[POSIX.1-2017标准](https://pubs.opengroup.org/onlinepubs/9699919799/idx/functions.html)。
 
 # 使用示例
-POSIX API的使用建议查询Linux man 手册，搜索引擎搜索或者参考官方文档[POSIX.1-2017标准](https://pubs.opengroup.org/onlinepubs/9699919799/idx/functions.html)。
 pthread的使用也可以参考示例代码example/pthread_example.c，以运行helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
@@ -99,11 +98,17 @@ pthread_example
 ## 关键日志
 > CLI日志：
 ```sh
-pthread_example test success！
+new thread:0x34038460, arg:10
+new thread hold the lock.
+Main thread hold the lock.
+retval:0x34003aa8, &ret_value:0x34003aa8
+New thread:0x34038460 exited with vaule: 100
+The count is 11
+pthread_example test success!
 ```
 
 # 注意事项
-1. POSIX API的使用方式虽然与POSIX标准一致，但相同API的子功能项可能是不支持的，此时注意判断API的异常处理（返回值和errno）。异常处理也遵循POSIX标准。
+1. POSIX API的使用方式虽然与POSIX标准一致，但相同API的子功能项可能是不支持的，此时注意判断API的异常处理（返回值和errno），如API有子功能项不支持，会设置errno为ENOTSUP并返回-1，或者直接返回ENOTSUP，具体需要查看不同API的标准定义。
 
 # FAQ
 无

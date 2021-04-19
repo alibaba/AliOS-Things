@@ -74,7 +74,7 @@ def_config:
 示例代码参考example/ulog_example.c，以运行helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
-> a2sa组件的package.yaml中添加example示例代码
+> ulog组件的package.yaml中添加example示例代码
 ```sh
 source_file:
   - src/ulog_async.c? <ULOG_CONFIG_ASYNC>
@@ -87,6 +87,11 @@ source_file:
   - src/ulog_utility.c
   - example/ulog_example.c #add example code
 ```
+> ulog 设置日志输出等级，默认为不输出
+```c
+    aos_set_log_level(AOS_LL_DEBUG);
+````
+
 
 ## app中添加ulog组件
 > helloworld_demo组件的package.yaml中添加
