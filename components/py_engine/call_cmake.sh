@@ -9,33 +9,63 @@ elif ["$(expr substr $(uname -s) 1 10)"=="MINGW32_NT"];then
 fi
 echo "os is $os"
 
-# choose those options we needed, and discard others
-until [ $# -eq 0 ]
-do
-    key=$(echo $1 | cut -d '=' -f1)
-    if [ "$os" == "Darwin" ]; then
-        value=$(echo $1 | cut -d '=' -f2-)
-    elif [ "$os" == "Linux" ]; then
-        value=$(echo $1 | cut -d '=' --complement -f1)
-    else
-        value=""
-    fi
+if [[ -f $1 ]]; then
+    # read arguments from file, and choose those arguments we wanted
+    filename=$1
+    while read line; do
+        key=$(echo $line | cut -d '=' -f1)
+        if [ "$os" == "Darwin" ]; then
+            value=$(echo $line | cut -d '=' -f2-)
+        elif [ "$os" == "Linux" ]; then
+            value=$(echo $line | cut -d '=' --complement -f1)
+        else
+            value=""
+        fi
 
-    case "$key" in
-        --toolchain) toolchain=$value;shift;;
-        --lib) lib=$value;shift;;
-        --target) target=$value;shift;;
-        --cflag) cflag=$(echo $value | sed "s/#/ /g");shift;;
-        --cxxflag) cxxflag=$(echo $value | sed "s/#/ /g");shift;;
-        --asmflag) asmflag=$(echo $value | sed "s/#/ /g");shift;;
-        --ldflag) ldflag=$(echo $value | sed "s/#/ /g");shift;;
-        --cpu) cpu=$value;shift;;
-        --macro_list) macro_list=$(echo $value | sed "s/#/ /g");shift;;
-        --global_inc ) global_inc=$(echo $value | sed "s/#/ /g"  | sed "s/\"/ /g");shift;;
+        case "$key" in
+            --toolchain) toolchain=$(echo $value | sed "s/\"//g");;
+            --lib) lib=$(echo $value | sed "s/\"//g");;
+            --target) target=$value;;
+            --cflag) cflag=$(echo $value | sed "s/#/ /g");;
+            --cxxflag) cxxflag=$(echo $value | sed "s/#/ /g");;
+            --asmflag) asmflag=$(echo $value | sed "s/#/ /g");;
+            --ldflag) ldflag=$(echo $value | sed "s/#/ /g");;
+            --cpu) cpu=$value;;
+            --macro_list) macro_list=$(echo $value | sed "s/#/ /g" | sed 's/\\\"/\"/g');;
+            --global_inc ) global_inc=$(echo $value | sed "s/#/ /g" | sed 's/\\\"//g');;
 
-        *) echo "discard option $1";shift;;
-    esac;
-done
+            *) echo "discard option $line";;
+        esac;
+    done < "$filename"
+else
+    # choose those options we needed, and discard others
+    until [ $# -eq 0 ]
+    do
+        key=$(echo $1 | cut -d '=' -f1)
+        if [ "$os" == "Darwin" ]; then
+            value=$(echo $1 | cut -d '=' -f2-)
+        elif [ "$os" == "Linux" ]; then
+            value=$(echo $1 | cut -d '=' --complement -f1)
+        else
+            value=""
+        fi
+
+        case "$key" in
+            --toolchain) toolchain=$value;shift;;
+            --lib) lib=$value;shift;;
+            --target) target=$value;shift;;
+            --cflag) cflag=$(echo $value | sed "s/#/ /g");shift;;
+            --cxxflag) cxxflag=$(echo $value | sed "s/#/ /g");shift;;
+            --asmflag) asmflag=$(echo $value | sed "s/#/ /g");shift;;
+            --ldflag) ldflag=$(echo $value | sed "s/#/ /g");shift;;
+            --cpu) cpu=$value;shift;;
+            --macro_list) macro_list=$(echo $value | sed "s/#/ /g");shift;;
+            --global_inc ) global_inc=$(echo $value | sed "s/#/ /g"  | sed "s/\"/ /g");shift;;
+
+            *) echo "discard option $1";shift;;
+        esac;
+    done
+fi
 
 echo "the script is $0"
 echo "current dir is $(pwd)"
@@ -81,12 +111,13 @@ ldflag="$ldflag --specs=nosys.specs"
 
 for item in ${global_inc[*]}
 do
-	value=" -I${item}"
+    value=" -I${item}"
     cflag=${cflag}${value}
     cxxflag=${cxxflag}${value}
 
 done
-
+#echo ${toolchain}
+#echo "${toolchain}-gcc"
 if [ ! -f "Makefile" ]; then
     cmake .. -DCMAKE_C_COMPILER="${toolchain}-gcc" -DCMAKE_CXX_COMPILER="${toolchain}-g++" -DCMAKE_C_FLAGS="${cflag}" -DCMAKE_CXX_FLAGS="${cxxflag}" -DCMAKE_BUILD_FLAGS="${ldflag} "
 fi
@@ -97,6 +128,7 @@ libraries="./libpyEngine.a"
 
 # copy library to AliOS-Things library folder
 lib_path=$(dirname $lib)
+#echo $lib_path
 if [ ! -d $lib_path ]; then
     mkdir -p $lib_path
 fi
@@ -112,3 +144,4 @@ echo "start copy python-apps to hardware/chip/haas1000/prebuild/data"
 cd ..
 cp -r python-apps ../../hardware/chip/haas1000/prebuild/data
 echo "run external script success"
+exit 0

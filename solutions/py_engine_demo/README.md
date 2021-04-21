@@ -1,4 +1,4 @@
-@page py_engine_demo py_engine_demo
+@page py_engine_demo micropython示例
 # 1. 案例简介
 
 py_engine (Python轻应用引擎) 以MicroPython为基础打造而成, 基于py_engine可以快速实现IoT场景连云、控端、AI等最常见功能。快速上手文档和编程接口请参考[Python轻应用快速上手](https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html)

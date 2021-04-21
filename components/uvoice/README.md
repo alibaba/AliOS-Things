@@ -1,5 +1,7 @@
 @page uvoice uvoice
 
+[更正文档](https://gitee.com/alios-things/uvoice/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 uVoice是AliOS Things的音频组件，提供了RTOS系统上端到云全链路的语音能力，包括音频硬件管理、音频增强算法、播放器、录音等基本音频功能，也结合阿里的智能语音云端服务，提供了TTS、语音控制、语音对话等能智能语音功能。同时，uVoice也是一个资源占用极少，性能较高的音频组件，适合为低资源、低算力的嵌入式MCU提供音频能力。
 组件支持以下功能：
@@ -163,51 +165,51 @@ uVoice是AliOS Things的音频组件，提供了RTOS系统上端到云全链路�
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > 支持播放功能开关
-```sh
+```yaml
   UVOICE_PLAYER_ENABLE: 1
 ```
 > 支持录音功能开关
-```sh
+```yaml
 UVOICE_RECORDER_ENABLE: 1
 ```
 > 支持播放列表功能开关
-```sh
+```yaml
 UVOICE_MLIST_ENABLE: 1
 ```
 > 支持播放文件功能开关
-```sh
+```yaml
 UVOICE_FILE_ENABLE: 1
 ```
 > 支持播放HTTP功能开关
-```sh
+```yaml
 UVOICE_HTTP_ENABLE: 1
 ```
 > 支持播放HTTPS功能开关
-```sh
+```yaml
 UVOICE_HTTPS_ENABLE: 1
 ```
 > 支持播放HTTPS功能开关
-```sh
+```yaml
 UVOICE_HTTPS_ENABLE: 1
 ```
 > 支持播放网络音频时自动下载功能开关
-```sh
+```yaml
 UVOICE_DOWNLOAD_ENABLE: 1
 ```
 > 支持播放HLS流媒体功能开关
-```sh
+```yaml
 UVOICE_HLS_ENABLE: 1
 ```
 > 支持MP3解码功能开关
-```shA
+```yaml
 DECODER_PV_MP3_ENABLE: 1
 ```
 > 支持AAC(M4A)解码功能开关
-```sh
+```yaml
 DECODER_PV_M4A_ENABLE: 1
 ```
 > 支持阿里云TTS功能开关
-```sh
+```yaml
 ALICLOUD_TTS_SUPPORT: 1
 ```
 
@@ -222,33 +224,63 @@ ALICLOUD_TTS_SUPPORT: 1
 @ref uvoice_test_api
 
 # 使用示例
-示例代码参考example/uvoice_example.c，以运行helloworld_demo为例，具体步骤如下：
 
-## 添加示例代码
-> uvoice组件的package.yaml中添加example
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
+
+## 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+## 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+> solution中helloworld_demo的package.yaml中添加
 ```sh
+depends:
+  - uvoice: dev_aos # helloworld_demo中引入uvoice组件
+```
+
+## 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install uvoice
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/uvoice路径中。
+
+## 步骤4 添加示例
+
+> uvoice组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uvoice/tree/rel_3.3.0/example)：
+
+```yaml
 source_file:
   - "example/uvoice_example.c" # add uvoice_example.c
 ```
 
-## 添加uvoice组件
-> solution中helloworld_demo的package.yaml中添加
-```sh
-depends:
-  - uvoice: master # helloworld_demo中引入uvoice组件
-```
+## 步骤6 烧录固件
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
+## 步骤7 打开串口
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
-## uvoice示例代码测试方法
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+## 步骤8 测试示例
+
 > uvoice示例代码初始化
 ```sh
 uvoice_example

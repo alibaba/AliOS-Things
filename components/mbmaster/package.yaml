@@ -38,7 +38,7 @@ license: Apache license v2.0                         # <可选项> 源代码的�
 build_config:
     #cflag: -g -O0
   define:
-    BMASTER_CONFIG_RTU_ENABLED:  1
+    MBMASTER_CONFIG_RTU_ENABLED: 1
     MBMASTER_CONFIG_HANDLER_MAX: 1
   internal_include:
     - .

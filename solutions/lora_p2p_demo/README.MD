@@ -1,4 +1,4 @@
-@page lora_p2p_demo lora_p2p_demo
+@page lora_p2p_demo 基于HaaS100实现LoRa点对点通信
 
 案例简介
 ====

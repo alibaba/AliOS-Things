@@ -43,7 +43,7 @@ mb_status_t rtu_assemble(mb_handler_t *handler)
             LOGD(MODBUS_MOUDLE, "assemble debug buf is not enough");
             break;
         }
-        strcat(debug_buf, debug_hex);
+        strncat(debug_buf, debug_hex, sizeof(debug_buf));
     }
     LOGD(MODBUS_MOUDLE, "%s", debug_buf);
 #endif
@@ -72,7 +72,7 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
             LOGD(MODBUS_MOUDLE, "disassemble debug buf is not enough");
             break;
         }
-        strcat(debug_buf, debug_hex);
+        strncat(debug_buf, debug_hex, sizeof(debug_buf));
     }
     LOGD(MODBUS_MOUDLE, "%s", debug_buf);
 #endif

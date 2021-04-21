@@ -162,6 +162,6 @@ static void udisplay_comp_init_example(int argc, char **argv)
 #ifdef AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 // display pattern 32/16 0x0000ffff 1/0(rotate); display stress_ud/stress_cw <count>; display info
-ALIOS_CLI_CMD_REGISTER(udisplay_comp_init_example, udisplay_init_example, udisplay component base example)
-ALIOS_CLI_CMD_REGISTER(udisplay_comp_example, udisplay_example, udisplay component base example)
+ALIOS_CLI_CMD_REGISTER(udisplay_comp_init_example, udisplay_init, udisplay component base example)
+ALIOS_CLI_CMD_REGISTER(udisplay_comp_example, udisplay, udisplay component base example)
 #endif

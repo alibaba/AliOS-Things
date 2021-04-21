@@ -1,4 +1,4 @@
-@page eduk1_demo eduk1_demo
+@page eduk1_demo HaaS EDU场景式应用方案
 ### HaaS EDU场景式应用整体介绍
 
 HaaS EDU K1是HaaS家族中针对教育场景推出的、集众多传感器于一身的嵌入式教育开发板，是学习物联网相关技术的最好载体。

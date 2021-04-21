@@ -1,4 +1,4 @@
-@page rfid_demo rfid_demo
+@page rfid_demo 基于HaaS100搭建云端一体RFID读卡器
 # 1. 案例简介
 
 

@@ -118,7 +118,7 @@ uint8_t MPU_Init(void)
 
     int32_t ret = sensor_i2c_open (MPU_I2C_PORT, MPU_ADDR, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
-        printf("sensor i2c open failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
         return -EIO;
     }
 
@@ -135,12 +135,12 @@ uint8_t MPU_Init(void)
     device_id = MPU_Read_Byte(MPU_DEVICE_ID_REG);
     if (device_id == MPU_DEV_ID) {
         // 器件ID正确
-        LOGI("APP", "MPU init OK\n");
+        LOGI("SENSOR", "MPU init OK\n");
         MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); // 设置CLKSEL,PLL X轴为参考
         MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); // 加速度与陀螺仪都工作
         MPU_Set_Rate(50);                        // 设置采样率为50Hz
     } else {
-        LOGI("APP", "MPU init Error -- %x\n", device_id);
+        LOGE("SENSOR", "MPU init Error -- %x\n", device_id);
         return 1;
     }
     return 0;
@@ -190,7 +190,7 @@ void MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 void MPU_Deinit(void) {
     int32_t ret = sensor_i2c_close(MPU_I2C_PORT);
     if (ret) {
-        printf("sensor i2c close failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);
     }
 
     return;

@@ -15,21 +15,21 @@ typedef void ai_result_t;
 #endif
 
 typedef enum _ai_model_t {
-    AI_MODEL_COMPARING_FACEBODY,
-    AI_MODEL_GENERATE_HUMAN_ANIME_STYLE,
-    AI_MODEL_RECOGNIZE_EXPRESSION,
-    AI_MODEL_DETECT_OBJECT,
-    AI_MODEL_DETECT_MAIN_BODY,
-    AI_MODEL_SEGMENT_COMMON_IMAGE,
-    AI_MODEL_SEGMENT_FACE,
-    AI_MODEL_RECOGNIZE_IDENTITY_CARD_FACE_SIDE,
-    AI_MODEL_RECOGNIZE_IDENTITY_CARD_BACK_SIDE,
-    AI_MODEL_RECOGNIZE_BANK_CARD,
-    AI_MODEL_RECOGNIZE_CHARACTER,
-    AI_MODEL_CLASSIFYING_RUBBISH,
-    AI_MODEL_DETECT_FRUITS,
-    AI_MODEL_ERASE_PERSON,
-    AI_MODEL_EXTEND_IMAGE_STYLE,
+    AI_MODEL_COMPARING_FACEBODY,                  // 人脸比对
+    AI_MODEL_GENERATE_HUMAN_ANIME_STYLE,          // 人物动漫化
+    AI_MODEL_RECOGNIZE_EXPRESSION,                // 表情识别
+    AI_MODEL_DETECT_OBJECT,                       // 目标检测
+    AI_MODEL_DETECT_MAIN_BODY,                    // 主体检测
+    AI_MODEL_SEGMENT_COMMON_IMAGE,                // 通用分割
+    AI_MODEL_SEGMENT_FACE,                        // 人脸分割
+    AI_MODEL_RECOGNIZE_IDENTITY_CARD_FACE_SIDE,   // 身份证正面识别
+    AI_MODEL_RECOGNIZE_IDENTITY_CARD_BACK_SIDE,   // 身份证背面识别
+    AI_MODEL_RECOGNIZE_BANK_CARD,                 // 银行卡识别
+    AI_MODEL_RECOGNIZE_CHARACTER,                 // 文本识别
+    AI_MODEL_CLASSIFYING_RUBBISH,                 // 垃圾分类
+    AI_MODEL_DETECT_FRUITS,                       // 水果检测
+    AI_MODEL_ERASE_PERSON,                        // 图像人体擦除
+    AI_MODEL_EXTEND_IMAGE_STYLE,                  // 风格迁移
     AI_MODEL_MAX
 } ai_model_t;
 

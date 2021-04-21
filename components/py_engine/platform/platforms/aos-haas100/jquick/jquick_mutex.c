@@ -1,8 +1,4 @@
 //
-// jquick_mutex.c
-//
-// Created by liujuncheng@alibaba-inc.com on 2020/11/11.
-//
 // Copyright (c) 2020 Alibaba All rights reserved.
 //
 

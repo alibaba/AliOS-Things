@@ -8,6 +8,10 @@
 
 typedef int MENU_ID_TYP;
 
+#ifdef EDU_TAG
+#undef EDU_TAG
+#endif
+#define EDU_TAG "eduk1_demo"
 typedef enum {
     MENU_TASK_IDLE,
     MENU_TASK_RUNNING,

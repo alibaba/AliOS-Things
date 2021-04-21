@@ -1,7 +1,8 @@
 #include "musicbox.h"
-#include "aos/hal/pwm.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <aos/cli.h>
+#include <vfsdev/pwm_dev.h>
 
 MENU_COVER_TYP musicbox_cover = {MENU_COVER_FUNC, NULL, NULL,
                                  musicbox_cover_draw, 0};
@@ -51,7 +52,7 @@ int musicbox_init(void)
     set_music_time();
 
     aos_task_new_ext(&musicbox_task_handle, "musicbox_task", musicbox_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new musicbox_task\n");
+    LOGI(EDU_TAG, "aos_task_new musicbox_task\n");
     return 0;
 }
 
@@ -59,7 +60,7 @@ int musicbox_uninit(void)
 {
     noTone(0);
     aos_task_delete(&musicbox_task_handle);
-    printf("aos_task_delete musicbox_task\n");
+    LOGI(EDU_TAG, "aos_task_delete musicbox_task\n");
     return 0;
 }
 
@@ -84,7 +85,7 @@ void next_song()
           musicbox_player.music_list_len - 1) ?
              (0) :
              (musicbox_player.cur_music_index + 1));
-    printf("cur_music_index %d\n", musicbox_player.cur_music_index);
+    LOGI(EDU_TAG, "cur_music_index %d\n", musicbox_player.cur_music_index);
     musicbox_player.cur_music_note = 0;
     musicbox_player.cur_music_time = 0;
     musicbox_player.isPlaying      = 1;
@@ -96,7 +97,7 @@ void previous_song()
         ((musicbox_player.cur_music_index == 0) ?
              (musicbox_player.music_list_len - 1) :
              (musicbox_player.cur_music_index - 1));
-    printf("cur_music_index %d\n", musicbox_player.cur_music_index);
+    LOGI(EDU_TAG, "cur_music_index %d\n", musicbox_player.cur_music_index);
     musicbox_player.cur_music_note = 0;
     musicbox_player.cur_music_time = 0;
     musicbox_player.isPlaying      = 1;
@@ -128,27 +129,47 @@ void musicbox_key_handel(key_code_t key_code)
 
 void tone(uint16_t port, uint16_t frequency, uint16_t duration)
 {
-    pwm_dev_t pwm = {port, {0.8, frequency}, NULL};
-    if (frequency > 0) {
-        hal_pwm_init(&pwm);
-        hal_pwm_start(&pwm);
-    }
-    if (duration != 0) {
-        aos_msleep(duration);
-    }
-    if (frequency > 0 && duration > 0) {
-        hal_pwm_stop(&pwm);
-        hal_pwm_finalize(&pwm);
+    int ret = -1;
+    int fd = 0;
+    char name[16] = {0};
+    float duty_cycle = 0.8;
+
+    snprintf(name, sizeof(name), "/dev/pwm%d", port);
+    fd = open(name, 0);
+    if (fd >= 0) {
+        if (frequency > 0) {
+            ret = ioctl(fd, IOC_PWM_FREQ, (unsigned long)frequency);
+            ret = ioctl(fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&duty_cycle);
+            ret = ioctl(fd, IOC_PWM_ON, (unsigned long)0);
+        }
+        if (duration != 0) {
+            aos_msleep(duration);
+        }
+        if (frequency > 0 && duration > 0) {
+            ret = ioctl(fd, IOC_PWM_OFF, (unsigned long)0);
+            close(fd);
+        }
     }
 }
 
 void noTone(uint16_t port)
 {
-    pwm_dev_t pwm = {port, {0.8, 1}, NULL};
-    hal_pwm_init(&pwm);
-    hal_pwm_start(&pwm);
-    hal_pwm_stop(&pwm);
-    hal_pwm_finalize(&pwm);
+    int ret = -1;
+    int fd = 0;
+    char name[16] = {0};
+    float duty_cycle = 0.8;
+    int freq = 1;
+    unsigned int period_s;
+
+    snprintf(name, sizeof(name), "/dev/pwm%d", port);
+    fd = open(name, 0);
+    if (fd >= 0) {
+        ret = ioctl(fd, IOC_PWM_FREQ, (unsigned long)freq);
+        ret = ioctl(fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&duty_cycle);
+        ret = ioctl(fd, IOC_PWM_ON, (unsigned long)0);
+        ret = ioctl(fd, IOC_PWM_OFF, (unsigned long)0);
+        close(fd);
+    }
 }
 
 void musicbox_task()
@@ -169,7 +190,7 @@ void musicbox_task()
                     cur_music->noteDurations[musicbox_player.cur_music_note];
                 noteDuration =
                     (noteDuration < 0) ? (-noteDuration * 1.5) : noteDuration;
-                printf("note[%d] = %d\t delay %d ms\n",
+                LOGI(EDU_TAG, "note[%d] = %d\t delay %d ms\n",
                        musicbox_player.cur_music_note,
                        cur_music->noteDurations[musicbox_player.cur_music_note],
                        noteDuration);

@@ -66,7 +66,7 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
 
 int application_start(int argc, char **argv)
 {
-    aos_set_log_level(AOS_LL_DEBUG);
+    aos_set_log_level(AOS_LL_INFO);
     event_service_init(NULL);
 
     netmgr_service_init(NULL);
