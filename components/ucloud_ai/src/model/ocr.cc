@@ -65,11 +65,11 @@ int recognizeIdentityCardFaceSide(char *url, AIModelCBFunc cb)
     gender = outcome.result().getData().frontResult.gender;
     nationality = outcome.result().getData().frontResult.nationality;
     iDNumber = outcome.result().getData().frontResult.iDNumber;
-    result.identity.face.address = address.c_str();
-    result.identity.face.birthDate = birthDate.c_str();
-    result.identity.face.gender = gender.c_str();
-    result.identity.face.nationality = nationality.c_str();
-    result.identity.face.iDNumber = iDNumber.c_str();
+    result.identity.face.address = (char *)address.c_str();
+    result.identity.face.birthDate = (char *)birthDate.c_str();
+    result.identity.face.gender = (char *)gender.c_str();
+    result.identity.face.nationality = (char *)nationality.c_str();
+    result.identity.face.iDNumber = (char *)iDNumber.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -110,9 +110,9 @@ int recognizeIdentityCardBackSide(char *url, AIModelCBFunc cb)
     startDate = outcome.result().getData().backResult.startDate;
     issue = outcome.result().getData().backResult.issue;
     endDate = outcome.result().getData().backResult.endDate;
-    result.identity.back.startDate = startDate.c_str();
-    result.identity.back.issue = issue.c_str();
-    result.identity.back.endDate = endDate.c_str();
+    result.identity.back.startDate = (char *)startDate.c_str();
+    result.identity.back.issue = (char *)issue.c_str();
+    result.identity.back.endDate = (char *)endDate.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -152,9 +152,9 @@ int recognizeBankCard(char *url, AIModelCBFunc cb)
     bankName = outcome.result().getData().bankName;
     cardNumber = outcome.result().getData().cardNumber;
     validDate = outcome.result().getData().validDate;
-    result.bank.bankName = bankName.c_str();
-    result.bank.cardNumber = cardNumber.c_str();
-    result.bank.validDate = validDate.c_str();
+    result.bank.bankName = (char *)bankName.c_str();
+    result.bank.cardNumber = (char *)cardNumber.c_str();
+    result.bank.validDate = (char *)validDate.c_str();
 
     if (cb) {
         ret = cb((void *)&result);
@@ -200,7 +200,7 @@ int recognizeCharacter(char *url, AIModelCBFunc cb)
         cout << i << "text height: " << outcome.result().getData().results[i].textRectangles.height << endl;
         cout << i << "text: width:" << outcome.result().getData().results[i].textRectangles.width << endl;
         text = outcome.result().getData().results[i].text;
-        result.character.text = text.c_str();
+        result.character.text = (char *)text.c_str();
         result.character.probability = outcome.result().getData().results[i].probability;
         result.character.left = outcome.result().getData().results[i].textRectangles.left;
         result.character.angle = outcome.result().getData().results[i].textRectangles.angle;

@@ -60,7 +60,6 @@ typedef struct {
     uint32_t gatt_svc_handle;
 }BLE_NetCfg_Info;
 
-
 gatt_service g_BLE_netCfg_gatt_service;
 static  gatt_attr_t g_BLE_netCfg_gatt_attrs[] = {
     [BLE_NETCFG_IDX_SVC] = GATT_PRIMARY_SERVICE_DEFINE(UUID_VENDOR_SERVICE),
@@ -108,6 +107,9 @@ static void BLE_NetCfg_wifi_connect_handle(void)
             ret = netmgr_connect(netmgr_handle, &netmgr_params);
             BLE_NETCFG_LOG_INFO("%s: netmgr_connect return %d", __func__, ret);
 
+            // This setting is for Wi-Fi and BLE coexistence
+            netdev_set_epta_params(60000, 40000, 0);
+
             if (netCfg_info->callback) {
                 if (ret == 0) {
                     netCfg_info->callback(BLE_NETCFG_EVENT_SUCCESS, BLE_NETCFG_SUCCESS, NULL);
@@ -143,11 +145,6 @@ static void BLE_NetCfg_Parse(uint8_t *buf, uint16_t len)
 
     if (netCfg_info->started == 0) {
         BLE_NETCFG_LOG_ERROR("%s: not in netcfg state", __func__);
-        return;
-    }
-
-    if (netCfg_info->ssid_recved) {
-        BLE_NETCFG_LOG_ERROR("%s: unhandled netcfg requst, discard this", __func__);
         return;
     }
 
@@ -602,6 +599,21 @@ BLE_NETCFG_STATE BLE_NetCfg_stop(void)
     if (netCfg_info->callback) {
         netCfg_info->callback(BLE_NETCFG_EVENT_STOPPED, BLE_NETCFG_SUCCESS, NULL);
     }
+
     return BLE_NETCFG_SUCCESS;
 }
 
+BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size)
+{
+    BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+    int ret;
+    BLE_NETCFG_STATE state = BLE_NETCFG_COMMON_FAILED;
+
+    ret = ble_stack_gatt_notificate(netCfg_info->conn_handle, netCfg_info->gatt_svc_handle + BLE_NETCFG_IDX_CHAR3_VAL, data, size);
+    if (ret == 0) {
+        state = BLE_NETCFG_SUCCESS;
+    }
+    BLE_NETCFG_LOG_DEBUG("%s: ret  = %d", __func__, ret);
+
+    return state;
+}

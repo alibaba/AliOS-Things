@@ -85,7 +85,7 @@ int segmentFace(char *url, AIModelCBFunc cb)
 
         outImageUrl = outcome.result().getData().elements[i].imageURL;
         if (outImageUrl.size() > 0) {
-            result.face.url = outImageUrl.c_str();
+            result.face.url = (char *)outImageUrl.c_str();
             result.face.imageLen = getResponseBodyByUrl(result.face.url, &result.face.image);
             if (result.face.image && cb) {
                 result.face.location.x = outcome.result().getData().elements[i].x;

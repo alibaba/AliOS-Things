@@ -5,6 +5,7 @@
 
 #include "drv_mag_honeywell_qmc5883l.h"
 #include "aos/hal/i2c.h"
+#include "ulog/ulog.h"
 
 #define QMC5883L_I2C_PORT 1
 
@@ -183,7 +184,7 @@ int qmc5883l_readHeading()
     y_fit = (y_org - y_offset) * 1000.0 / (y_max - y_min);
     z_fit = (z_org - z_offset) * 1000.0 / (z_max - z_min);
 
-    printf("fix[%f,%f,%f],\n", x_fit, y_fit, z_fit);
+    // LOGD("SENSOR", "fix[%f,%f,%f],\n", x_fit, y_fit, z_fit);
 
     int heading = 180.0 * atan2(x_fit, y_fit) / M_PI;
     heading     = (heading <= 0) ? (heading + 360) : heading;
@@ -196,7 +197,7 @@ void qmc5883l_init(void)
 
     int32_t ret = sensor_i2c_open(QMC5883L_I2C_PORT, QMC5883L_ADDR, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
-        printf("sensor i2c open failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
         return;
     }
 
@@ -206,7 +207,7 @@ void qmc5883l_init(void)
 void qmc5883l_deinit(void) {
     int32_t ret = sensor_i2c_close(QMC5883L_I2C_PORT);
     if (ret) {
-        printf("sensor i2c close failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);
     }
     return;
 }

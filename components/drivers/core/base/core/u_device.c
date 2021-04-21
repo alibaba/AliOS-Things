@@ -17,7 +17,7 @@
 
 #define G_ROOT_PATH "/dev"
 
-int g_ddkc_log_level = DDKC_LOG_INFO;
+int g_ddkc_log_level = DDKC_LOG_WARN;
 static dlist_t g_dev_node_list;
 static u_dev_node_t *g_root_dev_node = NULL;
 

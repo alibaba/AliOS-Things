@@ -1,4 +1,4 @@
-@page component 组件
+@page component 组件介绍
 
 组件(Component)是构成Alios Things的基本单元。从系统角度看，除了构建脚本和辅助工具外，一切都是组件；根据组件的应用范围，可以将组件划分为以下三类：
    - BSP组件：指的是./hardware目录下的arch、chip、board三大组件的集合。包含了芯片架构、芯片驱动、板级区别等。
@@ -47,7 +47,7 @@
 @subpage littlefs \n
 @subpage lwip \n
 @subpage mbedtls \n
-@subpage modbus \n
+@subpage mbmaster \n
 @subpage netmgr \n
 @subpage ota \n
 @subpage posix \n

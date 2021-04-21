@@ -1,5 +1,7 @@
 @page mbedtls mbedtls
 
+[更正文档](https://gitee.com/alios-things/mbedtls/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 mbedtls提供加解密算法（AES, RSA, MD5/SHA1/SHA256/SHA512 etc.），X.509证书管理和TLS/DTLS协议支持。详细介绍可参考[mbedtls官网](https://tls.mbed.org/)。
 组件支持以下功能：
@@ -13,6 +15,7 @@ mbedtls提供加解密算法（AES, RSA, MD5/SHA1/SHA256/SHA512 etc.），X.509�
 
 ## 目录结构
 ```sh
+mbedtls
 |-- apache-2.0.txt
 |-- ChangeLog
 |-- example              #适配过AliOS Things的示例代码
@@ -182,7 +185,7 @@ def_config:
 def_config:
   MBEDTLS_CONFIG_TLS_DEBUG: 1
 ```
-> TLS/DTLS最大收发报文长度: 单位：字节，默认为4096，可修改配置如：
+> TLS/DTLS最大收发报文长度: 单位：字节，默认为4096。可修改配置如2K：
 ```sh
 def_config:
   MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 2048
@@ -199,54 +202,114 @@ def_config:
 ```
 
 # API说明
-mbedtls API用法与开源版本一致，API用法可以参考[mbedtls官网API说明](https://tls.mbed.org/api/), 也可以在网上搜索其API的用法。
+mbedtls API用法与开源版本一致，API用法可以参考[mbedtls官网API说明](https://tls.mbed.org/api/)。
 
 # 使用示例
-mbedtls提供了TLS/DTLS协议，加解密算法等众多功能，其在programs目录下也提供了各功能的示例代码，注意这些示例代码虽然不能直接在
-AliOS Things上运行起来，但其逻辑是可以参考的。我们也在example目录下提供了可以直接在AliOS Things运行的示例。
-示例代码参考example/tls_example.c，以运行helloworld_demo为例，具体步骤如下：
 
-## 添加示例代码
-> mbedtls组件的package.yaml中添加example
-```sh
-source_file:
-  - 原有其他文件
-  - "example/tls_example.c" # add tls_example.c
-```
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-## app中添加mbedtls组件
-> helloworld_demo组件的package.yaml中添加
-```sh
+## 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+## 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+
 depends:
-  - mbedtls: master # helloworld_demo中引入mbedtls组件
+  - mbedtls: dev_aos          # helloworld_demo中引入mbedtls组件
+
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
+## 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install mbedtls
+
 ```
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+上述命令执行成功后，组件源码则被下载到了./components/mbedtls路径中。
 
-## mbedtls示例测试
-tls_example的测试依赖于网络，在进行测试前，首先执行联网命令，请先阅读netmgr组件的README.md
-> CLI命令行输入：
-```sh
-netmgr_example
-netmgr -t wifi -c <ssid(你的wifi名)> <passworld(你的wifi密码)>
-tls_example
+## 步骤4 添加示例
+
+在mbedtls组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mbedtls/tree/rel_3.3.0/example)：
+
+```yaml
+source_file:
+  - example/tls_example.c #添加编译tls_example.c
 ```
-注意这里使用2.4GHZ的wifi网络。
 
-## 关键日志
-> CLI日志：
-```sh
+## 步骤5 编译固件
+
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+## 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+## 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+## 步骤8 测试示例
+
+**CLI命令行输入：**
+```shell
+
+netmgr_example # 执行netmgr示例，使能netmgr命令
+
+```
+
+> 关键日志：
+```shell
+
+netmgr test
+add_hdl_info:64
+add_hdl_info:70
+
+```
+
+**CLI命令行输入：**
+```shell
+
+netmgr -t wifi -c <ssid(你的wifi名)> <passworld(你的wifi密码)> # 连接wifi网络
+
+```
+
+> 关键日志：
+```shell
+
+wifi event cb
+Got IP
+
+```
+
+**CLI命令行输入：**
+```shell
+
+tls_example # 连接wifi网络
+
+```
+
+> 关键日志：
+```shell
+
 tls_example test success!
+
 ```
 
 # 注意事项
@@ -256,6 +319,5 @@ tls_example test success!
 
 Q1： TLS 握手失败，Debug消息显示"buffer too small ..." 或者 "bad message length"
 
-答：这可能是TLS消息出来的I/O buffer小于消息的长度， 通过配置增大I/O buffer即可。
-修改yaml配置文件中MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN。
+答：这通常是由于内部用来处理TLS消息的I/O buffer小于消息的长度，通过修改MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN配置增大I/O buffer即可。
 AliOS Things默认配置的I/O buffer为4KB， 一般扩大到16384 （16KB）可以解决所有的此类问题。

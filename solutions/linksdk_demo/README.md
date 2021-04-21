@@ -1,4 +1,4 @@
-@page linksdk_demo linksdk_demo
+@page linksdk_demo 基于LinkSDK上云的示例
 
 # 1. 案例简介
 linksdk_demo是Link SDK物模型单品上云最简示例。

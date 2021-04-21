@@ -11,6 +11,7 @@
 #include <k_api.h>
 #include "mpy_main.h"
 #include "aos/cli.h"
+#include "miniunz.h"
 
 typedef struct {
     int argc;
@@ -89,21 +90,63 @@ static void handle_identity_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_task_new("python_main_entry", python_main_entry, (void *)args, 1024 * 20);
 }
 
-static struct cli_command command = {
+static struct cli_command python_command = {
     .name     = "python",
     .help     = "start micropython ",
     .function = handle_identity_cmd
 };
 
+
+static void handle_unzip_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    char *zippath  ;
+    char *destpath ;
+    int ret = 0 ;
+    if(argc < 2) {
+        printf("Error params,Usage: unzip /data/src.zip  /sdcard \r\n");
+        return ;
+    }
+
+    if(argc == 2) {
+        destpath ="/data";
+    }else {
+        destpath = argv[2] ;
+    }
+    zippath = argv[1] ;
+    ret = miniUnzip(zippath,destpath);
+    if(ret) {
+        printf("unzip failed ,errno is %d \r\n",ret);
+    }else {
+        printf("unzip succeed \r\n");
+    }
+}
+
+
+static struct cli_command unzip_command = {
+    .name     = "unzip",
+    .help     = "unzip /sdcard/src.zip  /data/ ",
+    .function = handle_unzip_cmd
+};
+
+
 int application_start(int argc, char *argv[])
 {
-    int  ret = aos_cli_register_command(&command);
+    int  ret = aos_cli_register_command(&unzip_command);
     if (ret) {
         printf("register micropython command failed \r\n");
+    } 
+    ret = aos_cli_register_command(&python_command);
+    if (ret) {
+        printf("register python command failed \r\n");
     } else {
-        printf("register micropython command succeed \r\n");
+        printf("register python command succeed \r\n");
     }
     return ret ;
 }
+
+
+
+
+
 
 

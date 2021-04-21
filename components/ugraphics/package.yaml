@@ -18,7 +18,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - SDL2: dev_aos
-  - fatfs: dev_aos
   - littlefs: dev_aos
 
 ## 第四部分：编译连接信息
@@ -51,7 +50,7 @@ source_file:
   - src/jpegdec/jpegdec.c ? <AOS_COMP_JPEG>
   - src/jpegdec/to_rgb565.c ? <CONFIG_UGRAPHICS_FORMAT>
   - src/jpegdec/rotate.c ? <CONFIG_UGRAPHICS_ROTATE>
-#  - src/example/ugraphics_example.c
+#  - example/ugraphics_example.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

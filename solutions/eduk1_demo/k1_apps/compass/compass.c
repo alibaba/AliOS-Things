@@ -22,13 +22,13 @@ static aos_task_t compass_task_handle;
 
 int compass_init(void)
 {
-    printf("qmc5883l_init begin\n");
+    LOGI(EDU_TAG, "qmc5883l_init begin\n");
     qmc5883l_init();
-    printf("qmc5883l_init done\n");
+    LOGI(EDU_TAG, "qmc5883l_init done\n");
     OLED_Clear();
     OLED_Refresh_GRAM();
     aos_task_new_ext(&compass_task_handle, "compass_task", compass_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new compass_task\n");
+    LOGI(EDU_TAG, "aos_task_new compass_task\n");
     return 0;
 }
 
@@ -67,7 +67,7 @@ int compass_uninit(void)
     qmc5883l_deinit();
 
     aos_task_delete(&compass_task_handle);
-    printf("aos_task_delete compass_task\n");
+    LOGI(EDU_TAG, "aos_task_delete compass_task\n");
     return 0;
 }
 

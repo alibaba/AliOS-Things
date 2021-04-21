@@ -904,8 +904,7 @@ static void skip_line_end(int fd)
     }
 }
 
-static int read_config_value(const char* pos,
-		const char* obj,int* line, netmgr_wifi_ap_info_t* config)
+static int read_config_value(char** pos, const char* obj,int* line, netmgr_wifi_ap_info_t* config)
 {
     char* pos_start = NULL;
     char* pos_end = NULL;
@@ -913,7 +912,7 @@ static int read_config_value(const char* pos,
     char t_str[18] = {'\0'};
 
     NETMGR_WIFI_LOGI("%s:%d read ap config to ap info:%p\n", __func__, __LINE__, config);
-    if((pos_start=strstr(pos,obj)) != NULL) {
+    if((pos_start=strstr(*pos,obj)) != NULL) {
         pos_start = strchr(pos_start, '"');
         if(NULL == pos_start) {
             NETMGR_WIFI_LOGE("Line %d:Invalid value line '%s'.", *line,pos_start);
@@ -923,26 +922,31 @@ static int read_config_value(const char* pos,
         pos_end = strchr(pos_start, '"');
         if(pos_end != NULL) {
             len = (pos_end - pos_start);
+            pos_end += 2;
+            if (*pos_end != '}') {
+                pos_end++;
+            }
+            *pos = pos_end;
             NETMGR_WIFI_LOGI("%s:%d len :%d %s ", __func__, __LINE__, len, pos_start);
             if(strncmp(obj,"ssid", 4) == 0) {
                 int contain_chinese = ssid_contain_chinese_check(config->ssid);
                 strncpy(config->ssid, pos_start, len);
-	            config->ssid[len]='\0';
+                config->ssid[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d ssid=%s\n", __func__, __LINE__, config->ssid);
                 if((1 == contain_chinese) && (0 != string_convert((uint8_t *)config->gbk_ssid, MAX_SSID_SIZE, (uint8_t *)config->ssid, strlen(config->ssid), UTF8_TO_GBK))) {
                    config->contain_chinese = true;
                 } else {
                    config->contain_chinese = false;
                 }
-	        } else if(strncmp(obj,"password", 8) == 0) {
+            } else if(strncmp(obj,"password", 8) == 0) {
                 memcpy(config->pwd, pos_start, len);
                 config->pwd[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d len=%d pwd=%s\n", __func__, __LINE__, len, config->pwd);
-	        } else if(strncmp(obj,"bssid", 5) == 0) {
+            } else if(strncmp(obj,"bssid", 5) == 0) {
                 memcpy(config->bssid, pos_start, len);
-                config->pwd[len]='\0';
+                config->bssid[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d len=%d bssid=%02x:%02x:%02x:%02x:%02x:%02x\n", __func__, __LINE__, len, config->bssid[0], config->bssid[1], config->bssid[2], config->bssid[3], config->bssid[4], config->bssid[5]);
-	        } else if(strncmp(obj,"format", 6) == 0) {
+            } else if(strncmp(obj,"format", 6) == 0) {
                 strncpy(t_str, pos_start, len);
                 t_str[len]='\0';
                 if(strncmp(t_str, "gbk", 3) == 0) {
@@ -964,9 +968,9 @@ static int read_config_value(const char* pos,
                     &config->bssid[5]);
                 NETMGR_WIFI_LOGI("%s:%d pwd=%s t_str=%s\n", __func__, __LINE__, config->pwd, t_str);
             } else if(strncmp(obj,"channel",7) == 0) {
-				strncpy(t_str,pos_start,len);
-				t_str[len]='\0';
-				config->channel = atoi((char*)t_str);
+                strncpy(t_str,pos_start,len);
+                t_str[len]='\0';
+                config->channel = atoi((char*)t_str);
             }
         }else {
             NETMGR_WIFI_LOGE("%s:%d Line %d:invalid quotation '%s'.", __func__, __LINE__, *line, pos_start);
@@ -1072,32 +1076,30 @@ static int get_wifi_config(const char *name, netmgr_wifi_ap_config_t* saved_ap_c
     }
 
     i = saved_ap_conf->ap_num;
-    while(get_config_line(buf, sizeof(buf), fd, &line, &pos)) {
+
+    if (get_config_line(buf, sizeof(buf), fd, &line, &pos)) {
         netmgr_wifi_ap_info_t ap_info;
 
         memset(&ap_info, 0, sizeof(netmgr_wifi_ap_info_t));
-        NETMGR_WIFI_LOGD("%s:%d pos: %s", __func__, __LINE__, pos);
         if(strstr(pos, "network={") != NULL) {
-            while(get_config_line(buf, sizeof(buf), fd, &line, &pos)) {
 
-                NETMGR_WIFI_LOGD("%s:%d pos:%s", __func__, __LINE__, pos);
+            pos += (strlen("network={") + 2);
+            while (pos) {
                 if(strncmp(pos,"}", 1) == 0) {
                     break;
                 }
                 for(j = 0; j < CONFIG_ELEMENT_NUM; j++) {
                     len = strlen(wificonfigsymbol[j]);
-                    NETMGR_WIFI_LOGD("%s:%d %s, %d", __func__, __LINE__, wificonfigsymbol[j], len);
                     if(strncmp(pos, wificonfigsymbol[j], len) != 0 ||
-                       pos[len] != '='){
+                        pos[len] != '='){
                         continue;
                     }
 
-                    if(read_config_value(pos, wificonfigsymbol[j], &line,
+                    if(read_config_value(&pos, wificonfigsymbol[j], &line,
                        &ap_info)) {
                         NETMGR_WIFI_LOGI("%s:%d\n failed to line:%d parse: %s", __func__, __LINE__, line, pos);
                         continue;
                     }
-                    NETMGR_WIFI_LOGD("%s:%d symbol[%d]=%s\n", __func__, __LINE__, j, wificonfigsymbol[j]);
                 }
             }
             NETMGR_WIFI_LOGD("%s:%d ssid=%s\n", __func__, __LINE__, ap_info.ssid);
@@ -1143,10 +1145,10 @@ static int get_wifi_config(const char *name, netmgr_wifi_ap_config_t* saved_ap_c
             NETMGR_WIFI_LOGD("%s:%d index:%d\n", __func__, __LINE__, i);
             if(i >= MAX_AP_CONFIG_NUM) {
                 NETMGR_WIFI_LOGI("%s:%d ap num reached max %d\n", __func__, __LINE__,  i);
-                break;
             }
         }
     }
+
     saved_ap_conf->ap_num = i;
     NETMGR_WIFI_LOGI("%s:%d ap_num=%d\n", __func__, __LINE__, saved_ap_conf->ap_num);
     close(fd);
@@ -1242,7 +1244,7 @@ static int update_wifi_config(netmgr_conn_t* conn, const char *name)
         return -1;
     }
 
-    fd = open(NETMGR_WIFI_TEMP_CONF, O_RDONLY);
+    fd = open(NETMGR_WIFI_TEMP_CONF, O_RDWR | O_CREAT);
     if(fd < 0) {
         NETMGR_WIFI_LOGE("open %s failed:%s\n", NETMGR_WIFI_TEMP_CONF, strerror(errno));
         return -1;
@@ -1260,7 +1262,7 @@ static int update_wifi_config(netmgr_conn_t* conn, const char *name)
         snprintf(buf,NETMGR_WIFI_CONFIG_LEN,"network={\n \
 ssid=\"%s\"\n \
 password=\"%s\"\n \
-bssid=%02x:%02x:%02x:%02x:%02x:%02x\n\
+bssid=%02x:%02x:%02x:%02x:%02x:%02x\n \
 format=\"%s\"\n \
 channel=\"%d\"\n}\n\n",
               ssid,
@@ -1344,7 +1346,7 @@ static int update_wifi_status(netmgr_conn_t* conn, const char *name, char* wpa_s
 
     unlink(name);
 
-    fd = open(name, O_RDONLY);
+    fd = open(name, O_RDWR | O_CREAT);
     if(fd < 0) {
         NETMGR_WIFI_LOGE("open %s failed:%s\n", name, strerror(errno));
         return -1;
@@ -2152,7 +2154,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
 
     ssid    = params->ssid;
     pwd     = params->pwd;
-    // bssid   = params->bssid;
+    //bssid   = params->bssid;
     time_ms = params->timeout;
 
     saved_ap_conf = (netmgr_wifi_ap_config_t* )conn->saved_config;
@@ -2164,7 +2166,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
         return -1;
     }
 
-    if(ssid != NULL) {
+    if(strlen(ssid) != 0) {
         int contain_chinese = ssid_contain_chinese_check(ssid);
 
         if(contain_chinese == -1) {
@@ -3350,7 +3352,7 @@ static void wifi_handle_cmd(int argc, char **argv)
             const char* p = argv[1];
             bool is_backslash = false;
 
-            fd = open(NETMGR_WIFI_CONF, O_RDONLY);
+            fd = open(NETMGR_WIFI_CONF, O_RDWR | O_CREAT);
             if(fd < 0) {
                 NETMGR_WIFI_LOGE("%s:%d open %s failed:%s\n", __func__, __LINE__, NETMGR_WIFI_CONF,strerror(errno));
                 return ;

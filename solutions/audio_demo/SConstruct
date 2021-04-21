@@ -2,7 +2,7 @@
 
 from aostools import Make
 
-defconfig = Make(elf='aos.elf', objcopy='binary/link_solo_demo@haas100.bin')
+defconfig = Make(elf='aos.elf', objcopy='binary/audio_demo@haas100.bin')
 
 Export('defconfig')
 

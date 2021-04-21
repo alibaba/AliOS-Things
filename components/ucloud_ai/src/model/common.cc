@@ -1,10 +1,8 @@
 #include <iostream>
 #include "alibabacloud/core/AlibabaCloud.h"
 #include "alibabacloud/core/CommonClient.h"
-#include "CurlHttpClient.h"
-#include "alibabacloud/core/Url.h"
-#include "alibabacloud/core/HttpRequest.h"
 #include "ucloud_ai_common.h"
+#include <ulog/ulog.h>
 
 extern "C" {
 using namespace std;
@@ -14,6 +12,7 @@ static string accessKey;
 static string accessSecret;
 
 #define USE_HTTPCLIENT
+#define TAG "common"
 
 #ifdef USE_HTTPCLIENT
 int getResponseBodyByUrl(const char *url, const char **buffer)
@@ -23,11 +22,11 @@ int getResponseBodyByUrl(const char *url, const char **buffer)
 
     ret = ucloud_ai_connect((char *)url);
     if (ret < 0) {
-        printf("ucloud_ai_connect failed, ret: %d\n", ret);
+        LOGE(TAG, "ucloud_ai_connect failed, ret: %d\n", ret);
         return -1;
     }
 
-    recv_len = ucloud_ai_get_stream((char *)url, buffer);
+    recv_len = ucloud_ai_get_stream((char *)url, (char **)buffer);
     ucloud_ai_disconnect();
     if (!recv_len) {
         LOGE(TAG, "recv_len is %d\n", recv_len);

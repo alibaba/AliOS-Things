@@ -56,8 +56,29 @@ SNTP服务器地址
 
 @ref sntp_api
 
+## 发送获取sntp请求
+
+```C
+int sntp_request(void *arg)
+```
+
+| args | description        |
+| :--- | :----------------- |
+| arg  | 用户数据结构体指针 |
+
+## 获取sntp请求结果
+
+```C
+sntp_time *sntp_obtain_time(void)
+```
+
+| args | description |
+| :--- | :---------- |
+| void | NA          |
+
 # 使用示例
-示例代码参考example/sntp_example.c，以运行link_ntp_demo为例，具体步骤如下：
+
+示例代码参考example/sntp_example.c，以运行solution/helloworld_demo为例，具体步骤如下：
 
 ## 添加示例代码
 
@@ -69,19 +90,35 @@ source_file:
 ```
 ## app中添加sntp组件
 
-> link_ntp_demo组件的package.yaml中添加
+> helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
   - sntp: dev_aos
 ```
+## app中添加netmgr组件
+
+> 通过sntp获取时间，需依赖网络，所以引入netmgr联网，在helloworld_demo组件的package.yaml中添加netmgr的支持
+
+```sh
+depends:
+  - netmgr: dev_aos
+```
+
+> netmgr组件打开netmgr_example，在netmgr/package.yaml中添加example
+
+```sh
+source_file:
+  - example/*.c
+```
+
 ## 编译
 
 ```sh
-cd solutions/link_ntp_demo && aos make
+cd solutions/helloworld_demo && aos make
 ```
 其中具体单板还需要先配置环境：
 ```sh
-aos make link_ntp_demo@haas100 -c config
+aos make helloworld_demo@haas100 -c config
 ```
 ## 烧录固件
 

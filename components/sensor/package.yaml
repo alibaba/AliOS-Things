@@ -52,7 +52,6 @@ source_file:
   - hal/sensor_hal.c
   - hal/sensor_drv_api.c
   - drv/drv_init.c
-  - drv/modbus_sensors/drv_modbus_sensors.c? <SENSOR_CONFIG_MODBUS_ENABLE>
   - drv/drv_acc_adi_adxl372.c ? <AOS_SENSOR_ACC_ADI_ADXL372>
   - drv/drv_acc_adi_adxl345.c ? <AOS_SENSOR_ACC_ADI_ADXL345>
   - drv/drv_acc_adi_adxl355.c ? <AOS_SENSOR_ACC_ADI_ADXL355>

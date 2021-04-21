@@ -1,8 +1,4 @@
 //
-// jquick_thread.cpp
-//
-// Created by liujuncheng@alibaba-inc.com on 2020/10/23.
-//
 // Copyright (c) 2020 Alibaba All rights reserved.
 //
 

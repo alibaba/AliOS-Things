@@ -2,7 +2,7 @@
 name: st7789 # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: dev_aos # <必选项> 组件版本号
 description: ST7789系列LCD驱动组件，支持ST7789V,ST7789S等等 # <必选项> 建议至少20字以上
-type: common # <必选项> 组件类型，为：solution, chip, board, common, sdk
+type: drv_external_device # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 驱动组件 # <可选项> 组件分类，缺省值： ''
 keywords: # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要

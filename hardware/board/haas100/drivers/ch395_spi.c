@@ -572,6 +572,12 @@ int32_t hal_spi_send_and_recv_ch395_exist(spi_dev_t *spi, uint8_t *tx_data, uint
 		ret = spi_ctx[spi->port].spi_send(&tx_data[0], 1);
 	}
 
+    if (ret) {
+        TRACE("spi mode %d send fail %d, size %d",
+            spi->config.t_mode, ret, tx_size);
+        goto OUT;
+    }
+
 	/*send test data at the same time need to recv data*/
 	hal_cache_sync(HAL_CACHE_ID_I_CACHE);//PSRAM must sync cache to memory when used dma
 	if (spi->config.t_mode == SPI_TRANSFER_DMA)
