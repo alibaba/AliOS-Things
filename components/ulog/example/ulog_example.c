@@ -20,7 +20,7 @@
 
 static char show_log_list_buffer[512];
 
-void ulog_example_test(int argc, char **argv)
+void ulog_example(int argc, char **argv)
 {
     int i = 0;
     aos_set_log_level(AOS_LL_DEBUG);
@@ -41,5 +41,5 @@ void ulog_example_test(int argc, char **argv)
 
 #ifdef AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
-ALIOS_CLI_CMD_REGISTER(ulog_example_test, ulog_example, ulog component base example)
+ALIOS_CLI_CMD_REGISTER(ulog_example, ulog_example, ulog component base example)
 #endif

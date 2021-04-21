@@ -1,8 +1,10 @@
 @page linksdk linksdk
 
+[更正文档](https://gitee.com/alios-things/linksdk/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 
-Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后通过该SDK将设备安全地接入到阿里云IoT物联网平台，继而让设备可以被阿里云IoT物联网平台进行管理。设备需要支持TCP/IP协议栈才能集成Link SDK，Zigbee、433、KNX这样的非IP设备需要通过网关设备接入到阿里云IoT物联网平台，网关设备需要集成Link SDK。
+Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后通过该SDK将设备安全地接入到阿里云IoT物联网平台，继而让设备可以被阿里云IoT物联网平台进行管理。设备需要支持TCP/IP协议栈才能集成Link SDK。另外Zigbee、433、KNX这样的非IP设备需要通过网关设备接入到阿里云IoT物联网平台，网关设备需要集成Link SDK。
 
 说明:Link SDK以前名称为Link Kit SDK，现更名为Link SDK。
 

@@ -277,7 +277,7 @@ static int recognize_identity_card_face_side_callback(ai_result_t *result)
     char *gender = NULL;
     char *nationality = NULL;
     char *id_num = NULL;
-    int card_x[4], card_y[4], face_x[4], face_y[4];
+    float card_x[4], card_y[4], face_x[4], face_y[4];
 
     if (!result)
         return -1;
@@ -312,9 +312,15 @@ static int recognize_identity_card_face_side_callback(ai_result_t *result)
         ugraphics_draw_string(id_num, 20, 100);
     }
 
+    /*reset card and face postion*/
+    memset(card_x, 0, 4 * sizeof(int));
+    memset(card_y, 0, 4 * sizeof(int));
+    memset(face_x, 0, 4 * sizeof(int));
+    memset(face_y, 0, 4 * sizeof(int));
+
     /*draw card box line*/
-    memcpy(card_x, result->ocr.identity.face.cardX, 4);
-    memcpy(card_y, result->ocr.identity.face.cardY, 4);
+    memcpy(card_x, result->ocr.identity.face.cardX, 4 * sizeof(int));
+    memcpy(card_y, result->ocr.identity.face.cardY, 4 * sizeof(int));
     if (card_x && card_y) {
         ugraphics_draw_line(card_x[2], card_y[2], card_x[3], card_y[3]);
         ugraphics_draw_line(card_x[2], card_y[2] + 1, card_x[3], card_y[3] + 1);
@@ -334,8 +340,8 @@ static int recognize_identity_card_face_side_callback(ai_result_t *result)
     }
 
     /*draw face box line*/
-    memcpy(face_x, result->ocr.identity.face.faceX, 4);
-    memcpy(face_y, result->ocr.identity.face.faceY, 4);
+    memcpy(face_x, result->ocr.identity.face.faceX, 4 * sizeof(int));
+    memcpy(face_y, result->ocr.identity.face.faceY, 4 * sizeof(int));
     if (face_x && face_y) {
         /*draw top line*/
         ugraphics_draw_line(face_x[0], face_y[0], face_x[1], face_y[1]);
@@ -611,7 +617,7 @@ int ucloud_ai_demo_main(void *p)
 #ifdef CONFIG_ALICLOUD_FACEBODY_ENABLE
             case AI_MODEL_COMPARING_FACEBODY:
                 cb = facebody_compare_callback;
-                image2 = NULL;
+                image2 = MYFACE_PATH;
                 break;
             case AI_MODEL_GENERATE_HUMAN_ANIME_STYLE:
                 cb = generate_human_anime_styple_callback;

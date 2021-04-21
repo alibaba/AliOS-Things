@@ -17,9 +17,10 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - alicloud: dev_aos
   - oss: dev_aos
   - http: dev_aos
+  - mbedtls: dev_aos
+  - jsoncpp: dev_aos
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -42,26 +43,50 @@ depends:
 build_config:
   include:
     - include
+    - src/model/aliyun-openapi/core/include
+    - src/model/aliyun-openapi/core/src
+    - src/model/aliyun-openapi/facebody/include
+    - src/model/aliyun-openapi/imagerecog/include
+    - src/model/aliyun-openapi/imageseg/include
+    - src/model/aliyun-openapi/imageenhan/include
+    - src/model/aliyun-openapi/objectdet/include
+    - src/model/aliyun-openapi/ocr/include
+    - ./
 #  prebuild_script: cp_resources.py
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - src/ucloud_ai_facebody.c ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
+  - src/model/aliyun-openapi/core/src/*.cc                        # 阿里云SDK组件核心
+  - src/model/aliyun-openapi/core/src/location/*.cc
+  - src/model/aliyun-openapi/core/src/location/model/*.cc
+  - src/model/aliyun-openapi/facebody/src/*.cc ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
+  - src/model/aliyun-openapi/facebody/src/model/*.cc ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
+  - src/model/aliyun-openapi/imagerecog/src/*.cc ? <CONFIG_ALICLOUD_IMAGERECOG_ENABLE>
+  - src/model/aliyun-openapi/imagerecog/src/model/*.cc ? <CONFIG_ALICLOUD_IMAGERECOG_ENABLE>
+  - src/model/aliyun-openapi/imageseg/src/*.cc ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
+  - src/model/aliyun-openapi/imageseg/src/model/*.cc ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
+  - src/model/aliyun-openapi/imageenhan/src/*.cc ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
+  - src/model/aliyun-openapi/imageenhan/src/model/*.cc ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
+  - src/model/aliyun-openapi/objectdet/src/*.cc ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
+  - src/model/aliyun-openapi/objectdet/src/model/*.cc ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
+  - src/model/aliyun-openapi/ocr/src/*.cc ? <CONFIG_ALICLOUD_OCR_ENABLE>
+  - src/model/aliyun-openapi/ocr/src/model/*.cc ? <CONFIG_ALICLOUD_OCR_ENABLE>
   - src/model/facebody.cc ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
-  - src/ucloud_ai_imageenhan.c ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
   - src/model/imageenhan.cc ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
-  - src/ucloud_ai_imagerecog.c ? <CONFIG_ALICLOUD_IMAGERECOG_ENABLE>
   - src/model/imagerecog.cc ? <CONFIG_ALICLOUD_IMAGERECOG_ENABLE>
-  - src/ucloud_ai_imageseg.c ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
   - src/model/imageseg.cc ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
-  - src/ucloud_ai_objectdet.c ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
   - src/model/objectdet.cc ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
-  - src/ucloud_ai_ocr.c ? <CONFIG_ALICLOUD_OCR_ENABLE>
   - src/model/ocr.cc ? <CONFIG_ALICLOUD_OCR_ENABLE>
-  - src/ucloud_ai_common.c
   - src/model/common.cc
-#  - src/example/ucloud_ai_example.c
+  - src/ucloud_ai_facebody.c ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
+  - src/ucloud_ai_imageenhan.c ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
+  - src/ucloud_ai_imagerecog.c ? <CONFIG_ALICLOUD_IMAGERECOG_ENABLE>
+  - src/ucloud_ai_imageseg.c ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
+  - src/ucloud_ai_objectdet.c ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
+  - src/ucloud_ai_ocr.c ? <CONFIG_ALICLOUD_OCR_ENABLE>
+  - src/ucloud_ai_common.c
+#  - example/ucloud_ai_example.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -71,15 +96,13 @@ def_config:                              # 组件的可配置项
   CONFIG_ALICLOUD_OBJECTDET_ENABLE: 1
   CONFIG_ALICLOUD_IMAGESEG_ENABLE: 1
   CONFIG_ALICLOUD_OCR_ENABLE: 1
+  USE_CRYPTO_MBEDTLS: 1
 
   # OSS 配置信息, 用户在这里替换自己的OSS信息
   OSS_ACCESS_KEY: "Your-Access-Key"
   OSS_ACCESS_SECRET: "Your-Access-Secret"
-  OSS_ENDPOINT: "Your-OSS-Endpoint"
-  OSS_BUCKET: "Your-OSS-Bucket"
-
-  # 配置你要对比的人脸
-  MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
+  OSS_ENDPOINT: "Your-OSS-Endpoint"      # 例如: "oss-cn-shanghai-internal.aliyuncs.com"
+  OSS_BUCKET: "Your-OSS-Bucket"          # 例如: "cloud-ai-dev"
 
 ## 第六部分：安装信息
 # install:

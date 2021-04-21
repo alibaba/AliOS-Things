@@ -411,28 +411,40 @@ int32_t udisplay_pattern_rgb16(uint32_t color, bool rotate)
         return -1;
     }
 
-    if (rotate) {
-        buf = (uint8_t *)aos_malloc(var->xres * var->yres *
-                                    var->bits_per_pixel / 8);
-        if (!buf) {
-            LOGE("udisplay", "[%s]no memory allocated\n", __func__);
-            aos_mutex_unlock(&ctx->mutex);
-            return -1;
-        }
-        udisplay_draw_rgb16(buf, 0, 0, var->yres, var->xres, color);
-        ret = udisplay_set_prefb_addr(buf);
-        if (ret < 0) {
-            aos_free(buf);
-            LOGE("udisplay", "[%s]set prefb addr fail\n", __func__);
-            aos_mutex_unlock(&ctx->mutex);
-            return -1;
-        }
-        aos_free(buf);
-    } else {
-        buf = get_display_buffer_addr(g_udisplay_ctx.fb_id);
-        udisplay_draw_rgb16(buf, 0, 0, var->xres, var->yres, color);
+#ifdef ENABLE_MICRO_KERNEL
+    buf = get_display_buffer_addr(g_udisplay_ctx.fb_id);
+#else
+    buf = (uint8_t *)aos_malloc(var->xres * var->yres *
+                                var->bits_per_pixel / 8);
+    if (!buf) {
+        LOGE("udisplay", "[%s]no memory allocated\n", __func__);
+        aos_mutex_unlock(&ctx->mutex);
+        return -1;
     }
+#endif
+
+    ret = udisplay_set_prefb_addr(buf);
+    if (ret < 0) {
+#ifndef ENABLE_MICRO_KERNEL
+        aos_free(buf);
+#endif
+        LOGE("udisplay", "[%s]set prefb addr fail\n", __func__);
+        aos_mutex_unlock(&ctx->mutex);
+        return -1;
+    }
+    udisplay_draw_rgb16(buf, 0, 0, var->yres, var->xres, color);
     ret = udisplay_pan_display(ctx->fb_id);
+    if (ret < 0) {
+#ifndef ENABLE_MICRO_KERNEL
+        aos_free(buf);
+#endif
+        LOGE("udisplay", "[%s]udisplay_pan_display fail\n", __func__);
+        aos_mutex_unlock(&ctx->mutex);
+        return -1;
+    }
+#ifndef ENABLE_MICRO_KERNEL
+    aos_free(buf);
+#endif
     aos_mutex_unlock(&ctx->mutex);
     LOGE("udisplay", "[%s]udisplay_pattern_rgb16 finish\n", __func__);
     return ret;

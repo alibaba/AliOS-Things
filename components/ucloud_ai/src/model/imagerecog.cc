@@ -86,7 +86,7 @@ int detectFruits(char *url, AIModelCBFunc cb)
         cout << i << "name: " << outcome.result().getData().elements[i].name << endl;
         result.fruits.score = outcome.result().getData().elements[i].score;
         name = outcome.result().getData().elements[i].name;
-        result.fruits.name = name.c_str();
+        result.fruits.name = (char *)name.c_str();
 
         cout << "box.xmin: " << outcome.result().getData().elements[i].box[0] << endl;
         cout << "box.ymin: " << outcome.result().getData().elements[i].box[1] << endl;

@@ -16,14 +16,14 @@ static int running = 1;
 
 int lightmeter_init(void)
 {
-    printf("lightmeter_init begin\n");
+    LOGI(EDU_TAG, "lightmeter_init begin\n");
     ap3216c_init();
-    printf("lightmeter_init done\n");
+    LOGI(EDU_TAG, "lightmeter_init done\n");
 
     OLED_Clear();
     OLED_Refresh_GRAM();
     aos_task_new_ext(&lightmeter_task_handle, "lightmeter_task", lightmeter_task, NULL, 2048, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new lightmeter_task\n");
+    LOGI(EDU_TAG, "aos_task_new lightmeter_task\n");
     return 0;
 }
 
@@ -70,6 +70,6 @@ int lightmeter_uninit(void)
     }
     ap3216c_deinit();
     aos_task_delete(&lightmeter_task_handle);
-    printf("aos_task_delete lightmeter_task\n");
+    LOGI(EDU_TAG, "aos_task_delete lightmeter_task\n");
     return 0;
 }

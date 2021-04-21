@@ -34,6 +34,8 @@ typedef struct tftp_state_s {
 static tftp_state_t tftp_state;
 static uint16_t     tftp_port = TFTP_PORT;
 
+static uint8_t      tftp_binary_mode = 0;
+
 static void tftp_tmr(void* arg);
 void tftp_send_error(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port,
                      tftp_error_t code, const char *str);
@@ -188,9 +190,44 @@ static int tftp_fread(void* handle, void* buf, int bytes)
 static int tftp_fwrite(void* handle, struct pbuf* p)
 {
     char buff[512];
+    char *pos_w;
+    char *pos_r;
+    uint8_t filter_cr = 0;
     size_t writebytes = -1;
+    size_t len = 0;
+    size_t tot_len = 0;
+
     pbuf_copy_partial(p, buff, p->tot_len, 0);
-    writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);
+
+    tot_len = p->tot_len;
+
+    if (tftp_binary_mode) {
+        pos_w = buff;
+        pos_r = buff;
+
+        while (len < tot_len) {
+            if (*pos_r == 0x0d) {
+                if (filter_cr == 0) {
+                    filter_cr = 1;
+                    pos_w = pos_r;
+                }
+                pos_r++;
+                tot_len--;
+            }
+            pos_r++;
+            if (filter_cr == 1) {
+                pos_w++;
+                *pos_w = *pos_r;
+            }
+            len++;
+        }
+    }
+
+    writebytes = fwrite(buff, 1, tot_len, (FILE *)handle);
+
+    if (writebytes == tot_len) {
+        writebytes = p->tot_len;
+    }
     return (int)writebytes;
 }
 
@@ -268,5 +305,10 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfnam
 void tftp_client_set_server_port(uint16_t port)
 {
     tftp_port = port;
+}
+
+void tftp_client_set_binary_mode(uint8_t binary_mode)
+{
+    tftp_binary_mode = binary_mode;
 }
 

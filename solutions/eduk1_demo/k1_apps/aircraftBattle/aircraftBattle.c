@@ -383,7 +383,7 @@ void reload_dfo(dfo_t *craft, int pos_x, int pos_y)
     }
 
     if (craft->model != Bullet)
-        printf("reset craft %d at %d,%d\n", craft->model, craft->start_x,
+        LOGI(EDU_TAG, "reset craft %d at %d,%d\n", craft->model, craft->start_x,
                craft->start_y);
 
     craft->cur_x    = craft->start_x;
@@ -677,7 +677,7 @@ int aircraftBattle_init(void)
     global_create();
     g_chance = MY_CHANCE;
     aos_task_new_ext(&aircraftBattle_task_handle, "aircraftBattle_task", aircraftBattle_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new aircraftBattle_task\n");
+    LOGI(EDU_TAG, "aos_task_new aircraftBattle_task\n");
     return 0;
 }
 
@@ -690,7 +690,7 @@ int aircraftBattle_uninit(void)
         free_dfo(bullet_group[i]);
 
     aos_task_delete(&aircraftBattle_task_handle);
-    printf("aos_task_delete aircraftBattle_task\n");
+    LOGI(EDU_TAG, "aos_task_delete aircraftBattle_task\n");
     return 0;
 }
 

@@ -22,10 +22,18 @@ typedef enum {
     BLE_NETCFG_WRONG_INFO,
 }BLE_NETCFG_STATE;
 
+typedef enum {
+    BLE_NETCFG_DHCP_SUCCESS = 0,
+    BLE_NETCFG_DHCP_FAIL,
+    BLE_NETCFG_PING_SUCCESS,
+    BLE_NETCFG_PING_FAIL,
+} BLE_NETCFG_RES;
+
 typedef int (*BLE_netCfg_callck)(BLE_NETCFG_EVENT event, BLE_NETCFG_STATE state, void *event_data);
 
 BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback);
 BLE_NETCFG_STATE BLE_NetCfg_start(void);
 BLE_NETCFG_STATE BLE_NetCfg_stop(void);
+BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size);
 
 #endif

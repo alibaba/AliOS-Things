@@ -50,7 +50,7 @@ void aos_maintask(void *arg)
     aos_components_init(&kinit);
 
 #ifdef CONFIG_COM_DRV
-    _os_driver_entry();
+    //_os_driver_entry();
 #endif
 
 #ifndef AOS_BINS

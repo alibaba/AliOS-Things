@@ -90,6 +90,14 @@ READ_SD_SIZE_MAX: 1024*15
 ```
 # API说明
 
+> 在使用OSS组件之前，开发者需要从阿里云平台购买OSS服务获取，在oss_example.c中替换即可。
+```
+char AccessKey_ID[] = "Access Key ID";
+char AccessKey_Secret[] = "Access Key Secret";
+char Endpoint[] = "End point";
+char Bucket[] = "Bucket";
+```
+
 > OSS上传本地文件的API接口
 
 ```
@@ -153,7 +161,7 @@ depends:
 ```
 
 
-> helloworld_demo.c中添加网络相关部分，因为oss依赖网络的连接
+> helloworld.c中添加网络相关部分，因为oss依赖网络的连接
 
 ```
 #include <stdio.h>

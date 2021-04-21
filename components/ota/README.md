@@ -1,6 +1,8 @@
 
 @page ota ota
 
+[更正文档](https://gitee.com/alios-things/ota/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，对各种升级场景都有很好的支持。目前AliIOS Things除一般的整包升级外，现有的高阶能力有：压缩升级、差分升级及安全升级；支持的升级通道：http、https、BLE、3G/4G，NB等；复杂场景支持：网关及子设备升级，连接型模组升级非连接主设备的间接升级；完备的配套工具：差分工具、本地签名工具、ymodem辅助升级工具，多固件打包工具等；
 主要功能列表如下：
@@ -83,12 +85,9 @@ ota_service_start 开始执行升级（如从flash中读取url进行升级）
 ota_service_register_cb 注册用户升级回调函数
 
 # 使用示例
-示例代码参考solutions/ota_demo/otaappdemo.c，以运行ota_demo为例，具体步骤如下：
+示例代码参考solutions/ota_demo/otaappdemo.c，以运行ota_demo为例(更详细的使用流程请移步solutions/ota_demo/README.md)，示例主要完成如下：
 
-## 添加示例代码
-> ota_demo中solutions/ota_demo/otaappdemo.c添加示例代码
-
-示例代码主要分成3个主要部分：
+示例代码分成3个主要部分：
 1、注册ota升级的主函数
 > ota_register_cb(&ctx, OTA_CB_ID_UPGRADE, (void*)ota_upgrade_cb);
 
@@ -98,21 +97,12 @@ ota_service_register_cb 注册用户升级回调函数
 3、在ota升级主函数中调用ota_service_start执行升级
 > ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
 
-## app中添加a2sa组件
-> ota组件的package.yaml中添加
-```sh
 depends:
   - ota: dev_aos
 ```
 
-## 编译
-```sh
-aos make ota_demo@haas100 -c config
-aos make
-```
-
 ## 烧录固件
-> 参考具体板子的快速开始文档。
+> 详细参考ota_demo中的文档 solutions/ota_demo/README.md的基础固件烧录章节
 
 ## OTA示例测试
 
@@ -137,9 +127,3 @@ netmgr -t wifi -c wifi_ssid wifi_password  # 连接wifi
 [ 130.827]<E>ota download complete:0                  # ota升级完成
 [ 142.523]<E>ota Download complete, rebooting ret:0.  # ota升级完成并重启
 ```
-
-
-# FAQ
-更多问题请参考：https://blog.csdn.net/HaaSTech/article/details/111057345
-
-

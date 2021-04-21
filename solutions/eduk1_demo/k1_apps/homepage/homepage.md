@@ -61,7 +61,7 @@ LCD都需要背光，而OLED不需要，因为它是自发光的。这样同样�
 <div align=center>
     <img src="https://img.alicdn.com/imgextra/i4/O1CN01gZptiv1Bun2rnrAxi_!!6000000000006-2-tps-1052-1162.png" style="zoom:50%;" />
 </div>
-           
+ 
 
 <div align=center>
     <img src="https://img.alicdn.com/imgextra/i1/O1CN01fE0Xyc1IsgXFTHDm8_!!6000000000949-2-tps-594-388.png" style="zoom:50%;" />
@@ -72,29 +72,31 @@ LCD都需要背光，而OLED不需要，因为它是自发光的。这样同样�
 关于OLED的详细原理介绍以及使用，请参考第三章OLED部分。这里主要介绍如何使用，从原理图的得知，OLED连接的主板的SPI0，采用的是4线SPI模式。
 #### 初始化
 首先初始化SPI0,这个可以在总入口函数中找到：
-application/example/edu_demo/app_entry.c
-```basic
+solutions/eduk1_demo/app_start.c
+```c
 sh1106_init();
 ```
 sh1106_init 初始化包含了SPI0的初始化以及GPIO初始化。
-```basic
+```c
 uint8_t sh1106_init(void)
 {
-	uint8_t err_code;
-	err_code = hardware_init();
-	if (err_code != 0)
-	{
-		return err_code;
-	}
-	command_list();
-	return err_code;
+    uint8_t err_code;
+
+    err_code = hardware_init();
+    if (err_code != 0) {
+        return err_code;
+    }
+
+    command_list();
+
+    return err_code;
 }
 ```
 #### 显示部分
 代码位于solutions/eduk1_demo/k1_apps/homepage/homepage.c
 以显示版本信息为例：
-```basic
-OLED_Clear(); // 清屏函数       
+```c
+OLED_Clear(); // 清屏函数
 OLED_Show_String(40, (12 + 4) * 1, "HaaS EDU", 12, 1); / 将字符串填入显示缓存
 snprintf(image_version, 21, "VER: %s", BUILD_VERSION); // 格式化字符串
 OLED_Show_String(33, (12 + 4) * 2, image_version, 12, 1); // 将格式化后的字符串-
@@ -123,43 +125,47 @@ ADC即模拟数字转换器（英语：Analog-to-digital converter）是用于�
 1、电压检测使用的是MCU的GADC1通道。
 2、带USB供电时，检测点电压恒定为为4.8~5.2V之间，切换为电池供电时（断掉USB供电），电压浮动在3.65V~4.2V之间，此时电量标志才会有变化。
 3、因为GADC量程有限，电压检测采用分频，如原理图所示，ADC实测值约为VOLT的1/3，加上ADC内阻的损耗，实际比值为3.208。
+
 ### 软件设计
 #### 驱动初始化
-```basic
-adc_dev_t adc = {1, 1000, 0x12345678};   //初始化ADC1
-ret = hal_adc_init(&adc);
-if (ret)
-{
-  printf("\r\n=====adc test : adc init failed===\r\n");
-  return -1;
+在 AliOS Things 3.3中，对ADC的操作才用了VFS的方式，开发者只需要open相应的device设备，通过提供的到的IOCTL接口，完成start、get，stop等一系列动作。
+
+```c
+// open相应的adc设备
+snprintf(name, sizeof(name), "/dev/adc%d", index);
+fd = open(name, 0);
+// start adc 设备
+if (fd >= 0) {
+        ret = ioctl(fd, IOC_ADC_START, sampling_cycle);
+        usleep(1000);
+        adc_arg.value = 0;
+        adc_arg.timeout = 500000; // in unit of us
 }
 ```
+
 #### 获取电压值
 1、读取十次，
-2、去掉最大最小值，然后取平均
+2、去掉最大最小值，然后取平均。
 ```c
- for (int32_t i = 0; i < 10; i++)
-    {
-        hal_adc_value_get(&adc, &output, 200);
-        test_sum += output;
+    for (int32_t i = 0; i < 10; i++) {
+        ret = ioctl(fd, IOC_ADC_GET_VALUE, (unsigned long)&adc_arg);
+        test_sum += adc_arg.value;
 
         /* the min sampling voltage */
-        if (test_min >= output)
-        {
-            test_min = output;
+        if (test_min >= adc_arg.value) {
+            test_min = adc_arg.value;
         }
         /* the max sampling voltage */
-        if (test_max <= output)
-        {
-            test_max = output;
+        if (test_max <= adc_arg.value) {
+            test_max = adc_arg.value;
         }
-        osDelay(1);
     }
-
-    hal_adc_finalize(&adc);
+    usleep(1000);
+    ret = ioctl(fd, IOC_ADC_STOP, 0);
+    close(fd);
 
     test_avrg = (test_sum - test_min - test_max) >> 3;
-    //printf("\r\n=====adc test : the samping volage is:%dmv===\r\n", test_avrg);
+    LOGD(EDU_TAG, "the samping volage is:%dmv\n", test_avrg);
     test_avrg *= 3.208;
     *volage = test_avrg;
 ```
@@ -167,7 +173,6 @@ if (ret)
 实际电压值为ADC*3.208，然后根据这个值返回不同的level，主要分为五档，分别是0%，25%，50
 %，75%，100%。
 ```c
-
 
     if (test_avrg > 4100)
     {
@@ -195,7 +200,7 @@ if (ret)
 
 #### 显示图标
 显示不同单色电池图标代码如下：
-```basic
+```c
 if (0 == get_battery(&battery_level))
 {
   //printf("get_battery success %d\n", battery_level);
@@ -233,28 +238,41 @@ Wi-Fi这个名词想必大家都不陌生，就是联网的代名词。简单来
 简单网络时间协议（Simple Network Time Protocol），由NTP改编而来，主要用来同步因特网中的计算机时钟。在 RFC2030 中定义。
 SNTP协议采用客户端/服务器的工作方式，可以采用单播（点对点）或者广播（一点对多点）模式操作。SNTP服务器通过接收GPS信号或自带的原子钟作为系统的时间基准。单播模式下，SNTP客户端能够通过定期访问SNTP服务器获得准确的时间信息，用于调整客户端自身所在系统的时间，达到同步时间的目的。广播模式下，SNTP服务器周期性地发送消息给指定的IP单播地址或者IP多播地址。SNTP客户端通过监听这些地址来获得时间信息。
 ### 硬件设计
-本实验所用到的Wi-Fi模块已经包含在MCU之中，不需要额外提供。
+本实验所用到的Wi-Fiy硬件模块已经包含在MCU之中，不需要额外提供。
 ### 软件设计
 #### Wi-Fi模块
-AliOS Things中关于Wi-Fi部分已经封装到netmgr，edu_demo已经默认打开了初始化。
-代码位于application/example/edu_demo/app_entry.c
-```basic
-netmgr_init();
-netmgr_start(true);
-aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
+AliOS Things中关于Wi-Fi部分也已经封装成了netmgr组件，eduk1_demo的package.yaml已经默认包含。
+```c
+depends:
+  - netmgr: dev_aos
 ```
-netmgr_init 开启了wifi_service相关的task。其中包含Wi-Fi硬件初始化，wifi_service模块的初始化。
-netmgr_start 启动了Wi-Fi自动回连的task。
-aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);这里则是注册了wifi_event的回调函数。
+代码位于solutions/eduk1_demo/app_start.c
+```c
+event_service_init(NULL);
+
+netmgr_service_init(NULL);
+event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
+```
+event_service_init(NULL)， event_service 初始化。
+netmgr_service_init netmgr服务初始化,主要包含CLI的注册，WIFi设备创建，相关信号量以及task的初始化，Wi-Fi硬件初始化等。
+event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);这里则是注册了wifi_event的回调函数。
 #### 使用Wi-Fi
 当前可以通过代码配置或者命令行的形式配置将WI-FI名称（SSID）以及密码配置到EDU中。
-比如命令行
-```basic
+
+填入SSID以及密码
+```c
 netmgr -t wifi -c haas-open 12345678
 ```
-连接成功后，会自动保存到文件系统中。新的WIFI连接失败或者重新上电都会自动回连到该WIFI。
 
+手动保存ssid和password到文件系统中。
+```c
+netmgr -t wifi -b 1
+```
 
+重启之后，手动重新连接。
+```c
+netmgr -t wifi -a 1
+```
 #### 网络对时（SNTP）
 edu在连接网络之后，就会自动获取网络对时。并更新到本地时钟。
 

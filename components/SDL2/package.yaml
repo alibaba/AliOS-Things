@@ -17,9 +17,6 @@ license: zlib                                   # <可选项> 源代码的许可
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - rhino: dev_aos
-  - osal_aos: dev_aos
-  - cplusplus: dev_aos
   - freetype: dev_aos
   - udisplay: dev_aos
 

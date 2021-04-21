@@ -33,14 +33,7 @@ int32_t aiagent_service_init(const char *engine_name, ai_model_t model)
  */
 int32_t aiagent_service_uninit(void)
 {
-    aiagent_engine_t *eng = aiagent_get_engine();
-    if (!eng) {
-        LOGE(TAG, "aiagent get engine name fail\n");
-        return -1;
-    }
-
-    eng->ai_engine_uninit(eng);
-    return 0;
+    return aiagent_engine_uninit();
 }
 
 /*

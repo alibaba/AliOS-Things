@@ -41,7 +41,7 @@ uint8_t si7006_getVer(void)
     si7006_i2c_master_send(reg, 2, 1000);
     aos_msleep(30);
     si7006_i2c_master_recv(&version, 1, 1000);
-    //LOGI("APP", "ver:0x%2x \n",version);
+    //LOGI("SENSOR", "ver:0x%2x \n",version);
     return version;
 }
 
@@ -71,13 +71,13 @@ bool si7006_getTemperature(float *temperature)
     aos_msleep(30);
     si7006_i2c_master_recv(read_data, 2, 1000);
     value = (read_data[0] << 8) | read_data[1];
-    LOGI("APP", "%0x -- %0x -->0x%x\n", read_data[0], read_data[1], value);
+    LOGI("SENSOR", "%0x -- %0x -->0x%x\n", read_data[0], read_data[1], value);
     // A temperature measurement will always return XXXXXX00 in the LSB field.
     if (value & 0xFFFC) {
         *temperature = (175.72f * (float)value) / 65536.0f - 46.85f;
-        LOGI("APP", "temperature: %2f\n", *temperature);
+        LOGI("SENDOR", "temperature: %2f\n", *temperature);
     } else {
-        LOGI("APP", "Error on temp\n");
+        LOGE("SENDOR", "Error on temp\n");
         return 1;
     }
     return 0;
@@ -103,12 +103,12 @@ bool si7006_getHumidity(float *humidity)
 
     si7006_i2c_master_recv(read_data, 2, 1000);
     value = (read_data[0] << 8) | read_data[1];
-    LOGI("APP", "%0x -- %0x -->0x%x\n", read_data[0], read_data[1], value);
+    LOGI("SENSOR", "%0x -- %0x -->0x%x\n", read_data[0], read_data[1], value);
     if (value & 0xFFFE) {
         *humidity = ((125.0f * (float)value) / 65535.0f) - 6.0f;
-        LOGI("APP", "humidity: %f\n", *humidity);
+        LOGI("SENDOR", "humidity: %f\n", *humidity);
     } else {
-        LOGI("APP", "Error on humidity\n");
+        LOGE("SENDOR", "Error on humidity\n");
         return 1;
     }
     return 0;
@@ -126,7 +126,7 @@ void si7006_deinit(void)
 {
     int32_t ret = sensor_i2c_close(SI7006_I2C_PORT);
     if (ret) {
-        printf("sensor i2c close failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);
     }
 
     return;

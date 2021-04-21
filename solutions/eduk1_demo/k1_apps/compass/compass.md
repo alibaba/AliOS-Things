@@ -39,11 +39,11 @@
 了解一款IC最快捷和精准的方法是查阅它的DataSheet。这款IC的DataSheet可以在以下链接获取。
 [QMC5883L-Datasheet-1.0.pdf](https://nettigo.pl/attachments/440)
 ## 硬件规格
-QMC5883L是一款多芯片三轴磁传感器。旨在用于无人机，机器人，移动和个人手持设备中的指南针，导航和游戏等高精度应用。HMC5883L 采用异相磁阻（anisotropic magnetoresistance  AMR）技术，这些各向异性传感器具有在轴向高灵敏度和线性高精度的特点。传感器具有的对正交轴低灵敏度的固相结构能用于测量地球磁场的方向和大小，其测量范围从毫高斯到 8 高斯。它具有低噪声，高精度，低功耗，失调消除和温度补偿的优点。 QMC5883L可实现1°至2°的罗盘航向精度。 使用I2C串行总线简化接口。
+QMC5883L是一款多芯片三轴磁传感器。旨在用于无人机，机器人，移动和个人手持设备中的指南针，导航和游戏等高精度应用。QMC5883L 采用异相磁阻（anisotropic magnetoresistance  AMR）技术，这些各向异性传感器具有在轴向高灵敏度和线性高精度的特点。传感器具有的对正交轴低灵敏度的固相结构能用于测量地球磁场的方向和大小，其测量范围从毫高斯到 8 高斯。它具有低噪声，高精度，低功耗，失调消除和温度补偿的优点。 QMC5883L可实现1°至2°的罗盘航向精度。 使用I2C串行总线简化接口。
 更详细的硬件规格参数可以参考 DataSheet 的 2.1 Product Specifications
 ## 传感原理
 
- 
+
 <div align=center>
     <img src="https://img.alicdn.com/imgextra/i1/O1CN01yUeybI1n44rRZrsUB_!!6000000005035-2-tps-854-465.png" style="zoom:50%;" />
 </div>
@@ -64,21 +64,17 @@ QMC5883L是一款多芯片三轴磁传感器。旨在用于无人机，机器人
 ## 驱动方式
 ### 通讯接口
 由DataSheet可知，QMC5883L采用的通讯方式为I2C。默认7bit设备地址：0x0D      (DataSheet P10 5.4)
-在 AliOS Things 中，开发者只需要关心器件的设备地址即可，因为只要知道了设备地址，读写地址也可以计算出，AliOS Things 会自动处理这些计算。因此： 
+在 AliOS Things 3.3中，对I2C的操作才用了VFS的方式，开发者只需要open相应的device设备，开发者只需要关心链接到的I2C设备号，从器件的设备地址，从器件支持的I2C速率。知道了从设备地址，读写地址也可以计算出，AliOS Things 会自动处理这些计算。因此：
 I2C设备的写地址 = I2C设备地址 << 1 = 0x0D << 1 = 0x1A
 I2C设备的读地址 = (I2C设备地址 << 1) + 1 = 0x1B
 这也符合在 (DataSheet P14 I2C R/W Operation) 中给出的结论。
 如果我们需要为了QMC5883L初始化I2C接口，那么对应的代码为：
 ```c
-static i2c_dev_t i2c_dev;
-
-i2c_dev.port                 = 1;								// HaaS EDK 默认使用I2C 1
-i2c_dev.config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT;		
-i2c_dev.config.freq          = I2C_BUS_BIT_RATES_400K;			
-i2c_dev.config.mode          = I2C_MODE_MASTER;
-i2c_dev.config.dev_addr      = QMC5883L_ADDR;					// QMC5883L_ADDR 0x0D
-
- hal_i2c_init(&i2c_dev);
+int32_t ret = sensor_i2c_open(QMC5883L_I2C_PORT, QMC5883L_ADDR, I2C_BUS_BIT_RATES_100K, 0);
+if (ret) {
+    LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
+    return;
+}
 ```
 ### 寄存器地址
 一般，使用I2C通讯的器件，都是通过读写寄存器的方式来完成对设备的读取和配置，因此了解寄存器的分布就非常重要。查阅 DataSheet(from DataSheet P16 9.1 Register Map) 可以得到：
@@ -130,10 +126,10 @@ Output Data Rate 输出数据频率寄存器。
 
 模式控制寄存器。用于配置器件是否开启连续测量模式。在连续测量模式下，Data Output X Y Z 6个寄存器会连续刷新数据，只需要 从Data Output 地址处连续读取即可获得实时的测量数据。
 ### 驱动实现
-完成I2C的初始化之后，我们就可以针对QMC5883L来进行初始化。在AliOS Things中，我们已经对器件进行了部分抽象，可以在初始化时配置。
+完成I2C的初始化之后，我们就可以针对QMC5883L来进行初始化。在AliOS Things 3.3中，我们已经对器件进行了部分抽象，可以在初始化时配置。
 ```c
-// components\peripherals\sensor\drv\drv_mag_honeywell_qmc5883l.c
-// components\peripherals\sensor\include\qmc5883l.h
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.c
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.h
 
 static void _qmc5883l_init() {
     /* This assumes the wire library has been initialized. */
@@ -147,16 +143,16 @@ static void _qmc5883l_init() {
 ```
 完成配置后，驱动程序会向对应寄存器写入数据。
 ```c
-// components\peripherals\sensor\drv\drv_mag_honeywell_qmc5883l.c
-// components\peripherals\sensor\include\qmc5883l.h
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.c
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.h
 
 # define QMC5883L_CONFIG2 0x09
 # define QMC5883L_CONFIG2 0x0a
 
 static qmc5883l_write_register(uint8_t addr, uint8_t reg, uint8_t data)
 {
-  uint8_t write_buffer[2] = {reg, data};
-  hal_i2c_master_send(&i2c_dev, addr, write_buffer, 2, 1000);
+    uint8_t write_buffer[2] = {reg, data};
+    qmc5883l_i2c_master_send(write_buffer, 2, 1000);
 }
 
 static void qmc5883l_reconfig()
@@ -167,14 +163,14 @@ static void qmc5883l_reconfig()
 ```
 同理，如果需要读取寄存器，则需要先向器件写入目标读取地址，再读取器件数据。
 ```c
-// components\peripherals\sensor\drv\drv_mag_honeywell_qmc5883l.c
-// components\peripherals\sensor\include\qmc5883l.h
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.c
+// solutions/eduk1_demo/drivers/sensor/drv_mag_honeywell_qmc5883l.h
 
 uint8_t qmc5883l_read_len(uint8_t addr, uint8_t reg, uint8_t *buf, uint8_t len)
 {
-    hal_i2c_master_send(&i2c_dev, addr, &reg, 1, 1000);
+    qmc5883l_i2c_master_send(&reg, 1, 1000);
     aos_msleep(20);
-    hal_i2c_master_recv(&i2c_dev, addr, buf, len, 1000);
+    qmc5883l_i2c_master_recv(buf, len, 1000);
     return 1;
 }
 
@@ -189,9 +185,9 @@ int qmc5883l_readRaw(int16_t *x, int16_t *y, int16_t *z)
     *x = data[0] | (data[1]<<8);
     *y = data[2] | (data[3]<<8);
     *z = data[4] | (data[5]<<8);
-    
+
     printf("get org data [%d,%d,%d]\n", x, y, z);
-    
+
     return 1;
 }
 ```
@@ -275,7 +271,7 @@ int qmc5883l_readHeading()
     x_offset = (x_max + x_min) / 2.0;
     y_offset = (y_max + y_min) / 2.0;
     z_offset = (z_max + z_min) / 2.0;
-    
+
 	// 修正比例
     x_fit = (x_org - x_offset) * 1000.0 / (x_max - x_min);
     y_fit = (y_org - y_offset) * 1000.0 / (y_max - y_min);

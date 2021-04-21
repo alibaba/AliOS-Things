@@ -4,6 +4,7 @@
 
 #include "drv_baro_goertek_spl06.h"
 #include "aos/hal/i2c.h"
+#include "ulog/ulog.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -322,7 +323,7 @@ void spl06_init(void)
     uint8_t tmp, data;
     int32_t ret = sensor_i2c_open(SPL06_I2C_PORT, EEPROM_CHIP_ADDRESS, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
-        printf("sensor i2c open failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
         return;
     }
     aos_msleep(500);
@@ -407,7 +408,7 @@ void spl06_deinit(void)
 {
     int32_t ret = sensor_i2c_close(SPL06_I2C_PORT);
     if (ret) {
-        printf("sensor i2c close failed, ret:%d\n", ret);
+        LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);
         return;
     }
 }

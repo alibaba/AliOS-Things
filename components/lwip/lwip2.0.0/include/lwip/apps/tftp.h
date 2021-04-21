@@ -112,6 +112,7 @@ void  tftp_server_stop(void);
 int   tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfname,
                       tftp_context_t *ctx, tftp_done_cb cb);
 void  tftp_client_set_server_port(uint16_t port);
+void  tftp_client_set_binary_mode(uint8_t binary_mode);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,9 @@
-@page aos_kernel 内核 
+@page aos_kernel 内核编程
+
+[更正文档](https://gitee.com/alios-things/osal_aos/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
+# 概述
+
 AliOS Things是一款支持单处理器上运行多个任务的实时操作系统。操作系统内核只包含用来控制系统资源和处理器对资源的使用的基础功能，来支持系统服务和上层应用的构建和开发。
 AliOS Things操作系统内核特性如下：
 
@@ -15,7 +20,7 @@ AliOS Things操作系统内核特性如下：
 > Apache license v2.0
 
 ## 目录结构
-```c
+```tree
 ├── include
 │   ├── aos
 │       └── compiler.h	  # 编译相关的宏定义文件
@@ -41,6 +46,7 @@ AliOS Things操作系统内核特性如下：
 ## 依赖组件
 
 - rhino
+
 # 任务管理
 ## 概述
 任务可以认为是一段独享CPU的运行程序，而应用是完成特定功能的多个任务的集合。任务管理就是为多任务环境中的每个任务分配一个上下文（context）（上下文（context）是指当任务被调度执行的所必不可少的一组数据，包括前任务的CPU指令地址（PC指针），当前任务的栈空间，当前任务的CPU寄存器状态等），在任务相继执行过程中，将切出任务的信息保存在任务上下文中，将切入任务的上下文信息恢复，使其得以执行。为维护任务上下文、状态、栈等相关信息，操作系统内核为每个任务定义了一组数据结构，即任务控制块（Task Control Block），来存放这些信息。
@@ -50,7 +56,7 @@ AliOS Things操作系统内核特性如下：
 任务状态是反映当前系统中任务所处的状况，操作系统内核需要维护所有任务的当前状态。AliOS Things为了充分描述任务在系统中所处的状态以及引发状态迁移的条件差异，将任务状态分为就绪状态、挂起状态、休眠状态、阻塞状态、运行状态和删除状态。当任务通过aos_task_create()创建时，任务处于挂起状态，当任务通过aos_task_del()删除时，任务处于删除状态，具体的转化过程如下图：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01LHAt211Dqmoi53SlY_!!6000000000268-2-tps-684-451.png" style="max-width:90%;"/>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01LHAt211Dqmoi53SlY_!!6000000000268-2-tps-684-451.png" style="max-width:800px;"/>
 </div>
 
 （1）阻塞状态是指因等待资源而处于等待状态，如调用aos_mutex_lock()获取互斥量时互斥量已经被锁定、调用aos_queue_recv()获取队列数据时队列为空、调用aos_sem_wait()等待信号量时信号量计数为0、调用aos_evnet_get()获取事件时，事件还未发生；
@@ -107,7 +113,7 @@ AliOS Things操作系统内核提供了任务创建、任务删除、任务延�
 ## 常用配置
 > 任务优先级最大值: 默认62, 最大不能超过256，如需修改，在yaml中修改RHINO_CONFIG_PRI_MAX配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_PRI_MAX: 127
 ```
@@ -115,7 +121,7 @@ def_config:
 
 > 任务栈溢出检测: 默认关闭, 如需修改，在yaml中修改RHINO_CONFIG_TASK_STACK_OVF_CHECK配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TASK_STACK_OVF_CHECK: 1
 ```
@@ -123,7 +129,7 @@ def_config:
 
 > 空闲任务栈大小: 默认100Bytes, 如需修改，在yaml中修改RHINO_CONFIG_IDLE_TASK_STACK_SIZE配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_IDLE_TASK_STACK_SIZE: 1024
 ```
@@ -131,7 +137,7 @@ def_config:
 
 > 时间片轮转调度策略: 默认使能, 如需修改，在yaml中修改RHINO_CONFIG_SCHED_RR配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_SCHED_RR: 0
 ```
@@ -139,14 +145,17 @@ def_config:
 
 > 完全公平调度策略: 默认关闭, 如需修改，在yaml中修改RHINO_CONFIG_SCHED_CFS配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_SCHED_CFS: 1
 ```
 ## API说明
-参见：@ref aos_kernel_task
+
+- 参考 [aos_kernel_task](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__task.html)
+
 ## 使用示例
-示例代码参考example/task_example.c，该示例使用任务管理函数来控制任务的执行状态，具体场景为任务2因等待某个信号量进入阻塞状态，而此时被任务1将其挂起，则任务2仍然是处于阻塞状态，如果在此过程中等到信号量，则任务2会解除阻塞进入挂起状态；如果未等到信号量，则任务2恢复状态后仍然处于阻塞状态。
+
+示例代码参考[example/task_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/task_example.c)，该示例使用任务管理函数来控制任务的执行状态，具体场景为任务2因等待某个信号量进入阻塞状态，而此时被任务1将其挂起，则任务2仍然是处于阻塞状态，如果在此过程中等到信号量，则任务2会解除阻塞进入挂起状态；如果未等到信号量，则任务2恢复状态后仍然处于阻塞状态。
 示例说明如下：
 
 1. 在t0时刻，任务task1、task2是通过aos_task_create()函数调用被创建，之后task1进入就绪状态，而task2处于挂起状态。
@@ -156,14 +165,48 @@ def_config:
 1. Task1在t4时刻因延迟到期得到运行，并调用aos_sem_signal()释放信号量，这时task2因等到信号量而进入就绪状态。待到task1再次进入休眠转改后task2得到运行，进入运行状态。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01WaKfUM1fXNGrOho4q_!!6000000004016-2-tps-859-291.png" style="max-width:90%;"/>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01WaKfUM1fXNGrOho4q_!!6000000004016-2-tps-859-291.png" style="max-width:800px;"/>
 </div>
 
-该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+该示例可配置到helloworld_demo案例中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-```c
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+> 案例下载完成后，需要在helloworld_demo的package.yaml中添加
+
+```yaml
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -171,30 +214,32 @@ source_file:
   - "*.c"
   - "example/task_example.c" # 添加 task_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤5 编译固件
 
-### 执行示例
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+### 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
+
 > CLI命令行输入：
 
-```c
+```shell
 task_example
 ```
-### 关键日志
-> CLI日志：
 
-```sh
+> 关键日志：
+
+```shell
 [aos_task_example]task1 is running!
 [aos_task_example]task1 resume task2!
 [aos_task_example]task1 start to sleep and release CPU!
@@ -213,6 +258,7 @@ task_example
 
 - 时间片轮转调度也是基于优先级策略的，如果有一个高优先级任务就绪了，无论当前任务的时间片是否用完，处理器都会立即去执行高优先级任务，当被打断的任务恢复执行时，它将继续执行剩下的时间片。
 - tasklist查看运行任务的状态标识符为RDY，内核并没有为运行状态定义特定的标识符。
+
 ## FAQ
 
 - Q1： 如何避免栈溢出？
@@ -222,6 +268,7 @@ task_example
 - Q2： aos_task_yield()和aos_task_suspend()都能够使任务退出运行状态，使用上有什么差异吗？
 
 答：aos_task_yield()仅仅是让出CPU，它仍然处于就绪状态，因为该操作只是将任务放置到就绪队列的队              尾，若无更高优先级任务在就绪队列中，它就可以被调度执行。而aos_task_suspend()是将任务挂起停              止运行，任务会从就绪队列中去除，只有当任务被其他任务调用aos_task_resume()才能恢复。
+
 # 软件定时器
 ## 概述
 AliOS Things操作系统内核使用tick作为时间片轮转调度以及延迟操作的时间度量单位，tick是实现定时触发功能的基础。tick计数发生在每次时钟中断处理的过程，时钟中断是定时产生的，系统在默认情况下为1ms触发一次，即一个tick代表1ms，用户可根据应用需要调整该时间。
@@ -250,50 +297,50 @@ AliOS Things操作系统内核使用tick作为时间片轮转调度以及延迟�
 ## 常用配置
 > 软件定时器功能: 默认使能，如需修改，在yaml中修改RHINO_CONFIG_TIMER配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TIMER: 0
 ```
 
 
 软件定时器任务栈: 默认200Bytes，如需修改，在yaml中修改RHINO_CONFIG_TIMER_TASK_STACK_SIZE配置
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TIMER_TASK_STACK_SIZE: 512
 ```
 
 
 软件定时器任务优先级: 默认5，如需修改，在yaml中修改RHINO_CONFIG_TIMER_TASK_PRI配置
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TIMER_TASK_PRI: 5
 ```
 
 
 定时器消息队列消息数: 默认20，如需修改，在yaml中修改RHINO_CONFIG_TIMER_MSG_NUM配置
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TIMER_MSG_NUM: 24
 ```
 
 
 每秒tick数: 默认100，如需修改，在yaml中修改RHINO_CONFIG_TICKS_PER_SECOND配置
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TICKS_PER_SECOND: 1000
 ```
 
 
 时间片: 默认50个tick，如需修改，在yaml中修改RHINO_CONFIG_TIME_SLICE_DEFAULT配置
-```c
+```yaml
 def_config:
   RHINO_CONFIG_TIME_SLICE_DEFAULT: 100
 ```
 ## API说明
-参见：@ref aos_kernel_timer
+- 参考 [aos_kernel_timer](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__timer.html)
 ## 使用示例
 
-- 示例代码参考example/timer_example.c，该示例使用定时器管理函数来控制定时器的执行，具体场景为创建一个周期性定时器，定时调用回调函数执行，停止定时器该变定时器的时间参数，则定时器按照修改后的时间间隔定时调用回调函数执行。
+- 示例代码参考[example/timer_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/timer_example.c)，该示例使用定时器管理函数来控制定时器的执行，具体场景为创建一个周期性定时器，定时调用回调函数执行，停止定时器该变定时器的时间参数，则定时器按照修改后的时间间隔定时调用回调函数执行。
 - 示例说明如下：
 1. t0时刻，测试任务调用aos_timer_create()创建一个周期性的定时器，周期间隔为1秒，回调函数为timer1_func。然后测试任务调用aos_sleep()进入休眠状态。
 1. t1时刻，相对t0过去1秒，定时器到期，回调函数timer1_func被执行。该过程重复10次。
@@ -301,14 +348,46 @@ def_config:
 1. tn+1时刻，相对tn过去2秒，定时器到期，回调函数timer1_func被执行。该过程重复5次。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01eCw5Hz1JIKiZdxYMI_!!6000000001005-2-tps-689-192.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01eCw5Hz1JIKiZdxYMI_!!6000000001005-2-tps-689-192.png"  style="max-width:800px;" />
 </div>
 
-- 该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+- 该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-```c
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+> helloworld_demo组件的package.yaml中添加
+
+```yaml
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -316,36 +395,31 @@ source_file:
   - "*.c"
   - "example/timer_example.c" # 添加 timer_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
+### 步骤5 编译固件
 
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤6 烧录固件
 
-### 执行示例
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
-```c
+```shell
 timer_example
 ```
-### 关键日志
-> CLI日志：
 
-```sh
+> 关键日志：
+
+```shell
 [aos_timer_example]timer expires 10 times
 [aos_timer_example]timer expires 5 times
 ```
@@ -375,7 +449,7 @@ AliOS Things内存管理采用类buddy伙伴算法，以及blk快速小内存申
 - buddy算法：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01N1qqmG1md3UkY5gRB_!!6000000004976-2-tps-841-393.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01N1qqmG1md3UkY5gRB_!!6000000004976-2-tps-841-393.png"  style="max-width:800px;" />
 </div>
 
 Buddy算法申请的内存最小为8字节对齐
@@ -397,7 +471,7 @@ Buddy算法申请的内存最小为8字节对齐
 - blk小内存快速申请：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01mHjJZ11viOeeBd76S_!!6000000006206-2-tps-835-477.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01mHjJZ11viOeeBd76S_!!6000000006206-2-tps-835-477.png"  style="max-width:800px;" />
 </div>
 
 blk小内存算法申请的内存最小为4字节对齐
@@ -414,21 +488,21 @@ blk小内存算法申请的内存最小为4字节对齐
 内存的常用配置都在各个单板的k_config.h中，如果不需修改，则会使用k_default_config.h里面的默认配置。当然由于其本身是宏定义，也可在board对应的yaml中定义。
 > 打开关闭内存模块功能
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_TLF: 1
 ```
 
 
 打开关闭buddy内存模块的维测功能
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_DEBUG: 1
 ```
 
 
 内存维测打开时，记录内存申请时的多少级调用栈
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_TRACE_LVL: 8
 ```
@@ -436,28 +510,28 @@ def_config:
 
 Buddy算法最大支持申请的内存大小bit位
 实际大小换算为 1ul << RHINO_CONFIG_MM_MAXMSIZEBIT
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_MAXMSIZEBIT: 28
 ```
 
 
 打开关闭固定长度小内存块快速申请
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_BLK: 1
 ```
 
 
 固定长度小内存块总空间大小（byte）
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_TLF_BLK_SIZE: 8192
 ```
 
 
 设定从blk小内存申请的阈值（byte）即 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MM_BLK_SIZE: 256
 ```
@@ -465,13 +539,49 @@ def_config:
 
 注: blk目前最大支持1K以下的小内存块如果需要调整可修改内部配置 MM_BLK_SLICE_BIT一般无需修改
 ## API说明
-参见：@ref aos_kernel_memory
+
+- 参考 [aos_kernel_memory](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__memory.html)
+
 ## 使用示例
-该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
+
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+> helloworld_demo组件的package.yaml中添加
 
 ```c
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -479,30 +589,31 @@ source_file:
   - "*.c"
   - "example/mem_example.c" # 添加 mem_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤5 编译固件
 
-### 执行示例
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+### 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
-```c
+```shell
 mem_example
 ```
-### 关键日志
-> CLI日志：
 
-```c
+> 关键日志：
+
+```shell
 [aos_mem_example]aos_malloc success!
 [aos_mem_example]aos_zalloc success!
 [aos_mem_example]aos_calloc success!
@@ -544,31 +655,64 @@ mem_example
 ## 常用配置
 > 软件定时器功能: 默认使能，如需修改，在yaml中修改RHINO_CONFIG_SEM配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_SEM: 0
 ```
 
 
 ## API说明
-参见：@ref aos_kernel_sem
+- 参考 [aos_kernel_sem](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__sem.html)
 ## 使用示例
 
-- 示例代码参考example/sem_example.c，该示例使用信号量实现多任务同步，具体场景为创建一个高优先级任务A，一个低优先级任务B，任务A和任务B同时等待同一信号量，此时测试任务T调用aos_sem_signal()释放信号量，任务A首先获得信号量，任务A操作完成后释放一次信号量，此时任务B获取信号量得到运行。
+- 示例代码参考[example/sem_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/sem_example.c)，该示例使用信号量实现多任务同步，具体场景为创建一个高优先级任务A，一个低优先级任务B，任务A和任务B同时等待同一信号量，此时测试任务T调用aos_sem_signal()释放信号量，任务A首先获得信号量，任务A操作完成后释放一次信号量，此时任务B获取信号量得到运行。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_sem_create()创建一信号量，初始计数值为0。任务T然后调用aos_task_create()创建任务A和任务B，任务A优先级为30，任务B优先级为31。任务A和任务B运行后因等待信号量而阻塞。
 1. t1时刻，任务T调用aos_sem_signal()释放信号量，任务A获得信号量。
 1. t2时刻，任务A调用aos_sem_signal()释放信号量，任务B获得信号量。
 
 <div align=left display=flex>
-    <img src="hhttps://img.alicdn.com/imgextra/i3/O1CN01NW351a1hXUbVEKizH_!!6000000004287-2-tps-516-261.png"  style="max-width:90%;" />
+    <img src="hhttps://img.alicdn.com/imgextra/i3/O1CN01NW351a1hXUbVEKizH_!!6000000004287-2-tps-516-261.png"  style="max-width:800px;" />
 </div>
 
-- 该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+- 该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-```c
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -576,34 +720,27 @@ source_file:
   - "*.c"
   - "example/sem_example.c" # 添加 sem_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
+### 步骤5 编译固件
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
+### 步骤6 烧录固件
 
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
-### 执行示例
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
-```c
+```shell
 sem_example
 ```
-### 关键日志
-> CLI日志：
+> 关键日志：
 
 ```sh
 [aos_sem_example][0x34035840]field1=1449208480, field2=1449208480, field3=1449208480, field4=1449208480
@@ -634,7 +771,7 @@ sem_example
 优先级反转是一种不希望发生的任务调度状态，该状态下，一个高优先级任务间接的被一个低优先级任务所抢占，使得两个任务的相对优先级反转了。当高、中、低三个优先级任务同时访问使用信号量互斥资源时，可能会引起优先级反转。当高优先级的任务需要的信号量被低优先级任务占用时，处理器资源会调度给低优先级任务。此时如果低优先级需要获取的另一个信号量被中优先级的pend任务所占用，那么低优先级的任务则需要等待中优先级的任务事件到来，并释放信号量，则就出现了 高、中优先级的任务并不是等待一个信号量，但是中优先级任务先运行的现象。如下图：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01zD7nbO1kzNZGRDjRR_!!6000000004754-2-tps-410-240.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01zD7nbO1kzNZGRDjRR_!!6000000004754-2-tps-410-240.png"  style="max-width:800px;" />
 </div>
 
 任务H具有高优先级，任务M具有中等优先级，任务L具有低优先级，在t0时刻任务H还未运行，任务M因等待信号量2而阻塞，低优先级任务L得到调度占用信号量1；t1时刻，任务H运行并抢占任务L，任务L占用信号量还未释放；t2时刻，任务H阻塞于信号量1，任务L得以继续运行；t3时刻，任务L等待信号量2而阻塞，t4时刻，信号量2被释放，任务M得到运行，此时任务H虽然具有高优先级，但需先等待任务M释放信号量2让任务L运行，并且任务L释放信号量1后才能运行，这种情况即出现了优先级反转。
@@ -642,7 +779,7 @@ sem_example
 互斥量可以解决优先级反转问题，高优先级的任务获取互斥量时，如果该互斥量被某低优先级的任务占用， 会动态提升该低优先级任务的优先级等于高优先级，并且将该优先级值依次传递给该低优先级任务依赖的互斥量关联的任务，以此递归下去。当某任务释放互斥量时，会查找该任务的基础优先级，以及获取到的互斥量所阻塞的最高优先级的任务的优先级，取两者中高的优先级来重新设定此任务的优先级。总的原则就是，高优先级任务被互斥量阻塞时，会将占用该互斥量的低优先级任务临时提高；互斥量释放时，相应任务的优先级需要恢复。如下图：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN0131uJpc1veH5gWvL3g_!!6000000006197-2-tps-481-250.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN0131uJpc1veH5gWvL3g_!!6000000006197-2-tps-481-250.png"  style="max-width:800px;" />
 </div>
 
 任务H具有高优先级，任务M具有中等优先级，任务L具有低优先级，在t0时刻任务H还未运行，任务M获取互斥量2而阻塞，低优先级任务L得到调度获得互斥量1；t1时刻taskH抢占taskL，但因无法获得互斥量1而阻塞，此时taskL的优先级被提升至与taskH一样高，并继续运行；t2时刻taskL因无法获得互斥量2而阻塞，t3时刻互斥量2被释放，taskL因比taskM优先级高获得互斥量2得到运行；在t4时刻，taskL释放互斥量1，并将优先级恢复到之前状态，taskH因获得互斥量1得到运行，该机制消除了优先级反转的发生。
@@ -661,17 +798,17 @@ sem_example
 ## 常用配置
 > 互斥量优先级继承: 默认关闭，如需修改，在yaml中修改RHINO_CONFIG_MUTEX_INHERIT配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_MUTEX_INHERIT: 1
 ```
 
 
 ## API说明
-参见：@ref aos_kernel_mutex
+- 参考 [aos_kernel_mutex](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__mutex.html)
 ## 使用示例
 
-- 示例代码参考example/mutex_example.c，该示例使用互斥量实现共享资源的互斥访问，具体场景为创建任务A和认为B，以及一互斥量。任务A和任务B使用互斥量同时访问共享数据区，访问共享数据区时使用互斥量做保护。
+- 示例代码参考[example/mutex_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/mutex_example.c)，该示例使用互斥量实现共享资源的互斥访问，具体场景为创建任务A和认为B，以及一互斥量。任务A和任务B使用互斥量同时访问共享数据区，访问共享数据区时使用互斥量做保护。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_mutex_create()创建一互斥量。任务T然后调用aos_task_create()创建任务A和任务B。任务A得到运行，并获取互斥量对数据区record_status进行读写操作。
 1. t1时刻，任务A因时间片耗尽，让出CPU，任务B得到运行。
@@ -679,14 +816,48 @@ def_config:
 1. t3时刻，任务A对数据区record_status的操作完成，释放互斥量，任务B获得互斥量开始对数据区record_status进行读写操作。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01UKTCDa1kGx9OVO9Yi_!!6000000004657-2-tps-409-251.png"  style="max-width:90%;"/>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01UKTCDa1kGx9OVO9Yi_!!6000000004657-2-tps-409-251.png"  style="max-width:800px;"/>
 </div>
 
-- 该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+- 该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-```c
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -694,28 +865,29 @@ source_file:
   - "*.c"
   - "example/mutex_example.c" # 添加 mutex_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤5 编译固件
 
-### 执行示例
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+### 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
 ```c
 mutex_example
 ```
-### 关键日志
-> CLI日志：
+
+> 关键日志：
 
 ```sh
 [aos_mutex_example][0x34035d80]field1=1709388289, field2=1709388289, field3=1709388289, field4=1709388289
@@ -763,31 +935,65 @@ Q1： 调用aos_mutex_lock()接口无限期的获取互斥量，timeout参数怎
 ## 常用配置
 > 事件功能: 默认使能，如需修改，在yaml中修改RHINO_CONFIG_EVENT_FLAG配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_EVENT_FLAG: 0
 ```
 
 
 ## API说明
-参见：@ref aos_kernel_event
+
+- 参考 [aos_kernel_event](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__event.html)
 ## 使用示例
 
-- 示例代码参考example/event_example.c，该示例使用事件机制实现任务间同步，具体场景为创建任务A和认为B，以及一事件。任务A以“与”的方式等待事件1和事件2；任务B以“或”的方式等待事件1和事件2。测试任务T设置事件1，则任务B因获取事件得到运行，之后测试任务T设置事件2，则任务A因等到全部事件而得到运行。
+- 示例代码参考[example/event_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/event_example.c)，该示例使用事件机制实现任务间同步，具体场景为创建任务A和认为B，以及一事件。任务A以“与”的方式等待事件1和事件2；任务B以“或”的方式等待事件1和事件2。测试任务T设置事件1，则任务B因获取事件得到运行，之后测试任务T设置事件2，则任务A因等到全部事件而得到运行。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_event_create()创建一事件。任务T然后调用aos_task_create()创建任务A和任务B。任务A调用aos_event_get()以RHINO_AND为选项参数等待事件1和事件2的发生；任务B调用aos_event_get()以RHINO_OR为选项参数等待事件1或事件2的发生。
 1. t1时刻，任务T调用aos_event_get()设置事件1，任务B因等到事件1得到运行。
 1. t2时刻，任务T调用aos_event_get()设置事件2，任务A因等到了所有事件1和2而得到运行。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01F9Ij8h1vWwkllyh25_!!6000000006181-2-tps-430-250.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01F9Ij8h1vWwkllyh25_!!6000000006181-2-tps-430-250.png"  style="max-width:800px;" />
 </div>
 
-- 该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+- 该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
+
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 
 ```c
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -795,28 +1001,28 @@ source_file:
   - "*.c"
   - "example/evnet_example.c" # 添加 evnet_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤5 编译固件
 
-### 执行示例
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+### 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
-```c
+```sh
 event_example
 ```
-### 关键日志
-> CLI日志：
+> 关键日志：
 
 ```sh
 [aos_event_example]set event 1!
@@ -850,17 +1056,19 @@ Q1： 调用aos_event_get()接口无限期的等待事件，timeout参数怎么�
 ## 常用配置
 > 消息队列功能: 默认使能，如需修改，在yaml中修改RHINO_CONFIG_BUF_QUEUE配置
 
-```c
+```yaml
 def_config:
   RHINO_CONFIG_BUF_QUEUE: 0
 ```
 
 
 ## API说明
-参见：@ref aos_kernel_queue
+
+- 参考 [aos_kernel_queue](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__queue.html)
+
 ## 使用示例
 
-- 示例代码参考example/queue_example.c，该示例使用消息队列实现任务间数据同步，具体场景为创建任务A和认为B，以及一消息队列。任务A作为生产者循环向消息队列发送消息，任务B作为消费者循环从消息队列接收消息，一般情况下，消费者处理数据是要花费很长时间，所以会导致消息产生的速度大于消息处理的速度，使得消息队列溢出。所以可以通过调整任务B优先级大于任务A来避免这种情况，或者使用信号量来控制数据收发同步。
+- 示例代码参考[example/queue_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/queue_example.c)，该示例使用消息队列实现任务间数据同步，具体场景为创建任务A和认为B，以及一消息队列。任务A作为生产者循环向消息队列发送消息，任务B作为消费者循环从消息队列接收消息，一般情况下，消费者处理数据是要花费很长时间，所以会导致消息产生的速度大于消息处理的速度，使得消息队列溢出。所以可以通过调整任务B优先级大于任务A来避免这种情况，或者使用信号量来控制数据收发同步。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_queue_new()创建一互斥量。任务T然后调用aos_task_create()创建任务A和任务B，任务A优先级设置为31，任务B优先级设置为30。任务B因消息队列无消息而阻塞，任务A得到运行向消息队列发送消息。
 1. t1时刻，任务B因从消息队列读取到消息而解除阻塞，任务B对消息进行处理后继续等待新的消息到来。
@@ -868,14 +1076,48 @@ def_config:
 1. t3时刻，重复t1时刻的操作。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01VjMeUN1XLuQimsUEW_!!6000000002908-2-tps-438-190.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01VjMeUN1XLuQimsUEW_!!6000000002908-2-tps-438-190.png"  style="max-width:800px;" />
 </div>
 
-- 该示例可配置到helloworld_demo中运行，具体步骤如下：
-### 添加示例
-> osal_aos组件的package.yaml中添加example
+- 该示例可配置到helloworld_demo中运行，相关代码的下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-```c
+### 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+### 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+depends:
+  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+```
+
+### 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install osal_aos
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
+
+### 步骤4 添加示例
+
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+
+```yaml
 depends:
   - rhino: dev_aos
   - cli: dev_aos # 添加cli依赖
@@ -883,30 +1125,31 @@ source_file:
   - "*.c"
   - "example/queue_example.c" # 添加 queue_example.c
 ```
-### 添加组件
-> helloworld_demo组件的package.yaml中添加
 
-```c
-depends:
-  - osal_aos: master # helloworld_demo中引入osal_aos组件
-```
-### 编译链接
-```sh
-cd solutions/helloworld_demo && aos make
-```
-### 烧录固件
-> 参考具体板子的快速开始文档。
+### 步骤5 编译固件
 
-### 执行示例
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+### 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+### 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+### 步骤8 测试示例
 > CLI命令行输入：
 
-```c
+```shell
 queue_example
 ```
-### 关键日志
-> CLI日志：
 
-```sh
+> 关键日志：
+
+```shell
 [aos_queue_example]10 recv message : 3456789012
 [aos_queue_example]10 recv message : 4567890123
 [aos_queue_example]10 recv message : 5678901234

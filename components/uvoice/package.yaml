@@ -57,6 +57,8 @@ build_config:
     - application/alicloudtts/include ? <ALICLOUD_TTS_SUPPORT>
   include:
     - include
+    - internal
+    - application/alicloudtts/include
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -113,6 +115,7 @@ def_config:                              # 组件的可配置项
    DECODER_PV_MP3_ENABLE: 1
    DECODER_PV_M4A_ENABLE: 1 
    ALICLOUD_TTS_SUPPORT: 1
+   UVOICE_TTS_ENABLE: 1
 
 
 ## 第六部分：安装信息

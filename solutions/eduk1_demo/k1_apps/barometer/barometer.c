@@ -20,14 +20,14 @@ static aos_task_t barometer_task_handle;
 
 int barometer_init(void)
 {
-    printf("spl06_init begin\n");
+    LOGI(EDU_TAG, "spl06_init begin\n");
     spl06_init();
-    printf("spl06_init done\n");
+    LOGI(EDU_TAG, "spl06_init done\n");
 
     spl06_getdata(&spl06_data);
 
     aos_task_new_ext(&barometer_task_handle, "barometer_task", barometer_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new barometer_task\n");
+    LOGI(EDU_TAG, "aos_task_new barometer_task\n");
     return 0;
 }
 
@@ -38,22 +38,22 @@ void barometer_task()
 
         OLED_Icon_Draw(14, 4, &icon_atmp_16_16, 0);
         sprintf(pressure_str, " %-10.3lfkPa", spl06_data.pressure / 10);
-        printf("%s\n", pressure_str);
+        LOGD(EDU_TAG, "%s\n", pressure_str);
         OLED_Show_String(32, 6, pressure_str, 12, 1);
 
         OLED_Icon_Draw(14, 23, &icon_asl_16_16, 0);
         sprintf(altitude_str, " %-12.2lfm", spl06_data.altitude);
-        printf("%s\n", altitude_str);
+        LOGD(EDU_TAG, "%s\n", altitude_str);
         OLED_Show_String(32, 25, altitude_str, 12, 1);
 
         OLED_Icon_Draw(14, 44, &icon_tempC_16_16, 0);
         sprintf(Ctemp_str, "%-5.2lf", spl06_data.Ctemp);
-        printf("%s\n", Ctemp_str);
+        LOGD(EDU_TAG, "%s\n", Ctemp_str);
         OLED_Show_String(30, 46, Ctemp_str, 12, 1);
 
         OLED_Icon_Draw(66, 44, &icon_tempF_16_16, 0);
         sprintf(Ftemp_str, "%-5.2lf", spl06_data.Ftemp);
-        printf("%s\n", Ftemp_str);
+        LOGD(EDU_TAG, "%s\n", Ftemp_str);
         OLED_Show_String(82, 46, Ftemp_str, 12, 1);
 
         OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
@@ -78,7 +78,7 @@ int barometer_uninit(void)
     }
 
     aos_task_delete(&barometer_task_handle);
-    printf("aos_task_delete barometer_task\n");
+    LOGI(EDU_TAG, "aos_task_delete barometer_task\n");
 
     spl06_deinit();
 

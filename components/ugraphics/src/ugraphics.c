@@ -8,7 +8,7 @@
 SDL_Window *window;
 SDL_Renderer *renderer;
 
-TTF_Font *font;
+TTF_Font *font = NULL;
 struct { char *string; SDL_Texture *texture; } text[MAX_TEXT];
 struct { char *file; SDL_Texture *texture; } image[MAX_IMAGE];
 

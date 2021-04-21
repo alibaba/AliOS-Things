@@ -40,7 +40,7 @@ int erasePerson(char *imageUrl, char *userMaskUrl, AIModelCBFunc cb)
     url = outcome.result().getData().imageUrl;
 
     if (url.size() > 0) {
-        result.person.url = url.c_str();
+        result.person.url = (char *)url.c_str();
         result.person.imageLen = getResponseBodyByUrl(result.person.url, &result.person.image);
 
         if (result.person.image && cb) {
