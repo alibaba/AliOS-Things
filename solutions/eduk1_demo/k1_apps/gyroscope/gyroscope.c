@@ -40,11 +40,11 @@ line_t line_list[] = {
 
 int gyroscope_init(void)
 {
-    printf("MPU_Init start\n");
+    LOGI(EDU_TAG, "MPU_Init start\n");
     MPU_Init();
-    printf("MPU_Init done\n");
+    LOGI(EDU_TAG, "MPU_Init done\n");
     aos_task_new_ext(&gyroscope_task_handle, "gyroscope_task", gyroscope_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
-    printf("aos_task_new gyroscope_task\n");
+    LOGI(EDU_TAG, "aos_task_new gyroscope_task\n");
     return 0;
 }
 
@@ -71,10 +71,10 @@ int gyroscope_uninit(void)
     while (!running) {
         aos_msleep(50);
     }
-    printf("MPU_Deinit start\n");
+    LOGI(EDU_TAG, "MPU_Deinit start\n");
     MPU_Deinit();
-    printf("MPU_Deinit done\n");
+    LOGI(EDU_TAG, "MPU_Deinit done\n");
     aos_task_delete(&gyroscope_task_handle);
-    printf("aos_task_delete gyroscope_task\n");
+    LOGI(EDU_TAG, "aos_task_delete gyroscope_task\n");
     return 0;
 }

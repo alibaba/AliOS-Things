@@ -43,7 +43,7 @@ MPU-6050具有三个用于将陀螺仪输出数字化的16位模数转换器（A
 ## 传感原理
 陀螺仪由1850年法国物理学家莱昂·傅科在研究地球自传中获得灵感而发明出来的，类似像是把一个高速旋转的陀螺放到一个万向支架上，靠陀螺的方向来计算角速度，和现在小巧的芯片造型大相径庭。
 
-|  | 
+|  |
  |
 | --- | --- |
 | 早期的机械陀螺仪[1]              | 目前常见的电子陀螺仪 |
@@ -65,19 +65,16 @@ MPU-6050具有三个用于将陀螺仪输出数字化的16位模数转换器（A
 ## 驱动方式
 ### 通讯接口
 由DataSheet可知，MPU-6050采用的通讯方式为I2C。默认7bit设备地址：0x69 (DataSheet P33 9.2)
-在 AliOS Things 中，开发者只需要关心器件的设备地址即可，因为只要知道了设备地址，读写地址也可以计算出，AliOS Things 会自动处理这些计算。如果我们需要为了 MPU-6050 初始化I2C接口，那么对应的代码为：
+在 AliOS Things 3.3中，I2C操作方式采用VFS的方式，开发者只需要关心器件的设备地址即可，因为只要知道了设备地址，读写地址也可以计算出，AliOS Things 会自动处理这些计算。如果我们需要为了 MPU-6050 初始化I2C接口，那么对应的代码为：
 ```c
-// components\peripherals\sensor\drv\drv_mag_honeywell_qmc5883l.c
+// solutions/eduk1_demo/drivers/sensor/drv_acc_gyro_inv_mpu6050.c
 
-static i2c_dev_t i2c_dev;
-
-i2c_dev.port                 = 1;								// HaaS EDK 默认使用I2C 1
-i2c_dev.config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT;		
-i2c_dev.config.freq          = I2C_BUS_BIT_RATES_400K;			
-i2c_dev.config.mode          = I2C_MODE_MASTER;
-i2c_dev.config.dev_addr      = MPU_ADDR;						// MPU_ADDR 0X69
-
- hal_i2c_init(&i2c_dev);
+// 初始化I2C
+int32_t ret = sensor_i2c_open (MPU_I2C_PORT, MPU_ADDR, I2C_BUS_BIT_RATES_100K, 0);
+if (ret) {
+    LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
+    return -EIO;
+}
 ```
 ### 寄存器
 一般，使用I2C通讯的器件，都是通过读写寄存器的方式来完成对设备的读取和配置，因此了解寄存器的分布就非常重要。由于 MPU-6050 的寄存器数量较多，建议读者们查阅 Regsiter Map 文档来获取这些信息。我们进列出部分较为关键的寄存器。
@@ -86,61 +83,41 @@ i2c_dev.config.dev_addr      = MPU_ADDR;						// MPU_ADDR 0X69
     <img src="https://img.alicdn.com/imgextra/i3/O1CN019KZFs71fzJQikctwK_!!6000000004077-2-tps-1946-812.png" style="zoom:50%;" />
 </div>
 
-0x3B-0x40 三轴加速度寄存器     每轴数据2Byte  
+0x3B-0x40 三轴加速度寄存器     每轴数据2Byte
 0x41-0x42 温度寄存器               2Byte
-0x43-0x48 三轴陀螺仪寄存器     每轴数据2Byte  
+0x43-0x48 三轴陀螺仪寄存器     每轴数据2Byte
 ### 驱动实现
-#### uint8_t MPU_Init(void) 
+#### uint8_t MPU_Init(void)
 器件初始化。
 ```c
-// components/peripherals/sensor/drv/drv_acc_gyro_inv_mpu6050.c
+// solutions/eduk1_demo/drivers/sensor/drv_acc_gyro_inv_mpu6050.c
 
 uint8_t MPU_Init(void)
 {
 	uint8_t device_id = 0;
 
-    // 初始化I2C
-	i2c_dev.port = 1;
-	i2c_dev.config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT;
-	i2c_dev.config.freq = I2C_BUS_BIT_RATES_100K;
-	i2c_dev.config.mode = I2C_MODE_MASTER;
-	i2c_dev.config.dev_addr = MPU_ADDR;
-	hal_i2c_init(&i2c_dev);
-
-    // 复位MPU6050
-	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X80); 
-	aos_msleep(100);
-    // 唤醒MPU6050
-	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); 
-    // 设置陀螺仪传感器量程,±2000dps
-	MPU_Set_Gyro_Fsr(3);	
-    // 设置加速度传感器量程,±2g
-	MPU_Set_Accel_Fsr(0);	
-    // 关闭所有中断
-	MPU_Write_Byte(MPU_INT_EN_REG, 0X00);	 
-    // I2C主模式关闭
-	MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); 
-    // 关闭FIFO
-	MPU_Write_Byte(MPU_FIFO_EN_REG, 0X00);	 
-    // 读取器件ID
-	device_id = MPU_Read_Byte(MPU_DEVICE_ID_REG);
-    // 如果读取的器件ID与预期一致
-	if (device_id == MPU_DEV_ID) 
-	{
-		LOGI("APP", "MPU init OK\n");
-        //设置CLKSEL,PLL X轴为参考
-		MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); 
-        //加速度与陀螺仪都工作
-		MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); 
-        //设置采样率为50Hz
-		MPU_Set_Rate(50);						 
-	}
-	else
-	{
-		LOGI("APP", "MPU init Error -- %x\n", device_id);
-		return 1;
-	}
-	return 0;
+    MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X80); // 复位MPU6050
+    aos_msleep(100);
+    MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); // 唤醒MPU6050
+    MPU_Set_Gyro_Fsr(3);                     // 陀螺仪传感器,±2000dps
+    MPU_Set_Accel_Fsr(0);                    // 加速度传感器,±2g
+    MPU_Set_Rate(50);                        // 设置采样率50Hz
+    MPU_Write_Byte(MPU_INT_EN_REG, 0X00);    // 关闭所有中断
+    MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); // I2C主模式关闭
+    MPU_Write_Byte(MPU_FIFO_EN_REG, 0X00);   // 关闭FIFO
+    MPU_Write_Byte(MPU_INTBP_CFG_REG, 0X80); // INT引脚低电平有效
+    device_id = MPU_Read_Byte(MPU_DEVICE_ID_REG);
+    if (device_id == MPU_DEV_ID) {
+        // 器件ID正确
+        LOGI("SENSOR", "MPU init OK\n");
+        MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); // 设置CLKSEL,PLL X轴为参考
+        MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); // 加速度与陀螺仪都工作
+        MPU_Set_Rate(50);                        // 设置采样率为50Hz
+    } else {
+        LOGE("SENSOR", "MPU init Error -- %x\n", device_id);
+        return 1;
+    }
+    return 0;
 }
 ```
 #### void MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
@@ -160,7 +137,7 @@ void MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 #### void MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 读取三轴加速度数据。由Register Map得知，只需要从ACCEL_XOUTH向后依次读出6个寄存器内容即可。
 ```c
-// components/peripherals/sensor/drv/drv_acc_gyro_inv_mpu6050.c
+// solutions/eduk1_demo/drivers/sensor/drv_acc_gyro_inv_mpu6050.c
 
 void MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 {
@@ -199,6 +176,6 @@ void gyroscope_task(void)
 使用它们可以进行一些非常有趣的应用，例如，手环中经常会使用到的计步算法，运动状态检测算法，都是基于其中的六轴传感器数据。近年来，还有很多学术界的工作，使用手环中的六轴传感器来实现空中写字的识别。
 除此之外，它也广泛应用于辅助定位、飞行设备的姿态检测，摄像机云台的水平保持等等。期待读者们能够发掘出更多有价值的使用场景。
 # 引用
-[1] Gyroscope invented by Léon Foucault in 1852. Replica built by Dumoulin-Froment for the Exposition universelle in 1867. [National Conservatory of Arts and Crafts museum](https://en.wikipedia.org/wiki/Conservatoire_national_des_arts_et_m%C3%A9tiers), Paris. 
+[1] Gyroscope invented by Léon Foucault in 1852. Replica built by Dumoulin-Froment for the Exposition universelle in 1867. [National Conservatory of Arts and Crafts museum](https://en.wikipedia.org/wiki/Conservatoire_national_des_arts_et_m%C3%A9tiers), Paris.
 By Stéphane Magnenat - Own work by uploader, subject public domain, Public Domain, [https://commons.wikimedia.org/w/index.php?curid=4302903](https://commons.wikimedia.org/w/index.php?curid=4302903)
 [2] 图片来自 [https://www.analog.com/cn/education/education-library/videos/5996766351001.html](https://www.analog.com/cn/education/education-library/videos/5996766351001.html)

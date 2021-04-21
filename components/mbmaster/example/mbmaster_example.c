@@ -91,6 +91,8 @@ void mb_main(void)
 
 int mbmaster_comp_example(int argc, char *argv[])
 {
+    aos_set_log_level(AOS_LL_DEBUG);
+
     LOGI(MODBUSM_APP, "mbmaster test");
 
     mb_main();

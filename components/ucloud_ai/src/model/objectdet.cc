@@ -48,7 +48,7 @@ int detectObject(char *url, AIModelCBFunc cb)
         cout << "object boxes.h:" << outcome.result().getData().elements[i].boxes[3] << endl;
 
         type = outcome.result().getData().elements[i].type;
-        result.object.type = type.c_str();
+        result.object.type = (char *)type.c_str();
         result.object.score = outcome.result().getData().elements[i].score;
         result.object.box.x = outcome.result().getData().elements[i].boxes[0];
         result.object.box.y = outcome.result().getData().elements[i].boxes[1];

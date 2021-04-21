@@ -62,6 +62,7 @@ void demo_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, void 
         /* SDK因为网络状况被动断连后, 自动发起重连已成功 */
         case AIOT_MQTTEVT_RECONNECT: {
             printf("AIOT_MQTTEVT_RECONNECT\n");
+            mqtt_status = 1;
         }
         break;
 

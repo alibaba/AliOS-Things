@@ -1,5 +1,6 @@
 @page ble_netconfig ble_netconfig
 
+[更正文档](https://gitee.com/alios-things/ble_netconfig/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 AliOS Things 3.3提供ble_netconfig组件，用内置的BLE功能给WI-FI配网。
@@ -106,12 +107,44 @@ BLE_NETCFG_STATE BLE_NetCfg_stop(void)
 `0：`成功， `其他值`：失败。
 
 # 使用示例
+示例代码参考example/netcfg_example.c，以运行helloworld_demo为例，具体步骤如下:
+```
+
+##添加示例代码
+```sh
+ble_netconfig组件的package.yaml中添加示例代码
+
+source_file:
+  - ble_netconfig.c
+  - example/netcfg_example.c
+```
+
+## app中添加ble_netconfig组件
+```sh
+helloworld_demo组件中的packet.yaml中添加
+depends:
+  - ble_netconfig: dev_aos
+```
+
+## 编译
+```sh
+cd solutions/helloworld_demo && aos make
+```
+## 烧录
+> 参考具体板子的快速开始文档
+
+## ble_netconfig示例测试
+
+### CLI命令行输入
+netcfg_example
+
+### 开始蓝牙辅助配网
+CLI命令行输入 ble_netCfg start
+
 ## 案例工具
 
 - 串口工具
 - 安卓BLE配网测试APK（BLE_NetConfig.apk）
-
-
 
 ## 案例修改
 以helloworld的案例为例，修改solutions/helloworld_demo/package.yaml的depends，增加ble_netconfig，如下

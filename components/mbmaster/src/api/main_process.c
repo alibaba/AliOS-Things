@@ -70,10 +70,6 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_READ_INPUT_REGISTERS:
             status = pdu_type11n_disassemble(req_handler, function_code, respond_buf, respond_count);
             break;
-        default:
-            status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
-            break;
     }
 
     MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
@@ -137,10 +133,6 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_WRITE_SINGLE_REGISTERS:
             status = pdu_type122_disassemble(req_handler, function_code, resp_addr, resp_value, exception_code);
             break;
-        default:
-            status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
-            break;
     }
 
     MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
@@ -203,10 +195,6 @@ mb_status_t mbmaster_main_type3_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_WRITE_MULTIPLE_COILS:
         case FUNC_CODE_WRITE_MULTIPLE_REGISTERS:
             status = pdu_type122_disassemble(req_handler, function_code, resp_addr, resp_quantity, exception_code);
-            break;
-        default:
-            status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
             break;
     }
 

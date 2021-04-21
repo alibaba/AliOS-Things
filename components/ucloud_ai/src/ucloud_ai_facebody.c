@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ulog/ulog.h>
 #include "ucloud_ai_common.h"
 
 #define TAG "UCLOUD_AI_FACEBODY"
@@ -11,8 +12,8 @@
 void ucloud_ai_facebody_comparing_face(char *path, char *myface, ucloud_ai_cb_t cb)
 {
     int len;
-    char *p_upload_url;
-    char *p_myface_url;
+    char *p_upload_url = NULL;
+    char *p_myface_url = NULL;
 
     /*update capture.jpg to oss*/
     p_upload_url = ucloud_ai_upload_file(path);
@@ -20,14 +21,19 @@ void ucloud_ai_facebody_comparing_face(char *path, char *myface, ucloud_ai_cb_t 
         return;
 
     if (myface) {
-        /*my face picture*/
-        p_myface_url = ucloud_ai_upload_file(myface);
-        if (!p_myface_url)
+        if (strstr(myface, "https")) {
+            LOGE(TAG, "ucloud ai engine doesn't not support https right now\n");
             return;
-    } else {
-        p_myface_url = MYFACE_PATH;
+        }
+        if (strstr(myface, "http")) {
+            p_myface_url = myface;
+        } else {
+            /*my face picture*/
+            p_myface_url = ucloud_ai_upload_file(myface);
+            if (!p_myface_url)
+                return;
+        }
     }
-
     /*do facebody detection*/
     compareFace(p_upload_url, p_myface_url, cb);
     free(p_upload_url);

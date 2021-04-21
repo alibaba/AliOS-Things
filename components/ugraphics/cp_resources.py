@@ -10,7 +10,7 @@ print("comp_path:")
 print(comp_path)
 
 # original folder
-org_image_path = comp_path + "/src/example/image"
+org_image_path = comp_path + "/example/image"
 org_font_path = comp_path + "/src/resources/font"
 
 # new folder

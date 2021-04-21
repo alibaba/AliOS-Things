@@ -1,4 +1,4 @@
-@page linksdk_gateway_demo linksdk_gateway_demo
+@page linksdk_gateway_demo 基于LinkSDK的网关示例
 
 # 1. 案例简介
 linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。

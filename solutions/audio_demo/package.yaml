@@ -26,6 +26,7 @@ depends:                                       # 该组件依赖其他的组件
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项
 def_config:
+  MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 16384 # 增大SSL最大content size，避免播放URL异常
   CONFIG_A7_DSP_ENABLE: 1                  # 使能HaaS100音频驱动开关
   CLI_IOBOX_ENABLE: 1
 

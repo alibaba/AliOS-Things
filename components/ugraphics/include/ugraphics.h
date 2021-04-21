@@ -40,7 +40,7 @@
 #ifdef AOS_COMP_SDL2
 #define UGRAPHICS_FONT_STYLE TTF_STYLE_BOLD
 #else
-#define UGRAPHICS_FONT_STYLE
+#define UGRAPHICS_FONT_STYLE 0
 #endif
 
 /** @defgroup ugraphics_aos_api

@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <aos/errno.h>
 #include <vfsdev/i2c_dev.h>
-
+#include "ulog/ulog.h"
 
 #define EDU_MAX_I2C_PORT 4
 static int g_i2c_fd[EDU_MAX_I2C_PORT] = {-1, -1, -1, -1};
@@ -20,7 +20,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
     p_fd = &g_i2c_fd[port];
 
     if (*p_fd >= 0) {
-        printf("i2c%d is already opened\r\n", port, *p_fd);
+        LOGE("SENSOR", "i2c%d is already opened\r\n", port, *p_fd);
         return -EALREADY;
     }
     memset(&c, 0, sizeof(io_i2c_control_u));
@@ -30,7 +30,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
     *p_fd = open(name, 0);
 
     if (*p_fd < 0) {
-        printf ("open %s failed, fd:%d\r\n", name, *p_fd);
+        LOGE ("SENSOR", "open %s failed, fd:%d\r\n", name, *p_fd);
         return -EIO;
     }
     c.c.addr = dev_addr;            /* sensor's address */
@@ -42,7 +42,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
     ret += ioctl(*p_fd, IOC_I2C_SET_FREQ, (unsigned long)&c);
 
     if (ret) {
-        printf ("IOC_I2C_SET_CONFIG or IOC_I2C_SET_FREQ on %s failed, ret:%d\r\n", name, ret);
+        LOGE("SENSOR", "IOC_I2C_SET_CONFIG or IOC_I2C_SET_FREQ on %s failed, ret:%d\r\n", name, ret);
         close(*p_fd);
         *p_fd = -1;
     }
@@ -153,7 +153,7 @@ int32_t sensor_i2c_close(uint32_t port)
 
     p_fd = &g_i2c_fd[port];
     if ((port >= EDU_MAX_I2C_PORT) || (*p_fd < 0)) {
-        printf("invalid port:%d or fd:%d\r\n", port, *p_fd);
+        LOGE ("SENSOR", "invalid port:%d or fd:%d\r\n", port, *p_fd);
         return -EIO;
     }
 

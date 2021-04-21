@@ -1,10 +1,12 @@
 @page debug debug
 
+[更正文档](https://gitee.com/alios-things/debug/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
-AliOS Things维测（debug）组件支持以下功能：
+AliOS Things 调试诊断（debug）组件支持以下功能：
 - 异常管理，在系统异常后接管异常，并输出系统快照coredump信息
 - 提供常见的系统调试诊断接口；
-- 提供常见的CLI调试命令(可输入help查看)：
+- 提供常见的CLI调试命令(可输入help查看)，如：
 - cpuusage：  查询cpu利用率
 - tasklist：  查询系统任务状态
 - dumpsys mm: 查询系统内存使用状态
@@ -78,58 +80,82 @@ def_config:
 ```
 
 # API说明
-@ref debug_aos_api
+- 参考 [debug_aos_api](https://dev.g.alicdn.com/alios-things-3.3/doc/group__debug__aos__api.html)
+
 
 # 使用示例
-示例代码参考example/debug_example.c，以运行helloworld_demo为例，具体步骤如下：
 
-## 添加示例代码
-> debug组件的package.yaml中添加example
-```sh
-source_file:
-  - example/*.c ? <AOS_COMP_CLI> # add debug_example.c，同时会自动加上cli组件
-```
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-## 添加debug组件
-> helloworld_demo组件的pacxkage.yaml中添加
-```sh
+
+## 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+
+## 步骤2 添加组件
+
+案例下载完成后，以运行helloworld_demo为例，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+
 depends:
-  - debug: dev_aos # helloworld_demo中引入cli组件
+  - debug: dev_aos  # helloworld_demo中引入debug组件
+
 ```
 
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
+## 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install debug
+
 ```
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+上述命令执行成功后，组件源码则被下载到了./components/debug路径中。
 
-## debug示例测试
-> 命令行输入：
-```sh
-help
+## 步骤4 添加示例
+
+在debug组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/debug/tree/rel_3.3.0/example)：
+
+```yaml
+source_file:
+  - example/debug_example.c
 ```
 
-## 关键日志
-> 终端日志：
-```sh
-================ AliOS Things Command List ==============
-debug_api #(注册的cli命令)
-================ AliOS Things Command End ===============
+
+## 步骤5 编译固件
+
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+## 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+
+## 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+## 步骤8 测试示例
+
+**CLI命令行输入：**
+```shell
+debug_api help # debug接口测试
 ```
 
-> 命令行输入：
-```sh
-debug_api help
-```
-## 关键日志
-> 终端日志：
-```sh
+> 关键日志：
+```shell
 You can use debug cmd to show api test:
 debug_api help  --- show this
 debug_api 1     --- show memory info
@@ -142,26 +168,38 @@ debug_api 7     --- show backtrace now
 debug_api 8     --- show backtrace task
 debug_api all   --- show all above
 ```
->可根据提示使用debug_api 进行相应的接口演示
+接着可根据提示使用debug_api n 进行相应的接口演示,如
+
+
+**CLI命令行输入：**
+```shell
+debug_api 1 # show memory info
+```
+
+> 关键日志：
+```shell
+========== Heap Info  ==========
+---------------------------------------------------------------------------
+[HEAP]| TotalSz    | FreeSz     | UsedSz     | MinFreeSz  | MaxFreeBlkSz  |
+      | 0x0067FFF8 | 0x0064D530 | 0x00032AC8 | 0x0064D120 | 0x0064D530    |
+---------------------------------------------------------------------------
+```
+
 # FAQ
 Q1： cpuusage命令的使用说明是什么？
-```sh
 答：
 cpuusage [-d n] [-t m] 命令启动CPU利用率统计，结果输出到串口终端
 其中：-d 选项用于指定统计周期，单位为ms，默认为1 s；
       -t 选项用于指定统计时长，单位为ms，默认为连续运行。
 
 举例说明：
-cpuusage                   -- 启动一个cpuusage任务，该任务默认每隔1s执行一次统计;
-cpuusage -d 3000           -- 启动一个cpuusage任务，该任务默认每隔3s（3000ms）执行一次统计;
-cpuusage -d 2000 -t 10000  -- 启动一个cpuusage任务，该任务默认每隔2s（2000ms）执行一次统计，
-                              统计到10s（10000ms）后停止；
+(1) cpuusage                   -- 启动一个cpuusage任务，该任务默认每隔1s执行一次统计;
+(2) cpuusage -d 3000           -- 启动一个cpuusage任务，该任务默认每隔3s（3000ms）执行一次统计;
+(3) cpuusage -d 2000 -t 10000  -- 启动一个cpuusage任务，该任务默认每隔2s（2000ms）执行一次统计，统计到10s（10000ms）后停止；
+(4) cpuusage -e                -- 停止统计
 
-cpuusage -e                -- 停止统计
-```
 
 Q2： 查看修改内存p/m命令的使用说明是什么？
-```sh
 答：
 查看内存
 p addr [数量：默认为16个] [字节宽度显示,可选1/2/4，默认为4字节]
@@ -207,5 +245,3 @@ p 0x80000000
 0x80000010: 60012fa9 60012fb5 60012fc1 00000000
 0x80000020: 00000000 00000000 00000000 60013005
 0x80000030: 60013005 00000000 60013005 60013005
-
-```

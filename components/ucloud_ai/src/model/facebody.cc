@@ -33,9 +33,9 @@ int compareFace(char *urlA, char *urlB, AIModelCBFunc cb)
     request.setImageURLB(tmpImageURLB);
 
     auto outcome =  client.compareFace(request);
-    // cout << endl << "facebody describeInstances returned:" << endl;
-    // cout << "error code: " << outcome.error().errorCode() << endl;
-    // cout << "requestId: " << outcome.result().requestId() << endl << endl;
+    cout << endl << "facebody describeInstances returned:" << endl;
+    cout << "error code: " << outcome.error().errorCode() << endl;
+    cout << "requestId: " << outcome.result().requestId() << endl << endl;
 
     cout << "confidence:" << outcome.result().getData().confidence << endl;
     cout << "x:" << outcome.result().getData().rectAList[0] << endl;
@@ -91,7 +91,7 @@ int recognizeExpression(char *url, AIModelCBFunc cb)
     if (cb) {
         expression = outcome.result().getData().elements[0].expression;
         if (!expression.empty()) {
-            result.expression.expression = expression.c_str();
+            result.expression.expression = (char *)expression.c_str();
             cout << "expression:" << outcome.result().getData().elements[0].expression << endl;
             result.expression.probability = outcome.result().getData().elements[0].faceProbability;
             result.expression.location.x = 20; // outcome.result().getData().elements[0].faceRectangle.left;
@@ -135,7 +135,7 @@ int generateHumanAnimeStyle(char *url, AIModelCBFunc cb)
     outImageUrl = outcome.result().getData().imageURL;
 
     if (outImageUrl.size() > 0) {
-        result.anime.url = outImageUrl.c_str();
+        result.anime.url = (char *)outImageUrl.c_str();
         result.anime.imageLen = getResponseBodyByUrl(result.anime.url, &result.anime.image);
     }
     if (result.anime.image && cb) {

@@ -1,8 +1,4 @@
 //
-// jquick_time.cpp
-//
-// Created by liujuncheng@alibaba-inc.com on 2020/11/12.
-//
 // Copyright (c) 2020 Alibaba All rights reserved.
 //
 

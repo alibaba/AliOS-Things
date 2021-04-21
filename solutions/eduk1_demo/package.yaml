@@ -22,7 +22,13 @@ depends:
   - uservice:  dev_aos
   - rhino: dev_aos
   - osal_aos: dev_aos
+  - cli: dev_aos
+  - littlefs: dev_aos
 #  - a2sa: dev_aos
+
+def_config:
+#    CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关
+    CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
 
 # build_config:
 #   include:

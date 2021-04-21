@@ -52,7 +52,7 @@
 #include "lwip/timeouts.h"
 #include "lwip/debug.h"
 #include "lwip/apps/tftp.h"
-
+#include <limits.h>
 #include <string.h>
 
 void
@@ -127,21 +127,32 @@ static int tftp_cmd(int argc, char **argv)
     } else if (strncmp(argv[1], "get", 3) == 0) {
         ip_addr_t dst_addr;
         uint16_t port;
+        uint8_t  binary_mode = 0;
 
-        ipaddr_aton(argc == 6 ? argv[2] : "10.0.0.2", &dst_addr);
+        ipaddr_aton(argc >= 6 ? argv[2] : "10.0.0.2", &dst_addr);
         port = (uint16_t)atoi(argv[3]);
         tftp_client_set_server_port(port);
-        tftp_client_get(&dst_addr, argv[argc - 2], argv[argc - 1], &client_ctx, tftp_get_done);
+
+        if (argc == 7 &&
+            strncmp(argv[6], "binary", 6) == 0) {
+            binary_mode = 1;
+
+        }
+
+        tftp_client_set_binary_mode(binary_mode);
+
+        tftp_client_get(&dst_addr, argv[4], argv[5], &client_ctx, tftp_get_done);
         return 0;
     }
 
 tftp_print_usage:
     cli_printf("usage:\r\n"
                "  tftp server <start|stop>\r\n"
-               "  tftp get $server_ip server_src_path device_dest_path\r\n"
+               "  tftp get $server_ip server_src_path device_dest_path server_port file_type\r\n"
                "eg:\r\n"
                "  1. get file from server:\r\n"
-               "     tftp get 192.168.0.100 test.txt /tmp/test.txt\r\n");
+               "     tftp get 192.168.0.100 6068 test.txt /tmp/test.txt text\r\n"
+               "     tftp get 192.168.0.100 6068 test.zip /tmp/test.zip binary\r\n");
     return 0;
 }
 

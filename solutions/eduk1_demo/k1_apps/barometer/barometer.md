@@ -159,23 +159,23 @@
 OLED_Clear();
 
 OLED_Icon_Draw(14, 4, &icon_atmp_16_16, 0);
-sprintf(pressure_str, " %-12.2lfPa", spl06_data.pressure);
-printf("%s\n", pressure_str);
+sprintf(pressure_str, " %-10.3lfkPa", spl06_data.pressure / 10);
+LOGD(EDU_TAG, "%s\n", pressure_str);
 OLED_Show_String(32, 6, pressure_str, 12, 1);
 
 OLED_Icon_Draw(14, 23, &icon_asl_16_16, 0);
 sprintf(altitude_str, " %-12.2lfm", spl06_data.altitude);
-printf("%s\n", altitude_str);
+LOGD(EDU_TAG, "%s\n", altitude_str);
 OLED_Show_String(32, 25, altitude_str, 12, 1);
 
 OLED_Icon_Draw(14, 44, &icon_tempC_16_16, 0);
 sprintf(Ctemp_str, "%-5.2lf", spl06_data.Ctemp);
-printf("%s\n", Ctemp_str);
+LOGD(EDU_TAG, "%s\n", Ctemp_str);
 OLED_Show_String(30, 46, Ctemp_str, 12, 1);
 
 OLED_Icon_Draw(66, 44, &icon_tempF_16_16, 0);
 sprintf(Ftemp_str, "%-5.2lf", spl06_data.Ftemp);
-printf("%s\n", Ftemp_str);
+LOGD(EDU_TAG, "%s\n", Ftemp_str);
 OLED_Show_String(82, 46, Ftemp_str, 12, 1);
 
 OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
@@ -196,25 +196,20 @@ OLED_Refresh_GRAM();
 
     - I2C初始化
     - 芯片复位以及模式配置（包含压力以及温度模式配置，同时采集温度以及大气压，打开FIFO接收）
-
+在 AliOS Things 3.3中，对I2C的操作才用了VFS的方式，开发者只需要open相应的device设备，开发者只需要关心链接到的I2C设备号，从器件的设备地址，从器件支持的I2C速率。知道了从设备地址，读写地址也可以计算出，AliOS Things 会自动处理这些计算。
 ```c
-i2c_dev.port = 1;
-i2c_dev.config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT;
-i2c_dev.config.freq = I2C_BUS_BIT_RATES_100K;
-i2c_dev.config.mode = I2C_MODE_MASTER;
-i2c_dev.config.dev_addr = 0x77;
-hal_i2c_init(&i2c_dev);
-
-printf("\nDevice Reset\n");
-i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X0C, 0b1001);
-aos_msleep(100);
+int32_t ret = sensor_i2c_open(SPL06_I2C_PORT, EEPROM_CHIP_ADDRESS, I2C_BUS_BIT_RATES_100K, 0);
+if (ret) {
+    LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
+    return;
+}
+aos_msleep(500);
 
 tmp = i2c_eeprom_read_uint8_t(EEPROM_CHIP_ADDRESS, 0x0D);
-//  printf("ID: %d\n", tmp);
-i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X06, 0x03);   // Pressure 8x oversampling
-i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X07, 0X83);   // Temperature 8x oversampling
+i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X06, 0x03); // Pressure 8x oversampling
+i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X07, 0X83); // Temperature 8x oversampling
 i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X08, 0B0111); // continuous temp and pressure measurement
-//i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X08, 0B0001); // standby pressure measurement
+// pressure measurement
 i2c_eeprom_write_uint8_t(EEPROM_CHIP_ADDRESS, 0X09, 0X00); // FIFO Pressure measurement
 ```
 
@@ -259,6 +254,8 @@ switch (tmp_Byte)
         break;
 }
 
+c0 = get_c0();
+c1 = get_c1();
 double traw_sc = (double)traw / get_temperature_scale_factor();
 //printf("traw_sc: %0.2f\n", traw_sc);
 
@@ -269,8 +266,6 @@ sp->Ftemp = (sp->Ctemp * 9 / 5) + 32;
 
 ### 气压读取及校准代码
 ```c
-c0 = get_c0();
-c1 = get_c1();
 c00 = get_c00();
 c10 = get_c10();
 c01 = get_c01();

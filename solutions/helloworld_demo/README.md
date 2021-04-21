@@ -1,4 +1,4 @@
-@page helloworld_demo helloworld_demo
+@page helloworld_demo helloworld简单示例
 # 1. 案例简介
 helloworld_demo是我们提供的最简化的运行实例，该app从字面上来看功能也比较简单，即完成**hello world!**的关键字符输出，以表明系统初始化完成并能够正常输出。但是虽然功能看似简单单一，该app能够运行成功，即代码内核小系统以及基本的打印输出功能即正常运行。
 其完成的主要功能包括：

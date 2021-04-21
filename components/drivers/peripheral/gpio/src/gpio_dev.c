@@ -146,7 +146,7 @@ int gpio_io_get (gpio_io_config_t *config) {
     return ret;
 }
 
-int gpio_irq_set (gpio_irq_config_t *config) {
+static int gpio_irq_set (gpio_irq_config_t *config) {
     int ret = 0;
     gpio_dev_t gpio_dev;
     gpio_irq_trigger_t irq_type;

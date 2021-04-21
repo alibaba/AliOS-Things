@@ -1,5 +1,7 @@
 @page cli cli
 
+[更正文档](https://gitee.com/alios-things/cli/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 在日常嵌入式开发中，用户经常会自行实现一套类似Linux Shell的交互工具来实现通过串口命令控制设备进入某种特定的状态，或执行某个特定的操作。如系统自检，模拟运行，或者进入手动模式进行设备点动。AliOS Things原生实现了一套名为CLI（Command-Line Interface）的命令行交互工具，在提供基本的系统交互命令的基础上，也支持用户自定义命令。
 组件支持以下功能：
@@ -113,11 +115,54 @@ def_config:
   CLI_IOBOX_ENABLE: 0
 ```
 # API说明
-@ref cli_aos_api
+- 参考 [cli_aos_api](https://dev.g.alicdn.com/alios-things-3.3/doc/group__cli__aos__api.html)
 
 # 使用示例
 
-## 示例代码
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
+
+
+## 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+
+## 步骤2 添加组件
+
+案例下载完成后，以运行helloworld_demo为例，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+
+depends:
+  - cli: dev_aos  # helloworld_demo中引入cli组件
+
+```
+
+## 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install cli
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/cli路径中。
+
+## 步骤4 添加示例
+
+下面示例演示了注册cli命令的三种方式，分别是：
+1. 注册单个cli命令
+2. 同时注册对个cli命令
+3. 通过宏注册单个cli命令
 
 Example:
 包含头文件 **#include "aos/cli.h"**
@@ -183,43 +228,122 @@ void test_cmd3(int32_t argc, char **argv)
  */
 ALIOS_CLI_CMD_REGISTER(test_cmd3, test3, show test3 info)
 ```
+### 代码示例
+helloworld_demo注册cli命令，修改helloworld.c如下：
+```C
+#include "aos/init.h"
+#include "board.h"
+#include <aos/errno.h>
+#include <aos/kernel.h>
+#include <k_api.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "aos/cli.h" /* 加上头文件 */
 
-> 开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
-## app中添加cli组件
-> 以运行helloworld_demo为例，具体步骤如下：
-> 在helloworld_demo组件的package.yaml中添加
-```sh
-depends:
-  - cli: dev_aos # helloworld_demo中引入cli组件
+void test_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    /* test_cmd 命令实现 */
+    aos_cli_printf("this is test cmd\r\n");
+}
+
+void test1_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    /* test_cmd 命令实现 */
+    aos_cli_printf("this is test cmd1\r\n");
+}
+
+void test2_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    /* test_cmd 命令实现 */
+    aos_cli_printf("this is test cmd2\r\n");
+}
+
+const struct cli_command cmd = {"test", "test cmd description", test_cmd};
+
+const struct cli_command cmds[] = {
+     { "test1", "show test1 info", test1_cmd },
+     { "test2", "show test2 info", test2_cmd },
+};
+
+
+int application_start(int argc, char *argv[])
+{
+    int count = 0;
+    int ret;
+
+    printf("nano entry here!\r\n");
+
+    ret = aos_cli_register_command(&cmd);
+    if (ret) {
+      /* 错误处理 */
+      aos_cli_printf("test cmd register fail\r\n");
+    }
+
+    ret = aos_cli_register_commands(&cmds, sizeof(cmds) / sizeof(struct cli_command));
+    if (ret) {
+        /* 错误处理 */
+        aos_cli_printf("test cmds register fail\r\n");
+    }
+
+    while (1) {
+        //printf("hello world! count %d \r\n", count++);
+        aos_msleep(1000);
+    };
+}
+
+void test_cmd3(int32_t argc, char **argv)
+{
+    /* test_cmd3 命令实现 */
+    aos_cli_printf("this is test cmd3\r\n");
+}
+
+/* 宏的参数说明：
+ * 参数1. cmd具体实现
+ * 参数2. 在串口下输入的命令
+ * 参数3. cmd的描述信息
+ */
+ALIOS_CLI_CMD_REGISTER(test_cmd3, test3, show test3 info)
 ```
 
-## 编译烧录
->参考 @ref HaaS100_Quick_Start
+## 步骤5 编译固件
 
-## CLI示例测试
-> 命令行输入：
-```sh
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+## 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+
+## 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+
+
+## 步骤8 测试示例
+
+**CLI命令行输入：**
+```shell
 help
 ```
 
-## 关键日志
-> CLI日志：
-```sh
-================ AliOS Things Command List ==============
-help
-...(注册的cli命令)
-================ AliOS Things Command End ===============
+> 可以看到注册的命令：
+```shell
+test
+test1
+test2
+test3
 ```
+执行不同的命令，有相应的日志输出
 
 # FAQ
 Q1： 如何打开文件系统操作命令集？
-```sh
 答：
 cli组件支持文件系统操作命令，默认关闭，打开方式为：
 以运行helloworld_demo为例，在其package.yaml中添加
 
+```yaml
 def_config:
-    CLI_IOBOX_ENABLE: 1
+  CLI_IOBOX_ENABLE: 1
+```
 
 然后重新编译烧录，上电后输入help，即可看到
 ls
@@ -230,10 +354,9 @@ df
 touch
 ...
 等文件系统命令
-```
+
 
 Q2：文件系统命令如何使用？
-```sh
 答：
 cli组件支持文件系统操作命令，使用方法类似Linux常见shell命令，简单举例如下：
 
@@ -242,7 +365,7 @@ lsfs - 列出当前系统注册的文件系统节点
 /data
 表示当前文件系统(littlefs)注册的节点为/data
 
-df - 显示文件系统当前使用情况
+df - 显示文件系统当前使用情况（单位：KB）
 命名显示：
      Total      Used      Free   Use%    Mount
       4792      2416      2376    50%    /data
@@ -282,5 +405,4 @@ echo "alibaba" > /data/aaa/123.txt
 cat /data/aaa/123.txt
 命令显示：
 alibaba
-```
 

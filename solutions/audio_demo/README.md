@@ -1,4 +1,6 @@
-@page audio_demo audio_demo
+@page audio_demo HaaS100 云端钉一体智能语音播放器设计
+
+[更正文档](https://gitee.com/alios-things/audio_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1、方案介绍
 本文主要介绍如何基于HaaS100硬件平台搭建“云端钉一体”（阿里云IoT平台 + HaaS100 + 钉钉小程序）的智能语音播放器（以下简称智能语音播放器）。该智能语音播放器包含如下功能：
@@ -14,7 +16,7 @@
 **智能语音播放器整体框架图**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN018hkdjA1fipAcArks7_!!6000000004041-2-tps-2130-1468.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN018hkdjA1fipAcArks7_!!6000000004041-2-tps-2130-1468.png"  style="max-width:800px;" />
 </div>
 
 智能语音播放器需要的硬件模块包括：
@@ -32,7 +34,7 @@
 **智能语音播放器的软件框架图**，
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01r7XygD1SJ5uyd0Nys_!!6000000002225-2-tps-902-682.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01r7XygD1SJ5uyd0Nys_!!6000000002225-2-tps-902-682.png"  style="max-width:800px;" />
 </div>
 
 如上图所示智能语音播放器软件模块包括：
@@ -47,27 +49,43 @@ HaaS100端测软件开发包含以下3个步骤：
 > * 代码编译、烧录
 
 ## 3.1、AliOS Things开发环境搭建
-开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 3.2、智能语音播放器代码下载
-智能语音播放器的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中，
+该案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+其中，
 > 选择解决方案: “HaaS云端钉智能语音播放器”或者“audio_demo”
 > 选择开发板: HaaS100
 
-## 3.3、代码编译、烧录
+## 3.3、打包测试音频文件到文件系统（仅“4.1：播放器离线调试”需要）
+因为4.1: 播放器离线调试章节需要测试播放本地文件系统中/data/6.wav 或者 /data/7.mp3音频文件。所以需要提前准备好这两个音频文件，并按下面2个步骤打包音频文件到文件系统中。
+```shell
+cp ./6.wav ./hardware/chip/haas1000/prebuild/data/  # 拷贝当前目录下的6.wav文件到文件系统打包目录./hardware/chip/haas1000/prebuild/data/下。注意：6.wav文件需要自己准备。
+cp ./7.mp3 ./hardware/chip/haas1000/prebuild/data/  # 拷贝当前目录下的7.mp3文件到文件系统打包目录./hardware/chip/haas1000/prebuild/data/下。注意：7.mp3文件需要自己准备。
+```
+
+```yaml
+# 确认./hardware/chip/haas1000/package.yaml文件中第177行至179行是打开的状态。如下，
+program_data_files:
+   - filename: release/write_flash_tool/ota_bin/littlefs.bin
+     address: 0xB32000
+```
+
+## 3.4、代码编译、烧录
 编译audio_demo的过程如下：
 -- 首先下载uVoice组件依赖的codec源码
 ```shell
 // 在AliOS Things 3.3的工程根目录下执行Shell命令
-cd components/uvoice/codec/opensource/pvaac
+cd ./components/uvoice/codec/opensource/pvaac
 python get_pv_aac.py
-cd ../pvmp3
+cd ./components/uvoice/codec/opensource/pvmp3
 python get_pvmp3.py
 ```
 
--- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 固件编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+-- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)。
 
 # 4、功能调试
 智能语音播放器支持，
@@ -77,12 +95,6 @@ python get_pvmp3.py
 其中离线调试模式支持从本地文件系统中播放音频，无需给HaaS100配网，可用于快速验证HaaS100的录音、播放的基本功能是否正常。在线调试模式要求HaaS100网络在线，支持网络音频的播放以及阿里巴巴达摩院TTS语音合成功能。
 
 ## 4.1、播放器离线调试
-因为离线音频播放调试需要先在本地文件系统的/data分区中打包音频文件，目前支持.wav和.mp3等常见的音频格式。打包音频文件到/data分区方法如下，
-```shell
-// 拷贝音频文件到hardware/chip/haas1000/prebuild/data
-cp ./test.mp3 hardware/chip/haas1000/prebuild/data
-```
-然后参考“编译、烧录”章节重新编译和烧录audio_demo固件。
 HaaS100固件烧录成功之后可以在串口中敲入“help”命令查看所有支持的CLI调试命令，其中和智能语音播放器相关的常用命令和使用方法如下，
 ```shell
 # 查看当前固件支持的所有Shell命令
@@ -122,11 +134,11 @@ netmgr -t wifi -c {ssid} {password}
 如果配网信息和四元组信息都正确的情况下，HaaS100和阿里云IoT平台连接成功后有如下HardwareError ping-pong日志打印。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01y4cvYs1baLND8fY7R_!!6000000003481-2-tps-955-546.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01y4cvYs1baLND8fY7R_!!6000000003481-2-tps-955-546.png"  style="max-width:800px;" />
 </div>
 
 如果，有些开发者发现自己的HaaS100板子WIFI连接路由器困难，那么可以尝试以下方法排查。
-> * 首先更新github上的最新固件
+> * 首先参考3.2章节更新最新固件代码
 > * 然后通过Shell命令获取WIFI MAC地址,方法如下
 > * aos_mac WIFI
 > * 如果WIFI MAC是全0，那么需要更新MAC地址。HaaS VIP钉群中咨询@谷饮，获取唯一的WIFI MAC地址。
@@ -150,13 +162,13 @@ play https://test-music-url.com
 **创建智能语音交互项目和获取AppKey**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01BrEHmM254gTETXgHt_!!6000000007473-2-tps-1914-763.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01BrEHmM254gTETXgHt_!!6000000007473-2-tps-1914-763.png"  style="max-width:800px;" />
 </div>
 
 **获取智能语音交互AccessToken**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN017yFPVh1tgRjqtfWJX_!!6000000005931-2-tps-1911-422.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN017yFPVh1tgRjqtfWJX_!!6000000005931-2-tps-1911-422.png"  style="max-width:800px;" />
 </div>
 
 在HaaS100 SDK的components/service/uvoice/test/test_tts.c中，我们需要填写正确的AppKey和AccessToken信息才可以使用阿里巴巴“智能语音交互 - 语音合成”功能。值得注意的是，AccessToken是动态刷新的，周期是每个用户账户可配置的，默认是2天变化一次。因此在功能开发阶段，需要周期性的更新固件中的AccessToken，否则可能出现语音合成功能访问失败的问题。如果是产品量产阶段，可以基于阿里云端一体的安全通道周期更新设备端AccessToken。
@@ -164,7 +176,7 @@ play https://test-music-url.com
 **uvoice组件中修改AppKey和AccessToken代码位置**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN014Nynrb1GsZCiTJuqT_!!6000000000678-2-tps-839-444.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN014Nynrb1GsZCiTJuqT_!!6000000000678-2-tps-839-444.png"  style="max-width:800px;" />
 </div>
 
 配置好AppKey和AccessToken之后，参考上述编译和烧录，按以下步骤可以本地测试TTS语音合成功能。
@@ -183,29 +195,27 @@ tts "今天上海天气晴转多云、气温26摄氏度" /data/tts.mp3
 “云端钉一体的智能语音播放器”物模型设计可以参考：“智能语音播放器物模型”（待发布）。在开发者创建自己产品时，可以选择导入我们提供的“智能语音播放器物模型”来生成一个临时产品，从而快速的验证云端钉一体的智能语音播放器方案，请参考下图步骤。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01CudBAj26Zes9vPKnC_!!6000000007676-2-tps-1916-720.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01CudBAj26Zes9vPKnC_!!6000000007676-2-tps-1916-720.png"  style="max-width:800px;" />
 </div>
 
-### 4.3.1.2 修改HaaS100四元组信息
-在文件application/example/audio_demo/linkkit_example_solo.c中包含了HaaS100设备和阿里云物联网平台链接的关键密钥信息（四元组）。HaaS100开源SDK中修改audio_demo四元组信息如下所示，
+### 4.3.1.2 修改HaaS100三元组信息
+用户可以在"[阿里云物联网平台](https://iot.console.aliyun.com/product)"中创建的产品信息中可以获取到三元组信息，只有正确配置了HaaS100固件中的三元组信息，HaaS100语音播放器才能正确连接用户自己账号的阿里云物联网平台。修改四元组的位置在文件./solutions/audio_demo/data_model_basic_demo.c的demo_main()中，代码示例如下，
+
+```c
+/* TODO: 替换为自己设备的三元组 */
+char *product_key = 用户创建的产品类型的Key（唯一ID）
+char *device_name = 该产品类型下的某个具体设备名字（某个产品类型下可以有很多量产设备）
+char *device_secret = 该产品类型下的名字为DeviceName设备的密钥（和DeviceName一一对应）
+
+```
+
+阿里云物联网平台获取三元组信息页面:
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01TF9OE425Yuc1fVANW_!!6000000007539-2-tps-707-242.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01VpR3zn1uFiEa9uGtP_!!6000000006008-2-tps-1822-829.png"  style="max-width:800px;" />
 </div>
 
-每位用户应该根据自己在"[阿里云物联网平台](https://iot.console.aliyun.com/product)"中创建的产品信息中可以获取到一下四元组信息。只有在audio_demo/linkkit_example_solo.c中填写了正确的四元组信息，HaaS100语音播放器才能正确连接用户自己账号的阿里云物联网平台。
-> * "ProductKey"：用户创建的产品类型的Key（唯一ID）
-> * "ProductSecret"：用户创建的产品类型的密钥（和ProductKey一一对应）
-> * "DeviceName": 该产品类型下的某个具体设备名字（某个产品类型下可以有很多量产设备）
-> * "DeviceSecret": 该产品类型下的名字为DeviceName设备的密钥（和DeviceName一一对应）
-
-阿里云物联网平台获取四元组信息页面:
-
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01VpR3zn1uFiEa9uGtP_!!6000000006008-2-tps-1822-829.png"  style="max-width:90%;" />
-</div>
-
-**备注**：修改完四元组信息之后，别忘记参考2.3章节重新编译、烧录HaaS100固件。
+**备注**：修改完三元组信息之后，别忘记参考2.3章节重新编译、烧录HaaS100固件。
 
 ## 4.3.2 钉钉小程序设计
 文章《[30分钟上手HaaS小程序开发](https://blog.csdn.net/HaaSTech/article/details/110850634)》, 文中介绍了小程序开发工具IDE、HaaS钉钉小程序示例代码获取、钉钉小程序申请、小程序真机调试等基础内容。开发者可以根据这篇文章快速上手一个自己的小程序应用开发。
@@ -223,7 +233,7 @@ tts "今天上海天气晴转多云、气温26摄氏度" /data/tts.mp3
 **密钥信息修改位置参考**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01ocLqjB1lyIFEjtKpB_!!6000000004887-2-tps-795-174.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01ocLqjB1lyIFEjtKpB_!!6000000004887-2-tps-795-174.png"  style="max-width:800px;" />
 </div>
 
 ## 4.3.2.2 产品信息
@@ -234,7 +244,7 @@ tts "今天上海天气晴转多云、气温26摄氏度" /data/tts.mp3
 **HaaS设备的密钥信息修改位置参考**
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01NB8Xqa1PCHAtWeFFB_!!6000000001804-2-tps-840-130.png"  style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01NB8Xqa1PCHAtWeFFB_!!6000000001804-2-tps-840-130.png"  style="max-width:800px;" />
 </div>
 
 ## 4.3.2.3 修改播放列表
