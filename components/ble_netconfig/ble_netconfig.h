@@ -11,6 +11,7 @@ typedef enum {
     BLE_NETCFG_EVENT_STOPPED,
     BLE_NETCFG_EVENT_CONNECTED,
     BLE_NETCFG_EVENT_SUCCESS,
+    BLE_NETCFG_EVENT_GOT_IP,
     BLE_NETCFG_EVENT_FAILED,
 }BLE_NETCFG_EVENT;
 
@@ -35,5 +36,9 @@ BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback);
 BLE_NETCFG_STATE BLE_NetCfg_start(void);
 BLE_NETCFG_STATE BLE_NetCfg_stop(void);
 BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size);
+
+BLE_NETCFG_STATE BLE_NetCfg_wifi_info(char **ssid, char **passwd);
+BLE_NETCFG_STATE BLE_NetCfg_wifi_set(char *ssid, char *passwd);
+BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds);
 
 #endif
