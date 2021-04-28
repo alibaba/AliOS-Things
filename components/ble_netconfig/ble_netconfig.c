@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <ulog/ulog.h>
+#include <sys/ioctl.h>
 
 #include <aos/ble.h>
 #include <atomic.h>
@@ -16,13 +17,17 @@
 #include <ble_netconfig.h>
 #include <aos/cli.h>
 
-#define TAG "BLE_NETCFG"
+#include "uservice/eventid.h"
+
+#include "vfsdev/wifi_dev.h"
+
+#define BLE_NETCFG_TAG "BLE_NETCFG"
 #define BLE_NETCFG_CLI      1
 
-#define BLE_NETCFG_LOG_ERROR(fmt, ...)           LOGE(TAG, fmt, ##__VA_ARGS__)
-#define BLE_NETCFG_LOG_WARNING(fmt, ...)         LOGE(TAG, fmt, ##__VA_ARGS__)
-#define BLE_NETCFG_LOG_INFO(fmt, ...)            LOGE(TAG, fmt, ##__VA_ARGS__)
-#define BLE_NETCFG_LOG_DEBUG(fmt, ...)           LOGE(TAG, fmt, ##__VA_ARGS__)
+#define BLE_NETCFG_LOG_ERROR(fmt, ...)           LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
+#define BLE_NETCFG_LOG_WARNING(fmt, ...)         LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
+#define BLE_NETCFG_LOG_INFO(fmt, ...)            LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
+#define BLE_NETCFG_LOG_DEBUG(fmt, ...)           LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
 
 #define UUID_VENDOR_SERVICE                      UUID16_DECLARE(0xFFA0)
 #define UUID_VENDOR_CHAR_READ                    UUID16_DECLARE(0xFFA1)
@@ -42,8 +47,9 @@ enum {
     BLE_NETCFG_IDX_MAX,
 };
 
-#define BLE_NETCFG_DEV_NAME        "HaaS NetConfig"
-#define DEVICE_ADDR                 {0xE8,0x3B,0xE3,0x88,0xB4,0xC8}
+#define DEVICE_ADDR                {0xE8,0x3B,0xE3,0x88,0xB4,0xC8}
+
+static char dev_name[128] = {'0'};
 
 typedef struct {
     uint8_t inited;
@@ -51,10 +57,12 @@ typedef struct {
     uint8_t ssid_recved;
     uint8_t ssid[256];
     uint8_t passwd[256];
+    uint8_t devinfo_recved;
+    uint8_t product_key[32];
+    uint8_t device_name[64];
+    uint8_t device_secret[64];
     BLE_netCfg_callck callback;
-
     ble_event_cb_t stack_cb;
-
     int16_t conn_handle;
     int8_t need_adv;
     uint32_t gatt_svc_handle;
@@ -107,9 +115,6 @@ static void BLE_NetCfg_wifi_connect_handle(void)
             ret = netmgr_connect(netmgr_handle, &netmgr_params);
             BLE_NETCFG_LOG_INFO("%s: netmgr_connect return %d", __func__, ret);
 
-            // This setting is for Wi-Fi and BLE coexistence
-            netdev_set_epta_params(60000, 40000, 0);
-
             if (netCfg_info->callback) {
                 if (ret == 0) {
                     netCfg_info->callback(BLE_NETCFG_EVENT_SUCCESS, BLE_NETCFG_SUCCESS, NULL);
@@ -133,31 +138,137 @@ static void BLE_NetCfg_wifi_connect_handle(void)
 
 static void BLE_NetCfg_Parse(uint8_t *buf, uint16_t len)
 {
+    enum {
+        CMD_TYPE_NETCFG,    /* 配网命令的首个buf */
+        CMD_TYPE_DEVINFO,   /* 配置设备三元组命令的首个buf */
+        CMD_TYPE_FOLLOW     /* 命令的后续buf，即需要多次buf合并成一个完整命令 */
+    } cmd_type;
+
+    static uint8_t *buf_merge = NULL;
+    static int32_t recv_len = 0;   /* 已经接收到的命令长度 */
+    static int32_t total_len = 0;  /* 完整命令的长度 */
     int8_t ssid_len, pwd_len;
+    int8_t pk_len, dn_len, ds_len;
+    uint8_t *buf_temp;
     BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+    int32_t res;
 
-    ssid_len = buf[0];
-    pwd_len = buf[1];
-    if (len < ssid_len+pwd_len+2) {
-        BLE_NETCFG_LOG_ERROR("%s: NetConfig wrong data recv", __func__);
+    /*
+    BLE_NETCFG_LOG_INFO("%s payload: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+        __func__, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9]);
+    BLE_NETCFG_LOG_INFO("%s payload: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+        __func__, buf[10], buf[11], buf[12], buf[13], buf[14], buf[15], buf[16], buf[17], buf[18], buf[19]);
+    */
+
+    if ( buf[0] == 0xff && buf[1] == 0xa0 ) {
+        cmd_type = CMD_TYPE_NETCFG;
+    }
+    else if( buf[0] == 0xff && buf[1] == 0xb0 ) {
+        cmd_type = CMD_TYPE_DEVINFO;
+    }
+    else if(buf_merge != NULL) {
+        cmd_type = CMD_TYPE_FOLLOW;
+    }
+    else {
+        BLE_NETCFG_LOG_ERROR("%s: NetConfig not config data recv", __func__);
         return;
     }
 
-    if (netCfg_info->started == 0) {
-        BLE_NETCFG_LOG_ERROR("%s: not in netcfg state", __func__);
+    if ( cmd_type == CMD_TYPE_NETCFG || cmd_type == CMD_TYPE_DEVINFO ) {
+        if ( buf_merge != NULL ) {
+            /* 发生丢包了，抛弃前一次buffer */
+            BLE_NETCFG_LOG_ERROR("%s: NetConfig packet loss", __func__);
+            free(buf_merge);
+            buf_merge = NULL;
+        }
+
+        /* 申请buf_merge */
+        if ( cmd_type == CMD_TYPE_NETCFG ) {
+            /* APP下发的配网命令：  标识位（2B）FFA0 + SSID len（1B）+ pwd len（1B）+ SSID str + pwd str，没有str结束符 */
+            total_len = buf[2] + buf[3] + 4;
+        } else {
+            /* APP下发的三元组设置命令：  标识位（2B）FFA0 + PK len（1B）+ DN len（1B）+ DS len（1B）+ PK str + DN str + DS str，没有str结束符 */
+            total_len = buf[2] + buf[3] + buf[4] + 5;
+        }
+        buf_merge = malloc(total_len);
+        if ( buf_merge == NULL ) {
+            BLE_NETCFG_LOG_ERROR("%s: NetConfig malloc fail for buf_merge", __func__);
+            return;
+        }
+        recv_len  = 0;
+    }
+
+    /* 本次buf copy写入 buf_merge */
+    if ( len > total_len - recv_len) {
+        /* 发生丢包或错包，抛弃前一次buffer */
+        BLE_NETCFG_LOG_ERROR("%s: NetConfig packet error", __func__);
+        free(buf_merge);
+        buf_merge = NULL;
+        return;
+    }
+    memcpy(buf_merge + recv_len, buf, len);
+    recv_len += len;
+    if (recv_len < total_len) {
+        /* 包不完整，等待后续重新进入本流程 */
         return;
     }
 
-    strncpy(netCfg_info->ssid, buf+2, sizeof(netCfg_info->ssid) - 1);
-    if (ssid_len < sizeof(netCfg_info->ssid))
+    /* 包完整，进入后续解包流程 */
+
+    if ( buf_merge[0] == 0xff && buf_merge[1] == 0xa0 )  {
+        /* APP下发的配网命令：  标识位（2B）FFA0 + SSID len（1B）+ pwd len（1B）+ SSID str + pwd str，没有str结束符 */
+        ssid_len = buf_merge[2];
+        pwd_len  = buf_merge[3];
+
+        if (netCfg_info->started == 0) {
+            BLE_NETCFG_LOG_ERROR("%s: not in netcfg state", __func__);
+            return;
+        }
+        if ( ssid_len >= sizeof(netCfg_info->ssid) || pwd_len >= sizeof(netCfg_info->passwd) ) {
+            BLE_NETCFG_LOG_ERROR("%s: ssid or password too long", __func__);
+            return;
+        }
+
+        memcpy(netCfg_info->ssid, buf_merge + 4, ssid_len);
         netCfg_info->ssid[ssid_len] = 0;
-    strncpy(netCfg_info->passwd, buf+2+ssid_len, sizeof(netCfg_info->passwd) - 1);
-    if (pwd_len < sizeof(netCfg_info->passwd))
+
+        memcpy(netCfg_info->passwd, buf_merge + 4 + ssid_len, pwd_len);
         netCfg_info->passwd[pwd_len] = 0;
 
-    netCfg_info->ssid_recved = 1;
+        netCfg_info->ssid_recved = 1;
 
-    BLE_NETCFG_LOG_INFO("%s: NetConf SSID = %s, PWD = %s", __func__, netCfg_info->ssid, netCfg_info->passwd);
+        /* 消息接收完毕 */
+        BLE_NETCFG_LOG_INFO("%s: NetConf SSID = %s, PWD = %s", __func__, netCfg_info->ssid, netCfg_info->passwd);
+        free(buf_merge);
+        buf_merge = NULL;
+
+    } else if ( buf_merge[0] == 0xff && buf_merge[1] == 0xb0 )  {
+        /* APP下发的三元组设置命令：  标识位（2B）FFA0 + PK len（1B）+ DN len（1B）+ DS len（1B）+ PK str + DN str + DS str，没有str结束符 */
+        pk_len = buf_merge[2];
+        dn_len = buf_merge[3];
+        ds_len = buf_merge[4];
+
+        if ( pk_len >= sizeof(netCfg_info->product_key) || dn_len >= sizeof(netCfg_info->device_name) || ds_len >= sizeof(netCfg_info->device_secret) ) {
+            BLE_NETCFG_LOG_ERROR("%s: product_key or device_name or device_secret too long", __func__);
+            return;
+        }
+
+        memcpy(netCfg_info->product_key, buf_merge + 5, pk_len);
+        netCfg_info->product_key[pk_len] = 0;
+
+        memcpy(netCfg_info->device_name, buf_merge + 5 + pk_len, dn_len);
+        netCfg_info->device_name[dn_len] = 0;
+
+        memcpy(netCfg_info->device_secret, buf_merge + 5 + pk_len + dn_len, ds_len);
+        netCfg_info->device_secret[ds_len] = 0;
+
+        netCfg_info->devinfo_recved = 1;
+
+        /* 消息接收完毕 */
+        BLE_NETCFG_LOG_INFO("%s: pk_len = %d, dn_len = %d, ds_len = %d\n", __func__, pk_len, dn_len, ds_len);
+        free(buf_merge);
+        buf_merge = NULL;
+    }
 }
 
 static void BLE_NetCfg_event_conn_change(ble_event_en event, void *event_data)
@@ -234,7 +345,7 @@ static void BLE_NetCfg_event_adv_timeout(ble_event_en event, void *event_data)
     netCfg_info->need_adv = 1;
 }
 
-static void BLE_NetCfg_event_char_read(ble_event_en event, void *event_data)
+static int BLE_NetCfg_event_char_read(ble_event_en event, void *event_data)
 {
     evt_data_gatt_char_read_t *e = (evt_data_gatt_char_read_t *)event_data;
     int16_t handle_offset = 0;
@@ -269,6 +380,7 @@ static void BLE_NetCfg_event_char_read(ble_event_en event, void *event_data)
             break;
         }
     }
+    return 0;
 }
 
 static int BLE_NetCfg_event_char_write(ble_event_en event, void *event_data)
@@ -299,10 +411,10 @@ static int BLE_NetCfg_event_char_write(ble_event_en event, void *event_data)
             }
 
             /* data copy */
-            memcpy(g_BLE_netCfg_gatt_write_char + e->offset, e->data, BLE_MIN(e->len, sizeof(g_BLE_netCfg_gatt_write_char)));
+            memcpy(g_BLE_netCfg_gatt_write_char + e->offset, (void *)e->data, BLE_MIN(e->len, sizeof(g_BLE_netCfg_gatt_write_char)));
             e->len = BLE_MIN(e->len, sizeof(g_BLE_netCfg_gatt_write_char));
 
-            BLE_NetCfg_Parse(e->data, e->len);
+            BLE_NetCfg_Parse((uint8_t *)e->data, (uint16_t)e->len);
             break;
         default:
             e->len = 0;
@@ -381,7 +493,7 @@ static void BLE_NetCfg_start_adv(void)
         .interval_max = ADV_FAST_INT_MAX_1,
         .filter_policy = 0,
         .channel_map = 7,
-        .direct_peer_addr = NULL,
+        .direct_peer_addr = {0, {0}},
     };
 
     /* setup ADV Flags */
@@ -422,8 +534,8 @@ static int BLE_NetCfg_gatt_init(void)
     BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
 
     /* register gatt service */
-    ret = ble_stack_gatt_registe_service(&g_BLE_netCfg_gatt_service, 
-                                        g_BLE_netCfg_gatt_attrs, 
+    ret = ble_stack_gatt_registe_service(&g_BLE_netCfg_gatt_service,
+                                        g_BLE_netCfg_gatt_attrs,
                                         BLE_ARRAY_NUM(g_BLE_netCfg_gatt_attrs));
     if (ret < 0) {
         BLE_NETCFG_LOG_INFO("%s failed!, ret = %x\r\n", __func__, ret);
@@ -456,9 +568,23 @@ int BLE_NetCfg_cli_cmd_stop(int argc, char *argv[])
     return 0;
 }
 
+int BLE_NetCfg_cli_cmd_name(int argc, char *argv[])
+{
+    uint8_t *bt_addr = NULL;
+    extern uint8_t *factory_section_get_bt_address(void);
+
+    printf("netconfig device name %s\r\n", dev_name);
+
+    bt_addr = factory_section_get_bt_address();
+    printf("BT address %02x-%02x-%02x-%02x-%02x-%02x\r\n",
+            bt_addr[0], bt_addr[1], bt_addr[2], bt_addr[3], bt_addr[4], bt_addr[5]);
+    return 0;
+}
+
 static const struct ble_netCfg_shell_cmd ble_netCfg_commands[] = {
     { "start", BLE_NetCfg_cli_cmd_start, "None" },
     { "stop", BLE_NetCfg_cli_cmd_stop, "None" },
+    { "name", BLE_NetCfg_cli_cmd_name, "None" },
 };
 
 static void BLE_NetCfg_cli_cmd_handler(char *wbuf, int wbuf_len, int argc, char **argv)
@@ -503,21 +629,41 @@ static void BLE_NetCfg_cli_reg_cmd(void)
 
 #endif
 
+static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
+{
+    BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+
+    if (netCfg_info->stack_cb.callback) {
+        netCfg_info->callback(BLE_NETCFG_EVENT_GOT_IP, BLE_NETCFG_SUCCESS, NULL);
+    }
+}
+
 BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback)
 {
     int ret;
     BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
-    dev_addr_t addr = {DEV_ADDR_LE_RANDOM, DEVICE_ADDR};
+    uint8_t mac[6];
     init_param_t init = {
-        .dev_name = BLE_NETCFG_DEV_NAME,
-        .dev_addr = &addr,   //&addr,
+        .dev_name = NULL,
+        .dev_addr = NULL,   //&addr,
         .conn_num_max = 1,
     };
+    int fd;
 
     if (netCfg_info->inited) {
         BLE_NETCFG_LOG_ERROR("%s: already initial, ret = %x\r\n", __func__, ret);
         return BLE_NETCFG_ALREADY;
     }
+
+    fd = open("/dev/wifi0", O_RDWR);
+    if (fd < 0) {
+        return BLE_NETCFG_COMMON_FAILED;
+    }
+
+    ioctl(fd, WIFI_DEV_CMD_GET_MAC, (unsigned long)mac);
+
+    snprintf(dev_name, sizeof(dev_name), "HaaS-%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    init.dev_name = dev_name;
 
     /* bt stack init */
     ret = ble_stack_init(&init);
@@ -534,6 +680,9 @@ BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback)
         return BLE_NETCFG_COMMON_FAILED;
     }
 
+    extern int netdev_set_epta_params(int wlan_duration, int bt_duration, int hw_epta_enable);
+    netdev_set_epta_params(60000, 40000, 0);
+
     /* gatt service init */
     ret = BLE_NetCfg_gatt_init();
     if(ret) {
@@ -548,6 +697,8 @@ BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback)
         BLE_NETCFG_LOG_ERROR("%s: net mgr init, ret = %x\r\n", __func__, ret);
         return BLE_NETCFG_COMMON_FAILED;
     }
+
+    event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
 
     netCfg_info->callback = callback;
     netCfg_info->inited = 1;
@@ -616,4 +767,48 @@ BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size)
     BLE_NETCFG_LOG_DEBUG("%s: ret  = %d", __func__, ret);
 
     return state;
+}
+
+BLE_NETCFG_STATE BLE_NetCfg_wifi_info(char **ssid, char **passwd)
+{
+    BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+
+    if ( netCfg_info->ssid_recved != 1 ) {
+        return BLE_NETCFG_COMMON_FAILED;
+    }
+
+    *ssid   = netCfg_info->ssid;
+    *passwd = netCfg_info->passwd;
+
+    return BLE_NETCFG_SUCCESS;
+}
+
+BLE_NETCFG_STATE BLE_NetCfg_wifi_set(char *ssid, char *passwd)
+{
+    BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+
+    if ( strlen(ssid) >= sizeof(netCfg_info->ssid) || strlen(passwd) >= sizeof(netCfg_info->passwd) ) {
+        return BLE_NETCFG_COMMON_FAILED;
+    }
+
+    strcpy(netCfg_info->ssid, ssid);
+    strcpy(netCfg_info->passwd, passwd);
+    netCfg_info->ssid_recved = 1;
+
+    return BLE_NETCFG_SUCCESS;
+}
+
+BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds)
+{
+    BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
+
+    if ( netCfg_info->devinfo_recved != 1 ) {
+        return BLE_NETCFG_COMMON_FAILED;
+    }
+
+    *pk = netCfg_info->product_key;
+    *dn = netCfg_info->device_name;
+    *ds = netCfg_info->device_secret;
+
+    return BLE_NETCFG_SUCCESS;
 }
