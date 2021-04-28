@@ -1,0 +1,347 @@
+{
+  "schema": "https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json",
+  "profile": {
+    "version": "1.0",
+    "productKey": "a1DjPKCL3ud"
+  },
+  "properties": [
+    {
+      "identifier": "LightSwitch",
+      "name": "主灯开关",
+      "accessMode": "rw",
+      "required": true,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    },
+    {
+      "identifier": "HaaS100_LED_1",
+      "name": "HaaS100_LED_1",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    },
+    {
+      "identifier": "HaaS100_LED_2",
+      "name": "HaaS100_LED_2",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    },
+    {
+      "identifier": "HaaS100_LED_3",
+      "name": "HaaS100_LED_3",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    },
+    {
+      "identifier": "HaaS100_LED_4",
+      "name": "HaaS100_LED_4",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    },
+    {
+      "identifier": "HaaS100_LED_5",
+      "name": "HaaS100_LED_5",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "identifier": "post",
+      "name": "post",
+      "type": "info",
+      "required": true,
+      "desc": "属性上报",
+      "method": "thing.event.property.post",
+      "outputData": [
+        {
+          "identifier": "LightSwitch",
+          "name": "主灯开关",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_1",
+          "name": "HaaS100_LED_1",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_2",
+          "name": "HaaS100_LED_2",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_3",
+          "name": "HaaS100_LED_3",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_4",
+          "name": "HaaS100_LED_4",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_5",
+          "name": "HaaS100_LED_5",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "identifier": "Error",
+      "name": "故障上报",
+      "type": "error",
+      "required": true,
+      "method": "thing.event.Error.post",
+      "outputData": [
+        {
+          "identifier": "ErrorCode",
+          "name": "故障代码",
+          "dataType": {
+            "type": "enum",
+            "specs": {
+              "0": "恢复正常"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "identifier": "set",
+      "name": "set",
+      "required": true,
+      "callType": "async",
+      "desc": "属性设置",
+      "method": "thing.service.property.set",
+      "inputData": [
+        {
+          "identifier": "LightSwitch",
+          "name": "主灯开关",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_1",
+          "name": "HaaS100_LED_1",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_2",
+          "name": "HaaS100_LED_2",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_3",
+          "name": "HaaS100_LED_3",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_4",
+          "name": "HaaS100_LED_4",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_5",
+          "name": "HaaS100_LED_5",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        }
+      ],
+      "outputData": []
+    },
+    {
+      "identifier": "get",
+      "name": "get",
+      "required": true,
+      "callType": "async",
+      "desc": "属性获取",
+      "method": "thing.service.property.get",
+      "inputData": [
+        "LightSwitch",
+        "HaaS100_LED_1",
+        "HaaS100_LED_2",
+        "HaaS100_LED_3",
+        "HaaS100_LED_4",
+        "HaaS100_LED_5"
+      ],
+      "outputData": [
+        {
+          "identifier": "LightSwitch",
+          "name": "主灯开关",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_1",
+          "name": "HaaS100_LED_1",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_2",
+          "name": "HaaS100_LED_2",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_3",
+          "name": "HaaS100_LED_3",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_4",
+          "name": "HaaS100_LED_4",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        },
+        {
+          "identifier": "HaaS100_LED_5",
+          "name": "HaaS100_LED_5",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭",
+              "1": "开启"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

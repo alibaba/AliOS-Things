@@ -22,11 +22,101 @@
 #include "hal_uart.h"
 #include "hal_trace.h"
 
+#ifdef AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
+
 extern uart_dev_t uart_0;
 
 #define WRAP_P_BUF_LEN 2048
 uint8_t _wrap_p_buf[WRAP_P_BUF_LEN];
 int max_p_size = 0;
+
+
+#ifdef AOS_COMP_CLI
+static uint8_t char2data(const char ch)
+{
+    if ((ch >= '0') && (ch <= '9')) {
+        return (uint8_t)(ch - '0');
+    }
+    if ((ch >= 'a') && (ch <= 'f')) {
+        return (uint8_t)(ch - 'a' + 10);
+    }
+    if ((ch >= 'A') && (ch <= 'F')) {
+        return (uint8_t)(ch - 'A' + 10);
+    }
+
+    return 0;
+}
+static void str2mac(const char *sz_mac, uint8_t *pmac)
+{
+    const char *ptemp = sz_mac;
+    for (int i = 0; i < 6; ++i) {
+        pmac[i] = char2data(*ptemp++) * 16;
+        pmac[i] += char2data(*ptemp++);
+        ptemp++;
+    }
+}
+extern int factory_section_set_wifi_address(uint8_t *wifi_addr);
+extern uint8_t *factory_section_get_wifi_address(void);
+extern int factory_section_set_bt_address(uint8_t *bt_addr);
+extern uint8_t *factory_section_get_bt_address(void);
+
+static void handle_aos_mac_cmd(int argc, char **argv)
+{
+    int ret = 0;
+    const char *rtype = argc > 1 ? argv[1] : "";
+    const char *mac   = argc > 2 ? argv[2] : NULL;
+    uint8_t pmac[6];
+
+    if (mac != NULL) {
+        str2mac(mac, pmac);
+        printf("will set mac %02x:%02x:%02x:%02x:%02x:%02x\n",
+                pmac[0], pmac[1], pmac[2], pmac[3], pmac[4], pmac[5]);
+    }
+
+    if (strcmp(rtype, "WIFI") == 0) {
+        if (mac != NULL) {
+            ret = factory_section_set_wifi_address(pmac);
+            if (ret == 0) {
+                printf("set WIFI mac success!\n");
+            } else {
+                printf("set WIFI mac fail!\n");
+            }
+        } else {
+            uint8_t *_mac = factory_section_get_wifi_address();
+            if (_mac == NULL) {
+                printf("get WIFI mac fail\n");
+            } else {
+                printf("WIFI mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
+                        _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
+            }
+        }
+    } else if (strcmp(rtype, "BT") == 0) {
+        if (mac != NULL) {
+            ret = factory_section_set_bt_address(pmac);
+            if (ret == 0) {
+                printf("set BT mac success!\n");
+            } else {
+                printf("set BT mac fail!\n");
+            }
+        } else {
+            uint8_t *_mac = factory_section_get_bt_address();
+            if (_mac == NULL) {
+                printf("get BT mac fail\n");
+            } else {
+                printf("BT mac is %02x:%02x:%02x:%02x:%02x:%02x\n",
+                        _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
+            }
+        }
+    } else {
+        printf("Usage: aos_mac [WIFI/BT] [XX:XX:XX:XX:XX:XX]");
+    }
+}
+
+ALIOS_CLI_CMD_REGISTER(handle_aos_mac_cmd, aos_mac, "aos_mac [WIFI/BT] [mac]")
+#endif
+
 
 int __wrap_printf(const char *fmt, ...)
 {
