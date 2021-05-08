@@ -58,8 +58,8 @@ libc_stub组件是对C库桩函数（stubs）的实现，用于AliOS Things与C�
 ```yaml
 
 depends:
-  - ramfs: dev_aos
-  - libc_stub: dev_aos
+  - ramfs: rel_3.3.0
+  - libc_stub: rel_3.3.0
 
 ```
 

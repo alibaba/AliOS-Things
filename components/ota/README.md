@@ -102,7 +102,7 @@ ota_service_register_cb 注册用户升级回调函数
 
 ```yaml
 depends:
-  - ota: dev_aos
+  - ota: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

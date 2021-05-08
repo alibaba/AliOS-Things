@@ -104,8 +104,8 @@ src
 
 ```yaml
 depends:
-  - mbmaster: dev_aos # helloworld_demo中引入modbus组件
-  - ulog: dev_aos
+  - mbmaster: rel_3.3.0 # helloworld_demo中引入modbus组件
+  - ulog: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

@@ -73,7 +73,7 @@ aos_select/aos_poll功能定义与posix标准的select/poll兼容，可参考lin
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```sh
 depends:
-  - select: dev_aos # helloworld_demo中引入select组件
+  - select: rel_3.3.0 # helloworld_demo中引入select组件
 ```
 ## 步骤3 下载组件
 

@@ -142,7 +142,7 @@ io_i2c_data_t 结构体变量说明如下:
 ```yaml
 # 设置组件依赖关系
 depends:
-  - i2c: dev_aos
+  - i2c: rel_3.3.0
 
 # 设置芯片内部所含I2C控制器数量
 define:

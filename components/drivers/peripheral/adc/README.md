@@ -73,7 +73,7 @@ def_config:
 ```yaml
 
 depends:
-  - adc: dev_aos          # helloworld_demo中引入adc组件
+  - adc: rel_3.3.0          # helloworld_demo中引入adc组件
 
 ```
 

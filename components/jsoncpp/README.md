@@ -91,7 +91,7 @@ class JSON_API ValueIterator
 ```yaml
 
 depends:
-  - jsoncpp: dev_aos # helloworld_demo中引入jsoncpp组件
+  - jsoncpp: rel_3.3.0 # helloworld_demo中引入jsoncpp组件
 
 ```
 

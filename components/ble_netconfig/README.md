@@ -211,7 +211,7 @@ BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds)
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - ble_netconfig: dev_aos
+  - ble_netconfig: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

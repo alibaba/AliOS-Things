@@ -315,8 +315,8 @@ int setsockopt (int s, int level, int optname, const void *optval, socklen_t opt
 
 ```yaml
 depends:
-  - netmgr:dev_aos     # 添加netmgr依赖，使用netmgr连接wifi
-  - lwip:dev_aos       # helloworld_demo中引入lwip组件
+  - netmgr:rel_3.3.0     # 添加netmgr依赖，使用netmgr连接wifi
+  - lwip:rel_3.3.0       # helloworld_demo中引入lwip组件
 ```
 
 ## 步骤3 下载组件

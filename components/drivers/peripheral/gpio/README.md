@@ -129,7 +129,7 @@ int ioctl(int fd, IOC_GPIO_SET_IRQ, gpio_irq_config_t *config);
 ```yaml
 
 depends:
-  - gpio: dev_aos          # helloworld_demo中引入gpio组件
+  - gpio: rel_3.3.0          # helloworld_demo中引入gpio组件
 
 ```
 

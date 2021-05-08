@@ -226,7 +226,7 @@ mbedtls API用法与开源版本一致，API用法可以参考[mbedtls官网API�
 ```yaml
 
 depends:
-  - mbedtls: dev_aos          # helloworld_demo中引入mbedtls组件
+  - mbedtls: rel_3.3.0          # helloworld_demo中引入mbedtls组件
 
 ```
 

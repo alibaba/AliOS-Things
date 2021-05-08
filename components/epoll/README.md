@@ -73,7 +73,7 @@ https://man7.org/linux/man-pages/man7/epoll.7.html
 > helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - epoll: dev_aos # helloworld_demo中引入epoll组件
+  - epoll: rel_3.3.0 # helloworld_demo中引入epoll组件
 ```
 
 ## 步骤3 下载组件

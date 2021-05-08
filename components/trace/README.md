@@ -107,7 +107,7 @@ void SEGGER_SYSVIEW_PrintfTarget(const char *s, ...);
 
 ```yaml
 depends:
-  - trace: dev_aos # helloworld_demo中引入trace组件
+  - trace: rel_3.3.0 # helloworld_demo中引入trace组件
 ```
 
 ## 步骤3 下载组件
