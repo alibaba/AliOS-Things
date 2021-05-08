@@ -78,7 +78,7 @@ flash/
 ```yaml
 
 depends:
-  - flash: dev_aos          # helloworld_demo中引入flash组件
+  - flash: rel_3.3.0          # helloworld_demo中引入flash组件
 
 ```
 

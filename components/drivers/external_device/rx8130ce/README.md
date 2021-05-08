@@ -89,7 +89,7 @@ int rx8130ce_get_time(void *buf, uint8_t len);
 
 ```bash
 depends:
-  - rx8130ce: dev_aos # helloworld_demo中引入rx8130ce组件
+  - rx8130ce: rel_3.3.0 # helloworld_demo中引入rx8130ce组件
 ```
 
 ## 步骤3 下载组件

@@ -173,8 +173,8 @@ helloworld_demo作为一个基础组件，其本身依赖的组件相对较少�
 - 在helloworld_demo的yaml文件中添加组件依赖ramfs。由于需要使用标准vfs接口，因此还需要加上vfs组件。
 ```yaml
 depends:
-  - ramfs: dev_aos
-  - vfs: dev_aos
+  - ramfs: rel_3.3.0
+  - vfs: rel_3.3.0
 ```
 至于ramfs本身依赖的组件，则在ramfs自身的yaml中需要添加完全。
 

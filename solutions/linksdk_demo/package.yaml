@@ -1,5 +1,5 @@
 name: linksdk_demo
-version: dev_aos                                     # <必选项> 组件版本号
+version: rel_3.3.0                                     # <必选项> 组件版本号
 description: AliOS Things LinkSDK Data Model Demo
 
 type: solution
@@ -16,14 +16,14 @@ solution:
   # ld_script: gcc_eflash.ld
 
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: dev_aos
-  - haas100: dev_aos
-  - mbedtls: dev_aos
-  - netmgr: dev_aos
-  - lwip: dev_aos
-  - uservice: dev_aos
-  - wifi: dev_aos
-  - cli: dev_aos
+  - linksdk: rel_3.3.0
+  - haas100: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - lwip: rel_3.3.0
+  - uservice: rel_3.3.0
+  - wifi: rel_3.3.0
+  - cli: rel_3.3.0
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项
 

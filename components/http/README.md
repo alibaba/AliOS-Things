@@ -297,8 +297,8 @@ int httpclient_formdata_addfile(httpclient_data_t* client_data, char* content_di
 ```yaml
 
 depends:
-  - netmgr: dev_aos   # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - http: dev_aos     # helloworld_demo中引入http组件
+  - netmgr: rel_3.3.0   # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - http: rel_3.3.0     # helloworld_demo中引入http组件
 
 ```
 

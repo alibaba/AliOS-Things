@@ -85,7 +85,7 @@ def_config:
 
 ```sh
 depends:
-  - ulog: dev_aos # helloworld_demo中引入ulog组件
+  - ulog: rel_3.3.0 # helloworld_demo中引入ulog组件
 ```
 
 ## 步骤3 下载组件

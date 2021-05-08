@@ -86,8 +86,8 @@ def_config:
 ```yaml
 
 depends:
-  - a2sa: dev_aos          # helloworld_demo中引入a2sa组件
-  - littlefs: dev_aos      # a2sa组件wav播放器示例依赖littlefs文件系统组件
+  - a2sa: rel_3.3.0          # helloworld_demo中引入a2sa组件
+  - littlefs: rel_3.3.0      # a2sa组件wav播放器示例依赖littlefs文件系统组件
 
 def_config:
     CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaS100音频驱动开关

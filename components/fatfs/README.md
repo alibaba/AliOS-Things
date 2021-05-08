@@ -83,7 +83,7 @@ def_config:
 ```yaml
 
 depends:
-  - fatfs: dev_aos # helloworld_demo中引入fatfs组件
+  - fatfs: rel_3.3.0 # helloworld_demo中引入fatfs组件
 
 ```
 

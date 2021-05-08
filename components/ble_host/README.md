@@ -516,7 +516,7 @@ int ble_stack_dev_unpair(dev_addr_t *peer_addr)
 
 ```yaml
 depends:
-  - ble_host: dev_aos
+  - ble_host: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

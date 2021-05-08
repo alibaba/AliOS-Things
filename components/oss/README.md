@@ -154,10 +154,10 @@ char* oss_upload_local_content(char *keyId,
 
 ```yaml
 depends:
-  - linksdk: dev_aos
-  - mbedtls: dev_aos
-  - netmgr: dev_aos
-  - oss: dev_aos
+  - linksdk: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - oss: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

@@ -259,8 +259,8 @@ http://wiki.libsdl.org/CategoryAPI
 ```yaml
 
 depends:
-  - SDL2: dev_aos            # helloworld_demo组件中引入SDL2组件
-  - ili9341: dev_aos         # helloworld_demo 中引入ili9341屏幕驱动
+  - SDL2: rel_3.3.0            # helloworld_demo组件中引入SDL2组件
+  - ili9341: rel_3.3.0         # helloworld_demo 中引入ili9341屏幕驱动
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等

@@ -382,9 +382,9 @@ const char * rws_error_get_description(rws_error error)
 ```yaml
 
 depends:
-  - netmgr: dev_aos        # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - websocket: dev_aos     # helloworld_demo中引入websocket组件
-  - lwip: dev_aos          # helloworld_demo中引入lwip组件
+  - netmgr: rel_3.3.0        # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - websocket: rel_3.3.0     # helloworld_demo中引入websocket组件
+  - lwip: rel_3.3.0          # helloworld_demo中引入lwip组件
 ```
 
 ## 步骤3 下载组件

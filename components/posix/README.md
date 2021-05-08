@@ -84,7 +84,7 @@ posix
 ```yaml
 
 depends:
-  - posix: dev_aos          # helloworld_demo中引入posix组件
+  - posix: rel_3.3.0          # helloworld_demo中引入posix组件
 
 ```
 

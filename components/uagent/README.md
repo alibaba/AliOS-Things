@@ -65,11 +65,11 @@ uagent/
 > linkitsdk_dmeo solutions的package.yaml中添加依赖组件uagent组件
 ```yaml
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: dev_aos
-  - haas100: dev_aos
-  - mbedtls: dev_aos
-  - netmgr: dev_aos
-  - uagent: dev_aos   #添加uagent组件
+  - linksdk: rel_3.3.0
+  - haas100: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - uagent: rel_3.3.0   #添加uagent组件
 ```
 ## 步骤3 下载组件
 

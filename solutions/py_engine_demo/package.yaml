@@ -1,6 +1,6 @@
 
 name: py_engine_demo
-version: dev_aos                                   # <必选项> 组件版本号
+version: rel_3.3.0                                   # <必选项> 组件版本号
 description: start python engine demos
 
 type: solution
@@ -16,17 +16,17 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: dev_aos
-  - cli: dev_aos
-  - osal_aos: dev_aos
-  - a2sa: dev_aos
-  - uvoice: dev_aos
-  - littlefs: dev_aos
-  - netmgr: dev_aos
-  - py_engine: dev_aos
-  - lwip: dev_aos
-  - uservice: dev_aos
-  - wifi: dev_aos
+  - haas100: rel_3.3.0
+  - cli: rel_3.3.0
+  - osal_aos: rel_3.3.0
+  - a2sa: rel_3.3.0
+  - uvoice: rel_3.3.0
+  - littlefs: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - py_engine: rel_3.3.0
+  - lwip: rel_3.3.0
+  - uservice: rel_3.3.0
+  - wifi: rel_3.3.0
 
 # build_config:
 #   include:
