@@ -246,7 +246,7 @@ ALICLOUD_TTS_SUPPORT: 1
 > solution中helloworld_demo的package.yaml中添加
 ```yaml
 depends:
-  - uvoice: dev_aos # helloworld_demo中引入uvoice组件
+  - uvoice: rel_3.3.0 # helloworld_demo中引入uvoice组件
 ```
 
 ## 步骤3 下载组件

@@ -93,7 +93,7 @@ ioctl (fd, IOC_WDG_RELOAD, 0);
 ```yaml
 # 设置组件依赖关系
 depends:
-  - watchdog: dev_aos
+  - watchdog: rel_3.3.0
 
 # 设置芯片内部所含WATCHDOG控制器数量
 define:

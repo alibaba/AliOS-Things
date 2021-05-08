@@ -78,7 +78,7 @@ def_config:
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - spi: dev_aos # helloworld_demo中引入spi组件
+  - spi: rel_3.3.0 # helloworld_demo中引入spi组件
 ```
 
 ## 步骤3 下载组件

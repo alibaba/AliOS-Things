@@ -166,8 +166,8 @@ DLLExport int MQTTIsConnected(MQTTClient* client);
 
 ```yaml
 depends:
-  - netmgr: dev_aos   # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - mqtt: dev_aos     # helloworld_demo中引入mqtt组件
+  - netmgr: rel_3.3.0   # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - mqtt: rel_3.3.0     # helloworld_demo中引入mqtt组件
 ```
 
 ## 步骤3 下载组件

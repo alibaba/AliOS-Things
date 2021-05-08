@@ -113,7 +113,7 @@ int ioctl(int fd, IOC_UART_SET_CFLAG, unsigned long flags);
 ```yaml
 
 depends:
-  - uart: dev_aos          # helloworld_demo中引入uart组件
+  - uart: rel_3.3.0          # helloworld_demo中引入uart组件
 
 ```
 

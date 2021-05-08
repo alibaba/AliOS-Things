@@ -23,7 +23,7 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 * 在package.yaml 中增加py_engine组件依赖
 ```yaml
     depends:
-        - py_engine: dev_aos
+        - py_engine: rel_3.3.0
 ```
 * 增加头文件
 ```c

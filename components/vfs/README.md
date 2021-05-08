@@ -315,7 +315,7 @@ int aos_rmdir(const char *path);
 > 在helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - vfs: dev_aos # helloworld_demo中引入vfs组件
+  - vfs: rel_3.3.0 # helloworld_demo中引入vfs组件
 ```
 
 ## 步骤3 下载组件

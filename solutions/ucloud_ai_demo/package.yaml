@@ -1,6 +1,6 @@
 
 name: ucloud_ai_demo
-version: dev_aos                                   # <必选项> 组件版本号
+version: rel_3.3.0                                   # <必选项> 组件版本号
 description:  ucloud ai demo code
 
 type: solution
@@ -15,20 +15,20 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: dev_aos
-  - netmgr: dev_aos
-  - osal_aos: dev_aos
-  - cli: dev_aos
-  - linksdk: dev_aos
-  - ai_agent: dev_aos
-  - ugraphics: dev_aos
-  - ucamera: dev_aos
-  - uservice: dev_aos
-  - ucloud_ai: dev_aos
-  - debug: dev_aos
-  - ili9341: dev_aos
-  - lwip: dev_aos
-  - wifi: dev_aos
+  - haas100: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - osal_aos: rel_3.3.0
+  - cli: rel_3.3.0
+  - linksdk: rel_3.3.0
+  - ai_agent: rel_3.3.0
+  - ugraphics: rel_3.3.0
+  - ucamera: rel_3.3.0
+  - uservice: rel_3.3.0
+  - ucloud_ai: rel_3.3.0
+  - debug: rel_3.3.0
+  - ili9341: rel_3.3.0
+  - lwip: rel_3.3.0
+  - wifi: rel_3.3.0
 
 # build_config:
 #   include:

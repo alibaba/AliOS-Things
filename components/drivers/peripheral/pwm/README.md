@@ -120,7 +120,7 @@ int ioctl(int fd, int cmd, unsigned long arg);
 ```yaml
 # 设置组件依赖关系
 depends:
-  - pwm: dev_aos
+  - pwm: rel_3.3.0
 
 # 设置芯片内部所含PWM控制器数量
 define:

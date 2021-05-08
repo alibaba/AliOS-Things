@@ -98,7 +98,7 @@ def_config:
 ```yaml
 
 depends:
-  - kv: dev_aos # helloworld_demo中引入kv组件
+  - kv: rel_3.3.0 # helloworld_demo中引入kv组件
 
 ```
 

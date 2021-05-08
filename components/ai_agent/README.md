@@ -63,9 +63,9 @@ def_config:                      # 组件的可配置项
 ```yaml
 
 depends:
-  - ai_agent: dev_aos   # helloworld_demo中引入ai_agent组件
-  - netmgr: dev_aos     # helloworld_demo中引入netmgr组件
-  - littlefs: dev_aos   # helloworld_demo中引入littlefs组件
+  - ai_agent: rel_3.3.0   # helloworld_demo中引入ai_agent组件
+  - netmgr: rel_3.3.0     # helloworld_demo中引入netmgr组件
+  - littlefs: rel_3.3.0   # helloworld_demo中引入littlefs组件
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等

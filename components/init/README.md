@@ -81,7 +81,7 @@ init模块本身没有配置，相关的只有aos_component_init模块初始化�
 ```yaml
 
 depends:
-  - init: dev_aos # helloworld_demo中引入init组件
+  - init: rel_3.3.0 # helloworld_demo中引入init组件
 
 ```
 

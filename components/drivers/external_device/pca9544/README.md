@@ -159,7 +159,7 @@ int pca9544_raw_data_read(uint16_t subdev_addr, uint16_t reg_addr,
 
 ```bash
 depends:
-  - pca9544: dev_aos # helloworld_demo中引入pca9544组件
+  - pca9544: rel_3.3.0 # helloworld_demo中引入pca9544组件
 ```
 
 ## 步骤3 下载组件
