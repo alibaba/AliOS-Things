@@ -254,10 +254,41 @@ int _wait_r(struct _reent *ptr, int *status)
 
 int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
 {
-    uint64_t t  = aos_now_ms();
-    tv->tv_sec  = t / 1000;
-    tv->tv_usec = (t % 1000) * 1000;
+    uint64_t t;
+    struct timezone *tz = __tzp;
+
+    if (tv) {
+        t = aos_calendar_time_get();
+        tv->tv_sec  = t / 1000;
+        tv->tv_usec = (t % 1000) * 1000;
+    }
+
+    if (tz) {
+        /* Not supported. */
+        tz->tz_minuteswest = 0;
+        tz->tz_dsttime = 0;
+    }
+
     return 0;
+}
+
+long timezone = 0; /* global variable */
+
+struct tm* localtime_r(const time_t* t, struct tm* r)
+{
+    time_t time_tmp;
+    time_tmp = *t + timezone;
+    return gmtime_r(&time_tmp, r);
+}
+
+struct tm* localtime(const time_t* t)
+{
+    struct tm* timeinfo;
+    static struct tm tm_tmp;
+
+    timeinfo = localtime_r(t, &tm_tmp);
+
+    return timeinfo;
 }
 
 void *_malloc_r(struct _reent *ptr, size_t size)

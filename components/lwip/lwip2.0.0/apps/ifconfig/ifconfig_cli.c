@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017-2020 Alibaba Group Holding Limited
  */
-
+#if AOS_COMP_CLI
 #include "stdbool.h"
 #include "lwip/apps/ifconfig.h"
 #include <lwip/def.h>
@@ -46,3 +46,4 @@ int ifconfig_cli_register( void )
         return ERR_VAL;
     }
 }
+#endif /* AOS_COMP_CLI */

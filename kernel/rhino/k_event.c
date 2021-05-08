@@ -47,7 +47,6 @@ kstat_t krhino_event_create(kevent_t *event, const name_t *name, uint32_t flags)
 kstat_t krhino_event_del(kevent_t *event)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     NULL_PARA_CHK(event);
@@ -118,7 +117,6 @@ kstat_t krhino_event_dyn_create(kevent_t **event, const name_t *name, uint32_t f
 kstat_t krhino_event_dyn_del(kevent_t *event)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     NULL_PARA_CHK(event);
@@ -163,7 +161,6 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
                          uint32_t *actl_flags, tick_t ticks)
 {
     CPSR_ALLOC();
-
     kstat_t stat;
     uint8_t status;
     uint8_t cur_cpu_num;
@@ -252,7 +249,6 @@ kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
 static kstat_t event_set(kevent_t *event, uint32_t flags, uint8_t opt)
 {
     CPSR_ALLOC();
-
     klist_t  *iter;
     klist_t  *event_head;
     klist_t  *iter_temp;

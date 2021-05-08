@@ -19,10 +19,12 @@ depends:
   - cjson: dev_aos
   - cli: dev_aos
   - netmgr: dev_aos
-  - lwip: dev_aos ? <OTA_DEMO_CONFIG_USE_LWIP>
+  - lwip: dev_aos
   - haas100: dev_aos
   - netmgr: dev_aos
   - ulog: dev_aos
+  - uservice: dev_aos
+  - wifi: dev_aos
 
 # build_config:
 #   include:

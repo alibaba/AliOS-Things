@@ -20,7 +20,7 @@
   THE SOFTWARE.
  */
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include <stdio.h>
 #include <cJSON.h>
 #include <aos/cli.h>

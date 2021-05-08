@@ -7,7 +7,7 @@
     <tab type="modules" visible="yes" title="API用户手册" intro=""/>
     <tab type="examples" visible="yes" title="" intro=""/>
     <tab type="usergroup" visible="no" title="My Group">
-      <tab type="user" visible="yes" url="https://help.aliyun.com/product/123206.html" title="旧文档中心"/>
+      <tab type="user" visible="yes" url="https://help.aliyun.com/product/123206.html" title="文档中心"/>
     </tab>
   </navindex>
 

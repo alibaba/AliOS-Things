@@ -9,7 +9,7 @@ SDL正式支持Windows，Mac OS X，Linux，iOS和Android。在源代码中可�
 
 SDL用C编写，可与C ++一起使用，并且有绑定可用于其他几种语言，包括C＃和Python。
 
-# 版权信息
+## 版权信息
 > zlib license
 
 ## 目录结构
@@ -221,7 +221,7 @@ SDL用C编写，可与C ++一起使用，并且有绑定可用于其他几种语
 * udisplay
 
 # 常用配置
-```shell
+```yaml
 def_config:                              # 组件的可配置项
   __ALIOS__: 1
   LOAD_JPG: 1
@@ -288,11 +288,11 @@ aos install SDL2
 
 ## 步骤6 烧录固件
 
-上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 

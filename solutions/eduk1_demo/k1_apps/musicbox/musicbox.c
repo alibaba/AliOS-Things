@@ -1,7 +1,6 @@
 #include "musicbox.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <aos/cli.h>
 #include <vfsdev/pwm_dev.h>
 
 MENU_COVER_TYP musicbox_cover = {MENU_COVER_FUNC, NULL, NULL,

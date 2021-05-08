@@ -16,47 +16,11 @@ extern "C" {
  */
 
 #define BITMAP_UNIT_SIZE    32U
-#define BITMAP_UNIT_MASK    0X0000001F
+#define BITMAP_UNIT_MASK    (BITMAP_UNIT_SIZE - 1)
 #define BITMAP_UNIT_BITS    5U
 
-#define BITMAP_MASK(nr)     (1UL << (BITMAP_UNIT_SIZE - 1U - ((nr) & BITMAP_UNIT_MASK)))
+#define BITMAP_MASK(nr)     (1UL << (BITMAP_UNIT_MASK - ((nr) & BITMAP_UNIT_MASK)))
 #define BITMAP_WORD(nr)     ((nr) >> BITMAP_UNIT_BITS)
-
-/**
- * Declare a bitmap for task priority.
- *
- * @param[in]  name  the name of the bitmap to declare
- * @param[in]  bits  the bits of the bitmap
- *
- * @return  no return
- */
-#define BITMAP_DECLARE(name, bits) uint32_t name[((bits) + (BITMAP_UNIT_SIZE - 1U)) >> BITMAP_UNIT_BITS]
-
-/**
- * Set a bit of the bitmap for task priority.
- *
- * @param[in]  bitmap  pointer to the bitmap
- * @param[in]  nr      position of the bitmap to set
- *
- * @return  no return
- */
-RHINO_INLINE void krhino_bitmap_set(uint32_t *bitmap, int32_t nr)
-{
-    bitmap[BITMAP_WORD(nr)] |= BITMAP_MASK(nr);
-}
-
-/**
- * Clear a bit of the bitmap for task priority.
- *
- * @param[in]  bitmap  pointer to the bitmap
- * @param[in]  nr      position of the bitmap to clear
- *
- * @return  no return
- */
-RHINO_INLINE void krhino_bitmap_clear(uint32_t *bitmap, int32_t nr)
-{
-    bitmap[BITMAP_WORD(nr)] &= ~BITMAP_MASK(nr);
-}
 
 /**
  * Count Leading Zeros (clz).
@@ -71,7 +35,7 @@ RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
     uint8_t n = 0;
 
     if (x == 0) {
-        return BITMAP_UNIT_SIZE;
+        return 32;
     }
 
 #ifdef RHINO_BIT_CLZ
@@ -114,7 +78,7 @@ RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
     uint8_t n = 0;
 
     if (x == 0) {
-        return BITMAP_UNIT_SIZE;
+        return 32;
     }
 
 #ifdef RHINO_BIT_CTZ
@@ -145,13 +109,39 @@ RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
 }
 
 /**
+ * Set a bit of the bitmap for task priority.
+ *
+ * @param[in]  bitmap  pointer to the bitmap
+ * @param[in]  nr      position of the bitmap to set, from msb to lsb
+ *
+ * @return  no return
+ */
+RHINO_INLINE void krhino_bitmap_set(uint32_t *bitmap, int32_t nr)
+{
+    bitmap[BITMAP_WORD(nr)] |= BITMAP_MASK(nr);
+}
+
+/**
+ * Clear a bit of the bitmap for task priority.
+ *
+ * @param[in]  bitmap  pointer to the bitmap
+ * @param[in]  nr      position of the bitmap to clear
+ *
+ * @return  no return
+ */
+RHINO_INLINE void krhino_bitmap_clear(uint32_t *bitmap, int32_t nr)
+{
+    bitmap[BITMAP_WORD(nr)] &= ~BITMAP_MASK(nr);
+}
+
+/**
  * Find the first bit(1) of the bitmap.
  *
  * @param[in]  bitmap  pointer to the bitmap
  *
  * @return  the first bit position
  */
-RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
+RHINO_INLINE int32_t krhino_bitmap_first(uint32_t *bitmap)
 {
     int32_t  nr  = 0;
 

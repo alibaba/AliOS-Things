@@ -4,8 +4,10 @@
 
 #include <drivers/u_ld.h>
 #include <vfsdev/wifi_dev.h>
+#if(AOS_COMP_USERVICE > 0)
 #include <uservice/uservice.h>
 #include <uservice/eventid.h>
+#endif
 #include <aos/hal/wifi.h>
 #if LWIP_ETHERNETIF && !LWIP_SUPPORT
 #include <lwip/def.h>

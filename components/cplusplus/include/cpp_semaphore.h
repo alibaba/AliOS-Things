@@ -6,11 +6,17 @@
 #include <k_api.h>
 
 /** @defgroup cpp_aos_sem
- * @{
+ *  @ingroup cpp_aos_api
+ *  @{
  */
 namespace AOS {
 
 #define Semaphore_WAIT_FOREVER 0xFFFFFFFFU
+
+/**
+ * @brief Semaphore Class.
+ *
+ */
 
     class Semaphore
     {
@@ -73,6 +79,9 @@ namespace AOS {
         ksem_t *self(void);
 
       private:
+        /**
+         * @brief a Queue buffer
+         */
         ksem_t _sem_def;
     };
 

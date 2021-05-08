@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /**
- * @addtogroup aos_kernel 内核
+ * @addtogroup aos_kernel kernel
  * 提供AliOS Things内核功能的基础API.
  *
  * @{
@@ -655,7 +655,7 @@ aos_status_t aos_queue_get_count(aos_queue_t *queue);
  * @param[in]  arg       the argument of the callback.
  * @param[in]  ms        ms of the normal timer triger.
  * @param[in]  options     option settings, can be set to AOS_TIMER_AUTORUN|AOS_TIMER_REPEAT
- *
+ * @note fn first arg: timer->hdl, not aos_timer_t *timer; second arg: user param arg.
  * @return  0: success.
  */
 aos_status_t aos_timer_create(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
@@ -1139,7 +1139,7 @@ void *aos_queue_buf_ptr(aos_queue_t *queue);
  * @param[in]  arg     the argument of the callback.
  * @param[in]  ms      ms of the normal timer triger.
  * @param[in]  repeat  repeat or not when the timer is created.
- *
+ * @note fn first arg: timer->hdl, not aos_timer_t *timer; second arg: user param arg.
  * @return  0: success.
  */
 aos_status_t aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
@@ -1155,7 +1155,7 @@ aos_status_t aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void 
  * @param[in]  ms        ms of the normal timer triger.
  * @param[in]  repeat    repeat or not when the timer is created.
  * @param[in]  autorun   auto run.
- *
+ * @note fn first arg: timer->hdl, not aos_timer_t *timer; second arg: user param arg.
  * @return  0: success.
  */
 aos_status_t aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,

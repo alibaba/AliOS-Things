@@ -1,4 +1,5 @@
 
+#if AOS_COMP_CLI
 #include <string.h>
 #include <stdbool.h>
 #include "lwip/opt.h"
@@ -107,3 +108,4 @@ int ping_cli_register( void )
     else
         return ERR_VAL;
 }
+#endif /* AOS_COMP_CLI */

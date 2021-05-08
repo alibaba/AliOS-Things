@@ -1,4 +1,4 @@
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 #include <stdio.h>
@@ -80,7 +80,7 @@ static void fatfs_comp_example(int argc, char **argv)
     printf("fatfs component example end !\r\n");
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(fatfs_comp_example, fatfs_example, fatfs component base example)
 #endif

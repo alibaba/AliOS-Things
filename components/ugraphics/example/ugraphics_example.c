@@ -7,7 +7,7 @@
 #include <ulog/ulog.h>
 #include "ugraphics.h"
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -185,7 +185,7 @@ static void ugraphics_comp_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(ugraphics_comp_example, ugraphics, ugraphics component base example)
 #endif

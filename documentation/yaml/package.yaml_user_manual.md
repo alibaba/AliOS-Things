@@ -1,5 +1,7 @@
 @page packageyaml_user_manual 构建配置 package.yaml
 
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/yaml/package.yaml_user_manual.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+
 package.yaml是组件的配置文件，采用yaml文本的方式，配置组件包含哪些源文件，头文件，宏，以及组件依赖关系等等，替代了传统的makefile文件。
 # 构建规则说明
 yaml语法说明：[https://www.ruanyifeng.com/blog/2016/07/yaml.html](https://www.ruanyifeng.com/blog/2016/07/yaml.html)<br />[https://yaml.org/spec/1.2/spec.html](https://yaml.org/spec/1.2/spec.html)<br />
@@ -187,7 +189,7 @@ exit 0
 - 编写package.yaml
 
   在各个组件内部，将需要导出的h文件和预编译库添加到package.yaml的install部分。添加规则如下：<br />例如某个组件A的实际的文件列表如下：
-```
+```tree
 compa
 ├── package.yaml
 ├── README.md
@@ -207,7 +209,7 @@ compa
      └── libeeeee.a
 ```
 的 `build_confg`部分指定了对外头文件和预编译库：
-```
+```yaml
 build_config:
   include:
     - include/
@@ -217,7 +219,7 @@ build_config:
     - prebuilt
 ```
 那么install部分如下，其中头文件都放在Include目录下，预编译库都放在lib目录下。
-```
+```yaml
 install:
   # copy aaa.h bbb.h to aos_sdk/include
   - dest: "include"

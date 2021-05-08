@@ -251,11 +251,19 @@ enum k_poll_modes {
 
 #define popcount(x) __builtin_popcount(x)
 
-extern int ffs32_lsb(uint32_t i);
-extern int ffs32_msb(uint32_t i);
+static inline unsigned int find_msb_set(uint32_t op)
+{
+    if (op == 0) {
+        return 0;
+    }
 
-#define find_msb_set(x) ffs32_msb(x)
-#define find_lsb_set(x) ffs32_lsb(x)
+    return 32 - __builtin_clz(op);
+}
+
+static inline unsigned int find_lsb_set(uint32_t op)
+{
+    return __builtin_ffs(op);
+}
 
 #define k_thread_foreach(...)
 
@@ -275,7 +283,7 @@ extern int ffs32_msb(uint32_t i);
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(array) \
-	((unsigned long) (sizeof(array) / sizeof((array)[0])))
+    ((unsigned long) (sizeof(array) / sizeof((array)[0])))
 #endif
 
 typedef kbuf_queue_t _queue_t;

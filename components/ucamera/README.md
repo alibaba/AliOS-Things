@@ -8,7 +8,7 @@ ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄�
 ## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```tree
 ├── include
 │   ├── ucamera_common.h                 # 对外头文件
@@ -196,11 +196,11 @@ idf.py -p /dev/cu.SLAB_USBtoUART monitor
       address: 0xB32000
 ```
 
-上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
@@ -214,7 +214,7 @@ $ ucamera -t wifi                 # 获取一帧画面
 $ ls /data                        # 查看是否有capture.jpg文件生成
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucamera init # 在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可。
 ```
@@ -224,7 +224,7 @@ ucamera init # 在执行下面的测试命令前，该命令需要优先执行�
 ucamera comp init successfully!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucamera -t wifi
 ```
@@ -235,7 +235,7 @@ ucamera get frame OK!  # 测试结果正常确认(说明从wifi摄像头获取�
 save image to /data/capture.jpg successfully!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ls /data
 ```

@@ -16,7 +16,7 @@ uVoice是AliOS Things的音频组件，提供了RTOS系统上端到云全链路�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 .
 ├── aos.mk
 ├── application
@@ -215,13 +215,14 @@ ALICLOUD_TTS_SUPPORT: 1
 
 
 # API说明
-@ref uvoice_init_api
-@ref uvoice_types_api
-@ref uvoice_player_api
-@ref uvoice_recorder_api
-@ref uvoice_mlist_api
-@ref uvoice_event_api
-@ref uvoice_test_api
+
+- 参考 [uvoice_init_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__init__api.html)
+- 参考 [uvoice_types_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__types__api.html)
+- 参考 [uvoice_player_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__player__api.html)
+- 参考 [uvoice_recorder_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__recoder__api.html)
+- 参考 [uvoice_mlist_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__mlist__api.html)
+- 参考 [uvoice_event_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__event__api.html)
+- 参考 [uvoice_test_api](https://g.alicdn.com/alios-things-3.3/doc/group__uvoice__test__api.html)
 
 # 使用示例
 
@@ -243,7 +244,7 @@ ALICLOUD_TTS_SUPPORT: 1
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 
 > solution中helloworld_demo的package.yaml中添加
-```sh
+```yaml
 depends:
   - uvoice: dev_aos # helloworld_demo中引入uvoice组件
 ```
@@ -305,7 +306,7 @@ play "https:xxxxxxxxs/test.mp3"      # 这里文件名替换成实际https链接
 record 16000 1 16 1024 0 fs:/data/recording.wav
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 ```sh
 uvoice example initialization succeeded !

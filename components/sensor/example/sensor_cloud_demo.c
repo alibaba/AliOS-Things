@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-
-#include "aos/cli.h"
 #include "aos/kernel.h"
 #include "sensor/sensor.h"
 #include "ulog/ulog.h"

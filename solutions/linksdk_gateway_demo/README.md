@@ -1,5 +1,7 @@
 @page linksdk_gateway_demo 基于LinkSDK的网关示例
 
+[更正文档](https://gitee.com/alios-things/linksdk_gateway_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 1. 案例简介
 linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 
@@ -26,7 +28,7 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 # 2. 基础知识
 
 ## 2.1 基础目录结构
-```sh
+```tree
 
 .
 ├── main.c                   # 网络配置及SDK启动入口
@@ -44,14 +46,14 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 
 [HaaS100 硬件简介](https://help.aliyun.com/document_detail/184426.html)
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:800px;" />
 
 # 4. 案例实现
 
 ## 4.1 硬件连接
 该案例只需要连接电源线以及串口线，如下图所示：
 
-<img src="https://img.alicdn.com/imgextra/i3/O1CN01tPYjF31bqpdGkFbdD_!!6000000003517-0-tps-4032-3024.jpg" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i3/O1CN01tPYjF31bqpdGkFbdD_!!6000000003517-0-tps-4032-3024.jpg" style="max-width:800px;" />
 
 注意：由于本案例需要使用Wi-Fi联网，需将标有2.4G/5.8G的天线连接到HaaS100 靠近USB口的天线端子上，如上图所示。
 ## 4.2 软件实现
@@ -62,43 +64,43 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 
 注册登入后，如下图所示，前往管理控制台。
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01BN7DMd1IibotD78f6_!!6000000000927-2-tps-1308-490.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01BN7DMd1IibotD78f6_!!6000000000927-2-tps-1308-490.png" style="max-width:800px;" />
 
 点击公共实例，进行产品创建。
 
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01AjRz9z294Sk2dsMXe_!!6000000008014-2-tps-1328-792.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i2/O1CN01AjRz9z294Sk2dsMXe_!!6000000008014-2-tps-1328-792.png" style="max-width:800px;" />
 
 2、创建网关演示产品
 
 点击创建产品，见下图所示，这里创建了一个名称“haas_gateway”产品。
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01vpxC1F1FQnZfx4Znh_!!6000000000482-2-tps-1470-1788.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01vpxC1F1FQnZfx4Znh_!!6000000000482-2-tps-1470-1788.png" style="max-width:800px;" />
 
 3、创建网关设备
 
 在设备列表中增加对应产品的设备。
 
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01a8mOHP1zd8ZL5UYE0_!!6000000006736-2-tps-1392-624.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i2/O1CN01a8mOHP1zd8ZL5UYE0_!!6000000006736-2-tps-1392-624.png" style="max-width:800px;" />
 
 4、创建子设备演示产品
 
 点击创建产品，见下图所示，这里创建了一个名称“haas_subdev”产品。
 
-<img src="https://img.alicdn.com/imgextra/i3/O1CN01ur5LgC1h3GSlStLvf_!!6000000004221-2-tps-1504-1764.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i3/O1CN01ur5LgC1h3GSlStLvf_!!6000000004221-2-tps-1504-1764.png" style="max-width:800px;" />
 
 5、创建多个子设备
 
 在设备列表中增加对应产品的设备。
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN019rocNe1hsYp8IBufJ_!!6000000004333-2-tps-1816-738.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN019rocNe1hsYp8IBufJ_!!6000000004333-2-tps-1816-738.png" style="max-width:800px;" />
 
 创建后的设备三元组信息需要同步到设备端的开发代码段中，在4.2.2章节会介绍。待设备端开发结束，就可以在物联网平台中参看设备在线状态。
 
 ### 4.2.2 AliOS Things开发环境搭建
-开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
 ### 4.2.3 linksdk_gateway_demo代码下载
-物模型上云的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中，
+物模型上云的代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，其中，
 > 选择解决方案: “linksdk_gateway_demo”
 > 选择开发板: HaaS100
 
@@ -108,7 +110,7 @@ linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。
 注意：{your_project} 为studio中创建的工程名（基于linksdk_gateway_demo模板）。
 
 1.修改网关三元组，使用4.2.1章节得到的三元组填入代码如下区域：
-```sh
+```c
 int32_t demo_mqtt_start(void **handle)
 {
 ...
@@ -140,9 +142,9 @@ aiot_subdev_dev_t g_subdev[] = {
 ### 4.2.5 代码编译、烧录
 编译linksdk_gateway_demo的过程如下：
 
--- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+-- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
 
 ## 4.3 调试
 

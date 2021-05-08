@@ -71,7 +71,6 @@ source_file:
   - k_time.c
   - k_timer.c
   - k_workqueue.c
-  - k_ffs.c
   - k_rbtree.c
 
 ## 第五部分：配置信息

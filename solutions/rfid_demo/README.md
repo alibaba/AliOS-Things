@@ -1,4 +1,7 @@
 @page rfid_demo 基于HaaS100搭建云端一体RFID读卡器
+
+[更正文档](https://gitee.com/alios-things/rfid_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 1. 案例简介
 
 
@@ -10,11 +13,11 @@ RFID技术具有抗干扰性强以及无需人工识别的特点，所以常常�
 
 接下来我们学习下怎么基于HaaS100 搭建RFID读卡器，读取卡片信息，并且上传到阿里云IOT平台上。
 
-<img src="https://img.alicdn.com/imgextra/i2/O1CN012j7oiV1PpfERjfefk_!!6000000001890-2-tps-349-401.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i2/O1CN012j7oiV1PpfERjfefk_!!6000000001890-2-tps-349-401.png" style="max-width:800px;" />
 
 实验效果展示：
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01duVVEO1J7LCrbrpHm_!!6000000000981-2-tps-1704-860.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01duVVEO1J7LCrbrpHm_!!6000000000981-2-tps-1704-860.png" style="max-width:800px;" />
 
 # 2. 基础知识
 RFID射频识别系统的工作原理:
@@ -22,7 +25,7 @@ RFID射频识别系统的工作原理:
 
 典型的RFID系统主要由应用系统软件，RFID读写器，电子标签3部分构成。
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01dQNJ2x24FO6j8gfXW_!!6000000007361-2-tps-462-280.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01dQNJ2x24FO6j8gfXW_!!6000000007361-2-tps-462-280.png" style="max-width:800px;" />
 
 # 3. 物料清单
 
@@ -30,11 +33,11 @@ RFID射频识别系统的工作原理:
 
 [HaaS100 硬件简介](https://help.aliyun.com/document_detail/184426.html)
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:800px;" />
 
 ## 3.2 RFID读写器
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN015zTuPa1ipduhDVCPY_!!6000000004462-2-tps-720-364.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN015zTuPa1ipduhDVCPY_!!6000000004462-2-tps-720-364.png" style="max-width:800px;" />
 
 TX522 是一款基于13.56MHz频率的Mifare卡读写模块，可以支持多种类型卡，TX522 Mifare卡读写模块具有天线一体化，识别距离达到80mm。可以通过UART接口跟HaaS100进行通信。
 
@@ -82,7 +85,7 @@ RFID模块通过UART接口跟HaaS100进行通信。
 
 这个是HaaS100 硬件接口定义：
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01rvpScH1kBSOWmRDhj_!!6000000004645-2-tps-1066-1422.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01rvpScH1kBSOWmRDhj_!!6000000004645-2-tps-1066-1422.png" style="max-width:800px;" />
 
 红框部分是串口2的引脚。
 
@@ -100,7 +103,7 @@ RFID模块通过UART接口跟HaaS100进行通信。
 
 
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01n9cATi1c9brz4RRVl_!!6000000003558-0-tps-2048-1536.jpg" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01n9cATi1c9brz4RRVl_!!6000000003558-0-tps-2048-1536.jpg" style="max-width:800px;" />
 
 
 ## 4.2 接入阿里云IOT平台
@@ -109,27 +112,27 @@ RFID模块通过UART接口跟HaaS100进行通信。
 
 选择产品标签页，点击创建产品按钮，新建产品，填写产品信息。
 
-<img src="https://img.alicdn.com/imgextra/i3/O1CN01DAuLhk1fEb1qOeI7n_!!6000000003975-2-tps-976-1406.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i3/O1CN01DAuLhk1fEb1qOeI7n_!!6000000003975-2-tps-976-1406.png" style="max-width:800px;" />
 
 选择添加功能
 
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01MAjlRL1Cyk4t3RcMC_!!6000000000150-2-tps-2138-1264.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i2/O1CN01MAjlRL1Cyk4t3RcMC_!!6000000000150-2-tps-2138-1264.png" style="max-width:800px;" />
 
 点击编辑草稿按钮，编辑自定义功能，记录下标识符信息后面代码中会用到。
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01ZGA4bi1T1yjDtlKTV_!!6000000002323-2-tps-940-1370.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i4/O1CN01ZGA4bi1T1yjDtlKTV_!!6000000002323-2-tps-940-1370.png" style="max-width:800px;" />
 
 编辑完成后点击左下角发布上线。
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01T8sQFc1Wggmc5YR0C_!!6000000002818-0-tps-1513-830.jpg" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01T8sQFc1Wggmc5YR0C_!!6000000002818-0-tps-1513-830.jpg" style="max-width:800px;" />
 
 开始添加设备，选择设备标签页，点击添加设备按钮。
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01hrEJd92431PsCejIV_!!6000000007334-2-tps-910-802.png" alt="add.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i2/O1CN01hrEJd92431PsCejIV_!!6000000007334-2-tps-910-802.png" alt="add.png" style="max-width:800px;" />
 
 查看设备三元组信息：
 记录下设备的三元组信息： product key/device name/device secret ，这些信息后面要填写到代码中。
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01KFOGt21DY0ZfJh7f6_!!6000000000227-2-tps-1684-970.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01KFOGt21DY0ZfJh7f6_!!6000000000227-2-tps-1684-970.png" style="max-width:800px;" />
 
 ## 4.3 软件实现
 接下来我们开始编写HaaS 上的软件代码，读取串口数据，从中提取出卡片序列号,通过linkkit SDK接口将序列号发送给阿里云IOT平台。
@@ -137,14 +140,14 @@ RFID模块通过UART接口跟HaaS100进行通信。
 
 ### 4.3.1 软件流程图
 RFID相关代码在solutions/rfid_demo目录下。
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01SxtDtq1Cv4uV1PQdO_!!6000000000142-2-tps-638-1110.png" alt="image.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01SxtDtq1Cv4uV1PQdO_!!6000000000142-2-tps-638-1110.png" alt="image.png" style="max-width:800px;" />
 
 ### 4.3.2 HaaS100 串口通信部分
 
 UART串口操作代码可以参考这个文件：solutions/rfid_demo/rfid_app.c
 UART串口操作相关代码：
 
-```
+```c
 int rfid_uart_init(void)
 {
     int port_id = 2;
@@ -191,7 +194,7 @@ static void task_recvdata_entry(void *arg)
 我们使用send_property_post接口将读取的卡片序列号DeviceID发送给阿里云IOT平台。
 
 
-```
+```c
 //card_id 这个字符串是之前在阿里云IOT平台添加自定义功能时的标志符。
 //rfid_deviceid 里存储的是通过串口读到的RFID序列号。
 
@@ -203,9 +206,9 @@ send_property_post(params);
 ## 4.4 端云联调
 ### 4.4.1 下载软件版本
 
-开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-RFID的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
+RFID的代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，
 
 *> 选择解决方案: “rfid使用示例”或者“rfid demo”*
 
@@ -213,14 +216,15 @@ RFID的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
 
 源码下载完成后将在阿里云IOT平台获取的设备信息填写到文件solutions//rfid_demo/rfid_demo.c中。
 
-
+```c
     char *product_key       = "";
     char *device_name       = "";
     char *device_secret     = "";
+```
 
--- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+-- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
 
 ### 4.4.2 设备配网
 HaaS启动后通过串口命令行配网，输入如下指令可完成配网：
@@ -232,11 +236,11 @@ ssid, password 替换成你自己的网络热点信息。
 ### 4.4.3 演示效果图片
 当有RFID卡片靠近读卡器时，我们会在串口log里看到RFID卡片数据信息：
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01c8wrDo1YXBnUbLawp_!!6000000003068-2-tps-632-136.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01c8wrDo1YXBnUbLawp_!!6000000003068-2-tps-632-136.png" style="max-width:800px;" />
 
 在IOT平台上可以看到卡片的序列号。
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01DXv7B91z2xHBbdeNm_!!6000000006657-2-tps-1724-964.png" style="max-width:90%;" />
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01DXv7B91z2xHBbdeNm_!!6000000006657-2-tps-1724-964.png" style="max-width:800px;" />
 
 
 # 5. 总结

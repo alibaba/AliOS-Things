@@ -9,7 +9,8 @@
 extern "C" {
 #endif
 
-/** @defgroup flash_device_api flash_device
+/** @defgroup flash_device_api flash
+ *  @ingroup driver_api
  * @{
  */
 

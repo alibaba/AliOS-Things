@@ -5,7 +5,7 @@
 #include "aiagent_service.h"
 #include "aiagent_common.h"
 #include "ulog/ulog.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -571,7 +571,7 @@ static void aiagent_comp_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(aiagent_comp_example, aiagent, aiagent component base example)
 #endif

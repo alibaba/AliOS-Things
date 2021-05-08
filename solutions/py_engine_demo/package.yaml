@@ -19,10 +19,14 @@ depends:
   - haas100: dev_aos
   - cli: dev_aos
   - osal_aos: dev_aos
-#  - a2sa: dev_aos
+  - a2sa: dev_aos
+  - uvoice: dev_aos
   - littlefs: dev_aos
   - netmgr: dev_aos
   - py_engine: dev_aos
+  - lwip: dev_aos
+  - uservice: dev_aos
+  - wifi: dev_aos
 
 # build_config:
 #   include:
@@ -82,10 +86,12 @@ source_file:
   - unzip/src/inffast.c
 
 ## 第五部分：配置信息
-# def_config:                              # 组件的可配置项
+def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
+  MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 16384 # 增大SSL最大content size，避免播放URL异常
+  CONFIG_A7_DSP_ENABLE: 1                  # 使能HaaS100音频驱动开关
 
 ## 第六部分：安装信息
 install:

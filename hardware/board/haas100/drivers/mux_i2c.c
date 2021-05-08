@@ -8,7 +8,6 @@
 #include <aos/kernel.h>
 #include <k_api.h>
 #include "ulog/ulog.h"
-#include "aos/cli.h"
 #include "aos/hal/i2c.h"
 #include "pca9544.h"
 #include "mux_i2c.h"

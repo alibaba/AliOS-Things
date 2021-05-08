@@ -175,6 +175,13 @@ int netmgr_wifi_set_msg_cb(netmgr_hdl_t hdl, netmgr_msg_cb_t cb);
 
 int netmgr_wifi_del_msg_cb(netmgr_hdl_t hdl, netmgr_msg_cb_t cb);
 
+/**
+ * @brief  netmgr set auto save ap config
+ * @param  [in] auto_save_ap
+ * @return 0 on success, others on error
+ */
+int netmgr_wifi_set_auto_save_ap(bool auto_save_ap);
+
 /** @} */
 
 #if defined(__cplusplus)

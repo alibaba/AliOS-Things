@@ -89,7 +89,7 @@ static void sensor_local_demo(int argc, char **argv)
     return 0;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(sensor_local_demo, sensor_local_test, sensor local base example)
 #endif

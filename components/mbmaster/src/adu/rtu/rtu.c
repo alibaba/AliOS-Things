@@ -39,11 +39,11 @@ mb_status_t rtu_assemble(mb_handler_t *handler)
     memset(debug_buf, 0, sizeof(debug_buf));
     for (int i = 0; i < handler->mb_frame_length; i++) {
         debug_len += snprintf(debug_hex, sizeof(debug_hex),"0x%02x ", send_buf[i]);
-        if (debug_len > (sizeof(debug_buf))) {
+        if (debug_len >= (sizeof(debug_buf))) {
             LOGD(MODBUS_MOUDLE, "assemble debug buf is not enough");
             break;
         }
-        strncat(debug_buf, debug_hex, sizeof(debug_buf));
+        strncat(debug_buf, debug_hex, sizeof(debug_buf) - strlen(debug_buf) -1);
     }
     LOGD(MODBUS_MOUDLE, "%s", debug_buf);
 #endif
@@ -68,11 +68,11 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
     memset(debug_buf, 0, sizeof(debug_buf));
     for (int i = 0; i < handler->mb_frame_length; i++) {
         debug_len += snprintf(debug_hex, sizeof(debug_hex),"0x%02x ", recv_buf[i]);
-        if (debug_len > (sizeof(debug_buf))) {
+        if (debug_len >= (sizeof(debug_buf))) {
             LOGD(MODBUS_MOUDLE, "disassemble debug buf is not enough");
             break;
         }
-        strncat(debug_buf, debug_hex, sizeof(debug_buf));
+        strncat(debug_buf, debug_hex, sizeof(debug_buf) - strlen(debug_buf) -1);
     }
     LOGD(MODBUS_MOUDLE, "%s", debug_buf);
 #endif

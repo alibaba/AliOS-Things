@@ -313,7 +313,7 @@ int aos_rmdir(const char *path);
 
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 > 在helloworld_demo组件的package.yaml中添加
-```sh
+```yaml
 depends:
   - vfs: dev_aos # helloworld_demo中引入vfs组件
 ```

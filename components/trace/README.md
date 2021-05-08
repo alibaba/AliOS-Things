@@ -12,11 +12,11 @@ SystemView 嵌入式端程序：用于记录嵌入式系统的行为，通过实
 
 SystemView PC端程序：用于收集目标板上传的数据信息，并在不同的窗口中显示这些信息。这些记录可以保存到文件中，用于以后的分析。
 
-# 版权信息
+## 版权信息
 
 > Apache license v2.0
 
-# 目录结构
+## 目录结构
 
 ```tree
 ├── Config
@@ -42,7 +42,7 @@ SystemView PC端程序：用于收集目标板上传的数据信息，并在不�
 └── package.yaml                             # 编译配置文件
 ```
 
-# 依赖组件
+## 依赖组件
 
 * 无
 
@@ -52,7 +52,7 @@ SystemView PC端程序：用于收集目标板上传的数据信息，并在不�
 
 > RTT 缓存大小，默认1024,  可修改为4096，修改yaml配置如下：
 
-```sh
+```yaml
 def_config:
      SEGGER_SYSVIEW_RTT_BUFFER_SIZE: 4096
 ```
@@ -84,8 +84,8 @@ void SEGGER_SYSVIEW_PrintfTarget(const char *s, ...);
 
 硬件连接图：
 
-<img src="https://img.alicdn.com/imgextra/i4/O1CN01RD9QyS1zD1zYKLKxv_!!6000000006679-2-tps-976-671.png" alt="undefined" style="zoom:70%;" />
-
+<div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i4/O1CN01RD9QyS1zD1zYKLKxv_!!6000000006679-2-tps-976-671.png" style="max-width:800px;" /> 
+</div>
 
 
 组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
@@ -107,7 +107,7 @@ void SEGGER_SYSVIEW_PrintfTarget(const char *s, ...);
 
 ```yaml
 depends:
-  - trace: master # helloworld_demo中引入trace组件
+  - trace: dev_aos # helloworld_demo中引入trace组件
 ```
 
 ## 步骤3 下载组件
@@ -126,12 +126,17 @@ aos install trace
 
 修改文件solutions/helloworld_demo/helloworld.c
 
-```sh
+
 添加头文件
+```c
 #include "SEGGER_SYSVIEW.h"
+```
 将
+```c
 printf("hello world! count %d \r\n", count++);
+```
 改为；
+```c
 SEGGER_SYSVIEW_PrintfTarget("hello world! count %d \r\n", count++);
 ```
 
@@ -151,36 +156,39 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 
 ## 步骤8 测试示例
 
-# 运行
-
-## 1 下载安装SystemView
+**1 下载安装SystemView**
 [SystemView下载地址](www.segger.com/downloads/systemview)
 
 根据你所用的操作系统下载对应版本的SystemView，然后进行安装。
 
-## 2 配置SystemView
+**2 配置SystemView**
 
 拷贝components/trace/Config/SYSVIEW_AliOSThings.txt文件到PC机SystemView软件安装目录 C:\Program Files\SEGGER\SystemView\Description下。
 
 
-## 3 打开SystemView PC软件
+**3 打开SystemView PC软件**
 点击菜单栏Target打开 Recorder Configuration。
-![undefined](https://img.alicdn.com/imgextra/i2/O1CN01szknPD1ogNbBQBZEU_!!6000000005254-2-tps-488-266.png)
+
+<div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i2/O1CN01szknPD1ogNbBQBZEU_!!6000000005254-2-tps-488-266.png" style="max-width:800px;" /> 
+</div>
 
 参考下图配置参数信息，其中 Address 信息可以从开机串口log 中获取：
 例如开机串口log中显示：_SEGGER_RTT:0x34683a1c。
 
-![undefined](https://img.alicdn.com/imgextra/i3/O1CN01aiPYrd1Ij4DVZLR9h_!!6000000000928-2-tps-640-762.png)
+<div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i3/O1CN01aiPYrd1Ij4DVZLR9h_!!6000000000928-2-tps-640-762.png" style="max-width:800px;" /> 
+</div>
 
+**4 开始采集**
 
-
-## 4 开始采集
 点击菜单栏Target打开 Start Recording
-![undefined](https://img.alicdn.com/imgextra/i2/O1CN01E4UIcZ24f2Hwl6Hco_!!6000000007417-2-tps-452-258.png)
+
+<div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i2/O1CN01E4UIcZ24f2Hwl6Hco_!!6000000007417-2-tps-452-258.png" style="max-width:800px;" /> 
+</div>
 
 采集效果界面显示如下：
 
-![undefined](https://img.alicdn.com/imgextra/i3/O1CN01YKD6fE1Pg2uvaaGmx_!!6000000001869-2-tps-2826-1754.png)
+<div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i3/O1CN01YKD6fE1Pg2uvaaGmx_!!6000000001869-2-tps-2826-1754.png" style="max-width:800px;" /> 
+</div>
 
 # 注意
 

@@ -1,4 +1,7 @@
 @page helloworld_demo helloworld简单示例
+
+[更正文档](https://gitee.com/alios-things/helloworld_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 1. 案例简介
 helloworld_demo是我们提供的最简化的运行实例，该app从字面上来看功能也比较简单，即完成**hello world!**的关键字符输出，以表明系统初始化完成并能够正常输出。但是虽然功能看似简单单一，该app能够运行成功，即代码内核小系统以及基本的打印输出功能即正常运行。
 其完成的主要功能包括：
@@ -16,7 +19,7 @@ helloworld_demo是我们提供的最简化的运行实例，该app从字面上�
 # 2. 基础知识
 ## 2.1 基础目录结构
 
-```sh
+```tree
 .
 ├── helloworld.c   # 该solution核心打印输出代码，入口**application_start**
 ├── k_app_config.h # 内核组件的配置开关，优先级低于**k_config.h**
@@ -93,7 +96,7 @@ application_start是实际solution的实现，即app的统一入口。
 ## 2.3 基本运行流程
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hHWuKH1gO2oeDXMtR_!!6000000004131-2-tps-399-302.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hHWuKH1gO2oeDXMtR_!!6000000004131-2-tps-399-302.png" style="max-width:800px;" />
 </div>
 
 # 3. 物料清单
@@ -103,7 +106,7 @@ application_start是实际solution的实现，即app的统一入口。
 [HaaS100 硬件简介](https://help.aliyun.com/document_detail/184426.html)
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" style="max-width:800px;" />
 </div>
 
 # 4. 案例实现
@@ -112,7 +115,7 @@ application_start是实际solution的实现，即app的统一入口。
 该案例只需要连接电源线以及串口线，如下图所示：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg" style="max-width:800px;" />
 </div>
 
 ## 4.2 软件实现
@@ -136,17 +139,17 @@ int application_start(int argc, char *argv[])
 其中系统能够正常打印代表uart功能正常；能够循环1S打印代表tick中断以及任务切换功能正常。
 
 ## 4.3 编译下载
-开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-helloworld_demo的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，
+helloworld_demo的代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，
 
 *> 选择解决方案: “helloworld简单示例”*
 
 *> 选择开发板: Haas100 board configure*
 
--- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+-- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
 
 ## 4.4 串口输出效果
 ```sh
@@ -168,7 +171,7 @@ helloworld_demo作为一个基础组件，其本身依赖的组件相对较少�
 
 ## 5.1 yaml增加组件
 - 在helloworld_demo的yaml文件中添加组件依赖ramfs。由于需要使用标准vfs接口，因此还需要加上vfs组件。
-```sh
+```yaml
 depends:
   - ramfs: dev_aos
   - vfs: dev_aos
@@ -179,7 +182,7 @@ depends:
 如下图，先注册一个根目录为**/test**的ramfs：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01yyLyVL1mbgIjh55DK_!!6000000004973-2-tps-660-404.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01yyLyVL1mbgIjh55DK_!!6000000004973-2-tps-660-404.png" style="max-width:800px;" />
 </div>
 
 - 添加功能调用

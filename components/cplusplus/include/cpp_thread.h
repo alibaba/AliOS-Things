@@ -6,11 +6,17 @@
 #include <k_api.h>
 
 /** @defgroup cpp_aos_thread
+ *  @ingroup cpp_aos_api
  * @{
  */
 namespace AOS {
 
 #define Thread_WAIT_FOREVER 0xFFFFFFFFU
+
+/**
+ * @brief thread Class.
+ *
+ */
 
     class thread
     {
@@ -132,6 +138,9 @@ namespace AOS {
 #endif
 
       private:
+        /**
+         * @brief a Queue buffer
+         */
         ktask_t *p_thread_def;
     };
 

@@ -15,7 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/ble.h>
-#include <aos/cli.h>
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
 
 #include <misc/byteorder.h>
 #include <ble_os.h>
@@ -2219,6 +2221,7 @@ static void cmd_ble_func(char *wbuf, int wbuf_len, int argc, char **argv)
     }
 }
 
+#if AOS_COMP_CLI
 void cli_reg_cmd_ble(void)
 {
     static const struct cli_command cmd_info = {
@@ -2229,3 +2232,4 @@ void cli_reg_cmd_ble(void)
 
     aos_cli_register_command(&cmd_info);
 }
+#endif /* AOS_COMP_CLI */

@@ -3,7 +3,6 @@
  */
 
 #include "st7789.h"
-#include "aos/cli.h"
 #include "aos/vfs.h"
 #include "vfsdev/gpio_dev.h"
 #include "vfsdev/spi_dev.h"

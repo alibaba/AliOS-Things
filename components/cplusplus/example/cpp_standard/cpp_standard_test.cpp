@@ -4,7 +4,7 @@
 #include "aos/kernel.h"
 #include <aos_cpp.h>
 #include <stdio.h>
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -35,7 +35,7 @@ void cpp_standard_example(int argc, char *argv[])
     atomic_test();
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(cpp_standard_example,
                        cpp_stand,

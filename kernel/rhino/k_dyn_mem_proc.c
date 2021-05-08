@@ -13,7 +13,6 @@ void krhino_utask_free_res(ktask_t *task);
 void dyn_mem_proc_task(void *arg)
 {
     CPSR_ALLOC();
-
     size_t      i;
     kstat_t     ret;
     res_free_t *res_free;

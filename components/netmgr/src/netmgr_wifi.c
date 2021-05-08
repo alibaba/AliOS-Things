@@ -12,7 +12,9 @@
 #include "netmgr_wifi.h"
 #include "netmgr_conn.h"
 #include "string_convert.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 #include "uservice/uservice.h"
 #include "uservice/eventid.h"
 #include "lwip/dhcp.h"
@@ -3192,9 +3194,9 @@ static void wifi_handle_cmd(int argc, char **argv)
         if((argc > 1) && ((strcmp(argv[1], "0") == 0) || (strcmp(argv[1], "1") == 0))) {
             int enable = atoi(argv[1]);
             if(enable) {
-                g_is_auto_save_ap_config = true;
+                netmgr_wifi_set_auto_save_ap(true);
             } else {
-                g_is_auto_save_ap_config = false;
+                netmgr_wifi_set_auto_save_ap(false);
             }
         } else {
             NETMGR_WIFI_LOGI("%s:%d invalid params\n", __func__, __LINE__);
@@ -3341,7 +3343,9 @@ static void wifi_handle_cmd(int argc, char **argv)
         close(fd);
     } else if (strcmp(rtype, "-d") == 0) {
         int err;
-        if((err = remove(NETMGR_WIFI_CONF)) == 0) {
+        if((err = remove(NETMGR_WIFI_CONF)) == 0 &&
+           (err = remove(NETMGR_WIFI_STATUS)) == 0 &&
+           (err = remove(NETMGR_WIFI_TEMP_PATH)) == 0) {
             NETMGR_WIFI_LOGI("%s:%d remove success\n", __func__, __LINE__);
         } else {
             NETMGR_WIFI_LOGE("%s:%d remove failed errno=%d %s\n", __func__, __LINE__, errno, strerror(errno));
@@ -3414,6 +3418,13 @@ static void wifi_handle_cmd(int argc, char **argv)
     } else {
         handle_netmgr_wifi_help_cmd();
     }
+}
+
+int netmgr_wifi_set_auto_save_ap(bool auto_save_ap)
+{
+    g_is_auto_save_ap_config = auto_save_ap;
+
+    return 0;
 }
 
 #if AOS_COMP_CLI

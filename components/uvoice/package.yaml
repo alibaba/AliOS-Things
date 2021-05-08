@@ -60,6 +60,8 @@ build_config:
     - internal
     - application/alicloudtts/include
 
+  prebuild_script: get_open_source.py
+
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:

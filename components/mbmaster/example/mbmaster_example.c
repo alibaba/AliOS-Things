@@ -5,7 +5,7 @@
 #include "aos/kernel.h"
 #include "mbmaster.h"
 #include "ulog/ulog.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -100,7 +100,7 @@ int mbmaster_comp_example(int argc, char *argv[])
     return 0;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(mbmaster_comp_example, mbmaster_example, mbmaster component base example)
 #endif

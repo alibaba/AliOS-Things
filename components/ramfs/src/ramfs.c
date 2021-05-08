@@ -562,11 +562,12 @@ int32_t ramfs_rename(const char *old, const char *new)
         return RAMFS_ERR_NOT_IMP;
     }
 
-    entry->fn = ramfs_mm_realloc(entry->fn, strlen(new));
+    entry->fn = ramfs_mm_realloc(entry->fn, strlen(new) + 1);
     if (entry->fn == NULL) {
         return RAMFS_ERR_MALLOC;
     }
-    strcpy(entry->fn, new);
+    memset(entry->fn, 0 , strlen(new) + 1);
+    strncpy(entry->fn, new, strlen(new));
 
     return RAMFS_OK;
 }
@@ -798,13 +799,14 @@ int32_t ramfs_opendir(void *dp, const char *path)
         }
     }
 
-    ramfs_dp->dir_name = ramfs_mm_alloc(strlen(path));
+    ramfs_dp->dir_name = ramfs_mm_alloc(strlen(path) + 1);
 
     if (ramfs_dp->dir_name == NULL) {
         return RAMFS_ERR_FULL;
     }
+    memset(ramfs_dp->dir_name, 0 ,strlen(path) + 1);
 
-    strcpy(ramfs_dp->dir_name, path);
+    strncpy(ramfs_dp->dir_name, path, strlen(path));
     ramfs_dp->last_entry = NULL;
 
     return RAMFS_OK;
@@ -847,7 +849,8 @@ int32_t ramfs_readdir(void *dp, char *fn)
     }
 
     if (ramfs_dp->last_entry != NULL) {
-        strcpy(fn, data);
+        strncpy(fn, data, strlen(data));
+        fn[strlen(data)] = '\0';
     } else {
         return RAMFS_ERR_NOT_EXIST;
     }
@@ -942,9 +945,10 @@ int ramfs_add_link(ramfs_entry_t *entry, char *path)
     link_name_c = ramfs_mm_alloc(sizeof(link_name_t));
 
     if (link_name_c != NULL) {
-        link_name_c->name = ramfs_mm_alloc(strlen(path));
+        link_name_c->name = ramfs_mm_alloc(strlen(path) + 1);
         if (link_name_c->name != NULL) {
-            strcpy(link_name_c->name, path);
+            memset(link_name_c->name, 0, strlen(path) + 1);
+            strncpy(link_name_c->name, path, strlen(path));
             link_name_c->next = NULL;
             entry->link_count += 1;
         } else {
@@ -980,12 +984,12 @@ int ramfs_remove_link(ramfs_entry_t *entry, char *path)
 
     if (strncmp(link_name->name, path, strlen(path)) == 0) {
         ramfs_mm_free(link_name->name);
-        link_name->name = ramfs_mm_alloc(strlen(link_name->next->name));
+        link_name->name = ramfs_mm_alloc(strlen(link_name->next->name) + 1);
         if (link_name->name == NULL) {
             return RAMFS_ERR_MALLOC;
         }
-
-        strcpy(link_name->name, link_name->next->name);
+        memset(link_name->name, 0 , strlen(link_name->next->name) + 1);
+        strncpy(link_name->name, link_name->next->name, strlen(link_name->next->name));
         link_name->next = link_name->next->next;
         entry->link_count -= 1;
     } else {

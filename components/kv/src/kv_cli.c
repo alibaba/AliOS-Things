@@ -1,19 +1,11 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
-#ifndef AOS_COMP_CLI
-#include "cli/cli_api.h"
-void kv_register_cli_command(void) {}
-#else
-
+#if AOS_COMP_CLI
 #include <stdint.h>
-
 #include "kv.h"
-
 #include "kv_adapt.h"
 #include "kv_types.h"
-
 #include "aos/cli.h"
 
 extern kv_item_t *kv_item_traverse(item_func func, uint8_t blk_idx, const char *key);
@@ -131,13 +123,20 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         } else {
             cli_printf("value is %d\r\n", num);
         }
+    } else if (strcmp(rtype, "clr") == KV_OK) {
+        cli_printf("kv list before clear:\r\n", res);
+        for (i = 0; i < KV_BLOCK_NUMS; i++) {
+            kv_item_traverse(__item_print_cb, i, NULL);
+        }
+        kv_item_delete_by_prefix(NULL);
+        cli_printf("kv clear success!\r\n", res);
     }
 
     return;
 }
 
 static struct cli_command kv_cmd = {
-    "kv", "kv [set key value | get key | del key | seti key int_val | geti key | list]", handle_kv_cmd
+    "kv", "kv [set key value | get key | del key | seti key int_val | geti key | list | clr]", handle_kv_cmd
 };
 
 void kv_register_cli_command(void)
@@ -145,5 +144,5 @@ void kv_register_cli_command(void)
     aos_cli_register_command(&kv_cmd);
 }
 
-#endif
+#endif /* AOS_COMP_CLI */
 

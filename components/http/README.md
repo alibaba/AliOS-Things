@@ -16,7 +16,7 @@ HTTP(HyperText Transfer Protocol)是一款用于传输超文本的应用层协�
 > Apache 2.0 License
 
 ## 目录结构
-```sh
+```tree
 .
 ├── include
 │   └── httpclient.h          # 对外头文件
@@ -37,29 +37,29 @@ HTTP(HyperText Transfer Protocol)是一款用于传输超文本的应用层协�
 # 常用配置
 http的常用配置在文件**package.yaml内**
 > CONFIG_HTTP_SECURE ：是否开启HTTPS支持，默认开启
-```C
+```yaml
 CONFIG_HTTP_SECURE: 1
 ```
 > CONFIG_HTTP_FILE_OPERATE ：是否使用文件操作，默认关闭
-```C
+```yaml
 CONFIG_HTTP_FILE_OPERATE: 0
 ```
 
 http的内部配置在文件**internal/http_opts.h内**
 > HTTPCLIENT_AUTHB_SIZE ： http认证数据（用户名、密码）长度
-```C
+```c
 #ifndef HTTPCLIENT_AUTHB_SIZE
 #define HTTPCLIENT_AUTHB_SIZE     128
 #endif
 ```
 > HTTPCLIENT_CHUNK_SIZE ： http chunk块数据大小
-```C
+```c
 #ifndef HTTPCLIENT_CHUNK_SIZE
 #define HTTPCLIENT_CHUNK_SIZE     1024
 #endif
 ```
 > HTTPCLIENT_SEND_BUF_SIZE ： http发送缓存大小
-```C
+```c
 #ifndef HTTPCLIENT_SEND_BUF_SIZE
 #define HTTPCLIENT_SEND_BUF_SIZE  512
 #endif
@@ -98,7 +98,8 @@ http的内部配置在文件**internal/http_opts.h内**
 ```
 
 # API说明
-@ref http API
+- 参考 [aos_httpclient_api](https://g.alicdn.com/alios-things-3.3/doc/group__aos__httpclient__api.html)
+
 
 ## 分配HTTP请求头部缓存和响应缓存
 ```C
@@ -354,7 +355,7 @@ netmgr -t wifi -c ssid password
 http_example
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 ```shell
 http comp test success!

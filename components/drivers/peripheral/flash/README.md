@@ -28,7 +28,7 @@ AliOS Things的全部标准分区在components/drivers/peripheral/flash/include/
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 flash/
 |-- example
 |   |-- flash_example.c   # Flash示例代码
@@ -53,7 +53,8 @@ flash/
 无
 
 # API说明
-@ref flash_device_api
+
+- 参考 [flash_device_api](https://g.alicdn.com/alios-things-3.3/doc/group__flash__device__api.html)
 
 # 使用示例
 

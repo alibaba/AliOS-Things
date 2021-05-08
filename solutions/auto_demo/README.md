@@ -1,11 +1,14 @@
 @page auto_demo 1小时打造HaaS版小小蛮驴智能车
+
+[更正文档](https://gitee.com/alios-things/auto_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 1. 案例简介
 阿里在云栖大会上发布第一款机器人“小蛮驴”，瞬间激起千层浪。
 无人车，智能物流，机器人等一些概念又火热了一把。
 借“小蛮驴”的东风以及火热的HaaS，我们推出了更加亲民的“小小蛮驴”，丰富HaaS的场景打造，吸引更多的开发者和企业来加入HaaS的生态建设。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN015lnEkx1YPrSlCgbt1_!!6000000003052-2-tps-1494-836.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN015lnEkx1YPrSlCgbt1_!!6000000003052-2-tps-1494-836.png" style="max-width:800px;" />
 </div>
 
 # 2. 基础知识
@@ -13,13 +16,13 @@
 **HaaS100** 是一款物联网场景中的标准开发板，并配套嵌入到硬件中的软件驱动及功能模块，为用户提供物联网设备高效开发服务。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN014x98oj1VvVzSI77gV_!!6000000002715-2-tps-443-443.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN014x98oj1VvVzSI77gV_!!6000000002715-2-tps-443-443.png" style="max-width:800px;" />
 </div>
 
 HaaS100核心板有着丰富的外设接口，如下所示：
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01AkNnOF1Xjj1eTBpQC_!!6000000002960-2-tps-586-886.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01AkNnOF1Xjj1eTBpQC_!!6000000002960-2-tps-586-886.png" style="max-width:800px;" />
 </div>
 
 详细的资料参考[HaaS 100 硬件规格](https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.645.718015814zDYZt)。
@@ -35,7 +38,7 @@ IN3低电平，IN4高电平，右电机反传。
 ## 2.3 超声波测距模块
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01AtDCHG1RGyT25beU1_!!6000000002085-2-tps-306-224.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01AtDCHG1RGyT25beU1_!!6000000002085-2-tps-306-224.png" style="max-width:800px;" />
 </div>
 
 超声波测距一般有4个管脚：
@@ -46,21 +49,21 @@ Echo：回响信号输出引脚
 超声波测距原理是当发送的超声波遇到物体被发射回来，被接收端接收，然后通过发送信号到接收到回响的信号时间间隔可以测算出距离。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01HlxSHP1uPmwqZNECA_!!6000000006030-2-tps-529-301.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01HlxSHP1uPmwqZNECA_!!6000000006030-2-tps-529-301.png" style="max-width:800px;" />
 </div>
 
 测距过程如下：HaaS100给Trigger引脚至少10uS的脉冲触发信号，这时候超声波模块发射8个40KHz的方波，然后模块自动检测是否有信号返回。若检测到回响信号，会通过Echo引脚输出一个高电平脉冲，脉冲的宽度就是超声波从发射到返回的时间t。假设小车距离障碍物距离L，2L=vt，L=vt/2，其中v声音的传播速度340m/s。
 ## 2.4 红外避障模块
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01mnq7sM1VcHM2MvPg1_!!6000000002673-2-tps-357-287.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01mnq7sM1VcHM2MvPg1_!!6000000002673-2-tps-357-287.png" style="max-width:800px;" />
 </div>
 
 红外避障原理就是当障碍物靠近的时候，红外接收到的发射光强度越来越大，所以增大了输出的模拟信号，模拟信号接入比较器，经过比较器处理，输出数字信号。读取数字信号电平，就可以判断前方是否有障碍物。
 ## 2.5 测速模块
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hD5RKK23hUnn3dVj7_!!6000000007287-2-tps-211-190.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01hD5RKK23hUnn3dVj7_!!6000000007287-2-tps-211-190.png" style="max-width:800px;" />
 </div>
 
 测速模块主要原理是由码盘结合光电传感器，传感器一端为发射光，另一端接收光，通过测量单位时间内脉冲个数得出小车的速度，本模块采用施密特触发器输出的信号非常稳定( 去抖)。
@@ -68,7 +71,7 @@ Echo：回响信号输出引脚
 # 3. 物料清单
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01GKC2T91ypfnRGftsi_!!6000000006628-2-tps-1432-660.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01GKC2T91ypfnRGftsi_!!6000000006628-2-tps-1432-660.png" style="max-width:800px;" />
 </div>
 
 **智能车底板电路**
@@ -90,8 +93,7 @@ Echo：回响信号输出引脚
 - HaaS连接接口
 | **物料** | **规格** | **购买链接** |
 | :---: | :---: | :---: |
-| HaaS100开发板 | 
- | 阿里云[天猫链接](https://detail.tmall.com/item.htm?spm=a230r.1.14.16.13123b209835rz&id=627354125244&ns=1&abbucket=16) |
+| HaaS100开发板 | - | 阿里云[天猫链接](https://detail.tmall.com/item.htm?spm=a230r.1.14.16.13123b209835rz&id=627354125244&ns=1&abbucket=16) |
 | 智能车套件 | 提供完整一套小车配件，结合HaaS100，可以实现云端钉控制 | 微雪[微雪链接](https://www.waveshare.net/shop/AlphaBot.htm) |
 
 # 4. 案例实现
@@ -112,7 +114,7 @@ Echo：回响信号输出引脚
 创建了HaaS电动车的产品名称，然后定义了前进、后退、暂停、左转、右转等物模型属性。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01tNoBdP1mKjeNiQT66_!!6000000004936-2-tps-2620-1624.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01tNoBdP1mKjeNiQT66_!!6000000004936-2-tps-2620-1624.png" style="max-width:800px;" />
 </div>
 
 按照一步步操作，云端创建产品、物模型以及设备以后，我们可以获取对应的三元组信息。
@@ -287,7 +289,7 @@ SDK相关代码及操作readme在application/miniapp/目录下。
 使用小程序开发工具打开miniapp这个工程。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01NUP1qt1IDvHvjuES2_!!6000000000860-2-tps-2144-1236.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01NUP1qt1IDvHvjuES2_!!6000000000860-2-tps-2144-1236.png" style="max-width:800px;" />
 </div>
 
 - step1 在app.js填写 AccessKeyID 以及 AccessKeySecret ， 获取云端API调用权限
@@ -316,13 +318,13 @@ let device = {
 安全起见，我们可以采取创建[RAM子账号](https://ram.console.aliyun.com/users)的形式，来对权限进行分离。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01hm2IH61lWoTqkAotr_!!6000000004827-2-tps-3584-732.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01hm2IH61lWoTqkAotr_!!6000000004827-2-tps-3584-732.png" style="max-width:800px;" />
 </div>
 
 创建完成后，需要手动分配权限，点击右侧，添加权限。我这里直接选择了 **AdministratorAccess。 **添加完成后如下。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01CdYh1g1WuQfLoiQ6r_!!6000000002848-2-tps-3584-1920.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01CdYh1g1WuQfLoiQ6r_!!6000000002848-2-tps-3584-1920.png" style="max-width:800px;" />
 </div>
 
 - DeviceName ProducKey
@@ -332,34 +334,36 @@ let device = {
 点击小程序IDE右上角“真机调试”按钮，等待二维码生成后，使用钉钉APP扫码，即可发起小程序。
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i4/O1CN01PebvC71ZoQJrKF3yG_!!6000000003241-2-tps-948-156.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01PebvC71ZoQJrKF3yG_!!6000000003241-2-tps-948-156.png" style="max-width:800px;" />
 </div>
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01kBLGwa1HGqBzof2CS_!!6000000000731-2-tps-338-678.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01kBLGwa1HGqBzof2CS_!!6000000000731-2-tps-338-678.png" style="max-width:800px;" />
 </div>
 
 ## 4.3 开发环境搭建、编译、烧入、运行
 ### 4.3.1 AliOS Things开发环境搭建
-开发环境的搭建请参考 @ref HaaS100_Quick_Start (搭建开发环境章节)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
 ### 4.3.2 电动小车代码下载
-智能语音播放器的代码下载请参考 @ref HaaS100_Quick_Start (创建工程章节)，其中，
+智能语音播放器的代码下载请参考 [《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，其中，
 > 选择解决方案: “电动小车案例”
 > 选择开发板: HaaS100
 
 ### 4.3.3 代码编译、烧录
+
 编译auto_demo的过程如下：
 
--- 参考 @ref HaaS100_Quick_Start (3.1 编译工程章节)，点击 ✅ 即可完成编译固件。
+-- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 参考 @ref HaaS100_Quick_Start (3.2 烧录镜像章节)，点击 "⚡️" 即可完成烧录固件。
+-- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+
 
 ### 4.3.4 运行
 运行打印信息
 
 <div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN013jSfJZ1ZvkeoMIXXa_!!6000000003257-2-tps-1836-1224.png" style="max-width:90%;" />
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN013jSfJZ1ZvkeoMIXXa_!!6000000003257-2-tps-1836-1224.png" style="max-width:800px;" />
 </div>
 
 # 5. 总结
