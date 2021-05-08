@@ -62,7 +62,7 @@ def_config:
 ```yaml
 
 depends:
-  - littlefs: dev_aos # helloworld_demo中引入littlefs组件
+  - littlefs: rel_3.3.0 # helloworld_demo中引入littlefs组件
 
 ```
 

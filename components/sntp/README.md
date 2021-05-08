@@ -98,7 +98,7 @@ sntp_time *sntp_obtain_time(void)
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - sntp: dev_aos
+  - sntp: rel_3.3.0
 ```
 
 ## 步骤3 下载组件

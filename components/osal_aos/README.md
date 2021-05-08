@@ -187,7 +187,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -208,8 +208,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/task_example.c" # 添加 task_example.c
@@ -369,7 +369,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -389,8 +389,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/timer_example.c" # 添加 timer_example.c
@@ -562,7 +562,7 @@ def_config:
 
 ```c
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -583,8 +583,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/mem_example.c" # 添加 mem_example.c
@@ -694,7 +694,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 ### 步骤3 下载组件
 
@@ -714,8 +714,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/sem_example.c" # 添加 sem_example.c
@@ -838,7 +838,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -859,8 +859,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/mutex_example.c" # 添加 mutex_example.c
@@ -975,7 +975,7 @@ def_config:
 
 ```c
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -995,8 +995,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/evnet_example.c" # 添加 evnet_example.c
@@ -1098,7 +1098,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: dev_aos # helloworld_demo中引入osal_aos组件
+  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -1119,8 +1119,8 @@ aos install osal_aos
 
 ```yaml
 depends:
-  - rhino: dev_aos
-  - cli: dev_aos # 添加cli依赖
+  - rhino: rel_3.3.0
+  - cli: rel_3.3.0 # 添加cli依赖
 source_file:
   - "*.c"
   - "example/queue_example.c" # 添加 queue_example.c

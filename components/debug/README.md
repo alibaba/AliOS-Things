@@ -107,7 +107,7 @@ def_config:
 ```yaml
 
 depends:
-  - debug: dev_aos  # helloworld_demo中引入debug组件
+  - debug: rel_3.3.0  # helloworld_demo中引入debug组件
 
 ```
 

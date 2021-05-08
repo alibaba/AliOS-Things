@@ -105,7 +105,7 @@ void sh1106_show_string(uint8_t x, uint8_t y, const uint8_t *p, uint8_t size, ui
 
 ```yaml
 depends:
-  - sh1106: dev_aos # helloworld_demo中引入sh1106组件
+  - sh1106: rel_3.3.0 # helloworld_demo中引入sh1106组件
 ```
 
 ## 步骤3 下载组件

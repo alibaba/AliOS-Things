@@ -98,10 +98,10 @@ def_config:
 
 ```yaml
 depends:
-  - cli: dev_aos
-  - osal_aos: dev_aos
-  - haaseduk1: dev_aos
-  - sensor: dev_aos
+  - cli: rel_3.3.0
+  - osal_aos: rel_3.3.0
+  - haaseduk1: rel_3.3.0
+  - sensor: rel_3.3.0
 ```
 
 **选择要使用的开发板**
@@ -239,11 +239,11 @@ int demo_main(int argc, char *argv[])
 > solutions/linksdk_demo/package.yaml 依赖信息 depends 中添加 sensor 组件
 ```yaml
 depends:
-  - linksdk: dev_aos
-  - haaseduk1: dev_aos
-  - sensor: dev_aos
-  - mbedtls: dev_aos
-  - netmgr: dev_aos
+  - linksdk: rel_3.3.0
+  - haaseduk1: rel_3.3.0
+  - sensor: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - netmgr: rel_3.3.0
 ```
 
 ## 4. 编译

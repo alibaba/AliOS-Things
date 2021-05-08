@@ -128,7 +128,7 @@ void        st7789_draw_frame(st7789_dev_t st7789_dev, uint8_t *frame)
 > helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - st7789: dev_aos # helloworld_demo中引入st7789组件
+  - st7789: rel_3.3.0 # helloworld_demo中引入st7789组件
 ```
 
 ## 步骤3 下载组件

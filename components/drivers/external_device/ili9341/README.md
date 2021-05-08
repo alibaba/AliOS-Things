@@ -130,7 +130,7 @@ void        ili9341_draw_frame(ili9341_dev_t ili9341_dev, uint8_t *frame)
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - ili9341: dev_aos # helloworld_demo中引入ili9341组件
+  - ili9341: rel_3.3.0 # helloworld_demo中引入ili9341组件
 ```
 
 ## 步骤3 下载组件
