@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 #ifdef AOS_COMP_RAMFS
@@ -65,7 +65,7 @@ static void libc_stub_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(libc_stub_example, libc_example, lib stub component base example)
 #endif

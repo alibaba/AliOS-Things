@@ -8,8 +8,9 @@
 #include "ulog/ulog.h"
 #include "auto_app.h"
 #include "k_api.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
-
+#endif
 #include <sys/ioctl.h>
 #include <vfsdev/gpio_dev.h>
 #include <drivers/char/u_device.h>
@@ -182,6 +183,8 @@ static void handle_haas_cmd(char *pwbuf, int blen, int argc, char **argv)
     }
 }
 
+#if AOS_COMP_CLI
+
 static struct cli_command haas_cmd = {
     .name     = "haas",
     .help     = "haas [read]",
@@ -222,3 +225,4 @@ int auto_app_init(void)
     aos_cli_register_command(&haas_cmd);
     return 0;
 }
+#endif /* AOS_COMP_CLI */

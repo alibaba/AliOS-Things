@@ -20,7 +20,7 @@ OLED，即有机发光二极管（Organic Light-Emitting Diode）。OLED 由于�
 ## 目录结构
 
 
-```
+```tree
 ├── src
 │   └── sh1106.c          # 基于sh1106 OLED组件服务
 ├── include
@@ -51,7 +51,7 @@ OLED，即有机发光二极管（Organic Light-Emitting Diode）。OLED 由于�
 
 
 
-```
+```yaml
 #define USE_SOFT_SPI 1
 ```
 
@@ -60,27 +60,27 @@ OLED，即有机发光二极管（Organic Light-Emitting Diode）。OLED 由于�
 
 
 
-```
+```c
 #define RECORD_SCREEN   0
 ```
 
 
 > 是否支持fb框架，设置为0，不支持fb框架，支持输出显示；设置为1，支持fb框架：
 
-```
+```c
 #define FB_FRAME_EN     0
 ```
 # API说明
 
 > sh1106初始化API接口
 
-```
+```c
 uint8_t sh1106_init(void);
 ```
 > sh1106 OLED屏幕显示API接口
 > (x,y)是显示的坐标，*p是字符串的首地址，size是字符点集大小(12/16/24) ,mode(0-反显 1-正显)
 
-```
+```c
 void sh1106_show_string(uint8_t x, uint8_t y, const uint8_t *p, uint8_t size, uint8_t mode);
 ```
 # 使用示例
@@ -103,7 +103,7 @@ void sh1106_show_string(uint8_t x, uint8_t y, const uint8_t *p, uint8_t size, ui
 
 > helloworld_demo组件的package.yaml中添加
 
-```
+```yaml
 depends:
   - sh1106: dev_aos # helloworld_demo中引入sh1106组件
 ```
@@ -125,7 +125,7 @@ aos install sh1106
 
 > sh1106组件的package.yaml中添加example示例代码
 
-```
+```yaml
 source_file:
   - src/sh1106.c
   - example/sh1106_example.c
@@ -137,11 +137,11 @@ source_file:
 
 ## 步骤6 烧录固件
 
-helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
@@ -150,13 +150,13 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 
 > CLI命令行输入：
 
-```
+```sh
 sh1106_init  # 默认初始化sh1106
 ```
 
 > CLI关键日志：
 
-```
+```sh
 sh1106 init test begin ...
 open gpio success, fd:513
 sh1106 init test end !!!
@@ -164,13 +164,13 @@ sh1106 init test end !!!
 
 > CLI命令行输入：
 
-```
+```sh
 sh1106_display # 在oled信息屏上显示测试
 ```
 
 > CLI关键日志：
 
-```
+```sh
 sh1106 display test begin ...
 sh1106 display test end !!!
 ```

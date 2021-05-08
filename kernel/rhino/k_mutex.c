@@ -62,7 +62,6 @@ static void mutex_release(ktask_t *task, kmutex_t *mutex_rel)
 kstat_t krhino_mutex_del(kmutex_t *mutex)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     if (mutex == NULL) {
@@ -140,7 +139,6 @@ kstat_t krhino_mutex_dyn_create(kmutex_t **mutex, const name_t *name)
 kstat_t krhino_mutex_dyn_del(kmutex_t *mutex)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     if (mutex == NULL) {
@@ -285,7 +283,6 @@ void mutex_task_pri_reset(ktask_t *task)
 kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
 {
     CPSR_ALLOC();
-
     kstat_t  ret;
     ktask_t *mutex_task;
     uint8_t  cur_cpu_num;
@@ -383,7 +380,6 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
 kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
     ktask_t *task;
     uint8_t  cur_cpu_num;

@@ -66,7 +66,6 @@ else
         esac;
     done
 fi
-
 echo "the script is $0"
 echo "current dir is $(pwd)"
 echo "toolchain is $toolchain"
@@ -108,18 +107,29 @@ cflag="$cflag --specs=nosys.specs $macro_list"
 cxxflag="$cxxflag --specs=nosys.specs $macro_list"
 ldflag="$ldflag --specs=nosys.specs"
 
+PY_BUILD_OPTION=""
+for item in ${macro_list[*]}
+do
+    if [ "${item:0:11}" == "-DPY_BUILD_" ]; then
+        PY_BUILD_OPTION="${PY_BUILD_OPTION} ${item}"
+    fi
+done
 
 for item in ${global_inc[*]}
 do
-    value=" -I${item}"
+	value=" -I${item}"
     cflag=${cflag}${value}
     cxxflag=${cxxflag}${value}
 
 done
-#echo ${toolchain}
-#echo "${toolchain}-gcc"
+
+data_prebuild="hardware/chip/haas1000/prebuild/data/"
+python_home="lib/micropython/"
+cp -rf ../framework/*    ../../../${data_prebuild}${python_home}
+cp -rf ../example/python-apps    ../../../${data_prebuild}
+
 if [ ! -f "Makefile" ]; then
-    cmake .. -DCMAKE_C_COMPILER="${toolchain}-gcc" -DCMAKE_CXX_COMPILER="${toolchain}-g++" -DCMAKE_C_FLAGS="${cflag}" -DCMAKE_CXX_FLAGS="${cxxflag}" -DCMAKE_BUILD_FLAGS="${ldflag} "
+    cmake .. -DCMAKE_C_COMPILER="${toolchain}-gcc" -DCMAKE_CXX_COMPILER="${toolchain}-g++" -DCMAKE_C_FLAGS="${cflag}" -DCMAKE_CXX_FLAGS="${cxxflag}" -DCMAKE_BUILD_FLAGS="${ldflag} " ${PY_BUILD_OPTION}
 fi
 
 make
@@ -128,7 +138,6 @@ libraries="./libpyEngine.a"
 
 # copy library to AliOS-Things library folder
 lib_path=$(dirname $lib)
-#echo $lib_path
 if [ ! -d $lib_path ]; then
     mkdir -p $lib_path
 fi
@@ -142,6 +151,6 @@ fi
 # result
 echo "start copy python-apps to hardware/chip/haas1000/prebuild/data"
 cd ..
-cp -r python-apps ../../hardware/chip/haas1000/prebuild/data
+cp -r example/python-apps ../../hardware/chip/haas1000/prebuild/data
 echo "run external script success"
 exit 0

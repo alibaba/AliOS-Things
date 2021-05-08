@@ -51,7 +51,6 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t sched_policy)
 {
     CPSR_ALLOC();
-
     cpu_stack_t *tmp;
     uint8_t      i = 0;
 
@@ -224,7 +223,6 @@ kstat_t krhino_cfs_task_cpu_create(ktask_t *task, const name_t *name, void *arg,
 kstat_t krhino_task_cpu_bind(ktask_t *task, uint8_t cpu_num)
 {
     CPSR_ALLOC();
-
     ktask_t *task_cur;
 
     RHINO_CRITICAL_ENTER();
@@ -243,7 +241,6 @@ kstat_t krhino_task_cpu_bind(ktask_t *task, uint8_t cpu_num)
 kstat_t krhino_task_cpu_unbind(ktask_t *task)
 {
     CPSR_ALLOC();
-
     ktask_t *task_cur;
 
     RHINO_CRITICAL_ENTER();
@@ -338,9 +335,7 @@ kstat_t krhino_cfs_task_cpu_dyn_create(ktask_t **task, const name_t *name, void 
 kstat_t krhino_task_sleep(tick_t ticks)
 {
     CPSR_ALLOC();
-
     uint8_t cur_cpu_num;
-
     kstat_t ret;
 
     if (ticks == 0u) {
@@ -383,9 +378,7 @@ kstat_t krhino_task_yield(void)
 
     /* make current task to the end of ready list */
     RHINO_CRITICAL_ENTER();
-
     ready_list_head_to_tail(&g_ready_queue, g_active_task[cpu_cur_get()]);
-
     RHINO_CRITICAL_EXIT_SCHED();
 
     return RHINO_SUCCESS;
@@ -406,7 +399,6 @@ ktask_t *krhino_cur_task_get(void)
 kstat_t task_suspend(ktask_t *task)
 {
     CPSR_ALLOC();
-
     uint8_t cur_cpu_num;
 
     RHINO_CRITICAL_ENTER();
@@ -481,7 +473,6 @@ kstat_t krhino_task_suspend(ktask_t *task)
 kstat_t task_resume(ktask_t *task)
 {
     CPSR_ALLOC();
-
     RHINO_CRITICAL_ENTER();
 
     switch (task->task_state) {
@@ -661,7 +652,6 @@ kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 kstat_t krhino_task_pri_change(ktask_t *task, uint8_t pri, uint8_t *old_pri)
 {
     CPSR_ALLOC();
-
     uint8_t pri_limit;
     kstat_t error;
 
@@ -801,7 +791,6 @@ static void task_mutex_free(ktask_t *task)
 kstat_t krhino_task_del(ktask_t *task)
 {
     CPSR_ALLOC();
-
     uint8_t     cur_cpu_num;
 #if (RHINO_CONFIG_USER_HOOK > 0)
     res_free_t *res_free;
@@ -898,7 +887,6 @@ kstat_t krhino_task_del(ktask_t *task)
 kstat_t krhino_task_dyn_del(ktask_t *task)
 {
     CPSR_ALLOC();
-
     kstat_t     ret;
     uint8_t     cur_cpu_num;
     res_free_t *res_free;
@@ -1030,7 +1018,6 @@ kstat_t krhino_task_cancel(ktask_t *task)
 RHINO_BOOL krhino_task_cancel_chk(void)
 {
     CPSR_ALLOC();
-
     ktask_t   *cur_task;
     RHINO_BOOL ret;
 
@@ -1187,7 +1174,6 @@ void krhino_task_deathbed(void)
 ktask_t *krhino_task_find(name_t *name)
 {
     CPSR_ALLOC();
-
     klist_t *listnode;
     ktask_t *task;
 

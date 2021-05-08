@@ -18,7 +18,7 @@ AliOS Things 调试诊断（debug）组件支持以下功能：
 ## 版权信息
 > Apache license v2.0
 ## 目录结构
-```sh
+```tree
 ├── include
 │   └── aos
 │       └── debug.h         #维测组件对外头接口
@@ -58,17 +58,17 @@ AliOS Things 调试诊断（debug）组件支持以下功能：
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > 系统异常后进入调试模式，可继续执行cli命令，系统不会自动复位（默认模式），可修改yaml配置如下，修改为0后，系统异常则会自动复位。
-```sh
+```yaml
 def_config:
   DEBUG_PANIC_CLI: 1
 ```
 > 系统异常后，默认不会将ulog缓存里的log输出，可修改yaml配置如下，修改为1后，会输出ulog缓存里的log
-```sh
+```yaml
 def_config:
   DEBUG_ULOG_FLUSH: 0
 ```
 > cpuusage统计结果默认输出到串口终端，可修改yaml配置如下，修改为1后，会将cpuusage统计结果写入文件，不在终端输出
-```sh
+```yaml
 def_config:
   DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE: 0
 
@@ -139,11 +139,11 @@ source_file:
 
 ## 步骤6 烧录固件
 
-helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 

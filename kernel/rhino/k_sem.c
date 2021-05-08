@@ -51,7 +51,6 @@ kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
 kstat_t krhino_sem_del(ksem_t *sem)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     NULL_PARA_CHK(sem);
@@ -118,7 +117,6 @@ kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name,
 kstat_t krhino_sem_dyn_del(ksem_t *sem)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     NULL_PARA_CHK(sem);
@@ -162,7 +160,6 @@ kstat_t krhino_sem_dyn_del(ksem_t *sem)
 static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
 {
     CPSR_ALLOC();
-
     uint8_t  cur_cpu_num;
     klist_t *blk_list_head;
 
@@ -240,7 +237,6 @@ kstat_t krhino_sem_give_all(ksem_t *sem)
 kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 {
     CPSR_ALLOC();
-
     uint8_t cur_cpu_num;
     kstat_t stat;
 
@@ -296,7 +292,6 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 kstat_t krhino_sem_count_set(ksem_t *sem, sem_count_t sem_count)
 {
     CPSR_ALLOC();
-
     klist_t *blk_list_head;
 
     NULL_PARA_CHK(sem);

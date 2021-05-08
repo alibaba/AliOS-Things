@@ -1,12 +1,14 @@
 @page aos-tools_user_manual 构建工具 aos-tools
 
+[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/aos-tools/aos-tools_user_manual.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 aos-tools 是 AliOS Things 的命令行编译系统，支持组件管理、程序编译、烧录等功能。<br />aos-tools 使用git 来获取组件的代码和维护代码的版本管理。
 # 安装 aos-tools
 使用miniconda3创建一个虚拟环境，并在其虚拟环境中安装aos-tools。
 ```shell
 pip install -U aos-tools
 ```
-详细安装操作请参考《[HaaS100快速开始](https://dev.g.alicdn.com/aos3.3-doc-test/cdn/0.0.8/_haa_s100__quick__start.html)》。
+详细安装操作请参考《[HaaS100快速开始](https://g.alicdn.com/alios-things-3.3/doc/haas100_quick_start.html)》。
 # aos-tools 命令
 使用 aos-tools 需遵循的格式如下：
 ```

@@ -7,7 +7,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 #include "aos/list.h"
 
 #include <drivers/char/u_device.h>
@@ -455,6 +457,7 @@ int u_device_unregister(struct u_device *dev) {
 	return u_device_del(dev);
 }
 
+#if AOS_COMP_CLI
 /**
  * service handler - change log level of udevice
  *
@@ -504,9 +507,12 @@ static int u_devicd_test_cmd_init(void) {
     return aos_cli_register_commands(&u_device_test_cmds[0],
                                      sizeof(u_device_test_cmds)/sizeof(u_device_test_cmds[0]));
 }
+#endif /* AOS_COMP_CLI */
 
 int u_device_init(void) {
+	#if AOS_COMP_CLI
     u_devicd_test_cmd_init();
+	#endif
     return u_device_root_node_init();
 }
 

@@ -20,7 +20,6 @@ void idle_count_set(idle_count_t value)
 idle_count_t idle_count_get(void)
 {
     CPSR_ALLOC();
-
     idle_count_t idle_count;
 
     RHINO_CPU_INTRPT_DISABLE();
@@ -36,7 +35,6 @@ idle_count_t idle_count_get(void)
 void idle_task(void *arg)
 {
     uint8_t cpu_num;
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
     CPSR_ALLOC();
     klist_t *head;

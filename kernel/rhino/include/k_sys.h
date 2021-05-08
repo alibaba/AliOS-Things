@@ -15,11 +15,12 @@ extern "C" {
  *  @{
  */
 
-#define RHINO_VERSION  12000
-#define RHINO_IDLE_PRI (RHINO_CONFIG_PRI_MAX - 1)
-#define RHINO_NO_WAIT      0u
-#define RHINO_WAIT_FOREVER ((uint64_t)-1)
-#define MAX_TIMER_TICKS ((tick_t)-1 >> 1)
+#define RHINO_VERSION       12000
+#define RHINO_IDLE_PRI      (RHINO_CONFIG_PRI_MAX - 1)
+
+#define RHINO_NO_WAIT       0u
+#define RHINO_WAIT_FOREVER  ((tick_t)-1)
+#define RHINO_MAX_TICKS     ((tick_t)-1 >> 1)
 
 typedef enum
 {

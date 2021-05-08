@@ -24,6 +24,8 @@ depends:
   - osal_aos: dev_aos
   - cli: dev_aos
   - littlefs: dev_aos
+  - wifi: dev_aos
+  - lwip: dev_aos
 #  - a2sa: dev_aos
 
 def_config:

@@ -4,7 +4,7 @@
 
 #include "ucloud_ai_common.h"
 #include "ulog/ulog.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -136,7 +136,7 @@ static void ucloud_ai_comp_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(ucloud_ai_comp_example, ucloud_ai, ucloud_ai component base example)
 #endif

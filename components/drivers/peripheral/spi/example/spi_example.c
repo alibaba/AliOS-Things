@@ -7,15 +7,11 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <epoll.h>
-
-
 #include "aos/vfs.h"
-#include "aos/cli.h"
-
 #include <vfsdev/spi_dev.h>
 #include <drivers/char/u_device.h>
 #include <drivers/u_ld.h>
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -88,7 +84,7 @@ static void vfs_spi_cli_cmd(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(vfs_spi_cli_cmd, spi_example, spi vfs example)
 #endif

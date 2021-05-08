@@ -8,7 +8,7 @@
 
 #include <aos/kernel.h>
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -129,7 +129,7 @@ static void aos_sem_example(int argc, char **argv)
 }
 
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(aos_sem_example, sem_example, aos sem example)
 #endif

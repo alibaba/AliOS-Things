@@ -139,6 +139,8 @@ void demo_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, void 
                 demo_dev_info_set(product_key, device_name, device_secret);
                 printf("Device info set to kv\n");
             }
+            BLE_NetCfg_notificate("DEVSETOK", sizeof("DEVSETOK"));
+            printf("linksdk_thread send 'DEVSETOK'\r\n");
             break;
         }
 
@@ -528,9 +530,6 @@ void linksdk_thread(void *args)
             //printf("linkSDK_entry_func waiting");
             aos_msleep(1000);
         };
-
-        BLE_NetCfg_notificate("DEVSETOK", sizeof("DEVSETOK"));
-        printf("linksdk_thread send 'DEVSETOK'\r\n");
     }
 
     demo_led_init();

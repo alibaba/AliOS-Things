@@ -17,7 +17,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 │── src
 │   └── wdg_dev.c      # WATCHDOG VFS驱动程序源代码
 ├── example            # WATCHDOG VFS驱动程序使用案例

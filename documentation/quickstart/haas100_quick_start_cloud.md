@@ -1,7 +1,7 @@
 
 @page haas100_quick_start_cloud HaaS100快速上云
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/HaaS100_Quick_Start_Cloud.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/quickstart/haas100_quick_start_cloud.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 
 # 1. 概括
@@ -167,7 +167,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
     <img src="https://img.alicdn.com/imgextra/i2/O1CN01CWWBIG1dzC5unT1R7_!!6000000003806-2-tps-1934-976.png" style="max-width:800px;" />
 </div>
 
-### 5.1.3 查看设备端日志
+### 5.1.4 查看设备端日志
 如下所示， {"LightSwitch":1}的命令已经下发到设备端，开发者可以对此json字符串进行解析并用于设备控制。
 ```c
 [1606.833][LK-0309] pub: /sys/a1duSiRzIXc/light01/thing/service/property/set

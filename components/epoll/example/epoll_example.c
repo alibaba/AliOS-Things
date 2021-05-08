@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "aos/vfs.h"
 #include "epoll.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -70,7 +70,7 @@ static void epoll_comp_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(epoll_comp_example, epoll_example, epoll API base example)
 #endif

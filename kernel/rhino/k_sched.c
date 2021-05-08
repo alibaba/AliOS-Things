@@ -420,7 +420,7 @@ void ready_list_rm(runqueue_t *rq, ktask_t *task)
     }
 
     /* find the highest ready task */
-    i = krhino_find_first_bit(rq->task_bit_map);
+    i = krhino_bitmap_first(rq->task_bit_map);
 
     /* update the next highest prio task */
     if (i >= 0) {
@@ -470,7 +470,7 @@ ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
 
         if (iter->next == rq->cur_list_item[highest_pri]) {
             krhino_bitmap_clear(task_bit_map, highest_pri);
-            highest_pri = krhino_find_first_bit(task_bit_map);
+            highest_pri = krhino_bitmap_first(task_bit_map);
             iter = rq->cur_list_item[highest_pri];
         } else {
             iter = iter->next;
@@ -490,7 +490,6 @@ ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
 void time_slice_update(void)
 {
     CPSR_ALLOC();
-
     ktask_t *task;
     klist_t *head;
     uint8_t  task_pri;

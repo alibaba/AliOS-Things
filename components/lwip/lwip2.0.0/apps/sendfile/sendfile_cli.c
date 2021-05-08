@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
+
+#if AOS_COMP_CLI
 #include <string.h>
 #include <stdbool.h>
 #include "lwip/opt.h"
@@ -116,3 +118,4 @@ int sendfile_cli_register( void )
         return ERR_VAL;
     }
 }
+#endif /* AOS_COMP_CLI */

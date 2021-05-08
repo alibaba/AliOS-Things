@@ -6,11 +6,17 @@
 #include <k_api.h>
 
 /** @defgroup cpp_aos_timer
+ *  @ingroup cpp_aos_api
  * @{
  */
 namespace AOS {
 
 #define Timer_WAIT_FOREVER 0xFFFFFFFFU
+
+/**
+ * @brief Timer Class.
+ *
+ */
 
     class Timer
     {
@@ -55,6 +61,9 @@ namespace AOS {
         ktimer_t *self(void);
 
       private:
+        /**
+         * @brief a Queue buffer
+         */
         ktimer_t _timer_def;
     };
 

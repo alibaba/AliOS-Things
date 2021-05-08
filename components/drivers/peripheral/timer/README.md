@@ -19,7 +19,7 @@ Timer，即通用硬件定时器。
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 .
 ├── example
 │   └── timer_example.c  #Timer示例代码
@@ -44,7 +44,7 @@ Timer，即通用硬件定时器。
 CONFIG_TIMER_NUM默认是在hardware/chip/<chip_name>/package.yaml中的**define**节点进行配置。
 如果没有定义CONFIG_TIMER_NUM，则代码中会定义默认对外输出的设备节点数量。
 > 设备节点数量: 默认4个, 如需修改，在hardware/chip/<chip_name>/package.yaml中修改CONFIG_TIMER_NUM配置
-```sh
+```yaml
 define:
   CONFIG_TIMER_NUM: 1
 ```

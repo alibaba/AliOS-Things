@@ -15,14 +15,18 @@
 #include <netmgr.h>
 #include <netmgr_wifi.h>
 #include <ble_netconfig.h>
-#include <aos/cli.h>
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
 
 #include "uservice/eventid.h"
 
 #include "vfsdev/wifi_dev.h"
 
 #define BLE_NETCFG_TAG "BLE_NETCFG"
+#if AOS_COMP_CLI
 #define BLE_NETCFG_CLI      1
+#endif
 
 #define BLE_NETCFG_LOG_ERROR(fmt, ...)           LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
 #define BLE_NETCFG_LOG_WARNING(fmt, ...)         LOGE(BLE_NETCFG_TAG, fmt, ##__VA_ARGS__)
@@ -54,10 +58,11 @@ static char dev_name[128] = {'0'};
 typedef struct {
     uint8_t inited;
     uint8_t started;
-    uint8_t ssid_recved;
+    uint8_t ssid_update; /* 标识是否需要触发配网流程 */
+    uint8_t ssid_recved; /* 标识ssid与passwd是否包含有效信息 */
     uint8_t ssid[256];
     uint8_t passwd[256];
-    uint8_t devinfo_recved;
+    uint8_t devinfo_recved; /* 标识product_key、device_name与device_secret是否包含有效信息 */
     uint8_t product_key[32];
     uint8_t device_name[64];
     uint8_t device_secret[64];
@@ -105,7 +110,7 @@ static void BLE_NetCfg_wifi_connect_handle(void)
     BLE_NetCfg_Info *netCfg_info = BLE_NetCfg_get_info();
 
     while (1) {
-        if (netCfg_info->ssid_recved) {
+        if (netCfg_info->ssid_update == 1 && netCfg_info->ssid_recved == 1) {
             memset(&netmgr_params, 0, sizeof(netmgr_connect_params_t));
             strncpy(netmgr_params.params.wifi_params.ssid, netCfg_info->ssid, NETMGR_SSID_MAX_LEN);
             strncpy(netmgr_params.params.wifi_params.pwd, netCfg_info->passwd, NETMGR_PWD_MAX_LEN);
@@ -119,11 +124,11 @@ static void BLE_NetCfg_wifi_connect_handle(void)
                 if (ret == 0) {
                     netCfg_info->callback(BLE_NETCFG_EVENT_SUCCESS, BLE_NETCFG_SUCCESS, NULL);
                 } else {
-                     netCfg_info->callback(BLE_NETCFG_EVENT_FAILED, BLE_NETCFG_COMMON_FAILED, NULL);
+                    netCfg_info->callback(BLE_NETCFG_EVENT_FAILED, BLE_NETCFG_COMMON_FAILED, NULL);
                 }
             }
 
-            netCfg_info->ssid_recved = 0;
+            netCfg_info->ssid_update = 0;
         }
 
         if (netCfg_info->need_adv) {
@@ -236,6 +241,7 @@ static void BLE_NetCfg_Parse(uint8_t *buf, uint16_t len)
         netCfg_info->passwd[pwd_len] = 0;
 
         netCfg_info->ssid_recved = 1;
+        netCfg_info->ssid_update = 1;
 
         /* 消息接收完毕 */
         BLE_NETCFG_LOG_INFO("%s: NetConf SSID = %s, PWD = %s", __func__, netCfg_info->ssid, netCfg_info->passwd);
@@ -794,6 +800,7 @@ BLE_NETCFG_STATE BLE_NetCfg_wifi_set(char *ssid, char *passwd)
     strcpy(netCfg_info->ssid, ssid);
     strcpy(netCfg_info->passwd, passwd);
     netCfg_info->ssid_recved = 1;
+    netCfg_info->ssid_update = 1;
 
     return BLE_NETCFG_SUCCESS;
 }

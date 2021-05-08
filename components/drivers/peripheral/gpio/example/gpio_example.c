@@ -6,7 +6,9 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 #include "aos/vfs.h"
 
 #include <vfsdev/gpio_dev.h>
@@ -46,6 +48,7 @@ int vfs_gpio_test(int id)
     return 0;
 }
 
+#if AOS_COMP_CLI
 static void vfs_gpio_cli_cmd(char *buf, int len, int argc, char **argv)
 {
     int ret = 0;
@@ -69,3 +72,4 @@ int vfs_gpio_test_cmd_init(void)
 }
 
 POST_DRIVER_ENTRY(vfs_gpio_test_cmd_init)
+#endif /* AOS_COMP_CLI */

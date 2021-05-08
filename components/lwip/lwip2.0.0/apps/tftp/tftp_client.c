@@ -190,44 +190,12 @@ static int tftp_fread(void* handle, void* buf, int bytes)
 static int tftp_fwrite(void* handle, struct pbuf* p)
 {
     char buff[512];
-    char *pos_w;
-    char *pos_r;
-    uint8_t filter_cr = 0;
     size_t writebytes = -1;
-    size_t len = 0;
-    size_t tot_len = 0;
 
     pbuf_copy_partial(p, buff, p->tot_len, 0);
 
-    tot_len = p->tot_len;
+    writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);
 
-    if (tftp_binary_mode) {
-        pos_w = buff;
-        pos_r = buff;
-
-        while (len < tot_len) {
-            if (*pos_r == 0x0d) {
-                if (filter_cr == 0) {
-                    filter_cr = 1;
-                    pos_w = pos_r;
-                }
-                pos_r++;
-                tot_len--;
-            }
-            pos_r++;
-            if (filter_cr == 1) {
-                pos_w++;
-                *pos_w = *pos_r;
-            }
-            len++;
-        }
-    }
-
-    writebytes = fwrite(buff, 1, tot_len, (FILE *)handle);
-
-    if (writebytes == tot_len) {
-        writebytes = p->tot_len;
-    }
     return (int)writebytes;
 }
 
@@ -243,9 +211,15 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfnam
 {
     err_t ret;
     tftp_state_t *pstate = &tftp_state;
+    char  *mode;
 
+    if (tftp_binary_mode == 1) {
+        mode = "octet";
+    } else {
+        mode = "netascii";
+    }
     pstate->time = aos_now_ms();
-    pstate->handle = ctx->open(lfname, "netascii", 1);
+    pstate->handle = ctx->open(lfname, mode, 1);
     if (pstate->handle == NULL) {
         LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: open file '%s' failed\n", lfname));
         return -1;
@@ -265,7 +239,7 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfnam
     }
 
     /* send RRQ packet */
-    int pkt_len = 4 + strlen("netascii") + strlen(fname);
+    int pkt_len = 4 + strlen(mode) + strlen(fname);
     struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, pkt_len, PBUF_RAM);
     if (p == NULL) {
         LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: alloc pbuf failed\n"));
@@ -278,7 +252,7 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfnam
     payload[0] = 0x00;
     payload[1] = TFTP_RRQ;
     memcpy(&payload[2], fname, strlen(fname));
-    memcpy(&payload[3 + strlen(fname)], "netascii", strlen("netascii"));
+    memcpy(&payload[3 + strlen(fname)], mode, strlen(mode));
     pstate->port = tftp_port;
     ret = udp_sendto(pcb, p, paddr, pstate->port);
     if (ret != ERR_OK) {

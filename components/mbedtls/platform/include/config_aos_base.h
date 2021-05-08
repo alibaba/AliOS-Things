@@ -5,40 +5,142 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
-/* Platform config */
+/* Platform configuration
+ * These configurations can't placed into package.yaml, that can produce too long
+ * parameters in building commands to cause building error in windows.
+ */
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO
 #define    MBEDTLS_CONFIG_CRYPTO                   1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MD5
 #define    MBEDTLS_CONFIG_CRYPTO_MD5               1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_SHA1
 #define    MBEDTLS_CONFIG_CRYPTO_SHA1              1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_SHA256
 #define    MBEDTLS_CONFIG_CRYPTO_SHA256            1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_SHA512
 #define    MBEDTLS_CONFIG_CRYPTO_SHA512            0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_RIPEMD160
 #define    MBEDTLS_CONFIG_CRYPTO_RIPEMD160         0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_ARIA
 #define    MBEDTLS_CONFIG_CRYPTO_ARIA              0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_DES
 #define    MBEDTLS_CONFIG_CRYPTO_DES               0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_AES
 #define    MBEDTLS_CONFIG_CRYPTO_AES               1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES
 #define    MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES    0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES
 #define    MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES  0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_CBC
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_CBC          1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_CFB
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_CFB          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_CTR
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_CTR          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_OFB
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_OFB          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_XTS
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_XTS          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_GCM
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_GCM          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_MODE_CCM
 #define    MBEDTLS_CONFIG_CRYPTO_MODE_CCM          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_ARC4
 #define    MBEDTLS_CONFIG_CRYPTO_ARC4              0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_BLOWFISH
 #define    MBEDTLS_CONFIG_CRYPTO_BLOWFISH          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_CAMELLIA
 #define    MBEDTLS_CONFIG_CRYPTO_CAMELLIA          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_XTEA
 #define    MBEDTLS_CONFIG_CRYPTO_XTEA              0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_CHACHA20
 #define    MBEDTLS_CONFIG_CRYPTO_CHACHA20          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_POLY1305
 #define    MBEDTLS_CONFIG_CRYPTO_POLY1305          0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY
 #define    MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY        0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_X509
 #define    MBEDTLS_CONFIG_X509                     1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_TLS
 #define    MBEDTLS_CONFIG_TLS                      1
+#endif
+
+#ifdef     MBEDTLS_CONFIG_TLS1_2
 #define    MBEDTLS_CONFIG_TLS1_2                   1
+#endif
+
+#ifndef    MBEDTLS_CONFIG_DTLS
 #define    MBEDTLS_CONFIG_DTLS                     1
+#endif
+
+#ifdef     MBEDTLS_CONFIG_TLS_DEBUG
 #define    MBEDTLS_CONFIG_TLS_DEBUG                0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN
 #define    MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN      4096
+#endif
+
+#ifndef    MBEDTLS_CONFIG_SELFTEST
 #define    MBEDTLS_CONFIG_SELFTEST                 0
+#endif
+
+#ifndef    MBEDTLS_CONFIG_ERROR
 #define    MBEDTLS_CONFIG_ERROR                    0
+#endif
 
 /* System support */
 #define MBEDTLS_HAVE_ASM

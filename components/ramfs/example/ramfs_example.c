@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 #include "ramfs.h"
@@ -50,7 +50,7 @@ static void ramfs_example_fn(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(ramfs_example_fn, ramfs_example, ramfs component base example)
 #endif

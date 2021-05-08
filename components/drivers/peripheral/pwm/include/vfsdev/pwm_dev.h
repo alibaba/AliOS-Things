@@ -11,7 +11,8 @@
 extern "C" {
 #endif
 
-/** @addtogroup pwm_device_api
+/** @defgroup pwm_device_api
+ *  @ingroup driver_api
  *  PWM设备节点API定义，主要是ioctl函数所用的命令id定义说明
  *
  *  @{

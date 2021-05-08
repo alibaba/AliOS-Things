@@ -8,7 +8,7 @@ ugraphics组件是基于SDL2封装的接口，支持JPEG/PNG图像解码绘制�
 ## 版权信息
 > Apache 2.0 License
 
-# 目录结构
+## 目录结构
 ```tree
 ├── include
 │   ├── ugraphics.h                 # 对外头文件
@@ -103,7 +103,7 @@ build_config:
 
 ```
 
-### LCD连线
+**LCD连线**
 使用本测试示例时，请先连接SPI LCD屏幕。
 
 LCD购买链接[https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&id=38842179442&_u=m1tg6s6048c2](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&id=38842179442&_u=m1tg6s6048c2)
@@ -113,13 +113,13 @@ LCD购买链接[https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&
 HaaS100开发板请务必使用V1.1以上的版本，HaaS100扩展口：
 
 <div align=left display=flex>
-    <img src="https://img-blog.csdnimg.cn/img_convert/b18b27ec7957e010d0380e76ebb33e98.png" style="max-width:90%;" />
+    <img src="https://img-blog.csdnimg.cn/img_convert/b18b27ec7957e010d0380e76ebb33e98.png" style="max-width:800px;" />
 </div>
 
 LCD与HaaS100接线对应pin脚：
 
 <div align=left display=flex>
-    <img src="https://img-blog.csdnimg.cn/img_convert/5b2c8c014991f028978f5743ba22d193.png" style="max-width:90%;" />
+    <img src="https://img-blog.csdnimg.cn/img_convert/5b2c8c014991f028978f5743ba22d193.png" style="max-width:800px;" />
 </div>
 
 
@@ -129,7 +129,7 @@ LCD与HaaS100接线对应pin脚：
 
 ## 步骤6 烧录固件
 
-### 文件系统烧录
+**文件系统烧录**
 本组件例子中使用到到图片存放在代码中hardware/chip/haas1000/prebuild/data/目录下ugraphics_image目录，除烧录helloworld_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
 
 ```yaml
@@ -138,11 +138,11 @@ LCD与HaaS100接线对应pin脚：
       address: 0xB32000
 ```
 
-上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
@@ -169,7 +169,7 @@ ugraphics init # 资源初始化
 ugraphics init ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics draw rect # 绘制矩形框
 ```
@@ -179,7 +179,7 @@ ugraphics draw rect # 绘制矩形框
 ugraphics draw rectangle ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics draw jpg # 绘制jpeg图片
 ```
@@ -189,7 +189,7 @@ ugraphics draw jpg # 绘制jpeg图片
 ugraphics draw jpg image ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics draw png # 绘制png图片
 ```
@@ -199,7 +199,7 @@ ugraphics draw png # 绘制png图片
 ugraphics draw png image ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics draw line # 绘制线条
 ```
@@ -209,7 +209,7 @@ ugraphics draw line # 绘制线条
 ugraphics draw line ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics draw string # 绘制字符串
 ```
@@ -219,7 +219,7 @@ ugraphics draw string # 绘制字符串
 ugraphics draw string ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics fill rect # 填充矩形框
 ```
@@ -229,7 +229,7 @@ ugraphics fill rect # 填充矩形框
 ugraphics fill rectangle ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics clear # 清屏
 ```
@@ -239,7 +239,7 @@ ugraphics clear # 清屏
 ugraphics clear screen ok!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ugraphics quit # 释放资源
 ```

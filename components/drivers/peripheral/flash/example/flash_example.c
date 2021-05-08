@@ -19,7 +19,7 @@
 #include <drivers/char/u_device.h>
 #include <drivers/u_ld.h>
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -149,7 +149,7 @@ static void flash_unit_test(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(flash_unit_test, flash_example, flash vfs example)
 #endif

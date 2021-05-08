@@ -16,7 +16,7 @@ libc_stub组件是对C库桩函数（stubs）的实现，用于AliOS Things与C�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── newlib_stub.c # gcc newlibc库的重定向实现
 ├── compilers
 │   ├── armlibc   # armcc库的重定向实现
@@ -104,7 +104,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 libc_example
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 ```shell
 libc_stub: malloc OK!

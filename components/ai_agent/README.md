@@ -32,7 +32,7 @@ AI Agent作为AI的代理引擎框架，支持不同推理引擎的注册，对�
 * ucloud_ai
 
 # 常用配置
-```sh
+```yaml
 def_config:                      # 组件的可配置项
   CONFIG_UCLOUD_AI_ENGINE_ENABLE: 1
 ```
@@ -144,16 +144,16 @@ ENDPOINT默认使用“oss-cn-shanghai-internal.aliyuncs.com”，BUCKET请使�
       address: 0xB32000
 ```
 
-上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
 
-## ai_agent示例测试
+## 步骤8 示例测试
 
 测试步骤：
 ```sh
@@ -162,7 +162,7 @@ $ netmgr -t wifi -c {ssid} {password}  # 请将ssid修改为您路由器的WiFi�
 $ aiagent -e ucloud-ai -m {0 ~ 14}  # 测试AI用例
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai init  # 初始化ucloud-ai引擎，在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可
 ```
@@ -172,7 +172,7 @@ aiagent -e ucloud-ai init  # 初始化ucloud-ai引擎，在执行下面的测试
 aiagent init successfully!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 0  # 人脸比对
 ```
@@ -184,7 +184,7 @@ confidence: 84.6
 location at x: 159, y: 76, w: 143, h: 194
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 1  # 人物动漫化
 ```
@@ -195,7 +195,7 @@ Generate human anime style result:
 url: http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/4F10FBB8-19DC-476B-A51D-458CD180A24F_07f2_20210331-142711.jpg?Expires=1617202631&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=YCLva1stK27Cn657nMeYhgFt7h4%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 2  # 表情识别
 ```
@@ -206,7 +206,7 @@ Recognize expression result:
 type: anger, probability: 1.0
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 3  # 目标检测
 ```
@@ -227,7 +227,7 @@ Detect object result:
 type: mouse, Score: 0.2, x: 660, y: 479, w: 750, h: 528
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 4  # 主体检测
 ```
@@ -238,7 +238,7 @@ Detect main body result:
 main body location x: 1, y: 31, w: 461, h: 528
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 5  # 通用分割
 ```
@@ -249,7 +249,7 @@ Segment common image result:
 url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016172056326493133388_avpTpm.jpg?Expires=1617207432&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=WREOAoBUIvpLSyygGxKPfi82HfI%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 6  # 面部分割
 ```
@@ -261,7 +261,7 @@ image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/u
 location at x: 153, y: 66, w: 160, h: 209
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 7  # 身份证证明识别
 ```
@@ -281,7 +281,7 @@ face location: x2: 0, y2: 0
 face location: x3: 0, y3: 0
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 8  # 身份证反面识别
 ```
@@ -294,7 +294,7 @@ issue: 杭州市公安局余杭分局
 end date: 20231010
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 9  # 银行卡识别
 ```
@@ -310,7 +310,7 @@ card number: 6212262315007683105
 valid date: 07/26
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 10  # 文本识别
 ```
@@ -347,7 +347,7 @@ probability: 1.0
 text area: left: 261, top: 193, weight: 104, height: 18
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 11  # 垃圾分类
 ```
@@ -361,7 +361,7 @@ category: 可回收垃圾
 category score: 1.0
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 12  # 水果检测
 ```
@@ -374,7 +374,7 @@ fruit score: 0.8
 fruit location: x: 214, y: 44, w: 509, h: 438
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 13  # 图像人体擦除
 ```
@@ -385,7 +385,7 @@ Erase person result:
 url: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_15%3A34%3A17.959810_person_org.jpg?Expires=1617206658&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=jFwwnSYOw2fXev1%2Fm5az4JBa%2B5Q%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 aiagent -e ucloud-ai -m 14  # 风格迁移
 ```

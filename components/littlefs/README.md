@@ -14,7 +14,7 @@ littlefs是一个高度完整的嵌入式文件系统，可以用在自身不带
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 littlefs
 ├── src
 │   ├── littlefs-v220           #littlefs v220版本源码
@@ -33,11 +33,12 @@ littlefs
 
 # 常用配置
 
+```yaml
 def_config:
   AOS_COMP_LITTLEFS: 1
   LFS_STATIC_OBJECT: 1
   LITTLEFS_FORMAT: 1
-
+```
 
 # 使用示例
 
@@ -108,7 +109,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 littlefs_example
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 
 ```shell

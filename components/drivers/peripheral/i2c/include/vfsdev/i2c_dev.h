@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 /** @defgroup i2c_device_api
+ *  @ingroup driver_api
  * @{
  */
 

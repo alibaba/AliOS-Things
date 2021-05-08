@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
-
+#if AOS_COMP_CLI
 #include "aos/debug.h"
 #include "aos/cli.h"
 
@@ -55,4 +55,4 @@ static void debug_api_example(int argc, char **argv)
 
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(debug_api_example, debug_api, debug api example)
-
+#endif /* AOS_COMP_CLI */

@@ -561,6 +561,40 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
 /**
 
+ * release sem for uart rx port
+   *
+
+ * @param[in]   uartid    index of uart
+    *
+
+ * @return  0 : on success, Others : if an error occurred with any step
+   */
+kstat_t hal_uart_rx_sem_give(int uartid)
+{
+    return krhino_sem_give(&(uart_ctx[uartid].rx_sem));
+}
+
+/**
+
+ * take sem for uart rx port
+   *
+
+ * @param[in]  uartid  index of uart
+
+* @param[in]   timeout      timeout in milisecond, set this value to HAL_WAIT_FOREVER
+
+ * if you want to wait forever
+   *
+
+ * @return  0 : on success, Others : if an error occurred with any step
+   */
+kstat_t hal_uart_rx_sem_take(int uartid, int timeout)
+{
+    return krhino_sem_take(&uart_ctx[uartid].rx_sem, krhino_ms_to_ticks(timeout));
+}
+
+/**
+
  * Deinitialises a UART interface
    *
 

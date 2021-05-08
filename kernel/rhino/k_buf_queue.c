@@ -71,7 +71,6 @@ kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
 kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
 {
     CPSR_ALLOC();
-
     klist_t *head;
 
     NULL_PARA_CHK(queue);
@@ -210,7 +209,6 @@ kstat_t krhino_buf_queue_dyn_del(kbuf_queue_t *queue)
 static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size)
 {
     CPSR_ALLOC();
-
     klist_t *head;
     ktask_t *task;
     kstat_t  err;
@@ -293,7 +291,6 @@ kstat_t krhino_buf_queue_send(kbuf_queue_t *queue, void *msg, size_t size)
 kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size_t *size)
 {
     CPSR_ALLOC();
-
     kstat_t ret;
     uint8_t cur_cpu_num;
 
