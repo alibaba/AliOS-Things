@@ -28,7 +28,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── mutex.cpp           # AOS: Mutex类
 ├── queue.cpp           # AOS: Queue类
 ├── semaphore.cpp       # AOS: Semaphore类
@@ -62,12 +62,14 @@
 - 使用AliOS Things自定义类需要先声明AOS命令空间
 > using namespace AOS;
 - 各自定义类相关说明参见如下链接:
-@ref cpp_aos_workqueue
-@ref cpp_aos_timer
-@ref cpp_aos_thread
-@ref cpp_aos_sem
-@ref cpp_aos_queue
-@ref cpp_aos_mutex
+
+- 参考 [cpp_aos_workqueue](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__workqueue.html)
+- 参考 [cpp_aos_timer](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__timer.html)
+- 参考 [cpp_aos_thread](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__thread.html)
+- 参考 [cpp_aos_sem](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__sem.html)
+- 参考 [cpp_aos_queue](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__queue.html)
+- 参考 [cpp_aos_mutex](https://g.alicdn.com/alios-things-3.3/doc/group__cpp__aos__mutex.html)
+
 
 # 使用示例
 组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
@@ -77,7 +79,7 @@
 - 需要首先调用cpp_init初始化cpp基础功能，添加对cplusplus组件的依赖后aos_component_init中自动会调用
 - 需要关注相应的c++ 编译选项
 
-标准C++使用示例参考**example/cpp_standard**，AliOS自定义类使用参考**example/cpp_aos**。
+标准C++使用示例参考**[example/cpp_standard](https://gitee.com/alios-things/cplusplus/tree/rel_3.3.0/example/cpp_standard)**，AliOS自定义类使用参考**example/cpp_aos**。
 
 ## 步骤1 创建或打开工程
 
@@ -91,7 +93,7 @@
 
 ## 步骤2 添加cplusplus组件
 > helloworld_demo组件的package.yaml中添加
-```sh
+```yaml
 depends:
   - cplusplus: dev_aos # helloworld_demo中引入cplusplus组件
 ```
@@ -109,7 +111,7 @@ aos install cplusplus
 上述命令执行成功后，组件源码则被下载到了./components/cplusplus路径中。
 
 ## 步骤4 添加示例代码
-> cplusplus组件的package.yaml中添加example
+> cplusplus组件的package.yaml中[example示例代码](https://gitee.com/alios-things/cplusplus/tree/rel_3.3.0/example)：
 ```sh
 source_file:
   - example/cpp_aos/*.c
@@ -118,7 +120,7 @@ source_file:
   - example/cpp_standard/*.cpp
 ```
 其中由于example/cpp_aos/basic_test.cpp要测试**catch**异常功能，需要编译选项加入**-fexceptions**。在实际使用中不使用该选项有利于降低空间大小。
-```sh
+```yaml
 build_config:
   cxxflag: '-fexceptions'
 ```
@@ -138,7 +140,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
 ## 步骤8 测试示例
-### 运行标准C++示例
+**运行标准C++示例**
 > CLI命令行输入：
 
 ```sh
@@ -159,7 +161,7 @@ atomic test ok
 ```
 说明：上面是主要模块运行成功的日志打印，屏蔽了一些中间输出，以及hellworld_demo自身的循环输出，实际运行如果没有出现**test error**字样即代表功能运行正常。
 
-### 运行aos封装类
+**运行aos封装类**
 > CLI命令行输入：
 
 ```sh

@@ -9,7 +9,6 @@
 #include <k_api.h>
 #include "ulog/ulog.h"
 #include "aos/hal/uart.h"
-#include "aos/cli.h"
 
 /* RS485 Macro definition */
 #define HAAS_RS485_UART_IDX  1

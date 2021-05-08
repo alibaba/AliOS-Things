@@ -8,15 +8,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #ifndef CONFIG_NO_LWIP
+#if(CONFIG_AOS_LWIP > 0)
 #include <network/network.h>
+#endif
 #endif
 
 #include "aos/init.h"
+#if(AOS_COMP_CLI > 0)
 #include "aos/cli.h"
+#endif
 #include "ulog/ulog.h"
 // #include "uagent.h"
 #include "aos/kernel.h"
+#if(AOS_COMP_WIFI > 0)
 #include "aos/hal/wifi.h"
+#endif
 
 #ifdef AOS_COMP_PWRMGMT
 #include <pwrmgmt_api.h>
@@ -92,9 +98,9 @@ static void app_pre_init(void)
 }
 #endif
 
-#if AOS_COMP_CLI
-
+#if (AOS_COMP_CLI > 0)
 #ifndef CONFIG_NO_LWIP
+#if (CONFIG_AOS_LWIP > 0)
 static void udp_cmd(char *buf, int len, int argc, char **argv)
 {
     struct sockaddr_in saddr;
@@ -238,7 +244,9 @@ static void hal_wifi_cli_init(void)
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
 #endif /* AOS_NET_WITH_WIFI */
+#endif /* CONFIG_AOS_LWIP */
 #endif /*!defined CONFIG_NO_LWIP */
+
 void cli_service_init(kinit_t *kinit)
 {
     if (kinit->cli_enable)
@@ -246,6 +254,7 @@ void cli_service_init(kinit_t *kinit)
         aos_cli_init();
         /*kernel basic cmds reg*/
 #ifndef CONFIG_NO_LWIP
+#if(CONFIG_AOS_LWIP > 0)
         tcpip_cli_init();
 #ifdef AOS_NET_WITH_WIFI
         hal_wifi_cli_init();
@@ -258,6 +267,7 @@ void cli_service_init(kinit_t *kinit)
         ping_cli_register();
 #endif
 
+#endif
 #endif
 
     }

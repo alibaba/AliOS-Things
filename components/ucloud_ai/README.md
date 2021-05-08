@@ -169,11 +169,11 @@ ENDPOINT默认使用“oss-cn-shanghai-internal.aliyuncs.com”，BUCKET请使�
       address: 0xB32000
 ```
 
-上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+上述步骤执行后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
@@ -186,7 +186,7 @@ $ netmgr -t wifi -c {ssid} {password}  # 请将ssid修改为您路由器的WiFi�
 $ ucloud_ai -m {0 ~ 14} # 测试AI用例
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai init # 在执行下面的测试命令前，该命令需要优先执行，仅需执行一次即可
 ```
@@ -196,7 +196,7 @@ ucloud_ai init # 在执行下面的测试命令前，该命令需要优先执行
 ucloud_ai comp init successfully!
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 0  # 人脸比对
 ```
@@ -210,7 +210,7 @@ w:143
 h194
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 1  # 人物动漫化
 ```
@@ -220,7 +220,7 @@ ucloud_ai -m 1  # 人物动漫化
 image url:http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/5BE7565D-59CE-43EE-8169-09ED2821CE21_b301_20210331-093707.jpg?Expires=1617185228&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=8zhYdqxKgz9eDz970l1BXmpPAiQ%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 2  # 表情识别
 ```
@@ -234,7 +234,7 @@ w:4
 h:872835304
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 3  # 目标检测
 ```
@@ -282,7 +282,7 @@ object boxes.w:750
 object boxes.h:528
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 4  # 主体检测
 ```
@@ -295,7 +295,7 @@ object width:661
 object height:209
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 5  # 通用分割
 ```
@@ -309,7 +309,7 @@ ucloud_ai -m 5  # 通用分割
 0y: 66
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 6  # 面部分割
 ```
@@ -319,7 +319,7 @@ ucloud_ai -m 6  # 面部分割
 image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016171860047301086642_0V057V.jpg?Expires=1617187804&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=TiqmpoQqCon9KHPXEF8W6sf2vuY%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 7  # 身份证正面识别
 ```
@@ -354,7 +354,7 @@ faceRectangle.angle: -87.3476
 3faceRectVertices.y: 194.52
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 8  # 身份证反面识别
 ```
@@ -366,7 +366,7 @@ issue: 杭州市公安局余杭分局
 endDate: 20231010
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 9  # 银行卡识别
 ```
@@ -378,7 +378,7 @@ cardNumber: 6212262315007683105
 validDate: 07/26
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 10  # 文本识别
 ```
@@ -437,7 +437,7 @@ results size: 7
 6text: width:104
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 11  # 垃圾分类
 ```
@@ -451,7 +451,7 @@ sensitive: 0
 0rubbishScore: 1
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 12  # 水果检测
 ```
@@ -466,7 +466,7 @@ box.xmax: 723.5120849609375
 box.ymax: 482.88070678710938
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 13  # 图像人体擦除
 ```
@@ -476,7 +476,7 @@ ucloud_ai -m 13  # 图像人体擦除
 imageUrl: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_10%3A20%3A46.011134_person_org.jpg?Expires=1617187846&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=OwLEg5pWNVDwXrvAbGsUU7q5Dbs%3D
 ```
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```shell
 ucloud_ai -m 14  # 风格迁移
 ```

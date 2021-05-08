@@ -18,7 +18,7 @@ POSIX (Portable Operating System Interface) 是IEEE组织为了维护应用在�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 posix
 |-- example
 |   |-- pthread_example.c #示例代码

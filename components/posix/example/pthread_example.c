@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -68,7 +68,7 @@ static int pthread_example(int argc, char **argv)
 }
 
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(pthread_example, pthread_example, pthread example)
 #endif

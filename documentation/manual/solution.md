@@ -1,5 +1,7 @@
 @page solution 案例开发
 
+[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/solution.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 **概述**
 
 AliOS Things Solution是指一系列典型应用场景下的示例程序。Solutions既能快速满足场景基本需求，同时也为开发者提供软件设计思路。

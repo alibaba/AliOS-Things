@@ -3,7 +3,11 @@
 [更正文档](https://gitee.com/alios-things/ble_host/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
-AliOS Things 3.3提供支持符合蓝牙4.0/4.2/5.0核心协议规范的BLE Host软件协议栈组件，方便用户使用蓝牙BLE功能。<br />ble_host组件功能框图如下图红色部分:<br />![image.png](https://img.alicdn.com/imgextra/i1/O1CN018Gd9qR2ALhGFNkTT9_!!6000000008187-2-tps-830-730.png#align=left&display=inline&height=461&margin=%5Bobject%20Object%5D&name=image.png&originHeight=922&originWidth=1932&size=259937&status=done&style=none&width=966#align=left&display=inline&height=537&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=611#align=left&display=inline&height=730&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=830)<br />
+AliOS Things 3.3提供支持符合蓝牙4.0/4.2/5.0核心协议规范的BLE Host软件协议栈组件，方便用户使用蓝牙BLE功能。<br />ble_host组件功能框图如下图红色部分:
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN018Gd9qR2ALhGFNkTT9_!!6000000008187-2-tps-830-730.png#align=left&display=inline&height=461&margin=%5Bobject%20Object%5D&name=image.png&originHeight=922&originWidth=1932&size=259937&status=done&style=none&width=966#align=left&display=inline&height=537&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=611#align=left&display=inline&height=730&margin=%5Bobject%20Object%5D&originHeight=730&originWidth=830&status=done&style=none&width=830" style="max-width:800px;" />
+</div>
 
 ## 功能支持
 ble_host组件主要支持如下功能：
@@ -31,7 +35,7 @@ ble_host组件主要支持如下功能：
 
 
 ## 目录结构
-```sh
+```tree
 |-- ble_profiles             #BLE服务
 |-- bt_crypto                #BLE安全
 |-- bt_defconfig             #BLE配置项
@@ -102,7 +106,7 @@ ble_host组件主要支持如下功能：
 
 ### ble_stack_init
 BLE模块初始化。<br />**函数原型**
-```
+``` c
 int ble_stack_init(init_param_t *param)
 ```
 **输入参数**
@@ -117,7 +121,7 @@ int ble_stack_init(init_param_t *param)
 
 ### ble_stack_event_register
 注册BLE协议栈事件回调函数。<br />注意：入参不能是一个局部变量。<br />**函数原型**
-```
+``` c
 int ble_stack_event_register(ble_event_cb_t *callback)
 ```
 **输入参数**
@@ -131,7 +135,7 @@ int ble_stack_event_register(ble_event_cb_t *callback)
 
 ### ble_stack_adv_start
 打开BLE广播功能。<br />**函数原型**
-```
+``` c
 int ble_stack_adv_start(adv_param_t *param)
 ```
 **输入参数**
@@ -153,7 +157,7 @@ int ble_stack_adv_start(adv_param_t *param)
 
 ### ble_stack_adv_stop
 关闭BLE广播功能。<br />**函数原型**
-```
+``` c
 int ble_stack_adv_stop()
 ```
 **输入参数**
@@ -166,7 +170,7 @@ int ble_stack_adv_stop()
 
 ### ble_stack_scan_start
 打开BLE扫描功能。<br />**函数原型**
-```
+``` c
 int ble_stack_scan_start(const scan_param_t *param)
 ```
 **输入参数**
@@ -183,7 +187,7 @@ int ble_stack_scan_start(const scan_param_t *param)
 
 ### ble_stack_scan_stop
 关闭BLE扫描功能。<br />异步事件，扫描结果在注册的事件回调函数中返回，返回事件EVENT_GAP_DEV_FIND<br />**函数原型**
-```
+``` c
 int ble_stack_scan_stop()
 ```
 **输入参数**
@@ -196,7 +200,7 @@ int ble_stack_scan_stop()
 
 ### ble_stack_gatt_mtu_get
 获取一个连接的当前MTU大小<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_mtu_get(int16_t conn_handle)
 ```
 **输入参数**
@@ -209,7 +213,7 @@ int ble_stack_gatt_mtu_get(int16_t conn_handle)
 
 ### ble_stack_gatt_registe_service
 注册一个GATT服务<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_registe_service(gatt_service *s, gatt_attr_t attrs[], uint16_t attr_num)
 ```
 **输入参数**
@@ -226,7 +230,7 @@ int ble_stack_gatt_registe_service(gatt_service *s, gatt_attr_t attrs[], uint16_
 
 ### ble_stack_gatt_notificate
 GATT服务某个属性值上报，此上报方式无需GATT Client回复<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_notificate(int16_t conn_handle, uint16_t char_handle, const uint8_t *data, uint16_t len)
 ```
 **输入参数**
@@ -242,7 +246,7 @@ int ble_stack_gatt_notificate(int16_t conn_handle, uint16_t char_handle, const u
 
 ### ble_stack_gatt_indicate
 GATT服务某个属性值上报，此上报方式GATT Client回复confirm。<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_indicate(int16_t conn_handle, int16_t char_handle, const uint8_t *data, uint16_t len)
 ```
 **输入参数**
@@ -258,7 +262,7 @@ int ble_stack_gatt_indicate(int16_t conn_handle, int16_t char_handle, const uint
 
 ### ble_stack_gatt_mtu_exchange
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />GATT协商MTU大小，协商大小由配置项CONFIG_BT_L2CAP_RX_MTU与CONFIG_BT_L2CAP_TX_MTU的最小值以及对端设备的回复决定。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_MTU_EXCHANGE<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_mtu_exchange(int16_t conn_handle)
 ```
 
@@ -275,7 +279,7 @@ int ble_stack_gatt_mtu_exchange(int16_t conn_handle)
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />GATT服务或者属性项发现。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件根据入参不同而不同
 
 **函数原型**
-```
+``` c
 int ble_stack_gatt_discovery(int16_t conn_handle,
                              gatt_discovery_type_en type,
                              uuid_t *uuid,
@@ -296,7 +300,7 @@ int ble_stack_gatt_discovery(int16_t conn_handle,
 
 ### ble_stack_gatt_read
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />GATT读取某个属性项的属性值<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CHAR_READ_CB<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_read(int16_t conn_handle, uint16_t attr_handle, uint16_t offset)
 ```
 **输入参数**
@@ -311,7 +315,7 @@ int ble_stack_gatt_read(int16_t conn_handle, uint16_t attr_handle, uint16_t offs
 
 ### ble_stack_gatt_read_multiple
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />GATT读取多个属性项的属性值<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CHAR_READ_CB<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_read_multiple(int16_t conn_handle, uint16_t attr_count, uint16_t attr_handle[])
 ```
 **输入参数**
@@ -326,7 +330,7 @@ int ble_stack_gatt_read_multiple(int16_t conn_handle, uint16_t attr_count, uint1
 
 ### ble_stack_gatt_write
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />GATT写入某个属性项的属性值<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CHAR_WRITE_CB<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_write(int16_t conn_handle, uint16_t attr_handle, uint8_t *data, uint16_t len, uint16_t offset, gatt_write_en type)
 ```
 **输入参数**
@@ -344,7 +348,7 @@ int ble_stack_gatt_write(int16_t conn_handle, uint16_t attr_handle, uint8_t *dat
 
 ### ble_stack_gatt_read_multiple
 GATT Client功能，确保配置项CONFIG_BT_GATT_CLIENT配置。<br />此函数用于GATT读取多个属性项的属性值。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CHAR_READ_CB<br />**函数原型**
-```
+``` c
 int ble_stack_gatt_read_multiple(int16_t conn_handle, uint16_t attr_count, uint16_t attr_handle[])
 ```
 **输入参数**
@@ -359,7 +363,7 @@ int ble_stack_gatt_read_multiple(int16_t conn_handle, uint16_t attr_count, uint1
 
 ### ble_stack_connect
 BLE连接功能，确保配置项CONFIG_BT_CONN配置。<br />此函数用于BLE连接某个设备。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CONN_CHANGE<br />**函数原型**
-```
+``` c
 int ble_stack_connect(dev_addr_t *peer_addr, conn_param_t *param, uint8_t auto_connect)
 ```
 **输入参数**
@@ -378,7 +382,7 @@ int ble_stack_connect(dev_addr_t *peer_addr, conn_param_t *param, uint8_t auto_c
 
 ### ble_stack_disconnect
 BLE连接功能，确保配置项CONFIG_BT_CONN配置。<br />此函数用于BLE断开某个设备的连接。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GATT_CONN_CHANGE<br />**函数原型**
-```
+``` c
 int ble_stack_disconnect(int16_t conn_handle)
 ```
 **输入参数**
@@ -391,7 +395,7 @@ int ble_stack_disconnect(int16_t conn_handle)
 
 ### ble_stack_connect_param_update
 BLE连接功能，确保配置项CONFIG_BT_CONN配置。<br />此函数用于BLE修改某个连接的连接参数。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GAP_CONN_PARAM_UPDATE<br />**函数原型**
-```
+``` c
 int ble_stack_connect_param_update(int16_t conn_handle, conn_param_t *param)
 ```
 **输入参数**
@@ -408,7 +412,7 @@ int ble_stack_connect_param_update(int16_t conn_handle, conn_param_t *param)
 
 ### ble_stack_security
 BLE连接功能，确保配置项CONFIG_BT_CONN配置。<br />此函数用于BLE修改某个连接的安全参数。<br />异步事件，执行结果在注册的事件回调函数中返回，返回事件EVENT_GAP_CONN_SECURITY_CHANGE<br />**函数原型**
-```
+``` c
 int ble_stack_security(int16_t conn_handle, security_en level)
 ```
 **输入参数**
@@ -422,7 +426,7 @@ int ble_stack_security(int16_t conn_handle, security_en level)
 
 ### ble_stack_iocapability_set
 BLE SMP配对功能，确保配置项CONFIG_BT_SMP配置。<br />此函数用于设置BLE设备设备的IO能力，这个设置会在BLE SMP配对被使用。<br />**函数原型**
-```
+``` c
 int ble_stack_iocapability_set(uint8_t io_cap)
 ```
 **输入参数**
@@ -435,7 +439,7 @@ int ble_stack_iocapability_set(uint8_t io_cap)
 
 ### ble_stack_smp_cancel
 BLE SMP配对功能，确保配置项CONFIG_BT_SMP配置。<br />此函数用于取消当前BLE的SMP配对请求。<br />**函数原型**
-```
+``` c
 int ble_stack_smp_cancel(int16_t conn_handle)
 ```
 **输入参数**
@@ -448,7 +452,7 @@ int ble_stack_smp_cancel(int16_t conn_handle)
 
 ### ble_stack_smp_passkey_entry
 BLE SMP配对功能，确保配置项CONFIG_BT_SMP配置。<br />此函数用于SMP Passkey模式下输入当前passkey，当接收到EVENT_SMP_PASSKEY_ENTER后调用。<br />**函数原型**
-```
+``` c
 int ble_stack_smp_passkey_entry(int16_t conn_handle, uint32_t passkey)
 ```
 **输入参数**
@@ -462,7 +466,7 @@ int ble_stack_smp_passkey_entry(int16_t conn_handle, uint32_t passkey)
 
 ### ble_stack_smp_passkey_confirm
 BLE SMP配对功能，确保配置项CONFIG_BT_SMP配置。<br />此函数用于SMP Passkey模式下确认当前的passkey是否正确，当接收到EVENT_SMP_PASSKEY_CONFIRM后调用。<br />**函数原型**
-```
+``` c
 int ble_stack_smp_passkey_confirm(int16_t conn_handle)
 ```
 **输入参数**
@@ -475,7 +479,7 @@ int ble_stack_smp_passkey_confirm(int16_t conn_handle)
 
 ### ble_stack_dev_unpair
 BLE SMP配对功能，确保配置项CONFIG_BT_SMP配置。<br />此函数用于解除某台已SMP配对的设备的配对，如果连接存在则断开连接。<br />**函数原型**
-```
+``` c
 int ble_stack_dev_unpair(dev_addr_t *peer_addr)
 ```
 **输入参数**
@@ -488,22 +492,51 @@ int ble_stack_dev_unpair(dev_addr_t *peer_addr)
 **返回值**<br />`0：`成功， `其他值`：失败。<br />
 
 # 使用示例
-## 案例工具
+本用例测试过程中使用到的工具有：
 
 - 串口工具
 - NRF Connect(手机)
 
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
+## 步骤1 创建或打开工程
 
-## 案例修改
-以helloworld的案例为例，修改solutions/helloworld_demo/package.yaml的depends，增加ble_host，如下
-```
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+## 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
 depends:
-  - ble_host: master
+  - ble_host: dev_aos
 ```
 
-<br />修改solutions/helloworld_demo/helloworld_demo.c，如下：<br />**头文件修改**
+## 步骤3 下载组件
+
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install ble_host
+
 ```
+
+上述命令执行成功后，组件源码则被下载到了./components/ble_host路径中。
+
+## 步骤4 添加示例
+
+修改solutions/helloworld_demo/helloworld_demo.c，如下：
+
+**头文件修改**
+```c
 #include <aos/ble.h>
 #include <atomic.h>
 #include <bluetooth/bluetooth.h>
@@ -511,8 +544,9 @@ depends:
 #include <bluetooth/uuid.h>
 ```
 
-<br />**代码修改**
-```
+**代码修改**
+
+```c
 #define EXAMPLE_BLE_DEV_NAME        "HaaS BLE"
 #define DEVICE_ADDR                 {0xE8,0x3B,0xE3,0x88,0xB4,0xC8}
 
@@ -546,27 +580,53 @@ int application_start(int argc, char *argv[])
 ```
 
 
-## 编译烧录
-在solutions/helloworld_demo中执行aos make，编译成功后烧录进haas100开发板。<br />
+## 步骤5 编译固件
 
-## 运行观测
-打开串口工具，在串口工具中输入ble，可看到ble的cli命令集。<br />![image.png](https://img.alicdn.com/imgextra/i1/O1CN01Vm24En1Hnoi4vJ9lC_!!6000000000803-2-tps-1932-922.png#align=left&display=inline&height=461&margin=%5Bobject%20Object%5D&name=image.png&originHeight=922&originWidth=1932&size=259937&status=done&style=none&width=966#align=left&display=inline&height=293&margin=%5Bobject%20Object%5D&originHeight=922&originWidth=1932&status=done&style=none&width=614#align=left&display=inline&height=922&margin=%5Bobject%20Object%5D&originHeight=922&originWidth=1932&status=done&style=none&width=1932)<br />
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
-## BLE广播与连接示例
+## 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+## 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+## 步骤8 测试示例
+
+打开串口工具，在串口工具中输入ble，可看到ble的cli命令集。<br />
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01Vm24En1Hnoi4vJ9lC_!!6000000000803-2-tps-1932-922.png#align=left&display=inline&height=461&margin=%5Bobject%20Object%5D&name=image.png&originHeight=922&originWidth=1932&size=259937&status=done&style=none&width=966#align=left&display=inline&height=293&margin=%5Bobject%20Object%5D&originHeight=922&originWidth=1932&status=done&style=none&width=614#align=left&display=inline&height=922&margin=%5Bobject%20Object%5D&originHeight=922&originWidth=1932&status=done&style=none&width=1932" style="max-width:800px;" />
+</div>
+
+**BLE广播与连接测试**
+
 在串口工具中输入ble adv start 020106，可以在串口日志中看到如下打印
-```
+```sh
 adv_type:0;adv_interval_min:160 (*0.625)ms;adv_interval_max:240 (*0.625)ms
 Advertising started
 ```
 
-<br />此时在手机端打开NRF Connect工具并搜索广播包，可以看到设备。<br />![image.png](https://img.alicdn.com/imgextra/i2/O1CN01CZZkJl1ThCNOYmP1f_!!6000000002413-2-tps-700-1268.png#align=left&display=inline&height=520&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1268&originWidth=700&size=482965&status=done&style=none&width=287#align=left&display=inline&height=828&margin=%5Bobject%20Object%5D&originHeight=1268&originWidth=700&status=done&style=none&width=457#align=left&display=inline&height=949&margin=%5Bobject%20Object%5D&originHeight=1268&originWidth=700&status=done&style=none&width=524)<br />
-<br />点击连接，可以看到Generic Access(GAP)和Generic Attribute(GATT)2个服务，点击GAP服务的Device Name的读取按键（下图红色圈中的箭头），可以读取到数值“HaaS BLE”<br />![image.png](https://img.alicdn.com/imgextra/i3/O1CN01jK0smX1FJvdIip6ZO_!!6000000000467-2-tps-696-726.png#align=left&display=inline&height=363&margin=%5Bobject%20Object%5D&name=image.png&originHeight=726&originWidth=696&size=250340&status=done&style=none&width=348#align=left&display=inline&height=469&margin=%5Bobject%20Object%5D&originHeight=726&originWidth=696&status=done&style=none&width=450#align=left&display=inline&height=548&margin=%5Bobject%20Object%5D&originHeight=726&originWidth=696&status=done&style=none&width=525)<br />
+<br />此时在手机端打开NRF Connect工具并搜索广播包，可以看到设备。
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01CZZkJl1ThCNOYmP1f_!!6000000002413-2-tps-700-1268.png#align=left&display=inline&height=520&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1268&originWidth=700&size=482965&status=done&style=none&width=287#align=left&display=inline&height=828&margin=%5Bobject%20Object%5D&originHeight=1268&originWidth=700&status=done&style=none&width=457#align=left&display=inline&height=949&margin=%5Bobject%20Object%5D&originHeight=1268&originWidth=700&status=done&style=none&width=524" style="max-width:800px;" />
+</div>
+
+<br />点击连接，可以看到Generic Access(GAP)和Generic Attribute(GATT)2个服务，点击GAP服务的Device Name的读取按键（下图红色圈中的箭头），可以读取到数值“HaaS BLE”<br />
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01jK0smX1FJvdIip6ZO_!!6000000000467-2-tps-696-726.png#align=left&display=inline&height=363&margin=%5Bobject%20Object%5D&name=image.png&originHeight=726&originWidth=696&size=250340&status=done&style=none&width=348#align=left&display=inline&height=469&margin=%5Bobject%20Object%5D&originHeight=726&originWidth=696&status=done&style=none&width=450#align=left&display=inline&height=548&margin=%5Bobject%20Object%5D&originHeight=726&originWidth=696&status=done&style=none&width=525" style="max-width:800px;" />
+</div>
 
 # 常见问题
-```
+
 Q：此协议栈是否支持蓝牙音乐播放
 A：不支持经典蓝牙功能，仅支持BLE功能
 
 Q：常见的GATT Service是否支持
 A：支持，包括BAS,DIS,HIDS等等，详情请参考ble_host/ble_profiles文件下的实现。
-```
+

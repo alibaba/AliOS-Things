@@ -1,4 +1,4 @@
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -30,7 +30,7 @@ static void example_ili9341_draw_ract(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(example_ili9341_hw_init, ili9341_hw_init_example, ili9341 init test example)
 ALIOS_CLI_CMD_REGISTER(example_ili9341_draw_ract, ili9341_draw_ract_example, ili9341 display test example)

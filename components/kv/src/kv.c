@@ -16,8 +16,6 @@ static void kv_gc_task(void *arg);
 
 kv_item_t *kv_item_traverse(item_func func, uint8_t blk_idx, const char *key);
 
-extern void kv_register_cli_command(void);
-
 /******************************************************/
 /****************** Internal Interface ****************/
 /******************************************************/
@@ -404,7 +402,7 @@ static int32_t __item_del_by_prefix_cb(kv_item_t *item, const char *prefix)
 {
     char *key = NULL;
 
-    if (item->hdr.key_len < strlen(prefix)) {
+    if (prefix != NULL && item->hdr.key_len < strlen(prefix)) {
         return KV_LOOP_CONTINUE;
     }
 
@@ -416,7 +414,7 @@ static int32_t __item_del_by_prefix_cb(kv_item_t *item, const char *prefix)
     memset(key, 0, item->hdr.key_len + 1);
     kv_flash_read(item->pos + KV_ITEM_HDR_SIZE, key, item->hdr.key_len);
 
-    if (strncmp(key, prefix, strlen(prefix)) == 0) {
+    if (prefix == NULL || strncmp(key, prefix, strlen(prefix)) == 0) {
         kv_item_del(item, KV_DELETE_FLAG);
     }
 
@@ -841,8 +839,10 @@ int32_t kv_init(void)
          (g_kv_mgr.clean_blk_nums < KV_RESERVED_BLOCKS + 1)) {
         kv_trigger_gc();
     }
-
+    #if AOS_COMP_CLI
+    extern void kv_register_cli_command(void);
     kv_register_cli_command();
+    #endif
 
     return KV_OK;
 }

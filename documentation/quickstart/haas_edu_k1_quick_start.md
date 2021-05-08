@@ -1,6 +1,6 @@
 @page haas_edu_k1_quick_start HaaS EDU K1快速开始
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/HaaS_EDU_K1_Quick_Start.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/quickstart/haas_edu_k1_quick_start.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 具体操作分为三步：
 

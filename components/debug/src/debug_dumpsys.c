@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
+#if AOS_COMP_CLI
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -301,3 +302,4 @@ void debug_dumpsys_cmds_register(void)
         printf("%s %d failed, ret = %d\r\n", __func__, __LINE__, ret);
     }
 }
+#endif /* AOS_COMP_CLI */

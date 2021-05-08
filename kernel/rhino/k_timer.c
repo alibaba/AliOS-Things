@@ -52,11 +52,11 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb, 
         return RHINO_INV_PARAM;
     }
 
-    if (first > MAX_TIMER_TICKS) {
+    if (first > RHINO_MAX_TICKS) {
         return RHINO_INV_PARAM;
     }
 
-    if (round > MAX_TIMER_TICKS) {
+    if (round > RHINO_MAX_TICKS) {
         return RHINO_INV_PARAM;
     }
 
@@ -174,11 +174,11 @@ kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round)
         return RHINO_INV_PARAM;
     }
 
-    if (first > MAX_TIMER_TICKS) {
+    if (first > RHINO_MAX_TICKS) {
         return RHINO_INV_PARAM;
     }
 
-    if (round > MAX_TIMER_TICKS) {
+    if (round > RHINO_MAX_TICKS) {
         return RHINO_INV_PARAM;
     }
 

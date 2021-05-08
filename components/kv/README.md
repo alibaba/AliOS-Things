@@ -14,7 +14,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── src
 │   ├── kv_adapt.c   # kv和flash的适配层
 │   ├── kv_aos.c     # kv的aos api接口
@@ -38,44 +38,43 @@
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > kv分区大小: 默认8K bytes, 如需修改，在yaml中修改KV_CONFIG_TOTAL_SIZE配置
-```sh
+```yaml
 def_config:
   KV_CONFIG_TOTAL_SIZE: 4096
 ```
 > kv分区号，默认HAL_PARTITION_PARAMETER_2，可按照实际需要修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_PARTITION: 2
 ```
 > kv block bit大小，默认12，可修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_BLOCK_SIZE_BITS: 2
 ```
 > kv 资源回收任务优先级，默认32，可修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_TASK_PRIORITY: 31
 ```
 > kv 资源回收任务栈大小，默认1024，可修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_TASK_STACK_SIZE: 2048
 ```
 > kv 存储key最大长度，默认为128，可修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_MAX_KEY_LEN: 256
 ```
 > kv 存储value最大长度，默认为512，可修改yaml配置如：
-```sh
+```yaml
 def_config:
   KV_CONFIG_MAX_VAL_LEN: 256
 ```
 
 # API说明
-@ref kv_aos_api
-
+- 参考 [kv_aos_api](https://g.alicdn.com/alios-things-3.3/doc/group__kv__aos__api.html)
 
 # 使用示例
 
@@ -99,7 +98,7 @@ def_config:
 ```yaml
 
 depends:
-  - kv: master # helloworld_demo中引入kv组件
+  - kv: dev_aos # helloworld_demo中引入kv组件
 
 ```
 
@@ -145,7 +144,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 kv_example
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 ```shell
 kv comp test success!

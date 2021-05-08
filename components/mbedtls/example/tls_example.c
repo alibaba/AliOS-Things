@@ -29,7 +29,7 @@
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -316,7 +316,7 @@ exit:
     return( exit_code );
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(tls_example, tls_example, tls client example)
 #endif

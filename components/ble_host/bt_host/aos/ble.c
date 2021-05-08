@@ -387,8 +387,9 @@ int ble_stack_init(init_param_t *param)
     slist_init(&ble_dev.cb_list);
 
     ble_stack_setting_load();
-
+    #if AOS_COMP_CLI
     cli_reg_cmd_ble();
+    #endif
     ble_dev.is_init = 1;
 
     return ret;

@@ -26,7 +26,7 @@ AliOS Things Modbus是标准的串行通信协议驱动，提供RTU模式能力�
 
 ## 目录结构
 
-```javascript
+```tree
 src
 ├── adu
 │   ├── mbcrc.c                            # crc16校验位计算
@@ -70,7 +70,7 @@ src
 
 # API说明
 
-## 常用API
+**常用API**
 - mbmaster_read_coils
 - mbmaster_read_discrete_inputs
 - mbmaster_read_holding_registers
@@ -104,8 +104,8 @@ src
 
 ```yaml
 depends:
-  - mbmaster: master # helloworld_demo中引入modbus组件
-  - ulog: master
+  - mbmaster: dev_aos # helloworld_demo中引入modbus组件
+  - ulog: dev_aos
 ```
 
 ## 步骤3 下载组件

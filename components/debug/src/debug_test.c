@@ -1,15 +1,12 @@
 /*
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
-
+#if AOS_COMP_CLI
 #include <stdio.h>
 #include <assert.h>
 #include "debug_api.h"
 #include "aos/debug.h"
-
-#if AOS_COMP_CLI
 #include "aos/cli.h"
-#endif
 #ifdef AOS_COMP_ULOG
 #include "ulog/ulog.h"
 #endif
@@ -94,3 +91,5 @@ __attribute__((weak))  void alios_debug_pc_show(int argc, char **argv)
     return;
 }
 ALIOS_CLI_CMD_REGISTER(alios_debug_pc_show, pcshow, Show pc addr region)
+
+#endif /* AOS_COMP_CLI */

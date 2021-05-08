@@ -3,7 +3,7 @@
  */
 
 #include "aos/kv.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 
 

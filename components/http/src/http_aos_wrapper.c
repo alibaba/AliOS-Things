@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "httpclient.h"
 #include "http_opts.h"
@@ -215,9 +217,15 @@ static int httpclient_random(void *prng, unsigned char *output, size_t output_le
 {
     uint32_t rnglen = output_len;
     uint8_t rngoffset = 0;
+    struct timeval time;
+
+    memset(&time, 0, sizeof(struct timeval));
+    gettimeofday(&time, NULL);
+
+    aos_srand((unsigned int)(time.tv_sec * 1000 + time.tv_usec / 1000) + aos_rand());
 
     while (rnglen > 0) {
-        *(output + rngoffset) = (uint8_t)rand();
+        *(output + rngoffset) = (uint8_t)aos_rand();
         rngoffset++;
         rnglen--;
     }

@@ -63,7 +63,7 @@ uagent/
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 
 > linkitsdk_dmeo solutions的package.yaml中添加依赖组件uagent组件
-```sh
+```yaml
 depends:                                       # 该组件依赖其他的组件
   - linksdk: dev_aos
   - haas100: dev_aos
@@ -85,8 +85,8 @@ aos install uagent
 
 ## 步骤4 添加示例
 
-> uagent组件的package.yaml中添加example示例代码
-```sh
+> uagent组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uagent/tree/rel_3.3.0/example)：
+```yaml
 source_file:
   - "src/uagent_comm_mqtt.c"
   - "src/uagent_core.c"
@@ -129,7 +129,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 
 ## 步骤8 测试示例
 
-### CLI命令行输入：
+**CLI命令行输入：**
 >连接网络
 ```sh
 netmgr -t wifi -c <wifi_ssid> <wifi_pwd>
@@ -138,7 +138,7 @@ netmgr -t wifi -c <wifi_ssid> <wifi_pwd>
 ```sh
 [49.030][LK-0313] MQTT connect success in 202 ms
 ```
-### CLI命令行输入：
+**CLI命令行输入：**
 > uagent测试cli
 ```sh
 uagent_example

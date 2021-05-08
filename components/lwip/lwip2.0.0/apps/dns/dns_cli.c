@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
-
+#if AOS_COMP_CLI
 #include <string.h>
 #include <aos/cli.h>
 #include <lwip/netdb.h>
@@ -62,3 +62,4 @@ int32_t dns_cli_register(void)
 
     return -1;
 }
+#endif /* AOS_COMP_CLI */

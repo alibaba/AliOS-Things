@@ -28,7 +28,7 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 > Apache 2.0 License
 
 ## 目录结构
-```sh
+```tree
 .
 ├── ChangeLog.md           #变更日志
 ├── components
@@ -74,18 +74,18 @@ Link SDK由阿里云提供给设备厂商，由设备厂商集成到设备上后
 无
 
 # API说明
-@ref linksdk API
+
 请参考阿里云Link SDK[编程手册](https://help.aliyun.com/document_detail/163764.html?spm=a2c4g.11186623.6.568.3d00316fqDi9YJ)。
 
 # 使用示例
 solutions中提供了以下demo供用户选择使用：
-- [link_sdk_demo 物模型单品用例](../../solutions/linksdk_demo/README.md)
-- [link_sdk_gateway_demo 物模型网关代理子设备上云用例](../../solutions/linksdk_demo/README.md)
+- [link_sdk_demo 物模型单品用例](https://g.alicdn.com/alios-things-3.3/doc/linksdk_demo.html)
+- [link_sdk_gateway_demo 物模型网关代理子设备上云用例](https://g.alicdn.com/alios-things-3.3/doc/linksdk_gateway_demo.html)
 
 
-## 添加Link SDK功能模块
+## 添加组件
 默认仅使能能物模型及网关子设备功能。如需编译其他功能，请在package.yaml中包含对应的头文件路径及源码编译路径。如需使能动态注册：
-```sh
+```yaml
 source_file:
   - "components/dynreg/*.c"
 

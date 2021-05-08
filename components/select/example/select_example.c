@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "select.h"
 #include "aos/vfs.h"
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -114,7 +114,7 @@ static void select_comp_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(select_comp_example, select_example, select and poll API base example)
 #endif

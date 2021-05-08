@@ -18,23 +18,42 @@ SET(CMAKE_SYSTEM_NAME Generic)
 #SET(CMAKE_C_FLAGS ${CMAKE_BUILD_FLAGS})
 #SET(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMICROPY_ENABLE_DYNRUNTIME")
+
 # 通过在主工程文件CMakeLists.txt中修改ADD_SUBDIRECTORY (lib) 指令来指定一个编译输出位置;
 
 # 指定本工程中静态库libhello.so生成的位置，即 build/lib;
 
 set(AOSROOTDIR ${CMAKE_SOURCE_DIR}/../..)
-set(MICROPYTHONDIR ${CMAKE_SOURCE_DIR}/micropython)
-set(DRIVERDIR ${CMAKE_SOURCE_DIR}/platform)
-set(MINICVDIR ${CMAKE_SOURCE_DIR}/minicv)
+set(MPYENGINEDIR ${CMAKE_SOURCE_DIR}/mpy_engine)
+set(MPYADAPTORDIR ${CMAKE_SOURCE_DIR}/mpy_adaptor)
 set(EXAMPLEDIR ${CMAKE_SOURCE_DIR}/example)
 
 #Global src
 file(GLOB SOURCEFILE "")
 
-#include(${EXAMPLEDIR}/aos.mk)
-include(${MINICVDIR}/aos.mk)
-include(${DRIVERDIR}/aos.mk)
-include(${MICROPYTHONDIR}/aos.mk)
+# Build Option
+## os module
+# option(PY_BUILD_UOS "Build http  or not" ON)
+
+# ## network module
+# option(PY_BUILD_HTTP "Build http  or not" ON)
+# option(PY_BUILD_TCP "Build tcp  or not" ON)
+# option(PY_BUILD_UDP "Build udp  or not" ON)
+# option(PY_BUILD_NETMGR "Build netmgr  or not" ON)
+# option(PY_BUILD_MQTT "Build mqtt  or not" ON)
+# option(PY_BUILD_LINKSDK "Build mqtt  or not" ON)
+# option(PY_BUILD_USOCKET "Build mqtt  or not" ON)
+
+# MESSAGE( STATUS "AI_BUILD_FLAG = ${PY_BUILD_AI}")
+## audio module
+#option(PY_BUILD_AUDIO "Build uvoice or not" ON)
+
+
+#include(${EXAMPLEDIR}/example.mk)
+#include(${DRIVERDIR}/aos.mk)
+include(${MPYENGINEDIR}/py.mk)
+include(${MPYADAPTORDIR}/py.mk)
 
 ADD_LIBRARY (py_engine_static STATIC ${SOURCEFILE})
 SET_TARGET_PROPERTIES (py_engine_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})

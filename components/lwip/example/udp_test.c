@@ -3,7 +3,7 @@
  */
 #include <stdio.h>
 #include <network.h>
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -82,7 +82,7 @@ static void udp_example(int argc, char **argv)
     aos_task_new("udp_client", udp_client_task, NULL, 6 << 10);
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(udp_example, test_udp, udp_example)
 #endif

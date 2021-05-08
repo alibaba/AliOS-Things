@@ -17,7 +17,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 │── src
 │   └── i2c_dev.c      # I2C VFS驱动程序源代码
 ├── example            # I2C VFS驱动程序使用案例
@@ -42,7 +42,7 @@
 > CONFIG_I2C_NUM默认是在hardware/chip/<chip_name>/package.yaml中的**define**节点进行配置。
 > 如果没有定义CONFIG_I2C_NUM，则代码中会定义默认对外输出的设备节点数量。
 > 设备节点数量: 默认4个, 如需修改，在hardware/chip/<chip_name>/package.yaml中修改CONFIG_I2C_NUM配置
-```sh
+```yaml
 define:
   CONFIG_I2C_NUM: 2
 ```

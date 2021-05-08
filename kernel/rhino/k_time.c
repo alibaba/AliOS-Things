@@ -20,7 +20,6 @@ void krhino_tick_proc(void)
 tick_t krhino_sys_tick_get(void)
 {
     CPSR_ALLOC();
-
     tick_t tick_tmp;
 
     RHINO_CPU_INTRPT_DISABLE();

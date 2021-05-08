@@ -8,8 +8,9 @@
 #include "ulog/ulog.h"
 #include "flower_app.h"
 #include "k_api.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
-
+#endif
 #include <sys/ioctl.h>
 #include <vfsdev/gpio_dev.h>
 #include <drivers/char/u_device.h>
@@ -217,11 +218,13 @@ static void handle_temp_cmd(char *pwbuf, int blen, int argc, char **argv)
     }
 }
 
+#if AOS_COMP_CLI
 static struct cli_command temp_cmd = {
     .name     = "temp",
     .help     = "temp [read]",
     .function = handle_temp_cmd
 };
+#endif /* AOS_COMP_CLI */
 
 int flower_gpio_init(void)
 {
@@ -236,6 +239,8 @@ int flower_gpio_init(void)
 
     DHT11_GPIO_Set(1);
     DHT11_Reset();
+    #if AOS_COMP_CLI
     aos_cli_register_command(&temp_cmd);
+    #endif /* AOS_COMP_CLI */
     return 0;
 }

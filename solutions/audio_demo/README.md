@@ -73,19 +73,9 @@ program_data_files:
 ```
 
 ## 3.4、代码编译、烧录
-编译audio_demo的过程如下：
--- 首先下载uVoice组件依赖的codec源码
-```shell
-// 在AliOS Things 3.3的工程根目录下执行Shell命令
-cd ./components/uvoice/codec/opensource/pvaac
-python get_pv_aac.py
-cd ./components/uvoice/codec/opensource/pvmp3
-python get_pvmp3.py
-```
-
 -- 固件编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
--- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)。
+-- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
 
 # 4、功能调试
 智能语音播放器支持，

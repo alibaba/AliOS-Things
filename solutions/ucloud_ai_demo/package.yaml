@@ -27,6 +27,8 @@ depends:
   - ucloud_ai: dev_aos
   - debug: dev_aos
   - ili9341: dev_aos
+  - lwip: dev_aos
+  - wifi: dev_aos
 
 # build_config:
 #   include:

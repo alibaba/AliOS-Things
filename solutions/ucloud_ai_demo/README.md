@@ -92,7 +92,7 @@ ESP32也支持station与SoftAP模式共存，比如想让ESP32 EYE接入到SSID�
 
 #### 3.1.2.5 分辨率配置
 因为本案例中使用的LCD是320x240的，摄像头采集的画面也相应的设置为QVGA(320x240)减少传输带宽占用，esp-who/examples/single_chip/camera_web_server/main/app_httpd.c中添加代码：
-```bash
+```c
 static esp_err_t capture_handler(httpd_req_t *req)
 {
     camera_fb_t *fb = NULL;
@@ -240,11 +240,11 @@ wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替�
       address: 0xB32000
 ```
 
--- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)。
+-- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
 
 ### 4.9 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 
 ## 4.10 网络连接

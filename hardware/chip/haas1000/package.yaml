@@ -18,10 +18,8 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
   - armv7m: dev_aos
   - rhino: dev_aos
-  - lwip: dev_aos
-  - libc_stub: dev_aos 
+  - libc_stub: dev_aos
   - osal_aos: dev_aos
-  - uservice: dev_aos
   - i2c: dev_aos
   - spi: dev_aos
   - flash: dev_aos
@@ -30,7 +28,6 @@ depends:
   - flash: dev_aos
   - pwm: dev_aos
   - adc: dev_aos
-  - wifi: dev_aos
   - timer: dev_aos
   - watchdog: dev_aos
 ## 第四部分：编译连接信息
@@ -113,7 +110,7 @@ source_file:
   # "hal/i2s.c"
   # - "hal/usbd.c"
   - "hal/timer.c"
-  - "hal/wifi_port.c"
+  - hal/wifi_port.c ? <AOS_COMP_WIFI>
   - "hal/adc.c"
   - "hal/pwm.c"
 # - "hal/qspi.c"
@@ -159,7 +156,7 @@ def_config:
   CONFIG_QSPI_NUM: 0
   CONFIG_SPI_NUM: 2
   CONFIG_TIMER_NUM: 1
-  CONFIG_UART_NUM: 2
+  CONFIG_UART_NUM: 3
 
 chip:
   arch_name: arm

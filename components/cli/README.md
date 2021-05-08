@@ -13,7 +13,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── include
 │   └── aos
 │       └── cli.h        # cli的对外AOS API
@@ -58,59 +58,59 @@
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，在相应app下的package.yaml中**def_config**节点修改。例如：若运行的app为helloworld_demo，则在helloworld_demo下的package.yaml中修改：
 > cli 输入缓冲区大小: 默认256 bytes，即cli单次可接收的输入最大字节数
-```sh
+```yaml
 def_config:
   CLI_INBUF_SIZE: 256
 ```
 > cli 输出缓冲区大小: 默认512 bytes，即cli命令中单个printf输出的最大字节数
-```sh
+```yaml
 def_config:
   CLI_OUTBUF_SIZE: 512
 ```
 > 可注册的cli命令最大值，默认最多可注册128个命令（通过help命令查看）
-```sh
+```yaml
 def_config:
   CLI_MAX_COMMANDS: 128
 ```
 > 单个cli命令可带参数的最大值，默认最多可带16个参数
-```sh
+```yaml
 def_config:
   CLI_MAX_ARG_NUM: 16
 ```
 > 可连续执行的cli命令数量（命令中间用分号；间隔），默认为4个
-```sh
+```yaml
 def_config:
   CLI_MAX_ONCECMD_NUM: 4
 ```
 > cli后台任务的优先级，默认为60
-```sh
+```yaml
 def_config:
   CLI_TASK_PRIORITY: 60
 ```
 > cli后台任务的栈大小，默认为2KB(2048Bytes)
-```sh
+```yaml
 def_config:
   CLI_CONFIG_STACK_SIZE: 2048
 ```
 > cli使用telnet接管输入输出，此功能默认不开
-```sh
+```yaml
 def_config:
   CLI_TELNET_ENABLE: 0
 ```
 > cli使用uagent接管输入输出，即cli日志输入输出在远程诊断终端上，此功能默认不开
-```sh
+```yaml
 def_config:
   CLI_UAGENT_ENABLE: 0
 ```
 
 > cli输出增加不可见字符，用于SmartTrace工具中，此功能默认关闭
-```sh
+```yaml
 def_config:
   CLI_SEPRATED_CONSOLE: 0
 ```
 
 > cli使能文件系统操作命令，此功能默认不开
-```sh
+```yaml
 def_config:
   CLI_IOBOX_ENABLE: 0
 ```
@@ -228,7 +228,7 @@ void test_cmd3(int32_t argc, char **argv)
  */
 ALIOS_CLI_CMD_REGISTER(test_cmd3, test3, show test3 info)
 ```
-### 代码示例
+**代码示例**
 helloworld_demo注册cli命令，修改helloworld.c如下：
 ```C
 #include "aos/init.h"
@@ -311,11 +311,11 @@ ALIOS_CLI_CMD_REGISTER(test_cmd3, test3, show test3 info)
 
 ## 步骤6 烧录固件
 
-helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 
 ## 步骤8 测试示例
