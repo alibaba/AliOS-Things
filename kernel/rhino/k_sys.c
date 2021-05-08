@@ -252,7 +252,6 @@ void krhino_intrpt_exit(void)
 tick_t krhino_next_sleep_ticks_get(void)
 {
     CPSR_ALLOC();
-
     klist_t *tick_head;
     ktask_t *tcb;
     klist_t *iter;

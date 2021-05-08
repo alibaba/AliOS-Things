@@ -13,7 +13,7 @@ LCD (Liquid Crystal Display) 即液晶显示器。AliOS Things 提供了多款LC
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── src
 │   ├── ili9341.c                # ili9341驱动组件实现
 │   └── ili9341_fb.c             # ili9341驱动注册到fbdev的函数实现
@@ -160,11 +160,11 @@ source_file:
 
 ## 步骤6 烧录固件
 
-helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 

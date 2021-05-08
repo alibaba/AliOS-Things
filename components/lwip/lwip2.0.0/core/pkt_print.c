@@ -10,7 +10,9 @@
 #include "lwip/debug.h"
 #include "lwip/def.h"
 #include "lwip/netif.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 
 #define IPHDR_LEN 20
 #define TCPS_MAX  11
@@ -607,6 +609,7 @@ void lwip_pkt_stats(pkt_stats_data *data) {
     }
 }
 
+#if AOS_COMP_CLI
 void pktprint_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
 {
     if ( argc != 2 && argc != 3 ) {
@@ -684,4 +687,5 @@ int pktprint_cli_register( void )
     else
         return ERR_VAL;
 }
+#endif /* AOS_COMP_CLI */
 #endif /* WITH_LWIP_PKTPRINT */

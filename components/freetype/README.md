@@ -13,7 +13,7 @@
 > FTL 一个类似BSD风格的license
 
 ## 目录结构
-```sh
+```tree
 ├── FTL.TXT    # license描述文件
 ├── devel      # DEBUG级别配置文件
 ├── src        # freetype实现文件
@@ -27,7 +27,7 @@
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > 编译时允许引用内部头文件: 必须允许, 如果不允许会导致编译不过，在yaml中修改FT2_BUILD_LIBRARY配置
-```sh
+```yaml
 def_config:
   FT2_BUILD_LIBRARY: y
 ```

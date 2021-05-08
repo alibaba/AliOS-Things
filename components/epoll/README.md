@@ -14,7 +14,7 @@ epoll实现了linux兼容的高效的IO多路复用机制epoll.
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 .
 ├── example                     # 示例程序
 │   ├── epoll_example.c
@@ -40,12 +40,12 @@ epoll实现了linux兼容的高效的IO多路复用机制epoll.
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > 配置是否支持LWIP:
-```sh
+```yaml
 def_config:
   CONFIG_EPOLL_LWIP: 1
 ```
 > 配置是否支持标准epoll接口:
-```sh
+```yaml
 def_config:
   CONFIG_WITH_MUSL: 0 # 0 支持标准epoll接口，非零说明在musl库中支持。
 ```
@@ -71,7 +71,7 @@ https://man7.org/linux/man-pages/man7/epoll.7.html
 
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对epoll组件的依赖：
 > helloworld_demo组件的package.yaml中添加
-```sh
+```yaml
 depends:
   - epoll: dev_aos # helloworld_demo中引入epoll组件
 ```

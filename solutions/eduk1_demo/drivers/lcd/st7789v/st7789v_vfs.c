@@ -13,10 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
-
-#include "aos/cli.h"
 #include "aos/vfs.h"
-
 #include "hal2vfs/io_gpio.h"
 #include "hal2vfs/io_spi.h"
 #include <drivers/char/u_device.h>

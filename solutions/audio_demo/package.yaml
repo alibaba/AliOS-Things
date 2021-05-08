@@ -22,7 +22,12 @@ depends:                                       # 该组件依赖其他的组件
   - netmgr: dev_aos
   - a2sa: dev_aos
   - uvoice: dev_aos
-  
+  - littlefs: dev_aos
+  - lwip: dev_aos
+  - uservice: dev_aos
+  - wifi: dev_aos
+  - cli: dev_aos
+
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项
 def_config:

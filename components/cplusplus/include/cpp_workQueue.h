@@ -6,9 +6,15 @@
 #include <k_api.h>
 
 /** @defgroup cpp_aos_workqueue
+ *  @ingroup cpp_aos_api
  * @{
  */
 namespace AOS {
+
+/**
+ * @brief WorkQueue Class.
+ *
+ */
 
     class WorkQueue
     {
@@ -84,6 +90,9 @@ namespace AOS {
         kwork_t *self(void);
 
       private:
+        /**
+         * @brief a Queue buffer
+         */
         kwork_t _work_def;
     };
 

@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <aos/errno.h>
-#include <aos/cli.h>
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
 #include <vfsdev/wdg_dev.h>
 
 int vfs_wdg_test(int count, int period)
@@ -47,7 +49,7 @@ static void wdg_reload_test(int32_t argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(wdg_reload_test, wdg_reload, reset watchdog operation example)
 #endif

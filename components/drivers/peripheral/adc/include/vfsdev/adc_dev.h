@@ -11,7 +11,17 @@
 extern "C" {
 #endif
 
-/** @defgroup adc_device_api adc_device
+/** @defgroup driver_api driver
+ *  @ingroup aos_components
+ * @{
+ */
+
+/**
+ * @}
+ */
+
+/** @defgroup adc_device_api adc
+ *  @ingroup driver_api
  * @{
  */
 

@@ -7,7 +7,6 @@
 #include "aos/hal/gpio.h"
 #include "ulog/ulog.h"
 #include "k_api.h"
-#include "aos/cli.h"
 #include <vfsdev/uart_dev.h>
 
 #define TASK_RECVDATA_NAME      "revdata"
@@ -57,9 +56,9 @@ int rfid_uart_init(void)
     snprintf(dev_name, sizeof(dev_name), "/dev/ttyUART%d", port_id);
     printf("opening device:%s\r\n", dev_name);
     fd = open(dev_name, 0);
-    if (ret != 0) {
+    if (fd < 0) {
         printf("open uart error\r\n");
-        return ret;
+        return fd;
     }
     ret = ioctl(fd, IOC_UART_SET_CFLAG, B9600 | CS8);
     if (ret != 0) {

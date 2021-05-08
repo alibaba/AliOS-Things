@@ -62,16 +62,8 @@ def_config:
 
 
 # API说明
-@ref LOG
-@ref LOGF
-@ref LOGE
-@ref LOGW
-@ref LOGI
-@ref LOGD
-@ref aos_get_ulog_list
-@ref ulog_man
-@ref ulog
 
+- 参考 [aos_ulog](https://g.alicdn.com/alios-things-3.3/doc/group__aos__ulog.html)
 
 # 使用示例
 组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
@@ -111,7 +103,8 @@ aos install ulog
 ## 步骤4 添加示例
 
 > ulog组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ulog/tree/rel_3.3.0/example)：
-```sh
+
+```yaml
 source_file:
   - src/ulog_async.c? <ULOG_CONFIG_ASYNC>
   - src/ulog.c
@@ -124,9 +117,10 @@ source_file:
   - example/ulog_example.c #add ulog example code
 ```
 > ulog 设置日志输出等级，默认为不输出
+
 ```c
     aos_set_log_level(AOS_LL_DEBUG);
-````
+```
 
 ## 步骤5 编译固件
 
@@ -145,7 +139,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 ## 步骤8 测试示例
 
 
-### CLI命令行输入：
+**CLI命令行输入：**
 ```sh
 ulog_example_test
 ```

@@ -1,7 +1,9 @@
 #include "json/json.h"
 #include <fstream>
 #include <iostream>
-#include <aos/cli.h>
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
 /** \brief Parse from stream, collect comments and capture error info.
  * Example Usage:
  * $g++ readFromStream.cpp -ljsoncpp -std=c++11 -o readFromStream
@@ -135,7 +137,7 @@ int jsoncpp_comp_write_string_example(int argc, char **argv)
 
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 // ALIOS_CLI_CMD_REGISTER(jsoncpp_comp_read_stream_example, jsoncpp_read_stream_example, jsoncpp component base example)
 // ALIOS_CLI_CMD_REGISTER(jsoncpp_comp_write_stream_example, jsoncpp_write_stream_example, jsoncpp component base example)

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/cli.h>
 #include "netmgr.h"
 #include "ulog/ulog.h"
 #include "ota_agent.h"

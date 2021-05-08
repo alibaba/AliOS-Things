@@ -14,15 +14,16 @@
 #include <stdlib.h>
 #include "aos/hal/gpio.h"
 #include "aos/hal/uart.h"
+#if(AOS_COMP_WIFI > 0)
 #include "aos/hal/wifi.h"
-
+#endif
 #include "hal_cmu.h"
 #include "app_utils.h"
 #include "ota_port.h"
 #include "hal_uart.h"
 #include "hal_trace.h"
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 
@@ -33,7 +34,7 @@ uint8_t _wrap_p_buf[WRAP_P_BUF_LEN];
 int max_p_size = 0;
 
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 static uint8_t char2data(const char ch)
 {
     if ((ch >= '0') && (ch <= '9')) {
@@ -197,6 +198,7 @@ int alios_debug_pc_check(char *pc)
     }
 }
 
+#if AOS_COMP_CLI
 void alios_debug_pc_show(int argc, char **argv)
 {
     cli_printf("----- PC Addr ------\r\n");
@@ -204,7 +206,7 @@ void alios_debug_pc_show(int argc, char **argv)
     cli_printf("addr 2 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__flashx_text_start__, (uint32_t)__flashx_text_end__);
     cli_printf("addr 3 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__psramux_text_start__, (uint32_t)__psramux_text_end__);
 }
-
+#endif
 
 #ifdef AOS_COMP_LITTLEFS
 #include "littlefs.h"
@@ -294,7 +296,7 @@ void aos_trace_notify(enum HAL_TRACE_STATE_T state)
         abort();
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #ifdef CUSTOM_CLI_ENABLED
 static uint8_t char2data(const char ch)
 {

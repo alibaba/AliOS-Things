@@ -47,7 +47,6 @@ void tick_list_rm(ktask_t *task)
 void tick_list_update(tick_i_t ticks)
 {
     CPSR_ALLOC();
-
     klist_t  *tick_head_ptr;
     ktask_t  *p_tcb;
     klist_t  *iter;

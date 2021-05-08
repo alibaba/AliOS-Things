@@ -14,7 +14,7 @@ mbedtls提供加解密算法（AES, RSA, MD5/SHA1/SHA256/SHA512 etc.），X.509�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 mbedtls
 |-- apache-2.0.txt
 |-- ChangeLog
@@ -36,167 +36,167 @@ mbedtls
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在platform/include/config_aos_base.h中修改，具体如下：
 > 使能加解密: 默认使能, 如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO: 0
 ```
 > 使能MD5: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MD5: 0
 ```
 > 使能SHA1: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_SHA1: 0
 ```
 > 使能SHA256: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_SHA256: 0
 ```
 > 使能SHA512: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_SHA512: 1
 ```
 > 使能RIPEMD160: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_RIPEMD160: 1
 ```
 > 使能ARIA: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_ARIA: 1
 ```
 > 使能DES: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_DES: 1
 ```
 > 使能AES: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_AES: 0
 ```
 > 使用AES ROM表: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES: 1
 ```
 > 使用较少的AES ROM/RAM表: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES: 1
 ```
 > 使能CBC加密模式: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_CBC: 0
 ```
 > 使能CFB加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_CFB: 1
 ```
 > 使能CTR加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_CTR: 1
 ```
 > 使能OFB加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_OFB: 1
 ```
 > 使能XTS加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_XTS: 1
 ```
 > 使能GCM加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_GCM: 1
 ```
 > 使能CCM加密模式: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_MODE_CCM: 1
 ```
 > 使能ARC4加密: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_ARC4: 1
 ```
 > 使能BLOWFISH加密: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_BLOWFISH: 1
 ```
 > 使能CAMELLIA加密: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_CAMELLIA: 1
 ```
 > 使能XTEA加密: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_XTEA: 1
 ```
 > 使能CHACHA20加密: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_CHACHA20: 1
 ```
 > 使能POLY1305 MAC算法: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_POLY1305: 1
 ```
 > 使能CHACHAPOLY AEAD算法: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY: 1
 ```
 > 使能X.509证书支持: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_X509: 0
 ```
 > 使能TLS协议支持: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_TLS: 0
 ```
 > 使能TLS1.2协议支持: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_TLS1_2: 0
 ```
 > 使能DTLS协议支持: 默认使能，如需关闭，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_DTLS: 0
 ```
 > 使能TLS协议调试支持: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_TLS_DEBUG: 1
 ```
 > TLS/DTLS最大收发报文长度: 单位：字节，默认为4096。可修改配置如2K：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 2048
 ```
 > 是否包含自测程序: 默认不包含，如需包含，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_SELFTEST: 1
 ```
 > 使能错误字符串支持: 默认不使能，如需使能，可修改配置如：
-```sh
+```yaml
 def_config:
   MBEDTLS_CONFIG_ERROR: 1
 ```

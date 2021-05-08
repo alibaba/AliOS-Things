@@ -4,10 +4,10 @@
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
-
 #include "aos/vfs.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
-
+#endif
 #include <drivers/u_ld.h>
 #include <drivers/ddkc_log.h>
 #include <vfsdev/uart_dev.h>
@@ -208,6 +208,7 @@ static void uart_echo_test(char *buf, int len, int argc, char **argv)
     return;
 }
 
+#if AOS_COMP_CLI
 struct cli_command vfs_uart_cli_cmds[] = {
     { "uartw", "uart tx test", uart_write_test, },
     { "uartr", "uart rx test", uart_read_test, },
@@ -220,3 +221,4 @@ int vfs_uart_test_cmd_init(void)
 }
 
 POST_DRIVER_ENTRY(vfs_uart_test_cmd_init)
+#endif /* AOS_COMP_CLI */

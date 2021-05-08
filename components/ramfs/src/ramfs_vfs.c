@@ -83,7 +83,7 @@ static int32_t ramfs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 
     ret = ramfs_read(&ramfs_file, buf, len, &read_bytes);
 
-    if ((ret == 0) && (read_bytes >= 0)) {
+    if (ret == 0) {
         fp->offset = ramfs_file.rwp;
         res        = read_bytes;
     } else {
@@ -109,7 +109,7 @@ static int32_t ramfs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 
     ret = ramfs_write(&ramfs_file, buf, len, &write_bytes);
 
-    if ((ret == 0) && (write_bytes >= 0)) {
+    if (ret == 0) {
         fp->offset = ramfs_file.rwp;
         res        = write_bytes;
     } else {

@@ -20,7 +20,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 fatfs
 ├── src
 │   ├── mmc_disk
@@ -49,14 +49,17 @@ fatfs
 ```
 
 ## 依赖组件
-* minilibc: v7.2.0
-* aos: >=v7.2.0
+* rhino
+* vfs
 
 # 常用配置
+
+```yaml
 def_config:
   CONFIG_AOS_FATFS_SUPPORT_MMC: 1
   AOS_COMP_VFS: 1
   AOS_COMP_FATFS: 1
+```
 
 # 使用示例
 
@@ -128,7 +131,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 fatfs_example
 ```
 
-## 关键日志
+**关键日志**
 > CLI日志：
 ```sh
 fatfs component example start!

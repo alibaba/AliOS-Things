@@ -1,4 +1,7 @@
 @page ota_demo HaaS物联网设备OTA解决方案
+
+[更正文档](https://gitee.com/alios-things/ota_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 1. 案例简介
 OTA升级是很多嵌入式产品必备的一个功能。HaaS提供了完备的OTA解决方案。本案例就是一个端云一体的例子。
 本文将分几个部分介绍，具体包括：
@@ -65,9 +68,9 @@ static const unsigned char ota_pube_buf[3];
 ```
 **3.编译烧录到HaaS100的基础固件**
 * 开发环境搭建
-开发环境的搭建请参考 [HaaS100快速开始 (搭建开发环境章节)](https://dev.g.alicdn.com/aos3.3-doc-test/cdn/0.0.1/_haa_s100__quick__start.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程;
+开发环境的搭建请参考 [HaaS100快速开始 (搭建开发环境章节)](https://g.alicdn.com/alios-things-3.3/doc/haas100_quick_start.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程;
 * 用例和开发板选择
-参考[HaaS100快速开始 (选择解决方案和开发板章节)](https://dev.g.alicdn.com/aos3.3-doc-test/cdn/0.0.1/_haa_s100__quick__start.html)，其中解决方案选择：**ota_demo**; 开发板：**HaaS 100**
+参考[HaaS100快速开始 (选择解决方案和开发板章节)](https://g.alicdn.com/alios-things-3.3/doc/haas100_quick_start.html)，其中解决方案选择：**ota_demo**; 开发板：**HaaS 100**
 * 配置固件版本号
 根据需求修改版本号,如app-1.0.0等
 修改位置：solutions/ota_demo/otaappdemo.c中的，MY_APP_VER宏定义。
@@ -76,9 +79,9 @@ static const unsigned char ota_pube_buf[3];
 * 编译固件
 完成上面步骤后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 * 烧录固件
-ota_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/build_image.html)来烧录固件。
+ota_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
 * 打开串口
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](_haa_s100__quick__start.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 * 配网连云
 输入wifi账号和密码配网：在终端输入：

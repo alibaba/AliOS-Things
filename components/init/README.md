@@ -38,7 +38,7 @@ init是AliOS Things的基础模块初始化接口。其主要实现了**aos_comp
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 ├── aos_init.c     # aos_components_init实现
 ├── include
 │   └── aos
@@ -56,7 +56,8 @@ init模块本身没有配置，相关的只有aos_component_init模块初始化�
 而这些开关宏是通过yaml内引入组件自动打开的，不需要手动修改相关配置。
 
 # API说明
-@ref init_aos_api
+
+- 参考 [init_aos_api](https://g.alicdn.com/alios-things-3.3/doc/group__init__aos__api.html)
 
 # 使用示例
 
@@ -123,7 +124,7 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 
 ```
 
-## 关键日志
+**关键日志**
 > aos欢迎日志：
 ```shell
              Welcome to AliOS Things           

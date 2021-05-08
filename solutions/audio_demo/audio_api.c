@@ -3,7 +3,9 @@
  *
  */
 #include "k_api.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 #include "ulog/ulog.h"
 #include "uvoice_init.h"
 #include "uvoice_test.h"
@@ -52,15 +54,18 @@ void cmd_play_handler(char *buf, int len, int argc, char **argv)
     }
 }
 
+#if AOS_COMP_CLI
 struct cli_command audio_demo_commands[] = {
 	{"play", "try 'play fs:/data/6.mp3' | 'play url' | play pause | play pause | play resume", cmd_play_handler},
 	{"tts", "try 'tts 我爱你中国 /data/tts.mp3", cmd_tts_handler},
 };
+#endif /* AOS_COMP_CLI */
 
 int haas_audio_init(void)
 {
 	uvoice_init();
+    #if AOS_COMP_CLI
 	aos_cli_register_commands(audio_demo_commands, sizeof(audio_demo_commands) / sizeof(struct cli_command));
+    #endif /* AOS_COMP_CLI */
     return 0;
 }
-

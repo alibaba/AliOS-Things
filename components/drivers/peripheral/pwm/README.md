@@ -17,7 +17,7 @@
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 │── src
 │   └── pwm_dev.c      # PWM VFS驱动程序源代码
 ├── example            # PWM VFS驱动程序使用案例

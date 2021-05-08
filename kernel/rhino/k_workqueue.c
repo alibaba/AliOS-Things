@@ -28,7 +28,6 @@ static kstat_t workqueue_is_exist(kworkqueue_t *workqueue)
 static void worker_task(void *arg)
 {
     CPSR_ALLOC();
-
     kstat_t       ret;
     kwork_t      *work  = NULL;
     kworkqueue_t *queue = (kworkqueue_t *)arg;
@@ -63,7 +62,6 @@ kstat_t krhino_workqueue_create(kworkqueue_t *workqueue, const name_t *name,
                                 uint8_t pri, cpu_stack_t *stack_buf, size_t stack_size)
 {
     CPSR_ALLOC();
-
     kstat_t ret;
 
     NULL_PARA_CHK(workqueue);
@@ -115,7 +113,6 @@ kstat_t krhino_workqueue_create(kworkqueue_t *workqueue, const name_t *name,
 kstat_t krhino_workqueue_del(kworkqueue_t *workqueue)
 {
     CPSR_ALLOC();
-
     kstat_t ret;
 
     NULL_PARA_CHK(workqueue);
@@ -160,7 +157,6 @@ kstat_t krhino_workqueue_del(kworkqueue_t *workqueue)
 static void work_timer_cb(void *timer, void *arg)
 {
     CPSR_ALLOC();
-
     kstat_t       ret;
     kwork_t      *work = ((ktimer_t *)timer)->priv;
     kworkqueue_t *wq   = (kworkqueue_t *)arg;
@@ -231,7 +227,6 @@ kstat_t krhino_work_init(kwork_t *work, work_handle_t handle, void *arg,
 kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
 {
     CPSR_ALLOC();
-
     kstat_t ret;
 
     NULL_PARA_CHK(workqueue);

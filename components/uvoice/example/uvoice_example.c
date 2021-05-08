@@ -9,7 +9,9 @@
 #include <math.h>
 
 #include "k_api.h"
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 
 #include "uvoice_init.h"
 #include "uvoice_test.h"
@@ -30,6 +32,7 @@ static void cmd_tts_handler(char *buf, int len, int argc, char **argv)
     return test_tts_handle(argc, argv);
 }
 
+#if AOS_COMP_CLI
 struct cli_command uvoicedemo_commands[] = {
 	{"play", "player test", cmd_play_handler},
 	{"record", "record test", cmd_record_handler},
@@ -55,7 +58,6 @@ void uvoice_example(int argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(uvoice_example, uvoice_example, uvoice test example)
 #endif

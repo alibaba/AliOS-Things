@@ -7,7 +7,9 @@
 #include <string.h>
 #include <errno.h>
 
+#if AOS_COMP_CLI
 #include "aos/cli.h"
+#endif
 #include "aos/list.h"
 
 #include <drivers/u_ld.h>
@@ -661,6 +663,7 @@ int u_bus_detach_device(struct u_device *dev) {
     return 0;
 }
 
+#if AOS_COMP_CLI
 /**
  * command service handler - dump information of all bus/device/driver
  *
@@ -683,6 +686,7 @@ static int u_bus_test_cmd_init(void) {
 	return aos_cli_register_commands(&u_bus_test_cmds[0],
 	                                 sizeof(u_bus_test_cmds)/sizeof(u_bus_test_cmds[0]));
 }
+#endif /* AOS_COMP_CLI */
 
 /**
  * u_bus module init entry
@@ -690,7 +694,9 @@ static int u_bus_test_cmd_init(void) {
  * @return 0
  */
 int u_bus_init(void) {
+	#if AOS_COMP_CLI
 	u_bus_test_cmd_init();
+	#endif
 	return u_bus_list_init();
 }
 

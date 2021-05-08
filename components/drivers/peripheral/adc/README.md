@@ -17,7 +17,7 @@ ADC（Analog-to-Digital Converter），即模拟数字转换器，用于将模�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 adc/
 |-- example
 |   |-- adc_example.c   #ADC示例代码
@@ -42,13 +42,14 @@ adc/
 CONFIG_ADC_NUM默认是在hardware/chip/<chip_name>/package.yaml中的**def_config**节点进行配置。
 如果没有定义CONFIG_ADC_NUM，则代码中会定义默认对外输出的设备节点数量。
 > 设备节点数量: 默认4个, 如需修改，在hardware/chip/<chip_name>/package.yaml中修改CONFIG_ADC_NUM配置
-```sh
+```yaml
 def_config:
   CONFIG_ADC_NUM: 2
 ```
 
 # API说明
-@ref adc_device_api
+
+- 参考 [adc_device_api](https://g.alicdn.com/alios-things-3.3/doc/group__adc__device__api.html)
 
 # 使用示例
 
@@ -86,7 +87,7 @@ aos install adc
 
 ```
 
-上述命令执行成功后，组件源码则被下载到了./components/adc路径中。
+上述命令执行成功后，组件源码则被下载到了./components/drivers/peripheral/adc路径中。
 
 ## 步骤4 添加示例
 

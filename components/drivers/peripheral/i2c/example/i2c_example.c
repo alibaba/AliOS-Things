@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <aos/errno.h>
-#include <aos/cli.h>
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
 #include <vfsdev/i2c_dev.h>
 
 static int32_t vfs_i2c_test(int32_t port, int32_t slave_addr, char *tx_buffer, uint32_t tx_cnt, char *rx_buffer, uint32_t rx_cnt, uint32_t loop, uint32_t period)
@@ -149,7 +151,7 @@ static void i2c_read_test(int32_t argc, char **argv)
     return;
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(i2c_write_test, i2c_write, i2c write operation example)
 ALIOS_CLI_CMD_REGISTER(i2c_read_test, i2c_read, i2c read operation example)

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
  */
-
+#if AOS_COMP_CLI
 #include <stdlib.h>
 #include <string.h>
 #include "lwip/opt.h"
@@ -239,4 +239,4 @@ int iperf_cli_register( void )
     else
         return ERR_VAL;
 }
-
+#endif /* AOS_COMP_CLI */

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
 #include "uservice/uservice.h"
@@ -144,6 +144,6 @@ static void netcfg_comp_example(int argc, char **argv)
     }
 }
 
-#ifdef AOS_COMP_CLI
+#if AOS_COMP_CLI
 ALIOS_CLI_CMD_REGISTER(netcfg_comp_example, netcfg_example, netcfg component base example);
 #endif
