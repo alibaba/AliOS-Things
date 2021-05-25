@@ -1,0 +1,9 @@
+config AOS_COMP_PWM_TEST
+    bool "pwm_test"
+    depends on ENABLE_PWM
+    default n
+    help
+
+if AOS_COMP_PWM_TEST
+# Configurations for comp pwm_test
+endif

@@ -274,6 +274,7 @@ void iperf_udp_run_server( char *parameters[] )
         if ( parameters ) {
             iperf_wrapper_free( parameters );
         }
+        close(sockfd);
         aos_task_exit(0);
         return;
     }

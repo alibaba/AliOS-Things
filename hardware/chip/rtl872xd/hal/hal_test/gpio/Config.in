@@ -1,0 +1,9 @@
+config AOS_COMP_GPIO_TEST
+    bool "gpio_test"
+    depends on ENABLE_GPIO
+    default n
+    help
+
+if AOS_COMP_GPIO_TEST
+# Configurations for comp gpio_test
+endif

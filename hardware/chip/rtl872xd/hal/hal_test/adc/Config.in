@@ -1,0 +1,9 @@
+config AOS_COMP_ADC_TEST
+    bool "adc_test"
+    depends on ENABLE_ADC
+    default n
+    help
+
+if AOS_COMP_ADC_TEST
+# Configurations for comp adc_test
+endif

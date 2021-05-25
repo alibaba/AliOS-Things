@@ -397,6 +397,48 @@ hal_partition_t bes_get_operate_partition(const hal_partition_t in_partition)
 	return out_partition;
 }
 
+int32_t hal_flash_mtdpart_info_get(hal_mtdpart_info_t **result_array, int *cnt)
+{
+#if CONFIG_U_FLASH_CORE
+    return -1;
+#else
+    hal_logic_partition_t *p;
+    hal_mtdpart_info_t *arr;
+    size_t total = hal_partitions_amount;
+
+    /* get the actual cnt */
+    *cnt = 0;
+    for (int i = 0; i < total; i++) {
+        p = &hal_partitions[i];
+        if (p->partition_description == NULL) continue;
+        *cnt += 1;
+    }
+
+    /* memory alloc */
+    *result_array = (hal_mtdpart_info_t *)malloc(sizeof(hal_mtdpart_info_t) * (*cnt));
+    if (*result_array == NULL) {
+        return -1;
+    }
+
+    /* fetch result */
+    int idx = 0;
+    arr = *result_array;
+    for (int i = 0; i < total; i++) {
+        p = &hal_partitions[i];
+        if (p->partition_description == NULL) continue;
+        arr[idx].p = i;
+        arr[idx].descr = (char *)p->partition_description;
+        arr[idx].offset = p->partition_start_addr;
+        arr[idx].siz = p->partition_length;
+        arr[idx].ssiz = CONFIG_LFS_PROG_SIZE;
+        arr[idx].bsiz = CONFIG_LFS_PROG_SIZE * CONFIG_LFS_PAGE_NUM_PER_BLOCK;
+        idx++;
+    }
+
+    return 0;
+#endif
+}
+
 /**
  * Get the information of the specified flash area
  *

@@ -31,7 +31,7 @@
 
 #if MICROPY_PY_FRAMEBUF
 
-#include "ports/stm32/font_petme128_8x8.h"
+// #include "ports/stm32/font_petme128_8x8.h"
 
 typedef struct _mp_obj_framebuf_t {
     mp_obj_base_t base;
@@ -41,9 +41,9 @@ typedef struct _mp_obj_framebuf_t {
     uint8_t format;
 } mp_obj_framebuf_t;
 
-#if !MICROPY_ENABLE_DYNRUNTIME
+// #if !MICROPY_ENABLE_DYNRUNTIME
 STATIC const mp_obj_type_t mp_type_framebuf;
-#endif
+// #endif
 
 typedef void (*setpixel_t)(const mp_obj_framebuf_t *, unsigned int, unsigned int, uint32_t);
 typedef uint32_t (*getpixel_t)(const mp_obj_framebuf_t *, unsigned int, unsigned int);
@@ -557,45 +557,45 @@ STATIC mp_obj_t framebuf_scroll(mp_obj_t self_in, mp_obj_t xstep_in, mp_obj_t ys
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(framebuf_scroll_obj, framebuf_scroll);
 
-STATIC mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args) {
-    // extract arguments
-    mp_obj_framebuf_t *self = MP_OBJ_TO_PTR(args[0]);
-    const char *str = mp_obj_str_get_str(args[1]);
-    mp_int_t x0 = mp_obj_get_int(args[2]);
-    mp_int_t y0 = mp_obj_get_int(args[3]);
-    mp_int_t col = 1;
-    if (n_args >= 5) {
-        col = mp_obj_get_int(args[4]);
-    }
+// STATIC mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args) {
+//     // extract arguments
+//     mp_obj_framebuf_t *self = MP_OBJ_TO_PTR(args[0]);
+//     const char *str = mp_obj_str_get_str(args[1]);
+//     mp_int_t x0 = mp_obj_get_int(args[2]);
+//     mp_int_t y0 = mp_obj_get_int(args[3]);
+//     mp_int_t col = 1;
+//     if (n_args >= 5) {
+//         col = mp_obj_get_int(args[4]);
+//     }
 
-    // loop over chars
-    for (; *str; ++str) {
-        // get char and make sure its in range of font
-        int chr = *(uint8_t *)str;
-        if (chr < 32 || chr > 127) {
-            chr = 127;
-        }
-        // get char data
-        const uint8_t *chr_data = &font_petme128_8x8[(chr - 32) * 8];
-        // loop over char data
-        for (int j = 0; j < 8; j++, x0++) {
-            if (0 <= x0 && x0 < self->width) { // clip x
-                uint vline_data = chr_data[j]; // each byte is a column of 8 pixels, LSB at top
-                for (int y = y0; vline_data; vline_data >>= 1, y++) { // scan over vertical column
-                    if (vline_data & 1) { // only draw if pixel set
-                        if (0 <= y && y < self->height) { // clip y
-                            setpixel(self, x0, y, col);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_text_obj, 4, 5, framebuf_text);
+//     // loop over chars
+//     for (; *str; ++str) {
+//         // get char and make sure its in range of font
+//         int chr = *(uint8_t*)str;
+//         if (chr < 32 || chr > 127) {
+//             chr = 127;
+//         }
+//         // get char data
+//         const uint8_t *chr_data = &font_petme128_8x8[(chr - 32) * 8];
+//         // loop over char data
+//         for (int j = 0; j < 8; j++, x0++) {
+//             if (0 <= x0 && x0 < self->width) { // clip x
+//                 uint vline_data = chr_data[j]; // each byte is a column of 8 pixels, LSB at top
+//                 for (int y = y0; vline_data; vline_data >>= 1, y++) { // scan over vertical column
+//                     if (vline_data & 1) { // only draw if pixel set
+//                         if (0 <= y && y < self->height) { // clip y
+//                             setpixel(self, x0, y, col);
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     return mp_const_none;
+// }
+// STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_text_obj, 4, 5, framebuf_text);
 
-#if !MICROPY_ENABLE_DYNRUNTIME
+// #if !MICROPY_ENABLE_DYNRUNTIME
 STATIC const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&framebuf_fill_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill_rect), MP_ROM_PTR(&framebuf_fill_rect_obj) },
@@ -606,7 +606,7 @@ STATIC const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_line), MP_ROM_PTR(&framebuf_line_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit), MP_ROM_PTR(&framebuf_blit_obj) },
     { MP_ROM_QSTR(MP_QSTR_scroll), MP_ROM_PTR(&framebuf_scroll_obj) },
-    { MP_ROM_QSTR(MP_QSTR_text), MP_ROM_PTR(&framebuf_text_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_text), MP_ROM_PTR(&framebuf_text_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(framebuf_locals_dict, framebuf_locals_dict_table);
 
@@ -617,7 +617,7 @@ STATIC const mp_obj_type_t mp_type_framebuf = {
     .buffer_p = { .get_buffer = framebuf_get_buffer },
     .locals_dict = (mp_obj_dict_t *)&framebuf_locals_dict,
 };
-#endif
+// #endif
 
 // this factory function is provided for backwards compatibility with old FrameBuffer1 class
 STATIC mp_obj_t legacy_framebuffer1(size_t n_args, const mp_obj_t *args) {
@@ -641,7 +641,7 @@ STATIC mp_obj_t legacy_framebuffer1(size_t n_args, const mp_obj_t *args) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(legacy_framebuffer1_obj, 3, 4, legacy_framebuffer1);
 
-#if !MICROPY_ENABLE_DYNRUNTIME
+// #if !MICROPY_ENABLE_DYNRUNTIME
 STATIC const mp_rom_map_elem_t framebuf_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_framebuf) },
     { MP_ROM_QSTR(MP_QSTR_FrameBuffer), MP_ROM_PTR(&mp_type_framebuf) },
@@ -662,6 +662,6 @@ const mp_obj_module_t mp_module_framebuf = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&framebuf_module_globals,
 };
-#endif
+// #endif
 
 #endif // MICROPY_PY_FRAMEBUF

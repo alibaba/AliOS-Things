@@ -6,7 +6,6 @@
 #define DEVICE_WIFI_H
 
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -391,9 +390,9 @@ typedef enum wifi_sec_type_e {
 
 typedef struct {
     char    ssid[32 + 1];         /* The SSID of an access point. */
-    char    ap_power;             /* Received Signal Strength Indication, min: -110, max: 0 */
+    int8_t  ap_power;             /* Received Signal Strength Indication, min: -110, max: 0 */
     char    bssid[6];             /* The BSSID of an access point. */
-    char    channel;              /* The RF frequency, 1-13 */
+    uint8_t channel;              /* The RF frequency, 1-13 */
     wifi_sec_type_t sec_type;     /* Security type, @ref wlan_sec_type_t */
 } ap_list_t;
 

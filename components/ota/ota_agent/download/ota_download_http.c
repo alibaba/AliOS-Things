@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
 #include <unistd.h>
@@ -41,10 +41,6 @@ static const char *ca_cert = \
 };
 #endif
 
-#if defined OTA_CONFIG_ITLS
-static char pkps[128];
-#endif
-
 void ota_set_upgrade_status(char is_upgrade)
 {
     ota_upgrading = is_upgrade;
@@ -60,25 +56,16 @@ int ota_get_upgrade_status()
  *
  * @param[in] httpclient_t       *client        http client handle
  * @param[in] httpclient_data_t  *client_data   httpc data
- * @param[in] ota_service_t      *ctx           device information
  *
  * @return 0  success
  * @return -1 fail
  */
-int ota_httpc_settings_init(httpclient_t *client, httpclient_data_t *client_data, ota_service_t *ctx)
+int ota_httpc_settings_init(httpclient_t *client, httpclient_data_t *client_data)
 {
-    int ret = 0;
-    if (client == NULL || client_data == NULL || ctx == NULL) {
-        ret = -1;
-    } else {
-#if defined OTA_CONFIG_ITLS
-        OTA_LOG_I("init itls ota.\n");
-        memset(pkps, 0x00, sizeof(pkps));
-        strncpy(pkps, ctx->pk, strlen(ctx->pk));
-        strncpy(pkps + strlen(ctx->pk) + 1, ctx->ps, strlen(ctx->ps));
-        client->server_cert = pkps;
-        client->server_cert_len = strlen(pkps) + 1;
-#elif defined OTA_CONFIG_SECURE_DL_MODE
+    int ret = -1;
+    if ((client != NULL) && (client_data != NULL)) {
+        ret = 0;
+#if defined OTA_CONFIG_SECURE_DL_MODE
         OTA_LOG_I("init https ota.\n");
         client->server_cert = ca_cert;
         client->server_cert_len = strlen(ca_cert) + 1;
@@ -268,7 +255,7 @@ int ota_download_image_header(ota_service_t *ctx, char *url, unsigned int url_le
             OTA_LOG_I("retry count.\n");
             ota_msleep(6000);
         }
-        ret = ota_httpc_settings_init(&client, &client_data, ctx);
+        ret = ota_httpc_settings_init(&client, &client_data);
         if (ret < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
             goto OVER;
@@ -354,12 +341,14 @@ OVER:
     OTA_LOG_I("parse image info:%d\n", ret);
     return ret;
 }
+
 /**
  * ota_download_start    OTA download start
  *
- * @param[in]   ota_service_t* ctx  device information
- * @param[in]            char *url  download url
- * @param[in] unsigned int url_len  download url length
+ * @param[in]              char *url  download url
+ * @param[in]   unsigned int url_len  download url length
+ * @param[in] report_func repot_func  report http downloading status function
+ * @param[in]       void *user_param  user's param for repot_func
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
@@ -367,7 +356,7 @@ OVER:
  * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
  * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
-int ota_download_start(ota_service_t *ctx, char *url, unsigned int url_len)
+int ota_download_start(char *url, unsigned int url_len, report_func repot_func, void *user_param)
 {
     int  ret = OTA_DOWNLOAD_INIT_FAIL;
     unsigned int offset   = 0;
@@ -383,7 +372,7 @@ int ota_download_start(ota_service_t *ctx, char *url, unsigned int url_len)
     int tmp_url_len               = 0;
     int percent                   = 0;
     int divisor                   = 5;
-    if ((ctx == NULL) || (url == NULL)) {
+    if (url == NULL) {
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
     }
@@ -407,7 +396,7 @@ int ota_download_start(ota_service_t *ctx, char *url, unsigned int url_len)
         return ret;
     }
     for (j = OTA_DOWNLOAD_RETRY_CNT; (j > 0) && (ret < 0); j--) {
-        ret = ota_httpc_settings_init(&client, &client_data, ctx);
+        ret = ota_httpc_settings_init(&client, &client_data);
         if (ret < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
             goto EXIT;
@@ -450,11 +439,7 @@ int ota_download_start(ota_service_t *ctx, char *url, unsigned int url_len)
                         sscanf(client_data.header_buf + val_pos, "%d", &ota_file_size);
                     }
                 }
-                if ((ctx != NULL) && (ctx->on_data != NULL)) {
-                    ret = ctx->on_data(client_data.response_buf, client_data.content_block_len);
-                } else {
-                    ret = ota_write(&offset, client_data.response_buf, client_data.content_block_len);
-                }
+                ret = ota_write(&offset, client_data.response_buf, client_data.content_block_len);
                 if (ret < 0) {
                     ret = OTA_UPGRADE_WRITE_FAIL;
                     goto EXIT;
@@ -467,13 +452,10 @@ int ota_download_start(ota_service_t *ctx, char *url, unsigned int url_len)
                     percent = ((long)(ota_rx_size >> 6) * 100) / (long)(ota_file_size >> 6);
                     if (percent / divisor) {
                         divisor += 5;
-                        if ((ctx != NULL) && (ctx->on_percent != NULL)) {
-                            ctx->on_percent(percent);
-                        } else {
-                            if (ctx != NULL) {
-                                ota_transport_status(ctx, percent);
-                            } else {
-                                OTA_LOG_W("download ctx NULL");
+                        if (repot_func != NULL) {
+                            ret = repot_func(user_param, percent);
+                            if (ret != 0) {
+                                OTA_LOG_E("report http download process failed");
                             }
                         }
                         OTA_LOG_I("ota recv data(%d/%d) off:%d \r\n", ota_rx_size, ota_file_size, off_size);
@@ -493,24 +475,6 @@ EXIT:
         ota_free(new_url);
         new_url = NULL;
     }
-    OTA_LOG_E("download complete:%d\n", ret);
-    return ret;
-}
-
-/**
- * ota_download_deinit  OTA download deinit
- *
- * @param[in] ota_service_t* ctx  device information
- *
- * @return OTA_SUCCESS             OTA success.
- * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
- * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
- * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
- */
-int ota_download_deinit(ota_service_t *ctx)
-{
-    int ret = 0;
-    ota_set_upgrade_status(0);
+    OTA_LOG_I("download complete:%d\n", ret);
     return ret;
 }

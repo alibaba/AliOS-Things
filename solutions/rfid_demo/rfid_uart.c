@@ -10,7 +10,7 @@
 #include <vfsdev/uart_dev.h>
 
 #define TASK_RECVDATA_NAME      "revdata"
-#define TASK_RECVDATA_STACKSIZE 512
+#define TASK_RECVDATA_STACKSIZE 4096
 #define TASK_RECVDATA_PRI       50
 
 static int fd = 0;

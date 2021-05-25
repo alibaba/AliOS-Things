@@ -244,7 +244,7 @@ SNTP协议采用客户端/服务器的工作方式，可以采用单播（点对
 AliOS Things中关于Wi-Fi部分也已经封装成了netmgr组件，eduk1_demo的package.yaml已经默认包含。
 ```c
 depends:
-  - netmgr: rel_3.3.0
+  - netmgr: dev_aos
 ```
 代码位于solutions/eduk1_demo/app_start.c
 ```c

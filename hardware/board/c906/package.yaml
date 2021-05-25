@@ -1,0 +1,104 @@
+
+## 第一部分： 基础信息
+name: c906                                  # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                   # <必选项> 组件版本号
+description: YunVoice CPU0 board configure.         # <必选项> 建议至少20字以上
+type: board                                         # <必选项> 组件类型，为：solution, chip, board, common
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - minilibc: rel_3.3.0
+  - init: rel_3.3.0
+  - debug: rel_3.3.0
+  - smarth_rv64: rel_3.3.0
+  # - kernel_init: v7.4_dev
+  # - minialsa: v7.4-dev
+  # - drv_sdmmc: v7.4-dev
+  # - drv_wifi_rtl8723ds: v7.4-dev
+  # - drv_bt_rtl8723ds: v7.4-dev
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  include:
+    - adapter/
+    - config/
+    - csi_core/include
+
+  cflag: >
+        -c -g -ffunction-sections -fdata-sections -Wall -march=rv64imafdcxthead -mabi=lp64d -mcmodel=medlow
+        -DLASTWORD_RAM_ADDR=0x20166000 -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_C906\" -Dpanic_print=printf
+  asmflag: -c -g -ffunction-sections -fdata-sections -Wall -march=rv64imafdcxthead -mabi=lp64d -mcmodel=medlow
+  ldflag: -march=rv64imafdcxthead -mabi=lp64d -mcmodel=medlow -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -nostartfiles --specs=nosys.specs -Wl,-Map="aos.map"
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "adapter/csi_rhino.c"
+  - "config/board.c"
+  - "config/partition_conf.c"
+  - "config/k_config.c"
+  - "startup/startup_c.c"
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  BOARD_C906: 1
+  RHINO_CONFIG_TICKS_PER_SECOND: 1000
+
+#  SYSINFO_OS_VERSION: "AOS-R"
+  SYSINFO_PRODUCT_MODEL: "ALI_AOS_C906"
+  SYSINFO_DEVICE_NAME: "C906"
+  SYSINFO_ARCH: "C906-RV64"
+  SYSINFO_MCU: "smarth_rv64"
+  SYSINFO_BOARD: "c906"
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include/"
+    source:
+      - "adapter/*.h"
+      - "config/*.h"
+      - "csi_core/include/*.h"
+
+board:
+  chip_name: smarth_rv64
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

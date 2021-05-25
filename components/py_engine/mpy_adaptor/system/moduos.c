@@ -33,21 +33,70 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#ifdef _MSC_VER
-#include <direct.h> // For mkdir
-#endif
-#include "py/mpconfig.h"
+#include <fcntl.h>
 
+#include "py/mpconfig.h"
 #include "py/runtime.h"
 #include "py/objtuple.h"
+#include "py/objstr.h"
 #include "py/mperrno.h"
 #include "py/mphal.h"
 #include "py/mpthread.h"
 #include "extmod/vfs.h"
 #include "extmod/misc.h"
-#include <fcntl.h>
 #include "HaasLog.h"
+#include "genhdr/mpversion.h"
+#include "aos/kernel.h"
+#include "dirent.h"
 
+#if MICROPY_VFS_POSIX
+#include "vfs_posix.h"
+#endif
+
+extern const mp_obj_type_t mp_fat_vfs_type;
+
+STATIC const qstr os_uname_info_fields[] = {
+    MP_QSTR_sysname, MP_QSTR_nodename,
+    MP_QSTR_release, MP_QSTR_version, MP_QSTR_machine
+};
+STATIC const MP_DEFINE_STR_OBJ(os_uname_info_sysname_obj, MICROPY_PY_SYS_PLATFORM);
+STATIC const MP_DEFINE_STR_OBJ(os_uname_info_nodename_obj, MICROPY_PY_SYS_PLATFORM);
+STATIC const MP_DEFINE_STR_OBJ(os_uname_info_release_obj, MICROPY_VERSION_STRING);
+STATIC const MP_DEFINE_STR_OBJ(os_uname_info_version_obj, MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE);
+STATIC const MP_DEFINE_STR_OBJ(os_uname_info_machine_obj, MICROPY_HW_BOARD_NAME " with " MICROPY_HW_MCU_NAME);
+
+STATIC MP_DEFINE_ATTRTUPLE(
+    os_uname_info_obj,
+    os_uname_info_fields,
+    5,
+    (mp_obj_t)&os_uname_info_sysname_obj,
+    (mp_obj_t)&os_uname_info_nodename_obj,
+    (mp_obj_t)&os_uname_info_release_obj,
+    (mp_obj_t)&os_uname_info_version_obj,
+    (mp_obj_t)&os_uname_info_machine_obj
+    );
+
+STATIC mp_obj_t os_uname(void) {
+    return (mp_obj_t)&os_uname_info_obj;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
+
+STATIC mp_obj_t os_urandom(mp_obj_t num) {
+    mp_int_t n = mp_obj_get_int(num);
+    vstr_t vstr;
+    vstr_init_len(&vstr, n);
+    uint32_t r = 0;
+    for (int i = 0; i < n; i++) {
+        if ((i & 3) == 0) {
+            r = aos_rand(); // returns 32-bit random number
+        }
+        vstr.buf[i] = r;
+        r >>= 8;
+    }
+    vstr.buf[n] = '\0';
+    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(os_urandom_obj, os_urandom);
 
 static int up_one_level(char *s)
 {
@@ -176,9 +225,7 @@ char *py_get_realpath(const char *path, char *resolved_path, unsigned int len)
 STATIC mp_obj_t mod_os_stat(mp_obj_t path_in) {
     struct stat sb;
     const char *path = mp_obj_str_get_str(path_in);
-
-    int res;
-    // MP_HAL_RETRY_SYSCALL(res, stat(path, &sb), mp_raise_OSError(err));
+    int res = stat(path, &sb);
 
     mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
     t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.st_mode);
@@ -195,62 +242,37 @@ STATIC mp_obj_t mod_os_stat(mp_obj_t path_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_stat_obj, mod_os_stat);
 
-#if MICROPY_PY_OS_STATVFS
-
-#if USE_STATFS
-#include <sys/vfs.h>
-#define STRUCT_STATVFS struct statfs
-#define STATVFS statfs
-#define F_FAVAIL sb.f_ffree
-#define F_NAMEMAX sb.f_namelen
-#define F_FLAG sb.f_flags
-#else
-#include <sys/statvfs.h>
-#define STRUCT_STATVFS struct statvfs
-#define STATVFS statvfs
-#define F_FAVAIL sb.f_favail
-#define F_NAMEMAX sb.f_namemax
-#define F_FLAG sb.f_flag
-#endif
-
 STATIC mp_obj_t mod_os_statvfs(mp_obj_t path_in) {
-    STRUCT_STATVFS sb;
+    struct statfs sb;
     const char *path = mp_obj_str_get_str(path_in);
+    int res = statfs(path, &sb);
 
-    int res;
-    MP_HAL_RETRY_SYSCALL(res, STATVFS(path, &sb), mp_raise_OSError(err));
-
-    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
-    t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.f_bsize);
-    t->items[1] = MP_OBJ_NEW_SMALL_INT(sb.f_frsize);
+    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(9, NULL));
+    t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.f_type);
+    t->items[1] = MP_OBJ_NEW_SMALL_INT(sb.f_bsize);
     t->items[2] = MP_OBJ_NEW_SMALL_INT(sb.f_blocks);
     t->items[3] = MP_OBJ_NEW_SMALL_INT(sb.f_bfree);
     t->items[4] = MP_OBJ_NEW_SMALL_INT(sb.f_bavail);
     t->items[5] = MP_OBJ_NEW_SMALL_INT(sb.f_files);
     t->items[6] = MP_OBJ_NEW_SMALL_INT(sb.f_ffree);
-    t->items[7] = MP_OBJ_NEW_SMALL_INT(F_FAVAIL);
-    t->items[8] = MP_OBJ_NEW_SMALL_INT(F_FLAG);
-    t->items[9] = MP_OBJ_NEW_SMALL_INT(F_NAMEMAX);
+    t->items[7] = MP_OBJ_NEW_SMALL_INT(sb.f_fsid);
+    t->items[8] = MP_OBJ_NEW_SMALL_INT(sb.f_namelen);
     return MP_OBJ_FROM_PTR(t);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_statvfs_obj, mod_os_statvfs);
-#endif
+
 
 STATIC mp_obj_t mod_os_remove(mp_obj_t path_in) {
     const char *path = mp_obj_str_get_str(path_in);
 
-    // Note that POSIX requires remove() to be able to delete a directory
-    // too (act as rmdir()). This is POSIX extenstion to ANSI C semantics
-    // of that function. But Python remove() follows ANSI C, and explicitly
-    // required to raise exception on attempt to remove a directory. Thus,
-    // call POSIX unlink() here.
+    char abspath[256] = {0};
+    path = py_get_realpath(path, abspath, sizeof(abspath));
+
     MP_THREAD_GIL_EXIT();
     int r = unlink(path);
     MP_THREAD_GIL_ENTER();
 
-    //(r, errno);
-
-    return mp_const_none;
+    return MP_OBJ_NEW_SMALL_INT(r);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_remove_obj, mod_os_remove);
 
@@ -261,7 +283,6 @@ static int py_mv(char *from, char *to)
     char buf[128] = {0};
     int rlen = 0, wlen = 0, ret = -1, isdir = false;
     struct stat s;
-
 
     char abspath_from[256] = {0}, abspath_to[256] = {0};
 
@@ -342,10 +363,10 @@ STATIC mp_obj_t mod_os_rename(mp_obj_t old_path_in, mp_obj_t new_path_in) {
     const char *new_path = mp_obj_str_get_str(new_path_in);
 
     MP_THREAD_GIL_EXIT();
-    int r = py_mv(old_path, new_path);
+    int r = rename(old_path, new_path);
     MP_THREAD_GIL_ENTER();
 
-    return mp_const_none;
+    return MP_OBJ_NEW_SMALL_INT(r);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_os_rename_obj, mod_os_rename);
 
@@ -423,9 +444,7 @@ STATIC mp_obj_t mod_os_rmdir(mp_obj_t path_in) {
     int r = rrmdir(path);
     MP_THREAD_GIL_ENTER();
 
-    //RAISE_ERRNO(r, errno);
-
-    return mp_const_none;
+    return MP_OBJ_NEW_SMALL_INT(r);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_rmdir_obj, mod_os_rmdir);
 
@@ -435,8 +454,6 @@ STATIC mp_obj_t mod_os_system(mp_obj_t cmd_in) {
     MP_THREAD_GIL_EXIT();
     int r = system(cmd);
     MP_THREAD_GIL_ENTER();
-
-    //RAISE_ERRNO(r, errno);
 
     return MP_OBJ_NEW_SMALL_INT(r);
 }
@@ -454,35 +471,23 @@ MP_DEFINE_CONST_FUN_OBJ_1(mod_os_getenv_obj, mod_os_getenv);
 STATIC mp_obj_t mod_os_putenv(mp_obj_t key_in, mp_obj_t value_in) {
     const char *key = mp_obj_str_get_str(key_in);
     const char *value = mp_obj_str_get_str(value_in);
-    int ret;
 
-    #if _WIN32
-    ret = _putenv_s(key, value);
-    #else
-    ret = setenv(key, value, 1);
-    #endif
-
+    int ret = setenv(key, value, 1);
     if (ret == -1) {
         mp_raise_OSError(errno);
     }
-    return mp_const_none;
+
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 MP_DEFINE_CONST_FUN_OBJ_2(mod_os_putenv_obj, mod_os_putenv);
 
 STATIC mp_obj_t mod_os_unsetenv(mp_obj_t key_in) {
     const char *key = mp_obj_str_get_str(key_in);
-    int ret;
-
-    #if _WIN32
-    ret = _putenv_s(key, "");
-    #else
-    ret = unsetenv(key);
-    #endif
-
+    int ret = unsetenv(key);
     if (ret == -1) {
         mp_raise_OSError(errno);
     }
-    return mp_const_none;
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(mod_os_unsetenv_obj, mod_os_unsetenv);
 
@@ -496,7 +501,6 @@ static int py_mkdir_do(char *path, int flags)
         LOG_E("Failed to get real path!\r\n");
         return -1;
     }
-
 
     /*
      * All of operations must base on root directory
@@ -556,7 +560,7 @@ STATIC mp_obj_t mod_os_mkdir(mp_obj_t path_in) {
     MP_THREAD_GIL_EXIT();
     int r = py_mkdir_do(path, 0777);
     MP_THREAD_GIL_ENTER();
-    //RAISE_ERRNO(r, errno);
+
     return mp_obj_new_int(r);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_mkdir_obj, mod_os_mkdir);
@@ -617,9 +621,10 @@ STATIC mp_obj_t mod_os_ilistdir(size_t n_args, const mp_obj_t *args) {
     if (n_args > 0) {
         path = mp_obj_str_get_str(args[0]);
     }
-    char abspath[256] = {0};
 
+    char abspath[256] = {0};
     path = py_get_realpath(path, abspath, sizeof(abspath));
+
     mp_obj_listdir_t *o = m_new_obj(mp_obj_listdir_t);
     o->base.type = &mp_type_polymorph_iter;
     MP_THREAD_GIL_EXIT();
@@ -629,6 +634,24 @@ STATIC mp_obj_t mod_os_ilistdir(size_t n_args, const mp_obj_t *args) {
     return MP_OBJ_FROM_PTR(o);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_os_ilistdir_obj, 0, 1, mod_os_ilistdir);
+
+STATIC mp_obj_t mod_os_listdir(size_t n_args, const mp_obj_t *args) {
+    const char *path = ".";
+    if (n_args > 0) {
+        path = mp_obj_str_get_str(args[0]);
+    }
+
+    mp_raise_OSError(EPERM);
+    return mp_const_none;
+
+    mp_obj_listdir_t *o = m_new_obj(mp_obj_listdir_t);
+ 
+    MP_THREAD_GIL_EXIT();
+    MP_THREAD_GIL_ENTER();
+
+    return MP_OBJ_FROM_PTR(o);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_os_listdir_obj, 0, 1, mod_os_listdir);
 
 STATIC mp_obj_t mod_os_errno(size_t n_args, const mp_obj_t *args) {
     if (n_args == 0) {
@@ -640,18 +663,17 @@ STATIC mp_obj_t mod_os_errno(size_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_os_errno_obj, 0, 1, mod_os_errno);
 
-
 STATIC mp_obj_t mod_os_chdir(mp_obj_t path_in) {
     // TODO: Accept mode param
     char *path = mp_obj_str_get_str(path_in);
-
     char abspath[256] = {0};
-
     path = py_get_realpath(path, abspath, sizeof(abspath));
+
     MP_THREAD_GIL_EXIT();
     int r = chdir(path);
     MP_THREAD_GIL_ENTER();
-    return mp_const_none;
+
+    return MP_OBJ_NEW_SMALL_INT(r);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_chdir_obj, mod_os_chdir);
 
@@ -659,7 +681,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_chdir_obj, mod_os_chdir);
 STATIC mp_obj_t mod_os_getcwd() {
     // TODO: Accept mode param
 
-     char buf[MICROPY_ALLOC_PATH_MAX + 1];
+    char buf[MICROPY_ALLOC_PATH_MAX + 1];
     const char *ret = getcwd(buf, sizeof(buf));
     if (ret == NULL) {
         mp_raise_OSError(errno);
@@ -820,25 +842,77 @@ STATIC mp_obj_t mod_os_file_setpos(mp_obj_t stream_in, mp_obj_t pos_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(mod_os_file_setpos_obj, mod_os_file_setpos);
 
+/// \function sync()
+/// Sync all filesystems.
+STATIC mp_obj_t os_sync(void) {
+    #if MICROPY_VFS_FAT
+    for (mp_vfs_mount_t *vfs = MP_STATE_VM(vfs_mount_table); vfs != NULL; vfs = vfs->next) {
+        // this assumes that vfs->obj is fs_user_mount_t with block device functions
+        disk_ioctl(MP_OBJ_TO_PTR(vfs->obj), CTRL_SYNC, NULL);
+    }
+    #endif
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_0(mod_os_sync_obj, os_sync);
+
+#if MICROPY_PY_OS_DUPTERM
+STATIC mp_obj_t mp_uos_dupterm_notify(mp_obj_t obj_in) {
+    (void)obj_in;
+    for (;;) {
+        int c = mp_uos_dupterm_rx_chr();
+        if (c < 0) {
+            break;
+        }
+        ringbuf_put(&stdin_ringbuf, c);
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_uos_dupterm_notify_obj, mp_uos_dupterm_notify);
+#endif
+
 STATIC const mp_rom_map_elem_t mp_module_os_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_uos) },
-    { MP_ROM_QSTR(MP_QSTR_errno), MP_ROM_PTR(&mod_os_errno_obj) },
-    { MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&mod_os_stat_obj) },
-    #if MICROPY_PY_OS_STATVFS
-    { MP_ROM_QSTR(MP_QSTR_statvfs), MP_ROM_PTR(&mod_os_statvfs_obj) },
-    #endif
+    { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
+    { MP_ROM_QSTR(MP_QSTR_urandom), MP_ROM_PTR(&os_urandom_obj) },
+
+#if MICROPY_PY_OS_DUPTERM
+    { MP_ROM_QSTR(MP_QSTR_dupterm), MP_ROM_PTR(&mp_uos_dupterm_obj) },
+    { MP_ROM_QSTR(MP_QSTR_dupterm_notify), MP_ROM_PTR(&mp_uos_dupterm_notify_obj) },
+#endif
+
+    { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&mod_os_ilistdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&mod_os_listdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_mkdir), MP_ROM_PTR(&mod_os_mkdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_rmdir), MP_ROM_PTR(&mod_os_rmdir_obj) },
     { MP_ROM_QSTR(MP_QSTR_chdir), MP_ROM_PTR(&mod_os_chdir_obj) },
     { MP_ROM_QSTR(MP_QSTR_getcwd), MP_ROM_PTR(&mod_os_getcwd_obj) },
-    { MP_ROM_QSTR(MP_QSTR_system), MP_ROM_PTR(&mod_os_system_obj) },
-    //{ MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&mod_os_remove_obj) },
+    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&mod_os_remove_obj) },
     { MP_ROM_QSTR(MP_QSTR_rename), MP_ROM_PTR(&mod_os_rename_obj) },
-    { MP_ROM_QSTR(MP_QSTR_rmdir), MP_ROM_PTR(&mod_os_rmdir_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_getenv), MP_ROM_PTR(&mod_os_getenv_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_putenv), MP_ROM_PTR(&mod_os_putenv_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_unsetenv), MP_ROM_PTR(&mod_os_unsetenv_obj) },
-    { MP_ROM_QSTR(MP_QSTR_mkdir), MP_ROM_PTR(&mod_os_mkdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&mod_os_ilistdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&mod_os_stat_obj) },
+    { MP_ROM_QSTR(MP_QSTR_statvfs), MP_ROM_PTR(&mod_os_statvfs_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_mount), MP_ROM_PTR(&mod_os_mount_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_umount), MP_ROM_PTR(&mod_os_umount_obj) },
+    { MP_ROM_QSTR(MP_QSTR_unlink), MP_ROM_PTR(&mod_os_remove_obj) },
 
+#if MICROPY_VFS_FAT
+    { MP_ROM_QSTR(MP_QSTR_VfsFat), MP_ROM_PTR(&mp_fat_vfs_type) },
+#endif
+#if MICROPY_VFS_LFS1
+    { MP_ROM_QSTR(MP_QSTR_VfsLfs1), MP_ROM_PTR(&mp_type_vfs_lfs1) },
+#endif
+#if MICROPY_VFS_LFS2
+    { MP_ROM_QSTR(MP_QSTR_VfsLfs2), MP_ROM_PTR(&mp_type_vfs_lfs2) },
+#endif
+    
+    { MP_ROM_QSTR(MP_QSTR_sync), MP_ROM_PTR(&mod_os_sync_obj) },
+    { MP_ROM_QSTR(MP_QSTR_sep), MP_ROM_QSTR(MP_QSTR__slash_) },
+    { MP_ROM_QSTR(MP_QSTR_errno), MP_ROM_PTR(&mod_os_errno_obj) },
+    { MP_ROM_QSTR(MP_QSTR_system), MP_ROM_PTR(&mod_os_system_obj) },
+    { MP_ROM_QSTR(MP_QSTR_getenv), MP_ROM_PTR(&mod_os_getenv_obj) },
+    { MP_ROM_QSTR(MP_QSTR_putenv), MP_ROM_PTR(&mod_os_putenv_obj) },
+    { MP_ROM_QSTR(MP_QSTR_unsetenv), MP_ROM_PTR(&mod_os_unsetenv_obj) },
+
+    // file operation
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&mod_os_file_open_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mod_os_file_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mod_os_file_write_obj) },
@@ -848,15 +922,11 @@ STATIC const mp_rom_map_elem_t mp_module_os_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_rewind), MP_ROM_PTR(&mod_os_file_rewind_obj) },
     { MP_ROM_QSTR(MP_QSTR_getpos), MP_ROM_PTR(&mod_os_file_getpos_obj) },
     { MP_ROM_QSTR(MP_QSTR_setpos), MP_ROM_PTR(&mod_os_file_setpos_obj) },
-
-#if MICROPY_PY_OS_DUPTERM
-    { MP_ROM_QSTR(MP_QSTR_dupterm), MP_ROM_PTR(&mp_uos_dupterm_obj) },
-#endif
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_os_globals, mp_module_os_globals_table);
 
-const mp_obj_module_t mp_module_os = {
+const mp_obj_module_t mp_module_uos = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&mp_module_os_globals,
 };

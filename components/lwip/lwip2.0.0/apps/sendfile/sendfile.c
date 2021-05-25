@@ -160,7 +160,7 @@ int sendfile_client(int argc,char *argv[])
         goto exit;
     }
 
-    if(2 != sscanf(buf, "mode=%d size=%d\n", mode, size)) {
+    if(2 != sscanf(buf, "mode=%d size=%d\n", &mode, &size)) {
         close(sockfd);
         LWIP_DEBUGF( SENDFILE_DEBUG, ("wrong mode and size input: %s", strerror(errno)));
         goto exit;

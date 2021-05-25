@@ -42,7 +42,7 @@ typedef hw_reg_array_info_t* (*DEVICE_HW_REG_INFO)(void);
  *
  * @return 0 for success; negative error number for failure
  */
-int u_driver_entry(char *string);
+extern int u_driver_entry(char *string);
 
 /**
  * all driver entry declared with XXXX_DRIVER_ENTRY or XXXX_DRIVER_FULL_ENTRY will be called with specified
@@ -50,7 +50,7 @@ int u_driver_entry(char *string);
  *
  * @return 0 for success; negative error no. for failure
  */
-int _os_driver_entry(void);
+extern int _os_driver_entry(void);
 
 /**
  * unified driver initialization entry
@@ -62,7 +62,7 @@ int _os_driver_entry(void);
  * @return 0 for success; negative for failure
  *
  */
-int _unify_driver_init(const char *drv_name, OS_DRIVER_ENTRY drv_init_entry, DEVICE_HW_REG_INFO get_hw_info);
+extern int _unify_driver_init(const char *drv_name, OS_DRIVER_ENTRY drv_init_entry, DEVICE_HW_REG_INFO get_hw_info);
 
 #define TRACE_DRV_ENTRY() //printf("%s\r\n", __func__)
 

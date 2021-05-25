@@ -10,6 +10,10 @@
 #include "aos/debug.h"
 #include "aos/errno.h"
 
+int backtrace_now(int (*print_func)(const char *fmt, ...));
+void debug_panic_backtrace(char *PC, int *SP, char *LR,
+                           int (*print_func)(const char *fmt, ...));
+
 #if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
@@ -22,8 +26,9 @@
 #define DEFAULT_REBOOT_REASON DEBUG_REBOOT_REASON_REPOWER
 
 #define SYS_REBOOT_REASON "reboot reason"
-
+#ifndef panic_print
 #define panic_print printk
+#endif
 #define panic_print_direct printk_direct
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
@@ -149,9 +154,9 @@ void stack_dump(cpu_stack_t *stack, uint32_t size)
                 continue;
             }
         }
-        panic_print("(0x%08X): 0x%08X 0x%08X 0x%08X 0x%08X\r\n",
-                    (int)&stack[idx],
-                    stack[idx], stack[idx + 1], stack[idx + 2], stack[idx + 3]);
+        panic_print("(0x%p): 0x%p 0x%p 0x%p 0x%p\r\n",
+                    &stack[idx],
+                    (void *)stack[idx], (void *)stack[idx + 1], (void *)stack[idx + 2], (void *)stack[idx + 3]);
         zero_cnt = 0;
         zero_prt = 0;
     }
@@ -397,7 +402,6 @@ void panicHandler(void *context)
 #if RHINO_CONFIG_MM_DEBUG
     g_mmlk_cnt = 0;
 #endif
-    int lvl;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     krhino_spin_lock(&g_panic_print_lock);

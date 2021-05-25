@@ -2,15 +2,15 @@
 
 [更正文档](https://gitee.com/alios-things/uservice/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
-## 概述
+# 概述
 
 uService (微服务) 是一种支持RPC请求/应用的交互，并支持状态消息发布的一种服务机制，客户端可以通过发送请求消息并待回复的方式调用uService(微服务)提供的服务，也可以通过订阅服务的事件，来处理服务的事件状态。
 
 serviceTask (服务任务)是利用操作系统的多任务系统，实现消息的分发机制，一个 serviceTask中创建一个OS 的Task。一个serviceTask 下可以注册多个微服务，同一个服务任务下的所有微服务的消息采用先进先处理的顺序执行。
 
-## 接口定义
+# 接口定义
 
-### RPC
+## RPC
 
 ```c
 typedef struct _rpc_t {
@@ -23,7 +23,7 @@ typedef struct _rpc_t {
 * cmd_id: RPC 序号
 * data: 存RPC相关参数的buffer
 
-### RPC 初始化
+## RPC 初始化
 
 ```c
 int  rpc_init(rpc_t *rpc, int cmd_id, int timeout_ms);
@@ -40,7 +40,7 @@ int  rpc_init(rpc_t *rpc, int cmd_id, int timeout_ms);
   * -ENOMEM: 内存不足
   * -EINVAL: 无效参数
 
-### RPC 写参数复位
+## RPC 写参数复位
 
 ```c
 void rpc_put_reset(rpc_t *rpc);
@@ -48,7 +48,7 @@ void rpc_put_reset(rpc_t *rpc);
 
 清空 rpc 内部的参数。rpc 参数是调用者向服务端传递输入参数，也是服务端向调用者反回参数。编写服务端程序时，在处理完成 rpc 的参数，需要向调用者返回值时，通过调用该函数，清空参数区，然后通过 rpc_put_xxx 函数向 rpc 写入返回值。
 
-### RPC 写入参数
+## RPC 写入参数
 
 ```c
 int rpc_put_int(rpc_t *rpc, int v);
@@ -65,7 +65,7 @@ int rpc_put_string(rpc_t *rpc, char *str);
   * 0: 成功
   * -ENOMEM: 内存不足
 
-### RPC 参数读取复位
+## RPC 参数读取复位
 
 ```c
 void    rpc_get_reset(rpc_t *rpc);
@@ -73,7 +73,7 @@ void    rpc_get_reset(rpc_t *rpc);
 
 RPC 参数区读取位复。rpc 参数区的参数通管 rpc_get_xxx 一组函数读取，每调用一次读取函数则取出一个参数，序号递增，如果需要从头重新读取参数，则通过 rpc_get_reset 函数，将参数序号移到起始位置。
 
-### RPC 参数读取
+## RPC 参数读取
 
 ```c
 int     rpc_get_int(rpc_t *rpc);
@@ -87,7 +87,7 @@ void   *rpc_get_buffer(rpc_t *rpc, int *count);
 从参数区读取参数，在参数读取时，要调用与写入时的参数顺序一致，参数区的参数是顺序读取，每调用一次 rpc_get_xxx 函数，则依次读出一个参数。参数读取类型不一致时，会导致异常。
 返回参数值。
 
-### RPC 应答
+## RPC 应答
 
 ```c
 void rpc_reply(rpc_t *rpc);
@@ -96,7 +96,7 @@ void rpc_reply(rpc_t *rpc);
 该函数在编写服务端时调用，当服务端处理完一条 rpc 时，必须调用该函数完成 rpc 的任务处理。
 
 
-### RPC 回收
+## RPC 回收
 
 ```c
 void rpc_deinit(rpc_t *rpc);
@@ -104,9 +104,9 @@ void rpc_deinit(rpc_t *rpc);
 
 该函数在调用端执行，当调用者使用 uservice_call 函数调用 rpc时，在处理完 rpc 返回值后，需要调用 rpc_deinit 函数回收 rpc 资源。
 
-## 微服务 (uService)
+# 微服务 (uService)
 
-### 创建微服务
+## 创建微服务
 
 ```c
 uservice_t *uservice_new(const char *name, process_t process_rpc, void *context);
@@ -121,7 +121,7 @@ uservice_t *uservice_new(const char *name, process_t process_rpc, void *context)
 * 返回值:
   创建成功返回 uservice_t 指针，失败返回NULL
 
-### 释放微服务
+## 释放微服务
 
 ```c
 void uservice_destroy(uservice_t *srv);
@@ -129,7 +129,7 @@ void uservice_destroy(uservice_t *srv);
 
 释放微服务 srv 所占用所有资源，释放srv 之前，需要确定 众uservice_task 中移出 uService
 
-### 微服务 rpc 处理函数
+## 微服务 rpc 处理函数
 
 ```c
 typedef int (*process_t)(void *context, rpc_t *rpc);
@@ -141,7 +141,7 @@ typedef int (*process_t)(void *context, rpc_t *rpc);
   * rpc：远程序调用对象
 
 
-### 同步调用微服务命令
+## 同步调用微服务命令
 
 ```c
 int  uservice_call_sync(uservice_t *srv, int cmd, void *param, void *resp, size_t resp_size);
@@ -158,7 +158,7 @@ int  uservice_call_sync(uservice_t *srv, int cmd, void *param, void *resp, size_
 * 返回值：
   调用成功，返回0，否则返回 -1
 
-### 异步调用微服务命令
+## 异步调用微服务命令
 ```c
 int  uservice_call_async(uservice_t *srv, int cmd, void *param, size_t param_size);
 ```
@@ -173,7 +173,7 @@ int  uservice_call_async(uservice_t *srv, int cmd, void *param, size_t param_siz
 * 返回值：
   调用成功，返回0，否则返回 -1
 
-### 自定义调用微服务命令
+## 自定义调用微服务命令
 
 ```c
 int  uservice_call(uservice_t *srv, rpc_t *rpc);
@@ -187,14 +187,14 @@ int  uservice_call(uservice_t *srv, rpc_t *rpc);
 * 返回值：
   调用成功，返回0，否则返回 -1
 
-### 微服务锁操作
+## 微服务锁操作
 
 ```c
 void uservice_lock(uservice_t *srv);
 void uservice_unlock(uservice_t *srv);
 ```
 
-### 微服务事件订阅
+## 微服务事件订阅
 
 ```c
 void uservice_subscribe(uservice_t *srv, uint32_t event_id);
@@ -237,11 +237,11 @@ void demo_service_init()
 
 ```
 
-## 事件
+# 事件
 
 YoC 中，支持全局事件，已定义的事件在 include/uservice/eventid.h 文件中。事件有两种，一种是普通事件，事件的 event_id 由用户定义，由于事件的ID是全局唯一，用户自定义事件时，不能与系统事件冲突。一种是设备（网络）句柄数据可读事件，当设备有数据可读时，会触发 fd 事件。
 
-### 事件订阅
+## 事件订阅
 
 ```c
 void event_subscribe(uint32_t event_id, event_callback_t cb, void *context);
@@ -261,7 +261,7 @@ event_subscribe 订阅普通事件，event_subscribe_fd 订阅设备（网络）
 * 返回值：
   无
 
-### 事件订阅取消
+## 事件订阅取消
 
 ```c
 void event_unsubscribe(uint32_t event_id, event_callback_t cb, void *context);
@@ -277,7 +277,7 @@ void event_unsubscribe_fd(uint32_t fd, event_callback_t cb, void *context);
 * 返回值：
   无
 
-### 事件发布
+## 事件发布
 
 ```c
 void event_publish(uint32_t event_id, void *data);
@@ -293,9 +293,9 @@ void event_publish_fd(uint32_t fd, void *data, int sync);
 * 返回值：
   无
 
-## 微服务任务 (uTask)
+# 微服务任务 (uTask)
 
-### 创建微服务任务
+## 创建微服务任务
 
 ```c
 utask_t    *utask_new(const char *name, size_t stack_size, int queue_length, int prio);
@@ -312,13 +312,13 @@ utask_t    *utask_new(const char *name, size_t stack_size, int queue_length, int
 
   非NULL：成功 NULL：失败
 
-### 释放微服务任务
+## 释放微服务任务
 
 ```c
 void utask_destroy(utask_t *task);
 ```
 
-### 向微服务任务中添加（删除）微服务
+## 向微服务任务中添加（删除）微服务
 
 ```c
 void utask_add(utask_t *task, uservice_t *srv);
@@ -328,15 +328,15 @@ void utask_add(utask_t *task, uservice_t *srv);
 void utask_remove(utask_t *task, uservice_t *srv);
 ```
 
-### 等待微服务任务退出并收回占用资源
+## 等待微服务任务退出并收回占用资源
 
 ```c
 void utask_join(utask_t *task);
 ```
 
-## 示例代码
+# 示例代码
 
-### 服务接口及事件定义
+## 服务接口及事件定义
 
 ```c
 #ifndef DEMO_SERVICE_H
@@ -351,7 +351,7 @@ int demo_add(int a, int b);
 #endif
 ```
 
-### 服务实现
+## 服务实现
 
 ```c
 #include <uservice/uservice.h>
@@ -450,7 +450,7 @@ void demo_add(int a, int b)
 }
 ```
 
-### 服务调用
+## 服务调用
 
 ```c
 int demo_subscribe(uint16_t event_id, event_callback_t cb, void *context)

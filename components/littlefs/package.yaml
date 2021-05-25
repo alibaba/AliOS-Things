@@ -40,9 +40,6 @@ build_config:
   internal_include:
     - internal
     - src/littlefs-v220/include
-    # - internal/platform_conf/haas1000/
-    # switch to the right platform hereafter
-    # - platform_conf/cb5631_lite/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件

@@ -245,7 +245,7 @@ static void task_bt(char *buf, int32_t len, int32_t argc, char **argv)
 
     if (((ktask_t *)task)->task_name) {
         aos_cli_printf("task name : %s\r\n", ((ktask_t *)task)->task_name);
-        debug_backtrace_task(((ktask_t *)task)->task_name, aos_cli_printf);
+        debug_backtrace_task((char *)(((ktask_t *)task)->task_name), aos_cli_printf);
     }
 }
 

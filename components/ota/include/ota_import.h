@@ -40,42 +40,6 @@ extern "C" {
 #define OTA_FLASH_WRITE_CACHE_SIZE 2048 /*OTA write flash cache size*/
 #endif
 
-#define OTA_MCU_BLOCK_SIZE (1024 + 32)
-#define OTA_MCU_TIMEOUT    (20000)
-
-/* MCU upgrade status */
-#define  OTA_MCU_STATUS_INIT    0x00
-#define  OTA_MCU_STATUS_FINISH  0x80
-
-/* MCU data communication command */
-#define  OTA_MCU_CMD_VERSION    0x10
-#define  OTA_MCU_CMD_READY      0x20
-#define  OTA_MCU_CMD_REBOOT     0x30
-#define  OTA_MCU_CMD_DATA       0x40
-
-/* MCU command response code */
-#define  OTA_MCU_RES_SUCCESS    0x14
-#define  OTA_MCU_RES_FAIL       0x15
-#define  OTA_MCU_RES_HEAD_ERR   0x16
-#define  OTA_MCU_RES_FRAME_ERR  0x17
-#define  OTA_MCU_RES_CRC_ERR    0x18
-#define  OTA_MCU_RES_WRITE_ERR  0x19
-#define  OTA_MCU_RES_MD5_ERR    0x1A
-#define  OTA_MCU_RES_ALLOW_UP   0x28
-
-/* OTA upgrade flag */
-#define OTA_UPGRADE_CUST   0x8778 /* upgrade user customize image */
-#define OTA_UPGRADE_ALL    0x9669 /* upgrade all image: kernel+framework+app */
-#define OTA_UPGRADE_XZ     0xA55A /* upgrade xz compressed image */
-#define OTA_UPGRADE_DIFF   0xB44B /* upgrade diff compressed image */
-#define OTA_UPGRADE_KERNEL 0xC33C /* upgrade kernel image only */
-#define OTA_UPGRADE_APP    0xD22D /* upgrade app image only */
-#define OTA_UPGRADE_FS     0x7083 /* upgrade fs image only */
-#define OTA_BIN_MAGIC_APP     0xabababab
-#define OTA_BIN_MAGIC_KERNEL  0xcdcdcdcd
-#define OTA_BIN_MAGIC_ALL     0xefefefef
-#define OTA_BIN_MAGIC_MCU     0xefcdefcd
-#define OTA_BIN_MAGIC_FS      0xabcdabcd
 #define OTA_MSG_LEN  256 /*OTA topic message max len*/
 
 #define L_EXTRACT_U16(d) ((*((unsigned char *)(d)) << 8) | *((unsigned char *)(d) + 1))
@@ -101,14 +65,6 @@ extern "C" {
     *((unsigned char *)(d) + 2) = ((val) >> 16) & 0xFF; \
     *((unsigned char *)(d) + 3) = ((val) >> 24) & 0xFF; \
 }
-
-#define OTA_RECVD_LOCAL_MASTER_IMAGE      (0xA0)
-#define OTA_RECVD_LOCAL_SLAVER_IMAGE      (0xA1)
-#define OTA_RECVD_BLE_SLAVER_IMAGE        (0xA2)
-#define OTA_RECVD_PINFACE                 (0xA3)
-#define OTA_RECVD_SOURCE_FILE             (0xA4)
-#define OTA_RECVD_SOURCE_PIC_FILE         (0xA5)
-#define OTA_RCVD_XZ_PINFACE               (0xA6)
 
 enum {
     OTA_PROCESS_NORMAL = 0,
@@ -158,9 +114,6 @@ typedef enum {
 #define OTA_WEAK                __attribute__((weak))
 #endif
 
-int ota_is_download_mode(void);
-unsigned short ota_get_upgrade_flag(void);
-int ota_update_upg_flag(unsigned short flag);
 int ota_read_parameter(ota_boot_param_t *ota_param);
 int ota_update_parameter(ota_boot_param_t *ota_param);
 
@@ -174,27 +127,21 @@ int ota_verify_fsfile(ota_boot_param_t *param, char *file_path);
 int ota_write(unsigned int *off, char *in_buf, unsigned int in_buf_len);
 int ota_read(unsigned int *off, char *out_buf, unsigned int out_buf_len);
 
-int ota_fclose(void *stream);
-int ota_get_storefile_subdev_name(char *filename);
-int ota_get_storefile_maindev_name(char *filename);
-void *ota_fopen(const char *filename, const char *mode);
-const char *ota_hal_get_submodule_version(char *dn);
-int ota_subdev_upgrade_start(void *dev_info, unsigned int size, char *ver);
-int ota_fwrite(const void *ptr, unsigned int size, unsigned int nmemb, void *stream);
-int ota_fread(const void *ptr, unsigned int size, unsigned int nmemb, void *stream);
-int ota_get_image_info(unsigned int image_size, ota_image_info_t *tmp_info);
-int ota_reboot_module(char *module_name);
+int ota_fclose(int fd);
+int ota_fopen(const char *filename, int mode);
+int ota_fread(int fd, void *buf, unsigned int size);
+int ota_fwrite(int fd, const void *buf, unsigned int size);
 int ota_check_hash(unsigned char type, char *src, char *dst);  /* ota compare hash value. */
 unsigned short ota_get_upgrade_flag(void);                     /* ota get upgrade flag. */
 int ota_update_upg_flag(unsigned short flag);                  /* ota update upgrade flag. */
 int ota_update_process(const char *err, const int step);
-int ota_mcu_upgrade_start(unsigned int size, char* ver, char* md5);
 unsigned int ota_parse_ota_type(unsigned char *buf, unsigned int len); /* parse ota type:diff xz or normal*/
 int ota_transport_inform_otaver(ota_service_t *ctx);
+void ota_set_upgrade_status(char is_upgrade);
 /**
  * @}
  */
- #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /*__OTA_API_H__*/

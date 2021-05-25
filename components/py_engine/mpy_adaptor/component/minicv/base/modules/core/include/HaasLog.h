@@ -75,9 +75,11 @@ extern "C" {
 #define LOG_E(fmt, args...)
 #endif
 
-
-#define debug_line() printf(" ********** %s, %d ********** \n\n", __func__, __LINE__)
-
+#ifdef LOG_ENABLE_E
+    #define debug_line() printf(" ********** %s, %d ********** \n\n", __func__, __LINE__)
+#else
+    #define debug_line()
+#endif
 
 #ifdef __cplusplus
 }

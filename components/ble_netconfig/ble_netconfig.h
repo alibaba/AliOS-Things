@@ -37,8 +37,9 @@ BLE_NETCFG_STATE BLE_NetCfg_start(void);
 BLE_NETCFG_STATE BLE_NetCfg_stop(void);
 BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size);
 
-BLE_NETCFG_STATE BLE_NetCfg_wifi_info(char **ssid, char **passwd);
+BLE_NETCFG_STATE BLE_NetCfg_wifi_get(char **ssid, char **passwd);
 BLE_NETCFG_STATE BLE_NetCfg_wifi_set(char *ssid, char *passwd);
-BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds);
+BLE_NETCFG_STATE BLE_NetCfg_devinfo_get(char **pk, char **dn, char **ds);
+BLE_NETCFG_STATE BLE_NetCfg_devinfo_set(char *pk, char *dn, char *ds);
 
 #endif

@@ -27,6 +27,16 @@ int uvoice_set_path(struct pcm_device *pcm, snd_device_t device);
 
 
 /*
+ * Configure external pa info if used.
+ *
+ * Return:
+ *   0 -- success or no external pa
+ *  -1 -- failed
+ */
+int uvoice_extpa_config(struct external_pa_info *info);
+
+
+/*
  * Mute audio output/input.
  *
  * Return:
@@ -93,5 +103,14 @@ int uvoice_pcm_flush(struct pcm_device *pcm);
  */
 int uvoice_pcm_close(struct pcm_device *pcm);
 
+/*
+ * Init pcm module
+ *
+ * Return:
+ *   0 -- success
+ *  -1 -- failed
+ *
+ */
+int uvoice_pcm_init(void);
 
 #endif

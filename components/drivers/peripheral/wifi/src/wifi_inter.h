@@ -6,7 +6,6 @@
 #define WIFI_INTER_H
 
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

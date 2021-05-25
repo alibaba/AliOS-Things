@@ -1,0 +1,15 @@
+SECTIONS
+{
+/* Bootloader list */ 
+	 BOOT_FLASH_RDP_VALID = 0x08000127;  
+	 BOOT_FLASH_Image1 = 0x080003f7;  
+	 IMAGE1$$Base = 0x10002001;  
+	 RamStartTable = 0x10002001;  
+	 RAM_IMG1_VALID_PATTEN = 0x10002019;  
+	 boot_export_symbol = 0x10002021;  
+	 BOOT_System_Init1 = 0x10002259;  
+	 BOOT_System_Init2 = 0x1000226b;  
+	 BOOT_Swd_Off = 0x1000227d;  
+	 boot_ram_end = 0x10002475;  
+	 IMAGE1$$Limit = 0x10002479;   
+}

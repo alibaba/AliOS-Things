@@ -1,0 +1,294 @@
+
+## 第一部分： 基础信息
+name: rtl872xd                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                    # <必选项> 组件版本号
+description: BSP of chip rtl872xd                           # <必选项> 建议至少20字以上
+type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                         # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - armv8m: rel_3.3.0
+  - rhino: rel_3.3.0
+  - lwip: rel_3.3.0
+  - libc_stub: rel_3.3.0
+  - osal_aos: rel_3.3.0
+ # - uservice: rel_3.3.0
+  - i2c: rel_3.3.0
+  - spi: rel_3.3.0
+  - flash: rel_3.3.0
+  - gpio: rel_3.3.0
+  - uart: rel_3.3.0
+  - pwm: rel_3.3.0
+  - adc: rel_3.3.0
+  # - wifi: rel_3.3.0
+  - timer: rel_3.3.0
+  - watchdog: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - csi: rel_3.3.0
+  - cli: rel_3.3.0
+  - debug: rel_3.3.0
+  - uservice: rel_3.3.0
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: >
+        -march=armv8-m.main+dsp -mthumb -mcmse  -mfloat-abi=softfp -mfpu=fpv5-sp-d16 -mlittle-endian
+        -ffunction-sections -g -gdwarf-3 -nostartfiles -nodefaultlibs -nostdlib  -D__FPU_PRESENT -gdwarf-3
+        -fstack-usage -fdata-sections -nostartfiles -nostdlib -c -MMD -DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG
+        -DCONFIG_FUNCION_O0_OPTIMIZE -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD
+        -DLE_4_2 -DCONFIG_ARM -DWITH_LWIP -DBT_RTL
+
+  cxxflag: >
+
+  ldflag: >
+          -march=armv8-m.main+dsp -mthumb -mcmse -mfloat-abi=softfp -mfpu=fpv5-sp-d16
+          -nostartfiles -specs nosys.specs -Wl,--gc-sections  -Wl,--cref -Wl,--build-id=none
+          -Wl,--no-enum-size-warning  -Wl,--warn-common -lm -lstdc++ -Wl,-Map="aos.map"
+
+  asmflag: >
+          -march=armv8-m.main+dsp -mthumb -mcmse  -mfloat-abi=softfp -mfpu=fpv5-sp-d16  -mlittle-endian -ffunction-sections
+          -g -gdwarf-3 -nostartfiles -nodefaultlibs -nostdlib  -D__FPU_PRESENT -gdwarf-3 -fstack-usage -fdata-sections
+          -nostartfiles -nostdlib -c -MMD	-DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG -DCONFIG_FUNCION_O0_OPTIMIZE
+          -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD
+
+  postimage_script: gen_crc_bin.sh
+
+  define:
+
+
+  include:
+    - ./
+    - aos/
+    - arch/
+    - sdk/
+    - sdk/component/os
+    - sdk/component/soc/realtek/amebad/cmsis/
+    - sdk/component/soc/realtek/amebad/fwlib/include
+    - sdk/component/soc/realtek/amebad/app/monitor/include
+    - sdk/component/soc/realtek/amebad/app/xmodem
+    - sdk/component/soc/realtek/amebad/swlib/include
+    - sdk/component/soc/realtek/amebad/swlib/string
+    - sdk/component/soc/realtek/amebad/misc
+    - sdk/component/soc/realtek/amebad/swlib/include
+    - sdk/component/soc/realtek/amebad/swlib/string
+    - sdk/component/soc/realtek/amebad/fwlib/usb_otg/include
+    - sdk/project/realtek_amebaD_cm4_gcc_verification/inc
+    - sdk/component/common/api
+    - sdk/component/common/api/platform
+    - sdk/component/common/api/wifi
+    - sdk/component/common/drivers/wlan/realtek/include
+    - sdk/component/common/drivers/wlan/realtek/src/osdep
+    - sdk/component/common/drivers/wlan/realtek/src/osdep/alios
+    - sdk/component/common/drivers/wlan/realtek/src/core/option
+    - sdk/component/common/drivers/wlan/realtek/wlan_ram_map/rom
+    - sdk/component/common/network
+    - sdk/component/common/api/wifi/rtw_wpa_supplicant/src
+    - sdk/component/os/os_dep/include/
+    - sdk/component/common/network/ssl/ssl_ram_map/rom
+    - sdk/component/common/mbed/targets/hal/rtl8721d
+    - sdk/component/common/mbed/api
+    - sdk/component/common/mbed/hal
+    - sdk/component/common/mbed/hal_ext
+    - sdk/component/common/bluetooth/realtek/sdk/src/mcu/module/data_uart_cmd
+    - sdk/component/common/bluetooth/realtek/sdk
+    - sdk/component/common/bluetooth/realtek/sdk/inc
+    - sdk/component/common/bluetooth/realtek/sdk/inc/app
+    - sdk/component/common/bluetooth/realtek/sdk/inc/bluetooth/gap
+    - sdk/component/common/bluetooth/realtek/sdk/inc/os
+    - sdk/component/common/bluetooth/realtek/sdk/inc/platform
+    - sdk/component/common/bluetooth/realtek/sdk/inc/bluetooth/profile
+    - sdk/component/common/bluetooth/realtek/sdk/inc/bluetooth/profile/client
+    - sdk/component/common/bluetooth/realtek/sdk/inc/bluetooth/profile/server
+    - sdk/component/common/bluetooth/realtek/sdk/inc/stack
+    - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src
+    - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci
+    - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/vendor_cmd
+    - sdk/component/common/bluetooth/realtek/sdk/board/amebad/lib
+    - sdk/component/common/bluetooth/realtek/sdk/board/common/inc
+    - sdk/component/common/bluetooth/realtek/sdk/example/bt_config
+    - sdk/component/common/bluetooth/realtek/sdk/example
+    - sdk/component/common/bluetooth/realtek/sdk/example/ble_central
+
+  libs:
+    - cmse_implib
+    - _cmsis_dsp
+    - _wlan
+    - _wps
+    - GT60M2_M4
+  libpath:
+    - lib
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - aos/aos_osdep.c
+#  - aos/qc.c ? <CONFIG_WIFI>
+  - aos/qc_gpio_test.c
+  - aos/soc_impl.c
+  - aos/ethernetif.c ? <CONFIG_WIFI>
+  - aos/ota_port.c
+  - CheckSumUtils.c
+
+  - csi_driver/iic/iic.c
+  - csi_driver/gpio/gpio.c
+  - csi_driver/spiflash/spiflash.c
+  - csi_driver/uart/uart.c
+  - csi_driver/wdt/wdt.c
+
+  - hal/wifi_port.c ? <CONFIG_WIFI>
+  - hal/adc.c
+  - hal/pwm.c
+  - hal/wdg.c
+#  - hal/i2c.c
+  - hal/flash.c
+  - hal/gpio.c
+  - hal/uart.c
+  - hal/hw.c
+  - hal/rtc.c
+#  - hal/ota.c
+  - hal/hal_spi.c
+  - hal/hal_timer.c
+#  - hal/ble_port.c
+#  - hci_driver/hci_driver.c
+  - hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
+  - hal/pwrmgmt_hal/board_cpu_pwr_systick.c
+  - hal/pwrmgmt_hal/board_cpu_pwr.c
+  - hal/pwrmgmt_hal/pwrmgmt_api.c
+
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_app_start.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_i2s.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_sdio.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_ssi.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_system.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_pmc.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_pmc_ram.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_gdma_memcpy.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_wdg.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_i2c.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_flash_ram.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_ipc_api.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_ram_libc.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_tim.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_adc.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_rtc.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_uart.c
+  - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721d_ipccfg.c
+  - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721d_wificfg.c
+  - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c
+  - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dlp_intfcfg.c
+  - sdk/component/soc/realtek/amebad/app/monitor/rom/shell_rom.c
+  - sdk/component/soc/realtek/amebad/app/monitor/ram/shell_ram.c
+  - sdk/component/soc/realtek/amebad/app/monitor/rom/monitor_rom.c
+  - sdk/component/soc/realtek/amebad/misc/rtl8721d_ota.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/sys_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/rtc_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/wdt_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/flash_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/spi_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/rtc_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/pwmout_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/analogin_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/pinmap_common.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/pinmap.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/timer_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/gpio_api.c
+  - sdk/component/common/mbed/targets/hal/rtl8721d/gpio_irq_api.c
+  - sdk/component/common/api/lwip_netconf.c ? <CONFIG_WIFI>
+  - sdk/component/common/api/wifi/wifi_conf.c ? <CONFIG_WIFI>
+  - sdk/component/os/os_dep/osdep_service.c
+  - sdk/component/os/os_dep/device_lock.c
+  - sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_eap_config.c ? <CONFIG_WIFI>
+  - sdk/component/common/api/wifi/wifi_util.c  ? <CONFIG_WIFI>
+  - sdk/component/common/api/wifi/wifi_ind.c ? <CONFIG_WIFI>
+  - sdk/component/common/api/wifi/wifi_promisc.c ? <CONFIG_WIFI>
+  - sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c ? <CONFIG_WIFI>
+  - sdk/component/common/drivers/wlan/realtek/src/core/option/rtw_opt_crypto_ssl.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_normal.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_h4.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_board.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/bt_fwconfig.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/bt_normal_patch.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/bt_mp_patch.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_uart.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/common/src/hci_adapter.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/common/src/hci_process.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/common/src/bt_vendor_drv.c
+  - sdk/component/common/bluetooth/realtek/sdk/board/common/os/osif_customer.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  SWD_ENABLE_AS_DEFAULT: 1
+#  CONFIG_CSI_V1: 1
+#  CONFIG_CSI: "csi1.0"
+  CONFIG_LWIP_VERSION: "lwip2.0.0"
+  CONFIG_LWIP_V200: y
+  CONFIG_WIFI: 1
+  MBEDTLS_CONFIG_CRYPTO_ECP: 1
+  CONFIG_U_FLASH_CORE: 1
+
+  # __FPU_PRESENT: 1
+  # CMSIS_DSP_LIB: 1
+  # hardware module numbers config - used in VFS drivers
+  CONFIG_ADC_NUM: 1
+  CONFIG_DAC_NUM: 0
+  CONFIG_GPIO_NUM: 64
+  CONFIG_I2C_NUM: 1
+  CONFIG_PWM_NUM: 1
+  CONFIG_SPI_NUM: 3
+  CONFIG_TIMER_NUM: 1
+  CONFIG_UART_NUM: 3
+
+  AOS_CONFIG_TTY_CSI: 1
+  AOS_CONFIG_GPIOC_CSI: 1
+
+  CONFIG_U_I2C_DEV: 1
+  CONFIG_U_I2C_CORE: 1
+  CONFIG_U_WDG_DEV: 1
+  CONFIG_U_WDG_CORE: 1
+
+chip:
+  arch_name: arm
+  cpu_name: cortex-m33
+  vendor_name: alibaba IoT
+  ld_script: rlx8721d.ld
+
+hw_info:
+  arch_name: arm
+  cpu_name: cortex-m33
+  toolchain_prefix: arm-none-eabi
+  vendor_name: alibaba IoT
+  ld_script: rlx8721d.ld
+#  flash_program: release/aos_burn_tool/flash_program.py
+  # program_data_files:
+  #   - filename: release/write_flash_tool/ota_bin/littlefs.bin
+  #     address: 0xB32000

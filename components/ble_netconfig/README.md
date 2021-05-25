@@ -49,9 +49,10 @@ ble_netconfig组件主要支持如下功能：
 |  BLE_NetCfg_start | 开启BLE配置通道功能 |
 | BLE_NetCfg_stop | 关闭BLE配置通道功能 |
 | BLE_NetCfg_notificate | HaaS开发板通过蓝牙发送消息给HaaS小程序 |
-| BLE_NetCfg_wifi_info | 获取Wi-Fi热点信息，SSID和密码 |
+| BLE_NetCfg_wifi_get | 获取Wi-Fi热点信息，SSID和密码 |
 | BLE_NetCfg_wifi_set | 设置Wi-Fi热点信息，SSID和密码，配网逻辑会连接Wi-Fi热点 |
-| BLE_NetCfg_dev_info | 获取设备三元组信息 |
+| BLE_NetCfg_devinfo_get | 获取设备三元组信息 |
+| BLE_NetCfg_devinfo_set | 设置设备三元组信息 |
 
 
 
@@ -131,14 +132,14 @@ BLE_NETCFG_STATE BLE_NetCfg_notificate(const uint8_t *data, uint16_t size)
 
 `0：`成功， `其他值`：失败。
 
-### BLE_NetCfg_wifi_info
+### BLE_NetCfg_wifi_get
 
 获取Wi-Fi热点信息，SSID和密码
 
 **函数原型**
 
 ```c
-BLE_NETCFG_STATE BLE_NetCfg_wifi_info(char **ssid, char **passwd)
+BLE_NETCFG_STATE BLE_NetCfg_wifi_get(char **ssid, char **passwd)
 ```
 
 **输入参数**
@@ -169,14 +170,14 @@ BLE_NETCFG_STATE BLE_NetCfg_wifi_set(char *ssid, char *passwd)
 | ssid   | 传入Wi-Fi热点SSID信息 |
 | passwd | 传入Wi-Fi热点密码信息 |
 
-### BLE_NetCfg_dev_info
+### BLE_NetCfg_devinfo_get
 
 获取设备三元组信息
 
 **函数原型**
 
 ```c
-BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds)
+BLE_NETCFG_STATE BLE_NetCfg_devinfo_get(char **pk, char **dn, char **ds)
 ```
 
 **输入参数**
@@ -186,6 +187,28 @@ BLE_NETCFG_STATE BLE_NetCfg_dev_info(char **pk, char **dn, char **ds)
 | pk   | 用于存放返回设备三元组信息product key   |
 | dn   | 用于存放返回设备三元组信息device name   |
 | ds   | 用于存放返回设备三元组信息device secret |
+
+**返回参数**
+
+`0：`成功， `其他值`：失败。
+
+### BLE_NetCfg_devinfo_set
+
+设置设备三元组信息
+
+**函数原型**
+
+```c
+BLE_NETCFG_STATE BLE_NetCfg_devinfo_set(char *pk, char *dn, char *ds)
+```
+
+**输入参数**
+
+| args | description                     |
+| ---- | ------------------------------- |
+| pk   | 传入设备三元组信息product key   |
+| dn   | 传入设备三元组信息device name   |
+| ds   | 传入设备三元组信息device secret |
 
 **返回参数**
 

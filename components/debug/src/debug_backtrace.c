@@ -36,7 +36,7 @@ void debug_backtrace_task(char *taskname, int32_t (*print_func)(const char *fmt,
     }
 }
 
-
+void backtrace_handle(char *PC, int *SP, char *LR, int (*print_func)(const char *fmt, ...));
 void debug_panic_backtrace(char *PC, int *SP, char *LR,
                            int (*print_func)(const char *fmt, ...))
 {

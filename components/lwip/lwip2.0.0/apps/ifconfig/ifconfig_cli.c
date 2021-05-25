@@ -3,6 +3,7 @@
  */
 #if AOS_COMP_CLI
 #include "stdbool.h"
+#include "lwip/opt.h"
 #include "lwip/apps/ifconfig.h"
 #include <lwip/def.h>
 #include <lwip/netdb.h>

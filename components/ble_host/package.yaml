@@ -21,7 +21,6 @@ depends:
     - rhino: rel_3.3.0 #v7.4-dev
 # - aos: rel_3.3.0 #v7.4-dev
     - osal_aos: rel_3.3.0
-    - haas1000: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -197,6 +196,7 @@ def_config:
     CONFIG_BT_WHITELIST: 1
     CONFIG_BT_HCI_TX_PRIO: 30
     CONFIG_BT_RX_PRIO: 31
+    CONFIG_BT_RX_STACK_SIZE: 4096
     CONFIG_BT_HCI_TX_STACK_SIZE: 4096
     CONFIG_ATOMIC_OPERATIONS_BUILTIN: 1
     CONFIG_BT_OBSERVER: 1

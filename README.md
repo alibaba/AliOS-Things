@@ -14,7 +14,7 @@
 
 **AliOS Things** 支持多种CPU架构，包括：ARM，C-Sky，MIPS，RISCV等。
 <div align="center">
-  <img src="https://img.alicdn.com/imgextra/i1/O1CN01euUyuE1eH3XtFB98C_!!6000000003845-0-tps-1480-845.jpg" style="max-width:800px;" >
+  <img src="https://img.alicdn.com/imgextra/i2/O1CN01tb0CH81LrG9gA3duy_!!6000000001352-2-tps-2882-1646.png" style="max-width:800px;" >
 </div>
 
 **AliOS Things** 适配了分层架构和组件架构。包括以下部分：

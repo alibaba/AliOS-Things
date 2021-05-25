@@ -18,8 +18,10 @@ extern "C" {
  */
 
 #define IOC_WDG_BASE 'W'
-#define IOC_WDG_RELOAD IOC_WDG_BASE + 1 /**< 复位看门狗 */
-
+#define IOC_WDG_RELOAD IOC_WDG_BASE + 1   /**< 复位看门狗 */
+#define IOC_WDG_FEED   IOC_WDG_BASE + 2   /**< 喂狗，和IOC_WDG_RELOAD相同功能 */
+#define IOC_WDG_START  IOC_WDG_BASE + 3   /**< 开启看门狗，并不是所有板子都支持动态开启和关闭看门狗的功能 */
+#define IOC_WDG_STOP   IOC_WDG_BASE + 4   /**< 关闭看门狗，并不是所有板子都支持动态开启和关闭看门狗的功能 */
 /** @} */
 
 #ifdef __cplusplus

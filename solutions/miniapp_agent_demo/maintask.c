@@ -56,3 +56,31 @@ void aos_maintask(void *arg)
 #endif
 }
 
+extern int BleCfg_run();
+extern int BleCfg_recovery_wifi();
+extern int BleCfg_recovery_devinfo();
+
+int application_start(int argc, char *argv[])
+{
+    int ret;
+
+    aos_set_log_level(AOS_LL_DEBUG);
+
+    ret = BleCfg_run();
+    if (ret) {
+        return ret;
+    }
+
+    aos_msleep(100);
+
+    (void)BleCfg_recovery_wifi();
+    (void)BleCfg_recovery_devinfo();
+
+    while (1) {
+        aos_msleep(1000);
+    };
+
+    return 0;
+}
+
+

@@ -43,6 +43,7 @@ depends:                                 # <可选项> 该组件依赖其他的�
 build_config:
   include:
     - include
+    - netdev/include
   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
     - include_inner
     - activation
@@ -57,6 +58,7 @@ source_file:
   - src/string_convert.c
   - activation/*.c ? <AOS_COMP_ACTIVATION>
 #  - example/*.c
+  - netdev/src/*.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -74,6 +76,7 @@ install:
   - dest: "include"
     source:
       - "include/*.h"
+      - "netdev/include/*.h"
 
 ## 第七部分：导出部分
 # export:

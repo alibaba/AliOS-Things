@@ -140,8 +140,7 @@ void lwip_pkt_print(char* note_ptr, void *pbuf, void* netif);
                                s16_t debug = PKTPRINT_DEBUG; \
                                if ( \
                                    ((debug) & LWIP_DBG_ON) && \
-                                   ((debug) & LWIP_DBG_TYPES_ON) && \
-                                   ((s16_t)((debug) & LWIP_DBG_MASK_LEVEL) >= LWIP_DBG_MIN_LEVEL)) { \
+                                   ((debug) & LWIP_DBG_TYPES_ON)) { \
                                  lwip_pkt_print(note_ptr, pbuf, netif); \
                                  if ((debug) & LWIP_DBG_HALT) { \
                                    while(1); \
