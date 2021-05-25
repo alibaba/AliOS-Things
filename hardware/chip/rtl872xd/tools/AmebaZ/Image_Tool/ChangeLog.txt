@@ -1,0 +1,38 @@
+ChangeLog:
+20170323  v2.0.0  Compatible with B_Cut.
+20170428  V2.0.1  (1) Reset flash status register before download.
+                  (2) Verify checksum after download.
+20170508  v2.0.2  Enable RSIP Function.
+20170724  v2.0.3  (1) Fix other baudrate except 1.5Mbps can not download issue
+                  (2) Add Security Boot image process function
+20170815  v2.0.4  Add Offset and Len options to Security Boot
+20170822  v2.1.0  Adjust Generate Tabpage. Generate Image_All.bin without inserting system data by default. Select system.bin if needed.
+20170915  v2.2.0  (1) Build flash loader with ROM symbols, which is compatible with SMIC and UMC version.
+                  (2) Add "Advanced Setting" functions to Download Tabpage, which makes users to be able to check and modify flash status registers.
+                  (3) Modify Download Tabpage layout.
+20180202  v2.2.1  Compatible with AmebaD Security Function.
+20180306  v2.2.2  (1) Compatible with AmebaD Uart Download Function.
+                  (2) User needs to select target chip before download or encrypt images.
+                  (3) DataGridView is used to show images to be downloaded. The maximum number of images is not limited.
+                      User can add more rows in DataGridVeiw if needed.
+20180605  v2.2.3  (1) Compatible with AmebaD secure boot function(Start Offset fixed, Length: fixed to image size).
+                  (2) AmebaD init baudrate set to 115200bps for UART Download.
+                  (3) Close COM would throw exception when image download is ongoing. Fix it.
+20180719  v2.2.4  (1) Fix checksum error when download image to 8MB flash
+                  (2) Update AmebaD flashloader to fit ASIC
+20180725  v2.2.5  (1) Show default download address for different chips
+                  (2) Disable AllowUserAddRows function when download image.
+20180727  v2.2.6  Add H/W power down enable function for AmebaD.
+20180731  v2.2.7  Modify flash speed options for AmebaD.
+20180820  v2.2.8  (1) Add support to Ameba-D RSIP mask function.
+                  (2) Fix closing serial port causes exception issue.
+                  (3) Fix checksum error in case of RSIP enable when download images to Ameba-D.
+20180905  v2.2.9  (1) Add timeout mechanism for handshake in AmebaZ/D flashloader.
+                  (2) Fix checksum error in case of RSIP enable when download images to Ameba-Z.
+20181024  v2.2.10 (1) AmebaD flash layout adjustment.
+                  (2) Enable datagridview column auto-size function.
+                  (3) Modify OTA trigger pin for AmebaD
+20181102  v2.2.11 (1) Enable image append to tail without offset in Generate.
+                  (2) IMG3 download with IMG2 for AmebaD if use RDP. Do not download IMG3 independently.
+20181226  v2.2.12 (1) Modify default download images to fit new memory layout.
+                  (2) Update AmebaD flashloader to compatible with B-Cut.

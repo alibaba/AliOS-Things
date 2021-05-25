@@ -39,22 +39,6 @@ typedef enum {
 } OTA_UPDATER_E;
 
 /**
- * ota_ymodem_upgrade   ymodem upgrade.
- *
- * @return OTA_SUCCESS               OTA success.
- * @return OTA_YMODEM_UP_FAIL        OTA Ymodem upgrade fail.
- */
-int ota_ymodem_upgrade(void);
-
-/**
- * ota_usb_upgrade   usb upgrade.
- *
- * @return OTA_SUCCESS               OTA success.
- * @return OTA_USB_UP_FAIL           OTA USB upgrade fail.
- */
-int ota_usb_upgrade(void);
-
-/**
  * ota_nbpatch_main  ota nbpatch main.
  *
  * @return OTA_SUCCESS            OTA success.

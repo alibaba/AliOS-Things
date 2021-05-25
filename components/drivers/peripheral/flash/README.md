@@ -100,8 +100,9 @@ aos install flash
 
 ```yaml
 source_file:
-  - "src/*.c"
-  - "example/flash_example.c"
+  - src/*.c
+  - example/flash_example.c
+  - example/mtd_example.c
 ```
 
 ## 步骤5 编译固件

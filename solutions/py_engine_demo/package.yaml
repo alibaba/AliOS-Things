@@ -19,8 +19,6 @@ depends:
   - haas100: rel_3.3.0
   - cli: rel_3.3.0
   - osal_aos: rel_3.3.0
-  - a2sa: rel_3.3.0
-  - uvoice: rel_3.3.0
   - littlefs: rel_3.3.0
   - netmgr: rel_3.3.0
   - py_engine: rel_3.3.0

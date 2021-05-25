@@ -21,14 +21,6 @@ void *ota_malloc(int size);
 void *ota_calloc(int n, int size);
 void *ota_realloc(void *ptr, int size);
 
-/*Thread*/
-int ota_thread_create(
-    void **thread_handle,
-    void *(*work_routine)(void *),
-    void *arg,
-    void *param,
-    int  stack_size);
-void ota_thread_exit(void *thread);
 void ota_msleep(int ms);
 
 /*Reboot*/
@@ -50,7 +42,7 @@ void ota_crc16_init(ota_crc16_ctx *ctx);
 void ota_crc16_update(ota_crc16_ctx *ctx, const void *inSrc, unsigned int inLen);
 void ota_crc16_final(ota_crc16_ctx *ctx, unsigned short *outResult);
 unsigned short ota_get_data_crc16(const unsigned char *buf, unsigned int len);
-int ota_thread_destroy(void *ptread);
+void ota_thread_destroy(void *ptread);
 
 /**
  * @}

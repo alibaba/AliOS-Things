@@ -1,0 +1,9 @@
+{
+    "chip_haas1000": {
+        "serialport": "COM10",
+        "baudrate": "1500000",
+        "binfile": [
+            "d:\\src\\gerrit\\dev_aos\\solutions\\helloworld_demo\\binary\\helloworld_demo@haas100.bin"
+        ]
+    }
+}

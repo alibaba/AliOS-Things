@@ -244,6 +244,56 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_write, 2, obj_write);
 
+STATIC mp_obj_t obj_setBaudRate(size_t n_args, const mp_obj_t *args)
+{
+    LOG_D("entern  %s; n_args = %d;\n", __func__, n_args);
+    int ret = -1;
+    uart_dev_t *uart_device = NULL;
+    if (n_args < 2)
+    {
+        LOG_E("%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+        return mp_const_none;
+    }
+    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
+    mp_uart_obj_t* driver_obj = (mp_uart_obj_t *)self;
+    if (driver_obj == NULL)
+    {
+        LOG_E("driver_obj is NULL\n");
+        return mp_const_none;
+    }
+
+    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    if (NULL == uart_device) {
+		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+        return mp_const_none;
+    }
+
+    uint32_t baud_rate = (uint32_t)mp_obj_get_int(args[1]);
+    LOG_D("%s: set baud_rate = %d;\n", __func__, baud_rate);
+    ret = hal_uart_finalize(uart_device);
+    if (ret != 0)
+    {
+        LOG_E("setBaudRate hal_uart_finalize failed\n");
+    }
+    uart_device->config.baud_rate = baud_rate;
+    LOG_D("%s: port = %d;\n", __func__, uart_device->port);
+    LOG_D("%s: baud_rate = %d;\n", __func__, uart_device->config.baud_rate);
+    LOG_D("%s: data_width = %d;\n", __func__, uart_device->config.data_width);
+    LOG_D("%s: parity = %d;\n", __func__, uart_device->config.parity);
+    LOG_D("%s: stop_bits = %d;\n", __func__, uart_device->config.stop_bits);
+    LOG_D("%s: flow_control = %d;\n", __func__, uart_device->config.flow_control);
+    LOG_D("%s: mode = %d;\n", __func__, uart_device->config.mode);
+    ret = hal_uart_init(uart_device);
+    if (ret == -1)
+    {
+        LOG_E("setBaudRate hal_uart_init failed\n");
+    }
+    LOG_D("%s:out\n", __func__);
+
+    return MP_ROM_INT(ret);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_setBaudRate, 2, obj_setBaudRate);
+
 STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
 {
     LOG_D("entern  %s; n_args = %d;\n", __func__, n_args);
@@ -285,6 +335,7 @@ STATIC const mp_rom_map_elem_t uart_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&uart_obj_close)},
     {MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&uart_obj_read)},
     {MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&uart_obj_write)},
+    {MP_ROM_QSTR(MP_QSTR_setBaudRate), MP_ROM_PTR(&uart_obj_setBaudRate)},
     {MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&uart_obj_on)},
 };
 

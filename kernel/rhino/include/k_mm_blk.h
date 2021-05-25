@@ -20,7 +20,7 @@ extern "C" {
 #define MM_BLK_SLICE_SIZE           (1<<MM_BLK_SLICE_BIT)
 #define MM_BLK_SLICE_NUM            (RHINO_CONFIG_MM_TLF_BLK_SIZE/MM_BLK_SLICE_SIZE)
 
-#define MM_BLK_SIZE2TYPE(size)      (32 - krhino_clz32((size) - 1))
+#define MM_BLK_SIZE2TYPE(size)      (32 - krhino_clz32((uint32_t)(size) - 1))
 #define MM_BLK_TYPE2SIZE(type)      (1 << (type))
 
 /**

@@ -6,7 +6,6 @@
 #ifndef __VOLUME_H__
 #define __VOLUME_H__
 
-#include "audio_stream.h"
 
 int device_select(struct audio_device *adev, snd_device_t device, bool force);
 int volume_set(snd_device_t device, int level);

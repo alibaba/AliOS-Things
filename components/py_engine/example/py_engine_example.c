@@ -14,6 +14,7 @@ static void python_entry(int argc, char **argv)
     mpy_init();
     mpy_run(argc, argv);
     LOG_E("end micropython ...\r\n");
+    mpy_deinit();
     return;
 }
 

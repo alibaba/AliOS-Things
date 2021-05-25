@@ -9,10 +9,6 @@
 #ifndef OTA_AGENT_H
 #define OTA_AGENT_H
 
-#if defined OTA_CONFIG_BLE
-#include <breeze.h>
-#endif
-
 /*******************************************************************
 ***********                OTA Agent                  **************
 ***********                   |                       **************
@@ -44,7 +40,7 @@
 ***********  device ----- send FW ------> MCU         **************
 ********************************************************************/
 
-#define OTA_VERSION      "3.2.0"
+#define OTA_VERSION      "3.3.0"
 #define OTA_TRANSTYPE    "1"
 #define OTA_OS_TYPE      "0"
 #define OTA_BOARD_TYPE   "0"
@@ -58,6 +54,20 @@ extern "C" {
  *
  *  @{
  */
+
+/* OTA upgrade flag */
+#define OTA_UPGRADE_CUST   0x8778 /* upgrade user customize image */
+#define OTA_UPGRADE_ALL    0x9669 /* upgrade all image: kernel+framework+app */
+#define OTA_UPGRADE_XZ     0xA55A /* upgrade xz compressed image */
+#define OTA_UPGRADE_DIFF   0xB44B /* upgrade diff compressed image */
+#define OTA_UPGRADE_KERNEL 0xC33C /* upgrade kernel image only */
+#define OTA_UPGRADE_APP    0xD22D /* upgrade app image only */
+#define OTA_UPGRADE_FS     0x7083 /* upgrade fs image only */
+#define OTA_BIN_MAGIC_APP     0xabababab
+#define OTA_BIN_MAGIC_KERNEL  0xcdcdcdcd
+#define OTA_BIN_MAGIC_ALL     0xefefefef
+#define OTA_BIN_MAGIC_MCU     0xefcdefcd
+#define OTA_BIN_MAGIC_FS      0xabcdabcd
 
 /**
  *  ENUM: OTA Agent ERRNO.
@@ -107,6 +117,13 @@ typedef enum {
 #define OTA_SIGN_LEN 256 /*OTA download file sign len*/
 #define OTA_VER_LEN  64  /*OTA version string max len*/
 
+typedef enum {
+  OTA_EVENT_UPGRADE_TRIGGER,
+  OTA_EVENT_DOWNLOAD,
+  OTA_EVENT_INSTALL,
+  OTA_EVENT_LOAD,
+  OTA_EVENT_REPORT_VER,
+} OTA_EVENT_ID;
 /**
  *  Struct: OTA boot parameter.
  */
@@ -153,8 +170,7 @@ typedef struct {
 /**
  *  Struct:  OTA image info.
  */
-typedef struct
-{
+typedef struct {
     unsigned int   image_magic;   /* image magic */
     unsigned int   image_size;    /* image size */
     unsigned char  image_md5[16]; /* image md5 info */
@@ -163,11 +179,35 @@ typedef struct
     unsigned short image_crc16;   /* image crc16 */
 } ota_image_info_t;
 
-typedef struct
-{
+typedef struct {
     ota_sign_info_t *sign_info;   /* Image sign info */
     ota_image_info_t *image_info; /* Package Image info */
 } ota_image_header_t;
+
+typedef struct {
+    void (*on_user_event_cb)(int event, int errnumb, void *param);
+    void *param; /* users paramter */
+} ota_feedback_msg_func_t;
+
+typedef int (*report_func)(void *, uint32_t);
+
+typedef int (*triggered_func)(void *, char *, char *, void *);
+
+typedef struct {
+    report_func report_status_cb;
+    void *param; /* users paramter */
+} ota_report_status_func_t;
+
+typedef struct {
+    triggered_func triggered_ota_cb;
+    void *param; /* users paramter */
+} ota_triggered_func_t;
+
+typedef struct {
+    char module_name[33];
+    char store_path[77];
+    int module_type;
+} ota_store_module_info_t;
 
 /* OTA service manager */
 typedef struct ota_service_s {
@@ -176,21 +216,18 @@ typedef struct ota_service_s {
     char dn[32+1];                /* Device name */
     char ds[64+1];                /* Device secret */
     unsigned char dev_type;       /* device type: 0-->main dev 1-->sub dev*/
-    unsigned char module_ota;     /* module ota trigger*/
-    char module_name[36+1];       /* module name*/
+    char module_name[33];         /* module name*/
     unsigned char ota_process;
-#if defined OTA_CONFIG_BLE
-    void (*on_message)(breeze_otainfo_t *breeze_info);
-#endif
-    int (*on_upgrade)(struct ota_service_s* ctx, char* ver, char* url); /* new version ready, if OTA upgrade or not by User */
-    int (*on_module_upgrade)(struct ota_service_s* ctx, char* ver, char* url);
-    int (*on_data)(char *buf, int len);                 /* receive data callback of upgrade firmware */
-    int (*on_percent)(int per);                         /* report percentage to clould */
+    int module_numb;
+    ota_store_module_info_t *module_queue_ptr;
+    ota_feedback_msg_func_t feedback_func;
+    ota_report_status_func_t report_func;               /* report percentage to clould */
+    ota_triggered_func_t ota_triggered_func;            /* new version ready, if OTA upgrade or not by User */
     int (*on_boot)(ota_boot_param_t *ota_param);        /* Upgrade complete to reboot to the new version */
     ota_image_header_t header;                          /* OTA Image header */
-    void *mqtt_client;                                  /* mqtt client */
-    ota_boot_param_t *ota_param;                        /* OTA Upgrade parameters */
+    void *mqtt_client;                                  /* mqtt client */                      /* OTA Upgrade parameters */
 } ota_service_t;
+
 /* OTA service APIs */
 /**
  * ota_service_init  ota service init .
@@ -217,40 +254,49 @@ int ota_service_init(ota_service_t *ctx);
 int ota_service_start(ota_service_t *ctx);
 
 /**
- * ota_service_maindev_fs_start    ota service start and files store in fs.
+ * ota_download_to_fs_service  ota service submodule start.
  *
- * @param[in] ota_service_t *ctx   ota service context
+ * @param[in] void *ctx            ota service context
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_service_maindev_fs_start(ota_service_t *ctx);
+ int ota_download_to_fs_service(void *ota_ctx , char *file_path);
 
 /**
- * ota_service_submodule_start  ota service submodule start.
+ * ota_install_jsapp  ota service submodule start.
  *
- * @param[in] ota_service_t *ctx   ota service context
+ * @param[in] void *ota_ctx        ota service context
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_service_submodule_start(ota_service_t *ctx);
+int ota_install_jsapp(void *ota_ctx, char *store_file, int store_file_len, char *install_path);
 
 /**
- * ota_service_deinit  ota service deinit.
+ * ota_report_module_version      ota report module version.
+ *
+ * @param[in]         void *ctx   ota service context
+ * @param[in] char *module_name   want tp report module name
+ * @param[in]     char *version   module file version
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return -1                      OTA transport init fail.
+ */
+int ota_report_module_version(void *ota_ctx, char *module_name, char *version);
+
+/**
+ * ota_service_param_reset;
  *
  * @param[in] ota_service_t *ctx   ota service context
  *
- * @return OTA_SUCCESS             OTA success.
- * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
- * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
- * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ * @return NULL
  */
-int ota_service_deinit(ota_service_t *ctx);
+void ota_service_param_reset(ota_service_t *ctx);
 
 /**
  * ota_sevice_parse_msg  ota service parse message.
@@ -265,21 +311,45 @@ int ota_service_deinit(ota_service_t *ctx);
 int ota_sevice_parse_msg(ota_service_t *ctx, const char *json);
 
 /**
-*
-* ota callback
-*
-**/
-enum {
-    OTA_CB_ID_UPGRADE = 1,  /* on_upgrade */
-    OTA_CB_ID_MODULE_UPGRADE = 2,  /* on_moudle_upgrade */
-    OTA_CB_ID_DATA    = 3,  /* on_data */
-    OTA_CB_ID_PERCENT = 4,  /* on_percnet */
-    OTA_CB_ID_FINISH  = 5,  /* on_finish */
-    OTA_CB_ID_BOOT    = 6,  /* on_boot */
-};
-
+ * ota_register_module_store ota register store moudle information buf to ctx;
+ *
+ *
+ * @param[in] ota_service_t             *ctx ota service context
+ * @param[in] ota_store_module_info_t *queue store moudle information buf ptr
+ * @param[in] int                  queue_len module buf size
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  Get information failed.
+ */
+int ota_register_module_store(ota_service_t *ctx, ota_store_module_info_t *queue, int queue_len);
 /**
- * ota_service_register_cb  ota service register callback.
+ * ota_set_module_information      ota set module information to DB, include:
+ *                                 module name, store path, module type.
+ *
+ * @param[in] ota_service_t *ctx ota service context
+ * @param[in] char  *module_name ota module name
+ * @param[in] char   *store_path want to store module file path
+ * @param[in] int    module_type upgrade type: OTA_UPGRADE_ALL.etc.
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  Get information failed.
+ */
+int ota_set_module_information(ota_service_t *ctx, char *module_name,
+                               char *store_path, int module_type);
+/**
+ * ota_get_module_information      ota get module information,include:
+ *                                 module name, store path, module type.
+ *
+ * @param[in] ota_service_t *ctx   ota service context
+ * @param[in]  char *module_name   ota module name
+ * @param[in] ota_store_module_info_t *module_info want to store module information var
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  Get information failed.
+ */
+int ota_get_module_information(ota_service_t *ctx, char *module_name, ota_store_module_info_t *module_info);
+/**
+ * ota_register_boot_cb            ota register boot callback.
  *
  * @param[in] ota_service_t *ctx   ota service context
  *
@@ -288,8 +358,40 @@ enum {
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_service_register_cb(ota_service_t *ctx, int id, void* cb);
-
+int ota_register_boot_cb(ota_service_t *ctx, void *cb, void *param);
+/**
+ * ota_register_trigger_msg_cb     ota register trigger ota callback.
+ *
+ * @param[in] ota_service_t *ctx   ota service context
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_register_trigger_msg_cb(ota_service_t *ctx, void *cb, void *param);
+/**
+ * ota_register_report_percent_cb  ota register file download process callback.
+ *
+ * @param[in] ota_service_t *ctx   ota service context
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_register_report_percent_cb(ota_service_t *ctx, void *cb, void *param);
+/**
+ * ota_register_feedback_msg_cb  ota service register callback.
+ *
+ * @param[in] ota_service_t *ctx   ota service context
+ *
+ * @return OTA_SUCCESS             OTA success.
+ * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
+ * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
+ * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
+ */
+int ota_register_feedback_msg_cb(ota_service_t *ctx, void *cb, void *param);
 /***************************************************************
 *** OTA transport module:transport message with MQTT or CoAP ***
 ****************************************************************/
@@ -322,66 +424,52 @@ int ota_transport_upgrade(ota_service_t *ctx);
 /**
  * ota_transport_upgrade  report status to cloud.
  *
- * @param[in] ota_service_t *ctx    ota service context
- * @param[in]            int status ota upgrade status
+ * @param[in] void *param  ota service context
+ * @param[in] int   status ota upgrade status
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_transport_status(ota_service_t *ctx, int status);
+int ota_transport_status(void *param, int status);
 
 /***************************************************************
 *** OTA download module: download image with HTTP or CoaP    ***
 ****************************************************************/
 /**
- * ota_download_init                ota download init.
+ * ota_download_start    OTA download start
  *
- * @param[in] ota_service_t *ctx    ota service context
+ * @param[in]              char *url  download url
+ * @param[in]   unsigned int url_len  download url length
+ * @param[in] report_func repot_func  report http downloading status function
+ * @param[in]       void *user_param  user's param for repot_func
  *
  * @return OTA_SUCCESS             OTA success.
- * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init fail.
- * @return OTA_DOWNLOAD_HEAD_FAIL  OTA download header fail.
- * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect fail.
- * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request fail.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive fail.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
-int ota_download_init(ota_service_t *ctx, unsigned int url_len);
+int ota_download_start(char *url, unsigned int url_len, report_func repot_func, void *user_param);
 
 /**
- * ota_download_start               ota download start.
+ * ota_download_store_fs_start    OTA download file start and store in fs
  *
- * @param[in]   ota_service_t *ctx ota service context
- * @param[in]            char *url download url
- * @param[in] unsigned int url_len download url length
- *
- * @return OTA_SUCCESS             OTA success.
- * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init fail.
- * @return OTA_DOWNLOAD_HEAD_FAIL  OTA download header fail.
- * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect fail.
- * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request fail.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive fail.
- */
-int ota_download_start(ota_service_t* ctx, char *url, unsigned int url_len);
-
-/**
- * ota_download_store_fs_start      ota download start and store file in fs.
- *
- * @param[in]   ota_service_t *ctx    ota service context
- * @param[in]            char *url    download url
- * @param[in] unsigned int url_len    download url len
- * @param[in]     char *store_path    download file store path and file name.eg:/root/test.bin
+ * @param[in]              char *url  download url
+ * @param[in]   unsigned int url_len  download url length
+ * @param[in]       char *store_path  store file path and name eg:/root/test.bin
+ * @param[in] report_func report_func report http downloading status function
+ * @param[in]       void *user_param  user's param for repot_func
  *
  * @return OTA_SUCCESS             OTA success.
- * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init fail.
- * @return OTA_DOWNLOAD_HEAD_FAIL  OTA download header fail.
- * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect fail.
- * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request fail.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive fail.
+ * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
+ * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect failed.
+ * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
+ * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
-int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_len, char *store_path);
-
+int ota_download_store_fs_start(char *url, unsigned int url_len, char *store_path,
+                                report_func report_func, void *user_param);
 /**
  * ota_download_image_header        ota download image header.
  *
@@ -398,20 +486,6 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
  * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive fail.
  */
 int ota_download_image_header(ota_service_t *ctx, char *url, unsigned int url_len, unsigned int size);
-
-/**
- * ota_download_deinit              ota download deinit.
- *
- * @param[in] ota_service_t *ctx    ota service context
- *
- * @return OTA_SUCCESS             OTA success.
- * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init fail.
- * @return OTA_DOWNLOAD_HEAD_FAIL  OTA download header fail.
- * @return OTA_DOWNLOAD_CON_FAIL   OTA download connect fail.
- * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request fail.
- * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive fail.
- */
-int ota_download_deinit(ota_service_t *ctx);
 
 /***************************************************************
 *** OTA hal module: update image to OTA partition:ota_hal.h  ***
@@ -452,115 +526,6 @@ int ota_update_parameter(ota_boot_param_t *param);
  * @return -1                       get version fail.
  */
 int ota_get_fs_version(char *ver_buf, int ver_buf_len);
-/***************************************************************
-***   OTA verify module: hash:md5/sha256 sign:RSA            ***
-****************************************************************/
-/**
- *  Struct:  MD5 SHA256 Context.
- */
-#if defined OTA_CONFIG_ITLS
-typedef struct {
-    size_t size;
-    void *ali_ctx;
-} ota_md5_context, ota_sha256_context;
-#else
-/**
- *  Struct:  MD5 Context.
- */
-typedef struct
-{
-    unsigned int  total[2];
-    unsigned int  state[4];
-    unsigned char buffer[64];
-} ota_md5_context;
-
-/**
- *  Struct:  SHA256 Context.
- */
-typedef struct {
-    unsigned int  total[2];
-    unsigned int  state[8];
-    unsigned char buffer[64];
-    int is224;
-} ota_sha256_context;
-#endif
-
-/**
- *  Struct:  ota sign context.
- */
-typedef struct {
-    char sign_enable;              /* enable sign */
-    unsigned char sign_value[256]; /* sign value */
-} ota_sign_t;
-
-/**
- *  Struct:  ota hash context.
- */
-typedef struct {
-    unsigned char hash_method;         /* hash method: md5, sha256 */
-    union {
-        ota_md5_context md5_ctx;       /* md5 hash context */
-        ota_sha256_context sha256_ctx; /* sh256 hash context */
-    };
-} ota_hash_ctx_t;
-
-/**
- * ota_hash_init  ota hash init.
- *
- * @param[in] ota_hash_ctx_t *ctx   OTA hash context
- * @param[in] unsigned char type    OTA hash type
- *
- * @return OTA_SUCCESS              OTA success.
- * @return OTA_VERIFY_MD5_FAIL      OTA verfiy MD5 fail.
- * @return OTA_VERIFY_SHA2_FAIL     OTA verfiy SH256 fail.
- * @return OTA_VERIFY_RSA_FAIL      OTA verfiy RSA fail.
- * @return OTA_VERIFY_IMAGE_FAIL    OTA verfiy image fail.
- */
-int ota_hash_init(ota_hash_ctx_t *ctx, unsigned char type);
-
-/**
- * ota_hash_update  ota hash update.
- *
- * @param[in] ota_hash_ctx_t *ctx      OTA hash context
- * @param[in] const unsigned char *buf OTA hash buf
- * @param[in] unsigned int len         OTA hash len
- *
- * @return OTA_SUCCESS              OTA success.
- * @return OTA_VERIFY_MD5_FAIL      OTA verfiy MD5 fail.
- * @return OTA_VERIFY_SHA2_FAIL     OTA verfiy SH256 fail.
- * @return OTA_VERIFY_RSA_FAIL      OTA verfiy RSA fail.
- * @return OTA_VERIFY_IMAGE_FAIL    OTA verfiy image fail.
- */
-int ota_hash_update(ota_hash_ctx_t *ctx, const unsigned char *buf, unsigned int len);
-
-/**
- * ota_hash_final  OTA final hash.
- *
- * @param[in] ota_hash_ctx_t *ctx      OTA hash context
- * @param[in]  unsigned char *buf      OTA hash digest
- *
- * @return OTA_SUCCESS              OTA success.
- * @return OTA_VERIFY_MD5_FAIL      OTA verfiy MD5 fail.
- * @return OTA_VERIFY_SHA2_FAIL     OTA verfiy SH256 fail.
- * @return OTA_VERIFY_RSA_FAIL      OTA verfiy RSA fail.
- * @return OTA_VERIFY_IMAGE_FAIL    OTA verfiy image fail.
- */
-int ota_hash_final(ota_hash_ctx_t *ctx, unsigned char *dgst);
-
-/**
- * ota_verify_rsa  OTA verify RSA sign.
- *
- * @param[in]  unsigned char *sign  OTA firmware sign
- * @param[in]     const char *hash  OTA firmware hash
- * @param[in]  unsigned char hash_type  OTA hash type
- *
- * @return OTA_SUCCESS              OTA success.
- * @return OTA_VERIFY_MD5_FAIL      OTA verfiy MD5 fail.
- * @return OTA_VERIFY_SHA2_FAIL     OTA verfiy SH256 fail.
- * @return OTA_VERIFY_RSA_FAIL      OTA verfiy RSA fail.
- * @return OTA_VERIFY_IMAGE_FAIL    OTA verfiy image fail.
- */
-int ota_verify_rsa(unsigned char *sign, const char *hash, unsigned char hash_type);
 
 /**
  * ota_check_image  OTA check image.
@@ -575,6 +540,16 @@ int ota_verify_rsa(unsigned char *sign, const char *hash, unsigned char hash_typ
  */
 int ota_check_image(unsigned int size);
 
+/**
+ * ota_jsapp_version_get            OTA parase js script version
+ *
+ * @param[in]  char *version        store version buf.
+ * @param[in]  char *file_path      js.app json file store path.
+ *
+ * @return 0                        get version success.
+ * @return -1                       get version failed.
+ */
+int ota_jsapp_version_get(char *version, char *file_path);
 /**
  * @}
  */

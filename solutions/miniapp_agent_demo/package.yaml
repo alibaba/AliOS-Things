@@ -29,9 +29,10 @@ depends:                                       # 该组件依赖其他的组件
   - wifi: rel_3.3.0
 
 ## 第五部分：配置信息
-#def_config:                              # 组件的可配置项
+def_config:                              # 组件的可配置项
+  CONFIG_BT_RX_STACK_SIZE: 4096
 
-# 源文件
+  # 源文件
 source_file:
   - "maintask.c"
   - "config_kv_demo.c"

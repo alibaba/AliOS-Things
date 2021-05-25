@@ -1,0 +1,9 @@
+config AOS_COMP_TIMER_TEST
+    bool "timer_test"
+    depends on ENABLE_TIMER
+    default n
+    help
+
+if AOS_COMP_TIMER_TEST
+# Configurations for comp timer_test
+endif

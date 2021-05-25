@@ -1,0 +1,9 @@
+config AOS_COMP_RNG_TEST
+    bool "rng_test"
+    depends on ENABLE_RNG
+    default n
+    help
+
+if AOS_COMP_RNG_TEST
+# Configurations for comp rng_test
+endif

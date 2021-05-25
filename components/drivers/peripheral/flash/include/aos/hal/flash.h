@@ -82,10 +82,12 @@ typedef struct {
 } hal_logic_partition_t;
 
 typedef struct {
-    hal_partition_t p;
-    char *descr;
-    uint32_t offset;
-    uint32_t siz;
+    hal_partition_t p; // partition index
+    char *descr;  // partition description
+    uint32_t offset;  // start address, in byte unit
+    uint32_t siz; // parition size, in byte uint
+    uint32_t ssiz; // sector size, in byte unit. Set it to page size for NAND
+    uint32_t bsiz; // block size, in byte unit.
 } hal_mtdpart_info_t;
 
 /**

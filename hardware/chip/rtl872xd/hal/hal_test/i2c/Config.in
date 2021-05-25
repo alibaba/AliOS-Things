@@ -1,0 +1,9 @@
+config AOS_COMP_I2C_TEST
+    bool "i2c_test"
+    depends on ENABLE_I2C
+    default n
+    help
+
+if AOS_COMP_I2C_TEST
+# Configurations for comp i2c_test
+endif

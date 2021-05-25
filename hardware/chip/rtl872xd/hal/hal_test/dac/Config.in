@@ -1,0 +1,9 @@
+config AOS_COMP_DAC_TEST
+    bool "dac_test"
+    depends on ENABLE_DAC
+    default n
+    help
+
+if AOS_COMP_DAC_TEST
+# Configurations for comp dac_test
+endif

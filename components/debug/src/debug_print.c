@@ -485,7 +485,7 @@ next_format:
                 break;
             case 's':
                 s = va_arg(ap, const char *);
-                OUTPUT_BUF((unsigned int)s, 1, buf);
+                OUTPUT_BUF((unsigned int)(uintptr_t)s, 1, buf);
                 if (s == 0) {
                     s = "<null>";
                 }

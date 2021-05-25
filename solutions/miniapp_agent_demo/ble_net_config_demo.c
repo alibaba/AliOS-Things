@@ -29,8 +29,9 @@
 
 extern int netmgr_wifi_get_ip_addr(char *ip_address);
 extern void linksdk_thread(void *args);
-extern int32_t demo_wifi_info_set(char *ssid, char *password);
-extern int32_t demo_wifi_info_get(char **ssid, char **password);
+extern int32_t kv_wifi_get(char **ssid, char **password);
+extern int32_t kv_wifi_set(char *ssid, char *password);
+extern int32_t kv_devinfo_get(char **pk, char **dn, char **ds);
 
 static void ping_prepare_echo(struct icmp_echo_hdr *iecho, uint16_t len)
 {
@@ -120,11 +121,13 @@ static void ping_thread(void *args)
     BLE_NetCfg_notificate(&res, 1);
     //BLE_NetCfg_stop();
 
-    res = BLE_NetCfg_wifi_info(&wifi_ssid, &wifi_password);
-    if (res == BLE_NETCFG_SUCCESS) {            
+    res = BLE_NetCfg_wifi_get(&wifi_ssid, &wifi_password);
+    if (res == BLE_NETCFG_SUCCESS) {
         /* 信息记录到kv中，固化信息 */
-        demo_wifi_info_set(wifi_ssid, wifi_password);
-        printf("Wifi info set to kv\n");
+        res = kv_wifi_set(wifi_ssid, wifi_password);
+        if (res == 0) {
+            printf("Wifi info set to kv\n");
+        }
     }
 
     /* 配网流程结束，开启linkSDK连云流程 */
@@ -164,34 +167,55 @@ int ble_netcfg_callback(BLE_NETCFG_EVENT event, BLE_NETCFG_STATE state, void *ev
     return 0;
 }
 
-int application_start(int argc, char *argv[])
+/* 启动ble配置，等待用户通过小程序输入（可能是配网，也可能是配置三元组） */
+int BleCfg_run()
+{
+    int ret;
+
+    ret = BLE_NetCfg_init(ble_netcfg_callback);
+    if (ret) {
+        printf("error: BLE Net Config initial! ret %x\r\n", ret);
+        return ret;
+    }
+    ret = BLE_NetCfg_start();
+    if (ret) {
+        printf("error: BLE Net Config start! ret %x\r\n", ret);
+        return ret;
+    }
+
+    return 0;
+}
+
+/* 恢复上一次成功连接WiFi的ssid与password配置，若存在则直接完成配网，若不存在则报错 */
+int BleCfg_recovery_wifi()
 {
     int ret;
     char *wifi_ssid;
     char *wifi_password;
 
-    aos_set_log_level(AOS_LL_DEBUG);
-    
-    ret = BLE_NetCfg_init(ble_netcfg_callback);
-    if (ret) {
-        printf("error: BLE Net Config initial! ret %x\r\n", ret);
-    }
-    ret = BLE_NetCfg_start();
-    if (ret) {
-        printf("error: BLE Net Config start! ret %x\r\n", ret);
-    }
-
-    aos_msleep(100);
-
-    ret = demo_wifi_info_get(&wifi_ssid, &wifi_password);
-    if (ret == 0) {            
+    ret = kv_wifi_get(&wifi_ssid, &wifi_password);
+    if (ret == 0) {
          printf("Wifi info get from kv\n");
          BLE_NetCfg_wifi_set(wifi_ssid, wifi_password);
     }
 
-    while (1) {
-        aos_msleep(1000);
-    };
-
-    return 0;
+    return ret;
 }
+
+/* 恢复上一次成功连接云端的三元组信息，若存在则直接连云，若不存在则报错 */
+int BleCfg_recovery_devinfo()
+{
+    int ret;
+    char *product_key;
+    char *device_name;
+    char *device_secret;
+
+    ret = kv_devinfo_get(&product_key, &device_name, &device_secret);
+    if (ret == 0) {
+         printf("Device info get from kv\n");
+         BLE_NetCfg_devinfo_set(product_key, device_name, device_secret);
+    }
+
+    return ret;
+}
+

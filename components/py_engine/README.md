@@ -1,9 +1,11 @@
 @page py_engine py_engine
 
+[更正文档](https://gitee.com/alios-things/py_engine/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+
 # 概述
 py_engine (Python轻应用引擎) 以MicroPython为基础打造而成.可以快速实现IoT场景连云、控端、AI等最常见功能。快速上手文档和编程接口请参考[Python轻应用编程参考](https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html)
 组件支持以下功能：
-- 连云：支持基于linkit连接阿里云物联网平台
+- 连云：支持基于linkSDK连接阿里云物联网平台
 - 控端：支持PWD、UART、SPI、I2C、ADC、DAC、GPIO等基本硬件接口控制
 - AI：支持端上AI和云端AI能力，覆盖人脸、人体、视频、文字等150+场景
 
@@ -11,7 +13,7 @@ py_engine (Python轻应用引擎) 以MicroPython为基础打造而成.可以快�
 > Apache license v2.0
 
 ## 目录结构
-```sh
+```tree
 py_engine
 ├── call_cmake.sh                    # 系统引导编译cmake的脚本文件
 ├── CMakeLists.txt                   # cmake编译脚本文件
@@ -23,7 +25,7 @@ py_engine
 ├── platform                         #OS隔离层
 └── README.md                        #帮助文档
     
-    ```
+```
 
 ## 依赖组件
 * rhino
@@ -41,15 +43,16 @@ py_engine
 # 常用配置
 系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下：
 > AOS_COMP_VFS: 默认1, 如需修改，在yaml中修改AOS_COMP_VFS配置
-```sh
+
+```yaml
 def_config:
   AOS_COMP_VFS: 1
-  ```
+```
   > fatfs，默认1，可按照实际需要修改yaml配置如：
-  ```sh
+```yaml
   def_config:
     AOS_COMP_FATFS: 2
-    ```
+```
 
 # API说明
 @ref mpy_run
@@ -57,42 +60,71 @@ def_config:
 @ref mpy_add_path
 
 # 使用示例
-示例代码参考example/py_engine_example.c，以运行helloworld_demo为例，具体步骤如下：
 
-## 添加示例代码
-> py_engine组件的package.yaml中添加example
-```sh
-source_file:
-  - "src/*.c"
-    - "example/py_engine_example.c" # add py_engine_example.c
-    ```
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-## 添加kv组件
-> helloworld_demo组件的package.yaml中添加
-```sh
+## 步骤1 创建或打开工程
+
+**打开已有工程**
+
+如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+
+## 步骤2 添加组件
+
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
 depends:
-  - py_engine: master # helloworld_demo中引入py_engine组件
-  ```
-
-## 编译
-```sh
-cd solutions/helloworld_demo && aos make
-```
-其中具体单板还需要先配置环境：
-```sh
-aos make helloworld_demo@haas100 -c config
+  - py_engine: rel_3.3.0 # helloworld_demo中引入py_engine组件
 ```
 
-## 烧录固件
-> 参考具体板子的快速开始文档。
+## 步骤3 下载组件
 
-## KV示例测试
+在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+
+```shell
+
+aos install py_engine
+
+```
+
+上述命令执行成功后，组件源码则被下载到了./components/py_engine路径中。
+
+## 步骤4 添加示例
+
+> 在py_engine组件的CMakeLists.txt 文件 file(GLOB SOURCEFILE "") 语句后面添加example配置:
+```yaml
+include(${EXAMPLEDIR}/aos.mk)
+```
+
+## 步骤5 编译固件
+
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+
+## 步骤6 烧录固件
+
+helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+
+## 步骤7 打开串口
+
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+
+当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
+
+## 步骤8 测试示例
+
 > CLI命令行输入：
 ```sh
 python
 ```
 
-## 关键日志
+**关键日志**
+
 > CLI日志：
 ```sh
 start micropython!

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WiFiConfig</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <string name="app_lable_name">" WiFiConfig"</string>
+    <string name="lable_device_name">"BT Device"</string>
+    <string name="lable_select_device_name">"BT Device Name"</string>
+
+    <string name="high_rssi">RSSI(high)</string>
+    <string name="low_rssi">RSSI(low)</string>
+    <string name="show_rssi_unit">dBm</string>
+    
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    
+    <string name="dialog_neutral">Neutral</string>
+    
+    <string name="lable_version">version: 1.0.0</string>
+    
+    <string name="str_bt_scan_button">Scan Bluetooth</string>
+    <string name="str_wifi_scan_button">Scan WiFi AP</string>
+    
+    <string name="str_extended_ap_text">Extended AP</string>
+    <string name="str_wlan_ap_2g_text">WiFi AP List (2.4GHz)</string>
+    <string name="str_wlan_ap_5g_text">WiFi AP List (5GHz)</string>
+    
+    <string name="str_saved_profile_text">Previous BT Profile</string>
+
+    <style name="ButtonText">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">3dp</item>
+        <!-- item name="android:textSize">30dp</item-->
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+</resources>

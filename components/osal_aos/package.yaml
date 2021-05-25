@@ -18,6 +18,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - rhino: rel_3.3.0
+  - ulog: rel_3.3.0
 #  - cli: rel_3.3.0
 
 ## 第四部分：编译连接信息

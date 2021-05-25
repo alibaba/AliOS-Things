@@ -220,7 +220,7 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    memset(bufinfo.buf, 0, bufinfo.len);
+    // memset(bufinfo.buf, 0, bufinfo.len);
 
     ret = hal_spi_send(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret == -1)

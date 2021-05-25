@@ -49,7 +49,9 @@
 @subpage lwip \n
 @subpage mbedtls \n
 @subpage mbmaster \n
+@subpage mqtt \n
 @subpage netmgr \n
+@subpage oss \n
 @subpage ota \n
 @subpage posix \n
 @subpage py_engine \n
@@ -66,4 +68,5 @@
 @subpage ugraphics \n
 @subpage ulog \n
 @subpage uvoice \n
+@subpage uservice \n
 @subpage vfs \n

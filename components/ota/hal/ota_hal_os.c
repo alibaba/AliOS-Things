@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
 #include <stdlib.h>
@@ -7,12 +7,12 @@
 #include <time.h>
 #include <signal.h>
 #include <string.h>
+#include "aos/kernel.h"
 #include "ota_log.h"
 #include "ota_hal_os.h"
 
 #ifdef OTA_LINUX
 #include <unistd.h>
-#include <semaphore.h>
 #include <pthread.h>
 #include <sys/reboot.h>
 #else
@@ -79,115 +79,15 @@ void ota_msleep(int ms)
 #endif
 }
 
-#if !defined OTA_LINUX
-typedef struct
-{
-    aos_task_t task;
-    int       detached;
-    void      *arg;
-    void      *(*routine)(void *arg);
-} task_context_t;
-
-static void task_wrapper(void *arg)
-{
-    task_context_t *task = arg;
-    if(task != NULL) {
-        task->routine(task->arg);
-
-        if (task != NULL) {
-            aos_free(task);
-            task = NULL;
-        }
-    }
-}
-#endif
-#define OTA_THREAD_NAME "OTA_Thread"
-#define OTA_THREAD_SIZE 4096
-#define OTA_THREAD_PRI 30
-static task_context_t *ota_task = NULL;
-/*Thread create*/
 int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int stack_size)
 {
-    int ret = -1;
-#if !defined OTA_LINUX
-    char * tname = OTA_THREAD_NAME;
-    if(stack_size <= 0) {
-        stack_size = OTA_THREAD_SIZE;
-    }
-    if(ota_task != NULL) {
-        aos_free(ota_task);
-        ota_task = NULL;
-    }
-    ota_task = aos_malloc(sizeof(task_context_t));
-    if (!ota_task) {
-        return -1;
-    }
-    memset(ota_task, 0, sizeof(task_context_t));
-    ota_task->arg      = arg;
-    ota_task->routine  = work_routine;
-
-    ret = aos_task_new_ext(&ota_task->task, tname, task_wrapper, ota_task, stack_size, OTA_THREAD_PRI);
-    *thread_handle = (void *)ota_task;
-#else
-    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-#endif
-    return ret;
+    return 0;
 }
 
-/*Thread exit*/
-void ota_thread_exit(void *thread)
+void ota_thread_destroy(void *ptread)
 {
-#if !defined OTA_LINUX
     aos_task_exit(0);
-#else
-    pthread_exit(0);
-#endif
 }
-
-int ota_thread_destroy(void *ptread)
-{
-    return 0;
-}
-
-#if defined OTA_LINUX
-int aos_mutex_new(aos_mutex_t *mutex)
-{
-    pthread_mutex_t *mtx = malloc(sizeof(*mtx));
-    pthread_mutex_init(mtx, NULL);
-    return 0;
-}
-
-void aos_mutex_free(aos_mutex_t *mutex)
-{
-    pthread_mutex_destroy(mutex->hdl);
-    free(mutex->hdl);
-}
-
-int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
-{
-    if (mutex) {
-        pthread_mutex_lock(mutex->hdl);
-    }
-    return 0;
-}
-
-int aos_mutex_unlock(aos_mutex_t *mutex)
-{
-    if (mutex) {
-        pthread_mutex_unlock(mutex->hdl);
-    }
-    return 0;
-}
-
-long long aos_now_ms(void)
-{
-    struct timeval tv;
-    long long      ms;
-    gettimeofday(&tv, NULL);
-    ms = tv.tv_sec * 1000LL + tv.tv_usec / 1000;
-    return ms;
-}
-#endif
 
 /*Strings*/
 int ota_to_capital(char *value, int len)
@@ -209,11 +109,11 @@ int ota_hex2str(char *dest_buf, const unsigned char *src_buf, unsigned int dest_
 {
     int i = 0;
     int ret = -1;
-    if((dest_buf != NULL) && (src_buf != NULL) && (dest_len > 2 * src_len)) {
+    if ((dest_buf != NULL) && (src_buf != NULL) && (dest_len > 2 * src_len)) {
         ret = 0;
         memset(dest_buf, 0x00, dest_len);
         for (i = 0; i < src_len; i++) {
-           ota_snprintf(dest_buf + i * 2, 2 + 1, "%02X", src_buf[i]);
+            ota_snprintf(dest_buf + i * 2, 2 + 1, "%02X", src_buf[i]);
         }
     }
     return ret;
@@ -223,19 +123,17 @@ int ota_str2hex(const char *src, char *dest, unsigned int dest_len)
 {
     int i, n = 0;
     int ret = -1;
-    if((src != NULL) && (dest != NULL) && (strlen(src) % 2 == 0) && (dest_len >= strlen(src) / 2)) {
+    if ((src != NULL) && (dest != NULL) && (strlen(src) % 2 == 0) && (dest_len >= strlen(src) / 2)) {
         ret = 0;
-        for(i = 0; src[i]; i += 2) {
-            if(src[i] >= 'A' && src[i] <= 'F') {
+        for (i = 0; src[i]; i += 2) {
+            if (src[i] >= 'A' && src[i] <= 'F') {
                 dest[n] = src[i] - 'A' + 10;
-            }
-            else {
+            } else {
                 dest[n] = src[i] - '0';
             }
-            if(src[i + 1] >= 'A' && src[i + 1] <= 'F') {
+            if (src[i + 1] >= 'A' && src[i + 1] <= 'F') {
                 dest[n] = (dest[n] << 4) | (src[i + 1] - 'A' + 10);
-            }
-            else {
+            } else {
                dest[n] = (dest[n] << 4) | (src[i + 1] - '0');
             }
             ++n;
@@ -243,7 +141,6 @@ int ota_str2hex(const char *src, char *dest, unsigned int dest_len)
     }
     return ret;
 }
-
 
 /*CRC16*/
 static unsigned short update_crc16(unsigned short crcIn, unsigned char byte)
@@ -278,7 +175,7 @@ void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, unsigned int inLe
     }
 }
 
-void ota_crc16_final(ota_crc16_ctx *inCtx, unsigned short *outResult )
+void ota_crc16_final(ota_crc16_ctx *inCtx, unsigned short *outResult)
 {
     inCtx->crc = update_crc16(inCtx->crc, 0);
     inCtx->crc = update_crc16(inCtx->crc, 0);
@@ -289,7 +186,7 @@ unsigned short ota_get_data_crc16(const unsigned char *buf, unsigned int len)
 {
     ota_crc16_ctx ctx;
     unsigned short crc16 = 0xffff;
-    if((buf != NULL) && (len > 0)) {
+    if ((buf != NULL) && (len > 0)) {
         ota_crc16_init(&ctx);
         ota_crc16_update(&ctx, buf, len);
         ota_crc16_final(&ctx, &crc16);
@@ -298,8 +195,7 @@ unsigned short ota_get_data_crc16(const unsigned char *buf, unsigned int len)
 }
 
 /*base64*/
-static const unsigned char base64_dec_map[128] =
-{
+static const unsigned char base64_dec_map[128] = {
     127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
     127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
     127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
@@ -321,49 +217,52 @@ int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char
     unsigned int j, x;
     unsigned char *p;
 
-    for( i = n = j = 0; i < slen; i++ ) {
-        if( ( slen - i ) >= 2 &&
-            src[i] == '\r' && src[i + 1] == '\n' )
+    for (i = n = j = 0; i < slen; i++) {
+        if ((slen - i) >= 2 &&
+            src[i] == '\r' && src[i + 1] == '\n')
             continue;
 
-        if( src[i] == '\n' )
+        if (src[i] == '\n')
             continue;
 
-        if( src[i] == '=' && ++j > 2 )
+        if (src[i] == '=' && ++j > 2)
             return -1;
 
-        if( src[i] > 127 || base64_dec_map[src[i]] == 127 )
+        if (src[i] > 127 || base64_dec_map[src[i]] == 127)
             return -1;
 
-        if( base64_dec_map[src[i]] < 64 && j != 0 )
+        if (base64_dec_map[src[i]] < 64 && j != 0)
             return -1;
 
         n++;
     }
 
-    if( n == 0 )
+    if (n == 0)
         return 0;
 
-    n = ( ( n * 6 ) + 7 ) >> 3;
+    n = ((n * 6) + 7) >> 3;
     n -= j;
 
-    if( dst == 0 || *dlen < n ) {
+    if (dst == 0 || *dlen < n) {
         *dlen = n;
         return -2;
     }
 
-    for( j = 3, n = x = 0, p = dst; i > 0; i--, src++ ) {
-        if( *src == '\r' || *src == '\n' )
+    for (j = 3, n = x = 0, p = dst; i > 0; i--, src++) {
+        if (*src == '\r' || *src == '\n')
             continue;
 
-        j -= ( base64_dec_map[*src] == 64 );
-        x  = ( x << 6 ) | ( base64_dec_map[*src] & 0x3F );
+        j -= (base64_dec_map[*src] == 64);
+        x = (x << 6) | (base64_dec_map[*src] & 0x3F);
 
-        if( ++n == 4 ) {
+        if (++n == 4) {
             n = 0;
-            if( j > 0 ) *p++ = (unsigned char)( x >> 16 );
-            if( j > 1 ) *p++ = (unsigned char)( x >>  8 );
-            if( j > 2 ) *p++ = (unsigned char)( x       );
+            if (j > 0)
+                *p++ = (unsigned char)(x >> 16);
+            if (j > 1)
+                *p++ = (unsigned char)(x >> 8);
+            if (j > 2)
+                *p++ = (unsigned char)(x);
         }
     }
 

@@ -1,10 +1,18 @@
 #include <unistd.h>
 #include "py/mpconfig.h"
 #include "py/runtime.h"
+#include "py/stream.h"
+#include "py/obj.h"
+#include "py/objstr.h"
+#include "py/mpstate.h"
+#include "py/mphal.h"
+#include "py/ringbuf.h"
 
 #include <k_api.h>
 #include "aos/hal/uart.h"
-#include "py/obj.h"
+
+STATIC uint8_t stdin_ringbuf_array[260];
+ringbuf_t stdin_ringbuf = {stdin_ringbuf_array, sizeof(stdin_ringbuf_array), 0, 0};
 
 static uart_dev_t uart_stdio = {0};
 
@@ -37,7 +45,7 @@ int mp_hal_stdin_rx_chr(void) {
 }
 
 // Send string of given length
-void mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
+void mp_hal_stdout_tx_strn(const char *str, size_t len) {
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
     if ((len > 0) && (str != NULL)) {
@@ -51,6 +59,14 @@ mp_uint_t mp_hal_ticks_us(void) {
 
 mp_uint_t mp_hal_ticks_ms(void) {
     return krhino_ticks_to_ms(krhino_sys_tick_get());
+}
+
+uint64_t mp_hal_time_ns(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    uint64_t ns = tv.tv_sec * 1000000000ULL;
+    ns += (uint64_t)tv.tv_usec * 1000ULL;
+    return ns;
 }
 
 mp_uint_t mp_hal_ticks_cpu(void) {
@@ -89,3 +105,10 @@ void mp_hal_wake_main_task_from_isr(void) {
     hal_uart_rx_sem_give(uart_stdio.port);
 }
 
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if ((poll_flags & MP_STREAM_POLL_RD) && stdin_ringbuf.iget != stdin_ringbuf.iput) {
+        ret |= MP_STREAM_POLL_RD;
+    }
+    return ret;
+}

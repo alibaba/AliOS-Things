@@ -105,6 +105,7 @@ typedef enum {
 
 /** @brief  netmgr config struct */
 typedef struct netmgr_config {
+    netmgr_type_t type;
     union {
         netmgr_wifi_config_t wifi_config;          /**< wifi config struct */
         //netmgr_gprs_config_t gprs_config;
@@ -115,6 +116,7 @@ typedef struct netmgr_config {
 
 /** @brief  netmgr delete config */
 typedef struct netmgr_del_config {
+    netmgr_type_t type;
     union {
         char ssid[NETMGR_SSID_MAX_LEN+1];      /**< wifi ssid to delete */
     } config;
@@ -125,11 +127,12 @@ typedef struct netmgr_wifi_conenct_params {
     char        ssid[NETMGR_SSID_MAX_LEN+1];   /**< wifi ssid to connect*/
     char        pwd[NETMGR_PWD_MAX_LEN+1];     /**< wifi password to connect */
     char        bssid[NETMGR_BSSID_MAX_LEN];   /**< wifi bssid to connect */
-    int         timeout;                       /**< wifi connect timeout */ 
+    int         timeout;                       /**< wifi connect timeout */
 } netmgr_wifi_connect_params_t;
 
 /** @brief  netmgr connect params */
 typedef struct netmgr_connect_params {
+    netmgr_type_t type;
     union {
         netmgr_wifi_connect_params_t wifi_params;     /**< wifi connect params */
     } params;
@@ -219,7 +222,7 @@ int netmgr_set_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info);
 /**
  * @brief  get if config information
  *
- * @param  [in]  hdl    netmgr handle 
+ * @param  [in]  hdl    netmgr handle
  * @param  [out] info   config information
  *
  * @return 0 on success, others on error
@@ -341,7 +344,7 @@ void* netmgr_wifi_get_netif(netmgr_hdl_t hdl);
  *
  * @return 0 on success, others on error
  */
-int netmgr_wifi_scan_result(netmgr_hdl_t hdl, netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wifi_scan_type type);
+int netmgr_wifi_scan_result(netmgr_hdl_t hdl, netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wifi_scan_type_t type);
 
 /**
  * @brief  netmgr wifi start monitor

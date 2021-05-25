@@ -1,0 +1,9 @@
+config AOS_COMP_SPI_TEST
+    bool "spi_test"
+    depends on ENABLE_SPI
+    default n
+    help
+
+if AOS_COMP_SPI_TEST
+# Configurations for comp spi_test
+endif
