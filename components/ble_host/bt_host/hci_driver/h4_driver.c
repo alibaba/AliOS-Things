@@ -25,9 +25,7 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_driver.h>
 
-//#include <devices/device.h> // only for phy6220
-//#include <devices/hci.h>  //remove for build yulong
-//#include "hci.h"
+#include "bt_vendor_drv.h"
 #include <hci_api.h>
 
 #include <aos/kernel.h>
@@ -87,6 +85,26 @@ static struct {
     NULL,
 };
 
+#ifndef CHIP_HAAS1000
+
+int tg_bt_hal_vendor_bringup() {
+    return bt_vendor_drv_bring_up();
+}
+
+void tg_bt_hal_hcit_set_rx_ind_callback(rx_ind_cb_t cb) {
+    bt_vendor_drv_set_rx_ind(cb);
+}
+
+size_t tg_bt_hal_hcit_rx(uint8_t *data, size_t len) {
+    return bt_vendor_drv_rx(data, len);
+}
+
+size_t tg_bt_hal_hcit_tx(uint8_t *data, size_t len, void *reserve) {
+    return bt_vendor_drv_tx(data, len, reserve);
+}
+
+#endif
+
 static int h4_send(struct net_buf *buf)
 {
     int ret = -1;
@@ -105,6 +123,22 @@ static int h4_send(struct net_buf *buf)
         return -1;
     }
 
+#if 1   //send in one packet
+    uint8_t *pBuf;
+    const int data_len = buf->len+1;
+
+    pBuf = aos_malloc(data_len);
+    if (pBuf == NULL) {
+        BT_ERR("malloc failed");
+        return -1;
+    }
+
+    pBuf[0] = hcit_type[0];
+    memcpy(pBuf+1, buf->data, buf->len);
+
+    ret = tg_bt_hal_hcit_tx(pBuf, data_len, NULL);
+    aos_free(pBuf);
+#else
     tg_bt_hal_hcit_tx(hcit_type, 1, NULL);
     BT_DBG("buf %p type %u len %u:%s", buf, type, buf->len, bt_hex(buf->data, buf->len));
 
@@ -112,7 +146,7 @@ static int h4_send(struct net_buf *buf)
 
     BT_DBG("payload send");
     ret = tg_bt_hal_hcit_tx(buf->data, buf->len, NULL);
-
+#endif
     if (ret > 0 && ret == data_len) {
         ret = 0;
         net_buf_unref(buf);

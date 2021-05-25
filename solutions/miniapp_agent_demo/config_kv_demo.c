@@ -3,6 +3,7 @@
  */
 
 #include "aos/kv.h"
+
 #if AOS_COMP_CLI
 #include "aos/cli.h"
 
@@ -39,14 +40,42 @@ ALIOS_CLI_CMD_REGISTER(handle_aos_kv_clear, kvclear, kv info clear)
 #define LIMIT_WIFI_SSID         256
 #define LIMIT_WIFI_PASSWORD     256
 
-int32_t demo_dev_info_set(char *pk, char *dn, char *ds)
+int32_t kv_devinfo_set(char *pk, char *dn, char *ds)
 {
     int32_t ret;
+    int len;
+    char product_key[LIMIT_PRODUCT_KEY];
+    char device_name[LIMIT_DEVICE_NAME];
+    char device_secret[LIMIT_DEVICE_SECRTE];
 
     if ( pk == NULL || strlen(pk) >= LIMIT_PRODUCT_KEY
       || dn == NULL || strlen(dn) >= LIMIT_DEVICE_NAME
       || ds == NULL || strlen(ds) >= LIMIT_DEVICE_SECRTE ) {
         printf("[%s]: input para error!\r\n", __func__);
+        return -1;
+    }
+
+    len = LIMIT_PRODUCT_KEY;
+    ret = aos_kv_get("product_key", product_key, &len);
+    if(ret){
+        product_key[0] = 0;
+    }
+
+    len = LIMIT_DEVICE_NAME;
+    ret = aos_kv_get("device_name", device_name, &len);
+    if(ret){
+        device_name[0] = 0;
+    }
+
+    len = LIMIT_DEVICE_SECRTE;
+    ret = aos_kv_get("device_secret", device_secret, &len);
+    if(ret){
+        device_secret[0] = 0;
+    }
+
+    if ( strcmp(product_key, pk) == 0
+      && strcmp(device_name, dn) == 0
+      && strcmp(device_secret, ds) == 0) {
         return -1;
     }
 
@@ -71,7 +100,7 @@ int32_t demo_dev_info_set(char *pk, char *dn, char *ds)
     return 0;
 }
 
-int32_t demo_dev_info_get(char **pk, char **dn, char **ds)
+int32_t kv_devinfo_get(char **pk, char **dn, char **ds)
 {
     int32_t ret;
     int len;
@@ -110,13 +139,32 @@ int32_t demo_dev_info_get(char **pk, char **dn, char **ds)
     return 0;
 }
 
-int32_t demo_wifi_info_set(char *ssid, char *password)
+int32_t kv_wifi_set(char *ssid, char *password)
 {
     int32_t ret;
+    int len;
+    char wifi_ssid[LIMIT_WIFI_SSID];
+    char wifi_password[LIMIT_WIFI_PASSWORD];
 
     if ( ssid == NULL || strlen(ssid) >= LIMIT_WIFI_SSID
       || password == NULL || strlen(password) >= LIMIT_WIFI_PASSWORD ) {
         printf("[%s]: input para error!\r\n", __func__);
+        return -1;
+    }
+
+    len = LIMIT_WIFI_SSID;
+    ret = aos_kv_get("wifi_ssid", wifi_ssid, &len);
+    if(ret){
+        wifi_ssid[0] = 0;
+    }
+    len = LIMIT_WIFI_PASSWORD;
+    ret = aos_kv_get("wifi_password", wifi_password, &len);
+    if(ret){
+        wifi_password[0] = 0;
+    }
+
+    if ( strcmp(wifi_ssid, ssid) == 0
+      && strcmp(wifi_password, password) == 0 ) {
         return -1;
     }
 
@@ -135,7 +183,7 @@ int32_t demo_wifi_info_set(char *ssid, char *password)
     return 0;
 }
 
-int32_t demo_wifi_info_get(char **ssid, char **password)
+int32_t kv_wifi_get(char **ssid, char **password)
 {
     int32_t ret;
     int len;

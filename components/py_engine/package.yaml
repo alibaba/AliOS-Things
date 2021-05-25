@@ -35,7 +35,10 @@ depends:
   - uvoice: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - a2sa: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - ble_netconfig: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
-  # - cplusplus: rel_3.3.0
+  - sntp: "rel_3.3.0 ? <PY_BUILD_SNTP>"
+  - mbedtls: "rel_3.3.0 ? <PY_BUILD_MBEDTLS>"
+  - mbmaster: "rel_3.3.0 ? <PY_BUILD_MODBUS>"
+  
   
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -73,6 +76,7 @@ build_config:
     - mpy_engine/lib/libm_dbl/
     # mpy_engine/py/
     - mpy_engine/py/
+    - mpy_engine/genhdr/
 
     - mpy_adaptor/
     # mpy_adaptor/system
@@ -86,6 +90,8 @@ build_config:
     - mpy_adaptor/component/minicv/base/modules/core/include/
     - mpy_adaptor/component/minicv/base/modules/ml/include/
 
+
+  prebuild_script: create_python_home.py
   # libs:
 # the library "hello" is built by third-part build system, and its name 
 # should NOT with the owner "camke_comp"
@@ -128,10 +134,17 @@ source_file:                             # <可选项> 指定参与编译的源�
   - mpy_engine/extmod/vfs_reader.c
   - mpy_engine/extmod/virtpin.c
   - mpy_engine/extmod/utime_mphal.c
+  - mpy_engine/extmod/vfs_posix_file.c
+  - mpy_engine/extmod/vfs_posix.c
+  - mpy_engine/extmod/moduasyncio.c
+  - mpy_engine/extmod/moducryptolib.c
   # mpy_engine/lib/
   - mpy_engine/lib/utils/interrupt_char.c
   - mpy_engine/lib/utils/printf.c
   - mpy_engine/lib/utils/pyexec.c
+
+  - mpy_engine/lib/utils/gchelper_generic.c
+
   - mpy_engine/lib/utils/stdout_helpers.c
   - mpy_engine/lib/mp-readline/readline.c
   - mpy_engine/lib/timeutils/timeutils.c
@@ -263,7 +276,6 @@ source_file:                             # <可选项> 指定参与编译的源�
   - mpy_adaptor/system/modcharger.c
   - mpy_adaptor/system/modpm.c
   - mpy_adaptor/system/modutime.c
-  - mpy_adaptor/system/modsdcard.c
   - mpy_adaptor/system/modsysteminfo.c
   - mpy_adaptor/system/modsocket.c ? <PY_BUILD_USOCKET>
   - mpy_adaptor/system/moduos.c ? <PY_BUILD_UOS>
@@ -272,6 +284,8 @@ source_file:                             # <可选项> 指定参与编译的源�
   - mpy_adaptor/system/mphalport.c
   - mpy_adaptor/system/mpthreadport.c
   - mpy_adaptor/system/utility.c
+  - mpy_adaptor/system/help.c
+  - mpy_adaptor/system/gccollect.c
   # mpy_adaptor/system/driver
   - mpy_adaptor/system/driver/board_mgr.c
   - mpy_adaptor/system/driver/keypad.c
@@ -312,6 +326,8 @@ source_file:                             # <可选项> 指定参与编译的源�
   - mpy_adaptor/component/audio/uvoicerecorder.c ? <PY_BUILD_AUDIO>
   - mpy_adaptor/component/audio/uvoicetts.c ? <PY_BUILD_AUDIO>
   - mpy_adaptor/component/oss/modoss.c ? <PY_BUILD_OSS>
+  - mpy_adaptor/component/sntp/modsntp.c ? <PY_BUILD_SNTP>
+  - mpy_adaptor/component/modbus/modbus.c ? <PY_BUILD_MODBUS>
   # mpy_adaptor/component/minicv
   - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasDataInput.cpp
   - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasImageCodec.cpp
@@ -351,7 +367,13 @@ def_config:
   PY_BUILD_UOS: 1                  # Py_Engine module build uos config
   PY_BUILD_OSS: 1                  # Py_Engine module build oss config
   PY_BUILD_BLENETCONFIG: 1         # Py_Engine module build ble net config
+  PY_BUILD_SNTP: 1                 # Py_Engine module build sntptime config
+  PY_BUILD_MODBUS: 1               # Py_Engine module build modbus config
 
+  PY_BUILD_MBEDTLS: 1             # Py_Engine module build mbed TLS
+  MBEDTLS_CTR_DRBG_C: 1
+  MBEDTLS_ENTROPY_C: 1
+  MBEDTLS_NO_PLATFORM_ENTROPY: 1
 
 
 

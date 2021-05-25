@@ -1,0 +1,37 @@
+menu "HAL(Peripheral) Testcase Configuration"
+
+menuconfig AOS_COMP_HAL_TEST
+    bool "hal_test"
+    default n
+    select AOS_COMP_UART_TEST if ENABLE_UART
+    select AOS_COMP_GPIO_TEST if ENABLE_GPIO
+    select AOS_COMP_I2C_TEST if ENABLE_I2C
+    select AOS_COMP_SPI_TEST if ENABLE_SPI
+    select AOS_COMP_FLASH_TEST if ENABLE_FLASH
+    select AOS_COMP_ADC_TEST if ENABLE_ADC
+    select AOS_COMP_DAC_TEST if ENABLE_DAC
+    select AOS_COMP_PWM_TEST if ENABLE_PWM
+    select AOS_COMP_RNG_TEST if ENABLE_RNG
+    select AOS_COMP_RTC_TEST if ENABLE_RTC
+    select AOS_COMP_TIMER_TEST if ENABLE_TIMER
+    select AOS_COMP_WDG_TEST if ENABLE_WDG
+    help
+
+if AOS_COMP_HAL_TEST
+# Configurations for comp hal_test
+
+source "test/testcase/hal/uart/Config.in"
+source "test/testcase/hal/flash/Config.in"
+source "test/testcase/hal/gpio/Config.in"
+source "test/testcase/hal/i2c/Config.in"
+source "test/testcase/hal/rng/Config.in"
+source "test/testcase/hal/rtc/Config.in"
+source "test/testcase/hal/spi/Config.in"
+source "test/testcase/hal/timer/Config.in"
+source "test/testcase/hal/wdg/Config.in"
+source "test/testcase/hal/adc/Config.in"
+source "test/testcase/hal/pwm/Config.in"
+
+endif
+
+endmenu

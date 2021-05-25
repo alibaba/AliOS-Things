@@ -1,0 +1,99 @@
+
+## 第一部分： 基础信息
+name: haas200                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                   # <必选项> 组件版本号
+description: Board Config of HaaS200               # <必选项> 建议至少20字以上
+type: board                                        # <必选项> 组件类型，为：solution, chip, board, common
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+depends:                                   # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+  - libc_stub: rel_3.3.0
+  - armv8m: rel_3.3.0
+  - rtl872xd: rel_3.3.0
+  - init: rel_3.3.0
+  - ulog: rel_3.3.0
+  - kv: rel_3.3.0
+  - littlefs: rel_3.3.0
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  include:
+    - config/
+
+cflag: >
+        -DAOS_OTA_RECOVERY_TYPE=1 -DCONFIG_AOS_FATFS_SUPPORT_FLASH
+        -DAOS_OTA_BANK_SINGLE -DAOS_OTA_2BOOT_UPDATE_SUPPORT
+        -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
+        -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000  -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_HAAS200\"
+        -DSTDIO_UART=0
+
+asmflag:  -c -x assembler-with-cpp
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+
+source_file:
+  - config/partition_conf.c
+  - config/k_config.c
+  - startup/startup.c
+  - startup/board.c
+  - gpio_test_pair.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  BOARD_HAAS200: 1
+  STDIO_UART: 0
+  CLI_CONFIG_STACK_SIZE: 8192
+  RHINO_CONFIG_TICKS_PER_SECOND: 1000
+  WITH_LWIP: 1
+  POSIX_DEVICE_IO_NEED: 1
+  AOS_2ND_BOOT_NO_LDS: 1
+  AOS_2ND_BOOT_AB: 1
+  AOS_2ND_BOOT_LATER_ERASE: 1
+  CONFIG_NETMGR_V2: 1
+  STDIO_UART: 0
+  CLI_CONFIG_STACK_SIZE: 4096
+
+  SYSINFO_PRODUCT_MODEL: "ALI_AOS_HAAS200"
+  SYSINFO_DEVICE_NAME: "HAAS200"
+  SYSINFO_ARCH: "Cortex-M33"
+  SYSINFO_MCU: "rtl872xd"
+  SYSINFO_BOARD: "haas200"
+  RHINO_CONFIG_MM_DEBUG: 0
+  RHINO_CONFIG_MM_BLK: 1
+  RHINO_CONFIG_MM_BLK_SIZE: 256
+  RHINO_CONFIG_MM_TLF_BLK_SIZE: 0x800
+
+# littlefs config
+  CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here
+  CONFIG_LFS_MOUNTPOINT: "/data" # the mount path of the lfs partition
+  CONFIG_LFS_PROG_SIZE: 256 # the mininal programable size, usually page size for nand and any size for nor
+  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 16 # choose the right value for nand, and usually any value for nor
+  CONFIG_LFS_BLOCK_NUMS: 231 # the total block count for lfs parition
+
+board:
+  chip_name: rtl872xd

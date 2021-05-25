@@ -4,7 +4,7 @@
 
 #include <poll.h>
 
-#include <aos/hal/i2c.h>
+#include <aos/driver/i2c.h>
 #include <vfsdev/i2c_dev.h>
 #include <devicevfs/devicevfs.h>
 
@@ -19,8 +19,7 @@
 #define I2C_DEV_NAME_FORMAT "i2c%d"
 
 typedef struct vfs_i2c {
-    bool started;
-    i2c_dev_t dev;
+    unsigned port;
 } vfs_i2c_t;
 
 /**
@@ -131,33 +130,19 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
     int ret = 0;
     io_i2c_data_t *d = NULL;
     io_i2c_control_u *c = NULL;
-    i2c_config_t *config = NULL;
     vfs_i2c_t *vd = (vfs_i2c_t *)f->node->i_arg;
-    i2c_dev_t *i2c_dev = &vd->dev;
+    i2c_dev_handle_t slave = (i2c_dev_handle_t)f->f_arg;
 
-    // arg is channel info
+    // VFS make sure ioctl on the same fd is sequenced, so big-lock is not necessary
     ddkc_dbg("cmd:0x%x, arg:0x%lx\r\n", cmd, arg);
 
     switch (cmd) {
         case IOC_I2C_SET_FREQ:
             ddkc_dbg("IOC_I2C_SET_FREQ\r\n");
             c = (io_i2c_control_u *)arg;
-            config = &i2c_dev->config;
-            config->freq = c->freq;
-
-            if (config->mode) {
-                if (vd->started) {
-                    hal_i2c_finalize(i2c_dev);
-                    vd->started = false;
-                }
-                // IOC_I2C_SET_CONFIG is already set
-                ret = hal_i2c_init(i2c_dev);
-                if (ret) {
-                    ddkc_err("hal_i2c_init failed, addr:%x, mode:%d, width:%d, freq:%d ret:%d\r\n",
-                             config->dev_addr, config->mode, config->address_width, config->freq,
-                             ret);
-                } else
-                    vd->started = true;
+            ret = aos_i2c_clk_set(slave, c->freq);
+            if (ret) {
+                ddkc_err("set clock to i2c%d failed, ret:%d\r\n", c->freq, ret);
             }
             break;
 
@@ -165,109 +150,116 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
             ddkc_dbg("IOC_I2C_SET_CONFIG\r\n");
 
             c = (io_i2c_control_u *)arg;
-            config = &i2c_dev->config;
+            if (!c->c.role) {
+                ret = -EINVAL;
+                ddkc_err("i2c%d only support master mode\r\n", c->freq);
+            }
 
-            config->mode = c->c.role ? I2C_MODE_MASTER : I2C_MODE_SLAVE;
-            config->address_width = c->c.addr_width ? I2C_HAL_ADDRESS_WIDTH_10BIT : I2C_HAL_ADDRESS_WIDTH_7BIT;
-            config->dev_addr = c->c.addr;
+            ret = aos_i2c_slave_addr_set(slave, c->c.addr);
+            if (ret) {
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+            }
 
-            if (config->freq) {
-                if (vd->started) {
-                    hal_i2c_finalize(i2c_dev);
-                    vd->started = false;
-                }
-
-                // IOC_I2C_SET_FREQ is already set
-                ret = hal_i2c_init(i2c_dev);
-                if (ret) {
-                    ddkc_err("hal_i2c_init failed, addr:%x, mode:%d, width:%d, freq:%d ret:%d\r\n",
-                             config->dev_addr, config->mode, config->address_width, config->freq,
-                             ret);
-                } else
-                    vd->started = true;
+            ret += aos_i2c_addr_width_set(slave, c->c.addr_width ? I2C_SLAVE_ADDR_WIDTH_10BIT : I2C_SLAVE_ADDR_WIDTH_7BIT);
+            if (ret) {
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
             }
             break;
 
         case IOC_I2C_MASTER_RX:
             ddkc_dbg("IOC_I2C_MASTER_RX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
-            }
 
             d = (io_i2c_data_t *)arg;
-            ret = hal_i2c_master_recv(i2c_dev, d->addr, d->data, d->length, d->timeout);
+
+            ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("IOC_I2C_MASTER_RX failed, ret:%d\r\n", ret);
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                return ret;
+            }
+
+            ret = aos_i2c_master_recv(slave, d->data, d->length, d->timeout);
+            if (ret != d->length) {
+                ddkc_err("i2c%d rx failed, tx_buffer:%p, d->length:%d, d->timeout:%d, ret:%d\n",
+                    vd->port, d->data, d->length, d->timeout, ret);
+                    ret = -EIO;
+            } else {
+                ddkc_dbg("i2c%d rx succeed, tx_buffer:%p, d->length:%d, d->timeout:%d\n",
+                    vd->port, d->data, d->length, d->timeout);
+                    ret = 0;
             }
             break;
         case IOC_I2C_MASTER_TX:
             ddkc_dbg("IOC_I2C_MASTER_TX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
-            }
 
             d = (io_i2c_data_t *)arg;
-            ddkc_dbg("d->addr:%x, d->data:%p, d->length:%d, d->timeout:%d\r\n", d->addr, d->data, d->length, d->timeout);
-            ret = hal_i2c_master_send(i2c_dev, d->addr, d->data, d->length, d->timeout);
+
+            ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("IOC_I2C_MASTER_TX failed, ret:%d\r\n", ret);
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                return ret;
+            }
+
+            ret = aos_i2c_master_send(slave, d->data, d->length, d->timeout);
+            if (ret != d->length) {
+                ddkc_err("i2c%d tx failed, tx_buffer:%p, d->length:%d, d->timeout:%d, ret:%d\n",
+                    vd->port, d->data, d->length, d->timeout, ret);
+                    ret = -EIO;
+            } else {
+                ddkc_dbg("i2c%d tx succeed, tx_buffer:%p, d->length:%d, d->timeout:%d\n",
+                    vd->port, d->data, d->length, d->timeout);
+                    ret = 0;
             }
             break;
         case IOC_I2C_SLAVE_RX:
             ddkc_dbg("IOC_I2C_SLAVE_RX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
-            }
-
-            d = (io_i2c_data_t *)arg;
-            ret = hal_i2c_slave_recv(i2c_dev, d->data, d->length, d->timeout);
-            if (ret) {
-                ddkc_err("IOC_I2C_MASTER_RX failed, ret:%d\r\n", ret);
-            }
+            ddkc_err("i2c slave operation is not supported\r\n");
+            ret = -ENOTSUP;
             break;
         case IOC_I2C_SLAVE_TX:
             ddkc_dbg("IOC_I2C_SLAVE_TX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
-            }
-
-            d = (io_i2c_data_t *)arg;
-            ret = hal_i2c_slave_send(i2c_dev, d->data, d->length, d->timeout);
-            if (ret) {
-                ddkc_err("IOC_I2C_SLAVE_TX failed, ret:%d\r\n", ret);
-            }
+            ddkc_err("i2c slave operation is not supported\r\n");
+            ret = -ENOTSUP;
             break;
         case IOC_I2C_MEM_RX:
             ddkc_dbg("IOC_I2C_MEM_RX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
-            }
             d = (io_i2c_data_t *)arg;
-            ddkc_dbg("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
-                      d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
-            ret = hal_i2c_mem_read(i2c_dev, d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
+
+            ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("IOC_I2C_MEM_RX failed, ret:%d\r\n", ret);
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                return ret;
+            }
+
+            ret = aos_i2c_mem_read(slave, d->maddr, d->mlength, d->data, d->length, d->timeout);
+            if (ret != d->length) {
+                ddkc_err("i2c%d memory rx failed, mem_addr:0x%x, addr_len:%d, tx_buffer:%p, d->length:%d, d->timeout:%d, ret:%d\n",
+                    vd->port, d->maddr, d->mlength, d->data, d->length, d->timeout, ret);
+                    ret = -EIO;
+            } else {
+                ddkc_dbg("i2c%d memory rx succeed, mem_addr:0x%x, addr_len:%d, tx_buffer:%p, d->length:%d, d->timeout:%d\n",
+                    vd->port, d->maddr, d->mlength, d->data, d->length, d->timeout);
+                    ret = 0;
             }
             break;
         case IOC_I2C_MEM_TX:
             ddkc_dbg("IOC_I2C_MEM_TX\r\n");
-            if (!vd->started) {
-                ddkc_err("i2c%d is not started yet\r\n", vd->dev.port);
-                return -EIO;
+            d = (io_i2c_data_t *)arg;
+
+            ret = aos_i2c_slave_addr_set(slave, d->addr);
+            if (ret) {
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                return ret;
             }
 
-            d = (io_i2c_data_t *)arg;
-            ddkc_dbg("d->addr:%x, d->maddr:%p, d->mlength:%d, d->data:%p, d->length:%d, d->timeout:%d\r\n",
-                      d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
-            ret = hal_i2c_mem_write(i2c_dev, d->addr, d->maddr, d->mlength, d->data, d->length, d->timeout);
-            if (ret) {
-                ddkc_err("IOC_I2C_MEM_TX failed, ret:%d\r\n", ret);
+            ret = aos_i2c_mem_write(slave, d->maddr, d->mlength, d->data, d->length, d->timeout);
+            if (ret != d->length) {
+                ddkc_err("i2c%d memory tx failed, mem_addr:0x%x, addr_len:%d, tx_buffer:%p, d->length:%d, d->timeout:%d, ret:%d\n",
+                    vd->port, d->maddr, d->mlength, d->data, d->length, d->timeout, ret);
+                    ret = -EIO;
+            } else {
+                ddkc_dbg("i2c%d memory tx succeed, mem_addr:0x%x, addr_len:%d, tx_buffer:%p, d->length:%d, d->timeout:%d\n",
+                    vd->port, d->maddr, d->mlength, d->data, d->length, d->timeout);
+                    ret = 0;
             }
             break;
         default:
@@ -280,32 +272,41 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
 int i2c_device_open (inode_t *node, file_t *f) {
     vfs_i2c_t *vd = (vfs_i2c_t *)node->i_arg;
-    i2c_dev_t *i2c_dev = &vd->dev;
+    i2c_dev_handle_t slave = NULL;
+    i2c_slave_config_t config;
 
-    if (vd->started) {
-        ddkc_err("i2c%d is already started\r\n", i2c_dev->port);
-        return -EIO;
+    config.addr = 0x0; // set to 0x0 by default
+    config.addr_width = I2C_SLAVE_ADDR_WIDTH_7BIT; // set to 7-bit address mode by default
+    config.clk = I2C_BUS_CLK_100K; // set to 100k by default
+
+    slave = aos_i2c_open(vd->port, &config);
+    if (!slave) {
+        printf("i2c%d open failed\r\n", vd->port);
+        return -1;
     }
-    memset(&i2c_dev->config, 0, sizeof(i2c_dev->config));
+
+    f->f_arg = slave;
+
     ddkc_dbg("device:%s open success\r\n", node->i_name);
 
     return 0;
 }
 
 int i2c_device_close (file_t *f) {
+    int ret = -1;
     vfs_i2c_t *vd = (vfs_i2c_t *)f->node->i_arg;
-    i2c_dev_t *i2c_dev = &vd->dev;
+    i2c_dev_handle_t slave = (i2c_dev_handle_t)f->f_arg;
 
-    if (vd->started) {
-        int ret = -1;
-        ret = hal_i2c_finalize(i2c_dev);
+    if (slave) {
+        ret = aos_i2c_close(slave);
         if (ret) {
-            ddkc_err("dhal_i2c_finalize on %s failed, ret:%d\r\n", f->node->i_name, ret);
+            printf("i2c%d close failed, ret:%d\r\n", vd->port, ret);
         }
-        vd->started = false;
+        f->f_arg = NULL;
     } else {
-        ddkc_warn("i2c%d is not started yet\r\n", i2c_dev->port);
+        ddkc_warn("invalid f_arg:%x\r\n", slave);
     };
+
     ddkc_dbg("device:%s close success\r\n", f->node->i_name);
 
     return 0;
@@ -387,7 +388,7 @@ int vfs_i2c_drv_init (void) {
         memset(*ppsdev, 0, sizeof(struct subsys_dev) + node_name_len);
         memset(vd, 0, sizeof(*vd));
         // vfs_i2c_t's port should be remained during the whole driver life
-        vd->dev.port = i;
+        vd->port = i;
 
         (*ppsdev)->node_name = (char *)((*ppsdev) + 1);
         snprintf((*ppsdev)->node_name, node_name_len, I2C_DEV_NAME_FORMAT, i);
@@ -441,54 +442,5 @@ err:
 
 VFS_DRIVER_ENTRY(vfs_i2c_drv_init)
 
-__weak int32_t hal_i2c_init(i2c_dev_t *i2c) {
-    ddkc_warn("%s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
-                                   uint16_t size, uint32_t timeout) {
-    ddkc_warn("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
-                                   uint16_t size, uint32_t timeout) {
-    ddkc_warn("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data,
-                                  uint16_t size, uint32_t timeout) {
-    ddkc_warn("__weak %s\r\n", __func__);
-return 0;
-}
-
-
-__weak int32_t hal_i2c_slave_recv(i2c_dev_t *i2c, uint8_t *data,
-                                  uint16_t size, uint32_t timeout) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
-
-
-__weak int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
-                                 uint16_t mem_addr_size, const uint8_t *data, uint16_t size,
-                                 uint32_t timeout) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
-                                uint16_t mem_addr_size, uint8_t *data, uint16_t size,
-                                uint32_t timeout) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_i2c_finalize(i2c_dev_t *i2c) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
 
 #endif

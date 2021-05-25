@@ -16,10 +16,10 @@
 
 int audio_trigger_init(void)
 {
-	return 0;
+    return 0;
 }
 
 int audio_trigger_deinit(void)
 {
-	return 0;
+    return 0;
 }

@@ -330,7 +330,7 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_COMP_LITTLEFS
-    littlefs_register("",CONFIG_LFS_MOUNTPOINT);
+    littlefs_register();
 #endif
 
 #ifdef AOS_COMP_ULOG

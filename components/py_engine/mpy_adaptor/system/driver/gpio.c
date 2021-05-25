@@ -222,12 +222,12 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
     if (level)
     {
         ret = hal_gpio_output_high(gpio_device);
-        LOG_E("GPIO %d OFF \n", gpio_device->port);
+        LOG_D("GPIO %d ON \n", gpio_device->port);
     }
     else
     {
         ret = hal_gpio_output_low(gpio_device);
-        LOG_E("GPIO %d ON \n", gpio_device->port);
+        LOG_D("GPIO %d OFF \n", gpio_device->port);
     }
     if (ret == -1)
     {

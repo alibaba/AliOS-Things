@@ -48,6 +48,8 @@ build_config:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - src/uart_dev.c ? <CONFIG_U_UART_DEV>
+  - src/tty.c
+  - src/tty_csi.c ? <AOS_CONFIG_TTY_CSI>
   # example code
   # - example/uart_example.c ? <CONFIG_U_UART_DEV>
 

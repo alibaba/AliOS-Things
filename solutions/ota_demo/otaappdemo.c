@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -16,9 +16,14 @@
 #include <uservice/eventid.h>
 #include <uservice/uservice.h>
 
-#define MY_APP_VER     "app-5.0.0"
+#define MY_APP_VER     "app-1.0.0"
+#define USER_MODULE_VER "m-1.0.0"
+#define USER_MODULE_VER2 "m-2.0.0"
+#define USER_MODE_NAME  "module1"
+#define SUBDEV_FILE_PATH "/data/module1.bin"
 
 static char mqtt_started = 0;
+static ota_store_module_info_t g_module_info[3];
 static ota_service_t ctx = {0};
 
 /* 位于portfiles/aiot_port文件夹下的系统适配函数集合 */
@@ -30,52 +35,99 @@ extern const char *ali_ca_cert;
 static uint8_t g_mqtt_process_thread_running = 0;
 static uint8_t g_mqtt_recv_thread_running = 0;
 
-static int ota_upgrade_cb(ota_service_t *pctx, char *ver, char *url)
+void ota_module_upgrade_start(void *ctx)
+{
+    int ret = -1;
+    ota_service_t *tmp_ctx = (ota_service_t *)ctx;
+    char version[64] = {0};
+    ota_store_module_info_t module_info;
+    ota_boot_param_t ota_param = {0};
+    if (tmp_ctx == NULL) {
+        printf("internal module ota input ctx is null\n");
+        return ret;
+    }
+    /*读取ota 触发时云端下发的文件信息*/
+    ret = ota_read_parameter(&ota_param);
+    if (ret < 0) {
+        printf("get store ota param info failed\n");
+        goto MODULE_OTA_OVER;
+    }
+    /*获取用户自定义的存储路径*/
+    ret = ota_get_module_information(tmp_ctx, tmp_ctx->module_name, &module_info);
+    if (ret < 0) {
+        printf("get store module info failed\n");
+        goto MODULE_OTA_OVER;
+    }
+    printf("file_path = %s\rn", module_info.store_path);
+    /*下载文件到用户指定路径下，此路径用户需要写精确到文件名*/
+    ret = ota_download_to_fs_service(ctx, module_info.store_path);
+    if (ret < 0) {
+        printf("module download failed!");
+        goto MODULE_OTA_OVER;
+    }
+    /*todo:这里用户获取下载后模块的版本号,用户需根据情况修改 */
+    strncpy(version, USER_MODULE_VER2, strlen(USER_MODULE_VER2));
+    /*上报版本号，模拟上报一个高版本号*/
+    ret = ota_report_module_version(ctx, tmp_ctx->module_name, version);
+    if (ret < 0) {
+        printf("module report ver failed!");
+        goto MODULE_OTA_OVER;
+    }
+
+MODULE_OTA_OVER:
+    if (ret < 0) {
+        printf("ota module upgrade failed\n");
+        if ((tmp_ctx->report_func.report_status_cb !=  NULL)) {
+            tmp_ctx->report_func.report_status_cb(tmp_ctx->report_func.param, ret);
+        }
+        ota_msleep(3000);
+    } else {
+        printf("module upgrade success!");
+    }
+    ret = ota_clear();
+    if (ret < 0) {
+        printf("clear ota failed\n");
+    }
+    return;
+}
+
+static int ota_upgrade_cb(ota_service_t *pctx, char *ver, char *module_name)
 {
     int ret = -1;
     void *thread = NULL;
     printf("ota version:%s is coming, begin to upgrade...\r\n", ver);
-    if ((pctx == NULL) || (ver == NULL) || (url == NULL)) {
+    if ((pctx == NULL) || (ver == NULL) || (module_name == NULL)) {
         printf("ota upgrade cb param err\r\n");
         return ret;
     }
-    // 版本定义和版本比较用户根据需要自定义，此处仅作参考
-    if (strncmp(ver, MY_APP_VER, strlen(ver)) <= 0) {
-        ret = OTA_TRANSPORT_VER_FAIL;
-        printf("ota kernel version too old!\r\n");
-        return ret;
-    }
-    ret = ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
-    if (ret < 0) {
-        printf("ota thread err:%d\r\n", ret);
-    }
-    return ret;
-}
-
-static int user_submodule_upgrade_cb(ota_service_t *pctx, char *ver, char *url)
-{
-    int ret = -1;
-    void *thread = NULL;
-    char current_ver[64];
-    // 需要用户根据需求自己添加
-/*
-    memset(current_ver, 0x00, sizeof(current_ver));
-    // todo: 子模块版本号填入current_ver
-    if((pctx != NULL) && (ver != NULL) && (url != NULL)) {
-        ret = 0;
-        if(strncmp(ver, current_ver, strlen(ver)) <= 0) {
+    if (strncmp(module_name, "default", strlen(module_name)) == 0) {
+        // 版本定义和版本比较用户根据需要自定义，此处仅作参考
+        if (strncmp(ver, MY_APP_VER, strlen(ver)) <= 0) {
             ret = OTA_TRANSPORT_VER_FAIL;
-            amp_error(MOD_STR, "submodule version too old!");
+            printf("version too old!\r\n");
+            return ret;
         }
-        else {
-            ret = ota_thread_create(&thread, (void *)ota_service_submodule_start, (void *)pctx, NULL, 1024 * 6);
+        ret = aos_task_new("ota_demo", (void *)ota_service_start, (void *)pctx, 1024 * 6);
+        if (ret < 0) {
+            printf("ota thread err:%d\r\n", ret);
+        }
+    } else if (strncmp(module_name, USER_MODE_NAME, strlen(module_name)) == 0) {
+        void *thread = NULL;
+        char current_ver[64];
+        // 需要用户根据需求自己添加
+        memset(current_ver, 0x00, sizeof(current_ver));
+        // todo: 子模块版本号填入current_ver
+        ret = 0;
+        if (strncmp(ver, current_ver, strlen(ver)) <= 0) {
+            ret = OTA_TRANSPORT_VER_FAIL;
+            printf("submodule version too old!");
+        } else {
+            ret = aos_task_new("ota_subdev_demo", (void *)ota_module_upgrade_start, (void *)pctx, 1024 * 6);
             if (ret < 0) {
                 printf("ota submodule thread err:%d\r\n", ret);
             }
         }
     }
-*/
-    printf("sorry, sumodule download function is nothing!\r\n");
     return ret;
 }
 
@@ -90,13 +142,12 @@ static void mqtt_connected_cb(void *handle)
 { 
     int ret = -1;
     char *mqtt_attr = NULL;
-    memset(ctx.pk, 0, sizeof(ctx.pk));
-    memset(ctx.dn, 0, sizeof(ctx.dn));
+    ota_service_param_reset(&ctx);
     mqtt_attr = core_mqtt_get_product_key(handle);
     if (mqtt_attr != NULL) {
         strcpy(ctx.pk, mqtt_attr);
         mqtt_attr = core_mqtt_get_device_name(handle);
-        if(mqtt_attr == NULL) {
+        if (mqtt_attr == NULL) {
             printf("get dn failed\r\n");
         }
     } else {
@@ -105,9 +156,11 @@ static void mqtt_connected_cb(void *handle)
     if (mqtt_attr != NULL) {
         strcpy(ctx.dn, mqtt_attr);
         ctx.mqtt_client = handle;
-        ota_register_cb(&ctx, OTA_CB_ID_UPGRADE, (void *)ota_upgrade_cb);
-        ota_register_cb(&ctx, OTA_CB_ID_MODULE_UPGRADE, (void *)user_submodule_upgrade_cb);
-        memset(ctx.module_name, 0x00, sizeof(ctx.module_name));
+        memset(g_module_info, 0x00, sizeof(g_module_info));
+        ota_register_module_store(&ctx, g_module_info, 3);
+        ota_register_trigger_msg_cb(&ctx, (void *)ota_upgrade_cb, NULL);
+        ota_register_report_percent_cb(&ctx, (void *)ota_transport_status, (void *)&ctx);
+        ota_set_module_information(&ctx, USER_MODE_NAME, SUBDEV_FILE_PATH, OTA_UPGRADE_CUST);
         ret = ota_service_init(&ctx);
         if (ret < 0) {
             LOG("OTA init failed\n");
@@ -115,17 +168,15 @@ static void mqtt_connected_cb(void *handle)
             LOG("OTA init successfully\n");
         }
         // 上报app的版本号，对应云端的default模块
-        ret = ota_transport_inform(&ctx, NULL, MY_APP_VER);
+        ret = ota_transport_inform(&ctx, "default", MY_APP_VER);
         if (ret < STATE_SUCCESS) {
             printf("user app report ver failed!\r\n");
         }
         // 多模块情况下，USER_MODE_NAME 为用户的模块名， USER_MODULE_VER为用户模块的版本号，此用例只有一个模块
-/*
         ret = ota_transport_inform(&ctx, USER_MODE_NAME, USER_MODULE_VER);
-        if(ret < STATE_SUCCESS) {
+        if (ret < STATE_SUCCESS) {
             printf("user module ver report failed!\r\n");
         }
-*/
     }
 }
 
@@ -231,7 +282,6 @@ void *demo_mqtt_recv_thread(void *args)
     return NULL;
 }
 
-
 int mqtt_main(void *param)
 {
     int32_t     res = STATE_SUCCESS;
@@ -242,9 +292,9 @@ int mqtt_main(void *param)
     aiot_sysdep_network_cred_t cred; /* 安全凭据结构体, 如果要用TLS, 这个结构体中配置CA证书等参数 */
 
     /* TODO: 替换为自己设备的三元组 */
-    char *product_key       = "a13FN5TplKq";
-    char *device_name       = "mqtt_basic_demo";
-    char *device_secret     = "jA0K15GobTDa5wgOtJPzdtcZPc4X7NYQ";
+    char *product_key       = "";
+    char *device_name       = "";
+    char *device_secret     = "";
 
     /* 配置SDK的底层依赖 */
     aiot_sysdep_set_portfile(&g_aiot_sysdep_portfile);
@@ -294,7 +344,9 @@ int mqtt_main(void *param)
     g_mqtt_process_thread_running = 1;
     res = aos_task_new("demo_mqtt_process", demo_mqtt_process_thread, mqtt_handle, 4096);
     if (res != 0) {
+        g_mqtt_process_thread_running = 0;
         printf("create demo_mqtt_process_thread failed: %d\n", res);
+        aiot_mqtt_deinit(&mqtt_handle);
         return -1;
     }
 
@@ -302,7 +354,9 @@ int mqtt_main(void *param)
     g_mqtt_recv_thread_running = 1;
     res = aos_task_new("demo_mqtt_recv", demo_mqtt_recv_thread, mqtt_handle, 4096);
     if (res != 0) {
+        g_mqtt_recv_thread_running = 0;
         printf("create demo_mqtt_recv_thread failed: %d\n", res);
+        aiot_mqtt_deinit(&mqtt_handle);
         return -1;
     }
     /* 主循环进入休眠 */

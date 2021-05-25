@@ -1,0 +1,148 @@
+/*
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+
+#include "aos/kernel.h"
+#include "aos/kv.h"
+#include "aos/vfs.h"
+#include "ulog/ulog.h"
+#include "netmgr.h"
+
+#include "netmgr_wifi.h"
+
+//#include "infra_config.h"
+//#include "infra_compat.h"
+//#include "infra_defs.h"
+//#include "wrappers_defs.h"
+#include "aos_system.h"
+
+#define _SYSINFO_DEVICE_NAME "AliOS Things"
+#define SYSINFO_VERSION "0.0.1"
+
+void aos_printf(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    fflush(stdout);
+}
+
+int aos_snprintf(char *str, const int len, const char *fmt, ...)
+{
+    va_list args;
+    int     rc;
+
+    va_start(args, fmt);
+    rc = vsnprintf(str, len, fmt, args);
+    va_end(args);
+
+    return rc;
+}
+
+int aos_vsnprintf(char *str, const int len, const char *format, va_list ap)
+{
+    return vsnprintf(str, len, format, ap);
+}
+
+const char *aos_get_system_version(void)
+{
+    return SYSINFO_VERSION;
+}
+
+const char *aos_get_platform_type(void)
+{
+    return _SYSINFO_DEVICE_NAME;
+}
+
+int aos_get_ip(char *ip)
+{
+    netmgr_wifi_get_ip(ip);
+
+    if (0 == strcmp(ip, "0.0.0.0")) {
+        return -1;
+    }
+    return 0;
+}
+
+int aos_get_mac_addr(unsigned char mac[8])
+{
+    // TODO: ?
+    return 0;
+}
+
+
+int aos_network_status_registercb(void (*cb)(int status, void *), void *arg)
+{
+    // TODO: ?
+    return 0;
+}
+
+int aos_get_network_status(void)
+{
+    // TODO: ?
+    return 1;
+}
+
+/**
+ * @brief get wifi mac address
+ * @param[out] mac: mac address，format: "01:23:45:67:89:ab"
+ * @param[in] len: size of mac
+ * @returns 0: succeed; -1: failed
+ */
+#ifndef MAC2STR
+#define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
+#define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+#endif
+int hal_wifi_get_mac_address(char *mac, size_t len)
+{
+    int ret = 0;
+    extern uint8_t* factory_section_get_wifi_address(void);
+    uint8_t *_mac = factory_section_get_wifi_address();
+    if(_mac == NULL)
+        ret = -1;
+    else
+        snprintf(mac, len, MACSTR, MAC2STR(_mac));
+    return ret;
+}
+
+char g_chip_id[32];
+const char *aos_get_device_name(void)
+{
+    int len;
+    unsigned char chip_id[16];
+    tg_get_chipid(chip_id, 16);
+    aos_snprintf(g_chip_id, 32, "%x%x%x%x%x%x", chip_id[0], chip_id[1], chip_id[2], chip_id[3], chip_id[9], chip_id[10]);
+    return g_chip_id;
+}
+
+extern k_mm_head *g_kmm_head;
+int amp_heap_memory_info(amp_heap_info_t *heap_info)
+{
+    heap_info->heap_total = g_kmm_head->free_size + g_kmm_head->used_size;
+    heap_info->heap_used = g_kmm_head->used_size;
+    heap_info->heap_free = g_kmm_head->free_size;
+    return 0;
+}
+
+int aos_system_init(void)
+{
+    return 0;
+}
+
+const char *aos_get_module_hardware_version(void)
+{
+    return "Module_Hardware_version";
+}
+
+const char *aos_get_module_software_version(void)
+{
+    return "Module_Software_version";
+}

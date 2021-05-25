@@ -86,7 +86,7 @@ void _socket_settimeout(socket_obj_t *sock, uint64_t timeout_ms);
 #define USOCKET_EVENTS_DIVISOR (8)
 
 STATIC uint8_t usocket_events_divisor;
-STATIC socket_obj_t *usocket_events_head;
+STATIC socket_obj_t *usocket_events_head = NULL;
 
 void usocket_events_deinit(void) {
     usocket_events_head = NULL;
@@ -100,7 +100,7 @@ STATIC void usocket_events_add(socket_obj_t *sock) {
 
 // Assumes the socket is already in the linked list, and removes it
 STATIC void usocket_events_remove(socket_obj_t *sock) {
-    for (socket_obj_t **s = &usocket_events_head;; s = &(*s)->events_next) {
+    for (socket_obj_t **s = &usocket_events_head; *s != NULL; s = &(*s)->events_next) {
         if (*s == sock) {
             *s = (*s)->events_next;
             return;
@@ -764,7 +764,7 @@ STATIC const mp_stream_p_t socket_stream_p = {
     .ioctl = socket_stream_ioctl
 };
 
-STATIC const mp_obj_type_t socket_type = {
+STATIC const mp_obj_type_t mp_type_socket = {
     { &mp_type_type },
     .name = MP_QSTR_socket,
     .make_new = socket_make_new,
@@ -772,7 +772,7 @@ STATIC const mp_obj_type_t socket_type = {
     .locals_dict = (mp_obj_t)&socket_locals_dict,
 };
 
-STATIC mp_obj_t esp_socket_getaddrinfo(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t mod_socket_getaddrinfo(size_t n_args, const mp_obj_t *args) {
     // TODO support additional args beyond the first two
 
     struct addrinfo *res = NULL;
@@ -808,9 +808,48 @@ STATIC mp_obj_t esp_socket_getaddrinfo(size_t n_args, const mp_obj_t *args) {
     }
     return ret_list;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(esp_socket_getaddrinfo_obj, 2, 6, esp_socket_getaddrinfo);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_socket_getaddrinfo_obj, 2, 6, mod_socket_getaddrinfo);
 
-STATIC mp_obj_t aos_socket_initialize() {
+#define BINADDR_MAX_LEN sizeof(struct in6_addr)
+STATIC mp_obj_t mod_socket_inet_pton(mp_obj_t family_in, mp_obj_t addr_in) {
+    int family = mp_obj_get_int(family_in);
+    byte binaddr[BINADDR_MAX_LEN];
+    int r = inet_pton(family, mp_obj_str_get_str(addr_in), binaddr);
+    if (r == 0) {
+        mp_raise_OSError(MP_EINVAL);
+    }
+    int binaddr_len = 0;
+    switch (family) {
+        case AF_INET:
+            binaddr_len = sizeof(struct in_addr);
+            break;
+        case AF_INET6:
+            binaddr_len = sizeof(struct in6_addr);
+            break;
+    }
+    return mp_obj_new_bytes(binaddr, binaddr_len);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_socket_inet_pton_obj, mod_socket_inet_pton);
+
+STATIC mp_obj_t mod_socket_inet_ntop(mp_obj_t family_in, mp_obj_t binaddr_in) {
+    int family = mp_obj_get_int(family_in);
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(binaddr_in, &bufinfo, MP_BUFFER_READ);
+    vstr_t vstr;
+    #if LWIP_IPV6
+    vstr_init_len(&vstr, family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN); 
+    #else
+    vstr_init_len(&vstr, INET_ADDRSTRLEN);
+    #endif
+    if (inet_ntop(family, bufinfo.buf, vstr.buf, vstr.len) == NULL) {
+        mp_raise_OSError(errno);
+    }
+    vstr.len = strlen(vstr.buf);
+    return mp_obj_new_str_from_vstr(&mp_type_str, &vstr);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_socket_inet_ntop_obj, mod_socket_inet_ntop);
+
+STATIC mp_obj_t mod_socket_initialize() {
     static int initialized = 0;
     if (!initialized) {
         //modify by aliosthings
@@ -819,13 +858,52 @@ STATIC mp_obj_t aos_socket_initialize() {
     }
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(aos_socket_initialize_obj, aos_socket_initialize);
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_socket_initialize_obj, mod_socket_initialize);
+
+STATIC mp_obj_t mod_socket_sockaddr(mp_obj_t sockaddr_in) {
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(sockaddr_in, &bufinfo, MP_BUFFER_READ);
+    switch (((struct sockaddr *)bufinfo.buf)->sa_family) {
+        case AF_INET: {
+            struct sockaddr_in *sa = (struct sockaddr_in *)bufinfo.buf;
+            mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(3, NULL));
+            t->items[0] = MP_OBJ_NEW_SMALL_INT(AF_INET);
+            t->items[1] = mp_obj_new_bytes((byte *)&sa->sin_addr, sizeof(sa->sin_addr));
+            t->items[2] = MP_OBJ_NEW_SMALL_INT(ntohs(sa->sin_port));
+            return MP_OBJ_FROM_PTR(t);
+        }
+        #if LWIP_IPV6
+        case AF_INET6: {
+            struct sockaddr_in6 *sa = (struct sockaddr_in6 *)bufinfo.buf;
+            mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(5, NULL));
+            t->items[0] = MP_OBJ_NEW_SMALL_INT(AF_INET6);
+            t->items[1] = mp_obj_new_bytes((byte *)&sa->sin6_addr, sizeof(sa->sin6_addr));
+            t->items[2] = MP_OBJ_NEW_SMALL_INT(ntohs(sa->sin6_port));
+            t->items[3] = MP_OBJ_NEW_SMALL_INT(ntohl(sa->sin6_flowinfo));
+            t->items[4] = MP_OBJ_NEW_SMALL_INT(ntohl(sa->sin6_scope_id));
+            return MP_OBJ_FROM_PTR(t);
+        }
+        #endif
+        default: {
+            struct sockaddr *sa = (struct sockaddr *)bufinfo.buf;
+            mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(2, NULL));
+            t->items[0] = MP_OBJ_NEW_SMALL_INT(sa->sa_family);
+            t->items[1] = mp_obj_new_bytes((byte *)sa->sa_data, bufinfo.len - offsetof(struct sockaddr, sa_data));
+            return MP_OBJ_FROM_PTR(t);
+        }
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_socket_sockaddr_obj, mod_socket_sockaddr);
 
 STATIC const mp_rom_map_elem_t mp_module_socket_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_usocket) },
-    { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&aos_socket_initialize_obj) },
-    { MP_ROM_QSTR(MP_QSTR_socket), MP_ROM_PTR(&socket_type) },
-    { MP_ROM_QSTR(MP_QSTR_getaddrinfo), MP_ROM_PTR(&esp_socket_getaddrinfo_obj) },
+    { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&mod_socket_initialize_obj) },
+    { MP_ROM_QSTR(MP_QSTR_socket), MP_ROM_PTR(&mp_type_socket) },
+    { MP_ROM_QSTR(MP_QSTR_getaddrinfo), MP_ROM_PTR(&mod_socket_getaddrinfo_obj) },
+    { MP_ROM_QSTR(MP_QSTR_inet_pton), MP_ROM_PTR(&mod_socket_inet_pton_obj) },
+    { MP_ROM_QSTR(MP_QSTR_inet_ntop), MP_ROM_PTR(&mod_socket_inet_ntop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_sockaddr), MP_ROM_PTR(&mod_socket_sockaddr_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_AF_INET), MP_ROM_INT(AF_INET) },
     { MP_ROM_QSTR(MP_QSTR_AF_INET6), MP_ROM_INT(AF_INET6) },

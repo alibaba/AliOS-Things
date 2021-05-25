@@ -4,7 +4,7 @@
 
 #include <poll.h>
 
-#include <aos/hal/wdg.h>
+#include <aos/driver/wdg.h>
 #include <vfsdev/wdg_dev.h>
 #include <devicevfs/devicevfs.h>
 
@@ -20,27 +20,43 @@
 #define WDG_DEV_NAME_FORMAT "wdg%d"
 
 typedef struct vfs_wdg {
-    int ref_cnt;
-    bool started;
-    wdg_dev_t dev;
+    unsigned char port;   /**< wdg port */
 } vfs_wdg_t;
 
 int wdg_device_ioctl (file_t *f, int cmd, unsigned long arg) {
     int ret = -1;
-    wdg_config_t *config = NULL;
     vfs_wdg_t *vt = (vfs_wdg_t *)f->node->i_arg;
-    wdg_dev_t *wdg_dev = &vt->dev;
+    wdg_dev_handle_t wdg = (wdg_dev_handle_t)f->f_arg;
+
+    if (!vt || !wdg) {
+        ddkc_err("%s invalid vt:%p or wdg:%p", vt, wdg);
+        return -EINVAL;
+    }
+
     ddkc_dbg("cmd:0x%x, arg:0x%lx\r\n", cmd, arg);
 
     switch (cmd) {
         case IOC_WDG_RELOAD:
-            ddkc_dbg("IOC_WDG_RELOAD\r\n");
-            hal_wdg_reload(wdg_dev);
-            ret = 0;
+        case IOC_WDG_FEED:
+            ret = aos_wdg_feed(wdg);
+            if (ret) {
+                ddkc_err("%s feed watchdog failed\r\n", __func__, ret);
+            }
             break;
-
+        case IOC_WDG_START:
+            ret = aos_wdg_start(wdg);
+            if (ret) {
+                ddkc_err("%s start watchdog failed\r\n", __func__, ret);
+            }
+            break;
+        case IOC_WDG_STOP:
+            ret = aos_wdg_stop(wdg);
+            if (ret) {
+                ddkc_err("%s start watchdog failed\r\n", __func__, ret);
+            }
+            break;
         default:
-            ddkc_err("invalid cmd:%d\r\n", cmd);
+            ddkc_err("%s invalid cmd:%d\r\n", __func__, cmd);
             break;
     }
 
@@ -50,27 +66,22 @@ int wdg_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 int wdg_device_open (inode_t *node, file_t *f) {
     int ret = 0;
     vfs_wdg_t *vt = (vfs_wdg_t *)f->node->i_arg;
-    wdg_dev_t *wdg_dev = NULL;
+    wdg_dev_handle_t wdg = NULL;
 
     if (!vt) {
         ddkc_err("%s open failed, invalid i_arg:%p\r\n", node->i_name, vt);
         return -EINVAL;
     }
 
-    wdg_dev = &vt->dev;
-
-    // TODO: need to add lock for multiple wdg user scenarios
-    if (!vt->started) {
-        ret = hal_wdg_init(wdg_dev);
-        if (ret) {
-            ddkc_err("%s open failed, hal_wdg_init ret:%d\r\n", node->i_name, ret);
-            return ret;
-        }
+    wdg = aos_wdg_open(vt->port, 0xFFFFFFFF - 1);
+    if (!wdg) {
+        printf("i2c%d open failed\r\n", vt->port);
+        return -1;
     }
-    vt->started = true;
-    vt->ref_cnt++;
 
-    ddkc_dbg("%s opened, port:%d, ref_cnt:%d\r\n", node->i_name, wdg_dev->port, vt->ref_cnt);
+    f->f_arg = wdg;
+
+    ddkc_dbg("%s opened, port:%d\r\n", node->i_name, vt->port);
 
     return 0;
 }
@@ -78,24 +89,20 @@ int wdg_device_open (inode_t *node, file_t *f) {
 int wdg_device_close (file_t *f) {
     int ret = 0;
     vfs_wdg_t *vt = (vfs_wdg_t *)f->node->i_arg;
-    wdg_dev_t *wdg_dev = &vt->dev;
+    wdg_dev_handle_t wdg = (wdg_dev_handle_t)f->f_arg;
 
-    ddkc_dbg("%s closed, port:%d\r\n", f->node->i_name, wdg_dev->port);
-    if (!vt->started) {
-        ddkc_err("%s is not started yet\r\n", f->node->i_name);
-        return -EIO;
-    }
-    vt->ref_cnt--;
-    if (!vt->ref_cnt) {
-        ddkc_err("ignore wdg finialize, started:%d, ref_cnt:%d\r\n", vt->started, vt->ref_cnt);
-        return 0;
+    if (!vt || !wdg) {
+        ddkc_err("%s invalid vt:%p or wdg:%p", vt, wdg);
+        return -EINVAL;
     }
 
-    ret = hal_wdg_finalize(wdg_dev);
+    ddkc_dbg("close %s, port:%d\r\n", f->node->i_name, vt->port);
+
+    ret = aos_wdg_close(wdg);
     if (ret) {
-        ddkc_err("hal_wdg_finalize on wdg%d failed, ret=%d\r\n", wdg_dev->port, ret);
+        ddkc_err("aos_wdg_close on wdg%d failed, ret=%d\r\n", vt->port, ret);
     }
-    vt->started = false;
+    f->f_arg = NULL;
 
     return 0;
 }
@@ -188,9 +195,7 @@ int vfs_wdg_drv_init (void) {
         memset(*ppsdev, 0, sizeof(struct subsys_dev) + node_name_len);
         memset(vt, 0, sizeof(*vt));
         // vfs_wdg_t's port should be remained during the whole driver life
-        vt->dev.port = i;
-        vt->started = false;
-        vt->ref_cnt = 0;
+        vt->port = i;
 
         (*ppsdev)->node_name = (char *)((*ppsdev) + 1);
         snprintf((*ppsdev)->node_name, node_name_len, WDG_DEV_NAME_FORMAT, i);
@@ -243,28 +248,4 @@ err:
 
 VFS_DRIVER_ENTRY(vfs_wdg_drv_init)
 
-__weak int32_t hal_wdg_init(wdg_dev_t *tim) {
-    ddkc_dbg("%s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_wdg_start(wdg_dev_t *tim) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak void hal_wdg_stop(wdg_dev_t *tim) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return;
-}
-
-__weak int32_t hal_wdg_para_chg(wdg_dev_t *tim, wdg_config_t para) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
-
-__weak int32_t hal_wdg_finalize(wdg_dev_t *tim) {
-    ddkc_dbg("__weak %s\r\n", __func__);
-    return 0;
-}
 #endif

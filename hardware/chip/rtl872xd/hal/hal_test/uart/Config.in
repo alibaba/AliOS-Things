@@ -1,0 +1,9 @@
+config AOS_COMP_UART_TEST
+    bool "uart_test"
+    depends on ENABLE_UART
+    default n
+    help
+
+if AOS_COMP_UART_TEST
+# Configurations for comp uart_test
+endif

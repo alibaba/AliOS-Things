@@ -14,7 +14,7 @@ OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，
 6、支持网关子设备升级：当HaaS 100 做网关时，HaaS 100 OTA 除支持网关本身的升级外，也支持其子设备的升级；
 
 ## 版权信息
-> Apache license v2.0 
+> Apache license v2.0
 
 ## 目录结构
 ```tree
@@ -27,9 +27,9 @@ OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，
 │   ├── ota_hal_fs_ctrl.c                 # 文件系统操作相关适配层
 │   ├── ota_hal_fs_plat.c                 # 子设备升级文件相关接口
 │   ├── ota_hal_os.c                      # os适配代码
-│   ├── ota_hal_os.h                    
+│   ├── ota_hal_os.h
 │   ├── ota_hal_param.c                   # bootloader相关参数
-│   ├── ota_hal_plat.c                    # flash相关适配
+│   ├── ota_hal_vfs_plat.c                    # flash相关适配
 │   ├── ota_hal_trans.c                   # 传输底层适配层（比如mqtt、coap、http）
 │   └── ota_hal_trans.h
 ├── include                               # 头文件
@@ -49,7 +49,7 @@ OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，
 │   ├── ota_service.c                     # ota初始化函数和主逻辑下载文件
 │   ├── transport
 │   │   └── ota_transport_mqtt.c          # ota mqtt消息通道
-│   └── verify  
+│   └── verify
 │       ├── ota_verify_hash.c             # 文件完整性校验，如md5，sha256
 │       └── ota_verify_rsa.c              # 非对称加密验签
 ├── package.yaml                          # ymal编译环境配置文件
@@ -57,7 +57,7 @@ OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，
 └── tools
     ├── ota_image_package.py              # 打包压缩文件
     ├── upack_data_file.c                 # js轻应用打包解压文件
-    ├── upack_data_file.h                 
+    ├── upack_data_file.h
     └── xz                                # xz压缩算法库
 ```
 

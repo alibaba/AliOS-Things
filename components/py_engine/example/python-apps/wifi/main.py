@@ -14,7 +14,7 @@ import sys
 nm.init()
 connected = nm.getStatus()
 
-def on_wifi_connected():
+def on_wifi_connected(status):
     global connected
     print('*******wifi connected*********')
     connected = True

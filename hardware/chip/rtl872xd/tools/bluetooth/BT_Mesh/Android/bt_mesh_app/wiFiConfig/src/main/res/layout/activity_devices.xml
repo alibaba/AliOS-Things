@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/mainlayout"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:keepScreenOn="true"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	tools:context=".DevicesMainActivity">
+
+    <LinearLayout
+		android:id="@+id/layer1_linear1"
+		android:layout_width="fill_parent"
+		android:layout_height="0dp"
+		android:orientation="horizontal"
+		android:background="#cccccc"
+		android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/textDeviceTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|left"
+            android:layout_weight="5"
+            android:text="  My Device"
+            android:textColor="#000000"
+            android:textSize="25dip"/>
+
+        <ImageButton
+			android:id="@+id/btn_scanDevices"
+			android:contentDescription="@string/app_name"
+			android:layout_weight="1"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical|right"
+			android:scaleType="fitCenter"
+			android:text="Scan Configured Devices"
+			android:background="@drawable/btn_new_device"
+						style="@style/ButtonText"
+			android:src="@drawable/refresh"
+			android:adjustViewBounds="true"
+			android:padding="8dp"
+			android:onClick="ScanDevices_OnClick"/>
+
+        <ImageButton
+			android:id="@+id/btn_info"
+			android:contentDescription="@string/app_name"
+			android:layout_weight="1"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical|right"
+			android:scaleType="fitCenter"
+			android:text="Version Information"
+			android:background="@drawable/btn_new_device"
+						style="@style/ButtonText"
+			android:src="@drawable/info"
+			android:adjustViewBounds="true"
+			android:padding="8dp"
+			android:onClick="About_OnClick"/>
+
+	</LinearLayout>
+
+	<ScrollView
+		android:id="@+id/layer1_linear2"
+		android:layout_width="fill_parent"
+		android:layout_height="0dp"
+		android:layout_weight="10"
+		android:background="@drawable/background_scrollview">
+
+		<LinearLayout
+			android:id="@+id/layer2_linear1"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ListView
+				android:id="@+id/listView1"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"></ListView>
+		</LinearLayout>
+	</ScrollView>
+
+	<include
+		android:id="@+id/navigation"
+		layout="@layout/element_bottom_navigation"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		/>
+</LinearLayout>

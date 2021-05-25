@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+ 	 <!-- Button
+       android:id="@+id/wlanScanButtonID"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:text="@string/str_wifi_scan_button"
+       android:paddingBottom="8dp"  
+       android:paddingLeft="25dp"  
+       android:paddingRight="25dp"  
+       android:paddingTop="8dp" 
+       android:layout_marginLeft="5dp"
+       android:layout_marginRight="5dp"
+       android:visibility="gone"/-->
+ 	 
+ 	 <RelativeLayout
+ 	     android:layout_height="match_parent"
+ 	     android:layout_width="wrap_content">
+	   	<ScrollView  	    
+		   android:layout_width="match_parent"
+		   android:layout_height="wrap_content"
+		   android:scrollbars="vertical"
+		   android:layout_gravity="right">
+	    	<LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical">
+		        <!-- TextView
+					android:id="@+id/extendAPTVID"
+	        		android:layout_width="wrap_content"
+	        		android:layout_height="wrap_content"
+	       			android:text="@string/str_extended_ap_text"
+	       			android:textColor="#ff6600"
+	        		android:layout_marginTop="10dp"
+	        		android:textSize="25sp"
+	        		android:visibility="gone"/-->
+			  	<!-- ListView
+			       android:layout_width="match_parent"
+			       android:layout_height="wrap_content"
+			       android:id="@+id/wlanExtendAPListID"
+			       android:layout_gravity="center"
+			       android:layout_marginTop="15dp" /-->	
+			      <!-- LinearLayout 
+			          android:layout_width="match_parent"
+			          android:layout_height="wrap_content"
+			          android:orientation="horizontal" >
+			         <TextView
+			            android:id="@+id/wlanAPTVID"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:text="@string/str_wlan_ap_text"
+				        android:textColor="#ff6600"
+				        android:layout_marginTop="10dp"
+				        android:textSize="25sp"
+				        android:visibility="gone"/>
+			     </LinearLayout-->
+				
+				<TextView
+			            android:id="@+id/wlanAPTVID_2G"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:text="@string/str_wlan_ap_2g_text"
+				        android:textColor="#0000ff"
+				        android:layout_marginTop="10dp"
+				        android:textSize="20sp"
+				        android:visibility="gone"/>
+			    <ListView
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+			        android:id="@+id/wlanScanListID_2G"
+			        android:layout_gravity="center"
+		          	android:layout_marginTop="1dp" />
+				
+			    <TextView
+			            android:id="@+id/wlanAPTVID_5G"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:text="@string/str_wlan_ap_5g_text"
+				        android:textColor="#0000ff"
+				        android:layout_marginTop="15dp"
+				        android:textSize="20sp"
+				        android:visibility="gone"/>
+			    <ListView
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+			        android:id="@+id/wlanScanListID_5G"
+			        android:layout_gravity="center"
+			        android:layout_marginTop="1dp" />
+           </LinearLayout>
+       </ScrollView>
+       
+   	</RelativeLayout>   
+</LinearLayout>

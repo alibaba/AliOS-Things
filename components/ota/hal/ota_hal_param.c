@@ -1,16 +1,10 @@
-#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <sys/stat.h>
-#include <aos/vfs.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
 #include "ota_log.h"
 #include "ota_import.h"
 #include "ota_hal_os.h"
-#include "aos/hal/flash.h"
-#include <vfsdev/flash_dev.h>
+#include "aos_hal_flash.h"
 
 int ota_is_download_mode(void)
 {
@@ -32,35 +26,21 @@ int ota_is_download_mode(void)
 int ota_read_parameter(ota_boot_param_t *ota_param)
 {
     int ret = OTA_UPGRADE_PARAM_FAIL;
+    int param_part = HAL_PARTITION_PARAMETER_1;
+    unsigned int offset = 0;
     unsigned short patch_crc = 0;
-    int temp_fd = -1;
-    char dev_str[16] = {0};
-
     if(ota_param == NULL) {
-        goto OTA_READ_PARAM_OVER;
-    }
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    temp_fd = open(dev_str, 0);
-    if (temp_fd < 0) {
-        OTA_LOG_E("open ota param1 partition failed");
-        goto OTA_READ_PARAM_OVER;
+        return ret;
     }
     memset(ota_param, 0, sizeof(ota_boot_param_t));
-    ret = read(temp_fd, (void*)ota_param, sizeof(ota_boot_param_t));
+    ret = aos_hal_flash_read(param_part, &offset, ota_param, sizeof(ota_boot_param_t));
     if(ret < 0) {
-        OTA_LOG_E("read failed:%d", ret);
-        goto OTA_READ_PARAM_OVER;
+        return ret;
     }
     patch_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
     OTA_LOG_I("ota param crc:0x%04x cal:0x%04x \n", ota_param->param_crc, patch_crc);
-    if(patch_crc != ota_param->param_crc) {
-        OTA_LOG_E("ota param crc err");
-        ret = OTA_UPGRADE_PARAM_FAIL;
-    }
-OTA_READ_PARAM_OVER:
-    if(temp_fd >= 0) {
-        close(temp_fd);
-        temp_fd = -1;
+    if(patch_crc == ota_param->param_crc) {
+        return 0;
     }
     return ret;
 }
@@ -68,70 +48,35 @@ OTA_READ_PARAM_OVER:
 int ota_update_parameter(ota_boot_param_t *ota_param)
 {
     int ret = OTA_UPGRADE_PARAM_FAIL;
-    int temp_fd = -1;
-    char dev_str[16] = {0};
-    ota_boot_param_t comp_buf;
     unsigned int offset = 0x00;
     unsigned int len = sizeof(ota_boot_param_t);
+    ota_boot_param_t comp_buf;
     if(ota_param == NULL) {
-        goto OTA_UPGRADE_PARAN_OVER;
+        return ret;
     }
     ota_param->param_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
-    OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x len = %d\n", ota_param->param_crc, ota_param->upg_flag, len);
+    OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x \n", ota_param->param_crc, ota_param->upg_flag);
     memset(&comp_buf, 0, len);
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    temp_fd = open(dev_str, 0);
-    if (temp_fd < 0) {
-        OTA_LOG_E("open ota param1 partition failed");
-        goto OTA_UPGRADE_PARAN_OVER;
+#if 0
+    ret = hal_flash_dis_secure(HAL_PARTITION_PARAMETER_1, 0, 0);
+    if(ret != 0) {
+        return OTA_UPGRADE_PARAM_FAIL;
     }
-    ret = ioctl(temp_fd, IOC_FLASH_ENABLE_SECURE, len);
-    if(ret < 0) {
-        OTA_LOG_E("flash secure failed!");
-        goto OTA_UPGRADE_PARAN_OVER;
+#endif
+    ret = aos_hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
+    if(ret >= 0) {
+        ret = aos_hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, ota_param, len);
+        offset = 0x00;
+        if(ret >= 0) {
+            ret = aos_hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, (unsigned char *)&comp_buf, len);
+            if(ret >= 0) {
+                 if(memcmp(ota_param, (unsigned char*)&comp_buf, len) != 0) {
+                     ret = OTA_UPGRADE_PARAM_FAIL;
+                     aos_printf("ble ota save param failed\r\n");
+                 }
+            }
+        }
     }
-    ret = lseek(temp_fd, (off_t)offset, SEEK_SET);
-    if(ret < 0) {
-        OTA_LOG_E("lseek fail!");
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    ret = ioctl(temp_fd, IOC_FLASH_ERASE_FLASH, len);
-    if(ret < 0) {
-        OTA_LOG_E("erase fail!");
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    offset = 0;
-    ret = lseek(temp_fd, (off_t)offset, SEEK_SET);
-    if(ret < 0) {
-        OTA_LOG_E("lseek fail!");
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    ret = write(temp_fd, (void*)ota_param, len);
-    if(ret < 0) {
-        OTA_LOG_E("write fail!");
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    offset = 0x00;
-    ret = lseek(temp_fd, (off_t)offset, SEEK_SET);
-    if(ret < 0) {
-        OTA_LOG_E("lseek fail!");
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    ret = read(temp_fd, (void*)&comp_buf, len);
-    if(ret < 0) {
-        OTA_LOG_E("read failed:%d", ret);
-        goto OTA_UPGRADE_PARAN_OVER;
-    }
-    if(memcmp(ota_param, (unsigned char*)&comp_buf, len) != 0) {
-        ret = OTA_UPGRADE_PARAM_FAIL;
-        OTA_LOG_E("ota save param failed\r");
-    }
-OTA_UPGRADE_PARAN_OVER:
-    if(temp_fd >= 0) {
-        close(temp_fd);
-        temp_fd = -1;
-    }
-    OTA_LOG_I("ota update param over\n");
     return 0;
 }
 
@@ -165,31 +110,10 @@ int ota_update_upg_flag(unsigned short flag)
 int ota_clear_paramters()
 {
     int ret = 0;
-    int temp_fd = -1;
-    char dev_str[16] = {0};
     unsigned int offset = 0x00;
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    temp_fd = open(dev_str, 0);
-    if (temp_fd < 0) {
-        OTA_LOG_E("open ota param1 partition failed");
-        goto OTA_CLEAR_PARAM_OVER;
-    }
-    ret = lseek(temp_fd, (off_t)offset, SEEK_SET);
-    if(ret < 0) {
-        OTA_LOG_E("lseek fail! ");
-        goto OTA_CLEAR_PARAM_OVER;
-    }
-    ret = ioctl(temp_fd, IOC_FLASH_ERASE_FLASH, sizeof(ota_boot_param_t));
-    if(ret < 0) {
-        OTA_LOG_E("erase fail! ");
-        goto OTA_CLEAR_PARAM_OVER;
-    }
+    unsigned int len = sizeof(ota_boot_param_t);
+    ret = aos_hal_flash_erase(HAL_PARTITION_PARAMER1, offset, len);
     OTA_LOG_I("ota clear ret = %d\r\n", ret);
-OTA_CLEAR_PARAM_OVER:
-    if(temp_fd >= 0) {
-        close(temp_fd);
-        temp_fd = -1;
-    }
     return ret;
 }
 

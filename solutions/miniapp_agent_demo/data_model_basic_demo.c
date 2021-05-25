@@ -9,7 +9,6 @@
  * 需要用户关注或修改的部分, 已经用 TODO 在注释中标明
  *
  */
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -19,8 +18,10 @@
 #include "aiot_sysdep_api.h"
 #include "aiot_mqtt_api.h"
 #include "aiot_dm_api.h"
+#if (BOARD_HAAS100 == 1)
 #include "led.h"
 #include "cJSON.h"
+#endif
 #include "aos/kv.h"
 #include "ble_netconfig.h"
 
@@ -30,11 +31,12 @@ extern aiot_sysdep_portfile_t g_aiot_sysdep_portfile;
 /* 位于external/ali_ca_cert.c中的服务器证书 */
 extern const char *ali_ca_cert;
 
-extern int32_t demo_dev_info_set(char *pk, char *dn, char *ds);
-extern int32_t demo_dev_info_get(char **pk, char **dn, char **ds);
+extern int32_t kv_devinfo_set(char *pk, char *dn, char *ds);
 
 static uint8_t g_mqtt_process_thread_running = 0;
 static uint8_t g_mqtt_recv_thread_running = 0;
+
+#if (BOARD_HAAS100 == 1)
 static int32_t s_led_state[6];
 
 static void demo_led_switch(uint32_t len, char *str)
@@ -93,18 +95,19 @@ static void demo_led_update(void *dm_handle)
     msg.data.property_post.params = s_led_state[1] == 1 ? "{\"HaaS100_LED_1\": 1}" : "{\"HaaS100_LED_1\": 0}";
     aiot_dm_send(dm_handle, &msg);
 
-    msg.data.property_post.params = s_led_state[2] == 1 ? "{\"HaaS100_LED_2\": 1}" : "{\"HaaS100_LED_2\": 0}";   
+    msg.data.property_post.params = s_led_state[2] == 1 ? "{\"HaaS100_LED_2\": 1}" : "{\"HaaS100_LED_2\": 0}";
     aiot_dm_send(dm_handle, &msg);
 
-    msg.data.property_post.params = s_led_state[3] == 1 ? "{\"HaaS100_LED_3\": 1}" : "{\"HaaS100_LED_3\": 0}";   
+    msg.data.property_post.params = s_led_state[3] == 1 ? "{\"HaaS100_LED_3\": 1}" : "{\"HaaS100_LED_3\": 0}";
     aiot_dm_send(dm_handle, &msg);
 
-    msg.data.property_post.params = s_led_state[4] == 1 ? "{\"HaaS100_LED_4\": 1}" : "{\"HaaS100_LED_4\": 0}";   
+    msg.data.property_post.params = s_led_state[4] == 1 ? "{\"HaaS100_LED_4\": 1}" : "{\"HaaS100_LED_4\": 0}";
     aiot_dm_send(dm_handle, &msg);
 
-    msg.data.property_post.params = s_led_state[5] == 1 ? "{\"HaaS100_LED_5\": 1}" : "{\"HaaS100_LED_5\": 0}";   
+    msg.data.property_post.params = s_led_state[5] == 1 ? "{\"HaaS100_LED_5\": 1}" : "{\"HaaS100_LED_5\": 0}";
     aiot_dm_send(dm_handle, &msg);
 }
+#endif
 
 /* TODO: 如果要关闭日志, 就把这个函数实现为空, 如果要减少日志, 可根据code选择不打印
  *
@@ -133,11 +136,13 @@ void demo_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, void 
         /* SDK因为用户调用了aiot_mqtt_connect()接口, 与mqtt服务器建立连接已成功 */
         case AIOT_MQTTEVT_CONNECT: {
             printf("AIOT_MQTTEVT_CONNECT\n");
-            res = BLE_NetCfg_dev_info(&product_key, &device_name, &device_secret);
-            if (res == BLE_NETCFG_SUCCESS) {            
+            res = BLE_NetCfg_devinfo_get(&product_key, &device_name, &device_secret);
+            if (res == BLE_NETCFG_SUCCESS) {
                 /* 信息记录到kv中，固化信息 */
-                demo_dev_info_set(product_key, device_name, device_secret);
-                printf("Device info set to kv\n");
+                res = kv_devinfo_set(product_key, device_name, device_secret);
+                if ( res == 0 ) {
+                    printf("Device info set to kv\n");
+                }
             }
             BLE_NetCfg_notificate("DEVSETOK", sizeof("DEVSETOK"));
             printf("linksdk_thread send 'DEVSETOK'\r\n");
@@ -222,7 +227,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
                    recv->data.property_set.params_len,
                    recv->data.property_set.params);
 
-            /* TODO: 以下代码演示如何对来自云平台的属性设置指令进行应答, 用户可取消注释查看演示效果 */
+#if (BOARD_HAAS100 == 1)
             demo_led_switch(recv->data.property_set.params_len, recv->data.property_set.params);
             {
                 aiot_dm_msg_t msg;
@@ -238,6 +243,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
                 }
             }
             demo_led_update(dm_handle);
+#endif
         }
         break;
 
@@ -254,7 +260,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
              * 注意: 如果用户在回调函数外进行应答, 需要自行保存msg_id, 因为回调函数入参在退出回调函数后将被SDK销毁, 不可以再访问到
              */
 
-        
+
             {
                 aiot_dm_msg_t msg;
 
@@ -269,7 +275,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
                     printf("aiot_dm_send failed\r\n");
                 }
             }
-            
+
         }
         break;
 
@@ -471,12 +477,14 @@ int demo_main(char *product_key, char *device_name, char *device_secret)
         return -1;
     }
 
+#if (BOARD_HAAS100 == 1)
     demo_led_update(mqtt_handle);
+#endif
 
     /* 主循环进入休眠 */
     while (1) {
         /* TODO: 以下代码演示了简单的属性上报和事件上报, 用户可取消注释观察演示效果 */
-        //demo_send_property_post(dm_handle, s_led_state[1] == 1 "{\"HaaS100_LED_1\": 1}" ?: "{\"HaaS100_LED_1\": 0}");   
+        //demo_send_property_post(dm_handle, s_led_state[1] == 1 "{\"HaaS100_LED_1\": 1}" ?: "{\"HaaS100_LED_1\": 0}");
         //demo_send_event_post(dm_handle, "Error", "{\"ErrorCode\": 0}");
         aos_msleep(10000);
     }
@@ -518,21 +526,18 @@ void linksdk_thread(void *args)
 
     printf("linksdk_thread start\r\n");
 
-    res = demo_dev_info_get(&product_key, &device_name, &device_secret);
-    if (res == 0) {            
-         printf("Device info get from kv\n");
-    } else { 
-        while (1) {
-            res = BLE_NetCfg_dev_info(&product_key, &device_name, &device_secret);
-            if (res == BLE_NETCFG_SUCCESS) {            
-                break;
-            }
-            //printf("linkSDK_entry_func waiting");
-            aos_msleep(1000);
-        };
-    }
+    while (1) {
+        res = BLE_NetCfg_devinfo_get(&product_key, &device_name, &device_secret);
+        if (res == BLE_NETCFG_SUCCESS) {
+            break;
+        }
+        //printf("linkSDK_entry_func waiting");
+        aos_msleep(300);
+    };
 
+#if (BOARD_HAAS100 == 1)
     demo_led_init();
-    
+#endif
+
     demo_main(product_key, device_name, device_secret);
 }

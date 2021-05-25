@@ -63,7 +63,7 @@ typedef struct {
      *  start 'task_stack_base', len 'stack_size * sizeof(cpu_stack_t)'
      */
     cpu_stack_t     *task_stack_base;
-    uint32_t         stack_size;
+    size_t           stack_size;
     /**<
      *  Put task into different linked lists according to the status:
      *  1. ready queue. The list hade is g_ready_queue->cur_list_item[prio]

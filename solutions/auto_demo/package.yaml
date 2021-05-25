@@ -29,7 +29,7 @@ depends:                                       # 该组件依赖其他的组件
   - pwm: rel_3.3.0
   - watchdog: rel_3.3.0
   - gpio: rel_3.3.0
-  - qspi: rel_3.3.0
+  #- qspi: rel_3.3.0
   - timer: rel_3.3.0
   - wifi: rel_3.3.0
   - lwip: rel_3.3.0

@@ -50,7 +50,7 @@ void print_block(k_mm_list_t *b)
         return;
     }
 
-    print("0x%08x ", (uintptr_t)b);
+    print("0x%p ", (void *)b);
 
     if (b->buf_size & MM_BUFF_FREE) {
         if (b->dye != MM_DYE_FREE) {
@@ -116,11 +116,11 @@ void check_block(k_mm_list_t *b)
 
     if (b->buf_size & MM_BUFF_FREE) {
         if (b->dye != MM_DYE_FREE) {
-            print("0x%08x ", (uintptr_t)b);
+            print("0x%p ", (void *)b);
         }
     } else {
         if (b->dye != MM_DYE_USED) {
-            print("0x%08x ", (uintptr_t)b);
+            print("0x%p ", (void *)b);
         }
     }
 }
@@ -240,9 +240,9 @@ void dump_kmm_mblk_info(k_mm_head *mmhead)
         print("Total |            | %-10d | %-10d | %-10d | %-10d |\r\n",
               UsedSize, FreeSize, MaxUsedSz, AllocFail);
 
-        print("Pool Size %d, Free Slice size %d.\r\n",
+        print("Pool Size %d, Free Slice size %p.\r\n",
               mm_pool->pool_end - mm_pool->pool_start,
-              (int)(mm_pool->pool_end - mm_pool->pool_start - mm_pool->slice_cnt * MM_BLK_SLICE_SIZE));
+              (intptr_t)(mm_pool->pool_end - mm_pool->pool_start - mm_pool->slice_cnt * MM_BLK_SLICE_SIZE));
     }
     print(
                 "---------------------------------------------------------------------------\r\n");

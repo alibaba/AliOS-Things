@@ -34,9 +34,9 @@ typedef bt_s32_t k_timeout_t;
 #ifdef __packed
 #undef __packed
 #define __packed __attribute__((packed))
-#endif
 #else
 #define __packed __attribute__((packed))
+#endif
 
 #ifdef __aligned
 #undef __aligned

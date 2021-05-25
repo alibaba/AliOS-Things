@@ -16,10 +16,10 @@ Paho MQTT 是 Eclipse 实现的基于 MQTT 协议的客户端，本软件包是�
 - MQTT Publish
 - 可连接阿里云物联网平台
 
-# 版权信息
+## 版权信息
 > Eclipse Distribution License v1.0
 
-# 目录结构
+## 目录结构
 ```tree
 ├── MQTTClient-C
 │   ├── MQTTClient.c
@@ -51,7 +51,7 @@ Paho MQTT 是 Eclipse 实现的基于 MQTT 协议的客户端，本软件包是�
 └─── README.md
 ```
 
-# 依赖组件
+## 依赖组件
 * osal_aos
 * mbedtls
 
@@ -230,5 +230,3 @@ Mqtt Subscribe success, topic:xxxx!
 
 # FAQ
 
-
-@ref 操作系统内核

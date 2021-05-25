@@ -477,7 +477,6 @@ err_t netif_add_ip6_address(struct netif *netif, const ip6_addr_t *ip6addr, s8_t
 #define NETIF_SET_HWADDRHINT(netif, hint)
 #endif /* LWIP_NETIF_HWADDRHINT */
 
-#if LWIP_PACKET || defined (CELLULAR_SUPPORT)
 struct netif* netif_find_by_index(int index);
 /* Interface indexes always start at 1 per RFC 3493, section 4, num starts at 0 (internal index is 0..254)*/
 #define netif_get_index(netif)      ((u8_t)((netif)->num + 1))
@@ -486,7 +485,6 @@ struct netif* netif_find_by_index(int index);
 /** The list of network interfaces. */
 extern struct netif *netif_list;
 #define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)
-#endif /* LWIP_PACKET */
 
 #if LWIP_XR_EXT
 #include <lwip/netif_ext.h>

@@ -1,0 +1,9 @@
+config AOS_COMP_FLASH_TEST
+    bool "flash_test"
+    depends on ENABLE_FLASH
+    default n
+    help
+
+if AOS_COMP_FLASH_TEST
+# Configurations for comp flash_test
+endif

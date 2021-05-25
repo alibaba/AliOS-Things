@@ -29,22 +29,12 @@
 
 #define UVOICE_EV_ASR_RESULT			0x0115
 
-#ifdef UVOICE_EVENT_BY_BUFFER_QUEUE
+
 typedef struct {
 	uint16_t type;
 	uint16_t code;
 	int value;
 } uvoice_event_t;
-#elif defined(UVOICE_EVENT_BY_MESSAGE_QUEUE)
-typedef struct {
-	long msgtype;
-	uint16_t type;
-	uint16_t code;
-	int value;
-} uvoice_event_t;
-#else
-typedef input_event_t uvoice_event_t;
-#endif
 
 typedef void (*uvoice_event_cb)(uvoice_event_t *event, void *data);
 int uvoice_event_post(uint16_t type, uint16_t code, int value);

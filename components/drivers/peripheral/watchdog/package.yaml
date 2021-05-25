@@ -19,6 +19,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
   - base: rel_3.3.0
   - vfs: rel_3.3.0
+  - csi: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -49,9 +50,10 @@ build_config:
 source_file:
 # watchdog VFS device driver
   - src/wdg_dev.c ? <CONFIG_U_WDG_DEV>
+  - src/wdg_core.c ? <CONFIG_U_WDG_CORE>
 
 # watchdog example driver
-  - example/wdg_example.c ? <CONFIG_U_WDG_DEV>
+#  - example/wdg_example.c ? <CONFIG_U_WDG_DEV>
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

@@ -178,6 +178,18 @@ static kv_size_t kv_calc_position(uint16_t len)
         return g_kv_mgr.write_pos;
     }
 
+    if(g_kv_mgr.clean_blk_nums <= KV_RESERVED_BLOCKS){
+        uint8_t       blk_idx_tmp;
+        block_info_t *blk_info_tmp;
+        kv_trigger_gc();
+        blk_idx_tmp  = (g_kv_mgr.write_pos) >> KV_BLOCK_SIZE_BITS;
+        blk_info_tmp = &(g_kv_mgr.block_info[blk_idx_tmp]);
+
+        if(blk_info_tmp->space >= len + KV_ITEM_MAX_LEN){
+            return g_kv_mgr.write_pos;
+        }
+    }
+
 #if KV_BLOCK_NUMS > KV_RESERVED_BLOCKS + 1
     for (i = blk_idx + 1; i != blk_idx; i++) {
         if (i == KV_BLOCK_NUMS) {

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <k_api.h>
 #include <aos/kernel.h>
@@ -37,9 +38,9 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 
 static char *stack_top;
 #if MICROPY_ENABLE_GC
-#define MICRO_GC_HEAP_SIZE (2048 * 4)
-//static char *heap;
-static char heap[MICRO_GC_HEAP_SIZE];
+#define MICRO_GC_HEAP_SIZE (2048 * 100)
+static char *heap;
+// static char heap[MICRO_GC_HEAP_SIZE];
 #endif
 
 void mpy_add_path(char* path,int8_t length){
@@ -64,13 +65,13 @@ int mpy_init(void)
     #endif
 
     #if MICROPY_ENABLE_GC
-    /*
-    heap = malloc(MICRO_GC_HEAP_SIZE);
+    heap = (char *)malloc(MICRO_GC_HEAP_SIZE);
     if(NULL == heap){
         printf("mpy_main:heap alloc fail!\r\n");
         return -1;
-    }*/
-    gc_init(heap, heap + sizeof(heap));
+    }
+    gc_init(heap, heap + MICRO_GC_HEAP_SIZE);
+    // gc_init(heap, heap + sizeof(heap));
     #endif
     mp_init();
     /*set default mp_sys_path*/
@@ -84,25 +85,56 @@ int mpy_init(void)
     return  0 ;
 }
 
+int mpy_deinit(void)
+{
+    // need relese python run mem
+    #if MICROPY_ENABLE_GC
+    if(NULL != heap){
+        printf("free python heap mm\r\n");
+        free(heap);
+        heap == NULL;
+    }
+    #endif
+}
+
 STATIC void set_sys_argv(char *argv[], int argc, int start_arg) {
-    for (int i = start_arg; i <= argc; i++) {
+    for (int i = start_arg; i < argc; i++) {
         mp_obj_list_append(mp_sys_argv, MP_OBJ_NEW_QSTR(qstr_from_str(argv[i])));
     }
 }
 
-int mpy_run(int argc,char * argv[]){
+int mpy_run(int argc, char *argv[]) {
 
-    if (argc >= 2){
-        char *filename= argv[1] ;
-        char *p = strrchr(filename, '/');
-        mp_obj_t *path_items;
-        mp_obj_list_get(mp_sys_path, &argc, &path_items);
-        path_items[0] = mp_obj_new_str_via_qstr(filename, p - filename);
-        set_sys_argv(argv, argc, 1);
-        if (filename != NULL) {
-            pyexec_file(filename);
+    if (argc >= 2) {
+        char *filename = argv[1] ;
+        char filepath[256] = {0};
+
+        if(filename[0] != '/') {
+            getcwd(filepath, sizeof(filepath));
+            strcat(filepath, "/");
+            strcat(filepath, filename);
+        } else {
+            strcpy(filepath, filename);
         }
-    }else{
+
+        char *p = strrchr(filepath, '/');
+
+        size_t len = 0;
+        mp_obj_t *path_items = NULL;
+        mp_obj_list_get(mp_sys_path, &len, &path_items);
+
+        if(p >= filepath) {
+            path_items[0] = mp_obj_new_str_via_qstr(filepath, p - filepath);
+        } else {
+            path_items[0] = mp_obj_new_str_via_qstr(filepath, filepath - p);
+        }
+
+        set_sys_argv(argv, argc, 1);
+
+        if (filepath != NULL) {
+            pyexec_file(filepath);
+        }
+    } else {
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {
                 if (pyexec_raw_repl() != 0) {

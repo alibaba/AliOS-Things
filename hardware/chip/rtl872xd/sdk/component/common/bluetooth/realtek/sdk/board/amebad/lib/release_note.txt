@@ -1,0 +1,100 @@
+
+/*
+ * Release Note
+ */
+	v1.0.1.130
+	2021/02/04
+	1. Open secure context.
+	
+	v1.0.1.114
+	2020/11/24
+	GCID de656b864581c204, PGCID fb86dce1907a0251
+	1. Fix a bug of pairing distrbution check.
+	
+	v1.0.1.96
+	2020/08/27
+	GCID b41ecd11f85d38ba, PGCID facb7c3890b577aa
+	1. Fix a bug of adverstising report release issue for mesh.
+	
+	v1.0.1.86
+	2020/06/11
+	GCID 447aae1172f2b602, PGCID a9d4f48a740ba490
+	1. Add API le_disconnect_with_reason.
+	
+	v1.0.1.82
+	2020/03/24
+	GCID 2d3af055e9d7cb5c, PGCID 2c4822d9fd32bf97
+	1. Fix a bug for receiving write commands.
+	
+   	v1.0.1.80
+	2020/02/25
+    GCID 1ff58df62e93fb06, PGCID b3b1ecde8bb31085
+	1. Rename os_timer_start and os_timer_stop
+	
+  	v1.0.1.69
+	2019/11/12
+    GCID db7943ddb59af187, PGCID 463cedfa36d03b9a
+	1. Add API le_scan_info_filter.
+
+  	v1.0.1.68
+	2019/11/08
+    GCID 463cedfa36d03b9a, PGCID 9c00093c8b0608ec
+	1. Add more configure APIs.
+	
+  	v1.0.1.67
+	2019/10/09
+    GCID 9c00093c8b0608ec, PGCID bac4679626a74d0c
+	1. Fix a hardfault issue that application calling bte_deinit when creating connection.
+
+  	v1.0.1.63
+	2019/7/29
+    GCID 097f06a4fd8168c5, PGCID 8bc1d255c021e540
+	1. Fix a bug for GAP service writable feature.
+
+  	v1.0.1.61
+	2019/7/25
+    GCID 9a972610af7cacac, PGCID 92d24c873e761afe
+	1. Fix a bug host flow control.
+
+  	v1.0.1.59
+	2019/7/15
+    GCID 722529d9cc5a67ed, PGCID f57d9fd5cb6913e1
+	1. Fix a hardfault issuee when call bte_deinit twice.
+
+ 	v1.0.1.49
+	2019/7/3
+    GCID f89d571af23f155, PGCID cbd0b931bbe16995
+	1. Enlarge HCI task size.
+	2. Add size check with allocate memory.
+	3. Open Host to controller flow control.
+
+	v1.0.1.40
+	2019/6/11
+    GCID f5ff6b1565211d0b, PGCID 113265a923f774ea
+	1. Adjust bt stack
+
+	v1.0.1.35
+	2019/5/10
+    GCID 80fefce2f3e41c3, PGCID 974bd6b96bfca59
+	1. Adjust bt stack
+
+	v1.0.1.20
+	2019/3/5
+	GCID feea4e1edadca966, PGCID e84631d5466819df
+	1. Add os_timer_state_get
+	
+	v1.0.1.18
+	2019/2/1
+	GCID 9e11491d2db8472, PGCID af114fc898fc5646
+	1. Close Controller to Host flow control
+	2. Add ftl.h
+
+	v1.0.1.15
+	2019/1/23
+	GCID d592b3101ffac116, PGCID 4450301711e5a9d0
+	1. First release
+	
+
+	
+
+

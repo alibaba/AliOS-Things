@@ -1134,11 +1134,11 @@ __attribute__((weak)) struct cli_region _cli_region_begin, _cli_region_end;
 void usr_cli_register_init(void)
 {
     int32_t ret;
-    int32_t addr;
+    intptr_t addr;
     struct cli_region *index;
     struct cli_command *cmd;
 
-    for (addr = (int)&_cli_region_begin; addr < (int)&_cli_region_end;) {
+    for (addr = (intptr_t)&_cli_region_begin; addr < (intptr_t)&_cli_region_end;) {
         index = (struct cli_region *)addr;
         addr += sizeof(struct cli_region);
 
@@ -1361,12 +1361,12 @@ static int32_t cli_do_output(char *msg)
 
 int32_t cli_va_printf(const char *fmt, va_list va)
 {
-    int32_t sz = 0, len;
-    char *pos = NULL;
+    int32_t len;
     char *message = NULL, *child_message = NULL;
 
 #if AOS_COMP_DEBUG
     int ret;
+    (void)ret;
     extern uint32_t debug_cpu_in_crash(void);
     if (debug_cpu_in_crash()) {
 #if CLI_SEPRATED_CONSOLE
