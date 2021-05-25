@@ -95,6 +95,8 @@ static const u8_t ssp_method[4 /* remote */][4 /* local */] = {
 };
 #endif /* CONFIG_BT_BREDR */
 
+void bt_conn_del(struct bt_conn *conn);
+
 struct k_sem *bt_conn_get_pkts(struct bt_conn *conn)
 {
 #if defined(CONFIG_BT_BREDR)
@@ -357,7 +359,7 @@ static void conn_update_timeout(struct k_work *work)
 
 	if (conn->state == BT_CONN_DISCONNECTED) {
 		bt_l2cap_disconnected(conn);
-		notify_disconnected(conn);
+//		notify_disconnected(conn);
 
 		/* Release the reference we took for the very first
 		 * state transition.
@@ -1739,6 +1741,7 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
 		case BT_CONN_DISCONNECT:
 			process_unack_tx(conn);
 			tx_notify(conn);
+            bt_conn_del(conn);
             notify_disconnected(conn);
 
 			/* Cancel Connection Update if it is pending */
@@ -1984,6 +1987,15 @@ struct bt_conn *bt_conn_ref(struct bt_conn *conn)
 void bt_conn_unref(struct bt_conn *conn)
 {
 	atomic_val_t old = atomic_dec(&conn->ref);
+	(void)old;
+
+	BT_DBG("handle %u ref %u -> %u", conn->handle, old,
+	       atomic_get(&conn->ref));
+}
+
+void bt_conn_del(struct bt_conn *conn)
+{
+	atomic_val_t old = atomic_set(&conn->ref, 0);
 	(void)old;
 
 	BT_DBG("handle %u ref %u -> %u", conn->handle, old,

@@ -1,0 +1,9 @@
+config AOS_COMP_WDG_TEST
+    bool "wdg_test"
+    depends on ENABLE_WDG
+    default n
+    help
+
+if AOS_COMP_WDG_TEST
+# Configurations for comp wdg_test
+endif

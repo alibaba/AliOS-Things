@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include "ota_log.h"
 #include "ota_hal_os.h"
 #include "ota_import.h"
@@ -15,15 +16,16 @@ void ota_set_upgrade_status(char is_upgrade);
 int ota_download_extract_url(char *src_url, char *dest_url, unsigned int dest_buf_len);
 int ota_httpc_request_send(httpclient_t *client, char *url, httpclient_data_t *client_data);
 int ota_httpc_recv_data(httpclient_t *client, httpclient_data_t *client_data);
-int ota_httpc_settings_init(httpclient_t *client, httpclient_data_t *client_data, ota_service_t *ctx);
+int ota_httpc_settings_init(httpclient_t *client, httpclient_data_t *client_data);
 void ota_httpc_settings_destory(httpclient_t *client);
 /**
  * ota_download_store_fs_start    OTA download file start and store in fs
  *
- * @param[in]   ota_service_t* ctx  device information
- * @param[in]            char *url  download url
- * @param[in] unsigned int url_len  download url length
- * @param[in]     char *store_path  store file path and name eg:/root/test.bin
+ * @param[in]              char *url  download url
+ * @param[in]   unsigned int url_len  download url length
+ * @param[in]       char *store_path  store file path and name eg:/root/test.bin
+ * @param[in] report_func report_func report http downloading status function
+ * @param[in]       void *user_param  user's param for report_func
  *
  * @return OTA_SUCCESS             OTA success.
  * @return OTA_DOWNLOAD_INIT_FAIL  OTA download init failed.
@@ -31,10 +33,11 @@ void ota_httpc_settings_destory(httpclient_t *client);
  * @return OTA_DOWNLOAD_REQ_FAIL   OTA download request failed.
  * @return OTA_DOWNLOAD_RECV_FAIL  OTA download receive failed.
  */
-int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_len, char *store_path)
+int ota_download_store_fs_start(char *url, unsigned int url_len, char *store_path,
+                                report_func report_func, void *user_param)
 {
     int j = 0;
-    void *fptr = NULL;
+    int fd = -1;
     int  ret = OTA_DOWNLOAD_INIT_FAIL;
     unsigned int off_size = 0;
     int ota_rx_size = 0;
@@ -47,7 +50,7 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
     int tmp_url_len               = 0;
     int percent                   = 0;
     int divisor                   = 5;
-    if ((ctx == NULL) || (store_path == NULL) || (url == NULL)) {
+    if ((store_path == NULL) || (url == NULL)) {
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
     }
@@ -69,8 +72,8 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
         ret = OTA_DOWNLOAD_INIT_FAIL;
         return ret;
     }
-    fptr = ota_fopen(store_path, "wb");
-    if (fptr == NULL) {
+    fd = ota_fopen(store_path, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) {
         if (new_url != NULL) {
             ota_free(new_url);
         }
@@ -79,7 +82,7 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
          return ret;
     }
     for (j = OTA_DOWNLOAD_RETRY_CNT; (j > 0) && (ret < 0); j--) {
-        ret = ota_httpc_settings_init(&client, &client_data, ctx);
+        ret = ota_httpc_settings_init(&client, &client_data);
         if (ret < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
             goto EXIT;
@@ -123,11 +126,7 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
                         sscanf(client_data.header_buf + val_pos, "%d", &ota_file_size);
                     }
                 }
-                if ((ctx != NULL) && (ctx->on_data != NULL)) {
-                    //ret = ctx->on_data(client_data.response_buf, client_data.content_block_len);
-                } else {
-                    ret = ota_fwrite(client_data.response_buf, client_data.content_block_len, 1, fptr);
-                }
+                ret = ota_fwrite(fd, client_data.response_buf, client_data.content_block_len);
                 if (ret < 0) {
                     ret = OTA_UPGRADE_WRITE_FAIL;
                     goto EXIT;
@@ -135,18 +134,14 @@ int ota_download_store_fs_start(ota_service_t *ctx, char *url, unsigned int url_
                 ota_rx_size += client_data.content_block_len;
                 ota_msleep(5);
                 off_size = ota_rx_size;
-                if(ota_file_size) {
+                if (ota_file_size) {
                     percent = ((long)(ota_rx_size >> 6) * 100) / (long)(ota_file_size >> 6);
-                    if(percent / divisor) {
+                    if (percent / divisor) {
                         divisor += 5;
-                        if ((ctx != NULL) && (ctx->on_percent != NULL)) {
-                            ctx->on_percent(percent);
-                        }
-                        else {
-                            if (ctx != NULL) {
-                                ota_transport_status(ctx, percent);
-                            } else {
-                                OTA_LOG_W("in fs download ctx NULL");
+                        if (report_func != NULL) {
+                            ret = report_func(user_param, percent);
+                            if (ret != 0) {
+                                OTA_LOG_E("report http download process failed");
                             }
                         }
                         OTA_LOG_I(" in fs recv data(%d/%d) off:%d\r\n", ota_rx_size, ota_file_size, off_size);
@@ -162,14 +157,14 @@ EXIT:
         ota_file_size = 0;
         ota_rx_size = 0;
     }
-    if (fptr != NULL) {
-        (void)ota_fclose(fptr);
-        fptr = NULL;
+    if (fd >= 0) {
+        (void)ota_fclose(fd);
+        fd = -1;
     }
     if (new_url != NULL) {
         ota_free(new_url);
         new_url = NULL;
     }
-    OTA_LOG_E("in fs download complete:%d\n", ret);
+    OTA_LOG_I("in fs download complete:%d\n", ret);
     return ret;
 }

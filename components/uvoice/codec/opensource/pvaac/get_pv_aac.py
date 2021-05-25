@@ -14,7 +14,7 @@ if not os.path.exists(final_src_path):
     while True:
         if not os.path.exists(download_path):
             #os.system("git clone https://github.com/aosp-mirror/platform_external_opencore.git -b android-2.2.3_r2.1 " + str(download_path))
-            os.system("git clone https://gitee.com/mirrors_aosp-mirror/platform_external_opencore.git -b android-2.2.3_r2.1 " + str(download_path))
+            os.system("git clone https://gitee.com/mirrors_aosp-mirror/platform_external_opencore.git -b android-2.2.3_r2.1 \"" + str(download_path) + "\"")
             if os.path.exists(download_path):
                 print("Download pvaac source success!\n")
                 break

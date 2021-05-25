@@ -113,11 +113,12 @@ source_file:
   - hal/wifi_port.c ? <AOS_COMP_WIFI>
   - "hal/adc.c"
   - "hal/pwm.c"
-# - "hal/qspi.c"
   - "hal/i2c.c"
   - "hal/sd.c"
   - "hal/flash.c"
   - "hal/gpio.c"
+  - "csi/iic.c"
+  - "csi/wdt.c"
   # - "hal/2ndboot/wdg.c"
   # - "hal/2ndboot/sys.c"
   # - "hal/2ndboot/uart.c"
@@ -151,12 +152,17 @@ def_config:
   CONFIG_ADC_NUM: 2
   CONFIG_DAC_NUM: 0
   CONFIG_GPIO_NUM: 40
+  CONFIG_U_I2C_CORE: 1
+  CONFIG_U_I2C_DEV: 1
   CONFIG_I2C_NUM: 2
   CONFIG_PWM_NUM: 2
   CONFIG_QSPI_NUM: 0
   CONFIG_SPI_NUM: 2
   CONFIG_TIMER_NUM: 1
   CONFIG_UART_NUM: 3
+  CONFIG_U_FLASH_DEV: 1
+  CONFIG_U_WDG_DEV: 1
+  CONFIG_U_WDG_CORE: 1
 
 chip:
   arch_name: arm

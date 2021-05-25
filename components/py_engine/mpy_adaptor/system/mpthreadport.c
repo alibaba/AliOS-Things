@@ -70,6 +70,23 @@ void mp_thread_init(void *stack, uint32_t stack_len) {
     mp_thread_mutex_init(&thread_mutex);
 }
 
+void mp_thread_gc_others(void) {
+    mp_thread_mutex_lock(&thread_mutex, 1);
+    for (thread_t *th = thread; th != NULL; th = th->next) {
+        gc_collect_root((void **)&th, 1);
+        gc_collect_root(&th->arg, 1);
+        // gc_collect_root(&th->stack, 1);
+        if (th->id == krhino_cur_task_get()) {
+            continue;
+        }
+        if (!th->ready) {
+            continue;
+        }
+        gc_collect_root(th->stack, th->stack_len);
+    }
+    mp_thread_mutex_unlock(&thread_mutex);
+}
+
 mp_state_thread_t *mp_thread_get_state(void) {
     void *vp = NULL;
     krhino_task_info_get(krhino_cur_task_get(), 1, &vp);
@@ -86,6 +103,7 @@ void mp_thread_start(void) {
         if (th->id == krhino_cur_task_get()) {
             th->ready = 1;
             break;
+            
         }
     }
     mp_thread_mutex_unlock(&thread_mutex);

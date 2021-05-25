@@ -44,9 +44,9 @@ build_config:
     - UVOICE_RELEASE_VERSION_MAIN=1
     - UVOICE_RELEASE_VERSION_SUB=0
     - UVOICE_EVENT_BY_BUFFER_QUEUE=1
-    - AUDIO_CACHE_ENABLE=1 
+    - AUDIO_CACHE_ENABLE=1
     - UVOICE_EVENT_ENABLE=1
-    
+
   internal_include:
     - internal
     - stream
@@ -59,8 +59,9 @@ build_config:
     - include
     - internal
     - application/alicloudtts/include
+    - application/comb/include
 
-  prebuild_script: get_open_source.py
+  submodule_script: get_open_source.py
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -98,6 +99,7 @@ source_file:
     - codec/opensource/pvaac/src/*.cpp ? <DECODER_PV_M4A_ENABLE>
     - codec/opensource/pvaac/src/*.c ? <DECODER_PV_M4A_ENABLE>
     - application/alicloudtts/*.c ? <ALICLOUD_TTS_SUPPORT>
+    - application/comb/*.c
     - test/test_tts.c ? <ALICLOUD_TTS_SUPPORT>
     - audio/hal/haas100/uvoice_pcm.c
     - example/uvoice_example.c
@@ -111,11 +113,11 @@ def_config:                              # 组件的可配置项
    UVOICE_MLIST_ENABLE: 0
    UVOICE_FILE_ENABLE: 1
    UVOICE_HTTP_ENABLE: 1
-   UVOICE_HTTPS_ENABLE: 1 
-   UVOICE_DOWNLOAD_ENABLE: 1    
-   UVOICE_HLS_ENABLE: 1   
+   UVOICE_HTTPS_ENABLE: 1
+   UVOICE_DOWNLOAD_ENABLE: 1
+   UVOICE_HLS_ENABLE: 1
    DECODER_PV_MP3_ENABLE: 1
-   DECODER_PV_M4A_ENABLE: 1 
+   DECODER_PV_M4A_ENABLE: 1
    ALICLOUD_TTS_SUPPORT: 1
    UVOICE_TTS_ENABLE: 1
 

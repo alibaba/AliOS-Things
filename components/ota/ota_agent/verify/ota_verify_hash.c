@@ -27,8 +27,8 @@ int ota_hash_init(ota_hash_ctx_t *ctx, unsigned char type)
             ota_md5_starts(&ctx->md5_ctx);
             break;
         default:
-               ret = OTA_INVALID_PARAMETER;
-               break;
+            ret = OTA_INVALID_PARAMETER;
+            break;
     }
     return ret;
 }

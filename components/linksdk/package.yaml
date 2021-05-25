@@ -23,6 +23,7 @@ depends:
   - osal_aos: rel_3.3.0
   - mbedtls: rel_3.3.0
   - cjson: rel_3.3.0
+  - lwip: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -51,12 +52,12 @@ build_config:
     - components/bootstrap
     - components/data-model
     - components/subdev
-#    - components/devinfo
+    - components/devinfo
 #    - components/diag
-#    - components/dynreg
+    - components/dynreg
 #    - components/dynreg-mqtt
 #    - components/logpost
-#    - components/ntp
+    - components/ntp
 #    - components/ota
 #    - components/shadow
 #    - components/task
@@ -73,12 +74,12 @@ source_file:
   - "components/subdev/*.c"
   - "external/*.c"
   - "portfiles/aiot_port/aos_port.c"
-#  - "components/devinfo/*.c"
+  - "components/devinfo/*.c"
 #  - "components/diag/*.c"
-#  - "components/dynreg/*.c"
+  - "components/dynreg/*.c"
 #  - "components/dynreg-mqtt/*.c"
 #  - "components/logpost/*.c"
-#  - "components/ntp/*.c"
+  - "components/ntp/*.c"
 #  - "components/ota/*.c"
 #  - "components/shadow/*.c"
 #  - "components/task/*.c"

@@ -17,10 +17,12 @@
 #endif
 #include "uservice/uservice.h"
 #include "uservice/eventid.h"
+#ifdef WITH_LWIP
 #include "lwip/dhcp.h"
 #include "lwip/prot/dhcp.h"
 #include "lwip/dns.h"
 #include "lwip/netifapi.h"
+#endif
 #include "sntp/sntp.h"
 #include "ulog/ulog.h"
 #include "vfsdev/wifi_dev.h"
@@ -49,17 +51,18 @@
 #define NETMGR_WIFI_TEMP_CONF    "/data/temp/temp.conf"
 #define NETMGR_WIFI_STATUS  "/data/wifi_status"
 
-#define CONFIG_ELEMENT_NUM      5
+#define CONFIG_ELEMENT_NUM      6
 #define CONFIG_ELEMENT_SSID     "ssid"
 #define CONFIG_ELEMENT_PWD      "password"
 #define CONFIG_ELEMENT_BSSID    "bssid"
+#define CONFIG_ELEMENT_AP_POWER "ap_power"
 #define CONFIG_ELEMENT_FORMAT   "format"
 #define CONFIG_ELEMENT_CHANNEL  "channel"
 
 #define TAG "WIFI_SERVICE"
-#define NETMGR_WIFI_LOGE(level, ...)      LOGE(TAG, level, ##__VA_ARGS__)
-#define NETMGR_WIFI_LOGI(level, ...)      LOGI(TAG, level, ##__VA_ARGS__)
-#define NETMGR_WIFI_LOGD(level, ...)      LOGD(TAG, level, ##__VA_ARGS__)
+#define NETMGR_WIFI_LOGE(level, ...)      printf(level, ##__VA_ARGS__)
+#define NETMGR_WIFI_LOGI(level, ...)      printf(level, ##__VA_ARGS__)
+#define NETMGR_WIFI_LOGD(level, ...)      printf(level, ##__VA_ARGS__)
 
 #define WPA_STATE_COMPLETED       "COMPLETED"
 #define WPA_STATE_DISCONNECTED    "DISCONNECTED"
@@ -95,6 +98,7 @@ const char* wificonfigsymbol[CONFIG_ELEMENT_NUM] = {
         CONFIG_ELEMENT_SSID,
         CONFIG_ELEMENT_PWD,
         CONFIG_ELEMENT_BSSID,
+        CONFIG_ELEMENT_AP_POWER,
         CONFIG_ELEMENT_FORMAT,
         CONFIG_ELEMENT_CHANNEL,
 };
@@ -309,35 +313,26 @@ static void wifi_scan_completed_cb(uint32_t event_id, const void *param, void *c
     }
 
     if(g_is_got_scan_request_cmd == true) {
-        if((result != NULL)
-          && (result->ap_num != 0)
-          && (result->ap_list != NULL)) {
-            g_scan_result.ap_num = result->ap_num;
+        if((result->ap_num != 0) && (result->ap_list != NULL)) {
             g_scan_result.ap_list = (ap_list_t *)malloc(result->ap_num * sizeof(ap_list_t));
-            if(g_scan_result.ap_list == NULL) {
-                if(aos_sem_is_valid(&g_scan_result_sem) == 1) {
-                    NETMGR_WIFI_LOGI("%s:%d sem signal\n", __func__, __LINE__);
-                } else {
-                    NETMGR_WIFI_LOGE("%s:%d scan result sem invalid\n", __func__, __LINE__);
+            if(g_scan_result.ap_list != NULL) {
+                g_scan_result.ap_num = result->ap_num;
+                memcpy(g_scan_result.ap_list, result->ap_list, result->ap_num *sizeof(ap_list_t));
+                NETMGR_WIFI_LOGI("%s:%d result->ap_num=%d\n", __func__, __LINE__, result->ap_num);
+                for(i = 0; i < result->ap_num; i++) {
+                    NETMGR_WIFI_LOGI("%s:%d ssid=%s power=%d bssid=%02x:%02x:%02x:%02x:%02x:%02x\n", __func__, __LINE__,
+                        result->ap_list[i].ssid,
+                        result->ap_list[i].ap_power,
+                        result->ap_list[i].bssid[0] & 0xff,
+                        result->ap_list[i].bssid[1] & 0xff,
+                        result->ap_list[i].bssid[2] & 0xff,
+                        result->ap_list[i].bssid[3] & 0xff,
+                        result->ap_list[i].bssid[4] & 0xff,
+                        result->ap_list[i].bssid[5] & 0xff
+                        );
                 }
-                aos_sem_signal_all(&g_scan_result_sem);
-                g_is_got_scan_request_cmd = false;
+            } else {
                 g_scan_result.ap_num = 0;
-                return ;
-            }
-            memcpy(g_scan_result.ap_list, result->ap_list, result->ap_num *sizeof(ap_list_t));
-            NETMGR_WIFI_LOGI("%s:%d result->ap_num=%d\n", __func__, __LINE__, result->ap_num);
-            for(i = 0; i < result->ap_num; i++) {
-                NETMGR_WIFI_LOGI("%s:%d ssid=%s power=%d bssid=%02x:%02x:%02x:%02x:%02x:%02x\n", __func__, __LINE__,
-                    result->ap_list[i].ssid,
-                    result->ap_list[i].ap_power,
-                    result->ap_list[i].bssid[0] & 0xff,
-                    result->ap_list[i].bssid[1] & 0xff,
-                    result->ap_list[i].bssid[2] & 0xff,
-                    result->ap_list[i].bssid[3] & 0xff,
-                    result->ap_list[i].bssid[4] & 0xff,
-                    result->ap_list[i].bssid[5] & 0xff
-                    );
             }
         }
         else {
@@ -355,30 +350,18 @@ static void wifi_scan_completed_cb(uint32_t event_id, const void *param, void *c
         return ;
     }
 
-    if(conn == NULL) {
-        NETMGR_WIFI_LOGE("%s:%d error: connection is invalid\n", __func__, __LINE__);
+    if(conn == NULL || result == NULL || result->ap_num <= 0 || result->ap_list == NULL) {
+        NETMGR_WIFI_LOGE("%s:%d scan result ap_num is 0 or ap list is null\n", __func__, __LINE__);
         g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
         aos_sem_signal_all(&g_connect_scan_sem);
         return;
     }
 
-    if(result == NULL) {
-        NETMGR_WIFI_LOGE("%s:%d\n", __func__, __LINE__);
-        g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
-        aos_sem_signal_all(&g_connect_scan_sem);
-        return ;
-    }
-
-    if((result->ap_num <= 0) || (result->ap_list == NULL)) {
-        NETMGR_WIFI_LOGE("%s:%d scan result ap_num is 0 or ap list is null\n", __func__, __LINE__);
-        g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
-        aos_sem_signal_all(&g_connect_scan_sem);
-        return ;
-    }
-
     saved_ap_conf = (netmgr_wifi_ap_config_t* )conn->saved_config;
     if(saved_ap_conf == NULL) {
         NETMGR_WIFI_LOGE("%s:%d saved ap config is null\n", __func__, __LINE__);
+        g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
+        aos_sem_signal_all(&g_connect_scan_sem);
         return ;
     }
 
@@ -434,7 +417,6 @@ static void wifi_scan_completed_cb(uint32_t event_id, const void *param, void *c
     g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_SUCCESS;
     aos_sem_signal_all(&g_connect_scan_sem);
     NETMGR_WIFI_LOGD("%s:%d\n", __func__, __LINE__);
-
 }
 
 static int wifi_set_mac(uint8_t *mac)
@@ -495,7 +477,7 @@ static void wifi_sntp_task(void)
         NETMGR_WIFI_LOGE("sntp task is already running.\n");
     }
 }
-
+#ifdef WITH_LWIP
 static void tcpip_dhcpc_cb(struct netif *net_if) {
     struct dhcp *dhcp = (struct dhcp *)netif_get_client_data(net_if, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
 
@@ -816,6 +798,7 @@ static void wifi_link_check()
     }
 }
 #endif /* AOS_OPTIMIZE_NETWORK */
+#endif /* WITH_LWIP */
 
 static int wifi_network_connected(netmgr_conn_t* conn)
 {
@@ -897,7 +880,7 @@ static void skip_line_end(int fd)
     int  read_len = 0;
 
     read_len = read(fd, buf, sizeof(buf) - 1);
-    while (read_len) {
+    while (read_len > 0) {
         buf[read_len] = '\0';
         if (newline_terminated(buf, read_len))
             return;
@@ -944,11 +927,7 @@ static int read_config_value(char** pos, const char* obj,int* line, netmgr_wifi_
                 memcpy(config->pwd, pos_start, len);
                 config->pwd[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d len=%d pwd=%s\n", __func__, __LINE__, len, config->pwd);
-            } else if(strncmp(obj,"bssid", 5) == 0) {
-                memcpy(config->bssid, pos_start, len);
-                config->bssid[len]='\0';
-                NETMGR_WIFI_LOGI("%s:%d len=%d bssid=%02x:%02x:%02x:%02x:%02x:%02x\n", __func__, __LINE__, len, config->bssid[0], config->bssid[1], config->bssid[2], config->bssid[3], config->bssid[4], config->bssid[5]);
-            } else if(strncmp(obj,"format", 6) == 0) {
+            }else if(strncmp(obj,"format", 6) == 0) {
                 strncpy(t_str, pos_start, len);
                 t_str[len]='\0';
                 if(strncmp(t_str, "gbk", 3) == 0) {
@@ -961,7 +940,7 @@ static int read_config_value(char** pos, const char* obj,int* line, netmgr_wifi_
                 strncpy((char*)t_str, pos_start, len);
                 t_str[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d len=%d pwd=%s pwd_len=%d t_str=%s\n", __func__, __LINE__, len, config->pwd, ETH_ALEN, t_str);
-                sscanf((char*)t_str,"%02s:%02s:%02s:%02s:%02s:%02s",
+                sscanf((char*)t_str,"%02x:%02x:%02x:%02x:%02x:%02x",
                     &config->bssid[0],
                     &config->bssid[1],
                     &config->bssid[2],
@@ -969,6 +948,10 @@ static int read_config_value(char** pos, const char* obj,int* line, netmgr_wifi_
                     &config->bssid[4],
                     &config->bssid[5]);
                 NETMGR_WIFI_LOGI("%s:%d pwd=%s t_str=%s\n", __func__, __LINE__, config->pwd, t_str);
+            } else if(strncmp(obj,"ap_power",8) == 0) {
+                strncpy(t_str,pos_start,len);
+                t_str[len]='\0';
+                config->ap_power = atoi((char*)t_str);
             } else if(strncmp(obj,"channel",7) == 0) {
                 strncpy(t_str,pos_start,len);
                 t_str[len]='\0';
@@ -989,7 +972,7 @@ static char* get_config_line(char* s, int size, int fd, int* line,
     int  read_len = 0;
 
     read_len = read(fd, s, size);
-    while (read_len) {
+    while (read_len > 0) {
         (*line)++;
         s[read_len] = '\0';
         if (!newline_terminated(s, read_len)) {
@@ -1079,7 +1062,7 @@ static int get_wifi_config(const char *name, netmgr_wifi_ap_config_t* saved_ap_c
 
     i = saved_ap_conf->ap_num;
 
-    if (get_config_line(buf, sizeof(buf), fd, &line, &pos)) {
+    if (get_config_line(buf, sizeof(buf) - 1, fd, &line, &pos)) {
         netmgr_wifi_ap_info_t ap_info;
 
         memset(&ap_info, 0, sizeof(netmgr_wifi_ap_info_t));
@@ -1241,7 +1224,7 @@ static int update_wifi_config(netmgr_conn_t* conn, const char *name)
         }
     }
 
-    if((0 != mkdir(NETMGR_WIFI_TEMP_PATH, 0644)) && (errno != EEXIST)) {
+    if((0 != mkdir(NETMGR_WIFI_TEMP_PATH, 0644)) && (errno != EEXIST && errno != 0)) {
         NETMGR_WIFI_LOGE("mkdir %s failed:%s\n", NETMGR_WIFI_TEMP_PATH, strerror(errno));
         return -1;
     }
@@ -1264,7 +1247,8 @@ static int update_wifi_config(netmgr_conn_t* conn, const char *name)
         snprintf(buf,NETMGR_WIFI_CONFIG_LEN,"network={\n \
 ssid=\"%s\"\n \
 password=\"%s\"\n \
-bssid=%02x:%02x:%02x:%02x:%02x:%02x\n \
+bssid=\"%02x:%02x:%02x:%02x:%02x:%02x\"\n \
+ap_power=\"%d\"\n \
 format=\"%s\"\n \
 channel=\"%d\"\n}\n\n",
               ssid,
@@ -1275,19 +1259,20 @@ channel=\"%d\"\n}\n\n",
               saved_ap_conf->config[i].bssid[3] & 0xff,
               saved_ap_conf->config[i].bssid[4] & 0xff,
               saved_ap_conf->config[i].bssid[5] & 0xff,
+              saved_ap_conf->config[i].ap_power,
               format,
               saved_ap_conf->config[i].channel);
 
         len = strlen(buf);
         NETMGR_WIFI_LOGI("saved_ap_conf=%p wifi config buff len :%d\n",saved_ap_conf, len);
         NETMGR_WIFI_LOGI("saving wifi config file:%s\n",buf);
-        if(1 != write(fd, buf,len)) {
+        if(0 > write(fd, buf,len)) {
             NETMGR_WIFI_LOGE("write:%s\n",strerror(errno));
         }
     }
     close(fd);
 
-    if(rename(NETMGR_WIFI_TEMP_CONF, NETMGR_WIFI_CONF) == 0) {
+    if(rename(NETMGR_WIFI_TEMP_CONF, NETMGR_WIFI_CONF) != 0) {
         NETMGR_WIFI_LOGE("rename:%s\n",strerror(errno));
         return -1;
     }
@@ -1445,7 +1430,7 @@ wpa_state=%s\n",
     len = strlen(buf);
     NETMGR_WIFI_LOGI("saved_ap_conf=%p wifi config buff len :%d\n",saved_ap_conf, len);
     NETMGR_WIFI_LOGI("saving file:%s\n",buf);
-    if(1 != write(fd, buf,len)) {
+    if(0 > write(fd, buf,len)) {
         NETMGR_WIFI_LOGE("write:%s\n",strerror(errno));
     }
 
@@ -1511,50 +1496,47 @@ static void wifi_status_change(netmgr_conn_t *conn, int event)
     else if(event == EVENT_NETMGR_SNTP_FAILED) {
         NETMGR_WIFI_LOGI("%s:%d SNTP FAILED\n", __func__, __LINE__);
     }
-    else {
-        if(event == EVENT_NETMGR_WIFI_HANDSHAKE_FAILED) {
-            g_handshake_failed_retry ++;
-            if(g_handshake_failed_retry >= NETMGR_WIFI_HANDSHAKE_FAILED_MAX_RETRY) {
-                NETMGR_WIFI_LOGI("%s:%d handshake failed %d times\n", __func__, __LINE__, g_handshake_failed_retry);
-                netmgr_conn_state_change(conn, CONN_STATE_FAILED);
-            } else {
-                NETMGR_WIFI_LOGI("%s:%d handshake failed %d times\n", __func__, __LINE__, g_handshake_failed_retry);
-                g_netmgr_wifi_connect_state = NETMGR_WIFI_CONNECT_FAILED;
-            }
+    else if(event == EVENT_NETMGR_WIFI_HANDSHAKE_FAILED) {
+        g_handshake_failed_retry ++;
+        if(g_handshake_failed_retry >= NETMGR_WIFI_HANDSHAKE_FAILED_MAX_RETRY) {
+            NETMGR_WIFI_LOGI("%s:%d handshake failed %d times\n", __func__, __LINE__, g_handshake_failed_retry);
+            netmgr_conn_state_change(conn, CONN_STATE_FAILED);
+        } else {
+            NETMGR_WIFI_LOGI("%s:%d handshake failed %d times\n", __func__, __LINE__, g_handshake_failed_retry);
+            g_netmgr_wifi_connect_state = NETMGR_WIFI_CONNECT_FAILED;
         }
-        else {
-            if(event == EVENT_NETMGR_WIFI_DISCONNECTED) {
-                if(1 == aos_sem_is_valid(&g_disconnect_wait_sem)) {
-                    NETMGR_WIFI_LOGI("%s:%d signal disconnected event\n", __func__, __LINE__);
-                    aos_sem_signal_all(&g_disconnect_wait_sem);
-                }
+    }
+    else {
+        if(event == EVENT_NETMGR_WIFI_DISCONNECTED) {
+            if(1 == aos_sem_is_valid(&g_disconnect_wait_sem)) {
+                NETMGR_WIFI_LOGI("%s:%d signal disconnected event\n", __func__, __LINE__);
+                aos_sem_signal_all(&g_disconnect_wait_sem);
             }
 
-            if((event == EVENT_NETMGR_WIFI_DISCONNECTED)
-                && (conn->state != CONN_STATE_CONNECTING)) {
+            if(conn->state != CONN_STATE_CONNECTING) {
                 NETMGR_WIFI_LOGI("%s:%d update wifi status\n", __func__, __LINE__);
                 update_wifi_status(conn, NETMGR_WIFI_STATUS, WPA_STATE_DISCONNECTED);
             }
+        }
 
-            NETMGR_WIFI_LOGD("%s:%d event=%d stat=%d\n", __func__, __LINE__, event, conn->state);
-            if(conn->state == CONN_STATE_CONNECTING) {
-                if((event == EVENT_NETMGR_WIFI_DISCONNECTED)
-                    && (g_netmgr_wifi_connect_state == NETMGR_WIFI_SCAN_START)) {
-                    NETMGR_WIFI_LOGI("%s:%d Ingore DISCONNECTED event in scan start state\n", __func__, __LINE__);
-                } else if((event == EVENT_NETMGR_WIFI_SCAN_FAILED)
-                    || (event == EVENT_NETMGR_WIFI_NETWORK_NOT_FOUND)) {
-                    g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
-                } else if(event == EVENT_NETMGR_WIFI_CONN_TIMEOUT) {
-                    NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
-                    netmgr_conn_state_change(conn, CONN_STATE_FAILED);
-                } else {
-                    g_netmgr_wifi_connect_state = NETMGR_WIFI_CONNECT_FAILED;
-                }
-            } else if((conn->state != CONN_STATE_DISCONNECTING)
-                && (conn->state != CONN_STATE_DISCONNECTED)) {
+        NETMGR_WIFI_LOGD("%s:%d event=%d stat=%d\n", __func__, __LINE__, event, conn->state);
+        if(conn->state == CONN_STATE_CONNECTING) {
+            if((event == EVENT_NETMGR_WIFI_DISCONNECTED)
+                && (g_netmgr_wifi_connect_state == NETMGR_WIFI_SCAN_START)) {
+                NETMGR_WIFI_LOGI("%s:%d Ingore DISCONNECTED event in scan start state\n", __func__, __LINE__);
+            } else if((event == EVENT_NETMGR_WIFI_SCAN_FAILED)
+                || (event == EVENT_NETMGR_WIFI_NETWORK_NOT_FOUND)) {
+                g_netmgr_wifi_connect_state = NETMGR_WIFI_SCAN_FAILED;
+            } else if(event == EVENT_NETMGR_WIFI_CONN_TIMEOUT) {
                 NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
                 netmgr_conn_state_change(conn, CONN_STATE_FAILED);
+            } else {
+                g_netmgr_wifi_connect_state = NETMGR_WIFI_CONNECT_FAILED;
             }
+        } else if((conn->state != CONN_STATE_DISCONNECTING)
+            && (conn->state != CONN_STATE_DISCONNECTED)) {
+            NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
+            netmgr_conn_state_change(conn, CONN_STATE_FAILED);
         }
     }
 
@@ -1804,7 +1786,7 @@ static bool sntp_start(void)
         NETMGR_WIFI_LOGI("sntp getting time.");
         sntp_config_servaddr();
         if (0 == sntp_get_time(&m_sntp_arg, &ntp_time)) {
-            NETMGR_WIFI_LOGI("[sntp] OK: sec %ld usec %ld\n", ntp_time.tv_sec, ntp_time.tv_usec);
+            NETMGR_WIFI_LOGI("[sntp] OK: sec %lld usec %ld\n", ntp_time.tv_sec, ntp_time.tv_usec);
             return true;
         } else if((g_wifi_conn_info->state != CONN_STATE_CONNECTED)
         && (g_wifi_conn_info->state != CONN_STATE_OBTAINING_IP)
@@ -1897,19 +1879,19 @@ int netmgr_wifi_init(netmgr_hdl_t hdl)
         return -1;
     }
 
-    err = aos_sem_new(&g_scan_result_sem, 1);
+    err = aos_sem_new(&g_scan_result_sem, 0);
     if(err != 0) {
         NETMGR_WIFI_LOGE("%s:%d sem new failed, err=%d\n", __func__, __LINE__, err);
         return -1;
     }
 
-    err = aos_sem_new(&g_connect_scan_sem, 1);
+    err = aos_sem_new(&g_connect_scan_sem, 0);
     if(err != 0) {
         NETMGR_WIFI_LOGE("%s:%d sem new failed, err=%d\n", __func__, __LINE__, err);
         return -1;
     }
 
-    err = aos_sem_new(&g_disconnect_wait_sem, 1);
+    err = aos_sem_new(&g_disconnect_wait_sem, 0);
     if(err != 0) {
         NETMGR_WIFI_LOGE("%s:%d sem new failed, err=%d\n", __func__, __LINE__, err);
         return -1;
@@ -2031,25 +2013,15 @@ static int wifi_start_scan(netmgr_conn_t* conn, netmgr_wifi_ap_config_t* saved_a
     if(aos_sem_is_valid(&g_connect_scan_sem) == 0) {
         NETMGR_WIFI_LOGI("%s:%d sem is invalid\n", __func__, __LINE__);
 
-        ret = aos_sem_new(&g_connect_scan_sem, 1);
+        ret = aos_sem_new(&g_connect_scan_sem, 0);
         if(ret != 0) {
-            g_is_got_scan_request_cmd = false;
             NETMGR_WIFI_LOGE("%s:%d sem new failed, ret=%d\n", __func__, __LINE__, ret);
             return -1;
         }
         NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     }
 
-    ret = aos_sem_wait(&g_connect_scan_sem, SCAN_RESULT_WAIT_TIMEOUT);
-    if(ret != 0) {
-        NETMGR_WIFI_LOGE("%s:%d sem wait %d seconds timeout\n",
-                            __func__, __LINE__, SCAN_RESULT_WAIT_TIMEOUT/1000);
-        g_is_got_scan_request_cmd = false;
-        aos_sem_signal_all(&g_connect_scan_sem);
-        return -1;
-    }
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
-
     scan_result.ap_num = ap_num;
     scan_result.ap_list = ap_list;
     if(0 != (ret = ioctl(conn->hdl, WIFI_DEV_CMD_START_SPECIFIED_SCAN, &scan_result)))
@@ -2057,13 +2029,18 @@ static int wifi_start_scan(netmgr_conn_t* conn, netmgr_wifi_ap_config_t* saved_a
         NETMGR_WIFI_LOGE("%s:%d specified scan failed, ret =%d, use full scan\n", __func__, __LINE__, ret);
         if(0 != (ret = ioctl(conn->hdl, WIFI_DEV_CMD_START_SCAN, NULL))) {
             NETMGR_WIFI_LOGE("%s:%d full scan failed, ret = %d\n", __func__, __LINE__, ret);
-            g_is_got_scan_request_cmd = false;
-            aos_sem_signal_all(&g_connect_scan_sem);
             return -1;
         }
     }
 
-    aos_sem_signal_all(&g_connect_scan_sem);
+    NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
+    ret = aos_sem_wait(&g_connect_scan_sem, SCAN_RESULT_WAIT_TIMEOUT);
+    if(ret != 0) {
+        NETMGR_WIFI_LOGE("%s:%d sem wait %d seconds timeout\n",
+                            __func__, __LINE__, SCAN_RESULT_WAIT_TIMEOUT/1000);
+        return -1;
+    }
+
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     return 0;
 }
@@ -2233,7 +2210,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
             NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
             ret = 0;
             /* update wifi config when reconnect successfully */
-            if(ssid == NULL) {
+            if(strlen(ssid) == 0) {
                 int channel;
                 int i;
 
@@ -2890,40 +2867,31 @@ int netmgr_wifi_del_config(netmgr_hdl_t hdl, const char* ssid)
 int  netmgr_wifi_scan_result(netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wifi_scan_type_t type)
 {
     int ret;
+    int i, j, min_idx;
+    int8_t min_power;
+    ap_list_t *ap_check;
+    ap_list_t ap_list[NETMGR_WIFI_MAX_SPECIFIED_SCAN_NUM];
 
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     if(aos_sem_is_valid(&g_scan_result_sem) == 0) {
         NETMGR_WIFI_LOGI("%s:%d sem is invalid\n", __func__, __LINE__);
-
-        ret = aos_sem_new(&g_scan_result_sem, 1);
+        ret = aos_sem_new(&g_scan_result_sem, 0);
         if(ret != 0) {
-            g_is_got_scan_request_cmd = false;
             NETMGR_WIFI_LOGE("%s:%d sem new failed, ret=%d\n", __func__, __LINE__, ret);
             return -1;
         }
     }
 
-    ret = aos_sem_wait(&g_scan_result_sem, SCAN_RESULT_WAIT_TIMEOUT);
-    if(ret != 0) {
-        NETMGR_WIFI_LOGE("%s:%d sem wait %d seconds timeout\n",
-                                __func__, __LINE__, SCAN_RESULT_WAIT_TIMEOUT/1000);
-        g_is_got_scan_request_cmd = false;
-        return -1;
-    }
-
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
+    g_scan_result.ap_num = 0;
     g_is_got_scan_request_cmd = true;
-    if(type == NETMGR_WIFI_SCAN_TYPE_FULL) {
+    if(type == NETMGR_WIFI_SCAN_TYPE_FULL || type == NETMGR_WIFI_SCAN_TYPE_FULL_MERGE) {
         if(0 != (ret = ioctl(g_wifi_conn_info->hdl, WIFI_DEV_CMD_START_SCAN, NULL))) {
             g_is_got_scan_request_cmd = false;
             NETMGR_WIFI_LOGE("%s:%d full scan failed, ret = %d\n", __func__, __LINE__, ret);
-            aos_sem_signal_all(&g_scan_result_sem);
             return -1;
         }
     } else {
-        ap_list_t ap_list[NETMGR_WIFI_MAX_SPECIFIED_SCAN_NUM];
-        int i;
-
         for(i = 0; (i < num)&&(i < NETMGR_WIFI_MAX_SPECIFIED_SCAN_NUM); i++) {
             memset(&ap_list[i], 0, sizeof(ap_list[i]));
             NETMGR_WIFI_LOGI("%s:%d ssid=%s\n", __func__, __LINE__, ap_info[i].ssid);
@@ -2940,7 +2908,6 @@ int  netmgr_wifi_scan_result(netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wif
 #endif
             g_is_got_scan_request_cmd = false;
             NETMGR_WIFI_LOGE("%s:%d specified scan failed\n", __func__, __LINE__);
-            aos_sem_signal_all(&g_scan_result_sem);
             return -1;
         }
     }
@@ -2948,26 +2915,68 @@ int  netmgr_wifi_scan_result(netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wif
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     ret = aos_sem_wait(&g_scan_result_sem, SCAN_RESULT_WAIT_TIMEOUT);
     if(ret != 0) {
+        g_is_got_scan_request_cmd = false;
         NETMGR_WIFI_LOGE("%s:%d sem wait %d seconds timeout\n",
                             __func__, __LINE__, SCAN_RESULT_WAIT_TIMEOUT/1000);
-        g_is_got_scan_request_cmd = false;
-        aos_sem_signal_all(&g_scan_result_sem);
         return -1;
-    } else if(g_scan_result.ap_list != NULL) {
-        NETMGR_WIFI_LOGI("%s:%d num=%d ap_num=%d\n", __func__, __LINE__, num, g_scan_result.ap_num);
-        if(num >= g_scan_result.ap_num) {
-            NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
-            memcpy(ap_info, g_scan_result.ap_list,
-                    g_scan_result.ap_num * sizeof(ap_list_t));
-            free(g_scan_result.ap_list);
-            g_scan_result.ap_list = NULL;
-        } else {
-            NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
-            memcpy(ap_info, g_scan_result.ap_list,
-                    num * sizeof(ap_list_t));
-        }
     }
-    aos_sem_signal_all(&g_scan_result_sem);
+
+    if(g_scan_result.ap_num == 0) {
+        return 0;
+    }
+
+    if(type == NETMGR_WIFI_SCAN_TYPE_FULL_MERGE) {
+        memset(ap_info, 0, num * sizeof(netmgr_wifi_ap_list_t));
+        for(j = 0; j < num; j++) {
+            ap_info[j].ap_power= -110;
+        }
+
+        /* find max power SSIDs */
+        for(i = 0; i < g_scan_result.ap_num; i++) {
+            ap_check = &g_scan_result.ap_list[i];
+
+            /* anonymous ssid, go to next */
+            if(ap_check->ssid == NULL || ap_check->ssid[0] == 0) continue;
+
+            /* ssid repeat check */
+            for(j = 0; j < num; j++) {
+                /* ssid repeat */
+                if (ap_info[j].ssid != NULL
+                 && strcmp(ap_info[j].ssid, ap_check->ssid) == 0) {
+                    if (ap_info[j].ap_power < ap_check->ap_power) {
+                        ap_info[j] = *(netmgr_wifi_ap_list_t *)ap_check;
+                    }
+                    break;
+                }
+            }
+            if (j != num) {
+                /* find ssid repeat */
+                continue;
+            }
+
+            /* find mini power ap_info */
+            min_power = 0;
+            min_idx = -1;
+            for(j = 0; j < num; j++) {
+                if (min_power > ap_info[j].ap_power) {
+                    min_idx = j;
+                    min_power = ap_info[j].ap_power;
+                }
+            }
+
+            /* compare and update */
+            if (min_idx != -1 && min_power < ap_check->ap_power) {
+                ap_info[min_idx] = *(netmgr_wifi_ap_list_t *)ap_check;
+            }
+        }
+    } else {
+        NETMGR_WIFI_LOGI("%s:%d num=%d ap_num=%d\n", __func__, __LINE__, num, g_scan_result.ap_num);
+        num = num >= g_scan_result.ap_num ? g_scan_result.ap_num : num;
+        memcpy(ap_info, g_scan_result.ap_list, num * sizeof(ap_list_t));
+    }
+    free(g_scan_result.ap_list);
+    g_scan_result.ap_list = NULL;
+
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     return g_scan_result.ap_num;
 }
@@ -3335,7 +3344,7 @@ static void wifi_handle_cmd(int argc, char **argv)
         }
 
         read_len = read(fd, buf, sizeof(buf) - 1);
-        while(read_len) {
+        while(read_len > 0) {
             buf[read_len] = '\0';
             NETMGR_WIFI_LOGD("%s", buf);
             read_len = read(fd, buf, sizeof(buf) - 1);

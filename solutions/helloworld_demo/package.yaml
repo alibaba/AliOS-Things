@@ -17,6 +17,7 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
+  - init: rel_3.3.0
   - cli: rel_3.3.0
   - osal_aos: rel_3.3.0
   - haas100: rel_3.3.0

@@ -149,8 +149,9 @@ class YModem(object):
         print("Size: " + str(file_sent) + "Bytes")
         return file_sent
 
-    def wait_for_next(self, ch):
+    def wait_for_next(self, ch, timeout=60):
         cancel_count = 0
+        tic     = time.time()
         while True:
             c = self.getc(1)
             if c:
@@ -164,6 +165,8 @@ class YModem(object):
                         cancel_count += 1
                 else:
                     print("Expected " + hex(ord(ch)) + ", but got " + hex(ord(c)))
+            if (time.time() - tic) >= timeout:
+                return -2
         return 0
 
     def send(self, data_stream, data_name, data_size, retry=20, callback=None):
@@ -244,7 +247,7 @@ class YModem(object):
 
                     if error_count > retry:
                         self.abort()
-                        print('send error: NAK received %d , aborting', retry)
+                        print('send error: NAK received %d , aborting' % retry)
                         return -2
 
             sequence = (sequence + 1) % 0x100
@@ -254,9 +257,13 @@ class YModem(object):
         # [<<< NAK]
         # [EOT >>>]
         # [<<< ACK]
-        self.putc(EOT)
-        print(">>> EOT")
-        self.wait_for_next(NAK)
+        # workaround retry issue in 2nd boot
+        for i in range(20):
+            self.putc(EOT)
+            print(">>> EOT")
+            if self.wait_for_next(NAK, 0.5) != -2:
+                break
+            print("to receive NAK timeout. retry...")
         self.putc(EOT)
         print(">>> EOT")
         self.wait_for_next(ACK)

@@ -139,6 +139,9 @@ def burn_bin_files(portnum, baudrate, bin_files):
     time.sleep(0.1)
     serialport.write(b'2')
     time.sleep(0.1)
+    # workaround retry issue in 2nd boot
+    serialport.write(b'\n' * 16)
+    time.sleep(0.1)
     bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'2ndboot cli menu in [1-9]00ms', 2)
     try:
         buff_str = buff.decode('UTF-8',errors='ignore')

@@ -30,5 +30,7 @@ extern char ddkc_level_tag[];
 #define ddkc_info(format, ...)  ddkc_log(DDKC_LOG_INFO, format, ##__VA_ARGS__)
 #define ddkc_warn(format, ...)  ddkc_log(DDKC_LOG_WARN, format, ##__VA_ARGS__)
 #define ddkc_err(format, ...)   ddkc_log(DDKC_LOG_ERROR, format, ##__VA_ARGS__)
+#define ddkc_assert(cond, str, ...)          \
+    do { if (!(cond)) { printf("[ASSERT] %s/" str, __FUNCTION__, __VA_ARGS__); while (1); } } while (0)
 
 #endif //_DDKC_LOG_H_

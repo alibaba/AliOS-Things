@@ -11,7 +11,8 @@
 #include <errno.h>
 
 #ifdef __os_alios_things__
-#include <network/network.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #elif defined(__os_linux__)
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -199,7 +200,7 @@ static int http_get_dns(char *hostname, in_addr_t *addr)
 #if defined(UVOICE_HTTP_MULTI_RETRY_TIMES)
 		os_msleep(100);
 		M_LOGD("try again\n");
-#endif		
+#endif
 	}
 
 	if (!host) {
@@ -1020,9 +1021,9 @@ __redirect:
 			if (retries - 1 <= 0) {
 				return -1;
 			}
-#if defined(UVOICE_HTTP_MULTI_RETRY_TIMES)				
+#if defined(UVOICE_HTTP_MULTI_RETRY_TIMES)
 			if (loader->nc->cache_stop)
-				return -1;					
+				return -1;
 			continue;
 #endif
 		}
@@ -1046,10 +1047,10 @@ __redirect:
 				http_disconnect(loader);
 				return -1;
 			}
-#if defined(UVOICE_HTTP_MULTI_RETRY_TIMES)			
+#if defined(UVOICE_HTTP_MULTI_RETRY_TIMES)
 			os_msleep(200);
 			continue;
-#endif			
+#endif
 		} else if (ret == 1) {
 			http_disconnect(loader);
 			goto __redirect;

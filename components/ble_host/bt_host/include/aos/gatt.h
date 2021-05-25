@@ -240,8 +240,13 @@ struct bt_gatt_ccc_cfg_t {
     uint16_t            value;
 };
 
+#define BT_RTL
 struct bt_gatt_ccc_t {
+#ifndef BT_RTL
     struct bt_gatt_ccc_cfg_t    cfg[CONFIG_BT_MAX_PAIRED + CONFIG_BT_MAX_CONN];
+#else
+    struct bt_gatt_ccc_cfg_t    cfg[2];
+#endif
     uint16_t            value;
     void (*cfg_changed)(const gatt_attr_t *attr,  uint16_t value);
     int (*cfg_write)(void *conn, gatt_attr_t *attr, uint16_t value);

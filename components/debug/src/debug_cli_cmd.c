@@ -275,6 +275,8 @@ void debug_cli_cmd_init(void)
 {
     debug_default_cmds_register();
     debug_dumpsys_cmds_register();
+#if (RHINO_CONFIG_SYS_STATS > 0)
     debug_cpuusage_cmds_register();
+#endif
 }
 #endif /* #if AOS_COMP_CLI */

@@ -61,7 +61,8 @@ typedef enum netmgr_wifi_ssid_format_e {
 
 typedef enum netmgr_wifi_scan_type_e {
     NETMGR_WIFI_SCAN_TYPE_FULL,
-    NETMGR_WIFI_SCAN_TYPE_SPECIFIED
+    NETMGR_WIFI_SCAN_TYPE_SPECIFIED,
+    NETMGR_WIFI_SCAN_TYPE_FULL_MERGE
 } netmgr_wifi_scan_type_t;
 
 

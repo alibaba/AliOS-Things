@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
 #include <string.h>
@@ -23,6 +23,7 @@
 int ota_sevice_parse_msg(ota_service_t *ctx, const char *json)
 {
     int ret            = 0;
+    int is_get_module  = 0;
     cJSON *root        = NULL;
     ota_boot_param_t ota_param = {0};
     root = cJSON_Parse(json);
@@ -30,7 +31,6 @@ int ota_sevice_parse_msg(ota_service_t *ctx, const char *json)
         ret = OTA_TRANSPORT_PAR_FAIL;
         goto EXIT;
     } else {
-        ctx->module_ota = 0;
         /* recover the process type */
         cJSON *cmd = cJSON_GetObjectItem(root, "cmd");
         if (NULL == cmd) {
@@ -59,7 +59,7 @@ int ota_sevice_parse_msg(ota_service_t *ctx, const char *json)
         ota_param.url[sizeof(ota_param.url) - 1] = 0;
         cJSON *submodule = cJSON_GetObjectItem(json_obj, "module");
         if (NULL != submodule) {
-            ctx->module_ota = 1;
+            is_get_module = 1;
             strncpy(ctx->module_name, submodule->valuestring, sizeof(ctx->module_name) - 1);
             OTA_LOG_I("submode = %s\r\n", submodule->valuestring);
         }
@@ -91,7 +91,7 @@ int ota_sevice_parse_msg(ota_service_t *ctx, const char *json)
                     ret = OTA_VER_PAR_FAIL;
                     goto EXIT;
                 }
-             }  else if (0 == strncmp(signMethod->valuestring, "SHA256", strlen("SHA256"))) {
+            } else if (0 == strncmp(signMethod->valuestring, "SHA256", strlen("SHA256"))) {
                 cJSON *sha256 = cJSON_GetObjectItem(json_obj, "sign");
                 if (NULL == sha256) {
                     ret = OTA_SHA256_PAR_FAIL;
@@ -146,24 +146,20 @@ EXIT:
         root = NULL;
     }
     OTA_LOG_I("Parse ota version:%s url:%s ret:%d\n", ota_param.ver, ota_param.url, ret);
-    if (ret == OTA_TRANSPORT_VER_FAIL) {
-        OTA_LOG_E("ota version is too old, discard it.");
-        ota_transport_status(ctx, ret);
-    } else if (ret < 0) {
+    if (ret < 0) {
         ret = OTA_TRANSPORT_PAR_FAIL;
-        ota_transport_status(ctx, ret);
+        if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+            ctx->report_func.report_status_cb(ctx->report_func.param, ret);
+        }
     } else {
-        ota_transport_status(ctx, 1);
+        if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+            ctx->report_func.report_status_cb(ctx->report_func.param, 1);
+        }
         ota_param.upg_flag = 0x00;
         if (ctx->dev_type == 0) {
-            if (ctx->module_ota == 0) {
+            if (is_get_module == 0) {
                 ota_param.upg_flag = OTA_UPGRADE_ALL;
-            } else {
-                if (strncmp(ctx->module_name, "mfs", 3) == 0) {
-                    ota_param.upg_flag = OTA_UPGRADE_FS;
-                } else {
-                    ota_param.upg_flag = OTA_UPGRADE_CUST;
-                }
+                strncpy(ctx->module_name, "default", 7);
             }
         }
         OTA_LOG_I("upg_flag = %04x", ota_param.upg_flag);
@@ -171,16 +167,12 @@ EXIT:
         ret = ota_update_parameter(&ota_param);
         if (ret != 0) {
             OTA_LOG_I("ota param err.\n");
-            ota_transport_status(ctx, OTA_TRANSPORT_PAR_FAIL);
+            if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+                ctx->report_func.report_status_cb(ctx->report_func.param, OTA_TRANSPORT_PAR_FAIL);
+            }
         }
-        if (ctx->module_ota == 0) {
-            if (ctx->on_upgrade != NULL) {
-                ctx->on_upgrade(ctx, ota_param.ver, ota_param.url);
-            }
-        } else {
-            if (ctx->on_module_upgrade != NULL) {
-                ctx->on_module_upgrade(ctx, ota_param.ver, ota_param.url);
-            }
+        if (ctx->ota_triggered_func.triggered_ota_cb != NULL) {
+            ctx->ota_triggered_func.triggered_ota_cb(ctx, ota_param.ver, ctx->module_name, ctx->ota_triggered_func.param);
         }
     }
     return ret;
@@ -207,7 +199,6 @@ static int ota_mqtt_publish(void *mqtt_client, const char *name, char *msg, char
     if (name == NULL || msg == NULL || pk == NULL || dn == NULL) {
         return OTA_TRANSPORT_INT_FAIL;
     }
-
     ret = ota_snprintf(topic, OTA_MSG_LEN - 1, "/ota/device/%s/%s/%s", name, pk, dn);
     if (ret < 0) {
         return OTA_TRANSPORT_INT_FAIL;
@@ -273,7 +264,7 @@ int ota_transport_inform(ota_service_t *ctx, char *module_name, char *ver)
         OTA_LOG_E("inform version input param err!");
         goto OTA_TRANS_INFOR_OVER;
     }
-    if (module_name == NULL) {
+    if (strncmp(ctx->module_name, "default", strlen("default")) == 0) {
         ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"version\":\"%s\"}}", 0, ver);
     } else {
        ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"version\":\"%s\",\"module\":\"%s\"}}", 0, ver, module_name);
@@ -351,23 +342,25 @@ int ota_transport_upgrade(ota_service_t *ctx)
 /**
  * ota_transport_status  OTA report status to Cloud
  *
- * @param[in] ota_service_t *ctx ctx  ota service context
- * @param[in] status    [1-100] percent, [<0] error no.
+ * @param[in] void *param param  ota service context
+ * @param[in] status      [1-100] percent, [<0] error no.
  *
  * @return OTA_SUCCESS         OTA success.
  * @return OTA_TRANSPORT_INT_FAIL  OTA transport init fail.
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_transport_status(ota_service_t *ctx, int status)
+int ota_transport_status(void *param, int status)
 {
     int  ret                = OTA_TRANSPORT_INT_FAIL;
+    ota_service_t *ctx      = NULL;
     char msg[OTA_MSG_LEN]   = {0};
     char *err_str           = "";
     int tmp_status          = 0;
-    if (ctx == NULL) {
+    if (param == NULL) {
         return ret;
     }
+    ctx = (ota_service_t *)param;
     tmp_status = status;
     if (status < 0) {
         switch (status) {
@@ -469,7 +462,7 @@ int ota_transport_status(ota_service_t *ctx, int status)
                 break;
         }
     }
-    if (ctx->module_ota == 0) {
+    if (strncmp(ctx->module_name, "default", strlen("default")) == 0) {
         ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", 1, tmp_status, err_str);
     } else {
         ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\",\"module\":\"%s\"}}", 1, tmp_status, err_str, ctx->module_name);
@@ -483,3 +476,4 @@ int ota_transport_status(ota_service_t *ctx, int status)
     }
     return ret;
 }
+

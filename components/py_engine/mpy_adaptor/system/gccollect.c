@@ -44,6 +44,10 @@ static void gc_collect_inner(int level) {
 
 void gc_collect(void) {
     gc_collect_start();
+    
+    // trace the stack and registers
+    gc_helper_collect_regs_and_stack();
+
     gc_collect_inner(0);
     gc_collect_end();
 }

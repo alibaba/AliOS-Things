@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent"
+	android:descendantFocusability="blocksDescendants"
+	android:orientation="horizontal">
+
+	<LinearLayout android:id="@+id/linearLayout"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="horizontal"
+		android:background="#cce5ff">
+
+		<ImageView android:src="@drawable/ic_bluetooth"
+			android:layout_alignParentLeft="true"
+			android:layout_height="35dp"
+			android:layout_width="35dp"
+			android:layout_gravity="center_vertical|left"
+			android:padding="3dp"
+			android:id="@+id/img">
+		</ImageView>
+
+		<LinearLayout android:id="@+id/linearLayout1"
+			android:layout_width="0dp"
+			android:layout_height="60dp"
+			android:orientation="vertical"
+			android:layout_weight="9">
+			<TextView android:id="@+id/title"
+				android:layout_width="wrap_content"
+				android:layout_height="0dp"
+				android:textSize = "25dp"
+				android:layout_gravity="center_vertical|left"
+				android:gravity="center_vertical|left"
+				android:layout_weight="2"></TextView>
+
+			<LinearLayout android:id="@+id/linearLayout2"
+				android:layout_width="fill_parent"
+				android:layout_height="0dp"
+				android:orientation="horizontal"
+				android:layout_weight="1">
+				<TextView android:id="@+id/info"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:textSize = "15dp"
+					android:textColor="#3333ff"
+					android:layout_gravity="center_vertical|left"
+					android:gravity="center_vertical|left"
+					android:layout_weight="1"></TextView>
+			</LinearLayout>
+		</LinearLayout>
+
+		<ImageButton android:src="@drawable/settings"
+			android:layout_alignParentRight="true"
+			android:layout_height="35dp"
+			android:layout_width="35dp"
+			android:layout_gravity="center_vertical|right"
+			android:padding="3dp"
+			android:focusable="false"
+			android:id="@+id/img_btn_setting">
+		</ImageButton>
+
+	</LinearLayout>
+</LinearLayout>

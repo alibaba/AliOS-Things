@@ -1,0 +1,9 @@
+config AOS_COMP_RTC_TEST
+    bool "rtc_test"
+    depends on ENABLE_RTC
+    default n
+    help
+
+if AOS_COMP_RTC_TEST
+# Configurations for comp rtc_test
+endif

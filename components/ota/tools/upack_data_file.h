@@ -1,5 +1,16 @@
+/** @defgroup upack_data_file
+ * @{
+ *
+ * This is an include file of upack js app.bin interface.
+ *
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
+ */
 #ifndef UPACK_DATA_FILE_H
 #define UPACK_DATA_FILE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct DATA_FILE_PACK_HEAD {
     unsigned short file_numb;
@@ -24,4 +35,10 @@ typedef struct DATA_FILE_INFO{
  * @return -1                        unpack failed.
  */
 int data_file_unpack(void *pack_file, unsigned int pack_size, void *upack_path);
+/**
+ * @}
+ */
+#ifdef __cplusplus
+}
+#endif
 #endif

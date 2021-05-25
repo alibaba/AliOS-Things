@@ -9,6 +9,7 @@ print("-----How to test: connect PIN10 and PIN12-------")
 uart = UART();
 uart.open("serial2")
 utime.sleep_ms(1000)
+uart.setBaudRate(9600)
 writeBuf  = bytearray([0x41, 0x42, 0x43, 0x44]);
 for i in range(10):
     uart.write(writeBuf)

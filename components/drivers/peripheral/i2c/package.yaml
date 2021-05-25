@@ -20,6 +20,7 @@ depends:
   - base: rel_3.3.0
   - vfs: rel_3.3.0
   - epoll: rel_3.3.0
+  - csi: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -44,14 +45,14 @@ build_config:
     - include
 
   define:
-
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
 # I2C device driver
   - src/i2c_dev.c ? <CONFIG_U_I2C_DEV>
+  - src/i2c_core.c ? <CONFIG_U_I2C_CORE>
 # i2c VFS driver example
-  - example/i2c_example.c ? <CONFIG_U_I2C_DEV>
+  - example/i2c_example.c ? <CONFIG_U_I2C_CORE>
 
 
 ## 第五部分：配置信息
@@ -60,8 +61,9 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-  CONFIG_U_I2C_DEV: 1                      # I2C device node named witch "/dev/i2c[x]"
+  CONFIG_U_I2C_DEV: 0                      # I2C device node named witch "/dev/i2c[x]"
   CONFIG_U_I2C_CORE: 0                     # I2C subsys AOS API driver
+  CONFIG_U_I2C_WEAK_CSI: 1                 # I2C CSI weak functions
 
 ## 第六部分：安装信息
 # install:

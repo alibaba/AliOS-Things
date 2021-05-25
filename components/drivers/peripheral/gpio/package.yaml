@@ -48,6 +48,8 @@ build_config:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - src/gpio_dev.c ? <CONFIG_U_GPIO_DEV>
+  - src/gpioc.c
+  - src/gpioc_csi.c ? <AOS_CONFIG_GPIOC_CSI>
   # example code
   # - example/gpio_example.c ? <CONFIG_U_GPIO_DEV>
 
