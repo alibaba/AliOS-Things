@@ -141,6 +141,7 @@ build_config:
     - _wlan
     - _wps
     - GT60M2_M4
+    - rtl8721dhp
   libpath:
     - lib
 
@@ -186,8 +187,6 @@ source_file:
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_sdio.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_ssi.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_system.c
-  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_pmc.c
-  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_pmc_ram.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_gdma_memcpy.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_wdg.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_i2c.c
