@@ -168,6 +168,11 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 	return 0;
 }
 
+int32_t hal_gpio_get(gpio_dev_t *gpio, uint32_t *value)
+{
+    return hal_gpio_input_get(gpio, value);
+}
+
 int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger, gpio_irq_handler_t handler, void *arg)
 {
 	gpio_irq_t *gpio_irq_obj = &(((gpio_objs_t *)(gpio->priv))->gpio_irq_obj);
