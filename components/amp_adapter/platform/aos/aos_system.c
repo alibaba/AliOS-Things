@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "k_api.h"
 #include "aos/kernel.h"
 #include "aos/kv.h"
 #include "aos/vfs.h"
@@ -20,6 +21,10 @@
 //#include "infra_defs.h"
 //#include "wrappers_defs.h"
 #include "aos_system.h"
+
+#ifdef BOARD_HAAS200
+#include "vfsdev/wifi_dev.h"
+#endif
 
 #define _SYSINFO_DEVICE_NAME "AliOS Things"
 #define SYSINFO_VERSION "0.0.1"
@@ -64,9 +69,19 @@ const char *aos_get_platform_type(void)
 
 int aos_get_ip(char *ip)
 {
-    netmgr_wifi_get_ip(ip);
+    netmgr_hdl_t hdl;
+    netmgr_ifconfig_info_t info = {0};
 
-    if (0 == strcmp(ip, "0.0.0.0")) {
+    hdl = netmgr_get_dev("/dev/wifi0");
+    if(hdl < 0) {
+        return -1;
+    }
+
+    if(netmgr_get_ifconfig(hdl, &info) < 0) {
+        return -1;
+    }
+
+    if (0 == strcmp(info.ip_addr, "0.0.0.0")) {
         return -1;
     }
     return 0;
@@ -104,22 +119,32 @@ int aos_get_network_status(void)
 int hal_wifi_get_mac_address(char *mac, size_t len)
 {
     int ret = 0;
+#ifdef BOARD_HAAS100
     extern uint8_t* factory_section_get_wifi_address(void);
     uint8_t *_mac = factory_section_get_wifi_address();
     if(_mac == NULL)
         ret = -1;
     else
         snprintf(mac, len, MACSTR, MAC2STR(_mac));
+#elif defined(BOARD_HAAS200)
+    int fd;
+    uint8_t _mac[6];
+    fd = open("/dev/wifi0", O_RDWR);
+    if (fd < 0) {
+        return -1;
+    }
+
+    ioctl(fd, WIFI_DEV_CMD_GET_MAC, (unsigned long)_mac);
+    snprintf(mac, len, MACSTR, MAC2STR(_mac));
+    close(fd);
+#endif
     return ret;
 }
 
 char g_chip_id[32];
 const char *aos_get_device_name(void)
 {
-    int len;
-    unsigned char chip_id[16];
-    tg_get_chipid(chip_id, 16);
-    aos_snprintf(g_chip_id, 32, "%x%x%x%x%x%x", chip_id[0], chip_id[1], chip_id[2], chip_id[3], chip_id[9], chip_id[10]);
+    hal_wifi_get_mac_address(g_chip_id, sizeof(g_chip_id));
     return g_chip_id;
 }
 

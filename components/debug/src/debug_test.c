@@ -64,7 +64,9 @@ ALIOS_CLI_CMD_REGISTER(ulog_encode_fs_test, uet, Console ulog encode fs test)
 /* test for panic trigger in task*/
 static void panic_trigger(int argc, char **argv)
 {
-    __asm__ __volatile__("udf":::"memory");
+#ifdef OS_UDF
+    OS_UDF();
+#endif
 }
 ALIOS_CLI_CMD_REGISTER(panic_trigger, panic, Console trigger system panic)
 

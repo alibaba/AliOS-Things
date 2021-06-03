@@ -72,24 +72,24 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_DAC, id, &(driver_obj->dac_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_DAC, id, &(driver_obj->dac_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    dac_device = board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
+    dac_device = py_board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
     if (NULL == dac_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
@@ -110,7 +110,7 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 #endif
 out:
 	if (0 != ret) {
-		board_disattach_item(MODULE_DAC, &(driver_obj->dac_handle));
+		py_board_disattach_item(MODULE_DAC, &(driver_obj->dac_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -137,15 +137,15 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    dac_device = board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
+    dac_device = py_board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
     if (NULL == dac_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
     //hal_dac_stop(dac_device, dac_device->port);
     //ret = hal_dac_finalize(dac_device);
-    board_disattach_item(MODULE_DAC, &(driver_obj->dac_handle));
+    py_board_disattach_item(MODULE_DAC, &(driver_obj->dac_handle));
     LOG_D("%s:out\n", __func__);
 
     return MP_ROM_INT(ret);
@@ -170,9 +170,9 @@ STATIC mp_obj_t obj_getVol(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    dac_device = board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
+    dac_device = py_board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
     if (NULL == dac_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -202,9 +202,9 @@ STATIC mp_obj_t obj_setVol(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    dac_device = board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
+    dac_device = py_board_get_node_by_handle(MODULE_DAC, &(driver_obj->dac_handle));
     if (NULL == dac_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 

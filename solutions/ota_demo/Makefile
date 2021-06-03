@@ -12,7 +12,7 @@ startup: all
 
 all:
 	@echo "Build Solution by $(BOARD) "
-	$(CPRE) scons $(VERB) --board=$(BOARD) -j4
+	$(CPRE) scons $(VERB) --board=$(BOARD) -j4 --verbose
 	@echo YoC SDK Done
 
 	@echo [INFO] Create bin files

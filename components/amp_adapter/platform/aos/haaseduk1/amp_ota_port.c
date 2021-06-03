@@ -1,5 +1,5 @@
 #include "amp_config.h"
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_system.h"
 #include "ota_agent.h"
 

@@ -36,7 +36,11 @@ aos_status_t aos_gpioc_register(aos_gpioc_t *gpioc)
 
     gpioc->dev.type = AOS_DEV_TYPE_GPIOC;
     gpioc->dev.ops = &dev_gpioc_ops;
+#ifdef AOS_COMP_VFS
     gpioc->dev.vfs_helper.name[0] = '\0';
+    gpioc->dev.vfs_helper.ops = NULL;
+#endif
+    aos_spin_lock_init(&gpioc->lock);
 
     for (i = 0; i < gpioc->num_pins; i++) {
         aos_gpioc_pin_t *pin = &gpioc->pins[i];
@@ -100,13 +104,13 @@ aos_gpioc_get_mode(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t *mode)
 aos_status_t
 aos_gpioc_set_mode(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t mode)
 {
-    return aos_gpioc_set_mode_irq(ref, pin, mode, NULL, NULL, -1);
+    return aos_gpioc_set_mode_irq(ref, pin, mode, NULL, NULL);
 }
 
 aos_status_t aos_gpioc_set_mode_irq(aos_gpioc_ref_t *ref,
                                     uint32_t pin, uint32_t mode,
                                     aos_gpio_irq_handler_t irq_handler,
-                                    void *irq_arg, int32_t irq_prio)
+                                    void *irq_arg)
 {
     aos_gpioc_t *gpioc;
     uint32_t old_mode;
@@ -123,6 +127,12 @@ aos_status_t aos_gpioc_set_mode_irq(aos_gpioc_ref_t *ref,
     aos_dev_lock(ref->dev);
     old_mode = gpioc->pins[pin].mode;
     gpioc->pins[pin].mode = mode;
+
+    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT)
+        gpioc->pins[pin].value = !!(mode & AOS_GPIO_OUTPUT_INIT_HIGH);
+    else
+        gpioc->pins[pin].value = 0;
+
     ret = gpioc->ops->set_mode(gpioc, pin);
     if (ret) {
         gpioc->pins[pin].mode = old_mode;
@@ -152,14 +162,12 @@ aos_status_t aos_gpioc_get_value(aos_gpioc_ref_t *ref, uint32_t pin)
     aos_dev_lock(ref->dev);
     mode = gpioc->pins[pin].mode;
 
-    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT) {
-        gpioc->pins[pin].value = !!gpioc->ops->get_value(gpioc, pin);
+    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT)
+        ret = (aos_status_t)!!gpioc->ops->get_value(gpioc, pin);
+    else if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT)
         ret = (aos_status_t)gpioc->pins[pin].value;
-    } else if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT) {
-        ret = (aos_status_t)gpioc->pins[pin].value;
-    } else {
+    else
         ret = -ENOTSUP;
-    }
 
     aos_dev_unlock(ref->dev);
 

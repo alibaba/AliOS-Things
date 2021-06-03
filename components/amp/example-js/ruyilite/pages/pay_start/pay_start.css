@@ -1,0 +1,122 @@
+
+
+.textClass {
+  align: inTopLeft;
+}
+
+.buttonClass {
+  width: 100px;
+  height: 50px;
+  top: 150px;
+  left: 100px;
+  background-color: #43cd80;
+  gradient-color: #43cd80;
+  border-radius: 5px;
+}
+
+#shop {
+  top: 5px;
+  left: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#time {
+  top: 5px;
+  left: 160px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#batteryValue {
+  top: 5px;
+  left: 260px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+.iconClass {
+  top: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#signal {
+  top: 5px;
+  left: 130px;
+  font-color: #ffffff;
+}
+
+#battery {
+  top: 5px;
+  left: 230px;
+  font-color: #ffffff;
+}
+
+#topBar {
+  width: 320px;
+  height: 30px;
+  top: 0px;
+  left: 0px;
+  background-color: #000000;
+  gradient-color: #000000;
+}
+
+#upay {
+  top: -30px;
+  left: 80px;
+  font-color: #4169E1;
+}
+
+#collect_cont {
+  width: 300px;
+  height: 180px;
+  top: 30px;
+  left: 10px;
+  background-color: #ffffff;
+  gradient-color: #ffffff;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 10px;
+  z-index: 3;
+}
+
+#collect_text1 {
+  top: 40px;
+  left: 0px;
+  width: 300px;
+  font-color: #000000;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+}
+
+#collect_text2 {
+  top: 80px;
+  left: 0px;
+  width: 300px;
+  font-color: #000000;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+}
+
+#collect_warning1 {
+  top: 210px;
+  left: 60px;
+  width: 200px;
+  font-color: #ffffff;
+  text-align: center;
+  font-size: 22px;
+  z-index: 3;
+}
+
+
+
+
+
+

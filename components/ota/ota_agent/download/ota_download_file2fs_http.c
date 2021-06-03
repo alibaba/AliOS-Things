@@ -140,8 +140,8 @@ int ota_download_store_fs_start(char *url, unsigned int url_len, char *store_pat
                         divisor += 5;
                         if (report_func != NULL) {
                             ret = report_func(user_param, percent);
-                            if (ret != 0) {
-                                OTA_LOG_E("report http download process failed");
+                            if (ret < 0) {
+                                OTA_LOG_E("report http download process failed, ret = %d", ret);
                             }
                         }
                         OTA_LOG_I(" in fs recv data(%d/%d) off:%d\r\n", ota_rx_size, ota_file_size, off_size);

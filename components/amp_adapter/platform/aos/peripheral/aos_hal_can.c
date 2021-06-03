@@ -3,7 +3,10 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include "aos/hal/can.h"
 #include "aos_hal_can.h"
+#include "aos_system.h"
 
 typedef enum {
     PORT_CAN1 = 1,

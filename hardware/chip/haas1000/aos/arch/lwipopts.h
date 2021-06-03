@@ -247,7 +247,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define LWIP_IGMP 1
 #if LWIP_IGMP
 #ifndef LWIP_RAND
-#define LWIP_RAND() ((u32_t)rand())
+#define LWIP_RAND() ((u32_t)aos_rand())
 #endif
 #endif
 

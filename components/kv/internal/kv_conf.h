@@ -14,7 +14,11 @@
 
 /* The physical parition for key-value store */
 #ifndef KV_CONFIG_PARTITION
+#if (CONFIG_U_FLASH_CORE > 0)
+#define KV_PARTITION MTD_PART_ID_KV
+#else
 #define KV_PARTITION HAL_PARTITION_PARAMETER_2
+#endif
 #else
 #define KV_PARTITION KV_CONFIG_PARTITION
 #endif

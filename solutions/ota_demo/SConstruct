@@ -2,7 +2,7 @@
 
 from aostools import Make
 
-defconfig = Make(elf='ota_demo.elf', objcopy='binary/ota_demo@haas100.bin')
+defconfig = Make()
 
 Export('defconfig')
 

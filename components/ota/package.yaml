@@ -42,7 +42,7 @@ depends:
 #   - libs                           # -Llibs
 
 build_config:
-  cflag: '-Wall -Werror'
+  cflag: '-Wall'
   #cflag: '-w'
   define:
     #- OTA_CONFIG_LOCAL_RSA=1

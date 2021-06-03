@@ -638,12 +638,6 @@ void sys_arch_assert(const char *file, int line)
 }
 
 /******************************************************/
-
-int net_close(int sockfd)
-{
-    return 0;
-}
-
 /*
     void sys_init(void)
 

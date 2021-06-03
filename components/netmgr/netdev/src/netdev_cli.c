@@ -18,14 +18,19 @@
 #include <netdev_ipaddr.h>
 #include <netdev.h>
 #include <aos/cli.h>
+#include <aos/list.h>
 
 #define NDEV_PRINT aos_cli_printf
 
 #define NDEV_PRINT_BUFFER_SIZE     128
 
-#ifndef slist_next
-#define slist_next(node) (node->next)
-#endif
+typedef struct netdev_fd_info {
+    slist_t next;
+    struct netdev* netdev;
+    int fd;
+} netdev_fd_info_t;
+
+static slist_t g_netdev_fd_list_head;
 
 static char netdev_res_print_buffer[NDEV_PRINT_BUFFER_SIZE];
 
@@ -64,10 +69,8 @@ static void netdev_list_if(int fd)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(cur_netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = aos_list_entry(node, struct netdev, list);
-
         /* line 1 */
         netdev_res_print(fd, "%-10s", netdev->name);
         netdev_res_print(fd, "HWaddr ");
@@ -173,7 +176,7 @@ static void netdev_list_if(int fd)
         }
 #endif
 
-        if (slist_next(node))
+        if (node && node->next)
         {
             netdev_res_print(fd, "\n");
         }
@@ -213,6 +216,62 @@ static void netdev_set_if(char* netdev_name, char* ip_addr, char* gw_addr, char*
     }
 }
 
+static int add_fd_info(struct netdev* netdev, int fd)
+{
+    netdev_fd_info_t* cur;
+
+    cur = malloc(sizeof(netdev_fd_info_t));
+    if(cur == NULL) {
+        return -1;
+    }
+    memset(cur, 0, sizeof(netdev_fd_info_t));
+
+    cur->fd = fd;
+    cur->netdev = netdev;
+
+    slist_add_tail(&cur->next, &g_netdev_fd_list_head);
+
+    return 0;
+}
+
+static int del_fd_by_netdev(struct netdev* netdev)
+{
+    netdev_fd_info_t* cur;
+    int found = 0;
+
+    slist_for_each_entry(&g_netdev_fd_list_head, cur, netdev_fd_info_t, next) {
+        if(cur->netdev == netdev) {
+            found = 1;
+            break;
+        }
+    }
+
+    if(1 == found) {
+        slist_del(&cur->next, &g_netdev_fd_list_head);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+static int get_fd_by_netdev(struct netdev* netdev)
+{
+    netdev_fd_info_t* cur;
+    int found = 0;
+
+    slist_for_each_entry(&g_netdev_fd_list_head, cur, netdev_fd_info_t, next) {
+        if(cur->netdev == netdev) {
+            found = 1;
+            break;
+        }
+    }
+
+    if(1 == found) {
+        return cur->fd;
+    } else {
+        return -1;
+    }
+}
 extern int netdev_dhcpd_enabled(struct netdev *netdev, bool is_enabled);
 
 void netdev_ifconfig(char *pwbuf, int blen, int argc, char **argv)
@@ -258,17 +317,43 @@ void netdev_ifconfig(char *pwbuf, int blen, int argc, char **argv)
     {
         if (strcmp(argv[2], "up") == 0)
         {
-            snprintf(dev_name, sizeof(dev_name), "/dev/%s", argv[1]);
-            if(open(dev_name, O_RDWR) < 0)
+            int fd = -1;
+
+            fd = get_fd_by_netdev(dev);
+            if((fd != -1) && (!netdev_is_up(dev))) {
+                del_fd_by_netdev(dev);
+                fd = -1;
+            }
+
+            if(fd == -1) {
+                snprintf(dev_name, sizeof(dev_name), "/dev/%s", argv[1]);
+                if((fd = open(dev_name, O_RDWR)) < 0)
             {
                 NDEV_PRINT("open %s fail !\n",argv[1]);
                 return ;
             }
             netdev_set_up(dev);
+                add_fd_info(dev, fd);
+            } else {
+                NDEV_PRINT("%s is already up\n",argv[1]);
+            }
         }
         else if (strcmp(argv[2], "down") == 0)
         {
-            netdev_set_down(dev);
+            int fd = -1;
+
+            fd = get_fd_by_netdev(dev);
+            if(fd != -1) {
+                del_fd_by_netdev(dev);
+                close(fd);
+                fd = -1;
+            }
+
+            if(netdev_is_up(dev)) {
+                netdev_set_down(dev);
+            } else {
+                NDEV_PRINT("%s is already down\n",argv[1]);
+            }
         }
         else if (strcmp(argv[2], "def") == 0)
         {
@@ -464,6 +549,10 @@ void netdev_ping(char *pwbuf, int blen, int argc, char **argv)
             {
                 i++;
 
+                if (fd >= 0) {
+                    close(fd);
+                }
+
                 fd = open(argv[i], O_RDWR | O_CREAT);
             }
             else
@@ -499,10 +588,8 @@ static void netdev_list_dns(void)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = aos_list_entry(node, struct netdev, list);
-
         NDEV_PRINT("network interface device: %s%s\n",
                 netdev->name,
                 (netdev == netdev_default)?" (Default)":"");
@@ -512,7 +599,7 @@ static void netdev_list_dns(void)
             NDEV_PRINT("dns server #%d: %s\n", index, inet_ntoa(netdev->dns_servers[index]));
         }
 
-        if (slist_next(node))
+        if (node && node->next)
         {
             NDEV_PRINT("\n");
         }
@@ -581,10 +668,8 @@ static void netdev_cmd_netstat(void)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(cur_netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = aos_list_entry(node, struct netdev, list);
-
         if (netdev && netdev->ops && netdev->ops->netstat)
         {
             break;

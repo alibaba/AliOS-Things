@@ -69,7 +69,7 @@
 #define SZT_F U32_F
 #endif
 
-#define TAG "DEBUG"
+#define LWIP_PLATFORM_TAG "DEBUG"
 /*
  *  Platform specific diagnostic output -
  *   LWIP_PLATFORM_DIAG(x)    - non-fatal, print a message.
@@ -80,12 +80,12 @@
 #ifndef LWIP_PLATFORM_ASSERT
 #define LWIP_PLATFORM_ASSERT(x) \
     do \
-    {   LOGE(TAG, "Assertion \"%s\" failed at line %d in %s\n", x, __LINE__, __FILE__); \
+    {   LOGE(LWIP_PLATFORM_TAG, "Assertion \"%s\" failed at line %d in %s\n", x, __LINE__, __FILE__); \
     } while(0)
 #endif
 
 #ifndef LWIP_ULOG_DIAG
-#define LWIP_ULOG_DIAG(x, ...)  LOGI(TAG, x, ##__VA_ARGS__)
+#define LWIP_ULOG_DIAG(x, ...)  LOGI(LWIP_PLATFORM_TAG, x, ##__VA_ARGS__)
 #endif
 
 #ifndef LWIP_PLATFORM_DIAG
@@ -104,7 +104,7 @@
 #endif
 
 #ifndef LWIP_RAND
-#define LWIP_RAND() ((uint32_t)rand())
+#define LWIP_RAND() ((uint32_t)aos_rand())
 #endif
 
 #if 0

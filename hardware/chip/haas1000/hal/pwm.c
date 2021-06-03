@@ -34,7 +34,7 @@ static enum HAL_PWM_ID_T __hal_pwm_port2chan(uint8_t port)
 static void __hal_pwm_pram2cfg(struct HAL_PWM_CFG_T *cfg, pwm_config_t *pram)
 {
 	cfg->freq = pram->freq;
-	cfg->ratio = (uint8)(pram->duty_cycle*1000);
+	cfg->ratio = pram->duty_cycle*1000;
 	cfg->inv = false;
 	cfg->sleep_on = false;
 }

@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-extern bool log_init;
+extern bool aos_ulog_init;
 
 bool log_get_mutex(void);
 

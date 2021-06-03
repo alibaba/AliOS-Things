@@ -24,7 +24,7 @@ static void dns_req_command(char *name)
     struct hostent *hostent;
     uint8_t index = 0;
 
-    hostent = gethostbyname(name);
+    hostent = lwip_gethostbyname(name);
 
     if (hostent) {
         LWIP_DEBUGF( DNSCLI_DEBUG, ("hostent.h_name %s\n", hostent->h_name));
@@ -35,7 +35,7 @@ static void dns_req_command(char *name)
             }
         }
     } else {
-        LWIP_DEBUGF( DNSCLI_DEBUG, ("gethostbyname failed, try again\n"));
+        LWIP_DEBUGF( DNSCLI_DEBUG, ("lwip_gethostbyname failed, try again\n"));
     }
 }
 
@@ -56,7 +56,7 @@ static void dns_command(char *buffer, int32_t buf_len, int32_t argc, char **argv
 
 int32_t dns_cli_register(void)
 {
-    if (cli_register_commands(dns_cmd, 1)) {
+    if (0 == aos_cli_register_commands(dns_cmd, 1)) {
         return 0;
     }
 

@@ -1,34 +1,89 @@
 
-name: ota_demo
-version: rel_3.3.0                                   # <必选项> 组件版本号
-description: OTA demo for developers
+## 第一部分： 基础信息
+name: ota_demo                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                    # <必选项> 组件版本号
+description: OTA demo for developers                # <必选项> 建议至少20字以上
+type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
-type: solution
 
-solution:
-  cpu_id: cpu0
-  board_name: haaseduk1
 ## 第二部分：依赖信息
-#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
-#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+#           指定该组件依赖的组件及版本，未来版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           目前仅支持指定某一个版本，如 v1.0 与 ==v1.0
+#           依赖还可以包含条件，条件可以不定义(即false)；也可以是组件（该组件或其它组件）里的def_config里的宏，且取值为0(即false)，1(即true)
 # depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
-#   - minilibc: v7.2.0
-#   - aos: >=v7.2.0
+#   - minilibc: 'v7.2.0'
+#   - aos: 'v7.2.0 ? <ENABLE_AOS>'
 depends:
   - ota: rel_3.3.0
   - cjson: rel_3.3.0
   - cli: rel_3.3.0
   - netmgr: rel_3.3.0
   - lwip: rel_3.3.0
-  - haaseduk1: rel_3.3.0
   - netmgr: rel_3.3.0
   - ulog: rel_3.3.0
   - uservice: rel_3.3.0
   - wifi: rel_3.3.0
+  - haas200: rel_3.3.0
+  - haas100: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - linksdk: rel_3.3.0
+## 第三部分：板级信息
+# hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
+#   cpu_id: cpu0
+#   cpu_name: CK804EF
+#   vendor_name: t-head
+#   chip_name: chip_pangu                  # <可选项> 指定芯片组件名,未设置时，使用depends中 chip 第一个组件
+#   board_name: pangu_cpu0_evb             # <可选项> 指定开发板组件名，未设置时，使用depends中 board 第一个组件
+#   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+#   toolchain_prefix: csky-abiv2-elf       # <可选项> 编译器前缀
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <可选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
 
-# build_config:
-#   include:
+## solution component
+# hw_info:
+#   cpu_id: cpu0
+#   board_name: pangu_cpu0_evb
+#   cpu_name: CK805EF
+#   vendor_name: thead
+#   chip_name: 'chip_pangu'
+#   ld_script: configs/gcc_eflash.ld.S
 
+## board component
+# hw_info:
+#   chip_name: chip_pangu
+#   ld_script: configs/gcc_eflash.ld
+
+## chip component (单处理器)
+# hw_info:
+#   cpu_name: CK804EF
+#   ld_script: configs/gcc_eflash.ld
+#   toolchain_prefix: csky-abiv2-elf
+#   flash_program: bin/flash_program.elf
+
+## chip component(多处理器)
+# hw_info:
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+solution:
+  cpu_id: cpu0
+  board_name: haas100
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -51,8 +106,6 @@ depends:
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
-define:
-  TEST_LOOP ? <OTA_DEMO_CONFIG_TEST_LOOP>
 source_file:
   - "maintask.c"
   - "otaappdemo.c"
@@ -62,13 +115,12 @@ source_file:
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
-def_config:                              # 组件的可配置项
+def_config:
   OTA_DEMO_CONFIG_TEST_LOOP: 1
-
 
 ## 第六部分：安装信息
 # install:
-#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于AOS SDK 安装目录
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 

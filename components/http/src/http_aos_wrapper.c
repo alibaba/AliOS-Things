@@ -10,8 +10,8 @@
 #include "httpclient.h"
 #include "http_opts.h"
 #include "http_wrappers.h"
-
-#include "network/network.h"
+#include <netdb.h>
+#include <sys/socket.h>
 
 #if CONFIG_HTTP_SECURE
 #include "mbedtls/net.h"

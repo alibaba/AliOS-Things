@@ -15,6 +15,7 @@ depends:                                 # <可选项> 该组件依赖其他的�
   - vfs: rel_3.3.0
   - osal_aos: rel_3.3.0
 #  - ramfs: rel_3.3.0
+  - netmgr: rel_3.3.0
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 

@@ -10,13 +10,16 @@
 // #define AMP_LOWMEMORY_ENABLE
 
 /* manager channel */
-#define AMP_NETWORK_ENABLE
+// #define AMP_NETWORK_ENABLE
 
 /* das(device security) service */
 // #define AMP_DAS_ENABLED
 
 /* ntp service */
 #define AMP_NTP_ENABLED
+
+/* ota service */
+#define JSE_ADVANCED_ADDON_OTA
 
 /* location service */
 // #define AMP_LOCATION_SERVICE_ENABLED
@@ -52,6 +55,7 @@
 #define JSE_HW_ADDON_PWM
 #define JSE_HW_ADDON_RTC
 #define JSE_HW_ADDON_UART
+//#define JSE_HW_ADDON_LCD
 // #define JSE_HW_ADDON_WDG
 
 /* network */
@@ -61,10 +65,10 @@
 #define JSE_NET_ADDON_HTTP
 #define JSE_NET_ADDON_NETMGR
 #define JSE_NET_ADDON_WIFI
-//#define JSE_NET_ADDON_CELLULAR
+#define JSE_NET_ADDON_CELLULAR
 
 /* advanced component */
-//#define JSE_ADVANCED_ADDON_AIOT_DEVICE
+#define JSE_ADVANCED_ADDON_AIOT_DEVICE
 //#define JSE_ADVANCED_ADDON_AIOT_GATEWAY
 // #define JSE_ADVANCED_ADDON_AUDIOPLAYER
 // #define JSE_ADVANCED_ADDON_TTS
@@ -72,13 +76,20 @@
 // #define JSE_ADVANCED_ADDON_KEYPAD
 // #define JSE_ADVANCED_ADDON_UND
 
+/* wireless */
+#define JSE_WIRELESS_ADDON_BT_HOST
+
+/* utils */
+#define JSE_UTILS_ADDON_CHECKSUM
+#define JSE_UTILS_ADDON_CRYPTO
+
 /* ui component */
-#ifdef AMP_UI_SUPPORT
+#ifdef CONFIG_AMP_UI_SUPPORT
 #define JSE_ADVANCED_ADDON_UI
 #endif
 
 /* recovery switch & status led */
-#define AMP_RECOVERY_ENABLE
+//#define AMP_RECOVERY_ENABLE
 #define AMP_REPL_PROMPT     "amp> "
 
 /* manager channel device info for porject */

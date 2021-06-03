@@ -1,0 +1,116 @@
+.textClass {
+  align: inTopLeft;
+}
+
+.bindText {
+  align: inTopMid;
+}
+
+.buttonClass {
+  width: 100px;
+  height: 50px;
+  top: 150px;
+  left: 100px;
+  background-color: #43cd80;
+  gradient-color: #43cd80;
+  border-radius: 5px;
+}
+
+.iconClass {
+  top: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#topBar {
+  width: 320px;
+  height: 30px;
+  top: 0px;
+  left: 0px;
+  background-color: #000000;
+  gradient-color: #000000;
+}
+
+#shop {
+  top: 5px;
+  left: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#time {
+  top: 5px;
+  left: 160px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#batteryValue {
+  top: 5px;
+  left: 260px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#signal {
+  top: 5px;
+  left: 130px;
+  font-color: #ffffff;
+}
+
+#battery {
+  top: 5px;
+  left: 230px;
+  font-color: #ffffff;
+}
+
+#buttonBackGround {
+  width: 280px;
+  height: 180px;
+  top: 40px;
+  left: 20px;
+  background-color: #ffffff;
+  gradient-color: #ffffff;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 20px;
+  z-index: 3;
+}
+
+#payText {
+  top: 100px;
+  left: 120px;
+  width: 160px;
+  font-color: #000000;
+  text-align: center;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#payValue {
+  top: 120px;
+  left: 120px;
+  width: 160px;
+  font-size: 22px;
+  font-color: #000000;
+  text-align: center;
+  z-index: 3;
+}
+
+#upay {
+  top: -30px;
+  left: 60px;
+  align: center;
+  font-color: #4169E1;
+}
+
+#device_bind_qrcode {
+  top: 80px;
+  left: 50px;
+  z-index: 6;
+}
+

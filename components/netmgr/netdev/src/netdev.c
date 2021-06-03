@@ -106,9 +106,8 @@ int netdev_unregister(struct netdev *netdev)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, cur_netdev, struct netdev, list)
     {
-        cur_netdev = slist_entry(node, struct netdev, list);
         if (cur_netdev && (memcmp(cur_netdev, netdev, sizeof(struct netdev)) == 0))
         {
             slist_del(&(cur_netdev->list), &(netdev_list->list));
@@ -146,9 +145,8 @@ struct netdev *netdev_get_first_by_flags(uint16_t flags)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = slist_entry(node, struct netdev, list);
         if (netdev && (netdev->flags & flags) != 0)
         {
             RHINO_CPU_INTRPT_ENABLE();
@@ -183,9 +181,8 @@ struct netdev *netdev_get_by_ipaddr(ip_addr_t *ip_addr)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = slist_entry(node, struct netdev, list);
         if (netdev && ip_addr_cmp(&(netdev->ip_addr), ip_addr))
         {
            RHINO_CPU_INTRPT_ENABLE();
@@ -220,9 +217,8 @@ struct netdev *netdev_get_by_name(const char *name)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = slist_entry(node, struct netdev, list);
         if (netdev && (strncmp(netdev->name, name, strlen(netdev->name)) == 0))
         {
             RHINO_CPU_INTRPT_ENABLE();
@@ -260,9 +256,8 @@ struct netdev *netdev_get_by_family(int family)
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = slist_entry(node, struct netdev, list);
         pf = (struct sal_proto_family *) netdev->sal_user_data;
         if (pf && pf->skt_ops && pf->family == family && netdev_is_up(netdev))
         {
@@ -271,9 +266,8 @@ struct netdev *netdev_get_by_family(int family)
         }
     }
 
-    for (node = &(netdev_list->list); node; node = slist_next(node))
+    slist_for_each_entry_safe(&(netdev_list->list), node, netdev, struct netdev, list)
     {
-        netdev = slist_entry(node, struct netdev, list);
         pf = (struct sal_proto_family *) netdev->sal_user_data;
         if (pf && pf->skt_ops && pf->sec_family == family && netdev_is_up(netdev))
         {

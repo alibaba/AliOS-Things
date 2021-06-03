@@ -6,6 +6,7 @@
 #define _AOS_SOCKET_H_
 
 #include <sys/socket.h>
+#include "netdb.h"
 
 /**
  * @brief get socket errno.

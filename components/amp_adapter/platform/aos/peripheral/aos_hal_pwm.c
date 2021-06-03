@@ -3,6 +3,10 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_pwm.h"
 #include <vfsdev/pwm_dev.h>
@@ -144,7 +148,7 @@ int32_t aos_hal_pwm_finalize(pwm_dev_t *pwm)
         ret = -EALREADY;
 
     pwm->priv = NULL;
- 
+
     *p_fd = -1;
     free(p_fd);
 

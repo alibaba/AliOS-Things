@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/uart.h"
+#include "aos_hal_uart.h"
 
 extern const mp_obj_type_t driver_uart_type;
 
@@ -74,24 +74,24 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_UART, id, &(driver_obj->uart_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_UART, id, &(driver_obj->uart_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
@@ -102,13 +102,13 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: stop_bits = %d;\n", __func__, uart_device->config.stop_bits);
     LOG_D("%s: flow_control = %d;\n", __func__, uart_device->config.flow_control);
     LOG_D("%s: mode = %d;\n", __func__, uart_device->config.mode);
-    ret = hal_uart_init(uart_device);
+    ret = aos_hal_uart_init(uart_device);
     LOG_D("%s: init ret = %d;\n", __func__, ret);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_uart_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
+        LOG_E("%s: aos_hal_uart_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -135,19 +135,19 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_uart_finalize(uart_device);
+    ret = aos_hal_uart_finalize(uart_device);
     if (ret != 0)
     {
-        LOG_E("hal_uart_finalize failed\n");
+        LOG_E("aos_hal_uart_finalize failed\n");
     }
 
-    board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
+    py_board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
     //uart_del_recv(driver_obj->uart_handle.handle);//TODO
     LOG_D("%s:out\n", __func__);
 
@@ -174,9 +174,9 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -184,10 +184,10 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
     memset(bufinfo.buf, 0, bufinfo.len);
 
-    ret = hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, 0);
+    ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, 0);
     if (recvsize <= 0)
     {
-        LOG_E("%s:hal_uart_recv_II failed\n", __func__);
+        LOG_E("%s:aos_hal_uart_recv_II failed\n", __func__);
     }
     uint8_t * data = (uint8_t *)bufinfo.buf;
     for (int i = 0; i < recvsize; i++)
@@ -219,9 +219,9 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -233,10 +233,10 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
     {
         LOG_D("%s:data[%d] = 0x%x;\n", __func__, i , data[i]);
     }
-    ret  = hal_uart_send(uart_device, bufinfo.buf, bufinfo.len, UART_TIMEOUT);
+    ret  = aos_hal_uart_send(uart_device, bufinfo.buf, bufinfo.len, UART_TIMEOUT);
     if (ret == -1)
     {
-        LOG_E("hal_uart_send failed\n");
+        LOG_E("aos_hal_uart_send failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -262,9 +262,9 @@ STATIC mp_obj_t obj_setBaudRate(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -312,9 +312,9 @@ STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 #include <stdio.h>
-#include <network.h>
+#include <lwip/sockets.h>
 #if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif
@@ -16,7 +16,7 @@ static void udp_server_task(void *data)
     int     sockfd;
     struct  sockaddr_in svraddr = {0};
 
-    sockfd = socket(AF_INET,SOCK_DGRAM,0);
+    sockfd = lwip_socket(AF_INET,SOCK_DGRAM,0);
 
     if (sockfd < 0) {
         return;
@@ -26,7 +26,7 @@ static void udp_server_task(void *data)
     svraddr.sin_port=htons(PORT);
     inet_aton("127.0.0.1",&svraddr.sin_addr);
 
-    int ret=bind(sockfd,(struct sockaddr*)&svraddr,sizeof(svraddr));
+    int ret=lwip_bind(sockfd,(struct sockaddr*)&svraddr,sizeof(svraddr));
     if (ret<0) {
         printf("cannot bind!\r\n");
         close(sockfd);
@@ -37,7 +37,7 @@ static void udp_server_task(void *data)
     {
         struct sockaddr_in cli;
         int len = sizeof(cli);
-        int recv_len = recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr*)&cli, &len);
+        int recv_len = lwip_recvfrom(sockfd, buf, BUFSIZE, 0, (struct sockaddr*)&cli, &len);
 
         if (recv_len > 0) {
             buf[recv_len]='\0';
@@ -45,13 +45,13 @@ static void udp_server_task(void *data)
         }
     }
 
-    close(sockfd);
+    lwip_close(sockfd);
 }
 
 static void udp_client_task(void *data)
 {
     char *buf = "hello UDP";
-    int sockfd=socket(AF_INET,SOCK_DGRAM,0);
+    int sockfd=lwip_socket(AF_INET,SOCK_DGRAM,0);
     struct sockaddr_in svraddr;
     int len = 0;
 
@@ -66,13 +66,13 @@ static void udp_client_task(void *data)
     while(1) {
         aos_msleep(1000);
 
-        len = sendto(sockfd,buf,strlen(buf),0,(struct sockaddr*)&svraddr,sizeof(svraddr));
+        len = lwip_sendto(sockfd,buf,strlen(buf),0,(struct sockaddr*)&svraddr,sizeof(svraddr));
         if (len < strlen(buf)) {
             break;
         }
     }
 
-    close(sockfd);
+    lwip_close(sockfd);
 }
 
 static void udp_example(int argc, char **argv)
