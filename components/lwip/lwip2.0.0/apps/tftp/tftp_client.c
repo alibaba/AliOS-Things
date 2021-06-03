@@ -230,7 +230,7 @@ int tftp_client_get(const ip_addr_t *paddr, const char *fname, const char *lfnam
         return ERR_MEM;
     }
 
-    uint16_t port = rand() % 16384 + 49152;
+    uint16_t port = aos_rand() % 16384 + 49152;
     ret = udp_bind(pcb, IP4_ADDR_ANY, port);
     if (ret != ERR_OK) {
         LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("error: bind to port '%u' failed\n", port));

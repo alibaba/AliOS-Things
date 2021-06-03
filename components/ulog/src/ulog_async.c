@@ -12,7 +12,9 @@
 #include "ulog_ring_fifo.h"
 #include "aos/kernel.h"
 #include "k_config.h"
+#ifdef AOS_COMP_UAGENT
 #include "uagent.h"
+#endif
 
 static aos_task_t ulog_routine;
 

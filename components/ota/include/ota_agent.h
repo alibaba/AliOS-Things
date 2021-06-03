@@ -398,8 +398,10 @@ int ota_register_feedback_msg_cb(ota_service_t *ctx, void *cb, void *param);
 /**
  * ota_transport_inform  OTA inform version to cloud.
  *
- * @param[in] ota_service_t *ctx   ota service context
- * @param[in]  char *module_name   want to report moudle name
+ * @param[in]   void *mqttclient   mqtt client ptr
+ * @param[in]           char *pk   product key value
+ * @param[in]           char *dn   device name
+ * @param[in]  char *module_name   want to report module name, when module_name == NULL, report default module ver
  * @param[in]          char *ver   version string
  *
  * @return OTA_SUCCESS             OTA success.
@@ -407,7 +409,7 @@ int ota_register_feedback_msg_cb(ota_service_t *ctx, void *cb, void *param);
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_transport_inform(ota_service_t *ctx, char *module_name, char *ver);
+int ota_transport_inform(void *mqttclient, char *pk, char *dn, char *module_name, char *ver);
 
 /**
  * ota_transport_upgrade  subscribe OTA upgrade to clould.

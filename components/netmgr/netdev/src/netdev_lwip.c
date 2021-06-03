@@ -513,8 +513,10 @@ void list_tcps(void)
     CLI_PRINT("Active PCB states:\n");
     for(pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next)
     {
-        strncpy(local_ip_str, ipaddr_ntoa(&(pcb->local_ip)), sizeof(local_ip_str));
-        strncpy(remote_ip_str, ipaddr_ntoa(&(pcb->remote_ip)), sizeof(remote_ip_str));
+        memset(local_ip_str, 0, sizeof(local_ip_str));
+        strncpy(local_ip_str, ipaddr_ntoa(&(pcb->local_ip)), sizeof(local_ip_str)-1);
+        memset(remote_ip_str, 0, sizeof(remote_ip_str));
+        strncpy(remote_ip_str, ipaddr_ntoa(&(pcb->remote_ip)), sizeof(remote_ip_str)-1);
 
         CLI_PRINT("#%d %s:%d <==> %s:%d snd_nxt 0x%08X rcv_nxt 0x%08X ",
                    num++,
@@ -539,8 +541,10 @@ void list_tcps(void)
     num = 0;
     for(pcb = tcp_tw_pcbs; pcb != NULL; pcb = pcb->next)
     {
-        strncpy(local_ip_str, ipaddr_ntoa(&(pcb->local_ip)), sizeof(local_ip_str));
-        strncpy(remote_ip_str, ipaddr_ntoa(&(pcb->remote_ip)), sizeof(remote_ip_str));
+        memset(local_ip_str, 0, sizeof(local_ip_str));
+        strncpy(local_ip_str, ipaddr_ntoa(&(pcb->local_ip)), sizeof(local_ip_str)-1);
+        memset(remote_ip_str, 0, sizeof(remote_ip_str));
+        strncpy(remote_ip_str, ipaddr_ntoa(&(pcb->remote_ip)), sizeof(remote_ip_str)-1);
 
         CLI_PRINT("#%d %s:%d <==> %s:%d snd_nxt 0x%08X rcv_nxt 0x%08X ",
                    num++,

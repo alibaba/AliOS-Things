@@ -30,9 +30,8 @@
 #include <unistd.h>
 
 #include "sntp/sntp.h"
-#include "lwip/sockets.h"
-#include "lwip/inet.h"
-#include "lwip/netdb.h"
+#include "sys/socket.h"
+#include "netdb.h"
 #include "sys/time.h"
 #include "string.h"
 #include "stdlib.h"

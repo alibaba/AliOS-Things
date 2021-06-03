@@ -1,4 +1,4 @@
-@page miniapp_agent_demo miniapp_agent_demo
+@page miniapp_agent_demo 小程序配网并上云案例
 # 1. 案例简介
 miniapp_agent_demo是我们提供的小程序配网、上云配套固件。通过配套的“HaaS小程序”，开发者可以快速实现设备的配网、上云、连接 IoT Studio 快速实现应用开发及部署。
 其完成的主要功能包括：

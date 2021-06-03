@@ -12,16 +12,16 @@
 
 void ifconfig_help(void)
 {
-    LWIP_DEBUGF( IFCONFIG_DEBUG, ("Usage: ifconfig\n"));
-    LWIP_DEBUGF( IFCONFIG_DEBUG, ("Example:\n"));
-    LWIP_DEBUGF( IFCONFIG_DEBUG, ("ifconfig           Display net interface config information\n"));
-    LWIP_DEBUGF( IFCONFIG_DEBUG, ("ifconfig status    Display net interface config information\n"));
+    aos_cli_printf("Usage: ifconfig\n");
+    aos_cli_printf("Example:\n");
+    aos_cli_printf("ifconfig           Display net interface config information\n");
+    aos_cli_printf("ifconfig status    Display net interface config information\n");
 }
 
-void ifconfig_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
+void ifconfig_cmd(int argc, char **argv )
 {
     if ( argc < 1 ) {
-        LWIP_DEBUGF(IFCONFIG_DEBUG, ("Invalid command\n"));
+        aos_cli_printf("Invalid command\n");
         ifconfig_help();
         return;
     }
@@ -34,17 +34,6 @@ void ifconfig_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
     }
 }
 
-struct cli_command ifconfig_message_cmd[] = {
-    { "ifconfig", "ifconfig command", ifconfig_command },
-};
-
-int ifconfig_cli_register( void )
-{
-    if( 0 == cli_register_commands( ifconfig_message_cmd, 1 ) ) {
-        return ERR_OK;
-    }
-    else {
-        return ERR_VAL;
-    }
-}
+/* reg args: fun, cmd, description*/
+ALIOS_CLI_CMD_REGISTER(ifconfig_cmd, ifconfig, Ifconfig command)
 #endif /* AOS_COMP_CLI */

@@ -3,6 +3,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <vfsdev/gpio_dev.h>
@@ -184,7 +186,7 @@ int32_t aos_hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
             break;
     }
 
-    config.cb = handler;
+    config.cb = (io_irq_handler_t)handler;
     config.arg = arg;
     r = ioctl(fd, IOC_GPIO_SET_IRQ, (unsigned long)&config);
     close(fd);

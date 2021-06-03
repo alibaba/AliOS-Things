@@ -45,10 +45,10 @@
  */
 
 #include "lwip/opt.h"
-
+#include "sys/socket.h"
 #if LWIP_SOCKET /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/sockets.h"
+//#include "lwip/sockets.h"
 #include "lwip/api.h"
 #include "lwip/sys.h"
 #include "lwip/igmp.h"
@@ -312,7 +312,6 @@ static void lwip_socket_unregister_membership(int s, const ip4_addr_t *if_addr, 
 static void lwip_socket_drop_registered_memberships(int s);
 #endif /* LWIP_IGMP */
 
-#define LWIP_EVENT_OFFSET (NUM_SOCKETS + LWIP_SOCKET_OFFSET)
 struct lwip_event {
   uint64_t counts;
   int used;

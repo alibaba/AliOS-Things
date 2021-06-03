@@ -4,11 +4,7 @@
 
 #ifndef NETMGR_H
 #define NETMGR_H
-#ifdef CONFIG_LWIP_V200
-#include <network/network.h>
-#else
 #include <sys/socket.h>
-#endif
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -83,7 +79,7 @@ typedef struct {
     netmgr_wifi_ap_info_t config[MAX_AP_CONFIG_NUM];     /**< The ap information array */
 } netmgr_wifi_ap_config_t, netmgr_wifi_config_t;
 
-/** @brief  wireless network type */
+/** @brief  network type */
 typedef enum {
     NETMGR_TYPE_WIFI,
     NETMGR_TYPE_GPRS,
@@ -196,7 +192,7 @@ void netmgr_service_deinit();
  *
  * @param  [in] name    name of netmgr dev
  *
- * @return NULL on error
+ * @return  0 on success, negative error on failure.
  */
 int netmgr_add_dev(const char* name);
 
@@ -205,7 +201,7 @@ int netmgr_add_dev(const char* name);
  *
  * @param  [in] name    name of netmgr dev
  *
- * @return NULL on error
+ * @return  negative error on failure, others on success.
  */
 netmgr_hdl_t netmgr_get_dev(const char* name);
 
@@ -215,7 +211,7 @@ netmgr_hdl_t netmgr_get_dev(const char* name);
  * @param  [in] hdl     netmgr handle
  * @param  [in] info    config information
  *
- * @return 0 on success, others on error
+ * @return >=0 on success, others on error
  */
 int netmgr_set_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info);
 
@@ -238,35 +234,6 @@ int netmgr_get_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info);
 void netmgr_set_auto_reconnect(netmgr_hdl_t hdl, bool enable);
 
 /**
- * @brief  get config information
- *
- * @param  [in]  hdl      netmgr handle
- * @param  [out] config   netmgr config information
- *
- * @return 0 on success, others on error
- */
-int netmgr_get_config(netmgr_hdl_t hdl, netmgr_config_t* config);
-
-/**
- * @brief  delete config information
- *
- * @param  [in] hdl       netmgr handle
- * @param  [in] config    netmgr config information
- *
- * @return 0 on success, others on error
- */
-int netmgr_del_config(netmgr_hdl_t, netmgr_del_config_t* config);
-
-/**
- * @brief  get state of hdl
- *
- * @param  [in] hdl      netmgr handle
- *
- * @return >=0 on success, others on error
- */
-int netmgr_get_state(netmgr_hdl_t hdl);
-
-/**
  * @brief  netmgr connect network
  *
  * @param  [in] hdl       netmgr handle
@@ -286,6 +253,15 @@ int netmgr_connect(netmgr_hdl_t hdl, netmgr_connect_params_t* params);
 int netmgr_disconnect(netmgr_hdl_t hdl);
 
 /**
+ * @brief  get state of hdl
+ *
+ * @param  [in] hdl      netmgr handle
+ *
+ * @return >=0 on success, others on error
+ */
+int netmgr_get_state(netmgr_hdl_t hdl);
+
+/**
  * @brief  netmgr save config
  *
  * @param  [in] hdl       netmgr handle
@@ -295,14 +271,24 @@ int netmgr_disconnect(netmgr_hdl_t hdl);
 int netmgr_save_config(netmgr_hdl_t hdl);
 
 /**
- * @brief  netmgr set connect params
+ * @brief  get config information
  *
- * @param  [in] hdl          netmgr handle
- * @param  [in] params       netmgr connect params
+ * @param  [in]  hdl      netmgr handle
+ * @param  [out] config   netmgr config information
  *
  * @return 0 on success, others on error
  */
-int netmgr_set_connect_params(netmgr_hdl_t hdl, netmgr_connect_params_t* params);
+int netmgr_get_config(netmgr_hdl_t hdl, netmgr_config_t* config);
+
+/**
+ * @brief  delete config information
+ *
+ * @param  [in] hdl       netmgr handle
+ * @param  [in] config    netmgr config information
+ *
+ * @return 0 on success, others on error
+ */
+int netmgr_del_config(netmgr_hdl_t, netmgr_del_config_t* config);
 
 /**
  * @brief  netmgr set message callback

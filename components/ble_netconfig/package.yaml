@@ -20,6 +20,7 @@ depends:
     - ble_host: rel_3.3.0 #v7.4-dev
     - osal_aos: rel_3.3.0
     - netmgr: rel_3.3.0
+    - kv: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -99,7 +100,11 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - ble_netconfig.c
+  - blecfg_main.c
+  - blecfg_stack.c
+  - blecfg_netmgr.c
+  - blecfg_linksdk.c
+  - blecfg_cli.c
 #  - example/netcfg_example.c
 
 ## 第五部分：配置信息

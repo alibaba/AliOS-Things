@@ -47,6 +47,7 @@
  * This is simple TFTP server for the lwIP raw API.
  */
 
+#if AOS_COMP_CLI
 #include "lwip/opt.h"
 #include "lwip/udp.h"
 #include "lwip/timeouts.h"
@@ -54,6 +55,8 @@
 #include "lwip/apps/tftp.h"
 #include <limits.h>
 #include <string.h>
+#include <aos/vfs.h>
+#include <aos/cli.h>
 
 void
 tftp_send_error(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port,
@@ -98,12 +101,12 @@ tftp_send_ack(struct udp_pcb *pcb, const ip_addr_t *addr, u16_t port, u16_t blkn
 static void tftp_get_done(int error, int len)
 {
     if (error == 0) {
-        cli_printf("tftp received len:%d done.\r\n", len);
+        aos_cli_printf("tftp received len:%d done.\r\n", len);
     } else {
-        cli_printf("tftp received failed.\r\n");
+        aos_cli_printf("tftp received failed.\r\n");
     }
     char _buf[PATH_MAX] = {0};
-    cli_printf("(%s:%s)#", cli_task_get_console_name(), aos_getcwd(_buf, sizeof(_buf)));
+    aos_cli_printf("(%s)#", aos_getcwd(_buf, sizeof(_buf)));
 }
 
 extern tftp_context_t client_ctx;
@@ -116,11 +119,11 @@ static int tftp_cmd(int argc, char **argv)
     if (strncmp(argv[1], "server", 6) == 0) {
         if (strncmp(argv[2], "start", 5) == 0) {
             err_t err = tftp_server_start();
-            cli_printf("tftp start server %s\r\n", err == ERR_OK ? "done" : "failed");
+            aos_cli_printf("tftp start server %s\r\n", err == ERR_OK ? "done" : "failed");
             return 0;
         } else if (strncmp(argv[2], "stop", 4) == 0) {
             tftp_server_stop();
-            cli_printf("tftp stop server done\r\n");
+            aos_cli_printf("tftp stop server done\r\n");
             return 0;
         }
         goto tftp_print_usage;
@@ -146,7 +149,7 @@ static int tftp_cmd(int argc, char **argv)
     }
 
 tftp_print_usage:
-    cli_printf("usage:\r\n"
+    aos_cli_printf("usage:\r\n"
                "  tftp server <start|stop>\r\n"
                "  tftp get $server_ip server_src_path device_dest_path server_port file_type\r\n"
                "eg:\r\n"
@@ -156,9 +159,6 @@ tftp_print_usage:
     return 0;
 }
 
-
-#if AOS_COMP_CLI
-#include "aos/cli.h"
 /* reg args: fun, cmd, description*/
 ALIOS_CLI_CMD_REGISTER(tftp_cmd, tftp, TFTP command)
 #endif

@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/i2c.h"
+#include "aos_hal_i2c.h"
 
 extern const mp_obj_type_t driver_i2c_type;
 
@@ -75,24 +75,24 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_I2C, id, &(driver_obj->i2c_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_I2C, id, &(driver_obj->i2c_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
@@ -101,12 +101,12 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: freq = %d;\n", __func__, i2c_device->config.freq);
     LOG_D("%s: mode = %d;\n", __func__, i2c_device->config.mode);
     LOG_D("%s: dev_addr = %d;\n", __func__, i2c_device->config.dev_addr);
-    ret = hal_i2c_init(i2c_device);
+    ret = aos_hal_i2c_init(i2c_device);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_i2c_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
+        LOG_E("%s: aos_hal_i2c_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -134,20 +134,20 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_i2c_finalize(i2c_device);
+    ret = aos_hal_i2c_finalize(i2c_device);
     if (ret != 0)
     {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
+    py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
     LOG_D("%s:out\n", __func__);
 
     return mp_const_none;
@@ -174,9 +174,9 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -184,11 +184,11 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
     memset(bufinfo.buf, 0, bufinfo.len);
 
-    ret = hal_i2c_master_recv(i2c_device, i2c_device->config.dev_addr,
+    ret = aos_hal_i2c_master_recv(i2c_device, i2c_device->config.dev_addr,
                                   bufinfo.buf, bufinfo.len, I2C_TIMEOUT);
     if (ret !=0 )
     {
-        LOG_E("hal_i2c_master_recv failed\n");
+        LOG_E("aos_hal_i2c_master_recv failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -210,20 +210,20 @@ STATIC mp_obj_t obj_write(mp_obj_t self_in, mp_obj_t write_buf)
         return mp_const_none;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
 	mp_buffer_info_t src;
     mp_get_buffer_raise(write_buf, &src, MP_BUFFER_READ);
     LOG_D("%s:src.buf = %p;src.len = %d;\n", __func__, src.buf, src.len);
-    ret = hal_i2c_master_send(i2c_device, i2c_device->config.dev_addr,
+    ret = aos_hal_i2c_master_send(i2c_device, i2c_device->config.dev_addr,
                                   src.buf, src.len, I2C_TIMEOUT);
     if (ret != 0)
 	{
-		LOG_E("%s: hal_i2c_master_send failed;\n", __func__);
+		LOG_E("%s: aos_hal_i2c_master_send failed;\n", __func__);
         //return mp_const_none;
 	}
     LOG_D("%s:out\n", __func__);
@@ -253,9 +253,9 @@ STATIC mp_obj_t obj_readReg(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -264,11 +264,11 @@ STATIC mp_obj_t obj_readReg(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[2], &bufinfo, MP_BUFFER_WRITE);
     memset(bufinfo.buf, 0, bufinfo.len);
 
-    ret = hal_i2c_mem_read(i2c_device, i2c_device->config.dev_addr,
+    ret = aos_hal_i2c_mem_read(i2c_device, i2c_device->config.dev_addr,
                                mem_addr, 1, bufinfo.buf, bufinfo.len, I2C_TIMEOUT);
     if (ret !=0 )
     {
-        LOG_E("hal_i2c_mem_read failed\n");
+        LOG_E("aos_hal_i2c_mem_read failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -297,9 +297,9 @@ STATIC mp_obj_t obj_writeReg(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    i2c_device = board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
+    i2c_device = py_board_get_node_by_handle(MODULE_I2C, &(driver_obj->i2c_handle));
     if (NULL == i2c_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -307,11 +307,11 @@ STATIC mp_obj_t obj_writeReg(size_t n_args, const mp_obj_t *args)
 	mp_buffer_info_t src;
     mp_get_buffer_raise(args[2], &src, MP_BUFFER_READ);
     LOG_D("%s:src.buf = %p;src.len = %d;\n", __func__, src.buf, src.len);
-    ret = hal_i2c_mem_write(i2c_device, i2c_device->config.dev_addr,
+    ret = aos_hal_i2c_mem_write(i2c_device, i2c_device->config.dev_addr,
                                mem_addr, 1, src.buf, src.len, I2C_TIMEOUT);
     if (ret != 0)
 	{
-        LOG_E("%s:hal_i2c_mem_write failed\n", __func__);
+        LOG_E("%s:aos_hal_i2c_mem_write failed\n", __func__);
 	}
     LOG_D("%s:out\n", __func__);
 

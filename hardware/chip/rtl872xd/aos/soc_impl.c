@@ -15,15 +15,26 @@
 #include <aos/tty_csi.h>
 #include <aos/gpioc_csi.h>
 
+#if AOS_COMP_CLI
+#include "aos/cli.h"
+#endif
+
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {
+    /* Stop and reset the SysTick. */
+    SysTick->CTRL = 0UL;
+    SysTick->VAL = 0UL;
+	/* Configure SysTick to interrupt at the requested rate. */
+	SysTick->LOAD = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
+	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
+                    SysTick_CTRL_TICKINT_Msk   |
+                    SysTick_CTRL_ENABLE_Msk;
 }
 
 hr_timer_t soc_hr_hw_cnt_get(void)
 {
-    return 0;
-    //return *(volatile uint64_t *)0xc0000120;
+    return SysTick->VAL;
 }
 
 lr_timer_t soc_lr_hw_cnt_get(void)
@@ -129,3 +140,48 @@ static int gpioc_csi_init(void)
 }
 
 LEVEL1_DRIVER_ENTRY(gpioc_csi_init)
+
+
+/* use for printk */
+int alios_debug_print(const char *buf, int size)
+{
+    int i;
+
+    for (i = 0; i < size; i++) {
+        DiagPutChar(*buf++);
+    }
+
+    return 0;
+}
+
+char uart_input_read(void)
+{
+    return DiagGetChar(1);
+}
+
+/*  check pc available  0:available  other:not available */
+extern uint8_t __flash_text_start__[];
+extern uint8_t __flash_text_end__[];
+extern uint8_t __ram_image2_text_start__[];
+extern uint8_t __ram_image2_text_end__[];
+
+int alios_debug_pc_check(char *pc)
+{
+    if ((((uint32_t)pc > (uint32_t)__flash_text_start__) &&
+         ((uint32_t)pc < (uint32_t)__flash_text_end__)) ||
+        (((uint32_t)pc > (uint32_t)__ram_image2_text_start__) &&
+         ((uint32_t)pc < (uint32_t)__ram_image2_text_end__))) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+#if AOS_COMP_CLI
+void alios_debug_pc_show(int argc, char **argv)
+{
+    aos_cli_printf("----- PC Addr ------\r\n");
+    aos_cli_printf("addr 1 : 0x%08X ~ 0x%08X\r\n", (uint32_t)__flash_text_start__, (uint32_t)__flash_text_end__);
+    aos_cli_printf("addr 2 : 0x%08X ~ 0x%08X\r\n", (uint32_t)__ram_image2_text_start__, (uint32_t)__ram_image2_text_end__);
+}
+#endif

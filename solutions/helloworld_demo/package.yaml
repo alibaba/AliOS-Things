@@ -21,6 +21,8 @@ depends:
   - cli: rel_3.3.0
   - osal_aos: rel_3.3.0
   - haas100: rel_3.3.0
+  - haas200: rel_3.3.0
+
   # - vexpress_a9: rel_3.3.0
 
 ## 第三部分：板级信息

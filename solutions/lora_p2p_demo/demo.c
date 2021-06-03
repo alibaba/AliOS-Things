@@ -97,6 +97,8 @@ int application_start(int argc, char *argv[]) {
         {
             Radio.IrqProcess( );
         }
+        // sleep for other system task, such as CLI task.
+        aos_msleep(100);
     }
     return 0;
 }

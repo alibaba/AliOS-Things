@@ -32,6 +32,7 @@ extern "C" {
 #define CAN_AUTO_RETRY_TRANSMIT_DISABLE 0
 #define CAN_AUTO_RETRY_TRANSMIT_ENABLE  1
 
+#if !defined(HAL_CAN_H)
 /*
  * CAN handle configuration
  */
@@ -68,6 +69,7 @@ typedef struct{
     uint32_t check_id;    /**< the filter identification number */
     uint32_t filter_mask; /**< the filter mask number or identification number */
 } can_filter_item_t;
+#endif
 
 /**
  * Initialises a CAN interface

@@ -16,15 +16,12 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: rel_3.3.0
+  - init: rel_3.3.0
   - cli: rel_3.3.0
   - osal_aos: rel_3.3.0
-  - littlefs: rel_3.3.0
-  - netmgr: rel_3.3.0
+  - haas100: rel_3.3.0
+  - haas200: rel_3.3.0
   - py_engine: rel_3.3.0
-  - lwip: rel_3.3.0
-  - uservice: rel_3.3.0
-  - wifi: rel_3.3.0
 
 # build_config:
 #   include:
@@ -49,39 +46,11 @@ depends:
 #   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
 #     - libs                               #   -Llibs
 
-
-build_config:
-  include:
-    - include
-
-  internal_include:
-    - unzip/internal/  
-    - unzip/include/  
-
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - "maintask.c"
   - "appdemo.c"
-  - unzip/src/ioapi.c
-  - unzip/src/iowin32.c
-  - unzip/src/miniunz.c
-  - unzip/src/unzip.c
-  - unzip/src/adler32.c
-  - unzip/src/compress.c
-  - unzip/src/crc32.c
-  - unzip/src/gzclose.c
-  - unzip/src/gzlib.c
-  - unzip/src/gzread.c
-  - unzip/src/gzwrite.c
-  - unzip/src/uncompr.c
-  - unzip/src/deflate.c
-  - unzip/src/trees.c
-  - unzip/src/zutil.c
-  - unzip/src/inflate.c
-  - unzip/src/infback.c
-  - unzip/src/inftrees.c
-  - unzip/src/inffast.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

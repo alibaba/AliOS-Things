@@ -66,7 +66,7 @@ def_config:                              # 组件的可配置项
     ULOG_CONFIG_POP_UDP: 0               # ulog日志UDP输出，1表示开启，0表示关闭
     ULOG_CONFIG_POP_FS: 0                # ulog日志存入文件系统，1表示开启，0表示关闭
     ULOG_CONFIG_UPLOAD: 0                # ulog本地日志上传到服务端，1表示开启，0表示关闭
-    ULOG_CONFIG_POP_CLOUD: 0             # ulog日志实时上传到服务端，1表示开启，0表示关闭
+    #ULOG_CONFIG_POP_CLOUD: 0             # ulog日志实时上传到服务端，1表示开启，0表示关闭
     ULOG_CONFIG_STOP_FILTER_CLOUD: 0     # ulog日志实时上传到服务端过滤等级， 详细等级参考ulog.h中 LOG_EMERG - LOG_NONE
     ULOG_CONFIG_STOP_FILTER_UDP: 4       # ulog日志UDP过滤等级， 详细等级参考ulog.h中 LOG_EMERG - LOG_NONE
     ULOG_CONFIG_STOP_FILTER_FS: 4        # ulog日志到文件系统过滤等级， 详细等级参考ulog.h中 LOG_EMERG - LOG_NONE

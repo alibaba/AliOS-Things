@@ -2,6 +2,10 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <aos/errno.h>
 #include <vfsdev/i2c_dev.h>
 #include "aos_hal_i2c.h"
@@ -77,7 +81,7 @@ int32_t aos_hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t
         return -EIO;
 
     d.addr = dev_addr;
-    d.data = data;
+    d.data = (unsigned char *)data;
     d.length = size;
     d.maddr = 0;
     d.mlength = 0;
@@ -146,12 +150,12 @@ int32_t aos_hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_ad
         return -EIO;
 
     d.addr = dev_addr;
-    d.data = data;
+    d.data = (unsigned char *)data;
     d.length = size;
     d.maddr = mem_addr;
     d.mlength = mem_addr_size;
     d.timeout = timeout;
-    
+
 
     ret = ioctl(*p_fd, IOC_I2C_MEM_TX, (unsigned long)&d);
     return 0;
@@ -205,7 +209,7 @@ int32_t aos_hal_i2c_finalize(i2c_dev_t *i2c)
         ret = -EALREADY;
 
     i2c->priv = NULL;
- 
+
     *p_fd = -1;
     free(p_fd);
 

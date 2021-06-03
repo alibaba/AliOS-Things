@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/adc.h"
+#include "aos_hal_adc.h"
 
 extern const mp_obj_type_t driver_adc_type;
 
@@ -74,35 +74,35 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_ADC, id, &(driver_obj->adc_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_ADC, id, &(driver_obj->adc_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    adc_device = board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
+    adc_device = py_board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
     if (NULL == adc_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
     LOG_D("%s: port = %d;sampling_cycle = %d;\n", __func__,
             adc_device->port, adc_device->config.sampling_cycle);
-    ret = hal_adc_init(adc_device);
+    ret = aos_hal_adc_init(adc_device);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_adc_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_ADC, &(driver_obj->adc_handle));
+        LOG_E("%s: aos_hal_adc_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_ADC, &(driver_obj->adc_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -129,13 +129,13 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    adc_device = board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
+    adc_device = py_board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
     if (NULL == adc_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
-    ret = hal_adc_finalize(adc_device);
-    board_disattach_item(MODULE_ADC, &(driver_obj->adc_handle));
+    ret = aos_hal_adc_finalize(adc_device);
+    py_board_disattach_item(MODULE_ADC, &(driver_obj->adc_handle));
 
     LOG_D("%s:out ret = %d;\n", __func__, ret);
 
@@ -161,13 +161,13 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         LOG_E("driver_obj is NULL\n");
         return mp_const_none;
     }
-    adc_device = board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
+    adc_device = py_board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
     if (NULL == adc_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    (void)hal_adc_value_get(adc_device, (void *)&adc_value, 0);
+    (void)aos_hal_adc_value_get(adc_device, (void *)&adc_value, 0);
     LOG_D("%s:out adc_value = %d;\n", __func__, adc_value);
 
     return MP_ROM_INT(adc_value);

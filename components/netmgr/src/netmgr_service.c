@@ -240,12 +240,6 @@ int netmgr_save_config(netmgr_hdl_t hdl)
     return netmgr_wifi_save_config(hdl);
 }
 
-int netmgr_set_connect_params(netmgr_hdl_t hdl, netmgr_connect_params_t* params)
-{
-    //TODO
-    return 0;
-}
-
 int netmgr_set_msg_cb(netmgr_hdl_t hdl, netmgr_msg_cb_t cb)
 {
     netmgr_wifi_set_msg_cb(hdl, cb);

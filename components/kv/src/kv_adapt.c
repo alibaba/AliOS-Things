@@ -11,6 +11,9 @@
 #include "kv_adapt.h"
 #include "aos/hal/flash.h"
 #include "vfsdev/flash_dev.h"
+#if (CONFIG_U_FLASH_CORE > 0)
+#include <aos/mtd.h>
+#endif
 
 static int32_t g_kv_flash_fd = -1;
 
@@ -22,7 +25,12 @@ static int32_t kv_flash_fd_open(void)
         return g_kv_flash_fd;
     }
 
+#if (CONFIG_U_FLASH_CORE > 0)
+    snprintf(dev_str,16-1,"/dev/mtdblock%d",KV_PARTITION);
+#else
     snprintf(dev_str,16-1,"/dev/flash%d",KV_PARTITION);
+#endif
+
     fd = open(dev_str, 0);
     if(fd < 0){
         return fd;
@@ -76,6 +84,10 @@ int32_t kv_flash_erase(uint32_t offset, uint32_t size)
 {
     int32_t ret;
     int fd;
+#if (CONFIG_U_FLASH_CORE > 0)
+    struct mtd_erase_info erase_arg;
+#endif
+
     if(kv_flash_fd_open() < 0){
         return -1;
     }
@@ -85,7 +97,15 @@ int32_t kv_flash_erase(uint32_t offset, uint32_t size)
         return ret;
     }
 
-    return ioctl(fd, IOC_FLASH_ERASE_FLASH, size);
+#if (CONFIG_U_FLASH_CORE > 0)
+    erase_arg.offset = offset;
+    erase_arg.length = size;
+    ret = ioctl(fd, IOC_MTD_ERASE, &erase_arg);
+#else
+    ret = ioctl(fd, IOC_FLASH_ERASE_FLASH, size);
+#endif
+
+    return ret;
 }
 
 void *kv_lock_create(void)

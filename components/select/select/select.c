@@ -11,6 +11,7 @@
 #include "aos/kernel.h"
 #include "aos/vfs.h"
 #include "aos/list.h"
+#include "sys/socket.h"
 #include <select.h>
 
 
@@ -57,7 +58,7 @@ static void deinit_parg(struct poll_arg *parg)
     aos_sem_free(&parg->sem);
 }
 #else
-#include <network/network.h>
+#include <sys/socket.h>
 
 extern int lwip_write(int s, const void *dataptr, size_t size);
 extern int lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
@@ -73,13 +74,13 @@ static void vfs_poll_notify(void *fd, void *arg)
 {
     struct poll_arg *parg = arg;
     uint64_t val = WRITE_VAL;
-    lwip_write(parg->efd, &val, sizeof val);
+    net_write(parg->efd, &val, sizeof val);
 }
 
 static int init_parg(struct poll_arg *parg)
 {
     int efd;
-    efd = lwip_eventfd(0, 0);
+    efd = net_eventfd(0, 0);
     if (efd < 0) {
         errno = EINVAL;
         return -1;
@@ -103,7 +104,7 @@ static int wait_io(int maxfd, fd_set *readset, fd_set *writeset, fd_set *excepts
     FD_SET(parg->efd, real_rset);
     maxfd = parg->efd > maxfd - 1 ? (parg->efd + 1) : maxfd;
 
-    ret = lwip_select(maxfd, real_rset, writeset, exceptset, timeout);
+    ret = net_select(maxfd, real_rset, writeset, exceptset, timeout);
     if (ret > 0) {
         if (FD_ISSET(parg->efd, real_rset)) {
             /*mask eventfd event to user*/
@@ -117,7 +118,7 @@ static int wait_io(int maxfd, fd_set *readset, fd_set *writeset, fd_set *excepts
 
 static void deinit_parg(struct poll_arg *parg)
 {
-    lwip_close(parg->efd);
+    net_close(parg->efd);
 }
 #endif
 static int pre_select(int fd, dlist_t *list, struct poll_arg *parg, fd_set *readset, fd_set *writeset,

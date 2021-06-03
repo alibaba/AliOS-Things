@@ -43,9 +43,6 @@ build_config:
     - <CONFIG_LWIP_VERSION>/include
     - <CONFIG_LWIP_VERSION>/include/posix
     - <CONFIG_LWIP_VERSION>/port/include ? <CONFIG_LWIP_V200>
-    - include
-    - include/network
-    # - include/posix
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -63,7 +60,7 @@ source_file:
   - <CONFIG_LWIP_VERSION>/apps/httpd/fs.c ? <CONFIG_LWIP_V200>
   - <CONFIG_LWIP_VERSION>/apps/httpd/httpd.c ? <CONFIG_LWIP_V200>
   - <CONFIG_LWIP_VERSION>/apps/ifconfig/*.c ? <CONFIG_LWIP_V200>
-  - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_bes_wrapper.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_aos_wrapper.c ? <CONFIG_LWIP_V200>
   - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_cli.c ? <CONFIG_LWIP_V200>
   - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_task.c ? <CONFIG_LWIP_V200>
 #  - <CONFIG_LWIP_VERSION>/apps/lsfd/*.c ? <CONFIG_LWIP_V200>
@@ -89,6 +86,7 @@ def_config:
   CONFIG_AOS_LWIP: 1
   CONFIG_TCPIP: 1
   WITH_LWIP_PKTPRINT: 1
+  IPERF_ENABLED: 1
 
 ## 第六部分：安装信息
 # install:

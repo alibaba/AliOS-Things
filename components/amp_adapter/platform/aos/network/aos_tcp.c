@@ -8,7 +8,7 @@
 #include "aos/kernel.h"
 #include "aos_tcp.h"
 #include "aos_socket.h"
-#include <netdb.h>
+#include "aos_system.h"
 
 #define PLATFORM_LOG_D(format, ...)                                \
     do {                                                                   \

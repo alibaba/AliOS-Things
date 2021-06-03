@@ -1,0 +1,84 @@
+ezXML - XML Parsing C Library
+version 0.8.5
+
+ezXML is a C library for parsing XML documents inspired by simpleXML for PHP.
+As the name implies, it's easy to use. It's ideal for parsing XML configuration
+files or REST web service responses. It's also fast and lightweight (less than
+20k compiled). The latest verions is available here:
+http://prdownloads.sf.net/ezxml/ezxml-0.8.6.tar.gz?download
+
+Example Usage
+
+Given the following example XML document:
+
+<?xml version="1.0"?>
+<formula1>
+  <team name="McLaren">
+    <driver>
+      <name>Kimi Raikkonen</name>
+      <points>112</points>
+    </driver>
+    <driver>
+      <name>Juan Pablo Montoya</name>
+      <points>60</points>
+    </driver>
+  </team>
+</formula1>
+
+This code snippet prints out a list of drivers, which team they drive for,
+and how many championship points they have:
+
+ezxml_t f1 = ezxml_parse_file("formula1.xml"), team, driver;
+const char *teamname;
+
+for (team = ezxml_child(f1, "team"); team; team = team->next) {
+    teamname = ezxml_attr(team, "name");
+    for (driver = ezxml_child(team, "driver"); driver; driver = driver->next) {
+        printf("%s, %s: %s\n", ezxml_child(driver, "name")->txt, teamname,
+               ezxml_child(driver, "points")->txt);
+    }
+}
+ezxml_free(f1);
+
+Alternately, the following would print out the name of the second driver on the
+first team:
+
+ezxml_t f1 = ezxml_parse_file("formula1.xml");
+
+printf("%s\n", ezxml_get(f1, "team", 0, "driver", 1, "name", -1)->txt);
+ezxml_free(f1);
+
+The -1 indicates the end of the argument list. That's pretty much all
+there is to it. Complete API documentation can be found in ezxml.h.
+
+Known Limitations
+
+- ezXML is not a validating parser
+
+- Loads the entire XML document into memory at once and does not allow for
+  documents to be passed in a chunk at a time. Large XML files can still be
+  handled though through ezxml_parse_file() and ezxml_parse_fd(), which use mmap
+  to map the file to a virtual address space and rely on the virtual memory
+  system to page in data as needed.
+
+- Does not currently recognize all possible well-formedness errors. It should
+  correctly handle all well-formed XML documents and will either ignore or halt
+  XML processing on well-formedness errors. More well-formedness checking will
+  be added in subsiquent releases.
+
+- In making the character content of tags easy to access, there is no way
+  provided to keep track of the location of sub tags relative to the character
+  data. Example:
+
+  <doc>line one<br/>
+  line two</doc>
+
+  The character content of the doc tag is reported as "line one\nline two", and
+  <br/> is reported as a sub tag, but the location of <br/> within the
+  character data is not. The function ezxml_toxml() will convert an ezXML
+  structure back to XML with sub tag locations intact.
+
+Licensing
+
+ezXML was written by Aaron Voisine <aaron@voisine.org> and is distributed under
+the terms of the MIT license, described in license.txt.

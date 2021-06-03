@@ -1,0 +1,35 @@
+diff --git a/modules/mn_cnpgw.c b/modules/mn_cnpgw.c
+index 154f628..30a0acf 100644
+--- a/modules/mn_cnpgw.c
++++ b/modules/mn_cnpgw.c
+@@ -52,12 +52,30 @@ static int marshal_sim_info(void)
+         return -1;
+     }
+ 
++#define TEST
++#ifdef TEST
++    aliyun_iot_cnpk_mn_carrier_type_t car_type;
++
++    ret = aliyun_iot_cnpk_mn_hal_get_carrier(&car_type, NULL);
++
++    if (ret != 0) {
++        mn_log_err("aliyun_iot_cnpk_mn_hal_get_carrier fail!");
++        return -1;
++    }
++
++    if (car_type == CHINA_MOBILE) {
++        strncpy(ip, "10.21.55.14", 32);
++    } else {
++        strncpy(ip, "10.199.37.134", 32);
++    }
++#else
+     ret = mn_check_dial_up_result(ip);
+ 
+     if (ret != 0) {
+         mn_log_err("mn_check_dial_up_result fail!");
+         return -1;
+     }
++#endif
+ 
+     ret = aliyun_iot_cnpk_mn_get_all_sim_info(&slot_cnt, sim_info);
+ 

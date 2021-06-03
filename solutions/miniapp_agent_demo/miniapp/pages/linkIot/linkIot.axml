@@ -1,0 +1,6 @@
+<view class="page">
+  <button size="default" class="link-iot-btn" onTap="scan" type="primary">
+    <image class="link-iot-btn-img" mode="scaleToFill" src="../../resource/image/scan.png"/>
+  </button>
+  <text>扫码预览 IoT Studio</text>
+</view>

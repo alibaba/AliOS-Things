@@ -3,7 +3,6 @@ MODULE = adapter
 
 MOD_SOURCES := \
 		platform/linux/peripheral/amp_hal_adc.c \
-		platform/linux/peripheral/amp_hal_dac.c \
 		platform/linux/peripheral/amp_hal_can.c \
 		platform/linux/peripheral/amp_hal_gpio.c \
 		platform/linux/peripheral/amp_hal_i2c.c \

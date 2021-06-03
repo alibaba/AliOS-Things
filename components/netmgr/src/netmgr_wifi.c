@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
-#include <network/network.h>
+#include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -606,7 +606,9 @@ static void reconnect_task_handle(void* arg)
             NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
             //netmgr_stat_chg_event(m, NOTIFY_CONN_RECONNECT, NULL);
             if(0 != netmgr_wifi_connect(0, &params)) {
-                ioctl(conn->hdl, WIFI_DEV_CMD_CANCEL_CONNECT, NULL);
+                if(ioctl(conn->hdl, WIFI_DEV_CMD_CANCEL_CONNECT, NULL) != 0) {
+                    NETMGR_WIFI_LOGE("WIFI_DEV_CMD_CANCEL_CONNECT failed\n");
+                }
                 conn->reconnect_task_running = false;
                 netmgr_conn_state_change(conn, CONN_STATE_FAILED);
                 break;
@@ -1574,6 +1576,8 @@ static void handle_wifi_event(netmgr_conn_t* conn, int event)
 #if (RHINO_CONFIG_USER_SPACE > 0)
             NETMGR_WIFI_LOGI("%s:%d node->msg_cb=%p node->group=%p pid=%d event=%d status=%d\n", __func__, __LINE__, node->msg_cb, node->group, node->group->pid, event, msg.data.status);
             wifi_msg_cb(node->group, (netmgr_msg_cb_t)node->msg_cb, &msg);
+#else
+            node->msg_cb(&msg);
 #endif /* RHINO_CONFIG_USER_SPACE > 0 */
             NETMGR_WIFI_LOGI("%s:%d event=%d\n", __func__, __LINE__, event);
 
@@ -1647,6 +1651,7 @@ static void handle_wifi_event(netmgr_conn_t* conn, int event)
                 res_free(node->group->pid, change);
 #else
                 event_publish(event, &msg);
+                node->msg_cb(&msg);
                 free(change);
 #endif /* RHINO_CONFIG_USER_SPACE > 0 */
             }
@@ -2377,8 +2382,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
     if(ret != 0) {
         /* If ssid is not null trigger reconnect here
          * If ssid is null tigger reconnect by reconnect task */
-        if((ssid != NULL)
-            && (g_handshake_failed_retry < NETMGR_WIFI_HANDSHAKE_FAILED_MAX_RETRY)) {
+        if(g_handshake_failed_retry < NETMGR_WIFI_HANDSHAKE_FAILED_MAX_RETRY) {
             NETMGR_WIFI_LOGI("%s:%d tigger reconnect\n", __func__, __LINE__);
             netmgr_conn_state_change(conn, CONN_STATE_FAILED);
         }
@@ -2936,13 +2940,12 @@ int  netmgr_wifi_scan_result(netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wif
             ap_check = &g_scan_result.ap_list[i];
 
             /* anonymous ssid, go to next */
-            if(ap_check->ssid == NULL || ap_check->ssid[0] == 0) continue;
+            if(ap_check->ssid[0] == 0) continue;
 
             /* ssid repeat check */
             for(j = 0; j < num; j++) {
                 /* ssid repeat */
-                if (ap_info[j].ssid != NULL
-                 && strcmp(ap_info[j].ssid, ap_check->ssid) == 0) {
+                if (strcmp(ap_info[j].ssid, ap_check->ssid) == 0) {
                     if (ap_info[j].ap_power < ap_check->ap_power) {
                         ap_info[j] = *(netmgr_wifi_ap_list_t *)ap_check;
                     }
@@ -2996,7 +2999,9 @@ void netmgr_wifi_start_monitor() {
     netmgr_conn_t* conn = g_wifi_conn_info;
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     if(conn != NULL) {
-        ioctl(conn->hdl, WIFI_DEV_CMD_START_MONITOR, NULL);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_START_MONITOR, NULL) != 0) {
+           NETMGR_WIFI_LOGE("WIFI_DEV_CMD_START_MONITOR failed\n");
+        }
     }
 }
 
@@ -3004,7 +3009,9 @@ void netmgr_wifi_stop_monitor() {
     netmgr_conn_t* conn = g_wifi_conn_info;
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     if(conn != NULL) {
-        ioctl(conn->hdl, WIFI_DEV_CMD_STOP_MONITOR, NULL);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_STOP_MONITOR, NULL) != 0) {
+           NETMGR_WIFI_LOGE("WIFI_DEV_CMD_STOP_MONITOR failed\n");
+        }
     }
 }
 
@@ -3012,7 +3019,9 @@ void netmgr_wifi_start_mgnt_monitor() {
     netmgr_conn_t* conn = g_wifi_conn_info;
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     if(conn != NULL) {
-        ioctl(conn->hdl, WIFI_DEV_CMD_START_MGNT_MONITOR, NULL);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_START_MGNT_MONITOR, NULL) != 0) {
+           NETMGR_WIFI_LOGE("WIFI_DEV_CMD_START_MGNT_MONITOR failed\n");
+        }
     }
 }
 
@@ -3020,7 +3029,9 @@ void netmgr_wifi_stop_mgnt_monitor() {
     netmgr_conn_t* conn = g_wifi_conn_info;
     NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
     if(conn != NULL) {
-        ioctl(conn->hdl, WIFI_DEV_CMD_STOP_MGNT_MONITOR, NULL);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_STOP_MGNT_MONITOR, NULL) != 0) {
+           NETMGR_WIFI_LOGE("WIFI_DEV_CMD_STOP_MGNT_MONITOR failed\n");
+        }
     }
 }
 
@@ -3115,9 +3126,13 @@ void netmgr_wifi_register_mgnt_monitor_cb(monitor_data_cb_t fn) {
         g_mgnt_monitor_task_group = cur->task_group;
         NETMGR_WIFI_LOGI("%s:%d group=%p pid=%d\n", __func__, __LINE__, g_mgnt_monitor_task_group, g_mgnt_monitor_task_group->pid);
         g_mgnt_monitor_data_cb = fn;
-        ioctl(conn->hdl, WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB, wifi_mgnt_monitor_data_cb);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB, wifi_mgnt_monitor_data_cb) != 0) {
+            NETMGR_WIFI_LOGE("WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB\n");
+        }
 #else
-        ioctl(conn->hdl, WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB, fn);
+        if(ioctl(conn->hdl, WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB, fn) != 0) {
+            NETMGR_WIFI_LOGE("WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB\n");
+        }
 #endif
     }
 }

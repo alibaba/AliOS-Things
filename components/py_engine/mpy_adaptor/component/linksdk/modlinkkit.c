@@ -70,7 +70,7 @@ static mp_obj_t on_async_service ;
 
 
 /* 日志回调函数, SDK的日志会从这里输出 */
-int32_t demo_state_logcb(int32_t code, char *message)
+int32_t py_demo_state_logcb(int32_t code, char *message)
 {
     printf("%s", message);
     return 0;
@@ -172,7 +172,7 @@ void *demo_mqtt_process_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
 
- 
+
     printf("********aiot_mqtt_process******\r\n");
 
     while (g_mqtt_process_thread_running) {
@@ -280,7 +280,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
                   mp_obj_new_str(recv->data.async_service_invoke.params,recv->data.async_service_invoke.params_len));
             }else{
                 printf("Error : on_async_service : is not function  \n");
-            }       
+            }
 
             /* TODO: 以下代码演示如何对来自云平台的异步服务调用进行应答, 用户可取消注释查看演示效果
              *
@@ -460,7 +460,7 @@ STATIC mp_obj_t linkkit_init(size_t n_args, const mp_obj_t *args) {
  /* 配置SDK的底层依赖 */
     aiot_sysdep_set_portfile(&g_aiot_sysdep_portfile);
     /* 配置SDK的日志输出 */
-    aiot_state_set_logcb(demo_state_logcb);
+    aiot_state_set_logcb(py_demo_state_logcb);
 
     /* 创建SDK的安全凭据, 用于建立TLS连接 */
     memset(&cred, 0, sizeof(aiot_sysdep_network_cred_t));

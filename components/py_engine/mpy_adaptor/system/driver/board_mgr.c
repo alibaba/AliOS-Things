@@ -12,33 +12,25 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-//#include "amp_config.h"
-//#include "amp_system.h"
-//#include "amp_fs.h"
-//#include "amp_defines.h"
 #include "board_mgr.h"
-//#include "board_marker.h"
-//#include "wrappers_defs.h"
-//#include "infra_list.h"
-
 #include "cJSON.h"
 
 #include "HaasLog.h"
 #include "aos/list.h"
-#include "aos/hal/gpio.h"
-#include "aos/hal/uart.h"
-#include "aos/hal/i2c.h"
-#include "aos/hal/pwm.h"
-#include "aos/hal/spi.h"
-#include "aos/hal/adc.h"
+#include "aos_hal_gpio.h"
+#include "aos_hal_uart.h"
+#include "aos_hal_i2c.h"
+#include "aos_hal_pwm.h"
+#include "aos_hal_spi.h"
+#include "aos_hal_adc.h"
 
 #define MOD_STR "BOARD_MGR"
 #define DRIVER_DIR JSE_FS_ROOT_DIR "/drivers/"
 
 #define DRIVER_NAME "driver.json"
 
-//extern int g_repl_config;
-int g_repl_config = 0;
+//extern int py_repl_config;
+int py_repl_config = 0;
 
 typedef struct parse_json
 {
@@ -849,12 +841,12 @@ static int32_t board_parse_json_buff(const char *json_buff)
 
         LOG_D("get app repl config is:%s", repl->valuestring);
         if (strcmp(repl->valuestring, "disable") == 0) {
-            g_repl_config = 0;
+            py_repl_config = 0;
         } else if (strcmp(repl->valuestring, "enable") == 0) {
-            g_repl_config = 1;
+            py_repl_config = 1;
         } else {
             LOG_D("repl configuration is wrong, set to default: 'enable'");
-            g_repl_config = 1;
+            py_repl_config = 1;
         }
     }
     else {
@@ -969,7 +961,7 @@ out:
     return (-1);
 }
 
-int8_t board_attach_item(addon_module_m module, const char *name_id,
+int8_t py_board_attach_item(addon_module_m module, const char *name_id,
                          item_handle_t *out)
 {
     board_item_t *item = NULL;
@@ -988,7 +980,7 @@ int8_t board_attach_item(addon_module_m module, const char *name_id,
     return (0);
 }
 
-int8_t board_disattach_item(addon_module_m module, item_handle_t *handle)
+int8_t py_board_disattach_item(addon_module_m module, item_handle_t *handle)
 {
     board_item_t *item = NULL;
     if (NULL == handle)
@@ -1005,7 +997,7 @@ int8_t board_disattach_item(addon_module_m module, item_handle_t *handle)
     return (0);
 }
 
-int8_t board_check_attach_status(addon_module_m module, item_handle_t *handle)
+int8_t py_board_check_attach_status(addon_module_m module, item_handle_t *handle)
 {
     board_item_t *item = NULL;
     if (NULL == handle)
@@ -1021,7 +1013,7 @@ int8_t board_check_attach_status(addon_module_m module, item_handle_t *handle)
     return (item->status);
 }
 
-void *board_get_node_by_name(addon_module_m module, const char *name_id)
+void *py_board_get_node_by_name(addon_module_m module, const char *name_id)
 {
     board_item_t *item = NULL;
     if (NULL == name_id)
@@ -1037,7 +1029,7 @@ void *board_get_node_by_name(addon_module_m module, const char *name_id)
     return (item->node);
 }
 
-void *board_get_node_by_handle(addon_module_m module, item_handle_t *handle)
+void *py_board_get_node_by_handle(addon_module_m module, item_handle_t *handle)
 {
     board_item_t *item = NULL;
     if (NULL == handle)
@@ -1052,7 +1044,7 @@ void *board_get_node_by_handle(addon_module_m module, item_handle_t *handle)
 }
 
 static bool board_init_flag = false;
-int32_t board_mgr_init()
+int32_t py_board_mgr_init()
 {
     int32_t ret = -1;
     char *json = NULL;
@@ -1095,7 +1087,7 @@ int32_t board_mgr_init()
     return ret;
 }
 
-int8_t board_load_drivers(const char *driver)
+int8_t py_board_load_drivers(const char *driver)
 {
     char *p = (char *)driver;
     char *index = NULL;

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include "aos/kernel.h"
-#include "network/network.h"
+#include "sys/socket.h"
 #include "hal_sal.h"
 #include <uservice/uservice.h>
 #include <uservice/eventid.h>

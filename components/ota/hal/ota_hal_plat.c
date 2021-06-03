@@ -147,6 +147,11 @@ OTA_WEAK unsigned char ota_hal_boot_type()
     return 0;
 }
 
+OTA_WEAK void ota_hal_image_crc16(unsigned short *outResult)
+{
+    ota_crc16_final(&ctx, outResult);
+}
+
 OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
 {
     int ret = OTA_UPGRADE_WRITE_FAIL;

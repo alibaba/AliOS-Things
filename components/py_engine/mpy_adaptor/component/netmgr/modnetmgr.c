@@ -43,10 +43,12 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
 }
 
 STATIC mp_obj_t netmgr_init(void) {
-    
+
     //amp_wifi_init();
     event_service_init(NULL);
     netmgr_service_init(NULL);
+    netmgr_set_auto_reconnect(NULL, true);
+    netmgr_wifi_set_auto_save_ap(true);
 
     netmgr_add_dev(WIFI_DEV_PATH);
     hdl = netmgr_get_dev(WIFI_DEV_PATH);
@@ -57,7 +59,7 @@ STATIC mp_obj_t netmgr_init(void) {
 MP_DEFINE_CONST_FUN_OBJ_0(netmgr_obj_init, netmgr_init);
 
 
-int amp_get_wifi_info(amp_wifi_info_t *wifi_info)
+int amp_get_wifi_info_local(amp_wifi_info_t *wifi_info)
 {
     netmgr_hdl_t hdl;
     netmgr_config_t config;
@@ -104,7 +106,7 @@ int amp_get_wifi_info(amp_wifi_info_t *wifi_info)
 
 STATIC mp_obj_t netmgr_get_info(void) {
     amp_wifi_info_t wifi_info ;
-    int ret = amp_get_wifi_info(&wifi_info);
+    int ret = amp_get_wifi_info_local(&wifi_info);
     if(ret != 0){
         printf("modnetmgr: amp_get_wifi_info failed \n ");
     }
@@ -136,7 +138,7 @@ MP_DEFINE_CONST_FUN_OBJ_0(netmgr_obj_get_type, netmgr_get_type);
 
 
 STATIC mp_obj_t netmgr_get_status(void) {
-    
+
     //int status = amp_get_network_status();
     int status = netmgr_get_state(hdl);
     printf(" status is %d \n",status);
@@ -191,7 +193,7 @@ MP_DEFINE_CONST_FUN_OBJ_0(netmgr_obj_disconnect_wifi, disconnect_wifi);
 
 
 STATIC mp_obj_t netmgr_on_event(mp_obj_t event_id) {
-    
+
     int event = mp_obj_get_int(event_id);
 
 

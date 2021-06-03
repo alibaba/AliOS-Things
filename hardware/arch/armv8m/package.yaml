@@ -38,17 +38,17 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #     - libs                               #   -Llibs
 build_config:
   include:
-    - common/
+    - common/include/
+    - include/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - common/port_c.c
   - common/panic_c.c ? <AOS_COMP_DEBUG>
-  - common/k_backtrace.c ? <AOS_COMP_DEBUG>
-  - common/panic_mpu.c ? <AOS_COMP_DEBUG>
-  - common/panic_gcc.S
-  - gcc/m33/port_s.S
+  - common/backtrace.c ? <AOS_COMP_DEBUG>
+  - common/panic_gcc.sx ? <AOS_COMP_DEBUG>
+  - gcc/m33/port_s.sx
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

@@ -214,10 +214,10 @@ typedef enum {
 /**
  * switch on pop out log into cloud real-time
  */
-#ifndef ULOG_CONFIG_POP_CLOUD
+#ifndef AOS_COMP_UAGENT
 #define ULOG_POP_CLOUD_ENABLE       0
 #else
-#define ULOG_POP_CLOUD_ENABLE ULOG_CONFIG_POP_CLOUD
+#define ULOG_POP_CLOUD_ENABLE       1
 #endif
 
 /**
@@ -262,17 +262,17 @@ typedef enum {
 #if ULOG_POP_FS_ENABLE
 #ifdef CSP_LINUXHOST
 #error(modify below PATH as log file located, then disable this statement)
-#define FS_PATH              "/workspace/"
+#define ULOG_DEAULT_FS_PATH              "/workspace/"
 #elif defined (AOS_COMP_SPIFFS)
-#define FS_PATH              "/spiffs/"
+#define ULOG_DEAULT_FS_PATH              "/spiffs/"
 #elif defined (AOS_COMP_FATFS)
 #ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
-#define FS_PATH              "/sdcard/"
+#define ULOG_DEAULT_FS_PATH              "/sdcard/"
 #else
-#define FS_PATH              "/fatfs/"
+#define ULOG_DEAULT_FS_PATH              "/fatfs/"
 #endif /* CONFIG_AOS_FATFS_SUPPORT_MMC */
 #else
-#define FS_PATH              "/ulog/"
+#define ULOG_DEAULT_FS_PATH              "/data/ulog/"
 #endif
 #endif /* ULOG_POP_FS_ENABLE  */
 
@@ -298,8 +298,6 @@ typedef enum {
 #endif
     ulog_session_size
 } ulog_session_type_t;
-
-#define REQ_BUF_SIZE (LOCAL_FILE_SIZE+512)
 
 #endif /*U_LOG_CONFIG_H_*/
 

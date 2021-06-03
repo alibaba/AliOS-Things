@@ -111,6 +111,8 @@ static aos_status_t gpioc_csi_set_mode(aos_gpioc_t *gpioc, uint32_t pin)
         }
     } else if (dir == AOS_GPIO_DIR_OUTPUT) {
         uint32_t cfg = mode & AOS_GPIO_OUTPUT_CFG_MASK;
+        uint32_t mask = (uint32_t)1 << pin;
+        csi_gpio_pin_state_t val;
 
         if (cfg == AOS_GPIO_OUTPUT_CFG_DEFAULT) {
             cfg = gpioc_csi->default_output_cfg;
@@ -129,6 +131,9 @@ static aos_status_t gpioc_csi_set_mode(aos_gpioc_t *gpioc, uint32_t pin)
             restore_mode(gpioc_csi, pin);
             return ret;
         }
+
+        val = gpioc->pins[pin].value ? GPIO_PIN_HIGH : GPIO_PIN_LOW;
+        csi_gpio_write(&gpioc_csi->csi_gpio, mask, val);
     }
 
     gpioc_csi->modes[pin] = mode;
@@ -154,7 +159,7 @@ static void gpioc_csi_set_value(aos_gpioc_t *gpioc, uint32_t pin)
 
     gpioc_csi = aos_container_of(gpioc, aos_gpioc_csi_t, gpioc);
     val = gpioc->pins[pin].value ? GPIO_PIN_HIGH : GPIO_PIN_LOW;
-    (void)csi_gpio_write(&gpioc_csi->csi_gpio, mask, val);
+    csi_gpio_write(&gpioc_csi->csi_gpio, mask, val);
 }
 
 static const aos_gpioc_ops_t gpioc_csi_ops = {

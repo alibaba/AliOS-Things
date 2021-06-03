@@ -10,7 +10,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "network/network.h"
+#include "sys/socket.h"
 #include "aos/kernel.h"
 
 static struct sockaddr_in* syslog_watcher_addr = NULL;

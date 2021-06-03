@@ -18,6 +18,7 @@ extern "C" {
 
 #include <stdint.h>
 
+#if !defined(HAL_SPI_H)
 /* Define the wait forever timeout macro */
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
 
@@ -93,6 +94,8 @@ typedef struct {
 typedef struct {
     spi_work_mode_e work_mode;
 } spi_attribute_t;
+
+#endif
 
 /**
  * Initialises the SPI interface for a given SPI device
