@@ -14,7 +14,7 @@
 
 **AliOS Things** 支持多种CPU架构，包括：ARM，C-Sky，MIPS，RISCV等。
 <div align="center">
-  <img src="https://img.alicdn.com/imgextra/i2/O1CN01tb0CH81LrG9gA3duy_!!6000000001352-2-tps-2882-1646.png" style="max-width:800px;" >
+  <img src="https://img.alicdn.com/imgextra/i3/O1CN01PCABfS1bFjYu67i4Y_!!6000000003436-2-tps-2882-1646.png" style="max-width:800px;" >
 </div>
 
 **AliOS Things** 适配了分层架构和组件架构。包括以下部分：
@@ -44,6 +44,7 @@
 
 - HaaS100
 - HaaS EDU K1
+- HaaS200
 
 
 # 文档
@@ -53,6 +54,8 @@
 - 参考：[HaaS100快速开始](https://g.alicdn.com/alios-things-3.3/doc/haas100_quick_start.html)
 
 - 参考：[HaaS EDU K1快速开始](https://g.alicdn.com/alios-things-3.3/doc/haas_edu_k1_quick_start.html)
+
+- 参考：[HaaS200快速开始](https://g.alicdn.com/alios-things-3.3/doc/haas200_quick_start.html)
 
 **文档中心**
 - 请到HaaS官方网站 [文档中心](https://haas.iot.aliyun.com/)查看。

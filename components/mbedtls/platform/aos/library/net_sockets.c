@@ -190,7 +190,8 @@ void mbedtls_net_free( mbedtls_net_context *ctx )
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <network/network.h>
+#include <netdb.h>
+#include <sys/socket.h>
 
 void mbedtls_net_init( mbedtls_net_context *ctx )
 {

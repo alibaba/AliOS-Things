@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<page>
+  <image id="image" src="background1"> </image>
+  <container id="topBar" layout="off" fit="none" >
+	  <text id="shop" class="textClass" value="商品列表" > </text>
+	  <icon id="signal" class="iconClass"  symbol="wifi">  </icon>
+	  <text id="time" class="textClass" > 13:26 </text>
+	  <text id="batteryValue" class="textClass"  > 100% </text>
+	  <icon id="battery" class="iconClass"  symbol="battery_4">  </icon>
+  </container>
+  <container id="collect_cont1" layout="off" fit="none" > 
+	  <list id="list1" amp-for="sites" btnRelColor="#ffffff" btnPrColor="#4169e1" btnPaddingVer="5" sbOpacity="0"> 
+		<list.Item id="aaa" value="{{sites.name}}">
+			<text id="equal0" value="{{sites.name}}" >  </text>
+			<text id="equal1" value="{{sites.type}}" >  </text>
+			<text id="equal2" value="{{sites.price}}" >  </text>
+		</list.Item>
+	  </list>
+  </container>  
+  <line id="auto_add_line" start-x="220"  start-y="210" end-x="220"  end-y="225"> </line>
+  <text id="auto_add_text6" class="itemAddText"  value="总计" >  </text>
+  <text id="auto_add_text7" class="itemAddText"  value="{{itemNum}}" >  </text>
+  <text id="auto_add_text8" class="itemAddText"  value="{{totalPrice}}" >  </text>	  
+</page>
+

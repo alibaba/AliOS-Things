@@ -97,6 +97,7 @@ static void remove_device(aos_dev_t *dev)
     k_rbtree_erase(&dev->rb_node, &device_map);
 }
 
+#ifdef AOS_COMP_VFS
 static aos_status_t add_to_vfs(aos_dev_t *dev)
 {
     const char prefix[] = "/dev/";
@@ -123,6 +124,7 @@ static void remove_from_vfs(aos_dev_t *dev)
     strcpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name);
     (void)aos_unregister_driver(path);
 }
+#endif /* AOS_COMP_VFS */
 
 aos_status_t aos_dev_register(aos_dev_t *dev)
 {
@@ -154,6 +156,7 @@ aos_status_t aos_dev_register(aos_dev_t *dev)
     insert_device(dev);
     device_map_unlock();
 
+#ifdef AOS_COMP_VFS
     ret = add_to_vfs(dev);
     if (ret) {
         device_map_lock();
@@ -163,6 +166,7 @@ aos_status_t aos_dev_register(aos_dev_t *dev)
         aos_sem_free(&dev->rb_sem);
         return ret;
     }
+#endif
 
     aos_dev_lock(dev);
     dev->ref_count = 0;
@@ -199,7 +203,9 @@ aos_status_t aos_dev_unregister(aos_dev_type_t type, uint32_t id)
 
     aos_dev_unlock(dev);
     device_map_unlock();
+#ifdef AOS_COMP_VFS
     remove_from_vfs(dev);
+#endif
     device_map_lock();
     device_wait_removal(dev);
     remove_device(dev);

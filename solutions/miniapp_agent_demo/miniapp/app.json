@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/netCfg/netCfg",
+    "pages/linkLP/linkLP",
+    "pages/linkIot/linkIot",
+    "pages/webview/webview"
+  ],
+  "window": {
+    "defaultTitle": "HaaS小程序"
+  },
+  "tabBar": {
+    "textColor": "#dddddd",
+    "selectedColor": "#49a9ee",
+    "backgroundColor": "#ffffff",
+    "items": [
+      {
+        "icon": "resource/image/netconfig.png",
+        "activeIcon": "resource/image/netconfig_active.png",
+        "pagePath": "pages/netCfg/netCfg",
+        "name": "配网"
+      },
+      {
+        "icon": "resource/image/linklp.png",
+        "activeIcon": "resource/image/linklp_active.png",
+        "pagePath": "pages/linkLP/linkLP",
+        "name": "上云"
+      },
+      {
+        "icon": "resource/image/iot_studio.png",
+        "activeIcon": "resource/image/iot_studio_active.png",
+        "pagePath": "pages/linkIot/linkIot",
+        "name": "IoT Studio"
+      }
+    ]
+  }
+}

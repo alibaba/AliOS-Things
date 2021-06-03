@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/rtc.h"
+#include "aos_hal_rtc.h"
 
 extern const mp_obj_type_t driver_rtc_type;
 
@@ -68,11 +68,11 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    //ret = hal_rtc_init(&(driver_obj->rtc_dev));
+    ret = aos_hal_rtc_init(&(driver_obj->rtc_dev));
     LOG_D("%s:port: %d, format: %d;\n", __func__, driver_obj->rtc_dev.port, driver_obj->rtc_dev.config.format);
     if (ret != 0)
     {
-        LOG_E("hal_rtc_init fail!");
+        LOG_E("aos_hal_rtc_init fail!");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -98,10 +98,10 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-   // ret = hal_rtc_finalize(&(driver_obj->rtc_dev));
+    ret = aos_hal_rtc_finalize(&(driver_obj->rtc_dev));
     if (ret != 0)
     {
-        LOG_E("hal_rtc_finalize fail!");
+        LOG_E("aos_hal_rtc_finalize fail!");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -127,10 +127,10 @@ STATIC mp_obj_t obj_getTime(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    //ret = hal_rtc_get_time(&(driver_obj->rtc_dev), &rtcTime);
+    ret = aos_hal_rtc_get_time(&(driver_obj->rtc_dev), &rtcTime);
     if (ret != 0)
     {
-        LOG_E("hal_rtc_get_time failed\n");
+        LOG_E("aos_hal_rtc_get_time failed\n");
         return mp_const_none;
     }
 
@@ -166,10 +166,10 @@ STATIC mp_obj_t obj_setTime(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    //ret = hal_rtc_get_time(&(driver_obj->rtc_dev), &rtcTime);
+    ret = aos_hal_rtc_get_time(&(driver_obj->rtc_dev), &rtcTime);
     if (ret != 0)
     {
-        LOG_E("hal_rtc_get_time failed\n");
+        LOG_E("aos_hal_rtc_get_time failed\n");
         return mp_const_none;
     }
 
@@ -180,10 +180,10 @@ STATIC mp_obj_t obj_setTime(size_t n_args, const mp_obj_t *args)
     rtcTime.min = (uint8_t)mp_obj_get_int(args[5]);
     rtcTime.sec = (uint8_t)mp_obj_get_int(args[6]);
 
-    //ret = hal_rtc_set_time(&(driver_obj->rtc_dev), &rtcTime);
+    ret = aos_hal_rtc_set_time(&(driver_obj->rtc_dev), &rtcTime);
     if (ret != 0)
     {
-        LOG_E("hal_rtc_get_time failed\n");
+        LOG_E("aos_hal_rtc_get_time failed\n");
     }
     LOG_D("%s:out\n", __func__);
 

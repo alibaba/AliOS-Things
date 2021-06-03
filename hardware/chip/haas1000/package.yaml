@@ -163,6 +163,7 @@ def_config:
   CONFIG_U_FLASH_DEV: 1
   CONFIG_U_WDG_DEV: 1
   CONFIG_U_WDG_CORE: 1
+  SUPPORT_SET_DRIVER_TRACE_FLAG: 1
 
 chip:
   arch_name: arm

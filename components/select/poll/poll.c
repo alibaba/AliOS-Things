@@ -44,7 +44,7 @@ static void deinit_parg(struct poll_arg *parg)
     aos_sem_free(&parg->sem);
 }
 #else
-#include <network/network.h>
+#include <sys/socket.h>
 struct poll_arg {
     int efd;
 };

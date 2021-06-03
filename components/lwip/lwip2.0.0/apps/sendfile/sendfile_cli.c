@@ -111,7 +111,7 @@ int sendfile_cli_register( void )
 {
     event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
 
-    if( 0 == cli_register_commands( sendfile_message_cmd, 1 ) ) {
+    if( 0 == aos_cli_register_commands( sendfile_message_cmd, 1 ) ) {
         return ERR_OK;
     }
     else {

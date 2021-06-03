@@ -233,7 +233,7 @@ void iperf_udp_run_server( char *parameters[] )
     }
 
     // Create a new UDP connection handle
-    if ( (sockfd = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
+    if ( (sockfd = lwip_socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             iperf_wrapper_free( parameters );
@@ -243,7 +243,7 @@ void iperf_udp_run_server( char *parameters[] )
     }
 
     socklen_t len = sizeof(timeout);
-    if ( setsockopt( sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
+    if ( lwip_setsockopt( sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
     }
 
@@ -264,17 +264,17 @@ void iperf_udp_run_server( char *parameters[] )
         group.imr_multiaddr.s_addr = inet_addr( mcast );
         group.imr_interface.s_addr = htonl( INADDR_ANY );
 
-        if ( setsockopt( sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &group, sizeof(struct ip_mreq) ) < 0 ) {
+        if ( lwip_setsockopt( sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &group, sizeof(struct ip_mreq) ) < 0 ) {
             LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - multicast settings\n" ));
         }
     }
 
-    if ( (bind( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
+    if ( (lwip_bind( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d]\n", __FUNCTION__, __LINE__ ));
         if ( parameters ) {
             iperf_wrapper_free( parameters );
         }
-        close(sockfd);
+        lwip_close(sockfd);
         aos_task_exit(0);
         return;
     }
@@ -286,7 +286,7 @@ void iperf_udp_run_server( char *parameters[] )
         // Handles request
         do {
             iperf_get_current_time( &offset_t1, 0 );
-            nbytes = recvfrom( sockfd, buffer, IPERF_TEST_BUFFER_SIZE, 0, (struct sockaddr *) &cliaddr,
+            nbytes = lwip_recvfrom( sockfd, buffer, IPERF_TEST_BUFFER_SIZE, 0, (struct sockaddr *) &cliaddr,
                                (socklen_t *) &cli_len );
             iperf_get_current_time( &offset_t2, 0 );
 
@@ -408,7 +408,7 @@ void iperf_udp_run_server( char *parameters[] )
 #if defined(IPERF_DEBUG_ENABLE)
                     send_bytes =
 #endif
-                    sendto( sockfd, buffer, nbytes, 0, (struct sockaddr *) &cliaddr, cli_len );
+                    lwip_sendto( sockfd, buffer, nbytes, 0, (struct sockaddr *) &cliaddr, cli_len );
                     client_h_trans.flags = old_flag;
                 }
 
@@ -443,7 +443,7 @@ void iperf_udp_run_server( char *parameters[] )
     } while ( 0 );
 
     LWIP_DEBUGF( IPERF_DEBUG, (" UDP server close socket!\n" ));
-    close( sockfd );
+    lwip_close( sockfd );
 
     LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s -u\".\n" ));
 
@@ -511,7 +511,7 @@ void iperf_tcp_run_server( char *parameters[] )
     }
 
     // Create a new TCP connection handle
-    if ( (listenfd = socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    if ( (listenfd = lwip_socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] listenfd = %d\n", __FUNCTION__, __LINE__, listenfd ));
         if ( parameters ) {
             iperf_wrapper_free( parameters );
@@ -534,19 +534,19 @@ void iperf_tcp_run_server( char *parameters[] )
             LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
         }
 
-        if ( (bind( listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
+        if ( (lwip_bind( listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
             LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] \n", __FUNCTION__, __LINE__ ));
             break;
         }
 
         // Put the connection into LISTEN state
-        if ( (listen( listenfd, 1024 )) < 0 ) {
+        if ( (lwip_listen( listenfd, 1024 )) < 0 ) {
             LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] \n", __FUNCTION__, __LINE__ ));
             break;
         }
 
         int buflen = 64240;
-        if ( setsockopt( listenfd, SOL_SOCKET, SO_RCVBUF, (char *) &buflen, sizeof(buflen) ) < 0 ) {
+        if ( lwip_setsockopt( listenfd, SOL_SOCKET, SO_RCVBUF, (char *) &buflen, sizeof(buflen) ) < 0 ) {
                 LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive buf len\n" ));
         }
 
@@ -557,17 +557,17 @@ void iperf_tcp_run_server( char *parameters[] )
                 LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)\n", IPERF_DEFAULT_PORT ));
             }
             // Block and wait for an incoming connection
-            if ( (connfd = accept( listenfd, (struct sockaddr *) &cliaddr, &clilen )) != -1 ) {
+            if ( (connfd = lwip_accept( listenfd, (struct sockaddr *) &cliaddr, &clilen )) != -1 ) {
                 socklen_t len = sizeof(timeout);
 
                 LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] Accept... (sockfd=%d)\n", __FUNCTION__, __LINE__, connfd ));
-                if ( setsockopt( connfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
+                if ( lwip_setsockopt( connfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
                     LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
                 }
 
                 //Connection
                 do {
-                    nbytes = recv( connfd, buffer, IPERF_TEST_BUFFER_SIZE, 0 );
+                    nbytes = lwip_recv( connfd, buffer, IPERF_TEST_BUFFER_SIZE, 0 );
                     pkt_count = iperf_calculate_result( nbytes, pkt_count, 0 );
                     if ( pkt_count.times == 1 ) {
                         iperf_get_current_time( &t1, 0 );
@@ -617,7 +617,7 @@ void iperf_tcp_run_server( char *parameters[] )
                 } else {
                     interval_tag = 0;
                 }
-                close( connfd );
+                lwip_close( connfd );
             }
         } while ( connfd != -1 && num_tag == 0 );
 
@@ -627,7 +627,7 @@ void iperf_tcp_run_server( char *parameters[] )
         }
     } while ( 0 ); //Loop just once
 
-    close( listenfd );
+    lwip_close( listenfd );
     LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s\".\n" ));
 
     if ( parameters ) {
@@ -727,7 +727,7 @@ void iperf_tcp_run_client( char *parameters[] )
     }
 
     // Create a new TCP connection handle
-    if ( (sockfd = socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    if ( (sockfd = lwip_socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             iperf_wrapper_free( parameters );
@@ -736,7 +736,7 @@ void iperf_tcp_run_client( char *parameters[] )
         return;
     }
 
-    if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
+    if ( lwip_setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!\n" ));
     }
     // Bind to port and IP
@@ -751,10 +751,10 @@ void iperf_tcp_run_client( char *parameters[] )
         LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
     }
 
-    if ( (connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
+    if ( (lwip_connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Connect failed, sockfd is %d, addr is \"%s\"\n", (int) sockfd,
                 ((struct sockaddr *) &servaddr)->sa_data ));
-        close( sockfd );
+        lwip_close( sockfd );
         if ( parameters ) {
             iperf_wrapper_free( parameters );
         }
@@ -765,7 +765,7 @@ void iperf_tcp_run_client( char *parameters[] )
     iperf_get_current_time( &t1, 0 );
 
     do {
-        nbytes = send( sockfd, buffer, win_size, 0 );
+        nbytes = lwip_send( sockfd, buffer, win_size, 0 );
         if (nbytes < 0) {
             LWIP_DEBUGF( IPERF_DEBUG, ("Send failed\n" ));
             break;
@@ -803,7 +803,7 @@ void iperf_tcp_run_client( char *parameters[] )
 
     iperf_get_current_time( &t2, 0 );
 
-    close( sockfd );
+    lwip_close( sockfd );
     LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!\n" ));
     iperf_wrapper_free( buffer );
     iperf_display_report( "[Total]TCP Client", t2 - t1, 0, pkt_count );
@@ -929,7 +929,7 @@ void iperf_udp_run_client( char *parameters[] )
     }
 
     // Create a new TCP connection handle
-    if ( (sockfd = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
+    if ( (sockfd = lwip_socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             iperf_wrapper_free( parameters );
@@ -938,7 +938,7 @@ void iperf_udp_run_client( char *parameters[] )
         return;
     }
 
-    if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
+    if ( lwip_setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!\n" ));
     }
 
@@ -961,9 +961,9 @@ void iperf_udp_run_client( char *parameters[] )
         LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
     }
 
-    if ( (connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
+    if ( (lwip_connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
         LWIP_DEBUGF( IPERF_DEBUG, ( "Connect failed\n" ));
-        close( sockfd );
+        lwip_close( sockfd );
         if ( parameters ) {
             iperf_wrapper_free( parameters );
         }
@@ -1001,7 +1001,7 @@ void iperf_udp_run_client( char *parameters[] )
 
         udp_h_id++;
 
-        nbytes = send( sockfd, buffer, data_size, 0 );
+        nbytes = lwip_send( sockfd, buffer, data_size, 0 );
         if (nbytes < 0) {
             LWIP_DEBUGF( IPERF_DEBUG, ("Send failed\n" ));
             break;
@@ -1066,7 +1066,7 @@ void iperf_udp_run_client( char *parameters[] )
     udp_h->tv_sec = htonl( curr_t );
     udp_h->tv_usec = htonl( curr_t * 1000 );
 
-    nbytes = send( sockfd, buffer, data_size, 0 );
+    nbytes = lwip_send( sockfd, buffer, data_size, 0 );
     if (nbytes < 0) {
         LWIP_DEBUGF( IPERF_DEBUG, ("Send failed\n" ));
     }
@@ -1074,7 +1074,7 @@ void iperf_udp_run_client( char *parameters[] )
     //TODO: receive the report from server side and print out
 
     LWIP_DEBUGF( IPERF_DEBUG, ("UDP Client close socket!\n" ));
-    close( sockfd );
+    lwip_close( sockfd );
 
     // tradeoff testing
     if ( tradeoff_tag == 1 ) {

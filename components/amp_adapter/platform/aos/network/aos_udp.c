@@ -11,6 +11,7 @@
 #include "aos_socket.h"
 #include <netdb.h>
 #include "aos_udp.h"
+#include "aos_system.h"
 
 #define TRANSPORT_ADDR_LEN 16
 
@@ -93,7 +94,7 @@ int aos_udp_create(char *host, unsigned short port)
         return (-1);
     }
 
-    saos_printf(port_ptr, "%u", port);
+    sprintf(port_ptr, "%u", port);
     memset((char *)&hints, 0x00, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_family = AF_INET;
@@ -279,7 +280,7 @@ int aos_udp_joinmulticast(int sockfd, char *p_group)
     err =
       setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
-        aos_printf(stderr, "setsockopt():IP_MULTICAST_LOOP failed\r\n");
+        aos_printf("setsockopt():IP_MULTICAST_LOOP failed\r\n");
         return err;
     }
 
@@ -291,7 +292,7 @@ int aos_udp_joinmulticast(int sockfd, char *p_group)
     err =
       setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
-        faos_printf(stderr, "setsockopt():IP_ADD_MEMBERSHIP failed\r\n");
+        aos_printf("setsockopt():IP_ADD_MEMBERSHIP failed\r\n");
         return err;
     }
 

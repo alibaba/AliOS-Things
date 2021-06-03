@@ -8,7 +8,7 @@
 #include "py/builtin.h"
 #include "k_api.h"
 #include "HaasLog.h"
-#include "aos/hal/wdg.h"
+#include "aos_hal_wdg.h"
 
 extern const mp_obj_type_t driver_wdg_type;
 
@@ -111,7 +111,7 @@ STATIC mp_obj_t obj_start(size_t n_args, const mp_obj_t *args)
 
     LOG_D("%s:timeout = %d;\n", __func__, timeout);
     handle->config.timeout = timeout;
-    ret                    = hal_wdg_init(handle);
+    ret                    = aos_hal_wdg_init(handle);
     handle->config.timeout = (ret == 0) ? timeout : 0;
     LOG_D("%s:out\n", __func__);
 
@@ -137,7 +137,7 @@ STATIC mp_obj_t obj_stop(size_t n_args, const mp_obj_t *args)
     }
 
     wdg_dev_t *handle = (wdg_dev_t *)&(driver_obj->wdg_dev);
-    hal_wdg_reload(handle);
+    aos_hal_wdg_reload(handle);
 
     LOG_D("%s:out\n", __func__);
 
@@ -163,7 +163,7 @@ STATIC mp_obj_t obj_feed(size_t n_args, const mp_obj_t *args)
     }
 
     wdg_dev_t *handle = (wdg_dev_t *)&(driver_obj->wdg_dev);
-    hal_wdg_finalize(handle);
+    aos_hal_wdg_finalize(handle);
     handle->config.timeout = 0;
     LOG_D("%s:out\n", __func__);
 

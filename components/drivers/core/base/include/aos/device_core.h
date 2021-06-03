@@ -7,11 +7,11 @@
 
 #include <aos/kernel.h>
 #include <aos/list.h>
-#include <aos/vfs.h>
 #include <k_rbtree.h>
 #include <drivers/u_ld.h>
-
-#define AOS_DEV_NAME_MAX_LEN    63
+#ifdef AOS_COMP_VFS
+#include <aos/vfs.h>
+#endif
 
 typedef enum {
     AOS_DEV_TYPE_MISC           = 0,
@@ -29,16 +29,22 @@ typedef struct {
     void (*put)(struct aos_dev_ref *);
 } aos_dev_ops_t;
 
+#ifdef AOS_COMP_VFS
+#define AOS_DEV_NAME_MAX_LEN    63
+
 typedef struct {
     char name[AOS_DEV_NAME_MAX_LEN + 1];
     const struct file_ops *ops;
 } aos_dev_vfs_helper_t;
+#endif
 
 typedef struct aos_dev {
     aos_dev_type_t type;
     uint32_t id;
     const aos_dev_ops_t *ops;
+#ifdef AOS_COMP_VFS
     aos_dev_vfs_helper_t vfs_helper;
+#endif
     struct k_rbtree_node_t rb_node;
     aos_sem_t rb_sem;
     aos_mutex_t mutex;

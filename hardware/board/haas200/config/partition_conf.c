@@ -12,7 +12,7 @@ const mtd_partition_t mtd_partitions[] =
         .partition_name             = "BOOTLOADER",
         .partition_name_std         = MTD_PART_NAME_BOOTLOADER,
         .partition_start_addr       = 0x4000,
-        .partition_length           = 0x10000,    /* 64KB */
+        .partition_length           = 0x2000,    /* 64KB */
         .partition_options          = 0,
     },
     {
@@ -63,7 +63,15 @@ const mtd_partition_t mtd_partitions[] =
         .partition_start_addr      = 0x314000,
         .partition_length          = 0xE7000, /* littlefs, 924KB*/
         .partition_options         = 0,
+    },
+    {
+        .partition_name            = "2NDBOOT",
+        .partition_name_std         = MTD_PART_NAME_2ND_BOOTLOADER,
+        .partition_start_addr      = 0x6000,
+        .partition_length          = 0xe000, /* 2nd bootloader, 56KB*/
+        .partition_options         = 0,
     }
+
 };
 
 /* Declare a constant to indicate the defined partitions amount */

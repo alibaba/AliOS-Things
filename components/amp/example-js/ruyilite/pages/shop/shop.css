@@ -1,0 +1,249 @@
+
+.textClass {
+  align: inTopLeft;
+}
+.shopText {
+  align: inTopMid;
+}
+.buttonClass {
+  width: 100px;
+  height: 50px;
+  top: 150px;
+  left: 100px;
+  background-color: #43cd80;
+  gradient-color: #43cd80;
+  border-radius: 5px;
+}
+
+#shop {
+  top: 5px;
+  left: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#time {
+  top: 5px;
+  left: 160px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+#batteryValue {
+  top: 5px;
+  left: 260px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+#payText {
+  top: 100px;
+  left: 80px;
+  width: 10px;
+  font-color: #000000;
+  text-align: center;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#payValue {
+  top: 120px;
+  left: 80px;
+  width: 10px;
+  font-size: 22px;
+  font-color: #000000;
+  text-align: center;
+  z-index: 3;
+}
+.iconClass {
+  top: 5px;
+  font-color: #ffffff;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#signal {
+  top: 5px;
+  left: 130px;
+  font-color: #ffffff;
+}
+#battery {
+  top: 5px;
+  left: 230px;
+  font-color: #ffffff;
+}
+
+#pay {
+  top: 0px;
+  left: 0px;
+  width: 320px;
+  font-size: 28px;
+  font-color: #4169E1;
+  text-align: center;
+}
+
+#buttonBackGround {
+  width: 280px;
+  height: 180px;
+  top: 40px;
+  left: 20px;
+  background-color: #ffffff;
+  gradient-color: #ffffff;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 20px;
+  z-index: 3;
+}
+
+#topBar {
+  width: 320px;
+  height: 30px;
+  top: 0px;
+  left: 0px;
+  background-color: #000000;
+  gradient-color: #000000;
+}
+
+#shopmoneyGround {
+  width: 280px;
+  height: 180px;
+  top: 40px;
+  left: 20px;
+  background-color: #1d1c1c;
+  gradient-color: #1d1c1c;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 20px;
+  z-index: 3;
+}
+
+#shopGround {
+  width: 280px;
+  height: 90px;
+  top: 90px;
+  left: 0px;
+  background-color: #ffffff;
+  gradient-color: #ffffff;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 20px;
+  z-index: 3;
+}
+
+#shopmoneydayText {
+  top: 100px;
+  left: 80px;
+  width: 10px;
+  font-color: #000000;
+  text-align: center;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#shopmoneymonthText {
+  top: 120px;
+  left: 80px;
+  width: 10px;
+  font-size: 22px;
+  font-color: #000000;
+  text-align: center;
+  z-index: 3;
+}
+
+#payText1 {
+  top: 25px;
+  left: 60px;
+  width: 100px;
+  font-color: #000000;
+  text-align: left;
+  align: inTopLeft;
+  font-size: 22px;
+  z-index: 3;
+}
+
+#payValue1 {
+  top: 55px;
+  left: 30px;
+  width: 150px;
+  font-size: 22px;
+  font-color: #000000;
+  text-align: left;
+  align: inTopLeft;
+  z-index: 3;
+}
+
+#upay20 {
+  top: -10px;
+  left: -100px;
+}
+
+#todaytext {
+  top: 5px;
+  left: -70px;
+  width: 100px;
+  font-color: #777575;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+  align: inTopMid;
+}
+
+#todayvalue {
+  top: 45px;
+  left: -70px;
+  width: 100px;
+  font-color: #ffffff;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+  align: inTopMid;
+}
+
+#monthtext {
+  top: 5px;
+  left: 70px;
+  width: 100px;
+  font-color: #777575;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+  align: inTopMid;
+}
+
+#monthvalue {
+  top: 45px;
+  left: 70px;
+  width: 100px;
+  font-color: #ffffff;
+  text-align: center;
+  font-size: 28px;
+  z-index: 3;
+  align: inTopMid;
+}
+
+#shopmoneyline {
+  line-width: 2px;
+  line-color: #777575;
+  z-index: 6;
+}
+
+#paycodeGround {
+  width: 320px;
+  height: 210px;
+  top: 30px;
+  left: 0px;
+  background-color: #000000;
+  gradient-color: #000000;
+  opacity: 1;
+  font-color: #dc143c;
+  border-radius: 20px;
+  z-index: 3;
+}
+
+#shop_qrcode {
+  width: 60px;
+  top: 135px;
+  left: 200px;
+  z-index: 6;
+}

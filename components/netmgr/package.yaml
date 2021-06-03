@@ -21,6 +21,8 @@ depends:                                 # <可选项> 该组件依赖其他的�
     - uservice: rel_3.3.0
     - sntp: rel_3.3.0
     - posix: rel_3.3.0
+    - lwip: rel_3.3.0
+    - sal: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -44,6 +46,7 @@ build_config:
   include:
     - include
     - netdev/include
+    - net/include
   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
     - include_inner
     - activation
@@ -59,6 +62,7 @@ source_file:
   - activation/*.c ? <AOS_COMP_ACTIVATION>
 #  - example/*.c
   - netdev/src/*.c
+  - net/*.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -77,6 +81,8 @@ install:
     source:
       - "include/*.h"
       - "netdev/include/*.h"
+      - "net/include/sys/*.h"
+      - "net/include/*.h"
 
 ## 第七部分：导出部分
 # export:

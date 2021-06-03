@@ -29,7 +29,8 @@ int ota_sevice_parse_msg(ota_service_t *ctx, const char *json)
     root = cJSON_Parse(json);
     if (NULL == root || NULL == ctx) {
         ret = OTA_TRANSPORT_PAR_FAIL;
-        goto EXIT;
+        OTA_LOG_E("parse msg param is null");
+        return ret;
     } else {
         /* recover the process type */
         cJSON *cmd = cJSON_GetObjectItem(root, "cmd");
@@ -148,11 +149,11 @@ EXIT:
     OTA_LOG_I("Parse ota version:%s url:%s ret:%d\n", ota_param.ver, ota_param.url, ret);
     if (ret < 0) {
         ret = OTA_TRANSPORT_PAR_FAIL;
-        if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+        if (ctx->report_func.report_status_cb !=  NULL) {
             ctx->report_func.report_status_cb(ctx->report_func.param, ret);
         }
     } else {
-        if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+        if (ctx->report_func.report_status_cb !=  NULL) {
             ctx->report_func.report_status_cb(ctx->report_func.param, 1);
         }
         ota_param.upg_flag = 0x00;
@@ -167,7 +168,7 @@ EXIT:
         ret = ota_update_parameter(&ota_param);
         if (ret != 0) {
             OTA_LOG_I("ota param err.\n");
-            if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+            if (ctx->report_func.report_status_cb !=  NULL) {
                 ctx->report_func.report_status_cb(ctx->report_func.param, OTA_TRANSPORT_PAR_FAIL);
             }
         }
@@ -247,7 +248,9 @@ static void ota_mqtt_sub_cb(void *mqtt_client, void *msg, void *pctx)
 /**
  * ota_transport_inform  OTA inform version to cloud.
  *
- * @param[in] ota_service_t *ctx   ota service context
+ * @param[in]   void *mqttclient   mqtt client ptr
+ * @param[in]           char *pk   product key value
+ * @param[in]           char *dn   device name
  * @param[in]  char *module_name   want to report module name, when module_name == NULL, report default module ver
  * @param[in]          char *ver   version string
  *
@@ -256,15 +259,16 @@ static void ota_mqtt_sub_cb(void *mqtt_client, void *msg, void *pctx)
  * @return OTA_TRANSPORT_PAR_FAIL  OTA transport parse fail.
  * @return OTA_TRANSPORT_VER_FAIL  OTA transport verion is too old.
  */
-int ota_transport_inform(ota_service_t *ctx, char *module_name, char *ver)
+int ota_transport_inform(void *mqttclient, char *pk, char *dn, char *module_name, char *ver)
 {
     int  ret = 0;
     char msg[OTA_MSG_LEN] = {0};
-    if ((ctx == NULL) || (ver == NULL)) {
+    if ((mqttclient == NULL) || (ver == NULL) || (pk == NULL) ||
+        (dn == NULL) || (module_name == NULL)) {
         OTA_LOG_E("inform version input param err!");
         goto OTA_TRANS_INFOR_OVER;
     }
-    if (strncmp(ctx->module_name, "default", strlen("default")) == 0) {
+    if (strncmp(module_name, "default", strlen("default")) == 0) {
         ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"version\":\"%s\"}}", 0, ver);
     } else {
        ret = ota_snprintf(msg, OTA_MSG_LEN - 1, "{\"id\":%d,\"params\":{\"version\":\"%s\",\"module\":\"%s\"}}", 0, ver, module_name);
@@ -273,7 +277,7 @@ int ota_transport_inform(ota_service_t *ctx, char *module_name, char *ver)
         OTA_LOG_E("inform version pack msg err!");
         goto OTA_TRANS_INFOR_OVER;
     }
-    ret = ota_mqtt_publish(ctx->mqtt_client, "inform", msg, ctx->pk, ctx->dn);
+    ret = ota_mqtt_publish(mqttclient, "inform", msg, pk, dn);
 OTA_TRANS_INFOR_OVER:
     if (ret < 0) {
         OTA_LOG_E("inform version failed!");
@@ -358,6 +362,7 @@ int ota_transport_status(void *param, int status)
     char *err_str           = "";
     int tmp_status          = 0;
     if (param == NULL) {
+        OTA_LOG_E("report status param is null!");
         return ret;
     }
     ctx = (ota_service_t *)param;
@@ -472,6 +477,7 @@ int ota_transport_status(void *param, int status)
     }
     ret = ota_mqtt_publish(ctx->mqtt_client, "progress", msg, ctx->pk, ctx->dn);
     if (ret < 0) {
+        OTA_LOG_E("report status failed!");
         return OTA_TRANSPORT_INT_FAIL;
     }
     return ret;

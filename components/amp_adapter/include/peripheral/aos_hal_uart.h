@@ -18,6 +18,7 @@ extern "C" {
 
 #include <stdint.h>
 
+#if !defined(HAL_UART_H)
 /* Define the wait forever timeout macro */
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
 
@@ -90,6 +91,8 @@ typedef struct {
 } uart_dev_t;
 
 typedef int32_t (*uart_rx_cb)(uart_dev_t *uart);
+
+#endif
 
 /**
  * Initialises a UART interface
@@ -187,6 +190,18 @@ int32_t aos_hal_uart_recv_cb_reg(uart_dev_t *uart, uart_rx_cb cb);
  * @return  0 : on success,  otherwise is error
  */
 int32_t aos_hal_uart_finalize(uart_dev_t *uart);
+
+
+/**
+ * Config a UART callback function
+ *
+ * @param[in]  uart  the interface which should be deinitialised
+ * @param[in]  cb the interface which should be callback
+ * @param[in]  args the parameters of the calllback function
+ *
+ * @return  0 : on success,  otherwise is error
+ */
+int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t, void *), void *args);
 
 /** @} */
 

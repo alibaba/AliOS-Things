@@ -2,11 +2,14 @@ import sys, hashlib, os
 import struct
   
 
-
-def MD5(bytes):
+# changed by yanxiaoyong.yxy
+# https://blog.csdn.net/qq_43192819/article/details/108981008
+# https://blog.csdn.net/whatday/article/details/107769032
+def MD5(input):
     md5 = hashlib.md5()
-    md5.update(bytes)
-    return md5.hexdigest().decode('hex')
+    md5.update(input)
+    return bytes.fromhex(md5.hexdigest())
+    #return md5.hexdigest().decode('hex')
     
 input_bin = sys.argv[1]
 ota_bin = sys.argv[3]
@@ -21,7 +24,8 @@ output = open(ota_bin, 'wb')
 output.write(b)
 b = struct.pack('<L', 0x01)
 output.write(b)
-output.write("OTA1")
+#output.write("OTA1")
+output.write("OTA1".encode())
 b = struct.pack('<L', 0x18)
 output.write(b)
 input = open(input_bin, 'rb') 

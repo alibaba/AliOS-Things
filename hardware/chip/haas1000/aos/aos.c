@@ -32,7 +32,7 @@ extern uart_dev_t uart_0;
 #define WRAP_P_BUF_LEN 2048
 uint8_t _wrap_p_buf[WRAP_P_BUF_LEN];
 int max_p_size = 0;
-
+int g_dirver_trace_flag = 1;
 
 #if AOS_COMP_CLI
 static uint8_t char2data(const char ch)
@@ -251,6 +251,10 @@ int aos_printf_hook(const char *tag, const char *fmt, enum PRINTF_FLAG_T flag, v
 {
     int ret = 0;
 
+    if (!g_dirver_trace_flag) {
+        return 1;
+    }
+
     if (fmt) {
         if (flag == 0) {
             uint32_t lock = int_lock();
@@ -264,6 +268,11 @@ int aos_printf_hook(const char *tag, const char *fmt, enum PRINTF_FLAG_T flag, v
     }
 
     return ret;
+}
+
+void aos_set_driver_trace_flag(int flag)
+{
+    g_dirver_trace_flag = flag;
 }
 
 void hal_watchdog_disable(void)

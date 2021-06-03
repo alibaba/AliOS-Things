@@ -265,7 +265,7 @@ def_config:
   CONFIG_PWM_NUM: 1
   CONFIG_SPI_NUM: 3
   CONFIG_TIMER_NUM: 1
-  CONFIG_UART_NUM: 3
+  CONFIG_UART_NUM: 4
 
   AOS_CONFIG_TTY_CSI: 1
   AOS_CONFIG_GPIOC_CSI: 1
@@ -274,6 +274,8 @@ def_config:
   CONFIG_U_I2C_CORE: 1
   CONFIG_U_WDG_DEV: 1
   CONFIG_U_WDG_CORE: 1
+  # enable iobox cmds
+  CLI_IOBOX_ENABLE: 1
 
 chip:
   arch_name: arm
@@ -287,7 +289,7 @@ hw_info:
   toolchain_prefix: arm-none-eabi
   vendor_name: alibaba IoT
   ld_script: rlx8721d.ld
-#  flash_program: release/aos_burn_tool/flash_program.py
+  flash_program: release/aos_burn_tool/flash_program.py
   # program_data_files:
-  #   - filename: release/write_flash_tool/ota_bin/littlefs.bin
-  #     address: 0xB32000
+  #   - filename: prebuild/littlefs.bin
+  #     address: 0x08314000

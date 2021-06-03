@@ -164,13 +164,14 @@ static void rx_task_func(void *arg)
 {
     aos_tty_csi_t *tty_csi = (aos_tty_csi_t *)arg;
     aos_tty_t *tty = &tty_csi->tty;
+    csi_uart_t *csi_uart = &tty_csi->csi_uart;
     uint8_t buf[RX_BUF_SIZE];
 
     while (1) {
         ssize_t r;
 
         (void)aos_sem_wait(&tty_csi->rx_sem, AOS_WAIT_FOREVER);
-        r = csi_uart_receive(&tty_csi->csi_uart, buf, sizeof(buf), 20);
+        r = csi_uart_receive(csi_uart, buf, sizeof(buf), 0);
         if (r > 0) {
             aos_irqsave_t flags;
 
@@ -179,7 +180,7 @@ static void rx_task_func(void *arg)
             aos_spin_unlock_irqrestore(&tty->lock, flags);
         }
 
-        aos_msleep(80);
+        aos_msleep(20);
         aos_sem_signal(&tty_csi->rx_sem);
     }
 }
@@ -188,6 +189,7 @@ static void tx_task_func(void *arg)
 {
     aos_tty_csi_t *tty_csi = (aos_tty_csi_t *)arg;
     aos_tty_t *tty = &tty_csi->tty;
+    csi_uart_t *csi_uart = &tty_csi->csi_uart;
     uint8_t buf[TX_BUF_SIZE];
     size_t count = 0;
     size_t offset = 0;
@@ -206,8 +208,7 @@ static void tx_task_func(void *arg)
         if (count > 0) {
             ssize_t r;
 
-            r = csi_uart_send(&tty_csi->csi_uart, &buf[offset],
-                              count - offset, 20);
+            r = csi_uart_send(csi_uart, &buf[offset], count - offset, 0);
             if (r > 0) {
                 offset += r;
                 if (offset == count) {

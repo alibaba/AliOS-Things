@@ -11,7 +11,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/gpio.h"
+#include "aos_hal_gpio.h"
 
 extern const mp_obj_type_t driver_gpio_type;
 
@@ -84,35 +84,35 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_GPIO, id, &(driver_obj->gpio_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_GPIO, id, &(driver_obj->gpio_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
     LOG_D("%s: port = %d;\n", __func__, gpio_device->port);
     LOG_D("%s: config = %d;\n", __func__, gpio_device->config);
-    ret = hal_gpio_init(gpio_device);
+    ret = aos_hal_gpio_init(gpio_device);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_gpio_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_GPIO, &(driver_obj->gpio_handle));
+        LOG_E("%s: aos_hal_gpio_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_GPIO, &(driver_obj->gpio_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -139,19 +139,19 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_gpio_finalize(gpio_device);
+    ret = aos_hal_gpio_finalize(gpio_device);
     if(ret != 0)
     {
-		LOG_E("%s: hal_gpio_finalize failed;\n", __func__);
+		LOG_E("%s: aos_hal_gpio_finalize failed;\n", __func__);
         return mp_const_none;
     }
-    board_disattach_item(MODULE_GPIO, &(driver_obj->gpio_handle));
+    py_board_disattach_item(MODULE_GPIO, &(driver_obj->gpio_handle));
     LOG_D("%s:out\n", __func__);
 
     return mp_const_none;
@@ -177,14 +177,15 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
     //hal_gpio_input_get(gpio_device, &level);
-    hal_gpio_get(gpio_device, &level);
+    aos_hal_gpio_input_get(gpio_device, &level);
+    //aos_hal_gpio_get(gpio_device, &level);
     LOG_D("%s:out\n", __func__);
 
     return MP_ROM_INT(level);
@@ -210,9 +211,9 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -221,17 +222,17 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
 
     if (level)
     {
-        ret = hal_gpio_output_high(gpio_device);
-        LOG_D("GPIO %d ON \n", gpio_device->port);
+        ret = aos_hal_gpio_output_high(gpio_device);
+        LOG_E("GPIO %d OFF \n", gpio_device->port);
     }
     else
     {
-        ret = hal_gpio_output_low(gpio_device);
-        LOG_D("GPIO %d OFF \n", gpio_device->port);
+        ret = aos_hal_gpio_output_low(gpio_device);
+        LOG_E("GPIO %d ON \n", gpio_device->port);
     }
     if (ret == -1)
     {
-        LOG_E("hal_gpio_output failed\n");
+        LOG_E("aos_hal_gpio_output failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -257,16 +258,16 @@ STATIC mp_obj_t obj_toggle(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_gpio_output_toggle(gpio_device);
+    ret = aos_hal_gpio_output_toggle(gpio_device);
     if (ret == -1)
     {
-        LOG_E("hal_gpio_output_toggle failed\n");
+        LOG_E("aos_hal_gpio_output_toggle failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -293,9 +294,9 @@ STATIC mp_obj_t obj_enableIrq(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -309,10 +310,10 @@ STATIC mp_obj_t obj_enableIrq(size_t n_args, const mp_obj_t *args)
     driver_obj->callback = args[1];
     irq_edge = priv->irq_mode;
     LOG_D("%s:irq_edge = %d;\n", __func__, irq_edge);
-    ret = hal_gpio_enable_irq(gpio_device, (int8_t)irq_edge, gpio_driver_irq_handler, (void*)driver_obj);
+    ret = aos_hal_gpio_enable_irq(gpio_device, (int8_t)irq_edge, gpio_driver_irq_handler, (void*)driver_obj);
     if (ret < 0)
     {
-        LOG_E("%s:hal_gpio_enable_irq failed\n", __func__);
+        LOG_E("%s:aos_hal_gpio_enable_irq failed\n", __func__);
     }
     LOG_D("%s:out\n", __func__);
 
@@ -338,13 +339,13 @@ STATIC mp_obj_t obj_disableIrq(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_gpio_disable_irq(gpio_device);
+    ret = aos_hal_gpio_disable_irq(gpio_device);
     LOG_D("%s:out\n", __func__);
 
     return MP_ROM_INT(ret);
@@ -369,13 +370,13 @@ STATIC mp_obj_t obj_clearIrq(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    gpio_device = board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
+    gpio_device = py_board_get_node_by_handle(MODULE_GPIO, &(driver_obj->gpio_handle));
     if (NULL == gpio_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_gpio_clear_irq(gpio_device);
+    ret = aos_hal_gpio_clear_irq(gpio_device);
     LOG_D("%s:out\n", __func__);
 
     return MP_ROM_INT(ret);

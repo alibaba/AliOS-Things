@@ -36,8 +36,8 @@ static uart_buffer uart_rxbuffer[5];
 
 
 /*the pin used for uart, you can change the pin as pinmux table, 0 means not use*/
-static uart_s uart_obj[5]={  
-	{2,	PA_7,	PA_8,	0,	0},		//log uart                              
+static uart_s uart_obj[5]={
+	{2,	PA_7,	PA_8,	0,	0},		//log uart
 	{0,	PA_18,	PA_19,	PA_17,	PA_18},		//km4 uart
 	{1,	PA_2,	PA_4,	PA_0,	PB_31},		//bt uart
 	{3,	PA_12,	PA_13,	PA_14,	PA_15},		//km0 uart
@@ -66,7 +66,7 @@ static int32_t uart_irq(void *data)
     u32 reg_val;
     uint8_t rx_char;
     UART_TypeDef * uart_dev;
-   
+
     uart_dev_t* uart = (uart_dev_t*) data;
     u8 num = uart_obj[uart->port].id;
     uart_dev = UART_DEV_TABLE[num].UARTx;
@@ -92,7 +92,7 @@ static int32_t uart_irq(void *data)
                 if(uart_rxbuffer[uart->port].length<RX_BUFFER_LENGTH)
                 {
                     UART_CharGet(uart_dev,  (uart_rxbuffer[uart->port].rxbuffer + uart_rxbuffer[uart->port].length));
-		     uart_rxbuffer[uart->port].length++;	
+		     uart_rxbuffer[uart->port].length++;
                 }
 		 else
 		 {
@@ -196,7 +196,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 	UART_Init(uart_dev, &UARTStruct);
 	UART_SetBaud(uart_dev, uart->config.baud_rate);
-	
+
 	InterruptRegister((IRQ_FUN)uart_irq, UART_DEV_TABLE[num].IrqNum, (uint32_t)uart, 5);
 	InterruptEn( UART_DEV_TABLE[num].IrqNum, 5);
 
@@ -235,7 +235,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     aos_event_new(&g_uart_event, 0);
 
     return 0;
-	
+
     }
 }
 
@@ -293,10 +293,10 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 	u8 num = uart_obj[uart->port].id;
 	UART_TypeDef *uart_dev;
 	uart_dev = UART_DEV_TABLE[num].UARTx;
-	
+
 	if((uart_rxbuffer[uart->port].length) <= expect_size){
 		_memcpy(data, uart_rxbuffer[uart->port].rxbuffer, uart_rxbuffer[uart->port].length);
-		*recv_size = uart_rxbuffer[uart->port].length; 
+		*recv_size = uart_rxbuffer[uart->port].length;
 		uart_rxbuffer[uart->port].length = 0;
 	}else{
 		_memcpy(data, uart_rxbuffer[uart->port].rxbuffer, expect_size);
@@ -319,7 +319,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         for (i = 0; i < expect_size; i++)
         {
             //ret = aos_queue_recv(&g_uart_queue,AOS_WAIT_FOREVER,)
-            ret = krhino_buf_queue_recv(&g_uart_queue, RHINO_WAIT_FOREVER, &pdata[i], &rev_size);
+            ret = krhino_buf_queue_recv(&g_uart_queue, krhino_ms_to_ticks(timeout), &pdata[i], &rev_size);
             if(ret == 0)
             {
                 rx_count++;
@@ -328,12 +328,12 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
             }
 
         }
-  
+
         if (recv_size)
         {
             *recv_size = rx_count;
         }
-   
+
         if(rx_count != 0)
         {
             ret = 0;
@@ -361,9 +361,9 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     if(uart->port != 0){
 	u8 num = uart_obj[uart->port].id;
 	UART_DeInit( UART_DEV_TABLE[num].UARTx);
-	InterruptDis(UART_DEV_TABLE[num].IrqNum);    
+	InterruptDis(UART_DEV_TABLE[num].IrqNum);
 	InterruptUnRegister(UART_DEV_TABLE[num].IrqNum);
-	
+
 	aos_free(uart_rxbuffer[uart->port].rxbuffer);
 
 	return 0;

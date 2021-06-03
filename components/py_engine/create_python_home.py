@@ -1,3 +1,4 @@
+# coding=utf-8
 import shutil
 import os
 import sys
@@ -5,15 +6,28 @@ import stat
 
 print('cp .py file to file system')
 print(os.getcwd())
+
 #源文件目录
 current_dir = os.getcwd()
 
 script_dir = os.path.dirname(sys.argv[0])
 framework_dir = os.path.join(script_dir, "framework")
-pythonApp_dir = os.path.join(script_dir, "example", "python-apps")
 
-data_prebuild="hardware/chip/haas1000/prebuild/data/"
+pyFile = open(sys.argv[1])
+data = pyFile.read()
+print(data)
+data_prebuild=""
+pythonApp_dir=""
+if "hardware/chip/rtl872xd" in data:
+    print("rtl872xd chip")
+    data_prebuild="hardware/chip/rtl872xd/prebuild/data/"
+    pythonApp_dir = os.path.join(script_dir, "example", "HaaS200", "python-apps")
+else:
+    print("haas1000 chip")
+    data_prebuild="hardware/chip/haas1000/prebuild/data/"
+    pythonApp_dir = os.path.join(script_dir, "example", "HaaS100", "python-apps")
 python_home="lib/micropython/"
+print(data_prebuild)
 
 #return ../../ path
 prebuild_dest1 = os.path.dirname(framework_dir)
@@ -26,7 +40,8 @@ prebuildDest = os.path.join(prebuild_dest, data_prebuild, python_home)
 pythonapp_dest1 = os.path.dirname(pythonApp_dir)
 pythonapp_dest2 = os.path.dirname(pythonapp_dest1)
 pythonapp_dest3 = os.path.dirname(pythonapp_dest2)
-pythonapp_dest = os.path.dirname(pythonapp_dest3)
+pythonapp_dest4 = os.path.dirname(pythonapp_dest3)
+pythonapp_dest = os.path.dirname(pythonapp_dest4)
 # make /hardware/chip/haas1000/prebuild/data/ path
 pythonhomeDest = os.path.join(pythonapp_dest, data_prebuild, 'python-apps')
 
@@ -49,7 +64,7 @@ for root, dirs, files in os.walk(framework_dir):
 
 
 print(pythonApp_dir)
-# print(pythonhomeDest)
+print(pythonhomeDest)
 #cp pythonme
 if os.path.exists(pythonhomeDest):
     for fileList in os.walk(pythonhomeDest):
@@ -61,3 +76,5 @@ if os.path.exists(pythonhomeDest):
 else:
     print("no filepath")
 shutil.copytree(pythonApp_dir, pythonhomeDest)
+print("run external script success")
+exit(0)

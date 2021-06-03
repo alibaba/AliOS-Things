@@ -1214,7 +1214,14 @@ int wifi_set_channel(int channel)
 
 int wifi_get_channel(int *channel)
 {
-	return wext_get_channel(WLAN0_NAME, (u8*)channel);
+	if(channel == NULL)
+	{
+		return -1;
+	}
+	
+	*channel = 0;
+
+	return wext_get_channel(WLAN0_NAME, channel);
 }
 
 //----------------------------------------------------------------------------//

@@ -15,8 +15,8 @@
 
 #include "vfs_conf.h"
 
+#include "sys/socket.h"
 #ifdef CONFIG_AOS_LWIP
-#include "network/network.h"
 #ifdef TELNETD_ENABLED
 #include "lwip/apps/telnetserver.h"
 #endif
@@ -92,17 +92,32 @@ int _link_r(struct _reent *ptr, const char *old, const char *new)
 
 _off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
 {
-    return aos_lseek(fd, pos, whence);
+    int ret = aos_lseek(fd, pos, whence);
+    if (ret < 0) {
+        ptr->_errno = -ret;
+        ret = -1;
+    }
+    return ret;
 }
 
 int _mkdir_r(struct _reent *ptr, const char *name, int mode)
 {
-    return aos_mkdir(name);
+    int ret = aos_mkdir(name);
+    if (ret < 0) {
+        ptr->_errno = -ret;
+        ret = -1;
+    }
+    return ret;
 }
 
 int _open_r(struct _reent *ptr, const char *file, int flags, int mode)
 {
-    return aos_open(file, flags);
+    int ret = aos_open(file, flags);
+    if (ret < 0) {
+        ptr->_errno = -ret;
+        ret = -1;
+    }
+    return ret;
 }
 
 int _close_r(struct _reent *ptr, int fd)
@@ -243,7 +258,12 @@ _CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
 
 int _unlink_r(struct _reent *ptr, const char *file)
 {
-    return aos_unlink(file);
+    int ret = aos_unlink(file);
+    if (ret < 0) {
+        ptr->_errno = -ret;
+        ret = -1;
+    }
+    return ret;
 }
 
 int _wait_r(struct _reent *ptr, int *status)

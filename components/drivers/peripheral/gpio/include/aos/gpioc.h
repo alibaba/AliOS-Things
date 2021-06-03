@@ -6,35 +6,7 @@
 #define AOS_GPIOC_H
 
 #include <aos/device_core.h>
-
-#define AOS_GPIO_DIR_MASK                       ((uint32_t)0xF << 0)
-#define AOS_GPIO_DIR_NONE                       ((uint32_t)0x0 << 0)
-#define AOS_GPIO_DIR_INPUT                      ((uint32_t)0x1 << 0)
-#define AOS_GPIO_DIR_OUTPUT                     ((uint32_t)0x2 << 0)
-
-#define AOS_GPIO_INPUT_CFG_MASK                 ((uint32_t)0xF << 4)
-#define AOS_GPIO_INPUT_CFG_DEFAULT              ((uint32_t)0x0 << 4)
-#define AOS_GPIO_INPUT_CFG_HI                   ((uint32_t)0x1 << 4)
-#define AOS_GPIO_INPUT_CFG_PU                   ((uint32_t)0x2 << 4)
-#define AOS_GPIO_INPUT_CFG_PD                   ((uint32_t)0x3 << 4)
-
-#define AOS_GPIO_IRQ_MASK                       ((uint32_t)0xF << 8)
-#define AOS_GPIO_IRQ_NONE                       ((uint32_t)0x0 << 8)
-#define AOS_GPIO_IRQ_EDGE_RISING                ((uint32_t)0x1 << 8)
-#define AOS_GPIO_IRQ_EDGE_FALLING               ((uint32_t)0x2 << 8)
-#define AOS_GPIO_IRQ_EDGE_BOTH                  ((uint32_t)0x3 << 8)
-#define AOS_GPIO_IRQ_LEVEL_HIGH                 ((uint32_t)0x4 << 8)
-#define AOS_GPIO_IRQ_LEVEL_LOW                  ((uint32_t)0x5 << 8)
-
-#define AOS_GPIO_OUTPUT_CFG_MASK                ((uint32_t)0xF << 4)
-#define AOS_GPIO_OUTPUT_CFG_DEFAULT             ((uint32_t)0x0 << 4)
-#define AOS_GPIO_OUTPUT_CFG_PP                  ((uint32_t)0x1 << 4)
-#define AOS_GPIO_OUTPUT_CFG_ODNP                ((uint32_t)0x2 << 4)
-#define AOS_GPIO_OUTPUT_CFG_ODPU                ((uint32_t)0x3 << 4)
-
-#define AOS_GPIO_OUTPUT_INIT_MASK               ((uint32_t)0x1 << 8)
-#define AOS_GPIO_OUTPUT_INIT_LOW                ((uint32_t)0x0 << 8)
-#define AOS_GPIO_OUTPUT_INIT_HIGH               ((uint32_t)0x1 << 8)
+#include <aos/gpio.h>
 
 struct aos_gpioc;
 
@@ -45,12 +17,13 @@ typedef struct {
     void (*set_value)(struct aos_gpioc *, uint32_t);
 } aos_gpioc_ops_t;
 
-typedef void (*aos_gpio_irq_handler_t)(int trig, void *arg);
-
 typedef struct {
     uint32_t mode;
     aos_gpio_irq_handler_t irq_handler;
     void *irq_arg;
+    aos_sem_t irq_sem;
+    aos_event_t irq_event;
+    aos_task_t irq_task;
     int value;
 } aos_gpioc_pin_t;
 
@@ -58,6 +31,7 @@ typedef struct aos_gpioc {
     aos_dev_t dev;
     const aos_gpioc_ops_t *ops;
     uint32_t num_pins;
+    aos_spinlock_t lock;
     aos_gpioc_pin_t pins[0];
 } aos_gpioc_t;
 
@@ -113,13 +87,12 @@ aos_gpioc_set_mode(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t mode);
  * @param[in]   mode            pin mode
  * @param[in]   irq_handler     IRQ handler
  * @param[in]   irq_arg         argument passed to IRQ handler
- * @param[in]   irq_prio        priority of IRQ handler task
  * @return      0: on success; < 0: on failure
  */
 aos_status_t aos_gpioc_set_mode_irq(aos_gpioc_ref_t *ref,
                                     uint32_t pin, uint32_t mode,
                                     aos_gpio_irq_handler_t irq_handler,
-                                    void *irq_arg, int32_t irq_prio);
+                                    void *irq_arg);
 /**
  * @brief       Get the input level of a GPIO pin.
  * @param[in]   ref     GPIO controller ref to operate

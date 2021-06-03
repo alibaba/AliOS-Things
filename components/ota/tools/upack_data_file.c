@@ -28,25 +28,25 @@ int data_file_unpack(void *pack_file, unsigned int pack_size, void *upack_path)
         memset(&pack_head, 0x00, sizeof(data_file_pack_head_t));
         memset(&file_info, 0x00, sizeof(data_file_infor_t));
         upack_path_len = strlen(upack_path);
-        strcpy(tmp_file_name, upack_path);
+        strncpy(tmp_file_name, upack_path, upack_path_len);
         if (tmp_file_name[upack_path_len] != '/') {
             tmp_file_name[upack_path_len++] = '/';
         }
-        OTA_LOG_I("upack_path = %s\r\n", upack_path);
+        OTA_LOG_I("upack_path = %s\r\n", (char *)upack_path);
         read_fd = ota_fopen(pack_file, O_RDONLY);
         if (read_fd >= 0) {
             read_len = ota_fread(read_fd, &pack_head, sizeof(data_file_pack_head_t));
             OTA_LOG_E("read_len = %d\r\n", read_len);
             if (read_len != sizeof(data_file_pack_head_t) ||
                 pack_head.pack_size != pack_size) {
-                OTA_LOG_E("file: %s is len erro, pack size = %d\r\n", pack_file, pack_head.pack_size);
+                OTA_LOG_E("file: %s is len erro, pack size = %d\r\n", (char *)pack_file, pack_head.pack_size);
             } else {
                 ret = 0;
                 for (i = 0; i < pack_head.file_numb; i++) {
                     read_len = ota_fread(read_fd, (void *)&file_info, sizeof(data_file_infor_t));
                     if (read_len != sizeof(data_file_infor_t)) {
                         ret = -1;
-                        OTA_LOG_E("file:%s reand file info len err\r\n", read_len);
+                        OTA_LOG_E("file:%d read file info len err\r\n", i);
                         break;
                     } else {
                         tmp_file_name_len = file_info.head_size - sizeof(data_file_infor_t);

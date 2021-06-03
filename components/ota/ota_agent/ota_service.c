@@ -33,6 +33,7 @@ int ota_download_to_fs_service(void *ota_ctx , char *file_path)
     if (ret < 0) {
         goto SERVER_OVER;
     }
+    ota_param.url[sizeof(ota_param.url) - 1] = 0;
     ret = ota_download_store_fs_start(ota_param.url, strlen(ota_param.url), file_path,
           ctx->report_func.report_status_cb, ctx->report_func.param);
     if (ret < 0) {
@@ -71,7 +72,7 @@ int ota_report_module_version(void *ota_ctx, char *module_name, char *version)
         OTA_LOG_E("submode version is null\n");
         goto OTA_REPORT_M_VER_OVER;
     }
-    ret = ota_transport_inform(ctx, module_name, version);
+    ret = ota_transport_inform(ctx->mqtt_client, ctx->pk, ctx->dn, module_name, version);
     if (ctx->feedback_func.on_user_event_cb != NULL) {
         ctx->feedback_func.on_user_event_cb(OTA_EVENT_REPORT_VER, ret, ctx->feedback_func.param);
     }
@@ -104,11 +105,6 @@ int ota_service_start(ota_service_t *ctx)
     }
     ota_param.url[sizeof(ota_param.url) - 1] = 0;
     url_len = strlen(ota_param.url);
-    if (url_len >= sizeof(ota_param.url)) {
-        OTA_LOG_E("download url len err!");
-        ret = OTA_DOWNLOAD_INIT_FAIL;
-        goto EXIT;
-    }
     OTA_LOG_I("download start upg_flag:0x%x\n", ota_param.upg_flag);
 #if !defined(OTA_LINUX) && defined OTA_CONFIG_SECURE_DL_MODE
     ota_wdg.config.timeout = 180000;
@@ -361,15 +357,18 @@ int ota_service_init(ota_service_t *ctx)
 {
     int ret = 0;
     if (ctx == NULL) {
+        OTA_LOG_E("input ctx is null!");
         ret = OTA_INIT_FAIL;
         goto EXIT;
     }
     ctx->ota_process = OTA_PROCESS_NORMAL;
     if (ctx->report_func.report_status_cb == NULL) {
+        OTA_LOG_I("register default status cb");
         ota_register_report_percent_cb(ctx, (void *)ota_transport_status, (void *)ctx);
     }
     ret = ota_transport_upgrade(ctx);
     if (ret < 0) {
+        OTA_LOG_E("transport upgrade sub failed!");
         goto EXIT;
     }
     ret = ota_transport_inform_otaver(ctx);

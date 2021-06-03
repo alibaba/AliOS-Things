@@ -53,7 +53,7 @@ source_file:
   - src/debug_backtrace.c
   - src/debug_infoget.c
   - src/debug_cpuusage.c
-#  - src/debug_test.c ? <AOS_COMP_CLI>
+  - src/debug_test.c ? <AOS_COMP_CLI>
   - src/debug_dumpsys.c ? <AOS_COMP_CLI>
   - src/debug_cli_cmd.c ? <AOS_COMP_CLI>
   - src/debug_lastword.c ? <DEBUG_LAST_WORD_ENABLE>

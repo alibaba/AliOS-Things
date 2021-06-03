@@ -3,7 +3,7 @@
  */
 
 #include "amp_config.h"
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_system.h"
 //#include "amp_defines.h"
 #include "aos_fs.h"
@@ -67,13 +67,13 @@ int aos_rmdir_r(const char *path)
     }
 
     if (aos_stat(dir, &s) || !S_ISDIR(s.st_mode)) {
-        aos_cli_printf("%s is neither existed nor a directory\n", dir);
+        aos_printf("%s is neither existed nor a directory\n", dir);
         goto out;
     }
 
     pdir = aos_opendir(dir);
     if (!pdir) {
-        aos_cli_printf("opendir %s failed - %s\n", dir, strerror(errno));
+        aos_printf("opendir %s failed - %s\n", dir, strerror(errno));
         goto out;
     }
 
@@ -85,7 +85,7 @@ int aos_rmdir_r(const char *path)
 
         ret = aos_stat(fpath, &s);
         if (ret) {
-            aos_cli_printf("stat %s failed\n", fpath);
+            aos_printf("stat %s failed\n", fpath);
             break;
         }
 
@@ -104,7 +104,7 @@ int aos_rmdir_r(const char *path)
     if (ret == 0) {
         ret = aos_rmdir(dir);
         if (ret)
-            aos_cli_printf("rmdir %s failed\n", dir);
+            aos_printf("rmdir %s failed\n", dir);
     }
 out:
     aos_free(dir);

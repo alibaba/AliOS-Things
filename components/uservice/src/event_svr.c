@@ -10,11 +10,7 @@
 #include <aos/list.h>
 #include <uservice/uservice.h>
 #include <uservice/event.h>
-#ifdef CONFIG_LWIP_V200
-#include <network/network.h>
-#else
-#include <sys/select.h>
-#endif
+#include <sys/socket.h>
 
 #include "internal.h"
 

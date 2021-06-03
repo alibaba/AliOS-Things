@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <aos/cli.h>
 #include "netmgr.h"
 #include "ulog/ulog.h"
 #include "ota_agent.h"
@@ -168,12 +169,12 @@ static void mqtt_connected_cb(void *handle)
             LOG("OTA init successfully\n");
         }
         // 上报app的版本号，对应云端的default模块
-        ret = ota_transport_inform(&ctx, "default", MY_APP_VER);
+        ret = ota_report_module_version(&ctx, "default", MY_APP_VER);
         if (ret < STATE_SUCCESS) {
             printf("user app report ver failed!\r\n");
         }
         // 多模块情况下，USER_MODE_NAME 为用户的模块名， USER_MODULE_VER为用户模块的版本号，此用例只有一个模块
-        ret = ota_transport_inform(&ctx, USER_MODE_NAME, USER_MODULE_VER);
+        ret = ota_report_module_version(&ctx, USER_MODE_NAME, USER_MODULE_VER);
         if (ret < STATE_SUCCESS) {
             printf("user module ver report failed!\r\n");
         }

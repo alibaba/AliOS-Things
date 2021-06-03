@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<page>
+  <image id="image" src="background1"> </image>
+  <container id="topBar" layout="off" fit="none" >
+	  <text id="shop" class="textClass" value="滨江水果店" > </text>
+	  <icon id="signal" class="iconClass"  symbol="wifi">  </icon>
+	  <text id="time" class="textClass" > 13:26 </text>
+	  <text id="batteryValue" class="textClass" > 100% </text>
+	  <icon id="battery" class="iconClass"  symbol="battery_4">  </icon>
+  </container>
+  <container id="paycodeGround" layout="off" fit="none" > 
+    <button id="collect" class="buttonClass" value="收款" onClick="button_click_collect"></button>
+    <button id="stock" class="buttonClass" value="进货" onClick="button_click_stock"></button>
+    <button id="order" class="buttonClass" value="订单" onClick="button_click_order"></button>
+  </container>
+  
+</page>
+

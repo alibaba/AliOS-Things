@@ -18,6 +18,7 @@ solution:
 depends:                                       # 该组件依赖其他的组件
   - linksdk: rel_3.3.0
   - haas100: rel_3.3.0
+  - haas200: rel_3.3.0
   - mbedtls: rel_3.3.0
   - netmgr: rel_3.3.0
   - lwip: rel_3.3.0
@@ -26,6 +27,8 @@ depends:                                       # 该组件依赖其他的组件
   - cli: rel_3.3.0
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项
+def_config:
+    CLI_IOBOX_ENABLE: 1        # 使能文件系统
 
 # 源文件
 source_file:

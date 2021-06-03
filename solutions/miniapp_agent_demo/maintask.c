@@ -56,10 +56,6 @@ void aos_maintask(void *arg)
 #endif
 }
 
-extern int BleCfg_run();
-extern int BleCfg_recovery_wifi();
-extern int BleCfg_recovery_devinfo();
-
 int application_start(int argc, char *argv[])
 {
     int ret;

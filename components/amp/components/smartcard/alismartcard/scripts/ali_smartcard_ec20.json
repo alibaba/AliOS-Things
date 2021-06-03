@@ -1,0 +1,11 @@
+{
+	"module_config": {
+		"module_startup_time": 30,
+		"module_at_port": "/dev/ttyUSB2",
+		"reset_while_switch": 0
+	},
+	"server_config": {
+		"log_level": 0,
+		"log_storage": 0
+	}
+}

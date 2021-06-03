@@ -31,8 +31,8 @@
 #define JSE_CORE_ADDON_BUILDIN
 // #define JSE_CORE_ADDON_CHECKSUM
 #define JSE_CORE_ADDON_SYSTEM
-// #define JSE_CORE_ADDON_FS
-// #define JSE_CORE_ADDON_KV
+#define JSE_CORE_ADDON_FS
+#define JSE_CORE_ADDON_KV
 // #define JSE_CORE_ADDON_PM
 // #define JSE_CORE_ADDON_BATTERY
 // #define JSE_CORE_ADDON_CHARGER
@@ -45,13 +45,18 @@
 // #define JSE_HW_ADDON_CAN
 #define JSE_HW_ADDON_DAC
 #define JSE_HW_ADDON_GPIO
-// #define JSE_HW_ADDON_I2C
+//#define JSE_HW_ADDON_IR
+#define JSE_HW_ADDON_I2C
 // #define JSE_HW_ADDON_SPI
 #define JSE_HW_ADDON_TIMER
-// #define JSE_HW_ADDON_PWM
-// #define JSE_HW_ADDON_RTC
-// #define JSE_HW_ADDON_UART
+#define JSE_HW_ADDON_PWM
+#define JSE_HW_ADDON_ONEWIRE
+#define JSE_HW_ADDON_RTC
+#define JSE_HW_ADDON_UART
 #define JSE_HW_ADDON_WDG
+#define JSE_HW_ADDON_LCD
+
+#define JSE_HW_ADDON_DS18B20
 
 /* network */
 // #define JSE_NET_ADDON_UDP
@@ -60,6 +65,7 @@
 // #define JSE_NET_ADDON_HTTP
 // #define JSE_NET_ADDON_WIFI
 // #define JSE_NET_ADDON_CELLULAR
+#define JSE_NET_ADDON_NETMGR
 
 /* advanced component */
 // #define JSE_ADVANCED_ADDON_AIOT_DEVICE
@@ -69,9 +75,10 @@
 // #define JSE_ADVANCED_ADDON_LOCATION
 // #define JSE_ADVANCED_ADDON_KEYPAD
 // #define JSE_ADVANCED_ADDON_UND
+#define JSE_ADVANCED_ADDON_OTA
 
 /* ui component */
-#ifdef AMP_UI_SUPPORT
+#ifdef CONFIG_AMP_UI_SUPPORT
 #define JSE_ADVANCED_ADDON_UI
 #endif
 

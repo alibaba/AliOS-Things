@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/spi.h"
+#include "aos_hal_spi.h"
 
 extern const mp_obj_type_t driver_spi_type;
 
@@ -74,24 +74,24 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_SPI, id, &(driver_obj->spi_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_SPI, id, &(driver_obj->spi_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    spi_device = board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
+    spi_device = py_board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
     if (NULL == spi_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
@@ -105,12 +105,12 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: serial_len = %d;\n", __func__, spi_device->config.serial_len);
     LOG_D("%s: data_size = %d;\n", __func__, spi_device->config.data_size);
     LOG_D("%s: cs = %d;\n", __func__, spi_device->config.cs);
-    ret = hal_spi_init(spi_device);
+    ret = aos_hal_spi_init(spi_device);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_spi_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_SPI, &(driver_obj->spi_handle));
+        LOG_E("%s: aos_hal_spi_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_SPI, &(driver_obj->spi_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -137,18 +137,18 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    spi_device = board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
+    spi_device = py_board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
     if (NULL == spi_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_spi_finalize(spi_device);
+    ret = aos_hal_spi_finalize(spi_device);
     if (ret != 0) {
-		LOG_E("%s: hal_spi_finalize failed;\n", __func__);
+		LOG_E("%s: aos_hal_spi_finalize failed;\n", __func__);
     }
 
-    board_disattach_item(MODULE_SPI, &(driver_obj->spi_handle));
+    py_board_disattach_item(MODULE_SPI, &(driver_obj->spi_handle));
     LOG_D("%s:out\n", __func__);
 
     return mp_const_none;
@@ -173,9 +173,9 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    spi_device = board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
+    spi_device = py_board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
     if (NULL == spi_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -183,10 +183,10 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
     memset(bufinfo.buf, 0, bufinfo.len);
 
-    ret = hal_spi_recv(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    ret = aos_hal_spi_recv(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret == -1)
     {
-		LOG_E("%s: hal_spi_recv failed;\n", __func__);
+		LOG_E("%s: aos_hal_spi_recv failed;\n", __func__);
     }
     LOG_D("%s:out\n", __func__);
 
@@ -212,9 +212,9 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    spi_device = board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
+    spi_device = py_board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
     if (NULL == spi_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -222,10 +222,10 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
     // memset(bufinfo.buf, 0, bufinfo.len);
 
-    ret = hal_spi_send(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    ret = aos_hal_spi_send(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret == -1)
     {
-		LOG_E("%s: hal_spi_send failed;\n", __func__);
+		LOG_E("%s: aos_hal_spi_send failed;\n", __func__);
     }
     LOG_D("%s:out\n", __func__);
 
@@ -251,9 +251,9 @@ STATIC mp_obj_t obj_sendRecv(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    spi_device = board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
+    spi_device = py_board_get_node_by_handle(MODULE_SPI, &(driver_obj->spi_handle));
     if (NULL == spi_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -264,11 +264,11 @@ STATIC mp_obj_t obj_sendRecv(size_t n_args, const mp_obj_t *args)
     mp_get_buffer_raise(args[2], &read_bufinfo, MP_BUFFER_WRITE);
     memset(read_bufinfo.buf, 0, read_bufinfo.len);
 
-    ret = hal_spi_send_and_recv(spi_device, write_bufinfo.buf,
-           write_bufinfo.len, read_bufinfo.buf, read_bufinfo.len, SPI_TIMEOUT);
+    ret = aos_hal_spi_send_recv(spi_device, write_bufinfo.buf,
+           read_bufinfo.buf, read_bufinfo.len, SPI_TIMEOUT);
     if (ret == -1)
     {
-        LOG_E("hal_spi_send_recv failed\n");
+        LOG_E("aos_hal_spi_send_recv failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
