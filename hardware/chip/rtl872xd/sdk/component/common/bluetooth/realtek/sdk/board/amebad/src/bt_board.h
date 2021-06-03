@@ -101,8 +101,8 @@ extern "C" {
 #define EFUSE_SW_RSVD2               BIT7
 
 
-#define CHECK_SW(x)                  (HAL_READ32(SPI_FLASH_BASE, FLASH_SYSTEM_DATA_ADDR + 0x28) & x)
-
+//#define CHECK_SW(x)                  (HAL_READ32(SPI_FLASH_BASE, FLASH_SYSTEM_DATA_ADDR + 0x28) & x)
+#define CHECK_SW(x)                  (1)
 
 extern uint8_t rltk_wlan_is_mp(void);
 

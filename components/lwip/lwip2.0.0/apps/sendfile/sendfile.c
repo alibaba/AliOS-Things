@@ -127,7 +127,7 @@ int sendfile_client(int argc,char *argv[])
         goto exit;
     }
 
-    sockfd = socket(AF_INET,SOCK_STREAM,0);
+    sockfd = lwip_socket(AF_INET,SOCK_STREAM,0);
     if(sockfd < 0) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("%s:%d Invalid command", __func__, __LINE__));
         goto exit;
@@ -136,32 +136,32 @@ int sendfile_client(int argc,char *argv[])
     srvaddr.sin_family = AF_INET;
     inet_pton(AF_INET, dst_addr, (struct sockaddr *)&(srvaddr.sin_addr));
     srvaddr.sin_port = htons(atoi(dst_port));
-    ret = connect(sockfd, (struct sockaddr *)&srvaddr,sizeof(srvaddr));
+    ret = lwip_connect(sockfd, (struct sockaddr *)&srvaddr,sizeof(srvaddr));
     if (ret == -1) {
-        close(sockfd);
+        lwip_close(sockfd);
         LWIP_DEBUGF( SENDFILE_DEBUG, ("connect failed: %s", strerror(errno)));
         goto exit;
     }
 
     /* write file name to server */
-    ret = write(sockfd, src_file, strlen(src_file));
+    ret = lwip_write(sockfd, src_file, strlen(src_file));
     if (ret == -1) {
-        close(sockfd);
+        lwip_close(sockfd);
         LWIP_DEBUGF( SENDFILE_DEBUG, ("write failed: %s", strerror(errno)));
         goto exit;
     }
 
     /* get the file mode/size from server */
     memset(buf, 0, sizeof(buf));
-    ret = recv(sockfd, buf, sizeof(buf), 0);
+    ret = lwip_recv(sockfd, buf, sizeof(buf), 0);
     if (ret == -1) {
-        close(sockfd);
+        lwip_close(sockfd);
         LWIP_DEBUGF( SENDFILE_DEBUG, ("recv failed: %s", strerror(errno)));
         goto exit;
     }
 
     if(2 != sscanf(buf, "mode=%d size=%d\n", &mode, &size)) {
-        close(sockfd);
+        lwip_close(sockfd);
         LWIP_DEBUGF( SENDFILE_DEBUG, ("wrong mode and size input: %s", strerror(errno)));
         goto exit;
     }
@@ -169,7 +169,7 @@ int sendfile_client(int argc,char *argv[])
     fd = open(file_name, O_WRONLY|O_CREAT, mode);
     if(fd < 0) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("open file %s failed: %s", file_name, strerror(errno)));
-        close(sockfd);
+        lwip_close(sockfd);
         goto exit;
     }
 
@@ -185,8 +185,8 @@ int sendfile_client(int argc,char *argv[])
         }
     }
 
-    close(fd);
-    close(sockfd);
+    lwip_close(fd);
+    lwip_close(sockfd);
 exit:
     return ret;
 }
@@ -239,7 +239,7 @@ void sendfile_server_thread(void *args)
     port = atoi((char *)args);
 
     /* create Internet domain socket */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    sockfd = lwip_socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("unable to create socket: %s", strerror(errno)));
         goto exit;
@@ -252,14 +252,14 @@ void sendfile_server_thread(void *args)
     addrserver.sin_port = htons(port);
 
     /* bind socket to the port */
-    ret =  bind(sockfd, (struct sockaddr *)&addrserver, sizeof(addrserver));
+    ret =  lwip_bind(sockfd, (struct sockaddr *)&addrserver, sizeof(addrserver));
     if (ret == -1) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("unable to bind to socket: %s", strerror(errno)));
         goto exit;
     }
 
     /* listen for clients on the socket */
-    ret = listen(sockfd, 1);
+    ret = lwip_listen(sockfd, 1);
     if (ret == -1) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("listen failed: %s", strerror(errno)));
         goto exit;
@@ -268,17 +268,17 @@ void sendfile_server_thread(void *args)
     for ( ;; ) {
         addrlen = sizeof(addrclient);
         /* wait for a client to connect */
-        connfd = accept(sockfd, (struct sockaddr *)&addrclient, &addrlen);
+        connfd = lwip_accept(sockfd, (struct sockaddr *)&addrclient, &addrlen);
         if (connfd == -1) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("accept failed: %s", strerror(errno)));
             goto exit;
         }
 
         /* get the file name from the client */
-        ret = recv(connfd, filename, sizeof(filename), 0);
+        ret = lwip_recv(connfd, filename, sizeof(filename), 0);
         if (ret == -1) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("recv failed: %s", strerror(errno)));
-	        close(connfd);
+	        lwip_close(connfd);
             goto exit;
         }
 
@@ -291,7 +291,7 @@ void sendfile_server_thread(void *args)
         /* exit server if filename is "quit" */
         if (strcmp(filename, "quit") == 0) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("quit command received, shutting down server"));
-	        close(connfd);
+	        lwip_close(connfd);
             break;
         }
 
@@ -300,7 +300,7 @@ void sendfile_server_thread(void *args)
         /* open the file to be sent */
         fd = open(filename, O_RDONLY);
         if (fd < 0) {
-	        close(connfd);
+	        lwip_close(connfd);
             LWIP_DEBUGF( SENDFILE_DEBUG, ("unable to open '%s': %s", filename, strerror(errno)));
             goto exit;
         }
@@ -308,18 +308,18 @@ void sendfile_server_thread(void *args)
         /* get the size of the file to be sent */
         ret = fstat(fd, &stat_buf);
         if (ret == -1) {
-	        close(connfd);
-            close(fd);
+	        lwip_close(connfd);
+            lwip_close(fd);
             LWIP_DEBUGF( SENDFILE_DEBUG, ("unable to open '%s': %s", filename, strerror(errno)));
             goto exit;
         }
         memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf), "mode=%d size=%ld\n", stat_buf.st_mode, stat_buf.st_size);
-        ret = write(connfd, buf, strlen(buf));
+        ret = lwip_write(connfd, buf, strlen(buf));
         if (ret < 0) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("error from sendfile: %s", strerror(errno)));
-	        close(connfd);
-            close(fd);
+	        lwip_close(connfd);
+            lwip_close(fd);
             goto exit;
         }
 
@@ -328,32 +328,32 @@ void sendfile_server_thread(void *args)
         ret = sendfile(connfd, fd, &offset, stat_buf.st_size);
         if (ret < 0) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("error from sendfile: %s", strerror(errno)));
-	    close(connfd);
-            close(fd);
+	        lwip_close(connfd);
+            lwip_close(fd);
             goto exit;
         }
 
         if(ret == 0) {
-            close(connfd);
-            close(fd);
+            lwip_close(connfd);
+            lwip_close(fd);
             goto exit;
         }
 
         if (ret != stat_buf.st_size) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("incomplete transfer from sendfile: %d of %d bytes",
 		  ret, (int)stat_buf.st_size));
-	        close(connfd);
-            close(fd);
+	        lwip_close(connfd);
+            lwip_close(fd);
             goto exit;
         }
-	    close(connfd);
-	    close(fd);
+	    lwip_close(connfd);
+	    lwip_close(fd);
     }//for(;;)
 
 exit:
     /* close socket */
     if(sockfd != -1) {
-        close(sockfd);
+        lwip_close(sockfd);
     }
     sendfile_server_task_started = 0;
 }

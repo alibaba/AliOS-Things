@@ -50,8 +50,8 @@ int32_t aos_hal_timer_start(timer_dev_t *tim)
 
     if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
         /* it_value=0: stop timer */
-        ts.it_interval.tv_sec = tim->config.period / 1000;
-        ts.it_interval.tv_nsec = (tim->config.period % 1000) * 1000000;
+        ts.it_interval.tv_sec = tim->config.period / 1000000;
+        ts.it_interval.tv_nsec = (tim->config.period % 1000000) * 1000;
     } else {
         /* it_interval=0: timer run only once */
         ts.it_interval.tv_sec = 0;;
@@ -59,8 +59,8 @@ int32_t aos_hal_timer_start(timer_dev_t *tim)
     }
 
     /* it_value=0: stop timer */
-    ts.it_value.tv_sec = tim->config.period / 1000;
-    ts.it_value.tv_nsec = (tim->config.period % 1000) * 1000000;
+    ts.it_value.tv_sec = tim->config.period / 1000000;
+    ts.it_value.tv_nsec = (tim->config.period % 1000000) * 1000;
 
     return timer_settime(*(timer_t *)tim->priv, 0, &ts, NULL);
 }

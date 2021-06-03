@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<page>
+  <image id="image" src="background1"> </image>
+  <container id="topBar" layout="off" fit="none" >
+	  <text id="shop" class="textClass" value="商品录入" > </text>
+	  <icon id="signal" class="iconClass"  symbol="wifi">  </icon>
+	  <text id="time" class="textClass" > 13:26 </text>
+	  <text id="batteryValue" class="textClass"  > 100% </text>
+	  <icon id="battery" class="iconClass"  symbol="battery_4">  </icon>
+  </container>
+  <container id="collect_cont1" layout="off" fit="none" > 
+	  <list id="list1" btnRelColor="#ffffff" btnPrColor="#4169e1" btnPaddingVer="10" sbOpacity="0"> 
+		<list.Item id="listItemNum1" >
+			<text id="itemTextName1" value="商品编号" >  </text>
+			<text id="itemTextValue1" value="{{singleItemNo}}" >  </text>
+		</list.Item>
+		<list.Item id="listItemNum2" >
+			<text id="itemTextName2" value="商品名称" >  </text>
+			<text id="itemTextValue2" value="{{singleItemName}}" >  </text>
+		</list.Item>
+		<list.Item id="listItemNum3" onClick="onItemPriceEditClick">
+			<text id="itemTextName3" value="商品价格" >  </text>
+			<text id="itemTextValue3" value="{{singleItemPrice}}" >  </text>
+		</list.Item>
+		<list.Item id="listItemNum4" onClick="onItemNumEditClick">
+			<text id="itemTextName4" value="数量" >  </text>
+			<text id="itemTextValue4" value="{{singleItemNum}}" >  </text>
+		</list.Item>		
+		<list.Item id="listItemMakesure" onClick="onItemMakesureClick">
+			<text id="makesure" value="确认录入" >  </text>
+		</list.Item>
+	  </list>
+  </container>  
+</page>
+

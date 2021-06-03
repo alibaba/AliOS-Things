@@ -59,9 +59,20 @@ if not os.path.exists(final_src_path):
                 break
         break
 
-    shutil.copytree('source/codecs_v2/audio/mp3/dec/src', 'src')
-    os.remove('src/pvmp3_decoder.cpp')
-    shutil.copytree('source/codecs_v2/audio/mp3/dec/include', 'include')
+    src = os.path.join(pvmp3_path, 'source/codecs_v2/audio/mp3/dec/src')
+    dst = os.path.join(pvmp3_path, "src")
+    print(src)
+    print(dst)
+    shutil.copytree(src, dst)
+
+    os.remove(os.path.join(pvmp3_path, 'src/pvmp3_decoder.cpp'))
+    
+    src = os.path.join(pvmp3_path, 'source/codecs_v2/audio/mp3/dec/include')
+    dst = os.path.join(pvmp3_path, 'include')
+    #shutil.rmtree(dst)
+    print(src)
+    print(dst)
+    shutil.copytree(src, dst)
 
     n = 0
     filelist = os.listdir(final_src_path)

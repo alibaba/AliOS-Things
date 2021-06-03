@@ -6,7 +6,7 @@
 #define AMP_FS_H
 
 #include <fcntl.h>
-#include "aos_platform.h"
+#include "amp_platform.h"
 
 #ifdef AOS_COMP_VFS
 #include <aos/vfs.h>

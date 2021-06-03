@@ -1,0 +1,20 @@
+.page{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-iot-btn{
+  width: 200rpx;
+  height: 200rpx;
+  margin-top: 200rpx;
+  border-radius: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.link-iot-btn-img{
+  width: 180rpx;
+  height: 180rpx;
+  margin: 10rpx;
+}

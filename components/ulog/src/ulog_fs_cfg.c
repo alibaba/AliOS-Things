@@ -196,22 +196,25 @@ int update_mm_cfg(const ulog_cfg_type_t type, const unsigned short idx, const ul
 * return 0 if this step pass, else indicates this step fail
 *
 */
-int load_cfg_2_mm()
+int load_cfg_2_mm(void)
 {
     int rc = -1;
-    const int fd = open_log_file(ULOG_FILE_CFG_IDX, O_RDONLY, 0);
-    if (fd >= 0) {
-        char one_cfg_item[ULOG_CFG_LINE_MAX_SIZE];
-        int off = 0;
-        int read_len = 0;
-        /* log cofig file exist, read it to archive config item */
-        while ((read_len = get_log_line(fd, one_cfg_item, sizeof(one_cfg_item))) > 1) {
-            off += (read_len + ((ULOG_CFG_LINE_MAX_SIZE == read_len) ? 0 : 1));
-            parser_cfg_file(one_cfg_item);
+    char one_cfg_item[ULOG_CFG_LINE_MAX_SIZE];
+    int off = 0;
+    int read_len = 0;
 
-        }
-        aos_close(fd);
+    const int fd = open_log_file(ULOG_FILE_CFG_IDX, O_RDONLY, 0);
+    if (fd < 0) {
+        SESSION_FS_DEBUG("%s %d open log cfg file fail\r\n", __FILE__, __LINE__);
+        return rc;
     }
+
+    /* log cofig file exist, read it to archive config item */
+    while ((read_len = get_log_line(fd, one_cfg_item, sizeof(one_cfg_item))) > 1) {
+        off += (read_len + ((ULOG_CFG_LINE_MAX_SIZE == read_len) ? 0 : 1));
+        parser_cfg_file(one_cfg_item);
+    }
+    aos_close(fd);
 
     ulog_cfg_node_t *p = ulog_cfg_header;
     while (p != NULL) {
@@ -310,46 +313,54 @@ int cfg_mm_2_file(const int fd)
 
 static void parser_cfg_file(const char* cfg)
 {
+    uint8_t i = 0;
+    uint8_t j = 0;
+    cJSON *root = NULL;
+    cJSON *config_para = NULL;
+    cJSON *config_node = NULL;
+
     if (NULL != cfg) {
-        cJSON *root = NULL;
-        root = cJSON_Parse(cfg);
+        return ;
+    }
 
-        if (NULL != root) {
-            uint8_t i = 0;
-            cJSON *config_node = NULL;
-            SESSION_FS_DEBUG("parser_cfg_file input %s\n",cfg);
-            for (; i < ulog_cfg_type_cnt; i++) {
-                SESSION_FS_DEBUG("key list description %s @ %d\n",cfg_key_list[i].desription, i);
-                config_node = cJSON_GetObjectItem(root, cfg_key_list[i].desription);
-                if (NULL != config_node) {
-                    if (cJSON_IsNumber(config_node)) {
-                        if(ulog_cfg_type_working==cfg_key_list[i].type) {
-                            update_mm_cfg(cfg_key_list[i].type, (ulog_idx_type)config_node->valueint, ulog_cfg_para_none, NULL);
-                        }
-                        uint8_t j = 0;
-                        cJSON *config_para = NULL;
-                        for (; j < ulog_cfg_para_cnt; j++) {
-                            if (cfg_key_list[i].cfg_key[j] != NULL) {
-                                SESSION_FS_DEBUG("key list description %s cfg key %s @ %d %d\n",cfg_key_list[i].desription,cfg_key_list[i].cfg_key[j], i,j);
-                                config_para = cJSON_GetObjectItem(root, cfg_key_list[i].cfg_key[j]);
-                                if (NULL != config_para && cJSON_IsString(config_para)) {
-                                    update_mm_cfg(cfg_key_list[i].type,
-                                                  (ulog_idx_type)config_node->valueint,
-                                                  j,
-                                                  config_para->valuestring);
-                                }
-                            }
-                        }
-                    }
+    root = cJSON_Parse(cfg);
+    if (NULL == root) {
+        return ;
+    }
 
-                    break;
-                }
+    SESSION_FS_DEBUG("parser_cfg_file input %s\n", cfg);
+    for (; i < ulog_cfg_type_cnt; i++) {
+        SESSION_FS_DEBUG("key list description %s @ %d\n", cfg_key_list[i].desription, i);
+        config_node = cJSON_GetObjectItem(root, cfg_key_list[i].desription);
+        if (NULL == config_node) {
+            continue;
+        }
+
+        if (cJSON_IsNumber(config_node)) {
+            if (ulog_cfg_type_working == cfg_key_list[i].type) {
+                update_mm_cfg(cfg_key_list[i].type, (ulog_idx_type)config_node->valueint, ulog_cfg_para_none, NULL);
             }
 
-            cJSON_Delete(root);
-            root = NULL;
+            for (; j < ulog_cfg_para_cnt; j++) {
+                if (cfg_key_list[i].cfg_key[j] != NULL) {
+                    SESSION_FS_DEBUG("key list description %s cfg key %s @ %d %d\n", cfg_key_list[i].desription,
+                                cfg_key_list[i].cfg_key[j], i, j);
+                    config_para = cJSON_GetObjectItem(root, cfg_key_list[i].cfg_key[j]);
+                    if (NULL != config_para && cJSON_IsString(config_para)) {
+                        update_mm_cfg(cfg_key_list[i].type,
+                                        (ulog_idx_type)config_node->valueint,
+                                        j,
+                                        config_para->valuestring);
+                    }
+                }
+            }
         }
+        break;
     }
+
+    cJSON_Delete(root);
+    root = NULL;
+
 }
 
 ulog_idx_type get_working_from_cfg_mm()

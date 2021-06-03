@@ -15,7 +15,7 @@ csi_error_t csi_iic_init(csi_iic_t *iic, uint32_t idx)
     uint8_t i2c_port;
     struct HAL_I2C_CONFIG_T *i2c_cfg;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 
     i2c_cfg = (struct HAL_I2C_CONFIG_T *)malloc(sizeof(struct HAL_I2C_CONFIG_T));
@@ -55,7 +55,7 @@ void csi_iic_uninit(csi_iic_t *iic)
     uint8_t i2c_port;
     uint32_t ret = -1;
 
-    if(!iic)
+    if (!iic)
         return;
 
     i2c_port = iic->dev.idx;
@@ -72,7 +72,7 @@ void csi_iic_uninit(csi_iic_t *iic)
 
 csi_error_t csi_iic_mode(csi_iic_t *iic, csi_iic_mode_t mode)
 {
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 
     if (mode != IIC_MODE_MASTER) {
@@ -85,7 +85,7 @@ csi_error_t csi_iic_mode(csi_iic_t *iic, csi_iic_mode_t mode)
 
 csi_error_t csi_iic_addr_mode(csi_iic_t *iic, csi_iic_addr_mode_t addr_mode)
 {
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
     // does not support addr mode set, always return success
     return CSI_OK;
@@ -97,7 +97,7 @@ csi_error_t csi_iic_speed(csi_iic_t *iic, csi_iic_speed_t speed)
     uint32_t i2c_port;
     struct HAL_I2C_CONFIG_T *i2c_cfg = NULL;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 #if 1
 
@@ -143,14 +143,15 @@ int32_t csi_iic_master_send(csi_iic_t *iic,
     int32_t ret;
     uint8_t i2c_port;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 
     i2c_port = iic->dev.idx;
 
     ret = hal_i2c_task_send(i2c_port, devaddr, data, size, 0, NULL);
-    if(ret) {
-        TRACEME("%s:%d,i2c send fail, devaddr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,devaddr, data[0], data[1], ret);
+    if (ret) {
+        TRACEME("%s:%d,i2c send fail, devaddr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n",
+                __func__, __LINE__, devaddr, data[0], data[1], ret);
         return 0;
     } else
         return size;
@@ -164,14 +165,21 @@ int32_t csi_iic_master_receive(csi_iic_t *iic,
     int32_t ret;
     uint8_t i2c_port;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
+
+    if (!data || !size)
+    {
+        TRACE("i2c input para err");
+        return -1;
+    }
 
     i2c_port = iic->dev.idx;
 
     ret = hal_i2c_recv(i2c_port, devaddr, data, 0, size, HAL_I2C_RESTART_AFTER_WRITE, 0, NULL);
     if(ret) {
-        TRACEME("%s:%d,i2c send fail, devaddr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,devaddr, data[0], data[1], ret);
+        TRACEME("%s:%d,i2c send fail, devaddr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n",
+                __func__, __LINE__, devaddr, data[0], data[1], ret);
         return 0;
     } else
         return size;
@@ -187,11 +195,12 @@ int32_t csi_iic_mem_send(csi_iic_t *iic,
     uint8_t i2c_port;
     uint8_t *txbuf;
     uint16_t txlen;
+    uint32_t mem_size;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 
-    if((NULL == data) || (0 == memaddr_size) || (0 == size))
+    if (!data || !size)
     {
         TRACE("i2c input para err");
         return -1;
@@ -199,7 +208,18 @@ int32_t csi_iic_mem_send(csi_iic_t *iic,
 
     i2c_port = iic->dev.idx;
 
-    txlen = size + memaddr_size;
+    switch (memaddr_size) {
+        case IIC_MEM_ADDR_SIZE_8BIT:
+            mem_size = 1;
+            break;
+        case IIC_MEM_ADDR_SIZE_16BIT:
+            mem_size = 2;
+            break;
+        default:
+            mem_size = 1;
+            break;
+    }
+    txlen = size + mem_size;
     txbuf = (uint8_t *)malloc(txlen);
     if (txbuf  == NULL)
     {
@@ -214,8 +234,8 @@ int32_t csi_iic_mem_send(csi_iic_t *iic,
     ret = hal_i2c_task_send(i2c_port, devaddr, txbuf, txlen, 0, NULL);
     free(txbuf);
 
-    if(ret) {
-        TRACEME("%s:%d,i2c send failed,devaddr = 0x%x,ret = %d\n", __func__,__LINE__,devaddr,ret);
+    if (ret) {
+        TRACEME("%s:%d,i2c send failed,devaddr = 0x%x,ret = %d\n", __func__, __LINE__, devaddr, ret);
         return 0;
     } else
         return size;
@@ -231,11 +251,12 @@ int32_t csi_iic_mem_receive(csi_iic_t *iic,
     uint8_t i2c_port;
     uint8_t *txrxbuf;
     uint16_t txrxlen;
+    uint32_t mem_size;
 
-    if(!iic)
+    if (!iic)
         return CSI_ERROR;
 
-    if((NULL == data) || (0 == memaddr_size) || (0 == size))
+    if (!data || !size)
     {
         TRACE("i2c input para err");
         return -1;
@@ -243,7 +264,19 @@ int32_t csi_iic_mem_receive(csi_iic_t *iic,
 
     i2c_port = iic->dev.idx;
 
-    txrxlen = size + memaddr_size;
+    switch (memaddr_size) {
+        case IIC_MEM_ADDR_SIZE_8BIT:
+            mem_size = 1;
+            break;
+        case IIC_MEM_ADDR_SIZE_16BIT:
+            mem_size = 2;
+            break;
+        default:
+            mem_size = 1;
+            break;
+    }
+
+    txrxlen = size + mem_size;
     txrxbuf = (uint8_t *)malloc(txrxlen);
     if (txrxbuf  == NULL)
     {
@@ -254,7 +287,7 @@ int32_t csi_iic_mem_receive(csi_iic_t *iic,
     memset(txrxbuf, 0, txrxlen);
     txrxbuf[0] = (uint8_t)memaddr;
 
-    ret = hal_i2c_recv(i2c_port, devaddr, txrxbuf, memaddr_size, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
+    ret = hal_i2c_recv(i2c_port, devaddr, txrxbuf, mem_size, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
     if (ret) {
         TRACEME("%s:i2c recv failed,devaddr = 0x%x,ret = %d\n", __func__, devaddr, ret);
         ret = 0;

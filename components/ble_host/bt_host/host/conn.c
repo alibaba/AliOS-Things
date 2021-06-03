@@ -1742,6 +1742,7 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
 			process_unack_tx(conn);
 			tx_notify(conn);
             bt_conn_del(conn);
+            bt_l2cap_disconnected(conn);
             notify_disconnected(conn);
 
 			/* Cancel Connection Update if it is pending */
@@ -1977,7 +1978,7 @@ struct bt_conn *bt_conn_ref(struct bt_conn *conn)
 {
 	atomic_val_t old = atomic_inc(&conn->ref);
 
-	BT_DBG("handle %u ref %u -> %u", conn->handle, old,
+	BT_DBG("%s: handle %u ref %u -> %u", __func__, conn->handle, old,
 	       atomic_get(&conn->ref));
 	(void)old;
 
@@ -1986,10 +1987,13 @@ struct bt_conn *bt_conn_ref(struct bt_conn *conn)
 
 void bt_conn_unref(struct bt_conn *conn)
 {
+    if (atomic_get(&conn->ref) == 0)
+        return;
+
 	atomic_val_t old = atomic_dec(&conn->ref);
 	(void)old;
 
-	BT_DBG("handle %u ref %u -> %u", conn->handle, old,
+	BT_DBG("%s: handle %u ref %u -> %u", __func__, conn->handle, old,
 	       atomic_get(&conn->ref));
 }
 
@@ -1998,7 +2002,7 @@ void bt_conn_del(struct bt_conn *conn)
 	atomic_val_t old = atomic_set(&conn->ref, 0);
 	(void)old;
 
-	BT_DBG("handle %u ref %u -> %u", conn->handle, old,
+	BT_DBG("%s: handle %u ref %u -> %u", __func__, conn->handle, old,
 	       atomic_get(&conn->ref));
 }
 

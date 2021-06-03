@@ -1,0 +1,69 @@
+<import-sjs from="./netCfg.sjs" name="netCfg"></import-sjs>
+<view class="page">
+  <view class="page-section">
+    <view class="page-section-title">蓝牙配网</view>
+    <view class="form-row">
+      <view class="form-row-label">选择设备</view>
+      <view class="form-row-content">
+        <block a:if="{{net_config_devices.length>0}}">
+          <picker value="{{selected_device_index}}" range="{{netCfg.getDeviceNameList(net_config_devices)}}" onChange="bindDevicePickerChange">
+            <view style="display:flex; align-items: center; justify-content: space-between;">
+              <text>{{netCfg.getDeviceNameList(net_config_devices)[selected_device_index]}}</text>
+              <image mode="scaleToFill" style="width:30rpx; height:30rpx" src="../../resource/image/picker.png"/>
+            </view>
+          </picker>
+        </block>
+        <block a:else>
+          <text>未找到待配网设备</text>
+        </block>
+      </view>
+    </view>
+    <view class="form-row">
+      <button class="form-button" size="default" type="primary" disabled="{{netCfgState.scanning}}" onTap="startNetConfigDevicesDiscovery">扫描待配网设备</button>
+    </view>
+  </view>
+  <view class="page-section">
+    <view class="page-section-title">网络信息</view>
+    <view class="form-row">
+      <view class="form-row-label">Wi-Fi</view>
+      <view class="form-row-content" style="display:flex; flex-direction: row;">
+        <input class="input" placeholder="SSID" value="{{ssid}}" onInput = "ssidOnInput" />
+        <view onTap="getWiFiList" style="width:50rpx; height:50rpx; ">
+          <!--<picker range="{{ssidList}}" onChange="bindSSIDPickerChange"> -->
+          <image mode="scaleToFill" style="width:30rpx; height:30rpx" src="../../resource/image/picker.png"/>
+          <!--</picker> -->
+        </view>
+      </view>
+    </view>
+    <view class="form-row">
+      <view class="form-row-label">密码</view>
+      <view class="form-row-content">
+        <input class="input" placeholder="Password" value="{{password}}" onInput = "passwordOnInput" />
+      </view>
+    </view>
+  </view>
+  <view class="page-section">
+    <button size="default" type="primary" disabled="{{net_config_devices.length<=0 || netCfgState.configing}}" loading="{{netCfgState.configing}}" onTap="setNetConfig">发起配网</button>
+  </view>
+  <view class="page-section">
+    <view class="page-section-title">配网状态</view>
+    <view class="form-row">
+      <view class="form-row-label">设备IP</view>
+      <view class="form-row-content">{{ipAddr == null? '未完成配网':ipAddr}}</view>
+    </view>
+  </view>
+</view>
+
+<view a:if="{{wifiSelect}}" class="picker-mask">
+  <view class="picker-contenter">
+    <picker-view value="{{value}}" class="wifi-picker" onChange="wifiPickerOnChange">
+      <picker-view-column>
+        <view a:for="{{ssidList}}">{{item}}</view>
+      </picker-view-column>
+    </picker-view>
+    <view class="pick-button-row">
+      <button class="picker-button" hover-class="picker-button-hover" size="default" type="primary" onTap="wifiSelectCancel">取消</button>
+      <button class="picker-button" hover-class="picker-button-hover" size="default" type="primary" onTap="wifiSelectConform">确定</button>
+    </view>
+  </view>
+</view>

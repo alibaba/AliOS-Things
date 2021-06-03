@@ -39,7 +39,7 @@ static void lsfd_command(char *buffer, int32_t buf_len, int32_t argc, char **arg
 
 int32_t lsfd_cli_register(void)
 {
-    if (cli_register_commands(lsfd_cmd, 1)) {
+    if (0 == aos_cli_register_commands(lsfd_cmd, 1)) {
         return 0;
     }
 

@@ -1,0 +1,12 @@
+{
+    "module_config": {
+        "module_type": "asr1802s",
+        "module_startup_time": 30,
+        "module_at_port": "/dev/ttyACM1",
+        "reset_while_switch": 1
+    },
+    "server_config": {
+        "log_level": 0,
+        "log_storage": 0
+    }
+}

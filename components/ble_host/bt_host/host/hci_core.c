@@ -1981,7 +1981,7 @@ static void hci_disconn_complete(struct net_buf *buf)
 	}
 #endif /* defined(CONFIG_BT_CENTRAL) && !defined(CONFIG_BT_WHITELIST) */
 
-	bt_conn_unref(conn);
+	//bt_conn_unref(conn);
 
 advertise:
 	if (IS_ENABLED(CONFIG_BT_PERIPHERAL)) {

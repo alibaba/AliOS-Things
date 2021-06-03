@@ -17,12 +17,10 @@
 #include "osdep_service.h"
 //#include "rtl8710b_ota.h"
 
-#define AOS_START_STACK 2048*4
+#define AOS_START_STACK 2048 /* 8KB */
 
 ktask_t *g_aos_init;
 
-static kinit_t kinit;
-extern int application_start(int argc, char **argv);
 extern void board_init(void);
 extern void sys_jtag_off(void);
 
@@ -34,13 +32,6 @@ static void hal_init()
 }
 
 extern void hw_start_hal(void);
-
-static void board_cli_init(void)
-{
-     kinit.argc = 0;
-     kinit.argv = NULL;
-     kinit.cli_enable = 1;
-}
 
 void dump_mem_info(){}
 
@@ -117,16 +108,11 @@ void sys_init_func(void)
 
     hal_init();
 
-    hw_start_hal();
-
-    board_cli_init();
-
 #ifdef USE_MX1290
     board_mode_check();
 #endif
-    aos_maintask(NULL);
-    //application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
 
+    aos_maintask(NULL);
 
     krhino_task_dyn_del(NULL);
 }

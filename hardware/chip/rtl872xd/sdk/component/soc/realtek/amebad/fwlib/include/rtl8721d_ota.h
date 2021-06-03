@@ -117,8 +117,8 @@ typedef struct
   * @{
   */ 
 #define BACKUP_SECTOR	(FLASH_RESERVED_DATA_BASE)	/*back up system data offset address*/						
-#define LS_IMG2_OTA1_ADDR	0x08006000				/* KM0 OTA1 start address*/
-#define LS_IMG2_OTA2_ADDR	0x08106000				/* KM0 OTA2 start address*/
+#define LS_IMG2_OTA1_ADDR	0x08014000				/* KM0 OTA1 start address*/
+#define LS_IMG2_OTA2_ADDR	0x08194000				/* KM0 OTA2 start address*/
 
 
 #define BUF_SIZE			512								/*the size of the buffer used for receiving firmware data from server*/

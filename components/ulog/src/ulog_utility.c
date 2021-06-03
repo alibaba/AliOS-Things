@@ -97,7 +97,7 @@ int ulog_man(const char* cmd_str)
     int rc = -EINVAL;
     if (NULL != cmd_str && strlen(cmd_str) > 0) {
         rc = -EPERM;
-        if (log_init) {
+        if (aos_ulog_init) {
             const uint16_t cmd_str_size = strlen(cmd_str) + strlen(ULOG_CMD_PREFIX) + 1;
             char* tmpbuf = (char*)aos_malloc(cmd_str_size);
             strncpy(tmpbuf, ULOG_CMD_PREFIX, cmd_str_size);

@@ -17,6 +17,8 @@
 
 #include "ameba_soc.h"
 
+static u32 cpu_systick;
+
 /**
   * @brief  This function is used to handle flash write ipc interrupt.
   * @param Data: The pointer will be pass the IRQ handler
@@ -59,6 +61,11 @@ void FLASH_Write_Lock(void)
 {
 	u32 cpu_id = IPC_CPUID();
 	u32 lp_sleep_state;
+
+	asm volatile ("cpsid i" : : : "memory");
+	cpu_systick = SysTick->CTRL;	//disable systick exception
+	SysTick->CTRL = 0;
+
 	//u32 hp_sleep_state;
 	/*IPC request to let the other CPU sleep*/
 	if (cpu_id == 1) {	
@@ -83,8 +90,6 @@ void FLASH_Write_Lock(void)
 		}
 #endif
 	}
-
-	asm volatile ("cpsid i" : : : "memory");
 }
 
 /**
@@ -100,8 +105,6 @@ void FLASH_Write_Unlock(void)
 	u32 lp_sleep_state;
 	//u32 hp_sleep_state;
 
-	asm volatile ("cpsie i" : : : "memory");
-
 	/*send an event using "sev" instruction to let the other CPU wake up*/
 	asm volatile ("sev");
 	if (cpu_id == 1) {
@@ -116,7 +119,7 @@ void FLASH_Write_Unlock(void)
 		u32 hp_sleep_state;
 		if(km4_status_on()) {
 			while(1) {
-				hp_sleep_state = HAL_READ32(SYSTEM_CTRL_BASE_LP, REG_HS_PLATFORM_PARA);	/*get KM4 sleep status*/
+				hp_sleep_state = HAL_READ32(SYSTEM_CTRL_BASE_HP, REG_HS_PLATFORM_PARA);	/*get KM4 sleep status*/
 				if(!(hp_sleep_state & BIT_KM4_SLEEP_STATUS)) {
 					break;
 				}
@@ -124,6 +127,9 @@ void FLASH_Write_Unlock(void)
 		}
 #endif
 	}
+
+	SysTick->CTRL = cpu_systick;//restore systick exception
+	asm volatile ("cpsie i" : : : "memory");	
 }
 
   /**
@@ -536,4 +542,20 @@ void FLASH_ClockSwitch(u32 Source, u32 Protection)
 	}
 #endif
 }
+
+IMAGE2_RAM_TEXT_SECTION
+void FLASH_Invalidate_Auto_Write(void)
+{
+	/* Auto write related bits in valid command register are all set to 0,
+		just need to invalidate write single and write enable cmd in auto mode. */
+	SPIC_TypeDef *spi_flash = SPIC;
+
+	/* Disable SPI_FLASH User Mode */
+	spi_flash->ssienr = 0;
+	
+	/* Invalidate write single and write enable cmd in auto mode */
+	spi_flash->wr_single = 0x0;
+	spi_flash->wr_enable = 0x0;
+}
+
 /******************* (C) COPYRIGHT 2016 Realtek Semiconductor *****END OF FILE****/

@@ -46,7 +46,9 @@ extern "C" {
 #if SNTP_SUPPORT_MULTIPLE_SERVERS
 #define SNTP_MAX_SERVERS              3
 #endif
+#ifndef SNTP_RECV_TIMEOUT
 #define SNTP_RECV_TIMEOUT             3000 /* ms */
+#endif
 #define SNTP_RETRY_TIMEOUT            SNTP_RECV_TIMEOUT
 #define SNTP_RETRY_TIMES              3
 

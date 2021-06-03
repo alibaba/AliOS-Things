@@ -9,6 +9,8 @@
 
 #if AOS_COMP_DEBUG
 #include "aos/debug.h"
+extern uint32_t debug_task_id_now();
+extern void debug_cpu_stop(void);
 #endif
 
 #if (RHINO_CONFIG_MM_TLF > 0)
@@ -19,7 +21,7 @@ extern int           g_region_num;
 #if (RHINO_CONFIG_MM_TRACE_LVL > 0)
 
 volatile uint32_t g_kmm_bt = 0;
-int backtrace_now_get(char *pPC, int *pSP, int bt_space, void *trace[], int size, int offset);
+int backtrace_now_get(void *trace[], int size, int offset);
 
 void kmm_bt_disable(void)
 {
@@ -777,7 +779,7 @@ void krhino_owner_attach(void *addr, size_t allocator)
 #if (RHINO_CONFIG_MM_TRACE_LVL > 0)
     if ((g_sys_stat == RHINO_RUNNING) &&
         (kmm_bt_check() == 0)) {
-        //backtrace_now_get(NULL, NULL, BACKTRACE_KSPACE, (void **) blk->trace, RHINO_CONFIG_MM_TRACE_LVL, 2);
+        backtrace_now_get((void **) blk->trace, RHINO_CONFIG_MM_TRACE_LVL, 2);
     } else {
         memset(blk->trace, 0, sizeof(blk->trace));
     }

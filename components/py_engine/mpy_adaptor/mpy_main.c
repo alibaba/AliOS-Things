@@ -38,7 +38,7 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 
 static char *stack_top;
 #if MICROPY_ENABLE_GC
-#define MICRO_GC_HEAP_SIZE (2048 * 100)
+#define MICRO_GC_HEAP_SIZE (2048 * 50)
 static char *heap;
 // static char heap[MICRO_GC_HEAP_SIZE];
 #endif

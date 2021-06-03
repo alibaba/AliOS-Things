@@ -6,7 +6,7 @@
 #include <dirent.h>
 
 #include "amp_config.h"
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_system.h"
 #include "aos_fs.h"
 #include "aos/vfs.h"
@@ -18,7 +18,7 @@ int aos_fs_init(void)
 
 int aos_open(const char *path, int flags)
 {
-    return open(path, flags);
+    return open(path, flags, 0777);
 }
 
 int aos_close(int fd)

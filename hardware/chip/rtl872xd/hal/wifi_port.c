@@ -20,6 +20,7 @@ extern struct netif xnetif[NET_IF_NUM];
 
 monitor_data_cb_t g_promisc_data_callback = NULL;  
 monitor_data_cb_t g_mgnt_filter_callback = NULL;
+static aos_sem_t scan_sem;
 
 int haas200_wifi_init(netdev_t *dev)
 {
@@ -28,6 +29,11 @@ int haas200_wifi_init(netdev_t *dev)
 #endif
 	wifi_on(RTW_MODE_STA);
 	wifi_disable_powersave();
+
+    if (0 != aos_sem_new(&scan_sem, 0))
+	{
+        return -1;
+    }
 	return 0;
 }
 
@@ -277,7 +283,7 @@ int haas200_wifi_connect(netdev_t *dev, wifi_config_t *config)
 	uint8_t password[MAX_PASSWD_SIZE + 1] = {0};
 	uint32_t ssid_len, passwd_len;
 	uint8_t channel;
-	uint8_t pscan_config = PSCAN_ENABLE;
+	uint8_t pscan_config = (PSCAN_ENABLE | PSCAN_FAST_SURVEY | PSCAN_SIMPLE_CONFIG);
 	rtw_security_t security_type = RTW_SECURITY_UNKNOWN;
 	
 	if(!config)
@@ -299,7 +305,9 @@ int haas200_wifi_connect(netdev_t *dev, wifi_config_t *config)
 		security_type = RTW_SECURITY_OPEN;
 	else {
 		rtw_memcpy(password, config->password, passwd_len);
+		//security_type = RTW_SECURITY_WPA2_AES_PSK;	
 	}
+	
 	if(security_type == RTW_SECURITY_UNKNOWN) {
 		int security_retry_count = 0;
 		while (1) {
@@ -492,6 +500,7 @@ static int specified_scan_result_handler(char*buf, int buflen, char *target_ssid
 		/* ssid offset = 14 */
 		ssid_len = len - 14;
 		ssid = buf + plen + 14 ;
+	
 		if((ssid_len == strlen(target_ssid))
 			&& (!memcmp(ssid, target_ssid, ssid_len)))
 		{
@@ -522,6 +531,7 @@ static int specified_scan_result_handler(char*buf, int buflen, char *target_ssid
 		}
 		plen += len;
 	}
+	aos_sem_signal((aos_sem_t *)&scan_sem);
 	return 0;
 }
 
@@ -550,7 +560,8 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 		if(wifi_scan_networks_with_ssid(specified_scan_result_handler, &ap, scan_buf_len, ap.ssid, strlen(ap.ssid)) != 0){
 			printf("ERROR: wifi scan failed\n\r");
 			return -1;
-		}	
+		}
+		aos_sem_wait((aos_sem_t *)&scan_sem, AOS_WAIT_FOREVER);	
 		*(ap_list + i) = ap;
 		*(result.ap_list + i) = ap;
 	}

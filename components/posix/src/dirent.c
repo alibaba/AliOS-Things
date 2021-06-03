@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <aos/kernel.h>
 
+#include "internal/common.h"
 
 DIR *opendir(const char *dirname)
 {
@@ -34,7 +35,9 @@ void seekdir(DIR *dirp, long loc)
 
 off_t lseek(int fildes, off_t offset, int whence)
 {
-    return aos_lseek(fildes, offset, whence);
+    int ret = aos_lseek(fildes, offset, whence);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int stat(const char *path, struct stat *buf)
@@ -92,32 +95,44 @@ int statfs(const char *path, struct statfs *buf)
 
 int link(const char *path1, const char *path2)
 {
-    return aos_link(path1, path2);
+    int ret = aos_link(path1, path2);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int unlink(const char *path)
 {
-    return aos_unlink(path);
+    int ret = aos_unlink(path);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int remove(const char *path)
 {
-    return aos_remove(path);
+    int ret = aos_remove(path);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int rename(const char *oldname, const char *newname)
 {
-    return aos_rename(oldname, newname);
+    int ret = aos_rename(oldname, newname);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int fsync(int fd)
 {
-    return aos_sync(fd);
+    int ret = aos_sync(fd);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int fdatasync(int fildes)
 {
-    return aos_sync(fildes);
+    int ret = aos_sync(fildes);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 void sync(void)
@@ -127,12 +142,16 @@ void sync(void)
 
 int mkdir(const char *path, mode_t mode)
 {
-    return aos_mkdir(path);
+    int ret = aos_mkdir(path);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int rmdir(const char *path)
 {
-    return aos_rmdir(path);
+    int ret = aos_rmdir(path);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 void rewinddir(DIR *dirp)
@@ -142,12 +161,16 @@ void rewinddir(DIR *dirp)
 
 int access(const char *filenpath, int mode)
 {
-    return aos_access(filenpath, mode);
+    int ret = aos_access(filenpath, mode);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int chdir(const char *path)
 {
-    return aos_chdir(path);
+    int ret = aos_chdir(path);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 char *getcwd(char *buf, size_t size)
@@ -157,17 +180,23 @@ char *getcwd(char *buf, size_t size)
 
 int creat(const char *path, mode_t mode)
 {
-    return open(path, O_WRONLY|O_CREAT|O_TRUNC, mode);
+    int ret = open(path, O_WRONLY|O_CREAT|O_TRUNC, mode);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 long pathconf(const char *path, int name)
 {
-    return aos_pathconf(path, name);
+    long ret = aos_pathconf(path, name);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 long fpathconf(int fildes, int name)
 {
-    return aos_fpathconf(fildes, name);
+    long ret = aos_fpathconf(fildes, name);
+    CHECK_AOS_RET(ret);
+    return ret;
 }
 
 pthread_mutex_t g_tmpnam_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -224,6 +253,7 @@ int utime(const char *path, const struct utimbuf *times)
     utimbuf_temp.modtime = times->modtime;
 
     ret = aos_utime(path, &utimbuf_temp);
+    CHECK_AOS_RET(ret);
 
     return ret;
 }

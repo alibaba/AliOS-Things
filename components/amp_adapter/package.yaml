@@ -29,6 +29,7 @@ depends:
   - netmgr: rel_3.3.0
   - littlefs: rel_3.3.0
   - http: rel_3.3.0
+  - udisplay: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -52,6 +53,7 @@ build_config:
   include:
     - platform/aos
     - platform/aos/haas100 ? <BOARD_HAAS100>
+    - platform/aos/haas200 ? <BOARD_HAAS200>
     - platform/aos/haaseduk1 ? <BOARD_HAASEDUK1>
     - platform/aos/network
     - include
@@ -62,6 +64,7 @@ build_config:
 source_file:
   - platform/aos/aos_fs.c
   - platform/aos/haas100/amp_ota_port.c ? <BOARD_HAAS100>
+  - platform/aos/haas200/amp_ota_port.c ? <BOARD_HAAS200>
   - platform/aos/haaseduk1/amp_ota_port.c ? <BOARD_HAASEDUK1>
   - platform/aos/aos_system.c
   - platform/aos/network/*.c

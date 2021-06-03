@@ -480,9 +480,9 @@ void ping_run( int argc, char **argv )
             return ;
         }
         else if ( argc != i + 1){
-           extern void _cli_ping_help_command( int argc, char **argv );
+           extern void _cli_ping_help_cmd( int argc, char **argv );
            LWIP_DEBUGF( PING_DEBUG, ("ping: Invalid command format\n"));
-           _cli_ping_help_command( 0, NULL );
+           _cli_ping_help_cmd( 0, NULL );
            return;
         }
     }
@@ -493,7 +493,7 @@ void ping_run( int argc, char **argv )
     hints.ai_flags = AI_CANONNAME;
     hints.ai_protocol = 0;
 
-    if((temp = getaddrinfo(argv[argc-1], NULL, &hints, &res)) != 0) {
+    if((temp = lwip_getaddrinfo(argv[argc-1], NULL, &hints, &res)) != 0) {
         LWIP_DEBUGF( PING_DEBUG, ("ping: Getaddrinfo error%"U32_F"\n", temp));
         return;
     }
@@ -515,7 +515,7 @@ void ping_run( int argc, char **argv )
     }
 #endif /* LWIP_IPV6 */
 
-    freeaddrinfo(res);
+    lwip_freeaddrinfo(res);
 
     ping_init(&addr);
 }

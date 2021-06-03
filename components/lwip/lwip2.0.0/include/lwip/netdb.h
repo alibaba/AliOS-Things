@@ -128,6 +128,7 @@ int lwip_getaddrinfo(const char *nodename,
        const struct addrinfo *hints,
        struct addrinfo **res);
 
+#if 0
 #if LWIP_COMPAT_SOCKETS
 /** @ingroup netdbapi */
 #define gethostbyname(name) lwip_gethostbyname(name)
@@ -140,7 +141,7 @@ int lwip_getaddrinfo(const char *nodename,
 #define getaddrinfo(nodname, servname, hints, res) \
        lwip_getaddrinfo(nodname, servname, hints, res)
 #endif /* LWIP_COMPAT_SOCKETS */
-
+#endif
 #ifdef __cplusplus
 }
 #endif

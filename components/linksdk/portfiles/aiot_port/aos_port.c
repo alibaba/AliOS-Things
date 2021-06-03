@@ -8,13 +8,9 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <aos/kernel.h>
-#include "network/network.h"
+#include <sys/socket.h>
+#include <netdb.h>
 
-// #include <lwip/sockets.h>
-// #include "network/network.h"
-//include <netinet/in.h>
-//#include <arpa/inet.h>
-//#include <netdb.h>
 #include <errno.h>
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"

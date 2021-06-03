@@ -154,7 +154,7 @@ void stack_dump(cpu_stack_t *stack, uint32_t size)
                 continue;
             }
         }
-        panic_print("(0x%p): 0x%p 0x%p 0x%p 0x%p\r\n",
+        panic_print("(0x%08X): 0x%08X 0x%08X 0x%08X 0x%08X\r\n",
                     &stack[idx],
                     (void *)stack[idx], (void *)stack[idx + 1], (void *)stack[idx + 2], (void *)stack[idx + 3]);
         zero_cnt = 0;

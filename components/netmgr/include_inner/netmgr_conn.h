@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <netmgr.h>
-#include "lwip/ip_addr.h"
+#include "sys/socket.h"
 
 typedef enum netmgr_conn_state{
     CONN_STATE_DISCONNECTING,

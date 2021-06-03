@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "aos/kernel.h"
-#if defined(AOS_COMP_UAGENT)
+#if ULOG_POP_CLOUD_ENABLE
 #include "uagent_type.h"
 #endif
-bool log_init = false;
+bool aos_ulog_init = false;
 
+extern void (*aos_cust_output_func)(const char *fmt, ...);
 #if AOS_COMP_CLI
 
 #include "aos/cli.h"
@@ -131,7 +132,7 @@ static void sync_log_cmd(char *buf, int len, int argc, char **argv)
 
 }
 
-static struct cli_command ulog_cmd[] = {
+static struct cli_command ulog_cli_cmd[] = {
     { "loglevel","set sync log level", sync_log_cmd },
 #if ULOG_CONFIG_ASYNC
     { "ulog", "ulog [option param]",   cmd_cli_ulog },
@@ -140,7 +141,7 @@ static struct cli_command ulog_cmd[] = {
 
 #endif /* AOS_COMP_CLI */
 
-#if defined(AOS_COMP_UAGENT) && (ULOG_POP_CLOUD_ENABLE||ULOG_UPLOAD_LOG_FILE)
+#if (ULOG_POP_CLOUD_ENABLE || ULOG_UPLOAD_LOG_FILE)
 #include "cJSON.h"
 
 static int on_ulog_handler(void *p, const unsigned short len, void *cmd)
@@ -223,11 +224,11 @@ static mod_func_t ulog_uagent_func = {
     ulog_uagent_funclist
 };
 
-#endif /* AOS_COMP_UAGENT */
+#endif
 
 void ulog_init(void)
 {
-    if (!log_init) {
+    if (!aos_ulog_init) {
         log_init_mutex();
         on_filter_level_changes(ulog_session_size, LOG_NONE);
 #if ULOG_CONFIG_ASYNC
@@ -235,10 +236,15 @@ void ulog_init(void)
 #endif
 
 #if AOS_COMP_CLI
-        aos_cli_register_commands(&ulog_cmd[0], sizeof(ulog_cmd) / sizeof(struct cli_command));
+        aos_cli_register_commands(&ulog_cli_cmd[0], sizeof(ulog_cli_cmd) / sizeof(struct cli_command));
 #endif
-        log_init = true;
-#if defined(AOS_COMP_UAGENT) && (ULOG_POP_CLOUD_ENABLE||ULOG_UPLOAD_LOG_FILE)
+        /*set default log output*/
+        if (aos_cust_output_func == NULL) {
+            aos_set_log_output(printf);
+        }
+
+        aos_ulog_init = true;
+#if (ULOG_POP_CLOUD_ENABLE || ULOG_UPLOAD_LOG_FILE)
 
         uagent_func_node_t * p = ulog_uagent_func.header;
         if (NULL != p) {

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_network.h"
 #include "netdev.h"
 

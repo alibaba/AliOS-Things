@@ -16,15 +16,14 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - cli: rel_3.3.0
-  - haas100: rel_3.3.0
   - osal_aos: rel_3.3.0
   - ulog: rel_3.3.0
   - kv: rel_3.3.0
   - mbedtls: rel_3.3.0
   - cjson: rel_3.3.0
-  - fatfs: rel_3.3.0
-  - haas1000: rel_3.3.0
+  - fatfs: "rel_3.3.0 ? <PY_BUILD_FATFS>"
   - vfs: rel_3.3.0
+  - amp_adapter: rel_3.3.0
   - oss: "rel_3.3.0 ? <PY_BUILD_OSS>"
   - linksdk: "rel_3.3.0 ? <PY_BUILD_LINKSDK>"
   - netmgr: "rel_3.3.0 ? <PY_BUILD_NETMGR>"
@@ -63,6 +62,8 @@ build_config:
     UVOICE_EVENT_BY_BUFFER_QUEUE: 1 ? <PY_BUILD_AUDIO>
 
   include:
+    - unzip/internal/
+    - unzip/include/
     - mpy_engine/
     # mpy_engine/drivers/
     - mpy_engine/drivers/bus/
@@ -100,6 +101,26 @@ build_config:
 
 source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
   # - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+  - example/py_engine_example.c
+  - unzip/src/ioapi.c
+  - unzip/src/iowin32.c
+  - unzip/src/miniunz.c
+  - unzip/src/unzip.c
+  - unzip/src/adler32.c
+  - unzip/src/compress.c
+  - unzip/src/crc32.c
+  - unzip/src/gzclose.c
+  - unzip/src/gzlib.c
+  - unzip/src/gzread.c
+  - unzip/src/gzwrite.c
+  - unzip/src/uncompr.c
+  - unzip/src/deflate.c
+  - unzip/src/trees.c
+  - unzip/src/zutil.c
+  - unzip/src/inflate.c
+  - unzip/src/infback.c
+  - unzip/src/inftrees.c
+  - unzip/src/inffast.c
   # mpy_engine/drivers/
   - mpy_engine/drivers/bus/softqspi.c
   - mpy_engine/drivers/bus/softspi.c
@@ -346,9 +367,6 @@ source_file:                             # <可选项> 指定参与编译的源�
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y 
 def_config:                         
-  AOS_COMP_VFS: 1
-  AOS_COMP_FATFS: 1
-
   #以下配置同时仅允许打开其中一项
   LINKSDK_DEMO_MQTT_BASIC: y       #MQTT连IoT平台基础功能演示
   LINKSDK_DEMO_MQTT_BCAST: n       #MQTT连IoT平台接收广播推送演示
@@ -356,6 +374,7 @@ def_config:
   CLI_IOBOX_ENABLE: 1              # Enable iobox cmd
   
   #以下是Python引擎模块编译选项，1 为打开，0 为关闭
+  PY_BUILD_FATFS: 1                # Py_Engine module build FATFS Flag
   PY_BUILD_AI: 1                   # Py_Engine module build AI Flag
   PY_BUILD_HTTP: 1                 # Py_Engine module build http config
   PY_BUILD_UDP: 1                  # Py_Engine module build udp config

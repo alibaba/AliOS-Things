@@ -190,14 +190,13 @@ INT_MemFault_Patch(void)
 	);
 }
 
+extern void HardFault_Handler(void);
 VOID VectorTableOverride(VOID)
 {
-#if 0
-	NewVectorTable[3] = (HAL_VECTOR_FUN)INT_HardFault_Patch;
-	NewVectorTable[4] = (HAL_VECTOR_FUN)INT_MemFault_Patch;
-	NewVectorTable[5] = (HAL_VECTOR_FUN)INT_BusFault_Patch;
-	NewVectorTable[6] = (HAL_VECTOR_FUN)INT_UsageFault_Patch;
-#endif
+	NewVectorTable[3] = (HAL_VECTOR_FUN)HardFault_Handler;
+	NewVectorTable[4] = (HAL_VECTOR_FUN)HardFault_Handler;
+	NewVectorTable[5] = (HAL_VECTOR_FUN)HardFault_Handler;
+	NewVectorTable[6] = (HAL_VECTOR_FUN)HardFault_Handler;
 }
 
 extern  void PendSV_Handler (void);

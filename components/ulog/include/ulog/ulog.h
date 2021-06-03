@@ -7,6 +7,7 @@
 #define ULOG_H
 
 #include <string.h>
+#include "ulog_config.h"
 /** @addtogroup aos_ulog ulog
  *  Optional policy of log, which can output into default direction, virtual file
  *  system, mqtt channel and syslog udp.
@@ -148,6 +149,30 @@ int ulog(const unsigned char s, const char *mod, const char *f,
  * @return  0 on success, negative error on failure.
  */
 int aos_set_log_level(aos_log_level_t log_level);
+
+/**
+ * Set the log terminal output func.
+ *
+ * @param[in]  void (*output_func)(const char* fmt, ...)  
+ * function to output log for terminal in different platform
+ * 
+ * @return  0 on success, negative error on failure.
+ */
+int aos_set_log_output(void (*output_func)(const char* fmt, ...));
+
+#if ULOG_POP_CLOUD_ENABLE
+int aos_set_popcloud_log_level(aos_log_level_t log_level);
+#endif
+
+#if ULOG_POP_FS_ENABLE
+int ulog_fs_log_file_size(unsigned int filesize);
+int ulog_fs_log_file_path(char *filepath);
+int aos_set_popfs_log_level(aos_log_level_t log_level);
+#endif
+
+#if ULOG_POP_UDP_ENABLE
+int aos_set_popudp_log_level(aos_log_level_t log_level);
+#endif
 
 /**
  * Function prototype for log init. This is called in system level automatically,

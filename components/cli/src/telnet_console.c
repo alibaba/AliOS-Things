@@ -3,7 +3,7 @@
 #include <aos/kernel.h>
 #include <cli_console.h>
 #include <aos/cli.h>
-#include <network/network.h>
+#include <sys/socket.h>
 #include <lwip/apps/telnetserver.h>
 #include <aos/hal/uart.h>
 

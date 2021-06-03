@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<page>
+  <image id="image" src="background1"> </image>
+  <container id="topBar" layout="off" fit="none" >
+	  <text id="shop" class="textClass" value="滨江水果店" > </text>
+	  <icon id="signal" class="iconClass"  symbol="wifi">  </icon>
+	  <text id="time" class="textClass" > 13:26 </text>
+	  <text id="batteryValue" class="textClass"  > 100% </text>
+	  <icon id="battery" class="iconClass"  symbol="battery_4">  </icon>
+  </container>
+  <container id="buttonBackGround" layout="off" fit="none" > 
+    <image id="upay" src="upay">  </image>
+    <text id="payText" class="bindText"  value="支付宝扫码" >  </text>
+    <text id="payValue" class="bindText"  value="绑定设备" >  </text>
+    <qrcode id="device_bind_qrcode" value="扫描绑定绑定设备" >  </qrcode>
+  </container>
+
+</page>
+
+
+
+  
+

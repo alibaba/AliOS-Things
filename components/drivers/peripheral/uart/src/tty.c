@@ -101,7 +101,10 @@ aos_status_t aos_tty_register(aos_tty_t *tty)
 
     tty->dev.type = AOS_DEV_TYPE_TTY;
     tty->dev.ops = &dev_tty_ops;
+#ifdef AOS_COMP_VFS
     tty->dev.vfs_helper.name[0] = '\0';
+    tty->dev.vfs_helper.ops = NULL;
+#endif
     reset_termios(&tty->termios);
     tty->status = 0;
     aos_spin_lock_init(&tty->lock);

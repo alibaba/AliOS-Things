@@ -11,14 +11,14 @@
 #include <sys/time.h>
 
 #include <poll.h>
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_system.h"
 #include "aos/kernel.h"
 #include "aos_network.h"
 #include "ulog/ulog.h"
 
-#define _SYSINFO_DEVICE_NAME "AliOS Things"
-#define SYSINFO_VERSION "0.0.1"
+#define _SYSINFO_DEVICE_NAME "aos-linux"
+#define SYSINFO_VERSION      "0.0.1"
 
 typedef struct {
     timer_t timer;
@@ -40,7 +40,7 @@ int aos_get_hz(void)
 
 const char *aos_version_get(void)
 {
-    return "aos-linux-xxx";
+    return SYSINFO_VERSION;
 }
 
 struct targ {

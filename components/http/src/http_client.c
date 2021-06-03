@@ -221,20 +221,19 @@ static int httpclient_send_header(httpclient_t *client, const char *url, int met
     if ((formdata_len = httpclient_formdata_len(client_data)) > 0) {
         total_len += formdata_len;
 
-    	memset(buf, 0, sizeof(buf));
-   		snprintf(buf, sizeof(buf), "Accept: */*\r\n");
-    
-   		httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "Accept: */*\r\n");
+        httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
-	    if (client_data->post_content_type != NULL)  {
-	        memset(buf, 0, sizeof(buf));
-	        snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
-	        httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
-	    } else {
-	        memset(buf, 0, sizeof(buf));
-	        snprintf(buf, sizeof(buf), "Content-Type: multipart/form-data; boundary=%s\r\n", boundary);
-	        httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
-	    }
+        if (client_data->post_content_type != NULL)  {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
+            httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
+        } else {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "Content-Type: multipart/form-data; boundary=%s\r\n", boundary);
+            httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
+        }
 
         total_len += strlen(boundary) + 8;
         snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", total_len);
@@ -307,7 +306,7 @@ static int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *cli
             }
         }
     } else if(httpclient_send_formdata(client, client_data) < 0) {
-    	return HTTP_ECONN;
+        return HTTP_ECONN;
     }
 
     return HTTP_SUCCESS;
@@ -315,20 +314,20 @@ static int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *cli
 
 static int httpclient_recv_data(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len)
 {
-	int ret = 0;
-	int timeout_ms = 5000;
+    int ret = 0;
+    int timeout_ms = 5000;
 
     if (client->is_http) {
-    	ret = http_tcp_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
-    } 
+        ret = http_tcp_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
+    }
 #if CONFIG_HTTP_SECURE
     else {
-    	ret = http_ssl_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
+        ret = http_ssl_recv_wrapper(client, buf, max_len, timeout_ms, p_read_len);
 
     }
 #endif
 
-	return ret;
+    return ret;
 }
 
 static int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpclient_data_t *client_data)
@@ -336,7 +335,6 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
     int count = 0;
     int templen = 0;
     int crlf_pos;
- 
     client_data->is_more = true;
 
     if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
@@ -422,7 +420,11 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                 http_debug("in loop %s %d len %d ret %d", __func__, __LINE__, len, ret);
             } while (!foundCrlf);
             data[crlf_pos] = '\0';
+            #if defined(BOARD_HAAS200)
+            readLen = strtol(data, NULL, 16);
+            #else
             n = sscanf(data, "%x", &readLen);/* chunk length */
+            #endif
             client_data->retrieve_len = readLen;
             client_data->response_content_len += client_data->retrieve_len;
             if (n != 1) {
@@ -617,7 +619,11 @@ static int httpclient_response_parse(httpclient_t *client, char *data, int len, 
 
             http_debug("Read header : %.*s: %.*s", key_len, key_ptr, value_len, value_ptr);
             if (0 == strncasecmp(key_ptr, "Content-Length", key_len)) {
+                #if defined(BOARD_HAAS200)
+                client_data->response_content_len = strtol(value_ptr, NULL, 0);
+                #else
                 sscanf(value_ptr, "%d[^\r]", &(client_data->response_content_len));
+                #endif
                 client_data->retrieve_len = client_data->response_content_len;
             } else if (0 == strncasecmp(key_ptr, "Transfer-Encoding", key_len)) {
                 if (0 == strncasecmp(value_ptr, "Chunked", value_len)) {
@@ -811,7 +817,7 @@ HTTPC_RESULT httpclient_prepare(httpclient_data_t *client_data, int header_size,
     HTTPC_RESULT ret = HTTP_SUCCESS;
 
     if (!client_data)
-    	return HTTP_EUNKOWN;
+        return HTTP_EUNKOWN;
 
     memset(client_data, 0, sizeof(httpclient_data_t));
 
@@ -885,7 +891,7 @@ HTTPC_RESULT httpclient_unprepare(httpclient_data_t *client_data)
 
     client_data->is_redirected = 0;
     if (client_data->redirect_url) {
-    	free(client_data->redirect_url);
+        free(client_data->redirect_url);
         client_data->redirect_url = NULL;
     }
 

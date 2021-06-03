@@ -19,7 +19,7 @@ typedef unsigned short ulog_idx_type;
 #define SESSION_FS_INFO printf
 #define SESSION_FS_DEBUG(...)
 
-#define ULOG_FILE_FORMAT     FS_PATH"ulog%03d.log"
+#define ULOG_FILE_FORMAT     "%sulog%03d.log"
 
 #define ULOG_FILE_CFG_IDX    0
 

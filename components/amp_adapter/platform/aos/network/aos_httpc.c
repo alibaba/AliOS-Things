@@ -3,7 +3,7 @@
  */
 
 #include "aos_network.h"
-#include "aos_platform.h"
+#include "amp_platform.h"
 #include "aos_socket.h"
 
 struct hostent *aos_httpc_get_host_by_name(const char *name)

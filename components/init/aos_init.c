@@ -7,11 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef CONFIG_NO_LWIP
-#if(CONFIG_AOS_LWIP > 0)
-#include <network/network.h>
-#endif
-#endif
+#include <sys/socket.h>
 
 #include "aos/init.h"
 #if(AOS_COMP_CLI > 0)

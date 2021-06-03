@@ -3,6 +3,10 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_wdg.h"
 #include <vfsdev/wdg_dev.h>
@@ -50,19 +54,19 @@ void aos_hal_wdg_reload(wdg_dev_t *wdg)
     int32_t ret = -1;
 
     if (!wdg)
-        return -EINVAL;
+        return;
 
     p_fd = (int32_t *)wdg->priv;
 
     if (!p_fd || *p_fd < 0)
-        return -EIO;
+        return;
 
     ret = ioctl(*p_fd, IOC_WDG_RELOAD, 0);
     if (ret) {
         printf ("reload wdg%d failed, ret:%d\r\n", wdg->port, ret);
     }
 
-    return ret;
+    return;
 }
 
 int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)

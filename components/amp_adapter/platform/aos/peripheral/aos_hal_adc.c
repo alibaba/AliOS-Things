@@ -3,6 +3,10 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_adc.h"
 #include <vfsdev/adc_dev.h>

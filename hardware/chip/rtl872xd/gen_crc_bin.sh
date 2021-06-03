@@ -28,9 +28,14 @@ GEN_COMMON_BIN_OUTPUT_FILE_SCRIPT=${AMEBAZ_DIR}/gen_common_bin_output_file.py
 KM0_BOOT_FILE=${BIN_DIR}/km0_boot_all.bin
 KM0_BOOT_OFFSET=0x0
 
+KM0_2BOOT_FILE=${BIN_DIR}/km0_boot_all_2nd.bin
+
 KM4_BOOT_FILE=${BIN_DIR}/km4_boot_all.bin
 KM4_BOOT_OFFSET=0x4000
 
+
+BUILD_BIN=${AMEBAZ_DIR}/release/auto_build_tool/build_bin.py
+RELEASE_DIR=${AMEBAZ_DIR}/release
 ATE_FILE=${BIN_DIR}/ate.bin
 ATE_OFFSET=0x188000
 
@@ -120,9 +125,15 @@ gen_cm0_cm4_bin() {
 if [ -n "$ATE_FILE" ];then
 	${PYTHON} ${GEN_COMMON_BIN_OUTPUT_FILE_SCRIPT} -o ${ALL_BIN_OUTPUT_FILE} -f ${ATE_OFFSET}        ${ATE_FILE}
 fi
+	cp ${KM0_2BOOT_FILE} ${IMAGE_TARGET_FOLDER}/
 	${AMEBAZ_TOOLDIR}/genfs.sh
 	cp ${AMEBAZ_DIR}/prebuild/littlefs.bin ${IMAGE_TARGET_FOLDER}/littlefs.bin
-	echo "========== Generate all.bin end =========="
+    ${PYTHON} ${BUILD_BIN} --target=${IMAGE_TARGET_FOLDER}/km0_km4_image2.bin
+    cp -Rf ${IMAGE_TARGET_FOLDER}/km0_km4_image2.bin ${IMAGE_TARGET_FOLDER}/ymodem_burn.bin
+    dd if=${RELEASE_DIR}/auto_build_tool/stupid.bin of=${IMAGE_TARGET_FOLDER}/ymodem_burn.bin bs=1 count=8 conv=notrunc
+    cp -Rf ${IMAGE_TARGET_FOLDER}/ymodem_burn.bin  ${RELEASE_DIR}/write_flash_gui/ota_bin/ymodem_burn.bin
+    cp -Rf ${RELEASE_DIR}/write_flash_gui/ota_bin/ota_rtos_ota.bin ${IMAGE_TARGET_FOLDER}/ota_burn.bin
+    echo "========== Generate all.bin end =========="
 }
 
 gen_cm0_cm4_bin

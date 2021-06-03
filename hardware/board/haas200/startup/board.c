@@ -6,6 +6,7 @@
 #include <aos/kernel.h>
 #include "board.h"
 #include "aos/hal/uart.h"
+#include <aos/init.h>
 
 static uart_dev_t uart_0;
 void board_stduart_init()
@@ -35,9 +36,9 @@ void board_tick_init()
 
 }
 
-void board_kinit_init()
+void board_kinit_init(kinit_t* init_args)
 {
-
+    /* Use default args in demos.*/
 }
 
 void board_flash_init()

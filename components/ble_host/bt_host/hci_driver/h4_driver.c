@@ -136,6 +136,7 @@ static int h4_send(struct net_buf *buf)
     pBuf[0] = hcit_type[0];
     memcpy(pBuf+1, buf->data, buf->len);
 
+    BT_INFO("Send to driver: %s", bt_hex_real(pBuf, data_len));
     ret = tg_bt_hal_hcit_tx(pBuf, data_len, NULL);
     aos_free(pBuf);
 #else

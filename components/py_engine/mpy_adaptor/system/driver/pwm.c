@@ -9,7 +9,7 @@
 #include "k_api.h"
 #include "HaasLog.h"
 #include "board_mgr.h"
-#include "aos/hal/pwm.h"
+#include "aos_hal_pwm.h"
 
 extern const mp_obj_type_t driver_pwm_type;
 
@@ -73,36 +73,36 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    ret = board_mgr_init();
+    ret = py_board_mgr_init();
     if (ret != 0)
     {
-        LOG_E("%s:board_mgr_init failed\n", __func__);
+        LOG_E("%s:py_board_mgr_init failed\n", __func__);
         return mp_const_none;
     }
 
-    LOG_D("%s: board_mgr_init ret = %d;\n", __func__, ret);
-    ret = board_attach_item(MODULE_PWM, id, &(driver_obj->pwm_handle));
+    LOG_D("%s: py_board_mgr_init ret = %d;\n", __func__, ret);
+    ret = py_board_attach_item(MODULE_PWM, id, &(driver_obj->pwm_handle));
     if (ret != 0)
     {
-        LOG_E("%s: board_attach_item failed ret = %d;\n", __func__, ret);
+        LOG_E("%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
 
     LOG_D("%s: port = %d;\n", __func__, pwm_device->port);
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
     LOG_D("%s: freq = %d;\n", __func__, pwm_device->config.freq);
-    ret = hal_pwm_init(pwm_device);
+    ret = aos_hal_pwm_init(pwm_device);
 
 out:
 	if (0 != ret) {
-        LOG_E("%s: hal_pwm_init failed ret = %d;\n", __func__, ret);
-		board_disattach_item(MODULE_PWM, &(driver_obj->pwm_handle));
+        LOG_E("%s: aos_hal_pwm_init failed ret = %d;\n", __func__, ret);
+		py_board_disattach_item(MODULE_PWM, &(driver_obj->pwm_handle));
 	}
 
     LOG_D("%s:out\n", __func__);
@@ -129,15 +129,15 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
-    ret = hal_pwm_stop(pwm_device);
-    ret |= hal_pwm_finalize(pwm_device);
-    board_disattach_item(MODULE_PWM, &(driver_obj->pwm_handle));
+    ret = aos_hal_pwm_stop(pwm_device);
+    ret |= aos_hal_pwm_finalize(pwm_device);
+    py_board_disattach_item(MODULE_PWM, &(driver_obj->pwm_handle));
     LOG_D("%s:out\n", __func__);
 
     return MP_ROM_INT(ret);
@@ -162,9 +162,9 @@ STATIC mp_obj_t obj_getFreq(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
@@ -194,9 +194,9 @@ STATIC mp_obj_t obj_getDuty(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
@@ -226,9 +226,9 @@ STATIC mp_obj_t obj_setFreq(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -236,31 +236,31 @@ STATIC mp_obj_t obj_setFreq(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
     LOG_D("%s: freq = %d;\n", __func__, pwm_device->config.freq);
 
-    ret = hal_pwm_stop(pwm_device);
+    ret = aos_hal_pwm_stop(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_finalize(pwm_device);
+    ret = aos_hal_pwm_finalize(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_finalize failed\n");
+        LOG_E("aos_hal_pwm_finalize failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_init(pwm_device);
+    ret = aos_hal_pwm_init(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_start(pwm_device);
+    ret = aos_hal_pwm_start(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_start failed\n");
+        LOG_E("aos_hal_pwm_start failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -286,9 +286,9 @@ STATIC mp_obj_t obj_setDuty(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -296,31 +296,31 @@ STATIC mp_obj_t obj_setDuty(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
     LOG_D("%s: freq = %d;\n", __func__, pwm_device->config.freq);
 
-    ret = hal_pwm_stop(pwm_device);
+    ret = aos_hal_pwm_stop(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_finalize(pwm_device);
+    ret = aos_hal_pwm_finalize(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_finalize failed\n");
+        LOG_E("aos_hal_pwm_finalize failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_init(pwm_device);
+    ret = aos_hal_pwm_init(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_start(pwm_device);
+    ret = aos_hal_pwm_start(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_start failed\n");
+        LOG_E("aos_hal_pwm_start failed\n");
     }
     LOG_D("%s:out\n", __func__);
 
@@ -346,9 +346,9 @@ STATIC mp_obj_t obj_setConfig(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    pwm_device = board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
+    pwm_device = py_board_get_node_by_handle(MODULE_PWM, &(driver_obj->pwm_handle));
     if (NULL == pwm_device) {
-		LOG_E("%s: board_get_node_by_handle failed;\n", __func__);
+		LOG_E("%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
     }
 
@@ -357,31 +357,31 @@ STATIC mp_obj_t obj_setConfig(size_t n_args, const mp_obj_t *args)
     LOG_D("%s: duty_cycle = %f;\n", __func__, pwm_device->config.duty_cycle);
     LOG_D("%s: freq = %d;\n", __func__, pwm_device->config.freq);
 
-    ret = hal_pwm_stop(pwm_device);
+    ret = aos_hal_pwm_stop(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_finalize(pwm_device);
+    ret = aos_hal_pwm_finalize(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_finalize failed\n");
+        LOG_E("aos_hal_pwm_finalize failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_init(pwm_device);
+    ret = aos_hal_pwm_init(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_stop failed\n");
+        LOG_E("aos_hal_pwm_stop failed\n");
         return mp_const_none;
     }
 
-    ret = hal_pwm_start(pwm_device);
+    ret = aos_hal_pwm_start(pwm_device);
     if (ret != 0)
     {
-        LOG_E("hal_pwm_start failed\n");
+        LOG_E("aos_hal_pwm_start failed\n");
     }
     LOG_D("%s:out\n", __func__);
 

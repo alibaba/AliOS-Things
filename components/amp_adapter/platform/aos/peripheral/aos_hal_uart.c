@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <poll.h>
 #include <vfsdev/uart_dev.h>
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 #include "aos_hal_uart.h"
 
@@ -37,7 +38,7 @@ int32_t aos_hal_uart_recv(uart_dev_t *uart, void *data,
 
 int32_t aos_hal_uart_recv_poll(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size)
 {
-    return hal_uart_recv_poll(uart, data, expect_size, recv_size);
+    return hal_uart_recv_II(uart, data, expect_size, recv_size, 0);
 }
 
 int32_t aos_hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
@@ -64,7 +65,7 @@ static void uart_recv_handler(void *args)
     uart_recv_notify_t *notify = (uart_recv_notify_t *)args;
     uart_dev_t *uart;
     char recv_buffer[256];
-    int recv_size;
+    uint32_t recv_size;
     int ret;
 
     if (!notify)
