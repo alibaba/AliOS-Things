@@ -36,17 +36,17 @@ cmd_str = "python genbin.py %d \"%s\"" % (hw_module, target)
 os.system(cmd_str)
 
 bin_path = os.path.join("..", "write_flash_gui", "ota_bin")
-shutil.copy(os.path.join(bin_path, "ota_rtos.bin"), os.path.join(bin_path, "ota_rtos_ota.bin"))
-
-cmd_str = "dd if=stupid.bin of=%s bs=1 count=8 conv=notrunc" % (os.path.join(bin_path, "ota_rtos_ota.bin"))
+shutil.copy(os.path.join(bin_path, "ota_rtos.bin"), os.path.join(bin_path, "ota_rtos_ota_all.bin"))
+shutil.copy(os.path.join(bin_path, "ota_rtos.bin"), os.path.join(bin_path, "ota_rtos_ota_xz.bin"))
+cmd_str = "dd if=stupid.bin of=%s bs=1 count=8 conv=notrunc" % (os.path.join(bin_path, "ota_rtos_ota_all.bin"))
 os.system(cmd_str)
-cmd_str = "\"%s\"  -f --lzma2=dict=32KiB --check=crc32 -k %s" % (os.path.abspath(path), os.path.join(bin_path, "ota_rtos_ota.bin"))
-os.system(cmd_str)
-
-cmd_str = "python ota_gen_md5_bin.py \"%s\" -m %s" % (os.path.join(bin_path, "ota_rtos_ota.bin"), magic)
+cmd_str = "\"%s\"  -f --lzma2=dict=32KiB --check=crc32 -k %s" % (os.path.abspath(path), os.path.join(bin_path, "ota_rtos_ota_xz.bin"))
 os.system(cmd_str)
 
-cmd_str = "python ota_gen_md5_bin.py \"%s\" -m %s" % (os.path.join(bin_path, "ota_rtos_ota.bin.xz"), magic)
+cmd_str = "python ota_gen_md5_bin.py \"%s\" -m %s" % (os.path.join(bin_path, "ota_rtos_ota_all.bin"), magic)
+os.system(cmd_str)
+
+cmd_str = "python ota_gen_md5_bin.py \"%s\" -m %s" % (os.path.join(bin_path, "ota_rtos_ota_xz.bin.xz"), magic)
 os.system(cmd_str)
 
 print("run external script success")

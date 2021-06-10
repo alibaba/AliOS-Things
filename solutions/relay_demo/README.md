@@ -1,4 +1,4 @@
-@page relay_demo 基于HaaS100实现继电器控制
+@page relay_demo HaaS100实现继电器控制示例
 
 [更正文档](https://gitee.com/alios-things/relay_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

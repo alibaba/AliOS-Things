@@ -1,4 +1,4 @@
-@page auto_demo 1小时打造HaaS版小小蛮驴智能车
+@page auto_demo 智能小车：用钉钉小程序通过HaaS100控制驱动电机示例
 
 [更正文档](https://gitee.com/alios-things/auto_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

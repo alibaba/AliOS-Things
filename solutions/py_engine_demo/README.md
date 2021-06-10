@@ -1,4 +1,4 @@
-@page py_engine_demo micropython示例
+@page py_engine_demo python轻应用示例合集
 
 [更正文档](https://gitee.com/alios-things/py_engine_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

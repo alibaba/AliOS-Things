@@ -27,35 +27,6 @@ extern "C" {
  */
 int aos_fs_init();
 
-
-/**
- * @brief get file system total size in bytes;
- *
- * @return      fs total size in bytes; negative if failed.
- */
-int aos_fs_totalsize(void);
-
-/**
- * @brief get file system used size in bytes;
- *
- * @return      fs used size in bytes; negative if failed.
- */
-int aos_fs_usedsize(void);
-
-/**
- * @brief get file system free size in bytes;
- *
- * @return      fs free size in bytes; negative if failed.
- */
-int aos_fs_freesize(void);
-
-/**
- * @brief       kv componment(key-value) initialize
- *
- * @return      0: success, -1: failed
- */
-int aos_fs_type(unsigned int mode);
-
 int aos_rmdir_r(const char *path);
 
 #if defined(__cplusplus)

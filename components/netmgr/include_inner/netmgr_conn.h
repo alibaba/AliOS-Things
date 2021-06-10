@@ -11,17 +11,6 @@
 #include <netmgr.h>
 #include "sys/socket.h"
 
-typedef enum netmgr_conn_state{
-    CONN_STATE_DISCONNECTING,
-    CONN_STATE_DISCONNECTED,
-    CONN_STATE_CONNECTING,
-    CONN_STATE_CONNECTED,
-    CONN_STATE_OBTAINING_IP,
-    CONN_STATE_NETWORK_CONNECTED,
-    CONN_STATE_FAILED,
-    CONN_STATE_UNKNOWN
-} netmgr_conn_state_t;
-
 typedef struct netmgr_conn netmgr_conn_t;
 struct netmgr_conn
 {

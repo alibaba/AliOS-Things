@@ -1,0 +1,73 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "ADC0": {
+            "type": "ADC",
+            "port": 0,
+            "sampling": 12000000
+        },
+        "UART1": {
+            "type": "UART",
+            "port": 1,
+            "dataWidth": 8,
+            "baudRate": 9600,
+            "stopBits": 1,
+            "flowControl": "rtscts",
+            "parity": "none"
+        },
+        "UART2": {
+            "type": "UART",
+            "port": 2,
+            "dataWidth": 8,
+            "baudRate": 115200,
+            "stopBits": 1,
+            "flowControl": "disable",
+            "parity": "none"
+        },
+        "USER_LED": {
+            "type": "GPIO",
+            "port": 33,
+            "dir": "output",
+            "pull": "pulldown"
+        },
+        "D4": {
+            "type": "GPIO",
+            "port": 4,
+            "dir": "irq",
+            "pull": "pulldown",
+            "intMode":"falling"
+        },
+        "I2C1": {
+            "type": "I2C",
+            "port": 1,
+            "addrWidth": 7,
+            "freq": 400000,
+            "mode": "master",
+            "devAddr": 72
+        },
+        "SPI1": {
+            "type": "SPI",
+            "port": 1,
+            "mode": 3,
+            "freq": 26000000
+        },
+        "PWM1": {
+            "type": "PWM",
+            "port": 31
+        },
+        "PWM2": {
+            "type": "PWM",
+            "port": 32
+        }
+    },
+    "audio": {
+        "type": "AUDIO",
+        "out_device": "receiver",
+        "external_pa": "disable",
+        "external_pa_pin": 38,
+        "external_pa_delay_ms": 50,
+        "external_pa_active_level": 1
+    },
+    "repl": "enable",
+    "debugLevel": "DEBUG"
+}

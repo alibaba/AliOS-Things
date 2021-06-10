@@ -34,6 +34,7 @@ depends:
   - uvoice: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - a2sa: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - ble_netconfig: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
+  - ble_host: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
   - sntp: "rel_3.3.0 ? <PY_BUILD_SNTP>"
   - mbedtls: "rel_3.3.0 ? <PY_BUILD_MBEDTLS>"
   - mbmaster: "rel_3.3.0 ? <PY_BUILD_MODBUS>"

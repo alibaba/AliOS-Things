@@ -13,7 +13,6 @@ except:
 def get_bin_file():
     """ get binary file from sys.argv --bin=/xxx/yyy/zzz.bin """
     bin_files = []
-    '''
     pattern = re.compile(r'--(.*)=(.*)')
     for arg in sys.argv[1:]:
         if arg.startswith("--"):
@@ -23,8 +22,6 @@ def get_bin_file():
                 value = match.group(2)
                 if key == 'bin':
                     bin_files.append(value)
-    '''
-    bin_files.append(os.path.join(os.getcwd(), 'binary/ymodem_burn.bin'))
 
     return bin_files
 
@@ -104,7 +101,10 @@ def main():
         if "#" in bin_file:
             filename = bin_file.split("#", 1)[0]
             address = bin_file.split("#", 1)[1]
-        bin_files.append((filename, address))
+        if address == "0" or address == "0x0" or address == "0x00":
+            bin_files.append((os.path.join(os.getcwd(), 'binary/ymodem_burn_xz.bin'), address))
+        else:
+            bin_files.append((filename, address))
     print("bin_files is ", bin_files)
     burn_bin_files(myconfig["serialport"], myconfig['baudrate'], bin_files)
     if needsave:

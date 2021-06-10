@@ -97,8 +97,11 @@
 #define SDRAM_DATA_SECTION				
 
 #if defined (ARM_CORE_CM4)
-#define PSRAM_BSS_SECTION                        \
-	SECTION(".image2.psram.bss")
+#define PSRAM_TEXT_SECTION			SECTION(".psram.text")
+#define PSRAM_DATA_SECTION			SECTION(".psram.data")
+#define PSRAM_RODATA_SECTION		        SECTION(".psram.rodata")
+#define PSRAM_BSS_SECTION			SECTION(".psram.bss")
+#define PSRAM_HEAP_SECTION			SECTION(".psram.heap")
 #endif
 
 //3 Wlan  Section

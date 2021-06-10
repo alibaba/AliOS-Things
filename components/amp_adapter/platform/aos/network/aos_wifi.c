@@ -41,7 +41,7 @@ int aos_wifi_set_msg_cb(netmgr_msg_cb_t cb)
     if((hdl = netmgr_get_dev(WIFI_DEV_PATH)) == -1) {
         return -1;
     }
-    return netmgr_get_state(hdl);
+    return netmgr_set_msg_cb(hdl, cb);
 }
 
 int aos_wifi_del_msg_cb(netmgr_msg_cb_t cb)

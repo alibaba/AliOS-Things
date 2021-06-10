@@ -364,12 +364,6 @@ static void recorder_task(void *arg)
 	M_LOGD("exit\n");
 }
 
-static void *recorder_thread(void *arg)
-{
-	recorder_task(arg);
-	return NULL;
-}
-
 static int recorder_get_stream(uint8_t *buffer, int nbytes)
 {
 	recorder_t *recorder = g_mrecorder ? g_mrecorder->priv : NULL;
@@ -529,21 +523,14 @@ static int recorder_start(void)
 	os_mutex_unlock(recorder->lock);
 
 	M_LOGD("start record task\n");
-#ifdef __os_alios_things__
+
 	os_task_create(&recorder->task,
 		"uvoice_record_task",
 		recorder_task,
 		recorder,
 		recorder_stack_size(recorder->format),
 		UVOICE_TASK_PRI_HIGHER);
-#else
-	os_task_create(&recorder->task,
-		"uvoice_record_task",
-		recorder_thread,
-		recorder,
-		recorder_stack_size(recorder->format),
-		UVOICE_TASK_PRI_HIGHER);
-#endif
+
 	return 0;
 }
 

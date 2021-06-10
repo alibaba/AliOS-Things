@@ -1,4 +1,4 @@
-@page lora_p2p_demo 基于HaaS100实现LoRa点对点通信
+@page lora_p2p_demo HaaS100实现LoRa点对点通信
 
 [更正文档](https://gitee.com/alios-things/lora_p2p_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

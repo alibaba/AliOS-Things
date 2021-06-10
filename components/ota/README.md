@@ -29,7 +29,7 @@ OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，
 │   ├── ota_hal_os.c                      # os适配代码
 │   ├── ota_hal_os.h
 │   ├── ota_hal_param.c                   # bootloader相关参数
-│   ├── ota_hal_vfs_plat.c                    # flash相关适配
+│   ├── ota_hal_vfs_plat.c                # flash相关适配
 │   ├── ota_hal_trans.c                   # 传输底层适配层（比如mqtt、coap、http）
 │   └── ota_hal_trans.h
 ├── include                               # 头文件
@@ -122,18 +122,28 @@ aos install ota
 示例代码参考[solutions/ota_demo/otaappdemo.c](https://gitee.com/alios-things/ota_demo/blob/rel_3.3.0/otaappdemo.c)，以运行ota_demo为例(更详细的使用流程请参考[《HaaS物联网设备OTA解决方案》](https://g.alicdn.com/alios-things-3.3/doc/ota_demo.html)，示例主要完成如下：
 
 示例代码分成3个主要部分：
-1、注册ota升级的主函数
-> ota_register_cb(&ctx, OTA_CB_ID_UPGRADE, (void*)ota_upgrade_cb);
+1、注册ota回调函数
+> 注册存储模块信息变量，默认支持3个模块
+> ota_register_module_store(&ctx, g_module_info, 3);
+注册云端触发升级时的触发回调函数
+> ota_register_trigger_msg_cb(&ctx, (void *)ota_upgrade_cb, NULL);
+注册状态上报函数
+> ota_register_report_percent_cb(&ctx, (void *)ota_transport_status, (void *)&ctx);
+设置用户自定义模块信息
+> ota_set_module_information(&ctx, USER_MODE_NAME, SUBDEV_FILE_PATH, OTA_UPGRADE_CUST);
 
 2、初始化ota模型
 > ret = ota_service_init(&ctx);
 
-3、在ota升级主函数中调用ota_service_start执行升级
-> ota_thread_create(&thread, (void *)ota_service_start, (void *)pctx, NULL, 1024 * 6);
+3. 上报模块版本号
+> ota_report_module_version(&ctx, "default", MY_APP_VER);
+
+4、在ota升级主函数中调用ota_service_start执行升级
+> aos_task_new("ota_demo", (void *)ota_service_start, (void *)pctx, 1024 * 6);
 
 ## 步骤5 编译固件
 
-在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+在示例代码已经添加至组件的配置文件，并且ota_demo已添加了对该组件的依赖后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
 
 ## 步骤6 烧录固件
 

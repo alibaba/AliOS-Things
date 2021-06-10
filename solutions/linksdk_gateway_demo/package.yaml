@@ -1,6 +1,6 @@
 name: linksdk_gateway_demo
 version: rel_3.3.0                                     # <必选项> 组件版本号
-description: AliOS Things LINKSDK Gateway Demo
+description: 基于LinkSDK实现设备作为网关搭建子设备与远端交互的通道。
 
 type: solution
 
