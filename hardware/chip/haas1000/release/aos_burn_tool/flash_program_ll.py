@@ -9,70 +9,74 @@ except:
     print("\nNot found pyserial, please install it by: \nsudo python%d -m pip install pyserial" % (sys.version_info.major))
     sys.exit(-1)
 
+def match_and_send(serialport, pattern, command, timeout):
+    """ receive serial data, and check it with pattern """
+    pattern = re.compile(pattern)
+    start   = time.time()
+    buff    = b''
+    while (time.time() - start) < timeout:
+        #line = serialport.readline()
+        #timeout dont work for 'readline', so using 'read_until' instead
+        line = serialport.read_until(b'\n')
+        if len(line) == 0:
+            continue
+        buff += line
+        match = pattern.search(buff)
+        if match:
+            if command:
+                serialport.write(command)
+            print(line.decode('UTF-8',errors='ignore'))
+            sys.stdout.flush()
+            return match
+        print(line.decode('UTF-8',errors='ignore'))
+        sys.stdout.flush()
+    return None
 
-def send_cmd_check_recv_data(serialport, command, pattern, timeout):
+def send_and_match(serialport, command, pattern, timeout):
     """ receive serial data, and check it with pattern """
     if command:
         serialport.write(command)
-    matcher = re.compile(pattern)
-    tic     = time.time()
-    buff    = serialport.read(128)
-    while (time.time() - tic) < timeout:
-        buff += serialport.read(128)
-        if matcher.search(buff):
-            return True, buff
-        else:
-            if command:
-                serialport.write(command)
-    return False, buff
+    pattern = re.compile(pattern)
+    start   = time.time()
+    buff    = b''
+    while (time.time() - start) < timeout:
+        #line = serialport.readline()
+        #timeout dont work for 'readline', so using 'read_until' instead
+        line = serialport.read_until(b'\n')
+        if len(line) == 0:
+            continue
+        buff += line
+        print(line.decode('UTF-8',errors='ignore'))
+        sys.stdout.flush()
+        match = pattern.search(buff)
+        if match:
+            return match
+    return None
 
+#burn file in 2_boot
 def burn_bin_file(serialport, filename, address):
     if not os.path.exists(filename):
         print("file \"%s\" is not existed." % filename)
         return False
-    for i in range(3):
-        # ymodem update
-        serialport.write(b'1')
-        time.sleep(0.1)
 
-        # get flash address
-        bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'Please input flash addr:', 2)
-        try:
-            buff_str = buff.decode('UTF-8',errors='ignore')
-            print(buff_str)
-        except IOError:
-            pass
-        if bmatched:
-            break
+    #get address
     if address == "0" or address == "0x0" or address == "0x00":
-        if bmatched:
-            pattern = re.compile(b'Backup part addr:([0-9a-fxA-F]*)')
-            match = pattern.search(buff)
-            if match:
-                address = match.group(1)
-            else:
-                print("can not get flash address")
-                return False
-        else:
-            print("can not get flash address")
+        # get flash address
+        match = send_and_match(serialport, b'1', b'Backup part addr:([0-9a-fxA-F]*)', 5)
+        if not match:
+            print("Can not get flash address")
             return False
+        address = match.group(1)
     else:
+        serialport.write(b'1')
         address = address.encode()
-
+        
     # set flash address
-    serialport.write(address)
-    serialport.write(b'\r\n')
-    time.sleep(0.1)
-    bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'CCCCC', 5)
-    try:
-        buff_str = buff.decode('UTF-8',errors='ignore')
-        print(buff_str)
-    except IOError:
-        pass
-    if not bmatched:
-        print("can not enter into ymodem mode")
+    match = send_and_match(serialport, address + b'\r\n', b'CCCC', 30)
+    if not match:
+        print("Can not enter into ymodem mode")
         return False
-
+            
     # send binary file
     def sender_getc(size):
         return serialport.read(size) or None
@@ -90,79 +94,71 @@ def burn_bin_files(portnum, baudrate, bin_files):
     serialport = serial.Serial()
     serialport.port = portnum
     serialport.baudrate = baudrate
-    serialport.parity = "N"
+    serialport.parity   = "N"
     serialport.bytesize = 8
     serialport.stopbits = 1
-    serialport.timeout = 0.05
+    serialport.timeout  = 1
 
     try:
         serialport.open()
     except Exception as e:
         raise Exception("Failed to open serial port: %s!" % portnum)
 
-    # reboot the board, and enter into 2nd boot mode
-    bmatched = False
-    for i in range(300):
-        serialport.write(b'\nreboot\n\n')
-        time.sleep(0.1)
-        bmatched, buff = send_cmd_check_recv_data(serialport, b'w', b'aos boot#', 2)
-        try:
-            buff_str = buff.decode('UTF-8',errors='ignore')
-            print(buff_str)
-        except IOError:
-            pass
-
-        if bmatched:
+    for i in range(3):
+        #reset in 2_boot or CLI
+        serialport.write(b'\n2\n')
+        serialport.write(b'reboot\n')
+        match = match_and_send(serialport, b'2ndboot cli menu', b'w', 5)
+        if match:
+            print('Reset success!!')
+            sys.stdout.flush()
             break
-        if i > 3:
-            print('\a')
-            print("Please reboot the board manually.")
+        #reset in Ymodem
+        print('Reset Ymodem!!')
+        sys.stdout.flush()
+        serialport.write(b'\x13')
+        serialport.write(b'\x04')
+        serialport.write(b'\x03')
 
-    if not bmatched:
-        print("Please reboot the board manually, and try it again.")
+    if i == 3:
+        print("Please reset the HaaS100 manually.")
         serialport.close()
-        return 1
+        return False
 
     for bin_file in bin_files:
         if not burn_bin_file(serialport, bin_file[0], bin_file[1]):
             print("Download file %s failed." % bin_file[0])
             serialport.close()
-            return 1
+            return False
 
     # switch partition
     print("Swap AB partition")
     serialport.write(b'3')
-    time.sleep(0.1)
+    time.sleep(0.5)
     serialport.write(b'4')
-    time.sleep(0.1)
+    time.sleep(0.5)
     serialport.write(b'3')
-    time.sleep(0.1)
+    time.sleep(0.5)
     serialport.write(b'2')
-    time.sleep(0.1)
+    time.sleep(0.5)
     # workaround retry issue in 2nd boot
     serialport.write(b'\n' * 16)
-    time.sleep(0.1)
-    bmatched, buff = send_cmd_check_recv_data(serialport, b'', b'2ndboot cli menu in [1-9]00ms', 2)
-    try:
-        buff_str = buff.decode('UTF-8',errors='ignore')
-        print(buff_str)
-    except IOError:
-        pass
-    if bmatched:
+    match = send_and_match(serialport, b'', b'2ndboot cli menu', 5)
+    if match:
         print("Burn \"%s\" success." % bin_files)
 
     # close serial port
     serialport.close()
 
-    if bmatched:
-        return 0
+    if match:
+        return True
     else:
-        return 1
+        return False
 
 def main():
     length = len(sys.argv)
     if (length < 5) or (length % 2 == 0):
-        print("Usage: ./flash_program_ll.py COM6 1500000 sendfile flash_addr\n")
+        print("Usage demo: ./flash_program_ll.py COM6 1500000 sendfile flash_addr\n")
         return 1
 
     serialport = sys.argv[1]

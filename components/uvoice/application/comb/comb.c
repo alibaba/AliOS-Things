@@ -598,7 +598,7 @@ static void __comb_task(void *arg)
             first_buffer = 2;
             while (1) {
                 #if 1
-                ret = os_fread(buffer, buffer_size, 1, fp);
+                ret = os_fread(buffer, 1, buffer_size, fp);
                 if (ret < 0) {
                     M_LOGE("read failed %d!\n", ret);
                     break;
@@ -614,7 +614,7 @@ static void __comb_task(void *arg)
                 } else {
                     read_size = buffer_size;
                 }
-                ret = os_fread(buffer, read_size, 1, fp);
+                ret = os_fread(buffer, 1, read_size, fp);
                 if (ret <= 0) {
                     M_LOGD("read end\n");
                     break;

@@ -9,20 +9,24 @@
 
 #include "ameba_soc.h"
 #include "rtl8721d_system.h"
+#include "psram_reserve.h"
 #if defined ( __ICCARM__ )
 #pragma section=".ram_image2.bss"
 #pragma section=".ram_image2.nocache.data"
+#pragma section=".psram.bss"
 
-SECTION(".data") u8* __bss_start__;
-SECTION(".data") u8* __bss_end__;
-SECTION(".data") u8* __ram_nocache_start__;
-SECTION(".data") u8* __ram_nocache_end__;
+SECTION(".data") u8* __bss_start__ = 0;
+SECTION(".data") u8* __bss_end__ = 0;
+SECTION(".data") u8* __ram_nocache_start__ = 0;
+SECTION(".data") u8* __ram_nocache_end__ = 0;
+SECTION(".data") u8* __psram_bss_start__ = 0;
+SECTION(".data") u8* __psram_bss_end__ = 0;
 #endif
 extern int main(void);
 extern u32 GlobalDebugEnable;
 void NS_ENTRY BOOT_IMG3(void);
 extern void INT_HardFault_C(uint32_t mstack[], uint32_t pstack[], uint32_t lr_value, uint32_t fault_id);
-
+void app_init_psram(void);
 void app_section_init(void)
 {
 #if defined ( __ICCARM__ )
@@ -207,6 +211,65 @@ void SysTick_Handler( void )
 	krhino_intrpt_exit();
 }
 
+void app_init_psram(void)
+{
+	u32 temp;
+	PCTL_InitTypeDef  PCTL_InitStruct;
+
+	/*set rwds pull down*/
+	temp = HAL_READ32(PINMUX_REG_BASE, 0x104);
+	temp &= ~(PAD_BIT_PULL_UP_RESISTOR_EN | PAD_BIT_PULL_DOWN_RESISTOR_EN);
+	temp |= PAD_BIT_PULL_DOWN_RESISTOR_EN;
+	HAL_WRITE32(PINMUX_REG_BASE, 0x104, temp);
+
+	PSRAM_CTRL_StructInit(&PCTL_InitStruct);
+	PSRAM_CTRL_Init(&PCTL_InitStruct);
+
+	PSRAM_PHY_REG_Write(REG_PSRAM_CAL_PARA, 0x02030310);
+
+	/*check psram valid*/
+	HAL_WRITE32(PSRAM_BASE, 0, 0);
+	assert_param(0 == HAL_READ32(PSRAM_BASE, 0));
+
+	if(_FALSE == PSRAM_calibration())
+		return;
+
+	if(FALSE == psram_dev_config.psram_dev_cal_enable) {
+		temp = PSRAM_PHY_REG_Read(REG_PSRAM_CAL_CTRL);
+		temp &= (~BIT_PSRAM_CFG_CAL_EN);
+		PSRAM_PHY_REG_Write(REG_PSRAM_CAL_CTRL, temp);
+	}
+
+#if defined ( __ICCARM__ )
+	__psram_bss_start__ = (u8*)__section_begin(".psram.bss");
+	__psram_bss_end__   = (u8*)__section_end(".psram.bss");	
+#endif
+
+	/*init psram bss area*/
+	memset(__psram_bss_start__, 0, __psram_bss_end__ - __psram_bss_start__);
+
+	//pmu_register_sleep_callback(PMU_PSRAM_DEVICE, (PSM_HOOK_FUN)app_psram_suspend, NULL, (PSM_HOOK_FUN)app_psram_resume, NULL);
+}
+
+static void* app_psram_load_ns()
+{
+	IMAGE_HEADER *Image2Hdr = (IMAGE_HEADER *)((__flash_text_start__) - IMAGE_HEADER_LEN);
+	IMAGE_HEADER * Image2DataHdr = (IMAGE_HEADER *)(__flash_text_start__ + Image2Hdr->image_size);
+	IMAGE_HEADER *PsramHdr =  (IMAGE_HEADER *)((u32)Image2DataHdr + IMAGE_HEADER_LEN + Image2DataHdr->image_size);
+
+	DBG_PRINTF(MODULE_BOOT, LEVEL_INFO,"IMG2 PSRAM_NS:[0x%x:%d:0x%x]\n", (u32)(PsramHdr + 1),
+			PsramHdr->image_size, PsramHdr->image_addr);
+
+	/* load psram code+data into PSRAM */
+	if((PsramHdr->image_size != 0) && \
+		(PsramHdr->image_addr == 0x02000020) && \
+		(PsramHdr->signature[0] == 0x35393138) && \
+		(PsramHdr->signature[1] == 0x31313738)) {
+
+		_memcpy((void*)PsramHdr->image_addr, (void*)(PsramHdr + 1), PsramHdr->image_size);
+	}
+}
+
 // The Main App entry point
 void app_start(void)
 {
@@ -229,10 +292,19 @@ void app_start(void)
 	
 	SOCPS_InitSYSIRQ_HP();
 
+	/* Init PSRAM */
+	if(TRUE == psram_dev_config.psram_dev_enable) {
+		app_init_psram();
+	}
+
 	__NVIC_SetVector(SVCall_IRQn, (u32)(VOID*)NULL);
 	__NVIC_SetVector(PendSV_IRQn, (u32)(VOID*)PendSV_Handler);
 	__NVIC_SetVector(SysTick_IRQn, (u32)(VOID*)SysTick_Handler);
 
+	/* load psram image if needed */
+	if(TRUE == psram_dev_config.psram_dev_enable) {
+		app_psram_load_ns();
+	}
 
 #if defined (__GNUC__)
 extern void __libc_init_array(void);

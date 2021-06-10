@@ -992,7 +992,11 @@ INPUT                  = ../manual/mainpage.md \
                          ../../components/drivers/peripheral/spi/include/vfsdev/spi_dev.h \
                          ../../components/oss/README.md \
                          ../../components/uservice/README.md \
-                         ../../components/mqtt/README.md
+                         ../../components/mqtt/README.md \
+                         ../../solutions/relay_demo/README.md \
+                         ../../solutions/miniapp_agent_demo/README.md \
+                         ../debug-tools/SmartTrace.md \
+                         ../../solutions/haas_dev_demo/README.md
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1363,7 +1367,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            =
+HTML_HEADER            = style/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1373,7 +1377,7 @@ HTML_HEADER            =
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            =
+HTML_FOOTER            = style/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1385,7 +1389,7 @@ HTML_FOOTER            =
 # obsolete.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_STYLESHEET        =
+HTML_STYLESHEET        = style/doxygen-custom.css
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
 # cascading style sheets that are included after the standard style sheets

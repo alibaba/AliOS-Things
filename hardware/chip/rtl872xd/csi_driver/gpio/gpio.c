@@ -5,13 +5,16 @@
 #include "objects.h"
 #include "pinmap.h"
 #include "PinNames.h"
-
 #include <drv/gpio.h>
+#include <aos/gpioc_csi.h>
 
 static void user_interrupt_handler(csi_gpio_t *gpio, uint32_t id)
 {
-    if(gpio->callback != NULL) {
-        gpio->callback(gpio,id,NULL);
+    if (gpio->callback != NULL) {
+        uint32_t pin_mask;
+
+        pin_mask = (uint32_t)1 << ((id >> 16) & 0x1F);
+        gpio->callback(gpio, pin_mask, gpio->arg);
     }
 }
 
@@ -26,11 +29,14 @@ csi_error_t csi_gpio_init(csi_gpio_t *gpio, uint32_t port_idx)
     }
 
     gpio->dev.idx = port_idx;
+    gpio->callback = NULL;
+    gpio->arg = NULL;
+
     return CSI_OK;
 }
 
 void csi_gpio_uninit(csi_gpio_t *gpio)
-{    
+{
     if (gpio->dev.idx != PORT_A && gpio->dev.idx != PORT_B) {
         return;
     }
@@ -38,7 +44,7 @@ void csi_gpio_uninit(csi_gpio_t *gpio)
     uint32_t pin_idx = 0;
 
     while(pin_idx < 32) {
-        GPIO_DeInit(((gpio->dev.idx)<<5)|pin_idx);    
+        GPIO_DeInit(((gpio->dev.idx)<<5)|pin_idx);
         pin_idx++;
     }
 }
@@ -78,7 +84,7 @@ csi_error_t csi_gpio_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_mode_t m
         case GPIO_MODE_PULLNONE:/* No driver -> Input & High Impendance */
             GPIO_PuPd = GPIO_PuPd_NOPULL;
         break;
-        
+
         case GPIO_MODE_PULLDOWN:
             GPIO_PuPd = GPIO_PuPd_DOWN;
         break;
@@ -233,12 +239,43 @@ uint32_t csi_gpio_read(csi_gpio_t *gpio, uint32_t pin_mask)
 csi_error_t csi_gpio_attach_callback(csi_gpio_t *gpio, void *callback, void *arg)
 {
     gpio->callback = callback;
+    gpio->arg = arg;
+
     return CSI_OK;
 }
 
 void csi_gpio_detach_callback(csi_gpio_t *gpio)
 {
-    if(gpio->callback != NULL){
+    if (gpio->callback != NULL) {
         gpio->callback = NULL;
+        gpio->arg = NULL;
     }
 }
+
+static int gpioc_csi_init(void)
+{
+    static aos_gpioc_csi_t gpioc_csi[2];
+    int ret;
+
+    gpioc_csi[0].gpioc.dev.id = 0;
+    gpioc_csi[0].gpioc.num_pins = 32;
+    gpioc_csi[0].default_input_cfg = AOS_GPIO_INPUT_CFG_HI;
+    gpioc_csi[0].default_output_cfg = AOS_GPIO_OUTPUT_CFG_PP;
+    ret = (int)aos_gpioc_csi_register(&gpioc_csi[0]);
+    if (ret)
+        return ret;
+
+    gpioc_csi[1].gpioc.dev.id = 1;
+    gpioc_csi[1].gpioc.num_pins = 32;
+    gpioc_csi[1].default_input_cfg = AOS_GPIO_INPUT_CFG_HI;
+    gpioc_csi[1].default_output_cfg = AOS_GPIO_OUTPUT_CFG_PP;
+    ret = (int)aos_gpioc_csi_register(&gpioc_csi[1]);
+    if (ret) {
+        (void)aos_gpioc_csi_unregister(0);
+        return ret;
+    }
+
+    return 0;
+}
+
+LEVEL1_DRIVER_ENTRY(gpioc_csi_init)

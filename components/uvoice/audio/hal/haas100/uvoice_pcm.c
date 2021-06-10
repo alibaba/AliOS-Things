@@ -149,7 +149,9 @@ int uvoice_pcm_close(struct pcm_device *pcm)
     return 0;
 }
 
+// extern int audio_install_codec_driver();
 int uvoice_pcm_init(void)
 {
+    // audio_install_codec_driver();
     return 0;
 }

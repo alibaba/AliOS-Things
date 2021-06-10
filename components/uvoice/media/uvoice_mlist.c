@@ -9,7 +9,6 @@
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
-#include <unistd.h>
 
 #include "uvoice_os.h"
 #include "uvoice_types.h"

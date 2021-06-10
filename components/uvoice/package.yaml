@@ -2,7 +2,7 @@
 ## 第一部分： 基础信息
 name: uvoice                                         # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: rel_3.3.0                                     # <必选项> 组件版本号
-description: uvoice是一个语音功能组件，包括播放器/播放控制、录音、编解码、在线播放、流媒体播放、TTS等功能 .   # <必选项> 建议至少20字以上
+description: uvoice是一个语音功能组件，提供了RTOS系统上端到云全链路的语音能力。   # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
@@ -16,6 +16,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
    - ulog: rel_3.3.0
    - osal_aos: rel_3.3.0
+   - amp_adapter: rel_3.3.0
    - a2sa: rel_3.3.0 ? <BOARD_HAAS100>
    - mbedtls: rel_3.3.0
 
@@ -61,6 +62,7 @@ build_config:
     - application/alicloudtts/include
     - application/comb/include
 
+  prebuild_script: get_open_source.py
   submodule_script: get_open_source.py
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
@@ -102,6 +104,7 @@ source_file:
     - application/comb/*.c
     - test/test_tts.c ? <ALICLOUD_TTS_SUPPORT>
     - audio/hal/haas100/uvoice_pcm.c ? <BOARD_HAAS100>
+    - audio/hal/haas100/uvoice_pcm.c ? <BOARD_HAASEDUK1>
     - audio/hal/haas200/uvoice_pcm.c ? <BOARD_HAAS200>
     - example/uvoice_example.c
 

@@ -1,4 +1,4 @@
-@page audio_demo HaaS100 云端钉一体智能语音播放器设计
+@page audio_demo 用钉钉小程序控制HaaS100播放语音示例
 
 [更正文档](https://gitee.com/alios-things/audio_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

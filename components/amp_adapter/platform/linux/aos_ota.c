@@ -66,7 +66,7 @@ const char *amp_jsapp_version_get(void)
 {
     return "0.0.1";
 }
-int ota_transport_inform(ota_service_t *ctx, char *module_name, char *ver)
+int ota_transport_inform(void *mqttclient, char *pk, char *dn, char *module_name, char *ver)
 {
     return 0;
 }

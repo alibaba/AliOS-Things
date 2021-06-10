@@ -92,7 +92,7 @@
 #define NETMGR_WIFI_REPORT_PRI   25
 #endif /* AOS_COMP_ACTIVATION */
 #define SCAN_RESULT_WAIT_TIMEOUT (8*1000)
-#define DISCONNECT_WAIT_TIMEOUT  (1000)
+#define DISCONNECT_WAIT_TIMEOUT  (5*1000)
 static int retry_backoff_time[NETMGR_WIFI_RETRY_MAX_NUM]= {1, 2, 1, 2, 1, 2, 1, 2};
 const char* wificonfigsymbol[CONFIG_ELEMENT_NUM] = {
         CONFIG_ELEMENT_SSID,
@@ -1941,7 +1941,8 @@ void netmgr_wifi_deinit(netmgr_hdl_t hdl)
     free(g_wifi_conn_info->saved_config);
 
     conn = g_wifi_conn_info;
-    if(0 != (ret = ioctl(g_wifi_conn_info->hdl, WIFI_DEV_CMD_DISCONNECT, NULL))) {
+    if(0 != (ret = ioctl(hdl, WIFI_DEV_CMD_DISCONNECT, NULL))) {
+        NETMGR_WIFI_LOGE("%s:%d WIFI_DEV_CMD_DISCONNECT Failed\n", __func__, __LINE__);
     }
 
     netmgr_conn_deinit(g_wifi_conn_info);
@@ -2073,7 +2074,7 @@ static int wifi_start_connect(netmgr_hdl_t hdl, netmgr_conn_t* conn, const char*
        (conn->state == CONN_STATE_CONNECTING)) {
         int ret = 0;
         NETMGR_WIFI_LOGE("%s:%d start wifi\n", __func__, __LINE__);
-        ret = ioctl(conn->hdl, WIFI_DEV_CMD_CONNECT, &type);
+        ret = ioctl(hdl, WIFI_DEV_CMD_CONNECT, &type);
         if(ret != 0) {
             NETMGR_WIFI_LOGE("%s:%d wifi connect failed=%d\n", __func__, __LINE__, ret);
             return -1;
@@ -2225,7 +2226,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
                     return -1;
                 }
                 i = saved_ap_conf->used_ap;
-                if(0 != (ret = (ioctl(conn->hdl, WIFI_DEV_CMD_GET_CHANNEL, &channel)))) {
+                if(0 != (ret = (ioctl(hdl, WIFI_DEV_CMD_GET_CHANNEL, &channel)))) {
                     NETMGR_WIFI_LOGE("%s:%d get channel failed, ret=%d\n", __func__, __LINE__, ret);
                 } else if((i != -1) && (channel != saved_ap_conf->config[i].channel)) {
                     NETMGR_WIFI_LOGI("%s:%d new channel:%d old channel:%d\n",
@@ -2415,7 +2416,7 @@ int netmgr_wifi_disconnect(netmgr_hdl_t hdl)
             netifapi_netif_set_down(net_if);
         }
     }
-    if(0 != (ret = ioctl(conn->hdl, WIFI_DEV_CMD_DISCONNECT, NULL))) {
+    if(0 != (ret = ioctl(hdl, WIFI_DEV_CMD_DISCONNECT, NULL))) {
     }
 
     NETMGR_WIFI_LOGI("%s:%d sem wait %d seconds\n",
@@ -2980,15 +2981,15 @@ int  netmgr_wifi_scan_result(netmgr_wifi_ap_list_t* ap_info, int num, netmgr_wif
     free(g_scan_result.ap_list);
     g_scan_result.ap_list = NULL;
 
-    NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
+    NETMGR_WIFI_LOGD("%s:%d\n", __func__, __LINE__);
     return g_scan_result.ap_num;
 }
 
-int  netmgr_wifi_get_wifi_state() {
+netmgr_conn_state_t netmgr_wifi_get_wifi_state() {
     netmgr_conn_t* conn = g_wifi_conn_info;
 
     if(conn) {
-        NETMGR_WIFI_LOGI("%s:%d state=%d\n", __func__, __LINE__, conn->state);
+        NETMGR_WIFI_LOGD("%s:%d state=%d\n", __func__, __LINE__, conn->state);
         return conn->state;
     }
     NETMGR_WIFI_LOGE("%s:%d get wifi state failed\n", __func__, __LINE__);
@@ -3155,6 +3156,7 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("Usage: netgmr -t wifi [options]\n");
     NETMGR_WIFI_LOGI("       netmgr -t wifi [-h]\n");
     NETMGR_WIFI_LOGI("  -i,        Init wifi service\n");
+    NETMGR_WIFI_LOGI("  -k,        Deinit wifi service\n");
     NETMGR_WIFI_LOGI("  -a,        Set auto reconnect wifi flag\n");
     NETMGR_WIFI_LOGI("  -b,        Set auto save ap info flag. 1, enable; 0, disable\n");
     NETMGR_WIFI_LOGI("  -c,        Connect wifi\n");
@@ -3198,13 +3200,12 @@ static void wifi_handle_cmd(int argc, char **argv)
     const char *rtype = argc > 0 ? argv[0] : "";
 
     if (strcmp(rtype, "-i") == 0) {
-        netmgr_conn_t* conn = g_wifi_conn_info;
-        if(conn != NULL) {
-            NETMGR_WIFI_LOGI("%s:%d netmgr_wifi_init \n", __func__, __LINE__);
-            netmgr_wifi_init(conn->hdl);
-        } else {
-            NETMGR_WIFI_LOGE("%s:%d netmgr_wifi_init open wifi failed \n", __func__, __LINE__);
-        }
+        NETMGR_WIFI_LOGI("%s:%d netmgr_service_init\n", __func__, __LINE__);
+        netmgr_service_init(NULL);
+    }
+    else if (strcmp(rtype, "-k") == 0) {
+        NETMGR_WIFI_LOGI("%s:%d netmgr_service_deinit\n", __func__, __LINE__);
+        netmgr_service_deinit();
     }
     else if (strcmp(rtype, "-a") == 0) {
         if((argc > 1) && ((strcmp(argv[1], "0") == 0) || (strcmp(argv[1], "1") == 0))) {

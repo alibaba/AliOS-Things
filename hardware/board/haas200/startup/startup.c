@@ -142,6 +142,8 @@ void main(void)
     
     SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
 
+    soc_hw_timer_init();
+
     aos_start();
 
     return;

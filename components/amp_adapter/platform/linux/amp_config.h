@@ -54,7 +54,7 @@
 #define JSE_HW_ADDON_RTC
 #define JSE_HW_ADDON_UART
 #define JSE_HW_ADDON_WDG
-#define JSE_HW_ADDON_LCD
+//#define JSE_HW_ADDON_LCD
 
 #define JSE_HW_ADDON_DS18B20
 
@@ -65,7 +65,7 @@
 // #define JSE_NET_ADDON_HTTP
 // #define JSE_NET_ADDON_WIFI
 // #define JSE_NET_ADDON_CELLULAR
-#define JSE_NET_ADDON_NETMGR
+// #define JSE_NET_ADDON_NETMGR
 
 /* advanced component */
 // #define JSE_ADVANCED_ADDON_AIOT_DEVICE
@@ -75,7 +75,7 @@
 // #define JSE_ADVANCED_ADDON_LOCATION
 // #define JSE_ADVANCED_ADDON_KEYPAD
 // #define JSE_ADVANCED_ADDON_UND
-#define JSE_ADVANCED_ADDON_OTA
+// #define JSE_ADVANCED_ADDON_OTA
 
 /* ui component */
 #ifdef CONFIG_AMP_UI_SUPPORT

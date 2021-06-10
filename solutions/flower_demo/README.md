@@ -1,4 +1,4 @@
-@page flower_demo 一步步打造能手机远程管理的HaaS花卉养植系统
+@page flower_demo 智能养花：用钉钉小程序通过HaaS100监测空气温湿度示例
 
 [更正文档](https://gitee.com/alios-things/flower_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
@@ -327,7 +327,7 @@ let device = {
 </div>
 
 # 5. 总结
-至此，一个简单的能手机远程管理的HaaS花卉养植系统就做好了。是不是很简单？
+至此，一个简单的智能手机远程管理的HaaS花卉养植系统就做好了。是不是很简单？
 
 
 当然，这个HaaS花卉养植系统的打造仅仅是一个抛砖引玉，还有很大的扩展空间，比如 湿度过低触发自动洒水，温度过高自动开家里的空调等设备。还有非常大的想象和发挥空间。

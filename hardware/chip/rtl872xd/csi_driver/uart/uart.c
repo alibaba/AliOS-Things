@@ -5,8 +5,8 @@
 #include "objects.h"
 #include "pinmap.h"
 #include <string.h>
-
 #include <drv/uart.h>
+#include <aos/tty_csi.h>
 
 static const PinMap CSI_PinMap_UART_TX[] = {
     {PA_12,     UART_3,        PIN_DATA(PullUp, PINMUX_FUNCTION_UART)},
@@ -69,7 +69,7 @@ uart_irqhandler(
     volatile uint8_t reg_iir;
     uint8_t IntId;
     uint32_t RegValue;
-    
+
     csi_uart_t *uart = (csi_uart_t *) Data;
     UART_TypeDef* UARTx = UART_DEV_TABLE[uart->dev.idx].UARTx;
 
@@ -106,10 +106,10 @@ uart_irqhandler(
 
             if (0 == uart->tx_size) {
                 // Mask UART TX FIFO empty
-                UART_INTConfig(UARTx, RUART_IER_ETBEI, DISABLE);        
-                UART_SetTxFlag(uart->dev.idx, 0);        
+                UART_INTConfig(UARTx, RUART_IER_ETBEI, DISABLE);
+                UART_SetTxFlag(uart->dev.idx, 0);
                 if(uart->callback != NULL) {
-                    uart->callback(uart,UART_EVENT_SEND_COMPLETE,NULL);        
+                    uart->callback(uart,UART_EVENT_SEND_COMPLETE,NULL);
                 }
             }
         } else {
@@ -127,7 +127,7 @@ uart_irqhandler(
             uart->rx_size -= TransCnt;
             uart->rx_data += TransCnt;
 
-            if (uart->rx_size == 0) {                
+            if (uart->rx_size == 0) {
                 // Disable RX Interrupt
                 UART_INTConfig(UARTx, (RUART_IER_ERBI | RUART_IER_ELSI | RUART_IER_ETOI), DISABLE);
                 UART_SetRxFlag(uart->dev.idx, 0);
@@ -155,7 +155,7 @@ uart_irqhandler(
 }
 
 csi_error_t csi_uart_init(csi_uart_t *uart, uint32_t idx)
-{    
+{
     if(!uart)
         return CSI_ERROR;
 
@@ -184,7 +184,7 @@ csi_error_t csi_uart_init(csi_uart_t *uart, uint32_t idx)
     printf("tx:%d,rx:%d\n",tx,rx);
 
     UART_StructInit(UART_InitStruct);
-    UART_Init(UARTx, UART_InitStruct);    
+    UART_Init(UARTx, UART_InitStruct);
 
     InterruptRegister((IRQ_FUN)uart_irqhandler, IrqNum, (uint32_t)uart, 5);
     InterruptEn(IrqNum, 5);
@@ -198,7 +198,7 @@ void csi_uart_uninit(csi_uart_t *uart)
     UART_TypeDef* UARTx = UART_DEV_TABLE[uart_idx].UARTx;
     IRQn_Type   IrqNum = UART_DEV_TABLE[uart_idx].IrqNum;
 
-    UART_DeInit(UARTx);    
+    UART_DeInit(UARTx);
     InterruptDis(IrqNum);
     InterruptUnRegister(IrqNum);
 
@@ -382,7 +382,7 @@ csi_error_t csi_uart_send_async(csi_uart_t *uart, const void *data, uint32_t siz
         UART_SetTxFlag(uart_idx, 0);
         if(uart->callback != NULL){
             uart->callback(uart,UART_EVENT_SEND_COMPLETE,NULL);
-        }        
+        }
     } else {
         // Enable Tx FIFO empty interrupt
         UART_INTConfig(UARTx, RUART_IER_ETBEI, ENABLE);
@@ -419,10 +419,32 @@ csi_error_t csi_uart_receive_async(csi_uart_t *uart, void *data, uint32_t size)
         UART_SetRxFlag(uart_idx, 0);
         if(uart->callback != NULL){
             uart->callback(uart,UART_EVENT_RECEIVE_COMPLETE,NULL);
-        }        
+        }
     } else {
         // Enable RX Interrupt
         UART_INTConfig(UARTx, RUART_IER_ERBI | RUART_IER_ELSI | RUART_IER_ETOI, ENABLE);
     }
     return CSI_OK;
 }
+
+static int tty_csi_init(void)
+{
+    static aos_tty_csi_t tty_csi[2];
+    int ret;
+
+    tty_csi[0].tty.dev.id = 0;
+    ret = (int)aos_tty_csi_register(&tty_csi[0]);
+    if (ret)
+        return ret;
+
+    tty_csi[1].tty.dev.id = 3;
+    ret = (int)aos_tty_csi_register(&tty_csi[1]);
+    if (ret) {
+        (void)aos_tty_csi_unregister(0);
+        return ret;
+    }
+
+    return 0;
+}
+
+LEVEL1_DRIVER_ENTRY(tty_csi_init)

@@ -149,17 +149,16 @@ EXIT:
     OTA_LOG_I("Parse ota version:%s url:%s ret:%d\n", ota_param.ver, ota_param.url, ret);
     if (ret < 0) {
         ret = OTA_TRANSPORT_PAR_FAIL;
-        if (ctx->report_func.report_status_cb !=  NULL) {
+        if (ctx->report_func.report_status_cb != NULL) {
             ctx->report_func.report_status_cb(ctx->report_func.param, ret);
         }
     } else {
-        if (ctx->report_func.report_status_cb !=  NULL) {
+        if (ctx->report_func.report_status_cb != NULL) {
             ctx->report_func.report_status_cb(ctx->report_func.param, 1);
         }
         ota_param.upg_flag = 0x00;
         if (ctx->dev_type == 0) {
             if (is_get_module == 0) {
-                ota_param.upg_flag = OTA_UPGRADE_ALL;
                 strncpy(ctx->module_name, "default", 7);
             }
         }
@@ -168,7 +167,7 @@ EXIT:
         ret = ota_update_parameter(&ota_param);
         if (ret != 0) {
             OTA_LOG_I("ota param err.\n");
-            if (ctx->report_func.report_status_cb !=  NULL) {
+            if (ctx->report_func.report_status_cb != NULL) {
                 ctx->report_func.report_status_cb(ctx->report_func.param, OTA_TRANSPORT_PAR_FAIL);
             }
         }
