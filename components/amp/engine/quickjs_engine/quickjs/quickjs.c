@@ -123,7 +123,7 @@ extern long long aos_utc_offset_get();  // 本时区时间相对UTC偏移 毫秒
 //#define DUMP_READ_OBJECT
 
 /* test the GC by forcing it before each object allocation */
-#define FORCE_GC_AT_MALLOC
+//#define FORCE_GC_AT_MALLOC
 
 #ifdef CONFIG_ATOMICS
 #include <stdatomic.h>
