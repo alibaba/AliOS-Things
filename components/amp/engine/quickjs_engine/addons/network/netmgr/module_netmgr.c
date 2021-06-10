@@ -614,7 +614,7 @@ static void module_netmgr_source_clean(void)
 
     hdl = netmgr_get_dev(dev_name);
     netmgr_disconnect(hdl);
-    netmgr_wifi_deinit(hdl);
+    //netmgr_wifi_deinit(hdl);
     netmgr_service_deinit();
     memset(dev_name, 0, sizeof(dev_name));
     amp_debug(MOD_STR, "module_netmgr_register deinit");
