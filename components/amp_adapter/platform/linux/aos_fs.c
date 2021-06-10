@@ -62,6 +62,18 @@ int aos_stat(const char *path, struct aos_stat *st)
     return ret;
 }
 
+int aos_statfs(const char *path, struct aos_statfs *buf)
+{
+    int ret;
+    struct aos_statfs info;
+
+    ret = statfs(path, &info);
+    buf->f_bsize  = info.f_bsize;
+    buf->f_blocks = info.f_blocks;
+    buf->f_bavail = info.f_bavail;
+    return ret;
+}
+
 int aos_unlink(const char *path)
 {
     int ret;
@@ -94,31 +106,6 @@ aos_dirent_t *aos_readdir(aos_dir_t *dir)
 int aos_mkdir(const char *path)
 {
     return mkdir(path, 0x777);
-}
-
-int aos_fs_totalsize(void)
-{
-    return 0;
-}
-
-int aos_fs_usedsize(void)
-{
-    return 0;
-}
-
-int aos_fs_freesize(void)
-{
-    return 0;
-}
-
-int aos_fs_type(uint mode)
-{
-    if (mode & S_IFDIR) {
-        return 0;
-    } else if (mode & S_IFREG) {
-        return 1;
-    }
-    return -1;
 }
 
 int aos_rmdir_r(const char *path)

@@ -32,7 +32,7 @@
 #define PLAYER_VOLUME_LEVEL_DEFAULT            40
 
 #define FADE_OUT_PERIOD_DEFAULT                10
-#define FADE_IN_PERIOD_DEFAULT                20
+#define FADE_IN_PERIOD_DEFAULT                 20
 #define PLAYER_FADE_PROC_ENABLE                1
 
 #ifdef __os_linux__
@@ -1513,12 +1513,6 @@ static void player_task(void *arg)
     M_LOGD("exit\n");
 }
 
-static void *player_thread(void *arg)
-{
-    player_task(arg);
-    return NULL;
-}
-
 static int player_start(void)
 {
     player_t *player = g_mplayer ? g_mplayer->priv : NULL;
@@ -1538,19 +1532,11 @@ static int player_start(void)
 
     if (player->state == PLAYER_STAT_READY ||
         player->state == PLAYER_STAT_STOP) {
-        #ifdef __os_linux__
-        os_task_create(&player->task,
-            "uvoice_play_task",
-            player_thread, player,
-            player_stack_size(player->format),
-            UVOICE_TASK_PRI_HIGHER);
-        #else
         os_task_create(&player->task,
             "uvoice_play_task",
             player_task, player,
             player_stack_size(player->format),
             UVOICE_TASK_PRI_HIGHER);
-        #endif
         player->start_waiting = 1;
         os_mutex_unlock(player->lock);
         os_sem_wait(player->start_sem, OS_WAIT_FOREVER);

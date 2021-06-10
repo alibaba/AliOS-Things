@@ -48,12 +48,67 @@ static uart_s uart_obj[5]={
 #define UART_TX   PB_1
 #define UART_RX   PB_2
 
-serial_t uart_obj_t;
-kbuf_queue_t g_uart_queue;
-aos_event_t g_uart_event;
+// serial_t uart_obj_t;
 
-#define UART_FIFO_SIZE 128
-char g_rev_buf[UART_FIFO_SIZE];
+#define EVENT_RX_READY  ((uint32_t)1 << 0)
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+static aos_spinlock_t uart0_lock = { KRHINO_SPINLOCK_FREE_VAL, };
+#else
+static aos_spinlock_t uart0_lock;
+#endif
+static aos_event_t uart0_event;
+static uint8_t uart0_rx_buf[RX_BUFFER_LENGTH];
+static size_t uart0_rx_buf_head = 0;
+static size_t uart0_rx_buf_tail = 0;
+
+#define uart0_rx_buf_count() \
+    ((RX_BUFFER_LENGTH + uart0_rx_buf_head - uart0_rx_buf_tail) & \
+     (RX_BUFFER_LENGTH - 1))
+#define uart0_rx_buf_space() \
+    (RX_BUFFER_LENGTH - 1 - uart0_rx_buf_count())
+
+size_t uart0_rx_buffer_produce(const void *buf, size_t count)
+{
+    size_t c = 0;
+    size_t old_count;
+    aos_irqsave_t flags;
+
+    flags = aos_spin_lock_irqsave(&uart0_lock);
+    old_count = uart0_rx_buf_count();
+
+    while (c < count && uart0_rx_buf_space() > 0) {
+        uart0_rx_buf[uart0_rx_buf_head++] = ((const uint8_t *)buf)[c++];
+        uart0_rx_buf_head &= RX_BUFFER_LENGTH - 1;
+    }
+
+    if (old_count == 0 && c > 0)
+        aos_event_set(&uart0_event, EVENT_RX_READY, AOS_EVENT_OR);
+
+    aos_spin_unlock_irqrestore(&uart0_lock, flags);
+
+    return c;
+}
+
+static size_t uart0_rx_buffer_consume(void *buf, size_t count)
+{
+    size_t c = 0;
+    aos_irqsave_t flags;
+
+    flags = aos_spin_lock_irqsave(&uart0_lock);
+
+    while (c < count && uart0_rx_buf_count() > 0) {
+        ((uint8_t *)buf)[c++] = uart0_rx_buf[uart0_rx_buf_tail++];
+        uart0_rx_buf_tail &= RX_BUFFER_LENGTH - 1;
+    }
+
+    if (uart0_rx_buf_count() == 0)
+        aos_event_set(&uart0_event, ~EVENT_RX_READY, AOS_EVENT_AND);
+
+    aos_spin_unlock_irqrestore(&uart0_lock, flags);
+
+    return c;
+}
 
 int g_uart_init = 0;
 
@@ -215,6 +270,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     serial_irq_set(&uart_obj_t, RxIrq, 1);*/
 
     g_uart_init = 1;
+    aos_event_new(&uart0_event, 0);
 
 #ifdef AMEBAD_TODO
     LOGUART_SetBaud_FromFlash();
@@ -229,10 +285,6 @@ int32_t hal_uart_init(uart_dev_t *uart)
     extern VOID shell_uart_irq_rom(VOID * Data);
     InterruptRegister((IRQ_FUN) shell_uart_irq_rom, UART_LOG_IRQ, (u32)NULL, 10);
     InterruptEn(UART_LOG_IRQ_LP,10);
-
-    krhino_buf_queue_create(&g_uart_queue, "buf_queue_uart",g_rev_buf, UART_FIFO_SIZE, 1);
-    //aos_queue_new(&g_queue, g_uart_queue, UART_FIFO_SIZE, 1);
-    aos_event_new(&g_uart_event, 0);
 
     return 0;
 
@@ -306,44 +358,34 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 	}
 	return 0;
     }else{
-         uint8_t *pdata = (uint8_t *)data;
-        int i = 0;
-        uint32_t rx_count = 0;
-        int32_t ret = -1;
-        int32_t rev_size;
+        uint32_t c = 0;
 
-        if (data == NULL) {
+        if (data == NULL || expect_size == 0) {
             return -1;
         }
 
-        for (i = 0; i < expect_size; i++)
-        {
-            //ret = aos_queue_recv(&g_uart_queue,AOS_WAIT_FOREVER,)
-            ret = krhino_buf_queue_recv(&g_uart_queue, krhino_ms_to_ticks(timeout), &pdata[i], &rev_size);
-            if(ret == 0)
-            {
-                rx_count++;
-            }else {
+        while (1) {
+            aos_status_t r;
+            uint32_t val;
+
+            c += uart0_rx_buffer_consume(&((uint8_t *)data)[c], expect_size - c);
+            if (c > 0)
                 break;
-            }
 
+            if (timeout == 0)
+                break;
+
+            r = aos_event_get(&uart0_event, EVENT_RX_READY, AOS_EVENT_OR,
+                              &val, timeout);
+            if (r)
+                break;
         }
 
-        if (recv_size)
-        {
-            *recv_size = rx_count;
+        if (recv_size) {
+            *recv_size = c;
         }
 
-        if(rx_count != 0)
-        {
-            ret = 0;
-        }
-        else
-        {
-            ret = -1;
-        }
-
-        return ret;
+        return c > 0 ? 0 : -1;
 
     }
 
@@ -373,8 +415,9 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
             return 0;
         }
 
-        aos_event_free(&g_uart_event);
-        krhino_buf_queue_del(&g_uart_queue);
+        uart0_rx_buf_head = 0;
+        uart0_rx_buf_tail = 0;
+        aos_event_free(&uart0_event);
         g_uart_init = 0;
 
         return 0;
@@ -383,12 +426,12 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 
 int hal_uart_rx_sem_take(int uart_id, int timeout)
 {
-    uint32_t v;
+    uint32_t val;
 
     if (uart_id != 0)
         return -EINVAL;
 
-    return aos_event_get(&g_uart_event, 1, AOS_EVENT_OR_CLEAR, &v, timeout);
+    return aos_event_get(&uart0_event, EVENT_RX_READY, AOS_EVENT_OR, &val, timeout);
 }
 
 int hal_uart_rx_sem_give(int uart_id)
@@ -396,7 +439,7 @@ int hal_uart_rx_sem_give(int uart_id)
     if (uart_id != 0)
         return -EINVAL;
 
-    aos_event_set(&g_uart_event, 1, AOS_EVENT_OR);
+    aos_event_set(&uart0_event, EVENT_RX_READY, AOS_EVENT_OR);
 
     return 0;
 }

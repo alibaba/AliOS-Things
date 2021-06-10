@@ -219,7 +219,7 @@ aos make clean
 aos make distclean
 ```
 ## burn
-在solution目录下使用，使用aos make编译完成后，使用该命令烧录固件。烧录的参数配置，烧录工具，由当前solution使用的board组件或chip组件指定；烧录的文件，从solution组件的SConstruct文件中获取。
+在solution目录下使用，使用aos make编译完成后，使用该命令烧录固件。烧录的参数配置，烧录工具，由当前solution使用的board组件或chip组件指定；烧录的文件，从solution组件的SConstruct文件中获取；如果SConstruct文件中未指定，则从当前solution的out目录下获取那个最新的`*@*.bin`格式的文件。
 ```
 aos burn
 ```
@@ -229,6 +229,16 @@ aos burn
 aos make -b haas100
 # 烧录固件时也必须指定同样的板子
 aos burn -b haas100
+```
+成功烧录以后，将在当前目录生成`.config_burn`文件，保存串口号。如果下次烧录时，串口号有变化，则删除该文件后，重新烧录。
+默认情况下，burn命令只烧录编译出来的bin文件。如果想要烧录更多文件，则需要在指定`flash_program`的那个`package.yaml`文件里，加上`program_data_files`字段。比如要额外烧录haas1000组件里`release/write_flash_tool/ota_bin/littlefs.bin`文件，则需要在haas1000组件的`package.yaml`里面，按照如下修改：
+```
+hw_info:
+  flash_program: release/aos_burn_tool/flash_program.py
+  # 以下为新增内容：在flash_program下面添加program_data_files，注意"-"号和对齐。
+  program_data_files:
+    - filename: release/write_flash_tool/ota_bin/littlefs.bin
+      address: 0xB32000
 ```
 ## debug
 在solution目录下使用，启动gdb server。配合Visual Studio Code的调试功能使用。

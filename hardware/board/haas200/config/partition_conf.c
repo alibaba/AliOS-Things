@@ -47,21 +47,21 @@ const mtd_partition_t mtd_partitions[] =
         .partition_name             = "APPLICATION",
         .partition_name_std         = MTD_PART_NAME_KERNEL,
         .partition_start_addr       = 0x14000,
-        .partition_length           = 0x180000, /* OTA A system, 1.5MB */
+        .partition_length           = 0x200000, /* OTA A system, 2MB */
         .partition_options          = 0,
     },
     {
         .partition_name            = "APPLICATION_B",
         .partition_name_std         = MTD_PART_NAME_KERNEL2,
-        .partition_start_addr      = 0x194000,
-        .partition_length          = 0x180000, /* OTA B system, 1.5MB */
+        .partition_start_addr      = 0x214000,
+        .partition_length          = 0x140000, /* OTA B system, 1.25MB */
         .partition_options         = 0,
     },
     {
         .partition_name            = "LITTLEFS",
         .partition_name_std         = MTD_PART_NAME_LITTLEFS,
-        .partition_start_addr      = 0x314000,
-        .partition_length          = 0xE7000, /* littlefs, 924KB*/
+        .partition_start_addr      = 0x354000,
+        .partition_length          = 0xa7000, /* littlefs, 668KB*/
         .partition_options         = 0,
     },
     {

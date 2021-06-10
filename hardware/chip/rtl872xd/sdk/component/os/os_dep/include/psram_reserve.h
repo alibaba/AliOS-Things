@@ -53,5 +53,5 @@ void *Psram_reserve_calloc(int num, int size);
 void Psram_reserve_free(void *mem);
 /** \} */
 
-
+extern int g_Psram_heap_inited;
 #endif /* _PSRAM_RESERVE_H_ */

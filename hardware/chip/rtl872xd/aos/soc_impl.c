@@ -12,8 +12,6 @@
 #include "build_info.h"
 //#include "strproc.h"
 #include "rtl8721d_system.h"
-#include <aos/tty_csi.h>
-#include <aos/gpioc_csi.h>
 
 #if AOS_COMP_CLI
 #include "aos/cli.h"
@@ -22,25 +20,33 @@
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {
-    /* Stop and reset the SysTick. */
-    SysTick->CTRL = 0UL;
-    SysTick->VAL = 0UL;
-	/* Configure SysTick to interrupt at the requested rate. */
-	SysTick->LOAD = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
-	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
-                    SysTick_CTRL_TICKINT_Msk   |
-                    SysTick_CTRL_ENABLE_Msk;
+    uint32_t temp = (uint32_t)(0xFFFFFFFF / 1000000 * 32768);
+
+    RTIM_ChangePeriodImmediate(TIMx[0], temp);
+    RTIM_INTConfig(TIMx[0], TIM_IT_Update, ENABLE);
+    RTIM_Cmd(TIMx[0], ENABLE);
 }
 
 hr_timer_t soc_hr_hw_cnt_get(void)
 {
-    return SysTick->VAL;
+    uint32_t tick;
+
+    RTIM_TypeDef *TIM = TIMx[0];
+    tick = RTIM_GetCount(TIM);
+
+    return tick;
 }
 
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
-    return 0;
+    uint32_t tick;
+
+    RTIM_TypeDef *TIM = TIMx[0];
+    tick = RTIM_GetCount(TIM);
+
+    return tick;
 }
+
 #endif /* RHINO_CONFIG_HW_COUNT */
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
@@ -70,13 +76,17 @@ extern void         *heap_len;
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
 #else
+#define configTOTAL_PSRAM_HEAP_SIZE (0x400000 - 0x20000)
+PSRAM_HEAP_SECTION static unsigned char psRAMHeap[configTOTAL_PSRAM_HEAP_SIZE];
 
-k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}}; //,
+k_mm_region_t g_mm_region[2] = {{(uint8_t*)&heap_start,(size_t)&heap_len},
+                                {(uint8_t*)psRAMHeap,(size_t)configTOTAL_PSRAM_HEAP_SIZE},
+                               }; //,
                                                          // {(uint8_t*)MM_ALIGN_UP(0x100014f9), MM_ALIGN_DOWN(0xb07)},
                                                          // {(uint8_t*)MM_ALIGN_UP(0x10002475), MM_ALIGN_DOWN(0x2b8b)}};
 
 #endif
-int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
+int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #endif
 
@@ -92,55 +102,6 @@ void soc_err_proc(kstat_t err)
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;
-
-static int tty_csi_init(void)
-{
-    static aos_tty_csi_t tty_csi[2];
-    int ret;
-
-    tty_csi[0].tty.dev.id = 0;
-    ret = (int)aos_tty_csi_register(&tty_csi[0]);
-    if (ret)
-        return ret;
-
-    tty_csi[1].tty.dev.id = 3;
-    ret = (int)aos_tty_csi_register(&tty_csi[1]);
-    if (ret) {
-        (void)aos_tty_csi_unregister(0);
-        return ret;
-    }
-
-    return 0;
-}
-
-LEVEL1_DRIVER_ENTRY(tty_csi_init)
-
-static int gpioc_csi_init(void)
-{
-    static aos_gpioc_csi_t gpioc_csi[2];
-    int ret;
-
-    gpioc_csi[0].gpioc.dev.id = 0;
-    gpioc_csi[0].default_input_cfg = AOS_GPIO_INPUT_CFG_HI;
-    gpioc_csi[0].default_output_cfg = AOS_GPIO_OUTPUT_CFG_PP;
-    ret = (int)aos_gpioc_csi_register(&gpioc_csi[0]);
-    if (ret)
-        return ret;
-
-    gpioc_csi[1].gpioc.dev.id = 1;
-    gpioc_csi[1].default_input_cfg = AOS_GPIO_INPUT_CFG_HI;
-    gpioc_csi[1].default_output_cfg = AOS_GPIO_OUTPUT_CFG_PP;
-    ret = (int)aos_gpioc_csi_register(&gpioc_csi[1]);
-    if (ret) {
-        (void)aos_gpioc_csi_unregister(0);
-        return ret;
-    }
-
-    return 0;
-}
-
-LEVEL1_DRIVER_ENTRY(gpioc_csi_init)
-
 
 /* use for printk */
 int alios_debug_print(const char *buf, int size)

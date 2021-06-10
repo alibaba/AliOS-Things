@@ -6,6 +6,8 @@
 #define __UVOICE_OS_H__
 
 
+#define __os_alios_things__
+
 #ifndef MIN
 #define MIN(a,b) ((a)<(b) ? (a):(b))
 #endif
@@ -47,7 +49,7 @@
 
 #ifdef __os_alios_things__
 
-#include "uvoice_alios.h"
+#include "uvoice_aos.h"
 
 #elif defined(__os_linux__)
 

@@ -1,0 +1,273 @@
+## 第一部分： 基础信息
+name: amp                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                     # <必选项> 组件版本号
+description: AliOS Things mini program                             # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 应用框架                                        # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - amp
+  - JavaScript
+  - IoT Platform
+homepage: https://help.aliyun.com/document_detail/174810.html
+license: Apache-2.0 License                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - osal_aos: rel_3.3.0
+  - ulog: rel_3.3.0 ? <AMP_CORE_ADDON_LOG>
+  - uagent: rel_3.3.0
+  - kv: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - cjson: rel_3.3.0
+  - a2sa: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - a2sa: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - uvoice: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - uvoice: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - linksdk: rel_3.3.0 ? <AMP_ADVANCED_ADDON_AIOT_DEVICE>
+  - linksdk: rel_3.3.0 ? <AMP_ADVANCED_ADDON_AIOT_GATEWAY>
+  - ota: rel_3.3.0 ? <AMP_ADVANCED_ADDON_OTA>
+  - netmgr: rel_3.3.0 ? <AMP_NET_ADDON_NETMGR>
+  - littlefs: rel_3.3.0
+  - http: rel_3.3.0 ? <AMP_NET_ADDON_HTTP>
+  - amp_adapter: rel_3.3.0
+  - ble_host: rel_3.3.0 ? <AMP_WIRELESS_ADDON_BT_HOST>
+  - uagent: rel_3.3.0
+  - littlevgl: rel_3.3.0 ? <AMP_ADVANCED_ADDON_UI>
+  - ble_netconfig: rel_3.3.0 ? <AMP_ADVANCED_ADDON_BLECFGNET>
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  define:
+    - CONFIG_USING_TLS=1
+    - __AOS_AMP__=1
+  internal_include:
+    - engine/duktape_engine ? <CONFIG_ENGINE_DUKTAPE>
+    - engine/duktape_engine/addons ? <CONFIG_ENGINE_DUKTAPE>
+    - engine/duktape_engine/addons/advanced/aiot ? <CONFIG_ENGINE_DUKTAPE>
+    - engine/duktape_engine/duktape ? <CONFIG_ENGINE_DUKTAPE>
+    - engine/duktape_engine/startup ? <CONFIG_ENGINE_DUKTAPE>
+    - engine/quickjs_engine/quickjs ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons/common ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/aos_port ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons/utils/crypto ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons/utils/ui ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
+    - main
+    - services/amp_utils
+    - utils/list
+    - services/app_mgr
+    - services/board_mgr
+    - services/recovery
+    - services/amp_boot
+    - services/amp_memmgt
+    - ui/render/include ? <AMP_ADVANCED_ADDON_UI>
+    - utils/checksum
+    - aos_config
+  libs:
+    - ampservice
+    - lcd ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_UI>
+    - render_duktape ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_UI, CONFIG_ENGINE_DUKTAPE>
+    - render_quickjs ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_UI, CONFIG_ENGINE_QUICKJS>
+    - ezxml ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_UI>
+    - lexbor ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_UI>
+  libpath:
+    - libs/haas1000 ? <BOARD_HAAS100>
+    - libs/haas1000 ? <BOARD_HAASEDUK1>
+    - libs/rtl872xd ? <BOARD_HAAS200>
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - engine/duktape_engine/*.c ? <CONFIG_ENGINE_DUKTAPE>
+  - engine/duktape_engine/addons/*.c ? <CONFIG_ENGINE_DUKTAPE>
+  - engine/duktape_engine/addons/advanced/audio/module_audioplayer.c ? <CONFIG_ENGINE_DUKTAPE, CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/duktape_engine/addons/advanced/audio/module_tts.c ? <CONFIG_ENGINE_DUKTAPE, CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/duktape_engine/addons/advanced/audio/module_audioplayer.c ? <CONFIG_ENGINE_DUKTAPE, CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/duktape_engine/addons/advanced/audio/module_tts.c ? <CONFIG_ENGINE_DUKTAPE, CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/duktape_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_AIOT_DEVICE>
+  - engine/duktape_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_AIOT_GATEWAY>
+  - engine/duktape_engine/addons/advanced/bleconfig_wifi/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_BLECFGNET>
+  - engine/duktape_engine/addons/advanced/ota/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_OTA>
+  - engine/duktape_engine/addons/hardware/adc/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_ADC>
+  - engine/duktape_engine/addons/hardware/can/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_CAN>
+  - engine/duktape_engine/addons/hardware/dac/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_DAC>
+  - engine/duktape_engine/addons/hardware/gpio/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_GPIO>
+  - engine/duktape_engine/addons/hardware/i2c/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_I2C>
+  - engine/duktape_engine/addons/hardware/ir/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_IR>
+  - engine/duktape_engine/addons/hardware/lcd/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_LCD>
+  - engine/duktape_engine/addons/hardware/pwm/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_PWM>
+  - engine/duktape_engine/addons/hardware/onewire/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_ONEWIRE>
+  - engine/duktape_engine/addons/hardware/rtc/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_RTC>
+  - engine/duktape_engine/addons/hardware/spi/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_SPI>
+  - engine/duktape_engine/addons/hardware/timer/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_TIMER>
+  - engine/duktape_engine/addons/hardware/uart/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_UART>
+  - engine/duktape_engine/addons/hardware/wdg/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_HW_ADDON_WDG>
+  - engine/duktape_engine/addons/network/cellular/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_CELLULAR>
+  - engine/duktape_engine/addons/network/http/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_HTTP>
+  - engine/duktape_engine/addons/network/mqtt/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_MQTT>
+  - engine/duktape_engine/addons/network/tcp/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_TCP>
+  - engine/duktape_engine/addons/network/udp/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_UDP>
+  - engine/duktape_engine/addons/network/wifi/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_WIFI>
+  - engine/duktape_engine/addons/network/netmgr/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_NET_ADDON_NETMGR>
+  - engine/duktape_engine/addons/wireless/bt_host/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_WIRELESS_ADDON_BT_HOST>
+  - engine/duktape_engine/addons/utils/builtin/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_BUILDIN>
+  - engine/duktape_engine/addons/utils/crypto/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_CRYPTO>
+  - engine/duktape_engine/addons/utils/fs/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_FS>
+  - engine/duktape_engine/addons/utils/kv/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_KV>
+  - engine/duktape_engine/addons/utils/pm/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_PM>
+  - engine/duktape_engine/addons/utils/system/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_SYSTEM>
+  - engine/duktape_engine/addons/utils/systimer/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_SYSTIMER>
+  - engine/duktape_engine/addons/utils/log/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_LOG>
+  - engine/duktape_engine/addons/utils/checksum/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_CHECKSUM>
+  - engine/duktape_engine/addons/utils/ui/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_UI>
+  - engine/duktape_engine/duktape/*.c ? <CONFIG_ENGINE_DUKTAPE>
+  - engine/duktape_engine/startup/app_entry.c ? <CONFIG_ENGINE_DUKTAPE>
+  - engine/duktape_engine/startup/page_entry.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_UI>
+  - engine/quickjs_engine/quickjs/quickjs.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/quickjs/libregexp.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/quickjs/libunicode.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/quickjs/cutils.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/quickjs/libbf.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/aos_port/aos_jquick_mutex.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/startup/quickjs_init.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/startup/quickjs_module_load.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/addons/libc/quickjs_libc.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/addons/wireless/bt_host/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_WIRELESS_ADDON_BT_HOST>
+  - engine/quickjs_engine/addons/utils/crypto/module_crypto.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
+  - engine/quickjs_engine/addons/utils/crypto/crypto_adapter.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
+  - engine/quickjs_engine/addons/utils/crypto/cbc_mode.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
+  - engine/quickjs_engine/addons/utils/checksum/module_checksum.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CHECKSUM>
+  - engine/quickjs_engine/addons/hardware/wdg/module_wdg.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_WDG>
+  - engine/quickjs_engine/addons/hardware/spi/module_spi.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_SPI>
+  - engine/quickjs_engine/addons/hardware/rtc/module_rtc.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_RTC>
+  - engine/quickjs_engine/addons/hardware/pwm/module_pwm.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_PWM>
+  - engine/quickjs_engine/addons/hardware/uart/module_uart.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_UART>
+  - engine/quickjs_engine/addons/hardware/onewire/module_onewire.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_ONEWIRE>
+  - engine/quickjs_engine/addons/hardware/adc/module_adc.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_ADC>
+  - engine/quickjs_engine/addons/hardware/dac/module_dac.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_DAC>
+  - engine/quickjs_engine/addons/hardware/gpio/module_gpio.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_GPIO>
+  - engine/quickjs_engine/addons/hardware/i2c/module_i2c.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_I2C>
+  - engine/duktape_engine/addons/hardware/ir/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_IR>
+  - engine/quickjs_engine/addons/hardware/lcd/module_lcd.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_LCD>
+  - engine/quickjs_engine/addons/hardware/timer/module_timer.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_TIMER>
+  - engine/quickjs_engine/addons/network/http/module_http.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_HTTP>
+  - engine/quickjs_engine/addons/network/netmgr/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_NETMGR>
+  - engine/quickjs_engine/addons/network/cellular/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_CELLULAR>
+  - engine/quickjs_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_AIOT_DEVICE>
+  - engine/quickjs_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_AIOT_GATEWAY>
+  - engine/quickjs_engine/addons/advanced/blenetcfg/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_BLECFGNET>
+  - engine/quickjs_engine/addons/advanced/ota/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_OTA>
+  - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/quickjs_engine/addons/utils/systimer/module_systimer.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTIMER>
+  - engine/quickjs_engine/addons/utils/system/module_system.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTEM>
+  - engine/quickjs_engine/addons/utils/log/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_LOG>
+  - engine/quickjs_engine/addons/utils/fs/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_FS>
+  - engine/quickjs_engine/addons/utils/kv/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_KV>
+  - engine/quickjs_engine/addons/repl/*.c ? <CONFIG_ENGINE_QUICKJS>
+  - engine/quickjs_engine/addons/utils/ui/app_entry.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
+  - engine/quickjs_engine/addons/utils/ui/page_entry.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
+  - engine/quickjs_engine/addons/utils/ui/module_ui.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
+  - jslib/bytecode/*.c ? <CONFIG_ENGINE_QUICKJS>
+  - main/*.c
+  - services/amp_utils/*.c
+  - services/app_mgr/app_mgr.c
+  - services/app_mgr/app_upgrade.c
+  - services/board_mgr/*.c
+  - services/amp_boot/*.c
+  - services/amp_memmgt/*.c
+  - example/amp_example.c
+  - utils/checksum/*.c
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+    # CONFIG_ENGINE_DUKTAPE: 1
+    CONFIG_ENGINE_QUICKJS: 1
+    CONFIG_VERSION: '1.0'
+    ULOG_CONFIG_ASYNC: 1                 #ulog需要默认支持异步模式
+    ULOG_CONFIG_POP_FS: 1                #支持存储到文件系统
+    AMP_ADVANCED_ADDON_OTA: 0
+    AMP_CORE_ADDON_BUILDIN: 1
+    AMP_CORE_ADDON_CHECKSUM: 1
+    AMP_CORE_ADDON_SYSTEM: 1
+    AMP_CORE_ADDON_FS: 1
+    AMP_CORE_ADDON_KV: 1
+    AMP_CORE_ADDON_LOG: 1
+    AMP_CORE_ADDON_PM: 0
+    AMP_CORE_ADDON_BATTERY: 0
+    AMP_CORE_ADDON_CHARGER: 0
+    AMP_CORE_ADDON_SYSTIMER: 1
+    AMP_CORE_ADDON_CRYPTO: 0
+    AMP_HW_ADDON_ADC: 0
+    AMP_HW_ADDON_CAN: 0
+    AMP_HW_ADDON_DAC: 0
+    AMP_HW_ADDON_GPIO: 1
+    AMP_HW_ADDON_I2C: 0
+    AMP_HW_ADDON_SPI: 0
+    AMP_HW_ADDON_TIMER: 0
+    AMP_HW_ADDON_PWM: 0
+    AMP_HW_ADDON_RTC: 0
+    AMP_HW_ADDON_UART: 0
+    AMP_HW_ADDON_LCD: 0
+    AMP_HW_ADDON_WDG: 0
+    AMP_NET_ADDON_UDP: 0
+    AMP_NET_ADDON_TCP: 0
+    AMP_NET_ADDON_MQTT: 0
+    AMP_NET_ADDON_HTTP: 0
+    AMP_NET_ADDON_NETMGR: 0
+    AMP_NET_ADDON_WIFI: 0
+    AMP_NET_ADDON_CELLULAR: 0
+    AMP_ADVANCED_ADDON_AIOT_DEVICE: 0
+    AMP_ADVANCED_ADDON_AIOT_GATEWAY: 0
+    AMP_ADVANCED_ADDON_AUDIOPLAYER: 0
+    AMP_ADVANCED_ADDON_TTS: 0
+    AMP_ADVANCED_ADDON_LOCATION: 0
+    AMP_ADVANCED_ADDON_KEYPAD: 0
+    AMP_ADVANCED_ADDON_UND: 0
+    AMP_WIRELESS_ADDON_BT_HOST: 0
+    AMP_UTILS_ADDON_CHECKSUM: 0
+    AMP_ADVANCED_ADDON_UI: 0
+    AMP_ADVANCED_ADDON_BLECFGNET: 0
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - "include/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

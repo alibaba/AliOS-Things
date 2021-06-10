@@ -15,6 +15,8 @@
 #include <device_lock.h>
 
 #include "aos/hal/wifi.h"
+#include <uservice/uservice.h>
+#include <uservice/eventid.h>
 
 #if CONFIG_EXAMPLE_WLAN_FAST_CONNECT || (defined(CONFIG_JD_SMART) && CONFIG_JD_SMART)
 #include "wlan_fast_connect/example_wlan_fast_connect.h"
@@ -430,6 +432,7 @@ static void wifi_disconn_hdl( char* buf, int buf_len, int flags, void* userdata)
 		rtw_up_sema(&disconnect_sema);
 	}
 #endif
+	event_publish(EVENT_WIFI_DISCONNECTED, &disconn_reason);
 }
 
 #if CONFIG_EXAMPLE_WLAN_FAST_CONNECT || (defined(CONFIG_JD_SMART) && CONFIG_JD_SMART)
@@ -1214,14 +1217,11 @@ int wifi_set_channel(int channel)
 
 int wifi_get_channel(int *channel)
 {
-	if(channel == NULL)
-	{
+	u8 ch;
+	if(wext_get_channel(WLAN0_NAME, &ch) < 0)
 		return -1;
-	}
-	
-	*channel = 0;
-
-	return wext_get_channel(WLAN0_NAME, channel);
+	*channel = (int)ch;
+	return 0;
 }
 
 //----------------------------------------------------------------------------//

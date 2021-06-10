@@ -1,4 +1,4 @@
-@page eduk1_demo HaaS EDU场景式应用方案
+@page eduk1_demo HaaS EDU K1教育开发案例合集
 
 [更正文档](https://gitee.com/alios-things/eduk1_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

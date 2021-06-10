@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
-#include "amp_config.h"
 #include "amp_platform.h"
 #include "aos_system.h"
-//#include "amp_defines.h"
 #include "aos_fs.h"
 #include "aos/vfs.h"
 #include "vfs_types.h"
@@ -13,31 +11,6 @@
 int aos_fs_init(void)
 {
     return 0;
-}
-
-int aos_fs_totalsize(void)
-{
-    return 0;
-}
-
-int aos_fs_usedsize(void)
-{
-    return 0;
-}
-
-int aos_fs_freesize(void)
-{
-    return 0;
-}
-
-int aos_fs_type(uint mode)
-{
-    if (mode & S_IFDIR) {
-        return 0;
-    } else if (mode & S_IFREG) {
-        return 1;
-    }
-    return -1;
 }
 
 int aos_rmdir_r(const char *path)

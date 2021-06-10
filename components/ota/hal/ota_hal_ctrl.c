@@ -103,6 +103,8 @@ int ota_verify(ota_boot_param_t *param)
     is_header = 0;
     if (upg_flag != 0) {
         param->upg_flag = upg_flag;
+    } else if (param->upg_flag == 0) {
+        param->upg_flag = OTA_UPGRADE_ALL;
     }
     memset(hash, 0x00, sizeof(hash));
     ret = ota_hash_final(&hash_ctx, hash);

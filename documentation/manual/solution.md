@@ -54,11 +54,14 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 @subpage auto_demo \n
 @subpage eduk1_demo \n
 @subpage flower_demo \n
+@subpage haas_dev_demo \n
 @subpage helloworld_demo \n
 @subpage linksdk_demo \n
 @subpage linksdk_gateway_demo \n
+@subpage lora_p2p_demo \n
+@subpage miniapp_agent_demo \n
 @subpage ota_demo \n
 @subpage py_engine_demo \n
+@subpage relay_demo \n
 @subpage rfid_demo \n
-@subpage lora_p2p_demo \n
 @subpage ucloud_ai_demo \n

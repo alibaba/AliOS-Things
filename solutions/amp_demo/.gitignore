@@ -1,0 +1,6 @@
+out
+binary
+aos_sdk
+.sconsign.dblite
+aos.elf
+aos.map
