@@ -13,7 +13,7 @@ tag: 核心模块 # <可选项> 组件分类，缺省值： ''
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - libc_stub: rel_3.3.0 
+  - libc_stub: rel_3.3.0
   - armv7m: rel_3.3.0
   - haas1000: rel_3.3.0
   - init: rel_3.3.0
@@ -94,6 +94,7 @@ def_config:
   RHINO_CONFIG_MM_BLK: 1
   RHINO_CONFIG_MM_BLK_SIZE: 256
   RHINO_CONFIG_MM_TLF_BLK_SIZE: 0x800
+  BOARD_HAASEDUK1: 1
 
   # littlefs config
   CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here

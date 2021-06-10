@@ -1,4 +1,4 @@
-@page ucloud_ai_demo HaaS AI应用实践之 老板来了
+@page ucloud_ai_demo 老板来了：通过HaaS100实现端云一体人脸识别示例
 
 [更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 

@@ -299,18 +299,18 @@ void websoc_cli_test_entry(void *arg)
 
 #if WEBSOCKET_SSL_TEST
     char *cert = (char *)ECHO_WEBSOCKET_CER;
-    DBG("Test client wss.");
+    printf("Test client wss.");
     ssl_ret = websoc_cli_test_int("wss", "echo.websocket.org", "/", 443, cert);
 #else
-    DBG("Test client ws.");
+    printf("Test client ws.");
     // ret = websoc_cli_test_int("ws", "echo.websocket.org", "/", 80, NULL);
     ret = websoc_cli_test_int("ws", "121.40.165.18", "/", 8800, NULL);
 #endif
 
     if (0 == ret && 0 == ssl_ret) {
-        DBG("example websocket test success!");
+        printf("example websocket test success!");
     } else {
-        ERR("example websocket test failed! ret:%d, ssl_ret:%d", ret, ssl_ret);
+        printf("example websocket test failed! ret:%d, ssl_ret:%d", ret, ssl_ret);
     }
 }
 

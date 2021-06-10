@@ -30,12 +30,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
-#include <lwip/netdb.h>
-#ifndef _AMLOGIC_
-#include <lwip/sockets.h>
-#else
 #include <sys/socket.h>
-#endif
+#include <netdb.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif

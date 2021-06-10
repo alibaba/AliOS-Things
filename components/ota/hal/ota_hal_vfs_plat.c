@@ -15,14 +15,15 @@
 #include "aos/hal/flash.h"
 #include <vfsdev/flash_dev.h>
 #if defined(BOARD_HAAS200)
-#include <aos/mtd.h>
+#include "aos/mtdpart.h"
+#include "aos/mtd.h"
 #endif
 unsigned char *ota_cache           = NULL;
 unsigned int ota_cache_len         = 0;
 unsigned int ota_fw_size           = 0;
 unsigned int ota_receive_total_len = 0;
 #if defined(BOARD_HAAS200)
-static int boot_part               = MTD_PART_ID_APP;
+static int boot_part               = MTD_PART_ID_APP2;
 #else
 static int boot_part               = HAL_PARTITION_OTA_TEMP;
 #endif
@@ -46,16 +47,23 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
     #endif
     #if defined(BOARD_HAAS200)
     struct mtd_erase_info erase_info = {0};
-    int partition_id =5;
+    int partition_id =boot_part;
+    mtd_partition_t *tmp_part_info;
     #endif
     if (param == NULL) {
         goto OTA_HAL_INIT_EXIT;
     }
     #if defined(BOARD_HAAS200)
+    #if defined(HAAS200_AB_OTA)
     if(ota_get_cur_index()==0)
         partition_id = MTD_PART_ID_APP2;
     else
         partition_id = MTD_PART_ID_APP;
+    #elif defined(HAAS200_XZ_OTA)
+        // do nothing
+    #else
+        #error "Please define Haas200 update mode!!"
+    #endif
     OTA_LOG_I("update partition %d\r\n", partition_id);
     snprintf(dev_str, 15, "/dev/mtdblock%d", partition_id);
     #else
@@ -68,7 +76,13 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
         goto OTA_HAL_INIT_EXIT;
     }
     #if defined(BOARD_HAAS200)
-    // do nothing
+    extern const mtd_partition_t mtd_partitions[];
+    tmp_part_info = &mtd_partitions[partition_id];
+    if ((param->len == 0) || (param->len > tmp_part_info->partition_length)) {
+        ret = OTA_INIT_FAIL;
+        OTA_LOG_E("bin file size err!");
+        goto OTA_HAL_INIT_EXIT;
+    }
     #else
     memset(&part_info, 0x00, sizeof(hal_logic_partition_t));
     ret = ioctl(ota_fd, IOC_FLASH_INFO_GET, (unsigned long)&part_info);
@@ -397,9 +411,31 @@ OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
 {
     int ret = OTA_UPGRADE_WRITE_FAIL;
     #if defined(BOARD_HAAS200)
+    int another_partition;
+    mtd_partition_t *tmp_part_info;
+    extern const mtd_partition_t mtd_partitions[];
+    #if defined(HAAS200_AB_OTA)
     param->src_adr = 0x0;
     param->dst_adr = 0x0;
     param->old_size = 0x0;
+    #elif defined(HAAS200_XZ_OTA)
+    if(boot_part == MTD_PART_ID_APP2)
+            another_partition = MTD_PART_ID_APP;
+    else
+            another_partition = MTD_PART_ID_APP2;
+    tmp_part_info = &mtd_partitions[boot_part];
+    param->src_adr = tmp_part_info->partition_start_addr;
+    tmp_part_info = &mtd_partitions[another_partition];
+    param->dst_adr = tmp_part_info->partition_start_addr;
+    param->old_size = tmp_part_info->partition_length;
+    if (param->crc == 0 || param->crc == 0xffff) {
+        OTA_LOG_I("calculate image crc");
+        ota_hal_image_crc16(&param->crc);
+    }
+    OTA_LOG_I("yxy_crc 0x%x\r\n", param->crc);
+    #else
+    #error "Please define Haas200 update mode!!"
+    #endif
     #else
     int des_part = HAL_PARTITION_APPLICATION;
     hal_logic_partition_t  ota_info;
@@ -451,9 +487,15 @@ OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
         }
     }
     #if defined(BOARD_HAAS200)
+    #if defined(HAAS200_AB_OTA)
     if(ota_hal_final()<0) {
         OTA_LOG_E("ota_hal_final failed\r\n");
     }
+    #elif defined(HAAS200_XZ_OTA)
+    //do nothing
+    #else
+    #error "Please define Haas200 update mode!!"
+    #endif
     #endif
     OTA_LOG_I("OTA after finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x param crc:0x%04x upg_flag:0x%04x \r\n", param->dst_adr, param->src_adr, param->len, param->crc, param->param_crc, param->upg_flag);
 OTA_HAL_BOOT_OVER:
@@ -470,11 +512,17 @@ OTA_WEAK int ota_hal_read(unsigned int *off, char *out_buf, unsigned int out_buf
     char dev_str[16] = {0};
     #if defined(BOARD_HAAS200)
     int partition_id;
-
+    #if defined(HAAS200_AB_OTA)
     if(ota_get_cur_index()==0)
         partition_id = 6;
     else
         partition_id = 5;
+    #elif defined(HAAS200_XZ_OTA)
+        partition_id = boot_part;
+    #else
+        #error "Please define Haas200 update mode!!"
+    #endif
+
     boot_part = partition_id;
     snprintf(dev_str, 15, "/dev/mtdblock%d", partition_id);
     #else

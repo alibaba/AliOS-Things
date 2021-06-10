@@ -109,6 +109,7 @@ def_config:
   PY_BUILD_AUDIO: 0               # Py_Engine module build voice config
   PY_BUILD_AI: 0                  # Py_Engine module build ai config
   PY_BUILD_FATFS: 0               # Py_Engine module build FATFS Flag
+  HAAS200_XZ_OTA: 1
 
 board:
   chip_name: rtl872xd

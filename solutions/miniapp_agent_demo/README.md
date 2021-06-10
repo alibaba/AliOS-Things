@@ -1,4 +1,4 @@
-@page miniapp_agent_demo 小程序配网并上云案例
+@page miniapp_agent_demo 蓝牙配网：通过支付宝小程序为HaaS板便捷配网示例
 # 1. 案例简介
 miniapp_agent_demo是我们提供的小程序配网、上云配套固件。通过配套的“HaaS小程序”，开发者可以快速实现设备的配网、上云、连接 IoT Studio 快速实现应用开发及部署。
 其完成的主要功能包括：
@@ -56,23 +56,47 @@ miniapp_agent_demo是我们提供的小程序配网、上云配套固件。通�
 - 点击“发起配网”
 - 等待配网完成，显示配网状态。当“配网状态”中显示“设备IP”时，代表配网成功。
   
-![netCfg](https://img.alicdn.com/imgextra/i3/O1CN01i0HONM1TeS0OHtHk0_!!6000000002407-1-tps-626-1280.gif)
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01i0HONM1TeS0OHtHk0_!!6000000002407-1-tps-626-1280.gif" style="max-width:800px;" />
+</div>
+
 ## 配置物联网平台
 点击这里(https://iot.console.aliyun.com/)进入物联网平台
 ### 创建产品
-![cpk](https://img.alicdn.com/imgextra/i1/O1CN01dvGFo01DIR79OnB1b_!!6000000000193-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01dvGFo01DIR79OnB1b_!!6000000000193-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 点击 公共实例-产品-新建产品，选择自定义品类，点击创建。
+
 ### 配置物模型并发布
-![smdl](https://img.alicdn.com/imgextra/i4/O1CN01GcyU4T1vGutcRUrX6_!!6000000006146-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01GcyU4T1vGutcRUrX6_!!6000000006146-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 导入代码目录下的物模型文件，发布物模型。
 ### 创建设备
-![sdv](https://img.alicdn.com/imgextra/i2/O1CN01sOZ4lC26UA7drDcmQ_!!6000000007664-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01sOZ4lC26UA7drDcmQ_!!6000000007664-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 在该产品下创建设备，获得三元组。
 ### 生成三元组二维码
 点击这里(https://haas.iot.aliyun.com/gen-qrcode)，前往二维码生成工具。将三元组依次拷贝，生成二维码供小程序读取。
-![genqr](https://img.alicdn.com/imgextra/i4/O1CN01DrQXDt1eS33GNbyf1_!!6000000003869-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01DrQXDt1eS33GNbyf1_!!6000000003869-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 ## 小程序上云
-![linkLp](https://img.alicdn.com/imgextra/i1/O1CN01brO1OO1zOwINrkWec_!!6000000006705-1-tps-626-1280.gif)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01brO1OO1zOwINrkWec_!!6000000006705-1-tps-626-1280.gif" style="max-width:800px;" />
+</div>
+
 - 点击底部“上云”Tab
 - 输入目标三元组
   也可以使用二维码生成工具（https://haas.iot.aliyun.com/gen-qrcode）
@@ -85,20 +109,48 @@ miniapp_agent_demo是我们提供的小程序配网、上云配套固件。通�
 ## 配置 IoT Studio
 点击这里(https://studio.iot.aliyun.com/)进入IoT Studio
 ### 创建项目
-![cp](https://img.alicdn.com/imgextra/i1/O1CN01rWDZV31wO4hQAMVpg_!!6000000006297-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01rWDZV31wO4hQAMVpg_!!6000000006297-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 ### 关联物联网平台
-![关联产品](https://img.alicdn.com/imgextra/i2/O1CN01f9csYR25ePMtZTaZD_!!6000000007551-2-tps-4096-2560.png)
-![关联设备](https://img.alicdn.com/imgextra/i1/O1CN01rWDZV31wO4hQAMVpg_!!6000000006297-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01f9csYR25ePMtZTaZD_!!6000000007551-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i1/O1CN01rWDZV31wO4hQAMVpg_!!6000000006297-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 ### 创建移动端应用
-![cmb](https://img.alicdn.com/imgextra/i2/O1CN01EqkRaK1Ii9QmrCITV_!!6000000000926-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01EqkRaK1Ii9QmrCITV_!!6000000000926-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 编辑移动应用界面，并完成数据绑定。
 本案例中，使用6个按钮对应 HaaS100 开发板上6个灯的亮灭。
-![emb](https://img.alicdn.com/imgextra/i4/O1CN01wNItls28Bxc44sieG_!!6000000007895-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01wNItls28Bxc44sieG_!!6000000007895-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 点击右上角预览图标，进入预览。
 ### 预览移动端应用
-![pv](https://img.alicdn.com/imgextra/i2/O1CN01Mp1Wfb1iKUzK1xtLj_!!6000000004394-2-tps-4096-2560.png)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i2/O1CN01Mp1Wfb1iKUzK1xtLj_!!6000000004394-2-tps-4096-2560.png" style="max-width:800px;" />
+</div>
+
 ## 小程序预览移动端应用
-![linkIot](https://img.alicdn.com/imgextra/i3/O1CN01zoMN1X1RqEy3X2R4P_!!6000000002162-1-tps-626-1280.gif)
+
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i3/O1CN01zoMN1X1RqEy3X2R4P_!!6000000002162-1-tps-626-1280.gif" style="max-width:800px;" />
+</div>
+
 - 点击底部“IoT Studio”Tab
 - 扫描 IoT Studio 中提供的预览二维码
 

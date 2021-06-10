@@ -1,0 +1,78 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen $doxygenversion"/>
+<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
+<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
+<link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="$relpath^jquery.js"></script>
+<script type="text/javascript" src="$relpath^dynsections.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
+
+<!-- <script src="https://hli.aliyuncs.com/haas-static/js/jquery-3.6.0.min.js" type="text/javascript"></script> -->
+<script src="https://hli.aliyuncs.com/haas-static/js/src/siteMount.js" type="text/javascript"></script>
+
+$treeview
+$search
+$mathjax
+<link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+<!-- debug code -->
+<!-- <script type="module" src="http://localhost:3000/entry-common.js"></script>
+<script type="module" src="http://localhost:3000/entry-header.js"></script>
+<script type="module" src="http://localhost:3000/entry-footer.js"></script>
+<link href="http://localhost:8004/style/doxygen-custom.css" rel="stylesheet" type="text/css"/> -->
+$extrastylesheet
+</head>
+<body>
+	<script>
+  const devMount = false
+
+  if (devMount) {
+    var headerMounted = false
+    var footerMounted = false
+    function tryMount() {
+      if (window._haas_site_header_mount) {
+        window._haas_site_header_mount(
+          '#haas-site-header'
+        )
+        headerMounted = true
+      }
+      if (window._haas_site_footer_mount) {
+        window._haas_site_footer_mount(
+          '#haas-site-footer'
+        )
+        footerMounted = true
+      }
+    
+      if (!headerMounted || !footerMounted) {
+        setTimeout(() => {
+          tryMount()
+        }, 700)
+      }
+    }
+    tryMount()
+  } else {
+    // const mode = '{{CONTEXT.env.bizEnv}}' // daily\pre\prod
+    window._haas_site_mount(
+      {
+        mode: 'daily',  // daily\pre\prod
+        manifestEntries: [
+          'entry-common-legacy.js', 'entry-header-legacy.js', 'entry-footer-legacy.js',
+        ],
+        onload: function () {
+          window._haas_site_header_mount('#haas-site-header')
+          window._haas_site_footer_mount('#haas-site-footer')
+        }
+      }
+    )
+  }
+  </script>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="haas-site-header"></div>
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+$searchbox
+<!--END TITLEAREA-->
+<!-- end header part -->

@@ -190,68 +190,63 @@ int aos_tcp_write(unsigned int fd, const char *buf, unsigned int len, unsigned i
 
 int aos_tcp_read(unsigned int fd, char *buf, unsigned int len, unsigned int timeout_ms)
 {
-    int            ret, err_code;
-    uint32_t       len_recv;
-    uint64_t       t_end, t_left;
-    fd_set         sets;
-    struct timeval timeout;
+   int res = 0;
+    int32_t recv_bytes = 0;
+    ssize_t recv_res = 0;
+    uint64_t timestart_ms = 0, timenow_ms = 0, timeselect_ms = 0;
+    fd_set recv_sets;
+    struct timeval timestart, timenow, timeselect;
 
-    if (fd >= FD_SETSIZE) {
-        PLATFORM_LOG_E("%s error: fd (%d) >= FD_SETSIZE (%d)", __func__, fd, FD_SETSIZE);
-        return -1;
-    }
+    FD_ZERO(&recv_sets);
+    FD_SET(fd, &recv_sets);
 
-    t_end    = aos_now_ms() + timeout_ms;
-    len_recv = 0;
-    err_code = 0;
+    /* Start Time */
+    gettimeofday(&timestart, NULL);
+    timestart_ms = timestart.tv_sec * 1000 + timestart.tv_usec / 1000;
+    timenow_ms = timestart_ms;
 
     do {
-        t_left = aliot_platform_time_left(t_end, aos_now_ms());
-        if (0 == t_left) {
+        gettimeofday(&timenow, NULL);
+        timenow_ms = timenow.tv_sec * 1000 + timenow.tv_usec / 1000;
+
+        if (timenow_ms - timestart_ms >= timenow_ms ||
+            timeout_ms - (timenow_ms - timestart_ms) > timeout_ms) {
             break;
         }
-        FD_ZERO(&sets);
-        FD_SET(fd, &sets);
 
-        timeout.tv_sec  = t_left / 1000;
-        timeout.tv_usec = (t_left % 1000) * 1000;
+        timeselect_ms = timeout_ms - (timenow_ms - timestart_ms);
+        timeselect.tv_sec = timeselect_ms / 1000;
+        timeselect.tv_usec = timeselect_ms % 1000 * 1000;
 
-        ret = select(fd + 1, &sets, NULL, NULL, &timeout);
-        if (ret > 0) {
-            if (0 == FD_ISSET(fd, &sets)) {
-                PLATFORM_LOG_D("%s No data for fd %d", __func__, fd);
-                ret = 0;
-                continue;
-            }
-
-            ret = recv(fd, buf + len_recv, len - len_recv, 0);
-            if (ret > 0) {
-                len_recv += ret;
-            } else if (0 == ret) {
-                PLATFORM_LOG_D("connection is closed\n");
-                err_code = -1;
-                break;
-            } else {
-                if ((EINTR == errno) || (EAGAIN == errno) || (EWOULDBLOCK == errno) ||
-                    (EPROTOTYPE == errno) || (EALREADY == errno) || (EINPROGRESS == errno)) {
-                    continue;
-                }
-                PLATFORM_LOG_E("recv fail (fd: %d), errno: %d, ret: %d", fd, errno, ret);
-                err_code = -2;
-                break;
-            }
-        } else if (0 == ret) {
-            break;
+        res = select(fd + 1, &recv_sets, NULL, NULL, &timeselect);
+        if (res == 0) {
+            continue;
+        } else if (res < 0) {
+            aos_printf("aos_tcp_read, errno: %d\n", errno);
+            return -1;
         } else {
-            if (EINTR == errno) {
-                continue;
+            if (FD_ISSET(fd, &recv_sets)) {
+                recv_res = recv(fd, buf + recv_bytes, len - recv_bytes, 0);
+                if (recv_res == 0) {
+                    aos_printf("aos_tcp_read, nwk connection closed\n");
+                    break;
+                } else if (recv_res < 0) {
+                    aos_printf("aos_tcp_read, errno: %d\n", errno);
+                    if (errno == EINTR) {
+                        continue;
+                    }
+                    return -1;
+                } else {
+                    recv_bytes += recv_res;
+                    if (recv_bytes == len) {
+                        break;
+                    }
+                }
             }
-            PLATFORM_LOG_E("select-recv (fd: %d) fail errno=%d", fd, errno);
-            err_code = -2;
-            break;
         }
-    } while ((len_recv < len));
-    return (0 != len_recv) ? len_recv : err_code;
+    } while (((timenow_ms - timestart_ms) < timeout_ms) && (recv_bytes < len));
+
+    return recv_bytes;
 }
 #else
 uintptr_t aos_tcp_establish(_IN_ const char *host, _IN_ uint16_t port)

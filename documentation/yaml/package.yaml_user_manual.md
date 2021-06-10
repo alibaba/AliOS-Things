@@ -238,3 +238,49 @@ install:
 - 在solution目录下执行编译，aos make，编译成功后会将组件编译生成的静态库自动放到aos_sdk/lib目录下。
 - 在solution目录下执行导出，aos sdk，将组件对外头文件和预编译库复制到aos_sdk里的include和lib目录下。
 - 删除out目录，将当前solution目录打包，提供给其他开发者做二次开发。
+## <COND>条件
+在`package.yaml`里面添加组件依赖，或者添加源文件，或者添加预编译库时，经常会使用条件。仅当条件满足时，才引入某个组件，或者添加某个文件，或者添加某个预编译库等等。
+### 单条件
+```
+depends:
+  - comp1: "v1.0 ? <COND1>"
+source_file:
+  - src/xx.c ? <COND2>
+libs:
+  - lib1.a ? <COND3>
+```
+此处<>中的内容即条件，是当前组件或其他组件里的`def_config`所定义的宏。当宏为1时，表示条件成立，执行相应的操作：引入某个组件等等。当宏为0，或者未定义时，则不执行相应的操作。
+### 非条件
+```
+depends:
+  - comp1: "v1.0 ? <!COND1>"
+source_file:
+  - src/xx.c ? <!COND2>
+libs:
+  - lib1.a ? <!COND3>
+```
+支持使用`!`做逻辑非操作。一个未定义的宏，如果前面加了`!`，则表示条件成立。
+### 与条件
+```
+depends:
+  - comp1: "v1.0 ? <COND1, COND4, !COND5>"
+source_file:
+  - src/xx.c ? <COND2, COND6>
+libs:
+  - lib1.a ? <COND3, !COND7>
+```
+支持使用`,`号分隔多个条件，做逻辑与操作，即所有条件都满足，才执行相应的操作。其中每个条件可以加`!`号，做逻辑非操作。
+### 或条件
+```
+depends:
+  - comp1: "v1.0 ? <COND1>"
+  - comp1: "v1.0 ? <COND4>"
+  - comp1: "v1.0 ? <!COND5>"
+source_file:
+  - src/xx.c ? <COND2>
+  - src/xx.c ? <COND6>
+libs:
+  - lib1.a ? <COND3>
+  - lib1.a ? <!COND7>
+```
+没有显式使用逻辑或操作的方式。可以参考上面的例子中，将需要或的条件拆成单独一行。

@@ -76,3 +76,49 @@
 # License
 
   AliOS Things 开源源码遵循 [Apache 2.0 license](LICENSE) 开源协议。
+
+# Release Note
+
+## 2021-06-10
+- JavaScript轻应用框架v3.0发布
+- 新增案例：JavaScript和Python双引擎运行环境，一个镜像同时包含两套轻应用框架
+- HaaS200支持PSRAM，4MB内存全解锁
+- HaaS200 OTA支持压缩升级，增加更多空间给系统分区
+- 优化HaaS200烧录成功率
+- 增加HaaS200 windows编译支持
+- 优化文档，优化各案例名称
+
+## 2021-06-03
+- 发布蓝牙配网小程序
+- HaaS200 OTA功能发布
+- HaaS200 支持Python/Javascript轻应用
+- HaaS200 加强debug能力
+- HaaS200 驱动子系统发布（UART/GPIO/MTD/Watchdog/I2C）
+
+## 2021-05-25
+- 增加HaaS200支持
+- CSI驱动系统发布，支持I2C，flash，Uart，GPIO，watchdog
+- 增加继电器外设案例
+- 优化蓝牙协议栈
+- 优化EDU K1烧录
+
+## 2021-05-08
+- 实现蓝牙配网的功能
+- 优化文档
+- 解决linksdk_gateway_demo案例无法配网问题
+- mbedtls: 解决在package.yaml配置不生效问题
+- audio_demo: 解决打包文件找不到问题，感激空空发现这个问题
+- rfid_demo: 解决uart2打开失败问题，感激蒋才林发现这个问题
+- audio_demo: 优化步骤，自动下载三方代码
+- 新增语音播放、千里传音、屏幕显示、蓝牙配网、IDE一键热更新等众多功能
+
+## 2021-04-28
+- 使用支付宝小程序对HaaS100进行配网、配置三元组以及操控HaaS LED灯的案例 客户紧急需要支付宝小程序案例
+
+## 2021-04-21
+- 统一的VFS接入方式，更标准的应用开发模式
+- 更小的系统，yaml构建方式更直观
+- 更全面的JavaScript和MicroPython轻应用开发框架的支持
+- 全面完善的组件、解决方案和系统文档。格式更规范与开发者友好
+- 升级了LinkSDK，新增设备引导服务、设备诊断、日志上报功能
+- 新增蓝牙配网、Wi-Fi Camera、OLED等组件，解决方案能直接调用

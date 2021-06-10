@@ -1,6 +1,6 @@
 name: linksdk_demo
 version: rel_3.3.0                                     # <必选项> 组件版本号
-description: AliOS Things LinkSDK Data Model Demo
+description: 基于LinkSDK实现设备连接阿里云，用户可以通过阿里云物联网平台查看设备的在线状态、上下行数据等。
 
 type: solution
 

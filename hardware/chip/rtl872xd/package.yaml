@@ -37,6 +37,7 @@ depends:
   - cli: rel_3.3.0
   - debug: rel_3.3.0
   - uservice: rel_3.3.0
+  - a2sa: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -77,7 +78,7 @@ build_config:
           -nostartfiles -nostdlib -c -MMD	-DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG -DCONFIG_FUNCION_O0_OPTIMIZE
           -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD
 
-  postimage_script: gen_crc_bin.sh
+  postimage_script: gen_crc_bin.py
 
   define:
 
@@ -107,6 +108,7 @@ build_config:
     - sdk/component/common/drivers/wlan/realtek/src/osdep/alios
     - sdk/component/common/drivers/wlan/realtek/src/core/option
     - sdk/component/common/drivers/wlan/realtek/wlan_ram_map/rom
+    - sdk/component/common/drivers/si
     - sdk/component/common/network
     - sdk/component/common/api/wifi/rtw_wpa_supplicant/src
     - sdk/component/os/os_dep/include/
@@ -134,6 +136,7 @@ build_config:
     - sdk/component/common/bluetooth/realtek/sdk/example/bt_config
     - sdk/component/common/bluetooth/realtek/sdk/example
     - sdk/component/common/bluetooth/realtek/sdk/example/ble_central
+    - sdk/component/common/audio/core
 
   libs:
     - cmse_implib
@@ -161,6 +164,7 @@ source_file:
   - csi_driver/spiflash/spiflash.c
   - csi_driver/uart/uart.c
   - csi_driver/wdt/wdt.c
+  - csi_driver/timer/timer.c
 
   - hal/wifi_port.c ? <CONFIG_WIFI>
   - hal/adc.c
@@ -177,6 +181,7 @@ source_file:
   - hal/hal_timer.c
 #  - hal/ble_port.c
 #  - hci_driver/hci_driver.c
+  - hal/audio.c
   - hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
   - hal/pwrmgmt_hal/board_cpu_pwr_systick.c
   - hal/pwrmgmt_hal/board_cpu_pwr.c
@@ -187,6 +192,8 @@ source_file:
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_sdio.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_ssi.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_system.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_audio.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_psram.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_gdma_memcpy.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_wdg.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_i2c.c
@@ -197,6 +204,7 @@ source_file:
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_adc.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_rtc.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_uart.c
+  - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_pll.c
   - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721d_ipccfg.c
   - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721d_wificfg.c
   - sdk/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c
@@ -228,6 +236,7 @@ source_file:
   - sdk/component/common/api/wifi/wifi_promisc.c ? <CONFIG_WIFI>
   - sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c ? <CONFIG_WIFI>
   - sdk/component/common/drivers/wlan/realtek/src/core/option/rtw_opt_crypto_ssl.c
+  - sdk/component/common/drivers/si/rl6548.c
   - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_normal.c
   - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_h4.c
   - sdk/component/common/bluetooth/realtek/sdk/board/amebad/src/hci/hci_board.c
@@ -239,6 +248,7 @@ source_file:
   - sdk/component/common/bluetooth/realtek/sdk/board/common/src/hci_process.c
   - sdk/component/common/bluetooth/realtek/sdk/board/common/src/bt_vendor_drv.c
   - sdk/component/common/bluetooth/realtek/sdk/board/common/os/osif_customer.c
+  - sdk/component/common/audio/core/audio_internel.c
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
@@ -276,6 +286,7 @@ def_config:
   CONFIG_U_WDG_CORE: 1
   # enable iobox cmds
   CLI_IOBOX_ENABLE: 1
+  RHINO_CONFIG_SYS_STATS: 1
 
 chip:
   arch_name: arm
@@ -290,6 +301,6 @@ hw_info:
   vendor_name: alibaba IoT
   ld_script: rlx8721d.ld
   flash_program: release/aos_burn_tool/flash_program.py
-  # program_data_files:
-  #   - filename: prebuild/littlefs.bin
-  #     address: 0x08314000
+#  program_data_files:
+#     - filename: prebuild/littlefs.bin
+#       address: 0x0354000

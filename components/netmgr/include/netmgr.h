@@ -85,6 +85,7 @@ typedef enum {
     NETMGR_TYPE_GPRS,
     NETMGR_TYPE_NBIOT,
     NETMGR_TYPE_ETH,
+    NETMGR_TYPE_UNKNOWN,
     NETMGR_TYPE_MAX
 } netmgr_type_t;
 
@@ -173,6 +174,18 @@ typedef struct {
     uint8_t  sec_type;                               /**< details see netmgr_wifi_sec_type */
 } netmgr_wifi_ap_list_t;
 
+/** @brief  netmgr connection state */
+typedef enum netmgr_conn_state{
+    CONN_STATE_DISCONNECTING,
+    CONN_STATE_DISCONNECTED,
+    CONN_STATE_CONNECTING,
+    CONN_STATE_CONNECTED,
+    CONN_STATE_OBTAINING_IP,
+    CONN_STATE_NETWORK_CONNECTED,
+    CONN_STATE_FAILED,
+    CONN_STATE_UNKNOWN
+} netmgr_conn_state_t;
+
 /**
  * @brief net manager init.
  *
@@ -257,9 +270,9 @@ int netmgr_disconnect(netmgr_hdl_t hdl);
  *
  * @param  [in] hdl      netmgr handle
  *
- * @return >=0 on success, others on error
+ * @return Please refer to #netmgr_conn_state_t
  */
-int netmgr_get_state(netmgr_hdl_t hdl);
+netmgr_conn_state_t netmgr_get_state(netmgr_hdl_t hdl);
 
 /**
  * @brief  netmgr save config

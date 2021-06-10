@@ -96,14 +96,15 @@ int aos_get_mac_addr(unsigned char mac[8])
 
 int aos_network_status_registercb(void (*cb)(int status, void *), void *arg)
 {
-    // TODO: ?
-    return 0;
+    return aos_wifi_set_msg_cb(cb);
 }
 
 int aos_get_network_status(void)
 {
-    // TODO: ?
-    return 1;
+    int ret = 0;
+    ret = aos_wifi_get_state();
+
+    return (ret == CONN_STATE_NETWORK_CONNECTED);
 }
 
 /**
@@ -119,7 +120,8 @@ int aos_get_network_status(void)
 int hal_wifi_get_mac_address(char *mac, size_t len)
 {
     int ret = 0;
-#ifdef BOARD_HAAS100
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
+
     extern uint8_t* factory_section_get_wifi_address(void);
     uint8_t *_mac = factory_section_get_wifi_address();
     if(_mac == NULL)
@@ -128,7 +130,7 @@ int hal_wifi_get_mac_address(char *mac, size_t len)
         snprintf(mac, len, MACSTR, MAC2STR(_mac));
 #elif defined(BOARD_HAAS200)
     int fd;
-    uint8_t _mac[6];
+    uint8_t _mac[16];
     fd = open("/dev/wifi0", O_RDWR);
     if (fd < 0) {
         return -1;

@@ -411,11 +411,8 @@ recv_again:
     extern int g_uart_init;
     if(g_uart_init != 0)
     {
-        extern kbuf_queue_t g_uart_queue;
-        extern aos_event_t g_uart_event;
-        //extern kstat_t krhino_buf_queue_send(kbuf_queue_t *queue, void *msg, size_t size);
-        krhino_buf_queue_send(&g_uart_queue, (void *)&UartReceiveData, 1);
-        aos_event_set(&g_uart_event, 1, AOS_EVENT_OR);
+        extern size_t uart0_rx_buffer_produce(const void *buf, size_t count);
+        (void)uart0_rx_buffer_produce(&UartReceiveData, 1);
     }
 
 	//KB_ESC chk is for cmd history, it's a special case here.

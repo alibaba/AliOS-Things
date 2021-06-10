@@ -1,0 +1,32 @@
+
+#ifndef FENV_AOS_H
+#define FENV_AOS_H
+
+enum
+  {
+    FE_INVALID = 0x01,
+#define FE_INVALID  FE_INVALID
+    __FE_DENORM = 0x02,
+    FE_DIVBYZERO = 0x04,
+#define FE_DIVBYZERO    FE_DIVBYZERO
+    FE_OVERFLOW = 0x08,
+#define FE_OVERFLOW FE_OVERFLOW
+    FE_UNDERFLOW = 0x10,
+#define FE_UNDERFLOW    FE_UNDERFLOW
+    FE_INEXACT = 0x20
+#define FE_INEXACT  FE_INEXACT
+  };
+
+  enum
+  {
+    FE_TONEAREST = 0,
+#define FE_TONEAREST    FE_TONEAREST
+    FE_DOWNWARD = 0x400,
+#define FE_DOWNWARD FE_DOWNWARD
+    FE_UPWARD = 0x800,
+#define FE_UPWARD   FE_UPWARD
+    FE_TOWARDZERO = 0xc00
+#define FE_TOWARDZERO   FE_TOWARDZERO
+  };
+
+#endif

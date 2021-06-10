@@ -4,20 +4,21 @@
 
 static struct Psram_Heap g_Psram_heap;
 
-static int g_Psram_heap_inited=0;
+int g_Psram_heap_inited = 0;
 static	_lock	Psram_heap_lock;
+
+#define configTOTAL_PSRAM_HEAP_SIZE		(0x200000)
+#define configBYTE_PSRAM_ALIGNMENT			32
+
+PSRAM_HEAP_SECTION 
+static unsigned char psRAMHeap[configTOTAL_PSRAM_HEAP_SIZE];
 
 void Psram_heap_init(void)
 {
-	if((u32)__psram_bss_end__ >  psram_dev_config.psram_heap_start_address) {
-		DBG_8195A("psram_heap_start_address should larger then %x \n", __psram_bss_end__);
-		assert_param(0);
-	}
-
 	/* Initialize heap with a single big chunk */
-	g_Psram_heap.FreeList = (PsramMemChunk *)(psram_dev_config.psram_heap_start_address);
+	g_Psram_heap.FreeList = (PsramMemChunk *)(psRAMHeap);
 	g_Psram_heap.FreeList->next = NULL;
-	g_Psram_heap.FreeList->size = psram_dev_config.psram_heap_size;
+	g_Psram_heap.FreeList->size = configTOTAL_PSRAM_HEAP_SIZE;
 
 	g_Psram_heap_inited = 1;
 
@@ -40,7 +41,7 @@ void *Psram_heap_allocmem(int size)
 	if(!g_Psram_heap_inited)	Psram_heap_init();
 
 	/* Round size up to the allocation granularity */
-	size = Psram_ROUND_UP2(size, sizeof(PsramMemChunk));
+	size = Psram_ROUND_UP2(size, configBYTE_PSRAM_ALIGNMENT);
 
 	/* Handle allocations of 0 bytes */
 	if (!size)
@@ -68,10 +69,11 @@ void *Psram_heap_allocmem(int size)
 			{
 				/* Allocate from the END of an existing chunk */
 				chunk->size -= size;
+				void *result = (void *)((uint8_t *)chunk + chunk->size);
 
 				rtw_exit_critical(&Psram_heap_lock, &irqL);
 
-				return (void *)((uint8_t *)chunk + chunk->size);
+				return result;
 			}
 		}
 	}
@@ -99,7 +101,7 @@ void Psram_reserved_heap_freemem(void *mem, int size)
 	if(!g_Psram_heap_inited)	Psram_heap_init();
 
 	/* Round size up to the allocation granularity */
-	size = Psram_ROUND_UP2(size, sizeof(PsramMemChunk));
+	size = Psram_ROUND_UP2(size, configBYTE_PSRAM_ALIGNMENT);
 
 	/* Handle allocations of 0 bytes */
 	if (!size)
@@ -193,7 +195,7 @@ void *Psram_reserve_malloc(int size)
 		*mem++ = size;
 	}
 
-	return mem;
+	return (void *)mem;
 }
 
 /**

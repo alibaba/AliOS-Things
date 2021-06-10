@@ -301,6 +301,7 @@ BOOL AUDIO_SP_TXGDMA_Init(
 	
 	/*  Enable GDMA for TX */
 	GDMA_Init(GDMA_InitStruct->GDMA_Index, GDMA_InitStruct->GDMA_ChNum, GDMA_InitStruct);
+	DCache_CleanInvalidate((u32)pTxData, Length);
 	GDMA_Cmd(GDMA_InitStruct->GDMA_Index, GDMA_InitStruct->GDMA_ChNum, ENABLE);
 
 	return _TRUE;
@@ -378,10 +379,55 @@ BOOL AUDIO_SP_RXGDMA_Init(
 	
 	/*  Enable GDMA for RX */
 	GDMA_Init(GDMA_InitStruct->GDMA_Index, GDMA_InitStruct->GDMA_ChNum, GDMA_InitStruct);
+	DCache_CleanInvalidate((u32)pRxData, Length);
 	GDMA_Cmd(GDMA_InitStruct->GDMA_Index, GDMA_InitStruct->GDMA_ChNum, ENABLE);
 
 	return _TRUE;
 }
 
+/**
+  * @brief  Audio GDMA Tx restart in isr
+  * @param  GDMA_Index: GDMA index used in this routine.
+  * @param  GDMA_ChNum: GDMA channel number used in this routine.
+  * @param  tx_addr: Address of data to be sent.
+  * @param  tx_length: Length of data to be sent.
+  * @retval TRUE
+  */
+BOOL AUDIO_SP_TXGDMA_Restart(
+	u8 GDMA_Index, 
+	u8 GDMA_ChNum, 
+	u32 tx_addr,
+	u32 tx_length
+	)
+{
+	GDMA_SetSrcAddr(GDMA_Index, GDMA_ChNum, tx_addr);
+	GDMA_SetBlkSize(GDMA_Index, GDMA_ChNum, tx_length>>2);
+	DCache_CleanInvalidate(tx_addr, tx_length);
+	GDMA_Cmd(GDMA_Index, GDMA_ChNum, ENABLE);
+	
+	return _TRUE;
+}
 
+/**
+  * @brief  Audio GDMA Rx restart in isr
+  * @param  GDMA_Index: GDMA index used in this routine.
+  * @param  GDMA_ChNum: GDMA channel number used in this routine.
+  * @param  tx_addr: Address of data to be received.
+  * @param  tx_length: Length of data to be received.
+  * @retval TRUE
+  */
+BOOL AUDIO_SP_RXGDMA_Restart(
+	u8 GDMA_Index, 
+	u8 GDMA_ChNum, 
+	u32 rx_addr,
+	u32 rx_length
+	)
+{
+	GDMA_SetDstAddr(GDMA_Index, GDMA_ChNum, rx_addr);
+	GDMA_SetBlkSize(GDMA_Index, GDMA_ChNum, rx_length>>2);
+	DCache_CleanInvalidate(rx_addr, rx_length);
+	GDMA_Cmd(GDMA_Index, GDMA_ChNum, ENABLE);
+	
+	return _TRUE;
+}
 /******************* (C) COPYRIGHT 2017 Realtek Semiconductor *****END OF FILE****/
