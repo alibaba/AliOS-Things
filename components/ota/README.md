@@ -1,7 +1,7 @@
 
 @page ota ota
 
-[更正文档](https://gitee.com/alios-things/ota/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ota/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，对各种升级场景都有很好的支持。目前AliIOS Things除一般的整包升级外，现有的高阶能力有：压缩升级、差分升级及安全升级；支持的升级通道：http、https、BLE、3G/4G，NB等；复杂场景支持：网关及子设备升级，连接型模组升级非连接主设备的间接升级；完备的配套工具：差分工具、本地签名工具、ymodem辅助升级工具，多固件打包工具等；
@@ -102,7 +102,7 @@ ota_service_register_cb 注册用户升级回调函数
 
 ```yaml
 depends:
-  - ota: rel_3.3.0
+  - ota: master
 ```
 
 ## 步骤3 下载组件
@@ -119,7 +119,7 @@ aos install ota
 
 ## 步骤4 添加示例
 
-示例代码参考[solutions/ota_demo/otaappdemo.c](https://gitee.com/alios-things/ota_demo/blob/rel_3.3.0/otaappdemo.c)，以运行ota_demo为例(更详细的使用流程请参考[《HaaS物联网设备OTA解决方案》](https://g.alicdn.com/alios-things-3.3/doc/ota_demo.html)，示例主要完成如下：
+示例代码参考[solutions/ota_demo/otaappdemo.c](https://gitee.com/alios-things/ota_demo/blob/master/otaappdemo.c)，以运行ota_demo为例(更详细的使用流程请参考[《HaaS物联网设备OTA解决方案》](https://g.alicdn.com/alios-things-3.3/doc/ota_demo.html)，示例主要完成如下：
 
 示例代码分成3个主要部分：
 1、注册ota回调函数

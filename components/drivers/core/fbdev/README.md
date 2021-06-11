@@ -20,8 +20,8 @@ fbdev/
 
 # 依赖
 - 操作系统系统基础组件
-- vfs: rel_3.3.0
-- posix: rel_3.3.0
+- vfs: master
+- posix: master
 
 # 使用
 厂商无需关注此模块的实现细节

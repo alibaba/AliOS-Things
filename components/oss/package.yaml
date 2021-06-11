@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: oss                                         # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: 阿里云 C++ SDK                          # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -19,11 +19,11 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - cplusplus: rel_3.3.0
-  - fatfs: rel_3.3.0
-  #- jsoncpp: rel_3.3.0
+  - haas100: master
+  - mbedtls: master
+  - cplusplus: master
+  - fatfs: master
+  #- jsoncpp: master
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效

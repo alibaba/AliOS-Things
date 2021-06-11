@@ -1,5 +1,5 @@
 name: auto_demo
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: 在物联网平台创建电动小车，可以通过钉钉小程序进行控制电动小车的运动
 
 type: solution
@@ -16,25 +16,25 @@ solution:
   # ld_script: gcc_eflash.ld
 
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: rel_3.3.0
-  - haas100: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - base: rel_3.3.0
-  - adc: rel_3.3.0
-  - i2c: rel_3.3.0
-  - spi: rel_3.3.0
-  - uart: rel_3.3.0
-  - flash: rel_3.3.0
-  - pwm: rel_3.3.0
-  - watchdog: rel_3.3.0
-  - gpio: rel_3.3.0
-  #- qspi: rel_3.3.0
-  - timer: rel_3.3.0
-  - wifi: rel_3.3.0
-  - lwip: rel_3.3.0
-  - uservice: rel_3.3.0
-  - cli: rel_3.3.0
+  - linksdk: master
+  - haas100: master
+  - mbedtls: master
+  - netmgr: master
+  - base: master
+  - adc: master
+  - i2c: master
+  - spi: master
+  - uart: master
+  - flash: master
+  - pwm: master
+  - watchdog: master
+  - gpio: master
+  #- qspi: master
+  - timer: master
+  - wifi: master
+  - lwip: master
+  - uservice: master
+  - cli: master
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项
 

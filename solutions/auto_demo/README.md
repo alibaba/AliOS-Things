@@ -1,6 +1,6 @@
 @page auto_demo 智能小车：用钉钉小程序通过HaaS100控制驱动电机示例
 
-[更正文档](https://gitee.com/alios-things/auto_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/auto_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 阿里在云栖大会上发布第一款机器人“小蛮驴”，瞬间激起千层浪。

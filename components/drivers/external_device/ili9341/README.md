@@ -1,6 +1,6 @@
 @page ili9341 ili9341
 
-[更正文档](https://gitee.com/alios-things/ili9341/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ili9341/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 LCD (Liquid Crystal Display) 即液晶显示器。AliOS Things 提供了多款LCD组件供开发者使用，适配了目前应用最多的LCD模块。
@@ -130,7 +130,7 @@ void        ili9341_draw_frame(ili9341_dev_t ili9341_dev, uint8_t *frame)
 > helloworld_demo组件的package.yaml中添加
 ```sh
 depends:
-  - ili9341: rel_3.3.0 # helloworld_demo中引入ili9341组件
+  - ili9341: master # helloworld_demo中引入ili9341组件
 ```
 
 ## 步骤3 下载组件

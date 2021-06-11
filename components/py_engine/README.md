@@ -1,6 +1,6 @@
 @page py_engine py_engine
 
-[更正文档](https://gitee.com/alios-things/py_engine/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/py_engine/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 py_engine (Python轻应用引擎) 以MicroPython为基础打造而成.可以快速实现IoT场景连云、控端、AI等最常见功能。快速上手文档和编程接口请参考[Python轻应用编程参考](https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html)
@@ -80,7 +80,7 @@ def_config:
 
 ```yaml
 depends:
-  - py_engine: rel_3.3.0 # helloworld_demo中引入py_engine组件
+  - py_engine: master # helloworld_demo中引入py_engine组件
 ```
 
 ## 步骤3 下载组件

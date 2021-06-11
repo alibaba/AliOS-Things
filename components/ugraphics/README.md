@@ -1,6 +1,6 @@
 @page ugraphics ugraphics
 
-**[更正文档](https://gitee.com/alios-things/ugraphics/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/ugraphics/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 ugraphics组件是基于SDL2封装的接口，支持JPEG/PNG图像解码绘制、点/线/框图像等绘制、图像旋转、RGB格式转换、中英文字符绘制等功能，方便用户进行基础的图像应用开发。
@@ -70,8 +70,8 @@ def_config:                              # 组件的可配置项
 ```yaml
 
 depends:
-  - ugraphics: rel_3.3.0            # helloworld_demo 中引入ugraphics组件
-  - ili9341: rel_3.3.0              # helloworld_demo 中引入ili9341屏幕驱动
+  - ugraphics: master            # helloworld_demo 中引入ugraphics组件
+  - ili9341: master              # helloworld_demo 中引入ili9341屏幕驱动
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
@@ -92,7 +92,7 @@ aos install ugraphics
 
 ## 步骤4 添加示例
 
-在ugraphics组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ugraphics/tree/rel_3.3.0/example)：
+在ugraphics组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ugraphics/tree/master/example)：
 
 ```yaml
 source_file:

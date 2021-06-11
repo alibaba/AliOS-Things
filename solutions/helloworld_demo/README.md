@@ -1,6 +1,6 @@
 @page helloworld_demo helloworld简单示例
 
-[更正文档](https://gitee.com/alios-things/helloworld_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/helloworld_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 helloworld_demo是我们提供的最简化的运行实例，该app从字面上来看功能也比较简单，即完成**hello world!**的关键字符输出，以表明系统初始化完成并能够正常输出。但是虽然功能看似简单单一，该app能够运行成功，即代码内核小系统以及基本的打印输出功能即正常运行。
@@ -173,8 +173,8 @@ helloworld_demo作为一个基础组件，其本身依赖的组件相对较少�
 - 在helloworld_demo的yaml文件中添加组件依赖ramfs。由于需要使用标准vfs接口，因此还需要加上vfs组件。
 ```yaml
 depends:
-  - ramfs: rel_3.3.0
-  - vfs: rel_3.3.0
+  - ramfs: master
+  - vfs: master
 ```
 至于ramfs本身依赖的组件，则在ramfs自身的yaml中需要添加完全。
 

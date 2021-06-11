@@ -1,6 +1,6 @@
 @page littlefs
 
-[更正文档](https://gitee.com/alios-things/littlefs/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/littlefs/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 littlefs是一个高度完整的嵌入式文件系统，可以用在自身不带坏块处理、磨损平衡等功能的内存芯片上，如裸的NAND Flash芯片；同时littlefs也充分考虑了异常掉电情况下的数据保护。
@@ -62,7 +62,7 @@ def_config:
 ```yaml
 
 depends:
-  - littlefs: rel_3.3.0 # helloworld_demo中引入littlefs组件
+  - littlefs: master # helloworld_demo中引入littlefs组件
 
 ```
 
@@ -80,7 +80,7 @@ aos install littlefs
 
 ## 步骤4 添加示例
 
-在littlefs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/littlefs/tree/rel_3.3.0/example)：
+在littlefs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/littlefs/tree/master/example)：
 
 ```yaml
 source_file:

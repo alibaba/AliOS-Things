@@ -1,6 +1,6 @@
 @page adc adc
 
-[更正文档](https://gitee.com/alios-things/adc/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/adc/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 ADC（Analog-to-Digital Converter），即模拟数字转换器，用于将模拟形式的连续信号转换为数字形式的离散信号的一类设备。典型的ADC设备将模拟信号转换为表示一定比例电压值的数字信号。
@@ -73,7 +73,7 @@ def_config:
 ```yaml
 
 depends:
-  - adc: rel_3.3.0          # helloworld_demo中引入adc组件
+  - adc: master          # helloworld_demo中引入adc组件
 
 ```
 
@@ -91,7 +91,7 @@ aos install adc
 
 ## 步骤4 添加示例
 
-在adc组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/adc/tree/rel_3.3.0/example)：
+在adc组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/adc/tree/master/example)：
 
 ```yaml
 source_file:

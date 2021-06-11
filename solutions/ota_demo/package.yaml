@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: ota_demo                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                    # <必选项> 组件版本号
+version: master                                    # <必选项> 组件版本号
 description: 远程升级功能（OTA）的使用例程，用户可以通过此用例验证固件升级等功能;
 type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
@@ -14,19 +14,19 @@ type: solution                                      # <必选项> 组件类型�
 #   - minilibc: 'v7.2.0'
 #   - aos: 'v7.2.0 ? <ENABLE_AOS>'
 depends:
-  - ota: rel_3.3.0
-  - cjson: rel_3.3.0
-  - cli: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - lwip: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - ulog: rel_3.3.0
-  - uservice: rel_3.3.0
-  - wifi: rel_3.3.0
-  - haas200: rel_3.3.0
-  - haas100: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - linksdk: rel_3.3.0
+  - ota: master
+  - cjson: master
+  - cli: master
+  - netmgr: master
+  - lwip: master
+  - netmgr: master
+  - ulog: master
+  - uservice: master
+  - wifi: master
+  - haas200: master
+  - haas100: master
+  - mbedtls: master
+  - linksdk: master
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
 #   cpu_id: cpu0

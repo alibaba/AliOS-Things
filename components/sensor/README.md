@@ -1,6 +1,6 @@
 @page sensor sensor
 
-[更正文档](https://gitee.com/alios-things/sensor/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/sensor/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 uData 框架设计思想是基于传统 sensorhub 概念基础之上的，结合IoT的业务场景和 AliOS  Things 物联网操作系统的特点设计而成的一个面对 IoT 的感知设备处理框架。为了能更好的提供每个开发者极简开发，uData 已将驱动相关的 OS 调用，比如中断注册接口，设备硬件配置接口等都抽象到了sensor hal 实现。每一个设备驱动程序，只需一个 .c文件中，通过 BUS 总线如 I2C，对设备进行读写和配置操作，就能实现全部的功能，同时也减少了开发者调试工作时间。可以方便地开发传感器驱动程序。
@@ -98,10 +98,10 @@ def_config:
 
 ```yaml
 depends:
-  - cli: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - haaseduk1: rel_3.3.0
-  - sensor: rel_3.3.0
+  - cli: master
+  - osal_aos: master
+  - haaseduk1: master
+  - sensor: master
 ```
 
 **选择要使用的开发板**
@@ -239,11 +239,11 @@ int demo_main(int argc, char *argv[])
 > solutions/linksdk_demo/package.yaml 依赖信息 depends 中添加 sensor 组件
 ```yaml
 depends:
-  - linksdk: rel_3.3.0
-  - haaseduk1: rel_3.3.0
-  - sensor: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
+  - linksdk: master
+  - haaseduk1: master
+  - sensor: master
+  - mbedtls: master
+  - netmgr: master
 ```
 
 ## 4. 编译

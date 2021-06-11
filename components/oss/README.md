@@ -1,6 +1,6 @@
 @page oss oss
 
-[更正文档](https://gitee.com/alios-things/oss/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/oss/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 OSS也叫对象存储服务（Object Storage Service），是阿里云提供的一种存储服务，随着智能设备越来越普及，越来越多终端的内容需要存储在云端，例如录音留言，照片、视频、文件日志等等。下面介绍几个OSS中的概念，后面在开发的过程中会用到
@@ -154,10 +154,10 @@ char* oss_upload_local_content(char *keyId,
 
 ```yaml
 depends:
-  - linksdk: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - oss: rel_3.3.0
+  - linksdk: master
+  - mbedtls: master
+  - netmgr: master
+  - oss: master
 ```
 
 ## 步骤3 下载组件
@@ -174,7 +174,7 @@ aos install oss
 
 ## 步骤4 添加示例
 
-> oss组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/oss/tree/rel_3.3.0/example)：
+> oss组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/oss/tree/master/example)：
 
 ```yaml
 source_file:

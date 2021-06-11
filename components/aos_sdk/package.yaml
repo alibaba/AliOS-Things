@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: aos_sdk                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                    # <必选项> 组件版本号
+version: master                                    # <必选项> 组件版本号
 description: 基础OS                                  # <必选项> 建议至少20字以上
 type: sdk                                           # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
@@ -17,15 +17,15 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: 'v7.2.0 ? <ENABLE_AOS>'
 
 depends: 
-  - rhino: rel_3.3.0
-  - documentation: rel_3.3.0
-  - init: rel_3.3.0
-  - kv: rel_3.3.0
-  - lwip: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - cli: rel_3.3.0
-  - libc_stub: rel_3.3.0
-  - debug: rel_3.3.0
-  - ulog: rel_3.3.0
+  - rhino: master
+  - documentation: master
+  - init: master
+  - kv: master
+  - lwip: master
+  - mbedtls: master
+  - osal_aos: master
+  - cli: master
+  - libc_stub: master
+  - debug: master
+  - ulog: master
   

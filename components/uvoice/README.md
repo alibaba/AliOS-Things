@@ -1,6 +1,6 @@
 @page uvoice uvoice
 
-[更正文档](https://gitee.com/alios-things/uvoice/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/uvoice/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 uVoice是AliOS Things的音频组件，提供了RTOS系统上端到云全链路的语音能力，包括音频硬件管理、音频增强算法、播放器、录音等基本音频功能，也结合阿里的智能语音云端服务，提供了TTS、语音控制、语音对话等能智能语音功能。同时，uVoice也是一个资源占用极少，性能较高的音频组件，适合为低资源、低算力的嵌入式MCU提供音频能力。
@@ -246,7 +246,7 @@ ALICLOUD_TTS_SUPPORT: 1
 > solution中helloworld_demo的package.yaml中添加
 ```yaml
 depends:
-  - uvoice: rel_3.3.0 # helloworld_demo中引入uvoice组件
+  - uvoice: master # helloworld_demo中引入uvoice组件
 ```
 
 ## 步骤3 下载组件
@@ -263,7 +263,7 @@ aos install uvoice
 
 ## 步骤4 添加示例
 
-> uvoice组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uvoice/tree/rel_3.3.0/example)：
+> uvoice组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uvoice/tree/master/example)：
 
 ```yaml
 source_file:

@@ -2,17 +2,17 @@
 ## 第一部分： 基础信息
 description:  alios shell组件，包含用户命令的注册管理和终端执行等功能，类似Linux shell
 name: cli
-version: rel_3.3.0                                    # <必选项> 建议至少20字以上
+version: master                                    # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag:                                                # <可选项> 组件分类，缺省值： ''
 license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
 
 depends:
-    - vfs: rel_3.3.0 ? <CLI_IOBOX_ENABLE>
-    - littlefs: rel_3.3.0 ? <CLI_IOBOX_ENABLE>
-    - posix: rel_3.3.0 ? <CLI_IOBOX_ENABLE>
-    - uagent: rel_3.3.0 ? <CLI_UAGENT_ENABLE>
+    - vfs: master ? <CLI_IOBOX_ENABLE>
+    - littlefs: master ? <CLI_IOBOX_ENABLE>
+    - posix: master ? <CLI_IOBOX_ENABLE>
+    - uagent: master ? <CLI_UAGENT_ENABLE>
 
 build_config:
   include:

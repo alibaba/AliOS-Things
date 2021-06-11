@@ -1,6 +1,6 @@
 @page ucamera ucamera
 
-**[更正文档](https://gitee.com/alios-things/ucamera/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/ucamera/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄像头数据接入，目前已接入wifi摄像头，在使用该组件时，需要使用netmgr网络组件连接网络。
@@ -67,8 +67,8 @@ def_config:                              # 组件的可配置项
 ```yaml
 
 depends:
-  - ucamera: rel_3.3.0 # helloworld_demo中引入ucamera组件
-  - netmgr: rel_3.3.0  # helloworld_demo中引入netmgr组件
+  - ucamera: master # helloworld_demo中引入ucamera组件
+  - netmgr: master  # helloworld_demo中引入netmgr组件
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
@@ -89,7 +89,7 @@ aos install ucamera
 
 ## 步骤4 添加示例
 
-在ucamera组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ucamera/tree/rel_3.3.0/example)：
+在ucamera组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ucamera/tree/master/example)：
 
 ```yaml
 source_file:

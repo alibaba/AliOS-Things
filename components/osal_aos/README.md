@@ -1,6 +1,6 @@
 @page aos_kernel 内核编程
 
-[更正文档](https://gitee.com/alios-things/osal_aos/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/osal_aos/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -155,7 +155,7 @@ def_config:
 
 ## 使用示例
 
-示例代码参考[example/task_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/task_example.c)，该示例使用任务管理函数来控制任务的执行状态，具体场景为任务2因等待某个信号量进入阻塞状态，而此时被任务1将其挂起，则任务2仍然是处于阻塞状态，如果在此过程中等到信号量，则任务2会解除阻塞进入挂起状态；如果未等到信号量，则任务2恢复状态后仍然处于阻塞状态。
+示例代码参考[example/task_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/task_example.c)，该示例使用任务管理函数来控制任务的执行状态，具体场景为任务2因等待某个信号量进入阻塞状态，而此时被任务1将其挂起，则任务2仍然是处于阻塞状态，如果在此过程中等到信号量，则任务2会解除阻塞进入挂起状态；如果未等到信号量，则任务2恢复状态后仍然处于阻塞状态。
 示例说明如下：
 
 1. 在t0时刻，任务task1、task2是通过aos_task_create()函数调用被创建，之后task1进入就绪状态，而task2处于挂起状态。
@@ -187,7 +187,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -204,12 +204,12 @@ aos install osal_aos
 
 ### 步骤4 添加示例
 
-> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/task_example.c" # 添加 task_example.c
@@ -340,7 +340,7 @@ def_config:
 - 参考 [aos_kernel_timer](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__timer.html)
 ## 使用示例
 
-- 示例代码参考[example/timer_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/timer_example.c)，该示例使用定时器管理函数来控制定时器的执行，具体场景为创建一个周期性定时器，定时调用回调函数执行，停止定时器该变定时器的时间参数，则定时器按照修改后的时间间隔定时调用回调函数执行。
+- 示例代码参考[example/timer_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/timer_example.c)，该示例使用定时器管理函数来控制定时器的执行，具体场景为创建一个周期性定时器，定时调用回调函数执行，停止定时器该变定时器的时间参数，则定时器按照修改后的时间间隔定时调用回调函数执行。
 - 示例说明如下：
 1. t0时刻，测试任务调用aos_timer_create()创建一个周期性的定时器，周期间隔为1秒，回调函数为timer1_func。然后测试任务调用aos_sleep()进入休眠状态。
 1. t1时刻，相对t0过去1秒，定时器到期，回调函数timer1_func被执行。该过程重复10次。
@@ -369,7 +369,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -385,12 +385,12 @@ aos install osal_aos
 上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
 
 ### 步骤4 添加示例
-> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/timer_example.c" # 添加 timer_example.c
@@ -562,7 +562,7 @@ def_config:
 
 ```c
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -579,12 +579,12 @@ aos install osal_aos
 
 ### 步骤4 添加示例
 
-> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/mem_example.c" # 添加 mem_example.c
@@ -665,7 +665,7 @@ def_config:
 - 参考 [aos_kernel_sem](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__sem.html)
 ## 使用示例
 
-- 示例代码参考[example/sem_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/sem_example.c)，该示例使用信号量实现多任务同步，具体场景为创建一个高优先级任务A，一个低优先级任务B，任务A和任务B同时等待同一信号量，此时测试任务T调用aos_sem_signal()释放信号量，任务A首先获得信号量，任务A操作完成后释放一次信号量，此时任务B获取信号量得到运行。
+- 示例代码参考[example/sem_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/sem_example.c)，该示例使用信号量实现多任务同步，具体场景为创建一个高优先级任务A，一个低优先级任务B，任务A和任务B同时等待同一信号量，此时测试任务T调用aos_sem_signal()释放信号量，任务A首先获得信号量，任务A操作完成后释放一次信号量，此时任务B获取信号量得到运行。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_sem_create()创建一信号量，初始计数值为0。任务T然后调用aos_task_create()创建任务A和任务B，任务A优先级为30，任务B优先级为31。任务A和任务B运行后因等待信号量而阻塞。
 1. t1时刻，任务T调用aos_sem_signal()释放信号量，任务A获得信号量。
@@ -694,7 +694,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 ### 步骤3 下载组件
 
@@ -710,12 +710,12 @@ aos install osal_aos
 
 ### 步骤4 添加示例
 
-> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/sem_example.c" # 添加 sem_example.c
@@ -808,7 +808,7 @@ def_config:
 - 参考 [aos_kernel_mutex](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__mutex.html)
 ## 使用示例
 
-- 示例代码参考[example/mutex_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/mutex_example.c)，该示例使用互斥量实现共享资源的互斥访问，具体场景为创建任务A和认为B，以及一互斥量。任务A和任务B使用互斥量同时访问共享数据区，访问共享数据区时使用互斥量做保护。
+- 示例代码参考[example/mutex_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/mutex_example.c)，该示例使用互斥量实现共享资源的互斥访问，具体场景为创建任务A和认为B，以及一互斥量。任务A和任务B使用互斥量同时访问共享数据区，访问共享数据区时使用互斥量做保护。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_mutex_create()创建一互斥量。任务T然后调用aos_task_create()创建任务A和任务B。任务A得到运行，并获取互斥量对数据区record_status进行读写操作。
 1. t1时刻，任务A因时间片耗尽，让出CPU，任务B得到运行。
@@ -838,7 +838,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -855,12 +855,12 @@ aos install osal_aos
 
 ### 步骤4 添加示例
 
-> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/mutex_example.c" # 添加 mutex_example.c
@@ -946,7 +946,7 @@ def_config:
 - 参考 [aos_kernel_event](https://g.alicdn.com/alios-things-3.3/doc/group__aos__kernel__event.html)
 ## 使用示例
 
-- 示例代码参考[example/event_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/event_example.c)，该示例使用事件机制实现任务间同步，具体场景为创建任务A和认为B，以及一事件。任务A以“与”的方式等待事件1和事件2；任务B以“或”的方式等待事件1和事件2。测试任务T设置事件1，则任务B因获取事件得到运行，之后测试任务T设置事件2，则任务A因等到全部事件而得到运行。
+- 示例代码参考[example/event_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/event_example.c)，该示例使用事件机制实现任务间同步，具体场景为创建任务A和认为B，以及一事件。任务A以“与”的方式等待事件1和事件2；任务B以“或”的方式等待事件1和事件2。测试任务T设置事件1，则任务B因获取事件得到运行，之后测试任务T设置事件2，则任务A因等到全部事件而得到运行。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_event_create()创建一事件。任务T然后调用aos_task_create()创建任务A和任务B。任务A调用aos_event_get()以RHINO_AND为选项参数等待事件1和事件2的发生；任务B调用aos_event_get()以RHINO_OR为选项参数等待事件1或事件2的发生。
 1. t1时刻，任务T调用aos_event_get()设置事件1，任务B因等到事件1得到运行。
@@ -975,7 +975,7 @@ def_config:
 
 ```c
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -991,12 +991,12 @@ aos install osal_aos
 上述命令执行成功后，组件源码则被下载到了./components/osal_aos路径中。
 
 ### 步骤4 添加示例
-> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> 在osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/evnet_example.c" # 添加 evnet_example.c
@@ -1068,7 +1068,7 @@ def_config:
 
 ## 使用示例
 
-- 示例代码参考[example/queue_example.c](https://gitee.com/alios-things/osal_aos/blob/rel_3.3.0/example/queue_example.c)，该示例使用消息队列实现任务间数据同步，具体场景为创建任务A和认为B，以及一消息队列。任务A作为生产者循环向消息队列发送消息，任务B作为消费者循环从消息队列接收消息，一般情况下，消费者处理数据是要花费很长时间，所以会导致消息产生的速度大于消息处理的速度，使得消息队列溢出。所以可以通过调整任务B优先级大于任务A来避免这种情况，或者使用信号量来控制数据收发同步。
+- 示例代码参考[example/queue_example.c](https://gitee.com/alios-things/osal_aos/blob/master/example/queue_example.c)，该示例使用消息队列实现任务间数据同步，具体场景为创建任务A和认为B，以及一消息队列。任务A作为生产者循环向消息队列发送消息，任务B作为消费者循环从消息队列接收消息，一般情况下，消费者处理数据是要花费很长时间，所以会导致消息产生的速度大于消息处理的速度，使得消息队列溢出。所以可以通过调整任务B优先级大于任务A来避免这种情况，或者使用信号量来控制数据收发同步。
 - 示例说明如下：
 1. t0时刻，任务T调用aos_queue_new()创建一互斥量。任务T然后调用aos_task_create()创建任务A和任务B，任务A优先级设置为31，任务B优先级设置为30。任务B因消息队列无消息而阻塞，任务A得到运行向消息队列发送消息。
 1. t1时刻，任务B因从消息队列读取到消息而解除阻塞，任务B对消息进行处理后继续等待新的消息到来。
@@ -1098,7 +1098,7 @@ def_config:
 
 ```yaml
 depends:
-  - osal_aos: rel_3.3.0 # helloworld_demo中引入osal_aos组件
+  - osal_aos: master # helloworld_demo中引入osal_aos组件
 ```
 
 ### 步骤3 下载组件
@@ -1115,12 +1115,12 @@ aos install osal_aos
 
 ### 步骤4 添加示例
 
-> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/rel_3.3.0/example)：
+> osal_aos组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/osal_aos/tree/master/example)：
 
 ```yaml
 depends:
-  - rhino: rel_3.3.0
-  - cli: rel_3.3.0 # 添加cli依赖
+  - rhino: master
+  - cli: master # 添加cli依赖
 source_file:
   - "*.c"
   - "example/queue_example.c" # 添加 queue_example.c

@@ -1,6 +1,6 @@
 @page linksdk_demo WI-FI设备连接阿里云示例
 
-[更正文档](https://gitee.com/alios-things/linksdk_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/linksdk_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 linksdk_demo是Link SDK物模型单品上云最简示例。

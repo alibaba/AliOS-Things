@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: uservice                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: uService (微服务) 是一种支持RPC请求/应用的交互，并支持状态消息发布的一种服务机制，客户端可以通过发送请求消息并待回复的方式调用uService(微服务)提供的服务，也可以通过订阅服务的事件，来处理服务的事件状态。   # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -16,7 +16,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
-    - osal_aos: rel_3.3.0
+    - osal_aos: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

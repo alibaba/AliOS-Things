@@ -1,6 +1,6 @@
 @page mqtt mqtt
 
-[更正文档](https://gitee.com/alios-things/mqtt/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/mqtt/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -166,8 +166,8 @@ DLLExport int MQTTIsConnected(MQTTClient* client);
 
 ```yaml
 depends:
-  - netmgr: rel_3.3.0   # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - mqtt: rel_3.3.0     # helloworld_demo中引入mqtt组件
+  - netmgr: master   # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - mqtt: master     # helloworld_demo中引入mqtt组件
 ```
 
 ## 步骤3 下载组件
@@ -183,7 +183,7 @@ aos install mqtt
 上述命令执行成功后，组件源码则被下载到了./components/mqtt路径中。
 
 ## 步骤4 添加示例
-在mqtt组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mqtt/tree/rel_3.3.0/example)：
+在mqtt组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mqtt/tree/master/example)：
 
 ```yaml
 source_file:

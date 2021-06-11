@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: amp_demo                               # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: amp entry demo                  # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -17,13 +17,13 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - cli: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - haas100: rel_3.3.0
-  - haas200: rel_3.3.0
-  - haaseduk1: rel_3.3.0
-  - amp: rel_3.3.0
-  # - vexpress_a9: rel_3.3.0
+  - cli: master
+  - osal_aos: master
+  - haas100: master
+  - haas200: master
+  - haaseduk1: master
+  - amp: master
+  # - vexpress_a9: master
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段

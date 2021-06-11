@@ -1,5 +1,5 @@
 name: lora_p2p_demo
-version: rel_3.3.0
+version: master
 description: demostrate the p2p-comunication over lora radio
 type: solution
 
@@ -8,8 +8,8 @@ solution:
   board_name: haas100
 
 depends:
-  - cli: rel_3.3.0
-  - haas100: rel_3.3.0
+  - cli: master
+  - haas100: master
 
 source_file:
   - "*.c"

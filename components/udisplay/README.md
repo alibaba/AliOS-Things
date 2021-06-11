@@ -1,6 +1,6 @@
 @page udisplay udisplay
 
-**[更正文档](https://gitee.com/alios-things/udisplay/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/udisplay/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 
@@ -58,8 +58,8 @@ def_config:                              # 组件的可配置项
 ```yaml
 
 depends:
-  - udisplay: rel_3.3.0  # helloworld_demo 中引入udisplay组件
-  - ili9341: rel_3.3.0   # helloworld_demo 中引入ili9341屏幕驱动
+  - udisplay: master  # helloworld_demo 中引入udisplay组件
+  - ili9341: master   # helloworld_demo 中引入ili9341屏幕驱动
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
@@ -79,7 +79,7 @@ aos install udisplay
 上述命令执行成功后，组件源码则被下载到了./components/udisplay路径中。
 
 ## 步骤4 添加示例
-在udisplay组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/udisplay/tree/rel_3.3.0/example)：
+在udisplay组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/udisplay/tree/master/example)：
 
 ```yaml
 source_file:

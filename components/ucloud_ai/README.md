@@ -1,6 +1,6 @@
 @page ucloud_ai ucloud_ai
 
-**[更正文档](https://gitee.com/alios-things/ucloud_ai/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/ucloud_ai/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 ucloud ai是基于alicloud OpenAPI实现的云端AI推理引擎，对接的阿里云视觉智能开放平台AI能力，目前支持15种AI模型：人脸识别、表情识别、人物动漫化、物体检测、主体检测、通用分割、人脸分割、身份证识别、银行卡识别、文字识别、垃圾分类、水果识别、图像人体擦除、风格迁移，未来将加入更多AI能力。
@@ -92,9 +92,9 @@ def_config:                              # 组件的可配置项
 ```yaml
 
 depends:
-  - ucloud_ai: rel_3.3.0  # helloworld_demo中引入ucloud_ai组件
-  - netmgr: rel_3.3.0     # helloworld_demo中引入netmgr组件
-  - littlefs: rel_3.3.0   # helloworld_demo中引入littlefs组件
+  - ucloud_ai: master  # helloworld_demo中引入ucloud_ai组件
+  - netmgr: master     # helloworld_demo中引入netmgr组件
+  - littlefs: master   # helloworld_demo中引入littlefs组件
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
@@ -115,7 +115,7 @@ aos install ucloud_ai
 
 ## 步骤4 添加示例
 
-在ucloud_ai组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ucloud_ai/tree/rel_3.3.0/example)：
+在ucloud_ai组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ucloud_ai/tree/master/example)：
 
 ```yaml
 source_file:

@@ -1,6 +1,6 @@
 @page linksdk_gateway_demo WI-FI设备实现网关协助子设备连接阿里云示例
 
-[更正文档](https://gitee.com/alios-things/linksdk_gateway_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/linksdk_gateway_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 linksdk_gateway_demo是Link SDK网关代理子设备上云最简示例。

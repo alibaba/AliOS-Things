@@ -1,6 +1,6 @@
 @page sntp sntp
 
-[更正文档](https://gitee.com/alios-things/sntp/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/sntp/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -98,7 +98,7 @@ sntp_time *sntp_obtain_time(void)
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - sntp: rel_3.3.0
+  - sntp: master
 ```
 
 ## 步骤3 下载组件
@@ -115,7 +115,7 @@ aos install sntp
 
 ## 步骤4 添加示例
 
-> sntp组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/sntp/tree/rel_3.3.0/example)：
+> sntp组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/sntp/tree/master/example)：
 ```yaml
 source_file:
     - src/*.c

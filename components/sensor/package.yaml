@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
 name: sensor
 description: Hardware abstract layer for sensors.
-version: rel_3.3.0                       # <必选项> 组件版本号
+version: master                       # <必选项> 组件版本号
 type: common                          # <必选项> 组件类型，为：solution, chip, board, common
 tag: 系统升级                         # <可选项> 组件分类，缺省值： ''
 keywords:                            # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
@@ -14,10 +14,10 @@ license: Apache license v2.0         # <可选项> 源代码的许可证，要�
 #          指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
 #          未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
 depends:
-  - ulog: rel_3.3.0
-  - vfs: rel_3.3.0
-  - i2c: rel_3.3.0
- # - mbmaster: rel_3.3.0? <SENSOR_CONFIG_MODBUS_ENABLE>
+  - ulog: master
+  - vfs: master
+  - i2c: master
+ # - mbmaster: master? <SENSOR_CONFIG_MODBUS_ENABLE>
 
 ## 第四部分：编译连接信息
 # build_config:                      # <可选项> 编译配置项

@@ -1,5 +1,5 @@
 name: eduk1_demo
-version: rel_3.3.0 # <必选项> 组件版本号
+version: master # <必选项> 组件版本号
 description: HaaS EDU K1 物联网教育开发板出厂默认固件
 
 type: solution
@@ -15,18 +15,18 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haaseduk1: rel_3.3.0
-  - linksdk: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - uservice:  rel_3.3.0
-  - rhino: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - cli: rel_3.3.0
-  - littlefs: rel_3.3.0
-  - wifi: rel_3.3.0
-  - lwip: rel_3.3.0
-#  - a2sa: rel_3.3.0
+  - haaseduk1: master
+  - linksdk: master
+  - mbedtls: master
+  - netmgr: master
+  - uservice:  master
+  - rhino: master
+  - osal_aos: master
+  - cli: master
+  - littlefs: master
+  - wifi: master
+  - lwip: master
+#  - a2sa: master
 
 def_config:
 #    CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关
