@@ -1,6 +1,6 @@
 @page cplusplus cplusplus
 
-[更正文档](https://gitee.com/alios-things/cplusplus/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/cplusplus/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 ## AliOS Things C++组件支持C++11、C++库及STL，支持主要特性如下:
@@ -79,7 +79,7 @@
 - 需要首先调用cpp_init初始化cpp基础功能，添加对cplusplus组件的依赖后aos_component_init中自动会调用
 - 需要关注相应的c++ 编译选项
 
-标准C++使用示例参考**[example/cpp_standard](https://gitee.com/alios-things/cplusplus/tree/rel_3.3.0/example/cpp_standard)**，AliOS自定义类使用参考**example/cpp_aos**。
+标准C++使用示例参考**[example/cpp_standard](https://gitee.com/alios-things/cplusplus/tree/master/example/cpp_standard)**，AliOS自定义类使用参考**example/cpp_aos**。
 
 ## 步骤1 创建或打开工程
 
@@ -95,7 +95,7 @@
 > helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - cplusplus: rel_3.3.0 # helloworld_demo中引入cplusplus组件
+  - cplusplus: master # helloworld_demo中引入cplusplus组件
 ```
 
 ## 步骤3 下载组件
@@ -111,7 +111,7 @@ aos install cplusplus
 上述命令执行成功后，组件源码则被下载到了./components/cplusplus路径中。
 
 ## 步骤4 添加示例代码
-> cplusplus组件的package.yaml中[example示例代码](https://gitee.com/alios-things/cplusplus/tree/rel_3.3.0/example)：
+> cplusplus组件的package.yaml中[example示例代码](https://gitee.com/alios-things/cplusplus/tree/master/example)：
 ```sh
 source_file:
   - example/cpp_aos/*.c

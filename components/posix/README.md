@@ -1,6 +1,6 @@
 @page posix posix
 
-[更正文档](https://gitee.com/alios-things/posix/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/posix/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 POSIX (Portable Operating System Interface) 是IEEE组织为了维护应用在不同操作系统之间的兼容性而制定的标准。 主要包括API，Shell和Utility等一整套应用环境。主要应用于Unix/Linux操作系统之间， 也有其他的操作系统为了兼容Unix/Linux的应用生态而支持POSIX标准， 如Zephyr, VxWorks, QNX, Fuchsia等。
@@ -84,7 +84,7 @@ posix
 ```yaml
 
 depends:
-  - posix: rel_3.3.0          # helloworld_demo中引入posix组件
+  - posix: master          # helloworld_demo中引入posix组件
 
 ```
 
@@ -102,7 +102,7 @@ aos install posix
 
 ## 步骤4 添加示例
 
-在posix组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/posix/tree/rel_3.3.0/example)：
+在posix组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/posix/tree/master/example)：
 
 ```yaml
 source_file:

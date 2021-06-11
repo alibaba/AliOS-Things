@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: mbmaster                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                      # <必选项> 组件版本号
+version: master                                      # <必选项> 组件版本号
 description: 工业领域串行通信协议modbus驱动              # <必选项> 建议至少20字以上
 type: common                                         # <必选项> 组件类型，为：solution, chip, board, common, sdk
 

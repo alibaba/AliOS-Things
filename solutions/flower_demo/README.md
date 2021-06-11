@@ -1,6 +1,6 @@
 @page flower_demo 智能养花：用钉钉小程序通过HaaS100监测空气温湿度示例
 
-[更正文档](https://gitee.com/alios-things/flower_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/flower_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 过去，很多人一听嵌入式～～智能硬件～～就有点头大，甚至会感到一丝丝的恐惧。

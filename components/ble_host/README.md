@@ -1,6 +1,6 @@
 @page ble_host ble_host
 
-[更正文档](https://gitee.com/alios-things/ble_host/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ble_host/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 AliOS Things 3.3提供支持符合蓝牙4.0/4.2/5.0核心协议规范的BLE Host软件协议栈组件，方便用户使用蓝牙BLE功能。<br />ble_host组件功能框图如下图红色部分:
@@ -516,7 +516,7 @@ int ble_stack_dev_unpair(dev_addr_t *peer_addr)
 
 ```yaml
 depends:
-  - ble_host: rel_3.3.0
+  - ble_host: master
 ```
 
 ## 步骤3 下载组件

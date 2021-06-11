@@ -1,6 +1,6 @@
 @page init init
 
-[更正文档](https://gitee.com/alios-things/init/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/init/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 init是AliOS Things的基础模块初始化接口。其主要实现了**aos_components_init**接口。内部包含了Kernel中间件相关的基础组件的初始化。**aos_components_init**默认在各个app中作为基础接口在进入application_start前被调用。
@@ -81,7 +81,7 @@ init模块本身没有配置，相关的只有aos_component_init模块初始化�
 ```yaml
 
 depends:
-  - init: rel_3.3.0 # helloworld_demo中引入init组件
+  - init: master # helloworld_demo中引入init组件
 
 ```
 

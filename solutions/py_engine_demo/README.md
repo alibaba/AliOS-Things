@@ -1,6 +1,6 @@
 @page py_engine_demo python轻应用示例合集
 
-[更正文档](https://gitee.com/alios-things/py_engine_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/py_engine_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 
@@ -23,7 +23,7 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 * 在package.yaml 中增加py_engine组件依赖
 ```yaml
     depends:
-        - py_engine: rel_3.3.0
+        - py_engine: master
 ```
 * 增加头文件
 ```c

@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: haas1000                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                   # <必选项> 组件版本号
+version: master                                   # <必选项> 组件版本号
 description: driver & sdk for platform/mcu haas1000          # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -16,20 +16,20 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - armv7m: rel_3.3.0
-  - rhino: rel_3.3.0
-  - libc_stub: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - i2c: rel_3.3.0
-  - spi: rel_3.3.0
-  - flash: rel_3.3.0
-  - gpio: rel_3.3.0
-  - uart: rel_3.3.0
-  - flash: rel_3.3.0
-  - pwm: rel_3.3.0
-  - adc: rel_3.3.0
-  - timer: rel_3.3.0
-  - watchdog: rel_3.3.0
+  - armv7m: master
+  - rhino: master
+  - libc_stub: master
+  - osal_aos: master
+  - i2c: master
+  - spi: master
+  - flash: master
+  - gpio: master
+  - uart: master
+  - flash: master
+  - pwm: master
+  - adc: master
+  - timer: master
+  - watchdog: master
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效

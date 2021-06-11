@@ -1,6 +1,6 @@
 @page oled oled
 
-[更正文档](https://gitee.com/alios-things/sh1106/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/sh1106/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 OLED，即有机发光二极管（Organic Light-Emitting Diode）。OLED 由于同时具备自发光，不需背光源、对比度高、厚度薄、视角广、反应速度快、可用于挠曲性面板、使用温度范围广、构造及制程较简单等优异之特性。
@@ -105,7 +105,7 @@ void sh1106_show_string(uint8_t x, uint8_t y, const uint8_t *p, uint8_t size, ui
 
 ```yaml
 depends:
-  - sh1106: rel_3.3.0 # helloworld_demo中引入sh1106组件
+  - sh1106: master # helloworld_demo中引入sh1106组件
 ```
 
 ## 步骤3 下载组件

@@ -1,6 +1,6 @@
 @page websocket websocket
 
-[更正文档](https://gitee.com/alios-things/http/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/http/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 
 # 概述
@@ -382,9 +382,9 @@ const char * rws_error_get_description(rws_error error)
 ```yaml
 
 depends:
-  - netmgr: rel_3.3.0        # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - websocket: rel_3.3.0     # helloworld_demo中引入websocket组件
-  - lwip: rel_3.3.0          # helloworld_demo中引入lwip组件
+  - netmgr: master        # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - websocket: master     # helloworld_demo中引入websocket组件
+  - lwip: master          # helloworld_demo中引入lwip组件
 ```
 
 ## 步骤3 下载组件
@@ -401,7 +401,7 @@ aos install websocket
 
 ## 步骤4 添加示例
 
-在websocket组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/http/tree/rel_3.3.0/example)：
+在websocket组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/http/tree/master/example)：
 
 ```yaml
 source_file:

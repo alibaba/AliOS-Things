@@ -1,6 +1,6 @@
 @page vfs vfs
 
-[更正文档](https://gitee.com/alios-things/vfs/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/vfs/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 VFS 虚拟文件系统为各种文件（包括设备文件和普通文件）提供统一的操作接口。它是具体设备文件和文件系统之上的抽象层。其目的是允许应用程序以统一的方式访问不同类型的具体文件和设备。用户可以将ramfs,little fs等具体的文件系统注册到 VFS 中，然后使用标准操作接口（open,read,write,close 等）访问其中的文件。
@@ -315,7 +315,7 @@ int aos_rmdir(const char *path);
 > 在helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - vfs: rel_3.3.0 # helloworld_demo中引入vfs组件
+  - vfs: master # helloworld_demo中引入vfs组件
 ```
 
 ## 步骤3 下载组件
@@ -332,7 +332,7 @@ aos install vfs
 
 ## 步骤4 添加示例
 
-> vfs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/vfs/tree/rel_3.3.0/example)：
+> vfs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/vfs/tree/master/example)：
 ```yaml
 source_file:
   - "example/vfs_example.c" # add vfs_example.c

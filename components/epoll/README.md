@@ -1,6 +1,6 @@
 @page epoll epoll
 
-[更正文档](https://gitee.com/alios-things/epoll/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/epoll/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 epoll实现了linux兼容的高效的IO多路复用机制epoll.
@@ -73,7 +73,7 @@ https://man7.org/linux/man-pages/man7/epoll.7.html
 > helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - epoll: rel_3.3.0 # helloworld_demo中引入epoll组件
+  - epoll: master # helloworld_demo中引入epoll组件
 ```
 
 ## 步骤3 下载组件
@@ -90,7 +90,7 @@ aos install epoll
 
 ## 步骤4 添加示例
 
-在epoll组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/epoll/tree/rel_3.3.0/example)：
+在epoll组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/epoll/tree/master/example)：
 
 ```yaml
 source_file:

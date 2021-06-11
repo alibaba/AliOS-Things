@@ -1,6 +1,6 @@
 @page kv kv
 
-[更正文档](https://gitee.com/alios-things/kv/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/kv/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 对于嵌入式系统应用中，频繁使用的参数存储，过程变量存储等操作，AliOS-Things为用户提供了一种更加直观易于理解的基于键值对的存储方式，如报警温度=50度，可以通过定义一个键值对：{"AlarmTemp":50}来进行存储。获取时，也只需通过AlarmTemp这个关键字（键/KEY)即可快速获取和重新写入。KV将用户的指定片内flash扇区或eeprom虚拟为有一个存储空间，并且帮助用户管理键值对之间的映射关系，用户无需关心具体的值被写到哪里了，仅需要通过对键的操作即可完成数据的存取。该组件目前针对Nor flash设备。
@@ -98,7 +98,7 @@ def_config:
 ```yaml
 
 depends:
-  - kv: rel_3.3.0 # helloworld_demo中引入kv组件
+  - kv: master # helloworld_demo中引入kv组件
 
 ```
 
@@ -116,7 +116,7 @@ aos install kv
 
 ## 步骤4 添加示例
 
-在kv组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/kv/tree/rel_3.3.0/example)：
+在kv组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/kv/tree/master/example)：
 
 ```yaml
 source_file:

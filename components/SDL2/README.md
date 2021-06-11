@@ -1,6 +1,6 @@
 @page SDL2 SDL2
 
-**[更正文档](https://gitee.com/alios-things/SDL2/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/SDL2/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 Simple DirectMedia Layer是一个跨平台开发库，旨在通过OpenGL和Direct3D提供对音频，键盘，鼠标，操纵杆和图形硬件的低级访问。视频播放软件，仿真器和受欢迎的游戏（包括Valve屡获殊荣的目录和许多Humble Bundle游戏）都使用它。
@@ -259,8 +259,8 @@ http://wiki.libsdl.org/CategoryAPI
 ```yaml
 
 depends:
-  - SDL2: rel_3.3.0            # helloworld_demo组件中引入SDL2组件
-  - ili9341: rel_3.3.0         # helloworld_demo 中引入ili9341屏幕驱动
+  - SDL2: master            # helloworld_demo组件中引入SDL2组件
+  - ili9341: master         # helloworld_demo 中引入ili9341屏幕驱动
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等

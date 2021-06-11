@@ -1,6 +1,6 @@
 @page uart UART
 
-[更正文档](https://gitee.com/alios-things/uart/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/uart/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 UART设备VFS驱动子系统。
@@ -113,7 +113,7 @@ int ioctl(int fd, IOC_UART_SET_CFLAG, unsigned long flags);
 ```yaml
 
 depends:
-  - uart: rel_3.3.0          # helloworld_demo中引入uart组件
+  - uart: master          # helloworld_demo中引入uart组件
 
 ```
 

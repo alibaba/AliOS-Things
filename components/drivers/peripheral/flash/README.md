@@ -1,6 +1,6 @@
 @page flash flash
 
-[更正文档](https://gitee.com/alios-things/flash/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/flash/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 Flash（闪存）是一种速度非常快的非易失性存储设备，允许在操作中被多次擦或写的存储器，目前被广泛应用于嵌入式设备中。
@@ -78,7 +78,7 @@ flash/
 ```yaml
 
 depends:
-  - flash: rel_3.3.0          # helloworld_demo中引入flash组件
+  - flash: master          # helloworld_demo中引入flash组件
 
 ```
 
@@ -96,7 +96,7 @@ aos install flash
 
 ## 步骤4 添加示例
 
-在flash组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/flash/tree/rel_3.3.0/example)：
+在flash组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/flash/tree/master/example)：
 
 ```yaml
 source_file:

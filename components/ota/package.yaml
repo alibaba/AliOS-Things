@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
 name: ota
 description: An over-the-air update is the wireless delivery of new software.
-version: rel_3.3.0                     # <必选项> 组件版本号
+version: master                     # <必选项> 组件版本号
 type: common                         # <必选项> 组件类型，为：solution, chip, board, common
 tag: 系统升级                         # <可选项> 组件分类，缺省值： ''
 keywords:                            # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
@@ -16,10 +16,10 @@ license: Apache license v2.0         # <可选项> 源代码的许可证，要�
 #          指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
 #          未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
 depends:
-  - cjson: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - linksdk: rel_3.3.0
-  - http: rel_3.3.0
+  - cjson: master
+  - mbedtls: master
+  - linksdk: master
+  - http: master
 
 
 ## 第四部分：编译连接信息

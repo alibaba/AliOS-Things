@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: c906                                  # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                   # <必选项> 组件版本号
+version: master                                   # <必选项> 组件版本号
 description: YunVoice CPU0 board configure.         # <必选项> 建议至少20字以上
 type: board                                         # <必选项> 组件类型，为：solution, chip, board, common
 
@@ -14,10 +14,10 @@ tag: 核心模块                                       # <可选项> 组件分�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - minilibc: rel_3.3.0
-  - init: rel_3.3.0
-  - debug: rel_3.3.0
-  - smarth_rv64: rel_3.3.0
+  - minilibc: master
+  - init: master
+  - debug: master
+  - smarth_rv64: master
   # - kernel_init: v7.4_dev
   # - minialsa: v7.4-dev
   # - drv_sdmmc: v7.4-dev

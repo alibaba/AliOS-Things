@@ -1,6 +1,6 @@
 @page pca9544 pca9544
 
-[更正文档](https://gitee.com/alios-things/pca9544/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/pca9544/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -159,7 +159,7 @@ int pca9544_raw_data_read(uint16_t subdev_addr, uint16_t reg_addr,
 
 ```bash
 depends:
-  - pca9544: rel_3.3.0 # helloworld_demo中引入pca9544组件
+  - pca9544: master # helloworld_demo中引入pca9544组件
 ```
 
 ## 步骤3 下载组件

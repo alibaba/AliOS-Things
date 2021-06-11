@@ -1,6 +1,6 @@
 @page mbedtls mbedtls
 
-[更正文档](https://gitee.com/alios-things/mbedtls/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/mbedtls/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 mbedtls提供加解密算法（AES, RSA, MD5/SHA1/SHA256/SHA512 etc.），X.509证书管理和TLS/DTLS协议支持。详细介绍可参考[mbedtls官网](https://tls.mbed.org/)。
@@ -226,7 +226,7 @@ mbedtls API用法与开源版本一致，API用法可以参考[mbedtls官网API�
 ```yaml
 
 depends:
-  - mbedtls: rel_3.3.0          # helloworld_demo中引入mbedtls组件
+  - mbedtls: master          # helloworld_demo中引入mbedtls组件
 
 ```
 
@@ -244,7 +244,7 @@ aos install mbedtls
 
 ## 步骤4 添加示例
 
-在mbedtls组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mbedtls/tree/rel_3.3.0/example)：
+在mbedtls组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mbedtls/tree/master/example)：
 
 ```yaml
 source_file:

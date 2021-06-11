@@ -1,6 +1,6 @@
 @page spi spi
 
-**[更正文档](https://gitee.com/alios-things/spi/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/spi/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 本组件为SPI VFS驱动子系统。给应用或组件提供通过VFS形式（open/close/ioctl）访问硬件SPI驱动对上层提供服务的接口。该组件初始化过程中，会根据hardware/chip/<chip_name>/package.yaml中定义的CONFIG_SPI_NUM来依此创建如下名称的设备节点：
@@ -78,7 +78,7 @@ def_config:
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - spi: rel_3.3.0 # helloworld_demo中引入spi组件
+  - spi: master # helloworld_demo中引入spi组件
 ```
 
 ## 步骤3 下载组件

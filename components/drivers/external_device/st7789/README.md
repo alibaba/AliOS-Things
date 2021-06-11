@@ -1,6 +1,6 @@
 @page st7789 st7789
 
-[更正文档](https://gitee.com/alios-things/st7789/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/st7789/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 LCD (Liquid Crystal Display) 即液晶显示器。AliOS Things 提供了多款LCD组件供开发者使用，适配了目前应用最多的LCD模块。
@@ -128,7 +128,7 @@ void        st7789_draw_frame(st7789_dev_t st7789_dev, uint8_t *frame)
 > helloworld_demo组件的package.yaml中添加
 ```yaml
 depends:
-  - st7789: rel_3.3.0 # helloworld_demo中引入st7789组件
+  - st7789: master # helloworld_demo中引入st7789组件
 ```
 
 ## 步骤3 下载组件

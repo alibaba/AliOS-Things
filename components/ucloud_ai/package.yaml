@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: ucloud_ai                                         # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: 云端AI推理引擎，支持阿里云视觉智能开放平台     # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -17,10 +17,10 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - oss: rel_3.3.0
-  - http: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - jsoncpp: rel_3.3.0
+  - oss: master
+  - http: master
+  - mbedtls: master
+  - jsoncpp: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

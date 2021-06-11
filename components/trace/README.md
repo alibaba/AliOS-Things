@@ -1,6 +1,6 @@
 @page trace trace
 
-[更正文档](https://gitee.com/alios-things/trace/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/trace/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -107,7 +107,7 @@ void SEGGER_SYSVIEW_PrintfTarget(const char *s, ...);
 
 ```yaml
 depends:
-  - trace: rel_3.3.0 # helloworld_demo中引入trace组件
+  - trace: master # helloworld_demo中引入trace组件
 ```
 
 ## 步骤3 下载组件

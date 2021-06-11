@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: py_engine
-version: rel_3.3.0
+version: master
 description: "component built by cmake"             # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -15,29 +15,29 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - cli: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - ulog: rel_3.3.0
-  - kv: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - cjson: rel_3.3.0
-  - fatfs: "rel_3.3.0 ? <PY_BUILD_FATFS>"
-  - vfs: rel_3.3.0
-  - amp_adapter: rel_3.3.0
-  - oss: "rel_3.3.0 ? <PY_BUILD_OSS>"
-  - linksdk: "rel_3.3.0 ? <PY_BUILD_LINKSDK>"
-  - netmgr: "rel_3.3.0 ? <PY_BUILD_NETMGR>"
-  - lwip: rel_3.3.0
-  - http: "rel_3.3.0 ? <PY_BUILD_HTTP>"
-  - mqtt: "rel_3.3.0 ? <PY_BUILD_MQTT>"
-  - ucloud_ai: "rel_3.3.0 ? <PY_BUILD_AI>"
-  - uvoice: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
-  - a2sa: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
-  - ble_netconfig: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
-  - ble_host: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
-  - sntp: "rel_3.3.0 ? <PY_BUILD_SNTP>"
-  - mbedtls: "rel_3.3.0 ? <PY_BUILD_MBEDTLS>"
-  - mbmaster: "rel_3.3.0 ? <PY_BUILD_MODBUS>"
+  - cli: master
+  - osal_aos: master
+  - ulog: master
+  - kv: master
+  - mbedtls: master
+  - cjson: master
+  - fatfs: "master ? <PY_BUILD_FATFS>"
+  - vfs: master
+  - amp_adapter: master
+  - oss: "master ? <PY_BUILD_OSS>"
+  - linksdk: "master ? <PY_BUILD_LINKSDK>"
+  - netmgr: "master ? <PY_BUILD_NETMGR>"
+  - lwip: master
+  - http: "master ? <PY_BUILD_HTTP>"
+  - mqtt: "master ? <PY_BUILD_MQTT>"
+  - ucloud_ai: "master ? <PY_BUILD_AI>"
+  - uvoice: "master ? <PY_BUILD_AUDIO>"
+  - a2sa: "master ? <PY_BUILD_AUDIO>"
+  - ble_netconfig: "master ? <PY_BUILD_BLENETCONFIG>"
+  - ble_host: "master ? <PY_BUILD_BLENETCONFIG>"
+  - sntp: "master ? <PY_BUILD_SNTP>"
+  - mbedtls: "master ? <PY_BUILD_MBEDTLS>"
+  - mbmaster: "master ? <PY_BUILD_MODBUS>"
   
   
 ## 第四部分：编译连接信息

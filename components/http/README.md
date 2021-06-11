@@ -1,6 +1,6 @@
 @page http http
 
-[更正文档](https://gitee.com/alios-things/http/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/http/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -297,8 +297,8 @@ int httpclient_formdata_addfile(httpclient_data_t* client_data, char* content_di
 ```yaml
 
 depends:
-  - netmgr: rel_3.3.0   # helloworld_demo中引入netmgr组件，用于WiFi联网
-  - http: rel_3.3.0     # helloworld_demo中引入http组件
+  - netmgr: master   # helloworld_demo中引入netmgr组件，用于WiFi联网
+  - http: master     # helloworld_demo中引入http组件
 
 ```
 
@@ -316,7 +316,7 @@ aos install http
 
 ## 步骤4 添加示例
 
-在http组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/http/tree/rel_3.3.0/example)：
+在http组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/http/tree/master/example)：
 
 ```yaml
 source_file:

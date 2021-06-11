@@ -1,6 +1,6 @@
 @page audio_demo 用钉钉小程序控制HaaS100播放语音示例
 
-[更正文档](https://gitee.com/alios-things/audio_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/audio_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1、方案介绍
 本文主要介绍如何基于HaaS100硬件平台搭建“云端钉一体”（阿里云IoT平台 + HaaS100 + 钉钉小程序）的智能语音播放器（以下简称智能语音播放器）。该智能语音播放器包含如下功能：

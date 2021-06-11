@@ -1,6 +1,6 @@
 @page ucloud_ai_demo 老板来了：通过HaaS100实现端云一体人脸识别示例
 
-[更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 ucloud_ai_demo是基于云端AI能力实现的AI识别案例，主要有三个部分组成：

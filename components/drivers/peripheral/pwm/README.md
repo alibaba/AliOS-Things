@@ -1,6 +1,6 @@
 @page pwm pwm
 
-**[更正文档](https://gitee.com/alios-things/pwm/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/pwm/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 > PWM VFS驱动子系统，该驱动的目的是给应用或组件提供通过VFS形式（open/close/ioctl）访问PWM控制器驱动对上层提供服务的接口。
@@ -120,7 +120,7 @@ int ioctl(int fd, int cmd, unsigned long arg);
 ```yaml
 # 设置组件依赖关系
 depends:
-  - pwm: rel_3.3.0
+  - pwm: master
 
 # 设置芯片内部所含PWM控制器数量
 define:
@@ -141,7 +141,7 @@ aos install pwm
 
 ## 步骤4 添加示例
 
-在i2c组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/pwm/tree/rel_3.3.0/example)：
+在i2c组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/pwm/tree/master/example)：
 
 ```yaml
 source_file:

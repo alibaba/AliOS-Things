@@ -1,6 +1,6 @@
 @page libc_stub libc_stub
 
-[更正文档](https://gitee.com/alios-things/libc_stub/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/libc_stub/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 libc_stub组件是对C库桩函数（stubs）的实现，用于AliOS Things与C库的对接。支持gcc(newlibc)、icc、armcc三种类型编译器的C库。
@@ -58,8 +58,8 @@ libc_stub组件是对C库桩函数（stubs）的实现，用于AliOS Things与C�
 ```yaml
 
 depends:
-  - ramfs: rel_3.3.0
-  - libc_stub: rel_3.3.0
+  - ramfs: master
+  - libc_stub: master
 
 ```
 
@@ -77,7 +77,7 @@ aos install ramfs libc_stub
 
 ## 步骤4 添加示例
 目前使用的gcc编译器都是使用的newlibc库，因此一般都要加上**libc_stub**组件。如果采用其他C库如musl库，则不需要添加。
-在libc_stub组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/libc_stub/tree/rel_3.3.0/example)：
+在libc_stub组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/libc_stub/tree/master/example)：
 
 ```yaml
 source_file:

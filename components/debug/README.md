@@ -1,6 +1,6 @@
 @page debug debug
 
-[更正文档](https://gitee.com/alios-things/debug/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/debug/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 AliOS Things 调试诊断（debug）组件支持以下功能：
@@ -107,7 +107,7 @@ def_config:
 ```yaml
 
 depends:
-  - debug: rel_3.3.0  # helloworld_demo中引入debug组件
+  - debug: master  # helloworld_demo中引入debug组件
 
 ```
 
@@ -125,7 +125,7 @@ aos install debug
 
 ## 步骤4 添加示例
 
-在debug组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/debug/tree/rel_3.3.0/example)：
+在debug组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/debug/tree/master/example)：
 
 ```yaml
 source_file:

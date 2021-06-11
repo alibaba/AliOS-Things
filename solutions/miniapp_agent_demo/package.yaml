@@ -1,5 +1,5 @@
 name: miniapp_agent_demo
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: AliOS Things LinkSDK Data Model Demo
 
 type: solution
@@ -16,18 +16,18 @@ solution:
   # ld_script: gcc_eflash.ld
 
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: rel_3.3.0
-  - haas100: rel_3.3.0
-  - haas200: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - ble_netconfig: rel_3.3.0
-  - cli: rel_3.3.0
-  - kv: rel_3.3.0
-  - debug: rel_3.3.0
-  - lwip: rel_3.3.0
-  - uservice: rel_3.3.0
-  - wifi: rel_3.3.0
+  - linksdk: master
+  - haas100: master
+  - haas200: master
+  - mbedtls: master
+  - netmgr: master
+  - ble_netconfig: master
+  - cli: master
+  - kv: master
+  - debug: master
+  - lwip: master
+  - uservice: master
+  - wifi: master
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

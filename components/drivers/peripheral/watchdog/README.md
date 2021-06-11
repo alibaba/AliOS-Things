@@ -1,6 +1,6 @@
 @page watchdog watchdog
 
-**[更正文档](https://gitee.com/alios-things/watchdog/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/watchdog/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 > WATCHDOG VFS驱动子系统，该驱动的目的是给应用或组件提供通过VFS形式（open/close/ioctl）访问WATCHDOG控制器驱动对上层提供复位看门狗的接口。
@@ -93,7 +93,7 @@ ioctl (fd, IOC_WDG_RELOAD, 0);
 ```yaml
 # 设置组件依赖关系
 depends:
-  - watchdog: rel_3.3.0
+  - watchdog: master
 
 # 设置芯片内部所含WATCHDOG控制器数量
 define:

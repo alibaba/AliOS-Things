@@ -1,6 +1,6 @@
 @page uagent uagent
 
-[更正文档](https://gitee.com/alios-things/uagent/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/uagent/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 uagent是AliOS Things的模块，支持其他客户模块(ulog，cli，ota，uND)将其服务注册到其中。 从云(面向维护平台)的服务调用可以通过uagent调用设备的服务，uagent还可以帮助客户模块发送信息，以帮助显示其工作状态。
@@ -65,11 +65,11 @@ uagent/
 > linkitsdk_dmeo solutions的package.yaml中添加依赖组件uagent组件
 ```yaml
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: rel_3.3.0
-  - haas100: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - uagent: rel_3.3.0   #添加uagent组件
+  - linksdk: master
+  - haas100: master
+  - mbedtls: master
+  - netmgr: master
+  - uagent: master   #添加uagent组件
 ```
 ## 步骤3 下载组件
 
@@ -85,7 +85,7 @@ aos install uagent
 
 ## 步骤4 添加示例
 
-> uagent组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uagent/tree/rel_3.3.0/example)：
+> uagent组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/uagent/tree/master/example)：
 ```yaml
 source_file:
   - "src/uagent_comm_mqtt.c"

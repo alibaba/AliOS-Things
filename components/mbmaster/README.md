@@ -1,6 +1,6 @@
 @page mbmaster mbmaster
 
-**[更正文档](https://gitee.com/alios-things/mbmaster/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/mbmaster/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 
@@ -104,8 +104,8 @@ src
 
 ```yaml
 depends:
-  - mbmaster: rel_3.3.0 # helloworld_demo中引入modbus组件
-  - ulog: rel_3.3.0
+  - mbmaster: master # helloworld_demo中引入modbus组件
+  - ulog: master
 ```
 
 ## 步骤3 下载组件
@@ -120,7 +120,7 @@ aos install mbmaster
 
 ## 步骤4 添加示例
 
-在mbmaster组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mbmaster/tree/rel_3.3.0/example)：
+在mbmaster组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/mbmaster/tree/master/example)：
 
 ```yaml
 source_file:

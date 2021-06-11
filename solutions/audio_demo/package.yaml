@@ -1,5 +1,5 @@
 name: audio_demo
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: AliOS Things Audio Demo
 
 type: solution
@@ -16,17 +16,17 @@ solution:
   # ld_script: gcc_eflash.ld
 
 depends:                                       # 该组件依赖其他的组件
-  - linksdk: rel_3.3.0
-  - haas100: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - a2sa: rel_3.3.0
-  - uvoice: rel_3.3.0
-  - littlefs: rel_3.3.0
-  - lwip: rel_3.3.0
-  - uservice: rel_3.3.0
-  - wifi: rel_3.3.0
-  - cli: rel_3.3.0
+  - linksdk: master
+  - haas100: master
+  - mbedtls: master
+  - netmgr: master
+  - a2sa: master
+  - uvoice: master
+  - littlefs: master
+  - lwip: master
+  - uservice: master
+  - wifi: master
+  - cli: master
 
 ## 第五部分：配置信息
 #def_config:                              # 组件的可配置项

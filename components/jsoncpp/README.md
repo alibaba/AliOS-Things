@@ -1,6 +1,6 @@
 @page jsoncpp jsoncpp
 
-[更正文档](https://gitee.com/alios-things/jsoncpp/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/jsoncpp/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -91,7 +91,7 @@ class JSON_API ValueIterator
 ```yaml
 
 depends:
-  - jsoncpp: rel_3.3.0 # helloworld_demo中引入jsoncpp组件
+  - jsoncpp: master # helloworld_demo中引入jsoncpp组件
 
 ```
 
@@ -109,7 +109,7 @@ aos install jsoncpp
 
 ## 步骤4 添加示例
 
-在jsoncpp组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/jsoncpp/tree/rel_3.3.0/example)：
+在jsoncpp组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/jsoncpp/tree/master/example)：
 
 ```yaml
 source_file:
