@@ -1,6 +1,6 @@
 @page lwip lwip
 
-[更正文档](https://gitee.com/alios-things/lwip/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/lwip/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 LwIP(Light Weight Internet Protoco1)是瑞士计算机科学院(Swedish Institute of Computer Science)AdamDunkels等人开发的一套用于嵌入式系统的开放源代码TCP／IP协议栈。LWIP的含义是Light Weight(轻型)IP协议。LWIP可以移植到操作系统上，也可以在无操作系统的情况下独立运行。LWIP TCP／IP实现的重点是在保持TCP协议主要功能的基础上减少对RAM的占用。一般它只需要几十KB的RAM和40 KB左右的ROM就可以运行，这使LWIP协议栈适合在小型嵌入式系统中使用。
@@ -315,8 +315,8 @@ int setsockopt (int s, int level, int optname, const void *optval, socklen_t opt
 
 ```yaml
 depends:
-  - netmgr:rel_3.3.0     # 添加netmgr依赖，使用netmgr连接wifi
-  - lwip:rel_3.3.0       # helloworld_demo中引入lwip组件
+  - netmgr:master     # 添加netmgr依赖，使用netmgr连接wifi
+  - lwip:master       # helloworld_demo中引入lwip组件
 ```
 
 ## 步骤3 下载组件
@@ -333,7 +333,7 @@ aos install lwip
 
 ## 步骤4 添加示例
 
-在lwip组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/lwip/tree/rel_3.3.0/example)：
+在lwip组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/lwip/tree/master/example)：
 
 ```yaml
 source_file:

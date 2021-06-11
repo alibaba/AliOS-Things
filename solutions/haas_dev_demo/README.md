@@ -1,6 +1,6 @@
 @page haas_dev_demo JavaScript和Python双引擎运行环境
 
-[更正文档](https://gitee.com/alios-things/haas_dev_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/haas_dev_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 1. 案例简介
 ## 1.1 Python轻应用引擎
@@ -47,8 +47,8 @@ Runtime采用JavaScript引擎加载用户脚本代码并执行，配合高可用
 py_engine是Python轻应用引擎的组件，amp是JavaScript轻应用引起的组件。
 ```yaml
     depends:
-        - py_engine: rel_3.3.0
-        - amp: rel_3.3.0
+        - py_engine: master
+        - amp: master
 ```
 
 # 3. 物料清单

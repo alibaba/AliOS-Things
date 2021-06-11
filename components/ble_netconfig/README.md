@@ -1,6 +1,6 @@
 @page ble_netconfig ble_netconfig
 
-[更正文档](https://gitee.com/alios-things/ble_netconfig/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ble_netconfig/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 AliOS Things 3.3提供ble_netconfig组件，用BLE功能传递配置信息，包括Wi-Fi配网需要的SSID和密码信息，连接阿里云需要的三元组信息。
@@ -234,7 +234,7 @@ BLE_NETCFG_STATE BLE_NetCfg_devinfo_set(char *pk, char *dn, char *ds)
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - ble_netconfig: rel_3.3.0
+  - ble_netconfig: master
 ```
 
 ## 步骤3 下载组件

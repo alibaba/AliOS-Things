@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: documentation                                 # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                    # <必选项> 组件版本号
+version: master                                    # <必选项> 组件版本号
 description: 文档库包含AliOS Things概述、快速开始、开发工具、构建工具、开发贡献等文档                                   # <必选项> 建议至少20字以上
 type: document                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 

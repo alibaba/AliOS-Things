@@ -1,6 +1,6 @@
 @page rx8130ce rx8130ce
 
-[更正文档](https://gitee.com/alios-things/rx8130ce/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/rx8130ce/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -89,7 +89,7 @@ int rx8130ce_get_time(void *buf, uint8_t len);
 
 ```bash
 depends:
-  - rx8130ce: rel_3.3.0 # helloworld_demo中引入rx8130ce组件
+  - rx8130ce: master # helloworld_demo中引入rx8130ce组件
 ```
 
 ## 步骤3 下载组件

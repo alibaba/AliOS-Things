@@ -2,7 +2,7 @@
 ## 第一部分： 基础信息
 description: AliOS Things维测组件，包含系统异常coredump、栈回溯backtrace、CPUusage及常用的调试诊断功能
 name: debug                                      # <必选项> 建议至少20字以上
-version: rel_3.3.0
+version: master
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag:                                                # <可选项> 组件分类，缺省值： ''
@@ -15,11 +15,11 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - vfs: rel_3.3.0 ? <DEBUG_LAST_WORD_ENABLE>
-  - littlefs: rel_3.3.0 ? <DEBUG_LAST_WORD_ENABLE>
-  - vfs: rel_3.3.0 ? <DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE>
-  - littlefs: rel_3.3.0 ? <DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE>
-  - ulog: rel_3.3.0 ? <DEBUG_ULOG_FLUSH>
+  - vfs: master ? <DEBUG_LAST_WORD_ENABLE>
+  - littlefs: master ? <DEBUG_LAST_WORD_ENABLE>
+  - vfs: master ? <DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE>
+  - littlefs: master ? <DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE>
+  - ulog: master ? <DEBUG_ULOG_FLUSH>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

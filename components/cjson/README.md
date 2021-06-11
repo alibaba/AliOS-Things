@@ -1,6 +1,6 @@
 @page cjson cjson
 
-[更正文档](https://gitee.com/alios-things/cjson/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/cjson/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 cJSON是符合ANSI C标准的极轻量级JSON解析器。
@@ -135,7 +135,7 @@ cJSON_bool cJSON_IsObject(const cJSON * const item);
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - cjson: rel_3.3.0
+  - cjson: master
 ```
 
 ## 步骤3 下载组件
@@ -152,7 +152,7 @@ aos install cjson
 
 ## 步骤4 添加示例
 
-在cjson组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/cjson/tree/rel_3.3.0/example)：
+在cjson组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/cjson/tree/master/example)：
 ```
 source_file:
   - "src/*.c"

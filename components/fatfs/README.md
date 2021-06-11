@@ -1,6 +1,6 @@
 @page fatfs
 
-[更正文档](https://gitee.com/alios-things/fatfs/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/fatfs/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 **fatfs** is a generic FAT/exFAT filesystem module for small embedded system. The fatfs module is written in compliance with ANSI C (C89). It attempts to provide AOS-compatible filesystem behaviour.
@@ -83,7 +83,7 @@ def_config:
 ```yaml
 
 depends:
-  - fatfs: rel_3.3.0 # helloworld_demo中引入fatfs组件
+  - fatfs: master # helloworld_demo中引入fatfs组件
 
 ```
 
@@ -101,7 +101,7 @@ aos install fatfs
 
 ## 步骤4 添加示例
 
-在fatfs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/a2sa/tree/rel_3.3.0/example)：
+在fatfs组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/a2sa/tree/master/example)：
 示例代码参考example/fatfs_example.c。
 
 ```yaml

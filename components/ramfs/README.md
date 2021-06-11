@@ -52,7 +52,7 @@ ramfs是AliOS Things提供的基于RAM不依赖flash驱动的可读可写的文�
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - ramfs: rel_3.3.0 # helloworld_demo中引入ramfs组件
+  - ramfs: master # helloworld_demo中引入ramfs组件
 ```
 
 ## 步骤3 下载组件

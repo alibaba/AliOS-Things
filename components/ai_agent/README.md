@@ -1,6 +1,6 @@
 @page ai_agent ai_agent
 
-**[更正文档](https://gitee.com/alios-things/ai_agent/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/ai_agent/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 AI Agent作为AI的代理引擎框架，支持不同推理引擎的注册，对用户提供统一的接口，简化用户操作，目前注册的AI引擎为ucloud-ai云端推理引擎，用户可以根据需要注册其他推理引擎。
@@ -63,9 +63,9 @@ def_config:                      # 组件的可配置项
 ```yaml
 
 depends:
-  - ai_agent: rel_3.3.0   # helloworld_demo中引入ai_agent组件
-  - netmgr: rel_3.3.0     # helloworld_demo中引入netmgr组件
-  - littlefs: rel_3.3.0   # helloworld_demo中引入littlefs组件
+  - ai_agent: master   # helloworld_demo中引入ai_agent组件
+  - netmgr: master     # helloworld_demo中引入netmgr组件
+  - littlefs: master   # helloworld_demo中引入littlefs组件
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
@@ -87,7 +87,7 @@ aos install ai_agent
 
 ## 步骤4 添加示例
 
-在ai_agent组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ai_agent/tree/rel_3.3.0/example)：
+在ai_agent组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ai_agent/tree/master/example)：
 
 ```yaml
 source_file:

@@ -1,6 +1,6 @@
 ## 第一部分： 基础信息
 name: amp                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: AliOS Things mini program                             # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -19,27 +19,27 @@ license: Apache-2.0 License                        # <可选项> 源代码的许
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - osal_aos: rel_3.3.0
-  - ulog: rel_3.3.0 ? <AMP_CORE_ADDON_LOG>
-  - uagent: rel_3.3.0
-  - kv: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - cjson: rel_3.3.0
-  - a2sa: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
-  - a2sa: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
-  - uvoice: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
-  - uvoice: rel_3.3.0 ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
-  - linksdk: rel_3.3.0 ? <AMP_ADVANCED_ADDON_AIOT_DEVICE>
-  - linksdk: rel_3.3.0 ? <AMP_ADVANCED_ADDON_AIOT_GATEWAY>
-  - ota: rel_3.3.0 ? <AMP_ADVANCED_ADDON_OTA>
-  - netmgr: rel_3.3.0 ? <AMP_NET_ADDON_NETMGR>
-  - littlefs: rel_3.3.0
-  - http: rel_3.3.0 ? <AMP_NET_ADDON_HTTP>
-  - amp_adapter: rel_3.3.0
-  - ble_host: rel_3.3.0 ? <AMP_WIRELESS_ADDON_BT_HOST>
-  - uagent: rel_3.3.0
-  - littlevgl: rel_3.3.0 ? <AMP_ADVANCED_ADDON_UI>
-  - ble_netconfig: rel_3.3.0 ? <AMP_ADVANCED_ADDON_BLECFGNET>
+  - osal_aos: master
+  - ulog: master ? <AMP_CORE_ADDON_LOG>
+  - uagent: master
+  - kv: master
+  - mbedtls: master
+  - cjson: master
+  - a2sa: master ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - a2sa: master ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - uvoice: master ? <CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - uvoice: master ? <CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - linksdk: master ? <AMP_ADVANCED_ADDON_AIOT_DEVICE>
+  - linksdk: master ? <AMP_ADVANCED_ADDON_AIOT_GATEWAY>
+  - ota: master ? <AMP_ADVANCED_ADDON_OTA>
+  - netmgr: master ? <AMP_NET_ADDON_NETMGR>
+  - littlefs: master
+  - http: master ? <AMP_NET_ADDON_HTTP>
+  - amp_adapter: master
+  - ble_host: master ? <AMP_WIRELESS_ADDON_BT_HOST>
+  - uagent: master
+  - littlevgl: master ? <AMP_ADVANCED_ADDON_UI>
+  - ble_netconfig: master ? <AMP_ADVANCED_ADDON_BLECFGNET>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

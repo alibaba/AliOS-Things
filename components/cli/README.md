@@ -1,6 +1,6 @@
 @page cli cli
 
-[更正文档](https://gitee.com/alios-things/cli/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/cli/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 在日常嵌入式开发中，用户经常会自行实现一套类似Linux Shell的交互工具来实现通过串口命令控制设备进入某种特定的状态，或执行某个特定的操作。如系统自检，模拟运行，或者进入手动模式进行设备点动。AliOS Things原生实现了一套名为CLI（Command-Line Interface）的命令行交互工具，在提供基本的系统交互命令的基础上，也支持用户自定义命令。
@@ -141,7 +141,7 @@ def_config:
 ```yaml
 
 depends:
-  - cli: rel_3.3.0  # helloworld_demo中引入cli组件
+  - cli: master  # helloworld_demo中引入cli组件
 
 ```
 

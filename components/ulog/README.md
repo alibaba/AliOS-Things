@@ -1,6 +1,6 @@
 @page ulog ulog
 
-[更正文档](https://gitee.com/alios-things/ulog/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ulog/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 
@@ -85,7 +85,7 @@ def_config:
 
 ```sh
 depends:
-  - ulog: rel_3.3.0 # helloworld_demo中引入ulog组件
+  - ulog: master # helloworld_demo中引入ulog组件
 ```
 
 ## 步骤3 下载组件
@@ -102,7 +102,7 @@ aos install ulog
 
 ## 步骤4 添加示例
 
-> ulog组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ulog/tree/rel_3.3.0/example)：
+> ulog组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/ulog/tree/master/example)：
 
 ```yaml
 source_file:

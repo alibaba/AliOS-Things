@@ -1,6 +1,6 @@
 @mainpage AliOS Things 概述
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/mainpage.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/master/manual/mainpage.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 <div align="center">
   <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">

@@ -1,6 +1,6 @@
 @page a2sa a2sa
 
-[更正文档](https://gitee.com/alios-things/a2sa/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/a2sa/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 A2SA是Advanced AliOS Things Sound Architucture的缩写，是AliOS Things音频系统服务框架，包括音频驱动层、音频服务接口层以及音频插件管理等。部分设计理念借鉴了Linux ALSA的设计思路，例如在设备驱动层支持VFS设备驱动挂载访问、支持多声卡管理、PCM/Control音频设备模型、对音频Codec友好抽象等。在音频服务接口层兼容Linux ALSA-Lib的API接口规范,方便基于ALSA-Lib开发的应用组件移植到AliOS Things。同时A2SA的footprint也足够小（23KB），适合在嵌入式IoT设备上移植。
@@ -86,8 +86,8 @@ def_config:
 ```yaml
 
 depends:
-  - a2sa: rel_3.3.0          # helloworld_demo中引入a2sa组件
-  - littlefs: rel_3.3.0      # a2sa组件wav播放器示例依赖littlefs文件系统组件
+  - a2sa: master          # helloworld_demo中引入a2sa组件
+  - littlefs: master      # a2sa组件wav播放器示例依赖littlefs文件系统组件
 
 def_config:
     CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaS100音频驱动开关
@@ -109,7 +109,7 @@ aos install a2sa
 
 ## 步骤4 添加示例
 
-在a2sa组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/a2sa/tree/rel_3.3.0/example)：
+在a2sa组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/a2sa/tree/master/example)：
 
 ```yaml
 source_file:

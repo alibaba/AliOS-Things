@@ -1,6 +1,6 @@
 @page timer timer
 
-**[更正文档](https://gitee.com/alios-things/timer/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/timer/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
 
 # 概述
 Timer，即通用硬件定时器。
@@ -132,7 +132,7 @@ ioctl (fd, IOC_TIMER_RELOAD, false)
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```yaml
 depends:
-  - timer: rel_3.3.0 # helloworld_demo中引入timer组件
+  - timer: master # helloworld_demo中引入timer组件
 ```
 
 ## 步骤3 下载组件
@@ -149,7 +149,7 @@ aos install timer
 
 ## 步骤4 添加示例
 
-在timer组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/timer/tree/rel_3.3.0/example)：
+在timer组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/timer/tree/master/example)：
 ```yaml
 source_file:
   原有其他文件

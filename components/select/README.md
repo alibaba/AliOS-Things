@@ -1,6 +1,6 @@
 @page select select
 
-[更正文档](https://gitee.com/alios-things/select/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/select/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 select组件实现了IO多路复用机制select和poll。
@@ -73,7 +73,7 @@ aos_select/aos_poll功能定义与posix标准的select/poll兼容，可参考lin
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 ```sh
 depends:
-  - select: rel_3.3.0 # helloworld_demo中引入select组件
+  - select: master # helloworld_demo中引入select组件
 ```
 ## 步骤3 下载组件
 

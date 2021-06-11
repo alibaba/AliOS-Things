@@ -1,6 +1,6 @@
 ## 第一部分： 基础信息
 name: haaseduk1 # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0 # <必选项> 组件版本号
+version: master # <必选项> 组件版本号
 description: HaaS EDU K1 board configure. # <必选项> 建议至少20字以上
 type: board # <必选项> 组件类型，为：solution, chip, board, common
 
@@ -13,12 +13,12 @@ tag: 核心模块 # <可选项> 组件分类，缺省值： ''
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - libc_stub: rel_3.3.0
-  - armv7m: rel_3.3.0
-  - haas1000: rel_3.3.0
-  - init: rel_3.3.0
-  - ulog: rel_3.3.0
-  - kv: rel_3.3.0
+  - libc_stub: master
+  - armv7m: master
+  - haas1000: master
+  - init: master
+  - ulog: master
+  - kv: master
   # - kernel_init: v7.4_dev
   # - minialsa: v7.4-dev
   # - drv_sdmmc: v7.4-dev

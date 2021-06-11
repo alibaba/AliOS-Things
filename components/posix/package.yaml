@@ -1,5 +1,5 @@
 name: posix
-version: rel_3.3.0
+version: master
 description: 支持POSIX标准API
 type: common
 
@@ -9,8 +9,8 @@ keywords:
 license: Apache license v2.0
 
 depends:
-  - osal_aos: rel_3.3.0
-  - select: rel_3.3.0
+  - osal_aos: master
+  - select: master
 
 build_config:
   include:

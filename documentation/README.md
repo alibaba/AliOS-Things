@@ -1,5 +1,5 @@
 
-[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/documentation/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
 
 # 概述
 文档库包括系统概述、快速开始、开发工具、构建工具、开发贡献说明等文档.其中开发工具板块囊括了AliOS Things配套的开发环境、构建工具和配置文件的全部使用说明，后续还将在此版块扩充更多工具的相关内容；快速开始板块目前提供了引导开发者基于硬件HaaS100和HaaS EDU k1快速运行示例程序的操作说明，后续会随着支持硬件的多样化而不断扩充；开发者贡献板块为开发者贡献文档或代码提供操作指南，后续会对贡献规范提供进一步的详细说明。
