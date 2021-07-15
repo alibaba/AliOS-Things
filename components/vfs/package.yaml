@@ -61,6 +61,7 @@ def_config:
   VFS_CONFIG_MAX_FILE_NUM: 50
   VFS_CONFIG_CURRENT_DIRECTORY_ENABLE: 1
   RPM_INCLUDE_DIR: fs
+  VFS_CONFIG_DEBUG: 1
 
 ## 第六部分：安装信息
 # install:

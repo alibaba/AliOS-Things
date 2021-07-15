@@ -78,8 +78,101 @@ export default class SH1106 {
         this.spi.write(buf)
     }
 
+    pixel(x, y, color) {
+        if ((x > (this.width)) || (y > this.height) || x < 0 || y < 0)
+            return;
+
+        let page = Math.floor(y / 8)
+        let bit_offset = y % 8;
+        let mask = 0x01 << bit_offset;
+
+        if (color == 0)
+            this.framebuf[page * this.width + x] &= ~mask;
+        if (color == 1)
+            this.framebuf[page * this.width + x] |= mask;
+        if (color == 2)
+            this.framebuf[page * this.width + x] ^= mask;
+        if (color == undefined)
+            return (this.framebuf[page * this.width + x] & mask)
+    }
+
     fill(color) {
         this.framebuf.fill(color == 0 ? 0 : 255)
+    }
+
+    line(x1, y1, x2, y2, color) {
+        let xerr = 1, yerr = 1, delta_x, delta_y, distance;
+        let incx, incy, uRow, uCol;
+
+        delta_x = x2 - x1;
+        delta_y = y2 - y1;
+
+        uRow = x1;
+        uCol = y1;
+        if (delta_x > 0) {
+            incx = 1;
+        } else if (delta_x == 0) {
+            incx = 0;
+        } else {
+            incx = -1;
+            delta_x = -delta_x;
+        }
+
+        if (delta_y > 0) {
+            incy = 1;
+        } else if (delta_y == 0) {
+            incy = 0;
+        } else {
+            incy = -1;
+            delta_y = -delta_y;
+        }
+
+        if (delta_x > delta_y)
+            distance = delta_x;
+        else
+            distance = delta_y;
+
+        for (let t = 0; t <= distance; t++) {
+            this.pixel(uRow, uCol, color);
+            xerr += delta_x;
+            yerr += delta_y;
+
+            if (xerr > distance / 2) {
+                xerr -= distance;
+                uRow += incx;
+            }
+            if (yerr > distance) {
+                yerr -= distance;
+                uCol += incy;
+            }
+        }
+    }
+
+    rect(x, y, w, h, color) {
+        this.line(x, y, x + w, y, color)
+        this.line(x, y, x, y + h, color)
+        this.line(x + w, y + h, x, y + h, color)
+        this.line(x + w, y + h, x + w, y, color)
+    }
+
+    fill_rect(x, y, w, h, color) {
+        for (let i = 0; i < h; i++) {
+            this.line(x, y, x + w, y + i, color)
+        }
+    }
+
+    draw_XBM(x, y, w, h, bitmap) {
+        let p_x, p_y;
+        let x_byte = Math.floor(w / 8) + (w % 8 != 0)
+        for (let nbyte = 0; nbyte < bitmap.length; nbyte++) {
+            for (let bit = 0; bit < 8; bit++) {
+                if (bitmap[nbyte] & (0b10000000 >> bit)) {
+                    p_x = (nbyte % x_byte) * 8 + bit
+                    p_y = Math.floor(nbyte / x_byte)
+                    this.pixel(x + p_x, y + p_y, 1)
+                }
+            }
+        }
     }
 
     open() {

@@ -22,6 +22,13 @@ depends:
   - osal_aos: rel_3.3.0
   - haas100: rel_3.3.0
   - haas200: rel_3.3.0
+# TODO: 将depends中的板子信息移入supported_boards
+# depends 中仅保留当前需要编译的板子，和board_name一致
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: rel_3.3.0
+  - haas200: rel_3.3.0
+  - haaseduk1: rel_3.3.0
 
   # - vexpress_a9: rel_3.3.0
 

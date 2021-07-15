@@ -369,6 +369,7 @@ aos_status_t aos_tty_csi_register(aos_tty_csi_t *tty_csi)
         return -EINVAL;
 
     tty_csi->tty.ops = &tty_csi_ops;
+    tty_csi->tty.flags = 0;
     ret = aos_sem_new(&tty_csi->rx_sem, 0);
     if (ret)
         return ret;

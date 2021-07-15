@@ -6,7 +6,11 @@
 #include "aos_system.h"
 #include "aos_fs.h"
 #include "aos/vfs.h"
+#ifndef AOS_BOARD_HAAS700
 #include "vfs_types.h"
+#else
+#include "fs/vfs_types.h"
+#endif
 
 int aos_fs_init(void)
 {
@@ -84,3 +88,12 @@ out:
     return ret;
 }
 
+int aos_fs_type(uint mode)
+{
+    if (mode & S_IFDIR) {
+        return 0;
+    } else if (mode & S_IFREG) {
+        return 1;
+    }
+    return -1;
+}

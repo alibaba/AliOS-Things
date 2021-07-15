@@ -9,10 +9,13 @@
 #include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_timer.h"
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/timer_dev.h>
+#endif
 
 int32_t aos_hal_timer_init(timer_dev_t *tim)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -50,10 +53,14 @@ out:
         p_fd = NULL;
     }
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_timer_start(timer_dev_t *tim)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
     timer_alarm_t alarm;
@@ -81,10 +88,14 @@ int32_t aos_hal_timer_start(timer_dev_t *tim)
         printf("start timer%d failed, ret:%d\r\n", tim->port, ret);
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 void aos_hal_timer_stop(timer_dev_t *tim)
 {
+#ifndef AOS_BOARD_HAAS700
         int32_t *p_fd = NULL;
     int32_t ret = -1;
 
@@ -101,10 +112,14 @@ void aos_hal_timer_stop(timer_dev_t *tim)
         printf("stop timer%d failed, ret:%d\r\n", tim->port, ret);
 
     return;
+#else
+    return;
+#endif
 }
 
 int32_t aos_hal_timer_para_chg(timer_dev_t *tim, timer_config_t para)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
     timer_alarm_t alarm;
@@ -127,10 +142,14 @@ int32_t aos_hal_timer_para_chg(timer_dev_t *tim, timer_config_t para)
         printf("change parameter of timer%d failed, ret:%d\r\n", tim->port, ret);
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_timer_finalize(timer_dev_t *tim)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -154,4 +173,7 @@ int32_t aos_hal_timer_finalize(timer_dev_t *tim)
     free(p_fd);
 
     return ret;
+#else
+    return -1;
+#endif
 }

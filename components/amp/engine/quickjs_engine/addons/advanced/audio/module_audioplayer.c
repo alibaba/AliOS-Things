@@ -674,10 +674,6 @@ static int native_audioplayer_config_parse(uvoice_player_t *player)
             pa_info.pin = audio_dev->external_pa_pin;
             pa_info.delay_ms = audio_dev->external_pa_delay_ms;
             player->set_external_pa(&pa_info);
-#ifdef JSE_ADVANCED_ADDON_TTS
-            aos_tts_set_external_pa(audio_dev->external_pa_pin,
-                audio_dev->external_pa_active_high, audio_dev->external_pa_delay_ms);
-#endif
         }
     }
 

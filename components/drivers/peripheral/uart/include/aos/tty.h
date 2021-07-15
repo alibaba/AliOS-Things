@@ -8,6 +8,8 @@
 #include <termios.h>
 #include <aos/device_core.h>
 
+#define AOS_TTY_F_UNIQUE_REF    ((uint32_t)1 << 0)
+
 #ifndef AOS_TTY_RX_BUF_SIZE
 #define AOS_TTY_RX_BUF_SIZE     1024
 #endif
@@ -31,7 +33,11 @@ typedef struct {
 
 typedef struct aos_tty {
     aos_dev_t dev;
+
+    /* must be initialized before registration */
     const aos_tty_ops_t *ops;
+    uint32_t flags;
+
     struct termios termios;
     uint32_t status;
     aos_spinlock_t lock;
@@ -90,7 +96,7 @@ aos_status_t aos_tty_set_attr(aos_tty_ref_t *ref, int optional_actions,
  * @return      > 0: the number of bytes read; < 0: on failure
  */
 ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf,
-                     size_t count, uint32_t timeout);
+                     size_t count, uint32_t *timeout);
 /**
  * @brief       Write data to a TTY device.
  * @param[in]   ref     TTY ref to operate
@@ -100,7 +106,7 @@ ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf,
  * @return      > 0: the number of bytes written; < 0: on failure
  */
 ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf,
-                      size_t count, uint32_t timeout);
+                      size_t count, uint32_t *timeout);
 size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count);
 size_t aos_tty_tx_buffer_consume(aos_tty_t *tty, void *buf, size_t count);
 

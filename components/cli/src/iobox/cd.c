@@ -43,6 +43,11 @@ static int cd_main(int argc, char **argv)
         target = ROOT_DIR;
     }
 
+    if (!target) {
+        aos_cli_printf("target dir is NULL!\r\n");
+        return -1;
+    }
+
     ret = getcwd(absolute, sizeof(absolute));
     if (!ret) {
         aos_cli_printf("Failed to get current working directory!\r\n");
@@ -96,13 +101,13 @@ check_and_cd:
         return -1;
     }
 
-    if (!S_ISDIR(s.st_mode)) {
-        aos_cli_printf("cd: %s not a directory\r\n", target);
+    if (access(absolute, F_OK) != 0) {
+        aos_cli_printf("%s is not a valid path.\r\n", target);
         return -1;
     }
 
-    if (access(absolute, F_OK) != 0) {
-        aos_cli_printf("%s is not a valid path.\r\n", target);
+    if (!S_ISDIR(s.st_mode)) {
+        aos_cli_printf("cd: %s not a directory\r\n", target);
         return -1;
     }
 

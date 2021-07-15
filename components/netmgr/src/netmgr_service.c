@@ -236,13 +236,23 @@ int netmgr_get_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info)
             }
             return netmgr_wifi_get_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server);
         }
-    } else {
-        return -1;
     }
+
+    return -1;
 }
 
 void netmgr_set_auto_reconnect(netmgr_hdl_t hdl, bool enable)
 {
+    if(get_hdl_type(hdl) == NETMGR_TYPE_UNKNOWN)
+    {
+        hdl = netmgr_get_dev(DEV_WIFI_NAME);
+        if(hdl == -1)
+        {
+            printf("get dev %s handler failed!\n\r", DEV_WIFI_NAME);
+            return;
+        }
+    }
+
     if(get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
         netmgr_wifi_auto_reconnect(enable);
     }
@@ -283,7 +293,7 @@ int netmgr_connect(netmgr_hdl_t hdl, netmgr_connect_params_t* params)
 {
     if(params != NULL) {
         if(get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
-            return netmgr_wifi_connect(hdl, &(params->params.wifi_params));
+            return netmgr_wifi_connect(hdl, &(params->params.wlan_params));
         }
     }
     return -1;

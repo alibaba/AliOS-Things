@@ -88,7 +88,9 @@ extern "C" {
 #define EVENT_WIFI_CONNECTED                    (EVENT_WIFI_BASE + 18) // Connection to AP done
 #define EVENT_WIFI_CONN_TIMEOUT                 (EVENT_WIFI_BASE + 19) // Connection timeout
 #define EVENT_WIFI_DEAUTH                       (EVENT_WIFI_BASE + 20) // Deauth received from AP
-#define EVENT_WIFI_MAX                          (EVENT_WIFI_DEAUTH)
+#define EVENT_WIFI_AP_UP                        (EVENT_WIFI_BASE + 21) // AP UP
+#define EVENT_WIFI_AP_DOWN                      (EVENT_WIFI_BASE + 22) // AP DOWN
+#define EVENT_WIFI_MAX                          (EVENT_WIFI_AP_DOWN)
 
 #define EVENT_DHCP_BASE                         (EVENT_WIFI_MAX)
 #define EVENT_DHCP_START_FAILED                 (EVENT_DHCP_BASE + 1)  // DHCP start fails

@@ -40,6 +40,7 @@ depends:
   - uagent: rel_3.3.0
   - littlevgl: rel_3.3.0 ? <AMP_ADVANCED_ADDON_UI>
   - ble_netconfig: rel_3.3.0 ? <AMP_ADVANCED_ADDON_BLECFGNET>
+  - oss: rel_3.3.0 ? <AMP_ADVANCED_ADDON_OSS>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -161,6 +162,7 @@ source_file:
   - engine/quickjs_engine/addons/utils/crypto/crypto_adapter.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
   - engine/quickjs_engine/addons/utils/crypto/cbc_mode.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
   - engine/quickjs_engine/addons/utils/checksum/module_checksum.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CHECKSUM>
+  - engine/quickjs_engine/addons/utils/builtin/module_builtin.c ? <CONFIG_ENGINE_QUICKJS>
   - engine/quickjs_engine/addons/hardware/wdg/module_wdg.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_WDG>
   - engine/quickjs_engine/addons/hardware/spi/module_spi.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_SPI>
   - engine/quickjs_engine/addons/hardware/rtc/module_rtc.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_RTC>
@@ -171,11 +173,12 @@ source_file:
   - engine/quickjs_engine/addons/hardware/dac/module_dac.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_DAC>
   - engine/quickjs_engine/addons/hardware/gpio/module_gpio.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_GPIO>
   - engine/quickjs_engine/addons/hardware/i2c/module_i2c.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_I2C>
-  - engine/duktape_engine/addons/hardware/ir/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_IR>
+  - engine/quickjs_engine/addons/hardware/ir/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_IR>
   - engine/quickjs_engine/addons/hardware/lcd/module_lcd.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_LCD>
   - engine/quickjs_engine/addons/hardware/timer/module_timer.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_TIMER>
   - engine/quickjs_engine/addons/network/http/module_http.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_HTTP>
   - engine/quickjs_engine/addons/network/netmgr/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_NETMGR>
+  - engine/quickjs_engine/addons/network/*.c ? <CONFIG_ENGINE_QUICKJS>
   - engine/quickjs_engine/addons/network/cellular/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_CELLULAR>
   - engine/quickjs_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_AIOT_DEVICE>
   - engine/quickjs_engine/addons/advanced/aiot/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_AIOT_GATEWAY>
@@ -183,6 +186,7 @@ source_file:
   - engine/quickjs_engine/addons/advanced/ota/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_OTA>
   - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
   - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
+  - engine/quickjs_engine/addons/advanced/oss/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_OSS>
   - engine/quickjs_engine/addons/utils/systimer/module_systimer.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTIMER>
   - engine/quickjs_engine/addons/utils/system/module_system.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTEM>
   - engine/quickjs_engine/addons/utils/log/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_LOG>

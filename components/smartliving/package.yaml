@@ -1,0 +1,218 @@
+
+## 第一部分： 基础信息
+name: smartliving                                   # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+description: 阿里飞燕智能生活SDK                    # <必选项> 建议至少20字以上
+type: common                                        # <可选项> 组件类型，为：solution, chip, board, common，缺省值 common
+
+version: rel_3.3.0
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - csi: rel_3.3.0
+  - rhino: rel_3.3.0
+  - osal_aos: rel_3.3.0
+  - lwip: rel_3.3.0
+  - wifi_provisioning: rel_3.3.0
+  - ulog: rel_3.3.0
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  include:
+    - include
+  internal_include:
+    - include/smartliving
+    - include/smartliving/exports
+    - include/smartliving/imports
+    - infra/log
+    - infra/system
+    - infra/utils
+    - infra/utils/digest
+    - infra/utils/misc
+    - protocol/coap/local
+    - protocol/mqtt
+    - protocol/mqtt/MQTTPacket
+    - sdk-impl
+    - sdk-impl/deprecated_linkkit
+    - services/awss
+    - services/dev_bind
+    - services/dev_bind/os
+    - services/dev_bind/os/product
+    - services/linkkit/dev_reset
+    - services/linkkit/cm
+    - services/linkkit/cm/include
+    - services/linkkit/dm
+    - services/linkkit/dm/client
+    - services/linkkit/dm/server
+    - services/timer_service
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "infra/log/iotx_log.c"
+  - "infra/system/aos_support.c"
+  - "infra/system/ca.c"
+  - "infra/system/device.c"
+  - "infra/system/event.c"
+  - "infra/system/facility/fac_string.c"
+  - "infra/system/guider.c"
+  - "infra/system/redirect_region.c"
+  - "infra/system/report.c"
+  - "infra/utils/digest/utils_base64.c"
+  - "infra/utils/digest/utils_hmac.c"
+  - "infra/utils/digest/utils_md5.c"
+  - "infra/utils/digest/utils_sha1.c"
+  - "infra/utils/digest/utils_sha256.c"
+  - "infra/utils/misc/infra_aes.c"
+  - "infra/utils/misc/json_parser.c"
+  - "infra/utils/misc/json_token.c"
+  - "infra/utils/misc/lite-cjson.c"
+  - "infra/utils/misc/log_report.c"
+  - "infra/utils/misc/mem_stats.c"
+  - "infra/utils/misc/string_utils.c"
+  - "infra/utils/misc/utils_epoch_time.c"
+  - "infra/utils/misc/utils_event.c"
+  - "infra/utils/misc/utils_httpc.c"
+  - "infra/utils/misc/utils_net.c"
+  - "infra/utils/misc/utils_timer.c"
+  - "platform/os/HAL_AWSS_yoc.c"
+  - "platform/os/HAL_Crypt_yoc.c"
+  - "platform/os/HAL_OS_yoc.c"
+  - "platform/os/HAL_TCP_yoc.c"
+  - "platform/os/HAL_UDP_yoc.c"
+  - "platform/ssl/HAL_DTLS_mbedtls.c"
+  - "platform/ssl/HAL_TLS_mbedtls.c"
+  - "platform/ssl/iotx_hmac.c"
+  - "protocol/coap/local/CoAPDeserialize.c"
+  - "protocol/coap/local/CoAPExport.c"
+  - "protocol/coap/local/CoAPMessage.c"
+  - "protocol/coap/local/CoAPNetwork.c"
+  - "protocol/coap/local/CoAPObserve.c"
+  - "protocol/coap/local/CoAPPlatform.c"
+  - "protocol/coap/local/CoAPResource.c"
+  - "protocol/coap/local/CoAPSerialize.c"
+  - "protocol/coap/local/CoAPServer.c"
+  - "protocol/mqtt/client/mqtt_client.c"
+  - "protocol/mqtt/MQTTPacket/MQTTConnectClient.c"
+  - "protocol/mqtt/MQTTPacket/MQTTDeserializePublish.c"
+  - "protocol/mqtt/MQTTPacket/MQTTPacket.c"
+  - "protocol/mqtt/MQTTPacket/MQTTSerializePublish.c"
+  - "protocol/mqtt/MQTTPacket/MQTTSubscribeClient.c"
+  - "protocol/mqtt/MQTTPacket/MQTTUnsubscribeClient.c"
+  - "sdk-impl/deprecated_linkkit/impl_gateway.c"
+  - "sdk-impl/deprecated_linkkit/impl_ntp.c"
+  - "sdk-impl/deprecated_linkkit/impl_solo.c"
+  - "sdk-impl/impl_dynreg.c"
+  - "sdk-impl/impl_linkkit.c"
+  - "sdk-impl/impl_logpost.c"
+  - "sdk-impl/sdk-impl.c"
+  - "services/sl_wifi_prov.c"
+  - "services/awss/awss.c"
+  - "services/awss/awss_adha.c"
+  - "services/awss/awss_aes_wrapper.c"
+  - "services/awss/awss_aha.c"
+  - "services/awss/awss_aplist.c"
+  - "services/awss/awss_crypt.c"
+  - "services/awss/awss_dev_ap.c"
+  - "services/awss/awss_enrollee.c"
+  - "services/awss/awss_ht40.c"
+  - "services/awss/awss_info.c"
+  - "services/awss/awss_info_notify.c"
+  - "services/awss/awss_main.c"
+  - "services/awss/awss_registrar.c"
+  - "services/awss/awss_security.c"
+  - "services/awss/awss_smartconfig.c"
+  - "services/awss/awss_statis.c"
+  - "services/awss/awss_wifimgr.c"
+  - "services/awss/awss_wps.c"
+  - "services/awss/connect_ap.c"
+  - "services/awss/mcast_smartconfig.c"
+  - "services/awss/zconfig_ieee80211.c"
+  - "services/awss/zconfig_protocol.c"
+  - "services/awss/zconfig_utils.c"
+  - "services/awss/zconfig_vendor_common.c"
+  - "services/dev_bind/awss_bind.c"
+  - "services/dev_bind/awss_bind_statis.c"
+  - "services/dev_bind/awss_cmp_coap.c"
+  - "services/dev_bind/awss_cmp_mqtt.c"
+  - "services/dev_bind/awss_event.c"
+  - "services/dev_bind/awss_notify.c"
+  - "services/dev_bind/awss_packet.c"
+  - "services/dev_bind/awss_report.c"
+  - "services/dev_bind/awss_timer.c"
+  - "services/dev_bind/os/os_misc.c"
+  - "services/dev_bind/passwd.c"
+  - "services/dev_bind/sha256.c"
+  - "services/linkkit/cm/iotx_cm.c"
+  - "services/linkkit/cm/iotx_cm_coap.c"
+  - "services/linkkit/cm/iotx_cm_mqtt.c"
+  - "services/linkkit/dev_reset/awss_reset.c"
+  - "services/linkkit/dev_reset/awss_reset_statis.c"
+  - "services/linkkit/dm/client/dm_client.c"
+  - "services/linkkit/dm/client/dm_client_adapter.c"
+  - "services/linkkit/dm/dm_api.c"
+  - "services/linkkit/dm/dm_cota.c"
+  - "services/linkkit/dm/dm_fota.c"
+  - "services/linkkit/dm/dm_ipc.c"
+  - "services/linkkit/dm/dm_manager.c"
+  - "services/linkkit/dm/dm_message.c"
+  - "services/linkkit/dm/dm_message_cache.c"
+  - "services/linkkit/dm/dm_msg_process.c"
+  - "services/linkkit/dm/dm_opt.c"
+  - "services/linkkit/dm/dm_ota.c"
+  - "services/linkkit/dm/dm_shadow.c"
+  - "services/linkkit/dm/dm_tsl_alink.c"
+  - "services/linkkit/dm/dm_utils.c"
+  - "services/linkkit/dm/server/dm_server.c"
+  - "services/linkkit/dm/server/dm_server_adapter.c"
+  - "services/timer_service/ccronexpr.c"
+  - "services/timer_service/timer_service.c"
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include/smartliving"
+    source:
+      - "include/smartliving/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

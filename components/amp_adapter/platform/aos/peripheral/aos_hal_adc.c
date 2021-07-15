@@ -9,10 +9,13 @@
 #include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_adc.h"
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/adc_dev.h>
+#endif
 
 int32_t aos_hal_adc_init(adc_dev_t *adc)
 {
+#ifndef AOS_BOARD_HAAS700
     uint32_t flags = 0;
     int32_t ret = 0;
     int32_t *p_fd = NULL;
@@ -51,10 +54,14 @@ out:
         p_fd = NULL;
     }
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
     io_adc_arg_t arg;
@@ -76,10 +83,14 @@ int32_t aos_hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout
     }
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_adc_finalize(adc_dev_t *adc)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -106,4 +117,7 @@ int32_t aos_hal_adc_finalize(adc_dev_t *adc)
     free(p_fd);
 
     return ret;
+#else
+    return -1;
+#endif
 }

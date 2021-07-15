@@ -308,6 +308,51 @@ static void wifi_connect_task(void *arg)
     osThreadExitPub();
 }
 
+static int start_ap(netdev_t *dev,
+                    const char *ssid,
+                    const char *passwd, int interval, int hide)
+{
+#ifdef __AP_MODE__
+    BWIFI_SEC_TYPE_T sec;
+
+    printf("start_ap ssid:%s, pwd:%s, beacon_int:%d, hidden:%d\n", ssid, passwd, interval, hide);
+
+    if (!passwd || !strlen(passwd))
+        sec = SECURITY_NONE;
+    else
+        sec = SECURITY_WPA2;
+
+    if (bwifi_set_softap_config(ssid, 0, hide, sec, passwd)) {
+        printf("Softap %s config failed\n", ssid);
+        return -1;
+    }
+
+    if (bwifi_softap_start()) {
+        printf("Softap %s start failed\n", ssid);
+        return -2;
+    }
+
+    printf("Softap %s start success!!\n", ssid);
+    wifi_status.sap_started = 1;
+    event_publish(EVENT_WIFI_AP_UP, wifi_get_netif(wifi_status.dev, WIFI_MODE_AP));
+#endif
+    return 0;
+}
+
+static int stop_ap(netdev_t *dev)
+{
+#ifdef __AP_MODE__
+
+    printf("stop_ap\n");
+
+    bwifi_softap_stop();
+    wifi_status.sap_started = 0;
+    event_publish(EVENT_WIFI_AP_DOWN, NULL);
+#endif
+    return 0;
+}
+
+
 __SRAMDATA osThreadDef(wifi_connect_task, osPriorityNormal, 1, (4096), "wifi_connect");
 static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
 {
@@ -325,8 +370,8 @@ static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
             printf("Failed to alloc init para for wifi_connect_task\n");
             return -1;
         }
-        strcpy(init_config_ptr->ssid, config->ssid);
-        strcpy(init_config_ptr->password, config->password);
+        strncpy(init_config_ptr->ssid, config->ssid, sizeof(init_config_ptr->ssid)-1);
+        strncpy(init_config_ptr->password, config->password, sizeof(init_config_ptr->password)-1);
         //if (aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096)) {
         if (osThreadCreate(osThread(wifi_connect_task), init_config_ptr) == NULL) {
             printf("Failed to create wifi_connect_task\n");
@@ -334,7 +379,7 @@ static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
             return -1;
         }
     } else if (config->mode == WIFI_MODE_AP) {
-        /* TODO */
+        return start_ap(dev, config->ssid, config->password, config->ap_config.beacon_interval, config->ap_config.hide_ssid);
     }
 
     return 0;
@@ -675,55 +720,6 @@ static int haas1000_wifi_send_80211_raw_frame(netdev_t *dev, uint8_t *buf, int l
     return bes_sniffer_send_mgmt_frame(bwifi_get_current_channel(), buf, len);
 }
 
-static int start_ap(netdev_t *dev,
-                    const char *ssid,
-                    const char *passwd, int interval, int hide)
-{
-#ifdef __AP_MODE__
-
-    BWIFI_SEC_TYPE_T sec;
-
-    printf("start_ap ssid:%s, pwd:%s, beacon_int:%d, hidden:%d\n", ssid, passwd, interval, hide);
-
-    if (!passwd || !strlen(passwd))
-        sec = SECURITY_NONE;
-    else
-        sec = SECURITY_WPA2;
-
-    if (bwifi_set_softap_config(ssid, 0, hide, sec, passwd)) {
-        printf("Softap %s config failed\n", ssid);
-        return -1;
-    }
-
-    if (bwifi_softap_start()) {
-        printf("Softap %s start failed\n", ssid);
-        return -2;
-    }
-
-    printf("Softap %s start success!!\n", ssid);
-    wifi_status.sap_started = 1;
-    if (m->ev_cb && m->ev_cb->stat_chg) {
-        m->ev_cb->stat_chg(m, NOTIFY_AP_UP, NULL);
-    }
-#endif
-    return 0;
-}
-
-static int stop_ap(netdev_t *dev)
-{
-#ifdef __AP_MODE__
-
-    printf("stop_ap\n");
-
-    bwifi_softap_stop();
-    wifi_status.sap_started = 0;
-    if (m->ev_cb && m->ev_cb->stat_chg) {
-        m->ev_cb->stat_chg(m, NOTIFY_AP_DOWN, NULL);
-    }
-#endif
-    return 0;
-}
-
 static wifi_driver_t haas1000_wifi_driver = {
 
     /** driver info */
@@ -773,7 +769,7 @@ static wifi_driver_t haas1000_wifi_driver = {
 
 int haas1000_wifi_register(void)
 {
-    vfs_wifi_dev_register(&haas1000_wifi_driver, 0);
+    return vfs_wifi_dev_register(&haas1000_wifi_driver, 0);
 }
 
 VFS_DRIVER_ENTRY(haas1000_wifi_register)

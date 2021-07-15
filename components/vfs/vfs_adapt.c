@@ -49,12 +49,24 @@ int32_t vfs_lock_free(void *lock)
 
 int32_t vfs_lock(void *lock)
 {
-    return krhino_mutex_lock((kmutex_t *)lock, RHINO_WAIT_FOREVER);
+    int ret = krhino_mutex_lock((kmutex_t *)lock, RHINO_WAIT_FOREVER);
+
+    if (ret == RHINO_MUTEX_OWNER_NESTED) {
+        ret = RHINO_SUCCESS;
+    }
+
+    return ret;
 }
 
 int32_t vfs_unlock(void *lock)
 {
-    return krhino_mutex_unlock((kmutex_t *)lock);
+    int ret =  krhino_mutex_unlock((kmutex_t *)lock);
+
+    if (ret == RHINO_MUTEX_OWNER_NESTED) {
+        ret = RHINO_SUCCESS;
+    }
+
+    return ret;
 }
 
 void *vfs_malloc(uint32_t size)

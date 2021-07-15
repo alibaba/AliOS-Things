@@ -28,6 +28,11 @@ typedef struct {
     uint32_t repeat;
 } osal_timer_inner_t;
 
+void aos_putchar(char c)
+{
+    printf("%c", c);
+}
+
 void aos_reboot(void)
 {
     exit(0);

@@ -7,6 +7,8 @@
 #include "fstream"
 #include "string.h"
 #include "oss_app.h"
+#include "aos/vfs.h"
+#include "fcntl.h"
 
 #ifdef USE_SD_FOR_OSS
 #include <stdio.h>
@@ -48,7 +50,7 @@ int sd_file_open(char * read_file)
 {
     struct stat s;
     const char file[30]={0};
- 
+
     if(!read_file){
         memcpy(file,"/sdcard/test.h264",strlen("/sdcard/test.h264"));
     }
@@ -77,7 +79,7 @@ void sd_file_read(unsigned char * buf,int read_size)
     rc = read(sd_fd, buf, read_size);
     if (rc < 0) {
         LOG("Failed to read file\r\n");
-    } 
+    }
 
     return;
 }
@@ -118,6 +120,141 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
     pfile_path = localfilepath;
     strncpy(file_path,&pfile_path[1],strlen(pfile_path)-1);
     ObjectName = file_path;
+
+#ifdef USE_SD_FOR_OSS
+    int file_total_size;
+    char *alloc_file_content;
+    std::string sContent;
+
+    /* 初始化网络等资源 */
+    InitializeSdk();
+
+    ClientConfiguration conf;
+    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+
+    /* 上传文件 */
+#ifdef OSS_DEBUG
+    std::cout << "objectfile_path:" << ObjectName <<std::endl;
+    std::cout << "localfile_path:" << localfilepath <<std::endl;
+#endif
+    file_total_size = sd_file_open(localfilepath);
+    if(file_total_size > READ_SD_SIZE_MAX){
+        LOG("---SD open file size too Large %d > 10K",file_total_size);
+        sd_file_close();
+        ShutdownSdk();
+        return NULL;
+    }
+    LOG("SD open file size <%d>.",file_total_size);
+    alloc_file_content = (unsigned char *) aos_malloc(file_total_size);
+    if(!alloc_file_content){
+        LOG("malloc err");
+        aos_free(alloc_file_content);
+        sd_file_close();
+        ShutdownSdk();
+        return NULL;
+    }
+    sd_file_read(alloc_file_content,file_total_size);
+    sContent = alloc_file_content;
+    std::shared_ptr<std::iostream> content = std::make_shared<std::stringstream>();
+    *content << sContent;
+
+    PutObjectRequest request(BucketName, ObjectName, content);
+    TransferProgress progressCallback = { ProgressCallback };
+    request.setTransferProgress(progressCallback);
+
+    auto outcome = client.PutObject(request);
+    g_url = g_ags_url.toString();
+    std::cout << "oss ->url:" << g_url << std::endl;
+    p_url = (char *)(g_url.data());
+
+    if (!outcome.isSuccess()) {
+        /* 异常处理 */
+        std::cout << "PutObject fail" <<
+                  ",code:" << outcome.error().Code() <<
+                  ",message:" << outcome.error().Message() <<
+                  ",requestId:" << outcome.error().RequestId() << std::endl;
+        aos_free(alloc_file_content);
+        sd_file_close();
+        ShutdownSdk();
+        return NULL;
+    }
+    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    /* 释放网络等资源 */
+    aos_free(alloc_file_content);
+    sd_file_close();
+    ShutdownSdk();
+    return p_url;
+#else
+    /* 初始化网络等资源 */
+    InitializeSdk();
+
+    ClientConfiguration conf;
+    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+    //OssClient client(Endpoint, AccessKeyId, AccessKeySecret,SecretToken, conf);
+
+    /* 上传文件 */
+    auto fileSize = getFileSize(localfilepath);
+#ifdef OSS_DEBUG
+    std::cout << "objectfile_path:" << ObjectName <<std::endl;
+    std::cout << "localfile_path:" << localfilepath <<std::endl;
+    std::cout << "localfile_path size:" << fileSize <<std::endl;
+#endif
+
+    std::shared_ptr<std::iostream> content = std::make_shared<std::fstream>(localfilepath, std::ios::in | std::ios::binary);
+    PutObjectRequest request(BucketName, ObjectName, content);
+    TransferProgress progressCallback = { ProgressCallback };
+    request.setTransferProgress(progressCallback);
+
+    auto outcome = client.PutObject(request);
+    g_url = g_ags_url.toString();
+    std::cout << "oss ->url:" << g_url << std::endl;
+    p_url = (char *)(g_url.data());
+
+    if (!outcome.isSuccess()) {
+        /* 异常处理 */
+        std::cout << "PutObject fail" <<
+                  ",code:" << outcome.error().Code() <<
+                  ",message:" << outcome.error().Message() <<
+                  ",requestId:" << outcome.error().RequestId() << std::endl;
+        ShutdownSdk();
+        return NULL;
+    }
+    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    /* 释放网络等资源 */
+    ShutdownSdk();
+    return p_url;
+#endif
+}
+
+char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath)
+{
+    /* 初始化OSS账号信息 */
+    std::string AccessKeyId;
+    std::string AccessKeySecret;
+    std::string Endpoint;
+    std::string BucketName;
+    /* yourObjectName表示上传文件到OSS时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg */
+    std::string ObjectName ;
+
+    char *p_url;
+
+    if((keyId == NULL)||(keySecret == NULL)||(endPoint == NULL)||(bucketName == NULL)||(localfilepath == NULL))
+    {
+        return NULL;
+    }
+
+    AccessKeyId = keyId;
+    AccessKeySecret = keySecret;
+    Endpoint = endPoint;
+    BucketName = bucketName;
+    ObjectName = objectName;
+
+#ifdef OSS_DEBUG
+    std::cout << "Input_AccessKeyId:" << AccessKeyId <<std::endl;
+    std::cout << "Input_AccessKeySecret:" << AccessKeySecret <<std::endl;
+    std::cout << "Input_Endpoint:" << Endpoint <<std::endl;
+    std::cout << "Input_BucketName:" << BucketName <<std::endl;
+#endif
 
 #ifdef USE_SD_FOR_OSS
     int file_total_size;
@@ -291,6 +428,79 @@ char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, cha
     }
     std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
+    ShutdownSdk();
+    return NULL;
+}
+
+char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath)
+{
+    /* 初始化OSS账号信息 */
+    std::string AccessKeyId;
+    std::string AccessKeySecret;
+    std::string Endpoint;
+    std::string BucketName;
+    /* yourObjectName表示上传文件到OSS时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg */
+    std::string ObjectName ;
+    /*设置下载文件的文件名*/
+    std::string FileNametoSave = "yourFileName";
+
+    if((keyId == NULL)||(keySecret == NULL)||(endPoint == NULL)||(bucketName == NULL)||(localfilepath == NULL))
+    {
+        return NULL;
+    }
+
+    AccessKeyId = keyId;
+    AccessKeySecret = keySecret;
+    Endpoint = endPoint;
+    BucketName = bucketName;
+    ObjectName = objectName;
+
+    int fp = aos_open(localfilepath, O_RDWR | O_CREAT | O_TRUNC);
+    if (fp < 0) {
+        std::cout <<"open file fail\n";
+        return NULL;
+    }
+
+    /*初始化网络等资源*/
+    InitializeSdk();
+
+    ClientConfiguration conf;
+    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+
+    /*获取文件到本地内存。*/
+    GetObjectRequest request(BucketName, ObjectName);
+    auto outcome = client.GetObject(request);
+    if (outcome.isSuccess()) {
+      std::cout << "getObjectToBuffer" << " success, Content-Length:" << outcome.result().Metadata().ContentLength() << std::endl;
+        /*通过read接口读取数据。*/
+        auto& stream = outcome.result().Content();
+        char buffer[256];
+        while (stream->good()) {
+            stream->read(buffer, 256);
+            auto count = stream->gcount();
+            /*根据实际情况处理数据。*/
+            int ret = aos_write(fp, buffer, count);
+            if (ret <= 0) {
+                aos_close(fp);
+                fp = -1;
+                return NULL;
+            }
+	    }
+    }
+    else {
+        /*异常处理。*/
+        std::cout << "getObjectToBuffer fail" <<
+        ",code:" << outcome.error().Code() <<
+        ",message:" << outcome.error().Message() <<
+        ",requestId:" << outcome.error().RequestId() << std::endl;
+        ShutdownSdk();
+        return NULL;
+    }
+    if (fp >= 0) {
+        aos_close(fp);
+    }
+
+    /*释放网络等资源*/
     ShutdownSdk();
     return NULL;
 }

@@ -2,14 +2,23 @@
  * Copyright (C) 2020-2021 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <aos/tty.h>
 
-#define STA_RX_EN               ((uint32_t)1 << 0)
-#define STA_TX_EN               ((uint32_t)1 << 1)
+#define STA_TX_EN               ((uint32_t)1 << 0)
 
-#define EVENT_RX_READY          ((uint32_t)1 << 0)
-#define EVENT_TX_READY          ((uint32_t)1 << 1)
+#define RX_COUNT_THRESHOLD      ((size_t)UINT8_MAX)
+#define TX_SPACE_THRESHOLD      ((size_t)UINT8_MAX)
+
+#define EVENT_RX_COUNT(x)       ((uint32_t)(x) << 0)
+#define EVENT_RX_COUNT_MASK     EVENT_RX_COUNT(RX_COUNT_THRESHOLD)
+#define EVENT_TX_SPACE(x)       ((uint32_t)(x) << 16)
+#define EVENT_TX_SPACE_MASK     EVENT_TX_SPACE(TX_SPACE_THRESHOLD)
+#define EVENT_TX_EMPTY          ((uint32_t)1 << 24)
+
+#define rx_count_to_event(x) \
+    ((x) < RX_COUNT_THRESHOLD ? EVENT_RX_COUNT(x) : EVENT_RX_COUNT_MASK)
+#define tx_space_to_event(x) \
+    ((x) < TX_SPACE_THRESHOLD ? EVENT_TX_SPACE(x) : EVENT_TX_SPACE_MASK)
 
 #define rx_buf_count(tty) \
     ((AOS_TTY_RX_BUF_SIZE + (tty)->rx_buf_head - (tty)->rx_buf_tail) & \
@@ -24,10 +33,23 @@
 
 static void reset_termios(struct termios *termios)
 {
-    memset(termios, 0, sizeof(*termios));
-    cfmakeraw(termios);
+    termios->c_iflag = 0;
+    termios->c_oflag = 0;
+    termios->c_cflag = 0;
+    termios->c_lflag = 0;
+    termios->c_cc[VINTR] = '\3';
+    termios->c_cc[VQUIT] = '\34';
+    termios->c_cc[VERASE] = '\177';
+    termios->c_cc[VKILL] = '\25';
+    termios->c_cc[VEOF] = '\4';
+    termios->c_cc[VEOL] = '\0';
     termios->c_cc[VMIN] = 0;
     termios->c_cc[VTIME] = 0;
+    termios->c_cc[VEOL2] = '\0';
+    termios->c_cc[VSTART] = '\21';
+    termios->c_cc[VSTOP] = '\23';
+    termios->c_cc[VSUSP] = '\32';
+    cfmakeraw(termios);
     cfsetspeed(termios, B9600);
 }
 
@@ -44,10 +66,11 @@ static void dev_tty_unregister(aos_dev_t *dev)
 static aos_status_t dev_tty_get(aos_dev_ref_t *ref)
 {
     aos_tty_t *tty = aos_container_of(ref->dev, aos_tty_t, dev);
+    uint32_t event_mask;
     aos_status_t ret;
 
     if (!aos_dev_ref_is_first(ref))
-        return 0;
+        return (tty->flags & AOS_TTY_F_UNIQUE_REF) ? -EBUSY : 0;
 
     ret = tty->ops->startup(tty);
     if (ret)
@@ -55,7 +78,9 @@ static aos_status_t dev_tty_get(aos_dev_ref_t *ref)
 
     tty->status |= STA_TX_EN;
     tty->ops->enable_tx(tty);
-    aos_event_set(&tty->event, EVENT_TX_READY, AOS_EVENT_OR);
+    event_mask = tx_space_to_event(AOS_TTY_TX_BUF_SIZE - 1);
+    event_mask |= EVENT_TX_EMPTY;
+    aos_event_set(&tty->event, event_mask, AOS_EVENT_OR);
 
     return 0;
 }
@@ -67,18 +92,15 @@ static void dev_tty_put(aos_dev_ref_t *ref)
     if (!aos_dev_ref_is_last(ref))
         return;
 
-    if (tty->status & STA_RX_EN) {
-        tty->status &= ~STA_RX_EN;
+    if (tty->termios.c_cflag & CREAD)
         tty->ops->disable_rx(tty);
-    }
 
-    if (tty->status & STA_TX_EN) {
-        tty->status &= ~STA_TX_EN;
+    if (tty->status & STA_TX_EN)
         tty->ops->disable_tx(tty);
-    }
 
     tty->ops->shutdown(tty);
     reset_termios(&tty->termios);
+    tty->status = 0;
     aos_event_set(&tty->event, 0, AOS_EVENT_AND);
     tty->rx_buf_head = 0;
     tty->rx_buf_tail = 0;
@@ -157,16 +179,92 @@ aos_status_t aos_tty_get_attr(aos_tty_ref_t *ref, struct termios *termios)
     return 0;
 }
 
+static aos_status_t set_attr_nonblock(aos_tty_t *tty, int optional_actions,
+                                      const struct termios *termios)
+{
+    struct termios old_termios;
+    tcflag_t hw_mask;
+    aos_status_t ret = 0;
+
+    aos_dev_lock(&tty->dev);
+
+    if (optional_actions == TCSADRAIN || optional_actions == TCSAFLUSH) {
+        size_t count;
+        aos_irqsave_t flags;
+
+        flags = aos_spin_lock_irqsave(&tty->lock);
+        count = tx_buf_count(tty);
+        aos_spin_unlock_irqrestore(&tty->lock, flags);
+
+        if (count > 0) {
+            aos_dev_unlock(&tty->dev);
+            return -EAGAIN;
+        }
+    }
+
+    if (optional_actions == TCSAFLUSH) {
+        aos_irqsave_t flags;
+
+        flags = aos_spin_lock_irqsave(&tty->lock);
+        tty->rx_buf_head = 0;
+        tty->rx_buf_tail = 0;
+        aos_event_set(&tty->event, ~EVENT_RX_COUNT_MASK, AOS_EVENT_AND);
+        aos_spin_unlock_irqrestore(&tty->lock, flags);
+    }
+
+    old_termios = tty->termios;
+    tty->termios = *termios;
+    hw_mask = CBAUD | CBAUDEX | CSIZE | CSTOPB | PARENB | PARODD |
+              HUPCL | CLOCAL | CRTSCTS;
+    if ((tty->termios.c_cflag & hw_mask) != (old_termios.c_cflag & hw_mask)) {
+        if (old_termios.c_cflag & CREAD)
+            tty->ops->disable_rx(tty);
+
+        if (tty->status & STA_TX_EN)
+            tty->ops->disable_tx(tty);
+
+        ret = tty->ops->set_attr(tty);
+        if (ret)
+            tty->termios = old_termios;
+
+        if (tty->status & STA_TX_EN) {
+            aos_irqsave_t flags;
+            tty->ops->enable_tx(tty);
+            flags = aos_spin_lock_irqsave(&tty->lock);
+            if (tx_buf_count(tty) > 0)
+                tty->ops->start_tx(tty);
+            aos_spin_unlock_irqrestore(&tty->lock, flags);
+        }
+
+        if (tty->termios.c_cflag & CREAD)
+            tty->ops->enable_rx(tty);
+    } else {
+        bool old_rx_en = !!(old_termios.c_cflag & CREAD);
+        bool new_rx_en = !!(tty->termios.c_cflag & CREAD);
+
+        if (old_rx_en && !new_rx_en)
+            tty->ops->disable_rx(tty);
+        else if (!old_rx_en && new_rx_en)
+            tty->ops->enable_rx(tty);
+    }
+
+    aos_dev_unlock(&tty->dev);
+
+    return ret;
+}
+
 aos_status_t aos_tty_set_attr(aos_tty_ref_t *ref, int optional_actions,
                               const struct termios *termios)
 {
     aos_tty_t *tty;
-    tcflag_t hw_mask;
+    aos_status_t ret;
 
     if (!ref || !aos_dev_ref_is_valid(ref) || !termios)
         return -EINVAL;
 
-    if (optional_actions != TCSANOW)
+    if (optional_actions != TCSANOW &&
+        optional_actions != TCSADRAIN &&
+        optional_actions != TCSAFLUSH)
         return -EINVAL;
 
     if (termios->c_iflag & (IGNBRK | BRKINT | PARMRK | ISTRIP |
@@ -179,99 +277,40 @@ aos_status_t aos_tty_set_attr(aos_tty_ref_t *ref, int optional_actions,
     if (termios->c_lflag & (ECHO | ECHONL | ICANON | ISIG | IEXTEN))
         return -EINVAL;
 
+    if (sizeof(cc_t) > 1 && termios->c_cc[VMIN] > (cc_t)RX_COUNT_THRESHOLD)
+        return -EINVAL;
+
     tty = aos_container_of(ref->dev, aos_tty_t, dev);
-    aos_dev_lock(ref->dev);
 
-    hw_mask = CBAUD | CBAUDEX | CSIZE | CSTOPB | PARENB | PARODD |
-              HUPCL | CLOCAL | CRTSCTS;
-    if ((termios->c_cflag & hw_mask) != (tty->termios.c_cflag & hw_mask)) {
-        struct termios old_termios;
-        bool old_rx_en;
-        bool old_tx_en;
-        aos_status_t ret;
+    while (1) {
+        uint32_t val;
+        aos_status_t r;
 
-        if (tty->status & STA_RX_EN) {
-            old_rx_en = true;
-            tty->status &= ~STA_RX_EN;
-            tty->ops->disable_rx(tty);
-        } else {
-            old_rx_en = false;
-        }
+        ret = set_attr_nonblock(tty, optional_actions, termios);
+        if (ret != -EAGAIN)
+            break;
 
-        if (tty->status & STA_TX_EN) {
-            old_tx_en = true;
-            tty->status &= ~STA_TX_EN;
-            tty->ops->disable_tx(tty);
-        } else {
-            old_tx_en = false;
-        }
-
-        old_termios = tty->termios;
-        tty->termios = *termios;
-        ret = tty->ops->set_attr(tty);
-        if (ret) {
-            tty->termios = old_termios;
-
-            if (old_tx_en) {
-                aos_irqsave_t flags;
-                tty->status |= STA_TX_EN;
-                tty->ops->enable_tx(tty);
-                flags = aos_spin_lock_irqsave(&tty->lock);
-                if (tx_buf_count(tty) > 0)
-                    tty->ops->start_tx(tty);
-                aos_spin_unlock_irqrestore(&tty->lock, flags);
-            }
-
-            if (old_rx_en) {
-                tty->status |= STA_RX_EN;
-                tty->ops->enable_rx(tty);
-            }
-
-            aos_dev_unlock(ref->dev);
-            return ret;
-        }
-
-        if (old_tx_en) {
-            aos_irqsave_t flags;
-            tty->status |= STA_TX_EN;
-            tty->ops->enable_tx(tty);
-            flags = aos_spin_lock_irqsave(&tty->lock);
-            if (tx_buf_count(tty) > 0)
-                tty->ops->start_tx(tty);
-            aos_spin_unlock_irqrestore(&tty->lock, flags);
-        }
-
-        if (tty->termios.c_cflag & CREAD) {
-            tty->status |= STA_RX_EN;
-            tty->ops->enable_rx(tty);
-        }
-    } else {
-        tty->termios = *termios;
-
-        if (tty->status & STA_RX_EN) {
-            if (!(tty->termios.c_cflag & CREAD)) {
-                tty->status &= ~STA_RX_EN;
-                tty->ops->disable_rx(tty);
-            }
-        } else {
-            if (tty->termios.c_cflag & CREAD) {
-                tty->status |= STA_RX_EN;
-                tty->ops->enable_rx(tty);
-            }
+        r = aos_event_get(&tty->event, EVENT_TX_EMPTY, AOS_EVENT_OR,
+                          &val, AOS_WAIT_FOREVER);
+        if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
+            break;
         }
     }
 
-    aos_dev_unlock(ref->dev);
-
-    return 0;
+    return ret;
 }
 
 static size_t rx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
 {
     size_t c = 0;
+    uint32_t old_event;
+    uint32_t new_event;
     aos_irqsave_t flags;
 
     flags = aos_spin_lock_irqsave(&tty->lock);
+    old_event = rx_count_to_event(rx_buf_count(tty));
 
     while (c < count && rx_buf_count(tty) > 0) {
         ((uint8_t *)buf)[c++] = tty->rx_buf[tty->rx_buf_tail++];
@@ -282,75 +321,221 @@ static size_t rx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
         }
     }
 
-    if (rx_buf_count(tty) == 0)
-        aos_event_set(&tty->event, ~EVENT_RX_READY, AOS_EVENT_AND);
+    new_event = rx_count_to_event(rx_buf_count(tty));
+    if (new_event != old_event) {
+        aos_event_set(&tty->event, ~EVENT_RX_COUNT_MASK, AOS_EVENT_AND);
+        if (new_event)
+            aos_event_set(&tty->event, new_event, AOS_EVENT_OR);
+    }
 
     aos_spin_unlock_irqrestore(&tty->lock, flags);
 
     return c;
 }
 
-ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf,
-                     size_t count, uint32_t timeout)
+static ssize_t
+read_timeout(aos_tty_t *tty, void *buf, size_t count, uint32_t *timeout)
 {
-    aos_tty_t *tty;
-    aos_event_t *event;
-    size_t c = 0;
-    ssize_t ret = 0;
-
-    if (!ref || !aos_dev_ref_is_valid(ref) || !buf || count == 0)
-        return -EINVAL;
-
-    tty = aos_container_of(ref->dev, aos_tty_t, dev);
-    event = &tty->event;
+    ssize_t ret;
 
     while (1) {
-        cc_t vmin;
-        cc_t vtime;
-        uint32_t v;
+        size_t c;
+        uint32_t val;
         aos_status_t r;
 
-        aos_dev_lock(ref->dev);
-        c += rx_buffer_consume(tty, &((uint8_t *)buf)[c], count - c);
+        aos_dev_lock(&tty->dev);
+
+        if (count == 0) {
+            aos_irqsave_t flags;
+            flags = aos_spin_lock_irqsave(&tty->lock);
+            c = rx_buf_count(tty);
+            aos_spin_unlock_irqrestore(&tty->lock, flags);
+        } else {
+            c = rx_buffer_consume(tty, buf, count);
+        }
+
+        aos_dev_unlock(&tty->dev);
+
+        if (c > 0) {
+            ret = (ssize_t)c;
+            break;
+        }
+
+        if (*timeout == 0) {
+            ret = -EAGAIN;
+            break;
+        }
+
+        r = aos_event_get(&tty->event, EVENT_RX_COUNT_MASK, AOS_EVENT_OR,
+                          &val, *timeout);
+        if (r == -ETIMEDOUT) {
+            *timeout = 0;
+            ret = -ETIMEDOUT;
+            break;
+        } else if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+static ssize_t read_retro(aos_tty_t *tty, void *buf, size_t count)
+{
+    ssize_t ret;
+
+    while (1) {
+        size_t c;
+        cc_t vmin;
+        cc_t vtime;
+
+        aos_dev_lock(&tty->dev);
         vmin = tty->termios.c_cc[VMIN];
         vtime = tty->termios.c_cc[VTIME];
-        aos_dev_unlock(ref->dev);
+
+        if (vmin == 0 && vtime == 0) {
+            if (count == 0) {
+                aos_irqsave_t flags;
+                flags = aos_spin_lock_irqsave(&tty->lock);
+                c = rx_buf_count(tty);
+                aos_spin_unlock_irqrestore(&tty->lock, flags);
+            } else {
+                c = rx_buffer_consume(tty, buf, count);
+            }
+        } else if (vmin > 0 && vtime == 0) {
+            aos_irqsave_t flags;
+            if (count > 0 && count < vmin)
+                vmin = (cc_t)count;
+            flags = aos_spin_lock_irqsave(&tty->lock);
+            c = rx_buf_count(tty);
+            aos_spin_unlock_irqrestore(&tty->lock, flags);
+            if (count > 0 && c >= vmin)
+                c = rx_buffer_consume(tty, buf, count);
+        } else if (vmin == 0 && vtime > 0) {
+            if (count == 0) {
+                aos_irqsave_t flags;
+                flags = aos_spin_lock_irqsave(&tty->lock);
+                c = rx_buf_count(tty);
+                aos_spin_unlock_irqrestore(&tty->lock, flags);
+            } else {
+                c = rx_buffer_consume(tty, buf, count);
+            }
+        } else {
+            aos_irqsave_t flags;
+            if (count > 0 && count < vmin)
+                vmin = (cc_t)count;
+            flags = aos_spin_lock_irqsave(&tty->lock);
+            c = rx_buf_count(tty);
+            aos_spin_unlock_irqrestore(&tty->lock, flags);
+            if (count > 0 && c >= vmin)
+                c = rx_buffer_consume(tty, buf, count);
+        }
+
+        aos_dev_unlock(&tty->dev);
 
         if (vmin == 0 && vtime == 0) {
             ret = (ssize_t)c;
             break;
         } else if (vmin > 0 && vtime == 0) {
-            if (c >= (size_t)vmin || c == count) {
+            uint32_t mask;
+            uint32_t val;
+            aos_status_t r;
+            if (c >= vmin) {
                 ret = (ssize_t)c;
                 break;
             }
-            r = aos_event_get(event, EVENT_RX_READY, AOS_EVENT_OR,
-                              &v, AOS_WAIT_FOREVER);
-            (void)r;
+            /* wait for more than c bytes */
+            mask = ~EVENT_RX_COUNT((uint32_t)c) & EVENT_RX_COUNT_MASK;
+            r = aos_event_get(&tty->event, mask, AOS_EVENT_OR,
+                              &val, AOS_WAIT_FOREVER);
+            if (r == -EINTR) {
+                /* reserved for signal mechanism */
+                ret = -EINTR;
+                break;
+            }
         } else if (vmin == 0 && vtime > 0) {
+            uint32_t val;
+            aos_status_t r;
             if (c > 0) {
                 ret = (ssize_t)c;
                 break;
             }
-            r = aos_event_get(event, EVENT_RX_READY, AOS_EVENT_OR,
-                              &v, (uint32_t)vtime * 100);
-            if (r == -ETIMEDOUT) {
-                ret = 0;
+            r = aos_event_get(&tty->event, EVENT_RX_COUNT_MASK, AOS_EVENT_OR,
+                              &val, (uint32_t)vtime * 100);
+            if (r == -EINTR) {
+                /* reserved for signal mechanism */
+                ret = -EINTR;
+                break;
+            } else if (r == -ETIMEDOUT) {
+                aos_dev_lock(&tty->dev);
+                if (count == 0) {
+                    aos_irqsave_t flags;
+                    flags = aos_spin_lock_irqsave(&tty->lock);
+                    c = rx_buf_count(tty);
+                    aos_spin_unlock_irqrestore(&tty->lock, flags);
+                } else {
+                    c = rx_buffer_consume(tty, buf, count);
+                }
+                aos_dev_unlock(&tty->dev);
+                ret = (ssize_t)c;
                 break;
             }
         } else {
-            if (c >= (size_t)vmin || c == count) {
+            uint32_t mask;
+            uint32_t val;
+            uint32_t timeout;
+            aos_status_t r;
+            if (c >= vmin) {
                 ret = (ssize_t)c;
                 break;
             }
-            r = aos_event_get(event, EVENT_RX_READY, AOS_EVENT_OR,
-                              &v, (uint32_t)vtime * 100);
-            if (r == -ETIMEDOUT) {
-                ret = (ssize_t)c;
+            /* wait for more than c bytes */
+            mask = ~EVENT_RX_COUNT((uint32_t)c) & EVENT_RX_COUNT_MASK;
+            timeout = (c == 0) ? AOS_WAIT_FOREVER : (uint32_t)vtime * 100;
+            r = aos_event_get(&tty->event, mask, AOS_EVENT_OR, &val, timeout);
+            if (r == -EINTR) {
+                /* reserved for signal mechanism */
+                ret = -EINTR;
                 break;
+            } else if (r == -ETIMEDOUT) {
+                aos_dev_lock(&tty->dev);
+                if (count == 0) {
+                    aos_irqsave_t flags;
+                    flags = aos_spin_lock_irqsave(&tty->lock);
+                    c = rx_buf_count(tty);
+                    aos_spin_unlock_irqrestore(&tty->lock, flags);
+                } else {
+                    c = rx_buffer_consume(tty, buf, count);
+                }
+                aos_dev_unlock(&tty->dev);
+                if (c > 0) {
+                    ret = (ssize_t)c;
+                    break;
+                }
             }
         }
     }
+
+    return ret;
+}
+
+ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf,
+                     size_t count, uint32_t *timeout)
+{
+    aos_tty_t *tty;
+    ssize_t ret;
+
+    if (!ref || !aos_dev_ref_is_valid(ref) || (!buf && count > 0))
+        return -EINVAL;
+
+    tty = aos_container_of(ref->dev, aos_tty_t, dev);
+
+    if (timeout)
+        ret = read_timeout(tty, buf, count, timeout);
+    else
+        ret = read_retro(tty, buf, count);
 
     return ret;
 }
@@ -359,10 +544,14 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 {
     size_t c = 0;
     size_t old_count;
+    size_t new_count;
+    uint32_t old_event;
+    uint32_t new_event;
     aos_irqsave_t flags;
 
     flags = aos_spin_lock_irqsave(&tty->lock);
     old_count = tx_buf_count(tty);
+    old_event = tx_space_to_event(tx_buf_space(tty));
 
     while (c < count && tx_buf_space(tty) > 0) {
         tty->tx_buf[tty->tx_buf_head++] = ((const uint8_t *)buf)[c++];
@@ -373,11 +562,17 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
         }
     }
 
-    if (tx_buf_space(tty) == 0)
-        aos_event_set(&tty->event, ~EVENT_TX_READY, AOS_EVENT_AND);
+    new_count = tx_buf_count(tty);
+    new_event = tx_space_to_event(tx_buf_space(tty));
 
-    if (old_count == 0 && c > 0 && (tty->status & STA_TX_EN))
-        tty->ops->start_tx(tty);
+    if (new_event != old_event) {
+        aos_event_set(&tty->event, ~EVENT_TX_SPACE_MASK, AOS_EVENT_AND);
+        if (new_event)
+            aos_event_set(&tty->event, new_event, AOS_EVENT_OR);
+    }
+
+    if (old_count == 0 && new_count > 0)
+        aos_event_set(&tty->event, ~EVENT_TX_EMPTY, AOS_EVENT_AND);
 
     aos_spin_unlock_irqrestore(&tty->lock, flags);
 
@@ -385,13 +580,13 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 }
 
 ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf,
-                      size_t count, uint32_t timeout)
+                      size_t count, uint32_t *timeout)
 {
     aos_tty_t *tty;
     aos_event_t *event;
-    ssize_t ret = 0;
+    ssize_t ret;
 
-    if (!ref || !aos_dev_ref_is_valid(ref) || !buf || count == 0)
+    if (!ref || !aos_dev_ref_is_valid(ref) || (!buf && count > 0))
         return -EINVAL;
 
     tty = aos_container_of(ref->dev, aos_tty_t, dev);
@@ -399,11 +594,20 @@ ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf,
 
     while (1) {
         size_t c;
-        uint32_t v;
+        uint32_t val;
         aos_status_t r;
 
         aos_dev_lock(ref->dev);
-        c = tx_buffer_produce(tty, buf, count);
+
+        if (count == 0) {
+            aos_irqsave_t flags;
+            flags = aos_spin_lock_irqsave(&tty->lock);
+            c = tx_buf_space(tty);
+            aos_spin_unlock_irqrestore(&tty->lock, flags);
+        } else {
+            c = tx_buffer_produce(tty, buf, count);
+        }
+
         aos_dev_unlock(ref->dev);
 
         if (c > 0) {
@@ -411,14 +615,22 @@ ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf,
             break;
         }
 
-        if (timeout == 0) {
+        if (timeout && *timeout == 0) {
             ret = -EAGAIN;
             break;
         }
 
-        r = aos_event_get(event, EVENT_TX_READY, AOS_EVENT_OR, &v, timeout);
+        /* wait for at least TX_SPACE_THRESHOLD bytes of buffer space */
+        r = aos_event_get(event, EVENT_TX_SPACE_MASK, AOS_EVENT_AND, &val,
+                          timeout ? *timeout : AOS_WAIT_FOREVER);
         if (r == -ETIMEDOUT) {
+            if (timeout)
+                *timeout = 0;
             ret = -ETIMEDOUT;
+            break;
+        } else if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
             break;
         }
     }
@@ -429,17 +641,21 @@ ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf,
 size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 {
     size_t c = 0;
-    size_t old_count;
+    uint32_t old_event;
+    uint32_t new_event;
 
-    old_count = rx_buf_count(tty);
+    old_event = rx_count_to_event(rx_buf_count(tty));
 
     while (c < count && rx_buf_space(tty) > 0) {
         tty->rx_buf[tty->rx_buf_head++] = ((const uint8_t *)buf)[c++];
         tty->rx_buf_head &= AOS_TTY_RX_BUF_SIZE - 1;
     }
 
-    if (old_count == 0 && c > 0)
-        aos_event_set(&tty->event, EVENT_RX_READY, AOS_EVENT_OR);
+    new_event = rx_count_to_event(rx_buf_count(tty));
+    if (new_event != old_event) {
+        aos_event_set(&tty->event, ~EVENT_RX_COUNT_MASK, AOS_EVENT_AND);
+        aos_event_set(&tty->event, new_event, AOS_EVENT_OR);
+    }
 
     return c;
 }
@@ -447,14 +663,29 @@ size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 size_t aos_tty_tx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
 {
     size_t c = 0;
+    size_t old_count;
+    size_t new_count;
+    uint32_t old_event;
+    uint32_t new_event;
+
+    old_count = tx_buf_count(tty);
+    old_event = tx_space_to_event(tx_buf_space(tty));
 
     while (c < count && tx_buf_count(tty) > 0) {
         ((uint8_t *)buf)[c++] = tty->tx_buf[tty->tx_buf_tail++];
         tty->tx_buf_tail &= AOS_TTY_TX_BUF_SIZE - 1;
     }
 
-    if (tx_buf_count(tty) < AOS_TTY_TX_BUF_SIZE / 2)
-        aos_event_set(&tty->event, EVENT_TX_READY, AOS_EVENT_OR);
+    new_count = tx_buf_count(tty);
+    new_event = tx_space_to_event(tx_buf_space(tty));
+
+    if (new_event != old_event) {
+        aos_event_set(&tty->event, ~EVENT_TX_SPACE_MASK, AOS_EVENT_AND);
+        aos_event_set(&tty->event, new_event, AOS_EVENT_OR);
+    }
+
+    if (old_count > 0 && new_count == 0)
+        aos_event_set(&tty->event, EVENT_TX_EMPTY, AOS_EVENT_OR);
 
     return c;
 }

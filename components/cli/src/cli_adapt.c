@@ -8,7 +8,9 @@
 #include "aos/cli.h"
 #include "cli_adapt.h"
 #include "cli_console.h"
-
+#if CLI_UAGENT_ENABLE
+#include "cli_uagent.h"
+#endif
 
 static aos_task_t cli_task;
 
@@ -35,6 +37,11 @@ int32_t cli_putchar(char ch)
 
 int32_t cli_putstr(char *msg)
 {
+#if CLI_UAGENT_ENABLE
+    if (g_cmd_from_cloud) {
+        return uagent_send(UAGENT_MOD_CLI, CLI_RESPONE, strlen(msg), msg, send_policy_delay);
+    }
+#endif
     return cli_console_write(get_clitask_console(), (void *)msg, strlen(msg));
 }
 

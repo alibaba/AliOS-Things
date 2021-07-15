@@ -1,0 +1,23 @@
+
+from driver import PWM
+
+print("-------------------pwm test--------------------")
+pwm = PWM()
+pwm.open("pwm1")
+duty = pwm.getDuty()
+freq = pwm.getFreq()
+print(duty)
+print(freq)
+pwm.setConfig(3250000, 0.5)
+duty = pwm.getDuty()
+freq = pwm.getFreq()
+print(duty)
+print(freq)
+pwm.setDuty(0.7)
+pwm.setFreq(3260000)
+duty = pwm.getDuty()
+freq = pwm.getFreq()
+print(duty)
+print(freq)
+pwm.close()
+print("-------------------pwm end--------------------")

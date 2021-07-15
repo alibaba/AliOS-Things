@@ -33,7 +33,6 @@ depends:
 # build_config:
 #   include:
 
-
 ## 第四部分：编译连接信息
 build_config:                            # <可选项> 编译配置项
   prebuild_script: cp_resources.py
@@ -53,7 +52,6 @@ build_config:                            # <可选项> 编译配置项
 #     - yyy                                #   -lyyy
 #   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
 #     - libs                               #   -Llibs
-
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
@@ -64,6 +62,7 @@ source_file:
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
+  CONFIG_UCLOUD_AI_ENGINE_ENABLE: 1
   CONFIG_ALICLOUD_FACEBODY_ENABLE: 1
   CONFIG_ALICLOUD_IMAGERECOG_ENABLE: 1
   CONFIG_ALICLOUD_IMAGEENHAN_ENABLE: 1
@@ -89,6 +88,8 @@ def_config:                              # 组件的可配置项
 
   # 配置你要对比的人脸
   MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
+
+  CLI_IOBOX_ENABLE: 1        # 使能文件系统
 
 ## 第六部分：安装信息
 # install:

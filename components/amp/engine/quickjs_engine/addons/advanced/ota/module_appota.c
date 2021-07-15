@@ -553,7 +553,7 @@ static const JSCFunctionListEntry js_appota_funcs[] = {
     JS_CFUNC_DEF("otaUpgrade", 1, native_ota_upgrade ),
 };
 
-static int js_crypto_init(JSContext *ctx, JSModuleDef *m)
+static int js_appota_init(JSContext *ctx, JSModuleDef *m)
 {
     JSValue proto;
 
@@ -572,7 +572,7 @@ static int js_crypto_init(JSContext *ctx, JSModuleDef *m)
 JSModuleDef *js_init_module_appota(JSContext *ctx, const char *module_name)
 {
     JSModuleDef *m;
-    m = JS_NewCModule(ctx, module_name, js_crypto_init);
+    m = JS_NewCModule(ctx, module_name, js_appota_init);
     if (!m)
         return NULL;
     JS_AddModuleExportList(ctx, m, js_appota_funcs, countof(js_appota_funcs));

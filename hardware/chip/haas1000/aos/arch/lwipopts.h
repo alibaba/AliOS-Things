@@ -271,7 +271,7 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
-#define CHECKSUM_BY_HARDWARE
+// #define CHECKSUM_BY_HARDWARE
 
 #ifdef CHECKSUM_BY_HARDWARE
   /* CHECKSUM_GEN_IP==0: Generate checksums by hardware for outgoing IP packets.*/

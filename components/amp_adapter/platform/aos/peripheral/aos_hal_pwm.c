@@ -9,10 +9,13 @@
 #include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_pwm.h"
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/pwm_dev.h>
+#endif
 
 int32_t aos_hal_pwm_init(pwm_dev_t *pwm)
 {
+#ifndef AOS_BOARD_HAAS700
     uint32_t flags = 0;
     int32_t ret = 0;
     int32_t *p_fd = NULL;
@@ -58,10 +61,14 @@ out:
         p_fd = NULL;
     }
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_pwm_start(pwm_dev_t *pwm)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
 
@@ -79,10 +86,14 @@ int32_t aos_hal_pwm_start(pwm_dev_t *pwm)
     }
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_pwm_stop(pwm_dev_t *pwm)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
 
@@ -100,10 +111,14 @@ int32_t aos_hal_pwm_stop(pwm_dev_t *pwm)
     }
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
 
@@ -126,10 +141,14 @@ int32_t aos_hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
     }
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_pwm_finalize(pwm_dev_t *pwm)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -153,6 +172,9 @@ int32_t aos_hal_pwm_finalize(pwm_dev_t *pwm)
     free(p_fd);
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 

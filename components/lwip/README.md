@@ -387,5 +387,50 @@ recv: hello UDP
 # 注意事项
 * 使用lwip前，请先确定已经联网
 
+# 测试示例
+> CLI命令行输入ping测试命令
+```sh
+ping -c count(发包的数量) -i interval(发包的时间间隔ms) -s packetsize(指定发包的字节数) -w timeout(指定超时时间ms) destination(指定目标地址)
+```
+> CLI命令行输入查看设备网络接口的配置信息命令
+```sh
+ifconfig
+```
+> CLI命令行输入tftp向服务器获取文件命令
+```sh
+tftp server <start|stop>
+tftp get server_ip(服务器ip) server_port(服务器端口) server_src_path(服务器文件路径) device_dest_path(设备目标文件路径) file_type(文件类型)
+示例：tftp get 192.168.0.101 69 1.txt /data/1.txt text
+```
+> CLI命令行输入iperf测试网络性能
+```sh
+Iperf TCP Server: iperf -s
+Iperf UDP Server: iperf -s -u
+Iperf TCP Client: iperf -c ip(服务器ip地址) -w window size(TCP窗口大小) -t duration(传输时间，默认10s) -p port(服务器端口号)
+示例：iperf -c 192.168.0.101 -w 65535 -t 10 -p 5001
+Iperf UDP Client: iperf -c ip(目标ip地址) -u -l datagram size(数据包大小) -t duration(传输时间，默认10s) -p port(服务器端口号)
+示例：iperf -c 192.168.0.101 -u -l 1500 -t 10 -p 5001
+```
+**关键日志**
+> ping成功收到数据包日志
+```sh
+ LwIP_recv
+```
+> ifconfig成功查看设备网络接口的配置信息日志
+```sh
+ en1 up, address:192.168.0.102 gateway:192.168.0.1 netmask:255.255.255.0
+ lo0 up, address:127.0.0.1 gateway:127.0.0.1 netmask:255.0.0.0
+```
+> tftp成功获取文件日志
+```sh
+tftp received len:92 done
+```
+> iperf测试日志
+```sh
+TCP Server Bandwidth: 8 Mbits 716 Kbits 848 bits/sec
+UDP Server Bandwidth: 10 Mbits 60 Kbits 344 bits/sec 
+TCP Client Bandwidth: 5 Mbits 1023 Kbits 928 bits/sec
+UDP Client Bandwidth: 22 Mbits 907 Kbits 160 bits/sec
+```
 # FAQ
 NA

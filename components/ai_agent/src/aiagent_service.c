@@ -37,7 +37,15 @@ int32_t aiagent_service_uninit(void)
 }
 
 /*
- * Do ai model inference
+ * Config the ai agent service
+ */
+void aiagent_service_config(ai_config_t *config)
+{
+    aiagent_engine_config(config);
+}
+
+/*
+ * Do ai vision model inference
  */
 int32_t aiagent_service_model_infer(char *src1, char *src2, ai_engine_cb_t cb)
 {

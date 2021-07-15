@@ -20,24 +20,34 @@ class NetWorkClient(object):
         """
         连接网络
 
-        **入参**
+        :param data(dict): data的key信息如下
 
-        data类型是字典，字典的key信息如下
+            .. list-table::
 
-            - ssid : 必选，值是字符串
-            - password : 必选，值是字符串
+                * - 属性
+                  - 类型
+                  - 必填
+                  - 说明
+                * - ssid
+                  - 字符串
+                  - 必填
+                  - 需要连接的wifi热点名称
+                * - password
+                  - 字符串
+                  - 必填
+                  - 需要连接的wifi密码
 
 
-        使用示例::
+            使用示例::
 
-            # -*- coding: UTF-8 -*-
-            import network
-            net =  network.NetWorkClient()
-            net.connect({
-                    'ssid' : 'KIDS' ,
-                    'password' : '12345678'
-                }
-            )
+                # -*- coding: UTF-8 -*-
+                import network
+                net =  network.NetWorkClient()
+                net.connect({
+                        'ssid' : 'KIDS' ,
+                        'password' : '12345678'
+                    }
+                )
         """
         if isinstance(data, dict):
             pass
@@ -65,10 +75,24 @@ class NetWorkClient(object):
         """
         获取当前网络类型:
 
-          - ``0``  :     NETWORK_WIFI
-          - ``1``  :     NETWORK_CELLULAR
-          - ``2``  :     NETWORK_ETHERNET
-          - ``3``  :     NETWORK_UNKNOW
+        :param 空:
+        :returns: 
+
+            .. list-table::
+
+                * - 返回值
+                  - 网络类型
+                * - 0
+                  - WIFI
+                * - 1
+                  - 蜂窝网络
+                * - 2
+                  - 以太网
+                * - 3
+                  - 未知网络   
+
+
+
 
         """
         return nm.getType()
@@ -78,9 +102,37 @@ class NetWorkClient(object):
 
         获取当前网络状态
 
+        :param 空:
+        :returns: 
+
           - ``True``  已连接
           - ``False`` 未连接
 
         """
         return nm.getStatus()
+
+    def getInfo(self):
+        """
+
+        获取当前网络信息
+
+        :param 空:
+        :returns: 返回一个字典，字典信息如下
+
+            .. list-table::
+
+                * - key名称
+                  - value类型
+                * - SSID
+                  - 字符串
+                * - IP
+                  - 字符串
+                * - MAC
+                  - 字符串
+                * - RSSI
+                  - Int 
+
+        """
+        return nm.getInfo()
+
 

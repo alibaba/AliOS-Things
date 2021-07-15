@@ -35,12 +35,12 @@ static JSClassID js_cellular_class_id;
 static JSValue native_cellular_get_simInfo(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret     = -1;
-    amp_sim_info_t sim_info;
+    aos_sim_info_t sim_info;
     JSValue obj = JS_NewObject(ctx);
 
     memset(&sim_info, 0, sizeof(sim_info));
 
-    ret = amp_get_sim_info(&sim_info);
+    ret = aos_get_sim_info(&sim_info);
     if (ret != 0) {
         amp_debug(MOD_STR, "get sim card info failed");
         goto out;
@@ -66,12 +66,12 @@ out:
 static JSValue native_cellular_get_locatorInfo(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret     = -1;
-    amp_locator_info_t locator_info;
+    aos_locator_info_t locator_info;
     JSValue obj = JS_NewObject(ctx);
 
     memset(&locator_info, 0, sizeof(locator_info));
 
-    ret = amp_get_locator_info(&locator_info);
+    ret = aos_get_locator_info(&locator_info);
     if (ret != 0) {
         amp_debug(MOD_STR, "get locator card info failed");
         goto out;
@@ -96,7 +96,7 @@ out:
  * Output:      return 0 when UDP.close call ok
  *            return error number UDP.close call fail
  **************************************************************************************/
-void cellInfo_receive_callback(amp_locator_info_t *locator_info, int cell_num)
+void cellInfo_receive_callback(aos_locator_info_t *locator_info, int cell_num)
 {
     int ret     = -1;
     int i;
@@ -125,7 +125,7 @@ static JSValue native_cellular_neighborCellInfo(JSContext *ctx, JSValueConst thi
 {
     int ret     = -1;
 
-    ret = amp_get_neighbor_locator_info(cellInfo_receive_callback);
+    ret = aos_get_neighbor_locator_info(cellInfo_receive_callback);
     if (ret != 0) {
         amp_debug(MOD_STR, "get locator card info failed");
         goto out;
@@ -159,23 +159,19 @@ static void network_status_notify(void *pdata)
     JSValue val = JS_Call(ctx, p->js_cb_ref, JS_UNDEFINED, 1, &status);
     JS_FreeValue(ctx, status);
     if (JS_IsException(val)) {
-        amp_info(MOD_STR,"cellinfo callback error");
+        amp_info(MOD_STR,"network_status_notify callback error");
     }
 }
 
 static void network_status_callback(int status, void *args)
 {
-    JSValue js_cb_ref = (JSValue)args;
-    network_status_notify_param_t *p = aos_calloc(1, sizeof(network_status_notify_param_t));
+    network_status_notify_param_t *p = args;
     if (!p) {
         amp_warn(MOD_STR, "allocate memory failed");
-        JSContext *ctx = be_get_context();
-        JS_FreeValue(ctx, js_cb_ref);
         return;
     }
 
     p->status = status;
-    p->js_cb_ref = js_cb_ref;
 
     amp_task_schedule_call(network_status_notify, p);
 }
@@ -183,8 +179,8 @@ static void network_status_callback(int status, void *args)
 static JSValue native_cellular_onconnect(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret     = -1;
-    JSContext *ctx = js_get_context();
     JSValue js_cb_ref;
+    network_status_notify_param_t *p = NULL;
 
     if (!JS_IsFunction(ctx, argv[0])) {
         amp_warn(MOD_STR, "parameter must be function");
@@ -196,8 +192,9 @@ static JSValue native_cellular_onconnect(JSContext *ctx, JSValueConst this_val, 
         return JS_ThrowTypeError(ctx, "not a function");
     }
     js_cb_ref = JS_DupValue(ctx, on_cb);
-
-    ret = aos_network_status_registercb(network_status_callback, js_cb_ref);
+    p = aos_calloc(1, sizeof(network_status_notify_param_t));
+    p->js_cb_ref = js_cb_ref;
+    ret = aos_network_status_registercb(network_status_callback, p);
     if (ret != 0) {
         JS_FreeValue(ctx, js_cb_ref);
         return JS_NewInt32(ctx, ret);
@@ -211,7 +208,7 @@ static JSValue native_get_netshare_mode(JSContext *ctx, JSValueConst this_val, i
 {
     int ret = -1;
 
-    ret = amp_get_netsharemode();
+    ret = aos_get_netsharemode();
 
 out:
     return JS_NewInt32(ctx, ret);
@@ -229,7 +226,7 @@ static JSValue native_set_netshare_mode(JSContext *ctx, JSValueConst this_val, i
 
     JS_ToInt32(ctx, &share_mode, argv[0]);
     amp_error(MOD_STR, "native set net share mode = %d", share_mode);
-    ret = amp_set_netsharemode(share_mode);
+    ret = aos_set_netsharemode(share_mode);
     if (ret != 0) {
         return JS_NewInt32(ctx, ret);
     }
@@ -241,17 +238,17 @@ out:
 static JSValue native_get_netshare_config(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret     = -1;
-    amp_sharemode_info_t *share_mode_info;
+    aos_sharemode_info_t *share_mode_info;
     JSValue obj = JS_NewObject(ctx);
 
-    share_mode_info = aos_malloc(sizeof(amp_sharemode_info_t));
+    share_mode_info = aos_malloc(sizeof(aos_sharemode_info_t));
     if (share_mode_info == NULL) {
         amp_debug(MOD_STR, "get net share config failed");
         goto out;
     }
-    memset(share_mode_info, 0, sizeof(amp_sharemode_info_t));
+    memset(share_mode_info, 0, sizeof(aos_sharemode_info_t));
 
-    ret = amp_get_netshareconfig(share_mode_info);
+    ret = aos_get_netshareconfig(share_mode_info);
     if (ret != 0) {
         amp_debug(MOD_STR, "get net share config failed");
         goto out;
@@ -279,7 +276,7 @@ out:
 static JSValue native_set_netshare_config(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret     = -1;
-    amp_sharemode_info_t *share_mode_info;
+    aos_sharemode_info_t *share_mode_info;
     JSValue obj = JS_NewObject(ctx);
 
     /* check paramters */
@@ -298,12 +295,12 @@ static JSValue native_set_netshare_config(JSContext *ctx, JSValueConst this_val,
     const uint16_t action = QUICKJS_GET_PROPERTY_INT32(ctx, argv[0], "action");
     const uint16_t ucid = QUICKJS_GET_PROPERTY_INT32(ctx, argv[0], "ucid");
 
-    share_mode_info = aos_malloc(sizeof(amp_sharemode_info_t));
+    share_mode_info = aos_malloc(sizeof(aos_sharemode_info_t));
     if (share_mode_info == NULL) {
         amp_debug(MOD_STR, "set net share config failed");
         goto out;
     }
-    memset(share_mode_info, 0, sizeof(amp_sharemode_info_t));
+    memset(share_mode_info, 0, sizeof(aos_sharemode_info_t));
 
     share_mode_info->action = action;
     share_mode_info->auto_connect = autoConnect;
@@ -316,7 +313,7 @@ static JSValue native_set_netshare_config(JSContext *ctx, JSValueConst this_val,
     JS_FreeCString(ctx, username);
     JS_FreeCString(ctx, apn);
 
-    ret = amp_set_netshareconfig(ucid, authType, share_mode_info);
+    ret = aos_set_netshareconfig(ucid, authType, share_mode_info);
     if (ret != 0) {
         amp_warn(MOD_STR, "amp set net share config failed!");
         aos_free(share_mode_info);
@@ -374,6 +371,6 @@ void module_cellular_register(void)
 {
     amp_debug(MOD_STR, "module_cellular_register");
     JSContext *ctx = js_get_context();
-    js_init_module_netmgr(ctx, "CELLULAR");
+    js_init_module_cellular(ctx, "CELLULAR");
 }
 

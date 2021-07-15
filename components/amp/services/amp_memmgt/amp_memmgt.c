@@ -299,5 +299,5 @@ unsigned int amp_malloc_usable_size(void *ptr)
 #else
     size  = *(unsigned int *)((unsigned int)origin_ptr);
 #endif
-    return size;
+    return size - MEMMGT_OFFSET;
 }

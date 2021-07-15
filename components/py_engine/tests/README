@@ -1,0 +1,22 @@
+MicroPython 测试框架:TinyTest 介绍
+
+测试环境
+本机需要安装：
+python3
+pyserial
+
+测试时，通过需要外接板子串口，TinyTest测试时，会在本机 python3 环境执行脚本，同时通过串口将脚本发送到板子进行测试。
+将返回的结果进行对比，如结果相同，则认为测试通过。
+
+该测试用于验证micropython的兼容性以及功能性。
+
+
+脚本测试命令：
+python3 run-tests --target haas100 --device /dev/cu.SLAB_USBtoUART -b 1500000
+
+
+单独测试某脚本命令：
+python3 run-tests --target haas100 --device /dev/cu.SLAB_USBtoUART -b 1500000 tinytest.py
+
+测试某个文件夹：
+python3 run-tests --target haas100 --device /dev/cu.SLAB_USBtoUART -b 1500000 -d thread 

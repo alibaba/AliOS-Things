@@ -16,7 +16,6 @@ class HW_UART extends EventEmitter{
         this.success = options.success || function(){};
         this.fail = options.fail || function(){};
         this._open();
-        this._onData();
     }
 
     _open() {
@@ -62,6 +61,13 @@ class HW_UART extends EventEmitter{
             throw new Error("uart not init");
         }
         __native.UART.close(this.uartInstance);
+    };
+
+    on_mode() {
+        if (this.uartInstance === null) {
+            throw new Error("uart not init");
+        }
+        this._onData();
     };
 }
 
