@@ -20,12 +20,12 @@ class IotDeviceClient extends event.EventEmitter {
     }
 
     _connect() {
-        IOT.device(this.options, function(res) {
+        this.IoTDeviceInstance = IOT.device(this.options, function(res) {
             if (!res.handle) {
                 console.log("res.handle is empty");
                 return;
             }
-            this.IoTDeviceInstance = res.handle;
+            this.iot_device_handle = res.handle;
             switch (res.code) {
                 case 0:
                     this.emit('connect'); break;
@@ -41,7 +41,7 @@ class IotDeviceClient extends event.EventEmitter {
     }
 
     getDeviceHandle() {
-        return this.IoTDeviceInstance;
+        return this.iot_device_handle;
     }
 
     subscribe(options, cb) {
@@ -72,6 +72,13 @@ class IotDeviceClient extends event.EventEmitter {
         return ret;
     }
 
+    getNtpTime(cb) {
+        var ret = this.IoTDeviceInstance.getNtpTime(cb || function() {});
+        if (ret < 0) {
+            throw new Error('get ntp time error');
+        }
+        return ret;
+    }
     postProps(params, cb) {
         console.log("postProps is called");
         var ret = this.IoTDeviceInstance.postProps(params, cb || function() {});
@@ -83,7 +90,9 @@ class IotDeviceClient extends event.EventEmitter {
     }
 
     onProps(cb) {
+        console.log('onProps begin: ')
         var ret = this.IoTDeviceInstance.onProps(cb);
+        console.log('onProps return ' + ret)
         if (ret < 0) {
             throw new Error('on props error');
         }

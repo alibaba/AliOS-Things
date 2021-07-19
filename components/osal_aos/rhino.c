@@ -772,15 +772,33 @@ aos_status_t aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void 
     if (timer == NULL) {
         return -EINVAL;
     }
-	
-	sys_time_t round = (repeat == false ? 0 : ms);
+    sys_time_t round = (repeat == false ? 0 : ms);
 
     ret = krhino_timer_dyn_create((ktimer_t **)(timer), "AOS", (timer_cb_t)fn, MS2TICK(ms), MS2TICK(round), arg, 1);
 
 
     return rhino2stderrno(ret);
 }
+bool aos_timer_is_valid(aos_timer_t *timer)
+{
+    ktimer_t *k_timer;
 
+    if (timer == NULL) {
+        return false;
+    }
+
+    k_timer = (ktimer_t *)*timer;
+
+    if (k_timer == NULL) {
+        return false;
+    }
+
+    if (k_timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
+        return false;
+    }
+
+    return true;
+}
 aos_status_t aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                       uint32_t ms, bool repeat, bool auto_run)
 {

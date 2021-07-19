@@ -712,6 +712,16 @@ aos_status_t aos_timer_change(aos_timer_t *timer, uint32_t ms);
  */
 aos_status_t aos_timer_change_once(aos_timer_t *timer, uint32_t ms);
 
+/**
+ * This function will check if timer is valid.
+ * Deprecated, not Recommended.
+ *
+ * @param[in]  timer  pointer to the timer.
+ *
+ * @return  false: invalid, true: valid.
+ */
+bool aos_timer_is_valid(aos_timer_t *timer);
+
 /** @} */
 
 /**

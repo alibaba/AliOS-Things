@@ -107,7 +107,9 @@ static aos_status_t add_to_vfs(aos_dev_t *dev)
         return 0;
 
     memcpy(path, prefix, sizeof(prefix) - 1);
-    strcpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name);
+    strncpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name,
+            sizeof(dev->vfs_helper.name) - 1);
+    path[sizeof(path) - 1] = '\0';
 
     return aos_register_driver(path, dev->vfs_helper.ops, dev);
 }
@@ -121,7 +123,9 @@ static void remove_from_vfs(aos_dev_t *dev)
         return;
 
     memcpy(path, prefix, sizeof(prefix) - 1);
-    strcpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name);
+    strncpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name,
+            sizeof(dev->vfs_helper.name) - 1);
+    path[sizeof(path) - 1] = '\0';
     (void)aos_unregister_driver(path);
 }
 #endif /* AOS_COMP_VFS */

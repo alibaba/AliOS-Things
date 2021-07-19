@@ -80,7 +80,6 @@ int32_t vfs_fd_mark_close(int32_t fd);
  */
 int32_t vfs_fd_is_open(int32_t fd);
 
-
 /* adapter tmp */
 #define get_fd vfs_fd_get
 #define get_file vfs_file_get

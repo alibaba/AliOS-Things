@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+#
+# Copyright (C) 2021 Alibaba Group Holding Limited
+
+"""
+Generate the bin files including ota bin and the final bin files for chip rtl872xd.
+"""
 
 import sys
 import os
@@ -6,185 +13,180 @@ import shutil
 import subprocess
 import platform
 
-homePath = os.path.expanduser("~")
-toolchainPath = os.path.join(homePath, ".aliot", "arm-none-eabi", "main", "bin")
-objcopy = os.path.join(toolchainPath, "arm-none-eabi-objcopy")
-nm = os.path.join(toolchainPath, "arm-none-eabi-nm")
-strip = os.path.join(toolchainPath, "arm-none-eabi-strip")
-ccSize = os.path.join(toolchainPath, "arm-none-eabi-size")
-objdump = os.path.join(toolchainPath, "arm-none-eabi-objdump")
 
-outputDIR = os.getcwd()
-amebazDIR = os.path.join(outputDIR, "..", "..", "hardware", "chip", "rtl872xd")
-binDIR = os.path.join(amebazDIR, "bin")
+home_path = os.path.expanduser("~")
+toolchain_path = os.path.join(home_path, ".aliot", "arm-none-eabi", "main", "bin")
+objcopy = os.path.join(toolchain_path, "arm-none-eabi-objcopy")
+nm = os.path.join(toolchain_path, "arm-none-eabi-nm")
+strip = os.path.join(toolchain_path, "arm-none-eabi-strip")
+cc_size = os.path.join(toolchain_path, "arm-none-eabi-size")
+objdump = os.path.join(toolchain_path, "arm-none-eabi-objdump")
 
-allBinOutputFile = os.path.join(outputDIR, "binary", "all.bin")
-binOutputFile = os.path.join(outputDIR, "binary", "burn.bin")
+output_dir = os.getcwd()
+amebaz_dir = os.path.join(output_dir, "..", "..", "hardware", "chip", "rtl872xd")
+bin_dir = os.path.join(amebaz_dir, "bin")
 
-km0BootFile = os.path.join(binDIR, "km0_boot_all.bin")
-km0BootOffset = "0x0"
-km02BootFile = os.path.join(binDIR, "km0_boot_all_2nd.bin")
-km4BootFile = os.path.join(binDIR, "km4_boot_all.bin")
-km4BootOffset = "0x4000"
-ateFile = os.path.join(binDIR, "ate.bin")
-ateOffset = "0x188000"
-otaOffset = "0x6000"
+all_bin_output_file = os.path.join(output_dir, "binary", "all.bin")
+bin_output_file = os.path.join(output_dir, "binary", "burn.bin")
 
-buildBinPy = os.path.join(amebazDIR, "release", "auto_build_tool", "build_bin.py")
-releaseDIR = os.path.join(amebazDIR, "release")
+km0_boot_file = os.path.join(bin_dir, "km0_boot_all.bin")
+km02_boot_file = os.path.join(bin_dir, "km0_boot_all_2nd.bin")
+km4_boot_file = os.path.join(bin_dir, "km4_boot_all.bin")
+ate_file = os.path.join(bin_dir, "ate.bin")
+KM0_BOOT_OFFSET = "0x0"
+KM4_BOOT_OFFSET = "0x4000"
+ATE_OFFSET = "0x188000"
+OTA_OFFSET = "0x6000"
 
-"""
-Concatenate multiple binary files
-"""
-def concatBinFile(FileLists, outputFilePath):
-    outputFile = open(outputFilePath, "ab")
-    for i in FileLists:
+build_bin_py = os.path.join(amebaz_dir, "release", "auto_build_tool", "build_bin.py")
+release_dir = os.path.join(amebaz_dir, "release")
+
+
+def concatenate_bin_file(file_lists, output_file_path):
+    """Concatenate multiple binary files.
+
+    Concatenate binary files in file_lists array into the output_file_path.
+
+    Args:
+        file_lists: The input files tuple.
+        output_file_path: The output file containing all input files.
+
+    Returns: None
+    """
+    output_file = open(output_file_path, "ab")
+    for i in file_lists:
         tmpFile = open(i, "rb")
         fileContent = tmpFile.read()
-        outputFile.write(fileContent)
+        output_file.write(fileContent)
         tmpFile.close()
-    outputFile.close()
+    output_file.close()
 
-"""
-Generate the final km0_km4_bin file.
-rawBinFile e.g. /usr/xxxx/alios/solutions/helloworld_demo/out/helloworld_demo@haas200.bin
-"""
-def gen_km0_km4_bin(rawBinFile):
-    rawBinFileArray = rawBinFile.split(".bin")
-    rawElfFile = rawBinFileArray[0] + ".elf"
+
+def gen_km0_km4_bin(raw_bin_file):
+    """Generate the final bin files.
+
+    Generate the bin files including ota bin and the final km0_km4_image2.bin files.
+
+    Args:
+        raw_bin_file: The compiled raw bin file, e.g. /usr/xxxx/alios/solutions/helloworld_demo/out/
+                      helloworld_demo@haas200.bin
+
+    Returns: None
+    """
+
+    raw_bin_file_array = raw_bin_file.split(".bin")
+    raw_elf_file = raw_bin_file_array[0] + ".elf"
 
     print("========= linker img2_ns start =========")
-    imageTargetFolder = os.path.join(outputDIR, "binary")
-    if os.path.exists(imageTargetFolder):
-        shutil.rmtree(imageTargetFolder, True)
-    os.makedirs(imageTargetFolder, 0o755)
-    targetImg2AXF = os.path.join(imageTargetFolder, "target_img2.axf")
-    shutil.copyfile(rawElfFile, targetImg2AXF)
+    image_target_folder = os.path.join(output_dir, "binary")
+    if os.path.exists(image_target_folder):
+        shutil.rmtree(image_target_folder, True)
+    os.makedirs(image_target_folder, 0o755)
+    target_img2_axf = os.path.join(image_target_folder, "target_img2.axf")
+    shutil.copyfile(raw_elf_file, target_img2_axf)
 
-    targetImg2Map = os.path.join(imageTargetFolder, "target_img2.map")
-    subprocess.call(nm + " " + targetImg2AXF + " | " + "sort " + "> " + targetImg2Map,
-    shell=True)
-    targetImg2Asm = os.path.join(imageTargetFolder, "target_img2.asm")
-    subprocess.call(objdump + " -d " + targetImg2AXF + " > " + targetImg2Asm,
-    shell=True)
+    target_img2_map = os.path.join(image_target_folder, "target_img2.map")
+    subprocess.call(nm + " " + target_img2_axf + " | " + "sort " + "> " + target_img2_map,
+                    shell=True)
+    target_img2_asm = os.path.join(image_target_folder, "target_img2.asm")
+    subprocess.call(objdump + " -d " + target_img2_axf + " > " + target_img2_asm,
+                    shell=True)
 
-    targetPureImg2AXF = os.path.join(imageTargetFolder, "target_pure_img2.axf")
-    shutil.copyfile(targetImg2AXF, targetPureImg2AXF)
-    subprocess.call([strip, targetPureImg2AXF])
-    targetPureImg2Map = os.path.join(imageTargetFolder, "target_pure_img2.map")
-    subprocess.call(nm + " " + targetPureImg2AXF + " | sort > " + targetPureImg2Map,
-    shell=True)
+    target_pure_img2_axf = os.path.join(image_target_folder, "target_pure_img2.axf")
+    shutil.copyfile(target_img2_axf, target_pure_img2_axf)
+    subprocess.call([strip, target_pure_img2_axf])
+    target_pure_img2_map = os.path.join(image_target_folder, "target_pure_img2.map")
+    subprocess.call(nm + " " + target_pure_img2_axf + " | sort > " + target_pure_img2_map,
+                    shell=True)
 
-    ram2Bin = os.path.join(imageTargetFolder, "ram_2.bin")
+    ram2_bin = os.path.join(image_target_folder, "ram_2.bin")
     subprocess.call([objcopy, "-j", ".ram_image2.entry", "-j", ".ram_image2.text", "-j",
-    ".ram_image2.data", "-Obinary", targetPureImg2AXF, ram2Bin])
+                    ".ram_image2.data", "-Obinary", target_pure_img2_axf, ram2_bin])
 
-    xipImage2Bin = os.path.join(imageTargetFolder, "xip_image2.bin")
-    subprocess.call([objcopy, "-j", ".xip_image2.text", "-Obinary", targetPureImg2AXF,
-    xipImage2Bin])
+    xip_image2_bin = os.path.join(image_target_folder, "xip_image2.bin")
+    subprocess.call([objcopy, "-j", ".xip_image2.text", "-Obinary", target_pure_img2_axf,
+                    xip_image2_bin])
 
-    psram2Bin = os.path.join(imageTargetFolder, "psram_2.bin")
+    psram2_bin = os.path.join(image_target_folder, "psram_2.bin")
     subprocess.call([objcopy, "-j", ".psram_image2.text", "-j", ".psram_image2.data", "-Obinary",
-    targetPureImg2AXF, psram2Bin])
-
-    # for bluetooth trace
-    appTrace = os.path.join(imageTargetFolder, "APP.trace")
-    subprocess.call([objcopy, "-j", ".bluetooth_trace.text", "-Obinary",
-    targetPureImg2AXF, appTrace])
+                    target_pure_img2_axf, psram2_bin])
 
     print("========== Image Info HEX ==========")
-    subprocess.call([ccSize, "-A", "--radix=16", targetImg2AXF])
-    subprocess.call([ccSize, "-t", "--radix=16", targetImg2AXF])
+    subprocess.call([cc_size, "-A", "--radix=16", target_img2_axf])
+    subprocess.call([cc_size, "-t", "--radix=16", target_img2_axf])
     print("========== Image Info HEX ==========")
 
     print("========== Image Info DEC ==========")
-    subprocess.call([ccSize, "-A", "--radix=10", targetImg2AXF])
-    subprocess.call([ccSize, "-t", "--radix=10", targetImg2AXF])
+    subprocess.call([cc_size, "-A", "--radix=10", target_img2_axf])
+    subprocess.call([cc_size, "-t", "--radix=10", target_img2_axf])
     print("========== Image Info DEC ==========")
 
     print("========== linker img2_ns end ==========")
 
     print("========== Image manipulating start ==========")
-    prependHeaderPy = os.path.join(amebazDIR, "prepend_header.py")
-    subprocess.call(["python", prependHeaderPy, ram2Bin, "__ram_image2_text_start__",
-    targetImg2Map])
-    subprocess.call(["python", prependHeaderPy, xipImage2Bin, "__flash_text_start__",
-    targetImg2Map])
-    subprocess.call(["python", prependHeaderPy, psram2Bin, "__psram_image2_text_start__",
-    targetImg2Map])
+    prepend_header_py = os.path.join(amebaz_dir, "prepend_header.py")
+    subprocess.call(["python", prepend_header_py, ram2_bin, "__ram_image2_text_start__",
+                    target_img2_map])
+    subprocess.call(["python", prepend_header_py, xip_image2_bin, "__flash_text_start__",
+                    target_img2_map])
+    subprocess.call(["python", prepend_header_py, psram2_bin, "__psram_image2_text_start__",
+                    target_img2_map])
 
-    xipImage2PrependBinPath = os.path.join(imageTargetFolder, "xip_image2_prepend.bin")
-    ram2PrependBinPath = os.path.join(imageTargetFolder, "ram_2_prepend.bin")
-    psram2PrependBinPath = os.path.join(imageTargetFolder, "psram_2_prepend.bin")
-    km4Image2AllBinPath = os.path.join(imageTargetFolder, "km4_image2_all.bin")
+    xip_image2_prepend_bin_path = os.path.join(image_target_folder, "xip_image2_prepend.bin")
+    ram2_prepend_bin_path = os.path.join(image_target_folder, "ram_2_prepend.bin")
+    psram2_prepend_bin_path = os.path.join(image_target_folder, "psram_2_prepend.bin")
+    km4_image2_all_bin_path = os.path.join(image_target_folder, "km4_image2_all.bin")
 
-    concatBinFile([xipImage2PrependBinPath, ram2PrependBinPath, psram2PrependBinPath],
-    km4Image2AllBinPath)
-    padPy = os.path.join(amebazDIR, "pad.py")
-    subprocess.call(["python", padPy, km4Image2AllBinPath])
+    concatenate_bin_file([xip_image2_prepend_bin_path, ram2_prepend_bin_path, psram2_prepend_bin_path],
+                          km4_image2_all_bin_path)
+    padPy = os.path.join(amebaz_dir, "pad.py")
+    subprocess.call(["python", padPy, km4_image2_all_bin_path])
 
-    km0Image2AllBinPath = os.path.join(binDIR, "km0_image2_all.bin")
-    km0Km4Image2BinPath = os.path.join(imageTargetFolder, "km0_km4_image2.bin")
-    concatBinFile([km0Image2AllBinPath, km4Image2AllBinPath], km0Km4Image2BinPath)
-    shutil.copyfile(km0Km4Image2BinPath, binOutputFile)
+    km0_image2_all_bin_path = os.path.join(bin_dir, "km0_image2_all.bin")
+    km0_km4_image2_bin_path = os.path.join(image_target_folder, "km0_km4_image2.bin")
+    concatenate_bin_file([km0_image2_all_bin_path, km4_image2_all_bin_path], km0_km4_image2_bin_path)
+    shutil.copyfile(km0_km4_image2_bin_path, bin_output_file)
     print("========== Image manipulating end ==========")
 
-    print("========== Generate all.bin ==========")
-    try:
-        os.remove(allBinOutputFile)
-    except OSError:
-        pass
-
-    genCommonBinOutputFilePy = os.path.join(amebazDIR, "gen_common_bin_output_file.py")
-    subprocess.call(["python", genCommonBinOutputFilePy, "-o", allBinOutputFile, "-f",
-    km0BootOffset, km0BootFile])
-    subprocess.call(["python", genCommonBinOutputFilePy, "-o", allBinOutputFile, "-f",
-    km4BootOffset, km4BootFile])
-    subprocess.call(["python", genCommonBinOutputFilePy, "-o", allBinOutputFile, "-f",
-    otaOffset, km0Km4Image2BinPath])
-
-    if not os.path.exists(ateFile):
-        subprocess.call(["python", genCommonBinOutputFilePy, "-o", allBinOutputFile, "-f",
-        ateOffset, ateFile])
-
-    shutil.copyfile(km02BootFile, os.path.join(imageTargetFolder, "km0_boot_all_2nd.bin"))
-
+    print("========== Generate littlefs, ota, ymodem bins ==========")
+    shutil.copyfile(km02_boot_file, os.path.join(image_target_folder, "km0_boot_all_2nd.bin"))
     if platform.system() == "Windows":
-        subprocess.call([os.path.join(amebazDIR, "tools", "genfs.bat")])
+        subprocess.call([os.path.join(amebaz_dir, "tools", "genfs.bat")])
     else:
-        subprocess.call([os.path.join(amebazDIR, "tools", "genfs.sh")])
+        subprocess.call([os.path.join(amebaz_dir, "tools", "genfs.sh")])
 
-    shutil.copyfile(os.path.join(amebazDIR, "prebuild", "littlefs.bin"),
-    os.path.join(imageTargetFolder, "littlefs.bin"))
-    subprocess.call(["python", buildBinPy, "--target=" + km0Km4Image2BinPath])
-    ymodemBurnAllBin = os.path.join(imageTargetFolder, "ymodem_burn_all.bin")
-    shutil.copyfile(km0Km4Image2BinPath, ymodemBurnAllBin)
+    shutil.copyfile(os.path.join(amebaz_dir, "prebuild", "littlefs.bin"),
+    os.path.join(image_target_folder, "littlefs.bin"))
+    subprocess.call(["python", build_bin_py, "--target=" + km0_km4_image2_bin_path])
+    ymodem_burn_all_bin = os.path.join(image_target_folder, "ymodem_burn_all.bin")
+    shutil.copyfile(km0_km4_image2_bin_path, ymodem_burn_all_bin)
 
-    stupidBinFile = os.path.join(releaseDIR, "auto_build_tool", "stupid.bin")
-    ymodemBurnAllBinFileHdl = open(ymodemBurnAllBin, "r+b")
-    stupidBinFileHdl = open(stupidBinFile, "rb")
-    stupidBinFileContent = stupidBinFileHdl.read()
-    stupidBinFileHdl.close()
-    ymodemBurnAllBinFileHdl.seek(0)
-    ymodemBurnAllBinFileHdl.write(stupidBinFileContent)
-    ymodemBurnAllBinFileHdl.close()
-    shutil.copyfile(ymodemBurnAllBin, os.path.join(releaseDIR, "write_flash_gui", "ota_bin",
-    "ymodem_burn_all.bin"))
+    stupid_bin_file = os.path.join(release_dir, "auto_build_tool", "stupid.bin")
+    ymodem_burn_all_bin_file_hdl = open(ymodem_burn_all_bin, "r+b")
+    stupid_bin_file_hdl = open(stupid_bin_file, "rb")
+    stupid_bin_file_content = stupid_bin_file_hdl.read()
+    stupid_bin_file_hdl.close()
+    ymodem_burn_all_bin_file_hdl.seek(0)
+    ymodem_burn_all_bin_file_hdl.write(stupid_bin_file_content)
+    ymodem_burn_all_bin_file_hdl.close()
+    shutil.copyfile(ymodem_burn_all_bin, os.path.join(release_dir, "write_flash_gui", "ota_bin",
+                    "ymodem_burn_all.bin"))
 
-    otaBinDir = os.path.join(releaseDIR, "write_flash_gui", "ota_bin")
-    shutil.copyfile(os.path.join(otaBinDir, "ota_rtos_ota_all.bin"),
-    os.path.join(imageTargetFolder, "ota_burn_all.bin"))
-    shutil.copyfile(os.path.join(otaBinDir, "ota_rtos_ota_xz.bin.xz"),
-    os.path.join(imageTargetFolder, "ota_burn_xz.bin"))
-    shutil.copyfile(os.path.join(otaBinDir, "ota_rtos_ota_xz.bin.xz"),
-    os.path.join(otaBinDir, "ymodem_burn_xz.bin"))
-    shutil.copyfile(os.path.join(otaBinDir, "ymodem_burn_xz.bin"),
-    os.path.join(imageTargetFolder, "ymodem_burn_xz.bin"))
+    ota_bin_dir = os.path.join(release_dir, "write_flash_gui", "ota_bin")
+    shutil.copyfile(os.path.join(ota_bin_dir, "ota_rtos_ota_all.bin"),
+    os.path.join(image_target_folder, "ota_burn_all.bin"))
+    shutil.copyfile(os.path.join(ota_bin_dir, "ota_rtos_ota_xz.bin.xz"),
+    os.path.join(image_target_folder, "ota_burn_xz.bin"))
+    shutil.copyfile(os.path.join(ota_bin_dir, "ota_rtos_ota_xz.bin.xz"),
+    os.path.join(ota_bin_dir, "ymodem_burn_xz.bin"))
+    shutil.copyfile(os.path.join(ota_bin_dir, "ymodem_burn_xz.bin"),
+    os.path.join(image_target_folder, "ymodem_burn_xz.bin"))
 
-    print("========== Generate all.bin end ==========")
+    print("========== Generate littlefs, ota, ymodem bins end ==========")
 
 
 if __name__ == "__main__":
-    # e.g. args: --target="/usr/xxxx/alios/solutions/helloworld_demo/out/helloworld_demo@haas200.bin"
+    # e.g. args: --target=
+    # "/usr/xxxx/alios/solutions/helloworld_demo/out/helloworld_demo@haas200.bin"
     args = sys.argv[1].split("=")
     gen_km0_km4_bin(args[1])

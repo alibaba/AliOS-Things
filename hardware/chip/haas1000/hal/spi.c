@@ -587,7 +587,8 @@ int32_t hal_spi_send_and_send(spi_dev_t *spi, uint8_t *tx1_data, uint16_t tx1_si
 int32_t hal_spi_finalize(spi_dev_t *spi)
 {
 	int ret = 0;
-	ret = spi_ctx[spi->port].spi_close(spi->port + 1);
+	spi_config_t cfg_spi = spi->config;
+	ret = spi_ctx[spi->port].spi_close(cfg_spi.cs);
 	if (ret)
 	{
 		TRACE("hal_spi_finalize fail %d", ret);

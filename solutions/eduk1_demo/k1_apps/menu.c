@@ -15,6 +15,7 @@
 #include "lightmeter/lightmeter.h"
 #include "musicbox/musicbox.h"
 #include "shakeshake/shakeshake.h"
+#include "kws/kws.h"
 
 #define KEY_CODE_BACK  (EDK_KEY_1 | EDK_KEY_2)
 #define KEY_CODE_LEFT  EDK_KEY_1
@@ -24,7 +25,7 @@
 MENU_TYP *Menus[] = {
     &homepage,
     &humiture, &gyroscope, &shakeshake,  &compass,        &barometer,
-    &lightmeter, &musicbox,  &greedySnake, &aircraftBattle,
+    &lightmeter, &musicbox,  &greedySnake, &aircraftBattle, &kws,
 };
 MENU_LIST_TYP MenuList = {Menus, sizeof(Menus)/sizeof(Menus[0])};
 

@@ -121,10 +121,15 @@ helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之
 ```sh
 netmgr_example
 ```
-> CLI命令行输入netmgr -t wifi -c wifi_ssid(根据情况输入自己的wifi名) wifi_password(输入wifi密码)
+> CLI命令行连路由器：输入netmgr -t wifi -c wifi_ssid(根据情况输入自己的wifi名) wifi_password(输入wifi密码)
 ```sh
 netmgr -t wifi -c HUAWEI_AP abcdefg1234
 ```
+> CLI命令行起AP热点：输入netmgr -t wifi -z svr_ip(AP IP地址) gw_ip(网关IP地址) netmask_ip(子网掩码) wifi_ssid(根据情况输入自己的wifi名) wifi_password(输入wifi密码) beacon_interval(信标间隔时槽) 
+```sh
+netmgr -t wifi -z 192.168.0.1 192.168.0.1 255.255.255.0 ipc_route 12345678 10
+```
+
 **关键日志**
 > CLI日志：
 

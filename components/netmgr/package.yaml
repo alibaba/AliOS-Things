@@ -22,7 +22,6 @@ depends:                                 # <可选项> 该组件依赖其他的�
     - sntp: master
     - posix: master
     - lwip: master
-    - sal: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

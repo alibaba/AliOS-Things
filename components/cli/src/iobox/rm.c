@@ -121,8 +121,8 @@ static int rm_main(int argc, char **argv)
         }
 
         if (!stat(path, &s) && S_ISREG(s.st_mode)) {
-            aos_cli_printf("remove %s\n", path);
             ret |= unlink(path);
+            aos_cli_printf("remove %s\n", path);
             continue;
         }
 

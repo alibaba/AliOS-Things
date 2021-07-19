@@ -181,16 +181,18 @@ static JSValue native_ir_open(JSContext *ctx, JSValueConst this_val,
     int8_t ret = -1;
     ir_module_t *ir_handle;
     gpio_dev_t *gpio_device = NULL;
-    const char *id;
+    const char *id_sda = NULL;
+    const char *id_scl = NULL;
+    const char *id_busy = NULL;
 
-    if((argc < 1) || (!JS_IsString(argv[0])))
+    if((argc < 3) || (!JS_IsString(argv[0])) || (!JS_IsString(argv[1])) || (!JS_IsString(argv[2])))
     {
         amp_warn(MOD_STR, "parameter is invalid, argc = %d\n", argc);
         goto out;
     }
 
     /* init sda port*/
-    id = JS_ToCString(ctx, argv[0]);
+    id_sda = JS_ToCString(ctx, argv[0]);
 
     ir_handle = (uint8_t *)aos_malloc(sizeof(ir_handle));
     if (NULL == ir_handle) {
@@ -198,7 +200,7 @@ static JSValue native_ir_open(JSContext *ctx, JSValueConst this_val,
         goto out;
     }
 
-    ret = board_attach_item(MODULE_GPIO, id, &(ir_handle->sda_handle));
+    ret = board_attach_item(MODULE_GPIO, id_sda, &(ir_handle->sda_handle));
     if (0 != ret) {
         amp_error(MOD_STR, "board_attach_item fail!\n");
         goto out;
@@ -217,9 +219,9 @@ static JSValue native_ir_open(JSContext *ctx, JSValueConst this_val,
     gpio_device->priv = NULL;
 
     /* init scl port*/
-    id = JS_ToCString(ctx, argv[1]);
+    id_scl = JS_ToCString(ctx, argv[1]);
 
-    ret = board_attach_item(MODULE_GPIO, id, &(ir_handle->scl_handle));
+    ret = board_attach_item(MODULE_GPIO, id_scl, &(ir_handle->scl_handle));
     if (0 != ret) {
         amp_error(MOD_STR, "board_attach_item fail!\n");
         goto out;
@@ -239,9 +241,9 @@ static JSValue native_ir_open(JSContext *ctx, JSValueConst this_val,
 
 
     /* init busy port*/
-    id = JS_ToCString(ctx, argv[1]);
+    id_busy = JS_ToCString(ctx, argv[2]);
 
-    ret = board_attach_item(MODULE_GPIO, id, &(ir_handle->busy_handle));
+    ret = board_attach_item(MODULE_GPIO, id_busy, &(ir_handle->busy_handle));
     if (0 != ret) {
         amp_error(MOD_STR, "board_attach_item fail!\n");
         goto out;
@@ -260,8 +262,14 @@ static JSValue native_ir_open(JSContext *ctx, JSValueConst this_val,
     gpio_device->priv = NULL;
 
 out:
-    if (id != NULL) {
-        JS_FreeCString(ctx, id);
+    if (id_sda != NULL) {
+        JS_FreeCString(ctx, id_sda);
+    }
+    if (id_scl != NULL) {
+        JS_FreeCString(ctx, id_scl);
+    }
+    if (id_busy != NULL) {
+        JS_FreeCString(ctx, id_busy);
     }
 
     if (0 != ret) {

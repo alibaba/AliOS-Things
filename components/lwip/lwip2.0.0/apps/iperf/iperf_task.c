@@ -17,6 +17,7 @@
 #include "lwip/sockets.h"
 #include "lwip/apps/iperf_task.h"
 #include "lwip/apps/iperf_debug.h"
+#include "aos/cli.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -191,8 +192,8 @@ void iperf_udp_run_server( char *parameters[] )
     UDP_datagram *udp_h = NULL;
     client_hdr *client_h = NULL;
     client_hdr client_h_trans = {0};
-    uint32_t timeout = 0;
-    timeout = 20 * 1000; //set recvive timeout = 20(sec)
+    struct timeval timeout = {0};
+    timeout.tv_sec = 20; //set recvive timeout = 20(sec)
     int is_test_started = 0;
     int udp_h_id = 0;
 
@@ -242,11 +243,6 @@ void iperf_udp_run_server( char *parameters[] )
         return;
     }
 
-    socklen_t len = sizeof(timeout);
-    if ( lwip_setsockopt( sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
-    }
-
     // Bind to port and any IP address
     memset( &servaddr, 0, sizeof(servaddr) );
     servaddr.sin_family = AF_INET;
@@ -277,6 +273,11 @@ void iperf_udp_run_server( char *parameters[] )
         lwip_close(sockfd);
         aos_task_exit(0);
         return;
+    }
+
+    socklen_t len = sizeof(timeout);
+    if ( lwip_setsockopt( sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
+        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
     }
 
     cli_len = sizeof(cliaddr);
@@ -353,14 +354,14 @@ void iperf_udp_run_server( char *parameters[] )
                 }
 
                 if ( (((int)(curr_t - t1) / interval_time) == interval_tag) && ((curr_h_ms >= t1_h_ms) || ((curr_t - t1) % 10) >= 1) ) {
-                    LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d.0 - %d.0 sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
-                            (int) (curr_t - t1) / interval_time * interval_time ));
+                    aos_cli_printf("Interval: %d.0 - %d.0 sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
+                            (int) (curr_t - t1) / interval_time * interval_time );
                     iperf_display_report( "UDP Server", interval_time, 0, iperf_diff_count( pkt_count, tmp_count ) );
                     tmp_count = iperf_copy_count( pkt_count, tmp_count );
                     interval_tag++;
                 } else if ( ((udp_h_id < 0) || (nbytes <= 0)) && (((tmp_t) % interval_time) != 0) && (is_test_started == 1) ) {
-                    LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d.0 - %d.%d sec   ", (int) (curr_t - t1 + 1) / interval_time * interval_time - interval_time,
-                            (int) tmp_t, (int) tmp_h_ms ));
+                    aos_cli_printf("Interval: %d.0 - %d.%d sec   ", (int) (curr_t - t1 + 1) / interval_time * interval_time - interval_time,
+                            (int) tmp_t, (int) tmp_h_ms );
                     iperf_display_report( "UDP Server", (tmp_t - ((curr_t - t1 + 1) / interval_time * interval_time - interval_time)), tmp_h_ms,
                                           iperf_diff_count( pkt_count, tmp_count ) );
                     tmp_count = iperf_copy_count( pkt_count, tmp_count );
@@ -478,8 +479,8 @@ void iperf_tcp_run_server( char *parameters[] )
     uint32_t t1, t2, curr_t;
     int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char *);
     char *buffer = (char*) iperf_wrapper_malloc( IPERF_TEST_BUFFER_SIZE );
-    uint32_t timeout;
-    timeout = 20 * 1000; //set recvive timeout = 20(sec)
+    struct timeval timeout = {0};
+    timeout.tv_sec = 20; //set recvive timeout = 20(sec)
 
     memset( buffer, 0, IPERF_TEST_BUFFER_SIZE );
     //Statistics init
@@ -592,8 +593,8 @@ void iperf_tcp_run_server( char *parameters[] )
                     if ( pkt_count.times >= 1 && interval_tag > 0 ) {
                         iperf_get_current_time( &curr_t, 0 );
                         if ( ((int)(curr_t - t1) / interval_time) == interval_tag ) {
-                            LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d - %d sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
-                                    (int) (curr_t - t1) / interval_time * interval_time ));
+                            aos_cli_printf("Interval: %d - %d sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
+                                    (int) (curr_t - t1) / interval_time * interval_time );
                             iperf_display_report( "TCP Server", interval_time, 0, iperf_diff_count( pkt_count, tmp_count ) );
                             tmp_count = iperf_copy_count( pkt_count, tmp_count );
                             interval_tag++;
@@ -790,8 +791,8 @@ void iperf_tcp_run_client( char *parameters[] )
             iperf_get_current_time( &curr_t, 0 );
 
             if ( ((int)(curr_t - t1) / interval_time) == interval_tag ) {
-                LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d - %d sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
-                        (int) (curr_t - t1) / interval_time * interval_time ));
+                aos_cli_printf("Interval: %d - %d sec   ", (int) (curr_t - t1) / interval_time * interval_time - interval_time,
+                        (int) (curr_t - t1) / interval_time * interval_time );
                 iperf_display_report( "TCP Client", interval_time, 0, iperf_diff_count( pkt_count, tmp_count ) );
                 tmp_count = iperf_copy_count( pkt_count, tmp_count );
                 interval_tag++;
@@ -1046,8 +1047,8 @@ void iperf_udp_run_client( char *parameters[] )
 
         if ( interval_tag > 0 ) {
             if ( ((int)(current_tick - t1_ms) / (interval_time * 1000)) == interval_tag ) {
-                LWIP_DEBUGF( IPERF_DEBUG, ("Interval: %d - %d sec   ", (int) (current_tick - t1_ms) / (interval_time * 1000) * interval_time - interval_time,
-                        (int) (current_tick - t1_ms) / (interval_time * 1000) * interval_time ));
+                aos_cli_printf("Interval: %d - %d sec   ", (int) (current_tick - t1_ms) / (interval_time * 1000) * interval_time - interval_time,
+                        (int) (current_tick - t1_ms) / (interval_time * 1000) * interval_time );
                 iperf_display_report( "UDP Client", interval_time, 0, iperf_diff_count( pkt_count, tmp_count ) );
                 tmp_count = iperf_copy_count( pkt_count, tmp_count );
                 interval_tag++;
@@ -1144,7 +1145,7 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "[%s:%d], time = %d, h_ms_time = %d, GBytes = %d, MBytes = %d, KBytes= %d, Bytes= %d ", __FUNCTION__, __LINE__, time, h_ms_time, pkt_count.GBytes, pkt_count.MBytes, pkt_count.KBytes, pkt_count.Bytes);
 #endif
 
-    LWIP_DEBUGF( IPERF_DEBUG, ("%s Bandwidth: ", report_title ));
+    aos_cli_printf("%s Bandwidth: ", report_title );
 
     if ( tmp_time != 0 ) {
         //Calculate Bandwidth
@@ -1162,26 +1163,27 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     pkt_count = iperf_calculate_result( 0, pkt_count, 1 );
 
     if ( pkt_count.GBytes != 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("%d Gbits ", pkt_count.GBytes ));
+        aos_cli_printf("%d Gbits ", pkt_count.GBytes );
     }
 
     if ( pkt_count.MBytes != 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("%d Mbits ", pkt_count.MBytes ));
+        aos_cli_printf("%d Mbits ", pkt_count.MBytes );
     }
 
     if ( pkt_count.KBytes != 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("%d Kbits ", pkt_count.KBytes ));
+        aos_cli_printf("%d Kbits ", pkt_count.KBytes );
     }
-    LWIP_DEBUGF( IPERF_DEBUG, ("%d bits/sec", pkt_count.Bytes ));
+    aos_cli_printf("%d bits/sec", pkt_count.Bytes );
 
 #ifdef AOS_NETMGR_WITH_MODERN
 #ifdef AOS_NET_WITH_WIFI
     int rssi;
     wifi_service_get_rssi(&rssi);
-    LWIP_DEBUGF( IPERF_DEBUG, (" rssi: %d dBm\n",  rssi));
+    aos_cli_printf(" rssi: %d dBm",  rssi);
 #endif /* AOS_NET_WITH_WIFI */
 #endif /* AOS_NETMGR_WITH_MODERN */
 
+   aos_cli_printf("\n");
 #if defined(IPERF_DEBUG_ENABLE)
     DBGPRINT_IPERF(IPERF_DEBUG_REPORT, "Receive times: %d", pkt_count.times);
 #endif

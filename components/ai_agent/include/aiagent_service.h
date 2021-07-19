@@ -36,6 +36,15 @@ int32_t aiagent_service_init(const char *engine_name, ai_model_t model);
  */
 int32_t aiagent_service_uninit(void);
 
+
+/**
+ * Config the aiagent service.
+ * @param[in]  config    ai engine config.
+ *
+ * @return  0 on success, negative error on failure.
+ */
+void aiagent_service_config(ai_config_t *config);
+
 /**
  * Init the aiagent service.
  * @param[in]  src1    source data1(image) you want to detect.

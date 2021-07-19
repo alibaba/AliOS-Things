@@ -18,6 +18,7 @@ depends:
   - cli: master
   - osal_aos: master
   - ulog: master
+  - uagent: master
   - kv: master
   - mbedtls: master
   - cjson: master
@@ -25,6 +26,7 @@ depends:
   - vfs: master
   - amp_adapter: master
   - oss: "master ? <PY_BUILD_OSS>"
+  - ucamera: "master ? <PY_BUILD_UCAMERA>"
   - linksdk: "master ? <PY_BUILD_LINKSDK>"
   - netmgr: "master ? <PY_BUILD_NETMGR>"
   - lwip: master
@@ -63,305 +65,163 @@ build_config:
     UVOICE_EVENT_BY_BUFFER_QUEUE: 1 ? <PY_BUILD_AUDIO>
 
   include:
-    - unzip/internal/
-    - unzip/include/
-    - mpy_engine/
-    # mpy_engine/drivers/
-    - mpy_engine/drivers/bus/
-    # mpy_engine/extmod/
-    - mpy_engine/extmod/
-    - mpy_engine/extmod/crypto-algorithms/
-    - mpy_engine/extmod/re1.5/
-    - mpy_engine/extmod/uzlib/
-    # mpy_engine/lib/
-    - mpy_engine/lib/
-    - mpy_engine/lib/libm_dbl/
-    # mpy_engine/py/
-    - mpy_engine/py/
-    - mpy_engine/genhdr/
 
-    - mpy_adaptor/
-    # mpy_adaptor/system
-    - mpy_adaptor/system/
-    # mpy_adaptor/component
-    - mpy_adaptor/component/
-    - mpy_adaptor/component/minicv/base/include/
-    - mpy_adaptor/component/minicv/base/include/base/
-    # mpy_adaptor/component/minicv
-    - mpy_adaptor/component/minicv/base/modules/c/include/
-    - mpy_adaptor/component/minicv/base/modules/core/include/
-    - mpy_adaptor/component/minicv/base/modules/ml/include/
+    # adapter
+    - adapter/
+    - adapter/haas/ ? <PY_PLATFORM_HAAS_EDU>
+    - adapter/haas506/ ? <PY_PLATFORM_HAAS_506>
+    - adapter/haas510/ ? <PY_PLATFORM_HAAS_510>
+    - adapter/haas700/ ? <PY_PLATFORM_HAAS_700>
 
+    # modules
+    - modules/audio/
+    - modules/ble_netconfig/
+    - modules/driver/
+    - modules/linksdk/
+    - modules/minicv/
+    - modules/modbus/
+    - modules/mqtt/
+    - modules/netmgr/
+    - modules/network/
+    - modules/oss/
+    - modules/ota/
+    - modules/sntp/
+    - modules/ucamera/
+    - modules/ulog/
 
+    # engine
+    - engine/
+    - engine/drivers/
+    - engine/extmod/
+    - engine/lib/
+    
+    # external/unzip
+    - external/unzip/internal/
+    - external/unzip/include/
+
+    # external/amp_boot
+    - external/amp_boot/
+
+    # external/amp_task
+    - external/amp_task/
+
+    # external/amp_utils
+    - external/amp_utils/
+
+    # external/app_mgr
+    - external/app_mgr/
+
+     # external/common
+    - external/common/
+
+   
   prebuild_script: create_python_home.py
-  # libs:
-# the library "hello" is built by third-part build system, and its name 
-# should NOT with the owner "camke_comp"
-    # - pyEngine
-  # prebuild_script: call_cmake.sh
+
+  libs:
+    - ampchannel
+
+  libpath:
+    - external/libs/haas1000 ? <BOARD_HAAS100>
+    - external/libs/haas1000 ? <BOARD_HAASEDUK1>
+    - external/libs/rtl872xd ? <BOARD_HAAS200>
 
 source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
-  # - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
-  - example/py_engine_example.c
-  - unzip/src/ioapi.c
-  - unzip/src/iowin32.c
-  - unzip/src/miniunz.c
-  - unzip/src/unzip.c
-  - unzip/src/adler32.c
-  - unzip/src/compress.c
-  - unzip/src/crc32.c
-  - unzip/src/gzclose.c
-  - unzip/src/gzlib.c
-  - unzip/src/gzread.c
-  - unzip/src/gzwrite.c
-  - unzip/src/uncompr.c
-  - unzip/src/deflate.c
-  - unzip/src/trees.c
-  - unzip/src/zutil.c
-  - unzip/src/inflate.c
-  - unzip/src/infback.c
-  - unzip/src/inftrees.c
-  - unzip/src/inffast.c
-  # mpy_engine/drivers/
-  - mpy_engine/drivers/bus/softqspi.c
-  - mpy_engine/drivers/bus/softspi.c
-  # mpy_engine/extmod/
-  - mpy_engine/extmod/machine_i2c.c
-  - mpy_engine/extmod/machine_mem.c
-  - mpy_engine/extmod/machine_pinbase.c
-  - mpy_engine/extmod/machine_pulse.c
-  - mpy_engine/extmod/machine_signal.c
-  - mpy_engine/extmod/machine_spi.c
-  - mpy_engine/extmod/modbtree.c
-  - mpy_engine/extmod/modframebuf.c
-  - mpy_engine/extmod/modubinascii.c
-  - mpy_engine/extmod/moductypes.c
-  - mpy_engine/extmod/moduhashlib.c
-  - mpy_engine/extmod/moduheapq.c
-  - mpy_engine/extmod/modujson.c
-  - mpy_engine/extmod/modurandom.c
-  - mpy_engine/extmod/modure.c
-  - mpy_engine/extmod/moduselect.c
-  - mpy_engine/extmod/modussl_axtls.c
-  - mpy_engine/extmod/modussl_mbedtls.c
-  - mpy_engine/extmod/modutimeq.c
-  - mpy_engine/extmod/moduzlib.c
-  - mpy_engine/extmod/modwebrepl.c
-  - mpy_engine/extmod/moduwebsocket.c
-  - mpy_engine/extmod/uos_dupterm.c
-  - mpy_engine/extmod/vfs.c
-  - mpy_engine/extmod/vfs_fat.c
-  - mpy_engine/extmod/vfs_fat_diskio.c
-  - mpy_engine/extmod/vfs_fat_file.c
-  - mpy_engine/extmod/vfs_reader.c
-  - mpy_engine/extmod/virtpin.c
-  - mpy_engine/extmod/utime_mphal.c
-  - mpy_engine/extmod/vfs_posix_file.c
-  - mpy_engine/extmod/vfs_posix.c
-  - mpy_engine/extmod/moduasyncio.c
-  - mpy_engine/extmod/moducryptolib.c
-  # mpy_engine/lib/
-  - mpy_engine/lib/utils/interrupt_char.c
-  - mpy_engine/lib/utils/printf.c
-  - mpy_engine/lib/utils/pyexec.c
+  # - src/*.c                            # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 
-  - mpy_engine/lib/utils/gchelper_generic.c
+  # adapter
+  - adapter/main.c
+  - adapter/haas/*.c ? <PY_PLATFORM_HAAS_EDU>
+  - adapter/haas506/*.c ? <PY_PLATFORM_HAAS_506>
+  - adapter/haas510/*.c ? <PY_PLATFORM_HAAS_510>
+  - adapter/haas700/*.c ? <PY_PLATFORM_HAAS_700>
 
-  - mpy_engine/lib/utils/stdout_helpers.c
-  - mpy_engine/lib/mp-readline/readline.c
-  - mpy_engine/lib/timeutils/timeutils.c
-  - mpy_engine/lib/netutils/netutils.c
-  # mpy_engine/py/
-  - mpy_engine/py/argcheck.c
-  - mpy_engine/py/asmarm.c
-  - mpy_engine/py/asmbase.c
-  - mpy_engine/py/asmthumb.c
-  - mpy_engine/py/asmx64.c
-  - mpy_engine/py/asmx86.c
-  - mpy_engine/py/asmxtensa.c
-  - mpy_engine/py/bc.c
-  - mpy_engine/py/binary.c
-  - mpy_engine/py/builtinevex.c
-  - mpy_engine/py/builtinhelp.c
-  - mpy_engine/py/builtinimport.c
-  - mpy_engine/py/compile.c
-  - mpy_engine/py/emitbc.c
-  - mpy_engine/py/emitcommon.c
-  - mpy_engine/py/emitglue.c
-  - mpy_engine/py/emitinlinethumb.c
-  - mpy_engine/py/emitinlinextensa.c
-  - mpy_engine/py/emitnarm.c
-  - mpy_engine/py/emitnthumb.c
-  - mpy_engine/py/emitnx64.c
-  - mpy_engine/py/emitnx86.c
-  - mpy_engine/py/emitnxtensa.c
-  - mpy_engine/py/emitnxtensawin.c
-  - mpy_engine/py/formatfloat.c
-  - mpy_engine/py/frozenmod.c
-  - mpy_engine/py/gc.c
-  - mpy_engine/py/lexer.c
-  - mpy_engine/py/malloc.c
-  - mpy_engine/py/map.c
-  - mpy_engine/py/modarray.c
-  - mpy_engine/py/modbuiltins.c
-  - mpy_engine/py/modcmath.c
-  - mpy_engine/py/modcollections.c
-  - mpy_engine/py/modgc.c
-  - mpy_engine/py/modio.c
-  - mpy_engine/py/modmath.c
-  - mpy_engine/py/modmicropython.c
-  - mpy_engine/py/modstruct.c
-  - mpy_engine/py/modsys.c
-  - mpy_engine/py/modthread.c
-  - mpy_engine/py/moduerrno.c
-  - mpy_engine/py/mpprint.c
-  - mpy_engine/py/mpstate.c
-  - mpy_engine/py/mpz.c
-  - mpy_engine/py/nativeglue.c
-  - mpy_engine/py/nlr.c
-  - mpy_engine/py/nlrpowerpc.c
-  - mpy_engine/py/nlrsetjmp.c
-  - mpy_engine/py/nlrthumb.c
-  - mpy_engine/py/nlrx64.c
-  - mpy_engine/py/nlrx86.c
-  - mpy_engine/py/nlrxtensa.c
-  - mpy_engine/py/obj.c
-  - mpy_engine/py/objarray.c
-  - mpy_engine/py/objattrtuple.c
-  - mpy_engine/py/objbool.c
-  - mpy_engine/py/objboundmeth.c
-  - mpy_engine/py/objcell.c
-  - mpy_engine/py/objclosure.c
-  - mpy_engine/py/objcomplex.c
-  - mpy_engine/py/objdeque.c
-  - mpy_engine/py/objdict.c
-  - mpy_engine/py/objenumerate.c
-  - mpy_engine/py/objexcept.c
-  - mpy_engine/py/objfilter.c
-  - mpy_engine/py/objfloat.c
-  - mpy_engine/py/objfun.c
-  - mpy_engine/py/objgenerator.c
-  - mpy_engine/py/objgetitemiter.c
-  - mpy_engine/py/objint.c
-  - mpy_engine/py/objint_longlong.c
-  - mpy_engine/py/objint_mpz.c
-  - mpy_engine/py/objlist.c
-  - mpy_engine/py/objmap.c
-  - mpy_engine/py/objmodule.c
-  - mpy_engine/py/objnamedtuple.c
-  - mpy_engine/py/objnone.c
-  - mpy_engine/py/objobject.c
-  - mpy_engine/py/objpolyiter.c
-  - mpy_engine/py/objproperty.c
-  - mpy_engine/py/objrange.c
-  - mpy_engine/py/objreversed.c
-  - mpy_engine/py/objset.c
-  - mpy_engine/py/objsingleton.c
-  - mpy_engine/py/objslice.c
-  - mpy_engine/py/objstr.c
-  - mpy_engine/py/objstringio.c
-  - mpy_engine/py/objstrunicode.c
-  - mpy_engine/py/objtuple.c
-  - mpy_engine/py/objtype.c
-  - mpy_engine/py/objzip.c
-  - mpy_engine/py/opmethods.c
-  - mpy_engine/py/pairheap.c
-  - mpy_engine/py/parse.c
-  - mpy_engine/py/parsenum.c
-  - mpy_engine/py/parsenumbase.c
-  - mpy_engine/py/persistentcode.c
-  - mpy_engine/py/profile.c
-  - mpy_engine/py/pystack.c
-  - mpy_engine/py/qstr.c
-  - mpy_engine/py/reader.c
-  - mpy_engine/py/repl.c
-  - mpy_engine/py/ringbuf.c
-  - mpy_engine/py/runtime.c
-  - mpy_engine/py/runtime_utils.c
-  - mpy_engine/py/scheduler.c
-  - mpy_engine/py/scope.c
-  - mpy_engine/py/sequence.c
-  - mpy_engine/py/showbc.c
-  - mpy_engine/py/smallint.c
-  - mpy_engine/py/stackctrl.c
-  - mpy_engine/py/stream.c
-  - mpy_engine/py/unicode.c
-  - mpy_engine/py/vm.c
-  - mpy_engine/py/vstr.c
-  - mpy_engine/py/warning.c
+  # audio
+  - modules/audio/*.c ? <PY_BUILD_AUDIO>
 
-  # mpy_adaptor/
-  - mpy_adaptor/mpy_main.c
-  # mpy_adaptor/system/
-  - mpy_adaptor/system/moddriver.c
-  - mpy_adaptor/system/modbattery.c
-  - mpy_adaptor/system/modcharger.c
-  - mpy_adaptor/system/modpm.c
-  - mpy_adaptor/system/modutime.c
-  - mpy_adaptor/system/modsysteminfo.c
-  - mpy_adaptor/system/modsocket.c ? <PY_BUILD_USOCKET>
-  - mpy_adaptor/system/moduos.c ? <PY_BUILD_UOS>
-  - mpy_adaptor/system/_frozen_mpy.c
-  - mpy_adaptor/system/mphalport.c
-  - mpy_adaptor/system/mphalport.c
-  - mpy_adaptor/system/mpthreadport.c
-  - mpy_adaptor/system/utility.c
-  - mpy_adaptor/system/help.c
-  - mpy_adaptor/system/gccollect.c
-  # mpy_adaptor/system/driver
-  - mpy_adaptor/system/driver/board_mgr.c
-  - mpy_adaptor/system/driver/keypad.c
-  - mpy_adaptor/system/driver/location.c
-  - mpy_adaptor/system/driver/und.c
-  - mpy_adaptor/system/driver/crypto.c
-  - mpy_adaptor/system/driver/adc.c
-  - mpy_adaptor/system/driver/can.c
-  - mpy_adaptor/system/driver/gpio.c
-  - mpy_adaptor/system/driver/i2c.c
-  - mpy_adaptor/system/driver/ir.c
-  - mpy_adaptor/system/driver/pwm.c
-  - mpy_adaptor/system/driver/rtc.c
-  - mpy_adaptor/system/driver/spi.c
-  - mpy_adaptor/system/driver/timer.c
-  - mpy_adaptor/system/driver/uart.c
-  - mpy_adaptor/system/driver/wdg.c
-  # mpy_adaptor/system/component
-  - mpy_adaptor/component/minicv/modminicv.c
-  - mpy_adaptor/component/minicv/datainput.c
-  - mpy_adaptor/component/minicv/imagecodec.c
-  - mpy_adaptor/component/minicv/imageproc.c
-  - mpy_adaptor/component/minicv/ml.c ? <PY_BUILD_AI>
-  - mpy_adaptor/component/minicv/ui.c
-  - mpy_adaptor/component/minicv/videocodec.c
-  - mpy_adaptor/component/netmgr/modnetmgr.c ? <PY_BUILD_NETMGR>
-  - mpy_adaptor/component/ble_netconfig/modblenetconfig.c ? <PY_BUILD_BLENETCONFIG>
-  - mpy_adaptor/component/http/modhttp.c ? <PY_BUILD_HTTP>
-  - mpy_adaptor/component/http/httpclient.c ? <PY_BUILD_HTTP>
-  - mpy_adaptor/component/tcp/modtcp.c ? <PY_BUILD_TCP>
-  - mpy_adaptor/component/udp/modudp.c ? <PY_BUILD_UDP>
-  - mpy_adaptor/component/mqtt/modmqtt.c ? <PY_BUILD_MQTT>
-  - mpy_adaptor/component/mqtt/mqttclient.c ? <PY_BUILD_MQTT>
-  - mpy_adaptor/component/linksdk/modlinkkit.c ? <PY_BUILD_LINKSDK>
-  - mpy_adaptor/component/audio/moduvoice.c ? <PY_BUILD_AUDIO>
-  - mpy_adaptor/component/audio/uvoicesnd.c ? <PY_BUILD_AUDIO>
-  - mpy_adaptor/component/audio/uvoiceplayer.c ? <PY_BUILD_AUDIO>
-  - mpy_adaptor/component/audio/uvoicerecorder.c ? <PY_BUILD_AUDIO>
-  - mpy_adaptor/component/audio/uvoicetts.c ? <PY_BUILD_AUDIO>
-  - mpy_adaptor/component/oss/modoss.c ? <PY_BUILD_OSS>
-  - mpy_adaptor/component/sntp/modsntp.c ? <PY_BUILD_SNTP>
-  - mpy_adaptor/component/modbus/modbus.c ? <PY_BUILD_MODBUS>
-  # mpy_adaptor/component/minicv
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasDataInput.cpp
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasImageCodec.cpp
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasImageProc.cpp
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasML.cpp
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasUI.cpp
-  - mpy_adaptor/component/minicv/base/modules/c/src/WrapperIHaasVideoCodec.cpp
-  - mpy_adaptor/component/minicv/base/modules/core/src/HaasImageUtils.cpp
-  - mpy_adaptor/component/minicv/base/modules/ml/src/HaasML.cpp ? <PY_BUILD_AI>
-  - mpy_adaptor/component/minicv/base/modules/ml/src/HaasMLCloud.cpp ? <PY_BUILD_AI>
-  - mpy_adaptor/component/minicv/base/modules/ml/src/HaasMLMnn.cpp ? <PY_BUILD_AI>
+  # ble
+  - modules/ble_netconfig/*.c ? <PY_BUILD_BLENETCONFIG>
 
+  # driver
+  - modules/driver/*.c
+  
+  # linksdk
+  - modules/linksdk/*.c ? <PY_BUILD_LINKSDK>
+
+  # minicv
+  - modules/minicv/base/modules/c/src/WrapperIHaasDataInput.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasImageCodec.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasImageProc.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasML.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasUI.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasVideoCodec.cpp
+  - modules/minicv/base/modules/core/src/HaasImageUtils.cpp
+  - modules/minicv/base/modules/ml/src/HaasML.cpp ? <PY_BUILD_AI>
+  - modules/minicv/base/modules/ml/src/HaasMLCloud.cpp ? <PY_BUILD_AI>
+  - modules/minicv/base/modules/ml/src/HaasMLMnn.cpp ? <PY_BUILD_AI>
+
+  # modbus
+  - modules/modbus/*.c ? <PY_BUILD_MODBUS>
+  
+  # mqtt
+  - modules/mqtt/modmqtt.c ? <PY_BUILD_MQTT>
+  - modules/mqtt/mqttclient.c ? <PY_BUILD_MQTT>
+
+  # netmgr
+  - modules/netmgr/modnetmgr.c ? <PY_BUILD_NETMGR>
+
+  # network/
+  - modules/network/http/modhttp.c ? <PY_BUILD_HTTP>
+  - modules/network/http/httpclient.c ? <PY_BUILD_HTTP>
+  - modules/network/tcp/modtcp.c ? <PY_BUILD_TCP>
+  - modules/network/udp/modudp.c ? <PY_BUILD_UDP>
+
+  # oss
+  - modules/oss/*.c ? <PY_BUILD_OSS>
+
+  # ota
+  - modules/ota/*.c ? <PY_BUILD_OTA>
+  
+  # sntp
+  - modules/sntp/*.c ? <PY_BUILD_SNTP>
+
+  # ucamera
+  - modules/ucamera/*.c ? <PY_BUILD_UCAMERA>
+
+  # ulog
+  - modules/ulog/*.c ? <PY_BUILD_ULOG>
+
+  # engine/drivers/
+  - engine/drivers/bus/*.c
+
+  # engine/extmod/
+  - engine/extmod/*.c
+
+  # engine/lib/
+  - engine/lib/utils/*.c
+  - engine/lib/mp-readline/*.c
+  - engine/lib/timeutils/*.c
+  - engine/lib/netutils/*.c
+
+  # engine/py/
+  - engine/py/*.c
+
+  # external/unzip
+  - external/unzip/src/*.c
+
+  # external/amp_boot
+  - external/amp_boot/*.c ? <PY_BUILD_BOOT>
+
+  # external/amp_task
+  - external/amp_task/*.c
+
+  # external/amp_utils
+  - external/amp_utils/*.c
+
+  # external/app_mgr
+  - external/app_mgr/app_upgrade.c ? <PY_BUILD_OTA>
+  - external/app_mgr/app_mgr.c ? <PY_BUILD_OTA, PY_BUILD_BOOT>
+  - external/app_mgr/app_message.c ? <PY_BUILD_BOOT>
+  
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y
@@ -373,6 +233,9 @@ def_config:
   LINKSDK_DEMO_MQTT_BCAST: n       #MQTT连IoT平台接收广播推送演示
   LINKSDK_DEMO_MQTT_RRPC: n        #MQTT连IoT平台RRPC演示
   CLI_IOBOX_ENABLE: 1              # Enable iobox cmd
+  ULOG_CONFIG_ASYNC: 1
+  ULOG_CONFIG_POP_FS: 1
+  ULOG_CONFIG_POP_UDP: 1
   
   #以下是Python引擎模块编译选项，1 为打开，0 为关闭
   PY_BUILD_FATFS: 1                # Py_Engine module build FATFS Flag
@@ -386,16 +249,25 @@ def_config:
   PY_BUILD_AUDIO: 1                # Py_Engine module build uvoice config
   PY_BUILD_UOS: 1                  # Py_Engine module build uos config
   PY_BUILD_OSS: 1                  # Py_Engine module build oss config
+  PY_BUILD_UCAMERA: 1              # Py_Engine module build ucamera config
   PY_BUILD_BLENETCONFIG: 1         # Py_Engine module build ble net config
   PY_BUILD_SNTP: 1                 # Py_Engine module build sntptime config
   PY_BUILD_MODBUS: 1               # Py_Engine module build modbus config
+  PY_BUILD_ULOG: 1                 # Py_Engine module build ulog config
+  PY_BUILD_OTA: 1                  # Py_Engine module build OTA config
+  PY_BUILD_BOOT: 1                 # Py_Engine module build boot config
+  PY_BUILD_CHANNEL: 1              # Py_Engine module build boot config
 
-  PY_BUILD_MBEDTLS: 1             # Py_Engine module build mbed TLS
+  PY_BUILD_MBEDTLS: 1              # Py_Engine module build mbed TLS
   MBEDTLS_CTR_DRBG_C: 1
   MBEDTLS_ENTROPY_C: 1
   MBEDTLS_NO_PLATFORM_ENTROPY: 1
 
 
+  PY_PLATFORM_HAAS_100: 0
+  PY_PLATFORM_HAAS_200: 0
+  PY_PLATFORM_HAAS_EDU: 1
+  PY_PLATFORM_HAAS_510: 0
 
 
 ## 第六部分：安装信息

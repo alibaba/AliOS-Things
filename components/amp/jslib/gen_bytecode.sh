@@ -7,3 +7,4 @@
 ./qjsc -c -m src/bt_host.js -N jslib_bt_host -M events -M BT_HOST -o bytecode/jslib_bt_host.c
 ./qjsc -c src/gateway.js -N jslib_gateway -M AIOT_GATEWAY -M events -o bytecode/jslib_gateway.c
 ./qjsc -c src/repl.js -o bytecode/jslib_repl.c -N jslib_repl -M REPL -M os -M std
+./qjsc -c src/uart.js -o bytecode/jslib_uart.c -N jslib_uart -M events -M UART

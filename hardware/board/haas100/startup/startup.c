@@ -138,6 +138,7 @@ static void factory_rf_test(void)
 
 static void aos_main_task_entry(void)
 {
+    int ret = 0;
 #ifdef AOS_COMP_YUNIT
     char *parm[4] = {"yts", "kv", "ramfs", "vfs"};
 #endif
@@ -153,7 +154,6 @@ static void aos_main_task_entry(void)
     }
 
     ch395_device_dereset();
-
 #ifdef AOS_COMP_CPLUSPLUS
     cpp_init();
 #endif
@@ -171,6 +171,16 @@ static void aos_main_task_entry(void)
 #endif
 
     aos_init_done_hook();
+
+    ret = bwifi_init();
+    if (ret) {
+        printf("bwifi init fail\n");
+    }
+
+    ret = eth_lwip_tcpip_init();
+    if (ret) {
+        printf("haas100 ethernet init fail\n");
+    }
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
     soc_hw_timer_init();

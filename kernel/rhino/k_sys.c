@@ -23,6 +23,9 @@ RHINO_INLINE void rhino_stack_check_init(void)
 
 kstat_t krhino_init(void)
 {
+#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
+    kstat_t ret;
+#endif
     g_sys_stat = RHINO_STOPPED;
     g_task_id  = 0;
 
@@ -49,7 +52,11 @@ kstat_t krhino_init(void)
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
     klist_init(&g_res_list);
-    krhino_sem_create(&g_res_sem, "res_sem", 0);
+    ret = krhino_sem_create(&g_res_sem, "res_sem", 0);
+    if (ret != RHINO_SUCCESS)
+    {
+        return ret;
+    }
     dyn_mem_proc_task_start();
 #endif
 

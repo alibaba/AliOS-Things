@@ -5,6 +5,10 @@
 #include "cmsis_os.h"
 #include "cmsis.h"
 #include "pmu.h"
+#include "aos/hal/flash.h"
+#include "aos/mtd.h"
+#include <vfsdev/flash_dev.h>
+#include "aos/mtdpart.h"
 
 extern const hal_logic_partition_t hal_partitions[];
 extern osMutexId FlashMutex;
@@ -31,228 +35,18 @@ static void FlashosMutexWait(void)
     osMutexWait(FlashMutex, osWaitForever);
 }
 
-int ota_adapt_flash_read(const uint32_t addr, uint8_t *dst, const uint32_t size)
-{
-    int ret = 0;
-    uint32_t lock = 0;
-    volatile char *flashPointer = NULL;
-
-	if(NULL == dst) {
-        ret = -1;
-        goto RETURN;
-    }
-
-    FlashosMutexWait();
-    lock = int_lock();
-    flashPointer = (volatile char *)(FLASH_NC_BASE + addr);
-    memcpy(dst, (void *)flashPointer, size);
-    int_unlock(lock);
-    osMutexRelease(FlashMutex);
-
-RETURN:
-    return ret;
-}
-
-int ota_erase_norflash(hal_partition_t partition, unsigned int erase_addr, unsigned int erase_len)
-{
-    int ret = 0;
-
-    if (partition == HAL_PARTITION_RTOSA) {
-        hal_norflash_disable_remap(HAL_NORFLASH_ID_0);
-    }
-
-    ret = hal_norflash_erase(HAL_NORFLASH_ID_0, erase_addr, erase_len);
-
-	if (partition == HAL_PARTITION_RTOSA) {
-        hal_norflash_re_enable_remap(HAL_NORFLASH_ID_0);
-    }
-
-    return ret;
-}
-
-int ota_write_norflash(hal_partition_t partition, unsigned int addr, const unsigned char *data, unsigned int len)
-{
-    int ret = 0;
-
-    if (partition == HAL_PARTITION_RTOSA) {
-        hal_norflash_disable_remap(HAL_NORFLASH_ID_0);
-    }
-
-    ret = hal_norflash_write(HAL_NORFLASH_ID_0, addr, data, len);
-
-	if (partition == HAL_PARTITION_RTOSA) {
-        hal_norflash_re_enable_remap(HAL_NORFLASH_ID_0);
-    }
-
-    return ret;
-}
-
-int ota_adapt_flash_write(const hal_partition_t partition, const uint32_t addr, const uint8_t *src, const uint32_t size)
-{
-    int ret = 0;
-    uint32_t lock;
-    uint32_t num = 0;
-    uint32_t left_len = 0;
-    uint32_t align_len = 0;
-    uint32_t fill_len = 0;
-    uint32_t flash_offset = addr;
-    uint32_t lengthToBurn = size;
-    uint8_t *ptrSource = NULL;
-    volatile char *flashPointer = NULL;
-    uint8_t *buf = NULL;
-
-    ptrSource = (uint8_t *)src;
-    if (NULL == ptrSource) {
-        ret = -2;
-        goto RETURN;
-    }
-
-    FlashosMutexWait();
-    if (addr % FLASH_BLOCK_SIZE_IN_BYTES != 0) {
-        buf = (uint8_t *)aos_malloc(FLASH_BLOCK_SIZE_IN_BYTES);
-        if (!buf) {
-            TRACE("%s %d, rt_malloc error", __func__, __LINE__);
-            ret = -1;
-            goto end;
-        }
-    } else {
-        if (lengthToBurn % FLASH_BLOCK_SIZE_IN_BYTES != 0) {
-            buf = (uint8_t *)aos_malloc(FLASH_BLOCK_SIZE_IN_BYTES);
-            if (!buf) {
-                TRACE("%s %d, rt_malloc error", __func__, __LINE__);
-                ret = -1;
-                goto end;
-            }
-        }
-    }
-
-    pmu_flash_write_config();
-    if (flash_offset % FLASH_BLOCK_SIZE_IN_BYTES != 0) {
-        left_len = FLASH_BLOCK_SIZE_IN_BYTES - flash_offset % FLASH_BLOCK_SIZE_IN_BYTES;
-        fill_len = (left_len >= lengthToBurn) ? lengthToBurn : left_len;
-
-        align_len = flash_offset;
-        align_len -= align_len % FLASH_BLOCK_SIZE_IN_BYTES;
-        memset(buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-        // read first
-        lock = int_lock();
-        flashPointer = (volatile char *)(FLASH_NC_BASE + align_len);
-        memcpy(buf, (void *)flashPointer, FLASH_BLOCK_SIZE_IN_BYTES);
-
-        ret = ota_erase_norflash(partition, align_len, FLASH_BLOCK_SIZE_IN_BYTES);
-        if (ret != HAL_NORFLASH_OK) {
-            TRACE("error %s %d, hal_norflash_erase ret:%d", __func__, __LINE__, ret);
-            pmu_flash_read_config();
-            int_unlock(lock);
-            goto end;
-        }
-
-        memcpy((buf + flash_offset % FLASH_BLOCK_SIZE_IN_BYTES), ptrSource, fill_len);
-        ret = ota_write_norflash(partition, align_len, buf, FLASH_BLOCK_SIZE_IN_BYTES);
-        if (ret != HAL_NORFLASH_OK) {
-            TRACE("error %s %d, hal_norflash_write ret:%d", __func__, __LINE__, ret);
-            pmu_flash_read_config();
-            int_unlock(lock);
-            goto end;
-        }
-        int_unlock(lock);
-
-#ifdef __WATCHER_DOG_RESET__
-        app_wdt_ping();
-#endif
-
-        lengthToBurn -= fill_len;
-        flash_offset += fill_len;
-        ptrSource += fill_len;
-    }
-
-    if (lengthToBurn > 0) {
-        for (num = 0; num < lengthToBurn / FLASH_BLOCK_SIZE_IN_BYTES; num ++) {
-            lock = int_lock();
-            ret = ota_erase_norflash(partition, flash_offset, FLASH_BLOCK_SIZE_IN_BYTES);
-            if (ret != HAL_NORFLASH_OK) {
-                TRACE("error %s %d, hal_norflash_erase ret:%d", __func__, __LINE__, ret);
-                pmu_flash_read_config();
-                int_unlock(lock);
-                goto end;
-            }
-            ret = ota_write_norflash(partition, flash_offset, ptrSource, FLASH_BLOCK_SIZE_IN_BYTES);
-            if (ret != HAL_NORFLASH_OK) {
-                TRACE("error %s %d, hal_norflash_write ret:%d", __func__, __LINE__, ret);
-                pmu_flash_read_config();
-                int_unlock(lock);
-                goto end;
-            }
-            int_unlock(lock);
-
-#ifdef __WATCHER_DOG_RESET__
-            app_wdt_ping();
-#endif
-            flash_offset += FLASH_BLOCK_SIZE_IN_BYTES;
-            ptrSource += FLASH_BLOCK_SIZE_IN_BYTES;
-        }
-
-        left_len = lengthToBurn % FLASH_BLOCK_SIZE_IN_BYTES;
-        if (left_len) {
-            memset(buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-            // read first
-            lock = int_lock();
-            flashPointer = (volatile char *)(FLASH_NC_BASE + flash_offset);
-            memcpy(buf, (void *)flashPointer, FLASH_BLOCK_SIZE_IN_BYTES);
-
-            ret = ota_erase_norflash(partition, flash_offset, FLASH_BLOCK_SIZE_IN_BYTES);
-            if (ret != HAL_NORFLASH_OK) {
-                TRACE("error %s %d, hal_norflash_erase ret:%d", __func__, __LINE__, ret);
-                pmu_flash_read_config();
-                int_unlock(lock);
-                goto end;
-            }
-
-            memcpy(buf, ptrSource, left_len);
-            ret = ota_write_norflash(partition, flash_offset, buf, FLASH_BLOCK_SIZE_IN_BYTES);
-            if (ret != HAL_NORFLASH_OK) {
-                TRACE("error %s %d, hal_norflash_write ret:%d", __func__, __LINE__, ret);
-                pmu_flash_read_config();
-                int_unlock(lock);
-                goto end;
-            }
-            int_unlock(lock);
-
-#ifdef __WATCHER_DOG_RESET__
-            app_wdt_ping();
-#endif
-        }
-    }
-    pmu_flash_read_config();
-
-end:
-    if (addr % FLASH_BLOCK_SIZE_IN_BYTES != 0) {
-        aos_free(buf);
-        buf = NULL;
-    } else {
-        if (lengthToBurn % FLASH_BLOCK_SIZE_IN_BYTES != 0) {
-            aos_free(buf);
-            buf = NULL;
-        }
-    }
-    osMutexRelease(FlashMutex);
-
-RETURN:
-    return ret;
-}
-
 int ota_get_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
 {
     uint32_t lock = 0;
     uint32_t start_addr = 0;
-    hal_logic_partition_t* partition_info;
+    mtd_partition_t* partition_info;
     volatile char *flashPointer = NULL;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("error %s %d, zone:%d", __func__, __LINE__, zone);
         return OTA_FAILE;
     }
-    partition_info = (hal_logic_partition_t *)&hal_partitions[HAL_PARTITION_PARAMETER_3];
+    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
     if(partition_info == NULL) {
         return OTA_FAILE;
     }
@@ -288,7 +82,7 @@ int ota_set_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
     uint32_t lock = 0;
     uint32_t start_addr = 0;
     uint8_t buffer[FLASH_SECTOR_SIZE_IN_BYTES] = {0};
-    hal_logic_partition_t* partition_info = NULL;
+    mtd_partition_t* partition_info = NULL;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("error %s %d, zone:%d", __func__, __LINE__, zone);
@@ -299,7 +93,7 @@ int ota_set_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
     if (ret) {
         return OTA_FAILE;
     }
-    partition_info = (hal_logic_partition_t *)&hal_partitions[HAL_PARTITION_PARAMETER_3];
+    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
     if(partition_info == NULL) {
         return OTA_FAILE;
     }
@@ -354,27 +148,26 @@ int ota_check_bootinfo(enum bootinfo_zone zone)
     uint32_t crc32_value = 0;
     uint32_t flash_offset = 0;
     uint8_t *flash_pointer = NULL;
-    hal_logic_partition_t *partition_info = NULL;
+    mtd_partition_t *partition_info = NULL;
     const struct ota_boot_info *info;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("%s %d, error zone:%d", __func__, __LINE__, zone);
         return OTA_FAILE;
     }
-
-    partition_info = (hal_logic_partition_t *)&hal_partitions[HAL_PARTITION_PARAMETER_3];
+    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
     if(partition_info == NULL) {
         return OTA_FAILE;
     }
 
     //get boot info to choose linkA or linkB.
     if (zone == OTA_BOOTINFO_ZONEA) {
-		flash_offset = partition_info->partition_start_addr;
+        flash_offset = partition_info->partition_start_addr;
     } else if (zone == OTA_BOOTINFO_ZONEB) {
-		flash_offset = partition_info->partition_start_addr + OTA_BOOT_INFO_SIZE; //boot info zoneB start address
+        flash_offset = partition_info->partition_start_addr + OTA_BOOT_INFO_SIZE; //boot info zoneB start address
     }
 
-	info = (const struct ota_boot_info *)(FLASH_NC_BASE + flash_offset);
+    info = (const struct ota_boot_info *)(FLASH_NC_BASE + flash_offset);
     if (info->update_link >= OTA_LINK_MAX) {
         TRACE("%s %d, error info->update_link:%d", __func__, __LINE__, info->update_link);
         return OTA_FAILE;
@@ -624,87 +417,36 @@ int ota_get_boot_type()
 
 int ota_set_user_bootinfo(void *param)
 {
+    (void *)param;
     return ota_upgrade_link();
 }
 
-int ota_adapt_copy_partitionA_to_partitionB(hal_partition_t dst_partition, hal_partition_t src_partition)
+int ota_hal_rollback_platform_hook(void)
 {
-	uint8_t *buf = NULL;
-	uint8_t *read_buf = NULL;
-	int32_t ret = 0;
-	int32_t num = 0;
-	uint32_t addrA = 0;
-	uint32_t addrB = 0;
-    hal_partition_t partitionA_index = src_partition;
-    hal_logic_partition_t partitionA_info;
-    hal_partition_t partitionB_index = dst_partition;
-    hal_logic_partition_t partitionB_info;
+     return ota_clear_reboot_count();
+}
 
-    buf = (uint8_t *)aos_malloc(FLASH_BLOCK_SIZE_IN_BYTES);
-	if (!buf) {
-		TRACE("%s %d, malloc fail", __func__, __LINE__);
-		return OTA_FAILE;
-	}
+int ota_hal_platform_boot_type(void)
+{
+    return ota_get_boot_type();
+}
 
-    read_buf = (uint8_t *)aos_malloc(FLASH_BLOCK_SIZE_IN_BYTES);
-    if (!read_buf) {
-        TRACE("%s %d, malloc fail", __func__, __LINE__);
-        return OTA_FAILE;
+int ota_get_running_index(void)
+{
+    int32_t ret = 0;
+    struct ota_boot_info info;
+    enum bootinfo_zone zone;
+
+    zone = ota_get_valid_bootinfo_zone();
+    ret = ota_get_bootinfo(&info, zone);
+    if (ret) {
+        printf("%s err \r\n", __FUNCTION__);
+        return -1;
     }
+    return info.update_link;
+}
 
-	memset(buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-	memset(read_buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-
-	ret = hal_flash_info_get(partitionA_index, &partitionA_info);
-	if (ret) {
-		TRACE("error %s %d, hal_flash_info_get return != 0", __func__, __LINE__);
-		ret = OTA_FAILE;
-		goto end;
-	}
-
-	ret = hal_flash_info_get(partitionB_index, &partitionB_info);
-	if (ret) {
-		TRACE("error %s %d, hal_flash_info_get return != 0", __func__, __LINE__);
-		ret = OTA_FAILE;
-		goto end;
-	}
-
-	addrA = partitionA_info.partition_start_addr;
-	addrB = partitionB_info.partition_start_addr;
-	TRACE("%s %d, src addr:0x%x, length:0x%x", __func__, __LINE__, addrA, partitionA_info.partition_length);
-	TRACE("%s %d, dst addr:0x%x, length:0x%x", __func__, __LINE__, addrB, partitionB_info.partition_length);
-    for (num = 0; num < partitionA_info.partition_length / FLASH_BLOCK_SIZE_IN_BYTES; num++) {
-        ota_adapt_flash_read(addrA, buf, FLASH_BLOCK_SIZE_IN_BYTES);
-
-        ret = ota_adapt_flash_write(partitionB_index, addrB, buf, FLASH_BLOCK_SIZE_IN_BYTES);
-		if (ret) {
-			TRACE("error %s %d, return %d", __func__, __LINE__, ret);
-			ret = OTA_FAILE;
-			goto end;
-		}
-
-        ota_adapt_flash_read(addrB, read_buf, FLASH_BLOCK_SIZE_IN_BYTES);
-        if (memcmp(read_buf, buf, FLASH_BLOCK_SIZE_IN_BYTES)) {
-            TRACE("error %s %d, ota_adapt_flash_write fail", __func__, __LINE__);
-			ret = OTA_FAILE;
-			goto end;
-		}
-
-		addrA += FLASH_BLOCK_SIZE_IN_BYTES;
-		addrB += FLASH_BLOCK_SIZE_IN_BYTES;
-		memset(buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-		memset(read_buf, 0, FLASH_BLOCK_SIZE_IN_BYTES);
-
-		TRACE("%s %d, src addr:0x%x", __func__, __LINE__, addrA);
-		TRACE("%s %d, dst addr:0x%x", __func__, __LINE__, addrB);
-	}
-
-end:
-    aos_free(buf);
-	buf = NULL;
-
-    aos_free(read_buf);
-	read_buf = NULL;
-
-	return ret;
+int ota_hal_final(void)
+{
+    return ota_set_user_bootinfo(NULL);
 }

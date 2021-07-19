@@ -26,9 +26,21 @@ extern void sys_jtag_off(void);
 
 extern uint32_t SystemCoreClock;
 
+void sys_open_security_boot_log(void)
+{
+    u32 temp;
+
+    temp = HAL_READ32(SYSTEM_CTRL_BASE_LP, REG_SYS_EFUSE_SYSCFG3);
+    if((temp & BIT_SYS_DIS_BOOT_LOG_EN) != 0) {
+        temp &= ~BIT_SYS_DIS_BOOT_LOG_EN;
+        EFUSE_LMAP_WRITE(0xe, 2, ((u8*)&temp) + 2);
+    }
+}
+
 static void hal_init()
 {
     sys_jtag_off();
+    sys_open_security_boot_log();
 }
 
 extern void hw_start_hal(void);

@@ -186,6 +186,7 @@ source_file:
   - hal/pwrmgmt_hal/board_cpu_pwr_systick.c
   - hal/pwrmgmt_hal/board_cpu_pwr.c
   - hal/pwrmgmt_hal/pwrmgmt_api.c
+  - hal/sd.c
 
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_app_start.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_i2s.c
@@ -193,7 +194,7 @@ source_file:
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_ssi.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_system.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_audio.c
-  - sdk/component/soc/realtek/amebad/fwlib/ram_hp/rtl8721dhp_psram.c
+  - sdk/component/soc/realtek/amebad/fwlib/crypto/rtl8721dhp_crypto_ram.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_gdma_memcpy.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_wdg.c
   - sdk/component/soc/realtek/amebad/fwlib/ram_common/rtl8721d_i2c.c

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
+#ifndef AOS_BOARD_HAAS700
 #include "amp_platform.h"
 #include "aos_network.h"
 #include "netmgr.h"
@@ -140,4 +141,4 @@ int aos_wifi_get_state()
     }
     return netmgr_get_state(hdl);
 }
-
+#endif

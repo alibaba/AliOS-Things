@@ -137,6 +137,36 @@ int32_t vfs_inode_reserve(const char *path, vfs_inode_t **p_node);
  */
 int32_t vfs_inode_release(const char *path);
 
+/**
+ * @brief list all inode with the type
+ *
+ * @param[in] type the type of inode
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int32_t vfs_inode_list(vfs_list_type_t type);
+
+/**
+ * @brief get FS nodes name
+ *
+ * @param[in] path the parent path of inodes
+ *
+ * @param[out] names FS nodes name as request
+ *
+ * @param[out] size  names count
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int vfs_inode_get_names(const char *path, char names[][64], uint32_t* size);
+
+/**
+ * @brief only used by FS node to mark deatched state, so it can
+ *        umount itself after it ceases to be busy.
+ */
+int32_t vfs_inode_detach(vfs_inode_t *node);
+
 #define inode_init vfs_inode_init
 #define inode_alloc vfs_inode_alloc
 #define inode_del vfs_inode_del

@@ -324,6 +324,28 @@ extern "C" {
 #define SOCK_DISABLE_SEND_OK_INT                  (1<<4)                        /* send ok中断控制位，为1表示关闭send ok中断 */
 
 
+#define MAX_SURPPORT_SOCK_NUM 4         /*default is 4, max is 8*/
+
+typedef struct {
+   uint8_t ipaddr[4];
+   uint8_t gateway[4];
+   uint8_t ip_mask[4];
+   uint8_t ip_dns1[4];
+   uint8_t ip_dns2[4];
+} ch395_int_t;
+
+typedef struct {
+   ch395_int_t ip_info;
+   uint8_t     mac_addr[6];
+   uint8_t     phystate;
+   uint8_t     mac_filt;
+   uint16_t    retran_count;
+   uint16_t    retran_period;
+   uint8_t     int_mode;
+   uint16_t    unreach_port;
+   uint8_t     unreach_ip[4];
+} st_ch395_info_t;
+
 #ifdef __cplusplus
 }
 #endif

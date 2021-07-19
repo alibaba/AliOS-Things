@@ -10,8 +10,14 @@
 #ifdef CONFIG_UCLOUD_AI_ENGINE_ENABLE
 #include "ucloud_ai_common.h"
 typedef ucloud_ai_result_t ai_result_t;
+typedef void *ai_config_t;
+#elif defined(CONFIG_KWS_AI_ENGINE_ENABLE)
+#include "engine/kws_engine.h"
+typedef int32_t ai_result_t;
+typedef kws_engine_config_t ai_config_t;
 #else
-typedef void ai_result_t;
+typedef void *ai_result_t;
+typedef void *ai_config_t;
 #endif
 
 typedef enum _ai_model_t {
@@ -30,9 +36,9 @@ typedef enum _ai_model_t {
     AI_MODEL_DETECT_FRUITS,                       // 水果检测
     AI_MODEL_ERASE_PERSON,                        // 图像人体擦除
     AI_MODEL_EXTEND_IMAGE_STYLE,                  // 风格迁移
+    AI_MODEL_KWS,                                 // 语音唤醒
     AI_MODEL_MAX
 } ai_model_t;
 
 typedef int (*ai_engine_cb_t)(ai_result_t *result);
-
 #endif // _AI_AGENT_COMMON_H_

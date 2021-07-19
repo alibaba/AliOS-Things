@@ -169,10 +169,16 @@ static int epoll_open(inode_t *node, file_t *file)
 err:
     printf("epoll open failed\r\n");
     errno = ENOMEM;
-    aos_mutex_free(&pdev->rbt_mutex);
-    aos_mutex_free(&pdev->evt_mutex);
-    aos_event_free(&pdev->event);
-
+    if (*(aos_mutex_t*)(&(pdev->rbt_mutex))) {
+        aos_mutex_free(&pdev->rbt_mutex);
+    }
+    if (*(aos_mutex_t*)(&(pdev->evt_mutex))) {
+        aos_mutex_free(&pdev->evt_mutex);
+    }
+    if (*(aos_event_t*)(&(pdev->event)))
+	{
+        aos_event_free(&pdev->event);
+    }
     file->f_arg = NULL;
     free(pdev);
     return -1;
@@ -202,9 +208,16 @@ static int epoll_close(file_t *file)
 
     aos_mutex_unlock(&pdev->rbt_mutex);
 
-    aos_mutex_free(&pdev->rbt_mutex);
-    aos_mutex_free(&pdev->evt_mutex);
-    aos_event_free(&pdev->event);
+    if (*(aos_mutex_t*)(&(pdev->rbt_mutex))) {
+        aos_mutex_free(&pdev->rbt_mutex);
+    }
+    if (*(aos_mutex_t*)(&(pdev->evt_mutex))) {
+        aos_mutex_free(&pdev->evt_mutex);
+    }
+    if (*(aos_event_t*)(&(pdev->event)))
+	{
+        aos_event_free(&pdev->event);
+    }
 
     free(pdev);
     file->f_arg = NULL;

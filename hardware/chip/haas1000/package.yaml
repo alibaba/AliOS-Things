@@ -81,7 +81,10 @@ build_config:
     - drivers/rtos/rhino/cmsis/
     - drivers/utils/hwtimer_list/
     - drivers/platform/hal/haas1000/
-    - drivers/services/wifi_app/alsa_adapter
+    - drivers/services/wifi_app/alsa_adapter/
+    - drivers/services/multimedia/speech/inc/
+    - drivers/services/a7_dsp/
+    - drivers/utils/heap/
     - drivers/net/
 
   internal_include:
@@ -117,8 +120,10 @@ source_file:
   - "hal/sd.c"
   - "hal/flash.c"
   - "hal/gpio.c"
+  - "csi/gpio.c"
   - "csi/iic.c"
   - "csi/wdt.c"
+  - "csi/flash.c"
   # - "hal/2ndboot/wdg.c"
   # - "hal/2ndboot/sys.c"
   # - "hal/2ndboot/uart.c"
@@ -148,6 +153,8 @@ def_config:
   CONFIG_LWIP_V200: y
   __FPU_PRESENT: 1
   CMSIS_DSP_LIB: 1
+  CMSIS_NN_LIB: 1
+  SPEECH_LIB: 1
   # hardware module numbers config - used in VFS drivers
   CONFIG_ADC_NUM: 2
   CONFIG_DAC_NUM: 0
@@ -163,8 +170,10 @@ def_config:
   CONFIG_U_FLASH_DEV: 1
   CONFIG_U_WDG_DEV: 1
   CONFIG_U_WDG_CORE: 1
+  CONFIG_U_FLASH_CORE: 1
   SUPPORT_SET_DRIVER_TRACE_FLAG: 1
-
+  AOS_CONFIG_GPIOC_CSI: 1
+  __AP_MODE__: 1
 chip:
   arch_name: arm
   cpu_name: cortex-m4

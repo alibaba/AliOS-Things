@@ -10,6 +10,7 @@
 void amp_memory_init();
 void *amp_malloc(unsigned int size);
 void amp_free(void *ptr);
+void *amp_calloc(unsigned int nitems, unsigned int size);
 void *amp_realloc(void *ptr, unsigned int size);
 unsigned int amp_malloc_usable_size(void *ptr);
 void amp_memmgt_mem_show_rec();

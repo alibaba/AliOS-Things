@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_PYENGINE
+    bool "python engine"
+    default n
+    select AOS_COMP_AMP_ADAPTER
+    help
+
+if AOS_COMP_PYENGINE
+# Configurations for component pyengine
+endif

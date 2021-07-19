@@ -591,10 +591,15 @@ static void service_report_func_list()
 {
     unsigned char mod_idx = 0;
     cJSON *root = NULL;
+    char *out = NULL;
     cJSON *mod_obj[UAGENT_MOD_SIZE];
-    root = cJSON_CreateObject();
-
     char init_mod_report = 0;
+
+    root = cJSON_CreateObject();
+    if (NULL == root) {
+        UAGENT_ERR("[uA] creat root json fail \r\n");
+        return ;
+    }
     while (NULL != mod_func[mod_idx]) {
         init_mod_report = 0;
         UAGENT_INFO("[uA]mod %s have func %d\n", mod_func[mod_idx]->mod_info.name, mod_func[mod_idx]->mod_info.func_count);
@@ -625,7 +630,12 @@ static void service_report_func_list()
         mod_idx++;
     }
 
-    char *out = cJSON_PrintUnformatted(root);
+    out = cJSON_PrintUnformatted(root);
+    if (out == NULL) {
+        UAGENT_ERR("[uA] %s %d json print unformate fail\r\n", __FILE__, __LINE__);
+        return ;
+    }
+
     UAGENT_INFO("[uA]up uA List %s\n", out);
     uagent_send(UAGENT_MOD_UAGENT, UAGENT_FUNC_UA_SHOW_LIST,
         strlen(out),

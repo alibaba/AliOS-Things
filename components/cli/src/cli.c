@@ -424,7 +424,7 @@ static void cli_tab_complete_path(char *inbuf, uint32_t *idx)
             return;
         }
 
-        strcpy(tmpdir, dir);
+        strncpy(tmpdir, dir, strlen(dir));
         CLI_AUTO_PATH_DEBUG(
             "%s %d, inbuf: %s, idx: %d, last_str:%s, tmpdir:%s, dir:%s\r\n",
             __func__, __LINE__, inbuf, *idx, last_str, tmpdir, dir);
@@ -456,14 +456,15 @@ static void cli_tab_complete_path(char *inbuf, uint32_t *idx)
         return;
     }
 
-    if (!S_ISDIR(s.st_mode)) {
-        cli_printf("%s is not a valid dir\r\n", dir);
-        return;
-    }
-
     pdir = opendir(dir);
     if (!pdir) {
         cli_printf("Failed to open dir %s\r\n", dir);
+        return;
+    }
+
+    if (!S_ISDIR(s.st_mode)) {
+        closedir(pdir);
+        cli_printf("%s is not a valid dir\r\n", dir);
         return;
     }
 

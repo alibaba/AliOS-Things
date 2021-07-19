@@ -14,6 +14,7 @@ class netMgr extends EventEmitter{
             name: options.name
         };
 
+        this.name = options.name
         this._init();
         this.dev_handler = this._getDev();
     }
@@ -25,6 +26,7 @@ class netMgr extends EventEmitter{
     }
 
     _getDev() {
+        console.log('netMgr._getDev: ' + this.name)
         var dev_handler = __native.NETMGR.getDev(this.name);
         if (!dev_handler){
             this.emit('error', 'netmgr get dev error ' + this.name);

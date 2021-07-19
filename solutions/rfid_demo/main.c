@@ -42,6 +42,13 @@ int application_start(int argc, char *argv[])
     event_service_init(NULL);
 
     netmgr_service_init(NULL);
+
+    /*enable network auto reconnect*/
+    netmgr_set_auto_reconnect(NULL, true);
+
+    /*enable auto save wifi config*/
+    netmgr_wifi_set_auto_save_ap(true);
+
     rfid_uart_init();
 
     event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);

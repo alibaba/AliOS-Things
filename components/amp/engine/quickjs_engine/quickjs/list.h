@@ -1,6 +1,6 @@
 /*
  * Linux klist like system
- * 
+ *
  * Copyright (c) 2016-2017 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -46,7 +46,7 @@ static inline void init_list_head(struct list_head *head)
 }
 
 /* insert 'el' between 'prev' and 'next' */
-static inline void __list_add(struct list_head *el, 
+static inline void __list_add(struct list_head *el,
                               struct list_head *prev, struct list_head *next)
 {
     prev->next = el;
@@ -70,10 +70,17 @@ static inline void list_add_tail(struct list_head *el, struct list_head *head)
 static inline void list_del(struct list_head *el)
 {
     struct list_head *prev, *next;
+    if(el == NULL) {
+        return;
+    }
     prev = el->prev;
     next = el->next;
-    prev->next = next;
-    next->prev = prev;
+    if (prev != NULL) {
+        prev->next = next;
+    }
+    if (next != NULL) {
+        next->prev = prev;
+    }
     el->prev = NULL; /* fail safe */
     el->next = NULL; /* fail safe */
 }

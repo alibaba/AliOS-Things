@@ -8,6 +8,7 @@
 #define _AMP_QUICKJS_ADDON_COMMON_H_
 
 #include "stdint.h"
+#include "stdbool.h"
 #include "quickjs.h"
 
 #ifndef countof

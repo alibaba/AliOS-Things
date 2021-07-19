@@ -12,6 +12,9 @@ extern "C" {
 
 char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char* localfilepath);
 char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *scontent);
+char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath);
+char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath);
+
 
 #ifdef __cplusplus
 }

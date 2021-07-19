@@ -11,6 +11,9 @@
 #ifdef CONFIG_UCLOUD_AI_ENGINE_ENABLE
 #include "engine/ucloud_ai_engine.h"
 #endif
+#ifdef CONFIG_KWS_AI_ENGINE_ENABLE
+#include "engine/kws_engine.h"
+#endif
 
 #define TAG "AIAGENT_ENGINE"
 
@@ -20,10 +23,17 @@ static aiagent_engine_t *g_ai_engine = NULL;
 extern aiagent_context_t ucloud_ai_engine;
 #endif
 
+#ifdef CONFIG_KWS_AI_ENGINE_ENABLE
+extern aiagent_context_t kws_engine;
+#endif
+
 /* Available ai engine context */
 static aiagent_context_t *ai_engine_ctx[] = {
 #ifdef CONFIG_UCLOUD_AI_ENGINE_ENABLE
     &ucloud_ai_engine,
+#endif
+#ifdef CONFIG_KWS_AI_ENGINE_ENABLE
+    &kws_engine,
 #endif
     NULL
 };
@@ -102,6 +112,12 @@ void aiagent_engine_uninit(void)
 
     LOG("Uninitialize ai agent engine successfully\n");
     return;
+}
+
+void aiagent_engine_config(ai_config_t *config)
+{
+    g_ai_engine->config = config;
+    g_ai_engine->ai_engine_config(g_ai_engine);
 }
 
 const char *aiagent_get_engine_name(void)

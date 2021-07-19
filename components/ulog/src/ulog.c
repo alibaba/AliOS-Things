@@ -122,9 +122,9 @@ int ulog_vprintf(const char *vformat, va_list varg)
                 i = i + 1;
             } else if (vformat[i]=='p') {
                 out_p = va_arg(varg, unsigned int);
-                sprintf(int_to_string, "%p", out_p);
+                sprintf(int_to_string, "%p", (void *)out_p);
                 count = count + strlen(int_to_string);
-                aos_cust_output_func("%p", out_p);
+                aos_cust_output_func("%p", (void *)out_p);
                 i = i + 1;
             } else if (vformat[i] == 'a') {
                 out_a = va_arg(varg,double);

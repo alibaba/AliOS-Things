@@ -9,10 +9,13 @@
 #include <sys/ioctl.h>
 #include <aos/errno.h>
 #include "aos_hal_wdg.h"
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/wdg_dev.h>
+#endif
 
 int32_t aos_hal_wdg_init(wdg_dev_t *wdg)
 {
+#ifndef AOS_BOARD_HAAS700
     uint32_t flags = 0;
     int32_t ret = 0;
     int32_t *p_fd = NULL;
@@ -46,10 +49,14 @@ out:
         p_fd = NULL;
     }
     return ret;
+#else
+    return -1;
+#endif
 }
 
 void aos_hal_wdg_reload(wdg_dev_t *wdg)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
 
@@ -67,10 +74,14 @@ void aos_hal_wdg_reload(wdg_dev_t *wdg)
     }
 
     return;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -94,4 +105,7 @@ int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)
     free(p_fd);
 
     return ret;
+#else
+    return -1;
+#endif
 }

@@ -37,13 +37,13 @@ static int cat_main(int argc, char **argv)
             continue;
         }
 
-        fsize = s.st_size;
-
         fd = open(file, O_RDONLY);
         if (fd < 0) {
             aos_cli_printf("open %s failed - %s\n", file, strerror(errno));
             continue;
         }
+
+        fsize = s.st_size;
 
         while ((ret = read(fd, buf, 128))) {
             int wlen;

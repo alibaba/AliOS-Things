@@ -146,7 +146,7 @@ int netmgr_wifi_get_state(netmgr_hdl_t hdl);
  * @param  [in] params
  * @return 0 on success, others on error
  */
-int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t* params);
+int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_params_t* params);
 
 /**
  * @brief  netmgr disconnect network
