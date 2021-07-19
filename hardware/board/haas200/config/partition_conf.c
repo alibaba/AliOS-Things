@@ -17,7 +17,7 @@ const mtd_partition_t mtd_partitions[] =
     },
     {
         .partition_name             = "PARAMETE1",
-        .partition_name_std         = MTD_PART_NAME_ENV1,
+        .partition_name_std         = MTD_PART_NAME_ENV,
         .partition_start_addr       = 0x3FF000,
         .partition_length           = 0x1000, /* boot env, 4KB */
         .partition_options          = 0,

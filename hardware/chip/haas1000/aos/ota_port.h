@@ -11,6 +11,9 @@
 #define _TG_VENDOR_OTA_H_
 
 #include "aos/hal/flash.h"
+#include "aos/mtd.h"
+#include <vfsdev/flash_dev.h>
+
 
 #ifdef __cplusplus
 extern "C" {

@@ -106,7 +106,7 @@ static int hexdump_do(const char *file, int len, int skip, int chr)
     char abspath[256] = {0}, *file1;
 
     file1 = get_realpath(file, abspath, sizeof(abspath));
-    if (!file) {
+    if (!file1) {
         aos_cli_printf("Failed to get real path!\r\n");
         return -1;
     }

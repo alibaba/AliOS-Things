@@ -71,8 +71,10 @@ static void js_cb_conn_status(void *pdata)
     JSValue val = JS_Call(ctx, params->cb_ref, JS_UNDEFINED, 1, &args);
     JS_FreeValue(ctx, args);
     if (JS_IsException(val)){
-        amp_info(MOD_STR,"netmgr connect callback error");
+        amp_info(MOD_STR,"netmgr connect callback error %d ", __LINE__);
     }
+
+    JS_FreeValue(ctx, params->cb_ref);
     JS_FreeValue(ctx, val);
 }
 
@@ -108,7 +110,6 @@ static void check_ip_task(void *arg)
         count++;
     }
 
-    JS_FreeValue(ctx, params->cb_ref);
     return;
 }
 
@@ -289,7 +290,6 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     memset(&connect_task_params, 0, sizeof(connect_task_params));
     connect_task_params.cb_ref = JS_DupValue(ctx, cb_ref);
     connect_task_params.hdl = hdl;
-
     g_checkip_task_run_flag = 1;
 
     ret = aos_task_new_ext(&netmgr_connect_task, "netmgr connect task", check_ip_task, (void *)&connect_task_params, 1024 * 2, ADDON_TSK_PRIORRITY);
@@ -530,7 +530,7 @@ static int set_msg_cb(netmgr_msg_t* msg)
         JSValue val = JS_Call(ctx, info->cb_ref, JS_UNDEFINED, 1, &args);
         JS_FreeValue(ctx, args);
         if (JS_IsException(val)){
-            amp_info(MOD_STR,"netmgr connect callback error");
+            amp_info(MOD_STR,"netmgr connect callback error %d", __LINE__);
         }
         JS_FreeValue(ctx, val);
     }

@@ -86,6 +86,12 @@ int application_start(int argc, char **argv)
     /*init network service*/
     netmgr_service_init(NULL);
 
+    /*enable network auto reconnect*/
+    netmgr_set_auto_reconnect(NULL, true);
+
+    /*enable auto save wifi config*/
+    netmgr_wifi_set_auto_save_ap(true);
+
     /*Subscribe wifi service event*/
     event_subscribe(EVENT_NETMGR_SNTP_SUCCESS, wifi_service_event, NULL);
 

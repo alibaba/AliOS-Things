@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_AMP_ADAPTER
+    bool "amp adapter"
+    default n
+    #select VFS_CONFIG_ROOTFS
+    help
+
+if AOS_COMP_AMP_ADAPTER
+# Configurations for component amp adapter
+endif

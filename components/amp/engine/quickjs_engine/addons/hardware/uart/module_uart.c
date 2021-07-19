@@ -31,7 +31,7 @@ typedef struct uart_module {
     uint32_t item_handle;
     uint32_t recv_index;
     uint8_t recv_buff[UART_BUFF_SIZE];
-    int js_cb_ref;
+    JSValue js_cb_ref;
 } uart_module_t;
 
 typedef struct {
@@ -55,7 +55,10 @@ static int uart_module_is_on(uint32_t item_handle)
     int i;
     for (i = 0; i < MAX_UART_PORT; i++) {
         uart_module_t *m = g_uart_modules[i];
-        if (m && m->item_handle == item_handle) return 1;
+        if (m && m->item_handle == item_handle)
+        {
+            return 1;
+        }
     }
     return 0;
 }
@@ -64,10 +67,21 @@ static void uart_recv_notify(void *pdata)
 {
     int i = 0;
     uart_notify_t *notify = (uart_notify_t *)pdata;
-
     JSContext *ctx = js_get_context();
+    JSValue args[2];
 
-    JSValue val = JS_Call(ctx, notify->js_cb_ref, JS_UNDEFINED, notify->recv_len, (JSValueConst *)(notify->recv_buff));
+    args[0] = JS_NewArrayBufferCopy(ctx, notify->recv_buff, notify->recv_len);
+    args[1] = JS_NewInt32(ctx, notify->recv_len);
+
+    JSValue val = JS_Call(ctx, notify->js_cb_ref, JS_UNDEFINED, 2, args);
+
+    JS_FreeValue(ctx, args[0]);
+    JS_FreeValue(ctx, args[1]);
+
+    if (JS_IsException(val)) {
+        js_std_dump_error(ctx);
+        amp_error(MOD_STR, "uart_recv_notify, call error");
+    }
     JS_FreeValue(ctx, val);
 
     aos_free(notify);
@@ -101,10 +115,11 @@ void uart_recv_callback(int port, void *data, uint16_t len, void *arg)
     }
     notify->recv_len = recvsize;
     notify->js_cb_ref = module->js_cb_ref;
+
     amp_task_schedule_call(uart_recv_notify, notify);
 }
 
-static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, int js_cb_ref)
+static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, JSValue js_cb_ref)
 {
     uart_module_t *module = aos_calloc(1, sizeof(uart_module_t));
     if (!module) {
@@ -167,7 +182,7 @@ static JSValue native_uart_open(JSContext *ctx, JSValueConst this_val,
         amp_error(MOD_STR, "board_attach_item fail!");
         goto out;
     }
-    amp_debug(MOD_STR, "uart handle:%u\n", uart_handle.handle);
+
     uart_device = board_get_node_by_handle(MODULE_UART, &uart_handle);
     if (NULL == uart_device) {
         amp_error(MOD_STR, "board_get_node_by_handle fail!");
@@ -242,8 +257,8 @@ out:
 static JSValue native_uart_write(JSContext *ctx, JSValueConst this_val,
                           int argc, JSValueConst *argv)
 {
-    int ret = -1;
-    int i = 0;
+    int ret          = -1;
+    int i;
     char *msg = NULL;
     size_t msg_len = 0;
     item_handle_t uart_handle;
@@ -259,11 +274,9 @@ static JSValue native_uart_write(JSContext *ctx, JSValueConst this_val,
     if(JS_IsString(argv[0])) {
         buf = JS_ToCString(ctx, argv[0]);
         msg_len = strlen(buf);
-        i = 1;
     } else {
         buf = JS_GetArrayBuffer(ctx, &msg_len, argv[0]);
-        if(!buf)
-        {
+        if(!buf) {
             amp_warn(MOD_STR, "parameter buffer is invalid, size: %d", msg_len);
             goto out;
         }
@@ -297,10 +310,11 @@ static JSValue native_uart_write(JSContext *ctx, JSValueConst this_val,
         amp_error(MOD_STR, "native_uart_write fail!");
     }
     aos_free(msg);
-out:
-    if (i == 1) {
+
+    if ((JS_IsString(argv[0])) && (buf)) {
         JS_FreeCString(ctx, buf);
     }
+out:
     return JS_NewInt32(ctx, ret);
 }
 
@@ -309,7 +323,7 @@ static JSValue native_uart_read(JSContext *ctx, JSValueConst this_val,
 {
     int ret          = -1;
     char *data = NULL;
-    uint32_t max_len = 16;
+    uint32_t max_len = 1024;
     uint32_t recvsize = 0;
     item_handle_t uart_handle;
     uart_dev_t *uart_device = NULL;
@@ -339,8 +353,9 @@ static JSValue native_uart_read(JSContext *ctx, JSValueConst this_val,
         goto out;
     }
     if (ret >= 0) {
-        // amp_info(MOD_STR, "uart recvsize:%d\n", recvsize);
-        obj = JS_NewStringLen(ctx, data, recvsize);
+        //amp_info(MOD_STR, "uart recvsize:%d\n", recvsize);
+        obj = JS_NewArrayBufferCopy(ctx, data, recvsize);
+
         if(NULL != data)
         {
             aos_free((void *)data);
@@ -366,7 +381,7 @@ static JSValue native_uart_on(JSContext *ctx, JSValueConst this_val,
     uint8_t *start          = NULL;
     uint8_t *end            = NULL;
 
-    if((argc < 1) || (JS_IsNull(argv[0]) || JS_IsUndefined(argv[0])))
+    if((argc < 1) || (JS_IsNull(argv[0]) || JS_IsUndefined(argv[0])) || ((!JS_IsFunction(ctx, argv[0]))))
     {
         amp_warn(MOD_STR, "parameter is invalid, argc = %d\n", argc);
         goto out;
@@ -389,25 +404,55 @@ static JSValue native_uart_on(JSContext *ctx, JSValueConst this_val,
         goto out;
     }
 
-    ret = uart_add_recv(uart_device, (uint32_t)(uart_handle.handle), JS_DupValue(ctx, argv[0]));
-    if (ret < 0) {
-        amp_error(MOD_STR, "uart_add_recv fail!");
+    JSValue irq_cb = argv[0];
+    if (!JS_IsFunction(ctx, irq_cb)) {
+        JS_ThrowTypeError(ctx, "not a function");
+        goto out;
     }
+
+    JSValue js_cb_ref = JS_DupValue(ctx, irq_cb);
+
+    uart_module_t *module = aos_calloc(1, sizeof(uart_module_t));
+    if (!module) {
+        amp_error(MOD_STR, "uart_start_recv fail!");
+         goto out;
+    }
+
+    if (!JS_IsFunction(ctx, js_cb_ref)) {
+        JS_ThrowTypeError(ctx, "not a function");
+        goto out;
+    }
+    module->js_cb_ref   = js_cb_ref;
+    module->item_handle = (uint32_t)(uart_handle.handle);
+    module->recv_index  = 0;
+    module->uart        = uart_device;
+
+    if (aos_hal_uart_callback(uart_device, uart_recv_callback, module) != 0) {
+        JSContext *ctx = js_get_context();
+        JS_FreeValue(ctx, module->js_cb_ref);
+        aos_free(module);
+        goto out;
+    }
+
+    g_uart_modules[uart_device->port] = module;
+    ret = 0;
 out:
     return JS_NewInt32(ctx, ret);
 }
 
-static JSValue native_uart_clean(JSContext *ctx, JSValueConst this_val,
-                          int argc, JSValueConst *argv)
+static JSValue native_uart_clean()
 {
     uart_module_t *mod;
     uart_dev_t *dev;
     int i, ret;
+    JSContext *ctx = js_get_context();
+    item_handle_t uart_handle;
 
     for (i = 0; i < MAX_UART_PORT; i++) {
         mod = g_uart_modules[i];
         if (mod) {
             JS_FreeValue(ctx, mod->js_cb_ref);
+            uart_handle.handle = mod->item_handle;
             aos_free(mod);
             g_uart_modules[i] = NULL;
         }
@@ -421,6 +466,8 @@ static JSValue native_uart_clean(JSContext *ctx, JSValueConst this_val,
             }
             uart_init_flag -= (1 << dev->port);
             g_uart_devices[i] = NULL;
+            board_disattach_item(MODULE_UART, &uart_handle);
+            uart_del_recv((uint32_t)(uart_handle.handle));
         }
     }
 }

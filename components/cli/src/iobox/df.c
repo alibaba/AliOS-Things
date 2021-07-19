@@ -36,10 +36,14 @@ static void df_do_dir(const char *dir)
     }
 
     total = ((unsigned long long)sfs.f_bsize * (unsigned long long)sfs.f_blocks) >> 10;
+    if (total == 0) {
+        aos_cli_printf("total size error!\r\n");
+        return;
+    }
     free = ((unsigned long long)sfs.f_bsize * (unsigned long long)sfs.f_bavail) >> 10;
     used = total - free;
 
-    if (total != 0 || !strcmp(dir, "/")) {
+    if (!strcmp(dir, "/")) {
         aos_cli_printf("%10llu%10llu%10llu%6llu%%    %s\n", total, used, free,
                 used * 100 / total, dir);
     } else {

@@ -9,11 +9,10 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "haas_main.h"
 
 int application_start(int argc, char *argv[])
 {
-    int count = 0;
-
-    printf("python demo entry!\r\n");
-
+    haas_main(argc, argv);
+    return 0;
 }

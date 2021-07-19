@@ -205,6 +205,10 @@
 #define JSE_ADVANCED_ADDON_UI
 #endif
 
+#if AMP_ADVANCED_ADDON_OSS
+#define JSE_ADVANCED_ADDON_OSS
+#endif
+
 /* recovery switch & status led */
 #define AMP_REPL_PROMPT     "amp > "
 

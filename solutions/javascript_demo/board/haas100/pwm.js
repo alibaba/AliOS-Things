@@ -1,6 +1,24 @@
 /*
  * PWM's options are configured in app.json.
-
+ * HaaS100
+{
+    "version": "0.0.1",
+    "io": {
+        "pwm1": {
+            "type": "PWM",
+            "port": 1
+        },
+        "timer1": {
+            "type":"TIMER",
+            "port": 0
+        }
+    },
+    "debugLevel": "DEBUG"
+  }
+*/
+/* 
+ * PWM's options are configured in app.json.
+ 
 {
   "version": "0.0.1",
   "io": {
@@ -17,7 +35,7 @@
 }
 */
 import * as pwm from 'pwm'
-import * as timer from 'TIMER'
+import * as timer from 'timer'
 
 console.log('pwm: pwm test open ')
 
@@ -49,35 +67,42 @@ timer1.setInterval(function(){
   if (duty >= 100) {
     duty = 0;
   }
-  duty  = duty + 20;
+  duty  = duty + 10;
 
   pwm1.set({
-    freq: 100,
+    freq: 100000,
     duty: duty
   })
+
+  freq = pwm1.get().freq
+  duty = pwm1.get().duty
+
+  console.log('pwm: pwm timer config freq is ' + freq + ' duty is ' + duty)
 
   console.log('pwm: pwm test count ' + cnt)
   cnt = cnt - 1;
   if (cnt == 0) {
-    pwm1.close();
+
     console.log('pwm: pwm test finish loop ' + loop)
     loop--;
-    if (loop == 0) {
+    if (loop == 0) 
+    {
+      pwm1.close();
       timer1.clearInterval();
     }
-    else {
-        pwm1 = pwm.open({
-            id: 'pwm1',
-            success: function() {
-              console.log('pwm: open pwm success')
-            },
-            fail: function() {
-              console.log('pwm: open pwm failed')
-            }
-          });
-    }
+    // else {
+    //     pwm1 = pwm.open({
+    //         id: 'pwm1',
+    //         success: function() {
+    //           console.log('pwm: open pwm success')
+    //         },
+    //         fail: function() {
+    //           console.log('pwm: open pwm failed')
+    //         }
+    //       });
+    // }
 
     cnt = 10;
   }
 
-}, 1000)
+}, 1000000)

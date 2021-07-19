@@ -22,6 +22,13 @@ depends:
   - osal_aos: master
   - haas100: master
   - haas200: master
+# TODO: 将depends中的板子信息移入supported_boards
+# depends 中仅保留当前需要编译的板子，和board_name一致
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: master
+  - haas200: master
+  - haaseduk1: master
 
   # - vexpress_a9: master
 

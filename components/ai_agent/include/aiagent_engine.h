@@ -23,14 +23,19 @@ typedef struct _aiagent_engine_t {
     char *src2; /*source data2, some cases need two image to compare*/
 
     ai_engine_cb_t callback;
+
+    ai_config_t *config;
+
     /*init ai engine*/
     int32_t (*ai_engine_init) (struct _aiagent_engine_t *eng);
 
     /*uninit ai engine*/
     void (*ai_engine_uninit) (struct _aiagent_engine_t *eng);
 
+    /*config ai engine*/
+    void (*ai_engine_config) (struct _aiagent_engine_t *eng);
     /*run ai engine model*/
-    int (*ai_engine_model_infer) (struct _aiagent_engine_t *eng);
+    int32_t (*ai_engine_model_infer) (struct _aiagent_engine_t *eng);
 
     /*free ai engine*/
     void (*ai_engine_free) (struct _aiagent_engine_t *eng);

@@ -117,6 +117,7 @@ source_file:
 #   CONFIG_CLI: y
 def_config:
   OTA_DEMO_CONFIG_TEST_LOOP: 1
+  CLI_IOBOX_ENABLE: 1        # 使能文件系统
 
 ## 第六部分：安装信息
 # install:

@@ -21,19 +21,18 @@ static int on_cli_handler(void *p, const unsigned short len, void *cmd)
         return rc;
     }
 
+    g_cmd_from_cloud = 1;
     if (NULL != strstr(cmd, "cli cloud ")) {
-        g_cmd_from_cloud = 1;
+        g_cmd_from_cloud = 0;
         if (0 == strncmp("cli cloud start", cmd, len)) {
             aos_cli_printf("ready for your command!\n");
-            g_cloud_cmd_enable = 1;
-            g_cmd_from_cloud = 0;
             aos_cli_printf("CLI: switch on cloud control\n");
+            g_cloud_cmd_enable = 1;
             rc = 0;
         } else if (0 == strncmp("cli cloud stop", cmd, len)) {
             aos_cli_printf("byebye!\n");
-            g_cloud_cmd_enable = 0;
-            g_cmd_from_cloud = 0;
             aos_cli_printf("CLI: switch off cloud control\n");
+             g_cloud_cmd_enable = 0;
             rc = 0;
         } else if (NULL != strstr(cmd, "cli cloud timeout=")) {
             if (0 != uagent_request_service(
@@ -47,12 +46,10 @@ static int on_cli_handler(void *p, const unsigned short len, void *cmd)
                 rc = 0;
             }
         }
-        g_cmd_from_cloud = 0;
         return rc;
     }
 
     if (1 == g_cloud_cmd_enable) {
-        g_cmd_from_cloud = 1;
         aos_cli_printf("\n# %s", (char *)cmd);
         rc = cli_handle_input(cmd);
         if (rc == CLI_ERR_BADCMD) {
@@ -63,6 +60,7 @@ static int on_cli_handler(void *p, const unsigned short len, void *cmd)
             aos_cli_printf("syntax error\r\n");
         }
     }
+    g_cmd_from_cloud = 0;
     return rc;
 }
 

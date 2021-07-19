@@ -12,54 +12,34 @@ extern "C" {
 #include "lwip/opt.h"
 #include "lwip/sockets.h"
 #endif
-#ifdef WITH_SAL
-#include "sal_sockets.h"
-#endif
 #if defined(__ICCARM__) || defined(__CC_ARM)
 #include <sys/errno.h>
 #else
 #include <errno.h>
 #endif
 
-/************************************************************************************************
- *                                                                                              *
- *standard io offset    af packet fd offset       socket event fd offset                        *
- *   |    socket fd offset      |   sal socket fd offset    |       sal event offset fd            *
- *   |         |                |             |             |                |                  *
- *   |=========|================|=============|=============|================|=============== | *
- *    reserved    socket fd       af_packet fd sal socket fd socket event fd   sal  event fd    *
- *                                                                           *
- *****************************************************************************/
+/*****************************************************************
+ *                                                               *
+ *standard io offset    af packet fd offset event offset         *
+ *   |    socket fd offset      |             |                  *
+ *   |         |                |             |                | *
+ *   |=========|================|=============|=============== | *
+ *    reserved    socket fd       af_packet fd     event fd      *
+ *                                                               *
+ *****************************************************************/
 
 /* reserved socketd for posix standard file descriptors */
 #define POSIX_EVB_SOCKET_RESERVED_START 0
 #define POSIX_EVB_SOCKET_RESERVED_END 2
 #define LWIP_PACKET_NUM_SOCKETS  4
-#define SAL_NUM_SOCKETS     4
 #define FD_AOS_SOCKET_OFFSET (LWIP_SOCKET_OFFSET+(POSIX_EVB_SOCKET_RESERVED_END-POSIX_EVB_SOCKET_RESERVED_START+1))
 #define LWIP_NUM_SOCKETS (MEMP_NUM_NETCONN-(POSIX_EVB_SOCKET_RESERVED_END-POSIX_EVB_SOCKET_RESERVED_START+1))
 #define LWIP_PACKET_SOCKET_OFFSET (FD_AOS_SOCKET_OFFSET + LWIP_NUM_SOCKETS)
-#define SAL_SOCKET_OFFSET (LWIP_PACKET_SOCKET_OFFSET + LWIP_PACKET_NUM_SOCKETS)
-#define LWIP_EVENT_OFFSET (SAL_SOCKET_OFFSET + SAL_NUM_SOCKETS)
+#define LWIP_EVENT_OFFSET (LWIP_PACKET_SOCKET_OFFSET + LWIP_PACKET_NUM_SOCKETS)
 #define LWIP_NUM_EVENTS   MEMP_NUM_NETCONN
-#define SAL_EVENT_OFFSET (SAL_SOCKET_OFFSET + LWIP_NUM_EVENTS)
-#define FD_AOS_NUM_SOCKETS (LWIP_NUM_SOCKETS + LWIP_PACKET_NUM_SOCKETS + SAL_NUM_SOCKETS)
-#define FD_AOS_NUM_EVENTS  4
-#define FD_AOS_EVENT_OFFSET (FD_AOS_SOCKET_OFFSET + LWIP_NUM_SOCKETS + LWIP_PACKET_NUM_SOCKETS + SAL_NUM_SOCKETS)
-
-typedef enum {
-    SOCK_TYPE_LWIP,
-    SOCK_TYPE_SAL,
-    SOCK_TYPE_UNKNOWN,
-    SOCK_TYPE_MAX
-} sock_type_t;
-
-typedef enum {
-    EVENT_TYPE_LWIP,
-    EVENT_TYPE_SAL,
-    EVENT_TYPE_UNKNOWN,
-    EVENT_TYPE_MAX
-} event_type_t;
+#define FD_AOS_NUM_SOCKETS (LWIP_NUM_SOCKETS + LWIP_PACKET_NUM_SOCKETS)
+#define FD_AOS_NUM_EVENTS  LWIP_NUM_EVENTS
+#define FD_AOS_EVENT_OFFSET (FD_AOS_SOCKET_OFFSET + LWIP_NUM_SOCKETS + LWIP_PACKET_NUM_SOCKETS)
 
 #if LWIP_COMPAT_SOCKETS == 2
 /* This helps code parsers/code completion by not having the COMPAT functions as defines */

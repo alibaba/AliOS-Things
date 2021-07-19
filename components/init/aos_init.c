@@ -7,8 +7,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#if(CONFIG_AOS_LWIP > 0)
 #include <sys/socket.h>
-
+#endif
 #include "aos/init.h"
 #if(AOS_COMP_CLI > 0)
 #include "aos/cli.h"

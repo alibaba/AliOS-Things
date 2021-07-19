@@ -169,6 +169,7 @@ void amp_task_main()
 
     while (1) {
         /* loop for asynchronous operation */
+        jsengine_loop_once();
         if(amp_task_yield(200) == 1) {
             amp_debug(MOD_STR, "jsengine task yield exit!");
             break;
@@ -185,6 +186,7 @@ void jsengine_main(void)
     int ret = 0;
     aos_task_t jsengine_task;
 
+    amp_debug(MOD_STR, "jsengine start...");
     if (aos_sem_new(&jse_task_exit_sem, 0) != 0) {
         amp_error(MOD_STR, "create jse exit sem failed");
         return;

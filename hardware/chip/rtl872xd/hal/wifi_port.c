@@ -15,11 +15,12 @@
 #include <lwip/inet.h>
 
 #if CONFIG_LWIP_LAYER
-extern struct netif xnetif[NET_IF_NUM]; 
+extern struct netif xnetif[NET_IF_NUM];
 #endif
 
-monitor_data_cb_t g_promisc_data_callback = NULL;  
+monitor_data_cb_t g_promisc_data_callback = NULL;
 monitor_data_cb_t g_mgnt_filter_callback = NULL;
+wifi_promiscuous_cb_t g_promisc_user_callback = NULL;
 static aos_sem_t scan_sem;
 
 int haas200_wifi_init(netdev_t *dev)
@@ -432,11 +433,20 @@ int haas200_wifi_ap_get_sta_list(netdev_t *dev, wifi_sta_list_t *sta)
 static void wifi_promisc_rx_cb(unsigned char* buf, unsigned int len, void* user_data)
 {
     wifi_link_info_t link_info;
-    
-    link_info.rssi = ((ieee80211_frame_info_t *)user_data)->rssi;
+    wifi_promiscuous_pkt_t *p_buf = NULL;
 
+    link_info.rssi = ((ieee80211_frame_info_t *)user_data)->rssi;
     if(g_promisc_data_callback) {
         g_promisc_data_callback(buf, len, &link_info);
+    }
+    if(g_promisc_user_callback) {
+       p_buf = aos_malloc(sizeof(wifi_promiscuous_pkt_t)+len);
+       memcpy(p_buf->payload, buf ,len);
+       p_buf->rx_ctrl.sig_len = len;
+       p_buf->rx_ctrl.rssi = ((ieee80211_frame_info_t *)user_data)->rssi;
+
+       g_promisc_user_callback(p_buf, 0);
+       aos_free(p_buf);
     }
 }
 
@@ -449,6 +459,7 @@ int haas200_wifi_start_monitor(netdev_t *dev, wifi_promiscuous_cb_t cb)
     wifi_init_packet_filter();
     wifi_enter_promisc_mode();
     wifi_set_promisc(RTW_PROMISC_ENABLE_2, wifi_promisc_rx_cb, 0);
+    g_promisc_user_callback = cb;
     return 0;
 }
 

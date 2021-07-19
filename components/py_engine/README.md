@@ -15,15 +15,17 @@ py_engine (Python轻应用引擎) 以MicroPython为基础打造而成.可以快�
 ## 目录结构
 ```tree
 py_engine
-├── call_cmake.sh                    # 系统引导编译cmake的脚本文件
-├── CMakeLists.txt                   # cmake编译脚本文件
-├── example
-│   └── py_engine_example.c          # 示例代码
-├── micropython                      #Python解释器以及面向AliOS Things的适配
-├── minicv                           #精简版OPENCV，包含摄像头数据采集、AI等
-├── package.yaml                     # 编译配置文件
-├── platform                         #OS隔离层
-└── README.md                        #帮助文档
+├── adaptor                 # 平台适配层
+  |- haas
+  |- haas506
+  |- haas510
+├── engine                  # 引擎核心层
+├── external                # 外部适配库
+├── framework               # Python 架构层，用来存放应用层适配文件
+├── tests                   # 测试框架及测试集
+├── package.yaml            # 编译配置文件
+├── create_python_home.py   # 系统编译python文件，用来编译不同的文件到系统中
+└── README.md               # 帮助文档
     
 ```
 
@@ -57,7 +59,7 @@ def_config:
 # API说明
 @ref mpy_run
 @ref mpy_init
-@ref mpy_add_path
+@ref mpy_deinit
 
 # 使用示例
 

@@ -195,7 +195,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 
 int pthread_condattr_init(pthread_condattr_t *attr);
 int pthread_condattr_destroy(pthread_condattr_t *attr);
-int pthread_condattr_setclock(pthread_condattr_t *attr, clock_t clock);
+int pthread_condattr_setclock(pthread_condattr_t *attr, clockid_t clock);
 
 int   pthread_key_create(pthread_key_t *key, void (*destructor)(void*));
 int   pthread_setspecific(pthread_key_t key, const void *value);

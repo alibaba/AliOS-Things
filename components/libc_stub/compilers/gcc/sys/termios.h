@@ -11,7 +11,7 @@ typedef unsigned long tcflag_t;
 typedef unsigned long speed_t;
 typedef unsigned char cc_t;
 
-#define NCCS    11          /* number of control characters */
+#define NCCS    12          /* number of control characters */
 
 struct termios {
     tcflag_t    c_iflag;    /* input modes */
@@ -28,13 +28,12 @@ struct termios {
 #define VKILL   3
 #define VEOF    4
 #define VEOL    5
-#define VMIN    4
-#define VTIME   5
-#define VEOL2   6
-#define VSWTCH  7
-#define VSTART  8
-#define VSTOP   9
-#define VSUSP   10
+#define VMIN    6
+#define VTIME   7
+#define VEOL2   8
+#define VSTART  9
+#define VSTOP   10
+#define VSUSP   11
 
 /* c_iflag - input control modes */
 #define IGNBRK      0x0001      /* ignore break condition */

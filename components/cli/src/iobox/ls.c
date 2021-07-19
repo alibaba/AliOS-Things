@@ -254,8 +254,6 @@ static int ls_do(int argc, char **argv, int flags)
                     strcmp(node_names[index], SDCARD_DIR) != 0) {
                     if (!(cnt % 1)) {
                         flags |= NEW_LINE;
-                    } else {
-                        flags &= ~NEW_LINE;
                     }
                     cnt++;
                     const char *node_name = relative_path(node_names[index], dir);

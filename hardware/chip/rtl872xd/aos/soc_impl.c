@@ -17,6 +17,18 @@
 #include "aos/cli.h"
 #endif
 
+float soc_hr_hw_freq_mhz(void)
+{
+    return (SystemGetCpuClk()/1000000);
+}
+
+uint32_t hal_sys_timer_calc_cpu_freq(uint32_t interval_ms, int high_res)
+{
+    (void)interval_ms;
+    (void)high_res;
+    return SystemGetCpuClk();
+}
+
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {

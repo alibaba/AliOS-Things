@@ -257,6 +257,10 @@ void lwip_pkt_print(char* note_ptr, void *buf, void* net)
     struct netif *netif = (struct netif *) net;
     DBG_DIR_E direction = DIR_ERROR;
 
+    if(pktprint_debug_level == 0) {
+        return ;
+    }
+
     if(pbuf == NULL){
 	    return ;
     }
@@ -610,7 +614,7 @@ void lwip_pkt_stats(pkt_stats_data *data) {
 }
 
 #if AOS_COMP_CLI
-void pktprint_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
+void pktprint_cmd(int argc, char **argv )
 {
     if ( argc != 2 && argc != 3 ) {
          LWIP_DEBUGF(PKTPRINT_DEBUG, ("Invalid command\n"));
@@ -675,17 +679,7 @@ tx_bytes    tx_packets    rx_tcp_bytes    rx_tcp_packets    rx_udp_bytes   rx_ud
     }
 }
 
-struct cli_command pktprint_message_cmd[] = {
-    { "pktprint", "pktprint", pktprint_command },
-};
-
-int pktprint_cli_register( void )
-{
-
-    if( 0 == aos_cli_register_commands( pktprint_message_cmd, 1 ) )
-        return ERR_OK;
-    else
-        return ERR_VAL;
-}
+/* reg args: fun, cmd, description*/
+ALIOS_CLI_CMD_REGISTER(pktprint_cmd, pktprint, Pktprint command)
 #endif /* AOS_COMP_CLI */
 #endif /* WITH_LWIP_PKTPRINT */

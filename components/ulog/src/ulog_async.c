@@ -12,7 +12,7 @@
 #include "ulog_ring_fifo.h"
 #include "aos/kernel.h"
 #include "k_config.h"
-#ifdef AOS_COMP_UAGENT
+#ifdef ULOG_POP_CLOUD_ENABLE
 #include "uagent.h"
 #endif
 
@@ -61,20 +61,20 @@ static void ulog_handler(void* para, void* log_text, const uint16_t log_len)
 
 #if ULOG_POP_UDP_ENABLE
             if (check_pass_pop_out(ulog_session_udp, severity)) {
-                pop_out_on_udp(&((char*)log_text)[LOG_PREFIX_LEN], log_len);
+                (void)pop_out_on_udp(&((char *)log_text)[LOG_PREFIX_LEN], log_len);
             }
 #endif
 
 #if ULOG_POP_FS_ENABLE
             if (check_pass_pop_out(ulog_session_file, severity)) {
-                pop_out_on_fs(&((char*)log_text)[LOG_PREFIX_LEN], log_len);
+                (void)pop_out_on_fs(&((char *)log_text)[LOG_PREFIX_LEN], log_len);
             }
 #endif
 
 #if ULOG_POP_CLOUD_ENABLE
             if ((FACILITY_NORMAL_LOG_NO_POP_CLOUD != (pri & 0xF8))
                 && check_pass_pop_out(ulog_session_cloud, severity)) {
-                uagent_send(UAGENT_MOD_ULOG, ULOG_SHOW, strlen(text_info+1), text_info + 1, 0);
+                (void)uagent_send(UAGENT_MOD_ULOG, ULOG_SHOW, strlen(text_info + 1), text_info + 1, 0);
             }
 #endif
 
