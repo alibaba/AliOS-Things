@@ -26,6 +26,7 @@ JSContext *js_get_context(void)
 
 static void jsengine_register_addons()
 {
+    module_builtin_register();
 #if 1
     extern uint32_t jslib_events_size;
     extern uint8_t jslib_events[];
@@ -208,6 +209,19 @@ static void jsengine_register_addons()
 #ifdef JSE_ADVANCED_ADDON_BLECFGNET
     module_blecfgnet_register();
 #endif
+#ifdef JSE_NET_ADDON_CELLULAR
+    module_cellular_register();
+#endif
+#if defined(JSE_NET_ADDON_NETMGR) || defined(JSE_NET_ADDON_CELLULAR)
+    module_network_register();
+    extern uint32_t jslib_network_size;
+    extern uint8_t jslib_network[];
+    quickjs_add_prebuild_module("network", jslib_network, jslib_network_size);
+#endif
+
+#ifdef JSE_ADVANCED_ADDON_OSS
+    module_oss_register();
+#endif
 }
 
 int jsengine_init(void)
@@ -294,10 +308,16 @@ void jsengine_eval_file(const char *filename)
     aos_printf("begin eval file: %s\n", filename);
 
     buf = js_load_file(ctx, &buf_len, filename);
+    if (buf == NULL) {
+        aos_printf("read js file %s error\n", filename);
+        return;
+    }
     if(filename[strlen(filename) - 1] == 's') {
         val = JS_Eval(ctx, buf, buf_len, filename, eval_flags);
         if (JS_IsException(val)) {
-            aos_printf("global.createInstance eval jsbundle exec error\n");
+            aos_printf("js engine eval %s error\n", filename);
+            aos_printf("app.js content: \r\n");
+            aos_printf("%s\r\n", buf);
             qjs_std_dump_error(ctx);
         }
         JS_FreeValue(ctx, val);
@@ -311,6 +331,11 @@ void jsengine_eval_file(const char *filename)
         extern uint8_t jslib_repl[];
         js_std_eval_binary(ctx, jslib_repl, jslib_repl_size, 0);
     }
+}
+
+void jsengine_loop_once()
+{
+    js_std_loop_once(ctx);
 }
 
 void jsengine_exit()

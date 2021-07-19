@@ -15,6 +15,7 @@
 #define VFS_ERR_NODEV       -10006
 #define VFS_ERR_LOCK        -10007
 #define VFS_ERR_BUSY        -10008
+#define VFS_ERR_GENERAL     -10009
 
 #ifdef __cplusplus
 extern "C" {
@@ -156,6 +157,28 @@ int32_t vfs_stat(const char *path, vfs_stat_t *st);
  */
 int32_t vfs_fstat(int fd, vfs_stat_t *st);
 
+#ifdef AOS_PROCESS_SUPPORT
+/**
+ * Map memory to process address space to share memory between
+ * kernel and process.
+ *
+ * @note Currently only support input arg @len to tell kernel the
+ *       size of shared memory.
+ *
+ * @return shared memory virtual address on success, NULL on failure
+ */
+void *vfs_mmap(void *start, size_t len, int prot, int flags, int fd, off_t offset);
+
+/**
+ * @brief unmap shared memory area
+ *
+ * @param[in] start The address of the shared memory area
+ * @param[in] len   The size of the shared memory area
+ *
+ * @return 0 on success, negative error on failure
+ */
+int vfs_munmap(void *start, size_t len);
+#endif
 /**
  * @brief link path2 to path1
  *
@@ -300,6 +323,16 @@ int32_t vfs_statfs(const char *path, vfs_statfs_t *buf);
  */
 int32_t vfs_access(const char *path, int32_t amode);
 
+
+/**
+ * @brief  Manipulate file descriptor
+ * @param[in]  fd   the file descriptor of the file
+ * @param[in]  cmd  A controller specific command
+ * @param[val] val  Argument to the command
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
 int vfs_fcntl(int fd, int cmd, int val);
 
 /**
@@ -429,6 +462,39 @@ int32_t vfs_list(vfs_list_type_t t);
  * @return    0 on success, negative error on failure.
  */
 int32_t vfs_get_node_name(const char *path, char names[][64], uint32_t* size);
+
+/**
+ * @brief set detach state of the node.
+ *
+ * @param[in] name           the name of the node.
+ * @return    0 on success, negative error on failure.
+ */
+int32_t vfs_inode_detach_by_name(const char *name);
+
+/**
+ * @brief the node is busy or not
+ *
+ * @param[in] name           the name of the node.
+ * @return    0 on success, negative error on failure.
+ */
+int32_t vfs_inode_busy_by_name(const char *name);
+
+/**
+ * @brief copy the file descriptor
+ *
+ * @param[in] oldfd  the file descriptor to copy.
+ * @return    0 on success, negative error on failure.
+ */
+int vfs_dup(int oldfd);
+
+/**
+ * @brief copy the file descriptor to new file decriptor
+ *
+ * @param[in] oldfd           the file descriptor to copy.
+ * @param[in] newfd           the new file decriptor.
+ * @return    0 on success, negative error on failure.
+ */
+int vfs_dup2(int oldfd, int newfd);
 
 #ifdef __cplusplus
 }

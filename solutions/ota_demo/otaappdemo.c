@@ -403,6 +403,13 @@ int application_start(int argc, char *argv[])
     event_service_init(NULL);
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_service_init(NULL);
+
+    /*enable network auto reconnect*/
+    netmgr_set_auto_reconnect(NULL, true);
+
+    /*enable auto save wifi config*/
+    netmgr_wifi_set_auto_save_ap(true);
+
     event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_service_event, NULL);
     while (1) {
         aos_msleep(1000);

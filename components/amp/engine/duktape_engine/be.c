@@ -591,6 +591,11 @@ duk_context *be_get_context()
     return duk_ctx;
 }
 
+void jsengine_loop_once()
+{
+
+}
+
 extern int64_t g_ntp_time;
 extern int64_t g_up_time;
 duk_double_t amp_date_get_now()

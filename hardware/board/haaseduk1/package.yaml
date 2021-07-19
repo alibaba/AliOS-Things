@@ -58,6 +58,7 @@ source_file:
   - "startup/startup.c"
   - "config/board.c"
   - "config/partition_conf.c"
+  - "config/partition_conf_legacy.c"
   - "config/k_config.c"
   - "drivers/led.c"
   - "drivers/watchdog.c"
@@ -103,6 +104,18 @@ def_config:
   CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
   CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
 
+  # MTD partition config to support mtd vfs apis(open/close/read/write/ioctl).
+  MTD_PART_ID_BOOT:      0
+  MTD_PART_ID_ENV2:      1
+  MTD_PART_ID_2ND_BOOT:  2
+  MTD_PART_ID_KERNEL:    3
+  MTD_PART_ID_2ND_BOOT2: 4
+  MTD_PART_ID_KERNEL2:   5
+  MTD_PART_ID_FS:        6
+  MTD_PART_ID_BOOT_SEC:  7
+  MTD_PART_ID_ENV:       8
+  MTD_PART_ID_KV:        9
+  MTD_PART_ID_FACTORY:   10
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录

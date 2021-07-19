@@ -53,6 +53,12 @@ union vfs_inode_ops_t {
     const vfs_filesystem_ops_t *i_fops;
 };
 
+typedef enum {
+    VFS_INODE_VALID,    /* node is available*/
+    VFS_INODE_INVALID,  /* Node is ready to be deleted, unavailable*/
+    VFS_INODE_DETACHED, /* Node is ready to be deleted, and Wait for the operation to complete */
+    VFS_INODE_MAX
+} vfs_inode_status_t;
 
 typedef struct {
     union vfs_inode_ops_t ops; /* inode operations */
@@ -62,6 +68,8 @@ typedef struct {
     int32_t  i_flags; /* flags for inode */
     uint8_t  type;    /* type for inode */
     uint8_t  refs;    /* refs for inode */
+    void     *lock;   /* lock for inode operations */
+    vfs_inode_status_t status; /* valid or invalid status for this inode */
 } vfs_inode_t;
 
 typedef struct {
@@ -71,6 +79,7 @@ typedef struct {
 #ifdef CONFIG_VFS_LSOPEN
     char         filename[VFS_CONFIG_PATH_MAX];
 #endif
+    int32_t      redirect_fd; /* the target FD that it's redirected to, optionally used. */
 } vfs_file_t;
 
 typedef enum {
@@ -86,6 +95,11 @@ struct vfs_file_ops {
     int32_t (*ioctl) (vfs_file_t *fp, int32_t cmd, uint32_t arg);
     int32_t (*poll)  (vfs_file_t *fp, int32_t flag, vfs_poll_notify_t notify, void *fds, void *arg);
     uint32_t (*lseek) (vfs_file_t *fp, int64_t off, int32_t whence);
+#ifdef AOS_PROCESS_SUPPORT
+    void*   (*mmap)(vfs_file_t *fp, void *addr, size_t length, int prot, int flags,
+                    int fd, off_t offset);
+#endif
+
 };
 
 struct vfs_filesystem_ops {
@@ -116,6 +130,12 @@ struct vfs_filesystem_ops {
     int32_t       (*fpathconf) (vfs_file_t *fp, int name);
     int32_t       (*utime)     (vfs_file_t *fp, const char *path, const vfs_utimbuf_t *times);
 };
+
+#if VFS_CONFIG_DEBUG > 0
+#define VFS_ERROR printf
+#else
+#define VFS_ERROR(x, ...)   do {  } while (0)
+#endif
 
 #endif /* VFS_TYPES_H */
 

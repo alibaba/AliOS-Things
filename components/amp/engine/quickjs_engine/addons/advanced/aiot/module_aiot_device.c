@@ -123,7 +123,6 @@ static char *__amp_strdup(char *src)
 
 static void aiot_device_notify(void *pdata)
 {
-    amp_error(MOD_STR, "aiot_device_notify IS CALLED");
     device_notify_param_t *param = (device_notify_param_t *)pdata;
 
     JSContext *ctx = js_get_context();
@@ -181,10 +180,10 @@ static void aiot_device_notify(void *pdata)
             return;
         }
     }
+
     JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &obj);
     JS_FreeValue(ctx, val);
     JS_FreeValue(ctx, obj);
-    JS_FreeValue(ctx, param->js_cb_ref);
 
     aos_free(param);
 }
@@ -196,7 +195,6 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
 
     device_notify_param_t *param;
 
-    amp_error(MOD_STR, "aiot_app_dm_recv_handler IS CALLED");
 
     param = aos_malloc(sizeof(device_notify_param_t));
     if (!param) {
@@ -426,6 +424,7 @@ static void aiot_device_connect(void *pdata)
     ota_service_t *ota_svc = &g_aiot_device_appota_service;
     iot_device_handle_t *iot_device_handle = (iot_device_handle_t *)pdata;
     iot_mqtt_userdata_t *userdata;
+    JSContext *ctx = js_get_context();
 
     uint16_t keepaliveSec = 0;
 
@@ -477,6 +476,12 @@ static void aiot_device_connect(void *pdata)
     }
 
     aiot_mqtt_client_stop(&iot_device_handle->mqtt_handle);
+
+    for (int i = 0; i < AIOT_DEV_JSCALLBACK_INVALID_CODE; i++) {
+        if (iot_device_handle->js_cb_ref[i] != JS_UNDEFINED) {
+            JS_FreeValue(ctx, iot_device_handle->js_cb_ref[i]);
+        }
+    }
 
     aos_free(userdata);
     aos_free(iot_device_handle);
@@ -561,6 +566,10 @@ static JSValue native_aiot_create_device(JSContext *ctx, JSValueConst this_val,i
         goto out;
     }
 
+    for (int i = 0; i < AIOT_DEV_JSCALLBACK_INVALID_CODE; i++) {
+        iot_device_handle->js_cb_ref[i] = JS_UNDEFINED;
+    }
+
     iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_CREATE_DEV_REF] = js_cb_ref;
     iot_device_handle->keepaliveSec = keepaliveSec;
 
@@ -572,7 +581,6 @@ static JSValue native_aiot_create_device(JSContext *ctx, JSValueConst this_val,i
         goto out;
     }
 
-
 out:
     if(productKey != NULL){
        JS_FreeCString(ctx, productKey);
@@ -583,45 +591,35 @@ out:
     if(deviceSecret != NULL){
        JS_FreeCString(ctx, deviceSecret);
     }
+
+    if (iot_device_handle != NULL) {
+        JSValue obj;
+        obj = JS_NewObjectClass(ctx, js_aiot_device_class_id);
+        JS_SetOpaque(obj, (void *)iot_device_handle);
+        return obj;
+    }
+
     return JS_NewInt32(ctx, res);
 }
 
-// /* dynmic register */
-// static duk_ret_t native_aiot_dynreg(duk_context *ctx)
-// {
-//     int res = -1;
-//     int js_cb_ref = 0;
-
-//     if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
-//         amp_warn(MOD_STR, "parameter must be (object, function)");
-//         goto out;
-//     }
-
-//     duk_get_prop_string(ctx, 0, "productKey");
-//     duk_get_prop_string(ctx, 0, "deviceName");
-//     duk_get_prop_string(ctx, 0, "productSecret");
-
-//     char *productKey = (char *)duk_get_string(ctx, -3);
-//     char *deviceName = (char *)duk_get_string(ctx, -2);
-//     char *productSecret = (char *)duk_get_string(ctx, -1);
-
-//     aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
-//     aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
-//     aos_kv_set(AMP_CUSTOMER_PRODUCTSECRET, productSecret, IOTX_PRODUCT_SECRET_LEN, 1);
-
-//     duk_dup(ctx, 1);
-//     js_cb_ref = be_ref(ctx);
-
-//     res = aiot_dynreg_http(js_cb_ref);
-//     if (res < STATE_SUCCESS) {
-//         amp_debug(MOD_STR, "device dynmic register failed");
-//     }
-
-// out:
-//     duk_push_int(ctx, res);
-//     return 1;
-// }
-
+static JSValue native_aiot_get_ntp_time(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
+{
+    int res = -1;
+    iot_device_handle_t *iot_device_handle = NULL;
+    amp_error(MOD_STR, "native_aiot_get_ntp_time called");
+    iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
+    if (!iot_device_handle) {
+        amp_warn(MOD_STR, "parameter must be handle");
+        goto out;
+    }
+    JSValue js_cb = JS_DupValue(ctx, argv[0]);
+    res = aiot_amp_ntp_service(iot_device_handle->mqtt_handle, js_cb);
+    if (res < STATE_SUCCESS) {
+        amp_error(MOD_STR, "device dynmic register failed");
+    }
+out:
+    return JS_NewInt32(ctx, res);
+}
 /* post event */
 static JSValue native_aiot_postEvent(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
 {
@@ -629,7 +627,6 @@ static JSValue native_aiot_postEvent(JSContext *ctx, JSValueConst this_val,int a
     iot_device_handle_t *iot_device_handle = NULL;
     char *event_id = NULL;
     char *event_payload = NULL;
-    amp_warn(MOD_STR, "native_aiot_postEvent is called");
 
     iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
     if (!iot_device_handle) {
@@ -640,10 +637,6 @@ static JSValue native_aiot_postEvent(JSContext *ctx, JSValueConst this_val,int a
      if (JS_IsString(id)) {
         event_id = JS_ToCString(ctx, id);
     }
-    if (event_id != NULL) {
-        JS_FreeCString(ctx, event_id);
-    }
-    JS_FreeValue(ctx, id);
 
     JSValue params = JS_GetPropertyStr(ctx, argv[0], "params");
     JSValue jjson = JS_UNDEFINED;
@@ -655,24 +648,28 @@ static JSValue native_aiot_postEvent(JSContext *ctx, JSValueConst this_val,int a
             event_payload = JS_ToCString(ctx, params);
         }
     }
+
+    JS_FreeValue(ctx, params);
+    amp_debug(MOD_STR, "native_aiot_postEvent event_id=%s event_payload=%s\n",event_id,event_payload);
+
+    /* callback */
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_POST_EVENT_REF] = JS_DupValue(ctx, argv[1]);
+
+    res = aiot_app_send_event_post(iot_device_handle->dm_handle, event_id, event_payload);
+    if (res < STATE_SUCCESS) {
+        amp_warn(MOD_STR, "post event failed!");
+    }
+
+    if (event_id != NULL) {
+        JS_FreeCString(ctx, event_id);
+    }
     if (event_payload != NULL) {
         JS_FreeCString(ctx, event_payload);
     }
     if (!JS_IsUndefined(jjson)) {
         JS_FreeValue(ctx, jjson);
     }
-    JS_FreeValue(ctx, params);
-    amp_warn(MOD_STR, "native_aiot_postEvent event_id=%s event_payload=%s\n",event_id,event_payload);
-
-    /* callback */
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_POST_EVENT_REF] = cb;
-
-    res = aiot_app_send_event_post(iot_device_handle->dm_handle, event_id, event_payload);
-    if (res < STATE_SUCCESS) {
-        amp_warn(MOD_STR, "post event failed!");
-    }
+    JS_FreeValue(ctx, id);
 
 out:
     return JS_NewInt32(ctx, res);
@@ -684,7 +681,6 @@ static JSValue native_aiot_postProps(JSContext *ctx, JSValueConst this_val,int a
     int res = -1;
     iot_device_handle_t *iot_device_handle = NULL;
     char *payload_str= NULL;
-    amp_debug(MOD_STR, "native_aiot_postProps is called");
 
     iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
     if (!iot_device_handle) {
@@ -705,19 +701,17 @@ static JSValue native_aiot_postProps(JSContext *ctx, JSValueConst this_val,int a
             payload_str = JS_ToCString(ctx, payload);
         }
     }
-    amp_debug(MOD_STR, "native_aiot_postProps payload_str=%s \n",payload_str);
-    JS_FreeCString(ctx, payload_str);
-    if (!JS_IsUndefined(jjson)) {
-        JS_FreeValue(ctx, jjson);
-    }
 
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_POST_PROPS_REF] = cb;
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_POST_PROPS_REF] = JS_DupValue(ctx, argv[1]);
 
     res = aiot_app_send_property_post(iot_device_handle->dm_handle, payload_str);
     if (res < STATE_SUCCESS) {
         amp_warn(MOD_STR, "property post failed, res:%d", res);
+    }
+
+    JS_FreeCString(ctx, payload_str);
+    if (!JS_IsUndefined(jjson)) {
+        JS_FreeValue(ctx, jjson);
     }
 
 out:
@@ -731,14 +725,15 @@ static JSValue native_aiot_onProps(JSContext *ctx, JSValueConst this_val,int arg
     iot_device_handle_t *iot_device_handle = NULL;
 
     iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
+
     if (!iot_device_handle) {
         amp_warn(MOD_STR, "parameter must be handle");
         goto out;
     }
 
-    JSValue cb = argv[0];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_ONPROPS_REF] = cb;
+    JSValue js_cb_ref = JS_DupValue(ctx, argv[0]);
+
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_ONPROPS_REF] = js_cb_ref;
 
 out:
     return JS_NewInt32(ctx, res);
@@ -756,9 +751,7 @@ static JSValue native_aiot_onService(JSContext *ctx, JSValueConst this_val,int a
         goto out;
     }
 
-    JSValue cb = argv[0];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_ONSERVICE_REF] = cb;
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_ONSERVICE_REF] = JS_DupValue(ctx, argv[0]);
 
 out:
     return JS_NewInt32(ctx, res);
@@ -793,9 +786,7 @@ static JSValue native_aiot_publish(JSContext *ctx, JSValueConst this_val,int arg
     JS_ToInt32(ctx,&qos, val);
     JS_FreeValue(ctx,val);
 
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_PUBLISH_REF] = cb;
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_PUBLISH_REF] = JS_DupValue(ctx, argv[1]);
 
     amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic, payload, qos);
 
@@ -829,19 +820,15 @@ static JSValue native_aiot_unsubscribe(JSContext *ctx, JSValueConst this_val,int
         goto out;
     }
 
-    JSValue val = JS_GetPropertyStr(ctx, argv[0], "topic");
-    topic = JS_ToCString(ctx, val);
-    JS_FreeValue(ctx, val);
+    topic = JS_ToCString(ctx, argv[0]);
 
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_UNSUBSCRIBE_REF] = cb;
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_UNSUBSCRIBE_REF] = JS_DupValue(ctx, argv[1]);
 
     amp_debug(MOD_STR, "unsubscribe topic: %s", topic);
 
     res = aiot_mqtt_unsub(iot_device_handle->mqtt_handle, topic);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt unsubscribe failed");
+        amp_error(MOD_STR, "aiot app mqtt unsubscribe failed, ret %d", res);
         goto out;
     }
 
@@ -859,7 +846,6 @@ static JSValue native_aiot_subscribe(JSContext *ctx, JSValueConst this_val,int a
     iot_device_handle_t *iot_device_handle = NULL;
     char *topic = NULL;
     uint32_t qos = 0;
-    amp_debug(MOD_STR, "native_aiot_subscribe is called");
 
     iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
     if (!iot_device_handle) {
@@ -874,9 +860,7 @@ static JSValue native_aiot_subscribe(JSContext *ctx, JSValueConst this_val,int a
     JS_ToInt32(ctx,&qos, val);
     JS_FreeValue(ctx, val);
 
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_SUBSCRIBE_REF] = cb;
+    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_SUBSCRIBE_REF] = JS_DupValue(ctx, argv[1]);
 
     amp_debug(MOD_STR, "subscribe topic: %s, qos is: %d", topic, qos);
 
@@ -890,48 +874,6 @@ out:
     if(topic != NULL){
        JS_FreeCString(ctx, topic);
     }
-    return JS_NewInt32(ctx,res);
-}
-
-/*************************************************************************************
- * Function:    native_aiot_close
- * Description: js native addon for
- *            UDP.close(sock_id)
- * Called by:   js api
- * Input:       sock_id: interger
- *
- * Output:      return 0 when UDP.close call ok
- *            return error number UDP.close call fail
- **************************************************************************************/
-static JSValue native_aiot_close(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
-{
-    int res     = -1;
-    iot_device_handle_t *iot_device_handle = NULL;
-
-    iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
-    if (!iot_device_handle) {
-        amp_warn(MOD_STR, "mqtt handle is null");
-        goto out;
-    }
-
-    JSValue cb = argv[1];
-    JS_DupValue(ctx, cb);
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_END_CLIENT_REF] = cb;
-
-    g_iot_close_flag = 1;
-    aos_sem_wait(&g_iot_close_sem, 200 + 50);
-    res = aiot_mqtt_client_stop(&iot_device_handle->mqtt_handle);
-    if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "aiot stop failed");
-        goto out;
-    }
-
-    g_iot_close_flag = 0;
-    aos_free(iot_device_handle);
-    return JS_NewInt32(ctx,0);
-
-out:
-    // duk_push_int(ctx, res);
     return JS_NewInt32(ctx,res);
 }
 
@@ -949,6 +891,23 @@ static void module_iot_source_clean(void)
     g_iot_clean_flag = 1;
 }
 
+/*************************************************************************************
+ * Function:    native_aiot_close
+ * Description: js native addon for
+ *            UDP.close(sock_id)
+ * Called by:   js api
+ * Input:       sock_id: interger
+ *
+ * Output:      return 0 when UDP.close call ok
+ *            return error number UDP.close call fail
+ **************************************************************************************/
+static JSValue native_aiot_close(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
+{
+    module_iot_source_clean();
+
+    return JS_NewInt32(ctx,0);
+}
+
 static JSClassDef js_aiot_device_class = {
     "AIOT_DEVICE",
 };
@@ -961,6 +920,7 @@ static const JSCFunctionListEntry js_aiot_device_funcs[] = {
     JS_CFUNC_DEF("postProps", 3,   native_aiot_postProps),
     JS_CFUNC_DEF("onProps",  2,    native_aiot_onProps),
     JS_CFUNC_DEF("postEvent", 3,   native_aiot_postEvent),
+    JS_CFUNC_DEF("getNtpTime", 2,  native_aiot_get_ntp_time),
     JS_CFUNC_DEF("onService", 2,   native_aiot_onService),
     JS_CFUNC_DEF("end",     2,     native_aiot_close),
 
@@ -1004,6 +964,5 @@ void module_aiot_device_register(void)
 
     amp_module_free_register(module_iot_source_clean);
 
-    aos_printf("module aiot_device register\n");
     js_init_module_aiot_device(ctx, "AIOT_DEVICE");
 }

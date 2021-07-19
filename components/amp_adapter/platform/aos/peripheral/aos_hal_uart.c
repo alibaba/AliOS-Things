@@ -6,7 +6,9 @@
 #include <unistd.h>
 #include <limits.h>
 #include <poll.h>
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/uart_dev.h>
+#endif
 #include "aos/hal/uart.h"
 #include "aos/kernel.h"
 #include "aos_hal_uart.h"
@@ -47,6 +49,24 @@ int32_t aos_hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     return hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
 }
 
+int aos_hal_uart_rx_sem_take(int uartid, int timeout)
+{
+#ifndef AOS_BOARD_HAAS700
+    return hal_uart_rx_sem_take(uartid, timeout);
+#else
+    return -1;
+#endif
+}
+
+int aos_hal_uart_rx_sem_give(int port)
+{
+#ifndef AOS_BOARD_HAAS700
+    return hal_uart_rx_sem_give(port);
+#else
+    return -1;
+#endif
+}
+
 typedef struct {
     void (*callback)(int, void *, uint16_t, void *);
     void *userdata;
@@ -84,8 +104,8 @@ static void uart_recv_handler(void *args)
                                    &recv_size, 100);
         if (ret || recv_size <= 0)
             continue;
-
-        notify->callback(uart->port, recv_buffer, recv_size, notify->userdata);
+        if (notify->callback)
+            notify->callback(uart->port, recv_buffer, recv_size, notify->userdata);
     }
 
     aos_sem_signal(&notify->sem);
@@ -146,7 +166,8 @@ int32_t aos_hal_uart_finalize(uart_dev_t *uart)
         uart_recv_notifiers[uart->port] = NULL;
     }
 
-    close(uart_fd_table[uart->port]);
+    //close(uart_fd_table[uart->port]);
+    hal_uart_finalize(uart);
     uart_fd_table[uart->port] = -1;
 
     return 0;

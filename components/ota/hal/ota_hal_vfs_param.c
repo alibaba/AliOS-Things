@@ -10,9 +10,7 @@
 #include "ota_import.h"
 #include "ota_hal_os.h"
 #include "aos/hal/flash.h"
-#if defined(BOARD_HAAS200)
 #include "aos/mtd.h"
-#endif
 #include <vfsdev/flash_dev.h>
 
 int ota_is_download_mode(void)
@@ -42,11 +40,7 @@ int ota_read_parameter(ota_boot_param_t *ota_param)
     if(ota_param == NULL) {
         goto OTA_READ_PARAM_OVER;
     }
-    #if defined(BOARD_HAAS200)
     snprintf(dev_str, 15, "/dev/mtdblock%d", MTD_PART_ID_ENV);
-    #else
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    #endif
     temp_fd = open(dev_str, 0);
     if (temp_fd < 0) {
         OTA_LOG_E("open ota param1 partition failed");
@@ -80,46 +74,34 @@ int ota_update_parameter(ota_boot_param_t *ota_param)
     ota_boot_param_t comp_buf;
     unsigned int offset = 0x00;
     unsigned int len = sizeof(ota_boot_param_t);
-    #if defined(BOARD_HAAS200)
     struct mtd_erase_info erase_info = {0};
-    #endif
     if(ota_param == NULL) {
         goto OTA_UPGRADE_PARAN_OVER;
     }
     ota_param->param_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
     OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x boot_type:%d len = %d\n", ota_param->param_crc, ota_param->upg_flag, ota_param->boot_type, len);
     memset(&comp_buf, 0, len);
-    #if defined(BOARD_HAAS200)
     snprintf(dev_str, 15, "/dev/mtdblock%d", MTD_PART_ID_ENV);
-    #else
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    #endif
     temp_fd = open(dev_str, 0);
     if (temp_fd < 0) {
         OTA_LOG_E("open ota param1 partition failed");
         goto OTA_UPGRADE_PARAN_OVER;
     }
-    #if defined(BOARD_HAAS200)
-    // do nothing
-    #else
+#if 0
     ret = ioctl(temp_fd, IOC_FLASH_ENABLE_SECURE, len);
     if(ret < 0) {
         OTA_LOG_E("flash secure failed!");
         goto OTA_UPGRADE_PARAN_OVER;
     }
-    #endif
+#endif
     ret = lseek(temp_fd, (off_t)offset, SEEK_SET);
     if(ret < 0) {
         OTA_LOG_E("lseek fail!");
         goto OTA_UPGRADE_PARAN_OVER;
     }
-    #if defined(BOARD_HAAS200)
     erase_info.offset = 0;
     erase_info.length = len;
     ret = ioctl(temp_fd, IOC_MTD_ERASE, &erase_info);
-    #else
-    ret = ioctl(temp_fd, IOC_FLASH_ERASE_FLASH, len);
-    #endif
     if(ret < 0) {
         OTA_LOG_E("erase fail!");
         goto OTA_UPGRADE_PARAN_OVER;
@@ -192,14 +174,8 @@ int ota_clear_paramters()
     int temp_fd = -1;
     char dev_str[16] = {0};
     unsigned int offset = 0x00;
-    #if defined(BOARD_HAAS200)
     struct mtd_erase_info erase_info = {0};
-    #endif
-    #if defined(BOARD_HAAS200)
     snprintf(dev_str, 15, "/dev/mtdblock%d", MTD_PART_ID_ENV);
-    #else
-    snprintf(dev_str, 15, "/dev/flash%d", HAL_PARTITION_PARAMETER_1);
-    #endif
     temp_fd = open(dev_str, 0);
     if (temp_fd < 0) {
         OTA_LOG_E("open ota param1 partition failed");
@@ -210,13 +186,9 @@ int ota_clear_paramters()
         OTA_LOG_E("lseek fail! ");
         goto OTA_CLEAR_PARAM_OVER;
     }
-    #if defined(BOARD_HAAS200)
     erase_info.offset = 0;
     erase_info.length = sizeof(ota_boot_param_t);
     ret = ioctl(temp_fd, IOC_MTD_ERASE , &erase_info);
-    #else
-    ret = ioctl(temp_fd, IOC_FLASH_ERASE_FLASH, sizeof(ota_boot_param_t));
-    #endif
     if(ret < 0) {
         OTA_LOG_E("erase fail! ");
         goto OTA_CLEAR_PARAM_OVER;

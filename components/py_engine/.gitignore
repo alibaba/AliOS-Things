@@ -1,2 +1,3 @@
 SConscript/*
 build/*
+.DS_Store

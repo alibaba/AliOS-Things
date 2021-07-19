@@ -1,6 +1,10 @@
 import * as UART from 'UART'
 import * as event from 'events'
 
+function byteArrayToArrayBuffer(byteArray) {
+    return new Uint8Array(byteArray).buffer
+}
+
 class HW_UART extends event.EventEmitter{
     constructor(options) {
         super();
@@ -15,7 +19,6 @@ class HW_UART extends event.EventEmitter{
         this.success = options.success || function(){};
         this.fail = options.fail || function(){};
         this._open();
-        this._onData();
     }
 
     _open() {
@@ -30,8 +33,13 @@ class HW_UART extends event.EventEmitter{
     write(data) {
         if (this.uartInstance === null || !data) {
             throw new Error("uart not init");
-        } 
-        this.uartInstance.write(data);
+        }
+
+        if (Object.prototype.toString.call(data) !== '[object String]') {
+            this.uartInstance.write(byteArrayToArrayBuffer(data));
+        } else {
+            this.uartInstance.write(data);
+        }
     }
 
     read() {
@@ -51,8 +59,9 @@ class HW_UART extends event.EventEmitter{
         if (this.uartInstance === null) {
             throw new Error("uart not init");
         }
-        this.uartInstance.on(function(len, data){
-            this.emit('data', len, data);
+
+        this.uartInstance.on(function(data, len){
+            this.emit('data', data, len);
         }.bind(this));
     };
 
@@ -62,9 +71,15 @@ class HW_UART extends event.EventEmitter{
         }
         this.uartInstance.close();
     };
+
+    on_mode() {
+        if (this.uartInstance === null) {
+            throw new Error("uart not init");
+        }
+        this._onData();
+    };
 }
 
 export function open(options) {
     return new HW_UART(options);
 }
-

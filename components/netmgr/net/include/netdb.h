@@ -39,9 +39,6 @@ extern "C" {
 #ifdef WITH_LWIP
 #include "lwip/netdb.h"
 #endif
-#ifdef WITH_SAL
-#include "sal_sockets.h"
-#endif
 
 struct hostent *net_gethostbyname(const char *name);
 int net_gethostbyname_r(const char *name, struct hostent *ret, char *buf,

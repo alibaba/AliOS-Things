@@ -22,6 +22,7 @@ aux_source_directory(../engine/quickjs_engine/addons/utils/systimer DIR_ADDON_SY
 aux_source_directory(../engine/quickjs_engine/addons/utils/system DIR_ADDON_SYSTEM_SRCS)
 aux_source_directory(../engine/quickjs_engine/addons/utils/fs DIR_ADDON_FS_SRCS)
 aux_source_directory(../engine/quickjs_engine/addons/utils/kv DIR_ADDON_KV_SRCS)
+aux_source_directory(../engine/quickjs_engine/addons/utils/builtin DIR_ADDON_BUILTIN_SRCS)
 aux_source_directory(../engine/quickjs_engine/addons/advanced/ota DIR_ADDON_OTA_SRCS)
 aux_source_directory(../engine/quickjs_engine/addons/libc DIR_ADDON_LIBC_SRCS)
 aux_source_directory(../engine/quickjs_engine/addons/repl DIR_ADDON_REPL_SRCS)
@@ -55,7 +56,6 @@ add_library(${library} STATIC
 	../engine/quickjs_engine/quickjs/cutils.c
 	../engine/quickjs_engine/quickjs/libbf.c
     ../engine/quickjs_engine/quickjs/linux_jquick_mutex.c
-    ../engine/quickjs_engine/repl.c
 	${DIR_ADDON_GPIO_SRCS}
 	${DIR_ADDON_IR_SRCS}
 	${DIR_ADDON_PWM_SRCS}
@@ -73,7 +73,7 @@ add_library(${library} STATIC
     ${DIR_ADDON_SYSTEM_SRCS}
     ${DIR_ADDON_FS_SRCS}
     ${DIR_ADDON_KV_SRCS}
-	${DIR_ADDON_OTA_SRCS}
+	${DIR_ADDON_BUILTIN_SRCS}
 	${DIR_ADDON_LIBC_SRCS}
     ${DIR_QJS_STARTUP_SRCS}
 	${DIR_ADDON_SRCS}
@@ -90,6 +90,7 @@ add_library(${library} STATIC
 
 target_compile_definitions(${library} PRIVATE __AOS_AMP__)
 target_compile_definitions(${library} PRIVATE CONFIG_VERSION=\"1.0\")
+target_compile_definitions(${library} PRIVATE CONFIG_KERNEL_LINUX)
 
 target_include_directories(${library} PRIVATE ../engine/quickjs_engine/aos_port)
 target_include_directories(${library} PRIVATE ../engine/quickjs_engine/quickjs)
@@ -101,6 +102,7 @@ target_include_directories(${library} PRIVATE ../services/amp_utils/)
 target_include_directories(${library} PRIVATE ../services/app_mgr/)
 target_include_directories(${library} PRIVATE ../services/board_mgr/)
 target_include_directories(${library} PRIVATE ../services/amp_boot/)
+target_include_directories(${library} PRIVATE ../services/amp_memmgt/)
 #target_include_directories(${library} PRIVATE ../utils/cJSON/)
 target_include_directories(${library} PRIVATE ../utils/list/)
 target_include_directories(${library} PRIVATE ../../amp_adapter/include)

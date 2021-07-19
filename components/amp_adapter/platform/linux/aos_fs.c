@@ -180,3 +180,13 @@ out:
     return ret;
 }
 
+int aos_fs_type(uint mode)
+{
+    if (mode & S_IFDIR) {
+        return 0;
+    } else if (mode & S_IFREG) {
+        return 1;
+    }
+    return -1;
+}
+

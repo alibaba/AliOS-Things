@@ -163,7 +163,7 @@ int netmgr_del_config(netmgr_hdl_t hdl, netmgr_del_config_t* config)
 }
 
 
-int netmgr_get_state(netmgr_hdl_t hdl)
+netmgr_conn_state_t netmgr_get_state(netmgr_hdl_t hdl)
 {
     return 0;
 }

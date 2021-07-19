@@ -203,6 +203,9 @@ int32_t aos_hal_uart_finalize(uart_dev_t *uart);
  */
 int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t, void *), void *args);
 
+int aos_hal_uart_rx_sem_take(int uartid, int timeout);
+int aos_hal_uart_rx_sem_give(int port);
+
 /** @} */
 
 #ifdef __cplusplus

@@ -7,11 +7,14 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <aos/errno.h>
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/i2c_dev.h>
+#endif
 #include "aos_hal_i2c.h"
 
 int32_t aos_hal_i2c_init(i2c_dev_t *i2c)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -62,11 +65,15 @@ out:
         p_fd = NULL;
     }
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t port = 0;
     int32_t *p_fd = NULL;
     int32_t ret = -1;
@@ -90,11 +97,15 @@ int32_t aos_hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t
     ret = ioctl(*p_fd, IOC_I2C_MASTER_TX, (unsigned long)&d);
 
     return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t port = 0;
     int32_t *p_fd = NULL;
     int32_t ret = -1;
@@ -118,6 +129,9 @@ int32_t aos_hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data
     ret = ioctl(*p_fd, IOC_I2C_MASTER_RX, (unsigned long)&d);
 
     return 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, uint32_t timeout)
@@ -136,6 +150,7 @@ int32_t aos_hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_ad
                           uint16_t mem_addr_size, const uint8_t *data, uint16_t size,
                           uint32_t timeout)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t port = 0;
     int32_t *p_fd = NULL;
     int32_t ret = -1;
@@ -159,12 +174,16 @@ int32_t aos_hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_ad
 
     ret = ioctl(*p_fd, IOC_I2C_MEM_TX, (unsigned long)&d);
     return 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                          uint16_t mem_addr_size, uint8_t *data, uint16_t size,
                          uint32_t timeout)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t port = 0;
     int32_t *p_fd = NULL;
     int32_t ret = -1;
@@ -187,10 +206,14 @@ int32_t aos_hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_add
 
     ret = ioctl(*p_fd, IOC_I2C_MEM_RX, (unsigned long)&d);
     return 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_i2c_finalize(i2c_dev_t *i2c)
 {
+#ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
     int32_t *p_fd = NULL;
@@ -214,4 +237,7 @@ int32_t aos_hal_i2c_finalize(i2c_dev_t *i2c)
     free(p_fd);
 
     return ret;
+#else
+    return -1;
+#endif
 }

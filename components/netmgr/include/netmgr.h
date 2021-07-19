@@ -100,6 +100,16 @@ typedef enum {
     NETMGR_MSGID_MAX
 } netmgr_msgid_t;
 
+/** @brief  netmgr wifi type */
+typedef enum {
+    NETMGR_WIFI_MODE_STA = 0,      /**< WiFi station mode */
+    NETMGR_WIFI_MODE_AP,           /**< WiFi soft-AP mode */
+    NETMGR_WIFI_MODE_APSTA,        /**< WiFi station + soft-AP mode */
+    NETMGR_WIFI_MODE_P2P,          /**< WiFi P2P mode */
+    NETMGR_WIFI_MODE_UNKNOWN,         /**< null mode */
+    NETMGR_WIFI_MODE_MAX
+} netmgr_wifi_mode_t;
+
 /** @brief  netmgr config struct */
 typedef struct netmgr_config {
     netmgr_type_t type;
@@ -119,19 +129,40 @@ typedef struct netmgr_del_config {
     } config;
 } netmgr_del_config_t;
 
-/** @brief  netmgr wifi connect params */
-typedef struct netmgr_wifi_conenct_params {
+/** @brief  netmgr wifi params */
+typedef struct netmgr_wifi_params {
+    netmgr_wifi_mode_t mode;                   /**< wifi mode, support in AP/STA mode*/
+    void* params;                              /**< netmgr wifi params*/
+} netmgr_wifi_params_t;
+
+/** @brief  netmgr wifi ap params */
+typedef struct netmgr_wifi_ap_params {
+    netmgr_wifi_mode_t mode;                   /**< wifi mode*/
+    char ssid[NETMGR_SSID_MAX_LEN+1];          /**< wifi ssid*/
+    char pwd[NETMGR_PWD_MAX_LEN+1];            /**< wifi password*/
+    char svr_ip[IPADDR_STRLEN_MAX];            /**< server ip*/
+    char gw_ip[IPADDR_STRLEN_MAX];             /**< gateway ip*/
+    char netmask_ip[IPADDR_STRLEN_MAX];        /**< netmask ip*/
+    int  beacon_interval;                      /**< beacon interval*/
+    int  hide;                                 /**< ssid hide*/
+} netmgr_wifi_ap_params_t;
+
+/** @brief  netmgr wifi sta connect params */
+typedef struct netmgr_wifi_sta_connect_params {
+    netmgr_wifi_mode_t mode;                   /**< wifi mode*/
     char        ssid[NETMGR_SSID_MAX_LEN+1];   /**< wifi ssid to connect*/
-    char        pwd[NETMGR_PWD_MAX_LEN+1];     /**< wifi password to connect */
-    char        bssid[NETMGR_BSSID_MAX_LEN];   /**< wifi bssid to connect */
-    int         timeout;                       /**< wifi connect timeout */
-} netmgr_wifi_connect_params_t;
+    char        pwd[NETMGR_PWD_MAX_LEN+1];     /**< wifi password to connect*/
+    char        bssid[NETMGR_BSSID_MAX_LEN];   /**< wifi bssid to connect*/
+    int         timeout;                       /**< wifi connect timeout*/
+} netmgr_wifi_sta_params_t;
 
 /** @brief  netmgr connect params */
 typedef struct netmgr_connect_params {
     netmgr_type_t type;
     union {
-        netmgr_wifi_connect_params_t wifi_params;     /**< wifi connect params */
+        netmgr_wifi_params_t     wlan_params;     /**< wlan(AP/STA) params*/
+        netmgr_wifi_sta_params_t wifi_params;     /**< wifi sta connect params*/
+        netmgr_wifi_ap_params_t  ap_params;       /**< wifi ap start params*/
     } params;
 } netmgr_connect_params_t;
 

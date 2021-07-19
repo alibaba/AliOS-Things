@@ -26,17 +26,21 @@ depends:
   - littlefs: master
   - wifi: master
   - lwip: master
-#  - a2sa: master
+  - a2sa: master
+  - ai_agent: master
+  - uvoice: master
+  - debug: master
 
 def_config:
-#    CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关
+    CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
-
-# build_config:
-#   include:
+    CONFIG_KWS_AI_ENGINE_ENABLE: 1
 
 ## 第四部分：编译连接信息
-# build_config:                            # <可选项> 编译配置项
+build_config:                            # <可选项> 编译配置项
+  prebuild_script: k1_apps/kws/cp_resources.py
+  define:
+    - __os_alios_things__
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
 #     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
@@ -74,6 +78,9 @@ source_file:
   - "k1_apps/gyroscope/gyroscope.c"
   - "k1_apps/aircraftBattle/aircraftBattle.c"
   - "k1_apps/musicbox/musicbox.c"
+  - "k1_apps/kws/kws.c"
+  - "k1_apps/kws/beeper/beeper.c"
+
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y

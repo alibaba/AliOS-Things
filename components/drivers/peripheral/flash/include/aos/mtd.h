@@ -24,12 +24,12 @@
 #define IOC_MTD_ERASE         (IOC_MTD_BASE + 0x3)
 
 /* standard partition names */
-#define MTD_PART_NAME_BOOTLOADER "BOOT"
-#define MTD_PART_NAME_BOOTLOADER_SEC "BOOTSEC"
-#define MTD_PART_NAME_2ND_BOOTLOADER "BOOT2A"
-#define MTD_PART_NAME_2ND_BOOTLOADER2 "BOOT2B"
-#define MTD_PART_NAME_ENV1 "ENV"
-#define MTD_PART_NAME_ENV2 "ENV2"
+#define MTD_PART_NAME_BOOTLOADER "BOOT"    /*Bootloader*/
+#define MTD_PART_NAME_BOOTLOADER_SEC "BOOTSEC" /*Secure Boot*/
+#define MTD_PART_NAME_2ND_BOOTLOADER "BOOT2A"  /*The 2nd bootloader*/
+#define MTD_PART_NAME_2ND_BOOTLOADER2 "BOOT2B" /*The 2nd bootloader backup*/
+#define MTD_PART_NAME_ENV "ENV"   /* Eviroment, e.g. for OTA*/
+#define MTD_PART_NAME_ENV2 "ENV2"  /* Enviroment, e.g. others.*/
 #define MTD_PART_NAME_DTB "DTB"
 #define MTD_PART_NAME_KERNEL "KERNEL"
 #define MTD_PART_NAME_KERNEL2 "KERNEL2"
@@ -38,8 +38,8 @@
 #define MTD_PART_NAME_LITTLEFS "LFS"
 #define MTD_PART_NAME_LITTLEFS2 "LFS2"
 #define MTD_PART_NAME_APP "APP"
-#define MTD_PART_NAME_FACTORY "FACTORY"
-#define MTD_PART_NAME_FACTORY2 "FACTORY2"
+#define MTD_PART_NAME_FACTORY "FACTORY"  /* Factory data*/
+#define MTD_PART_NAME_FACTORY2 "FACTORY2" /* Factory data backup */
 #define MTD_PART_NAME_KV "KV"
 #define MTD_PART_NAME_UNKNOWN "UNKNOWN"
 /* subject to add more hereafter ... */

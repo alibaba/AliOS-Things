@@ -93,6 +93,7 @@
 #endif /* AOS_COMP_ACTIVATION */
 #define SCAN_RESULT_WAIT_TIMEOUT (8*1000)
 #define DISCONNECT_WAIT_TIMEOUT  (5*1000)
+#define AP_START_WAIT_TIMEOUT    (8*1000)
 static int retry_backoff_time[NETMGR_WIFI_RETRY_MAX_NUM]= {1, 2, 1, 2, 1, 2, 1, 2};
 const char* wificonfigsymbol[CONFIG_ELEMENT_NUM] = {
         CONFIG_ELEMENT_SSID,
@@ -152,6 +153,7 @@ static wifi_scan_result_t  g_scan_result = {0};
 static aos_sem_t   g_scan_result_sem;
 static aos_sem_t   g_connect_scan_sem;
 static aos_sem_t   g_disconnect_wait_sem;
+static aos_sem_t   g_ap_up_sem;
 
 static bool g_is_auto_save_ap_config = false;
 static int g_handshake_failed_retry = 0;
@@ -419,6 +421,25 @@ static void wifi_scan_completed_cb(uint32_t event_id, const void *param, void *c
     NETMGR_WIFI_LOGD("%s:%d\n", __func__, __LINE__);
 }
 
+static void wifi_ap_event_cb(uint32_t event_id, const void *params, void *context)
+{
+    switch(event_id) {
+        case EVENT_WIFI_AP_UP:
+            if(g_wifi_conn_info == NULL) {
+               NETMGR_WIFI_LOGE("%s:%d invalid wifi connection\n", __func__, __LINE__);
+            } else {
+               g_wifi_conn_info->netif = (void*) params;
+               aos_sem_signal_all(&g_ap_up_sem);
+            }
+            break;
+        case EVENT_WIFI_AP_DOWN:
+            break;
+        default:
+            NETMGR_WIFI_LOGE("%s:%d invalid event_id=%d\n", __func__, __LINE__, event_id);
+            break;
+    }
+}
+
 static int wifi_set_mac(uint8_t *mac)
 {
     int ret;
@@ -601,11 +622,11 @@ static void reconnect_task_handle(void* arg)
 
         NETMGR_WIFI_LOGI("%s:%d state=%d\n", __func__, __LINE__, conn->state);
         if(conn->state == CONN_STATE_DISCONNECTED) {
-            netmgr_wifi_connect_params_t params;
+            netmgr_wifi_sta_params_t params;
             memset(&params, 0, sizeof(params));
             NETMGR_WIFI_LOGI("%s:%d\n", __func__, __LINE__);
             //netmgr_stat_chg_event(m, NOTIFY_CONN_RECONNECT, NULL);
-            if(0 != netmgr_wifi_connect(0, &params)) {
+            if(0 != netmgr_wifi_connect(conn->hdl, (netmgr_wifi_params_t*)&params)) {
                 if(ioctl(conn->hdl, WIFI_DEV_CMD_CANCEL_CONNECT, NULL) != 0) {
                     NETMGR_WIFI_LOGE("WIFI_DEV_CMD_CANCEL_CONNECT failed\n");
                 }
@@ -1667,7 +1688,6 @@ static void wifi_indicate_event_handle(void* hdl, int wifi_event, void* arg)
     int event;
     netmgr_conn_t* conn = g_wifi_conn_info;
 
-
     NETMGR_WIFI_LOGD("%s:%d wifi_event=%d\n", __func__, __LINE__, wifi_event);
     switch(wifi_event)
     {
@@ -1927,6 +1947,8 @@ int netmgr_wifi_init(netmgr_hdl_t hdl)
     event_subscribe(EVENT_SNTP_SUCCESS, wifi_stat_chg_cb, NULL);
 
     event_subscribe(EVENT_WIFI_DISCONNECTED, wifi_connect_failed_cb, NULL);
+    event_subscribe(EVENT_WIFI_AP_UP, wifi_ap_event_cb, NULL);
+    event_subscribe(EVENT_WIFI_AP_DOWN, wifi_ap_event_cb, NULL);
 
     return 0;
 }
@@ -2051,7 +2073,49 @@ static int wifi_start_scan(netmgr_conn_t* conn, netmgr_wifi_ap_config_t* saved_a
     return 0;
 }
 
-static int wifi_start_connect(netmgr_hdl_t hdl, netmgr_conn_t* conn, const char* ssid, const uint8_t* password, const uint8_t* bssid, const wifi_sec_type_t sec_type, int time_ms)
+static int wifi_start_soft_ap(netmgr_conn_t* conn, const char* ssid,
+                              const uint8_t* password, uint8_t beacon_interval, int hide_ssid)
+{
+    wifi_config_t type;
+
+    NETMGR_WIFI_LOGD("%s:%d\n", __func__, __LINE__);
+    if(conn == NULL) {
+        NETMGR_WIFI_LOGE("%s:%d error: connection is invalid\n", __func__, __LINE__);
+        return -1;
+    }
+
+    if((strlen(password) < 8) || (strlen(password) > 63)) {
+        NETMGR_WIFI_LOGE("%s:%d error: invalid password len=%d\n", __func__, __LINE__, strlen(password));
+        return -1;
+    }
+
+    memset(&type, 0, sizeof(type));
+    type.mode = WIFI_MODE_AP;
+
+    strncpy(type.ssid, ssid, sizeof(type.ssid) - 1);
+    memcpy(type.password, password, sizeof(type.password));
+    type.ap_config.beacon_interval = beacon_interval;
+    type.ap_config.hide_ssid = hide_ssid;
+    NETMGR_WIFI_LOGI("%s:%d ssid=%s password=%s \n",
+           __func__, __LINE__, ssid, password);
+    NETMGR_WIFI_LOGI("%s:%d state=%d\n", __func__, __LINE__, conn->state);
+    if((conn->state == CONN_STATE_DISCONNECTED) ||
+       (conn->state == CONN_STATE_CONNECTING)) {
+        int ret = 0;
+        NETMGR_WIFI_LOGE("%s:%d start ap\n", __func__, __LINE__);
+        ret = ioctl(conn->hdl, WIFI_DEV_CMD_CONNECT, &type);
+        if(ret != 0) {
+            NETMGR_WIFI_LOGE("%s:%d wifi connect failed=%d\n", __func__, __LINE__, ret);
+            return -1;
+        }
+        return 0;
+    }
+
+    return 0;
+}
+
+static int wifi_start_sta(netmgr_hdl_t hdl, netmgr_conn_t* conn, const char* ssid,
+        const uint8_t* password, const uint8_t* bssid, const wifi_sec_type_t sec_type, int time_ms)
 {
     wifi_config_t type;
 
@@ -2112,7 +2176,83 @@ static int ssid_contain_chinese_check(const char *ssid) {
     return contain_chinese;
 }
 
-int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
+int wifi_ap_start(netmgr_conn_t* conn, const char *svr_ip, const char *gw_ip, const char *netmask_ip,
+                           const char *ssid, const char *passwd, int beacon_interval, int hide)
+{
+    struct netif* net_if;
+    uint8_t gbk_ssid[MAX_SSID_LEN];
+    int ret;
+    int expire_time = 0;
+    int retry = -1;
+    ip4_addr_t ipaddr = {0};
+    ip4_addr_t netmask = {0};
+    ip4_addr_t gw = {0};
+
+    if(conn == NULL) {
+        NETMGR_WIFI_LOGE("%s:%d error: connection is invalid\n", __func__, __LINE__);
+        return -1;
+    }
+
+    if(0 != wifi_start_soft_ap(conn, ssid, passwd, beacon_interval, hide)) {
+        NETMGR_WIFI_LOGE("%s:%d error: wifi start soft ap failed\n", __func__, __LINE__);
+        return -1;
+    }
+
+    if(aos_sem_is_valid(&g_ap_up_sem) == 0) {
+        ret = aos_sem_new(&g_ap_up_sem, 0);
+        if(ret != 0) {
+            NETMGR_WIFI_LOGE("%s:%d sem new failed, err=%d\n", __func__, __LINE__, ret);
+            return -1;
+        }
+    }
+
+    if(0 != aos_sem_wait(&g_ap_up_sem, AP_START_WAIT_TIMEOUT)) {
+        NETMGR_WIFI_LOGE("%s:%d wait ap up failed\n", __func__, __LINE__);
+        return -1;
+    }
+
+    net_if = conn->netif;
+
+    if(!netif_is_up(net_if)) {
+        NETMGR_WIFI_LOGE("%s:%d up netif\n", __func__, __LINE__);
+        if(!netif_is_link_up(net_if)) {
+            netifapi_netif_set_link_up(net_if);
+        }
+        if(!netif_is_up(net_if)) {
+            netifapi_netif_set_up(net_if);
+            netifapi_netif_set_default(net_if);
+        }
+    }
+
+    ret = ipaddr_aton(svr_ip, &ipaddr);
+    if (ret == 0) {
+        LOGE(TAG, "fail to tranform dhcp server ip %s ret %d", svr_ip, ret);
+        return -1;
+    }
+
+    ret = ipaddr_aton(gw_ip, &gw);
+    if (ret == 0) {
+        LOGE(TAG, "fail to tranform gateway ip %s ret %d", gw_ip, ret);
+        return -1;
+    }
+
+    ret = ipaddr_aton(netmask_ip, &netmask);
+    if (ret == 0) {
+        LOGE(TAG, "fail to tranform netmask ip %s ret %d", netmask_ip, ret);
+        return -1;
+    }
+
+    LOGI(TAG, "Set dhcp netif ip 0x%x gw 0x%x netmask 0x%x", ipaddr.addr, gw.addr, netmask.addr);
+
+    netifapi_netif_set_addr(net_if, &ipaddr, &netmask, &gw);
+    netifapi_netif_set_up(net_if);
+
+    dhcps_init(net_if);
+
+    return ret;
+}
+
+int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_params_t *params)
 {
     struct netif* net_if;
     uint8_t gbk_ssid[MAX_SSID_LEN];
@@ -2120,6 +2260,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
     int expire_time = 0;
     netmgr_conn_t* conn = g_wifi_conn_info;
     netmgr_wifi_ap_config_t* saved_ap_conf;
+    netmgr_wifi_sta_params_t* wifi_params;
     int retry = -1;
     char* ssid;
     char* pwd;
@@ -2137,10 +2278,27 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
         return -1;
     }
 
-    ssid    = params->ssid;
-    pwd     = params->pwd;
-    //bssid   = params->bssid;
-    time_ms = params->timeout;
+    if(conn->hdl != hdl) {
+        NETMGR_WIFI_LOGE("%s:%d error: invliad hdl:%d\n", __func__, __LINE__, hdl);
+        return -1;
+    }
+
+    wifi_params = (netmgr_wifi_params_t*) params;
+
+    if(wifi_params->mode == NETMGR_WIFI_MODE_AP) {
+        netmgr_wifi_ap_params_t* ap_params = (netmgr_wifi_ap_params_t*) params;
+        return wifi_ap_start(conn, ap_params->svr_ip, ap_params->gw_ip, ap_params->netmask_ip, ap_params->ssid, ap_params->pwd, ap_params->beacon_interval, ap_params->hide);
+    } else if(wifi_params->mode != NETMGR_WIFI_MODE_STA) {
+        NETMGR_WIFI_LOGE("%s:%d error: wifi mode %d is not support\n", __func__, __LINE__, wifi_params->mode);
+        return -1;
+    }
+
+    wifi_params = (netmgr_wifi_sta_params_t*)params;
+
+    ssid    = wifi_params->ssid;
+    pwd     = wifi_params->pwd;
+    //bssid   = wifi_params->bssid;
+    time_ms = wifi_params->timeout;
 
     saved_ap_conf = (netmgr_wifi_ap_config_t* )conn->saved_config;
     if(saved_ap_conf == NULL) {
@@ -2352,18 +2510,23 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_connect_params_t *params)
             /* Reset retry to 0 */
             retry = 0;
             if(saved_ap_conf->config[i].ssid_format == NETMGR_SSID_FORMAT_UTF8) {
-                ret = wifi_start_connect(hdl, conn,
+                ret = wifi_start_sta(hdl, conn,
                                      saved_ap_conf->config[i].ssid,
                                      saved_ap_conf->config[i].pwd,
                                      saved_ap_conf->config[i].bssid,
                                      saved_ap_conf->config[i].sec_type,
                                      time_ms);
             } else {
-                ret = wifi_start_connect(hdl, conn, saved_ap_conf->config[i].gbk_ssid,
+                ret = wifi_start_sta(hdl, conn, saved_ap_conf->config[i].gbk_ssid,
                                          saved_ap_conf->config[i].pwd,
                                          saved_ap_conf->config[i].bssid,
                                          saved_ap_conf->config[i].sec_type,
                                          time_ms);
+            }
+            if(ret != 0) {
+                g_netmgr_wifi_connect_state = NETMGR_WIFI_CONNECT_FAILED;
+                /* Wait 1s */
+                aos_msleep(1000);
             }
         }
         else {
@@ -3159,7 +3322,8 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("  -k,        Deinit wifi service\n");
     NETMGR_WIFI_LOGI("  -a,        Set auto reconnect wifi flag\n");
     NETMGR_WIFI_LOGI("  -b,        Set auto save ap info flag. 1, enable; 0, disable\n");
-    NETMGR_WIFI_LOGI("  -c,        Connect wifi\n");
+    NETMGR_WIFI_LOGI("  -c,        start sta and connect wifi\n");
+    NETMGR_WIFI_LOGI("  -z,        start ap\n");
     NETMGR_WIFI_LOGI("  -e,        Disconnect wifi\n");
     NETMGR_WIFI_LOGI("  -m,        Set mac address\n");
     NETMGR_WIFI_LOGI("  -g,        Get mac address\n");
@@ -3169,7 +3333,7 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("  -w,        Write wifi config\n");
     NETMGR_WIFI_LOGI("  -d,        Delete wifi config\n");
     NETMGR_WIFI_LOGI("  -n,        1, sntp enable 2, sntp disable no args show sntp enable/disable state\n");
-    NETMGR_WIFI_LOGI("  -h,        Show netmgr wifi help commands\n");
+    NETMGR_WIFI_LOGI("  -w,        Write wifi config\n");
     NETMGR_WIFI_LOGI("Example:\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -i\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -a 1\n");
@@ -3180,13 +3344,35 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"apple\"\\npassword=\"aos123456\"\\nchannel=\"1\"\\n}\\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -d\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -n 0\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -e\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -z svr_ip gw_ip netmask_ip ssid password beacon_interval\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -e\n");
 }
 
 static void wifi_connect_handle(char * args)
 {
-    netmgr_wifi_connect_params_t* params = (netmgr_wifi_connect_params_t*) args;
+    netmgr_wifi_sta_params_t* params = (netmgr_wifi_sta_params_t*) args;
 
-    netmgr_wifi_connect(g_wifi_conn_info->hdl, params);
+    netmgr_wifi_connect(g_wifi_conn_info->hdl, (netmgr_wifi_params_t*) params);
+}
+
+static void wifi_ap_handle(char * args)
+{
+    netmgr_conn_t* conn = g_wifi_conn_info;
+    netmgr_wifi_ap_params_t* params = (netmgr_wifi_ap_params_t*) args;
+
+    if(params == NULL) {
+        NETMGR_WIFI_LOGE("%s:%d malloc failed\n", __func__, __LINE__);
+        return ;
+    }
+
+    if(conn != NULL) {
+        wifi_ap_start(conn, params->svr_ip, params->gw_ip, params->netmask_ip, params->ssid, params->pwd, params->beacon_interval, params->hide);
+    } else {
+        NETMGR_WIFI_LOGE("%s:%d wifi connection invalid\n", __func__, __LINE__);
+    }
+
+    free(params);
 }
 
 static void wifi_set_mac_handle(char * args)
@@ -3229,14 +3415,14 @@ static void wifi_handle_cmd(int argc, char **argv)
     }
     else if (strcmp(rtype, "-c") == 0) {
         if((argc > 1)) {
-            netmgr_wifi_connect_params_t *params;
+            netmgr_wifi_sta_params_t *params;
 
-            params = (netmgr_wifi_connect_params_t*) malloc(sizeof(netmgr_wifi_connect_params_t));
+            params = (netmgr_wifi_sta_params_t*) malloc(sizeof(netmgr_wifi_sta_params_t));
             if(params == NULL) {
                 NETMGR_WIFI_LOGE("%s:%d malloc failed\n", __func__, __LINE__);
                 return ;
             }
-            memset(params, 0, sizeof(netmgr_wifi_connect_params_t));
+            memset(params, 0, sizeof(netmgr_wifi_sta_params_t));
             strncpy(params->ssid, argv[1], sizeof(params->ssid)-1);
             params->timeout = 18000;
 
@@ -3440,6 +3626,32 @@ static void wifi_handle_cmd(int argc, char **argv)
                 g_is_sntp_enabled = false;
             }
         }
+    } else if (strcmp(rtype, "-z") == 0) {
+        if((argc >= 7)) {
+            netmgr_wifi_ap_params_t *params;
+
+            params = (netmgr_wifi_ap_params_t *) malloc(sizeof(netmgr_wifi_ap_params_t));
+            if(params == NULL) {
+                NETMGR_WIFI_LOGE("%s:%d malloc failed\n", __func__, __LINE__);
+                return ;
+            }
+            memset(params, 0, sizeof(netmgr_wifi_ap_params_t));
+
+            strncpy(params->svr_ip, argv[1], sizeof(params->svr_ip) - 1);
+            strncpy(params->gw_ip, argv[2], sizeof(params->gw_ip) - 1);
+            strncpy(params->netmask_ip, argv[3], sizeof(params->netmask_ip) - 1);
+
+            strncpy(params->ssid, argv[4], sizeof(params->ssid) - 1);
+            strncpy((char* )params->pwd, argv[5], sizeof(params->pwd)-1);
+
+            params->beacon_interval = atoi(argv[6]);
+            params->hide = atoi(argv[7]);
+
+            aos_task_new("wifi_ap_task", (task_entry_t)wifi_ap_handle, params, 4*1024);
+        } else {
+            NETMGR_WIFI_LOGE("%s:%d start AP with invalid params\n", __func__, __LINE__);
+        }
+
     } else {
         handle_netmgr_wifi_help_cmd();
     }

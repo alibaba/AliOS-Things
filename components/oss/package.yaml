@@ -19,7 +19,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: master
   - mbedtls: master
   - cplusplus: master
   - fatfs: master

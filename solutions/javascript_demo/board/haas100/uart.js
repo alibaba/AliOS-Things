@@ -1,13 +1,16 @@
-
 import * as uart from 'uart'
-
-/* PWM's options are configured in app.json.
+/* Uart's options are configured in app.json.
 {
     "version": "0.0.1",
     "io": {
         "serial": {
             "type": "UART",
-            "port": 2
+            "port": 2,
+            "dataWidth":8,
+            "baudRate":115200,
+            "stopBits":0,
+            "flowControl":"disable",
+            "parity":"none"
         }
     },
     "debugLevel": "DEBUG"
@@ -15,7 +18,10 @@ import * as uart from 'uart'
 */
 
 var msgbuf = 'this is amp uart test'
-// led灯
+
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
 
 console.log('uart open')
 var serial = uart.open({
@@ -29,8 +35,8 @@ var serial = uart.open({
 });
 console.log('uart write')
 
-
 serial.write(msgbuf);
+
 sleepMs(1000);
 
 console.log('uart read')
@@ -41,10 +47,12 @@ var value = ''
 
 while(1)
 {
+  sleepMs(500);
   rtrn = serial.read()
+  console.log('sensor read ' + rCnt + " value is " + ab2str(rtrn))
   if(0 != rtrn)
   {
-    value += rtrn;
+    value += ab2str(rtrn);
     rCnt++;
   }
 
@@ -54,9 +62,11 @@ while(1)
   }
 
 }
+
 console.log('sensor value is ' + value)
-serial.on('data', function(len, data) {
-console.log('uart receive data len is : ' + len + '  data is:  ' + data);
+serial.on_mode();
+serial.on('data', function(data, len) {
+console.log('uart receive data len is : ' + len + '  data is:  ' + ab2str(data));
 })
 
-serial.close();
+//serial.close();

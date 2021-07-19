@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#ifndef AOS_BOARD_HAAS700
 #include <vfsdev/gpio_dev.h>
+#endif
 #include "aos_hal_gpio.h"
 
 #ifdef CONFIG_GPIO_NUM
@@ -27,6 +29,7 @@ int32_t aos_hal_gpio_init(gpio_dev_t *gpio)
 
 int32_t aos_hal_gpio_output_high(gpio_dev_t *gpio)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_io_config_t config;
     int fd;
     int r;
@@ -59,10 +62,14 @@ int32_t aos_hal_gpio_output_high(gpio_dev_t *gpio)
     close(fd);
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_output_low(gpio_dev_t *gpio)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_io_config_t config;
     int fd;
     int r;
@@ -95,10 +102,14 @@ int32_t aos_hal_gpio_output_low(gpio_dev_t *gpio)
     close(fd);
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_output_toggle(gpio_dev_t *gpio)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_io_config_t config;
     int fd;
     int r;
@@ -117,10 +128,14 @@ int32_t aos_hal_gpio_output_toggle(gpio_dev_t *gpio)
     close(fd);
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_io_config_t config;
     int fd;
     int r;
@@ -154,11 +169,15 @@ int32_t aos_hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
     *value = (r < 0) ? 0 : r;
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
                                 gpio_irq_handler_t handler, void *arg)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_irq_config_t config;
     int fd;
     int r;
@@ -192,10 +211,14 @@ int32_t aos_hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
     close(fd);
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_disable_irq(gpio_dev_t *gpio)
 {
+#ifndef AOS_BOARD_HAAS700
     gpio_irq_config_t config;
     int fd;
     int r;
@@ -215,11 +238,18 @@ int32_t aos_hal_gpio_disable_irq(gpio_dev_t *gpio)
     close(fd);
 
     return r < 0 ? -1 : 0;
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_clear_irq(gpio_dev_t *gpio)
 {
+#ifndef AOS_BOARD_HAAS700
     return aos_hal_gpio_disable_irq(gpio);
+#else
+    return -1;
+#endif
 }
 
 int32_t aos_hal_gpio_finalize(gpio_dev_t *gpio)

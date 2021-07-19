@@ -12,9 +12,11 @@
 #include "aos/kv.h"
 #include "aos/vfs.h"
 #include "ulog/ulog.h"
+#ifndef AOS_BOARD_HAAS700
 #include "netmgr.h"
 
 #include "netmgr_wifi.h"
+#endif
 
 //#include "infra_config.h"
 //#include "infra_compat.h"
@@ -38,6 +40,11 @@ void aos_printf(const char *fmt, ...)
     va_end(args);
 
     fflush(stdout);
+}
+
+int aos_putchar(const char c)
+{
+    aos_printf("%c", c);
 }
 
 int aos_snprintf(char *str, const int len, const char *fmt, ...)
@@ -69,6 +76,7 @@ const char *aos_get_platform_type(void)
 
 int aos_get_ip(char *ip)
 {
+#ifndef AOS_BOARD_HAAS700
     netmgr_hdl_t hdl;
     netmgr_ifconfig_info_t info = {0};
 
@@ -85,6 +93,9 @@ int aos_get_ip(char *ip)
         return -1;
     }
     return 0;
+#else
+    return -1;
+#endif
 }
 
 int aos_get_mac_addr(unsigned char mac[8])
@@ -101,10 +112,14 @@ int aos_network_status_registercb(void (*cb)(int status, void *), void *arg)
 
 int aos_get_network_status(void)
 {
+#ifndef AOS_BOARD_HAAS700
     int ret = 0;
     ret = aos_wifi_get_state();
 
     return (ret == CONN_STATE_NETWORK_CONNECTED);
+#else
+    return 0;
+#endif
 }
 
 /**
@@ -146,7 +161,13 @@ int hal_wifi_get_mac_address(char *mac, size_t len)
 char g_chip_id[32];
 const char *aos_get_device_name(void)
 {
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
+    unsigned char chip_id[16];
+    tg_get_chipid(chip_id, 16);
+    aos_snprintf(g_chip_id, 32, "haas_%x%x%x%x%x%x", chip_id[0], chip_id[1], chip_id[2], chip_id[3], chip_id[9], chip_id[10]);
+#else
     hal_wifi_get_mac_address(g_chip_id, sizeof(g_chip_id));
+#endif
     return g_chip_id;
 }
 

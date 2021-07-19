@@ -270,7 +270,7 @@ void aos_object_init(struct aos_object         *object,
     /* set object type to static */
     object->type = type | AOS_Object_Class_Static;
     /* copy name */
-    strncpy(object->name, name, AOS_OBJ_NAME_MAX);
+    strncpy(object->name, name, AOS_OBJ_NAME_MAX - 1);
 
 #ifdef AOS_USING_HOOK
     AOS_OBJECT_HOOK_CALL(aos_object_attach_hook, (object));

@@ -36,10 +36,14 @@
 #include <signal.h>
 #include <limits.h>
 #include <sys/stat.h>
+#if !defined(__AOS_AMP__) || defined(CONFIG_KERNEL_RHINO) || defined(CONFIG_KERNEL_LINUX)
 #include <dirent.h>
-#include "aos_system.h"
+#endif
+#include "aos/kernel.h"
+#include "aos/vfs.h"
+#include "aos_fs.h"
+#include "aos_amp_port.h"
 
-#define printf aos_printf
 
 #if !defined(_WIN32) && !defined(__AOS_AMP__)
 /* enable the os.Worker API. IT relies on POSIX threads */
@@ -344,45 +348,42 @@ fail:
 
 uint8_t *js_load_file(JSContext *ctx, size_t *pbuf_len, const char *filename)
 {
-    FILE *f;
+    int f;
     uint8_t *buf;
     size_t buf_len;
     long lret;
+    struct aos_stat sb;
 
-    f = fopen(filename, "rb");
+    *pbuf_len = 0;
+    if (aos_stat(filename, &sb) || !aos_fs_type(sb.st_mode)) {
+        aos_printf("%s %s", "file not exist", filename);
+        return NULL;
+    }
+    f = aos_open(filename, O_RDONLY);
     if (!f)
         return NULL;
-    if (fseek(f, 0, SEEK_END) < 0)
-        goto fail;
-    lret = ftell(f);
-    if (lret < 0)
-        goto fail;
     /* XXX: on Linux, ftell() return LONG_MAX for directories */
-    if (lret == LONG_MAX) {
-        errno = EISDIR;
-        goto fail;
-    }
-    buf_len = lret;
-    if (fseek(f, 0, SEEK_SET) < 0)
-        goto fail;
+
+    buf_len = sb.st_size;
+
     if (ctx)
         buf = js_malloc(ctx, buf_len + 1);
     else
-        buf = malloc(buf_len + 1);
+        buf = amp_malloc(buf_len + 1);
     if (!buf)
         goto fail;
-    if (fread(buf, 1, buf_len, f) != buf_len) {
+    if (aos_read(f, buf, buf_len) != buf_len) {
         errno = EIO;
         if (ctx)
             js_free(ctx, buf);
         else
-            free(buf);
+            amp_free(buf);
     fail:
-        fclose(f);
+        aos_close(f);
         return NULL;
     }
     buf[buf_len] = '\0';
-    fclose(f);
+    aos_close(f);
     *pbuf_len = buf_len;
     return buf;
 }
@@ -690,6 +691,50 @@ static JSValue js_evalScript(JSContext *ctx, JSValueConst this_val,
     return ret;
 }
 
+static JSValue js_evalScript_m(JSContext *ctx, JSValueConst this_val,
+                             int argc, JSValueConst *argv)
+{
+    JSRuntime *rt = JS_GetRuntime(ctx);
+    JSThreadState *ts = JS_GetRuntimeOpaque(rt);
+    const char *str;
+    size_t len;
+    JSValue ret;
+    JSValueConst options_obj;
+    BOOL backtrace_barrier = FALSE;
+    int flags;
+
+    if (argc >= 2) {
+        options_obj = argv[1];
+        if (get_bool_option(ctx, &backtrace_barrier, options_obj,
+                            "backtrace_barrier"))
+            return JS_EXCEPTION;
+    }
+
+    str = JS_ToCStringLen(ctx, &len, argv[0]);
+    if (!str)
+        return JS_EXCEPTION;
+    if (!ts->recv_pipe && ++ts->eval_script_recurse == 1) {
+        /* install the interrupt handler */
+        JS_SetInterruptHandler(JS_GetRuntime(ctx), interrupt_handler, NULL);
+    }
+    flags = JS_EVAL_TYPE_MODULE;
+    if (backtrace_barrier)
+        flags |= JS_EVAL_FLAG_BACKTRACE_BARRIER;
+    ret = JS_Eval(ctx, str, len, "<input>", flags);
+    JS_FreeCString(ctx, str);
+    if (!ts->recv_pipe && --ts->eval_script_recurse == 0) {
+        /* remove the interrupt handler */
+        JS_SetInterruptHandler(JS_GetRuntime(ctx), NULL, NULL);
+        #if !defined(__AOS_AMP__)
+        os_pending_signals &= ~((uint64_t)1 << SIGINT);
+        #endif
+        /* convert the uncatchable "interrupted" error into a normal error
+           so that it can be caught by the REPL */
+        if (JS_IsException(ret))
+            JS_ResetUncatchableError(ctx);
+    }
+    return ret;
+}
 static JSClassID js_std_file_class_id;
 
 typedef struct {
@@ -1407,6 +1452,7 @@ static const JSCFunctionListEntry js_std_funcs[] = {
     JS_CFUNC_DEF("exit", 1, js_std_exit ),
     JS_CFUNC_DEF("gc", 0, js_std_gc ),
     JS_CFUNC_DEF("evalScript", 1, js_evalScript ),
+    JS_CFUNC_DEF("eval", 1, js_evalScript_m ),
     JS_CFUNC_DEF("loadScript", 1, js_loadScript ),
     JS_CFUNC_DEF("getenv", 1, js_std_getenv ),
 #if !defined(__AOS_AMP__)
@@ -3638,20 +3684,21 @@ JSModuleDef *js_init_module_os(JSContext *ctx, const char *module_name)
 static JSValue js_print(JSContext *ctx, JSValueConst this_val,
                               int argc, JSValueConst *argv)
 {
-    int i;
+    int i, j;
     const char *str;
     size_t len;
 
     for(i = 0; i < argc; i++) {
         if (i != 0)
-            putchar(' ');
+            aos_putchar(' ');
         str = JS_ToCStringLen(ctx, &len, argv[i]);
         if (!str)
             return JS_EXCEPTION;
-        fwrite(str, 1, len, stdout);
+        for (j = 0; j < len; j++)
+            aos_putchar(str[j]);
         JS_FreeCString(ctx, str);
     }
-    putchar('\n');
+    aos_putchar('\n');
     return JS_UNDEFINED;
 }
 
@@ -3810,6 +3857,28 @@ void js_std_loop(JSContext *ctx)
         if (!os_poll_func || os_poll_func(ctx))
             break;
     }
+}
+
+/* main loop which calls the user JS callbacks */
+void js_std_loop_once(JSContext *ctx)
+{
+    JSContext *ctx1;
+    int err;
+
+    /* execute the pending jobs */
+    for(;;) {
+        err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
+        if (err <= 0) {
+            if (err < 0) {
+                js_std_dump_error(ctx1);
+            }
+            break;
+        }
+    }
+
+    if (!os_poll_func || os_poll_func(ctx))
+        return;
+
 }
 
 void js_std_eval_binary(JSContext *ctx, const uint8_t *buf, size_t buf_len,

@@ -118,7 +118,7 @@ int tg_ota_upgrade_end(void);
  * @param[in] ab_fallback: 1: enable ab fallback, if it is not enabled; 0, disable ab_fallback.
  */
 void tg_ota_finish(int ab_fallback);
-
+int ota_get_running_index(void);
 #ifdef __cplusplus
 }
 #endif

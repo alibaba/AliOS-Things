@@ -8,16 +8,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#if 0
-#include "uagent_type.h"
-#else
-#define UAGENT_FUNC_USER_BASE   (0)
-#endif
-
-#define ULOG_SHOW         (UAGENT_FUNC_USER_BASE)
-#define ULOG_LEVEL_CHANGE (UAGENT_FUNC_USER_BASE+1)
-#define ULOG_LOG_LIST     (UAGENT_FUNC_USER_BASE+2)
-#define ULOG_POLICY       (UAGENT_FUNC_USER_BASE+3)
 
 #define ULOG_TAG_SELF "ULOG"
 
@@ -280,6 +270,14 @@ typedef enum {
 #ifdef CONFIG_NO_TCPIP
 #error ("pop log via udp not support in no tcpip board")
 #endif
+#endif
+
+#if ULOG_POP_CLOUD_ENABLE
+#include "uagent_type.h"
+#define ULOG_SHOW         (UAGENT_FUNC_USER_BASE)
+#define ULOG_LEVEL_CHANGE (UAGENT_FUNC_USER_BASE + 1)
+#define ULOG_LOG_LIST     (UAGENT_FUNC_USER_BASE + 2)
+#define ULOG_POLICY       (UAGENT_FUNC_USER_BASE + 3)
 #endif
 
 typedef enum {

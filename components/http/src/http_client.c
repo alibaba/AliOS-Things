@@ -79,6 +79,10 @@ static int httpclient_parse_url(const char *url, char *scheme, size_t max_scheme
         *port = 0;
     }
     path_ptr = strchr(host_ptr, '/');
+    if(path_ptr == NULL) {
+        http_err("Could not find '/'");
+        return HTTP_EPARSE;
+    }
     if ( host_len == 0 ) {
         host_len = path_ptr - host_ptr;
     }
@@ -858,7 +862,7 @@ void httpclient_reset(httpclient_data_t *client_data)
     char *header_buf = client_data->header_buf;
     int response_buf_len = client_data->response_buf_len;
     int header_buf_len = client_data->header_buf_len;
-   
+
     memset(client_data, 0, sizeof(httpclient_data_t));
 
     client_data->response_buf = response_buf;

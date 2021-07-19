@@ -79,6 +79,9 @@ class netMgr extends events.EventEmitter{
         this.emit('disconnect', ssid);
     }
 
+    getType() {
+        return NETMGR.getType();
+    }
     getState() {
         var ret = NETMGR.getState(this.dev_handler);
         switch (ret) {

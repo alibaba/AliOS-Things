@@ -79,6 +79,20 @@
 
 # Release Note
 
+## 2021-07-15
+- JavaScript轻应用：支持oss上传及下载功能、支持promise功能、添加ulog示例、修复问题若干
+- python轻应用：支持ota功能、linksdk动态注册、支持在线文件传输、framebuf显示功能、kv功能
+- ota：统一haas100和haas200的ota升级相关接口
+- HaaS100：支持MTD驱动子系统、修复SPI初始化失败等问题
+- vfs：修复多任务并发访问设备节点的互斥问题
+- netmgr：支持AP功能、完善连接失败的重试机制、修复上电无法自动重连问题等
+- cli：修复命令回显没有发送至云端问题
+- 文档：优化贡献代码说明、添加ping/ifconfig/tftp/iperf等命令说明
+
+
+*特别感谢为本期迭代提出宝贵意见和建议的开发者：空空、刘洪峰、刘超、莫学良、李大棚等*
+
+
 ## 2021-06-10
 - JavaScript轻应用框架v3.0发布
 - 新增案例：JavaScript和Python双引擎运行环境，一个镜像同时包含两套轻应用框架

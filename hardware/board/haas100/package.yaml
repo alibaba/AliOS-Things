@@ -48,8 +48,6 @@ build_config:
   include:
     - drivers/
     - config/
-    - drivers/sal/include
-    - drivers/sal/internal
   cflag: >
         -DCHIP_HAAS1000 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
         -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000 -DLASTWORD_RAM_ADDR=0x20166000 -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_HAAS100\"
@@ -61,13 +59,14 @@ source_file:
   - "startup/startup.c"
   - "config/board.c"
   - "config/partition_conf.c"
+  - "config/partition_conf_legacy.c"
   - "config/k_config.c"
   - "drivers/led.c"
   - "drivers/watchdog.c"
   - "drivers/key.c"
   - "drivers/ch395_spi.c"
-  - drivers/ch395.c ? <WITH_SAL> 
-  - drivers/sal/src/*.c ? <WITH_SAL> 
+  - drivers/ch395_cmd.c
+  - drivers/ch395_lwip.c
 #cflags: -DCHIP_BEST2001 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1 -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000 
 #        -DSYSINFO_OS_VERSION="v3.1" -DSYSINFO_PRODUCT_MODEL="ALI_AOS_HAAS100" -DSYSINFO_DEVICE_NAME="HAAS100" -DSYSINFO_ARCH="Cortex-M4F" -DSYSINFO_MCU="mcu_haas1000" -DSYSINFO_BOARD="haas100" -DOS_CLOCK_NOMINAL=16000
 
@@ -82,6 +81,7 @@ def_config:
   CLI_CONFIG_STACK_SIZE: 8192
   RHINO_CONFIG_TICKS_PER_SECOND: 1000
   WITH_LWIP: 1
+  #WITH_SAL: 1
   POSIX_DEVICE_IO_NEED: 1
   AOS_2ND_BOOT_NO_LDS: 1
   AOS_2ND_BOOT_AB: 1
@@ -109,6 +109,18 @@ def_config:
   CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
   CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
 
+# MTD partition config to support mtd vfs apis(open/close/read/write/ioctl).
+  MTD_PART_ID_BOOT:      0
+  MTD_PART_ID_ENV2:      1
+  MTD_PART_ID_2ND_BOOT:  2
+  MTD_PART_ID_KERNEL:    3
+  MTD_PART_ID_2ND_BOOT2: 4
+  MTD_PART_ID_KERNEL2:   5
+  MTD_PART_ID_FS:        6
+  MTD_PART_ID_BOOT_SEC:  7
+  MTD_PART_ID_ENV:       8
+  MTD_PART_ID_KV:        9
+  MTD_PART_ID_FACTORY:   10
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录

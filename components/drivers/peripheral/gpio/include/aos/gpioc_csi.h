@@ -8,15 +8,16 @@
 #include <aos/gpioc.h>
 #include <drv/gpio.h>
 
-#define AOS_GPIOC_CSI_NUM_PINS  32
+#define AOS_GPIOC_CSI_MAX_NUM_PINS      (sizeof(uint32_t) * 8)
 
 typedef struct {
     aos_gpioc_t gpioc;
-    aos_gpioc_pin_t pins[AOS_GPIOC_CSI_NUM_PINS];
-    uint32_t modes[AOS_GPIOC_CSI_NUM_PINS];
+    aos_gpioc_pin_t pins[AOS_GPIOC_CSI_MAX_NUM_PINS];
+    uint32_t modes[AOS_GPIOC_CSI_MAX_NUM_PINS];
+    csi_gpio_t csi_gpio;
+    /* must be initialized before registration */
     uint32_t default_input_cfg;
     uint32_t default_output_cfg;
-    csi_gpio_t csi_gpio;
 } aos_gpioc_csi_t;
 
 #ifdef __cplusplus

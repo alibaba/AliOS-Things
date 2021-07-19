@@ -5080,12 +5080,15 @@ static JSValue js_c_function_data_call(JSContext* ctx, JSValueConst func_obj,
                                        int argc, JSValueConst* argv, int flags)
 {
     JSCFunctionDataRecord* s = JS_GetOpaque(func_obj, JS_CLASS_C_FUNCTION_DATA);
-    JSValueConst* arg_buf;
-    int i;
+    JSValueConst* arg_buf = NULL;
+    int i = 0;
+    int f = 0;
+    JSValue v;
 
     /* XXX: could add the function on the stack for debug */
     if (unlikely(argc < s->length)) {
-        arg_buf = alloca(sizeof(arg_buf[0]) * s->length);
+        arg_buf = amp_malloc(sizeof(arg_buf[0]) * s->length);
+        f = 1;
         for (i = 0; i < argc; i++)
             arg_buf[i] = argv[i];
         for (i = argc; i < s->length; i++)
@@ -5094,7 +5097,11 @@ static JSValue js_c_function_data_call(JSContext* ctx, JSValueConst func_obj,
         arg_buf = argv;
     }
 
-    return s->func(ctx, this_val, argc, arg_buf, s->magic, s->data);
+    v = s->func(ctx, this_val, argc, arg_buf, s->magic, s->data);
+    if(f && arg_buf) {
+        amp_free(arg_buf);
+    }
+    return v;
 }
 
 JSValue JS_NewCFunctionData(JSContext* ctx, JSCFunctionData* func,
@@ -15724,9 +15731,10 @@ static JSValue js_call_c_function(JSContext* ctx, JSValueConst func_obj,
     JSObject* p;
     JSStackFrame sf_s, *sf = &sf_s, *prev_sf;
     JSValue ret_val;
-    JSValueConst* arg_buf;
+    JSValueConst* arg_buf = NULL;
     int arg_count, i;
     JSCFunctionEnum cproto;
+    int f = 0;
 
     p = JS_VALUE_GET_OBJ(func_obj);
     cproto = p->u.cfunc.cproto;
@@ -15757,7 +15765,8 @@ static JSValue js_call_c_function(JSContext* ctx, JSValueConst func_obj,
 
     if (unlikely(argc < arg_count)) {
         /* ensure that at least argc_count arguments are readable */
-        arg_buf = alloca(sizeof(arg_buf[0]) * arg_count);
+        arg_buf = amp_malloc(sizeof(arg_buf[0]) * arg_count);
+        f = 1;
         for (i = 0; i < argc; i++)
             arg_buf[i] = argv[i];
         for (i = argc; i < arg_count; i++)
@@ -15845,6 +15854,9 @@ static JSValue js_call_c_function(JSContext* ctx, JSValueConst func_obj,
     }
 
     rt->current_stack_frame = sf->prev_frame;
+    if (f && arg_buf) {
+        amp_free(arg_buf);
+    }
     return ret_val;
 }
 
@@ -15854,7 +15866,8 @@ static JSValue js_call_bound_function(JSContext* ctx, JSValueConst func_obj,
 {
     JSObject* p;
     JSBoundFunction* bf;
-    JSValueConst *arg_buf, new_target;
+    JSValueConst *arg_buf = NULL, new_target;
+    JSValue v;
     int arg_count, i;
 
     p = JS_VALUE_GET_OBJ(func_obj);
@@ -15862,7 +15875,7 @@ static JSValue js_call_bound_function(JSContext* ctx, JSValueConst func_obj,
     arg_count = bf->argc + argc;
     if (js_check_stack_overflow(ctx->rt, sizeof(JSValue) * arg_count))
         return JS_ThrowStackOverflow(ctx);
-    arg_buf = alloca(sizeof(JSValue) * arg_count);
+    arg_buf = amp_malloc(sizeof(JSValue) * arg_count);
     for (i = 0; i < bf->argc; i++) {
         arg_buf[i] = bf->argv[i];
     }
@@ -15873,12 +15886,16 @@ static JSValue js_call_bound_function(JSContext* ctx, JSValueConst func_obj,
         new_target = this_obj;
         if (js_same_value(ctx, func_obj, new_target))
             new_target = bf->func_obj;
-        return JS_CallConstructor2(ctx, bf->func_obj, new_target,
+        v = JS_CallConstructor2(ctx, bf->func_obj, new_target,
                                    arg_count, arg_buf);
     } else {
-        return JS_Call(ctx, bf->func_obj, bf->this_val,
+        v = JS_Call(ctx, bf->func_obj, bf->this_val,
                        arg_count, arg_buf);
     }
+    if (arg_buf) {
+        amp_free(arg_buf);
+    }
+    return v;
 }
 
 /* argument of OP_special_object */
@@ -15908,7 +15925,7 @@ static JSValue JS_CallInternal(JSContext* caller_ctx, JSValueConst func_obj,
     JSStackFrame sf_s, *sf = &sf_s;
     const uint8_t* pc;
     int opcode, arg_allocated_size, i;
-    JSValue *local_buf, *stack_buf, *var_buf, *arg_buf, *sp, ret_val, *pval;
+    JSValue *local_buf = NULL, *stack_buf, *var_buf, *arg_buf, *sp, ret_val, *pval;
     JSVarRef** var_refs;
     size_t alloca_size;
 
@@ -15993,7 +16010,7 @@ static JSValue JS_CallInternal(JSContext* caller_ctx, JSValueConst func_obj,
     init_list_head(&sf->var_ref_list);
     var_refs = p->u.func.var_refs;
 
-    local_buf = alloca(alloca_size);
+    local_buf = amp_malloc(alloca_size);
     if (unlikely(arg_allocated_size)) {
         int n = min_int(argc, b->arg_count);
         arg_buf = local_buf;
@@ -16158,7 +16175,7 @@ restart:
                         goto exception;
                     break;
                 default:
-                    abort();
+                    goto exception;
                 }
             }
             BREAK;
@@ -18510,6 +18527,9 @@ exception:
         }
     }
     rt->current_stack_frame = sf->prev_frame;
+    if(local_buf) {
+        amp_free(local_buf);
+    }
     return ret_val;
 }
 
