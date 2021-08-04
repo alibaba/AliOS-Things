@@ -1,0 +1,68 @@
+{
+    "version": "1.0.0",
+    "io": {
+      "UART2": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none"
+      },
+      "D13": {
+        "type": "GPIO",
+        "port": 33,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "D2": {
+        "type": "GPIO",
+        "port": 17,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "D3": {
+        "type": "GPIO",
+        "port": 16,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "D4": {
+        "type": "GPIO",
+        "port": 59,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "ADC0": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000
+      },
+      "UART1": {
+        "type": "UART",
+        "port": 1,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "rtscts",
+        "parity": "none"
+      },
+      "bmp280": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 118
+      },
+      "dht11": {
+        "type": "GPIO",
+        "port": 35,
+        "dir": "output",
+        "pull": "pulldown"
+      }
+    },
+    "debugLevel": "INFO",
+    "repl": "disable"
+  }

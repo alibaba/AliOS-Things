@@ -26,6 +26,7 @@ function ab2str(buf) {
 console.log('uart open')
 var serial = uart.open({
   id: 'serial',
+  //mode: 'poll', //just for read mode
   success: function() {
     console.log('open uart success')
   },
@@ -45,26 +46,25 @@ var rtrn = 0;
 
 var value = ''
 
-while(1)
-{
-  sleepMs(500);
-  rtrn = serial.read()
-  console.log('sensor read ' + rCnt + " value is " + ab2str(rtrn))
-  if(0 != rtrn)
-  {
-    value += ab2str(rtrn);
-    rCnt++;
-  }
+//just for read mode
+// while(1)
+// {
+//   rtrn = serial.read()
+//   if(0 != rtrn)
+//   {
+//     value += ab2str(rtrn);
+//     rCnt++;
+//   }
 
-  if(rCnt > 10)
-  {
-    break;
-  }
+//   if(rCnt > 10)
+//   {
+//     break;
+//   }
 
-}
+// }
 
-console.log('sensor value is ' + value)
-serial.on_mode();
+// console.log('sensor value is ' + value)
+
 serial.on('data', function(data, len) {
 console.log('uart receive data len is : ' + len + '  data is:  ' + ab2str(data));
 })
