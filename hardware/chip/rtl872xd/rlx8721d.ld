@@ -113,19 +113,21 @@ SECTIONS
 
         /* Add This for C++ support */
         . = ALIGN(4);
-        __preinit_array_start = .;
+        PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
-        __preinit_array_end = .;
+        PROVIDE_HIDDEN (__preinit_array_end = .);
         . = ALIGN(4);
-        __init_array_start = .;
+        PROVIDE(__ctors_start__ = .);
+        PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
-        __init_array_end = .;
+        PROVIDE_HIDDEN (__init_array_end = .);
+        PROVIDE(__ctors_end__ = .);
         . = ALIGN(4);
-        __fini_array_start = .;
+        PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
-        __fini_array_end = .;
+        PROVIDE_HIDDEN (__fini_array_end = .);
         /*-----------------*/
 
         . = ALIGN (4);
@@ -486,11 +488,8 @@ SECTIONS
     _strtoull = 0x10111f3d;
     _strtoll = 0x10111ffd;
     _strtok = 0x1011201d;
-    __strtok_r = 0x10112029;
     _strtok_r = 0x1011208d;
-    _strtol_r = 0x10112095;
     _strtol = 0x101121b1;
-    _strtoul_r = 0x101121b5;
     _strtoul = 0x101122e9;
     _strupr = 0x101122ed;
     CRYPTO_chacha_20 = 0x10112309;

@@ -17,8 +17,8 @@ typedef struct {
     double  altitude;
 } spl06_data_t;
 
-void spl06_init(void);
-void spl06_getdata(spl06_data_t *p);
+extern void spl06_init(void);
+extern void spl06_getdata(spl06_data_t *p);
 
 #ifdef __cplusplus
 }

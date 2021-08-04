@@ -3,7 +3,7 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
-#include "drv_mag_honeywell_qmc5883l.h"
+#include "drv_mag_qst_qmc5883l.h"
 #include "aos/hal/i2c.h"
 #include "ulog/ulog.h"
 
@@ -16,11 +16,13 @@ static uint8_t rate;
 static uint8_t range;
 static uint8_t oversampling;
 
-int qmc5883l_i2c_master_send(const uint8_t *data, uint16_t size, uint32_t timeout) {
+int qmc5883l_i2c_master_send(const uint8_t *data, uint16_t size, uint32_t timeout)
+{
     return sensor_i2c_master_send(QMC5883L_I2C_PORT, QMC5883L_ADDR, data, size, timeout);
 }
 
-int32_t qmc5883l_i2c_master_recv(uint8_t *data, uint16_t size, uint32_t timeout) {
+int32_t qmc5883l_i2c_master_recv(uint8_t *data, uint16_t size, uint32_t timeout)
+{
     return sensor_i2c_master_recv(QMC5883L_I2C_PORT, QMC5883L_ADDR, data, size, timeout);
 }
 
@@ -76,6 +78,8 @@ void qmc5883l_setOversampling(int x)
         case 64:
             oversampling = QMC5883L_CONFIG_OS64;
             break;
+        default:
+            break;
     }
     qmc5883l_reconfig();
 }
@@ -89,7 +93,10 @@ static void qmc5883l_setRange(int x)
         case 8:
             range = QMC5883L_CONFIG_8GAUSS;
             break;
+        default:
+            break;
     }
+
     qmc5883l_reconfig();
 }
 
@@ -107,6 +114,8 @@ void qmc5883l_setSamplingRate(int x)
             break;
         case 200:
             rate = QMC5883L_CONFIG_200HZ;
+            break;
+        default:
             break;
     }
     qmc5883l_reconfig();
@@ -161,8 +170,6 @@ int qmc5883l_readHeading()
     if (!qmc5883l_readRaw(&x_org, &y_org, &z_org))
         return 0;
 
-    // printf("org[%d,%d,%d],\n", x_org, y_org, z_org);
-
     /* Update the observed boundaries of the measurements */
     x_min = x_org < x_min ? x_org : x_min;
     x_max = x_org > x_max ? x_org : x_max;
@@ -184,7 +191,7 @@ int qmc5883l_readHeading()
     y_fit = (y_org - y_offset) * 1000.0 / (y_max - y_min);
     z_fit = (z_org - z_offset) * 1000.0 / (z_max - z_min);
 
-    // LOGD("SENSOR", "fix[%f,%f,%f],\n", x_fit, y_fit, z_fit);
+    LOGD("SENSOR", "fix[%f,%f,%f],\n", x_fit, y_fit, z_fit);
 
     int heading = 180.0 * atan2(x_fit, y_fit) / M_PI;
     heading     = (heading <= 0) ? (heading + 360) : heading;
@@ -194,7 +201,6 @@ int qmc5883l_readHeading()
 
 void qmc5883l_init(void)
 {
-
     int32_t ret = sensor_i2c_open(QMC5883L_I2C_PORT, QMC5883L_ADDR, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
         LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
@@ -204,7 +210,8 @@ void qmc5883l_init(void)
     _qmc5883l_init();
 }
 
-void qmc5883l_deinit(void) {
+void qmc5883l_deinit(void)
+{
     int32_t ret = sensor_i2c_close(QMC5883L_I2C_PORT);
     if (ret) {
         LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);

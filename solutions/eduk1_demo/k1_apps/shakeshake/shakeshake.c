@@ -1,5 +1,6 @@
 #include "shakeshake.h"
-#include "../../drivers/sensor/drv_acc_gyro_inv_mpu6050.h"
+#include "drv_acc_gyro_inv_mpu6050.h"
+#include "drv_acc_gyro_qst_qmi8610.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,7 +23,13 @@ static int running    = 1;
 
 int shakeshake_init(void)
 {
-    MPU_Init();
+    if (g_haasboard_is_k1c) {
+        FisImu_init();
+        LOGI(EDU_TAG, "FisImu_init done\n");
+    } else {
+        MPU_Init();
+        LOGI(EDU_TAG, "MPU_Init done\n");
+    }
 
     OLED_Clear();
     OLED_Icon_Draw(50, 0, &icon_shakeshake_32_32_v2, 1);
@@ -38,8 +45,15 @@ int shakeshake_init(void)
 
 void shakeshake_task()
 {
+    float acc[3];
     while (running) {
-        MPU_Get_Accelerometer(&ax, &ay, &az);
+        if (g_haasboard_is_k1c) {
+            FisImu_read_acc_xyz(acc);
+            ay = (short)(acc[0] * 1000);
+            az = (short)(acc[2] * 1000);
+        } else {
+            MPU_Get_Accelerometer(&ax, &ay, &az);
+        }
 
         y_change = (ay >= ay_pre) ? (ay - ay_pre) : (ay_pre - ay);
         z_change = (az >= az_pre) ? (az - az_pre) : (az_pre - az);
@@ -72,7 +86,12 @@ int shakeshake_uninit(void)
         aos_msleep(50);
     }
 
-    MPU_Deinit();
+    if (g_haasboard_is_k1c) {
+        FisImu_deinit();
+    } else {
+        MPU_Deinit();
+    }
+
     aos_task_delete(&shakeshake_task_handle);
     LOGI(EDU_TAG, "aos_task_delete shakeshake_task\n");
     return 0;

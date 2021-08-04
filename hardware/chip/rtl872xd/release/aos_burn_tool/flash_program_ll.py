@@ -104,24 +104,31 @@ def burn_bin_files(portnum, baudrate, bin_files):
     except Exception as e:
         raise Exception("Failed to open serial port: %s!" % portnum)
 
-    for i in range(3):
+    for i in range(6):
         #reset in 2_boot or CLI
-        serialport.write(b'\n2\n')
-        serialport.write(b'reboot\n')
+        if i < 3:
+            serialport.write(b'\n2\n')
+            serialport.write(b'\n2\n')
+            serialport.write(b'\n2\n')
+            #4 means ctrl+d and swap a/b, if board is in cli menu, 4 is forbidden to type in until board is rebooted by typing into 2.
+            serialport.write(b'\r\n\x04')
+            serialport.write(b'reboot\n')
         match = match_and_send(serialport, b'2ndboot cli menu', b'w', 5)
         if match:
             print('Reset success!!')
             sys.stdout.flush()
             break
         #reset in Ymodem
-        print('Reset Ymodem!!')
-        sys.stdout.flush()
-        serialport.write(b'\x13')
-        serialport.write(b'\x04')
-        serialport.write(b'\x03')
-
-    if i == 3:
-        print("Please reset the HaaS200 manually.")
+        if i < 3:
+            print('Reset Ymodem!!')
+            sys.stdout.flush()
+            serialport.write(b'\x13')
+            serialport.write(b'\x04')
+            serialport.write(b'\x03')
+        if i >= 3:
+            print("Please reset the board manually.")
+    if i == 5:
+        print("Please connect board serial to your pc, then reset board and check that if board can boot up???");
         serialport.close()
         return False
 

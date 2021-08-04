@@ -50,7 +50,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
 }
 
 int32_t sensor_i2c_master_send(uint32_t port, uint16_t dev_addr, const uint8_t *data,
-                            uint16_t size, uint32_t timeout)
+                               uint16_t size, uint32_t timeout)
 {
     int *p_fd = NULL;
     int ret = -1;
@@ -75,7 +75,7 @@ int32_t sensor_i2c_master_send(uint32_t port, uint16_t dev_addr, const uint8_t *
 }
 
 int32_t sensor_i2c_master_recv(uint32_t port, uint16_t dev_addr, uint8_t *data,
-                            uint16_t size, uint32_t timeout)
+                               uint16_t size, uint32_t timeout)
 {
     int *p_fd = NULL;
     int ret = -1;
@@ -99,8 +99,8 @@ int32_t sensor_i2c_master_recv(uint32_t port, uint16_t dev_addr, uint8_t *data,
 }
 
 int32_t sensor_i2c_mem_write(uint32_t port, uint16_t dev_addr, uint16_t mem_addr,
-                          uint16_t mem_addr_size, const uint8_t *data, uint16_t size,
-                          uint32_t timeout)
+                             uint16_t mem_addr_size, const uint8_t *data, uint16_t size,
+                             uint32_t timeout)
 {
     int *p_fd = NULL;
     int ret = -1;
@@ -123,8 +123,8 @@ int32_t sensor_i2c_mem_write(uint32_t port, uint16_t dev_addr, uint16_t mem_addr
 }
 
 int32_t sensor_i2c_mem_read(uint32_t port, uint16_t dev_addr, uint16_t mem_addr,
-                         uint16_t mem_addr_size, uint8_t *data, uint16_t size,
-                         uint32_t timeout)
+                            uint16_t mem_addr_size, uint8_t *data, uint16_t size,
+                            uint32_t timeout)
 {
     int *p_fd = NULL;
     int ret = -1;

@@ -19,6 +19,16 @@ depends:
   - init: rel_3.3.0
   - ulog: rel_3.3.0
   - kv: rel_3.3.0
+  - littlefs: rel_3.3.0
+  - watchdog: rel_3.3.0
+  - netmgr: rel_3.3.0
+  - lwip: rel_3.3.0
+  - uservice: rel_3.3.0
+  - wifi: rel_3.3.0
+  - ble_host: rel_3.3.0
+  - a2sa: rel_3.3.0
+  - uvoice: rel_3.3.0
+  - fatfs: rel_3.3.0
   # - kernel_init: v7.4_dev
   # - minialsa: v7.4-dev
   # - drv_sdmmc: v7.4-dev
@@ -63,6 +73,21 @@ source_file:
   - "drivers/led.c"
   - "drivers/watchdog.c"
   - "drivers/key.c"
+  - "drivers/do.c"
+  - "drivers/di.c"
+  - "board_test/adc_test.c"
+  - "board_test/audio_test.c"
+  - "board_test/ble_test.c"
+  - "board_test/board_test.c"
+  - "board_test/sensors_test.c"
+  - "board_test/key_test.c"
+  - "board_test/led_test.c"
+  - "board_test/oled_test.c"
+  - "board_test/pwm_test.c"
+  - "board_test/sd_test.c"
+  - "board_test/uart_test.c"
+  - "board_test/usb_test.c"
+  - "board_test/watchdog_test.c"
 
 #cflags: -DCHIP_BEST2001 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1 -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000
 #        -DSYSINFO_OS_VERSION="v3.1" -DSYSINFO_PRODUCT_MODEL="ALI_AOS_HAAS100" -DSYSINFO_DEVICE_NAME="HAAS100" -DSYSINFO_ARCH="Cortex-M4F" -DSYSINFO_MCU="mcu_haas1000" -DSYSINFO_BOARD="haas100" -DOS_CLOCK_NOMINAL=16000
@@ -83,7 +108,7 @@ def_config:
   AOS_2ND_BOOT_LATER_ERASE: 1
   DEBUG_LASTWORD_RAM_ADDR: 0x20166000
   CONFIG_NETMGR_V2: 1
-  CONFIG_A7_DSP_ENABLE: 0
+  CONFIG_A7_DSP_ENABLE: 1
   #  SYSINFO_OS_VERSION: "AOS-R"
   SYSINFO_PRODUCT_MODEL: "ALI_AOS_HAAS_EDU_K1"
   SYSINFO_DEVICE_NAME: "HAAS_EDU_K1"
@@ -96,6 +121,7 @@ def_config:
   RHINO_CONFIG_MM_BLK_SIZE: 256
   RHINO_CONFIG_MM_TLF_BLK_SIZE: 0x800
   BOARD_HAASEDUK1: 1
+  ENABLE_FACTORY_TEST: 1
 
   # littlefs config
   CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here
@@ -128,7 +154,9 @@ install:
   - dest: "config/"
     source:
       - "config/*"
-
+  - dest: "board_test/"
+    source:
+      - "board_test/*"
 board:
   chip_name: haas1000
 ## 第七部分：导出部分

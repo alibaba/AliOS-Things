@@ -209,9 +209,6 @@ int ota_download_image_header(ota_service_t *ctx, char *url, unsigned int url_le
     httpclient_data_t client_data = {0};
     char *new_url = NULL;
     int tmp_url_len = 0;
-    #if defined(BOARD_HAAS200)
-    char tmp[100] = {0};
-    #endif
 
 #ifdef OTA_CONFIG_LOCAL_RSA
     char *sign_info_ptr         = NULL;
@@ -293,14 +290,7 @@ int ota_download_image_header(ota_service_t *ctx, char *url, unsigned int url_le
                     ota_header_found = true;
                     int val_pos, val_len;
                     if (0 == httpclient_get_response_header_value(client_data.header_buf, "Content-Length", (int *)&val_pos, (int *)&val_len)) {
-                        #if defined(BOARD_HAAS200)
-                        //Content-Length will not exceed 100 bytes
-                        memset(tmp, 0 ,sizeof(tmp));
-                        memcpy(tmp, client_data.header_buf+val_pos, val_len);
-                        want_download_size = strtol(tmp, NULL, 0);
-                        #else
                         sscanf(client_data.header_buf + val_pos, "%d", &want_download_size);
-                        #endif
                     }
                 }
                 if (ota_rx_size + tmp_size <= off_size) {
@@ -446,11 +436,7 @@ int ota_download_start(char *url, unsigned int url_len, report_func repot_func, 
                     int val_pos, val_len;
                     ota_header_found = true;
                     if (0 == httpclient_get_response_header_value(client_data.header_buf, "Content-Length", (int *)&val_pos, (int *)&val_len)) {
-                        #if defined(BOARD_HAAS200)
-                        ota_file_size = strtol(client_data.header_buf+val_pos , NULL, 0);
-                        #else
                         sscanf(client_data.header_buf + val_pos, "%d", &ota_file_size);
-                        #endif
                     }
                 }
                 ret = ota_write(&offset, client_data.response_buf, client_data.content_block_len);

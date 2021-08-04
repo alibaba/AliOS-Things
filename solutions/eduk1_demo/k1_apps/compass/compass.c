@@ -1,5 +1,6 @@
 #include "compass.h"
-#include "../../drivers/sensor/drv_mag_honeywell_qmc5883l.h"
+#include "drv_mag_qst_qmc5883l.h"
+#include "drv_mag_qst_qmc6310.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,9 +23,14 @@ static aos_task_t compass_task_handle;
 
 int compass_init(void)
 {
-    LOGI(EDU_TAG, "qmc5883l_init begin\n");
-    qmc5883l_init();
-    LOGI(EDU_TAG, "qmc5883l_init done\n");
+    if (g_haasboard_is_k1c) {
+        qmc6310_init();
+        LOGI(EDU_TAG, "qmc6310_init done\n");
+    } else {
+        qmc5883l_init();
+        LOGI(EDU_TAG, "qmc5883l_init done\n");
+    }
+
     OLED_Clear();
     OLED_Refresh_GRAM();
     aos_task_new_ext(&compass_task_handle, "compass_task", compass_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
@@ -35,8 +41,13 @@ int compass_init(void)
 void compass_task()
 {
     while (running) {
-        heading = qmc5883l_readHeading();
-
+        if (g_haasboard_is_k1c) {
+            heading = qmc6310_readHeading();
+            LOGD(EDU_TAG, "heading %d\n", heading);
+        } else {
+            heading = qmc5883l_readHeading();
+            LOGD(EDU_TAG, "heading %d\n", heading);
+        }
         OLED_Clear();
         OLED_Icon_Draw(COMPASS_CENTER_X - 27, COMPASS_CENTER_Y - 27,
                        &icon_compass_55_55, 0);
@@ -63,8 +74,11 @@ int compass_uninit(void)
     while (!running) {
         aos_msleep(50);
     }
-
-    qmc5883l_deinit();
+    if (g_haasboard_is_k1c) {
+        qmc6310_deinit();
+    } else {
+        qmc5883l_deinit();
+    }
 
     aos_task_delete(&compass_task_handle);
     LOGI(EDU_TAG, "aos_task_delete compass_task\n");
