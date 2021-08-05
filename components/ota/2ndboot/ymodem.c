@@ -253,6 +253,8 @@ int ymodem_recv_file(unsigned int flash_addr)
                     ret = ymodem_data_parse(c, &addr);
                     if (ret == YMODEM_OK) {
                         uart_send_byte(YMODEM_ACK);
+                    } else {
+                        uart_send_byte(YMODEM_NAK);
                     }
                 } else if( YMODEM_EOT == c ) {
                     uart_send_byte(YMODEM_NAK);

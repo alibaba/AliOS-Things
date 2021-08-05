@@ -56,6 +56,7 @@ def_config:                              # 组件的可配置项
 #   CONFIG_CLI: y
   CONFIG_HTTP_FILE_OPERATE: 0
   CONFIG_HTTP_SECURE: 1
+  MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 16384
 
 ## 第六部分：安装信息
 # install:

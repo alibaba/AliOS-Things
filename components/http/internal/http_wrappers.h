@@ -5,10 +5,19 @@
 #ifndef HTTP_CLIENT_WRAPPER_H
 #define HTTP_CLIENT_WRAPPER_H
 
+#define HTTP_CLIENT_DEBUG 0
+
 #define HAL_Printf printf
-#define http_info(fmt,arg...)   do{ HAL_Printf("[%s %d] "fmt" \r\n",__func__,__LINE__,##arg);}while(0)
-#define http_err(fmt,arg...)    do{ HAL_Printf("[%s %d] "fmt" \r\n",__func__,__LINE__,##arg);}while(0)
-#define http_debug(fmt,arg...)   do{ HAL_Printf("[%s %d] "fmt" \r\n",__func__,__LINE__,##arg);}while(0)
+
+#if HTTP_CLIENT_DEBUG
+#define http_info(fmt, arg...)   do { HAL_Printf("[%s %d] "fmt" \r\n", __func__, __LINE__, ##arg); } while (0)
+#define http_err(fmt, arg...)    do { HAL_Printf("[%s %d] "fmt" \r\n", __func__, __LINE__, ##arg); } while (0)
+#define http_debug(fmt, arg...)   do { HAL_Printf("[%s %d] "fmt" \r\n", __func__, __LINE__, ##arg); } while (0)
+#else
+#define http_info(fmt, arg...)
+#define http_err(fmt, arg...)    do { HAL_Printf("[%s %d] "fmt" \r\n", __func__, __LINE__, ##arg); } while (0)
+#define http_debug(fmt, arg...)
+#endif
 
 #ifndef MIN
 #define MIN(x,y) (((x)<(y))?(x):(y))

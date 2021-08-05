@@ -1,5 +1,6 @@
 #include "gyroscope.h"
-#include "../../drivers/sensor/drv_acc_gyro_inv_mpu6050.h"
+#include "drv_acc_gyro_inv_mpu6050.h"
+#include "drv_acc_gyro_qst_qmi8610.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -40,8 +41,14 @@ line_t line_list[] = {
 
 int gyroscope_init(void)
 {
-    LOGI(EDU_TAG, "MPU_Init start\n");
-    MPU_Init();
+    if (g_haasboard_is_k1c) {
+        FisImu_init();
+        LOGI(EDU_TAG, "FisImu_init done\n");
+    } else {
+        MPU_Init();
+        LOGI(EDU_TAG, "MPU_Init done\n");
+    }
+
     LOGI(EDU_TAG, "MPU_Init done\n");
     aos_task_new_ext(&gyroscope_task_handle, "gyroscope_task", gyroscope_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new gyroscope_task\n");
@@ -50,13 +57,27 @@ int gyroscope_init(void)
 
 void gyroscope_task(void)
 {
+    float acc[3];
+    short ax, ay;
+
     while (running) {
         OLED_Clear();
-        MPU_Get_Accelerometer(&r_ax, &r_ay, &r_az);
+
+        if (g_haasboard_is_k1c) {
+            FisImu_read_acc_xyz(acc);
+            ax = (short)(acc[1] * 6.6);
+            ay = (short)(acc[0] * 3.2);
+        } else {
+            MPU_Get_Accelerometer(&r_ax, &r_ay, &r_az);
+        }
         OLED_Icon_Draw(2, 24, &icon_skip_left, 0);
         OLED_Icon_Draw(122, 24, &icon_skip_right, 0);
         OLED_DrawCircle(66, 32, 10, 1, 1);
-        OLED_FillCircle(66 - r_ax / 250, 32 + r_ay / 500, 8, 1);
+        if (g_haasboard_is_k1c) {
+            OLED_FillCircle(66 + ax, 32 + ay, 8, 1);
+        } else {
+            OLED_FillCircle(66 - r_ax / 250, 32 + r_ay / 500, 8, 1);
+        }
         OLED_Refresh_GRAM();
         aos_msleep(20);
     }
@@ -71,9 +92,15 @@ int gyroscope_uninit(void)
     while (!running) {
         aos_msleep(50);
     }
-    LOGI(EDU_TAG, "MPU_Deinit start\n");
-    MPU_Deinit();
-    LOGI(EDU_TAG, "MPU_Deinit done\n");
+
+    if (g_haasboard_is_k1c) {
+        FisImu_deinit();
+        LOGI(EDU_TAG, "FisImu_deinit done\n");
+    } else {
+        MPU_Deinit();
+        LOGI(EDU_TAG, "MPU_Deinit done\n");
+    }
+
     aos_task_delete(&gyroscope_task_handle);
     LOGI(EDU_TAG, "aos_task_delete gyroscope_task\n");
     return 0;

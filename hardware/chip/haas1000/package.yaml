@@ -158,7 +158,7 @@ def_config:
   # hardware module numbers config - used in VFS drivers
   CONFIG_ADC_NUM: 2
   CONFIG_DAC_NUM: 0
-  CONFIG_GPIO_NUM: 40
+  CONFIG_GPIO_NUM: 42
   CONFIG_U_I2C_CORE: 1
   CONFIG_U_I2C_DEV: 1
   CONFIG_I2C_NUM: 2
