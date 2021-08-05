@@ -29,6 +29,7 @@ depends:
   - a2sa: master
   - ai_agent: master
   - uvoice: master
+  - ble_netconfig: master
   - debug: master
 
 def_config:
@@ -41,6 +42,10 @@ build_config:                            # <可选项> 编译配置项
   prebuild_script: k1_apps/kws/cp_resources.py
   define:
     - __os_alios_things__
+  include:
+    - "drivers/sensor/"
+    - "drivers/oled/"
+    - "drivers/lcd/"
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
 #     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
@@ -86,7 +91,6 @@ source_file:
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
-
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录

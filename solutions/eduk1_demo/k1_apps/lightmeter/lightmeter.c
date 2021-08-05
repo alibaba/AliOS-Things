@@ -1,5 +1,5 @@
 #include "lightmeter.h"
-#include "../../drivers/sensor/drv_als_ps_ir_liteon_ap3216c.h"
+#include "drv_als_ps_ir_liteon_ap3216c.h"
 #include "aos/kernel.h"
 #include <stdio.h>
 #include <stdlib.h>

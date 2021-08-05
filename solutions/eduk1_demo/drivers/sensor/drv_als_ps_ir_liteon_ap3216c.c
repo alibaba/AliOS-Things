@@ -295,114 +295,115 @@ void ap3216c_set_param(ap3216c_cmd_t cmd, uint8_t value)
 {
     switch (cmd) {
         case AP3216C_SYSTEM_MODE:
-            {
-                /* default 000,power down */
-                write_reg(AP3216C_SYS_CONFIGURATION_REG, value);
-                break;
-            }
+        {
+            /* default 000,power down */
+            write_reg(AP3216C_SYS_CONFIGURATION_REG, value);
+            break;
+        }
         case AP3216C_INT_PARAM:
-            {
-                write_reg(AP3216C_SYS_INT_CLEAR_MANNER_REG, value);
+        {
+            write_reg(AP3216C_SYS_INT_CLEAR_MANNER_REG, value);
 
-                break;
-            }
+            break;
+        }
 
         case AP3216C_ALS_RANGE:
-            {
-                uint8_t args;
+        {
+            uint8_t args;
 
-                read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, &args);
-                args &= 0xcf;
-                args |= value << 4;
-                write_reg(AP3216C_ALS_CONFIGURATION_REG, args);
+            read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, &args);
+            args &= 0xcf;
+            args |= value << 4;
+            write_reg(AP3216C_ALS_CONFIGURATION_REG, args);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_PERSIST:
-            {
-                uint8_t args = 0;
+        {
+            uint8_t args = 0;
 
-                read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, &args);
-                args &= 0xf0;
-                args |= value;
-                write_reg(AP3216C_ALS_CONFIGURATION_REG, args);
+            read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, &args);
+            args &= 0xf0;
+            args |= value;
+            write_reg(AP3216C_ALS_CONFIGURATION_REG, args);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_LOW_THRESHOLD_L:
-            {
-                write_reg(AP3216C_ALS_THRESHOLD_LOW_L_REG, value);
+        {
+            write_reg(AP3216C_ALS_THRESHOLD_LOW_L_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_LOW_THRESHOLD_H:
-            {
-                write_reg(AP3216C_ALS_THRESHOLD_LOW_H_REG, value);
+        {
+            write_reg(AP3216C_ALS_THRESHOLD_LOW_H_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_HIGH_THRESHOLD_L:
-            {
-                write_reg(AP3216C_ALS_THRESHOLD_HIGH_L_REG, value);
+        {
+            write_reg(AP3216C_ALS_THRESHOLD_HIGH_L_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_HIGH_THRESHOLD_H:
-            {
-                write_reg(AP3216C_ALS_THRESHOLD_HIGH_H_REG, value);
+        {
+            write_reg(AP3216C_ALS_THRESHOLD_HIGH_H_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_GAIN:
-            {
-                uint8_t args = 0;
+        {
+            uint8_t args = 0;
 
-                read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &args);
-                args &= 0xf3;
-                args |= value;
-                write_reg(AP3216C_PS_CONFIGURATION_REG, args);
+            read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &args);
+            args &= 0xf3;
+            args |= value;
+            write_reg(AP3216C_PS_CONFIGURATION_REG, args);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_PERSIST:
-            {
-                uint8_t args = 0;
+        {
+            uint8_t args = 0;
 
-                read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &args);
-                args &= 0xfc;
-                args |= value;
-                write_reg(AP3216C_PS_CONFIGURATION_REG, args);
+            read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &args);
+            args &= 0xfc;
+            args |= value;
+            write_reg(AP3216C_PS_CONFIGURATION_REG, args);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_LOW_THRESHOLD_L:
-            {
-                write_reg(AP3216C_PS_THRESHOLD_LOW_L_REG, value);
+        {
+            write_reg(AP3216C_PS_THRESHOLD_LOW_L_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_LOW_THRESHOLD_H:
-            {
-                write_reg(AP3216C_PS_THRESHOLD_LOW_H_REG, value);
+        {
+            write_reg(AP3216C_PS_THRESHOLD_LOW_H_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_HIGH_THRESHOLD_L:
-            {
-                write_reg(AP3216C_PS_THRESHOLD_HIGH_L_REG, value);
+        {
+            write_reg(AP3216C_PS_THRESHOLD_HIGH_L_REG, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_HIGH_THRESHOLD_H:
-            {
-                write_reg(AP3216C_PS_THRESHOLD_HIGH_H_REG, value);
+        {
+            write_reg(AP3216C_PS_THRESHOLD_HIGH_H_REG, value);
 
-                break;
-            }
+            break;
+        }
 
         default:
-            {
-            }
+        {
+            break;
+        }
     }
 }
 
@@ -418,110 +419,111 @@ void ap3216c_get_param(ap3216c_cmd_t cmd, uint8_t *value)
 {
     switch (cmd) {
         case AP3216C_SYSTEM_MODE:
-            {
-                read_regs(AP3216C_SYS_CONFIGURATION_REG, 1, value);
+        {
+            read_regs(AP3216C_SYS_CONFIGURATION_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_INT_PARAM:
-            {
-                read_regs(AP3216C_SYS_INT_CLEAR_MANNER_REG, 1, value);
+        {
+            read_regs(AP3216C_SYS_INT_CLEAR_MANNER_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_RANGE:
-            {
-                uint8_t temp;
+        {
+            uint8_t temp;
 
-                read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, value);
-                temp = (*value & 0xff) >> 4;
+            read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, value);
+            temp = (*value & 0xff) >> 4;
 
-                *value = temp;
+            *value = temp;
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_PERSIST:
-            {
-                uint8_t temp;
+        {
+            uint8_t temp;
 
-                read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, value);
-                temp = *value & 0x0f;
+            read_regs(AP3216C_ALS_CONFIGURATION_REG, 1, value);
+            temp = *value & 0x0f;
 
-                *value = temp;
+            *value = temp;
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_LOW_THRESHOLD_L:
-            {
-                read_regs(AP3216C_ALS_THRESHOLD_LOW_L_REG, 1, value);
+        {
+            read_regs(AP3216C_ALS_THRESHOLD_LOW_L_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_LOW_THRESHOLD_H:
-            {
-                read_regs(AP3216C_ALS_THRESHOLD_LOW_H_REG, 1, value);
+        {
+            read_regs(AP3216C_ALS_THRESHOLD_LOW_H_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_HIGH_THRESHOLD_L:
-            {
-                read_regs(AP3216C_ALS_THRESHOLD_HIGH_L_REG, 1, value);
+        {
+            read_regs(AP3216C_ALS_THRESHOLD_HIGH_L_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_ALS_HIGH_THRESHOLD_H:
-            {
-                read_regs(AP3216C_ALS_THRESHOLD_HIGH_H_REG, 1, value);
+        {
+            read_regs(AP3216C_ALS_THRESHOLD_HIGH_H_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_GAIN:
-            {
-                uint8_t temp;
+        {
+            uint8_t temp;
 
-                read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &temp);
+            read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &temp);
 
-                *value = (temp & 0xc) >> 2;
+            *value = (temp & 0xc) >> 2;
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_PERSIST:
-            {
-                uint8_t temp;
+        {
+            uint8_t temp;
 
-                read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &temp);
+            read_regs(AP3216C_PS_CONFIGURATION_REG, 1, &temp);
 
-                *value = temp & 0x3;
+            *value = temp & 0x3;
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_LOW_THRESHOLD_L:
-            {
-                read_regs(AP3216C_PS_THRESHOLD_LOW_L_REG, 1, value);
+        {
+            read_regs(AP3216C_PS_THRESHOLD_LOW_L_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_LOW_THRESHOLD_H:
-            {
-                read_regs(AP3216C_PS_THRESHOLD_LOW_H_REG, 1, value);
-                break;
-            }
+        {
+            read_regs(AP3216C_PS_THRESHOLD_LOW_H_REG, 1, value);
+            break;
+        }
         case AP3216C_PS_HIGH_THRESHOLD_L:
-            {
-                read_regs(AP3216C_PS_THRESHOLD_HIGH_L_REG, 1, value);
+        {
+            read_regs(AP3216C_PS_THRESHOLD_HIGH_L_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
         case AP3216C_PS_HIGH_THRESHOLD_H:
-            {
-                read_regs(AP3216C_PS_THRESHOLD_HIGH_H_REG, 1, value);
+        {
+            read_regs(AP3216C_PS_THRESHOLD_HIGH_H_REG, 1, value);
 
-                break;
-            }
+            break;
+        }
 
         default:
-            {
-            }
+        {
+            break;
+        }
     }
 }
 

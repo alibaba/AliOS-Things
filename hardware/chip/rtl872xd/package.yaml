@@ -66,17 +66,21 @@ build_config:
         -DLE_4_2 -DCONFIG_ARM -DWITH_LWIP -DBT_RTL
 
   cxxflag: >
+        -D_GLIBCXX_HAS_GTHREADS -march=armv8-m.main+dsp -mthumb -mcmse  -mfloat-abi=softfp -mfpu=fpv5-sp-d16 -mlittle-endian
+        -std=c++11 -std=gnu++11 -D__FPU_PRESENT -DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG -DCONFIG_FUNCION_O0_OPTIMIZE
+        -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD -DLE_4_2 -DCONFIG_ARM -DWITH_LWIP -DBT_RTL
+        -ffunction-sections -fdata-sections -fomit-frame-pointer
 
   ldflag: >
           -march=armv8-m.main+dsp -mthumb -mcmse -mfloat-abi=softfp -mfpu=fpv5-sp-d16
           -nostartfiles -specs nosys.specs -Wl,--gc-sections  -Wl,--cref -Wl,--build-id=none
-          -Wl,--no-enum-size-warning  -Wl,--warn-common -lm -lstdc++ -Wl,-Map="aos.map"
+          -Wl,--no-enum-size-warning  -Wl,--warn-common -lm -lstdc++ -lsupc++ -Wl,-Map="aos.map"
 
   asmflag: >
           -march=armv8-m.main+dsp -mthumb -mcmse  -mfloat-abi=softfp -mfpu=fpv5-sp-d16  -mlittle-endian -ffunction-sections
           -g -gdwarf-3 -nostartfiles -nodefaultlibs -nostdlib  -D__FPU_PRESENT -gdwarf-3 -fstack-usage -fdata-sections
           -nostartfiles -nostdlib -c -MMD	-DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG -DCONFIG_FUNCION_O0_OPTIMIZE
-          -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD
+          -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD -c -x assembler-with-cpp
 
   postimage_script: gen_crc_bin.py
 

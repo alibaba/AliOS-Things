@@ -54,6 +54,8 @@
 #define M_PI 3.14159265358979323846264338327950288
 #endif
 
-int  qmc5883l_readHeading();
-void qmc5883l_init(void);
+extern int qmc5883l_readHeading();
+extern void qmc5883l_init(void);
+extern void qmc5883l_deinit(void);
+
 #endif /*_QMC5883L_H_*/

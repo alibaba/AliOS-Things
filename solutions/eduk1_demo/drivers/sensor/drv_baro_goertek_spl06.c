@@ -86,6 +86,8 @@ static double get_temperature_scale_factor()
         case 0B111:
             k = 2088960.0;
             break;
+        default:
+            break;
     }
     return k;
 }
@@ -133,6 +135,9 @@ static double get_pressure_scale_factor()
         case 0B111:
             k = 2088960.0;
             break;
+
+        default:
+            break;
     }
     return k;
 }
@@ -150,7 +155,7 @@ static int32_t get_traw()
 
     if (tmp & (1 << 23))
         tmp = tmp | 0XFF000000; // Set left bits to one for 2's complement
-                                // conversion of negitive number
+    // conversion of negitive number
     return tmp;
 }
 
@@ -167,7 +172,7 @@ static int32_t get_praw()
 
     if (tmp & (1 << 23))
         tmp = tmp | 0XFF000000; // Set left bits to one for 2's complement
-                                // conversion of negitive number
+    // conversion of negitive number
     return tmp;
 }
 
@@ -186,7 +191,7 @@ static int16_t get_c0()
     if (tmp & (1 << 11))
         // Check for 2's complement negative number
         tmp = tmp | 0XF000; // Set left bits to one for 2's complement
-                            // conversion of negitive number
+    // conversion of negitive number
 
     return tmp;
 }
@@ -205,7 +210,7 @@ static int16_t get_c1()
     if (tmp & (1 << 11))
         // Check for 2's complement negative number
         tmp = tmp | 0XF000; // Set left bits to one for 2's complement
-                            // conversion of negitive number
+    // conversion of negitive number
 
     return tmp;
 }
@@ -229,7 +234,7 @@ static int32_t get_c00()
 
     if (tmp & (1 << 19))
         tmp = tmp | 0XFFF00000; // Set left bits to one for 2's complement
-                                // conversion of negitive number
+    // conversion of negitive number
 
     return tmp;
 }
@@ -252,7 +257,7 @@ static int32_t get_c10()
 
     if (tmp & (1 << 19))
         tmp = tmp | 0XFFF00000; // Set left bits to one for 2's complement
-                                // conversion of negitive number
+    // conversion of negitive number
 
     return tmp;
 }
@@ -399,7 +404,7 @@ void spl06_getdata(spl06_data_t *sp)
     // google
     double local_pressure =
         1011.1; // Look up local sea level pressure on google // Local pressure
-                // from airport website 8/22
+    // from airport website 8/22
     // printf("Local Airport Sea Level Pressure: %0.2f mb\n", local_pressure);
     sp->altitude = get_altitude(pcomp, local_pressure);
 }

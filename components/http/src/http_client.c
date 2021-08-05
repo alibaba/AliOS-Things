@@ -424,11 +424,7 @@ static int httpclient_retrieve_content(httpclient_t *client, char *data, int len
                 http_debug("in loop %s %d len %d ret %d", __func__, __LINE__, len, ret);
             } while (!foundCrlf);
             data[crlf_pos] = '\0';
-            #if defined(BOARD_HAAS200)
-            readLen = strtol(data, NULL, 16);
-            #else
             n = sscanf(data, "%x", &readLen);/* chunk length */
-            #endif
             client_data->retrieve_len = readLen;
             client_data->response_content_len += client_data->retrieve_len;
             if (n != 1) {
@@ -623,11 +619,7 @@ static int httpclient_response_parse(httpclient_t *client, char *data, int len, 
 
             http_debug("Read header : %.*s: %.*s", key_len, key_ptr, value_len, value_ptr);
             if (0 == strncasecmp(key_ptr, "Content-Length", key_len)) {
-                #if defined(BOARD_HAAS200)
-                client_data->response_content_len = strtol(value_ptr, NULL, 0);
-                #else
                 sscanf(value_ptr, "%d[^\r]", &(client_data->response_content_len));
-                #endif
                 client_data->retrieve_len = client_data->response_content_len;
             } else if (0 == strncasecmp(key_ptr, "Transfer-Encoding", key_len)) {
                 if (0 == strncasecmp(value_ptr, "Chunked", value_len)) {

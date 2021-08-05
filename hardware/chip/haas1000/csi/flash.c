@@ -205,23 +205,23 @@ int csi_flash_init()
     uint32_t page_size = 256;
     int ret;
 
-    printf("%s:%d begin..\n", __func__, __LINE__);
+    printf("%s:%d begin..\r\n", __func__, __LINE__);
     if (get_mtd_part(&info)) {
-        printf("%s:%d get_mtd_part failed.\n", __func__, __LINE__);
+        printf("%s:%d get_mtd_part failed.\r\n", __func__, __LINE__);
         return -1;
     }
 
     ret = aos_mtd_nor_init(&g_mtd_nor_dev, blk_size, page_size);
     if (ret != 0) {
-        printf("%s:%d aos_mtd_nor_init failed, ret:\n", __func__, __LINE__, ret);
+        printf("%s:%d aos_mtd_nor_init failed, ret:%d\r\n", __func__, __LINE__, ret);
         return -2;
     }
 
     ret = aos_mtd_register(&g_mtd_nor_dev, info.part, info.cnt);
     if (ret < 0) {
-        printf("%s:%d aos_mtd_register failed, ret:\n", __func__, __LINE__, ret);
+        printf("%s:%d aos_mtd_register failed, ret:%d\r\n", __func__, __LINE__, ret);
     } else {
-        printf("%s:%d done\n", __func__, __LINE__);
+        printf("%s:%d done.\r\n", __func__, __LINE__);
     }
 
     return ret;
