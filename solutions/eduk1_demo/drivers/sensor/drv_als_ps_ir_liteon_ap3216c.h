@@ -29,9 +29,9 @@ enum ap3216c_mode_value {
 
 enum ap3216c_int_clear_manner {
     AP3216C_INT_CLEAR_MANNER_BY_READING, // INT is automatically cleared by
-                                         // reading data registers(Default)
+    // reading data registers(Default)
     AP3216C_ALS_CLEAR_MANNER_BY_SOFTWARE, // Software clear after writing 1 into
-                                          // address 0x01 each bit
+    // address 0x01 each bit
 };
 
 enum als_range {
@@ -57,15 +57,15 @@ enum ap3216c_cmd {
     AP3216C_ALS_PERSIST,         // ALS persist(Default : 0000)
     AP3216C_ALS_CALIBRATION,     // ALS window loss calibration(Default : 0x40)
     AP3216C_ALS_LOW_THRESHOLD_L, // Lower byte of low interrupt threshold for
-                                 // ALS(Default : 0x00)
+    // ALS(Default : 0x00)
     AP3216C_ALS_LOW_THRESHOLD_H, // Higher byte of low interrupt threshold for
-                                 // ALS(Default : 0x00)
+    // ALS(Default : 0x00)
     AP3216C_ALS_HIGH_THRESHOLD_L, // Lower byte of high interrupt threshold for
-                                  // ALS (Default : 0xFF)
+    // ALS (Default : 0xFF)
     AP3216C_ALS_HIGH_THRESHOLD_H, // Higher byte of high interrupt threshold for
-                                  // ALS(Default : 0xFF)
+    // ALS(Default : 0xFF)
     AP3216C_PS_INTEGRATED_TIME, // PS or IR Integrated time select(Default :
-                                // 0000)
+    // 0000)
     AP3216C_PS_GAIN,             // PS gain (Default : 01)
     AP3216C_PS_PERSIST,          // Interrupt filter(Default : 01)
     AP3216C_PS_LED_CONTROL,      // LED pulse(Default : 01)

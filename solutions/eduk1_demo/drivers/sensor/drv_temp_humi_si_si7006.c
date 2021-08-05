@@ -13,29 +13,30 @@
 /*========================================================================*/
 #define SI7006_I2C_PORT 1
 
-int32_t si7006_i2c_master_send(const uint8_t *data, uint16_t size, uint32_t timeout) {
-    return sensor_i2c_master_send(SI7006_I2C_PORT, Si7006_ADDRESS, data, size, timeout);
+int32_t si7006_i2c_master_send(const uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    return sensor_i2c_master_send(SI7006_I2C_PORT, SI7006_ADDRESS, data, size, timeout);
 }
 
-int32_t si7006_i2c_master_recv(uint8_t *data, uint16_t size, uint32_t timeout) {
-    return sensor_i2c_master_recv(SI7006_I2C_PORT, Si7006_ADDRESS, data, size, timeout);
+int32_t si7006_i2c_master_recv(uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    return sensor_i2c_master_recv(SI7006_I2C_PORT, SI7006_ADDRESS, data, size, timeout);
 }
 
 void si7006_init(void)
 {
-
-    int32_t ret = sensor_i2c_open (SI7006_I2C_PORT, Si7006_ADDRESS, I2C_BUS_BIT_RATES_400K, 0);
+    int32_t ret = sensor_i2c_open(SI7006_I2C_PORT, SI7006_ADDRESS, I2C_BUS_BIT_RATES_400K, 0);
     if (ret) {
         printf("sensor i2c open failed, ret:%d\n", ret);
         return;
     }
-
 }
 
 uint8_t si7006_getVer(void)
 {
-    uint8_t reg[2]  = {Si7006_READ_Firmware_Revision_0,
-                      Si7006_READ_Firmware_Revision_1};
+    uint8_t reg[2]  = {SI7006_READ_Firmware_Revision_0,
+                       SI7006_READ_Firmware_Revision_1
+                      };
     uint8_t version = 0;
 
     si7006_i2c_master_send(reg, 2, 1000);
@@ -47,8 +48,9 @@ uint8_t si7006_getVer(void)
 
 void si7006_getID(uint8_t *id_buf)
 {
-    uint8_t reg[4] = {Si7006_READ_ID_LOW_0, Si7006_READ_ID_LOW_1,
-                      Si7006_READ_ID_HIGH_0, Si7006_READ_ID_HIGH_1};
+    uint8_t reg[4] = {SI7006_READ_ID_LOW_0, SI7006_READ_ID_LOW_1,
+                      SI7006_READ_ID_HIGH_0, SI7006_READ_ID_HIGH_1
+                     };
 
     si7006_i2c_master_send(reg, 2, 1000);
     aos_msleep(30);
@@ -63,7 +65,7 @@ void si7006_getID(uint8_t *id_buf)
 
 bool si7006_getTemperature(float *temperature)
 {
-    uint8_t      reg          = Si7006_MEAS_TEMP_NO_MASTER_MODE;
+    uint8_t      reg          = SI7006_MEAS_TEMP_NO_MASTER_MODE;
     uint8_t      read_data[2] = {0};
     unsigned int value;
 
@@ -93,7 +95,7 @@ size – i2c master send data size
 */
 bool si7006_getHumidity(float *humidity)
 {
-    uint8_t      reg          = Si7006_MEAS_REL_HUMIDITY_NO_MASTER_MODE;
+    uint8_t      reg          = SI7006_MEAS_REL_HUMIDITY_NO_MASTER_MODE;
     uint8_t      read_data[3] = {0};
     unsigned int value;
 

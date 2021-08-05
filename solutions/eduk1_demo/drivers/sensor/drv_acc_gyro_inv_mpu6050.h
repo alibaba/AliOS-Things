@@ -150,10 +150,9 @@
 // #define MPU_READ    0XD1
 // #define MPU_WRITE   0XD0
 
-uint8_t MPU_Init(void); // 初始化MPU6050
-
-short MPU_Get_Temperature(void);
-void  MPU_Get_Gyroscope(short *gx, short *gy, short *gz);
-void  MPU_Get_Accelerometer(short *ax, short *ay, short *az);
-
+extern uint8_t MPU_Init(void); // 初始化MPU6050
+extern float MPU_Get_Temperature(void);
+extern void MPU_Get_Gyroscope(short *gx, short *gy, short *gz);
+extern void MPU_Get_Accelerometer(short *ax, short *ay, short *az);
+extern void MPU_Deinit(void);
 #endif

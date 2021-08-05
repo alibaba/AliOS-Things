@@ -10,6 +10,10 @@
 #ifndef HTTPCLIENT_H
 #define HTTPCLIENT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -231,5 +235,9 @@ int httpclient_formdata_addtext(httpclient_data_t* client_data, char* content_di
  * @return           The HTTP response code of the last request.
  */
 int httpclient_formdata_addfile(httpclient_data_t* client_data, char* content_disposition, char* name, char* content_type, char* file_path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HTTPCLIENT_H */

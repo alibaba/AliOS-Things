@@ -50,7 +50,7 @@ int musicbox_init(void)
     musicbox_player.cur_music_note = 0;
     set_music_time();
 
-    aos_task_new_ext(&musicbox_task_handle, "musicbox_task", musicbox_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&musicbox_task_handle, "musicbox_task", musicbox_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new musicbox_task\n");
     return 0;
 }

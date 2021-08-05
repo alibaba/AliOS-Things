@@ -1,5 +1,6 @@
 #include "humiture.h"
-#include "../../drivers/sensor/drv_temp_humi_si_si7006.h"
+#include "drv_temp_humi_si_si7006.h"
+#include "drv_temp_humi_sensylink_cht8305.h"
 #include "../menu.h"
 
 MENU_COVER_TYP humiture_cover = {MENU_COVER_NONE};
@@ -12,9 +13,14 @@ static aos_task_t humiture_task_handle;
 
 int humiture_init(void)
 {
-    LOGI(EDU_TAG, "si7006_init begin\n");
-    si7006_init();
-    LOGI(EDU_TAG, "si7006_init done\n");
+    if (g_haasboard_is_k1c) {
+        cht8305_init();
+        LOGI(EDU_TAG, "cht8305_init done\n");
+    } else {
+        si7006_init();
+        LOGI(EDU_TAG, "si7006_init done\n");
+    }
+
     OLED_Clear();
     OLED_Refresh_GRAM();
     running = 1;
@@ -31,10 +37,15 @@ void humiture_task(void)
     unsigned char c = 0;
 
     while (running) {
-        si7006_getTempHumidity(&hump, &temp);
+        if (g_haasboard_is_k1c) {
+            cht8305_getTempHumidity(&hump, &temp);
+        } else {
+            si7006_getTempHumidity(&hump, &temp);
+        }
+
         sprintf(temp_str, "T:%5.1fC", temp);
         sprintf(hump_str, "H:%5.1f%%", hump);
-        LOGD(EDU_TAG, "%s %s", temp_str, hump_str);
+        // LOGD(EDU_TAG, "%s %s", temp_str, hump_str);
         OLED_Icon_Draw(14, 4, &icon_thermometer_24_24, 0);
         OLED_Icon_Draw(14, 36, &icon_hygrometer_24_24, 0);
 
@@ -57,8 +68,13 @@ int humiture_uninit(void)
     while (!running) {
         aos_msleep(50);
     }
-
-    si7006_deinit();
+    if (g_haasboard_is_k1c) {
+        cht8305_deinit();
+        LOGI(EDU_TAG, "cht8305_deinit done\n");
+    } else {
+        si7006_deinit();
+        LOGI(EDU_TAG, "si7006_deinit done\n");
+    }
 
     aos_task_delete(&humiture_task_handle);
     LOGI(EDU_TAG, "aos_task_delete humiture_task\n");

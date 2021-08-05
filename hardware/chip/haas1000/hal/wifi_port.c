@@ -297,6 +297,7 @@ static void wifi_connect_task(void *arg)
     ret = bwifi_connect_to_ssid(init_para->ssid, init_para->password, 0, 0, NULL);
     if (ret) {
         printf("wifi connect to %s fail:%d\n", init_para->ssid, ret);
+        event_publish(EVENT_WIFI_HANDSHAKE_FAILED, NULL);
 #if 0
         if (m->ev_cb && m->ev_cb->connect_fail) {
             m->ev_cb->connect_fail(m, ret, NULL);

@@ -20,7 +20,7 @@
 **AliOS Things** 适配了分层架构和组件架构。包括以下部分：
 
 - BSP: 板级支持包
-- HAL: 硬件适配层，包括WiFi，蓝牙，I2C, SPI, UART，Flash 等
+- HAL: 硬件适配层，包括WiFi，蓝牙，I2C，SPI，UART，Flash 等
 - Kernel: 包括Rhino RTOS 内核，VFS，KV Storage，CLI，C++ 等
 - Network: 包括LwIP 轻量级TCP/IP协议栈，BLE 低功耗蓝牙协议栈，LoRaWAN 协议栈等
 - Security: 包括TLS(mbedTLS and cutomized iTLS)，ID2，SST(Trusted Storage)，Crypto，TEE(Trusted Execution Environment) 等
