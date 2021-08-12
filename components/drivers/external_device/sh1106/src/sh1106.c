@@ -133,24 +133,28 @@ static inline int OLED_GPIO_Init()
     oled_gpio.config = OUTPUT_PUSH_PULL;
     hal_gpio_init(&oled_gpio);
 
+    OLED_DC(1);
+    /* 复位 */
+    OLED_RES(0);
+    aos_msleep(1000);
+    OLED_RES(1);
+
     fd = open("/dev/gpio", 0);
     printf("open gpio %s, fd:%d\r\n", fd >= 0 ? "success" : "fail", fd);
     return 0;
 }
 
-static void OLED_GPIO_Set(unsigned char port,unsigned char leve)
+static void OLED_GPIO_Set(unsigned char port, unsigned char leve)
 {
     struct gpio_io_config config;
 
     config.id = port;
     config.config = GPIO_IO_OUTPUT | GPIO_IO_OUTPUT_PP;
-    if(leve == 1){
+    if (leve == 1) {
         config.data = 1;
-    }
-    else if(leve == 0){
+    } else if (leve == 0) {
         config.data = 0;
-    }
-    else{
+    } else {
         return;
     }
     ioctl(fd, IOC_GPIO_SET, (unsigned long)&config);
@@ -158,30 +162,27 @@ static void OLED_GPIO_Set(unsigned char port,unsigned char leve)
 
 void OLED_SCLK(uint8_t x)
 {
-    if(x == 1){
+    if (x == 1) {
         OLED_GPIO_Set(OLED_CLK_PIN, 1);
-    }
-    else if(x == 0){
+    } else if (x == 0) {
         OLED_GPIO_Set(OLED_CLK_PIN, 0);
     }
 }
 
 void OLED_RES(uint8_t x)
 {
-    if(x == 1){
+    if (x == 1) {
         OLED_GPIO_Set(OLED_RES_PIN, 1);
-    }
-    else if(x == 0){
+    } else if (x == 0) {
         OLED_GPIO_Set(OLED_RES_PIN, 0);
     }
 }
 
 void OLED_DC(uint8_t x)
 {
-    if(x == 1){
+    if (x == 1) {
         OLED_GPIO_Set(OLED_DC_PIN, 1);
-    }
-    else if(x == 0){
+    } else if (x == 0) {
         OLED_GPIO_Set(OLED_DC_PIN, 0);
     }
 }
@@ -192,10 +193,9 @@ void OLED_SDIN(uint8_t x)
 
     config.id = OLED_SDA_PIN;
     config.config = GPIO_IO_OUTPUT | GPIO_IO_OUTPUT_PP;
-    if(x == 0x80){
+    if (x == 0x80) {
         config.data = 1;
-    }
-    else if(x == 0){
+    } else if (x == 0) {
         config.data = 0;
     }
     ioctl(fd, IOC_GPIO_SET, (unsigned long)&config);
@@ -204,47 +204,39 @@ void OLED_SDIN(uint8_t x)
 static inline int OLED_SPI_Init()
 {
     // Nothing to do
-    OLED_DC(1);
-
-    /* 复位 */
-    OLED_RES(0);
-    aos_msleep(1000);
-    OLED_RES(1);
     return 0;
 }
 
 static inline void write_command(uint8_t cmd)
 {
-    uint8_t i,k;
+    uint8_t i, k;
     /*写命令拉低DC */
     OLED_DC(0);
 
-    for(i=0;i<8;i++)
-    {
+    for (i = 0; i < 8; i++) {
         /* 时钟线，上升沿有效 */
         OLED_SCLK(0);
-        k=cmd&(0x80);
+        k = cmd & (0x80);
         OLED_SDIN(k);
         OLED_SCLK(1);//high valid
-        cmd<<=1;
+        cmd <<= 1;
     }
     OLED_DC(1);
 }
 
 static inline void write_data(uint8_t data)
 {
-    uint8_t i,k;
+    uint8_t i, k;
     /* 写数据拉高DC */
     OLED_DC(1);
 
-    for( i=0;i<8;i++ )
-    {
+    for (i = 0; i < 8; i++) {
         /* 时钟线，上升沿有效 */
         OLED_SCLK(0);
-        k=data&(0x80);
+        k = data & (0x80);
         OLED_SDIN(k);
         OLED_SCLK(1);
-        data<<=1;
+        data <<= 1;
     }
     OLED_DC(1);
 }
@@ -299,9 +291,9 @@ static uint16_t zip_oled_gram(uint8_t *des, uint16_t *des_len)
 
 void OLED_Refresh_GRAM(void)
 {
-    #if FB_FRAME_EN == 1
+#if FB_FRAME_EN == 1
     //fb frame todo:
-    #else
+#else
     for (uint8_t i = 0; i < 8; i++) {
         /* 设置显示的起始地址 */
         write_command(0xB0 + i); // 设置页地址（行）
@@ -309,7 +301,7 @@ void OLED_Refresh_GRAM(void)
         write_command(0x10);     // 设置列地址的高四位
         write_data_page(OLED_GRAM[i], OLED_PAGE_SIZES);
     }
-    #endif
+#endif
 #if RECORD_SCREEN == 1
     uint16_t zip_len = 0;
     zip_oled_gram(oled_remote_buffer, &zip_len);
@@ -382,11 +374,11 @@ void OLED_Icon_Draw(int16_t x, int16_t y, icon_t *icon, uint8_t mode)
         mode = 0;
     }
     for (int byte_y = 0; (byte_y < height_byte) && (byte_y + page_0 < 8);
-         byte_y++) {
+            byte_y++) {
         if (page_0 + byte_y + 1 < 0)
             continue;
         for (int byte_x = 0; (byte_x < width_byte) && (byte_x + column_0 < 132);
-             byte_x++) {
+                byte_x++) {
             if (byte_x + column_0 < 0)
                 continue;
             // 绘画处在当前 page 的部分
@@ -406,7 +398,7 @@ void OLED_Icon_Draw(int16_t x, int16_t y, icon_t *icon, uint8_t mode)
             }
             // 绘画处在下一个 page 的部分
             if (bit_offset > 0 && page_0 + byte_y + 1 >= 0 &&
-                page_0 + byte_y + 1 < 8) {
+                    page_0 + byte_y + 1 < 8) {
                 if (mode == 1) {
                     OLED_GRAM[page_0 + byte_y + 1][column_0 + byte_x] &=
                         ~(0xff >> (8 - bit_offset));
@@ -472,13 +464,13 @@ void OLED_Show_Char(uint8_t x,
         /* 根据字符的大小选择相应字库，根据chr得到具体的字符地址 */
         switch (size) {
             case 12:
-                temp = asc2_1206[chr][t];
+                temp = sh1106_asc2_1206[chr][t];
                 break; // 12x6(行x列)
             case 16:
-                temp = asc2_1608[chr][t];
+                temp = sh1106_asc2_1608[chr][t];
                 break; // 16x8
             case 24:
-                temp = asc2_2412[chr][t];
+                temp = sh1106_asc2_2412[chr][t];
                 break; // 24x12
             default :
                 return; // 没有相应字库
@@ -507,6 +499,33 @@ void OLED_Show_Char(uint8_t x,
         }
     }
 }
+/* （x,y）是显示的坐标，*p是字符串的首地址，size是字符点集大小 */
+void OLED_Show_String(uint8_t        x,
+                      uint8_t        y,
+                      const uint8_t *p,
+                      uint8_t        size,
+                      uint8_t        mode)
+{
+    /* 判断是否合法字符，同时也限定了范围 */
+    while ((*p <= '~') && (*p >= ' ')) {
+        /* 如果初始行放不下，移动到下一行 */
+        if (x > (OLED_PAGE_SIZES - (size / 2))) {
+            x = 0;
+            y = y + size;
+        }
+        if (y > (64 - size)) {
+            x = y = 0;
+            OLED_Clear();
+        }
+
+        OLED_Show_Char(x, y, *p, size, mode);
+        /* 移动到下一个字符位置，size/2是因为做点集时就是：行X列，而且
+         * 行=2X列，所以size就是行数 */
+        x = x + size / 2;
+        p++;
+    }
+    // OLED_Refresh_GRAM();
+}
 // end native
 
 static void command_list(void)
@@ -532,7 +551,7 @@ static void command_list(void)
 
     write_command(0xA1); // 段重定义设置,bit0:0,0->0;1,0->127;
     write_command(0xC8); // 设置COM扫描方向;bit3:0,普通模式;1,重定义模式
-                         // COM[N-1]->COM0;N:驱动路数
+    // COM[N-1]->COM0;N:驱动路数
     write_command(0xDA); // 设置COM硬件引脚配置
     write_command(0x12); // [5:4]配置
 
@@ -551,6 +570,7 @@ static void command_list(void)
     write_command(0xAF); // 开启显示
 
     OLED_Clear();
+    OLED_Refresh_GRAM();
     aos_msleep(500);
 }
 
@@ -739,8 +759,9 @@ static uint8_t hardware_init(void)
 {
     uint8_t ret = 0;
 
-    ret |= OLED_GPIO_Init();
     ret |= OLED_SPI_Init();
+
+    ret |= OLED_GPIO_Init();
 
     if (ret) {
         printf("hardware_init fail\r\n");
@@ -751,10 +772,10 @@ static uint8_t hardware_init(void)
 
 /* （x,y）是显示的坐标，*p是字符串的首地址，size是字符点集大小 */
 void sh1106_show_string(uint8_t        x,
-                      uint8_t        y,
-                      const uint8_t *p,
-                      uint8_t        size,
-                      uint8_t        mode)
+                        uint8_t        y,
+                        const uint8_t *p,
+                        uint8_t        size,
+                        uint8_t        mode)
 {
     /* 判断是否合法字符，同时也限定了范围 */
     while ((*p <= '~') && (*p >= ' ')) {

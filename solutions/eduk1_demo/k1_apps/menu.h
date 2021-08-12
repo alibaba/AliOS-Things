@@ -1,11 +1,10 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-#include "../../../hardware/board/haaseduk1/drivers/key.h"
-#include "hal_oled.h"
+#include "key.h"
+#include "sh1106.h"
 #include <stdio.h>
 #include "aos/kernel.h"
-
 extern uint8_t g_haasedu_boardname;
 extern int g_haasboard_is_k1c;
 

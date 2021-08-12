@@ -17,6 +17,8 @@ license: Apache license v2.0               # <可选项> 源代码的许可证�
 #   - aos: >=v7.2.0
 depends:
   - rhino: rel_3.3.0
+  - spi: rel_3.3.0
+  - gpio: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -46,13 +48,13 @@ build_config:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - src/sh1106.c
-  - example/sh1106_example.c
+#  - example/sh1106_example.c
 
 ## 第五部分：配置信息
-#def_config:                              # 组件的可配置项
-#  AOS_SNDCARD_NUM_MAX: 5                 # Assume we support maxmum 5 sound card
-#  AOS_SNDCARD_DEVICE_NUM_MAX: 5          # Assume we support maxmum 5 sound device per each sound card
-
+def_config:                              # 组件的可配置项
+  USE_SOFT_SPI: 0                        # 是否选择软件模拟SPI的方式；:1--是，:0--否
+  RECORD_SCREEN: 0                       # 是否打开录屏功能（屏幕信息打印到串口，可以通过相关接口解析，会拖慢系统速度）
+  FB_FRAME_EN: 0                         # 是否支持fb frame
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录

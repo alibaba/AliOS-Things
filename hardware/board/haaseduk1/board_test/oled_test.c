@@ -12,7 +12,7 @@
 #include "led.h"
 #include "hal_gpio.h"
 #include "hal_iomux_haas1000.h"
-#include "../../../solutions/eduk1_demo/drivers/oled/hal_oled.h"
+#include "hal_oled.h"
 extern uint32_t oled_test_flag;
 
 void oled_test_process()

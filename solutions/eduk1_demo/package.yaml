@@ -42,10 +42,6 @@ build_config:                            # <可选项> 编译配置项
   prebuild_script: k1_apps/kws/cp_resources.py
   define:
     - __os_alios_things__
-  include:
-    - "drivers/sensor/"
-    - "drivers/oled/"
-    - "drivers/lcd/"
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
 #     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
@@ -69,10 +65,6 @@ source_file:
   - "maintask.c"
   - "app_start.c"
   - "k1_apps/*.c"
-  - "drivers/oled/sh1106/sh1106.c"
-  # - "drivers/lcd/st7789v/st7789v.c"
-  # - "drivers/lcd/st7789v/st7789v_vfs.c"
-  - "drivers/sensor/*.c"
   - "k1_apps/homepage/homepage.c"
   - "k1_apps/humiture/humiture.c"
   - "k1_apps/lightmeter/lightmeter.c"

@@ -5,7 +5,7 @@
 #ifndef HAL_OLED_H__
 #define HAL_OLED_H__
 
+#include "sh1106.h"
 // TODO
-#include "icon.h"          //tmp
-#include "sh1106/sh1106.h" //tmp
+// #include "sh1106/sh1106.h" //tmp
 #endif
