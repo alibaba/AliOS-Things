@@ -29,6 +29,7 @@ depends:
   - a2sa: master
   - uvoice: master
   - fatfs: master
+  - sh1106: master
   # - kernel_init: v7.4_dev
   # - minialsa: v7.4-dev
   # - drv_sdmmc: v7.4-dev
@@ -56,6 +57,9 @@ depends:
 build_config:
   include:
     - drivers/
+    - drivers/lcd/
+    - drivers/oled/
+    - drivers/sensor/
     - config/
   cflag: >
     -DCHIP_HAAS1000 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
@@ -70,6 +74,9 @@ source_file:
   - "config/partition_conf.c"
   - "config/partition_conf_legacy.c"
   - "config/k_config.c"
+  - "drivers/lcd/*.c"
+  - "drivers/oled/*.c"
+  - "drivers/sensor/*.c"
   - "drivers/led.c"
   - "drivers/watchdog.c"
   - "drivers/key.c"
