@@ -14,21 +14,21 @@
 #include "led.h"
 #include "key.h"
 
-#include "../../../solutions/eduk1_demo/drivers/oled/hal_oled.h"
+#include "hal_oled.h"
 
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_temp_humi_si_si7006.h"
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_temp_humi_sensylink_cht8305.h"
+#include "drv_temp_humi_si_si7006.h"
+#include "drv_temp_humi_sensylink_cht8305.h"
 
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_acc_gyro_inv_mpu6050.h"
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_acc_gyro_qst_qmi8610.h"
+#include "drv_acc_gyro_inv_mpu6050.h"
+#include "drv_acc_gyro_qst_qmi8610.h"
 
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_baro_goertek_spl06.h"
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_baro_qst_qmp6988.h"
+#include "drv_baro_goertek_spl06.h"
+#include "drv_baro_qst_qmp6988.h"
 
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_mag_qst_qmc5883l.h"
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_mag_qst_qmc6310.h"
+#include "drv_mag_qst_qmc5883l.h"
+#include "drv_mag_qst_qmc6310.h"
 
-#include "../../../solutions/eduk1_demo/drivers/sensor/drv_als_ps_ir_liteon_ap3216c.h"
+#include "drv_als_ps_ir_liteon_ap3216c.h"
 
 typedef int (*sensortest_cb)(int turn);
 static int sensors_test_inited = 0;
@@ -209,6 +209,7 @@ static int mag_test(uint8_t turn)
     printf("\r\n ===MAG test start====\r\n");
     LOGI("MAG_TEST", "test start, turn %d\n", turn);
     int heading = 0;
+    int times = 50;
 
     if (g_haasboard_is_k1c) {
         qmc6310_init();
@@ -220,11 +221,17 @@ static int mag_test(uint8_t turn)
 
     while (turn--) {
         if (g_haasboard_is_k1c) {
-            heading = qmc6310_readHeading();
+            while(times --){
+                heading = qmc6310_readHeading();
+            }
+            heading /= 50;
             qmc6310_deinit();
             LOGD("MAG_TEST", "heading %d\n", heading);
         } else {
-            heading = qmc5883l_readHeading();
+            while(times --){
+                heading += qmc5883l_readHeading();
+            }
+            heading /= 50;
             qmc5883l_deinit();
             LOGD("MAG_TEST", "heading %d\n", heading);
         }

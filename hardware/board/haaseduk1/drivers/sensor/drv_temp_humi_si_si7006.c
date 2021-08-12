@@ -42,7 +42,7 @@ uint8_t si7006_getVer(void)
     si7006_i2c_master_send(reg, 2, 1000);
     aos_msleep(30);
     si7006_i2c_master_recv(&version, 1, 1000);
-    //LOGI("SENSOR", "ver:0x%2x \n",version);
+    // LOGI("SENSOR","ver:0x%2x\n",version);
     return version;
 }
 

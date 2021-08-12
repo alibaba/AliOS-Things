@@ -30,7 +30,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
     *p_fd = open(name, 0);
 
     if (*p_fd < 0) {
-        LOGE ("SENSOR", "open %s failed, fd:%d\r\n", name, *p_fd);
+        LOGE("SENSOR", "open %s failed, fd:%d\r\n", name, *p_fd);
         return -EIO;
     }
     c.c.addr = dev_addr;            /* sensor's address */
@@ -153,7 +153,7 @@ int32_t sensor_i2c_close(uint32_t port)
 
     p_fd = &g_i2c_fd[port];
     if ((port >= EDU_MAX_I2C_PORT) || (*p_fd < 0)) {
-        LOGE ("SENSOR", "invalid port:%d or fd:%d\r\n", port, *p_fd);
+        LOGE("SENSOR", "invalid port:%d or fd:%d\r\n", port, *p_fd);
         return -EIO;
     }
 

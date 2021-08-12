@@ -19,10 +19,10 @@ static void example_sh1106_init(int argc, char **argv)
 static void example_sh1106_display(int argc, char **argv)
 {
     printf("sh1106 display test begin ...\r\n");
-    sh1106_show_string(6,12*0,"Welcome to sh1106!",12,1);
-    sh1106_show_string(24,(12+4)*1,"This is Haas!",12,1);
-    sh1106_show_string(24,(12+4)*2,"2000-01-01 00:01",12,1);
-    sh1106_show_string(24,(12+4)*3,"T:30^C H:70%",12,1);
+    sh1106_show_string(6, 12 * 0, "Welcome to sh1106!", 12, 1);
+    sh1106_show_string(24, (12 + 4) * 1, "This is Haas!", 12, 1);
+    sh1106_show_string(24, (12 + 4) * 2, "2000-01-01 00:01", 12, 1);
+    sh1106_show_string(24, (12 + 4) * 3, "T:30^C H:70%", 12, 1);
     printf("sh1106 display test end !!!\r\n");
     return;
 }

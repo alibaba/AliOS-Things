@@ -178,7 +178,7 @@ void ap3216c_int_Config(void) { ; }
  */
 void ap3216c_init(void)
 {
-    int32_t ret = sensor_i2c_open (AP3216C_I2C_PORT, AP3216C_ADDR, I2C_BUS_BIT_RATES_100K, 0);
+    int32_t ret = sensor_i2c_open(AP3216C_I2C_PORT, AP3216C_ADDR, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
         LOGI("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
         return;
@@ -194,7 +194,8 @@ void ap3216c_init(void)
     ap3216c_int_init();
 }
 
-void ap3216c_deinit(void) {
+void ap3216c_deinit(void)
+{
     int32_t ret = sensor_i2c_close(AP3216C_I2C_PORT);
     if (ret) {
         LOGE("SENSOR", "sensor i2c close failed, ret:%d\n", ret);
