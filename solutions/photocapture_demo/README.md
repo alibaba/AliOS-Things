@@ -1,0 +1,1 @@
+Photo capture sample.

@@ -183,7 +183,7 @@ static int32_t ch395_get_cmd_status(uint8_t *pstatus)
 
     ret = ch395_spi_cmd_query(cmd, &value);
     if (ret) {
-        LOGE(TAG, "get cmd status fail %d ret");
+        LOGE(TAG, "get cmd status fail %d ret", cmd);
         return -1;
     }
 
@@ -211,7 +211,7 @@ int32_t ch395_chip_exist_check(void)
         return -1;
     }
 
-    if (cmd[1] != ~readdata) {
+    if (readdata != ~cmd[1]) {
         LOGE(TAG, "testdata 0x%x, readdata 0x%x ,chip not exist", cmd[1], readdata);
         return -1;
     }
@@ -1070,8 +1070,7 @@ int32_t ch395_set_tcp_mss(uint16_t mss)
 
     data[0] = CMD20_SET_TCP_MSS;
     data[1] = (uint8_t)mss;
-    data[1] = (uint8_t)(mss >> 8);
-    memcpy(&data[1], &mss, sizeof(mss));
+    data[2] = (uint8_t)(mss >> 8);
 
     ret = ch395_spi_data_write(data, sizeof(data));
     if (ret) {
@@ -1090,8 +1089,8 @@ int32_t ch395_set_func_param(uint32_t param)
     data[0] = CMD40_SET_FUN_PARA;
     data[1] = (uint8_t)param;
     data[2] = (uint8_t)(param >> 8);
-    data[2] = (uint8_t)(param >> 16);
-    data[3] = (uint8_t)(param >> 24);
+    data[3] = (uint8_t)(param >> 16);
+    data[4] = (uint8_t)(param >> 24);
 
     ret = ch395_spi_data_write(data, sizeof(data));
     if (ret) {

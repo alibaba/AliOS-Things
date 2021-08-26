@@ -25,8 +25,8 @@ enum HAL_TRNG_RND_SRC_SEL {
 typedef unsigned int HAL_TRNG_RND_SRC_SEL_ENUM;
 
 struct HAL_TRNG_CFG_T {
-    uint32_t 					sample_cntr1; // must not be less than 0x11	
-    HAL_TRNG_RND_SRC_SEL_ENUM   rnd_src_sel; 
+    uint32_t 					sample_cntr1; // must not be less than 0x11
+    HAL_TRNG_RND_SRC_SEL_ENUM   rnd_src_sel;
 };
 
 HAL_TRNG_RET_ENUM hal_trng_open(const struct HAL_TRNG_CFG_T *cfg);

@@ -37,7 +37,7 @@ extern "C"
 
     /* audio_player control function */
     int audio_player_stop(void);
-#if 0 
+#if 0
     /* Not Support */
     int audio_player_pause(void);
     int audio_player_resume(void);

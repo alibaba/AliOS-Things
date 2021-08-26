@@ -1057,7 +1057,7 @@ typedef struct
             void    *remDev;
             uint16_t   dataLen;    /* ACL data length */
         } aclDataActive;
-        
+
         /* Results for BTEVENT_ACL_DATA_NOT_ACTIVE */
         struct
         {
@@ -1120,7 +1120,7 @@ extern "C" {
     bt_status_t btif_me_ble_receive_adv_report(void (*cb)(const btif_ble_adv_report* report));
     bt_status_t btif_sec_find_device_record(const bt_bdaddr_t * bdAddr,
                                             btif_device_record_t * record);
-    
+
     uint8_t btif_sec_set_io_capabilities(uint8_t ioCap);
     uint8_t btif_sec_set_authrequirements(uint8_t authRequirements);
     uint8_t btif_me_get_callback_event_type(const btif_event_t * event);
@@ -1181,7 +1181,7 @@ extern "C" {
     bt_status_t btif_me_set_link_policy(btif_remote_device_t * rdev,
                                         btif_link_policy_t policy);
     bt_status_t btif_me_set_link_lowlayer_monitor(btif_remote_device_t * rdev, uint8_t control_flag,uint8_t report_format,
-                                                          uint32_t data_format,uint8_t report_unit);   
+                                                          uint32_t data_format,uint8_t report_unit);
     bt_status_t btif_me_set_connection_qos_info(btif_remote_device_t * rdev,
                                                 btif_qos_info_t * qosInfo);
     void btif_me_fake_tws_disconnect(uint16_t hci_handle, uint8_t reason);
@@ -1218,7 +1218,7 @@ extern "C" {
     bt_status_t btif_me_stop_sniff(btif_remote_device_t * rdev);
 
     bt_status_t btif_me_accept_incoming_link(const btif_event_t *event,btif_remote_device_t * rdev, btif_connection_role_t role);
-    
+
     bt_status_t btif_me_reject_incoming_link(btif_remote_device_t * rdev, btif_error_code_t reason);
 
     bt_status_t btif_me_start_tws_role_switch(uint16_t slaveConnHandle, uint16_t mobileConnHandle);
@@ -1274,7 +1274,7 @@ extern "C" {
     // ibrt fast ack toggle
     #define IBRT_FAST_ACK_OFF                    (0)
     #define IBRT_FAST_ACK_ON                     (1)
-    // ibrt fast direction 
+    // ibrt fast direction
     #define IBRT_FAST_ACK_TX                     0
     #define IBRT_FAST_ACK_RX                     1
     // ibrt slave flow control

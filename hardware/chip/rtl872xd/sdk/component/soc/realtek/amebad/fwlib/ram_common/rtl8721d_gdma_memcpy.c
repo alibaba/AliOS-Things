@@ -40,7 +40,7 @@ IMAGE2_RAM_TEXT_SECTION
 void memcpy_gdma_init(void)
 {
 	gdma_memcpy.dma_done = 1;
-	gdma_memcpy.ch_num = GDMA_ChnlAlloc(0, (IRQ_FUN)memcpy_gdma_int, NULL, 10);
+	gdma_memcpy.ch_num = GDMA_ChnlAlloc(0, (IRQ_FUN)memcpy_gdma_int, (uint32_t)NULL, 10);
 
 	GDMA_StructInit(&(gdma_memcpy.GDMA_InitStruct));
 	gdma_memcpy.GDMA_InitStruct.GDMA_ChNum = gdma_memcpy.ch_num;

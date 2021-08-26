@@ -9,170 +9,61 @@
 #include <vfsdev/uart_dev.h>
 #include <mbmaster.h>
 #include "serial.h"
+#include "aos_hal_uart.h"
 
 #if ((MBMASTER_CONFIG_RTU_ENABLED > 0) || (MBMASTER_CONFIG_ASCII_ENABLED > 0))
-static int uart_mb = -1;
+static uart_dev_t uart_dev = { 0 };
 
-mb_status_t mb_serial_init(mb_handler_t *handler, uint8_t port, uint32_t baud_rate, uint8_t data_width, mb_parity_t parity)
+mb_status_t mb_serial_init(mb_handler_t *handler, uint8_t port, uint32_t baud_rate,
+                            uint8_t data_width, mb_parity_t parity)
 {
-    const char *fmt = "/dev/ttyUART%u";
-    char dev_name[32];
-    unsigned long flags = 0;
-
-    snprintf(dev_name, sizeof(dev_name) - 1, fmt, (unsigned)port);
-    dev_name[sizeof(dev_name) - 1] = '\0';
-    uart_mb = open(dev_name, 0);
-    if (uart_mb < 0)
-        return MB_SERIAL_INIT_FAILED;
-
-    switch (baud_rate) {
-        case 50:
-            flags |= B50;
-            break;
-        case 75:
-            flags |= B75;
-            break;
-        case 110:
-            flags |= B110;
-            break;
-        case 134:
-            flags |= B134;
-            break;
-        case 150:
-            flags |= B150;
-            break;
-        case 200:
-            flags |= B200;
-            break;
-        case 300:
-            flags |= B300;
-            break;
-        case 600:
-            flags |= B600;
-            break;
-        case 1200:
-            flags |= B1200;
-            break;
-        case 1800:
-            flags |= B1800;
-            break;
-        case 2400:
-            flags |= B2400;
-            break;
-        case 4800:
-            flags |= B4800;
-            break;
-        case 9600:
-            flags |= B9600;
-            break;
-        case 19200:
-            flags |= B19200;
-            break;
-        case 38400:
-            flags |= B38400;
-            break;
-        case 57600:
-            flags |= B57600;
-            break;
-        case 115200:
-            flags |= B115200;
-            break;
-        case 230400:
-            flags |= B230400;
-            break;
-        case 460800:
-            flags |= B460800;
-            break;
-        case 500000:
-            flags |= B500000;
-            break;
-        case 576000:
-            flags |= B576000;
-            break;
-        case 921600:
-            flags |= B921600;
-            break;
-        case 1000000:
-            flags |= B1000000;
-            break;
-        case 1152000:
-            flags |= B1152000;
-            break;
-        case 1500000:
-            flags |= B1500000;
-            break;
-        case 2000000:
-            flags |= B2000000;
-            break;
-        case 2500000:
-            flags |= B2500000;
-            break;
-        case 3000000:
-            flags |= B3000000;
-            break;
-        case 3500000:
-            flags |= B3500000;
-            break;
-        case 4000000:
-            flags |= B4000000;
-            break;
-        default:
-            flags |= B9600;
-            break;
-    }
-
+    hal_uart_data_width_t enum_data_with = DATA_WIDTH_8BIT;
     switch (data_width) {
         case 5:
-            flags |= CS5;
+            enum_data_with = DATA_WIDTH_5BIT;
             break;
         case 6:
-            flags |= CS6;
+            enum_data_with = DATA_WIDTH_6BIT;
             break;
         case 7:
-            flags |= CS7;
+            enum_data_with = DATA_WIDTH_7BIT;
             break;
         case 8:
-            flags |= CS8;
-            break;
         default:
-            flags |= CS8;
+            enum_data_with = DATA_WIDTH_8BIT;
             break;
     }
 
-    switch (parity) {
-        case MB_PAR_NONE:
-            break;
-        case MB_PAR_ODD:
-            flags |= PARODD;
-            break;
-        case MB_PAR_EVEN:
-            flags |= PARENB;
-            break;
-        default:
-            break;
-    }
-
-    if (ioctl(uart_mb, IOC_UART_SET_CFLAG, flags) < 0)
+    uart_dev.port = port;
+    uart_dev.config.baud_rate = baud_rate;
+    uart_dev.config.data_width = enum_data_with;
+    uart_dev.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_dev.config.mode = MODE_TX_RX;
+    uart_dev.config.parity = parity;
+    uart_dev.config.stop_bits = STOP_BITS_1;
+    int ret = aos_hal_uart_init(&uart_dev);
+    if (ret != 0) {
         return MB_SERIAL_INIT_FAILED;
-
-    handler->private = &uart_mb;
-
-    return MB_SUCCESS;
+    } else {
+        handler->private = (void *)&uart_dev;
+        return MB_SUCCESS;
+    }
 }
 
 mb_status_t mb_serial_finalize(mb_handler_t *handler)
 {
-    close(*(int *)handler->private);
-    *(int *)handler->private = -1;
+    aos_hal_uart_finalize((uart_dev_t *)handler->private);
+    handler->private = NULL;
 
     return MB_SUCCESS;
 }
 
 mb_status_t mb_serial_frame_send(mb_handler_t *handler, uint32_t timeout)
 {
-    int fd = *(int *)handler->private;
+    uart_dev_t *dev = (uart_dev_t *)(handler->private);
 
-    if (write(fd, handler->mb_frame_buff, handler->mb_frame_length) < 0)
+    if (aos_hal_uart_send(dev, handler->mb_frame_buff,
+                          handler->mb_frame_length, timeout) != 0)
         return MB_FRAME_SEND_ERR;
 
     return MB_SUCCESS;
@@ -180,55 +71,26 @@ mb_status_t mb_serial_frame_send(mb_handler_t *handler, uint32_t timeout)
 
 mb_status_t mb_serial_frame_recv(mb_handler_t *handler)
 {
-    int fd = *(int *)handler->private;
+    uart_dev_t *dev = (uart_dev_t *)(handler->private);
+
     mb_status_t ret = MB_SUCCESS;
 
-    LOGD(MODBUS_MOUDLE, "waiting %ld ms for rev frame", handler->respond_timeout);
-
-    while (1) {
-        struct pollfd poll_fds[1];
-        int timeout;
-        ssize_t r;
-
-        r = read(fd, handler->mb_frame_buff, ADU_BUF_MAX_LENGTH);
-
-        if (r < 0) {
-            handler->mb_frame_length = 0;
-            ret = MB_SLAVE_NO_RESPOND;
-            break;
-        }
-
-        if (r > 0) {
-            handler->mb_frame_length = (uint32_t)r;
-            ret = MB_SUCCESS;
-            break;
-        }
-
-        memset(poll_fds, 0, sizeof(poll_fds));
-        poll_fds[0].fd = fd;
-        poll_fds[0].events = POLLIN;
-
-        if (handler->respond_timeout == AOS_WAIT_FOREVER)
-            timeout = -1;
-        else if (handler->respond_timeout > INT_MAX)
-            timeout = INT_MAX;
-        else
-            timeout = (int)handler->respond_timeout;
-
-        if (poll(poll_fds, 1, timeout) <= 0) {
-            handler->mb_frame_length = 0;
-            ret = MB_SLAVE_NO_RESPOND;
-            break;
-        }
-
-        if ((poll_fds[0].revents & POLLERR) ||
-            !(poll_fds[0].revents & POLLIN)) {
-            handler->mb_frame_length = 0;
-            ret = MB_SLAVE_NO_RESPOND;
-            break;
-        }
+    uint32_t recv_size = 0;
+    int32_t r = aos_hal_uart_recv_II(dev, handler->mb_frame_buff,
+                ADU_BUF_MAX_LENGTH, &recv_size, handler->respond_timeout);
+    if (r < 0) {
+        handler->mb_frame_length = 0;
+        ret = MB_SLAVE_NO_RESPOND;
+        return ret;
     }
 
+    if (recv_size == 0) {
+        handler->mb_frame_length = 0;
+        ret = MB_RESPOND_TIMEOUT;
+        return ret;
+    }
+
+    handler->mb_frame_length = recv_size;
     return ret;
 }
 

@@ -53,7 +53,7 @@ typedef struct {
     uint8_t bits;
     uint8_t sample_rater;       //uint:K
     uint8_t version_num;
-    uint16_t max_sample_rate;   //uint:K  
+    uint16_t max_sample_rate;   //uint:K
     bool llc_enable;            //low latency control
     compressor_output_format_t compress_output_format;
 } lhdc_info_t;

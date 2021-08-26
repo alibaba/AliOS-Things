@@ -8,9 +8,6 @@
 # 
 # Copyright (c) 2021 AliBaBa
 ###
-import netmgr as nm
-import utime as time
 
 if __name__ == '__main__':
-    while(True):
-        time.sleep(5)
+    print('Hello Python')

@@ -1,6 +1,6 @@
 @page kws_demo HaaS AI之HaaS语音唤醒
 
-[更正文档](https://gitee.com/alios-things/kws_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/kws_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 kws(keyword spooting)是基于本地离线唤醒引擎，主要有三个部分组成：
@@ -56,18 +56,18 @@ https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.703.274
 > * A2SA组件：是AliOS Things上音频服务框架，兼容ALSA应用接口访问，支持音频硬件驱动抽象，多音频驱动加载/卸载，VFS接口支持等功能。
 
 # 4. AliOS Things开发环境搭建
-案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 4.7 案例代码下载
-该案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+该案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 其中：
 > 选择解决方案: “HaaS语音唤醒案例”或者“kws_demo”
 
 > 选择开发板: HaaS100
 
 ## 4.8 代码编译、烧录
--- 固件编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 固件编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 ### 4.8.1 文件件系统烧录
 本组件例子中使用到到的本地语料存放在代码中hardware/chip/haas1000/prebuild/data/目录下mp3目录，除烧录kws_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
@@ -78,11 +78,11 @@ https://help.aliyun.com/document_detail/184186.html?spm=a2c4g.11186623.6.703.274
       address: 0xB32000
 ```
 
--- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 固件烧录方法可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ### 4.9 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
 # 5. 案例演示
 <video width="100%" height="560"  controls="controls" src="https://cloud.video.taobao.com//play/u/3903519387/p/2/e/6/t/1/312916213915.mp4"></video>

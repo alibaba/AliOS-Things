@@ -7,6 +7,10 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "amp_platform.h"
+#include "aos/kernel.h"
+#include "aos/vfs.h"
+#include "aos_fs.h"
 #include "amp_config.h"
 #include "amp_defines.h"
 #include "aos_system.h"

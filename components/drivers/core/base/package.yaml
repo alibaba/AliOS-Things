@@ -52,7 +52,7 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - src/device_core.c
+  - src/device.c
 
 # core driver module
   - core/u_bus.c ? <CONFIG_DRV_CORE>

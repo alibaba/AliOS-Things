@@ -25,6 +25,8 @@
 uart_dev_t uart_0;
 uart_dev_t uart_1;
 
+extern int sys_reset();
+
 void hal_reboot(void)
 {
     sys_reset();

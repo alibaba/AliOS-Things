@@ -359,4 +359,26 @@ int hal_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_num)
     return ret;
 }
 
+int hal_wifi_set_channellist(netdev_t *dev, wifi_channel_list_t *channel_list)
+{
+    int ret = -1;
+
+    if (dev && WIFI_DRIVER(dev) && WIFI_DRIVER(dev)->set_channellist) {
+        ret = WIFI_DRIVER(dev)->set_channellist(dev, channel_list);
+    }
+
+    return ret;
+}
+
+int hal_wifi_get_channellist(netdev_t *dev, wifi_channel_list_t *channel_list)
+{
+    int ret = -1;
+
+    if (dev && WIFI_DRIVER(dev) && WIFI_DRIVER(dev)->get_channellist) {
+        ret = WIFI_DRIVER(dev)->get_channellist(dev, channel_list);
+    }
+
+    return ret;
+}
+
 //#endif

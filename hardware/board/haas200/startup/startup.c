@@ -124,6 +124,10 @@ void sys_init_func(void)
     board_mode_check();
 #endif
 
+#ifdef AOS_COMP_CPLUSPLUS
+    cpp_init();
+#endif
+
     aos_maintask(NULL);
 
     krhino_task_dyn_del(NULL);

@@ -96,7 +96,7 @@ typedef union _bt_fn_param {
     struct {
         bool isEnable;
     } ME_BtSetAdvMode_param;
-    
+
     //BtStatus ME_SetAccessibleMode(btif_accessible_mode_t mode, const btif_access_mode_info_t *info)
     struct {
         btif_accessible_mode_t mode;

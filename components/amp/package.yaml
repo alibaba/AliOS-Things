@@ -40,7 +40,9 @@ depends:
   - uagent: rel_3.3.0
   - littlevgl: rel_3.3.0 ? <AMP_ADVANCED_ADDON_UI>
   - ble_netconfig: rel_3.3.0 ? <AMP_ADVANCED_ADDON_BLECFGNET>
-  - oss: rel_3.3.0 ? <AMP_ADVANCED_ADDON_OSS>
+  - oss: rel_3.3.0 ? <BOARD_HAAS100, AMP_ADVANCED_ADDON_OSS>
+  - oss: rel_3.3.0 ? <BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_OSS>
+  - cplusplus: rel_3.3.0
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -75,6 +77,7 @@ build_config:
     - engine/quickjs_engine/aos_port ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons/utils/crypto ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons/network/mqtt ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons/utils/ui ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
     - main
@@ -177,6 +180,8 @@ source_file:
   - engine/quickjs_engine/addons/hardware/lcd/module_lcd.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_LCD>
   - engine/quickjs_engine/addons/hardware/timer/module_timer.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_TIMER>
   - engine/quickjs_engine/addons/network/http/module_http.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_HTTP>
+  - engine/quickjs_engine/addons/network/tcp/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_TCP>
+  - engine/quickjs_engine/addons/network/mqtt/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_MQTT>
   - engine/quickjs_engine/addons/network/netmgr/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_NETMGR>
   - engine/quickjs_engine/addons/network/*.c ? <CONFIG_ENGINE_QUICKJS>
   - engine/quickjs_engine/addons/network/cellular/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_CELLULAR>
@@ -186,7 +191,8 @@ source_file:
   - engine/quickjs_engine/addons/advanced/ota/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_OTA>
   - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAAS100, AMP_ADVANCED_ADDON_AUDIOPLAYER>
   - engine/quickjs_engine/addons/advanced/audio/*.c ? <CONFIG_ENGINE_QUICKJS, CONFIG_A7_DSP_ENABLE, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_AUDIOPLAYER>
-  - engine/quickjs_engine/addons/advanced/oss/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_OSS>
+  - engine/quickjs_engine/addons/advanced/oss/*.c ? <CONFIG_ENGINE_QUICKJS, BOARD_HAAS100, AMP_ADVANCED_ADDON_OSS>
+  - engine/quickjs_engine/addons/advanced/oss/*.c ? <CONFIG_ENGINE_QUICKJS, BOARD_HAASEDUK1, AMP_ADVANCED_ADDON_OSS>
   - engine/quickjs_engine/addons/utils/systimer/module_systimer.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTIMER>
   - engine/quickjs_engine/addons/utils/system/module_system.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_SYSTEM>
   - engine/quickjs_engine/addons/utils/log/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_LOG>
@@ -239,7 +245,7 @@ def_config:                              # 组件的可配置项
     AMP_HW_ADDON_LCD: 0
     AMP_HW_ADDON_WDG: 0
     AMP_NET_ADDON_UDP: 0
-    AMP_NET_ADDON_TCP: 0
+    AMP_NET_ADDON_TCP: 1
     AMP_NET_ADDON_MQTT: 0
     AMP_NET_ADDON_HTTP: 0
     AMP_NET_ADDON_NETMGR: 0

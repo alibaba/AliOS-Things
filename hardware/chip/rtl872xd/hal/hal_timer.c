@@ -40,9 +40,9 @@ int32_t hal_timer_start(timer_dev_t *tim)
 		return -1;
 	
 	if(tim->config.reload_mode == TIMER_RELOAD_MANU){
-		gtimer_start_one_shout(&local_timer, tim->config.period, tim->config.cb, tim->config.arg);
+		gtimer_start_one_shout(&local_timer, tim->config.period, tim->config.cb, (uint32_t)tim->config.arg);
 	}else if(tim->config.reload_mode == TIMER_RELOAD_AUTO){
-    		gtimer_start_periodical(&local_timer, tim->config.period, tim->config.cb, tim->config.arg);
+    	gtimer_start_periodical(&local_timer, tim->config.period, tim->config.cb, (uint32_t)tim->config.arg);
 	}else{
 		printf("ERROR: Reload mode Set ERROR\n\r");
 		return -1;	

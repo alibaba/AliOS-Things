@@ -1,0 +1,1712 @@
+# This file is generated (whence no license header). Do not edit!
+# To regenerate, run:
+#   cmake/bazel_to_cmake.sh
+
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+  set(ruy_0_Wall_Wcxx14_compat_Wextra_Wundef "")
+else()
+  set(ruy_0_Wall_Wcxx14_compat_Wextra_Wundef "-Wall;-Wextra;-Wc++14-compat;-Wundef")
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL arm)
+  set(ruy_1_mfpu_neon "-mfpu=neon")
+else()
+  set(ruy_1_mfpu_neon "")
+endif()
+
+if((CMAKE_BUILD_TYPE STREQUAL Debug) OR MSVC)
+  set(ruy_2_O3 "")
+else()
+  set(ruy_2_O3 "-O3")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_trace
+  HDRS
+    trace.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_mat
+    ruy_matrix
+    ruy_path
+    ruy_platform
+    ruy_side_pair
+)
+
+ruy_cc_library(
+  NAME
+    ruy_platform
+  HDRS
+    platform.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+ruy_cc_library(
+  NAME
+    ruy_gtest_wrapper
+  TESTONLY
+  HDRS
+    gtest_wrapper.h
+  DEPS
+    gtest
+)
+
+ruy_cc_library(
+  NAME
+    ruy_check_macros
+  HDRS
+    check_macros.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+ruy_cc_test(
+  NAME
+    ruy_check_macros_test
+  SRCS
+    check_macros_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_gtest_wrapper
+)
+
+ruy_cc_library(
+  NAME
+    ruy_opt_set
+  HDRS
+    opt_set.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+ruy_cc_library(
+  NAME
+    ruy_time
+  HDRS
+    time.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+  set(ruy_3_pthread "")
+else()
+  set(ruy_3_pthread "-pthread")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_wait
+  SRCS
+    wait.cc
+  HDRS
+    wait.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  LINKOPTS
+    ${ruy_3_pthread}
+  DEPS
+    ruy_time
+)
+
+ruy_cc_test(
+  NAME
+    ruy_wait_test
+  SRCS
+    wait_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  LINKOPTS
+    ${ruy_3_pthread}
+  DEPS
+    ruy_gtest_wrapper
+    ruy_platform
+    ruy_wait
+)
+
+ruy_cc_library(
+  NAME
+    ruy_size_util
+  HDRS
+    size_util.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+)
+
+ruy_cc_test(
+  NAME
+    ruy_size_util_test
+  SRCS
+    size_util_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_gtest_wrapper
+    ruy_size_util
+)
+
+ruy_cc_library(
+  NAME
+    ruy_tune
+  SRCS
+    tune.cc
+  HDRS
+    tune.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_cpu_cache_params
+    ruy_cpuinfo
+    ruy_opt_set
+    ruy_platform
+    ruy_time
+)
+
+ruy_cc_library(
+  NAME
+    ruy_system_aligned_alloc
+  SRCS
+    system_aligned_alloc.cc
+  HDRS
+    system_aligned_alloc.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+ruy_cc_library(
+  NAME
+    ruy_prepacked_cache
+  SRCS
+    prepacked_cache.cc
+  HDRS
+    prepacked_cache.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_mat
+    ruy_system_aligned_alloc
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_test(
+  NAME
+    ruy_tune_test
+  SRCS
+    tune_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_cpuinfo
+    ruy_gtest_wrapper
+    ruy_tune
+)
+
+ruy_cc_test(
+  NAME
+    ruy_prepacked_cache_test
+  SRCS
+    prepacked_cache_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_context
+    ruy_context_get_ctx
+    ruy_ctx
+    ruy_gtest_wrapper
+    ruy_mat
+    ruy_matrix
+    ruy_prepacked_cache
+    ruy
+    ruy_time
+)
+
+ruy_cc_library(
+  NAME
+    ruy_allocator
+  SRCS
+    allocator.cc
+  HDRS
+    allocator.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_opt_set
+    ruy_size_util
+    ruy_system_aligned_alloc
+)
+
+ruy_cc_test(
+  NAME
+    ruy_allocator_test
+  SRCS
+    allocator_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_gtest_wrapper
+)
+
+ruy_cc_library(
+  NAME
+    ruy_side_pair
+  HDRS
+    side_pair.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+)
+
+ruy_cc_library(
+  NAME
+    ruy_block_map
+  SRCS
+    block_map.cc
+  HDRS
+    block_map.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_cpu_cache_params
+    ruy_opt_set
+    ruy_side_pair
+    ruy_size_util
+    ruy_trace
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_test(
+  NAME
+    ruy_block_map_test
+  SRCS
+    block_map_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_block_map
+    ruy_cpu_cache_params
+    ruy_gtest_wrapper
+    ruy_path
+    ruy_platform
+    ruy_side_pair
+)
+
+ruy_cc_library(
+  NAME
+    ruy_blocking_counter
+  SRCS
+    blocking_counter.cc
+  HDRS
+    blocking_counter.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  LINKOPTS
+    ${ruy_3_pthread}
+  DEPS
+    ruy_check_macros
+    ruy_time
+    ruy_wait
+)
+
+ruy_cc_library(
+  NAME
+    ruy_thread_pool
+  SRCS
+    thread_pool.cc
+  HDRS
+    thread_pool.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  LINKOPTS
+    ${ruy_3_pthread}
+  PUBLIC
+  DEPS
+    ruy_blocking_counter
+    ruy_check_macros
+    ruy_denormal
+    ruy_time
+    ruy_trace
+    ruy_wait
+)
+
+ruy_cc_library(
+  NAME
+    ruy_cpu_cache_params
+  HDRS
+    cpu_cache_params.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+)
+
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+  set(ruy_4_Wno_undef "")
+else()
+  set(ruy_4_Wno_undef "-Wno-undef")
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64le)
+  set(ruy_5_DRUY_HAVE_CPUINFO "")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL s390 OR CMAKE_SYSTEM_PROCESSOR STREQUAL s390x)
+  set(ruy_5_DRUY_HAVE_CPUINFO "")
+elseif(CMAKE_SYSTEM_NAME STREQUAL Fuchsia)
+  set(ruy_5_DRUY_HAVE_CPUINFO "")
+else()
+  set(ruy_5_DRUY_HAVE_CPUINFO "-DRUY_HAVE_CPUINFO")
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64le)
+  set(ruy_6_cpuinfo "")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL s390 OR CMAKE_SYSTEM_PROCESSOR STREQUAL s390x)
+  set(ruy_6_cpuinfo "")
+elseif(CMAKE_SYSTEM_NAME STREQUAL Fuchsia)
+  set(ruy_6_cpuinfo "")
+else()
+  set(ruy_6_cpuinfo "cpuinfo")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_cpuinfo
+  SRCS
+    cpuinfo.cc
+  HDRS
+    cpuinfo.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_4_Wno_undef}
+    ${ruy_5_DRUY_HAVE_CPUINFO}
+  DEPS
+    ruy_platform
+    ruy_check_macros
+    ruy_cpu_cache_params
+    ${ruy_6_cpuinfo}
+)
+
+ruy_cc_library(
+  NAME
+    ruy_path
+  HDRS
+    path.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_platform
+    ruy_size_util
+)
+
+ruy_cc_library(
+  NAME
+    ruy_denormal
+  SRCS
+    denormal.cc
+  HDRS
+    denormal.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+)
+
+ruy_cc_library(
+  NAME
+    ruy_performance_advisory
+  HDRS
+    performance_advisory.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+)
+
+ruy_cc_library(
+  NAME
+    ruy_matrix
+  HDRS
+    matrix.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_check_macros
+)
+
+ruy_cc_test(
+  NAME
+    ruy_matrix_test
+  SRCS
+    matrix_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_gtest_wrapper
+    ruy_matrix
+)
+
+ruy_cc_library(
+  NAME
+    ruy_mul_params
+  HDRS
+    mul_params.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_check_macros
+    ruy_size_util
+)
+
+ruy_cc_test(
+  NAME
+    ruy_mul_params_test
+  SRCS
+    mul_params_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_gtest_wrapper
+    ruy_mul_params
+)
+
+ruy_cc_library(
+  NAME
+    ruy_mat
+  HDRS
+    mat.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_matrix
+    ruy_size_util
+)
+
+ruy_cc_library(
+  NAME
+    ruy_asm_helpers
+  HDRS
+    asm_helpers.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_opt_set
+)
+
+ruy_cc_library(
+  NAME
+    ruy_apply_multiplier
+  SRCS
+    apply_multiplier.cc
+  HDRS
+    apply_multiplier.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_mul_params
+)
+
+ruy_cc_test(
+  NAME
+    ruy_apply_multiplier_test
+  SRCS
+    apply_multiplier_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_apply_multiplier
+    ruy_gtest_wrapper
+    ruy_mul_params
+)
+
+ruy_cc_library(
+  NAME
+    ruy_kernel_common
+  HDRS
+    kernel_common.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_apply_multiplier
+    ruy_check_macros
+    ruy_mat
+    ruy_matrix
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_side_pair
+    ruy_size_util
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack_common
+  HDRS
+    pack_common.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_matrix
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_kernel_arm
+  SRCS
+    kernel_arm32.cc
+    kernel_arm64.cc
+  HDRS
+    kernel_arm.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_asm_helpers
+    ruy_check_macros
+    ruy_kernel_common
+    ruy_mat
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_side_pair
+    ruy_size_util
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack_arm
+  SRCS
+    pack_arm.cc
+  HDRS
+    pack_arm.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_asm_helpers
+    ruy_check_macros
+    ruy_mat
+    ruy_opt_set
+    ruy_pack_common
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+if((CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL amd64) AND NOT MSVC)
+  set(ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512 ";-mavx512f;-mavx512vl;-mavx512cd;-mavx512bw;-mavx512dq")
+elseif(MSVC)
+  set(ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512 "/arch:AVX512")
+else()
+  set(ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512 "")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_kernel_avx512
+  SRCS
+    kernel_avx512.cc
+  HDRS
+    kernel_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512}
+  DEPS
+    ruy_check_macros
+    ruy_kernel_common
+    ruy_mat
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack_avx512
+  SRCS
+    pack_avx512.cc
+  HDRS
+    pack_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_opt_set
+    ruy_pack_common
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_have_built_path_for_avx512
+  SRCS
+    have_built_path_for_avx512.cc
+  HDRS
+    have_built_path_for.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_7_mavx512bw_mavx512cd_mavx512dq_mavx512f_mavx512vl_arch_AVX512}
+  DEPS
+    ruy_opt_set
+    ruy_platform
+)
+
+if((CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL amd64) AND NOT MSVC)
+  set(ruy_8_mavx2_mfma_arch_AVX2 "-mavx2;-mfma")
+elseif(MSVC)
+  set(ruy_8_mavx2_mfma_arch_AVX2 "/arch:AVX2")
+else()
+  set(ruy_8_mavx2_mfma_arch_AVX2 "")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_kernel_avx2_fma
+  SRCS
+    kernel_avx2_fma.cc
+  HDRS
+    kernel_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_8_mavx2_mfma_arch_AVX2}
+  DEPS
+    ruy_check_macros
+    ruy_kernel_common
+    ruy_mat
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack_avx2_fma
+  SRCS
+    pack_avx2_fma.cc
+  HDRS
+    pack_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_8_mavx2_mfma_arch_AVX2}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_opt_set
+    ruy_pack_common
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_have_built_path_for_avx2_fma
+  SRCS
+    have_built_path_for_avx2_fma.cc
+  HDRS
+    have_built_path_for.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_8_mavx2_mfma_arch_AVX2}
+  DEPS
+    ruy_opt_set
+    ruy_platform
+)
+
+if((CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL amd64) AND NOT MSVC)
+  set(ruy_9_mavx_arch_AVX "-mavx")
+elseif(MSVC)
+  set(ruy_9_mavx_arch_AVX "/arch:AVX")
+else()
+  set(ruy_9_mavx_arch_AVX "")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_kernel_avx
+  SRCS
+    kernel_avx.cc
+  HDRS
+    kernel_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_9_mavx_arch_AVX}
+  DEPS
+    ruy_check_macros
+    ruy_kernel_common
+    ruy_mat
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack_avx
+  SRCS
+    pack_avx.cc
+  HDRS
+    pack_x86.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_9_mavx_arch_AVX}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_opt_set
+    ruy_pack_common
+    ruy_path
+    ruy_platform
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_have_built_path_for_avx
+  SRCS
+    have_built_path_for_avx.cc
+  HDRS
+    have_built_path_for.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    ${ruy_9_mavx_arch_AVX}
+  DEPS
+    ruy_opt_set
+    ruy_platform
+)
+
+ruy_cc_library(
+  NAME
+    ruy_kernel
+  HDRS
+    kernel.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_apply_multiplier
+    ruy_check_macros
+    ruy_kernel_arm
+    ruy_kernel_avx
+    ruy_kernel_avx2_fma
+    ruy_kernel_avx512
+    ruy_kernel_common
+    ruy_mat
+    ruy_matrix
+    ruy_mul_params
+    ruy_opt_set
+    ruy_path
+    ruy_platform
+    ruy_side_pair
+    ruy_size_util
+    ruy_trace
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pack
+  HDRS
+    pack.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_matrix
+    ruy_opt_set
+    ruy_pack_arm
+    ruy_pack_avx
+    ruy_pack_avx2_fma
+    ruy_pack_avx512
+    ruy_pack_common
+    ruy_path
+    ruy_platform
+    ruy_trace
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_have_built_path_for
+  HDRS
+    have_built_path_for.h
+  DEPS
+    ruy_have_built_path_for_avx
+    ruy_have_built_path_for_avx2_fma
+    ruy_have_built_path_for_avx512
+    ruy_platform
+)
+
+ruy_cc_library(
+  NAME
+    ruy_context
+  SRCS
+    context.cc
+  HDRS
+    context.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_allocator
+    ruy_check_macros
+    ruy_ctx
+    ruy_path
+    ruy_performance_advisory
+    ruy_platform
+    ruy_prepacked_cache
+    ruy_thread_pool
+    ruy_tune
+)
+
+ruy_cc_test(
+  NAME
+    ruy_context_test
+  SRCS
+    context_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_context
+    ruy_gtest_wrapper
+    ruy_path
+    ruy_platform
+    ruy_prepacked_cache
+    ruy_tune
+)
+
+ruy_cc_library(
+  NAME
+    ruy_ctx_header_only_should_not_include_other_ruy_headers
+  TESTONLY
+  HDRS
+    ctx.h
+)
+
+ruy_cc_library(
+  NAME
+    ruy_ctx
+  SRCS
+    ctx.cc
+  HDRS
+    ctx.h
+    ctx_impl.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_check_macros
+    ruy_cpuinfo
+    ruy_have_built_path_for
+    ruy_path
+    ruy_performance_advisory
+    ruy_platform
+    ruy_prepacked_cache
+    ruy_thread_pool
+    ruy_trace
+    ruy_tune
+)
+
+ruy_cc_library(
+  NAME
+    ruy_context_get_ctx
+  SRCS
+    context_get_ctx.cc
+  HDRS
+    context_get_ctx.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_context
+    ruy_ctx
+)
+
+ruy_cc_test(
+  NAME
+    ruy_ctx_test
+  SRCS
+    ctx_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_ctx
+    ruy_gtest_wrapper
+    ruy_path
+    ruy_platform
+)
+
+ruy_cc_library(
+  NAME
+    ruy_trmul_params
+  HDRS
+    trmul_params.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_mat
+    ruy_mul_params
+    ruy_path
+    ruy_side_pair
+    ruy_tune
+)
+
+ruy_cc_library(
+  NAME
+    ruy_trmul
+  SRCS
+    trmul.cc
+  HDRS
+    trmul.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_block_map
+    ruy_check_macros
+    ruy_cpu_cache_params
+    ruy_cpuinfo
+    ruy_ctx
+    ruy_denormal
+    ruy_mat
+    ruy_matrix
+    ruy_mul_params
+    ruy_opt_set
+    ruy_side_pair
+    ruy_size_util
+    ruy_thread_pool
+    ruy_trace
+    ruy_trmul_params
+    ruy_tune
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy_prepare_packed_matrices
+  SRCS
+    prepare_packed_matrices.cc
+  HDRS
+    prepare_packed_matrices.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_ctx
+    ruy_matrix
+    ruy_prepacked_cache
+    ruy_side_pair
+    ruy_trace
+    ruy_trmul_params
+)
+
+ruy_cc_library(
+  NAME
+    ruy_create_trmul_params
+  HDRS
+    create_trmul_params.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_check_macros
+    ruy_ctx
+    ruy_kernel
+    ruy_mat
+    ruy_mul_params
+    ruy_pack
+    ruy_path
+    ruy_performance_advisory
+    ruy_platform
+    ruy_side_pair
+    ruy_trace
+    ruy_trmul_params
+)
+
+ruy_cc_library(
+  NAME
+    ruy_validate
+  HDRS
+    validate.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+    ruy_mat
+    ruy_mul_params
+    ruy_side_pair
+)
+
+ruy_cc_library(
+  NAME
+    ruy_frontend
+  SRCS
+    frontend.cc
+  HDRS
+    frontend.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_allocator
+    ruy_create_trmul_params
+    ruy_ctx
+    ruy_mat
+    ruy_mul_params
+    ruy_prepare_packed_matrices
+    ruy_trace
+    ruy_trmul
+    ruy_trmul_params
+    ruy_validate
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_library(
+  NAME
+    ruy
+  HDRS
+    context.h
+    matrix.h
+    mul_params.h
+    path.h
+    ruy.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_check_macros
+    ruy_context
+    ruy_context_get_ctx
+    ruy_frontend
+    ruy_mat
+    ruy_matrix
+    ruy_mul_params
+    ruy_path
+    ruy_platform
+    ruy_size_util
+    ruy_trace
+)
+
+ruy_cc_test(
+  NAME
+    ruy_perchannel_buffers_reallocation_test
+  SRCS
+    perchannel_buffers_reallocation_test.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_context
+    ruy_gtest_wrapper
+    ruy_kernel
+    ruy_matrix
+    ruy_path
+    ruy_performance_advisory
+    ruy
+)
+
+ruy_cc_library(
+  NAME
+    ruy_pmu
+  TESTONLY
+  SRCS
+    pmu.cc
+  HDRS
+    pmu.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  DEPS
+    ruy_check_macros
+)
+
+ruy_cc_library(
+  NAME
+    ruy_reference_mul
+  HDRS
+    reference_mul.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  PUBLIC
+  DEPS
+    ruy_apply_multiplier
+    ruy_matrix
+    ruy_mul_params
+)
+
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+  set(ruy_10_lm "")
+else()
+  set(ruy_10_lm "-lm")
+endif()
+
+ruy_cc_library(
+  NAME
+    ruy_test_lib
+  TESTONLY
+  HDRS
+    test.h
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+  LINKOPTS
+    ${ruy_10_lm}
+  DEPS
+    ruy_allocator
+    ruy_size_util
+    ruy_reference_mul
+    ruy_matrix
+    ruy_pmu
+    ruy
+    ruy_mul_params
+    ruy_time
+    ruy_gtest_wrapper
+    ruy_platform
+    ruy_context
+    ruy_ctx
+    ruy_context_get_ctx
+    ruy_pack_common
+    ruy_profiler_profiler
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_f32_f32_f32_f32
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=f32
+    -DRUY_TEST_RHSSCALAR=f32
+    -DRUY_TEST_ACCUMSCALAR=f32
+    -DRUY_TEST_DSTSCALAR=f32
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_u8_u8_i32_u8
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=u8
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_i8_i8_i32_u8
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=u8
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_i8_i8_i32_i8
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i8
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_u8_u8_i32_i16
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i16
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_binary(
+  NAME
+    ruy_benchmark_i8_i8_i32_i32
+  TESTONLY
+  SRCS
+    benchmark.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i32
+  DEPS
+    ruy_test_lib
+    ruy_profiler_instrumentation
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_f32_f32_f32_f32
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=f32
+    -DRUY_TEST_RHSSCALAR=f32
+    -DRUY_TEST_ACCUMSCALAR=f32
+    -DRUY_TEST_DSTSCALAR=f32
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_f64_f32_f64_f32
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=f64
+    -DRUY_TEST_RHSSCALAR=f32
+    -DRUY_TEST_ACCUMSCALAR=f64
+    -DRUY_TEST_DSTSCALAR=f32
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_f32_f64_f64_f64
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=f32
+    -DRUY_TEST_RHSSCALAR=f64
+    -DRUY_TEST_ACCUMSCALAR=f64
+    -DRUY_TEST_DSTSCALAR=f64
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_u8_u8_i32_u8
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=u8
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_i8_i8_i32_i8
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i8
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_i8_u8_i32_i8
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i8
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_u8_u8_i32_i16
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i16
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_i8_i8_i32_i32
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i32
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_fast_i8_u8_i32_i32
+  SRCS
+    test_fast.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i32
+  DEPS
+    ruy_test_lib
+    gtest_main
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_slow_f32_f32_f32_f32
+  SRCS
+    test_slow.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=f32
+    -DRUY_TEST_RHSSCALAR=f32
+    -DRUY_TEST_ACCUMSCALAR=f32
+    -DRUY_TEST_DSTSCALAR=f32
+  DEPS
+    ruy_test_lib
+    gtest_main
+  TAGS
+    slow
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_slow_u8_u8_i32_u8
+  SRCS
+    test_slow.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=u8
+  DEPS
+    ruy_test_lib
+    gtest_main
+  TAGS
+    slow
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_slow_i8_i8_i32_i8
+  SRCS
+    test_slow.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i8
+  DEPS
+    ruy_test_lib
+    gtest_main
+  TAGS
+    slow
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_slow_u8_u8_i32_i16
+  SRCS
+    test_slow.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=u8
+    -DRUY_TEST_RHSSCALAR=u8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i16
+  DEPS
+    ruy_test_lib
+    gtest_main
+  TAGS
+    slow
+)
+
+ruy_cc_test(
+  NAME
+    ruy_test_slow_i8_i8_i32_i32
+  SRCS
+    test_slow.cc
+  COPTS
+    ${ruy_0_Wall_Wcxx14_compat_Wextra_Wundef}
+    ${ruy_1_mfpu_neon}
+    ${ruy_2_O3}
+    -DRUY_TEST_LHSSCALAR=i8
+    -DRUY_TEST_RHSSCALAR=i8
+    -DRUY_TEST_ACCUMSCALAR=i32
+    -DRUY_TEST_DSTSCALAR=i32
+  DEPS
+    ruy_test_lib
+    gtest_main
+  TAGS
+    slow
+)
+
+ruy_add_all_subdirs()

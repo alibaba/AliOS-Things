@@ -245,6 +245,7 @@ extern "C" {
 #else
 #define TIMER0_BASE                             MCU_TIMER0_BASE
 #define TIMER1_BASE                             MCU_TIMER1_BASE
+#define TIMER2_BASE                             MCU_TIMER2_BASE
 #define TRANSQ0_BASE                            TRANSQW_BASE
 #define TRANSQ0_PEER_BASE                       WIFI_TRANSQM_BASE
 #define TRANSQ1_BASE                            TRANSQD_BASE

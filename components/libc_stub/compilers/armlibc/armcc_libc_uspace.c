@@ -92,7 +92,7 @@ int fputc(int ch, FILE *f)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = HAL_UART_STDIO_PORT;
     /* Send data. */
     return hal_uart_send(&uart_stdio, (uint8_t *)(&ch), 1, 1000);
 }

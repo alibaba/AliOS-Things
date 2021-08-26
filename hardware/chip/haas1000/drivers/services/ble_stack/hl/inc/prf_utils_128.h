@@ -43,7 +43,7 @@
  * FUNCTION DECLARATIONS
  ****************************************************************************************
  */
- 
+
 
 #if (BLE_CLIENT_PRF)
 
@@ -86,7 +86,7 @@ void prf_disc_svc_send_128(prf_env_t *prf_env, uint8_t conidx, uint8_t *uuid_128
  *
  * @return 0x1 if service is valid, 0x00 else.
  ****************************************************************************************
- */																		
+ */
 uint8_t prf_check_svc_char_validity_128(uint8_t nb_chars,
                                     const struct prf_char_inf* chars,
                                     const struct prf_char_def_128* chars_req);

@@ -871,10 +871,13 @@ INPUT                  = ../manual/mainpage.md \
                          ../manual/component.md \
                          ../manual/solution.md \
                          ../manual/contribute.md \
+                         ../manual/coding.md \
+                         ../haas-studio \
                          ../aos-studio \
                          ../aos-tools \
                          ../developer \
                          ../quickstart \
+                         ../coding \
                          ../yaml \
                          ../../components/a2sa/README.md \
                          ../../components/ai_agent/README.md \
@@ -996,8 +999,7 @@ INPUT                  = ../manual/mainpage.md \
                          ../../solutions/relay_demo/README.md \
                          ../../solutions/miniapp_agent_demo/README.md \
                          ../debug-tools/SmartTrace.md \
-                         ../../solutions/haas_dev_demo/README.md \
-                         ../haas-studio/haas-studio.md
+                         ../../solutions/haas_dev_demo/README.md
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

@@ -32,7 +32,8 @@ depends:
   - lwip: rel_3.3.0
   - http: "rel_3.3.0 ? <PY_BUILD_HTTP>"
   - mqtt: "rel_3.3.0 ? <PY_BUILD_MQTT>"
-  - ucloud_ai: "rel_3.3.0 ? <PY_BUILD_AI>"
+  - ucloud_ai: "rel_3.3.0 ? <PY_BUILD_UCLOUD_AI>"
+  - ai_agent: rel_3.3.0 ? <PY_BUILD_AIAGENT>
   - uvoice: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - a2sa: "rel_3.3.0 ? <PY_BUILD_AUDIO>"
   - ble_netconfig: "rel_3.3.0 ? <PY_BUILD_BLENETCONFIG>"
@@ -102,6 +103,9 @@ build_config:
     # external/amp_boot
     - external/amp_boot/
 
+    # external/amp_iot
+    - external/amp_iot/
+  
     # external/amp_task
     - external/amp_task/
 
@@ -148,6 +152,7 @@ source_file:                             # <可选项> 指定参与编译的源�
   - modules/linksdk/*.c ? <PY_BUILD_LINKSDK>
 
   # minicv
+  - modules/minicv/*.c ? <PY_BUILD_AI>
   - modules/minicv/base/modules/c/src/WrapperIHaasDataInput.cpp
   - modules/minicv/base/modules/c/src/WrapperIHaasImageCodec.cpp
   - modules/minicv/base/modules/c/src/WrapperIHaasImageProc.cpp
@@ -177,6 +182,12 @@ source_file:                             # <可选项> 指定参与编译的源�
 
   # oss
   - modules/oss/*.c ? <PY_BUILD_OSS>
+
+  # ucloud_ai
+  - modules/ucloud_ai/*.c ? <PY_BUILD_UCLOUD_AI>
+
+  # aiagent
+  - modules/ai_agent/*.c ? <PY_BUILD_AIAGENT>
 
   # ota
   - modules/ota/*.c ? <PY_BUILD_OTA>
@@ -210,6 +221,9 @@ source_file:                             # <可选项> 指定参与编译的源�
 
   # external/amp_boot
   - external/amp_boot/*.c ? <PY_BUILD_BOOT>
+
+  # external/amp_iot
+  - external/amp_iot/*.c
 
   # external/amp_task
   - external/amp_task/*.c
@@ -257,12 +271,17 @@ def_config:
   PY_BUILD_OTA: 1                  # Py_Engine module build OTA config
   PY_BUILD_BOOT: 1                 # Py_Engine module build boot config
   PY_BUILD_CHANNEL: 1              # Py_Engine module build boot config
-
+  PY_BUILD_AIAGENT: 1              # Py_Engine module build ai_agent config
+  PY_BUILD_UCLOUD_AI: 1            # Py_Engine module build ucloud_ai config
   PY_BUILD_MBEDTLS: 1              # Py_Engine module build mbed TLS
   MBEDTLS_CTR_DRBG_C: 1
   MBEDTLS_ENTROPY_C: 1
+  # MBEDTLS_SHA256_C: 1
+  MBEDTLS_AES_ROM_TABLES: 1
+  # MBEDTLS_AES_C: 1
+  # MBEDTLS_FS_IO: 1
   MBEDTLS_NO_PLATFORM_ENTROPY: 1
-
+  CONFIG_KWS_AI_ENGINE_ENABLE: 1 # 必须：使能HaaS HaaS唤醒引擎
 
   PY_PLATFORM_HAAS_100: 0
   PY_PLATFORM_HAAS_200: 0

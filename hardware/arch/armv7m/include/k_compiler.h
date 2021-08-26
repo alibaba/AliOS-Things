@@ -90,7 +90,7 @@
 __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 {
     void *sp;
-    asm volatile("mov %0, SP\n":"=r"(sp));
+    __asm__ volatile("mov %0, SP\n":"=r"(sp));
     return sp;
 }
 

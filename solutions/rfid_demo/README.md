@@ -1,6 +1,6 @@
 @page rfid_demo HaaS100实现RFID读卡器信息上报云端示例
 
-[更正文档](https://gitee.com/alios-things/rfid_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/rfid_demo/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 
@@ -206,9 +206,9 @@ send_property_post(params);
 ## 4.4 端云联调
 ### 4.4.1 下载软件版本
 
-开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
-RFID的代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，
+RFID的代码下载请参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)，
 
 *> 选择解决方案: “rfid使用示例”或者“rfid demo”*
 
@@ -222,9 +222,9 @@ RFID的代码下载请参考[《aos-studio使用说明之创建工程》](https:
     char *device_secret     = "";
 ```
 
--- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 编译固件可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
--- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 烧录固件可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ### 4.4.2 设备配网
 HaaS启动后通过串口命令行配网，输入如下指令可完成配网：

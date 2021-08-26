@@ -16,7 +16,7 @@
 #include "stm324xg_eval_lcd.h"
 #endif
 #include <platform/platform_stdlib.h>
-
+#include "osdep_service.h"
 
 /*Static IP ADDRESS*/
 #ifndef IP_ADDR0

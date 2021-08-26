@@ -10,6 +10,7 @@
 #include "aos_system.h"
 #include "amp_boot_recovery.h"
 #include "amp_boot_uart.h"
+#include "amp_boot_file_transfer.h"
 
 #define MOD_STR "AMP_YMODEM"
 #define YMODEM_OK          0
@@ -37,18 +38,18 @@
 #define YMODEM_MAX_CHAR_NUM    64
 #define YMODEM_ERR_NAK_NUM     5
 
-static unsigned int ymodem_flash_addr     = 0;
-static unsigned int ymodem_flash_size     = 0;
-static unsigned int ymodem_max_write_size = 40 * 1024 * 1024;
+static unsigned int pyamp_ymodem_flash_addr     = 0;
+static unsigned int pyamp_ymodem_flash_size     = 0;
+static unsigned int pyamp_ymodem_max_write_size = 40 * 1024 * 1024;
 
-#define uart_send_byte amp_boot_uart_send_byte
-#define uart_recv_byte amp_boot_uart_recv_byte
+#define uart_send_byte pyamp_boot_uart_send_byte
+#define uart_recv_byte pyamp_boot_uart_recv_byte
 
-typedef void (*ymodem_write_t)(unsigned char *, int);
+typedef void (*pyamp_ymodem_write_t)(unsigned char *, int, AMP_FILE_RECEVIE_FLAG);
 
-static ymodem_write_t ymodem_write = NULL;
+static pyamp_ymodem_write_t pyamp_ymodem_write = NULL;
 
-extern void aos_boot_delay(uint32_t ms);
+extern void pyamp_boot_delay(uint32_t ms);
 
 typedef struct {
     uint16_t crc;
@@ -103,7 +104,7 @@ static unsigned short crc16_computer(void *addr, size_t len)
     return crc;
 }
 
-unsigned int ymodem_str2int(char *buf, unsigned int buf_len)
+unsigned int pyamp_ymodem_str2int(char *buf, unsigned int buf_len)
 {
     int type  = 10;
     int value = 0;
@@ -136,7 +137,7 @@ unsigned int ymodem_str2int(char *buf, unsigned int buf_len)
     return value;
 }
 
-unsigned int ymodem_recv_bytes(unsigned char *buffer, unsigned int nbytes, unsigned int timeout)
+unsigned int pyamp_ymodem_recv_bytes(unsigned char *buffer, unsigned int nbytes, unsigned int timeout)
 {
     int ret = 0;
     unsigned char c = 0;
@@ -154,7 +155,7 @@ unsigned int ymodem_recv_bytes(unsigned char *buffer, unsigned int nbytes, unsig
     return i;
 }
 
-int ymodem_data_head_parse(unsigned char data_type)
+int pyamp_ymodem_data_head_parse(unsigned char data_type)
 {
     int    i   = 0;
     int    ret = YMODEM_ERR;
@@ -164,18 +165,21 @@ int ymodem_data_head_parse(unsigned char data_type)
     unsigned short crc    = 0;
     unsigned int   value  = 0;
 
-    LOGD(MOD_STR, "ymodem_data_head_parse\n");
+    unsigned char *buffer_file_name = NULL;
+    unsigned int buf_file_len = 0;
+
+    // LOGD(MOD_STR, "pyamp_ymodem_data_head_parse\n");
     buf_len = ((YMODEM_SOH == data_type) ? SOH_DATA_LEN : STX_DATA_LEN) + 4;
     buffer  = aos_malloc(buf_len);
     memset(buffer, 0, buf_len);
     /* SOH HEAD */
-    value = ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
+    value = pyamp_ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
     if( (buf_len != value)  || (0 != buffer[0]) || (0xFF != buffer[1]) ) {
-        LOGD(MOD_STR, "header error: %d %02x %02x\n", buf_len, buffer[0], buffer[1]);
+        // LOGD(MOD_STR, "header error: %d %02x %02x\n", buf_len, buffer[0], buffer[1]);
         goto err_exit;
     }
 
-    LOGD(MOD_STR, "ymodem_recv_bytes head done, buf_len:%d\n", buf_len);
+    // LOGD(MOD_STR, "pyamp_ymodem_recv_bytes head done, buf_len:%d\n", buf_len);
     /* check CRC */
     crc = crc16_computer(&buffer[2], buf_len-4);
     if (((crc >> 8) != buffer[buf_len - 2]) || ((crc & 0xFF) != buffer[buf_len - 1])) {
@@ -186,17 +190,24 @@ int ymodem_data_head_parse(unsigned char data_type)
     for(i = 2; i < buf_len - 2; i++) {
         if((0 == buffer[i]) && (0 == lp)) {
             lp = i + 1;
+
+            // save file name to buffer_name
+            buf_file_len = i;
+            buffer_file_name  = aos_malloc(buf_file_len);
+            memset(buffer_file_name, 0, buf_file_len);
+            memcpy(buffer_file_name, &buffer[2], buf_file_len);
+
             continue;
         }
 
         if((0 == buffer[i]) && (0 != lp)) {
             /* from buffer[lp] to buffer[i] is file length ascii */
-            value = ymodem_str2int((char *)&buffer[lp], i - lp);
+            value = pyamp_ymodem_str2int((char *)&buffer[lp], i - lp);
             if (0 == value) {
                 goto err_exit;
             }
-            ymodem_flash_size = value;
-            if(value > ymodem_max_write_size) {
+            pyamp_ymodem_flash_size = value;
+            if (value > pyamp_ymodem_max_write_size) {
                 ret = YMODEM_FILE_TOOBIG;
                 goto err_exit;
             }
@@ -209,14 +220,21 @@ int ymodem_data_head_parse(unsigned char data_type)
             ret = YMODEM_OK;
         }
     }
-    LOGD(MOD_STR, "get file size:%d\n", ymodem_flash_size);
+    // LOGD(MOD_STR, "get file size:%d\n", pyamp_ymodem_flash_size);
+
+    /* write data fo flash */
+    if (pyamp_ymodem_write != NULL) {
+        pyamp_ymodem_write(buffer_file_name, buf_file_len, YMODEM_RECEVIE_HEADER);    // save file name
+        pyamp_ymodem_write(buffer_file_name, pyamp_ymodem_flash_size, YMODEM_RECEVIE_FILE_SIZE);    // save file size
+    }
 
 err_exit:
+    aos_free(buffer_file_name);
     aos_free(buffer);
     return ret;
 }
 
-int ymodem_data_parse(unsigned char data_type)
+int pyamp_ymodem_data_parse(unsigned char data_type)
 {
     int ret = YMODEM_ERR;
     unsigned int buf_len = 0;
@@ -228,11 +246,11 @@ int ymodem_data_parse(unsigned char data_type)
     buffer = aos_malloc(buf_len);
     memset(buffer, 0, buf_len);
 
-    LOGD(MOD_STR, "ymodem_data_parse\n");
+    // LOGD(MOD_STR, "pyamp_ymodem_data_parse\n");
     /* SOH HEAD */
-    value = ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
+    value = pyamp_ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
     if ((buf_len != value) || (0xFF != buffer[0] + buffer[1])) {
-        LOGE(MOD_STR, "ymodem_data_parse crc error:%02x %02x\n", buffer[buf_len - 2], buffer[buf_len - 1] );
+        // LOGE(MOD_STR, "pyamp_ymodem_data_parse crc error:%02x %02x\n", buffer[buf_len - 2], buffer[buf_len - 1] );
         goto err_exit;
     }
 
@@ -243,20 +261,31 @@ int ymodem_data_parse(unsigned char data_type)
     }
 
     /* write data fo flash */
-    LOGD(MOD_STR, "write data, buf_len:%d\n", buf_len - 4);
-    if (ymodem_write != NULL) {
-        ymodem_write(&buffer[2], buf_len - 4);
+    // LOGD(MOD_STR, "write data, buf_len:%d\n", buf_len - 4);
+    if (pyamp_ymodem_write != NULL) {
+        pyamp_ymodem_write(&buffer[2], buf_len - 4, YMODEM_RECEVIE_BODY);    // save data
     }
-    // ymodem_write_data_to_flash(&buffer[2], *addr, buf_len - 4);
+    // pyamp_ymodem_write_data_to_flash(&buffer[2], *addr, buf_len - 4);
     // *addr += buf_len - 4;
     ret = YMODEM_OK;
 
 err_exit :
     aos_free(buffer);
+    // aos_printf("ret=%d",ret);
     return ret;
 }
 
-int ymodem_recv_file(void)
+
+void pyamp_ymodem_end_parse()
+{
+    /* write data fo flash */
+    // end write data to file
+    if (pyamp_ymodem_write != NULL) {
+        pyamp_ymodem_write(NULL, NULL, YMODEM_RECEVIE_END);    // save data
+    }
+}
+
+int pyamp_ymodem_recv_file(void)
 {
     int i        = 0;
     int ret      = YMODEM_OK;
@@ -267,12 +296,12 @@ int ymodem_recv_file(void)
 
     /* send C */
     while (1) {
-        aos_boot_delay(1);
+        pyamp_boot_delay(1);
         if(state != YMODEM_STATE_INIT) {
-            bytes = ymodem_recv_bytes(&c, 1, 50000);
+            bytes = pyamp_ymodem_recv_bytes(&c, 1, 50000);
         }
-        //aos_printf("ymodem_recv_file bytes = %d, i = %d, state = %d\n", bytes, i, state);
-        //amp_debug_send_str("ymodem_recv_file \n");
+        // aos_printf("pyamp_ymodem_recv_file bytes = %d, i = %d, state = %d\n", bytes, i, state);
+        // amp_debug_send_str("pyamp_ymodem_recv_file\n");
         switch (state)
         {
         case YMODEM_STATE_INIT: /* send 'C' */
@@ -289,17 +318,17 @@ int ymodem_recv_file(void)
                 break;
             }
             if(( YMODEM_SOH == c ) || ( YMODEM_STX == c )) {
-                ret = ymodem_data_head_parse(c);
+                ret = pyamp_ymodem_data_head_parse(c);
                 if (ret == YMODEM_OK) {
                     uart_send_byte(YMODEM_ACK);
-                    aos_boot_delay(100);
+                    pyamp_boot_delay(100);
                     uart_send_byte(YMODEM_CCHAR);
                     state = YMODEM_STATE_WAIT_DATA;
                     break;
                 } else {
                     /* end */
                     uart_send_byte(YMODEM_ACK);
-                    aos_boot_delay(200);
+                    pyamp_boot_delay(200);
                     if(end_flag == 1) {
                         ret = YMODEM_OK;
                     } else {
@@ -318,14 +347,18 @@ int ymodem_recv_file(void)
         case YMODEM_STATE_WAIT_DATA: /* receive data */
             if(1 == bytes) {
                 if( (YMODEM_SOH == c) || (YMODEM_STX == c) ) {
-                    ret = ymodem_data_parse(c);
+                    ret = pyamp_ymodem_data_parse(c);
                     if (ret == YMODEM_OK) {
                         uart_send_byte(YMODEM_ACK);
                     }
                 } else if( YMODEM_EOT == c ) {
                     uart_send_byte(YMODEM_NAK);
                     state = YMODEM_STATE_WAIT_END;
+                } else {
+                    // aos_printf("Z2");
                 }
+            } else {
+                // aos_printf("Z1");
             }
             break;
 
@@ -335,6 +368,7 @@ int ymodem_recv_file(void)
                 i     = 0;
                 state = YMODEM_STATE_INIT;
                 end_flag = 1;
+                pyamp_ymodem_end_parse();
             }
             break;
 
@@ -347,7 +381,7 @@ int ymodem_recv_file(void)
     return YMODEM_OK;
 }
 
-int ymodem_upgrade(void (*func)(unsigned char *, int))
+int pyamp_ymodem_upgrade(void (*func)(unsigned char *, int))
 {
     int    i = 0;
     int  ret = 0;
@@ -355,11 +389,11 @@ int ymodem_upgrade(void (*func)(unsigned char *, int))
     unsigned char c   = 0;
     char buf[YMODEM_MAX_CHAR_NUM];
 
-    ymodem_write = func;
+    pyamp_ymodem_write = func;
 
     LOGD(MOD_STR, "Please start ymodem ... (press ctrl+c to cancel)\n");
 
-    ret = ymodem_recv_file();
+    ret = pyamp_ymodem_recv_file();
     if (ret != YMODEM_OK) {
         for(i = 0; i < 5000; i++ ) {
             if(uart_recv_byte(&c)) {
@@ -371,7 +405,7 @@ int ymodem_upgrade(void (*func)(unsigned char *, int))
     if(ret == YMODEM_OK) {
         LOGD(MOD_STR, "Recv App Bin OK\n");
     } else if(ret == YMODEM_FILE_TOOBIG) {
-        LOGD(MOD_STR, "file too big len:0x%08x !!!\n", ymodem_flash_size);
+        LOGD(MOD_STR, "file too big len:0x%08x !!!\n", pyamp_ymodem_flash_size);
     } else {
         LOGD(MOD_STR, "Ymodem recv file Err:%d !!!\n", ret);
     }

@@ -15,6 +15,33 @@
 <!-- <script src="https://hli.aliyuncs.com/haas-static/js/jquery-3.6.0.min.js" type="text/javascript"></script> -->
 <script src="https://hli.aliyuncs.com/haas-static/js/src/siteMount.js" type="text/javascript"></script>
 
+<script>
+  (function(w, d, s, q, i) {
+    w[q] = w[q] || [];
+    var f = d.getElementsByTagName(s)[0],j = d.createElement(s);
+    j.async = true;
+    j.id = 'beacon-aplus';
+    j.src = 'https://d.alicdn.com/alilog/mlog/aplus/' + i + '.js';
+    f.parentNode.insertBefore(j, f);
+   })(window, document, 'script', 'aplus_queue', '203486311');
+
+   function _sendPV(spma, spmb) {
+    console.info(`sendPV ${spma}.${spmb}`)
+    aplus_queue.push({
+      action: 'aplus.setPageSPM',
+      arguments: [spma, spmb]
+    });
+    aplus_queue.push({
+      'action': 'aplus.sendPV',
+      'arguments': [{
+        is_auto: false
+      }, {
+      }]
+    })
+  }
+  _sendPV('a2cti', '24227744')
+ </script>
+
 $treeview
 $search
 $mathjax

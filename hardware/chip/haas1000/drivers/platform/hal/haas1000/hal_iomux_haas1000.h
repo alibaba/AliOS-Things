@@ -246,6 +246,7 @@ void hal_iomux_set_mcu_clock_out(void);
 
 void hal_iomux_set_bt_clock_out(void);
 
+int32_t hal_iomux_set_io_driver(enum HAL_IOMUX_PIN_T pin, uint32_t val);
 #ifdef __cplusplus
 }
 #endif

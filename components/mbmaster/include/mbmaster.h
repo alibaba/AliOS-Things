@@ -95,9 +95,10 @@ typedef struct mb_handler {
  * @param[in]   port        port usend to communication
  * @param[in]   baud_rate   baud rate used by port
  * @param[in]   parity      parity used by port
+ * @param[in]   timeout     timeout for response
  * @return  the operation status, MB_SUCCESS is OK, other is error
  */
-mb_status_t mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity);
+mb_status_t mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity, uint32_t timeout);
 
 /**
  * This function will free the handler and uninitializes the port for communication

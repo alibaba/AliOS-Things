@@ -45,7 +45,7 @@ enum hshf_event_t {
     /* internal event */
     HSHF_EVNT_BEGIN,            //27
     HSHF_RFCOMM_OPENED,         //28
-    HSHF_CONN_OPENED,           
+    HSHF_CONN_OPENED,
     HSHF_CONN_CLOSED,
     HSHF_CONN_REQ_FAIL,
     HF_AG_SUPPORTED_FEATURE_IND,
@@ -304,7 +304,7 @@ void hshf_disableMic(void);
 /* ----profile.c----*/
 uint8 hshf_showProfile(void);
 
-#endif /* 
+#endif /*
         */
 int8 hshf_setProfile(uint8 profile);
 
@@ -359,7 +359,7 @@ void hf_setDialNum(uint8 * num, uint8 len);
 
 void hf_setDialMemory(uint8 * mem, uint8 len);
 
-#endif /* 
+#endif /*
         */
 int8 hf_dialNum(const uint8 * dialNum, uint8 numLen);
 
@@ -378,7 +378,7 @@ void hf_setDtmf(char dtmf);
 
 /*---- nrec.c ----*/
 //int8 hf_disableNrec( void );
-#endif /* 
+#endif /*
         */
 /*---- ring.c ----*/
 uint8 hf_isInbandRing(void);

@@ -1,7 +1,7 @@
 
 @page ota ota
 
-[更正文档](https://gitee.com/alios-things/ota/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ota/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 概述
 OTA是over the air的缩写，是AliIOS Things 提供的完备的升级方案，对各种升级场景都有很好的支持。目前AliIOS Things除一般的整包升级外，现有的高阶能力有：压缩升级、差分升级及安全升级；支持的升级通道：http、https、BLE、3G/4G，NB等；复杂场景支持：网关及子设备升级，连接型模组升级非连接主设备的间接升级；完备的配套工具：差分工具、本地签名工具、ymodem辅助升级工具，多固件打包工具等；
@@ -83,18 +83,18 @@ ota_service_register_cb 注册用户升级回调函数
 
 # 使用示例
 
-组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 步骤1 创建或打开工程
 
 **打开已有工程**
 
-如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+如果用于测试的案例工程已存在，可参考[《AliOS Things集成开发环境使用说明之打开工程》](https://help.aliyun.com/document_detail/302381.html)打开已有工程。
 
 **创建新的工程**
 
-组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择ota_demo案例。ota_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择ota_demo案例。ota_demo案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 
 ## 步骤2 添加组件
 
@@ -107,7 +107,7 @@ depends:
 
 ## 步骤3 下载组件
 
-在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+在已安装了  的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
 
 ```shell
 
@@ -143,15 +143,15 @@ aos install ota
 
 ## 步骤5 编译固件
 
-在示例代码已经添加至组件的配置文件，并且ota_demo已添加了对该组件的依赖后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+在示例代码已经添加至组件的配置文件，并且ota_demo已添加了对该组件的依赖后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 ## 步骤6 烧录固件
 
-ota_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+ota_demo案例的固件生成后，可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 

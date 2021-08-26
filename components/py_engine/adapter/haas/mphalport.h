@@ -10,6 +10,8 @@ extern ringbuf_t stdin_ringbuf;
 
 extern void mp_hal_set_interrupt_char(int c);
 
+extern int32_t mp_uart_init(uint8_t port, uint32_t baud_rate);
+
 // This macro is used to implement PEP 475 to retry specified syscalls on EINTR
 #define MP_HAL_RETRY_SYSCALL(ret, syscall, raise) { \
         for (;;) { \
@@ -18,7 +20,7 @@ extern void mp_hal_set_interrupt_char(int c);
             MP_THREAD_GIL_ENTER(); \
             if (ret == -1) { \
                 int err = errno; \
-                if (err == EINTR) { \
+                if (err == MP_EINTR) { \
                     mp_handle_pending(true); \
                     continue; \
                 } \

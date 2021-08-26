@@ -5,7 +5,7 @@
 #ifndef AOS_GPIOC_CSI_H
 #define AOS_GPIOC_CSI_H
 
-#include <aos/gpioc.h>
+#include <aos/gpioc_core.h>
 #include <drv/gpio.h>
 
 #define AOS_GPIOC_CSI_MAX_NUM_PINS      (sizeof(uint32_t) * 8)

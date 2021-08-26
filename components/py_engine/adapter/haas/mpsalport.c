@@ -1,9 +1,11 @@
-#include <aos/kernel.h>
-#include "mpsalport.h"
+#include "py/mperrno.h"
+
+#include "aos/kernel.h"
 #include "k_api.h"
+#include "mpsalport.h"
 #include "ulog/ulog.h"
 
-#define LOG_TAG "MP-SAL"
+#define LOG_TAG "mp_sal_port"
 
 uint32_t mp_sal_get_stack_size() {
     ktask_t *task = krhino_cur_task_get();
@@ -32,7 +34,7 @@ int32_t mp_sal_mutex_lock(mp_sal_mutex_obj_t *mutex, uint32_t timeout) {
 
     if(mutex == NULL){
         LOGE(LOG_TAG, "mpthread mutex lock with mutex NULL !!");
-        return -1;
+        return -MP_EINVAL;
     }
 
     if(timeout == 0) {
@@ -45,7 +47,7 @@ int32_t mp_sal_mutex_lock(mp_sal_mutex_obj_t *mutex, uint32_t timeout) {
 int32_t mp_sal_mutex_unlock(mp_sal_mutex_obj_t *mutex) {
     if(mutex == NULL){
         LOGE(LOG_TAG, "mpthread mutex unlock with mutex NULL !!");
-        return -1;
+        return -MP_EINVAL;
     }
     int status = aos_mutex_unlock(mutex);
     return status;
@@ -53,4 +55,39 @@ int32_t mp_sal_mutex_unlock(mp_sal_mutex_obj_t *mutex) {
 
 void mp_sal_mutex_delete(mp_sal_mutex_obj_t *mutex) {
     aos_mutex_free(mutex);
+}
+
+
+/* APIs for semphone */
+
+int32_t mp_sal_sem_create(mp_sal_sem_obj_t *sem) {
+    int status = aos_sem_create(sem, 0, 0);
+    return status;
+}
+
+int32_t mp_sal_sem_take(mp_sal_sem_obj_t *sem, uint32_t timeout) {
+    if(sem == NULL){
+        LOGE(LOG_TAG, "mpthread sem lock with sem NULL !!");
+        return -MP_EINVAL;
+    }
+
+    if(timeout == 0) {
+        return 0;
+    }
+
+    int status = aos_sem_wait(sem, timeout);
+    return status;
+}
+
+int32_t mp_sal_sem_give(mp_sal_sem_obj_t *sem) {
+    if(sem == NULL){
+        LOGE(LOG_TAG, "mpthread sem unlock with sem NULL !!");
+        return -MP_EINVAL;
+    }
+    aos_sem_signal(sem);
+    return 0;
+}
+
+void mp_sal_sem_delete(mp_sal_sem_obj_t *sem) {
+    aos_sem_free(sem);
 }

@@ -64,6 +64,8 @@
 #include "osdep_service.h"
 //sys_thread_t TaskOTA = NULL;
 
+void rtc_backup_timeinfo(void);
+
 #if (SERVER_TYPE == SERVER_LOCAL)
 
 typedef struct
@@ -83,7 +85,7 @@ const u32 IMG_ADDR[MAX_IMG_NUM][2] = {
   */   
 void* ota_update_malloc(unsigned int size)
 {
-	return pvPortMalloc(size);
+	return rtw_malloc(size);
 }
 
 /**
@@ -93,7 +95,7 @@ void* ota_update_malloc(unsigned int size)
   */   
 void ota_update_free(void *buf)
 {
-	vPortFree(buf);
+	rtw_free(buf);
 }
 
 /**
@@ -107,7 +109,7 @@ void ota_platform_reset(void)
 	u32 CountProcess;
 	u32 DivFacProcess;
 	
-	vTaskDelay(100);
+	rtw_msleep_os(100);
 
 	/* CPU reset: Cortex-M3 SCB->AIRCR*/
 	//NVIC_SystemReset();	
@@ -355,7 +357,7 @@ u32 recv_file_info_from_server(u8 * Recvbuf, u32 len, int socket)
 	buf = Recvbuf;
 	TempLen = len;
 	while(TempLen > 0) {
-		read_bytes = read(socket, buf, TempLen);
+		read_bytes = lwip_read(socket, buf, TempLen);
 		if(read_bytes < 0){
 			printf("\n\r[%s] read socket failed\n", __FUNCTION__);
 			goto error;
@@ -392,7 +394,7 @@ u32 recv_ota_file_hdr(u8 * Recvbuf, u32 * len, update_ota_target_hdr * pOtaTgtHd
 	buf = Recvbuf;
 	TempLen = 16;
 	while(TempLen > 0) {
-		read_bytes = read(socket, buf, TempLen);
+		read_bytes = lwip_read(socket, buf, TempLen);
 		if(read_bytes < 0){
 			printf("\n\r[%s] read socket failed\n", __FUNCTION__);
 			goto error;
@@ -414,7 +416,7 @@ u32 recv_ota_file_hdr(u8 * Recvbuf, u32 * len, update_ota_target_hdr * pOtaTgtHd
 	buf = Recvbuf + 16;
 	TempLen =  (pOtaFileHdr->HdrNum * pOtaFileImgHdr->ImgHdrLen) - 8;
 	while(TempLen > 0) {
-		read_bytes = read(socket, buf, TempLen);
+		read_bytes = lwip_read(socket, buf, TempLen);
 		if(read_bytes < 0){
 			printf("\n\r[%s] read socket failed\n", __FUNCTION__);
 			goto error;
@@ -579,7 +581,7 @@ u32 download_new_fw_from_server(int socket, update_ota_target_hdr * pOtaTgtHdr, 
 				read_bytes = read_bytes_buf;
 			} else {
 				memset(buf, 0, BUF_SIZE);
-				read_bytes = read(socket, buf, BUF_SIZE);
+				read_bytes = lwip_read(socket, buf, BUF_SIZE);
 				if(read_bytes == 0){
 					break; // Read end			
 				}

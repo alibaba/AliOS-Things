@@ -17,13 +17,27 @@ STATIC mp_obj_t obj_init(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
+    if (n_args < 2)
+    {
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+        return mp_const_none;
+    }
 
-    ret = ucamera_service_init("wifi_camera");
+    char *camera_type = (char *)mp_obj_str_get_str(args[0]);
+    char *camera_url = (char *)mp_obj_str_get_str(args[1]);
+    if (!strcmp(camera_type, "wifi")) {
+        ret = ucamera_service_init(WIFI_CAMERA_NAME);
+    } else {
+        ret = -1;
+        LOGE(LOG_TAG, "unsupport camera type %s;\n", __func__);
+    }
+
     if (ret < 0) {
         LOGD(LOG_TAG, "init failed  %s;\n", __func__);
     }
     return mp_obj_new_int(ret);
 }
+
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ucamera_obj_init, 0, obj_init);
 
 STATIC mp_obj_t obj_saveFrameToJpeg(size_t n_args, const mp_obj_t *args)

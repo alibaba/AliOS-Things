@@ -23,6 +23,9 @@ monitor_data_cb_t g_mgnt_filter_callback = NULL;
 wifi_promiscuous_cb_t g_promisc_user_callback = NULL;
 static aos_sem_t scan_sem;
 
+int haas200_wifi_channel_list[64];
+int haas200_wifi_channel_list_num = 0;
+
 int haas200_wifi_init(netdev_t *dev)
 {
 #if CONFIG_LWIP_LAYER
@@ -50,7 +53,7 @@ int haas200_wifi_set_mode(netdev_t *dev, wifi_mode_t mode)
 
 int haas200_wifi_get_mode(netdev_t *dev, wifi_mode_t *devode)
 {
-    return wext_get_mode(WLAN0_NAME, devode);
+    return wext_get_mode(WLAN0_NAME, (int *)devode);
 }
 
 int haas200_wifi_install_event_cb(netdev_t *dev, wifi_event_func *evt_cb)
@@ -70,7 +73,7 @@ int haas200_wifi_cancel_connect(netdev_t *dev)
 
 int haas200_wifi_set_mac_addr(netdev_t *dev, const uint8_t *devac)
 {
-    return wifi_set_mac_address(devac);
+    return wifi_set_mac_address((char *)devac);
 }
 
 int haas200_wifi_get_mac_addr(netdev_t *dev, uint8_t *devac)
@@ -203,7 +206,7 @@ int haas200_wifi_start_scan(netdev_t *dev, wifi_scan_config_t *config, bool bloc
         return -1;
     }
     rtw_memset(scan_buf, 0, 65*sizeof(rtw_scan_result_t));
-    if(wifi_scan_networks(scan_result_handler, scan_buf) != 0) {
+    if(wifi_scan_networks((rtw_scan_result_handler_t)scan_result_handler, scan_buf) != 0) {
         printf("ERROR: wifi scan failed!\n");
         return -1;
     }
@@ -240,13 +243,13 @@ static int _find_ap_from_scan_buf(char*buf, int buflen, char *target_ssid, void 
             switch (security_mode)
             {
             case IW_ENCODE_ALG_NONE:
-                pwifi->security_type = RTW_SECURITY_OPEN;
+                pwifi->security_type = SECURITY_TYPE_NONE;
                 break;
             case IW_ENCODE_ALG_WEP:
-                pwifi->security_type = RTW_SECURITY_WEP_PSK;
+                pwifi->security_type = SECURITY_TYPE_WEP;
                 break;
             case IW_ENCODE_ALG_CCMP:
-                pwifi->security_type = RTW_SECURITY_WPA2_AES_PSK;
+                pwifi->security_type = SECURITY_TYPE_WPA2_AES;
                 break;
             }
 
@@ -281,6 +284,38 @@ static int _get_ap_security_mode(IN char * ssid, OUT rtw_security_t *security_mo
     return 0;
 }
 
+rtw_security_t haas200_security_type_to_rtw(wifi_sec_type_t sec_type)
+{
+    rtw_security_t security_type = RTW_SECURITY_UNKNOWN;
+    switch(sec_type) {
+    case SECURITY_TYPE_NONE:
+        security_type = RTW_SECURITY_OPEN;
+        break;
+    case SECURITY_TYPE_WEP:
+        security_type = RTW_SECURITY_WEP_PSK;
+        break;
+    case SECURITY_TYPE_WPA_TKIP:
+        security_type = RTW_SECURITY_WPA_TKIP_PSK;
+        break;
+    case SECURITY_TYPE_WPA_AES:
+        security_type = RTW_SECURITY_WPA_AES_PSK;
+        break;
+    case SECURITY_TYPE_WPA2_TKIP:
+        security_type = RTW_SECURITY_WPA2_TKIP_PSK;
+        break;
+    case SECURITY_TYPE_WPA2_AES:
+        security_type = RTW_SECURITY_WPA2_AES_PSK;
+        break;
+    case SECURITY_TYPE_WPA2_MIXED:
+        security_type = RTW_SECURITY_WPA2_MIXED_PSK;
+        break;
+    case SECURITY_TYPE_AUTO:
+        security_type = RTW_SECURITY_WPA2_AES_PSK;
+        break;
+    }
+    return security_type;
+}
+
 int haas200_wifi_connect(netdev_t *dev, wifi_config_t *config)
 {
     int ret = -1;
@@ -289,8 +324,9 @@ int haas200_wifi_connect(netdev_t *dev, wifi_config_t *config)
     uint8_t password[MAX_PASSWD_SIZE + 1] = {0};
     uint32_t ssid_len, passwd_len;
     uint8_t channel;
-    uint8_t pscan_config = (PSCAN_ENABLE | PSCAN_FAST_SURVEY | PSCAN_SIMPLE_CONFIG);
+    uint8_t pscan_config = (PSCAN_ENABLE | PSCAN_FAST_SURVEY);
     rtw_security_t security_type = RTW_SECURITY_UNKNOWN;
+    char empty_bssid[ETH_ALEN] = {0}, assoc_by_bssid = 0;
     
     if(!config)
         return -1;
@@ -306,35 +342,34 @@ int haas200_wifi_connect(netdev_t *dev, wifi_config_t *config)
     passwd_len = strlen(config->password);
     channel = config->sta_config.channel;
     rtw_memcpy(ssid, config->ssid, ssid_len);
-    
+
     if(passwd_len == 0)
         security_type = RTW_SECURITY_OPEN;
     else {
         rtw_memcpy(password, config->password, passwd_len);
-        //security_type = RTW_SECURITY_WPA2_AES_PSK;    
-    }
-    
-    if(security_type == RTW_SECURITY_UNKNOWN) {
-        int security_retry_count = 0;
-        while (1) {
-            if (_get_ap_security_mode((char*)ssid, &security_type, &channel))
-                break;
-            security_retry_count++;
-            if(security_retry_count >= 3){
-                printf("Can't get AP security mode and channel.\n");
-                printf("Warning : unknow security type, default set to WPA2_AES\r\n");
-                security_type = RTW_SECURITY_WPA2_AES_PSK;                
-                break;
-            }
-        }
-        wifi_set_pscan_chan(&channel, &pscan_config, 1);
+        security_type = haas200_security_type_to_rtw(config->sta_config.sec_type);
     }
 
-    if (security_type == RTW_SECURITY_WEP_PSK || security_type ==RTW_SECURITY_WEP_SHARED) 
+    if(!rtw_memcmp(config->sta_config.bssid, empty_bssid, ETH_ALEN))
+        assoc_by_bssid = 1;
+
+    if(wifi_set_pscan_chan(&channel, &pscan_config, 1) < 0) {
+        printf("ERROR: Set channel pscan failed!");
+        return -1;
+    }
+
+    if (security_type == RTW_SECURITY_WEP_PSK || security_type == RTW_SECURITY_WEP_SHARED) 
         key_id = 0;
-    
+
     printf("\nconnect to ssid:%s,password:%s\n",ssid,password);
-    ret = wifi_connect(ssid, security_type, password, ssid_len, passwd_len, key_id, NULL);
+
+    if(assoc_by_bssid) {
+        printf("\n\rjoining BSS by BSSID %02x:%02x:%02x:%02x:%02x:%02x ...\n\r", MAC_ARG(config->sta_config.bssid));
+        ret = wifi_connect_bssid(config->sta_config.bssid, ssid, security_type, password, ETH_ALEN, ssid_len, passwd_len, key_id, NULL);
+    } else {
+        ret = wifi_connect(ssid, security_type, password, ssid_len, passwd_len, key_id, NULL);
+    }
+    
     if(ret != 0) {
         if(ret == RTW_INVALID_KEY)
             printf("\n\rERROR:Invalid Key\n");        
@@ -492,33 +527,38 @@ int haas200_wifi_set_channel(netdev_t *dev, int channel)
 static int specified_scan_result_handler(char*buf, int buflen, char *target_ssid, void *user_data)
 {
     ap_list_t *ap_list = (ap_list_t *)user_data;
+    int cmp_rssi = -120;
     int plen = 0;
     
     while(plen < buflen) {
         int len, rssi, ssid_len, security_mode, i;
-        char *ssid, *mac;
-        printf("\n\r");
+        char *ssid, *mac, exchange = 0;
+
         /* len offset = 0 */
         len = (int)*(buf + plen);
         /* check end */
         if(len == 0) break;
         /* mac */
         mac = buf + plen + 1;
-        strncpy(ap_list->bssid,mac,6);
-        printf("mac = ");
-        for(i=0; i<6; i++)
-            printf("%02x ", (u8)*(mac+i));
-        printf(",\t");
         /* rssi */
         rssi = *(int *)(buf + plen + 7);
-        ap_list->ap_power = rssi;
-        printf("rssi = %d,\t",rssi);
+        if(rssi > cmp_rssi) {
+            cmp_rssi = rssi;
+            exchange = 1;
+            strncpy(ap_list->bssid,mac,6);
+            printf("mac = ");
+            for(i=0; i<6; i++)
+                printf("%02x ", (u8)*(mac+i));
+            printf(",\t");
+            ap_list->ap_power = rssi;
+            printf("rssi = %d,\t",rssi);
+        }
         /* ssid offset = 14 */
         ssid_len = len - 14;
         ssid = buf + plen + 14 ;
-    
+
         if((ssid_len == strlen(target_ssid))
-            && (!memcmp(ssid, target_ssid, ssid_len)))
+            && (!memcmp(ssid, target_ssid, ssid_len)) && exchange)
         {
             strncpy((char*)ap_list->ssid, target_ssid, 33);
             printf("ssid = ");
@@ -532,16 +572,16 @@ static int specified_scan_result_handler(char*buf, int buflen, char *target_ssid
             security_mode = (u8)*(buf + plen + 11);
             switch(security_mode){
                 case IW_ENCODE_ALG_NONE:
-                    ap_list->sec_type = RTW_SECURITY_OPEN;
-                    printf("sec = open");
+                    ap_list->sec_type = SECURITY_TYPE_NONE;
+                    printf("sec = open\n\r");
                     break;
                 case IW_ENCODE_ALG_WEP:
-                    ap_list->sec_type = RTW_SECURITY_WEP_PSK;
-                    printf("sec = wep");
+                    ap_list->sec_type = SECURITY_TYPE_WEP;
+                    printf("sec = wep\n\r");
                     break;
                 case IW_ENCODE_ALG_CCMP:
-                    ap_list->sec_type = RTW_SECURITY_WPA2_AES_PSK;
-                    printf("sec = wpa/wpa2");
+                    ap_list->sec_type = SECURITY_TYPE_WPA2_AES;
+                    printf("sec = wpa/wpa2\n\r");
                     break;
             }
         }
@@ -555,6 +595,8 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 {
     static wifi_scan_result_t result = {0};
     int i, scan_buf_len = 500;
+    uint8_t *pscan_config = NULL;
+    uint8_t *channel_list = NULL;
 
     if(!ap_num || !ap_list) {
         printf("ERROR: error params\n");
@@ -566,8 +608,31 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
     }
 
     if(!result.ap_list){
-        printf("ERROR: malloc failed!\n");
+        printf("ERROR: malloc for ap list failed!\n");
         return -1;
+    }
+
+    if(haas200_wifi_channel_list && haas200_wifi_channel_list_num > 0) {
+        channel_list = (uint8_t *)malloc(haas200_wifi_channel_list_num);
+        if(!channel_list) {
+            printf("ERROR: malloc for channel list failed!\n");
+            return -1;
+        }
+        pscan_config = (uint8_t *)malloc(haas200_wifi_channel_list_num);
+        if(!pscan_config) {
+            printf("ERROR: malloc for pscan config failed!\n");
+            return -1;
+        }
+
+        for(int i = 0; i < haas200_wifi_channel_list_num; i++) {
+            *(channel_list + i) = (uint8_t)haas200_wifi_channel_list[i];
+            *(pscan_config + i) = PSCAN_ENABLE;
+        }
+
+        if(wifi_set_pscan_chan(channel_list, pscan_config, haas200_wifi_channel_list_num) < 0) {
+            printf("ERROR: set channel pscan failed!");
+            return -1;
+        }
     }
 
     result.ap_num = ap_num;
@@ -622,7 +687,23 @@ int haas200_wifi_register_mgnt_monitor_cb(netdev_t *dev, monitor_data_cb_t fn)
         return -1;
     
     g_mgnt_filter_callback = fn;
-    wifi_reg_event_handler(WIFI_EVENT_RX_MGNT, wifi_rx_mgnt_hdl, NULL);
+    wifi_reg_event_handler(WIFI_EVENT_RX_MGNT, (rtw_event_handler_t)wifi_rx_mgnt_hdl, NULL);
+    return 0;
+}
+
+int haas200_wifi_set_channellist(netdev_t *dev, wifi_channel_list_t *channellist)
+{
+
+    memset(&haas200_wifi_channel_list, 0, 64*sizeof(int));
+    memcpy(&haas200_wifi_channel_list, channellist->channel_list, channellist->channel_num*sizeof(int));
+    haas200_wifi_channel_list_num = channellist->channel_num;
+    return 0;
+}
+
+int haas200_wifi_get_channellist(netdev_t *dev, wifi_channel_list_t *channellist)
+{
+    channellist->channel_list = &haas200_wifi_channel_list;
+    channellist->channel_num = haas200_wifi_channel_list_num;
     return 0;
 }
 
@@ -673,6 +754,9 @@ static wifi_driver_t haas200_wifi_driver = {
     .register_mgnt_monitor_cb   = haas200_wifi_register_mgnt_monitor_cb,
 
     .set_smartcfg = NULL,
+
+    .set_channellist = haas200_wifi_set_channellist,
+    .get_channellist = haas200_wifi_get_channellist,
 };
 
 int haas200_wifi_register(void)

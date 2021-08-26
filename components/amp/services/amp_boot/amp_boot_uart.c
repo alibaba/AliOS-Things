@@ -75,3 +75,15 @@ void amp_boot_uart_init(void)
         return;
     }
 }
+
+void amp_boot_uart_deinit(void)
+{
+#ifdef AMP_VUART_PORT
+    int ret = aos_hal_vuart_finalize(&g_boot_vuart);
+#else
+    int ret = aos_hal_uart_finalize(&g_boot_uart);
+#endif
+    if (ret) {
+        return;
+    }
+}

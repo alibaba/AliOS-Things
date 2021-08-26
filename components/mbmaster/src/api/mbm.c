@@ -8,7 +8,7 @@
 #include "../pdu/pdu.h"
 
 #if (MBMASTER_CONFIG_RTU_ENABLED > 0)
-mb_status_t mbmaster_rtu_init(mb_handler_t **req_handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity)
+mb_status_t mbmaster_rtu_init(mb_handler_t **req_handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity, uint32_t timeout)
 {
     mb_handler_t *handler;
     mb_status_t   status = MB_SUCCESS;
@@ -30,7 +30,7 @@ mb_status_t mbmaster_rtu_init(mb_handler_t **req_handler, uint8_t port, uint32_t
     handler->frame_send      = mb_serial_frame_send;
     handler->adu_assemble    = rtu_assemble;
     handler->adu_disassemble = rtu_disassemble;
-    handler->respond_timeout = 200;
+    handler->respond_timeout = timeout;
     handler->pdu_offset      = ADU_SER_PDU_OFF;
 
     *req_handler = handler;

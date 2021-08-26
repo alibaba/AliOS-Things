@@ -43,7 +43,7 @@ int32_t amp_task_init(void);
 int32_t amp_task_yield(uint32_t timeout);
 
 aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action,
-                               void *arg, amp_timer_type_t type);
+                               void *arg, amp_timer_type_t type, void **timer_msg);
 
 int32_t amp_task_exit_call(amp_engine_call_t call, void *arg);
 

@@ -22,7 +22,9 @@ extern VOID RtlUdelayOS(u32 us);
 #include <string.h>
 #endif
 
+#ifndef configTICK_RATE_HZ
 #define configTICK_RATE_HZ				( ( uint32_t ) 1000 )
+#endif
 
 #define DBG_ERR(fmt, args...)		DBG_8195A("\n\r[%s] " fmt, __FUNCTION__, ## args)
 #if WLAN_INTF_DBG
@@ -33,8 +35,8 @@ extern VOID RtlUdelayOS(u32 us);
 #define DBG_INFO(fmt, args...)
 #endif
 
-#define pvPortMalloc   _aos_zmalloc
-#define vPortFree           _aos_mfree
+#define pvPortMalloc   aos_malloc
+#define vPortFree      aos_free
 /*
  * atomic_read - read atomic variable
  * @v: pointer of type atomic_t

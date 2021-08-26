@@ -50,7 +50,7 @@ static void aiot_device_ntp_notify(void *pdata)
     JS_FreeValue(ctx, obj);
     JS_FreeValue(ctx, param->js_cb_ref);
 
-    aos_free(param);
+    amp_free(param);
 }
 
 static void aiot_app_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packet, void *userdata)
@@ -90,7 +90,8 @@ static void aiot_app_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packe
 
         break;
     default:
-        break;
+        amp_free(ntp_params);
+        return;
     }
 
     amp_task_schedule_call(aiot_device_ntp_notify, ntp_params);

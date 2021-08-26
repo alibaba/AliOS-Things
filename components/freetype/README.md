@@ -1,6 +1,6 @@
 @page freetype freetype
 
-[更正文档](https://gitee.com/alios-things/freetype/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/freetype/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 概述
 对于嵌入式系统应用中，尽管点阵字体在时间和空间性能上都有较佳的表现，但是由于缺乏灵活性，无法改变字体的大小、字形和风格，为解决这些问题，引入freetype2.5.3，FreeType库是一个开源的、可移植的字体引擎，它功能强大，简单说就是支持字体的花样显示。

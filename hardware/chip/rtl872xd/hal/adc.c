@@ -66,7 +66,7 @@ int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 
 	data = ADC_Read();
 
-	*(uint16_t*)output=(uint16_t*)(data & BIT_MASK_DAT_GLOBAL);
+	*output = data & BIT_MASK_DAT_GLOBAL;
 
 	return 0;
 

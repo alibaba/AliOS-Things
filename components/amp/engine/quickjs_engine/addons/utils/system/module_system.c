@@ -146,7 +146,7 @@ void module_system_register(void)
     JS_SetPropertyStr(ctx, system, "uptime",
                       JS_NewCFunction(ctx, native_system_uptime, "uptime", 0));
     JS_SetPropertyStr(ctx, system, "memory",
-                      JS_NewCFunction(ctx, native_system_memory, "memory", 0));    
+                      JS_NewCFunction(ctx, native_system_memory, "memory", 0));
     JS_SetPropertyStr(ctx, system, "gc",
                       JS_NewCFunction(ctx, native_system_gc, "gc", 0));
     JS_SetPropertyStr(ctx, system, "reboot",

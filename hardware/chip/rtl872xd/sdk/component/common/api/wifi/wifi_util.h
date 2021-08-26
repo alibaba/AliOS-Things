@@ -118,6 +118,15 @@ int wext_wowlan_set_pattern(const char *ifname, wowlan_pattern_t pattern);
 int wext_wlan_redl_fw(const char *ifname);
 #endif
 
+#ifdef CONFIG_POWER_SAVING
+void wext_set_powersave_mode(__u8 ps_mode);
+void wext_get_powersave_mode(__u8 *ps_mode);
+#endif
+
+int wext_get_bcn_rssi(const char *ifname, int *rssi);
+int wext_set_ant_div_gpio(__u8 type);
+int wext_set_bw40_enable(__u8 enable);
+
 extern int (*p_wlan_mgmt_filter)(__u8 *ie, __u16 ie_len, __u16 frame_type);
 extern int (*p_wlan_action_filter)(__u8 *ie, __u16 ie_len, __u16 frame_type);
 

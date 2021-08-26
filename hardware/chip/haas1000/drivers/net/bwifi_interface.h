@@ -5,6 +5,7 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 #include "plat_types.h"
+#include "cmsis_os.h"
 
 #include "bwifi_sta.h"
 #if LWIP_ETHERNETIF || LWIP_SUPPORT

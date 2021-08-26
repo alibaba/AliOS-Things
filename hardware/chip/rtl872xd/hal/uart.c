@@ -309,7 +309,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 	UART_TypeDef *uart_dev;
 	uart_dev = UART_DEV_TABLE[num].UARTx;
 
-	UART_SendDataTO(uart_dev, data, size, 1000);
+	UART_SendDataTO(uart_dev, (uint8_t *)data, size, 1000);
 
 	return 0;
     }else{

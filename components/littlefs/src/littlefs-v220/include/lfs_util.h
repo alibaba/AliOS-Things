@@ -19,6 +19,40 @@
 #include LFS_STRINGIZE(LFS_CONFIG)
 #else
 
+// Adapt for alios things configuration <def_config> in .yaml,
+// which still defines a macro with a vaule e.g. 0 or 1.
+#if LFS_CONFIG_DEBUG
+#ifdef LFS_NO_DEBUG
+#undef LFS_NO_DEBUG
+#endif
+#else
+#define LFS_NO_DEBUG
+#endif
+
+#if LFS_CONFIG_WARN
+#ifdef LFS_NO_WARN
+#undef LFS_NO_WARN
+#endif
+#else
+#define LFS_NO_WARN
+#endif
+
+#if LFS_CONFIG_ERROR
+#ifdef LFS_NO_ERROR
+#undef LFS_NO_ERROR
+#endif
+#else
+#define LFS_NO_ERROR
+#endif
+
+#if LFS_CONFIG_TRACE
+#define LFS_YES_TRACE
+#else
+#ifdef LFS_YES_TRACE
+#undef LFS_YES_TRACE
+#endif
+#endif
+
 // System includes
 #include <stdint.h>
 #include <stdbool.h>

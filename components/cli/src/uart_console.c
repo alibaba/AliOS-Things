@@ -37,7 +37,7 @@ int uart_console_write(const void *buf, size_t len, void *privata_data)
     }
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = HAL_UART_STDIO_PORT;
 
     for (i = 0; i < len; i++) {
         if (*tmp == '\n') {
@@ -64,7 +64,7 @@ int uart_console_read(void *buf, size_t len, void *privata_data)
         return 0;
     }
     memset(&uart_stdio, 0, sizeof(uart_dev_t));
-    uart_stdio.port = 0;
+    uart_stdio.port = HAL_UART_STDIO_PORT;
 
     if ( g_cli_direct_read == 0 ) {
         ret = hal_uart_recv_II(&uart_stdio, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);

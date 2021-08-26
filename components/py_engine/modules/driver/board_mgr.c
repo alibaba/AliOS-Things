@@ -1048,9 +1048,9 @@ int32_t py_board_mgr_init()
     char *json = NULL;
     int json_fd = -1;
     char *board_json_path = NULL;
-    char *sdcard_root_path = "/sdcard/board.json";
-    char *data_root_path = MP_FS_ROOT_DIR"/board.json";
-    char *sdcard_board_json_path = "/sdcard/python-apps/driver/board.json";
+    char *sdcard_root_path = AMP_FS_EXT_ROOT_DIR"/board.json";
+    char *data_root_path = AMP_FS_ROOT_DIR"/board.json";
+    char *sdcard_board_json_path = MP_FS_EXT_ROOT_DIR"/python-apps/driver/board.json";
     char *data_board_json_path = MP_FS_ROOT_DIR"/python-apps/driver/board.json";
 
     if (board_init_flag != false) {

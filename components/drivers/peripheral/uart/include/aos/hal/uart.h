@@ -21,6 +21,10 @@ extern "C" {
 /* Define the wait forever timeout macro */
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
 
+#ifndef HAL_UART_STDIO_PORT
+#define HAL_UART_STDIO_PORT 0
+#endif
+
 /*
  * UART data width
  */

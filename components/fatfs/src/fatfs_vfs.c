@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/fcntl.h>
 
+#include "aos/kernel.h"
 #include "fatfs_diskio.h"
 #include "ff.h"
 
@@ -306,6 +307,57 @@ static int32_t fatfs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
     return ret;
 }
 
+static int32_t fatfs_vfs_statfs(vfs_file_t *fp, const char *path, vfs_statfs_t *stfs)
+{
+    int idx;
+    FATFS *f;
+    FRESULT res;
+    DWORD fre_clust, fre_sect, tot_sect;
+    char drive[5] = {0};
+    size_t prefix_len;
+
+    for (idx = 0; idx < (sizeof(g_fsid) / sizeof(g_fsid[0])); idx++) {
+        prefix_len = strlen(g_fsid[idx].root);
+        if (strncmp(g_fsid[idx].root, path, prefix_len) == 0) {
+            break;
+        }
+    }
+
+    if (idx == (sizeof(g_fsid) / sizeof(g_fsid[0]))) {
+        return -1;
+    }
+
+    if (g_fatfs[idx] == NULL) {
+        return -1;
+    }
+
+    f = g_fatfs[idx];
+
+    snprintf(drive, sizeof(drive), "%d:", f->pdrv);
+    res = f_getfree(drive, &fre_clust, &f);
+    if (res) {
+        return -1;
+    }
+
+    /* Get total sectors and free sectors */
+    tot_sect = (f->n_fatent - 2) * f->csize;
+    fre_sect = fre_clust * f->csize;
+
+    memset(stfs, 0, sizeof(vfs_statfs_t));
+    stfs->f_type = 0x4d44;
+    stfs->f_bavail = fre_sect;
+    stfs->f_bfree = fre_sect;
+    stfs->f_blocks = tot_sect;
+#if FF_MAX_SS != FF_MIN_SS
+    stfs->f_bsize = f->ssize;
+#else
+    stfs->f_bsize = 512;
+#endif
+    stfs->f_files = 1024;
+
+    return 0;
+}
+
 static int32_t fatfs_vfs_unlink(vfs_file_t *fp, const char *path)
 {
     char    *relpath = NULL;
@@ -499,6 +551,7 @@ static vfs_filesystem_ops_t fatfs_ops = {
     .lseek     = &fatfs_vfs_lseek,
     .sync      = &fatfs_vfs_sync,
     .stat      = &fatfs_vfs_stat,
+    .statfs    = &fatfs_vfs_statfs,
     .unlink    = &fatfs_vfs_unlink,
     .rename    = &fatfs_vfs_rename,
     .opendir   = &fatfs_vfs_opendir,

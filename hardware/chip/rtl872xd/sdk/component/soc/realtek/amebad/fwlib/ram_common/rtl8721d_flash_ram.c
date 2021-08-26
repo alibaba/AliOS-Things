@@ -69,7 +69,7 @@ void FLASH_Write_Lock(void)
 	//u32 hp_sleep_state;
 	/*IPC request to let the other CPU sleep*/
 	if (cpu_id == 1) {	
-		ipc_send_message(IPC_INT_CHAN_FLASHPG_REQ, NULL);
+		ipc_send_message(IPC_INT_CHAN_FLASHPG_REQ, (uint32_t)NULL);
 		while(1) {
 			lp_sleep_state = HAL_READ32(SYSTEM_CTRL_BASE_LP, REG_LP_KM0_CTRL); 	/*get KM0 sleep status*/
 			if(lp_sleep_state & BIT_KM0_SLEEPSYS) {
@@ -80,7 +80,7 @@ void FLASH_Write_Lock(void)
 #if defined (ARM_CORE_CM0)
 		u32 hp_sleep_state;
 		if(km4_status_on()) {
-			ipc_send_message(IPC_INT_CHAN_FLASHPG_REQ, NULL);
+			ipc_send_message(IPC_INT_CHAN_FLASHPG_REQ, (uint32_t)NULL);
 			while(1) {
 				hp_sleep_state = HAL_READ32(SYSTEM_CTRL_BASE_HP, REG_HS_PLATFORM_PARA);	/*get KM4 sleep status*/
 				if(hp_sleep_state & BIT_KM4_SLEEP_STATUS) {

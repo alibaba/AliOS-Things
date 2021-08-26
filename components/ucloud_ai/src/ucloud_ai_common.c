@@ -124,3 +124,8 @@ int32_t ucloud_ai_get_stream(char *url, char **stream)
     return recv_len;
 }
 
+char *ucloud_ai_get_token_id(const char *domain, const char *region_id)
+{
+    return getTokenId(domain, region_id);
+}
+

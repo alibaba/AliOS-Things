@@ -74,7 +74,7 @@ STATIC mp_obj_t machine_soft_timer_make_new(const mp_obj_type_t *type, size_t n_
 
     machine_soft_timer_obj_t *swtimer_obj = m_new_obj(machine_soft_timer_obj_t);
     if (!swtimer_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
         return mp_const_none;
     }
     swtimer_obj->base.type = &mp_machine_soft_timer_type;

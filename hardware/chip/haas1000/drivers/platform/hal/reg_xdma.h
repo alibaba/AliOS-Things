@@ -83,13 +83,13 @@ struct XDMA_T {
 
 //Offset: 0x204-0x2x4
 #define XDMA_CONFIG_SRCADDR(n)                         ((((n) & 0x1FFFFFFF) << 3))         // Source address
-#define XDMA_CONFIG_SRCADDR2(n)                        ((((n) & 0x1) << 2))                // 
-#define XDMA_CONFIG_SRCADDR0(n)                        ((((n) & 0x3) << 0))                // 
+#define XDMA_CONFIG_SRCADDR2(n)                        ((((n) & 0x1) << 2))                //
+#define XDMA_CONFIG_SRCADDR0(n)                        ((((n) & 0x3) << 0))                //
 
 //Offset: 0x208-0x2x8
 #define XDMA_CONFIG_TRGADDR(n)                         ((((n) & 0x1FFFFFFF) << 3))         // Target address
-#define XDMA_CONFIG_TRGADDR2(n)                        ((((n) & 0x1) << 2))                // 
-#define XDMA_CONFIG_TRGADDR0(n)                        ((((n) & 0x3) << 0))                // 
+#define XDMA_CONFIG_TRGADDR2(n)                        ((((n) & 0x1) << 2))                //
+#define XDMA_CONFIG_TRGADDR0(n)                        ((((n) & 0x3) << 0))                //
 
 //Offset: 0x20C-0x2xC
 #define XDMA_CONTROL_SI                   ((1UL << 31))              // Source increment

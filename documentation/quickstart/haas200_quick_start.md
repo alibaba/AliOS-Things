@@ -1,6 +1,6 @@
 @page haas200_quick_start HaaS200快速开始
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/quickstart/haas200_quick_start.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/quickstart/haas200_quick_start.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 
 本文向开发者展示在HaaS200开发板上快速上手AliOS-Things 3.3.

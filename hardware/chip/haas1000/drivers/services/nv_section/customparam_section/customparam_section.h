@@ -14,14 +14,14 @@ extern "C" {
 
 #define CUSTOMPARAM_SECTION_SIZE	4096	// one flash page
 
-typedef struct 
+typedef struct
 {
 	uint32_t 	magic_code;	// fixed value as CUSTOMPARAM_MAGIC_CODE
 	uint16_t	version;
 	uint16_t	length;		// length in bytes of the following data in the section
 	uint16_t	entryCount;
 	// following are parameter entries
-	
+
 } __attribute__((packed)) CUSTOM_PARAM_SECTION_HEADER_T;
 
 typedef struct

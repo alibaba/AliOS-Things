@@ -167,8 +167,10 @@
 #define JSE_ADVANCED_ADDON_AIOT_GATEWAY
 #endif
 
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
 #if AMP_ADVANCED_ADDON_AUDIOPLAYER
 #define JSE_ADVANCED_ADDON_AUDIOPLAYER
+#endif
 #endif
 
 #if AMP_ADVANCED_ADDON_TTS
@@ -192,11 +194,6 @@
 #define JSE_WIRELESS_ADDON_BT_HOST
 #endif
 
-/* utils */
-#if AMP_UTILS_ADDON_CHECKSUM
-#define JSE_UTILS_ADDON_CHECKSUM
-#endif
-
 #if AMP_ADVANCED_ADDON_BLECFGNET
 #define JSE_ADVANCED_ADDON_BLECFGNET
 #endif
@@ -205,8 +202,10 @@
 #define JSE_ADVANCED_ADDON_UI
 #endif
 
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
 #if AMP_ADVANCED_ADDON_OSS
 #define JSE_ADVANCED_ADDON_OSS
+#endif
 #endif
 
 /* recovery switch & status led */

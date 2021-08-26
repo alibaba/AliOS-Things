@@ -5,7 +5,7 @@
 #ifndef __UVOICE_LINUX_H__
 #define __UVOICE_LINUX_H__
 
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdarg.h>
@@ -383,6 +383,10 @@ static inline int os_task_create(os_task_t *task, const char *name,
 	return ret;
 }
 
+static inline int os_task_exit(os_task_t task)
+{
+    pthread_exit(NULL);
+}
 
 static inline const char *os_partition_name(int pt)
 {

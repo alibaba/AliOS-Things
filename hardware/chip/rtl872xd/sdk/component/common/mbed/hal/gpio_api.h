@@ -49,6 +49,12 @@ extern "C" {
   */
 void gpio_init(gpio_t *obj, PinName pin);
 
+/**
+  * @brief  Deinitializes the GPIO device, include mode/direction/pull control registers.
+  * @param  obj: gpio object define in application software.
+  * @retval none  
+  */
+void gpio_deinit(gpio_t *obj);
 
 /**
   * @brief  Set the given pin as GPIO.

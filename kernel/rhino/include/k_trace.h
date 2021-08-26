@@ -147,11 +147,11 @@ void trace_event_del(ktask_t *task, kevent_t *event);
 #define TRACE_EVENT_DEL(task, event)  trace_event_del(task, event)
 
 /* buf_queue trace */
-void trace_buf_queue_create(ktask_t *task, kqueue_t *buf_queue);
-void trace_buf_queue_max(ktask_t *task, kqueue_t *buf_queue, void *msg, size_t msg_size);
-void trace_buf_queue_post(ktask_t *task, kqueue_t *buf_queue, void *msg, size_t msg_size);
-void trace_buf_queue_task_wake(ktask_t *task, ktask_t *task_waked_up, kqueue_t *buf_queue);
-void trace_buf_queue_get_blk(ktask_t *task, kqueue_t *buf_queue, tick_t wait_option);
+void trace_buf_queue_create(ktask_t *task, kbuf_queue_t *buf_queue);
+void trace_buf_queue_max(ktask_t *task, kbuf_queue_t *buf_queue, void *msg, size_t msg_size);
+void trace_buf_queue_post(ktask_t *task, kbuf_queue_t *buf_queue, void *msg, size_t msg_size);
+void trace_buf_queue_task_wake(ktask_t *task, ktask_t *task_waked_up, kbuf_queue_t *buf_queue);
+void trace_buf_queue_get_blk(ktask_t *task, kbuf_queue_t *buf_queue, tick_t wait_option);
 
 #define TRACE_BUF_QUEUE_CREATE(task, buf_queue)  trace_buf_queue_create(task, buf_queue)
 #define TRACE_BUF_QUEUE_MAX(task, buf_queue, msg, msg_size) trace_buf_queue_max(task, buf_queue, msg, msg_size)

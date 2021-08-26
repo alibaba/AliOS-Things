@@ -23,16 +23,16 @@
 /* device location info format */
 #define LBS_INFO_FMT "{\"params\":\"{\"cdma\":\"0\",\"bts\":\"%s\",\"nearbts\":\"%s\"}\"}"
 
-int32_t amp_internal_service_subscribe(void *mqtt_handle);
+int32_t pyamp_internal_service_subscribe(void *mqtt_handle);
 
-int32_t amp_internal_service_publish(void *mqtt_handle);
+int32_t pyamp_internal_service_publish(void *mqtt_handle);
 
 int32_t amp_das_service(void *mqtt_handle);
 
-int32_t amp_ntp_service(void *mqtt_handle);
+int32_t pyamp_ntp_service(void *mqtt_handle);
 
-int32_t amp_location_service(void *mqtt_handle);
+int32_t pyamp_location_service(void *mqtt_handle);
 
-int32_t amp_devinfo_report_service(void *mqtt_handle);
+int32_t pyamp_devinfo_report_service(void *mqtt_handle);
 
 #endif /* APP_MESSAGE_H */

@@ -5,6 +5,7 @@
 
 #include "aos/hal/wdg.h"
 #include "wdt_api.h"
+#include "sys_api.h"
 
 #ifndef TRUE
 #define TRUE  1

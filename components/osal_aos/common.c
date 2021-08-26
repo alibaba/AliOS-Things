@@ -58,7 +58,10 @@ void aos_srand(uint32_t seed)
     srand(seed_val);
 
     seed_val = rand();
-    aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+    ret = aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+    if (ret) {
+        printf("aos_kv_set error, return :%d\r\n", ret);
+    }
 #else
     srand(seed);
 #endif

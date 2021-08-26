@@ -12,6 +12,7 @@
 #define CLOUD_AI_IMAGERECOG_ENDPOINT "imagerecog.cn-shanghai.aliyuncs.com"
 #define CLOUD_AI_IMAGEENHAN_ENDPOINT "imageenhan.cn-shanghai.aliyuncs.com"
 #define CLOUD_AI_OCR_ENDPOINT "ocr.cn-shanghai.aliyuncs.com"
+#define CLOUD_AI_CHATBOT_ENDPOINT "chatbot.cn-shanghai.aliyuncs.com"
 #define OSS_ENDPOINT "oss-cn-shanghai.aliyuncs.com"
 
 #ifdef __cplusplus
