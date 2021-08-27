@@ -34,7 +34,6 @@ static JSClassDef js_mqtt_class = {
     "MQTT",
 };
 
-
 typedef struct {
     aos_mqtt_handle_t *aos_mqtt_handle;
     char *topic;
@@ -189,7 +188,7 @@ static void mqtt_connect_task(void *pdata)
     aos_mqtt_handle_t *aos_mqtt_handle = (aos_mqtt_handle_t *)pdata;
     aos_mqtt_userdata_t *userdata = amp_malloc(sizeof(aos_mqtt_userdata_t));
     if (userdata == NULL) {
-        amp_debug(MOD_STR, "amp mqtt handle malloc failed");
+        amp_error(MOD_STR, "amp mqtt handle malloc failed");
         amp_free(aos_mqtt_handle);
         return;
     }
@@ -199,10 +198,8 @@ static void mqtt_connect_task(void *pdata)
 
     ret = mqtt_client_start(&aos_mqtt_handle->mqtt_handle, userdata);
     if (ret < 0) {
-        amp_debug(MOD_STR, "mqtt client init failed");
-        aos_free(userdata);
-        aos_free(aos_mqtt_handle);
-        return;
+        amp_error(MOD_STR, "mqtt client init failed");
+        goto out;
     }
 
     g_mqtt_conn_flag = 1;
@@ -211,6 +208,8 @@ static void mqtt_connect_task(void *pdata)
     while (!g_mqtt_close_flag) {
         aos_msleep(1000);
     }
+
+out:
     JS_FreeValue(ctx, aos_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
     JS_FreeCString(ctx, aos_mqtt_handle->host);
     JS_FreeCString(ctx, aos_mqtt_handle->clientid);
@@ -305,20 +304,22 @@ static JSValue native_mqtt_subscribe(JSContext *ctx, JSValueConst this_val, int 
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    amp_mqtt_handle = JS_GetOpaque2(ctx, this_val, js_mqtt_class_id);
+    amp_mqtt_handle = JS_GetOpaque2(ctx, argv[0], js_mqtt_class_id);
     if (amp_mqtt_handle == NULL) {
         amp_warn(MOD_STR, "mqtt handle is null");
         goto out;
     }
 
-    topic = JS_ToCString(ctx, argv[0]);
-    JS_ToInt32(ctx, &qos, argv[1]);
+    topic = JS_ToCString(ctx, argv[1]);
+    JS_ToInt32(ctx, &qos, argv[2]);
 
     res = aiot_mqtt_sub(amp_mqtt_handle->mqtt_handle, topic, NULL, qos, NULL);
     if (res < 0) {
-        amp_error(MOD_STR, "aiot app mqtt subscribe failed\n");
+        amp_error(MOD_STR, "aiot app mqtt subscribe failed, ret = -0x%04X", res);
     }
+
     JS_FreeCString(ctx, topic);
+
 out:
     return JS_NewInt32(ctx, res);
 }
@@ -332,13 +333,13 @@ static JSValue native_mqtt_unsubscribe(JSContext *ctx, JSValueConst this_val, in
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    amp_mqtt_handle = JS_GetOpaque2(ctx, this_val, js_mqtt_class_id);
+    amp_mqtt_handle = JS_GetOpaque2(ctx, argv[0], js_mqtt_class_id);
     if (amp_mqtt_handle == NULL) {
         amp_warn(MOD_STR, "mqtt handle is null");
         goto out;
     }
 
-    topic = JS_ToCString(ctx, argv[0]);
+    topic = JS_ToCString(ctx, argv[1]);
 
     amp_debug(MOD_STR, "unsubscribe topic: %s", topic);
 
@@ -363,14 +364,14 @@ static JSValue native_mqtt_publish(JSContext *ctx, JSValueConst this_val, int ar
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    amp_mqtt_handle = JS_GetOpaque2(ctx, this_val, js_mqtt_class_id);
+    amp_mqtt_handle = JS_GetOpaque2(ctx, argv[0], js_mqtt_class_id);
     if (amp_mqtt_handle == NULL) {
         amp_warn(MOD_STR, "mqtt handle is null");
         goto out;
     }
 
-    topic = JS_ToCString(ctx, argv[0]);
-    payload = JS_ToCString(ctx, argv[1]);
+    topic = JS_ToCString(ctx, argv[1]);
+    payload = JS_ToCString(ctx, argv[2]);
     JS_ToInt32(ctx, &qos, argv[1]);
     payload_len = strlen(payload);
 
@@ -393,7 +394,7 @@ static JSValue native_mqtt_close(JSContext *ctx, JSValueConst this_val, int argc
     int js_cb_ref = 0;
     aos_mqtt_handle_t *amp_mqtt_handle = NULL;
 
-    amp_mqtt_handle = JS_GetOpaque2(ctx, this_val, js_mqtt_class_id);
+    amp_mqtt_handle = JS_GetOpaque2(ctx, argv[0], js_mqtt_class_id);
     if (amp_mqtt_handle == NULL) {
         amp_warn(MOD_STR, "mqtt handle is null");
         goto out;

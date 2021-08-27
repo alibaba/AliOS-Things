@@ -202,13 +202,13 @@ int32_t mqtt_client_start(void **handle, aos_mqtt_userdata_t *userdata)
 
     /* 创建1个MQTT客户端实例并内部初始化默认参数 */
     mqtt_handle = aiot_mqtt_init();
-
     if (mqtt_handle == NULL) {
-        amp_debug(MOD_STR, "aiot_mqtt_init failed");
+        amp_error(MOD_STR, "aiot_mqtt_init failed");
         amp_free(mqtt_handle);
         return -1;
     }
 
+    aos_mqtt_handle->mqtt_handle = mqtt_handle;
     /* TODO: 如果以下代码不被注释, 则例程会用TCP而不是TLS连接云平台 */
     {
         memset(&cred, 0, sizeof(aiot_sysdep_network_cred_t));
@@ -241,7 +241,7 @@ int32_t mqtt_client_start(void **handle, aos_mqtt_userdata_t *userdata)
     if (res < STATE_SUCCESS) {
         /* 尝试建立连接失败, 销毁MQTT实例, 回收资源 */
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aos_mqtt_connect failed: -0x%04X", -res);
+        amp_error(MOD_STR, "aos_mqtt_connect failed: -0x%04X", -res);
         aos_task_exit(0);
         return -1;
     }
@@ -253,7 +253,7 @@ int32_t mqtt_client_start(void **handle, aos_mqtt_userdata_t *userdata)
     aos_task_t user_mqtt_process_task;
 
     if (aos_task_new_ext(&user_mqtt_process_task, "user_mqtt_process", mqtt_process_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "user mqtt process task create failed!");
+        amp_error(MOD_STR, "user mqtt process task create failed!");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return NULL;
@@ -266,7 +266,7 @@ int32_t mqtt_client_start(void **handle, aos_mqtt_userdata_t *userdata)
     aos_task_t user_mqtt_rec_task;
 
     if (aos_task_new_ext(&user_mqtt_rec_task, "user_mqtt_recv", mqtt_recv_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "user mqtt rec task create failed!");
+        amp_error(MOD_STR, "user mqtt rec task create failed!");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return NULL;
@@ -291,14 +291,14 @@ int32_t mqtt_client_stop(void **handle)
     res = aiot_mqtt_disconnect(mqtt_handle);
     if (res < STATE_SUCCESS) {
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X", -res);
+        amp_error(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X", -res);
         return -1;
     }
 
     /* 销毁MQTT实例 */
     res = aiot_mqtt_deinit(&mqtt_handle);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X", -res);
+        amp_error(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X", -res);
         return -1;
     }
 

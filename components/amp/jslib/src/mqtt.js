@@ -20,6 +20,7 @@ class MQTTClient extends event.EventEmitter {
         this._fail = options.fail || function () { };
         this._success = options.success || function () { };
         this.connected = false;
+        this.mqttInstance = 0;
         this._connect();
     }
 
@@ -60,7 +61,7 @@ class MQTTClient extends event.EventEmitter {
             return;
         }
 
-        var ret = this.mqttInstance.subscribe(options.topic, options.qos || 0);
+        var ret = MQTT.subscribe(this.mqttInstance, options.topic, options.qos || 0);
         if (ret < 0) {
             if (typeof options.fail === 'function') {
                 options.fail();
@@ -84,7 +85,7 @@ class MQTTClient extends event.EventEmitter {
             return;
         }
 
-        var ret = this.mqttInstance.unsubscribe(options.topic);
+        var ret = MQTT.unsubscribe(this.mqttInstance, options.topic);
         if (ret < 0) {
             if (typeof options.fail === 'function') {
                 options.fail();
@@ -108,7 +109,7 @@ class MQTTClient extends event.EventEmitter {
             return;
         }
 
-        this.mqttInstance.publish(options.topic, options.message, options.qos || 0, function (ret) {
+        MQTT.publish(this.mqttInstance, options.topic, options.message, options.qos || 0, function (ret) {
             if (ret < 0) {
                 if (typeof options.fail === 'function') {
                     options.fail();
@@ -127,7 +128,7 @@ class MQTTClient extends event.EventEmitter {
         if (!this.mqttInstance) {
             throw new Error('mqtt not init');
         }
-        this.mqttInstance.close(function (ret) {
+        MQTT.close(this.mqttInstance, function (ret) {
             if (ret != 0) {
                 this.emit('error', 'mqtt client close error');
                 return;

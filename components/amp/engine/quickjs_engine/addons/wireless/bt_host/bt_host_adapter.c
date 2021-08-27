@@ -1,9 +1,6 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
-
-#include "bt_host_adapter.h"
-
 #include <aos/ble.h>
 #include <aos/errno.h>
 #include <aos/kernel.h>
@@ -18,6 +15,7 @@
 #include <stdlib.h>
 #include <work.h>
 
+#include "bt_host_adapter.h"
 #include "aiot_state_api.h"
 #include "amp_defines.h"
 #include "amp_platform.h"
