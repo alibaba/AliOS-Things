@@ -182,7 +182,7 @@ struct APP_RESAMPLE_T *app_playback_resample_any_open(enum AUD_CHANNEL_NUM_T cha
                                                       float ratio_step);
 struct APP_RESAMPLE_T *app_playback_resample_any_open_with_pre_allocated_buffer(enum AUD_CHANNEL_NUM_T chans,
         APP_RESAMPLE_ITER_CALLBACK cb, uint32_t iter_len,
-        float ratio_step, uint8_t* ptrBuf, uint32_t bufSize);                                                      
+        float ratio_step, uint8_t* ptrBuf, uint32_t bufSize);
 int app_playback_resample_close(struct APP_RESAMPLE_T *resamp);
 int app_playback_resample_run(struct APP_RESAMPLE_T *resamp, uint8_t *buf, uint32_t len);
 

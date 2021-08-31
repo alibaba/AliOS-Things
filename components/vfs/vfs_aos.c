@@ -183,7 +183,7 @@ int aos_vfs_fd_offset_get(void)
     return vfs_fd_offset_get();
 }
 
-int aos_vfs_fcntl(int fd, int cmd, int val)
+int aos_fcntl(int fd, int cmd, int val)
 {
     return vfs_fcntl(fd, cmd, val);
 }

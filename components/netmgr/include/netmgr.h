@@ -39,7 +39,7 @@ typedef struct netmgr_ifconfig_info {
    char mask[IPADDR_STR_LEN];            /**< ip address mask */
    char gw[IPADDR_STR_LEN];              /**< gateway ip address */
    char dns_server[IPADDR_STR_LEN];      /**< dns server address */
-   char mac[6];                          /**< mac address */
+   char mac[IPADDR_STR_LEN + 1];                          /**< mac address */
    int  rssi;                            /**< rssi */
 } netmgr_ifconfig_info_t;
 

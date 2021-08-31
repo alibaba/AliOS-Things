@@ -19,6 +19,6 @@
 
 #define osWaitForever 0xFFFFFFFF
 
-void amp_boot_main();
+void pyamp_boot_main();
 
 #endif

@@ -9,9 +9,9 @@
 #include "amp_task.h"
 #include "amp_list.h"
 
-#define MOD_STR                 "AMP_TASK"
-#define AMP_MSGQ_WAITIME        (2000)
-#define AMP_MSGQ_MAX_NUM        10
+#define MOD_STR "AMP_TASK"
+#define AMP_MSGQ_WAITIME (2000)
+#define AMP_MSGQ_MAX_NUM 10
 
 typedef struct {
     dlist_t node;
@@ -21,17 +21,18 @@ typedef struct {
 static dlist_t g_sources_list = AMP_DLIST_HEAD_INIT(g_sources_list);
 
 static aos_queue_t amp_task_mq = NULL; /* JSEngine message queue */
-static aos_mutex_t amp_task_mutex   = NULL;     /* JSEngine mutex */
+static aos_mutex_t amp_task_mutex = NULL; /* JSEngine mutex */
 
 void amp_module_free(void)
 {
     amp_source_node_t *source_node;
     dlist_t *temp;
 
-    dlist_for_each_entry_safe(&g_sources_list, temp, source_node, amp_source_node_t, node) {
+    dlist_for_each_entry_safe(&g_sources_list, temp, source_node, amp_source_node_t, node)
+    {
         source_node->callback();
         dlist_del(&source_node->node);
-        aos_free(source_node);
+        amp_free(source_node);
     }
 }
 
@@ -43,7 +44,7 @@ int32_t amp_module_free_register(void (*callback)(void))
         return -1;
     }
 
-    source_node = aos_malloc(sizeof(amp_source_node_t));
+    source_node = amp_malloc(sizeof(amp_source_node_t));
     if (!source_node) {
         return -1;
     }
@@ -70,7 +71,7 @@ int32_t amp_task_yield(uint32_t timeout)
         amp_msg.callback(amp_msg.param);
     }
 
-    else if(amp_msg.type == AMP_TASK_MSG_EXIT) {
+    else if (amp_msg.type == AMP_TASK_MSG_EXIT) {
         return 1;
     }
 
@@ -88,28 +89,30 @@ static void amp_task_timer_cb_handler(void *timer, void *arg)
     aos_queue_send(&amp_task_mq, p_amp_msg, sizeof(amp_task_msg_t));
 }
 
-aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action, void *arg,
-                            amp_timer_type_t type)
+aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action, void *arg, amp_timer_type_t type,
+                                   void **timer_msg)
 {
     int ret = -1;
 
-    aos_timer_t *timer_id = (aos_timer_t *)aos_malloc(sizeof(aos_timer_t));
+    aos_timer_t *timer_id = (aos_timer_t *)amp_malloc(sizeof(aos_timer_t));
     if (timer_id == NULL) {
         return NULL;
     }
 
-    amp_task_msg_t *p_param =
-        (amp_task_msg_t *)aos_calloc(1, sizeof(amp_task_msg_t));
+    amp_task_msg_t *p_param = (amp_task_msg_t *)amp_calloc(1, sizeof(amp_task_msg_t));
 
-    if (!p_param) return NULL;
+    if (!p_param)
+        return NULL;
+
+    *timer_msg = p_param;
 
     if (amp_task_mq == NULL) {
         goto fail;
     }
 
     p_param->callback = action;
-    p_param->param    = arg;
-    p_param->type     = AMP_TASK_MSG_CALLBACK;
+    p_param->param = arg;
+    p_param->type = AMP_TASK_MSG_CALLBACK;
 
     if (type == AMP_TIMER_REPEAT) {
         ret = aos_timer_create(timer_id, amp_task_timer_cb_handler, p_param, ms, AOS_TIMER_REPEAT);
@@ -119,7 +122,8 @@ aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action, void *
         goto fail;
     }
 
-    if (ret != 0) goto fail;
+    if (ret != 0)
+        goto fail;
 
     ret = aos_timer_start(timer_id);
     if (ret) {
@@ -130,8 +134,8 @@ aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action, void *
     return timer_id;
 
 fail:
-    aos_free(p_param);
-    aos_free(timer_id);
+    amp_free(p_param);
+    amp_free(timer_id);
     return NULL;
 }
 
@@ -145,8 +149,8 @@ int32_t amp_task_schedule_call(amp_engine_call_t call, void *arg)
     }
 
     p_param->callback = call;
-    p_param->param    = arg;
-    p_param->type     = AMP_TASK_MSG_CALLBACK;
+    p_param->param = arg;
+    p_param->type = AMP_TASK_MSG_CALLBACK;
     if (amp_task_mq == NULL) {
         amp_warn(MOD_STR, "amp_task_mq has not been initlized");
         return -1;
@@ -162,8 +166,8 @@ int32_t amp_task_exit_call(amp_engine_call_t call, void *arg)
 
     memset(p_param, 0, sizeof(amp_task_msg_t));
     p_param->callback = call;
-    p_param->param    = arg;
-    p_param->type     = AMP_TASK_MSG_EXIT;
+    p_param->param = arg;
+    p_param->type = AMP_TASK_MSG_EXIT;
     if (amp_task_mq == NULL) {
         amp_warn(MOD_STR, "amp_task_mq has not been initlized");
         return -1;
@@ -211,5 +215,3 @@ int32_t amp_task_deinit()
     amp_debug(MOD_STR, "jsengine task free");
     return 0;
 }
-
-

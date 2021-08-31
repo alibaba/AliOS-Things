@@ -135,13 +135,13 @@ int uvoice_pcm_flush(struct pcm_device *pcm)
 
 int uvoice_pcm_close(struct pcm_device *pcm)
 {
-    if (pb_pcm) {
+    if (pb_pcm && (pcm->dir == PCM_OUT)) {
         //aos_pcm_drain(pb_pcm);
         aos_pcm_stop(pb_pcm);
         aos_pcm_close(pb_pcm);
         pb_pcm = NULL;
     }
-    if (cap_pcm) {
+    if (cap_pcm && (pcm->dir == PCM_IN)) {
         aos_pcm_stop(cap_pcm);
         aos_pcm_close(cap_pcm);
         cap_pcm = NULL;

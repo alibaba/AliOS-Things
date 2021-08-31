@@ -31,11 +31,13 @@ depends:
   - uvoice: master
   - ble_netconfig: master
   - debug: master
+  - sh1106: master
 
 def_config:
     CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关
     CLI_IOBOX_ENABLE: 1        # 可选：使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
     CONFIG_KWS_AI_ENGINE_ENABLE: 1
+    ENABLE_FACTORY_TEST: 1    # 可选：使能产测功能，可用于产品自检。
 
 ## 第四部分：编译连接信息
 build_config:                            # <可选项> 编译配置项

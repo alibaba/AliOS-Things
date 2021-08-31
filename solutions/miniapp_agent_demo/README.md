@@ -39,8 +39,8 @@ miniapp_agent_demo是我们提供的小程序配网、上云配套固件。通�
 *> 选择解决方案: 小程序配网 上云 应用案例*
 *> 选择开发板: Haas100 board configure*
 
--- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
--- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 编译固件可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
+-- 烧录固件可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ## 小程序配网
 - 准备一个连接至互联网的 Wi-Fi AP。它可以由手机热点产生，也可以通过路由器配置。在本案例中，热点信息如下：

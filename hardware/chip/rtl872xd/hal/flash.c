@@ -64,7 +64,7 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
         return -1;
     }
     start_addr = partition_info->partition_start_addr + *off_set;
-    ret = flash_stream_write(&flash_obj, start_addr, in_buf_len, in_buf);
+    ret = flash_stream_write(&flash_obj, start_addr, in_buf_len, (uint8_t *)in_buf);
 
     *off_set += in_buf_len;
     return 0;

@@ -181,17 +181,18 @@ extern uint32_t __sram_text_start__[];
 extern uint32_t __sram_text_end__[];
 extern uint32_t __flashx_text_start__[];
 extern uint32_t __flashx_text_end__[];
-extern uint32_t __psramux_text_start__[];
-extern uint32_t __psramux_text_end__[];
+// extern uint32_t __psramx_text_start__[];
+// extern uint32_t __psramx_text_end__[];
 
 int alios_debug_pc_check(char *pc)
 {
     if ( (((uint32_t)pc > (uint32_t)__sram_text_start__) &&
           ((uint32_t)pc < (uint32_t)__sram_text_end__)) ||
          (((uint32_t)pc > (uint32_t)__flashx_text_start__) &&
-          ((uint32_t)pc < (uint32_t)__flashx_text_end__)) ||
-         (((uint32_t)pc > (uint32_t)__psramux_text_start__) &&
-          ((uint32_t)pc < (uint32_t)__psramux_text_end__)) ) {
+          ((uint32_t)pc < (uint32_t)__flashx_text_end__))
+//        || (((uint32_t)pc > (uint32_t)__psramx_text_start__) &&
+//          ((uint32_t)pc < (uint32_t)__psramx_text_end__))
+        ) {
         return 0;
     } else {
         return -1;
@@ -204,7 +205,7 @@ void alios_debug_pc_show(int argc, char **argv)
     cli_printf("----- PC Addr ------\r\n");
     cli_printf("addr 1 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__sram_text_start__, (uint32_t)__sram_text_end__);
     cli_printf("addr 2 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__flashx_text_start__, (uint32_t)__flashx_text_end__);
-    cli_printf("addr 3 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__psramux_text_start__, (uint32_t)__psramux_text_end__);
+//    cli_printf("addr 3 : 0x%08x ~ 0x%08x\r\n", (uint32_t)__psramx_text_start__, (uint32_t)__psramx_text_end__);
 }
 #endif
 

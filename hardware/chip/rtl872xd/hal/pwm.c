@@ -26,6 +26,14 @@ u32 port2pin[18][2]={
 	{17, PB_25},    //this channel also can be PB_7
 };
 
+extern void pwmout_init(pwmout_t* obj, PinName pin);
+extern void pwmout_free(pwmout_t* obj);
+extern void pwmout_write(pwmout_t* obj, float percent);
+extern float pwmout_read(pwmout_t* obj);
+extern void pwmout_period_us(pwmout_t* obj, int us);
+extern void pwmout_start(pwmout_t* obj);
+extern void pwmout_stop(pwmout_t* obj);
+
 /**
  * Initialises a PWM pin
  *

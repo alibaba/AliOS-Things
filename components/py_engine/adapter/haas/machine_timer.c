@@ -99,7 +99,7 @@ STATIC mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args,
 
     machine_timer_obj_t *machine_obj = m_new_obj(machine_timer_obj_t);
     if (!machine_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
         return mp_const_none;
     }
     machine_obj->base.type = &machine_timer_type;
@@ -193,7 +193,7 @@ STATIC mp_obj_t machine_timer_period(mp_obj_t self_in, mp_const_obj_t period)
 {
     machine_timer_obj_t *self = self_in;
     if(self_in == NULL) {
-        mp_raise_OSError(ENOENT);
+        mp_raise_OSError(MP_EINVAL);
         return mp_const_none;
     } else {
         self->device->config.period = mp_obj_get_int(period);

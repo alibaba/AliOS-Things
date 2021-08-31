@@ -1,6 +1,6 @@
 @page lwip lwip
 
-[更正文档](https://gitee.com/alios-things/lwip/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/lwip/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 概述
 LwIP(Light Weight Internet Protoco1)是瑞士计算机科学院(Swedish Institute of Computer Science)AdamDunkels等人开发的一套用于嵌入式系统的开放源代码TCP／IP协议栈。LWIP的含义是Light Weight(轻型)IP协议。LWIP可以移植到操作系统上，也可以在无操作系统的情况下独立运行。LWIP TCP／IP实现的重点是在保持TCP协议主要功能的基础上减少对RAM的占用。一般它只需要几十KB的RAM和40 KB左右的ROM就可以运行，这使LWIP协议栈适合在小型嵌入式系统中使用。
@@ -74,7 +74,7 @@ DNS (Domain names resolver)
 > 使能TCPIP是1，不使能TCPIP是0，默认是1，可修改yaml配置如
 ```yaml
 def_config:
-  CONFIG_TCPIP: 1  
+  CONFIG_TCPIP: 1
 ```
 > 使用AOS的LwIP是1， 不实用AOS的LwIP是0，默认是1，可修改yaml配置如：
 ```yaml
@@ -156,7 +156,7 @@ int send(int s, const void *dataptr, size_t size, int flags)
 
 ## 面向连接的数据流 socket 模式下接收数据
 ```C
-int send(int s, const void *dataptr, size_t size, int flags)
+int recv(int s, void *mem, size_t len, int flags)
 ```
 
 |args                                    |description|
@@ -296,18 +296,18 @@ int setsockopt (int s, int level, int optname, const void *optval, socklen_t opt
 
 # 使用示例
 
-组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 步骤1 创建或打开工程
 
 **打开已有工程**
 
-如果用于测试的案例工程已存在，可参考[《aos-studio使用说明之打开工程》](https://g.alicdn.com/alios-things-3.3/doc/open_project.html)打开已有工程。
+如果用于测试的案例工程已存在，可参考[《AliOS Things集成开发环境使用说明之打开工程》](https://help.aliyun.com/document_detail/302381.html)打开已有工程。
 
 **创建新的工程**
 
-组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 
 ## 步骤2 添加组件
 
@@ -321,7 +321,7 @@ depends:
 
 ## 步骤3 下载组件
 
-在已安装了 **alios-studio** 的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
+在已安装了  的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
 
 ```shell
 
@@ -341,15 +341,15 @@ source_file:
 ```
 ## 步骤5 编译固件
 
-在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 ## 步骤6 烧录固件
 
-helloworld_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+helloworld_demo案例的固件生成后，可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)来烧录固件。
 
 ## 步骤7 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
@@ -428,7 +428,7 @@ tftp received len:92 done
 > iperf测试日志
 ```sh
 TCP Server Bandwidth: 8 Mbits 716 Kbits 848 bits/sec
-UDP Server Bandwidth: 10 Mbits 60 Kbits 344 bits/sec 
+UDP Server Bandwidth: 10 Mbits 60 Kbits 344 bits/sec
 TCP Client Bandwidth: 5 Mbits 1023 Kbits 928 bits/sec
 UDP Client Bandwidth: 22 Mbits 907 Kbits 160 bits/sec
 ```

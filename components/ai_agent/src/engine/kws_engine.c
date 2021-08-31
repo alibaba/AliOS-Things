@@ -4,41 +4,24 @@
 #include "aqe_kws.h"
 #include "mcu_audio.h"
 #include "ulog/ulog.h"
-#include "aos/kernel.h"
 #include "aiagent_engine.h"
 #include "aiagent_service.h"
 #include "engine/kws_engine.h"
+#include "a7_cmd.h"
 
 #define TAG "kws"
-#define APP_KWS_REAMPLERATE 8000
-#define APP_KWS_PERIOD 16
-#define APP_KWS_BITS 16
-#define SPEECH_MEM_POOL_SIZE    (1024 * 100)
-#define POSSIBLY_UNUSED                 __attribute__((unused))
-static uint8_t POSSIBLY_UNUSED  speech_buf[SPEECH_MEM_POOL_SIZE];
-#define APP_KWS_BUF_SIZE    (APP_KWS_REAMPLERATE / 1000 * APP_KWS_PERIOD * APP_KWS_BITS / 8)
-static uint8_t POSSIBLY_UNUSED  kws_buf[APP_KWS_BUF_SIZE];
 
 AqeKwsConfig kws_cfg;
 AqeKwsState *kws_st = NULL;
-static void *kws_handle;
 uint32_t kws_cnt = 0;
 static bool kws_running = false;
 static aiagent_engine_t *eng = NULL;
 static aos_task_t kws_task_handle;
 static aos_sem_t kws_sem;
-static int32_t kws_ret = 0;
+static int32_t kws_ret = 1;
 static int8_t kws_channel = 0;
 static bool kws_exited = false;
-
-void speech_record_config_get(uint32_t *sample_rate, uint32_t *record_period_ms)
-{
-    if (sample_rate)
-        *sample_rate = APP_KWS_REAMPLERATE;
-
-    if (record_period_ms)
-        *record_period_ms = APP_KWS_PERIOD;
-}
+static bool kws_inited = false;
 
 static void callback_main(void *p)
 {
@@ -46,8 +29,12 @@ static void callback_main(void *p)
     kws_exited = false;
     while (1) {
         aos_sem_wait(&kws_sem, AOS_WAIT_FOREVER);
-        if (kws_running)
-            eng->callback((ai_result_t *)&kws_ret);
+        if (kws_running) {
+            if (eng->callback)
+                eng->callback((ai_result_t)&kws_ret);
+            else
+                LOG("callback is not set\n");
+        }
         else
             break;
     }
@@ -58,20 +45,13 @@ static void my_kws_process(uint8_t *buf, uint32_t len)
 {
     int32_t r = 0, w = 0;
     int16_t thres_tmp[1] = {60};
+    A7_CMD_T *cmd = (A7_CMD_T *)buf;
 
     if (kws_exited)
         return;
-    // retrieve first ch from 1 ch
-    while (r < len) {
-        kws_buf[w++] = buf[r + kws_channel * 2]; // 0: ch1, 1: ch2, 2: ch3
-        kws_buf[w++] = buf[r + kws_channel * 2 + 1]; // 0: ch1, 1: ch2, 2: ch3
-        r += 6; // 1 ch * 2
-    }
 
-    kws_ret = aqe_kws_process(kws_st, kws_buf, APP_KWS_BUF_SIZE / 2, thres_tmp);
-    if (kws_ret) {
-        kws_cnt++;
-        LOGI(TAG, "[KWS]ret: %d, cnt: %d\n", kws_ret, kws_cnt);
+    if ((cmd->p1 == 1) && (cmd->p2 == 1)) {
+        LOG("wakeup\n");
         aos_sem_signal(&kws_sem);
     }
 }
@@ -81,11 +61,13 @@ int32_t kws_engine_init(aiagent_engine_t *eng)
    if (!eng)
         return -1;
 
-    if (!kws_st) {
-        speech_heap_init(speech_buf, sizeof(speech_buf));
-        kws_st = aqe_kws_create(APP_KWS_REAMPLERATE, APP_KWS_BUF_SIZE / 2, &kws_cfg);
+    /*enable dsp kws*/
+    enable_a7_kws(1);
+
+    if (!kws_inited) {
         aos_sem_new(&kws_sem, 0);
-        mcu_record_pre_handler_set(my_kws_process);
+        set_a7_cmd_callback_handler(my_kws_process);
+        kws_inited = true;
         LOGI(TAG, "aos_task_new_ext kws_task\n");
     }
 
@@ -108,8 +90,12 @@ static bool kws_engine_available(void)
 int32_t kws_engine_uninit(aiagent_engine_t *eng)
 {
     int32_t ret;
+
     if (!eng)
         return -1;
+
+    /*enable dsp kws*/
+    enable_a7_kws(0);
 
     kws_running = false;
     aos_sem_signal(&kws_sem);
@@ -117,7 +103,7 @@ int32_t kws_engine_uninit(aiagent_engine_t *eng)
         aos_msleep(50);
     }
     aos_task_delete(&kws_task_handle);
-    // aqe_kws_destroy(kws_st);
+
     kws_st = NULL;
     LOGI(TAG, "aos_task_delete kws_task\n");
     return 0;

@@ -9,7 +9,7 @@
 
 //#define _LWIP_INTF_C_
 #include <autoconf.h>
-#include <lwip_intf.h>
+#include "lwip_intf.h"
 #include <lwip/netif.h>
 #include <lwip_netconf.h>
 #include <ethernetif.h>

@@ -34,7 +34,7 @@ STATIC mp_obj_t und_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_
     LOGD(LOG_TAG, "entern  %s;\n", __func__);
     mp_und_obj_t* driver_obj = m_new_obj(mp_und_obj_t);
     if (!driver_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
     }
 
     driver_obj->Base.type = &driver_und_type;

@@ -6,6 +6,8 @@
 #ifndef __UVOICE_RECORDER_H__
 #define __UVOICE_RECORDER_H__
 
+#include "uvoice_types.h"
+
 /** @defgroup uvoice_recoder_api uvoice_recoder
  *  @ingroup uvoice_aos_api
  * @{

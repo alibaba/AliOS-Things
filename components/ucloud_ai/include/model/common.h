@@ -31,6 +31,7 @@ typedef union _AIModelResultStruct {
 
 int getResponseBodyByUrl(const char *url, const char **buffer);
 void setAccesskeyAndSecret(char *key, char *secret);
+char *getTokenId(const char *domain, const char *region);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 @mainpage AliOS Things 概述
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/mainpage.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/mainpage.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 <div align="center">
   <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
@@ -78,6 +78,19 @@
   AliOS Things 开源源码遵循 [Apache 2.0 license](LICENSE) 开源协议。
 
 # Release Note
+
+## 2021-08-26
+- JavaScript轻应用：修改http对接问题、支持tcp及mqtt组件、新增智慧农业样板间示例代码等
+- python轻应用：增加智能对话机器人python接口、增加token获取接口
+- ucloud_ai：增加智能对话机器人、增加token获取接口
+- ai_agent：增加“HaaS HaaS”语言唤醒功能、增加TFLite-Micro推理引擎
+- solution：添加TFLite-Micro离线快捷词唤醒案例
+- netmgr：支持根据指定channel进行扫描、修复wifi.conf内容为空导致异常问题等
+- HaaS100：更新驱动库、优化二级boot、产测功能可配置等
+- HaaS200：更新驱动库、优化二级boot等
+- 文档：新增haas-studio使用说明和代码风格规范
+
+*特别感谢为本期迭代贡献代码的开发者：WilliamArthur、忙碌的死龙等*
 
 ## 2021-07-15
 - JavaScript轻应用：支持oss上传及下载功能、支持promise功能、添加ulog示例、修复问题若干

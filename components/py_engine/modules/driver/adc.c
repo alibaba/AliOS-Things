@@ -37,12 +37,12 @@ STATIC mp_obj_t adc_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_
     LOGD(LOG_TAG, "entern  %s;\n", __func__);
     mp_adc_obj_t* driver_obj = m_new_obj(mp_adc_obj_t);
     if (!driver_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
     }
 
     driver_obj->Base.type = &driver_adc_type;
     driver_obj->ModuleName = "adc";
-    driver_obj->adc_handle.handle     = NULL;
+    driver_obj->adc_handle.handle = NULL;
 
     return MP_OBJ_FROM_PTR(driver_obj);
 }

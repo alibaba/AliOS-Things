@@ -464,9 +464,9 @@ static int find_index_by_value(int value, int *array, int size)
 static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan_type_t t)
 {
     int i, ret;
-    struct bwifi_ssid *scan_ssid, *prev_scan_ssid;
-    struct bwifi_scan_config scan_config;
-    struct bwifi_bss_info *scan_result;
+    struct bwifi_ssid *scan_ssid = NULL, *prev_scan_ssid = NULL;
+    struct bwifi_scan_config scan_config = {0};
+    struct bwifi_bss_info *scan_result = NULL;
     static wifi_scan_result_t result = {0};
     int index = 0, a_size = 0;
     int scan_chs[] =  {1, 6, 11, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 0};

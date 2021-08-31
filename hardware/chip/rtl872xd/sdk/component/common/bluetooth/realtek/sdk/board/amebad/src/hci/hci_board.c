@@ -59,6 +59,8 @@ static uint32_t hci_tp_baudrate;
 uint8_t  hci_tp_lgc_efuse[BT_EFUSE_TABLE_LEN];
 uint8_t  hci_tp_phy_efuse[19];
 
+extern const unsigned char *rltk_bt_get_patch_code(void);
+extern void rltk_coex_bt_enable(u8 enable);
 
 static uint32_t cal_bit_shift(uint32_t Mask)
 {

@@ -63,6 +63,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
   * @brief  Deinitializes the GPIO device interrupt mode, include mode/trigger/polarity registers.
   * @param  obj: gpio irq object define in application software.
   * @retval none
+  */
+void gpio_irq_deinit(gpio_irq_t *obj) ;
+
+/**
+  * @brief  Deinitializes the GPIO device interrupt mode, include mode/trigger/polarity registers.
+  * @param  obj: gpio irq object define in application software.
+  * @retval none
   * @note this API only works for Port A pins
   */
 void gpio_irq_free(gpio_irq_t *obj);

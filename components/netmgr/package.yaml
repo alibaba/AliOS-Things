@@ -69,6 +69,8 @@ def_config:                              # 组件的可配置项
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
   AOS_COMP_ACTIVATION: y
+  CONFIG_NETMGR_WIFI_DEBUG: 1
+  CONFIG_NETMGR_WIFI_LOG_LEVEL: 4  #1:debug 2:info 3:warning 4:error
 
 ## 第六部分：安装信息
 # install:

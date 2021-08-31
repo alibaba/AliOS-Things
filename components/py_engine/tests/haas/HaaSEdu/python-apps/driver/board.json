@@ -84,6 +84,12 @@
       "dir": "output",
       "pull": "pullup"
     },
+    "GPIO19": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "output",
+      "pull": "pullup"
+    },
     "GPIO22": {
       "type": "GPIO",
       "port": 22,

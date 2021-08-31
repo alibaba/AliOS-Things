@@ -25,8 +25,8 @@ extern aiot_sysdep_portfile_t g_aiot_sysdep_portfile;
 /* 位于external/ali_ca_cert.c中的服务器证书 */
 extern const char *ali_ca_cert;
 
-uint8_t g_app_mqtt_process_thread_running = 0;
-uint8_t g_app_mqtt_recv_thread_running = 0;
+uint8_t pyamp_g_app_mqtt_process_thread_running = 0;
+uint8_t pyamp_g_app_mqtt_recv_thread_running = 0;
 
 static char *__amp_strdup(char *src, int len)
 {
@@ -47,11 +47,11 @@ static char *__amp_strdup(char *src, int len)
 }
 
 /* 执行aiot_mqtt_process的线程, 包含心跳发送和QoS1消息重发 */
-void aiot_app_mqtt_process_thread(void *args)
+void pyamp_aiot_app_mqtt_process_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
 
-    while (g_app_mqtt_process_thread_running) {
+    while (pyamp_g_app_mqtt_process_thread_running) {
         res = aiot_mqtt_process(args);
         if (res == STATE_USER_INPUT_EXEC_DISABLED) {
             break;
@@ -63,11 +63,11 @@ void aiot_app_mqtt_process_thread(void *args)
 }
 
 /* 执行aiot_mqtt_recv的线程, 包含网络自动重连和从服务器收取MQTT消息 */
-void aiot_app_mqtt_recv_thread(void *args)
+void pyamp_aiot_app_mqtt_recv_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
 
-    while (g_app_mqtt_recv_thread_running) {
+    while (pyamp_g_app_mqtt_recv_thread_running) {
         res = aiot_mqtt_recv(args);
         if (res < STATE_SUCCESS) {
             if (res == STATE_USER_INPUT_EXEC_DISABLED) {
@@ -81,7 +81,7 @@ void aiot_app_mqtt_recv_thread(void *args)
 }
 
 /* MQTT默认消息处理回调, 当SDK从服务器收到MQTT消息时, 且无对应用户回调处理时被调用 */
-void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
+void pyamp_aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
     void (*callback)(void *userdata) = (void (*)(void *))userdata;
 
@@ -134,7 +134,7 @@ void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, vo
 }
 
 /* MQTT事件回调函数, 当网络连接/重连/断开时被触发, 事件定义见core/aiot_mqtt_api.h */
-void aiot_app_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, void *userdata)
+void pyamp_aiot_app_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, void *userdata)
 {
     iot_mqtt_userdata_t *udata = (iot_mqtt_userdata_t *)userdata;
     iot_mqtt_message_t message;
@@ -180,7 +180,7 @@ void aiot_app_mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event, v
 }
 
 /* 属性上报函数演示 */
-int32_t aiot_app_send_property_post(void *dm_handle, char *params)
+int32_t pyamp_aiot_app_send_property_post(void *dm_handle, char *params)
 {
     aiot_dm_msg_t msg;
 
@@ -192,7 +192,7 @@ int32_t aiot_app_send_property_post(void *dm_handle, char *params)
 }
 
 /* 事件上报函数演示 */
-int32_t aiot_app_send_event_post(void *dm_handle, char *event_id, char *params)
+int32_t pyamp_aiot_app_send_event_post(void *dm_handle, char *event_id, char *params)
 {
     aiot_dm_msg_t msg;
 
@@ -204,7 +204,7 @@ int32_t aiot_app_send_event_post(void *dm_handle, char *event_id, char *params)
     return aiot_dm_send(dm_handle, &msg);
 }
 
-int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdata_t *userdata)
+int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdata_t *userdata)
 {
     int32_t res = STATE_SUCCESS;
     void       *mqtt_handle = NULL;
@@ -273,9 +273,9 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
     /* 配置回调参数 */
     aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_USERDATA, userdata);
     /* 配置MQTT默认消息接收回调函数 */
-    aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_RECV_HANDLER, (void *)aiot_app_mqtt_recv_handler);
+    aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_RECV_HANDLER, (void *)pyamp_aiot_app_mqtt_recv_handler);
     /* 配置MQTT事件回调函数 */
-    aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_EVENT_HANDLER, (void *)aiot_app_mqtt_event_handler);
+    aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_EVENT_HANDLER, (void *)pyamp_aiot_app_mqtt_event_handler);
 
     /* 与服务器建立MQTT连接 */
     res = aiot_mqtt_connect(mqtt_handle);
@@ -289,11 +289,11 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
     }
 
     /* 创建一个单独的线程, 专用于执行aiot_mqtt_process, 它会自动发送心跳保活, 以及重发QoS1的未应答报文 */
-    g_app_mqtt_process_thread_running = 1;
+    pyamp_g_app_mqtt_process_thread_running = 1;
 
     aos_task_t mqtt_process_task;
 
-    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", aiot_app_mqtt_process_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
+    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", pyamp_aiot_app_mqtt_process_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
         amp_debug(MOD_STR, "management mqtt process task create failed!");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
@@ -302,11 +302,11 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
     amp_debug(MOD_STR, "app mqtt process start");
 
     /* 创建一个单独的线程用于执行aiot_mqtt_recv, 它会循环收取服务器下发的MQTT消息, 并在断线时自动重连 */
-    g_app_mqtt_recv_thread_running = 1;
+    pyamp_g_app_mqtt_recv_thread_running = 1;
 
     aos_task_t mqtt_rec_task;
 
-    if (aos_task_new_ext(&mqtt_rec_task, "mqtt_rec", aiot_app_mqtt_recv_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
+    if (aos_task_new_ext(&mqtt_rec_task, "mqtt_rec", pyamp_aiot_app_mqtt_recv_thread, mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
         amp_debug(MOD_STR, "management mqtt rec task create failed!");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
@@ -330,15 +330,15 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
 }
 
 /* mqtt stop */
-int32_t aiot_mqtt_client_stop(void **handle)
+int32_t pyamp_aiot_mqtt_client_stop(void **handle)
 {
     int32_t res = STATE_SUCCESS;
     void *mqtt_handle = NULL;
 
     mqtt_handle = *handle;
 
-    g_app_mqtt_process_thread_running = 0;
-    g_app_mqtt_recv_thread_running = 0;
+    pyamp_g_app_mqtt_process_thread_running = 0;
+    pyamp_g_app_mqtt_recv_thread_running = 0;
 
     /* 断开MQTT连接 */
     res = aiot_mqtt_disconnect(mqtt_handle);

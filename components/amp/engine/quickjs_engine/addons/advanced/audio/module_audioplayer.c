@@ -11,6 +11,7 @@
 #include "amp_task.h"
 #include "aos_fs.h"
 #include "board_mgr.h"
+#include "aos/vfs.h"
 
 #include "uvoice_types.h"
 #include "uvoice_event.h"
@@ -143,6 +144,9 @@ static void audioplayer_play_cplt_notify(void *arg)
     audio_player_param_t *param = (audio_player_param_t *)arg;
     JSContext *ctx = js_get_context();
 
+    if (param == NULL) {
+        return;
+    }
     JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 0, NULL);
     JS_FreeValue(ctx, val);
     JS_FreeValue(ctx, param->js_cb_ref);
@@ -165,8 +169,8 @@ static void audioplayer_play_cplt_cb(uvoice_event_t *event, void *data)
         event->value == PLAYER_STAT_STOP) &&
         (unsigned long)aos_now_ms() >= param->timestamp) {
 
-        amp_task_schedule_call(audioplayer_play_cplt_notify, param);
         uvoice_event_unregister(UVOICE_EV_PLAYER, audioplayer_play_cplt_cb, param);
+        amp_task_schedule_call(audioplayer_play_cplt_notify, param);
     }
 }
 
@@ -240,6 +244,7 @@ static JSValue native_audioplayer_play(JSContext *ctx, JSValueConst this_val, in
         audioplayer_play_cplt_cb, param)) {
         amp_error(MOD_STR, "register event fail");
         JS_FreeValue(ctx, param->js_cb_ref);
+        aos_free(param);
         goto out;
     }
 
@@ -248,10 +253,6 @@ static JSValue native_audioplayer_play(JSContext *ctx, JSValueConst this_val, in
 out:
     if (!is_http && source) {
         aos_free(source);
-    }
-
-    if(param != NULL) {
-        aos_free(param);
     }
 
     if(audiosource != NULL) {

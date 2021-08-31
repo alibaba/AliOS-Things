@@ -9,7 +9,7 @@ startup: all
 
 all:
 	@echo "Build Solution by $(BOARD) "
-	$(CPRE) scons $(VERB) --board=$(BOARD) -j4
+	$(CPRE) scons $(VERB) --board=$(BOARD) $(MAKEFLAGS) -j4
 	@echo AOS SDK Done
 
 sdk:
@@ -17,7 +17,7 @@ sdk:
 
 .PHONY:clean
 clean:
-	$(CPRE) scons -c
+	$(CPRE) scons -c --board=$(BOARD)
 ifeq ($(OS), Windows_NT)
 	$(CPRE) if exist aos_sdk rmdir /s /q aos_sdk
 	$(CPRE) if exist binary rmdir /s /q binary

@@ -206,7 +206,7 @@ typedef avctp_response_t avrcp_response_t;
 #define BTIF_AVRCP_RESPONSE_REJECTED           AVCTP_RESPONSE_REJECTED
 #define BTIF_AVRCP_RESPONSE_IN_TRANSITION      AVCTP_RESPONSE_IN_TRANSITION
 #define BTIF_AVRCP_RESPONSE_IMPLEMENTED_STABLE AVCTP_RESPONSE_IMPLEMENTED_STABLE
-#define BTIF_AVRCP_RESPONSE_CHANGED            AVRCP_RESP_CHANGED 
+#define BTIF_AVRCP_RESPONSE_CHANGED            AVRCP_RESP_CHANGED
 #define BTIF_AVRCP_RESPONSE_INTERIM            AVCTP_RESPONSE_INTERIM
 
 #define BTIF_AVRCP_RESPONSE_BROWSING           AVCTP_RESPONSE_BROWSING
@@ -1631,7 +1631,7 @@ extern "C" {
 
     void btif_avrcp_set_control_rsp_cmd(avrcp_advanced_pdu_t * cmd_pdu, uint8_t transId,
                                         uint8_t type);
-	
+
 	void btif_avrcp_set_control_rsp_cmd_witherror(avrcp_advanced_pdu_t * cmd_pdu, uint8_t transId, uint8_t type, uint8_t error);
 
     bt_status_t btif_avrcp_ct_get_capabilities_rsp(btif_avrcp_channel_t * channel,
@@ -1644,11 +1644,11 @@ extern "C" {
 
     void btif_avrcp_set_notify_rsp_cmd(avrcp_advanced_pdu_t * cmd_pdu, uint8_t transId,
                                        uint8_t type);
-	
+
 	void btif_avrcp_set_notify_rsp_cmd_witherror(avrcp_advanced_pdu_t * cmd_pdu, uint8_t transId, uint8_t type, uint8_t error);
 
     void btif_avrcp_recheck_vol_ctrl_flag(uint8_t * flag);
-    
+
     bt_status_t btif_avrcp_ct_get_absolute_volume_rsp(btif_avrcp_channel_t * channel,
                                                       avrcp_advanced_pdu_t * cmd_pdu,
                                                       uint8_t volume);

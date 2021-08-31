@@ -6,7 +6,6 @@
 #include "PinNames.h"
 #include "pinmap.h"
 #include "ameba_soc.h"
-#include "rtl8721dlp_rcc.h"
 #include <drv/spiflash.h>
 #include <aos/mtd.h>
 #include <aos/mtdpart.h>
@@ -15,7 +14,7 @@
 csi_error_t csi_spiflash_spi_init(csi_spiflash_t *spiflash, uint32_t spi_idx, void *spi_cs_callback)
 {
     spiflash->spi_qspi.spi.dev.idx = spi_idx;
-    spiflash->spi_qspi.spi.dev.reg_base = SPIC;
+    //spiflash->spi_qspi.spi.dev.reg_base = SPIC;
     spiflash->spi_cs_callback = spi_cs_callback;
     return CSI_OK;
 }

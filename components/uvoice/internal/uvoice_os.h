@@ -5,9 +5,9 @@
 #ifndef __UVOICE_OS_H__
 #define __UVOICE_OS_H__
 
-
+#ifndef __os_linux__
 #define __os_alios_things__
-
+#endif
 #ifndef MIN
 #define MIN(a,b) ((a)<(b) ? (a):(b))
 #endif

@@ -2,7 +2,11 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include "aos/kernel.h"
+#include "aos/kv.h"
 #include "amp_boot.h"
+
+#define MOD_STR "amp_boot"
 
 #define AMP_BOOT_WAIT_TIME 1000
 #define AMP_BOOT_MAX_KV_LEN 256
@@ -13,7 +17,16 @@ static char g_amp_boot_sync[] = "amp_boot";
 
 void amp_boot_init()
 {
-    //amp_boot_uart_init();
+#if ((!defined(BOARD_HAAS100)) && (!defined(BOARD_HAASEDUK1)))
+    amp_boot_uart_init();
+#endif
+}
+
+void amp_boot_deinit()
+{
+#if ((!defined(BOARD_HAAS100)) && (!defined(BOARD_HAASEDUK1)))
+    amp_boot_uart_deinit();
+#endif
 }
 
 void print_usage()
@@ -53,20 +66,20 @@ void amp_boot_flash_kv()
     int       num = 0;
     int       ret = 0;
 
-    aos_boot_delay(1);
+    aos_boot_delay(5);
     num = amp_boot_uart_recv_line(key, 64, 50000);
     if ((num == 0) || (num >= 64)) {
         aos_printf("recv key error %d\n", num);
         return;
     }
-    aos_boot_delay(1);
+    aos_boot_delay(5);
     key[num] = '\0';
     aos_printf("[key]=%s\n", key);
 
     for(int i = 0; i < 1; i ++) {
         amp_boot_uart_send_str("[value]=");
     }
-    aos_boot_delay(2);
+    aos_boot_delay(5);
     aos_printf("[value]=");
 
     data = (uint8_t *)aos_malloc(AMP_BOOT_MAX_KV_LEN);
@@ -87,7 +100,7 @@ void amp_boot_flash_kv()
             }
         }
 
-        aos_boot_delay(1);
+        aos_boot_delay(5);
     }
     aos_printf("\n");
     num -= strlen(kv_value_end_str);
@@ -101,13 +114,11 @@ void amp_boot_flash_kv()
         amp_boot_uart_send_str("[kvok]");
         aos_printf("write kv [%s] success\n", key);
     }
-    aos_free(data);
+    amp_free(data);
 }
 
 void amp_boot_cli_menu()
 {
-    unsigned char c   = 0;
-
     print_usage();
     aos_printf("\r\namp boot# ");
 
@@ -161,8 +172,7 @@ bool amp_boot_cli_in()
     while(1) {
         c = 0;
         if ((amp_boot_uart_recv_byte(&c) != 1) || (c == 0)) {
-            aos_boot_delay(1);
-
+            aos_boot_delay(5);
             if((aos_now_ms() - begin_time) > AMP_BOOT_WAIT_TIME) {
                 return false;
             }
@@ -183,7 +193,7 @@ bool amp_boot_cli_in()
 
     while(1) {
         c = 0;
-        aos_boot_delay(1);
+        aos_boot_delay(5);
 
         if(amp_boot_uart_recv_byte(&c) == 1) {
             if(c != g_amp_boot_sync[i]) {
@@ -201,12 +211,12 @@ bool amp_boot_cli_in()
             return false;
         }
     }
-    aos_printf("amp shakehand success\n");
+    amp_debug(MOD_STR, "amp shakehand success\n");
 
     return true;
 }
 
-void amp_boot_main()
+void amp_boot_main(void)
 {
     int ret = 0;
     unsigned char c = 0;
@@ -222,6 +232,7 @@ void amp_boot_main()
 #ifdef SUPPORT_SET_DRIVER_TRACE_FLAG
         aos_set_driver_trace_flag(1);
 #endif
+        amp_boot_deinit();
         return;
     }
 
@@ -229,5 +240,6 @@ void amp_boot_main()
 #ifdef SUPPORT_SET_DRIVER_TRACE_FLAG
     aos_set_driver_trace_flag(1);
 #endif
+    amp_boot_deinit();
     return;
 }

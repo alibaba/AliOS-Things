@@ -391,7 +391,7 @@ int py_rrmdir(const char *path)
     }
 
     if (stat(dir, &s) || !S_ISDIR(s.st_mode)) {
-        LOGE(LOG_TAG, "%s is neither existed nor a directory\n", dir);
+        // LOGE(LOG_TAG, "%s is neither existed nor a directory\n", dir);
         goto out;
     }
 
@@ -705,7 +705,7 @@ STATIC mp_obj_t mod_os_file_open(mp_obj_t path_in, mp_obj_t mode_in)
 
     FILE *stream = fopen(path, mode);
     if (stream == NULL) {
-        mp_raise_OSError(ENOENT);
+        // mp_raise_OSError(ENOENT);
         return mp_const_none;
     }
     return MP_OBJ_FROM_PTR(stream);
@@ -858,7 +858,7 @@ STATIC mp_obj_t os_sync(void) {
 MP_DEFINE_CONST_FUN_OBJ_0(mod_os_sync_obj, os_sync);
 
 #if MICROPY_PY_OS_DUPTERM
-STATIC mp_obj_t mp_uos_dupterm_notify(mp_obj_t obj_in) {
+STATIC mp_obj_t os_dupterm_notify(mp_obj_t obj_in) {
     (void)obj_in;
     for (;;) {
         int c = mp_uos_dupterm_rx_chr();
@@ -866,69 +866,75 @@ STATIC mp_obj_t mp_uos_dupterm_notify(mp_obj_t obj_in) {
             break;
         }
         ringbuf_put(&stdin_ringbuf, c);
+        mp_hal_wake_main_task_from_isr();
     }
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_uos_dupterm_notify_obj, mp_uos_dupterm_notify);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(os_dupterm_notify_obj, os_dupterm_notify);
 #endif
 
-STATIC const mp_rom_map_elem_t mp_module_os_globals_table[] = {
-    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_uos) },
-    { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
-    { MP_ROM_QSTR(MP_QSTR_urandom), MP_ROM_PTR(&os_urandom_obj) },
+STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
+    {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_uos)},
+    {MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj)},
+    {MP_ROM_QSTR(MP_QSTR_urandom), MP_ROM_PTR(&os_urandom_obj)},
 
 #if MICROPY_PY_OS_DUPTERM
-    { MP_ROM_QSTR(MP_QSTR_dupterm), MP_ROM_PTR(&mp_uos_dupterm_obj) },
-    { MP_ROM_QSTR(MP_QSTR_dupterm_notify), MP_ROM_PTR(&mp_uos_dupterm_notify_obj) },
+    {MP_ROM_QSTR(MP_QSTR_dupterm), MP_ROM_PTR(&mp_uos_dupterm_obj)},
+    {MP_ROM_QSTR(MP_QSTR_dupterm_notify), MP_ROM_PTR(&os_dupterm_notify_obj)},
 #endif
 
-    { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&mod_os_ilistdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&mod_os_listdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_mkdir), MP_ROM_PTR(&mod_os_mkdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_rmdir), MP_ROM_PTR(&mod_os_rmdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_chdir), MP_ROM_PTR(&mod_os_chdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_getcwd), MP_ROM_PTR(&mod_os_getcwd_obj) },
-    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&mod_os_remove_obj) },
-    { MP_ROM_QSTR(MP_QSTR_rename), MP_ROM_PTR(&mod_os_rename_obj) },
-    { MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&mod_os_stat_obj) },
-    { MP_ROM_QSTR(MP_QSTR_statvfs), MP_ROM_PTR(&mod_os_statvfs_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_mount), MP_ROM_PTR(&mod_os_mount_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_umount), MP_ROM_PTR(&mod_os_umount_obj) },
-    { MP_ROM_QSTR(MP_QSTR_unlink), MP_ROM_PTR(&mod_os_remove_obj) },
+#if MICROPY_VFS
+    {MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&mp_vfs_ilistdir_obj)},
+    {MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&mp_vfs_listdir_obj)},
+    {MP_ROM_QSTR(MP_QSTR_mkdir), MP_ROM_PTR(&mp_vfs_mkdir_obj)},
+    {MP_ROM_QSTR(MP_QSTR_rmdir), MP_ROM_PTR(&mp_vfs_rmdir_obj)},
+    {MP_ROM_QSTR(MP_QSTR_chdir), MP_ROM_PTR(&mp_vfs_chdir_obj)},
+    {MP_ROM_QSTR(MP_QSTR_getcwd), MP_ROM_PTR(&mp_vfs_getcwd_obj)},
+    {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&mp_vfs_remove_obj)},
+    {MP_ROM_QSTR(MP_QSTR_rename), MP_ROM_PTR(&mp_vfs_rename_obj)},
+    {MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&mp_vfs_stat_obj)},
+    {MP_ROM_QSTR(MP_QSTR_statvfs), MP_ROM_PTR(&mp_vfs_statvfs_obj)},
+    {MP_ROM_QSTR(MP_QSTR_mount), MP_ROM_PTR(&mp_vfs_mount_obj)},
+    {MP_ROM_QSTR(MP_QSTR_umount), MP_ROM_PTR(&mp_vfs_umount_obj)},
+    {MP_ROM_QSTR(MP_QSTR_unlink), MP_ROM_PTR(&mp_vfs_remove_obj)}, // unlink aliases to remove
 
+#if MICROPY_VFS_POSIX
+    {MP_ROM_QSTR(MP_QSTR_VfsPosix), MP_ROM_PTR(&mp_type_vfs_posix)},
+#endif
 #if MICROPY_VFS_FAT
-    { MP_ROM_QSTR(MP_QSTR_VfsFat), MP_ROM_PTR(&mp_fat_vfs_type) },
+    {MP_ROM_QSTR(MP_QSTR_VfsFat), MP_ROM_PTR(&mp_fat_vfs_type)},
 #endif
 #if MICROPY_VFS_LFS1
-    { MP_ROM_QSTR(MP_QSTR_VfsLfs1), MP_ROM_PTR(&mp_type_vfs_lfs1) },
+    {MP_ROM_QSTR(MP_QSTR_VfsLfs1), MP_ROM_PTR(&mp_type_vfs_lfs1)},
 #endif
 #if MICROPY_VFS_LFS2
-    { MP_ROM_QSTR(MP_QSTR_VfsLfs2), MP_ROM_PTR(&mp_type_vfs_lfs2) },
+    {MP_ROM_QSTR(MP_QSTR_VfsLfs2), MP_ROM_PTR(&mp_type_vfs_lfs2)},
 #endif
-    
-    { MP_ROM_QSTR(MP_QSTR_sync), MP_ROM_PTR(&mod_os_sync_obj) },
-    { MP_ROM_QSTR(MP_QSTR_sep), MP_ROM_QSTR(MP_QSTR__slash_) },
-    { MP_ROM_QSTR(MP_QSTR_errno), MP_ROM_PTR(&mod_os_errno_obj) },
-    { MP_ROM_QSTR(MP_QSTR_system), MP_ROM_PTR(&mod_os_system_obj) },
-    { MP_ROM_QSTR(MP_QSTR_getenv), MP_ROM_PTR(&mod_os_getenv_obj) },
-    { MP_ROM_QSTR(MP_QSTR_putenv), MP_ROM_PTR(&mod_os_putenv_obj) },
-    { MP_ROM_QSTR(MP_QSTR_unsetenv), MP_ROM_PTR(&mod_os_unsetenv_obj) },
+#endif
+
+    {MP_ROM_QSTR(MP_QSTR_sync), MP_ROM_PTR(&mod_os_sync_obj)},
+    {MP_ROM_QSTR(MP_QSTR_sep), MP_ROM_QSTR(MP_QSTR__slash_)},
+    {MP_ROM_QSTR(MP_QSTR_errno), MP_ROM_PTR(&mod_os_errno_obj)},
+    {MP_ROM_QSTR(MP_QSTR_system), MP_ROM_PTR(&mod_os_system_obj)},
+    {MP_ROM_QSTR(MP_QSTR_getenv), MP_ROM_PTR(&mod_os_getenv_obj)},
+    {MP_ROM_QSTR(MP_QSTR_putenv), MP_ROM_PTR(&mod_os_putenv_obj)},
+    {MP_ROM_QSTR(MP_QSTR_unsetenv), MP_ROM_PTR(&mod_os_unsetenv_obj)},
 
     // file operation
-    { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&mod_os_file_open_obj) },
-    { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mod_os_file_read_obj) },
-    { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mod_os_file_write_obj) },
-    { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&mod_os_file_close_obj) },
-    { MP_ROM_QSTR(MP_QSTR_seek), MP_ROM_PTR(&mod_os_file_seek_obj) },
-    { MP_ROM_QSTR(MP_QSTR_tell), MP_ROM_PTR(&mod_os_file_tell_obj) },
-    { MP_ROM_QSTR(MP_QSTR_rewind), MP_ROM_PTR(&mod_os_file_rewind_obj) },
-    { MP_ROM_QSTR(MP_QSTR_getpos), MP_ROM_PTR(&mod_os_file_getpos_obj) },
-    { MP_ROM_QSTR(MP_QSTR_setpos), MP_ROM_PTR(&mod_os_file_setpos_obj) },
+    {MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&mod_os_file_open_obj)},
+    {MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mod_os_file_read_obj)},
+    {MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mod_os_file_write_obj)},
+    {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&mod_os_file_close_obj)},
+    {MP_ROM_QSTR(MP_QSTR_seek), MP_ROM_PTR(&mod_os_file_seek_obj)},
+    {MP_ROM_QSTR(MP_QSTR_tell), MP_ROM_PTR(&mod_os_file_tell_obj)},
+    {MP_ROM_QSTR(MP_QSTR_rewind), MP_ROM_PTR(&mod_os_file_rewind_obj)},
+    {MP_ROM_QSTR(MP_QSTR_getpos), MP_ROM_PTR(&mod_os_file_getpos_obj)},
+    {MP_ROM_QSTR(MP_QSTR_setpos), MP_ROM_PTR(&mod_os_file_setpos_obj)},
 };
 
-STATIC MP_DEFINE_CONST_DICT(mp_module_os_globals, mp_module_os_globals_table);
+STATIC MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);
 
-const mp_obj_module_t mp_module_uos = {
+const mp_obj_module_t uos_module = {
     .base = { &mp_type_module },
-    .globals = (mp_obj_dict_t *)&mp_module_os_globals,
+    .globals = (mp_obj_dict_t *)&os_module_globals,
 };

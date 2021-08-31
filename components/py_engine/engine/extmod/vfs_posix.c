@@ -118,13 +118,13 @@ STATIC mp_obj_t vfs_posix_mount(mp_obj_t self_in, mp_obj_t readonly, mp_obj_t mk
     }
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_mount_obj, vfs_posix_mount);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_mount_obj, vfs_posix_mount);
 
 STATIC mp_obj_t vfs_posix_umount(mp_obj_t self_in) {
     (void)self_in;
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_1(vfs_posix_umount_obj, vfs_posix_umount);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(vfs_posix_umount_obj, vfs_posix_umount);
 
 STATIC mp_obj_t vfs_posix_open(mp_obj_t self_in, mp_obj_t path_in, mp_obj_t mode_in) {
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
@@ -138,12 +138,12 @@ STATIC mp_obj_t vfs_posix_open(mp_obj_t self_in, mp_obj_t path_in, mp_obj_t mode
     }
     return mp_vfs_posix_file_open(&mp_type_textio, path_in, mode_in);
 }
-MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_open_obj, vfs_posix_open);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_open_obj, vfs_posix_open);
 
 STATIC mp_obj_t vfs_posix_chdir(mp_obj_t self_in, mp_obj_t path_in) {
     return vfs_posix_fun1_helper(self_in, path_in, chdir);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_chdir_obj, vfs_posix_chdir);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_chdir_obj, vfs_posix_chdir);
 
 STATIC mp_obj_t vfs_posix_getcwd(mp_obj_t self_in) {
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
@@ -155,7 +155,7 @@ STATIC mp_obj_t vfs_posix_getcwd(mp_obj_t self_in) {
     ret += self->root_len;
     return mp_obj_new_str(ret, strlen(ret));
 }
-MP_DEFINE_CONST_FUN_OBJ_1(vfs_posix_getcwd_obj, vfs_posix_getcwd);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(vfs_posix_getcwd_obj, vfs_posix_getcwd);
 
 typedef struct _vfs_posix_ilistdir_it_t {
     mp_obj_base_t base;
@@ -242,7 +242,7 @@ STATIC mp_obj_t vfs_posix_ilistdir(mp_obj_t self_in, mp_obj_t path_in) {
     }
     return MP_OBJ_FROM_PTR(iter);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_ilistdir_obj, vfs_posix_ilistdir);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_ilistdir_obj, vfs_posix_ilistdir);
 
 typedef struct _mp_obj_listdir_t {
     mp_obj_base_t base;
@@ -261,12 +261,12 @@ STATIC mp_obj_t vfs_posix_mkdir(mp_obj_t self_in, mp_obj_t path_in) {
     }
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_mkdir_obj, vfs_posix_mkdir);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_mkdir_obj, vfs_posix_mkdir);
 
 STATIC mp_obj_t vfs_posix_remove(mp_obj_t self_in, mp_obj_t path_in) {
     return vfs_posix_fun1_helper(self_in, path_in, unlink);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_remove_obj, vfs_posix_remove);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_remove_obj, vfs_posix_remove);
 
 STATIC mp_obj_t vfs_posix_rename(mp_obj_t self_in, mp_obj_t old_path_in, mp_obj_t new_path_in) {
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
@@ -280,12 +280,12 @@ STATIC mp_obj_t vfs_posix_rename(mp_obj_t self_in, mp_obj_t old_path_in, mp_obj_
     }
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_rename_obj, vfs_posix_rename);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_rename_obj, vfs_posix_rename);
 
 STATIC mp_obj_t vfs_posix_rmdir(mp_obj_t self_in, mp_obj_t path_in) {
     return vfs_posix_fun1_helper(self_in, path_in, rmdir);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_rmdir_obj, vfs_posix_rmdir);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_rmdir_obj, vfs_posix_rmdir);
 
 STATIC mp_obj_t vfs_posix_stat(mp_obj_t self_in, mp_obj_t path_in) {
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
@@ -306,20 +306,25 @@ STATIC mp_obj_t vfs_posix_stat(mp_obj_t self_in, mp_obj_t path_in) {
     t->items[9] = mp_obj_new_int_from_uint(sb.st_ctime);
     return MP_OBJ_FROM_PTR(t);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_stat_obj, vfs_posix_stat);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_stat_obj, vfs_posix_stat);
 
 #ifdef __ANDROID__
 #define USE_STATFS 1
 #endif
 
 #if USE_STATFS
+#if MICROPY_PY_HAAS_SPECIFIC
 #include "dirent.h"
+#else
+#include <sys/vfs.h>
+#endif
 #define STRUCT_STATVFS struct statfs
 #define STATVFS statfs
 #define F_FAVAIL sb.f_ffree
 #define F_NAMEMAX sb.f_namelen
+#if !MICROPY_PY_HAAS_SPECIFIC
 #define F_FLAG sb.f_flags
-#define F_FSID sb.f_fsid
+#endif
 #else
 #include <sys/statvfs.h>
 #define STRUCT_STATVFS struct statvfs
@@ -335,19 +340,20 @@ STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in) {
     const char *path = vfs_posix_get_path_str(self, path_in);
     int ret;
     MP_HAL_RETRY_SYSCALL(ret, STATVFS(path, &sb), mp_raise_OSError(err));
-    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(9, NULL));
-    t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.f_type);
-    t->items[1] = MP_OBJ_NEW_SMALL_INT(sb.f_bsize);
+    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
+    t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.f_bsize);
+    t->items[1] = MP_OBJ_NEW_SMALL_INT(0); // sb.f_frsize
     t->items[2] = MP_OBJ_NEW_SMALL_INT(sb.f_blocks);
     t->items[3] = MP_OBJ_NEW_SMALL_INT(sb.f_bfree);
     t->items[4] = MP_OBJ_NEW_SMALL_INT(sb.f_bavail);
     t->items[5] = MP_OBJ_NEW_SMALL_INT(sb.f_files);
-    t->items[6] = MP_OBJ_NEW_SMALL_INT(F_FAVAIL);
-    t->items[7] = MP_OBJ_NEW_SMALL_INT(F_FSID);
-    t->items[8] = MP_OBJ_NEW_SMALL_INT(F_NAMEMAX);
+    t->items[6] = MP_OBJ_NEW_SMALL_INT(sb.f_ffree);
+    t->items[7] = MP_OBJ_NEW_SMALL_INT(F_FAVAIL);
+    t->items[8] = MP_OBJ_NEW_SMALL_INT(0); //F_FLAG
+    t->items[9] = MP_OBJ_NEW_SMALL_INT(F_NAMEMAX);
     return MP_OBJ_FROM_PTR(t);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_statvfs_obj, vfs_posix_statvfs);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_statvfs_obj, vfs_posix_statvfs);
 
 STATIC const mp_rom_map_elem_t vfs_posix_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_mount), MP_ROM_PTR(&vfs_posix_mount_obj) },

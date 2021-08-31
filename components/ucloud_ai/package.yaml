@@ -78,6 +78,7 @@ source_file:
   - src/model/imageseg.cc ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
   - src/model/objectdet.cc ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
   - src/model/ocr.cc ? <CONFIG_ALICLOUD_OCR_ENABLE>
+  - src/model/chatbot.cc ? <CONFIG_ALICLOUD_CHATBOT_ENABLE>
   - src/model/common.cc
   - src/ucloud_ai_facebody.c ? <CONFIG_ALICLOUD_FACEBODY_ENABLE>
   - src/ucloud_ai_imageenhan.c ? <CONFIG_ALICLOUD_IMAGEENHAN_ENABLE>
@@ -85,6 +86,7 @@ source_file:
   - src/ucloud_ai_imageseg.c ? <CONFIG_ALICLOUD_IMAGESEG_ENABLE>
   - src/ucloud_ai_objectdet.c ? <CONFIG_ALICLOUD_OBJECTDET_ENABLE>
   - src/ucloud_ai_ocr.c ? <CONFIG_ALICLOUD_OCR_ENABLE>
+  - src/ucloud_ai_chatbot.c ? <CONFIG_ALICLOUD_CHATBOT_ENABLE>
   - src/ucloud_ai_common.c
 #  - example/ucloud_ai_example.c
 
@@ -96,6 +98,7 @@ def_config:                              # 组件的可配置项
   CONFIG_ALICLOUD_OBJECTDET_ENABLE: 1
   CONFIG_ALICLOUD_IMAGESEG_ENABLE: 1
   CONFIG_ALICLOUD_OCR_ENABLE: 1
+  CONFIG_ALICLOUD_CHATBOT_ENABLE: 1
   USE_CRYPTO_MBEDTLS: 1
 
   # OSS 配置信息, 用户在这里替换自己的OSS信息

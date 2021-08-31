@@ -1895,6 +1895,15 @@ __STATIC_FORCEINLINE int32_t __SXTB16(uint32_t op1)
   return(result);
 }
 
+__STATIC_FORCEINLINE int32_t __SXTB16_RORn(uint32_t op1, uint32_t rotate)
+{
+  int32_t result;
+
+  __ASM ("sxtb16 %0, %1, ROR %2" : "=r" (result) : "r" (op1), "i" (rotate) );
+
+  return result;
+}
+
 __STATIC_FORCEINLINE int32_t __SXTAB16(uint32_t op1, uint32_t op2)
 {
   int32_t result;

@@ -10,10 +10,15 @@
 #include "osif_customer.h"
 #include "hci_if.h"
 #include "hci_tp.h"
+#include "wifi_conf.h"
 
 bool bt_vendor_open_flag = false;
 void *bt_vendor_open_sem = NULL;
 void *bt_vendor_tx_sem = NULL;
+
+unsigned int sleep(unsigned int seconds);
+extern void hci_if_del_task(void);
+extern void hci_if_deinit(void);
 
 static bool bt_vendor_init_callback(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
 {

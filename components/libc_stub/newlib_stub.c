@@ -10,6 +10,7 @@
 
 #include <k_api.h>
 #include "aos/kernel.h"
+#include "aos/vfs.h"
 
 #include "aos/hal/uart.h"
 
@@ -44,7 +45,7 @@ int _execve_r(struct _reent *ptr, const char *name, char *const *argv,
 int _fcntl_r(struct _reent *ptr, int fd, int cmd, int arg)
 {
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
-        return aos_vfs_fcntl(fd, cmd, arg);
+        return aos_fcntl(fd, cmd, arg);
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
@@ -164,7 +165,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     }
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = HAL_UART_STDIO_PORT;
 
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
         return aos_write(fd, buf, nbytes);
@@ -247,7 +248,17 @@ void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 
 int _stat_r(struct _reent *ptr, const char *file, struct stat *pstat)
 {
-    return aos_stat(file, pstat);
+    struct aos_stat stat;
+    int    ret;
+
+    ret = aos_stat(file, &stat);
+
+    pstat->st_mode  = stat.st_mode;
+    pstat->st_size  = stat.st_size;
+    pstat->st_atime = stat.st_actime;
+    pstat->st_mtime = stat.st_modtime;
+
+    return ret;
 }
 
 _CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
@@ -371,11 +382,14 @@ void _exit(int status)
 void exit(int status)
 {
     aos_task_exit(status);
-    return;
+    /* This function declares the noreturn attribute, and execution should not return */
+    while (1)
+        ;
 }
 
 __attribute__((weak)) void _fini()
 {
+    return;
 }
 
 void _system(const char *s)
@@ -386,5 +400,8 @@ void _system(const char *s)
 void abort(void)
 {
     k_err_proc(RHINO_SYS_FATAL_ERR);
+    /* This function declares the noreturn attribute, and execution should not return */
+    while (1)
+        ;
 }
 

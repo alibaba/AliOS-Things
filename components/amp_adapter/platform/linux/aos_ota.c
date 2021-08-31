@@ -39,10 +39,7 @@ int ota_read_parameter(ota_boot_param_t *ota_param)
 void ota_service_param_reset(ota_service_t *ctx)
 {
 }
-int aos_kv_get(const char *key, void *buffer, int *buffer_len)
-{
-    return 0;
-}
+
 int ota_register_module_store(ota_service_t *ctx, ota_store_module_info_t *queue, int queue_len)
 {
     return 0;

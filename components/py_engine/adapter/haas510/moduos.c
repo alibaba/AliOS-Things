@@ -391,7 +391,7 @@ int py_rrmdir(const char *path)
     }
 
     if (stat(dir, &s) || !S_ISDIR(s.st_mode)) {
-        LOGE(LOG_TAG, "%s is neither existed nor a directory\n", dir);
+        // LOGE(LOG_TAG, "%s is neither existed nor a directory\n", dir);
         goto out;
     }
 

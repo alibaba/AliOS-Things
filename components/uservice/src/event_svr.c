@@ -21,6 +21,7 @@ static struct event_call {
     event_list_t event;
     dlist_t      timeouts;
     int          event_id;
+    int          is_event_service_inited;
     void        *data;
     aos_task_t   select_task;
     aos_sem_t    select_sem;
@@ -111,21 +112,28 @@ static int process_rpc(void *context, rpc_t *rpc)
 
 int event_service_init(utask_t *task)
 {
+    if (ev_service.is_event_service_inited != 0) {
+        return 0;
+    }
+    ev_service.is_event_service_inited = 1;
     if (task == NULL)
         task = utask_new("event_svr", 2*1024, QUEUE_MSG_COUNT * 5, AOS_DEFAULT_APP_PRI);
 
-    if (task == NULL)
+    if (task == NULL) {
+        ev_service.is_event_service_inited = 0;
         return -1;
-
+    }
     eventlist_init(&ev_service.event);
     dlist_init(&ev_service.timeouts);
     if (aos_sem_new(&ev_service.select_sem, 0) < 0) {
         utask_destroy(task);
+        ev_service.is_event_service_inited = 0;
         return -1;
     }
     if (aos_event_new(&ev_service.wait_event, 0) < 0) {
         utask_destroy(task);
         aos_sem_free(&ev_service.select_sem);
+        ev_service.is_event_service_inited = 0;
         return -1;
     }
 
@@ -134,6 +142,7 @@ int event_service_init(utask_t *task)
         utask_destroy(task);
         aos_sem_free(&ev_service.select_sem);
         aos_event_free(&ev_service.select_sem);
+        ev_service.is_event_service_inited = 0;
         return -1;
     }
 

@@ -41,8 +41,12 @@
 
 #ifdef __GNUC__
 #define __weak                  __attribute__((weak))
+#ifndef likely
 #define likely(x)               __builtin_expect ((x), 1)
+#endif
+#ifndef unlikely
 #define unlikely(x)             __builtin_expect ((x), 0)
+#endif
 
 #elif defined(__ICCARM__)
 #define likely(x)               (x)

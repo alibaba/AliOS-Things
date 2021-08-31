@@ -13,5 +13,5 @@ void app_ibrt_ui_stop_ble_adv_broadcasting(void);
 #ifdef __cplusplus
 }
 #endif
- 
+
 #endif

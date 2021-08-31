@@ -7,34 +7,35 @@
 @Author     :    guoliang.wgl
 @version    :    1.0
 '''
-import netmgr as nm
+import network
 import utime as time
 import sys
 
-nm.init()
-connected = nm.getStatus()
+
+net = network.NetWorkClient()
+connected = net.getStatus()
 
 def on_wifi_connected(status):
     global connected
     print('*******wifi connected*********')
-    connected = True
+    connected = 5
 
-if  not connected:
-    nm.register_call_back(1,on_wifi_connected)
+if  connected != 5 :
+    net.on(1,on_wifi_connected)
     if(len(sys.argv) == 3):
-        nm.connect(sys.argv[1],sys.argv[2])
+        net.connect({'ssid':sys.argv[1],'password':sys.argv[2]})
     else:
-        nm.connect("KIDS","12345678")
+        net.connect("KIDS","12345678")
 
 while True :
-    if connected:
+    if connected == 5:
         break
     else:
         print('Wait for wifi connected')
         time.sleep(1)
 
-if nm.getStatus():
-    print('DeviceIP:' + nm.getInfo()['IP'])
+if net.getStatus() == 5 :
+    print('DeviceIP:' + net.getInfo()['IP'])
 else:
     print('DeviceIP:get failed')
 

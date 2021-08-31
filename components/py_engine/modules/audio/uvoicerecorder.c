@@ -117,7 +117,7 @@ STATIC mp_obj_t uvoice_set_sink(size_t n_args, const mp_obj_t *args)
     int bits = mp_obj_get_int(args[4]);
     int frames = mp_obj_get_int(args[5]);
     int bitrate = mp_obj_get_int(args[6]);
-    char *sink = mp_obj_is_type(args[7], &mp_type_NoneType) ? NULL: (char *) mp_obj_str_get_str(args[7]);
+    char *sink = mp_obj_is_str(args[7]) ? (char *) mp_obj_str_get_str(args[7]) : NULL;
 
     LOGD(LOG_TAG, "format=%d, rate=%d, channels=%d, bits=%d, frames=%d, bitrate=%d, sink=%s\n",
           format, rate, channels, bits, frames, bitrate, sink);

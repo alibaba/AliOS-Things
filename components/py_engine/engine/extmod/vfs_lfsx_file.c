@@ -32,7 +32,7 @@
 #include "py/mperrno.h"
 #include "extmod/vfs.h"
 
-#if 0 //disabled by haas amp
+#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
 
 STATIC void MP_VFS_LFSx(check_open)(MP_OBJ_VFS_LFSx_FILE * self) {
     if (self->vfs == NULL) {

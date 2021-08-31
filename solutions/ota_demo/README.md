@@ -1,6 +1,6 @@
 @page ota_demo HaaS物联网设备OTA解决方案
 
-[更正文档](https://gitee.com/alios-things/ota_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ota_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 OTA升级是很多嵌入式产品必备的一个功能。HaaS提供了完备的OTA解决方案。本案例就是一个端云一体的例子。
@@ -77,11 +77,11 @@ static const unsigned char ota_pube_buf[3];
 * 配置四元祖
 修改位置：solutions/ota_demo/otaappdemo.c中的，mqtt_main函数中的char *product_key, char *device_name, char *device_secret;填入自己的pk,dn,ds;
 * 编译固件
-完成上面步骤后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+完成上面步骤后，就可以编译ota_demo案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 * 烧录固件
-ota_demo案例的固件生成后，可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)来烧录固件。
+ota_demo案例的固件生成后，可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)来烧录固件。
 * 打开串口
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 * 配网连云
 输入wifi账号和密码配网：在终端输入：

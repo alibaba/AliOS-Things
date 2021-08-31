@@ -217,7 +217,7 @@ struct BT_DEVICE_T{
     enum BT_DEVICE_ID_T curr_a2dp_stream_id;
     uint16_t current_a2dp_conhdl;
 
-    
+
     uint8_t a2dp_state[BT_DEVICE_NUM];
     uint8_t a2dp_streamming[BT_DEVICE_NUM];
     uint8_t a2dp_play_pause_flag;

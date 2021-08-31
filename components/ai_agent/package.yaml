@@ -39,8 +39,19 @@ depends:
 #   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
 #     - libs                               #   -Llibs
 build_config:
+  define:
+    - CMSIS_NN
   include:
     - include
+    - src/engine/
+    - src/engine/tflite-micro/
+    - src/engine/tflite-micro/third_party/flatbuffers/include/
+    - src/engine/tflite-micro/third_party/gemmlowp/
+    - src/engine/tflite-micro/third_party/ruy/
+    - src/engine/tflite-micro/third_party/cmsis/
+    - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Include/
+    - src/engine/tflite-micro/third_party/cmsis/CMSIS/DSP/Include/
+    - src/engine/tflite-micro/third_party/kissfft/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -48,6 +59,43 @@ source_file:
   - src/*.c
   - src/engine/ucloud_ai_engine.c ? <CONFIG_UCLOUD_AI_ENGINE_ENABLE>
   - src/engine/kws_engine.c ? <CONFIG_KWS_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/micro/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/micro/cortex_m_generic/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/micro/kernels/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/micro/memory_planner/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/core/api/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/c/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/kernels/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/kernels/internal/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/schema/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/micro/kernels/cmsis_nn/*.cc ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+#  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/ReshapeFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/NNSupportFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/PoolingFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/BasicMathFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+#  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/ConcatenationFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/ConvolutionFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/FullyConnectedFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+#  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/SVDFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+#  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/SoftmaxFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/ActivationFunctions/*.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/SoftmaxFunctions/arm_softmax_s8.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+#  - src/engine/tflite-micro/third_party/cmsis/CMSIS/NN/Source/ConvolutionFunctions/arm_depthwise_conv_wrapper_s8.c ? <CONFIG_TFLITE_AI_ENGINE_ENABLE>
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/fft.cc
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/fft_util.cc
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/filterbank.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/filterbank_util.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/frontend.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/frontend_util.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/log_lut.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/log_scale.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/log_scale_util.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/noise_reduction.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/noise_reduction_util.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/pcan_gain_control.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/pcan_gain_control_util.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/window.c
+  - src/engine/tflite-micro/tensorflow/lite/experimental/microfrontend/lib/window_util.c
 #  - example/aiagent_example.c
 
 ## 第五部分：配置信息

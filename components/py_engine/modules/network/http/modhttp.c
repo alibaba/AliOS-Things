@@ -30,7 +30,7 @@
 #define LOG_TAG "MOD-HTTP"
 
 #define MOD_STR                     "HTTP"
-#define HTTP_BUFF_SIZE              2048
+#define HTTP_BUFF_SIZE              12 * 1024
 #define HTTP_HEADER_SIZE            1024
 #define HTTP_HEADER_COUNT           8
 #define HTTP_REQUEST_PARAMS_LEN_MAX 2048
@@ -117,7 +117,7 @@ static void parse_url(const char *url, char *uri)
     }
 }
 
-int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data)
+int32_t pyamp_httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data)
 {
     uint32_t hdr_len;
     uint32_t hdr_data_len;
@@ -146,7 +146,6 @@ int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, c
     return hdr_length;
 }
 
-
 static void http_request_notify(void *pdata)
 {
 
@@ -159,50 +158,99 @@ static void http_request_notify(void *pdata)
     }
 }
 
-char customer_header[HTTP_HEADER_SIZE] = {0};
-char rsp_buf[HTTP_BUFF_SIZE];
-char req_buf[HTTP_BUFF_SIZE];
+static void http_download_notify(void *pdata)
+{
+
+    http_param_t *msg = (http_param_t *)pdata;
+    LOGD(LOG_TAG, "buf is %s \r\n",msg->buffer);
+    LOGD(LOG_TAG, "buf len is %d \r\n",strlen(msg->buffer));
+
+    if (msg->cb != mp_const_none) {
+        callback_to_python(msg->cb,mp_obj_new_str(msg->buffer,strlen(msg->buffer)));
+    }
+}
+
+static char customer_header[HTTP_HEADER_SIZE] = {0};
+static char rsp_buf[HTTP_BUFF_SIZE];
+static char req_buf[HTTP_BUFF_SIZE];
 
 /* create task for http download */
 static void task_http_download_func(void *arg)
 {
     httpclient_t client = {0};
     httpclient_data_t client_data = {0};
-    http_param_t *param = (http_param_t *)arg;
-    int num=0;
-    int ret;
+    http_param_t *http_param = (http_param_t *)arg;
+    int num = 0;
+    int ret, i = 0;
+    bool result = false;
+    char *header = "Accept: */*\r\n";
 
-    char * req_url = param->url;
-    int fd = aos_open(param->filepath,  O_CREAT | O_RDWR | O_APPEND);
+    char * req_url = http_param->url;
 
+    if (!aos_access(http_param->filepath, 0)) {
+        aos_remove(http_param->filepath);
+    }
+
+    int fd = aos_open(http_param->filepath,  O_CREAT | O_RDWR | O_APPEND);
+    if (fd < 0) {
+        printf("aos open fd %d fail\n", fd);
+        result = false;
+        goto end;
+    }
     memset(rsp_buf, 0, sizeof(rsp_buf));
     client_data.response_buf = rsp_buf;
     client_data.response_buf_len = sizeof(rsp_buf);
+
+    httpclient_set_custom_header(&client, header);
 
     ret = httpclient_conn(&client, req_url);
 
     if (!ret) {
         ret = httpclient_send(&client, req_url, HTTP_GET, &client_data);
 
-        do{
+        do {
             ret = httpclient_recv(&client, &client_data);
-            //printf("response_content_len=%d, retrieve_len=%d,content_block_len=%d\n", client_data.response_content_len,client_data.retrieve_len,client_data.content_block_len);
-            //printf("ismore=%d \n", client_data.is_more);
+            // printf("response_content_len=%d, retrieve_len=%d,content_block_len=%d\n", client_data.response_content_len,client_data.retrieve_len,client_data.content_block_len);
+            // printf("ismore=%d \n", client_data.is_more);
 
             num = aos_write(fd, client_data.response_buf, client_data.content_block_len);
             if(num > 0){
                 //printf("aos_write num=%d\n", num);
+            } else {
+                result = false;
+                break;
             }
         }while(client_data.is_more);
+        if (client_data.response_content_len == 0)
+            result = false;
+        else
+            result = true;
+    } else {
+        result = false;
+        printf("[%s]httpclient_conn fail, ret : %d\n", __func__, ret);
     }
-    ret = aos_sync(fd);
-    param->buffer = "http download success";
+
+    aos_close(fd);
     httpclient_clse(&client);
 
-    http_request_notify(param);
+end:
+    if (result) {
+        if (http_param->buffer)
+            strcpy(http_param->buffer, "success");
+    } else {
+        if (http_param->buffer)
+            strcpy(http_param->buffer, "fail");
+    }
+    http_download_notify(http_param);
+    if (http_param->buffer)
+        aos_free(http_param->buffer);
+    if (http_param && http_param->params) {
+        cJSON_free(http_param->params);
+        aos_free(http_param);
+        http_param = NULL;
+    }
 
     aos_task_exit(0);
-
 }
 
 /* create task for http request */
@@ -215,11 +263,11 @@ static void task_http_request_func(void *arg)
     int ret = 0;
     httpclient_t client = {0};
     httpclient_data_t client_data = {0};
-    http_param_t *param = (http_param_t *)arg;
+    http_param_t *http_param = (http_param_t *)arg;
 
-    url = param->url;
-    timeout = param->timeout;
-    http_method = param->method;
+    url = http_param->url;
+    timeout = http_param->timeout;
+    http_method = http_param->method;
 
     LOGD(LOG_TAG, "task_http_request_func url: %s", url);
     LOGD(LOG_TAG,  "task_http_request_func method: %d", http_method);
@@ -231,7 +279,7 @@ static void task_http_request_func(void *arg)
     aos_msleep(50); /* need do things after state changed in main task */
 
     for (i = 0; i < http_header_index; i++) {
-        httpc_construct_header(customer_header, HTTP_HEADER_SIZE, param->http_header[i].name, param->http_header[i].data);
+        pyamp_httpc_construct_header(customer_header, HTTP_HEADER_SIZE, http_param->http_header[i].name, http_param->http_header[i].data);
     }
     http_header_index = 0;
     httpclient_set_custom_header(&client, customer_header);
@@ -242,10 +290,10 @@ static void task_http_request_func(void *arg)
         ret = httpclient_get(&client, url, &client_data);
         if( ret >= 0 ) {
             LOGD(LOG_TAG, "GET Data received: %s, len=%d \r\n", client_data.response_buf, client_data.response_buf_len);
-            strcpy(param->buffer,client_data.response_buf);
+            strcpy(http_param->buffer,client_data.response_buf);
         }
     }else if(http_method == HTTP_POST){
-        LOGD(LOG_TAG, "http POST request=%s,post_buf=%s,timeout=%d\r\n", url,param->params,timeout);
+        LOGD(LOG_TAG, "http POST request=%s,post_buf=%s,timeout=%d\r\n", url,http_param->params,timeout);
         memset(req_buf, 0, sizeof(req_buf));
         strcpy(req_buf, "tab_index=0&count=3&group_id=6914830518563373582&item_id=6914830518563373581&aid=1768");
         client_data.post_buf = req_buf;
@@ -254,26 +302,35 @@ static void task_http_request_func(void *arg)
         ret = httpclient_post(&client, "https://www.ixigua.com/tlb/comment/article/v5/tab_comments/", &client_data);
         if( ret >= 0 ) {
             LOGD(LOG_TAG, "POST Data received: %s, len=%d \r\n", client_data.response_buf, client_data.response_buf_len);
-            strcpy(param->buffer,client_data.response_buf);
+            strcpy(http_param->buffer,client_data.response_buf);
         }
     }else if(http_method == HTTP_PUT){
-        LOGD(LOG_TAG, "http PUT request=%s,data=%s,timeout=%d\r\n", url,param->params,timeout);
-        client_data.post_buf = param->params;
-        client_data.post_buf_len = param->params_len;
+        LOGD(LOG_TAG, "http PUT request=%s,data=%s,timeout=%d\r\n", url,http_param->params,timeout);
+        client_data.post_buf = http_param->params;
+        client_data.post_buf_len = http_param->params_len;
         ret = httpclient_put(&client, url, &client_data);
         if( ret >= 0 ) {
             LOGD(LOG_TAG, "Data received: %s, len=%d \r\n", client_data.response_buf, client_data.response_buf_len);
-            strcpy(param->buffer,client_data.response_buf);
+            strcpy(http_param->buffer,client_data.response_buf);
         }
     }else{
         ret = httpclient_get(&client, url, &client_data);
         if( ret >= 0 ) {
             LOGD(LOG_TAG, "Data received: %s, len=%d \r\n", client_data.response_buf, client_data.response_buf_len);
-            strcpy(param->buffer,client_data.response_buf);
+            strcpy(http_param->buffer,client_data.response_buf);
         }
     }
 
-    http_request_notify(param);
+    httpclient_clse(&client);
+    http_request_notify(http_param);
+
+    if (http_param->buffer)
+        aos_free(http_param->buffer);
+    if (http_param && http_param->params) {
+        cJSON_free(http_param->params);
+        aos_free(http_param);
+        http_param = NULL;
+    }
     LOGD(LOG_TAG, " task_http_request_func end \r\n ");
     aos_task_exit(0);
 
@@ -298,6 +355,14 @@ STATIC mp_obj_t http_download(mp_obj_t data,mp_obj_t callback)
         goto done;
     }
     memset(http_param, 0, sizeof(http_param_t));
+
+    http_buffer = aos_malloc(32 + 1);
+    if (!http_buffer)
+    {
+        LOGE(LOG_TAG,  "allocate memory failed\n");
+        goto done;
+    }
+    memset(http_buffer, 0, 32 + 1);
     http_param->buffer = http_buffer;
 
     /* get http download url */
@@ -307,14 +372,12 @@ STATIC mp_obj_t http_download(mp_obj_t data,mp_obj_t callback)
     url = mp_obj_str_get_str(mp_obj_dict_get(data,index));
     http_param->url = url;
 
-
     /* get http download filepath */
 
     index = mp_obj_new_str_via_qstr("filepath",8);
 
     filepath = mp_obj_str_get_str(mp_obj_dict_get(data,index));
     http_param->filepath = filepath;
-
 
     /* callback */
     http_param->cb = callback ; 
@@ -326,15 +389,17 @@ STATIC mp_obj_t http_download(mp_obj_t data,mp_obj_t callback)
 done:
     if (http_buffer)
         aos_free(http_buffer);
-    if (http_param && http_param->params)
+    if (http_param && http_param->params) {
         cJSON_free(http_param->params);
+        aos_free(http_param);
+        http_param = NULL;
+    }
    
     return mp_const_none;
 
 }
 
 MP_DEFINE_CONST_FUN_OBJ_2(mp_obj_http_download, http_download);
-
 
 static mp_obj_t http_request(mp_obj_t data,mp_obj_t callback)
 {
@@ -349,15 +414,10 @@ static mp_obj_t http_request(mp_obj_t data,mp_obj_t callback)
     int i;
     aos_task_t http_task;
 
-
-
-  
-
     if(!mp_obj_is_dict_or_ordereddict(data)){
         LOGE(LOG_TAG, "%s  param type error,param type must be dict \r\n",__func__);
         return mp_const_none;
     }
-
 
     http_param = (http_param_t *)aos_malloc(sizeof(http_param_t));
     if (!http_param)
@@ -375,7 +435,6 @@ static mp_obj_t http_request(mp_obj_t data,mp_obj_t callback)
     }
     memset(http_buffer, 0, HTTP_BUFF_SIZE + 1);
     http_param->buffer = http_buffer;
-
 
     /* get http request url */
     mp_obj_t index = mp_obj_new_str_via_qstr("url",3);
@@ -419,9 +478,6 @@ static mp_obj_t http_request(mp_obj_t data,mp_obj_t callback)
         http_header_index++;
     }
     else if (mp_obj_is_type(header, &mp_type_dict)) {
-
-
-        
         // dictionary
         mp_map_t *map = mp_obj_dict_get_map(header);
         //assert(args2_len + 2 * map->used <= args2_alloc); // should have enough, since kw_dict_len is in this case hinted correctly above

@@ -1,6 +1,6 @@
 @page audio_demo 用钉钉小程序控制HaaS100播放语音示例
 
-[更正文档](https://gitee.com/alios-things/audio_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/audio_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1、方案介绍
 本文主要介绍如何基于HaaS100硬件平台搭建“云端钉一体”（阿里云IoT平台 + HaaS100 + 钉钉小程序）的智能语音播放器（以下简称智能语音播放器）。该智能语音播放器包含如下功能：
@@ -49,11 +49,11 @@ HaaS100端测软件开发包含以下3个步骤：
 > * 代码编译、烧录
 
 ## 3.1、AliOS Things开发环境搭建
-案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 3.2、智能语音播放器代码下载
-该案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+该案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 其中，
 > 选择解决方案: “HaaS云端钉智能语音播放器”或者“audio_demo”
 > 选择开发板: HaaS100
@@ -73,9 +73,9 @@ program_data_files:
 ```
 
 ## 3.4、代码编译、烧录
--- 固件编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 固件编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
--- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 固件烧录方法可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 # 4、功能调试
 智能语音播放器支持，

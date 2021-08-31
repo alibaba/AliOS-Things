@@ -5,6 +5,8 @@
 #ifndef __UVOICE_TTS_H__
 #define __UVOICE_TTS_H__
 
+#include "uvoice_types.h"
+
 typedef enum {
     TTS_AICLOUD_ALIYUN = 0, /* aliyun tts service */
     /*if use aliyun tts service, please get app_key、token from aliyun，see https://help.aliyun.com/document_detail/84435.html?spm=a2c4g.11186623.2.30.355b5275kgR9PT
